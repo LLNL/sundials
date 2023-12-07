@@ -69,16 +69,10 @@ int arkSetDefaults(void* arkode_mem)
   ark_mem->user_rfun = SUNFALSE;      /* no user-supplied rwt function */
   ark_mem->rfun      = arkRwtSet;     /* built-in rwt function */
   ark_mem->r_data    = ark_mem;       /* rwt function data */
-  ark_mem->ehfun     = arkErrHandler; /* default error handler fn */
-  ark_mem->eh_data   = ark_mem;       /* error handler data */
-  ark_mem->errfp     = stderr;        /* output stream for errors */
-#if SUNDIALS_LOGGING_LEVEL > 0
-  ark_mem->errfp = (ARK_LOGGER->error_fp) ? ARK_LOGGER->error_fp : stderr;
-#endif
-  ark_mem->mxstep         = MXSTEP_DEFAULT; /* max number of steps */
-  ark_mem->mxhnil         = MXHNIL;         /* max warns of t+h==t */
-  ark_mem->maxnef         = MAXNEF;         /* max error test fails */
-  ark_mem->maxncf         = MAXNCF;         /* max convergence fails */
+  ark_mem->mxstep    = MXSTEP_DEFAULT;      /* max number of steps */
+  ark_mem->mxhnil    = MXHNIL;              /* max warns of t+h==t */
+  ark_mem->maxnef    = MAXNEF;              /* max error test fails */
+  ark_mem->maxncf    = MAXNCF;              /* max convergence fails */
   ark_mem->maxconstrfails = MAXCONSTRFAILS; /* max number of constraint fails */
   ark_mem->hin            = ZERO;       /* determine initial step on-the-fly */
   ark_mem->hmin           = ZERO;       /* no minimum step size */
@@ -224,56 +218,6 @@ int arkSetInterpolantDegree(void* arkode_mem, int degree)
 
   /* pass 'degree' to interpolation module, returning its value */
   return (arkInterpSetDegree(ark_mem, ark_mem->interp, degree));
-}
-
-/*---------------------------------------------------------------
-  arkSetErrHandlerFn:
-
-  Specifies the error handler function
-  ---------------------------------------------------------------*/
-int arkSetErrHandlerFn(void* arkode_mem, ARKErrHandlerFn ehfun, void* eh_data)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-
-  /* set user-provided values, or defaults, depending on argument */
-  if (ehfun == NULL)
-  {
-    ark_mem->ehfun   = arkErrHandler;
-    ark_mem->eh_data = ark_mem;
-  }
-  else
-  {
-    ark_mem->ehfun   = ehfun;
-    ark_mem->eh_data = eh_data;
-  }
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  arkSetErrFile:
-
-  Specifies the FILE pointer for output (NULL means no messages)
-  ---------------------------------------------------------------*/
-int arkSetErrFile(void* arkode_mem, FILE* errfp)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem        = (ARKodeMem)arkode_mem;
-  ark_mem->errfp = errfp;
-  return (ARK_SUCCESS);
 }
 
 /*---------------------------------------------------------------

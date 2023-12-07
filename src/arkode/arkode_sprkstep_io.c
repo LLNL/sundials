@@ -43,16 +43,6 @@ int SPRKStepSetInterpolantType(void* arkode_mem, int itype)
   return (arkSetInterpolantType(arkode_mem, itype));
 }
 
-int SPRKStepSetErrHandlerFn(void* arkode_mem, ARKErrHandlerFn ehfun, void* eh_data)
-{
-  return (arkSetErrHandlerFn(arkode_mem, ehfun, eh_data));
-}
-
-int SPRKStepSetErrFile(void* arkode_mem, FILE* errfp)
-{
-  return (arkSetErrFile(arkode_mem, errfp));
-}
-
 int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps)
 {
   return (arkSetMaxNumSteps(arkode_mem, mxsteps));

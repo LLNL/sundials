@@ -43,16 +43,6 @@ int MRIStepSetInterpolantType(void* arkode_mem, int itype)
   return (arkSetInterpolantType(arkode_mem, itype));
 }
 
-int MRIStepSetErrHandlerFn(void* arkode_mem, ARKErrHandlerFn ehfun, void* eh_data)
-{
-  return (arkSetErrHandlerFn(arkode_mem, ehfun, eh_data));
-}
-
-int MRIStepSetErrFile(void* arkode_mem, FILE* errfp)
-{
-  return (arkSetErrFile(arkode_mem, errfp));
-}
-
 int MRIStepSetMaxNumSteps(void* arkode_mem, long int mxsteps)
 {
   return (arkSetMaxNumSteps(arkode_mem, mxsteps));

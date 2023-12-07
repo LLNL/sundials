@@ -1020,57 +1020,6 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
       Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
-.. c:function:: int ARKStepSetErrFile(void* arkode_mem, FILE* errfp)
-
-   Specifies a pointer to the file where all ARKStep warning and error
-   messages will be written if the default internal error handling
-   function is used.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *errfp* -- pointer to the output file.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-      The default value for *errfp* is ``stderr``.
-
-      Passing a ``NULL`` value disables all future error message output
-      (except for the case wherein the ARKStep memory pointer is
-      ``NULL``).  This use of the function is strongly discouraged.
-
-      If used, this routine should be called before any other
-      optional input functions, in order to take effect for subsequent
-      error messages.
-
-
-
-.. c:function:: int ARKStepSetErrHandlerFn(void* arkode_mem, ARKErrHandlerFn ehfun, void* eh_data)
-
-   Specifies the optional user-defined function to be used
-   in handling error messages.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *ehfun* -- name of user-supplied error handler function.
-      * *eh_data* -- pointer to user data passed to *ehfun* every time
-        it is called.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-      Error messages indicating that the ARKStep solver memory is
-      ``NULL`` will always be directed to ``stderr``.
-
-
-
-
 .. c:function:: int ARKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed)
 
    Disables time step adaptivity within ARKStep, and specifies the

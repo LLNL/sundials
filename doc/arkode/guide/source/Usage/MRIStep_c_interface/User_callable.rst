@@ -857,65 +857,6 @@ Optional inputs for MRIStep
       Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
-.. c:function:: int MRIStepSetErrFile(void* arkode_mem, FILE* errfp)
-
-   Specifies a pointer to the file where all MRIStep warning and error
-   messages will be written if the default internal error handling
-   function is used.
-
-   **Arguments:**
-
-   * *arkode_mem* -- pointer to the MRIStep memory block.
-
-   * *errfp* -- pointer to the output file.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:** The default value for *errfp* is ``stderr``.
-
-   Passing a ``NULL`` value disables all future error message output
-   (except for the case wherein the MRIStep memory pointer is
-   ``NULL``).  This use of the function is strongly discouraged.
-
-   If used, this routine should be called before any other
-   optional input functions, in order to take effect for subsequent
-   error messages.
-
-
-
-.. c:function:: int MRIStepSetErrHandlerFn(void* arkode_mem, ARKErrHandlerFn ehfun, void* eh_data)
-
-   Specifies the optional user-defined function to be used
-   in handling error messages.
-
-   **Arguments:**
-
-   * *arkode_mem* -- pointer to the MRIStep memory block.
-
-   * *ehfun* -- name of user-supplied error handler function.
-
-   * *eh_data* -- pointer to user data passed to *ehfun* every time
-     it is called.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:** Error messages indicating that the MRIStep solver memory is
-   ``NULL`` will always be directed to ``stderr``.
-
-
-
 
 .. c:function:: int MRIStepSetFixedStep(void* arkode_mem, sunrealtype hs)
 

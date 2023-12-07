@@ -209,11 +209,6 @@ SUNDIALS_EXPORT int MRIStepSetFixedStep(void *arkode_mem,
 SUNDIALS_EXPORT int MRIStepSetRootDirection(void *arkode_mem,
                                             int *rootdir);
 SUNDIALS_EXPORT int MRIStepSetNoInactiveRootWarn(void *arkode_mem);
-SUNDIALS_EXPORT int MRIStepSetErrHandlerFn(void *arkode_mem,
-                                           ARKErrHandlerFn ehfun,
-                                           void *eh_data);
-SUNDIALS_EXPORT int MRIStepSetErrFile(void *arkode_mem,
-                                      FILE *errfp);
 SUNDIALS_EXPORT int MRIStepSetUserData(void *arkode_mem,
                                        void *user_data);
 SUNDIALS_EXPORT int MRIStepSetPostprocessStepFn(void *arkode_mem,

@@ -412,11 +412,6 @@ struct ARKodeMemRec
   sunbooleantype initialized;  /* denotes arkInitialSetup has been done      */
   sunbooleantype call_fullrhs; /* denotes the full RHS fn will be called     */
 
-  /* Error handler function and error ouput file */
-  ARKErrHandlerFn ehfun;    /* error messages are handled by ehfun        */
-  void           *eh_data;  /* data pointer passed to ehfun               */
-  FILE           *errfp;    /* ARKODE error messages are sent to errfp    */
-
   /* Rootfinding Data */
   ARKodeRootMem root_mem;          /* root-finding structure */
 
@@ -1001,10 +996,6 @@ int arkSetDefaults(void *arkode_mem);
 int arkSetDenseOrder(void *arkode_mem, int dord);
 int arkSetInterpolantType(void *arkode_mem, int itype);
 int arkSetInterpolantDegree(void *arkode_mem, int degree);
-int arkSetErrHandlerFn(void *arkode_mem,
-                       ARKErrHandlerFn ehfun,
-                       void *eh_data);
-int arkSetErrFile(void *arkode_mem, FILE *errfp);
 int arkSetUserData(void *arkode_mem, void *user_data);
 int arkSetMaxNumSteps(void *arkode_mem, long int mxsteps);
 int arkSetMaxHnilWarns(void *arkode_mem, int mxhnil);

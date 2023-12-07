@@ -210,11 +210,6 @@ SUNDIALS_EXPORT int ARKStepSetRootDirection(void *arkode_mem,
                                             int *rootdir);
 SUNDIALS_EXPORT int ARKStepSetNoInactiveRootWarn(void *arkode_mem);
 
-SUNDIALS_EXPORT int ARKStepSetErrHandlerFn(void *arkode_mem,
-                                           ARKErrHandlerFn ehfun,
-                                           void *eh_data);
-SUNDIALS_EXPORT int ARKStepSetErrFile(void *arkode_mem,
-                                      FILE *errfp);
 SUNDIALS_EXPORT int ARKStepSetUserData(void *arkode_mem,
                                        void *user_data);
 

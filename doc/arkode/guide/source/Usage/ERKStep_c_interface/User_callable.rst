@@ -672,30 +672,6 @@ Optional inputs for ERKStep
       error messages.
 
 
-
-.. c:function:: int ERKStepSetErrHandlerFn(void* arkode_mem, ARKErrHandlerFn ehfun, void* eh_data)
-
-   Specifies the optional user-defined function to be used
-   in handling error messages.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *ehfun* -- name of user-supplied error handler function.
-      * *eh_data* -- pointer to user data passed to *ehfun* every time
-        it is called.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-      Error messages indicating that the ERKStep solver memory is
-      ``NULL`` will always be directed to ``stderr``.
-
-
-
-
 .. c:function:: int ERKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed)
 
    Disabled time step adaptivity within ERKStep, and specifies the

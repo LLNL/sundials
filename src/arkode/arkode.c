@@ -31,6 +31,7 @@
 
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials/priv/sundials_errors_impl.h"
 #include "sundials_utils.h"
 
 /*===============================================================
@@ -1304,33 +1305,6 @@ int arkRwtSet(N_Vector y, N_Vector weight, void* data)
   return (flag);
 }
 
-/*---------------------------------------------------------------
-  arkErrHandler is the default error handling function.
-  It sends the error message to the stream pointed to by ark_errfp
-  ---------------------------------------------------------------*/
-void arkErrHandler(int error_code, const char* module, const char* function,
-                   char* msg, void* data)
-{
-  ARKodeMem ark_mem;
-  char err_type[10];
-
-  /* data points to ark_mem here */
-  ark_mem = (ARKodeMem)data;
-
-  if (error_code == ARK_WARNING) { sprintf(err_type, "WARNING"); }
-  else { sprintf(err_type, "ERROR"); }
-
-#ifndef NO_FPRINTF_OUTPUT
-  if (ark_mem->errfp != NULL)
-  {
-    fprintf(ark_mem->errfp, "\n[%s %s]  %s\n", module, err_type, function);
-    fprintf(ark_mem->errfp, "  %s\n\n", msg);
-  }
-#endif
-
-  return;
-}
-
 /*===============================================================
   Private Helper Functions
   ===============================================================*/
@@ -1340,8 +1314,7 @@ void arkErrHandler(int error_code, const char* module, const char* function,
 
   arkInit allocates and initializes memory for a problem. All
   inputs are checked for errors. If any error occurs during
-  initialization, it is reported to the file whose file pointer
-  is errfp and an error flag is returned. Otherwise, it returns
+  initialization, an error flag is returned. Otherwise, it returns
   ARK_SUCCESS.  This routine should be called by an ARKODE
   timestepper module (not by the user).  This routine must be
   called prior to calling arkEvolve to evolve the problem. The
@@ -3339,10 +3312,8 @@ int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
 }
 
 /*---------------------------------------------------------------
-  arkProcessError is a high level error handling function
-  - if ark_mem==NULL it prints the error message to stderr
-  - otherwise, it sets-up and calls the error handling function
-    pointed to by ark_ehfun
+  arkProcessError is a high level error handling function that
+  calls the appropriate SUNDIALS error handler
   ---------------------------------------------------------------*/
 void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
                      const char* func, const char* file, const char* msgfmt, ...)
@@ -3358,12 +3329,8 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
   vsnprintf(msg, msglen, msgfmt, ap);
 
   if (ark_mem == NULL)
-  { /* We write to stderr */
-
-#ifndef NO_FPRINTF_OUTPUT
-    fprintf(stderr, "\n[ARKODE ERROR]  %s at %s:%d\n  ", func, __FILE__, line);
-    fprintf(stderr, "%s\n\n", msg);
-#endif
+  { 
+    SUNGlobalFallbackErrHandler(line, func, file, msg, error_code);
   }
   else
   {

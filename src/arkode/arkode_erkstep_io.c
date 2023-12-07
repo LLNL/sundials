@@ -46,16 +46,6 @@ int ERKStepSetInterpolantType(void* arkode_mem, int itype)
   return (arkSetInterpolantType(arkode_mem, itype));
 }
 
-int ERKStepSetErrHandlerFn(void* arkode_mem, ARKErrHandlerFn ehfun, void* eh_data)
-{
-  return (arkSetErrHandlerFn(arkode_mem, ehfun, eh_data));
-}
-
-int ERKStepSetErrFile(void* arkode_mem, FILE* errfp)
-{
-  return (arkSetErrFile(arkode_mem, errfp));
-}
-
 int ERKStepSetUserData(void* arkode_mem, void* user_data)
 {
   return (arkSetUserData(arkode_mem, user_data));
