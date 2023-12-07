@@ -220,7 +220,7 @@ SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
   {
     if (helper->content)
     {
-      SUNAssertNull(!helper->ops->clone, SUN_ERR_NOT_IMPLEMENTED);
+      SUNAssertNull(helper->ops->clone, SUN_ERR_NOT_IMPLEMENTED);
       return (NULL);
     }
     else

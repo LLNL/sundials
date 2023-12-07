@@ -59,7 +59,7 @@ __global__ void cvEwtSetSS_kernel(const sunindextype length,
                                   sunrealtype* weight)
 {
   const sunrealtype one = 1.0;
-  GRID_STRIDE_XLOOP(sunindextype, i, length);
+  GRID_STRIDE_XLOOP(sunindextype, i, length)
   {
     // N_VAbs(ycur, cv_mem->cv_tempv);
     // N_VScale(cv_mem->cv_reltol, cv_mem->cv_tempv, cv_mem->cv_tempv);
