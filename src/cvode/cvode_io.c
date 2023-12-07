@@ -721,7 +721,7 @@ int CVodeSetStopTime(void* cvode_mem, sunrealtype tstop)
     if ((tstop - cv_mem->cv_tn) * cv_mem->cv_h < ZERO)
     {
       cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
-                     MSGCV_BAD_TSTOP);
+                     MSGCV_BAD_TSTOP, tstop, cv_mem->cv_tn);
       return (CV_ILL_INPUT);
     }
   }

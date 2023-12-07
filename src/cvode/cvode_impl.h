@@ -620,8 +620,6 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void *data);
 
 /* High level error handler */
 
-// void cvProcessError(CVodeMem cv_mem, int error_code, const char* module,
-                    // const char* fname, const char* msgfmt, ...);
 void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char *func,
                     const char *file, const char *msgfmt, ...);
 
