@@ -62,9 +62,6 @@ endforeach(example_tuple ${FIDA_examples})
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_serial)
-
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "IDA")
   set(SOLVER_LIB "sundials_ida")

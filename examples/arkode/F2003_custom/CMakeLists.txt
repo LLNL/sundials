@@ -113,9 +113,6 @@ endforeach(example_tuple ${FARKODE_tests})
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_custom)
-
   # Install the extra files
   foreach(extrafile ${ARKODE_extras})
     install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_custom)

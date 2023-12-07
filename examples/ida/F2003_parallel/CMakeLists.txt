@@ -96,10 +96,6 @@ endforeach(example_tuple ${FIDA_examples})
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_parallel)
-
   # Install the extra files
   foreach(extrafile ${IDA_extras})
     install(FILES ${extrafile}

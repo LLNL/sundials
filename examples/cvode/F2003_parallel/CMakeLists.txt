@@ -98,10 +98,6 @@ endforeach(example_tuple ${FCVODE_examples})
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_parallel)
-
   # Install the extra files
   foreach(extrafile ${CVODE_extras})
     install(FILES ${extrafile}

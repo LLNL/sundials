@@ -173,9 +173,6 @@ endif()
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial)
-
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "CVODE")
   set(SOLVER_LIB "sundials_cvode")

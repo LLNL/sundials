@@ -82,9 +82,6 @@ endforeach(example_tuple ${FIDA_examples_OMP})
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp)
-
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "IDA")
   set(SOLVER_LIB "sundials_ida")
