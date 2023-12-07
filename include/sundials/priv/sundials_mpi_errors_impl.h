@@ -40,7 +40,7 @@
     {                                                                          \
       SUNHandleErrWithMsg(__LINE__, __func__, __FILE__, msg, SUN_ERR_MPI_FAIL, \
                           SUNCTX_);                                            \
-      return SUN_ERR_MPI_FAIL;     s                                            \
+      return SUN_ERR_MPI_FAIL;                                                 \
     }                                                                          \
   }                                                                            \
   while (0)

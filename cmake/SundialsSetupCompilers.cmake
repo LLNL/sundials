@@ -470,3 +470,26 @@ foreach(lang ${_SUNDIALS_ENABLED_LANGS})
     set(_EXAMPLES_${lang}_COMPILER "${CMAKE_${lang}_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
   endif()
 endforeach()
+
+
+# ===============================================================
+# Configure clang-tidy for linting
+# ===============================================================
+
+if(SUNDIALS_DEV_CLANG_TIDY)
+  make_directory(${CMAKE_BINARY_DIR}/clang-tidy)
+  if(SUNDIALS_DEV_CLANG_TIDY_FIX_ERRORS)
+    set(CMAKE_C_CLANG_TIDY clang-tidy -format-style='file' --fix)
+    set(CMAKE_CXX_CLANG_TIDY clang-tidy -format-style='file' --fix)
+  else()
+    set(CMAKE_C_CLANG_TIDY clang-tidy 
+      -format-style='file' 
+      --export-fixes=${CMAKE_BINARY_DIR}/clang-tidy/clang-tidy-fixes.yaml
+    )
+    set(CMAKE_CXX_CLANG_TIDY 
+      clang-tidy 
+      -format-style='file' 
+      --export-fixes=${CMAKE_B_DIR}/clang-tidy/clang-tidy-cxx-fixes.yaml
+    )
+  endif()
+endif()
