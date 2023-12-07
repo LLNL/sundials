@@ -317,10 +317,12 @@ sundials_option(SUNDIALS_TEST_DEVTESTS BOOL
 sundials_option(SUNDIALS_TEST_UNITTESTS BOOL
   "Include unit tests in make test" OFF ADVANCED)
 
-# Include unit tests in regression tests
+# Disable unit tests that use GTest
 sundials_option(SUNDIALS_TEST_DISABLE_GTEST BOOL
-  "Diable GTest unit tests" OFF ADVANCED)
+  "Disable GTest unit tests" OFF ADVANCED)
 
+sundials_option(SUNDIALS_DEV_CLANG_TIDY BOOL
+  "Enable the clang-tidy linter" OFF ADVANCED)
 
 sundials_option(SUNDIALS_SCHEDULER_COMMAND STRING "Job scheduler command to use to launch SUNDIALS MPI tests" "" ADVANCED)
 
