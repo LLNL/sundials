@@ -21,10 +21,11 @@
 #include <cstdlib>
 #include <cstring>
 #include <mpi.h>
-#include <nvector/nvector_kokkos.hpp>
-#include <nvector/nvector_mpiplusx.h>
-#include <sundials/sundials_core.hpp>
 
+#include <sundials/sundials_core.hpp>
+#include <nvector/nvector_mpiplusx.h>
+#include <nvector/nvector_kokkos.hpp>
+#include "check_retval.h"
 #include "ParallelGrid.hpp"
 #include "check_retval.h"
 

@@ -39,8 +39,12 @@
 #include <nvector/nvector_serial.h> /* access to serial N_Vector            */
 #include <stdio.h>
 #include <stdlib.h>
-#include <sunlinsol/sunlinsol_band.h> /* access to band SUNLinearSolver       */
-#include <sunmatrix/sunmatrix_band.h> /* access to band SUNMatrix             */
+#include <math.h>
+
+#include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
+#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
 
 /* Problem Constants */
 
@@ -91,7 +95,7 @@ static void PrintFinalStats(void* cvode_mem);
 
 /* Private function to check function return values */
 
-static int check_retval(int retval, const char* funcname);
+static int check_retval(int retval, const char *funcname);
 
 /* Functions Called by the Solver */
 
@@ -128,7 +132,7 @@ int main(void)
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if (check_retval(retval, "SUNContext_Create")) { return (1); }
+  if(check_retval(retval, "SUNContext_Create")) return(1);
 
   /* Setup different error handler stack so that we abort after logging */
   SUNContext_PopErrHandler(sunctx);
@@ -137,33 +141,30 @@ int main(void)
 
   /* Get a reference to the profiler */
   retval = SUNContext_GetProfiler(sunctx, &profobj);
-  if (check_retval(retval, "SUNContext_GetProfiler")) { return (1); }
+  if(check_retval(retval, "SUNContext_GetProfiler")) return(1);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(profobj);
 
   /* Create a serial vector */
 
-  u = N_VNew_Serial(NEQ, sunctx); /* Allocate u vector */
-  if (check_retval(SUNContext_GetLastError(sunctx), "N_VNew_Serial"))
-  {
-    return (1);
-  }
+  u = N_VNew_Serial(NEQ, sunctx);  /* Allocate u vector */
+  if(check_retval(SUNContext_GetLastError(sunctx), "N_VNew_Serial")) return(1);
 
   reltol = ZERO; /* Set the tolerances */
   abstol = ATOL;
 
-  data = (UserData)malloc(sizeof *data); /* Allocate data memory */
+  data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
   if (!data)
   {
     fprintf(stderr, "MEMORY_ERROR: malloc failed - returned NULL pointer\n");
-    return 1;
+    return 1; 
   }
 
-  dx = data->dx = XMAX / (MX + 1); /* Set grid coefficients in data */
-  dy = data->dy = YMAX / (MY + 1);
-  data->hdcoef  = ONE / (dx * dx);
-  data->hacoef  = HALF / (TWO * dx);
-  data->vdcoef  = ONE / (dy * dy);
+  dx = data->dx = XMAX/(MX+1);  /* Set grid coefficients in data */
+  dy = data->dy = YMAX/(MY+1);
+  data->hdcoef  = ONE/(dx*dx);
+  data->hacoef  = HALF/(TWO*dx);
+  data->vdcoef  = ONE/(dy*dy);
   data->profobj = profobj;
 
   SUNDIALS_MARK_BEGIN(profobj, "Setup");
@@ -174,48 +175,39 @@ int main(void)
    * Backward Differentiation Formula */
 
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval(SUNContext_GetLastError(sunctx), "CVodeCreate"))
-  {
-    return (1);
-  }
+  if(check_retval(SUNContext_GetLastError(sunctx), "CVodeCreate")) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if (check_retval(retval, "CVodeInit")) { return (1); }
+  if(check_retval(retval, "CVodeInit")) return(1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerance */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_retval(retval, "CVodeSStolerances")) { return (1); }
+  if (check_retval(retval, "CVodeSStolerances")) return(1);
 
   /* Set the pointer to user-defined data */
   retval = CVodeSetUserData(cvode_mem, data);
-  if (check_retval(retval, "CVodeSetUserData")) { return (1); }
+  if(check_retval(retval, "CVodeSetUserData")) return(1);
 
   /* Create banded SUNMatrix for use in linear solves -- since this will be factored,
      set the storage bandwidth to be the sum of upper and lower bandwidths */
   A = SUNBandMatrix(NEQ, MY, MY, sunctx);
-  if (check_retval(SUNContext_GetLastError(sunctx), "SUNBandMatrix"))
-  {
-    return (1);
-  }
+  if(check_retval(SUNContext_GetLastError(sunctx), "SUNBandMatrix")) return(1);
 
   /* Create banded SUNLinearSolver object for use by CVode */
   LS = SUNLinSol_Band(u, A, sunctx);
-  if (check_retval(SUNContext_GetLastError(sunctx), "SUNLinSol_Band"))
-  {
-    return (1);
-  }
+  if(check_retval(SUNContext_GetLastError(sunctx), "SUNLinSol_Band")) return(1);
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if (check_retval(retval, "CVodeSetLinearSolver")) { return (1); }
+  if(check_retval(retval, "CVodeSetLinearSolver")) return(1);
 
   /* Set the user-supplied Jacobian routine Jac */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if (check_retval(retval, "CVodeSetJacFn")) { return (1); }
+  if(check_retval(retval, "CVodeSetJacFn")) return(1);
 
   SUNDIALS_MARK_END(profobj, "Setup");
 
@@ -227,8 +219,8 @@ int main(void)
   for (iout = 1, tout = T1; iout <= NOUT; iout++, tout += DTOUT)
   {
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if (check_retval(retval, "CVode")) { break; }
-    umax   = N_VMaxNorm(u);
+    if(check_retval(retval, "CVode")) break;
+    umax = N_VMaxNorm(u);
     retval = CVodeGetNumSteps(cvode_mem, &nst);
     check_retval(retval, "CVodeGetNumSteps");
     PrintOutput(t, umax, nst);
@@ -457,14 +449,14 @@ static void PrintFinalStats(void* cvode_mem)
 }
 
 /* Check function return value */
-static int check_retval(int retval, const char* funcname)
+static int check_retval(int retval, const char *funcname)
 {
   /* Check if retval < 0 */
-  if (retval < 0)
-  {
+  if (retval < 0) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
             funcname, retval);
-    return (1);
+    return(1);
+  } else {
+    return(0);
   }
-  else { return (0); }
 }

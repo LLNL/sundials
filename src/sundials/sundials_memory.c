@@ -14,13 +14,12 @@
  * SUNDIALS memory helper.
  * ----------------------------------------------------------------*/
 
-#include "sundials/sundials_memory.h"
-
 #include <string.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
 
 #include "sundials/sundials_errors.h"
+#include "sundials/sundials_memory.h"
 #include "sundials/sundials_types.h"
 #include "sundials_debug.h"
 
@@ -34,7 +33,7 @@ static SUNProfiler getSUNProfiler(SUNMemoryHelper H)
 SUNMemory SUNMemoryNewEmpty(SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
-
+  
   SUNMemory mem = NULL;
 
   mem = (SUNMemory)malloc(sizeof(struct SUNMemory_));
@@ -47,8 +46,8 @@ SUNMemory SUNMemoryNewEmpty(SUNContext sunctx)
 
 SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
 {
-  if (sunctx == NULL) { return NULL; }
-
+  if (sunctx == NULL) return NULL;
+  
   SUNFunctionBegin(sunctx);
   SUNMemoryHelper helper = NULL;
 
@@ -96,20 +95,20 @@ SUNMemory SUNMemoryHelper_Alias(SUNMemoryHelper helper, SUNMemory mem)
   return alias;
 }
 
-SUNMemory SUNMemoryHelper_Wrap(SUNMemoryHelper helper, void* ptr,
-                               SUNMemoryType mem_type)
+SUNMemory SUNMemoryHelper_Wrap(SUNMemoryHelper helper, void* ptr, SUNMemoryType mem_type)
 {
   SUNFunctionBegin(helper->sunctx);
 
-  SUNCheckNull(mem_type == SUNMEMTYPE_HOST || mem_type == SUNMEMTYPE_PINNED ||
-                 mem_type == SUNMEMTYPE_DEVICE || mem_type == SUNMEMTYPE_UVM,
-               SUN_ERR_ARG_OUTOFRANGE);
+  SUNCheckNull(mem_type == SUNMEMTYPE_HOST ||
+               mem_type == SUNMEMTYPE_PINNED ||
+               mem_type == SUNMEMTYPE_DEVICE ||
+               mem_type == SUNMEMTYPE_UVM, SUN_ERR_ARG_OUTOFRANGE);
 
   SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
   SUNCheckLastErrNull();
 
-  mem->ptr  = ptr;
-  mem->own  = SUNFALSE;
+  mem->ptr = ptr;
+  mem->own = SUNFALSE;
   mem->type = mem_type;
 
   return mem;
@@ -191,10 +190,11 @@ SUNErrCode SUNMemoryHelper_Destroy(SUNMemoryHelper helper)
   SUNErrCode err = SUN_SUCCESS;
   SUNFunctionBegin(helper->sunctx);
 
-  if (!helper) { return err; }
+  if (!helper) {
+    return err;
+  }
 
-  if (helper->content)
-  {
+  if (helper->content) {
     SUNAssert(helper->ops->destroy, SUN_ERR_NOT_IMPLEMENTED);
   }
 
@@ -226,7 +226,7 @@ SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
     else
     {
       SUNMemoryHelper hclone = SUNMemoryHelper_NewEmpty(helper->sunctx);
-      if (hclone) { SUNMemoryHelper_CopyOps(helper, hclone); }
+      if (hclone) SUNMemoryHelper_CopyOps(helper, hclone);
       return (hclone);
     }
   }

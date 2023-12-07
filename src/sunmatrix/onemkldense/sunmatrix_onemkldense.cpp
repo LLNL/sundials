@@ -265,8 +265,7 @@ int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
   }
 
   // Wrap the input pointer
-  SUNMemory _h_data = SUNMemoryHelper_Wrap(MAT_MEMHELPER(A), h_data,
-                                           SUNMEMTYPE_HOST);
+  SUNMemory _h_data = SUNMemoryHelper_Wrap(MAT_MEMHELPER(A), h_data, SUNMEMTYPE_HOST);
   if (!_h_data)
   {
     SUNDIALS_DEBUG_ERROR("SUNMemory wrap failed\n");
@@ -299,8 +298,7 @@ int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
     return SUNMAT_ILL_INPUT;
   }
 
-  SUNMemory _h_data = SUNMemoryHelper_Wrap(MAT_MEMHELPER(A), h_data,
-                                           SUNMEMTYPE_HOST);
+  SUNMemory _h_data = SUNMemoryHelper_Wrap(MAT_MEMHELPER(A), h_data, SUNMEMTYPE_HOST);
   if (!_h_data)
   {
     SUNDIALS_DEBUG_ERROR("SUNMemory wrap failed\n");

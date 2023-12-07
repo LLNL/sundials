@@ -19,9 +19,8 @@
  * -----------------------------------------------------------------*/
 
 #include <stdlib.h>
-#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
-
+#include <sundials/priv/sundials_errors_impl.h>
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_types.h"
 
@@ -35,20 +34,20 @@ static SUNProfiler getSUNProfiler(SUNMatrix A) { return (A->sunctx->profiler); }
 
 SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
 {
-  if (sunctx == NULL) { return NULL; }
+  if (sunctx == NULL) return NULL;
 
   SUNFunctionBegin(sunctx);
-  SUNMatrix A;
+  SUNMatrix     A;
   SUNMatrix_Ops ops;
 
   /* create matrix object */
   A = NULL;
-  A = (SUNMatrix)malloc(sizeof *A);
+  A = (SUNMatrix) malloc(sizeof *A);
   SUNAssertNull(A, SUN_ERR_MALLOC_FAIL);
 
   /* create matrix ops structure */
   ops = NULL;
-  ops = (SUNMatrix_Ops)malloc(sizeof *ops);
+  ops = (SUNMatrix_Ops) malloc(sizeof *ops);
   SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
@@ -221,7 +220,7 @@ SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
   return (ier);
 }
 
-SUNErrCode SUNMatSpace(SUNMatrix A, long int* lenrw, long int* leniw)
+SUNErrCode SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));

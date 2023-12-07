@@ -23,6 +23,7 @@
 #include <sundials/sundials_nvector_senswrapper.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
+#include <sundials/priv/sundials_context_impl.h>
 #include "sundials_logger_impl.h"
 
 /* Content structure accessibility macros  */

@@ -20,7 +20,7 @@
 static inline char* combineFileAndLine(int line, const char* file)
 {
   size_t total_str_len = strlen(file) + 6;
-  char* file_and_line  = malloc(total_str_len * sizeof(char));
+  char* file_and_line = malloc(total_str_len * sizeof(char));
   snprintf(file_and_line, total_str_len, "%s:%d", file, line);
   return file_and_line;
 }
@@ -43,9 +43,9 @@ SUNErrCode SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data,
 
 void SUNErrHandler_Destroy(SUNErrHandler* eh)
 {
-  if (!eh || !(*eh)) { return; }
-  free(*eh);
-  *eh = NULL;
+  if (!eh || !(*eh)) { return; }  
+  free(*eh);  
+  *eh = NULL;  
 }
 
 const char* SUNGetErrMsg(SUNErrCode code)
@@ -63,8 +63,8 @@ const char* SUNGetErrMsg(SUNErrCode code)
 }
 
 void SUNLogErrHandlerFn(int line, const char* func, const char* file,
-                        const char* msg, SUNErrCode err_code,
-                        void* err_user_data, SUNContext sunctx)
+                        const char* msg, SUNErrCode err_code, void* err_user_data,
+                        SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
   if (msg == NULL) { msg = SUNGetErrMsg(err_code); }
@@ -74,8 +74,8 @@ void SUNLogErrHandlerFn(int line, const char* func, const char* file,
 }
 
 void SUNAbortErrHandlerFn(int line, const char* func, const char* file,
-                          const char* msg, SUNErrCode err_code,
-                          void* err_user_data, SUNContext sunctx)
+                          const char* msg, SUNErrCode err_code, void* err_user_data,
+                          SUNContext sunctx)
 {
   char* file_and_line = combineFileAndLine(line, file);
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,

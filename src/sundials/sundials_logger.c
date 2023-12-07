@@ -12,6 +12,9 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
+#include <sundials/priv/sundials_errors_impl.h>
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,8 +62,8 @@ static void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
   else if (lvl == SUN_LOGLEVEL_INFO) { prefix = "INFO"; }
   else if (lvl == SUN_LOGLEVEL_ERROR) { prefix = "ERROR"; }
 
-  msg_length = sunsnprintf(NULL, 0, "[%s][rank %d][%s][%s] %s\n", prefix, rank,
-                           scope, label, formatted_txt);
+  msg_length = sunsnprintf(NULL, 0, "[%s][rank %d][%s][%s] %s\n", prefix,
+                           rank, scope, label, formatted_txt);
   *log_msg   = (char*)malloc(msg_length + 1);
   sunsnprintf(*log_msg, msg_length + 1, "[%s][rank %d][%s][%s] %s\n", prefix,
               rank, scope, label, formatted_txt);
@@ -163,7 +166,7 @@ SUNErrCode SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger_ptr
 
 SUNErrCode SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger_out)
 {
-  SUNErrCode err   = SUN_SUCCESS;
+  SUNErrCode err = SUN_SUCCESS;
   SUNLogger logger = NULL;
 
   const char* output_rank_env   = getenv("SUNLOGGER_OUTPUT_RANK");
@@ -172,9 +175,8 @@ SUNErrCode SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger_out)
   const char* warning_fname_env = getenv("SUNLOGGER_WARNING_FILENAME");
   const char* info_fname_env    = getenv("SUNLOGGER_INFO_FILENAME");
   const char* debug_fname_env   = getenv("SUNLOGGER_DEBUG_FILENAME");
-
-  if (SUNLogger_Create(comm, output_rank, &logger))
-  {
+   
+  if (SUNLogger_Create(comm, output_rank, &logger)) {
     err = SUN_ERR_CORRUPT;
     return err;
   }
@@ -187,20 +189,22 @@ SUNErrCode SUNLogger_CreateFromEnv(SUNComm comm, SUNLogger* logger_out)
     err = SUNLogger_SetDebugFilename(logger, debug_fname_env);
     if (err) { break; }
     err = SUNLogger_SetInfoFilename(logger, info_fname_env);
-  }
-  while (0);
+  } while(0);
 
-  if (err) { SUNLogger_Destroy(&logger); }
-  else { *logger_out = logger; }
+  if (err) {
+    SUNLogger_Destroy(&logger);
+  } else {
+    *logger_out = logger;
+  }
 
   return err;
 }
 
 SUNErrCode SUNLogger_SetErrorFilename(SUNLogger logger, const char* error_filename)
 {
-  if (!logger) { return SUN_ERR_ARG_CORRUPT; }
+  if (!logger) { return SUN_ERR_ARG_CORRUPT; }  
 
-  if (!sunLoggerIsOutputRank(logger, NULL)) { return SUN_SUCCESS; }
+  if (!sunLoggerIsOutputRank(logger, NULL)) { return SUN_SUCCESS; } 
 
   if (error_filename && strcmp(error_filename, ""))
   {
@@ -218,7 +222,10 @@ SUNErrCode SUNLogger_SetErrorFilename(SUNLogger logger, const char* error_filena
         SUNHashMap_Insert(logger->filenames, error_filename,
                           (void*)logger->error_fp);
       }
-      else { return SUN_ERR_FILE_OPEN; }
+      else
+      {
+        return SUN_ERR_FILE_OPEN;
+      }
     }
 #endif
   }
@@ -226,8 +233,7 @@ SUNErrCode SUNLogger_SetErrorFilename(SUNLogger logger, const char* error_filena
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNLogger_SetWarningFilename(SUNLogger logger,
-                                        const char* warning_filename)
+SUNErrCode SUNLogger_SetWarningFilename(SUNLogger logger, const char* warning_filename)
 {
   if (!logger) { return SUN_ERR_ARG_CORRUPT; }
 
@@ -249,7 +255,10 @@ SUNErrCode SUNLogger_SetWarningFilename(SUNLogger logger,
         SUNHashMap_Insert(logger->filenames, warning_filename,
                           (void*)logger->warning_fp);
       }
-      else { return SUN_ERR_FILE_OPEN; }
+      else
+      {
+        return SUN_ERR_FILE_OPEN;
+      }
     }
 #endif
   }
@@ -279,7 +288,10 @@ SUNErrCode SUNLogger_SetInfoFilename(SUNLogger logger, const char* info_filename
         SUNHashMap_Insert(logger->filenames, info_filename,
                           (void*)logger->info_fp);
       }
-      else { return SUN_ERR_FILE_OPEN; }
+      else
+      {
+        return SUN_ERR_FILE_OPEN;
+      }
     }
 #endif
   }
@@ -309,7 +321,10 @@ SUNErrCode SUNLogger_SetDebugFilename(SUNLogger logger, const char* debug_filena
         SUNHashMap_Insert(logger->filenames, debug_filename,
                           (void*)logger->debug_fp);
       }
-      else { return SUN_ERR_FILE_OPEN; }
+      else
+      {
+        return SUN_ERR_FILE_OPEN;
+      }
     }
 #endif
   }
@@ -317,9 +332,8 @@ SUNErrCode SUNLogger_SetDebugFilename(SUNLogger logger, const char* debug_filena
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl,
-                              const char* scope, const char* label,
-                              const char* msg_txt, ...)
+SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl, const char* scope,
+                       const char* label, const char* msg_txt, ...)
 {
   SUNErrCode retval = SUN_SUCCESS;
 
@@ -349,22 +363,32 @@ SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl,
 
         switch (lvl)
         {
-        case (SUN_LOGLEVEL_DEBUG):
-          if (logger->debug_fp) { fprintf(logger->debug_fp, "%s", log_msg); }
-          break;
-        case (SUN_LOGLEVEL_WARNING):
-          if (logger->warning_fp)
-          {
-            fprintf(logger->warning_fp, "%s", log_msg);
-          }
-          break;
-        case (SUN_LOGLEVEL_INFO):
-          if (logger->info_fp) { fprintf(logger->info_fp, "%s", log_msg); }
-          break;
-        case (SUN_LOGLEVEL_ERROR):
-          if (logger->error_fp) { fprintf(logger->error_fp, "%s", log_msg); }
-          break;
-        default: retval = SUN_ERR_UNREACHABLE;
+          case (SUN_LOGLEVEL_DEBUG):
+            if (logger->debug_fp)
+            {
+              fprintf(logger->debug_fp, "%s", log_msg);
+            }
+            break;
+          case (SUN_LOGLEVEL_WARNING):
+            if (logger->warning_fp)
+            {
+              fprintf(logger->warning_fp, "%s", log_msg);
+            }
+            break;
+          case (SUN_LOGLEVEL_INFO):
+            if (logger->info_fp)
+            {
+              fprintf(logger->info_fp, "%s", log_msg);
+            }
+            break;
+          case (SUN_LOGLEVEL_ERROR):
+            if (logger->error_fp)
+            {
+              fprintf(logger->error_fp, "%s", log_msg);
+            }
+            break;
+          default:
+            retval = SUN_ERR_UNREACHABLE;
         }
 
         free(log_msg);
@@ -415,7 +439,8 @@ SUNErrCode SUNLogger_Flush(SUNLogger logger, SUNLogLevel lvl)
         if (logger->info_fp) { fflush(logger->info_fp); }
         if (logger->error_fp) { fflush(logger->error_fp); }
         break;
-      default: retval = SUN_ERR_UNREACHABLE;
+      default:
+        retval = SUN_ERR_UNREACHABLE;
       }
     }
   }
@@ -435,7 +460,7 @@ SUNErrCode SUNLogger_Destroy(SUNLogger* logger_ptr)
 {
   int retval       = 0;
   SUNLogger logger = NULL;
-
+  
   if (!logger_ptr) { return SUN_SUCCESS; }
 
   logger = *logger_ptr;

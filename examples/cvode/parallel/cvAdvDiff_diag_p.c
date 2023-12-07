@@ -44,6 +44,13 @@
 #include <nvector/nvector_parallel.h> /* access to MPI-parallel N_Vector     */
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+
+#include <cvode/cvode.h>                  /* prototypes for CVODE fcts., consts. */
+#include <cvode/cvode_diag.h>             /* prototypes for CVODE diagonal solver */
+#include <nvector/nvector_parallel.h>     /* access to MPI-parallel N_Vector     */
+#include <sundials/sundials_types.h>      /* definition of type realtype         */
+#include <sundials/sundials_mpi_errors.h>
 #include <sundials/sundials_logger.h>
 #include <sundials/sundials_mpi_errors.h>
 #include <sundials/sundials_types.h> /* definition of type realtype         */
@@ -125,6 +132,11 @@ int main(int argc, char* argv[])
   {
     MPI_Abort(comm, 1);
   }
+
+  /* Setup different error handler stack so that we abort after logging */
+  SUNContext_PopErrHandler(sunctx);
+  SUNContext_PushErrHandler(sunctx, SUNMPIAbortErrHandlerFn, NULL);
+  SUNContext_PushErrHandler(sunctx, SUNLogErrHandlerFn, NULL);
 
   /* Setup different error handler stack so that we abort after logging */
   SUNContext_PopErrHandler(sunctx);

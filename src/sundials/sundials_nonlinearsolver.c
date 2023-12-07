@@ -17,10 +17,10 @@
  * ---------------------------------------------------------------------------*/
 
 #include <stdlib.h>
-#include <sundials/priv/sundials_context_impl.h>
-#include <sundials/priv/sundials_errors_impl.h>
-#include <sundials/sundials_core.h>
 
+#include <sundials/sundials_core.h>
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/priv/sundials_context_impl.h>
 #include "sundials/sundials_errors.h"
 #include "sundials_logger_impl.h"
 
@@ -37,20 +37,20 @@ static SUNProfiler getSUNProfiler(SUNNonlinearSolver NLS)
 
 SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx)
 {
-  if (sunctx == NULL) { return NULL; }
-
+  if (sunctx == NULL) return NULL;
+  
   SUNFunctionBegin(sunctx);
-  SUNNonlinearSolver NLS;
+  SUNNonlinearSolver     NLS;
   SUNNonlinearSolver_Ops ops;
 
   /* create nonlinear solver object */
   NLS = NULL;
-  NLS = (SUNNonlinearSolver)malloc(sizeof *NLS);
+  NLS = (SUNNonlinearSolver) malloc(sizeof *NLS);
   SUNAssertNull(NLS, SUN_ERR_MALLOC_FAIL);
 
   /* create nonlinear solver ops structure */
   ops = NULL;
-  ops = (SUNNonlinearSolver_Ops)malloc(sizeof *ops);
+  ops = (SUNNonlinearSolver_Ops) malloc(sizeof *ops);
   SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
@@ -106,8 +106,10 @@ SUNErrCode SUNNonlinSolInitialize(SUNNonlinearSolver NLS)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(NLS));
-  if (NLS->ops->initialize) { ier = NLS->ops->initialize(NLS); }
-  else { ier = SUN_SUCCESS; }
+  if (NLS->ops->initialize)
+    ier = NLS->ops->initialize(NLS);
+  else
+    ier = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(NLS));
   return (ier);
 }
@@ -122,19 +124,20 @@ int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
   return (ier);
 }
 
-int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y, N_Vector w,
-                      sunrealtype tol, sunbooleantype callLSetup, void* mem)
+int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
+                      N_Vector w, sunrealtype tol, sunbooleantype callLSetup,
+                      void* mem)
 {
   int status;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(NLS));
   status = NLS->ops->solve(NLS, y0, y, w, tol, callLSetup, mem);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(NLS));
-  return (status);
+  return(status);
 }
 
 SUNErrCode SUNNonlinSolFree(SUNNonlinearSolver NLS)
 {
-  if (NLS == NULL) { return (SUN_SUCCESS); }
+  if (NLS == NULL) return(SUN_SUCCESS);
 
   /* if the free operation exists use it */
   if (NLS->ops)
@@ -157,7 +160,7 @@ SUNErrCode SUNNonlinSolFree(SUNNonlinearSolver NLS)
   free(NLS);
   NLS = NULL;
 
-  return (SUN_SUCCESS);
+  return(SUN_SUCCESS);
 }
 
 /* -----------------------------------------------------------------------------
@@ -167,41 +170,44 @@ SUNErrCode SUNNonlinSolFree(SUNNonlinearSolver NLS)
 /* set the nonlinear system function (required) */
 SUNErrCode SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 {
-  return (NLS->ops->setsysfn(NLS, SysFn));
+  return(NLS->ops->setsysfn(NLS, SysFn));
 }
 
 /* set the linear solver setup function (optional) */
-SUNErrCode SUNNonlinSolSetLSetupFn(SUNNonlinearSolver NLS,
-                                   SUNNonlinSolLSetupFn LSetupFn)
+SUNErrCode SUNNonlinSolSetLSetupFn(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn LSetupFn)
 {
-  if (NLS->ops->setlsetupfn) { return (NLS->ops->setlsetupfn(NLS, LSetupFn)); }
-  else { return (SUN_SUCCESS); }
+  if (NLS->ops->setlsetupfn)
+    return(NLS->ops->setlsetupfn(NLS, LSetupFn));
+  else
+    return(SUN_SUCCESS);
 }
 
 /* set the linear solver solve function (optional) */
-SUNErrCode SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS,
-                                   SUNNonlinSolLSolveFn LSolveFn)
+SUNErrCode SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn LSolveFn)
 {
-  if (NLS->ops->setlsolvefn) { return (NLS->ops->setlsolvefn(NLS, LSolveFn)); }
-  else { return (SUN_SUCCESS); }
+  if (NLS->ops->setlsolvefn)
+    return(NLS->ops->setlsolvefn(NLS, LSolveFn));
+  else
+    return(SUN_SUCCESS);
 }
 
 /* set the convergence test function (optional) */
 SUNErrCode SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS,
-                                     SUNNonlinSolConvTestFn CTestFn,
-                                     void* ctest_data)
+                              SUNNonlinSolConvTestFn CTestFn,
+                              void* ctest_data)
 {
   if (NLS->ops->setctestfn)
-  {
-    return (NLS->ops->setctestfn(NLS, CTestFn, ctest_data));
-  }
-  else { return (SUN_SUCCESS); }
+    return(NLS->ops->setctestfn(NLS, CTestFn, ctest_data));
+  else
+    return(SUN_SUCCESS);
 }
 
 SUNErrCode SUNNonlinSolSetMaxIters(SUNNonlinearSolver NLS, int maxiters)
 {
-  if (NLS->ops->setmaxiters) { return (NLS->ops->setmaxiters(NLS, maxiters)); }
-  else { return (SUN_SUCCESS); }
+  if (NLS->ops->setmaxiters)
+    return(NLS->ops->setmaxiters(NLS, maxiters));
+  else
+    return(SUN_SUCCESS);
 }
 
 /* -----------------------------------------------------------------------------
@@ -209,38 +215,34 @@ SUNErrCode SUNNonlinSolSetMaxIters(SUNNonlinearSolver NLS, int maxiters)
  * ---------------------------------------------------------------------------*/
 
 /* get the total number on nonlinear iterations (optional) */
-SUNErrCode SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int* niters)
+SUNErrCode SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int *niters)
 {
-  if (NLS->ops->getnumiters) { return (NLS->ops->getnumiters(NLS, niters)); }
-  else
-  {
+  if (NLS->ops->getnumiters) {
+    return(NLS->ops->getnumiters(NLS, niters));
+  } else {
     *niters = 0;
-    return (SUN_SUCCESS);
+    return(SUN_SUCCESS);
   }
 }
 
 /* get the iteration count for the current nonlinear solve */
-SUNErrCode SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int* iter)
+SUNErrCode SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int *iter)
 {
-  if (NLS->ops->getcuriter) { return (NLS->ops->getcuriter(NLS, iter)); }
-  else
-  {
+  if (NLS->ops->getcuriter) {
+    return(NLS->ops->getcuriter(NLS, iter));
+  } else {
     *iter = -1;
-    return (SUN_SUCCESS);
+    return(SUN_SUCCESS);
   }
 }
 
 /* get the total number on nonlinear solve convergence failures (optional) */
-SUNErrCode SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS,
-                                       long int* nconvfails)
+SUNErrCode SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int *nconvfails)
 {
-  if (NLS->ops->getnumconvfails)
-  {
-    return (NLS->ops->getnumconvfails(NLS, nconvfails));
-  }
-  else
-  {
+  if (NLS->ops->getnumconvfails) {
+    return(NLS->ops->getnumconvfails(NLS, nconvfails));
+  } else {
     *nconvfails = 0;
-    return (SUN_SUCCESS);
+    return(SUN_SUCCESS);
   }
 }

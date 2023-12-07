@@ -244,7 +244,7 @@ SUNComm N_VGetCommunicator_Trilinos(N_Vector x)
     xv->getMap()->getComm());
   return (*(comm->getRawMpiComm().get())); /* extract MPI_Comm */
 #else
-  return (SUN_COMM_NULL);
+  return(SUN_COMM_NULL);
 #endif
 }
 

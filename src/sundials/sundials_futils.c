@@ -15,14 +15,14 @@
  * -----------------------------------------------------------------*/
 
 #include <string.h>
-#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_errors.h>
+#include <sundials/priv/sundials_errors_impl.h>
 
 /* Create a file pointer with the given file name and mode. */
 SUNErrCode SUNDIALSFileOpen(const char* filename, const char* mode, FILE** fp_out)
 {
   SUNErrCode err = SUN_SUCCESS;
-  FILE* fp       = *fp_out;
+  FILE* fp = *fp_out;
 
   if (filename)
   {
@@ -32,7 +32,7 @@ SUNErrCode SUNDIALSFileOpen(const char* filename, const char* mode, FILE** fp_ou
   }
 
   if (!fp) { err = SUN_ERR_FILE_OPEN; }
-
+ 
   *fp_out = fp;
   return err;
 }
@@ -42,6 +42,9 @@ SUNErrCode SUNDIALSFileClose(FILE** fp_ptr)
 {
   if (!fp_ptr) { return SUN_SUCCESS; }
   FILE* fp = *fp_ptr;
-  if (fp && (fp != stdout) && (fp != stderr)) { fclose(fp); }
+  if (fp && (fp != stdout) && (fp != stderr))
+  {
+    fclose(fp);
+  }
   return SUN_SUCCESS;
 }

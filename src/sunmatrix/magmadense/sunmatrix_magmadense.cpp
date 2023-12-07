@@ -294,11 +294,10 @@ int SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix Amat, sunrealtype* h_data)
   if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE) { return (SUNMAT_ILL_INPUT); }
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
-  int retval        = 0;
-  SUNMemory _h_data = SUNMemoryHelper_Wrap(SMLD_CONTENT(Amat)->memhelp, h_data,
-                                           SUNMEMTYPE_HOST);
-  SUNDIALS_HIP_OR_CUDA(hipStream_t stream = magma_queue_get_hip_stream(A->q);
-                       , cudaStream_t stream = magma_queue_get_cuda_stream(A->q);)
+  int retval = 0;
+  SUNMemory _h_data = SUNMemoryHelper_Wrap(SMLD_CONTENT(Amat)->memhelp, h_data, SUNMEMTYPE_HOST);
+  SUNDIALS_HIP_OR_CUDA( hipStream_t stream = magma_queue_get_hip_stream(A->q);,
+                        cudaStream_t stream = magma_queue_get_cuda_stream(A->q); )
 
   retval = SUNMemoryHelper_CopyAsync(A->memhelp, A->data, _h_data,
                                      sizeof(sunrealtype) * A->ldata,
@@ -314,11 +313,10 @@ int SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix Amat, sunrealtype* h_data)
   if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE) { return (SUNMAT_ILL_INPUT); }
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
-  int retval        = 0;
-  SUNMemory _h_data = SUNMemoryHelper_Wrap(SMLD_CONTENT(Amat)->memhelp, h_data,
-                                           SUNMEMTYPE_HOST);
-  SUNDIALS_HIP_OR_CUDA(hipStream_t stream = magma_queue_get_hip_stream(A->q);
-                       , cudaStream_t stream = magma_queue_get_cuda_stream(A->q);)
+  int retval = 0;
+  SUNMemory _h_data = SUNMemoryHelper_Wrap(SMLD_CONTENT(Amat)->memhelp, h_data, SUNMEMTYPE_HOST);
+  SUNDIALS_HIP_OR_CUDA( hipStream_t stream = magma_queue_get_hip_stream(A->q);,
+                        cudaStream_t stream = magma_queue_get_cuda_stream(A->q); )
 
   retval = SUNMemoryHelper_CopyAsync(A->memhelp, _h_data, A->data,
                                      sizeof(sunrealtype) * A->ldata,
