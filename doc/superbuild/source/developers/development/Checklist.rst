@@ -84,4 +84,4 @@ system, etc. developers should adhere to the following checklist.
 
 #. If answer files changed, and it is expected/desired, then update the `.out` files
    that are embedded in the `examples/` directory AND the
-   `"answers" repository <https://github.com/sundials-codes/answers>_`. 
+   `"answers" repository <https://github.com/sundials-codes/answers>`_. 

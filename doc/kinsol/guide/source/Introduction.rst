@@ -108,7 +108,9 @@ CMake targets.
 Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
 **Major feature**
-SUNDIALS now has more robust and uniform error handling. See :numref:`SUNDIALS.Errors` for details.
+SUNDIALS now has more robust and uniform error handling. Non-release builds will
+be built with additional error checking by default. See :numref:`SUNDIALS.Errors`
+for details.
 
 **Deprecation notice**
 The functions in `sundials_math.h` will be deprecated in the next release.
@@ -169,7 +171,7 @@ and a typedef to a ``MPI_Comm`` in builds with MPI. Here is what this means:
   ``N_VGetCommunicator``, since it now returns a ``SUNComm``. 
 
 The change away from type-erased pointers for :c:type:`SUNComm` fixes problems like the 
-one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>_`.
+one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`_.
 
 **Breaking change**
 The SUNLogger is now always MPI-aware if MPI is enabled in SUNDIALS and the
