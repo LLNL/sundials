@@ -27,6 +27,10 @@
 #include "sundials/sundials_logger.h"
 #include "sundials/sundials_types.h"
 
+#ifdef __cplusplus /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 /* ----------------------------------------------------------------------------
  * SUNErrHandler_ definition.
  * ---------------------------------------------------------------------------*/
@@ -142,6 +146,10 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
   va_end(values);
   free(msg);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 /*
   The SUNCTX_ macro expands to the name of the local SUNContext object
