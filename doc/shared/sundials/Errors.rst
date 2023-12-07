@@ -17,11 +17,7 @@ Error Checking
 
 .. versionadded:: 7.0.0
 
-Until version 7.0.0, error reporting and handling was inconsistent throughout SUNDIALS. The SUNDIALS
-core was hit and miss with error reporting via return codes and output no error messages. The
-packages of SUNDIALS (CVODE, ARKODE etc.) all reported errors through package specific ``int`` codes
-and error handler callbacks. The packages defaulted to printing error messages to a file, stdout, or
-stderr. Starting with version 7.0.0 all of SUNDIALS (the core, implementations of core modules, and
+Until version 7.0.0, error reporting and handling was inconsistent throughout SUNDIALS. Starting with version 7.0.0 all of SUNDIALS (the core, implementations of core modules, and
 packages) reports error mesages through the :c:type:`SUNLogger` API. Furthermore, functions in the
 SUNDIALS core API (i.e., ``SUN`` or ``N_V`` functions only) either return a :c:type:`SUNErrCode`, or
 (if they don't return a :c:type:`SUNErrCode`) they internally record an error code (if an error
