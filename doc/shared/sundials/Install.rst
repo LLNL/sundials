@@ -527,15 +527,6 @@ illustration only.
 
    Default: ``sm_30``
 
-.. cmakeoption:: ENABLE_XBRAID
-
-   Enable or disable the ARKStep + XBraid interface.
-
-   Default: ``OFF``
-
-   .. note:: See additional information on building with *XBraid*
-             enabled in  :numref:`Installation.CMake.ExternalLibraries`.
-
 .. cmakeoption:: EXAMPLES_ENABLE_C
 
    Build the SUNDIALS C examples
@@ -598,6 +589,55 @@ illustration only.
    Enable Fortran 2003 interface
 
    Default: ``OFF``
+
+.. cmakeoption:: SUNDIALS_LOGGING_LEVEL
+
+   Set the maximum logging level for the SUNLogger runtime API. The higher this is set,
+   the more output that may be logged, and the more performance may degrade. The options are:
+
+   - ``0`` -- no logging
+   - ``1`` -- log errors
+   - ``2`` -- log errors + warnings
+   - ``3`` -- log errors + warnings + informational output
+   - ``4`` -- log errors + warnings + informational output + debug output
+   - ``5`` -- log all of the above and even more (e.g. vector valued variables may be logged)
+
+   Default: 0
+
+
+.. cmakeoption:: SUNDIALS_BUILD_WITH_MONITORING
+
+   Build SUNDIALS with capabilties for fine-grained monitoring of solver progress
+   and statistics. This is primarily useful for debugging.
+
+   Default: OFF
+
+   .. warning::
+
+      Building with monitoring may result in minor performance degradation even
+      if monitoring is not utilized.
+
+.. cmakeoption:: SUNDIALS_BUILD_WITH_PROFILING
+
+   Build SUNDIALS with capabilties for fine-grained profiling.
+   This requires POSIX timers or the Windows ``profileapi.h`` timers.
+
+   Default: OFF
+
+   .. warning::
+
+      Profiling will impact performance, and should be enabled judiciously.
+
+.. cmakeoption:: SUNDIALS_ENABLE_ERROR_CHECKS
+
+   Build SUNDIALS with more extensive checks for unrecoverable errors. 
+   
+   Default: ``OFF`` when ``CMAKE_BUILD_TYPE=Release|RelWithDebInfo `` and ``ON`` otherwise.
+
+   .. warning::
+
+      Error checks will impact performance, but can be helpful for debugging.
+
 
 .. cmakeoption:: ENABLE_GINKGO
 
@@ -986,45 +1026,6 @@ illustration only.
 
    Default: OFF
 
-
-.. cmakeoption:: SUNDIALS_LOGGING_LEVEL
-
-   Set the maximum logging level for the SUNLogger runtime API. The higher this is set,
-   the more output that may be logged, and the more performance may degrade. The options are:
-
-   - ``0`` -- no logging
-   - ``1`` -- log errors
-   - ``2`` -- log errors + warnings
-   - ``3`` -- log errors + warnings + informational output
-   - ``4`` -- log errors + warnings + informational output + debug output
-   - ``5`` -- log all of the above and even more (e.g. vector valued variables may be logged)
-
-   Default: 0
-
-
-.. cmakeoption:: SUNDIALS_BUILD_WITH_MONITORING
-
-   Build SUNDIALS with capabilties for fine-grained monitoring of solver progress
-   and statistics. This is primarily useful for debugging.
-
-   Default: OFF
-
-   .. warning::
-
-      Building with monitoring may result in minor performance degradation even
-      if monitoring is not utilized.
-
-.. cmakeoption:: SUNDIALS_BUILD_WITH_PROFILING
-
-   Build SUNDIALS with capabilties for fine-grained profiling.
-   This requires POSIX timers or the Windows ``profileapi.h`` timers.
-
-   Default: OFF
-
-   .. warning::
-
-      Profiling will impact performance, and should be enabled judiciously.
-
 .. cmakeoption:: ENABLE_CALIPER
 
    Enable CALIPER support
@@ -1115,18 +1116,18 @@ illustration only.
       The advanced option, :cmakeop:`SUNDIALS_INDEX_TYPE` can be used to provide
       a type not listed here.
 
-.. cmakeoption:: SUNDIALS_MATH_LIBRARY
-
-   The standard C math library (e.g., ``libm``) to link with.
-
-   Default: ``-lm`` on Unix systems, none otherwise
-
 .. cmakeoption:: SUNDIALS_PRECISION
 
    The floating-point precision used in SUNDIALS packages and class
    implementations, options are: ``double``, ``single``, or ``extended``
 
    Default: ``double``
+
+.. cmakeoption:: SUNDIALS_MATH_LIBRARY
+
+   The standard C math library (e.g., ``libm``) to link with.
+
+   Default: ``-lm`` on Unix systems, none otherwise
 
 .. cmakeoption:: SUNDIALS_INSTALL_CMAKEDIR
 
@@ -1144,6 +1145,15 @@ illustration only.
    .. note::
 
       This option is deprecated. Use :cmakeop:`SUNDIALS_MATH_LIBRARY`.
+
+.. cmakeoption:: ENABLE_XBRAID
+
+   Enable or disable the ARKStep + XBraid interface.
+
+   Default: ``OFF``
+
+   .. note:: See additional information on building with *XBraid*
+             enabled in  :numref:`Installation.CMake.ExternalLibraries`.
 
 .. cmakeoption:: XBRAID_DIR
 
