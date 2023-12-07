@@ -93,7 +93,7 @@ SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
     sunctx->own_logger   = logger != NULL;
     sunctx->profiler     = profiler;
     sunctx->own_profiler = profiler != NULL;
-    sunctx->last_err     = 0;
+    sunctx->last_err     = SUN_SUCCESS;
     sunctx->err_handler  = eh;
     sunctx->comm         = comm;
   }

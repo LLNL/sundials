@@ -317,10 +317,11 @@ sundials_option(SUNDIALS_TEST_DEVTESTS BOOL
 sundials_option(SUNDIALS_TEST_UNITTESTS BOOL
   "Include unit tests in make test" OFF ADVANCED)
 
-# Disable unit tests that use GTest
-sundials_option(SUNDIALS_TEST_DISABLE_GTEST BOOL
-  "Disable GTest unit tests" OFF ADVANCED)
+# Include unit tests based on Google test in regression tests
+sundials_option(SUNDIALS_TEST_ENABLE_GTEST BOOL
+  "Disable GTest unit tests" ON ADVANCED)
 
+# Enable clang-tidy to run as part of the CMake build
 sundials_option(SUNDIALS_DEV_CLANG_TIDY BOOL
   "Enable the clang-tidy linter" OFF ADVANCED)
 
