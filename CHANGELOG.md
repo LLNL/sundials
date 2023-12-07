@@ -58,7 +58,8 @@ Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
 This fixes https://github.com/LLNL/sundials/issues/312. 
 
 **Major feature**
-SUNDIALS now has more robust and uniform error handling. See the "Error Handling"
+SUNDIALS now has more robust and uniform error handling. Non-release builds will
+be built with additional error checking by default. See the "Error Handling"
 section in the user guide for details.
 
 **Deprecation notice**
@@ -123,9 +124,13 @@ and a typedef to a `MPI_Comm` in builds with MPI. Here is what this means:
 The change away from type-erased pointers for `SUNComm` fixes problems like the 
 one described in [GitHub Issue #275](https://github.com/LLNL/sundials/issues/275).
 
+The SUNLogger is now always MPI-aware if MPI is enabled in SUNDIALS and the
+`SUNDIALS_LOGGING_ENABLE_MPI` CMake option and macro definition were removed 
+accordingly.
+
 **Breaking change**
 Functions, types and header files that were previously deprecated have been
-removed.  Additionally, the `SUNDIALS_LOGGING_ENABLE_MPI` macro was removed.
+removed.
 
 **Breaking change**
 Users now need to link to `sundials_core` in addition to the libraries already linked to. 

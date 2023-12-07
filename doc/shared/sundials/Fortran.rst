@@ -549,7 +549,7 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
 
    .. versionchanged:: 7.0.0
    
-      The function signature was updated to return a `SUNErrCode`.
+      The function signature was updated to return a `SUNErrCode` and the `fp` parameter was changed from `FILE*` to `FILE**`.  
  
 
 
