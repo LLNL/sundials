@@ -240,17 +240,22 @@ that are wrapped as ``FN_NewVectorArray``, ``FN_VGetVecAtIndexVectorArray``, and
 set a vector within this array:
 
 
-.. c:function:: N_Vector *N_VNewVectorArray(int count)
+.. c:function:: N_Vector *N_VNewVectorArray(int count, SUNContext sunctx)
 
    Creates an array of ``count``  ``N_Vector`` objects, the pointers to each
    are initialized as ``NULL``.
 
    **Arguments:**
       * ``count`` -- length of desired ``N_Vector`` array.
+      * ``sunctx`` -- a ``SUNContext`` object
 
    **Return value:**
       * pointer to a new ``N_Vector`` array on success.
       * ``NULL`` pointer on failure.
+
+   .. versionchanged:: 7.0.0
+
+      The function signature was updated to add the ``SUNContext`` argument.
 
 
 .. c:function:: N_Vector *N_VGetVecAtIndexVectorArray(N_Vector* vs, int index)

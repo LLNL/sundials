@@ -123,18 +123,6 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
   free(msg);
 }
 
-SUNDIALS_STATIC_INLINE
-void SUNHandleSecondError(int line, const char* func, const char* file,
-                          SUNErrCode code, SUNContext sunctx)
-{
-  SUNHandleErrWithMsg(line, func, file,
-                      "A previous error has triggered a second error. This "
-                      "is likely because the first error was not handled by "
-                      "calling SUNContext_GetLastError or the second error "
-                      "was triggered while handling the first error. ",
-                      code, sunctx);
-}
-
 /*
   The SUNCTX_ macro expands to the name of the local SUNContext object
   defined by SUNFunctionBegin. SUNCTX_ should be used to reference the
@@ -370,34 +358,12 @@ void SUNHandleSecondError(int line, const char* func, const char* file,
 #define SUNCheckCallNull(call)  SUNCheckCallNullMsg(call, NULL)
 #define SUNCheckCallVoid(call)  SUNCheckCallVoidMsg(call, NULL)
 
-/*
-  The SUNPeekIfErrAlreadySet macro is used to check if the last_err in
-  SUNContext is already set to an error inside of the SUNCheckLastErr macros. If
-  the error is already set, then we call the error handler with a message
-  stating that a new error has occured as a result of the old one.
-*/
-#if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
-#define SUNPeekIfErrAlreadySet()                                            \
-  do {                                                                      \
-    SUNErrCode sun_peek_last_err_code_ = SUNContext_PeekLastError(SUNCTX_); \
-    if (SUNHintFalse(sun_peek_last_err_code_ < 0))                          \
-    {                                                                       \
-      SUNHandleSecondError(__LINE__, __func__, __FILE__,                    \
-                           sun_peek_last_err_code_, SUNCTX_);               \
-    }                                                                       \
-  }                                                                         \
-  while (0)
-#else
-#define SUNPeekIfErrAlreadySet()
-#endif
-
 /* SUNCheckLastErrMsg checks the last_err value in the SUNContext.
    If an error occured, then it will log the error, set the last_err
    value, and call the error handler, **and then returns the code**. */
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNCheckLastErrMsg(msg)                              \
   do {                                                       \
-    SUNPeekIfErrAlreadySet();                                \
     SUNCheckCallMsg(SUNContext_PeekLastError(SUNCTX_), msg); \
   }                                                          \
   while (0)
@@ -411,7 +377,6 @@ void SUNHandleSecondError(int line, const char* func, const char* file,
 */
 #define SUNCheckLastErrNoRetMsg(msg)                              \
   do {                                                            \
-    SUNPeekIfErrAlreadySet();                                     \
     SUNCheckCallNoRetMsg(SUNContext_PeekLastError(SUNCTX_), msg); \
   }                                                               \
   while (0)
@@ -425,7 +390,6 @@ void SUNHandleSecondError(int line, const char* func, const char* file,
 */
 #define SUNCheckLastErrNullMsg(msg)                              \
   do {                                                           \
-    SUNPeekIfErrAlreadySet();                                    \
     SUNCheckCallNullMsg(SUNContext_PeekLastError(SUNCTX_), msg); \
   }                                                              \
   while (0)
@@ -439,7 +403,6 @@ void SUNHandleSecondError(int line, const char* func, const char* file,
 */
 #define SUNCheckLastErrVoidMsg(msg)                              \
   do {                                                           \
-    SUNPeekIfErrAlreadySet();                                    \
     SUNCheckCallVoidMsg(SUNContext_PeekLastError(SUNCTX_), msg); \
   }                                                              \
   while (0)
