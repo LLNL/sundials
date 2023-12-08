@@ -20,7 +20,6 @@ install(CODE "MESSAGE(\"\nInstall NVECTOR_PARHYP\n\")")
 sundials_add_library(sundials_nvecparhyp
   SOURCES
     nvector_parhyp.c
-    ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_mpi_errors.c
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parhyp.h
   INCLUDE_SUBDIR
