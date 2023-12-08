@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_context.h>
+
 #include "sundials/sundials_types.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
@@ -69,7 +70,7 @@ struct _generic_SUNAdaptController_Ops
   SUNErrCode (*write)(SUNAdaptController C, FILE* fptr);
   SUNErrCode (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
   SUNErrCode (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
-  SUNErrCode (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
+  SUNErrCode (*space)(SUNAdaptController C, long int* lenrw, long int* leniw);
 };
 
 /* A SUNAdaptController is a structure with an implementation-dependent
@@ -110,7 +111,8 @@ SUNErrCode SUNAdaptController_Destroy(SUNAdaptController C);
    an unrecoverable failure. */
 SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
-                                           int p, sunrealtype dsm, sunrealtype* hnew);
+                                           int p, sunrealtype dsm,
+                                           sunrealtype* hnew);
 
 /* Function to reset the controller to its initial state, e.g., if
    it stores a small number of previous dsm or step size values. */
@@ -129,27 +131,29 @@ SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr);
 /* Function to set an error bias factor to use for scaling the local error
    'dsm' factors above. */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias);
+SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C,
+                                           sunrealtype bias);
 
 /* Function to notify a controller of type SUN_ADAPTCONTROLLER_H that
    a successful time step was taken with stepsize h and local error factor
    dsm, indicating that these can be saved for subsequent controller functions. */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
+                                      sunrealtype dsm);
 
 /* Function to return the memory requirements of the controller object. */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long int *leniw);
-
+SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int* lenrw,
+                                    long int* leniw);
 
 /* -----------------------------------------------------------------
  * SUNAdaptController error codes
  * ----------------------------------------------------------------- */
 
 /* TODO(CJB): eliminate these after updating soderlind and imexgus in follow-on PR */
-#define SUNADAPTCONTROLLER_SUCCESS           0     /* function successfull        */
-#define SUNADAPTCONTROLLER_ILL_INPUT         -1001 /* illegal function input      */
-#define SUNADAPTCONTROLLER_USER_FCN_FAIL     -1003 /* user-supplied fcn failure */
+#define SUNADAPTCONTROLLER_SUCCESS       0     /* function successfull        */
+#define SUNADAPTCONTROLLER_ILL_INPUT     -1001 /* illegal function input      */
+#define SUNADAPTCONTROLLER_USER_FCN_FAIL -1003 /* user-supplied fcn failure */
 
 #ifdef __cplusplus
 }

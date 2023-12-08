@@ -48,17 +48,17 @@
  *      % ./cvsAdvDiff_bnd_omp 5
  * ----------------------------------------------------------------- */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 /* Header files with a description of contents */
 
-#include <cvodes/cvodes.h>             /* prototypes for CVODE fcts., consts. */
-#include <nvector/nvector_openmp.h>    /* serial N_Vector types, fcts., macros */
-#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix */
-#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver */
-#include <sundials/sundials_types.h>   /* definition of type sunrealtype */
+#include <cvodes/cvodes.h>            /* prototypes for CVODE fcts., consts. */
+#include <nvector/nvector_openmp.h>   /* serial N_Vector types, fcts., macros */
+#include <sundials/sundials_types.h>  /* definition of type sunrealtype */
+#include <sunlinsol/sunlinsol_band.h> /* access to band SUNLinearSolver */
+#include <sunmatrix/sunmatrix_band.h> /* access to band SUNMatrix */
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -66,16 +66,16 @@
 
 /* Problem Constants */
 
-#define XMAX  SUN_RCONST(2.0)    /* domain boundaries         */
+#define XMAX  SUN_RCONST(2.0) /* domain boundaries         */
 #define YMAX  SUN_RCONST(1.0)
-#define MX    10             /* mesh dimensions           */
+#define MX    10 /* mesh dimensions           */
 #define MY    5
-#define NEQ   MX*MY          /* number of equations       */
+#define NEQ   MX* MY             /* number of equations       */
 #define ATOL  SUN_RCONST(1.0e-5) /* scalar absolute tolerance */
 #define T0    SUN_RCONST(0.0)    /* initial time              */
 #define T1    SUN_RCONST(0.1)    /* first output time         */
 #define DTOUT SUN_RCONST(0.1)    /* output time increment     */
-#define NOUT  10             /* number of output times    */
+#define NOUT  10                 /* number of output times    */
 
 #define ZERO SUN_RCONST(0.0)
 #define HALF SUN_RCONST(0.5)
@@ -94,31 +94,32 @@
    where v is an N_Vector.
    The variables are ordered by the y index j, then by the x index i. */
 
-#define IJth(vdata,i,j) (vdata[(j-1) + (i-1)*MY])
+#define IJth(vdata, i, j) (vdata[(j - 1) + (i - 1) * MY])
 
 /* Type : UserData (contains grid constants) */
 
-typedef struct {
+typedef struct
+{
   sunrealtype dx, dy, hdcoef, hacoef, vdcoef;
   int nthreads;
-} *UserData;
+}* UserData;
 
 /* Private Helper Functions */
 
 static void SetIC(N_Vector u, UserData data);
 static void PrintHeader(sunrealtype reltol, sunrealtype abstol, sunrealtype umax);
 static void PrintOutput(sunrealtype t, sunrealtype umax, long int nst);
-static void PrintFinalStats(void *cvode_mem);
+static void PrintFinalStats(void* cvode_mem);
 
 /* Private function to check function return values */
 
-static int check_retval(void *returnvalue, char *funcname, int opt);
+static int check_retval(void* returnvalue, char* funcname, int opt);
 
 /* Functions Called by the Solver */
 
-static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data);
 static int Jac(sunrealtype t, N_Vector u, N_Vector fu, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /*
  *-------------------------------
@@ -126,7 +127,7 @@ static int Jac(sunrealtype t, N_Vector u, N_Vector fu, SUNMatrix J,
  *-------------------------------
  */
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   SUNContext sunctx;
   sunrealtype dx, dy, reltol, abstol, t, tout, umax;
@@ -134,109 +135,112 @@ int main(int argc, char *argv[])
   UserData data;
   SUNMatrix A;
   SUNLinearSolver LS;
-  void *cvode_mem;
+  void* cvode_mem;
   int iout, retval;
   long int nst;
   int num_threads;
 
-  u = NULL;
-  data = NULL;
-  A = NULL;
-  LS = NULL;
+  u         = NULL;
+  data      = NULL;
+  A         = NULL;
+  LS        = NULL;
   cvode_mem = NULL;
 
   /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
   /* Set the number of threads to use */
-  num_threads = 1;     /* default value */
+  num_threads = 1; /* default value */
 #ifdef _OPENMP
-  num_threads = omp_get_max_threads();  /* Overwrite with OMP_NUM_THREADS environment variable */
+  num_threads =
+    omp_get_max_threads(); /* Overwrite with OMP_NUM_THREADS environment variable */
 #endif
-  if (argc > 1)        /* overwrite with command line value, if supplied */
-    num_threads = (int) strtol(argv[1], NULL, 0);
+  if (argc > 1)
+  { /* overwrite with command line value, if supplied */
+    num_threads = (int)strtol(argv[1], NULL, 0);
+  }
 
   /* Create an OpenMP vector */
-  u = N_VNew_OpenMP(NEQ, num_threads, sunctx);  /* Allocate u vector */
-  if(check_retval((void*)u, "N_VNew_OpenMP", 0)) return(1);
+  u = N_VNew_OpenMP(NEQ, num_threads, sunctx); /* Allocate u vector */
+  if (check_retval((void*)u, "N_VNew_OpenMP", 0)) { return (1); }
 
-  reltol = ZERO;  /* Set the tolerances */
+  reltol = ZERO; /* Set the tolerances */
   abstol = ATOL;
 
-  data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
-  if(check_retval((void *)data, "malloc", 2)) return(1);
-  dx = data->dx = XMAX/(MX+1);  /* Set grid coefficients in data */
-  dy = data->dy = YMAX/(MY+1);
-  data->hdcoef = ONE/(dx*dx);
-  data->hacoef = HALF/(TWO*dx);
-  data->vdcoef = ONE/(dy*dy);
+  data = (UserData)malloc(sizeof *data); /* Allocate data memory */
+  if (check_retval((void*)data, "malloc", 2)) { return (1); }
+  dx = data->dx = XMAX / (MX + 1); /* Set grid coefficients in data */
+  dy = data->dy  = YMAX / (MY + 1);
+  data->hdcoef   = ONE / (dx * dx);
+  data->hacoef   = HALF / (TWO * dx);
+  data->vdcoef   = ONE / (dy * dy);
   data->nthreads = num_threads;
 
-  SetIC(u, data);  /* Initialize u vector */
+  SetIC(u, data); /* Initialize u vector */
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if(check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerance */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) { return (1); }
 
   /* Set the pointer to user-defined data */
   retval = CVodeSetUserData(cvode_mem, data);
-  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) { return (1); }
 
   /* Create banded SUNMatrix for use in linear solves -- since this will be factored,
      set the storage bandwidth to be the sum of upper and lower bandwidths */
   A = SUNBandMatrix(NEQ, MY, MY, sunctx);
-  if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
+  if (check_retval((void*)A, "SUNBandMatrix", 0)) { return (1); }
 
   /* Create banded SUNLinearSolver object for use by CVode */
   LS = SUNLinSol_Band(u, A, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
+  if (check_retval((void*)LS, "SUNLinSol_Band", 0)) { return (1); }
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return (1); }
 
   /* Set the user-supplied Jacobian routine Jac */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) { return (1); }
 
   /* In loop over output points: call CVode, print results, test for errors */
 
   umax = N_VMaxNorm(u);
   PrintHeader(reltol, abstol, umax);
-  for(iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
+  for (iout = 1, tout = T1; iout <= NOUT; iout++, tout += DTOUT)
+  {
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_retval(&retval, "CVode", 1)) break;
-    umax = N_VMaxNorm(u);
+    if (check_retval(&retval, "CVode", 1)) { break; }
+    umax   = N_VMaxNorm(u);
     retval = CVodeGetNumSteps(cvode_mem, &nst);
     check_retval(&retval, "CVodeGetNumSteps", 1);
     PrintOutput(t, umax, nst);
   }
 
-  PrintFinalStats(cvode_mem);  /* Print some final statistics   */
+  PrintFinalStats(cvode_mem); /* Print some final statistics   */
   printf("num_threads = %i\n\n", num_threads);
 
-
-  N_VDestroy(u);          /* Free the u vector */
-  CVodeFree(&cvode_mem);  /* Free the integrator memory */
-  SUNLinSolFree(LS);      /* Free the linear solver memory */
-  SUNMatDestroy(A);       /* Free the matrix memory */
-  free(data);             /* Free the user data */
+  N_VDestroy(u);         /* Free the u vector */
+  CVodeFree(&cvode_mem); /* Free the integrator memory */
+  SUNLinSolFree(LS);     /* Free the linear solver memory */
+  SUNMatDestroy(A);      /* Free the matrix memory */
+  free(data);            /* Free the user data */
   SUNContext_Free(&sunctx);
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -247,7 +251,7 @@ int main(int argc, char *argv[])
 
 /* f routine. Compute f(t,u). */
 
-static int f(sunrealtype t, N_Vector u,N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data)
 {
   sunrealtype uij, udn, uup, ult, urt, hordc, horac, verdc, hdiff, hadv, vdiff;
   sunrealtype *udata, *dudata;
@@ -261,41 +265,43 @@ static int f(sunrealtype t, N_Vector u,N_Vector udot, void *user_data)
 
   /* Extract needed constants from data */
 
-  data = (UserData) user_data;
+  data  = (UserData)user_data;
   hordc = data->hdcoef;
   horac = data->hacoef;
   verdc = data->vdcoef;
 
   /* Loop over all grid points. */
-#pragma omp parallel for default(shared) private(j, i, uij, udn, uup, ult, urt, hdiff, hadv, vdiff) num_threads(data->nthreads)
-  for (j=1; j <= MY; j++) {
-
-    for (i=1; i <= MX; i++) {
-
+#pragma omp parallel for default(shared) private(j, i, uij, udn, uup, ult,  \
+                                                   urt, hdiff, hadv, vdiff) \
+  num_threads(data->nthreads)
+  for (j = 1; j <= MY; j++)
+  {
+    for (i = 1; i <= MX; i++)
+    {
       /* Extract u at x_i, y_j and four neighboring points */
 
       uij = IJth(udata, i, j);
-      udn = (j == 1)  ? ZERO : IJth(udata, i, j-1);
-      uup = (j == MY) ? ZERO : IJth(udata, i, j+1);
-      ult = (i == 1)  ? ZERO : IJth(udata, i-1, j);
-      urt = (i == MX) ? ZERO : IJth(udata, i+1, j);
+      udn = (j == 1) ? ZERO : IJth(udata, i, j - 1);
+      uup = (j == MY) ? ZERO : IJth(udata, i, j + 1);
+      ult = (i == 1) ? ZERO : IJth(udata, i - 1, j);
+      urt = (i == MX) ? ZERO : IJth(udata, i + 1, j);
 
       /* Set diffusion and advection terms and load into udot */
 
-      hdiff = hordc*(ult - TWO*uij + urt);
-      hadv = horac*(urt - ult);
-      vdiff = verdc*(uup - TWO*uij + udn);
+      hdiff              = hordc * (ult - TWO * uij + urt);
+      hadv               = horac * (urt - ult);
+      vdiff              = verdc * (uup - TWO * uij + udn);
       IJth(dudata, i, j) = hdiff + hadv + vdiff;
     }
   }
 
-  return(0);
+  return (0);
 }
 
 /* Jacobian routine. Compute J(t,u). */
 
 static int Jac(sunrealtype t, N_Vector u, N_Vector fu, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   sunindextype i, j, k;
   sunrealtype *kthCol, hordc, horac, verdc;
@@ -313,28 +319,31 @@ static int Jac(sunrealtype t, N_Vector u, N_Vector fu, SUNMatrix J,
 
   i = j = k = 0;
 
-  data  = (UserData) user_data;
+  data  = (UserData)user_data;
   hordc = data->hdcoef;
   horac = data->hacoef;
   verdc = data->vdcoef;
 
-#pragma omp parallel for collapse(2) default(shared) private(i, j, k, kthCol) num_threads(data->nthreads)
-  for (j=1; j <= MY; j++) {
-    for (i=1; i <= MX; i++) {
-      k = j-1 + (i-1)*MY;
-      kthCol = SUNBandMatrix_Column(J,k);
+#pragma omp parallel for collapse(2) default(shared) private(i, j, k, kthCol) \
+  num_threads(data->nthreads)
+  for (j = 1; j <= MY; j++)
+  {
+    for (i = 1; i <= MX; i++)
+    {
+      k      = j - 1 + (i - 1) * MY;
+      kthCol = SUNBandMatrix_Column(J, k);
 
       /* set the kth column of J */
 
-      SM_COLUMN_ELEMENT_B(kthCol,k,k) = -TWO*(verdc+hordc);
-      if (i != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-MY,k) = hordc + horac;
-      if (i != MX) SM_COLUMN_ELEMENT_B(kthCol,k+MY,k) = hordc - horac;
-      if (j != 1)  SM_COLUMN_ELEMENT_B(kthCol,k-1,k)  = verdc;
-      if (j != MY) SM_COLUMN_ELEMENT_B(kthCol,k+1,k)  = verdc;
+      SM_COLUMN_ELEMENT_B(kthCol, k, k) = -TWO * (verdc + hordc);
+      if (i != 1) { SM_COLUMN_ELEMENT_B(kthCol, k - MY, k) = hordc + horac; }
+      if (i != MX) { SM_COLUMN_ELEMENT_B(kthCol, k + MY, k) = hordc - horac; }
+      if (j != 1) { SM_COLUMN_ELEMENT_B(kthCol, k - 1, k) = verdc; }
+      if (j != MY) { SM_COLUMN_ELEMENT_B(kthCol, k + 1, k) = verdc; }
     }
   }
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -349,7 +358,7 @@ static void SetIC(N_Vector u, UserData data)
 {
   sunindextype i, j;
   sunrealtype x, y, dx, dy;
-  sunrealtype *udata;
+  sunrealtype* udata;
 
   i = j = 0;
 
@@ -364,11 +373,13 @@ static void SetIC(N_Vector u, UserData data)
 
   /* Load initial profile into u vector */
 #pragma omp parallel for default(shared) private(j, i, y, x)
-  for (j=1; j <= MY; j++) {
-    y = j*dy;
-    for (i=1; i <= MX; i++) {
-      x = i*dx;
-      IJth(udata,i,j) = x*(XMAX - x)*y*(YMAX - y)*exp(FIVE*x*y);
+  for (j = 1; j <= MY; j++)
+  {
+    y = j * dy;
+    for (i = 1; i <= MX; i++)
+    {
+      x                 = i * dx;
+      IJth(udata, i, j) = x * (XMAX - x) * y * (YMAX - y) * exp(FIVE * x * y);
     }
   }
 }
@@ -381,12 +392,10 @@ static void PrintHeader(sunrealtype reltol, sunrealtype abstol, sunrealtype umax
   printf("Mesh dimensions = %d X %d\n", MX, MY);
   printf("Total system size = %d\n", NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n",
-         reltol, abstol);
+  printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n", reltol, abstol);
   printf("At t = %Lg      max.norm(u) =%14.6Le \n", T0, umax);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters: reltol = %g   abstol = %g\n\n",
-         reltol, abstol);
+  printf("Tolerance parameters: reltol = %g   abstol = %g\n\n", reltol, abstol);
   printf("At t = %g      max.norm(u) =%14.6e \n", T0, umax);
 #else
   printf("Tolerance parameters: reltol = %g   abstol = %g\n\n", reltol, abstol);
@@ -413,7 +422,7 @@ static void PrintOutput(sunrealtype t, sunrealtype umax, long int nst)
 
 /* Get and print some final statistics */
 
-static void PrintFinalStats(void *cvode_mem)
+static void PrintFinalStats(void* cvode_mem)
 {
   int retval;
   long int nst, nfe, nsetups, netf, nni, ncfn, nje, nfeLS;
@@ -438,9 +447,8 @@ static void PrintFinalStats(void *cvode_mem)
 
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",
-	 nst, nfe, nsetups, nfeLS, nje);
-  printf("nni = %-6ld ncfn = %-6ld netf = %ld\n",
-	 nni, ncfn, netf);
+         nst, nfe, nsetups, nfeLS, nje);
+  printf("nni = %-6ld ncfn = %-6ld netf = %ld\n", nni, ncfn, netf);
 
   return;
 }
@@ -453,32 +461,40 @@ static void PrintFinalStats(void *cvode_mem)
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_retval(void *returnvalue, char *funcname, int opt)
+static int check_retval(void* returnvalue, char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
 
-  if (opt == 0 && returnvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1); }
+    return (1);
+  }
 
   /* Check if retval < 0 */
 
-  else if (opt == 1) {
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
+  else if (opt == 1)
+  {
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return(1); }}
+      return (1);
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
 
-  else if (opt == 2 && returnvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1); }
+    return (1);
+  }
 
-  return(0);
+  return (0);
 }

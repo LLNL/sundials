@@ -39,7 +39,8 @@ using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
 using GkoSolverType = gko::solver::Gmres<sunrealtype>;
 
 using SUNGkoMatrixType = sundials::ginkgo::Matrix<GkoMatrixType>;
-using SUNGkoSolverType = sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>;
+using SUNGkoSolverType =
+  sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>;
 
 // -----------------------------------------------------------------------------
 // Functions provided to the SUNDIALS integrators
@@ -49,7 +50,8 @@ using SUNGkoSolverType = sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrix
 int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 // Jacobian of RHS function
-int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
+      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -65,19 +67,19 @@ int main(int argc, char* argv[])
   std::vector<std::string> args(argv + 1, argv + argc);
 
   int flag = ReadInputs(args, opts);
-  if (check_flag(flag, "ReadInputs")) return 1;
+  if (check_flag(flag, "ReadInputs")) { return 1; }
 
   // Create initial condition vector
   N_Vector y = N_VNew_Serial(2, sunctx);
-  if (check_ptr(y, "N_VNew_Serial")) return 1;
+  if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   sunrealtype utrue, vtrue;
   flag = true_sol(ZERO, &utrue, &vtrue);
-  if (check_flag(flag, "true_sol")) return 1;
+  if (check_flag(flag, "true_sol")) { return 1; }
 
   sunrealtype* ydata = N_VGetArrayPointer(y);
-  ydata[0]        = utrue;
-  ydata[1]        = vtrue;
+  ydata[0]           = utrue;
+  ydata[1]           = vtrue;
 
   // Create Ginkgo dense matrix and linear solver
 #if defined(USE_OMP)
@@ -90,36 +92,39 @@ int main(int argc, char* argv[])
   SUNGkoMatrixType A{gko_matrix, sunctx};
 
   // Use default stopping criteria
-  auto crit{sundials::ginkgo::DefaultStop::build().with_max_iters(gko::uint64{2}).on(gko_exec)};
+  auto crit{sundials::ginkgo::DefaultStop::build()
+              .with_max_iters(gko::uint64{2})
+              .on(gko_exec)};
 
-  auto gko_solver_factory = gko::share(GkoSolverType::build().with_criteria(std::move(crit)).on(gko_exec));
+  auto gko_solver_factory = gko::share(
+    GkoSolverType::build().with_criteria(std::move(crit)).on(gko_exec));
 
   SUNGkoSolverType LS{gko_solver_factory, sunctx};
 
   // Create CVODE memory structure
   void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_ptr(cvode_mem, "CVodeCreate")) return 1;
+  if (check_ptr(cvode_mem, "CVodeCreate")) { return 1; }
 
   // Attach RHS function and set initial condition
   flag = CVodeInit(cvode_mem, f, ZERO, y);
-  if (check_flag(flag, "CVodeInit")) return 1;
+  if (check_flag(flag, "CVodeInit")) { return 1; }
 
   // Set integraton tolerances
   flag = CVodeSStolerances(cvode_mem, opts.rtol, opts.atol);
-  if (check_flag(flag, "CVodeSStolerances")) return 1;
+  if (check_flag(flag, "CVodeSStolerances")) { return 1; }
 
   // Attach matrix and linear solver
   flag = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if (check_flag(flag, "CVodeSetLinearSolver")) return 1;
+  if (check_flag(flag, "CVodeSetLinearSolver")) { return 1; }
 
   // Set Jacobian function
   flag = CVodeSetJacFn(cvode_mem, J);
-  if (check_flag(flag, "CVodeSetJacFn")) return 1;
+  if (check_flag(flag, "CVodeSetJacFn")) { return 1; }
 
   // Attach user data pointer
   sunrealtype udata[4] = {-TWO, HALF, HALF, -ONE};
-  flag              = CVodeSetUserData(cvode_mem, udata);
-  if (check_flag(flag, "CVodeSetUserData")) return 1;
+  flag                 = CVodeSetUserData(cvode_mem, udata);
+  if (check_flag(flag, "CVodeSetUserData")) { return 1; }
 
   // Initial time and fist output time
   sunrealtype tret = ZERO;
@@ -133,32 +138,37 @@ int main(int argc, char* argv[])
   std::cout << "          v              ";
   std::cout << "        u err            ";
   std::cout << "        v err" << std::endl;
-  for (int i = 0; i < 9; i++) std::cout << "--------------";
+  for (int i = 0; i < 9; i++) { std::cout << "--------------"; }
   std::cout << std::endl;
 
-  std::cout << std::setw(22) << tret << std::setw(25) << ydata[0] << std::setw(25) << ydata[1] << std::setw(25)
-            << std::abs(ydata[0] - utrue) << std::setw(25) << std::abs(ydata[1] - vtrue) << std::endl;
+  std::cout << std::setw(22) << tret << std::setw(25) << ydata[0]
+            << std::setw(25) << ydata[1] << std::setw(25)
+            << std::abs(ydata[0] - utrue) << std::setw(25)
+            << std::abs(ydata[1] - vtrue) << std::endl;
 
   // Advance in time
-  for (int i = 0; i < opts.nout; i++) {
+  for (int i = 0; i < opts.nout; i++)
+  {
     flag = CVode(cvode_mem, tout, y, &tret, CV_NORMAL);
-    if (check_flag(flag, "CVode")) return 1;
+    if (check_flag(flag, "CVode")) { return 1; }
 
     flag = true_sol(tret, &utrue, &vtrue);
-    if (check_flag(flag, "true_sol")) return 1;
+    if (check_flag(flag, "true_sol")) { return 1; }
 
-    std::cout << std::setw(22) << tret << std::setw(25) << ydata[0] << std::setw(25) << ydata[1] << std::setw(25)
-              << std::abs(ydata[0] - utrue) << std::setw(25) << std::abs(ydata[1] - vtrue) << std::endl;
+    std::cout << std::setw(22) << tret << std::setw(25) << ydata[0]
+              << std::setw(25) << ydata[1] << std::setw(25)
+              << std::abs(ydata[0] - utrue) << std::setw(25)
+              << std::abs(ydata[1] - vtrue) << std::endl;
 
     // update output time
     tout += opts.dtout;
   }
-  for (int i = 0; i < 9; i++) std::cout << "--------------";
+  for (int i = 0; i < 9; i++) { std::cout << "--------------"; }
   std::cout << std::endl;
 
   // Print some final statistics
   flag = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-  if (check_flag(flag, "CVodePrintAllStats")) return 1;
+  if (check_flag(flag, "CVodePrintAllStats")) { return 1; }
 
   // Clean up and return with successful completion
   N_VDestroy(y);
@@ -189,8 +199,8 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   const sunrealtype tmp2 = (-TWO + v * v - s(t)) / (TWO * v);
 
   sunrealtype* fdata = N_VGetArrayPointer(ydot);
-  fdata[0]        = a * tmp1 + b * tmp2 + rdot(t) / (TWO * u);
-  fdata[1]        = c * tmp1 + d * tmp2 + sdot(t) / (TWO * v);
+  fdata[0]           = a * tmp1 + b * tmp2 + rdot(t) / (TWO * u);
+  fdata[1]           = c * tmp1 + d * tmp2 + sdot(t) / (TWO * v);
 
   return 0;
 }
@@ -201,7 +211,8 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
  *   [c/2 + c(1+r(t))/(2u^2)               d/2 + (d(2+s(t))-sdot(t))/(2u^2) ]
  * ---------------------------------------------------------------------------*/
 
-int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
+      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   sunrealtype* udata  = (sunrealtype*)user_data;
   const sunrealtype a = udata[0];
@@ -210,8 +221,8 @@ int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data, N_Ve
   const sunrealtype d = udata[3];
 
   sunrealtype* ydata = N_VGetArrayPointer(y);
-  auto J_gko      = static_cast<SUNGkoMatrixType*>(J->content)->GkoMtx();
-  auto J_data     = J_gko->get_values();
+  auto J_gko         = static_cast<SUNGkoMatrixType*>(J->content)->GkoMtx();
+  auto J_data        = J_gko->get_values();
 
   const sunrealtype u = ydata[0];
   const sunrealtype v = ydata[1];

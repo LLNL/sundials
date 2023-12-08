@@ -31,9 +31,10 @@ struct SUNMemoryHelperDeleter
 {
   void operator()(SUNMemoryHelper helper)
   {
-    if (helper) SUNMemoryHelper_Destroy(helper);
+    if (helper) { SUNMemoryHelper_Destroy(helper); }
   }
 };
+
 using SUNMemoryHelperView = ClassView<SUNMemoryHelper, SUNMemoryHelperDeleter>;
 } // namespace experimental
 } // namespace sundials

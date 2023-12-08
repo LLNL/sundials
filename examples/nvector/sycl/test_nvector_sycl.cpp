@@ -15,53 +15,64 @@
  * implementation.
  * -----------------------------------------------------------------*/
 
+#include <nvector/nvector_sycl.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-#include <nvector/nvector_sycl.h>
 
 #include "custom_memory_helper_sycl.h"
 #include "test_nvector.h"
 
 /* SYCL vector variants */
-enum mem_type { UNMANAGED, MANAGED, SUNMEMORY };
-enum pol_type { DEFAULT_POL, GRID_STRIDE };
+enum mem_type
+{
+  UNMANAGED,
+  MANAGED,
+  SUNMEMORY
+};
+
+enum pol_type
+{
+  DEFAULT_POL,
+  GRID_STRIDE
+};
 
 /* --------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  int             fails = 0;         /* counter for test failures  */
-  int             retval;            /* function return value      */
-  sunindextype    length;            /* vector length              */
-  N_Vector        U, V, X, Y, Z;     /* test vectors               */
-  int             print_timing;      /* turn timing on/off         */
-  int             threadsPerBlock;   /* sycl block size            */
-  int             memtype, policy;
+  int fails = 0;          /* counter for test failures  */
+  int retval;             /* function return value      */
+  sunindextype length;    /* vector length              */
+  N_Vector U, V, X, Y, Z; /* test vectors               */
+  int print_timing;       /* turn timing on/off         */
+  int threadsPerBlock;    /* sycl block size            */
+  int memtype, policy;
 
   Test_Init(SUN_COMM_NULL);
 
   /* check input and set vector length */
   if (argc < 4)
   {
-    printf("ERROR: THREE (3) Inputs required: vector length, SYCL threads per block (0 for default), print timing \n");
+    printf("ERROR: THREE (3) Inputs required: vector length, SYCL threads per "
+           "block (0 for default), print timing \n");
     Test_Abort(-1);
   }
 
-  length = (sunindextype) atol(argv[1]);
+  length = (sunindextype)atol(argv[1]);
   if (length <= 0)
   {
     printf("ERROR: length of vector must be a positive integer\n");
     Test_Abort(-1);
   }
 
-  threadsPerBlock = (int) atoi(argv[2]);
+  threadsPerBlock = (int)atoi(argv[2]);
   if (threadsPerBlock < 0)
   {
-    printf("ERROR: SYCL threads per block must be a positive value or 0 to use the default\n");
+    printf("ERROR: SYCL threads per block must be a positive value or 0 to use "
+           "the default\n");
     Test_Abort(-1);
   }
 
@@ -79,60 +90,57 @@ int main(int argc, char *argv[])
 #endif
 
   sycl::device dev = myQueue.get_device();
-  std::cout << "Running on "
-            << (dev.get_info<sycl::info::device::name>())
+  std::cout << "Running on " << (dev.get_info<sycl::info::device::name>())
             << std::endl;
-  std::cout << " is cpu? "
-            << (dev.is_cpu() ? "Yes" : "No")
-            << std::endl;
-  std::cout << " is gpu? "
-            << (dev.is_gpu() ? "Yes" : "No")
-            << std::endl;
-  std::cout << " is accelerator? "
-            << (dev.is_accelerator() ? "Yes" : "No")
+  std::cout << " is cpu? " << (dev.is_cpu() ? "Yes" : "No") << std::endl;
+  std::cout << " is gpu? " << (dev.is_gpu() ? "Yes" : "No") << std::endl;
+  std::cout << " is accelerator? " << (dev.is_accelerator() ? "Yes" : "No")
             << std::endl;
   std::cout << " is the queue in order? "
-            << (myQueue.is_in_order() ? "Yes" : "No")
-            << std::endl;
+            << (myQueue.is_in_order() ? "Yes" : "No") << std::endl;
   std::cout << " supports usm host allocations? "
-            << (dev.get_info<sycl::info::device::usm_host_allocations>() ?
-                "Yes" : "No")
+            << (dev.get_info<sycl::info::device::usm_host_allocations>() ? "Yes"
+                                                                         : "No")
             << std::endl;
   std::cout << " supports usm device allocations? "
-            << (dev.get_info<sycl::info::device::usm_device_allocations>() ?
-                "Yes" : "No")
+            << (dev.get_info<sycl::info::device::usm_device_allocations>()
+                  ? "Yes"
+                  : "No")
             << std::endl;
   std::cout << " suports usm shared allocations? "
-            << (dev.get_info<sycl::info::device::usm_shared_allocations>() ?
-                "Yes" : "No")
+            << (dev.get_info<sycl::info::device::usm_shared_allocations>()
+                  ? "Yes"
+                  : "No")
             << std::endl;
   std::cout << " max work group size: "
             << dev.get_info<sycl::info::device::max_work_group_size>()
             << std::endl;
   std::cout << " max global memory size (bytes): "
-            << dev.get_info<sycl::info::device::global_mem_size>()
-            << std::endl;
+            << dev.get_info<sycl::info::device::global_mem_size>() << std::endl;
   std::cout << " max local memory size (bytes): "
-            << dev.get_info<sycl::info::device::local_mem_size>()
-            << std::endl;
+            << dev.get_info<sycl::info::device::local_mem_size>() << std::endl;
   std::cout << std::endl;
 
   /* initialize vectors to NULL */
   U = V = X = Y = Z = NULL;
 
   /* test with all policy variants */
-  for (policy = DEFAULT_POL; policy <=GRID_STRIDE; ++policy)
+  for (policy = DEFAULT_POL; policy <= GRID_STRIDE; ++policy)
   {
-    int actualThreadsPerBlock = threadsPerBlock ? threadsPerBlock :
-      myQueue.get_device().get_info<sycl::info::device::max_work_group_size>();
+    int actualThreadsPerBlock =
+      threadsPerBlock
+        ? threadsPerBlock
+        : myQueue.get_device().get_info<sycl::info::device::max_work_group_size>();
 
     SUNSyclExecPolicy* stream_exec_policy = NULL;
     SUNSyclExecPolicy* reduce_exec_policy = NULL;
 
     if (policy == GRID_STRIDE)
     {
-      stream_exec_policy = new SUNSyclGridStrideExecPolicy(actualThreadsPerBlock, 1);
-      reduce_exec_policy = new SUNSyclBlockReduceExecPolicy(actualThreadsPerBlock, 1);
+      stream_exec_policy =
+        new SUNSyclGridStrideExecPolicy(actualThreadsPerBlock, 1);
+      reduce_exec_policy =
+        new SUNSyclBlockReduceExecPolicy(actualThreadsPerBlock, 1);
     }
 
     /* test with all memory variants */
@@ -157,24 +165,28 @@ int main(int argc, char *argv[])
       {
         printf("Testing SYCL N_Vector with SUNMemoryHelper, policy %d\n", policy);
         mem_helper = MyMemoryHelper(sunctx);
-        X = N_VNewWithMemHelp_Sycl(length, SUNFALSE, mem_helper, &myQueue, sunctx);
+        X = N_VNewWithMemHelp_Sycl(length, SUNFALSE, mem_helper, &myQueue,
+                                   sunctx);
       }
-      printf("Vector length: %ld \n", (long int) length);
+      printf("Vector length: %ld \n", (long int)length);
 
-      if (X == NULL) {
+      if (X == NULL)
+      {
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         printf("FAIL: Unable to create a new vector \n\n");
         Test_Abort(1);
       }
 
-      if (stream_exec_policy != NULL && reduce_exec_policy != NULL) {
-        if (N_VSetKernelExecPolicy_Sycl(X, stream_exec_policy, reduce_exec_policy)) {
+      if (stream_exec_policy != NULL && reduce_exec_policy != NULL)
+      {
+        if (N_VSetKernelExecPolicy_Sycl(X, stream_exec_policy, reduce_exec_policy))
+        {
           N_VDestroy(X);
           delete stream_exec_policy;
           delete reduce_exec_policy;
-          if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+          if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
           printf("FAIL: Unable to set kernel execution policy \n\n");
           Test_Abort(1);
         }
@@ -184,28 +196,32 @@ int main(int argc, char *argv[])
 
       /* Fill vector with uniform random data in [-1,1] */
       sunrealtype* xdata = N_VGetHostArrayPointer_Sycl(X);
-      for (sunindextype j=0; j<length; j++)
-        xdata[j] = ((sunrealtype) rand() / (sunrealtype) RAND_MAX)*2-1;
+      for (sunindextype j = 0; j < length; j++)
+      {
+        xdata[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+      }
       N_VCopyToDevice_Sycl(X);
 
       /* Clone additional vectors for testing */
       Y = N_VClone(X);
-      if (Y == NULL) {
+      if (Y == NULL)
+      {
         N_VDestroy(X);
         printf("FAIL: Unable to create a new vector \n\n");
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         Test_Abort(1);
       }
 
       Z = N_VClone(X);
-      if (Z == NULL) {
+      if (Z == NULL)
+      {
         N_VDestroy(X);
         N_VDestroy(Y);
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         printf("FAIL: Unable to create a new vector \n\n");
         Test_Abort(1);
       }
@@ -213,9 +229,10 @@ int main(int argc, char *argv[])
       /* Fill vectors with uniform random data in [-1,1] */
       sunrealtype* ydata = N_VGetHostArrayPointer_Sycl(Y);
       sunrealtype* zdata = N_VGetHostArrayPointer_Sycl(Z);
-      for (sunindextype j=0; j<length; j++) {
-        ydata[j] = ((sunrealtype) rand() / (sunrealtype) RAND_MAX)*2-1;
-        zdata[j] = ((sunrealtype) rand() / (sunrealtype) RAND_MAX)*2-1;
+      for (sunindextype j = 0; j < length; j++)
+      {
+        ydata[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+        zdata[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
       }
       N_VCopyToDevice_Sycl(Y);
       N_VCopyToDevice_Sycl(Z);
@@ -257,9 +274,9 @@ int main(int argc, char *argv[])
       fails += Test_N_VMin(X, length, 0);
       fails += Test_N_VWL2Norm(X, Y, length, 0);
       fails += Test_N_VL1Norm(X, length, 0);
-      if (length >= 3) fails += Test_N_VCompare(X, Z, length, 0);
+      if (length >= 3) { fails += Test_N_VCompare(X, Z, length, 0); }
       fails += Test_N_VInvTest(X, Z, length, 0);
-      if (length >= 7) fails += Test_N_VConstrMask(X, Y, Z, length, 0);
+      if (length >= 7) { fails += Test_N_VConstrMask(X, Y, Z, length, 0); }
       fails += Test_N_VMinQuotient(X, Y, length, 0);
 
       /* Fused and vector array operations tests (disabled) */
@@ -267,24 +284,26 @@ int main(int argc, char *argv[])
 
       /* create vector and disable all fused and vector array operations */
       U = N_VClone(X);
-      if (U == NULL) {
+      if (U == NULL)
+      {
         N_VDestroy(X);
         N_VDestroy(Y);
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         printf("FAIL: Unable to create a new vector \n\n");
         Test_Abort(1);
       }
       retval = N_VEnableFusedOps_Sycl(U, SUNFALSE);
-      if (retval != 0) {
+      if (retval != 0)
+      {
         N_VDestroy(X);
         N_VDestroy(Y);
         N_VDestroy(Z);
         N_VDestroy(U);
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         printf("FAIL: Unable to create a new vector \n\n");
         Test_Abort(1);
       }
@@ -307,20 +326,22 @@ int main(int argc, char *argv[])
       printf("\nTesting fused and vector array operations (enabled):\n\n");
 
       /* create vector and enable all fused and vector array operations */
-      V = N_VClone(X);
+      V      = N_VClone(X);
       retval = N_VEnableFusedOps_Sycl(V, SUNTRUE);
-      if (V == NULL) {
+      if (V == NULL)
+      {
         N_VDestroy(X);
         N_VDestroy(Y);
         N_VDestroy(Z);
         N_VDestroy(U);
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         printf("FAIL: Unable to create a new vector \n\n");
         Test_Abort(1);
       }
-      if (retval != 0) {
+      if (retval != 0)
+      {
         N_VDestroy(X);
         N_VDestroy(Y);
         N_VDestroy(Z);
@@ -328,7 +349,7 @@ int main(int argc, char *argv[])
         N_VDestroy(V);
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         printf("FAIL: Unable to create a new vector \n\n");
         Test_Abort(1);
       }
@@ -357,7 +378,7 @@ int main(int argc, char *argv[])
       fails += Test_N_VWSqrSumLocal(X, Y, length, 0);
       fails += Test_N_VWSqrSumMaskLocal(X, Y, Z, length, 0);
       fails += Test_N_VInvTestLocal(X, Z, length, 0);
-      if (length >= 7) fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0);
+      if (length >= 7) { fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0); }
       fails += Test_N_VMinQuotientLocal(X, Y, length, 0);
 
       /* XBraid interface operations */
@@ -379,17 +400,17 @@ int main(int argc, char *argv[])
       N_VDestroy(U);
       N_VDestroy(V);
 
-      if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+      if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
 
       printf("=====> Teardown complete\n\n");
     }
 
     /* Print result */
-    if (fails) {
+    if (fails)
+    {
       printf("\n\nFAIL: NVector module failed %i tests \n\n", fails);
-    } else {
-      printf("\n\nSUCCESS: NVector module passed all tests \n\n");
     }
+    else { printf("\n\nSUCCESS: NVector module passed all tests \n\n"); }
 
     delete stream_exec_policy;
     delete reduce_exec_policy;
@@ -399,7 +420,7 @@ int main(int argc, char *argv[])
   myQueue.wait();
 
   Test_Finalize();
-  return(fails);
+  return (fails);
 }
 
 /* ----------------------------------------------------------------------
@@ -407,16 +428,18 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 int check_ans(sunrealtype ans, N_Vector X, sunindextype length)
 {
-  int          failure = 0;
+  int failure = 0;
   sunindextype i;
-  sunrealtype     *Xdata;
+  sunrealtype* Xdata;
 
   N_VCopyFromDevice_Sycl(X);
   Xdata = N_VGetHostArrayPointer_Sycl(X);
 
   /* check vector data */
-  for (i = 0; i < length; i++) {
-    if (failure += SUNRCompare(Xdata[i], ans)) {
+  for (i = 0; i < length; i++)
+  {
+    if (failure += SUNRCompare(Xdata[i], ans))
+    {
       printf("check_ans fail: Xdata[%ld] = %f, expected Xdata[%ld] = %f\n",
              (long int)i, Xdata[i], (long int)i, ans);
     }
@@ -430,7 +453,9 @@ sunbooleantype has_data(N_Vector X)
   /* check if vector data is non-null */
   if ((N_VGetHostArrayPointer_Sycl(X) == NULL) &&
       (N_VGetDeviceArrayPointer_Sycl(X) == NULL))
+  {
     return SUNFALSE;
+  }
   return SUNTRUE;
 }
 
@@ -444,12 +469,12 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
                        sunrealtype val)
 {
   sunindextype i;
-  sunrealtype*    xd;
+  sunrealtype* xd;
 
   /* set elements [is,ie] of the data array */
   N_VCopyFromDevice_Sycl(X);
   xd = N_VGetHostArrayPointer_Sycl(X);
-  for(i = is; i <= ie; i++) xd[i] = val;
+  for (i = is; i <= ie; i++) { xd[i] = val; }
   N_VCopyToDevice_Sycl(X);
 }
 
@@ -463,7 +488,7 @@ sunrealtype get_element(N_Vector X, sunindextype i)
 double max_time(N_Vector X, double time)
 {
   /* not running in parallel, just return input time */
-  return(time);
+  return (time);
 }
 
 void sync_device(N_Vector x)

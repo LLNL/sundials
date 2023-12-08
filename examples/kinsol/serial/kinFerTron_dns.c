@@ -49,23 +49,22 @@
  * -----------------------------------------------------------------
  */
 
+#include <kinsol/kinsol.h> /* access to KINSOL func., consts. */
+#include <math.h>
+#include <nvector/nvector_serial.h> /* access to serial N_Vector       */
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-
-#include <kinsol/kinsol.h>             /* access to KINSOL func., consts. */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
-#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix       */
-#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver */
 #include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix       */
 
 /* Problem Constants */
 
-#define NVAR   2
-#define NEQ    3*NVAR
+#define NVAR 2
+#define NEQ  3 * NVAR
 
-#define FTOL   SUN_RCONST(1.e-5) /* function tolerance */
-#define STOL   SUN_RCONST(1.e-5) /* step tolerance     */
+#define FTOL SUN_RCONST(1.e-5) /* function tolerance */
+#define STOL SUN_RCONST(1.e-5) /* step tolerance     */
 
 #define ZERO   SUN_RCONST(0.0)
 #define PT25   SUN_RCONST(0.25)
@@ -74,28 +73,29 @@
 #define ONEPT5 SUN_RCONST(1.5)
 #define TWO    SUN_RCONST(2.0)
 
-#define PI     SUN_RCONST(3.1415926)
-#define E      SUN_RCONST(2.7182818)
+#define PI SUN_RCONST(3.1415926)
+#define E  SUN_RCONST(2.7182818)
 
-typedef struct {
+typedef struct
+{
   sunrealtype lb[NVAR];
   sunrealtype ub[NVAR];
-} *UserData;
+}* UserData;
 
 /* Accessor macro */
-#define Ith(v,i)    NV_Ith_S(v,i-1)
+#define Ith(v, i) NV_Ith_S(v, i - 1)
 
 /* Functions Called by the KINSOL Solver */
-static int func(N_Vector u, N_Vector f, void *user_data);
+static int func(N_Vector u, N_Vector f, void* user_data);
 
 /* Private Helper Functions */
 static void SetInitialGuess1(N_Vector u, UserData data);
 static void SetInitialGuess2(N_Vector u, UserData data);
-static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset);
+static int SolveIt(void* kmem, N_Vector u, N_Vector s, int glstr, int mset);
 static void PrintHeader(sunrealtype fnormtol, sunrealtype scsteptol);
 static void PrintOutput(N_Vector u);
-static void PrintFinalStats(void *kmem);
-static int check_retval(void *retvalvalue, const char *funcname, int opt);
+static void PrintFinalStats(void* kmem);
+static int check_retval(void* retvalvalue, const char* funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -103,91 +103,93 @@ static int check_retval(void *retvalvalue, const char *funcname, int opt);
  *--------------------------------------------------------------------
  */
 
-int main()
+int main(void)
 {
   SUNContext sunctx;
   UserData data;
   sunrealtype fnormtol, scsteptol;
   N_Vector u1, u2, u, s, c;
   int glstr, mset, retval;
-  void *kmem;
+  void* kmem;
   SUNMatrix J;
   SUNLinearSolver LS;
 
   u1 = u2 = u = NULL;
   s = c = NULL;
-  kmem = NULL;
-  J = NULL;
-  LS = NULL;
-  data = NULL;
+  kmem  = NULL;
+  J     = NULL;
+  LS    = NULL;
+  data  = NULL;
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
   /* User data */
 
-  data = (UserData)malloc(sizeof *data);
-  data->lb[0] = PT25;       data->ub[0] = ONE;
-  data->lb[1] = ONEPT5;     data->ub[1] = TWO*PI;
+  data        = (UserData)malloc(sizeof *data);
+  data->lb[0] = PT25;
+  data->ub[0] = ONE;
+  data->lb[1] = ONEPT5;
+  data->ub[1] = TWO * PI;
 
   /* Create serial vectors of length NEQ */
   u1 = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)u1, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)u1, "N_VNew_Serial", 0)) { return (1); }
 
   u2 = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)u2, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)u2, "N_VNew_Serial", 0)) { return (1); }
 
   u = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)u, "N_VNew_Serial", 0)) { return (1); }
 
   s = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)s, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)s, "N_VNew_Serial", 0)) { return (1); }
 
   c = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)c, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)c, "N_VNew_Serial", 0)) { return (1); }
 
-  SetInitialGuess1(u1,data);
-  SetInitialGuess2(u2,data);
+  SetInitialGuess1(u1, data);
+  SetInitialGuess2(u2, data);
 
-  N_VConst(ONE,s); /* no scaling */
+  N_VConst(ONE, s); /* no scaling */
 
-  Ith(c,1) =  ZERO;   /* no constraint on x1 */
-  Ith(c,2) =  ZERO;   /* no constraint on x2 */
-  Ith(c,3) =  ONE;    /* l1 = x1 - x1_min >= 0 */
-  Ith(c,4) = -ONE;    /* L1 = x1 - x1_max <= 0 */
-  Ith(c,5) =  ONE;    /* l2 = x2 - x2_min >= 0 */
-  Ith(c,6) = -ONE;    /* L2 = x2 - x22_min <= 0 */
+  Ith(c, 1) = ZERO; /* no constraint on x1 */
+  Ith(c, 2) = ZERO; /* no constraint on x2 */
+  Ith(c, 3) = ONE;  /* l1 = x1 - x1_min >= 0 */
+  Ith(c, 4) = -ONE; /* L1 = x1 - x1_max <= 0 */
+  Ith(c, 5) = ONE;  /* l2 = x2 - x2_min >= 0 */
+  Ith(c, 6) = -ONE; /* L2 = x2 - x22_min <= 0 */
 
-  fnormtol=FTOL; scsteptol=STOL;
-
+  fnormtol  = FTOL;
+  scsteptol = STOL;
 
   kmem = KINCreate(sunctx);
-  if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
+  if (check_retval((void*)kmem, "KINCreate", 0)) { return (1); }
 
   retval = KINSetUserData(kmem, data);
-  if (check_retval(&retval, "KINSetUserData", 1)) return(1);
+  if (check_retval(&retval, "KINSetUserData", 1)) { return (1); }
   retval = KINSetConstraints(kmem, c);
-  if (check_retval(&retval, "KINSetConstraints", 1)) return(1);
+  if (check_retval(&retval, "KINSetConstraints", 1)) { return (1); }
   retval = KINSetFuncNormTol(kmem, fnormtol);
-  if (check_retval(&retval, "KINSetFuncNormTol", 1)) return(1);
+  if (check_retval(&retval, "KINSetFuncNormTol", 1)) { return (1); }
   retval = KINSetScaledStepTol(kmem, scsteptol);
-  if (check_retval(&retval, "KINSetScaledStepTol", 1)) return(1);
+  if (check_retval(&retval, "KINSetScaledStepTol", 1)) { return (1); }
 
   retval = KINInit(kmem, func, u);
-  if (check_retval(&retval, "KINInit", 1)) return(1);
+  if (check_retval(&retval, "KINInit", 1)) { return (1); }
 
   /* Create dense SUNMatrix */
   J = SUNDenseMatrix(NEQ, NEQ, sunctx);
-  if(check_retval((void *)J, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void*)J, "SUNDenseMatrix", 0)) { return (1); }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(u, J, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void*)LS, "SUNLinSol_Dense", 0)) { return (1); }
 
   /* Attach the matrix and linear solver to KINSOL */
   retval = KINSetLinearSolver(kmem, LS, J);
-  if(check_retval(&retval, "KINSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "KINSetLinearSolver", 1)) { return (1); }
 
   /* Print out the problem size, solution parameters, initial guess. */
   PrintHeader(fnormtol, scsteptol);
@@ -199,33 +201,31 @@ int main()
   printf("  [x1,x2] = ");
   PrintOutput(u1);
 
-  N_VScale(ONE,u1,u);
+  N_VScale(ONE, u1, u);
   glstr = KIN_NONE;
-  mset = 1;
+  mset  = 1;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale(ONE,u1,u);
+  N_VScale(ONE, u1, u);
   glstr = KIN_LINESEARCH;
-  mset = 1;
+  mset  = 1;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale(ONE,u1,u);
+  N_VScale(ONE, u1, u);
   glstr = KIN_NONE;
-  mset = 0;
+  mset  = 0;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale(ONE,u1,u);
+  N_VScale(ONE, u1, u);
   glstr = KIN_LINESEARCH;
-  mset = 0;
+  mset  = 0;
   SolveIt(kmem, u, s, glstr, mset);
-
-
 
   /* --------------------------- */
 
@@ -234,34 +234,31 @@ int main()
   printf("  [x1,x2] = ");
   PrintOutput(u2);
 
-  N_VScale(ONE,u2,u);
+  N_VScale(ONE, u2, u);
   glstr = KIN_NONE;
-  mset = 1;
+  mset  = 1;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale(ONE,u2,u);
+  N_VScale(ONE, u2, u);
   glstr = KIN_LINESEARCH;
-  mset = 1;
+  mset  = 1;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale(ONE,u2,u);
+  N_VScale(ONE, u2, u);
   glstr = KIN_NONE;
-  mset = 0;
+  mset  = 0;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale(ONE,u2,u);
+  N_VScale(ONE, u2, u);
   glstr = KIN_LINESEARCH;
-  mset = 0;
+  mset  = 0;
   SolveIt(kmem, u, s, glstr, mset);
-
-
-
 
   /* Free memory */
 
@@ -276,41 +273,34 @@ int main()
   free(data);
   SUNContext_Free(&sunctx);
 
-  return(0);
+  return (0);
 }
 
-
-static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset)
+static int SolveIt(void* kmem, N_Vector u, N_Vector s, int glstr, int mset)
 {
   int retval;
 
   printf("\n");
 
-  if (mset==1)
-    printf("Exact Newton");
-  else
-    printf("Modified Newton");
+  if (mset == 1) { printf("Exact Newton"); }
+  else { printf("Modified Newton"); }
 
-  if (glstr == KIN_NONE)
-    printf("\n");
-  else
-    printf(" with line search\n");
+  if (glstr == KIN_NONE) { printf("\n"); }
+  else { printf(" with line search\n"); }
 
   retval = KINSetMaxSetupCalls(kmem, mset);
-  if (check_retval(&retval, "KINSetMaxSetupCalls", 1)) return(1);
+  if (check_retval(&retval, "KINSetMaxSetupCalls", 1)) { return (1); }
 
   retval = KINSol(kmem, u, glstr, s, s);
-  if (check_retval(&retval, "KINSol", 1)) return(1);
+  if (check_retval(&retval, "KINSol", 1)) { return (1); }
 
   printf("Solution:\n  [x1,x2] = ");
   PrintOutput(u);
 
   PrintFinalStats(kmem);
 
-  return(0);
-
+  return (0);
 }
-
 
 /*
  *--------------------------------------------------------------------
@@ -322,7 +312,7 @@ static int SolveIt(void *kmem, N_Vector u, N_Vector s, int glstr, int mset)
  * System function for predator-prey system
  */
 
-static int func(N_Vector u, N_Vector f, void *user_data)
+static int func(N_Vector u, N_Vector f, void* user_data)
 {
   sunrealtype *udata, *fdata;
   sunrealtype x1, l1, L1, x2, l2, L2;
@@ -330,8 +320,8 @@ static int func(N_Vector u, N_Vector f, void *user_data)
   UserData data;
 
   data = (UserData)user_data;
-  lb = data->lb;
-  ub = data->ub;
+  lb   = data->lb;
+  ub   = data->ub;
 
   udata = N_VGetArrayPointer(u);
   fdata = N_VGetArrayPointer(f);
@@ -343,14 +333,14 @@ static int func(N_Vector u, N_Vector f, void *user_data)
   l2 = udata[4];
   L2 = udata[5];
 
-  fdata[0] = PT5 * sin(x1*x2) - PT25 * x2 / PI - PT5 * x1;
-  fdata[1] = (ONE - PT25/PI)*(exp(TWO*x1)-E) + E*x2/PI - TWO*E*x1;
+  fdata[0] = PT5 * sin(x1 * x2) - PT25 * x2 / PI - PT5 * x1;
+  fdata[1] = (ONE - PT25 / PI) * (exp(TWO * x1) - E) + E * x2 / PI - TWO * E * x1;
   fdata[2] = l1 - x1 + lb[0];
   fdata[3] = L1 - x1 + ub[0];
   fdata[4] = l2 - x2 + lb[1];
   fdata[5] = L2 - x2 + ub[1];
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -366,7 +356,7 @@ static int func(N_Vector u, N_Vector f, void *user_data)
 static void SetInitialGuess1(N_Vector u, UserData data)
 {
   sunrealtype x1, x2;
-  sunrealtype *udata;
+  sunrealtype* udata;
   sunrealtype *lb, *ub;
 
   udata = N_VGetArrayPointer(u);
@@ -391,7 +381,7 @@ static void SetInitialGuess1(N_Vector u, UserData data)
 static void SetInitialGuess2(N_Vector u, UserData data)
 {
   sunrealtype x1, x2;
-  sunrealtype *udata;
+  sunrealtype* udata;
   sunrealtype *lb, *ub;
 
   udata = N_VGetArrayPointer(u);
@@ -422,14 +412,11 @@ static void PrintHeader(sunrealtype fnormtol, sunrealtype scsteptol)
   printf("\nFerraris and Tronconi test problem\n");
   printf("Tolerance parameters:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("  fnormtol  = %10.6Lg\n  scsteptol = %10.6Lg\n",
-         fnormtol, scsteptol);
+  printf("  fnormtol  = %10.6Lg\n  scsteptol = %10.6Lg\n", fnormtol, scsteptol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("  fnormtol  = %10.6g\n  scsteptol = %10.6g\n",
-         fnormtol, scsteptol);
+  printf("  fnormtol  = %10.6g\n  scsteptol = %10.6g\n", fnormtol, scsteptol);
 #else
-  printf("  fnormtol  = %10.6g\n  scsteptol = %10.6g\n",
-         fnormtol, scsteptol);
+  printf("  fnormtol  = %10.6g\n  scsteptol = %10.6g\n", fnormtol, scsteptol);
 #endif
 }
 
@@ -440,11 +427,11 @@ static void PrintHeader(sunrealtype fnormtol, sunrealtype scsteptol)
 static void PrintOutput(N_Vector u)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf(" %8.6Lg  %8.6Lg\n", Ith(u,1), Ith(u,2));
+  printf(" %8.6Lg  %8.6Lg\n", Ith(u, 1), Ith(u, 2));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf(" %8.6g  %8.6g\n", Ith(u,1), Ith(u,2));
+  printf(" %8.6g  %8.6g\n", Ith(u, 1), Ith(u, 2));
 #else
-    printf(" %8.6g  %8.6g\n", Ith(u,1), Ith(u,2));
+  printf(" %8.6g  %8.6g\n", Ith(u, 1), Ith(u, 2));
 #endif
 }
 
@@ -452,7 +439,7 @@ static void PrintOutput(N_Vector u)
  * Print final statistics contained in iopt
  */
 
-static void PrintFinalStats(void *kmem)
+static void PrintFinalStats(void* kmem)
 {
   long int nni, nfe, nje, nfeD;
   int retval;
@@ -482,36 +469,37 @@ static void PrintFinalStats(void *kmem)
  *             NULL pointer
  */
 
-static int check_retval(void *retvalvalue, const char *funcname, int opt)
+static int check_retval(void* retvalvalue, const char* funcname, int opt)
 {
-  int *errretval;
+  int* errretval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && retvalvalue == NULL) {
-    fprintf(stderr,
-            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
-    return(1);
+  if (opt == 0 && retvalvalue == NULL)
+  {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return (1);
   }
 
   /* Check if retval < 0 */
-  else if (opt == 1) {
-    errretval = (int *) retvalvalue;
-    if (*errretval < 0) {
-      fprintf(stderr,
-              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *errretval);
-      return(1);
+  else if (opt == 1)
+  {
+    errretval = (int*)retvalvalue;
+    if (*errretval < 0)
+    {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+              funcname, *errretval);
+      return (1);
     }
   }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && retvalvalue == NULL) {
-    fprintf(stderr,
-            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
-    return(1);
+  else if (opt == 2 && retvalvalue == NULL)
+  {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return (1);
   }
 
-  return(0);
+  return (0);
 }

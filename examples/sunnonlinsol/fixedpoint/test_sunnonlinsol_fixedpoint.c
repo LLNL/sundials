@@ -27,13 +27,13 @@
  * This system has the analytic solution x = 1/2, y = 1, z = -pi/6.
  * ---------------------------------------------------------------------------*/
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
-#include "sundials/sundials_types.h"
-#include "sundials/sundials_math.h"
 #include "nvector/nvector_serial.h"
+#include "sundials/sundials_math.h"
+#include "sundials/sundials_types.h"
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
 /* precision specific formatting macros */
@@ -60,7 +60,7 @@
 #endif
 
 /* problem constants */
-#define NEQ   3 /* number of equations */
+#define NEQ 3 /* number of equations */
 
 #define ZERO         SUN_RCONST(0.0)             /* real 0.0  */
 #define PTONE        SUN_RCONST(0.1)             /* real 0.1  */
@@ -79,16 +79,16 @@
 /* analytic solution */
 #define XTRUE HALF
 #define YTRUE ONE
-#define ZTRUE -PI/SIX
+#define ZTRUE -PI / SIX
 
 /* Check the system solution */
 static int check_ans(N_Vector ycur, sunrealtype tol);
 
 /* Check function return values */
-static int check_retval(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void* flagvalue, const char* funcname, int opt);
 
 /* Nonlinear fixed point function */
-static int FPFunction(N_Vector y, N_Vector f, void *mem);
+static int FPFunction(N_Vector y, N_Vector f, void* mem);
 
 /* Convergence test function */
 static int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
@@ -99,32 +99,33 @@ static int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
  */
 
 /* Integrator memory structure */
-typedef struct IntegratorMemRec {
+typedef struct IntegratorMemRec
+{
   N_Vector y0;
   N_Vector ycor;
   N_Vector ycur;
   N_Vector w;
-} *IntegratorMem;
+}* IntegratorMem;
 
 /* -----------------------------------------------------------------------------
  * Main testing routine
  * ---------------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  IntegratorMem      Imem    = NULL;
-  int                retval  = 0;
-  SUNNonlinearSolver NLS     = NULL;
-  sunrealtype           tol     = 100 * SUNRsqrt(SUN_UNIT_ROUNDOFF);
-  int                mxiter  = 20;
-  int                maa     = 0;           /* no acceleration */
-  sunrealtype           damping = SUN_RCONST(1.0); /* no damping      */
-  long int           niters  = 0;
-  sunrealtype*          data    = NULL;
-  SUNContext         sunctx     = NULL;
+  IntegratorMem Imem     = NULL;
+  int retval             = 0;
+  SUNNonlinearSolver NLS = NULL;
+  sunrealtype tol        = 100 * SUNRsqrt(SUN_UNIT_ROUNDOFF);
+  int mxiter             = 20;
+  int maa                = 0;               /* no acceleration */
+  sunrealtype damping    = SUN_RCONST(1.0); /* no damping      */
+  long int niters        = 0;
+  sunrealtype* data      = NULL;
+  SUNContext sunctx      = NULL;
 
   /* Check if a acceleration/dampling values were provided */
-  if (argc > 1) maa     = (long int) atoi(argv[1]);
-  if (argc > 2) damping = (sunrealtype) atof(argv[2]);
+  if (argc > 1) { maa = (long int)atoi(argv[1]); }
+  if (argc > 2) { damping = (sunrealtype)atof(argv[2]); }
 
   /* Print problem description */
   printf("Solve the nonlinear system:\n");
@@ -132,42 +133,45 @@ int main(int argc, char *argv[])
   printf("    x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0\n");
   printf("    exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0\n");
   printf("Analytic solution:\n");
-  printf("    x = %"GSYM"\n", XTRUE);
-  printf("    y = %"GSYM"\n", YTRUE);
-  printf("    z = %"GSYM"\n", ZTRUE);
+  printf("    x = %" GSYM "\n", XTRUE);
+  printf("    y = %" GSYM "\n", YTRUE);
+  printf("    z = %" GSYM "\n", ZTRUE);
   printf("Solution method: Anderson accelerated fixed point iteration.\n");
-  printf("    tolerance = %"GSYM"\n", tol);
+  printf("    tolerance = %" GSYM "\n", tol);
   printf("    max iters = %d\n", mxiter);
   printf("    accel vec = %d\n", maa);
-  printf("    damping   = %"GSYM"\n", damping);
+  printf("    damping   = %" GSYM "\n", damping);
 
   /* create SUNDIALS context */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
   /* create proxy for integrator memory */
-  Imem = (IntegratorMem) malloc(sizeof(struct IntegratorMemRec));
-  if (check_retval((void *)Imem, "Creating Integrator Memory", 0)) return(1);
+  Imem = (IntegratorMem)malloc(sizeof(struct IntegratorMemRec));
+  if (check_retval((void*)Imem, "Creating Integrator Memory", 0))
+  {
+    return (1);
+  }
 
   /* create vectors */
   Imem->y0 = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)Imem->y0, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)Imem->y0, "N_VNew_Serial", 0)) { return (1); }
 
   Imem->ycor = N_VClone(Imem->y0);
-  if (check_retval((void *)Imem->ycor, "N_VClone", 0)) return(1);
+  if (check_retval((void*)Imem->ycor, "N_VClone", 0)) { return (1); }
 
   Imem->ycur = N_VClone(Imem->y0);
-  if (check_retval((void *)Imem->ycur, "N_VClone", 0)) return(1);
+  if (check_retval((void*)Imem->ycur, "N_VClone", 0)) { return (1); }
 
   Imem->w = N_VClone(Imem->y0);
-  if (check_retval((void *)Imem->w, "N_VClone", 0)) return(1);
+  if (check_retval((void*)Imem->w, "N_VClone", 0)) { return (1); }
 
   /* set initial guess */
   data = N_VGetArrayPointer(Imem->y0);
-  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
+  if (check_retval((void*)data, "N_VGetArrayPointer", 0)) { return (1); }
 
-  data[0] =  PTONE;
-  data[1] =  PTONE;
+  data[0] = PTONE;
+  data[1] = PTONE;
   data[2] = -PTONE;
 
   /* set inital correction */
@@ -178,37 +182,37 @@ int main(int argc, char *argv[])
 
   /* create nonlinear solver */
   NLS = SUNNonlinSol_FixedPoint(Imem->y0, maa, sunctx);
-  if (check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
+  if (check_retval((void*)NLS, "SUNNonlinSol_FixedPoint", 0)) { return (1); }
 
   /* set the nonlinear residual function */
   retval = SUNNonlinSolSetSysFn(NLS, FPFunction);
-  if (check_retval(&retval, "SUNNonlinSolSetSysFn", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetSysFn", 1)) { return (1); }
 
   /* set the convergence test function */
   retval = SUNNonlinSolSetConvTestFn(NLS, ConvTest, NULL);
-  if (check_retval(&retval, "SUNNonlinSolSetConvTestFn", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetConvTestFn", 1)) { return (1); }
 
   /* set the maximum number of nonlinear iterations */
   retval = SUNNonlinSolSetMaxIters(NLS, mxiter);
-  if (check_retval(&retval, "SUNNonlinSolSetMaxIters", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetMaxIters", 1)) { return (1); }
 
   /* set the damping parameter */
   retval = SUNNonlinSolSetDamping_FixedPoint(NLS, damping);
-  if (check_retval(&retval, "SUNNonlinSolSetDamping", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetDamping", 1)) { return (1); }
 
   /* solve the nonlinear system */
   retval = SUNNonlinSolSolve(NLS, Imem->y0, Imem->ycor, Imem->w, tol, SUNTRUE,
                              Imem);
-  if (check_retval(&retval, "SUNNonlinSolSolve", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSolve", 1)) { return (1); }
 
   /* update the initial guess with the final correction */
   N_VLinearSum(ONE, Imem->y0, ONE, Imem->ycor, Imem->ycur);
 
   /* get the number of linear iterations */
   retval = SUNNonlinSolGetNumIters(NLS, &niters);
-  if (check_retval(&retval, "SUNNonlinSolGetNumIters", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolGetNumIters", 1)) { return (1); }
 
-  printf("Number of nonlinear iterations: %ld\n",niters);
+  printf("Number of nonlinear iterations: %ld\n", niters);
 
   /* check solution */
   retval = check_ans(Imem->ycur, tol);
@@ -222,7 +226,7 @@ int main(int argc, char *argv[])
   free(Imem);
   SUNContext_Free(&sunctx);
 
-  return(retval);
+  return (retval);
 }
 
 /* Proxy for integrator convergence test function */
@@ -234,10 +238,9 @@ int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, sunrealtype tol,
   /* compute the norm of the correction */
   delnrm = N_VMaxNorm(del);
 
-  if (delnrm <= tol) return(SUN_NLS_SUCCESS);  /* success       */
-  else               return(SUN_NLS_CONTINUE); /* not converged */
+  if (delnrm <= tol) { return (SUN_NLS_SUCCESS); /* success       */ }
+  else { return (SUN_NLS_CONTINUE); /* not converged */ }
 }
-
 
 /* -----------------------------------------------------------------------------
  * Nonlinear system F(x,y,z):
@@ -259,28 +262,29 @@ int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, sunrealtype tol,
  * g3(x,y,z) = -1/20 exp(-x(y-1)) - (10 pi - 3) / 60 - z0
  *
  * ---------------------------------------------------------------------------*/
-int FPFunction(N_Vector ycor, N_Vector gvec, void *mem)
+int FPFunction(N_Vector ycor, N_Vector gvec, void* mem)
 {
   IntegratorMem Imem;
-  sunrealtype*     ydata = NULL;
-  sunrealtype*     gdata = NULL;
-  sunrealtype      x, y, z;
+  sunrealtype* ydata = NULL;
+  sunrealtype* gdata = NULL;
+  sunrealtype x, y, z;
 
-  if (mem == NULL) {
+  if (mem == NULL)
+  {
     printf("ERROR: Integrator memory is NULL");
-    return(-1);
+    return (-1);
   }
-  Imem = (IntegratorMem) mem;
+  Imem = (IntegratorMem)mem;
 
   /* update state based on current correction */
   N_VLinearSum(ONE, Imem->y0, ONE, ycor, Imem->ycur);
 
   /* Get vector data arrays */
   ydata = N_VGetArrayPointer(Imem->ycur);
-  if (check_retval((void*)ydata, "N_VGetArrayPointer", 0)) return(-1);
+  if (check_retval((void*)ydata, "N_VGetArrayPointer", 0)) { return (-1); }
 
   gdata = N_VGetArrayPointer(gvec);
-  if (check_retval((void*)gdata, "N_VGetArrayPointer", 0)) return(-1);
+  if (check_retval((void*)gdata, "N_VGetArrayPointer", 0)) { return (-1); }
 
   /* get vector components */
   x = ydata[0];
@@ -288,13 +292,14 @@ int FPFunction(N_Vector ycor, N_Vector gvec, void *mem)
   z = ydata[2];
 
   /* compute fixed point function */
-  gdata[0] = (ONE/THREE) * SUNRcos((y-ONE)*z) + (ONE/SIX);
-  gdata[1] = (ONE/NINE) * SUNRsqrt(x*x + SUNRsin(z) + ONEPTZEROSIX) + PTNINE;
-  gdata[2] = -(ONE/TWENTY) * SUNRexp(-x*(y-ONE)) - (TEN * PI - THREE) / SIXTY;
+  gdata[0] = (ONE / THREE) * SUNRcos((y - ONE) * z) + (ONE / SIX);
+  gdata[1] = (ONE / NINE) * SUNRsqrt(x * x + SUNRsin(z) + ONEPTZEROSIX) + PTNINE;
+  gdata[2] = -(ONE / TWENTY) * SUNRexp(-x * (y - ONE)) -
+             (TEN * PI - THREE) / SIXTY;
 
   N_VLinearSum(ONE, gvec, -ONE, Imem->y0, gvec);
 
-  return(0);
+  return (0);
 }
 
 /* -----------------------------------------------------------------------------
@@ -303,17 +308,17 @@ int FPFunction(N_Vector ycor, N_Vector gvec, void *mem)
 static int check_ans(N_Vector ycur, sunrealtype tol)
 {
   sunrealtype* data = NULL;
-  sunrealtype  ex, ey, ez;
+  sunrealtype ex, ey, ez;
 
   /* Get vector data array */
   data = N_VGetArrayPointer(ycur);
-  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
+  if (check_retval((void*)data, "N_VGetArrayPointer", 0)) { return (1); }
 
   /* print the solution */
   printf("Computed solution:\n");
-  printf("    y1 = %"GSYM"\n", data[0]);
-  printf("    y2 = %"GSYM"\n", data[1]);
-  printf("    y3 = %"GSYM"\n", data[2]);
+  printf("    y1 = %" GSYM "\n", data[0]);
+  printf("    y2 = %" GSYM "\n", data[1]);
+  printf("    y3 = %" GSYM "\n", data[2]);
 
   /* solution error */
   ex = SUNRabs(data[0] - XTRUE);
@@ -322,18 +327,19 @@ static int check_ans(N_Vector ycur, sunrealtype tol)
 
   /* print the solution error */
   printf("Solution error:\n");
-  printf("    ex = %"GSYM"\n", ex);
-  printf("    ey = %"GSYM"\n", ey);
-  printf("    ez = %"GSYM"\n", ez);
+  printf("    ex = %" GSYM "\n", ex);
+  printf("    ey = %" GSYM "\n", ey);
+  printf("    ez = %" GSYM "\n", ez);
 
   tol *= TEN;
-  if (ex > tol || ey > tol || ez > tol) {
+  if (ex > tol || ey > tol || ez > tol)
+  {
     printf("FAIL\n");
-    return(1);
+    return (1);
   }
 
   printf("PASS\n");
-  return(0);
+  return (0);
 }
 
 /* -----------------------------------------------------------------------------
@@ -341,32 +347,35 @@ static int check_ans(N_Vector ycur, sunrealtype tol)
  *   opt == 0 check if returned NULL pointer
  *   opt == 1 check if returned a non-zero value
  * ---------------------------------------------------------------------------*/
-static int check_retval(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void* flagvalue, const char* funcname, int opt)
 {
-  int *errflag;
+  int* errflag;
 
   /* Check if the function returned a NULL pointer -- no memory allocated */
-  if (opt == 0) {
-    if (flagvalue == NULL) {
+  if (opt == 0)
+  {
+    if (flagvalue == NULL)
+    {
       fprintf(stderr, "\nERROR: %s() failed -- returned NULL\n\n", funcname);
-      return(1);
-    } else {
-      return(0);
+      return (1);
     }
+    else { return (0); }
   }
 
   /* Check if the function returned an non-zero value -- internal failure */
-  if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag != 0) {
-      fprintf(stderr, "\nERROR: %s() failed -- returned %d\n\n", funcname, *errflag);
-      return(1);
-    } else {
-      return(0);
+  if (opt == 1)
+  {
+    errflag = (int*)flagvalue;
+    if (*errflag != 0)
+    {
+      fprintf(stderr, "\nERROR: %s() failed -- returned %d\n\n", funcname,
+              *errflag);
+      return (1);
     }
+    else { return (0); }
   }
 
   /* if we make it here then opt was not 0 or 1 */
   fprintf(stderr, "\nERROR: check_retval failed -- Invalid opt value\n\n");
-  return(1);
+  return (1);
 }

@@ -29,13 +29,13 @@
 #ifndef _SUNLINSOL_DENSE_H
 #define _SUNLINSOL_DENSE_H
 
+#include <sundials/sundials_dense.h>
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
-#include <sundials/sundials_dense.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -43,19 +43,21 @@ extern "C" {
  * Dense Implementation of SUNLinearSolver
  * ---------------------------------------- */
 
-struct _SUNLinearSolverContent_Dense {
+struct _SUNLinearSolverContent_Dense
+{
   sunindextype N;
-  sunindextype *pivots;
+  sunindextype* pivots;
   sunindextype last_flag;
 };
 
-typedef struct _SUNLinearSolverContent_Dense *SUNLinearSolverContent_Dense;
+typedef struct _SUNLinearSolverContent_Dense* SUNLinearSolverContent_Dense;
 
 /* ----------------------------------------
  * Exported Functions for SUNLINSOL_DENSE
  * ---------------------------------------- */
 
-SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx);
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A,
+                                                SUNContext sunctx);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_Dense(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_Dense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_Dense(SUNLinearSolver S);
@@ -63,9 +65,8 @@ SUNDIALS_EXPORT int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A,
                                          N_Vector x, N_Vector b, sunrealtype tol);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_Dense(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSpace_Dense(SUNLinearSolver S,
-                                         long int *lenrwLS,
-                                         long int *leniwLS);
+SUNDIALS_EXPORT int SUNLinSolSpace_Dense(SUNLinearSolver S, long int* lenrwLS,
+                                         long int* leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_Dense(SUNLinearSolver S);
 
 #ifdef __cplusplus

@@ -22,7 +22,7 @@
 
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -32,34 +32,30 @@ extern "C" {
 
 /* User-supplied function Types */
 
-typedef int (*IDABBDLocalFn)(sunindextype Nlocal, sunrealtype tt,
-                             N_Vector yy, N_Vector yp, N_Vector gval,
-                             void *user_data);
+typedef int (*IDABBDLocalFn)(sunindextype Nlocal, sunrealtype tt, N_Vector yy,
+                             N_Vector yp, N_Vector gval, void* user_data);
 
-typedef int (*IDABBDCommFn)(sunindextype Nlocal, sunrealtype tt,
-                            N_Vector yy, N_Vector yp, void *user_data);
+typedef int (*IDABBDCommFn)(sunindextype Nlocal, sunrealtype tt, N_Vector yy,
+                            N_Vector yp, void* user_data);
 
 /* Exported Functions */
 
-SUNDIALS_EXPORT int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
+SUNDIALS_EXPORT int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal,
                                    sunindextype mudq, sunindextype mldq,
                                    sunindextype mukeep, sunindextype mlkeep,
-                                   sunrealtype dq_rel_yy,
-                                   IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
+                                   sunrealtype dq_rel_yy, IDABBDLocalFn Gres,
+                                   IDABBDCommFn Gcomm);
 
-SUNDIALS_EXPORT int IDABBDPrecReInit(void *ida_mem,
-                                     sunindextype mudq, sunindextype mldq,
-                                     sunrealtype dq_rel_yy);
+SUNDIALS_EXPORT int IDABBDPrecReInit(void* ida_mem, sunindextype mudq,
+                                     sunindextype mldq, sunrealtype dq_rel_yy);
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int IDABBDPrecGetWorkSpace(void *ida_mem,
-                                           long int *lenrwBBDP,
-                                           long int *leniwBBDP);
+SUNDIALS_EXPORT int IDABBDPrecGetWorkSpace(void* ida_mem, long int* lenrwBBDP,
+                                           long int* leniwBBDP);
 
-SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void *ida_mem,
-                                             long int *ngevalsBBDP);
-
+SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void* ida_mem,
+                                             long int* ngevalsBBDP);
 
 /*------------------
   BACKWARD PROBLEMS
@@ -67,27 +63,25 @@ SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void *ida_mem,
 
 /* User-Supplied Function Types */
 
-typedef int (*IDABBDLocalFnB)(sunindextype NlocalB, sunrealtype tt,
-                              N_Vector yy, N_Vector yp,
-                              N_Vector yyB, N_Vector ypB,
-                              N_Vector gvalB, void *user_dataB);
+typedef int (*IDABBDLocalFnB)(sunindextype NlocalB, sunrealtype tt, N_Vector yy,
+                              N_Vector yp, N_Vector yyB, N_Vector ypB,
+                              N_Vector gvalB, void* user_dataB);
 
-typedef int (*IDABBDCommFnB)(sunindextype NlocalB, sunrealtype tt,
-                             N_Vector yy, N_Vector yp,
-                             N_Vector yyB, N_Vector ypB, void *user_dataB);
+typedef int (*IDABBDCommFnB)(sunindextype NlocalB, sunrealtype tt, N_Vector yy,
+                             N_Vector yp, N_Vector yyB, N_Vector ypB,
+                             void* user_dataB);
 
 /* Exported Functions */
 
-SUNDIALS_EXPORT int IDABBDPrecInitB(void *ida_mem, int which, sunindextype NlocalB,
-                                    sunindextype mudqB, sunindextype mldqB,
-                                    sunindextype mukeepB, sunindextype mlkeepB,
-                                    sunrealtype dq_rel_yyB,
+SUNDIALS_EXPORT int IDABBDPrecInitB(void* ida_mem, int which,
+                                    sunindextype NlocalB, sunindextype mudqB,
+                                    sunindextype mldqB, sunindextype mukeepB,
+                                    sunindextype mlkeepB, sunrealtype dq_rel_yyB,
                                     IDABBDLocalFnB GresB, IDABBDCommFnB GcommB);
 
-SUNDIALS_EXPORT int IDABBDPrecReInitB(void *ida_mem, int which,
+SUNDIALS_EXPORT int IDABBDPrecReInitB(void* ida_mem, int which,
                                       sunindextype mudqB, sunindextype mldqB,
                                       sunrealtype dq_rel_yyB);
-
 
 #ifdef __cplusplus
 }

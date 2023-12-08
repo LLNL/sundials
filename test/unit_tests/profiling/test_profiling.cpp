@@ -68,7 +68,7 @@ int main()
   std::cout << "Testing SUNProfiler\n";
 
   SUNProfiler prof = nullptr;
-  int flag         = SUNProfiler_Create(SUN_COMM_NULL, "SUNProfiler Test", &prof);
+  int flag = SUNProfiler_Create(SUN_COMM_NULL, "SUNProfiler Test", &prof);
   if (flag)
   {
     std::cerr << ">>> FAILURE: "

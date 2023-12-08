@@ -63,12 +63,12 @@ int main(int argc, char* argv[])
 {
   // Initialize MPI
   int retval = MPI_Init(&argc, &argv);
-  if (check_retval(&retval, "MPI_Init", 1)) return 1;
+  if (check_retval(&retval, "MPI_Init", 1)) { return 1; }
 
   // Add scope so objects are destroyed before MPI_Finalize
   {
     // User data structure
-    UserData *udata = NULL;
+    UserData* udata = NULL;
 
     // Timing variables
     double t1 = 0.0;
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
     int myid;
 
     retval = MPI_Comm_rank(comm_w, &myid);
-    if (check_retval(&retval, "MPI_Comm_rank", 1)) return 1;
+    if (check_retval(&retval, "MPI_Comm_rank", 1)) { return 1; }
 
     // Set output process flag
     bool outproc = (myid == 0);
@@ -93,23 +93,23 @@ int main(int argc, char* argv[])
 
     // Allocate and initialize user data structure with default values. The
     // defaults may be overwritten by command line inputs in ReadInputs below.
-    udata = new UserData;
+    udata  = new UserData;
     retval = InitUserData(udata);
-    if (check_retval(&retval, "InitUserData", 1)) return 1;
+    if (check_retval(&retval, "InitUserData", 1)) { return 1; }
 
     // Parse command line inputs
     retval = ReadInputs(&argc, &argv, udata, outproc);
-    if (retval != 0) return 1;
+    if (retval != 0) { return 1; }
 
     // Setup parallel decomposition
     retval = SetupDecomp(comm_w, udata);
-    if (check_retval(&retval, "SetupDecomp", 1)) return 1;
+    if (check_retval(&retval, "SetupDecomp", 1)) { return 1; }
 
     // Output problem setup/options
     if (outproc)
     {
       retval = PrintUserData(udata);
-      if (check_retval(&retval, "PrintUserData", 1)) return 1;
+      if (check_retval(&retval, "PrintUserData", 1)) { return 1; }
     }
 
     // ------------------------
@@ -119,11 +119,11 @@ int main(int argc, char* argv[])
     // Create vector for solution
     N_Vector u = N_VNew_Parallel(udata->comm_c, udata->nodes_loc, udata->nodes,
                                  sunctx);
-    if (check_retval((void *) u, "N_VNew_Parallel", 0)) return 1;
+    if (check_retval((void*)u, "N_VNew_Parallel", 0)) { return 1; }
 
     // Create vector for scaling initial value
     N_Vector scale = N_VClone(u);
-    if (check_retval((void *) scale, "N_VClone", 0)) return 1;
+    if (check_retval((void*)scale, "N_VClone", 0)) { return 1; }
     N_VConst(ONE, scale);
 
     // Set initial condition
@@ -131,21 +131,21 @@ int main(int argc, char* argv[])
 
     // Create vector for error
     udata->e = N_VClone(u);
-    if (check_retval((void *) (udata->e), "N_VClone", 0)) return 1;
+    if (check_retval((void*)(udata->e), "N_VClone", 0)) { return 1; }
 
     // Create vector for b
     udata->b = N_VClone(u);
-    if (check_retval((void *) (udata->b), "N_VClone", 0)) return 1;
+    if (check_retval((void*)(udata->b), "N_VClone", 0)) { return 1; }
 
     // Create temp vector for FPFunction evaluation
     udata->vtemp = N_VClone(u);
-    if (check_retval((void *) (udata->vtemp), "N_VClone", 0)) return 1;
+    if (check_retval((void*)(udata->vtemp), "N_VClone", 0)) { return 1; }
 
     // -----------------------------------------------
     // Set b and c(u) for RHS evaluation in FPFunction
     // -----------------------------------------------
     retval = SetupRHS(udata);
-    if (check_retval(&retval, "SetupRHS", 1)) return 1;
+    if (check_retval(&retval, "SetupRHS", 1)) { return 1; }
 
     // --------------
     // Setup KINSOL
@@ -153,35 +153,35 @@ int main(int argc, char* argv[])
 
     // Initialize KINSOL memory
     void* kin_mem = KINCreate(sunctx);
-    if (check_retval((void *) kin_mem, "KINCreate", 0)) return 1;
+    if (check_retval((void*)kin_mem, "KINCreate", 0)) { return 1; }
 
     // Set number of prior residuals used in Anderson Accleration
     retval = KINSetMAA(kin_mem, udata->maa);
-    if (check_retval(&retval, "KINSetMAA", 0)) return 1;
+    if (check_retval(&retval, "KINSetMAA", 0)) { return 1; }
 
     // Set orthogonlization routine used in Anderson Accleration
     retval = KINSetOrthAA(kin_mem, udata->orthaa);
-    if (check_retval(&retval, "KINSetOrthAA", 0)) return 1;
+    if (check_retval(&retval, "KINSetOrthAA", 0)) { return 1; }
 
     // Set Fixed Point Function
     retval = KINInit(kin_mem, FPFunction, u);
-    if (check_retval(&retval, "KINInit", 1)) return 1;
+    if (check_retval(&retval, "KINInit", 1)) { return 1; }
 
     // Specify tolerances
     retval = KINSetFuncNormTol(kin_mem, udata->rtol);
-    if (check_retval(&retval, "KINSetFuncNormTol", 1)) return 1;
+    if (check_retval(&retval, "KINSetFuncNormTol", 1)) { return 1; }
 
     // Set maximum number of iterations
     retval = KINSetNumMaxIters(kin_mem, udata->maxits);
-    if (check_retval(&retval, "KINSetMaxNumIters", 1)) return 1;
+    if (check_retval(&retval, "KINSetMaxNumIters", 1)) { return 1; }
 
     // Set Anderson Acceleration damping parameter
     retval = KINSetDampingAA(kin_mem, udata->damping);
-    if (check_retval(&retval, "KINSetDampingAA", 1)) return 1;
+    if (check_retval(&retval, "KINSetDampingAA", 1)) { return 1; }
 
     // Attach user data
-    retval = KINSetUserData(kin_mem, (void *) udata);
-    if (check_retval(&retval, "KINSetUserData", 1)) return 1;
+    retval = KINSetUserData(kin_mem, (void*)udata);
+    if (check_retval(&retval, "KINSetUserData", 1)) { return 1; }
 
     // ----------------------------
     // Call KINSol to solve problem
@@ -193,19 +193,19 @@ int main(int argc, char* argv[])
     if (udata->output > 1)
     {
       retval = OpenOutput(udata);
-      if (check_retval(&retval, "OpenOutput", 1)) return 1;
+      if (check_retval(&retval, "OpenOutput", 1)) { return 1; }
     }
 
     // Start timer
     t1 = MPI_Wtime();
 
     // Call main solver
-    retval = KINSol(kin_mem,        // KINSol memory block
-                    u,              // inital guess on input; solution vector
-                    KIN_FP,         // global strategy choice
-                    scale,          // scaling vector, for the variable u
-                    scale);         // scaling vector for function values fval
-    if (check_retval(&retval, "KINSol", 1)) return(1);
+    retval = KINSol(kin_mem, // KINSol memory block
+                    u,       // inital guess on input; solution vector
+                    KIN_FP,  // global strategy choice
+                    scale,   // scaling vector, for the variable u
+                    scale);  // scaling vector for function values fval
+    if (check_retval(&retval, "KINSol", 1)) { return (1); }
 
     // Stop timer
     t2 = MPI_Wtime();
@@ -220,15 +220,15 @@ int main(int argc, char* argv[])
     {
       cout << "Final statistics:" << endl;
       retval = OutputStats(kin_mem, udata);
-      if (check_retval(&retval, "OutputStats", 1)) return 1;
+      if (check_retval(&retval, "OutputStats", 1)) { return 1; }
     }
     if (udata->output > 1)
     {
       retval = CloseOutput(udata);
-      if (check_retval(&retval, "CloseOutput", 1)) return 1;
+      if (check_retval(&retval, "CloseOutput", 1)) { return 1; }
 
       retval = WriteSolution(u, udata);
-      if (check_retval(&retval, "WriteSolution", 1)) return 1;
+      if (check_retval(&retval, "WriteSolution", 1)) { return 1; }
     }
 
     // ------------------------
@@ -237,7 +237,7 @@ int main(int argc, char* argv[])
 
     // Output final error
     retval = SolutionError(u, udata->e, udata);
-    if (check_retval(&retval, "SolutionError", 1)) return 1;
+    if (check_retval(&retval, "SolutionError", 1)) { return 1; }
 
     sunrealtype maxerr = N_VMaxNorm(udata->e);
 
@@ -255,17 +255,17 @@ int main(int argc, char* argv[])
     if (udata->timing)
     {
       retval = OutputTiming(udata);
-      if (check_retval(&retval, "OutputTiming", 1)) return 1;
+      if (check_retval(&retval, "OutputTiming", 1)) { return 1; }
     }
 
     // ------------------------------
     // Free memory
     // ------------------------------
 
-    KINFree(&kin_mem);         // Free solver memory
-    N_VDestroy(u);             // Free vectors
+    KINFree(&kin_mem); // Free solver memory
+    N_VDestroy(u);     // Free vectors
     N_VDestroy(scale);
-    FreeUserData(udata);       // Free user data
+    FreeUserData(udata); // Free user data
     delete udata;
   }
 
@@ -279,13 +279,13 @@ int main(int argc, char* argv[])
 // Setup the parallel decomposition
 // -----------------------------------------------------------------------------
 
-static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
+static int SetupDecomp(MPI_Comm comm_w, UserData* udata)
 {
   int retval;
 
   // Check that this has not been called before
-  if (udata->Erecv != NULL || udata->Wrecv != NULL ||
-      udata->Srecv != NULL || udata->Nrecv != NULL)
+  if (udata->Erecv != NULL || udata->Wrecv != NULL || udata->Srecv != NULL ||
+      udata->Nrecv != NULL)
   {
     cerr << "SetupDecomp error: parallel decomposition already set up" << endl;
     return -1;
@@ -379,9 +379,9 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
 
   // Determine if this proc has neighbors
   udata->HaveNbrW = (udata->is != 0);
-  udata->HaveNbrE = (udata->ie != udata->nx-1);
+  udata->HaveNbrE = (udata->ie != udata->nx - 1);
   udata->HaveNbrS = (udata->js != 0);
-  udata->HaveNbrN = (udata->je != udata->ny-1);
+  udata->HaveNbrN = (udata->je != udata->ny - 1);
 
   // Allocate exchange buffers if necessary
   if (udata->HaveNbrW)
@@ -411,9 +411,9 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
   // West neighbor
   if (udata->HaveNbrW)
   {
-    nbcoords[0] = coords[0]-1;
+    nbcoords[0] = coords[0] - 1;
     nbcoords[1] = coords[1];
-    retval = MPI_Cart_rank(udata->comm_c, nbcoords, &(udata->ipW));
+    retval      = MPI_Cart_rank(udata->comm_c, nbcoords, &(udata->ipW));
     if (retval != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Cart_rank = " << retval << endl;
@@ -424,9 +424,9 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
   // East neighbor
   if (udata->HaveNbrE)
   {
-    nbcoords[0] = coords[0]+1;
+    nbcoords[0] = coords[0] + 1;
     nbcoords[1] = coords[1];
-    retval = MPI_Cart_rank(udata->comm_c, nbcoords, &(udata->ipE));
+    retval      = MPI_Cart_rank(udata->comm_c, nbcoords, &(udata->ipE));
     if (retval != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Cart_rank = " << retval << endl;
@@ -438,8 +438,8 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
   if (udata->HaveNbrS)
   {
     nbcoords[0] = coords[0];
-    nbcoords[1] = coords[1]-1;
-    retval = MPI_Cart_rank(udata->comm_c, nbcoords, &(udata->ipS));
+    nbcoords[1] = coords[1] - 1;
+    retval      = MPI_Cart_rank(udata->comm_c, nbcoords, &(udata->ipS));
     if (retval != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Cart_rank = " << retval << endl;
@@ -451,8 +451,8 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
   if (udata->HaveNbrN)
   {
     nbcoords[0] = coords[0];
-    nbcoords[1] = coords[1]+1;
-    retval = MPI_Cart_rank(udata->comm_c, nbcoords, &(udata->ipN));
+    nbcoords[1] = coords[1] + 1;
+    retval      = MPI_Cart_rank(udata->comm_c, nbcoords, &(udata->ipN));
     if (retval != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Cart_rank = " << retval << endl;
@@ -469,24 +469,24 @@ static int SetupDecomp(MPI_Comm comm_w, UserData *udata)
 // -----------------------------------------------------------------------------
 
 // Fixed point function to compute G(u)
-static int FPFunction(N_Vector u, N_Vector f, void *user_data)
+static int FPFunction(N_Vector u, N_Vector f, void* user_data)
 {
-  int          retval;
+  int retval;
   sunindextype i, j;
 
   // Start timer
   double t1 = MPI_Wtime();
 
   // Access problem data
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   // Open exchange receives
   retval = PostRecv(udata);
-  if (check_retval(&retval, "PostRecv", 1)) return -1;
+  if (check_retval(&retval, "PostRecv", 1)) { return -1; }
 
   // Send exchange data
   retval = SendData(u, udata);
-  if (check_retval(&retval, "SendData", 1)) return -1;
+  if (check_retval(&retval, "SendData", 1)) { return -1; }
 
   // Shortcuts to local number of nodes
   sunindextype nx_loc = udata->nx_loc;
@@ -498,11 +498,11 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   sunrealtype cc = -TWO * (cx + cy);
 
   // Access data arrays
-  sunrealtype *uarray = N_VGetArrayPointer(u);
-  if (check_retval((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* uarray = N_VGetArrayPointer(u);
+  if (check_retval((void*)uarray, "N_VGetArrayPointer", 0)) { return -1; }
 
-  sunrealtype *farray = N_VGetArrayPointer(f);
-  if (check_retval((void *) farray, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* farray = N_VGetArrayPointer(f);
+  if (check_retval((void*)farray, "N_VGetArrayPointer", 0)) { return -1; }
 
   // Initialize rhs vector to zero (handles boundary conditions)
   N_VConst(ZERO, f);
@@ -512,51 +512,51 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   {
     for (i = 1; i < nx_loc - 1; i++)
     {
-      farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] +
-        cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]);
+      farray[IDX(i, j, nx_loc)] +=
+        cc * uarray[IDX(i, j, nx_loc)] +
+        cx * (uarray[IDX(i - 1, j, nx_loc)] + uarray[IDX(i + 1, j, nx_loc)]) +
+        cy * (uarray[IDX(i, j - 1, nx_loc)] + uarray[IDX(i, j + 1, nx_loc)]);
     }
   }
 
   // Wait for exchange receives
   retval = WaitRecv(udata);
-  if (check_retval(&retval, "WaitRecv", 1)) return -1;
+  if (check_retval(&retval, "WaitRecv", 1)) { return -1; }
 
   // Iterate over subdomain boundaries and add rhs diffusion term
-  sunrealtype *Warray = udata->Wrecv;
-  sunrealtype *Earray = udata->Erecv;
-  sunrealtype *Sarray = udata->Srecv;
-  sunrealtype *Narray = udata->Nrecv;
+  sunrealtype* Warray = udata->Wrecv;
+  sunrealtype* Earray = udata->Erecv;
+  sunrealtype* Sarray = udata->Srecv;
+  sunrealtype* Narray = udata->Nrecv;
 
   // West face (updates south-west and north-west corners if necessary)
   if (udata->HaveNbrW)
   {
     i = 0;
-    if (udata->HaveNbrS)  // South-West corner
+    if (udata->HaveNbrS) // South-West corner
     {
       j = 0;
-      farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] +
-        cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]);
+      farray[IDX(i, j, nx_loc)] +=
+        cc * uarray[IDX(i, j, nx_loc)] +
+        cx * (Warray[j] + uarray[IDX(i + 1, j, nx_loc)]) +
+        cy * (Sarray[i] + uarray[IDX(i, j + 1, nx_loc)]);
     }
 
     for (j = 1; j < ny_loc - 1; j++)
     {
-      farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] +
-        cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]);
+      farray[IDX(i, j, nx_loc)] +=
+        cc * uarray[IDX(i, j, nx_loc)] +
+        cx * (Warray[j] + uarray[IDX(i + 1, j, nx_loc)]) +
+        cy * (uarray[IDX(i, j - 1, nx_loc)] + uarray[IDX(i, j + 1, nx_loc)]);
     }
 
-    if (udata->HaveNbrN)  // North-West corner
+    if (udata->HaveNbrN) // North-West corner
     {
       j = ny_loc - 1;
-      farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] +
-        cx * (Warray[j] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]);
+      farray[IDX(i, j, nx_loc)] +=
+        cc * uarray[IDX(i, j, nx_loc)] +
+        cx * (Warray[j] + uarray[IDX(i + 1, j, nx_loc)]) +
+        cy * (uarray[IDX(i, j - 1, nx_loc)] + Narray[i]);
     }
   }
 
@@ -564,30 +564,30 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   if (udata->HaveNbrE)
   {
     i = nx_loc - 1;
-    if (udata->HaveNbrS)  // South-East corner
+    if (udata->HaveNbrS) // South-East corner
     {
       j = 0;
-      farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] +
-        cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
-        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]);
+      farray[IDX(i, j, nx_loc)] +=
+        cc * uarray[IDX(i, j, nx_loc)] +
+        cx * (uarray[IDX(i - 1, j, nx_loc)] + Earray[j]) +
+        cy * (Sarray[i] + uarray[IDX(i, j + 1, nx_loc)]);
     }
 
     for (j = 1; j < ny_loc - 1; j++)
     {
-      farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] +
-        cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + uarray[IDX(i,j+1,nx_loc)]);
+      farray[IDX(i, j, nx_loc)] +=
+        cc * uarray[IDX(i, j, nx_loc)] +
+        cx * (uarray[IDX(i - 1, j, nx_loc)] + Earray[j]) +
+        cy * (uarray[IDX(i, j - 1, nx_loc)] + uarray[IDX(i, j + 1, nx_loc)]);
     }
 
-    if (udata->HaveNbrN)  // North-East corner
+    if (udata->HaveNbrN) // North-East corner
     {
       j = ny_loc - 1;
-      farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] +
-        cx * (uarray[IDX(i-1,j,nx_loc)] + Earray[j])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]);
+      farray[IDX(i, j, nx_loc)] +=
+        cc * uarray[IDX(i, j, nx_loc)] +
+        cx * (uarray[IDX(i - 1, j, nx_loc)] + Earray[j]) +
+        cy * (uarray[IDX(i, j - 1, nx_loc)] + Narray[i]);
     }
   }
 
@@ -597,10 +597,10 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     j = 0;
     for (i = 1; i < nx_loc - 1; i++)
     {
-      farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] +
-        cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (Sarray[i] + uarray[IDX(i,j+1,nx_loc)]);
+      farray[IDX(i, j, nx_loc)] +=
+        cc * uarray[IDX(i, j, nx_loc)] +
+        cx * (uarray[IDX(i - 1, j, nx_loc)] + uarray[IDX(i + 1, j, nx_loc)]) +
+        cy * (Sarray[i] + uarray[IDX(i, j + 1, nx_loc)]);
     }
   }
 
@@ -610,16 +610,16 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
     j = udata->ny_loc - 1;
     for (i = 1; i < nx_loc - 1; i++)
     {
-      farray[IDX(i,j,nx_loc)] +=
-        cc * uarray[IDX(i,j,nx_loc)] +
-        cx * (uarray[IDX(i-1,j,nx_loc)] + uarray[IDX(i+1,j,nx_loc)])
-        + cy * (uarray[IDX(i,j-1,nx_loc)] + Narray[i]);
+      farray[IDX(i, j, nx_loc)] +=
+        cc * uarray[IDX(i, j, nx_loc)] +
+        cx * (uarray[IDX(i - 1, j, nx_loc)] + uarray[IDX(i + 1, j, nx_loc)]) +
+        cy * (uarray[IDX(i, j - 1, nx_loc)] + Narray[i]);
     }
   }
 
   // Add c(u)
   retval = c(u, udata->vtemp, user_data);
-  if (check_retval(&retval, "c(u)", 1)) return 1;
+  if (check_retval(&retval, "c(u)", 1)) { return 1; }
   N_VLinearSum(ONE, udata->vtemp, ONE, f, f);
 
   // Add u
@@ -638,7 +638,7 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
   if (udata->output > 1)
   {
     retval = WriteOutput(u, f, udata);
-    if (check_retval(&retval, "WriteOutput", 1)) return 1;
+    if (check_retval(&retval, "WriteOutput", 1)) { return 1; }
   }
 
   // Return success
@@ -650,66 +650,66 @@ static int FPFunction(N_Vector u, N_Vector f, void *user_data)
 // -----------------------------------------------------------------------------
 
 // Set nonlinear function c(u)
-static int SetC(UserData *udata)
+static int SetC(UserData* udata)
 {
   if (0 < udata->c_int && udata->c_int < 18)
   {
-    if (udata->c_int == 1) udata->c = c1;
-    else if (udata->c_int == 2) udata->c = c2;
-    else if (udata->c_int == 3) udata->c = c3;
-    else if (udata->c_int == 4) udata->c = c4;
-    else if (udata->c_int == 5) udata->c = c5;
-    else if (udata->c_int == 6) udata->c = c6;
-    else if (udata->c_int == 7) udata->c = c7;
-    else if (udata->c_int == 8) udata->c = c8;
-    else if (udata->c_int == 9) udata->c = c9;
-    else if (udata->c_int == 10) udata->c = c10;
-    else if (udata->c_int == 11) udata->c = c11;
-    else if (udata->c_int == 12) udata->c = c12;
-    else if (udata->c_int == 13) udata->c = c13;
-    else if (udata->c_int == 14) udata->c = c14;
-    else if (udata->c_int == 15) udata->c = c15;
-    else if (udata->c_int == 16) udata->c = c16;
-    else if (udata->c_int == 17) udata->c = c17;
+    if (udata->c_int == 1) { udata->c = c1; }
+    else if (udata->c_int == 2) { udata->c = c2; }
+    else if (udata->c_int == 3) { udata->c = c3; }
+    else if (udata->c_int == 4) { udata->c = c4; }
+    else if (udata->c_int == 5) { udata->c = c5; }
+    else if (udata->c_int == 6) { udata->c = c6; }
+    else if (udata->c_int == 7) { udata->c = c7; }
+    else if (udata->c_int == 8) { udata->c = c8; }
+    else if (udata->c_int == 9) { udata->c = c9; }
+    else if (udata->c_int == 10) { udata->c = c10; }
+    else if (udata->c_int == 11) { udata->c = c11; }
+    else if (udata->c_int == 12) { udata->c = c12; }
+    else if (udata->c_int == 13) { udata->c = c13; }
+    else if (udata->c_int == 14) { udata->c = c14; }
+    else if (udata->c_int == 15) { udata->c = c15; }
+    else if (udata->c_int == 16) { udata->c = c16; }
+    else if (udata->c_int == 17) { udata->c = c17; }
   }
-  else return 1;
+  else { return 1; }
 
   // Return success
   return 0;
 }
 
 // Set nonlinear function c(u)
-static int SetupRHS(void *user_data)
+static int SetupRHS(void* user_data)
 {
-  int          retval;
+  int retval;
   sunindextype i, j;
 
   // Access problem data
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   // Shortcuts to local number of nodes
   sunindextype nx_loc = udata->nx_loc;
   sunindextype ny_loc = udata->ny_loc;
 
   // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      :          1;
+  sunindextype istart = (udata->HaveNbrW) ? 0 : 1;
   sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      :          1;
+  sunindextype jstart = (udata->HaveNbrS) ? 0 : 1;
   sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
 
   // ------------------------------------------------------
   // Setup function c(u) for FPFunction based on user input
   // ------------------------------------------------------
   retval = SetC(udata);
-  if (check_retval(&retval, "SetC", 1)) return 1;
+  if (check_retval(&retval, "SetC", 1)) { return 1; }
 
   // ------------------------------------------------------
   // Setup b for FPFunction
   // ------------------------------------------------------
 
   // Access data array
-  sunrealtype *barray = N_VGetArrayPointer(udata->b);
-  if (check_retval((void *) barray, "N_VGetArrayPointer", 0)) return 1;
+  sunrealtype* barray = N_VGetArrayPointer(udata->b);
+  if (check_retval((void*)barray, "N_VGetArrayPointer", 0)) { return 1; }
 
   // Initialize rhs vector to zero (handles boundary conditions)
   sunrealtype x, y;
@@ -733,18 +733,17 @@ static int SetupRHS(void *user_data)
       cos_sqr_x = cos(PI * x) * cos(PI * x);
       cos_sqr_y = cos(PI * y) * cos(PI * y);
 
-      barray[IDX(i,j,nx_loc)] =
-        bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y
-        + by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x;
+      barray[IDX(i, j, nx_loc)] = bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y +
+                                  by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x;
     }
   }
 
   // Calculate c(u_exact) and add to forcing term (b)
   retval = Solution(udata->e, udata);
-  if (check_retval(&retval, "rhs", 1)) return 1;
+  if (check_retval(&retval, "rhs", 1)) { return 1; }
 
   retval = c(udata->e, udata->vtemp, user_data);
-  if (check_retval(&retval, "c(u)", 1)) return 1;
+  if (check_retval(&retval, "c(u)", 1)) { return 1; }
 
   // b = kx u_xx (u_exact) + ky u_yy (u_exact) + c(u_exact)
   N_VLinearSum(ONE, udata->vtemp, ONE, udata->b, udata->b);
@@ -754,29 +753,29 @@ static int SetupRHS(void *user_data)
 }
 
 // c(u)
-static int c(N_Vector u, N_Vector z, void *user_data)
+static int c(N_Vector u, N_Vector z, void* user_data)
 {
   sunindextype i, j;
 
   // Access problem data
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   // Shortcuts to local number of nodes
   sunindextype nx_loc = udata->nx_loc;
   sunindextype ny_loc = udata->ny_loc;
 
   // Determine iteration range excluding the overall domain boundary
-  sunindextype istart = (udata->HaveNbrW) ? 0      : 1;
+  sunindextype istart = (udata->HaveNbrW) ? 0 : 1;
   sunindextype iend   = (udata->HaveNbrE) ? nx_loc : nx_loc - 1;
-  sunindextype jstart = (udata->HaveNbrS) ? 0      : 1;
+  sunindextype jstart = (udata->HaveNbrS) ? 0 : 1;
   sunindextype jend   = (udata->HaveNbrN) ? ny_loc : ny_loc - 1;
 
   // Access data arrays
-  sunrealtype *uarray = N_VGetArrayPointer(u);
-  if (check_retval((void *) uarray, "N_VGetArrayPointer", 0)) return 1;
+  sunrealtype* uarray = N_VGetArrayPointer(u);
+  if (check_retval((void*)uarray, "N_VGetArrayPointer", 0)) { return 1; }
 
-  sunrealtype *zarray = N_VGetArrayPointer(z);
-  if (check_retval((void *) zarray, "N_VGetArrayPointer", 0)) return 1;
+  sunrealtype* zarray = N_VGetArrayPointer(z);
+  if (check_retval((void*)zarray, "N_VGetArrayPointer", 0)) { return 1; }
 
   // Initialize rhs vector to zero (handles boundary conditions)
   N_VConst(ZERO, z);
@@ -788,9 +787,9 @@ static int c(N_Vector u, N_Vector z, void *user_data)
   {
     for (i = istart; i < iend; i++)
     {
-      u_val = uarray[IDX(i,j,nx_loc)];
+      u_val = uarray[IDX(i, j, nx_loc)];
 
-      zarray[IDX(i,j,nx_loc)] = udata->c(u_val);
+      zarray[IDX(i, j, nx_loc)] = udata->c(u_val);
     }
   }
 
@@ -799,7 +798,7 @@ static int c(N_Vector u, N_Vector z, void *user_data)
 }
 
 // Post exchange receives
-static int PostRecv(UserData *udata)
+static int PostRecv(UserData* udata)
 {
   int retval;
 
@@ -809,7 +808,7 @@ static int PostRecv(UserData *udata)
   // Open Irecv buffers
   if (udata->HaveNbrW)
   {
-    retval = MPI_Irecv(udata->Wrecv, (int) udata->ny_loc, MPI_SUNREALTYPE,
+    retval = MPI_Irecv(udata->Wrecv, (int)udata->ny_loc, MPI_SUNREALTYPE,
                        udata->ipW, MPI_ANY_TAG, udata->comm_c, &(udata->reqRW));
     if (retval != MPI_SUCCESS)
     {
@@ -820,7 +819,7 @@ static int PostRecv(UserData *udata)
 
   if (udata->HaveNbrE)
   {
-    retval = MPI_Irecv(udata->Erecv, (int) udata->ny_loc, MPI_SUNREALTYPE,
+    retval = MPI_Irecv(udata->Erecv, (int)udata->ny_loc, MPI_SUNREALTYPE,
                        udata->ipE, MPI_ANY_TAG, udata->comm_c, &(udata->reqRE));
     if (retval != MPI_SUCCESS)
     {
@@ -831,7 +830,7 @@ static int PostRecv(UserData *udata)
 
   if (udata->HaveNbrS)
   {
-    retval = MPI_Irecv(udata->Srecv, (int) udata->nx_loc, MPI_SUNREALTYPE,
+    retval = MPI_Irecv(udata->Srecv, (int)udata->nx_loc, MPI_SUNREALTYPE,
                        udata->ipS, MPI_ANY_TAG, udata->comm_c, &(udata->reqRS));
     if (retval != MPI_SUCCESS)
     {
@@ -842,7 +841,7 @@ static int PostRecv(UserData *udata)
 
   if (udata->HaveNbrN)
   {
-    retval = MPI_Irecv(udata->Nrecv, (int) udata->nx_loc, MPI_SUNREALTYPE,
+    retval = MPI_Irecv(udata->Nrecv, (int)udata->nx_loc, MPI_SUNREALTYPE,
                        udata->ipN, MPI_ANY_TAG, udata->comm_c, &(udata->reqRN));
     if (retval != MPI_SUCCESS)
     {
@@ -862,7 +861,7 @@ static int PostRecv(UserData *udata)
 }
 
 // Send exchange data
-static int SendData(N_Vector y, UserData *udata)
+static int SendData(N_Vector y, UserData* udata)
 {
   int retval, i;
   sunindextype ny_loc = udata->ny_loc;
@@ -872,14 +871,14 @@ static int SendData(N_Vector y, UserData *udata)
   double t1 = MPI_Wtime();
 
   // Access data array
-  sunrealtype *Y = N_VGetArrayPointer(y);
-  if (check_retval((void *) Y, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* Y = N_VGetArrayPointer(y);
+  if (check_retval((void*)Y, "N_VGetArrayPointer", 0)) { return -1; }
 
   // Send data
   if (udata->HaveNbrW)
   {
-    for (i = 0; i < ny_loc; i++) udata->Wsend[i] = Y[IDX(0,i,nx_loc)];
-    retval = MPI_Isend(udata->Wsend, (int) udata->ny_loc, MPI_SUNREALTYPE,
+    for (i = 0; i < ny_loc; i++) { udata->Wsend[i] = Y[IDX(0, i, nx_loc)]; }
+    retval = MPI_Isend(udata->Wsend, (int)udata->ny_loc, MPI_SUNREALTYPE,
                        udata->ipW, 0, udata->comm_c, &(udata->reqSW));
     if (retval != MPI_SUCCESS)
     {
@@ -890,8 +889,11 @@ static int SendData(N_Vector y, UserData *udata)
 
   if (udata->HaveNbrE)
   {
-    for (i = 0; i < ny_loc; i++) udata->Esend[i] = Y[IDX(nx_loc-1,i,nx_loc)];
-    retval = MPI_Isend(udata->Esend, (int) udata->ny_loc, MPI_SUNREALTYPE,
+    for (i = 0; i < ny_loc; i++)
+    {
+      udata->Esend[i] = Y[IDX(nx_loc - 1, i, nx_loc)];
+    }
+    retval = MPI_Isend(udata->Esend, (int)udata->ny_loc, MPI_SUNREALTYPE,
                        udata->ipE, 1, udata->comm_c, &(udata->reqSE));
     if (retval != MPI_SUCCESS)
     {
@@ -902,8 +904,8 @@ static int SendData(N_Vector y, UserData *udata)
 
   if (udata->HaveNbrS)
   {
-    for (i = 0; i < nx_loc; i++) udata->Ssend[i] = Y[IDX(i,0,nx_loc)];
-    retval = MPI_Isend(udata->Ssend, (int) udata->nx_loc, MPI_SUNREALTYPE,
+    for (i = 0; i < nx_loc; i++) { udata->Ssend[i] = Y[IDX(i, 0, nx_loc)]; }
+    retval = MPI_Isend(udata->Ssend, (int)udata->nx_loc, MPI_SUNREALTYPE,
                        udata->ipS, 2, udata->comm_c, &(udata->reqSS));
     if (retval != MPI_SUCCESS)
     {
@@ -914,8 +916,11 @@ static int SendData(N_Vector y, UserData *udata)
 
   if (udata->HaveNbrN)
   {
-    for (i = 0; i < nx_loc; i++) udata->Nsend[i] = Y[IDX(i,ny_loc-1,nx_loc)];
-    retval = MPI_Isend(udata->Nsend, (int) udata->nx_loc, MPI_SUNREALTYPE,
+    for (i = 0; i < nx_loc; i++)
+    {
+      udata->Nsend[i] = Y[IDX(i, ny_loc - 1, nx_loc)];
+    }
+    retval = MPI_Isend(udata->Nsend, (int)udata->nx_loc, MPI_SUNREALTYPE,
                        udata->ipN, 3, udata->comm_c, &(udata->reqSN));
     if (retval != MPI_SUCCESS)
     {
@@ -935,7 +940,7 @@ static int SendData(N_Vector y, UserData *udata)
 }
 
 // Wait for exchange data
-static int WaitRecv(UserData *udata)
+static int WaitRecv(UserData* udata)
 {
   // Local variables
   int retval;
@@ -1024,7 +1029,7 @@ static int WaitRecv(UserData *udata)
 // -----------------------------------------------------------------------------
 
 // Initialize memory allocated within Userdata
-static int InitUserData(UserData *udata)
+static int InitUserData(UserData* udata)
 {
   // Diffusion coefficient
   udata->kx = ONE;
@@ -1088,11 +1093,11 @@ static int InitUserData(UserData *udata)
   udata->ipN = -1;
 
   // Integrator settings
-  udata->rtol        = SUN_RCONST(1.e-8);   // relative tolerance
-  udata->maa         = 60;              // 60 vectors in Anderson Acceleration space
-  udata->damping     = ONE;             // no damping for Anderson Acceleration
-  udata->orthaa      = 0;               // use MGS for Anderson Acceleration
-  udata->maxits      = 200;             // max number of fixed point iterations
+  udata->rtol    = SUN_RCONST(1.e-8); // relative tolerance
+  udata->maa     = 60;  // 60 vectors in Anderson Acceleration space
+  udata->damping = ONE; // no damping for Anderson Acceleration
+  udata->orthaa  = 0;   // use MGS for Anderson Acceleration
+  udata->maxits  = 200; // max number of fixed point iterations
 
   // c function
   udata->c     = NULL;
@@ -1103,7 +1108,7 @@ static int InitUserData(UserData *udata)
   udata->vtemp = NULL;
 
   // Output variables
-  udata->output = 1;   // 0 = no output, 1 = stats output, 2 = output to disk
+  udata->output = 1; // 0 = no output, 1 = stats output, 2 = output to disk
   udata->e      = NULL;
 
   // Timing variables
@@ -1117,21 +1122,20 @@ static int InitUserData(UserData *udata)
 }
 
 // Free memory allocated within Userdata
-static int FreeUserData(UserData *udata)
+static int FreeUserData(UserData* udata)
 {
   // Free exchange buffers
-  if (udata->Wrecv != NULL)  delete[] udata->Wrecv;
-  if (udata->Wsend != NULL)  delete[] udata->Wsend;
-  if (udata->Erecv != NULL)  delete[] udata->Erecv;
-  if (udata->Esend != NULL)  delete[] udata->Esend;
-  if (udata->Srecv != NULL)  delete[] udata->Srecv;
-  if (udata->Ssend != NULL)  delete[] udata->Ssend;
-  if (udata->Nrecv != NULL)  delete[] udata->Nrecv;
-  if (udata->Nsend != NULL)  delete[] udata->Nsend;
+  if (udata->Wrecv != NULL) { delete[] udata->Wrecv; }
+  if (udata->Wsend != NULL) { delete[] udata->Wsend; }
+  if (udata->Erecv != NULL) { delete[] udata->Erecv; }
+  if (udata->Esend != NULL) { delete[] udata->Esend; }
+  if (udata->Srecv != NULL) { delete[] udata->Srecv; }
+  if (udata->Ssend != NULL) { delete[] udata->Ssend; }
+  if (udata->Nrecv != NULL) { delete[] udata->Nrecv; }
+  if (udata->Nsend != NULL) { delete[] udata->Nsend; }
 
   // Free MPI Cartesian communicator
-  if (udata->comm_c != MPI_COMM_NULL)
-    MPI_Comm_free(&(udata->comm_c));
+  if (udata->comm_c != MPI_COMM_NULL) { MPI_Comm_free(&(udata->comm_c)); }
 
   // Free b vector
   if (udata->b)
@@ -1159,7 +1163,7 @@ static int FreeUserData(UserData *udata)
 }
 
 // Read command line inputs
-static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
+static int ReadInputs(int* argc, char*** argv, UserData* udata, bool outproc)
 {
   // Check for input args
   int arg_idx = 1;
@@ -1193,44 +1197,20 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
       udata->ky = stod((*argv)[arg_idx++]);
     }
     // Fixed Point settings
-    else if (arg == "--rtol")
-    {
-      udata->rtol = stod((*argv)[arg_idx++]);
-    }
-    else if (arg == "--maa")
-    {
-      udata->maa = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--damping")
-    {
-      udata->damping = stod((*argv)[arg_idx++]);
-    }
-    else if (arg == "--orthaa")
-    {
-      udata->orthaa = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--maxits")
-    {
-      udata->maxits = stoi((*argv)[arg_idx++]);
-    }
+    else if (arg == "--rtol") { udata->rtol = stod((*argv)[arg_idx++]); }
+    else if (arg == "--maa") { udata->maa = stoi((*argv)[arg_idx++]); }
+    else if (arg == "--damping") { udata->damping = stod((*argv)[arg_idx++]); }
+    else if (arg == "--orthaa") { udata->orthaa = stoi((*argv)[arg_idx++]); }
+    else if (arg == "--maxits") { udata->maxits = stoi((*argv)[arg_idx++]); }
     // RHS settings
-    else if (arg == "--c")
-    {
-      udata->c_int = stoi((*argv)[arg_idx++]);
-    }
+    else if (arg == "--c") { udata->c_int = stoi((*argv)[arg_idx++]); }
     // Output settings
-    else if (arg == "--output")
-    {
-      udata->output = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--timing")
-    {
-      udata->timing = true;
-    }
+    else if (arg == "--output") { udata->output = stoi((*argv)[arg_idx++]); }
+    else if (arg == "--timing") { udata->timing = true; }
     // Help
     else if (arg == "--help")
     {
-      if (outproc) InputHelp();
+      if (outproc) { InputHelp(); }
       return -1;
     }
     // Unknown input
@@ -1261,7 +1241,7 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc)
 // -----------------------------------------------------------------------------
 
 // Compute the exact solution
-static int Solution(N_Vector u, UserData *udata)
+static int Solution(N_Vector u, UserData* udata)
 {
   sunrealtype x, y;
   sunrealtype sin_sqr_x, sin_sqr_y;
@@ -1276,20 +1256,20 @@ static int Solution(N_Vector u, UserData *udata)
   sunindextype jstart = (udata->HaveNbrS) ? 0 : 1;
   sunindextype jend   = (udata->HaveNbrN) ? udata->ny_loc : udata->ny_loc - 1;
 
-  sunrealtype *uarray = N_VGetArrayPointer(u);
-  if (check_retval((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* uarray = N_VGetArrayPointer(u);
+  if (check_retval((void*)uarray, "N_VGetArrayPointer", 0)) { return -1; }
 
   for (sunindextype j = jstart; j < jend; j++)
   {
     for (sunindextype i = istart; i < iend; i++)
     {
-      x  = (udata->is + i) * udata->dx;
-      y  = (udata->js + j) * udata->dy;
+      x = (udata->is + i) * udata->dx;
+      y = (udata->js + j) * udata->dy;
 
       sin_sqr_x = sin(PI * x) * sin(PI * x);
       sin_sqr_y = sin(PI * y) * sin(PI * y);
 
-      uarray[IDX(i,j,udata->nx_loc)] = sin_sqr_x * sin_sqr_y;
+      uarray[IDX(i, j, udata->nx_loc)] = sin_sqr_x * sin_sqr_y;
     }
   }
 
@@ -1297,11 +1277,11 @@ static int Solution(N_Vector u, UserData *udata)
 }
 
 // Compute the solution error
-static int SolutionError(N_Vector u, N_Vector e, UserData *udata)
+static int SolutionError(N_Vector u, N_Vector e, UserData* udata)
 {
   // Check absolute error between output u and G(u)
   int retval = Solution(e, udata);
-  if (retval != 0) return -1;
+  if (retval != 0) { return -1; }
 
   // Compute absolute error
   N_VLinearSum(ONE, u, -ONE, e, e);
@@ -1315,79 +1295,88 @@ static void InputHelp()
 {
   cout << endl;
   cout << "Command line options:" << endl;
-  cout << "  --mesh <nx> <ny>        : mesh points in the x and y directions" << endl;
-  cout << "  --np <npx> <npy>        : number of MPI processes in the x and y directions" << endl;
-  cout << "  --domain <xu> <yu>      : domain upper bound in the x and y direction" << endl;
+  cout << "  --mesh <nx> <ny>        : mesh points in the x and y directions"
+       << endl;
+  cout << "  --np <npx> <npy>        : number of MPI processes in the x and y "
+          "directions"
+       << endl;
+  cout
+    << "  --domain <xu> <yu>      : domain upper bound in the x and y direction"
+    << endl;
   cout << "  --k <kx> <ky>           : diffusion coefficients" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
-  cout << "  --maa                   : size of Anderson Acceleration subspace" << endl;
+  cout << "  --maa                   : size of Anderson Acceleration subspace"
+       << endl;
   cout << "  --damping               : damping for Anderson Acceleration" << endl;
-  cout << "  --orthaa                : orthogonalization routined used in Anderson Acceleration" << endl;
+  cout << "  --orthaa                : orthogonalization routined used in "
+          "Anderson Acceleration"
+       << endl;
   cout << "  --maxits <iterations>   : max fixed point iterations" << endl;
   cout << "  --c <c_int>             : nonlinear function choice" << endl;
-  cout << "  --output                : output nonlinear solver statistics" << endl;
+  cout << "  --output                : output nonlinear solver statistics"
+       << endl;
   cout << "  --timing                : print timing data" << endl;
   cout << "  --help                  : print this message and exit" << endl;
 }
 
 // Print user data
-static int PrintUserData(UserData *udata)
+static int PrintUserData(UserData* udata)
 {
   cout << endl;
-  cout << "Stationary 2D Heat PDE with Nonlinear Terms:"  << endl;
-  cout << " --------------------------------- "           << endl;
-  cout << "  nprocs         = " << udata->nprocs_w        << endl;
-  cout << "  npx            = " << udata->npx             << endl;
-  cout << "  npy            = " << udata->npy             << endl;
-  cout << " --------------------------------- "           << endl;
-  cout << "  kx             = " << udata->kx              << endl;
-  cout << "  ky             = " << udata->ky              << endl;
-  cout << "  xu             = " << udata->xu              << endl;
-  cout << "  yu             = " << udata->yu              << endl;
-  cout << "  nx             = " << udata->nx              << endl;
-  cout << "  ny             = " << udata->ny              << endl;
-  cout << "  nxl (proc 0)   = " << udata->nx_loc          << endl;
-  cout << "  nyl (proc 0)   = " << udata->ny_loc          << endl;
-  cout << "  dx             = " << udata->dx              << endl;
-  cout << "  dy             = " << udata->dy              << endl;
-  cout << " --------------------------------- "           << endl;
-  cout << "  rtol           = " << udata->rtol            << endl;
-  cout << "  maa            = " << udata->maa             << endl;
-  cout << "  damping        = " << udata->damping         << endl;
-  cout << "  orthaa         = " << udata->orthaa          << endl;
-  cout << "  maxits         = " << udata->maxits          << endl;
-  cout << " --------------------------------- "           << endl;
-  cout << "  c              = " << udata->c_int           << endl;
-  cout << " --------------------------------- "           << endl;
-  cout << "  output         = " << udata->output          << endl;
-  cout << " --------------------------------- "           << endl;
+  cout << "Stationary 2D Heat PDE with Nonlinear Terms:" << endl;
+  cout << " --------------------------------- " << endl;
+  cout << "  nprocs         = " << udata->nprocs_w << endl;
+  cout << "  npx            = " << udata->npx << endl;
+  cout << "  npy            = " << udata->npy << endl;
+  cout << " --------------------------------- " << endl;
+  cout << "  kx             = " << udata->kx << endl;
+  cout << "  ky             = " << udata->ky << endl;
+  cout << "  xu             = " << udata->xu << endl;
+  cout << "  yu             = " << udata->yu << endl;
+  cout << "  nx             = " << udata->nx << endl;
+  cout << "  ny             = " << udata->ny << endl;
+  cout << "  nxl (proc 0)   = " << udata->nx_loc << endl;
+  cout << "  nyl (proc 0)   = " << udata->ny_loc << endl;
+  cout << "  dx             = " << udata->dx << endl;
+  cout << "  dy             = " << udata->dy << endl;
+  cout << " --------------------------------- " << endl;
+  cout << "  rtol           = " << udata->rtol << endl;
+  cout << "  maa            = " << udata->maa << endl;
+  cout << "  damping        = " << udata->damping << endl;
+  cout << "  orthaa         = " << udata->orthaa << endl;
+  cout << "  maxits         = " << udata->maxits << endl;
+  cout << " --------------------------------- " << endl;
+  cout << "  c              = " << udata->c_int << endl;
+  cout << " --------------------------------- " << endl;
+  cout << "  output         = " << udata->output << endl;
+  cout << " --------------------------------- " << endl;
   cout << endl;
 
   return 0;
 }
 
 // Print nonlinear solver statistics
-static int OutputStats(void *kinsol_mem, UserData* udata)
+static int OutputStats(void* kinsol_mem, UserData* udata)
 {
   int retval;
 
   // Get solver stats
   long int nfe, nni;
   retval = KINGetNumNonlinSolvIters(kinsol_mem, &nni);
-  if (check_retval(&retval, "KINGetNumNonlinSolvIters", 1)) return(1);
+  if (check_retval(&retval, "KINGetNumNonlinSolvIters", 1)) { return (1); }
   retval = KINGetNumFuncEvals(kinsol_mem, &nfe);
-  if (check_retval(&retval, "KINGetNumFuncEvals", 1)) return(1);
+  if (check_retval(&retval, "KINGetNumFuncEvals", 1)) { return (1); }
 
   cout << setprecision(6);
 
-  cout << "  Func evals       = " << nfe     << endl;
-  cout << "  NLS iters        = " << nni     << endl;
+  cout << "  Func evals       = " << nfe << endl;
+  cout << "  NLS iters        = " << nni << endl;
   cout << endl;
 
   return 0;
 }
 
-static int OutputTiming(UserData *udata)
+static int OutputTiming(UserData* udata)
 {
   bool outproc = (udata->myid_c == 0);
 
@@ -1425,28 +1414,27 @@ static int OutputTiming(UserData *udata)
 }
 
 // Write solution to a file
-static int WriteSolution(N_Vector u, UserData *udata)
+static int WriteSolution(N_Vector u, UserData* udata)
 {
   // Output problem information and open output streams
   // Each processor outputs subdomain information
   stringstream fname;
-  fname << "heat2d_info." << setfill('0') << setw(5) << udata->myid_c
-        << ".txt";
+  fname << "heat2d_info." << setfill('0') << setw(5) << udata->myid_c << ".txt";
 
   ofstream dout;
   dout.open(fname.str());
-  dout <<  "xu  " << udata->xu       << endl;
-  dout <<  "yu  " << udata->yu       << endl;
-  dout <<  "nx  " << udata->nx       << endl;
-  dout <<  "ny  " << udata->ny       << endl;
-  dout <<  "px  " << udata->npx      << endl;
-  dout <<  "py  " << udata->npy      << endl;
-  dout <<  "np  " << udata->nprocs_w << endl;
-  dout <<  "is  " << udata->is       << endl;
-  dout <<  "ie  " << udata->ie       << endl;
-  dout <<  "js  " << udata->js       << endl;
-  dout <<  "je  " << udata->je       << endl;
-  dout <<  "nt  " << 1               << endl;
+  dout << "xu  " << udata->xu << endl;
+  dout << "yu  " << udata->yu << endl;
+  dout << "nx  " << udata->nx << endl;
+  dout << "ny  " << udata->ny << endl;
+  dout << "px  " << udata->npx << endl;
+  dout << "py  " << udata->npy << endl;
+  dout << "np  " << udata->nprocs_w << endl;
+  dout << "is  " << udata->is << endl;
+  dout << "ie  " << udata->ie << endl;
+  dout << "js  " << udata->js << endl;
+  dout << "je  " << udata->je << endl;
+  dout << "nt  " << 1 << endl;
   dout.close();
 
   // Open output streams for solution
@@ -1460,8 +1448,8 @@ static int WriteSolution(N_Vector u, UserData *udata)
   udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
 
   // Write solution and error to disk
-  sunrealtype *uarray = N_VGetArrayPointer(u);
-  if (check_retval((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* uarray = N_VGetArrayPointer(u);
+  if (check_retval((void*)uarray, "N_VGetArrayPointer", 0)) { return -1; }
 
   for (sunindextype i = 0; i < udata->nodes_loc; i++)
   {
@@ -1476,7 +1464,7 @@ static int WriteSolution(N_Vector u, UserData *udata)
 }
 
 // Open residual and error output
-static int OpenOutput(UserData *udata)
+static int OpenOutput(UserData* udata)
 {
   bool outproc = (udata->myid_c == 0);
 
@@ -1507,7 +1495,7 @@ static int OpenOutput(UserData *udata)
 }
 
 // Write residual and error out to file
-static int WriteOutput(N_Vector u, N_Vector f, UserData *udata)
+static int WriteOutput(N_Vector u, N_Vector f, UserData* udata)
 {
   int retval;
   bool outproc = (udata->myid_c == 0);
@@ -1518,7 +1506,7 @@ static int WriteOutput(N_Vector u, N_Vector f, UserData *udata)
 
   // e = \|u_exact - u\|_2
   retval = SolutionError(u, udata->e, udata);
-  if (check_retval(&retval, "SolutionError", 1)) return 1;
+  if (check_retval(&retval, "SolutionError", 1)) { return 1; }
   sunrealtype err = N_VDotProd(udata->e, udata->e);
 
   if (outproc)
@@ -1536,7 +1524,7 @@ static int WriteOutput(N_Vector u, N_Vector f, UserData *udata)
 }
 
 // Close residual and error output files
-static int CloseOutput(UserData *udata)
+static int CloseOutput(UserData* udata)
 {
   bool outproc = (udata->myid_c == 0);
 
@@ -1551,14 +1539,15 @@ static int CloseOutput(UserData *udata)
 }
 
 // Check function return value
-static int check_retval(void *flagvalue, const string funcname, int opt)
+static int check_retval(void* flagvalue, const string funcname, int opt)
 {
   // Check if the function returned a NULL pointer
   if (opt == 0)
   {
     if (flagvalue == NULL)
     {
-      cerr << endl << "ERROR: " << funcname << " returned NULL pointer" << endl
+      cerr << endl
+           << "ERROR: " << funcname << " returned NULL pointer" << endl
            << endl;
       return 1;
     }
@@ -1566,18 +1555,19 @@ static int check_retval(void *flagvalue, const string funcname, int opt)
   // Check the function return value
   else if (opt == 1 || opt == 2)
   {
-    int errflag = *((int *) flagvalue);
-    if  ((opt == 1 && errflag < 0) || (opt == 2 && errflag != 0))
+    int errflag = *((int*)flagvalue);
+    if ((opt == 1 && errflag < 0) || (opt == 2 && errflag != 0))
     {
-      cerr << endl << "ERROR: " << funcname << " returned "
-           << errflag << endl << endl;
+      cerr << endl
+           << "ERROR: " << funcname << " returned " << errflag << endl
+           << endl;
       return 1;
     }
   }
   else
   {
-    cerr << endl << "ERROR: check_retval called with an invalid option value"
-         << endl;
+    cerr << endl
+         << "ERROR: check_retval called with an invalid option value" << endl;
     return 1;
   }
 

@@ -1,0 +1,38 @@
+name: Containers - build llvm container for clang-format checker
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_llvm_container:
+    runs-on: ubuntu-22.04
+    steps:    
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      
+      - name: Free up disk space
+        uses: ./.github/actions/free-space-ubuntu
+
+      - name: Checkout Spack
+        uses: actions/checkout@v4
+        with:
+          repository: spack/spack
+          ref: v0.21.0
+          path: spack
+
+      - name: Setup Spack
+        run: echo "$PWD/spack/bin" >> "$GITHUB_PATH"
+
+      - name: Setup Spack Binary Cache
+        run: |
+          spack mirror add v0.21.0 https://binaries.spack.io/v0.21.0
+          spack mirror add --oci-username ${{ github.actor }} --oci-password ${{ secrets.OCI_TOKEN }} sundials_spack_cache oci://ghcr.io/LLNL/sundials_spack_cache
+          spack buildcache keys --install --trust 
+
+      - name: Install llvm@17.0.4
+        run: spack install --no-check-signature llvm@17.0.4
+      
+      - name: Push to buildcache
+        if: ${{ !cancelled() }}
+        run: |
+          spack buildcache push --force --base-image ubuntu:22.04 sundials_spack_cache llvm

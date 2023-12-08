@@ -37,13 +37,12 @@
  * cvRoberts_klu.c example.
  * -----------------------------------------------------------------*/
 
+#include <cvode/cvode.h>            /* prototypes for CVODE fcts., consts.  */
+#include <nvector/nvector_serial.h> /* access to serial N_Vector            */
 #include <stdio.h>
-
-#include <cvode/cvode.h>                /* prototypes for CVODE fcts., consts.  */
-#include <nvector/nvector_serial.h>     /* access to serial N_Vector            */
+#include <sundials/sundials_types.h> /* defs. of sunrealtype, sunindextype      */
+#include <sunlinsol/sunlinsol_klu.h> /* access to KLU sparse direct solver   */
 #include <sunmatrix/sunmatrix_sparse.h> /* access to sparse SUNMatrix           */
-#include <sunlinsol/sunlinsol_klu.h>    /* access to KLU sparse direct solver   */
-#include <sundials/sundials_types.h>    /* defs. of sunrealtype, sunindextype      */
 
 /* User-defined vector and matrix accessor macro: Ith */
 
@@ -55,47 +54,48 @@
    using the N_VIth macro in nvector.h. N_VIth numbers the components of
    a vector starting from 0. */
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)         /* Ith numbers components 1..neq */
-
+#define Ith(v, i) NV_Ith_S(v, i - 1) /* Ith numbers components 1..neq */
 
 /* Problem Constants */
 
-#define GROUPSIZE 3            /* number of equations per group */
-#define Y1    SUN_RCONST(1.0)      /* initial y components */
-#define Y2    SUN_RCONST(0.0)
-#define Y3    SUN_RCONST(0.0)
-#define RTOL  SUN_RCONST(1.0e-4)   /* scalar relative tolerance            */
-#define ATOL1 SUN_RCONST(1.0e-8)   /* vector absolute tolerance components */
-#define ATOL2 SUN_RCONST(1.0e-14)
-#define ATOL3 SUN_RCONST(1.0e-6)
-#define T0    SUN_RCONST(0.0)      /* initial time           */
-#define T1    SUN_RCONST(0.4)      /* first output time      */
-#define TMULT SUN_RCONST(10.0)     /* output time factor     */
-#define NOUT  12               /* number of output times */
+#define GROUPSIZE 3               /* number of equations per group */
+#define Y1        SUN_RCONST(1.0) /* initial y components */
+#define Y2        SUN_RCONST(0.0)
+#define Y3        SUN_RCONST(0.0)
+#define RTOL      SUN_RCONST(1.0e-4) /* scalar relative tolerance            */
+#define ATOL1     SUN_RCONST(1.0e-8) /* vector absolute tolerance components */
+#define ATOL2     SUN_RCONST(1.0e-14)
+#define ATOL3     SUN_RCONST(1.0e-6)
+#define T0        SUN_RCONST(0.0)  /* initial time           */
+#define T1        SUN_RCONST(0.4)  /* first output time      */
+#define TMULT     SUN_RCONST(10.0) /* output time factor     */
+#define NOUT      12               /* number of output times */
 
-#define ZERO  SUN_RCONST(0.0)
+#define ZERO SUN_RCONST(0.0)
 
 /* Functions Called by the Solver */
 
-static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private functions to output results */
 
-static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3);
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2,
+                        sunrealtype y3);
 
 /* Private function to print final statistics */
 
-static void PrintFinalStats(void *cvode_mem);
+static void PrintFinalStats(void* cvode_mem);
 
 /* Private function to check function return values */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /* user data structure */
-typedef struct {
+typedef struct
+{
   sunindextype ngroups;
   sunindextype neq;
 } UserData;
@@ -106,120 +106,122 @@ typedef struct {
  *-------------------------------
  */
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   SUNContext sunctx;
   sunrealtype reltol, t, tout;
   N_Vector y, abstol;
   SUNMatrix A;
   SUNLinearSolver LS;
-  void *cvode_mem;
+  void* cvode_mem;
   int retval, iout, nnz;
   sunindextype neq, ngroups, groupj;
   UserData udata;
 
   y = abstol = NULL;
-  A = NULL;
-  LS = NULL;
-  cvode_mem = NULL;
+  A          = NULL;
+  LS         = NULL;
+  cvode_mem  = NULL;
 
   /* Parse command line arguments */
-  if (argc > 1) {
-    ngroups = atoi(argv[1]);
-  } else {
-    ngroups = 1000;
-  }
+  if (argc > 1) { ngroups = atoi(argv[1]); }
+  else { ngroups = 1000; }
   neq = ngroups * GROUPSIZE;
 
   udata.ngroups = ngroups;
-  udata.neq = neq;
+  udata.neq     = neq;
 
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
 
   /* Create serial vector of length neq for I.C. and abstol */
   y = N_VNew_Serial(neq, sunctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)y, "N_VNew_Serial", 0)) { return (1); }
   abstol = N_VNew_Serial(neq, sunctx);
-  if (check_retval((void *)abstol, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)abstol, "N_VNew_Serial", 0)) { return (1); }
 
   /* Initialize y */
-  for (groupj = 0; groupj < neq; groupj += GROUPSIZE) {
-    Ith(y,1+groupj) = Y1;
-    Ith(y,2+groupj) = Y2;
-    Ith(y,3+groupj) = Y3;
+  for (groupj = 0; groupj < neq; groupj += GROUPSIZE)
+  {
+    Ith(y, 1 + groupj) = Y1;
+    Ith(y, 2 + groupj) = Y2;
+    Ith(y, 3 + groupj) = Y3;
   }
 
   /* Set the scalar relative tolerance */
   reltol = RTOL;
 
   /* Set the vector absolute tolerance */
-  for (groupj = 0; groupj < neq; groupj += GROUPSIZE) {
-    Ith(abstol,1+groupj) = ATOL1;
-    Ith(abstol,2+groupj) = ATOL2;
-    Ith(abstol,3+groupj) = ATOL3;
+  for (groupj = 0; groupj < neq; groupj += GROUPSIZE)
+  {
+    Ith(abstol, 1 + groupj) = ATOL1;
+    Ith(abstol, 2 + groupj) = ATOL2;
+    Ith(abstol, 3 + groupj) = ATOL3;
   }
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the inital time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
 
   /* Call CVodeSetUserData to attach the user data structure */
   retval = CVodeSetUserData(cvode_mem, &udata);
-  if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) { return (1); }
 
   /* Call CVodeSVtolerances to specify the scalar relative tolerance
    * and vector absolute tolerances */
   retval = CVodeSVtolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSVtolerances", 1)) { return (1); }
 
   /* Create sparse SUNMatrix for use in linear solves */
   nnz = GROUPSIZE * GROUPSIZE * ngroups;
-  A = SUNSparseMatrix(neq, neq, nnz, CSR_MAT, sunctx);
-  if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
+  A   = SUNSparseMatrix(neq, neq, nnz, CSR_MAT, sunctx);
+  if (check_retval((void*)A, "SUNSparseMatrix", 0)) { return (1); }
 
   /* Create KLU solver object for use by CVode */
   LS = SUNLinSol_KLU(y, A, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_KLU", 0)) return(1);
+  if (check_retval((void*)LS, "SUNLinSol_KLU", 0)) { return (1); }
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return (1); }
 
   /* Set the user-supplied Jacobian routine Jac */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) { return (1); }
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */
   printf(" \nGroup of independent 3-species kinetics problems\n\n");
-  printf("number of groups = %lld\n\n", (long long int) ngroups);
+  printf("number of groups = %lld\n\n", (long long int)ngroups);
 
-  iout = 0;  tout = T1;
-  while(1) {
+  iout = 0;
+  tout = T1;
+  while (1)
+  {
     retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
 
-    for (groupj = 0; groupj < 1; groupj++) {
-      printf("group %lld: ", (long long int) groupj);
-      PrintOutput(t, Ith(y,1+GROUPSIZE*groupj),
-                     Ith(y,2+GROUPSIZE*groupj),
-                     Ith(y,3+GROUPSIZE*groupj));
+    for (groupj = 0; groupj < 1; groupj++)
+    {
+      printf("group %lld: ", (long long int)groupj);
+      PrintOutput(t, Ith(y, 1 + GROUPSIZE * groupj),
+                  Ith(y, 2 + GROUPSIZE * groupj), Ith(y, 3 + GROUPSIZE * groupj));
     }
 
-    if (check_retval(&retval, "CVode", 1)) break;
-    if (retval == CV_SUCCESS) {
+    if (check_retval(&retval, "CVode", 1)) { break; }
+    if (retval == CV_SUCCESS)
+    {
       iout++;
       tout *= TMULT;
     }
 
-    if (iout == NOUT) break;
+    if (iout == NOUT) { break; }
   }
 
   /* Print some final statistics */
@@ -241,32 +243,35 @@ int main(int argc, char *argv[])
   /* Free the SUNDIALS simulation context */
   SUNContext_Free(&sunctx);
 
-  return(0);
+  return (0);
 }
-
 
 /*
  *-------------------------------
  * Functions called by the solver
  *-------------------------------
  */
-static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  UserData *udata;
+  UserData* udata;
   sunindextype groupj;
   sunrealtype y1, y2, y3, yd1, yd3;
 
-  udata = (UserData*) user_data;
+  udata = (UserData*)user_data;
 
-  for (groupj = 0; groupj < udata->neq; groupj += GROUPSIZE) {
-    y1 = Ith(y,1+groupj); y2 = Ith(y,2+groupj); y3 = Ith(y,3+groupj);
+  for (groupj = 0; groupj < udata->neq; groupj += GROUPSIZE)
+  {
+    y1 = Ith(y, 1 + groupj);
+    y2 = Ith(y, 2 + groupj);
+    y3 = Ith(y, 3 + groupj);
 
-    yd1 = Ith(ydot,1+groupj) = SUN_RCONST(-0.04)*y1 + SUN_RCONST(1.0e4)*y2*y3;
-    yd3 = Ith(ydot,3+groupj) = SUN_RCONST(3.0e7)*y2*y2;
-          Ith(ydot,2+groupj) = -yd1 - yd3;
+    yd1 = Ith(ydot, 1 + groupj) = SUN_RCONST(-0.04) * y1 +
+                                  SUN_RCONST(1.0e4) * y2 * y3;
+    yd3 = Ith(ydot, 3 + groupj) = SUN_RCONST(3.0e7) * y2 * y2;
+    Ith(ydot, 2 + groupj)       = -yd1 - yd3;
   }
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -274,59 +279,61 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
  */
 
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  UserData *udata = (UserData*) user_data;
-  sunindextype *rowptrs = SUNSparseMatrix_IndexPointers(J);
-  sunindextype *colvals = SUNSparseMatrix_IndexValues(J);
-  sunrealtype *data = SUNSparseMatrix_Data(J);
-  sunrealtype *ydata;
+  UserData* udata       = (UserData*)user_data;
+  sunindextype* rowptrs = SUNSparseMatrix_IndexPointers(J);
+  sunindextype* colvals = SUNSparseMatrix_IndexValues(J);
+  sunrealtype* data     = SUNSparseMatrix_Data(J);
+  sunrealtype* ydata;
   sunrealtype y2, y3;
   sunindextype groupj, nnzper;
 
-  ydata = N_VGetArrayPointer(y);
+  ydata  = N_VGetArrayPointer(y);
   nnzper = GROUPSIZE * GROUPSIZE;
 
   SUNMatZero(J);
 
   rowptrs[0] = 0;
-  rowptrs = &rowptrs[1];
-  for (groupj = 0; groupj < udata->ngroups; groupj++) {
+  rowptrs    = &rowptrs[1];
+  for (groupj = 0; groupj < udata->ngroups; groupj++)
+  {
     /* get y values */
-    y2 = ydata[GROUPSIZE*groupj + 1];
-    y3 = ydata[GROUPSIZE*groupj + 2];
+    y2 = ydata[GROUPSIZE * groupj + 1];
+    y3 = ydata[GROUPSIZE * groupj + 2];
 
     /* there are 3 entries per row */
-    rowptrs[GROUPSIZE*groupj]     = 3 + nnzper*groupj;
-    rowptrs[GROUPSIZE*groupj + 1] = 6 + nnzper*groupj;
-    rowptrs[GROUPSIZE*groupj + 2] = 9 + nnzper*groupj;
+    rowptrs[GROUPSIZE * groupj]     = 3 + nnzper * groupj;
+    rowptrs[GROUPSIZE * groupj + 1] = 6 + nnzper * groupj;
+    rowptrs[GROUPSIZE * groupj + 2] = 9 + nnzper * groupj;
 
     /* first row of block */
-    data[nnzper*groupj]     = SUN_RCONST(-0.04);
-    data[nnzper*groupj + 1] = SUN_RCONST(1.0e4)*y3;
-    data[nnzper*groupj + 2] = SUN_RCONST(1.0e4)*y2;
-    colvals[nnzper*groupj]     = GROUPSIZE*groupj;
-    colvals[nnzper*groupj + 1] = GROUPSIZE*groupj + 1;
-    colvals[nnzper*groupj + 2] = GROUPSIZE*groupj + 2;
+    data[nnzper * groupj]        = SUN_RCONST(-0.04);
+    data[nnzper * groupj + 1]    = SUN_RCONST(1.0e4) * y3;
+    data[nnzper * groupj + 2]    = SUN_RCONST(1.0e4) * y2;
+    colvals[nnzper * groupj]     = GROUPSIZE * groupj;
+    colvals[nnzper * groupj + 1] = GROUPSIZE * groupj + 1;
+    colvals[nnzper * groupj + 2] = GROUPSIZE * groupj + 2;
 
     /* second row of block */
-    data[nnzper*groupj + 3] = SUN_RCONST(0.04);
-    data[nnzper*groupj + 4] = (SUN_RCONST(-1.0e4)*y3) - (SUN_RCONST(6.0e7)*y2);
-    data[nnzper*groupj + 5] = SUN_RCONST(-1.0e4)*y2;
-    colvals[nnzper*groupj + 3] = GROUPSIZE*groupj;
-    colvals[nnzper*groupj + 4] = GROUPSIZE*groupj + 1;
-    colvals[nnzper*groupj + 5] = GROUPSIZE*groupj + 2;
+    data[nnzper * groupj + 3] = SUN_RCONST(0.04);
+    data[nnzper * groupj + 4] = (SUN_RCONST(-1.0e4) * y3) -
+                                (SUN_RCONST(6.0e7) * y2);
+    data[nnzper * groupj + 5]    = SUN_RCONST(-1.0e4) * y2;
+    colvals[nnzper * groupj + 3] = GROUPSIZE * groupj;
+    colvals[nnzper * groupj + 4] = GROUPSIZE * groupj + 1;
+    colvals[nnzper * groupj + 5] = GROUPSIZE * groupj + 2;
 
     /* third row of block */
-    data[nnzper*groupj + 6] = ZERO;
-    data[nnzper*groupj + 7] = SUN_RCONST(6.0e7)*y2;
-    data[nnzper*groupj + 8] = ZERO;
-    colvals[nnzper*groupj + 6] = GROUPSIZE*groupj;
-    colvals[nnzper*groupj + 7] = GROUPSIZE*groupj + 1;
-    colvals[nnzper*groupj + 8] = GROUPSIZE*groupj + 2;
+    data[nnzper * groupj + 6]    = ZERO;
+    data[nnzper * groupj + 7]    = SUN_RCONST(6.0e7) * y2;
+    data[nnzper * groupj + 8]    = ZERO;
+    colvals[nnzper * groupj + 6] = GROUPSIZE * groupj;
+    colvals[nnzper * groupj + 7] = GROUPSIZE * groupj + 1;
+    colvals[nnzper * groupj + 8] = GROUPSIZE * groupj + 2;
   }
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -335,7 +342,8 @@ static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
  *-------------------------------
  */
 
-static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2,
+                        sunrealtype y3)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);
@@ -352,7 +360,7 @@ static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealty
  * Get and print some final statistics
  */
 
-static void PrintFinalStats(void *cvode_mem)
+static void PrintFinalStats(void* cvode_mem)
 {
   long int nst, nfe, nsetups, nje, nni, nnf, ncfn, netf, nge;
   int retval;
@@ -379,8 +387,8 @@ static void PrintFinalStats(void *cvode_mem)
   check_retval(&retval, "CVodeGetNumGEvals", 1);
 
   printf("\nFinal Statistics:\n");
-  printf("nst = %-6ld nfe = %-6ld nsetups = %-6ld nje = %ld\n",
-         nst, nfe, nsetups, nje);
+  printf("nst = %-6ld nfe = %-6ld nsetups = %-6ld nje = %ld\n", nst, nfe,
+         nsetups, nje);
   printf("nni = %-6ld nnf = %-6ld netf = %-6ld    ncfn = %-6ld nge = %ld\n\n",
          nni, nnf, netf, ncfn, nge);
 }
@@ -395,29 +403,37 @@ static void PrintFinalStats(void *cvode_mem)
  *            NULL pointer
  */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1); }
+    return (1);
+  }
 
   /* Check if retval < 0 */
-  else if (opt == 1) {
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
+  else if (opt == 1)
+  {
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return(1); }}
+      return (1);
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && returnvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1); }
+    return (1);
+  }
 
-  return(0);
+  return (0);
 }

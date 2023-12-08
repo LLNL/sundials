@@ -116,7 +116,7 @@ TEST_F(SUNErrConditionTest, ErrConditionResultsInErrReturned)
 {
   sunindextype size = 0;
   v->ops->nvbufsize = NULL; // Force a SUN_ERR_NOT_IMPLEMENTED
-  SUNErrCode err = N_VBufSize(v, &size);
+  SUNErrCode err    = N_VBufSize(v, &size);
   EXPECT_EQ(err, SUN_ERR_NOT_IMPLEMENTED);
 }
 

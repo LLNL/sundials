@@ -47,66 +47,67 @@
  * -----------------------------------------------------------------
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
 #include <ida/ida.h>
-#include <sunlinsol/sunlinsol_spgmr.h>
-#include <nvector/nvector_petsc.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
-
+#include <math.h>
 #include <mpi.h>
+#include <nvector/nvector_petsc.h>
 #include <petscdm.h>
 #include <petscdmda.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
+#include <sunlinsol/sunlinsol_spgmr.h>
 
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
-#define TWO   SUN_RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
-#define NOUT         11             /* Number of output times */
+#define NOUT 11 /* Number of output times */
 
-#define NPEX         2              /* No. PEs in x direction of PE array */
-#define NPEY         2              /* No. PEs in y direction of PE array */
-                                    /* Total no. PEs = NPEX*NPEY */
-#define MXSUB        5              /* No. x points per subgrid */
-#define MYSUB        5              /* No. y points per subgrid */
+#define NPEX 2  /* No. PEs in x direction of PE array */
+#define NPEY 2  /* No. PEs in y direction of PE array */
+                /* Total no. PEs = NPEX*NPEY */
+#define MXSUB 5 /* No. x points per subgrid */
+#define MYSUB 5 /* No. y points per subgrid */
 
-#define MX           (NPEX*MXSUB)   /* MX = number of x mesh points */
-#define MY           (NPEY*MYSUB)   /* MY = number of y mesh points */
-                                    /* Spatial mesh is MX by MY */
+#define MX (NPEX * MXSUB) /* MX = number of x mesh points */
+#define MY (NPEY * MYSUB) /* MY = number of y mesh points */
 
-typedef struct {
-  N_Vector pp;    /* vector of diagonal preconditioner elements */
-  DM       da;    /* PETSc data management object */
-} *UserData;
+/* Spatial mesh is MX by MY */
+
+typedef struct
+{
+  N_Vector pp; /* vector of diagonal preconditioner elements */
+  DM da;       /* PETSc data management object */
+}* UserData;
 
 /* User-supplied residual function */
 
-int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr, void *user_data);
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+            void* user_data);
 
 /* User-supplied preconditioner routines */
 
-int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp,
-               N_Vector rr, sunrealtype c_j, void *user_data);
+int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
+               sunrealtype c_j, void* user_data);
 
-int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up,
-               N_Vector rr, N_Vector rvec, N_Vector zvec,
-               sunrealtype c_j, sunrealtype delta, void *user_data);
+int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+               N_Vector rvec, N_Vector zvec, sunrealtype c_j, sunrealtype delta,
+               void* user_data);
 
 /* Private function to check function return values */
 
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
-                             N_Vector res, void *user_data);
+                             N_Vector res, void* user_data);
 
 static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol);
 
-static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu);
+static void PrintOutput(int id, void* ida_mem, sunrealtype t, N_Vector uu);
 
-static void PrintFinalStats(void *ida_mem);
+static void PrintFinalStats(void* ida_mem);
 
-static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
+static int check_retval(void* returnvalue, const char* funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -114,23 +115,23 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int id
  *--------------------------------------------------------------------
  */
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   MPI_Comm comm;
   SUNContext ctx;
-  void *ida_mem;
+  void* ida_mem;
   SUNLinearSolver LS;
   UserData data;
   int iout, thispe, retval, npes;
   sunindextype Neq;
   sunrealtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
-  PetscErrorCode ierr;                  /* PETSc error code  */
+  PetscErrorCode ierr; /* PETSc error code  */
   Vec uvec;
 
   ida_mem = NULL;
-  LS = NULL;
-  data = NULL;
+  LS      = NULL;
+  data    = NULL;
   uu = up = constraints = id = res = NULL;
 
   /* Get processor number and total number of pe's. */
@@ -140,13 +141,16 @@ int main(int argc, char *argv[])
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &thispe);
 
-  if (npes != NPEX*NPEY) {
+  if (npes != NPEX * NPEY)
+  {
     if (thispe == 0)
+    {
       fprintf(stderr,
               "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n",
-              npes,NPEX*NPEY);
+              npes, NPEX * NPEY);
+    }
     MPI_Finalize();
-    return(1);
+    return (1);
   }
 
   /* Set global vector length Neq. */
@@ -158,28 +162,25 @@ int main(int argc, char *argv[])
 
   /* Create the SUNDIALS context object for this simulation. */
   retval = SUNContext_Create(comm, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "SUNContext_Create", 1, thispe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   /* Allocate and initialize the data structure and N-vectors. */
-  data = (UserData) malloc(sizeof *data);
-  if(check_retval((void *)data, "malloc", 2, thispe))
-    MPI_Abort(comm, 1);
+  data = (UserData)malloc(sizeof *data);
+  if (check_retval((void*)data, "malloc", 2, thispe)) { MPI_Abort(comm, 1); }
   data->pp = NULL;
   data->da = NULL;
 
   /* Create the object that will manage the communication of 2D data */
-  ierr = DMDACreate2d(comm,
-                      DM_BOUNDARY_NONE,  /* NONE, PERIODIC, GHOSTED */
-                      DM_BOUNDARY_NONE,
-                      DMDA_STENCIL_STAR, /* STAR, BOX */
-                      MX,
-                      MY,
-                      NPEX,              /* Set numbers or use PETSC_DECIDE */
-                      NPEY,
-                      1,                 /* degrees of freedom per node */
-                      1,                 /* stencil width */
-                      NULL,              /* number of nodes per cell in x */
-                      NULL,              /* number of nodes per cell in y */
+  ierr = DMDACreate2d(comm, DM_BOUNDARY_NONE, /* NONE, PERIODIC, GHOSTED */
+                      DM_BOUNDARY_NONE, DMDA_STENCIL_STAR, /* STAR, BOX */
+                      MX, MY, NPEX, /* Set numbers or use PETSC_DECIDE */
+                      NPEY, 1,      /* degrees of freedom per node */
+                      1,            /* stencil width */
+                      NULL,         /* number of nodes per cell in x */
+                      NULL,         /* number of nodes per cell in y */
                       &(data->da));
   CHKERRQ(ierr);
   DMSetFromOptions(data->da);
@@ -191,29 +192,41 @@ int main(int argc, char *argv[])
 
   /* Make N_Vector wrapper for uvec */
   uu = N_VMake_Petsc(uvec, ctx);
-  if(check_retval((void *)uu, "N_VNew_Petsc", 0, thispe))
+  if (check_retval((void*)uu, "N_VNew_Petsc", 0, thispe))
+  {
     MPI_Abort(comm, 1);
+  }
 
   up = N_VClone(uu);
-  if(check_retval((void *)up, "N_VNew_Petsc", 0, thispe))
+  if (check_retval((void*)up, "N_VNew_Petsc", 0, thispe))
+  {
     MPI_Abort(comm, 1);
+  }
 
   res = N_VClone(uu);
-  if(check_retval((void *)res, "N_VNew_Petsc", 0, thispe))
+  if (check_retval((void*)res, "N_VNew_Petsc", 0, thispe))
+  {
     MPI_Abort(comm, 1);
+  }
 
   constraints = N_VClone(uu);
-  if(check_retval((void *)constraints, "N_VNew_Petsc", 0, thispe))
+  if (check_retval((void*)constraints, "N_VNew_Petsc", 0, thispe))
+  {
     MPI_Abort(comm, 1);
+  }
 
   id = N_VClone(uu);
-  if(check_retval((void *)id, "N_VNew_Petsc", 0, thispe))
+  if (check_retval((void*)id, "N_VNew_Petsc", 0, thispe))
+  {
     MPI_Abort(comm, 1);
+  }
 
   /* An N-vector to hold preconditioner. */
   data->pp = N_VClone(uu);
-  if(check_retval((void *)data->pp, "N_VNew_Petsc", 0, thispe))
+  if (check_retval((void*)data->pp, "N_VNew_Petsc", 0, thispe))
+  {
     MPI_Abort(comm, 1);
+  }
 
   /* Initialize the uu, up, id, and res profiles. */
 
@@ -223,7 +236,8 @@ int main(int argc, char *argv[])
 
   N_VConst(ONE, constraints);
 
-  t0 = ZERO; t1 = SUN_RCONST(0.01);
+  t0 = ZERO;
+  t1 = SUN_RCONST(0.01);
 
   /* Scalar relative and absolute tolerance. */
 
@@ -233,57 +247,80 @@ int main(int argc, char *argv[])
   /* Call IDACreate and IDAMalloc to initialize solution. */
 
   ida_mem = IDACreate(ctx);
-  if(check_retval((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  if (check_retval((void*)ida_mem, "IDACreate", 0, thispe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   retval = IDASetUserData(ida_mem, data);
-  if(check_retval(&retval, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "IDASetUserData", 1, thispe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   retval = IDASetSuppressAlg(ida_mem, SUNTRUE);
-  if(check_retval(&retval, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "IDASetSuppressAlg", 1, thispe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   retval = IDASetId(ida_mem, id);
-  if(check_retval(&retval, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "IDASetId", 1, thispe)) { MPI_Abort(comm, 1); }
 
   retval = IDASetConstraints(ida_mem, constraints);
-  if(check_retval(&retval, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "IDASetConstraints", 1, thispe))
+  {
+    MPI_Abort(comm, 1);
+  }
   N_VDestroy_Petsc(constraints);
 
   retval = IDAInit(ida_mem, resHeat, t0, uu, up);
-  if(check_retval(&retval, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "IDAInit", 1, thispe)) { MPI_Abort(comm, 1); }
 
   retval = IDASStolerances(ida_mem, rtol, atol);
-  if(check_retval(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "IDASStolerances", 1, thispe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver. */
 
-  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);  /* use default maxl */
-  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx); /* use default maxl */
+  if (check_retval((void*)LS, "SUNLinSol_SPGMR", 0, thispe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   retval = IDASetLinearSolver(ida_mem, LS, NULL);
-  if(check_retval(&retval, "IDASetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1, thispe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   retval = IDASetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
-  if(check_retval(&retval, "IDASetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "IDASetPreconditioner", 1, thispe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   /* Print output heading (on processor 0 only) and intial solution  */
 
-  if (thispe == 0) PrintHeader(Neq, rtol, atol);
+  if (thispe == 0) { PrintHeader(Neq, rtol, atol); }
   PrintOutput(thispe, ida_mem, t0, uu);
 
   /* Loop over tout, call IDASolve, print output. */
 
-  for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
-
+  for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO)
+  {
     retval = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_retval(&retval, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
+    if (check_retval(&retval, "IDASolve", 1, thispe)) { MPI_Abort(comm, 1); }
 
     PrintOutput(thispe, ida_mem, tret, uu);
-
   }
 
   /* Print remaining counters. */
 
-  if (thispe == 0) PrintFinalStats(ida_mem);
+  if (thispe == 0) { PrintFinalStats(ida_mem); }
 
   /* Free memory */
 
@@ -310,8 +347,7 @@ int main(int argc, char *argv[])
 
   MPI_Finalize();
 
-  return(0);
-
+  return (0);
 }
 
 /*
@@ -330,15 +366,14 @@ int main(int argc, char *argv[])
  *
  */
 
-int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
-            void *user_data)
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr, void* user_data)
 {
   PetscErrorCode ierr;
-  UserData       data = (UserData) user_data;
-  DM             da   = (DM) data->da;
-  PetscInt       i, j, Mx, My, xs, ys, xm, ym;
-  PetscReal      hx, hy, sx, sy;
-  PetscScalar    u, uxx, uyy, **uarray, **f, **udot;
+  UserData data = (UserData)user_data;
+  DM da         = (DM)data->da;
+  PetscInt i, j, Mx, My, xs, ys, xm, ym;
+  PetscReal hx, hy, sx, sy;
+  PetscScalar u, uxx, uyy, **uarray, **f, **udot;
   Vec localU;
   Vec U    = N_VGetVector_Petsc(uu);
   Vec Udot = N_VGetVector_Petsc(up);
@@ -347,23 +382,16 @@ int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   PetscFunctionBeginUser;
   ierr = DMGetLocalVector(da, &localU);
   CHKERRQ(ierr);
-  ierr = DMDAGetInfo(da,
-                     PETSC_IGNORE,
-                     &Mx,          /* Get global grid x size */
-                     &My,          /* Get global grid y size */
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE);
+  ierr = DMDAGetInfo(da, PETSC_IGNORE, &Mx, /* Get global grid x size */
+                     &My,                   /* Get global grid y size */
+                     PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE,
+                     PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE,
+                     PETSC_IGNORE, PETSC_IGNORE);
 
-  hx = 1.0/(PetscReal)(Mx-1); sx = 1.0/(hx*hx);
-  hy = 1.0/(PetscReal)(My-1); sy = 1.0/(hy*hy);
+  hx = 1.0 / (PetscReal)(Mx - 1);
+  sx = 1.0 / (hx * hx);
+  hy = 1.0 / (PetscReal)(My - 1);
+  sy = 1.0 / (hy * hy);
 
   /*
      Scatter ghost points to local vector,using the 2-step process
@@ -389,17 +417,22 @@ int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   CHKERRQ(ierr);
 
   /* Compute function over the locally owned part of the grid */
-  for (j=ys; j<ys+ym; j++) {
-    for (i=xs; i<xs+xm; i++) {
+  for (j = ys; j < ys + ym; j++)
+  {
+    for (i = xs; i < xs + xm; i++)
+    {
       /* Boundary conditions */
-      if (i == 0 || j == 0 || i == Mx-1 || j == My-1) {
+      if (i == 0 || j == 0 || i == Mx - 1 || j == My - 1)
+      {
         f[j][i] = uarray[j][i]; /* F = U */
-      } else { /* Interior */
+      }
+      else
+      { /* Interior */
         u = uarray[j][i];
         /* 5-point stencil */
-        uxx = (-2.0*u + uarray[j][i-1] + uarray[j][i+1]);
-        uyy = (-2.0*u + uarray[j-1][i] + uarray[j+1][i]);
-        f[j][i] = udot[j][i] - (uxx*sx + uyy*sy);
+        uxx     = (-2.0 * u + uarray[j][i - 1] + uarray[j][i + 1]);
+        uyy     = (-2.0 * u + uarray[j - 1][i] + uarray[j + 1][i]);
+        f[j][i] = udot[j][i] - (uxx * sx + uyy * sy);
       }
     }
   }
@@ -416,7 +449,6 @@ int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
 
   PetscFunctionReturn(0);
 }
-
 
 /*
  * PsetupHeat: setup for diagonal preconditioner for heatsk.
@@ -436,51 +468,46 @@ int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
  *
  */
 
-int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp,
-               N_Vector rr, sunrealtype c_j, void *user_data)
+int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
+               sunrealtype c_j, void* user_data)
 {
   PetscErrorCode ierr;
-  PetscInt    i, j, Mx, My, xs, ys, xm, ym;
-  PetscReal   hx,hy,sx,sy;
+  PetscInt i, j, Mx, My, xs, ys, xm, ym;
+  PetscReal hx, hy, sx, sy;
   PetscScalar pelinv;
-  PetscScalar **ppv;
-  UserData data = (UserData) user_data;
-  DM da = (DM) data->da;
-  Vec ppvec = N_VGetVector_Petsc((data->pp));
+  PetscScalar** ppv;
+  UserData data = (UserData)user_data;
+  DM da         = (DM)data->da;
+  Vec ppvec     = N_VGetVector_Petsc((data->pp));
 
   PetscFunctionBeginUser;
-  ierr = DMDAGetInfo(da,
-                     PETSC_IGNORE,
-                     &Mx,          /* Get global grid x size */
-                     &My,          /* Get global grid y size */
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE);
+  ierr = DMDAGetInfo(da, PETSC_IGNORE, &Mx, /* Get global grid x size */
+                     &My,                   /* Get global grid y size */
+                     PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE,
+                     PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE,
+                     PETSC_IGNORE, PETSC_IGNORE);
   ierr = DMDAGetCorners(da, &xs, &ys, NULL, &xm, &ym, NULL);
   CHKERRQ(ierr);
 
-  hx = 1.0/(PetscReal)(Mx-1); sx = 1.0/(hx*hx);
-  hy = 1.0/(PetscReal)(My-1); sy = 1.0/(hy*hy);
+  hx = 1.0 / (PetscReal)(Mx - 1);
+  sx = 1.0 / (hx * hx);
+  hy = 1.0 / (PetscReal)(My - 1);
+  sy = 1.0 / (hy * hy);
 
-  pelinv = ONE/(2.0*(sx + sy) + c_j);
+  pelinv = ONE / (2.0 * (sx + sy) + c_j);
 
   ierr = DMDAVecGetArray(da, ppvec, &ppv);
   CHKERRQ(ierr);
 
-  for (j=ys; j<ys+ym; j++) {
-    for (i=xs; i<xs+xm; i++) {
-      if (i == 0 || j == 0 || i == Mx-1 || j == My-1) {
-        ppv[j][i] = ONE;    /* Boundary */
-      } else {
-        ppv[j][i] = pelinv; /* Interior */
+  for (j = ys; j < ys + ym; j++)
+  {
+    for (i = xs; i < xs + xm; i++)
+    {
+      if (i == 0 || j == 0 || i == Mx - 1 || j == My - 1)
+      {
+        ppv[j][i] = ONE; /* Boundary */
       }
+      else { ppv[j][i] = pelinv; /* Interior */ }
     }
   }
 
@@ -490,7 +517,6 @@ int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp,
   PetscFunctionReturn(0);
 }
 
-
 /*
  * PsolveHeat: solve preconditioner linear system.
  * This routine multiplies the input vector rvec by the vector pp
@@ -498,20 +524,18 @@ int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp,
  * computed in PsetupHeat), returning the result in zvec.
  */
 
-int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up,
-               N_Vector rr, N_Vector rvec, N_Vector zvec,
-               sunrealtype c_j, sunrealtype delta, void *user_data)
+int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+               N_Vector rvec, N_Vector zvec, sunrealtype c_j, sunrealtype delta,
+               void* user_data)
 {
   UserData data;
 
-  data = (UserData) user_data;
+  data = (UserData)user_data;
 
   N_VProd(data->pp, rvec, zvec);
 
-  return(0);
-
+  return (0);
 }
-
 
 /*
  *--------------------------------------------------------------------
@@ -519,42 +543,30 @@ int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up,
  *--------------------------------------------------------------------
  */
 
-
 /*
  * SetInitialProfile sets the initial values for the problem.
  */
 
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
-                             N_Vector res, void *user_data)
+                             N_Vector res, void* user_data)
 {
-  UserData       data = (UserData) user_data;
-  DM             da   = data->da;
+  UserData data = (UserData)user_data;
+  DM da         = data->da;
   PetscErrorCode ierr;
-  PetscInt       i, j, xs, ys, xm, ym, Mx, My;
-  PetscScalar    **u;
-  PetscScalar    **iddat;
-  PetscReal      hx, hy, x, y;
+  PetscInt i, j, xs, ys, xm, ym, Mx, My;
+  PetscScalar** u;
+  PetscScalar** iddat;
+  PetscReal hx, hy, x, y;
   Vec U     = N_VGetVector_Petsc(uu);
   Vec idvec = N_VGetVector_Petsc(id);
 
   PetscFunctionBeginUser;
-  ierr = DMDAGetInfo(da,
-                     PETSC_IGNORE,
-                     &Mx,
-                     &My,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE,
-                     PETSC_IGNORE);
+  ierr = DMDAGetInfo(da, PETSC_IGNORE, &Mx, &My, PETSC_IGNORE, PETSC_IGNORE,
+                     PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE,
+                     PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE);
 
-  hx = 1.0/(PetscReal)(Mx-1);
-  hy = 1.0/(PetscReal)(My-1);
+  hx = 1.0 / (PetscReal)(Mx - 1);
+  hy = 1.0 / (PetscReal)(My - 1);
 
   /* Get pointers to vector data */
   ierr = DMDAVecGetArray(da, U, &u);
@@ -565,20 +577,22 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   CHKERRQ(ierr);
 
   /* Get local grid boundaries */
-  ierr = DMDAGetCorners(da,&xs,&ys,NULL,&xm,&ym,NULL);
+  ierr = DMDAGetCorners(da, &xs, &ys, NULL, &xm, &ym, NULL);
   CHKERRQ(ierr);
 
   /* Compute function over the locally owned part of the grid */
-  for (j=ys; j<ys+ym; j++) {
-    y = j*hy;
-    for (i=xs; i<xs+xm; i++) {
-      x = i*hx;
-      u[j][i] = 16.0 * x*(1.0 - x) * y*(1.0 - y);
-      if (i == 0 || j == 0 || i == Mx-1 || j == My-1) {
+  for (j = ys; j < ys + ym; j++)
+  {
+    y = j * hy;
+    for (i = xs; i < xs + xm; i++)
+    {
+      x       = i * hx;
+      u[j][i] = 16.0 * x * (1.0 - x) * y * (1.0 - y);
+      if (i == 0 || j == 0 || i == Mx - 1 || j == My - 1)
+      {
         iddat[j][i] = 0.0; /* algebraic variables on the boundary */
-      } else {
-        iddat[j][i] = 1.0; /* differential variables in the interior */
       }
+      else { iddat[j][i] = 1.0; /* differential variables in the interior */ }
     }
   }
 
@@ -586,12 +600,12 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   ierr = DMDAVecRestoreArray(da, U, &u);
   CHKERRQ(ierr);
 
-   /* Restore vectors */
+  /* Restore vectors */
   ierr = DMDAVecRestoreArray(da, idvec, &iddat);
   CHKERRQ(ierr);
 
   /* Initialize up. */
-  N_VConst(ZERO, up);    /* Initially set up = 0. */
+  N_VConst(ZERO, up); /* Initially set up = 0. */
 
   /* resHeat sets res to negative of ODE RHS values at interior points. */
   resHeat(ZERO, uu, up, res, data);
@@ -602,26 +616,31 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   PetscFunctionReturn(0);
 }
 
-
 /*
  * Print first lines of output and table heading
  */
 
 static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol)
 {
-  printf("\nidaHeat2D_kry_petsc: Heat equation, parallel example problem for IDA\n");
+  printf(
+    "\nidaHeat2D_kry_petsc: Heat equation, parallel example problem for IDA\n");
   printf("                     Discretized heat equation on 2D unit square.\n");
-  printf("                     Zero boundary conditions, polynomial initial conditions.\n");
+  printf("                     Zero boundary conditions, polynomial initial "
+         "conditions.\n");
   printf("                     Mesh dimensions: %d x %d", MX, MY);
-  printf("\tTotal system size: %ld\n", (long int) Neq);
+  printf("\tTotal system size: %ld\n", (long int)Neq);
   printf("                     Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("\tProcessor array: %d x %d\n", NPEX, NPEY);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("                     Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
+  printf("                     Tolerance parameters:  rtol = %Lg   atol = "
+         "%Lg\n",
+         rtol, atol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("                     Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
+  printf("                     Tolerance parameters:  rtol = %g   atol = %g\n",
+         rtol, atol);
 #else
-  printf("                     Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
+  printf("                     Tolerance parameters:  rtol = %g   atol = %g\n",
+         rtol, atol);
 #endif
   printf("\nConstraints set to force all solution components >= 0.\n");
   printf("SUPPRESSALG = SUNTRUE to suppress local error testing on ");
@@ -632,15 +651,17 @@ static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol)
 
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time     umax       k  nst  nni  nli  njve   nre   nreLS    h      npe nps\n");
-  printf("----------------------------------------------------------------------------\n");
+  printf("  time     umax       k  nst  nni  nli  njve   nre   nreLS    h      "
+         "npe nps\n");
+  printf("---------------------------------------------------------------------"
+         "-------\n");
 }
 
 /*
  * PrintOutput: print max norm of solution and current solver statistics
  */
 
-static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu)
+static void PrintOutput(int id, void* ida_mem, sunrealtype t, N_Vector uu)
 {
   sunrealtype hused, umax;
   long int nst, nni, njve, nre, nreLS, nli, npe, nps;
@@ -648,8 +669,8 @@ static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu)
 
   umax = N_VMaxNorm(uu);
 
-  if (id == 0) {
-
+  if (id == 0)
+  {
     retval = IDAGetLastOrder(ida_mem, &kused);
     check_retval(&retval, "IDAGetLastOrder", 1, id);
     retval = IDAGetNumSteps(ida_mem, &nst);
@@ -672,16 +693,18 @@ static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu)
     check_retval(&retval, "IDAGetNumPrecSolves", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %4ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
+    printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %4ld  %3ld  %4ld  %4ld  %9.2Le  "
+           "%3ld %3ld\n",
            t, umax, kused, nst, nni, nli, njve, nre, nreLS, hused, npe, nps);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %4ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
+    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %4ld  %3ld  %4ld  %4ld  %9.2e  %3ld "
+           "%3ld\n",
            t, umax, kused, nst, nni, nli, njve, nre, nreLS, hused, npe, nps);
 #else
-    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %4ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
+    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %4ld  %3ld  %4ld  %4ld  %9.2e  %3ld "
+           "%3ld\n",
            t, umax, kused, nst, nni, nli, njve, nre, nreLS, hused, npe, nps);
 #endif
-
   }
 }
 
@@ -689,7 +712,7 @@ static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu)
  * Print some final integrator statistics
  */
 
-static void PrintFinalStats(void *ida_mem)
+static void PrintFinalStats(void* ida_mem)
 {
   long int netf, ncfn, ncfl;
 
@@ -712,32 +735,36 @@ static void PrintFinalStats(void *ida_mem)
  *            NULL pointer
  */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
+static int check_retval(void* returnvalue, const char* funcname, int opt, int id)
 {
-  int *retval;
+  int* retval;
 
-  if (opt == 0 && returnvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL)
+  {
     /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
     fprintf(stderr,
-            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
-            id, funcname);
-    return(1);
-  } else if (opt == 1) {
+            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id,
+            funcname);
+    return (1);
+  }
+  else if (opt == 1)
+  {
     /* Check if retval < 0 */
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
-      fprintf(stderr,
-              "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
               id, funcname, *retval);
-      return(1);
+      return (1);
     }
-  } else if (opt == 2 && returnvalue == NULL) {
+  }
+  else if (opt == 2 && returnvalue == NULL)
+  {
     /* Check if function returned NULL pointer - no memory allocated */
-    fprintf(stderr,
-            "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
-    return(1);
+    return (1);
   }
 
-  return(0);
+  return (0);
 }

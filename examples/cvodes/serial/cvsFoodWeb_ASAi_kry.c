@@ -87,15 +87,14 @@
  * Laboratory Report UCRL-95088, Rev. 1, June 1987.
  * -----------------------------------------------------------------*/
 
+#include <cvodes/cvodes.h> /* main integrator header file          */
+#include <math.h>
+#include <nvector/nvector_serial.h> /* access to serial N_Vector            */
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-
-#include <cvodes/cvodes.h>             /* main integrator header file          */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sundials/sundials_dense.h> /* use generic dense solver in precond. */
+#include <sundials/sundials_types.h> /* defs. of sunrealtype, sunindextype      */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
-#include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
-#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype      */
 
 /* helpful macros */
 
@@ -104,7 +103,7 @@
 #endif
 
 #ifndef SQR
-#define SQR(A) ((A)*(A))
+#define SQR(A) ((A) * (A))
 #endif
 
 /* Constants */
@@ -115,39 +114,39 @@
 
 /* Problem Specification Constants */
 
-#define AA    ONE               /* AA = a */
-#define EE    SUN_RCONST(1.0e4)     /* EE = e */
-#define GG    SUN_RCONST(0.5e-6)    /* GG = g */
-#define BB    ONE               /* BB = b */
+#define AA    ONE                /* AA = a */
+#define EE    SUN_RCONST(1.0e4)  /* EE = e */
+#define GG    SUN_RCONST(0.5e-6) /* GG = g */
+#define BB    ONE                /* BB = b */
 #define DPREY ONE
 #define DPRED SUN_RCONST(0.5)
 #define ALPH  ONE
 #define NP    3
-#define NS    (2*NP)
+#define NS    (2 * NP)
 
 /* Method Constants */
 
 #define MX    20
 #define MY    20
-#define MXNS  (MX*NS)
+#define MXNS  (MX * NS)
 #define AX    ONE
 #define AY    ONE
-#define DX    (AX/(sunrealtype)(MX-1))
-#define DY    (AY/(sunrealtype)(MY-1))
+#define DX    (AX / (sunrealtype)(MX - 1))
+#define DY    (AY / (sunrealtype)(MY - 1))
 #define MP    NS
-#define MQ    (MX*MY)
-#define MXMP  (MX*MP)
+#define MQ    (MX * MY)
+#define MXMP  (MX * MP)
 #define NGX   2
 #define NGY   2
-#define NGRP  (NGX*NGY)
+#define NGRP  (NGX * NGY)
 #define ITMAX 5
 
 /* CVodeInit Constants */
 
-#define NEQ   (NS*MX*MY)
-#define T0    ZERO
-#define RTOL  SUN_RCONST(1.0e-5)
-#define ATOL  SUN_RCONST(1.0e-5)
+#define NEQ  (NS * MX * MY)
+#define T0   ZERO
+#define RTOL SUN_RCONST(1.0e-5)
+#define ATOL SUN_RCONST(1.0e-5)
 
 /* Output Constants */
 
@@ -159,11 +158,12 @@
 
 /* Structure for user data */
 
-typedef struct {
-  sunrealtype **P[NGRP];
-  sunindextype *pivot[NGRP];
+typedef struct
+{
+  sunrealtype** P[NGRP];
+  sunindextype* pivot[NGRP];
   int ns, mxns, mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
-  int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
+  int jgx[NGX + 1], jgy[NGY + 1], jigx[MX], jigy[MY];
   int jxr[NGX], jyr[NGY];
   sunrealtype acoef[NS][NS], bcoef[NS], diff[NS];
   sunrealtype cox[NS], coy[NS], dx, dy, srur;
@@ -173,9 +173,9 @@ typedef struct {
   N_Vector vtemp;
   N_Vector rewtB;
   N_Vector vtempB;
-  void *cvode_mem;
+  void* cvode_mem;
   int indexB;
-} *WebData;
+}* WebData;
 
 /* Adjoint calculation constants */
 /* G = int_t int_x int_y c(ISPEC) dy dx dt */
@@ -185,30 +185,24 @@ typedef struct {
 
 /* Prototypes for user-supplied functions */
 
-static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
-static int Precond(sunrealtype t, N_Vector c, N_Vector fc,
-                   sunbooleantype jok, sunbooleantype *jcurPtr,
-                   sunrealtype gamma, void *user_data);
+static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
+                   sunbooleantype* jcurPtr, sunrealtype gamma, void* user_data);
 
-static int PSolve(sunrealtype t, N_Vector c, N_Vector fc,
-                  N_Vector r, N_Vector z,
-                  sunrealtype gamma, sunrealtype delta,
-                  int lr, void *user_data);
+static int PSolve(sunrealtype t, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
+                  sunrealtype gamma, sunrealtype delta, int lr, void* user_data);
 
-static int fB(sunrealtype t, N_Vector c, N_Vector cB,
-               N_Vector cBdot, void *user_data);
+static int fB(sunrealtype t, N_Vector c, N_Vector cB, N_Vector cBdot,
+              void* user_data);
 
-static int PrecondB(sunrealtype t, N_Vector c,
-                    N_Vector cB, N_Vector fcB, sunbooleantype jok,
-                    sunbooleantype *jcurPtr, sunrealtype gamma,
-                    void *user_data);
+static int PrecondB(sunrealtype t, N_Vector c, N_Vector cB, N_Vector fcB,
+                    sunbooleantype jok, sunbooleantype* jcurPtr,
+                    sunrealtype gamma, void* user_data);
 
-static int PSolveB(sunrealtype t, N_Vector c,
-                   N_Vector cB, N_Vector fcB,
-                   N_Vector r, N_Vector z,
-                   sunrealtype gamma, sunrealtype delta,
-                   int lr, void *user_data);
+static int PSolveB(sunrealtype t, N_Vector c, N_Vector cB, N_Vector fcB,
+                   N_Vector r, N_Vector z, sunrealtype gamma, sunrealtype delta,
+                   int lr, void* user_data);
 
 /* Prototypes for private functions */
 
@@ -218,21 +212,23 @@ static void SetGroups(int m, int ng, int jg[], int jig[], int jr[]);
 static void CInit(N_Vector c, WebData wdata);
 static void PrintOutput(N_Vector c, int ns, int mxns, WebData wdata);
 static void FreeUserData(WebData wdata);
-static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t, sunrealtype c[], sunrealtype rate[],
-                     WebData wdata);
-static void WebRatesB(sunrealtype x, sunrealtype y, sunrealtype t, sunrealtype c[], sunrealtype cB[],
-                      sunrealtype rate[], sunrealtype rateB[], WebData wdata);
-static void fblock (sunrealtype t, sunrealtype cdata[], int jx, int jy, sunrealtype cdotdata[],
-                    WebData wdata);
+static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t,
+                     sunrealtype c[], sunrealtype rate[], WebData wdata);
+static void WebRatesB(sunrealtype x, sunrealtype y, sunrealtype t,
+                      sunrealtype c[], sunrealtype cB[], sunrealtype rate[],
+                      sunrealtype rateB[], WebData wdata);
+static void fblock(sunrealtype t, sunrealtype cdata[], int jx, int jy,
+                   sunrealtype cdotdata[], WebData wdata);
 static void GSIter(sunrealtype gamma, N_Vector z, N_Vector x, WebData wdata);
 static sunrealtype doubleIntgr(N_Vector c, int i, WebData wdata);
-static int check_retval(void *returnvalue, const char *funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /* Small Vector Kernels */
 
-static void v_inc_by_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[], int n);
-static void v_sum_prods(sunrealtype u[], sunrealtype p[], sunrealtype q[], sunrealtype v[],
-                        sunrealtype w[], int n);
+static void v_inc_by_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[],
+                          int n);
+static void v_sum_prods(sunrealtype u[], sunrealtype p[], sunrealtype q[],
+                        sunrealtype v[], sunrealtype w[], int n);
 static void v_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[], int n);
 static void v_zero(sunrealtype u[], int n);
 
@@ -245,140 +241,139 @@ static SUNContext sunctx;
  *--------------------------------------------------------------------
  */
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  sunrealtype abstol=ATOL, reltol=RTOL, t;
+  sunrealtype abstol = ATOL, reltol = RTOL, t;
   N_Vector c;
   WebData wdata;
-  void *cvode_mem;
+  void* cvode_mem;
   SUNLinearSolver LS, LSB;
 
   int retval, ncheck;
 
   int indexB;
 
-  sunrealtype reltolB=RTOL, abstolB=ATOL;
+  sunrealtype reltolB = RTOL, abstolB = ATOL;
   N_Vector cB;
 
-  c = NULL;
-  cB = NULL;
-  wdata = NULL;
+  c         = NULL;
+  cB        = NULL;
+  wdata     = NULL;
   cvode_mem = NULL;
   LS = LSB = NULL;
 
   /* Create the SUNDIALS simulation context that all SUNDIALS objects require */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
   /* Allocate and initialize user data */
 
   wdata = AllocUserData();
-  if(check_retval((void *)wdata, "AllocUserData", 2)) return(1);
+  if (check_retval((void*)wdata, "AllocUserData", 2)) { return (1); }
   InitUserData(wdata);
 
   /* Set-up forward problem */
 
   /* Initializations */
-  c = N_VNew_Serial(NEQ+1, sunctx);
-  if(check_retval((void *)c, "N_VNew_Serial", 0)) return(1);
+  c = N_VNew_Serial(NEQ + 1, sunctx);
+  if (check_retval((void*)c, "N_VNew_Serial", 0)) { return (1); }
   CInit(c, wdata);
 
   /* Call CVodeCreate/CVodeInit for forward run */
   printf("\nCreate and allocate CVODES memory for forward run\n");
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
   wdata->cvode_mem = cvode_mem; /* Used in Precond */
-  retval = CVodeSetUserData(cvode_mem, wdata);
-  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  retval           = CVodeSetUserData(cvode_mem, wdata);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) { return (1); }
   retval = CVodeInit(cvode_mem, f, T0, c);
-  if(check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) { return (1); }
 
   /* Create SUNLinSol_SPGMR linear solver for forward run */
   LS = SUNLinSol_SPGMR(c, SUN_PREC_LEFT, 0, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+  if (check_retval((void*)LS, "SUNLinSol_SPGMR", 0)) { return (1); }
 
   /* Attach the linear sovler */
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
 
   /* Set the preconditioner solve and setup functions */
   retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
-  if(check_retval(&retval, "CVodeSetPreconditioner", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetPreconditioner", 1)) { return (1); }
 
   /* Call CVodeSetMaxNumSteps to set the maximum number of steps the
    * solver will take in an attempt to reach the next output time
    * during forward integration. */
   retval = CVodeSetMaxNumSteps(cvode_mem, 2500);
-  if(check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) { return (1); }
 
   /* Set-up adjoint calculations */
 
   printf("\nAllocate global memory\n");
   retval = CVodeAdjInit(cvode_mem, NSTEPS, CV_HERMITE);
-  if(check_retval(&retval, "CVodeAdjInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeAdjInit", 1)) { return (1); }
 
   /* Perform forward run */
 
   printf("\nForward integration\n");
   retval = CVodeF(cvode_mem, TOUT, c, &t, CV_NORMAL, &ncheck);
-  if(check_retval(&retval, "CVodeF", 1)) return(1);
+  if (check_retval(&retval, "CVodeF", 1)) { return (1); }
 
   printf("\nncheck = %d\n", ncheck);
 
-
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %Lf \n\n",
-         ISPEC, N_VGetArrayPointer(c)[NEQ]);
+  printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %Lf \n\n", ISPEC,
+         N_VGetArrayPointer(c)[NEQ]);
 #else
-  printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %f \n\n",
-         ISPEC, N_VGetArrayPointer(c)[NEQ]);
+  printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %f \n\n", ISPEC,
+         N_VGetArrayPointer(c)[NEQ]);
 #endif
 
   /* Set-up backward problem */
 
   /* Allocate cB */
   cB = N_VNew_Serial(NEQ, sunctx);
-  if(check_retval((void *)cB, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)cB, "N_VNew_Serial", 0)) { return (1); }
   /* Initialize cB = 0 */
   N_VConst(ZERO, cB);
 
   /* Create and allocate CVODES memory for backward run */
   printf("\nCreate and allocate CVODES memory for backward run\n");
   retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB);
-  if(check_retval(&retval, "CVodeCreateB", 1)) return(1);
+  if (check_retval(&retval, "CVodeCreateB", 1)) { return (1); }
   retval = CVodeSetUserDataB(cvode_mem, indexB, wdata);
-  if(check_retval(&retval, "CVodeSetUserDataB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserDataB", 1)) { return (1); }
   retval = CVodeSetMaxNumStepsB(cvode_mem, indexB, 1000);
-  if(check_retval(&retval, "CVodeSetMaxNumStepsB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetMaxNumStepsB", 1)) { return (1); }
   retval = CVodeInitB(cvode_mem, indexB, fB, TOUT, cB);
-  if(check_retval(&retval, "CVodeInitB", 1)) return(1);
+  if (check_retval(&retval, "CVodeInitB", 1)) { return (1); }
   retval = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
-  if(check_retval(&retval, "CVodeSStolerancesB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerancesB", 1)) { return (1); }
 
   wdata->indexB = indexB;
 
   /* Create SUNLinSol_SPGMR linear solver for backward run */
   LSB = SUNLinSol_SPGMR(cB, SUN_PREC_LEFT, 0, sunctx);
-  if(check_retval((void *)LSB, "SUNLinSol_SPGMR", 0)) return(1);
+  if (check_retval((void*)LSB, "SUNLinSol_SPGMR", 0)) { return (1); }
 
   /* Attach the linear sovler */
   retval = CVodeSetLinearSolverB(cvode_mem, indexB, LSB, NULL);
-  if (check_retval(&retval, "CVodeSetLinearSolverB", 1)) return 1;
+  if (check_retval(&retval, "CVodeSetLinearSolverB", 1)) { return 1; }
 
   /* Set the preconditioner solve and setup functions */
   retval = CVodeSetPreconditionerB(cvode_mem, indexB, PrecondB, PSolveB);
-  if(check_retval(&retval, "CVodeSetPreconditionerB", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetPreconditionerB", 1)) { return (1); }
 
   /* Perform backward integration */
 
   printf("\nBackward integration\n");
   retval = CVodeB(cvode_mem, T0, CV_NORMAL);
-  if(check_retval(&retval, "CVodeB", 1)) return(1);
+  if (check_retval(&retval, "CVodeB", 1)) { return (1); }
 
   retval = CVodeGetB(cvode_mem, indexB, &t, cB);
-  if(check_retval(&retval, "CVodeGetB", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetB", 1)) { return (1); }
 
   PrintOutput(cB, NS, MXNS, wdata);
 
@@ -392,7 +387,7 @@ int main(int argc, char *argv[])
   SUNContext_Free(&sunctx);
   FreeUserData(wdata);
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -407,58 +402,60 @@ int main(int argc, char *argv[])
  * and these are saved in fsave for use in preconditioning.
  */
 
-static int f(sunrealtype t, N_Vector c, N_Vector cdot, void *user_data)
+static int f(sunrealtype t, N_Vector c, N_Vector cdot, void* user_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
   sunrealtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
   sunrealtype *cdata, *cdotdata;
   WebData wdata;
 
-  wdata = (WebData) user_data;
-  cdata = N_VGetArrayPointer(c);
+  wdata    = (WebData)user_data;
+  cdata    = N_VGetArrayPointer(c);
   cdotdata = N_VGetArrayPointer(cdot);
 
-  mxns = wdata->mxns;
-  ns = wdata->ns;
+  mxns  = wdata->mxns;
+  ns    = wdata->ns;
   fsave = wdata->fsave;
-  cox = wdata->cox;
-  coy = wdata->coy;
-  mxns = wdata->mxns;
-  dx = wdata->dx;
-  dy = wdata->dy;
+  cox   = wdata->cox;
+  coy   = wdata->coy;
+  mxns  = wdata->mxns;
+  dx    = wdata->dx;
+  dy    = wdata->dy;
 
-  for (jy = 0; jy < MY; jy++) {
-    y = jy*dy;
-    iyoff = mxns*jy;
-    idyu = (jy == MY-1) ? -mxns : mxns;
-    idyl = (jy == 0) ? -mxns : mxns;
-    for (jx = 0; jx < MX; jx++) {
-      x = jx*dx;
-      ic = iyoff + ns*jx;
+  for (jy = 0; jy < MY; jy++)
+  {
+    y     = jy * dy;
+    iyoff = mxns * jy;
+    idyu  = (jy == MY - 1) ? -mxns : mxns;
+    idyl  = (jy == 0) ? -mxns : mxns;
+    for (jx = 0; jx < MX; jx++)
+    {
+      x  = jx * dx;
+      ic = iyoff + ns * jx;
       /* Get interaction rates at one point (x,y). */
-      WebRates(x, y, t, cdata+ic, fsave+ic, wdata);
-      idxu = (jx == MX-1) ? -ns : ns;
+      WebRates(x, y, t, cdata + ic, fsave + ic, wdata);
+      idxu = (jx == MX - 1) ? -ns : ns;
       idxl = (jx == 0) ? -ns : ns;
-      for (i = 1; i <= ns; i++) {
-        ici = ic + i-1;
+      for (i = 1; i <= ns; i++)
+      {
+        ici = ic + i - 1;
         /* Do differencing in y. */
-        dcyli = cdata[ici] - cdata[ici-idyl];
-        dcyui = cdata[ici+idyu] - cdata[ici];
+        dcyli = cdata[ici] - cdata[ici - idyl];
+        dcyui = cdata[ici + idyu] - cdata[ici];
         /* Do differencing in x. */
-        dcxli = cdata[ici] - cdata[ici-idxl];
-        dcxui = cdata[ici+idxu] - cdata[ici];
+        dcxli = cdata[ici] - cdata[ici - idxl];
+        dcxui = cdata[ici + idxu] - cdata[ici];
         /* Collect terms and load cdot elements. */
-        cdotdata[ici] = coy[i-1]*(dcyui - dcyli) +
-                        cox[i-1]*(dcxui - dcxli) +
-                        fsave[ici];
+        cdotdata[ici] = coy[i - 1] * (dcyui - dcyli) +
+                        cox[i - 1] * (dcxui - dcxli) + fsave[ici];
       }
     }
   }
 
   /* Quadrature equation (species 1) */
-  cdotdata[NEQ] = doubleIntgr(c,ISPEC,wdata);
+  cdotdata[NEQ] = doubleIntgr(c, ISPEC, wdata);
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -477,12 +474,11 @@ static int f(sunrealtype t, N_Vector c, N_Vector cdot, void *user_data)
  * scheme.
  */
 
-static int Precond(sunrealtype t, N_Vector c, N_Vector fc,
-                   sunbooleantype jok, sunbooleantype *jcurPtr,
-                   sunrealtype gamma, void *user_data)
+static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
+                   sunbooleantype* jcurPtr, sunrealtype gamma, void* user_data)
 {
-  sunrealtype ***P;
-  sunindextype **pivot;
+  sunrealtype*** P;
+  sunindextype** pivot;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, ngrp, ngx, ngy, mxmp, mp, retval;
   sunindextype denseretval;
@@ -491,26 +487,26 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc,
   WebData wdata;
   N_Vector rewt;
 
-  wdata = (WebData) user_data;
-  rewt = wdata->rewt;
+  wdata  = (WebData)user_data;
+  rewt   = wdata->rewt;
   retval = CVodeGetErrWeights(wdata->cvode_mem, rewt);
-  if(check_retval(&retval, "CVodeGetErrWeights", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetErrWeights", 1)) { return (1); }
 
-  cdata = N_VGetArrayPointer(c);
+  cdata    = N_VGetArrayPointer(c);
   rewtdata = N_VGetArrayPointer(rewt);
 
   uround = SUN_UNIT_ROUNDOFF;
 
-  P = wdata->P;
+  P     = wdata->P;
   pivot = wdata->pivot;
-  jxr = wdata->jxr;
-  jyr = wdata->jyr;
-  mp = wdata->mp;
-  srur = wdata->srur;
-  ngrp = wdata->ngrp;
-  ngx = wdata->ngx;
-  ngy = wdata->ngy;
-  mxmp = wdata->mxmp;
+  jxr   = wdata->jxr;
+  jyr   = wdata->jyr;
+  mp    = wdata->mp;
+  srur  = wdata->srur;
+  ngrp  = wdata->ngrp;
+  ngx   = wdata->ngx;
+  ngy   = wdata->ngy;
+  mxmp  = wdata->mxmp;
   fsave = wdata->fsave;
 
   /* Make mp calls to fblock to approximate each diagonal block of Jacobian.
@@ -519,28 +515,32 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc,
 
   f1 = N_VGetArrayPointer(wdata->vtemp);
 
-  fac = N_VWrmsNorm (fc, rewt);
-  r0 = SUN_RCONST(1000.0)*fabs(gamma)*uround*(NEQ+1)*fac;
-  if (r0 == ZERO) r0 = ONE;
+  fac = N_VWrmsNorm(fc, rewt);
+  r0  = SUN_RCONST(1000.0) * fabs(gamma) * uround * (NEQ + 1) * fac;
+  if (r0 == ZERO) { r0 = ONE; }
 
-  for (igy = 0; igy < ngy; igy++) {
-    jy = jyr[igy];
-    if00 = jy*mxmp;
-    for (igx = 0; igx < ngx; igx++) {
-      jx = jxr[igx];
-      if0 = if00 + jx*mp;
-      ig = igx + igy*ngx;
+  for (igy = 0; igy < ngy; igy++)
+  {
+    jy   = jyr[igy];
+    if00 = jy * mxmp;
+    for (igx = 0; igx < ngx; igx++)
+    {
+      jx  = jxr[igx];
+      if0 = if00 + jx * mp;
+      ig  = igx + igy * ngx;
       /* Generate ig-th diagonal block */
-      for (j = 0; j < mp; j++) {
+      for (j = 0; j < mp; j++)
+      {
         /* Generate the jth column as a difference quotient */
-        jj = if0 + j;
+        jj   = if0 + j;
         save = cdata[jj];
-        r = MAX(srur*fabs(save),r0/rewtdata[jj]);
+        r    = MAX(srur * fabs(save), r0 / rewtdata[jj]);
         cdata[jj] += r;
-        fac = -gamma/r;
-        fblock (t, cdata, jx, jy, f1, wdata);
-        for (i = 0; i < mp; i++) {
-          P[ig][j][i] = (f1[i] - fsave[if0+i])*fac;
+        fac = -gamma / r;
+        fblock(t, cdata, jx, jy, f1, wdata);
+        for (i = 0; i < mp; i++)
+        {
+          P[ig][j][i] = (f1[i] - fsave[if0 + i]) * fac;
         }
         cdata[jj] = save;
       }
@@ -549,14 +549,15 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc,
 
   /* Add identity matrix and do LU decompositions on blocks. */
 
-   for (ig = 0; ig < ngrp; ig++) {
-     SUNDlsMat_denseAddIdentity(P[ig], mp);
-     denseretval = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
-     if (denseretval != 0) return(1);
-   }
+  for (ig = 0; ig < ngrp; ig++)
+  {
+    SUNDlsMat_denseAddIdentity(P[ig], mp);
+    denseretval = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
+    if (denseretval != 0) { return (1); }
+  }
 
   *jcurPtr = SUNTRUE;
-  return(0);
+  return (0);
 }
 
 /*
@@ -570,17 +571,15 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc,
  * blocks in P, and pivot information in pivot, and returns the result in z.
  */
 
-static int PSolve(sunrealtype t, N_Vector c, N_Vector fc,
-                  N_Vector r, N_Vector z,
-                  sunrealtype gamma, sunrealtype delta,
-                  int lr, void *user_data)
+static int PSolve(sunrealtype t, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
+                  sunrealtype gamma, sunrealtype delta, int lr, void* user_data)
 {
-  sunrealtype ***P;
-  sunindextype **pivot;
+  sunrealtype*** P;
+  sunindextype** pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
 
-  wdata = (WebData) user_data;
+  wdata = (WebData)user_data;
 
   N_VScale(ONE, r, z);
 
@@ -590,30 +589,33 @@ static int PSolve(sunrealtype t, N_Vector c, N_Vector fc,
 
   /* Do backsolves for inverse of block-diagonal preconditioner factor */
 
-  P = wdata->P;
+  P     = wdata->P;
   pivot = wdata->pivot;
-  mx = wdata->mx;
-  my = wdata->my;
-  ngx = wdata->ngx;
-  mp = wdata->mp;
-  jigx = wdata->jigx;
-  jigy = wdata->jigy;
+  mx    = wdata->mx;
+  my    = wdata->my;
+  ngx   = wdata->ngx;
+  mp    = wdata->mp;
+  jigx  = wdata->jigx;
+  jigy  = wdata->jigy;
 
   iv = 0;
-  for (jy = 0; jy < my; jy++) {
+  for (jy = 0; jy < my; jy++)
+  {
     igy = jigy[jy];
-    for (jx = 0; jx < mx; jx++) {
+    for (jx = 0; jx < mx; jx++)
+    {
       igx = jigx[jx];
-      ig = igx + igy*ngx;
+      ig  = igx + igy * ngx;
       SUNDlsMat_denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
       iv += mp;
     }
   }
 
   /* Solve for the quadrature variable */
-  N_VGetArrayPointer(z)[NEQ] = N_VGetArrayPointer(r)[NEQ] + gamma*doubleIntgr(z,ISPEC,wdata);
+  N_VGetArrayPointer(z)[NEQ] = N_VGetArrayPointer(r)[NEQ] +
+                               gamma * doubleIntgr(z, ISPEC, wdata);
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -623,137 +625,142 @@ static int PSolve(sunrealtype t, N_Vector c, N_Vector fc,
  * interaction rates are computed by calls to WebRatesB.
  */
 
-static int fB(sunrealtype t, N_Vector c, N_Vector cB,
-              N_Vector cBdot, void *user_data)
+static int fB(sunrealtype t, N_Vector c, N_Vector cB, N_Vector cBdot,
+              void* user_data)
 {
   int i, ic, ici, idxl, idxu, idyl, idyu, iyoff, jx, jy, ns, mxns;
-  sunrealtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, *fBsave, dx, dy;
+  sunrealtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, *fBsave, dx,
+    dy;
   sunrealtype *cdata, *cBdata, *cBdotdata;
   WebData wdata;
 
   sunrealtype gu[NS];
 
-  wdata = (WebData) user_data;
-  cdata = N_VGetArrayPointer(c);
-  cBdata = N_VGetArrayPointer(cB);
+  wdata     = (WebData)user_data;
+  cdata     = N_VGetArrayPointer(c);
+  cBdata    = N_VGetArrayPointer(cB);
   cBdotdata = N_VGetArrayPointer(cBdot);
 
-  mxns = wdata->mxns;
-  ns = wdata->ns;
-  fsave = wdata->fsave;
+  mxns   = wdata->mxns;
+  ns     = wdata->ns;
+  fsave  = wdata->fsave;
   fBsave = wdata->fBsave;
-  cox = wdata->cox;
-  coy = wdata->coy;
-  mxns = wdata->mxns;
-  dx = wdata->dx;
-  dy = wdata->dy;
+  cox    = wdata->cox;
+  coy    = wdata->coy;
+  mxns   = wdata->mxns;
+  dx     = wdata->dx;
+  dy     = wdata->dy;
 
-  for ( i = 0; i < ns; i++ ) gu[i] = ZERO;
-  gu[ISPEC-1] = ONE;
+  for (i = 0; i < ns; i++) { gu[i] = ZERO; }
+  gu[ISPEC - 1] = ONE;
 
-  for (jy = 0; jy < MY; jy++) {
-    y = jy*dy;
-    iyoff = mxns*jy;
-    idyu = (jy == MY-1) ? -mxns : mxns;
-    idyl = (jy == 0) ? -mxns : mxns;
-    for (jx = 0; jx < MX; jx++) {
-      x = jx*dx;
-      ic = iyoff + ns*jx;
+  for (jy = 0; jy < MY; jy++)
+  {
+    y     = jy * dy;
+    iyoff = mxns * jy;
+    idyu  = (jy == MY - 1) ? -mxns : mxns;
+    idyl  = (jy == 0) ? -mxns : mxns;
+    for (jx = 0; jx < MX; jx++)
+    {
+      x  = jx * dx;
+      ic = iyoff + ns * jx;
       /* Get interaction rates at one point (x,y). */
-      WebRatesB(x, y, t, cdata+ic, cBdata+ic, fsave+ic, fBsave+ic, wdata);
-      idxu = (jx == MX-1) ? -ns : ns;
+      WebRatesB(x, y, t, cdata + ic, cBdata + ic, fsave + ic, fBsave + ic, wdata);
+      idxu = (jx == MX - 1) ? -ns : ns;
       idxl = (jx == 0) ? -ns : ns;
-      for (i = 1; i <= ns; i++) {
-        ici = ic + i-1;
+      for (i = 1; i <= ns; i++)
+      {
+        ici = ic + i - 1;
         /* Do differencing in y. */
-        dcyli = cBdata[ici] - cBdata[ici-idyl];
-        dcyui = cBdata[ici+idyu] - cBdata[ici];
+        dcyli = cBdata[ici] - cBdata[ici - idyl];
+        dcyui = cBdata[ici + idyu] - cBdata[ici];
         /* Do differencing in x. */
-        dcxli = cBdata[ici] - cBdata[ici-idxl];
-        dcxui = cBdata[ici+idxu] - cBdata[ici];
+        dcxli = cBdata[ici] - cBdata[ici - idxl];
+        dcxui = cBdata[ici + idxu] - cBdata[ici];
         /* Collect terms and load cdot elements. */
-        cBdotdata[ici] = - coy[i-1]*(dcyui - dcyli)
-                         - cox[i-1]*(dcxui - dcxli)
-                         - fBsave[ici]
-                         - gu[i-1];
+        cBdotdata[ici] = -coy[i - 1] * (dcyui - dcyli) -
+                         cox[i - 1] * (dcxui - dcxli) - fBsave[ici] - gu[i - 1];
       }
     }
   }
 
-  return(0);
+  return (0);
 }
 
 /*
  * Preconditioner setup function for the backward problem
  */
 
-static int PrecondB(sunrealtype t, N_Vector c,
-                    N_Vector cB, N_Vector fcB, sunbooleantype jok,
-                    sunbooleantype *jcurPtr, sunrealtype gamma,
-                    void *user_data)
+static int PrecondB(sunrealtype t, N_Vector c, N_Vector cB, N_Vector fcB,
+                    sunbooleantype jok, sunbooleantype* jcurPtr,
+                    sunrealtype gamma, void* user_data)
 {
-  sunrealtype ***P;
-  sunindextype **pivot;
+  sunrealtype*** P;
+  sunindextype** pivot;
   sunindextype denseretval;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, ngrp, ngx, ngy, mxmp, mp, retval;
   sunrealtype uround, fac, r, r0, save, srur;
   sunrealtype *f1, *fsave, *cdata, *rewtdata;
-  void *cvode_mem;
+  void* cvode_mem;
   WebData wdata;
   N_Vector rewt;
 
-  wdata = (WebData) user_data;
+  wdata     = (WebData)user_data;
   cvode_mem = CVodeGetAdjCVodeBmem(wdata->cvode_mem, wdata->indexB);
-  if(check_retval((void *)cvode_mem, "CVadjGetCVodeBmem", 0)) return(1);
-  rewt = wdata->rewtB;
+  if (check_retval((void*)cvode_mem, "CVadjGetCVodeBmem", 0)) { return (1); }
+  rewt   = wdata->rewtB;
   retval = CVodeGetErrWeights(cvode_mem, rewt);
-  if(check_retval(&retval, "CVodeGetErrWeights", 1)) return(1);
+  if (check_retval(&retval, "CVodeGetErrWeights", 1)) { return (1); }
 
-  cdata = N_VGetArrayPointer(c);
+  cdata    = N_VGetArrayPointer(c);
   rewtdata = N_VGetArrayPointer(rewt);
 
   uround = SUN_UNIT_ROUNDOFF;
 
-  P = wdata->P;
+  P     = wdata->P;
   pivot = wdata->pivot;
-  jxr = wdata->jxr;
-  jyr = wdata->jyr;
-  mp = wdata->mp;
-  srur = wdata->srur;
-  ngrp = wdata->ngrp;
-  ngx = wdata->ngx;
-  ngy = wdata->ngy;
-  mxmp = wdata->mxmp;
+  jxr   = wdata->jxr;
+  jyr   = wdata->jyr;
+  mp    = wdata->mp;
+  srur  = wdata->srur;
+  ngrp  = wdata->ngrp;
+  ngx   = wdata->ngx;
+  ngy   = wdata->ngy;
+  mxmp  = wdata->mxmp;
   fsave = wdata->fsave;
 
   /* Make mp calls to fblock to approximate each diagonal block of Jacobian.
      Here, fsave contains the base value of the rate vector and
      r0 is a minimum increment factor for the difference quotient. */
 
-  f1 = N_VGetArrayPointer(wdata->vtempB);
-  fac = N_VWrmsNorm (fcB, rewt);
-  r0 = SUN_RCONST(1000.0)*fabs(gamma)*uround*NEQ*fac;
-  if (r0 == ZERO) r0 = ONE;
+  f1  = N_VGetArrayPointer(wdata->vtempB);
+  fac = N_VWrmsNorm(fcB, rewt);
+  r0  = SUN_RCONST(1000.0) * fabs(gamma) * uround * NEQ * fac;
+  if (r0 == ZERO) { r0 = ONE; }
 
-  for (igy = 0; igy < ngy; igy++) {
-    jy = jyr[igy];
-    if00 = jy*mxmp;
-    for (igx = 0; igx < ngx; igx++) {
-      jx = jxr[igx];
-      if0 = if00 + jx*mp;
-      ig = igx + igy*ngx;
+  for (igy = 0; igy < ngy; igy++)
+  {
+    jy   = jyr[igy];
+    if00 = jy * mxmp;
+    for (igx = 0; igx < ngx; igx++)
+    {
+      jx  = jxr[igx];
+      if0 = if00 + jx * mp;
+      ig  = igx + igy * ngx;
       /* Generate ig-th diagonal block */
-      for (j = 0; j < mp; j++) {
+      for (j = 0; j < mp; j++)
+      {
         /* Generate the jth column as a difference quotient */
-        jj = if0 + j;
+        jj   = if0 + j;
         save = cdata[jj];
-        r = MAX(srur*fabs(save),r0/rewtdata[jj]);
+        r    = MAX(srur * fabs(save), r0 / rewtdata[jj]);
         cdata[jj] += r;
-        fac = gamma/r;
-        fblock (t, cdata, jx, jy, f1, wdata);
-        for (i = 0; i < mp; i++) {
-          P[ig][i][j] = (f1[i] - fsave[if0+i])*fac;
+        fac = gamma / r;
+        fblock(t, cdata, jx, jy, f1, wdata);
+        for (i = 0; i < mp; i++)
+        {
+          P[ig][i][j] = (f1[i] - fsave[if0 + i]) * fac;
         }
         cdata[jj] = save;
       }
@@ -762,32 +769,31 @@ static int PrecondB(sunrealtype t, N_Vector c,
 
   /* Add identity matrix and do LU decompositions on blocks. */
 
-   for (ig = 0; ig < ngrp; ig++) {
-     SUNDlsMat_denseAddIdentity(P[ig], mp);
-     denseretval = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
-     if (denseretval != 0) return(1);
-   }
+  for (ig = 0; ig < ngrp; ig++)
+  {
+    SUNDlsMat_denseAddIdentity(P[ig], mp);
+    denseretval = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
+    if (denseretval != 0) { return (1); }
+  }
 
   *jcurPtr = SUNTRUE;
-  return(0);
+  return (0);
 }
 
 /*
  * Preconditioner solve function for the backward problem
  */
 
-static int PSolveB(sunrealtype t, N_Vector c,
-                   N_Vector cB, N_Vector fcB,
-                   N_Vector r, N_Vector z,
-                   sunrealtype gamma, sunrealtype delta,
-                   int lr, void *user_data)
+static int PSolveB(sunrealtype t, N_Vector c, N_Vector cB, N_Vector fcB,
+                   N_Vector r, N_Vector z, sunrealtype gamma, sunrealtype delta,
+                   int lr, void* user_data)
 {
-  sunrealtype ***P;
-  sunindextype **pivot;
+  sunrealtype*** P;
+  sunindextype** pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
 
-  wdata = (WebData) user_data;
+  wdata = (WebData)user_data;
 
   N_VScale(ONE, r, z);
 
@@ -797,27 +803,29 @@ static int PSolveB(sunrealtype t, N_Vector c,
 
   /* Do backsolves for inverse of block-diagonal preconditioner factor */
 
-  P = wdata->P;
+  P     = wdata->P;
   pivot = wdata->pivot;
-  mx = wdata->mx;
-  my = wdata->my;
-  ngx = wdata->ngx;
-  mp = wdata->mp;
-  jigx = wdata->jigx;
-  jigy = wdata->jigy;
+  mx    = wdata->mx;
+  my    = wdata->my;
+  ngx   = wdata->ngx;
+  mp    = wdata->mp;
+  jigx  = wdata->jigx;
+  jigy  = wdata->jigy;
 
   iv = 0;
-  for (jy = 0; jy < my; jy++) {
+  for (jy = 0; jy < my; jy++)
+  {
     igy = jigy[jy];
-    for (jx = 0; jx < mx; jx++) {
+    for (jx = 0; jx < mx; jx++)
+    {
       igx = jigx[jx];
-      ig = igx + igy*ngx;
+      ig  = igx + igy * ngx;
       SUNDlsMat_denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
       iv += mp;
     }
   }
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -836,17 +844,18 @@ static WebData AllocUserData(void)
   sunindextype ns = NS;
   WebData wdata;
 
-  wdata = (WebData) malloc(sizeof *wdata);
-  for(i=0; i < ngrp; i++) {
-    (wdata->P)[i] = SUNDlsMat_newDenseMat(ns, ns);
+  wdata = (WebData)malloc(sizeof *wdata);
+  for (i = 0; i < ngrp; i++)
+  {
+    (wdata->P)[i]     = SUNDlsMat_newDenseMat(ns, ns);
     (wdata->pivot)[i] = SUNDlsMat_newIndexArray(ns);
   }
-  wdata->rewt   = N_VNew_Serial(NEQ+1, sunctx);
-  wdata->vtemp  = N_VNew_Serial(NEQ+1, sunctx);
+  wdata->rewt   = N_VNew_Serial(NEQ + 1, sunctx);
+  wdata->vtemp  = N_VNew_Serial(NEQ + 1, sunctx);
   wdata->rewtB  = N_VNew_Serial(NEQ, sunctx);
   wdata->vtempB = N_VNew_Serial(NEQ, sunctx);
 
-  return(wdata);
+  return (wdata);
 }
 
 /*
@@ -857,27 +866,32 @@ static void InitUserData(WebData wdata)
 {
   int i, j, ns;
   sunrealtype *bcoef, *diff, *cox, *coy, dx, dy;
-  sunrealtype (*acoef)[NS];
+  sunrealtype(*acoef)[NS];
 
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
-  diff = wdata->diff;
-  cox = wdata->cox;
-  coy = wdata->coy;
+  diff  = wdata->diff;
+  cox   = wdata->cox;
+  coy   = wdata->coy;
   ns = wdata->ns = NS;
 
-  for (j = 0; j < NS; j++) { for (i = 0; i < NS; i++) acoef[i][j] = ZERO; }
-  for (j = 0; j < NP; j++) {
-    for (i = 0; i < NP; i++) {
-      acoef[NP+i][j] = EE;
-      acoef[i][NP+j] = -GG;
+  for (j = 0; j < NS; j++)
+  {
+    for (i = 0; i < NS; i++) { acoef[i][j] = ZERO; }
+  }
+  for (j = 0; j < NP; j++)
+  {
+    for (i = 0; i < NP; i++)
+    {
+      acoef[NP + i][j] = EE;
+      acoef[i][NP + j] = -GG;
     }
-    acoef[j][j] = -AA;
-    acoef[NP+j][NP+j] = -AA;
-    bcoef[j] = BB;
-    bcoef[NP+j] = -BB;
-    diff[j] = DPREY;
-    diff[NP+j] = DPRED;
+    acoef[j][j]           = -AA;
+    acoef[NP + j][NP + j] = -AA;
+    bcoef[j]              = BB;
+    bcoef[NP + j]         = -BB;
+    diff[j]               = DPREY;
+    diff[NP + j]          = DPRED;
   }
 
   /* Set remaining problem parameters */
@@ -885,22 +899,23 @@ static void InitUserData(WebData wdata)
   wdata->mxns = MXNS;
   dx = wdata->dx = DX;
   dy = wdata->dy = DY;
-  for (i = 0; i < ns; i++) {
-    cox[i] = diff[i]/SQR(dx);
-    coy[i] = diff[i]/SQR(dy);
+  for (i = 0; i < ns; i++)
+  {
+    cox[i] = diff[i] / SQR(dx);
+    coy[i] = diff[i] / SQR(dy);
   }
 
   /* Set remaining method parameters */
 
-  wdata->mp = MP;
-  wdata->mq = MQ;
-  wdata->mx = MX;
-  wdata->my = MY;
+  wdata->mp   = MP;
+  wdata->mq   = MQ;
+  wdata->mx   = MX;
+  wdata->my   = MY;
   wdata->srur = sqrt(SUN_UNIT_ROUNDOFF);
   wdata->mxmp = MXMP;
   wdata->ngrp = NGRP;
-  wdata->ngx = NGX;
-  wdata->ngy = NGY;
+  wdata->ngx  = NGX;
+  wdata->ngy  = NGY;
   SetGroups(MX, NGX, wdata->jgx, wdata->jigx, wdata->jxr);
   SetGroups(MY, NGY, wdata->jgy, wdata->jigy, wdata->jyr);
 }
@@ -921,17 +936,17 @@ static void SetGroups(int m, int ng, int jg[], int jig[], int jr[])
 {
   int ig, j, len1, mper, ngm1;
 
-  mper = m/ng; /* does integer division */
-  for (ig=0; ig < ng; ig++) jg[ig] = ig*mper;
+  mper = m / ng; /* does integer division */
+  for (ig = 0; ig < ng; ig++) { jg[ig] = ig * mper; }
   jg[ng] = m;
 
   ngm1 = ng - 1;
-  len1 = ngm1*mper;
-  for (j = 0; j < len1; j++) jig[j] = j/mper;
-  for (j = len1; j < m; j++) jig[j] = ngm1;
+  len1 = ngm1 * mper;
+  for (j = 0; j < len1; j++) { jig[j] = j / mper; }
+  for (j = len1; j < m; j++) { jig[j] = ngm1; }
 
-  for (ig = 0; ig < ngm1; ig++) jr[ig] = ((2*ig+1)*mper-1)/2;
-  jr[ngm1] = (ngm1*mper+m-1)/2;
+  for (ig = 0; ig < ngm1; ig++) { jr[ig] = ((2 * ig + 1) * mper - 1) / 2; }
+  jr[ngm1] = (ngm1 * mper + m - 1) / 2;
 }
 
 /*
@@ -944,27 +959,29 @@ static void CInit(N_Vector c, WebData wdata)
   sunrealtype argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
 
   cdata = N_VGetArrayPointer(c);
-  ns = wdata->ns;
-  mxns = wdata->mxns;
-  dx = wdata->dx;
-  dy = wdata->dy;
+  ns    = wdata->ns;
+  mxns  = wdata->mxns;
+  dx    = wdata->dx;
+  dy    = wdata->dy;
 
-  x_factor = SUN_RCONST(4.0)/SQR(AX);
-  y_factor = SUN_RCONST(4.0)/SQR(AY);
-  for (jy = 0; jy < MY; jy++) {
-    y = jy*dy;
-    argy = SQR(y_factor*y*(AY-y));
-    iyoff = mxns*jy;
-    for (jx = 0; jx < MX; jx++) {
-      x = jx*dx;
-      argx = SQR(x_factor*x*(AX-x));
-      ioff = iyoff + ns*jx;
-      for (i = 1; i <= ns; i++) {
-        ici = ioff + i-1;
-        cdata[ici] = SUN_RCONST(10.0) + i*argx*argy;
+  x_factor = SUN_RCONST(4.0) / SQR(AX);
+  y_factor = SUN_RCONST(4.0) / SQR(AY);
+  for (jy = 0; jy < MY; jy++)
+  {
+    y     = jy * dy;
+    argy  = SQR(y_factor * y * (AY - y));
+    iyoff = mxns * jy;
+    for (jx = 0; jx < MX; jx++)
+    {
+      x    = jx * dx;
+      argx = SQR(x_factor * x * (AX - x));
+      ioff = iyoff + ns * jx;
+      for (i = 1; i <= ns; i++)
+      {
+        ici        = ioff + i - 1;
+        cdata[ici] = SUN_RCONST(10.0) + i * argx * argy;
 
         /*if(i==1) cdata[ici] += ONE;*/
-
       }
     }
   }
@@ -979,61 +996,63 @@ static void CInit(N_Vector c, WebData wdata)
  * and at time t.
  */
 
-static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t, sunrealtype c[],
-                     sunrealtype rate[], WebData wdata)
+static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t,
+                     sunrealtype c[], sunrealtype rate[], WebData wdata)
 {
   int i, j, ns;
   sunrealtype fac, *bcoef;
-  sunrealtype (*acoef)[NS];
+  sunrealtype(*acoef)[NS];
 
-  ns = wdata->ns;
+  ns    = wdata->ns;
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
 
-  for (i = 0; i < ns; i++)
-    rate[i] = ZERO;
+  for (i = 0; i < ns; i++) { rate[i] = ZERO; }
 
   for (j = 0; j < ns; j++)
-    for (i = 0; i < ns; i++)
-      rate[i] += c[j] * acoef[i][j];
+  {
+    for (i = 0; i < ns; i++) { rate[i] += c[j] * acoef[i][j]; }
+  }
 
-  fac = ONE + ALPH*x*y;
-  for (i = 0; i < ns; i++)
-    rate[i] = c[i]*(bcoef[i]*fac + rate[i]);
+  fac = ONE + ALPH * x * y;
+  for (i = 0; i < ns; i++) { rate[i] = c[i] * (bcoef[i] * fac + rate[i]); }
 }
 
 /*
  * This routine computes the interaction rates for the backward problem
  */
 
-static void WebRatesB(sunrealtype x, sunrealtype y, sunrealtype t, sunrealtype c[], sunrealtype cB[],
-                      sunrealtype rate[], sunrealtype rateB[], WebData wdata)
+static void WebRatesB(sunrealtype x, sunrealtype y, sunrealtype t,
+                      sunrealtype c[], sunrealtype cB[], sunrealtype rate[],
+                      sunrealtype rateB[], WebData wdata)
 {
   int i, j, ns;
   sunrealtype fac, *bcoef;
-  sunrealtype (*acoef)[NS];
+  sunrealtype(*acoef)[NS];
 
-  ns = wdata->ns;
+  ns    = wdata->ns;
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
 
-  fac = ONE + ALPH*x*y;
+  fac = ONE + ALPH * x * y;
 
-  for (i = 0; i < ns; i++)
-    rate[i] = bcoef[i]*fac;
+  for (i = 0; i < ns; i++) { rate[i] = bcoef[i] * fac; }
 
   for (j = 0; j < ns; j++)
-    for (i = 0; i < ns; i++)
-      rate[i] += acoef[i][j]*c[j];
+  {
+    for (i = 0; i < ns; i++) { rate[i] += acoef[i][j] * c[j]; }
+  }
 
-  for (i = 0; i < ns; i++) {
-    rateB[i] = cB[i]*rate[i];
-    rate[i] = c[i]*rate[i];
+  for (i = 0; i < ns; i++)
+  {
+    rateB[i] = cB[i] * rate[i];
+    rate[i]  = c[i] * rate[i];
   }
 
   for (j = 0; j < ns; j++)
-    for (i = 0; i < ns; i++)
-      rateB[i] += acoef[j][i]*c[j]*cB[j];
+  {
+    for (i = 0; i < ns; i++) { rateB[i] += acoef[j][i] * c[j] * cB[j]; }
+  }
 }
 
 /*
@@ -1048,11 +1067,11 @@ static void fblock(sunrealtype t, sunrealtype cdata[], int jx, int jy,
   int iblok, ic;
   sunrealtype x, y;
 
-  iblok = jx + jy*(wdata->mx);
-  y = jy*(wdata->dy);
-  x = jx*(wdata->dx);
-  ic = (wdata->ns)*(iblok);
-  WebRates(x, y, t, cdata+ic, cdotdata, wdata);
+  iblok = jx + jy * (wdata->mx);
+  y     = jy * (wdata->dy);
+  x     = jx * (wdata->dx);
+  ic    = (wdata->ns) * (iblok);
+  WebRates(x, y, t, cdata + ic, cdotdata, wdata);
 }
 
 /*
@@ -1071,140 +1090,149 @@ static void GSIter(sunrealtype gamma, N_Vector z, N_Vector x, WebData wdata)
   sunrealtype beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
   sunrealtype temp, *cox, *coy, *xd, *zd;
 
-  xd = N_VGetArrayPointer(x);
-  zd = N_VGetArrayPointer(z);
-  ns = wdata->ns;
-  mx = wdata->mx;
-  my = wdata->my;
+  xd   = N_VGetArrayPointer(x);
+  zd   = N_VGetArrayPointer(z);
+  ns   = wdata->ns;
+  mx   = wdata->mx;
+  my   = wdata->my;
   mxns = wdata->mxns;
-  cox = wdata->cox;
-  coy = wdata->coy;
+  cox  = wdata->cox;
+  coy  = wdata->coy;
 
   /* Write matrix as P = D - L - U.
      Load local arrays beta, beta2, gam, gam2, and cof1. */
 
-  for (i = 0; i < ns; i++) {
-    temp = ONE/(ONE + TWO*gamma*(cox[i] + coy[i]));
-    beta[i] = gamma*cox[i]*temp;
-    beta2[i] = TWO*beta[i];
-    gam[i] = gamma*coy[i]*temp;
-    gam2[i] = TWO*gam[i];
-    cof1[i] = temp;
+  for (i = 0; i < ns; i++)
+  {
+    temp     = ONE / (ONE + TWO * gamma * (cox[i] + coy[i]));
+    beta[i]  = gamma * cox[i] * temp;
+    beta2[i] = TWO * beta[i];
+    gam[i]   = gamma * coy[i] * temp;
+    gam2[i]  = TWO * gam[i];
+    cof1[i]  = temp;
   }
 
   /* Begin iteration loop.
   Load vector x with (D-inverse)*z for first iteration. */
 
-  for (jy = 0; jy < my; jy++) {
-    iyoff = mxns*jy;
-    for (jx = 0; jx < mx; jx++) {
-      ic = iyoff + ns*jx;
-      v_prod(xd+ic, cof1, zd+ic, ns); /* x[ic+i] = cof1[i]z[ic+i] */
+  for (jy = 0; jy < my; jy++)
+  {
+    iyoff = mxns * jy;
+    for (jx = 0; jx < mx; jx++)
+    {
+      ic = iyoff + ns * jx;
+      v_prod(xd + ic, cof1, zd + ic, ns); /* x[ic+i] = cof1[i]z[ic+i] */
     }
   }
   N_VConst(ZERO, z);
 
   /* Looping point for iterations. */
 
-  for (iter=1; iter <= ITMAX; iter++) {
-
+  for (iter = 1; iter <= ITMAX; iter++)
+  {
     /* Calculate (D-inverse)*U*x if not the first iteration. */
 
-    if (iter > 1) {
-      for (jy=0; jy < my; jy++) {
-        iyoff = mxns*jy;
-        for (jx=0; jx < mx; jx++) { /* order of loops matters */
-          ic = iyoff + ns*jx;
-          x_loc = (jx == 0) ? 0 : ((jx == mx-1) ? 2 : 1);
-          y_loc = (jy == 0) ? 0 : ((jy == my-1) ? 2 : 1);
-          switch (3*y_loc+x_loc) {
-          case 0 : /* jx == 0, jy == 0 */
+    if (iter > 1)
+    {
+      for (jy = 0; jy < my; jy++)
+      {
+        iyoff = mxns * jy;
+        for (jx = 0; jx < mx; jx++)
+        { /* order of loops matters */
+          ic    = iyoff + ns * jx;
+          x_loc = (jx == 0) ? 0 : ((jx == mx - 1) ? 2 : 1);
+          y_loc = (jy == 0) ? 0 : ((jy == my - 1) ? 2 : 1);
+          switch (3 * y_loc + x_loc)
+          {
+          case 0: /* jx == 0, jy == 0 */
             /* x[ic+i] = beta2[i]x[ic+ns+i] + gam2[i]x[ic+mxns+i] */
-            v_sum_prods(xd+ic, beta2, xd+ic+ns, gam2, xd+ic+mxns, ns);
+            v_sum_prods(xd + ic, beta2, xd + ic + ns, gam2, xd + ic + mxns, ns);
             break;
-          case 1 : /* 1 <= jx <= mx-2, jy == 0 */
+          case 1: /* 1 <= jx <= mx-2, jy == 0 */
             /* x[ic+i] = beta[i]x[ic+ns+i] + gam2[i]x[ic+mxns+i] */
-            v_sum_prods(xd+ic, beta, xd+ic+ns, gam2, xd+ic+mxns, ns);
+            v_sum_prods(xd + ic, beta, xd + ic + ns, gam2, xd + ic + mxns, ns);
             break;
-          case 2 : /* jx == mx-1, jy == 0 */
+          case 2: /* jx == mx-1, jy == 0 */
             /* x[ic+i] = gam2[i]x[ic+mxns+i] */
-            v_prod(xd+ic, gam2, xd+ic+mxns, ns);
+            v_prod(xd + ic, gam2, xd + ic + mxns, ns);
             break;
-          case 3 : /* jx == 0, 1 <= jy <= my-2 */
+          case 3: /* jx == 0, 1 <= jy <= my-2 */
             /* x[ic+i] = beta2[i]x[ic+ns+i] + gam[i]x[ic+mxns+i] */
-            v_sum_prods(xd+ic, beta2, xd+ic+ns, gam, xd+ic+mxns, ns);
+            v_sum_prods(xd + ic, beta2, xd + ic + ns, gam, xd + ic + mxns, ns);
             break;
-          case 4 : /* 1 <= jx <= mx-2, 1 <= jy <= my-2 */
+          case 4: /* 1 <= jx <= mx-2, 1 <= jy <= my-2 */
             /* x[ic+i] = beta[i]x[ic+ns+i] + gam[i]x[ic+mxns+i] */
-            v_sum_prods(xd+ic, beta, xd+ic+ns, gam, xd+ic+mxns, ns);
+            v_sum_prods(xd + ic, beta, xd + ic + ns, gam, xd + ic + mxns, ns);
             break;
-          case 5 : /* jx == mx-1, 1 <= jy <= my-2 */
+          case 5: /* jx == mx-1, 1 <= jy <= my-2 */
             /* x[ic+i] = gam[i]x[ic+mxns+i] */
-            v_prod(xd+ic, gam, xd+ic+mxns, ns);
+            v_prod(xd + ic, gam, xd + ic + mxns, ns);
             break;
-          case 6 : /* jx == 0, jy == my-1 */
+          case 6: /* jx == 0, jy == my-1 */
             /* x[ic+i] = beta2[i]x[ic+ns+i] */
-            v_prod(xd+ic, beta2, xd+ic+ns, ns);
+            v_prod(xd + ic, beta2, xd + ic + ns, ns);
             break;
-          case 7 : /* 1 <= jx <= mx-2, jy == my-1 */
+          case 7: /* 1 <= jx <= mx-2, jy == my-1 */
             /* x[ic+i] = beta[i]x[ic+ns+i] */
-            v_prod(xd+ic, beta, xd+ic+ns, ns);
+            v_prod(xd + ic, beta, xd + ic + ns, ns);
             break;
-          case 8 : /* jx == mx-1, jy == my-1 */
+          case 8: /* jx == mx-1, jy == my-1 */
             /* x[ic+i] = ZERO */
-            v_zero(xd+ic, ns);
+            v_zero(xd + ic, ns);
             break;
           }
         }
       }
-    }  /* end if (iter > 1) */
+    } /* end if (iter > 1) */
 
     /* Overwrite x with [(I - (D-inverse)*L)-inverse]*x. */
 
-    for (jy=0; jy < my; jy++) {
-      iyoff = mxns*jy;
-      for (jx=0; jx < mx; jx++) { /* order of loops matters */
-        ic = iyoff + ns*jx;
-        x_loc = (jx == 0) ? 0 : ((jx == mx-1) ? 2 : 1);
-        y_loc = (jy == 0) ? 0 : ((jy == my-1) ? 2 : 1);
-        switch (3*y_loc+x_loc) {
-        case 0 : /* jx == 0, jy == 0 */
-          break;
-        case 1 : /* 1 <= jx <= mx-2, jy == 0 */
+    for (jy = 0; jy < my; jy++)
+    {
+      iyoff = mxns * jy;
+      for (jx = 0; jx < mx; jx++)
+      { /* order of loops matters */
+        ic    = iyoff + ns * jx;
+        x_loc = (jx == 0) ? 0 : ((jx == mx - 1) ? 2 : 1);
+        y_loc = (jy == 0) ? 0 : ((jy == my - 1) ? 2 : 1);
+        switch (3 * y_loc + x_loc)
+        {
+        case 0: /* jx == 0, jy == 0 */ break;
+        case 1: /* 1 <= jx <= mx-2, jy == 0 */
           /* x[ic+i] += beta[i]x[ic-ns+i] */
-          v_inc_by_prod(xd+ic, beta, xd+ic-ns, ns);
+          v_inc_by_prod(xd + ic, beta, xd + ic - ns, ns);
           break;
-        case 2 : /* jx == mx-1, jy == 0 */
+        case 2: /* jx == mx-1, jy == 0 */
           /* x[ic+i] += beta2[i]x[ic-ns+i] */
-          v_inc_by_prod(xd+ic, beta2, xd+ic-ns, ns);
+          v_inc_by_prod(xd + ic, beta2, xd + ic - ns, ns);
           break;
-        case 3 : /* jx == 0, 1 <= jy <= my-2 */
+        case 3: /* jx == 0, 1 <= jy <= my-2 */
           /* x[ic+i] += gam[i]x[ic-mxns+i] */
-          v_inc_by_prod(xd+ic, gam, xd+ic-mxns, ns);
+          v_inc_by_prod(xd + ic, gam, xd + ic - mxns, ns);
           break;
-        case 4 : /* 1 <= jx <= mx-2, 1 <= jy <= my-2 */
+        case 4: /* 1 <= jx <= mx-2, 1 <= jy <= my-2 */
           /* x[ic+i] += beta[i]x[ic-ns+i] + gam[i]x[ic-mxns+i] */
-          v_inc_by_prod(xd+ic, beta, xd+ic-ns, ns);
-          v_inc_by_prod(xd+ic, gam, xd+ic-mxns, ns);
+          v_inc_by_prod(xd + ic, beta, xd + ic - ns, ns);
+          v_inc_by_prod(xd + ic, gam, xd + ic - mxns, ns);
           break;
-        case 5 : /* jx == mx-1, 1 <= jy <= my-2 */
+        case 5: /* jx == mx-1, 1 <= jy <= my-2 */
           /* x[ic+i] += beta2[i]x[ic-ns+i] + gam[i]x[ic-mxns+i] */
-          v_inc_by_prod(xd+ic, beta2, xd+ic-ns, ns);
-          v_inc_by_prod(xd+ic, gam, xd+ic-mxns, ns);
+          v_inc_by_prod(xd + ic, beta2, xd + ic - ns, ns);
+          v_inc_by_prod(xd + ic, gam, xd + ic - mxns, ns);
           break;
-        case 6 : /* jx == 0, jy == my-1 */
+        case 6: /* jx == 0, jy == my-1 */
           /* x[ic+i] += gam2[i]x[ic-mxns+i] */
-          v_inc_by_prod(xd+ic, gam2, xd+ic-mxns, ns);
+          v_inc_by_prod(xd + ic, gam2, xd + ic - mxns, ns);
           break;
-        case 7 : /* 1 <= jx <= mx-2, jy == my-1 */
+        case 7: /* 1 <= jx <= mx-2, jy == my-1 */
           /* x[ic+i] += beta[i]x[ic-ns+i] + gam2[i]x[ic-mxns+i] */
-          v_inc_by_prod(xd+ic, beta, xd+ic-ns, ns);
-          v_inc_by_prod(xd+ic, gam2, xd+ic-mxns, ns);
+          v_inc_by_prod(xd + ic, beta, xd + ic - ns, ns);
+          v_inc_by_prod(xd + ic, gam2, xd + ic - mxns, ns);
           break;
-        case 8 : /* jx == mx-1, jy == my-1 */
+        case 8: /* jx == mx-1, jy == my-1 */
           /* x[ic+i] += beta2[i]x[ic-ns+i] + gam2[i]x[ic-mxns+i] */
-          v_inc_by_prod(xd+ic, beta2, xd+ic-ns, ns);
-          v_inc_by_prod(xd+ic, gam2, xd+ic-mxns, ns);
+          v_inc_by_prod(xd + ic, beta2, xd + ic - ns, ns);
+          v_inc_by_prod(xd + ic, gam2, xd + ic - mxns, ns);
           break;
         }
       }
@@ -1213,33 +1241,32 @@ static void GSIter(sunrealtype gamma, N_Vector z, N_Vector x, WebData wdata)
     /* Add increment x to z : z <- z+x */
 
     N_VLinearSum(ONE, z, ONE, x, z);
-
   }
 }
 
 static void v_inc_by_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] += v[i]*w[i];
+  for (i = 0; i < n; i++) { u[i] += v[i] * w[i]; }
 }
 
 static void v_sum_prods(sunrealtype u[], sunrealtype p[], sunrealtype q[],
                         sunrealtype v[], sunrealtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = p[i]*q[i] + v[i]*w[i];
+  for (i = 0; i < n; i++) { u[i] = p[i] * q[i] + v[i] * w[i]; }
 }
 
 static void v_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = v[i]*w[i];
+  for (i = 0; i < n; i++) { u[i] = v[i] * w[i]; }
 }
 
 static void v_zero(sunrealtype u[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = ZERO;
+  for (i = 0; i < n; i++) { u[i] = ZERO; }
 }
 
 /*
@@ -1255,28 +1282,31 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
 
   cdata = N_VGetArrayPointer(cB);
 
-  for (i=1; i <= ns; i++) {
-
+  for (i = 1; i <= ns; i++)
+  {
     cmax = ZERO;
 
-    for (jy=MY-1; jy >= 0; jy--) {
-      for (jx=0; jx < MX; jx++) {
-        cij = cdata[(i-1) + jx*ns + jy*mxns];
-        if (fabs(cij) > cmax) {
+    for (jy = MY - 1; jy >= 0; jy--)
+    {
+      for (jx = 0; jx < MX; jx++)
+      {
+        cij = cdata[(i - 1) + jx * ns + jy * mxns];
+        if (fabs(cij) > cmax)
+        {
           cmax = cij;
-          x = jx * wdata->dx;
-          y = jy * wdata->dy;
+          x    = jx * wdata->dx;
+          y    = jy * wdata->dy;
         }
       }
     }
 
     printf("\nMaximum sensitivity with respect to I.C. of species %d\n", i);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("  lambda max = %Le\n",cmax);
+    printf("  lambda max = %Le\n", cmax);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("  lambda max = %e\n",cmax);
+    printf("  lambda max = %e\n", cmax);
 #else
-    printf("  lambda max = %e\n",cmax);
+    printf("  lambda max = %e\n", cmax);
 #endif
     printf("at\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -1286,9 +1316,7 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
 #else
     printf("  x = %e\n  y = %e\n", x, y);
 #endif
-
   }
-
 }
 
 /*
@@ -1297,7 +1325,7 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
 
 static sunrealtype doubleIntgr(N_Vector c, int i, WebData wdata)
 {
-  sunrealtype *cdata;
+  sunrealtype* cdata;
   int ns, mx, my, mxns;
   sunrealtype dx, dy;
   sunrealtype intgr_xy, intgr_x;
@@ -1312,42 +1340,44 @@ static sunrealtype doubleIntgr(N_Vector c, int i, WebData wdata)
   dx   = wdata->dx;
   dy   = wdata->dy;
 
-  jy = 0;
-  intgr_x = cdata[(i-1)+jy*mxns];
-  for (jx = 1; jx < mx-1; jx++) {
-    intgr_x += TWO*cdata[(i-1) + jx*ns + jy*mxns];
+  jy      = 0;
+  intgr_x = cdata[(i - 1) + jy * mxns];
+  for (jx = 1; jx < mx - 1; jx++)
+  {
+    intgr_x += TWO * cdata[(i - 1) + jx * ns + jy * mxns];
   }
-  intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
-  intgr_x *= SUN_RCONST(0.5)*dx;
+  intgr_x += cdata[(i - 1) + (mx - 1) * ns + jy * mxns];
+  intgr_x *= SUN_RCONST(0.5) * dx;
 
   intgr_xy = intgr_x;
 
-  for (jy = 1; jy < my-1; jy++) {
-
-    intgr_x = cdata[(i-1)+jy*mxns];
-    for (jx = 1; jx < mx-1; jx++) {
-      intgr_x += TWO*cdata[(i-1) + jx*ns + jy*mxns];
+  for (jy = 1; jy < my - 1; jy++)
+  {
+    intgr_x = cdata[(i - 1) + jy * mxns];
+    for (jx = 1; jx < mx - 1; jx++)
+    {
+      intgr_x += TWO * cdata[(i - 1) + jx * ns + jy * mxns];
     }
-    intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
-    intgr_x *= SUN_RCONST(0.5)*dx;
+    intgr_x += cdata[(i - 1) + (mx - 1) * ns + jy * mxns];
+    intgr_x *= SUN_RCONST(0.5) * dx;
 
-    intgr_xy += TWO*intgr_x;
-
+    intgr_xy += TWO * intgr_x;
   }
 
-  jy = my-1;
-  intgr_x = cdata[(i-1)+jy*mxns];
-  for (jx = 1; jx < mx-1; jx++) {
-    intgr_x += TWO*cdata[(i-1) + jx*ns + jy*mxns];
+  jy      = my - 1;
+  intgr_x = cdata[(i - 1) + jy * mxns];
+  for (jx = 1; jx < mx - 1; jx++)
+  {
+    intgr_x += TWO * cdata[(i - 1) + jx * ns + jy * mxns];
   }
-  intgr_x += cdata[(i-1)+(mx-1)*ns+jy*mxns];
-  intgr_x *= SUN_RCONST(0.5)*dx;
+  intgr_x += cdata[(i - 1) + (mx - 1) * ns + jy * mxns];
+  intgr_x *= SUN_RCONST(0.5) * dx;
 
   intgr_xy += intgr_x;
 
-  intgr_xy *= SUN_RCONST(0.5)*dy;
+  intgr_xy *= SUN_RCONST(0.5) * dy;
 
-  return(intgr_xy);
+  return (intgr_xy);
 }
 
 /*
@@ -1359,7 +1389,8 @@ static void FreeUserData(WebData wdata)
   int i, ngrp;
 
   ngrp = wdata->ngrp;
-  for(i=0; i < ngrp; i++) {
+  for (i = 0; i < ngrp; i++)
+  {
     SUNDlsMat_destroyMat((wdata->P)[i]);
     SUNDlsMat_destroyArray((wdata->pivot)[i]);
   }
@@ -1380,29 +1411,37 @@ static void FreeUserData(WebData wdata)
  *             NULL pointer
  */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1); }
+    return (1);
+  }
 
   /* Check if retval < 0 */
-  else if (opt == 1) {
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
+  else if (opt == 1)
+  {
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return(1); }}
+      return (1);
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && returnvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1); }
+    return (1);
+  }
 
-  return(0);
+  return (0);
 }

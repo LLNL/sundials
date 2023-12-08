@@ -28,37 +28,36 @@
  * -----------------------------------------------------------------
  */
 
+#include <kinsol/kinsol.h> /* access to KINSOL func., consts.   */
+#include <math.h>
+#include <nvector/nvector_serial.h> /* access to serial N_Vector         */
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-
-#include <kinsol/kinsol.h>                 /* access to KINSOL func., consts.   */
-#include <nvector/nvector_serial.h>        /* access to serial N_Vector         */
-#include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix        */
+#include <sundials/sundials_math.h>  /* access to SUNRsqrt                */
+#include <sundials/sundials_types.h> /* defs. of sunrealtype, sunindextype   */
 #include <sunlinsol/sunlinsol_superlumt.h> /* access to SuperLUMT linear solver */
-#include <sundials/sundials_types.h>       /* defs. of sunrealtype, sunindextype   */
-#include <sundials/sundials_math.h>        /* access to SUNRsqrt                */
+#include <sunmatrix/sunmatrix_sparse.h> /* access to sparse SUNMatrix        */
 
 /* Problem Constants */
 
-#define NVAR  8              /* variables */
-#define NEQ   3*NVAR         /* equations + bounds */
+#define NVAR 8        /* variables */
+#define NEQ  3 * NVAR /* equations + bounds */
 
-#define FTOL   SUN_RCONST(1.e-5) /* function tolerance */
-#define STOL   SUN_RCONST(1.e-5) /* step tolerance */
+#define FTOL SUN_RCONST(1.e-5) /* function tolerance */
+#define STOL SUN_RCONST(1.e-5) /* step tolerance */
 
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
-#define TWO   SUN_RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)
+#define Ith(v, i) NV_Ith_S(v, i - 1)
 
-static int func(N_Vector y, N_Vector f, void *user_data);
-static int jac(N_Vector y, N_Vector f, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2);
+static int func(N_Vector y, N_Vector f, void* user_data);
+static int jac(N_Vector y, N_Vector f, SUNMatrix J, void* user_data,
+               N_Vector tmp1, N_Vector tmp2);
 static void PrintOutput(N_Vector y);
-static void PrintFinalStats(void *kmem);
-static int check_retval(void *retvalvalue, const char *funcname, int opt);
+static void PrintFinalStats(void* kmem);
+static int check_retval(void* retvalvalue, const char* funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -72,16 +71,16 @@ int main()
   sunrealtype fnormtol, scsteptol;
   N_Vector y, scale, constraints;
   int mset, retval, i;
-  void *kmem;
+  void* kmem;
   SUNMatrix J;
   SUNLinearSolver LS;
 
   int nnz, num_threads;
 
   y = scale = constraints = NULL;
-  kmem = NULL;
-  J = NULL;
-  LS = NULL;
+  kmem                    = NULL;
+  J                       = NULL;
+  LS                      = NULL;
 
   printf("\nRobot Kinematics Example\n");
   printf("8 variables; -1 <= x_i <= 1\n");
@@ -89,84 +88,84 @@ int main()
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
   /* Create vectors for solution, scales, and constraints */
 
   y = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)y, "N_VNew_Serial", 0)) { return (1); }
 
   scale = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)scale, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)scale, "N_VNew_Serial", 0)) { return (1); }
 
   constraints = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)constraints, "N_VNew_Serial", 0)) { return (1); }
 
   /* Initialize and allocate memory for KINSOL */
 
   kmem = KINCreate(sunctx);
-  if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
+  if (check_retval((void*)kmem, "KINCreate", 0)) { return (1); }
 
   retval = KINInit(kmem, func, y); /* y passed as a template */
-  if (check_retval(&retval, "KINInit", 1)) return(1);
+  if (check_retval(&retval, "KINInit", 1)) { return (1); }
 
   /* Set optional inputs */
 
-  N_VConst(ZERO,constraints);
-  for (i = NVAR+1; i <= NEQ; i++) Ith(constraints, i) = ONE;
+  N_VConst(ZERO, constraints);
+  for (i = NVAR + 1; i <= NEQ; i++) { Ith(constraints, i) = ONE; }
 
   retval = KINSetConstraints(kmem, constraints);
-  if (check_retval(&retval, "KINSetConstraints", 1)) return(1);
+  if (check_retval(&retval, "KINSetConstraints", 1)) { return (1); }
 
-  fnormtol  = FTOL;
-  retval = KINSetFuncNormTol(kmem, fnormtol);
-  if (check_retval(&retval, "KINSetFuncNormTol", 1)) return(1);
+  fnormtol = FTOL;
+  retval   = KINSetFuncNormTol(kmem, fnormtol);
+  if (check_retval(&retval, "KINSetFuncNormTol", 1)) { return (1); }
 
   scsteptol = STOL;
-  retval = KINSetScaledStepTol(kmem, scsteptol);
-  if (check_retval(&retval, "KINSetScaledStepTol", 1)) return(1);
+  retval    = KINSetScaledStepTol(kmem, scsteptol);
+  if (check_retval(&retval, "KINSetScaledStepTol", 1)) { return (1); }
 
   /* Create sparse SUNMatrix */
   nnz = 56; /* number of nonzeros in the Jacobian */
-  J = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT, sunctx);
-  if(check_retval((void *)J, "SUNSparseMatrix", 0)) return(1);
+  J   = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT, sunctx);
+  if (check_retval((void*)J, "SUNSparseMatrix", 0)) { return (1); }
 
   /* Create SuperLUMT solver object */
   num_threads = 2; /* number fo threads to use */
-  LS = SUNLinSol_SuperLUMT(y, J, num_threads, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
+  LS          = SUNLinSol_SuperLUMT(y, J, num_threads, sunctx);
+  if (check_retval((void*)LS, "SUNLinSol_SuperLUMT", 0)) { return (1); }
 
   /* Attach the SuperLU_MT linear solver */
   retval = KINSetLinearSolver(kmem, LS, J);
-  if(check_retval(&retval, "KINSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "KINSetLinearSolver", 1)) { return (1); }
 
   /* Set the Jacobian function */
   retval = KINSetJacFn(kmem, jac);
-  if (check_retval(&retval, "KINSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "KINSetJacFn", 1)) { return (1); }
 
   /* Indicate exact Newton */
 
-  mset = 1;
+  mset   = 1;
   retval = KINSetMaxSetupCalls(kmem, mset);
-  if (check_retval(&retval, "KINSetMaxSetupCalls", 1)) return(1);
+  if (check_retval(&retval, "KINSetMaxSetupCalls", 1)) { return (1); }
 
   /* Initial guess */
 
   N_VConst(ONE, y);
-  for(i = 1; i <= NVAR; i++) Ith(y,i) = SUNRsqrt(TWO)/TWO;
+  for (i = 1; i <= NVAR; i++) { Ith(y, i) = SUNRsqrt(TWO) / TWO; }
 
   printf("Initial guess:\n");
   PrintOutput(y);
 
   /* Call KINSol to solve problem */
 
-  N_VConst(ONE,scale);
+  N_VConst(ONE, scale);
   retval = KINSol(kmem,           /* KINSol memory block */
-                y,              /* initial guess on input; solution vector */
-                KIN_LINESEARCH, /* global strategy choice */
-                scale,          /* scaling vector, for the variable cc */
-                scale);         /* scaling vector for function values fval */
-  if (check_retval(&retval, "KINSol", 1)) return(1);
+                  y,              /* initial guess on input; solution vector */
+                  KIN_LINESEARCH, /* global strategy choice */
+                  scale,          /* scaling vector, for the variable cc */
+                  scale);         /* scaling vector for function values fval */
+  if (check_retval(&retval, "KINSol", 1)) { return (1); }
 
   printf("\nComputed solution:\n");
   PrintOutput(y);
@@ -183,14 +182,14 @@ int main()
   SUNMatDestroy(J);
   SUNContext_Free(&sunctx);
 
-  return(0);
+  return (0);
 }
 
 /*
  * System function
  */
 
-static int func(N_Vector y, N_Vector f, void *user_data)
+static int func(N_Vector y, N_Vector f, void* user_data)
 {
   sunrealtype *yd, *fd;
 
@@ -205,27 +204,43 @@ static int func(N_Vector y, N_Vector f, void *user_data)
   yd = N_VGetArrayPointer(y);
   fd = N_VGetArrayPointer(f);
 
-  x1 = yd[0]; l1 = yd[ 8]; u1 = yd[16];
-  x2 = yd[1]; l2 = yd[ 9]; u2 = yd[17];
-  x3 = yd[2]; l3 = yd[10]; u3 = yd[18];
-  x4 = yd[3]; l4 = yd[11]; u4 = yd[19];
-  x5 = yd[4]; l5 = yd[12]; u5 = yd[20];
-  x6 = yd[5]; l6 = yd[13]; u6 = yd[21];
-  x7 = yd[6]; l7 = yd[14]; u7 = yd[22];
-  x8 = yd[7]; l8 = yd[15]; u8 = yd[23];
+  x1 = yd[0];
+  l1 = yd[8];
+  u1 = yd[16];
+  x2 = yd[1];
+  l2 = yd[9];
+  u2 = yd[17];
+  x3 = yd[2];
+  l3 = yd[10];
+  u3 = yd[18];
+  x4 = yd[3];
+  l4 = yd[11];
+  u4 = yd[19];
+  x5 = yd[4];
+  l5 = yd[12];
+  u5 = yd[20];
+  x6 = yd[5];
+  l6 = yd[13];
+  u6 = yd[21];
+  x7 = yd[6];
+  l7 = yd[14];
+  u7 = yd[22];
+  x8 = yd[7];
+  l8 = yd[15];
+  u8 = yd[23];
 
   /* Nonlinear equations */
 
-  eq1 = - 0.1238*x1 + x7 - 0.001637*x2
-    - 0.9338*x4 + 0.004731*x1*x3 - 0.3578*x2*x3 - 0.3571;
-  eq2 = 0.2638*x1 - x7 - 0.07745*x2
-    - 0.6734*x4 + 0.2238*x1*x3 + 0.7623*x2*x3 - 0.6022;
-  eq3 = 0.3578*x1 + 0.004731*x2 + x6*x8;
-  eq4 = - 0.7623*x1 + 0.2238*x2 + 0.3461;
-  eq5 = x1*x1 + x2*x2 - 1;
-  eq6 = x3*x3 + x4*x4 - 1;
-  eq7 = x5*x5 + x6*x6 - 1;
-  eq8 = x7*x7 + x8*x8 - 1;
+  eq1 = -0.1238 * x1 + x7 - 0.001637 * x2 - 0.9338 * x4 + 0.004731 * x1 * x3 -
+        0.3578 * x2 * x3 - 0.3571;
+  eq2 = 0.2638 * x1 - x7 - 0.07745 * x2 - 0.6734 * x4 + 0.2238 * x1 * x3 +
+        0.7623 * x2 * x3 - 0.6022;
+  eq3 = 0.3578 * x1 + 0.004731 * x2 + x6 * x8;
+  eq4 = -0.7623 * x1 + 0.2238 * x2 + 0.3461;
+  eq5 = x1 * x1 + x2 * x2 - 1;
+  eq6 = x3 * x3 + x4 * x4 - 1;
+  eq7 = x5 * x5 + x6 * x6 - 1;
+  eq8 = x7 * x7 + x8 * x8 - 1;
 
   /* Lower bounds ( l_i = 1 + x_i >= 0)*/
 
@@ -249,30 +264,46 @@ static int func(N_Vector y, N_Vector f, void *user_data)
   ub7 = u7 - 1.0 + x7;
   ub8 = u8 - 1.0 + x8;
 
-  fd[0] = eq1; fd[ 8] = lb1; fd[16] = ub1;
-  fd[1] = eq2; fd[ 9] = lb2; fd[17] = ub2;
-  fd[2] = eq3; fd[10] = lb3; fd[18] = ub3;
-  fd[3] = eq4; fd[11] = lb4; fd[19] = ub4;
-  fd[4] = eq5; fd[12] = lb5; fd[20] = ub5;
-  fd[5] = eq6; fd[13] = lb6; fd[21] = ub6;
-  fd[6] = eq7; fd[14] = lb7; fd[22] = ub7;
-  fd[7] = eq8; fd[15] = lb8; fd[23] = ub8;
+  fd[0]  = eq1;
+  fd[8]  = lb1;
+  fd[16] = ub1;
+  fd[1]  = eq2;
+  fd[9]  = lb2;
+  fd[17] = ub2;
+  fd[2]  = eq3;
+  fd[10] = lb3;
+  fd[18] = ub3;
+  fd[3]  = eq4;
+  fd[11] = lb4;
+  fd[19] = ub4;
+  fd[4]  = eq5;
+  fd[12] = lb5;
+  fd[20] = ub5;
+  fd[5]  = eq6;
+  fd[13] = lb6;
+  fd[21] = ub6;
+  fd[6]  = eq7;
+  fd[14] = lb7;
+  fd[22] = ub7;
+  fd[7]  = eq8;
+  fd[15] = lb8;
+  fd[23] = ub8;
 
-  return(0);
+  return (0);
 }
 
 /*
  * System Jacobian
  */
 
-static int jac(N_Vector y, N_Vector f, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2)
+static int jac(N_Vector y, N_Vector f, SUNMatrix J, void* user_data,
+               N_Vector tmp1, N_Vector tmp2)
 {
-  sunrealtype *yd;
+  sunrealtype* yd;
   sunrealtype x1, x2, x3, x4, x5, x6, x7, x8;
-  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(J);
-  sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
-  sunrealtype *data = SUNSparseMatrix_Data(J);
+  sunindextype* colptrs = SUNSparseMatrix_IndexPointers(J);
+  sunindextype* rowvals = SUNSparseMatrix_IndexValues(J);
+  sunrealtype* data     = SUNSparseMatrix_Data(J);
 
   yd = N_VGetArrayPointer(y);
 
@@ -287,16 +318,16 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
 
   SUNMatZero(J);
 
-  colptrs[0] = 0;
-  colptrs[1] = 7;
-  colptrs[2] = 14;
-  colptrs[3] = 19;
-  colptrs[4] = 24;
-  colptrs[5] = 27;
-  colptrs[6] = 31;
-  colptrs[7] = 36;
-  colptrs[8] = 40;
-  colptrs[9] = 41;
+  colptrs[0]  = 0;
+  colptrs[1]  = 7;
+  colptrs[2]  = 14;
+  colptrs[3]  = 19;
+  colptrs[4]  = 24;
+  colptrs[5]  = 27;
+  colptrs[6]  = 31;
+  colptrs[7]  = 36;
+  colptrs[8]  = 40;
+  colptrs[9]  = 41;
   colptrs[10] = 42;
   colptrs[11] = 43;
   colptrs[12] = 44;
@@ -327,15 +358,15 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
   IJth(J,1,7) = 1.0;
   */
 
-  data[0] = - 0.1238 + 0.004731*x3;
-  rowvals[0] = 0;
-  data[7] = - 0.001637 - 0.3578*x3;
-  rowvals[7] = 0;
-  data[14] = 0.004731*x1 - 0.3578*x2;
+  data[0]     = -0.1238 + 0.004731 * x3;
+  rowvals[0]  = 0;
+  data[7]     = -0.001637 - 0.3578 * x3;
+  rowvals[7]  = 0;
+  data[14]    = 0.004731 * x1 - 0.3578 * x2;
   rowvals[14] = 0;
-  data[19] = - 0.9338;
+  data[19]    = -0.9338;
   rowvals[19] = 0;
-  data[31] = 1.0;
+  data[31]    = 1.0;
   rowvals[31] = 0;
 
   /*
@@ -350,17 +381,16 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
   IJth(J,2,7) = -1.0;
   */
 
-  data[1] = 0.2638 + 0.2238*x3;
-  rowvals[1] = 1;
-  data[8] = - 0.07745 + 0.7623*x3;
-  rowvals[8] = 1;
-  data[15] = 0.2238*x1 + 0.7623*x2;
+  data[1]     = 0.2638 + 0.2238 * x3;
+  rowvals[1]  = 1;
+  data[8]     = -0.07745 + 0.7623 * x3;
+  rowvals[8]  = 1;
+  data[15]    = 0.2238 * x1 + 0.7623 * x2;
   rowvals[15] = 1;
-  data[20] = - 0.6734;
+  data[20]    = -0.6734;
   rowvals[20] = 1;
-  data[32] = -1.0;
+  data[32]    = -1.0;
   rowvals[32] = 1;
-
 
   /*
     0.3578*x1 + 0.004731*x2 + x6*x8
@@ -372,15 +402,14 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
   IJth(J,3,8) = x6;
   */
 
-  data[2] = 0.3578;
-  rowvals[2] = 2;
-  data[9] = 0.004731;
-  rowvals[9] = 2;
-  data[27] = x8;
+  data[2]     = 0.3578;
+  rowvals[2]  = 2;
+  data[9]     = 0.004731;
+  rowvals[9]  = 2;
+  data[27]    = x8;
   rowvals[27] = 2;
-  data[36] = x6;
+  data[36]    = x6;
   rowvals[36] = 2;
-
 
   /*
     - 0.7623*x1 + 0.2238*x2 + 0.3461
@@ -390,9 +419,9 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
   IJth(J,4,2) = 0.2238;
   */
 
-  data[3] = - 0.7623;
-  rowvals[3] = 3;
-  data[10] = 0.2238;
+  data[3]     = -0.7623;
+  rowvals[3]  = 3;
+  data[10]    = 0.2238;
   rowvals[10] = 3;
 
   /*
@@ -403,9 +432,9 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
   IJth(J,5,2) = 2.0*x2;
   */
 
-  data[4] = 2.0*x1;
-  rowvals[4] = 4;
-  data[11] = 2.0*x2;
+  data[4]     = 2.0 * x1;
+  rowvals[4]  = 4;
+  data[11]    = 2.0 * x2;
   rowvals[11] = 4;
 
   /*
@@ -416,9 +445,9 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
   IJth(J,6,4) = 2.0*x4;
   */
 
-  data[16] = 2.0*x3;
+  data[16]    = 2.0 * x3;
   rowvals[16] = 5;
-  data[21] = 2.0*x4;
+  data[21]    = 2.0 * x4;
   rowvals[21] = 5;
 
   /*
@@ -429,9 +458,9 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
   IJth(J,7,6) = 2.0*x6;
   */
 
-  data[24] = 2.0*x5;
+  data[24]    = 2.0 * x5;
   rowvals[24] = 6;
-  data[28] = 2.0*x6;
+  data[28]    = 2.0 * x6;
   rowvals[28] = 6;
 
   /*
@@ -441,17 +470,15 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
   IJth(J,8,7) = 2.0*x7;
   IJth(J,8,8) = 2.0*x8;
   */
-  data[33] = 2.0*x7;
+  data[33]    = 2.0 * x7;
   rowvals[33] = 7;
-  data[37] = 2.0*x8;
+  data[37]    = 2.0 * x8;
   rowvals[37] = 7;
-
 
   /*
     Lower bounds ( l_i = 1 + x_i >= 0)
     l_i - 1.0 - x_i
    */
-
 
   /*
   for(i=1;i<=8;i++) {
@@ -460,40 +487,39 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
   }
   */
 
-  data[5] = -1.0;
-  rowvals[5] = 8;
-  data[12] = -1.0;
+  data[5]     = -1.0;
+  rowvals[5]  = 8;
+  data[12]    = -1.0;
   rowvals[12] = 9;
-  data[17] = -1.0;
+  data[17]    = -1.0;
   rowvals[17] = 10;
-  data[22] = -1.0;
+  data[22]    = -1.0;
   rowvals[22] = 11;
-  data[25] = -1.0;
+  data[25]    = -1.0;
   rowvals[25] = 12;
-  data[29] = -1.0;
+  data[29]    = -1.0;
   rowvals[29] = 13;
-  data[34] = -1.0;
+  data[34]    = -1.0;
   rowvals[34] = 14;
-  data[38] = -1.0;
+  data[38]    = -1.0;
   rowvals[38] = 15;
 
-  data[40] = 1.0;
+  data[40]    = 1.0;
   rowvals[40] = 8;
-  data[41] = 1.0;
+  data[41]    = 1.0;
   rowvals[41] = 9;
-  data[42] = 1.0;
+  data[42]    = 1.0;
   rowvals[42] = 10;
-  data[43] = 1.0;
+  data[43]    = 1.0;
   rowvals[43] = 11;
-  data[44] = 1.0;
+  data[44]    = 1.0;
   rowvals[44] = 12;
-  data[45] = 1.0;
+  data[45]    = 1.0;
   rowvals[45] = 13;
-  data[46] = 1.0;
+  data[46]    = 1.0;
   rowvals[46] = 14;
-  data[47] = 1.0;
+  data[47]    = 1.0;
   rowvals[47] = 15;
-
 
   /*
     Upper bounds ( u_i = 1 - x_i >= 0)
@@ -506,42 +532,41 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
   }
   */
 
-  data[6] = 1.0;
-  rowvals[6] = 16;
-  data[13] = 1.0;
+  data[6]     = 1.0;
+  rowvals[6]  = 16;
+  data[13]    = 1.0;
   rowvals[13] = 17;
-  data[18] = 1.0;
+  data[18]    = 1.0;
   rowvals[18] = 18;
-  data[23] = 1.0;
+  data[23]    = 1.0;
   rowvals[23] = 19;
-  data[26] = 1.0;
+  data[26]    = 1.0;
   rowvals[26] = 20;
-  data[30] = 1.0;
+  data[30]    = 1.0;
   rowvals[30] = 21;
-  data[35] = 1.0;
+  data[35]    = 1.0;
   rowvals[35] = 22;
-  data[39] = 1.0;
+  data[39]    = 1.0;
   rowvals[39] = 23;
 
-  data[48] = 1.0;
+  data[48]    = 1.0;
   rowvals[48] = 16;
-  data[49] = 1.0;
+  data[49]    = 1.0;
   rowvals[49] = 17;
-  data[50] = 1.0;
+  data[50]    = 1.0;
   rowvals[50] = 18;
-  data[51] = 1.0;
+  data[51]    = 1.0;
   rowvals[51] = 19;
-  data[52] = 1.0;
+  data[52]    = 1.0;
   rowvals[52] = 20;
-  data[53] = 1.0;
+  data[53]    = 1.0;
   rowvals[53] = 21;
-  data[54] = 1.0;
+  data[54]    = 1.0;
   rowvals[54] = 22;
-  data[55] = 1.0;
+  data[55]    = 1.0;
   rowvals[55] = 23;
 
-  return(0);
-
+  return (0);
 }
 
 /*
@@ -555,28 +580,26 @@ static void PrintOutput(N_Vector y)
   printf("     l=x+1          x         u=1-x\n");
   printf("   ----------------------------------\n");
 
-  for(i=1; i<=NVAR; i++) {
-
+  for (i = 1; i <= NVAR; i++)
+  {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf(" %10.6Lg   %10.6Lg   %10.6Lg\n",
-           Ith(y,i+NVAR), Ith(y,i), Ith(y,i+2*NVAR));
+    printf(" %10.6Lg   %10.6Lg   %10.6Lg\n", Ith(y, i + NVAR), Ith(y, i),
+           Ith(y, i + 2 * NVAR));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf(" %10.6g   %10.6g   %10.6g\n",
-           Ith(y,i+NVAR), Ith(y,i), Ith(y,i+2*NVAR));
+    printf(" %10.6g   %10.6g   %10.6g\n", Ith(y, i + NVAR), Ith(y, i),
+           Ith(y, i + 2 * NVAR));
 #else
-    printf(" %10.6g   %10.6g   %10.6g\n",
-           Ith(y,i+NVAR), Ith(y,i), Ith(y,i+2*NVAR));
+    printf(" %10.6g   %10.6g   %10.6g\n", Ith(y, i + NVAR), Ith(y, i),
+           Ith(y, i + 2 * NVAR));
 #endif
-
   }
-
 }
 
 /*
  * Print final statistics
  */
 
-static void PrintFinalStats(void *kmem)
+static void PrintFinalStats(void* kmem)
 {
   long int nni, nfe, nje;
   int retval;
@@ -604,36 +627,37 @@ static void PrintFinalStats(void *kmem)
  *             NULL pointer
  */
 
-static int check_retval(void *retvalvalue, const char *funcname, int opt)
+static int check_retval(void* retvalvalue, const char* funcname, int opt)
 {
-  int *errretval;
+  int* errretval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && retvalvalue == NULL) {
-    fprintf(stderr,
-            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
-    return(1);
+  if (opt == 0 && retvalvalue == NULL)
+  {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return (1);
   }
 
   /* Check if retval < 0 */
-  else if (opt == 1) {
-    errretval = (int *) retvalvalue;
-    if (*errretval < 0) {
-      fprintf(stderr,
-              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *errretval);
-      return(1);
+  else if (opt == 1)
+  {
+    errretval = (int*)retvalvalue;
+    if (*errretval < 0)
+    {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+              funcname, *errretval);
+      return (1);
     }
   }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && retvalvalue == NULL) {
-    fprintf(stderr,
-            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
-    return(1);
+  else if (opt == 2 && retvalvalue == NULL)
+  {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return (1);
   }
 
-  return(0);
+  return (0);
 }

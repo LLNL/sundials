@@ -38,7 +38,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
-  sunbooleantype nvectorOK      = 0;
+  sunbooleantype nvectorOK   = 0;
   int retval                 = 0;
 
   /* Check that f1 and f2 are supplied */
@@ -452,8 +452,7 @@ int sprkStep_Init(void* arkode_mem, int init_type)
 
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::SPRKStep",
-                      "arkStep_Init",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::SPRKStep", "arkStep_Init",
                       "Unable to update interpolation polynomial degree");
       return (ARK_ILL_INPUT);
     }

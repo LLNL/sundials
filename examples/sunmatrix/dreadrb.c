@@ -125,7 +125,6 @@
 #include <sundials/sundials_types.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
-
 #ifdef SUNDIALS_INT64_T
 #define IFMT "%ld"
 #else
@@ -136,100 +135,110 @@
 #define DREADRB_DEBUG_LVL 0
 #endif
 
-#define DREADRB_ABORT(str) { printf(str); exit(-1); }
+#define DREADRB_ABORT(str) \
+  {                        \
+    printf(str);           \
+    exit(-1);              \
+  }
 
 /*! \brief Eat up the rest of the current line */
-static int DumpLine(FILE *fp)
+static int DumpLine(FILE* fp)
 {
-    register int c;
-    while ((c = fgetc(fp)) != '\n') ;
-    return 0;
+  register int c;
+  while ((c = fgetc(fp)) != '\n') { ; }
+  return 0;
 }
 
-static int ParseIntFormat(char *buf, sunindextype *num, sunindextype *size)
+static int ParseIntFormat(char* buf, sunindextype* num, sunindextype* size)
 {
-    char *tmp;
+  char* tmp;
 
-    tmp = buf;
-    while (*tmp++ != '(') ;
-    *num = atoi(tmp);
-    while (*tmp != 'I' && *tmp != 'i') ++tmp;
-    ++tmp;
-    *size = atoi(tmp);
-    return 0;
+  tmp = buf;
+  while (*tmp++ != '(') { ; }
+  *num = atoi(tmp);
+  while (*tmp != 'I' && *tmp != 'i') { ++tmp; }
+  ++tmp;
+  *size = atoi(tmp);
+  return 0;
 }
 
-static int ParseFloatFormat(char *buf, sunindextype *num, sunindextype *size)
+static int ParseFloatFormat(char* buf, sunindextype* num, sunindextype* size)
 {
-    char *tmp, *period;
+  char *tmp, *period;
 
-    tmp = buf;
-    while (*tmp++ != '(') ;
-    *num = atoi(tmp); /*sscanf(tmp, "%d", num);*/
-    while (*tmp != 'E' && *tmp != 'e' && *tmp != 'D' && *tmp != 'd'
-           && *tmp != 'F' && *tmp != 'f') {
-        /* May find kP before nE/nD/nF, like (1P6F13.6). In this case the
+  tmp = buf;
+  while (*tmp++ != '(') { ; }
+  *num = atoi(tmp); /*sscanf(tmp, "%d", num);*/
+  while (*tmp != 'E' && *tmp != 'e' && *tmp != 'D' && *tmp != 'd' &&
+         *tmp != 'F' && *tmp != 'f')
+  {
+    /* May find kP before nE/nD/nF, like (1P6F13.6). In this case the
            num picked up refers to P, which should be skipped. */
-        if (*tmp=='p' || *tmp=='P') {
-           ++tmp;
-           *num = atoi(tmp); /*sscanf(tmp, "%d", num);*/
-        } else {
-           ++tmp;
-        }
+    if (*tmp == 'p' || *tmp == 'P')
+    {
+      ++tmp;
+      *num = atoi(tmp); /*sscanf(tmp, "%d", num);*/
     }
-    ++tmp;
-    period = tmp;
-    while (*period != '.' && *period != ')') ++period ;
-    *period = '\0';
-    *size = atoi(tmp); /*sscanf(tmp, "%2d", size);*/
+    else { ++tmp; }
+  }
+  ++tmp;
+  period = tmp;
+  while (*period != '.' && *period != ')') { ++period; }
+  *period = '\0';
+  *size   = atoi(tmp); /*sscanf(tmp, "%2d", size);*/
 
-    return 0;
+  return 0;
 }
 
-static int ReadVector(FILE *fp, sunindextype n, sunindextype *where, sunindextype perline, sunindextype persize)
+static int ReadVector(FILE* fp, sunindextype n, sunindextype* where,
+                      sunindextype perline, sunindextype persize)
 {
-    register sunindextype i, j, item;
-    char tmp, buf[100];
+  register sunindextype i, j, item;
+  char tmp, buf[100];
 
-    i = 0;
-    while (i < n) {
-        fgets(buf, 100, fp);    /* read a line at a time */
-        for (j=0; j<perline && i<n; j++) {
-            tmp = buf[(j+1)*persize];     /* save the char at that place */
-            buf[(j+1)*persize] = 0;       /* null terminate */
-            item = atoi(&buf[j*persize]);
-            buf[(j+1)*persize] = tmp;     /* recover the char at that place */
-            where[i++] = item - 1;
-        }
+  i = 0;
+  while (i < n)
+  {
+    fgets(buf, 100, fp); /* read a line at a time */
+    for (j = 0; j < perline && i < n; j++)
+    {
+      tmp = buf[(j + 1) * persize]; /* save the char at that place */
+      buf[(j + 1) * persize] = 0;   /* null terminate */
+      item                   = atoi(&buf[j * persize]);
+      buf[(j + 1) * persize] = tmp; /* recover the char at that place */
+      where[i++]             = item - 1;
     }
+  }
 
-    return 0;
+  return 0;
 }
 
-static int dReadValues(FILE *fp, sunindextype n, sunrealtype *destination,
-        sunindextype perline, sunindextype persize)
+static int dReadValues(FILE* fp, sunindextype n, sunrealtype* destination,
+                       sunindextype perline, sunindextype persize)
 {
-    register sunindextype i, j, k, s;
-    char tmp, buf[100];
+  register sunindextype i, j, k, s;
+  char tmp, buf[100];
 
-    i = 0;
-    while (i < n) {
-        fgets(buf, 100, fp);    /* read a line at a time */
-        for (j=0; j<perline && i<n; j++) {
-            tmp = buf[(j+1)*persize];     /* save the char at that place */
-            buf[(j+1)*persize] = 0;       /* null terminate */
-            s = j*persize;
-            for (k = 0; k < persize; ++k) /* No D_ format in C */
-                if ( buf[s+k] == 'D' || buf[s+k] == 'd' ) buf[s+k] = 'E';
-            destination[i++] = atof(&buf[s]);
-            buf[(j+1)*persize] = tmp;     /* recover the char at that place */
-        }
+  i = 0;
+  while (i < n)
+  {
+    fgets(buf, 100, fp); /* read a line at a time */
+    for (j = 0; j < perline && i < n; j++)
+    {
+      tmp = buf[(j + 1) * persize]; /* save the char at that place */
+      buf[(j + 1) * persize] = 0;   /* null terminate */
+      s                      = j * persize;
+      for (k = 0; k < persize; ++k)
+      { /* No D_ format in C */
+        if (buf[s + k] == 'D' || buf[s + k] == 'd') { buf[s + k] = 'E'; }
+      }
+      destination[i++]       = atof(&buf[s]);
+      buf[(j + 1) * persize] = tmp; /* recover the char at that place */
     }
+  }
 
-    return 0;
+  return 0;
 }
-
-
 
 /*! \brief
  *
@@ -238,174 +247,192 @@ static int dReadValues(FILE *fp, sunindextype n, sunrealtype *destination,
  * matrix. On exit, it represents the full matrix with lower and upper parts.
  * </pre>
  */
-static void
-FormFullA(sunindextype n, sunindextype *nonz, sunrealtype **nzval, sunindextype **rowind, sunindextype **colptr)
+static void FormFullA(sunindextype n, sunindextype* nonz, sunrealtype** nzval,
+                      sunindextype** rowind, sunindextype** colptr)
 {
-    register sunindextype i, j, k, col, new_nnz;
-    sunindextype *t_rowind, *t_colptr, *al_rowind, *al_colptr, *a_rowind, *a_colptr;
-    sunindextype *marker;
-    sunrealtype *t_val, *al_val, *a_val;
+  register sunindextype i, j, k, col, new_nnz;
+  sunindextype *t_rowind, *t_colptr, *al_rowind, *al_colptr, *a_rowind, *a_colptr;
+  sunindextype* marker;
+  sunrealtype *t_val, *al_val, *a_val;
 
-    al_rowind = *rowind;
-    al_colptr = *colptr;
-    al_val = *nzval;
+  al_rowind = *rowind;
+  al_colptr = *colptr;
+  al_val    = *nzval;
 
-    if ( !(marker = (sunindextype *) malloc( (n+1) * sizeof(sunindextype)) ) )
-	DREADRB_ABORT("malloc fails for marker[]");
-    if ( !(t_colptr = (sunindextype *) malloc( (n+1) * sizeof(sunindextype)) ) )
-	DREADRB_ABORT("malloc t_colptr[]");
-    if ( !(t_rowind = (sunindextype *) malloc( *nonz * sizeof(sunindextype)) ) )
-	DREADRB_ABORT("malloc fails for t_rowind[]");
-    if ( !(t_val = (sunrealtype*) malloc( *nonz * sizeof(sunrealtype)) ) )
-	DREADRB_ABORT("malloc fails for t_val[]");
+  if (!(marker = (sunindextype*)malloc((n + 1) * sizeof(sunindextype))))
+    DREADRB_ABORT("malloc fails for marker[]");
+  if (!(t_colptr = (sunindextype*)malloc((n + 1) * sizeof(sunindextype))))
+    DREADRB_ABORT("malloc t_colptr[]");
+  if (!(t_rowind = (sunindextype*)malloc(*nonz * sizeof(sunindextype))))
+    DREADRB_ABORT("malloc fails for t_rowind[]");
+  if (!(t_val = (sunrealtype*)malloc(*nonz * sizeof(sunrealtype))))
+    DREADRB_ABORT("malloc fails for t_val[]");
 
-    /* Get counts of each column of T, and set up column pointers */
-    for (i = 0; i < n; ++i) marker[i] = 0;
-    for (j = 0; j < n; ++j) {
-	for (i = al_colptr[j]; i < al_colptr[j+1]; ++i)
-	    ++marker[al_rowind[i]];
+  /* Get counts of each column of T, and set up column pointers */
+  for (i = 0; i < n; ++i) { marker[i] = 0; }
+  for (j = 0; j < n; ++j)
+  {
+    for (i = al_colptr[j]; i < al_colptr[j + 1]; ++i)
+    {
+      ++marker[al_rowind[i]];
     }
-    t_colptr[0] = 0;
-    for (i = 0; i < n; ++i) {
-	t_colptr[i+1] = t_colptr[i] + marker[i];
-	marker[i] = t_colptr[i];
+  }
+  t_colptr[0] = 0;
+  for (i = 0; i < n; ++i)
+  {
+    t_colptr[i + 1] = t_colptr[i] + marker[i];
+    marker[i]       = t_colptr[i];
+  }
+
+  /* Transpose matrix A to T */
+  for (j = 0; j < n; ++j)
+  {
+    for (i = al_colptr[j]; i < al_colptr[j + 1]; ++i)
+    {
+      col                   = al_rowind[i];
+      t_rowind[marker[col]] = j;
+      t_val[marker[col]]    = al_val[i];
+      ++marker[col];
     }
+  }
 
-    /* Transpose matrix A to T */
-    for (j = 0; j < n; ++j)
-	for (i = al_colptr[j]; i < al_colptr[j+1]; ++i) {
-	    col = al_rowind[i];
-	    t_rowind[marker[col]] = j;
-	    t_val[marker[col]] = al_val[i];
-	    ++marker[col];
-	}
+  new_nnz = *nonz * 2 - n;
+  if (!(a_colptr = (sunindextype*)malloc((n + 1) * sizeof(sunindextype))))
+    DREADRB_ABORT("malloc a_colptr[]");
+  if (!(a_rowind = (sunindextype*)malloc(new_nnz * sizeof(sunindextype))))
+    DREADRB_ABORT("malloc fails for a_rowind[]");
+  if (!(a_val = (sunrealtype*)malloc(new_nnz * sizeof(sunrealtype))))
+    DREADRB_ABORT("malloc fails for a_val[]");
 
-    new_nnz = *nonz * 2 - n;
-    if ( !(a_colptr = (sunindextype *) malloc( (n+1) * sizeof(sunindextype)) ) )
-	DREADRB_ABORT("malloc a_colptr[]");
-    if ( !(a_rowind = (sunindextype *) malloc( new_nnz * sizeof(sunindextype)) ) )
-	DREADRB_ABORT("malloc fails for a_rowind[]");
-    if ( !(a_val = (sunrealtype*) malloc( new_nnz * sizeof(sunrealtype)) ) )
-	DREADRB_ABORT("malloc fails for a_val[]");
-
-    a_colptr[0] = 0;
-    k = 0;
-    for (j = 0; j < n; ++j) {
-      for (i = t_colptr[j]; i < t_colptr[j+1]; ++i) {
-	if ( t_rowind[i] != j ) { /* not diagonal */
-	  a_rowind[k] = t_rowind[i];
-	  a_val[k] = t_val[i];
-	  ++k;
-	}
+  a_colptr[0] = 0;
+  k           = 0;
+  for (j = 0; j < n; ++j)
+  {
+    for (i = t_colptr[j]; i < t_colptr[j + 1]; ++i)
+    {
+      if (t_rowind[i] != j)
+      { /* not diagonal */
+        a_rowind[k] = t_rowind[i];
+        a_val[k]    = t_val[i];
+        ++k;
       }
-
-      for (i = al_colptr[j]; i < al_colptr[j+1]; ++i) {
-	a_rowind[k] = al_rowind[i];
-	a_val[k] = al_val[i];
-	++k;
-      }
-
-      a_colptr[j+1] = k;
     }
 
-    printf("FormFullA: new_nnz = " IFMT ", k = " IFMT "\n", new_nnz, k);
+    for (i = al_colptr[j]; i < al_colptr[j + 1]; ++i)
+    {
+      a_rowind[k] = al_rowind[i];
+      a_val[k]    = al_val[i];
+      ++k;
+    }
 
-    free(al_val);
-    free(al_rowind);
-    free(al_colptr);
-    free(marker);
-    free(t_val);
-    free(t_rowind);
-    free(t_colptr);
+    a_colptr[j + 1] = k;
+  }
 
-    *nzval = a_val;
-    *rowind = a_rowind;
-    *colptr = a_colptr;
-    *nonz = new_nnz;
+  printf("FormFullA: new_nnz = " IFMT ", k = " IFMT "\n", new_nnz, k);
+
+  free(al_val);
+  free(al_rowind);
+  free(al_colptr);
+  free(marker);
+  free(t_val);
+  free(t_rowind);
+  free(t_colptr);
+
+  *nzval  = a_val;
+  *rowind = a_rowind;
+  *colptr = a_colptr;
+  *nonz   = new_nnz;
 }
 
-void
-dreadrb_dist(int iam, FILE *fp, SUNMatrix *Aout, SUNContext sunctx)
+void dreadrb_dist(int iam, FILE* fp, SUNMatrix* Aout, SUNContext sunctx)
 {
-    register sunindextype i, numer_lines = 0;
-    sunindextype tmp, colnum, colsize, rownum, rowsize, valnum, valsize, nrow, ncol, nonz;
-    sunindextype *rowind, *colptr;
-    sunrealtype *nzval;
-    char buf[100], type[4];
-    int sym;
-    SUNMatrix A;
+  register sunindextype i, numer_lines = 0;
+  sunindextype tmp, colnum, colsize, rownum, rowsize, valnum, valsize, nrow,
+    ncol, nonz;
+  sunindextype *rowind, *colptr;
+  sunrealtype* nzval;
+  char buf[100], type[4];
+  int sym;
+  SUNMatrix A;
 
-    /* Line 1 */
-    fgets(buf, 100, fp);
-    fputs(buf, stdout);
+  /* Line 1 */
+  fgets(buf, 100, fp);
+  fputs(buf, stdout);
 
-    /* Line 2 */
-    for (i=0; i<4; i++) {
-        fscanf(fp, "%14c", buf); buf[14] = 0;
-        tmp = atoi(buf); /*sscanf(buf, "%d", &tmp);*/
-        if (i == 3) numer_lines = tmp;
-    }
-    DumpLine(fp);
+  /* Line 2 */
+  for (i = 0; i < 4; i++)
+  {
+    fscanf(fp, "%14c", buf);
+    buf[14] = 0;
+    tmp     = atoi(buf); /*sscanf(buf, "%d", &tmp);*/
+    if (i == 3) { numer_lines = tmp; }
+  }
+  DumpLine(fp);
 
-    /* Line 3 */
-    fscanf(fp, "%3c", type);
-    fscanf(fp, "%11c", buf); /* pad */
-    type[3] = 0;
+  /* Line 3 */
+  fscanf(fp, "%3c", type);
+  fscanf(fp, "%11c", buf); /* pad */
+  type[3] = 0;
 #if (DREADRB_DEBUG_LVL >= 1)
-    if ( !iam ) printf("Matrix type %s\n", type);
+  if (!iam) printf("Matrix type %s\n", type);
 #endif
 
-    fscanf(fp, "%14c", buf); nrow = atoi(buf);
-    fscanf(fp, "%14c", buf); ncol = atoi(buf);
-    fscanf(fp, "%14c", buf); nonz = atoi(buf);
-    fscanf(fp, "%14c", buf); tmp = atoi(buf);
+  fscanf(fp, "%14c", buf);
+  nrow = atoi(buf);
+  fscanf(fp, "%14c", buf);
+  ncol = atoi(buf);
+  fscanf(fp, "%14c", buf);
+  nonz = atoi(buf);
+  fscanf(fp, "%14c", buf);
+  tmp = atoi(buf);
 
-    if (tmp != 0)
-        if ( !iam ) printf("This is not an assembled matrix!\n");
-    if (nrow != ncol)
-        if ( !iam ) printf("Matrix is not square.\n");
-    DumpLine(fp);
+  if (tmp != 0)
+  {
+    if (!iam) { printf("This is not an assembled matrix!\n"); }
+  }
+  if (nrow != ncol)
+  {
+    if (!iam) { printf("Matrix is not square.\n"); }
+  }
+  DumpLine(fp);
 
-    /* Line 4: format statement */
-    fscanf(fp, "%16c", buf);
-    ParseIntFormat(buf, &colnum, &colsize);
-    fscanf(fp, "%16c", buf);
-    ParseIntFormat(buf, &rownum, &rowsize);
-    fscanf(fp, "%20c", buf);
-    ParseFloatFormat(buf, &valnum, &valsize);
-    DumpLine(fp);
+  /* Line 4: format statement */
+  fscanf(fp, "%16c", buf);
+  ParseIntFormat(buf, &colnum, &colsize);
+  fscanf(fp, "%16c", buf);
+  ParseIntFormat(buf, &rownum, &rowsize);
+  fscanf(fp, "%20c", buf);
+  ParseFloatFormat(buf, &valnum, &valsize);
+  DumpLine(fp);
 
 #if (DREADRB_DEBUG_LVL >= 1)
-    if ( !iam ) {
-        printf(IFMT " rows, " IFMT " nonzeros\n", *nrow, *nonz);
-        printf("colnum " IFMT ", colsize " IFMT "\n", colnum, colsize);
-        printf("rownum " IFMT ", rowsize " IFMT "\n", rownum, rowsize);
-        printf("valnum " IFMT ", valsize " IFMT "\n", valnum, valsize);
-    }
+  if (!iam)
+  {
+    printf(IFMT " rows, " IFMT " nonzeros\n", *nrow, *nonz);
+    printf("colnum " IFMT ", colsize " IFMT "\n", colnum, colsize);
+    printf("rownum " IFMT ", rowsize " IFMT "\n", rownum, rowsize);
+    printf("valnum " IFMT ", valsize " IFMT "\n", valnum, valsize);
+  }
 #endif
 
-    A = SUNSparseMatrix(nrow, ncol, nonz, CSC_MAT, sunctx);
-    if (A == NULL) DREADRB_ABORT("SUNSparseMatrix returned NULL!\n");
+  A = SUNSparseMatrix(nrow, ncol, nonz, CSC_MAT, sunctx);
+  if (A == NULL) DREADRB_ABORT("SUNSparseMatrix returned NULL!\n");
 
-    /* Grab storage for the three arrays ( nzval, rowind, colptr ) */
-    nzval = SM_DATA_S(A);
-    rowind = SM_INDEXVALS_S(A);
-    colptr = SM_INDEXPTRS_S(A);
+  /* Grab storage for the three arrays ( nzval, rowind, colptr ) */
+  nzval  = SM_DATA_S(A);
+  rowind = SM_INDEXVALS_S(A);
+  colptr = SM_INDEXPTRS_S(A);
 
-    nrow = SM_ROWS_S(A);
-    ncol = SM_COLUMNS_S(A);
-    nonz = SM_NNZ_S(A);
+  nrow = SM_ROWS_S(A);
+  ncol = SM_COLUMNS_S(A);
+  nonz = SM_NNZ_S(A);
 
-    ReadVector(fp, ncol+1, colptr, colnum, colsize);
-    ReadVector(fp, nonz, rowind, rownum, rowsize);
-    if ( numer_lines ) {
-        dReadValues(fp, nonz, nzval, valnum, valsize);
-    }
+  ReadVector(fp, ncol + 1, colptr, colnum, colsize);
+  ReadVector(fp, nonz, rowind, rownum, rowsize);
+  if (numer_lines) { dReadValues(fp, nonz, nzval, valnum, valsize); }
 
-    sym = (type[1] == 'S' || type[1] == 's');
-    if ( sym ) {
-	    FormFullA(ncol, &nonz, &nzval, &rowind, &colptr);
-    }
+  sym = (type[1] == 'S' || type[1] == 's');
+  if (sym) { FormFullA(ncol, &nonz, &nzval, &rowind, &colptr); }
 
-    *Aout = A;
+  *Aout = A;
 }

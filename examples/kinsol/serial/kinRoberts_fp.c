@@ -28,12 +28,11 @@
  * -----------------------------------------------------------------
  */
 
+#include <kinsol/kinsol.h> /* access to KINSOL func., consts. */
+#include <math.h>
+#include <nvector/nvector_serial.h> /* access to serial N_Vector       */
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-
-#include <kinsol/kinsol.h>           /* access to KINSOL func., consts. */
-#include <nvector/nvector_serial.h>  /* access to serial N_Vector       */
 #include <sundials/sundials_types.h> /* defs. of sunrealtype, sunindextype */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -48,8 +47,8 @@
 
 /* Problem Constants */
 
-#define NEQ   3              /* number of equations  */
-#define Y10   SUN_RCONST(1.0)    /* initial y components */
+#define NEQ   3               /* number of equations  */
+#define Y10   SUN_RCONST(1.0) /* initial y components */
 #define Y20   SUN_RCONST(0.0)
 #define Y30   SUN_RCONST(0.0)
 #define TOL   SUN_RCONST(1.e-10) /* function tolerance */
@@ -71,15 +70,14 @@
    a vector starting from 0.
 */
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)       /* Ith numbers components 1..NEQ */
-
+#define Ith(v, i) NV_Ith_S(v, i - 1) /* Ith numbers components 1..NEQ */
 
 /* Private functions */
 
-static int funcRoberts(N_Vector u, N_Vector f, void *user_data);
+static int funcRoberts(N_Vector u, N_Vector f, void* user_data);
 static void PrintOutput(N_Vector u);
-static void PrintFinalStats(void *kmem);
-static int check_retval(void *retvalvalue, const char *funcname, int opt);
+static void PrintFinalStats(void* kmem);
+static int check_retval(void* retvalvalue, const char* funcname, int opt);
 static int check_ans(N_Vector u, sunrealtype rtol, sunrealtype atol);
 
 /*
@@ -88,17 +86,17 @@ static int check_ans(N_Vector u, sunrealtype rtol, sunrealtype atol);
  *--------------------------------------------------------------------
  */
 
-int main()
+int main(void)
 {
   SUNContext sunctx;
   sunrealtype fnormtol, fnorm;
   N_Vector y, scale;
   int retval;
-  void *kmem;
+  void* kmem;
 
   fnorm = 0.0;
   y = scale = NULL;
-  kmem = NULL;
+  kmem      = NULL;
 
   /* -------------------------
    * Print problem description
@@ -116,24 +114,24 @@ int main()
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
   /* --------------------------------------
    * Create vectors for solution and scales
    * -------------------------------------- */
 
   y = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)y, "N_VNew_Serial", 0)) { return (1); }
 
   scale = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)scale, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)scale, "N_VNew_Serial", 0)) { return (1); }
 
   /* -----------------------------------------
    * Initialize and allocate memory for KINSOL
    * ----------------------------------------- */
 
   kmem = KINCreate(sunctx);
-  if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
+  if (check_retval((void*)kmem, "KINCreate", 0)) { return (1); }
 
   /* y is used as a template */
 
@@ -141,7 +139,7 @@ int main()
   retval = KINSetMAA(kmem, PRIORS);
 
   retval = KINInit(kmem, funcRoberts, y);
-  if (check_retval(&retval, "KINInit", 1)) return(1);
+  if (check_retval(&retval, "KINInit", 1)) { return (1); }
 
   /* -------------------
    * Set optional inputs
@@ -149,32 +147,31 @@ int main()
 
   /* Specify stopping tolerance based on residual */
 
-  fnormtol  = TOL;
-  retval = KINSetFuncNormTol(kmem, fnormtol);
-  if (check_retval(&retval, "KINSetFuncNormTol", 1)) return(1);
+  fnormtol = TOL;
+  retval   = KINSetFuncNormTol(kmem, fnormtol);
+  if (check_retval(&retval, "KINSetFuncNormTol", 1)) { return (1); }
 
   /* -------------
    * Initial guess
    * ------------- */
 
   N_VConst(ZERO, y);
-  Ith(y,1) = ONE;
+  Ith(y, 1) = ONE;
 
   /* ----------------------------
    * Call KINSol to solve problem
    * ---------------------------- */
 
   /* No scaling used */
-  N_VConst(ONE,scale);
+  N_VConst(ONE, scale);
 
   /* Call main solver */
-  retval = KINSol(kmem,           /* KINSol memory block */
-                y,              /* initial guess on input; solution vector */
-                KIN_FP,         /* global strategy choice */
-                scale,          /* scaling vector, for the variable cc */
-                scale);         /* scaling vector for function values fval */
-  if (check_retval(&retval, "KINSol", 1)) return(1);
-
+  retval = KINSol(kmem,   /* KINSol memory block */
+                  y,      /* initial guess on input; solution vector */
+                  KIN_FP, /* global strategy choice */
+                  scale,  /* scaling vector, for the variable cc */
+                  scale); /* scaling vector for function values fval */
+  if (check_retval(&retval, "KINSol", 1)) { return (1); }
 
   /* ------------------------------------
    * Print solution and solver statistics
@@ -183,12 +180,12 @@ int main()
   /* Get scaled norm of the system function */
 
   retval = KINGetFuncNorm(kmem, &fnorm);
-  if (check_retval(&retval, "KINGetfuncNorm", 1)) return(1);
+  if (check_retval(&retval, "KINGetfuncNorm", 1)) { return (1); }
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("\nComputed solution (||F|| = %Lg):\n\n",fnorm);
+  printf("\nComputed solution (||F|| = %Lg):\n\n", fnorm);
 #else
-  printf("\nComputed solution (||F|| = %g):\n\n",fnorm);
+  printf("\nComputed solution (||F|| = %g):\n\n", fnorm);
 #endif
   PrintOutput(y);
 
@@ -206,7 +203,7 @@ int main()
   KINFree(&kmem);
   SUNContext_Free(&sunctx);
 
-  return(retval);
+  return (retval);
 }
 
 /*
@@ -219,23 +216,23 @@ int main()
  * System function
  */
 
-static int funcRoberts(N_Vector y, N_Vector g, void *user_data)
+static int funcRoberts(N_Vector y, N_Vector g, void* user_data)
 {
   sunrealtype y1, y2, y3;
   sunrealtype yd1, yd3;
 
-  y1 = Ith(y,1);
-  y2 = Ith(y,2);
-  y3 = Ith(y,3);
+  y1 = Ith(y, 1);
+  y2 = Ith(y, 2);
+  y3 = Ith(y, 3);
 
-  yd1 = DSTEP * ( SUN_RCONST(-0.04)*y1 + SUN_RCONST(1.0e4)*y2*y3 );
-  yd3 = DSTEP * SUN_RCONST(3.0e2)*y2*y2;
+  yd1 = DSTEP * (SUN_RCONST(-0.04) * y1 + SUN_RCONST(1.0e4) * y2 * y3);
+  yd3 = DSTEP * SUN_RCONST(3.0e2) * y2 * y2;
 
-  Ith(g,1) = yd1 + Y10;
-  Ith(g,2) = -yd1 - yd3 + Y20;
-  Ith(g,3) = yd3 + Y30;
+  Ith(g, 1) = yd1 + Y10;
+  Ith(g, 2) = -yd1 - yd3 + Y20;
+  Ith(g, 3) = yd3 + Y30;
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -246,9 +243,9 @@ static void PrintOutput(N_Vector y)
 {
   sunrealtype y1, y2, y3;
 
-  y1 = Ith(y,1);
-  y2 = Ith(y,2);
-  y3 = Ith(y,3);
+  y1 = Ith(y, 1);
+  y2 = Ith(y, 2);
+  y3 = Ith(y, 3);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("y =%14.6Le  %14.6Le  %14.6Le\n", y1, y2, y3);
@@ -265,7 +262,7 @@ static void PrintOutput(N_Vector y)
  * Print final statistics
  */
 
-static void PrintFinalStats(void *kmem)
+static void PrintFinalStats(void* kmem)
 {
   long int nni, nfe;
   int retval;
@@ -291,65 +288,67 @@ static void PrintFinalStats(void *kmem)
  *             NULL pointer
  */
 
-static int check_retval(void *retvalvalue, const char *funcname, int opt)
+static int check_retval(void* retvalvalue, const char* funcname, int opt)
 {
-  int *errretval;
+  int* errretval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && retvalvalue == NULL) {
-    fprintf(stderr,
-            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
-    return(1);
+  if (opt == 0 && retvalvalue == NULL)
+  {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return (1);
   }
 
   /* Check if retval < 0 */
-  else if (opt == 1) {
-    errretval = (int *) retvalvalue;
-    if (*errretval < 0) {
-      fprintf(stderr,
-              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *errretval);
-      return(1);
+  else if (opt == 1)
+  {
+    errretval = (int*)retvalvalue;
+    if (*errretval < 0)
+    {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+              funcname, *errretval);
+      return (1);
     }
   }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && retvalvalue == NULL) {
-    fprintf(stderr,
-            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
-    return(1);
+  else if (opt == 2 && retvalvalue == NULL)
+  {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return (1);
   }
 
-  return(0);
+  return (0);
 }
 
 /* compare the solution to a reference solution computed with a
    tolerance of 1e-14 */
 static int check_ans(N_Vector u, sunrealtype rtol, sunrealtype atol)
 {
-  int      passfail=0;        /* answer pass (0) or fail (1) retval */
-  N_Vector ref;               /* reference solution vector        */
-  N_Vector ewt;               /* error weight vector              */
-  sunrealtype err;               /* wrms error                       */
+  int passfail = 0; /* answer pass (0) or fail (1) retval */
+  N_Vector ref;     /* reference solution vector        */
+  N_Vector ewt;     /* error weight vector              */
+  sunrealtype err;  /* wrms error                       */
 
   /* create reference solution and error weight vectors */
   ref = N_VClone(u);
   ewt = N_VClone(u);
 
   /* set the reference solution data */
-  NV_Ith_S(ref,0) = SUN_RCONST(9.9678538655358029e-01);
-  NV_Ith_S(ref,1) = SUN_RCONST(2.9530060962800345e-03);
-  NV_Ith_S(ref,2) = SUN_RCONST(2.6160735013975683e-04);
+  NV_Ith_S(ref, 0) = SUN_RCONST(9.9678538655358029e-01);
+  NV_Ith_S(ref, 1) = SUN_RCONST(2.9530060962800345e-03);
+  NV_Ith_S(ref, 2) = SUN_RCONST(2.6160735013975683e-04);
 
   /* compute the error weight vector */
   N_VAbs(ref, ewt);
   N_VScale(rtol, ewt, ewt);
   N_VAddConst(ewt, atol, ewt);
-  if (N_VMin(ewt) <= ZERO) {
+  if (N_VMin(ewt) <= ZERO)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: check_ans failed - ewt <= 0\n\n");
-    return(-1);
+    return (-1);
   }
   N_VInv(ewt, ewt);
 
@@ -360,13 +359,14 @@ static int check_ans(N_Vector u, sunrealtype rtol, sunrealtype atol)
   /* is the solution within the tolerances? */
   passfail = (err < ONE) ? 0 : 1;
 
-  if (passfail) {
-    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%"GSYM"\n\n", err);
+  if (passfail)
+  {
+    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%" GSYM "\n\n", err);
   }
 
   /* Free vectors */
   N_VDestroy(ref);
   N_VDestroy(ewt);
 
-  return(passfail);
+  return (passfail);
 }

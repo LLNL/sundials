@@ -33,79 +33,78 @@
  * -----------------------------------------------------------------
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
 #include <ida/ida.h>
+#include <math.h>
 #include <nvector/nvector_cuda.h>
 #include <nvector/nvector_mpiplusx.h>
-#include <sunlinsol/sunlinsol_spgmr.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_mpi_types.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_mpi_types.h>
+#include <sundials/sundials_types.h>
+#include <sunlinsol/sunlinsol_spgmr.h>
 
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
-#define TWO   SUN_RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
-#define NOUT         11    /* Number of output times */
+#define NOUT 11 /* Number of output times */
 
-#define NPEX         2     /* No. PEs in x direction of PE array */
-#define NPEY         2     /* No. PEs in y direction of PE array */
-                           /* Total no. PEs = NPEX*NPEY */
-#define MXSUB        5     /* No. x points per subgrid */
-#define MYSUB        5     /* No. y points per subgrid */
+#define NPEX 2  /* No. PEs in x direction of PE array */
+#define NPEY 2  /* No. PEs in y direction of PE array */
+                /* Total no. PEs = NPEX*NPEY */
+#define MXSUB 5 /* No. x points per subgrid */
+#define MYSUB 5 /* No. y points per subgrid */
 
 /* Global spatial mesh is MX x MY = (NPEX x MXSUB) x (NPEY x MYSUB) */
 
-typedef struct {
+typedef struct
+{
   int thispe, npex, npey, ixsub, jysub;
   sunindextype mx, my, mxsub, mysub;
-  sunrealtype     dx, dy, coeffx, coeffy, coeffxy;
-  sunrealtype    *uext; /* device array */
-  sunrealtype    *host_send_buff;
-  sunrealtype    *host_recv_buff;
-  sunrealtype    *dev_send_buff;
-  sunrealtype    *dev_recv_buff;
-  N_Vector     pp;    /* vector of diagonal preconditioner elements */
-  MPI_Comm  comm;
-} *UserData;
+  sunrealtype dx, dy, coeffx, coeffy, coeffxy;
+  sunrealtype* uext; /* device array */
+  sunrealtype* host_send_buff;
+  sunrealtype* host_recv_buff;
+  sunrealtype* dev_send_buff;
+  sunrealtype* dev_recv_buff;
+  N_Vector pp; /* vector of diagonal preconditioner elements */
+  MPI_Comm comm;
+}* UserData;
 
 /* User-supplied residual function and supporting routines */
 
-int resHeat(sunrealtype tt, N_Vector uu, N_Vector up,
-            N_Vector rr, void *user_data);
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+            void* user_data);
 
-static int rescomm(N_Vector uu, N_Vector up, void *user_data);
+static int rescomm(N_Vector uu, N_Vector up, void* user_data);
 
-static int reslocal(sunrealtype tt, N_Vector uu, N_Vector up,
-                    N_Vector res,  void *user_data);
+static int reslocal(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector res,
+                    void* user_data);
 
-static int BSend(MPI_Comm comm, int thispe,
-                 int ixsub, int jysub, int npex, int npey,
-                 sunindextype mxsub, sunindextype mysub,
-                 const sunrealtype *uarray, sunrealtype *dev_send_buff, sunrealtype *host_send_buff);
+static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub, int npex,
+                 int npey, sunindextype mxsub, sunindextype mysub,
+                 const sunrealtype* uarray, sunrealtype* dev_send_buff,
+                 sunrealtype* host_send_buff);
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
-                     int ixsub, int jysub, int npex, int npey,
-                     sunindextype mxsub, sunindextype mysub,
-                     sunrealtype *host_recv_buff);
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe, int ixsub,
+                     int jysub, int npex, int npey, sunindextype mxsub,
+                     sunindextype mysub, sunrealtype* host_recv_buff);
 
-static int BRecvWait(MPI_Request request[],
-                     int ixsub, int jysub, int npex, int npey,
-                     sunindextype mxsub, sunindextype mysub,
-                     sunrealtype *uext, const sunrealtype *host_recv_buff, sunrealtype *dev_recv_buff);
+static int BRecvWait(MPI_Request request[], int ixsub, int jysub, int npex,
+                     int npey, sunindextype mxsub, sunindextype mysub,
+                     sunrealtype* uext, const sunrealtype* host_recv_buff,
+                     sunrealtype* dev_recv_buff);
 
 /* User-supplied preconditioner routines */
 
 int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
-               N_Vector rvec, N_Vector zvec, sunrealtype c_j,
-               sunrealtype delta, void *user_data);
+               N_Vector rvec, N_Vector zvec, sunrealtype c_j, sunrealtype delta,
+               void* user_data);
 
 int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
-               sunrealtype c_j, void *user_data);
+               sunrealtype c_j, void* user_data);
 
 /* Private function to check function return values */
 
@@ -120,12 +119,11 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
 
 static void PrintHeader(sunrealtype rtol, sunrealtype atol, UserData data);
 
-static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu);
+static void PrintOutput(int id, void* ida_mem, sunrealtype t, N_Vector uu);
 
-static void PrintFinalStats(void *ida_mem);
+static void PrintFinalStats(void* ida_mem);
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
-
+static int check_flag(void* flagvalue, const char* funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -133,190 +131,162 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
  *--------------------------------------------------------------------
  */
 
-__global__
-void PsetupHeatKernel(sunrealtype *ppv, sunindextype mx, sunindextype my,
-                      sunindextype ibc, sunindextype jbc,
-                      sunindextype i0, sunindextype j0, sunrealtype pelinv)
+__global__ void PsetupHeatKernel(sunrealtype* ppv, sunindextype mx,
+                                 sunindextype my, sunindextype ibc,
+                                 sunindextype jbc, sunindextype i0,
+                                 sunindextype j0, sunrealtype pelinv)
 {
   sunindextype i, j, tid;
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if (tid < (mx - ibc)*(my - jbc)) {
+  if (tid < (mx - ibc) * (my - jbc))
+  {
     i = tid % (mx - ibc) + i0;
     j = tid / (mx - ibc) + j0;
 
     /* Loop over interior points; ppv_i = 1/J_ii */
-    ppv[i + j*mx] = pelinv;
+    ppv[i + j * mx] = pelinv;
   }
 }
 
-
-__global__
-void CopyLocalToExtendedArray(const sunrealtype *uuv, sunrealtype *uext,
-                              sunindextype mx, sunindextype my)
+__global__ void CopyLocalToExtendedArray(const sunrealtype* uuv,
+                                         sunrealtype* uext, sunindextype mx,
+                                         sunindextype my)
 {
   sunindextype i, j, tid;
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if (tid < mx*my) {
+  if (tid < mx * my)
+  {
     i = tid % mx;
     j = tid / mx;
 
-    uext[(i+1) + (j+1)*(mx+2)] = uuv[i + j*mx];
+    uext[(i + 1) + (j + 1) * (mx + 2)] = uuv[i + j * mx];
   }
 }
 
-
-__global__
-void LocalResidualKernel(const sunrealtype *uext, const sunrealtype *upv, sunrealtype *resv,
-                         sunindextype mx, sunindextype my,
-                         sunindextype ibc, sunindextype jbc,
-                         sunindextype i0, sunindextype j0,
-                         sunrealtype coeffx, sunrealtype coeffy, sunrealtype coeffxy)
+__global__ void LocalResidualKernel(const sunrealtype* uext,
+                                    const sunrealtype* upv, sunrealtype* resv,
+                                    sunindextype mx, sunindextype my,
+                                    sunindextype ibc, sunindextype jbc,
+                                    sunindextype i0, sunindextype j0,
+                                    sunrealtype coeffx, sunrealtype coeffy,
+                                    sunrealtype coeffxy)
 {
   sunindextype i, j, tid;
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if (tid < (mx - ibc)*(my - jbc)) {
+  if (tid < (mx - ibc) * (my - jbc))
+  {
     i = tid % (mx - ibc) + i0;
     j = tid / (mx - ibc) + j0;
 
-    sunindextype locu  = i + j*mx;
-    sunindextype locue = (i+1) + (j+1)*(mx+2);
+    sunindextype locu  = i + j * mx;
+    sunindextype locue = (i + 1) + (j + 1) * (mx + 2);
 
-    sunrealtype termx   = coeffx * (uext[locue-1]      + uext[locue+1]);
-    sunrealtype termy   = coeffy * (uext[locue-(mx+2)] + uext[locue+(mx+2)]);
+    sunrealtype termx = coeffx * (uext[locue - 1] + uext[locue + 1]);
+    sunrealtype termy = coeffy *
+                        (uext[locue - (mx + 2)] + uext[locue + (mx + 2)]);
     sunrealtype termctr = coeffxy * uext[locue];
-    resv[locu] = upv[locu] - (termx + termy - termctr);
+    resv[locu]          = upv[locu] - (termx + termy - termctr);
   }
 }
 
-
-__global__
-void CopyToBottomBuffer(const sunrealtype *uarray, sunrealtype *bufbottom,
-                        sunindextype mx)
+__global__ void CopyToBottomBuffer(const sunrealtype* uarray,
+                                   sunrealtype* bufbottom, sunindextype mx)
 {
   sunindextype tid;
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if (tid < mx) {
-      bufbottom[tid] = uarray[tid];
-  }
+  if (tid < mx) { bufbottom[tid] = uarray[tid]; }
 }
 
-
-__global__
-void CopyToTopBuffer(const sunrealtype *uarray, sunrealtype *buftop,
-                     sunindextype mx, sunindextype my)
+__global__ void CopyToTopBuffer(const sunrealtype* uarray, sunrealtype* buftop,
+                                sunindextype mx, sunindextype my)
 {
   sunindextype tid;
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if (tid < mx) {
-      buftop[tid] = uarray[(my-1)*mx + tid];
-  }
+  if (tid < mx) { buftop[tid] = uarray[(my - 1) * mx + tid]; }
 }
 
-
-__global__
-void CopyToLeftBuffer(const sunrealtype *uarray, sunrealtype *bufleft,
-                      sunindextype mx, sunindextype my)
+__global__ void CopyToLeftBuffer(const sunrealtype* uarray, sunrealtype* bufleft,
+                                 sunindextype mx, sunindextype my)
 {
   sunindextype tid;
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if (tid < my) {
-      bufleft[tid] = uarray[tid*mx];
-  }
+  if (tid < my) { bufleft[tid] = uarray[tid * mx]; }
 }
 
-
-__global__
-void CopyToRightBuffer(const sunrealtype *uarray, sunrealtype *bufright,
-                       sunindextype mx, sunindextype my)
+__global__ void CopyToRightBuffer(const sunrealtype* uarray,
+                                  sunrealtype* bufright, sunindextype mx,
+                                  sunindextype my)
 {
   sunindextype tid;
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if (tid < my) {
-      bufright[tid] = uarray[tid*mx + (mx-1)];
-  }
+  if (tid < my) { bufright[tid] = uarray[tid * mx + (mx - 1)]; }
 }
 
-
-__global__
-void CopyFromBottomBuffer(const sunrealtype *bufbottom, sunrealtype *uext,
-                          sunindextype mx)
+__global__ void CopyFromBottomBuffer(const sunrealtype* bufbottom,
+                                     sunrealtype* uext, sunindextype mx)
 {
   sunindextype tid;
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if (tid < mx) {
-      uext[1 + tid] = bufbottom[tid];
-  }
+  if (tid < mx) { uext[1 + tid] = bufbottom[tid]; }
 }
 
-
-__global__
-void CopyFromTopBuffer(const sunrealtype *buftop, sunrealtype *uext,
-                       sunindextype mx, sunindextype my)
+__global__ void CopyFromTopBuffer(const sunrealtype* buftop, sunrealtype* uext,
+                                  sunindextype mx, sunindextype my)
 {
   sunindextype tid;
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if (tid < mx) {
-      uext[(1 + (my+1)*(mx+2)) + tid] = buftop[tid];
-  }
+  if (tid < mx) { uext[(1 + (my + 1) * (mx + 2)) + tid] = buftop[tid]; }
 }
 
-
-__global__
-void CopyFromLeftBuffer(const sunrealtype *bufleft, sunrealtype *uext,
-                        sunindextype mx, sunindextype my)
+__global__ void CopyFromLeftBuffer(const sunrealtype* bufleft, sunrealtype* uext,
+                                   sunindextype mx, sunindextype my)
 {
   sunindextype tid;
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if (tid < my) {
-      uext[(tid+1)*(mx+2)] = bufleft[tid];
-  }
+  if (tid < my) { uext[(tid + 1) * (mx + 2)] = bufleft[tid]; }
 }
 
-
-__global__
-void CopyFromRightBuffer(const sunrealtype *bufright, sunrealtype *uext,
-                         sunindextype mx, sunindextype my)
+__global__ void CopyFromRightBuffer(const sunrealtype* bufright,
+                                    sunrealtype* uext, sunindextype mx,
+                                    sunindextype my)
 {
   sunindextype tid;
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
 
-  if (tid < my) {
-      uext[(tid+2)*(mx+2) - 1] = bufright[tid];
-  }
+  if (tid < my) { uext[(tid + 2) * (mx + 2) - 1] = bufright[tid]; }
 }
-
 
 /*
  *--------------------------------------------------------------------
@@ -324,10 +294,10 @@ void CopyFromRightBuffer(const sunrealtype *bufright, sunrealtype *uext,
  *--------------------------------------------------------------------
  */
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   MPI_Comm comm;
-  void *ida_mem;
+  void* ida_mem;
   SUNLinearSolver LS;
   UserData data;
   int iout, thispe, ier, npes;
@@ -337,8 +307,8 @@ int main(int argc, char *argv[])
   SUNContext ctx;
 
   ida_mem = NULL;
-  LS = NULL;
-  data = NULL;
+  LS      = NULL;
+  data    = NULL;
   uulocal = uu = up = constraints = id = res = NULL;
 
   /* Get processor number and total number of pe's. */
@@ -350,25 +320,26 @@ int main(int argc, char *argv[])
 
   /* Create the SUNDIALS context object for this simulation */
   ier = SUNContext_Create(comm, &ctx);
-  if (check_flag(&ier, "SUNContext_Create", 1, thispe))
-    MPI_Abort(comm, 1);
+  if (check_flag(&ier, "SUNContext_Create", 1, thispe)) { MPI_Abort(comm, 1); }
 
   /* Allocate and initialize the data structure */
-  data = (UserData) malloc(sizeof *data);
-  if(check_flag((void *)data, "malloc", 2, thispe))
-    MPI_Abort(comm, 1);
+  data = (UserData)malloc(sizeof *data);
+  if (check_flag((void*)data, "malloc", 2, thispe)) { MPI_Abort(comm, 1); }
 
   InitUserData(thispe, comm, data);
 
   /* Check if the number of MPI processes matches the number of subgrids */
-  if (npes != (data->npex * data->npey)) {
+  if (npes != (data->npex * data->npey))
+  {
     if (thispe == 0)
+    {
       fprintf(stderr,
               "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n",
               npes, data->npex * data->npey);
+    }
     free(data);
     MPI_Finalize();
-    return(1);
+    return (1);
   }
 
   /* Set local length local_N */
@@ -377,33 +348,35 @@ int main(int argc, char *argv[])
   /* Allocate and initialize N-vectors. */
 
   uulocal = N_VNew_Cuda(local_N, ctx);
-  if(check_flag((void *)uulocal, "N_VNew_Cuda", 0, thispe))
+  if (check_flag((void*)uulocal, "N_VNew_Cuda", 0, thispe))
+  {
     MPI_Abort(comm, 1);
+  }
 
   uu = N_VMake_MPIPlusX(comm, uulocal, ctx);
-  if(check_flag((void *)uu, "N_VMake_MPIPlusX", 0, thispe))
+  if (check_flag((void*)uu, "N_VMake_MPIPlusX", 0, thispe))
+  {
     MPI_Abort(comm, 1);
+  }
 
   up = N_VClone(uu);
-  if(check_flag((void *)up, "N_VClone", 0, thispe))
-    MPI_Abort(comm, 1);
+  if (check_flag((void*)up, "N_VClone", 0, thispe)) { MPI_Abort(comm, 1); }
 
   res = N_VClone(uu);
-  if(check_flag((void *)res, "N_VClone", 0, thispe))
-    MPI_Abort(comm, 1);
+  if (check_flag((void*)res, "N_VClone", 0, thispe)) { MPI_Abort(comm, 1); }
 
   constraints = N_VClone(uu);
-  if(check_flag((void *)constraints, "N_VClone", 0, thispe))
+  if (check_flag((void*)constraints, "N_VClone", 0, thispe))
+  {
     MPI_Abort(comm, 1);
+  }
 
   id = N_VClone(uu);
-  if(check_flag((void *)id, "N_VClone", 0, thispe))
-    MPI_Abort(comm, 1);
+  if (check_flag((void*)id, "N_VClone", 0, thispe)) { MPI_Abort(comm, 1); }
 
   /* Allocate user data extended vector and MPI buffers */
   ier = AllocUserData(thispe, comm, uu, data);
-  if(check_flag(&ier, "AllocUserData", 1, thispe)) MPI_Abort(comm, 1);
-
+  if (check_flag(&ier, "AllocUserData", 1, thispe)) { MPI_Abort(comm, 1); }
 
   /* Initialize the uu, up, id, and res profiles. */
   SetInitialProfile(uu, up, id, res, data);
@@ -411,7 +384,8 @@ int main(int argc, char *argv[])
   /* Set constraints to all 1's for nonnegative solution values. */
   N_VConst(ONE, constraints);
 
-  t0 = ZERO; t1 = SUN_RCONST(0.01);
+  t0 = ZERO;
+  t1 = SUN_RCONST(0.01);
 
   /* Scalar relative and absolute tolerance. */
   rtol = ZERO;
@@ -420,57 +394,65 @@ int main(int argc, char *argv[])
   /* Call IDACreate and IDAMalloc to initialize solution. */
 
   ida_mem = IDACreate(ctx);
-  if(check_flag((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  if (check_flag((void*)ida_mem, "IDACreate", 0, thispe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   ier = IDASetUserData(ida_mem, data);
-  if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_flag(&ier, "IDASetUserData", 1, thispe)) { MPI_Abort(comm, 1); }
 
   ier = IDASetSuppressAlg(ida_mem, SUNTRUE);
-  if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) { MPI_Abort(comm, 1); }
 
   ier = IDASetId(ida_mem, id);
-  if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_flag(&ier, "IDASetId", 1, thispe)) { MPI_Abort(comm, 1); }
 
   ier = IDASetConstraints(ida_mem, constraints);
-  if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_flag(&ier, "IDASetConstraints", 1, thispe)) { MPI_Abort(comm, 1); }
   N_VDestroy(constraints);
 
   ier = IDAInit(ida_mem, resHeat, t0, uu, up);
-  if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_flag(&ier, "IDAInit", 1, thispe)) { MPI_Abort(comm, 1); }
 
   ier = IDASStolerances(ida_mem, rtol, atol);
-  if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_flag(&ier, "IDASStolerances", 1, thispe)) { MPI_Abort(comm, 1); }
 
   /* Call SUNSPGMR and IDASetLinearSolver to specify the linear solver. */
 
-  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);  /* use default maxl */
-  if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx); /* use default maxl */
+  if (check_flag((void*)LS, "SUNLinSol_SPGMR", 0, thispe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   ier = IDASetLinearSolver(ida_mem, LS, NULL);
-  if(check_flag(&ier, "IDASetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_flag(&ier, "IDASetLinearSolver", 1, thispe)) { MPI_Abort(comm, 1); }
 
   ier = IDASetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
-  if(check_flag(&ier, "IDASetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
+  if (check_flag(&ier, "IDASetPreconditioner", 1, thispe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   /* Print output heading (on processor 0 only) and intial solution  */
 
-  if (thispe == 0) PrintHeader(rtol, atol, data);
+  if (thispe == 0) { PrintHeader(rtol, atol, data); }
   PrintOutput(thispe, ida_mem, t0, uu);
 
   /* Loop over tout, call IDASolve, print output. */
 
-  for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
-
+  for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO)
+  {
     ier = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
+    if (check_flag(&ier, "IDASolve", 1, thispe)) { MPI_Abort(comm, 1); }
 
     PrintOutput(thispe, ida_mem, tret, uu);
-
   }
 
   /* Print remaining counters. */
 
-  if (thispe == 0) PrintFinalStats(ida_mem);
+  if (thispe == 0) { PrintFinalStats(ida_mem); }
 
   /* Free memory */
 
@@ -489,8 +471,7 @@ int main(int argc, char *argv[])
 
   MPI_Finalize();
 
-  return(0);
-
+  return (0);
 }
 
 /*
@@ -515,8 +496,7 @@ int main(int argc, char *argv[])
  * of uu required to calculate the residual.
  */
 
-int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
-            void *user_data)
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr, void* user_data)
 {
   int retval = 0;
 
@@ -526,8 +506,7 @@ int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   /* Call reslocal to calculate res. */
   retval = reslocal(tt, uu, up, rr, user_data);
 
-  return(retval);
-
+  return (retval);
 }
 
 /*
@@ -549,37 +528,38 @@ int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
  */
 
 int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
-               sunrealtype c_j, void *user_data)
+               sunrealtype c_j, void* user_data)
 {
   sunindextype ibc, i0, jbc, j0;
 
   /* Unwrap the user data */
-  UserData data = (UserData) user_data;
-  const int ixsub = data->ixsub;
-  const int jysub = data->jysub;
-  const int npex  = data->npex;
-  const int npey  = data->npey;
+  UserData data            = (UserData)user_data;
+  const int ixsub          = data->ixsub;
+  const int jysub          = data->jysub;
+  const int npex           = data->npex;
+  const int npey           = data->npey;
   const sunindextype mxsub = data->mxsub;
   const sunindextype mysub = data->mysub;
-  sunrealtype *ppv = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(data->pp));
+  sunrealtype* ppv =
+    N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(data->pp));
 
   /* Calculate the value for the inverse element of the diagonal preconditioner */
-  const sunrealtype pelinv = ONE/(c_j + data->coeffxy);
+  const sunrealtype pelinv = ONE / (c_j + data->coeffxy);
 
   /* Initially set all pp elements on the device to one. */
   N_VConst(ONE, data->pp);
 
-  ibc = (ixsub == 0) || (ixsub == npex-1);
+  ibc = (ixsub == 0) || (ixsub == npex - 1);
   i0  = (ixsub == 0);
-  jbc = (jysub == 0) || (jysub == npey-1);
+  jbc = (jysub == 0) || (jysub == npey - 1);
   j0  = (jysub == 0);
 
   unsigned block = 256;
-  unsigned grid = ((mxsub - ibc)*(mysub - jbc) + block - 1) / block;
+  unsigned grid  = ((mxsub - ibc) * (mysub - jbc) + block - 1) / block;
 
   PsetupHeatKernel<<<grid, block>>>(ppv, mxsub, mysub, ibc, jbc, i0, j0, pelinv);
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -589,16 +569,15 @@ int PsetupHeat(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
  * computed in PsetupHeat), returning the result in zvec.
  */
 
-int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up,
-               N_Vector rr, N_Vector rvec, N_Vector zvec,
-               sunrealtype c_j, sunrealtype delta, void *user_data)
+int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+               N_Vector rvec, N_Vector zvec, sunrealtype c_j, sunrealtype delta,
+               void* user_data)
 {
-  UserData data = (UserData) user_data;
+  UserData data = (UserData)user_data;
 
   N_VProd(data->pp, rvec, zvec);
 
-  return(0);
-
+  return (0);
 }
 
 /*
@@ -607,7 +586,6 @@ int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up,
  *--------------------------------------------------------------------
  */
 
-
 /*
  * rescomm routine.  This routine performs all inter-processor
  * communication of data in u needed to calculate G.
@@ -615,42 +593,45 @@ int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up,
 
 static int rescomm(N_Vector uu, N_Vector up, void* user_data)
 {
-  UserData data = (UserData) user_data;
+  UserData data = (UserData)user_data;
 
   /* Get comm, thispe, subgrid indices, data sizes */
-  MPI_Comm comm = data->comm;
-  const int thispe = data->thispe;
-  const int ixsub  = data->ixsub;
-  const int jysub  = data->jysub;
-  const int npex   = data->npex;
-  const int npey   = data->npey;
+  MPI_Comm comm            = data->comm;
+  const int thispe         = data->thispe;
+  const int ixsub          = data->ixsub;
+  const int jysub          = data->jysub;
+  const int npex           = data->npex;
+  const int npey           = data->npey;
   const sunindextype mxsub = data->mxsub;
   const sunindextype mysub = data->mysub;
 
   /* Get pointers to buffers and extended solution vector data array uext. */
-  sunrealtype *uext = data->uext;
-  sunrealtype *host_send_buff = data->host_send_buff;
-  sunrealtype *host_recv_buff = data->host_recv_buff;
-  sunrealtype *dev_send_buff  = data->dev_send_buff;
-  sunrealtype *dev_recv_buff  = data->dev_recv_buff;
+  sunrealtype* uext           = data->uext;
+  sunrealtype* host_send_buff = data->host_send_buff;
+  sunrealtype* host_recv_buff = data->host_recv_buff;
+  sunrealtype* dev_send_buff  = data->dev_send_buff;
+  sunrealtype* dev_recv_buff  = data->dev_recv_buff;
 
   /* Get solution vector data. */
-  const sunrealtype *uarray = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(uu));
+  const sunrealtype* uarray =
+    N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(uu));
 
   /* Set array of MPI requests */
   MPI_Request request[4];
 
   /* Start receiving boundary data from neighboring PEs. */
-  BRecvPost(comm, request, thispe, ixsub, jysub, npex, npey, mxsub, mysub, host_recv_buff);
+  BRecvPost(comm, request, thispe, ixsub, jysub, npex, npey, mxsub, mysub,
+            host_recv_buff);
 
   /* Send data from boundary of local grid to neighboring PEs. */
-  BSend(comm, thispe, ixsub, jysub, npex, npey, mxsub, mysub, uarray, dev_send_buff, host_send_buff);
+  BSend(comm, thispe, ixsub, jysub, npex, npey, mxsub, mysub, uarray,
+        dev_send_buff, host_send_buff);
 
   /* Finish receiving boundary data from neighboring PEs. */
-  BRecvWait(request, ixsub, jysub, npex, npey, mxsub, mysub, uext, host_recv_buff, dev_recv_buff);
+  BRecvWait(request, ixsub, jysub, npex, npey, mxsub, mysub, uext,
+            host_recv_buff, dev_recv_buff);
 
-  return(0);
-
+  return (0);
 }
 
 /*
@@ -660,15 +641,15 @@ static int rescomm(N_Vector uu, N_Vector up, void* user_data)
  */
 
 static int reslocal(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
-                    void *user_data)
+                    void* user_data)
 {
-  UserData data = (UserData) user_data;
+  UserData data = (UserData)user_data;
 
   /* Get subgrid indices, array sizes, and grid coefficients. */
-  const int ixsub = data->ixsub;
-  const int jysub = data->jysub;
-  const int npex  = data->npex;
-  const int npey  = data->npey;
+  const int ixsub           = data->ixsub;
+  const int jysub           = data->jysub;
+  const int npex            = data->npex;
+  const int npey            = data->npey;
   const sunindextype mxsub  = data->mxsub;
   const sunindextype mysub  = data->mysub;
   const sunrealtype coeffx  = data->coeffx;
@@ -676,10 +657,13 @@ static int reslocal(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   const sunrealtype coeffxy = data->coeffxy;
 
   /* Vector data arrays, extended work array uext. */
-  const sunrealtype *uuv = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(uu));
-  const sunrealtype *upv = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(up));
-  sunrealtype *resv = N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(rr));
-  sunrealtype *uext = data->uext;
+  const sunrealtype* uuv =
+    N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(uu));
+  const sunrealtype* upv =
+    N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(up));
+  sunrealtype* resv =
+    N_VGetDeviceArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(rr));
+  sunrealtype* uext = data->uext;
 
   sunindextype ibc, i0, jbc, j0;
 
@@ -692,126 +676,136 @@ static int reslocal(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
      This completes uext prior to the computation of the rr vector.
      uext and uuv must be on the device.     */
   unsigned block = 256;
-  unsigned grid = (mxsub*mysub + block - 1) / block;
+  unsigned grid  = (mxsub * mysub + block - 1) / block;
 
   CopyLocalToExtendedArray<<<grid, block>>>(uuv, uext, mxsub, mysub);
 
   /* Set loop limits for the interior of the local subgrid. */
-  ibc = (ixsub == 0) || (ixsub == npex-1);
+  ibc = (ixsub == 0) || (ixsub == npex - 1);
   i0  = (ixsub == 0);
-  jbc = (jysub == 0) || (jysub == npey-1);
+  jbc = (jysub == 0) || (jysub == npey - 1);
   j0  = (jysub == 0);
 
   /* Compute local residual; uext, upv, and resv must be on the device */
   block = 256;
-  grid = ((mxsub - ibc)*(mysub - jbc) + block - 1) / block;
+  grid  = ((mxsub - ibc) * (mysub - jbc) + block - 1) / block;
 
   LocalResidualKernel<<<grid, block>>>(uext, upv, resv, mxsub, mysub, ibc, jbc,
                                        i0, j0, coeffx, coeffy, coeffxy);
 
-  return(0);
-
+  return (0);
 }
 
 /*
  * Routine to send boundary data to neighboring PEs.
  */
 
-static int BSend(MPI_Comm comm, int thispe,
-                 int ixsub, int jysub, int npex, int npey,
-                 sunindextype mxsub, sunindextype mysub,
-                 const sunrealtype *uarray, sunrealtype *dev_send_buff,
-                 sunrealtype *host_send_buff)
+static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub, int npex,
+                 int npey, sunindextype mxsub, sunindextype mysub,
+                 const sunrealtype* uarray, sunrealtype* dev_send_buff,
+                 sunrealtype* host_send_buff)
 {
   cudaError_t err;
 
   /* Have left, right, top and bottom device buffers use the same dev_send_buff. */
-  sunrealtype *d_bufleft   = dev_send_buff;
-  sunrealtype *d_bufright  = dev_send_buff + mysub;
-  sunrealtype *d_buftop    = dev_send_buff + 2*mysub;
-  sunrealtype *d_bufbottom = dev_send_buff + 2*mysub + mxsub;
+  sunrealtype* d_bufleft   = dev_send_buff;
+  sunrealtype* d_bufright  = dev_send_buff + mysub;
+  sunrealtype* d_buftop    = dev_send_buff + 2 * mysub;
+  sunrealtype* d_bufbottom = dev_send_buff + 2 * mysub + mxsub;
 
   /* Have left, right, top and bottom host buffers use the same host_send_buff. */
-  sunrealtype *h_bufleft   = host_send_buff;
-  sunrealtype *h_bufright  = host_send_buff + mysub;
-  sunrealtype *h_buftop    = host_send_buff + 2*mysub;
-  sunrealtype *h_bufbottom = host_send_buff + 2*mysub + mxsub;
+  sunrealtype* h_bufleft   = host_send_buff;
+  sunrealtype* h_bufright  = host_send_buff + mysub;
+  sunrealtype* h_buftop    = host_send_buff + 2 * mysub;
+  sunrealtype* h_bufbottom = host_send_buff + 2 * mysub + mxsub;
 
   /* If jysub > 0, send data from bottom x-line of u.  (via bufbottom) */
 
-  if (jysub != 0) {
+  if (jysub != 0)
+  {
     // Device kernel here to copy from uarray to the buffer on the device
     unsigned block = 256;
-    unsigned grid = (mxsub + block - 1) / block;
+    unsigned grid  = (mxsub + block - 1) / block;
     CopyToBottomBuffer<<<grid, block>>>(uarray, d_bufbottom, mxsub);
 
     // Copy buffer to the host
-    err = cudaMemcpy(h_bufbottom, d_bufbottom, mxsub*sizeof(sunrealtype),
+    err = cudaMemcpy(h_bufbottom, d_bufbottom, mxsub * sizeof(sunrealtype),
                      cudaMemcpyDeviceToHost);
-    if (err != cudaSuccess) {
-      printf("Bottom buffer: Copy from device to host failed with code %d... \n", err);
+    if (err != cudaSuccess)
+    {
+      printf("Bottom buffer: Copy from device to host failed with code %d... "
+             "\n",
+             err);
       return -1;
     }
     // MPI send buffer
-    MPI_Send(h_bufbottom, mxsub, MPI_SUNREALTYPE, thispe-npex, 0, comm);
+    MPI_Send(h_bufbottom, mxsub, MPI_SUNREALTYPE, thispe - npex, 0, comm);
   }
 
   /* If jysub < NPEY-1, send data from top x-line of u. (via buftop) */
 
-  if (jysub != npey-1) {
+  if (jysub != npey - 1)
+  {
     // Device kernel here to copy from uarray to the buffer on the device
     unsigned block = 256;
-    unsigned grid = (mxsub + block - 1) / block;
+    unsigned grid  = (mxsub + block - 1) / block;
     CopyToTopBuffer<<<grid, block>>>(uarray, d_buftop, mxsub, mysub);
 
     // Copy buffer to the host
-    err = cudaMemcpy(h_buftop, d_buftop, mxsub*sizeof(sunrealtype), cudaMemcpyDeviceToHost);
-    if (err != cudaSuccess) {
+    err = cudaMemcpy(h_buftop, d_buftop, mxsub * sizeof(sunrealtype),
+                     cudaMemcpyDeviceToHost);
+    if (err != cudaSuccess)
+    {
       printf("Top buffer: Copy from device to host failed ... \n");
       return -1;
     }
     // MPI send buffer
-    MPI_Send(h_buftop, mxsub, MPI_SUNREALTYPE, thispe+npex, 0, comm);
+    MPI_Send(h_buftop, mxsub, MPI_SUNREALTYPE, thispe + npex, 0, comm);
   }
 
   /* If ixsub > 0, send data from left y-line of u (via bufleft). */
 
-  if (ixsub != 0) {
+  if (ixsub != 0)
+  {
     // Device kernel here to copy from uarray to the buffer on the device
     unsigned block = 256;
-    unsigned grid = (mysub + block - 1) / block;
+    unsigned grid  = (mysub + block - 1) / block;
     CopyToLeftBuffer<<<grid, block>>>(uarray, d_bufleft, mxsub, mysub);
 
     // Copy buffer to the host
-    err = cudaMemcpy(h_bufleft, d_bufleft, mysub*sizeof(sunrealtype), cudaMemcpyDeviceToHost);
-    if (err != cudaSuccess) {
+    err = cudaMemcpy(h_bufleft, d_bufleft, mysub * sizeof(sunrealtype),
+                     cudaMemcpyDeviceToHost);
+    if (err != cudaSuccess)
+    {
       printf("Left buffer: Copy from device to host failed ... \n");
       return -1;
     }
     // MPI send buffer
-    MPI_Send(h_bufleft, mysub, MPI_SUNREALTYPE, thispe-1, 0, comm);
+    MPI_Send(h_bufleft, mysub, MPI_SUNREALTYPE, thispe - 1, 0, comm);
   }
 
   /* If ixsub < NPEX-1, send data from right y-line of u (via bufright). */
 
-  if (ixsub != npex-1) {
+  if (ixsub != npex - 1)
+  {
     // Device kernel here to copy from uarray to the buffer on the device
     unsigned block = 256;
-    unsigned grid = (mysub + block - 1) / block;
+    unsigned grid  = (mysub + block - 1) / block;
     CopyToRightBuffer<<<grid, block>>>(uarray, d_bufright, mxsub, mysub);
 
     // Copy buffer to the host
-    err = cudaMemcpy(h_bufright, d_bufright, mysub*sizeof(sunrealtype), cudaMemcpyDeviceToHost);
-    if (err != cudaSuccess) {
+    err = cudaMemcpy(h_bufright, d_bufright, mysub * sizeof(sunrealtype),
+                     cudaMemcpyDeviceToHost);
+    if (err != cudaSuccess)
+    {
       printf("Right buffer: Copy from device to host failed ... \n");
       return -1;
     }
     // MPI send buffer
-    MPI_Send(h_bufright, mysub, MPI_SUNREALTYPE, thispe+1, 0, comm);
+    MPI_Send(h_bufright, mysub, MPI_SUNREALTYPE, thispe + 1, 0, comm);
   }
 
-  return(0);
-
+  return (0);
 }
 
 /*
@@ -824,43 +818,45 @@ static int BSend(MPI_Comm comm, int thispe,
  *      both calls also.
  */
 
-static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
-                     int ixsub, int jysub, int npex, int npey,
-                     sunindextype mxsub, sunindextype mysub,
-                     sunrealtype *host_recv_buff)
+static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe, int ixsub,
+                     int jysub, int npex, int npey, sunindextype mxsub,
+                     sunindextype mysub, sunrealtype* host_recv_buff)
 {
   /* Have left, right, top and bottom buffers use the same host_recv_buff. */
-  sunrealtype *bufleft   = host_recv_buff;
-  sunrealtype *bufright  = host_recv_buff + mysub;
-  sunrealtype *buftop    = host_recv_buff + 2*mysub;
-  sunrealtype *bufbottom = host_recv_buff + 2*mysub + mxsub;
+  sunrealtype* bufleft   = host_recv_buff;
+  sunrealtype* bufright  = host_recv_buff + mysub;
+  sunrealtype* buftop    = host_recv_buff + 2 * mysub;
+  sunrealtype* bufbottom = host_recv_buff + 2 * mysub + mxsub;
 
   /* If jysub > 0, receive data for bottom x-line of uext. */
-  if (jysub != 0) {
-    MPI_Irecv(bufbottom, mxsub, MPI_SUNREALTYPE,
-              thispe-npex, 0, comm, &request[0]);
+  if (jysub != 0)
+  {
+    MPI_Irecv(bufbottom, mxsub, MPI_SUNREALTYPE, thispe - npex, 0, comm,
+              &request[0]);
   }
 
   /* If jysub < NPEY-1, receive data for top x-line of uext. */
-  if (jysub != npey-1) {
-    MPI_Irecv(buftop, mxsub, MPI_SUNREALTYPE,
-              thispe+npex, 0, comm, &request[1]);
+  if (jysub != npey - 1)
+  {
+    MPI_Irecv(buftop, mxsub, MPI_SUNREALTYPE, thispe + npex, 0, comm,
+              &request[1]);
   }
 
   /* If ixsub > 0, receive data for left y-line of uext (via bufleft). */
-  if (ixsub != 0) {
-    MPI_Irecv(&bufleft[0], mysub, MPI_SUNREALTYPE,
-              thispe-1, 0, comm, &request[2]);
+  if (ixsub != 0)
+  {
+    MPI_Irecv(&bufleft[0], mysub, MPI_SUNREALTYPE, thispe - 1, 0, comm,
+              &request[2]);
   }
 
   /* If ixsub < NPEX-1, receive data for right y-line of uext (via bufright). */
-  if (ixsub != npex-1) {
-    MPI_Irecv(&bufright[0], mysub, MPI_SUNREALTYPE,
-              thispe+1, 0, comm, &request[3]);
+  if (ixsub != npex - 1)
+  {
+    MPI_Irecv(&bufright[0], mysub, MPI_SUNREALTYPE, thispe + 1, 0, comm,
+              &request[3]);
   }
 
-  return(0);
-
+  return (0);
 }
 
 /*
@@ -873,86 +869,97 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
  *      calls also.
  */
 
-static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
-                     int npex, int npey,
-                     sunindextype mxsub, sunindextype mysub,
-                     sunrealtype *uext, const sunrealtype *host_recv_buff, sunrealtype *dev_recv_buff)
+static int BRecvWait(MPI_Request request[], int ixsub, int jysub, int npex,
+                     int npey, sunindextype mxsub, sunindextype mysub,
+                     sunrealtype* uext, const sunrealtype* host_recv_buff,
+                     sunrealtype* dev_recv_buff)
 {
   cudaError_t err;
   MPI_Status status;
 
-  const sunrealtype *h_bufleft   = host_recv_buff;
-  const sunrealtype *h_bufright  = host_recv_buff + mysub;
-  const sunrealtype *h_buftop    = host_recv_buff + 2*mysub;
-  const sunrealtype *h_bufbottom = host_recv_buff + 2*mysub + mxsub;
+  const sunrealtype* h_bufleft   = host_recv_buff;
+  const sunrealtype* h_bufright  = host_recv_buff + mysub;
+  const sunrealtype* h_buftop    = host_recv_buff + 2 * mysub;
+  const sunrealtype* h_bufbottom = host_recv_buff + 2 * mysub + mxsub;
 
-  sunrealtype *d_bufleft   = dev_recv_buff;
-  sunrealtype *d_bufright  = dev_recv_buff + mysub;
-  sunrealtype *d_buftop    = dev_recv_buff + 2*mysub;
-  sunrealtype *d_bufbottom = dev_recv_buff + 2*mysub + mxsub;
+  sunrealtype* d_bufleft   = dev_recv_buff;
+  sunrealtype* d_bufright  = dev_recv_buff + mysub;
+  sunrealtype* d_buftop    = dev_recv_buff + 2 * mysub;
+  sunrealtype* d_bufbottom = dev_recv_buff + 2 * mysub + mxsub;
 
   /* If jysub > 0, receive data for bottom x-line of uext. */
-  if (jysub != 0) {
+  if (jysub != 0)
+  {
     MPI_Wait(&request[0], &status);
     /* Copy the buffer from the host to the device */
-    err = cudaMemcpy(d_bufbottom, h_bufbottom, mxsub*sizeof(sunrealtype), cudaMemcpyHostToDevice);
-    if (err != cudaSuccess) {
+    err = cudaMemcpy(d_bufbottom, h_bufbottom, mxsub * sizeof(sunrealtype),
+                     cudaMemcpyHostToDevice);
+    if (err != cudaSuccess)
+    {
       printf("Copy from host to device failed ... \n");
       return -1;
     }
     /* Copy the bottom dev_recv_buff to uext. */
     unsigned block = 256;
-    unsigned grid = (mxsub + block - 1) / block;
+    unsigned grid  = (mxsub + block - 1) / block;
     CopyFromBottomBuffer<<<grid, block>>>(d_bufbottom, uext, mxsub);
   }
 
   /* If jysub < NPEY-1, receive data for top x-line of uext. */
-  if (jysub != npey-1) {
+  if (jysub != npey - 1)
+  {
     MPI_Wait(&request[1], &status);
     /* Copy the buffer from the host to the device */
-    err = cudaMemcpy(d_buftop, h_buftop, mxsub*sizeof(sunrealtype), cudaMemcpyHostToDevice);
-    if (err != cudaSuccess) {
+    err = cudaMemcpy(d_buftop, h_buftop, mxsub * sizeof(sunrealtype),
+                     cudaMemcpyHostToDevice);
+    if (err != cudaSuccess)
+    {
       printf("Copy from host to device failed ... \n");
       return -1;
     }
     /* Copy the top dev_recv_buff to uext. */
     unsigned block = 256;
-    unsigned grid = (mxsub + block - 1) / block;
+    unsigned grid  = (mxsub + block - 1) / block;
     CopyFromTopBuffer<<<grid, block>>>(d_buftop, uext, mxsub, mysub);
   }
 
   /* If ixsub > 0, receive data for left y-line of uext (via bufleft). */
-  if (ixsub != 0) {
+  if (ixsub != 0)
+  {
     MPI_Wait(&request[2], &status);
     /* Copy the buffer from the host to the device */
-    err = cudaMemcpy(d_bufleft, h_bufleft, mysub*sizeof(sunrealtype), cudaMemcpyHostToDevice);
-    if (err != cudaSuccess) {
+    err = cudaMemcpy(d_bufleft, h_bufleft, mysub * sizeof(sunrealtype),
+                     cudaMemcpyHostToDevice);
+    if (err != cudaSuccess)
+    {
       printf("Copy from host to device failed ... \n");
       return -1;
     }
     /* Copy the left dev_recv_buff to uext. */
     unsigned block = 256;
-    unsigned grid = (mysub + block - 1) / block;
+    unsigned grid  = (mysub + block - 1) / block;
     CopyFromLeftBuffer<<<grid, block>>>(d_bufleft, uext, mxsub, mysub);
   }
 
   /* If ixsub < NPEX-1, receive data for right y-line of uext (via bufright). */
-  if (ixsub != npex-1) {
+  if (ixsub != npex - 1)
+  {
     MPI_Wait(&request[3], &status);
     /* Copy the buffer from the host to the device */
-    err = cudaMemcpy(d_bufright, h_bufright, mysub*sizeof(sunrealtype), cudaMemcpyHostToDevice);
-    if (err != cudaSuccess) {
+    err = cudaMemcpy(d_bufright, h_bufright, mysub * sizeof(sunrealtype),
+                     cudaMemcpyHostToDevice);
+    if (err != cudaSuccess)
+    {
       printf("Copy from host to device failed ... \n");
       return -1;
     }
     /* Copy the right dev_recv_buff to uext. */
     unsigned block = 256;
-    unsigned grid = (mysub + block - 1) / block;
+    unsigned grid  = (mysub + block - 1) / block;
     CopyFromRightBuffer<<<grid, block>>>(d_bufright, uext, mxsub, mysub);
   }
 
-  return(0);
-
+  return (0);
 }
 
 /*
@@ -967,32 +974,30 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
 
 static int InitUserData(int thispe, MPI_Comm comm, UserData data)
 {
-
   data->comm    = comm;
   data->thispe  = thispe;
   data->npex    = NPEX;  /* Number of subgrids in x-direction */
   data->npey    = NPEY;  /* Number of subgrids in y-direction */
   data->mxsub   = MXSUB; /* Number of subgrid mesh points in x-direction */
   data->mysub   = MYSUB; /* Number of subgrid mesh points in y-direction */
-  data->jysub   = thispe/data->npex;
+  data->jysub   = thispe / data->npex;
   data->ixsub   = thispe - (data->jysub * data->npex);
-  data->mx      = data->npex * data->mxsub;  /* Mesh size in x-direction */
-  data->my      = data->npey * data->mysub;  /* Mesh size in y-direction */
-  data->dx      = ONE/(data->mx-ONE); /* Assumes a [0,1] interval in x. */
-  data->dy      = ONE/(data->my-ONE); /* Assumes a [0,1] interval in y. */
-  data->coeffx  = ONE/(data->dx * data->dx);
-  data->coeffy  = ONE/(data->dy * data->dy);
-  data->coeffxy = TWO/(data->dx * data->dx) + TWO/(data->dy * data->dy);
+  data->mx      = data->npex * data->mxsub; /* Mesh size in x-direction */
+  data->my      = data->npey * data->mysub; /* Mesh size in y-direction */
+  data->dx      = ONE / (data->mx - ONE);   /* Assumes a [0,1] interval in x. */
+  data->dy      = ONE / (data->my - ONE);   /* Assumes a [0,1] interval in y. */
+  data->coeffx  = ONE / (data->dx * data->dx);
+  data->coeffy  = ONE / (data->dy * data->dy);
+  data->coeffxy = TWO / (data->dx * data->dx) + TWO / (data->dy * data->dy);
 
-  data->uext = NULL;
+  data->uext           = NULL;
   data->host_send_buff = NULL;
   data->host_recv_buff = NULL;
   data->dev_send_buff  = NULL;
   data->dev_recv_buff  = NULL;
 
-  return(0);
+  return (0);
 }
-
 
 /*
  * AllocUserData allocates memory for the extended vector uext
@@ -1007,14 +1012,17 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
 
   /* An N-vector to hold preconditioner. */
   data->pp = N_VClone(uu);
-  if(data->pp == NULL) {
+  if (data->pp == NULL)
+  {
     MPI_Abort(comm, 1);
     return -1;
   }
 
   /* Allocate local extended vector (includes ghost nodes) */
-  err = cudaMalloc((void**) &data->uext, (mxsub + 2)*(mysub +2)*sizeof(sunrealtype));
-  if(err != cudaSuccess) {
+  err = cudaMalloc((void**)&data->uext,
+                   (mxsub + 2) * (mysub + 2) * sizeof(sunrealtype));
+  if (err != cudaSuccess)
+  {
     printf("Failed to allocate uext ... \n");
     N_VDestroy(data->pp);
     MPI_Abort(comm, 1);
@@ -1022,16 +1030,20 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
   }
 
   /* Allocate local host send buffer */
-  data->host_send_buff = (sunrealtype*) malloc(2*(mxsub + mysub)*sizeof(sunrealtype));
-  if(data->host_send_buff == NULL) {
+  data->host_send_buff =
+    (sunrealtype*)malloc(2 * (mxsub + mysub) * sizeof(sunrealtype));
+  if (data->host_send_buff == NULL)
+  {
     N_VDestroy(data->pp);
     free(data->uext);
     MPI_Abort(comm, 1);
     return -1;
   }
 
-  data->host_recv_buff = (sunrealtype*) malloc(2*(mxsub + mysub)*sizeof(sunrealtype));
-  if(data->host_recv_buff == NULL) {
+  data->host_recv_buff =
+    (sunrealtype*)malloc(2 * (mxsub + mysub) * sizeof(sunrealtype));
+  if (data->host_recv_buff == NULL)
+  {
     N_VDestroy(data->pp);
     free(data->uext);
     free(data->host_send_buff);
@@ -1040,8 +1052,10 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
   }
 
   /* Allocate local device send buffer */
-  err = cudaMalloc((void**) &data->dev_send_buff, 2*(mxsub + mysub)*sizeof(sunrealtype));
-  if(err != cudaSuccess) {
+  err = cudaMalloc((void**)&data->dev_send_buff,
+                   2 * (mxsub + mysub) * sizeof(sunrealtype));
+  if (err != cudaSuccess)
+  {
     printf("Failed to allocate dev_send_buff ... \n");
     N_VDestroy(data->pp);
     cudaFree(data->uext);
@@ -1052,8 +1066,10 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
   }
 
   /* Allocate local device send buffer */
-  err = cudaMalloc((void**) &data->dev_recv_buff, 2*(mxsub + mysub)*sizeof(sunrealtype));
-  if(err != cudaSuccess) {
+  err = cudaMalloc((void**)&data->dev_recv_buff,
+                   2 * (mxsub + mysub) * sizeof(sunrealtype));
+  if (err != cudaSuccess)
+  {
     printf("Failed to allocate dev_recv_buff ... \n");
     N_VDestroy(data->pp);
     cudaFree(data->uext);
@@ -1067,21 +1083,14 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
   return 0;
 }
 
-
 static int DeleteUserData(UserData data)
 {
-  if (data->pp != NULL)
-    N_VDestroy(data->pp);
-  if (data->uext != NULL)
-    cudaFree(data->uext);
-  if (data->host_send_buff != NULL)
-    free(data->host_send_buff);
-  if (data->host_recv_buff != NULL)
-    free(data->host_recv_buff);
-  if (data->dev_send_buff != NULL)
-    cudaFree(data->dev_send_buff);
-  if (data->dev_recv_buff != NULL)
-    cudaFree(data->dev_recv_buff);
+  if (data->pp != NULL) { N_VDestroy(data->pp); }
+  if (data->uext != NULL) { cudaFree(data->uext); }
+  if (data->host_send_buff != NULL) { free(data->host_send_buff); }
+  if (data->host_recv_buff != NULL) { free(data->host_recv_buff); }
+  if (data->dev_send_buff != NULL) { cudaFree(data->dev_send_buff); }
+  if (data->dev_recv_buff != NULL) { cudaFree(data->dev_recv_buff); }
   return 0;
 }
 
@@ -1089,7 +1098,7 @@ static int DeleteUserData(UserData data)
  * SetInitialProfile sets the initial values for the problem.
  */
 
-static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
+static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
                              N_Vector res, UserData data)
 {
   sunindextype i, iloc, j, jloc, loc;
@@ -1098,39 +1107,45 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   /* Initialize uu. */
 
   // Get host pointer
-  sunrealtype *uudata = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(uu));
-  sunrealtype *iddata = N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(id));
+  sunrealtype* uudata =
+    N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(uu));
+  sunrealtype* iddata =
+    N_VGetHostArrayPointer_Cuda(N_VGetLocalVector_MPIPlusX(id));
 
   /* Set mesh spacings and subgrid indices for this PE. */
   const sunrealtype dx = data->dx;
   const sunrealtype dy = data->dy;
-  const int ixsub = data->ixsub;
-  const int jysub = data->jysub;
+  const int ixsub      = data->ixsub;
+  const int jysub      = data->jysub;
 
   /* Set beginning and ending locations in the global array corresponding
      to the portion of that array assigned to this processor. */
   const sunindextype mxsub   = data->mxsub;
   const sunindextype mysub   = data->mysub;
-  const sunindextype ixbegin = mxsub*ixsub;
-  const sunindextype ixend   = mxsub*(ixsub+1) - 1;
-  const sunindextype jybegin = mysub*jysub;
-  const sunindextype jyend   = mysub*(jysub+1) - 1;
+  const sunindextype ixbegin = mxsub * ixsub;
+  const sunindextype ixend   = mxsub * (ixsub + 1) - 1;
+  const sunindextype jybegin = mysub * jysub;
+  const sunindextype jyend   = mysub * (jysub + 1) - 1;
 
   /* Loop over the local array, computing the initial profile value.
      The global indices are (i,j) and the local indices are (iloc,jloc).
      Also set the id vector to zero for boundary points, one otherwise. */
 
-  for (j = jybegin, jloc = 0; j <= jyend; j++, jloc++) {
-    yfact = dy*j;
-    for (i = ixbegin, iloc = 0; i <= ixend; i++, iloc++) {
-      xfact = dx*i;
-      loc = iloc + jloc*mxsub;
-      uudata[loc] = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+  for (j = jybegin, jloc = 0; j <= jyend; j++, jloc++)
+  {
+    yfact = dy * j;
+    for (i = ixbegin, iloc = 0; i <= ixend; i++, iloc++)
+    {
+      xfact       = dx * i;
+      loc         = iloc + jloc * mxsub;
+      uudata[loc] = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact *
+                    (ONE - yfact);
 
       if (i == 0 || i == data->mx - 1 || j == 0 || j == data->my - 1)
+      {
         iddata[loc] = ZERO;
-      else
-        iddata[loc] = ONE;
+      }
+      else { iddata[loc] = ONE; }
     }
   }
 
@@ -1140,7 +1155,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 
   /* Initialize up. */
 
-  N_VConst(ZERO, up);    /* Initially set up = 0. */
+  N_VConst(ZERO, up); /* Initially set up = 0. */
 
   /* resHeat sets res to negative of ODE RHS values at interior points. */
   resHeat(ZERO, uu, up, res, data);
@@ -1148,7 +1163,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   /* Copy -res into up to get correct initial up values on the device only! */
   N_VScale(-ONE, res, up);
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -1157,14 +1172,15 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 
 static void PrintHeader(sunrealtype rtol, sunrealtype atol, UserData data)
 {
-  printf("\nidaHeat2D_kry_p: Heat equation, parallel example problem for IDA\n");
+  printf(
+    "\nidaHeat2D_kry_p: Heat equation, parallel example problem for IDA\n");
   printf("            Discretized heat equation on 2D unit square.\n");
   printf("            Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
-  printf("            Mesh dimensions: %d x %d", (int) data->mx, (int) data->my);
-  printf("        Total system size: %ld\n\n", (long) data->mx * data->my);
-  printf("Subgrid dimensions: %d x %d", (int) data->mxsub, (int) data->mysub);
-  printf("        Processor array: %d x %d\n", (int) data->npex, (int) data->npey);
+  printf("            Mesh dimensions: %d x %d", (int)data->mx, (int)data->my);
+  printf("        Total system size: %ld\n\n", (long)data->mx * data->my);
+  printf("Subgrid dimensions: %d x %d", (int)data->mxsub, (int)data->mysub);
+  printf("        Processor array: %d x %d\n", (int)data->npex, (int)data->npey);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -1180,15 +1196,17 @@ static void PrintHeader(sunrealtype rtol, sunrealtype atol, UserData data)
 
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time     umax       k  nst  nni  nli   nre   nreLS    h      npe nps\n");
-  printf("----------------------------------------------------------------------\n");
+  printf(
+    "  time     umax       k  nst  nni  nli   nre   nreLS    h      npe nps\n");
+  printf(
+    "----------------------------------------------------------------------\n");
 }
 
 /*
  * PrintOutput: print max norm of solution and current solver statistics
  */
 
-static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu)
+static void PrintOutput(int id, void* ida_mem, sunrealtype t, N_Vector uu)
 {
   sunrealtype hused, umax;
   long int nst, nni, nje, nre, nreLS, nli, npe, nps;
@@ -1196,8 +1214,8 @@ static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu)
 
   umax = N_VMaxNorm(uu);
 
-  if (id == 0) {
-
+  if (id == 0)
+  {
     ier = IDAGetLastOrder(ida_mem, &kused);
     check_flag(&ier, "IDAGetLastOrder", 1, id);
     ier = IDAGetNumSteps(ida_mem, &nst);
@@ -1220,16 +1238,18 @@ static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu)
     check_flag(&ier, "IDAGetNumPrecSolves", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
+    printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld "
+           "%3ld\n",
            t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
+    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld "
+           "%3ld\n",
            t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
 #else
-    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
+    printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld "
+           "%3ld\n",
            t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
 #endif
-
   }
 }
 
@@ -1237,7 +1257,7 @@ static void PrintOutput(int id, void *ida_mem, sunrealtype t, N_Vector uu)
  * Print some final integrator statistics
  */
 
-static void PrintFinalStats(void *ida_mem)
+static void PrintFinalStats(void* ida_mem)
 {
   long int netf, ncfn, ncfl;
 
@@ -1260,32 +1280,36 @@ static void PrintFinalStats(void *ida_mem)
  *            NULL pointer
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_flag(void* flagvalue, const char* funcname, int opt, int id)
 {
-  int *errflag;
+  int* errflag;
 
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && flagvalue == NULL)
+  {
     /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
     fprintf(stderr,
-            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
-            id, funcname);
-    return(1);
-  } else if (opt == 1) {
+            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id,
+            funcname);
+    return (1);
+  }
+  else if (opt == 1)
+  {
     /* Check if flag < 0 */
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr,
-              "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
+    errflag = (int*)flagvalue;
+    if (*errflag < 0)
+    {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
               id, funcname, *errflag);
-      return(1);
+      return (1);
     }
-  } else if (opt == 2 && flagvalue == NULL) {
+  }
+  else if (opt == 2 && flagvalue == NULL)
+  {
     /* Check if function returned NULL pointer - no memory allocated */
-    fprintf(stderr,
-            "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
-    return(1);
+    return (1);
   }
 
-  return(0);
+  return (0);
 }

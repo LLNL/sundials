@@ -15,51 +15,68 @@
  * implementation.
  * -----------------------------------------------------------------*/
 
+#include <nvector/nvector_hip.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-#include <nvector/nvector_hip.h>
 
 #include "custom_memory_helper_gpu.h"
 #include "test_nvector.h"
 
 /* hip vector variants */
-enum mem_type { UNMANAGED, MANAGED, SUNMEMORY };
-enum pol_type { DEFAULT_POL, DEFAULT_POL_W_STREAM, GRID_STRIDE, LDS_REDUCTIONS };
+enum mem_type
+{
+  UNMANAGED,
+  MANAGED,
+  SUNMEMORY
+};
+
+enum pol_type
+{
+  DEFAULT_POL,
+  DEFAULT_POL_W_STREAM,
+  GRID_STRIDE,
+  LDS_REDUCTIONS
+};
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  int             fails = 0;         /* counter for test failures  */
-  int             retval;            /* function return value      */
-  sunindextype    length;            /* vector length              */
-  N_Vector        U, V, X, Y, Z;     /* test vectors               */
-  int             print_timing;      /* turn timing on/off         */
-  int             threadsPerBlock;   /* hip block size            */
-  hipStream_t     stream;            /* hip stream                */
-  int             memtype, policy;
+  int fails = 0;          /* counter for test failures  */
+  int retval;             /* function return value      */
+  sunindextype length;    /* vector length              */
+  N_Vector U, V, X, Y, Z; /* test vectors               */
+  int print_timing;       /* turn timing on/off         */
+  int threadsPerBlock;    /* hip block size            */
+  hipStream_t stream;     /* hip stream                */
+  int memtype, policy;
 
   Test_Init(SUN_COMM_NULL);
 
   /* check input and set vector length */
-  if (argc < 4){
-    printf("ERROR: THREE (3) Inputs required: vector length, hip threads per block (0 for default), print timing \n");
+  if (argc < 4)
+  {
+    printf("ERROR: THREE (3) Inputs required: vector length, hip threads per "
+           "block (0 for default), print timing \n");
     Test_Abort(1);
   }
 
-  length = (sunindextype) atol(argv[1]);
-  if (length <= 0) {
+  length = (sunindextype)atol(argv[1]);
+  if (length <= 0)
+  {
     printf("ERROR: length of vector must be a positive integer\n");
     Test_Abort(1);
   }
 
-  threadsPerBlock = (int) atoi(argv[2]);
-  if (threadsPerBlock < 0 || threadsPerBlock % warpSize) {
-    printf("ERROR: hip threads per block must be 0 to use the default or a multiple of %d\n", warpSize);
+  threadsPerBlock = (int)atoi(argv[2]);
+  if (threadsPerBlock < 0 || threadsPerBlock % warpSize)
+  {
+    printf("ERROR: hip threads per block must be 0 to use the default or a "
+           "multiple of %d\n",
+           warpSize);
     Test_Abort(1);
   }
 
@@ -67,60 +84,77 @@ int main(int argc, char *argv[])
   SetTiming(print_timing, 0);
 
   /* test with all policy variants */
-  for (policy=DEFAULT_POL; policy<=LDS_REDUCTIONS; ++policy) {
+  for (policy = DEFAULT_POL; policy <= LDS_REDUCTIONS; ++policy)
+  {
     int actualThreadsPerBlock = threadsPerBlock ? threadsPerBlock : 512;
     SUNHipExecPolicy* stream_exec_policy = NULL;
     SUNHipExecPolicy* reduce_exec_policy = NULL;
     hipStreamCreate(&stream);
 
-    if (policy == DEFAULT_POL_W_STREAM) {
-      stream_exec_policy = new SUNHipThreadDirectExecPolicy(actualThreadsPerBlock, stream);
-      reduce_exec_policy = new SUNHipBlockReduceAtomicExecPolicy(actualThreadsPerBlock, 0, stream);
-    } else if (policy == GRID_STRIDE) {
-      stream_exec_policy = new SUNHipGridStrideExecPolicy(actualThreadsPerBlock, 1);
-      reduce_exec_policy = new SUNHipBlockReduceAtomicExecPolicy(actualThreadsPerBlock, 1);
-    } else if (policy == LDS_REDUCTIONS) {
+    if (policy == DEFAULT_POL_W_STREAM)
+    {
+      stream_exec_policy =
+        new SUNHipThreadDirectExecPolicy(actualThreadsPerBlock, stream);
+      reduce_exec_policy =
+        new SUNHipBlockReduceAtomicExecPolicy(actualThreadsPerBlock, 0, stream);
+    }
+    else if (policy == GRID_STRIDE)
+    {
+      stream_exec_policy = new SUNHipGridStrideExecPolicy(actualThreadsPerBlock,
+                                                          1);
+      reduce_exec_policy =
+        new SUNHipBlockReduceAtomicExecPolicy(actualThreadsPerBlock, 1);
+    }
+    else if (policy == LDS_REDUCTIONS)
+    {
       stream_exec_policy = new SUNHipThreadDirectExecPolicy(actualThreadsPerBlock);
       reduce_exec_policy = new SUNHipBlockReduceExecPolicy(actualThreadsPerBlock);
     }
 
     /* test with all memory variants */
-    for (memtype=UNMANAGED; memtype<=SUNMEMORY; ++memtype) {
+    for (memtype = UNMANAGED; memtype <= SUNMEMORY; ++memtype)
+    {
       SUNMemoryHelper mem_helper = NULL;
 
       printf("=====> Beginning setup\n\n");
 
-      if (memtype==UNMANAGED) {
+      if (memtype == UNMANAGED)
+      {
         printf("Testing HIP N_Vector, policy %d\n", policy);
-      } else if (memtype==MANAGED) {
+      }
+      else if (memtype == MANAGED)
+      {
         printf("Testing HIP N_Vector with managed memory, policy %d\n", policy);
-      } else if (memtype==SUNMEMORY) {
+      }
+      else if (memtype == SUNMEMORY)
+      {
         printf("Testing HIP N_Vector with SUNMemoryHelper, policy %d\n", policy);
         mem_helper = MyMemoryHelper(sunctx);
       }
-      printf("Vector length: %ld \n", (long int) length);
+      printf("Vector length: %ld \n", (long int)length);
 
       /* Create new vectors */
-      if (memtype == UNMANAGED)
-        X = N_VNew_Hip(length, sunctx);
-      else if (memtype == MANAGED)
-        X = N_VNewManaged_Hip(length, sunctx);
+      if (memtype == UNMANAGED) X = N_VNew_Hip(length, sunctx);
+      else if (memtype == MANAGED) X = N_VNewManaged_Hip(length, sunctx);
       else if (memtype == SUNMEMORY)
         X = N_VNewWithMemHelp_Hip(length, SUNFALSE, mem_helper, sunctx);
-      if (X == NULL) {
+      if (X == NULL)
+      {
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         printf("FAIL: Unable to create a new vector \n\n");
         Test_Abort(1);
       }
 
-      if (stream_exec_policy != NULL && reduce_exec_policy != NULL) {
-        if (N_VSetKernelExecPolicy_Hip(X, stream_exec_policy, reduce_exec_policy)) {
+      if (stream_exec_policy != NULL && reduce_exec_policy != NULL)
+      {
+        if (N_VSetKernelExecPolicy_Hip(X, stream_exec_policy, reduce_exec_policy))
+        {
           N_VDestroy(X);
           delete stream_exec_policy;
           delete reduce_exec_policy;
-          if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+          if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
           printf("FAIL: Unable to set kernel execution policy \n\n");
           Test_Abort(1);
         }
@@ -130,28 +164,32 @@ int main(int argc, char *argv[])
 
       /* Fill vector with uniform random data in [-1,1] */
       sunrealtype* xdata = N_VGetHostArrayPointer_Hip(X);
-      for (sunindextype j=0; j<length; j++)
-        xdata[j] = ((sunrealtype) rand() / (sunrealtype) RAND_MAX)*2-1;
+      for (sunindextype j = 0; j < length; j++)
+      {
+        xdata[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+      }
       N_VCopyToDevice_Hip(X);
 
       /* Clone additional vectors for testing */
       Y = N_VClone(X);
-      if (Y == NULL) {
+      if (Y == NULL)
+      {
         N_VDestroy(X);
         printf("FAIL: Unable to create a new vector \n\n");
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         Test_Abort(1);
       }
 
       Z = N_VClone(X);
-      if (Z == NULL) {
+      if (Z == NULL)
+      {
         N_VDestroy(X);
         N_VDestroy(Y);
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         printf("FAIL: Unable to create a new vector \n\n");
         Test_Abort(1);
       }
@@ -159,9 +197,10 @@ int main(int argc, char *argv[])
       /* Fill vectors with uniform random data in [-1,1] */
       sunrealtype* ydata = N_VGetHostArrayPointer_Hip(Y);
       sunrealtype* zdata = N_VGetHostArrayPointer_Hip(Z);
-      for (sunindextype j=0; j<length; j++) {
-        ydata[j] = ((sunrealtype) rand() / (sunrealtype) RAND_MAX)*2-1;
-        zdata[j] = ((sunrealtype) rand() / (sunrealtype) RAND_MAX)*2-1;
+      for (sunindextype j = 0; j < length; j++)
+      {
+        ydata[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+        zdata[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
       }
       N_VCopyToDevice_Hip(Y);
       N_VCopyToDevice_Hip(Z);
@@ -203,9 +242,9 @@ int main(int argc, char *argv[])
       fails += Test_N_VMin(X, length, 0);
       fails += Test_N_VWL2Norm(X, Y, length, 0);
       fails += Test_N_VL1Norm(X, length, 0);
-      if (length >= 3) fails += Test_N_VCompare(X, Z, length, 0);
+      if (length >= 3) { fails += Test_N_VCompare(X, Z, length, 0); }
       fails += Test_N_VInvTest(X, Z, length, 0);
-      if (length >= 7) fails += Test_N_VConstrMask(X, Y, Z, length, 0);
+      if (length >= 7) { fails += Test_N_VConstrMask(X, Y, Z, length, 0); }
       fails += Test_N_VMinQuotient(X, Y, length, 0);
 
       /* Fused and vector array operations tests (disabled) */
@@ -213,25 +252,27 @@ int main(int argc, char *argv[])
 
       /* create vector and disable all fused and vector array operations */
       U = N_VClone(X);
-      if (U == NULL) {
+      if (U == NULL)
+      {
         N_VDestroy(X);
         N_VDestroy(Y);
         N_VDestroy(Z);
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         printf("FAIL: Unable to create a new vector \n\n");
         Test_Abort(1);
       }
       retval = N_VEnableFusedOps_Hip(U, SUNFALSE);
-      if (retval != 0) {
+      if (retval != 0)
+      {
         N_VDestroy(X);
         N_VDestroy(Y);
         N_VDestroy(Z);
         N_VDestroy(U);
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         printf("FAIL: Unable to create a new vector \n\n");
         Test_Abort(1);
       }
@@ -254,20 +295,22 @@ int main(int argc, char *argv[])
       printf("\nTesting fused and vector array operations (enabled):\n\n");
 
       /* create vector and enable all fused and vector array operations */
-      V = N_VClone(X);
+      V      = N_VClone(X);
       retval = N_VEnableFusedOps_Hip(V, SUNTRUE);
-      if (V == NULL) {
+      if (V == NULL)
+      {
         N_VDestroy(X);
         N_VDestroy(Y);
         N_VDestroy(Z);
         N_VDestroy(U);
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         printf("FAIL: Unable to create a new vector \n\n");
         Test_Abort(1);
       }
-      if (retval != 0) {
+      if (retval != 0)
+      {
         N_VDestroy(X);
         N_VDestroy(Y);
         N_VDestroy(Z);
@@ -275,7 +318,7 @@ int main(int argc, char *argv[])
         N_VDestroy(V);
         delete stream_exec_policy;
         delete reduce_exec_policy;
-        if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
         printf("FAIL: Unable to create a new vector \n\n");
         Test_Abort(1);
       }
@@ -304,7 +347,7 @@ int main(int argc, char *argv[])
       fails += Test_N_VWSqrSumLocal(X, Y, length, 0);
       fails += Test_N_VWSqrSumMaskLocal(X, Y, Z, length, 0);
       fails += Test_N_VInvTestLocal(X, Z, length, 0);
-      if (length >= 7) fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0);
+      if (length >= 7) { fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0); }
       fails += Test_N_VMinQuotientLocal(X, Y, length, 0);
 
       /* local fused reduction operations */
@@ -327,7 +370,7 @@ int main(int argc, char *argv[])
       N_VDestroy(U);
       N_VDestroy(V);
 
-      if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+      if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
 
       /* Synchronize */
       hipDeviceSynchronize();
@@ -336,11 +379,11 @@ int main(int argc, char *argv[])
     }
 
     /* Print result */
-    if (fails) {
+    if (fails)
+    {
       printf("\n\nFAIL: NVector module failed %i tests \n\n", fails);
-    } else {
-      printf("\n\nSUCCESS: NVector module passed all tests \n\n");
     }
+    else { printf("\n\nSUCCESS: NVector module passed all tests \n\n"); }
 
     hipStreamDestroy(stream);
     delete stream_exec_policy;
@@ -350,7 +393,7 @@ int main(int argc, char *argv[])
   hipDeviceSynchronize();
   hipDeviceReset();
   Test_Finalize();
-  return(fails);
+  return (fails);
 }
 
 /* ----------------------------------------------------------------------
@@ -358,17 +401,20 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 int check_ans(sunrealtype ans, N_Vector X, sunindextype length)
 {
-  int          failure = 0;
+  int failure = 0;
   sunindextype i;
-  sunrealtype     *Xdata;
+  sunrealtype* Xdata;
 
   N_VCopyFromDevice_Hip(X);
   Xdata = N_VGetHostArrayPointer_Hip(X);
 
   /* check vector data */
-  for (i = 0; i < length; i++) {
-    if (failure += SUNRCompare(Xdata[i], ans)) {
-      printf("check_ans fail: Xdata[%ld] = %f, expected Xdata[%ld] = %f\n", (long int) i, Xdata[i], (long int) i, ans);
+  for (i = 0; i < length; i++)
+  {
+    if (failure += SUNRCompare(Xdata[i], ans))
+    {
+      printf("check_ans fail: Xdata[%ld] = %f, expected Xdata[%ld] = %f\n",
+             (long int)i, Xdata[i], (long int)i, ans);
     }
   }
 
@@ -380,7 +426,9 @@ sunbooleantype has_data(N_Vector X)
   /* check if vector data is non-null */
   if ((N_VGetHostArrayPointer_Hip(X) == NULL) &&
       (N_VGetDeviceArrayPointer_Hip(X) == NULL))
+  {
     return SUNFALSE;
+  }
   return SUNTRUE;
 }
 
@@ -394,12 +442,12 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
                        sunrealtype val)
 {
   sunindextype i;
-  sunrealtype*    xd;
+  sunrealtype* xd;
 
   /* set elements [is,ie] of the data array */
   N_VCopyFromDevice_Hip(X);
   xd = N_VGetHostArrayPointer_Hip(X);
-  for(i = is; i <= ie; i++) xd[i] = val;
+  for (i = is; i <= ie; i++) { xd[i] = val; }
   N_VCopyToDevice_Hip(X);
 }
 
@@ -413,7 +461,7 @@ sunrealtype get_element(N_Vector X, sunindextype i)
 double max_time(N_Vector X, double time)
 {
   /* not running in parallel, just return input time */
-  return(time);
+  return (time);
 }
 
 void sync_device(N_Vector x)

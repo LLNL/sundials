@@ -15,57 +15,63 @@
  * module implementation.
  * -----------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <sundials/sundials_types.h>
+#include <mpi.h>
 #include <nvector/nvector_mpiplusx.h>
 #include <nvector/nvector_serial.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sundials/sundials_math.h>
-#include "test_nvector.h"
+#include <sundials/sundials_types.h>
 
-#include <mpi.h>
+#include "test_nvector.h"
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  int          fails = 0;         /* counter for local test failures  */
-  int          globfails = 0;     /* counter for global test failures */
-  int          retval;            /* function return value            */
-  sunindextype loclen;            /* overall local vector length      */
-  sunindextype local_length;      /* overall local vector length      */
-  sunindextype global_length;     /* overall global vector length     */
-  N_Vector     Xlocal;            /* local vector                     */
-  N_Vector     U, V, W, X, Y, Z;  /* test vectors                     */
-  int          print_timing;      /* turn timing on/off               */
-  MPI_Comm     comm;              /* shared MPI Communicator          */
-  int          nprocs, myid;      /* Number of procs, proc id         */
+  int fails     = 0;          /* counter for local test failures  */
+  int globfails = 0;          /* counter for global test failures */
+  int retval;                 /* function return value            */
+  sunindextype loclen;        /* overall local vector length      */
+  sunindextype local_length;  /* overall local vector length      */
+  sunindextype global_length; /* overall global vector length     */
+  N_Vector Xlocal;            /* local vector                     */
+  N_Vector U, V, W, X, Y, Z;  /* test vectors                     */
+  int print_timing;           /* turn timing on/off               */
+  MPI_Comm comm;              /* shared MPI Communicator          */
+  int nprocs, myid;           /* Number of procs, proc id         */
 
   /* Get processor number and total number of processes */
   retval = MPI_Init(&argc, &argv);
-  if (retval != MPI_SUCCESS)  return(1);
+  if (retval != MPI_SUCCESS) { return (1); }
 
   comm = MPI_COMM_WORLD;
   Test_Init(comm);
 
   retval = MPI_Comm_size(comm, &nprocs);
-  if (retval != MPI_SUCCESS)  Test_AbortMPI(comm, -1);
+  if (retval != MPI_SUCCESS) { Test_AbortMPI(comm, -1); }
   retval = MPI_Comm_rank(comm, &myid);
-  if (retval != MPI_SUCCESS)  Test_AbortMPI(comm, -1);
+  if (retval != MPI_SUCCESS) { Test_AbortMPI(comm, -1); }
 
   /* check inputs */
-  if (argc < 3) {
+  if (argc < 3)
+  {
     if (myid == 0)
-      printf("ERROR: TWO (2) Inputs required: vector local length, print timing \n");
+    {
+      printf(
+        "ERROR: TWO (2) Inputs required: vector local length, print timing \n");
+    }
     Test_AbortMPI(comm, -1);
   }
 
-  local_length = (sunindextype) atol(argv[1]);
-  if (local_length < 1) {
+  local_length = (sunindextype)atol(argv[1]);
+  if (local_length < 1)
+  {
     if (myid == 0)
+    {
       printf("ERROR: local vector length must be a positive integer \n");
+    }
     Test_AbortMPI(comm, -1);
   }
 
@@ -73,64 +79,73 @@ int main(int argc, char *argv[])
   SetTiming(print_timing, myid);
 
   /* overall global length */
-  global_length = nprocs*local_length;
+  global_length = nprocs * local_length;
 
-  if (myid == 0) {
+  if (myid == 0)
+  {
     printf("Testing the MPIPlusX N_Vector with X being a serial N_Vector\n");
-    printf("Vector local length %ld\n", (long int) local_length);
-    printf("MPIPlusX vector global length %ld\n", (long int) global_length);
+    printf("Vector local length %ld\n", (long int)local_length);
+    printf("MPIPlusX vector global length %ld\n", (long int)global_length);
     printf("MPI processes %d\n", nprocs);
   }
 
   /* Create subvectors */
   Xlocal = N_VNew_Serial(local_length, sunctx);
-  if (Xlocal == NULL) {
+  if (Xlocal == NULL)
+  {
     printf("FAIL: Unable to create a new serial vector, Proc %d\n\n", myid);
     Test_AbortMPI(comm, 1);
   }
 
   /* Create a new MPIPlusX */
   X = N_VMake_MPIPlusX(comm, Xlocal, sunctx);
-  if (X == NULL) {
+  if (X == NULL)
+  {
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new MPIPlusX vector, Proc %d\n\n", myid);
     Test_AbortMPI(comm, 1);
   }
 
   /* Check vector ID */
-  if (Test_N_VGetVectorID(X, SUNDIALS_NVEC_MPIPLUSX, myid)) {
+  if (Test_N_VGetVectorID(X, SUNDIALS_NVEC_MPIPLUSX, myid))
+  {
     printf(">>> FAILED test -- N_VGetVectorID, Proc %d\n\n", myid);
     fails += 1;
   }
 
   /* Check vector length */
-  if (Test_N_VGetLength(X, myid)) {
+  if (Test_N_VGetLength(X, myid))
+  {
     printf(">>> FAILED test -- N_VGetLength, Proc %d\n\n", myid);
     fails += 1;
   }
 
   /* Check vector communicator */
-  if (Test_N_VGetCommunicatorMPI(X, comm, myid)) {
+  if (Test_N_VGetCommunicatorMPI(X, comm, myid))
+  {
     printf(">>> FAILED test -- N_VGetCommunicator, Proc %d\n\n", myid);
     fails += 1;
   }
 
   /* Test local vector accessors */
   U = N_VGetLocalVector_MPIPlusX(X);
-  if (N_VGetLength(U) != local_length) {
+  if (N_VGetLength(U) != local_length)
+  {
     printf(">>> FAILED test -- N_VGetLocalVector_MPIPlusX, Proc %d\n\n", myid);
     fails += 1;
   }
 
   loclen = N_VGetLocalLength_MPIPlusX(X);
-  if (N_VGetLength(U) != loclen) {
+  if (N_VGetLength(U) != loclen)
+  {
     printf(">>> FAILED test -- N_VGetLocalLength_MPIPlusX, Proc %d\n\n", myid);
     fails += 1;
   }
 
   /* Clone additional vectors for testing */
   W = N_VClone(X);
-  if (W == NULL) {
+  if (W == NULL)
+  {
     N_VDestroy(X);
     N_VDestroy(Xlocal);
     printf("FAIL: Unable to create a new vector, Proc %d\n\n", myid);
@@ -139,7 +154,8 @@ int main(int argc, char *argv[])
 
   /* Clone additional vectors for testing */
   Y = N_VClone(X);
-  if (Y == NULL) {
+  if (Y == NULL)
+  {
     N_VDestroy(W);
     N_VDestroy(X);
     N_VDestroy(Xlocal);
@@ -148,7 +164,8 @@ int main(int argc, char *argv[])
   }
 
   Z = N_VClone(X);
-  if (Z == NULL) {
+  if (Z == NULL)
+  {
     N_VDestroy(W);
     N_VDestroy(X);
     N_VDestroy(Y);
@@ -158,7 +175,7 @@ int main(int argc, char *argv[])
   }
 
   /* Standard vector operation tests */
-  if (myid == 0) printf("\nTesting standard vector operations:\n\n");
+  if (myid == 0) { printf("\nTesting standard vector operations:\n\n"); }
 
   fails += Test_N_VConst(X, local_length, myid);
   fails += Test_N_VLinearSum(X, Y, Z, local_length, myid);
@@ -181,12 +198,16 @@ int main(int argc, char *argv[])
   fails += Test_N_VMinQuotient(X, Y, local_length, myid);
 
   /* Fused and vector array operations tests (disabled) */
-  if (myid == 0) printf("\nTesting fused and vector array operations (disabled):\n\n");
+  if (myid == 0)
+  {
+    printf("\nTesting fused and vector array operations (disabled):\n\n");
+  }
 
   /* create vector and disable all fused and vector array operations */
-  U = N_VClone(X);
+  U      = N_VClone(X);
   retval = N_VEnableFusedOps_Serial(N_VGetLocalVector_MPIPlusX(U), SUNFALSE);
-  if (U == NULL || retval != 0) {
+  if (U == NULL || retval != 0)
+  {
     N_VDestroy(W);
     N_VDestroy(X);
     N_VDestroy(Y);
@@ -211,12 +232,16 @@ int main(int argc, char *argv[])
   fails += Test_N_VLinearCombinationVectorArray(U, local_length, myid);
 
   /* Fused and vector array operations tests (enabled) */
-  if (myid == 0) printf("\nTesting fused and vector array operations (enabled):\n\n");
+  if (myid == 0)
+  {
+    printf("\nTesting fused and vector array operations (enabled):\n\n");
+  }
 
   /* create vector and enable all fused and vector array operations */
-  V = N_VClone(X);
+  V      = N_VClone(X);
   retval = N_VEnableFusedOps_Serial(N_VGetLocalVector_MPIPlusX(V), SUNTRUE);
-  if (V == NULL || retval != 0) {
+  if (V == NULL || retval != 0)
+  {
     N_VDestroy(W);
     N_VDestroy(X);
     N_VDestroy(Y);
@@ -242,7 +267,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VLinearCombinationVectorArray(V, local_length, myid);
 
   /* local reduction operations */
-  if (myid == 0) printf("\nTesting local reduction operations:\n\n");
+  if (myid == 0) { printf("\nTesting local reduction operations:\n\n"); }
 
   fails += Test_N_VDotProdLocal(X, Y, local_length, myid);
   fails += Test_N_VMaxNormLocal(X, local_length, myid);
@@ -255,12 +280,12 @@ int main(int argc, char *argv[])
   fails += Test_N_VMinQuotientLocal(X, Y, local_length, myid);
 
   /* local fused reduction operations */
-  if (myid == 0) printf("\nTesting local fused reduction operations:\n\n");
+  if (myid == 0) { printf("\nTesting local fused reduction operations:\n\n"); }
   fails += Test_N_VDotProdMultiLocal(V, local_length, myid);
   fails += Test_N_VDotProdMultiAllReduce(V, local_length, myid);
 
   /* XBraid interface operations */
-  if (myid == 0) printf("\nTesting XBraid interface operations:\n\n");
+  if (myid == 0) { printf("\nTesting XBraid interface operations:\n\n"); }
 
   fails += Test_N_VBufSize(X, local_length, myid);
   fails += Test_N_VBufPack(X, local_length, myid);
@@ -276,19 +301,21 @@ int main(int argc, char *argv[])
   N_VDestroy(Xlocal);
 
   /* Print result */
-  if (fails) {
+  if (fails)
+  {
     printf("FAIL: NVector module failed %i tests, Proc %d \n\n", fails, myid);
-  } else {
-    if (myid == 0)
-      printf("SUCCESS: NVector module passed all tests \n\n");
+  }
+  else
+  {
+    if (myid == 0) { printf("SUCCESS: NVector module passed all tests \n\n"); }
   }
 
   /* check if any other process failed */
-  (void) MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
+  (void)MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
 
   MPI_Finalize();
 
-  return(globfails);
+  return (globfails);
 }
 
 /* ----------------------------------------------------------------------
@@ -296,20 +323,19 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
-  int          failure = 0;
+  int failure = 0;
   sunindextype i;
-  sunrealtype     *x0;
+  sunrealtype* x0;
   sunindextype x0len;
 
   x0len = N_VGetLocalLength_MPIPlusX(X);
-  x0 = N_VGetArrayPointer(X);
+  x0    = N_VGetArrayPointer(X);
 
   /* ensure that local_length = x0len + x1len */
-  if (local_length != x0len)
-    return(1);
+  if (local_length != x0len) { return (1); }
 
   /* check vector data */
-  for (i=0; i<x0len; i++)  failure += SUNRCompare(x0[i], ans);
+  for (i = 0; i < x0len; i++) { failure += SUNRCompare(x0[i], ans); }
 
   return (failure > ZERO) ? (1) : (0);
 }
@@ -322,7 +348,7 @@ sunbooleantype has_data(N_Vector X)
 
 void set_element(N_Vector X, sunindextype i, sunrealtype val)
 {
-  sunrealtype *data;
+  sunrealtype* data;
 
   data = N_VGetArrayPointer(X);
 
@@ -330,21 +356,22 @@ void set_element(N_Vector X, sunindextype i, sunrealtype val)
   data[i] = val;
 }
 
-void set_element_range(N_Vector X, sunindextype is, sunindextype ie, sunrealtype val)
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
+                       sunrealtype val)
 {
   sunindextype x0len, i;
-  sunrealtype *data;
+  sunrealtype* data;
 
-  data = N_VGetArrayPointer(X);
+  data  = N_VGetArrayPointer(X);
   x0len = N_VGetLocalLength_MPIPlusX(X);
 
   /* set i-th element of data array */
-  for (i=is; i<x0len; i++)  data[i] = val;
+  for (i = is; i < x0len; i++) { data[i] = val; }
 }
 
 sunrealtype get_element(N_Vector X, sunindextype i)
 {
-  sunrealtype *data;
+  sunrealtype* data;
 
   data = N_VGetArrayPointer(X);
 
@@ -359,8 +386,8 @@ double max_time(N_Vector X, double time)
 
   /* get max time across all MPI ranks */
   comm = N_VGetCommunicator(X);
-  (void) MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
-  return(maxt);
+  (void)MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
+  return (maxt);
 }
 
 void sync_device(N_Vector x)
