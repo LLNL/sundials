@@ -24,15 +24,16 @@
 #include "sundials_hashmap.h"
 #include "sundials_utils.h"
 
-#define SUNDIALS_LOGGING_ERROR 1
+#define SUNDIALS_LOGGING_ERROR   1
 #define SUNDIALS_LOGGING_WARNING 2
-#define SUNDIALS_LOGGING_INFO 3
-#define SUNDIALS_LOGGING_DEBUG 4
+#define SUNDIALS_LOGGING_INFO    3
+#define SUNDIALS_LOGGING_DEBUG   4
 #if SUNDIALS_LOGGING_LEVEL > SUNDIALS_LOGGING_DEBUG
 #define SUNDIALS_LOGGING_EXTRA_DEBUG
 #endif
 
-struct SUNLogger_ {
+struct SUNLogger_
+{
   /* MPI information */
   SUNComm comm;
   int output_rank;
@@ -54,7 +55,7 @@ struct SUNLogger_ {
 
   /* Overridable operations */
   SUNErrCode (*queuemsg)(SUNLogger logger, SUNLogLevel lvl, const char* scope,
-                  const char* label, const char* msg_txt, va_list args);
+                         const char* label, const char* msg_txt, va_list args);
   SUNErrCode (*flush)(SUNLogger logger, SUNLogLevel lvl);
   SUNErrCode (*destroy)(SUNLogger* logger);
 };

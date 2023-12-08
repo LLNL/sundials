@@ -23,41 +23,37 @@
 
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 /* KINBBDPRE return values */
 
-#define KINBBDPRE_SUCCESS          0
-#define KINBBDPRE_PDATA_NULL     -11
-#define KINBBDPRE_FUNC_UNRECVR   -12
+#define KINBBDPRE_SUCCESS      0
+#define KINBBDPRE_PDATA_NULL   -11
+#define KINBBDPRE_FUNC_UNRECVR -12
 
 /* User-supplied function Types */
 
-typedef int (*KINBBDCommFn)(sunindextype Nlocal, N_Vector u,
-                            void *user_data);
+typedef int (*KINBBDCommFn)(sunindextype Nlocal, N_Vector u, void* user_data);
 
-typedef int (*KINBBDLocalFn)(sunindextype Nlocal, N_Vector uu,
-                             N_Vector gval, void *user_data);
+typedef int (*KINBBDLocalFn)(sunindextype Nlocal, N_Vector uu, N_Vector gval,
+                             void* user_data);
 
 /* Exported Functions */
 
-SUNDIALS_EXPORT int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
+SUNDIALS_EXPORT int KINBBDPrecInit(void* kinmem, sunindextype Nlocal,
                                    sunindextype mudq, sunindextype mldq,
                                    sunindextype mukeep, sunindextype mlkeep,
-                                   sunrealtype dq_rel_uu,
-                                   KINBBDLocalFn gloc, KINBBDCommFn gcomm);
+                                   sunrealtype dq_rel_uu, KINBBDLocalFn gloc,
+                                   KINBBDCommFn gcomm);
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int KINBBDPrecGetWorkSpace(void *kinmem,
-                                           long int *lenrwBBDP,
-                                           long int *leniwBBDP);
+SUNDIALS_EXPORT int KINBBDPrecGetWorkSpace(void* kinmem, long int* lenrwBBDP,
+                                           long int* leniwBBDP);
 
-SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void *kinmem,
-                                             long int *ngevalsBBDP);
-
+SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void* kinmem, long int* ngevalsBBDP);
 
 #ifdef __cplusplus
 }
