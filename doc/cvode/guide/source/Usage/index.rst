@@ -870,41 +870,6 @@ Main solver optional input functions
    +-------------------------------+---------------------------------------------+----------------+
 
 
-.. c:function:: int CVodeSetErrFile(void* cvode_mem, FILE * errfp)
-
-   The function ``CVodeSetErrFile`` specifies a pointer to the file  where all CVODE messages should be directed when the default  CVODE error handler function is used.
-
-   **Arguments:**
-     * ``cvode_mem`` -- pointer to the CVODE memory block.
-     * ``errfp`` -- pointer to output file.
-
-   **Return value:**
-     * ``CV_SUCCESS`` -- The optional value has been successfully set.
-     * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
-
-   **Notes:**
-      The default value for ``errfp`` is ``stderr``.  Passing a value of ``NULL`` disables all future error message output  (except for the case in which the CVODE memory pointer is ``NULL``).  This use of ``CVodeSetErrFile`` is strongly discouraged.
-
-      .. warning::
-
-        If ``CVodeSetErrFile`` is to be called, it should be called before any  other optional input functions, in order to take effect for any later error message.
-
-.. c:function:: int CVodeSetErrHandlerFn(void* cvode_mem, CVErrHandlerFn ehfun, void * eh_data)
-
-   The function ``CVodeSetErrHandlerFn`` specifies the optional user-defined function  to be used in handling error messages.
-
-   **Arguments:**
-     * ``cvode_mem`` -- pointer to the CVODE memory block.
-     * ``ehfun`` -- is the C error handler function of type :c:type:`CVErrHandlerFn`.
-     * ``eh_data`` -- pointer to user data passed to ``ehfun`` every time it is called.
-
-   **Return value:**
-     * ``CV_SUCCESS`` -- The function ``ehfun`` and data pointer ``eh_data`` have been successfully set.
-     * ``CV_MEM_NULL`` -- The CVODE memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
-
-   **Notes:**
-      Error messages indicating that the CVODE solver memory is ``NULL`` will  always be directed to ``stderr``.
-
 .. c:function:: int CVodeSetUserData(void* cvode_mem, void * user_data)
 
    The function ``CVodeSetUserData`` specifies the user data block ``user_data``  and attaches it to the main CVODE memory block.
@@ -3340,35 +3305,6 @@ The user must provide a function of type defined as follows:
       The other is when a recoverable error is reported by ``CVRhsFn``
       after an error test failure, while the linear multistep method order is
       equal to 1 (in which case CVODE returns ``CV_UNREC_RHSFUNC_ERR``).
-
-
-.. _CVODE.Usage.CC.user_fct_sim.ehFn:
-
-Error message handler function
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-As an alternative to the default behavior of directing error and warning
-messages to the file pointed to by ``errfp`` (see :c:func:`CVodeSetErrFile`), the user may provide a
-function of type ``CVErrHandlerFn`` to process any such messages. The function type
-:c:type:`CVErrHandlerFn` is defined as follows:
-
-.. c:type:: void (*CVErrHandlerFn)(int error_code, const char *module, const char *function, char *msg, void *eh_data);
-
-   This function processes error and warning message from CVODE and it sub-modules.
-
-   **Arguments:**
-      * ``error_code`` is the error code.
-      * ``module`` is the name of the CVODE module reporting the error.
-      * ``function`` is the name of the function in which the error occurred.
-      * ``msg`` is the error message.
-      * ``eh_data`` is a pointer to user data, the same as the ``eh_data`` parameter passed to :c:func:`CVodeSetErrHandlerFn`.
-
-   **Return value:**
-      * void
-
-   **Notes:**
-      ``error_code`` is negative for errors and positive (``CV_WARNING``) for warnings.
-      If a function that returns a pointer to memory encounters an error, it sets ``error_code`` to 0.
 
 
 .. _CVODE.Usage.CC.user_fct_sim.monitorfn:

@@ -289,14 +289,8 @@ void* CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->cv_user_efun        = SUNFALSE;
   cv_mem->cv_efun             = NULL;
   cv_mem->cv_e_data           = NULL;
-  cv_mem->cv_ehfun            = cvErrHandler;
-  cv_mem->cv_eh_data          = cv_mem;
   cv_mem->cv_monitorfun       = NULL;
   cv_mem->cv_monitor_interval = 0;
-  cv_mem->cv_errfp            = stderr;
-#if SUNDIALS_LOGGING_LEVEL > 0
-  cv_mem->cv_errfp = (CV_LOGGER->error_fp) ? CV_LOGGER->error_fp : stderr;
-#endif
   cv_mem->cv_qmax           = maxord;
   cv_mem->cv_mxstep         = MXSTEP_DEFAULT;
   cv_mem->cv_mxhnil         = MXHNIL_DEFAULT;
@@ -4853,35 +4847,6 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
   /* Finalize argument processing */
   va_end(ap);
   free(msg);
-
-  return;
-}
-
-/*
- * cvErrHandler is the default error handling function.
- * It sends the error message to the stream pointed to by cv_errfp.
- */
-
-void cvErrHandler(int error_code, const char* module, const char* function,
-                  char* msg, void* data)
-{
-  CVodeMem cv_mem;
-  char err_type[10];
-
-  /* data points to cv_mem here */
-
-  cv_mem = (CVodeMem)data;
-
-  if (error_code == CV_WARNING) { sprintf(err_type, "WARNING"); }
-  else { sprintf(err_type, "ERROR"); }
-
-#ifndef NO_FPRINTF_OUTPUT
-  if (cv_mem->cv_errfp != NULL)
-  {
-    fprintf(cv_mem->cv_errfp, "\n[%s %s]  %s\n", module, err_type, function);
-    fprintf(cv_mem->cv_errfp, "  %s\n\n", msg);
-  }
-#endif
 
   return;
 }

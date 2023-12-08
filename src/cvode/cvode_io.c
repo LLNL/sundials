@@ -59,53 +59,6 @@ int CVodeSetDeltaGammaMaxLSetup(void* cvode_mem, sunrealtype dgmax_lsetup)
 }
 
 /*
- * CVodeSetErrHandlerFn
- *
- * Specifies the error handler function
- */
-
-int CVodeSetErrHandlerFn(void* cvode_mem, CVErrHandlerFn ehfun, void* eh_data)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem == NULL)
-  {
-    cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__, MSGCV_NO_MEM);
-    return (CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem)cvode_mem;
-
-  cv_mem->cv_ehfun   = ehfun;
-  cv_mem->cv_eh_data = eh_data;
-
-  return (CV_SUCCESS);
-}
-
-/*
- * CVodeSetErrFile
- *
- * Specifies the FILE pointer for output (NULL means no messages)
- */
-
-int CVodeSetErrFile(void* cvode_mem, FILE* errfp)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem == NULL)
-  {
-    cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__, MSGCV_NO_MEM);
-    return (CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem)cvode_mem;
-
-  cv_mem->cv_errfp = errfp;
-
-  return (CV_SUCCESS);
-}
-
-/*
  * CVodeSetUserData
  *
  * Specifies the user data pointer for f
