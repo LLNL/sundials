@@ -26,7 +26,6 @@ module test_nvector_mpiplusx
 
   integer(c_long), parameter :: N    = 100            ! overall manyvector length
   integer(c_int), target     :: comm = MPI_COMM_WORLD ! default MPI communicator
-  integer(c_int), pointer    :: commptr
   integer(c_int)             :: nprocs                ! number of MPI processes
 
 contains
@@ -165,12 +164,10 @@ program main
     stop 1
   endif
 
-  commptr => comm
-
   !============== Introduction =============
   if (myid == 0) print *, 'MPIPlusX N_Vector Fortran 2003 interface test'
 
-  call Test_Init(c_loc(commptr))
+  call Test_Init(comm)
 
   call MPI_Comm_size(comm, nprocs, fails)
   if (fails /= 0) then

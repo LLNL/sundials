@@ -20,8 +20,10 @@
 
 module fcvodes_mod
  use, intrinsic :: ISO_C_BINDING
+ use fsundials_types_mod
  use fsundials_nvector_mod
  use fsundials_context_mod
+ use fsundials_types_mod
  use fsundials_types_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
@@ -33,7 +35,6 @@ module fcvodes_mod
  use fsundials_context_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
- use fsundials_types_mod
  implicit none
  private
 
@@ -98,6 +99,7 @@ module fcvodes_mod
  integer(C_INT), parameter, public :: CV_PROJ_MEM_NULL = -56_C_INT
  integer(C_INT), parameter, public :: CV_PROJFUNC_FAIL = -57_C_INT
  integer(C_INT), parameter, public :: CV_REPTD_PROJFUNC_ERR = -58_C_INT
+ integer(C_INT), parameter, public :: CV_BAD_TINTERP = -59_C_INT
  integer(C_INT), parameter, public :: CV_UNRECOGNIZED_ERR = -99_C_INT
  integer(C_INT), parameter, public :: CV_NO_ADJ = -101_C_INT
  integer(C_INT), parameter, public :: CV_NO_FWD = -102_C_INT

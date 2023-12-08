@@ -10,7 +10,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Organization:
+.. _IDAS.Organization:
 
 *****************
 Code Organization

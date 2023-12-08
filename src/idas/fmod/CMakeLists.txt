@@ -19,8 +19,9 @@ set(idas_SOURCES fidas_mod.f90 fidas_mod.c)
 sundials_add_f2003_library(sundials_fidas_mod
   SOURCES
     ${idas_SOURCES}
+  LINK_LIBRARIES
+    PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-    sundials_fgeneric_mod_obj
     sundials_fnvecserial_mod_obj
     sundials_fsunmatrixband_mod_obj
     sundials_fsunmatrixdense_mod_obj

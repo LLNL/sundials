@@ -34,7 +34,7 @@ typedef struct
   sunrealtype dt;
 } ProgramArgs;
 
-void PrintHelp()
+void PrintHelp(void)
 {
   fprintf(stderr, "ark_harmonic_symplectic: an ARKODE example demonstrating "
                   "the SPRKStep time-stepping module solving a simple harmonic "

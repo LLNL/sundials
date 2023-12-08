@@ -204,17 +204,106 @@
 
 
 #include "sundials/sundials_context.h"
+#include "sundials/sundials_profiler.h"
+
+SWIGEXPORT int _wrap_FSUNContext_Create(int const *farg1, void *farg2) {
+  int fresult ;
+  SUNComm arg1 ;
+  SUNContext *arg2 = (SUNContext *) 0 ;
+  SUNErrCode result;
+  
+#if SUNDIALS_MPI_ENABLED
+  int flag = 0;
+  MPI_Initialized(&flag);
+  if(flag) {
+    arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
+  } else {
+    arg1 = SUN_COMM_NULL;
+  }
+#else
+  arg1 = *farg1;
+#endif
+  arg2 = (SUNContext *)(farg2);
+  result = (SUNErrCode)SUNContext_Create(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNContext_GetLastError(void *farg1) {
+  int fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNContext)(farg1);
+  result = (SUNErrCode)SUNContext_GetLastError(arg1);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNContext_PeekLastError(void *farg1) {
+  int fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNContext)(farg1);
+  result = (SUNErrCode)SUNContext_PeekLastError(arg1);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNContext_PushErrHandler(void *farg1, SUNErrHandlerFn farg2, void *farg3) {
+  int fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNErrHandlerFn arg2 = (SUNErrHandlerFn) 0 ;
+  void *arg3 = (void *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNContext)(farg1);
+  arg2 = (SUNErrHandlerFn)(farg2);
+  arg3 = (void *)(farg3);
+  result = (SUNErrCode)SUNContext_PushErrHandler(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNContext_PopErrHandler(void *farg1) {
+  int fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNContext)(farg1);
+  result = (SUNErrCode)SUNContext_PopErrHandler(arg1);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNContext_ClearErrHandlers(void *farg1) {
+  int fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNContext)(farg1);
+  result = (SUNErrCode)SUNContext_ClearErrHandlers(arg1);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
 
 SWIGEXPORT int _wrap_FSUNContext_GetProfiler(void *farg1, void *farg2) {
   int fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
   SUNProfiler *arg2 = (SUNProfiler *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNContext)(farg1);
   arg2 = (SUNProfiler *)(farg2);
-  result = (int)SUNContext_GetProfiler(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNContext_GetProfiler(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -222,13 +311,13 @@ SWIGEXPORT int _wrap_FSUNContext_GetProfiler(void *farg1, void *farg2) {
 SWIGEXPORT int _wrap_FSUNContext_SetProfiler(void *farg1, void *farg2) {
   int fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
-  SUNProfiler arg2 ;
-  int result;
+  SUNProfiler arg2 = (SUNProfiler) 0 ;
+  SUNErrCode result;
   
   arg1 = (SUNContext)(farg1);
   arg2 = (SUNProfiler)(farg2);
-  result = (int)SUNContext_SetProfiler(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNContext_SetProfiler(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -237,12 +326,12 @@ SWIGEXPORT int _wrap_FSUNContext_GetLogger(void *farg1, void *farg2) {
   int fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
   SUNLogger *arg2 = (SUNLogger *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNContext)(farg1);
   arg2 = (SUNLogger *)(farg2);
-  result = (int)SUNContext_GetLogger(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNContext_GetLogger(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -250,49 +339,27 @@ SWIGEXPORT int _wrap_FSUNContext_GetLogger(void *farg1, void *farg2) {
 SWIGEXPORT int _wrap_FSUNContext_SetLogger(void *farg1, void *farg2) {
   int fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
-  SUNLogger arg2 ;
-  int result;
+  SUNLogger arg2 = (SUNLogger) 0 ;
+  SUNErrCode result;
   
   arg1 = (SUNContext)(farg1);
   arg2 = (SUNLogger)(farg2);
-  result = (int)SUNContext_SetLogger(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNContext_SetLogger(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
-
 
 
 SWIGEXPORT int _wrap_FSUNContext_Free(void *farg1) {
   int fresult ;
   SUNContext *arg1 = (SUNContext *) 0 ;
-  int result;
-#ifdef SUNDIALS_BUILD_WITH_PROFILING
-  SUNProfiler profiler;
-#endif
-
+  SUNErrCode result;
+  
   arg1 = (SUNContext *)(farg1);
-#ifdef SUNDIALS_BUILD_WITH_PROFILING
-  result = (int)SUNContext_GetProfiler(*arg1,&profiler);
-  result = (int)SUNContext_Free(arg1);
-  result = (int)SUNProfiler_Free(&profiler);
-#else
-  result = (int)SUNContext_Free(arg1);
-#endif
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNContext_Free(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
-SWIGEXPORT int _wrap_FSUNContext_Create(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  SUNContext *arg2 = (SUNContext *) 0 ;
-  int result;
-
-  arg1 = (void *)(farg1);
-  arg2 = (SUNContext *)(farg2);
-  result = (int)SUNContext_Create(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
 
 

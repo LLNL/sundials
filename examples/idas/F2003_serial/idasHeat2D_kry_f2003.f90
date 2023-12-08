@@ -210,6 +210,7 @@ end module dae_mod
 
 program main
   use, intrinsic :: iso_c_binding
+  use fsundials_types_mod
   use fsundials_context_mod
   use fidas_mod                  ! Fortran interface to IDA
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
@@ -244,7 +245,7 @@ program main
   coeff = 1.d0/(dx * dx)
 
   ! Create the SUNDIALS simulation context
-  retval = FSUNContext_Create(c_null_ptr, sunctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
   if (retval /= 0) then
     print *, 'ERROR: FSUNContext_Create returned nonzero'
     stop 1

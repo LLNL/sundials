@@ -33,7 +33,6 @@ module test_nvector_openmp
 
     integer(c_long)         :: lenrw(1), leniw(1) ! real and int work space size
     integer(c_long)         :: ival               ! integer work value
-    type(c_ptr)             :: cptr               ! c_ptr work value
     real(c_double)          :: rval               ! real work value
     real(c_double)          :: xdata(N)           ! vector data array
     real(c_double), pointer :: xptr(:)            ! pointer to vector data array
@@ -70,7 +69,7 @@ module test_nvector_openmp
     call FN_VSpace_OpenMP(x, lenrw, leniw)
     xptr => FN_VGetArrayPointer_OpenMP(x)
     call FN_VSetArrayPointer_OpenMP(xdata, x)
-    cptr = FN_VGetCommunicator(x)
+    ival = FN_VGetCommunicator(x)
     ival = FN_VGetLength_OpenMP(x)
 
     ! test standard vector operations
@@ -191,7 +190,7 @@ program main
   !============== Introduction =============
   print *, 'OpenMP N_Vector Fortran 2003 interface test'
 
-  call Test_Init(c_null_ptr)
+  call Test_Init(SUN_COMM_NULL)
 
   fails = smoke_tests()
   if (fails /= 0) then

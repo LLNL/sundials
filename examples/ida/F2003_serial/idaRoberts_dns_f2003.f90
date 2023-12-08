@@ -250,6 +250,7 @@ program main
   use, intrinsic :: iso_c_binding
 
   use fida_mod                      ! Fortran interface to IDA
+  use fsundials_types_mod
   use fsundials_context_mod         ! Fortran interface to SUNContext
   use fnvector_serial_mod           ! Fortran interface to serial N_Vector
   use fsunmatrix_dense_mod          ! Fortran interface to dense SUNMatrix
@@ -282,7 +283,7 @@ program main
 
   !======= Internals ============
 
-  retval = FSUNContext_Create(c_null_ptr, sunctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
 
   ! initialize solution vectors and tolerances
   yval(1) = 1.d0

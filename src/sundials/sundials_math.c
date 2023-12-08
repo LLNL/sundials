@@ -16,34 +16,33 @@
  * library.
  * -----------------------------------------------------------------*/
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-
-#include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
 
 static long double sunNextafterl(long double from, long double to);
 
 static sunbooleantype sunIsInf(sunrealtype a)
 {
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
-  return(isinf(a));
+  return (isinf(a));
 #else
-  return(a < -SUN_BIG_REAL || a > SUN_BIG_REAL);
+  return (a < -SUN_BIG_REAL || a > SUN_BIG_REAL);
 #endif
 }
 
 static sunbooleantype sunIsNaN(sunrealtype a)
 {
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
-  return(isnan(a));
+  return (isnan(a));
 #else
   /* Most compilers/platforms follow NaN != a,
    * but since C89 does not require this, it is
    * possible some platforms might not follow it.
    */
-  return(a != a);
+  return (a != a);
 #endif
 }
 
@@ -54,31 +53,31 @@ sunrealtype SUNRpowerI(sunrealtype base, int exponent)
 
   prod = SUN_RCONST(1.0);
   expt = abs(exponent);
-  for(i = 1; i <= expt; i++) prod *= base;
-  if (exponent < 0) prod = SUN_RCONST(1.0)/prod;
-  return(prod);
+  for (i = 1; i <= expt; i++) { prod *= base; }
+  if (exponent < 0) { prod = SUN_RCONST(1.0) / prod; }
+  return (prod);
 }
 
 sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
 {
-  if (base <= SUN_RCONST(0.0)) return(SUN_RCONST(0.0));
+  if (base <= SUN_RCONST(0.0)) { return (SUN_RCONST(0.0)); }
 
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #if defined(SUNDIALS_DOUBLE_PRECISION)
-  return(pow(base, exponent));
+  return (pow(base, exponent));
 #elif defined(SUNDIALS_SINGLE_PRECISION)
-  return(powf(base, exponent));
+  return (powf(base, exponent));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-  return(powl(base, exponent));
+  return (powl(base, exponent));
 #endif
 #else
-  return((sunrealtype) pow((double) base, (double) exponent));
+  return ((sunrealtype)pow((double)base, (double)exponent));
 #endif
 }
 
 sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b)
 {
-  return(SUNRCompareTol(a, b, 10*SUN_UNIT_ROUNDOFF));
+  return (SUNRCompareTol(a, b, 10 * SUN_UNIT_ROUNDOFF));
 }
 
 sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
@@ -89,13 +88,13 @@ sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
   /* If a and b are exactly equal.
    * This also covers the case where a and b are both inf under IEEE 754.
    */
-  if (a == b) return(SUNFALSE);
+  if (a == b) { return (SUNFALSE); }
 
   /* If a or b are NaN */
-  if (sunIsNaN(a) || sunIsNaN(b)) return(SUNTRUE);
+  if (sunIsNaN(a) || sunIsNaN(b)) { return (SUNTRUE); }
 
   /* If one of a or b are Inf (since we handled both being inf above) */
-  if (sunIsInf(a) || sunIsInf(b)) return(SUNTRUE);
+  if (sunIsInf(a) || sunIsInf(b)) { return (SUNTRUE); }
 
   diff = SUNRabs(a - b);
   norm = SUNMIN(SUNRabs(a + b), SUN_BIG_REAL);
@@ -109,7 +108,7 @@ sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
    * is arbitrary, as is the choice to use
    * 10*SUN_UNIT_ROUNDOFF.
    */
-  return(diff >= SUNMAX(10*SUN_UNIT_ROUNDOFF, tol*norm));
+  return (diff >= SUNMAX(10 * SUN_UNIT_ROUNDOFF, tol * norm));
 }
 
 long double sunNextafterl(long double from, long double to)
@@ -117,7 +116,8 @@ long double sunNextafterl(long double from, long double to)
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
   return nextafterl(from, to);
 #else
-  union {
+  union
+  {
     long double f;
     int i;
   } u;
@@ -126,24 +126,23 @@ long double sunNextafterl(long double from, long double to)
   u.f = from;
 
   /* if either are NaN, then return NaN via the sum */
-  if (sunIsNaN((sunrealtype) from) || sunIsNaN((sunrealtype) to)) { return from + to; }
-
-  if (from == to) {
-    return to;
+  if (sunIsNaN((sunrealtype)from) || sunIsNaN((sunrealtype)to))
+  {
+    return from + to;
   }
+
+  if (from == to) { return to; }
 
   /* ordering is -0.0, +0.0 so nextafter(-0.0, 0.0) should give +0.0
      and nextafter(0.0, -0.0) should give -0.0 */
-  if (from == 0) {
+  if (from == 0)
+  {
     u.i = 1;
-    return  to > 0 ? u.f : -u.f;
+    return to > 0 ? u.f : -u.f;
   }
 
-  if ((from > 0) == (to > from)) {
-    u.i++;
-  } else {
-    u.i--;
-  }
+  if ((from > 0) == (to > from)) { u.i++; }
+  else { u.i--; }
 
   return u.f;
 #endif
@@ -160,14 +159,15 @@ sunrealtype SUNStrToReal(const char* str)
 #elif defined(SUNDIALS_SINGLE_PRECISION)
   return strtof(str, &end);
 #else
-#error "Should not be here, no SUNDIALS precision defined, report to github.com/LLNL/sundials/issues"
+#error \
+  "Should not be here, no SUNDIALS precision defined, report to github.com/LLNL/sundials/issues"
 #endif
 #else
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   /* Use strtod, but then round down to the closest double value
      since strtod will effectively round up to the closest long double. */
   double val = strtod(str, &end);
-  return (sunrealtype) sunNextafterl(val, -0.0);
+  return (sunrealtype)sunNextafterl(val, -0.0);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   return strtod(str, &end);
 #elif defined(SUNDIALS_SINGLE_PRECISION)

@@ -184,6 +184,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_types_mod
   use fsundials_context_mod         ! Fortran interface to SUNDIALS context
   use fcvodes_mod                   ! Fortran interface to CVODES
   use fnvector_serial_mod           ! Fortran interface to serial N_Vector
@@ -214,7 +215,7 @@ program main
   call ProcessArgs(sensi, sensi_meth, err_con)
 
   ! Create SUNDIALS simulation context
-  retval = FSUNContext_Create(c_null_ptr, ctx)
+  retval = FSUNContext_Create(SUN_COMM_NULL, ctx)
   if (retval /= 0) then
      print *, "Error: FSUNContext_Create returned ",retval
      stop 1

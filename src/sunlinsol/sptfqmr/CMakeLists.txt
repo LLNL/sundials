@@ -24,8 +24,9 @@ sundials_add_library(sundials_sunlinsolsptfqmr
     ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_sptfqmr.h
   INCLUDE_SUBDIR
     sunlinsol
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
   OUTPUT_NAME
     sundials_sunlinsolsptfqmr
   VERSION

@@ -13,9 +13,6 @@
 # ------------------------------------------------------------------------------
 # Test if POSIX timers are available and can be used (some compiler flags will
 # disable POSIX timers even if they are present e.g., -ansi).
-#
-# Note -D_POSIX_C_SOURCE=199309L is the minimum POSIX version needed for struct
-# timespec and clock_monotonic()
 # ------------------------------------------------------------------------------
 
 macro(posix_timers_test)
@@ -80,9 +77,9 @@ if (NOT SUNDIALS_POSIX_TIMERS)
     message(STATUS "Looking for POSIX timers... found")
   endif()
 
-  # Test failed, try again with -D_POSIX_C_SOURCE=199309L
+  # Test failed, try again with -D_POSIX_C_SOURCE=200112L
   if(NOT COMPILE_OK)
-    posix_timers_test(POSIX "_POSIX_C_SOURCE=199309L")
+    posix_timers_test(POSIX "_POSIX_C_SOURCE=200112L")
     if(COMPILE_OK)
       message(STATUS "Looking for POSIX timers (setting _POSIX_C_SOURCE)... found")
       set(POSIX_TIMERS_NEED_POSIX_C_SOURCE TRUE)
@@ -110,9 +107,9 @@ if (NOT SUNDIALS_POSIX_TIMERS)
 
   endif()
 
-  # Test failed, try again linking to rt and with -D_POSIX_C_SOURCE=199309L
+  # Test failed, try again linking to rt and with -D_POSIX_C_SOURCE=200112L
   if((NOT COMPILE_OK) AND SUNDIALS_RT_LIBRARY)
-    posix_timers_test(POSIX "_POSIX_C_SOURCE=199309L" RT_LIB "${SUNDIALS_RT_LIBRARY}")
+    posix_timers_test(POSIX "_POSIX_C_SOURCE=200112L" RT_LIB "${SUNDIALS_RT_LIBRARY}")
     if(COMPILE_OK)
       message(STATUS "Looking for POSIX timers (setting _POSIX_C_SOURCE and linking to rt)... found")
       set(POSIX_TIMERS_NEED_POSIX_C_SOURCE TRUE)

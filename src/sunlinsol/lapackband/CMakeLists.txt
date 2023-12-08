@@ -24,8 +24,9 @@ sundials_add_library(sundials_sunlinsollapackband
     ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_lapackband.h
   INCLUDE_SUBDIR
     sunlinsol
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
   LINK_LIBRARIES
     PUBLIC sundials_sunmatrixband "${LAPACK_LIBRARIES}"
   OUTPUT_NAME

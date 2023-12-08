@@ -24,8 +24,19 @@ module fsundials_types_mod
  private
 
  ! DECLARATION CONSTRUCTS
- integer(C_INT), parameter, public :: SUNFALSE = 0_C_INT
- integer(C_INT), parameter, public :: SUNTRUE = 1_C_INT
+
+#if SUNDIALS_MPI_ENABLED
+ include "mpif.h"
+ integer(C_INT), protected, public :: SUN_COMM_NULL = MPI_COMM_NULL
+#else
+ integer(C_INT), protected, public, &
+   bind(C, name="_wrap_SUN_COMM_NULL") :: SUN_COMM_NULL
+#endif
+
+ integer(C_INT), protected, public, &
+   bind(C, name="_wrap_SUNFALSE") :: SUNFALSE
+ integer(C_INT), protected, public, &
+   bind(C, name="_wrap_SUNTRUE") :: SUNTRUE
  ! typedef enum SUNOutputFormat
  enum, bind(c)
   enumerator :: SUN_OUTPUTFORMAT_TABLE

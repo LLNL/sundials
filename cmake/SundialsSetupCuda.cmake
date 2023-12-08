@@ -99,7 +99,7 @@ message(STATUS "CUDA Separable Compilation: ${CMAKE_CUDA_SEPARABLE_COMPILATION}"
 # Configure compiler for installed examples
 # ===============================================================
 
-if((SUNDIALS_BUILD_WITH_PROFILING OR SUNDIALS_LOGGING_ENABLE_MPI) AND ENABLE_MPI)
+if(ENABLE_MPI)
   set(_EXAMPLES_CUDA_HOST_COMPILER "${MPI_CXX_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
 else()
   set(_EXAMPLES_CUDA_HOST_COMPILER "${CMAKE_CUDA_HOST_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")

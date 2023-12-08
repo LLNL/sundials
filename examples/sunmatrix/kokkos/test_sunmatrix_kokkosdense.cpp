@@ -176,9 +176,9 @@ int main(int argc, char* argv[])
 KOKKOS_FUNCTION
 int CompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
 {
-  if (a == b) return 0;
-  if (std::isnan(a) || std::isnan(b)) return 1;
-  if (std::isinf(a) || std::isinf(b)) return 1;
+  if (a == b) { return 0; }
+  if (std::isnan(a) || std::isnan(b)) { return 1; }
+  if (std::isinf(a) || std::isinf(b)) { return 1; }
   sunrealtype diff = std::abs(a - b);
   sunrealtype norm = std::min(std::abs(a + b),
                               std::numeric_limits<sunrealtype>::max());
@@ -211,8 +211,8 @@ extern "C" int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
     },
     failure);
 
-  if (failure > ZERO) return 1;
-  else return 0;
+  if (failure > ZERO) { return 1; }
+  else { return 0; }
 }
 
 extern "C" int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol)
@@ -238,8 +238,8 @@ extern "C" int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol)
     },
     failure);
 
-  if (failure > ZERO) return 1;
-  else return 0;
+  if (failure > ZERO) { return 1; }
+  else { return 0; }
 }
 
 extern "C" int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
@@ -261,8 +261,8 @@ extern "C" int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
     },
     failure);
 
-  if (failure > ZERO) return 1;
-  else return 0;
+  if (failure > ZERO) { return 1; }
+  else { return 0; }
 }
 
 extern "C" sunbooleantype has_data(SUNMatrix A) { return SUNTRUE; }
@@ -274,8 +274,8 @@ extern "C" sunbooleantype is_square(SUNMatrix A)
   const auto matrows = A_mat->Rows();
   const auto matcols = A_mat->Cols();
 
-  if (matrows == matcols) return SUNTRUE;
-  else return SUNFALSE;
+  if (matrows == matcols) { return SUNTRUE; }
+  else { return SUNFALSE; }
 }
 
 extern "C" void sync_device(SUNMatrix A) { Kokkos::fence(); }

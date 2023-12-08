@@ -15,24 +15,27 @@
 # ---------------------------------------------------------------
 
 set(sundials_SOURCES
-  fsundials_futils_mod.f90
-  fsundials_futils_mod.c
-  fsundials_logger_mod.f90
-  fsundials_logger_mod.c
-  fsundials_linearsolver_mod.f90
-  fsundials_linearsolver_mod.c
-  fsundials_matrix_mod.f90
-  fsundials_matrix_mod.c
-  fsundials_nonlinearsolver_mod.f90
-  fsundials_nonlinearsolver_mod.c
-  fsundials_nvector_mod.f90
-  fsundials_nvector_mod.c
-  fsundials_types_mod.f90
-  fsundials_types_mod.c
-  fsundials_context_mod.f90
-  fsundials_context_mod.c
+  fsundials_adaptcontroller_mod.c
   fsundials_adaptcontroller_mod.f90
-  fsundials_adaptcontroller_mod.c)
+  fsundials_context_mod.c
+  fsundials_context_mod.f90
+  fsundials_errors_mod.c
+  fsundials_errors_mod.f90
+  fsundials_futils_mod.c
+  fsundials_futils_mod.f90
+  fsundials_linearsolver_mod.c
+  fsundials_linearsolver_mod.f90
+  fsundials_logger_mod.c
+  fsundials_logger_mod.f90
+  fsundials_matrix_mod.c
+  fsundials_matrix_mod.f90
+  fsundials_nonlinearsolver_mod.c
+  fsundials_nonlinearsolver_mod.f90
+  fsundials_nvector_mod.c
+  fsundials_nvector_mod.f90
+  fsundials_types_mod.c
+  fsundials_types_mod.f90
+  )
 
 if(SUNDIALS_BUILD_WITH_PROFILING)
   list(APPEND sundials_SOURCES
@@ -40,8 +43,9 @@ if(SUNDIALS_BUILD_WITH_PROFILING)
     fsundials_profiler_mod.c)
 endif()
 
-sundials_add_f2003_library(sundials_fgeneric_mod
+sundials_add_f2003_library(sundials_fcore_mod
   SOURCES
     ${sundials_SOURCES}
-  OBJECT_LIB_ONLY
+  LINK_LIBRARIES
+    PUBLIC sundials_core
 )

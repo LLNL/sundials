@@ -23,7 +23,7 @@
 #define SUNDIALS_CXX_MARK_FUNCTION(projobj) CALI_CXX_MARK_FUNCTION
 #elif defined(SUNDIALS_BUILD_WITH_PROFILING)
 #define SUNDIALS_CXX_MARK_FUNCTION(profobj) \
-  sundials::ProfilerMarkScope __ProfilerMarkScope(profobj, __func__)
+  sundials::ProfilerMarkScope ProfilerMarkScope__(profobj, __func__)
 #else
 #define SUNDIALS_CXX_MARK_FUNCTION(profobj)
 #endif

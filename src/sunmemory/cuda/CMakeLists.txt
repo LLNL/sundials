@@ -18,6 +18,8 @@ sundials_add_library(sundials_sunmemcuda
     sundials_cuda_memory.cu
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_cuda.h
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   INCLUDE_SUBDIR
     sunmemory
   OBJECT_LIB_ONLY

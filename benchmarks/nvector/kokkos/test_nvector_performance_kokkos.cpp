@@ -57,15 +57,15 @@ static Cache* cache;
 int main(int argc, char* argv[])
 {
   sundials::Context sunctx;
-  int flag;            /* return flag     */
+  int flag; /* return flag     */
 
   /* CLI args */
-  sunindextype veclen;     /* vector length   */
-  int print_timing;        /* output timings  */
-  int ntests;              /* number of tests */
-  int nvecs;               /* number of tests */
-  int nsums;               /* number of sums  */
-  size_t cachesize;        /* cache size      */
+  sunindextype veclen; /* vector length   */
+  int print_timing;    /* output timings  */
+  int ntests;          /* number of tests */
+  int nvecs;           /* number of tests */
+  int nsums;           /* number of sums  */
+  size_t cachesize;    /* cache size      */
 
   Kokkos::initialize(argc, argv);
   {
@@ -123,8 +123,8 @@ int main(int argc, char* argv[])
     VecType X{static_cast<SizeType>(veclen), sunctx};
 
     /* run tests */
-    if (print_timing) printf("\n\n standard operations:\n");
-    if (print_timing) PrintTableHeader(1);
+    if (print_timing) { printf("\n\n standard operations:\n"); }
+    if (print_timing) { PrintTableHeader(1); }
     flag = Test_N_VLinearSum(X, veclen, ntests);
     flag = Test_N_VConst(X, veclen, ntests);
     flag = Test_N_VProd(X, veclen, ntests);
@@ -147,8 +147,11 @@ int main(int argc, char* argv[])
 
     if (nvecs > 0)
     {
-      if (print_timing) printf("\n\n fused operations 1: nvecs= %d\n", nvecs);
-      if (print_timing) PrintTableHeader(2);
+      if (print_timing)
+      {
+        printf("\n\n fused operations 1: nvecs= %d\n", nvecs);
+      }
+      if (print_timing) { PrintTableHeader(2); }
       flag = Test_N_VLinearCombination(X, veclen, nvecs, ntests);
       flag = Test_N_VScaleAddMulti(X, veclen, nvecs, ntests);
       flag = Test_N_VDotProdMulti(X, veclen, nvecs, ntests);
@@ -161,8 +164,10 @@ int main(int argc, char* argv[])
       if (nsums > 0)
       {
         if (print_timing)
+        {
           printf("\n\n fused operations 2: nvecs= %d nsums= %d\n", nvecs, nsums);
-        if (print_timing) PrintTableHeader(2);
+        }
+        if (print_timing) { PrintTableHeader(2); }
         flag = Test_N_VScaleAddMultiVectorArray(X, veclen, nvecs, nsums, ntests);
         flag = Test_N_VLinearCombinationVectorArray(X, veclen, nvecs, nsums,
                                                     ntests);
@@ -235,8 +240,9 @@ int InitializeClearCache(size_t cachesize)
   cache = new Cache();
 
   // determine size of vector to clear cache, N = ceil(2 * nbytes/sunrealtype)
-  size_t nbytes = static_cast<size_t>(2 * cachesize * 1024 * 1024);
-  sunindextype N = static_cast<sunindextype>((nbytes + sizeof(sunrealtype) - 1) / sizeof(sunrealtype));
+  size_t nbytes  = static_cast<size_t>(2 * cachesize * 1024 * 1024);
+  sunindextype N = static_cast<sunindextype>(
+    (nbytes + sizeof(sunrealtype) - 1) / sizeof(sunrealtype));
 
   cache->device =
     Kokkos::View<sunrealtype*, ExecSpace::memory_space>("device cache", N);
@@ -248,7 +254,11 @@ int InitializeClearCache(size_t cachesize)
   return 0;
 }
 
-int FinalizeClearCache() { delete cache; return (0); }
+int FinalizeClearCache()
+{
+  delete cache;
+  return (0);
+}
 
 void ClearCache()
 {
@@ -257,7 +267,9 @@ void ClearCache()
     auto device_cache{cache->device};
     sunrealtype sum{0.0};
     Kokkos::parallel_reduce(
-      "ClearCache", Kokkos::RangePolicy<ExecSpace>(0, static_cast<SizeType>(device_cache.extent(0))),
+      "ClearCache",
+      Kokkos::RangePolicy<ExecSpace>(0, static_cast<SizeType>(
+                                          device_cache.extent(0))),
       KOKKOS_LAMBDA(const SizeType i, sunrealtype& accum) {
         accum += device_cache(i);
       },

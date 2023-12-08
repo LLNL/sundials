@@ -24,8 +24,9 @@ sundials_add_library(sundials_nvecserial
     ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_serial.h
   INCLUDE_SUBDIR
     nvector
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
   OUTPUT_NAME
     sundials_nvecserial
   VERSION

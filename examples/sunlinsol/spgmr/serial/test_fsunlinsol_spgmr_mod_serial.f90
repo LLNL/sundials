@@ -334,7 +334,7 @@ program main
   print *, 'SPGMR SUNLinearSolver Fortran 2003 interface test'
   print *, ''
 
-  call Test_Init(c_null_ptr)
+  call Test_Init(SUN_COMM_NULL)
 
   fails = unit_tests()
   if (fails /= 0) then

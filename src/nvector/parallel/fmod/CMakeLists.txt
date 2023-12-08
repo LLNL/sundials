@@ -35,8 +35,9 @@ endif()
 sundials_add_f2003_library(sundials_fnvecparallel_mod
   SOURCES
     fnvector_parallel_mod.f90 fnvector_parallel_mod.c
+  LINK_LIBRARIES
+    PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-    sundials_fgeneric_mod_obj
   OUTPUT_NAME
     sundials_fnvecparallel_mod
   VERSION

@@ -15,24 +15,23 @@
  * SUNAdaptController module.
  * -----------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "arkode_user_controller.h"
 
+#include <stdio.h>
+#include <stdlib.h>
 
 /* ---------------
  * Macro accessors
  * --------------- */
 
-#define SC_CONTENT(C)     ( (ARKUserControlContent)(C->content) )
-#define SC_HP(C)          ( SC_CONTENT(C)->hp )
-#define SC_HPP(C)         ( SC_CONTENT(C)->hpp )
-#define SC_EP(C)          ( SC_CONTENT(C)->ep )
-#define SC_EPP(C)         ( SC_CONTENT(C)->epp )
-#define SC_ARKMEM(C)      ( SC_CONTENT(C)->ark_mem )
-#define SC_HADAPT(C)      ( SC_CONTENT(C)->hadapt )
-#define SC_DATA(C)        ( SC_CONTENT(C)->hadapt_data )
-
+#define SC_CONTENT(C) ((ARKUserControlContent)(C->content))
+#define SC_HP(C)      (SC_CONTENT(C)->hp)
+#define SC_HPP(C)     (SC_CONTENT(C)->hpp)
+#define SC_EP(C)      (SC_CONTENT(C)->ep)
+#define SC_EPP(C)     (SC_CONTENT(C)->epp)
+#define SC_ARKMEM(C)  (SC_CONTENT(C)->ark_mem)
+#define SC_HADAPT(C)  (SC_CONTENT(C)->hadapt)
+#define SC_DATA(C)    (SC_CONTENT(C)->hadapt_data)
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -49,7 +48,10 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
   ARKUserControlContent content;
 
   /* Return with failure if hadapt, arkode_mem, or context are NULL */
-  if ((hadapt == NULL) || (arkode_mem == NULL) || (sunctx == NULL)) { return (NULL); }
+  if ((hadapt == NULL) || (arkode_mem == NULL) || (sunctx == NULL))
+  {
+    return (NULL);
+  }
 
   /* Create an empty controller object */
   C = NULL;
@@ -69,7 +71,7 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
   content = (ARKUserControlContent)malloc(sizeof *content);
   if (content == NULL)
   {
-    (void) SUNAdaptController_Destroy(C);
+    (void)SUNAdaptController_Destroy(C);
     return (NULL);
   }
 
@@ -77,10 +79,10 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
   C->content = content;
 
   /* Attach ARKODE memory structure */
-  content->ark_mem = (ARKodeMem) arkode_mem;
+  content->ark_mem = (ARKodeMem)arkode_mem;
 
   /* Attach user-provided adaptivity function and data */
-  content->hadapt = hadapt;
+  content->hadapt      = hadapt;
   content->hadapt_data = hadapt_data;
 
   /* Fill content with default/reset values */
@@ -89,24 +91,31 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
   return (C);
 }
 
-
 /* -----------------------------------------------------------------
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNAdaptController_Type SUNAdaptController_GetType_ARKUserControl(SUNAdaptController C)
-{ return SUN_ADAPTCONTROLLER_H; }
+SUNAdaptController_Type SUNAdaptController_GetType_ARKUserControl(
+  SUNAdaptController C)
+{
+  return SUN_ADAPTCONTROLLER_H;
+}
 
-int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C, sunrealtype h,
-                                                   int p, sunrealtype dsm, sunrealtype* hnew)
+int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C,
+                                                   sunrealtype h, int p,
+                                                   sunrealtype dsm,
+                                                   sunrealtype* hnew)
 {
   /* call user-provided function to compute new step */
-  sunrealtype ttmp = (dsm <= ONE) ? SC_ARKMEM(C)->tn + SC_ARKMEM(C)->h : SC_ARKMEM(C)->tn;
-  int retval = SC_HADAPT(C)(SC_ARKMEM(C)->ycur, ttmp, h, SC_HP(C),
-                            SC_HPP(C), dsm, SC_EP(C), SC_EPP(C),
-                            SC_ARKMEM(C)->hadapt_mem->q, SC_ARKMEM(C)->hadapt_mem->p,
-                            hnew, SC_DATA(C));
-  if (retval != SUNADAPTCONTROLLER_SUCCESS) { return(SUNADAPTCONTROLLER_USER_FCN_FAIL); }
+  sunrealtype ttmp = (dsm <= ONE) ? SC_ARKMEM(C)->tn + SC_ARKMEM(C)->h
+                                  : SC_ARKMEM(C)->tn;
+  int retval = SC_HADAPT(C)(SC_ARKMEM(C)->ycur, ttmp, h, SC_HP(C), SC_HPP(C),
+                            dsm, SC_EP(C), SC_EPP(C), SC_ARKMEM(C)->hadapt_mem->q,
+                            SC_ARKMEM(C)->hadapt_mem->p, hnew, SC_DATA(C));
+  if (retval != SUNADAPTCONTROLLER_SUCCESS)
+  {
+    return (SUNADAPTCONTROLLER_USER_FCN_FAIL);
+  }
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
@@ -119,7 +128,7 @@ int SUNAdaptController_Reset_ARKUserControl(SUNAdaptController C)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE *fptr)
+int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE* fptr)
 {
   fprintf(fptr, "ARKUserControl module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -137,17 +146,18 @@ int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE *fptr)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
+int SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C,
+                                              sunrealtype h, sunrealtype dsm)
 {
   SC_HPP(C) = SC_HP(C);
-  SC_HP(C) = h;
+  SC_HP(C)  = h;
   SC_EPP(C) = SC_EP(C);
-  SC_EP(C) = dsm;
+  SC_EP(C)  = dsm;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_Space_ARKUserControl(SUNAdaptController C, long int* lenrw,
-                                            long int* leniw)
+int SUNAdaptController_Space_ARKUserControl(SUNAdaptController C,
+                                            long int* lenrw, long int* leniw)
 {
   *lenrw = 4;
   *leniw = 2;

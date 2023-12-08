@@ -20,8 +20,10 @@
 
 module farkode_mod
  use, intrinsic :: ISO_C_BINDING
+ use fsundials_types_mod
  use fsundials_nvector_mod
  use fsundials_context_mod
+ use fsundials_types_mod
  use fsundials_types_mod
  use fsundials_matrix_mod
  use fsundials_nvector_mod
@@ -34,7 +36,6 @@ module farkode_mod
  use fsundials_types_mod
  use fsundials_nonlinearsolver_mod
  use fsundials_adaptcontroller_mod
- use fsundials_types_mod
  implicit none
  private
 
