@@ -8755,7 +8755,7 @@ void IDAProcessError(IDAMem IDA_mem, int error_code, int line, const char* func,
                      const char* file, const char* msgfmt, ...)
 {
   /* Initialize the argument pointer variable
-     (msgfmt is the last required argument to cvProcessError) */
+     (msgfmt is the last required argument to IDAProcessError) */
   va_list ap;
   va_start(ap, msgfmt);
 
