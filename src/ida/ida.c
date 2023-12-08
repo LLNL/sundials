@@ -306,12 +306,6 @@ void* IDACreate(SUNContext sunctx)
   IDA_mem->ida_user_efun = SUNFALSE;
   IDA_mem->ida_efun      = NULL;
   IDA_mem->ida_edata     = NULL;
-  IDA_mem->ida_ehfun     = IDAErrHandler;
-  IDA_mem->ida_eh_data   = IDA_mem;
-  IDA_mem->ida_errfp     = stderr;
-#if SUNDIALS_LOGGING_LEVEL > 0
-  IDA_mem->ida_errfp = (IDA_LOGGER->error_fp) ? IDA_LOGGER->error_fp : stderr;
-#endif
   IDA_mem->ida_maxord         = MAXORD_DEFAULT;
   IDA_mem->ida_mxstep         = MXSTEP_DEFAULT;
   IDA_mem->ida_hmax_inv       = HMAX_INV_DEFAULT;

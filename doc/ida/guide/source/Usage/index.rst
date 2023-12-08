@@ -942,53 +942,6 @@ Main solver optional input functions
    +--------------------------------------------------------------------+---------------------------------+----------------+
 
 
-.. c:function:: int IDASetErrFile(void * ida_mem, FILE * errfp)
-
-   The function ``IDASetErrFile`` specifies the file pointer where all IDA
-   messages should be directed when using the default IDA error handler
-   function.
-
-   **Arguments:**
-      * ``ida_mem`` -- pointer to the IDA solver object.
-      * ``errfp`` -- pointer to output file.
-
-   **Return value:**
-      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
-      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
-
-   **Notes:**
-      The default value for ``errfp`` is ``stderr``.  Passing a value ``NULL``
-      disables all future error message output (except for the case in which the
-      IDA memory pointer is ``NULL``).  This use of :c:func:`IDASetErrFile` is
-      strongly discouraged.
-
-   .. warning::
-
-      If :c:func:`IDASetErrFile` is to be called, it should be called before any
-      other optional input functions, in order to take effect for any later
-      error message.
-
-.. c:function:: int IDASetErrHandlerFn(void * ida_mem, IDAErrHandlerFn ehfun, void * eh_data)
-
-   The function ``IDASetErrHandlerFn`` specifies the optional user-defined
-   function to be used in handling error messages.
-
-   **Arguments:**
-      * ``ida_mem`` -- pointer to the IDA solver object.
-      * ``ehfun`` -- is the user's error handler function. See
-        :c:type:`IDAErrHandlerFn` for more details.
-      * ``eh_data`` -- pointer to user data passed to ``ehfun`` every time it is
-        called.
-
-   **Return value:**
-      * ``IDA_SUCCESS`` -- The function ``ehfun`` and data pointer ``eh_data`` have
-        been successfully set.
-      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
-
-   **Notes:**
-      Error messages indicating that the IDA solver memory is ``NULL`` will always
-      be directed to ``stderr``.
-
 .. c:function:: int IDASetUserData(void * ida_mem, void * user_data)
 
    The function ``IDASetUserData`` attaches a user-defined data pointer to the
