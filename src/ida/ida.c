@@ -4015,30 +4015,3 @@ void IDAProcessError(IDAMem IDA_mem, int error_code, int line, const char* func,
 
   return;
 }
-
-/* IDAErrHandler is the default error handling function.
-   It sends the error message to the stream pointed to by ida_errfp */
-
-void IDAErrHandler(int error_code, const char* module, const char* function,
-                   char* msg, void* data)
-{
-  IDAMem IDA_mem;
-  char err_type[10];
-
-  /* data points to IDA_mem here */
-
-  IDA_mem = (IDAMem)data;
-
-  if (error_code == IDA_WARNING) { sprintf(err_type, "WARNING"); }
-  else { sprintf(err_type, "ERROR"); }
-
-#ifndef NO_FPRINTF_OUTPUT
-  if (IDA_mem->ida_errfp != NULL)
-  {
-    fprintf(IDA_mem->ida_errfp, "\n[%s %s]  %s\n", module, err_type, function);
-    fprintf(IDA_mem->ida_errfp, "  %s\n\n", msg);
-  }
-#endif
-
-  return;
-}
