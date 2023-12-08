@@ -29,25 +29,25 @@
 #define _SUNLINSOL_SPGMR_H
 
 #include <stdio.h>
-
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 /* Default SPGMR solver parameters */
-#define SUNSPGMR_MAXL_DEFAULT    5
-#define SUNSPGMR_MAXRS_DEFAULT   0
-#define SUNSPGMR_GSTYPE_DEFAULT  SUN_MODIFIED_GS
+#define SUNSPGMR_MAXL_DEFAULT   5
+#define SUNSPGMR_MAXRS_DEFAULT  0
+#define SUNSPGMR_GSTYPE_DEFAULT SUN_MODIFIED_GS
 
 /* ----------------------------------------
  * SPGMR Implementation of SUNLinearSolver
  * ---------------------------------------- */
 
-struct _SUNLinearSolverContent_SPGMR {
+struct _SUNLinearSolverContent_SPGMR
+{
   int maxl;
   int pretype;
   int gstype;
@@ -65,37 +65,31 @@ struct _SUNLinearSolverContent_SPGMR {
 
   N_Vector s1;
   N_Vector s2;
-  N_Vector *V;
-  sunrealtype **Hes;
-  sunrealtype *givens;
+  N_Vector* V;
+  sunrealtype** Hes;
+  sunrealtype* givens;
   N_Vector xcor;
-  sunrealtype *yg;
+  sunrealtype* yg;
   N_Vector vtemp;
 
-  sunrealtype *cv;
-  N_Vector *Xv;
+  sunrealtype* cv;
+  N_Vector* Xv;
 
   int print_level;
   FILE* info_file;
 };
 
-typedef struct _SUNLinearSolverContent_SPGMR *SUNLinearSolverContent_SPGMR;
-
+typedef struct _SUNLinearSolverContent_SPGMR* SUNLinearSolverContent_SPGMR;
 
 /* ---------------------------------------
  * Exported Functions for SUNLINSOL_SPGMR
  * --------------------------------------- */
 
-SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPGMR(N_Vector y,
-                                                int pretype,
-                                                int maxl,
-                                                SUNContext sunctx);
-SUNDIALS_EXPORT int SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S,
-                                               int pretype);
-SUNDIALS_EXPORT int SUNLinSol_SPGMRSetGSType(SUNLinearSolver S,
-                                             int gstype);
-SUNDIALS_EXPORT int SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S,
-                                                  int maxrs);
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype,
+                                                int maxl, SUNContext sunctx);
+SUNDIALS_EXPORT int SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S, int pretype);
+SUNDIALS_EXPORT int SUNLinSol_SPGMRSetGSType(SUNLinearSolver S, int gstype);
+SUNDIALS_EXPORT int SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SPGMR(SUNLinearSolver S);
@@ -106,8 +100,7 @@ SUNDIALS_EXPORT int SUNLinSolSetPreconditioner_SPGMR(SUNLinearSolver S,
                                                      SUNPSetupFn Pset,
                                                      SUNPSolveFn Psol);
 SUNDIALS_EXPORT int SUNLinSolSetScalingVectors_SPGMR(SUNLinearSolver S,
-                                                     N_Vector s1,
-                                                     N_Vector s2);
+                                                     N_Vector s1, N_Vector s2);
 SUNDIALS_EXPORT int SUNLinSolSetZeroGuess_SPGMR(SUNLinearSolver S,
                                                 sunbooleantype onff);
 SUNDIALS_EXPORT int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A);
@@ -117,9 +110,8 @@ SUNDIALS_EXPORT int SUNLinSolNumIters_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT sunrealtype SUNLinSolResNorm_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT N_Vector SUNLinSolResid_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SPGMR(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSpace_SPGMR(SUNLinearSolver S,
-                                         long int *lenrwLS,
-                                         long int *leniwLS);
+SUNDIALS_EXPORT int SUNLinSolSpace_SPGMR(SUNLinearSolver S, long int* lenrwLS,
+                                         long int* leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_SPGMR(SUNLinearSolver S);
 
 #ifdef __cplusplus

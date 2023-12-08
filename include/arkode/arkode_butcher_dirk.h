@@ -19,14 +19,15 @@
 
 #include <arkode/arkode_butcher.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-typedef enum {
-  ARKODE_DIRK_NONE = -1, /* ensure enum is signed int */
+typedef enum
+{
+  ARKODE_DIRK_NONE    = -1, /* ensure enum is signed int */
   ARKODE_MIN_DIRK_NUM = 100,
-  ARKODE_SDIRK_2_1_2 = ARKODE_MIN_DIRK_NUM,
+  ARKODE_SDIRK_2_1_2  = ARKODE_MIN_DIRK_NUM,
   ARKODE_BILLINGTON_3_3_2,
   ARKODE_TRBDF2_3_3_2,
   ARKODE_KVAERNO_4_2_3,
@@ -54,10 +55,12 @@ typedef enum {
 } ARKODE_DIRKTableID;
 
 /* Accessor routine to load built-in DIRK table */
-SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod);
+SUNDIALS_EXPORT ARKodeButcherTable
+ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod);
 
 /* Accessor routine to load built-in DIRK table */
-SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadDIRKByName(const char *imethod);
+SUNDIALS_EXPORT ARKodeButcherTable
+ARKodeButcherTable_LoadDIRKByName(const char* imethod);
 
 #ifdef __cplusplus
 }

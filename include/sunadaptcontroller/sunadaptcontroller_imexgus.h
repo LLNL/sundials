@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <sundials/sundials_adaptcontroller.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -28,8 +28,9 @@ extern "C" {
  * ImEx Gustafsson implementation of SUNAdaptController
  * ---------------------------------------------------- */
 
-struct _SUNAdaptControllerContent_ImExGus {
-  sunrealtype k1i;          /* internal controller parameters */
+struct _SUNAdaptControllerContent_ImExGus
+{
+  sunrealtype k1i; /* internal controller parameters */
   sunrealtype k2i;
   sunrealtype k1e;
   sunrealtype k2e;
@@ -39,7 +40,7 @@ struct _SUNAdaptControllerContent_ImExGus {
   sunbooleantype firststep; /* flag indicating first step */
 };
 
-typedef struct _SUNAdaptControllerContent_ImExGus *SUNAdaptControllerContent_ImExGus;
+typedef struct _SUNAdaptControllerContent_ImExGus* SUNAdaptControllerContent_ImExGus;
 
 /* ------------------
  * Exported Functions
@@ -48,14 +49,15 @@ typedef struct _SUNAdaptControllerContent_ImExGus *SUNAdaptControllerContent_ImE
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx);
 SUNDIALS_EXPORT
-int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C,
-                                         sunrealtype k1e, sunrealtype k2e,
-                                         sunrealtype k1i, sunrealtype k2i);
+int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, sunrealtype k1e,
+                                         sunrealtype k2e, sunrealtype k1i,
+                                         sunrealtype k2i);
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_ImExGus(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C, sunrealtype h,
-                                            int p, sunrealtype dsm, sunrealtype* hnew);
+                                            int p, sunrealtype dsm,
+                                            sunrealtype* hnew);
 SUNDIALS_EXPORT
 int SUNAdaptController_Reset_ImExGus(SUNAdaptController C);
 SUNDIALS_EXPORT
@@ -63,15 +65,17 @@ int SUNAdaptController_SetDefaults_ImExGus(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController C, sunrealtype bias);
+int SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController C,
+                                            sunrealtype bias);
 SUNDIALS_EXPORT
-int SUNAdaptController_UpdateH_ImExGus(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+int SUNAdaptController_UpdateH_ImExGus(SUNAdaptController C, sunrealtype h,
+                                       sunrealtype dsm);
 SUNDIALS_EXPORT
-int SUNAdaptController_Space_ImExGus(SUNAdaptController C, long int *lenrw,
-                                     long int *leniw);
+int SUNAdaptController_Space_ImExGus(SUNAdaptController C, long int* lenrw,
+                                     long int* leniw);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* _SUNADAPTCONTROLLER_IMEXGUS_H */
+#endif /* _SUNADAPTCONTROLLER_IMEXGUS_H */
