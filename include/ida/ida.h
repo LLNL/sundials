@@ -127,19 +127,19 @@ SUNDIALS_EXPORT int IDASetStepToleranceIC(void* ida_mem, sunrealtype steptol);
 SUNDIALS_EXPORT int IDASetMaxBacksIC(void* ida_mem, int maxbacks);
 
 /* Optional input functions */
-SUNDIALS_EXPORT int IDASetDeltaCjLSetup(void *ida_max, sunrealtype dcj);
-SUNDIALS_EXPORT int IDASetUserData(void *ida_mem, void *user_data);
-SUNDIALS_EXPORT int IDASetMaxOrd(void *ida_mem, int maxord);
-SUNDIALS_EXPORT int IDASetMaxNumSteps(void *ida_mem, long int mxsteps);
-SUNDIALS_EXPORT int IDASetInitStep(void *ida_mem, sunrealtype hin);
-SUNDIALS_EXPORT int IDASetMaxStep(void *ida_mem, sunrealtype hmax);
-SUNDIALS_EXPORT int IDASetMinStep(void *ida_mem, sunrealtype hmin);
-SUNDIALS_EXPORT int IDASetStopTime(void *ida_mem, sunrealtype tstop);
-SUNDIALS_EXPORT int IDAClearStopTime(void *ida_mem);
-SUNDIALS_EXPORT int IDASetMaxErrTestFails(void *ida_mem, int maxnef);
-SUNDIALS_EXPORT int IDASetSuppressAlg(void *ida_mem, sunbooleantype suppressalg);
-SUNDIALS_EXPORT int IDASetId(void *ida_mem, N_Vector id);
-SUNDIALS_EXPORT int IDASetConstraints(void *ida_mem, N_Vector constraints);
+SUNDIALS_EXPORT int IDASetDeltaCjLSetup(void* ida_max, sunrealtype dcj);
+SUNDIALS_EXPORT int IDASetUserData(void* ida_mem, void* user_data);
+SUNDIALS_EXPORT int IDASetMaxOrd(void* ida_mem, int maxord);
+SUNDIALS_EXPORT int IDASetMaxNumSteps(void* ida_mem, long int mxsteps);
+SUNDIALS_EXPORT int IDASetInitStep(void* ida_mem, sunrealtype hin);
+SUNDIALS_EXPORT int IDASetMaxStep(void* ida_mem, sunrealtype hmax);
+SUNDIALS_EXPORT int IDASetMinStep(void* ida_mem, sunrealtype hmin);
+SUNDIALS_EXPORT int IDASetStopTime(void* ida_mem, sunrealtype tstop);
+SUNDIALS_EXPORT int IDAClearStopTime(void* ida_mem);
+SUNDIALS_EXPORT int IDASetMaxErrTestFails(void* ida_mem, int maxnef);
+SUNDIALS_EXPORT int IDASetSuppressAlg(void* ida_mem, sunbooleantype suppressalg);
+SUNDIALS_EXPORT int IDASetId(void* ida_mem, N_Vector id);
+SUNDIALS_EXPORT int IDASetConstraints(void* ida_mem, N_Vector constraints);
 
 /* Optional step adaptivity input functions */
 SUNDIALS_EXPORT
