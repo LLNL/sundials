@@ -35,8 +35,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNContext_PeekLastError(SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNContext_PushErrHandler(SUNContext sunctx,
-                                     SUNErrHandlerFn err_fn,
+SUNErrCode SUNContext_PushErrHandler(SUNContext sunctx, SUNErrHandlerFn err_fn,
                                      void* err_user_data);
 
 SUNDIALS_EXPORT
@@ -59,7 +58,6 @@ SUNErrCode SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_Free(SUNContext* ctx);
-
 
 #ifdef __cplusplus
 }

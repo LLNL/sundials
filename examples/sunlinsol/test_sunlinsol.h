@@ -17,8 +17,8 @@
  * -----------------------------------------------------------------
  */
 
-#include <sundials/sundials_core.h>
 #include <math.h>
+#include <sundials/sundials_core.h>
 
 /* define constatnts */
 #define ZERO SUN_RCONST(0.0)
@@ -32,21 +32,26 @@ int check_vector(N_Vector expected, N_Vector computed, sunrealtype tol);
 void sync_device(void);
 
 /* Test function declarations */
-int Test_SUNLinSolGetType(SUNLinearSolver S, SUNLinearSolver_Type suntype, int myid);
+int Test_SUNLinSolGetType(SUNLinearSolver S, SUNLinearSolver_Type suntype,
+                          int myid);
 int Test_SUNLinSolGetID(SUNLinearSolver S, SUNLinearSolver_ID sunid, int myid);
 int Test_SUNLinSolLastFlag(SUNLinearSolver S, int myid);
 int Test_SUNLinSolSpace(SUNLinearSolver S, int myid);
 int Test_SUNLinSolNumIters(SUNLinearSolver S, int myid);
 int Test_SUNLinSolResNorm(SUNLinearSolver S, int myid);
 int Test_SUNLinSolResid(SUNLinearSolver S, int myid);
-int Test_SUNLinSolSetATimes(SUNLinearSolver S, void* ATdata, SUNATimesFn ATimes, int myid);
-int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, void* Pdata, SUNPSetupFn PSetup, SUNPSolveFn PSolve, int myid);
-int Test_SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1, N_Vector s2, int myid);
+int Test_SUNLinSolSetATimes(SUNLinearSolver S, void* ATdata, SUNATimesFn ATimes,
+                            int myid);
+int Test_SUNLinSolSetPreconditioner(SUNLinearSolver S, void* Pdata,
+                                    SUNPSetupFn PSetup, SUNPSolveFn PSolve,
+                                    int myid);
+int Test_SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1, N_Vector s2,
+                                    int myid);
 int Test_SUNLinSolSetZeroGuess(SUNLinearSolver S, int myid);
 int Test_SUNLinSolInitialize(SUNLinearSolver S, int myid);
 int Test_SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A, int myid);
-int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b, sunrealtype tol, sunbooleantype zeroguess,
-                        int myid);
+int Test_SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
+                        sunrealtype tol, sunbooleantype zeroguess, int myid);
 
 /* Timing function */
 void SetTiming(int onoff);
