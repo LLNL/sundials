@@ -58,8 +58,8 @@ struct _N_VectorContent_Parallel
 {
   sunindextype local_length;  /* local vector length         */
   sunindextype global_length; /* global vector length        */
-  sunbooleantype own_data;       /* ownership of data           */
-  sunrealtype* data;             /* local data array            */
+  sunbooleantype own_data;    /* ownership of data           */
+  sunrealtype* data;          /* local data array            */
   MPI_Comm comm;              /* pointer to MPI communicator */
 };
 
@@ -133,8 +133,7 @@ SUNDIALS_EXPORT
 void N_VDestroy_Parallel(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VSpace_Parallel(N_Vector v, sunindextype* lrw,
-                       sunindextype* liw);
+void N_VSpace_Parallel(N_Vector v, sunindextype* lrw, sunindextype* liw);
 
 SUNDIALS_EXPORT
 sunrealtype* N_VGetArrayPointer_Parallel(N_Vector v);
@@ -219,8 +218,9 @@ SUNErrCode N_VDotProdMulti_Parallel(int nvec, N_Vector x, N_Vector* Y,
 
 /* vector array operations */
 SUNDIALS_EXPORT
-SUNErrCode N_VLinearSumVectorArray_Parallel(int nvec, sunrealtype a, N_Vector* X,
-                                            sunrealtype b, N_Vector* Y, N_Vector* Z);
+SUNErrCode N_VLinearSumVectorArray_Parallel(int nvec, sunrealtype a,
+                                            N_Vector* X, sunrealtype b,
+                                            N_Vector* Y, N_Vector* Z);
 SUNDIALS_EXPORT
 SUNErrCode N_VScaleVectorArray_Parallel(int nvec, sunrealtype* c, N_Vector* X,
                                         N_Vector* Z);
@@ -234,13 +234,13 @@ SUNDIALS_EXPORT
 SUNErrCode N_VWrmsNormMaskVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
                                                N_Vector id, sunrealtype* nrm);
 SUNDIALS_EXPORT
-SUNErrCode N_VScaleAddMultiVectorArray_Parallel(int nvec, int nsum, sunrealtype* a,
-                                                N_Vector* X, N_Vector** Y,
-                                                N_Vector** Z);
+SUNErrCode N_VScaleAddMultiVectorArray_Parallel(int nvec, int nsum,
+                                                sunrealtype* a, N_Vector* X,
+                                                N_Vector** Y, N_Vector** Z);
 SUNDIALS_EXPORT
 SUNErrCode N_VLinearCombinationVectorArray_Parallel(int nvec, int nsum,
-                                                    sunrealtype* c, N_Vector** X,
-                                                    N_Vector* Z);
+                                                    sunrealtype* c,
+                                                    N_Vector** X, N_Vector* Z);
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
 
@@ -323,10 +323,12 @@ SUNDIALS_EXPORT
 SUNErrCode N_VEnableWrmsNormVectorArray_Parallel(N_Vector v, sunbooleantype tf);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VEnableWrmsNormMaskVectorArray_Parallel(N_Vector v, sunbooleantype tf);
+SUNErrCode N_VEnableWrmsNormMaskVectorArray_Parallel(N_Vector v,
+                                                     sunbooleantype tf);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VEnableScaleAddMultiVectorArray_Parallel(N_Vector v, sunbooleantype tf);
+SUNErrCode N_VEnableScaleAddMultiVectorArray_Parallel(N_Vector v,
+                                                      sunbooleantype tf);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VEnableLinearCombinationVectorArray_Parallel(N_Vector v,

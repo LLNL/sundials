@@ -53,7 +53,7 @@ struct _N_VectorContent_ManyVector
   sunindextype num_subvectors; /* number of vectors attached       */
   sunindextype global_length;  /* overall global manyvector length */
   N_Vector* subvec_array;      /* pointer to N_Vector array        */
-  sunbooleantype own_data;        /* flag indicating data ownership   */
+  sunbooleantype own_data;     /* flag indicating data ownership   */
 };
 
 typedef struct _N_VectorContent_ManyVector* N_VectorContent_ManyVector;
@@ -71,7 +71,7 @@ N_Vector N_VGetSubvector_ManyVector(N_Vector v, sunindextype vec_num);
 
 SUNDIALS_EXPORT
 sunrealtype* N_VGetSubvectorArrayPointer_ManyVector(N_Vector v,
-                                                 sunindextype vec_num);
+                                                    sunindextype vec_num);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VSetSubvectorArrayPointer_ManyVector(sunrealtype* v_data, N_Vector v,
@@ -111,8 +111,8 @@ sunindextype N_VGetSubvectorLocalLength_ManyVector(N_Vector v,
                                                    sunindextype vec_num);
 
 SUNDIALS_EXPORT
-void N_VLinearSum_ManyVector(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y,
-                             N_Vector z);
+void N_VLinearSum_ManyVector(sunrealtype a, N_Vector x, sunrealtype b,
+                             N_Vector y, N_Vector z);
 
 SUNDIALS_EXPORT
 void N_VConst_ManyVector(sunrealtype c, N_Vector z);
@@ -150,8 +150,8 @@ void N_VCompare_ManyVector(sunrealtype c, N_Vector x, N_Vector z);
 /* fused vector operations */
 
 SUNDIALS_EXPORT
-SUNErrCode N_VLinearCombination_ManyVector(int nvec, sunrealtype* c, N_Vector* V,
-                                           N_Vector z);
+SUNErrCode N_VLinearCombination_ManyVector(int nvec, sunrealtype* c,
+                                           N_Vector* V, N_Vector z);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VScaleAddMulti_ManyVector(int nvec, sunrealtype* a, N_Vector x,
@@ -164,9 +164,9 @@ SUNErrCode N_VDotProdMulti_ManyVector(int nvec, N_Vector x, N_Vector* Y,
 /* vector array operations */
 
 SUNDIALS_EXPORT
-SUNErrCode N_VLinearSumVectorArray_ManyVector(int nvec, sunrealtype a, N_Vector* X,
-                                              sunrealtype b, N_Vector* Y,
-                                              N_Vector* Z);
+SUNErrCode N_VLinearSumVectorArray_ManyVector(int nvec, sunrealtype a,
+                                              N_Vector* X, sunrealtype b,
+                                              N_Vector* Y, N_Vector* Z);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VScaleVectorArray_ManyVector(int nvec, sunrealtype* c, N_Vector* X,
@@ -247,7 +247,8 @@ SUNDIALS_EXPORT
 SUNErrCode N_VEnableDotProdMulti_ManyVector(N_Vector v, sunbooleantype tf);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VEnableLinearSumVectorArray_ManyVector(N_Vector v, sunbooleantype tf);
+SUNErrCode N_VEnableLinearSumVectorArray_ManyVector(N_Vector v,
+                                                    sunbooleantype tf);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VEnableScaleVectorArray_ManyVector(N_Vector v, sunbooleantype tf);

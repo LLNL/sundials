@@ -61,10 +61,10 @@ extern "C" {
 
 struct _N_VectorContent_ParHyp
 {
-  sunindextype local_length;  /* local vector length         */
-  sunindextype global_length; /* global vector length        */
-  sunbooleantype own_parvector;  /* ownership of HYPRE vector   */
-  MPI_Comm comm;              /* pointer to MPI communicator */
+  sunindextype local_length;    /* local vector length         */
+  sunindextype global_length;   /* global vector length        */
+  sunbooleantype own_parvector; /* ownership of HYPRE vector   */
+  MPI_Comm comm;                /* pointer to MPI communicator */
 
   HYPRE_ParVector x; /* the actual HYPRE_ParVector object */
 };
@@ -197,7 +197,8 @@ SUNErrCode N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
 
 SUNDIALS_EXPORT
 SUNErrCode N_VLinearSumVectorArray_ParHyp(int nvec, sunrealtype a, N_Vector* X,
-                                          sunrealtype b, N_Vector* Y, N_Vector* Z);
+                                          sunrealtype b, N_Vector* Y,
+                                          N_Vector* Z);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VScaleVectorArray_ParHyp(int nvec, sunrealtype* c, N_Vector* X,
@@ -213,12 +214,13 @@ SUNDIALS_EXPORT
 SUNErrCode N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
                                              N_Vector id, sunrealtype* nrm);
 SUNDIALS_EXPORT
-SUNErrCode N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum, sunrealtype* a,
-                                              N_Vector* X, N_Vector** Y,
-                                              N_Vector** Z);
+SUNErrCode N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum,
+                                              sunrealtype* a, N_Vector* X,
+                                              N_Vector** Y, N_Vector** Z);
 SUNDIALS_EXPORT
-SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum, sunrealtype* c,
-                                                  N_Vector** X, N_Vector* Z);
+SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
+                                                  sunrealtype* c, N_Vector** X,
+                                                  N_Vector* Z);
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
 
@@ -238,19 +240,16 @@ SUNDIALS_EXPORT
 sunrealtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w);
 
 SUNDIALS_EXPORT
-sunrealtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w,
-                                    N_Vector id);
+sunrealtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w, N_Vector id);
 
 SUNDIALS_EXPORT
 sunbooleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
-sunbooleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x,
-                                      N_Vector m);
+sunbooleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x, N_Vector m);
 
 SUNDIALS_EXPORT
-sunrealtype N_VMinQuotientLocal_ParHyp(N_Vector num,
-                                    N_Vector denom);
+sunrealtype N_VMinQuotientLocal_ParHyp(N_Vector num, N_Vector denom);
 
 /* OPTIONAL single buffer reduction operations */
 
@@ -259,7 +258,8 @@ SUNErrCode N_VDotProdMultiLocal_ParHyp(int nvec, N_Vector x, N_Vector* Y,
                                        sunrealtype* dotprods);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VDotProdMultiAllReduce_ParHyp(int nvec, N_Vector x, sunrealtype* sum);
+SUNErrCode N_VDotProdMultiAllReduce_ParHyp(int nvec, N_Vector x,
+                                           sunrealtype* sum);
 
 /* OPTIONAL XBraid interface operations */
 
@@ -306,7 +306,8 @@ SUNDIALS_EXPORT
 SUNErrCode N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, sunbooleantype tf);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, sunbooleantype tf);
+SUNErrCode N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v,
+                                                    sunbooleantype tf);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v,

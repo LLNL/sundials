@@ -56,7 +56,7 @@ struct _N_VectorContent_MPIManyVector
   sunindextype num_subvectors; /* number of vectors attached       */
   sunindextype global_length;  /* overall global manyvector length */
   N_Vector* subvec_array;      /* pointer to N_Vector array        */
-  sunbooleantype own_data;        /* flag indicating data ownership   */
+  sunbooleantype own_data;     /* flag indicating data ownership   */
 };
 
 typedef struct _N_VectorContent_MPIManyVector* N_VectorContent_MPIManyVector;
@@ -78,10 +78,11 @@ N_Vector N_VGetSubvector_MPIManyVector(N_Vector v, sunindextype vec_num);
 
 SUNDIALS_EXPORT
 sunrealtype* N_VGetSubvectorArrayPointer_MPIManyVector(N_Vector v,
-                                                    sunindextype vec_num);
+                                                       sunindextype vec_num);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VSetSubvectorArrayPointer_MPIManyVector(sunrealtype* v_data, N_Vector v,
+SUNErrCode N_VSetSubvectorArrayPointer_MPIManyVector(sunrealtype* v_data,
+                                                     N_Vector v,
                                                      sunindextype vec_num);
 
 SUNDIALS_EXPORT
@@ -119,8 +120,8 @@ sunindextype N_VGetSubvectorLocalLength_MPIManyVector(N_Vector v,
                                                       sunindextype vec_num);
 
 SUNDIALS_EXPORT
-void N_VLinearSum_MPIManyVector(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y,
-                                N_Vector z);
+void N_VLinearSum_MPIManyVector(sunrealtype a, N_Vector x, sunrealtype b,
+                                N_Vector y, N_Vector z);
 SUNDIALS_EXPORT
 void N_VConst_MPIManyVector(sunrealtype c, N_Vector z);
 
@@ -200,11 +201,12 @@ SUNErrCode N_VLinearSumVectorArray_MPIManyVector(int nvec, sunrealtype a,
                                                  N_Vector* X, sunrealtype b,
                                                  N_Vector* Y, N_Vector* Z);
 SUNDIALS_EXPORT
-SUNErrCode N_VScaleVectorArray_MPIManyVector(int nvec, sunrealtype* c, N_Vector* X,
-                                             N_Vector* Z);
+SUNErrCode N_VScaleVectorArray_MPIManyVector(int nvec, sunrealtype* c,
+                                             N_Vector* X, N_Vector* Z);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VConstVectorArray_MPIManyVector(int nvecs, sunrealtype c, N_Vector* Z);
+SUNErrCode N_VConstVectorArray_MPIManyVector(int nvecs, sunrealtype c,
+                                             N_Vector* Z);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VWrmsNormVectorArray_MPIManyVector(int nvecs, N_Vector* X,
@@ -232,7 +234,8 @@ SUNDIALS_EXPORT
 sunrealtype N_VWSqrSumLocal_MPIManyVector(N_Vector x, N_Vector w);
 
 SUNDIALS_EXPORT
-sunrealtype N_VWSqrSumMaskLocal_MPIManyVector(N_Vector x, N_Vector w, N_Vector id);
+sunrealtype N_VWSqrSumMaskLocal_MPIManyVector(N_Vector x, N_Vector w,
+                                              N_Vector id);
 
 SUNDIALS_EXPORT
 sunbooleantype N_VInvTestLocal_MPIManyVector(N_Vector x, N_Vector z);
@@ -240,11 +243,11 @@ sunbooleantype N_VInvTestLocal_MPIManyVector(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT
 sunbooleantype N_VConstrMaskLocal_MPIManyVector(N_Vector c, N_Vector x,
 
-                                             N_Vector m);
+                                                N_Vector m);
 SUNDIALS_EXPORT
 sunrealtype N_VMinQuotientLocal_MPIManyVector(N_Vector num,
 
-                                           N_Vector denom);
+                                              N_Vector denom);
 
 /* OPTIONAL XBraid interface operations */
 SUNDIALS_EXPORT
@@ -264,7 +267,8 @@ SUNDIALS_EXPORT
 SUNErrCode N_VEnableFusedOps_MPIManyVector(N_Vector v, sunbooleantype tf);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VEnableLinearCombination_MPIManyVector(N_Vector v, sunbooleantype tf);
+SUNErrCode N_VEnableLinearCombination_MPIManyVector(N_Vector v,
+                                                    sunbooleantype tf);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VEnableScaleAddMulti_MPIManyVector(N_Vector v, sunbooleantype tf);
@@ -283,14 +287,16 @@ SUNDIALS_EXPORT
 SUNErrCode N_VEnableConstVectorArray_MPIManyVector(N_Vector v, sunbooleantype tf);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VEnableWrmsNormVectorArray_MPIManyVector(N_Vector v, sunbooleantype tf);
+SUNErrCode N_VEnableWrmsNormVectorArray_MPIManyVector(N_Vector v,
+                                                      sunbooleantype tf);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VEnableWrmsNormMaskVectorArray_MPIManyVector(N_Vector v,
                                                           sunbooleantype tf);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VEnableDotProdMultiLocal_MPIManyVector(N_Vector v, sunbooleantype tf);
+SUNErrCode N_VEnableDotProdMultiLocal_MPIManyVector(N_Vector v,
+                                                    sunbooleantype tf);
 
 #ifdef __cplusplus
 }
