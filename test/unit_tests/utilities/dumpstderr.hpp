@@ -13,9 +13,9 @@
 #ifndef SUN_DUMPSTDERR_HPP_
 #define SUN_DUMPSTDERR_HPP_
 
-#include <sundials/sundials_core.hpp>
-#include <string>
 #include <fstream>
+#include <string>
+#include <sundials/sundials_core.hpp>
 
 std::string dumpstderr(SUNContext sunctx, const std::string& errfile)
 {
