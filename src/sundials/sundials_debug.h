@@ -20,7 +20,7 @@
 
 #include <stdio.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -37,14 +37,14 @@ extern "C" {
  * Macro which prints error messages in debug mode
  */
 #ifdef SUNDIALS_DEBUG
-#define SUNDIALS_DEBUG_ERROR(msg)                 \
-  fprintf(stderr, "ERROR in %s (%s line %d): %s", \
-          __func__, __FILE__, __LINE__, msg);
+#define SUNDIALS_DEBUG_ERROR(msg)                                     \
+  fprintf(stderr, "ERROR in %s (%s line %d): %s", __func__, __FILE__, \
+          __LINE__, msg);
 #else
 #define SUNDIALS_DEBUG_ERROR(msg)
 #endif
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 }
 #endif
 

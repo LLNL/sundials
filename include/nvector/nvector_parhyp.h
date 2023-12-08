@@ -312,7 +312,8 @@ SUNDIALS_EXPORT
 SUNErrCode N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v,
                                                         sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_ParHyp(N_Vector v,
+                                                      sunbooleantype tf);
 
 #ifdef __cplusplus
 }

@@ -19,9 +19,10 @@
 #define _ARKODE_ERKSTEP_IMPL_H
 
 #include <arkode/arkode_erkstep.h>
+
 #include "arkode_impl.h"
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -29,8 +30,6 @@ extern "C" {
   ERK time step module constants -- move many items here from
   arkode_impl.h
   ===============================================================*/
-
-
 
 /*===============================================================
   ERK time step module data structure
@@ -43,27 +42,26 @@ extern "C" {
   ARKodeERKStepMemRec.  This structure contains fields to
   perform an explicit Runge-Kutta time step.
   ---------------------------------------------------------------*/
-typedef struct ARKodeERKStepMemRec {
-
+typedef struct ARKodeERKStepMemRec
+{
   /* ERK problem specification */
-  ARKRhsFn f;             /* y' = f(t,y)                */
+  ARKRhsFn f; /* y' = f(t,y)                */
 
   /* ARK method storage and parameters */
-  N_Vector *F;            /* explicit RHS at each stage */
-  int q;                  /* method order               */
-  int p;                  /* embedding order            */
-  int stages;             /* number of stages           */
-  ARKodeButcherTable B;   /* ERK Butcher table          */
+  N_Vector* F;          /* explicit RHS at each stage */
+  int q;                /* method order               */
+  int p;                /* embedding order            */
+  int stages;           /* number of stages           */
+  ARKodeButcherTable B; /* ERK Butcher table          */
 
   /* Counters */
-  long int nfe;           /* num fe calls               */
+  long int nfe; /* num fe calls               */
 
   /* Reusable arrays for fused vector operations */
   sunrealtype* cvals;
   N_Vector* Xvecs;
 
-} *ARKodeERKStepMem;
-
+}* ARKodeERKStepMem;
 
 /*===============================================================
   ERK time step module private function prototypes
@@ -71,17 +69,17 @@ typedef struct ARKodeERKStepMemRec {
 
 /* Interface routines supplied to ARKODE */
 int erkStep_Init(void* arkode_mem, int init_type);
-int erkStep_FullRHS(void* arkode_mem, sunrealtype t,
-                    N_Vector y, N_Vector f, int mode);
-int erkStep_TakeStep(void* arkode_mem, sunrealtype *dsmPtr, int *nflagPtr);
+int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
+                    int mode);
+int erkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr);
 
 /* Internal utility routines */
-int erkStep_AccessStepMem(void* arkode_mem, const char *fname,
-                          ARKodeMem *ark_mem, ARKodeERKStepMem *step_mem);
+int erkStep_AccessStepMem(void* arkode_mem, const char* fname,
+                          ARKodeMem* ark_mem, ARKodeERKStepMem* step_mem);
 sunbooleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
-int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype *dsm);
+int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsm);
 
 /* private functions for relaxation */
 int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
@@ -93,7 +91,7 @@ int erkStep_GetOrder(ARKodeMem ark_mem);
   ===============================================================*/
 
 /* Initialization and I/O error messages */
-#define MSG_ERKSTEP_NO_MEM    "Time step module memory is NULL."
+#define MSG_ERKSTEP_NO_MEM "Time step module memory is NULL."
 
 #ifdef __cplusplus
 }

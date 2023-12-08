@@ -18,18 +18,16 @@
  */
 
 #include <assert.h>
-#include <stdio.h>
-
 #include <cuda_runtime.h>
 #include <cusolverDn.h>
 #include <cusolverSp.h>
-
+#include <stdio.h>
 #include <sundials/sundials_types.h>
 
 #ifndef _SUNDIALS_CUSOLVER_H
 #define _SUNDIALS_CUSOLVER_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -37,20 +35,20 @@ extern "C" {
  * Utility macros
  * ---------------------------------------------------------------------------*/
 
-#define SUNDIALS_CUSOLVER_VERIFY(cuerr) SUNDIALS_CUSOLVER_Assert(cuerr, __FILE__, __LINE__)
-
+#define SUNDIALS_CUSOLVER_VERIFY(cuerr) \
+  SUNDIALS_CUSOLVER_Assert(cuerr, __FILE__, __LINE__)
 
 /* ---------------------------------------------------------------------------
  * Utility functions
  * ---------------------------------------------------------------------------*/
 
-inline sunbooleantype SUNDIALS_CUSOLVER_Assert(cusolverStatus_t status, const char *file, int line)
+inline sunbooleantype SUNDIALS_CUSOLVER_Assert(cusolverStatus_t status,
+                                               const char* file, int line)
 {
   if (status != CUSOLVER_STATUS_SUCCESS)
   {
 #ifdef SUNDIALS_DEBUG
-    fprintf(stderr,
-            "ERROR in cuSOLVER runtime operation: cusolverStatus_t = %d %s:%d\n",
+    fprintf(stderr, "ERROR in cuSOLVER runtime operation: cusolverStatus_t = %d %s:%d\n",
             status, file, line);
 #ifdef SUNDIALS_DEBUG_ASSERT
     assert(false);
@@ -61,7 +59,7 @@ inline sunbooleantype SUNDIALS_CUSOLVER_Assert(cusolverStatus_t status, const ch
   return SUNTRUE; /* Assert OK */
 }
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 }
 #endif
 

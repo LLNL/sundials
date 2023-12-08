@@ -42,6 +42,7 @@
 #include <stdio.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_mpi_types.h>
+#include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -334,6 +335,8 @@ SUNErrCode N_VEnableLinearCombinationVectorArray_Parallel(N_Vector v,
 SUNDIALS_EXPORT
 SUNErrCode N_VEnableDotProdMultiLocal_Parallel(N_Vector v, sunbooleantype tf);
 
+SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_Parallel(N_Vector v,
+                                                        sunbooleantype tf);
 
 #ifdef __cplusplus
 }

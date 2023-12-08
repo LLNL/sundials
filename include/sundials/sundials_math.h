@@ -23,10 +23,9 @@
 #define _SUNDIALSMATH_H
 
 #include <math.h>
-
 #include <sundials/sundials_types.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -59,7 +58,7 @@ extern "C" {
 #endif
 
 #ifndef SUNSQR
-#define SUNSQR(A) ((A)*(A))
+#define SUNSQR(A) ((A) * (A))
 #endif
 
 /*
@@ -76,15 +75,17 @@ extern "C" {
 
 #ifndef SUNRsqrt
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
-#  if defined(SUNDIALS_DOUBLE_PRECISION)
-#    define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : (sqrt((x))))
-#  elif defined(SUNDIALS_SINGLE_PRECISION)
-#    define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : (sqrtf((x))))
-#  elif defined(SUNDIALS_EXTENDED_PRECISION)
-#    define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : (sqrtl((x))))
-#  endif
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : (sqrt((x))))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : (sqrtf((x))))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : (sqrtl((x))))
+#endif
 #else
-#  define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : ((sunrealtype) sqrt((double) (x))))
+#define SUNRsqrt(x)                           \
+  ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) \
+                          : ((sunrealtype)sqrt((double)(x))))
 #endif
 #endif
 
@@ -101,15 +102,15 @@ extern "C" {
 
 #ifndef SUNRabs
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
-#  if defined(SUNDIALS_DOUBLE_PRECISION)
-#    define SUNRabs(x) (fabs((x)))
-#  elif defined(SUNDIALS_SINGLE_PRECISION)
-#    define SUNRabs(x) (fabsf((x)))
-#  elif defined(SUNDIALS_EXTENDED_PRECISION)
-#    define SUNRabs(x) (fabsl((x)))
-#  endif
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRabs(x) (fabs((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRabs(x) (fabsf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRabs(x) (fabsl((x)))
+#endif
 #else
-#  define SUNRabs(x) ((sunrealtype) fabs((double) (x)))
+#define SUNRabs(x) ((sunrealtype)fabs((double)(x)))
 #endif
 #endif
 
@@ -126,15 +127,15 @@ extern "C" {
 
 #ifndef SUNRexp
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
-#  if defined(SUNDIALS_DOUBLE_PRECISION)
-#    define SUNRexp(x) (exp((x)))
-#  elif defined(SUNDIALS_SINGLE_PRECISION)
-#    define SUNRexp(x) (expf((x)))
-#  elif defined(SUNDIALS_EXTENDED_PRECISION)
-#    define SUNRexp(x) (expl((x)))
-#  endif
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRexp(x) (exp((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRexp(x) (expf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRexp(x) (expl((x)))
+#endif
 #else
-#  define SUNRexp(x) ((sunrealtype) exp((double) (x)))
+#define SUNRexp(x) ((sunrealtype)exp((double)(x)))
 #endif
 #endif
 
@@ -151,15 +152,15 @@ extern "C" {
 
 #ifndef SUNRceil
 #if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
-#  if defined(SUNDIALS_DOUBLE_PRECISION)
-#    define SUNRceil(x) (ceil((x)))
-#  elif defined(SUNDIALS_SINGLE_PRECISION)
-#    define SUNRceil(x) (ceilf((x)))
-#  elif defined(SUNDIALS_EXTENDED_PRECISION)
-#    define SUNRceil(x) (ceill((x)))
-#  endif
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRceil(x) (ceil((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRceil(x) (ceilf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRceil(x) (ceill((x)))
+#endif
 #else
-#  define SUNRceil(x) ((sunrealtype) ceil((double) (x)))
+#define SUNRceil(x) ((sunrealtype)ceil((double)(x)))
 #endif
 #endif
 
@@ -227,7 +228,8 @@ SUNDIALS_EXPORT sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol);
+SUNDIALS_EXPORT sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b,
+                                              sunrealtype tol);
 
 /*
  * -----------------------------------------------------------------

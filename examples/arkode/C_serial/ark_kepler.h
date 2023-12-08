@@ -37,7 +37,6 @@ typedef struct
   const char* method_name;
 } ProgramArgs;
 
-
 int ComputeConvergence(int num_dt, sunrealtype* orders,
                        sunrealtype expected_order, sunrealtype a11,
                        sunrealtype a12, sunrealtype a21, sunrealtype a22,
@@ -58,7 +57,6 @@ int ComputeConvergence(int num_dt, sunrealtype* orders,
   *ord_est = (a11 * b2 - a21 * b1) / det;
   return 0;
 }
-
 
 static void PrintHelp(void)
 {

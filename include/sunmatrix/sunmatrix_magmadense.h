@@ -17,7 +17,6 @@
  * -----------------------------------------------------------------
  */
 
-
 #ifndef _SUNMATRIX_MAGMADENSE_H
 #define _SUNMATRIX_MAGMADENSE_H
 
@@ -32,36 +31,39 @@
 #endif
 #include <magma_v2.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-struct _SUNMatrixContent_MagmaDense {
-  int             last_flag; /* last error code returned by magma  */
-  int             device_id; /* device ID used by magma            */
-  sunindextype    M;         /* number of rows in block            */
-  sunindextype    N;         /* number of columns in block         */
-  sunindextype    nblocks;   /* number of blocks in matrix         */
-  sunindextype    ldata;     /* length of data array               */
-  SUNMemory       data;      /* matrix data; column-major          */
-  SUNMemory       blocks;    /* device pointers to blocks of A     */
-  SUNMemory       xblocks;   /* device pointers to blocks of x     */
-  SUNMemory       yblocks;   /* device pointers to blocks of y     */
-  SUNMemoryHelper memhelp;   /* memory helper                      */
-  magma_queue_t   q;         /* operation queue (i.e. stream)      */
+struct _SUNMatrixContent_MagmaDense
+{
+  int last_flag;           /* last error code returned by magma  */
+  int device_id;           /* device ID used by magma            */
+  sunindextype M;          /* number of rows in block            */
+  sunindextype N;          /* number of columns in block         */
+  sunindextype nblocks;    /* number of blocks in matrix         */
+  sunindextype ldata;      /* length of data array               */
+  SUNMemory data;          /* matrix data; column-major          */
+  SUNMemory blocks;        /* device pointers to blocks of A     */
+  SUNMemory xblocks;       /* device pointers to blocks of x     */
+  SUNMemory yblocks;       /* device pointers to blocks of y     */
+  SUNMemoryHelper memhelp; /* memory helper                      */
+  magma_queue_t q;         /* operation queue (i.e. stream)      */
 };
 
-typedef struct _SUNMatrixContent_MagmaDense *SUNMatrixContent_MagmaDense;
+typedef struct _SUNMatrixContent_MagmaDense* SUNMatrixContent_MagmaDense;
 
 /* ---------------------------------------
  * Implementation specific functions
  * ---------------------------------------*/
 
-SUNDIALS_EXPORT SUNMatrix SUNMatrix_MagmaDense(sunindextype M, sunindextype N, SUNMemoryType memtype,
-                                               SUNMemoryHelper memhelper, void* queue, SUNContext sunctx);
-SUNDIALS_EXPORT SUNMatrix SUNMatrix_MagmaDenseBlock(sunindextype nblocks, sunindextype M, sunindextype N,
-                                                    SUNMemoryType memtype, SUNMemoryHelper memhelper,
-                                                    void* queue, SUNContext sunctx);
+SUNDIALS_EXPORT SUNMatrix SUNMatrix_MagmaDense(sunindextype M, sunindextype N,
+                                               SUNMemoryType memtype,
+                                               SUNMemoryHelper memhelper,
+                                               void* queue, SUNContext sunctx);
+SUNDIALS_EXPORT SUNMatrix SUNMatrix_MagmaDenseBlock(
+  sunindextype nblocks, sunindextype M, sunindextype N, SUNMemoryType memtype,
+  SUNMemoryHelper memhelper, void* queue, SUNContext sunctx);
 SUNDIALS_EXPORT void SUNMatrix_MagmaDense_Print(SUNMatrix A);
 SUNDIALS_EXPORT sunrealtype* SUNMatrix_MagmaDense_Data(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNMatrix_MagmaDense_LData(SUNMatrix A);
@@ -72,48 +74,54 @@ SUNDIALS_EXPORT sunindextype SUNMatrix_MagmaDense_BlockColumns(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNMatrix_MagmaDense_BlockLData(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNMatrix_MagmaDense_NumBlocks(SUNMatrix A);
 SUNDIALS_EXPORT sunrealtype** SUNMatrix_MagmaDense_BlockData(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data);
-SUNDIALS_EXPORT int SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data);
+SUNDIALS_EXPORT int SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix A,
+                                                      sunrealtype* h_data);
+SUNDIALS_EXPORT int SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix A,
+                                                        sunrealtype* h_data);
 
 SUNDIALS_STATIC_INLINE
 sunrealtype* SUNMatrix_MagmaDense_Block(SUNMatrix Amat, sunindextype k)
 {
-  SUNMatrixContent_MagmaDense A = (SUNMatrixContent_MagmaDense) Amat->content;
-  return( ((sunrealtype*) A->data->ptr) + k*A->M*A->N );
+  SUNMatrixContent_MagmaDense A = (SUNMatrixContent_MagmaDense)Amat->content;
+  return (((sunrealtype*)A->data->ptr) + k * A->M * A->N);
 }
 
 SUNDIALS_STATIC_INLINE
 sunrealtype* SUNMatrix_MagmaDense_Column(SUNMatrix Amat, sunindextype j)
 {
-  SUNMatrixContent_MagmaDense A = (SUNMatrixContent_MagmaDense) Amat->content;
-  return( ((sunrealtype*) A->data->ptr) + j*A->M );
+  SUNMatrixContent_MagmaDense A = (SUNMatrixContent_MagmaDense)Amat->content;
+  return (((sunrealtype*)A->data->ptr) + j * A->M);
 }
 
 SUNDIALS_STATIC_INLINE
-sunrealtype* SUNMatrix_MagmaDense_BlockColumn(SUNMatrix Amat, sunindextype k, sunindextype j)
+sunrealtype* SUNMatrix_MagmaDense_BlockColumn(SUNMatrix Amat, sunindextype k,
+                                              sunindextype j)
 {
-  SUNMatrixContent_MagmaDense A = (SUNMatrixContent_MagmaDense) Amat->content;
-  return( ((sunrealtype*) A->data->ptr) + k*A->M*A->N + j*A->M );
+  SUNMatrixContent_MagmaDense A = (SUNMatrixContent_MagmaDense)Amat->content;
+  return (((sunrealtype*)A->data->ptr) + k * A->M * A->N + j * A->M);
 }
-
 
 /* ---------------------------------------
  * SUNMatrix API functions
  * ---------------------------------------*/
 
 SUNDIALS_STATIC_INLINE
-SUNMatrix_ID SUNMatGetID_MagmaDense(SUNMatrix A) { return SUNMATRIX_MAGMADENSE; }
+SUNMatrix_ID SUNMatGetID_MagmaDense(SUNMatrix A)
+{
+  return SUNMATRIX_MAGMADENSE;
+}
 
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_MagmaDense(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy_MagmaDense(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatZero_MagmaDense(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy_MagmaDense(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAdd_MagmaDense(sunrealtype c, SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT int SUNMatScaleAdd_MagmaDense(sunrealtype c, SUNMatrix A,
+                                              SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI_MagmaDense(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvecSetup_MagmaDense(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_MagmaDense(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT int SUNMatSpace_MagmaDense(SUNMatrix A, long int *lenrw, long int *leniw);
-
+SUNDIALS_EXPORT int SUNMatSpace_MagmaDense(SUNMatrix A, long int* lenrw,
+                                           long int* leniw);
 
 #ifdef __cplusplus
 }

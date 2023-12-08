@@ -15,7 +15,8 @@
 #ifdef SUNDIALS_ADIAK_ENABLED
 #include <adiak.h>
 
-static void sunAdiakCollectMetadata() {
+static void sunAdiakCollectMetadata()
+{
   adiak_launchdate();
   adiak_executable();
   adiak_cmdline();
@@ -29,12 +30,15 @@ static void sunAdiakCollectMetadata() {
   adiak_namevalue("c_compiler_flags", 2, NULL, "%s", SUN_C_COMPILER_FLAGS);
 
   adiak_namevalue("cxx_compiler", 2, NULL, "%s", SUN_CXX_COMPILER);
-  adiak_namevalue("cxx_compiler_version", 2, NULL, "%s", SUN_CXX_COMPILER_VERSION);
+  adiak_namevalue("cxx_compiler_version", 2, NULL, "%s",
+                  SUN_CXX_COMPILER_VERSION);
   adiak_namevalue("cxx_compiler_flags", 2, NULL, "%s", SUN_CXX_COMPILER_FLAGS);
 
   adiak_namevalue("fortran_compiler", 2, NULL, "%s", SUN_FORTRAN_COMPILER);
-  adiak_namevalue("fortran_compiler_version", 2, NULL, "%s", SUN_FORTRAN_COMPILER_VERSION);
-  adiak_namevalue("fortran_compiler_flags", 2, NULL, "%s", SUN_FORTRAN_COMPILER_FLAGS);
+  adiak_namevalue("fortran_compiler_version", 2, NULL, "%s",
+                  SUN_FORTRAN_COMPILER_VERSION);
+  adiak_namevalue("fortran_compiler_flags", 2, NULL, "%s",
+                  SUN_FORTRAN_COMPILER_FLAGS);
 
   adiak_namevalue("sundials_version", 2, NULL, "%s", SUNDIALS_VERSION);
   adiak_namevalue("sundials_git_version", 2, NULL, "%s", SUNDIALS_GIT_VERSION);
@@ -66,7 +70,8 @@ static void sunAdiakCollectMetadata() {
 #endif
 
 #ifdef SUNDIALS_KOKKOS_KERNELS_ENABLED
-  adiak_namevalue("kokkos_kernels_version", 2, NULL, "%s", SUN_KOKKOS_KERNELS_VERSION);
+  adiak_namevalue("kokkos_kernels_version", 2, NULL, "%s",
+                  SUN_KOKKOS_KERNELS_VERSION);
 #endif
 
 #ifdef SUNDIALS_BLAS_LAPACK_ENABLED
@@ -84,7 +89,8 @@ static void sunAdiakCollectMetadata() {
   adiak_namevalue("mpi_cxx_compiler", 2, NULL, "%s", SUN_MPI_CXX_COMPILER);
   adiak_namevalue("mpi_cxx_version", 2, NULL, "%s", SUN_MPI_CXX_VERSION);
 
-  adiak_namevalue("mpi_fortran_compiler", 2, NULL, "%s", SUN_MPI_FORTRAN_COMPILER);
+  adiak_namevalue("mpi_fortran_compiler", 2, NULL, "%s",
+                  SUN_MPI_FORTRAN_COMPILER);
   adiak_namevalue("mpi_fortran_version", 2, NULL, "%s", SUN_MPI_FORTRAN_VERSION);
 #endif
 
@@ -134,6 +140,5 @@ static void sunAdiakCollectMetadata() {
   adiak_namevalue("hip_version", 2, NULL, "%s", SUN_HIP_VERSION);
   adiak_namevalue("amdgpu_targets", 2, NULL, "%s", SUN_AMDGPU_TARGETS);
 #endif
-
 }
 #endif

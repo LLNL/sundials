@@ -85,6 +85,10 @@ file manually. More information is available in the `git config documentation
       [push]
           default = "simple" # push current branch to upstream branch with same name
 
+#. Tell Git about the .git-blame-ignore-revs file.
+
+   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
 #. Tell Git which editor you want to use by default (e.g., Emacs):
 
    .. code-block:: none

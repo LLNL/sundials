@@ -101,10 +101,7 @@ SUNDIALS_STATIC_INLINE
 void SUNHandleErrWithMsg(int line, const char* func, const char* file,
                          const char* msg, SUNErrCode code, SUNContext sunctx)
 {
-  if (!sunctx)
-  {
-    SUNGlobalFallbackErrHandler(line, func, file, msg, code);
-  }
+  if (!sunctx) { SUNGlobalFallbackErrHandler(line, func, file, msg, code); }
 
   sunctx->last_err = code;
   SUNErrHandler eh = sunctx->err_handler;
@@ -141,7 +138,7 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
   msglen = (size_t)vsnprintf(NULL, (size_t)0, msgfmt, values); /* determine size
                                                                   of buffer
                                                                   needed */
-  msg = (char*)malloc(msglen + 1);
+  msg    = (char*)malloc(msglen + 1);
   vsnprintf(msg, msglen + 1, msgfmt, values);
   SUNHandleErrWithMsg(line, func, file, msg, code, sunctx);
   va_end(values);

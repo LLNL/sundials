@@ -19,18 +19,19 @@
 
 #include <stdio.h>
 #include <sundials/sundials_config.h>
+
 #include "sundials/sundials_types.h"
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 /* Create a file pointer with the given file name and mode. */
-SUNDIALS_EXPORT SUNErrCode SUNDIALSFileOpen(const char* filename, const char* modes, FILE** fp);
+SUNDIALS_EXPORT SUNErrCode SUNDIALSFileOpen(const char* filename,
+                                            const char* modes, FILE** fp);
 
 /* Close a file pointer with the given file name. */
 SUNDIALS_EXPORT SUNErrCode SUNDIALSFileClose(FILE** fp);
-
 
 #ifdef __cplusplus
 }

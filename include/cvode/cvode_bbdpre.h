@@ -23,40 +23,36 @@
 
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-
 /* User-supplied function Types */
 
-typedef int (*CVLocalFn)(sunindextype Nlocal, sunrealtype t,
-                         N_Vector y, N_Vector g, void *user_data);
+typedef int (*CVLocalFn)(sunindextype Nlocal, sunrealtype t, N_Vector y,
+                         N_Vector g, void* user_data);
 
-typedef int (*CVCommFn)(sunindextype Nlocal, sunrealtype t,
-                        N_Vector y, void *user_data);
+typedef int (*CVCommFn)(sunindextype Nlocal, sunrealtype t, N_Vector y,
+                        void* user_data);
 
 /* Exported Functions */
 
-SUNDIALS_EXPORT int CVBBDPrecInit(void *cvode_mem, sunindextype Nlocal,
+SUNDIALS_EXPORT int CVBBDPrecInit(void* cvode_mem, sunindextype Nlocal,
                                   sunindextype mudq, sunindextype mldq,
                                   sunindextype mukeep, sunindextype mlkeep,
-                                  sunrealtype dqrely, CVLocalFn gloc, CVCommFn cfn);
+                                  sunrealtype dqrely, CVLocalFn gloc,
+                                  CVCommFn cfn);
 
-SUNDIALS_EXPORT int CVBBDPrecReInit(void *cvode_mem,
-                                    sunindextype mudq, sunindextype mldq,
-                                    sunrealtype dqrely);
-
+SUNDIALS_EXPORT int CVBBDPrecReInit(void* cvode_mem, sunindextype mudq,
+                                    sunindextype mldq, sunrealtype dqrely);
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int CVBBDPrecGetWorkSpace(void *cvode_mem,
-                                          long int *lenrwBBDP,
-                                          long int *leniwBBDP);
+SUNDIALS_EXPORT int CVBBDPrecGetWorkSpace(void* cvode_mem, long int* lenrwBBDP,
+                                          long int* leniwBBDP);
 
-SUNDIALS_EXPORT int CVBBDPrecGetNumGfnEvals(void *cvode_mem,
-                                            long int *ngevalsBBDP);
-
+SUNDIALS_EXPORT int CVBBDPrecGetNumGfnEvals(void* cvode_mem,
+                                            long int* ngevalsBBDP);
 
 #ifdef __cplusplus
 }

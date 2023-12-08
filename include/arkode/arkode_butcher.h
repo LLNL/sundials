@@ -20,54 +20,49 @@
 #include <stdio.h>
 #include <sundials/sundials_types.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
 
 /*---------------------------------------------------------------
   Types : struct ARKodeButcherTableMem, ARKodeButcherTable
   ---------------------------------------------------------------*/
-struct ARKodeButcherTableMem {
-
+struct ARKodeButcherTableMem
+{
   int q;           /* method order of accuracy       */
   int p;           /* embedding order of accuracy    */
   int stages;      /* number of stages               */
-  sunrealtype **A;    /* Butcher table coefficients     */
-  sunrealtype *c;     /* canopy node coefficients       */
-  sunrealtype *b;     /* root node coefficients         */
-  sunrealtype *d;     /* embedding coefficients         */
-
+  sunrealtype** A; /* Butcher table coefficients     */
+  sunrealtype* c;  /* canopy node coefficients       */
+  sunrealtype* b;  /* root node coefficients         */
+  sunrealtype* d;  /* embedding coefficients         */
 };
 
-
-typedef _SUNDIALS_STRUCT_ ARKodeButcherTableMem *ARKodeButcherTable;
-
+typedef _SUNDIALS_STRUCT_ ARKodeButcherTableMem* ARKodeButcherTable;
 
 /* Utility routines to allocate/free/output Butcher table structures */
-SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Alloc(int stages,
-                                                            sunbooleantype embedded);
-SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Create(int s, int q,
-                                                             int p,
-                                                             sunrealtype *c,
-                                                             sunrealtype *A,
-                                                             sunrealtype *b,
-                                                             sunrealtype *d);
+SUNDIALS_EXPORT ARKodeButcherTable
+ARKodeButcherTable_Alloc(int stages, sunbooleantype embedded);
+SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Create(int s, int q, int p,
+                                                             sunrealtype* c,
+                                                             sunrealtype* A,
+                                                             sunrealtype* b,
+                                                             sunrealtype* d);
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Copy(ARKodeButcherTable B);
 SUNDIALS_EXPORT void ARKodeButcherTable_Space(ARKodeButcherTable B,
-                                              sunindextype *liw,
-                                              sunindextype *lrw);
+                                              sunindextype* liw,
+                                              sunindextype* lrw);
 SUNDIALS_EXPORT void ARKodeButcherTable_Free(ARKodeButcherTable B);
 SUNDIALS_EXPORT void ARKodeButcherTable_Write(ARKodeButcherTable B,
-                                              FILE *outfile);
-SUNDIALS_EXPORT sunbooleantype ARKodeButcherTable_IsStifflyAccurate(ARKodeButcherTable B);
-SUNDIALS_EXPORT int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int *q,
-                                                  int *p, FILE *outfile);
+                                              FILE* outfile);
+SUNDIALS_EXPORT sunbooleantype
+ARKodeButcherTable_IsStifflyAccurate(ARKodeButcherTable B);
+SUNDIALS_EXPORT int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q,
+                                                  int* p, FILE* outfile);
 SUNDIALS_EXPORT int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1,
                                                      ARKodeButcherTable B2,
-                                                     int *q, int *p,
-                                                     FILE *outfile);
-
+                                                     int* q, int* p,
+                                                     FILE* outfile);
 
 #ifdef __cplusplus
 }
