@@ -57,7 +57,7 @@
 #include <mpi.h>
 #endif
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -210,7 +210,7 @@ typedef void (*SUNErrHandlerFn)(int line, const char* func, const char* file,
  *------------------------------------------------------------------
  */
 
- /* We don't define SUN_COMM_NULL when SWIG is processing the header
+/* We don't define SUN_COMM_NULL when SWIG is processing the header
     because we manually insert the wrapper code for SUN_COMM_NULL
     (and %ignoring it in the SWIG code doesn't seem to work). */
 

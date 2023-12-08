@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_types.h"
 
@@ -39,23 +40,22 @@ static unsigned long fnv1a_hash(const char* str)
 {
   unsigned long hash = HASH_OFFSET_BASIS;
   char c;
-  while ((c = *str++))
-  {
-    hash = (hash ^ c) * HASH_PRIME;
-  }
+  while ((c = *str++)) { hash = (hash ^ c) * HASH_PRIME; }
   return hash;
 }
 
 typedef struct _SUNHashMapKeyValue* SUNHashMapKeyValue;
 
-struct _SUNHashMapKeyValue {
+struct _SUNHashMapKeyValue
+{
   const char* key;
   void* value;
 };
 
 typedef struct _SUNHashMap* SUNHashMap;
 
-struct _SUNHashMap {
+struct _SUNHashMap
+{
   int size;     /* current number of entries */
   int max_size; /* max number of entries */
   SUNHashMapKeyValue* buckets;
@@ -77,25 +77,19 @@ static SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
 {
   int i;
 
-  if (max_size <= 0)
-  {
-    return SUN_ERR_ARG_OUTOFRANGE;
-  }
+  if (max_size <= 0) { return SUN_ERR_ARG_OUTOFRANGE; }
 
   *map = NULL;
   *map = (SUNHashMap)malloc(sizeof(struct _SUNHashMap));
 
-  if (!map)
-  {
-    return SUN_ERR_MALLOC_FAIL;
-  }
+  if (!map) { return SUN_ERR_MALLOC_FAIL; }
 
   (*map)->size     = 0;
   (*map)->max_size = max_size;
 
   (*map)->buckets = NULL;
   (*map)->buckets =
-      (SUNHashMapKeyValue*)malloc(max_size * sizeof(SUNHashMapKeyValue));
+    (SUNHashMapKeyValue*)malloc(max_size * sizeof(SUNHashMapKeyValue));
 
   if (!(*map)->buckets)
   {
@@ -104,10 +98,7 @@ static SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
   }
 
   /* Initialize all buckets to NULL */
-  for (i = 0; i < max_size; i++)
-  {
-    (*map)->buckets[i] = NULL;
-  }
+  for (i = 0; i < max_size; i++) { (*map)->buckets[i] = NULL; }
 
   return SUN_SUCCESS;
 }
@@ -123,14 +114,12 @@ static SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
   **Returns:**
     * A SUNErrCode indicating success or a failure
  */
-static SUNErrCode SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr))
+static SUNErrCode SUNHashMap_Destroy(SUNHashMap* map,
+                                     void (*freevalue)(void* ptr))
 {
   int i;
 
-  if (map == NULL || freevalue == NULL)
-  {
-    return SUN_SUCCESS;
-  }
+  if (map == NULL || freevalue == NULL) { return SUN_SUCCESS; }
 
   for (i = 0; i < (*map)->max_size; i++)
   {
@@ -139,19 +128,10 @@ static SUNErrCode SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* pt
       freevalue((*map)->buckets[i]->value);
     }
 
-    if ((*map)->buckets[i])
-    {
-      free((*map)->buckets[i]);
-    }
+    if ((*map)->buckets[i]) { free((*map)->buckets[i]); }
   }
-  if ((*map)->buckets)
-  {
-    free((*map)->buckets);
-  }
-  if (*map)
-  {
-    free(*map);
-  }
+  if ((*map)->buckets) { free((*map)->buckets); }
+  if (*map) { free(*map); }
   *map = NULL;
 
   return SUN_SUCCESS;
@@ -184,10 +164,7 @@ static int SUNHashMap_Iterate(SUNHashMap map, int start,
 {
   int i;
 
-  if (map == NULL || yieldfn == NULL)
-  {
-    return (-2);
-  }
+  if (map == NULL || yieldfn == NULL) { return (-2); }
 
   for (i = start; i < map->max_size; i++)
   {
@@ -196,10 +173,7 @@ static int SUNHashMap_Iterate(SUNHashMap map, int start,
     {
       return (retval); /* yieldfn indicates the loop should break */
     }
-    if (retval < -1)
-    {
-      return (retval); /* error occurred */
-    }
+    if (retval < -1) { return (retval); /* error occurred */ }
   }
 
   return (map->max_size);
@@ -208,10 +182,7 @@ static int SUNHashMap_Iterate(SUNHashMap map, int start,
 static int sunHashMapLinearProbeInsert(int idx, SUNHashMapKeyValue kv, void* ctx)
 {
   /* find the next open spot */
-  if (kv == NULL)
-  {
-    return (idx); /* open spot found at idx */
-  }
+  if (kv == NULL) { return (idx); /* open spot found at idx */ }
   return (-1); /* keep looking */
 }
 
@@ -235,10 +206,7 @@ static int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   int retval;
   SUNHashMapKeyValue kvp;
 
-  if (map == NULL || key == NULL || value == NULL)
-  {
-    return (-1);
-  }
+  if (map == NULL || key == NULL || value == NULL) { return (-1); }
 
   /* We want the index to be in (0, map->max_size) */
   idx = (int)(fnv1a_hash(key) % map->max_size);
@@ -248,24 +216,15 @@ static int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   {
     /* Find the next open spot */
     retval = SUNHashMap_Iterate(map, idx, sunHashMapLinearProbeInsert, NULL);
-    if (retval < 0)
-    {
-      return (-1); /* error occurred */
-    }
-    if (retval == map->max_size)
-    {
-      return (-2); /* no open entry */
-    }
+    if (retval < 0) { return (-1); /* error occurred */ }
+    if (retval == map->max_size) { return (-2); /* no open entry */ }
 
     idx = retval;
   }
 
   /* Create the key-value pair */
   kvp = (SUNHashMapKeyValue)malloc(sizeof(struct _SUNHashMapKeyValue));
-  if (kvp == NULL)
-  {
-    return (-1);
-  }
+  if (kvp == NULL) { return (-1); }
 
   kvp->key   = key;
   kvp->value = value;
@@ -280,16 +239,10 @@ static int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
 static int sunHashMapLinearProbeGet(int idx, SUNHashMapKeyValue kv, void* key)
 {
   /* target key cannot be NULL */
-  if (key == NULL)
-  {
-    return (-2);
-  }
+  if (key == NULL) { return (-2); }
 
   /* find the matching entry */
-  if (kv == NULL)
-  {
-    return (-1); /* keep looking since this bucket is empty */
-  }
+  if (kv == NULL) { return (-1); /* keep looking since this bucket is empty */ }
   if (!strcmp(kv->key, (const char*)key))
   {
     return (idx); /* found it at idx */
@@ -315,34 +268,22 @@ static int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
   int idx;
   int retval;
 
-  if (map == NULL || key == NULL || value == NULL)
-  {
-    return (-1);
-  }
+  if (map == NULL || key == NULL || value == NULL) { return (-1); }
 
   /* We want the index to be in (0, map->max_size) */
   idx = (int)(fnv1a_hash(key) % map->max_size);
 
   /* Check if the key exists */
-  if (map->buckets[idx] == NULL)
-  {
-    return (-2);
-  }
+  if (map->buckets[idx] == NULL) { return (-2); }
 
   /* Check to see if this is a collision */
   if (strcmp(map->buckets[idx]->key, key))
   {
     /* Keys did not match, so we have a collision and need to probe */
-    retval =
-        SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet, (void*)key);
-    if (retval < 0)
-    {
-      return (-1); /* error occurred */
-    }
-    if (retval == map->max_size)
-    {
-      return (-2); /* not found */
-    }
+    retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet,
+                                (void*)key);
+    if (retval < 0) { return (-1); /* error occurred */ }
+    if (retval == map->max_size) { return (-2); /* not found */ }
   }
 
   /* Return a reference to the value only */
@@ -371,23 +312,14 @@ static SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
 {
   int i;
 
-  if (!map || !compar)
-  {
-    return SUN_ERR_ARG_CORRUPT;
-  }
+  if (!map || !compar) { return SUN_ERR_ARG_CORRUPT; }
 
   *sorted =
-      (SUNHashMapKeyValue*)malloc(map->max_size * sizeof(SUNHashMapKeyValue));
-  if (!(*sorted))
-  {
-    return SUN_ERR_MALLOC_FAIL;
-  }
+    (SUNHashMapKeyValue*)malloc(map->max_size * sizeof(SUNHashMapKeyValue));
+  if (!(*sorted)) { return SUN_ERR_MALLOC_FAIL; }
 
   /* Copy the buckets into a new array */
-  for (i = 0; i < map->max_size; i++)
-  {
-    (*sorted)[i] = map->buckets[i];
-  }
+  for (i = 0; i < map->max_size; i++) { (*sorted)[i] = map->buckets[i]; }
 
   qsort(*sorted, map->max_size, sizeof(SUNHashMapKeyValue), compar);
 
@@ -406,29 +338,21 @@ static SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
     * A SUNErrCode indicating success or a failure
  */
 #if SUNDIALS_MPI_ENABLED
-static SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
+static SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values,
+                                    size_t value_size)
 {
   int i;
   int count = 0;
 
-  if (!map)
-  {
-    return SUN_ERR_ARG_CORRUPT;
-  }
+  if (!map) { return SUN_ERR_ARG_CORRUPT; }
 
   *values = (void**)malloc(map->size * sizeof(value_size));
-  if (!values)
-  {
-    return SUN_ERR_MALLOC_FAIL;
-  }
+  if (!values) { return SUN_ERR_MALLOC_FAIL; }
 
   /* Copy the values into a new array */
   for (i = 0; i < map->max_size; i++)
   {
-    if (map->buckets[i])
-    {
-      (*values)[count++] = map->buckets[i]->value;
-    }
+    if (map->buckets[i]) { (*values)[count++] = map->buckets[i]->value; }
   }
 
   return SUN_SUCCESS;

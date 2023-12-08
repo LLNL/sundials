@@ -141,7 +141,7 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
   msglen = (size_t)vsnprintf(NULL, (size_t)0, msgfmt, values); /* determine size
                                                                   of buffer
                                                                   needed */
-  msg = (char*)malloc(msglen + 1);
+  msg    = (char*)malloc(msglen + 1);
   vsnprintf(msg, msglen + 1, msgfmt, values);
   SUNHandleErrWithMsg(line, func, file, msg, code, sunctx);
   va_end(values);

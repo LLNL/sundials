@@ -20,14 +20,14 @@
 #ifndef _KINSOL_IMPL_H
 #define _KINSOL_IMPL_H
 
-#include <stdarg.h>
-
 #include <kinsol/kinsol.h>
-#include "sundials_logger_impl.h"
+#include <stdarg.h>
 #include <sundials/priv/sundials_context_impl.h>
-#include "sundials_iterative_impl.h"
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#include "sundials_iterative_impl.h"
+#include "sundials_logger_impl.h"
+
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -60,7 +60,7 @@ extern "C" {
 /*=================================================================*/
 
 #define KIN_PROFILER kin_mem->kin_sunctx->profiler
-#define KIN_LOGGER kin_mem->kin_sunctx->logger
+#define KIN_LOGGER   kin_mem->kin_sunctx->logger
 
 /*
  * -----------------------------------------------------------------
@@ -73,31 +73,31 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct KINMemRec {
-
+typedef struct KINMemRec
+{
   SUNContext kin_sunctx;
 
-  sunrealtype kin_uround;        /* machine epsilon (or unit roundoff error)
+  sunrealtype kin_uround; /* machine epsilon (or unit roundoff error)
                                  (defined in sundials_types.h)                */
 
   /* problem specification data */
 
-  KINSysFn kin_func;           /* nonlinear system function implementation     */
-  void *kin_user_data;         /* work space available to func routine         */
-  sunrealtype kin_fnormtol;       /* stopping tolerance on L2-norm of function
+  KINSysFn kin_func;         /* nonlinear system function implementation     */
+  void* kin_user_data;       /* work space available to func routine         */
+  sunrealtype kin_fnormtol;  /* stopping tolerance on L2-norm of function
                                   value                                        */
-  sunrealtype kin_scsteptol;      /* scaled step length tolerance                 */
-  int kin_globalstrategy;      /* choices are KIN_NONE, KIN_LINESEARCH
+  sunrealtype kin_scsteptol; /* scaled step length tolerance                 */
+  int kin_globalstrategy;    /* choices are KIN_NONE, KIN_LINESEARCH
                                   KIN_PICARD and KIN_FP                        */
-  long int kin_mxiter;         /* maximum number of nonlinear iterations       */
-  long int kin_msbset;         /* maximum number of nonlinear iterations that
+  long int kin_mxiter;       /* maximum number of nonlinear iterations       */
+  long int kin_msbset;       /* maximum number of nonlinear iterations that
                                   may be performed between calls to the
                                   linear solver setup routine (lsetup)         */
-  long int kin_msbset_sub;     /* subinterval length for residual monitoring   */
-  long int kin_mxnbcf;         /* maximum number of beta condition failures    */
-  int kin_etaflag;             /* choices are KIN_ETACONSTANT, KIN_ETACHOICE1
+  long int kin_msbset_sub;   /* subinterval length for residual monitoring   */
+  long int kin_mxnbcf;       /* maximum number of beta condition failures    */
+  int kin_etaflag;           /* choices are KIN_ETACONSTANT, KIN_ETACHOICE1
                                   and KIN_ETACHOICE2                           */
-  sunbooleantype kin_noMinEps;    /* flag controlling whether or not the value
+  sunbooleantype kin_noMinEps; /* flag controlling whether or not the value
                                   of eps is bounded below                      */
   sunbooleantype kin_constraintsSet; /* flag indicating if constraints are being
                                      used                                      */
@@ -105,10 +105,10 @@ typedef struct KINMemRec {
                                      used by the linear solver is current      */
   sunbooleantype kin_callForcingTerm; /* flag set if using either KIN_ETACHOICE1
                                       or KIN_ETACHOICE2                        */
-  sunbooleantype kin_noResMon;         /* flag indicating if the nonlinear
+  sunbooleantype kin_noResMon;        /* flag indicating if the nonlinear
                                        residual monitoring scheme should be
                                        used                                    */
-  sunbooleantype kin_retry_nni;        /* flag indicating if nonlinear iteration
+  sunbooleantype kin_retry_nni;       /* flag indicating if nonlinear iteration
                                        should be retried (set by residual
                                        monitoring algorithm)                   */
   sunbooleantype kin_update_fnorm_sub; /* flag indicating if the fnorm associated
@@ -116,16 +116,16 @@ typedef struct KINMemRec {
                                        updated (set by residual monitoring
                                        algorithm)                              */
 
-  sunrealtype kin_mxnewtstep;     /* maximum allowable scaled step length         */
-  sunrealtype kin_mxnstepin;      /* input (or preset) value for mxnewtstep       */
-  sunrealtype kin_sqrt_relfunc;   /* relative error bound for func(u)             */
-  sunrealtype kin_stepl;          /* scaled length of current step                */
-  sunrealtype kin_stepmul;        /* step scaling factor                          */
-  sunrealtype kin_eps;            /* current value of eps                         */
-  sunrealtype kin_eta;            /* current value of eta                         */
-  sunrealtype kin_eta_gamma;      /* gamma value used in eta calculation
+  sunrealtype kin_mxnewtstep; /* maximum allowable scaled step length         */
+  sunrealtype kin_mxnstepin;  /* input (or preset) value for mxnewtstep       */
+  sunrealtype kin_sqrt_relfunc; /* relative error bound for func(u)             */
+  sunrealtype kin_stepl;     /* scaled length of current step                */
+  sunrealtype kin_stepmul;   /* step scaling factor                          */
+  sunrealtype kin_eps;       /* current value of eps                         */
+  sunrealtype kin_eta;       /* current value of eta                         */
+  sunrealtype kin_eta_gamma; /* gamma value used in eta calculation
                                   (choice #2)                                  */
-  sunrealtype kin_eta_alpha;      /* alpha value used in eta calculation
+  sunrealtype kin_eta_alpha; /* alpha value used in eta calculation
                                   (choice #2)                                  */
   sunbooleantype kin_noInitSetup; /* flag controlling whether or not the KINSol
                                   routine makes an initial call to the
@@ -135,112 +135,112 @@ typedef struct KINMemRec {
 
   /* counters */
 
-  long int kin_nni;            /* number of nonlinear iterations               */
-  long int kin_nfe;            /* number of calls made to func routine         */
-  long int kin_nnilset;        /* value of nni counter when the linear solver
+  long int kin_nni;         /* number of nonlinear iterations               */
+  long int kin_nfe;         /* number of calls made to func routine         */
+  long int kin_nnilset;     /* value of nni counter when the linear solver
                                   setup was last called                        */
-  long int kin_nnilset_sub;    /* value of nni counter when the linear solver
+  long int kin_nnilset_sub; /* value of nni counter when the linear solver
                                   setup was last called (subinterval)          */
-  long int kin_nbcf;           /* number of times the beta-condition could not
+  long int kin_nbcf;        /* number of times the beta-condition could not
                                   be met in KINLineSearch                      */
-  long int kin_nbktrk;         /* number of backtracks performed by
+  long int kin_nbktrk;      /* number of backtracks performed by
                                   KINLineSearch                                */
-  long int kin_ncscmx;         /* number of consecutive steps of size
+  long int kin_ncscmx;      /* number of consecutive steps of size
                                   mxnewtstep taken                             */
 
   /* vectors */
 
-  N_Vector kin_uu;          /* solution vector/current iterate (initially
+  N_Vector kin_uu;     /* solution vector/current iterate (initially
                                contains initial guess, but holds approximate
                                solution upon completion if no errors occurred) */
-  N_Vector kin_unew;        /* next iterate (unew = uu+pp)                     */
-  N_Vector kin_fval;        /* vector containing result of nonlinear system
+  N_Vector kin_unew;   /* next iterate (unew = uu+pp)                     */
+  N_Vector kin_fval;   /* vector containing result of nonlinear system
                                function evaluated at a given iterate
                                (fval = func(uu))                               */
-  N_Vector kin_gval;        /* vector containing result of the fixed point
+  N_Vector kin_gval;   /* vector containing result of the fixed point
                                function evaluated at a given iterate;
                                used in KIN_PICARD strategy only.
                                (gval = uu - L^{-1}fval(uu))                    */
-  N_Vector kin_uscale;      /* iterate scaling vector                          */
-  N_Vector kin_fscale;      /* fval scaling vector                             */
-  N_Vector kin_pp;          /* incremental change vector (pp = unew-uu)        */
+  N_Vector kin_uscale; /* iterate scaling vector                          */
+  N_Vector kin_fscale; /* fval scaling vector                             */
+  N_Vector kin_pp;     /* incremental change vector (pp = unew-uu)        */
   N_Vector kin_constraints; /* constraints vector                              */
-  N_Vector kin_vtemp1;      /* scratch vector #1                               */
-  N_Vector kin_vtemp2;      /* scratch vector #2                               */
-  N_Vector kin_vtemp3;      /* scratch vector #3                               */
+  N_Vector kin_vtemp1; /* scratch vector #1                               */
+  N_Vector kin_vtemp2; /* scratch vector #2                               */
+  N_Vector kin_vtemp3; /* scratch vector #3                               */
 
   /* fixed point and Picard options */
   sunbooleantype kin_ret_newest; /* return the newest FP iteration     */
   sunbooleantype kin_damping;    /* flag to apply damping in FP/Picard */
-  sunrealtype    kin_beta;       /* damping parameter for FP/Picard    */
+  sunrealtype kin_beta;          /* damping parameter for FP/Picard    */
 
   /* space requirements for AA, Broyden and NLEN */
-  N_Vector kin_fold_aa;       /* vector needed for AA, Broyden, and NLEN         */
-  N_Vector kin_gold_aa;       /* vector needed for AA, Broyden, and NLEN         */
-  N_Vector *kin_df_aa;        /* vector array needed for AA, Broyden, and NLEN   */
-  N_Vector *kin_dg_aa;        /* vector array needed for AA, Broyden and NLEN    */
-  N_Vector *kin_q_aa;         /* vector array needed for AA                      */
-  sunrealtype kin_beta_aa;       /* beta damping parameter for AA                   */
-  sunrealtype *kin_gamma_aa;     /* array of size maa used in AA                    */
-  sunrealtype *kin_R_aa;         /* array of size maa*maa used in AA                */
-  sunrealtype *kin_T_aa;         /* array of size maa*maa used in AA with ICWY MGS  */
-  long int *kin_ipt_map;      /* array of size maa*maa/2 used in AA              */
-  long int kin_m_aa;          /* parameter for AA, Broyden or NLEN               */
-  long int kin_delay_aa;      /* number of iterations to delay AA */
-  int kin_orth_aa;            /* parameter for AA determining orthogonalization
+  N_Vector kin_fold_aa;    /* vector needed for AA, Broyden, and NLEN         */
+  N_Vector kin_gold_aa;    /* vector needed for AA, Broyden, and NLEN         */
+  N_Vector* kin_df_aa;     /* vector array needed for AA, Broyden, and NLEN   */
+  N_Vector* kin_dg_aa;     /* vector array needed for AA, Broyden and NLEN    */
+  N_Vector* kin_q_aa;      /* vector array needed for AA                      */
+  sunrealtype kin_beta_aa; /* beta damping parameter for AA                   */
+  sunrealtype* kin_gamma_aa; /* array of size maa used in AA                    */
+  sunrealtype* kin_R_aa;  /* array of size maa*maa used in AA                */
+  sunrealtype* kin_T_aa;  /* array of size maa*maa used in AA with ICWY MGS  */
+  long int* kin_ipt_map;  /* array of size maa*maa/2 used in AA              */
+  long int kin_m_aa;      /* parameter for AA, Broyden or NLEN               */
+  long int kin_delay_aa;  /* number of iterations to delay AA */
+  int kin_orth_aa;        /* parameter for AA determining orthogonalization
                                  routine
                                  0 - Modified Gram Schmidt (standard)
                                  1 - ICWY Modified Gram Schmidt (Bjorck)
                                  2 - CGS2 (Hernandez)
                                  3 - Delayed CGS2 (Hernandez)                    */
-  SUNQRAddFn kin_qr_func;     /* QRAdd function for AA orthogonalization         */
-  SUNQRData  kin_qr_data;     /* Additional parameters required for QRAdd routine
+  SUNQRAddFn kin_qr_func; /* QRAdd function for AA orthogonalization         */
+  SUNQRData kin_qr_data;  /* Additional parameters required for QRAdd routine
                                  set for AA                                      */
   sunbooleantype kin_damping_aa; /* flag to apply damping in AA                     */
-  sunrealtype *kin_cv;           /* scalar array for fused vector operations        */
-  N_Vector *kin_Xv;           /* vector array for fused vector operations        */
+  sunrealtype* kin_cv; /* scalar array for fused vector operations        */
+  N_Vector* kin_Xv;    /* vector array for fused vector operations        */
 
   /* space requirements for vector storage */
 
-  sunindextype kin_lrw1;    /* number of sunrealtype-sized memory blocks needed
+  sunindextype kin_lrw1; /* number of sunrealtype-sized memory blocks needed
                                for a single N_Vector                           */
-  sunindextype kin_liw1;    /* number of int-sized memory blocks needed for
+  sunindextype kin_liw1; /* number of int-sized memory blocks needed for
                                a single N_Vecotr                               */
-  long int kin_lrw;         /* total number of sunrealtype-sized memory blocks
+  long int kin_lrw;      /* total number of sunrealtype-sized memory blocks
                                needed for all KINSOL work vectors              */
-  long int kin_liw;         /* total number of int-sized memory blocks needed
+  long int kin_liw;      /* total number of int-sized memory blocks needed
                                for all KINSOL work vectors                     */
 
   /* linear solver data */
 
   /* function prototypes (pointers) */
 
-  int (*kin_linit)(struct KINMemRec *kin_mem);
+  int (*kin_linit)(struct KINMemRec* kin_mem);
 
-  int (*kin_lsetup)(struct KINMemRec *kin_mem);
+  int (*kin_lsetup)(struct KINMemRec* kin_mem);
 
-  int (*kin_lsolve)(struct KINMemRec *kin_mem, N_Vector xx, N_Vector bb,
-                    sunrealtype *sJpnorm, sunrealtype *sFdotJp);
+  int (*kin_lsolve)(struct KINMemRec* kin_mem, N_Vector xx, N_Vector bb,
+                    sunrealtype* sJpnorm, sunrealtype* sFdotJp);
 
-  int (*kin_lfree)(struct KINMemRec *kin_mem);
+  int (*kin_lfree)(struct KINMemRec* kin_mem);
 
   sunbooleantype kin_inexact_ls; /* flag set by the linear solver module
                                  (in linit) indicating whether this is an
                                  iterative linear solver (SUNTRUE), or a direct
                                  linear solver (SUNFALSE)                       */
 
-  void *kin_lmem;         /* pointer to linear solver memory block             */
+  void* kin_lmem; /* pointer to linear solver memory block             */
 
-  sunrealtype kin_fnorm;     /* value of L2-norm of fscale*fval                   */
-  sunrealtype kin_f1norm;    /* f1norm = 0.5*(fnorm)^2                            */
-  sunrealtype kin_sFdotJp;   /* value of scaled F(u) vector (fscale*fval)
+  sunrealtype kin_fnorm; /* value of L2-norm of fscale*fval                   */
+  sunrealtype kin_f1norm; /* f1norm = 0.5*(fnorm)^2                            */
+  sunrealtype kin_sFdotJp; /* value of scaled F(u) vector (fscale*fval)
                              dotted with scaled J(u)*pp vector (set by lsolve) */
-  sunrealtype kin_sJpnorm;   /* value of L2-norm of fscale*(J(u)*pp)
+  sunrealtype kin_sJpnorm; /* value of L2-norm of fscale*(J(u)*pp)
                              (set by lsolve)                                   */
 
   sunrealtype kin_fnorm_sub; /* value of L2-norm of fscale*fval (subinterval)     */
   sunbooleantype kin_eval_omega; /* flag indicating that omega must be evaluated. */
-  sunrealtype kin_omega;     /* constant value for real scalar used in test to
+  sunrealtype kin_omega; /* constant value for real scalar used in test to
                              determine if reduction of norm of nonlinear
                              residual is sufficient. Unless a valid constant
                              value is specified by the user, omega is estimated
@@ -273,11 +273,11 @@ typedef struct KINMemRec {
     Error handler function and error ouput file
     -------------------------------------------*/
 
-  KINErrHandlerFn kin_ehfun;   /* Error messages are handled by ehfun          */
-  void *kin_eh_data;           /* dats pointer passed to ehfun                 */
-  FILE *kin_errfp;             /* KINSOL error messages are sent to errfp      */
+  KINErrHandlerFn kin_ehfun; /* Error messages are handled by ehfun          */
+  void* kin_eh_data;         /* dats pointer passed to ehfun                 */
+  FILE* kin_errfp;           /* KINSOL error messages are sent to errfp      */
 
-} *KINMem;
+}* KINMem;
 
 /*
  * =================================================================
@@ -383,29 +383,25 @@ typedef struct KINMemRec {
  * =================================================================
  */
 
-
 /* High level error handler */
 
-void KINProcessError(KINMem kin_mem,
-                     int error_code, const char *module, const char *fname,
-                     const char *msgfmt, ...);
+void KINProcessError(KINMem kin_mem, int error_code, const char* module,
+                     const char* fname, const char* msgfmt, ...);
 
 /* Prototype of internal errHandler function */
 
-void KINErrHandler(int error_code, const char *module, const char *function,
-                   char *msg, void *user_data);
-
+void KINErrHandler(int error_code, const char* module, const char* function,
+                   char* msg, void* user_data);
 
 /* High level info handler */
 
-void KINPrintInfo(KINMem kin_mem,
-                  int info_code, const char *module, const char *fname,
-                  const char *msgfmt, ...);
+void KINPrintInfo(KINMem kin_mem, int info_code, const char* module,
+                  const char* fname, const char* msgfmt, ...);
 
 /* Prototype of internal infoHandler function */
 
-void KINInfoHandler(const char *module, const char *function,
-                    char *msg, void *user_data);
+void KINInfoHandler(const char* module, const char* function, char* msg,
+                    void* user_data);
 
 /*
  * =================================================================
@@ -413,30 +409,30 @@ void KINInfoHandler(const char *module, const char *function,
  * =================================================================
  */
 
-#define MSG_MEM_FAIL           "A memory request failed."
-#define MSG_NO_MEM             "kinsol_mem = NULL illegal."
-#define MSG_NULL_SUNCTX        "sunctx = NULL illegal."
-#define MSG_BAD_NVECTOR        "A required vector operation is not implemented."
-#define MSG_FUNC_NULL          "func = NULL illegal."
-#define MSG_NO_MALLOC          "Attempt to call before KINMalloc illegal."
+#define MSG_MEM_FAIL    "A memory request failed."
+#define MSG_NO_MEM      "kinsol_mem = NULL illegal."
+#define MSG_NULL_SUNCTX "sunctx = NULL illegal."
+#define MSG_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSG_FUNC_NULL   "func = NULL illegal."
+#define MSG_NO_MALLOC   "Attempt to call before KINMalloc illegal."
 
-#define MSG_BAD_MXITER         "Illegal value for mxiter."
-#define MSG_BAD_MSBSET         "Illegal msbset < 0."
-#define MSG_BAD_MSBSETSUB      "Illegal msbsetsub < 0."
-#define MSG_BAD_ETACHOICE      "Illegal value for etachoice."
-#define MSG_BAD_ETACONST       "eta out of range."
-#define MSG_BAD_GAMMA          "gamma out of range."
-#define MSG_BAD_ALPHA          "alpha out of range."
-#define MSG_BAD_MXNEWTSTEP     "Illegal mxnewtstep < 0."
-#define MSG_BAD_RELFUNC        "relfunc < 0 illegal."
-#define MSG_BAD_FNORMTOL       "fnormtol < 0 illegal."
-#define MSG_BAD_SCSTEPTOL      "scsteptol < 0 illegal."
-#define MSG_BAD_MXNBCF         "mxbcf < 0 illegal."
-#define MSG_BAD_CONSTRAINTS    "Illegal values in constraints vector."
-#define MSG_BAD_OMEGA          "scalars < 0 illegal."
-#define MSG_BAD_MAA            "maa < 0 illegal."
-#define MSG_BAD_ORTHAA         "Illegal value for orthaa."
-#define MSG_ZERO_MAA           "maa = 0 illegal."
+#define MSG_BAD_MXITER      "Illegal value for mxiter."
+#define MSG_BAD_MSBSET      "Illegal msbset < 0."
+#define MSG_BAD_MSBSETSUB   "Illegal msbsetsub < 0."
+#define MSG_BAD_ETACHOICE   "Illegal value for etachoice."
+#define MSG_BAD_ETACONST    "eta out of range."
+#define MSG_BAD_GAMMA       "gamma out of range."
+#define MSG_BAD_ALPHA       "alpha out of range."
+#define MSG_BAD_MXNEWTSTEP  "Illegal mxnewtstep < 0."
+#define MSG_BAD_RELFUNC     "relfunc < 0 illegal."
+#define MSG_BAD_FNORMTOL    "fnormtol < 0 illegal."
+#define MSG_BAD_SCSTEPTOL   "scsteptol < 0 illegal."
+#define MSG_BAD_MXNBCF      "mxbcf < 0 illegal."
+#define MSG_BAD_CONSTRAINTS "Illegal values in constraints vector."
+#define MSG_BAD_OMEGA       "scalars < 0 illegal."
+#define MSG_BAD_MAA         "maa < 0 illegal."
+#define MSG_BAD_ORTHAA      "Illegal value for orthaa."
+#define MSG_ZERO_MAA        "maa = 0 illegal."
 
 #define MSG_LSOLV_NO_MEM       "The linear solver memory pointer is NULL."
 #define MSG_UU_NULL            "uu = NULL illegal."
@@ -445,21 +441,37 @@ void KINInfoHandler(const char *module, const char *function,
 #define MSG_USCALE_NONPOSITIVE "uscale has nonpositive elements."
 #define MSG_BAD_FSCALE         "fscale = NULL illegal."
 #define MSG_FSCALE_NONPOSITIVE "fscale has nonpositive elements."
-#define MSG_CONSTRAINTS_NOTOK  "Constraints not allowed with fixed point or Picard iterations"
-#define MSG_INITIAL_CNSTRNT    "Initial guess does NOT meet constraints."
-#define MSG_LINIT_FAIL         "The linear solver's init routine failed."
+#define MSG_CONSTRAINTS_NOTOK \
+  "Constraints not allowed with fixed point or Picard iterations"
+#define MSG_INITIAL_CNSTRNT "Initial guess does NOT meet constraints."
+#define MSG_LINIT_FAIL      "The linear solver's init routine failed."
 
-#define MSG_SYSFUNC_FAILED      "The system function failed in an unrecoverable manner."
-#define MSG_SYSFUNC_FIRST       "The system function failed at the first call."
-#define MSG_LSETUP_FAILED       "The linear solver's setup function failed in an unrecoverable manner."
-#define MSG_LSOLVE_FAILED       "The linear solver's solve function failed in an unrecoverable manner."
-#define MSG_LINSOLV_NO_RECOVERY "The linear solver's solve function failed recoverably, but the Jacobian data is already current."
-#define MSG_LINESEARCH_NONCONV  "The line search algorithm was unable to find an iterate sufficiently distinct from the current iterate."
-#define MSG_LINESEARCH_BCFAIL   "The line search algorithm was unable to satisfy the beta-condition for nbcfails iterations."
-#define MSG_MAXITER_REACHED     "The maximum number of iterations was reached before convergence."
-#define MSG_MXNEWT_5X_EXCEEDED  "Five consecutive steps have been taken that satisfy a scaled step length test."
-#define MSG_SYSFUNC_REPTD       "Unable to correct repeated recoverable system function errors."
-#define MSG_NOL_FAIL            "Unable to find user's Linear Jacobian, which is required for the KIN_PICARD Strategy"
+#define MSG_SYSFUNC_FAILED \
+  "The system function failed in an unrecoverable manner."
+#define MSG_SYSFUNC_FIRST "The system function failed at the first call."
+#define MSG_LSETUP_FAILED \
+  "The linear solver's setup function failed in an unrecoverable manner."
+#define MSG_LSOLVE_FAILED \
+  "The linear solver's solve function failed in an unrecoverable manner."
+#define MSG_LINSOLV_NO_RECOVERY                                              \
+  "The linear solver's solve function failed recoverably, but the Jacobian " \
+  "data is already current."
+#define MSG_LINESEARCH_NONCONV                                            \
+  "The line search algorithm was unable to find an iterate sufficiently " \
+  "distinct from the current iterate."
+#define MSG_LINESEARCH_BCFAIL                                               \
+  "The line search algorithm was unable to satisfy the beta-condition for " \
+  "nbcfails iterations."
+#define MSG_MAXITER_REACHED \
+  "The maximum number of iterations was reached before convergence."
+#define MSG_MXNEWT_5X_EXCEEDED                                                \
+  "Five consecutive steps have been taken that satisfy a scaled step length " \
+  "test."
+#define MSG_SYSFUNC_REPTD \
+  "Unable to correct repeated recoverable system function errors."
+#define MSG_NOL_FAIL                                                  \
+  "Unable to find user's Linear Jacobian, which is required for the " \
+  "KIN_PICARD Strategy"
 
 /*
  * =================================================================
@@ -467,55 +479,60 @@ void KINInfoHandler(const char *module, const char *function,
  * =================================================================
  */
 
-#define INFO_IVAR      "%s = %d"
-#define INFO_LIVAR     "%s = %ld"
-#define INFO_RETVAL    "Return value: %d"
-#define INFO_ADJ       "no. of lambda adjustments = %ld"
+#define INFO_IVAR   "%s = %d"
+#define INFO_LIVAR  "%s = %ld"
+#define INFO_RETVAL "Return value: %d"
+#define INFO_ADJ    "no. of lambda adjustments = %ld"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 
-#define INFO_RVAR      "%s = %26.16Lg"
-#define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16Lg"
-#define INFO_TOL       "scsteptol = %12.3Lg  fnormtol = %12.3Lg"
-#define INFO_FMAX      "scaled f norm (for stopping) = %12.3Lg"
-#define INFO_PNORM     "pnorm = %12.4Le"
-#define INFO_PNORM1    "(ivio=1) pnorm = %12.4Le"
-#define INFO_FNORM     "fnorm(L2) = %20.8Le"
-#define INFO_LAM       "min_lam = %11.4Le   f1norm = %11.4Le   pnorm = %11.4Le"
-#define INFO_ALPHA     "fnorm = %15.8Le   f1norm = %15.8Le   alpha_cond = %15.8Le  lam = %15.8Le"
-#define INFO_BETA      "f1norm = %15.8Le   beta_cond = %15.8Le   lam = %15.8Le"
-#define INFO_ALPHABETA "f1norm = %15.8Le  alpha_cond = %15.8Le  beta_cond = %15.8Le  lam = %15.8Le"
+#define INFO_RVAR   "%s = %26.16Lg"
+#define INFO_NNI    "nni = %4ld   nfe = %6ld   fnorm = %26.16Lg"
+#define INFO_TOL    "scsteptol = %12.3Lg  fnormtol = %12.3Lg"
+#define INFO_FMAX   "scaled f norm (for stopping) = %12.3Lg"
+#define INFO_PNORM  "pnorm = %12.4Le"
+#define INFO_PNORM1 "(ivio=1) pnorm = %12.4Le"
+#define INFO_FNORM  "fnorm(L2) = %20.8Le"
+#define INFO_LAM    "min_lam = %11.4Le   f1norm = %11.4Le   pnorm = %11.4Le"
+#define INFO_ALPHA \
+  "fnorm = %15.8Le   f1norm = %15.8Le   alpha_cond = %15.8Le  lam = %15.8Le"
+#define INFO_BETA "f1norm = %15.8Le   beta_cond = %15.8Le   lam = %15.8Le"
+#define INFO_ALPHABETA \
+  "f1norm = %15.8Le  alpha_cond = %15.8Le  beta_cond = %15.8Le  lam = %15.8Le"
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
-#define INFO_RVAR      "%s = %26.16lg"
-#define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16lg"
-#define INFO_TOL       "scsteptol = %12.3lg  fnormtol = %12.3lg"
-#define INFO_FMAX      "scaled f norm (for stopping) = %12.3lg"
-#define INFO_PNORM     "pnorm = %12.4le"
-#define INFO_PNORM1    "(ivio=1) pnorm = %12.4le"
-#define INFO_FNORM     "fnorm(L2) = %20.8le"
-#define INFO_LAM       "min_lam = %11.4le   f1norm = %11.4le   pnorm = %11.4le"
-#define INFO_ALPHA     "fnorm = %15.8le   f1norm = %15.8le   alpha_cond = %15.8le  lam = %15.8le"
-#define INFO_BETA      "f1norm = %15.8le   beta_cond = %15.8le   lam = %15.8le"
-#define INFO_ALPHABETA "f1norm = %15.8le  alpha_cond = %15.8le  beta_cond = %15.8le  lam = %15.8le"
+#define INFO_RVAR   "%s = %26.16lg"
+#define INFO_NNI    "nni = %4ld   nfe = %6ld   fnorm = %26.16lg"
+#define INFO_TOL    "scsteptol = %12.3lg  fnormtol = %12.3lg"
+#define INFO_FMAX   "scaled f norm (for stopping) = %12.3lg"
+#define INFO_PNORM  "pnorm = %12.4le"
+#define INFO_PNORM1 "(ivio=1) pnorm = %12.4le"
+#define INFO_FNORM  "fnorm(L2) = %20.8le"
+#define INFO_LAM    "min_lam = %11.4le   f1norm = %11.4le   pnorm = %11.4le"
+#define INFO_ALPHA \
+  "fnorm = %15.8le   f1norm = %15.8le   alpha_cond = %15.8le  lam = %15.8le"
+#define INFO_BETA "f1norm = %15.8le   beta_cond = %15.8le   lam = %15.8le"
+#define INFO_ALPHABETA \
+  "f1norm = %15.8le  alpha_cond = %15.8le  beta_cond = %15.8le  lam = %15.8le"
 
 #else
 
-#define INFO_RVAR      "%s = %26.16g"
-#define INFO_NNI       "nni = %4ld   nfe = %6ld   fnorm = %26.16g"
-#define INFO_TOL       "scsteptol = %12.3g  fnormtol = %12.3g"
-#define INFO_FMAX      "scaled f norm (for stopping) = %12.3g"
-#define INFO_PNORM     "pnorm = %12.4e"
-#define INFO_PNORM1    "(ivio=1) pnorm = %12.4e"
-#define INFO_FNORM     "fnorm(L2) = %20.8e"
-#define INFO_LAM       "min_lam = %11.4e   f1norm = %11.4e   pnorm = %11.4e"
-#define INFO_ALPHA     "fnorm = %15.8e   f1norm = %15.8e   alpha_cond = %15.8e  lam = %15.8e"
-#define INFO_BETA      "f1norm = %15.8e   beta_cond = %15.8e   lam = %15.8e"
-#define INFO_ALPHABETA "f1norm = %15.8e  alpha_cond = %15.8e  beta_cond = %15.8e  lam = %15.8e"
+#define INFO_RVAR   "%s = %26.16g"
+#define INFO_NNI    "nni = %4ld   nfe = %6ld   fnorm = %26.16g"
+#define INFO_TOL    "scsteptol = %12.3g  fnormtol = %12.3g"
+#define INFO_FMAX   "scaled f norm (for stopping) = %12.3g"
+#define INFO_PNORM  "pnorm = %12.4e"
+#define INFO_PNORM1 "(ivio=1) pnorm = %12.4e"
+#define INFO_FNORM  "fnorm(L2) = %20.8e"
+#define INFO_LAM    "min_lam = %11.4e   f1norm = %11.4e   pnorm = %11.4e"
+#define INFO_ALPHA \
+  "fnorm = %15.8e   f1norm = %15.8e   alpha_cond = %15.8e  lam = %15.8e"
+#define INFO_BETA "f1norm = %15.8e   beta_cond = %15.8e   lam = %15.8e"
+#define INFO_ALPHABETA \
+  "f1norm = %15.8e  alpha_cond = %15.8e  beta_cond = %15.8e  lam = %15.8e"
 
 #endif
-
 
 #ifdef __cplusplus
 }
