@@ -20,10 +20,8 @@
 #define _CVODE_IMPL_H
 
 #include <cvode/cvode.h>
-#include <sundials/priv/sundials_errors_impl.h>
-#include "cvode_proj_impl.h"
 #include <sundials/priv/sundials_context_impl.h>
-#include "sundials_logger_impl.h"
+#include <sundials/priv/sundials_errors_impl.h>
 
 #include "cvode_proj_impl.h"
 #include "sundials/sundials_math.h"
@@ -614,8 +612,8 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void* data);
 
 /* High level error handler */
 
-void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char *func,
-                    const char *file, const char *msgfmt, ...);
+void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
+                    const char* file, const char* msgfmt, ...);
 
 /* Nonlinear solver initialization */
 
