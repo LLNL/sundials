@@ -82,8 +82,8 @@ extern "C" {
 
 typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void* user_data);
 
-typedef void (*KINInfoHandlerFn)(const char *module, const char *function,
-                                 char *msg, void *user_data);
+typedef void (*KINInfoHandlerFn)(const char* module, const char* function,
+                                 char* msg, void* user_data);
 
 /* -------------------
  * Exported Functions

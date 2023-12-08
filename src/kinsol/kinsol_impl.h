@@ -268,7 +268,7 @@ typedef struct KINMemRec
   sunbooleantype kin_MallocDone; /* flag indicating if KINMalloc has been
                                  called yet                                    */
 
-} *KINMem;
+}* KINMem;
 
 /*
  * =================================================================
