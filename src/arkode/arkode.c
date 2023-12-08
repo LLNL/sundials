@@ -3329,7 +3329,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
   vsnprintf(msg, msglen, msgfmt, ap);
 
   if (ark_mem == NULL)
-  { 
+  {
     SUNGlobalFallbackErrHandler(line, func, file, msg, error_code);
   }
   else

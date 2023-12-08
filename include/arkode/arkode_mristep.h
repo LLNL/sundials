@@ -182,15 +182,12 @@ SUNDIALS_EXPORT int MRIStepSetMaxHnilWarns(void* arkode_mem, int mxhnil);
 SUNDIALS_EXPORT int MRIStepSetStopTime(void* arkode_mem, sunrealtype tstop);
 SUNDIALS_EXPORT int MRIStepSetInterpolateStopTime(void* arkode_mem,
                                                   sunbooleantype interp);
-SUNDIALS_EXPORT int MRIStepClearStopTime(void *arkode_mem);
-SUNDIALS_EXPORT int MRIStepSetFixedStep(void *arkode_mem,
-                                        sunrealtype hsfixed);
-SUNDIALS_EXPORT int MRIStepSetRootDirection(void *arkode_mem,
-                                            int *rootdir);
-SUNDIALS_EXPORT int MRIStepSetNoInactiveRootWarn(void *arkode_mem);
-SUNDIALS_EXPORT int MRIStepSetUserData(void *arkode_mem,
-                                       void *user_data);
-SUNDIALS_EXPORT int MRIStepSetPostprocessStepFn(void *arkode_mem,
+SUNDIALS_EXPORT int MRIStepClearStopTime(void* arkode_mem);
+SUNDIALS_EXPORT int MRIStepSetFixedStep(void* arkode_mem, sunrealtype hsfixed);
+SUNDIALS_EXPORT int MRIStepSetRootDirection(void* arkode_mem, int* rootdir);
+SUNDIALS_EXPORT int MRIStepSetNoInactiveRootWarn(void* arkode_mem);
+SUNDIALS_EXPORT int MRIStepSetUserData(void* arkode_mem, void* user_data);
+SUNDIALS_EXPORT int MRIStepSetPostprocessStepFn(void* arkode_mem,
                                                 ARKPostProcessFn ProcessStep);
 SUNDIALS_EXPORT int MRIStepSetPostprocessStageFn(void* arkode_mem,
                                                  ARKPostProcessFn ProcessStage);

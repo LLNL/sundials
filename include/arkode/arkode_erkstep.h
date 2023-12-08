@@ -118,8 +118,7 @@ SUNDIALS_EXPORT int ERKStepSetMaxNumConstrFails(void* arkode_mem, int maxfails);
 SUNDIALS_EXPORT int ERKStepSetRootDirection(void* arkode_mem, int* rootdir);
 SUNDIALS_EXPORT int ERKStepSetNoInactiveRootWarn(void* arkode_mem);
 
-SUNDIALS_EXPORT int ERKStepSetUserData(void *arkode_mem,
-                                       void *user_data);
+SUNDIALS_EXPORT int ERKStepSetUserData(void* arkode_mem, void* user_data);
 
 SUNDIALS_EXPORT int ERKStepSetPostprocessStepFn(void* arkode_mem,
                                                 ARKPostProcessFn ProcessStep);

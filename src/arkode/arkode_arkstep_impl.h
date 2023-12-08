@@ -25,7 +25,7 @@
 #include "arkode_impl.h"
 #include "arkode_ls_impl.h"
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 

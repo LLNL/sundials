@@ -64,15 +64,15 @@ int arkSetDefaults(void* arkode_mem)
   ark_mem->SRabstol  = SUN_RCONST(1.e-9); /* residual absolute tolerance */
   ark_mem->Ratolmin0 = SUNFALSE;          /* min(Rabstol) > 0 */
   ark_mem->user_efun = SUNFALSE;          /* no user-supplied ewt function */
-  ark_mem->efun      = arkEwtSetSS;   /* built-in scalar-scalar ewt function */
-  ark_mem->e_data    = ark_mem;       /* ewt function data */
-  ark_mem->user_rfun = SUNFALSE;      /* no user-supplied rwt function */
-  ark_mem->rfun      = arkRwtSet;     /* built-in rwt function */
-  ark_mem->r_data    = ark_mem;       /* rwt function data */
-  ark_mem->mxstep    = MXSTEP_DEFAULT;      /* max number of steps */
-  ark_mem->mxhnil    = MXHNIL;              /* max warns of t+h==t */
-  ark_mem->maxnef    = MAXNEF;              /* max error test fails */
-  ark_mem->maxncf    = MAXNCF;              /* max convergence fails */
+  ark_mem->efun      = arkEwtSetSS;    /* built-in scalar-scalar ewt function */
+  ark_mem->e_data    = ark_mem;        /* ewt function data */
+  ark_mem->user_rfun = SUNFALSE;       /* no user-supplied rwt function */
+  ark_mem->rfun      = arkRwtSet;      /* built-in rwt function */
+  ark_mem->r_data    = ark_mem;        /* rwt function data */
+  ark_mem->mxstep    = MXSTEP_DEFAULT; /* max number of steps */
+  ark_mem->mxhnil    = MXHNIL;         /* max warns of t+h==t */
+  ark_mem->maxnef    = MAXNEF;         /* max error test fails */
+  ark_mem->maxncf    = MAXNCF;         /* max convergence fails */
   ark_mem->maxconstrfails = MAXCONSTRFAILS; /* max number of constraint fails */
   ark_mem->hin            = ZERO;       /* determine initial step on-the-fly */
   ark_mem->hmin           = ZERO;       /* no minimum step size */

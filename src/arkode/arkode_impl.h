@@ -23,17 +23,16 @@
 #include <arkode/arkode_butcher_erk.h>
 #include <stdarg.h>
 #include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
 
-#include <sundials/priv/sundials_context_impl.h>
-#include <sundials/priv/sundials_errors_impl.h>
-#include "sundials_logger_impl.h"
-#include "arkode_types_impl.h"
 #include "arkode_adapt_impl.h"
-#include "arkode_root_impl.h"
 #include "arkode_relaxation_impl.h"
+#include "arkode_root_impl.h"
+#include "arkode_types_impl.h"
+#include "sundials_logger_impl.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -865,8 +864,8 @@ int arkExpStab(N_Vector y, sunrealtype t, sunrealtype* hstab, void* user_data);
   HIGH LEVEL ERROR HANDLER, USED THROUGHOUT ARKODE
   ===============================================================*/
 
-void arkProcessError(ARKodeMem ark_mem, int error_code, int line, const char *func,
-                     const char* file, const char *msgfmt, ...);
+void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
+                     const char* func, const char* file, const char* msgfmt, ...);
 
 /*===============================================================
   ARKODE PRIVATE FUNCTION PROTOTYPES
@@ -946,72 +945,68 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
 int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
                        ARKodeHAdaptMem* hadapt_mem);
 
-int arkSetAdaptController(void *arkode_mem, SUNAdaptController C);
-int arkSetDefaults(void *arkode_mem);
-int arkSetDenseOrder(void *arkode_mem, int dord);
-int arkSetInterpolantType(void *arkode_mem, int itype);
-int arkSetInterpolantDegree(void *arkode_mem, int degree);
-int arkSetUserData(void *arkode_mem, void *user_data);
-int arkSetMaxNumSteps(void *arkode_mem, long int mxsteps);
-int arkSetMaxHnilWarns(void *arkode_mem, int mxhnil);
-int arkSetInitStep(void *arkode_mem, sunrealtype hin);
-int arkSetMinStep(void *arkode_mem, sunrealtype hmin);
-int arkSetMaxStep(void *arkode_mem, sunrealtype hmax);
-int arkSetStopTime(void *arkode_mem, sunrealtype tstop);
-int arkSetInterpolateStopTime(void *arkode_mem, sunbooleantype interp);
-int arkClearStopTime(void *arkode_mem);
-int arkSetFixedStep(void *arkode_mem, sunrealtype hfixed);
-int arkSetRootDirection(void *arkode_mem, int *rootdir);
-int arkSetNoInactiveRootWarn(void *arkode_mem);
-int arkSetPostprocessStepFn(void *arkode_mem,
-                            ARKPostProcessFn ProcessStep);
-int arkSetPostprocessStageFn(void *arkode_mem,
-                             ARKPostProcessFn ProcessStage);
-int arkSetConstraints(void *arkode_mem, N_Vector constraints);
-int arkSetMaxNumConstrFails(void *arkode_mem, int maxfails);
-int arkSetAdaptivityAdjustment(void *arkode_mem, int adjust);
-int arkSetCFLFraction(void *arkode_mem, sunrealtype cfl_frac);
-int arkSetSafetyFactor(void *arkode_mem, sunrealtype safety);
-int arkSetErrorBias(void *arkode_mem, sunrealtype bias);
-int arkSetMaxGrowth(void *arkode_mem, sunrealtype mx_growth);
-int arkSetMinReduction(void *arkode_mem, sunrealtype eta_min);
-int arkSetFixedStepBounds(void *arkode_mem, sunrealtype lb, sunrealtype ub);
-int arkSetAdaptivityMethod(void *arkode_mem, int imethod, int idefault,
-                           int pq, sunrealtype adapt_params[3]);
-int arkSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun, void *h_data);
-int arkSetMaxFirstGrowth(void *arkode_mem, sunrealtype etamx1);
-int arkSetMaxEFailGrowth(void *arkode_mem, sunrealtype etamxf);
-int arkSetSmallNumEFails(void *arkode_mem, int small_nef);
-int arkSetMaxCFailGrowth(void *arkode_mem, sunrealtype etacf);
-int arkSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab, void *estab_data);
-int arkSetMaxErrTestFails(void *arkode_mem, int maxnef);
-int arkSetMaxConvFails(void *arkode_mem, int maxncf);
-int arkSetUseCompensatedSums(void *arkode_mem, sunbooleantype onoff);
-int arkGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw);
-int arkGetNumStepAttempts(void *arkode_mem, long int *nstep_attempts);
-int arkGetNumSteps(void *arkode_mem, long int *nsteps);
-int arkGetActualInitStep(void *arkode_mem, sunrealtype *hinused);
-int arkGetLastStep(void *arkode_mem, sunrealtype *hlast);
-int arkGetCurrentStep(void *arkode_mem, sunrealtype *hcur);
-int arkGetCurrentState(void *arkode_mem, N_Vector *ycur);
-int arkGetCurrentTime(void *arkode_mem, sunrealtype *tcur);
-int arkGetTolScaleFactor(void *arkode_mem, sunrealtype *tolsfac);
-int arkGetErrWeights(void *arkode_mem, N_Vector eweight);
-int arkGetResWeights(void *arkode_mem, N_Vector rweight);
-int arkGetNumGEvals(void *arkode_mem, long int *ngevals);
-int arkGetRootInfo(void *arkode_mem, int *rootsfound);
-int arkGetNumConstrFails(void *arkode_mem, long int *nconstrfails);
-int arkGetNumExpSteps(void *arkode_mem, long int *nsteps);
-int arkGetNumAccSteps(void *arkode_mem, long int *nsteps);
-int arkGetNumErrTestFails(void *arkode_mem, long int *netfails);
-int arkGetNumStepSolveFails(void *arkode_mem, long int *nncfails);
-int arkGetStepStats(void *arkode_mem, long int *nsteps,
-                    sunrealtype *hinused, sunrealtype *hlast,
-                    sunrealtype *hcur, sunrealtype *tcur);
-int arkGetUserData(void *arkode_mem, void** user_data);
-int arkPrintAllStats(void *arkode_mem, FILE *outfile,
-                     SUNOutputFormat fmt);
-char *arkGetReturnFlagName(long int flag);
+int arkSetAdaptController(void* arkode_mem, SUNAdaptController C);
+int arkSetDefaults(void* arkode_mem);
+int arkSetDenseOrder(void* arkode_mem, int dord);
+int arkSetInterpolantType(void* arkode_mem, int itype);
+int arkSetInterpolantDegree(void* arkode_mem, int degree);
+int arkSetUserData(void* arkode_mem, void* user_data);
+int arkSetMaxNumSteps(void* arkode_mem, long int mxsteps);
+int arkSetMaxHnilWarns(void* arkode_mem, int mxhnil);
+int arkSetInitStep(void* arkode_mem, sunrealtype hin);
+int arkSetMinStep(void* arkode_mem, sunrealtype hmin);
+int arkSetMaxStep(void* arkode_mem, sunrealtype hmax);
+int arkSetStopTime(void* arkode_mem, sunrealtype tstop);
+int arkSetInterpolateStopTime(void* arkode_mem, sunbooleantype interp);
+int arkClearStopTime(void* arkode_mem);
+int arkSetFixedStep(void* arkode_mem, sunrealtype hfixed);
+int arkSetRootDirection(void* arkode_mem, int* rootdir);
+int arkSetNoInactiveRootWarn(void* arkode_mem);
+int arkSetPostprocessStepFn(void* arkode_mem, ARKPostProcessFn ProcessStep);
+int arkSetPostprocessStageFn(void* arkode_mem, ARKPostProcessFn ProcessStage);
+int arkSetConstraints(void* arkode_mem, N_Vector constraints);
+int arkSetMaxNumConstrFails(void* arkode_mem, int maxfails);
+int arkSetAdaptivityAdjustment(void* arkode_mem, int adjust);
+int arkSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac);
+int arkSetSafetyFactor(void* arkode_mem, sunrealtype safety);
+int arkSetErrorBias(void* arkode_mem, sunrealtype bias);
+int arkSetMaxGrowth(void* arkode_mem, sunrealtype mx_growth);
+int arkSetMinReduction(void* arkode_mem, sunrealtype eta_min);
+int arkSetFixedStepBounds(void* arkode_mem, sunrealtype lb, sunrealtype ub);
+int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
+                           sunrealtype adapt_params[3]);
+int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data);
+int arkSetMaxFirstGrowth(void* arkode_mem, sunrealtype etamx1);
+int arkSetMaxEFailGrowth(void* arkode_mem, sunrealtype etamxf);
+int arkSetSmallNumEFails(void* arkode_mem, int small_nef);
+int arkSetMaxCFailGrowth(void* arkode_mem, sunrealtype etacf);
+int arkSetStabilityFn(void* arkode_mem, ARKExpStabFn EStab, void* estab_data);
+int arkSetMaxErrTestFails(void* arkode_mem, int maxnef);
+int arkSetMaxConvFails(void* arkode_mem, int maxncf);
+int arkSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff);
+int arkGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
+int arkGetNumStepAttempts(void* arkode_mem, long int* nstep_attempts);
+int arkGetNumSteps(void* arkode_mem, long int* nsteps);
+int arkGetActualInitStep(void* arkode_mem, sunrealtype* hinused);
+int arkGetLastStep(void* arkode_mem, sunrealtype* hlast);
+int arkGetCurrentStep(void* arkode_mem, sunrealtype* hcur);
+int arkGetCurrentState(void* arkode_mem, N_Vector* ycur);
+int arkGetCurrentTime(void* arkode_mem, sunrealtype* tcur);
+int arkGetTolScaleFactor(void* arkode_mem, sunrealtype* tolsfac);
+int arkGetErrWeights(void* arkode_mem, N_Vector eweight);
+int arkGetResWeights(void* arkode_mem, N_Vector rweight);
+int arkGetNumGEvals(void* arkode_mem, long int* ngevals);
+int arkGetRootInfo(void* arkode_mem, int* rootsfound);
+int arkGetNumConstrFails(void* arkode_mem, long int* nconstrfails);
+int arkGetNumExpSteps(void* arkode_mem, long int* nsteps);
+int arkGetNumAccSteps(void* arkode_mem, long int* nsteps);
+int arkGetNumErrTestFails(void* arkode_mem, long int* netfails);
+int arkGetNumStepSolveFails(void* arkode_mem, long int* nncfails);
+int arkGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused,
+                    sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur);
+int arkGetUserData(void* arkode_mem, void** user_data);
+int arkPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
+char* arkGetReturnFlagName(long int flag);
 
 ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char* imethod);
 ARKODE_ERKTableID arkButcherTableERKNameToID(const char* emethod);
