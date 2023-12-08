@@ -25,7 +25,7 @@
  * opt == 1  means the function returns an integer where a
  *           value < 0 indicates an error occured
  * --------------------------------------------------------------*/
-static int check_retval(void *returnvalue, const char *funcname, int opt, int myid)
+static int check_retval(void* returnvalue, const char* funcname, int opt, int myid)
 {
   int* errvalue;
 
@@ -35,23 +35,23 @@ static int check_retval(void *returnvalue, const char *funcname, int opt, int my
     if (myid == 0)
       fprintf(stderr, "\nERROR: %s() failed - returned NULL pointer\n\n",
               funcname);
-    return(1);
+    return (1);
   }
   else if (opt == 1)
   {
-    errvalue = (int *) returnvalue;
+    errvalue = (int*)returnvalue;
 
     /* A value < 0 was returned - function failed */
     if (*errvalue < 0)
     {
       if (myid == 0)
         fprintf(stderr, "\nERROR: %s() returned %d\n\n", funcname, *errvalue);
-      return(1);
+      return (1);
     }
   }
 
   /* return success */
-  return(0);
+  return (0);
 }
 
 #endif

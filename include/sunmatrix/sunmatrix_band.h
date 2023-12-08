@@ -34,7 +34,7 @@
 #include <stdio.h>
 #include <sundials/sundials_matrix.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -42,51 +42,51 @@ extern "C" {
  * Band implementation of SUNMatrix
  * --------------------------------- */
 
-struct _SUNMatrixContent_Band {
+struct _SUNMatrixContent_Band
+{
   sunindextype M;
   sunindextype N;
   sunindextype ldim;
   sunindextype mu;
   sunindextype ml;
   sunindextype s_mu;
-  sunrealtype *data;
+  sunrealtype* data;
   sunindextype ldata;
-  sunrealtype **cols;
+  sunrealtype** cols;
 };
 
-typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
-
+typedef struct _SUNMatrixContent_Band* SUNMatrixContent_Band;
 
 /* ------------------------------------
  * Macros for access to SUNMATRIX_BAND
  * ------------------------------------ */
 
-#define SM_CONTENT_B(A)     ( (SUNMatrixContent_Band)(A->content) )
+#define SM_CONTENT_B(A) ((SUNMatrixContent_Band)(A->content))
 
-#define SM_ROWS_B(A)        ( SM_CONTENT_B(A)->M )
+#define SM_ROWS_B(A) (SM_CONTENT_B(A)->M)
 
-#define SM_COLUMNS_B(A)     ( SM_CONTENT_B(A)->N )
+#define SM_COLUMNS_B(A) (SM_CONTENT_B(A)->N)
 
-#define SM_LDATA_B(A)       ( SM_CONTENT_B(A)->ldata )
+#define SM_LDATA_B(A) (SM_CONTENT_B(A)->ldata)
 
-#define SM_UBAND_B(A)       ( SM_CONTENT_B(A)->mu )
+#define SM_UBAND_B(A) (SM_CONTENT_B(A)->mu)
 
-#define SM_LBAND_B(A)       ( SM_CONTENT_B(A)->ml )
+#define SM_LBAND_B(A) (SM_CONTENT_B(A)->ml)
 
-#define SM_SUBAND_B(A)      ( SM_CONTENT_B(A)->s_mu )
+#define SM_SUBAND_B(A) (SM_CONTENT_B(A)->s_mu)
 
-#define SM_LDIM_B(A)        ( SM_CONTENT_B(A)->ldim )
+#define SM_LDIM_B(A) (SM_CONTENT_B(A)->ldim)
 
-#define SM_DATA_B(A)        ( SM_CONTENT_B(A)->data )
+#define SM_DATA_B(A) (SM_CONTENT_B(A)->data)
 
-#define SM_COLS_B(A)        ( SM_CONTENT_B(A)->cols )
+#define SM_COLS_B(A) (SM_CONTENT_B(A)->cols)
 
-#define SM_COLUMN_B(A,j)    ( ((SM_CONTENT_B(A)->cols)[j])+SM_SUBAND_B(A) )
+#define SM_COLUMN_B(A, j) (((SM_CONTENT_B(A)->cols)[j]) + SM_SUBAND_B(A))
 
-#define SM_COLUMN_ELEMENT_B(col_j,i,j) (col_j[(i)-(j)])
+#define SM_COLUMN_ELEMENT_B(col_j, i, j) (col_j[(i) - (j)])
 
-#define SM_ELEMENT_B(A,i,j) ( (SM_CONTENT_B(A)->cols)[j][(i)-(j)+SM_SUBAND_B(A)] )
-
+#define SM_ELEMENT_B(A, i, j) \
+  ((SM_CONTENT_B(A)->cols)[j][(i) - (j) + SM_SUBAND_B(A)])
 
 /* ----------------------------------------
  * Exported  Functions for SUNMATRIX_BAND
@@ -95,10 +95,8 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
 SUNDIALS_EXPORT SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu,
                                         sunindextype ml, SUNContext sunctx);
 
-SUNDIALS_EXPORT SUNMatrix SUNBandMatrixStorage(sunindextype N,
-                                               sunindextype mu,
-                                               sunindextype ml,
-                                               sunindextype smu,
+SUNDIALS_EXPORT SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu,
+                                               sunindextype ml, sunindextype smu,
                                                SUNContext sunctx);
 
 SUNDIALS_EXPORT void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile);
@@ -122,7 +120,8 @@ SUNDIALS_EXPORT int SUNMatCopy_Band(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_Band(sunrealtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI_Band(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT int SUNMatSpace_Band(SUNMatrix A, long int *lenrw, long int *leniw);
+SUNDIALS_EXPORT int SUNMatSpace_Band(SUNMatrix A, long int* lenrw,
+                                     long int* leniw);
 
 #ifdef __cplusplus
 }

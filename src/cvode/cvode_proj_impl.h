@@ -21,7 +21,7 @@
 
 #include <cvode/cvode.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -47,26 +47,26 @@ extern "C" {
  * The type CVodeProjMem is type pointer to struct CVodeProjMemRec. This
  * structure contains data pertaining to the use of projection capabilities.
  * ---------------------------------------------------------------------------*/
-typedef struct CVodeProjMemRec {
+typedef struct CVodeProjMemRec
+{
+  sunbooleantype internal_proj; /* use the internal projection algorithm?      */
+  sunbooleantype err_proj;   /* is error projection enabled?                */
+  sunbooleantype first_proj; /* is this the first time we project?          */
 
-  sunbooleantype internal_proj;  /* use the internal projection algorithm?      */
-  sunbooleantype err_proj;       /* is error projection enabled?                */
-  sunbooleantype first_proj;     /* is this the first time we project?          */
+  long int freq;    /* projection frequency                        */
+  long int nstlprj; /* step number of last projection              */
 
-  long int freq;              /* projection frequency                        */
-  long int nstlprj;           /* step number of last projection              */
+  int max_fails; /* maximum number of projection failures       */
 
-  int max_fails;              /* maximum number of projection failures       */
+  CVProjFn pfun; /* function to perform projection              */
 
-  CVProjFn pfun;              /* function to perform projection              */
+  sunrealtype eps_proj;  /* projection solve tolerance                  */
+  sunrealtype eta_pfail; /* projection failure step reduction factor    */
 
-  sunrealtype eps_proj;          /* projection solve tolerance                  */
-  sunrealtype eta_pfail;         /* projection failure step reduction factor    */
+  long int nproj;   /* number of projections performed             */
+  long int npfails; /* number of projection failures               */
 
-  long int nproj;             /* number of projections performed             */
-  long int npfails;           /* number of projection failures               */
-
-} *CVodeProjMem;
+}* CVodeProjMem;
 
 #ifdef __cplusplus
 }

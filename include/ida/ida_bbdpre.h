@@ -22,41 +22,36 @@
 
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-
 /* User-supplied function Types */
 
-typedef int (*IDABBDLocalFn)(sunindextype Nlocal, sunrealtype tt,
-                             N_Vector yy, N_Vector yp, N_Vector gval,
-                             void *user_data);
+typedef int (*IDABBDLocalFn)(sunindextype Nlocal, sunrealtype tt, N_Vector yy,
+                             N_Vector yp, N_Vector gval, void* user_data);
 
-typedef int (*IDABBDCommFn)(sunindextype Nlocal, sunrealtype tt,
-                            N_Vector yy, N_Vector yp, void *user_data);
+typedef int (*IDABBDCommFn)(sunindextype Nlocal, sunrealtype tt, N_Vector yy,
+                            N_Vector yp, void* user_data);
 
 /* Exported Functions */
 
-SUNDIALS_EXPORT int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
+SUNDIALS_EXPORT int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal,
                                    sunindextype mudq, sunindextype mldq,
                                    sunindextype mukeep, sunindextype mlkeep,
-                                   sunrealtype dq_rel_yy,
-                                   IDABBDLocalFn Gres, IDABBDCommFn Gcomm);
+                                   sunrealtype dq_rel_yy, IDABBDLocalFn Gres,
+                                   IDABBDCommFn Gcomm);
 
-SUNDIALS_EXPORT int IDABBDPrecReInit(void *ida_mem,
-                                     sunindextype mudq, sunindextype mldq,
-                                     sunrealtype dq_rel_yy);
+SUNDIALS_EXPORT int IDABBDPrecReInit(void* ida_mem, sunindextype mudq,
+                                     sunindextype mldq, sunrealtype dq_rel_yy);
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int IDABBDPrecGetWorkSpace(void *ida_mem,
-                                           long int *lenrwBBDP,
-                                           long int *leniwBBDP);
+SUNDIALS_EXPORT int IDABBDPrecGetWorkSpace(void* ida_mem, long int* lenrwBBDP,
+                                           long int* leniwBBDP);
 
-SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void *ida_mem,
-                                             long int *ngevalsBBDP);
-
+SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void* ida_mem,
+                                             long int* ngevalsBBDP);
 
 #ifdef __cplusplus
 }
