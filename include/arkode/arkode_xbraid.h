@@ -17,34 +17,30 @@
 #ifndef _ARKODE_XBRAID_H
 #define _ARKODE_XBRAID_H
 
-#include <mpi.h>
 #include <braid.h>
+#include <mpi.h>
 #include <sundials/sundials_xbraid.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
 
 /* -------------------------------
  * Construct, initialize, and free
  * ------------------------------- */
 
-
-SUNDIALS_EXPORT int ARKBraid_Create(void *arkode_mem, braid_App *app);
+SUNDIALS_EXPORT int ARKBraid_Create(void* arkode_mem, braid_App* app);
 
 SUNDIALS_EXPORT int ARKBraid_BraidInit(MPI_Comm comm_w, MPI_Comm comm_t,
                                        sunrealtype tstart, sunrealtype tstop,
                                        sunindextype nt, braid_App app,
-                                       braid_Core *core);
+                                       braid_Core* core);
 
-SUNDIALS_EXPORT int ARKBraid_Free(braid_App *app);
-
+SUNDIALS_EXPORT int ARKBraid_Free(braid_App* app);
 
 /* ----------------------
  * ARKBraid Set Functions
  * ---------------------- */
-
 
 SUNDIALS_EXPORT int ARKBraid_SetStepFn(braid_App app, braid_PtFcnStep step);
 
@@ -53,54 +49,46 @@ SUNDIALS_EXPORT int ARKBraid_SetInitFn(braid_App app, braid_PtFcnInit init);
 SUNDIALS_EXPORT int ARKBraid_SetSpatialNormFn(braid_App app,
                                               braid_PtFcnSpatialNorm snorm);
 
-SUNDIALS_EXPORT int ARKBraid_SetAccessFn(braid_App app,
-                                         braid_PtFcnAccess access);
-
+SUNDIALS_EXPORT int ARKBraid_SetAccessFn(braid_App app, braid_PtFcnAccess access);
 
 /* ----------------------
  * ARKBraid Get Functions
  * ---------------------- */
 
+SUNDIALS_EXPORT int ARKBraid_GetVecTmpl(braid_App app, N_Vector* tmpl);
 
-SUNDIALS_EXPORT int ARKBraid_GetVecTmpl(braid_App app, N_Vector *tmpl);
+SUNDIALS_EXPORT int ARKBraid_GetARKStepMem(braid_App app, void** arkode_mem);
 
-SUNDIALS_EXPORT int ARKBraid_GetARKStepMem(braid_App app, void **arkode_mem);
+SUNDIALS_EXPORT int ARKBraid_GetUserData(braid_App app, void** user_data);
 
-SUNDIALS_EXPORT int ARKBraid_GetUserData(braid_App app, void **user_data);
+SUNDIALS_EXPORT int ARKBraid_GetLastBraidFlag(braid_App app, int* last_flag);
 
-SUNDIALS_EXPORT int ARKBraid_GetLastBraidFlag(braid_App app, int *last_flag);
+SUNDIALS_EXPORT int ARKBraid_GetLastARKStepFlag(braid_App app, int* last_flag);
 
-SUNDIALS_EXPORT int ARKBraid_GetLastARKStepFlag(braid_App app, int *last_flag);
-
-SUNDIALS_EXPORT int ARKBraid_GetSolution(braid_App app, sunrealtype *tout,
+SUNDIALS_EXPORT int ARKBraid_GetSolution(braid_App app, sunrealtype* tout,
                                          N_Vector yout);
-
 
 /* --------------------------
  * XBraid Interface Functions
  * -------------------------- */
-
 
 SUNDIALS_EXPORT int ARKBraid_Step(braid_App app, braid_Vector ustop,
                                   braid_Vector fstop, braid_Vector u,
                                   braid_StepStatus status);
 
 SUNDIALS_EXPORT int ARKBraid_Init(braid_App app, sunrealtype t,
-                                  braid_Vector *u_ptr);
+                                  braid_Vector* u_ptr);
 
 SUNDIALS_EXPORT int ARKBraid_Access(braid_App app, braid_Vector u,
                                     braid_AccessStatus astatus);
-
 
 /* -----------------
  * Utility Functions
  * ----------------- */
 
-
-SUNDIALS_EXPORT int ARKBraid_TakeStep(void *arkode_mem, sunrealtype tstart,
+SUNDIALS_EXPORT int ARKBraid_TakeStep(void* arkode_mem, sunrealtype tstart,
                                       sunrealtype tstop, N_Vector y,
-                                      int *ark_flag);
-
+                                      int* ark_flag);
 
 #ifdef __cplusplus
 }

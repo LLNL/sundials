@@ -22,7 +22,10 @@
 # different styles!
 # ---------------------------------------------------------------------------------
 
+find $1 -iname '*.h' -o -iname '*.hpp' -o \
+  -iname '*.c' -o -iname '*.cpp' -o \
+  -iname '*.cuh' -o -iname '*.cu' | grep -v fmod | xargs clang-tidy -fix-errors -p $2
 
-find $1 -name fmod -prune -iname *.h -o -iname *.hpp -o -iname *.c -o -iname *.cpp -o -iname *.cuh -o -iname *.cu | xargs clang-tidy -fix-errors -p $2
-
-find $1 -name fmod -prune -iname *.h -o -iname *.hpp -o -iname *.c -o -iname *.cpp -o -iname *.cuh -o -iname *.cu | xargs clang-format -i
+find $1 -iname '*.h' -o -iname '*.hpp' -o \
+  -iname '*.c' -o -iname '*.cpp' -o \
+  -iname '*.cuh' -o -iname '*.cu' | grep -v fmod | xargs clang-format -i

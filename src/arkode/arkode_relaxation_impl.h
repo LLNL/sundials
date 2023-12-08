@@ -17,9 +17,8 @@
 #ifndef _ARKODE_RELAX_IMPL_H
 #define _ARKODE_RELAX_IMPL_H
 
-#include <stdarg.h>
-
 #include <arkode/arkode.h>
+#include <stdarg.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
@@ -85,14 +84,14 @@ struct ARKodeRelaxMemRec
   sunrealtype eta_fail;         /* failed relaxation step size factor  */
 
   /* nonlinear solver settings */
-  ARKRelaxSolver solver;      /* choice of relaxation solver          */
-  sunrealtype res_tol;        /* nonlinear residual solve tolerance   */
-  sunrealtype rel_tol;        /* nonlinear iterate relative tolerance */
-  sunrealtype abs_tol;        /* nonlinear iterate absolute tolerance */
-  int max_iters;              /* nonlinear solve max iterations       */
-  long int nls_iters;         /* total nonlinear iterations           */
-  long int nls_fails;         /* number of nonlinear solver fails     */
-  long int bound_fails;       /* number of relax param bound fails    */
+  ARKRelaxSolver solver; /* choice of relaxation solver          */
+  sunrealtype res_tol;   /* nonlinear residual solve tolerance   */
+  sunrealtype rel_tol;   /* nonlinear iterate relative tolerance */
+  sunrealtype abs_tol;   /* nonlinear iterate absolute tolerance */
+  int max_iters;         /* nonlinear solve max iterations       */
+  long int nls_iters;    /* total nonlinear iterations           */
+  long int nls_fails;    /* number of nonlinear solver fails     */
+  long int bound_fails;  /* number of relax param bound fails    */
 };
 
 /* -----------------------------------------------------------------------------

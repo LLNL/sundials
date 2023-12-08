@@ -17,13 +17,14 @@
 #ifndef _SUNDIALS_UTILS_H
 #define _SUNDIALS_UTILS_H
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
 
-static int sunvsnprintf(char* buffer, size_t bufsz, const char* format, va_list vlist)
+static int sunvsnprintf(char* buffer, size_t bufsz, const char* format,
+                        va_list vlist)
 {
   int size = 0;
 #ifdef SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY
@@ -33,19 +34,15 @@ static int sunvsnprintf(char* buffer, size_t bufsz, const char* format, va_list 
   va_end(tmp);
 #else
   size = SUNDIALS_MAX_SPRINTF_SIZE;
-  if ((int) strlen(format) > size)
+  if ((int)strlen(format) > size)
   {
     /* buffer is definitely not big enough */
     size = -1;
   }
-  else if (buffer != NULL)
-  {
-    vsprintf(buffer, format, vlist);
-  }
+  else if (buffer != NULL) { vsprintf(buffer, format, vlist); }
 #endif
-return size;
+  return size;
 }
-
 
 static int sunsnprintf(char* buffer, size_t bufsz, const char* format, ...)
 {
@@ -69,17 +66,11 @@ static int sunvasnprintf(char** str, const char* fmt, va_list args)
   /* compute string length */
   size = sunvsnprintf(NULL, 0, fmt, args);
 
-  if (size < 0)
-  {
-    return -1;
-  }
+  if (size < 0) { return -1; }
 
   /* add one to size for the null terminator*/
-  *str = (char*) malloc(size + 1);
-  if (NULL == *str)
-  {
-    return -1;
-  }
+  *str = (char*)malloc(size + 1);
+  if (NULL == *str) { return -1; }
 
   size = vsprintf(*str, fmt, args);
 
@@ -87,13 +78,14 @@ static int sunvasnprintf(char** str, const char* fmt, va_list args)
 }
 
 SUNDIALS_STATIC_INLINE
-void sunCompensatedSum(sunrealtype base, sunrealtype inc, sunrealtype *sum, sunrealtype *error)
+void sunCompensatedSum(sunrealtype base, sunrealtype inc, sunrealtype* sum,
+                       sunrealtype* error)
 {
-  sunrealtype err = *error;
+  sunrealtype err           = *error;
   volatile sunrealtype tmp1 = inc - err;
   volatile sunrealtype tmp2 = base + tmp1;
-  *error = (tmp2 - base) - tmp1;
-  *sum = tmp2;
+  *error                    = (tmp2 - base) - tmp1;
+  *sum                      = tmp2;
 }
 
 #endif /* _SUNDIALS_UTILS_H */
