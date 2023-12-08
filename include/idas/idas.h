@@ -128,10 +128,6 @@ typedef int (*IDARootFn)(sunrealtype t, N_Vector y, N_Vector yp,
 
 typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void *user_data);
 
-typedef void (*IDAErrHandlerFn)(int error_code,
-                                const char *module, const char *function,
-                                char *msg, void *user_data);
-
 typedef int (*IDAQuadRhsFn)(sunrealtype tres, N_Vector yy, N_Vector yp,
                             N_Vector rrQ, void *user_data);
 
@@ -204,9 +200,6 @@ SUNDIALS_EXPORT int IDASetMaxBacksIC(void *ida_mem, int maxbacks);
 
 /* Optional input functions */
 SUNDIALS_EXPORT int IDASetDeltaCjLSetup(void *ida_max, sunrealtype dcj);
-SUNDIALS_EXPORT int IDASetErrHandlerFn(void *ida_mem, IDAErrHandlerFn ehfun,
-                                       void *eh_data);
-SUNDIALS_EXPORT int IDASetErrFile(void *ida_mem, FILE *errfp);
 SUNDIALS_EXPORT int IDASetUserData(void *ida_mem, void *user_data);
 SUNDIALS_EXPORT int IDASetMaxOrd(void *ida_mem, int maxord);
 SUNDIALS_EXPORT int IDASetMaxNumSteps(void *ida_mem, long int mxsteps);

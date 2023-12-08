@@ -391,14 +391,6 @@ typedef struct IDAMemRec {
 
   sunrealtype ida_tolsf;    /* tolerance scale factor (saved value)              */
 
-  /*-------------------------------------------
-    Error handler function and error ouput file
-    -------------------------------------------*/
-
-  IDAErrHandlerFn ida_ehfun;  /* Error messages are handled by ehfun          */
-  void *ida_eh_data;          /* dats pointer passed to ehfun                 */
-  FILE *ida_errfp;            /* IDA error messages are sent to errfp         */
-
   /* Flags to verify correct calling sequence */
 
   sunbooleantype ida_SetupDone;  /* set to SUNFALSE by IDAMalloc and IDAReInit

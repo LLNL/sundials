@@ -52,40 +52,6 @@ int IDASetDeltaCjLSetup(void* ida_mem, sunrealtype dcj)
   return (IDA_SUCCESS);
 }
 
-int IDASetErrHandlerFn(void* ida_mem, IDAErrHandlerFn ehfun, void* eh_data)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem == NULL)
-  {
-    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
-    return (IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem)ida_mem;
-
-  IDA_mem->ida_ehfun   = ehfun;
-  IDA_mem->ida_eh_data = eh_data;
-
-  return (IDA_SUCCESS);
-}
-
-int IDASetErrFile(void* ida_mem, FILE* errfp)
-{
-  IDAMem IDA_mem;
-
-  if (ida_mem == NULL)
-  {
-    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
-    return (IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem)ida_mem;
-
-  IDA_mem->ida_errfp = errfp;
-
-  return (IDA_SUCCESS);
-}
 
 /*-----------------------------------------------------------------*/
 

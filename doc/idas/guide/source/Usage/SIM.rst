@@ -947,53 +947,6 @@ Main solver optional input functions
    +--------------------------------------------------------------------+---------------------------------+----------------+
 
 
-.. c:function:: int IDASetErrFile(void * ida_mem, FILE * errfp)
-
-   The function :c:func:`IDASetErrFile` specifies the file pointer where all IDAS
-   messages should be directed when using the default IDAS error handler
-   function.
-
-   **Arguments:**
-      * ``ida_mem`` -- pointer to the IDAS solver object.
-      * ``errfp`` -- pointer to output file.
-
-   **Return value:**
-      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
-      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
-
-   **Notes:**
-      The default value for ``errfp`` is ``stderr``.  Passing a value ``NULL``
-      disables all future error message output (except for the case in which the
-      IDAS memory pointer is ``NULL``).  This use of :c:func:`IDASetErrFile` is
-      strongly discouraged.
-
-   .. warning::
-
-      If :c:func:`IDASetErrFile` is to be called, it should be called before any
-      other optional input functions, in order to take effect for any later
-      error message.
-
-.. c:function:: int IDASetErrHandlerFn(void * ida_mem, IDAErrHandlerFn ehfun, void * eh_data)
-
-   The function :c:func:`IDASetErrHandlerFn` specifies the optional user-defined
-   function to be used in handling error messages.
-
-   **Arguments:**
-      * ``ida_mem`` -- pointer to the IDAS solver object.
-      * ``ehfun`` -- is the user's error handler function. See
-        :c:type:`IDAErrHandlerFn` for more details.
-      * ``eh_data`` -- pointer to user data passed to ``ehfun`` every time it is
-        called.
-
-   **Return value:**
-      * ``IDA_SUCCESS`` -- The function ``ehfun`` and data pointer ``eh_data`` have
-        been successfully set.
-      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
-
-   **Notes:**
-      Error messages indicating that the IDAS solver memory is ``NULL`` will always
-      be directed to ``stderr``.
-
 .. c:function:: int IDASetUserData(void * ida_mem, void * user_data)
 
    The function :c:func:`IDASetUserData` attaches a user-defined data pointer to the
@@ -3285,37 +3238,6 @@ The user must provide a function of type :c:type:`IDAResFn` defined as follows:
       solution of the nonlinear system, and a recoverable error at that point
       can be flagged, and IDAS will then try to correct it.
 
-
-.. _IDAS.Usage.SIM.user_supplied.ehFn:
-
-Error message handler function
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-As an alternative to the default behavior of directing error and warning
-messages to the file pointed to by ``errfp`` (see :c:func:`IDASetErrFile`), the
-user may provide a function of type :c:type:`IDAErrHandlerFn` to process any
-such messages.  The function type :c:type:`IDAErrHandlerFn` is defined as
-follows:
-
-.. c:type:: void (*IDAErrHandlerFn)(int error_code, const char *module, const char *function, char *msg, void *user_data)
-
-   This function processes error and warning messages from IDAS and its
-   sub-modules.
-
-   **Arguments:**
-      * ``error_code`` -- is the error code.
-      * ``module`` -- is the name of the IDAS module reporting the error.
-      * ``function`` -- is the name of the function in which the error occurred.
-      * ``eH_data`` -- is a pointer to user data, the same as the ``eh_data``
-        parameter passed to :c:func:`IDASetErrHandlerFn`.
-
-   **Return value:**
-      This function has no return value.
-
-   **Notes:**
-      ``error_code`` is negative for errors and positive (``IDA_WARNING``) for
-      warnings. If a function that returns a pointer to memory encounters an error,
-      it sets ``error_code`` to 0.
 
 
 .. _IDAS.Usage.SIM.user_supplied.ewtsetFn:

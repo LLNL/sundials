@@ -677,10 +677,6 @@ int IDACreateB(void* ida_mem, int* which)
   /* Save ida_mem in ida_memB as user data. */
   IDASetUserData(ida_memB, ida_mem);
 
-  /* Set same error output and handler for ida_memB. */
-  IDASetErrHandlerFn(ida_memB, IDA_mem->ida_ehfun, IDA_mem->ida_eh_data);
-  IDASetErrFile(ida_memB, IDA_mem->ida_errfp);
-
   /* Initialize fields in the IDABMem struct. */
   new_IDAB_mem->ida_index = IDAADJ_mem->ia_nbckpbs;
   new_IDAB_mem->IDA_mem   = (IDAMem)ida_memB;
