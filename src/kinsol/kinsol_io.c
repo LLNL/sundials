@@ -43,52 +43,6 @@
 
 /*
  * -----------------------------------------------------------------
- * KINSetErrHandlerFn
- * -----------------------------------------------------------------
- */
-
-int KINSetErrHandlerFn(void* kinmem, KINErrHandlerFn ehfun, void* eh_data)
-{
-  KINMem kin_mem;
-
-  if (kinmem == NULL)
-  {
-    KINProcessError(NULL, KIN_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
-    return (KIN_MEM_NULL);
-  }
-
-  kin_mem = (KINMem)kinmem;
-
-  kin_mem->kin_ehfun   = ehfun;
-  kin_mem->kin_eh_data = eh_data;
-
-  return (KIN_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * Function : KINSetErrFile
- * -----------------------------------------------------------------
- */
-
-int KINSetErrFile(void* kinmem, FILE* errfp)
-{
-  KINMem kin_mem;
-
-  if (kinmem == NULL)
-  {
-    KINProcessError(NULL, KIN_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
-    return (KIN_MEM_NULL);
-  }
-
-  kin_mem            = (KINMem)kinmem;
-  kin_mem->kin_errfp = errfp;
-
-  return (KIN_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
  * Function : KINSetUserData
  * -----------------------------------------------------------------
  */

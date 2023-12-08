@@ -51,7 +51,6 @@
  *     KINPrintInfo
  *   KINSOL Error Handling functions
  *     KINProcessError
- *     KINErrHandler
  * ---------------------------------------------------------------------------*/
 
 /*
@@ -273,8 +272,6 @@ void* KINCreate(SUNContext sunctx)
   kin_mem->kin_beta_aa          = ONE;
   kin_mem->kin_damping_aa       = SUNFALSE;
   kin_mem->kin_constraintsSet   = SUNFALSE;
-  kin_mem->kin_ehfun            = KINErrHandler;
-  kin_mem->kin_eh_data          = kin_mem;
   kin_mem->kin_ret_newest       = SUNFALSE;
   kin_mem->kin_mxiter           = MXITER_DEFAULT;
   kin_mem->kin_noInitSetup      = SUNFALSE;
@@ -298,11 +295,6 @@ void* KINCreate(SUNContext sunctx)
   kin_mem->kin_omega            = ZERO; /* default to using min/max    */
   kin_mem->kin_omega_min        = OMEGA_MIN;
   kin_mem->kin_omega_max        = OMEGA_MAX;
-
-  kin_mem->kin_errfp = stderr;
-#if SUNDIALS_LOGGING_LEVEL > 0
-  kin_mem->kin_errfp = (KIN_LOGGER->error_fp) ? KIN_LOGGER->error_fp : stderr;
-#endif
 
   /* initialize lrw and liw */
 
@@ -711,8 +703,6 @@ int KINSol(void* kinmem, N_Vector u, int strategy_in, N_Vector u_scale,
 #endif
 
     if (ret != CONTINUE_ITERATIONS) { break; }
-
-    fflush(kin_mem->kin_errfp);
 
   } /* end of loop; return */
 
@@ -1402,9 +1392,7 @@ static void KINFreeVectors(KINMem kin_mem)
  *
  * KINSolInit initializes the problem for the specific input
  * received in this call to KINSol (which calls KINSolInit). All
- * problem specification inputs are checked for errors. If any error
- * occurs during initialization, it is reported to the file whose
- * file pointer is errfp.
+ * problem specification inputs are checked for errors.
  *
  * The possible return values for KINSolInit are:
  *   KIN_SUCCESS : indicates a normal initialization
@@ -2570,37 +2558,6 @@ void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
 }
 
 /*
- * KINErrHandler
- *
- * This is the default error handling function.
- * It sends the error message to the stream pointed to by kin_errfp
- */
-
-void KINErrHandler(int error_code, const char* module, const char* function,
-                   char* msg, void* data)
-{
-  KINMem kin_mem;
-  char err_type[10];
-
-  /* data points to kin_mem here */
-
-  kin_mem = (KINMem)data;
-
-  if (error_code == KIN_WARNING) { sprintf(err_type, "WARNING"); }
-  else { sprintf(err_type, "ERROR"); }
-
-#ifndef NO_FPRINTF_OUTPUT
-  if (kin_mem->kin_errfp != NULL)
-  {
-    fprintf(kin_mem->kin_errfp, "\n[%s %s]  %s\n", module, err_type, function);
-    fprintf(kin_mem->kin_errfp, "  %s\n\n", msg);
-  }
-#endif
-
-  return;
-}
-
-/*
  * =======================================================================
  * Picard and fixed point solvers
  * =======================================================================
@@ -2738,8 +2695,6 @@ static int KINPicardAA(KINMem kin_mem)
       fnormp = N_VWL2Norm(kin_mem->kin_fval, kin_mem->kin_fscale);
       KINForcingTerm(kin_mem, fnormp);
     }
-
-    fflush(kin_mem->kin_errfp);
 
   } /* end of loop; return */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
@@ -2944,8 +2899,6 @@ static int KINFP(KINMem kin_mem)
     {
       N_VScale(ONE, kin_mem->kin_unew, kin_mem->kin_uu);
     }
-
-    fflush(kin_mem->kin_errfp);
 
   } /* end of loop; return */
 
