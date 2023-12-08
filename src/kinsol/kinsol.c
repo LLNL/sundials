@@ -68,6 +68,7 @@
 #include <sundials/sundials_math.h>
 
 #include "kinsol_impl.h"
+#include "sundials/priv/sundials_errors_impl.h"
 
 /*
  * =================================================================
@@ -344,8 +345,7 @@ int KINInit(void* kinmem, KINSysFn func, N_Vector tmpl)
 
   if (func == NULL)
   {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_FUNC_NULL);
+    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_FUNC_NULL);
     SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
     return (KIN_ILL_INPUT);
   }
@@ -355,8 +355,7 @@ int KINInit(void* kinmem, KINSysFn func, N_Vector tmpl)
   nvectorOK = KINCheckNvector(tmpl);
   if (!nvectorOK)
   {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_BAD_NVECTOR);
+    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_NVECTOR);
     SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
     return (KIN_ILL_INPUT);
   }
@@ -380,8 +379,7 @@ int KINInit(void* kinmem, KINSysFn func, N_Vector tmpl)
   allocOK = KINAllocVectors(kin_mem, tmpl);
   if (!allocOK)
   {
-    KINProcessError(kin_mem, KIN_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_MEM_FAIL);
+    KINProcessError(kin_mem, KIN_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
     free(kin_mem);
     kin_mem = NULL;
     SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
@@ -507,8 +505,7 @@ int KINSol(void* kinmem, N_Vector u, int strategy_in, N_Vector u_scale,
 
   if (kin_mem->kin_MallocDone == SUNFALSE)
   {
-    KINProcessError(NULL, KIN_NO_MALLOC, __LINE__, __func__, __FILE__,
-                    MSG_NO_MALLOC);
+    KINProcessError(NULL, KIN_NO_MALLOC, __LINE__, __func__, __FILE__, MSG_NO_MALLOC);
     SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
     return (KIN_NO_MALLOC);
   }
@@ -527,16 +524,14 @@ int KINSol(void* kinmem, N_Vector u, int strategy_in, N_Vector u_scale,
   {
     if (kin_mem->kin_uu == NULL)
     {
-      KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      MSG_UU_NULL);
+      KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_UU_NULL);
       SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
       return (KIN_ILL_INPUT);
     }
 
     if (kin_mem->kin_constraintsSet != SUNFALSE)
     {
-      KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      MSG_CONSTRAINTS_NOTOK);
+      KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_CONSTRAINTS_NOTOK);
       SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
       return (KIN_ILL_INPUT);
     }
@@ -553,12 +548,10 @@ int KINSol(void* kinmem, N_Vector u, int strategy_in, N_Vector u_scale,
     switch (ret)
     {
     case KIN_SYSFUNC_FAIL:
-      KINProcessError(kin_mem, KIN_SYSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_SYSFUNC_FAILED);
+      KINProcessError(kin_mem, KIN_SYSFUNC_FAIL, __LINE__, __func__, __FILE__, MSG_SYSFUNC_FAILED);
       break;
     case KIN_MAXITER_REACHED:
-      KINProcessError(kin_mem, KIN_MAXITER_REACHED, __LINE__, __func__,
-                      __FILE__, MSG_MAXITER_REACHED);
+      KINProcessError(kin_mem, KIN_MAXITER_REACHED, __LINE__, __func__, __FILE__, MSG_MAXITER_REACHED);
       break;
     }
 
@@ -607,8 +600,7 @@ int KINSol(void* kinmem, N_Vector u, int strategy_in, N_Vector u_scale,
       kin_mem->kin_gval = N_VClone(kin_mem->kin_unew);
       if (kin_mem->kin_gval == NULL)
       {
-        KINProcessError(kin_mem, KIN_MEM_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_MEM_FAIL);
+        KINProcessError(kin_mem, KIN_MEM_FAIL, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
         SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
         return (KIN_MEM_FAIL);
       }
@@ -731,40 +723,31 @@ int KINSol(void* kinmem, N_Vector u, int strategy_in, N_Vector u_scale,
   switch (ret)
   {
   case KIN_SYSFUNC_FAIL:
-    KINProcessError(kin_mem, KIN_SYSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_SYSFUNC_FAILED);
+    KINProcessError(kin_mem, KIN_SYSFUNC_FAIL, __LINE__, __func__, __FILE__, MSG_SYSFUNC_FAILED);
     break;
   case KIN_REPTD_SYSFUNC_ERR:
-    KINProcessError(kin_mem, KIN_REPTD_SYSFUNC_ERR, __LINE__, __func__,
-                    __FILE__, MSG_SYSFUNC_REPTD);
+    KINProcessError(kin_mem, KIN_REPTD_SYSFUNC_ERR, __LINE__, __func__, __FILE__, MSG_SYSFUNC_REPTD);
     break;
   case KIN_LSETUP_FAIL:
-    KINProcessError(kin_mem, KIN_LSETUP_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_LSETUP_FAILED);
+    KINProcessError(kin_mem, KIN_LSETUP_FAIL, __LINE__, __func__, __FILE__, MSG_LSETUP_FAILED);
     break;
   case KIN_LSOLVE_FAIL:
-    KINProcessError(kin_mem, KIN_LSOLVE_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_LSOLVE_FAILED);
+    KINProcessError(kin_mem, KIN_LSOLVE_FAIL, __LINE__, __func__, __FILE__, MSG_LSOLVE_FAILED);
     break;
   case KIN_LINSOLV_NO_RECOVERY:
-    KINProcessError(kin_mem, KIN_LINSOLV_NO_RECOVERY, __LINE__, __func__,
-                    __FILE__, MSG_LINSOLV_NO_RECOVERY);
+    KINProcessError(kin_mem, KIN_LINSOLV_NO_RECOVERY, __LINE__, __func__, __FILE__, MSG_LINSOLV_NO_RECOVERY);
     break;
   case KIN_LINESEARCH_NONCONV:
-    KINProcessError(kin_mem, KIN_LINESEARCH_NONCONV, __LINE__, __func__,
-                    __FILE__, MSG_LINESEARCH_NONCONV);
+    KINProcessError(kin_mem, KIN_LINESEARCH_NONCONV, __LINE__, __func__, __FILE__, MSG_LINESEARCH_NONCONV);
     break;
   case KIN_LINESEARCH_BCFAIL:
-    KINProcessError(kin_mem, KIN_LINESEARCH_BCFAIL, __LINE__, __func__,
-                    __FILE__, MSG_LINESEARCH_BCFAIL);
+    KINProcessError(kin_mem, KIN_LINESEARCH_BCFAIL, __LINE__, __func__, __FILE__, MSG_LINESEARCH_BCFAIL);
     break;
   case KIN_MAXITER_REACHED:
-    KINProcessError(kin_mem, KIN_MAXITER_REACHED, __LINE__, __func__, __FILE__,
-                    MSG_MAXITER_REACHED);
+    KINProcessError(kin_mem, KIN_MAXITER_REACHED, __LINE__, __func__, __FILE__, MSG_MAXITER_REACHED);
     break;
   case KIN_MXNEWT_5X_EXCEEDED:
-    KINProcessError(kin_mem, KIN_MXNEWT_5X_EXCEEDED, __LINE__, __func__,
-                    __FILE__, MSG_MXNEWT_5X_EXCEEDED);
+    KINProcessError(kin_mem, KIN_MXNEWT_5X_EXCEEDED, __LINE__, __func__, __FILE__, MSG_MXNEWT_5X_EXCEEDED);
     break;
   }
 
@@ -1220,8 +1203,7 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
             ((kin_mem->kin_m_aa * kin_mem->kin_m_aa)) * sizeof(sunrealtype));
           if (kin_mem->kin_T_aa == NULL)
           {
-            KINProcessError(kin_mem, 0, __LINE__, __func__, __FILE__,
-                            MSG_MEM_FAIL);
+            KINProcessError(kin_mem, 0, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
             N_VDestroy(kin_mem->kin_unew);
             N_VDestroy(kin_mem->kin_fval);
             N_VDestroy(kin_mem->kin_pp);
@@ -1443,8 +1425,7 @@ static int KINSolInit(KINMem kin_mem)
 
   if (kin_mem->kin_uu == NULL)
   {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_UU_NULL);
+    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_UU_NULL);
     return (KIN_ILL_INPUT);
   }
 
@@ -1455,36 +1436,31 @@ static int KINSolInit(KINMem kin_mem)
       (kin_mem->kin_globalstrategy != KIN_PICARD) &&
       (kin_mem->kin_globalstrategy != KIN_FP))
   {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_BAD_GLSTRAT);
+    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_GLSTRAT);
     return (KIN_ILL_INPUT);
   }
 
   if (kin_mem->kin_uscale == NULL)
   {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_BAD_USCALE);
+    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_USCALE);
     return (KIN_ILL_INPUT);
   }
 
   if (N_VMin(kin_mem->kin_uscale) <= ZERO)
   {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_USCALE_NONPOSITIVE);
+    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_USCALE_NONPOSITIVE);
     return (KIN_ILL_INPUT);
   }
 
   if (kin_mem->kin_fscale == NULL)
   {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_BAD_FSCALE);
+    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_FSCALE);
     return (KIN_ILL_INPUT);
   }
 
   if (N_VMin(kin_mem->kin_fscale) <= ZERO)
   {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_FSCALE_NONPOSITIVE);
+    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_FSCALE_NONPOSITIVE);
     return (KIN_ILL_INPUT);
   }
 
@@ -1492,8 +1468,7 @@ static int KINSolInit(KINMem kin_mem)
       ((kin_mem->kin_globalstrategy == KIN_PICARD) ||
        (kin_mem->kin_globalstrategy == KIN_FP)))
   {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_CONSTRAINTS_NOTOK);
+    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_CONSTRAINTS_NOTOK);
     return (KIN_ILL_INPUT);
   }
 
@@ -1509,8 +1484,7 @@ static int KINSolInit(KINMem kin_mem)
     if ((kin_mem->kin_constraints->ops->nvconstrmask == NULL) ||
         (kin_mem->kin_constraints->ops->nvminquotient == NULL))
     {
-      KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      MSG_BAD_NVECTOR);
+      KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_BAD_NVECTOR);
       return (KIN_ILL_INPUT);
     }
   }
@@ -1522,8 +1496,7 @@ static int KINSolInit(KINMem kin_mem)
     if (!N_VConstrMask(kin_mem->kin_constraints, kin_mem->kin_uu,
                        kin_mem->kin_vtemp1))
     {
-      KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      MSG_INITIAL_CNSTRNT);
+      KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_INITIAL_CNSTRNT);
       return (KIN_ILL_INPUT);
     }
   }
@@ -1583,14 +1556,12 @@ static int KINSolInit(KINMem kin_mem)
 
   if (retval < 0)
   {
-    KINProcessError(kin_mem, KIN_SYSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_SYSFUNC_FAILED);
+    KINProcessError(kin_mem, KIN_SYSFUNC_FAIL, __LINE__, __func__, __FILE__, MSG_SYSFUNC_FAILED);
     return (KIN_SYSFUNC_FAIL);
   }
   else if (retval > 0)
   {
-    KINProcessError(kin_mem, KIN_FIRST_SYSFUNC_ERR, __LINE__, __func__,
-                    __FILE__, MSG_SYSFUNC_FIRST);
+    KINProcessError(kin_mem, KIN_FIRST_SYSFUNC_ERR, __LINE__, __func__, __FILE__, MSG_SYSFUNC_FIRST);
     return (KIN_FIRST_SYSFUNC_ERR);
   }
 
@@ -1612,8 +1583,7 @@ static int KINSolInit(KINMem kin_mem)
     retval = kin_mem->kin_linit(kin_mem);
     if (retval != 0)
     {
-      KINProcessError(kin_mem, KIN_LINIT_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_LINIT_FAIL);
+      KINProcessError(kin_mem, KIN_LINIT_FAIL, __LINE__, __func__, __FILE__, MSG_LINIT_FAIL);
       return (KIN_LINIT_FAIL);
     }
   }
@@ -2583,17 +2553,13 @@ void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
   vsnprintf(msg, msglen, msgfmt, ap);
 
   if (kin_mem == NULL)
-  { /* We write to stderr */
-
-#ifndef NO_FPRINTF_OUTPUT
-    fprintf(stderr, "\n[KINSOL ERROR]  %s at %s:%d\n  ", func, __FILE__, line);
-    fprintf(stderr, "%s\n\n", msg);
-#endif
+  { 
+    SUNGlobalFallbackErrHandler(line, func, file, msgfmt, error_code);
   }
   else
   {
     /* Call the SUNDIALS main error handler */
-    SUNHandleErrWithMsg(line, func, file, msg, error_code, kin_mem->kin_sunctx);
+    SUNHandleErrWithMsg(line, func, file, msgfmt, error_code, kin_mem->kin_sunctx);
   }
 
   /* Finalize argument processing */

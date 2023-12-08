@@ -25,7 +25,6 @@
 #include <kinsol/kinsol.h>
 #include "sundials_logger_impl.h"
 #include <sundials/priv/sundials_context_impl.h>
-#include <sundials/priv/sundials_errors_impl.h>
 #include "sundials_iterative_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -387,8 +386,8 @@ typedef struct KINMemRec {
 
 /* High level error handler */
 
-void KINProcessError(KINMem kin_mem, int error_code, int line, const char *func,
-                     const char* file, const char *msgfmt, ...);
+void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
+                     const char* file, const char* msgfmt, ...);
 
 /* Prototype of internal errHandler function */
 
