@@ -101,10 +101,7 @@ SUNDIALS_STATIC_INLINE
 void SUNHandleErrWithMsg(int line, const char* func, const char* file,
                          const char* msg, SUNErrCode code, SUNContext sunctx)
 {
-  if (!sunctx)
-  {
-    SUNGlobalFallbackErrHandler(line, func, file, msg, code);
-  }
+  if (!sunctx) { SUNGlobalFallbackErrHandler(line, func, file, msg, code); }
 
   sunctx->last_err = code;
   SUNErrHandler eh = sunctx->err_handler;
