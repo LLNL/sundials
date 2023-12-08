@@ -511,14 +511,8 @@ void* CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->cv_user_efun        = SUNFALSE;
   cv_mem->cv_efun             = NULL;
   cv_mem->cv_e_data           = NULL;
-  cv_mem->cv_ehfun            = cvErrHandler;
-  cv_mem->cv_eh_data          = cv_mem;
   cv_mem->cv_monitorfun       = NULL;
   cv_mem->cv_monitor_interval = 0;
-  cv_mem->cv_errfp            = stderr;
-#if SUNDIALS_LOGGING_LEVEL > 0
-  cv_mem->cv_errfp = (CV_LOGGER->error_fp) ? CV_LOGGER->error_fp : stderr;
-#endif
   cv_mem->cv_qmax           = maxord;
   cv_mem->cv_mxstep         = MXSTEP_DEFAULT;
   cv_mem->cv_mxhnil         = MXHNIL_DEFAULT;

@@ -711,9 +711,6 @@ int CVodeCreateB(void* cvode_mem, int lmmB, int* which)
 
   CVodeSetMaxHnilWarns(cvodeB_mem, -1);
 
-  CVodeSetErrHandlerFn(cvodeB_mem, cv_mem->cv_ehfun, cv_mem->cv_eh_data);
-  CVodeSetErrFile(cvodeB_mem, cv_mem->cv_errfp);
-
   /* Set/initialize fields in the new CVodeBMem object, new_cvB_mem */
 
   new_cvB_mem->cv_index = ca_mem->ca_nbckpbs;

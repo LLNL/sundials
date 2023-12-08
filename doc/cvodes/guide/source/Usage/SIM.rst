@@ -874,41 +874,6 @@ Main solver optional input functions
    +---------------------------------+---------------------------------------------+----------------+
 
 
-.. c:function:: int CVodeSetErrFile(void* cvode_mem, FILE * errfp)
-
-   The function ``CVodeSetErrFile`` specifies a pointer to the file  where all CVODES messages should be directed when the default  CVODES error handler function is used.
-
-   **Arguments:**
-     * ``cvode_mem`` -- pointer to the CVODES memory block.
-     * ``errfp`` -- pointer to output file.
-
-   **Return value:**
-     * ``CV_SUCCESS`` -- The optional value has been successfully set.
-     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
-
-   **Notes:**
-      The default value for ``errfp`` is ``stderr``.  Passing a value of ``NULL`` disables all future error message output  (except for the case in which the CVODES memory pointer is ``NULL``).  This use of ``CVodeSetErrFile`` is strongly discouraged.
-
-      .. warning::
-
-         If ``CVodeSetErrFile`` is to be called, it should be called before any  other optional input functions, in order to take effect for any later error message.
-
-.. c:function:: int CVodeSetErrHandlerFn(void* cvode_mem, CVErrHandlerFn ehfun, void * eh_data)
-
-   The function ``CVodeSetErrHandlerFn`` specifies the optional user-defined function  to be used in handling error messages.
-
-   **Arguments:**
-     * ``cvode_mem`` -- pointer to the CVODES memory block.
-     * ``ehfun`` -- is the C error handler function of type :c:type:`CVErrHandlerFn`.
-     * ``eh_data`` -- pointer to user data passed to ``ehfun`` every time it is called.
-
-   **Return value:**
-     * ``CV_SUCCESS`` -- The function ``ehfun`` and data pointer ``eh_data`` have been successfully set.
-     * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
-
-   **Notes:**
-      Error messages indicating that the CVODES solver memory is ``NULL`` will  always be directed to ``stderr``.
-
 .. c:function:: int CVodeSetUserData(void* cvode_mem, void * user_data)
 
    The function ``CVodeSetUserData`` specifies the user data block ``user_data``  and attaches it to the main CVODES memory block.

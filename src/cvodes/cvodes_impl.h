@@ -620,15 +620,7 @@ typedef struct CVodeMemRec {
   sunbooleantype cv_VabstolQSMallocDone;
   sunbooleantype cv_SabstolQSMallocDone;
   sunbooleantype cv_QuadSensMallocDone;
-
-  /*-------------------------------------------
-    Error handler function and error ouput file
-    -------------------------------------------*/
-
-  CVErrHandlerFn cv_ehfun;    /* error messages are handled by ehfun          */
-  void *cv_eh_data;           /* data pointer passed to ehfun                 */
-  FILE *cv_errfp;             /* CVODE error messages are sent to errfp       */
-
+  
   /*-------------------------------------------
     User access function
     -------------------------------------------*/
