@@ -1434,7 +1434,7 @@ int CVodeB(void* cvode_mem, sunrealtype tBout, int itaskB)
           (sign * (ca_mem->ca_tfinal - tBn) < ZERO))
       {
         cvProcessError(cv_mem, CV_BAD_TB0, __LINE__, __func__, __FILE__,
-                       MSGCV_BAD_TB0);
+                       MSGCV_BAD_TB0, tmp_cvB_mem->cv_index);
         SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
         return (CV_BAD_TB0);
       }
@@ -3453,7 +3453,8 @@ static int CVArhs(sunrealtype t, N_Vector yB, N_Vector yBdot, void* cvode_mem)
 
   if (flag != CV_SUCCESS)
   {
-    cvProcessError(cv_mem, -1, __LINE__, __func__, __FILE__, MSGCV_BAD_TINTERP, t);
+    cvProcessError(cv_mem, -1, __LINE__, __func__, __FILE__, MSGCV_BAD_TINTERP,
+                   t);
     return (-1);
   }
 
