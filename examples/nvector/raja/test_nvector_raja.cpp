@@ -15,14 +15,12 @@
  * implementation.
  * -----------------------------------------------------------------*/
 
+#include <RAJA/RAJA.hpp>
 #include <cstdio>
 #include <cstdlib>
-
-#include <sundials/sundials_types.h>
 #include <nvector/nvector_raja.h>
 #include <sundials/sundials_math.h>
-
-#include <RAJA/RAJA.hpp>
+#include <sundials/sundials_types.h>
 
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA) || defined(SUNDIALS_RAJA_BACKENDS_HIP)
 #include "custom_memory_helper_gpu.h"
@@ -35,30 +33,37 @@
 #include "test_nvector.h"
 
 /* Managed or unmanaged memory options */
-enum mem_type { UNMANAGED, MANAGED, SUNMEMORY };
+enum mem_type
+{
+  UNMANAGED,
+  MANAGED,
+  SUNMEMORY
+};
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  int          fails = 0;         /* counter for test failures */
-  int          retval;            /* function return value     */
-  sunindextype length;            /* vector length             */
-  N_Vector     U, V, X, Y, Z;     /* test vectors              */
-  int          print_timing;      /* turn timing on/off        */
-  int          memtype;
+  int fails = 0;          /* counter for test failures */
+  int retval;             /* function return value     */
+  sunindextype length;    /* vector length             */
+  N_Vector U, V, X, Y, Z; /* test vectors              */
+  int print_timing;       /* turn timing on/off        */
+  int memtype;
 
   Test_Init(SUN_COMM_NULL);
 
   /* check input and set vector length */
-  if (argc < 3){
+  if (argc < 3)
+  {
     printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
     Test_Abort(-1);
   }
 
-  length = (sunindextype) atol(argv[1]);
-  if (length <= 0) {
+  length = (sunindextype)atol(argv[1]);
+  if (length <= 0)
+  {
     printf("ERROR: length of vector must be a positive integer \n");
     Test_Abort(-1);
   }
@@ -67,57 +72,66 @@ int main(int argc, char *argv[])
   SetTiming(print_timing, 0);
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  camp::resources::Resource* sycl_res = new camp::resources::Resource{camp::resources::Sycl()};
+  camp::resources::Resource* sycl_res =
+    new camp::resources::Resource{camp::resources::Sycl()};
   ::RAJA::sycl::detail::setQueue(sycl_res);
   sycl::queue* myQueue = ::RAJA::sycl::detail::getQueue();
 #endif
 
   /* test with both memory variants */
-  for (memtype=UNMANAGED; memtype<=SUNMEMORY; ++memtype) {
+  for (memtype = UNMANAGED; memtype <= SUNMEMORY; ++memtype)
+  {
     SUNMemoryHelper mem_helper = NULL;
 
     printf("=====> Beginning setup\n\n");
 
-    if (memtype==UNMANAGED) {
-      printf("Testing RAJA N_Vector\n");
-    } else if (memtype==MANAGED) {
+    if (memtype == UNMANAGED) { printf("Testing RAJA N_Vector\n"); }
+    else if (memtype == MANAGED)
+    {
       printf("Testing RAJA N_Vector with managed memory\n");
-    } else if (memtype==SUNMEMORY) {
+    }
+    else if (memtype == SUNMEMORY)
+    {
       printf("Testing RAJA N_Vector with custom allocator\n");
       mem_helper = MyMemoryHelper(sunctx);
     }
-    printf("Vector length: %ld \n", (long int) length);
+    printf("Vector length: %ld \n", (long int)length);
     /* Create new vectors */
-    if (memtype == UNMANAGED)       X = N_VNew_Raja(length, sunctx);
-    else if (memtype == MANAGED)    X = N_VNewManaged_Raja(length, sunctx);
-    else if (memtype == SUNMEMORY)  X = N_VNewWithMemHelp_Raja(length, SUNFALSE,
-                                                               mem_helper, sunctx);
-    if (X == NULL) {
-      if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+    if (memtype == UNMANAGED) X = N_VNew_Raja(length, sunctx);
+    else if (memtype == MANAGED) X = N_VNewManaged_Raja(length, sunctx);
+    else if (memtype == SUNMEMORY)
+      X = N_VNewWithMemHelp_Raja(length, SUNFALSE, mem_helper, sunctx);
+    if (X == NULL)
+    {
+      if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
       printf("FAIL: Unable to create a new vector \n\n");
       Test_Abort(1);
     }
 
     /* Fill vector with uniform random data in [-1,1] */
     sunrealtype* xdata = N_VGetHostArrayPointer_Raja(X);
-    for (sunindextype j=0; j<length; j++)
-      xdata[j] = ((sunrealtype) rand() / (sunrealtype) RAND_MAX)*2-1;
+    for (sunindextype j = 0; j < length; j++)
+    {
+      xdata[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+    }
     N_VCopyToDevice_Raja(X);
 
     /* Clone additional vectors for testing */
     Y = N_VClone(X);
-    if (Y == NULL) {
+    if (Y == NULL)
+    {
       N_VDestroy(X);
-      if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+      if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
       printf("FAIL: Unable to create a new vector \n\n");
       Test_Abort(1);
     }
 
     Z = N_VClone(X);
-    if (Z == NULL) {
+    if (Z == NULL)
+    {
       N_VDestroy(X);
       N_VDestroy(Y);
-      if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+      if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
       printf("FAIL: Unable to create a new vector \n\n");
       Test_Abort(1);
     }
@@ -125,9 +139,10 @@ int main(int argc, char *argv[])
     /* Fill vectors with uniform random data in [-1,1] */
     sunrealtype* ydata = N_VGetHostArrayPointer_Raja(Y);
     sunrealtype* zdata = N_VGetHostArrayPointer_Raja(Z);
-    for (sunindextype j=0; j<length; j++) {
-      ydata[j] = ((sunrealtype) rand() / (sunrealtype) RAND_MAX)*2-1;
-      zdata[j] = ((sunrealtype) rand() / (sunrealtype) RAND_MAX)*2-1;
+    for (sunindextype j = 0; j < length; j++)
+    {
+      ydata[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+      zdata[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
     }
     N_VCopyToDevice_Raja(Y);
     N_VCopyToDevice_Raja(Z);
@@ -178,13 +193,14 @@ int main(int argc, char *argv[])
     printf("\nTesting fused and vector array operations (disabled):\n\n");
 
     /* create vector and disable all fused and vector array operations */
-    U = N_VClone(X);
+    U      = N_VClone(X);
     retval = N_VEnableFusedOps_Raja(U, SUNFALSE);
-    if (U == NULL || retval != 0) {
+    if (U == NULL || retval != 0)
+    {
       N_VDestroy(X);
       N_VDestroy(Y);
       N_VDestroy(Z);
-      if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+      if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
       printf("FAIL: Unable to create a new vector \n\n");
       Test_Abort(1);
     }
@@ -207,14 +223,15 @@ int main(int argc, char *argv[])
     printf("\nTesting fused and vector array operations (enabled):\n\n");
 
     /* create vector and enable all fused and vector array operations */
-    V = N_VClone(X);
+    V      = N_VClone(X);
     retval = N_VEnableFusedOps_Raja(V, SUNTRUE);
-    if (V == NULL || retval != 0) {
+    if (V == NULL || retval != 0)
+    {
       N_VDestroy(X);
       N_VDestroy(Y);
       N_VDestroy(Z);
       N_VDestroy(U);
-      if (mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+      if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
       printf("FAIL: Unable to create a new vector \n\n");
       Test_Abort(1);
     }
@@ -261,7 +278,7 @@ int main(int argc, char *argv[])
     N_VDestroy(Z);
     N_VDestroy(U);
     N_VDestroy(V);
-    if(mem_helper) SUNMemoryHelper_Destroy(mem_helper);
+    if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
 
     /* Synchronize */
     sync_device(NULL);
@@ -270,11 +287,8 @@ int main(int argc, char *argv[])
   }
 
   /* Print result */
-  if (fails) {
-    printf("FAIL: NVector module failed %i tests \n\n", fails);
-  } else {
-    printf("SUCCESS: NVector module passed all tests \n\n");
-  }
+  if (fails) { printf("FAIL: NVector module failed %i tests \n\n", fails); }
+  else { printf("SUCCESS: NVector module passed all tests \n\n"); }
 
   sync_device(NULL);
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
@@ -283,26 +297,23 @@ int main(int argc, char *argv[])
   hipDeviceReset();
 #endif
   Test_Finalize();
-  return(fails);
+  return (fails);
 }
-
 
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
 int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
-  int          failure = 0;
+  int failure = 0;
   sunindextype i;
-  sunrealtype     *Xdata;
+  sunrealtype* Xdata;
 
   N_VCopyFromDevice_Raja(X);
   Xdata = N_VGetHostArrayPointer_Raja(X);
 
   /* check vector data */
-  for (i = 0; i < local_length; i++) {
-    failure += SUNRCompare(Xdata[i], ans);
-  }
+  for (i = 0; i < local_length; i++) { failure += SUNRCompare(Xdata[i], ans); }
 
   return (failure > ZERO) ? (1) : (0);
 }
@@ -312,7 +323,9 @@ sunbooleantype has_data(N_Vector X)
   /* check if vector data is non-null */
   if ((N_VGetHostArrayPointer_Raja(X) == NULL) &&
       (N_VGetDeviceArrayPointer_Raja(X) == NULL))
+  {
     return SUNFALSE;
+  }
   return SUNTRUE;
 }
 
@@ -326,12 +339,12 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
                        sunrealtype val)
 {
   sunindextype i;
-  sunrealtype*    xd;
+  sunrealtype* xd;
 
   /* set elements [is,ie] of the data array */
   N_VCopyFromDevice_Raja(X);
   xd = N_VGetHostArrayPointer_Raja(X);
-  for(i = is; i <= ie; i++) xd[i] = val;
+  for (i = is; i <= ie; i++) { xd[i] = val; }
   N_VCopyToDevice_Raja(X);
 }
 
@@ -345,7 +358,7 @@ sunrealtype get_element(N_Vector X, sunindextype i)
 double max_time(N_Vector X, double time)
 {
   /* not running in parallel, just return input time */
-  return(time);
+  return (time);
 }
 
 void sync_device(N_Vector x)

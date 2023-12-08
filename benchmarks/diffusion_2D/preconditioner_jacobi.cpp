@@ -20,10 +20,10 @@
 
 // Preconditioner setup routine
 int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok,
-           sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
+           sunbooleantype* jcurPtr, sunrealtype gamma, void* user_data)
 {
   // Access problem data
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
@@ -37,25 +37,21 @@ int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok,
   sunrealtype c = ONE / (ONE - gamma * cc);
   N_VConst(c, udata->diag);
 
-
   // Return success
   return 0;
 }
 
-
 // Preconditioner solve routine for Pz = r
-int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
-           N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
-           void *user_data)
+int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z,
+           sunrealtype gamma, sunrealtype delta, int lr, void* user_data)
 {
   // Access user_data structure
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Perform Jacobi iteration
   N_VProd(udata->diag, r, z);
-
 
   // Return success
   return 0;
@@ -65,10 +61,10 @@ int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
 
 // Preconditioner setup and solve functions
 int PSetup(sunrealtype t, N_Vector u, N_Vector up, N_Vector res, sunrealtype cj,
-           void *user_data)
+           void* user_data)
 {
   // Access problem data
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
@@ -82,23 +78,20 @@ int PSetup(sunrealtype t, N_Vector u, N_Vector up, N_Vector res, sunrealtype cj,
   sunrealtype c = ONE / (cj - cc);
   N_VConst(c, udata->diag);
 
-
   // Return success
   return 0;
 }
 
-
 int PSolve(sunrealtype t, N_Vector u, N_Vector up, N_Vector res, N_Vector r,
-           N_Vector z, sunrealtype cj, sunrealtype delta, void *user_data)
+           N_Vector z, sunrealtype cj, sunrealtype delta, void* user_data)
 {
   // Access user_data structure
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Perform Jacobi iteration
   N_VProd(udata->diag, r, z);
-
 
   // Return success
   return 0;

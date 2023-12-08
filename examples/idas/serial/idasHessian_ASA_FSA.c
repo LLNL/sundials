@@ -39,33 +39,32 @@
  * Error handling was suppressed for code readibility reasons.
  * -----------------------------------------------------------------*/
 
-#include <stdio.h>
+#include <idas/idas.h> /* prototypes for IDA fcts., consts.    */
 #include <math.h>
+#include <nvector/nvector_serial.h> /* access to serial N_Vector            */
+#include <stdio.h>
 #include <stdlib.h>
-
-#include <idas/idas.h>                 /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sundials/sundials_math.h> /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <sundials/sundials_types.h> /* defs. of sunrealtype, sunindextype      */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype      */
-#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 
 /* Accessor macros */
 
-#define Ith(v,i)    NV_Ith_S(v,i-1)       /* i-th vector component i= 1..NEQ */
+#define Ith(v, i) NV_Ith_S(v, i - 1) /* i-th vector component i= 1..NEQ */
 
 /* Problem Constants */
-#define NEQ      3             /* number of equations                  */
-#define NP       2             /* number of sensitivities              */
+#define NEQ 3 /* number of equations                  */
+#define NP  2 /* number of sensitivities              */
 
-#define T0       SUN_RCONST(0.0)   /* Initial time. */
-#define TF       SUN_RCONST(80.0)  /* Final time. */
+#define T0 SUN_RCONST(0.0)  /* Initial time. */
+#define TF SUN_RCONST(80.0) /* Final time. */
 
 /* Tolerances */
-#define RTOL     SUN_RCONST(1e-08) /* scalar relative tolerance            */
-#define ATOL     SUN_RCONST(1e-10) /* vector absolute tolerance components */
-#define RTOLA    SUN_RCONST(1e-08) /* for adjoint integration              */
-#define ATOLA    SUN_RCONST(1e-08) /* for adjoint integration              */
+#define RTOL  SUN_RCONST(1e-08) /* scalar relative tolerance            */
+#define ATOL  SUN_RCONST(1e-10) /* vector absolute tolerance components */
+#define RTOLA SUN_RCONST(1e-08) /* for adjoint integration              */
+#define ATOLA SUN_RCONST(1e-08) /* for adjoint integration              */
 
 /* Parameters */
 #define P1 SUN_RCONST(0.04)
@@ -79,53 +78,54 @@
 #define TWO  SUN_RCONST(2.0)
 
 /* User defined struct */
-typedef struct {
+typedef struct
+{
   sunrealtype p[3];
-} *UserData;
+}* UserData;
 
 /* residual for forward problem */
-static int res(sunrealtype t, N_Vector yy, N_Vector yp,
-               N_Vector resval, void *user_data);
+static int res(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector resval,
+               void* user_data);
 
-static int resS(int Ns, sunrealtype t,
-                N_Vector yy, N_Vector yp, N_Vector resval,
-                N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
-                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int resS(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
+                N_Vector resval, N_Vector* yyS, N_Vector* ypS, N_Vector* resvalS,
+                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int rhsQ(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data);
+static int rhsQ(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector qdot,
+                void* user_data);
 
-static int rhsQS(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
-                 N_Vector *yyS, N_Vector *ypS, N_Vector rrQ, N_Vector *rhsvalQS,
-                 void *user_data,  N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS);
+static int rhsQS(int Ns, sunrealtype t, N_Vector yy, N_Vector yp, N_Vector* yyS,
+                 N_Vector* ypS, N_Vector rrQ, N_Vector* rhsvalQS,
+                 void* user_data, N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS);
 
-static int resBS1(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS,
-                  N_Vector yyB, N_Vector ypB, N_Vector resvalBQ, void *user_dataB);
+static int resBS1(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector* yyS,
+                  N_Vector* ypS, N_Vector yyB, N_Vector ypB, N_Vector resvalBQ,
+                  void* user_dataB);
 
+static int rhsQBS1(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector* yyS,
+                   N_Vector* ypS, N_Vector yyB, N_Vector ypB, N_Vector rhsBQS,
+                   void* user_dataB);
 
-static int rhsQBS1(sunrealtype tt, N_Vector yy, N_Vector yp,
-                   N_Vector *yyS, N_Vector *ypS, N_Vector yyB, N_Vector ypB,
-                   N_Vector rhsBQS, void *user_dataB);
+static int resBS2(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector* yyS,
+                  N_Vector* ypS, N_Vector yyB, N_Vector ypB, N_Vector resvalBQ,
+                  void* user_dataB);
 
-static int resBS2(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector *yyS, N_Vector *ypS,
-                  N_Vector yyB, N_Vector ypB, N_Vector resvalBQ, void *user_dataB);
+static int rhsQBS2(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector* yyS,
+                   N_Vector* ypS, N_Vector yyB, N_Vector ypB, N_Vector rhsBQS,
+                   void* user_dataB);
 
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
-static int rhsQBS2(sunrealtype tt, N_Vector yy, N_Vector yp,
-                   N_Vector *yyS, N_Vector *ypS, N_Vector yyB, N_Vector ypB,
-                   N_Vector rhsBQS, void *user_dataB);
-
-static int check_retval(void *returnvalue, const char *funcname, int opt);
-
-
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   N_Vector yy, yp, q, *yyS, *ypS, *qS;
   N_Vector yyB1, ypB1, qB1, yyB2, ypB2, qB2;
-  void *ida_mem;
+  void* ida_mem;
   UserData data;
   sunrealtype time, ti, tf;
   int retval, nckp, indexB1, indexB2, is;
-  sunrealtype G, Gm, Gp, dp1, dp2, grdG_fwd[2], grdG_bck[2], grdG_cntr[2], H11, H22;
+  sunrealtype G, Gm, Gp, dp1, dp2, grdG_fwd[2], grdG_bck[2], grdG_cntr[2], H11,
+    H22;
   sunrealtype rtolFD, atolFD;
   SUNMatrix A, AB1, AB2;
   SUNLinearSolver LS, LSB1, LSB2;
@@ -145,29 +145,37 @@ int main(int argc, char *argv[])
   printf("     g(t,p,y) = y3\n\n\n");
 
   /* Alocate and initialize user data. */
-  data = (UserData) malloc(sizeof(*data));
-  data->p[0] = P1; data->p[1] = P2; data->p[2] = P3;
+  data       = (UserData)malloc(sizeof(*data));
+  data->p[0] = P1;
+  data->p[1] = P2;
+  data->p[2] = P3;
 
   /* Consistent IC */
-  yy = N_VNew_Serial(NEQ, ctx);
-  yp = N_VClone(yy);
-  Ith(yy,1) = ONE; Ith(yy,2) = ZERO; Ith(yy,3) = ZERO;
-  Ith(yp,1) = -P1; Ith(yp,2) = P1; Ith(yp,3) = 0;
+  yy         = N_VNew_Serial(NEQ, ctx);
+  yp         = N_VClone(yy);
+  Ith(yy, 1) = ONE;
+  Ith(yy, 2) = ZERO;
+  Ith(yy, 3) = ZERO;
+  Ith(yp, 1) = -P1;
+  Ith(yp, 2) = P1;
+  Ith(yp, 3) = 0;
 
   q = N_VNew_Serial(1, ctx);
   N_VConst(ZERO, q);
 
   yyS = N_VCloneVectorArray(NP, yy);
   ypS = N_VCloneVectorArray(NP, yp);
-  N_VConst(ZERO, yyS[0]); N_VConst(ZERO, yyS[1]);
-  N_VConst(ZERO, ypS[0]); N_VConst(ZERO, ypS[1]);
+  N_VConst(ZERO, yyS[0]);
+  N_VConst(ZERO, yyS[1]);
+  N_VConst(ZERO, ypS[0]);
+  N_VConst(ZERO, ypS[1]);
 
   qS = N_VCloneVectorArray(NP, q);
-  for(is=0; is<NP; is++) N_VConst(ZERO, qS[is]);
+  for (is = 0; is < NP; is++) { N_VConst(ZERO, qS[is]); }
 
   ida_mem = IDACreate(ctx);
 
-  ti = T0;
+  ti     = T0;
   retval = IDAInit(ida_mem, res, ti, yy, yp);
 
   /* Forward problem's setup. */
@@ -175,15 +183,15 @@ int main(int argc, char *argv[])
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void*)A, "SUNDenseMatrix", 0)) { return (1); }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void*)LS, "SUNLinSol_Dense", 0)) { return (1); }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(ida_mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) { return (1); }
 
   retval = IDASetUserData(ida_mem, data);
   retval = IDASetMaxNumSteps(ida_mem, 1500);
@@ -210,11 +218,11 @@ int main(int argc, char *argv[])
   printf("Forward integration\n");
   printf("---------------------------------------------------------\n\n");
 
-  tf = TF;
+  tf     = TF;
   retval = IDASolveF(ida_mem, tf, &time, yy, yp, IDA_NORMAL, &nckp);
 
   IDAGetQuad(ida_mem, &time, q);
-  G = Ith(q,1);
+  G = Ith(q, 1);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("     G:    %12.4Le\n", G);
 #else
@@ -227,9 +235,9 @@ int main(int argc, char *argv[])
 
   IDAGetQuadSens(ida_mem, &time, qS);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("   dG/dp:  %12.4Le %12.4Le\n", Ith(qS[0],1), Ith(qS[1],1));
+  printf("   dG/dp:  %12.4Le %12.4Le\n", Ith(qS[0], 1), Ith(qS[1], 1));
 #else
-  printf("   dG/dp:  %12.4e %12.4e\n", Ith(qS[0],1), Ith(qS[1],1));
+  printf("   dG/dp:  %12.4e %12.4e\n", Ith(qS[0], 1), Ith(qS[1], 1));
 #endif
   printf("\n");
   /******************************
@@ -237,20 +245,20 @@ int main(int argc, char *argv[])
   *******************************/
 
   /* Consistent IC. */
-  yyB1 = N_VNew_Serial(2*NEQ, ctx);
+  yyB1 = N_VNew_Serial(2 * NEQ, ctx);
   ypB1 = N_VClone(yyB1);
 
   N_VConst(ZERO, yyB1);
-  Ith(yyB1,3) = Ith(yy,3);
-  Ith(yyB1,6) = Ith(yyS[0], 3);
+  Ith(yyB1, 3) = Ith(yy, 3);
+  Ith(yyB1, 6) = Ith(yyS[0], 3);
 
   N_VConst(ZERO, ypB1);
-  Ith(ypB1,1) = Ith(yy,3)-Ith(yy,1);
-  Ith(ypB1,2) = Ith(yy,3)-Ith(yy,2);
-  Ith(ypB1,4) = Ith(yyS[0],3) - Ith(yyS[0],1);
-  Ith(ypB1,5) = Ith(yyS[0],3) - Ith(yyS[0],2);
+  Ith(ypB1, 1) = Ith(yy, 3) - Ith(yy, 1);
+  Ith(ypB1, 2) = Ith(yy, 3) - Ith(yy, 2);
+  Ith(ypB1, 4) = Ith(yyS[0], 3) - Ith(yyS[0], 1);
+  Ith(ypB1, 5) = Ith(yyS[0], 3) - Ith(yyS[0], 2);
 
-  qB1 = N_VNew_Serial(2*NP, ctx);
+  qB1 = N_VNew_Serial(2 * NP, ctx);
   N_VConst(ZERO, qB1);
 
   retval = IDACreateB(ida_mem, &indexB1);
@@ -260,16 +268,16 @@ int main(int argc, char *argv[])
   retval = IDASetMaxNumStepsB(ida_mem, indexB1, 5000);
 
   /* Create dense SUNMatrix for use in linear solves */
-  AB1 = SUNDenseMatrix(2*NEQ, 2*NEQ, ctx);
-  if(check_retval((void *)AB1, "SUNDenseMatrix", 0)) return(1);
+  AB1 = SUNDenseMatrix(2 * NEQ, 2 * NEQ, ctx);
+  if (check_retval((void*)AB1, "SUNDenseMatrix", 0)) { return (1); }
 
   /* Create dense SUNLinearSolver object */
   LSB1 = SUNLinSol_Dense(yyB1, AB1, ctx);
-  if(check_retval((void *)LSB1, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void*)LSB1, "SUNLinSol_Dense", 0)) { return (1); }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolverB(ida_mem, indexB1, LSB1, AB1);
-  if(check_retval(&retval, "IDASetLinearSolverB", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolverB", 1)) { return (1); }
 
   retval = IDAQuadInitBS(ida_mem, indexB1, rhsQBS1, qB1);
 
@@ -278,20 +286,20 @@ int main(int argc, char *argv[])
   *******************************/
 
   /* Consistent IC. */
-  yyB2 = N_VNew_Serial(2*NEQ, ctx);
-  ypB2 = N_VNew_Serial(2*NEQ, ctx);
+  yyB2 = N_VNew_Serial(2 * NEQ, ctx);
+  ypB2 = N_VNew_Serial(2 * NEQ, ctx);
 
   N_VConst(ZERO, yyB2);
-  Ith(yyB2,3) = Ith(yy,3);
-  Ith(yyB2,6) = Ith(yyS[1],3);
+  Ith(yyB2, 3) = Ith(yy, 3);
+  Ith(yyB2, 6) = Ith(yyS[1], 3);
 
   N_VConst(ZERO, ypB2);
-  Ith(ypB2,1) = Ith(yy,3)-Ith(yy,1);
-  Ith(ypB2,2) = Ith(yy,3)-Ith(yy,2);
-  Ith(ypB2,4) = Ith(yyS[1],3) - Ith(yyS[1],1);
-  Ith(ypB2,5) = Ith(yyS[1],3) - Ith(yyS[1],2);
+  Ith(ypB2, 1) = Ith(yy, 3) - Ith(yy, 1);
+  Ith(ypB2, 2) = Ith(yy, 3) - Ith(yy, 2);
+  Ith(ypB2, 4) = Ith(yyS[1], 3) - Ith(yyS[1], 1);
+  Ith(ypB2, 5) = Ith(yyS[1], 3) - Ith(yyS[1], 2);
 
-  qB2 = N_VNew_Serial(2*NP, ctx);
+  qB2 = N_VNew_Serial(2 * NP, ctx);
   N_VConst(ZERO, qB2);
 
   retval = IDACreateB(ida_mem, &indexB2);
@@ -301,16 +309,16 @@ int main(int argc, char *argv[])
   retval = IDASetMaxNumStepsB(ida_mem, indexB2, 2500);
 
   /* Create dense SUNMatrix for use in linear solves */
-  AB2 = SUNDenseMatrix(2*NEQ, 2*NEQ, ctx);
-  if(check_retval((void *)AB2, "SUNDenseMatrix", 0)) return(1);
+  AB2 = SUNDenseMatrix(2 * NEQ, 2 * NEQ, ctx);
+  if (check_retval((void*)AB2, "SUNDenseMatrix", 0)) { return (1); }
 
   /* Create dense SUNLinearSolver object */
   LSB2 = SUNLinSol_Dense(yyB2, AB2, ctx);
-  if(check_retval((void *)LSB2, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void*)LSB2, "SUNLinSol_Dense", 0)) { return (1); }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolverB(ida_mem, indexB2, LSB2, AB2);
-  if(check_retval(&retval, "IDASetLinearSolverB", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolverB", 1)) { return (1); }
 
   retval = IDAQuadInitBS(ida_mem, indexB2, rhsQBS2, qB2);
 
@@ -332,22 +340,26 @@ int main(int argc, char *argv[])
   retval = IDAGetQuadB(ida_mem, indexB1, &time, qB1);
   retval = IDAGetQuadB(ida_mem, indexB2, &time, qB2);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("   dG/dp:  %12.4Le %12.4Le   (from backward pb. 1)\n", Ith(qB1,1), Ith(qB1,2));
-  printf("   dG/dp:  %12.4Le %12.4Le   (from backward pb. 2)\n", Ith(qB2,1), Ith(qB2,2));
+  printf("   dG/dp:  %12.4Le %12.4Le   (from backward pb. 1)\n", Ith(qB1, 1),
+         Ith(qB1, 2));
+  printf("   dG/dp:  %12.4Le %12.4Le   (from backward pb. 2)\n", Ith(qB2, 1),
+         Ith(qB2, 2));
 #else
-  printf("   dG/dp:  %12.4e %12.4e   (from backward pb. 1)\n", Ith(qB1,1), Ith(qB1,2));
-  printf("   dG/dp:  %12.4e %12.4e   (from backward pb. 2)\n", Ith(qB2,1), Ith(qB2,2));
+  printf("   dG/dp:  %12.4e %12.4e   (from backward pb. 1)\n", Ith(qB1, 1),
+         Ith(qB1, 2));
+  printf("   dG/dp:  %12.4e %12.4e   (from backward pb. 2)\n", Ith(qB2, 1),
+         Ith(qB2, 2));
 #endif
 
   printf("\n");
   printf("   H = d2G/dp2:\n");
   printf("        (1)            (2)\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("  %12.4Le  %12.4Le\n", Ith(qB1,3), Ith(qB2,3));
-  printf("  %12.4Le  %12.4Le\n", Ith(qB1,4), Ith(qB2,4));
+  printf("  %12.4Le  %12.4Le\n", Ith(qB1, 3), Ith(qB2, 3));
+  printf("  %12.4Le  %12.4Le\n", Ith(qB1, 4), Ith(qB2, 4));
 #else
-  printf("  %12.4e  %12.4e\n", Ith(qB1,3), Ith(qB2,3));
-  printf("  %12.4e  %12.4e\n", Ith(qB1,4), Ith(qB2,4));
+  printf("  %12.4e  %12.4e\n", Ith(qB1, 3), Ith(qB2, 3));
+  printf("  %12.4e  %12.4e\n", Ith(qB1, 4), Ith(qB2, 4));
 #endif
 
   IDAFree(&ida_mem);
@@ -357,7 +369,6 @@ int main(int argc, char *argv[])
   SUNMatDestroy(AB1);
   SUNLinSolFree(LSB2);
   SUNMatDestroy(AB2);
-
 
   /*********************************
   * Use Finite Differences to verify
@@ -383,8 +394,12 @@ int main(int argc, char *argv[])
   ********************/
   data->p[0] += dp1;
 
-  Ith(yy,1) = ONE; Ith(yy,2) = ZERO; Ith(yy,3) = ZERO;
-  Ith(yp,1) = -data->p[0]; Ith(yp,2) = -Ith(yp,1); Ith(yp,3) = 0;
+  Ith(yy, 1) = ONE;
+  Ith(yy, 2) = ZERO;
+  Ith(yy, 3) = ZERO;
+  Ith(yp, 1) = -data->p[0];
+  Ith(yp, 2) = -Ith(yp, 1);
+  Ith(yp, 3) = 0;
   N_VConst(ZERO, q);
   ti = T0;
   tf = TF;
@@ -398,15 +413,15 @@ int main(int argc, char *argv[])
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void*)A, "SUNDenseMatrix", 0)) { return (1); }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void*)LS, "SUNLinSol_Dense", 0)) { return (1); }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(ida_mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) { return (1); }
 
   retval = IDASetUserData(ida_mem, data);
   retval = IDASetMaxNumSteps(ida_mem, 10000);
@@ -417,15 +432,19 @@ int main(int argc, char *argv[])
 
   retval = IDASolve(ida_mem, tf, &time, yy, yp, IDA_NORMAL);
   retval = IDAGetQuad(ida_mem, &time, q);
-  Gp = Ith(q,1);
+  Gp     = Ith(q, 1);
 
   /********************
   * Backward FD for p1
   ********************/
-  data->p[0] -= 2*dp1;
+  data->p[0] -= 2 * dp1;
 
-  Ith(yy,1) = ONE; Ith(yy,2) = ZERO; Ith(yy,3) = ZERO;
-  Ith(yp,1) = -data->p[0]; Ith(yp,2) = -Ith(yp,1); Ith(yp,3) = 0;
+  Ith(yy, 1) = ONE;
+  Ith(yy, 2) = ZERO;
+  Ith(yy, 3) = ZERO;
+  Ith(yp, 1) = -data->p[0];
+  Ith(yp, 2) = -Ith(yp, 1);
+  Ith(yp, 3) = 0;
   N_VConst(ZERO, q);
 
   retval = IDAReInit(ida_mem, ti, yy, yp);
@@ -433,13 +452,13 @@ int main(int argc, char *argv[])
 
   retval = IDASolve(ida_mem, tf, &time, yy, yp, IDA_NORMAL);
   retval = IDAGetQuad(ida_mem, &time, q);
-  Gm = Ith(q,1);
+  Gm     = Ith(q, 1);
 
   /* Compute FD for p1. */
-  grdG_fwd[0] = (Gp-G)/dp1;
-  grdG_bck[0] = (G-Gm)/dp1;
-  grdG_cntr[0] = (Gp-Gm)/(2.0*dp1);
-  H11 = (Gp - 2.0*G + Gm) / (dp1*dp1);
+  grdG_fwd[0]  = (Gp - G) / dp1;
+  grdG_bck[0]  = (G - Gm) / dp1;
+  grdG_cntr[0] = (Gp - Gm) / (2.0 * dp1);
+  H11          = (Gp - 2.0 * G + Gm) / (dp1 * dp1);
 
   /********************
   * Forward FD for p2
@@ -448,8 +467,12 @@ int main(int argc, char *argv[])
   data->p[0] += dp1;
   data->p[1] += dp2;
 
-  Ith(yy,1) = ONE; Ith(yy,2) = ZERO; Ith(yy,3) = ZERO;
-  Ith(yp,1) = -data->p[0]; Ith(yp,2) = -Ith(yp,1); Ith(yp,3) = 0;
+  Ith(yy, 1) = ONE;
+  Ith(yy, 2) = ZERO;
+  Ith(yy, 3) = ZERO;
+  Ith(yp, 1) = -data->p[0];
+  Ith(yp, 2) = -Ith(yp, 1);
+  Ith(yp, 3) = 0;
   N_VConst(ZERO, q);
 
   retval = IDAReInit(ida_mem, ti, yy, yp);
@@ -457,15 +480,19 @@ int main(int argc, char *argv[])
 
   retval = IDASolve(ida_mem, tf, &time, yy, yp, IDA_NORMAL);
   retval = IDAGetQuad(ida_mem, &time, q);
-  Gp = Ith(q,1);
+  Gp     = Ith(q, 1);
 
   /********************
   * Backward FD for p2
   ********************/
-  data->p[1] -= 2*dp2;
+  data->p[1] -= 2 * dp2;
 
-  Ith(yy,1) = ONE; Ith(yy,2) = ZERO; Ith(yy,3) = ZERO;
-  Ith(yp,1) = -data->p[0]; Ith(yp,2) = -Ith(yp,1); Ith(yp,3) = 0;
+  Ith(yy, 1) = ONE;
+  Ith(yy, 2) = ZERO;
+  Ith(yy, 3) = ZERO;
+  Ith(yp, 1) = -data->p[0];
+  Ith(yp, 2) = -Ith(yp, 1);
+  Ith(yp, 3) = 0;
   N_VConst(ZERO, q);
 
   retval = IDAReInit(ida_mem, ti, yy, yp);
@@ -473,26 +500,25 @@ int main(int argc, char *argv[])
 
   retval = IDASolve(ida_mem, tf, &time, yy, yp, IDA_NORMAL);
   retval = IDAGetQuad(ida_mem, &time, q);
-  Gm = Ith(q,1);
+  Gm     = Ith(q, 1);
 
   /* Compute FD for p2. */
-  grdG_fwd[1] = (Gp-G)/dp2;
-  grdG_bck[1] = (G-Gm)/dp2;
-  grdG_cntr[1] = (Gp-Gm)/(2.0*dp2);
-  H22 = (Gp - 2.0*G + Gm) / (dp2*dp2);
-
+  grdG_fwd[1]  = (Gp - G) / dp2;
+  grdG_bck[1]  = (G - Gm) / dp2;
+  grdG_cntr[1] = (Gp - Gm) / (2.0 * dp2);
+  H22          = (Gp - 2.0 * G + Gm) / (dp2 * dp2);
 
   printf("\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("   dG/dp:  %12.4Le  %12.4Le   (fwd FD)\n",  grdG_fwd[0],  grdG_fwd[1]);
-  printf("           %12.4Le  %12.4Le   (bck FD)\n",  grdG_bck[0],  grdG_bck[1]);
+  printf("   dG/dp:  %12.4Le  %12.4Le   (fwd FD)\n", grdG_fwd[0], grdG_fwd[1]);
+  printf("           %12.4Le  %12.4Le   (bck FD)\n", grdG_bck[0], grdG_bck[1]);
   printf("           %12.4Le  %12.4Le   (cntr FD)\n", grdG_cntr[0], grdG_cntr[1]);
   printf("\n");
   printf("  H(1,1):  %12.4Le\n", H11);
   printf("  H(2,2):  %12.4Le\n", H22);
 #else
-  printf("   dG/dp:  %12.4e  %12.4e   (fwd FD)\n",  grdG_fwd[0],  grdG_fwd[1]);
-  printf("           %12.4e  %12.4e   (bck FD)\n",  grdG_bck[0],  grdG_bck[1]);
+  printf("   dG/dp:  %12.4e  %12.4e   (fwd FD)\n", grdG_fwd[0], grdG_fwd[1]);
+  printf("           %12.4e  %12.4e   (bck FD)\n", grdG_bck[0], grdG_bck[1]);
   printf("           %12.4e  %12.4e   (cntr FD)\n", grdG_cntr[0], grdG_cntr[1]);
   printf("\n");
   printf("  H(1,1):  %12.4e\n", H11);
@@ -524,34 +550,36 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-
-
-static int res(sunrealtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
+static int res(sunrealtype tres, N_Vector yy, N_Vector yp, N_Vector rr,
+               void* user_data)
 {
   sunrealtype y1, y2, y3, yp1, yp2, *rval;
   UserData data;
   sunrealtype p1, p2, p3;
 
-  y1  = Ith(yy,1); y2  = Ith(yy,2); y3  = Ith(yy,3);
-  yp1 = Ith(yp,1); yp2 = Ith(yp,2);
+  y1   = Ith(yy, 1);
+  y2   = Ith(yy, 2);
+  y3   = Ith(yy, 3);
+  yp1  = Ith(yp, 1);
+  yp2  = Ith(yp, 2);
   rval = N_VGetArrayPointer(rr);
 
-  data = (UserData) user_data;
-  p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
+  data = (UserData)user_data;
+  p1   = data->p[0];
+  p2   = data->p[1];
+  p3   = data->p[2];
 
-  rval[0] = p1*y1-p2*y2*y3;
-  rval[1] = -rval[0] + p3*y2*y2 + yp2;
-  rval[0]+= yp1;
-  rval[2] = y1+y2+y3-1;
+  rval[0] = p1 * y1 - p2 * y2 * y3;
+  rval[1] = -rval[0] + p3 * y2 * y2 + yp2;
+  rval[0] += yp1;
+  rval[2] = y1 + y2 + y3 - 1;
 
-  return(0);
+  return (0);
 }
 
-static int resS(int Ns, sunrealtype t,
-                N_Vector yy, N_Vector yp, N_Vector resval,
-                N_Vector *yyS, N_Vector *ypS, N_Vector *resvalS,
-                void *user_data,
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int resS(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
+                N_Vector resval, N_Vector* yyS, N_Vector* ypS, N_Vector* resvalS,
+                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData data;
   sunrealtype p1, p2, p3;
@@ -561,95 +589,91 @@ static int resS(int Ns, sunrealtype t,
   sunrealtype rs1, rs2, rs3;
   int is;
 
-  data = (UserData) user_data;
-  p1 = data->p[0];
-  p2 = data->p[1];
-  p3 = data->p[2];
+  data = (UserData)user_data;
+  p1   = data->p[0];
+  p2   = data->p[1];
+  p3   = data->p[2];
 
-  y1 = Ith(yy,1);
-  y2 = Ith(yy,2);
-  y3 = Ith(yy,3);
+  y1 = Ith(yy, 1);
+  y2 = Ith(yy, 2);
+  y3 = Ith(yy, 3);
 
-  for (is=0; is<NP; is++) {
+  for (is = 0; is < NP; is++)
+  {
+    s1 = Ith(yyS[is], 1);
+    s2 = Ith(yyS[is], 2);
+    s3 = Ith(yyS[is], 3);
 
-    s1 = Ith(yyS[is],1);
-    s2 = Ith(yyS[is],2);
-    s3 = Ith(yyS[is],3);
+    sd1 = Ith(ypS[is], 1);
+    sd2 = Ith(ypS[is], 2);
 
-    sd1 = Ith(ypS[is],1);
-    sd2 = Ith(ypS[is],2);
-
-    rs1 = sd1 + p1*s1 - p2*y3*s2 - p2*y2*s3;
-    rs2 = sd2 - p1*s1 + p2*y3*s2 + p2*y2*s3 + TWO*p3*y2*s2;
+    rs1 = sd1 + p1 * s1 - p2 * y3 * s2 - p2 * y2 * s3;
+    rs2 = sd2 - p1 * s1 + p2 * y3 * s2 + p2 * y2 * s3 + TWO * p3 * y2 * s2;
     rs3 = s1 + s2 + s3;
 
-    switch (is) {
+    switch (is)
+    {
     case 0:
       rs1 += y1;
       rs2 -= y1;
       break;
     case 1:
-      rs1 -= y2*y3;
-      rs2 += y2*y3;
+      rs1 -= y2 * y3;
+      rs2 += y2 * y3;
       break;
     }
 
-    Ith(resvalS[is],1) = rs1;
-    Ith(resvalS[is],2) = rs2;
-    Ith(resvalS[is],3) = rs3;
-
+    Ith(resvalS[is], 1) = rs1;
+    Ith(resvalS[is], 2) = rs2;
+    Ith(resvalS[is], 3) = rs3;
   }
 
-  return(0);
+  return (0);
 }
 
-static int rhsQ(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data)
+static int rhsQ(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector qdot,
+                void* user_data)
 {
-
   sunrealtype y1, y2, y3;
 
-  y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);
-  Ith(qdot,1) = HALF*(y1*y1+y2*y2+y3*y3);
+  y1           = Ith(yy, 1);
+  y2           = Ith(yy, 2);
+  y3           = Ith(yy, 3);
+  Ith(qdot, 1) = HALF * (y1 * y1 + y2 * y2 + y3 * y3);
 
-  return(0);
+  return (0);
 }
 
-static int rhsQS(int Ns, sunrealtype t,
-                 N_Vector yy, N_Vector yp,
-                 N_Vector *yyS, N_Vector *ypS,
-                 N_Vector rrQ, N_Vector *rhsvalQS,
-                 void *user_data,
-                 N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS)
+static int rhsQS(int Ns, sunrealtype t, N_Vector yy, N_Vector yp, N_Vector* yyS,
+                 N_Vector* ypS, N_Vector rrQ, N_Vector* rhsvalQS,
+                 void* user_data, N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS)
 {
-
   sunrealtype y1, y2, y3;
   sunrealtype s1, s2, s3;
 
-  y1 = Ith(yy,1);
-  y2 = Ith(yy,2);
-  y3 = Ith(yy,3);
+  y1 = Ith(yy, 1);
+  y2 = Ith(yy, 2);
+  y3 = Ith(yy, 3);
 
   /* 1st sensitivity RHS */
-  s1 = Ith(yyS[0],1);
-  s2 = Ith(yyS[0],2);
-  s3 = Ith(yyS[0],3);
-  Ith(rhsvalQS[0],1) = y1*s1 + y2*s2 + y3*s3;
+  s1                  = Ith(yyS[0], 1);
+  s2                  = Ith(yyS[0], 2);
+  s3                  = Ith(yyS[0], 3);
+  Ith(rhsvalQS[0], 1) = y1 * s1 + y2 * s2 + y3 * s3;
 
   /* 2nd sensitivity RHS */
-  s1 = Ith(yyS[1],1);
-  s2 = Ith(yyS[1],2);
-  s3 = Ith(yyS[1],3);
-  Ith(rhsvalQS[1],1) = y1*s1 + y2*s2 + y3*s3;
+  s1                  = Ith(yyS[1], 1);
+  s2                  = Ith(yyS[1], 2);
+  s3                  = Ith(yyS[1], 3);
+  Ith(rhsvalQS[1], 1) = y1 * s1 + y2 * s2 + y3 * s3;
 
-  return(0);
+  return (0);
 }
 
 /* Residuals for adjoint model. */
-static int resBS1(sunrealtype tt,
-                  N_Vector yy, N_Vector yp,
-                  N_Vector *yyS, N_Vector *ypS,
-                  N_Vector yyB, N_Vector ypB,
-                  N_Vector rrBS, void *user_dataB)
+static int resBS1(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector* yyS,
+                  N_Vector* ypS, N_Vector yyB, N_Vector ypB, N_Vector rrBS,
+                  void* user_dataB)
 
 {
   UserData data;
@@ -660,46 +684,57 @@ static int resBS1(sunrealtype tt,
   sunrealtype s1, s2, s3;
   sunrealtype l21;
 
-  data = (UserData) user_dataB;
+  data = (UserData)user_dataB;
 
   /* The parameters. */
-  p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
+  p1 = data->p[0];
+  p2 = data->p[1];
+  p3 = data->p[2];
 
   /* The y vector. */
-  y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);
+  y1 = Ith(yy, 1);
+  y2 = Ith(yy, 2);
+  y3 = Ith(yy, 3);
 
   /* The lambda vector. */
-  l1 = Ith(yyB,1); l2 = Ith(yyB,2); l3 = Ith(yyB,3);
+  l1 = Ith(yyB, 1);
+  l2 = Ith(yyB, 2);
+  l3 = Ith(yyB, 3);
   /* The mu vector. */
-  m1 = Ith(yyB,4); m2 = Ith(yyB,5); m3 = Ith(yyB,6);
+  m1 = Ith(yyB, 4);
+  m2 = Ith(yyB, 5);
+  m3 = Ith(yyB, 6);
 
   /* The lambda dot vector. */
-  lp1 = Ith(ypB,1); lp2 = Ith(ypB,2);
+  lp1 = Ith(ypB, 1);
+  lp2 = Ith(ypB, 2);
   /* The mu dot vector. */
-  mp1 = Ith(ypB,4); mp2 = Ith(ypB,5);
+  mp1 = Ith(ypB, 4);
+  mp2 = Ith(ypB, 5);
 
   /* The sensitivity with respect to p1 */
-  s1 = Ith(yyS[0],1); s2 = Ith(yyS[0],2); s3 = Ith(yyS[0],3);
+  s1 = Ith(yyS[0], 1);
+  s2 = Ith(yyS[0], 2);
+  s3 = Ith(yyS[0], 3);
 
   /* Temporary variables */
-  l21 = l2-l1;
+  l21 = l2 - l1;
 
-  Ith(rrBS,1) = lp1 + p1*l21 - l3 + y1;
-  Ith(rrBS,2) = lp2 - p2*y3*l21 - TWO*p3*y2*l2 - l3 + y2;
-  Ith(rrBS,3) = -p2*y2*l21 - l3 + y3;
+  Ith(rrBS, 1) = lp1 + p1 * l21 - l3 + y1;
+  Ith(rrBS, 2) = lp2 - p2 * y3 * l21 - TWO * p3 * y2 * l2 - l3 + y2;
+  Ith(rrBS, 3) = -p2 * y2 * l21 - l3 + y3;
 
-  Ith(rrBS,4) = mp1 + p1*(-m1+m2) - m3 + l21 + s1;
-  Ith(rrBS,5) = mp2 + p2*y3*m1 - (p2*y3+TWO*p3*y2)*m2 - m3 + p2*s3*l1 - (TWO*p3*s2+p2*s3)*l2 + s2;
-  Ith(rrBS,6) = p2*y2*(m1-m2) - m3 - p2*s2*l21 + s3;
+  Ith(rrBS, 4) = mp1 + p1 * (-m1 + m2) - m3 + l21 + s1;
+  Ith(rrBS, 5) = mp2 + p2 * y3 * m1 - (p2 * y3 + TWO * p3 * y2) * m2 - m3 +
+                 p2 * s3 * l1 - (TWO * p3 * s2 + p2 * s3) * l2 + s2;
+  Ith(rrBS, 6) = p2 * y2 * (m1 - m2) - m3 - p2 * s2 * l21 + s3;
 
-  return(0);
+  return (0);
 }
 
-static int rhsQBS1(sunrealtype tt,
-                 N_Vector yy, N_Vector yp,
-                 N_Vector *yyS, N_Vector *ypS,
-                 N_Vector yyB, N_Vector ypB,
-                 N_Vector rhsBQS, void *user_dataB)
+static int rhsQBS1(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector* yyS,
+                   N_Vector* ypS, N_Vector yyB, N_Vector ypB, N_Vector rhsBQS,
+                   void* user_dataB)
 {
   sunrealtype y1, y2, y3;
   sunrealtype l1, l2, m1, m2;
@@ -707,34 +742,38 @@ static int rhsQBS1(sunrealtype tt,
   sunrealtype l21;
 
   /* The y vector */
-  y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);
+  y1 = Ith(yy, 1);
+  y2 = Ith(yy, 2);
+  y3 = Ith(yy, 3);
 
   /* The lambda vector. */
-  l1 = Ith(yyB,1); l2 = Ith(yyB,2);
+  l1 = Ith(yyB, 1);
+  l2 = Ith(yyB, 2);
 
   /* The mu vector. */
-  m1 = Ith(yyB,4); m2 = Ith(yyB,5);
+  m1 = Ith(yyB, 4);
+  m2 = Ith(yyB, 5);
 
   /* The sensitivity with respect to p1 */
-  s1 = Ith(yyS[0],1); s2 = Ith(yyS[0],2); s3 = Ith(yyS[0],3);
+  s1 = Ith(yyS[0], 1);
+  s2 = Ith(yyS[0], 2);
+  s3 = Ith(yyS[0], 3);
 
   /* Temporary variables */
-  l21 = l2-l1;
+  l21 = l2 - l1;
 
-  Ith(rhsBQS,1) = -y1*l21;
-  Ith(rhsBQS,2) = y2*y3*l21;
+  Ith(rhsBQS, 1) = -y1 * l21;
+  Ith(rhsBQS, 2) = y2 * y3 * l21;
 
-  Ith(rhsBQS,3) = y1*(m1-m2) - s1*l21;
-  Ith(rhsBQS,4) = y2*y3*(m2-m1) + (y3*s2+y2*s3)*l21;
+  Ith(rhsBQS, 3) = y1 * (m1 - m2) - s1 * l21;
+  Ith(rhsBQS, 4) = y2 * y3 * (m2 - m1) + (y3 * s2 + y2 * s3) * l21;
 
-  return(0);
+  return (0);
 }
 
-static int resBS2(sunrealtype tt,
-                  N_Vector yy, N_Vector yp,
-                  N_Vector *yyS, N_Vector *ypS,
-                  N_Vector yyB, N_Vector ypB,
-                  N_Vector rrBS, void *user_dataB)
+static int resBS2(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector* yyS,
+                  N_Vector* ypS, N_Vector yyB, N_Vector ypB, N_Vector rrBS,
+                  void* user_dataB)
 
 {
   UserData data;
@@ -745,47 +784,58 @@ static int resBS2(sunrealtype tt,
   sunrealtype s1, s2, s3;
   sunrealtype l21;
 
-  data = (UserData) user_dataB;
+  data = (UserData)user_dataB;
 
   /* The parameters. */
-  p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
+  p1 = data->p[0];
+  p2 = data->p[1];
+  p3 = data->p[2];
 
   /* The y vector. */
-  y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);
+  y1 = Ith(yy, 1);
+  y2 = Ith(yy, 2);
+  y3 = Ith(yy, 3);
 
   /* The lambda vector. */
-  l1 = Ith(yyB,1); l2 = Ith(yyB,2); l3 = Ith(yyB,3);
+  l1 = Ith(yyB, 1);
+  l2 = Ith(yyB, 2);
+  l3 = Ith(yyB, 3);
   /* The mu vector. */
-  m1 = Ith(yyB,4); m2 = Ith(yyB,5); m3 = Ith(yyB,6);
+  m1 = Ith(yyB, 4);
+  m2 = Ith(yyB, 5);
+  m3 = Ith(yyB, 6);
 
   /* The lambda dot vector. */
-  lp1 = Ith(ypB,1); lp2 = Ith(ypB,2);
+  lp1 = Ith(ypB, 1);
+  lp2 = Ith(ypB, 2);
 
   /* The mu dot vector. */
-  mp1 = Ith(ypB,4); mp2 = Ith(ypB,5);
+  mp1 = Ith(ypB, 4);
+  mp2 = Ith(ypB, 5);
 
   /* The sensitivity with respect to p2 */
-  s1 = Ith(yyS[1],1); s2 = Ith(yyS[1],2); s3 = Ith(yyS[1],3);
+  s1 = Ith(yyS[1], 1);
+  s2 = Ith(yyS[1], 2);
+  s3 = Ith(yyS[1], 3);
 
   /* Temporary variables */
-  l21 = l2-l1;
+  l21 = l2 - l1;
 
-  Ith(rrBS,1) = lp1 + p1*l21 - l3 + y1;
-  Ith(rrBS,2) = lp2 - p2*y3*l21 - TWO*p3*y2*l2 - l3 + y2;
-  Ith(rrBS,3) = -p2*y2*l21 - l3 + y3;
+  Ith(rrBS, 1) = lp1 + p1 * l21 - l3 + y1;
+  Ith(rrBS, 2) = lp2 - p2 * y3 * l21 - TWO * p3 * y2 * l2 - l3 + y2;
+  Ith(rrBS, 3) = -p2 * y2 * l21 - l3 + y3;
 
-  Ith(rrBS,4) = mp1 + p1*(-m1+m2) - m3 + s1;
-  Ith(rrBS,5) = mp2 + p2*y3*m1 - (p2*y3+TWO*p3*y2)*m2 - m3 + (y3+p2*s3)*l1 - (y3+TWO*p3*s2+p2*s3)*l2 + s2;
-  Ith(rrBS,6) = p2*y2*(m1-m2) - m3 - (y2+p2*s2)*l21 + s3;
+  Ith(rrBS, 4) = mp1 + p1 * (-m1 + m2) - m3 + s1;
+  Ith(rrBS, 5) = mp2 + p2 * y3 * m1 - (p2 * y3 + TWO * p3 * y2) * m2 - m3 +
+                 (y3 + p2 * s3) * l1 - (y3 + TWO * p3 * s2 + p2 * s3) * l2 + s2;
+  Ith(rrBS, 6) = p2 * y2 * (m1 - m2) - m3 - (y2 + p2 * s2) * l21 + s3;
 
-  return(0);
+  return (0);
 }
 
-static int rhsQBS2(sunrealtype tt,
-                 N_Vector yy, N_Vector yp,
-                 N_Vector *yyS, N_Vector *ypS,
-                 N_Vector yyB, N_Vector ypB,
-                 N_Vector rhsBQS, void *user_dataB)
+static int rhsQBS2(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector* yyS,
+                   N_Vector* ypS, N_Vector yyB, N_Vector ypB, N_Vector rhsBQS,
+                   void* user_dataB)
 {
   sunrealtype y1, y2, y3;
   sunrealtype l1, l2, m1, m2;
@@ -793,27 +843,33 @@ static int rhsQBS2(sunrealtype tt,
   sunrealtype l21;
 
   /* The y vector */
-  y1 = Ith(yy,1); y2 = Ith(yy,2); y3 = Ith(yy,3);
+  y1 = Ith(yy, 1);
+  y2 = Ith(yy, 2);
+  y3 = Ith(yy, 3);
 
   /* The lambda vector. */
-  l1 = Ith(yyB,1); l2 = Ith(yyB,2);
+  l1 = Ith(yyB, 1);
+  l2 = Ith(yyB, 2);
 
   /* The mu vector. */
-  m1 = Ith(yyB,4); m2 = Ith(yyB,5);
+  m1 = Ith(yyB, 4);
+  m2 = Ith(yyB, 5);
 
   /* The sensitivity with respect to p2 */
-  s1 = Ith(yyS[1],1); s2 = Ith(yyS[1],2); s3 = Ith(yyS[1],3);
+  s1 = Ith(yyS[1], 1);
+  s2 = Ith(yyS[1], 2);
+  s3 = Ith(yyS[1], 3);
 
   /* Temporary variables */
-  l21 = l2-l1;
+  l21 = l2 - l1;
 
-  Ith(rhsBQS,1) = -y1*l21;
-  Ith(rhsBQS,2) =  y2*y3*l21;
+  Ith(rhsBQS, 1) = -y1 * l21;
+  Ith(rhsBQS, 2) = y2 * y3 * l21;
 
-  Ith(rhsBQS,3) = y1*(m1-m2) - s1*l21;
-  Ith(rhsBQS,4) = y2*y3*(m2-m1) + (y3*s2+y2*s3)*l21;
+  Ith(rhsBQS, 3) = y1 * (m1 - m2) - s1 * l21;
+  Ith(rhsBQS, 4) = y2 * y3 * (m2 - m1) + (y3 * s2 + y2 * s3) * l21;
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -826,30 +882,37 @@ static int rhsQBS2(sunrealtype tt,
  *             NULL pointer
  */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
-    return(1); }
+            funcname);
+    return (1);
+  }
 
   /* Check if retval < 0 */
-  else if (opt == 1) {
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
+  else if (opt == 1)
+  {
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
-	      funcname, *retval);
-      return(1); }}
+              funcname, *retval);
+      return (1);
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && returnvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
-    return(1); }
+            funcname);
+    return (1);
+  }
 
-  return(0);
+  return (0);
 }
-

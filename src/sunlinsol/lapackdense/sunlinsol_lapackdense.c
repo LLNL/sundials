@@ -18,25 +18,24 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <sunlinsol/sunlinsol_lapackdense.h>
 #include <sundials/sundials_math.h>
+#include <sunlinsol/sunlinsol_lapackdense.h>
 
 #include "sundials_lapack_defs.h"
 
 /* Interfaces to match 'sunrealtype' with the correct LAPACK functions */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
-#define xgetrf_f77    dgetrf_f77
-#define xgetrs_f77    dgetrs_f77
+#define xgetrf_f77 dgetrf_f77
+#define xgetrs_f77 dgetrs_f77
 #elif defined(SUNDIALS_SINGLE_PRECISION)
-#define xgetrf_f77    sgetrf_f77
-#define xgetrs_f77    sgetrs_f77
+#define xgetrf_f77 sgetrf_f77
+#define xgetrs_f77 sgetrs_f77
 #else
-#error  Incompatible sunrealtype for LAPACK; disable LAPACK and rebuild
+#error Incompatible sunrealtype for LAPACK; disable LAPACK and rebuild
 #endif
 
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /*
  * -----------------------------------------------------------------
@@ -44,9 +43,10 @@
  * -----------------------------------------------------------------
  */
 
-#define LAPACKDENSE_CONTENT(S) ( (SUNLinearSolverContent_LapackDense)(S->content) )
-#define PIVOTS(S)              ( LAPACKDENSE_CONTENT(S)->pivots )
-#define LASTFLAG(S)            ( LAPACKDENSE_CONTENT(S)->last_flag )
+#define LAPACKDENSE_CONTENT(S) \
+  ((SUNLinearSolverContent_LapackDense)(S->content))
+#define PIVOTS(S)   (LAPACKDENSE_CONTENT(S)->pivots)
+#define LASTFLAG(S) (LAPACKDENSE_CONTENT(S)->last_flag)
 
 /*
  * -----------------------------------------------------------------
@@ -65,22 +65,24 @@ SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A, SUNContext sunctx
   sunindextype MatrixRows;
 
   /* Check compatibility with supplied SUNMatrix and N_Vector */
-  if (SUNMatGetID(A) != SUNMATRIX_DENSE) return(NULL);
+  if (SUNMatGetID(A) != SUNMATRIX_DENSE) { return (NULL); }
 
-  if (SUNDenseMatrix_Rows(A) != SUNDenseMatrix_Columns(A)) return(NULL);
+  if (SUNDenseMatrix_Rows(A) != SUNDenseMatrix_Columns(A)) { return (NULL); }
 
-  if ( (N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
-       (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
-       (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
-    return(NULL);
+  if ((N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
+      (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
+      (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS))
+  {
+    return (NULL);
+  }
 
   MatrixRows = SUNDenseMatrix_Rows(A);
-  if (MatrixRows != N_VGetLength(y)) return(NULL);
+  if (MatrixRows != N_VGetLength(y)) { return (NULL); }
 
   /* Create linear solver */
   S = NULL;
   S = SUNLinSolNewEmpty(sunctx);
-  if (S == NULL) return(NULL);
+  if (S == NULL) { return (NULL); }
 
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_LapackDense;
@@ -94,8 +96,12 @@ SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A, SUNContext sunctx
 
   /* Create content */
   content = NULL;
-  content = (SUNLinearSolverContent_LapackDense) malloc(sizeof *content);
-  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+  content = (SUNLinearSolverContent_LapackDense)malloc(sizeof *content);
+  if (content == NULL)
+  {
+    SUNLinSolFree(S);
+    return (NULL);
+  }
 
   /* Attach content */
   S->content = content;
@@ -106,12 +112,15 @@ SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A, SUNContext sunctx
   content->pivots    = NULL;
 
   /* Allocate content */
-  content->pivots = (sunindextype *) malloc(MatrixRows * sizeof(sunindextype));
-  if (content->pivots == NULL) { SUNLinSolFree(S); return(NULL); }
+  content->pivots = (sunindextype*)malloc(MatrixRows * sizeof(sunindextype));
+  if (content->pivots == NULL)
+  {
+    SUNLinSolFree(S);
+    return (NULL);
+  }
 
-  return(S);
+  return (S);
 }
-
 
 /*
  * -----------------------------------------------------------------
@@ -121,120 +130,117 @@ SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A, SUNContext sunctx
 
 SUNLinearSolver_Type SUNLinSolGetType_LapackDense(SUNLinearSolver S)
 {
-  return(SUNLINEARSOLVER_DIRECT);
+  return (SUNLINEARSOLVER_DIRECT);
 }
-
 
 SUNLinearSolver_ID SUNLinSolGetID_LapackDense(SUNLinearSolver S)
 {
-  return(SUNLINEARSOLVER_LAPACKDENSE);
+  return (SUNLINEARSOLVER_LAPACKDENSE);
 }
-
 
 int SUNLinSolInitialize_LapackDense(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(SUNLS_SUCCESS);
+  return (SUNLS_SUCCESS);
 }
-
 
 int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
 {
   sunindextype n, ier;
 
   /* check for valid inputs */
-  if ( (A == NULL) || (S == NULL) )
-    return(SUNLS_MEM_NULL);
+  if ((A == NULL) || (S == NULL)) { return (SUNLS_MEM_NULL); }
 
   /* Ensure that A is a dense matrix */
-  if (SUNMatGetID(A) != SUNMATRIX_DENSE) {
+  if (SUNMatGetID(A) != SUNMATRIX_DENSE)
+  {
     LASTFLAG(S) = SUNLS_ILL_INPUT;
-    return(SUNLS_ILL_INPUT);
+    return (SUNLS_ILL_INPUT);
   }
 
   /* Call LAPACK to do LU factorization of A */
-  n = SUNDenseMatrix_Rows(A);
+  n   = SUNDenseMatrix_Rows(A);
   ier = 0;
   xgetrf_f77(&n, &n, SUNDenseMatrix_Data(A), &n, PIVOTS(S), &ier);
   LASTFLAG(S) = ier;
-  if (ier > 0)
-    return(SUNLS_LUFACT_FAIL);
-  if (ier < 0)
-    return(SUNLS_PACKAGE_FAIL_UNREC);
-  return(SUNLS_SUCCESS);
+  if (ier > 0) { return (SUNLS_LUFACT_FAIL); }
+  if (ier < 0) { return (SUNLS_PACKAGE_FAIL_UNREC); }
+  return (SUNLS_SUCCESS);
 }
-
 
 int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                N_Vector b, sunrealtype tol)
 {
   sunindextype n, one, ier;
-  sunrealtype *xdata;
+  sunrealtype* xdata;
 
-  if ( (A == NULL) || (S == NULL) || (x == NULL) || (b == NULL) )
-    return(SUNLS_MEM_NULL);
+  if ((A == NULL) || (S == NULL) || (x == NULL) || (b == NULL))
+  {
+    return (SUNLS_MEM_NULL);
+  }
 
   /* copy b into x */
   N_VScale(ONE, b, x);
 
   /* access x data array */
   xdata = N_VGetArrayPointer(x);
-  if (xdata == NULL) {
+  if (xdata == NULL)
+  {
     LASTFLAG(S) = SUNLS_MEM_FAIL;
-    return(SUNLS_MEM_FAIL);
+    return (SUNLS_MEM_FAIL);
   }
 
   /* Call LAPACK to solve the linear system */
-  n = SUNDenseMatrix_Rows(A);
+  n   = SUNDenseMatrix_Rows(A);
   one = 1;
   ier = 0;
-  xgetrs_f77("N", &n, &one, SUNDenseMatrix_Data(A),
-             &n, PIVOTS(S), xdata, &n, &ier);
+  xgetrs_f77("N", &n, &one, SUNDenseMatrix_Data(A), &n, PIVOTS(S), xdata, &n,
+             &ier);
   LASTFLAG(S) = ier;
-  if (ier < 0)
-    return(SUNLS_PACKAGE_FAIL_UNREC);
+  if (ier < 0) { return (SUNLS_PACKAGE_FAIL_UNREC); }
 
   LASTFLAG(S) = SUNLS_SUCCESS;
-  return(SUNLS_SUCCESS);
+  return (SUNLS_SUCCESS);
 }
-
 
 sunindextype SUNLinSolLastFlag_LapackDense(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
-  if (S == NULL) return(-1);
-  return(LASTFLAG(S));
+  if (S == NULL) { return (-1); }
+  return (LASTFLAG(S));
 }
 
-
-int SUNLinSolSpace_LapackDense(SUNLinearSolver S,
-                               long int *lenrwLS,
-                               long int *leniwLS)
+int SUNLinSolSpace_LapackDense(SUNLinearSolver S, long int* lenrwLS,
+                               long int* leniwLS)
 {
   *lenrwLS = 0;
   *leniwLS = 2 + LAPACKDENSE_CONTENT(S)->N;
-  return(SUNLS_SUCCESS);
+  return (SUNLS_SUCCESS);
 }
 
 int SUNLinSolFree_LapackDense(SUNLinearSolver S)
 {
   /* return if S is already free */
-  if (S == NULL) return(SUNLS_SUCCESS);
+  if (S == NULL) { return (SUNLS_SUCCESS); }
 
   /* delete items from contents, then delete generic structure */
-  if (S->content) {
-    if (PIVOTS(S)) {
+  if (S->content)
+  {
+    if (PIVOTS(S))
+    {
       free(PIVOTS(S));
       PIVOTS(S) = NULL;
     }
     free(S->content);
     S->content = NULL;
   }
-  if (S->ops) {
+  if (S->ops)
+  {
     free(S->ops);
     S->ops = NULL;
   }
-  free(S); S = NULL;
-  return(SUNLS_SUCCESS);
+  free(S);
+  S = NULL;
+  return (SUNLS_SUCCESS);
 }

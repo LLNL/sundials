@@ -166,23 +166,23 @@ int J(sunrealtype t, sunrealtype cj, N_Vector y, N_Vector yp, N_Vector res,
 // Custom linear solver solve function
 // -----------------------------------------------------------------------------
 
-int DenseSetupAndSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                       N_Vector b, sunrealtype tol)
+int DenseSetupAndSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
+                       sunrealtype tol)
 {
   // Create a copy of the matrix for factorization
   SUNMatrix Acpy = SUNMatClone(A);
 
   // Copy the input matrix
   int flag = SUNMatCopy_Dense(A, Acpy);
-  if (flag) return flag;
+  if (flag) { return flag; }
 
   // Factor the matrix
   flag = SUNLinSolSetup_Dense(S, Acpy);
-  if (flag) return flag;
+  if (flag) { return flag; }
 
   // Solve the system
   flag = SUNLinSolSolve_Dense(S, A, x, b, tol);
-  if (flag) return flag;
+  if (flag) { return flag; }
 
   // Destroy matrix copy
   SUNMatDestroy(Acpy);
@@ -197,9 +197,9 @@ int DenseSetupAndSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 // Check function return flag
 int check_flag(int flag, const std::string funcname)
 {
-  if (!flag) return 0;
-  if (flag < 0) std::cerr << "ERROR: ";
-  if (flag > 0) std::cerr << "WARNING: ";
+  if (!flag) { return 0; }
+  if (flag < 0) { std::cerr << "ERROR: "; }
+  if (flag > 0) { std::cerr << "WARNING: "; }
   std::cerr << funcname << " returned " << flag << std::endl;
   return 1;
 }
@@ -207,7 +207,7 @@ int check_flag(int flag, const std::string funcname)
 // Check if a function returned a NULL pointer
 int check_ptr(void* ptr, const std::string funcname)
 {
-  if (ptr) return 0;
+  if (ptr) { return 0; }
   std::cerr << "ERROR: " << funcname << " returned NULL" << std::endl;
   return 1;
 }
@@ -255,44 +255,44 @@ int main(int argc, char* argv[])
 
   // Create initial condition
   N_Vector y = N_VNew_Serial(2, sunctx);
-  if (check_ptr(y, "N_VNew_Serial")) return 1;
+  if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   N_Vector yp = N_VClone(y);
-  if (check_ptr(y, "N_VClone")) return 1;
+  if (check_ptr(y, "N_VClone")) { return 1; }
 
   int flag = ytrue(ZERO, y);
-  if (check_flag(flag, "ytrue")) return 1;
+  if (check_flag(flag, "ytrue")) { return 1; }
 
   flag = yptrue(ZERO, yp);
-  if (check_flag(flag, "yptrue")) return 1;
+  if (check_flag(flag, "yptrue")) { return 1; }
 
   // Create IDA memory structure
   void* ida_mem = IDACreate(sunctx);
-  if (check_ptr(ida_mem, "IDACreate")) return 1;
+  if (check_ptr(ida_mem, "IDACreate")) { return 1; }
 
   flag = IDAInit(ida_mem, res, ZERO, y, yp);
-  if (check_flag(flag, "IDAInit")) return 1;
+  if (check_flag(flag, "IDAInit")) { return 1; }
 
   flag = IDASStolerances(ida_mem, rtol, atol);
-  if (check_flag(flag, "IDASStolerances")) return 1;
+  if (check_flag(flag, "IDASStolerances")) { return 1; }
 
   SUNMatrix A = SUNDenseMatrix(2, 2, sunctx);
-  if (check_ptr(A, "SUNDenseMatrix")) return 1;
+  if (check_ptr(A, "SUNDenseMatrix")) { return 1; }
 
   SUNLinearSolver LS = SUNLinSol_Dense(y, A, sunctx);
-  if (check_ptr(LS, "SUNLinSol_Dense")) return 1;
+  if (check_ptr(LS, "SUNLinSol_Dense")) { return 1; }
 
   // Disable the linear solver setup function and attach custom solve function
   LS->ops->setup = nullptr;
   LS->ops->solve = DenseSetupAndSolve;
 
   flag = IDASetLinearSolver(ida_mem, LS, A);
-  if (check_flag(flag, "IDASetLinearSolver")) return 1;
+  if (check_flag(flag, "IDASetLinearSolver")) { return 1; }
 
   sunrealtype udata[4] = {-TWO, HALF, HALF, -ONE};
 
   flag = IDASetUserData(ida_mem, udata);
-  if (check_flag(flag, "IDASetUserData")) return 1;
+  if (check_flag(flag, "IDASetUserData")) { return 1; }
 
   // Initial time and fist output time
   sunrealtype tret = ZERO;
@@ -300,46 +300,46 @@ int main(int argc, char* argv[])
 
   // Advance one step in time
   flag = IDASolve(ida_mem, tout, &tret, y, yp, IDA_ONE_STEP);
-  if (check_flag(flag, "IDASolve")) return 1;
+  if (check_flag(flag, "IDASolve")) { return 1; }
 
   // Get the internal finite difference approximation to J
   SUNMatrix Jdq;
   flag = IDAGetJac(ida_mem, &Jdq);
-  if (check_flag(flag, "IDAGetJac")) return 1;
+  if (check_flag(flag, "IDAGetJac")) { return 1; }
 
   // Get the step, time, and cj for the Jacobian approximation
   long int nst_Jdq;
   flag = IDAGetJacNumSteps(ida_mem, &nst_Jdq);
-  if (check_flag(flag, "IDAGetJacNumSteps")) return 1;
+  if (check_flag(flag, "IDAGetJacNumSteps")) { return 1; }
 
   sunrealtype t_Jdq;
   flag = IDAGetJacTime(ida_mem, &t_Jdq);
-  if (check_flag(flag, "IDAGetJacTime")) return 1;
+  if (check_flag(flag, "IDAGetJacTime")) { return 1; }
 
   sunrealtype cj_Jdq;
   flag = IDAGetJacCj(ida_mem, &cj_Jdq);
-  if (check_flag(flag, "IDAGetJacCj")) return 1;
+  if (check_flag(flag, "IDAGetJacCj")) { return 1; }
 
   // Compute the true Jacobian
   SUNMatrix Jtrue = SUNDenseMatrix(2, 2, sunctx);
-  if (check_ptr(Jtrue, "SUNDenseMatrix")) return 1;
+  if (check_ptr(Jtrue, "SUNDenseMatrix")) { return 1; }
 
   flag = ytrue(t_Jdq, y);
-  if (check_flag(flag, "ytrue")) return 1;
+  if (check_flag(flag, "ytrue")) { return 1; }
 
   flag = yptrue(t_Jdq, yp);
-  if (check_flag(flag, "yptrue")) return 1;
+  if (check_flag(flag, "yptrue")) { return 1; }
 
   flag = J(t_Jdq, cj_Jdq, y, yp, nullptr, Jtrue, &udata, nullptr, nullptr,
            nullptr);
-  if (check_flag(flag, "J")) return 1;
+  if (check_flag(flag, "J")) { return 1; }
 
   // Compare finite difference and true Jacobian
   sunrealtype* Jdq_data = SUNDenseMatrix_Data(Jdq);
-  if (check_ptr(Jdq_data, "SUNDenseMatrix_Data")) return 1;
+  if (check_ptr(Jdq_data, "SUNDenseMatrix_Data")) { return 1; }
 
   sunrealtype* Jtrue_data = SUNDenseMatrix_Data(Jtrue);
-  if (check_ptr(Jtrue_data, "SUNDenseMatrix_Data")) return 1;
+  if (check_ptr(Jtrue_data, "SUNDenseMatrix_Data")) { return 1; }
 
   // Output Jacobian data
   std::cout << std::scientific;
@@ -352,19 +352,19 @@ int main(int argc, char* argv[])
             << std::right << "J DQ" << std::setw(25) << std::right << "J true"
             << std::setw(25) << std::right << "absolute difference"
             << std::setw(25) << std::right << "relative difference" << std::endl;
-  for (int i = 0; i < 4 * 25 + 8; i++) std::cout << "-";
+  for (int i = 0; i < 4 * 25 + 8; i++) { std::cout << "-"; }
   std::cout << std::endl;
 
-  int result = 0;
+  int result         = 0;
   sunindextype ldata = SUNDenseMatrix_LData(Jtrue);
   for (sunindextype i = 0; i < ldata; i++)
   {
     std::cout << std::setw(8) << std::right << i << std::setw(25) << std::right
               << Jdq_data[i] << std::setw(25) << std::right << Jtrue_data[i]
               << std::setw(25) << std::right
-              << std::abs(Jdq_data[i] - Jtrue_data[i])
-              << std::setw(25) << std::right
-              << std::abs(Jdq_data[i] - Jtrue_data[i])/Jtrue_data[i]
+              << std::abs(Jdq_data[i] - Jtrue_data[i]) << std::setw(25)
+              << std::right
+              << std::abs(Jdq_data[i] - Jtrue_data[i]) / Jtrue_data[i]
               << std::endl;
     result += SUNRCompareTol(Jdq_data[i], Jtrue_data[i], tol);
   }

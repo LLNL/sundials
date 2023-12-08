@@ -37,38 +37,39 @@
  * -----------------------------------------------------------------
  */
 
+#include <cvodes/cvodes.h> /* prototypes for CVODE fcts. */
+#include <math.h>
+#include <mpi.h>                      /* MPI constants and types */
+#include <nvector/nvector_parallel.h> /* definition of N_Vector and macros */
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include <sundials/sundials_types.h> /* definition of sunrealtype */
 
-#include <cvodes/cvodes.h>                        /* prototypes for CVODE fcts. */
-#include <nvector/nvector_parallel.h>             /* definition of N_Vector and macros */
-#include <sundials/sundials_types.h>              /* definition of sunrealtype */
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
-#include <mpi.h>                                  /* MPI constants and types */
 
 /* Problem Constants */
 
-#define ZERO  SUN_RCONST(0.0)
+#define ZERO SUN_RCONST(0.0)
 
 #define XMAX  SUN_RCONST(2.0)    /* domain boundary           */
-#define MX    10             /* mesh dimension            */
-#define NEQ   MX             /* number of equations       */
+#define MX    10                 /* mesh dimension            */
+#define NEQ   MX                 /* number of equations       */
 #define ATOL  SUN_RCONST(1.0e-5) /* scalar absolute tolerance */
-#define T0    ZERO           /* initial time              */
+#define T0    ZERO               /* initial time              */
 #define T1    SUN_RCONST(0.5)    /* first output time         */
 #define DTOUT SUN_RCONST(0.5)    /* output time increment     */
-#define NOUT  10             /* number of output times    */
+#define NOUT  10                 /* number of output times    */
 
 /* Type : UserData
    contains grid constants, parallel machine parameters, work array. */
 
-typedef struct {
+typedef struct
+{
   sunrealtype dx, hdcoef, hacoef;
   int npes, my_pe;
   MPI_Comm comm;
   sunrealtype z[100];
-} *UserData;
+}* UserData;
 
 /* Private Helper Functions */
 
@@ -79,24 +80,24 @@ static void PrintIntro(int npes);
 
 static void PrintData(sunrealtype t, sunrealtype umax, long int nst);
 
-static void PrintFinalStats(void *cvode_mem);
+static void PrintFinalStats(void* cvode_mem);
 
 /* Functions Called by the Solver */
 
-static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data);
 
 /* Private function to check function return values */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
+static int check_retval(void* returnvalue, const char* funcname, int opt, int id);
 
 /***************************** Main Program ******************************/
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   sunrealtype dx, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
-  void *cvode_mem;
+  void* cvode_mem;
   int iout, retval, my_pe, npes;
   long int nst;
   sunindextype local_N, nperpe, nrem, my_base;
@@ -105,10 +106,10 @@ int main(int argc, char *argv[])
 
   MPI_Comm comm;
 
-  u = NULL;
-  data = NULL;
+  u         = NULL;
+  data      = NULL;
   cvode_mem = NULL;
-  NLS = NULL;
+  NLS       = NULL;
 
   /* Get processor number, total number of pe's, and my_pe. */
   MPI_Init(&argc, &argv);
@@ -118,92 +119,115 @@ int main(int argc, char *argv[])
 
   /* Create SUNDIALS context */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "SUNContext_Create", 1, my_pe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   /* Set local vector length. */
-  nperpe = NEQ/npes;
-  nrem = NEQ - npes*nperpe;
-  local_N = (my_pe < nrem) ? nperpe+1 : nperpe;
-  my_base = (my_pe < nrem) ? my_pe*local_N : my_pe*nperpe + nrem;
+  nperpe  = NEQ / npes;
+  nrem    = NEQ - npes * nperpe;
+  local_N = (my_pe < nrem) ? nperpe + 1 : nperpe;
+  my_base = (my_pe < nrem) ? my_pe * local_N : my_pe * nperpe + nrem;
 
-  data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
-  if(check_retval((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+  data = (UserData)malloc(sizeof *data); /* Allocate data memory */
+  if (check_retval((void*)data, "malloc", 2, my_pe)) { MPI_Abort(comm, 1); }
 
-  data->comm = comm;
-  data->npes = npes;
+  data->comm  = comm;
+  data->npes  = npes;
   data->my_pe = my_pe;
 
-  u = N_VNew_Parallel(comm, local_N, NEQ, sunctx);  /* Allocate u vector */
-  if(check_retval((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+  u = N_VNew_Parallel(comm, local_N, NEQ, sunctx); /* Allocate u vector */
+  if (check_retval((void*)u, "N_VNew", 0, my_pe)) { MPI_Abort(comm, 1); }
 
-  reltol = ZERO;  /* Set the tolerances */
+  reltol = ZERO; /* Set the tolerances */
   abstol = ATOL;
 
-  dx = data->dx = XMAX/((sunrealtype)(MX+1));  /* Set grid coefficients in data */
-  data->hdcoef = SUN_RCONST(1.0)/(dx*dx);
-  data->hacoef = SUN_RCONST(0.5)/(SUN_RCONST(2.0)*dx);
+  dx = data->dx = XMAX /
+                  ((sunrealtype)(MX + 1)); /* Set grid coefficients in data */
+  data->hdcoef = SUN_RCONST(1.0) / (dx * dx);
+  data->hacoef = SUN_RCONST(0.5) / (SUN_RCONST(2.0) * dx);
 
-  SetIC(u, dx, local_N, my_base);  /* Initialize u vector */
+  SetIC(u, dx, local_N, my_base); /* Initialize u vector */
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Adams-Moulton LMM */
   cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void*)cvode_mem, "CVodeCreate", 0, my_pe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   retval = CVodeSetUserData(cvode_mem, data);
-  if(check_retval(&retval, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "CVodeSetUserData", 1, my_pe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if(check_retval(&retval, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "CVodeInit", 1, my_pe)) { MPI_Abort(comm, 1); }
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerances */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "CVodeSStolerances", 1, my_pe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   /* create fixed point nonlinear solver object */
   NLS = SUNNonlinSol_FixedPoint(u, 0, sunctx);
-  if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void*)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   /* attach nonlinear solver object to CVode */
   retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-  if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
-  if (my_pe == 0) PrintIntro(npes);
+  if (my_pe == 0) { PrintIntro(npes); }
 
   umax = N_VMaxNorm(u);
 
-  if (my_pe == 0) {
+  if (my_pe == 0)
+  {
     t = T0;
     PrintData(t, umax, 0);
   }
 
   /* In loop over output points, call CVode, print results, test for error */
 
-  for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
+  for (iout = 1, tout = T1; iout <= NOUT; iout++, tout += DTOUT)
+  {
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_retval(&retval, "CVode", 1, my_pe)) break;
-    umax = N_VMaxNorm(u);
+    if (check_retval(&retval, "CVode", 1, my_pe)) { break; }
+    umax   = N_VMaxNorm(u);
     retval = CVodeGetNumSteps(cvode_mem, &nst);
     check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
-    if (my_pe == 0) PrintData(t, umax, nst);
+    if (my_pe == 0) { PrintData(t, umax, nst); }
   }
 
   if (my_pe == 0)
-    PrintFinalStats(cvode_mem);  /* Print some final statistics */
+  {
+    PrintFinalStats(cvode_mem); /* Print some final statistics */
+  }
 
-  N_VDestroy(u);                 /* Free the u vector */
-  CVodeFree(&cvode_mem);         /* Free the integrator memory */
-  SUNNonlinSolFree(NLS);         /* Free the nonlinear solver */
-  free(data);                    /* Free user data */
-  SUNContext_Free(&sunctx);         /* Free context */
+  N_VDestroy(u);            /* Free the u vector */
+  CVodeFree(&cvode_mem);    /* Free the integrator memory */
+  SUNNonlinSolFree(NLS);    /* Free the nonlinear solver */
+  free(data);               /* Free user data */
+  SUNContext_Free(&sunctx); /* Free context */
 
   MPI_Finalize();
 
-  return(0);
+  return (0);
 }
 
 /************************ Private Helper Functions ***********************/
@@ -216,17 +240,18 @@ static void SetIC(N_Vector u, sunrealtype dx, sunindextype my_length,
   int i;
   sunindextype iglobal;
   sunrealtype x;
-  sunrealtype *udata;
+  sunrealtype* udata;
 
   /* Set pointer to data array and get local length of u. */
-  udata = N_VGetArrayPointer(u);
+  udata     = N_VGetArrayPointer(u);
   my_length = N_VGetLocalLength_Parallel(u);
 
   /* Load initial profile into u vector */
-  for (i=1; i<=my_length; i++) {
-    iglobal = my_base + i;
-    x = iglobal*dx;
-    udata[i-1] = x*(XMAX - x)*exp(SUN_RCONST(2.0)*x);
+  for (i = 1; i <= my_length; i++)
+  {
+    iglobal      = my_base + i;
+    x            = iglobal * dx;
+    udata[i - 1] = x * (XMAX - x) * exp(SUN_RCONST(2.0) * x);
   }
 }
 
@@ -244,7 +269,6 @@ static void PrintIntro(int npes)
 
 static void PrintData(sunrealtype t, sunrealtype umax, long int nst)
 {
-
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %4.2Lf  max.norm(u) =%14.6Le  nst =%4ld \n", t, umax, nst);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -258,7 +282,7 @@ static void PrintData(sunrealtype t, sunrealtype umax, long int nst)
 
 /* Print some final statistics located in the iopt array */
 
-static void PrintFinalStats(void *cvode_mem)
+static void PrintFinalStats(void* cvode_mem)
 {
   long int nst, nfe, nni, ncfn, netf;
   int retval;
@@ -283,7 +307,7 @@ static void PrintFinalStats(void *cvode_mem)
 
 /* f routine. Compute f(t,u). */
 
-static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data)
 {
   sunrealtype ui, ult, urt, hordc, horac, hdiff, hadv;
   sunrealtype *udata, *dudata, *z;
@@ -293,60 +317,63 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
   MPI_Status status;
   MPI_Comm comm;
 
-  udata = N_VGetArrayPointer(u);
+  udata  = N_VGetArrayPointer(u);
   dudata = N_VGetArrayPointer(udot);
 
   /* Extract needed problem constants from data */
-  data = (UserData) user_data;
+  data  = (UserData)user_data;
   hordc = data->hdcoef;
   horac = data->hacoef;
 
   /* Extract parameters for parallel computation. */
-  comm = data->comm;
-  npes = data->npes;           /* Number of processes. */
-  my_pe = data->my_pe;         /* Current process number. */
+  comm  = data->comm;
+  npes  = data->npes;                        /* Number of processes. */
+  my_pe = data->my_pe;                       /* Current process number. */
   my_length = N_VGetLocalLength_Parallel(u); /* Number of local elements of u. */
   z = data->z;
 
   /* Compute related parameters. */
   my_pe_m1 = my_pe - 1;
   my_pe_p1 = my_pe + 1;
-  last_pe = npes - 1;
+  last_pe  = npes - 1;
 
   /* Store local segment of u in the working array z. */
-   for (i = 1; i <= my_length; i++)
-     z[i] = udata[i - 1];
+  for (i = 1; i <= my_length; i++) { z[i] = udata[i - 1]; }
 
   /* Pass needed data to processes before and after current process. */
-   if (my_pe != 0)
-     MPI_Send(&z[1], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm);
-   if (my_pe != last_pe)
-     MPI_Send(&z[my_length], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm);
-
-  /* Receive needed data from processes before and after current process. */
-   if (my_pe != 0)
-     MPI_Recv(&z[0], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
-   else z[0] = ZERO;
-   if (my_pe != last_pe)
-     MPI_Recv(&z[my_length+1], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm,
-              &status);
-   else z[my_length + 1] = ZERO;
-
-  /* Loop over all grid points in current process. */
-  for (i=1; i<=my_length; i++) {
-
-    /* Extract u at x_i and two neighboring points */
-    ui = z[i];
-    ult = z[i-1];
-    urt = z[i+1];
-
-    /* Set diffusion and advection terms and load into udot */
-    hdiff = hordc*(ult - SUN_RCONST(2.0)*ui + urt);
-    hadv = horac*(urt - ult);
-    dudata[i-1] = hdiff + hadv;
+  if (my_pe != 0) { MPI_Send(&z[1], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm); }
+  if (my_pe != last_pe)
+  {
+    MPI_Send(&z[my_length], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm);
   }
 
-  return(0);
+  /* Receive needed data from processes before and after current process. */
+  if (my_pe != 0)
+  {
+    MPI_Recv(&z[0], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
+  }
+  else { z[0] = ZERO; }
+  if (my_pe != last_pe)
+  {
+    MPI_Recv(&z[my_length + 1], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm, &status);
+  }
+  else { z[my_length + 1] = ZERO; }
+
+  /* Loop over all grid points in current process. */
+  for (i = 1; i <= my_length; i++)
+  {
+    /* Extract u at x_i and two neighboring points */
+    ui  = z[i];
+    ult = z[i - 1];
+    urt = z[i + 1];
+
+    /* Set diffusion and advection terms and load into udot */
+    hdiff         = hordc * (ult - SUN_RCONST(2.0) * ui + urt);
+    hadv          = horac * (urt - ult);
+    dudata[i - 1] = hdiff + hadv;
+  }
+
+  return (0);
 }
 
 /* Check function return value...
@@ -357,29 +384,38 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
+static int check_retval(void* returnvalue, const char* funcname, int opt, int id)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
-            id, funcname);
-    return(1); }
+  if (opt == 0 && returnvalue == NULL)
+  {
+    fprintf(stderr,
+            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id,
+            funcname);
+    return (1);
+  }
 
   /* Check if retval < 0 */
-  else if (opt == 1) {
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
+  else if (opt == 1)
+  {
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
               id, funcname, *retval);
-      return(1); }}
+      return (1);
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && returnvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
-    return(1); }
+    return (1);
+  }
 
-  return(0);
+  return (0);
 }

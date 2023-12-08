@@ -20,7 +20,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <sundials/sundials_dense.h>
 #include <sundials/sundials_math.h>
 
@@ -34,64 +33,66 @@
  * -----------------------------------------------------
  */
 
-sunindextype SUNDlsMat_DenseGETRF(SUNDlsMat A, sunindextype *p)
+sunindextype SUNDlsMat_DenseGETRF(SUNDlsMat A, sunindextype* p)
 {
-  return(SUNDlsMat_denseGETRF(A->cols, A->M, A->N, p));
+  return (SUNDlsMat_denseGETRF(A->cols, A->M, A->N, p));
 }
 
-sunindextype DenseGETRF(SUNDlsMat A, sunindextype *p)
+sunindextype DenseGETRF(SUNDlsMat A, sunindextype* p)
 {
-  return(SUNDlsMat_denseGETRF(A->cols, A->M, A->N, p));
+  return (SUNDlsMat_denseGETRF(A->cols, A->M, A->N, p));
 }
 
-void SUNDlsMat_DenseGETRS(SUNDlsMat A, sunindextype *p, sunrealtype *b)
+void SUNDlsMat_DenseGETRS(SUNDlsMat A, sunindextype* p, sunrealtype* b)
 {
   SUNDlsMat_denseGETRS(A->cols, A->N, p, b);
 }
 
-void DenseGETRS(SUNDlsMat A, sunindextype *p, sunrealtype *b)
+void DenseGETRS(SUNDlsMat A, sunindextype* p, sunrealtype* b)
 {
   SUNDlsMat_denseGETRS(A->cols, A->N, p, b);
 }
 
 sunindextype SUNDlsMat_DensePOTRF(SUNDlsMat A)
 {
-  return(SUNDlsMat_densePOTRF(A->cols, A->M));
+  return (SUNDlsMat_densePOTRF(A->cols, A->M));
 }
 
 sunindextype DensePOTRF(SUNDlsMat A)
 {
-  return(SUNDlsMat_densePOTRF(A->cols, A->M));
+  return (SUNDlsMat_densePOTRF(A->cols, A->M));
 }
 
-void SUNDlsMat_DensePOTRS(SUNDlsMat A, sunrealtype *b)
+void SUNDlsMat_DensePOTRS(SUNDlsMat A, sunrealtype* b)
 {
   SUNDlsMat_densePOTRS(A->cols, A->M, b);
 }
 
-void DensePOTRS(SUNDlsMat A, sunrealtype *b)
+void DensePOTRS(SUNDlsMat A, sunrealtype* b)
 {
   SUNDlsMat_densePOTRS(A->cols, A->M, b);
 }
 
-int SUNDlsMat_DenseGEQRF(SUNDlsMat A, sunrealtype *beta, sunrealtype *wrk)
+int SUNDlsMat_DenseGEQRF(SUNDlsMat A, sunrealtype* beta, sunrealtype* wrk)
 {
-  return(SUNDlsMat_denseGEQRF(A->cols, A->M, A->N, beta, wrk));
+  return (SUNDlsMat_denseGEQRF(A->cols, A->M, A->N, beta, wrk));
 }
 
-int DenseGEQRF(SUNDlsMat A, sunrealtype *beta, sunrealtype *wrk)
+int DenseGEQRF(SUNDlsMat A, sunrealtype* beta, sunrealtype* wrk)
 {
-  return(SUNDlsMat_denseGEQRF(A->cols, A->M, A->N, beta, wrk));
+  return (SUNDlsMat_denseGEQRF(A->cols, A->M, A->N, beta, wrk));
 }
 
-int SUNDlsMat_DenseORMQR(SUNDlsMat A, sunrealtype *beta, sunrealtype *vn, sunrealtype *vm, sunrealtype *wrk)
+int SUNDlsMat_DenseORMQR(SUNDlsMat A, sunrealtype* beta, sunrealtype* vn,
+                         sunrealtype* vm, sunrealtype* wrk)
 {
-  return(SUNDlsMat_denseORMQR(A->cols, A->M, A->N, beta, vn, vm, wrk));
+  return (SUNDlsMat_denseORMQR(A->cols, A->M, A->N, beta, vn, vm, wrk));
 }
 
-int DenseORMQR(SUNDlsMat A, sunrealtype *beta, sunrealtype *vn, sunrealtype *vm, sunrealtype *wrk)
+int DenseORMQR(SUNDlsMat A, sunrealtype* beta, sunrealtype* vn, sunrealtype* vm,
+               sunrealtype* wrk)
 {
-  return(SUNDlsMat_denseORMQR(A->cols, A->M, A->N, beta, vn, vm, wrk));
+  return (SUNDlsMat_denseORMQR(A->cols, A->M, A->N, beta, vn, vm, wrk));
 }
 
 void SUNDlsMat_DenseCopy(SUNDlsMat A, SUNDlsMat B)
@@ -114,45 +115,51 @@ void DenseScale(sunrealtype c, SUNDlsMat A)
   SUNDlsMat_denseScale(c, A->cols, A->M, A->N);
 }
 
-void SUNDlsMat_DenseMatvec(SUNDlsMat A, sunrealtype *x, sunrealtype *y)
+void SUNDlsMat_DenseMatvec(SUNDlsMat A, sunrealtype* x, sunrealtype* y)
 {
   SUNDlsMat_denseMatvec(A->cols, x, y, A->M, A->N);
 }
 
-void DenseMatvec(SUNDlsMat A, sunrealtype *x, sunrealtype *y)
+void DenseMatvec(SUNDlsMat A, sunrealtype* x, sunrealtype* y)
 {
   SUNDlsMat_denseMatvec(A->cols, x, y, A->M, A->N);
 }
 
-sunindextype denseGETRF(sunrealtype **a, sunindextype m, sunindextype n, sunindextype *p)
+sunindextype denseGETRF(sunrealtype** a, sunindextype m, sunindextype n,
+                        sunindextype* p)
 {
-  return(SUNDlsMat_denseGETRF(a, m, n, p));
+  return (SUNDlsMat_denseGETRF(a, m, n, p));
 }
 
-sunindextype SUNDlsMat_denseGETRF(sunrealtype **a, sunindextype m, sunindextype n, sunindextype *p)
+sunindextype SUNDlsMat_denseGETRF(sunrealtype** a, sunindextype m,
+                                  sunindextype n, sunindextype* p)
 {
   sunindextype i, j, k, l;
   sunrealtype *col_j, *col_k;
   sunrealtype temp, mult, a_kj;
 
   /* k-th elimination step number */
-  for (k=0; k < n; k++) {
-
-    col_k  = a[k];
+  for (k = 0; k < n; k++)
+  {
+    col_k = a[k];
 
     /* find l = pivot row number */
-    l=k;
-    for (i=k+1; i < m; i++)
-      if (SUNRabs(col_k[i]) > SUNRabs(col_k[l])) l=i;
+    l = k;
+    for (i = k + 1; i < m; i++)
+    {
+      if (SUNRabs(col_k[i]) > SUNRabs(col_k[l])) { l = i; }
+    }
     p[k] = l;
 
     /* check for zero pivot element */
-    if (col_k[l] == ZERO) return(k+1);
+    if (col_k[l] == ZERO) { return (k + 1); }
 
     /* swap a(k,1:n) and a(l,1:n) if necessary */
-    if ( l!= k ) {
-      for (i=0; i<n; i++) {
-        temp = a[i][l];
+    if (l != k)
+    {
+      for (i = 0; i < n; i++)
+      {
+        temp    = a[i][l];
         a[i][l] = a[i][k];
         a[i][k] = temp;
       }
@@ -164,68 +171,72 @@ sunindextype SUNDlsMat_denseGETRF(sunrealtype **a, sunindextype m, sunindextype 
      * stores the pivot row multipliers a(i,k)/a(k,k)
      * in a(i,k), i=k+1, ..., m-1.
      */
-    mult = ONE/col_k[k];
-    for(i=k+1; i < m; i++) col_k[i] *= mult;
+    mult = ONE / col_k[k];
+    for (i = k + 1; i < m; i++) { col_k[i] *= mult; }
 
     /* row_i = row_i - [a(i,k)/a(k,k)] row_k, i=k+1, ..., m-1 */
     /* row k is the pivot row after swapping with row l.      */
     /* The computation is done one column at a time,          */
     /* column j=k+1, ..., n-1.                                */
 
-    for (j=k+1; j < n; j++) {
-
+    for (j = k + 1; j < n; j++)
+    {
       col_j = a[j];
-      a_kj = col_j[k];
+      a_kj  = col_j[k];
 
       /* a(i,j) = a(i,j) - [a(i,k)/a(k,k)]*a(k,j)  */
       /* a_kj = a(k,j), col_k[i] = - a(i,k)/a(k,k) */
 
-      if (a_kj != ZERO) {
-        for (i=k+1; i < m; i++)
-          col_j[i] -= a_kj * col_k[i];
+      if (a_kj != ZERO)
+      {
+        for (i = k + 1; i < m; i++) { col_j[i] -= a_kj * col_k[i]; }
       }
     }
   }
 
   /* return 0 to indicate success */
 
-  return(0);
+  return (0);
 }
 
-void denseGETRS(sunrealtype **a, sunindextype n, sunindextype *p, sunrealtype *b)
+void denseGETRS(sunrealtype** a, sunindextype n, sunindextype* p, sunrealtype* b)
 {
   SUNDlsMat_denseGETRS(a, n, p, b);
 }
 
-void SUNDlsMat_denseGETRS(sunrealtype **a, sunindextype n, sunindextype *p, sunrealtype *b)
+void SUNDlsMat_denseGETRS(sunrealtype** a, sunindextype n, sunindextype* p,
+                          sunrealtype* b)
 {
   sunindextype i, k, pk;
   sunrealtype *col_k, tmp;
 
   /* Permute b, based on pivot information in p */
-  for (k=0; k<n; k++) {
+  for (k = 0; k < n; k++)
+  {
     pk = p[k];
-    if(pk != k) {
-      tmp = b[k];
-      b[k] = b[pk];
+    if (pk != k)
+    {
+      tmp   = b[k];
+      b[k]  = b[pk];
       b[pk] = tmp;
     }
   }
 
   /* Solve Ly = b, store solution y in b */
-  for (k=0; k<n-1; k++) {
+  for (k = 0; k < n - 1; k++)
+  {
     col_k = a[k];
-    for (i=k+1; i<n; i++) b[i] -= col_k[i]*b[k];
+    for (i = k + 1; i < n; i++) { b[i] -= col_k[i] * b[k]; }
   }
 
   /* Solve Ux = y, store solution x in b */
-  for (k = n-1; k > 0; k--) {
+  for (k = n - 1; k > 0; k--)
+  {
     col_k = a[k];
     b[k] /= col_k[k];
-    for (i=0; i<k; i++) b[i] -= col_k[i]*b[k];
+    for (i = 0; i < k; i++) { b[i] -= col_k[i] * b[k]; }
   }
   b[0] /= a[0][0];
-
 }
 
 /*
@@ -235,39 +246,41 @@ void SUNDlsMat_denseGETRS(sunrealtype **a, sunindextype n, sunindextype *p, sunr
  * the lower triangle of C.
  */
 
-sunindextype densePOTRF(sunrealtype **a, sunindextype m)
+sunindextype densePOTRF(sunrealtype** a, sunindextype m)
 {
-  return(SUNDlsMat_densePOTRF(a, m));
+  return (SUNDlsMat_densePOTRF(a, m));
 }
 
-sunindextype SUNDlsMat_densePOTRF(sunrealtype **a, sunindextype m)
+sunindextype SUNDlsMat_densePOTRF(sunrealtype** a, sunindextype m)
 {
   sunrealtype *a_col_j, *a_col_k;
   sunrealtype a_diag;
   sunindextype i, j, k;
 
-  for (j=0; j<m; j++) {
-
+  for (j = 0; j < m; j++)
+  {
     a_col_j = a[j];
 
-    if (j>0) {
-      for(i=j; i<m; i++) {
-        for(k=0;k<j;k++) {
+    if (j > 0)
+    {
+      for (i = j; i < m; i++)
+      {
+        for (k = 0; k < j; k++)
+        {
           a_col_k = a[k];
-          a_col_j[i] -= a_col_k[i]*a_col_k[j];
+          a_col_j[i] -= a_col_k[i] * a_col_k[j];
         }
       }
     }
 
     a_diag = a_col_j[j];
-    if (a_diag <= ZERO) return(j+1);
+    if (a_diag <= ZERO) { return (j + 1); }
     a_diag = SUNRsqrt(a_diag);
 
-    for(i=j; i<m; i++) a_col_j[i] /= a_diag;
-
+    for (i = j; i < m; i++) { a_col_j[i] /= a_diag; }
   }
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -276,38 +289,37 @@ sunindextype SUNDlsMat_densePOTRF(sunrealtype **a, sunindextype m)
  *
  */
 
-void densePOTRS(sunrealtype **a, sunindextype m, sunrealtype *b)
+void densePOTRS(sunrealtype** a, sunindextype m, sunrealtype* b)
 {
   SUNDlsMat_densePOTRS(a, m, b);
 }
 
-void SUNDlsMat_densePOTRS(sunrealtype **a, sunindextype m, sunrealtype *b)
+void SUNDlsMat_densePOTRS(sunrealtype** a, sunindextype m, sunrealtype* b)
 {
   sunrealtype *col_j, *col_i;
   sunindextype i, j;
 
   /* Solve C y = b, forward substitution - column version.
      Store solution y in b */
-  for (j=0; j < m-1; j++) {
+  for (j = 0; j < m - 1; j++)
+  {
     col_j = a[j];
     b[j] /= col_j[j];
-    for (i=j+1; i < m; i++)
-      b[i] -= b[j]*col_j[i];
+    for (i = j + 1; i < m; i++) { b[i] -= b[j] * col_j[i]; }
   }
-  col_j = a[m-1];
-  b[m-1] /= col_j[m-1];
+  col_j = a[m - 1];
+  b[m - 1] /= col_j[m - 1];
 
   /* Solve C^T x = y, backward substitution - row version.
      Store solution x in b */
-  col_j = a[m-1];
-  b[m-1] /= col_j[m-1];
-  for (i=m-2; i>=0; i--) {
+  col_j = a[m - 1];
+  b[m - 1] /= col_j[m - 1];
+  for (i = m - 2; i >= 0; i--)
+  {
     col_i = a[i];
-    for (j=i+1; j<m; j++)
-      b[i] -= col_i[j]*b[j];
+    for (j = i + 1; j < m; j++) { b[i] -= col_i[j] * b[j]; }
     b[i] /= col_i[i];
   }
-
 }
 
 /*
@@ -322,60 +334,63 @@ void SUNDlsMat_densePOTRS(sunrealtype **a, sunindextype m, sunrealtype *b)
  *
  */
 
-int denseGEQRF(sunrealtype **a, sunindextype m, sunindextype n, sunrealtype *beta, sunrealtype *v)
+int denseGEQRF(sunrealtype** a, sunindextype m, sunindextype n,
+               sunrealtype* beta, sunrealtype* v)
 {
-  return(SUNDlsMat_denseGEQRF(a, m, n, beta, v));
+  return (SUNDlsMat_denseGEQRF(a, m, n, beta, v));
 }
 
-int SUNDlsMat_denseGEQRF(sunrealtype **a, sunindextype m, sunindextype n, sunrealtype *beta, sunrealtype *v)
+int SUNDlsMat_denseGEQRF(sunrealtype** a, sunindextype m, sunindextype n,
+                         sunrealtype* beta, sunrealtype* v)
 {
   sunrealtype ajj, s, mu, v1, v1_2;
   sunrealtype *col_j, *col_k;
   sunindextype i, j, k;
 
   /* For each column...*/
-  for(j=0; j<n; j++) {
-
+  for (j = 0; j < n; j++)
+  {
     col_j = a[j];
 
     ajj = col_j[j];
 
     /* Compute the j-th Householder vector (of length m-j) */
     v[0] = ONE;
-    s = ZERO;
-    for(i=1; i<m-j; i++) {
-      v[i] = col_j[i+j];
-      s += v[i]*v[i];
+    s    = ZERO;
+    for (i = 1; i < m - j; i++)
+    {
+      v[i] = col_j[i + j];
+      s += v[i] * v[i];
     }
 
-    if(s != ZERO) {
-      mu = SUNRsqrt(ajj*ajj+s);
-      v1 = (ajj <= ZERO) ? ajj-mu : -s/(ajj+mu);
-      v1_2 = v1*v1;
+    if (s != ZERO)
+    {
+      mu      = SUNRsqrt(ajj * ajj + s);
+      v1      = (ajj <= ZERO) ? ajj - mu : -s / (ajj + mu);
+      v1_2    = v1 * v1;
       beta[j] = TWO * v1_2 / (s + v1_2);
-      for(i=1; i<m-j; i++) v[i] /= v1;
-    } else {
-      beta[j] = ZERO;
+      for (i = 1; i < m - j; i++) { v[i] /= v1; }
     }
+    else { beta[j] = ZERO; }
 
     /* Update upper triangle of A (load R) */
-    for(k=j; k<n; k++) {
+    for (k = j; k < n; k++)
+    {
       col_k = a[k];
-      s = ZERO;
-      for(i=0; i<m-j; i++) s += col_k[i+j]*v[i];
+      s     = ZERO;
+      for (i = 0; i < m - j; i++) { s += col_k[i + j] * v[i]; }
       s *= beta[j];
-      for(i=0; i<m-j; i++) col_k[i+j] -= s*v[i];
+      for (i = 0; i < m - j; i++) { col_k[i + j] -= s * v[i]; }
     }
 
     /* Update A (load Householder vector) */
-    if(j<m-1) {
-      for(i=1; i<m-j; i++) col_j[i+j] = v[i];
+    if (j < m - 1)
+    {
+      for (i = 1; i < m - j; i++) { col_j[i + j] = v[i]; }
     }
-
   }
 
-
-  return(0);
+  return (0);
 }
 
 /*
@@ -389,108 +404,109 @@ int SUNDlsMat_denseGEQRF(sunrealtype **a, sunindextype m, sunindextype n, sunrea
  * v (of length m) must be provided as workspace.
  */
 
-int denseORMQR(sunrealtype **a, sunindextype m, sunindextype n, sunrealtype *beta,
-               sunrealtype *vn, sunrealtype *vm, sunrealtype *v)
+int denseORMQR(sunrealtype** a, sunindextype m, sunindextype n, sunrealtype* beta,
+               sunrealtype* vn, sunrealtype* vm, sunrealtype* v)
 {
-  return(SUNDlsMat_denseORMQR(a, m, n, beta, vn, vm, v));
+  return (SUNDlsMat_denseORMQR(a, m, n, beta, vn, vm, v));
 }
 
-int SUNDlsMat_denseORMQR(sunrealtype **a, sunindextype m, sunindextype n, sunrealtype *beta,
-                         sunrealtype *vn, sunrealtype *vm, sunrealtype *v)
+int SUNDlsMat_denseORMQR(sunrealtype** a, sunindextype m, sunindextype n,
+                         sunrealtype* beta, sunrealtype* vn, sunrealtype* vm,
+                         sunrealtype* v)
 {
   sunrealtype *col_j, s;
   sunindextype i, j;
 
   /* Initialize vm */
-  for(i=0; i<n; i++) vm[i] = vn[i];
-  for(i=n; i<m; i++) vm[i] = ZERO;
+  for (i = 0; i < n; i++) { vm[i] = vn[i]; }
+  for (i = n; i < m; i++) { vm[i] = ZERO; }
 
   /* Accumulate (backwards) corrections into vm */
-  for(j=n-1; j>=0; j--) {
-
+  for (j = n - 1; j >= 0; j--)
+  {
     col_j = a[j];
 
     v[0] = ONE;
-    s = vm[j];
-    for(i=1; i<m-j; i++) {
-      v[i] = col_j[i+j];
-      s += v[i]*vm[i+j];
+    s    = vm[j];
+    for (i = 1; i < m - j; i++)
+    {
+      v[i] = col_j[i + j];
+      s += v[i] * vm[i + j];
     }
     s *= beta[j];
 
-    for(i=0; i<m-j; i++) vm[i+j] -= s * v[i];
-
+    for (i = 0; i < m - j; i++) { vm[i + j] -= s * v[i]; }
   }
 
-  return(0);
+  return (0);
 }
 
-void denseCopy(sunrealtype **a, sunrealtype **b, sunindextype m, sunindextype n)
+void denseCopy(sunrealtype** a, sunrealtype** b, sunindextype m, sunindextype n)
 {
   SUNDlsMat_denseCopy(a, b, m, n);
 }
 
-void SUNDlsMat_denseCopy(sunrealtype **a, sunrealtype **b, sunindextype m, sunindextype n)
+void SUNDlsMat_denseCopy(sunrealtype** a, sunrealtype** b, sunindextype m,
+                         sunindextype n)
 {
   sunindextype i, j;
   sunrealtype *a_col_j, *b_col_j;
 
-  for (j=0; j < n; j++) {
+  for (j = 0; j < n; j++)
+  {
     a_col_j = a[j];
     b_col_j = b[j];
-    for (i=0; i < m; i++)
-      b_col_j[i] = a_col_j[i];
+    for (i = 0; i < m; i++) { b_col_j[i] = a_col_j[i]; }
   }
-
 }
 
-void denseScale(sunrealtype c, sunrealtype **a, sunindextype m, sunindextype n)
+void denseScale(sunrealtype c, sunrealtype** a, sunindextype m, sunindextype n)
 {
   SUNDlsMat_denseScale(c, a, m, n);
 }
 
-void SUNDlsMat_denseScale(sunrealtype c, sunrealtype **a, sunindextype m, sunindextype n)
+void SUNDlsMat_denseScale(sunrealtype c, sunrealtype** a, sunindextype m,
+                          sunindextype n)
 {
   sunindextype i, j;
-  sunrealtype *col_j;
+  sunrealtype* col_j;
 
-  for (j=0; j < n; j++) {
+  for (j = 0; j < n; j++)
+  {
     col_j = a[j];
-    for (i=0; i < m; i++)
-      col_j[i] *= c;
+    for (i = 0; i < m; i++) { col_j[i] *= c; }
   }
 }
 
-void denseAddIdentity(sunrealtype **a, sunindextype n)
+void denseAddIdentity(sunrealtype** a, sunindextype n)
 {
   SUNDlsMat_denseAddIdentity(a, n);
 }
 
-void SUNDlsMat_denseAddIdentity(sunrealtype **a, sunindextype n)
+void SUNDlsMat_denseAddIdentity(sunrealtype** a, sunindextype n)
 {
   sunindextype i;
 
-  for (i=0; i < n; i++) a[i][i] += ONE;
+  for (i = 0; i < n; i++) { a[i][i] += ONE; }
 }
 
-void denseMatvec(sunrealtype **a, sunrealtype *x, sunrealtype *y, sunindextype m, sunindextype n)
+void denseMatvec(sunrealtype** a, sunrealtype* x, sunrealtype* y,
+                 sunindextype m, sunindextype n)
 {
   SUNDlsMat_denseMatvec(a, x, y, m, n);
 }
 
-void SUNDlsMat_denseMatvec(sunrealtype **a, sunrealtype *x, sunrealtype *y, sunindextype m, sunindextype n)
+void SUNDlsMat_denseMatvec(sunrealtype** a, sunrealtype* x, sunrealtype* y,
+                           sunindextype m, sunindextype n)
 {
   sunindextype i, j;
-  sunrealtype *col_j;
+  sunrealtype* col_j;
 
-  for (i=0; i<m; i++) {
-    y[i] = 0.0;
-  }
+  for (i = 0; i < m; i++) { y[i] = 0.0; }
 
-  for (j=0; j<n; j++) {
+  for (j = 0; j < n; j++)
+  {
     col_j = a[j];
-    for (i=0; i<m; i++)
-      y[i] += col_j[i]*x[j];
+    for (i = 0; i < m; i++) { y[i] += col_j[i] * x[j]; }
   }
 }
-

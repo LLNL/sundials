@@ -132,8 +132,9 @@ int SPRKStepGetRootInfo(void* arkode_mem, int* rootsfound)
   return (arkGetRootInfo(arkode_mem, rootsfound));
 }
 
-int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused,
-                         sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur)
+int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps,
+                         sunrealtype* hinused, sunrealtype* hlast,
+                         sunrealtype* hcur, sunrealtype* tcur)
 {
   return (arkGetStepStats(arkode_mem, nsteps, hinused, hlast, hcur, tcur));
 }
@@ -223,7 +224,7 @@ int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
   {
     arkSetUseCompensatedSums(arkode_mem, SUNTRUE);
     ark_mem->step = sprkStep_TakeStep_Compensated;
-    if (!step_mem->yerr) 
+    if (!step_mem->yerr)
     {
       if (!arkAllocVec(ark_mem, ark_mem->yn, &(step_mem->yerr)))
       {

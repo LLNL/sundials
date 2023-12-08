@@ -34,7 +34,7 @@ typedef struct
   sunrealtype dt;
 } ProgramArgs;
 
-static void PrintHelp()
+static void PrintHelp(void)
 {
   fprintf(stderr,
           "ark_damped_harmonic_symplectic: an ARKODE example demonstrating "

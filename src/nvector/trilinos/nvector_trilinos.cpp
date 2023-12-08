@@ -18,19 +18,16 @@
  * of the NVECTOR package.
  * -----------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <nvector/nvector_trilinos.h>
 #include <nvector/trilinos/SundialsTpetraVectorInterface.hpp>
 #include <nvector/trilinos/SundialsTpetraVectorKernels.hpp>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)
 #define ONE    SUN_RCONST(1.0)
 #define ONEPT5 SUN_RCONST(1.5)
-
-
 
 /*
  * -----------------------------------------------------------------
@@ -39,9 +36,9 @@
  */
 
 using Teuchos::Comm;
+using Teuchos::outArg;
 using Teuchos::RCP;
 using Teuchos::rcp;
-using Teuchos::outArg;
 using Teuchos::REDUCE_SUM;
 using Teuchos::reduceAll;
 using namespace sundials::trilinos::nvector_tpetra;
@@ -63,7 +60,6 @@ N_Vector_ID N_VGetVectorID_Trilinos(N_Vector v)
   return SUNDIALS_NVEC_TRILINOS;
 }
 
-
 /* ----------------------------------------------------------------
  * Function to create a new Trilinos vector with empty data array
  */
@@ -75,7 +71,7 @@ N_Vector N_VNewEmpty_Trilinos(SUNContext sunctx)
   /* Create an empty vector object */
   v = NULL;
   v = N_VNewEmpty(sunctx);
-  if (v == NULL) return(NULL);
+  if (v == NULL) { return (NULL); }
 
   /* Attach operations */
 
@@ -89,25 +85,25 @@ N_Vector N_VNewEmpty_Trilinos(SUNContext sunctx)
   v->ops->nvgetlength       = N_VGetLength_Trilinos;
 
   /* standard vector operations */
-  v->ops->nvlinearsum       = N_VLinearSum_Trilinos;
-  v->ops->nvconst           = N_VConst_Trilinos;
-  v->ops->nvprod            = N_VProd_Trilinos;
-  v->ops->nvdiv             = N_VDiv_Trilinos;
-  v->ops->nvscale           = N_VScale_Trilinos;
-  v->ops->nvabs             = N_VAbs_Trilinos;
-  v->ops->nvinv             = N_VInv_Trilinos;
-  v->ops->nvaddconst        = N_VAddConst_Trilinos;
-  v->ops->nvdotprod         = N_VDotProd_Trilinos;
-  v->ops->nvmaxnorm         = N_VMaxNorm_Trilinos;
-  v->ops->nvwrmsnorm        = N_VWrmsNorm_Trilinos;
-  v->ops->nvwrmsnormmask    = N_VWrmsNormMask_Trilinos;
-  v->ops->nvmin             = N_VMin_Trilinos;
-  v->ops->nvwl2norm         = N_VWL2Norm_Trilinos;
-  v->ops->nvl1norm          = N_VL1Norm_Trilinos;
-  v->ops->nvcompare         = N_VCompare_Trilinos;
-  v->ops->nvinvtest         = N_VInvTest_Trilinos;
-  v->ops->nvconstrmask      = N_VConstrMask_Trilinos;
-  v->ops->nvminquotient     = N_VMinQuotient_Trilinos;
+  v->ops->nvlinearsum    = N_VLinearSum_Trilinos;
+  v->ops->nvconst        = N_VConst_Trilinos;
+  v->ops->nvprod         = N_VProd_Trilinos;
+  v->ops->nvdiv          = N_VDiv_Trilinos;
+  v->ops->nvscale        = N_VScale_Trilinos;
+  v->ops->nvabs          = N_VAbs_Trilinos;
+  v->ops->nvinv          = N_VInv_Trilinos;
+  v->ops->nvaddconst     = N_VAddConst_Trilinos;
+  v->ops->nvdotprod      = N_VDotProd_Trilinos;
+  v->ops->nvmaxnorm      = N_VMaxNorm_Trilinos;
+  v->ops->nvwrmsnorm     = N_VWrmsNorm_Trilinos;
+  v->ops->nvwrmsnormmask = N_VWrmsNormMask_Trilinos;
+  v->ops->nvmin          = N_VMin_Trilinos;
+  v->ops->nvwl2norm      = N_VWL2Norm_Trilinos;
+  v->ops->nvl1norm       = N_VL1Norm_Trilinos;
+  v->ops->nvcompare      = N_VCompare_Trilinos;
+  v->ops->nvinvtest      = N_VInvTest_Trilinos;
+  v->ops->nvconstrmask   = N_VConstrMask_Trilinos;
+  v->ops->nvminquotient  = N_VMinQuotient_Trilinos;
 
   /* fused and vector array operations are disabled (NULL) by default */
 
@@ -122,10 +118,8 @@ N_Vector N_VNewEmpty_Trilinos(SUNContext sunctx)
   v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Trilinos;
   v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Trilinos;
 
-  return(v);
+  return (v);
 }
-
-
 
 /* ----------------------------------------------------------------
  * Function to create an N_Vector attachment to Tpetra vector.
@@ -139,15 +133,18 @@ N_Vector N_VMake_Trilinos(Teuchos::RCP<vector_type> vec, SUNContext sunctx)
 
   // Create an N_Vector with operators attached and empty content
   v = N_VNewEmpty_Trilinos(sunctx);
-  if (v == NULL) return(NULL);
+  if (v == NULL) return (NULL);
 
   // Create vector content using a pointer to Tpetra vector
   v->content = new TpetraVectorInterface(vec);
-  if (v->content == NULL) { N_VDestroy(v); return NULL; }
+  if (v->content == NULL)
+  {
+    N_VDestroy(v);
+    return NULL;
+  }
 
-  return(v);
+  return (v);
 }
-
 
 /*
  * -----------------------------------------------------------------
@@ -159,23 +156,27 @@ N_Vector N_VCloneEmpty_Trilinos(N_Vector w)
 {
   N_Vector v;
 
-  if (w == NULL) return(NULL);
+  if (w == NULL) { return (NULL); }
 
   /* Create vector */
   v = NULL;
   v = N_VNewEmpty(w->sunctx);
-  if (v == NULL) return(NULL);
+  if (v == NULL) { return (NULL); }
 
   /* Attach operations */
-  if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
+  if (N_VCopyOps(w, v))
+  {
+    N_VDestroy(v);
+    return (NULL);
+  }
 
-  return(v);
+  return (v);
 }
 
 N_Vector N_VClone_Trilinos(N_Vector w)
 {
   N_Vector v = N_VCloneEmpty_Trilinos(w);
-  if (v == NULL) return(NULL);
+  if (v == NULL) { return (NULL); }
 
   // Get raw pointer to Tpetra vector
   Teuchos::RCP<vector_type> wvec = N_VGetVector_Trilinos(w);
@@ -186,16 +187,21 @@ N_Vector N_VClone_Trilinos(N_Vector w)
 
   // Create vector content using the raw pointer to the cloned Tpetra vector
   v->content = new TpetraVectorInterface(tvec);
-  if (v->content == NULL) { N_VDestroy(v); return NULL; }
+  if (v->content == NULL)
+  {
+    N_VDestroy(v);
+    return NULL;
+  }
 
-  return(v);
+  return (v);
 }
 
 void N_VDestroy_Trilinos(N_Vector v)
 {
-  if (v == NULL) return;
+  if (v == NULL) { return; }
 
-  if(v->content != NULL) {
+  if (v->content != NULL)
+  {
     TpetraVectorInterface* iface =
       reinterpret_cast<TpetraVectorInterface*>(v->content);
 
@@ -205,20 +211,25 @@ void N_VDestroy_Trilinos(N_Vector v)
   }
 
   /* free ops and vector */
-  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
-  free(v); v = NULL;
+  if (v->ops != NULL)
+  {
+    free(v->ops);
+    v->ops = NULL;
+  }
+  free(v);
+  v = NULL;
 
   return;
 }
 
-void N_VSpace_Trilinos(N_Vector x, sunindextype *lrw, sunindextype *liw)
+void N_VSpace_Trilinos(N_Vector x, sunindextype* lrw, sunindextype* liw)
 {
-  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
-  const Teuchos::RCP<const Teuchos::Comm<int> >& comm = xv->getMap()->getComm();
-  int npes = comm->getSize();
+  Teuchos::RCP<const vector_type> xv                 = N_VGetVector_Trilinos(x);
+  const Teuchos::RCP<const Teuchos::Comm<int>>& comm = xv->getMap()->getComm();
+  int npes                                           = comm->getSize();
 
   *lrw = (sunindextype)(xv->getGlobalLength());
-  *liw = 2*npes;
+  *liw = 2 * npes;
 }
 
 /*
@@ -229,10 +240,11 @@ SUNComm N_VGetCommunicator_Trilinos(N_Vector x)
 #ifdef SUNDIALS_TRILINOS_HAVE_MPI
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   /* Access Teuchos::Comm* (which is actually a Teuchos::MpiComm*) */
-  auto comm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(xv->getMap()->getComm());
-  return(*(comm->getRawMpiComm().get()));   /* extract MPI_Comm */
+  auto comm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(
+    xv->getMap()->getComm());
+  return (*(comm->getRawMpiComm().get())); /* extract MPI_Comm */
 #else
-  return(SUN_COMM_NULL);
+  return (SUN_COMM_NULL);
 #endif
 }
 
@@ -243,26 +255,22 @@ sunindextype N_VGetLength_Trilinos(N_Vector x)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
 
-  return ((sunindextype) xv->getGlobalLength());
+  return ((sunindextype)xv->getGlobalLength());
 }
 
 /*
  * Linear combination of two vectors: z = a*x + b*y
  */
-void N_VLinearSum_Trilinos(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z)
+void N_VLinearSum_Trilinos(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y,
+                           N_Vector z)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
   Teuchos::RCP<const vector_type> yv = N_VGetVector_Trilinos(y);
   Teuchos::RCP<vector_type> zv       = N_VGetVector_Trilinos(z);
 
-  if (x == z) {
-    zv->update(b, *yv, a);
-  } else if (y == z) {
-    zv->update(a, *xv, b);
-  } else {
-    zv->update(a, *xv, b, *yv, ZERO);
-  }
-
+  if (x == z) { zv->update(b, *yv, a); }
+  else if (y == z) { zv->update(a, *xv, b); }
+  else { zv->update(a, *xv, b, *yv, ZERO); }
 }
 
 /*
@@ -392,7 +400,7 @@ sunrealtype N_VWrmsNormMask_Trilinos(N_Vector x, N_Vector w, N_Vector id)
  */
 sunrealtype N_VMin_Trilinos(N_Vector x)
 {
-  Teuchos::RCP<const vector_type> xv  = N_VGetVector_Trilinos(x);
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
 
   return minElement(*xv);
 }
@@ -534,7 +542,7 @@ sunrealtype N_VWSqrSumMaskLocal_Trilinos(N_Vector x, N_Vector w, N_Vector id)
 sunbooleantype N_VInvTestLocal_Trilinos(N_Vector x, N_Vector z)
 {
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
-  Teuchos::RCP<vector_type> zv = N_VGetVector_Trilinos(z);
+  Teuchos::RCP<vector_type> zv       = N_VGetVector_Trilinos(z);
 
   return invTestLocal(*xv, *zv) ? SUNTRUE : SUNFALSE;
 }

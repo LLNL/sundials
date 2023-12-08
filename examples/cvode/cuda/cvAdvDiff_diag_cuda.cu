@@ -38,38 +38,37 @@
  * -----------------------------------------------------------------
  */
 
+#include <cuda_runtime.h>
+#include <cvode/cvode.h>      /* prototypes for CVODE fcts., consts.  */
+#include <cvode/cvode_diag.h> /* prototypes for CVODE diagonal solver */
+#include <math.h>
+#include <nvector/nvector_cuda.h> /* access to cuda N_Vector              */
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-
-#include <cuda_runtime.h>
-
-#include <cvode/cvode.h>                  /* prototypes for CVODE fcts., consts.  */
-#include <cvode/cvode_diag.h>             /* prototypes for CVODE diagonal solver */
-#include <nvector/nvector_cuda.h>         /* access to cuda N_Vector              */
-#include <sundials/sundials_types.h>      /* definition of type sunrealtype          */
+#include <sundials/sundials_types.h> /* definition of type sunrealtype          */
 
 /* Problem Constants */
 
-#define ZERO  SUN_RCONST(0.0)
+#define ZERO SUN_RCONST(0.0)
 
-#define XMAX  SUN_RCONST(2.0)    /* domain boundary           */
-#define MX    10             /* mesh dimension            */
-#define NEQ   MX             /* number of equations       */
-#define ATOL  SUN_RCONST(1e-10)  /* scalar absolute tolerance */
-#define T0    ZERO           /* initial time              */
-#define T1    SUN_RCONST(0.5)    /* first output time         */
-#define DTOUT SUN_RCONST(0.5)    /* output time increment     */
-#define NOUT  10             /* number of output times    */
+#define XMAX  SUN_RCONST(2.0)   /* domain boundary           */
+#define MX    10                /* mesh dimension            */
+#define NEQ   MX                /* number of equations       */
+#define ATOL  SUN_RCONST(1e-10) /* scalar absolute tolerance */
+#define T0    ZERO              /* initial time              */
+#define T1    SUN_RCONST(0.5)   /* first output time         */
+#define DTOUT SUN_RCONST(0.5)   /* output time increment     */
+#define NOUT  10                /* number of output times    */
 
 /* Type : UserData
    contains mesh spacing and problem parameters. */
 
-typedef struct {
+typedef struct
+{
   sunrealtype dx;
   sunrealtype hdcoef;
   sunrealtype hacoef;
-} *UserData;
+}* UserData;
 
 /* Private Helper Functions */
 
@@ -79,93 +78,97 @@ static void PrintIntro(int toltype, int usefused);
 
 static void PrintData(sunrealtype t, sunrealtype umax, long int nst);
 
-static void PrintFinalStats(void *cvode_mem);
+static void PrintFinalStats(void* cvode_mem);
 
 /* Functions Called by the Solver */
 
-static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data);
 
 /* Private function to check function return values */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /***************************** Main Program ******************************/
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   SUNContext sunctx;
   sunrealtype dx, reltol, abstol, t, tout, umax;
   N_Vector u;
   UserData data;
-  void *cvode_mem;
+  void* cvode_mem;
   int iout, retval, toltype, usefused;
   long int nst;
 
-  u = NULL;
-  data = NULL;
+  u         = NULL;
+  data      = NULL;
   cvode_mem = NULL;
-  toltype = 0;
-  usefused = 0;
+  toltype   = 0;
+  usefused  = 0;
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
-  if (argc >= 2) {
+  if (argc >= 2)
+  {
     /* use vector or scalar atol? */
     toltype = atoi(argv[1]);
     /* use fused operations? */
-    if (argc == 3)
-      usefused = atoi(argv[2]);
+    if (argc == 3) { usefused = atoi(argv[2]); }
   }
 
-  data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
-  if(check_retval((void *)data, "malloc", 2)) return 1;
+  data = (UserData)malloc(sizeof *data); /* Allocate data memory */
+  if (check_retval((void*)data, "malloc", 2)) { return 1; }
 
-  u = N_VNew_Cuda(NEQ, sunctx);  /* Allocate u vector */
-  if(check_retval((void *)u, "N_VNew", 0)) return 1;
+  u = N_VNew_Cuda(NEQ, sunctx); /* Allocate u vector */
+  if (check_retval((void*)u, "N_VNew", 0)) { return 1; }
 
-  reltol = ZERO;  /* Set the tolerances */
+  reltol = ZERO; /* Set the tolerances */
   abstol = ATOL;
 
-  dx = data->dx = XMAX/((sunrealtype)(MX+1));  /* Set grid coefficients in data */
-  data->hdcoef = SUN_RCONST(1.0)/(dx*dx);
-  data->hacoef = SUN_RCONST(0.5)/(SUN_RCONST(2.0)*dx);
+  dx = data->dx = XMAX /
+                  ((sunrealtype)(MX + 1)); /* Set grid coefficients in data */
+  data->hdcoef = SUN_RCONST(1.0) / (dx * dx);
+  data->hacoef = SUN_RCONST(0.5) / (SUN_RCONST(2.0) * dx);
 
-  SetIC(u, dx);  /* Initialize u vector */
+  SetIC(u, dx); /* Initialize u vector */
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Adams-Moulton LMM */
   cvode_mem = CVodeCreate(CV_ADAMS, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return 1;
+  if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return 1; }
 
   retval = CVodeSetUserData(cvode_mem, data);
-  if(check_retval(&retval, "CVodeSetUserData", 1)) return 1;
+  if (check_retval(&retval, "CVodeSetUserData", 1)) { return 1; }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if(check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerances */
 
-  if (toltype == 0) {
+  if (toltype == 0)
+  {
     retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-    if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
-  } else {
+    if (check_retval(&retval, "CVodeSStolerances", 1)) { return (1); }
+  }
+  else
+  {
     N_Vector vabstol = N_VClone_Cuda(u);
-    if (check_retval(&vabstol, "N_VClone_Cuda", 0)) return(1);
+    if (check_retval(&vabstol, "N_VClone_Cuda", 0)) { return (1); }
     N_VConst(abstol, vabstol);
     retval = CVodeSVtolerances(cvode_mem, reltol, vabstol);
-    if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
+    if (check_retval(&retval, "CVodeSVtolerances", 1)) { return (1); }
     N_VDestroy(vabstol);
   }
 
   /* Call CVDiag to create and attach CVODE-specific diagonal linear solver */
   retval = CVDiag(cvode_mem);
-  if(check_retval(&retval, "CVDiag", 1)) return(1);
+  if (check_retval(&retval, "CVDiag", 1)) { return (1); }
 
   /* Tell CVode to use fused kernels if they are available. */
   retval = CVodeSetUseIntegratorFusedKernels(cvode_mem, usefused);
@@ -180,23 +183,24 @@ int main(int argc, char *argv[])
 
   /* In loop over output points, call CVode, print results, test for error */
 
-  for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
+  for (iout = 1, tout = T1; iout <= NOUT; iout++, tout += DTOUT)
+  {
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_retval(&retval, "CVode", 1)) break;
-    umax = N_VMaxNorm(u);
+    if (check_retval(&retval, "CVode", 1)) { break; }
+    umax   = N_VMaxNorm(u);
     retval = CVodeGetNumSteps(cvode_mem, &nst);
     check_retval(&retval, "CVodeGetNumSteps", 1);
     PrintData(t, umax, nst);
   }
 
-  PrintFinalStats(cvode_mem);  /* Print some final statistics */
+  PrintFinalStats(cvode_mem); /* Print some final statistics */
 
-  N_VDestroy(u);                 /* Free the u vector */
-  CVodeFree(&cvode_mem);         /* Free the integrator memory */
-  free(data);                    /* Free user data */
+  N_VDestroy(u);         /* Free the u vector */
+  CVodeFree(&cvode_mem); /* Free the integrator memory */
+  free(data);            /* Free user data */
   SUNContext_Free(&sunctx);
 
-  return(0);
+  return (0);
 }
 
 /************************ Private Helper Functions ***********************/
@@ -208,16 +212,17 @@ static void SetIC(N_Vector u, sunrealtype dx)
   int i;
   sunindextype N;
   sunrealtype x;
-  sunrealtype *udata;
+  sunrealtype* udata;
 
   /* Set pointer to data array and get local length of u. */
   udata = N_VGetHostArrayPointer_Cuda(u);
-  N = N_VGetLength(u);
+  N     = N_VGetLength(u);
 
   /* Load initial profile into u vector */
-  for (i=1; i<=N; i++) {
-    x = i*dx;
-    udata[i-1] = x*(XMAX - x)*exp(SUN_RCONST(2.0)*x);
+  for (i = 1; i <= N; i++)
+  {
+    x            = i * dx;
+    udata[i - 1] = x * (XMAX - x) * exp(SUN_RCONST(2.0) * x);
   }
   N_VCopyToDevice_Cuda(u);
 }
@@ -228,12 +233,9 @@ static void PrintIntro(int toltype, int usefused)
 {
   printf("\n 1-D advection-diffusion equation, mesh size =%3d \n", MX);
   printf("\n Diagonal linear solver CVDiag \n");
-  if (usefused)
-    printf(" Using fused CVODE kernels \n");
-  if (toltype == 0)
-    printf(" Using scalar ATOL\n");
-  else
-    printf(" Using vector ATOL\n");
+  if (usefused) { printf(" Using fused CVODE kernels \n"); }
+  if (toltype == 0) { printf(" Using scalar ATOL\n"); }
+  else { printf(" Using vector ATOL\n"); }
   printf("\n");
 
   return;
@@ -243,7 +245,6 @@ static void PrintIntro(int toltype, int usefused)
 
 static void PrintData(sunrealtype t, sunrealtype umax, long int nst)
 {
-
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %4.2Lf  max.norm(u) =%14.6Le  nst =%4ld \n", t, umax, nst);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -257,7 +258,7 @@ static void PrintData(sunrealtype t, sunrealtype umax, long int nst)
 
 /* Print some final statistics located in the iopt array */
 
-static void PrintFinalStats(void *cvode_mem)
+static void PrintFinalStats(void* cvode_mem)
 {
   long int nst, nfe, nni, ncfn, netf;
   int retval;
@@ -278,32 +279,32 @@ static void PrintFinalStats(void *cvode_mem)
   printf("nni = %-6ld  ncfn = %-6ld  netf = %ld\n \n", nni, ncfn, netf);
 }
 
- /***************** Function Called by the Solver ***********************/
+/***************** Function Called by the Solver ***********************/
 
- /* f routine. Compute f(t,u). */
+/* f routine. Compute f(t,u). */
 
-__global__
-static void f_kernel(sunindextype N,
-                     sunrealtype hordc, sunrealtype horac,
-                     const sunrealtype* u, sunrealtype* udot)
+__global__ static void f_kernel(sunindextype N, sunrealtype hordc,
+                                sunrealtype horac, const sunrealtype* u,
+                                sunrealtype* udot)
 {
-  sunindextype i = blockDim.x*blockIdx.x + threadIdx.x;
+  sunindextype i = blockDim.x * blockIdx.x + threadIdx.x;
   sunrealtype ui, ult, urt, hdiff, hadv;
 
-  if (i < N) {
+  if (i < N)
+  {
     /* Extract u at x_i and two neighboring points */
-    ui = u[i];
-    ult = (i == 0) ? ZERO : u[i-1];
-    urt = (i == N-1) ? ZERO : u[i+1];
+    ui  = u[i];
+    ult = (i == 0) ? ZERO : u[i - 1];
+    urt = (i == N - 1) ? ZERO : u[i + 1];
 
     /* Set diffusion and advection terms and load into udot */
-    hdiff = hordc*(ult - SUN_RCONST(2.0)*ui + urt);
-    hadv = horac*(urt - ult);
+    hdiff   = hordc * (ult - SUN_RCONST(2.0) * ui + urt);
+    hadv    = horac * (urt - ult);
     udot[i] = hdiff + hadv;
   }
 }
 
-static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data)
 {
   sunrealtype hordc, horac;
   sunrealtype *udata, *dudata;
@@ -312,11 +313,11 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
   UserData data;
   cudaError_t cuerr;
 
-  udata = N_VGetDeviceArrayPointer_Cuda(u);
+  udata  = N_VGetDeviceArrayPointer_Cuda(u);
   dudata = N_VGetDeviceArrayPointer_Cuda(udot);
 
   /* Extract needed problem constants from data */
-  data = (UserData) user_data;
+  data  = (UserData)user_data;
   hordc = data->hdcoef;
   horac = data->hacoef;
 
@@ -324,20 +325,21 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
   N = N_VGetLength(u); /* Number of elements of u. */
 
   block = 64;
-  grid  = (block + N - 1)/block;
+  grid  = (block + N - 1) / block;
   f_kernel<<<grid, block>>>(N, hordc, horac, udata, dudata);
 
   cudaDeviceSynchronize();
   cuerr = cudaGetLastError();
-  if (cuerr != cudaSuccess) {
+  if (cuerr != cudaSuccess)
+  {
     fprintf(stderr, "ERROR in f: f_kernel --> %s\n", cudaGetErrorString(cuerr));
-    return(-1);
+    return (-1);
   }
 
-  return(0);
+  return (0);
 }
 
- /* Check function return value...
+/* Check function return value...
       opt == 0 means SUNDIALS function allocates memory so check if
                returned NULL pointer
       opt == 1 means SUNDIALS function returns an integer value so check if
@@ -345,26 +347,37 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
       opt == 2 means function allocates memory so check if returned
                NULL pointer */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
-    return(1); }
+  if (opt == 0 && returnvalue == NULL)
+  {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return (1);
+  }
 
   /* Check if retval < 0 */
-  else if (opt == 1) {
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n", funcname, *retval);
-      return(1); }}
+  else if (opt == 1)
+  {
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+              funcname, *retval);
+      return (1);
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && returnvalue == NULL) {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", funcname);
-    return(1); }
+  else if (opt == 2 && returnvalue == NULL)
+  {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return (1);
+  }
 
-  return(0);
+  return (0);
 }

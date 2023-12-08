@@ -20,8 +20,8 @@
 #include <stdlib.h>
 
 #include "arkode/arkode.h"
-#include "nvector/nvector_serial.h"
 #include "arkode/arkode_mristep.h"
+#include "nvector/nvector_serial.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -32,40 +32,37 @@
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 
-int ode_slow_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+int ode_slow_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* y_data    = N_VGetArrayPointer(ydot);
   sunrealtype* ydot_data = N_VGetArrayPointer(ydot);
-  ydot_data[0] = -ONE * y_data[0];
+  ydot_data[0]           = -ONE * y_data[0];
   return 0;
 }
 
 int fast_evolve(MRIStepInnerStepper fast_mem, sunrealtype t0, sunrealtype tf,
                 N_Vector y)
 {
-  int          i      = 0;
-  sunrealtype  h_fast = (t0 - tf) / SUN_RCONST(10.0);
+  int i               = 0;
+  sunrealtype h_fast  = (t0 - tf) / SUN_RCONST(10.0);
   sunrealtype* y_data = N_VGetArrayPointer(y);
 
-  for (i = 0; i < 10; i++)
-  {
-    y_data[0] += (h_fast * -ONE * y_data[0]);
-  }
+  for (i = 0; i < 10; i++) { y_data[0] += (h_fast * -ONE * y_data[0]); }
 
   return 0;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  SUNContext          sunctx     = NULL;
-  N_Vector            y          = NULL;
-  void*               arkode_mem = NULL;
-  MRIStepInnerStepper fast_mem   = NULL;
+  SUNContext sunctx            = NULL;
+  N_Vector y                   = NULL;
+  void* arkode_mem             = NULL;
+  MRIStepInnerStepper fast_mem = NULL;
 
-  int         flag        = 0;
-  int         arkode_flag = 0;
-  sunrealtype tout        = SUN_RCONST(0.10);
-  sunrealtype tret        = ZERO;
+  int flag         = 0;
+  int arkode_flag  = 0;
+  sunrealtype tout = SUN_RCONST(0.10);
+  sunrealtype tret = ZERO;
 
   /* --------------
    * Create context
@@ -144,10 +141,7 @@ int main(int argc, char *argv[])
   N_VDestroy(y);
   SUNContext_Free(&sunctx);
 
-  if (!flag)
-  {
-    printf("SUCCESS\n");
-  }
+  if (!flag) { printf("SUCCESS\n"); }
 
   return flag;
 }

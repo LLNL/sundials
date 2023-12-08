@@ -23,7 +23,7 @@
 #include "arkode/arkode_butcher.h"
 #include "arkode_impl.h"
 
-ARKodeSPRKTable ARKodeSymplecticEuler()
+ARKodeSPRKTable ARKodeSymplecticEuler(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(1);
   if (!sprk_table) { return NULL; }
@@ -43,7 +43,7 @@ ARKodeSPRKTable ARKodeSymplecticEuler()
   https://doi.org/10.1016/0021-9991(91)90299-Z.
  */
 
-ARKodeSPRKTable ARKodeSymplecticLeapfrog2()
+ARKodeSPRKTable ARKodeSymplecticLeapfrog2(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(2);
   if (!sprk_table) { return NULL; }
@@ -56,7 +56,7 @@ ARKodeSPRKTable ARKodeSymplecticLeapfrog2()
   return sprk_table;
 }
 
-ARKodeSPRKTable ARKodeSymplecticPseudoLeapfrog2()
+ARKodeSPRKTable ARKodeSymplecticPseudoLeapfrog2(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(2);
   if (!sprk_table) { return NULL; }
@@ -69,7 +69,7 @@ ARKodeSPRKTable ARKodeSymplecticPseudoLeapfrog2()
   return sprk_table;
 }
 
-ARKodeSPRKTable ARKodeSymplecticCandyRozmus4()
+ARKodeSPRKTable ARKodeSymplecticCandyRozmus4(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(4);
   if (!sprk_table) { return NULL; }
@@ -108,7 +108,7 @@ ARKodeSPRKTable ARKodeSymplecticCandyRozmus4()
   https://accelconf.web.cern.ch/p83/PDF/PAC1983_2669.PDF
  */
 
-ARKodeSPRKTable ARKodeSymplecticRuth3()
+ARKodeSPRKTable ARKodeSymplecticRuth3(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(3);
   if (!sprk_table) { return NULL; }
@@ -130,7 +130,7 @@ ARKodeSPRKTable ARKodeSymplecticRuth3()
   Nonlinearity. 5, 541–562 (1992). https://doi.org/10.1088/0951-7715/5/2/011
  */
 
-ARKodeSPRKTable ARKodeSymplecticMcLachlan2()
+ARKodeSPRKTable ARKodeSymplecticMcLachlan2(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(2);
   if (!sprk_table) { return NULL; }
@@ -145,7 +145,7 @@ ARKodeSPRKTable ARKodeSymplecticMcLachlan2()
   return sprk_table;
 }
 
-ARKodeSPRKTable ARKodeSymplecticMcLachlan3()
+ARKodeSPRKTable ARKodeSymplecticMcLachlan3(void)
 {
   sunrealtype w              = 0.0;
   sunrealtype y              = 0.0;
@@ -174,7 +174,7 @@ ARKodeSPRKTable ARKodeSymplecticMcLachlan3()
   return sprk_table;
 }
 
-ARKodeSPRKTable ARKodeSymplecticMcLachlan4()
+ARKodeSPRKTable ARKodeSymplecticMcLachlan4(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(4);
   if (!sprk_table) { return NULL; }
@@ -191,7 +191,7 @@ ARKodeSPRKTable ARKodeSymplecticMcLachlan4()
   return sprk_table;
 }
 
-ARKodeSPRKTable ARKodeSymplecticMcLachlan5()
+ARKodeSPRKTable ARKodeSymplecticMcLachlan5(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(6);
   if (!sprk_table) { return NULL; }
@@ -221,7 +221,7 @@ ARKodeSPRKTable ARKodeSymplecticMcLachlan5()
 
  */
 
-ARKodeSPRKTable ARKodeSymplecticYoshida6()
+ARKodeSPRKTable ARKodeSymplecticYoshida6(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(8);
   if (!sprk_table) { return NULL; }
@@ -260,7 +260,7 @@ ARKodeSPRKTable ARKodeSymplecticYoshida6()
 
  */
 
-ARKodeSPRKTable ARKodeSymplecticSuzukiUmeno816()
+ARKodeSPRKTable ARKodeSymplecticSuzukiUmeno816(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(16);
   if (!sprk_table) { return NULL; }
@@ -310,7 +310,7 @@ ARKodeSPRKTable ARKodeSymplecticSuzukiUmeno816()
 
  */
 
-ARKodeSPRKTable ARKodeSymplecticSofroniou10()
+ARKodeSPRKTable ARKodeSymplecticSofroniou10(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(36);
   if (!sprk_table) { return NULL; }

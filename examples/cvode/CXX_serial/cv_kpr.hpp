@@ -25,18 +25,18 @@
 #include <vector>
 
 // SUNDIALS types
-#include <sundials/sundials_types.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_types.h>
 
 // Common utility functions
 #include <example_utilities.hpp>
 
 // Macros for problem constants
-#define ZERO    SUN_RCONST(0.0)
-#define HALF    SUN_RCONST(0.5)
-#define ONE     SUN_RCONST(1.0)
-#define TWO     SUN_RCONST(2.0)
-#define TWENTY  SUN_RCONST(20.0)
+#define ZERO   SUN_RCONST(0.0)
+#define HALF   SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define TWO    SUN_RCONST(2.0)
+#define TWENTY SUN_RCONST(20.0)
 
 // -----------------------------------------------------------------------------
 // Problem options
@@ -53,7 +53,7 @@ struct Options
 
   // Output options
   sunrealtype dtout = ONE; // output interval
-  int         nout  = 10;  // number of outputs
+  int nout          = 10;  // number of outputs
 };
 
 // -----------------------------------------------------------------------------
@@ -61,28 +61,16 @@ struct Options
 // -----------------------------------------------------------------------------
 
 // Compute r(t)
-inline sunrealtype r(sunrealtype t)
-{
-  return HALF * cos(t);
-}
+inline sunrealtype r(sunrealtype t) { return HALF * cos(t); }
 
 // Compute the derivative of r(t)
-inline sunrealtype rdot(sunrealtype t)
-{
-  return -HALF * sin(t);
-}
+inline sunrealtype rdot(sunrealtype t) { return -HALF * sin(t); }
 
 // Compute s(t)
-inline sunrealtype s(sunrealtype t)
-{
-  return cos(TWENTY * t);
-}
+inline sunrealtype s(sunrealtype t) { return cos(TWENTY * t); }
 
 // Compute the derivative of s(t)
-inline sunrealtype sdot(sunrealtype t)
-{
-  return -TWENTY * sin(TWENTY * t);
-}
+inline sunrealtype sdot(sunrealtype t) { return -TWENTY * sin(TWENTY * t); }
 
 // Compute the true solution
 inline int true_sol(sunrealtype t, sunrealtype* u, sunrealtype* v)
@@ -110,7 +98,7 @@ void InputHelp()
   std::cout << "  --nout         : number of outputs\n";
 }
 
-int ReadInputs(std::vector<std::string> &args, Options &opts, SUNContext ctx)
+int ReadInputs(std::vector<std::string>& args, Options& opts, SUNContext ctx)
 {
   if (find(args.begin(), args.end(), "--help") != args.end())
   {

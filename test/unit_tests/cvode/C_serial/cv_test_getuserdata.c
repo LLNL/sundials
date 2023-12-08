@@ -17,27 +17,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "nvector/nvector_serial.h"
 #include "cvode/cvode.h"
+#include "nvector/nvector_serial.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 
 /* Dummy user-supplied function */
-static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   return 0;
 }
 
 /* Main program */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  int        retval     = 0;
-  SUNContext sunctx     = NULL;
-  N_Vector   y          = NULL;
-  void       *cvode_mem = NULL;
-  int        udata_in   = 1;
-  void       *udata_out = NULL;
+  int retval        = 0;
+  SUNContext sunctx = NULL;
+  N_Vector y        = NULL;
+  void* cvode_mem   = NULL;
+  int udata_in      = 1;
+  void* udata_out   = NULL;
 
   /* Create the SUNDIALS context object for this simulation. */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  if (&udata_in != (int*) udata_out)
+  if (&udata_in != (int*)udata_out)
   {
     fprintf(stderr, "udata_in != udata_out\n");
     return 1;
