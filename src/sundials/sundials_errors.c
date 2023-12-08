@@ -17,7 +17,6 @@
 #include <string.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
-#include <sys/_types/_va_list.h>
 
 #include "sundials/sundials_logger.h"
 #include "sundials/sundials_types.h"
