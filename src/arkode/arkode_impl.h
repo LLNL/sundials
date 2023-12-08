@@ -1102,7 +1102,7 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
 #define MSG_ARK_TOO_MUCH_ACC "At " MSG_TIME ", too much accuracy requested."
 #define MSG_ARK_HNIL                                                       \
   "Internal " MSG_TIME_H " are such that t + h = t on the next step. The " \
-                         "solver will continue anyway."
+  "solver will continue anyway."
 #define MSG_ARK_ERR_FAILS \
   "At " MSG_TIME_H ", the error test failed repeatedly or with |h| = hmin."
 #define MSG_ARK_CONV_FAILS \
@@ -1119,12 +1119,12 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   ", the right-hand side routine failed in an unrecoverable manner."
 #define MSG_ARK_RHSFUNC_UNREC                                                 \
   "At " MSG_TIME ", the right-hand side failed in a recoverable manner, but " \
-                 "no recovery is possible."
+  "no recovery is possible."
 #define MSG_ARK_RHSFUNC_REPTD \
   "At " MSG_TIME " repeated recoverable right-hand side function errors."
 #define MSG_ARK_RTFUNC_FAILED                                            \
   "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable " \
-                 "manner."
+  "manner."
 #define MSG_ARK_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
 #define MSG_ARK_BAD_TSTOP                                    \
   "The value " MSG_TIME_TSTOP " is behind current " MSG_TIME \
