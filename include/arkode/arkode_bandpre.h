@@ -20,24 +20,21 @@
 
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-
 /* BandPrec inititialization function */
 
-SUNDIALS_EXPORT int ARKBandPrecInit(void *arkode_mem, sunindextype N,
+SUNDIALS_EXPORT int ARKBandPrecInit(void* arkode_mem, sunindextype N,
                                     sunindextype mu, sunindextype ml);
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int ARKBandPrecGetWorkSpace(void *arkode_mem,
-                                            long int *lenrwLS,
-                                            long int *leniwLS);
-SUNDIALS_EXPORT int ARKBandPrecGetNumRhsEvals(void *arkode_mem,
-                                              long int *nfevalsBP);
-
+SUNDIALS_EXPORT int ARKBandPrecGetWorkSpace(void* arkode_mem, long int* lenrwLS,
+                                            long int* leniwLS);
+SUNDIALS_EXPORT int ARKBandPrecGetNumRhsEvals(void* arkode_mem,
+                                              long int* nfevalsBP);
 
 #ifdef __cplusplus
 }

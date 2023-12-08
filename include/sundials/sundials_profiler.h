@@ -16,8 +16,6 @@
 #define _SUNDIALS_PROFILER_H
 
 #include <stdio.h>
-#include <sundials/sundials_types.h>
-
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
 
@@ -29,13 +27,12 @@
 extern "C" {
 #endif
 
-SUNDIALS_EXPORT 
-SUNErrCode SUNProfiler_Create(SUNComm comm, const char* title,
-                              SUNProfiler* p);
+SUNDIALS_EXPORT
+SUNErrCode SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p);
 SUNDIALS_EXPORT
 SUNErrCode SUNProfiler_Free(SUNProfiler* p);
 
-SUNDIALS_EXPORT 
+SUNDIALS_EXPORT
 SUNErrCode SUNProfiler_Begin(SUNProfiler p, const char* name);
 
 SUNDIALS_EXPORT
@@ -45,8 +42,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNProfiler_GetElapsedTime(SUNProfiler p,
-                                      const char* name,
+SUNErrCode SUNProfiler_GetElapsedTime(SUNProfiler p, const char* name,
                                       double* time);
 
 SUNDIALS_EXPORT
