@@ -102,7 +102,7 @@ void SUNGlobalFallbackErrHandler(int line, const char* func, const char* file,
   file_and_line = combineFileAndLine(__LINE__, __FILE__);
   sunCreateLogMessage(SUN_LOGLEVEL_ERROR, 0, file_and_line,
                       __func__, "The SUNDIALS SUNContext was corrupt or NULL when an error occurred. As such, error messages have been printed to stderr.",
-                      NULL, &log_msg);
+                      ap, &log_msg);
   fprintf(stderr, "%s", log_msg);
   free(log_msg);
   free(file_and_line);
