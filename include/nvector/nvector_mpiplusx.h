@@ -44,7 +44,7 @@ sunrealtype* N_VGetArrayPointer_MPIPlusX(N_Vector v)
 {
   SUNFunctionBegin(v->sunctx);
   sunrealtype* arr = N_VGetSubvectorArrayPointer_MPIManyVector(v, 0);
-  SUNCheckLastErrNoRet();
+  SUNCheckLastErrNull();
   return arr;
 }
 
@@ -53,7 +53,7 @@ void N_VSetArrayPointer_MPIPlusX(sunrealtype* vdata, N_Vector v)
 {
   SUNFunctionBegin(v->sunctx);
   N_VSetSubvectorArrayPointer_MPIManyVector(vdata, v, 0);
-  SUNCheckLastErrNoRet();
+  SUNCheckLastErrVoid();
 }
 
 SUNDIALS_STATIC_INLINE
@@ -61,7 +61,7 @@ N_Vector N_VGetLocalVector_MPIPlusX(N_Vector v)
 {
   SUNFunctionBegin(v->sunctx);
   N_Vector result = N_VGetSubvector_MPIManyVector(v, 0);
-  SUNCheckLastErrNoRet();
+  SUNCheckLastErrNull();
   return result;
 }
 

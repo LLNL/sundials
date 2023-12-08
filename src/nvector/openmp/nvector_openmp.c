@@ -92,7 +92,7 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads,
   N_Vector v;
   N_VectorContent_OpenMP content;
 
-  SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(length > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   /* Create vector */
   v = NULL;
@@ -161,7 +161,7 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads,
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMP)malloc(sizeof *content);
-  SUNAssert(content, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach content */
   v->content = content;
@@ -185,7 +185,7 @@ N_Vector N_VNew_OpenMP(sunindextype length, int num_threads, SUNContext sunctx)
   N_Vector v;
   sunrealtype* data;
 
-  SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(length > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   v = NULL;
   v = N_VNewEmpty_OpenMP(length, num_threads, sunctx);
@@ -194,7 +194,7 @@ N_Vector N_VNew_OpenMP(sunindextype length, int num_threads, SUNContext sunctx)
   /* Create data */
   data = NULL;
   data = (sunrealtype*)malloc(length * sizeof(sunrealtype));
-  SUNAssert(data, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(data, SUN_ERR_MALLOC_FAIL);
 
   /* Attach data */
   NV_OWN_DATA_OMP(v) = SUNTRUE;
@@ -213,7 +213,7 @@ N_Vector N_VMake_OpenMP(sunindextype length, sunrealtype* v_data,
   SUNFunctionBegin(sunctx);
   N_Vector v;
 
-  SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(length > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   v = NULL;
   v = N_VNewEmpty_OpenMP(length, num_threads, sunctx);
@@ -308,7 +308,7 @@ N_Vector N_VCloneEmpty_OpenMP(N_Vector w)
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMP)malloc(sizeof *content);
-  SUNAssert(content, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach content */
   v->content = content;
@@ -342,7 +342,7 @@ N_Vector N_VClone_OpenMP(N_Vector w)
   /* Create data */
   data = NULL;
   data = (sunrealtype*)malloc(length * sizeof(sunrealtype));
-  SUNAssert(data, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(data, SUN_ERR_MALLOC_FAIL);
 
   /* Attach data */
   NV_OWN_DATA_OMP(v) = SUNTRUE;
@@ -927,7 +927,7 @@ sunbooleantype N_VConstrMask_OpenMP(N_Vector c, N_Vector x, N_Vector m)
 
 #pragma omp parallel for default(none) private(i, test) \
   shared(N, xd, cd, md, temp) schedule(static)          \
-  num_threads(NV_NUM_THREADS_OMP(x))
+    num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
   {
     md[i] = ZERO;

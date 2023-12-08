@@ -109,6 +109,7 @@ void N_VDestroy_MPIManyVector(N_Vector v);
 
 SUNDIALS_EXPORT
 void N_VSpace_MPIManyVector(N_Vector v, sunindextype* lrw, sunindextype* liw);
+
 SUNDIALS_EXPORT
 MPI_Comm N_VGetCommunicator_MPIManyVector(N_Vector v);
 
@@ -172,6 +173,7 @@ sunbooleantype N_VInvTest_MPIManyVector(N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
 sunbooleantype N_VConstrMask_MPIManyVector(N_Vector c, N_Vector x, N_Vector m);
+
 SUNDIALS_EXPORT
 sunrealtype N_VMinQuotient_MPIManyVector(N_Vector num, N_Vector denom);
 

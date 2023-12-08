@@ -16,19 +16,22 @@
 
 #include <nvector/nvector_mpiplusx.h>
 
+#include "sundials/priv/sundials_errors_impl.h"
+#include "sundials/sundials_errors.h"
 #include "sundials_nvector_impl.h"
 
 #define MPIPLUSX_LOCAL_VECTOR(v) (N_VGetSubvector_MPIManyVector(v, 0))
 
 N_Vector N_VMake_MPIPlusX(MPI_Comm comm, N_Vector X, SUNContext sunctx)
 {
+  SUNFunctionBegin(sunctx);
   N_Vector v;
 
-  if (X == NULL) { return NULL; }
+  SUNAssertNull(X, SUN_ERR_ARG_CORRUPT);
 
   v = NULL;
-  v = N_VMake_MPIManyVector(comm, 1, &X, sunctx);
-  if (v == NULL) { return NULL; }
+  v = N_VMake_MPIManyVector(comm, 1, &X, SUNCTX_);
+  SUNCheckLastErrNull();
 
   /* override certain ops */
   v->ops->nvgetvectorid     = N_VGetVectorID_MPIPlusX;

@@ -1092,7 +1092,7 @@ int N_VScaleAddMulti_Parallel(int nvec, sunrealtype* a, N_Vector x, N_Vector* Y,
 int N_VDotProdMulti_Parallel(int nvec, N_Vector x, N_Vector* Y,
                              sunrealtype* dotprods)
 {
-  int i, retval;
+  int i;
   sunindextype j, N;
   sunrealtype* xd = NULL;
   sunrealtype* yd = NULL;
@@ -1164,7 +1164,6 @@ int N_VDotProdMultiLocal_Parallel(int nvec, N_Vector x, N_Vector* Y,
 
 int N_VDotProdMultiAllReduce_Parallel(int nvec, N_Vector x, sunrealtype* sum)
 {
-  int retval;
   MPI_Comm comm;
 
   SUNFunctionBegin(x->sunctx);
@@ -1370,7 +1369,6 @@ int N_VConstVectorArray_Parallel(int nvec, sunrealtype c, N_Vector* Z)
 int N_VWrmsNormVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
                                     sunrealtype* nrm)
 {
-  int i, retval;
   sunindextype j, Nl, Ng;
   sunrealtype* wd = NULL;
   sunrealtype* xd = NULL;
@@ -1394,7 +1392,7 @@ int N_VWrmsNormVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
   comm = NV_COMM_P(X[0]);
 
   /* compute the WRMS norm for each vector in the vector array */
-  for (i = 0; i < nvec; i++)
+  for (int i = 0; i < nvec; i++)
   {
     xd     = NV_DATA_P(X[i]);
     wd     = NV_DATA_P(W[i]);
@@ -1404,7 +1402,7 @@ int N_VWrmsNormVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
   SUNCheckMPICallNoRet(
     MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm));
 
-  for (i = 0; i < nvec; i++) { nrm[i] = SUNRsqrt(nrm[i] / Ng); }
+  for (int i = 0; i < nvec; i++) { nrm[i] = SUNRsqrt(nrm[i] / Ng); }
 
   return SUN_SUCCESS;
 }
@@ -1412,7 +1410,6 @@ int N_VWrmsNormVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
 int N_VWrmsNormMaskVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
                                         N_Vector id, sunrealtype* nrm)
 {
-  int i, retval;
   sunindextype j, Nl, Ng;
   sunrealtype* wd  = NULL;
   sunrealtype* xd  = NULL;
@@ -1438,7 +1435,7 @@ int N_VWrmsNormMaskVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
   idd  = NV_DATA_P(id);
 
   /* compute the WRMS norm for each vector in the vector array */
-  for (i = 0; i < nvec; i++)
+  for (int i = 0; i < nvec; i++)
   {
     xd     = NV_DATA_P(X[i]);
     wd     = NV_DATA_P(W[i]);
@@ -1451,7 +1448,7 @@ int N_VWrmsNormMaskVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
   SUNCheckMPICallNoRet(
     MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm));
 
-  for (i = 0; i < nvec; i++) { nrm[i] = SUNRsqrt(nrm[i] / Ng); }
+  for (int i = 0; i < nvec; i++) { nrm[i] = SUNRsqrt(nrm[i] / Ng); }
 
   return SUN_SUCCESS;
 }
@@ -1465,7 +1462,6 @@ int N_VScaleAddMultiVectorArray_Parallel(int nvec, int nsum, sunrealtype* a,
   sunrealtype* yd = NULL;
   sunrealtype* zd = NULL;
 
-  int retval;
   N_Vector* YY;
   N_Vector* ZZ;
 
@@ -1502,7 +1498,6 @@ int N_VScaleAddMultiVectorArray_Parallel(int nvec, int nsum, sunrealtype* a,
 
     free(YY);
     free(ZZ);
-    return (retval);
   }
 
   /* --------------------------
@@ -1510,11 +1505,7 @@ int N_VScaleAddMultiVectorArray_Parallel(int nvec, int nsum, sunrealtype* a,
    * -------------------------- */
 
   /* should have called N_VLinearSumVectorArray */
-  if (nsum == 1)
-  {
-    retval = N_VLinearSumVectorArray_Parallel(nvec, a[0], X, ONE, Y[0], Z[0]);
-    return (retval);
-  }
+  if (nsum == 1) {}
 
   /* ----------------------------
    * Compute multiple linear sums

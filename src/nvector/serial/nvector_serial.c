@@ -75,7 +75,7 @@ N_Vector N_VNewEmpty_Serial(sunindextype length, SUNContext sunctx)
   N_Vector v;
   N_VectorContent_Serial content;
 
-  SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(length > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   /* Create an empty vector object */
   v = NULL;
@@ -144,7 +144,7 @@ N_Vector N_VNewEmpty_Serial(sunindextype length, SUNContext sunctx)
   /* Create content */
   content = NULL;
   content = (N_VectorContent_Serial)malloc(sizeof *content);
-  SUNAssert(content, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach content */
   v->content = content;
@@ -167,7 +167,7 @@ N_Vector N_VNew_Serial(sunindextype length, SUNContext sunctx)
   N_Vector v;
   sunrealtype* data;
 
-  SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(length > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   v = NULL;
   v = N_VNewEmpty_Serial(length, sunctx);
@@ -176,7 +176,7 @@ N_Vector N_VNew_Serial(sunindextype length, SUNContext sunctx)
   /* Create data */
   data = NULL;
   data = (sunrealtype*)malloc(length * sizeof(sunrealtype));
-  SUNAssert(data, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(data, SUN_ERR_MALLOC_FAIL);
 
   /* Attach data */
   NV_OWN_DATA_S(v) = SUNTRUE;
@@ -195,7 +195,7 @@ N_Vector N_VMake_Serial(sunindextype length, sunrealtype* v_data,
   SUNFunctionBegin(sunctx);
   N_Vector v;
 
-  SUNAssert(length > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(length > 0, SUN_ERR_ARG_OUTOFRANGE);
 
   v = NULL;
   v = N_VNewEmpty_Serial(length, sunctx);
@@ -288,7 +288,7 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w)
   /* Create content */
   content = NULL;
   content = (N_VectorContent_Serial)malloc(sizeof *content);
-  SUNAssert(content, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach content */
   v->content = content;
@@ -317,7 +317,7 @@ N_Vector N_VClone_Serial(N_Vector w)
   /* Create data */
   data = NULL;
   data = (sunrealtype*)malloc(length * sizeof(sunrealtype));
-  SUNAssert(data, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(data, SUN_ERR_MALLOC_FAIL);
 
   /* Attach data */
   NV_OWN_DATA_S(v) = SUNTRUE;
