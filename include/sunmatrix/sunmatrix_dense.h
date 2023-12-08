@@ -34,7 +34,7 @@
 #include <stdio.h>
 #include <sundials/sundials_matrix.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -42,41 +42,43 @@ extern "C" {
  * Dense implementation of SUNMatrix
  * ---------------------------------- */
 
-struct _SUNMatrixContent_Dense {
+struct _SUNMatrixContent_Dense
+{
   sunindextype M;
   sunindextype N;
-  sunrealtype *data;
+  sunrealtype* data;
   sunindextype ldata;
-  sunrealtype **cols;
+  sunrealtype** cols;
 };
 
-typedef struct _SUNMatrixContent_Dense *SUNMatrixContent_Dense;
+typedef struct _SUNMatrixContent_Dense* SUNMatrixContent_Dense;
 
 /* ------------------------------------
  * Macros for access to SUNMATRIX_DENSE
  * ------------------------------------ */
 
-#define SM_CONTENT_D(A)     ( (SUNMatrixContent_Dense)(A->content) )
+#define SM_CONTENT_D(A) ((SUNMatrixContent_Dense)(A->content))
 
-#define SM_ROWS_D(A)        ( SM_CONTENT_D(A)->M )
+#define SM_ROWS_D(A) (SM_CONTENT_D(A)->M)
 
-#define SM_COLUMNS_D(A)     ( SM_CONTENT_D(A)->N )
+#define SM_COLUMNS_D(A) (SM_CONTENT_D(A)->N)
 
-#define SM_LDATA_D(A)       ( SM_CONTENT_D(A)->ldata )
+#define SM_LDATA_D(A) (SM_CONTENT_D(A)->ldata)
 
-#define SM_DATA_D(A)        ( SM_CONTENT_D(A)->data )
+#define SM_DATA_D(A) (SM_CONTENT_D(A)->data)
 
-#define SM_COLS_D(A)        ( SM_CONTENT_D(A)->cols )
+#define SM_COLS_D(A) (SM_CONTENT_D(A)->cols)
 
-#define SM_COLUMN_D(A,j)    ( (SM_CONTENT_D(A)->cols)[j] )
+#define SM_COLUMN_D(A, j) ((SM_CONTENT_D(A)->cols)[j])
 
-#define SM_ELEMENT_D(A,i,j) ( (SM_CONTENT_D(A)->cols)[j][i] )
+#define SM_ELEMENT_D(A, i, j) ((SM_CONTENT_D(A)->cols)[j][i])
 
 /* ---------------------------------------
  * Exported Functions for SUNMATRIX_DENSE
  * --------------------------------------- */
 
-SUNDIALS_EXPORT SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N, SUNContext sunctx);
+SUNDIALS_EXPORT SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N,
+                                         SUNContext sunctx);
 
 SUNDIALS_EXPORT void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile);
 
@@ -95,8 +97,8 @@ SUNDIALS_EXPORT int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd_Dense(sunrealtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI_Dense(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT int SUNMatSpace_Dense(SUNMatrix A, long int *lenrw, long int *leniw);
-
+SUNDIALS_EXPORT int SUNMatSpace_Dense(SUNMatrix A, long int* lenrw,
+                                      long int* leniw);
 
 #ifdef __cplusplus
 }

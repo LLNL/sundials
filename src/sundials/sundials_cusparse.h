@@ -18,17 +18,15 @@
  */
 
 #include <assert.h>
-#include <stdio.h>
-
 #include <cuda_runtime.h>
 #include <cusparse.h>
-
+#include <stdio.h>
 #include <sundials/sundials_types.h>
 
 #ifndef _SUNDIALS_CUSPARSE_H
 #define _SUNDIALS_CUSPARSE_H
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -36,19 +34,20 @@ extern "C" {
  * Utility macros
  * ---------------------------------------------------------------------------*/
 
-#define SUNDIALS_CUSPARSE_VERIFY(cuerr) SUNDIALS_CUSPARSE_Assert(cuerr, __FILE__, __LINE__)
+#define SUNDIALS_CUSPARSE_VERIFY(cuerr) \
+  SUNDIALS_CUSPARSE_Assert(cuerr, __FILE__, __LINE__)
 
 /* ---------------------------------------------------------------------------
  * Utility functions
  * ---------------------------------------------------------------------------*/
 
-inline sunbooleantype SUNDIALS_CUSPARSE_Assert(cusparseStatus_t status, const char *file, int line)
+inline sunbooleantype SUNDIALS_CUSPARSE_Assert(cusparseStatus_t status,
+                                               const char* file, int line)
 {
   if (status != CUSPARSE_STATUS_SUCCESS)
   {
 #ifdef SUNDIALS_DEBUG
-    fprintf(stderr,
-            "ERROR in cuSPARSE runtime operation: cusparseStatus_t = %d %s:%d\n",
+    fprintf(stderr, "ERROR in cuSPARSE runtime operation: cusparseStatus_t = %d %s:%d\n",
             status, file, line);
 #ifdef SUNDIALS_DEBUG_ASSERT
     assert(false);
@@ -59,7 +58,7 @@ inline sunbooleantype SUNDIALS_CUSPARSE_Assert(cusparseStatus_t status, const ch
   return SUNTRUE; /* Assert OK */
 }
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 }
 #endif
 

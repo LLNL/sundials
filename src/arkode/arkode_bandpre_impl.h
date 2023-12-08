@@ -18,10 +18,10 @@
 #define _ARKBANDPRE_IMPL_H
 
 #include <arkode/arkode_bandpre.h>
-#include <sunmatrix/sunmatrix_band.h>
 #include <sunlinsol/sunlinsol_band.h>
+#include <sunmatrix/sunmatrix_band.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -29,8 +29,8 @@ extern "C" {
  Type: ARKBandPrecData
 ---------------------------------------------------------------*/
 
-typedef struct ARKBandPrecDataRec {
-
+typedef struct ARKBandPrecDataRec
+{
   /* Data set by user in ARKBandPrecInit */
   sunindextype N;
   sunindextype ml, mu;
@@ -46,24 +46,25 @@ typedef struct ARKBandPrecDataRec {
   long int nfeBP;
 
   /* Pointer to arkode_mem */
-  void *arkode_mem;
+  void* arkode_mem;
 
-} *ARKBandPrecData;
-
+}* ARKBandPrecData;
 
 /*---------------------------------------------------------------
  ARKBANDPRE error messages
 ---------------------------------------------------------------*/
 
-#define MSG_BP_MEM_NULL       "Integrator memory is NULL."
-#define MSG_BP_LMEM_NULL      "Linear solver memory is NULL. The SPILS interface must be attached."
-#define MSG_BP_MEM_FAIL       "A memory request failed."
-#define MSG_BP_BAD_NVECTOR    "A required vector operation is not implemented."
-#define MSG_BP_SUNMAT_FAIL    "An error arose from a SUNBandMatrix routine."
-#define MSG_BP_SUNLS_FAIL     "An error arose from a SUNBandLinearSolver routine."
-#define MSG_BP_PMEM_NULL      "Band preconditioner memory is NULL. ARKBandPrecInit must be called."
-#define MSG_BP_RHSFUNC_FAILED "The right-hand side routine failed in an unrecoverable manner."
-
+#define MSG_BP_MEM_NULL "Integrator memory is NULL."
+#define MSG_BP_LMEM_NULL \
+  "Linear solver memory is NULL. The SPILS interface must be attached."
+#define MSG_BP_MEM_FAIL    "A memory request failed."
+#define MSG_BP_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSG_BP_SUNMAT_FAIL "An error arose from a SUNBandMatrix routine."
+#define MSG_BP_SUNLS_FAIL  "An error arose from a SUNBandLinearSolver routine."
+#define MSG_BP_PMEM_NULL \
+  "Band preconditioner memory is NULL. ARKBandPrecInit must be called."
+#define MSG_BP_RHSFUNC_FAILED \
+  "The right-hand side routine failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

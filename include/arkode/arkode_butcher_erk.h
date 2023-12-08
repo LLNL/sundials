@@ -19,13 +19,14 @@
 
 #include <arkode/arkode_butcher.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-typedef enum {
-  ARKODE_ERK_NONE = -1, /* ensure enum is signed int */
-  ARKODE_MIN_ERK_NUM = 0,
+typedef enum
+{
+  ARKODE_ERK_NONE         = -1, /* ensure enum is signed int */
+  ARKODE_MIN_ERK_NUM      = 0,
   ARKODE_HEUN_EULER_2_1_2 = ARKODE_MIN_ERK_NUM,
   ARKODE_BOGACKI_SHAMPINE_4_2_3,
   ARKODE_ARK324L2SA_ERK_4_2_3,
@@ -52,11 +53,11 @@ typedef enum {
 } ARKODE_ERKTableID;
 
 /* Accessor routine to load built-in ERK table */
-SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadERK(ARKODE_ERKTableID emethod);
+SUNDIALS_EXPORT ARKodeButcherTable
+ARKodeButcherTable_LoadERK(ARKODE_ERKTableID emethod);
 
-
-SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadERKByName(const char *emethod);
-
+SUNDIALS_EXPORT ARKodeButcherTable
+ARKodeButcherTable_LoadERKByName(const char* emethod);
 
 #ifdef __cplusplus
 }
