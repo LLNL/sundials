@@ -143,7 +143,8 @@ int IDACalcIC(void* ida_mem, int icopt, sunrealtype tout1)
 
   if (IDA_mem->ida_MallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_MALLOC, __LINE__, __func__, __FILE__, MSG_NO_MALLOC);
+    IDAProcessError(IDA_mem, IDA_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_NO_MALLOC);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_NO_MALLOC);
   }
@@ -162,7 +163,8 @@ int IDACalcIC(void* ida_mem, int icopt, sunrealtype tout1)
 
   if (icopt != IDA_YA_YDP_INIT && icopt != IDA_Y_INIT)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_IC_BAD_ICOPT);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_IC_BAD_ICOPT);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
   }
@@ -170,7 +172,8 @@ int IDACalcIC(void* ida_mem, int icopt, sunrealtype tout1)
 
   if (icopt == IDA_YA_YDP_INIT && (IDA_mem->ida_id == NULL))
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_IC_MISSING_ID);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_IC_MISSING_ID);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
   }
@@ -180,7 +183,8 @@ int IDACalcIC(void* ida_mem, int icopt, sunrealtype tout1)
               (SUNRabs(IDA_mem->ida_tn) + SUNRabs(tout1));
   if (tdist < troundoff)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_IC_TOO_CLOSE);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_IC_TOO_CLOSE);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
     return (IDA_ILL_INPUT);
   }
@@ -226,7 +230,8 @@ int IDACalcIC(void* ida_mem, int icopt, sunrealtype tout1)
     minid = N_VMin(IDA_mem->ida_id);
     if (minid < ZERO)
     {
-      IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__, MSG_IC_BAD_ID);
+      IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_IC_BAD_ID);
       SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
       return (IDA_ILL_INPUT);
     }
@@ -1379,43 +1384,53 @@ static int IDAICFailFlag(IDAMem IDA_mem, int retval)
   switch (retval)
   {
   case IDA_RES_FAIL:
-    IDAProcessError(IDA_mem, IDA_RES_FAIL, __LINE__, __func__, __FILE__, MSG_IC_RES_NONREC);
+    IDAProcessError(IDA_mem, IDA_RES_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_IC_RES_NONREC);
     return (IDA_RES_FAIL);
 
   case IDA_FIRST_RES_FAIL:
-    IDAProcessError(IDA_mem, IDA_FIRST_RES_FAIL, __LINE__, __func__, __FILE__, MSG_IC_RES_FAIL);
+    IDAProcessError(IDA_mem, IDA_FIRST_RES_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_IC_RES_FAIL);
     return (IDA_FIRST_RES_FAIL);
 
   case IDA_LSETUP_FAIL:
-    IDAProcessError(IDA_mem, IDA_LSETUP_FAIL, __LINE__, __func__, __FILE__, MSG_IC_SETUP_FAIL);
+    IDAProcessError(IDA_mem, IDA_LSETUP_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_IC_SETUP_FAIL);
     return (IDA_LSETUP_FAIL);
 
   case IDA_LSOLVE_FAIL:
-    IDAProcessError(IDA_mem, IDA_LSOLVE_FAIL, __LINE__, __func__, __FILE__, MSG_IC_SOLVE_FAIL);
+    IDAProcessError(IDA_mem, IDA_LSOLVE_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_IC_SOLVE_FAIL);
     return (IDA_LSOLVE_FAIL);
 
   case IC_FAIL_RECOV:
-    IDAProcessError(IDA_mem, IDA_NO_RECOVERY, __LINE__, __func__, __FILE__, MSG_IC_NO_RECOVERY);
+    IDAProcessError(IDA_mem, IDA_NO_RECOVERY, __LINE__, __func__, __FILE__,
+                    MSG_IC_NO_RECOVERY);
     return (IDA_NO_RECOVERY);
 
   case IC_CONSTR_FAILED:
-    IDAProcessError(IDA_mem, IDA_CONSTR_FAIL, __LINE__, __func__, __FILE__, MSG_IC_FAIL_CONSTR);
+    IDAProcessError(IDA_mem, IDA_CONSTR_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_IC_FAIL_CONSTR);
     return (IDA_CONSTR_FAIL);
 
   case IC_LINESRCH_FAILED:
-    IDAProcessError(IDA_mem, IDA_LINESEARCH_FAIL, __LINE__, __func__, __FILE__, MSG_IC_FAILED_LINS);
+    IDAProcessError(IDA_mem, IDA_LINESEARCH_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_IC_FAILED_LINS);
     return (IDA_LINESEARCH_FAIL);
 
   case IC_CONV_FAIL:
-    IDAProcessError(IDA_mem, IDA_CONV_FAIL, __LINE__, __func__, __FILE__, MSG_IC_CONV_FAILED);
+    IDAProcessError(IDA_mem, IDA_CONV_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_IC_CONV_FAILED);
     return (IDA_CONV_FAIL);
 
   case IC_SLOW_CONVRG:
-    IDAProcessError(IDA_mem, IDA_CONV_FAIL, __LINE__, __func__, __FILE__, MSG_IC_CONV_FAILED);
+    IDAProcessError(IDA_mem, IDA_CONV_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_IC_CONV_FAILED);
     return (IDA_CONV_FAIL);
 
   case IDA_BAD_EWT:
-    IDAProcessError(IDA_mem, IDA_BAD_EWT, __LINE__, __func__, __FILE__, MSG_IC_BAD_EWT);
+    IDAProcessError(IDA_mem, IDA_BAD_EWT, __LINE__, __func__, __FILE__,
+                    MSG_IC_BAD_EWT);
     return (IDA_BAD_EWT);
   }
   return -99;
