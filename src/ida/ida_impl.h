@@ -585,7 +585,7 @@ int idaNlsInit(IDAMem IDA_mem);
   "At " MSG_TIME "unable to satisfy inequality constraints."
 #define MSG_RTFUNC_FAILED                                                \
   "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable " \
-                 "manner."
+  "manner."
 #define MSG_NO_ROOT "Rootfinding was not initialized."
 #define MSG_INACTIVE_ROOTS                                             \
   "At the end of the first step, there are still some root functions " \

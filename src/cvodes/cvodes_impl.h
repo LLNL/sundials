@@ -1319,7 +1319,7 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
 #define MSGCV_TOO_MUCH_ACC "At " MSG_TIME ", too much accuracy requested."
 #define MSGCV_HNIL                                                         \
   "Internal " MSG_TIME_H " are such that t + h = t on the next step. The " \
-                         "solver will continue anyway."
+  "solver will continue anyway."
 #define MSGCV_ERR_FAILS \
   "At " MSG_TIME_H ", the error test failed repeatedly or with |h| = hmin."
 #define MSGCV_CONV_FAILS \
@@ -1336,14 +1336,14 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
   ", the right-hand side routine failed in an unrecoverable manner."
 #define MSGCV_RHSFUNC_UNREC                                                   \
   "At " MSG_TIME ", the right-hand side failed in a recoverable manner, but " \
-                 "no recovery is possible."
+  "no recovery is possible."
 #define MSGCV_RHSFUNC_REPTD \
   "At " MSG_TIME " repeated recoverable right-hand side function errors."
 #define MSGCV_RHSFUNC_FIRST \
   "The right-hand side routine failed at the first call."
 #define MSGCV_RTFUNC_FAILED                                              \
   "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable " \
-                 "manner."
+  "manner."
 #define MSGCV_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
 #define MSGCV_BAD_TSTOP                                      \
   "The value " MSG_TIME_TSTOP " is behind current " MSG_TIME \
@@ -1366,7 +1366,7 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
 #define MSG_CV_PROJ_MEM_NULL "proj_mem = NULL illegal."
 #define MSG_CV_PROJFUNC_FAIL                                              \
   "At " MSG_TIME " the projection function failed with an unrecoverable " \
-                 "error."
+  "error."
 #define MSG_CV_REPTD_PROJFUNC_ERR \
   "At " MSG_TIME " the projection function had repeated recoverable errors."
 
@@ -1377,10 +1377,10 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
   "At " MSG_TIME ", a component of ewtQ has become <= 0."
 #define MSGCV_QRHSFUNC_FAILED                                             \
   "At " MSG_TIME ", the quadrature right-hand side routine failed in an " \
-                 "unrecoverable manner."
+  "unrecoverable manner."
 #define MSGCV_QRHSFUNC_UNREC                                                 \
   "At " MSG_TIME ", the quadrature right-hand side failed in a recoverable " \
-                 "manner, but no recovery is possible."
+  "manner, but no recovery is possible."
 #define MSGCV_QRHSFUNC_REPTD \
   "At " MSG_TIME             \
   " repeated recoverable quadrature right-hand side function errors."
@@ -1396,10 +1396,10 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
   "At " MSG_TIME ", a component of ewtS has become <= 0."
 #define MSGCV_SRHSFUNC_FAILED                                              \
   "At " MSG_TIME ", the sensitivity right-hand side routine failed in an " \
-                 "unrecoverable manner."
+  "unrecoverable manner."
 #define MSGCV_SRHSFUNC_UNREC                                                  \
   "At " MSG_TIME ", the sensitivity right-hand side failed in a recoverable " \
-                 "manner, but no recovery is possible."
+  "manner, but no recovery is possible."
 #define MSGCV_SRHSFUNC_REPTD \
   "At " MSG_TIME             \
   " repeated recoverable sensitivity right-hand side function errors."
@@ -1418,13 +1418,13 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
   "At " MSG_TIME ", a component of ewtQS has become <= 0."
 #define MSGCV_QSRHSFUNC_FAILED                                           \
   "At " MSG_TIME ", the quadrature sensitivity right-hand side routine " \
-                 "failed in an unrecoverable manner."
+  "failed in an unrecoverable manner."
 #define MSGCV_QSRHSFUNC_UNREC                                                \
   "At " MSG_TIME ", the quadrature sensitivity right-hand side failed in a " \
-                 "recoverable manner, but no recovery is possible."
+  "recoverable manner, but no recovery is possible."
 #define MSGCV_QSRHSFUNC_REPTD                                               \
   "At " MSG_TIME " repeated recoverable quadrature sensitivity right-hand " \
-                 "side function errors."
+  "side function errors."
 #define MSGCV_QSRHSFUNC_FIRST                                               \
   "The quadrature sensitivity right-hand side routine failed at the first " \
   "call."
