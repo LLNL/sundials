@@ -375,8 +375,8 @@ int main(int argc, char* argv[])
                                      "ARKODE_ARK324L2SA_DIRK_4_2_3",
                                      "ARKODE_ARK436L2SA_DIRK_6_3_4",
                                      "ARKODE_ARK437L2SA_DIRK_7_3_4",
-                                     "ARKODE_ARK548L2SA_ERK_8_4_5",
-                                     "ARKODE_ARK548L2SAb_ERK_8_4_5"};
+                                     "ARKODE_ARK548L2SA_DIRK_8_4_5",
+                                     "ARKODE_ARK548L2SAb_DIRK_8_4_5"};
 
   for (int i = 0; i < 6; i++)
   {
