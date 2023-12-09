@@ -14,9 +14,15 @@
 #
 # Usage:
 #    ./format.sh <path to directory to format>
-# 
+#
 # We require clang-format 17.0.4. Other versions may produce different styles!
 # ---------------------------------------------------------------------------------
+
+if [ "$#" -ne 1 ]; then
+    echo "ERROR: One input required"
+    echo "1) Path to directory to format"
+    exit 1
+fi
 
 find $1 -iname '*.h' -o -iname '*.hpp' -o \
   -iname '*.c' -o -iname '*.cpp' -o \

@@ -17,10 +17,17 @@
 #
 # Usage:
 #    ./tidy_and_format.sh <path to directory to tidy and format> <path to builddir>
-# 
+#
 # We require clang-format and clang-tidy 17.0.4. Other versions may produce
 # different styles!
 # ---------------------------------------------------------------------------------
+
+if [ "$#" -ne 2 ]; then
+    echo "ERROR: Two inputs required"
+    echo "1) Path to directory to format"
+    echo "2) Path to build directory"
+    exit 1
+fi
 
 find $1 -iname '*.h' -o -iname '*.hpp' -o \
   -iname '*.c' -o -iname '*.cpp' -o \
