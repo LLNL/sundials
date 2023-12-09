@@ -79,7 +79,7 @@ struct ProblemData
 // Problem options
 struct ProblemOptions
 {
-  mass_matrix_type  m_type = mass_matrix_type::identity;
+  mass_matrix_type m_type = mass_matrix_type::identity;
 
   // Initial time
   sunrealtype t0 = ZERO;
@@ -125,13 +125,13 @@ int get_method_properties(ARKodeButcherTable Be, ARKodeButcherTable Bi,
                           int& stages, int& order, bool& explicit_first_stage,
                           bool& stiffly_accurate, bool& fsal);
 
-int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order, bool
-                       explicit_first_stage, bool stiffly_accurate, bool fsal,
-                       void* arkstep_mem, long int& nfe_expected, long int&
-                       nfi_expected);
+int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
+                       bool explicit_first_stage, bool stiffly_accurate,
+                       bool fsal, void* arkstep_mem, long int& nfe_expected,
+                       long int& nfi_expected);
 
-int check_rhs_evals(rk_type r_type, void* arkstep_mem,
-                    long int nfe_expected, long int nfi_expected);
+int check_rhs_evals(rk_type r_type, void* arkstep_mem, long int nfe_expected,
+                    long int nfi_expected);
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -200,18 +200,9 @@ int main(int argc, char* argv[])
   {
     std::cout << "  interp type  = Hermite\n";
   }
-  else
-  {
-    std::cout << "  interp type  = Lagrange\n";
-  }
-  if (prob_opts.p_type == 0)
-  {
-    std::cout << "  pred type    = Trivial (0)\n";
-  }
-  else
-  {
-    std::cout << "  pred type    = Max order (1)\n";
-  }
+  else { std::cout << "  interp type  = Lagrange\n"; }
+  if (prob_opts.p_type == 0) { std::cout << "  pred type    = Trivial (0)\n"; }
+  else { std::cout << "  pred type    = Max order (1)\n"; }
 
   // Create SUNDIALS context
   sundials::Context sunctx;
@@ -542,10 +533,7 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     if (check_flag((void*)MLS, "SUNLinSol_Dense", 0)) { return 1; }
 
     int time_dep = 0;
-    if (prob_data.m_type == mass_matrix_type::time_dependent)
-    {
-      time_dep = 1;
-    }
+    if (prob_data.m_type == mass_matrix_type::time_dependent) { time_dep = 1; }
 
     flag = ARKStepSetMassLinearSolver(arkstep_mem, MLS, M, time_dep);
     if (check_flag(&flag, "ARKStepSetMassLinearSolver", 1)) { return 1; }
@@ -576,11 +564,12 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
 
     // Check statistics
     flag = expected_rhs_evals(prob_opts, stages, order, explicit_first_stage,
-                              stiffly_accurate, fsal, arkstep_mem,nfe_expected,
+                              stiffly_accurate, fsal, arkstep_mem, nfe_expected,
                               nfi_expected);
     if (check_flag(&flag, "expected_rhs_evals", 1)) { return 1; }
 
-    numfails += check_rhs_evals(prob_opts.r_type, arkstep_mem, nfe_expected, nfi_expected);
+    numfails += check_rhs_evals(prob_opts.r_type, arkstep_mem, nfe_expected,
+                                nfi_expected);
 
     if (numfails)
     {
@@ -746,10 +735,10 @@ int get_method_properties(ARKodeButcherTable Be, ARKodeButcherTable Bi,
   return 0;
 }
 
-int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order, bool
-                       explicit_first_stage, bool stiffly_accurate, bool fsal,
-                       void* arkstep_mem, long int& nfe_expected, long int&
-                       nfi_expected)
+int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
+                       bool explicit_first_stage, bool stiffly_accurate,
+                       bool fsal, void* arkstep_mem, long int& nfe_expected,
+                       long int& nfi_expected)
 {
   int flag = 0;
 
@@ -779,10 +768,7 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order, bool
       // Save one function evaluation after first step
       nfe_expected += stages + (stages - 1) * (nst - 1);
     }
-    else
-    {
-      nfe_expected += stages * nst;
-    }
+    else { nfe_expected += stages * nst; }
 
     if (prob_opts.i_type == interp_type::hermite && !explicit_first_stage)
     {
@@ -809,10 +795,7 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order, bool
       // Save one function evaluation after first step
       nfi_expected += stages + (stages - 1) * (nst - 1) + nni;
     }
-    else
-    {
-      nfi_expected += stages * nst + nni;
-    }
+    else { nfi_expected += stages * nst + nni; }
 
     if (prob_opts.i_type == interp_type::hermite && !explicit_first_stage)
     {
@@ -839,8 +822,8 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order, bool
   return 0;
 }
 
-int check_rhs_evals(rk_type r_type, void* arkstep_mem,
-                    long int nfe_expected, long int nfi_expected)
+int check_rhs_evals(rk_type r_type, void* arkstep_mem, long int nfe_expected,
+                    long int nfi_expected)
 {
   int flag = 0;
 
@@ -887,10 +870,7 @@ int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
   yd_data[0] = prob_data->lambda_e * y_data[0];
 
-  if (prob_data->m_type == mass_matrix_type::fixed)
-  {
-    yd_data[0] *= TWO;
-  }
+  if (prob_data->m_type == mass_matrix_type::fixed) { yd_data[0] *= TWO; }
   else if (prob_data->m_type == mass_matrix_type::time_dependent)
   {
     yd_data[0] *= TWO + std::cos(t);
@@ -908,10 +888,7 @@ int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
   yd_data[0] = prob_data->lambda_i * y_data[0];
 
-  if (prob_data->m_type == mass_matrix_type::fixed)
-  {
-    yd_data[0] *= TWO;
-  }
+  if (prob_data->m_type == mass_matrix_type::fixed) { yd_data[0] *= TWO; }
   else if (prob_data->m_type == mass_matrix_type::time_dependent)
   {
     yd_data[0] *= TWO + std::cos(t);
@@ -938,14 +915,8 @@ int MassMatrix(sunrealtype t, SUNMatrix M, void* user_data, N_Vector tmp1,
   sunrealtype* M_data    = SUNDenseMatrix_Data(M);
   ProblemData* prob_data = static_cast<ProblemData*>(user_data);
 
-  if (prob_data->m_type == mass_matrix_type::fixed)
-  {
-    M_data[0] = TWO;
-  }
-  else
-  {
-    M_data[0] = TWO + std::cos(t);
-  }
+  if (prob_data->m_type == mass_matrix_type::fixed) { M_data[0] = TWO; }
+  else { M_data[0] = TWO + std::cos(t); }
 
   return 0;
 }
