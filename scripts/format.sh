@@ -24,6 +24,6 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
-find $1 -iname '*.h' -o -iname '*.hpp' -o \
+find "$1" -iname '*.h' -o -iname '*.hpp' -o \
   -iname '*.c' -o -iname '*.cpp' -o \
   -iname '*.cuh' -o -iname '*.cu' | grep -v fmod | xargs clang-format -i
