@@ -71,9 +71,9 @@ enum class interp_type
 // Problem parameters
 struct ProblemData
 {
-  sunrealtype lambda_e = NEG_ONE;
-  sunrealtype lambda_i = NEG_ONE;
-  prob_type p_type     = prob_type::identity;
+  sunrealtype lambda_e    = NEG_ONE;
+  sunrealtype lambda_i    = NEG_ONE;
+  mass_matrix_type m_type = mass_matrix_type::identity;
 };
 
 // Problem options
