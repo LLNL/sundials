@@ -927,7 +927,7 @@ sunbooleantype N_VConstrMask_OpenMP(N_Vector c, N_Vector x, N_Vector m)
 
 #pragma omp parallel for default(none) private(i, test) \
   shared(N, xd, cd, md, temp) schedule(static)          \
-    num_threads(NV_NUM_THREADS_OMP(x))
+  num_threads(NV_NUM_THREADS_OMP(x))
   for (i = 0; i < N; i++)
   {
     md[i] = ZERO;
