@@ -22,11 +22,11 @@
 #ifndef _SUNNONLINSOL_FIXEDPOINT_H
 #define _SUNNONLINSOL_FIXEDPOINT_H
 
-#include "sundials/sundials_types.h"
-#include "sundials/sundials_nvector.h"
 #include "sundials/sundials_nonlinearsolver.h"
+#include "sundials/sundials_nvector.h"
+#include "sundials/sundials_types.h"
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -34,34 +34,34 @@ extern "C" {
   I. Content structure
   ---------------------------------------------------------------------------*/
 
-struct _SUNNonlinearSolverContent_FixedPoint {
-
+struct _SUNNonlinearSolverContent_FixedPoint
+{
   /* functions provided by the integrator */
-  SUNNonlinSolSysFn      Sys;    /* fixed-point iteration function */
-  SUNNonlinSolConvTestFn CTest;  /* convergence test function      */
+  SUNNonlinSolSysFn Sys;        /* fixed-point iteration function */
+  SUNNonlinSolConvTestFn CTest; /* convergence test function      */
 
   /* nonlinear solver variables */
-  int          m;          /* number of acceleration vectors to use          */
-  int         *imap;       /* array of length m                              */
-  sunbooleantype  damping;    /* flag to apply dampling in acceleration         */
-  sunrealtype     beta;       /* damping paramter                               */
-  sunrealtype    *R;          /* array of length m*m                            */
-  sunrealtype    *gamma;      /* array of length m                              */
-  sunrealtype    *cvals;      /* array of length m+1 for fused vector op        */
-  N_Vector    *df;         /* vector array of length m                       */
-  N_Vector    *dg;         /* vector array of length m                       */
-  N_Vector    *q;          /* vector array of length m                       */
-  N_Vector    *Xvecs;      /* array of length m+1 for fused vector op        */
-  N_Vector     yprev;      /* temporary vectors for performing solve         */
-  N_Vector     gy;
-  N_Vector     fold;
-  N_Vector     gold;
-  N_Vector     delta;      /* correction vector (change between 2 iterates)  */
-  int          curiter;    /* current iteration number in a solve attempt    */
-  int          maxiters;   /* maximum number of iterations per solve attempt */
-  long int     niters;     /* total number of iterations across all solves   */
-  long int     nconvfails; /* total number of convergence failures           */
-  void        *ctest_data; /* data to pass to convergence test function      */
+  int m;                  /* number of acceleration vectors to use          */
+  int* imap;              /* array of length m                              */
+  sunbooleantype damping; /* flag to apply dampling in acceleration         */
+  sunrealtype beta;       /* damping paramter                               */
+  sunrealtype* R;         /* array of length m*m                            */
+  sunrealtype* gamma;     /* array of length m                              */
+  sunrealtype* cvals;     /* array of length m+1 for fused vector op        */
+  N_Vector* df;           /* vector array of length m                       */
+  N_Vector* dg;           /* vector array of length m                       */
+  N_Vector* q;            /* vector array of length m                       */
+  N_Vector* Xvecs;        /* array of length m+1 for fused vector op        */
+  N_Vector yprev;         /* temporary vectors for performing solve         */
+  N_Vector gy;
+  N_Vector fold;
+  N_Vector gold;
+  N_Vector delta;      /* correction vector (change between 2 iterates)  */
+  int curiter;         /* current iteration number in a solve attempt    */
+  int maxiters;        /* maximum number of iterations per solve attempt */
+  long int niters;     /* total number of iterations across all solves   */
+  long int nconvfails; /* total number of convergence failures           */
+  void* ctest_data;    /* data to pass to convergence test function      */
 
   /* if 0 (default) nothing is printed, if 1 the residual is printed every iteration */
   int print_level;
@@ -69,7 +69,7 @@ struct _SUNNonlinearSolverContent_FixedPoint {
   FILE* info_file;
 };
 
-typedef struct _SUNNonlinearSolverContent_FixedPoint *SUNNonlinearSolverContent_FixedPoint;
+typedef struct _SUNNonlinearSolverContent_FixedPoint* SUNNonlinearSolverContent_FixedPoint;
 
 /* -----------------------------------------------------------------------------
    II: Exported functions
@@ -84,14 +84,16 @@ SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m,
                                                SUNContext sunctx);
 
 /* core functions */
-SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType_FixedPoint(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT SUNNonlinearSolver_Type
+SUNNonlinSolGetType_FixedPoint(SUNNonlinearSolver NLS);
 
 SUNDIALS_EXPORT int SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS);
 
 SUNDIALS_EXPORT int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
                                                  N_Vector y0, N_Vector y,
                                                  N_Vector w, sunrealtype tol,
-                                                 sunbooleantype callSetup, void *mem);
+                                                 sunbooleantype callSetup,
+                                                 void* mem);
 
 SUNDIALS_EXPORT int SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS);
 
@@ -99,9 +101,8 @@ SUNDIALS_EXPORT int SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS);
 SUNDIALS_EXPORT int SUNNonlinSolSetSysFn_FixedPoint(SUNNonlinearSolver NLS,
                                                     SUNNonlinSolSysFn SysFn);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS,
-                                                         SUNNonlinSolConvTestFn CTestFn,
-                                                         void* ctest_data);
+SUNDIALS_EXPORT int SUNNonlinSolSetConvTestFn_FixedPoint(
+  SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn, void* ctest_data);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver NLS,
                                                        int maxiters);
@@ -111,16 +112,16 @@ SUNDIALS_EXPORT int SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS,
 
 /* get functions */
 SUNDIALS_EXPORT int SUNNonlinSolGetNumIters_FixedPoint(SUNNonlinearSolver NLS,
-                                                       long int *niters);
+                                                       long int* niters);
 
 SUNDIALS_EXPORT int SUNNonlinSolGetCurIter_FixedPoint(SUNNonlinearSolver NLS,
-                                                      int *iter);
+                                                      int* iter);
 
 SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails_FixedPoint(SUNNonlinearSolver NLS,
-                                                           long int *nconvfails);
+                                                           long int* nconvfails);
 
 SUNDIALS_EXPORT int SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS,
-                                                    SUNNonlinSolSysFn *SysFn);
+                                                    SUNNonlinSolSysFn* SysFn);
 
 #ifdef __cplusplus
 }

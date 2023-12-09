@@ -56,15 +56,14 @@
  * of the command line flags.
  * ---------------------------------------------------------------------------*/
 
+#include <cvode/cvode.h> /* access to CVODE                 */
+#include <math.h>
+#include <nvector/nvector_serial.h> /* access to serial N_Vector       */
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-#include <math.h>
-
-#include <cvode/cvode.h>               /* access to CVODE                 */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
-#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNmatrix       */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNmatrix       */
 
 /* Precision specific formatting macros */
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -79,46 +78,47 @@
 
 /* Precision specific math function macros */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SIN(x)   (sin((x)))
-#define COS(x)   (cos((x)))
-#define SQRT(x)  (sqrt((x)))
-#define ABS(x)   (fabs((x)))
+#define SIN(x)  (sin((x)))
+#define COS(x)  (cos((x)))
+#define SQRT(x) (sqrt((x)))
+#define ABS(x)  (fabs((x)))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SIN(x)   (sinf((x)))
-#define COS(x)   (cosf((x)))
-#define SQRT(x)  (sqrtf((x)))
-#define ABS(x)   (fabsf((x)))
+#define SIN(x)  (sinf((x)))
+#define COS(x)  (cosf((x)))
+#define SQRT(x) (sqrtf((x)))
+#define ABS(x)  (fabsf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SIN(x)   (sinl((x)))
-#define COS(x)   (cosl((x)))
-#define SQRT(x)  (sqrtl((x)))
-#define ABS(x)   (fabsl((x)))
+#define SIN(x)  (sinl((x)))
+#define COS(x)  (cosl((x)))
+#define SQRT(x) (sqrtl((x)))
+#define ABS(x)  (fabsl((x)))
 #endif
 
 /* Problem Constants */
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
-#define GRAV  SUN_RCONST(13.750371636040745654980191559621114395801712)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define GRAV SUN_RCONST(13.750371636040745654980191559621114395801712)
 
 /* Functions provided to CVODE */
-static int fref(sunrealtype t, N_Vector yy, N_Vector fy, void *f_data);
+static int fref(sunrealtype t, N_Vector yy, N_Vector fy, void* f_data);
 
-static int f(sunrealtype t, N_Vector yy, N_Vector fy, void *f_data);
-static int proj(sunrealtype t, N_Vector yy, N_Vector corr,
-                sunrealtype epsProj, N_Vector err, void *pdata);
+static int f(sunrealtype t, N_Vector yy, N_Vector fy, void* f_data);
+static int proj(sunrealtype t, N_Vector yy, N_Vector corr, sunrealtype epsProj,
+                N_Vector err, void* pdata);
 
 /* Functions to integrate the Cartesian and reference solutions */
-int GetSol(void *cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
-           sunrealtype tf, int nout, sunbooleantype proj, sunbooleantype projerr,
-           N_Vector yref);
+int GetSol(void* cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
+           sunrealtype tf, int nout, sunbooleantype proj,
+           sunbooleantype projerr, N_Vector yref);
 
 int RefSol(sunrealtype tf, N_Vector yref, int nout);
 
 /* Utility functions */
-static int ReadInputs(int *argc, char ***argv, sunrealtype *rtol, sunrealtype *atol,
-                      sunrealtype *tf, int *nout, sunbooleantype *projerr);
-static void InputHelp();
-static int check_retval(void *returnvalue, const char *funcname, int opt);
+static int ReadInputs(int* argc, char*** argv, sunrealtype* rtol,
+                      sunrealtype* atol, sunrealtype* tf, int* nout,
+                      sunbooleantype* projerr);
+static void InputHelp(void);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /* SUNDIALS context */
 static SUNContext sunctx = NULL;
@@ -129,38 +129,38 @@ static SUNContext sunctx = NULL;
 
 int main(int argc, char* argv[])
 {
-  int         i;
-  int         retval;                   /* reusable return flag    */
-  int         nout    = 1;              /* number of outputs       */
-  sunrealtype    rtol    = SUN_RCONST(1.0e-5); /* base relative tolerance */
-  sunrealtype    atol    = SUN_RCONST(1.0e-5); /* base absolute tolerance */
-  sunrealtype    tf      = SUN_RCONST(30.0);   /* final integration time  */
-  sunbooleantype projerr = SUNTRUE;        /* enable error projection */
+  int i;
+  int retval;                                  /* reusable return flag    */
+  int nout               = 1;                  /* number of outputs       */
+  sunrealtype rtol       = SUN_RCONST(1.0e-5); /* base relative tolerance */
+  sunrealtype atol       = SUN_RCONST(1.0e-5); /* base absolute tolerance */
+  sunrealtype tf         = SUN_RCONST(30.0);   /* final integration time  */
+  sunbooleantype projerr = SUNTRUE;            /* enable error projection */
 
-  void            *cvode_mem = NULL; /* CVODE memory              */
-  N_Vector         yy0       = NULL; /* initial condition vector  */
-  sunrealtype        *yy0data   = NULL; /* vector data               */
-  N_Vector         yref      = NULL; /* reference solution vector */
-  SUNMatrix        A         = NULL; /* Jacobian matrix           */
-  SUNLinearSolver  LS        = NULL; /* linear solver             */
+  void* cvode_mem      = NULL; /* CVODE memory              */
+  N_Vector yy0         = NULL; /* initial condition vector  */
+  sunrealtype* yy0data = NULL; /* vector data               */
+  N_Vector yref        = NULL; /* reference solution vector */
+  SUNMatrix A          = NULL; /* Jacobian matrix           */
+  SUNLinearSolver LS   = NULL; /* linear solver             */
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
   /* Read command line inputs */
   retval = ReadInputs(&argc, &argv, &rtol, &atol, &tf, &nout, &projerr);
-  if (check_retval(&retval, "ReadInputs", 1)) return(1);
+  if (check_retval(&retval, "ReadInputs", 1)) { return (1); }
 
   /* Compute reference solution */
   yref = N_VNew_Serial(4, sunctx);
 
   retval = RefSol(tf, yref, nout);
-  if (check_retval(&retval, "RefSol", 1)) return(1);
+  if (check_retval(&retval, "RefSol", 1)) { return (1); }
 
   /* Create serial vector to store the initial condition */
   yy0 = N_VNew_Serial(4, sunctx);
-  if (check_retval((void *)yy0, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)yy0, "N_VNew_Serial", 0)) { return (1); }
 
   /* Set the initial condition values */
   yy0data = N_VGetArrayPointer(yy0);
@@ -172,48 +172,49 @@ int main(int argc, char* argv[])
 
   /* Create CVODE memory */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   /* Initialize CVODE */
   retval = CVodeInit(cvode_mem, f, ZERO, yy0);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(4, 4, sunctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void*)A, "SUNDenseMatrix", 0)) { return (1); }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy0, A, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void*)LS, "SUNLinSol_Dense", 0)) { return (1); }
 
   /* Attach the matrix and linear solver to CVODE */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return (1); }
 
   /* Set a user-supplied projection function */
   retval = CVodeSetProjFn(cvode_mem, proj);
-  if(check_retval(&retval, "CVodeSetProjFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetProjFn", 1)) { return (1); }
 
   /* Set maximum number of steps between outputs */
   retval = CVodeSetMaxNumSteps(cvode_mem, 50000);
-  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) { return (1); }
 
   /* Compute the solution with various tolerances */
-  for (i = 0; i < 5; i++) {
-
+  for (i = 0; i < 5; i++)
+  {
     /* Output tolerance and output header for this run */
-    printf("\n\nrtol = %8.2" ESYM", atol = %8.2" ESYM"\n", rtol, atol);
+    printf("\n\nrtol = %8.2" ESYM ", atol = %8.2" ESYM "\n", rtol, atol);
     printf("Project    x         y");
     printf("         x'        y'     |     g      |    ");
     printf("nst     rhs eval    setups (J eval)  |   cf   ef\n");
 
     /* Compute solution with projection */
     retval = GetSol(cvode_mem, yy0, rtol, atol, tf, nout, SUNTRUE, projerr, yref);
-    if (check_retval(&retval, "GetSol", 1)) return(1);
+    if (check_retval(&retval, "GetSol", 1)) { return (1); }
 
     /* Compute solution without projection */
-    retval = GetSol(cvode_mem, yy0, rtol, atol, tf, nout, SUNFALSE, SUNFALSE, yref);
-    if (check_retval(&retval, "GetSol", 1)) return(1);
+    retval = GetSol(cvode_mem, yy0, rtol, atol, tf, nout, SUNFALSE, SUNFALSE,
+                    yref);
+    if (check_retval(&retval, "GetSol", 1)) { return (1); }
 
     /* Reduce tolerance for next run */
     rtol /= SUN_RCONST(10.0);
@@ -228,27 +229,25 @@ int main(int argc, char* argv[])
   CVodeFree(&cvode_mem);
   SUNContext_Free(&sunctx);
 
-  return(0);
+  return (0);
 }
-
 
 /* -----------------------------------------------------------------------------
  * Functions to integrate the Cartesian and reference systems
  * ---------------------------------------------------------------------------*/
 
-
 /* Compute the Cartesian system solution */
-int GetSol(void *cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
-           sunrealtype tf, int nout, sunbooleantype proj, sunbooleantype projerr,
-           N_Vector yref)
+int GetSol(void* cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
+           sunrealtype tf, int nout, sunbooleantype proj,
+           sunbooleantype projerr, N_Vector yref)
 {
-  char      outname[100];  /* output file name */
-  FILE     *FID    = NULL; /* output file      */
-  N_Vector  yy     = NULL; /* solution vector  */
-  sunrealtype *yydata = NULL; /* vector data      */
+  char outname[100];          /* output file name */
+  FILE* FID           = NULL; /* output file      */
+  N_Vector yy         = NULL; /* solution vector  */
+  sunrealtype* yydata = NULL; /* vector data      */
 
-  int      retval; /* reusable return flag */
-  int      out;    /* output counter       */
+  int retval;         /* reusable return flag */
+  int out;            /* output counter       */
   sunrealtype dtout;  /* output frequency     */
   sunrealtype tout;   /* output time          */
   sunrealtype t;      /* return time          */
@@ -264,16 +263,16 @@ int GetSol(void *cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
   {
     printf("  YES   ");
     retval = CVodeSetProjFrequency(cvode_mem, 1);
-    if(check_retval(&retval, "CVodeSetProjFrequency", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetProjFrequency", 1)) { return (1); }
 
     /* Enable or disable error projection */
     retval = CVodeSetProjErrEst(cvode_mem, projerr);
-    if(check_retval(&retval, "CVodeSetProjErrEst", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetProjErrEst", 1)) { return (1); }
   }
   else
   {
     retval = CVodeSetProjFrequency(cvode_mem, 0);
-    if(check_retval(&retval, "CVodeSetProjFrequency", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetProjFrequency", 1)) { return (1); }
     printf("  NO    ");
   }
 
@@ -291,7 +290,7 @@ int GetSol(void *cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
   if (check_retval(&retval, "CVodeReInit", 1))
   {
     N_VDestroy_Serial(yy);
-    return(retval);
+    return (retval);
   }
 
   /* Set integration tolerances for this run */
@@ -299,27 +298,27 @@ int GetSol(void *cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
   if (check_retval(&retval, "CVodeSStolerances", 1))
   {
     N_VDestroy_Serial(yy);
-    return(retval);
+    return (retval);
   }
 
   /* Open output file */
   if (proj)
   {
     sprintf(outname,
-            "cvPendulum_dns_rtol_%03.2" ESYM"_atol_%03.2" ESYM"_proj.txt",
+            "cvPendulum_dns_rtol_%03.2" ESYM "_atol_%03.2" ESYM "_proj.txt",
             rtol, atol);
   }
   else
   {
-    sprintf(outname,
-            "cvPendulum_dns_rtol_%03.2" ESYM"_atol_%03.2" ESYM".txt",
+    sprintf(outname, "cvPendulum_dns_rtol_%03.2" ESYM "_atol_%03.2" ESYM ".txt",
             rtol, atol);
   }
   FID = fopen(outname, "w");
 
   /* Output initial condition */
   fprintf(FID,
-          "%24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM"\n",
+          "%24.16" ESYM " %24.16" ESYM " %24.16" ESYM " %24.16" ESYM
+          " %24.16" ESYM "\n",
           ZERO, yydata[0], yydata[1], yydata[2], yydata[3]);
 
   /* Integrate to tf and peridoically output the solution */
@@ -334,7 +333,7 @@ int GetSol(void *cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
     {
       N_VDestroy_Serial(yy);
       fclose(FID);
-      return(retval);
+      return (retval);
     }
 
     /* Integrate to tout */
@@ -343,23 +342,18 @@ int GetSol(void *cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
     {
       N_VDestroy_Serial(yy);
       fclose(FID);
-      return(retval);
+      return (retval);
     }
 
     /* Write output */
     fprintf(FID,
-            "%24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM"\n",
+            "%24.16" ESYM " %24.16" ESYM " %24.16" ESYM " %24.16" ESYM
+            " %24.16" ESYM "\n",
             t, yydata[0], yydata[1], yydata[2], yydata[3]);
 
     /* Update output time */
-    if (out < nout - 1)
-    {
-      tout += dtout;
-    }
-    else
-    {
-      tout = tf;
-    }
+    if (out < nout - 1) { tout += dtout; }
+    else { tout = tf; }
   }
 
   /* Close output file */
@@ -368,7 +362,7 @@ int GetSol(void *cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
   /* Compute the constraint violation */
   x = yydata[0];
   y = yydata[1];
-  g = ABS(x*x + y*y - ONE);
+  g = ABS(x * x + y * y - ONE);
 
   /* Compute the absolute error compared to the reference solution */
   N_VLinearSum(ONE, yy, -ONE, yref, yy);
@@ -380,7 +374,8 @@ int GetSol(void *cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
   yd = yydata[3];
 
   /* Output errors */
-  printf("%8.2" ESYM"  %8.2" ESYM"  %8.2" ESYM"  %8.2" ESYM"  |  %8.2" ESYM"  |",
+  printf("%8.2" ESYM "  %8.2" ESYM "  %8.2" ESYM "  %8.2" ESYM "  |  %8.2" ESYM
+         "  |",
          x, y, xd, yd, g);
 
   /* Free solution vector */
@@ -388,55 +383,57 @@ int GetSol(void *cvode_mem, N_Vector yy0, sunrealtype rtol, sunrealtype atol,
 
   /* Get integrator stats */
   retval = CVodeGetNumSteps(cvode_mem, &nst);
-  if (check_retval(&retval, "CVodeGetNumSteps", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumSteps", 1)) { return (retval); }
 
   retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  if (check_retval(&retval, "CVodeGetNumFctEvals", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumFctEvals", 1)) { return (retval); }
 
   retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  if (check_retval(&retval, "CVodeGetNumLinSolvSetups", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumLinSolvSetups", 1)) { return (retval); }
 
   retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  if (check_retval(&retval, "CVodeGetNumErrTestFails", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumErrTestFails", 1)) { return (retval); }
 
   retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  if (check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1))
+  {
+    return (retval);
+  }
 
   retval = CVodeGetNumJacEvals(cvode_mem, &nje);
-  if (check_retval(&retval, "CVodeGetNumJacEvals", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumJacEvals", 1)) { return (retval); }
 
   retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
-  if (check_retval(&retval, "CVodeGetNumLinRhsEvals", 1)) return(retval);
+  if (check_retval(&retval, "CVodeGetNumLinRhsEvals", 1)) { return (retval); }
 
   /* Output stats */
-  printf(" %6ld   %6ld+%-4ld     %4ld (%3ld)     |  %3ld  %3ld\n",
-         nst, nfe, nfeLS, nsetups, nje, ncfn, netf);
+  printf(" %6ld   %6ld+%-4ld     %4ld (%3ld)     |  %3ld  %3ld\n", nst, nfe,
+         nfeLS, nsetups, nje, ncfn, netf);
 
-  return(0);
+  return (0);
 }
-
 
 /* Compute the reference system solution */
 int RefSol(sunrealtype tf, N_Vector yref, int nout)
 {
-  FILE            *FID       = NULL; /* output file     */
-  void            *cvode_mem = NULL; /* CVODE memory    */
-  N_Vector         yy        = NULL; /* solution vector */
-  sunrealtype        *yydata    = NULL; /* vector data     */
-  SUNMatrix        A         = NULL; /* Jacobian matrix */
-  SUNLinearSolver  LS        = NULL; /* linear solver   */
+  FILE* FID           = NULL; /* output file     */
+  void* cvode_mem     = NULL; /* CVODE memory    */
+  N_Vector yy         = NULL; /* solution vector */
+  sunrealtype* yydata = NULL; /* vector data     */
+  SUNMatrix A         = NULL; /* Jacobian matrix */
+  SUNLinearSolver LS  = NULL; /* linear solver   */
 
-  int      retval;                /* reusable return flag  */
-  int      out;                   /* output counter        */
-  sunrealtype dtout;                 /* output frequency      */
-  sunrealtype tout;                  /* output time           */
-  sunrealtype t;                     /* return time           */
-  sunrealtype th, thd;               /* theta and theta dot   */
+  int retval;                            /* reusable return flag  */
+  int out;                               /* output counter        */
+  sunrealtype dtout;                     /* output frequency      */
+  sunrealtype tout;                      /* output time           */
+  sunrealtype t;                         /* return time           */
+  sunrealtype th, thd;                   /* theta and theta dot   */
   sunrealtype tol = SUN_RCONST(1.0e-14); /* integration tolerance */
 
   /* Create the solution vector */
   yy = N_VNew_Serial(2, sunctx);
-  if (check_retval((void *)yy, "N_VNew_Serial", 0)) return(-1);
+  if (check_retval((void*)yy, "N_VNew_Serial", 0)) { return (-1); }
 
   /* Set the initial condition */
   yydata = N_VGetArrayPointer(yy);
@@ -446,34 +443,34 @@ int RefSol(sunrealtype tf, N_Vector yref, int nout)
 
   /* Create CVODE memory */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   /* Initialize CVODE */
   retval = CVodeInit(cvode_mem, fref, ZERO, yy);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
 
   /* Set integration tolerances */
   retval = CVodeSStolerances(cvode_mem, tol, tol);
-  if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) { return (1); }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(2, 2, sunctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void*)A, "SUNDenseMatrix", 0)) { return (1); }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(yy, A, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void*)LS, "SUNLinSol_Dense", 0)) { return (1); }
 
   /* Attach the matrix and linear solver to CVODE */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return (1); }
 
   /* Set CVODE optional inputs */
   retval = CVodeSetMaxNumSteps(cvode_mem, 100000);
-  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) { return (1); }
 
   retval = CVodeSetStopTime(cvode_mem, tf);
-  if (check_retval(&retval, "CVodeSetStopTime", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetStopTime", 1)) { return (1); }
 
   /* Open output file */
   FID = fopen("cvPendulum_dns_ref.txt", "w");
@@ -482,7 +479,8 @@ int RefSol(sunrealtype tf, N_Vector yref, int nout)
   th  = yydata[0];
   thd = yydata[1];
   fprintf(FID,
-          "%24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM"\n",
+          "%24.16" ESYM " %24.16" ESYM " %24.16" ESYM " %24.16" ESYM
+          " %24.16" ESYM "\n",
           ZERO, COS(th), SIN(th), -thd * SIN(th), thd * COS(th));
 
   /* Integrate to tf and periodically output the solution */
@@ -500,7 +498,7 @@ int RefSol(sunrealtype tf, N_Vector yref, int nout)
       SUNLinSolFree(LS);
       CVodeFree(&cvode_mem);
       fclose(FID);
-      return(retval);
+      return (retval);
     }
 
     /* Integrate to tout */
@@ -512,25 +510,20 @@ int RefSol(sunrealtype tf, N_Vector yref, int nout)
       SUNLinSolFree(LS);
       CVodeFree(&cvode_mem);
       fclose(FID);
-      return(retval);
+      return (retval);
     }
 
     /* Write output */
     th  = yydata[0];
     thd = yydata[1];
     fprintf(FID,
-            "%24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM" %24.16" ESYM"\n",
+            "%24.16" ESYM " %24.16" ESYM " %24.16" ESYM " %24.16" ESYM
+            " %24.16" ESYM "\n",
             t, COS(th), SIN(th), -thd * SIN(th), thd * COS(th));
 
     /* Update output time */
-    if (out < nout - 1)
-    {
-      tout += dtout;
-    }
-    else
-    {
-      tout = tf;
-    }
+    if (out < nout - 1) { tout += dtout; }
+    else { tout = tf; }
   }
 
   /* Close output file */
@@ -546,7 +539,7 @@ int RefSol(sunrealtype tf, N_Vector yref, int nout)
   yydata[0] = COS(th);
   yydata[1] = SIN(th);
   yydata[2] = -thd * SIN(th);
-  yydata[3] =  thd * COS(th);
+  yydata[3] = thd * COS(th);
 
   /* Free memory */
   N_VDestroy_Serial(yy);
@@ -554,20 +547,18 @@ int RefSol(sunrealtype tf, N_Vector yref, int nout)
   SUNLinSolFree(LS);
   CVodeFree(&cvode_mem);
 
-  return(0);
+  return (0);
 }
-
 
 /* -----------------------------------------------------------------------------
  * Functions provided to CVODE
  * ---------------------------------------------------------------------------*/
 
-
 /* ODE RHS function for the reference system */
-static int fref(sunrealtype t, N_Vector yy, N_Vector fy, void *f_data)
+static int fref(sunrealtype t, N_Vector yy, N_Vector fy, void* f_data)
 {
-  sunrealtype *yydata = NULL; /* yy vector data */
-  sunrealtype *fydata = NULL; /* fy vector data */
+  sunrealtype* yydata = NULL; /* yy vector data */
+  sunrealtype* fydata = NULL; /* fy vector data */
 
   /* Get vector array pointers */
   yydata = N_VGetArrayPointer(yy);
@@ -575,15 +566,14 @@ static int fref(sunrealtype t, N_Vector yy, N_Vector fy, void *f_data)
 
   fydata[0] = yydata[1];              /* theta'          */
   fydata[1] = -GRAV * COS(yydata[0]); /* -g * cos(theta) */
-  return(0);
+  return (0);
 }
 
-
 /* ODE RHS function for the Cartesian system */
-static int f(sunrealtype t, N_Vector yy, N_Vector fy, void *f_data)
+static int f(sunrealtype t, N_Vector yy, N_Vector fy, void* f_data)
 {
-  sunrealtype *yydata = NULL; /* yy vector data */
-  sunrealtype *fydata = NULL; /* fy vector data */
+  sunrealtype* yydata = NULL; /* yy vector data */
+  sunrealtype* fydata = NULL; /* fy vector data */
 
   sunrealtype x, y;   /* positions  */
   sunrealtype xd, yd; /* velocities */
@@ -608,17 +598,16 @@ static int f(sunrealtype t, N_Vector yy, N_Vector fy, void *f_data)
   fydata[2] = -x * tmp;
   fydata[3] = -y * tmp - GRAV;
 
-  return(0);
+  return (0);
 }
 
-
 /* Projection function */
-static int proj(sunrealtype t, N_Vector yy, N_Vector corr,
-                sunrealtype epsProj, N_Vector err, void *pdata)
+static int proj(sunrealtype t, N_Vector yy, N_Vector corr, sunrealtype epsProj,
+                N_Vector err, void* pdata)
 {
-  sunrealtype *yydata = NULL; /* yy vector data   */
-  sunrealtype *cdata  = NULL; /* corr vector data */
-  sunrealtype *edata  = NULL; /* err vector data */
+  sunrealtype* yydata = NULL; /* yy vector data   */
+  sunrealtype* cdata  = NULL; /* corr vector data */
+  sunrealtype* edata  = NULL; /* err vector data */
 
   sunrealtype x, y, x_new, y_new;     /* positions  */
   sunrealtype xd, yd, xd_new, yd_new; /* velocities */
@@ -655,13 +644,13 @@ static int proj(sunrealtype t, N_Vector yy, N_Vector corr,
    *        +-            -+  +-    -+
    */
 
-  xd_new =   xd * y_new * y_new - yd * x_new * y_new;
-  yd_new = - xd * x_new * y_new + yd * x_new * x_new;
+  xd_new = xd * y_new * y_new - yd * x_new * y_new;
+  yd_new = -xd * x_new * y_new + yd * x_new * x_new;
 
   /* Return position and velocity corrections */
 
-  cdata[0] = x_new  - x;
-  cdata[1] = y_new  - y;
+  cdata[0] = x_new - x;
+  cdata[1] = y_new - y;
   cdata[2] = xd_new - xd;
   cdata[3] = yd_new - yd;
 
@@ -675,10 +664,10 @@ static int proj(sunrealtype t, N_Vector yy, N_Vector corr,
     e3 = edata[2];
     e4 = edata[3];
 
-    e1_new =  y_new * y_new * e1 - x_new * y_new * e2;
+    e1_new = y_new * y_new * e1 - x_new * y_new * e2;
     e2_new = -x_new * y_new * e1 + x_new * x_new * e2;
 
-    e3_new =  y_new * y_new * e3 - x_new * y_new * e4;
+    e3_new = y_new * y_new * e3 - x_new * y_new * e4;
     e4_new = -x_new * y_new * e3 + x_new * x_new * e4;
 
     edata[0] = e1_new;
@@ -687,64 +676,62 @@ static int proj(sunrealtype t, N_Vector yy, N_Vector corr,
     edata[3] = e4_new;
   }
 
-  return(0);
+  return (0);
 }
-
 
 /* -----------------------------------------------------------------------------
  * Private helper functions
  * ---------------------------------------------------------------------------*/
 
-
 /* Read command line unputs */
-static int ReadInputs(int *argc, char ***argv, sunrealtype *rtol, sunrealtype *atol,
-                      sunrealtype *tf, int *nout, sunbooleantype *projerr)
+static int ReadInputs(int* argc, char*** argv, sunrealtype* rtol,
+                      sunrealtype* atol, sunrealtype* tf, int* nout,
+                      sunbooleantype* projerr)
 {
   int arg_idx = 1;
 
   /* check for input args */
   while (arg_idx < (*argc))
   {
-    if (strcmp((*argv)[arg_idx],"--tol") == 0)
+    if (strcmp((*argv)[arg_idx], "--tol") == 0)
     {
       arg_idx++;
       *rtol = atof((*argv)[arg_idx++]);
       *atol = atof((*argv)[arg_idx++]);
     }
-    else if (strcmp((*argv)[arg_idx],"--tf") == 0)
+    else if (strcmp((*argv)[arg_idx], "--tf") == 0)
     {
       arg_idx++;
       *tf = atof((*argv)[arg_idx++]);
     }
-    else if (strcmp((*argv)[arg_idx],"--nout") == 0)
+    else if (strcmp((*argv)[arg_idx], "--nout") == 0)
     {
       arg_idx++;
       *nout = atoi((*argv)[arg_idx++]);
     }
-    else if (strcmp((*argv)[arg_idx],"--noerrproj") == 0)
+    else if (strcmp((*argv)[arg_idx], "--noerrproj") == 0)
     {
       arg_idx++;
       *projerr = SUNFALSE;
     }
-    else if (strcmp((*argv)[arg_idx],"--help") == 0 )
+    else if (strcmp((*argv)[arg_idx], "--help") == 0)
     {
       InputHelp();
-      return(-1);
+      return (-1);
     }
     else
     {
-      fprintf(stderr, "ERROR: Invalid input %s",(*argv)[arg_idx]);
+      fprintf(stderr, "ERROR: Invalid input %s", (*argv)[arg_idx]);
       InputHelp();
-      return(-1);
+      return (-1);
     }
   }
 
-  return(0);
+  return (0);
 }
 
-
 /* Print command line options */
-static void InputHelp()
+static void InputHelp(void)
 {
   printf("\nCommand line options:\n");
   printf("  --tol <rtol> <atol> : relative and absolute tolerance\n");
@@ -755,30 +742,27 @@ static void InputHelp()
   return;
 }
 
-
 /* Check function return value */
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Opt 0: Check if function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL)
   {
-    fprintf(stderr, "\nERROR: %s() returned NULL pointer\n\n",
-            funcname);
-    return(1);
+    fprintf(stderr, "\nERROR: %s() returned NULL pointer\n\n", funcname);
+    return (1);
   }
   /* Opt 1: Check if retval < 0 */
   else if (opt == 1)
   {
-    retval = (int *) returnvalue;
+    retval = (int*)returnvalue;
     if (*retval < 0)
     {
-      fprintf(stderr, "\nERROR: %s() returned = %d\n\n",
-              funcname, *retval);
-      return(1);
+      fprintf(stderr, "\nERROR: %s() returned = %d\n\n", funcname, *retval);
+      return (1);
     }
   }
 
-  return(0);
+  return (0);
 }

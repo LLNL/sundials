@@ -15,33 +15,32 @@
  * implementation.
  * -----------------------------------------------------------------*/
 
+#include <mpi.h>
+#include <nvector/nvector_parhyp.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <sundials/sundials_types.h>
-#include <nvector/nvector_parhyp.h>
 #include <sundials/sundials_math.h>
-#include "test_nvector.h"
+#include <sundials/sundials_types.h>
 
-#include <mpi.h>
+#include "test_nvector.h"
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  int          fails = 0;         /* counter for test failures */
-  int          globfails = 0;     /* counter for test failures */
-  int          retval;            /* function return value     */
-  sunindextype local_length;      /* local vector length       */
-  sunindextype global_length;     /* global vector length      */
-  N_Vector     U, V, X, Y, Z;     /* test vectors              */
-  int          print_timing;      /* turn timing on/off        */
-  MPI_Comm     comm;              /* MPI Communicator          */
-  int          nprocs, myid;      /* Number of procs, proc id  */
+  int fails     = 0;          /* counter for test failures */
+  int globfails = 0;          /* counter for test failures */
+  int retval;                 /* function return value     */
+  sunindextype local_length;  /* local vector length       */
+  sunindextype global_length; /* global vector length      */
+  N_Vector U, V, X, Y, Z;     /* test vectors              */
+  int print_timing;           /* turn timing on/off        */
+  MPI_Comm comm;              /* MPI Communicator          */
+  int nprocs, myid;           /* Number of procs, proc id  */
 
-  HYPRE_Int       *partitioning;  /* Vector Partitioning               */
-  HYPRE_ParVector Xhyp;           /* Instantiate hypre parallel vector */
+  HYPRE_Int* partitioning; /* Vector Partitioning               */
+  HYPRE_ParVector Xhyp;    /* Instantiate hypre parallel vector */
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
@@ -53,16 +52,22 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(comm, &myid);
 
   /* check inputs */
-  if (argc < 3) {
+  if (argc < 3)
+  {
     if (myid == 0)
+    {
       printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
+    }
     Test_AbortMPI(comm, -1);
   }
 
-  local_length = (sunindextype) atol(argv[1]);
-  if (local_length < 1) {
+  local_length = (sunindextype)atol(argv[1]);
+  if (local_length < 1)
+  {
     if (myid == 0)
+    {
       printf("ERROR: local vector length must be a positive integer \n");
+    }
     Test_AbortMPI(comm, -1);
   }
 
@@ -70,22 +75,27 @@ int main(int argc, char *argv[])
   SetTiming(print_timing, myid);
 
   /* global length */
-  global_length = nprocs*local_length;
+  global_length = nprocs * local_length;
 
-  if (myid == 0) {
+  if (myid == 0)
+  {
     printf("Testing the hypre ParVector N_Vector wrapper \n");
-    printf("Vector global length %ld \n", (long int) global_length);
+    printf("Vector global length %ld \n", (long int)global_length);
     printf("MPI processes %d \n\n", nprocs);
   }
 
   /* set partitioning */
-  if(HYPRE_AssumedPartitionCheck()) {
-    partitioning    = (HYPRE_Int*) malloc(2*sizeof(HYPRE_Int));
-    partitioning[0] = myid*local_length;
-    partitioning[1] = (myid+1)*local_length;
-  } else {
-    partitioning = (HYPRE_Int*) malloc((nprocs+1)*sizeof(HYPRE_Int));
-    if (local_length < 1) {
+  if (HYPRE_AssumedPartitionCheck())
+  {
+    partitioning    = (HYPRE_Int*)malloc(2 * sizeof(HYPRE_Int));
+    partitioning[0] = myid * local_length;
+    partitioning[1] = (myid + 1) * local_length;
+  }
+  else
+  {
+    partitioning = (HYPRE_Int*)malloc((nprocs + 1) * sizeof(HYPRE_Int));
+    if (local_length < 1)
+    {
       printf("Using global partition.\n");
       printf("I don't do this stuff. Now exiting...\n");
       Test_AbortMPI(comm, 1);
@@ -99,10 +109,11 @@ int main(int argc, char *argv[])
   /* Create hypre ParVector N_Vector wrapper and test */
   X = N_VMake_ParHyp(Xhyp, sunctx);
   fails += Test_N_VMake(X, local_length, myid);
-  if (fails != 0) {
+  if (fails != 0)
+  {
     N_VDestroy(X);
     HYPRE_ParVectorDestroy(Xhyp);
-    if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
+    if (myid == 0) { printf("FAIL: Unable to create a new vector \n\n"); }
     Test_AbortMPI(comm, 1);
   }
 
@@ -123,24 +134,26 @@ int main(int argc, char *argv[])
 
   /* Clone additional vectors for testing */
   Y = N_VClone(X);
-  if (Y == NULL) {
+  if (Y == NULL)
+  {
     N_VDestroy(X);
     HYPRE_ParVectorDestroy(Xhyp);
-    if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
+    if (myid == 0) { printf("FAIL: Unable to create a new vector \n\n"); }
     Test_AbortMPI(comm, 1);
   }
 
   Z = N_VClone(X);
-  if (Z == NULL) {
+  if (Z == NULL)
+  {
     N_VDestroy(X);
     N_VDestroy(Y);
     HYPRE_ParVectorDestroy(Xhyp);
-    if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
+    if (myid == 0) { printf("FAIL: Unable to create a new vector \n\n"); }
     Test_AbortMPI(comm, 1);
   }
 
   /* Standard vector operation tests */
-  if (myid == 0) printf("\nTesting standard vector operations:\n\n");
+  if (myid == 0) { printf("\nTesting standard vector operations:\n\n"); }
 
   fails += Test_N_VConst(X, local_length, myid);
   fails += Test_N_VLinearSum(X, Y, Z, local_length, myid);
@@ -163,17 +176,21 @@ int main(int argc, char *argv[])
   fails += Test_N_VMinQuotient(X, Y, local_length, myid);
 
   /* Fused and vector array operations tests (disabled) */
-  if (myid == 0) printf("\nTesting fused and vector array operations (disabled):\n\n");
+  if (myid == 0)
+  {
+    printf("\nTesting fused and vector array operations (disabled):\n\n");
+  }
 
   /* create vector and disable all fused and vector array operations */
-  U = N_VMake_ParHyp(Xhyp, sunctx);
+  U      = N_VMake_ParHyp(Xhyp, sunctx);
   retval = N_VEnableFusedOps_ParHyp(U, SUNFALSE);
-  if (U == NULL || retval != 0) {
+  if (U == NULL || retval != 0)
+  {
     N_VDestroy(X);
     N_VDestroy(Y);
     N_VDestroy(Z);
     HYPRE_ParVectorDestroy(Xhyp);
-    if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
+    if (myid == 0) { printf("FAIL: Unable to create a new vector \n\n"); }
     Test_AbortMPI(comm, 1);
   }
 
@@ -192,18 +209,22 @@ int main(int argc, char *argv[])
   fails += Test_N_VLinearCombinationVectorArray(U, local_length, myid);
 
   /* Fused and vector array operations tests (enabled) */
-  if (myid == 0) printf("\nTesting fused and vector array operations (enabled):\n\n");
+  if (myid == 0)
+  {
+    printf("\nTesting fused and vector array operations (enabled):\n\n");
+  }
 
   /* create vector and enable all fused and vector array operations */
-  V = N_VMake_ParHyp(Xhyp, sunctx);
+  V      = N_VMake_ParHyp(Xhyp, sunctx);
   retval = N_VEnableFusedOps_ParHyp(V, SUNTRUE);
-  if (V == NULL || retval != 0) {
+  if (V == NULL || retval != 0)
+  {
     N_VDestroy(X);
     N_VDestroy(Y);
     N_VDestroy(Z);
     N_VDestroy(U);
     HYPRE_ParVectorDestroy(Xhyp);
-    if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
+    if (myid == 0) { printf("FAIL: Unable to create a new vector \n\n"); }
     Test_AbortMPI(comm, 1);
   }
 
@@ -222,7 +243,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VLinearCombinationVectorArray(V, local_length, myid);
 
   /* local reduction operations */
-  if (myid == 0) printf("\nTesting local reduction operations:\n\n");
+  if (myid == 0) { printf("\nTesting local reduction operations:\n\n"); }
 
   fails += Test_N_VDotProdLocal(X, Y, local_length, myid);
   fails += Test_N_VMaxNormLocal(X, local_length, myid);
@@ -235,12 +256,12 @@ int main(int argc, char *argv[])
   fails += Test_N_VMinQuotientLocal(X, Y, local_length, myid);
 
   /* local fused reduction operations */
-  if (myid == 0) printf("\nTesting local fused reduction operations:\n\n");
+  if (myid == 0) { printf("\nTesting local fused reduction operations:\n\n"); }
   fails += Test_N_VDotProdMultiLocal(V, local_length, myid);
   fails += Test_N_VDotProdMultiAllReduce(V, local_length, myid);
 
   /* XBraid interface operations */
-  if (myid == 0) printf("\nTesting XBraid interface operations:\n\n");
+  if (myid == 0) { printf("\nTesting XBraid interface operations:\n\n"); }
 
   fails += Test_N_VBufSize(X, local_length, myid);
   fails += Test_N_VBufPack(X, local_length, myid);
@@ -258,19 +279,21 @@ int main(int argc, char *argv[])
 #endif
 
   /* Print result */
-  if (fails) {
+  if (fails)
+  {
     printf("FAIL: NVector module failed %i tests, Proc %d \n\n", fails, myid);
-  } else {
-    if (myid == 0)
-      printf("SUCCESS: NVector module passed all tests \n\n");
+  }
+  else
+  {
+    if (myid == 0) { printf("SUCCESS: NVector module passed all tests \n\n"); }
   }
 
   /* check if any other process failed */
-  (void) MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
+  (void)MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
 
   Test_Finalize();
   MPI_Finalize();
-  return(globfails);
+  return (globfails);
 }
 
 /* ----------------------------------------------------------------------
@@ -278,18 +301,16 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
-  int             failure = 0;
-  sunindextype    i;
+  int failure = 0;
+  sunindextype i;
   HYPRE_ParVector Xvec;
-  sunrealtype        *Xdata;
+  sunrealtype* Xdata;
 
   Xvec  = N_VGetVector_ParHyp(X);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
 
   /* check vector data */
-  for (i = 0; i < local_length; i++) {
-    failure += SUNRCompare(Xdata[i], ans);
-  }
+  for (i = 0; i < local_length; i++) { failure += SUNRCompare(Xdata[i], ans); }
 
   return (failure > ZERO) ? (1) : (0);
 }
@@ -309,21 +330,21 @@ void set_element(N_Vector X, sunindextype i, sunrealtype val)
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
                        sunrealtype val)
 {
-  HYPRE_ParVector  Xvec;
-  sunrealtype        *Xdata;
-  sunindextype     i;
+  HYPRE_ParVector Xvec;
+  sunrealtype* Xdata;
+  sunindextype i;
 
   /* set elements [is,ie] of the data array */
   Xvec  = N_VGetVector_ParHyp(X);
   Xdata = hypre_VectorData(hypre_ParVectorLocalVector(Xvec));
 
-  for(i = is; i <= ie; i++) Xdata[i] = val;
+  for (i = is; i <= ie; i++) { Xdata[i] = val; }
 }
 
 sunrealtype get_element(N_Vector X, sunindextype i)
 {
   HYPRE_ParVector Xvec;
-  sunrealtype        *Xdata;
+  sunrealtype* Xdata;
 
   /* get i-th element of data array */
   Xvec  = N_VGetVector_ParHyp(X);
@@ -339,8 +360,8 @@ double max_time(N_Vector X, double time)
 
   /* get max time across all MPI ranks */
   comm = hypre_ParVectorComm(N_VGetVector_ParHyp(X));
-  (void) MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
-  return(maxt);
+  (void)MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
+  return (maxt);
 }
 
 void sync_device(N_Vector x)

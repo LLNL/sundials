@@ -17,9 +17,8 @@
 # Enable testing with 'make test'
 include(CTest)
 
-# Set up testRunner
+# Check if development tests are enabled
 if (SUNDIALS_TEST_DEVTESTS OR BUILD_BENCHMARKS)
-
   # Python is needed to use the test runner
   find_package(PythonInterp REQUIRED)
   if(${PYTHON_VERSION_MAJOR} LESS 3)
@@ -83,7 +82,75 @@ if(SUNDIALS_TEST_DEVTESTS)
   if(SUNDIALS_TEST_INTEGER_PRECISION GREATER_EQUAL "0")
     message(STATUS "Using non-default integer precision: ${SUNDIALS_TEST_INTEGER_PRECISION}")
   endif()
+  
+  #
+  # Target to run tests in CI containers
+  # 
+  if(NOT SUNDIALS_TEST_CONTAINER_EXE)
+    find_program(container_exe docker)
+    if(NOT container_exe)
+      find_program(container_exe podman)
+    endif()
+    set(SUNDIALS_TEST_CONTAINER_EXE ${container_exe} CACHE PATH "Path to docker or podman" FORCE)
+  endif()
 
+  if(SUNDIALS_TEST_CONTAINER_EXE)
+    add_custom_target(setup_local_ci 
+      ${CMAKE_COMMAND} -E cmake_echo_color --cyan
+      "Pulled SUNDIALS CI containers.")
+
+    add_custom_target(test_local_ci
+      ${CMAKE_COMMAND} -E cmake_echo_color --cyan
+      "All testing with SUNDIALS CI containers complete.")
+
+    macro(add_local_ci_target index_size precision tag)
+      string(TOLOWER "${precision}" precision_)
+      set(container sundials-ci-int${index_size}-${precision_})
+      set(container_exe_args run ${SUNDIALS_TEST_CONTAINER_RUN_EXTRA_ARGS} -t -d --name ${container} --cap-add SYS_PTRACE 
+          -v ${CMAKE_SOURCE_DIR}:${SUNDIALS_TEST_CONTAINER_MNT} ghcr.io/llnl/${container}:${tag})
+      add_custom_target(setup_local_ci_${index_size}_${precision_}
+        COMMENT "Pulling SUNDIALS CI container ghcr.io/llnl/${container}:${tag}"
+        COMMAND ${SUNDIALS_TEST_CONTAINER_EXE} ${container_exe_args})
+      add_dependencies(setup_local_ci setup_local_ci_${index_size}_${precision_})
+
+      set(container_test_exe ./test_driver.sh)
+      set(container_test_exe_args --testtype CUSTOM --env env/docker.sh --tpls --sunrealtype ${precision_} --indexsize ${index_size})
+      set(container_exe_args exec -w ${SUNDIALS_TEST_CONTAINER_MNT}/test ${container} ${container_test_exe} ${container_test_exe_args})
+      add_custom_target(test_local_ci_${index_size}_${precision_}
+        COMMENT "Running tests in CI container ${container}:${tag}"
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        COMMAND ${SUNDIALS_TEST_CONTAINER_EXE} ${container_exe_args}
+        VERBATIM)
+      add_dependencies(test_local_ci test_local_ci_${index_size}_${precision_})
+
+      unset(container)
+      unset(container_exe_args)
+      unset(container_test_exe)
+      unset(container_test_exe_args)
+    endmacro()
+
+    add_local_ci_target(${SUNDIALS_INDEX_SIZE} ${SUNDIALS_PRECISION} latest)
+  endif()
+
+endif()
+
+# Check if unit tests are enabled
+if(SUNDIALS_TEST_UNITTESTS AND SUNDIALS_TEST_ENABLE_GTEST)
+  find_package(GTest)
+  if(NOT (TARGET GTest::gtest_main OR TARGET GTest::Main))
+    include(FetchContent)
+    FetchContent_Declare(
+      googletest
+      URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+      GIT_TAG v1.14.0  
+    )
+    if(WIN32)
+      # For Windows: Prevent overriding the parent project's compiler/linker settings
+      set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    endif()
+    FetchContent_MakeAvailable(googletest)
+    include(GoogleTest)
+  endif()
 endif()
 
 # If examples are installed, create post install smoke test targets

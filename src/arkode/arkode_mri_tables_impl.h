@@ -19,10 +19,9 @@
 
 #include "arkode_mristep_impl.h"
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-
 
 /* Returns the stage type (implicit/explicit + fast/nofast) */
 int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is);
@@ -30,7 +29,6 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is);
 /* Returns index maps for where to store stage RHS evaluations */
 int mriStepCoupling_GetStageMap(MRIStepCoupling MRIC, int* stage_map,
                                 int* nstored_stages);
-
 
 #ifdef __cplusplus
 }

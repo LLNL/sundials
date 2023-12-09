@@ -15,11 +15,11 @@
  * NVECTOR SYCL module implementation.
  * -----------------------------------------------------------------*/
 
+#include <nvector/nvector_sycl.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <nvector/nvector_sycl.h>
 #include <sundials/sundials_math.h>
+
 #include "test_nvector_performance.h"
 
 // private functions
@@ -29,7 +29,7 @@ static int FinalizeClearCache();
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   sundials::Context sunctx;
 
@@ -40,44 +40,45 @@ int main(int argc, char *argv[])
   printf("Vector Name: Sycl\n");
 
   // check input and set vector length
-  if (argc < 6){
+  if (argc < 6)
+  {
     printf("ERROR: SIX (6) arguments required: ");
-    printf("<vector length> <number of vectors> <number of sums> <number of tests> ");
+    printf("<vector length> <number of vectors> <number of sums> <number of "
+           "tests> ");
     printf("<cachesize> <print timing>\n");
-    return(-1);
+    return (-1);
   }
 
   // vector length
   sunindextype veclen = atol(argv[1]);
-  if (veclen <= 0) {
+  if (veclen <= 0)
+  {
     printf("ERROR: length of vector must be a positive integer \n");
-    return(-1);
+    return (-1);
   }
 
   // number of vectors in fused op tests
   int nvecs = atol(argv[2]);
-  if (nvecs < 1) {
-    printf("WARNING: Fused operation tests disabled\n");
-  }
+  if (nvecs < 1) { printf("WARNING: Fused operation tests disabled\n"); }
 
   // number of sums in fused op tests
   int nsums = atol(argv[3]);
-  if (nsums < 1) {
-    printf("WARNING: Some fused operation tests disabled\n");
-  }
+  if (nsums < 1) { printf("WARNING: Some fused operation tests disabled\n"); }
 
   // number of tests
   int ntests = atol(argv[4]);
-  if (ntests <= 0) {
+  if (ntests <= 0)
+  {
     printf("ERROR: number of tests must be a positive integer \n");
-    return(-1);
+    return (-1);
   }
 
   // cache size
   int cachesize = atol(argv[5]);
-  if (cachesize < 0) {
+  if (cachesize < 0)
+  {
     printf("ERROR: cache size (MB) must be a non-negative integer \n");
-    return(-1);
+    return (-1);
   }
   InitializeClearCache(cachesize);
 
@@ -86,7 +87,7 @@ int main(int argc, char *argv[])
   SetTiming(print_timing, 0);
 
   printf("\nRunning with: \n");
-  printf("  vector length         %ld \n", (long int) veclen);
+  printf("  vector length         %ld \n", (long int)veclen);
   printf("  max number of vectors %d  \n", nvecs);
   printf("  max number of sums    %d  \n", nsums);
   printf("  number of tests       %d  \n", ntests);
@@ -94,39 +95,33 @@ int main(int argc, char *argv[])
 
   /* Create an in-order GPU queue */
   ::sycl::gpu_selector selector;
-  ::sycl::queue myQueue(selector,
-                        ::sycl::property_list{::sycl::property::queue::in_order{}});
+  ::sycl::queue myQueue(selector, ::sycl::property_list{
+                                    ::sycl::property::queue::in_order{}});
 
   ::sycl::device dev = myQueue.get_device();
-  std::cout << "Running on "
-            << (dev.get_info<::sycl::info::device::name>())
+  std::cout << "Running on " << (dev.get_info<::sycl::info::device::name>())
             << std::endl;
-  std::cout << " is host? "
-            << (dev.is_host() ? "Yes" : "No")
-            << std::endl;
-  std::cout << " is cpu? "
-            << (dev.is_cpu() ? "Yes" : "No")
-            << std::endl;
-  std::cout << " is gpu? "
-            << (dev.is_gpu() ? "Yes" : "No")
-            << std::endl;
-  std::cout << " is accelerator? "
-            << (dev.is_accelerator() ? "Yes" : "No")
+  std::cout << " is host? " << (dev.is_host() ? "Yes" : "No") << std::endl;
+  std::cout << " is cpu? " << (dev.is_cpu() ? "Yes" : "No") << std::endl;
+  std::cout << " is gpu? " << (dev.is_gpu() ? "Yes" : "No") << std::endl;
+  std::cout << " is accelerator? " << (dev.is_accelerator() ? "Yes" : "No")
             << std::endl;
   std::cout << " is the queue in order? "
-            << (myQueue.is_in_order() ? "Yes" : "No")
-            << std::endl;
+            << (myQueue.is_in_order() ? "Yes" : "No") << std::endl;
   std::cout << " supports usm host allocations? "
-            << (dev.get_info<::sycl::info::device::usm_host_allocations>() ?
-                "Yes" : "No")
+            << (dev.get_info<::sycl::info::device::usm_host_allocations>()
+                  ? "Yes"
+                  : "No")
             << std::endl;
   std::cout << " supports usm device allocations? "
-            << (dev.get_info<::sycl::info::device::usm_device_allocations>() ?
-                "Yes" : "No")
+            << (dev.get_info<::sycl::info::device::usm_device_allocations>()
+                  ? "Yes"
+                  : "No")
             << std::endl;
   std::cout << " suports usm shared allocations? "
-            << (dev.get_info<::sycl::info::device::usm_shared_allocations>() ?
-                "Yes" : "No")
+            << (dev.get_info<::sycl::info::device::usm_shared_allocations>()
+                  ? "Yes"
+                  : "No")
             << std::endl;
   std::cout << " max work group size: "
             << dev.get_info<::sycl::info::device::max_work_group_size>()
@@ -135,16 +130,15 @@ int main(int argc, char *argv[])
             << dev.get_info<::sycl::info::device::global_mem_size>()
             << std::endl;
   std::cout << " max local memory size (bytes): "
-            << dev.get_info<::sycl::info::device::local_mem_size>()
-            << std::endl;
+            << dev.get_info<::sycl::info::device::local_mem_size>() << std::endl;
   std::cout << std::endl;
 
   // Create vectors
   N_Vector X = N_VNew_Sycl(veclen, &myQueue, sunctx);
 
   // run tests
-  if (print_timing) printf("\n\n standard operations:\n");
-  if (print_timing) PrintTableHeader(1);
+  if (print_timing) { printf("\n\n standard operations:\n"); }
+  if (print_timing) { PrintTableHeader(1); }
   flag = Test_N_VLinearSum(X, veclen, ntests);
   flag = Test_N_VConst(X, veclen, ntests);
   flag = Test_N_VProd(X, veclen, ntests);
@@ -167,8 +161,8 @@ int main(int argc, char *argv[])
 
   if (nvecs > 0)
   {
-    if (print_timing) printf("\n\n fused operations 1: nvecs= %d\n", nvecs);
-    if (print_timing) PrintTableHeader(2);
+    if (print_timing) { printf("\n\n fused operations 1: nvecs= %d\n", nvecs); }
+    if (print_timing) { PrintTableHeader(2); }
     flag = Test_N_VLinearCombination(X, veclen, nvecs, ntests);
     flag = Test_N_VScaleAddMulti(X, veclen, nvecs, ntests);
     flag = Test_N_VDotProdMulti(X, veclen, nvecs, ntests);
@@ -180,10 +174,14 @@ int main(int argc, char *argv[])
 
     if (nsums > 0)
     {
-      if (print_timing) printf("\n\n fused operations 2: nvecs= %d nsums= %d\n", nvecs, nsums);
-      if (print_timing) PrintTableHeader(2);
+      if (print_timing)
+      {
+        printf("\n\n fused operations 2: nvecs= %d nsums= %d\n", nvecs, nsums);
+      }
+      if (print_timing) { PrintTableHeader(2); }
       flag = Test_N_VScaleAddMultiVectorArray(X, veclen, nvecs, nsums, ntests);
-      flag = Test_N_VLinearCombinationVectorArray(X, veclen, nvecs, nsums, ntests);
+      flag = Test_N_VLinearCombinationVectorArray(X, veclen, nvecs, nsums,
+                                                  ntests);
     }
   }
 
@@ -197,16 +195,16 @@ int main(int argc, char *argv[])
 
   printf("\nFinished Tests\n");
 
-  return(flag);
+  return (flag);
 }
-
 
 /* ----------------------------------------------------------------------
  * Functions required by testing routines to fill vector data
  * --------------------------------------------------------------------*/
 
 // random data between lower and upper
-void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower, sunrealtype upper)
+void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower,
+             sunrealtype upper)
 {
   rand_realtype(N_VGetHostArrayPointer_Sycl(Xvec), Xlen, lower, upper);
   N_VCopyToDevice_Sycl(Xvec);
@@ -226,12 +224,11 @@ void N_VRandConstraints(N_Vector Xvec, sunindextype Xlen)
   N_VCopyToDevice_Sycl(Xvec);
 }
 
-
 /* ----------------------------------------------------------------------
  * Functions required for MPI or GPU testing
  * --------------------------------------------------------------------*/
 
-void collect_times(N_Vector X, double *times, int ntimes)
+void collect_times(N_Vector X, double* times, int ntimes)
 {
   // not running with MPI, just return
   return;
@@ -243,22 +240,12 @@ void sync_device(N_Vector x)
   return;
 }
 
-
 /* ----------------------------------------------------------------------
  * Functions required for clearing cache
  * --------------------------------------------------------------------*/
 
-static int InitializeClearCache(int cachesize)
-{
-  return(0);
-}
+static int InitializeClearCache(int cachesize) { return (0); }
 
-static int FinalizeClearCache()
-{
-  return(0);
-}
+static int FinalizeClearCache() { return (0); }
 
-void ClearCache()
-{
-  return;
-}
+void ClearCache() { return; }

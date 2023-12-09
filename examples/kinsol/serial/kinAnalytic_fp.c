@@ -27,13 +27,13 @@
  * This system has the analytic solution x = 1/2, y = 1, z = -pi/6.
  * ---------------------------------------------------------------------------*/
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
-#include "kinsol/kinsol.h"           /* access to KINSOL func., consts. */
-#include "nvector/nvector_serial.h"  /* access to serial N_Vector       */
+#include "kinsol/kinsol.h"          /* access to KINSOL func., consts. */
+#include "nvector/nvector_serial.h" /* access to serial N_Vector       */
 
 /* precision specific formatting macros */
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -90,60 +90,63 @@
 /* analytic solution */
 #define XTRUE HALF
 #define YTRUE ONE
-#define ZTRUE -PI/SIX
+#define ZTRUE -PI / SIX
 
 /* problem options */
 typedef struct
 {
-  sunrealtype tol;         /* solve tolerance                  */
-  long int maxiter;     /* max number of iterations         */
-  long int m_aa;        /* number of acceleration vectors   */
-  long int delay_aa;    /* number of iterations to delay AA */
-  int      orth_aa;     /* orthogonalization method         */
-  sunrealtype damping_fp;  /* damping parameter for FP         */
-  sunrealtype damping_aa;  /* damping parameter for AA         */
-} *UserOpt;
+  sunrealtype tol;        /* solve tolerance                  */
+  long int maxiter;       /* max number of iterations         */
+  long int m_aa;          /* number of acceleration vectors   */
+  long int delay_aa;      /* number of iterations to delay AA */
+  int orth_aa;            /* orthogonalization method         */
+  sunrealtype damping_fp; /* damping parameter for FP         */
+  sunrealtype damping_aa; /* damping parameter for AA         */
+}* UserOpt;
 
 /* Nonlinear fixed point function */
-static int FPFunction(N_Vector u, N_Vector f, void *user_data);
+static int FPFunction(N_Vector u, N_Vector f, void* user_data);
 
 /* Check the system solution */
 static int check_ans(N_Vector u, sunrealtype tol);
 
 /* Set default options */
-static int SetDefaults(UserOpt *uopt);
+static int SetDefaults(UserOpt* uopt);
 
 /* Read command line inputs */
-static int ReadInputs(int *argc, char ***argv, UserOpt uopt);
+static int ReadInputs(int* argc, char*** argv, UserOpt uopt);
 
 /* Print command line options */
-static void InputHelp();
+static void InputHelp(void);
 
 /* Check function return values */
-static int check_retval(void *returnvalue, const char *funcname, int opt);
-
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /* -----------------------------------------------------------------------------
  * Main program
  * ---------------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   SUNContext sunctx;
-  int       retval = 0;     /* return value flag   */
-  UserOpt   uopt   = NULL;  /* user options struct */
-  N_Vector  u      = NULL;  /* solution vector     */
-  N_Vector  scale  = NULL;  /* scaling vector      */
-  FILE*     infofp = NULL;  /* KINSOL log file     */
-  long int  nni, nfe;       /* solver outputs      */
-  sunrealtype* data;           /* vector data array   */
-  void*     kmem;           /* KINSOL memory       */
+  int retval     = 0;    /* return value flag   */
+  UserOpt uopt   = NULL; /* user options struct */
+  N_Vector u     = NULL; /* solution vector     */
+  N_Vector scale = NULL; /* scaling vector      */
+  FILE* infofp   = NULL; /* KINSOL log file     */
+  long int nni, nfe;     /* solver outputs      */
+  sunrealtype* data;     /* vector data array   */
+  void* kmem;            /* KINSOL memory       */
 
   /* Set default options */
   retval = SetDefaults(&uopt);
-  if (check_retval(&retval, "SetDefaults", 1)) return(1);
+  if (check_retval(&retval, "SetDefaults", 1)) { return (1); }
 
   retval = ReadInputs(&argc, &argv, uopt);
-  if (check_retval(&retval, "ReadInputs", 1)) { free(uopt); return(1); }
+  if (check_retval(&retval, "ReadInputs", 1))
+  {
+    free(uopt);
+    return (1);
+  }
 
   /* -------------------------
    * Print problem description
@@ -154,48 +157,48 @@ int main(int argc, char *argv[])
   printf("    x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0\n");
   printf("    exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0\n");
   printf("Analytic solution:\n");
-  printf("    x = %"GSYM"\n", XTRUE);
-  printf("    y = %"GSYM"\n", YTRUE);
-  printf("    z = %"GSYM"\n", ZTRUE);
+  printf("    x = %" GSYM "\n", XTRUE);
+  printf("    y = %" GSYM "\n", YTRUE);
+  printf("    z = %" GSYM "\n", ZTRUE);
   printf("Solution method: Anderson accelerated fixed point iteration.\n");
-  printf("    tolerance    = %"GSYM"\n", uopt->tol);
+  printf("    tolerance    = %" GSYM "\n", uopt->tol);
   printf("    max iters    = %ld\n", uopt->maxiter);
   printf("    m_aa         = %ld\n", uopt->m_aa);
   printf("    delay_aa     = %ld\n", uopt->delay_aa);
-  printf("    damping_aa   = %"GSYM"\n", uopt->damping_aa);
-  printf("    damping_fp   = %"GSYM"\n", uopt->damping_fp);
+  printf("    damping_aa   = %" GSYM "\n", uopt->damping_aa);
+  printf("    damping_fp   = %" GSYM "\n", uopt->damping_fp);
   printf("    orth routine = %d\n", uopt->orth_aa);
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
   /* --------------------------------------
    * Create vectors for solution and scales
    * -------------------------------------- */
 
   u = N_VNew_Serial(NEQ, sunctx);
-  if (check_retval((void *)u, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)u, "N_VNew_Serial", 0)) { return (1); }
 
   scale = N_VClone(u);
-  if (check_retval((void *)scale, "N_VClone", 0)) return(1);
+  if (check_retval((void*)scale, "N_VClone", 0)) { return (1); }
 
   /* -----------------------------------------
    * Initialize and allocate memory for KINSOL
    * ----------------------------------------- */
 
   kmem = KINCreate(sunctx);
-  if (check_retval((void *)kmem, "KINCreate", 0)) return(1);
+  if (check_retval((void*)kmem, "KINCreate", 0)) { return (1); }
 
   /* Set number of prior residuals used in Anderson acceleration */
   retval = KINSetMAA(kmem, uopt->m_aa);
 
   /* Set orthogonalization routine used in Anderson acceleration */
   retval = KINSetOrthAA(kmem, uopt->orth_aa);
-  if (check_retval(&retval, "KINSetOrthAA", 1)) return(1);
+  if (check_retval(&retval, "KINSetOrthAA", 1)) { return (1); }
 
   retval = KINInit(kmem, FPFunction, u);
-  if (check_retval(&retval, "KINInit", 1)) return(1);
+  if (check_retval(&retval, "KINInit", 1)) { return (1); }
 
   /* -------------------
    * Set optional inputs
@@ -203,35 +206,30 @@ int main(int argc, char *argv[])
 
   /* Specify stopping tolerance based on residual */
   retval = KINSetFuncNormTol(kmem, uopt->tol);
-  if (check_retval(&retval, "KINSetFuncNormTol", 1)) return(1);
+  if (check_retval(&retval, "KINSetFuncNormTol", 1)) { return (1); }
 
   /* Set maximum number of iterations */
   retval = KINSetNumMaxIters(kmem, uopt->maxiter);
-  if (check_retval(&retval, "KINSetNumMaxItersFuncNormTol", 1)) return(1);
+  if (check_retval(&retval, "KINSetNumMaxItersFuncNormTol", 1)) { return (1); }
 
   /* Set Fixed point damping parameter */
-  if (uopt->m_aa == 0)
-  {
-    retval = KINSetDamping(kmem, uopt->damping_fp);
-  }
+  if (uopt->m_aa == 0) { retval = KINSetDamping(kmem, uopt->damping_fp); }
 
   /* Set Anderson acceleration options */
   if (uopt->m_aa > 0)
   {
     /* Set damping parameter */
     retval = KINSetDampingAA(kmem, uopt->damping_aa);
-    if (check_retval(&retval, "KINSetDampingAA", 1)) return(1);
+    if (check_retval(&retval, "KINSetDampingAA", 1)) { return (1); }
 
     /* Set acceleration delay */
     retval = KINSetDelayAA(kmem, uopt->delay_aa);
-    if (check_retval(&retval, "KINSetDelayAA", 1)) return(1);
+    if (check_retval(&retval, "KINSetDelayAA", 1)) { return (1); }
   }
 
   /* Set info log file and print level */
   infofp = fopen("kinsol.log", "w");
-  if (check_retval((void *)infofp, "fopen", 0)) return(1);
-
-
+  if (check_retval((void*)infofp, "fopen", 0)) { return (1); }
 
   /* -------------
    * Initial guess
@@ -239,10 +237,10 @@ int main(int argc, char *argv[])
 
   /* Get vector data array */
   data = N_VGetArrayPointer(u);
-  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
+  if (check_retval((void*)data, "N_VGetArrayPointer", 0)) { return (1); }
 
-  data[0] =  PTONE;
-  data[1] =  PTONE;
+  data[0] = PTONE;
+  data[1] = PTONE;
   data[2] = -PTONE;
 
   /* ----------------------------
@@ -253,12 +251,12 @@ int main(int argc, char *argv[])
   N_VConst(ONE, scale);
 
   /* Call main solver */
-  retval = KINSol(kmem,         /* KINSol memory block */
-                  u,            /* initial guess on input; solution vector */
-                  KIN_FP,       /* global strategy choice */
-                  scale,        /* scaling vector, for the variable cc */
-                  scale);       /* scaling vector for function values fval */
-  if (check_retval(&retval, "KINSol", 1)) return(1);
+  retval = KINSol(kmem,   /* KINSol memory block */
+                  u,      /* initial guess on input; solution vector */
+                  KIN_FP, /* global strategy choice */
+                  scale,  /* scaling vector, for the variable cc */
+                  scale); /* scaling vector for function values fval */
+  if (check_retval(&retval, "KINSol", 1)) { return (1); }
 
   /* ------------------------------------
    * Get solver statistics
@@ -293,7 +291,7 @@ int main(int argc, char *argv[])
   free(uopt);
   SUNContext_Free(&sunctx);
 
-  return(retval);
+  return (retval);
 }
 
 /* -----------------------------------------------------------------------------
@@ -314,24 +312,24 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
 {
   sunrealtype* udata = NULL;
   sunrealtype* gdata = NULL;
-  sunrealtype  x, y, z;
+  sunrealtype x, y, z;
 
   /* Get vector data arrays */
   udata = N_VGetArrayPointer(u);
-  if (check_retval((void*)udata, "N_VGetArrayPointer", 0)) return(-1);
+  if (check_retval((void*)udata, "N_VGetArrayPointer", 0)) { return (-1); }
 
   gdata = N_VGetArrayPointer(g);
-  if (check_retval((void*)gdata, "N_VGetArrayPointer", 0)) return(-1);
+  if (check_retval((void*)gdata, "N_VGetArrayPointer", 0)) { return (-1); }
 
   x = udata[0];
   y = udata[1];
   z = udata[2];
 
-  gdata[0] = (ONE/THREE) * COS((y-ONE)*z) + (ONE/SIX);
-  gdata[1] = (ONE/NINE) * SQRT(x*x + SIN(z) + ONEPTZEROSIX) + PTNINE;
-  gdata[2] = -(ONE/TWENTY) * EXP(-x*(y-ONE)) - (TEN * PI - THREE) / SIXTY;
+  gdata[0] = (ONE / THREE) * COS((y - ONE) * z) + (ONE / SIX);
+  gdata[1] = (ONE / NINE) * SQRT(x * x + SIN(z) + ONEPTZEROSIX) + PTNINE;
+  gdata[2] = -(ONE / TWENTY) * EXP(-x * (y - ONE)) - (TEN * PI - THREE) / SIXTY;
 
-  return(0);
+  return (0);
 }
 
 /* -----------------------------------------------------------------------------
@@ -340,17 +338,17 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
 static int check_ans(N_Vector u, sunrealtype tol)
 {
   sunrealtype* data = NULL;
-  sunrealtype  ex, ey, ez;
+  sunrealtype ex, ey, ez;
 
   /* Get vector data array */
   data = N_VGetArrayPointer(u);
-  if (check_retval((void *)data, "N_VGetArrayPointer", 0)) return(1);
+  if (check_retval((void*)data, "N_VGetArrayPointer", 0)) { return (1); }
 
   /* print the solution */
   printf("Computed solution:\n");
-  printf("    x = %"GSYM"\n", data[0]);
-  printf("    y = %"GSYM"\n", data[1]);
-  printf("    z = %"GSYM"\n", data[2]);
+  printf("    x = %" GSYM "\n", data[0]);
+  printf("    y = %" GSYM "\n", data[1]);
+  printf("    z = %" GSYM "\n", data[2]);
 
   /* solution error */
   ex = ABS(data[0] - XTRUE);
@@ -359,46 +357,47 @@ static int check_ans(N_Vector u, sunrealtype tol)
 
   /* print the solution error */
   printf("Solution error:\n");
-  printf("    ex = %"GSYM"\n", ex);
-  printf("    ey = %"GSYM"\n", ey);
-  printf("    ez = %"GSYM"\n", ez);
+  printf("    ex = %" GSYM "\n", ex);
+  printf("    ey = %" GSYM "\n", ey);
+  printf("    ez = %" GSYM "\n", ez);
 
   tol *= TEN;
-  if (ex > tol || ey > tol || ez > tol) {
+  if (ex > tol || ey > tol || ez > tol)
+  {
     printf("FAIL\n");
-    return(1);
+    return (1);
   }
 
   printf("PASS\n");
-  return(0);
+  return (0);
 }
 
 /* -----------------------------------------------------------------------------
  * Set default options
  * ---------------------------------------------------------------------------*/
-static int SetDefaults(UserOpt *uopt)
+static int SetDefaults(UserOpt* uopt)
 {
   /* Allocate options structure */
   *uopt = NULL;
-  *uopt = (UserOpt) malloc(sizeof **uopt);
-  if (*uopt == NULL) return(-1);
+  *uopt = (UserOpt)malloc(sizeof **uopt);
+  if (*uopt == NULL) { return (-1); }
 
   /* Set default options values */
   (*uopt)->tol        = 100 * SQRT(SUN_UNIT_ROUNDOFF);
   (*uopt)->maxiter    = 30;
-  (*uopt)->m_aa       = 0;            /* no acceleration */
-  (*uopt)->delay_aa   = 0;            /* no delay        */
-  (*uopt)->orth_aa    = 0;            /* MGS             */
-  (*uopt)->damping_fp = SUN_RCONST(1.0);  /* no FP dampig    */
-  (*uopt)->damping_aa = SUN_RCONST(1.0);  /* no AA damping   */
+  (*uopt)->m_aa       = 0;               /* no acceleration */
+  (*uopt)->delay_aa   = 0;               /* no delay        */
+  (*uopt)->orth_aa    = 0;               /* MGS             */
+  (*uopt)->damping_fp = SUN_RCONST(1.0); /* no FP dampig    */
+  (*uopt)->damping_aa = SUN_RCONST(1.0); /* no AA damping   */
 
-  return(0);
+  return (0);
 }
 
 /* -----------------------------------------------------------------------------
  * Read command line inputs
  * ---------------------------------------------------------------------------*/
-static int ReadInputs(int *argc, char ***argv, UserOpt uopt)
+static int ReadInputs(int* argc, char*** argv, UserOpt uopt)
 {
   int arg_index = 1;
 
@@ -442,24 +441,23 @@ static int ReadInputs(int *argc, char ***argv, UserOpt uopt)
     else if (strcmp((*argv)[arg_index], "--help") == 0)
     {
       InputHelp();
-      return(-1);
+      return (-1);
     }
     else
     {
       printf("Error: Invalid command line parameter %s\n", (*argv)[arg_index]);
       InputHelp();
-      return(-1);
-
+      return (-1);
     }
   }
 
-  return(0);
+  return (0);
 }
 
 /* -----------------------------------------------------------------------------
  * Print command line options
  * ---------------------------------------------------------------------------*/
-static void InputHelp()
+static void InputHelp(void)
 {
   printf("\n");
   printf(" Command line options:\n");
@@ -479,9 +477,9 @@ static void InputHelp()
  *   opt == 0 check if returned NULL pointer
  *   opt == 1 check if returned a non-zero value
  * ---------------------------------------------------------------------------*/
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *errflag;
+  int* errflag;
 
   /* Check if the function returned a NULL pointer -- no memory allocated */
   if (opt == 0)
@@ -489,31 +487,26 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
     if (returnvalue == NULL)
     {
       fprintf(stderr, "\nERROR: %s() failed -- returned NULL\n\n", funcname);
-      return(1);
+      return (1);
     }
-    else
-    {
-      return(0);
-    }
+    else { return (0); }
   }
 
   /* Check if the function returned a non-zero value -- internal failure */
   if (opt == 1)
   {
-    errflag = (int *) returnvalue;
+    errflag = (int*)returnvalue;
     if (*errflag != 0)
     {
-      fprintf(stderr, "\nERROR: %s() failed -- returned %d\n\n", funcname, *errflag);
-      return(1);
+      fprintf(stderr, "\nERROR: %s() failed -- returned %d\n\n", funcname,
+              *errflag);
+      return (1);
     }
-    else
-    {
-      return(0);
-    }
+    else { return (0); }
   }
 
   /* If we make it here then opt was not 0 or 1 */
   fprintf(stderr, "\nERROR: check_retval failed -- Invalid opt value\n\n");
 
-  return(1);
+  return (1);
 }

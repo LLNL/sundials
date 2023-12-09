@@ -20,46 +20,44 @@
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 #include <sundials/sundials_math.h>
 
-
 /* ---------------
  * Macro accessors
  * --------------- */
 
-#define SODERLIND_CONTENT(C)     ( (SUNAdaptControllerContent_Soderlind)(C->content) )
-#define SODERLIND_K1(C)          ( SODERLIND_CONTENT(C)->k1 )
-#define SODERLIND_K2(C)          ( SODERLIND_CONTENT(C)->k2 )
-#define SODERLIND_K3(C)          ( SODERLIND_CONTENT(C)->k3 )
-#define SODERLIND_K4(C)          ( SODERLIND_CONTENT(C)->k4 )
-#define SODERLIND_K5(C)          ( SODERLIND_CONTENT(C)->k5 )
-#define SODERLIND_BIAS(C)        ( SODERLIND_CONTENT(C)->bias )
-#define SODERLIND_EP(C)          ( SODERLIND_CONTENT(C)->ep )
-#define SODERLIND_EPP(C)         ( SODERLIND_CONTENT(C)->epp )
-#define SODERLIND_HP(C)          ( SODERLIND_CONTENT(C)->hp )
-#define SODERLIND_HPP(C)         ( SODERLIND_CONTENT(C)->hpp )
-#define SODERLIND_FIRSTSTEPS(C)  ( SODERLIND_CONTENT(C)->firststeps )
+#define SODERLIND_CONTENT(C)    ((SUNAdaptControllerContent_Soderlind)(C->content))
+#define SODERLIND_K1(C)         (SODERLIND_CONTENT(C)->k1)
+#define SODERLIND_K2(C)         (SODERLIND_CONTENT(C)->k2)
+#define SODERLIND_K3(C)         (SODERLIND_CONTENT(C)->k3)
+#define SODERLIND_K4(C)         (SODERLIND_CONTENT(C)->k4)
+#define SODERLIND_K5(C)         (SODERLIND_CONTENT(C)->k5)
+#define SODERLIND_BIAS(C)       (SODERLIND_CONTENT(C)->bias)
+#define SODERLIND_EP(C)         (SODERLIND_CONTENT(C)->ep)
+#define SODERLIND_EPP(C)        (SODERLIND_CONTENT(C)->epp)
+#define SODERLIND_HP(C)         (SODERLIND_CONTENT(C)->hp)
+#define SODERLIND_HPP(C)        (SODERLIND_CONTENT(C)->hpp)
+#define SODERLIND_FIRSTSTEPS(C) (SODERLIND_CONTENT(C)->firststeps)
 
 /* ------------------
  * Default parameters
  * ------------------ */
 
-#define DEFAULT_K1          SUN_RCONST(1.25)    /* H_{0}321 parameters */
-#define DEFAULT_K2          SUN_RCONST(0.5)
-#define DEFAULT_K3          SUN_RCONST(-0.75)
-#define DEFAULT_K4          SUN_RCONST(0.25)
-#define DEFAULT_K5          SUN_RCONST(0.75)
-#define DEFAULT_PID_K1      SUN_RCONST(0.58)    /* PID parameters */
-#define DEFAULT_PID_K2     -SUN_RCONST(0.21)
-#define DEFAULT_PID_K3      SUN_RCONST(0.1)
-#define DEFAULT_PI_K1       SUN_RCONST(0.8)     /* PI parameters */
-#define DEFAULT_PI_K2      -SUN_RCONST(0.31)
-#define DEFAULT_I_K1        SUN_RCONST(1.0)     /* I parameters */
-#define DEFAULT_EXPGUS_K1   SUN_RCONST(0.367)   /* Explicit Gustafsson parameters */
-#define DEFAULT_EXPGUS_K2   SUN_RCONST(0.268)
-#define DEFAULT_IMPGUS_K1   SUN_RCONST(0.98)    /* Implicit Gustafsson parameters */
-#define DEFAULT_IMPGUS_K2   SUN_RCONST(0.95)
-#define DEFAULT_BIAS        SUN_RCONST(1.5)
-#define TINY                SUN_RCONST(1.0e-10)
-
+#define DEFAULT_K1        SUN_RCONST(1.25) /* H_{0}321 parameters */
+#define DEFAULT_K2        SUN_RCONST(0.5)
+#define DEFAULT_K3        SUN_RCONST(-0.75)
+#define DEFAULT_K4        SUN_RCONST(0.25)
+#define DEFAULT_K5        SUN_RCONST(0.75)
+#define DEFAULT_PID_K1    SUN_RCONST(0.58) /* PID parameters */
+#define DEFAULT_PID_K2    -SUN_RCONST(0.21)
+#define DEFAULT_PID_K3    SUN_RCONST(0.1)
+#define DEFAULT_PI_K1     SUN_RCONST(0.8) /* PI parameters */
+#define DEFAULT_PI_K2     -SUN_RCONST(0.31)
+#define DEFAULT_I_K1      SUN_RCONST(1.0)   /* I parameters */
+#define DEFAULT_EXPGUS_K1 SUN_RCONST(0.367) /* Explicit Gustafsson parameters */
+#define DEFAULT_EXPGUS_K2 SUN_RCONST(0.268)
+#define DEFAULT_IMPGUS_K1 SUN_RCONST(0.98) /* Implicit Gustafsson parameters */
+#define DEFAULT_IMPGUS_K2 SUN_RCONST(0.95)
+#define DEFAULT_BIAS      SUN_RCONST(1.5)
+#define TINY              SUN_RCONST(1.0e-10)
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -96,7 +94,7 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   content = (SUNAdaptControllerContent_Soderlind)malloc(sizeof *content);
   if (content == NULL)
   {
-    (void) SUNAdaptController_Destroy(C);
+    (void)SUNAdaptController_Destroy(C);
     return (NULL);
   }
 
@@ -114,10 +112,9 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
  * Function to set Soderlind parameters
  */
 
-int SUNAdaptController_SetParams_Soderlind(SUNAdaptController C,
-                                           sunrealtype k1, sunrealtype k2,
-                                           sunrealtype k3, sunrealtype k4,
-                                           sunrealtype k5)
+int SUNAdaptController_SetParams_Soderlind(SUNAdaptController C, sunrealtype k1,
+                                           sunrealtype k2, sunrealtype k3,
+                                           sunrealtype k4, sunrealtype k5)
 {
   if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SODERLIND_K1(C) = k1;
@@ -139,12 +136,11 @@ SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
   if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
-  retval = SUNAdaptController_SetParams_PID(C,
-                                            DEFAULT_PID_K1,
-                                            DEFAULT_PID_K2,
+  retval = SUNAdaptController_SetParams_PID(C, DEFAULT_PID_K1, DEFAULT_PID_K2,
                                             DEFAULT_PID_K3);
-  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
-    (void) SUNAdaptController_Destroy(C);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS)
+  {
+    (void)SUNAdaptController_Destroy(C);
     C = NULL;
   }
   return (C);
@@ -154,9 +150,8 @@ SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
  * Function to set PID parameters
  */
 
-int SUNAdaptController_SetParams_PID(SUNAdaptController C,
-                                     sunrealtype k1, sunrealtype k2,
-                                     sunrealtype k3)
+int SUNAdaptController_SetParams_PID(SUNAdaptController C, sunrealtype k1,
+                                     sunrealtype k2, sunrealtype k3)
 {
   if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SODERLIND_K1(C) = k1;
@@ -178,11 +173,10 @@ SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
   if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
-  retval = SUNAdaptController_SetParams_PI(C,
-                                           DEFAULT_PI_K1,
-                                           DEFAULT_PI_K2);
-  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
-    (void) SUNAdaptController_Destroy(C);
+  retval = SUNAdaptController_SetParams_PI(C, DEFAULT_PI_K1, DEFAULT_PI_K2);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS)
+  {
+    (void)SUNAdaptController_Destroy(C);
     C = NULL;
   }
   return (C);
@@ -192,8 +186,8 @@ SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
  * Function to set PI parameters
  */
 
-int SUNAdaptController_SetParams_PI(SUNAdaptController C,
-                                    sunrealtype k1, sunrealtype k2)
+int SUNAdaptController_SetParams_PI(SUNAdaptController C, sunrealtype k1,
+                                    sunrealtype k2)
 {
   if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SODERLIND_K1(C) = k1;
@@ -216,8 +210,9 @@ SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
   retval = SUNAdaptController_SetParams_I(C, DEFAULT_I_K1);
-  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
-    (void) SUNAdaptController_Destroy(C);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS)
+  {
+    (void)SUNAdaptController_Destroy(C);
     C = NULL;
   }
   return (C);
@@ -249,11 +244,11 @@ SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
   if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
-  retval = SUNAdaptController_SetParams_ExpGus(C,
-                                               DEFAULT_EXPGUS_K1,
+  retval = SUNAdaptController_SetParams_ExpGus(C, DEFAULT_EXPGUS_K1,
                                                DEFAULT_EXPGUS_K2);
-  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
-    (void) SUNAdaptController_Destroy(C);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS)
+  {
+    (void)SUNAdaptController_Destroy(C);
     C = NULL;
   }
   return (C);
@@ -263,11 +258,11 @@ SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
  * Function to set explicit Gustafsson parameters
  */
 
-int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C,
-                                        sunrealtype k1, sunrealtype k2)
+int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunrealtype k1,
+                                        sunrealtype k2)
 {
   if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-  SODERLIND_K1(C) = k1+k2;
+  SODERLIND_K1(C) = k1 + k2;
   SODERLIND_K2(C) = -k2;
   SODERLIND_K3(C) = SUN_RCONST(0.0);
   SODERLIND_K4(C) = SUN_RCONST(0.0);
@@ -286,11 +281,11 @@ SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
   if (sunctx == NULL) { return NULL; }
   C = SUNAdaptController_Soderlind(sunctx);
   if (C == NULL) { return NULL; }
-  retval = SUNAdaptController_SetParams_ImpGus(C,
-                                               DEFAULT_IMPGUS_K1,
+  retval = SUNAdaptController_SetParams_ImpGus(C, DEFAULT_IMPGUS_K1,
                                                DEFAULT_IMPGUS_K2);
-  if (retval != SUNADAPTCONTROLLER_SUCCESS) {
-    (void) SUNAdaptController_Destroy(C);
+  if (retval != SUNADAPTCONTROLLER_SUCCESS)
+  {
+    (void)SUNAdaptController_Destroy(C);
     C = NULL;
   }
   return (C);
@@ -300,11 +295,11 @@ SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
  * Function to set explicit Gustafsson parameters
  */
 
-int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
-                                        sunrealtype k1, sunrealtype k2)
+int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C, sunrealtype k1,
+                                        sunrealtype k2)
 {
   if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-  SODERLIND_K1(C) = k1+k2;
+  SODERLIND_K1(C) = k1 + k2;
   SODERLIND_K2(C) = -k2;
   SODERLIND_K3(C) = SUN_RCONST(0.0);
   SODERLIND_K4(C) = SUN_RCONST(1.0);
@@ -312,43 +307,46 @@ int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-
-
 /* -----------------------------------------------------------------
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
 SUNAdaptController_Type SUNAdaptController_GetType_Soderlind(SUNAdaptController C)
-{ return SUN_ADAPTCONTROLLER_H; }
+{
+  return SUN_ADAPTCONTROLLER_H;
+}
 
-int SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C, sunrealtype h,
-                                              int p, sunrealtype dsm, sunrealtype* hnew)
+int SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
+                                              sunrealtype h, int p,
+                                              sunrealtype dsm, sunrealtype* hnew)
 {
   /* order parameter to use */
   const int ord = p + 1;
 
   /* set usable time-step adaptivity parameters */
-  const sunrealtype k1 = -SODERLIND_K1(C) / ord;
-  const sunrealtype k2 = -SODERLIND_K2(C) / ord;
-  const sunrealtype k3 = -SODERLIND_K3(C) / ord;
-  const sunrealtype k4 = SODERLIND_K4(C);
-  const sunrealtype k5 = SODERLIND_K5(C);
-  const sunrealtype e1 = SUNMAX(SODERLIND_BIAS(C) * dsm, TINY);
-  const sunrealtype e2 = SUNMAX(SODERLIND_EP(C), TINY);
-  const sunrealtype e3 = SUNMAX(SODERLIND_EPP(C), TINY);
-  const sunrealtype hrat = h / SODERLIND_HP(C);
+  const sunrealtype k1    = -SODERLIND_K1(C) / ord;
+  const sunrealtype k2    = -SODERLIND_K2(C) / ord;
+  const sunrealtype k3    = -SODERLIND_K3(C) / ord;
+  const sunrealtype k4    = SODERLIND_K4(C);
+  const sunrealtype k5    = SODERLIND_K5(C);
+  const sunrealtype e1    = SUNMAX(SODERLIND_BIAS(C) * dsm, TINY);
+  const sunrealtype e2    = SUNMAX(SODERLIND_EP(C), TINY);
+  const sunrealtype e3    = SUNMAX(SODERLIND_EPP(C), TINY);
+  const sunrealtype hrat  = h / SODERLIND_HP(C);
   const sunrealtype hrat2 = SODERLIND_HP(C) / SODERLIND_HPP(C);
 
   if (C == NULL || hnew == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
 
   /* compute estimated optimal time step size */
-  if (SODERLIND_FIRSTSTEPS(C) < 1) {
-    *hnew = h * SUNRpowerR(e1,k1);
-  } else if  (SODERLIND_FIRSTSTEPS(C) < 2) {
-    *hnew = h * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2) * SUNRpowerR(hrat,k4);
-  } else {
-    *hnew = h * SUNRpowerR(e1,k1) * SUNRpowerR(e2,k2) * SUNRpowerR(e3,k3)
-              * SUNRpowerR(hrat,k4) * SUNRpowerR(hrat2,k5);
+  if (SODERLIND_FIRSTSTEPS(C) < 1) { *hnew = h * SUNRpowerR(e1, k1); }
+  else if (SODERLIND_FIRSTSTEPS(C) < 2)
+  {
+    *hnew = h * SUNRpowerR(e1, k1) * SUNRpowerR(e2, k2) * SUNRpowerR(hrat, k4);
+  }
+  else
+  {
+    *hnew = h * SUNRpowerR(e1, k1) * SUNRpowerR(e2, k2) * SUNRpowerR(e3, k3) *
+            SUNRpowerR(hrat, k4) * SUNRpowerR(hrat2, k5);
   }
 
   /* return with success */
@@ -358,10 +356,10 @@ int SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C, sunrealtype 
 int SUNAdaptController_Reset_Soderlind(SUNAdaptController C)
 {
   if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-  SODERLIND_EP(C)  = SUN_RCONST(1.0);
-  SODERLIND_EPP(C) = SUN_RCONST(1.0);
-  SODERLIND_HP(C)  = SUN_RCONST(1.0);
-  SODERLIND_HPP(C) = SUN_RCONST(1.0);
+  SODERLIND_EP(C)         = SUN_RCONST(1.0);
+  SODERLIND_EPP(C)        = SUN_RCONST(1.0);
+  SODERLIND_HP(C)         = SUN_RCONST(1.0);
+  SODERLIND_HPP(C)        = SUN_RCONST(1.0);
   SODERLIND_FIRSTSTEPS(C) = 0;
   return SUNADAPTCONTROLLER_SUCCESS;
 }
@@ -378,7 +376,7 @@ int SUNAdaptController_SetDefaults_Soderlind(SUNAdaptController C)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE *fptr)
+int SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE* fptr)
 {
   if (C == NULL || fptr == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   fprintf(fptr, "Soderlind SUNAdaptController module:\n");
@@ -409,35 +407,36 @@ int SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE *fptr)
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_SetErrorBias_Soderlind(SUNAdaptController C, sunrealtype bias)
+int SUNAdaptController_SetErrorBias_Soderlind(SUNAdaptController C,
+                                              sunrealtype bias)
 {
   if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   /* set allowed value, otherwise set default */
-  if (bias <= SUN_RCONST(0.0)) {
-    SODERLIND_BIAS(C) = DEFAULT_BIAS;
-  } else {
-    SODERLIND_BIAS(C) = bias;
-  }
+  if (bias <= SUN_RCONST(0.0)) { SODERLIND_BIAS(C) = DEFAULT_BIAS; }
+  else { SODERLIND_BIAS(C) = bias; }
 
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_UpdateH_Soderlind(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
+int SUNAdaptController_UpdateH_Soderlind(SUNAdaptController C, sunrealtype h,
+                                         sunrealtype dsm)
 {
   if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
   SODERLIND_EPP(C) = SODERLIND_EP(C);
   SODERLIND_EP(C)  = SODERLIND_BIAS(C) * dsm;
   SODERLIND_HPP(C) = SODERLIND_HP(C);
   SODERLIND_HP(C)  = h;
-  if (SODERLIND_FIRSTSTEPS(C) < 2) {
-    SODERLIND_FIRSTSTEPS(C) += 1;
-  }
+  if (SODERLIND_FIRSTSTEPS(C) < 2) { SODERLIND_FIRSTSTEPS(C) += 1; }
   return SUNADAPTCONTROLLER_SUCCESS;
 }
 
-int SUNAdaptController_Space_Soderlind(SUNAdaptController C, long int* lenrw, long int* leniw)
+int SUNAdaptController_Space_Soderlind(SUNAdaptController C, long int* lenrw,
+                                       long int* leniw)
 {
-  if (C == NULL || lenrw == NULL || leniw == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  if (C == NULL || lenrw == NULL || leniw == NULL)
+  {
+    return SUNADAPTCONTROLLER_ILL_INPUT;
+  }
   *lenrw = 10;
   *leniw = 1;
   return SUNADAPTCONTROLLER_SUCCESS;

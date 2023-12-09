@@ -91,7 +91,7 @@ a function, and leverages RAII to implicitly end the region.
 The ``profobj`` argument to the macro should be a ``SUNProfiler`` object, i.e.
 an instance of the struct
 
-.. c:type:: struct _SUNProfiler *SUNProfiler
+.. c:type:: struct SUNProfiler_ *SUNProfiler
 
 When SUNDIALS is built with profiling, a default profiling object is stored in the
 ``SUNContext`` object and can be accessed with a call to

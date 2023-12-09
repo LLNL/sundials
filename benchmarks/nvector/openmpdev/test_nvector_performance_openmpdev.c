@@ -15,14 +15,13 @@
  * OpenMPDEV NVECTOR module implementation.
  * -----------------------------------------------------------------*/
 
+#include <nvector/nvector_openmpdev.h>
+#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <omp.h>
-
-#include <sundials/sundials_types.h>
-#include <nvector/nvector_openmpdev.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
+
 #include "test_nvector_performance.h"
 
 /* private functions */
@@ -32,64 +31,64 @@ static int FinalizeClearCache();
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   N_Vector X;          /* test vector       */
   sunindextype veclen; /* vector length     */
 
-  int print_timing;    /* output timings    */
-  int ntests;          /* number of tests   */
-  int nvecs;           /* number of tests   */
-  int nsums;           /* number of sums    */
-  int cachesize;       /* size of cache (MB) */
-  int flag;            /* return flag       */
+  int print_timing; /* output timings    */
+  int ntests;       /* number of tests   */
+  int nvecs;        /* number of tests   */
+  int nsums;        /* number of sums    */
+  int cachesize;    /* size of cache (MB) */
+  int flag;         /* return flag       */
 
   printf("\nStart Tests\n");
   printf("Vector Name: OpenMPDEV\n");
 
   /* check input and set vector length */
-  if (argc < 7){
+  if (argc < 7)
+  {
     printf("ERROR: SIX (6) arguments required: ");
-    printf("<vector length> <number of vectors> <number of sums> <number of tests> ");
+    printf("<vector length> <number of vectors> <number of sums> <number of "
+           "tests> ");
     printf("<cachesize> <print timing>\n");
-    return(-1);
+    return (-1);
   }
 
   veclen = atol(argv[1]);
-  if (veclen <= 0) {
+  if (veclen <= 0)
+  {
     printf("ERROR: length of vector must be a positive integer \n");
-    return(-1);
+    return (-1);
   }
 
   nvecs = atol(argv[2]);
-  if (nvecs < 1) {
-    printf("WARNING: Fused operation tests disabled\n");
-  }
+  if (nvecs < 1) { printf("WARNING: Fused operation tests disabled\n"); }
 
   nsums = atol(argv[3]);
-  if (nsums < 1) {
-    printf("WARNING: Some fused operation tests disabled\n");
-  }
+  if (nsums < 1) { printf("WARNING: Some fused operation tests disabled\n"); }
 
   ntests = atol(argv[4]);
-  if (ntests <= 0) {
+  if (ntests <= 0)
+  {
     printf("ERROR: number of tests must be a positive integer \n");
-    return(-1);
+    return (-1);
   }
 
   cachesize = atol(argv[5]);
-  if (cachesize < 0) {
+  if (cachesize < 0)
+  {
     printf("ERROR: cache size (MB) must be a non-negative integer \n");
-    return(-1);
+    return (-1);
   }
   InitializeClearCache(cachesize);
 
   print_timing = atoi(argv[6]);
   SetTiming(print_timing, 0);
 
-
   printf("\nRunning with: \n");
-  printf("  vector length         %ld \n", (long int) veclen);
+  printf("  vector length         %ld \n", (long int)veclen);
   printf("  max number of vectors %d  \n", nvecs);
   printf("  max number of sums    %d  \n", nsums);
   printf("  number of tests       %d  \n", ntests);
@@ -99,8 +98,8 @@ int main(int argc, char *argv[])
   X = N_VNew_OpenMPDEV(veclen);
 
   /* run tests */
-  if (print_timing) printf("\n\n standard operations:\n");
-  if (print_timing) PrintTableHeader(1);
+  if (print_timing) { printf("\n\n standard operations:\n"); }
+  if (print_timing) { PrintTableHeader(1); }
   flag = Test_N_VLinearSum(X, veclen, ntests);
   flag = Test_N_VConst(X, veclen, ntests);
   flag = Test_N_VProd(X, veclen, ntests);
@@ -123,8 +122,8 @@ int main(int argc, char *argv[])
 
   if (nvecs > 0)
   {
-    if (print_timing) printf("\n\n fused operations 1: nvecs= %d\n", nvecs);
-    if (print_timing) PrintTableHeader(2);
+    if (print_timing) { printf("\n\n fused operations 1: nvecs= %d\n", nvecs); }
+    if (print_timing) { PrintTableHeader(2); }
     flag = Test_N_VLinearCombination(X, veclen, nvecs, ntests);
     flag = Test_N_VScaleAddMulti(X, veclen, nvecs, ntests);
     flag = Test_N_VDotProdMulti(X, veclen, nvecs, ntests);
@@ -136,10 +135,14 @@ int main(int argc, char *argv[])
 
     if (nsums > 0)
     {
-      if (print_timing) printf("\n\n fused operations 2: nvecs= %d nsums= %d\n", nvecs, nsums);
-      if (print_timing) PrintTableHeader(2);
+      if (print_timing)
+      {
+        printf("\n\n fused operations 2: nvecs= %d nsums= %d\n", nvecs, nsums);
+      }
+      if (print_timing) { PrintTableHeader(2); }
       flag = Test_N_VScaleAddMultiVectorArray(X, veclen, nvecs, nsums, ntests);
-      flag = Test_N_VLinearCombinationVectorArray(X, veclen, nvecs, nsums, ntests);
+      flag = Test_N_VLinearCombinationVectorArray(X, veclen, nvecs, nsums,
+                                                  ntests);
     }
   }
 
@@ -150,18 +153,18 @@ int main(int argc, char *argv[])
 
   printf("\nFinished Tests\n");
 
-  return(flag);
+  return (flag);
 }
-
 
 /* ----------------------------------------------------------------------
  * Functions required by testing routines to fill vector data
  * --------------------------------------------------------------------*/
 
 /* random data between lower and upper */
-void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower, sunrealtype upper)
+void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower,
+             sunrealtype upper)
 {
-  sunrealtype *Xdata;
+  sunrealtype* Xdata;
 
   Xdata = N_VGetHostArrayPointer_OpenMPDEV(Xvec);
   rand_realtype(Xdata, Xlen, lower, upper);
@@ -171,7 +174,7 @@ void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower, sunrealtype up
 /* series of 0 and 1 */
 void N_VRandZeroOne(N_Vector Xvec, sunindextype Xlen)
 {
-  sunrealtype *Xdata;
+  sunrealtype* Xdata;
 
   Xdata = N_VGetHostArrayPointer_OpenMPDEV(Xvec);
   rand_realtype_zero_one(Xdata, Xlen);
@@ -181,19 +184,18 @@ void N_VRandZeroOne(N_Vector Xvec, sunindextype Xlen)
 /* random values for constraint array */
 void N_VRandConstraints(N_Vector Xvec, sunindextype Xlen)
 {
-  sunrealtype *Xdata;
+  sunrealtype* Xdata;
 
   Xdata = N_VGetHostArrayPointer_OpenMPDEV(Xvec);
   rand_realtype_constraints(Xdata, Xlen);
   N_VCopyToDevice_OpenMPDEV(Xvec);
 }
 
-
 /* ----------------------------------------------------------------------
  * Functions required for MPI or GPU testing
  * --------------------------------------------------------------------*/
 
-void collect_times(N_Vector X, double *times, int ntimes)
+void collect_times(N_Vector X, double* times, int ntimes)
 {
   /* not running with MPI, just return */
   return;
@@ -205,22 +207,12 @@ void sync_device(N_Vector x)
   return;
 }
 
-
 /* ----------------------------------------------------------------------
  * Functions required for clearing cache
  * --------------------------------------------------------------------*/
 
-static int InitializeClearCache(int cachesize)
-{
-  return(0);
-}
+static int InitializeClearCache(int cachesize) { return (0); }
 
-static int FinalizeClearCache()
-{
-  return(0);
-}
+static int FinalizeClearCache() { return (0); }
 
-void ClearCache()
-{
-  return;
-}
+void ClearCache() { return; }

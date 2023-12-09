@@ -116,7 +116,7 @@ PenaltyReturnTypeOnItsOwnLine       : 10000  # (penalize more)
 PointerAlignment                    : Left
 QualifierAlignment                  : Leave
 ReferenceAlignment                  : Pointer
-ReflowComments                      : true
+ReflowComments                      : false
 SeparateDefinitionBlocks            : Always
 SortIncludes                        : true
 SortUsingDeclarations               : true

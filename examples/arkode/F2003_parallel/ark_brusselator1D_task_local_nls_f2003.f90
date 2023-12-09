@@ -1040,10 +1040,10 @@ contains
     sunnls_LOC => FSUNNonlinSol_Newton(sunvec_y, sunctx)
 
     ! Create vector pointers to receive residual data
-    zpred_ptr = FN_VNewVectorArray(1)
-    z_ptr     = FN_VNewVectorArray(1)
-    Fi_ptr    = FN_VNewVectorArray(1)
-    sdata_ptr = FN_VNewVectorArray(1)
+    zpred_ptr = FN_VNewVectorArray(1, sunctx)
+    z_ptr     = FN_VNewVectorArray(1, sunctx)
+    Fi_ptr    = FN_VNewVectorArray(1, sunctx)
+    sdata_ptr = FN_VNewVectorArray(1, sunctx)
 
     sunvec_bnode => FN_VNew_Serial(int(Nvar, c_long), sunctx)
     sunmat_Jnode => FSUNDenseMatrix(int(Nvar, c_long), int(Nvar, c_long), sunctx)

@@ -25,6 +25,7 @@ in this section.
 .. toctree::
    Types_link
    SUNContext_link
+   Errors_link
    Logging_link
    Profiling_link
    version_information_link

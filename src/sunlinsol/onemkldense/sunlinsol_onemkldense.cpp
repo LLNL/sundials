@@ -15,10 +15,9 @@
  * SUNLINEARSOLVER class using the Intel oneAPI Math Kernel Library (oneMKL).
  * ---------------------------------------------------------------------------*/
 
+#include <oneapi/mkl/lapack.hpp>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <oneapi/mkl/lapack.hpp>
 using namespace oneapi::mkl::lapack;
 
 // SUNDIALS public headers
@@ -40,36 +39,35 @@ using namespace oneapi::mkl::lapack;
 // Accessor macros
 
 // Content and last error flag
-#define LS_CONTENT(S)   ((SUNLinearSolverContent_OneMklDense)(S->content))
-#define LS_LASTFLAG(S)  (LS_CONTENT(S)->last_flag )
+#define LS_CONTENT(S)  ((SUNLinearSolverContent_OneMklDense)(S->content))
+#define LS_LASTFLAG(S) (LS_CONTENT(S)->last_flag)
 
 // Pivots array length and memory
-#define LS_ROWS(S)     (LS_CONTENT(S)->rows)
-#define LS_PIVOTS(S)   (LS_CONTENT(S)->pivots)
-#define LS_PIVOTSp(S)  ((sunindextype*) LS_CONTENT(S)->pivots->ptr)
+#define LS_ROWS(S)    (LS_CONTENT(S)->rows)
+#define LS_PIVOTS(S)  (LS_CONTENT(S)->pivots)
+#define LS_PIVOTSp(S) ((sunindextype*)LS_CONTENT(S)->pivots->ptr)
 
 // Getrf scratch space size and memory
-#define LS_F_SCRATCH_SIZE(S)  (LS_CONTENT(S)->f_scratch_size)
-#define LS_F_SCRATCH(S)       (LS_CONTENT(S)->f_scratchpad)
-#define LS_F_SCRATCHp(S)      ((sunrealtype*) LS_CONTENT(S)->f_scratchpad->ptr)
+#define LS_F_SCRATCH_SIZE(S) (LS_CONTENT(S)->f_scratch_size)
+#define LS_F_SCRATCH(S)      (LS_CONTENT(S)->f_scratchpad)
+#define LS_F_SCRATCHp(S)     ((sunrealtype*)LS_CONTENT(S)->f_scratchpad->ptr)
 
 // Getrs scratch space size and memory
-#define LS_S_SCRATCH_SIZE(S)  (LS_CONTENT(S)->s_scratch_size)
-#define LS_S_SCRATCH(S)       (LS_CONTENT(S)->s_scratchpad)
-#define LS_S_SCRATCHp(S)      ((sunrealtype*) LS_CONTENT(S)->s_scratchpad->ptr)
+#define LS_S_SCRATCH_SIZE(S) (LS_CONTENT(S)->s_scratch_size)
+#define LS_S_SCRATCH(S)      (LS_CONTENT(S)->s_scratchpad)
+#define LS_S_SCRATCHp(S)     ((sunrealtype*)LS_CONTENT(S)->s_scratchpad->ptr)
 
 // Memory type, helper, and SYCL queue
-#define LS_MEM_TYPE(S)    (LS_CONTENT(S)->mem_type)
-#define LS_MEM_HELPER(S)  (LS_CONTENT(S)->mem_helper)
-#define LS_QUEUE(S)       (LS_CONTENT(S)->queue)
-
+#define LS_MEM_TYPE(S)   (LS_CONTENT(S)->mem_type)
+#define LS_MEM_HELPER(S) (LS_CONTENT(S)->mem_helper)
+#define LS_QUEUE(S)      (LS_CONTENT(S)->queue)
 
 /* --------------------------------------------------------------------------
  * Constructors
  * -------------------------------------------------------------------------- */
 
-
-SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sunctx)
+SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat,
+                                      SUNContext sunctx)
 {
   int retval = 0;
 
@@ -86,8 +84,8 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
     return NULL;
   }
 
-  if ( !(y->ops->nvgetlength) || !(y->ops->nvgetdevicearraypointer) ||
-       !(Amat->ops->getid) )
+  if (!(y->ops->nvgetlength) || !(y->ops->nvgetdevicearraypointer) ||
+      !(Amat->ops->getid))
   {
     SUNDIALS_DEBUG_ERROR("Illegal input, y or A missing required operations\n");
     return NULL;
@@ -106,7 +104,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
     return NULL;
   }
 
-  SUNMatrixContent_OneMklDense A = (SUNMatrixContent_OneMklDense) Amat->content;
+  SUNMatrixContent_OneMklDense A = (SUNMatrixContent_OneMklDense)Amat->content;
 
   // Check that the matrix is square
   if (A->rows != A->cols)
@@ -118,7 +116,8 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
   // Check that the matrix and vector dimensions agree
   if (A->cols != N_VGetLength(y))
   {
-    SUNDIALS_DEBUG_ERROR("Illegal input, number of columns in A != length of y\n");
+    SUNDIALS_DEBUG_ERROR(
+      "Illegal input, number of columns in A != length of y\n");
     return NULL;
   }
 
@@ -141,7 +140,8 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
   S->ops->free       = SUNLinSolFree_OneMklDense;
 
   // Create content
-  S->content = (SUNLinearSolverContent_OneMklDense) malloc(sizeof(_SUNLinearSolverContent_OneMklDense));
+  S->content = (SUNLinearSolverContent_OneMklDense)malloc(
+    sizeof(_SUNLinearSolverContent_OneMklDense));
   if (!(S->content))
   {
     SUNDIALS_DEBUG_ERROR("Content allocation failed\n");
@@ -163,8 +163,8 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
 
   // Allocate data
   retval = SUNMemoryHelper_Alloc(LS_MEM_HELPER(S), &(LS_PIVOTS(S)),
-                                 A->rows * sizeof(sunindextype),
-                                 LS_MEM_TYPE(S), A->queue);
+                                 A->rows * sizeof(sunindextype), LS_MEM_TYPE(S),
+                                 A->queue);
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("Pivots allocation failed\n");
@@ -183,57 +183,57 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
 #ifdef SUNDIALS_ONEMKL_USE_GETRF_LOOP
     LS_F_SCRATCH_SIZE(S) =
       getrf_scratchpad_size<sunrealtype>(*queue, // device queue
-                                      M,      // rows in A_i
-                                      N,      // columns in A_i
-                                      M);     // leading dimension
+                                         M,      // rows in A_i
+                                         N,      // columns in A_i
+                                         M);     // leading dimension
 #else
     LS_F_SCRATCH_SIZE(S) =
-      getrf_batch_scratchpad_size<sunrealtype>(*queue,      // device queue
-                                            M,           // rows in A_i
-                                            N,           // columns in A_i
-                                            M,           // leading dimension
-                                            M * N,       // stride between A_i
-                                            M,           // stride in P_i
-                                            num_blocks); // number of blocks
+      getrf_batch_scratchpad_size<sunrealtype>(*queue, // device queue
+                                               M,      // rows in A_i
+                                               N,      // columns in A_i
+                                               M,      // leading dimension
+                                               M * N,  // stride between A_i
+                                               M,      // stride in P_i
+                                               num_blocks); // number of blocks
 #endif
 
 #ifdef SUNDIALS_ONEMKL_USE_GETRS_LOOP
     LS_S_SCRATCH_SIZE(S) =
-      getrs_scratchpad_size<sunrealtype>(*queue,  // device queue
-                                      oneapi::mkl::transpose::nontrans,
-                                      M,      // number of rows in A
-                                      1,      // number of right-hand sizes
-                                      M,      // leading dimension of A
-                                      M);     // leading dimension of B
+      getrs_scratchpad_size<sunrealtype>(*queue, // device queue
+                                         oneapi::mkl::transpose::nontrans,
+                                         M,  // number of rows in A
+                                         1,  // number of right-hand sizes
+                                         M,  // leading dimension of A
+                                         M); // leading dimension of B
 #else
-    LS_S_SCRATCH_SIZE(S)=
-      getrs_batch_scratchpad_size<sunrealtype>(*queue,      // device queue
-                                            oneapi::mkl::transpose::nontrans,
-                                            M,           // number of rows in A_i
-                                            1,           // number of right-hand sides
-                                            M,           // leading dimensino of A_i
-                                            M * N,       // stride between A_i
-                                            M,           // stride between pivots
-                                            M,           // leading dimension of B_i
-                                            M,           // stride between B_i
-                                            num_blocks); // number of blocks
+    LS_S_SCRATCH_SIZE(S) =
+      getrs_batch_scratchpad_size<sunrealtype>(*queue, // device queue
+                                               oneapi::mkl::transpose::nontrans,
+                                               M, // number of rows in A_i
+                                               1, // number of right-hand sides
+                                               M, // leading dimensino of A_i
+                                               M * N, // stride between A_i
+                                               M,     // stride between pivots
+                                               M, // leading dimension of B_i
+                                               M, // stride between B_i
+                                               num_blocks); // number of blocks
 #endif
   }
   else
   {
     LS_F_SCRATCH_SIZE(S) =
       getrf_scratchpad_size<sunrealtype>(*queue, // device queue
-                                      M,      // rows in A_i
-                                      N,      // columns in A_i
-                                      M);     // leading dimension
+                                         M,      // rows in A_i
+                                         N,      // columns in A_i
+                                         M);     // leading dimension
 
     LS_S_SCRATCH_SIZE(S) =
-      getrs_scratchpad_size<sunrealtype>(*queue,  // device queue
-                                      oneapi::mkl::transpose::nontrans,
-                                      M,      // number of rows in A
-                                      1,      // number of right-hand sizes
-                                      M,      // leading dimension of A
-                                      M);     // leading dimension of B
+      getrs_scratchpad_size<sunrealtype>(*queue, // device queue
+                                         oneapi::mkl::transpose::nontrans,
+                                         M,  // number of rows in A
+                                         1,  // number of right-hand sizes
+                                         M,  // leading dimension of A
+                                         M); // leading dimension of B
   }
 
   // Allocate factorization scratchpad if necessary
@@ -261,11 +261,9 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat, SUNContext sun
   return S;
 }
 
-
 /* --------------------------------------------------------------------------
  * Implementation of SUNLinearSolver operations
  * -------------------------------------------------------------------------- */
-
 
 int SUNLinSolInitialize_OneMklDense(SUNLinearSolver S)
 {
@@ -279,7 +277,6 @@ int SUNLinSolInitialize_OneMklDense(SUNLinearSolver S)
   LS_LASTFLAG(S) = SUNLS_SUCCESS;
   return SUNLS_SUCCESS;
 }
-
 
 int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
 {
@@ -330,7 +327,7 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
   sunindextype N            = SUNMatrix_OneMklDense_BlockColumns(A);
   sunindextype num_blocks   = SUNMatrix_OneMklDense_NumBlocks(A);
   sunindextype scratch_size = LS_F_SCRATCH_SIZE(S);
-  sunrealtype*    scratchpad   = LS_F_SCRATCHp(S);
+  sunrealtype* scratchpad   = LS_F_SCRATCHp(S);
 
   if (num_blocks > 1)
   {
@@ -349,7 +346,7 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
               scratch_size);     // scratchpad size
       }
     }
-    catch(oneapi::mkl::lapack::exception const& e)
+    catch (oneapi::mkl::lapack::exception const& e)
     {
       SUNDIALS_DEBUG_ERROR("An exception occured in getrf\n");
       if (e.info())
@@ -366,19 +363,19 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
 #else
     try
     {
-      getrf_batch(*queue,         // device queue
-                  M,              // number of block rows
-                  N,              // number of block columns
-                  Adata,          // matrix data
-                  M,              // leading dimension of A
-                  M * N,          // stride between A_i
-                  pivots,         // array of pivots
-                  M,              // stride between P_i
-                  num_blocks,     // number of blocks
-                  scratchpad,     // scratchpad memory
-                  scratch_size);  // scratchpad size
+      getrf_batch(*queue,        // device queue
+                  M,             // number of block rows
+                  N,             // number of block columns
+                  Adata,         // matrix data
+                  M,             // leading dimension of A
+                  M * N,         // stride between A_i
+                  pivots,        // array of pivots
+                  M,             // stride between P_i
+                  num_blocks,    // number of blocks
+                  scratchpad,    // scratchpad memory
+                  scratch_size); // scratchpad size
     }
-    catch(oneapi::mkl::lapack::exception const& e)
+    catch (oneapi::mkl::lapack::exception const& e)
     {
       SUNDIALS_DEBUG_ERROR("An exception occured in getrf_batch\n");
       if (e.info())
@@ -407,7 +404,7 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
             scratchpad,    // scratchpad memory
             scratch_size); // scratchpad size
     }
-    catch(oneapi::mkl::lapack::exception const& e)
+    catch (oneapi::mkl::lapack::exception const& e)
     {
       SUNDIALS_DEBUG_ERROR("An exception occured in getrf\n");
       if (e.info())
@@ -438,7 +435,6 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
   LS_LASTFLAG(S) = SUNLS_SUCCESS;
   return SUNLS_SUCCESS;
 }
-
 
 int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                N_Vector b, sunrealtype tol)
@@ -502,7 +498,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   sunindextype N            = SUNMatrix_OneMklDense_BlockColumns(A);
   sunindextype num_blocks   = SUNMatrix_OneMklDense_NumBlocks(A);
   sunindextype scratch_size = LS_S_SCRATCH_SIZE(S);
-  sunrealtype*    scratchpad   = LS_S_SCRATCHp(S);
+  sunrealtype* scratchpad   = LS_S_SCRATCHp(S);
 
   if (num_blocks > 1)
   {
@@ -511,7 +507,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     {
       for (sunindextype i = 0; i < num_blocks; i++)
       {
-        getrs(*queue,            // device queue
+        getrs(*queue, // device queue
               oneapi::mkl::transpose::nontrans,
               M,                 // number of rows
               1,                 // number of right-hand sides
@@ -524,7 +520,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
               scratch_size);     // scratchpad size
       }
     }
-    catch(oneapi::mkl::lapack::exception const& e)
+    catch (oneapi::mkl::lapack::exception const& e)
     {
       SUNDIALS_DEBUG_ERROR("An exception occured in getrs\n");
       ier = -1;
@@ -532,7 +528,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 #else
     try
     {
-      getrs_batch(*queue,        // device queue
+      getrs_batch(*queue, // device queue
                   oneapi::mkl::transpose::nontrans,
                   M,             // number of rows
                   1,             // number of right-hand sides
@@ -548,7 +544,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                   scratchpad,    // scratchpad memory
                   scratch_size); // scratchpad size
     }
-    catch(oneapi::mkl::lapack::exception const& e)
+    catch (oneapi::mkl::lapack::exception const& e)
     {
       SUNDIALS_DEBUG_ERROR("An exception occured in getrs_batch\n");
       ier = -1;
@@ -559,7 +555,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   {
     try
     {
-      getrs(*queue,        // device queue
+      getrs(*queue, // device queue
             oneapi::mkl::transpose::nontrans,
             M,             // number of rows
             1,             // number of right-hand sides
@@ -571,7 +567,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
             scratchpad,    // scratchpad memory
             scratch_size); // scratchpad size
     }
-    catch(oneapi::mkl::lapack::exception const& e)
+    catch (oneapi::mkl::lapack::exception const& e)
     {
       SUNDIALS_DEBUG_ERROR("An exception occured in getrs\n");
       ier = -1;
@@ -588,7 +584,6 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   return SUNLS_SUCCESS;
 }
 
-
 sunindextype SUNLinSolLastFlag_OneMklDense(SUNLinearSolver S)
 {
   // return the stored 'last_flag' value
@@ -601,10 +596,8 @@ sunindextype SUNLinSolLastFlag_OneMklDense(SUNLinearSolver S)
   return LS_LASTFLAG(S);
 }
 
-
-int SUNLinSolSpace_OneMklDense(SUNLinearSolver S,
-                              long int *lenrwLS,
-                              long int *leniwLS)
+int SUNLinSolSpace_OneMklDense(SUNLinearSolver S, long int* lenrwLS,
+                               long int* leniwLS)
 {
   if (!S)
   {
@@ -619,11 +612,10 @@ int SUNLinSolSpace_OneMklDense(SUNLinearSolver S,
   return SUNLS_SUCCESS;
 }
 
-
 int SUNLinSolFree_OneMklDense(SUNLinearSolver S)
 {
   // return if S is already free
-  if (!S) return SUNLS_SUCCESS;
+  if (!S) { return SUNLS_SUCCESS; }
 
   // delete items from contents, then delete generic structure
   if (S->content)

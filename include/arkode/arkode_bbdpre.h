@@ -21,44 +21,36 @@
 
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-
 /* User-supplied function Types */
 
-typedef int (*ARKLocalFn)(sunindextype Nlocal, sunrealtype t,
-                          N_Vector y, N_Vector g, void *user_data);
+typedef int (*ARKLocalFn)(sunindextype Nlocal, sunrealtype t, N_Vector y,
+                          N_Vector g, void* user_data);
 
-typedef int (*ARKCommFn)(sunindextype Nlocal, sunrealtype t,
-                         N_Vector y, void *user_data);
+typedef int (*ARKCommFn)(sunindextype Nlocal, sunrealtype t, N_Vector y,
+                         void* user_data);
 
 /* Exported Functions */
 
-SUNDIALS_EXPORT int ARKBBDPrecInit(void *arkode_mem,
-                                   sunindextype Nlocal,
-                                   sunindextype mudq,
-                                   sunindextype mldq,
-                                   sunindextype mukeep,
-                                   sunindextype mlkeep,
-                                   sunrealtype dqrely,
-                                   ARKLocalFn gloc,
+SUNDIALS_EXPORT int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal,
+                                   sunindextype mudq, sunindextype mldq,
+                                   sunindextype mukeep, sunindextype mlkeep,
+                                   sunrealtype dqrely, ARKLocalFn gloc,
                                    ARKCommFn cfn);
 
-SUNDIALS_EXPORT int ARKBBDPrecReInit(void *arkode_mem,
-                                     sunindextype mudq,
-                                     sunindextype mldq,
-                                     sunrealtype dqrely);
+SUNDIALS_EXPORT int ARKBBDPrecReInit(void* arkode_mem, sunindextype mudq,
+                                     sunindextype mldq, sunrealtype dqrely);
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int ARKBBDPrecGetWorkSpace(void *arkode_mem,
-                                           long int *lenrwBBDP,
-                                           long int *leniwBBDP);
+SUNDIALS_EXPORT int ARKBBDPrecGetWorkSpace(void* arkode_mem, long int* lenrwBBDP,
+                                           long int* leniwBBDP);
 
-SUNDIALS_EXPORT int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
-                                             long int *ngevalsBBDP);
+SUNDIALS_EXPORT int ARKBBDPrecGetNumGfnEvals(void* arkode_mem,
+                                             long int* ngevalsBBDP);
 
 #ifdef __cplusplus
 }

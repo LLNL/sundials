@@ -15,30 +15,28 @@
  * PETSc NVECTOR module implementation.
  * -----------------------------------------------------------------*/
 
+#include <mpi.h>
+#include <nvector/nvector_petsc.h>
+#include <petscvec.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <petscvec.h>
-#include <sundials/sundials_types.h>
-#include <nvector/nvector_petsc.h>
 #include <sundials/sundials_math.h>
-#include "test_nvector_performance.h"
+#include <sundials/sundials_types.h>
 
-#include <mpi.h>
+#include "test_nvector_performance.h"
 
 /* private functions */
 static int InitializeClearCache(int cachesize);
 static int FinalizeClearCache();
 
 /* private data for clearing cache */
-static sunindextype N;  /* data length */
-static sunrealtype* data;  /* host data   */
-
+static sunindextype N;    /* data length */
+static sunrealtype* data; /* host data   */
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   SUNContext sunctx;
   N_Vector X;          /* test vector        */
@@ -47,15 +45,15 @@ int main(int argc, char *argv[])
   Vec Xpetsc;          /* PETSc vector     */
   PetscErrorCode ierr; /* PETSc error code */
 
-  int print_timing;    /* output timings     */
-  int ntests;          /* number of tests    */
-  int nvecs;           /* number of tests    */
-  int nsums;           /* number of sums     */
-  int cachesize;       /* size of cache (MB) */
-  int flag;            /* return flag        */
+  int print_timing; /* output timings     */
+  int ntests;       /* number of tests    */
+  int nvecs;        /* number of tests    */
+  int nsums;        /* number of sums     */
+  int cachesize;    /* size of cache (MB) */
+  int flag;         /* return flag        */
 
-  MPI_Comm comm;          /* MPI Communicator   */
-  int      nprocs, myid;  /* Num procs, proc id */
+  MPI_Comm comm;    /* MPI Communicator   */
+  int nprocs, myid; /* Num procs, proc id */
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
@@ -65,59 +63,63 @@ int main(int argc, char *argv[])
   ierr = PetscInitializeNoArguments();
   CHKERRQ(ierr);
 
-  if (SUNContext_Create(comm, &sunctx)) {
+  if (SUNContext_Create(comm, &sunctx))
+  {
     printf("ERROR: SUNContext_Create returned nonzero\n");
-    return(-1);
+    return (-1);
   }
 
-  if (myid == 0) {
+  if (myid == 0)
+  {
     printf("\nStart Tests\n");
     printf("Vector Name: PETSc\n");
   }
 
   /* check input and set vector length */
-  if (argc < 7){
+  if (argc < 7)
+  {
     printf("ERROR: SIX (6) arguments required: ");
-    printf("<vector length> <number of vectors> <number of sums> <number of tests> ");
+    printf("<vector length> <number of vectors> <number of sums> <number of "
+           "tests> ");
     printf("<cache size (MB)> <print timing>\n");
-    return(-1);
+    return (-1);
   }
 
-  veclen = (sunindextype) atol(argv[1]);
-  if (veclen <= 0) {
+  veclen = (sunindextype)atol(argv[1]);
+  if (veclen <= 0)
+  {
     printf("ERROR: local vector length must be a positive integer \n");
-    return(-1);
+    return (-1);
   }
 
-  nvecs = (int) atol(argv[2]);
-  if (nvecs < 1) {
-    printf("WARNING: Fused operation tests disabled\n");
-  }
+  nvecs = (int)atol(argv[2]);
+  if (nvecs < 1) { printf("WARNING: Fused operation tests disabled\n"); }
 
-  nsums = (int) atol(argv[3]);
-  if (nsums < 1) {
-    printf("WARNING: Some fused operation tests disabled\n");
-  }
+  nsums = (int)atol(argv[3]);
+  if (nsums < 1) { printf("WARNING: Some fused operation tests disabled\n"); }
 
-  ntests = (int) atol(argv[4]);
-  if (ntests <= 0) {
+  ntests = (int)atol(argv[4]);
+  if (ntests <= 0)
+  {
     printf("ERROR: number of tests must be a positive integer \n");
-    return(-1);
+    return (-1);
   }
 
-  cachesize = (int) atol(argv[5]);
-  if (cachesize < 0) {
+  cachesize = (int)atol(argv[5]);
+  if (cachesize < 0)
+  {
     printf("ERROR: cache size (MB) must be a non-negative integer \n");
-    return(-1);
+    return (-1);
   }
   InitializeClearCache(cachesize);
 
   print_timing = atoi(argv[6]);
   SetTiming(print_timing, myid);
 
-  if (myid == 0) {
+  if (myid == 0)
+  {
     printf("\nRunning with: \n");
-    printf("  local vector length   %ld \n", (long int) veclen);
+    printf("  local vector length   %ld \n", (long int)veclen);
     printf("  max number of vectors %d  \n", nvecs);
     printf("  max number of sums    %d  \n", nsums);
     printf("  number of tests       %d  \n", ntests);
@@ -127,12 +129,13 @@ int main(int argc, char *argv[])
 
   /* Create vectors */
   VecCreate(comm, &Xpetsc);
-  VecSetSizes(Xpetsc, veclen, nprocs*veclen);
+  VecSetSizes(Xpetsc, veclen, nprocs * veclen);
   VecSetFromOptions(Xpetsc);
   X = N_VMake_Petsc(Xpetsc, sunctx);
 
   /* run tests */
-  if (myid == 0 && print_timing) {
+  if (myid == 0 && print_timing)
+  {
     printf("\n\n standard operations:\n");
     PrintTableHeader(1);
   }
@@ -158,7 +161,8 @@ int main(int argc, char *argv[])
 
   if (nvecs > 0)
   {
-    if (myid == 0 && print_timing) {
+    if (myid == 0 && print_timing)
+    {
       printf("\n\n fused operations 1: nvecs= %d\n", nvecs);
       PrintTableHeader(2);
     }
@@ -173,12 +177,14 @@ int main(int argc, char *argv[])
 
     if (nsums > 0)
     {
-      if (myid == 0 && print_timing) {
+      if (myid == 0 && print_timing)
+      {
         printf("\n\n fused operations 2: nvecs= %d nsums= %d\n", nvecs, nsums);
         PrintTableHeader(2);
       }
       flag = Test_N_VScaleAddMultiVectorArray(X, veclen, nvecs, nsums, ntests);
-      flag = Test_N_VLinearCombinationVectorArray(X, veclen, nvecs, nsums, ntests);
+      flag = Test_N_VLinearCombinationVectorArray(X, veclen, nvecs, nsums,
+                                                  ntests);
     }
   }
 
@@ -187,27 +193,26 @@ int main(int argc, char *argv[])
 
   FinalizeClearCache();
 
-  if (myid == 0)
-    printf("\nFinished Tests\n");
+  if (myid == 0) { printf("\nFinished Tests\n"); }
 
   ierr = PetscFinalize();
   CHKERRQ(ierr);
   SUNContext_Free(&sunctx);
   MPI_Finalize();
 
-  return(flag);
+  return (flag);
 }
-
 
 /* ----------------------------------------------------------------------
  * Functions required by testing routines to fill vector data
  * --------------------------------------------------------------------*/
 
 /* random data between lower and upper */
-void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower, sunrealtype upper)
+void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower,
+             sunrealtype upper)
 {
   Vec Xpetsc;
-  PetscScalar *Xdata;
+  PetscScalar* Xdata;
 
   Xpetsc = N_VGetVector_Petsc(Xvec);
   VecGetArray(Xpetsc, &Xdata);
@@ -219,7 +224,7 @@ void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower, sunrealtype up
 void N_VRandZeroOne(N_Vector Xvec, sunindextype Xlen)
 {
   Vec Xpetsc;
-  PetscScalar *Xdata;
+  PetscScalar* Xdata;
 
   Xpetsc = N_VGetVector_Petsc(Xvec);
   VecGetArray(Xpetsc, &Xdata);
@@ -231,7 +236,7 @@ void N_VRandZeroOne(N_Vector Xvec, sunindextype Xlen)
 void N_VRandConstraints(N_Vector Xvec, sunindextype Xlen)
 {
   Vec Xpetsc;
-  PetscScalar *Xdata;
+  PetscScalar* Xdata;
 
   Xpetsc = N_VGetVector_Petsc(Xvec);
   VecGetArray(Xpetsc, &Xdata);
@@ -239,12 +244,11 @@ void N_VRandConstraints(N_Vector Xvec, sunindextype Xlen)
   VecRestoreArray(Xpetsc, &Xdata);
 }
 
-
 /* ----------------------------------------------------------------------
  * Functions required for MPI or GPU testing
  * --------------------------------------------------------------------*/
 
-void collect_times(N_Vector X, double *times, int ntimes)
+void collect_times(N_Vector X, double* times, int ntimes)
 {
   MPI_Comm comm;
   int myid;
@@ -253,9 +257,10 @@ void collect_times(N_Vector X, double *times, int ntimes)
   MPI_Comm_rank(comm, &myid);
 
   if (myid == 0)
+  {
     MPI_Reduce(MPI_IN_PLACE, times, ntimes, MPI_DOUBLE, MPI_MAX, 0, comm);
-  else
-    MPI_Reduce(times, times, ntimes, MPI_DOUBLE, MPI_MAX, 0, comm);
+  }
+  else { MPI_Reduce(times, times, ntimes, MPI_DOUBLE, MPI_MAX, 0, comm); }
 
   return;
 }
@@ -266,40 +271,38 @@ void sync_device(N_Vector x)
   return;
 }
 
-
 /* ----------------------------------------------------------------------
  * Functions required for clearing cache
  * --------------------------------------------------------------------*/
 
 static int InitializeClearCache(int cachesize)
 {
-  size_t nbytes;  /* cache size in bytes */
+  size_t nbytes; /* cache size in bytes */
 
   /* determine size of vector to clear cache, N = ceil(2 * nbytes/sunrealtype) */
-  nbytes = (size_t) (2 * cachesize * 1024 * 1024);
-  N = (sunindextype) ((nbytes + sizeof(sunrealtype) - 1)/sizeof(sunrealtype));
+  nbytes = (size_t)(2 * cachesize * 1024 * 1024);
+  N = (sunindextype)((nbytes + sizeof(sunrealtype) - 1) / sizeof(sunrealtype));
 
   /* allocate data and fill random values */
-  data = (sunrealtype*) malloc(N*sizeof(sunrealtype));
+  data = (sunrealtype*)malloc(N * sizeof(sunrealtype));
   rand_realtype(data, N, SUN_RCONST(-1.0), SUN_RCONST(1.0));
 
-  return(0);
+  return (0);
 }
 
 static int FinalizeClearCache()
 {
   free(data);
-  return(0);
+  return (0);
 }
 
 void ClearCache()
 {
-  sunrealtype     sum;
+  sunrealtype sum;
   sunindextype i;
 
   sum = SUN_RCONST(0.0);
-  for (i=0; i<N; i++)
-    sum += data[i];
+  for (i = 0; i < N; i++) { sum += data[i]; }
 
   return;
 }
