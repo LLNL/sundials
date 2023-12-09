@@ -22,7 +22,6 @@
 #include <stdlib.h>
 
 #include "sundials_debug.h"
-#include "sundials_nvector_impl.h"
 
 // RAJA defines
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)

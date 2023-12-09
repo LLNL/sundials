@@ -25,7 +25,6 @@
 
 /* SUNDIALS private headers */
 #include "sundials_debug.h"
-#include "sundials_nvector_impl.h"
 #include "sundials_sycl.h"
 
 #define ZERO   SUN_RCONST(0.0)

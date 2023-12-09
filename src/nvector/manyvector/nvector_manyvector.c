@@ -238,36 +238,33 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors, N_Vector* vec_array,
                               SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
-  sunindextype i;
   sunbooleantype nocommfound;
-  void* tmpcomm;
-  MPI_Comm comm, *vcomm;
+  MPI_Comm comm, vcomm;
   int comparison;
   N_Vector v = NULL;
 
   /* Check that all subvectors have identical MPI communicators (if present) */
   nocommfound = SUNTRUE;
   comm        = MPI_COMM_NULL;
-  for (i = 0; i < num_subvectors; i++)
+  for (sunindextype i = 0; i < num_subvectors; i++)
   {
     /* access MPI communicator for subvector i (vcomm);
        if none is present then continue to next subvector */
-    tmpcomm = N_VGetCommunicator(vec_array[i]);
-    if (tmpcomm == NULL) { continue; }
-    vcomm = (MPI_Comm*)tmpcomm;
+    vcomm = N_VGetCommunicator(vec_array[i]);
+    if (vcomm == MPI_COMM_NULL) { continue; }
 
     /* if this is the first communicator, create a copy */
     if (nocommfound)
     {
       /* set comm to duplicate this first subvector communicator */
-      SUNCheckMPICallNull(MPI_Comm_dup(*vcomm, &comm));
+      SUNCheckMPICallNull(MPI_Comm_dup(vcomm, &comm));
       nocommfound = SUNFALSE;
 
       /* otherwise, verify that vcomm matches stored comm */
     }
     else
     {
-      SUNCheckMPICallNoRet(MPI_Comm_compare(*vcomm, comm, &comparison));
+      SUNCheckMPICallNoRet(MPI_Comm_compare(vcomm, comm, &comparison));
       SUNCheckNull((comparison == MPI_IDENT) || (comparison == MPI_CONGRUENT),
                    SUN_ERR_ARG_INCOMPATIBLE);
     }
@@ -2054,12 +2051,12 @@ static N_Vector ManyVectorClone(N_Vector w, sunbooleantype cloneempty)
     if (cloneempty)
     {
       content->subvec_array[i] = N_VCloneEmpty(MANYVECTOR_SUBVEC(w, i));
-      SUNCheckLastErrNoRet();
+      SUNCheckLastErrNull();
     }
     else
     {
       content->subvec_array[i] = N_VClone(MANYVECTOR_SUBVEC(w, i));
-      SUNCheckLastErrNoRet();
+      SUNCheckLastErrNull();
     }
   }
 
@@ -2072,15 +2069,12 @@ static N_Vector ManyVectorClone(N_Vector w, sunbooleantype cloneempty)
    returns 0.  If an error occurs in the call to MPI_Comm_Rank, it returns -1. */
 static int SubvectorMPIRank(N_Vector x)
 {
-  void* tmpcomm;
-  MPI_Comm* comm;
-  int rank, retval;
-  tmpcomm = N_VGetCommunicator(x);
-  if (tmpcomm == NULL) { return SUN_SUCCESS; }
-  comm = (MPI_Comm*)tmpcomm;
-  if ((*comm) == MPI_COMM_NULL) { return SUN_SUCCESS; }
-  retval = MPI_Comm_rank(*comm, &rank);
-  if (retval != MPI_SUCCESS) { return (-1); }
-  return (rank);
+  int rank;
+  SUNFunctionBegin(x->sunctx);
+  MPI_Comm comm = N_VGetCommunicator(x);
+  SUNCheckLastErrNoRet();
+  if (comm == MPI_COMM_NULL) { return SUN_SUCCESS; }
+  SUNCheckMPICall(MPI_Comm_rank(comm, &rank));
+  return rank;
 }
 #endif

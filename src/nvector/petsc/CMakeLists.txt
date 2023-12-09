@@ -28,7 +28,6 @@ endif()
 sundials_add_library(sundials_nvecpetsc
   SOURCES
     nvector_petsc.c
-    ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_mpi_errors.c
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_petsc.h
   INCLUDE_SUBDIR

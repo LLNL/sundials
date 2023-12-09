@@ -26,8 +26,6 @@
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
 
-#include "sundials_nvector_impl.h"
-
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)
 #define ONE    SUN_RCONST(1.0)
