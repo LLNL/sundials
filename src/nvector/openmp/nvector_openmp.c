@@ -24,9 +24,12 @@
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_core.h>
 
 #include "sundials/sundials_context.h"
-#include "sundials_nvector_impl.h"
+#include "sundials/sundials_errors.h"
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)
@@ -2450,16 +2453,67 @@ SUNErrCode N_VEnableFusedOps_OpenMP(N_Vector v, sunbooleantype tf)
   return SUN_SUCCESS;
 }
 
-NVECTOR_DEFINE_ENABLE_FUSEDOP(LinearCombination, linearcombination, OpenMP)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(ScaleAddMulti, scaleaddmulti, OpenMP)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(DotProdMulti, dotprodmulti, OpenMP)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(LinearSumVectorArray, linearsumvectorarray, OpenMP)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(ScaleVectorArray, scalevectorarray, OpenMP)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(ConstVectorArray, constvectorarray, OpenMP)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(WrmsNormVectorArray, wrmsnormvectorarray, OpenMP)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(WrmsNormMaskVectorArray, wrmsnormmaskvectorarray,
-                              OpenMP)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(ScaleAddMultiVectorArray,
-                              scaleaddmultivectorarray, OpenMP)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(LinearCombinationVectorArray,
-                              linearcombinationvectorarray, OpenMP)
+SUNErrCode N_VEnableLinearCombination_OpenMP(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvlinearcombination = tf ? N_VLinearCombination_OpenMP : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableScaleAddMulti_OpenMP(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvscaleaddmulti = tf ? N_VScaleAddMulti_OpenMP : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableDotProdMulti_OpenMP(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvdotprodmulti      = tf ? N_VDotProdMulti_OpenMP : NULL;
+  v->ops->nvdotprodmultilocal = tf ? N_VDotProdMulti_OpenMP : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableLinearSumVectorArray_OpenMP(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvlinearsumvectorarray = tf ? N_VLinearSumVectorArray_OpenMP : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableScaleVectorArray_OpenMP(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvscalevectorarray = tf ? N_VScaleVectorArray_OpenMP : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableConstVectorArray_OpenMP(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvconstvectorarray = tf ? N_VConstVectorArray_OpenMP : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableWrmsNormVectorArray_OpenMP(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvwrmsnormvectorarray = tf ? N_VWrmsNormVectorArray_OpenMP : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableWrmsNormMaskVectorArray_OpenMP(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvwrmsnormmaskvectorarray = tf ? N_VWrmsNormMaskVectorArray_OpenMP
+                                         : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableScaleAddMultiVectorArray_OpenMP(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvscaleaddmultivectorarray = tf ? N_VScaleAddMultiVectorArray_OpenMP
+                                          : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableLinearCombinationVectorArray_OpenMP(N_Vector v,
+                                                        sunbooleantype tf)
+{
+  v->ops->nvlinearcombinationvectorarray =
+    tf ? N_VLinearCombinationVectorArray_OpenMP : NULL;
+  return SUN_SUCCESS;
+}

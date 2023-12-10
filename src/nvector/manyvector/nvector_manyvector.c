@@ -26,7 +26,9 @@
 #else
 #include <nvector/nvector_manyvector.h>
 #endif
-#include "sundials_nvector_impl.h"
+#include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_core.h>
 
 /* Macro to handle separate MPI-aware/unaware installations */
 #ifdef MANYVECTOR_BUILD_WITH_MPI

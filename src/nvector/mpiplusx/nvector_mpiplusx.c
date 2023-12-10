@@ -15,10 +15,12 @@
  * -----------------------------------------------------------------*/
 
 #include <nvector/nvector_mpiplusx.h>
+#include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_core.h>
 
 #include "sundials/priv/sundials_errors_impl.h"
 #include "sundials/sundials_errors.h"
-#include "sundials_nvector_impl.h"
 
 #define MPIPLUSX_LOCAL_VECTOR(v) (N_VGetSubvector_MPIManyVector(v, 0))
 

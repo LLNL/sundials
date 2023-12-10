@@ -21,12 +21,14 @@
 #include <iostream>
 #include <limits>
 #include <nvector/nvector_cuda.h>
+#include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_core.h>
 
 #include "VectorArrayKernels.cuh"
 #include "VectorKernels.cuh"
 #include "sundials_cuda.h"
 #include "sundials_debug.h"
-#include "sundials_nvector_impl.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define HALF SUN_RCONST(0.5)

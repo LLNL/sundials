@@ -19,8 +19,9 @@
 #include <nvector/nvector_serial.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "sundials_nvector_impl.h"
+#include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_core.h>
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)
@@ -1974,16 +1975,67 @@ SUNErrCode N_VEnableFusedOps_Serial(N_Vector v, sunbooleantype tf)
   return SUN_SUCCESS;
 }
 
-NVECTOR_DEFINE_ENABLE_FUSEDOP(LinearCombination, linearcombination, Serial)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(ScaleAddMulti, scaleaddmulti, Serial)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(DotProdMulti, dotprodmulti, Serial)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(LinearSumVectorArray, linearsumvectorarray, Serial)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(ScaleVectorArray, scalevectorarray, Serial)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(ConstVectorArray, constvectorarray, Serial)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(WrmsNormVectorArray, wrmsnormvectorarray, Serial)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(WrmsNormMaskVectorArray, wrmsnormmaskvectorarray,
-                              Serial)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(ScaleAddMultiVectorArray,
-                              scaleaddmultivectorarray, Serial)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(LinearCombinationVectorArray,
-                              linearcombinationvectorarray, Serial)
+SUNErrCode N_VEnableLinearCombination_Serial(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvlinearcombination = tf ? N_VLinearCombination_Serial : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableScaleAddMulti_Serial(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvscaleaddmulti = tf ? N_VScaleAddMulti_Serial : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableDotProdMulti_Serial(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvdotprodmulti      = tf ? N_VDotProdMulti_Serial : NULL;
+  v->ops->nvdotprodmultilocal = tf ? N_VDotProdMulti_Serial : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableLinearSumVectorArray_Serial(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvlinearsumvectorarray = tf ? N_VLinearSumVectorArray_Serial : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableScaleVectorArray_Serial(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvscalevectorarray = tf ? N_VScaleVectorArray_Serial : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableConstVectorArray_Serial(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvconstvectorarray = tf ? N_VConstVectorArray_Serial : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableWrmsNormVectorArray_Serial(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvwrmsnormvectorarray = tf ? N_VWrmsNormVectorArray_Serial : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableWrmsNormMaskVectorArray_Serial(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvwrmsnormmaskvectorarray = tf ? N_VWrmsNormMaskVectorArray_Serial
+                                         : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableScaleAddMultiVectorArray_Serial(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvscaleaddmultivectorarray = tf ? N_VScaleAddMultiVectorArray_Serial
+                                          : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableLinearCombinationVectorArray_Serial(N_Vector v,
+                                                        sunbooleantype tf)
+{
+  v->ops->nvlinearcombinationvectorarray =
+    tf ? N_VLinearCombinationVectorArray_Serial : NULL;
+  return SUN_SUCCESS;
+}

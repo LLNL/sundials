@@ -25,9 +25,11 @@
 #include <nvector/nvector_pthreads.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_core.h>
 
 #include "sundials/priv/sundials_errors_impl.h"
-#include "sundials_nvector_impl.h"
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)
@@ -5448,16 +5450,68 @@ SUNErrCode N_VEnableFusedOps_Pthreads(N_Vector v, sunbooleantype tf)
   return SUN_SUCCESS;
 }
 
-NVECTOR_DEFINE_ENABLE_FUSEDOP(LinearCombination, linearcombination, Pthreads)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(ScaleAddMulti, scaleaddmulti, Pthreads)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(DotProdMulti, dotprodmulti, Pthreads)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(LinearSumVectorArray, linearsumvectorarray, Pthreads)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(ScaleVectorArray, scalevectorarray, Pthreads)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(ConstVectorArray, constvectorarray, Pthreads)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(WrmsNormVectorArray, wrmsnormvectorarray, Pthreads)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(WrmsNormMaskVectorArray, wrmsnormmaskvectorarray,
-                              Pthreads)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(ScaleAddMultiVectorArray,
-                              scaleaddmultivectorarray, Pthreads)
-NVECTOR_DEFINE_ENABLE_FUSEDOP(LinearCombinationVectorArray,
-                              linearcombinationvectorarray, Pthreads)
+SUNErrCode N_VEnableLinearCombination_Pthreads(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvlinearcombination = tf ? N_VLinearCombination_Pthreads : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableScaleAddMulti_Pthreads(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvscaleaddmulti = tf ? N_VScaleAddMulti_Pthreads : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableDotProdMulti_Pthreads(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvdotprodmulti      = tf ? N_VDotProdMulti_Pthreads : NULL;
+  v->ops->nvdotprodmultilocal = tf ? N_VDotProdMulti_Pthreads : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableLinearSumVectorArray_Pthreads(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvlinearsumvectorarray = tf ? N_VLinearSumVectorArray_Pthreads : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableScaleVectorArray_Pthreads(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvscalevectorarray = tf ? N_VScaleVectorArray_Pthreads : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableConstVectorArray_Pthreads(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvconstvectorarray = tf ? N_VConstVectorArray_Pthreads : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableWrmsNormVectorArray_Pthreads(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvwrmsnormvectorarray = tf ? N_VWrmsNormVectorArray_Pthreads : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableWrmsNormMaskVectorArray_Pthreads(N_Vector v, sunbooleantype tf)
+{
+  v->ops->nvwrmsnormmaskvectorarray = tf ? N_VWrmsNormMaskVectorArray_Pthreads
+                                         : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableScaleAddMultiVectorArray_Pthreads(N_Vector v,
+                                                      sunbooleantype tf)
+{
+  v->ops->nvscaleaddmultivectorarray = tf ? N_VScaleAddMultiVectorArray_Pthreads
+                                          : NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode N_VEnableLinearCombinationVectorArray_Pthreads(N_Vector v,
+                                                          sunbooleantype tf)
+{
+  v->ops->nvlinearcombinationvectorarray =
+    tf ? N_VLinearCombinationVectorArray_Pthreads : NULL;
+  return SUN_SUCCESS;
+}
