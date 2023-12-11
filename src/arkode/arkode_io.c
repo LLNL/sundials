@@ -1125,8 +1125,7 @@ int arkSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac)
   int retval;
   ARKodeHAdaptMem hadapt_mem;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetCFLFraction", &ark_mem,
-                              &hadapt_mem);
+  retval = arkAccessHAdaptMem(arkode_mem, __func__, &ark_mem, &hadapt_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* check for allowable parameters */
@@ -1158,8 +1157,7 @@ int arkSetAdaptivityAdjustment(void* arkode_mem, int adjust)
   int retval;
   ARKodeHAdaptMem hadapt_mem;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetAdaptivityAdjustment",
-                              &ark_mem, &hadapt_mem);
+  retval = arkAccessHAdaptMem(arkode_mem, __func__, &ark_mem, &hadapt_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* store requested adjustment */
@@ -1180,8 +1178,7 @@ int arkSetSafetyFactor(void* arkode_mem, sunrealtype safety)
   int retval;
   ARKodeHAdaptMem hadapt_mem;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetSafetyFactor", &ark_mem,
-                              &hadapt_mem);
+  retval = arkAccessHAdaptMem(arkode_mem, __func__, &ark_mem, &hadapt_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* check for allowable parameters */
@@ -1211,8 +1208,7 @@ int arkSetErrorBias(void* arkode_mem, sunrealtype bias)
   int retval;
   ARKodeHAdaptMem hadapt_mem;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetErrorBias", &ark_mem,
-                              &hadapt_mem);
+  retval = arkAccessHAdaptMem(arkode_mem, __func__, &ark_mem, &hadapt_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set allowed value, otherwise set default */
@@ -1246,8 +1242,7 @@ int arkSetMaxGrowth(void* arkode_mem, sunrealtype mx_growth)
   int retval;
   ARKodeHAdaptMem hadapt_mem;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetMaxGrowth", &ark_mem,
-                              &hadapt_mem);
+  retval = arkAccessHAdaptMem(arkode_mem, __func__, &ark_mem, &hadapt_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set allowed value, otherwise set default */
@@ -1270,8 +1265,7 @@ int arkSetMinReduction(void* arkode_mem, sunrealtype eta_min)
   int retval;
   ARKodeHAdaptMem hadapt_mem;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetMinReduction", &ark_mem,
-                              &hadapt_mem);
+  retval = arkAccessHAdaptMem(arkode_mem, __func__, &ark_mem, &hadapt_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set allowed value, otherwise set default */
@@ -1293,8 +1287,7 @@ int arkSetFixedStepBounds(void* arkode_mem, sunrealtype lb, sunrealtype ub)
   int retval;
   ARKodeHAdaptMem hadapt_mem;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetFixedStepBounds", &ark_mem,
-                              &hadapt_mem);
+  retval = arkAccessHAdaptMem(arkode_mem, __func__, &ark_mem, &hadapt_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set allowable interval, otherwise set defaults */
@@ -1324,8 +1317,7 @@ int arkSetMaxFirstGrowth(void* arkode_mem, sunrealtype etamx1)
   int retval;
   ARKodeHAdaptMem hadapt_mem;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetMaxFirstGrowth", &ark_mem,
-                              &hadapt_mem);
+  retval = arkAccessHAdaptMem(arkode_mem, __func__, &ark_mem, &hadapt_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* if argument legal set it, otherwise set default */
@@ -1347,8 +1339,7 @@ int arkSetMaxEFailGrowth(void* arkode_mem, sunrealtype etamxf)
   int retval;
   ARKodeHAdaptMem hadapt_mem;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetMaxEFailGrowth", &ark_mem,
-                              &hadapt_mem);
+  retval = arkAccessHAdaptMem(arkode_mem, __func__, &ark_mem, &hadapt_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* if argument legal set it, otherwise set default */
@@ -1370,8 +1361,7 @@ int arkSetSmallNumEFails(void* arkode_mem, int small_nef)
   int retval;
   ARKodeHAdaptMem hadapt_mem;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetSmallNumEFails", &ark_mem,
-                              &hadapt_mem);
+  retval = arkAccessHAdaptMem(arkode_mem, __func__, &ark_mem, &hadapt_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* if argument legal set it, otherwise set default */
@@ -1393,8 +1383,7 @@ int arkSetMaxCFailGrowth(void* arkode_mem, sunrealtype etacf)
   int retval;
   ARKodeHAdaptMem hadapt_mem;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetMaxCFailGrowth", &ark_mem,
-                              &hadapt_mem);
+  retval = arkAccessHAdaptMem(arkode_mem, __func__, &ark_mem, &hadapt_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* if argument legal set it, otherwise set default */
@@ -1416,8 +1405,7 @@ int arkSetStabilityFn(void* arkode_mem, ARKExpStabFn EStab, void* estab_data)
   int retval;
   ARKodeHAdaptMem hadapt_mem;
   ARKodeMem ark_mem;
-  retval = arkAccessHAdaptMem(arkode_mem, "arkSetStabilityFn", &ark_mem,
-                              &hadapt_mem);
+  retval = arkAccessHAdaptMem(arkode_mem, __func__, &ark_mem, &hadapt_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* NULL argument sets default, otherwise set inputs */
