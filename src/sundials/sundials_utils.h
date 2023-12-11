@@ -20,8 +20,17 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
+
+static char* sunCombineFileAndLine(int line, const char* file)
+{
+  size_t total_str_len = strlen(file) + 6;
+  char* file_and_line  = malloc(total_str_len * sizeof(char));
+  snprintf(file_and_line, total_str_len, "%s:%d", file, line);
+  return file_and_line;
+}
 
 static int sunvsnprintf(char* buffer, size_t bufsz, const char* format,
                         va_list vlist)
