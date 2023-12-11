@@ -1125,7 +1125,7 @@ SUNErrCode N_VDotProdMulti_Parallel(int nvec, N_Vector x, N_Vector* Y,
     for (j = 0; j < N; j++) { dotprods[i] += xd[j] * yd[j]; }
   }
 
-  SUNCheckMPICallNoRet(MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec,
+  SUNCheckMPICall(MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec,
                                      MPI_SUNREALTYPE, MPI_SUM, comm));
 
   return SUN_SUCCESS;
@@ -1177,7 +1177,7 @@ SUNErrCode N_VDotProdMultiAllReduce_Parallel(int nvec, N_Vector x,
   comm = NV_COMM_P(x);
 
   /* perform reduction */
-  SUNCheckMPICallNoRet(
+  SUNCheckMPICall(
     MPI_Allreduce(MPI_IN_PLACE, sum, nvec, MPI_SUNREALTYPE, MPI_SUM, comm));
 
   return SUN_SUCCESS;
@@ -1403,7 +1403,7 @@ SUNErrCode N_VWrmsNormVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
     nrm[i] = ZERO;
     for (j = 0; j < Nl; j++) { nrm[i] += SUNSQR(xd[j] * wd[j]); }
   }
-  SUNCheckMPICallNoRet(
+  SUNCheckMPICall(
     MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm));
 
   for (int i = 0; i < nvec; i++) { nrm[i] = SUNRsqrt(nrm[i] / Ng); }
@@ -1449,7 +1449,7 @@ SUNErrCode N_VWrmsNormMaskVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* 
       if (idd[j] > ZERO) { nrm[i] += SUNSQR(xd[j] * wd[j]); }
     }
   }
-  SUNCheckMPICallNoRet(
+  SUNCheckMPICall(
     MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, MPI_SUNREALTYPE, MPI_SUM, comm));
 
   for (int i = 0; i < nvec; i++) { nrm[i] = SUNRsqrt(nrm[i] / Ng); }

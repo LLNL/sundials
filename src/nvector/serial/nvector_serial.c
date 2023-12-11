@@ -234,7 +234,7 @@ void N_VPrint_Serial(N_Vector x)
 {
   SUNFunctionBegin(x->sunctx);
   N_VPrintFile_Serial(x, stdout);
-  SUNCheckLastErrNoRet();
+  SUNCheckLastErrVoid();
 }
 
 /* ----------------------------------------------------------------------------
@@ -1550,6 +1550,7 @@ SUNErrCode N_VBufPack_Serial(N_Vector x, void* buf)
   sunrealtype* xd = NULL;
   sunrealtype* bd = NULL;
 
+  SUNAssert(x, SUN_ERR_ARG_CORRUPT);
   SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   N  = NV_LENGTH_S(x);
@@ -1568,6 +1569,7 @@ SUNErrCode N_VBufUnpack_Serial(N_Vector x, void* buf)
   sunrealtype* xd = NULL;
   sunrealtype* bd = NULL;
 
+  SUNAssert(x, SUN_ERR_ARG_CORRUPT);
   SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   N  = NV_LENGTH_S(x);

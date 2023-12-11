@@ -397,8 +397,8 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors, N_Vector* vec_array,
   local_length = 0;
   for (i = 0; i < num_subvectors; i++)
   {
-    SUNAssertNull(vec_array[i]->ops->nvgetlength, SUN_ERR_ARG_CORRUPT);
     local_length += N_VGetLength(vec_array[i]);
+    SUNCheckLastErrNull();
   }
   content->global_length = local_length;
 
@@ -411,7 +411,7 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors, N_Vector* vec_array,
 N_Vector MVAPPEND(N_VGetSubvector)(N_Vector v, sunindextype vec_num)
 {
   SUNFunctionBegin(v->sunctx);
-  SUNAssertNull(vec_num >= 0 || vec_num <= MANYVECTOR_NUM_SUBVECS(v),
+  SUNAssertNull(vec_num >= 0 && vec_num <= MANYVECTOR_NUM_SUBVECS(v),
                 SUN_ERR_ARG_OUTOFRANGE);
   return (MANYVECTOR_SUBVEC(v, vec_num));
 }
@@ -424,7 +424,7 @@ sunrealtype* MVAPPEND(N_VGetSubvectorArrayPointer)(N_Vector v,
                                                    sunindextype vec_num)
 {
   SUNFunctionBegin(v->sunctx);
-  SUNAssertNull(vec_num >= 0 || vec_num <= MANYVECTOR_NUM_SUBVECS(v),
+  SUNAssertNull(vec_num >= 0 && vec_num <= MANYVECTOR_NUM_SUBVECS(v),
                 SUN_ERR_ARG_OUTOFRANGE);
   if (MANYVECTOR_SUBVEC(v, vec_num)->ops->nvgetarraypointer == NULL)
   {
@@ -441,9 +441,10 @@ SUNErrCode MVAPPEND(N_VSetSubvectorArrayPointer)(sunrealtype* v_data, N_Vector v
                                                  sunindextype vec_num)
 {
   SUNFunctionBegin(v->sunctx);
-  SUNAssert(vec_num >= 0 || vec_num <= MANYVECTOR_NUM_SUBVECS(v),
+  SUNAssert(vec_num >= 0 && vec_num <= MANYVECTOR_NUM_SUBVECS(v),
             SUN_ERR_ARG_OUTOFRANGE);
   N_VSetArrayPointer(v_data, MANYVECTOR_SUBVEC(v, vec_num));
+  SUNCheckLastErr();
   return SUN_SUCCESS;
 }
 
@@ -567,7 +568,7 @@ void MVAPPEND(N_VSpace)(N_Vector v, sunindextype* lrw, sunindextype* liw)
     if ((MANYVECTOR_SUBVEC(v, i))->ops->nvspace != NULL)
     {
       N_VSpace(MANYVECTOR_SUBVEC(v, i), &lrw1, &liw1);
-      SUNCheckLastErrNoRet();
+      SUNCheckLastErrVoid();
       *lrw += lrw1;
       *liw += liw1;
     }
@@ -609,7 +610,7 @@ void MVAPPEND(N_VLinearSum)(sunrealtype a, N_Vector x, sunrealtype b,
   {
     N_VLinearSum(a, MANYVECTOR_SUBVEC(x, i), b, MANYVECTOR_SUBVEC(y, i),
                  MANYVECTOR_SUBVEC(z, i));
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErrVoid();
   }
   return;
 }
@@ -622,7 +623,7 @@ void MVAPPEND(N_VConst)(sunrealtype c, N_Vector z)
   for (i = 0; i < MANYVECTOR_NUM_SUBVECS(z); i++)
   {
     N_VConst(c, MANYVECTOR_SUBVEC(z, i));
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErrVoid();
   }
   return;
 }
@@ -638,7 +639,7 @@ void MVAPPEND(N_VProd)(N_Vector x, N_Vector y, N_Vector z)
   {
     N_VProd(MANYVECTOR_SUBVEC(x, i), MANYVECTOR_SUBVEC(y, i),
             MANYVECTOR_SUBVEC(z, i));
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErrVoid();
   }
   return;
 }
@@ -654,7 +655,7 @@ void MVAPPEND(N_VDiv)(N_Vector x, N_Vector y, N_Vector z)
   {
     N_VDiv(MANYVECTOR_SUBVEC(x, i), MANYVECTOR_SUBVEC(y, i),
            MANYVECTOR_SUBVEC(z, i));
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErrVoid();
   }
   return;
 }
@@ -669,7 +670,7 @@ void MVAPPEND(N_VScale)(sunrealtype c, N_Vector x, N_Vector z)
   for (i = 0; i < MANYVECTOR_NUM_SUBVECS(x); i++)
   {
     N_VScale(c, MANYVECTOR_SUBVEC(x, i), MANYVECTOR_SUBVEC(z, i));
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErrVoid();
   }
   return;
 }
@@ -684,7 +685,7 @@ void MVAPPEND(N_VAbs)(N_Vector x, N_Vector z)
   for (i = 0; i < MANYVECTOR_NUM_SUBVECS(x); i++)
   {
     N_VAbs(MANYVECTOR_SUBVEC(x, i), MANYVECTOR_SUBVEC(z, i));
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErrVoid();
   }
   return;
 }
@@ -699,7 +700,7 @@ void MVAPPEND(N_VInv)(N_Vector x, N_Vector z)
   for (i = 0; i < MANYVECTOR_NUM_SUBVECS(x); i++)
   {
     N_VInv(MANYVECTOR_SUBVEC(x, i), MANYVECTOR_SUBVEC(z, i));
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErrVoid();
   }
   return;
 }
@@ -714,7 +715,7 @@ void MVAPPEND(N_VAddConst)(N_Vector x, sunrealtype b, N_Vector z)
   for (i = 0; i < MANYVECTOR_NUM_SUBVECS(x); i++)
   {
     N_VAddConst(MANYVECTOR_SUBVEC(x, i), b, MANYVECTOR_SUBVEC(z, i));
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErrVoid();
   }
   return;
 }
@@ -1178,7 +1179,7 @@ void MVAPPEND(N_VCompare)(sunrealtype c, N_Vector x, N_Vector z)
   for (i = 0; i < MANYVECTOR_NUM_SUBVECS(x); i++)
   {
     N_VCompare(c, MANYVECTOR_SUBVEC(x, i), MANYVECTOR_SUBVEC(z, i));
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErrVoid();
   }
   return;
 }
@@ -1524,7 +1525,7 @@ SUNErrCode MVAPPEND(N_VDotProdMulti)(int nvec, N_Vector x, N_Vector* Y,
   for (i = 0; i < nvec; i++)
   {
     dotprods[i] = N_VDotProdLocal(x, Y[i]);
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErr();
   }
 
 #ifdef MANYVECTOR_BUILD_WITH_MPI
@@ -1584,7 +1585,7 @@ SUNErrCode MVAPPEND(N_VLinearSumVectorArray)(int nvec, sunrealtype a,
     }
 
     /* now call N_VLinearSumVectorArray for this array of subvectors */
-    SUNCheckCallNoRet(N_VLinearSumVectorArray(nvec, a, Xsub, b, Ysub, Zsub));
+    SUNCheckCall(N_VLinearSumVectorArray(nvec, a, Xsub, b, Ysub, Zsub));
   }
 
   /* clean up and return */
@@ -1695,7 +1696,7 @@ SUNErrCode MVAPPEND(N_VWrmsNormVectorArray)(int nvec, N_Vector* X, N_Vector* W,
   for (i = 0; i < nvec; i++)
   {
     nrm[i] = N_VWSqrSumLocal(X[i], W[i]);
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErr();
   }
 
   /* accumulate totals */
@@ -1740,7 +1741,7 @@ SUNErrCode MVAPPEND(N_VWrmsNormMaskVectorArray)(int nvec, N_Vector* X,
   for (i = 0; i < nvec; i++)
   {
     nrm[i] = N_VWSqrSumMaskLocal(X[i], W[i], id);
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErr();
   }
 
   /* accumulate totals */
@@ -1795,6 +1796,7 @@ SUNErrCode MVAPPEND(N_VBufPack)(N_Vector x, void* buf)
   sunindextype offset; /* subvector buffer offset   */
   sunindextype i;
 
+  SUNAssert(x, SUN_ERR_ARG_CORRUPT);
   SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   /* start at the beginning of the output buffer */
@@ -1825,6 +1827,7 @@ SUNErrCode MVAPPEND(N_VBufUnpack)(N_Vector x, void* buf)
   sunindextype offset; /* subvector buffer offset   */
   sunindextype i;
 
+  SUNAssert(x, SUN_ERR_ARG_CORRUPT);
   SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   /* start at the beginning of the input buffer */
