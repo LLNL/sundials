@@ -127,7 +127,7 @@ set and all operations are copied when cloning a matrix.
      If successful, this function returns a ``SUNMatrix`` object. If an error
      occurs when allocating the object, then this routine will return ``NULL``.
 
-.. c:function:: int SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
+.. c:function:: SUNErrCode SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
 
   This function copies the function pointers in the ``ops`` structure of ``A``
   into the ``ops`` structure of ``B``.

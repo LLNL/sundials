@@ -155,19 +155,6 @@ SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
 SUNDIALS_EXPORT
 SUNErrCode SUNMatSpace(SUNMatrix A, long int* lenrw, long int* leniw);
 
-/*
- * -----------------------------------------------------------------
- * IV. SUNMatrix error codes
- * ---------------------------------------------------------------
- */
-
-#define SUNMAT_SUCCESS        0    /* function successfull          */
-#define SUNMAT_ILL_INPUT      -701 /* illegal function input        */
-#define SUNMAT_MEM_FAIL       -702 /* failed memory access/alloc    */
-#define SUNMAT_OPERATION_FAIL -703 /* a SUNMatrix operation returned nonzero */
-#define SUNMAT_MATVEC_SETUP_REQUIRED \
-  -704 /* the SUNMatMatvecSetup routine needs to be called */
-
 #ifdef __cplusplus
 }
 #endif

@@ -192,7 +192,7 @@ sunindextype SUNMatrix_MagmaDense_Rows(SUNMatrix Amat)
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
   if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return (A->M * A->nblocks); }
-  else { return (SUNMAT_ILL_INPUT); }
+  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
 }
 
 sunindextype SUNMatrix_MagmaDense_Columns(SUNMatrix Amat)
@@ -200,7 +200,7 @@ sunindextype SUNMatrix_MagmaDense_Columns(SUNMatrix Amat)
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
   if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return (A->N * A->nblocks); }
-  else { return (SUNMAT_ILL_INPUT); }
+  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
 }
 
 sunindextype SUNMatrix_MagmaDense_BlockRows(SUNMatrix Amat)
@@ -208,7 +208,7 @@ sunindextype SUNMatrix_MagmaDense_BlockRows(SUNMatrix Amat)
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
   if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return (A->M); }
-  else { return (SUNMAT_ILL_INPUT); }
+  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
 }
 
 sunindextype SUNMatrix_MagmaDense_BlockColumns(SUNMatrix Amat)
@@ -216,7 +216,7 @@ sunindextype SUNMatrix_MagmaDense_BlockColumns(SUNMatrix Amat)
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
   if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return (A->N); }
-  else { return (SUNMAT_ILL_INPUT); }
+  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
 }
 
 sunindextype SUNMatrix_MagmaDense_NumBlocks(SUNMatrix Amat)
@@ -224,7 +224,7 @@ sunindextype SUNMatrix_MagmaDense_NumBlocks(SUNMatrix Amat)
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
   if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return (A->nblocks); }
-  else { return (SUNMAT_ILL_INPUT); }
+  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
 }
 
 sunindextype SUNMatrix_MagmaDense_LData(SUNMatrix Amat)
@@ -232,7 +232,7 @@ sunindextype SUNMatrix_MagmaDense_LData(SUNMatrix Amat)
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
   if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return (A->ldata); }
-  else { return (SUNMAT_ILL_INPUT); }
+  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
 }
 
 sunindextype SUNMatrix_MagmaDense_BlockLData(SUNMatrix Amat)
@@ -240,7 +240,7 @@ sunindextype SUNMatrix_MagmaDense_BlockLData(SUNMatrix Amat)
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
   if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return A->M * A->N; }
-  else { return SUNMAT_ILL_INPUT; }
+  else { return SUN_ERR_ARG_INCOMPATIBLE; }
 }
 
 sunrealtype* SUNMatrix_MagmaDense_Data(SUNMatrix Amat)
@@ -289,9 +289,12 @@ void SUNMatrix_MagmaDense_Print(SUNMatrix Amat)
   }
 }
 
-int SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix Amat, sunrealtype* h_data)
+SUNErrCode SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix Amat, sunrealtype* h_data)
 {
-  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE) { return (SUNMAT_ILL_INPUT); }
+  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
+  {
+    return (SUN_ERR_ARG_INCOMPATIBLE);
+  }
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
   int retval        = 0;
@@ -306,12 +309,15 @@ int SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix Amat, sunrealtype* h_data)
   magma_queue_sync(A->q); /* sync with respect to host, but only this stream */
 
   SUNMemoryHelper_Dealloc(A->memhelp, _h_data, nullptr);
-  return (retval == 0 ? SUNMAT_SUCCESS : SUNMAT_MEM_FAIL);
+  return (retval == 0 ? SUN_SUCCESS : SUN_ERR_MEM_FAIL);
 }
 
-int SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix Amat, sunrealtype* h_data)
+SUNErrCode SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix Amat, sunrealtype* h_data)
 {
-  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE) { return (SUNMAT_ILL_INPUT); }
+  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
+  {
+    return (SUN_ERR_ARG_INCOMPATIBLE);
+  }
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
   int retval        = 0;
@@ -326,7 +332,7 @@ int SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix Amat, sunrealtype* h_data)
   magma_queue_sync(A->q); /* sync with respect to host, but only this stream */
 
   SUNMemoryHelper_Dealloc(A->memhelp, _h_data, nullptr);
-  return (retval == 0 ? SUNMAT_SUCCESS : SUNMAT_MEM_FAIL);
+  return (retval == 0 ? SUN_SUCCESS : SUN_ERR_MEM_FAIL);
 }
 
 /*
@@ -406,11 +412,14 @@ void SUNMatDestroy_MagmaDense(SUNMatrix Amat)
   return;
 }
 
-int SUNMatZero_MagmaDense(SUNMatrix Amat)
+SUNErrCode SUNMatZero_MagmaDense(SUNMatrix Amat)
 {
-  if (Amat == NULL) { return (SUNMAT_ILL_INPUT); }
+  if (Amat == NULL) { return (SUN_ERR_ARG_INCOMPATIBLE); }
 
-  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE) { return (SUNMAT_ILL_INPUT); }
+  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
+  {
+    return (SUN_ERR_ARG_INCOMPATIBLE);
+  }
 
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
@@ -419,26 +428,30 @@ int SUNMatZero_MagmaDense(SUNMatrix Amat)
                            zeroKernel<sunrealtype, sunindextype>),
                          dim3(std::min<sunindextype>(A->nblocks, INT_MAX), 1, 1),
                          SUNDIALS_HIP_OR_CUDA(dim3(1, 16, 16),
-                                              dim3(1, 16, 32)), /* We choose slightly larger thread blocks when using HIP since the warps are larger */
+                                              dim3(1, 16, 32)), /* We choose slightly larger thread blocks when
+                               using HIP since the warps are larger */
                          0,
                          SUNDIALS_HIP_OR_CUDA(magma_queue_get_hip_stream(A->q),
                                               magma_queue_get_cuda_stream(A->q)),
                          A->M, A->N, A->nblocks, (sunrealtype*)A->data->ptr);
 
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNMatCopy_MagmaDense(SUNMatrix Amat, SUNMatrix Bmat)
+SUNErrCode SUNMatCopy_MagmaDense(SUNMatrix Amat, SUNMatrix Bmat)
 {
-  if ((Amat == NULL) || (Bmat == NULL)) { return (SUNMAT_ILL_INPUT); }
+  if ((Amat == NULL) || (Bmat == NULL)) { return (SUN_ERR_ARG_INCOMPATIBLE); }
 
-  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE) { return (SUNMAT_ILL_INPUT); }
+  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
+  {
+    return (SUN_ERR_ARG_INCOMPATIBLE);
+  }
 
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
   SUNMatrixContent_MagmaDense B = SMLD_CONTENT(Bmat);
 
   /* Verify that A and B are compatible */
-  if (!SMCompatible_MagmaDense(Amat, Bmat)) { return SUNMAT_ILL_INPUT; }
+  if (!SMCompatible_MagmaDense(Amat, Bmat)) { return SUN_ERR_ARG_INCOMPATIBLE; }
 
   /* Copy A into B */
   SUNDIALS_LAUNCH_KERNEL(SUNDIALS_KERNEL_NAME(
@@ -451,14 +464,17 @@ int SUNMatCopy_MagmaDense(SUNMatrix Amat, SUNMatrix Bmat)
                          A->M, A->N, A->nblocks, (const sunrealtype*)A->data->ptr,
                          (sunrealtype*)B->data->ptr);
 
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNMatScaleAddI_MagmaDense(sunrealtype c, SUNMatrix Amat)
+SUNErrCode SUNMatScaleAddI_MagmaDense(sunrealtype c, SUNMatrix Amat)
 {
-  if (Amat == NULL) { return (SUNMAT_ILL_INPUT); }
+  if (Amat == NULL) { return (SUN_ERR_ARG_INCOMPATIBLE); }
 
-  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE) { return (SUNMAT_ILL_INPUT); }
+  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
+  {
+    return (SUN_ERR_ARG_INCOMPATIBLE);
+  }
 
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
@@ -471,17 +487,17 @@ int SUNMatScaleAddI_MagmaDense(sunrealtype c, SUNMatrix Amat)
                                               magma_queue_get_cuda_stream(A->q)),
                          A->M, A->N, A->nblocks, c, (sunrealtype*)A->data->ptr);
 
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNMatScaleAdd_MagmaDense(sunrealtype c, SUNMatrix Amat, SUNMatrix Bmat)
+SUNErrCode SUNMatScaleAdd_MagmaDense(sunrealtype c, SUNMatrix Amat, SUNMatrix Bmat)
 {
-  if ((Amat == NULL) || (Bmat == NULL)) { return (SUNMAT_ILL_INPUT); }
+  if ((Amat == NULL) || (Bmat == NULL)) { return (SUN_ERR_ARG_INCOMPATIBLE); }
 
   if ((SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE) ||
       !SMCompatible_MagmaDense(Amat, Bmat))
   {
-    return (SUNMAT_ILL_INPUT);
+    return (SUN_ERR_ARG_INCOMPATIBLE);
   }
 
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
@@ -497,14 +513,14 @@ int SUNMatScaleAdd_MagmaDense(sunrealtype c, SUNMatrix Amat, SUNMatrix Bmat)
                          A->M, A->N, A->nblocks, c, (sunrealtype*)A->data->ptr,
                          (const sunrealtype*)B->data->ptr);
 
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNMatMatvecSetup_MagmaDense(SUNMatrix Amat)
+SUNErrCode SUNMatMatvecSetup_MagmaDense(SUNMatrix Amat)
 {
   int retval = 0;
 
-  if (Amat == NULL) { return (SUNMAT_ILL_INPUT); }
+  if (Amat == NULL) { return (SUN_ERR_ARG_INCOMPATIBLE); }
 
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
@@ -517,7 +533,7 @@ int SUNMatMatvecSetup_MagmaDense(SUNMatrix Amat)
                                      sizeof(sunrealtype*) * A->nblocks,
                                      A->data->type, nullptr);
     }
-    if (retval) { return (SUNMAT_MEM_FAIL); }
+    if (retval) { return (SUN_ERR_MEM_FAIL); }
 
     if (A->yblocks == NULL)
     {
@@ -525,30 +541,31 @@ int SUNMatMatvecSetup_MagmaDense(SUNMatrix Amat)
                                      sizeof(sunrealtype*) * A->nblocks,
                                      A->data->type, nullptr);
     }
-    if (retval) { return (SUNMAT_MEM_FAIL); }
+    if (retval) { return (SUN_ERR_MEM_FAIL); }
   }
 
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNMatMatvec_MagmaDense(SUNMatrix Amat, N_Vector x, N_Vector y)
+SUNErrCode SUNMatMatvec_MagmaDense(SUNMatrix Amat, N_Vector x, N_Vector y)
 {
   if ((Amat == NULL) || (x == NULL) || (y == NULL))
   {
-    return (SUNMAT_ILL_INPUT);
+    return (SUN_ERR_ARG_INCOMPATIBLE);
   }
 
   if ((SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE) ||
       !SMCompatible2_MagmaDense(Amat, x, y))
   {
-    return (SUNMAT_ILL_INPUT);
+    return (SUN_ERR_ARG_INCOMPATIBLE);
   }
 
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
   if (A->nblocks > 1)
   {
-    /* First, we need to create an array of pointers to the matrix and vector blocks */
+    /* First, we need to create an array of pointers to the matrix and vector
+     * blocks */
     SUNDIALS_LAUNCH_KERNEL(SUNDIALS_KERNEL_NAME(
                              getBlockPointers<sunrealtype, sunindextype>),
                            A->nblocks, 256, 0,
@@ -561,7 +578,8 @@ int SUNMatMatvec_MagmaDense(SUNMatrix Amat, N_Vector x, N_Vector y)
                            (sunrealtype*)N_VGetDeviceArrayPointer(y),
                            (sunrealtype**)A->yblocks->ptr);
 
-    /* Now we can use a batched gemv to do y = alpha*A*x + beta*y where A is block diagonal */
+    /* Now we can use a batched gemv to do y = alpha*A*x + beta*y where A is
+     * block diagonal */
     xgemv_batched(A->q,         /* queue/stream to execute in */
                   MagmaNoTrans, /* use A not A^T */
                   A->M,         /* number of rows for a block */
@@ -592,21 +610,24 @@ int SUNMatMatvec_MagmaDense(SUNMatrix Amat, N_Vector x, N_Vector y)
     );
   }
 
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNMatSpace_MagmaDense(SUNMatrix Amat, long int* lenrw, long int* leniw)
+SUNErrCode SUNMatSpace_MagmaDense(SUNMatrix Amat, long int* lenrw, long int* leniw)
 {
-  if (Amat == NULL) { return (SUNMAT_ILL_INPUT); }
+  if (Amat == NULL) { return (SUN_ERR_ARG_INCOMPATIBLE); }
 
-  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE) { return (SUNMAT_ILL_INPUT); }
+  if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
+  {
+    return (SUN_ERR_ARG_INCOMPATIBLE);
+  }
 
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
   *lenrw = A->ldata;
   *leniw = 4;
 
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
 /*

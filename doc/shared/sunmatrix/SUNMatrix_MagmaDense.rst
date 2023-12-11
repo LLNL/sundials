@@ -273,7 +273,7 @@ implementation specific functions:
 
 
 
-.. c:function:: int SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
+.. c:function:: SUNErrCode SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
 
    This function copies the matrix data to the GPU device from the provided host
    array.
@@ -283,13 +283,13 @@ implementation specific functions:
       * *h_data* -- a host array pointer to copy data from.
 
    **Return value:**
-      * ``SUNMAT_SUCCESS`` -- if the copy is successful.
-      * ``SUNMAT_ILL_INPUT`` -- if either the ``SUNMatrix`` is not a
+      * ``SUN_SUCCESS`` -- if the copy is successful.
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- if either the ``SUNMatrix`` is not a
         ``SUNMATRIX_MAGMADENSE`` matrix.
-      * ``SUNMAT_MEM_FAIL`` -- if the copy fails.
+      * ``SUN_ERR_MEM_FAIL`` -- if the copy fails.
 
 
-.. c:function:: int SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
+.. c:function:: SUNErrCode SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
 
    This function copies the matrix data from the GPU device to the provided host
    array.
@@ -299,10 +299,10 @@ implementation specific functions:
       * *h_data* -- a host array pointer to copy data to.
 
    **Return value:**
-      * ``SUNMAT_SUCCESS`` -- if the copy is successful.
-      * ``SUNMAT_ILL_INPUT`` -- if either the ``SUNMatrix`` is not a
+      * ``SUN_SUCCESS`` -- if the copy is successful.
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- if either the ``SUNMatrix`` is not a
         ``SUNMATRIX_MAGMADENSE`` matrix.
-      * ``SUNMAT_MEM_FAIL`` -- if the copy fails.
+      * ``SUN_ERR_MEM_FAIL`` -- if the copy fails.
 
 
 SUNMATRIX_MAGMADENSE Usage Notes

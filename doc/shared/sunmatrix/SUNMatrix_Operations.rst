@@ -62,7 +62,7 @@ below.
       SUNMatDestroy(A);
 
 
-.. c:function:: int SUNMatSpace(SUNMatrix A, long int *lrw, long int *liw)
+.. c:function:: SUNErrCode SUNMatSpace(SUNMatrix A, long int *lrw, long int *liw)
 
    Returns the storage requirements for the matrix *A*.  *lrw*
    contains the number of sunrealtype words and *liw* contains the number
@@ -80,7 +80,7 @@ below.
       retval = SUNMatSpace(A, &lrw, &liw);
 
 
-.. c:function:: int SUNMatZero(SUNMatrix A)
+.. c:function:: SUNErrCode SUNMatZero(SUNMatrix A)
 
    Zeros all entries of the ``SUNMatrix`` *A*.  The return value is an
    integer flag denoting success/failure of the operation:
@@ -95,7 +95,7 @@ below.
       retval = SUNMatZero(A);
 
 
-.. c:function:: int SUNMatCopy(SUNMatrix A, SUNMatrix B)
+.. c:function:: SUNErrCode SUNMatCopy(SUNMatrix A, SUNMatrix B)
 
    Performs the operation *B \gets A* for all entries of the matrices *A*
    and *B*.  The return value is an integer flag denoting success/failure of
@@ -111,7 +111,7 @@ below.
       retval = SUNMatCopy(A,B);
 
 
-.. c:function:: int SUNMatScaleAdd(sunrealtype c, SUNMatrix A, SUNMatrix B)
+.. c:function:: SUNErrCode SUNMatScaleAdd(sunrealtype c, SUNMatrix A, SUNMatrix B)
 
    Performs the operation *A \gets cA + B*.  The return value is an integer
    flag denoting success/failure of the operation:
@@ -126,7 +126,7 @@ below.
       retval = SUNMatScaleAdd(c, A, B);
 
 
-.. c:function:: int SUNMatScaleAddI(sunrealtype c, SUNMatrix A)
+.. c:function:: SUNErrCode SUNMatScaleAddI(sunrealtype c, SUNMatrix A)
 
    Performs the operation *A \gets cA + I*.  The return value is an integer
    flag denoting success/failure of the operation:
@@ -141,7 +141,7 @@ below.
       retval = SUNMatScaleAddI(c, A);
 
 
-.. c:function:: int SUNMatMatvecSetup(SUNMatrix A)
+.. c:function:: SUNErrCode SUNMatMatvecSetup(SUNMatrix A)
 
    Performs any setup necessary to perform a matrix-vector product.
    The return value is an integer flag denoting success/failure of the
@@ -155,7 +155,7 @@ below.
 
       retval = SUNMatMatvecSetup(A);
 
-.. c:function:: int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
+.. c:function:: SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
 
    Performs the matrix-vector product *y \gets Ax*.  It should
    only be called with vectors *x* and *y* that are compatible with
@@ -184,13 +184,13 @@ indicates a failure. Aside from this pattern, the actual values of each error
 code are primarily to provide additional information to the user in case of a
 SUNMatrix failure.
 
-* ``SUNMAT_SUCCESS`` (0) -- successful call
+* ``SUN_SUCCESS`` (0) -- successful call
 
-* ``SUNMAT_ILL_INPUT`` (-1) -- an illegal input has been provided to the function
+* ``SUN_ERR_ARG_INCOMPATIBLE`` (-1) -- an illegal input has been provided to the function
 
-* ``SUNMAT_MEM_FAIL`` (-2) -- failed memory access or allocation
+* ``SUN_ERR_MEM_FAIL`` (-2) -- failed memory access or allocation
 
-* ``SUNMAT_OPERATION_FAIL`` (-3) -- a SUNMatrix operation returned nonzero
+* ``SUN_ERR_OP_FAIL`` (-3) -- a SUNMatrix operation returned nonzero
 
-* ``SUNMAT_MATVEC_SETUP_REQUIRED`` (-4) -- the :c:func:`SUNMatMatvecSetup` routine needs to be
+* ``SUN_ERR_OP_FAIL`` (-4) -- the :c:func:`SUNMatMatvecSetup` routine needs to be
   called prior to calling :c:func:`SUNMatMatvec`

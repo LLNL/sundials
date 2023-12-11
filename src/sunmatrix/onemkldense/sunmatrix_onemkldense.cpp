@@ -187,37 +187,37 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
 sunindextype SUNMatrix_OneMklDense_Rows(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_ROWS(A); }
-  else { return SUNMAT_ILL_INPUT; }
+  else { return SUN_ERR_ARG_INCOMPATIBLE; }
 }
 
 sunindextype SUNMatrix_OneMklDense_Columns(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_COLS(A); }
-  else { return SUNMAT_ILL_INPUT; }
+  else { return SUN_ERR_ARG_INCOMPATIBLE; }
 }
 
 sunindextype SUNMatrix_OneMklDense_NumBlocks(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_NBLOCKS(A); }
-  else { return SUNMAT_ILL_INPUT; }
+  else { return SUN_ERR_ARG_INCOMPATIBLE; }
 }
 
 sunindextype SUNMatrix_OneMklDense_BlockRows(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_BLOCK_ROWS(A); }
-  else { return SUNMAT_ILL_INPUT; }
+  else { return SUN_ERR_ARG_INCOMPATIBLE; }
 }
 
 sunindextype SUNMatrix_OneMklDense_BlockColumns(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_BLOCK_COLS(A); }
-  else { return SUNMAT_ILL_INPUT; }
+  else { return SUN_ERR_ARG_INCOMPATIBLE; }
 }
 
 sunindextype SUNMatrix_OneMklDense_LData(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_LDATA(A); }
-  else { return SUNMAT_ILL_INPUT; }
+  else { return SUN_ERR_ARG_INCOMPATIBLE; }
 }
 
 sunrealtype* SUNMatrix_OneMklDense_Data(SUNMatrix A)
@@ -232,7 +232,7 @@ sunindextype SUNMatrix_OneMklDense_BlockLData(SUNMatrix A)
   {
     return MAT_BLOCK_ROWS(A) * MAT_BLOCK_COLS(A);
   }
-  else { return SUNMAT_ILL_INPUT; }
+  else { return SUN_ERR_ARG_INCOMPATIBLE; }
 }
 
 sunrealtype** SUNMatrix_OneMklDense_BlockData(SUNMatrix A)
@@ -256,12 +256,12 @@ extern sunrealtype* SUNMatrix_OneMklDense_BlockColumn(SUNMatrix A, sunindextype 
  * Utility functions
  * -------------------------------------------------------------------------- */
 
-int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
+SUNErrCode SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
 {
   if (SUNMatGetID(A) != SUNMATRIX_ONEMKLDENSE)
   {
     SUNDIALS_DEBUG_ERROR("Illegal input\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   // Wrap the input pointer
@@ -270,7 +270,7 @@ int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
   if (!_h_data)
   {
     SUNDIALS_DEBUG_ERROR("SUNMemory wrap failed\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   // Copy the data
@@ -285,18 +285,18 @@ int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("SUNMemory dealloc failed\n");
-    return SUNMAT_MEM_FAIL;
+    return SUN_ERR_MEM_FAIL;
   }
 
-  return (copy_fail ? SUNMAT_MEM_FAIL : SUNMAT_SUCCESS);
+  return (copy_fail ? SUN_ERR_MEM_FAIL : SUN_SUCCESS);
 }
 
-int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
+SUNErrCode SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
 {
   if (SUNMatGetID(A) != SUNMATRIX_ONEMKLDENSE)
   {
     SUNDIALS_DEBUG_ERROR("Illegal input\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   SUNMemory _h_data = SUNMemoryHelper_Wrap(MAT_MEMHELPER(A), h_data,
@@ -304,7 +304,7 @@ int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
   if (!_h_data)
   {
     SUNDIALS_DEBUG_ERROR("SUNMemory wrap failed\n");
-    return SUNMAT_MEM_FAIL;
+    return SUN_ERR_MEM_FAIL;
   }
 
   int copy_fail =
@@ -318,10 +318,10 @@ int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
   if (retval)
   {
     SUNDIALS_DEBUG_ERROR("SUNMemory dealloc failed\n");
-    return SUNMAT_MEM_FAIL;
+    return SUN_ERR_MEM_FAIL;
   }
 
-  return (copy_fail ? SUNMAT_MEM_FAIL : SUNMAT_SUCCESS);
+  return (copy_fail ? SUN_ERR_MEM_FAIL : SUN_SUCCESS);
 }
 
 /* --------------------------------------------------------------------------
@@ -395,18 +395,18 @@ void SUNMatDestroy_OneMklDense(SUNMatrix A)
   return;
 }
 
-int SUNMatZero_OneMklDense(SUNMatrix A)
+SUNErrCode SUNMatZero_OneMklDense(SUNMatrix A)
 {
   if (!A)
   {
     SUNDIALS_DEBUG_ERROR("Input matrix is NULL\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   if (SUNMatGetID(A) != SUNMATRIX_ONEMKLDENSE)
   {
     SUNDIALS_DEBUG_ERROR("Invalid matrix ID\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   const sunindextype ldata = MAT_LDATA(A);
@@ -417,7 +417,7 @@ int SUNMatZero_OneMklDense(SUNMatrix A)
   if (GetKernelParameters(A, SUNFALSE, nthreads_total, nthreads_per_block))
   {
     SUNDIALS_DEBUG_ERROR("GetKernelParameters returned nonzero\n");
-    return SUNMAT_MEM_FAIL;
+    return SUN_ERR_MEM_FAIL;
   }
 
   // Zero out matrix
@@ -425,28 +425,28 @@ int SUNMatZero_OneMklDense(SUNMatrix A)
     Q, nthreads_total, nthreads_per_block, item,
     GRID_STRIDE_XLOOP(item, i, ldata) { Adata[i] = ZERO; });
 
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNMatCopy_OneMklDense(SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatCopy_OneMklDense(SUNMatrix A, SUNMatrix B)
 {
   if (!A || !B)
   {
     SUNDIALS_DEBUG_ERROR("An input matrix is NULL\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   if (SUNMatGetID(A) != SUNMATRIX_ONEMKLDENSE)
   {
     SUNDIALS_DEBUG_ERROR("Invalid matrix ID\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   // Verify that A and B are compatible
   if (!Compatible_AB(A, B))
   {
     SUNDIALS_DEBUG_ERROR("Input matrices are incompatible\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   const sunindextype ldata = MAT_LDATA(A);
@@ -458,7 +458,7 @@ int SUNMatCopy_OneMklDense(SUNMatrix A, SUNMatrix B)
   if (GetKernelParameters(A, SUNFALSE, nthreads_total, nthreads_per_block))
   {
     SUNDIALS_DEBUG_ERROR("GetKernelParameters returned nonzero\n");
-    return SUNMAT_MEM_FAIL;
+    return SUN_ERR_MEM_FAIL;
   }
 
   // Copy A into B
@@ -466,21 +466,21 @@ int SUNMatCopy_OneMklDense(SUNMatrix A, SUNMatrix B)
     Q, nthreads_total, nthreads_per_block, item,
     GRID_STRIDE_XLOOP(item, i, ldata) { Bdata[i] = Adata[i]; });
 
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNMatScaleAddI_OneMklDense(sunrealtype c, SUNMatrix A)
+SUNErrCode SUNMatScaleAddI_OneMklDense(sunrealtype c, SUNMatrix A)
 {
   if (!A)
   {
     SUNDIALS_DEBUG_ERROR("Input matrix is NULL\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   if (SUNMatGetID(A) != SUNMATRIX_ONEMKLDENSE)
   {
     SUNDIALS_DEBUG_ERROR("Invalid matrix ID\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   const size_t M     = static_cast<size_t>(MAT_BLOCK_ROWS(A));
@@ -508,21 +508,21 @@ int SUNMatScaleAddI_OneMklDense(sunrealtype c, SUNMatrix A)
                      });
     });
 
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNMatScaleAdd_OneMklDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatScaleAdd_OneMklDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   if (!A || !B)
   {
     SUNDIALS_DEBUG_ERROR("An input matrix is NULL\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   if (!Compatible_AB(A, B))
   {
     SUNDIALS_DEBUG_ERROR("Input matrices are incompatible\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   const sunindextype ldata = MAT_LDATA(A);
@@ -534,7 +534,7 @@ int SUNMatScaleAdd_OneMklDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
   if (GetKernelParameters(A, SUNFALSE, nthreads_total, nthreads_per_block))
   {
     SUNDIALS_DEBUG_ERROR("GetKernelParameters returned nonzero\n");
-    return SUNMAT_MEM_FAIL;
+    return SUN_ERR_MEM_FAIL;
   }
 
   // Compute A = c * A + B
@@ -542,21 +542,21 @@ int SUNMatScaleAdd_OneMklDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
     Q, nthreads_total, nthreads_per_block, item,
     GRID_STRIDE_XLOOP(item, i, ldata) { Adata[i] = c * Adata[i] + Bdata[i]; });
 
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNMatMatvec_OneMklDense(SUNMatrix A, N_Vector x, N_Vector y)
+SUNErrCode SUNMatMatvec_OneMklDense(SUNMatrix A, N_Vector x, N_Vector y)
 {
   if (!A || !x || !y)
   {
     SUNDIALS_DEBUG_ERROR("Input matrix or vectors are NULL\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   if (!Compatible_Axy(A, x, y))
   {
     SUNDIALS_DEBUG_ERROR("Input matrix and vectors are incompatible\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   if (MAT_NBLOCKS(A) > 1)
@@ -591,27 +591,27 @@ int SUNMatMatvec_OneMklDense(SUNMatrix A, N_Vector x, N_Vector y)
                             xdata, 1, ZERO, ydata, 1);
   }
 
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNMatSpace_OneMklDense(SUNMatrix A, long int* lenrw, long int* leniw)
+SUNErrCode SUNMatSpace_OneMklDense(SUNMatrix A, long int* lenrw, long int* leniw)
 {
   if (!A)
   {
     SUNDIALS_DEBUG_ERROR("Input matrix is NULL\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   if (SUNMatGetID(A) != SUNMATRIX_ONEMKLDENSE)
   {
     SUNDIALS_DEBUG_ERROR("Invalid matrix ID\n");
-    return SUNMAT_ILL_INPUT;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   *lenrw = MAT_LDATA(A);
   *leniw = 4;
 
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 /* --------------------------------------------------------------------------
