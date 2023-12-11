@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <sundials/sundials_matrix.h>
 #include <sunmatrix/sunmatrix_band.h>
+#include <sunmatrix/sunmatrix_dense.h>
 
 #include "sundials/sundials_types.h"
 

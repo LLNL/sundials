@@ -2337,7 +2337,7 @@ int Hypre5ptMatrix_Copy(SUNMatrix A, SUNMatrix B)
   if (flag != 0) { return (flag); }
 
   // Return success
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
 int Hypre5ptMatrix_ScaleAddI(sunrealtype c, SUNMatrix A)
@@ -2370,7 +2370,7 @@ int Hypre5ptMatrix_ScaleAddI(sunrealtype c, SUNMatrix A)
   if (flag != 0) { return (flag); }
 
   // Return success
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
 // -----------------------------------------------------------------------------
