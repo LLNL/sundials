@@ -209,7 +209,7 @@ int CVodeSetLinearSolver(void* cvode_mem, SUNLinearSolver LS, SUNMatrix A)
   if (LS->ops->setatimes)
   {
     retval = SUNLinSolSetATimes(LS, cv_mem, cvLsATimes);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       cvProcessError(cv_mem, CVLS_SUNLS_FAIL, "CVLS", "CVodeSetLinearSolver",
                      "Error in calling SUNLinSolSetATimes");
@@ -223,7 +223,7 @@ int CVodeSetLinearSolver(void* cvode_mem, SUNLinearSolver LS, SUNMatrix A)
   if (LS->ops->setpreconditioner)
   {
     retval = SUNLinSolSetPreconditioner(LS, cv_mem, NULL, NULL);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       cvProcessError(cv_mem, CVLS_SUNLS_FAIL, "CVLS", "CVodeSetLinearSolver",
                      "Error in calling SUNLinSolSetPreconditioner");
@@ -482,7 +482,7 @@ int CVodeSetPreconditioner(void* cvode_mem, CVLsPrecSetupFn psetup,
   cvls_psolve = (psolve == NULL) ? NULL : cvLsPSolve;
   retval      = SUNLinSolSetPreconditioner(cvls_mem->LS, cv_mem, cvls_psetup,
                                            cvls_psolve);
-  if (retval != SUNLS_SUCCESS)
+  if (retval != SUN_SUCCESS)
   {
     cvProcessError(cv_mem, CVLS_SUNLS_FAIL, "CVLS", "CVLsSetPreconditioner",
                    "Error in calling SUNLinSolSetPreconditioner");
@@ -1696,7 +1696,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   if (cvls_mem->LS->ops->setscalingvectors)
   {
     retval = SUNLinSolSetScalingVectors(cvls_mem->LS, weight, weight);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       cvProcessError(cv_mem, CVLS_SUNLS_FAIL, "CVLS", "cvLsSolve",
                      "Error in calling SUNLinSolSetScalingVectors");
@@ -1731,7 +1731,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(cvls_mem->LS, SUNTRUE);
-  if (retval != SUNLS_SUCCESS) { return (-1); }
+  if (retval != SUN_SUCCESS) { return (-1); }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   /* Store previous nps value in nps_inc */
@@ -1780,7 +1780,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
 
   /* Increment counters nli and ncfl */
   cvls_mem->nli += nli_inc;
-  if (retval != SUNLS_SUCCESS) { cvls_mem->ncfl++; }
+  if (retval != SUN_SUCCESS) { cvls_mem->ncfl++; }
 
   /* Interpret solver return value  */
   cvls_mem->last_flag = retval;
@@ -1793,7 +1793,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
 
   switch (retval)
   {
-  case SUNLS_SUCCESS: return (0); break;
+  case SUN_SUCCESS: return (0); break;
   case SUNLS_RES_REDUCED:
     /* allow reduction but not solution on first Newton iteration,
        otherwise return with a recoverable failure */
@@ -1806,9 +1806,9 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   case SUNLS_PACKAGE_FAIL_REC:
   case SUNLS_QRFACT_FAIL:
   case SUNLS_LUFACT_FAIL: return (1); break;
-  case SUNLS_MEM_NULL:
-  case SUNLS_ILL_INPUT:
-  case SUNLS_MEM_FAIL:
+  case SUN_ERR_ARG_CORRUPT:
+  case SUN_ERR_ARG_INCOMPATIBLE:
+  case SUN_ERR_MEM_FAIL:
   case SUNLS_GS_FAIL:
   case SUNLS_QRSOL_FAIL: return (-1); break;
   case SUNLS_PACKAGE_FAIL_UNREC:

@@ -226,7 +226,7 @@ Coding Conventions and Rules
       {
         auto solver{static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
         delete solver; // NOLINT
-        return SUNLS_SUCCESS;
+        return SUN_SUCCESS
       }
 
       class BaseObject {
@@ -425,7 +425,7 @@ It may be necessary to override clang-tidy at times. This can be done with the
   {
     auto solver{static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
     delete solver; // NOLINT
-    return SUNLS_SUCCESS;
+    return SUN_SUCCESS
   }
 
   class BaseObject {

@@ -99,15 +99,16 @@ SUNDIALS_EXPORT int SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S,
                                                    int ordering_choice);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SuperLUMT(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNErrCode SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A,
                                              N_Vector x, N_Vector b,
                                              sunrealtype tol);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S);
-SUNDIALS_EXPORT int SUNLinSolSpace_SuperLUMT(SUNLinearSolver S, long int* lenrwLS,
-                                             long int* leniwLS);
-SUNDIALS_EXPORT int SUNLinSolFree_SuperLUMT(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNErrCode SUNLinSolSpace_SuperLUMT(SUNLinearSolver S,
+                                                    long int* lenrwLS,
+                                                    long int* leniwLS);
+SUNDIALS_EXPORT SUNErrCode SUNLinSolFree_SuperLUMT(SUNLinearSolver S);
 
 #ifdef __cplusplus
 }

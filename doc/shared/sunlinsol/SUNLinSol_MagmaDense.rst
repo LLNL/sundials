@@ -95,7 +95,7 @@ In addition, the module provides the following user-callable routines:
       * *onoff* -- 0 for synchronous mode or 1 for asynchronous mode (default 1)
 
    **Return value:**
-      * ``SUNLS_SUCCESS`` if successful
+      * ``SUN_SUCCESS`` if successful
       * ``SUNLS_MEM_NULL`` if *LS* is ``NULL``
 
 

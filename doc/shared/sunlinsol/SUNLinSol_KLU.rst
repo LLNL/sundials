@@ -88,7 +88,7 @@ user-callable routines:
             constructor routine (or the previous ``SUNKLUReInit`` call).
 
    **Return value:**
-      * ``SUNLS_SUCCESS`` -- reinitialization successful.
+      * ``SUN_SUCCESS`` -- reinitialization successful.
       * ``SUNLS_MEM_NULL`` -- either ``S`` or ``A`` are ``NULL``.
       * ``SUNLS_ILL_INPUT`` -- ``A`` does not have type ``SUNMATRIX_SPARSE`` or
          ``reinit_type`` is invalid.
@@ -116,7 +116,7 @@ user-callable routines:
          The default is 1 for COLAMD.
 
    **Return value:**
-      * ``SUNLS_SUCCESS`` -- ordering choice successfully updated.
+      * ``SUN_SUCCESS`` -- ordering choice successfully updated.
       * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``.
       * ``SUNLS_ILL_INPUT`` -- ``ordering_choice``.
 

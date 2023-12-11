@@ -99,7 +99,7 @@ user-callable routines:
         * ``SUN_PREC_BOTH``
 
    **Return value:**
-      * ``SUNLS_SUCCESS`` -- successful update.
+      * ``SUN_SUCCESS`` -- successful update.
       * ``SUNLS_ILL_INPUT`` -- illegal ``pretype``
       * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``
 
@@ -114,7 +114,7 @@ user-callable routines:
         non-positive input will result in the default value (5).
 
    **Return value:**
-      * ``SUNLS_SUCCESS`` -- successful update.
+      * ``SUN_SUCCESS`` -- successful update.
       * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``
 
 
@@ -129,7 +129,7 @@ user-callable routines:
          a ``NULL`` input will disable output
 
    **Return value:**
-      * *SUNLS_SUCCESS* if successful
+      * *SUN_SUCCESS* if successful
       * *SUNLS_MEM_NULL* if the SUNLinearSolver memory was ``NULL``
       * *SUNLS_ILL_INPUT* if SUNDIALS was not built with monitoring enabled
 
@@ -160,7 +160,7 @@ user-callable routines:
          * 1, for each linear iteration the residual norm is printed
 
    **Return value:**
-      * *SUNLS_SUCCESS* if successful
+      * *SUN_SUCCESS* if successful
       * *SUNLS_MEM_NULL* if the SUNLinearSolver memory was ``NULL``
       * *SUNLS_ILL_INPUT* if SUNDIALS was not built with monitoring enabled, or
         if the print level value was invalid

@@ -187,7 +187,7 @@ int KINSetLinearSolver(void* kinmem, SUNLinearSolver LS, SUNMatrix A)
   if (LS->ops->setatimes)
   {
     retval = SUNLinSolSetATimes(LS, kin_mem, kinLsATimes);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       KINProcessError(kin_mem, KINLS_SUNLS_FAIL, "KINLS", "KINSetLinearSolver",
                       "Error in calling SUNLinSolSetATimes");
@@ -201,7 +201,7 @@ int KINSetLinearSolver(void* kinmem, SUNLinearSolver LS, SUNMatrix A)
   if (LS->ops->setpreconditioner)
   {
     retval = SUNLinSolSetPreconditioner(LS, kin_mem, NULL, NULL);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       KINProcessError(kin_mem, KINLS_SUNLS_FAIL, "KINLS", "KINSetLinearSolver",
                       "Error in calling SUNLinSolSetPreconditioner");
@@ -299,7 +299,7 @@ int KINSetPreconditioner(void* kinmem, KINLsPrecSetupFn psetup,
   kinls_psolve = (psolve == NULL) ? NULL : kinLsPSolve;
   retval = SUNLinSolSetPreconditioner(kinls_mem->LS, kin_mem, kinls_psetup,
                                       kinls_psolve);
-  if (retval != SUNLS_SUCCESS)
+  if (retval != SUN_SUCCESS)
   {
     KINProcessError(kin_mem, KINLS_SUNLS_FAIL, "KINLS", "KINSetPreconditioner",
                     "Error in calling SUNLinSolSetPreconditioner");
@@ -1106,7 +1106,7 @@ int kinLsInitialize(KINMem kin_mem)
   {
     retval = SUNLinSolSetScalingVectors(kinls_mem->LS, kin_mem->kin_fscale,
                                         kin_mem->kin_fscale);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       KINProcessError(kin_mem, KINLS_SUNLS_FAIL, "KINLS", "kinLsInitialize",
                       "Error in calling SUNLinSolSetScalingVectors");
@@ -1230,7 +1230,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, sunrealtype* sJpnorm,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(kinls_mem->LS, SUNTRUE);
-  if (retval != SUNLS_SUCCESS) { return (-1); }
+  if (retval != SUN_SUCCESS) { return (-1); }
 
   /* set flag required for user-supplied J*v routine */
   kinls_mem->new_uu = SUNTRUE;
@@ -1259,7 +1259,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, sunrealtype* sJpnorm,
 
   /* Increment counters nli and ncfl */
   kinls_mem->nli += nli_inc;
-  if (retval != SUNLS_SUCCESS) { kinls_mem->ncfl++; }
+  if (retval != SUN_SUCCESS) { kinls_mem->ncfl++; }
 
   /* Interpret solver return value */
   kinls_mem->last_flag = retval;
@@ -1270,9 +1270,9 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, sunrealtype* sJpnorm,
     {
     case SUNLS_ATIMES_FAIL_REC:
     case SUNLS_PSOLVE_FAIL_REC: return (1); break;
-    case SUNLS_MEM_NULL:
-    case SUNLS_ILL_INPUT:
-    case SUNLS_MEM_FAIL:
+    case SUN_ERR_ARG_CORRUPT:
+    case SUN_ERR_ARG_INCOMPATIBLE:
+    case SUN_ERR_MEM_FAIL:
     case SUNLS_GS_FAIL:
     case SUNLS_CONV_FAIL:
     case SUNLS_QRFACT_FAIL:
@@ -1298,7 +1298,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, sunrealtype* sJpnorm,
     return (retval);
   }
 
-  /* SUNLinSolSolve returned SUNLS_SUCCESS or SUNLS_RES_REDUCED */
+  /* SUNLinSolSolve returned SUN_SUCCESS or SUNLS_RES_REDUCED */
 
   /* Compute auxiliary values for use in the linesearch and in KINForcingTerm.
      These will be subsequently corrected if the step is reduced by constraints

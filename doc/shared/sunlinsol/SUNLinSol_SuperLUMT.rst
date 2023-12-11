@@ -93,7 +93,7 @@ The module SUNLinSol_SuperLUMT provides the following user-callable routines:
       The default is 3 for COLAMD.
 
    **Return value:**
-      * ``SUNLS_SUCCESS`` -- option successfully set
+      * ``SUN_SUCCESS`` -- option successfully set
       * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``
       * ``SUNLS_ILL_INPUT`` -- invalid ``ordering_choice``
 

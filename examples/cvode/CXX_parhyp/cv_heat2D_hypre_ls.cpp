@@ -2611,7 +2611,7 @@ int HypreLS_Setup(SUNLinearSolver LS, SUNMatrix A)
   udata->setuptime += t2 - t1;
 
   // Return success
-  return (SUNLS_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
 int HypreLS_Solve(SUNLinearSolver LS, SUNMatrix A, N_Vector x, N_Vector b,
@@ -2708,14 +2708,14 @@ int HypreLS_Solve(SUNLinearSolver LS, SUNMatrix A, N_Vector x, N_Vector b,
   udata->solvetime += t2 - t1;
 
   // Return success
-  return (SUNLS_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
 int HypreLS_NumIters(SUNLinearSolver LS) { return ((int)HLS_ITERS(LS)); }
 
 int HypreLS_Free(SUNLinearSolver LS)
 {
-  if (LS == NULL) { return (SUNLS_SUCCESS); }
+  if (LS == NULL) { return (SUN_SUCCESS); }
   if (LS->content != NULL)
   {
     if (HLS_SOLVER(LS))
@@ -2730,7 +2730,7 @@ int HypreLS_Free(SUNLinearSolver LS)
     LS->content = NULL;
   }
   SUNLinSolFreeEmpty(LS);
-  return (SUNLS_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
 //---- end of file ----

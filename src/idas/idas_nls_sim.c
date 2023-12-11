@@ -455,7 +455,7 @@ static int idaNlsConvTestSensSim(SUNNonlinearSolver NLS, N_Vector ycor,
   if (m == 0)
   {
     IDA_mem->ida_oldnrm = delnrm;
-    if (delnrm <= PT0001 * IDA_mem->ida_toldel) { return (SUN_NLS_SUCCESS); }
+    if (delnrm <= PT0001 * IDA_mem->ida_toldel) { return (SUN_SUCCESS); }
   }
   else
   {
@@ -464,7 +464,7 @@ static int idaNlsConvTestSensSim(SUNNonlinearSolver NLS, N_Vector ycor,
     IDA_mem->ida_ss = rate / (ONE - rate);
   }
 
-  if (IDA_mem->ida_ss * delnrm <= tol) { return (SUN_NLS_SUCCESS); }
+  if (IDA_mem->ida_ss * delnrm <= tol) { return (SUN_SUCCESS); }
 
   /* not yet converged */
   return (SUN_NLS_CONTINUE);

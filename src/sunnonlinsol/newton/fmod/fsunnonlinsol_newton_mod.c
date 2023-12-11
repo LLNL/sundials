@@ -253,11 +253,11 @@ SWIGEXPORT int _wrap_FSUNNonlinSolGetType_Newton(SUNNonlinearSolver farg1) {
 SWIGEXPORT int _wrap_FSUNNonlinSolInitialize_Newton(SUNNonlinearSolver farg1) {
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
-  result = (int)SUNNonlinSolInitialize_Newton(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolInitialize_Newton(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -289,11 +289,11 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSolve_Newton(SUNNonlinearSolver farg1, N_Vecto
 SWIGEXPORT int _wrap_FSUNNonlinSolFree_Newton(SUNNonlinearSolver farg1) {
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
-  result = (int)SUNNonlinSolFree_Newton(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolFree_Newton(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -302,12 +302,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetSysFn_Newton(SUNNonlinearSolver farg1, SUNN
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   SUNNonlinSolSysFn arg2 = (SUNNonlinSolSysFn) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (SUNNonlinSolSysFn)(farg2);
-  result = (int)SUNNonlinSolSetSysFn_Newton(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolSetSysFn_Newton(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -316,12 +316,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetLSetupFn_Newton(SUNNonlinearSolver farg1, S
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   SUNNonlinSolLSetupFn arg2 = (SUNNonlinSolLSetupFn) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (SUNNonlinSolLSetupFn)(farg2);
-  result = (int)SUNNonlinSolSetLSetupFn_Newton(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolSetLSetupFn_Newton(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -330,12 +330,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetLSolveFn_Newton(SUNNonlinearSolver farg1, S
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   SUNNonlinSolLSolveFn arg2 = (SUNNonlinSolLSolveFn) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (SUNNonlinSolLSolveFn)(farg2);
-  result = (int)SUNNonlinSolSetLSolveFn_Newton(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolSetLSolveFn_Newton(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -345,13 +345,13 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver farg1,
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   SUNNonlinSolConvTestFn arg2 = (SUNNonlinSolConvTestFn) 0 ;
   void *arg3 = (void *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (SUNNonlinSolConvTestFn)(farg2);
   arg3 = (void *)(farg3);
-  result = (int)SUNNonlinSolSetConvTestFn_Newton(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolSetConvTestFn_Newton(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -360,12 +360,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetMaxIters_Newton(SUNNonlinearSolver farg1, i
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNNonlinSolSetMaxIters_Newton(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolSetMaxIters_Newton(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -374,12 +374,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolGetNumIters_Newton(SUNNonlinearSolver farg1, l
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   long *arg2 = (long *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (long *)(farg2);
-  result = (int)SUNNonlinSolGetNumIters_Newton(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolGetNumIters_Newton(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -388,12 +388,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolGetCurIter_Newton(SUNNonlinearSolver farg1, in
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   int *arg2 = (int *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (int *)(farg2);
-  result = (int)SUNNonlinSolGetCurIter_Newton(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolGetCurIter_Newton(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -402,12 +402,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolGetNumConvFails_Newton(SUNNonlinearSolver farg
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   long *arg2 = (long *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (long *)(farg2);
-  result = (int)SUNNonlinSolGetNumConvFails_Newton(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolGetNumConvFails_Newton(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -416,12 +416,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver farg1, void
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   SUNNonlinSolSysFn *arg2 = (SUNNonlinSolSysFn *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (SUNNonlinSolSysFn *)(farg2);
-  result = (int)SUNNonlinSolGetSysFn_Newton(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolGetSysFn_Newton(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 

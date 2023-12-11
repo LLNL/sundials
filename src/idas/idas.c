@@ -5756,7 +5756,7 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "IDASolve", MSG_NO_MEM);
     return (IDA_MEM_NULL);
 
-  case SUN_NLS_MEM_NULL:
+  case SUN_ERR_ARG_CORRUPT:
     IDAProcessError(IDA_mem, IDA_MEM_NULL, "IDAS", "IDASolve",
                     MSG_NLS_INPUT_NULL, IDA_mem->ida_tn);
     return (IDA_MEM_NULL);
@@ -6324,7 +6324,7 @@ static int IDANls(IDAMem IDA_mem)
 #endif
 
   /* return if nonlinear solver failed */
-  if (retval != SUN_NLS_SUCCESS) { return (retval); }
+  if (retval != SUN_SUCCESS) { return (retval); }
 
   /* update the state using the final correction from the nonlinear solver */
   N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, IDA_mem->ida_ee,
@@ -6503,7 +6503,7 @@ static int IDASensNls(IDAMem IDA_mem)
   (void)SUNNonlinSolGetNumConvFails(IDA_mem->NLSstg, &nnfS_inc);
   IDA_mem->ida_nnfS += nnfS_inc;
 
-  if (retval != SUN_NLS_SUCCESS)
+  if (retval != SUN_SUCCESS)
   {
     IDA_mem->ida_ncfnS++;
     return (retval);

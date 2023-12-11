@@ -523,14 +523,7 @@ provide additional information to the user in case of a linear solver failure.
    +------------------------------+-------+---------------------------------------------------+
    | Error code                   | Value | Meaning                                           |
    +==============================+=======+===================================================+
-   | ``SUNLS_SUCCESS``            | 0     | successful call or converged solve                |
-   +------------------------------+-------+---------------------------------------------------+
-   | ``SUNLS_MEM_NULL``           | -801  | the memory argument to the function is ``NULL``   |
-   +------------------------------+-------+---------------------------------------------------+
-   | ``SUNLS_ILL_INPUT``          | -802  | an illegal input has been provided to the         |
-   |                              |       | function                                          |
-   +------------------------------+-------+---------------------------------------------------+
-   | ``SUNLS_MEM_FAIL``           | -803  | failed memory access or allocation                |
+   | ``SUN_SUCCESS``              | 0     | successful call or converged solve                |
    +------------------------------+-------+---------------------------------------------------+
    | ``SUNLS_ATIMES_NULL``        | -804  | the ``Atimes`` function is ``NULL``               |
    +------------------------------+-------+---------------------------------------------------+
@@ -553,8 +546,6 @@ provide additional information to the user in case of a linear solver failure.
    +------------------------------+-------+---------------------------------------------------+
    | ``SUNLS_QRSOL_FAIL``         | -811  | a singular $R$ matrix was encountered in a QR     |
    |                              |       | factorization (SPGMR/SPFGMR)                      |
-   +------------------------------+-------+---------------------------------------------------+
-   | ``SUNLS_VECTOROP_ERR``       | -812  | a vector operation error occurred                 |
    +------------------------------+-------+---------------------------------------------------+
    | ``SUNLS_RES_REDUCED``        | 801   | an iterative solver reduced the residual, but did |
    |                              |       | not converge to the desired tolerance             |

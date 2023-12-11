@@ -214,33 +214,14 @@ SUNErrCode SUNLinSolFree(SUNLinearSolver S);
  * SUNLinearSolver return values
  * ----------------------------------------------------------------- */
 
-/* TODO(CJB): We should remove all codes which are not associated
-              with recoverable errors. Typically these are 'convergence'
-              or 'numerical' in nature. Do not remove errors which
-              unrecoverable but have a recoverable dual.  */
-
-#define SUNLS_SUCCESS 0 /* successful/converged             */
-
-#define SUNLS_UNRECOV_FAILURE -800 /* generic unrecoverable failure */
-/* DEPRECATED: use SUNErrCode instead */
-#define SUNLS_MEM_NULL -801 /* mem argument is NULL          */
-/* DEPRECATED: use SUNErrCode instead */
-#define SUNLS_ILL_INPUT -802 /* illegal function input        */
-/* DEPRECATED: use SUNErrCode instead */
-#define SUNLS_MEM_FAIL -803 /* failed memory access          */
-/* DEPRECATED: use SUNErrCode instead */
-#define SUNLS_ATIMES_NULL       -804 /* atimes function is NULL       */
-#define SUNLS_ATIMES_FAIL_UNREC -805 /* atimes unrecoverable failure  */
-#define SUNLS_PSET_FAIL_UNREC   -806 /* pset unrecoverable failure    */
-/* DEPRECATED: use SUNErrCode instead */
-#define SUNLS_PSOLVE_NULL       -807 /* psolve function is NULL       */
-#define SUNLS_PSOLVE_FAIL_UNREC -808 /* psolve unrecoverable failure  */
-/* DEPRECATED: use SUNErrCode instead */
+#define SUNLS_ATIMES_NULL        -804 /* atimes function is NULL       */
+#define SUNLS_ATIMES_FAIL_UNREC  -805 /* atimes unrecoverable failure  */
+#define SUNLS_PSET_FAIL_UNREC    -806 /* pset unrecoverable failure    */
+#define SUNLS_PSOLVE_NULL        -807 /* psolve function is NULL       */
+#define SUNLS_PSOLVE_FAIL_UNREC  -808 /* psolve unrecoverable failure  */
 #define SUNLS_PACKAGE_FAIL_UNREC -809 /* external package unrec. fail  */
 #define SUNLS_GS_FAIL            -810 /* Gram-Schmidt failure          */
 #define SUNLS_QRSOL_FAIL         -811 /* QRsol found singular R        */
-/* DEPRECATED: use SUNErrCode instead */
-#define SUNLS_VECTOROP_ERR -812 /* vector operation error        */
 
 #define SUNLS_RECOV_FAILURE    800 /* generic recoverable failure   */
 #define SUNLS_RES_REDUCED      801 /* nonconv. solve, resid reduced */

@@ -265,17 +265,17 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat,
  * Implementation of SUNLinearSolver operations
  * -------------------------------------------------------------------------- */
 
-int SUNLinSolInitialize_OneMklDense(SUNLinearSolver S)
+SUNErrCode SUNLinSolInitialize_OneMklDense(SUNLinearSolver S)
 {
   // All solver-specific memory has already been allocated
   if (!S)
   {
     SUNDIALS_DEBUG_ERROR("Linear solver is NULL\n");
-    return SUNLS_MEM_NULL;
+    return SUN_ERR_ARG_CORRUPT;
   }
 
-  LS_LASTFLAG(S) = SUNLS_SUCCESS;
-  return SUNLS_SUCCESS;
+  LS_LASTFLAG(S) = SUN_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
@@ -284,22 +284,22 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
   if (!S)
   {
     SUNDIALS_DEBUG_ERROR("Linear solver is NULL\n");
-    return SUNLS_MEM_NULL;
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   if (!A)
   {
     SUNDIALS_DEBUG_ERROR("Matrix is NULL\n");
-    LS_LASTFLAG(S) = SUNLS_MEM_NULL;
-    return SUNLS_MEM_NULL;
+    LS_LASTFLAG(S) = SUN_ERR_ARG_CORRUPT;
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   // Ensure that A is a oneMKL dense matrix
   if (SUNMatGetID(A) != SUNMATRIX_ONEMKLDENSE)
   {
     SUNDIALS_DEBUG_ERROR("Matrix is not the oneMKL matrix\n");
-    LS_LASTFLAG(S) = SUNLS_ILL_INPUT;
-    return SUNLS_ILL_INPUT;
+    LS_LASTFLAG(S) = SUN_ERR_ARG_INCOMPATIBLE;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   // Access A matrix data array
@@ -307,8 +307,8 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
   if (!Adata)
   {
     SUNDIALS_DEBUG_ERROR("Matrix data array is NULL\n");
-    LS_LASTFLAG(S) = SUNLS_MEM_FAIL;
-    return SUNLS_MEM_FAIL;
+    LS_LASTFLAG(S) = SUN_ERR_MEM_FAIL;
+    return SUN_ERR_MEM_FAIL;
   }
 
   // Access pivots data array
@@ -316,8 +316,8 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
   if (!pivots)
   {
     SUNDIALS_DEBUG_ERROR("Matrix data array is NULL\n");
-    LS_LASTFLAG(S) = SUNLS_MEM_FAIL;
-    return SUNLS_MEM_FAIL;
+    LS_LASTFLAG(S) = SUN_ERR_MEM_FAIL;
+    return SUN_ERR_MEM_FAIL;
   }
 
   // Call oneMKL to do LU factorization of A
@@ -432,8 +432,8 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
     return SUNLS_PACKAGE_FAIL_UNREC;
   }
 
-  LS_LASTFLAG(S) = SUNLS_SUCCESS;
-  return SUNLS_SUCCESS;
+  LS_LASTFLAG(S) = SUN_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
@@ -443,22 +443,22 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (!S)
   {
     SUNDIALS_DEBUG_ERROR("Linear solver is NULL\n");
-    return SUNLS_MEM_NULL;
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   if (!A || !x || !b)
   {
     SUNDIALS_DEBUG_ERROR("A, x, or b is NULL\n");
-    LS_LASTFLAG(S) = SUNLS_MEM_NULL;
-    return SUNLS_MEM_NULL;
+    LS_LASTFLAG(S) = SUN_ERR_ARG_CORRUPT;
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   // Ensure that A is a onemkl dense matrix
   if (SUNMatGetID(A) != SUNMATRIX_ONEMKLDENSE)
   {
     SUNDIALS_DEBUG_ERROR("Matrix is not the oneMKL matrix\n");
-    LS_LASTFLAG(S) = SUNLS_ILL_INPUT;
-    return SUNLS_ILL_INPUT;
+    LS_LASTFLAG(S) = SUN_ERR_ARG_INCOMPATIBLE;
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   // Copy b into x
@@ -469,8 +469,8 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (!xdata)
   {
     SUNDIALS_DEBUG_ERROR("Vector data array is NULL\n");
-    LS_LASTFLAG(S) = SUNLS_MEM_FAIL;
-    return SUNLS_MEM_FAIL;
+    LS_LASTFLAG(S) = SUN_ERR_MEM_FAIL;
+    return SUN_ERR_MEM_FAIL;
   }
 
   // Access A matrix data array
@@ -478,8 +478,8 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (!Adata)
   {
     SUNDIALS_DEBUG_ERROR("Matrix data array is NULL\n");
-    LS_LASTFLAG(S) = SUNLS_MEM_FAIL;
-    return SUNLS_MEM_FAIL;
+    LS_LASTFLAG(S) = SUN_ERR_MEM_FAIL;
+    return SUN_ERR_MEM_FAIL;
   }
 
   // Access pivots data array
@@ -487,8 +487,8 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (!pivots)
   {
     SUNDIALS_DEBUG_ERROR("Matrix data array is NULL\n");
-    LS_LASTFLAG(S) = SUNLS_MEM_FAIL;
-    return SUNLS_MEM_FAIL;
+    LS_LASTFLAG(S) = SUN_ERR_MEM_FAIL;
+    return SUN_ERR_MEM_FAIL;
   }
 
   // Call oneMKL to solve the linear system
@@ -580,8 +580,8 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     return SUNLS_PACKAGE_FAIL_UNREC;
   }
 
-  LS_LASTFLAG(S) = SUNLS_SUCCESS;
-  return SUNLS_SUCCESS;
+  LS_LASTFLAG(S) = SUN_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 sunindextype SUNLinSolLastFlag_OneMklDense(SUNLinearSolver S)
@@ -590,32 +590,32 @@ sunindextype SUNLinSolLastFlag_OneMklDense(SUNLinearSolver S)
   if (!S)
   {
     SUNDIALS_DEBUG_ERROR("Linear solver is NULL\n");
-    return SUNLS_MEM_NULL;
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   return LS_LASTFLAG(S);
 }
 
-int SUNLinSolSpace_OneMklDense(SUNLinearSolver S, long int* lenrwLS,
-                               long int* leniwLS)
+SUNErrCode SUNLinSolSpace_OneMklDense(SUNLinearSolver S, long int* lenrwLS,
+                                      long int* leniwLS)
 {
   if (!S)
   {
     SUNDIALS_DEBUG_ERROR("Linear solver is NULL\n");
-    return SUNLS_MEM_NULL;
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   *lenrwLS = 0;
   *leniwLS = 2 + LS_CONTENT(S)->rows;
 
-  LS_LASTFLAG(S) = SUNLS_SUCCESS;
-  return SUNLS_SUCCESS;
+  LS_LASTFLAG(S) = SUN_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNLinSolFree_OneMklDense(SUNLinearSolver S)
+SUNErrCode SUNLinSolFree_OneMklDense(SUNLinearSolver S)
 {
   // return if S is already free
-  if (!S) { return SUNLS_SUCCESS; }
+  if (!S) { return SUN_SUCCESS; }
 
   // delete items from contents, then delete generic structure
   if (S->content)
@@ -644,5 +644,5 @@ int SUNLinSolFree_OneMklDense(SUNLinearSolver S)
   SUNLinSolFreeEmpty(S);
   S = NULL;
 
-  return SUNLS_SUCCESS;
+  return SUN_SUCCESS;
 }

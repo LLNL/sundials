@@ -160,9 +160,9 @@ user-callable function.
          a ``NULL`` input will disable output.
 
    **Return value:**
-      * ``SUN_NLS_SUCCESS`` if successful.
-      * ``SUN_NLS_MEM_NULL`` if the SUNNonlinSol memory was ``NULL``.
-      * ``SUN_NLS_ILL_INPUT`` if SUNDIALS was not built with monitoring enabled.
+      * ``SUN_SUCCESS`` if successful.
+      * ``SUN_ERR_ARG_CORRUPT`` if the SUNNonlinSol memory was ``NULL``.
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` if SUNDIALS was not built with monitoring enabled.
 
    **Notes:**
       This function is intended for users that wish to monitor the nonlinear
@@ -192,9 +192,9 @@ user-callable function.
          * 1, for each nonlinear iteration the residual norm is printed.
 
    **Return value:**
-      * ``SUN_NLS_SUCCESS`` if successful.
-      * ``SUN_NLS_MEM_NULL`` if the SUNNonlinearSolver memory was ``NULL``.
-      * ``SUN_NLS_ILL_INPUT`` if SUNDIALS was not built with monitoring enabled,
+      * ``SUN_SUCCESS`` if successful.
+      * ``SUN_ERR_ARG_CORRUPT`` if the SUNNonlinearSolver memory was ``NULL``.
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` if SUNDIALS was not built with monitoring enabled,
         or the print level value was invalid.
 
    **Notes:**

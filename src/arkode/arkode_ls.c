@@ -215,7 +215,7 @@ int arkLSSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A)
   if (LS->ops->setatimes)
   {
     retval = SUNLinSolSetATimes(LS, ark_mem, arkLsATimes);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKLS", "arkLSSetLinearSolver",
                       "Error in calling SUNLinSolSetATimes");
@@ -229,7 +229,7 @@ int arkLSSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A)
   if (LS->ops->setpreconditioner)
   {
     retval = SUNLinSolSetPreconditioner(LS, ark_mem, NULL, NULL);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKLS", "arkLSSetLinearSolver",
                       "Error in calling SUNLinSolSetPreconditioner");
@@ -444,7 +444,7 @@ int arkLSSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix M,
   if (LS->ops->setatimes)
   {
     retval = SUNLinSolSetATimes(LS, ark_mem, NULL);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKLS",
                       "arkLSSetMassLinearSolver",
@@ -459,7 +459,7 @@ int arkLSSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix M,
   if (LS->ops->setpreconditioner)
   {
     retval = SUNLinSolSetPreconditioner(LS, ark_mem, NULL, NULL);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKLS",
                       "arkLSSetMassLinearSolver",
@@ -738,7 +738,7 @@ int arkLSSetPreconditioner(void* arkode_mem, ARKLsPrecSetupFn psetup,
   arkls_psolve = (psolve == NULL) ? NULL : arkLsPSolve;
   retval = SUNLinSolSetPreconditioner(arkls_mem->LS, ark_mem, arkls_psetup,
                                       arkls_psolve);
-  if (retval != SUNLS_SUCCESS)
+  if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKLS", "arkLSSetPreconditioner",
                     "Error in calling SUNLinSolSetPreconditioner");
@@ -993,7 +993,7 @@ int arkLSGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
   if (arkls_mem->LS->ops->space)
   {
     retval = SUNLinSolSpace(arkls_mem->LS, &lrw, &liw);
-    if (retval == SUNLS_SUCCESS)
+    if (retval == SUN_SUCCESS)
     {
       *lenrw += lrw;
       *leniw += liw;
@@ -1303,7 +1303,7 @@ int arkLSSetMassPreconditioner(void* arkode_mem, ARKLsMassPrecSetupFn psetup,
   arkls_mpsolve = (psolve == NULL) ? NULL : arkLsMPSolve;
   retval = SUNLinSolSetPreconditioner(arkls_mem->LS, ark_mem, arkls_mpsetup,
                                       arkls_mpsolve);
-  if (retval != SUNLS_SUCCESS)
+  if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKLS",
                     "arkLSSetMassPreconditioner",
@@ -1354,7 +1354,7 @@ int arkLSSetMassTimes(void* arkode_mem, ARKLsMassTimesSetupFn mtsetup,
 
   /* notify linear solver to call ARKLs interface routine */
   retval = SUNLinSolSetATimes(arkls_mem->LS, ark_mem, arkLsMTimes);
-  if (retval != SUNLS_SUCCESS)
+  if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKLS", "arkLSSetMassTimes",
                     "Error in calling SUNLinSolSetATimes");
@@ -1433,7 +1433,7 @@ int arkLSGetMassWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
   if (arkls_mem->LS->ops->space)
   {
     retval = SUNLinSolSpace(arkls_mem->LS, &lrw, &liw);
-    if (retval == SUNLS_SUCCESS)
+    if (retval == SUN_SUCCESS)
     {
       *lenrw += lrw;
       *leniw += liw;
@@ -2673,7 +2673,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
   {
     retval = SUNLinSolSetScalingVectors(arkls_mem->LS, ark_mem->rwt,
                                         ark_mem->ewt);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKLS", "arkLsSolve",
                       "Error in call to SUNLinSolSetScalingVectors");
@@ -2708,7 +2708,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(arkls_mem->LS, SUNTRUE);
-  if (retval != SUNLS_SUCCESS) { return (-1); }
+  if (retval != SUN_SUCCESS) { return (-1); }
 
   /* Store previous nps value in nps_inc */
   nps_inc = arkls_mem->nps;
@@ -2763,7 +2763,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
 
   /* Increment counters nli and ncfl */
   arkls_mem->nli += nli_inc;
-  if (retval != SUNLS_SUCCESS) { arkls_mem->ncfl++; }
+  if (retval != SUN_SUCCESS) { arkls_mem->ncfl++; }
 
   /* Log solver statistics to diagnostics file (if requested) */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -2783,7 +2783,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
 
   switch (retval)
   {
-  case SUNLS_SUCCESS: return (0); break;
+  case SUN_SUCCESS: return (0); break;
   case SUNLS_RES_REDUCED:
     /* allow reduction but not solution on first nonlinear iteration,
        otherwise return with a recoverable failure */
@@ -2796,9 +2796,9 @@ int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
   case SUNLS_PACKAGE_FAIL_REC:
   case SUNLS_QRFACT_FAIL:
   case SUNLS_LUFACT_FAIL: return (1); break;
-  case SUNLS_MEM_NULL:
-  case SUNLS_ILL_INPUT:
-  case SUNLS_MEM_FAIL:
+  case SUN_ERR_ARG_CORRUPT:
+  case SUN_ERR_ARG_INCOMPATIBLE:
+  case SUN_ERR_MEM_FAIL:
   case SUNLS_GS_FAIL:
   case SUNLS_QRSOL_FAIL: return (-1); break;
   case SUNLS_PACKAGE_FAIL_UNREC:
@@ -3137,7 +3137,7 @@ int arkLsMassSolve(void* arkode_mem, N_Vector b, sunrealtype nlscoef)
   {
     retval = SUNLinSolSetScalingVectors(arkls_mem->LS, ark_mem->rwt,
                                         ark_mem->ewt);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, "ARKLS", "arkLsMassSolve",
                       "Error in call to SUNLinSolSetScalingVectors");
@@ -3172,7 +3172,7 @@ int arkLsMassSolve(void* arkode_mem, N_Vector b, sunrealtype nlscoef)
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(arkls_mem->LS, SUNTRUE);
-  if (retval != SUNLS_SUCCESS) { return (-1); }
+  if (retval != SUN_SUCCESS) { return (-1); }
 
   /* Store previous nps value in nps_inc */
   nps_inc = arkls_mem->nps;
@@ -3199,7 +3199,7 @@ int arkLsMassSolve(void* arkode_mem, N_Vector b, sunrealtype nlscoef)
 
   /* Increment counters nli and ncfl */
   arkls_mem->nli += nli_inc;
-  if (retval != SUNLS_SUCCESS) { arkls_mem->ncfl++; }
+  if (retval != SUN_SUCCESS) { arkls_mem->ncfl++; }
 
   /* Log solver statistics to diagnostics file (if requested) */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -3218,7 +3218,7 @@ int arkLsMassSolve(void* arkode_mem, N_Vector b, sunrealtype nlscoef)
 
   switch (retval)
   {
-  case SUNLS_SUCCESS: return (0); break;
+  case SUN_SUCCESS: return (0); break;
   case SUNLS_RES_REDUCED:
   case SUNLS_CONV_FAIL:
   case SUNLS_ATIMES_FAIL_REC:
@@ -3226,9 +3226,9 @@ int arkLsMassSolve(void* arkode_mem, N_Vector b, sunrealtype nlscoef)
   case SUNLS_PACKAGE_FAIL_REC:
   case SUNLS_QRFACT_FAIL:
   case SUNLS_LUFACT_FAIL: return (1); break;
-  case SUNLS_MEM_NULL:
-  case SUNLS_ILL_INPUT:
-  case SUNLS_MEM_FAIL:
+  case SUN_ERR_ARG_CORRUPT:
+  case SUN_ERR_ARG_INCOMPATIBLE:
+  case SUN_ERR_MEM_FAIL:
   case SUNLS_GS_FAIL:
   case SUNLS_QRSOL_FAIL: return (-1); break;
   case SUNLS_PACKAGE_FAIL_UNREC:

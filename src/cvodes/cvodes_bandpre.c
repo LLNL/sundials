@@ -183,7 +183,7 @@ int CVBandPrecInit(void* cvode_mem, sunindextype N, sunindextype mu,
 
   /* initialize band linear solver object */
   flag = SUNLinSolInitialize(pdata->LS);
-  if (flag != SUNLS_SUCCESS)
+  if (flag != SUN_SUCCESS)
   {
     SUNLinSolFree(pdata->LS);
     SUNMatDestroy(pdata->savedP);

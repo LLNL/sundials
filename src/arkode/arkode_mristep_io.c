@@ -749,7 +749,7 @@ int MRIStepSetMaxNonlinIters(void* arkode_mem, int maxcor)
 
   /* send argument to NLS structure */
   retval = SUNNonlinSolSetMaxIters(step_mem->NLS, step_mem->maxcor);
-  if (retval != SUN_NLS_SUCCESS)
+  if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKODE::MRIStep",
                     "MRIStepSetMaxNonlinIters",

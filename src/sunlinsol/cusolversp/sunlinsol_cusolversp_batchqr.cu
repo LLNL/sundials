@@ -121,7 +121,7 @@ SUNLinearSolver SUNLinSol_cuSolverSp_batchQR(N_Vector y, SUNMatrix A,
   S->content = content;
 
   /* Fill content */
-  content->last_flag       = SUNLS_SUCCESS;
+  content->last_flag       = SUN_SUCCESS;
   content->first_factorize = SUNTRUE;
   content->internal_size   = 0;
   content->workspace_size  = 0;
@@ -176,10 +176,10 @@ SUNLinearSolver_ID SUNLinSolGetID_cuSolverSp_batchQR(SUNLinearSolver S)
   return (SUNLINEARSOLVER_CUSOLVERSP_BATCHQR);
 }
 
-int SUNLinSolInitialize_cuSolverSp_batchQR(SUNLinearSolver S)
+SUNErrCode SUNLinSolInitialize_cuSolverSp_batchQR(SUNLinearSolver S)
 {
   SUN_CUSP_FIRSTFACTORIZE(S) = SUNTRUE;
-  SUN_CUSP_LASTFLAG(S)       = SUNLS_SUCCESS;
+  SUN_CUSP_LASTFLAG(S)       = SUN_SUCCESS;
   return (SUN_CUSP_LASTFLAG(S));
 }
 
@@ -192,7 +192,7 @@ int SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A)
   cudaError_t cuerr;
   cusolverStatus_t status;
 
-  if (SUN_CUSP_LASTFLAG(S) != SUNLS_SUCCESS) { return SUN_CUSP_LASTFLAG(S); }
+  if (SUN_CUSP_LASTFLAG(S) != SUN_SUCCESS) { return SUN_CUSP_LASTFLAG(S); }
 
   if (SUN_CUSP_FIRSTFACTORIZE(S))
   {
@@ -258,7 +258,7 @@ int SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A)
     SUN_CUSP_FIRSTFACTORIZE(S) = SUNFALSE;
   }
 
-  SUN_CUSP_LASTFLAG(S) = SUNLS_SUCCESS;
+  SUN_CUSP_LASTFLAG(S) = SUN_SUCCESS;
   return (SUN_CUSP_LASTFLAG(S));
 }
 
@@ -273,15 +273,15 @@ int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A,
 
   if ((S == NULL) || (A == NULL) || (x == NULL) || (b == NULL))
   {
-    return SUNLS_MEM_NULL;
+    return SUN_ERR_ARG_CORRUPT;
   }
 
-  SUN_CUSP_LASTFLAG(S) = SUNLS_SUCCESS;
+  SUN_CUSP_LASTFLAG(S) = SUN_SUCCESS;
 
   sunrealtype* device_b = N_VGetDeviceArrayPointer(b);
   sunrealtype* device_x = N_VGetDeviceArrayPointer(x);
 
-  if (SUN_CUSP_LASTFLAG(S) != SUNLS_SUCCESS) { return SUN_CUSP_LASTFLAG(S); }
+  if (SUN_CUSP_LASTFLAG(S) != SUN_SUCCESS) { return SUN_CUSP_LASTFLAG(S); }
 
   /* solve the system */
   nblock    = SUNMatrix_cuSparse_NumBlocks(A);
@@ -314,10 +314,10 @@ sunindextype SUNLinSolLastFlag_cuSolverSp_batchQR(SUNLinearSolver S)
   return SUN_CUSP_LASTFLAG(S);
 }
 
-int SUNLinSolFree_cuSolverSp_batchQR(SUNLinearSolver S)
+SUNErrCode SUNLinSolFree_cuSolverSp_batchQR(SUNLinearSolver S)
 {
   /* return with success if already freed */
-  if (S == NULL) { return SUNLS_SUCCESS; }
+  if (S == NULL) { return SUN_SUCCESS; }
 
   /* free stuff in the content structure */
   cusolverSpDestroyCsrqrInfo(SUN_CUSP_QRINFO(S));
@@ -341,5 +341,5 @@ int SUNLinSolFree_cuSolverSp_batchQR(SUNLinearSolver S)
   free(S);
   S = NULL;
 
-  return (SUNLS_SUCCESS);
+  return (SUN_SUCCESS);
 }

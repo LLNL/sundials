@@ -458,7 +458,7 @@ module have types defined in the header file
       The return value of this routine will be a negative value if an
       unrecoverable error occurred or one of the following:
 
-      * ``SUN_NLS_SUCCESS`` -- the iteration is converged.
+      * ``SUN_SUCCESS`` -- the iteration is converged.
 
       * ``SUN_NLS_CONTINUE`` -- the iteration has not converged, keep
         iterating.
@@ -493,21 +493,11 @@ successful call.
    +-----------------------+---------+---------------------------------------------------------------+
    | Name                  | Value   | Description                                                   |
    +=======================+=========+===============================================================+
-   | SUN_NLS_SUCCESS       |    0    | successful call or converged solve                            |
+   | SUN_SUCCESS           |    0    | successful call or converged solve                            |
    +-----------------------+---------+---------------------------------------------------------------+
    | SUN_NLS_CONTINUE      |  901    | the nonlinear solver is not converged, keep iterating         |
    +-----------------------+---------+---------------------------------------------------------------+
    | SUN_NLS_CONV_RECVR    |  902    | the nonlinear solver appears to be diverging, try to recover  |
-   +-----------------------+---------+---------------------------------------------------------------+
-   | SUN_NLS_MEM_NULL      | -901    | a memory argument is ``NULL``                                 |
-   +-----------------------+---------+---------------------------------------------------------------+
-   | SUN_NLS_MEM_FAIL      | -902    | a memory access or allocation failed                          |
-   +-----------------------+---------+---------------------------------------------------------------+
-   | SUN_NLS_ILL_INPUT     | -903    | an illegal input option was provided                          |
-   +-----------------------+---------+---------------------------------------------------------------+
-   | SUN_NLS_VECTOROP_ERR  | -904    | a NVECTOR operation failed                                    |
-   +-----------------------+---------+---------------------------------------------------------------+
-   | SUN_NLS_EXT_FAIL      | -905    | an external library call returned an error                    |
    +-----------------------+---------+---------------------------------------------------------------+
 
 

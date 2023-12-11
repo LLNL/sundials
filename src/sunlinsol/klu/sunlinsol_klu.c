@@ -150,22 +150,22 @@ int SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz,
                         int reinit_type)
 {
   /* Check for non-NULL SUNLinearSolver */
-  if ((S == NULL) || (A == NULL)) { return (SUNLS_MEM_NULL); }
+  if ((S == NULL) || (A == NULL)) { return (SUN_ERR_ARG_CORRUPT); }
 
   /* Check for valid SUNMatrix */
-  if (SUNMatGetID(A) != SUNMATRIX_SPARSE) { return (SUNLS_ILL_INPUT); }
+  if (SUNMatGetID(A) != SUNMATRIX_SPARSE) { return (SUN_ERR_ARG_INCOMPATIBLE); }
 
   /* Check for valid reinit_type */
   if ((reinit_type != SUNKLU_REINIT_FULL) &&
       (reinit_type != SUNKLU_REINIT_PARTIAL))
   {
-    return (SUNLS_ILL_INPUT);
+    return (SUN_ERR_ARG_INCOMPATIBLE);
   }
 
   /* Full re-initialization: reallocate matrix for updated storage */
   if (reinit_type == SUNKLU_REINIT_FULL)
   {
-    if (SUNSparseMatrix_Reallocate(A, nnz) != 0) { return (SUNLS_MEM_FAIL); }
+    if (SUNSparseMatrix_Reallocate(A, nnz) != 0) { return (SUN_ERR_MEM_FAIL); }
   }
 
   /* Free the prior factorazation and reset for first factorization */
@@ -173,7 +173,7 @@ int SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz,
   if (NUMERIC(S) != NULL) { sun_klu_free_numeric(&NUMERIC(S), &COMMON(S)); }
   FIRSTFACTORIZE(S) = 1;
 
-  LASTFLAG(S) = SUNLS_SUCCESS;
+  LASTFLAG(S) = SUN_SUCCESS;
   return (LASTFLAG(S));
 }
 
@@ -186,16 +186,16 @@ int SUNLinSol_KLUSetOrdering(SUNLinearSolver S, int ordering_choice)
   /* Check for legal ordering_choice */
   if ((ordering_choice < 0) || (ordering_choice > 2))
   {
-    return (SUNLS_ILL_INPUT);
+    return (SUN_ERR_ARG_INCOMPATIBLE);
   }
 
   /* Check for non-NULL SUNLinearSolver */
-  if (S == NULL) { return (SUNLS_MEM_NULL); }
+  if (S == NULL) { return (SUN_ERR_ARG_CORRUPT); }
 
   /* Set ordering_choice */
   COMMON(S).ordering = ordering_choice;
 
-  LASTFLAG(S) = SUNLS_SUCCESS;
+  LASTFLAG(S) = SUN_SUCCESS;
   return (LASTFLAG(S));
 }
 
@@ -236,12 +236,12 @@ SUNLinearSolver_ID SUNLinSolGetID_KLU(SUNLinearSolver S)
   return (SUNLINEARSOLVER_KLU);
 }
 
-int SUNLinSolInitialize_KLU(SUNLinearSolver S)
+SUNErrCode SUNLinSolInitialize_KLU(SUNLinearSolver S)
 {
   /* Force factorization */
   FIRSTFACTORIZE(S) = 1;
 
-  LASTFLAG(S) = SUNLS_SUCCESS;
+  LASTFLAG(S) = SUN_SUCCESS;
   return (LASTFLAG(S));
 }
 
@@ -255,7 +255,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
   /* Ensure that A is a sparse matrix */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
   {
-    LASTFLAG(S) = SUNLS_ILL_INPUT;
+    LASTFLAG(S) = SUN_ERR_ARG_INCOMPATIBLE;
     return (LASTFLAG(S));
   }
 
@@ -346,7 +346,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
     }
   }
 
-  LASTFLAG(S) = SUNLS_SUCCESS;
+  LASTFLAG(S) = SUN_SUCCESS;
   return (LASTFLAG(S));
 }
 
@@ -359,7 +359,7 @@ int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
   /* check for valid inputs */
   if ((A == NULL) || (S == NULL) || (x == NULL) || (b == NULL))
   {
-    return (SUNLS_MEM_NULL);
+    return (SUN_ERR_ARG_CORRUPT);
   }
 
   /* copy b into x */
@@ -369,7 +369,7 @@ int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
   xdata = N_VGetArrayPointer(x);
   if (xdata == NULL)
   {
-    LASTFLAG(S) = SUNLS_MEM_FAIL;
+    LASTFLAG(S) = SUN_ERR_MEM_FAIL;
     return (LASTFLAG(S));
   }
 
@@ -382,7 +382,7 @@ int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
     return (LASTFLAG(S));
   }
 
-  LASTFLAG(S) = SUNLS_SUCCESS;
+  LASTFLAG(S) = SUN_SUCCESS;
   return (LASTFLAG(S));
 }
 
@@ -393,19 +393,20 @@ sunindextype SUNLinSolLastFlag_KLU(SUNLinearSolver S)
   return (LASTFLAG(S));
 }
 
-int SUNLinSolSpace_KLU(SUNLinearSolver S, long int* lenrwLS, long int* leniwLS)
+SUNErrCode SUNLinSolSpace_KLU(SUNLinearSolver S, long int* lenrwLS,
+                              long int* leniwLS)
 {
   /* since the klu structures are opaque objects, we
      omit those from these results */
   *leniwLS = 2;
   *lenrwLS = 0;
-  return (SUNLS_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNLinSolFree_KLU(SUNLinearSolver S)
+SUNErrCode SUNLinSolFree_KLU(SUNLinearSolver S)
 {
   /* return with success if already freed */
-  if (S == NULL) { return (SUNLS_SUCCESS); }
+  if (S == NULL) { return (SUN_SUCCESS); }
 
   /* delete items from the contents structure (if it exists) */
   if (S->content)
@@ -424,5 +425,5 @@ int SUNLinSolFree_KLU(SUNLinearSolver S)
   }
   free(S);
   S = NULL;
-  return (SUNLS_SUCCESS);
+  return (SUN_SUCCESS);
 }

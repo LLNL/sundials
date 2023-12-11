@@ -163,7 +163,7 @@ int ARKBandPrecInit(void* arkode_mem, sunindextype N, sunindextype mu,
 
   /* initialize band linear solver object */
   retval = SUNLinSolInitialize(pdata->LS);
-  if (retval != SUNLS_SUCCESS)
+  if (retval != SUN_SUCCESS)
   {
     SUNLinSolFree(pdata->LS);
     SUNMatDestroy(pdata->savedP);
@@ -244,7 +244,7 @@ int ARKBandPrecGetWorkSpace(void* arkode_mem, long int* lenrwBP, long int* leniw
   if (pdata->LS->ops->space)
   {
     retval = SUNLinSolSpace(pdata->LS, &lrw, &liw);
-    if (retval == SUNLS_SUCCESS)
+    if (retval == SUN_SUCCESS)
     {
       *leniwBP += liw;
       *lenrwBP += lrw;

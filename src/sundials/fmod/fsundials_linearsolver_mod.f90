@@ -135,11 +135,6 @@ module fsundials_linearsolver_mod
  public :: FSUNLinSolLastFlag
  public :: FSUNLinSolSpace
  public :: FSUNLinSolFree
- integer(C_INT), parameter, public :: SUNLS_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: SUNLS_UNRECOV_FAILURE = -800_C_INT
- integer(C_INT), parameter, public :: SUNLS_MEM_NULL = -801_C_INT
- integer(C_INT), parameter, public :: SUNLS_ILL_INPUT = -802_C_INT
- integer(C_INT), parameter, public :: SUNLS_MEM_FAIL = -803_C_INT
  integer(C_INT), parameter, public :: SUNLS_ATIMES_NULL = -804_C_INT
  integer(C_INT), parameter, public :: SUNLS_ATIMES_FAIL_UNREC = -805_C_INT
  integer(C_INT), parameter, public :: SUNLS_PSET_FAIL_UNREC = -806_C_INT
@@ -148,7 +143,6 @@ module fsundials_linearsolver_mod
  integer(C_INT), parameter, public :: SUNLS_PACKAGE_FAIL_UNREC = -809_C_INT
  integer(C_INT), parameter, public :: SUNLS_GS_FAIL = -810_C_INT
  integer(C_INT), parameter, public :: SUNLS_QRSOL_FAIL = -811_C_INT
- integer(C_INT), parameter, public :: SUNLS_VECTOROP_ERR = -812_C_INT
  integer(C_INT), parameter, public :: SUNLS_RECOV_FAILURE = 800_C_INT
  integer(C_INT), parameter, public :: SUNLS_RES_REDUCED = 801_C_INT
  integer(C_INT), parameter, public :: SUNLS_CONV_FAIL = 802_C_INT

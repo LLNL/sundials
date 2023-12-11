@@ -137,11 +137,11 @@ SUNLinearSolver_ID SUNLinSolGetID_LapackBand(SUNLinearSolver S)
   return (SUNLINEARSOLVER_LAPACKBAND);
 }
 
-int SUNLinSolInitialize_LapackBand(SUNLinearSolver S)
+SUNErrCode SUNLinSolInitialize_LapackBand(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
-  LASTFLAG(S) = SUNLS_SUCCESS;
-  return (SUNLS_SUCCESS);
+  LASTFLAG(S) = SUN_SUCCESS;
+  return (SUN_SUCCESS);
 }
 
 int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
@@ -149,13 +149,13 @@ int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
   sunindextype n, ml, mu, ldim, ier;
 
   /* check for valid inputs */
-  if ((A == NULL) || (S == NULL)) { return (SUNLS_MEM_NULL); }
+  if ((A == NULL) || (S == NULL)) { return (SUN_ERR_ARG_CORRUPT); }
 
   /* Ensure that A is a band matrix */
   if (SUNMatGetID(A) != SUNMATRIX_BAND)
   {
-    LASTFLAG(S) = SUNLS_ILL_INPUT;
-    return (SUNLS_ILL_INPUT);
+    LASTFLAG(S) = SUN_ERR_ARG_INCOMPATIBLE;
+    return (SUN_ERR_ARG_INCOMPATIBLE);
   }
 
   /* Call LAPACK to do LU factorization of A */
@@ -169,7 +169,7 @@ int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
   LASTFLAG(S) = ier;
   if (ier > 0) { return (SUNLS_LUFACT_FAIL); }
   if (ier < 0) { return (SUNLS_PACKAGE_FAIL_UNREC); }
-  return (SUNLS_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
 int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
@@ -181,7 +181,7 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   /* check for valid inputs */
   if ((A == NULL) || (S == NULL) || (x == NULL) || (b == NULL))
   {
-    return (SUNLS_MEM_NULL);
+    return (SUN_ERR_ARG_CORRUPT);
   }
 
   /* copy b into x */
@@ -191,8 +191,8 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   xdata = N_VGetArrayPointer(x);
   if (xdata == NULL)
   {
-    LASTFLAG(S) = SUNLS_MEM_FAIL;
-    return (SUNLS_MEM_FAIL);
+    LASTFLAG(S) = SUN_ERR_MEM_FAIL;
+    return (SUN_ERR_MEM_FAIL);
   }
 
   /* Call LAPACK to solve the linear system */
@@ -207,8 +207,8 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   LASTFLAG(S) = ier;
   if (ier < 0) { return (SUNLS_PACKAGE_FAIL_UNREC); }
 
-  LASTFLAG(S) = SUNLS_SUCCESS;
-  return (SUNLS_SUCCESS);
+  LASTFLAG(S) = SUN_SUCCESS;
+  return (SUN_SUCCESS);
 }
 
 sunindextype SUNLinSolLastFlag_LapackBand(SUNLinearSolver S)
@@ -218,18 +218,18 @@ sunindextype SUNLinSolLastFlag_LapackBand(SUNLinearSolver S)
   return (LASTFLAG(S));
 }
 
-int SUNLinSolSpace_LapackBand(SUNLinearSolver S, long int* lenrwLS,
-                              long int* leniwLS)
+SUNErrCode SUNLinSolSpace_LapackBand(SUNLinearSolver S, long int* lenrwLS,
+                                     long int* leniwLS)
 {
   *lenrwLS = 0;
   *leniwLS = 2 + LAPACKBAND_CONTENT(S)->N;
-  return (SUNLS_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNLinSolFree_LapackBand(SUNLinearSolver S)
+SUNErrCode SUNLinSolFree_LapackBand(SUNLinearSolver S)
 {
   /* return with success if already freed */
-  if (S == NULL) { return (SUNLS_SUCCESS); }
+  if (S == NULL) { return (SUN_SUCCESS); }
 
   /* delete items from contents, then delete generic structure */
   if (S->content)
@@ -249,5 +249,5 @@ int SUNLinSolFree_LapackBand(SUNLinearSolver S)
   }
   free(S);
   S = NULL;
-  return (SUNLS_SUCCESS);
+  return (SUN_SUCCESS);
 }

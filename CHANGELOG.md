@@ -130,7 +130,22 @@ accordingly.
 
 **Breaking change**
 Functions, types and header files that were previously deprecated have been
-removed.
+removed. In addittion the following names/symbols were replaced by ``SUN_ERR_*``
+codes instead:
+
+```
+SUNLS_UNRECOV_FAILURE --> no replacement (this value was unused)
+SUN_ERR_ARG_CORRUPT --> SUN_ERR_ARG_CORRUPT
+SUN_ERR_ARG_INCOMPATIBLE --> SUN_ERR_ARG_INCOMPATIBLE
+SUN_ERR_MEM_FAIL --> SUN_ERR_MEM_FAIL
+SUNLS_VECTOROP_ERR --> SUN_ERR_OP_FAIL
+SUN_NLS_SUCCESS --> SUN_SUCCESS
+SUN_NLS_MEM_NULL --> SUN_ERR_ARG_CORRUPT
+SUN_NLS_MEM_FAIL --> SUN_ERR_MEM_FAIL
+SUN_NLS_ILL_INPUT --> SUN_ERR_ARG_INCOMPATIBLE
+SUN_NLS_VECTOROP_ERR --> SUN_ERR_OP_FAIL
+SUN_NLS_EXT_FAIL --> SUN_ERR_EXT_FAIL
+```
 
 **Breaking change**
 Users now need to link to `sundials_core` in addition to the libraries already linked to. 
