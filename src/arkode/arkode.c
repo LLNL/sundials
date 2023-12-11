@@ -3331,15 +3331,28 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
   char* msg     = (char*)malloc(msglen);
   vsnprintf(msg, msglen, msgfmt, ap);
 
-  if (ark_mem == NULL)
-  {
-    SUNGlobalFallbackErrHandler(line, func, file, msg, error_code);
-  }
-  else
-  {
+  do {
+    if (ark_mem == NULL)
+    {
+      SUNGlobalFallbackErrHandler(line, func, file, msg, error_code);
+      break;
+    }
+
+    if (error_code == ARK_WARNING)
+    {
+#if SUNDIALS_LOGGING_LEVEL >= 1
+      char* file_and_line = sunCombineFileAndLine(line, file);
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_WARNING, file_and_line, func,
+                         msg);
+      free(file_and_line);
+#endif
+      break;
+    }
+
     /* Call the SUNDIALS main error handler */
     SUNHandleErrWithMsg(line, func, file, msg, error_code, ark_mem->sunctx);
   }
+  while (0);
 
   /* Finalize argument processing */
   va_end(ap);

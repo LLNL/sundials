@@ -27,7 +27,7 @@
 static char* sunCombineFileAndLine(int line, const char* file)
 {
   size_t total_str_len = strlen(file) + 6;
-  char* file_and_line  = malloc(total_str_len * sizeof(char));
+  char* file_and_line  = (char*)malloc(total_str_len * sizeof(char));
   snprintf(file_and_line, total_str_len, "%s:%d", file, line);
   return file_and_line;
 }

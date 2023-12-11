@@ -20,6 +20,7 @@
 #include "arkode/arkode_impl.h"
 #include "nvector/nvector_serial.h"
 #include "sundials/sundials_context.hpp"
+#include "sundials/sundials_logger.h"
 #include "sundials/sundials_nvector.h"
 
 static const std::string errfile{"test_arkode_error_handling.err"};
@@ -52,6 +53,18 @@ protected:
   SUNLogger logger;
   sundials::Context sunctx;
 };
+
+TEST_F(ARKodeErrConditionTest, WarningIsPrinted)
+{
+  SUNLogger_SetWarningFilename(logger, errfile.c_str());
+  ARKodeMemRec* ark_mem = (ARKodeMemRec*)arkode_mem;
+  arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__, "test");
+  SUNLogger_Flush(logger, SUN_LOGLEVEL_WARNING);
+  std::string output = dumpstderr(sunctx, errfile);
+  EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[WARNING]"),
+                                     testing::HasSubstr("[rank 0]"),
+                                     testing::HasSubstr("test")));
+}
 
 TEST_F(ARKodeErrConditionTest, ErrorIsPrinted)
 {
