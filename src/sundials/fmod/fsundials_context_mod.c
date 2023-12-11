@@ -204,7 +204,89 @@
 
 
 #include "sundials/sundials_context.h"
+#include "sundials/sundials_errors.h"
 #include "sundials/sundials_profiler.h"
+
+
+#include <stdlib.h>
+#ifdef _MSC_VER
+# ifndef strtoull
+#  define strtoull _strtoui64
+# endif
+# ifndef strtoll
+#  define strtoll _strtoi64
+# endif
+#endif
+
+
+typedef struct {
+    void* data;
+    size_t size;
+} SwigArrayWrapper;
+
+
+SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
+  SwigArrayWrapper result;
+  result.data = NULL;
+  result.size = 0;
+  return result;
+}
+
+
+#include <string.h>
+
+SWIGEXPORT void _wrap_FSUNLogErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, int const *farg5, void *farg6, void *farg7) {
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  SUNErrCode arg5 ;
+  void *arg6 = (void *) 0 ;
+  SUNContext arg7 = (SUNContext) 0 ;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (char *)(farg2->data);
+  arg3 = (char *)(farg3->data);
+  arg4 = (char *)(farg4->data);
+  arg5 = (SUNErrCode)(*farg5);
+  arg6 = (void *)(farg6);
+  arg7 = (SUNContext)(farg7);
+  SUNLogErrHandlerFn(arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5,arg6,arg7);
+}
+
+
+SWIGEXPORT void _wrap_FSUNAbortErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, int const *farg5, void *farg6, void *farg7) {
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  SUNErrCode arg5 ;
+  void *arg6 = (void *) 0 ;
+  SUNContext arg7 = (SUNContext) 0 ;
+  
+  arg1 = (int)(*farg1);
+  arg2 = (char *)(farg2->data);
+  arg3 = (char *)(farg3->data);
+  arg4 = (char *)(farg4->data);
+  arg5 = (SUNErrCode)(*farg5);
+  arg6 = (void *)(farg6);
+  arg7 = (SUNContext)(farg7);
+  SUNAbortErrHandlerFn(arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5,arg6,arg7);
+}
+
+
+SWIGEXPORT SwigArrayWrapper _wrap_FSUNGetErrMsg(int const *farg1) {
+  SwigArrayWrapper fresult ;
+  SUNErrCode arg1 ;
+  char *result = 0 ;
+  
+  arg1 = (SUNErrCode)(*farg1);
+  result = (char *)SUNGetErrMsg(arg1);
+  fresult.size = strlen((const char*)(result));
+  fresult.data = (char *)(result);
+  return fresult;
+}
+
 
 SWIGEXPORT int _wrap_FSUNContext_Create(int const *farg1, void *farg2) {
   int fresult ;
