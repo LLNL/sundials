@@ -21,14 +21,7 @@
 #include "sundials/sundials_logger.h"
 #include "sundials/sundials_types.h"
 #include "sundials_logger_impl.h"
-
-static inline char* combineFileAndLine(int line, const char* file)
-{
-  size_t total_str_len = strlen(file) + 6;
-  char* file_and_line  = malloc(total_str_len * sizeof(char));
-  snprintf(file_and_line, total_str_len, "%s:%d", file, line);
-  return file_and_line;
-}
+#include "sundials_utils.h"
 
 SUNErrCode SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data,
                                 SUNErrHandler* eh_out)
@@ -71,7 +64,7 @@ void SUNLogErrHandlerFn(int line, const char* func, const char* file,
                         const char* msg, SUNErrCode err_code,
                         void* err_user_data, SUNContext sunctx)
 {
-  char* file_and_line = combineFileAndLine(line, file);
+  char* file_and_line = sunCombineFileAndLine(line, file);
   if (msg == NULL) { msg = SUNGetErrMsg(err_code); }
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
                      msg);
@@ -82,7 +75,7 @@ void SUNAbortErrHandlerFn(int line, const char* func, const char* file,
                           const char* msg, SUNErrCode err_code,
                           void* err_user_data, SUNContext sunctx)
 {
-  char* file_and_line = combineFileAndLine(line, file);
+  char* file_and_line = sunCombineFileAndLine(line, file);
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
                      "SUNAbortErrHandler: Calling abort now, use a different "
                      "error handler to avoid program termination.\n");
@@ -99,7 +92,7 @@ void SUNGlobalFallbackErrHandler(int line, const char* func, const char* file,
 
   va_start(ap, err_code);
 
-  file_and_line = combineFileAndLine(__LINE__, __FILE__);
+  file_and_line = sunCombineFileAndLine(__LINE__, __FILE__);
   sunCreateLogMessage(SUN_LOGLEVEL_ERROR, 0, file_and_line,
                       __func__, "The SUNDIALS SUNContext was corrupt or NULL when an error occurred. As such, error messages have been printed to stderr.",
                       ap, &log_msg);
@@ -107,7 +100,7 @@ void SUNGlobalFallbackErrHandler(int line, const char* func, const char* file,
   free(log_msg);
   free(file_and_line);
 
-  file_and_line = combineFileAndLine(line, file);
+  file_and_line = sunCombineFileAndLine(line, file);
   if (msgfmt == NULL) { msgfmt = SUNGetErrMsg(err_code); }
   sunCreateLogMessage(SUN_LOGLEVEL_ERROR, 0, file_and_line, func, msgfmt, ap,
                       &log_msg);

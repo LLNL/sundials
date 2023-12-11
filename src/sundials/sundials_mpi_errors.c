@@ -18,7 +18,7 @@
 #include <sundials/sundials_mpi_types.h>
 #include <unistd.h>
 
-static inline char* combineFileAndLine(int line, const char* file)
+static inline char* sunCombineFileAndLine(int line, const char* file)
 {
   size_t total_str_len = strlen(file) + 6;
   char* file_and_line  = malloc(total_str_len * sizeof(char));
@@ -30,7 +30,7 @@ void SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file,
                              const char* msg, SUNErrCode err_code,
                              void* err_user_data, SUNContext sunctx)
 {
-  char* file_and_line = combineFileAndLine(line, file);
+  char* file_and_line = sunCombineFileAndLine(line, file);
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
                      "SUNMPIAbortErrHandler: Calling MPI_Abort now, use a "
                      "different "
