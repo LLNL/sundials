@@ -806,13 +806,6 @@ We note that, on an error return, all of the optional input functions send an
 error message to the error handler function. All error return values are
 negative, so the test ``flag < 0`` will catch all errors.
 
-The optional input calls can, unless otherwise noted, be executed in any order.
-However, if the user's program calls either :c:func:`CVodeSetErrFile` or
-:c:func:`CVodeSetErrHandlerFn`, then that call should appear first, in order to
-take effect for any later error message. Finally, a call to an ``CVodeSet***``
-function can, unless otherwise noted, be made at any time from the user's
-calling program and, if successful, takes effect immediately.
-
 
 .. _CVODE.Usage.CC.optional_input.optin_main:
 
@@ -826,10 +819,6 @@ Main solver optional input functions
    +-------------------------------+---------------------------------------------+----------------+
    |      **Optional input**       |              **Function name**              |  **Default**   |
    +===============================+=============================================+================+
-   | Pointer to an error file      | :c:func:`CVodeSetErrFile`                   | ``stderr``     |
-   +-------------------------------+---------------------------------------------+----------------+
-   | Error handler function        | :c:func:`CVodeSetErrHandlerFn`              | internal fn.   |
-   +-------------------------------+---------------------------------------------+----------------+
    | User data                     | :c:func:`CVodeSetUserData`                  | ``NULL``       |
    +-------------------------------+---------------------------------------------+----------------+
    | Maximum order for BDF method  | :c:func:`CVodeSetMaxOrd`                    | 5              |

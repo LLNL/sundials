@@ -107,7 +107,7 @@ int CVodeSetProjErrEst(void* cvode_mem, sunbooleantype onoff)
   CVodeProjMem proj_mem;
 
   /* Access memory structures */
-  retval = cvAccessProjMem(cvode_mem, "CVodeSetProjErrEst", &cv_mem, &proj_mem);
+  retval = cvAccessProjMem(cvode_mem, __func__, &cv_mem, &proj_mem);
   if (retval != CV_SUCCESS) { return (retval); }
 
   /* Set projection error flag */
@@ -123,8 +123,7 @@ int CVodeSetProjFrequency(void* cvode_mem, long int freq)
   CVodeProjMem proj_mem;
 
   /* Access memory structures */
-  retval = cvAccessProjMem(cvode_mem, "CVodeSetProjFrequency", &cv_mem,
-                           &proj_mem);
+  retval = cvAccessProjMem(cvode_mem, __func__, &cv_mem, &proj_mem);
   if (retval != CV_SUCCESS) { return (retval); }
 
   /* Set projection frequency */
@@ -157,8 +156,7 @@ int CVodeSetMaxNumProjFails(void* cvode_mem, int max_fails)
   CVodeProjMem proj_mem;
 
   /* Access memory structures */
-  retval = cvAccessProjMem(cvode_mem, "CVodeSetMaxNumProjFails", &cv_mem,
-                           &proj_mem);
+  retval = cvAccessProjMem(cvode_mem, __func__, &cv_mem, &proj_mem);
   if (retval != CV_SUCCESS) { return (retval); }
 
   /* Set maximum number of projection failures in a step attempt */
@@ -183,7 +181,7 @@ int CVodeSetEpsProj(void* cvode_mem, sunrealtype eps)
   CVodeProjMem proj_mem;
 
   /* Access memory structures */
-  retval = cvAccessProjMem(cvode_mem, "CVodeSetEpsProj", &cv_mem, &proj_mem);
+  retval = cvAccessProjMem(cvode_mem, __func__, &cv_mem, &proj_mem);
   if (retval != CV_SUCCESS) { return (retval); }
 
   /* Set the projection tolerance */
@@ -208,7 +206,7 @@ int CVodeSetProjFailEta(void* cvode_mem, sunrealtype eta)
   CVodeProjMem proj_mem;
 
   /* Access memory structures */
-  retval = cvAccessProjMem(cvode_mem, "CVodeSetProjFailEta", &cv_mem, &proj_mem);
+  retval = cvAccessProjMem(cvode_mem, __func__, &cv_mem, &proj_mem);
   if (retval != CV_SUCCESS) { return (retval); }
 
   /* Set the step size reduction factor for a projection failure */
@@ -237,8 +235,7 @@ int CVodeGetNumProjEvals(void* cvode_mem, long int* nproj)
   CVodeProjMem proj_mem;
 
   /* Access memory structures */
-  retval = cvAccessProjMem(cvode_mem, "CVodeGetNumProjectionEvals", &cv_mem,
-                           &proj_mem);
+  retval = cvAccessProjMem(cvode_mem, __func__, &cv_mem, &proj_mem);
   if (retval != CV_SUCCESS) { return (retval); }
 
   /* Get number of projection evaluations */
@@ -254,7 +251,7 @@ int CVodeGetNumProjFails(void* cvode_mem, long int* npfails)
   CVodeProjMem proj_mem;
 
   /* Access memory structures */
-  retval = cvAccessProjMem(cvode_mem, "CVodeGetNumProjFails", &cv_mem, &proj_mem);
+  retval = cvAccessProjMem(cvode_mem, __func__, &cv_mem, &proj_mem);
   if (retval != CV_SUCCESS) { return (retval); }
 
   /* Get number of projection fails */
@@ -438,8 +435,7 @@ static int cvAccessProjMem(void* cvode_mem, const char* fname, CVodeMem* cv_mem,
   /* Access cvode memory */
   if (cvode_mem == NULL)
   {
-    cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__,
-                   MSG_CV_MEM_NULL);
+    cvProcessError(NULL, CV_MEM_NULL, __LINE__, fname, __FILE__, MSG_CV_MEM_NULL);
     return (CV_MEM_NULL);
   }
   *cv_mem = (CVodeMem)cvode_mem;
@@ -447,7 +443,7 @@ static int cvAccessProjMem(void* cvode_mem, const char* fname, CVodeMem* cv_mem,
   /* Access projection memory */
   if ((*cv_mem)->proj_mem == NULL)
   {
-    cvProcessError(*cv_mem, CV_PROJ_MEM_NULL, __LINE__, __func__, __FILE__,
+    cvProcessError(*cv_mem, CV_PROJ_MEM_NULL, __LINE__, fname, __FILE__,
                    MSG_CV_PROJ_MEM_NULL);
     return (CV_PROJ_MEM_NULL);
   }

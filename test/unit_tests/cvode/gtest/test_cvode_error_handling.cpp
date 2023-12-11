@@ -40,6 +40,18 @@ protected:
   sundials::Context sunctx;
 };
 
+TEST_F(CVodeErrConditionTest, WarningIsPrinted)
+{
+  SUNLogger_SetWarningFilename(logger, errfile.c_str());
+  CVodeMemRec* ark_mem = (CVodeMemRec*)cvode_mem;
+  cvProcessError(ark_mem, CV_WARNING, __LINE__, __func__, __FILE__, "test");
+  SUNLogger_Flush(logger, SUN_LOGLEVEL_WARNING);
+  std::string output = dumpstderr(sunctx, errfile);
+  EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[WARNING]"),
+                                     testing::HasSubstr("[rank 0]"),
+                                     testing::HasSubstr("test")));
+}
+
 TEST_F(CVodeErrConditionTest, ErrorIsPrinted)
 {
   SUNLogger_SetErrorFilename(logger, errfile.c_str());

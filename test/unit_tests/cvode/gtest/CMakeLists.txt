@@ -12,9 +12,9 @@
 
 # include location of public and private header files
 
-add_executable(test_error_handling test_error_handling.cpp)
-target_include_directories(test_error_handling PRIVATE
+add_executable(test_cvode_error_handling test_cvode_error_handling.cpp)
+target_include_directories(test_cvode_error_handling PRIVATE
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include> ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(test_error_handling
+target_link_libraries(test_cvode_error_handling
     PRIVATE  sundials_cvode sundials_nvecserial sundials_core GTest::gtest_main GTest::gmock)
-gtest_discover_tests(test_error_handling)
+gtest_discover_tests(test_cvode_error_handling)

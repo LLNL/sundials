@@ -19,6 +19,8 @@
 /* Import Header Files                                             */
 /*=================================================================*/
 
+#include "cvode/cvode.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -4831,18 +4833,28 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
   char* msg     = (char*)malloc(msglen);
   vsnprintf(msg, msglen, msgfmt, ap);
 
-  if (cv_mem == NULL)
-  { /* We write to stderr */
-#ifndef NO_FPRINTF_OUTPUT
-    fprintf(stderr, "\n[CVODE ERROR]  %s at %s:%d\n  ", func, __FILE__, line);
-    fprintf(stderr, "%s\n\n", msg);
+  do {
+    if (cv_mem == NULL)
+    {
+      SUNGlobalFallbackErrHandler(line, func, file, msg, error_code);
+      break;
+    }
+
+    if (error_code == CV_WARNING)
+    {
+#if SUNDIALS_LOGGING_LEVEL >= 1
+      char* file_and_line = sunCombineFileAndLine(line, file);
+      SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_WARNING, file_and_line, func,
+                         msg);
+      free(file_and_line);
 #endif
-  }
-  else
-  {
+      break;
+    }
+
     /* Call the SUNDIALS main error handler */
     SUNHandleErrWithMsg(line, func, file, msg, error_code, cv_mem->cv_sunctx);
   }
+  while (0);
 
   /* Finalize argument processing */
   va_end(ap);
