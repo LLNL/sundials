@@ -931,14 +931,14 @@ void N_VScale_Pthreads(sunrealtype c, N_Vector x, N_Vector z)
   if (z == x)
   { /* BLAS usage: scale x <- cx */
     VScaleBy_Pthreads(c, x);
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErrVoid();
     return;
   }
 
   if (c == ONE)
   {
     VCopy_Pthreads(x, z);
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErrVoid();
     return;
   }
   else if (c == -ONE) { VNeg_Pthreads(x, z); }
@@ -2382,6 +2382,7 @@ SUNErrCode N_VLinearCombination_Pthreads(int nvec, sunrealtype* c, N_Vector* X,
   if (nvec == 1)
   {
     N_VScale_Pthreads(c[0], X[0], z);
+    SUNCheckLastErr();
     return SUN_SUCCESS;
   }
 
@@ -2389,7 +2390,7 @@ SUNErrCode N_VLinearCombination_Pthreads(int nvec, sunrealtype* c, N_Vector* X,
   if (nvec == 2)
   {
     N_VLinearSum_Pthreads(c[0], X[0], c[1], X[1], z);
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErr();
     return SUN_SUCCESS;
   }
 
@@ -2520,7 +2521,7 @@ SUNErrCode N_VScaleAddMulti_Pthreads(int nvec, sunrealtype* a, N_Vector x,
   if (nvec == 1)
   {
     N_VLinearSum_Pthreads(a[0], x, ONE, Y[0], Z[0]);
-    SUNCheckLastErrNoRet();
+    SUNCheckLastErr();
     return SUN_SUCCESS;
   }
 
@@ -2638,6 +2639,7 @@ SUNErrCode N_VDotProdMulti_Pthreads(int nvec, N_Vector x, N_Vector* Y,
   if (nvec == 1)
   {
     dotprods[0] = N_VDotProd_Pthreads(x, Y[0]);
+    SUNCheckLastErr();
     return SUN_SUCCESS;
   }
 
@@ -2767,6 +2769,7 @@ SUNErrCode N_VLinearSumVectorArray_Pthreads(int nvec, sunrealtype a,
   if (nvec == 1)
   {
     N_VLinearSum_Pthreads(a, X[0], b, Y[0], Z[0]);
+    SUNCheckLastErr();
     return SUN_SUCCESS;
   }
 
@@ -3159,6 +3162,7 @@ SUNErrCode N_VWrmsNormVectorArray_Pthreads(int nvec, N_Vector* X, N_Vector* W,
   if (nvec == 1)
   {
     nrm[0] = N_VWrmsNorm_Pthreads(X[0], W[0]);
+    SUNCheckLastErr();
     return SUN_SUCCESS;
   }
 
@@ -3281,6 +3285,7 @@ SUNErrCode N_VWrmsNormMaskVectorArray_Pthreads(int nvec, N_Vector* X, N_Vector* 
   if (nvec == 1)
   {
     nrm[0] = N_VWrmsNormMask_Pthreads(X[0], W[0], id);
+    SUNCheckLastErr();
     return SUN_SUCCESS;
   }
 
@@ -3419,6 +3424,7 @@ SUNErrCode N_VScaleAddMultiVectorArray_Pthreads(int nvec, int nsum,
     if (nsum == 1)
     {
       N_VLinearSum_Pthreads(a[0], X[0], ONE, Y[0][0], Z[0][0]);
+      SUNCheckLastErr();
       return SUN_SUCCESS;
     }
 
@@ -3587,6 +3593,7 @@ SUNErrCode N_VLinearCombinationVectorArray_Pthreads(int nvec, int nsum,
     if (nsum == 1)
     {
       N_VScale_Pthreads(c[0], X[0][0], Z[0]);
+      SUNCheckLastErr();
       return SUN_SUCCESS;
     }
 
@@ -3594,6 +3601,7 @@ SUNErrCode N_VLinearCombinationVectorArray_Pthreads(int nvec, int nsum,
     if (nsum == 2)
     {
       N_VLinearSum_Pthreads(c[0], X[0][0], c[1], X[1][0], Z[0]);
+      SUNCheckLastErr();
       return SUN_SUCCESS;
     }
 
