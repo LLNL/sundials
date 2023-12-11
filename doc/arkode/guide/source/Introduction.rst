@@ -279,8 +279,9 @@ The following functions have been removed
   SPRKStepSetErrHandlerFn
   SPRKStepSetErrFile
   
-Users of these functions should use the :c:type:`SUNLogger` API instead. 
-
+Users of these functions can use the functions :c:func:`SUNContext_PushErrHandler`,
+and :c:func:`SUNLogger_SetErrorFilename` instead. For further details see
+Sections :numref:`SUNDIALS.Errors` and :numref:`SUNDIALS.Logging`.
 
 Changes in v5.6.2
 -----------------
