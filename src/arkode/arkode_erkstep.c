@@ -1163,6 +1163,12 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsmPtr)
     if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* fill error norm */
+    N_VAbs(ark_mem->ycur, ark_mem->tempv2);
+    N_VAbs(ark_mem->yn, ark_mem->tempv3);
+    N_VLinearSum(0.5, ark_mem->tempv2, 0.5, ark_mem->tempv3, ark_mem->tempv2);
+    N_VScale(ark_mem->reltol, ark_mem->tempv2, ark_mem->tempv2);
+    N_VAddConst(ark_mem->tempv2, ark_mem->Sabstol, ark_mem->tempv2);
+    N_VInv(ark_mem->tempv2, ark_mem->ewt);
     *dsmPtr = N_VWrmsNorm(yerr, ark_mem->ewt);
   }
 
