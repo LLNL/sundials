@@ -439,7 +439,7 @@ int ERKStepSetDefaults(void* arkode_mem)
   /* Remove current SUNAdaptController object, and replace with "PI" */
   retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
                                     &leniw);
-  if (retval == SUNADAPTCONTROLLER_SUCCESS)
+  if (retval == SUN_SUCCESS)
   {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
@@ -448,7 +448,7 @@ int ERKStepSetDefaults(void* arkode_mem)
   {
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
     ark_mem->hadapt_mem->owncontroller = SUNFALSE;
-    if (retval != SUNADAPTCONTROLLER_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "ERKStepSetDefaults",
                       "SUNAdaptController_Destroy failure");
@@ -467,7 +467,7 @@ int ERKStepSetDefaults(void* arkode_mem)
   ark_mem->hadapt_mem->owncontroller = SUNTRUE;
   retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
                                     &leniw);
-  if (retval == SUNADAPTCONTROLLER_SUCCESS)
+  if (retval == SUN_SUCCESS)
   {
     ark_mem->liw += leniw;
     ark_mem->lrw += lenrw;

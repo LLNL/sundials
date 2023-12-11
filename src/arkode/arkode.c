@@ -1461,7 +1461,7 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
 
     /* Reset error controller object */
     retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
-    if (retval != SUNADAPTCONTROLLER_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE", "arkInit",
                       "Unable to reset error controller object");
@@ -2681,7 +2681,7 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
   /* Notify time step controller object of successful step */
   retval = SUNAdaptController_UpdateH(ark_mem->hadapt_mem->hcontroller,
                                       ark_mem->h, dsm);
-  if (retval != SUNADAPTCONTROLLER_SUCCESS)
+  if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, "ARKODE", "arkCompleteStep",
                     "Failure updating controller object");

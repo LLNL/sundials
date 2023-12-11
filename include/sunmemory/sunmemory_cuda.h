@@ -32,36 +32,37 @@ SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx);
 /* SUNMemoryHelper functions */
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
-                               size_t mem_size, SUNMemoryType mem_type,
-                               void* queue);
+SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
+                                      size_t mem_size, SUNMemoryType mem_type,
+                                      void* queue);
 
 SUNDIALS_EXPORT
 SUNMemoryHelper SUNMemoryHelper_Clone_Cuda(SUNMemoryHelper helper);
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
-                                 void* queue);
+SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
+                                        void* queue);
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, SUNMemory dst,
-                              SUNMemory src, size_t memory_size, void* queue);
+SUNErrCode SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, SUNMemory dst,
+                                     SUNMemory src, size_t memory_size,
+                                     void* queue);
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, SUNMemory dst,
-                                   SUNMemory src, size_t memory_size,
-                                   void* queue);
+SUNErrCode SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, SUNMemory dst,
+                                          SUNMemory src, size_t memory_size,
+                                          void* queue);
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_Destroy_Cuda(SUNMemoryHelper helper);
+SUNErrCode SUNMemoryHelper_Destroy_Cuda(SUNMemoryHelper helper);
 
 SUNDIALS_EXPORT
-int SUNMemoryHelper_GetAllocStats_Cuda(SUNMemoryHelper helper,
-                                       SUNMemoryType mem_type,
-                                       unsigned long* num_allocations,
-                                       unsigned long* num_deallocations,
-                                       size_t* bytes_allocated,
-                                       size_t* bytes_high_watermark);
+SUNErrCode SUNMemoryHelper_GetAllocStats_Cuda(SUNMemoryHelper helper,
+                                              SUNMemoryType mem_type,
+                                              unsigned long* num_allocations,
+                                              unsigned long* num_deallocations,
+                                              size_t* bytes_allocated,
+                                              size_t* bytes_high_watermark);
 
 #ifdef __cplusplus
 }

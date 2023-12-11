@@ -41,6 +41,7 @@
   ENTRY(SUN_ERR_DESTROY_FAIL, "a destroy function returned an error")          \
   ENTRY(SUN_ERR_NOT_IMPLEMENTED,                                               \
         "operation is not implemented: function pointer is NULL")              \
+  ENTRY(SUN_ERR_USER_FCN_FAIL, "the user provided callback function failed")   \
                                                                                \
   ENTRY(SUN_ERR_PROFILER_MAPFULL,                                              \
         "the number of profiler entries exceeded SUNPROFILER_MAX_ENTRIES")     \

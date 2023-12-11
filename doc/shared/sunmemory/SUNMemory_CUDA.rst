@@ -71,7 +71,7 @@ The implementation provides the following operations defined by the
    * An ``int`` flag indicating success (zero) or failure (non-zero).
 
 
-.. c:function:: int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, \
+.. c:function:: SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, \
                                                  SUNMemory mem, void* queue)
 
    Deallocates the ``mem->ptr`` field if it is owned by ``mem``, and then
@@ -88,7 +88,7 @@ The implementation provides the following operations defined by the
    * An ``int`` flag indicating success (zero) or failure (non-zero).
 
 
-.. c:function:: int SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, \
+.. c:function:: SUNErrCode SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, \
                                               SUNMemory dst, SUNMemory src, \
                                               size_t mem_size, void* queue)
 
@@ -111,7 +111,7 @@ The implementation provides the following operations defined by the
    * An ``int`` flag indicating success (zero) or failure (non-zero).
 
 
-.. c:function:: int SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, \
+.. c:function:: SUNErrCode SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, \
                                                    SUNMemory dst, \
                                                    SUNMemory src, \
                                                    size_t mem_size, void* queue)
@@ -136,7 +136,7 @@ The implementation provides the following operations defined by the
    * An ``int`` flag indicating success (zero) or failure (non-zero).
 
 
-.. c:function:: int SUNMemoryHelper_GetAllocStats_Cuda(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations, \
+.. c:function:: SUNErrCode SUNMemoryHelper_GetAllocStats_Cuda(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations, \
                                                        unsigned long* num_deallocations, size_t* bytes_allocated, \
                                                        size_t* bytes_high_watermark)
 

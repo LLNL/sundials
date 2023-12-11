@@ -93,9 +93,9 @@ SUNMemoryHelper SUNMemoryHelper_Clone_Sycl(SUNMemoryHelper helper)
   return hclone;
 }
 
-int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
-                               size_t mem_size, SUNMemoryType mem_type,
-                               void* queue)
+SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
+                                      size_t mem_size, SUNMemoryType mem_type,
+                                      void* queue)
 {
   // Check inputs
   if (!queue)
@@ -210,8 +210,8 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
   return 0;
 }
 
-int SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
-                                 void* queue)
+SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
+                                        void* queue)
 {
   if (!mem) { return 0; }
 
@@ -265,8 +265,9 @@ int SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
   return 0;
 }
 
-int SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, SUNMemory dst,
-                              SUNMemory src, size_t memory_size, void* queue)
+SUNErrCode SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, SUNMemory dst,
+                                     SUNMemory src, size_t memory_size,
+                                     void* queue)
 {
   if (!queue)
   {
@@ -283,8 +284,9 @@ int SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, SUNMemory dst,
   return 0;
 }
 
-int SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
-                                   SUNMemory src, size_t memory_size, void* queue)
+SUNErrCode SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
+                                          SUNMemory src, size_t memory_size,
+                                          void* queue)
 {
   if (!queue)
   {
@@ -302,7 +304,7 @@ int SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
   return 0;
 }
 
-int SUNMemoryHelper_Destroy_Sycl(SUNMemoryHelper helper)
+SUNErrCode SUNMemoryHelper_Destroy_Sycl(SUNMemoryHelper helper)
 {
   if (helper)
   {
@@ -313,12 +315,12 @@ int SUNMemoryHelper_Destroy_Sycl(SUNMemoryHelper helper)
   return 0;
 }
 
-int SUNMemoryHelper_GetAllocStats_Sycl(SUNMemoryHelper helper,
-                                       SUNMemoryType mem_type,
-                                       unsigned long* num_allocations,
-                                       unsigned long* num_deallocations,
-                                       size_t* bytes_allocated,
-                                       size_t* bytes_high_watermark)
+SUNErrCode SUNMemoryHelper_GetAllocStats_Sycl(SUNMemoryHelper helper,
+                                              SUNMemoryType mem_type,
+                                              unsigned long* num_allocations,
+                                              unsigned long* num_deallocations,
+                                              size_t* bytes_allocated,
+                                              size_t* bytes_high_watermark)
 {
   if (mem_type == SUNMEMTYPE_HOST)
   {

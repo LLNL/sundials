@@ -287,13 +287,13 @@ SUNAdaptController Error Codes
 
 SUNAdaptController functions return one of the following set of error codes:
 
-* ``SUNADAPTCONTROLLER_SUCCESS`` (0) -- successful call.
+* ``SUN_SUCCESS`` (0) -- successful call.
 
-* ``SUNADAPTCONTROLLER_ILL_INPUT`` (-1001) -- an illegal input has been provided to the function.
+* ``SUN_ERR_ARG_INCOMPATIBLE`` (-1001) -- an illegal input has been provided to the function.
 
 * ``SUNADAPTCONTROLLER_MEM_FAIL`` (-1002) -- a memory access or allocation failed.
 
-* ``SUNADAPTCONTROLLER_USER_FCN_FAIL`` (-1003) -- a user-supplied function returned a nonzero [error] value.
+* ``SUN_ERR_USER_FCN_FAIL`` (-1003) -- a user-supplied function returned a nonzero [error] value.
 
 * ``SUNADAPTCONTROLLER_OPERATION_FAIL`` (-1004) -- catch-all for errors not in the above list.
 

@@ -18,7 +18,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
-#include <sundials/sundials_math.h>
+#include <sundials/sundials_core.h>
+
+#include "sundials/priv/sundials_errors_impl.h"
+#include "sundials/sundials_errors.h"
 
 /* ---------------
  * Macro accessors
@@ -55,15 +58,15 @@
 
 SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
 {
+  SUNFunctionBegin(sunctx);
+
   SUNAdaptController C;
   SUNAdaptControllerContent_ImExGus content;
-
-  if (sunctx == NULL) { return NULL; }
 
   /* Create an empty controller object */
   C = NULL;
   C = SUNAdaptController_NewEmpty(sunctx);
-  if (C == NULL) { return (NULL); }
+  SUNCheckLastErrNull();
 
   /* Attach operations */
   C->ops->gettype      = SUNAdaptController_GetType_ImExGus;
@@ -78,18 +81,14 @@ SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
   /* Create content */
   content = NULL;
   content = (SUNAdaptControllerContent_ImExGus)malloc(sizeof *content);
-  if (content == NULL)
-  {
-    (void)SUNAdaptController_Destroy(C);
-    return (NULL);
-  }
+  SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach content */
   C->content = content;
 
   /* Fill content with default/reset values */
-  SUNAdaptController_SetDefaults_ImExGus(C);
-  SUNAdaptController_Reset_ImExGus(C);
+  SUNCheckCallNull(SUNAdaptController_SetDefaults_ImExGus(C));
+  SUNCheckCallNull(SUNAdaptController_Reset_ImExGus(C));
 
   return (C);
 }
@@ -98,16 +97,17 @@ SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
  * Function to set ImExGus parameters
  */
 
-int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, sunrealtype k1e,
-                                         sunrealtype k2e, sunrealtype k1i,
-                                         sunrealtype k2i)
+SUNErrCode SUNAdaptController_SetParams_ImExGus(SUNAdaptController C,
+                                                sunrealtype k1e, sunrealtype k2e,
+                                                sunrealtype k1i, sunrealtype k2i)
 {
-  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SACIMEXGUS_K1E(C) = k1e;
   SACIMEXGUS_K2E(C) = k2e;
   SACIMEXGUS_K1I(C) = k1i;
   SACIMEXGUS_K2I(C) = k2i;
-  return SUNADAPTCONTROLLER_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 /* -----------------------------------------------------------------
@@ -119,10 +119,16 @@ SUNAdaptController_Type SUNAdaptController_GetType_ImExGus(SUNAdaptController C)
   return SUN_ADAPTCONTROLLER_H;
 }
 
-int SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C, sunrealtype h,
-                                            int p, sunrealtype dsm,
-                                            sunrealtype* hnew)
+SUNErrCode SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C,
+                                                   sunrealtype h, int p,
+                                                   sunrealtype dsm,
+                                                   sunrealtype* hnew)
 {
+  SUNFunctionBegin(C->sunctx);
+
+  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
+
   /* order parameter to use */
   const int ord = p + 1;
 
@@ -139,8 +145,6 @@ int SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C, sunrealtype h,
   const sunrealtype e2   = e1 / SUNMAX(SACIMEXGUS_EP(C), TINY);
   const sunrealtype hrat = h / SACIMEXGUS_HP(C);
 
-  if (C == NULL || hnew == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
-
   /* compute estimated time step size, modifying the first step formula */
   if (SACIMEXGUS_FIRSTSTEP(C)) { *hnew = h * SUNRpowerR(e, k); }
   else
@@ -150,30 +154,33 @@ int SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C, sunrealtype h,
   }
 
   /* return with success */
-  return SUNADAPTCONTROLLER_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNAdaptController_Reset_ImExGus(SUNAdaptController C)
+SUNErrCode SUNAdaptController_Reset_ImExGus(SUNAdaptController C)
 {
   SACIMEXGUS_EP(C)        = SUN_RCONST(1.0);
   SACIMEXGUS_FIRSTSTEP(C) = SUNTRUE;
-  return SUNADAPTCONTROLLER_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNAdaptController_SetDefaults_ImExGus(SUNAdaptController C)
+SUNErrCode SUNAdaptController_SetDefaults_ImExGus(SUNAdaptController C)
 {
-  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SACIMEXGUS_K1E(C)  = DEFAULT_K1E;
   SACIMEXGUS_K2E(C)  = DEFAULT_K2E;
   SACIMEXGUS_K1I(C)  = DEFAULT_K1I;
   SACIMEXGUS_K2I(C)  = DEFAULT_K2I;
   SACIMEXGUS_BIAS(C) = DEFAULT_BIAS;
-  return SUNADAPTCONTROLLER_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE* fptr)
+SUNErrCode SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE* fptr)
 {
-  if (C == NULL || fptr == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
   fprintf(fptr, "ImEx Gustafsson SUNAdaptController module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   fprintf(fptr, "  k1e = %32Lg\n", SACIMEXGUS_K1E(C));
@@ -192,37 +199,40 @@ int SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE* fptr)
   fprintf(fptr, "  previous error = %16g\n", SACIMEXGUS_EP(C));
   fprintf(fptr, "  previous step = %16g\n", SACIMEXGUS_HP(C));
 #endif
-  return SUNADAPTCONTROLLER_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController C, sunrealtype bias)
+SUNErrCode SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController C,
+                                                   sunrealtype bias)
 {
-  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   /* set allowed value, otherwise set default */
   if (bias <= SUN_RCONST(0.0)) { SACIMEXGUS_BIAS(C) = DEFAULT_BIAS; }
   else { SACIMEXGUS_BIAS(C) = bias; }
 
-  return SUNADAPTCONTROLLER_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNAdaptController_UpdateH_ImExGus(SUNAdaptController C, sunrealtype h,
-                                       sunrealtype dsm)
+SUNErrCode SUNAdaptController_UpdateH_ImExGus(SUNAdaptController C,
+                                              sunrealtype h, sunrealtype dsm)
 {
-  if (C == NULL) { return SUNADAPTCONTROLLER_ILL_INPUT; }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SACIMEXGUS_EP(C)        = SACIMEXGUS_BIAS(C) * dsm;
   SACIMEXGUS_HP(C)        = h;
   SACIMEXGUS_FIRSTSTEP(C) = SUNFALSE;
-  return SUNADAPTCONTROLLER_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNAdaptController_Space_ImExGus(SUNAdaptController C, long int* lenrw,
-                                     long int* leniw)
+SUNErrCode SUNAdaptController_Space_ImExGus(SUNAdaptController C,
+                                            long int* lenrw, long int* leniw)
 {
-  if (C == NULL || lenrw == NULL || leniw == NULL)
-  {
-    return SUNADAPTCONTROLLER_ILL_INPUT;
-  }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
   *lenrw = 7;
   *leniw = 1;
-  return SUNADAPTCONTROLLER_SUCCESS;
+  return SUN_SUCCESS;
 }

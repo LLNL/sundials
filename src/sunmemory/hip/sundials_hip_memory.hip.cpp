@@ -90,9 +90,9 @@ SUNMemoryHelper SUNMemoryHelper_Clone_Hip(SUNMemoryHelper helper)
   return hclone;
 }
 
-int SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
-                              size_t mem_size, SUNMemoryType mem_type,
-                              void* queue)
+SUNErrCode SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
+                                     size_t mem_size, SUNMemoryType mem_type,
+                                     void* queue)
 {
   SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
 
@@ -186,7 +186,8 @@ int SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
   return (0);
 }
 
-int SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem, void* queue)
+SUNErrCode SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem,
+                                       void* queue)
 {
   if (mem == NULL) { return (0); }
 
@@ -247,8 +248,9 @@ int SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem, void* que
   return (0);
 }
 
-int SUNMemoryHelper_Copy_Hip(SUNMemoryHelper helper, SUNMemory dst,
-                             SUNMemory src, size_t memory_size, void* queue)
+SUNErrCode SUNMemoryHelper_Copy_Hip(SUNMemoryHelper helper, SUNMemory dst,
+                                    SUNMemory src, size_t memory_size,
+                                    void* queue)
 {
   int retval        = 0;
   hipError_t hiperr = hipSuccess;
@@ -289,8 +291,9 @@ int SUNMemoryHelper_Copy_Hip(SUNMemoryHelper helper, SUNMemory dst,
   return (retval);
 }
 
-int SUNMemoryHelper_CopyAsync_Hip(SUNMemoryHelper helper, SUNMemory dst,
-                                  SUNMemory src, size_t memory_size, void* queue)
+SUNErrCode SUNMemoryHelper_CopyAsync_Hip(SUNMemoryHelper helper, SUNMemory dst,
+                                         SUNMemory src, size_t memory_size,
+                                         void* queue)
 {
   int retval         = 0;
   hipError_t hiperr  = hipSuccess;
@@ -336,7 +339,7 @@ int SUNMemoryHelper_CopyAsync_Hip(SUNMemoryHelper helper, SUNMemory dst,
   return (retval);
 }
 
-int SUNMemoryHelper_Destroy_Hip(SUNMemoryHelper helper)
+SUNErrCode SUNMemoryHelper_Destroy_Hip(SUNMemoryHelper helper)
 {
   if (helper)
   {
@@ -347,12 +350,12 @@ int SUNMemoryHelper_Destroy_Hip(SUNMemoryHelper helper)
   return 0;
 }
 
-int SUNMemoryHelper_GetAllocStats_Hip(SUNMemoryHelper helper,
-                                      SUNMemoryType mem_type,
-                                      unsigned long* num_allocations,
-                                      unsigned long* num_deallocations,
-                                      size_t* bytes_allocated,
-                                      size_t* bytes_high_watermark)
+SUNErrCode SUNMemoryHelper_GetAllocStats_Hip(SUNMemoryHelper helper,
+                                             SUNMemoryType mem_type,
+                                             unsigned long* num_allocations,
+                                             unsigned long* num_deallocations,
+                                             size_t* bytes_allocated,
+                                             size_t* bytes_high_watermark)
 {
   if (mem_type == SUNMEMTYPE_HOST)
   {
