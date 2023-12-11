@@ -271,10 +271,6 @@ Optional inputs for SPRKStep
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Supply a pointer to a diagnostics output file       | :c:func:`SPRKStepSetDiagnostics()`       | ``NULL``               |
   +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Supply a pointer to an error output file            | :c:func:`SPRKStepSetErrFile()`           | ``stderr``             |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Supply a custom error handler function              | :c:func:`SPRKStepSetErrHandlerFn()`      | internal fn            |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
   | Set fixed step size (required user input)           | :c:func:`SPRKStepSetFixedStep()`         | user defined           |
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Maximum no. of internal steps before *tout*         | :c:func:`SPRKStepSetMaxNumSteps()`       | 500                    |

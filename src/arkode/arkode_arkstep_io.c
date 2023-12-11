@@ -1721,15 +1721,6 @@ int ARKStepSetPredictorMethod(void* arkode_mem, int pred_method)
   retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* return error if pred_method==5 and a non-NULL stage predictor function
-     has been supplied */
-  if ((pred_method == 5) && (step_mem->stage_predict != NULL))
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "predictor 5 cannot be combined with user-supplied stage predictor");
-    return (ARK_ILL_INPUT);
-  }
-
   /* set parameter */
   step_mem->predictor = pred_method;
 
@@ -1769,7 +1760,6 @@ int ARKStepSetMaxNonlinIters(void* arkode_mem, int maxcor)
 
   /* send argument to NLS structure */
   retval = SUNNonlinSolSetMaxIters(step_mem->NLS, step_mem->maxcor);
-  SUNCheckCallNoRet(retval);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_NLS_OP_ERR, __LINE__, __func__, __FILE__,
@@ -1953,7 +1943,6 @@ int ARKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele)
 
   /* copy vector to output */
   N_VScale(ONE, ark_mem->tempv1, ele);
-  SUNCheckLastErrNoRet();
 
   return (ARK_SUCCESS);
 }

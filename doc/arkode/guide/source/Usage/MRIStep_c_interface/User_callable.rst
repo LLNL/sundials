@@ -680,10 +680,6 @@ Optional inputs for MRIStep
    +---------------------------------------------------------------+-------------------------------------------+------------------------+
    | Supply a pointer to a diagnostics output file                 | :c:func:`MRIStepSetDiagnostics()`         | ``NULL``               |
    +---------------------------------------------------------------+-------------------------------------------+------------------------+
-   | Supply a pointer to an error output file                      | :c:func:`MRIStepSetErrFile()`             | ``stderr``             |
-   +---------------------------------------------------------------+-------------------------------------------+------------------------+
-   | Supply a custom error handler function                        | :c:func:`MRIStepSetErrHandlerFn()`        | internal fn            |
-   +---------------------------------------------------------------+-------------------------------------------+------------------------+
    | Run with fixed-step sizes                                     | :c:func:`MRIStepSetFixedStep()`           | required               |
    +---------------------------------------------------------------+-------------------------------------------+------------------------+
    | Maximum no. of warnings for :math:`t_n+h = t_n`               | :c:func:`MRIStepSetMaxHnilWarns()`        | 10                     |

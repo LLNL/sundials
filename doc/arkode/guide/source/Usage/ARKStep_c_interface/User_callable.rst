@@ -864,8 +864,6 @@ Return ARKStep parameters to their defaults       :c:func:`ARKStepSetDefaults`  
 Set dense output interpolation type               :c:func:`ARKStepSetInterpolantType`      ``ARK_INTERP_HERMITE``
 Set dense output polynomial degree                :c:func:`ARKStepSetInterpolantDegree`    5
 Supply a pointer to a diagnostics output file     :c:func:`ARKStepSetDiagnostics`          ``NULL``
-Supply a pointer to an error output file          :c:func:`ARKStepSetErrFile`              ``stderr``
-Supply a custom error handler function            :c:func:`ARKStepSetErrHandlerFn`         internal fn
 Disable time step adaptivity (fixed-step mode)    :c:func:`ARKStepSetFixedStep`            disabled
 Supply an initial step size to attempt            :c:func:`ARKStepSetInitStep`             estimated
 Maximum no. of warnings for :math:`t_n+h = t_n`   :c:func:`ARKStepSetMaxHnilWarns`         10

@@ -20,6 +20,8 @@
 /*===============================================================
   Import Header Files
   ===============================================================*/
+#include "arkode/arkode.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +34,7 @@
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
 #include "sundials/priv/sundials_errors_impl.h"
+#include "sundials/sundials_logger.h"
 #include "sundials_utils.h"
 
 /*===============================================================
