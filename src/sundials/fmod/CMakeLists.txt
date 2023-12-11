@@ -19,8 +19,6 @@ set(sundials_SOURCES
   fsundials_adaptcontroller_mod.f90
   fsundials_context_mod.c
   fsundials_context_mod.f90
-  fsundials_errors_mod.c
-  fsundials_errors_mod.f90
   fsundials_futils_mod.c
   fsundials_futils_mod.f90
   fsundials_linearsolver_mod.c
