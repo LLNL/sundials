@@ -1127,36 +1127,6 @@ SWIGEXPORT int _wrap_FMRIStepSetNoInactiveRootWarn(void *farg1) {
 }
 
 
-SWIGEXPORT int _wrap_FMRIStepSetErrHandlerFn(void *farg1, ARKErrHandlerFn farg2, void *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKErrHandlerFn arg2 = (ARKErrHandlerFn) 0 ;
-  void *arg3 = (void *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (ARKErrHandlerFn)(farg2);
-  arg3 = (void *)(farg3);
-  result = (int)MRIStepSetErrHandlerFn(arg1,arg2,arg3);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FMRIStepSetErrFile(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  FILE *arg2 = (FILE *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (FILE *)(farg2);
-  result = (int)MRIStepSetErrFile(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FMRIStepSetUserData(void *farg1, void *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
