@@ -95,7 +95,7 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads,
   N_Vector v;
   N_VectorContent_OpenMP content;
 
-  SUNAssertNull(length > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(length >= 0, SUN_ERR_ARG_OUTOFRANGE);
 
   /* Create vector */
   v = NULL;
@@ -188,7 +188,7 @@ N_Vector N_VNew_OpenMP(sunindextype length, int num_threads, SUNContext sunctx)
   N_Vector v;
   sunrealtype* data;
 
-  SUNAssertNull(length > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(length >= 0, SUN_ERR_ARG_OUTOFRANGE);
 
   v = NULL;
   v = N_VNewEmpty_OpenMP(length, num_threads, sunctx);
@@ -216,7 +216,7 @@ N_Vector N_VMake_OpenMP(sunindextype length, sunrealtype* v_data,
   SUNFunctionBegin(sunctx);
   N_Vector v;
 
-  SUNAssertNull(length > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(length >= 0, SUN_ERR_ARG_OUTOFRANGE);
 
   v = NULL;
   v = N_VNewEmpty_OpenMP(length, num_threads, sunctx);
@@ -295,8 +295,6 @@ N_Vector N_VCloneEmpty_OpenMP(N_Vector w)
 {
   N_Vector v;
   N_VectorContent_OpenMP content;
-
-  if (w == NULL) { return (NULL); }
 
   SUNFunctionBegin(w->sunctx);
 
@@ -393,6 +391,11 @@ void N_VDestroy_OpenMP(N_Vector v)
 
 void N_VSpace_OpenMP(N_Vector v, sunindextype* lrw, sunindextype* liw)
 {
+  SUNFunctionBegin(v->sunctx);
+
+  SUNAssertVoid(lrw, SUN_ERR_ARG_CORRUPT);
+  SUNAssertVoid(liw, SUN_ERR_ARG_CORRUPT);
+
   *lrw = NV_LENGTH_OMP(v);
   *liw = 1;
 
@@ -1290,7 +1293,7 @@ SUNErrCode N_VLinearSumVectorArray_OpenMP(int nvec, sunrealtype a, N_Vector* X,
   if (nvec == 1)
   {
     N_VLinearSum_OpenMP(a, X[0], b, Y[0], Z[0]);
-    SUNCheckLastCall();
+    SUNCheckLastErr();
     return SUN_SUCCESS;
   }
 
@@ -1766,6 +1769,7 @@ SUNErrCode N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
 
     /* should have called N_VLinearCombination */
     Y = (N_Vector*)malloc(nsum * sizeof(N_Vector));
+    SUNAssert(Y, SUN_ERR_MALLOC_FAIL);
 
     for (i = 0; i < nsum; i++) { Y[i] = X[i][0]; }
 
@@ -1899,7 +1903,6 @@ SUNErrCode N_VBufPack_OpenMP(N_Vector x, void* buf)
   sunrealtype* xd = NULL;
   sunrealtype* bd = NULL;
 
-  SUNAssert(x, SUN_ERR_ARG_CORRUPT);
   SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   N  = NV_LENGTH_OMP(x);
@@ -1920,7 +1923,6 @@ SUNErrCode N_VBufUnpack_OpenMP(N_Vector x, void* buf)
   sunrealtype* xd = NULL;
   sunrealtype* bd = NULL;
 
-  SUNAssert(x, SUN_ERR_ARG_CORRPUT);
   SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   N  = NV_LENGTH_OMP(x);

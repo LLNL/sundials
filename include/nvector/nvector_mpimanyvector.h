@@ -244,12 +244,10 @@ sunbooleantype N_VInvTestLocal_MPIManyVector(N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
 sunbooleantype N_VConstrMaskLocal_MPIManyVector(N_Vector c, N_Vector x,
-
                                                 N_Vector m);
-SUNDIALS_EXPORT
-sunrealtype N_VMinQuotientLocal_MPIManyVector(N_Vector num,
 
-                                              N_Vector denom);
+SUNDIALS_EXPORT
+sunrealtype N_VMinQuotientLocal_MPIManyVector(N_Vector num, N_Vector denom);
 
 /* OPTIONAL XBraid interface operations */
 SUNDIALS_EXPORT

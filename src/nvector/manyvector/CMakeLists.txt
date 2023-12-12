@@ -55,7 +55,6 @@ if(BUILD_NVECTOR_MPIMANYVECTOR)
   sundials_add_library(sundials_nvecmpimanyvector
     SOURCES
       nvector_manyvector.c
-      ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_mpi_errors.c
     HEADERS
       ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpimanyvector.h
     INCLUDE_SUBDIR

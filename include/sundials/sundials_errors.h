@@ -37,6 +37,7 @@
                                                                                \
   ENTRY(SUN_ERR_CORRUPT, "Object is NULL or corrupt")                          \
   ENTRY(SUN_ERR_FILE_OPEN, "Unable to open file")                              \
+  ENTRY(SUN_ERR_OP_FAIL, "an operation failed")                                \
   ENTRY(SUN_ERR_MEM_FAIL, "a memory operation failed")                         \
   ENTRY(SUN_ERR_MALLOC_FAIL, "malloc returned NULL")                           \
   ENTRY(SUN_ERR_DESTROY_FAIL, "a destroy function returned an error")          \

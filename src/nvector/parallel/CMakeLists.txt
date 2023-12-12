@@ -28,7 +28,6 @@ endif()
 sundials_add_library(sundials_nvecparallel
   SOURCES
     nvector_parallel.c
-    ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_mpi_errors.c
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parallel.h
   INCLUDE_SUBDIR

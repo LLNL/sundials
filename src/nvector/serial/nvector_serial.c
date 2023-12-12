@@ -76,7 +76,7 @@ N_Vector N_VNewEmpty_Serial(sunindextype length, SUNContext sunctx)
   N_Vector v;
   N_VectorContent_Serial content;
 
-  SUNAssertNull(length > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(length >= 0, SUN_ERR_ARG_OUTOFRANGE);
 
   /* Create an empty vector object */
   v = NULL;
@@ -168,7 +168,7 @@ N_Vector N_VNew_Serial(sunindextype length, SUNContext sunctx)
   N_Vector v;
   sunrealtype* data;
 
-  SUNAssertNull(length > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(length >= 0, SUN_ERR_ARG_OUTOFRANGE);
 
   v = NULL;
   v = N_VNewEmpty_Serial(length, sunctx);
@@ -196,7 +196,7 @@ N_Vector N_VMake_Serial(sunindextype length, sunrealtype* v_data,
   SUNFunctionBegin(sunctx);
   N_Vector v;
 
-  SUNAssertNull(length > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(length >= 0, SUN_ERR_ARG_OUTOFRANGE);
 
   v = NULL;
   v = N_VNewEmpty_Serial(length, sunctx);
@@ -358,6 +358,11 @@ void N_VDestroy_Serial(N_Vector v)
 
 void N_VSpace_Serial(N_Vector v, sunindextype* lrw, sunindextype* liw)
 {
+  SUNFunctionBegin(v->sunctx);
+
+  SUNAssertVoid(lrw, SUN_ERR_ARG_CORRUPT);
+  SUNAssertVoid(liw, SUN_ERR_ARG_CORRUPT);
+
   *lrw = NV_LENGTH_S(v);
   *liw = 1;
 
@@ -1550,7 +1555,6 @@ SUNErrCode N_VBufPack_Serial(N_Vector x, void* buf)
   sunrealtype* xd = NULL;
   sunrealtype* bd = NULL;
 
-  SUNAssert(x, SUN_ERR_ARG_CORRUPT);
   SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   N  = NV_LENGTH_S(x);
@@ -1569,7 +1573,6 @@ SUNErrCode N_VBufUnpack_Serial(N_Vector x, void* buf)
   sunrealtype* xd = NULL;
   sunrealtype* bd = NULL;
 
-  SUNAssert(x, SUN_ERR_ARG_CORRUPT);
   SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   N  = NV_LENGTH_S(x);

@@ -49,6 +49,49 @@ N_Vector N_VMake_MPIPlusX(MPI_Comm comm, N_Vector X, SUNContext sunctx)
   return v;
 }
 
+N_Vector_ID N_VGetVectorID_MPIPlusX(N_Vector v)
+{
+  return SUNDIALS_NVEC_MPIPLUSX;
+}
+
+sunrealtype* N_VGetArrayPointer_MPIPlusX(N_Vector v)
+{
+  SUNFunctionBegin(v->sunctx);
+  sunrealtype* arr = N_VGetSubvectorArrayPointer_MPIManyVector(v, 0);
+  SUNCheckLastErrNull();
+  return arr;
+}
+
+void N_VSetArrayPointer_MPIPlusX(sunrealtype* vdata, N_Vector v)
+{
+  SUNFunctionBegin(v->sunctx);
+  N_VSetSubvectorArrayPointer_MPIManyVector(vdata, v, 0);
+  SUNCheckLastErrVoid();
+}
+
+N_Vector N_VGetLocalVector_MPIPlusX(N_Vector v)
+{
+  SUNFunctionBegin(v->sunctx);
+  N_Vector result = N_VGetSubvector_MPIManyVector(v, 0);
+  SUNCheckLastErrNull();
+  return result;
+}
+
+sunindextype N_VGetLocalLength_MPIPlusX(N_Vector v)
+{
+  SUNFunctionBegin(v->sunctx);
+  sunindextype len = N_VGetLength(N_VGetLocalVector_MPIPlusX(v));
+  SUNCheckLastErrNoRet();
+  return len;
+}
+
+SUNErrCode N_VEnableFusedOps_MPIPlusX(N_Vector v, sunbooleantype tf)
+{
+  SUNFunctionBegin(v->sunctx);
+  SUNCheckCall(N_VEnableFusedOps_MPIManyVector(v, tf));
+  return SUN_SUCCESS;
+}
+
 void N_VPrint_MPIPlusX(N_Vector v)
 {
   N_Vector x = MPIPLUSX_LOCAL_VECTOR(v);
