@@ -25,7 +25,7 @@ target_include_directories(test_cvodes_error_handling
 # their visibility in the installed libraries.
 target_link_libraries(test_cvodes_error_handling 
   PRIVATE
-  $<TARGET_OBJECTS:sundials_cvode_obj>
+  $<TARGET_OBJECTS:sundials_cvodes_obj>
   sundials_sunmemsys_obj
   sundials_nvecserial_obj
   sundials_sunlinsolband_obj
@@ -36,7 +36,7 @@ target_link_libraries(test_cvodes_error_handling
 
 # Tell CMake that we depend on the CVODE library since it does not pick
 # that up from $<TARGET_OBJECTS:sundials_cvode_obj>.
-add_dependencies(test_cvodes_error_handling sundials_cvode_obj)
+add_dependencies(test_cvodes_error_handling sundials_cvodes_obj)
 
 target_link_libraries(test_cvodes_error_handling 
   PRIVATE 
