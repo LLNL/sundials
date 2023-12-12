@@ -76,8 +76,8 @@ SUNDIALS_EXPORT sunindextype SUNMatrix_MagmaDense_NumBlocks(SUNMatrix A);
 SUNDIALS_EXPORT sunrealtype** SUNMatrix_MagmaDense_BlockData(SUNMatrix A);
 SUNDIALS_EXPORT SUNErrCode SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix A,
                                                              sunrealtype* h_data);
-SUNDIALS_EXPORT SUNErrCode
-SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data);
+SUNDIALS_EXPORT
+SUNErrCode SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data);
 
 SUNDIALS_STATIC_INLINE
 sunrealtype* SUNMatrix_MagmaDense_Block(SUNMatrix Amat, sunindextype k)

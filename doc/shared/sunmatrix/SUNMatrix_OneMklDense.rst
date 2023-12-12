@@ -314,7 +314,7 @@ Copy Data
 
    **Return value:**
       * ``SUN_SUCCESS`` -- if the copy is successful.
-      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- if either the ``SUNMatrix`` is not a
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- if the ``SUNMatrix`` is not a
         ``SUNMATRIX_ONEMKLDENSE`` matrix.
       * ``SUN_ERR_MEM_FAIL`` -- if the copy fails.
 
@@ -330,7 +330,7 @@ Copy Data
 
    **Return value:**
       * ``SUN_SUCCESS`` -- if the copy is successful.
-      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- if either the ``SUNMatrix`` is not a
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- if the ``SUNMatrix`` is not a
         ``SUNMATRIX_ONEMKLDENSE`` matrix.
       * ``SUN_ERR_MEM_FAIL`` -- if the copy fails.
 
