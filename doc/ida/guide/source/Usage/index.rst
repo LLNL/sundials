@@ -893,11 +893,9 @@ an error message to the error handler function. All error return values are
 negative, so the test ``flag < 0`` will catch all errors.
 
 The optional input calls can, unless otherwise noted, be executed in any order.
-However, if the user’s program calls either :c:func:`IDASetErrFile` or
-:c:func:`IDASetErrHandlerFn`, then that call should appear first, in order to
-take effect for any later error message. Finally, a call to an ``IDASet***``
-function can, unless otherwise noted, be made at any time from the user’s
-calling program and, if successful, takes effect immediately.
+Finally, a call to an ``IDASet***`` function can, unless otherwise noted, be
+made at any time from the user’s calling program and, if successful, takes
+effect immediately.
 
 
 .. _IDA.Usage.CC.optional_input.optin_main:
@@ -911,10 +909,6 @@ Main solver optional input functions
 
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | **Optional input**                                                 | **Function name**               | **Default**    |
-   +--------------------------------------------------------------------+---------------------------------+----------------+
-   | Pointer to an error file                                           | :c:func:`IDASetErrFile`         | ``stderr``     |
-   +--------------------------------------------------------------------+---------------------------------+----------------+
-   | Error handler function                                             | :c:func:`IDASetErrHandlerFn`    | internal fn.   |
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | User data                                                          | :c:func:`IDASetUserData`        | NULL           |
    +--------------------------------------------------------------------+---------------------------------+----------------+
@@ -3202,38 +3196,6 @@ The user must provide a function of type :c:type:`IDAResFn` defined as follows:
       recoverable error in that converged value cannot be corrected.  (It may be
       detected when the residual function is called the first time during the
       following integration step, but a successful step cannot be undone.)
-
-
-.. _IDA.Usage.CC.user_fct_sim.ehFn:
-
-Error message handler function
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-As an alternative to the default behavior of directing error and warning
-messages to the file pointed to by ``errfp`` (see :c:func:`IDASetErrFile`), the
-user may provide a function of type :c:type:`IDAErrHandlerFn` to process any
-such messages.  The function type :c:type:`IDAErrHandlerFn` is defined as
-follows:
-
-.. c:type:: void (*IDAErrHandlerFn)(int error_code, const char *module, const char *function, char *msg, void *user_data)
-
-   This function processes error and warning messages from IDA and its
-   sub-modules.
-
-   **Arguments:**
-      * ``error_code`` -- is the error code.
-      * ``module`` -- is the name of the IDA module reporting the error.
-      * ``function`` -- is the name of the function in which the error occurred.
-      * ``eH_data`` -- is a pointer to user data, the same as the ``eh_data``
-        parameter passed to :c:func:`IDASetErrHandlerFn`.
-
-   **Return value:**
-      This function has no return value.
-
-   **Notes:**
-      ``error_code`` is negative for errors and positive (``IDA_WARNING``) for
-      warnings. If a function that returns a pointer to memory encounters an error,
-      it sets ``error_code`` to 0.
 
 
 .. _IDA.Usage.CC.user_fct_sim.ewtsetFn:

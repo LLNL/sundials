@@ -79,6 +79,8 @@
  * =================================================================
  */
 
+#include "ida/ida.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -4000,14 +4002,28 @@ void IDAProcessError(IDAMem IDA_mem, int error_code, int line, const char* func,
   char* msg     = (char*)malloc(msglen);
   vsnprintf(msg, msglen, msgfmt, ap);
 
-  if (IDA_mem == NULL)
-  {
-    SUNGlobalFallbackErrHandler(line, func, file, msgfmt, error_code);
-  }
-  else
-  {
+  do {
+    if (IDA_mem == NULL)
+    {
+      SUNGlobalFallbackErrHandler(line, func, file, msg, error_code);
+      break;
+    }
+
+    if (error_code == IDA_WARNING)
+    {
+#if SUNDIALS_LOGGING_LEVEL >= 1
+      char* file_and_line = sunCombineFileAndLine(line, file);
+      SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_WARNING, file_and_line, func,
+                         msg);
+      free(file_and_line);
+#endif
+      break;
+    }
+
+    /* Call the SUNDIALS main error handler */
     SUNHandleErrWithMsg(line, func, file, msg, error_code, IDA_mem->ida_sunctx);
   }
+  while (0);
 
   /* Finalize argument processing */
   va_end(ap);

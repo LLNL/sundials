@@ -92,9 +92,6 @@ typedef int (*IDARootFn)(sunrealtype t, N_Vector y, N_Vector yp,
 
 typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void* user_data);
 
-typedef void (*IDAErrHandlerFn)(int error_code, const char* module,
-                                const char* function, char* msg, void* user_data);
-
 /* -------------------
  * Exported Functions
  * ------------------- */

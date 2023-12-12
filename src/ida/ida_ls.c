@@ -295,7 +295,7 @@ int IDASetJacFn(void* ida_mem, IDALsJacFn jac)
   int retval;
 
   /* access IDALsMem structure */
-  retval = idaLs_AccessLMem(ida_mem, "IDALsSetJacFn", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
 
   /* return with failure if jac cannot be used */
@@ -331,7 +331,7 @@ int IDASetEpsLin(void* ida_mem, sunrealtype eplifac)
   int retval;
 
   /* access IDALsMem structure */
-  retval = idaLs_AccessLMem(ida_mem, "IDASetEpsLin", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
 
   /* Check for legal eplifac */
@@ -356,7 +356,7 @@ int IDASetLSNormFactor(void* ida_mem, sunrealtype nrmfac)
   int retval;
 
   /* access IDALsMem structure */
-  retval = idaLs_AccessLMem(ida_mem, "IDASetLSNormFactor", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
 
   if (nrmfac > ZERO)
@@ -388,8 +388,7 @@ int IDASetLinearSolutionScaling(void* ida_mem, sunbooleantype onoff)
   int retval;
 
   /* access IDALsMem structure */
-  retval = idaLs_AccessLMem(ida_mem, "IDASetLinearSolutionScaling", &IDA_mem,
-                            &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
 
   /* check for valid solver type */
@@ -409,8 +408,7 @@ int IDASetIncrementFactor(void* ida_mem, sunrealtype dqincfac)
   int retval;
 
   /* access IDALsMem structure */
-  retval = idaLs_AccessLMem(ida_mem, "IDASetIncrementFactor", &IDA_mem,
-                            &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
 
   /* Check for legal dqincfac */
@@ -437,8 +435,7 @@ int IDASetPreconditioner(void* ida_mem, IDALsPrecSetupFn psetup,
   int retval;
 
   /* access IDALsMem structure */
-  retval = idaLs_AccessLMem(ida_mem, "IDASetPreconditioner", &IDA_mem,
-                            &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
 
   /* store function pointers for user-supplied routines in IDALs interface */
@@ -479,7 +476,7 @@ int IDASetJacTimes(void* ida_mem, IDALsJacTimesSetupFn jtsetup,
   int retval;
 
   /* access IDALsMem structure */
-  retval = idaLs_AccessLMem(ida_mem, "IDASetJacTimes", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
 
   /* issue error if LS object does not allow user-supplied ATimes */
@@ -521,7 +518,7 @@ int IDASetJacTimesResFn(void* ida_mem, IDAResFn jtimesResFn)
   int retval;
 
   /* access IDALsMem structure */
-  retval = idaLs_AccessLMem(ida_mem, "IDASetJacTimesResFn", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
 
   /* check if using internal finite difference approximation */
@@ -550,7 +547,7 @@ int IDAGetJac(void* ida_mem, SUNMatrix* J)
   int retval;
 
   /* access IDALsMem structure; set output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetJac", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return retval; }
   *J = idals_mem->J;
   return IDALS_SUCCESS;
@@ -563,7 +560,7 @@ int IDAGetJacCj(void* ida_mem, sunrealtype* cj_J)
   int retval;
 
   /* access IDALsMem structure; set output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetJacCj", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return retval; }
   *cj_J = IDA_mem->ida_cjold;
   return IDALS_SUCCESS;
@@ -576,7 +573,7 @@ int IDAGetJacTime(void* ida_mem, sunrealtype* t_J)
   int retval;
 
   /* access IDALsMem structure; set output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetJacTime", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return retval; }
   *t_J = idals_mem->tnlj;
   return IDALS_SUCCESS;
@@ -589,7 +586,7 @@ int IDAGetJacNumSteps(void* ida_mem, long int* nst_J)
   int retval;
 
   /* access IDALsMem structure; set output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetJacNumSteps", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return retval; }
   *nst_J = idals_mem->nstlj;
   return IDALS_SUCCESS;
@@ -606,7 +603,7 @@ int IDAGetLinWorkSpace(void* ida_mem, long int* lenrwLS, long int* leniwLS)
   int retval;
 
   /* access IDALsMem structure */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetLinWorkSpace", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
 
   /* start with fixed sizes plus vector/matrix pointers */
@@ -643,7 +640,7 @@ int IDAGetNumJacEvals(void* ida_mem, long int* njevals)
   int retval;
 
   /* access IDALsMem structure; store output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetNumJacEvals", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
   *njevals = idals_mem->nje;
   return (IDALS_SUCCESS);
@@ -657,7 +654,7 @@ int IDAGetNumPrecEvals(void* ida_mem, long int* npevals)
   int retval;
 
   /* access IDALsMem structure; store output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetNumPrecEvals", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
   *npevals = idals_mem->npe;
   return (IDALS_SUCCESS);
@@ -671,7 +668,7 @@ int IDAGetNumPrecSolves(void* ida_mem, long int* npsolves)
   int retval;
 
   /* access IDALsMem structure; store output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetNumPrecSolves", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
   *npsolves = idals_mem->nps;
   return (IDALS_SUCCESS);
@@ -685,7 +682,7 @@ int IDAGetNumLinIters(void* ida_mem, long int* nliters)
   int retval;
 
   /* access IDALsMem structure; store output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetNumLinIters", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
   *nliters = idals_mem->nli;
   return (IDALS_SUCCESS);
@@ -699,8 +696,7 @@ int IDAGetNumLinConvFails(void* ida_mem, long int* nlcfails)
   int retval;
 
   /* access IDALsMem structure; store output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetNumLinConvFails", &IDA_mem,
-                            &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
   *nlcfails = idals_mem->ncfl;
   return (IDALS_SUCCESS);
@@ -715,8 +711,7 @@ int IDAGetNumJTSetupEvals(void* ida_mem, long int* njtsetups)
   int retval;
 
   /* access IDALsMem structure; store output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetNumJTSetupEvals", &IDA_mem,
-                            &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
   *njtsetups = idals_mem->njtsetup;
   return (IDALS_SUCCESS);
@@ -731,8 +726,7 @@ int IDAGetNumJtimesEvals(void* ida_mem, long int* njvevals)
   int retval;
 
   /* access IDALsMem structure; store output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetNumJtimesEvals", &IDA_mem,
-                            &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
   *njvevals = idals_mem->njtimes;
   return (IDALS_SUCCESS);
@@ -748,8 +742,7 @@ int IDAGetNumLinResEvals(void* ida_mem, long int* nrevalsLS)
   int retval;
 
   /* access IDALsMem structure; store output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetNumLinResEvals", &IDA_mem,
-                            &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
   *nrevalsLS = idals_mem->nreDQ;
   return (IDALS_SUCCESS);
@@ -763,7 +756,7 @@ int IDAGetLastLinFlag(void* ida_mem, long int* flag)
   int retval;
 
   /* access IDALsMem structure; store output and return */
-  retval = idaLs_AccessLMem(ida_mem, "IDAGetLastLinFlag", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
   *flag = idals_mem->last_flag;
   return (IDALS_SUCCESS);
@@ -814,7 +807,7 @@ int idaLsATimes(void* ida_mem, N_Vector v, N_Vector z)
   int retval;
 
   /* access IDALsMem structure */
-  retval = idaLs_AccessLMem(ida_mem, "idaLsATimes", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
 
   /* call Jacobian-times-vector product routine
@@ -844,7 +837,7 @@ int idaLsPSetup(void* ida_mem)
   int retval;
 
   /* access IDALsMem structure */
-  retval = idaLs_AccessLMem(ida_mem, "idaLsPSetup", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
 
   /* Call user pset routine to update preconditioner and possibly
@@ -874,7 +867,7 @@ int idaLsPSolve(void* ida_mem, N_Vector r, N_Vector z, sunrealtype tol, int lr)
   int retval;
 
   /* access IDALsMem structure */
-  retval = idaLs_AccessLMem(ida_mem, "idaLsPSolve", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
 
   /* call the user-supplied psolve routine, and accumulate count */
@@ -1219,7 +1212,7 @@ int idaLsDQJtimes(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   SUNLinearSolver_ID LSID;
 
   /* access IDALsMem structure */
-  retval = idaLs_AccessLMem(ida_mem, "idaLsDQJtimes", &IDA_mem, &idals_mem);
+  retval = idaLs_AccessLMem(ida_mem, __func__, &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS) { return (retval); }
 
   LSID = SUNLinSolGetID(idals_mem->LS);
@@ -1734,14 +1727,14 @@ int idaLs_AccessLMem(void* ida_mem, const char* fname, IDAMem* IDA_mem,
 {
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
+    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, fname, __FILE__,
                     MSG_LS_IDAMEM_NULL);
     return (IDALS_MEM_NULL);
   }
   *IDA_mem = (IDAMem)ida_mem;
   if ((*IDA_mem)->ida_lmem == NULL)
   {
-    IDAProcessError(*IDA_mem, IDALS_LMEM_NULL, __LINE__, __func__, __FILE__,
+    IDAProcessError(*IDA_mem, IDALS_LMEM_NULL, __LINE__, fname, __FILE__,
                     MSG_LS_LMEM_NULL);
     return (IDALS_LMEM_NULL);
   }
