@@ -806,6 +806,10 @@ We note that, on an error return, all of the optional input functions send an
 error message to the error handler function. All error return values are
 negative, so the test ``flag < 0`` will catch all errors.
 
+The optional input calls can, unless otherwise noted, be executed in any order.
+A call to an ``CVodeSet***`` function can, unless otherwise noted, be made
+at any time from the user's calling program and, if successful, takes effect
+immediately.
 
 .. _CVODE.Usage.CC.optional_input.optin_main:
 
