@@ -9929,7 +9929,7 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
 
     if (error_code == CV_WARNING)
     {
-#if SUNDIALS_LOGGING_LEVEL >= 1
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_WARNING
       char* file_and_line = sunCombineFileAndLine(line, file);
       SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_WARNING, file_and_line, func,
                          msg);
