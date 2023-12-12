@@ -29,6 +29,7 @@
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #include "cvode_impl.h"
+#include "sundials/priv/sundials_errors_impl.h"
 
 /*=================================================================*/
 /* CVODE Private Constants                                         */
@@ -4823,6 +4824,8 @@ static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
                     const char* file, const char* msgfmt, ...)
 {
+  SUNFunctionBegin(cv_mem->cv_sunctx);
+
   /* Initialize the argument pointer variable
      (msgfmt is the last required argument to cvProcessError) */
   va_list ap;
@@ -4852,7 +4855,10 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
     }
 
     /* Call the SUNDIALS main error handler */
-    SUNHandleErrWithMsg(line, func, file, msg, error_code, cv_mem->cv_sunctx);
+    SUNHandleErrWithMsg(line, func, file, msg, error_code, SUNCTX_);
+
+    /* Clear the error now */
+    (void)SUNContext_GetLastError(SUNCTX_);
   }
   while (0);
 
