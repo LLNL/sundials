@@ -24,8 +24,11 @@
 #include <stdlib.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
+#include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_sparse.h>
+
+#include "sundials/sundials_errors.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -340,7 +343,11 @@ SUNErrCode SUNSparseMatrix_Realloc(SUNMatrix A)
   /* perform reallocation */
   SM_INDEXVALS_S(A) = (sunindextype*)realloc(SM_INDEXVALS_S(A),
                                              nzmax * sizeof(sunindextype));
+  SUNAssert(SM_INDEXVALS_S(A), SUN_ERR_MALLOC_FAIL);
+
   SM_DATA_S(A) = (sunrealtype*)realloc(SM_DATA_S(A), nzmax * sizeof(sunrealtype));
+  SUNAssert(SM_DATA_S(A), SUN_ERR_MALLOC_FAIL);
+
   SM_NNZ_S(A) = nzmax;
 
   return SUN_SUCCESS;
@@ -362,8 +369,12 @@ SUNErrCode SUNSparseMatrix_Reallocate(SUNMatrix A, sunindextype NNZ)
   /* perform reallocation */
   SM_INDEXVALS_S(A) = (sunindextype*)realloc(SM_INDEXVALS_S(A),
                                              NNZ * sizeof(sunindextype));
+  SUNAssert(SM_INDEXVALS_S(A), SUN_ERR_MALLOC_FAIL);
+
   SM_DATA_S(A) = (sunrealtype*)realloc(SM_DATA_S(A), NNZ * sizeof(sunrealtype));
-  SM_NNZ_S(A)  = NNZ;
+  SUNAssert(SM_DATA_S(A), SUN_ERR_MALLOC_FAIL);
+
+  SM_NNZ_S(A) = NNZ;
 
   return SUN_SUCCESS;
 }
@@ -576,9 +587,13 @@ SUNErrCode SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B)
   {
     SM_INDEXVALS_S(B) = (sunindextype*)realloc(SM_INDEXVALS_S(B),
                                                A_nz * sizeof(sunindextype));
-    SM_DATA_S(B)      = (sunrealtype*)realloc(SM_DATA_S(B),
-                                              A_nz * sizeof(sunrealtype));
-    SM_NNZ_S(B)       = A_nz;
+    SUNAssert(SM_INDEXVALS_S(B), SUN_ERR_MALLOC_FAIL);
+
+    SM_DATA_S(B) = (sunrealtype*)realloc(SM_DATA_S(B),
+                                         A_nz * sizeof(sunrealtype));
+    SUNAssert(SM_DATA_S(B), SUN_ERR_MALLOC_FAIL);
+
+    SM_NNZ_S(B) = A_nz;
   }
 
   /* zero out B so that copy works correctly */
@@ -623,9 +638,10 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
   }
 
   /* access data arrays from A */
-  Ap = Ai = NULL;
-  Ax      = NULL;
-  Ap      = SM_INDEXPTRS_S(A);
+  Ap = NULL;
+  Ai = NULL;
+  Ax = NULL;
+  Ap = SM_INDEXPTRS_S(A);
   SUNCheck(Ap, SUN_ERR_ARG_CORRUPT);
   Ai = SM_INDEXVALS_S(A);
   SUNCheck(Ai, SUN_ERR_ARG_CORRUPT);
@@ -753,9 +769,10 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
     SUNCheckLastErr();
 
     /* access data from CSR structures (return if failure) */
-    Cp = Ci = NULL;
-    Cx      = NULL;
-    Cp      = SM_INDEXPTRS_S(C);
+    Cp = NULL;
+    Ci = NULL;
+    Cx = NULL;
+    Cp = SM_INDEXPTRS_S(C);
     SUNCheck(Cp, SUN_ERR_ARG_CORRUPT);
     Ci = SM_INDEXVALS_S(C);
     SUNCheck(Ci, SUN_ERR_ARG_CORRUPT);
@@ -983,9 +1000,10 @@ SUNErrCode SUNMatScaleAdd_Sparse(sunrealtype c, SUNMatrix A, SUNMatrix B)
     SUNCheckLastErr();
 
     /* access data from CSR structures (return if failure) */
-    Cp = Ci = NULL;
-    Cx      = NULL;
-    Cp      = SM_INDEXPTRS_S(C);
+    Cp = NULL;
+    Ci = NULL;
+    Cx = NULL;
+    Cp = SM_INDEXPTRS_S(C);
     SUNCheck(Cp, SUN_ERR_ARG_CORRUPT);
     Ci = SM_INDEXVALS_S(C);
     SUNCheck(Ci, SUN_ERR_ARG_CORRUPT);
@@ -1083,6 +1101,8 @@ SUNErrCode SUNMatSpace_Sparse(SUNMatrix A, long int* lenrw, long int* leniw)
 {
   SUNFunctionBegin(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
   *lenrw = SM_NNZ_S(A);
   *leniw = 10 + SM_NP_S(A) + SM_NNZ_S(A);
   return SUN_SUCCESS;
@@ -1224,12 +1244,13 @@ SUNErrCode Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y)
  */
 SUNErrCode format_convert(const SUNMatrix A, SUNMatrix B)
 {
+  SUNFunctionBegin(A->sunctx);
+
   sunrealtype *Ax, *Bx;
   sunindextype *Ap, *Aj;
   sunindextype *Bp, *Bi;
   sunindextype n_row, n_col, nnz;
   sunindextype n, col, csum, row, last;
-  SUNFunctionBegin(A->sunctx);
 
   if (SM_SPARSETYPE_S(A) == SM_SPARSETYPE_S(B))
   {
@@ -1238,8 +1259,11 @@ SUNErrCode format_convert(const SUNMatrix A, SUNMatrix B)
   }
 
   Ap = SM_INDEXPTRS_S(A);
+  SUNCheck(Ap, SUN_ERR_ARG_CORRUPT);
   Aj = SM_INDEXVALS_S(A);
+  SUNCheck(Aj, SUN_ERR_ARG_CORRUPT);
   Ax = SM_DATA_S(A);
+  SUNCheck(Ax, SUN_ERR_ARG_CORRUPT);
 
   n_row = (SM_SPARSETYPE_S(A) == CSR_MAT) ? SM_ROWS_S(A) : SM_COLUMNS_S(A);
   n_col = (SM_SPARSETYPE_S(A) == CSR_MAT) ? SM_COLUMNS_S(A) : SM_ROWS_S(A);

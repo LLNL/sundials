@@ -23,6 +23,8 @@
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
+#include "sundials/sundials_errors.h"
+
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 
@@ -300,10 +302,11 @@ SUNErrCode SUNMatScaleAdd_Dense(sunrealtype c, SUNMatrix A, SUNMatrix B)
 
 SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
 {
+  SUNFunctionBegin(A->sunctx);
   sunindextype i, j;
   sunrealtype *col_j, *xd, *yd;
-  SUNFunctionBegin(A->sunctx);
 
+  SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
   SUNCheck(compatibleMatrixAndVectors(A, x, y), SUN_ERR_ARG_DIMSMISMATCH);
 
   /* access vector data (return if NULL data pointers) */
@@ -311,6 +314,9 @@ SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
   SUNCheckLastErr();
   yd = N_VGetArrayPointer(y);
   SUNCheckLastErr();
+
+  SUNAssert(xd, SUN_ERR_MEM_FAIL);
+  SUNAssert(yd, SUN_ERR_MEM_FAIL);
 
   /* Perform operation y = Ax */
   for (i = 0; i < SM_ROWS_D(A); i++) { yd[i] = ZERO; }
@@ -326,6 +332,8 @@ SUNErrCode SUNMatSpace_Dense(SUNMatrix A, long int* lenrw, long int* leniw)
 {
   SUNFunctionBegin(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
   *lenrw = SM_LDATA_D(A);
   *leniw = 3 + SM_COLUMNS_D(A);
   return SUN_SUCCESS;

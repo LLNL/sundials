@@ -26,6 +26,8 @@
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 
+#include "sundials/sundials_errors.h"
+
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 
@@ -122,6 +124,8 @@ void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile)
 {
   SUNFunctionBegin(A->sunctx);
   sunindextype i, j, start, finish;
+
+  SUNAssertVoid(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
 
   /* perform operation */
   fprintf(outfile, "\n");
@@ -361,7 +365,8 @@ SUNErrCode SUNMatScaleAdd_Band(sunrealtype c, SUNMatrix A, SUNMatrix B)
   /* Call separate routine in B has larger bandwidth(s) than A */
   if ((SM_UBAND_B(B) > SM_UBAND_B(A)) || (SM_LBAND_B(B) > SM_LBAND_B(A)))
   {
-    return SMScaleAddNew_Band(c, A, B);
+    SUNCheckCall(SMScaleAddNew_Band(c, A, B));
+    return SUN_SUCCESS;
   }
 
   /* Otherwise, perform operation in-place */
@@ -391,6 +396,9 @@ SUNErrCode SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y)
   yd = N_VGetArrayPointer(y);
   SUNCheckLastErr();
 
+  SUNAssert(xd, SUN_ERR_MEM_FAIL);
+  SUNAssert(yd, SUN_ERR_MEM_FAIL);
+
   /* Perform operation */
   for (i = 0; i < SM_ROWS_B(A); i++) { yd[i] = ZERO; }
   for (j = 0; j < SM_COLUMNS_B(A); j++)
@@ -407,6 +415,8 @@ SUNErrCode SUNMatSpace_Band(SUNMatrix A, long int* lenrw, long int* leniw)
 {
   SUNFunctionBegin(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
   *lenrw = SM_COLUMNS_B(A) * (SM_SUBAND_B(A) + SM_LBAND_B(A) + 1);
   *leniw = 7 + SM_COLUMNS_B(A);
   return SUN_SUCCESS;
