@@ -412,8 +412,8 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors, N_Vector* vec_array,
 N_Vector MVAPPEND(N_VGetSubvector)(N_Vector v, sunindextype vec_num)
 {
   SUNFunctionBegin(v->sunctx);
-  SUNAssertNull(vec_num >= 0 && vec_num <= MANYVECTOR_NUM_SUBVECS(v),
-                SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(vec_num >= 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(vec_num <= MANYVECTOR_NUM_SUBVECS(v), SUN_ERR_ARG_OUTOFRANGE);
   return (MANYVECTOR_SUBVEC(v, vec_num));
 }
 
@@ -425,8 +425,8 @@ sunrealtype* MVAPPEND(N_VGetSubvectorArrayPointer)(N_Vector v,
                                                    sunindextype vec_num)
 {
   SUNFunctionBegin(v->sunctx);
-  SUNAssertNull(vec_num >= 0 && vec_num <= MANYVECTOR_NUM_SUBVECS(v),
-                SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(vec_num >= 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(vec_num <= MANYVECTOR_NUM_SUBVECS(v), SUN_ERR_ARG_OUTOFRANGE);
   sunrealtype* arr = NULL;
   if (MANYVECTOR_SUBVEC(v, vec_num)->ops->nvgetarraypointer)
   {
@@ -444,8 +444,8 @@ SUNErrCode MVAPPEND(N_VSetSubvectorArrayPointer)(sunrealtype* v_data, N_Vector v
                                                  sunindextype vec_num)
 {
   SUNFunctionBegin(v->sunctx);
-  SUNAssert(vec_num >= 0 && vec_num <= MANYVECTOR_NUM_SUBVECS(v),
-            SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssert(vec_num >= 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssert(vec_num <= MANYVECTOR_NUM_SUBVECS(v), SUN_ERR_ARG_OUTOFRANGE);
   N_VSetArrayPointer(v_data, MANYVECTOR_SUBVEC(v, vec_num));
   SUNCheckLastErr();
   return SUN_SUCCESS;
@@ -1439,13 +1439,12 @@ SUNErrCode N_VDotProdMultiAllReduce_MPIManyVector(int nvec_total, N_Vector x,
   SUNFunctionBegin(x->sunctx);
 
   /* accumulate totals and return */
-  if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
-  {
-    SUNCheckMPICall(MPI_Allreduce(MPI_IN_PLACE, sum, nvec_total,
-                                  MPI_SUNREALTYPE, MPI_SUM, MANYVECTOR_COMM(x)));
-  }
+  if (MANYVECTOR_COMM(x) == MPI_COMM_NULL) { return SUN_ERR_ARG_CORRUPT; }
 
-  return SUN_ERR_OP_FAIL;
+  SUNCheckMPICall(MPI_Allreduce(MPI_IN_PLACE, sum, nvec_total, MPI_SUNREALTYPE,
+                                MPI_SUM, MANYVECTOR_COMM(x)));
+
+  return SUN_SUCCESS;
 }
 #endif
 
