@@ -280,26 +280,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
 
 
-.. _SUNAdaptController.Description.errorCodes:
-
-SUNAdaptController Error Codes
-------------------------------
-
-SUNAdaptController functions return one of the following set of error codes:
-
-* ``SUN_SUCCESS`` (0) -- successful call.
-
-* ``SUNADAPTCONTROLLER_MEM_FAIL`` (-1002) -- a memory access or allocation failed.
-
-* ``SUNADAPTCONTROLLER_OPERATION_FAIL`` (-1004) -- catch-all for errors not in the above list.
-
-.. note::
-   The SUNDIALS time integrators do not rely on these specific return values and only
-   on whether the returned values are 0 (successful) or non-zero (failure).  Thus,
-   user-defined implementations are not required to use these specific error codes,
-   so long as the zero/non-zero convention is followed.
-
-
 C/C++ API Usage
 ---------------
 
