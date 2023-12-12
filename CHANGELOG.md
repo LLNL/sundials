@@ -85,7 +85,7 @@ sundials_band.h
 
 **Breaking change**
 The following functions have had their signature updated to ensure they can leverage
-the new SUNDIALS error handling capabilties. 
+the new SUNDIALS error handling capabilties.
 
 ```c
 // From sundials_futils.h
@@ -130,7 +130,16 @@ accordingly.
 
 **Breaking change**
 Functions, types and header files that were previously deprecated have been
-removed.
+removed. In addittion the following names/symbols were replaced by ``SUN_ERR_*``
+codes:
+
+```
+SUNMAT_SUCCESS --> SUN_SUCCESS
+SUNMAT_ILL_INPUT --> SUN_ERR_ARG_*
+SUNMAT_MEM_FAIL --> SUN_ERR_MEM_FAIL
+SUNMAT_OPERATION_FAIL --> SUN_ERR_OP_FAIL
+SUNMAT_MATVEC_SETUP_REQUIRED --> SUN_ERR_OP_FAIL
+```
 
 **Breaking change**
 Users now need to link to `sundials_core` in addition to the libraries already linked to. 

@@ -170,27 +170,3 @@ below.
    .. code-block:: c
 
       retval = SUNMatMatvec(A, x, y);
-
-
-.. _SUNMatrix.Ops.errorCodes:
-
-SUNMatrix return codes
-----------------------
-
-The functions provided to SUNMatrix modules within the SUNDIALS-provided
-SUNMatrix implementations utilize a common set of return codes, listed below.
-These adhere to a common pattern: 0 indicates success, a negative value
-indicates a failure. Aside from this pattern, the actual values of each error
-code are primarily to provide additional information to the user in case of a
-SUNMatrix failure.
-
-* ``SUN_SUCCESS`` (0) -- successful call
-
-* ``SUN_ERR_ARG_INCOMPATIBLE`` (-1) -- an illegal input has been provided to the function
-
-* ``SUN_ERR_MEM_FAIL`` (-2) -- failed memory access or allocation
-
-* ``SUN_ERR_OP_FAIL`` (-3) -- a SUNMatrix operation returned nonzero
-
-* ``SUN_ERR_OP_FAIL`` (-4) -- the :c:func:`SUNMatMatvecSetup` routine needs to be
-  called prior to calling :c:func:`SUNMatMatvec`
