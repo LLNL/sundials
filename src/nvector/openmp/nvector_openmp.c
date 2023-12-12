@@ -1231,7 +1231,7 @@ SUNErrCode N_VDotProdMulti_OpenMP(int nvec, N_Vector x, N_Vector* Y,
   if (nvec == 1)
   {
     dotprods[0] = N_VDotProd_OpenMP(x, Y[0]);
-    SUNCheckLastCall();
+    SUNCheckLastErr();
     return SUN_SUCCESS;
   }
 
