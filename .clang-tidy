@@ -13,7 +13,8 @@
 # This should be applied to all new code. See the developer documentation.
 # ------------------------------------------------------------------------------
 ---
-Checks: '-*,clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,-cppcoreguidelines-explicit-virtual-functions,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-cppcoreguidelines-avoid-magic-numbers,google-*,-google-explicit-constructor,modernize-*,-modernize-use-trailing-return-type,mpi-*,readability-*,-readability-magic-numbers,-readability-identifier-length'
+#Checks: '-*,clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,-cppcoreguidelines-explicit-virtual-functions,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-cppcoreguidelines-avoid-magic-numbers,google-*,-google-explicit-constructor,modernize-*,-modernize-use-trailing-return-type,mpi-*,readability-*,-readability-magic-numbers,-readability-identifier-length'
+Checks: '-*,readability-braces-around-statements'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false

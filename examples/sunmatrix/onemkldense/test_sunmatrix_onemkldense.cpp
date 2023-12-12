@@ -17,46 +17,47 @@
 
 #include <cstdio>
 #include <cstdlib>
-
+#include <nvector/nvector_sycl.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 #include <sunmatrix/sunmatrix_onemkldense.h>
 #include <sunmemory/sunmemory_sycl.h>
-#include <nvector/nvector_sycl.h>
+
 #include "test_sunmatrix.h"
 
 /* ---------------------------------------------------------------------------
  * Main SUNMatrix Testing Routine
  * ---------------------------------------------------------------------------*/
 
-
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  int          fails = 0;        // counter for test failures
+  int fails = 0; // counter for test failures
   sunindextype i, j, k, m, n;
-  SUNContext   sunctx;
+  SUNContext sunctx;
 
-  if (SUNContext_Create(SUN_COMM_NULL, &sunctx)) {
+  if (SUNContext_Create(SUN_COMM_NULL, &sunctx))
+  {
     printf("ERROR: SUNContext_Create failed\n");
-    return(-1);
+    return (-1);
   }
 
   // Check inputs and set matrix dimensions
   if (argc < 5)
   {
-    printf("ERROR: FOUR (4) Input required: matrix rows, matrix cols, number of matrix blocks, print timing \n");
+    printf("ERROR: FOUR (4) Input required: matrix rows, matrix cols, number "
+           "of matrix blocks, print timing \n");
     return -1;
   }
 
   // Matrix block dimensions
-  sunindextype matrows = (sunindextype) atol(argv[1]);
+  sunindextype matrows = (sunindextype)atol(argv[1]);
   if (matrows <= 0)
   {
     printf("ERROR: number of rows must be a positive integer \n");
     return -1;
   }
 
-  sunindextype matcols = (sunindextype) atol(argv[2]);
+  sunindextype matcols = (sunindextype)atol(argv[2]);
   if (matcols <= 0)
   {
     printf("ERROR: number of cols must be a positive integer \n");
@@ -64,7 +65,7 @@ int main(int argc, char *argv[])
   }
 
   // Number of matrix blocks
-  sunindextype nblocks = (sunindextype) atol(argv[3]);
+  sunindextype nblocks = (sunindextype)atol(argv[3]);
   if (nblocks <= 0)
   {
     printf("ERROR: number of blocks must be a positive integer \n");
@@ -76,8 +77,8 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
 
   int square = (matrows == matcols) ? 1 : 0;
-  printf("\noneMKL dense matrix test: size %ld by %ld\n\n",
-         (long int) matrows, (long int) matcols);
+  printf("\noneMKL dense matrix test: size %ld by %ld\n\n", (long int)matrows,
+         (long int)matcols);
 
   // Create an in-order GPU queue
 #if SYCL_LANGUAGE_VERSION >= 2020 && !defined(SUNDIALS_SYCL_2020_UNSUPPORTED)
@@ -90,42 +91,35 @@ int main(int argc, char *argv[])
 #endif
 
   sycl::device dev = myQueue.get_device();
-  std::cout << "Running on "
-            << (dev.get_info<sycl::info::device::name>())
+  std::cout << "Running on " << (dev.get_info<sycl::info::device::name>())
             << std::endl;
-  std::cout << " is cpu? "
-            << (dev.is_cpu() ? "Yes" : "No")
-            << std::endl;
-  std::cout << " is gpu? "
-            << (dev.is_gpu() ? "Yes" : "No")
-            << std::endl;
-  std::cout << " is accelerator? "
-            << (dev.is_accelerator() ? "Yes" : "No")
+  std::cout << " is cpu? " << (dev.is_cpu() ? "Yes" : "No") << std::endl;
+  std::cout << " is gpu? " << (dev.is_gpu() ? "Yes" : "No") << std::endl;
+  std::cout << " is accelerator? " << (dev.is_accelerator() ? "Yes" : "No")
             << std::endl;
   std::cout << " is the queue in order? "
-            << (myQueue.is_in_order() ? "Yes" : "No")
-            << std::endl;
+            << (myQueue.is_in_order() ? "Yes" : "No") << std::endl;
   std::cout << " supports usm host allocations? "
-            << (dev.get_info<sycl::info::device::usm_host_allocations>() ?
-                "Yes" : "No")
+            << (dev.get_info<sycl::info::device::usm_host_allocations>() ? "Yes"
+                                                                         : "No")
             << std::endl;
   std::cout << " supports usm device allocations? "
-            << (dev.get_info<sycl::info::device::usm_device_allocations>() ?
-                "Yes" : "No")
+            << (dev.get_info<sycl::info::device::usm_device_allocations>()
+                  ? "Yes"
+                  : "No")
             << std::endl;
   std::cout << " suports usm shared allocations? "
-            << (dev.get_info<sycl::info::device::usm_shared_allocations>() ?
-                "Yes" : "No")
+            << (dev.get_info<sycl::info::device::usm_shared_allocations>()
+                  ? "Yes"
+                  : "No")
             << std::endl;
   std::cout << " max work group size: "
             << dev.get_info<sycl::info::device::max_work_group_size>()
             << std::endl;
   std::cout << " max global memory size (bytes): "
-            << dev.get_info<sycl::info::device::global_mem_size>()
-            << std::endl;
+            << dev.get_info<sycl::info::device::global_mem_size>() << std::endl;
   std::cout << " max local memory size (bytes): "
-            << dev.get_info<sycl::info::device::local_mem_size>()
-            << std::endl;
+            << dev.get_info<sycl::info::device::local_mem_size>() << std::endl;
   std::cout << std::endl;
 
   // Create Sycl memory helper
@@ -178,7 +172,8 @@ int main(int argc, char *argv[])
   }
 
   // Allocate host data
-  sunrealtype* Adata = (sunrealtype*) malloc(sizeof(sunrealtype)*SUNMatrix_OneMklDense_LData(A));
+  sunrealtype* Adata =
+    (sunrealtype*)malloc(sizeof(sunrealtype) * SUNMatrix_OneMklDense_LData(A));
   if (!Adata)
   {
     printf("Data allocation failed\n");
@@ -190,7 +185,8 @@ int main(int argc, char *argv[])
   sunrealtype* Idata = NULL;
   if (square)
   {
-    Idata = (sunrealtype*) malloc(sizeof(sunrealtype)*SUNMatrix_OneMklDense_LData(I));
+    Idata = (sunrealtype*)malloc(sizeof(sunrealtype) *
+                                 SUNMatrix_OneMklDense_LData(I));
     if (!Idata)
     {
       printf("Data allocation failed\n");
@@ -202,10 +198,16 @@ int main(int argc, char *argv[])
   }
 
   // Fill matrices and vectors
-  for(k=0; k < nblocks; k++)
-    for(j=0; j < matcols; j++)
-      for(i=0; i < matrows; i++)
+  for (k = 0; k < nblocks; k++)
+  {
+    for (j = 0; j < matcols; j++)
+    {
+      for (i = 0; i < matrows; i++)
+      {
         Adata[k * matcols * matrows + j * matrows + i] = (j + 1) * (i + j);
+      }
+    }
+  }
 
   myQueue.wait_and_throw();
 
@@ -213,11 +215,10 @@ int main(int argc, char *argv[])
 
   if (square)
   {
-    for(k = 0; k < nblocks; k++)
-      for(j = 0; j < matcols; j++)
-        for(i = 0; i < matrows; i++)
-          Idata[k * matcols * matrows + j * matrows + i] =
-            (j == i) ? ONE : ZERO;
+    for (k = 0; k < nblocks; k++)
+      for (j = 0; j < matcols; j++)
+        for (i = 0; i < matrows; i++)
+          Idata[k * matcols * matrows + j * matrows + i] = (j == i) ? ONE : ZERO;
 
     myQueue.wait_and_throw();
 
@@ -225,22 +226,21 @@ int main(int argc, char *argv[])
   }
 
   sunrealtype* xdata = N_VGetArrayPointer(x);
-  for(k = 0; k < nblocks; k++)
-    for(i = 0; i < matcols; i++)
-      xdata[matcols * k + i] = ONE / (i+1);
+  for (k = 0; k < nblocks; k++)
+    for (i = 0; i < matcols; i++) xdata[matcols * k + i] = ONE / (i + 1);
 
   myQueue.wait_and_throw();
 
   N_VCopyToDevice_Sycl(x);
 
   sunrealtype* ydata = N_VGetArrayPointer(y);
-  for(k = 0; k < nblocks; k++)
+  for (k = 0; k < nblocks; k++)
   {
-    for(i = 0; i < matrows; i++)
+    for (i = 0; i < matrows; i++)
     {
-      m = i;
-      n = m + matcols - 1;
-      ydata[matrows * k + i] = HALF*(n+1-m)*(n+m);
+      m                      = i;
+      n                      = m + matcols - 1;
+      ydata[matrows * k + i] = HALF * (n + 1 - m) * (n + m);
     }
   }
 
@@ -263,10 +263,8 @@ int main(int argc, char *argv[])
   fails += Test_SUNMatSpace(A, 0);
 
   // Print result
-  if (fails)
-    printf("FAIL: SUNMatrix module failed %i tests \n \n", fails);
-  else
-    printf("SUCCESS: SUNMatrix module passed all tests \n \n");
+  if (fails) { printf("FAIL: SUNMatrix module failed %i tests \n \n", fails); }
+  else { printf("SUCCESS: SUNMatrix module passed all tests \n \n"); }
 
   // Free vectors and matrices
   N_VDestroy(x);
@@ -284,20 +282,18 @@ int main(int argc, char *argv[])
   return fails;
 }
 
-
 /* ---------------------------------------------------------------------------
  * Check matrix
  * ---------------------------------------------------------------------------*/
 
-
 int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
-  int failure = 0;
-  sunindextype i = 0;
+  int failure         = 0;
+  sunindextype i      = 0;
   sunindextype Aldata = SUNMatrix_OneMklDense_LData(A);
   sunindextype Bldata = SUNMatrix_OneMklDense_LData(B);
-  sunrealtype *Adata = (sunrealtype*) malloc(sizeof(sunrealtype) * Aldata);
-  sunrealtype *Bdata = (sunrealtype*) malloc(sizeof(sunrealtype) * Bldata);
+  sunrealtype* Adata  = (sunrealtype*)malloc(sizeof(sunrealtype) * Aldata);
+  sunrealtype* Bdata  = (sunrealtype*)malloc(sizeof(sunrealtype) * Bldata);
 
   // Copy data to host
   SUNMatrix_OneMklDense_CopyFromDevice(A, Adata);
@@ -311,7 +307,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
   }
 
   // Compare data
-  for(i = 0; i < Aldata; i++)
+  for (i = 0; i < Aldata; i++)
   {
     failure += SUNRCompareTol(Adata[i], Bdata[i], tol);
   }
@@ -319,42 +315,36 @@ int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
   free(Adata);
   free(Bdata);
 
-  if (failure > ZERO)
-    return 1;
-  else
-    return 0;
+  if (failure > ZERO) { return 1; }
+  else { return 0; }
 }
-
 
 int check_matrix_entry(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
-  int failure = 0;
-  sunindextype i = 0;
+  int failure         = 0;
+  sunindextype i      = 0;
   sunindextype Aldata = SUNMatrix_OneMklDense_LData(A);
-  sunrealtype *Adata = (sunrealtype*) malloc(sizeof(sunrealtype) * Aldata);
+  sunrealtype* Adata  = (sunrealtype*)malloc(sizeof(sunrealtype) * Aldata);
 
   // copy data to host
   SUNMatrix_OneMklDense_CopyFromDevice(A, Adata);
 
   // compare data
-  for(i = 0; i < Aldata; i++)
+  for (i = 0; i < Aldata; i++)
   {
     int check = SUNRCompareTol(Adata[i], val, tol);
     if (check)
     {
-      printf("failed at %ld\n", (long int) i);
+      printf("failed at %ld\n", (long int)i);
       failure += check;
     }
   }
 
   free(Adata);
 
-  if (failure > ZERO)
-    return 1;
-  else
-    return 0;
+  if (failure > ZERO) { return 1; }
+  else { return 0; }
 }
-
 
 int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
 {
@@ -382,43 +372,43 @@ int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
   }
 
   // check vector data
-  for(i = 0; i < xldata; i++)
+  for (i = 0; i < xldata; i++)
+  {
     failure += SUNRCompareTol(xdata[i], ydata[i], tol);
+  }
 
   if (failure > ZERO)
   {
     printf("Check_vector failures:\n");
-    for(i = 0; i < xldata; i++)
+    for (i = 0; i < xldata; i++)
+    {
       if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0)
-        printf("  actual[%ld] = %g != %e (err = %g)\n", (long int) i,
-               xdata[i], ydata[i], SUNRabs(xdata[i]-ydata[i]));
+      {
+        printf("  actual[%ld] = %g != %e (err = %g)\n", (long int)i, xdata[i],
+               ydata[i], SUNRabs(xdata[i] - ydata[i]));
+      }
+    }
   }
 
-  if (failure > ZERO)
-    return 1;
-  else
-    return 0;
+  if (failure > ZERO) { return 1; }
+  else { return 0; }
 }
-
 
 sunbooleantype has_data(SUNMatrix A)
 {
-  sunrealtype *Adata = SUNMatrix_OneMklDense_Data(A);
-  if (Adata == NULL)
-    return SUNFALSE;
-  else
-    return SUNTRUE;
+  sunrealtype* Adata = SUNMatrix_OneMklDense_Data(A);
+  if (Adata == NULL) { return SUNFALSE; }
+  else { return SUNTRUE; }
 }
-
 
 sunbooleantype is_square(SUNMatrix A)
 {
   if (SUNMatrix_OneMklDense_Rows(A) == SUNMatrix_OneMklDense_Columns(A))
+  {
     return SUNTRUE;
-  else
-    return SUNFALSE;
+  }
+  else { return SUNFALSE; }
 }
-
 
 void sync_device(SUNMatrix A)
 {

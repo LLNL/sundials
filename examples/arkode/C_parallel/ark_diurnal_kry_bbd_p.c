@@ -54,72 +54,73 @@
  * This version uses MPI for user routines.
  * Execute with number of processors = NPEX*NPEY (see constants below).
  *------------------------------------------------------------------*/
+#include <arkode/arkode_arkstep.h> /* prototypes for ARKStep fcts., consts */
+#include <arkode/arkode_bbdpre.h>  /* access to ARKBBDPRE module       */
+#include <math.h>
+#include <mpi.h>                      /* MPI constants and types          */
+#include <nvector/nvector_parallel.h> /* access to MPI-parallel N_Vector  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
-#include <nvector/nvector_parallel.h>   /* access to MPI-parallel N_Vector  */
-#include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver  */
-#include <arkode/arkode_bbdpre.h>       /* access to ARKBBDPRE module       */
-#include <sundials/sundials_types.h>    /* SUNDIALS type definitions        */
-#include <mpi.h>                        /* MPI constants and types          */
+#include <sundials/sundials_types.h>   /* SUNDIALS type definitions        */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver  */
 
 /* helpful macros */
 
 #ifndef SQR
-#define SQR(A) ((A)*(A))
+#define SQR(A) ((A) * (A))
 #endif
 
 /* Problem Constants */
-#define ZERO         SUN_RCONST(0.0)
-#define NVARS        2                 /* number of species         */
-#define KH           SUN_RCONST(4.0e-6)    /* horizontal diffusivity Kh */
-#define VEL          SUN_RCONST(0.001)     /* advection velocity V      */
-#define KV0          SUN_RCONST(1.0e-8)    /* coefficient in Kv(y)      */
-#define Q1           SUN_RCONST(1.63e-16)  /* coefficients q1, q2, c3   */
-#define Q2           SUN_RCONST(4.66e-16)
-#define C3           SUN_RCONST(3.7e16)
-#define A3           SUN_RCONST(22.62)     /* coefficient in expression for q3(t) */
-#define A4           SUN_RCONST(7.601)     /* coefficient in expression for q4(t) */
-#define C1_SCALE     SUN_RCONST(1.0e6)     /* coefficients in initial profiles    */
-#define C2_SCALE     SUN_RCONST(1.0e12)
+#define ZERO     SUN_RCONST(0.0)
+#define NVARS    2                    /* number of species         */
+#define KH       SUN_RCONST(4.0e-6)   /* horizontal diffusivity Kh */
+#define VEL      SUN_RCONST(0.001)    /* advection velocity V      */
+#define KV0      SUN_RCONST(1.0e-8)   /* coefficient in Kv(y)      */
+#define Q1       SUN_RCONST(1.63e-16) /* coefficients q1, q2, c3   */
+#define Q2       SUN_RCONST(4.66e-16)
+#define C3       SUN_RCONST(3.7e16)
+#define A3       SUN_RCONST(22.62) /* coefficient in expression for q3(t) */
+#define A4       SUN_RCONST(7.601) /* coefficient in expression for q4(t) */
+#define C1_SCALE SUN_RCONST(1.0e6) /* coefficients in initial profiles    */
+#define C2_SCALE SUN_RCONST(1.0e12)
 
-#define T0           ZERO                /* initial time */
-#define NOUT         12                  /* number of output times */
-#define TWOHR        SUN_RCONST(7200.0)      /* number of seconds in two hours  */
-#define HALFDAY      SUN_RCONST(4.32e4)      /* number of seconds in a half day */
-#define PI       SUN_RCONST(3.1415926535898) /* pi */
+#define T0      ZERO               /* initial time */
+#define NOUT    12                 /* number of output times */
+#define TWOHR   SUN_RCONST(7200.0) /* number of seconds in two hours  */
+#define HALFDAY SUN_RCONST(4.32e4) /* number of seconds in a half day */
+#define PI      SUN_RCONST(3.1415926535898) /* pi */
 
-#define XMIN         ZERO                /* grid boundaries in x  */
-#define XMAX         SUN_RCONST(20.0)
-#define YMIN         SUN_RCONST(30.0)        /* grid boundaries in y  */
-#define YMAX         SUN_RCONST(50.0)
+#define XMIN ZERO /* grid boundaries in x  */
+#define XMAX SUN_RCONST(20.0)
+#define YMIN SUN_RCONST(30.0) /* grid boundaries in y  */
+#define YMAX SUN_RCONST(50.0)
 
-#define NPEX         2              /* no. PEs in x direction of PE array */
-#define NPEY         2              /* no. PEs in y direction of PE array */
-                                    /* Total no. PEs = NPEX*NPEY */
-#define MXSUB        5              /* no. x points per subgrid */
-#define MYSUB        5              /* no. y points per subgrid */
+#define NPEX 2  /* no. PEs in x direction of PE array */
+#define NPEY 2  /* no. PEs in y direction of PE array */
+                /* Total no. PEs = NPEX*NPEY */
+#define MXSUB 5 /* no. x points per subgrid */
+#define MYSUB 5 /* no. y points per subgrid */
 
-#define MX           (NPEX*MXSUB)   /* MX = number of x mesh points */
-#define MY           (NPEY*MYSUB)   /* MY = number of y mesh points */
-                                    /* Spatial mesh is MX by MY */
+#define MX (NPEX * MXSUB) /* MX = number of x mesh points */
+#define MY (NPEY * MYSUB) /* MY = number of y mesh points */
+                          /* Spatial mesh is MX by MY */
 /* initialization constants */
-#define RTOL    SUN_RCONST(1.0e-5)    /* scalar relative tolerance */
-#define FLOOR   SUN_RCONST(100.0)     /* value of C1 or C2 at which tolerances */
-                                  /* change from relative to absolute      */
-#define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
+#define RTOL  SUN_RCONST(1.0e-5) /* scalar relative tolerance */
+#define FLOOR SUN_RCONST(100.0)  /* value of C1 or C2 at which tolerances */
+                                 /* change from relative to absolute      */
+#define ATOL (RTOL * FLOOR)      /* scalar absolute tolerance */
 
 /* Type : UserData
    contains problem constants, extended dependent variable array,
    grid constants, processor indices, MPI communicator */
-typedef struct {
+typedef struct
+{
   sunrealtype q4, om, dx, dy, hdco, haco, vdco;
-  sunrealtype uext[NVARS*(MXSUB+2)*(MYSUB+2)];
+  sunrealtype uext[NVARS * (MXSUB + 2) * (MYSUB + 2)];
   int my_pe, isubx, isuby;
   sunindextype nvmxsub, nvmxsub2, Nlocal;
   MPI_Comm comm;
-} *UserData;
+}* UserData;
 
 /* Prototypes of private helper functions */
 static void InitUserData(int my_pe, sunindextype local_N, MPI_Comm comm,
@@ -127,40 +128,35 @@ static void InitUserData(int my_pe, sunindextype local_N, MPI_Comm comm,
 static void SetInitialProfiles(N_Vector u, UserData data);
 static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
                        sunindextype mukeep, sunindextype mlkeep);
-static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
-                        N_Vector u, sunrealtype t);
-static void PrintFinalStats(void *arkode_mem);
-static void BSend(MPI_Comm comm,
-                  int my_pe, int isubx, int isuby,
-                  sunindextype dsizex, sunindextype dsizey,
-                  sunrealtype uarray[]);
-static void BRecvPost(MPI_Comm comm, MPI_Request request[],
-                      int my_pe, int isubx, int isuby,
-                      sunindextype dsizex, sunindextype dsizey,
+static void PrintOutput(void* arkode_mem, int my_pe, MPI_Comm comm, N_Vector u,
+                        sunrealtype t);
+static void PrintFinalStats(void* arkode_mem);
+static void BSend(MPI_Comm comm, int my_pe, int isubx, int isuby,
+                  sunindextype dsizex, sunindextype dsizey, sunrealtype uarray[]);
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe, int isubx,
+                      int isuby, sunindextype dsizex, sunindextype dsizey,
                       sunrealtype uext[], sunrealtype buffer[]);
-static void BRecvWait(MPI_Request request[],
-                      int isubx, int isuby,
+static void BRecvWait(MPI_Request request[], int isubx, int isuby,
                       sunindextype dsizex, sunrealtype uext[],
                       sunrealtype buffer[]);
-static void fucomm(sunrealtype t, N_Vector u, void *user_data);
+static void fucomm(sunrealtype t, N_Vector u, void* user_data);
 
 /* Prototype of function called by the solver */
-static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data);
 
 /* Prototype of functions called by the ARKBBDPRE module */
-static int flocal(sunindextype Nlocal, sunrealtype t, N_Vector u,
-                  N_Vector udot, void *user_data);
+static int flocal(sunindextype Nlocal, sunrealtype t, N_Vector u, N_Vector udot,
+                  void* user_data);
 
 /* Private function to check function return values */
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
-
+static int check_flag(void* flagvalue, const char* funcname, int opt, int id);
 
 /***************************** Main Program ******************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   UserData data;
   SUNLinearSolver LS;
-  void *arkode_mem;
+  void* arkode_mem;
   sunrealtype abstol, reltol, t, tout;
   N_Vector u;
   int iout, my_pe, npes, flag, jpre;
@@ -168,14 +164,14 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   SUNContext ctx;
 
-  data = NULL;
-  LS = NULL;
+  data       = NULL;
+  LS         = NULL;
   arkode_mem = NULL;
-  u = NULL;
-  ctx = NULL;
+  u          = NULL;
+  ctx        = NULL;
 
   /* Set problem size neq */
-  neq = NVARS*MX*MY;
+  neq = NVARS * MX * MY;
 
   /* Get processor number and total number of pe's */
   MPI_Init(&argc, &argv);
@@ -183,29 +179,33 @@ int main(int argc, char *argv[])
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &my_pe);
 
-  if (npes != NPEX*NPEY) {
+  if (npes != NPEX * NPEY)
+  {
     if (my_pe == 0)
-      fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n\n",
-              npes, NPEX*NPEY);
+    {
+      fprintf(stderr,
+              "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n\n",
+              npes, NPEX * NPEY);
+    }
     MPI_Finalize();
-    return(1);
+    return (1);
   }
 
   /* Create the SUNDIALS context object for this simulation. */
   flag = SUNContext_Create(comm, &ctx);
-  if (check_flag(&flag, "SUNContext_Create", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag(&flag, "SUNContext_Create", 1, my_pe)) { MPI_Abort(comm, 1); }
 
   /* Set local length */
-  local_N = NVARS*MXSUB*MYSUB;
+  local_N = NVARS * MXSUB * MYSUB;
 
   /* Allocate and load user data block */
-  data = (UserData) malloc(sizeof *data);
-  if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+  data = (UserData)malloc(sizeof *data);
+  if (check_flag((void*)data, "malloc", 2, my_pe)) { MPI_Abort(comm, 1); }
   InitUserData(my_pe, local_N, comm, data);
 
   /* Allocate and initialize u, and set tolerances */
   u = N_VNew_Parallel(comm, local_N, neq, ctx);
-  if(check_flag((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag((void*)u, "N_VNew_Parallel", 0, my_pe)) { MPI_Abort(comm, 1); }
 
   SetInitialProfiles(u, data);
   abstol = ATOL;
@@ -214,84 +214,104 @@ int main(int argc, char *argv[])
   /* Create SPGMR solver structure -- use left preconditioning
      and the default Krylov dimension maxl */
   LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, ctx);
-  if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag((void*)LS, "SUNLinSol_SPGMR", 0, my_pe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
      user's right hand side function in u'=fi(t,u) [here fe is NULL],
      the inital time T0, and the initial dependent variable vector u. */
   arkode_mem = ARKStepCreate(NULL, f, T0, u, ctx);
-  if(check_flag((void *)arkode_mem, "ARKStepCreate", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag((void*)arkode_mem, "ARKStepCreate", 0, my_pe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   /* Set the pointer to user-defined data */
   flag = ARKStepSetUserData(arkode_mem, data);
-  if(check_flag(&flag, "ARKStepSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag(&flag, "ARKStepSetUserData", 1, my_pe)) { MPI_Abort(comm, 1); }
 
   /* Call ARKStepSetMaxNumSteps to increase default */
   flag = ARKStepSetMaxNumSteps(arkode_mem, 10000);
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1, my_pe)) return(1);
+  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1, my_pe)) { return (1); }
 
   /* Call ARKStepSStolerances to specify the scalar relative tolerance
      and scalar absolute tolerances */
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1, my_pe)) return(1);
+  if (check_flag(&flag, "ARKStepSStolerances", 1, my_pe)) { return (1); }
 
   /* Attach SPGMR solver structure to ARKStep interface */
   flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1, my_pe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   /* Initialize BBD preconditioner */
-  mudq = mldq = NVARS*MXSUB;
+  mudq = mldq = NVARS * MXSUB;
   mukeep = mlkeep = NVARS;
-  flag = ARKBBDPrecInit(arkode_mem, local_N, mudq, mldq,
-                        mukeep, mlkeep, ZERO, flocal, NULL);
-  if(check_flag(&flag, "ARKBBDPrecInit", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = ARKBBDPrecInit(arkode_mem, local_N, mudq, mldq, mukeep, mlkeep, ZERO,
+                        flocal, NULL);
+  if (check_flag(&flag, "ARKBBDPrecInit", 1, my_pe)) { MPI_Abort(comm, 1); }
 
   /* Tighten nonlinear solver tolerance */
   flag = ARKStepSetNonlinConvCoef(arkode_mem, SUN_RCONST(0.01));
-  if(check_flag(&flag, "ARKStepSetNonlinConvCoef", 1, my_pe)) MPI_Abort(comm, 1);
+  if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1, my_pe))
+  {
+    MPI_Abort(comm, 1);
+  }
 
   /* Print heading */
-  if (my_pe == 0) PrintIntro(npes, mudq, mldq, mukeep, mlkeep);
+  if (my_pe == 0) { PrintIntro(npes, mudq, mldq, mukeep, mlkeep); }
 
   /* Loop over jpre (= SUN_PREC_LEFT, SUN_PREC_RIGHT), and solve the problem */
-  for (jpre=SUN_PREC_LEFT; jpre<=SUN_PREC_RIGHT; jpre++) {
-
+  for (jpre = SUN_PREC_LEFT; jpre <= SUN_PREC_RIGHT; jpre++)
+  {
     /* On second run, re-initialize u, the integrator, ARKBBDPRE,
        and preconditioning type */
-    if (jpre == SUN_PREC_RIGHT) {
-
+    if (jpre == SUN_PREC_RIGHT)
+    {
       SetInitialProfiles(u, data);
 
       flag = ARKStepReInit(arkode_mem, NULL, f, T0, u);
-      if(check_flag(&flag, "ARKStepReInit", 1, my_pe)) MPI_Abort(comm, 1);
+      if (check_flag(&flag, "ARKStepReInit", 1, my_pe)) { MPI_Abort(comm, 1); }
 
       flag = ARKBBDPrecReInit(arkode_mem, mudq, mldq, ZERO);
-      if(check_flag(&flag, "ARKBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
+      if (check_flag(&flag, "ARKBBDPrecReInit", 1, my_pe))
+      {
+        MPI_Abort(comm, 1);
+      }
 
       flag = SUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_RIGHT);
-      if(check_flag(&flag, "SUNLinSol_SPGMRSetPrecType", 1, my_pe)) MPI_Abort(comm, 1);
+      if (check_flag(&flag, "SUNLinSol_SPGMRSetPrecType", 1, my_pe))
+      {
+        MPI_Abort(comm, 1);
+      }
 
-      if (my_pe == 0) {
+      if (my_pe == 0)
+      {
         printf("\n\n-------------------------------------------------------");
         printf("------------\n");
       }
-
     }
 
-    if (my_pe == 0) {
+    if (my_pe == 0)
+    {
       printf("\n\nPreconditioner type is:  jpre = %s\n\n",
              (jpre == SUN_PREC_LEFT) ? "SUN_PREC_LEFT" : "SUN_PREC_RIGHT");
     }
 
     /* In loop over output points, call ARKStepEvolve, print results, test for error */
-    for (iout=1, tout=TWOHR; iout<=NOUT; iout++, tout+=TWOHR) {
+    for (iout = 1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR)
+    {
       flag = ARKStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
-      if(check_flag(&flag, "ARKStepEvolve", 1, my_pe)) break;
+      if (check_flag(&flag, "ARKStepEvolve", 1, my_pe)) { break; }
       PrintOutput(arkode_mem, my_pe, comm, u, t);
     }
 
     /* Print final statistics */
-    if (my_pe == 0) PrintFinalStats(arkode_mem);
+    if (my_pe == 0) { PrintFinalStats(arkode_mem); }
 
   } /* End of jpre loop */
 
@@ -303,7 +323,7 @@ int main(int argc, char *argv[])
   SUNContext_Free(&ctx);
   MPI_Finalize();
 
-  return(0);
+  return (0);
 }
 
 /*********************** Private Helper Functions ************************/
@@ -315,25 +335,25 @@ static void InitUserData(int my_pe, sunindextype local_N, MPI_Comm comm,
   int isubx, isuby;
 
   /* Set problem constants */
-  data->om = PI/HALFDAY;
-  data->dx = (XMAX-XMIN)/((sunrealtype)(MX-1));
-  data->dy = (YMAX-YMIN)/((sunrealtype)(MY-1));
-  data->hdco = KH/SQR(data->dx);
-  data->haco = VEL/(SUN_RCONST(2.0)*data->dx);
-  data->vdco = (SUN_RCONST(1.0)/SQR(data->dy))*KV0;
+  data->om   = PI / HALFDAY;
+  data->dx   = (XMAX - XMIN) / ((sunrealtype)(MX - 1));
+  data->dy   = (YMAX - YMIN) / ((sunrealtype)(MY - 1));
+  data->hdco = KH / SQR(data->dx);
+  data->haco = VEL / (SUN_RCONST(2.0) * data->dx);
+  data->vdco = (SUN_RCONST(1.0) / SQR(data->dy)) * KV0;
 
   /* Set machine-related constants */
-  data->comm = comm;
-  data->my_pe = my_pe;
+  data->comm   = comm;
+  data->my_pe  = my_pe;
   data->Nlocal = local_N;
   /* isubx and isuby are the PE grid indices corresponding to my_pe */
-  isuby = my_pe/NPEX;
-  isubx = my_pe - isuby*NPEX;
+  isuby       = my_pe / NPEX;
+  isubx       = my_pe - isuby * NPEX;
   data->isubx = isubx;
   data->isuby = isuby;
   /* Set the sizes of a boundary x-line in u and uext */
-  data->nvmxsub = NVARS*MXSUB;
-  data->nvmxsub2 = NVARS*(MXSUB+2);
+  data->nvmxsub  = NVARS * MXSUB;
+  data->nvmxsub2 = NVARS * (MXSUB + 2);
 }
 
 /* Set initial conditions in u */
@@ -343,34 +363,38 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   int lx, ly, jx, jy;
   sunindextype offset;
   sunrealtype dx, dy, x, y, cx, cy, xmid, ymid;
-  sunrealtype *uarray;
+  sunrealtype* uarray;
 
   /* Set pointer to data array in vector u */
   uarray = N_VGetArrayPointer(u);
 
   /* Get mesh spacings, and subgrid indices for this PE */
-  dx = data->dx;         dy = data->dy;
-  isubx = data->isubx;   isuby = data->isuby;
+  dx    = data->dx;
+  dy    = data->dy;
+  isubx = data->isubx;
+  isuby = data->isuby;
 
   /* Load initial profiles of c1 and c2 into local u vector.
   Here lx and ly are local mesh point indices on the local subgrid,
   and jx and jy are the global mesh point indices. */
   offset = 0;
-  xmid = SUN_RCONST(0.5)*(XMIN + XMAX);
-  ymid = SUN_RCONST(0.5)*(YMIN + YMAX);
-  for (ly = 0; ly < MYSUB; ly++) {
-    jy = ly + isuby*MYSUB;
-    y = YMIN + jy*dy;
-    cy = SQR(SUN_RCONST(0.1)*(y - ymid));
-    cy = SUN_RCONST(1.0) - cy + SUN_RCONST(0.5)*SQR(cy);
-    for (lx = 0; lx < MXSUB; lx++) {
-      jx = lx + isubx*MXSUB;
-      x = XMIN + jx*dx;
-      cx = SQR(SUN_RCONST(0.1)*(x - xmid));
-      cx = SUN_RCONST(1.0) - cx + SUN_RCONST(0.5)*SQR(cx);
-      uarray[offset  ] = C1_SCALE*cx*cy;
-      uarray[offset+1] = C2_SCALE*cx*cy;
-      offset = offset + 2;
+  xmid   = SUN_RCONST(0.5) * (XMIN + XMAX);
+  ymid   = SUN_RCONST(0.5) * (YMIN + YMAX);
+  for (ly = 0; ly < MYSUB; ly++)
+  {
+    jy = ly + isuby * MYSUB;
+    y  = YMIN + jy * dy;
+    cy = SQR(SUN_RCONST(0.1) * (y - ymid));
+    cy = SUN_RCONST(1.0) - cy + SUN_RCONST(0.5) * SQR(cy);
+    for (lx = 0; lx < MXSUB; lx++)
+    {
+      jx                 = lx + isubx * MXSUB;
+      x                  = XMIN + jx * dx;
+      cx                 = SQR(SUN_RCONST(0.1) * (x - xmid));
+      cx                 = SUN_RCONST(1.0) - cx + SUN_RCONST(0.5) * SQR(cx);
+      uarray[offset]     = C1_SCALE * cx * cy;
+      uarray[offset + 1] = C2_SCALE * cx * cy;
+      offset             = offset + 2;
     }
   }
 }
@@ -383,15 +407,15 @@ static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
   printf("  %d by %d mesh on %d processors\n", MX, MY, npes);
   printf("  Using ARKBBDPRE preconditioner module\n");
   printf("    Difference-quotient half-bandwidths are");
-  printf(" mudq = %ld,  mldq = %ld\n", (long int) mudq, (long int) mldq);
+  printf(" mudq = %ld,  mldq = %ld\n", (long int)mudq, (long int)mldq);
   printf("    Retained band block half-bandwidths are");
-  printf(" mukeep = %ld,  mlkeep = %ld", (long int) mukeep, (long int) mlkeep);
+  printf(" mukeep = %ld,  mlkeep = %ld", (long int)mukeep, (long int)mlkeep);
   return;
 }
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
-static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
-                        N_Vector u, sunrealtype t)
+static void PrintOutput(void* arkode_mem, int my_pe, MPI_Comm comm, N_Vector u,
+                        sunrealtype t)
 {
   int flag, npelast;
   sunindextype i0, i1;
@@ -399,16 +423,17 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
   sunrealtype hu, *uarray, tempu[2];
   MPI_Status status;
 
-  npelast = NPEX*NPEY - 1;
-  uarray = N_VGetArrayPointer(u);
+  npelast = NPEX * NPEY - 1;
+  uarray  = N_VGetArrayPointer(u);
 
   /* Send c1,c2 at top right mesh point to PE 0 */
-  if (my_pe == npelast) {
-    i0 = NVARS*MXSUB*MYSUB - 2;
+  if (my_pe == npelast)
+  {
+    i0 = NVARS * MXSUB * MYSUB - 2;
     i1 = i0 + 1;
-    if (npelast != 0)
-      MPI_Send(&uarray[i0], 2, MPI_SUNREALTYPE, 0, 0, comm);
-    else {
+    if (npelast != 0) { MPI_Send(&uarray[i0], 2, MPI_SUNREALTYPE, 0, 0, comm); }
+    else
+    {
       tempu[0] = uarray[i0];
       tempu[1] = uarray[i1];
     }
@@ -416,26 +441,26 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
 
   /* On PE 0, receive c1,c2 at top right, then print performance data
      and sampled solution values */
-  if (my_pe == 0) {
+  if (my_pe == 0)
+  {
     if (npelast != 0)
+    {
       MPI_Recv(&tempu[0], 2, MPI_SUNREALTYPE, npelast, 0, comm, &status);
+    }
     flag = ARKStepGetNumSteps(arkode_mem, &nst);
     check_flag(&flag, "ARKStepGetNumSteps", 1, my_pe);
     flag = ARKStepGetLastStep(arkode_mem, &hu);
     check_flag(&flag, "ARKStepGetLastStep", 1, my_pe);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("t = %.2Le   no. steps = %ld   stepsize = %.2Le\n",
-           t, nst, hu);
+    printf("t = %.2Le   no. steps = %ld   stepsize = %.2Le\n", t, nst, hu);
     printf("At bottom left:  c1, c2 = %12.3Le %12.3Le \n", uarray[0], uarray[1]);
     printf("At top right:    c1, c2 = %12.3Le %12.3Le \n\n", tempu[0], tempu[1]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("t = %.2e   no. steps = %ld   stepsize = %.2e\n",
-           t, nst, hu);
+    printf("t = %.2e   no. steps = %ld   stepsize = %.2e\n", t, nst, hu);
     printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", uarray[0], uarray[1]);
     printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", tempu[0], tempu[1]);
 #else
-    printf("t = %.2e   no. steps = %ld   stepsize = %.2e\n",
-           t, nst, hu);
+    printf("t = %.2e   no. steps = %ld   stepsize = %.2e\n", t, nst, hu);
     printf("At bottom left:  c1, c2 = %12.3e %12.3e \n", uarray[0], uarray[1]);
     printf("At top right:    c1, c2 = %12.3e %12.3e \n\n", tempu[0], tempu[1]);
 #endif
@@ -443,9 +468,9 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
 }
 
 /* Print final statistics contained in iopt */
-static void PrintFinalStats(void *arkode_mem)
+static void PrintFinalStats(void* arkode_mem)
 {
-  long int lenrw, leniw ;
+  long int lenrw, leniw;
   long int lenrwLS, leniwLS;
   long int lenrwBBDP, leniwBBDP;
   long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
@@ -496,49 +521,59 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKBBDPrecGetNumGfnEvals", 1, 0);
   printf("In ARKBBDPRE: real/integer local work space sizes = %ld, %ld\n",
          lenrwBBDP, leniwBBDP);
-  printf("             no. flocal evals. = %ld\n",ngevalsBBDP);
+  printf("             no. flocal evals. = %ld\n", ngevalsBBDP);
 }
 
 /* Routine to send boundary data to neighboring PEs */
-static void BSend(MPI_Comm comm,
-                  int my_pe, int isubx, int isuby,
-                  sunindextype dsizex, sunindextype dsizey,
-                  sunrealtype uarray[])
+static void BSend(MPI_Comm comm, int my_pe, int isubx, int isuby,
+                  sunindextype dsizex, sunindextype dsizey, sunrealtype uarray[])
 {
   int i, ly;
   sunindextype offsetu, offsetbuf;
-  sunrealtype bufleft[NVARS*MYSUB], bufright[NVARS*MYSUB];
+  sunrealtype bufleft[NVARS * MYSUB], bufright[NVARS * MYSUB];
 
   /* If isuby > 0, send data from bottom x-line of u */
   if (isuby != 0)
-    MPI_Send(&uarray[0], (int) dsizex, MPI_SUNREALTYPE, my_pe-NPEX, 0, comm);
+  {
+    MPI_Send(&uarray[0], (int)dsizex, MPI_SUNREALTYPE, my_pe - NPEX, 0, comm);
+  }
 
   /* If isuby < NPEY-1, send data from top x-line of u */
-  if (isuby != NPEY-1) {
-    offsetu = (MYSUB-1)*dsizex;
-    MPI_Send(&uarray[offsetu], (int) dsizex, MPI_SUNREALTYPE, my_pe+NPEX, 0, comm);
+  if (isuby != NPEY - 1)
+  {
+    offsetu = (MYSUB - 1) * dsizex;
+    MPI_Send(&uarray[offsetu], (int)dsizex, MPI_SUNREALTYPE, my_pe + NPEX, 0,
+             comm);
   }
 
   /* If isubx > 0, send data from left y-line of u (via bufleft) */
-  if (isubx != 0) {
-    for (ly = 0; ly < MYSUB; ly++) {
-      offsetbuf = ly*NVARS;
-      offsetu = ly*dsizex;
+  if (isubx != 0)
+  {
+    for (ly = 0; ly < MYSUB; ly++)
+    {
+      offsetbuf = ly * NVARS;
+      offsetu   = ly * dsizex;
       for (i = 0; i < NVARS; i++)
-        bufleft[offsetbuf+i] = uarray[offsetu+i];
+      {
+        bufleft[offsetbuf + i] = uarray[offsetu + i];
+      }
     }
-    MPI_Send(&bufleft[0], (int) dsizey, MPI_SUNREALTYPE, my_pe-1, 0, comm);
+    MPI_Send(&bufleft[0], (int)dsizey, MPI_SUNREALTYPE, my_pe - 1, 0, comm);
   }
 
   /* If isubx < NPEX-1, send data from right y-line of u (via bufright) */
-  if (isubx != NPEX-1) {
-    for (ly = 0; ly < MYSUB; ly++) {
-      offsetbuf = ly*NVARS;
-      offsetu = offsetbuf*MXSUB + (MXSUB-1)*NVARS;
+  if (isubx != NPEX - 1)
+  {
+    for (ly = 0; ly < MYSUB; ly++)
+    {
+      offsetbuf = ly * NVARS;
+      offsetu   = offsetbuf * MXSUB + (MXSUB - 1) * NVARS;
       for (i = 0; i < NVARS; i++)
-        bufright[offsetbuf+i] = uarray[offsetu+i];
+      {
+        bufright[offsetbuf + i] = uarray[offsetu + i];
+      }
     }
-    MPI_Send(&bufright[0], (int) dsizey, MPI_SUNREALTYPE, my_pe+1, 0, comm);
+    MPI_Send(&bufright[0], (int)dsizey, MPI_SUNREALTYPE, my_pe + 1, 0, comm);
   }
 }
 
@@ -548,37 +583,41 @@ static void BSend(MPI_Comm comm,
    passed to both the BRecvPost and BRecvWait functions, and should not
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
-static void BRecvPost(MPI_Comm comm, MPI_Request request[],
-                      int my_pe, int isubx, int isuby,
-                      sunindextype dsizex, sunindextype dsizey,
+static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe, int isubx,
+                      int isuby, sunindextype dsizex, sunindextype dsizey,
                       sunrealtype uext[], sunrealtype buffer[])
 {
   sunindextype offsetue;
   /* Have bufleft and bufright use the same buffer */
-  sunrealtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
+  sunrealtype *bufleft = buffer, *bufright = buffer + NVARS * MYSUB;
 
   /* If isuby > 0, receive data for bottom x-line of uext */
   if (isuby != 0)
-    MPI_Irecv(&uext[NVARS], (int) dsizex, MPI_SUNREALTYPE,
-              my_pe-NPEX, 0, comm, &request[0]);
+  {
+    MPI_Irecv(&uext[NVARS], (int)dsizex, MPI_SUNREALTYPE, my_pe - NPEX, 0, comm,
+              &request[0]);
+  }
 
   /* If isuby < NPEY-1, receive data for top x-line of uext */
-  if (isuby != NPEY-1) {
-    offsetue = NVARS*(1 + (MYSUB+1)*(MXSUB+2));
-    MPI_Irecv(&uext[offsetue], (int) dsizex, MPI_SUNREALTYPE,
-              my_pe+NPEX, 0, comm, &request[1]);
+  if (isuby != NPEY - 1)
+  {
+    offsetue = NVARS * (1 + (MYSUB + 1) * (MXSUB + 2));
+    MPI_Irecv(&uext[offsetue], (int)dsizex, MPI_SUNREALTYPE, my_pe + NPEX, 0,
+              comm, &request[1]);
   }
 
   /* If isubx > 0, receive data for left y-line of uext (via bufleft) */
-  if (isubx != 0) {
-    MPI_Irecv(&bufleft[0], (int) dsizey, MPI_SUNREALTYPE,
-              my_pe-1, 0, comm, &request[2]);
+  if (isubx != 0)
+  {
+    MPI_Irecv(&bufleft[0], (int)dsizey, MPI_SUNREALTYPE, my_pe - 1, 0, comm,
+              &request[2]);
   }
 
   /* If isubx < NPEX-1, receive data for right y-line of uext (via bufright) */
-  if (isubx != NPEX-1) {
-    MPI_Irecv(&bufright[0], (int) dsizey, MPI_SUNREALTYPE,
-              my_pe+1, 0, comm, &request[3]);
+  if (isubx != NPEX - 1)
+  {
+    MPI_Irecv(&bufright[0], (int)dsizey, MPI_SUNREALTYPE, my_pe + 1, 0, comm,
+              &request[3]);
   }
 }
 
@@ -588,73 +627,80 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
    passed to both the BRecvPost and BRecvWait functions, and should not
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
-static void BRecvWait(MPI_Request request[],
-                      int isubx, int isuby,
+static void BRecvWait(MPI_Request request[], int isubx, int isuby,
                       sunindextype dsizex, sunrealtype uext[],
                       sunrealtype buffer[])
 {
   int i, ly;
   sunindextype dsizex2, offsetue, offsetbuf;
-  sunrealtype *bufleft = buffer, *bufright = buffer+NVARS*MYSUB;
+  sunrealtype *bufleft = buffer, *bufright = buffer + NVARS * MYSUB;
   MPI_Status status;
 
-  dsizex2 = dsizex + 2*NVARS;
+  dsizex2 = dsizex + 2 * NVARS;
 
   /* If isuby > 0, receive data for bottom x-line of uext */
-  if (isuby != 0)
-    MPI_Wait(&request[0],&status);
+  if (isuby != 0) { MPI_Wait(&request[0], &status); }
 
   /* If isuby < NPEY-1, receive data for top x-line of uext */
-  if (isuby != NPEY-1)
-    MPI_Wait(&request[1],&status);
+  if (isuby != NPEY - 1) { MPI_Wait(&request[1], &status); }
 
   /* If isubx > 0, receive data for left y-line of uext (via bufleft) */
-  if (isubx != 0) {
-    MPI_Wait(&request[2],&status);
+  if (isubx != 0)
+  {
+    MPI_Wait(&request[2], &status);
 
     /* Copy the buffer to uext */
-    for (ly = 0; ly < MYSUB; ly++) {
-      offsetbuf = ly*NVARS;
-      offsetue = (ly+1)*dsizex2;
+    for (ly = 0; ly < MYSUB; ly++)
+    {
+      offsetbuf = ly * NVARS;
+      offsetue  = (ly + 1) * dsizex2;
       for (i = 0; i < NVARS; i++)
-        uext[offsetue+i] = bufleft[offsetbuf+i];
+      {
+        uext[offsetue + i] = bufleft[offsetbuf + i];
+      }
     }
   }
 
   /* If isubx < NPEX-1, receive data for right y-line of uext (via bufright) */
-  if (isubx != NPEX-1) {
-    MPI_Wait(&request[3],&status);
+  if (isubx != NPEX - 1)
+  {
+    MPI_Wait(&request[3], &status);
 
     /* Copy the buffer to uext */
-    for (ly = 0; ly < MYSUB; ly++) {
-      offsetbuf = ly*NVARS;
-      offsetue = (ly+2)*dsizex2 - NVARS;
+    for (ly = 0; ly < MYSUB; ly++)
+    {
+      offsetbuf = ly * NVARS;
+      offsetue  = (ly + 2) * dsizex2 - NVARS;
       for (i = 0; i < NVARS; i++)
-        uext[offsetue+i] = bufright[offsetbuf+i];
+      {
+        uext[offsetue + i] = bufright[offsetbuf + i];
+      }
     }
   }
 }
 
 /* fucomm routine.  This routine performs all inter-processor
    communication of data in u needed to calculate f.         */
-static void fucomm(sunrealtype t, N_Vector u, void *user_data)
+static void fucomm(sunrealtype t, N_Vector u, void* user_data)
 {
   UserData data;
-  sunrealtype *uarray, *uext, buffer[2*NVARS*MYSUB];
+  sunrealtype *uarray, *uext, buffer[2 * NVARS * MYSUB];
   MPI_Comm comm;
   int my_pe, isubx, isuby;
   sunindextype nvmxsub, nvmysub;
   MPI_Request request[4];
 
-  data = (UserData) user_data;
+  data   = (UserData)user_data;
   uarray = N_VGetArrayPointer(u);
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
-  comm = data->comm;  my_pe = data->my_pe;
-  isubx = data->isubx;   isuby = data->isuby;
+  comm    = data->comm;
+  my_pe   = data->my_pe;
+  isubx   = data->isubx;
+  isuby   = data->isuby;
   nvmxsub = data->nvmxsub;
-  nvmysub = NVARS*MYSUB;
-  uext = data->uext;
+  nvmysub = NVARS * MYSUB;
+  uext    = data->uext;
 
   /* Start receiving boundary data from neighboring PEs */
   BRecvPost(comm, request, my_pe, isubx, isuby, nvmxsub, nvmysub, uext, buffer);
@@ -670,19 +716,19 @@ static void fucomm(sunrealtype t, N_Vector u, void *user_data)
 
 /* f routine.  Evaluate f(t,y).  First call fucomm to do communication of
    subgrid boundary data into uext.  Then calculate f by a call to flocal. */
-static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data)
 {
   UserData data;
 
-  data = (UserData) user_data;
+  data = (UserData)user_data;
 
   /* Call fucomm to do inter-processor communication */
-  fucomm (t, u, user_data);
+  fucomm(t, u, user_data);
 
   /* Call flocal to calculate all right-hand sides */
-  flocal (data->Nlocal, t, u, udot, user_data);
+  flocal(data->Nlocal, t, u, udot, user_data);
 
-  return(0);
+  return (0);
 }
 
 /***************** Functions called by the ARKBBDPRE module ****************/
@@ -690,10 +736,10 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
 /* flocal routine.  Compute f(t,y).  This routine assumes that all
    inter-processor communication of data needed to calculate f has already
    been done, and this data is in the work array uext.                    */
-static int flocal(sunindextype Nlocal, sunrealtype t, N_Vector u,
-                  N_Vector udot, void *user_data)
+static int flocal(sunindextype Nlocal, sunrealtype t, N_Vector u, N_Vector udot,
+                  void* user_data)
 {
-  sunrealtype *uext;
+  sunrealtype* uext;
   sunrealtype q3, c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt;
   sunrealtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
   sunrealtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
@@ -704,21 +750,24 @@ static int flocal(sunindextype Nlocal, sunrealtype t, N_Vector u,
   UserData data;
   sunrealtype *uarray, *duarray;
 
-  uarray = N_VGetArrayPointer(u);
+  uarray  = N_VGetArrayPointer(u);
   duarray = N_VGetArrayPointer(udot);
 
   /* Get subgrid indices, array sizes, extended work array uext */
-  data = (UserData) user_data;
-  isubx = data->isubx;   isuby = data->isuby;
-  nvmxsub = data->nvmxsub; nvmxsub2 = data->nvmxsub2;
-  uext = data->uext;
+  data     = (UserData)user_data;
+  isubx    = data->isubx;
+  isuby    = data->isuby;
+  nvmxsub  = data->nvmxsub;
+  nvmxsub2 = data->nvmxsub2;
+  uext     = data->uext;
 
   /* Copy local segment of u vector into the working extended array uext */
-  offsetu = 0;
+  offsetu  = 0;
   offsetue = nvmxsub2 + NVARS;
-  for (ly = 0; ly < MYSUB; ly++) {
-    for (i = 0; i < nvmxsub; i++) uext[offsetue+i] = uarray[offsetu+i];
-    offsetu = offsetu + nvmxsub;
+  for (ly = 0; ly < MYSUB; ly++)
+  {
+    for (i = 0; i < nvmxsub; i++) { uext[offsetue + i] = uarray[offsetu + i]; }
+    offsetu  = offsetu + nvmxsub;
     offsetue = offsetue + nvmxsub2;
   }
 
@@ -726,37 +775,43 @@ static int flocal(sunindextype Nlocal, sunrealtype t, N_Vector u,
   a boundary PE, copy data from the first interior mesh line of u to uext */
 
   /* If isuby = 0, copy x-line 2 of u to uext */
-  if (isuby == 0) {
-    for (i = 0; i < nvmxsub; i++) uext[NVARS+i] = uarray[nvmxsub+i];
+  if (isuby == 0)
+  {
+    for (i = 0; i < nvmxsub; i++) { uext[NVARS + i] = uarray[nvmxsub + i]; }
   }
 
   /* If isuby = NPEY-1, copy x-line MYSUB-1 of u to uext */
-  if (isuby == NPEY-1) {
-    offsetu = (MYSUB-2)*nvmxsub;
-    offsetue = (MYSUB+1)*nvmxsub2 + NVARS;
-    for (i = 0; i < nvmxsub; i++) uext[offsetue+i] = uarray[offsetu+i];
+  if (isuby == NPEY - 1)
+  {
+    offsetu  = (MYSUB - 2) * nvmxsub;
+    offsetue = (MYSUB + 1) * nvmxsub2 + NVARS;
+    for (i = 0; i < nvmxsub; i++) { uext[offsetue + i] = uarray[offsetu + i]; }
   }
 
   /* If isubx = 0, copy y-line 2 of u to uext */
-  if (isubx == 0) {
-    for (ly = 0; ly < MYSUB; ly++) {
-      offsetu = ly*nvmxsub + NVARS;
-      offsetue = (ly+1)*nvmxsub2;
-      for (i = 0; i < NVARS; i++) uext[offsetue+i] = uarray[offsetu+i];
+  if (isubx == 0)
+  {
+    for (ly = 0; ly < MYSUB; ly++)
+    {
+      offsetu  = ly * nvmxsub + NVARS;
+      offsetue = (ly + 1) * nvmxsub2;
+      for (i = 0; i < NVARS; i++) { uext[offsetue + i] = uarray[offsetu + i]; }
     }
   }
 
   /* If isubx = NPEX-1, copy y-line MXSUB-1 of u to uext */
-  if (isubx == NPEX-1) {
-    for (ly = 0; ly < MYSUB; ly++) {
-      offsetu = (ly+1)*nvmxsub - 2*NVARS;
-      offsetue = (ly+2)*nvmxsub2 - NVARS;
-      for (i = 0; i < NVARS; i++) uext[offsetue+i] = uarray[offsetu+i];
+  if (isubx == NPEX - 1)
+  {
+    for (ly = 0; ly < MYSUB; ly++)
+    {
+      offsetu  = (ly + 1) * nvmxsub - 2 * NVARS;
+      offsetue = (ly + 2) * nvmxsub2 - NVARS;
+      for (i = 0; i < NVARS; i++) { uext[offsetue + i] = uarray[offsetu + i]; }
     }
   }
 
   /* Make local copies of problem variables, for efficiency */
-  dely = data->dy;
+  dely   = data->dy;
   verdco = data->vdco;
   hordco = data->hdco;
   horaco = data->haco;
@@ -764,66 +819,68 @@ static int flocal(sunindextype Nlocal, sunrealtype t, N_Vector u,
   /* Set diurnal rate coefficients as functions of t, and save q4 in
   data block for use by preconditioner evaluation routine            */
 
-  s = sin((data->om)*t);
-  if (s > ZERO) {
-    q3 = exp(-A3/s);
-    q4coef = exp(-A4/s);
-  } else {
-    q3 = ZERO;
+  s = sin((data->om) * t);
+  if (s > ZERO)
+  {
+    q3     = exp(-A3 / s);
+    q4coef = exp(-A4 / s);
+  }
+  else
+  {
+    q3     = ZERO;
     q4coef = ZERO;
   }
   data->q4 = q4coef;
 
-
   /* Loop over all grid points in local subgrid */
-  for (ly = 0; ly < MYSUB; ly++) {
-
-    jy = ly + isuby*MYSUB;
+  for (ly = 0; ly < MYSUB; ly++)
+  {
+    jy = ly + isuby * MYSUB;
 
     /* Set vertical diffusion coefficients at jy +- 1/2 */
-    ydn = YMIN + (jy - SUN_RCONST(0.5))*dely;
-    yup = ydn + dely;
-    cydn = verdco*exp(SUN_RCONST(0.2)*ydn);
-    cyup = verdco*exp(SUN_RCONST(0.2)*yup);
-    for (lx = 0; lx < MXSUB; lx++) {
-
+    ydn  = YMIN + (jy - SUN_RCONST(0.5)) * dely;
+    yup  = ydn + dely;
+    cydn = verdco * exp(SUN_RCONST(0.2) * ydn);
+    cyup = verdco * exp(SUN_RCONST(0.2) * yup);
+    for (lx = 0; lx < MXSUB; lx++)
+    {
       /* Extract c1 and c2, and set kinetic rate terms */
-      offsetue = (lx+1)*NVARS + (ly+1)*nvmxsub2;
-      c1 = uext[offsetue];
-      c2 = uext[offsetue+1];
-      qq1 = Q1*c1*C3;
-      qq2 = Q2*c1*c2;
-      qq3 = q3*C3;
-      qq4 = q4coef*c2;
-      rkin1 = -qq1 - qq2 + 2.0*qq3 + qq4;
-      rkin2 = qq1 - qq2 - qq4;
+      offsetue = (lx + 1) * NVARS + (ly + 1) * nvmxsub2;
+      c1       = uext[offsetue];
+      c2       = uext[offsetue + 1];
+      qq1      = Q1 * c1 * C3;
+      qq2      = Q2 * c1 * c2;
+      qq3      = q3 * C3;
+      qq4      = q4coef * c2;
+      rkin1    = -qq1 - qq2 + 2.0 * qq3 + qq4;
+      rkin2    = qq1 - qq2 - qq4;
 
       /* Set vertical diffusion terms */
-      c1dn = uext[offsetue-nvmxsub2];
-      c2dn = uext[offsetue-nvmxsub2+1];
-      c1up = uext[offsetue+nvmxsub2];
-      c2up = uext[offsetue+nvmxsub2+1];
-      vertd1 = cyup*(c1up - c1) - cydn*(c1 - c1dn);
-      vertd2 = cyup*(c2up - c2) - cydn*(c2 - c2dn);
+      c1dn   = uext[offsetue - nvmxsub2];
+      c2dn   = uext[offsetue - nvmxsub2 + 1];
+      c1up   = uext[offsetue + nvmxsub2];
+      c2up   = uext[offsetue + nvmxsub2 + 1];
+      vertd1 = cyup * (c1up - c1) - cydn * (c1 - c1dn);
+      vertd2 = cyup * (c2up - c2) - cydn * (c2 - c2dn);
 
       /* Set horizontal diffusion and advection terms */
-      c1lt = uext[offsetue-2];
-      c2lt = uext[offsetue-1];
-      c1rt = uext[offsetue+2];
-      c2rt = uext[offsetue+3];
-      hord1 = hordco*(c1rt - SUN_RCONST(2.0)*c1 + c1lt);
-      hord2 = hordco*(c2rt - SUN_RCONST(2.0)*c2 + c2lt);
-      horad1 = horaco*(c1rt - c1lt);
-      horad2 = horaco*(c2rt - c2lt);
+      c1lt   = uext[offsetue - 2];
+      c2lt   = uext[offsetue - 1];
+      c1rt   = uext[offsetue + 2];
+      c2rt   = uext[offsetue + 3];
+      hord1  = hordco * (c1rt - SUN_RCONST(2.0) * c1 + c1lt);
+      hord2  = hordco * (c2rt - SUN_RCONST(2.0) * c2 + c2lt);
+      horad1 = horaco * (c1rt - c1lt);
+      horad2 = horaco * (c2rt - c2lt);
 
       /* Load all terms into duarray */
-      offsetu = lx*NVARS + ly*nvmxsub;
-      duarray[offsetu]   = vertd1 + hord1 + horad1 + rkin1;
-      duarray[offsetu+1] = vertd2 + hord2 + horad2 + rkin2;
+      offsetu              = lx * NVARS + ly * nvmxsub;
+      duarray[offsetu]     = vertd1 + hord1 + horad1 + rkin1;
+      duarray[offsetu + 1] = vertd2 + hord2 + horad2 + rkin2;
     }
   }
 
-  return(0);
+  return (0);
 }
 
 /* Check function return value...
@@ -833,29 +890,38 @@ static int flocal(sunindextype Nlocal, sunrealtype t, N_Vector u,
               flag >= 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_flag(void* flagvalue, const char* funcname, int opt, int id)
 {
-  int *errflag;
+  int* errflag;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
-            id, funcname);
-    return(1); }
+  if (opt == 0 && flagvalue == NULL)
+  {
+    fprintf(stderr,
+            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id,
+            funcname);
+    return (1);
+  }
 
   /* Check if flag < 0 */
-  else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+  else if (opt == 1)
+  {
+    errflag = (int*)flagvalue;
+    if (*errflag < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
               id, funcname, *errflag);
-      return(1); }}
+      return (1);
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && flagvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
-    return(1); }
+    return (1);
+  }
 
-  return(0);
+  return (0);
 }

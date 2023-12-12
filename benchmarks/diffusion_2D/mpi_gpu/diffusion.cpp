@@ -30,12 +30,11 @@
 #error Define USE_CUDA or USE_HIP
 #endif
 
-
 // Forcing device function
-__device__ void add_forcing(const sunrealtype t,
-                            const sunrealtype x, const sunrealtype y,
-                            const sunrealtype kx, const sunrealtype ky,
-                            const sunindextype c, sunrealtype *udot)
+__device__ void add_forcing(const sunrealtype t, const sunrealtype x,
+                            const sunrealtype y, const sunrealtype kx,
+                            const sunrealtype ky, const sunindextype c,
+                            sunrealtype* udot)
 {
   sunrealtype sin_sqr_x = sin(PI * x) * sin(PI * x);
   sunrealtype sin_sqr_y = sin(PI * y) * sin(PI * y);
@@ -49,33 +48,24 @@ __device__ void add_forcing(const sunrealtype t,
   sunrealtype bx = kx * TWO * PI * PI;
   sunrealtype by = ky * TWO * PI * PI;
 
-  udot[c] += -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t
-    -bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t
-    -by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
+  udot[c] += -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t -
+             bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y * cos_sqr_t -
+             by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x * cos_sqr_t;
 }
 
-
 // Interior diffusion kernel
-__global__ void diffusion_interior_kernel(const sunrealtype t,
-                                          const sunrealtype *u,
-                                          sunrealtype *udot,
-                                          const sunindextype is,
-                                          const sunindextype js,
-                                          const sunindextype nx_loc,
-                                          const sunindextype ny_loc,
-                                          const sunrealtype dx,
-                                          const sunrealtype dy,
-                                          const sunrealtype kx,
-                                          const sunrealtype ky,
-                                          const bool forcing)
+__global__ void diffusion_interior_kernel(
+  const sunrealtype t, const sunrealtype* u, sunrealtype* udot,
+  const sunindextype is, const sunindextype js, const sunindextype nx_loc,
+  const sunindextype ny_loc, const sunrealtype dx, const sunrealtype dy,
+  const sunrealtype kx, const sunrealtype ky, const bool forcing)
 {
   // Thread location in the local grid
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   int j = blockIdx.y * blockDim.y + threadIdx.y;
 
   // Only update the interior points
-  bool interior = (i > 0 && i < nx_loc - 1 &&
-                   j > 0 && j < ny_loc - 1);
+  bool interior = (i > 0 && i < nx_loc - 1 && j > 0 && j < ny_loc - 1);
   if (interior)
   {
     // 1D array index for center, west, east, south, and north nodes
@@ -102,24 +92,14 @@ __global__ void diffusion_interior_kernel(const sunrealtype t,
   }
 }
 
-
 // Interior boundary kernel
-__global__ void diffusion_boundary_kernel(const sunrealtype t,
-                                          const sunrealtype *u,
-                                          sunrealtype *udot,
-                                          const sunindextype is,
-                                          const sunindextype js,
-                                          const sunindextype nx_loc,
-                                          const sunindextype ny_loc,
-                                          const sunrealtype dx,
-                                          const sunrealtype dy,
-                                          const sunrealtype kx,
-                                          const sunrealtype ky,
-                                          const bool forcing,
-                                          const sunrealtype *wbuf,
-                                          const sunrealtype *ebuf,
-                                          const sunrealtype *sbuf,
-                                          const sunrealtype *nbuf)
+__global__ void diffusion_boundary_kernel(
+  const sunrealtype t, const sunrealtype* u, sunrealtype* udot,
+  const sunindextype is, const sunindextype js, const sunindextype nx_loc,
+  const sunindextype ny_loc, const sunrealtype dx, const sunrealtype dy,
+  const sunrealtype kx, const sunrealtype ky, const bool forcing,
+  const sunrealtype* wbuf, const sunrealtype* ebuf, const sunrealtype* sbuf,
+  const sunrealtype* nbuf)
 {
   // Thread ID
   int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -354,7 +334,6 @@ __global__ void diffusion_boundary_kernel(const sunrealtype t,
   }
 }
 
-
 // Diffusion function
 int laplacian(sunrealtype t, N_Vector u, N_Vector f, UserData* udata)
 {
@@ -364,52 +343,51 @@ int laplacian(sunrealtype t, N_Vector u, N_Vector f, UserData* udata)
 
   // Start exchange
   flag = udata->start_exchange(u);
-  if (check_flag(&flag, "UserData::start_exchange", 1)) return -1;
+  if (check_flag(&flag, "UserData::start_exchange", 1)) { return -1; }
 
   // Extract needed constants from user data
-  const sunindextype is      = udata->is;
-  const sunindextype js      = udata->js;
-  const sunindextype nx_loc  = udata->nx_loc;
-  const sunindextype ny_loc  = udata->ny_loc;
-  const sunrealtype     dx      = udata->dx;
-  const sunrealtype     dy      = udata->dy;
-  const sunrealtype     kx      = udata->kx;
-  const sunrealtype     ky      = udata->ky;
-  const bool         forcing = udata->forcing;
+  const sunindextype is     = udata->is;
+  const sunindextype js     = udata->js;
+  const sunindextype nx_loc = udata->nx_loc;
+  const sunindextype ny_loc = udata->ny_loc;
+  const sunrealtype dx      = udata->dx;
+  const sunrealtype dy      = udata->dy;
+  const sunrealtype kx      = udata->kx;
+  const sunrealtype ky      = udata->ky;
+  const bool forcing        = udata->forcing;
 
   // Access data arrays
-  const sunrealtype *uarray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(u));
-  if (check_flag((void *) uarray, "N_VGetDeviceArrayPointer", 0)) return -1;
+  const sunrealtype* uarray =
+    N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(u));
+  if (check_flag((void*)uarray, "N_VGetDeviceArrayPointer", 0)) { return -1; }
 
-  sunrealtype *farray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(f));
-  if (check_flag((void *) farray, "N_VGetDeviceArrayPointer", 0)) return -1;
+  sunrealtype* farray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(f));
+  if (check_flag((void*)farray, "N_VGetDeviceArrayPointer", 0)) { return -1; }
 
   // Update subdomain interior
   dim3 iblock(BLOCK_SIZE_X, BLOCK_SIZE_Y);
   dim3 igrid(ICEIL(nx_loc, BLOCK_SIZE_X), ICEIL(ny_loc, BLOCK_SIZE_Y));
 
-  diffusion_interior_kernel<<<igrid,iblock>>>(t, uarray, farray, is, js,
-                                              nx_loc, ny_loc, dx, dy, kx, ky,
-                                              forcing);
+  diffusion_interior_kernel<<<igrid, iblock>>>(t, uarray, farray, is, js, nx_loc,
+                                               ny_loc, dx, dy, kx, ky, forcing);
 
   // Wait for exchange receives
   flag = udata->end_exchange();
-  if (check_flag(&flag, "UserData::end_exchagne", 1)) return -1;
+  if (check_flag(&flag, "UserData::end_exchagne", 1)) { return -1; }
 
   // Update subdomain boundary
-  const sunrealtype *Warray = (udata->HaveNbrW) ? udata->Wrecv : NULL;
-  const sunrealtype *Earray = (udata->HaveNbrE) ? udata->Erecv : NULL;
-  const sunrealtype *Sarray = (udata->HaveNbrS) ? udata->Srecv : NULL;
-  const sunrealtype *Narray = (udata->HaveNbrN) ? udata->Nrecv : NULL;
+  const sunrealtype* Warray = (udata->HaveNbrW) ? udata->Wrecv : NULL;
+  const sunrealtype* Earray = (udata->HaveNbrE) ? udata->Erecv : NULL;
+  const sunrealtype* Sarray = (udata->HaveNbrS) ? udata->Srecv : NULL;
+  const sunrealtype* Narray = (udata->HaveNbrN) ? udata->Nrecv : NULL;
 
   sunindextype maxdim = max(nx_loc, ny_loc);
   dim3 bblock(BLOCK_SIZE);
   dim3 bgrid(ICEIL(maxdim, BLOCK_SIZE));
 
-  diffusion_boundary_kernel<<<bgrid,bblock>>>(t, uarray, farray, is, js,
-                                              nx_loc, ny_loc, dx, dy, kx, ky,
-                                              forcing, Warray, Earray, Sarray,
-                                              Narray);
+  diffusion_boundary_kernel<<<bgrid, bblock>>>(t, uarray, farray, is, js, nx_loc,
+                                               ny_loc, dx, dy, kx, ky, forcing,
+                                               Warray, Earray, Sarray, Narray);
 
   // Return success
   return 0;

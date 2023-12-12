@@ -12,8 +12,8 @@
 
 .. _SUNDIALS.Logging:
 
-SUNDIALS Status Logging
-=======================
+Status and Error Logging
+========================
 
 .. versionadded:: 6.2.0
 

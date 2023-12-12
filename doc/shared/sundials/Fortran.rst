@@ -12,8 +12,8 @@
 
 .. _SUNDIALS.Fortran:
 
-SUNDIALS Fortran Interface
-==========================
+Fortran Interface
+=================
 
 SUNDIALS provides modern, Fortran 2003 based, interfaces as Fortran modules to
 most of the C API including:
@@ -178,6 +178,10 @@ equivalencies with the parameter direction in mind.
    +-------------------------+-------------------------------+-------------------------------------------+
    | **C Type**              | **Parameter Direction**       | **Fortran 2003 type**                     |
    +=========================+===============================+===========================================+
+   |``SUNComm``              | in, inout, out, return        | ``integer(c_int)``                        |
+   +-------------------------+-------------------------------+-------------------------------------------+
+   |``SUNErrCode``           | in, inout, out, return        | ``integer(c_int)``                        |
+   +-------------------------+-------------------------------+-------------------------------------------+
    |``double``               | in, inout, out, return        | ``real(c_double)``                        |
    +-------------------------+-------------------------------+-------------------------------------------+
    |``int``                  | in, inout, out, return        | ``integer(c_int)``                        |
@@ -484,44 +488,69 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
 ``FILE*`` and destroying it. These functions are defined in the module
 ``fsundials_futils_mod``.
 
-.. c:function:: FILE* SUNDIALSFileOpen(filename, mode)
+.. c:function:: SUNErrCode SUNDIALSFileOpen(const char* filename, const char* mode, FILE** fp)
 
    The function allocates a ``FILE*`` by calling the C function ``fopen`` with
    the provided filename and I/O mode.
 
-   **Arguments:**
-      * ``filename`` -- the path to the file, that should have Fortran
-        type ``character(kind=C_CHAR, len=*)``.  There are two special filenames:
-        ``stdout`` and ``stderr`` -- these two filenames will result in output
-        going to the standard output file and standard error file, respectively.
-      * ``mode`` -- the I/O mode to use for the file.  This should have the
-        Fortran type ``character(kind=C_CHAR, len=*)``.  The string begins
-        with one of the following characters:
+   :param filename: the path to the file, that should have Fortran
+      type ``character(kind=C_CHAR, len=*)``.  There are two special filenames:
+      ``stdout`` and ``stderr`` -- these two filenames will result in output
+      going to the standard output file and standard error file, respectively.
+ 
+   :param mode: the I/O mode to use for the file.  This should have the
+      Fortran type ``character(kind=C_CHAR, len=*)``.  The string begins
+      with one of the following characters:
 
-        * ``r``  to open a text file for reading
-        * ``r+`` to open a text file for reading/writing
-        * ``w``  to truncate a text file to zero length or create it for writing
-        * ``w+`` to open a text file for reading/writing or create it if it does
-          not exist
-        * ``a``  to open a text file for appending, see documentation of ``fopen`` for
-          your system/compiler
-        * ``a+`` to open a text file for reading/appending, see documentation for
-          ``fopen`` for your system/compiler
+      * ``r``  to open a text file for reading
+      * ``r+`` to open a text file for reading/writing
+      * ``w``  to truncate a text file to zero length or create it for writing
+      * ``w+`` to open a text file for reading/writing or create it if it does
+         not exist
+      * ``a``  to open a text file for appending, see documentation of ``fopen`` for
+         your system/compiler
+      * ``a+`` to open a text file for reading/appending, see documentation for
+         ``fopen`` for your system/compiler
 
-   **Return value:**
-      * The function returns a ``type(C_PTR)`` which holds a C ``FILE*``.
+   :param fp: The ``FILE*`` that will be open when the function returns.
+      This should be a `type(c_ptr)` in the Fortran.
 
+   :return: A :c:type:`SUNErrCode`
 
-.. c:function:: void SUNDIALSFileClose(fp)
+   Usage example:
+
+   .. code-block:: Fortran
+
+      type(c_ptr) :: fp
+
+      ! Open up the file output.log for writing
+      ierr = FSUNDIALSFileOpen("output.log", "w+", fp)
+     
+      ! The C function ARKStepPrintMem takes void* arkode_mem and FILE* fp as arguments
+      call FARKStepPrintMem(arkode_mem, fp)
+     
+      ! Close the file
+      ierr = FSUNDIALSFileClose(fp)
+
+   .. versionchanged:: 7.0.0
+   
+      The function signature was updated to return a `SUNErrCode` and take a `FILE**` as the last input parameter rather then return a `FILE*`.
+ 
+.. c:function:: SUNErrCode SUNDIALSFileClose(FILE** fp)
 
    The function deallocates a C ``FILE*`` by calling the C function ``fclose``
    with the provided pointer.
 
-   **Arguments:**
-      * ``fp`` -- the C ``FILE*`` that was previously obtained from ``fopen``.
+   :param fp: the C ``FILE*`` that was previously obtained from ``fopen``.
         This should have the Fortran type ``type(c_ptr)``.  Note that if either
         ``stdout`` or ``stderr`` were opened using :c:func:`SUNDIALSFileOpen()`
-        then that stream *will not be closed* by this function.
+
+   :return: A :c:type:`SUNErrCode`
+
+   .. versionchanged:: 7.0.0
+   
+      The function signature was updated to return a `SUNErrCode` and the `fp` parameter was changed from `FILE*` to `FILE**`.  
+ 
 
 
 .. _SUNDIALS.Fortran.Portability:

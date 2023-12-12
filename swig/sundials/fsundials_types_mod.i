@@ -68,7 +68,6 @@
 
 %apply MPI_Comm { SUNComm };
 
-
 // Insert code into the C wrapper to check that the sizes match
 %{
 #include "sundials/sundials_types.h"
@@ -82,8 +81,23 @@
 #endif
 %}
 
-// Process and wrap functions in the following files
-%include "sundials/sundials_types.h"
+// We insert the binding code for SUN_COMM_NULL ourselves because
+// (1) SWIG expands SUN_COMM_NULL to its value
+// (2) We need it to be equivalent to MPI_COMM_NULL when MPI is enabled
+
+%insert("wrapper") %{
+SWIGEXPORT SWIGEXTERN int const _wrap_SUN_COMM_NULL = (int)(0);  
+%}
+
+%insert("fdecl") %{
+#if SUNDIALS_MPI_ENABLED
+ include "mpif.h"
+ integer(C_INT), protected, public :: SUN_COMM_NULL = MPI_COMM_NULL
+#else
+ integer(C_INT), protected, public, &
+   bind(C, name="_wrap_SUN_COMM_NULL") :: SUN_COMM_NULL
+#endif
+%}
 
 // Insert SUNDIALS copyright into generated C files.
 %insert(begin)
@@ -119,3 +133,6 @@
 ! SUNDIALS Copyright End
 ! ---------------------------------------------------------------
 %}
+
+// Process and wrap functions in the following files
+%include "sundials/sundials_types.h"

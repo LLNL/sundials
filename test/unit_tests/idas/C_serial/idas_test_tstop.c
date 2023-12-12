@@ -17,12 +17,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "idas/idas.h"
 #include "nvector/nvector_serial.h"
 #include "sundials/sundials_matrix.h"
 #include "sundials/sundials_nvector.h"
-#include "sunmatrix/sunmatrix_dense.h"
 #include "sunlinsol/sunlinsol_dense.h"
-#include "idas/idas.h"
+#include "sunmatrix/sunmatrix_dense.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -33,39 +33,36 @@
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 
-
 int dae_res(sunrealtype t, N_Vector y, N_Vector ydot, N_Vector res,
-            void *user_data)
+            void* user_data)
 {
   sunrealtype* ydot_data = N_VGetArrayPointer(ydot);
   sunrealtype* res_data  = N_VGetArrayPointer(res);
-  res_data[0] = ydot_data[0] - ONE;
+  res_data[0]            = ydot_data[0] - ONE;
   return 0;
 }
 
-
 int dae_jac(sunrealtype t, sunrealtype cj, N_Vector y, N_Vector yp, N_Vector rr,
-            SUNMatrix J, void *user_data, N_Vector tempv1, N_Vector tempv2,
+            SUNMatrix J, void* user_data, N_Vector tempv1, N_Vector tempv2,
             N_Vector tempv3)
 {
   sunrealtype* J_data = SUNDenseMatrix_Data(J);
-  J_data[0] = ONE;
+  J_data[0]           = ONE;
   return 0;
 }
 
-
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  SUNContext      sunctx  = NULL;
-  N_Vector        y       = NULL;
-  N_Vector        yp      = NULL;
-  SUNMatrix       A       = NULL;
-  SUNLinearSolver LS      = NULL;
-  void*           ida_mem = NULL;
+  SUNContext sunctx  = NULL;
+  N_Vector y         = NULL;
+  N_Vector yp        = NULL;
+  SUNMatrix A        = NULL;
+  SUNLinearSolver LS = NULL;
+  void* ida_mem      = NULL;
 
-  int         flag     = 0;
-  int         ida_flag = 0;
-  int         i        = 0;
+  int flag             = 0;
+  int ida_flag         = 0;
+  int i                = 0;
   sunrealtype tout     = SUN_RCONST(0.10);
   sunrealtype dt_tout  = SUN_RCONST(0.25);
   sunrealtype tstop    = SUN_RCONST(0.30);
@@ -131,18 +128,24 @@ int main(int argc, char *argv[])
    * Advance in time
    * --------------- */
 
-  printf("0: tout = %" GSYM ", tstop = %" GSYM ", tret = %" GSYM ", tcur = %" GSYM "\n",
+  printf("0: tout = %" GSYM ", tstop = %" GSYM ", tret = %" GSYM
+         ", tcur = %" GSYM "\n",
          tout, tstop, tret, tcur);
 
   for (i = 1; i <= 6; i++)
   {
     ida_flag = IDASolve(ida_mem, tout, &tret, y, yp, IDA_NORMAL);
-    if (ida_flag < 0) { flag = 1; break; }
+    if (ida_flag < 0)
+    {
+      flag = 1;
+      break;
+    }
 
     flag = IDAGetCurrentTime(ida_mem, &tcur);
     if (flag) { break; }
 
-    printf("%i: tout = %" GSYM ", tstop = %" GSYM ", tret = %" GSYM ", tcur = %" GSYM ", return = %i\n",
+    printf("%i: tout = %" GSYM ", tstop = %" GSYM ", tret = %" GSYM
+           ", tcur = %" GSYM ", return = %i\n",
            i, tout, tstop, tret, tcur, ida_flag);
 
     /* First return: output time < stop time */
@@ -232,10 +235,7 @@ int main(int argc, char *argv[])
   SUNLinSolFree(LS);
   SUNContext_Free(&sunctx);
 
-  if (!flag)
-  {
-    printf("SUCCESS\n");
-  }
+  if (!flag) { printf("SUCCESS\n"); }
 
   return flag;
 }

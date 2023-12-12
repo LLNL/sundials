@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <sundials/sundials_types.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -114,7 +114,8 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-typedef struct _DlsMat {
+typedef struct _DlsMat
+{
   int type;
   sunindextype M;
   sunindextype N;
@@ -122,11 +123,10 @@ typedef struct _DlsMat {
   sunindextype mu;
   sunindextype ml;
   sunindextype s_mu;
-  sunrealtype *data;
+  sunrealtype* data;
   sunindextype ldata;
-  sunrealtype **cols;
-} *SUNDlsMat; 
-
+  sunrealtype** cols;
+}* SUNDlsMat;
 
 /*
  * ==================================================================
@@ -151,8 +151,8 @@ typedef struct _DlsMat {
  * -----------------------------------------------------------------
  */
 
-#define SUNDLS_DENSE_COL(A,j) ((A->cols)[j])
-#define SUNDLS_DENSE_ELEM(A,i,j) ((A->cols)[j][i])
+#define SUNDLS_DENSE_COL(A, j)     ((A->cols)[j])
+#define SUNDLS_DENSE_ELEM(A, i, j) ((A->cols)[j][i])
 
 /*
  * -----------------------------------------------------------------
@@ -176,9 +176,9 @@ typedef struct _DlsMat {
  * -----------------------------------------------------------------
  */
 
-#define SUNDLS_BAND_COL(A,j) (((A->cols)[j])+(A->s_mu))
-#define SUNDLS_BAND_COL_ELEM(col_j,i,j) (col_j[(i)-(j)])
-#define SUNDLS_BAND_ELEM(A,i,j) ((A->cols)[j][(i)-(j)+(A->s_mu)])
+#define SUNDLS_BAND_COL(A, j)             (((A->cols)[j]) + (A->s_mu))
+#define SUNDLS_BAND_COL_ELEM(col_j, i, j) (col_j[(i) - (j)])
+#define SUNDLS_BAND_ELEM(A, i, j)         ((A->cols)[j][(i) - (j) + (A->s_mu)])
 /*
  * ==================================================================
  * Exported function prototypes (functions working on SUNDlsMat)
@@ -221,8 +221,8 @@ SUNDlsMat SUNDlsMat_NewDenseMat(sunindextype M, sunindextype N);
  */
 
 SUNDIALS_EXPORT
-SUNDlsMat SUNDlsMat_NewBandMat(sunindextype N, sunindextype mu,
-                               sunindextype ml, sunindextype smu);
+SUNDlsMat SUNDlsMat_NewBandMat(sunindextype N, sunindextype mu, sunindextype ml,
+                               sunindextype smu);
 
 /*
  * -----------------------------------------------------------------
@@ -287,7 +287,7 @@ sunrealtype* SUNDlsMat_NewRealArray(sunindextype N);
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_DestroyArray(void *p);
+void SUNDlsMat_DestroyArray(void* p);
 
 /*
  * -----------------------------------------------------------------
@@ -329,7 +329,7 @@ void SUNDlsMat_SetToZero(SUNDlsMat A);
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_PrintMat(SUNDlsMat A, FILE *outfile);
+void SUNDlsMat_PrintMat(SUNDlsMat A, FILE* outfile);
 
 /*
  * ==================================================================
@@ -342,8 +342,7 @@ sunrealtype** SUNDlsMat_newDenseMat(sunindextype m, sunindextype n);
 
 SUNDIALS_EXPORT
 sunrealtype** SUNDlsMat_newBandMat(sunindextype n, sunindextype smu,
-                                sunindextype ml);
-
+                                   sunindextype ml);
 
 SUNDIALS_EXPORT
 void SUNDlsMat_destroyMat(sunrealtype** a);
@@ -359,7 +358,6 @@ sunrealtype* SUNDlsMat_newRealArray(sunindextype m);
 
 SUNDIALS_EXPORT
 void SUNDlsMat_destroyArray(void* v);
-
 
 #ifdef __cplusplus
 }

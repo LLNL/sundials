@@ -238,7 +238,7 @@ SWIGEXPORT int _wrap_FSUNLogger_Create(int const *farg1, int const *farg2, void 
   SUNComm arg1 ;
   int arg2 ;
   SUNLogger *arg3 = (SUNLogger *) 0 ;
-  int result;
+  SUNErrCode result;
   
 #if SUNDIALS_MPI_ENABLED
   int flag = 0;
@@ -253,8 +253,8 @@ SWIGEXPORT int _wrap_FSUNLogger_Create(int const *farg1, int const *farg2, void 
 #endif
   arg2 = (int)(*farg2);
   arg3 = (SUNLogger *)(farg3);
-  result = (int)SUNLogger_Create(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLogger_Create(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -263,7 +263,7 @@ SWIGEXPORT int _wrap_FSUNLogger_CreateFromEnv(int const *farg1, void *farg2) {
   int fresult ;
   SUNComm arg1 ;
   SUNLogger *arg2 = (SUNLogger *) 0 ;
-  int result;
+  SUNErrCode result;
   
 #if SUNDIALS_MPI_ENABLED
   int flag = 0;
@@ -277,8 +277,8 @@ SWIGEXPORT int _wrap_FSUNLogger_CreateFromEnv(int const *farg1, void *farg2) {
   arg1 = *farg1;
 #endif
   arg2 = (SUNLogger *)(farg2);
-  result = (int)SUNLogger_CreateFromEnv(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLogger_CreateFromEnv(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -287,12 +287,12 @@ SWIGEXPORT int _wrap_FSUNLogger_SetErrorFilename(void *farg1, SwigArrayWrapper *
   int fresult ;
   SUNLogger arg1 = (SUNLogger) 0 ;
   char *arg2 = (char *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLogger)(farg1);
   arg2 = (char *)(farg2->data);
-  result = (int)SUNLogger_SetErrorFilename(arg1,(char const *)arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLogger_SetErrorFilename(arg1,(char const *)arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -301,12 +301,12 @@ SWIGEXPORT int _wrap_FSUNLogger_SetWarningFilename(void *farg1, SwigArrayWrapper
   int fresult ;
   SUNLogger arg1 = (SUNLogger) 0 ;
   char *arg2 = (char *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLogger)(farg1);
   arg2 = (char *)(farg2->data);
-  result = (int)SUNLogger_SetWarningFilename(arg1,(char const *)arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLogger_SetWarningFilename(arg1,(char const *)arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -315,12 +315,12 @@ SWIGEXPORT int _wrap_FSUNLogger_SetDebugFilename(void *farg1, SwigArrayWrapper *
   int fresult ;
   SUNLogger arg1 = (SUNLogger) 0 ;
   char *arg2 = (char *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLogger)(farg1);
   arg2 = (char *)(farg2->data);
-  result = (int)SUNLogger_SetDebugFilename(arg1,(char const *)arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLogger_SetDebugFilename(arg1,(char const *)arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -329,12 +329,12 @@ SWIGEXPORT int _wrap_FSUNLogger_SetInfoFilename(void *farg1, SwigArrayWrapper *f
   int fresult ;
   SUNLogger arg1 = (SUNLogger) 0 ;
   char *arg2 = (char *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLogger)(farg1);
   arg2 = (char *)(farg2->data);
-  result = (int)SUNLogger_SetInfoFilename(arg1,(char const *)arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLogger_SetInfoFilename(arg1,(char const *)arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -347,15 +347,15 @@ SWIGEXPORT int _wrap_FSUNLogger_QueueMsg(void *farg1, int const *farg2, SwigArra
   char *arg4 = (char *) 0 ;
   char *arg5 = (char *) 0 ;
   void *arg6 = 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLogger)(farg1);
   arg2 = (SUNLogLevel)(*farg2);
   arg3 = (char *)(farg3->data);
   arg4 = (char *)(farg4->data);
   arg5 = (char *)(farg5->data);
-  result = (int)SUNLogger_QueueMsg(arg1,arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,arg6);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLogger_QueueMsg(arg1,arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,arg6);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -364,12 +364,12 @@ SWIGEXPORT int _wrap_FSUNLogger_Flush(void *farg1, int const *farg2) {
   int fresult ;
   SUNLogger arg1 = (SUNLogger) 0 ;
   SUNLogLevel arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLogger)(farg1);
   arg2 = (SUNLogLevel)(*farg2);
-  result = (int)SUNLogger_Flush(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLogger_Flush(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -378,12 +378,12 @@ SWIGEXPORT int _wrap_FSUNLogger_GetOutputRank(void *farg1, int *farg2) {
   int fresult ;
   SUNLogger arg1 = (SUNLogger) 0 ;
   int *arg2 = (int *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLogger)(farg1);
   arg2 = (int *)(farg2);
-  result = (int)SUNLogger_GetOutputRank(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLogger_GetOutputRank(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -391,11 +391,11 @@ SWIGEXPORT int _wrap_FSUNLogger_GetOutputRank(void *farg1, int *farg2) {
 SWIGEXPORT int _wrap_FSUNLogger_Destroy(void *farg1) {
   int fresult ;
   SUNLogger *arg1 = (SUNLogger *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLogger *)(farg1);
-  result = (int)SUNLogger_Destroy(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLogger_Destroy(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 

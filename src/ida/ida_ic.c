@@ -18,9 +18,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sundials/sundials_math.h>
 
 #include "ida_impl.h"
-#include <sundials/sundials_math.h>
 
 /*
  * =================================================================
@@ -30,26 +30,26 @@
 
 /* Private Constants */
 
-#define ZERO       SUN_RCONST(0.0)    /* real 0.0    */
-#define HALF       SUN_RCONST(0.5)    /* real 0.5    */
-#define ONE        SUN_RCONST(1.0)    /* real 1.0    */
-#define TWO        SUN_RCONST(2.0)    /* real 2.0    */
-#define PT99       SUN_RCONST(0.99)   /* real 0.99   */
-#define PT1        SUN_RCONST(0.1)    /* real 0.1    */
-#define PT001      SUN_RCONST(0.001)  /* real 0.001  */
+#define ZERO  SUN_RCONST(0.0)   /* real 0.0    */
+#define HALF  SUN_RCONST(0.5)   /* real 0.5    */
+#define ONE   SUN_RCONST(1.0)   /* real 1.0    */
+#define TWO   SUN_RCONST(2.0)   /* real 2.0    */
+#define PT99  SUN_RCONST(0.99)  /* real 0.99   */
+#define PT1   SUN_RCONST(0.1)   /* real 0.1    */
+#define PT001 SUN_RCONST(0.001) /* real 0.001  */
 
 /* IDACalcIC control constants */
 
-#define ICRATEMAX  SUN_RCONST(0.9)    /* max. Newton conv. rate */
-#define ALPHALS    SUN_RCONST(0.0001) /* alpha in linesearch conv. test */
+#define ICRATEMAX SUN_RCONST(0.9)    /* max. Newton conv. rate */
+#define ALPHALS   SUN_RCONST(0.0001) /* alpha in linesearch conv. test */
 
 /* Return values for lower level routines used by IDACalcIC */
 
-#define IC_FAIL_RECOV       1
-#define IC_CONSTR_FAILED    2
-#define IC_LINESRCH_FAILED  3
-#define IC_CONV_FAIL        4
-#define IC_SLOW_CONVRG      5
+#define IC_FAIL_RECOV      1
+#define IC_CONSTR_FAILED   2
+#define IC_LINESRCH_FAILED 3
+#define IC_CONV_FAIL       4
+#define IC_SLOW_CONVRG     5
 
 /*
  * =================================================================
@@ -59,12 +59,12 @@
 
 extern int IDAInitialSetup(IDAMem IDA_mem);
 extern sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
-                            sunbooleantype mask);
+                               sunbooleantype mask);
 
 static int IDAnlsIC(IDAMem IDA_mem);
 static int IDANewtonIC(IDAMem IDA_mem);
-static int IDALineSrch(IDAMem IDA_mem, sunrealtype *delnorm, sunrealtype *fnorm);
-static int IDAfnorm(IDAMem IDA_mem, sunrealtype *fnorm);
+static int IDALineSrch(IDAMem IDA_mem, sunrealtype* delnorm, sunrealtype* fnorm);
+static int IDAfnorm(IDAMem IDA_mem, sunrealtype* fnorm);
 static int IDANewyyp(IDAMem IDA_mem, sunrealtype lambda);
 static int IDANewy(IDAMem IDA_mem);
 static int IDAICFailFlag(IDAMem IDA_mem, int retval);
@@ -103,61 +103,69 @@ static int IDAICFailFlag(IDAMem IDA_mem, int retval);
  * -----------------------------------------------------------------
  */
 
-int IDACalcIC(void *ida_mem, int icopt, sunrealtype tout1)
+int IDACalcIC(void* ida_mem, int icopt, sunrealtype tout1)
 {
   int ewtsetOK;
-  int ier, nwt, nh, mxnh, icret, retval=0;
+  int ier, nwt, nh, mxnh, icret, retval = 0;
   sunrealtype tdist, troundoff, minid, hic, ypnorm;
   IDAMem IDA_mem;
 
   /* Check if IDA memory exists */
 
-  if(ida_mem == NULL) {
+  if (ida_mem == NULL)
+  {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDACalcIC", MSG_NO_MEM);
-    return(IDA_MEM_NULL);
+    return (IDA_MEM_NULL);
   }
-  IDA_mem = (IDAMem) ida_mem;
+  IDA_mem = (IDAMem)ida_mem;
 
   SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
 
   /* Check if problem was malloc'ed */
 
-  if(IDA_mem->ida_MallocDone == SUNFALSE) {
+  if (IDA_mem->ida_MallocDone == SUNFALSE)
+  {
     IDAProcessError(IDA_mem, IDA_NO_MALLOC, "IDA", "IDACalcIC", MSG_NO_MALLOC);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
-    return(IDA_NO_MALLOC);
+    return (IDA_NO_MALLOC);
   }
 
   /* Check inputs to IDA for correctness and consistency */
 
   ier = IDAInitialSetup(IDA_mem);
-  if(ier != IDA_SUCCESS) {
+  if (ier != IDA_SUCCESS)
+  {
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
-    return(IDA_ILL_INPUT);
+    return (IDA_ILL_INPUT);
   }
   IDA_mem->ida_SetupDone = SUNTRUE;
 
   /* Check legality of input arguments, and set IDA memory copies. */
 
-  if(icopt != IDA_YA_YDP_INIT && icopt != IDA_Y_INIT) {
+  if (icopt != IDA_YA_YDP_INIT && icopt != IDA_Y_INIT)
+  {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_IC_BAD_ICOPT);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
-    return(IDA_ILL_INPUT);
+    return (IDA_ILL_INPUT);
   }
   IDA_mem->ida_icopt = icopt;
 
-  if(icopt == IDA_YA_YDP_INIT && (IDA_mem->ida_id == NULL)) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_IC_MISSING_ID);
+  if (icopt == IDA_YA_YDP_INIT && (IDA_mem->ida_id == NULL))
+  {
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC",
+                    MSG_IC_MISSING_ID);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
-    return(IDA_ILL_INPUT);
+    return (IDA_ILL_INPUT);
   }
 
-  tdist = SUNRabs(tout1 - IDA_mem->ida_tn);
-  troundoff = TWO * IDA_mem->ida_uround * (SUNRabs(IDA_mem->ida_tn) + SUNRabs(tout1));
-  if(tdist < troundoff) {
+  tdist     = SUNRabs(tout1 - IDA_mem->ida_tn);
+  troundoff = TWO * IDA_mem->ida_uround *
+              (SUNRabs(IDA_mem->ida_tn) + SUNRabs(tout1));
+  if (tdist < troundoff)
+  {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_IC_TOO_CLOSE);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
-    return(IDA_ILL_INPUT);
+    return (IDA_ILL_INPUT);
   }
 
   /* Allocate space and initialize temporary vectors */
@@ -172,14 +180,16 @@ int IDACalcIC(void *ida_mem, int icopt, sunrealtype tout1)
 
   IDA_mem->ida_sysindex = 1;
   IDA_mem->ida_tscale   = tdist;
-  if(icopt == IDA_YA_YDP_INIT) {
+  if (icopt == IDA_YA_YDP_INIT)
+  {
     minid = N_VMin(IDA_mem->ida_id);
-    if(minid < ZERO) {
+    if (minid < ZERO)
+    {
       IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDACalcIC", MSG_IC_BAD_ID);
       SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
-      return(IDA_ILL_INPUT);
+      return (IDA_ILL_INPUT);
     }
-    if(minid > HALF) IDA_mem->ida_sysindex = 0;
+    if (minid > HALF) { IDA_mem->ida_sysindex = 0; }
   }
 
   /* Set the test constant in the Newton convergence test */
@@ -195,58 +205,62 @@ int IDACalcIC(void *ida_mem, int icopt, sunrealtype tout1)
 
   /* Set hic, hh, cj, and mxnh. */
 
-  hic = PT001*tdist;
-  ypnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_yp0,
-                       IDA_mem->ida_ewt, IDA_mem->ida_suppressalg);
-  if(ypnorm > HALF/hic) hic = HALF/ypnorm;
-  if(tout1 < IDA_mem->ida_tn) hic = -hic;
+  hic    = PT001 * tdist;
+  ypnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_yp0, IDA_mem->ida_ewt,
+                       IDA_mem->ida_suppressalg);
+  if (ypnorm > HALF / hic) { hic = HALF / ypnorm; }
+  if (tout1 < IDA_mem->ida_tn) { hic = -hic; }
   IDA_mem->ida_hh = hic;
-  if(icopt == IDA_YA_YDP_INIT) {
-    IDA_mem->ida_cj = ONE/hic;
-    mxnh = IDA_mem->ida_maxnh;
+  if (icopt == IDA_YA_YDP_INIT)
+  {
+    IDA_mem->ida_cj = ONE / hic;
+    mxnh            = IDA_mem->ida_maxnh;
   }
-  else {
+  else
+  {
     IDA_mem->ida_cj = ZERO;
-    mxnh = 1;
+    mxnh            = 1;
   }
 
   /* Loop over nwt = number of evaluations of ewt vector. */
 
-  for(nwt = 1; nwt <= 2; nwt++) {
-
+  for (nwt = 1; nwt <= 2; nwt++)
+  {
     /* Loop over nh = number of h values. */
-    for(nh = 1; nh <= mxnh; nh++) {
-
+    for (nh = 1; nh <= mxnh; nh++)
+    {
       /* Call the IC nonlinear solver function. */
       retval = IDAnlsIC(IDA_mem);
 
       /* Cut h and loop on recoverable IDA_YA_YDP_INIT failure; else break. */
-      if(retval == IDA_SUCCESS) break;
+      if (retval == IDA_SUCCESS) { break; }
       IDA_mem->ida_ncfn++;
-      if(retval < 0) break;
-      if(nh == mxnh) break;
+      if (retval < 0) { break; }
+      if (nh == mxnh) { break; }
       /* If looping to try again, reset yy0 and yp0 if not converging. */
-      if(retval != IC_SLOW_CONVRG) {
+      if (retval != IC_SLOW_CONVRG)
+      {
         N_VScale(ONE, IDA_mem->ida_phi[0], IDA_mem->ida_yy0);
         N_VScale(ONE, IDA_mem->ida_phi[1], IDA_mem->ida_yp0);
       }
       hic *= PT1;
-      IDA_mem->ida_cj = ONE/hic;
+      IDA_mem->ida_cj = ONE / hic;
       IDA_mem->ida_hh = hic;
-    }   /* End of nh loop */
+    } /* End of nh loop */
 
     /* Break on failure; else reset ewt, save yy0, yp0 in phi, and loop. */
-    if(retval != IDA_SUCCESS) break;
+    if (retval != IDA_SUCCESS) { break; }
     ewtsetOK = IDA_mem->ida_efun(IDA_mem->ida_yy0, IDA_mem->ida_ewt,
                                  IDA_mem->ida_edata);
-    if(ewtsetOK != 0) {
+    if (ewtsetOK != 0)
+    {
       retval = IDA_BAD_EWT;
       break;
     }
     N_VScale(ONE, IDA_mem->ida_yy0, IDA_mem->ida_phi[0]);
     N_VScale(ONE, IDA_mem->ida_yp0, IDA_mem->ida_phi[1]);
 
-  }   /* End of nwt loop */
+  } /* End of nwt loop */
 
   /* Free temporary space */
 
@@ -255,20 +269,21 @@ int IDACalcIC(void *ida_mem, int icopt, sunrealtype tout1)
 
   /* Load the optional outputs. */
 
-  if(icopt == IDA_YA_YDP_INIT)   IDA_mem->ida_hused = hic;
+  if (icopt == IDA_YA_YDP_INIT) { IDA_mem->ida_hused = hic; }
 
   /* On any failure, print message and return proper flag. */
 
-  if(retval != IDA_SUCCESS) {
+  if (retval != IDA_SUCCESS)
+  {
     icret = IDAICFailFlag(IDA_mem, retval);
     SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
-    return(icret);
+    return (icret);
   }
 
   /* Otherwise return success flag. */
 
   SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
-  return(IDA_SUCCESS);
+  return (IDA_SUCCESS);
 }
 
 /*
@@ -302,7 +317,7 @@ int IDACalcIC(void *ida_mem, int icopt, sunrealtype tout1)
  * -----------------------------------------------------------------
  */
 
-static int IDAnlsIC (IDAMem IDA_mem)
+static int IDAnlsIC(IDAMem IDA_mem)
 {
   int retval, nj;
   N_Vector tv1, tv2, tv3;
@@ -311,46 +326,44 @@ static int IDAnlsIC (IDAMem IDA_mem)
   tv2 = IDA_mem->ida_tempv2;
   tv3 = IDA_mem->ida_phi[2];
 
-  retval = IDA_mem->ida_res(IDA_mem->ida_t0, IDA_mem->ida_yy0,
-                            IDA_mem->ida_yp0, IDA_mem->ida_delta,
-                            IDA_mem->ida_user_data);
+  retval = IDA_mem->ida_res(IDA_mem->ida_t0, IDA_mem->ida_yy0, IDA_mem->ida_yp0,
+                            IDA_mem->ida_delta, IDA_mem->ida_user_data);
   IDA_mem->ida_nre++;
-  if(retval < 0) return(IDA_RES_FAIL);
-  if(retval > 0) return(IDA_FIRST_RES_FAIL);
+  if (retval < 0) { return (IDA_RES_FAIL); }
+  if (retval > 0) { return (IDA_FIRST_RES_FAIL); }
 
   N_VScale(ONE, IDA_mem->ida_delta, IDA_mem->ida_savres);
 
   /* Loop over nj = number of linear solve Jacobian setups. */
 
-  for(nj = 1; nj <= IDA_mem->ida_maxnj; nj++) {
-
+  for (nj = 1; nj <= IDA_mem->ida_maxnj; nj++)
+  {
     /* If there is a setup routine, call it. */
-    if(IDA_mem->ida_lsetup) {
+    if (IDA_mem->ida_lsetup)
+    {
       IDA_mem->ida_nsetups++;
-      retval = IDA_mem->ida_lsetup(IDA_mem, IDA_mem->ida_yy0,
-                                   IDA_mem->ida_yp0, IDA_mem->ida_delta,
-                                   tv1, tv2, tv3);
-      if(retval < 0) return(IDA_LSETUP_FAIL);
-      if(retval > 0) return(IC_FAIL_RECOV);
+      retval = IDA_mem->ida_lsetup(IDA_mem, IDA_mem->ida_yy0, IDA_mem->ida_yp0,
+                                   IDA_mem->ida_delta, tv1, tv2, tv3);
+      if (retval < 0) { return (IDA_LSETUP_FAIL); }
+      if (retval > 0) { return (IC_FAIL_RECOV); }
     }
 
     /* Call the Newton iteration routine, and return if successful.  */
     retval = IDANewtonIC(IDA_mem);
-    if(retval == IDA_SUCCESS) return(IDA_SUCCESS);
+    if (retval == IDA_SUCCESS) { return (IDA_SUCCESS); }
 
     /* If converging slowly and lsetup is nontrivial, retry. */
-    if(retval == IC_SLOW_CONVRG && IDA_mem->ida_lsetup) {
+    if (retval == IC_SLOW_CONVRG && IDA_mem->ida_lsetup)
+    {
       N_VScale(ONE, IDA_mem->ida_savres, IDA_mem->ida_delta);
       continue;
-    } else {
-      return(retval);
     }
+    else { return (retval); }
 
-  }   /* End of nj loop */
+  } /* End of nj loop */
 
   /* No convergence after maxnj tries; return with retval=IC_SLOW_CONVRG */
-  return(retval);
-
+  return (retval);
 }
 
 /*
@@ -387,18 +400,19 @@ static int IDANewtonIC(IDAMem IDA_mem)
   IDA_mem->ida_delnew = IDA_mem->ida_phi[2];
 
   /* Call the linear solve function to get the Newton step, delta. */
-  retval = IDA_mem->ida_lsolve(IDA_mem, IDA_mem->ida_delta,
-                               IDA_mem->ida_ewt, IDA_mem->ida_yy0,
-                               IDA_mem->ida_yp0, IDA_mem->ida_savres);
-  if(retval < 0) return(IDA_LSOLVE_FAIL);
-  if(retval > 0) return(IC_FAIL_RECOV);
+  retval = IDA_mem->ida_lsolve(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt,
+                               IDA_mem->ida_yy0, IDA_mem->ida_yp0,
+                               IDA_mem->ida_savres);
+  if (retval < 0) { return (IDA_LSOLVE_FAIL); }
+  if (retval > 0) { return (IC_FAIL_RECOV); }
 
   /* Compute the norm of the step; return now if this is small. */
   fnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt, SUNFALSE);
-  if(IDA_mem->ida_sysindex == 0)
+  if (IDA_mem->ida_sysindex == 0)
+  {
     fnorm *= IDA_mem->ida_tscale * SUNRabs(IDA_mem->ida_cj);
-  if(fnorm <= IDA_mem->ida_epsNewt)
-    return(IDA_SUCCESS);
+  }
+  if (fnorm <= IDA_mem->ida_epsNewt) { return (IDA_SUCCESS); }
   fnorm0 = fnorm;
 
   /* Initialize rate to avoid compiler warning message */
@@ -406,30 +420,29 @@ static int IDANewtonIC(IDAMem IDA_mem)
 
   /* Newton iteration loop */
 
-  for(mnewt = 0; mnewt < IDA_mem->ida_maxnit; mnewt++) {
-
+  for (mnewt = 0; mnewt < IDA_mem->ida_maxnit; mnewt++)
+  {
     IDA_mem->ida_nni++;
     delnorm = fnorm;
     oldfnrm = fnorm;
 
     /* Call the Linesearch function and return if it failed. */
     retval = IDALineSrch(IDA_mem, &delnorm, &fnorm);
-    if(retval != IDA_SUCCESS) return(retval);
+    if (retval != IDA_SUCCESS) { return (retval); }
 
     /* Set the observed convergence rate and test for convergence. */
-    rate = fnorm/oldfnrm;
-    if(fnorm <= IDA_mem->ida_epsNewt) return(IDA_SUCCESS);
+    rate = fnorm / oldfnrm;
+    if (fnorm <= IDA_mem->ida_epsNewt) { return (IDA_SUCCESS); }
 
     /* If not converged, copy new step vector, and loop. */
     N_VScale(ONE, IDA_mem->ida_delnew, IDA_mem->ida_delta);
 
-  }   /* End of Newton iteration loop */
+  } /* End of Newton iteration loop */
 
   /* Return either IC_SLOW_CONVRG or recoverable fail flag. */
-  if(rate <= ICRATEMAX || fnorm < PT1*fnorm0) return(IC_SLOW_CONVRG);
-  return(IC_CONV_FAIL);
+  if (rate <= ICRATEMAX || fnorm < PT1 * fnorm0) { return (IC_SLOW_CONVRG); }
+  return (IC_CONV_FAIL);
 }
-
 
 /*
  * -----------------------------------------------------------------
@@ -459,7 +472,7 @@ static int IDANewtonIC(IDAMem IDA_mem)
  * -----------------------------------------------------------------
  */
 
-static int IDALineSrch(IDAMem IDA_mem, sunrealtype *delnorm, sunrealtype *fnorm)
+static int IDALineSrch(IDAMem IDA_mem, sunrealtype* delnorm, sunrealtype* fnorm)
 {
   sunbooleantype conOK;
   int retval, nbacks;
@@ -468,69 +481,74 @@ static int IDALineSrch(IDAMem IDA_mem, sunrealtype *delnorm, sunrealtype *fnorm)
 
   /* Initialize work space pointers, f1norm, ratio.
      (Use of mc in constraint check does not conflict with ypnew.) */
-  mc = IDA_mem->ida_ee;
+  mc                 = IDA_mem->ida_ee;
   IDA_mem->ida_dtemp = IDA_mem->ida_phi[3];
-  IDA_mem->ida_ynew = IDA_mem->ida_tempv2;
+  IDA_mem->ida_ynew  = IDA_mem->ida_tempv2;
   IDA_mem->ida_ypnew = IDA_mem->ida_ee;
-  f1norm = (*fnorm)*(*fnorm)*HALF;
-  ratio = ONE;
+  f1norm             = (*fnorm) * (*fnorm) * HALF;
+  ratio              = ONE;
 
   /* If there are constraints, check and reduce step if necessary. */
-  if(IDA_mem->ida_constraintsSet) {
-
+  if (IDA_mem->ida_constraintsSet)
+  {
     /* Update y and check constraints. */
     IDANewy(IDA_mem);
     conOK = N_VConstrMask(IDA_mem->ida_constraints, IDA_mem->ida_ynew, mc);
 
-    if(!conOK) {
+    if (!conOK)
+    {
       /* Not satisfied.  Compute scaled step to satisfy constraints. */
       N_VProd(mc, IDA_mem->ida_delta, IDA_mem->ida_dtemp);
-      ratio = PT99*N_VMinQuotient(IDA_mem->ida_yy0, IDA_mem->ida_dtemp);
+      ratio = PT99 * N_VMinQuotient(IDA_mem->ida_yy0, IDA_mem->ida_dtemp);
       (*delnorm) *= ratio;
-      if((*delnorm) <= IDA_mem->ida_steptol) return(IC_CONSTR_FAILED);
+      if ((*delnorm) <= IDA_mem->ida_steptol) { return (IC_CONSTR_FAILED); }
       N_VScale(ratio, IDA_mem->ida_delta, IDA_mem->ida_delta);
     }
 
   } /* End of constraints check */
 
-  slpi = -TWO*f1norm*ratio;
+  slpi   = -TWO * f1norm * ratio;
   minlam = IDA_mem->ida_steptol / (*delnorm);
   lambda = ONE;
   nbacks = 0;
 
   /* In IDA_Y_INIT case, set ypnew = yp0 (fixed) for linesearch. */
-  if(IDA_mem->ida_icopt == IDA_Y_INIT)
+  if (IDA_mem->ida_icopt == IDA_Y_INIT)
+  {
     N_VScale(ONE, IDA_mem->ida_yp0, IDA_mem->ida_ypnew);
+  }
 
   /* Loop on linesearch variable lambda. */
 
-  for(;;) {
-
-    if (nbacks == IDA_mem->ida_maxbacks) return(IC_LINESRCH_FAILED);
+  for (;;)
+  {
+    if (nbacks == IDA_mem->ida_maxbacks) { return (IC_LINESRCH_FAILED); }
     /* Get new (y,y') = (ynew,ypnew) and norm of new function value. */
     IDANewyyp(IDA_mem, lambda);
     retval = IDAfnorm(IDA_mem, &fnormp);
-    if(retval != IDA_SUCCESS) return(retval);
+    if (retval != IDA_SUCCESS) { return (retval); }
 
     /* If lsoff option is on, break out. */
-    if(IDA_mem->ida_lsoff) break;
+    if (IDA_mem->ida_lsoff) { break; }
 
     /* Do alpha-condition test. */
-    f1normp = fnormp*fnormp*HALF;
-    if(f1normp <= f1norm + ALPHALS*slpi*lambda) break;
-    if(lambda < minlam) return(IC_LINESRCH_FAILED);
+    f1normp = fnormp * fnormp * HALF;
+    if (f1normp <= f1norm + ALPHALS * slpi * lambda) { break; }
+    if (lambda < minlam) { return (IC_LINESRCH_FAILED); }
     lambda /= TWO;
-    IDA_mem->ida_nbacktr++; nbacks++;
+    IDA_mem->ida_nbacktr++;
+    nbacks++;
 
-  }  /* End of breakout linesearch loop */
+  } /* End of breakout linesearch loop */
 
   /* Update yy0, yp0, and fnorm, then return. */
-  N_VScale(ONE, IDA_mem->ida_ynew,  IDA_mem->ida_yy0);
-  if(IDA_mem->ida_icopt == IDA_YA_YDP_INIT)
+  N_VScale(ONE, IDA_mem->ida_ynew, IDA_mem->ida_yy0);
+  if (IDA_mem->ida_icopt == IDA_YA_YDP_INIT)
+  {
     N_VScale(ONE, IDA_mem->ida_ypnew, IDA_mem->ida_yp0);
+  }
   *fnorm = fnormp;
-  return(IDA_SUCCESS);
-
+  return (IDA_SUCCESS);
 }
 
 /*
@@ -551,7 +569,7 @@ static int IDALineSrch(IDAMem IDA_mem, sunrealtype *delnorm, sunrealtype *fnorm)
  * -----------------------------------------------------------------
  */
 
-static int IDAfnorm(IDAMem IDA_mem, sunrealtype *fnorm)
+static int IDAfnorm(IDAMem IDA_mem, sunrealtype* fnorm)
 {
   int retval;
 
@@ -560,25 +578,26 @@ static int IDAfnorm(IDAMem IDA_mem, sunrealtype *fnorm)
                             IDA_mem->ida_ypnew, IDA_mem->ida_delnew,
                             IDA_mem->ida_user_data);
   IDA_mem->ida_nre++;
-  if(retval < 0) return(IDA_RES_FAIL);
-  if(retval > 0) return(IC_FAIL_RECOV);
+  if (retval < 0) { return (IDA_RES_FAIL); }
+  if (retval > 0) { return (IC_FAIL_RECOV); }
 
   N_VScale(ONE, IDA_mem->ida_delnew, IDA_mem->ida_savres);
 
   /* Call the linear solve function to get J-inverse F; return if failed. */
-  retval = IDA_mem->ida_lsolve(IDA_mem, IDA_mem->ida_delnew,
-                               IDA_mem->ida_ewt, IDA_mem->ida_ynew,
-                               IDA_mem->ida_ypnew, IDA_mem->ida_savres);
-  if(retval < 0) return(IDA_LSOLVE_FAIL);
-  if(retval > 0) return(IC_FAIL_RECOV);
+  retval = IDA_mem->ida_lsolve(IDA_mem, IDA_mem->ida_delnew, IDA_mem->ida_ewt,
+                               IDA_mem->ida_ynew, IDA_mem->ida_ypnew,
+                               IDA_mem->ida_savres);
+  if (retval < 0) { return (IDA_LSOLVE_FAIL); }
+  if (retval > 0) { return (IC_FAIL_RECOV); }
 
   /* Compute the WRMS-norm; rescale if index = 0. */
   *fnorm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delnew, IDA_mem->ida_ewt, SUNFALSE);
-  if(IDA_mem->ida_sysindex == 0)
+  if (IDA_mem->ida_sysindex == 0)
+  {
     (*fnorm) *= IDA_mem->ida_tscale * SUNRabs(IDA_mem->ida_cj);
+  }
 
-  return(IDA_SUCCESS);
-
+  return (IDA_SUCCESS);
 }
 
 /*
@@ -595,25 +614,24 @@ static int IDAfnorm(IDAMem IDA_mem, sunrealtype *fnorm)
 
 static int IDANewyyp(IDAMem IDA_mem, sunrealtype lambda)
 {
-
   /* IDA_YA_YDP_INIT case: ynew  = yy0 - lambda*delta    where id_i = 0
                            ypnew = yp0 - cj*lambda*delta where id_i = 1. */
-  if(IDA_mem->ida_icopt == IDA_YA_YDP_INIT) {
+  if (IDA_mem->ida_icopt == IDA_YA_YDP_INIT)
+  {
     N_VProd(IDA_mem->ida_id, IDA_mem->ida_delta, IDA_mem->ida_dtemp);
-    N_VLinearSum(ONE, IDA_mem->ida_yp0, -IDA_mem->ida_cj*lambda,
+    N_VLinearSum(ONE, IDA_mem->ida_yp0, -IDA_mem->ida_cj * lambda,
                  IDA_mem->ida_dtemp, IDA_mem->ida_ypnew);
-    N_VLinearSum(ONE, IDA_mem->ida_delta, -ONE,
-                 IDA_mem->ida_dtemp, IDA_mem->ida_dtemp);
-    N_VLinearSum(ONE, IDA_mem->ida_yy0, -lambda,
-                 IDA_mem->ida_dtemp, IDA_mem->ida_ynew);
-    return(IDA_SUCCESS);
+    N_VLinearSum(ONE, IDA_mem->ida_delta, -ONE, IDA_mem->ida_dtemp,
+                 IDA_mem->ida_dtemp);
+    N_VLinearSum(ONE, IDA_mem->ida_yy0, -lambda, IDA_mem->ida_dtemp,
+                 IDA_mem->ida_ynew);
+    return (IDA_SUCCESS);
   }
 
   /* IDA_Y_INIT case: ynew = yy0 - lambda*delta. (ypnew = yp0 preset.) */
-  N_VLinearSum(ONE, IDA_mem->ida_yy0, -lambda,
-               IDA_mem->ida_delta, IDA_mem->ida_ynew);
-  return(IDA_SUCCESS);
-
+  N_VLinearSum(ONE, IDA_mem->ida_yy0, -lambda, IDA_mem->ida_delta,
+               IDA_mem->ida_ynew);
+  return (IDA_SUCCESS);
 }
 
 /*
@@ -630,22 +648,21 @@ static int IDANewyyp(IDAMem IDA_mem, sunrealtype lambda)
 
 static int IDANewy(IDAMem IDA_mem)
 {
-
   /* IDA_YA_YDP_INIT case: ynew = yy0 - delta    where id_i = 0. */
-  if(IDA_mem->ida_icopt == IDA_YA_YDP_INIT) {
+  if (IDA_mem->ida_icopt == IDA_YA_YDP_INIT)
+  {
     N_VProd(IDA_mem->ida_id, IDA_mem->ida_delta, IDA_mem->ida_dtemp);
-    N_VLinearSum(ONE, IDA_mem->ida_delta, -ONE,
-                 IDA_mem->ida_dtemp, IDA_mem->ida_dtemp);
-    N_VLinearSum(ONE, IDA_mem->ida_yy0, -ONE,
-                 IDA_mem->ida_dtemp, IDA_mem->ida_ynew);
-    return(IDA_SUCCESS);
+    N_VLinearSum(ONE, IDA_mem->ida_delta, -ONE, IDA_mem->ida_dtemp,
+                 IDA_mem->ida_dtemp);
+    N_VLinearSum(ONE, IDA_mem->ida_yy0, -ONE, IDA_mem->ida_dtemp,
+                 IDA_mem->ida_ynew);
+    return (IDA_SUCCESS);
   }
 
   /* IDA_Y_INIT case: ynew = yy0 - delta. */
   N_VLinearSum(ONE, IDA_mem->ida_yy0, -ONE, IDA_mem->ida_delta,
                IDA_mem->ida_ynew);
-  return(IDA_SUCCESS);
-
+  return (IDA_SUCCESS);
 }
 
 /*
@@ -659,51 +676,56 @@ static int IDANewy(IDAMem IDA_mem)
 
 static int IDAICFailFlag(IDAMem IDA_mem, int retval)
 {
-
   /* Depending on retval, print error message and return error flag. */
-  switch(retval) {
+  switch (retval)
+  {
+  case IDA_RES_FAIL:
+    IDAProcessError(IDA_mem, IDA_RES_FAIL, "IDA", "IDACalcIC", MSG_IC_RES_NONREC);
+    return (IDA_RES_FAIL);
 
-    case IDA_RES_FAIL:
-      IDAProcessError(IDA_mem, IDA_RES_FAIL, "IDA", "IDACalcIC", MSG_IC_RES_NONREC);
-      return(IDA_RES_FAIL);
+  case IDA_FIRST_RES_FAIL:
+    IDAProcessError(IDA_mem, IDA_FIRST_RES_FAIL, "IDA", "IDACalcIC",
+                    MSG_IC_RES_FAIL);
+    return (IDA_FIRST_RES_FAIL);
 
-    case IDA_FIRST_RES_FAIL:
-      IDAProcessError(IDA_mem, IDA_FIRST_RES_FAIL, "IDA", "IDACalcIC", MSG_IC_RES_FAIL);
-      return(IDA_FIRST_RES_FAIL);
+  case IDA_LSETUP_FAIL:
+    IDAProcessError(IDA_mem, IDA_LSETUP_FAIL, "IDA", "IDACalcIC",
+                    MSG_IC_SETUP_FAIL);
+    return (IDA_LSETUP_FAIL);
 
-    case IDA_LSETUP_FAIL:
-      IDAProcessError(IDA_mem, IDA_LSETUP_FAIL, "IDA", "IDACalcIC", MSG_IC_SETUP_FAIL);
-      return(IDA_LSETUP_FAIL);
+  case IDA_LSOLVE_FAIL:
+    IDAProcessError(IDA_mem, IDA_LSOLVE_FAIL, "IDA", "IDACalcIC",
+                    MSG_IC_SOLVE_FAIL);
+    return (IDA_LSOLVE_FAIL);
 
-    case IDA_LSOLVE_FAIL:
-      IDAProcessError(IDA_mem, IDA_LSOLVE_FAIL, "IDA", "IDACalcIC", MSG_IC_SOLVE_FAIL);
-      return(IDA_LSOLVE_FAIL);
+  case IC_FAIL_RECOV:
+    IDAProcessError(IDA_mem, IDA_NO_RECOVERY, "IDA", "IDACalcIC",
+                    MSG_IC_NO_RECOVERY);
+    return (IDA_NO_RECOVERY);
 
-    case IC_FAIL_RECOV:
-      IDAProcessError(IDA_mem, IDA_NO_RECOVERY, "IDA", "IDACalcIC", MSG_IC_NO_RECOVERY);
-      return(IDA_NO_RECOVERY);
+  case IC_CONSTR_FAILED:
+    IDAProcessError(IDA_mem, IDA_CONSTR_FAIL, "IDA", "IDACalcIC",
+                    MSG_IC_FAIL_CONSTR);
+    return (IDA_CONSTR_FAIL);
 
-    case IC_CONSTR_FAILED:
-      IDAProcessError(IDA_mem, IDA_CONSTR_FAIL, "IDA", "IDACalcIC", MSG_IC_FAIL_CONSTR);
-      return(IDA_CONSTR_FAIL);
+  case IC_LINESRCH_FAILED:
+    IDAProcessError(IDA_mem, IDA_LINESEARCH_FAIL, "IDA", "IDACalcIC",
+                    MSG_IC_FAILED_LINS);
+    return (IDA_LINESEARCH_FAIL);
 
-    case IC_LINESRCH_FAILED:
-      IDAProcessError(IDA_mem, IDA_LINESEARCH_FAIL, "IDA", "IDACalcIC", MSG_IC_FAILED_LINS);
-      return(IDA_LINESEARCH_FAIL);
+  case IC_CONV_FAIL:
+    IDAProcessError(IDA_mem, IDA_CONV_FAIL, "IDA", "IDACalcIC",
+                    MSG_IC_CONV_FAILED);
+    return (IDA_CONV_FAIL);
 
-    case IC_CONV_FAIL:
-      IDAProcessError(IDA_mem, IDA_CONV_FAIL, "IDA", "IDACalcIC", MSG_IC_CONV_FAILED);
-      return(IDA_CONV_FAIL);
+  case IC_SLOW_CONVRG:
+    IDAProcessError(IDA_mem, IDA_CONV_FAIL, "IDA", "IDACalcIC",
+                    MSG_IC_CONV_FAILED);
+    return (IDA_CONV_FAIL);
 
-    case IC_SLOW_CONVRG:
-      IDAProcessError(IDA_mem, IDA_CONV_FAIL, "IDA", "IDACalcIC", MSG_IC_CONV_FAILED);
-      return(IDA_CONV_FAIL);
-
-    case IDA_BAD_EWT:
-      IDAProcessError(IDA_mem, IDA_BAD_EWT, "IDA", "IDACalcIC", MSG_IC_BAD_EWT);
-      return(IDA_BAD_EWT);
-
+  case IDA_BAD_EWT:
+    IDAProcessError(IDA_mem, IDA_BAD_EWT, "IDA", "IDACalcIC", MSG_IC_BAD_EWT);
+    return (IDA_BAD_EWT);
   }
   return -99;
 }
-

@@ -12,8 +12,8 @@
 
 .. _SUNDIALS.SUNVersionInfo:
 
-SUNDIALS Version Information
-==============================
+Getting Version Information
+===========================
 
 SUNDIALS provides additional utilities to all packages, that may be
 used to retrieve SUNDIALS version information at runtime.

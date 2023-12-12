@@ -33,15 +33,14 @@
  * program with the --help flag.
  * ---------------------------------------------------------------------------*/
 
+#include <cvode/cvode.h> /* access to CVODE                 */
+#include <math.h>
+#include <nvector/nvector_serial.h> /* access to serial N_Vector       */
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-#include <math.h>
-
-#include <cvode/cvode.h>               /* access to CVODE                 */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
-#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix       */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix       */
 
 /* Precision specific formatting macros */
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -56,31 +55,31 @@
 
 /* Precision specific math function macros */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SIN(x)   (sin((x)))
-#define COS(x)   (cos((x)))
-#define SQRT(x)  (sqrt((x)))
+#define SIN(x)  (sin((x)))
+#define COS(x)  (cos((x)))
+#define SQRT(x) (sqrt((x)))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SIN(x)   (sinf((x)))
-#define COS(x)   (cosf((x)))
-#define SQRT(x)  (sqrtf((x)))
+#define SIN(x)  (sinf((x)))
+#define COS(x)  (cosf((x)))
+#define SQRT(x) (sqrtf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SIN(x)   (sinl((x)))
-#define COS(x)   (cosl((x)))
-#define SQRT(x)  (sqrtl((x)))
+#define SIN(x)  (sinl((x)))
+#define COS(x)  (cosl((x)))
+#define SQRT(x) (sqrtl((x)))
 #endif
 
 /* Problem Constants */
-#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
-#define TWO   SUN_RCONST(2.0)
+#define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 /* User-defined data structure */
 typedef struct UserData_
 {
   sunrealtype alpha; /* particle velocity */
 
-  int      orbits; /* number of orbits */
+  int orbits;         /* number of orbits */
   sunrealtype torbit; /* orbit time       */
 
   sunrealtype rtol; /* integration tolerances */
@@ -92,27 +91,26 @@ typedef struct UserData_
   int tstop; /* use tstop mode */
   int nout;  /* number of outputs per orbit */
 
-} *UserData;
+}* UserData;
 
 /* Functions provided to CVODE */
-static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Proj(sunrealtype t, N_Vector ycur, N_Vector corr, sunrealtype epsProj,
-                N_Vector err, void *user_data);
+               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Proj(sunrealtype t, N_Vector ycur, N_Vector corr,
+                sunrealtype epsProj, N_Vector err, void* user_data);
 
 /* Utility functions */
-static int InitUserData(int *argc, char ***argv, UserData udata);
+static int InitUserData(int* argc, char*** argv, UserData udata);
 static int PrintUserData(UserData udata);
-static void InputHelp();
+static void InputHelp(void);
 static int ComputeSolution(sunrealtype t, N_Vector y, UserData udata);
-static int ComputeError(sunrealtype t, N_Vector y, N_Vector e, sunrealtype *ec,
+static int ComputeError(sunrealtype t, N_Vector y, N_Vector e, sunrealtype* ec,
                         UserData udata);
 static int WriteOutput(sunrealtype t, N_Vector y, N_Vector e, sunrealtype ec,
-                       int screenfile, FILE *YFID, FILE *EFID);
-static int PrintStats(void *cvode_mem);
-static int check_retval(void *returnvalue, const char *funcname, int opt);
-
+                       int screenfile, FILE* YFID, FILE* EFID);
+static int PrintStats(void* cvode_mem);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /* -----------------------------------------------------------------------------
  * Main Program
@@ -120,40 +118,40 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(int argc, char* argv[])
 {
-  int      retval;          /* reusable return flag       */
-  int      out      = 0;    /* output counter             */
-  int      totalout = 0;    /* output counter             */
-  sunrealtype t        = ZERO; /* current integration time   */
-  sunrealtype dtout    = ZERO; /* output spacing             */
-  sunrealtype tout     = ZERO; /* next output time           */
-  sunrealtype ec       = ZERO; /* constraint error           */
+  int retval;               /* reusable return flag       */
+  int out           = 0;    /* output counter             */
+  int totalout      = 0;    /* output counter             */
+  sunrealtype t     = ZERO; /* current integration time   */
+  sunrealtype dtout = ZERO; /* output spacing             */
+  sunrealtype tout  = ZERO; /* next output time           */
+  sunrealtype ec    = ZERO; /* constraint error           */
   UserData udata    = NULL; /* user data structure        */
 
-  SUNContext      sunctx     = NULL; /* SUNDIALS context     */
-  void            *cvode_mem = NULL; /* CVODE memory         */
-  N_Vector         y         = NULL; /* solution vector      */
-  sunrealtype        *ydata     = NULL; /* solution vector data */
-  N_Vector         e         = NULL; /* error vector         */
-  SUNMatrix        A         = NULL; /* Jacobian matrix      */
-  SUNLinearSolver  LS        = NULL; /* linear solver        */
+  SUNContext sunctx  = NULL; /* SUNDIALS context     */
+  void* cvode_mem    = NULL; /* CVODE memory         */
+  N_Vector y         = NULL; /* solution vector      */
+  sunrealtype* ydata = NULL; /* solution vector data */
+  N_Vector e         = NULL; /* error vector         */
+  SUNMatrix A        = NULL; /* Jacobian matrix      */
+  SUNLinearSolver LS = NULL; /* linear solver        */
 
-  FILE *YFID = NULL; /* solution output file */
-  FILE *EFID = NULL; /* error output file    */
+  FILE* YFID = NULL; /* solution output file */
+  FILE* EFID = NULL; /* error output file    */
 
   /* Create the SUNDIALS context */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if(check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
   /* Allocate and initialize user data structure */
-  udata = (UserData) malloc(sizeof *udata);
-  if (check_retval((void *)udata, "malloc", 0)) return(1);
+  udata = (UserData)malloc(sizeof *udata);
+  if (check_retval((void*)udata, "malloc", 0)) { return (1); }
 
   retval = InitUserData(&argc, &argv, udata);
-  if (check_retval(&retval, "InitUserData", 1)) return(1);
+  if (check_retval(&retval, "InitUserData", 1)) { return (1); }
 
   /* Create serial vector to store the solution */
   y = N_VNew_Serial(2, sunctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)y, "N_VNew_Serial", 0)) { return (1); }
 
   /* Set initial contion */
   ydata    = N_VGetArrayPointer(y);
@@ -162,60 +160,60 @@ int main(int argc, char* argv[])
 
   /* Create serial vector to store the solution error */
   e = N_VClone(y);
-  if (check_retval((void *)y, "N_VClone", 0)) return(1);
+  if (check_retval((void*)y, "N_VClone", 0)) { return (1); }
 
   /* Set initial error */
   N_VConst(ZERO, e);
 
   /* Create CVODE memory */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   /* Initialize CVODE */
   retval = CVodeInit(cvode_mem, f, t, y);
-  if (check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
 
   /* Attach user-defined data structure to CVODE */
   retval = CVodeSetUserData(cvode_mem, udata);
-  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) { return (1); }
 
   /* Set integration tolerances */
   retval = CVodeSStolerances(cvode_mem, udata->rtol, udata->atol);
-  if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) { return (1); }
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(2, 2, sunctx);
-  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void*)A, "SUNDenseMatrix", 0)) { return (1); }
 
   /* Create dense SUNLinearSolver object */
   LS = SUNLinSol_Dense(y, A, sunctx);
-  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
+  if (check_retval((void*)LS, "SUNLinSol_Dense", 0)) { return (1); }
 
   /* Attach the matrix and linear solver to CVODE */
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return (1); }
 
   /* Set a user-supplied Jacobian function */
   retval = CVodeSetJacFn(cvode_mem, Jac);
-  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) { return (1); }
 
   /* Set a user-supplied projection function */
   if (udata->proj)
   {
     retval = CVodeSetProjFn(cvode_mem, Proj);
-    if(check_retval(&retval, "CVodeSetProjFn", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetProjFn", 1)) { return (1); }
 
     retval = CVodeSetProjErrEst(cvode_mem, udata->projerr);
-    if(check_retval(&retval, "CVodeSetProjErrEst", 1)) return(1);
+    if (check_retval(&retval, "CVodeSetProjErrEst", 1)) { return (1); }
   }
 
   /* Set max steps between outputs */
   retval = CVodeSetMaxNumSteps(cvode_mem, 100000);
-  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) { return (1); }
 
   /* Output problem setup */
   retval = PrintUserData(udata);
-  if(check_retval(&retval, "PrintUserData", 1)) return(1);
+  if (check_retval(&retval, "PrintUserData", 1)) { return (1); }
 
   /* Output initial condition */
   printf("\n     t            x              y");
@@ -224,8 +222,8 @@ int main(int argc, char* argv[])
 
   if (udata->nout > 0)
   {
-    YFID = fopen("cvParticle_solution.txt","w");
-    EFID = fopen("cvParticle_error.txt","w");
+    YFID = fopen("cvParticle_solution.txt", "w");
+    EFID = fopen("cvParticle_error.txt", "w");
     WriteOutput(t, y, e, ec, 1, YFID, EFID);
   }
 
@@ -248,32 +246,26 @@ int main(int argc, char* argv[])
     if (udata->tstop || udata->nout == 0)
     {
       retval = CVodeSetStopTime(cvode_mem, tout);
-      if (check_retval(&retval, "CVodeSetStopTime", 1)) return(1);
+      if (check_retval(&retval, "CVodeSetStopTime", 1)) { return (1); }
     }
 
     /* Advance in time */
     retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-    if (check_retval(&retval, "CVode", 1)) break;
+    if (check_retval(&retval, "CVode", 1)) { break; }
 
     /* Output solution and error */
     if (udata->nout > 0)
     {
       retval = ComputeError(t, y, e, &ec, udata);
-      if (check_retval(&retval, "ComputeError", 1)) break;
+      if (check_retval(&retval, "ComputeError", 1)) { break; }
 
       WriteOutput(t, y, e, ec, 1, YFID, EFID);
-      if (check_retval(&retval, "WriteOutput", 1)) break;
+      if (check_retval(&retval, "WriteOutput", 1)) { break; }
     }
 
     /* Update output time */
-    if (out < totalout - 1)
-    {
-      tout += dtout;
-    }
-    else
-    {
-      tout = udata->torbit * udata->orbits;
-    }
+    if (out < totalout - 1) { tout += dtout; }
+    else { tout = udata->torbit * udata->orbits; }
   }
 
   /* Close output files */
@@ -285,10 +277,10 @@ int main(int argc, char* argv[])
 
   /* Output final solution and error to screen */
   ComputeError(t, y, e, &ec, udata);
-  if (check_retval(&retval, "ComputeError", 1)) return(1);
+  if (check_retval(&retval, "ComputeError", 1)) { return (1); }
 
   WriteOutput(t, y, e, ec, 0, NULL, NULL);
-  if (check_retval(&retval, "WriteOutput", 1)) return(1);
+  if (check_retval(&retval, "WriteOutput", 1)) { return (1); }
 
   /* Print some final statistics */
   PrintStats(cvode_mem);
@@ -302,55 +294,52 @@ int main(int argc, char* argv[])
   CVodeFree(&cvode_mem);
   SUNContext_Free(&sunctx);
 
-  return(0);
+  return (0);
 }
-
 
 /* -----------------------------------------------------------------------------
  * Functions provided to CVODE
  * ---------------------------------------------------------------------------*/
 
-
 /* Compute the right-hand side function, y' = f(t,y) */
-static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  UserData  udata = (UserData) user_data;
-  sunrealtype *ydata = N_VGetArrayPointer(y);
-  sunrealtype *fdata = N_VGetArrayPointer(ydot);
+  UserData udata     = (UserData)user_data;
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype* fdata = N_VGetArrayPointer(ydot);
 
   fdata[0] = -(udata->alpha) * ydata[1];
-  fdata[1] =  (udata->alpha) * ydata[0];
+  fdata[1] = (udata->alpha) * ydata[0];
 
-  return(0);
+  return (0);
 }
-
 
 /* Compute the Jacobian of the right-hand side function, J(t,y) = df/dy */
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  UserData  udata = (UserData) user_data;
-  sunrealtype *Jdata = SUNDenseMatrix_Data(J);
+  UserData udata     = (UserData)user_data;
+  sunrealtype* Jdata = SUNDenseMatrix_Data(J);
 
-  Jdata[0] =  ZERO;
+  Jdata[0] = ZERO;
   Jdata[1] = -(udata->alpha);
-  Jdata[2] =  (udata->alpha);
-  Jdata[3] =  ZERO;
+  Jdata[2] = (udata->alpha);
+  Jdata[3] = ZERO;
 
-  return(0);
+  return (0);
 }
 
 /* Project the solution onto the constraint manifold */
-static int Proj(sunrealtype t, N_Vector ycur, N_Vector corr, sunrealtype epsProj,
-                N_Vector err, void *user_data)
+static int Proj(sunrealtype t, N_Vector ycur, N_Vector corr,
+                sunrealtype epsProj, N_Vector err, void* user_data)
 {
-  sunrealtype *ydata = N_VGetArrayPointer(ycur);
-  sunrealtype *cdata = N_VGetArrayPointer(corr);
-  sunrealtype *edata = NULL;
-  sunrealtype  x = ydata[0];
-  sunrealtype  y = ydata[1];
-  sunrealtype  xp, yp, r;
-  sunrealtype  errxp, erryp;
+  sunrealtype* ydata = N_VGetArrayPointer(ycur);
+  sunrealtype* cdata = N_VGetArrayPointer(corr);
+  sunrealtype* edata = NULL;
+  sunrealtype x      = ydata[0];
+  sunrealtype y      = ydata[1];
+  sunrealtype xp, yp, r;
+  sunrealtype errxp, erryp;
 
   /* project onto the unit circle */
   r = SQRT(x * x + y * y);
@@ -367,22 +356,21 @@ static int Proj(sunrealtype t, N_Vector ycur, N_Vector corr, sunrealtype epsProj
   {
     edata = N_VGetArrayPointer(err);
 
-    errxp =  edata[0] * yp * yp - edata[1] * xp * yp;
+    errxp = edata[0] * yp * yp - edata[1] * xp * yp;
     erryp = -edata[0] * xp * yp + edata[1] * xp * xp;
 
     edata[0] = errxp;
     edata[1] = erryp;
   }
 
-  return(0);
+  return (0);
 }
-
 
 /* -----------------------------------------------------------------------------
  * Private helper functions
  * ---------------------------------------------------------------------------*/
 
-static int InitUserData(int *argc, char ***argv, UserData udata)
+static int InitUserData(int* argc, char*** argv, UserData udata)
 {
   int arg_idx = 1;
 
@@ -404,89 +392,88 @@ static int InitUserData(int *argc, char ***argv, UserData udata)
   /* check for input args */
   while (arg_idx < (*argc))
   {
-    if (strcmp((*argv)[arg_idx],"--alpha") == 0)
+    if (strcmp((*argv)[arg_idx], "--alpha") == 0)
     {
       arg_idx++;
-      udata->alpha = atof((*argv)[arg_idx++]);
-      udata->torbit  = (TWO * PI) / udata->alpha;
+      udata->alpha  = atof((*argv)[arg_idx++]);
+      udata->torbit = (TWO * PI) / udata->alpha;
     }
-    else if (strcmp((*argv)[arg_idx],"--orbits") == 0)
+    else if (strcmp((*argv)[arg_idx], "--orbits") == 0)
     {
       arg_idx++;
       udata->orbits = atoi((*argv)[arg_idx++]);
     }
-    else if (strcmp((*argv)[arg_idx],"--rtol") == 0)
+    else if (strcmp((*argv)[arg_idx], "--rtol") == 0)
     {
       arg_idx++;
       udata->rtol = atof((*argv)[arg_idx++]);
     }
-    else if (strcmp((*argv)[arg_idx],"--atol") == 0)
+    else if (strcmp((*argv)[arg_idx], "--atol") == 0)
     {
       arg_idx++;
       udata->atol = atof((*argv)[arg_idx++]);
     }
-    else if (strcmp((*argv)[arg_idx],"--proj") == 0)
+    else if (strcmp((*argv)[arg_idx], "--proj") == 0)
     {
       arg_idx++;
       udata->proj = atoi((*argv)[arg_idx++]);
     }
-    else if (strcmp((*argv)[arg_idx],"--projerr") == 0)
+    else if (strcmp((*argv)[arg_idx], "--projerr") == 0)
     {
       arg_idx++;
       udata->projerr = atoi((*argv)[arg_idx++]);
     }
-    else if (strcmp((*argv)[arg_idx],"--nout") == 0)
+    else if (strcmp((*argv)[arg_idx], "--nout") == 0)
     {
       arg_idx++;
       udata->nout = atoi((*argv)[arg_idx++]);
     }
-    else if (strcmp((*argv)[arg_idx],"--tstop") == 0)
+    else if (strcmp((*argv)[arg_idx], "--tstop") == 0)
     {
       arg_idx++;
       udata->tstop = 1;
     }
-    else if (strcmp((*argv)[arg_idx],"--help") == 0 )
+    else if (strcmp((*argv)[arg_idx], "--help") == 0)
     {
       InputHelp();
-      return(-1);
+      return (-1);
     }
     else
     {
-      fprintf(stderr, "ERROR: Invalid input %s",(*argv)[arg_idx]);
+      fprintf(stderr, "ERROR: Invalid input %s", (*argv)[arg_idx]);
       InputHelp();
-      return(-1);
+      return (-1);
     }
   }
 
   /* If projection is disabled then disable error projection */
-  if (!(udata->proj)) udata->projerr = 0;
+  if (!(udata->proj)) { udata->projerr = 0; }
 
-  return(0);
+  return (0);
 }
 
 static int PrintUserData(UserData udata)
 {
-  if (udata == NULL) return(-1);
+  if (udata == NULL) { return (-1); }
 
   printf("\nParticle traveling on the unit circle example\n");
   printf("---------------------------------------------\n");
-  printf("alpha      = %0.4" ESYM"\n", udata->alpha);
+  printf("alpha      = %0.4" ESYM "\n", udata->alpha);
   printf("num orbits = %d\n", udata->orbits);
   printf("---------------------------------------------\n");
-  printf("rtol       = %" GSYM"\n", udata->rtol);
-  printf("atol       = %" GSYM"\n", udata->atol);
+  printf("rtol       = %" GSYM "\n", udata->rtol);
+  printf("atol       = %" GSYM "\n", udata->atol);
   printf("proj sol   = %d\n", udata->proj);
   printf("proj err   = %d\n", udata->projerr);
   printf("nout       = %d\n", udata->nout);
   printf("tstop      = %d\n", udata->tstop);
   printf("---------------------------------------------\n");
 
-  return(0);
+  return (0);
 }
 
-
 /* Print command line options */
-static void InputHelp()
+static void InputHelp(void)
 {
   printf("\nCommand line options:\n");
   printf("  --alpha <vel>      : particle velocity\n");
@@ -500,71 +487,68 @@ static void InputHelp()
   return;
 }
 
-
 /* Compute the analytical solution */
 static int ComputeSolution(sunrealtype t, N_Vector y, UserData udata)
 {
-  sunrealtype *ydata = N_VGetArrayPointer(y);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
 
   ydata[0] = COS((udata->alpha) * t);
   ydata[1] = SIN((udata->alpha) * t);
 
-  return(0);
+  return (0);
 }
 
-
 /* Compute the error in the solution and constraint */
-static int ComputeError(sunrealtype t, N_Vector y, N_Vector e, sunrealtype *ec,
+static int ComputeError(sunrealtype t, N_Vector y, N_Vector e, sunrealtype* ec,
                         UserData udata)
 {
-  sunrealtype *ydata = N_VGetArrayPointer(y);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
   int retval;
 
   /* solution error */
   retval = ComputeSolution(t, e, udata);
-  if (check_retval(&retval, "ComputeSolution", 1)) return(1);
+  if (check_retval(&retval, "ComputeSolution", 1)) { return (1); }
   N_VLinearSum(ONE, y, -ONE, e, e);
 
   /* constraint error */
   *ec = ydata[0] * ydata[0] + ydata[1] * ydata[1] - ONE;
 
-  return(0);
+  return (0);
 }
 
 /* Output the solution to the screen or disk */
 static int WriteOutput(sunrealtype t, N_Vector y, N_Vector e, sunrealtype ec,
                        int screenfile, FILE* YFID, FILE* EFID)
 {
-  sunrealtype *ydata = N_VGetArrayPointer(y);
-  sunrealtype *edata = N_VGetArrayPointer(e);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype* edata = N_VGetArrayPointer(e);
 
   if (screenfile == 0)
   {
     /* output solution and error to screen */
-    printf("%0.4" ESYM" %14.6" ESYM" %14.6" ESYM" %14.6" ESYM" %14.6" ESYM" %14.6" ESYM"\n",
+    printf("%0.4" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM " %14.6" ESYM
+           " %14.6" ESYM "\n",
            t, ydata[0], ydata[1], edata[0], edata[1], ec);
   }
   else
   {
     /* check file pointers */
-    if (YFID == NULL || EFID == NULL) return(1);
+    if (YFID == NULL || EFID == NULL) { return (1); }
 
     /* output solution to disk */
-    fprintf(YFID, "%24.16" ESYM" %24.16" ESYM" %24.16"ESYM"\n",
-            t, ydata[0], ydata[1]);
+    fprintf(YFID, "%24.16" ESYM " %24.16" ESYM " %24.16" ESYM "\n", t, ydata[0],
+            ydata[1]);
 
     /* output error to disk */
-    fprintf(EFID,
-            "%24.16" ESYM" %24.16" ESYM" %24.16"ESYM" %24.16"ESYM"\n",
+    fprintf(EFID, "%24.16" ESYM " %24.16" ESYM " %24.16" ESYM " %24.16" ESYM "\n",
             t, edata[0], edata[1], ec);
   }
 
-  return(0);
+  return (0);
 }
 
-
 /* Print final statistics */
-static int PrintStats(void *cvode_mem)
+static int PrintStats(void* cvode_mem)
 {
   int retval;
   long int nst, nfe, nsetups, nje, nni, ncfn, netf;
@@ -597,32 +581,30 @@ static int PrintStats(void *cvode_mem)
   printf("Number of convergence failures = %-6ld\n", ncfn);
   printf("Number of error test failures = %-6ld\n", netf);
 
-  return(0);
+  return (0);
 }
 
 /* Check function return value */
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Opt 0: Check if a NULL pointer was returned - no memory allocated */
   if (opt == 0 && returnvalue == NULL)
   {
-    fprintf(stderr, "\nERROR: %s() returned a NULL pointer\n\n",
-            funcname);
-    return(1);
+    fprintf(stderr, "\nERROR: %s() returned a NULL pointer\n\n", funcname);
+    return (1);
   }
   /* Opt 1: Check if retval < 0 */
   else if (opt == 1)
   {
-    retval = (int *) returnvalue;
+    retval = (int*)returnvalue;
     if (*retval < 0)
     {
-      fprintf(stderr, "\nERROR: %s() returned = %d\n\n",
-              funcname, *retval);
-      return(1);
+      fprintf(stderr, "\nERROR: %s() returned = %d\n\n", funcname, *retval);
+      return (1);
     }
   }
 
-  return(0);
+  return (0);
 }

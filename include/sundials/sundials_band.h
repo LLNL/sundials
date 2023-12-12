@@ -26,7 +26,7 @@
 
 #include <sundials/sundials_direct.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -80,9 +80,9 @@ SUNDIALS_EXPORT
 sunindextype SUNDlsMat_BandGBTRF(SUNDlsMat A, sunindextype* p);
 
 SUNDIALS_EXPORT
-sunindextype SUNDlsMat_bandGBTRF(sunrealtype **a, sunindextype n,
+sunindextype SUNDlsMat_bandGBTRF(sunrealtype** a, sunindextype n,
                                  sunindextype mu, sunindextype ml,
-                                 sunindextype smu, sunindextype *p);
+                                 sunindextype smu, sunindextype* p);
 
 /*
  * -----------------------------------------------------------------
@@ -103,11 +103,11 @@ sunindextype SUNDlsMat_bandGBTRF(sunrealtype **a, sunindextype n,
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_BandGBTRS(SUNDlsMat A, sunindextype *p, sunrealtype *b);
+void SUNDlsMat_BandGBTRS(SUNDlsMat A, sunindextype* p, sunrealtype* b);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_bandGBTRS(sunrealtype **a, sunindextype n, sunindextype smu,
-                         sunindextype ml, sunindextype *p, sunrealtype *b);
+void SUNDlsMat_bandGBTRS(sunrealtype** a, sunindextype n, sunindextype smu,
+                         sunindextype ml, sunindextype* p, sunrealtype* b);
 
 /*
  * -----------------------------------------------------------------
@@ -129,7 +129,7 @@ SUNDIALS_EXPORT
 void SUNDlsMat_BandCopy(SUNDlsMat A, SUNDlsMat B, sunindextype copymu,
                         sunindextype copyml);
 SUNDIALS_EXPORT
-void SUNDlsMat_bandCopy(sunrealtype **a, sunrealtype **b, sunindextype n,
+void SUNDlsMat_bandCopy(sunrealtype** a, sunrealtype** b, sunindextype n,
                         sunindextype a_smu, sunindextype b_smu,
                         sunindextype copymu, sunindextype copyml);
 
@@ -150,7 +150,7 @@ void SUNDlsMat_bandCopy(sunrealtype **a, sunrealtype **b, sunindextype n,
 void SUNDlsMat_BandScale(sunrealtype c, SUNDlsMat A);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_bandScale(sunrealtype c, sunrealtype **a, sunindextype n,
+void SUNDlsMat_bandScale(sunrealtype c, sunrealtype** a, sunindextype n,
                          sunindextype mu, sunindextype ml, sunindextype smu);
 
 /*
@@ -162,8 +162,7 @@ void SUNDlsMat_bandScale(sunrealtype c, sunrealtype **a, sunindextype n,
  * -----------------------------------------------------------------
  */
 
-void SUNDlsMat_bandAddIdentity(sunrealtype **a, sunindextype n, sunindextype smu);
-
+void SUNDlsMat_bandAddIdentity(sunrealtype** a, sunindextype n, sunindextype smu);
 
 /*
  * -----------------------------------------------------------------
@@ -181,12 +180,12 @@ void SUNDlsMat_bandAddIdentity(sunrealtype **a, sunindextype n, sunindextype smu
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_BandMatvec(SUNDlsMat A, sunrealtype *x, sunrealtype *y);
+void SUNDlsMat_BandMatvec(SUNDlsMat A, sunrealtype* x, sunrealtype* y);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_bandMatvec(sunrealtype **a, sunrealtype *x, sunrealtype *y,
-                          sunindextype n, sunindextype mu,
-                          sunindextype ml, sunindextype smu);
+void SUNDlsMat_bandMatvec(sunrealtype** a, sunrealtype* x, sunrealtype* y,
+                          sunindextype n, sunindextype mu, sunindextype ml,
+                          sunindextype smu);
 
 #ifdef __cplusplus
 }

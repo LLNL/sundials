@@ -23,7 +23,8 @@
 
 namespace sundials {
 namespace impl {
-using BaseNonlinearSolver = BaseObject<_generic_SUNNonlinearSolver, _generic_SUNNonlinearSolver_Ops>;
+using BaseNonlinearSolver =
+  BaseObject<_generic_SUNNonlinearSolver, _generic_SUNNonlinearSolver_Ops>;
 } // namespace impl
 
 namespace experimental {
@@ -31,10 +32,12 @@ struct SUNNonlinearSolverDeleter
 {
   void operator()(SUNNonlinearSolver NLS)
   {
-    if (NLS) SUNNonlinSolFree(NLS);
+    if (NLS) { SUNNonlinSolFree(NLS); }
   }
 };
-using SUNNonlinearSolverView = ClassView<SUNNonlinearSolver, SUNNonlinearSolverDeleter>;
+
+using SUNNonlinearSolverView =
+  ClassView<SUNNonlinearSolver, SUNNonlinearSolverDeleter>;
 } // namespace experimental
 } // namespace sundials
 

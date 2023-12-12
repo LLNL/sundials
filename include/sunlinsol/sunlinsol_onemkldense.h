@@ -19,31 +19,30 @@
 #define _SUNLINSOL_ONEMKLDENSE_H
 
 #include <CL/sycl.hpp>
-
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_memory.h>
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 struct _SUNLinearSolverContent_OneMklDense
 {
-  int             last_flag;      /* last error code returned */
-  sunindextype    rows;           /* number of rows in A      */
-  SUNMemory       pivots;         /* pivots array             */
-  sunindextype    f_scratch_size; /* num scratchpad elements  */
-  SUNMemory       f_scratchpad;   /* scratchpad memory        */
-  sunindextype    s_scratch_size; /* num scratchpad elements  */
-  SUNMemory       s_scratchpad;   /* scratchpad memory        */
-  SUNMemoryType   mem_type;       /* memory type              */
-  SUNMemoryHelper mem_helper;     /* memory helper            */
-  ::sycl::queue*  queue;          /* operation queue          */
+  int last_flag;               /* last error code returned */
+  sunindextype rows;           /* number of rows in A      */
+  SUNMemory pivots;            /* pivots array             */
+  sunindextype f_scratch_size; /* num scratchpad elements  */
+  SUNMemory f_scratchpad;      /* scratchpad memory        */
+  sunindextype s_scratch_size; /* num scratchpad elements  */
+  SUNMemory s_scratchpad;      /* scratchpad memory        */
+  SUNMemoryType mem_type;      /* memory type              */
+  SUNMemoryHelper mem_helper;  /* memory helper            */
+  ::sycl::queue* queue;        /* operation queue          */
 };
 
-typedef struct _SUNLinearSolverContent_OneMklDense *SUNLinearSolverContent_OneMklDense;
+typedef struct _SUNLinearSolverContent_OneMklDense* SUNLinearSolverContent_OneMklDense;
 
 /* ---------------------------------------------------------------------------
  * Implementation specific functions
@@ -53,10 +52,16 @@ SUNDIALS_EXPORT
 SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix A, SUNContext sunctx);
 
 SUNDIALS_STATIC_INLINE
-SUNLinearSolver_Type SUNLinSolGetType_OneMklDense(SUNLinearSolver S) { return SUNLINEARSOLVER_DIRECT; };
+SUNLinearSolver_Type SUNLinSolGetType_OneMklDense(SUNLinearSolver S)
+{
+  return SUNLINEARSOLVER_DIRECT;
+};
 
 SUNDIALS_STATIC_INLINE
-SUNLinearSolver_ID SUNLinSolGetID_OneMklDense(SUNLinearSolver S) { return SUNLINEARSOLVER_ONEMKLDENSE; };
+SUNLinearSolver_ID SUNLinSolGetID_OneMklDense(SUNLinearSolver S)
+{
+  return SUNLINEARSOLVER_ONEMKLDENSE;
+};
 
 SUNDIALS_EXPORT
 int SUNLinSolInitialize_OneMklDense(SUNLinearSolver S);
@@ -72,8 +77,8 @@ SUNDIALS_EXPORT
 sunindextype SUNLinSolLastFlag_OneMklDense(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-int SUNLinSolSpace_OneMklDense(SUNLinearSolver S, long int *lenrwLS,
-                               long int *leniwLS);
+int SUNLinSolSpace_OneMklDense(SUNLinearSolver S, long int* lenrwLS,
+                               long int* leniwLS);
 
 SUNDIALS_EXPORT
 int SUNLinSolFree_OneMklDense(SUNLinearSolver S);

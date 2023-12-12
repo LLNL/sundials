@@ -17,48 +17,52 @@
 
 #include <cstdio>
 #include <cstdlib>
-
+#include <nvector/nvector_sycl.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 #include <sunlinsol/sunlinsol_onemkldense.h>
 #include <sunmatrix/sunmatrix_onemkldense.h>
 #include <sunmemory/sunmemory_sycl.h>
-#include <nvector/nvector_sycl.h>
+
 #include "test_sunlinsol.h"
 
 /* ---------------------------------------------------------------------------
  * SUNLinSol_OneMklDense Testing Routine
  * ---------------------------------------------------------------------------*/
 
-
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  int          fails = 0; // counter for test failures
+  int fails = 0; // counter for test failures
   sunindextype i, j, k;
-  SUNContext   sunctx;
+  SUNContext sunctx;
 
-  if (SUNContext_Create(SUN_COMM_NULL, &sunctx)) {
+  if (SUNContext_Create(SUN_COMM_NULL, &sunctx))
+  {
     printf("ERROR: SUNContext_Create failed\n");
-    return(-1);
+    return (-1);
   }
 
   // Check inputs and set matrix dimensions
-  if (argc < 4){
-    printf("ERROR: THREE (3) Inputs required: matrix cols, number of blocks, print timing \n");
+  if (argc < 4)
+  {
+    printf("ERROR: THREE (3) Inputs required: matrix cols, number of blocks, "
+           "print timing \n");
     return -1;
   }
 
   // Number of matrix columns and rows
-  sunindextype cols = (sunindextype) atol(argv[1]);
-  if (cols <= 0) {
+  sunindextype cols = (sunindextype)atol(argv[1]);
+  if (cols <= 0)
+  {
     printf("ERROR: number of matrix columns must be a positive integer \n");
     return -1;
   }
   sunindextype rows = cols;
 
   // Number of matrix blocks
-  sunindextype nblocks = (sunindextype) atol(argv[2]);
-  if (nblocks <= 0) {
+  sunindextype nblocks = (sunindextype)atol(argv[2]);
+  if (nblocks <= 0)
+  {
     printf("ERROR: number of blocks must be a positive integer \n");
     return -1;
   }
@@ -68,7 +72,7 @@ int main(int argc, char *argv[])
   SetTiming(print_timing);
 
   printf("\noneMKL dense linear solver test: size %ld, blocks %ld\n\n",
-         (long int) cols, (long int) nblocks);
+         (long int)cols, (long int)nblocks);
 
   // Create an in-order GPU queue
 #if SYCL_LANGUAGE_VERSION >= 2020 && !defined(SUNDIALS_SYCL_2020_UNSUPPORTED)
@@ -81,42 +85,35 @@ int main(int argc, char *argv[])
 #endif
 
   sycl::device dev = myQueue.get_device();
-  std::cout << "Running on "
-            << (dev.get_info<sycl::info::device::name>())
+  std::cout << "Running on " << (dev.get_info<sycl::info::device::name>())
             << std::endl;
-  std::cout << " is cpu? "
-            << (dev.is_cpu() ? "Yes" : "No")
-            << std::endl;
-  std::cout << " is gpu? "
-            << (dev.is_gpu() ? "Yes" : "No")
-            << std::endl;
-  std::cout << " is accelerator? "
-            << (dev.is_accelerator() ? "Yes" : "No")
+  std::cout << " is cpu? " << (dev.is_cpu() ? "Yes" : "No") << std::endl;
+  std::cout << " is gpu? " << (dev.is_gpu() ? "Yes" : "No") << std::endl;
+  std::cout << " is accelerator? " << (dev.is_accelerator() ? "Yes" : "No")
             << std::endl;
   std::cout << " is the queue in order? "
-            << (myQueue.is_in_order() ? "Yes" : "No")
-            << std::endl;
+            << (myQueue.is_in_order() ? "Yes" : "No") << std::endl;
   std::cout << " supports usm host allocations? "
-            << (dev.get_info<sycl::info::device::usm_host_allocations>() ?
-                "Yes" : "No")
+            << (dev.get_info<sycl::info::device::usm_host_allocations>() ? "Yes"
+                                                                         : "No")
             << std::endl;
   std::cout << " supports usm device allocations? "
-            << (dev.get_info<sycl::info::device::usm_device_allocations>() ?
-                "Yes" : "No")
+            << (dev.get_info<sycl::info::device::usm_device_allocations>()
+                  ? "Yes"
+                  : "No")
             << std::endl;
   std::cout << " suports usm shared allocations? "
-            << (dev.get_info<sycl::info::device::usm_shared_allocations>() ?
-                "Yes" : "No")
+            << (dev.get_info<sycl::info::device::usm_shared_allocations>()
+                  ? "Yes"
+                  : "No")
             << std::endl;
   std::cout << " max work group size: "
             << dev.get_info<sycl::info::device::max_work_group_size>()
             << std::endl;
   std::cout << " max global memory size (bytes): "
-            << dev.get_info<sycl::info::device::global_mem_size>()
-            << std::endl;
+            << dev.get_info<sycl::info::device::global_mem_size>() << std::endl;
   std::cout << " max local memory size (bytes): "
-            << dev.get_info<sycl::info::device::local_mem_size>()
-            << std::endl;
+            << dev.get_info<sycl::info::device::local_mem_size>() << std::endl;
   std::cout << std::endl;
 
   // Create Sycl memory helper
@@ -194,8 +191,8 @@ int main(int argc, char *argv[])
   }
 
   // Allocate host data
-  sunrealtype* Adata = (sunrealtype*) malloc(sizeof(sunrealtype) *
-                                       SUNMatrix_OneMklDense_LData(A));
+  sunrealtype* Adata =
+    (sunrealtype*)malloc(sizeof(sunrealtype) * SUNMatrix_OneMklDense_LData(A));
   if (!Adata)
   {
     printf("Data allocation failed\n");
@@ -207,8 +204,8 @@ int main(int argc, char *argv[])
     SUNMatDestroy(I);
   }
 
-  sunrealtype* Idata = (sunrealtype*) malloc(sizeof(sunrealtype) *
-                                       SUNMatrix_OneMklDense_LData(I));
+  sunrealtype* Idata =
+    (sunrealtype*)malloc(sizeof(sunrealtype) * SUNMatrix_OneMklDense_LData(I));
   if (!Idata)
   {
     printf("Data allocation failed\n");
@@ -223,24 +220,42 @@ int main(int argc, char *argv[])
 
   // Fill A matrix with uniform random data in [0,1/cols]
   for (k = 0; k < nblocks; k++)
+  {
     for (j = 0; j < cols; j++)
+    {
       for (i = 0; i < rows; i++)
-        Adata[k * cols * rows + j * rows + i] =
-          (sunrealtype) rand() / (sunrealtype) RAND_MAX / cols;
+      {
+        Adata[k * cols * rows + j * rows + i] = (sunrealtype)rand() /
+                                                (sunrealtype)RAND_MAX / cols;
+      }
+    }
+  }
 
   // Create anti-identity matrix
   for (k = 0; k < nblocks; k++)
-    for(j = 0; j < cols; j++)
+  {
+    for (j = 0; j < cols; j++)
+    {
       for (i = 0; i < rows; i++)
+      {
         Idata[k * cols * rows + j * rows + i] =
-          ((rows-1-i) == j) ? SUN_RCONST(1.0) : SUN_RCONST(0.0);
+          ((rows - 1 - i) == j) ? SUN_RCONST(1.0) : SUN_RCONST(0.0);
+      }
+    }
+  }
 
   // Add anti-identity to ensure the solver needs to do row-swapping
   for (k = 0; k < nblocks; k++)
+  {
     for (i = 0; i < rows; i++)
-      for(j = 0; j < cols; j++)
+    {
+      for (j = 0; j < cols; j++)
+      {
         Adata[k * cols * rows + j * rows + i] +=
           Idata[k * cols * rows + j * rows + i];
+      }
+    }
+  }
 
   SUNMatrix_OneMklDense_CopyToDevice(A, Adata);
   SUNMatrix_OneMklDense_CopyToDevice(I, Idata);
@@ -248,7 +263,9 @@ int main(int argc, char *argv[])
   // Fill x vector with uniform random data in [0,1]
   sunrealtype* xdata = N_VGetArrayPointer(x);
   for (j = 0; j < cols * nblocks; j++)
-    xdata[j] = (sunrealtype) rand() / (sunrealtype) RAND_MAX;
+  {
+    xdata[j] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
+  }
 
   N_VCopyToDevice_Sycl(x);
 
@@ -317,10 +334,7 @@ int main(int argc, char *argv[])
     N_VCopyFromDevice_Sycl(b);
     N_VPrint(b);
   }
-  else
-  {
-    printf("SUCCESS: SUNLinSol module passed all tests \n \n");
-  }
+  else { printf("SUCCESS: SUNLinSol module passed all tests \n \n"); }
 
   // Free solver, matrix and vectors
   SUNLinSolFree(LS);
@@ -338,19 +352,17 @@ int main(int argc, char *argv[])
   return fails;
 }
 
-
 /* ---------------------------------------------------------------------------
  * Implementation-specific 'check' routines
  * ---------------------------------------------------------------------------*/
 
-
 int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
 {
-  int failure = 0;
-  sunindextype i = 0;
+  int failure               = 0;
+  sunindextype i            = 0;
   sunindextype local_length = N_VGetLength(X);
-  sunrealtype* Xdata = N_VGetArrayPointer(X);
-  sunrealtype* Ydata = N_VGetArrayPointer(Y);
+  sunrealtype* Xdata        = N_VGetArrayPointer(X);
+  sunrealtype* Ydata        = N_VGetArrayPointer(Y);
 
   // Copy data to host
   N_VCopyFromDevice_Sycl(X);
@@ -358,22 +370,21 @@ int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
 
   // Check vector data
   for (i = 0; i < local_length; i++)
+  {
     failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
+  }
 
   if (failure > ZERO)
   {
     sunrealtype maxerr = ZERO;
-    for(i = 0; i < local_length; i++)
+    for (i = 0; i < local_length; i++)
+    {
       maxerr = SUNMAX(SUNRabs(Xdata[i] - Ydata[i]), maxerr);
+    }
     printf("check err failure: maxerr = %g (tol = %g)\n", maxerr, tol);
     return 1;
   }
-  else
-  {
-    return 0;
-  }
+  else { return 0; }
 }
 
-void sync_device()
-{
-}
+void sync_device() {}

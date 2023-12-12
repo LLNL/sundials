@@ -49,6 +49,10 @@ def main():
                                       '''Options for setting the C, C++,
                                       Fortran, and CUDA compiler and flags.''')
 
+    # Build type
+    add_arg(group, '--build-type', 'CMAKE_BUILD_TYPE', 'CMAKE_BUILD_TYPE', 'Debug', 'STRING',
+            'CMake build type (Debug, RelWithDebInfo, Release)')
+
     # C compiler
     add_arg(group, '--c-compiler', 'CC', 'CMAKE_C_COMPILER', None, 'FILEPATH',
             'C compiler')
@@ -224,6 +228,12 @@ def main():
     add_arg(group, '--fused-kernels', 'SUNDIALS_FUSED_KERNELS',
             'SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS', 'OFF', 'BOOL',
             'package fused kernels')
+
+    # error checks
+    add_arg(group, '--enable-error-checks', 'SUNDIALS_ENABLE_ERROR_CHECKS',
+            'SUNDIALS_ENABLE_ERROR_CHECKS', 'OFF', 'BOOL',
+            'enable error checks')
+
 
     # -----------
     # Interfaces
@@ -554,6 +564,10 @@ def main():
     add_arg(group, '--unit-tests', 'SUNDIALS_TEST_UNITTESTS',
             'SUNDIALS_TEST_UNITTESTS', 'OFF', 'BOOL',
             'SUNDIALS unit tests')
+
+    add_arg(group, '--no-gtest', 'SUNDIALS_TEST_ENABLE_GTEST',
+            'SUNDIALS_TEST_ENABLE_GTEST', 'ON', 'BOOL',
+            'SUNDIALS GTest unit tests')
 
     # test output directory
     add_arg(group, '--test-output-dir', 'SUNDIALS_TEST_OUTPUT_DIR',
