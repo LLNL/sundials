@@ -36,7 +36,7 @@ target_link_libraries(test_idas_error_handling
 
 # Tell CMake that we depend on the IDA library since it does not pick
 # that up from $<TARGET_OBJECTS:sundials_ida_obj>.
-add_dependencies(test_idas_error_handling sundials_ida_obj)
+add_dependencies(test_idas_error_handling sundials_idas_obj)
 
 target_link_libraries(test_idas_error_handling 
   PRIVATE 
@@ -45,3 +45,4 @@ target_link_libraries(test_idas_error_handling
 )
 
 gtest_discover_tests(test_idas_error_handling)
+
