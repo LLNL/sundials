@@ -99,8 +99,8 @@ SUNDIALS_EXPORT int* SUNMatrix_cuSparse_IndexPointers(SUNMatrix A);
 SUNDIALS_EXPORT int* SUNMatrix_cuSparse_IndexValues(SUNMatrix A);
 SUNDIALS_EXPORT sunrealtype* SUNMatrix_cuSparse_Data(SUNMatrix A);
 
-SUNDIALS_EXPORT SUNErrCode
-SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, sunbooleantype yesno);
+SUNDIALS_EXPORT
+SUNErrCode SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, sunbooleantype yesno);
 SUNDIALS_EXPORT SUNErrCode SUNMatrix_cuSparse_SetKernelExecPolicy(
   SUNMatrix A, SUNCudaExecPolicy* exec_policy);
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_NumBlocks(SUNMatrix A);

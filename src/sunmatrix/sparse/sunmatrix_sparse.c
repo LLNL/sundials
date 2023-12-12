@@ -150,7 +150,7 @@ SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix Ad, sunrealtype droptol,
   sunindextype M, N;
   SUNMatrix As;
 
-  SUNAssertNull(SUNMatGetID(Ad) == SUNMATRIX_DENSE, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(SUNMatGetID(Ad) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
   SUNAssertNull(sparsetype == CSC_MAT || sparsetype == CSR_MAT,
                 SUN_ERR_ARG_OUTOFRANGE);
   SUNAssertNull(droptol >= ZERO, SUN_ERR_ARG_OUTOFRANGE);
@@ -226,7 +226,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ab, sunrealtype droptol,
   sunindextype M, N;
   SUNMatrix As;
 
-  SUNAssertNull(SUNMatGetID(Ab) == SUNMATRIX_BAND, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(SUNMatGetID(Ab) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
   SUNAssertNull(sparsetype == CSC_MAT || sparsetype == CSR_MAT,
                 SUN_ERR_ARG_OUTOFRANGE);
   SUNAssertNull(droptol >= ZERO, SUN_ERR_ARG_OUTOFRANGE);
@@ -697,7 +697,9 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
     /* create work arrays for nonzero row (column) indices and values in a
      * single column (row) */
     w = (sunindextype*)malloc(M * sizeof(sunindextype));
+    SUNAssert(w, SUN_ERR_MALLOC_FAIL);
     x = (sunrealtype*)malloc(M * sizeof(sunrealtype));
+    SUNAssert(x, SUN_ERR_MALLOC_FAIL);
 
     /* determine storage location where last column (row) should end */
     nz = Ap[N] + newvals;
