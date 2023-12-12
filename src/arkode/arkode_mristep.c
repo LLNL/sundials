@@ -45,7 +45,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   /* Check that at least one of fse, fsi is supplied and is to be used*/
   if (fse == NULL && fsi == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep", "MRIStepCreate",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_F);
     return (NULL);
   }
@@ -53,7 +53,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   /* Check that y0 is supplied */
   if (y0 == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep", "MRIStepCreate",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_Y0);
     return (NULL);
   }
@@ -61,7 +61,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   /* Check that stepper is supplied */
   if (stepper == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep", "MRIStepCreate",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "The inner stepper memory is NULL");
     return (NULL);
   }
@@ -69,7 +69,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   /* Check that context is supplied */
   if (!sunctx)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep", "MRIStepCreate",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_SUNCTX);
     return (NULL);
   }
@@ -78,7 +78,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   nvectorOK = mriStep_CheckNVector(y0);
   if (!nvectorOK)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep", "MRIStepCreate",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_BAD_NVECTOR);
     return (NULL);
   }
@@ -87,7 +87,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   ark_mem = arkCreate(sunctx);
   if (ark_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::MRIStep", "MRIStepCreate",
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
     return (NULL);
   }
@@ -97,7 +97,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   step_mem = (ARKodeMRIStepMem)malloc(sizeof(struct ARKodeMRIStepMemRec));
   if (step_mem == NULL)
   {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep", "MRIStepCreate",
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_ARK_ARKMEM_FAIL);
     MRIStepFree((void**)&ark_mem);
     return (NULL);
@@ -119,7 +119,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   retval = MRIStepSetDefaults((void*)ark_mem);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, retval, "ARKODE::MRIStep", "MRIStepCreate",
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Error setting default solver options");
     MRIStepFree((void**)&ark_mem);
     return (NULL);
@@ -151,7 +151,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
     NLS = SUNNonlinSol_Newton(y0, ark_mem->sunctx);
     if (!NLS)
     {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep", "MRIStepCreate",
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Error creating default Newton solver");
       MRIStepFree((void**)&ark_mem);
       return (NULL);
@@ -159,7 +159,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
     retval = MRIStepSetNonlinearSolver(ark_mem, NLS);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep", "MRIStepCreate",
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Error attaching default Newton solver");
       MRIStepFree((void**)&ark_mem);
       return (NULL);
@@ -194,7 +194,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, retval, "ARKODE::MRIStep", "MRIStepCreate",
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to initialize main ARKODE infrastructure");
     MRIStepFree((void**)&ark_mem);
     return (NULL);
@@ -207,7 +207,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   retval = mriStepInnerStepper_HasRequiredOps(step_mem->stepper);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep", "MRIStepCreate",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "A required inner stepper function is NULL");
     MRIStepFree((void**)&ark_mem);
     return (NULL);
@@ -234,8 +234,7 @@ int MRIStepResize(void* arkode_mem, N_Vector y0, sunrealtype t0,
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepResize", &ark_mem,
-                                 &step_mem);
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Determing change in vector sizes */
@@ -250,7 +249,7 @@ int MRIStepResize(void* arkode_mem, N_Vector y0, sunrealtype t0,
   retval = arkResize(ark_mem, y0, SUN_RCONST(1.0), t0, resize, resize_data);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, retval, "ARKODE::MRIStep", "MRIStepResize",
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to resize main ARKODE infrastructure");
     return (retval);
   }
@@ -262,7 +261,7 @@ int MRIStepResize(void* arkode_mem, N_Vector y0, sunrealtype t0,
                            &(step_mem->Fse), lrw_diff, &(ark_mem->lrw),
                            liw_diff, &(ark_mem->liw)))
     {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep", "MRIStepResize",
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to resize vector");
       return (ARK_MEM_FAIL);
     }
@@ -275,7 +274,7 @@ int MRIStepResize(void* arkode_mem, N_Vector y0, sunrealtype t0,
                            &(step_mem->Fsi), lrw_diff, &(ark_mem->lrw),
                            liw_diff, &(ark_mem->liw)))
     {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep", "MRIStepResize",
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to resize vector");
       return (ARK_MEM_FAIL);
     }
@@ -287,7 +286,7 @@ int MRIStepResize(void* arkode_mem, N_Vector y0, sunrealtype t0,
     if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
                       &step_mem->sdata))
     {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep", "MRIStepResize",
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to resize vector");
       return (ARK_MEM_FAIL);
     }
@@ -297,7 +296,7 @@ int MRIStepResize(void* arkode_mem, N_Vector y0, sunrealtype t0,
     if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
                       &step_mem->zpred))
     {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep", "MRIStepResize",
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to resize vector");
       return (ARK_MEM_FAIL);
     }
@@ -307,7 +306,7 @@ int MRIStepResize(void* arkode_mem, N_Vector y0, sunrealtype t0,
     if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
                       &step_mem->zcor))
     {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep", "MRIStepResize",
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to resize vector");
       return (ARK_MEM_FAIL);
     }
@@ -327,7 +326,7 @@ int MRIStepResize(void* arkode_mem, N_Vector y0, sunrealtype t0,
     NLS = SUNNonlinSol_Newton(y0, ark_mem->sunctx);
     if (NLS == NULL)
     {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep", "MRIStepResize",
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Error creating default Newton solver");
       return (ARK_MEM_FAIL);
     }
@@ -336,7 +335,7 @@ int MRIStepResize(void* arkode_mem, N_Vector y0, sunrealtype t0,
     retval = MRIStepSetNonlinearSolver(ark_mem, NLS);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep", "MRIStepResize",
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Error attaching default Newton solver");
       return (ARK_MEM_FAIL);
     }
@@ -348,7 +347,7 @@ int MRIStepResize(void* arkode_mem, N_Vector y0, sunrealtype t0,
                                       lrw_diff, liw_diff, y0);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep", "MRIStepResize",
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Unable to resize vector");
     return (ARK_MEM_FAIL);
   }
@@ -378,14 +377,13 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepReInit", &ark_mem,
-                                 &step_mem);
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Check if ark_mem was allocated */
   if (ark_mem->MallocDone == SUNFALSE)
   {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKODE::MRIStep", "MRIStepReInit",
+    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MALLOC);
     return (ARK_NO_MALLOC);
   }
@@ -393,7 +391,7 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
   /* Check that at least one of fse, fsi is supplied and is to be used */
   if (fse == NULL && fsi == NULL)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep", "MRIStepReInit",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_F);
     return (ARK_ILL_INPUT);
   }
@@ -401,7 +399,7 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
   /* Check that y0 is supplied */
   if (y0 == NULL)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep", "MRIStepReInit",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_Y0);
     return (ARK_ILL_INPUT);
   }
@@ -417,7 +415,7 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
     NLS = SUNNonlinSol_Newton(y0, ark_mem->sunctx);
     if (!NLS)
     {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep", "MRIStepReInit",
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Error creating default Newton solver");
       MRIStepFree((void**)&ark_mem);
       return (ARK_MEM_FAIL);
@@ -425,7 +423,7 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
     retval = MRIStepSetNonlinearSolver(ark_mem, NLS);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::MRIStep", "MRIStepReInit",
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Error attaching default Newton solver");
       MRIStepFree((void**)&ark_mem);
       return (ARK_MEM_FAIL);
@@ -437,7 +435,7 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
   retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, retval, "ARKODE::MRIStep", "MRIStepReInit",
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to reinitialize main ARKODE infrastructure");
     return (retval);
   }
@@ -470,7 +468,7 @@ int MRIStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepReset", &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Initialize main ARKODE infrastructure */
@@ -478,7 +476,7 @@ int MRIStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, retval, "ARKODE::MRIStep", "MRIStepReset",
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to initialize main ARKODE infrastructure");
     return (retval);
   }
@@ -502,8 +500,8 @@ int MRIStepSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::MRIStep",
-                    "MRIStepSStolerances", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem)arkode_mem;
@@ -516,8 +514,8 @@ int MRIStepSVtolerances(void* arkode_mem, sunrealtype reltol, N_Vector abstol)
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::MRIStep",
-                    "MRIStepSVtolerances", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem)arkode_mem;
@@ -530,8 +528,8 @@ int MRIStepWFtolerances(void* arkode_mem, ARKEwtFn efun)
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::MRIStep",
-                    "MRIStepWFtolerances", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem)arkode_mem;
@@ -550,7 +548,7 @@ int MRIStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::MRIStep", "MRIStepRootInit",
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
@@ -572,7 +570,7 @@ int MRIStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::MRIStep", "MRIStepEvolve",
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
@@ -597,7 +595,7 @@ int MRIStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::MRIStep", "MRIStepGetDky",
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
@@ -620,8 +618,7 @@ int MRIStepComputeState(void* arkode_mem, N_Vector zcor, N_Vector z)
   ARKodeMRIStepMem step_mem;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepComputeState", &ark_mem,
-                                 &step_mem);
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, z);
@@ -767,8 +764,7 @@ void MRIStepPrintMem(void* arkode_mem, FILE* outfile)
   int i, retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "MRIStepPrintMem", &ark_mem,
-                                 &step_mem);
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return; }
 
   /* if outfile==NULL, set it to stdout */
@@ -890,8 +886,7 @@ int mriStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "mriStep_AttachLinsol", &ark_mem,
-                                 &step_mem);
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* free any existing system solver */
@@ -924,8 +919,7 @@ void mriStep_DisableLSetup(void* arkode_mem)
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "mriStep_DisableLSetup", &ark_mem,
-                                 &step_mem);
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return; }
 
   /* nullify the lsetup function pointer */
@@ -945,8 +939,7 @@ void* mriStep_GetLmem(void* arkode_mem)
   int retval;
 
   /* access ARKodeMRIStepMem structure, and return lmem */
-  retval = mriStep_AccessStepMem(arkode_mem, "mriStep_GetLmem", &ark_mem,
-                                 &step_mem);
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (NULL); }
   return (step_mem->lmem);
 }
@@ -963,8 +956,7 @@ ARKRhsFn mriStep_GetImplicitRHS(void* arkode_mem)
   int retval;
 
   /* access ARKodeMRIStepMem structure, and return fi */
-  retval = mriStep_AccessStepMem(arkode_mem, "mriStep_GetImplicitRHS", &ark_mem,
-                                 &step_mem);
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (NULL); }
   if (step_mem->implicit_rhs) { return (step_mem->fsi); }
   else { return (NULL); }
@@ -984,8 +976,7 @@ int mriStep_GetGammas(void* arkode_mem, sunrealtype* gamma, sunrealtype* gamrat,
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "mriStep_GetGammas", &ark_mem,
-                                 &step_mem);
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set outputs */
@@ -1019,7 +1010,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
   sunbooleantype reset_efun;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "mriStep_Init", &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* immediately return if reset */
@@ -1043,8 +1034,8 @@ int mriStep_Init(void* arkode_mem, int init_type)
     /* assume fixed outer step size */
     if (!ark_mem->fixedstep)
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                      "mriStep_Init", "Adaptive outer time stepping is not currently supported");
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                      __FILE__, "Adaptive outer time stepping is not currently supported");
       return (ARK_ILL_INPUT);
     }
 
@@ -1052,7 +1043,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
     retval = mriStep_SetCoupling(ark_mem);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep", "mriStep_Init",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Could not create coupling table");
       return (ARK_ILL_INPUT);
     }
@@ -1061,7 +1052,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
     retval = mriStep_CheckCoupling(ark_mem);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep", "mriStep_Init",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Error in coupling table");
       return (ARK_ILL_INPUT);
     }
@@ -1087,7 +1078,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
                                          &(step_mem->nstages_active));
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep", "mriStep_Init",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Error in coupling table");
       return (ARK_ILL_INPUT);
     }
@@ -1225,7 +1216,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
                                            step_mem->MRIC->nmat, ark_mem->ewt);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep", "mriStep_Init",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Error allocating inner stepper memory");
       return (ARK_MEM_FAIL);
     }
@@ -1248,7 +1239,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
 
       if (retval != ARK_SUCCESS)
       {
-        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep", "mriStep_Init",
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                         "Unable to update interpolation polynomial degree");
         return (ARK_ILL_INPUT);
       }
@@ -1261,8 +1252,8 @@ int mriStep_Init(void* arkode_mem, int init_type)
     retval = step_mem->linit(ark_mem);
     if (retval != 0)
     {
-      arkProcessError(ark_mem, ARK_LINIT_FAIL, "ARKODE::MRIStep",
-                      "mriStep_Init", MSG_ARK_LINIT_FAIL);
+      arkProcessError(ark_mem, ARK_LINIT_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_LINIT_FAIL);
       return (ARK_LINIT_FAIL);
     }
   }
@@ -1273,8 +1264,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
     retval = mriStep_NlsInit(ark_mem);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_NLS_INIT_FAIL, "ARKODE::MRIStep",
-                      "mriStep_Init",
+      arkProcessError(ark_mem, ARK_NLS_INIT_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to initialize SUNNonlinearSolver object");
       return (ARK_NLS_INIT_FAIL);
     }
@@ -1320,15 +1310,14 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "mriStep_FullRHS", &ark_mem,
-                                 &step_mem);
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* ensure that inner stepper provides fullrhs function */
   if (!(step_mem->stepper->ops->fullrhs))
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                    "mriStep_FullRHS", MSG_ARK_MISSING_FULLRHS);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_MISSING_FULLRHS);
     return ARK_ILL_INPUT;
   }
 
@@ -1347,8 +1336,8 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
         step_mem->nfse++;
         if (retval != 0)
         {
-          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                          "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
+                          __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
           return (ARK_RHSFUNC_FAIL);
         }
       }
@@ -1360,8 +1349,8 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
         step_mem->nfsi++;
         if (retval != 0)
         {
-          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                          "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
+                          __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
           return (ARK_RHSFUNC_FAIL);
         }
       }
@@ -1371,8 +1360,8 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                                            ARK_FULLRHS_OTHER);
       if (retval != ARK_SUCCESS)
       {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                        "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_RHSFUNC_FAILED, t);
         return (ARK_RHSFUNC_FAIL);
       }
     }
@@ -1409,8 +1398,8 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
         step_mem->nfse++;
         if (retval != 0)
         {
-          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                          "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
+                          __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
           return (ARK_RHSFUNC_FAIL);
         }
       }
@@ -1422,8 +1411,8 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
         step_mem->nfsi++;
         if (retval != 0)
         {
-          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                          "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
+                          __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
           return (ARK_RHSFUNC_FAIL);
         }
       }
@@ -1433,8 +1422,8 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                                            ARK_FULLRHS_OTHER);
       if (retval != ARK_SUCCESS)
       {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                        "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_RHSFUNC_FAILED, t);
         return (ARK_RHSFUNC_FAIL);
       }
     }
@@ -1468,8 +1457,8 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
       step_mem->nfse++;
       if (retval != 0)
       {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                        "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_RHSFUNC_FAILED, t);
         return (ARK_RHSFUNC_FAIL);
       }
     }
@@ -1481,8 +1470,8 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
       step_mem->nfsi++;
       if (retval != 0)
       {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                        "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_RHSFUNC_FAILED, t);
         return (ARK_RHSFUNC_FAIL);
       }
     }
@@ -1492,8 +1481,8 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                                          ARK_FULLRHS_OTHER);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                      "mriStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_RHSFUNC_FAILED, t);
       return (ARK_RHSFUNC_FAIL);
     }
 
@@ -1519,8 +1508,8 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
 
   default:
     /* return with RHS failure if unknown mode is passed */
-    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::MRIStep",
-                    "mriStep_FullRHS", "Unknown full RHS mode");
+    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                    "Unknown full RHS mode");
     return (ARK_RHSFUNC_FAIL);
   }
 
@@ -1565,8 +1554,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
   *dsmPtr   = ZERO;
 
   /* access the MRIStep mem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, "mriStep_TakeStep", &ark_mem,
-                                 &step_mem);
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* call nonlinear solver setup if it exists */
@@ -1783,13 +1771,14 @@ int mriStep_AccessStepMem(void* arkode_mem, const char* fname,
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::MRIStep", fname, MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, fname, __FILE__,
+                    MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   *ark_mem = (ARKodeMem)arkode_mem;
   if ((*ark_mem)->step_mem == NULL)
   {
-    arkProcessError(*ark_mem, ARK_MEM_NULL, "ARKODE::MRIStep", fname,
+    arkProcessError(*ark_mem, ARK_MEM_NULL, __LINE__, fname, __FILE__,
                     MSG_MRISTEP_NO_MEM);
     return (ARK_MEM_NULL);
   }
@@ -1828,8 +1817,8 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
   /* access ARKodeMRIStepMem structure */
   if (ark_mem->step_mem == NULL)
   {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::MRIStep",
-                    "mriStep_SetCoupling", MSG_MRISTEP_NO_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_MRISTEP_NO_MEM);
     return (ARK_MEM_NULL);
   }
   step_mem = (ARKodeMRIStepMem)ark_mem->step_mem;
@@ -1851,8 +1840,7 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
       step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_4);
       break;
     default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                      "mriStep_SetCoupling",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "No MRI method at requested order, using q=3.");
       step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_3);
       break;
@@ -1874,8 +1862,7 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
       step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_4);
       break;
     default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                      "mriStep_SetCoupling",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "No MRI method at requested order, using q=3.");
       step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_3);
       break;
@@ -1894,8 +1881,7 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
       step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_4);
       break;
     default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                      "mriStep_SetCoupling",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "No MRI method at requested order, using q=3.");
       step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_3);
       break;
@@ -1904,8 +1890,7 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
 
   if (step_mem->MRIC == NULL)
   {
-    arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::MRIStep",
-                    "mriStep_SetCoupling",
+    arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
                     "An error occurred in constructing coupling table.");
     return (ARK_INVALID_TABLE);
   }
@@ -1948,8 +1933,8 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   /* access ARKodeMRIStepMem structure */
   if (ark_mem->step_mem == NULL)
   {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::MRIStep",
-                    "mriStep_CheckCoupling", MSG_MRISTEP_NO_MEM);
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_MRISTEP_NO_MEM);
     return (ARK_MEM_NULL);
   }
   step_mem = (ARKodeMRIStepMem)ark_mem->step_mem;
@@ -1957,24 +1942,24 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   /* check that stages > 0 */
   if (step_mem->MRIC->stages < 1)
   {
-    arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::MRIStep",
-                    "mriStep_CheckCoupling", "stages < 1!");
+    arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
+                    "stages < 1!");
     return (ARK_INVALID_TABLE);
   }
 
   /* check that method order q > 0 */
   if (step_mem->MRIC->q < 1)
   {
-    arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::MRIStep",
-                    "mriStep_CheckCoupling", "method order < 1");
+    arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
+                    "method order < 1");
     return (ARK_INVALID_TABLE);
   }
 
   /* check that embedding order p > 0 (if adaptive) */
   if ((step_mem->MRIC->p < 1) && (!ark_mem->fixedstep))
   {
-    arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::MRIStep",
-                    "mriStep_CheckCoupling", "embedding order < 1");
+    arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
+                    "embedding order < 1");
     return (ARK_INVALID_TABLE);
   }
 
@@ -1984,8 +1969,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
     /* ImEx */
     if (!(step_mem->MRIC->W) || !(step_mem->MRIC->G))
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                      "mriStep_CheckCoupling",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Invalid coupling table for an IMEX problem!");
       return (ARK_ILL_INPUT);
     }
@@ -1995,8 +1979,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
     /* Explicit */
     if (!(step_mem->MRIC->W) || step_mem->MRIC->G)
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                      "mriStep_CheckCoupling",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Invalid coupling table for an explicit problem!");
       return (ARK_ILL_INPUT);
     }
@@ -2006,8 +1989,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
     /* Implicit */
     if (step_mem->MRIC->W || !(step_mem->MRIC->G))
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                      "mriStep_CheckCoupling",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Invalid coupling table fro an implicit problem!");
       return (ARK_ILL_INPUT);
     }
@@ -2029,8 +2011,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
     }
     if (Wabs > tol)
     {
-      arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::MRIStep",
-                      "mriStep_CheckCoupling",
+      arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
                       "Coupling can be up to ERK (at most)!");
       return (ARK_INVALID_TABLE);
     }
@@ -2052,8 +2033,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
     }
     if (Gabs > tol)
     {
-      arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::MRIStep",
-                      "mriStep_CheckCoupling",
+      arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
                       "Coupling can be up to DIRK (at most)!");
       return (ARK_INVALID_TABLE);
     }
@@ -2070,8 +2050,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   }
   if (!okay)
   {
-    arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::MRIStep",
-                    "mriStep_CheckCoupling",
+    arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
                     "solve-coupled DIRK stages not currently supported");
     return (ARK_INVALID_TABLE);
   }
@@ -2087,8 +2066,8 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   }
   if (!okay)
   {
-    arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::MRIStep",
-                    "mriStep_CheckCoupling", "Stage times must be sorted.");
+    arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
+                    "Stage times must be sorted.");
     return (ARK_INVALID_TABLE);
   }
 
@@ -2104,8 +2083,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   }
   if (Gabs > tol)
   {
-    arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::MRIStep",
-                    "mriStep_CheckCoupling",
+    arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
                     "First stage must equal old solution.");
     return (ARK_INVALID_TABLE);
   }
@@ -2113,8 +2091,8 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   /* check that the last stage is at the final time */
   if (SUNRabs(ONE - step_mem->MRIC->c[step_mem->MRIC->stages - 1]) > tol)
   {
-    arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::MRIStep",
-                    "mriStep_CheckCoupling", "Final stage time must be equal 1.");
+    arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
+                    "Final stage time must be equal 1.");
     return (ARK_INVALID_TABLE);
   }
 
@@ -2239,8 +2217,7 @@ int mriStep_StageDIRKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
 #endif
 
   /* this is not currently implemented */
-  arkProcessError(ark_mem, ARK_INVALID_TABLE, "ARKODE::MRIStep",
-                  "mriStep_StageDIRKFast",
+  arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
                   "This routine is not yet implemented.");
   return (ARK_INVALID_TABLE);
 }
@@ -2518,7 +2495,7 @@ int mriStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   /* access ARKodeMRIStepMem structure */
   if (ark_mem->step_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::MRIStep", "mriStep_Predict",
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_MRISTEP_NO_MEM);
     return (ARK_MEM_NULL);
   }
@@ -2527,7 +2504,7 @@ int mriStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   /* verify that interpolation structure is provided */
   if ((ark_mem->interp == NULL) && (step_mem->predictor > 0))
   {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::MRIStep", "mriStep_Predict",
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     "Interpolation structure is NULL");
     return (ARK_MEM_NULL);
   }
@@ -2656,7 +2633,7 @@ int mriStep_StageSetup(ARKodeMem ark_mem)
   /* access ARKodeMRIStepMem structure */
   if (ark_mem->step_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::MRIStep", "mriStep_StageSetup",
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_MRISTEP_NO_MEM);
     return (ARK_MEM_NULL);
   }
@@ -2721,8 +2698,8 @@ int MRIStepInnerStepper_Create(SUNContext sunctx, MRIStepInnerStepper* stepper)
   *stepper = (MRIStepInnerStepper)malloc(sizeof(**stepper));
   if (*stepper == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_FAIL, "ARKODE::MRIStep",
-                    "MRIStepInnerStepper_Create", MSG_ARK_ARKMEM_FAIL);
+    arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_ARKMEM_FAIL);
     return (ARK_MEM_FAIL);
   }
   memset(*stepper, 0, sizeof(**stepper));
@@ -2730,8 +2707,8 @@ int MRIStepInnerStepper_Create(SUNContext sunctx, MRIStepInnerStepper* stepper)
   (*stepper)->ops = (MRIStepInnerStepper_Ops)malloc(sizeof(*((*stepper)->ops)));
   if ((*stepper)->ops == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_FAIL, "ARKODE::MRIStep",
-                    "MRIStepInnerStepper_Create", MSG_ARK_ARKMEM_FAIL);
+    arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_ARKMEM_FAIL);
     free(*stepper);
     return (ARK_MEM_FAIL);
   }
@@ -2765,8 +2742,7 @@ int MRIStepInnerStepper_SetContent(MRIStepInnerStepper stepper, void* content)
 {
   if (stepper == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                    "MRIStepInnerStepper_SetContent",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Inner stepper memory is NULL");
     return ARK_ILL_INPUT;
   }
@@ -2779,8 +2755,7 @@ int MRIStepInnerStepper_GetContent(MRIStepInnerStepper stepper, void** content)
 {
   if (stepper == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                    "MRIStepInnerStepper_GetContent",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Inner stepper memory is NULL");
     return ARK_ILL_INPUT;
   }
@@ -2794,16 +2769,14 @@ int MRIStepInnerStepper_SetEvolveFn(MRIStepInnerStepper stepper,
 {
   if (stepper == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                    "MRIStepInnerStepper_SetEvolveFn",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Inner stepper memory is NULL");
     return ARK_ILL_INPUT;
   }
 
   if (stepper->ops == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                    "MRIStepInnerStepper_SetEvolveFn",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Inner stepper operations structure is NULL");
     return ARK_ILL_INPUT;
   }
@@ -2818,16 +2791,14 @@ int MRIStepInnerStepper_SetFullRhsFn(MRIStepInnerStepper stepper,
 {
   if (stepper == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                    "MRIStepInnerStepper_SetFullRhsFn",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Inner stepper memory is NULL");
     return ARK_ILL_INPUT;
   }
 
   if (stepper->ops == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                    "MRIStepInnerStepper_SetFullRhsFn",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Inner stepper operations structure is NULL");
     return ARK_ILL_INPUT;
   }
@@ -2842,16 +2813,14 @@ int MRIStepInnerStepper_SetResetFn(MRIStepInnerStepper stepper,
 {
   if (stepper == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                    "MRIStepInnerStepper_SetResetFn",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Inner stepper memory is NULL");
     return ARK_ILL_INPUT;
   }
 
   if (stepper->ops == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                    "MRIStepInnerStepper_SetResetFn",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Inner stepper operations structure is NULL");
     return ARK_ILL_INPUT;
   }
@@ -2869,8 +2838,7 @@ int MRIStepInnerStepper_AddForcing(MRIStepInnerStepper stepper, sunrealtype t,
 
   if (stepper == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                    "MRIStepInnerStepper_AddForcing",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Inner stepper memory is NULL");
     return ARK_ILL_INPUT;
   }
@@ -2901,8 +2869,7 @@ int MRIStepInnerStepper_GetForcingData(MRIStepInnerStepper stepper,
 {
   if (stepper == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::MRIStep",
-                    "MRIStepInnerStepper_GetForcingData",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Inner stepper memory is NULL");
     return ARK_ILL_INPUT;
   }
