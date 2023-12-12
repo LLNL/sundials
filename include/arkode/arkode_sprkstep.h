@@ -68,9 +68,6 @@ SUNDIALS_EXPORT int SPRKStepSetInterpolantDegree(void* arkode_mem, int degree);
 SUNDIALS_EXPORT int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps);
 SUNDIALS_EXPORT int SPRKStepSetStopTime(void* arkode_mem, sunrealtype tstop);
 SUNDIALS_EXPORT int SPRKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed);
-SUNDIALS_EXPORT int SPRKStepSetErrHandlerFn(void* arkode_mem,
-                                            ARKErrHandlerFn ehfun, void* eh_data);
-SUNDIALS_EXPORT int SPRKStepSetErrFile(void* arkode_mem, FILE* errfp);
 SUNDIALS_EXPORT int SPRKStepSetUserData(void* arkode_mem, void* user_data);
 
 SUNDIALS_EXPORT int SPRKStepSetPostprocessStepFn(void* arkode_mem,
