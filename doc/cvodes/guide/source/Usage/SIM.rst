@@ -815,11 +815,9 @@ error message to the error handler function. All error return values are
 negative, so the test ``flag < 0`` will catch all errors.
 
 The optional input calls can, unless otherwise noted, be executed in any order.
-However, if the user's program calls either :c:func:`CVodeSetErrFile` or
-:c:func:`CVodeSetErrHandlerFn`, then that call should appear first, in order to
-take effect for any later error message. Finally, a call to an ``CVodeSet***``
-function can, unless otherwise noted, be made at any time from the user's
-calling program and, if successful, takes effect immediately.
+A call to an ``CVodeSet***`` function can, unless otherwise noted, be made at
+any time from the user's calling program and, if successful, takes effect
+immediately.
 
 
 .. _CVODES.Usage.SIM.optional_input.optin_main:
@@ -834,10 +832,6 @@ Main solver optional input functions
    +---------------------------------+---------------------------------------------+----------------+
    |        **Optional input**       |              **Function name**              |  **Default**   |
    +=================================+=============================================+================+
-   | Pointer to an error file        | :c:func:`CVodeSetErrFile`                   | ``stderr``     |
-   +---------------------------------+---------------------------------------------+----------------+
-   | Error handler function          | :c:func:`CVodeSetErrHandlerFn`              | internal fn.   |
-   +---------------------------------+---------------------------------------------+----------------+
    | User data                       | :c:func:`CVodeSetUserData`                  | ``NULL``       |
    +---------------------------------+---------------------------------------------+----------------+
    | Maximum order for BDF method    | :c:func:`CVodeSetMaxOrd`                    | 5              |
@@ -3307,35 +3301,6 @@ The user must provide a function of type defined as follows:
       The other is when a recoverable error is reported by ``CVRhsFn``
       after an error test failure, while the linear multistep method order is
       equal to 1 (in which case CVODES returns ``CV_UNREC_RHSFUNC_ERR``).
-
-
-.. _CVODES.Usage.SIM.user_supplied.ehFn:
-
-Error message handler function
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-As an alternative to the default behavior of directing error and warning
-messages to the file pointed to by ``errfp`` (see :c:func:`CVodeSetErrFile`), the user may provide a
-function of type ``CVErrHandlerFn`` to process any such messages. The function type
-:c:type:`CVErrHandlerFn` is defined as follows:
-
-.. c:type:: void (*CVErrHandlerFn)(int error_code, const char *module, const char *function, char *msg, void *eh_data);
-
-   This function processes error and warning message from CVODES and it sub-modules.
-
-   **Arguments:**
-      * ``error_code`` is the error code.
-      * ``module`` is the name of the CVODES module reporting the error.
-      * ``function`` is the name of the function in which the error occurred.
-      * ``msg`` is the error message.
-      * ``eh_data`` is a pointer to user data, the same as the ``eh_data`` parameter passed to :c:func:`CVodeSetErrHandlerFn`.
-
-   **Return value:**
-      * void
-
-   **Notes:**
-      ``error_code`` is negative for errors and positive (``CV_WARNING``) for warnings.
-      If a function that returns a pointer to memory encounters an error, it sets ``error_code`` to 0.
 
 
 .. _CVODES.Usage.SIM.user_supplied.monitorfn:

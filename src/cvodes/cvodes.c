@@ -9917,15 +9917,28 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
   char* msg     = (char*)malloc(msglen);
   vsnprintf(msg, msglen, msgfmt, ap);
 
-  if (cv_mem == NULL)
-  {
-    SUNGlobalFallbackErrHandler(line, func, file, msgfmt, error_code, ap);
-  }
-  else
-  {
+  do {
+    if (cv_mem == NULL)
+    {
+      SUNGlobalFallbackErrHandler(line, func, file, msg, error_code);
+      break;
+    }
+
+    if (error_code == CV_WARNING)
+    {
+#if SUNDIALS_LOGGING_LEVEL >= 1
+      char* file_and_line = sunCombineFileAndLine(line, file);
+      SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_WARNING, file_and_line, func,
+                         msg);
+      free(file_and_line);
+#endif
+      break;
+    }
+
     /* Call the SUNDIALS main error handler */
     SUNHandleErrWithMsg(line, func, file, msg, error_code, cv_mem->cv_sunctx);
   }
+  while (0);
 
   /* Finalize argument processing */
   va_end(ap);

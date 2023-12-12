@@ -138,9 +138,6 @@ typedef int (*CVRootFn)(sunrealtype t, N_Vector y, sunrealtype* gout,
 
 typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void* user_data);
 
-typedef void (*CVErrHandlerFn)(int error_code, const char* module,
-                               const char* function, char* msg, void* user_data);
-
 typedef int (*CVMonitorFn)(void* cvode_mem, void* user_data);
 
 typedef int (*CVQuadRhsFn)(sunrealtype t, N_Vector y, N_Vector yQdot,
