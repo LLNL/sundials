@@ -289,11 +289,7 @@ SUNAdaptController functions return one of the following set of error codes:
 
 * ``SUN_SUCCESS`` (0) -- successful call.
 
-* ``SUN_ERR_ARG_INCOMPATIBLE`` (-1001) -- an illegal input has been provided to the function.
-
 * ``SUNADAPTCONTROLLER_MEM_FAIL`` (-1002) -- a memory access or allocation failed.
-
-* ``SUN_ERR_USER_FCN_FAIL`` (-1003) -- a user-supplied function returned a nonzero [error] value.
 
 * ``SUNADAPTCONTROLLER_OPERATION_FAIL`` (-1004) -- catch-all for errors not in the above list.
 

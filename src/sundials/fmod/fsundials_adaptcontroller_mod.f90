@@ -63,9 +63,6 @@ module fsundials_adaptcontroller_mod
  public :: FSUNAdaptController_SetErrorBias
  public :: FSUNAdaptController_UpdateH
  public :: FSUNAdaptController_Space
- integer(C_INT), parameter, public :: SUN_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: SUN_ERR_ARG_INCOMPATIBLE = -1001_C_INT
- integer(C_INT), parameter, public :: SUN_ERR_USER_FCN_FAIL = -1003_C_INT
 
 ! WRAPPER DECLARATIONS
 interface

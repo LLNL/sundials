@@ -117,7 +117,6 @@ SUNErrCode SUNAdaptController_SetParams_Soderlind(SUNAdaptController C,
                                                   sunrealtype k4, sunrealtype k5)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SODERLIND_K1(C) = k1;
   SODERLIND_K2(C) = k2;
   SODERLIND_K3(C) = k3;
@@ -152,7 +151,6 @@ SUNErrCode SUNAdaptController_SetParams_PID(SUNAdaptController C, sunrealtype k1
                                             sunrealtype k2, sunrealtype k3)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SODERLIND_K1(C) = k1;
   SODERLIND_K2(C) = k2;
   SODERLIND_K3(C) = k3;
@@ -187,7 +185,6 @@ SUNErrCode SUNAdaptController_SetParams_PI(SUNAdaptController C, sunrealtype k1,
                                            sunrealtype k2)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SODERLIND_K1(C) = k1;
   SODERLIND_K2(C) = k2;
   SODERLIND_K3(C) = SUN_RCONST(0.0);
@@ -220,7 +217,6 @@ SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 SUNErrCode SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SODERLIND_K1(C) = k1;
   SODERLIND_K2(C) = SUN_RCONST(0.0);
   SODERLIND_K3(C) = SUN_RCONST(0.0);
@@ -255,7 +251,6 @@ SUNErrCode SUNAdaptController_SetParams_ExpGus(SUNAdaptController C,
                                                sunrealtype k1, sunrealtype k2)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SODERLIND_K1(C) = k1 + k2;
   SODERLIND_K2(C) = -k2;
   SODERLIND_K3(C) = SUN_RCONST(0.0);
@@ -290,7 +285,6 @@ SUNErrCode SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
                                                sunrealtype k1, sunrealtype k2)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SODERLIND_K1(C) = k1 + k2;
   SODERLIND_K2(C) = -k2;
   SODERLIND_K3(C) = SUN_RCONST(0.0);
@@ -314,7 +308,6 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
                                                      sunrealtype* hnew)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
 
   /* order parameter to use */
@@ -351,7 +344,6 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
 SUNErrCode SUNAdaptController_Reset_Soderlind(SUNAdaptController C)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SODERLIND_EP(C)         = SUN_RCONST(1.0);
   SODERLIND_EPP(C)        = SUN_RCONST(1.0);
   SODERLIND_HP(C)         = SUN_RCONST(1.0);
@@ -363,7 +355,6 @@ SUNErrCode SUNAdaptController_Reset_Soderlind(SUNAdaptController C)
 SUNErrCode SUNAdaptController_SetDefaults_Soderlind(SUNAdaptController C)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SODERLIND_K1(C)   = DEFAULT_K1;
   SODERLIND_K2(C)   = DEFAULT_K2;
   SODERLIND_K3(C)   = DEFAULT_K3;
@@ -376,7 +367,6 @@ SUNErrCode SUNAdaptController_SetDefaults_Soderlind(SUNAdaptController C)
 SUNErrCode SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE* fptr)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   fprintf(fptr, "Soderlind SUNAdaptController module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   fprintf(fptr, "  k1 = %32Lg\n", SODERLIND_K1(C));
@@ -409,7 +399,6 @@ SUNErrCode SUNAdaptController_SetErrorBias_Soderlind(SUNAdaptController C,
                                                      sunrealtype bias)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
 
   /* set allowed value, otherwise set default */
   if (bias <= SUN_RCONST(0.0)) { SODERLIND_BIAS(C) = DEFAULT_BIAS; }
@@ -422,7 +411,6 @@ SUNErrCode SUNAdaptController_UpdateH_Soderlind(SUNAdaptController C,
                                                 sunrealtype h, sunrealtype dsm)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SODERLIND_EPP(C) = SODERLIND_EP(C);
   SODERLIND_EP(C)  = SODERLIND_BIAS(C) * dsm;
   SODERLIND_HPP(C) = SODERLIND_HP(C);
@@ -435,7 +423,6 @@ SUNErrCode SUNAdaptController_Space_Soderlind(SUNAdaptController C,
                                               long int* lenrw, long int* leniw)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
   SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
   *lenrw = 10;

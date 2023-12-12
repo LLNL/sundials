@@ -102,7 +102,6 @@ SUNErrCode SUNAdaptController_SetParams_ImExGus(SUNAdaptController C,
                                                 sunrealtype k1i, sunrealtype k2i)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SACIMEXGUS_K1E(C) = k1e;
   SACIMEXGUS_K2E(C) = k2e;
   SACIMEXGUS_K1I(C) = k1i;
@@ -126,7 +125,6 @@ SUNErrCode SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C,
 {
   SUNFunctionBegin(C->sunctx);
 
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
 
   /* order parameter to use */
@@ -167,7 +165,6 @@ SUNErrCode SUNAdaptController_Reset_ImExGus(SUNAdaptController C)
 SUNErrCode SUNAdaptController_SetDefaults_ImExGus(SUNAdaptController C)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SACIMEXGUS_K1E(C)  = DEFAULT_K1E;
   SACIMEXGUS_K2E(C)  = DEFAULT_K2E;
   SACIMEXGUS_K1I(C)  = DEFAULT_K1I;
@@ -179,7 +176,6 @@ SUNErrCode SUNAdaptController_SetDefaults_ImExGus(SUNAdaptController C)
 SUNErrCode SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE* fptr)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
   fprintf(fptr, "ImEx Gustafsson SUNAdaptController module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -206,7 +202,6 @@ SUNErrCode SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController C,
                                                    sunrealtype bias)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   /* set allowed value, otherwise set default */
   if (bias <= SUN_RCONST(0.0)) { SACIMEXGUS_BIAS(C) = DEFAULT_BIAS; }
   else { SACIMEXGUS_BIAS(C) = bias; }
@@ -218,7 +213,6 @@ SUNErrCode SUNAdaptController_UpdateH_ImExGus(SUNAdaptController C,
                                               sunrealtype h, sunrealtype dsm)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SACIMEXGUS_EP(C)        = SACIMEXGUS_BIAS(C) * dsm;
   SACIMEXGUS_HP(C)        = h;
   SACIMEXGUS_FIRSTSTEP(C) = SUNFALSE;
@@ -229,7 +223,6 @@ SUNErrCode SUNAdaptController_Space_ImExGus(SUNAdaptController C,
                                             long int* lenrw, long int* leniw)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(C, SUN_ERR_ARG_CORRUPT);
   SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
   SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
   *lenrw = 7;
