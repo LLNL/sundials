@@ -59,6 +59,8 @@
  * =================================================================
  */
 
+#include "kinsol/kinsol.h"
+
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -500,7 +502,7 @@ int KINSol(void* kinmem, N_Vector u, int strategy_in, N_Vector u_scale,
 
   if (kin_mem->kin_MallocDone == SUNFALSE)
   {
-    KINProcessError(NULL, KIN_NO_MALLOC, __LINE__, __func__, __FILE__,
+    KINProcessError(kin_mem, KIN_NO_MALLOC, __LINE__, __func__, __FILE__,
                     MSG_NO_MALLOC);
     SUNDIALS_MARK_FUNCTION_END(KIN_PROFILER);
     return (KIN_NO_MALLOC);
@@ -2571,16 +2573,28 @@ void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
   char* msg     = (char*)malloc(msglen);
   vsnprintf(msg, msglen, msgfmt, ap);
 
-  if (kin_mem == NULL)
-  {
-    SUNGlobalFallbackErrHandler(line, func, file, msgfmt, error_code);
-  }
-  else
-  {
+  do {
+    if (kin_mem == NULL)
+    {
+      SUNGlobalFallbackErrHandler(line, func, file, msg, error_code);
+      break;
+    }
+
+    if (error_code == KIN_WARNING)
+    {
+#if SUNDIALS_LOGGING_LEVEL >= 1
+      char* file_and_line = sunCombineFileAndLine(line, file);
+      SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_WARNING, file_and_line, func,
+                         msg);
+      free(file_and_line);
+#endif
+      break;
+    }
+
     /* Call the SUNDIALS main error handler */
-    SUNHandleErrWithMsg(line, func, file, msgfmt, error_code,
-                        kin_mem->kin_sunctx);
+    SUNHandleErrWithMsg(line, func, file, msg, error_code, kin_mem->kin_sunctx);
   }
+  while (0);
 
   /* Finalize argument processing */
   va_end(ap);
