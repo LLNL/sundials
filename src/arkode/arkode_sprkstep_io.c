@@ -43,16 +43,6 @@ int SPRKStepSetInterpolantType(void* arkode_mem, int itype)
   return (arkSetInterpolantType(arkode_mem, itype));
 }
 
-int SPRKStepSetErrHandlerFn(void* arkode_mem, ARKErrHandlerFn ehfun, void* eh_data)
-{
-  return (arkSetErrHandlerFn(arkode_mem, ehfun, eh_data));
-}
-
-int SPRKStepSetErrFile(void* arkode_mem, FILE* errfp)
-{
-  return (arkSetErrFile(arkode_mem, errfp));
-}
-
 int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps)
 {
   return (arkSetMaxNumSteps(arkode_mem, mxsteps));
@@ -185,15 +175,14 @@ int SPRKStepSetDefaults(void* arkode_mem)
   int retval                 = 0;
 
   /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepSetDefaults", &ark_mem,
-                                  &step_mem);
+  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Set default ARKODE infrastructure parameters */
   retval = arkSetDefaults(ark_mem);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::SPRKStep", "SPRKStepSetDefaults",
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     "Error setting ARKODE infrastructure defaults");
     return (retval);
   }
@@ -216,8 +205,7 @@ int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
   int retval                 = 0;
 
   /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepSetUseCompensatedSums",
-                                  &ark_mem, &step_mem);
+  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   if (onoff)
@@ -256,8 +244,7 @@ int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKTable sprk_storage)
   int retval                 = 0;
 
   /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepSetMethod", &ark_mem,
-                                  &step_mem);
+  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   if (step_mem->method)
@@ -283,8 +270,7 @@ int SPRKStepSetMethodName(void* arkode_mem, const char* method)
   int retval                 = 0;
 
   /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepSetMethodName", &ark_mem,
-                                  &step_mem);
+  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   if (step_mem->method)
@@ -313,8 +299,7 @@ int SPRKStepSetOrder(void* arkode_mem, int ord)
   int retval                 = 0;
 
   /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepSetOrder", &ark_mem,
-                                  &step_mem);
+  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Invalid orders result in the default order being used. */
@@ -349,8 +334,7 @@ int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
   int retval                 = 0;
 
   /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepGetNumRhsEvals",
-                                  &ark_mem, &step_mem);
+  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   *nf1 = step_mem->nf1;
@@ -371,8 +355,7 @@ int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKTable* sprk_storage)
   int retval                 = 0;
 
   /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepGetNumRhsEvals",
-                                  &ark_mem, &step_mem);
+  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   *sprk_storage = step_mem->method;
@@ -392,8 +375,7 @@ int SPRKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
   int retval                 = 0;
 
   /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepPrintAllStats", &ark_mem,
-                                  &step_mem);
+  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* step and rootfinding stats */
@@ -413,7 +395,7 @@ int SPRKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
     fprintf(outfile, ",f2 RHS fn evals,%ld", step_mem->nf2);
     break;
   default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "SPRKStepPrintAllStats",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid formatting option.");
     return (ARK_ILL_INPUT);
   }
@@ -438,16 +420,14 @@ int SPRKStepWriteParameters(void* arkode_mem, FILE* fp)
   int retval                 = 0;
 
   /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, "SPRKStepWriteParameters",
-                                  &ark_mem, &step_mem);
+  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* output ARKODE infrastructure parameters first */
   flag = arkWriteParameters(ark_mem, fp);
   if (flag != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKODE::SPRKStep",
-                    "SPRKStepWriteParameters",
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     "Error writing ARKODE infrastructure parameters");
     return (flag);
   }

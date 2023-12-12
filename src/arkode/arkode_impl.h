@@ -23,6 +23,7 @@
 #include <arkode/arkode_butcher_erk.h>
 #include <stdarg.h>
 #include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
@@ -388,11 +389,6 @@ struct ARKodeMemRec
   sunbooleantype firststage;   /* denotes first stage in simulation          */
   sunbooleantype initialized;  /* denotes arkInitialSetup has been done      */
   sunbooleantype call_fullrhs; /* denotes the full RHS fn will be called     */
-
-  /* Error handler function and error ouput file */
-  ARKErrHandlerFn ehfun; /* error messages are handled by ehfun        */
-  void* eh_data;         /* data pointer passed to ehfun               */
-  FILE* errfp;           /* ARKODE error messages are sent to errfp    */
 
   /* Rootfinding Data */
   ARKodeRootMem root_mem; /* root-finding structure */
@@ -857,10 +853,6 @@ struct ARKodeMemRec
 /* Prototype of internal rwtSet function */
 int arkRwtSet(N_Vector ycur, N_Vector weight, void* data);
 
-/* Prototype of internal errHandler function */
-void arkErrHandler(int error_code, const char* module, const char* function,
-                   char* msg, void* data);
-
 /* Prototype of internal explicit stability estimation function */
 int arkExpStab(N_Vector y, sunrealtype t, sunrealtype* hstab, void* user_data);
 
@@ -868,8 +860,8 @@ int arkExpStab(N_Vector y, sunrealtype t, sunrealtype* hstab, void* user_data);
   HIGH LEVEL ERROR HANDLER, USED THROUGHOUT ARKODE
   ===============================================================*/
 
-void arkProcessError(ARKodeMem ark_mem, int error_code, const char* module,
-                     const char* fname, const char* msgfmt, ...);
+void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
+                     const char* func, const char* file, const char* msgfmt, ...);
 
 /*===============================================================
   ARKODE PRIVATE FUNCTION PROTOTYPES
@@ -954,8 +946,6 @@ int arkSetDefaults(void* arkode_mem);
 int arkSetDenseOrder(void* arkode_mem, int dord);
 int arkSetInterpolantType(void* arkode_mem, int itype);
 int arkSetInterpolantDegree(void* arkode_mem, int degree);
-int arkSetErrHandlerFn(void* arkode_mem, ARKErrHandlerFn ehfun, void* eh_data);
-int arkSetErrFile(void* arkode_mem, FILE* errfp);
 int arkSetUserData(void* arkode_mem, void* user_data);
 int arkSetMaxNumSteps(void* arkode_mem, long int mxsteps);
 int arkSetMaxHnilWarns(void* arkode_mem, int mxhnil);
