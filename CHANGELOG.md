@@ -138,6 +138,14 @@ This will be picked up automatically in projects that use the SUNDIALS CMake tar
 The library `sundials_generic` has been superceded by `sundials_core` and is no longer available.
 This fixes some duplicate symbol errors on Windows when linking to multiple SUNDIALS libraries.
 
+**Breaking change**
+The `*SetErrHandlerFn` and `*SetErrFile` functions in CVODE(S), IDA(S), ARKODE and KINSOL have been
+removed. Users of these functions can use the functions `SUNContext_PushErrHandler`, and
+`SUNLogger_SetErrorFilename` instead. For further details see the [Error
+Checking](https://sundials.readthedocs.io/en/latest/sundials/Errors_link.html) and
+[Logging](https://sundials.readthedocs.io/en/latest/sundials/Logging_link.html) sections in the
+documentation.
+
 
 ## Changes to SUNDIALS in release 6.6.2
 

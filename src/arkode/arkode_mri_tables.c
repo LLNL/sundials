@@ -42,7 +42,7 @@ MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID method)
 #undef ARK_MRI_TABLE
 
   default:
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", "MRIStepCoupling_LoadTable",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Unknown coupling table");
     return NULL;
   }
@@ -60,7 +60,7 @@ MRIStepCoupling MRIStepCoupling_LoadTableByName(const char* method)
 #include "arkode_mri_tables.def"
 #undef ARK_MRI_TABLE
 
-  arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", "MRIStepCoupling_LoadTable",
+  arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                   "Unknown coupling table");
 
   return NULL;

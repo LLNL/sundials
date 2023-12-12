@@ -39,14 +39,15 @@ static int arkRelaxAccessMem(void* arkode_mem, const char* fname,
 {
   if (!arkode_mem)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", fname, MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
     return ARK_MEM_NULL;
   }
   *ark_mem = (ARKodeMem)arkode_mem;
 
   if (!((*ark_mem)->relax_mem))
   {
-    arkProcessError(*ark_mem, ARK_RELAX_MEM_NULL, "ARKODE", fname,
+    arkProcessError(*ark_mem, ARK_RELAX_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_RELAX_MEM_NULL);
     return ARK_RELAX_MEM_NULL;
   }
@@ -490,7 +491,7 @@ int arkRelaxSetSolver(void* arkode_mem, ARKRelaxSolver solver)
 
   if (solver != ARK_RELAX_BRENT && solver != ARK_RELAX_NEWTON)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkRelaxSetSolver",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "An invalid relaxation solver option was provided.");
     return ARK_ILL_INPUT;
   }
@@ -679,7 +680,7 @@ int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
     fprintf(outfile, ",Relax NLS fails,%ld", relax_mem->nls_fails);
     break;
   default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkRelaxPrintAllStats",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid formatting option.");
     return ARK_ILL_INPUT;
   }
@@ -701,7 +702,7 @@ int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
   /* Check inputs */
   if (!arkode_mem)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", "arkRelaxCreate",
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
     return ARK_MEM_NULL;
   }
@@ -717,14 +718,14 @@ int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
   /* Ensure both the relaxation function and Jacobian are provided */
   if (!relax_fn)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkRelaxCreate",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "The relaxation function is NULL.");
     return ARK_ILL_INPUT;
   }
 
   if (!relax_jac_fn)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkRelaxCreate",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "The relaxation Jacobian function is NULL.");
     return ARK_ILL_INPUT;
   }
@@ -732,7 +733,7 @@ int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
   /* Ensure stepper supplied inputs are provided */
   if (!delta_e_fn || !get_order_fn)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkRelaxCreate",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "The Delta y, Delta e, or get order function is NULL.");
     return ARK_ILL_INPUT;
   }
@@ -797,7 +798,7 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout,
   /* Get the relaxation memory structure */
   if (!relax_mem)
   {
-    arkProcessError(ark_mem, ARK_RELAX_MEM_NULL, "ARKODE", "arkRelax",
+    arkProcessError(ark_mem, ARK_RELAX_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_RELAX_MEM_NULL);
     return ARK_RELAX_MEM_NULL;
   }
