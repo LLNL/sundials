@@ -153,9 +153,6 @@ typedef int (*ARKEwtFn)(N_Vector y, N_Vector ewt, void* user_data);
 
 typedef int (*ARKRwtFn)(N_Vector y, N_Vector rwt, void* user_data);
 
-typedef void (*ARKErrHandlerFn)(int error_code, const char* module,
-                                const char* function, char* msg, void* user_data);
-
 typedef int (*ARKAdaptFn)(N_Vector y, sunrealtype t, sunrealtype h1,
                           sunrealtype h2, sunrealtype h3, sunrealtype e1,
                           sunrealtype e2, sunrealtype e3, int q, int p,

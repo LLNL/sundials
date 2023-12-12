@@ -38,7 +38,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(ARKODE_ERKTableID emethod)
 #undef ARK_BUTCHER_TABLE
 
   default:
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", "ARKodeButcherTable_LoadERK",
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Unknown Butcher table");
     return NULL;
   }
@@ -67,7 +67,7 @@ ARKODE_ERKTableID arkButcherTableERKNameToID(const char* emethod)
 #include "arkode_butcher_erk.def"
 #undef ARK_BUTCHER_TABLE
 
-  arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", "arkButcherTableERKNameToID",
+  arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                   "Unknown Butcher table");
 
   return ARKODE_ERK_NONE;
