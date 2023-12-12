@@ -19,12 +19,11 @@
 #define _ARKODE_ARKSTEP_IMPL_H
 
 #include <arkode/arkode_arkstep.h>
+/* access to MRIStepInnerStepper_Create */
+#include <arkode/arkode_mristep.h>
 
 #include "arkode_impl.h"
 #include "arkode_ls_impl.h"
-
-/* access to MRIStepInnerStepper_Create */
-#include "arkode/arkode_mristep.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

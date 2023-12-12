@@ -67,8 +67,6 @@ module farkode_sprkstep_mod
  public :: FSPRKStepSetMaxNumSteps
  public :: FSPRKStepSetStopTime
  public :: FSPRKStepSetFixedStep
- public :: FSPRKStepSetErrHandlerFn
- public :: FSPRKStepSetErrFile
  public :: FSPRKStepSetUserData
  public :: FSPRKStepSetPostprocessStepFn
  public :: FSPRKStepSetPostprocessStageFn
@@ -223,25 +221,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSPRKStepSetErrHandlerFn(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSPRKStepSetErrHandlerFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-type(C_PTR), value :: farg3
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSPRKStepSetErrFile(farg1, farg2) &
-bind(C, name="_wrap_FSPRKStepSetErrFile") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -704,41 +683,6 @@ real(C_DOUBLE) :: farg2
 farg1 = arkode_mem
 farg2 = hfixed
 fresult = swigc_FSPRKStepSetFixedStep(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSPRKStepSetErrHandlerFn(arkode_mem, ehfun, eh_data) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_FUNPTR), intent(in), value :: ehfun
-type(C_PTR) :: eh_data
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = arkode_mem
-farg2 = ehfun
-farg3 = eh_data
-fresult = swigc_FSPRKStepSetErrHandlerFn(farg1, farg2, farg3)
-swig_result = fresult
-end function
-
-function FSPRKStepSetErrFile(arkode_mem, errfp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR) :: errfp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = errfp
-fresult = swigc_FSPRKStepSetErrFile(farg1, farg2)
 swig_result = fresult
 end function
 
