@@ -33,20 +33,20 @@ set(SUNDIALS_LIBS ${IDA_LIB} ${EXE_EXTRA_LINK_LIBS})
 # Add the build and install targets for each example
 foreach(example_tuple ${FIDA_examples_OMP})
   # parse the example tuple
-  list(GET example_tuple 0 example)
+  list(GET example_tuple 0 example_file)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
   # extract the file name without extension
-  get_filename_component(example_target ${example} NAME_WE)
+  get_filename_component(example ${example_file} NAME_WE)
 
-  if(NOT TARGET ${example_target})
-    add_executable(${example_target} ${example})
+  if(NOT TARGET ${example})
+    add_executable(${example} ${example_file})
 
-    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example_target}
+    target_link_libraries(${example}
       sundials_ida
       sundials_fida_mod
       sundials_nvecopenmp
@@ -54,19 +54,19 @@ foreach(example_tuple ${FIDA_examples_OMP})
       ${SUNDIALS_LIBS})
 
     # Install fortran modules to a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example_target}.dir)
+    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   endif()
 
   # check if example args are provided and set the test name
   if("${example_args}" STREQUAL "")
-    set(test_name ${example_target})
+    set(test_name ${example})
   else()
-    string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
+    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
+  sundials_add_test(${test_name} ${example}
     TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
@@ -74,7 +74,7 @@ foreach(example_tuple ${FIDA_examples_OMP})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example} ${test_name}.out
+    install(FILES ${example}.f90 ${test_name}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_opemp)
   endif()
 endforeach(example_tuple ${FIDA_examples_OMP})
