@@ -18,6 +18,7 @@ jobs:
       image: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:latest
       options: --user root
     strategy:
+      max-parallel: 2
       matrix:
         indexsize: [32, 64]
         precision: ['double']
