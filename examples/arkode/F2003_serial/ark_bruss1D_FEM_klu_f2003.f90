@@ -1243,13 +1243,21 @@ program main
   write(503,*) ( yvec(3,i), i=1,N )
 
   ! output solver parameters to screen
-  outstr = FSUNDIALSFileOpen('stdout', 'w')
+  ierr = FSUNDIALSFileOpen('stdout', 'w', outstr)
+  if (ierr /= 0) then
+     print *, 'Error in FSUNDIALSFileOpen'
+     stop 1
+  end if
   ierr = FARKStepWriteParameters(arkode_mem, outstr)
   if (ierr /= 0) then
      print *, 'Error in FARKStepWriteParameters'
      stop 1
   end if
-  call FSUNDIALSFileClose(outstr)
+  ierr = FSUNDIALSFileClose(outstr)
+  if (ierr /= 0) then
+     print *, 'Error in FSUNDIALSFileClose'
+     stop 1
+  end if
 
   ! Start time stepping
   print *, '   '
