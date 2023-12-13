@@ -173,7 +173,7 @@ The following user-callable function is provided to set the execution policies
 for how SYCL kernels are launched on a device.
 
 
-.. cpp:function:: int N_VSetKernelExecPolicy_Sycl(N_Vector v, SUNSyclExecPolicy *stream_exec_policy, SUNSyclExecPolicy *reduce_exec_policy)
+.. cpp:function:: SUNErrCode N_VSetKernelExecPolicy_Sycl(N_Vector v, SUNSyclExecPolicy *stream_exec_policy, SUNSyclExecPolicy *reduce_exec_policy)
 
    This function sets the execution policies which control the kernel parameters
    utilized when launching the streaming and reduction kernels. By default the
@@ -224,78 +224,69 @@ vectors created by any of the constructors above will have the default settings
 for the NVECTOR_SYCL module.
 
 
-.. cpp:function:: int N_VEnableFusedOps_Sycl(N_Vector v, sunbooleantype tf)
+.. cpp:function:: SUNErrCode N_VEnableFusedOps_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
-   vector array operations in the SYCL vector. The return value is ``0`` for
-   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+   vector array operations in the SYCL vector. The return value is a :c:type:`SUNErrCode`.
 
-.. cpp:function:: int N_VEnableLinearCombination_Sycl(N_Vector v, sunbooleantype tf)
+.. cpp:function:: SUNErrCode N_VEnableLinearCombination_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
-   combination fused operation in the SYCL vector. The return value is ``0`` for
-   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+   combination fused operation in the SYCL vector. The return value is a :c:type:`SUNErrCode`.
 
-.. cpp:function:: int N_VEnableScaleAddMulti_Sycl(N_Vector v, sunbooleantype tf)
+.. cpp:function:: SUNErrCode N_VEnableScaleAddMulti_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector to multiple vectors fused operation in the SYCL vector. The
-   return value is ``0`` for success and ``-1`` if the input vector or its
-   ``ops`` structure are ``NULL``.
+   return value is a :c:type:`SUNErrCode`.
 
 ..
-   .. cpp:function:: int N_VEnableDotProdMulti_Sycl(N_Vector v, sunbooleantype tf)
+   .. cpp:function:: SUNErrCode N_VEnableDotProdMulti_Sycl(N_Vector v, sunbooleantype tf)
 
       This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
       dot products fused operation in the SYCL vector. The return value is ``0``
       for success and ``-1`` if the input vector or its ``ops`` structure are
       ``NULL``.
 
-.. cpp:function:: int N_VEnableLinearSumVectorArray_Sycl(N_Vector v, sunbooleantype tf)
+.. cpp:function:: SUNErrCode N_VEnableLinearSumVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
-   operation for vector arrays in the SYCL vector. The return value is ``0`` for
-   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+   operation for vector arrays in the SYCL vector. The return value is a :c:type:`SUNErrCode`.
 
-.. cpp:function:: int N_VEnableScaleVectorArray_Sycl(N_Vector v, sunbooleantype tf)
+.. cpp:function:: SUNErrCode N_VEnableScaleVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
-   operation for vector arrays in the SYCL vector. The return value is ``0`` for
-   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+   operation for vector arrays in the SYCL vector. The return value is a :c:type:`SUNErrCode`.
 
-.. cpp:function:: int N_VEnableConstVectorArray_Sycl(N_Vector v, sunbooleantype tf)
+.. cpp:function:: SUNErrCode N_VEnableConstVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
-   operation for vector arrays in the SYCL vector. The return value is ``0`` for
-   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+   operation for vector arrays in the SYCL vector. The return value is a :c:type:`SUNErrCode`.
 
 ..
-   .. cpp:function:: int N_VEnableWrmsNormVectorArray_Sycl(N_Vector v, sunbooleantype tf)
+   .. cpp:function:: SUNErrCode N_VEnableWrmsNormVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
       This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
       operation for vector arrays in the SYCL vector. The return value is ``0`` for
       success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-   .. cpp:function:: int N_VEnableWrmsNormMaskVectorArray_Sycl(N_Vector v, sunbooleantype tf)
+   .. cpp:function:: SUNErrCode N_VEnableWrmsNormMaskVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
       This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
       norm operation for vector arrays in the SYCL vector. The return value is
       ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
       ``NULL``.
 
-.. cpp:function:: int N_VEnableScaleAddMultiVectorArray_Sycl(N_Vector v, sunbooleantype tf)
+.. cpp:function:: SUNErrCode N_VEnableScaleAddMultiVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector array to multiple vector arrays operation in the SYCL vector. The
-   return value is ``0`` for success and ``-1`` if the input vector or its
-   ``ops`` structure are ``NULL``.
+   return value is a :c:type:`SUNErrCode`.
 
-.. cpp:function:: int N_VEnableLinearCombinationVectorArray_Sycl(N_Vector v, sunbooleantype tf)
+.. cpp:function:: SUNErrCode N_VEnableLinearCombinationVectorArray_Sycl(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
-   combination operation for vector arrays in the SYCL vector. The return value
-   is ``0`` for success and ``-1`` if the input vector or its ``ops`` structure
-   are ``NULL``.
+   combination operation for vector arrays in the SYCL vector. The return value is a :c:type:`SUNErrCode`.
 
 
 **Notes**
