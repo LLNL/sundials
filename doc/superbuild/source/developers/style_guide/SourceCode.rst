@@ -262,7 +262,7 @@ Coding Conventions and Rules
    are the ``SUNLogger`` and ``SUNProfiler`` classes.
 
 #. All SUNDIALS functions should return a ``SUNErrCode``. Many older functions
-   do not do this and are exceptions to the rule for backwards compatiblilty. 
+   do not do this and are exceptions to the rule for backwards compatibility. 
    In addition, internal helper functions may or may-not return a ``SUNErrCode``.
 
 #. All SUNDIALS functions, with the exception of some functions
@@ -385,7 +385,7 @@ Coding Conventions and Rules
 
 #. If statements and loops should always have braces even if they are one line.
 
-#. Return statements should not unecessarily use parentheses. Prefer ``return
+#. Return statements should not unnecessarily use parentheses. Prefer ``return
    x;`` to ``return(x);``. Note, however, lots of older SUNDIALS source code
    uses ``return(x);``. 
 

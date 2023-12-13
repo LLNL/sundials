@@ -314,18 +314,6 @@ N_Vector N_VMake_Pthreads(sunindextype length, int num_threads,
 }
 
 /* ----------------------------------------------------------------------------
- * Function to create an array of new vectors.
- */
-
-N_Vector* N_VCloneVectorArray_Pthreads(int count, N_Vector w)
-{
-  SUNFunctionBegin(w->sunctx);
-  N_Vector* result = N_VCloneVectorArray(count, w);
-  SUNCheckLastErrNull();
-  return result;
-}
-
-/* ----------------------------------------------------------------------------
  * Function to return number of vector elements
  */
 sunindextype N_VGetLength_Pthreads(N_Vector v) { return NV_LENGTH_PT(v); }
@@ -935,17 +923,19 @@ void N_VScale_Pthreads(sunrealtype c, N_Vector x, N_Vector z)
   if (z == x)
   { /* BLAS usage: scale x <- cx */
     VScaleBy_Pthreads(c, x);
-    SUNCheckLastErrVoid();
     return;
   }
 
   if (c == ONE)
   {
     VCopy_Pthreads(x, z);
-    SUNCheckLastErrVoid();
     return;
   }
-  else if (c == -ONE) { VNeg_Pthreads(x, z); }
+  else if (c == -ONE)
+  {
+    VNeg_Pthreads(x, z);
+    return;
+  }
   else
   {
     /* allocate threads and thread data structs */
@@ -2957,6 +2947,7 @@ SUNErrCode N_VScaleVectorArray_Pthreads(int nvec, sunrealtype* c, N_Vector* X,
   if (nvec == 1)
   {
     N_VScale_Pthreads(c[0], X[0], Z[0]);
+    SUNCheckLastErr();
     return SUN_SUCCESS;
   }
 
@@ -3070,6 +3061,7 @@ SUNErrCode N_VConstVectorArray_Pthreads(int nvec, sunrealtype c, N_Vector* Z)
   if (nvec == 1)
   {
     N_VConst_Pthreads(c, Z[0]);
+    SUNCheckLastErr();
     return SUN_SUCCESS;
   }
 
@@ -3411,7 +3403,6 @@ SUNErrCode N_VScaleAddMultiVectorArray_Pthreads(int nvec, int nsum,
   Pthreads_Data* thread_data;
   pthread_attr_t attr;
 
-  int retval;
   N_Vector* YY;
   N_Vector* ZZ;
 
@@ -3434,7 +3425,9 @@ SUNErrCode N_VScaleAddMultiVectorArray_Pthreads(int nvec, int nsum,
 
     /* should have called N_VScaleAddMulti */
     YY = (N_Vector*)malloc(nsum * sizeof(N_Vector));
+    SUNAssert(YY, SUN_ERR_MALLOC_FAIL);
     ZZ = (N_Vector*)malloc(nsum * sizeof(N_Vector));
+    SUNAssert(ZZ, SUN_ERR_MALLOC_FAIL);
 
     for (j = 0; j < nsum; j++)
     {
@@ -3442,11 +3435,11 @@ SUNErrCode N_VScaleAddMultiVectorArray_Pthreads(int nvec, int nsum,
       ZZ[j] = Z[j][0];
     }
 
-    retval = N_VScaleAddMulti_Pthreads(nsum, a, X[0], YY, ZZ);
+    SUNCheckCall(N_VScaleAddMulti_Pthreads(nsum, a, X[0], YY, ZZ));
 
     free(YY);
     free(ZZ);
-    return (retval);
+    return SUN_SUCCESS;
   }
 
   /* --------------------------
@@ -3456,8 +3449,8 @@ SUNErrCode N_VScaleAddMultiVectorArray_Pthreads(int nvec, int nsum,
   /* should have called N_VLinearSumVectorArray */
   if (nsum == 1)
   {
-    retval = N_VLinearSumVectorArray_Pthreads(nvec, a[0], X, ONE, Y[0], Z[0]);
-    return (retval);
+    SUNCheckCall(N_VLinearSumVectorArray_Pthreads(nvec, a[0], X, ONE, Y[0], Z[0]));
+    return SUN_SUCCESS;
   }
 
   /* ----------------------------
@@ -3580,7 +3573,6 @@ SUNErrCode N_VLinearCombinationVectorArray_Pthreads(int nvec, int nsum,
   Pthreads_Data* thread_data;
   pthread_attr_t attr;
 
-  int retval;
   sunrealtype* ctmp;
   N_Vector* Y;
 
@@ -3611,13 +3603,14 @@ SUNErrCode N_VLinearCombinationVectorArray_Pthreads(int nvec, int nsum,
 
     /* should have called N_VLinearCombination */
     Y = (N_Vector*)malloc(nsum * sizeof(N_Vector));
+    SUNAssert(Y, SUN_ERR_MALLOC_FAIL);
 
     for (i = 0; i < nsum; i++) { Y[i] = X[i][0]; }
 
-    retval = N_VLinearCombination_Pthreads(nsum, c, Y, Z[0]);
+    SUNCheckCall(N_VLinearCombination_Pthreads(nsum, c, Y, Z[0]));
 
     free(Y);
-    return (retval);
+    return SUN_SUCCESS;
   }
 
   /* --------------------------
@@ -3631,17 +3624,18 @@ SUNErrCode N_VLinearCombinationVectorArray_Pthreads(int nvec, int nsum,
 
     for (j = 0; j < nvec; j++) { ctmp[j] = c[0]; }
 
-    retval = N_VScaleVectorArray_Pthreads(nvec, ctmp, X[0], Z);
+    SUNCheckCall(N_VScaleVectorArray_Pthreads(nvec, ctmp, X[0], Z));
 
     free(ctmp);
-    return (retval);
+    return SUN_SUCCESS;
   }
 
   /* should have called N_VLinearSumVectorArray */
   if (nsum == 2)
   {
-    retval = N_VLinearSumVectorArray_Pthreads(nvec, c[0], X[0], c[1], X[1], Z);
-    return (retval);
+    SUNCheckCall(
+      N_VLinearSumVectorArray_Pthreads(nvec, c[0], X[0], c[1], X[1], Z));
+    return SUN_SUCCESS;
   }
 
   /* --------------------------
@@ -3778,7 +3772,6 @@ static void* nvLinearCombinationVectorArrayPt(void* thread_data)
 
 SUNErrCode N_VBufSize_Pthreads(N_Vector x, sunindextype* size)
 {
-  if (x == NULL) { return (-1); }
   *size = NV_LENGTH_PT(x) * ((sunindextype)sizeof(sunrealtype));
   return SUN_SUCCESS;
 }
@@ -3797,7 +3790,7 @@ SUNErrCode N_VBufPack_Pthreads(N_Vector x, void* buf)
   Pthreads_Data* thread_data;
   pthread_attr_t attr;
 
-  if (x == NULL || buf == NULL) { return (-1); }
+  SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   /* allocate threads and thread data structs */
   N        = NV_LENGTH_PT(x);
@@ -3878,7 +3871,7 @@ SUNErrCode N_VBufUnpack_Pthreads(N_Vector x, void* buf)
   Pthreads_Data* thread_data;
   pthread_attr_t attr;
 
-  if (x == NULL || buf == NULL) { return (-1); }
+  SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   /* allocate threads and thread data structs */
   N        = NV_LENGTH_PT(x);

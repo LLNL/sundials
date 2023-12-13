@@ -196,12 +196,15 @@ N_Vector N_VNew_OpenMP(sunindextype length, int num_threads, SUNContext sunctx)
 
   /* Create data */
   data = NULL;
-  data = (sunrealtype*)malloc(length * sizeof(sunrealtype));
-  SUNAssertNull(data, SUN_ERR_MALLOC_FAIL);
+  if (length > 0)
+  {
+    data = (sunrealtype*)malloc(length * sizeof(sunrealtype));
+    SUNAssertNull(data, SUN_ERR_MALLOC_FAIL);
 
-  /* Attach data */
-  NV_OWN_DATA_OMP(v) = SUNTRUE;
-  NV_DATA_OMP(v)     = data;
+    /* Attach data */
+    NV_OWN_DATA_OMP(v) = SUNTRUE;
+    NV_DATA_OMP(v)     = data;
+  }
 
   return (v);
 }
@@ -222,9 +225,12 @@ N_Vector N_VMake_OpenMP(sunindextype length, sunrealtype* v_data,
   v = N_VNewEmpty_OpenMP(length, num_threads, sunctx);
   SUNCheckLastErrNull();
 
-  /* Attach data */
-  NV_OWN_DATA_OMP(v) = SUNFALSE;
-  NV_DATA_OMP(v)     = v_data;
+  if (length > 0)
+  {
+    /* Attach data */
+    NV_OWN_DATA_OMP(v) = SUNFALSE;
+    NV_DATA_OMP(v)     = v_data;
+  }
 
   return (v);
 }
@@ -342,8 +348,11 @@ N_Vector N_VClone_OpenMP(N_Vector w)
 
   /* Create data */
   data = NULL;
-  data = (sunrealtype*)malloc(length * sizeof(sunrealtype));
-  SUNAssertNull(data, SUN_ERR_MALLOC_FAIL);
+  if (length > 0)
+  {
+    data = (sunrealtype*)malloc(length * sizeof(sunrealtype));
+    SUNAssertNull(data, SUN_ERR_MALLOC_FAIL);
+  }
 
   /* Attach data */
   NV_OWN_DATA_OMP(v) = SUNTRUE;
@@ -759,7 +768,10 @@ sunrealtype N_VMaxNorm_OpenMP(N_Vector x)
 
 sunrealtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w)
 {
-  return (SUNRsqrt(N_VWSqrSumLocal_OpenMP(x, w) / (NV_LENGTH_OMP(x))));
+  SUNFunctionBegin(x->sunctx);
+  sunrealtype sqr_sum = N_VWSqrSumLocal_OpenMP(x, w);
+  SUNCheckLastErrNoRet();
+  return (SUNRsqrt(sqr_sum / (NV_LENGTH_OMP(x))));
 }
 
 /* ----------------------------------------------------------------------------
@@ -768,11 +780,14 @@ sunrealtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w)
 
 sunrealtype N_VWrmsNormMask_OpenMP(N_Vector x, N_Vector w, N_Vector id)
 {
-  return (SUNRsqrt(N_VWSqrSumMaskLocal_OpenMP(x, w, id) / (NV_LENGTH_OMP(x))));
+  SUNFunctionBegin(x->sunctx);
+  sunrealtype sqr_sum = N_VWSqrSumMaskLocal_OpenMP(x, w, id);
+  SUNCheckLastErrNoRet();
+  return (SUNRsqrt(sqr_sum / (NV_LENGTH_OMP(x))));
 }
 
 /* ----------------------------------------------------------------------------
- * Finds the minimun component of a vector
+ * Finds the minimum component of a vector
  */
 
 sunrealtype N_VMin_OpenMP(N_Vector x)
@@ -1621,7 +1636,6 @@ SUNErrCode N_VScaleAddMultiVectorArray_OpenMP(int nvec, int nsum,
   sunrealtype* yd = NULL;
   sunrealtype* zd = NULL;
 
-  int retval;
   N_Vector* YY;
   N_Vector* ZZ;
 
@@ -1647,7 +1661,9 @@ SUNErrCode N_VScaleAddMultiVectorArray_OpenMP(int nvec, int nsum,
 
     /* should have called N_VScaleAddMulti */
     YY = (N_Vector*)malloc(nsum * sizeof(N_Vector));
+    SUNAssert(YY, SUN_ERR_MALLOC_FAIL);
     ZZ = (N_Vector*)malloc(nsum * sizeof(N_Vector));
+    SUNAssert(ZZ, SUN_ERR_MALLOC_FAIL);
 
     for (j = 0; j < nsum; j++)
     {
@@ -1655,11 +1671,11 @@ SUNErrCode N_VScaleAddMultiVectorArray_OpenMP(int nvec, int nsum,
       ZZ[j] = Z[j][0];
     }
 
-    retval = N_VScaleAddMulti_OpenMP(nsum, a, X[0], YY, ZZ);
+    SUNCheckCall(N_VScaleAddMulti_OpenMP(nsum, a, X[0], YY, ZZ));
 
     free(YY);
     free(ZZ);
-    return (retval);
+    return SUN_SUCCESS;
   }
 
   /* --------------------------
@@ -1669,8 +1685,8 @@ SUNErrCode N_VScaleAddMultiVectorArray_OpenMP(int nvec, int nsum,
   /* should have called N_VLinearSumVectorArray */
   if (nsum == 1)
   {
-    retval = N_VLinearSumVectorArray_OpenMP(nvec, a[0], X, ONE, Y[0], Z[0]);
-    return (retval);
+    SUNCheckCall(N_VLinearSumVectorArray_OpenMP(nvec, a[0], X, ONE, Y[0], Z[0]));
+    return SUN_SUCCESS;
   }
 
   /* ----------------------------
@@ -1790,8 +1806,7 @@ SUNErrCode N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
 
     for (j = 0; j < nvec; j++) { ctmp[j] = c[0]; }
 
-    N_VScaleVectorArray_OpenMP(nvec, ctmp, X[0], Z);
-    SUNCheckLastErr();
+    SUNCheckCall(N_VScaleVectorArray_OpenMP(nvec, ctmp, X[0], Z));
 
     free(ctmp);
     return SUN_SUCCESS;
@@ -1800,8 +1815,7 @@ SUNErrCode N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
   /* should have called N_VLinearSumVectorArray */
   if (nsum == 2)
   {
-    N_VLinearSumVectorArray_OpenMP(nvec, c[0], X[0], c[1], X[1], Z);
-    SUNCheckLastErr();
+    SUNCheckCall(N_VLinearSumVectorArray_OpenMP(nvec, c[0], X[0], c[1], X[1], Z));
     return SUN_SUCCESS;
   }
 

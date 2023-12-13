@@ -15,6 +15,7 @@
  * of the NVECTOR package.
  * -----------------------------------------------------------------*/
 
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -268,8 +269,14 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors, N_Vector* vec_array,
     else
     {
       SUNCheckMPICallNoRet(MPI_Comm_compare(vcomm, comm, &comparison));
-      SUNCheckNull((comparison == MPI_IDENT) || (comparison == MPI_CONGRUENT),
-                   SUN_ERR_ARG_INCOMPATIBLE);
+      if ((comparison != MPI_IDENT) && (comparison != MPI_CONGRUENT))
+      {
+        SUNHandleErrWithMsg(__LINE__, __func__, __FILE__,
+                            "All subvectors must have the same communicator, "
+                            "i.e., MPI_Comm_compare must return MPI_IDENT or "
+                            "MPI_CONGRUENT.",
+                            SUN_ERR_ARG_INCOMPATIBLE, SUNCTX_);
+      }
     }
   }
 
@@ -398,6 +405,7 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors, N_Vector* vec_array,
   local_length = 0;
   for (i = 0; i < num_subvectors; i++)
   {
+    SUNAssertNull(vec_array[i]->ops->nvgetlength, SUN_ERR_NOT_IMPLEMENTED);
     local_length += N_VGetLength(vec_array[i]);
     SUNCheckLastErrNull();
   }
@@ -413,7 +421,7 @@ N_Vector MVAPPEND(N_VGetSubvector)(N_Vector v, sunindextype vec_num)
 {
   SUNFunctionBegin(v->sunctx);
   SUNAssertNull(vec_num >= 0, SUN_ERR_ARG_OUTOFRANGE);
-  SUNAssertNull(vec_num <= MANYVECTOR_NUM_SUBVECS(v), SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(vec_num < MANYVECTOR_NUM_SUBVECS(v), SUN_ERR_ARG_OUTOFRANGE);
   return (MANYVECTOR_SUBVEC(v, vec_num));
 }
 
@@ -426,7 +434,7 @@ sunrealtype* MVAPPEND(N_VGetSubvectorArrayPointer)(N_Vector v,
 {
   SUNFunctionBegin(v->sunctx);
   SUNAssertNull(vec_num >= 0, SUN_ERR_ARG_OUTOFRANGE);
-  SUNAssertNull(vec_num <= MANYVECTOR_NUM_SUBVECS(v), SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssertNull(vec_num < MANYVECTOR_NUM_SUBVECS(v), SUN_ERR_ARG_OUTOFRANGE);
   sunrealtype* arr = NULL;
   if (MANYVECTOR_SUBVEC(v, vec_num)->ops->nvgetarraypointer)
   {
@@ -445,7 +453,7 @@ SUNErrCode MVAPPEND(N_VSetSubvectorArrayPointer)(sunrealtype* v_data, N_Vector v
 {
   SUNFunctionBegin(v->sunctx);
   SUNAssert(vec_num >= 0, SUN_ERR_ARG_OUTOFRANGE);
-  SUNAssert(vec_num <= MANYVECTOR_NUM_SUBVECS(v), SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssert(vec_num < MANYVECTOR_NUM_SUBVECS(v), SUN_ERR_ARG_OUTOFRANGE);
   N_VSetArrayPointer(v_data, MANYVECTOR_SUBVEC(v, vec_num));
   SUNCheckLastErr();
   return SUN_SUCCESS;
@@ -600,7 +608,12 @@ sunindextype MVAPPEND(N_VGetLength)(N_Vector v)
 
 sunindextype MVAPPEND(N_VGetSubvectorLocalLength)(N_Vector v, sunindextype vec_num)
 {
-  return (N_VGetLocalLength(MVAPPEND(N_VGetSubvector)(v, vec_num)));
+  SUNFunctionBegin(v->sunctx);
+  N_Vector subvector = MVAPPEND(N_VGetSubvector)(v, vec_num);
+  SUNCheckLastErrNoRet();
+  sunindextype loc_length = N_VGetLocalLength(subvector);
+  SUNCheckLastErrNoRet();
+  return loc_length;
 }
 
 /* Performs the linear sum z = a*x + b*y by calling N_VLinearSum on all subvectors;
@@ -1715,7 +1728,6 @@ SUNErrCode MVAPPEND(N_VWrmsNormVectorArray)(int nvec, N_Vector* X, N_Vector* W,
 {
   SUNFunctionBegin(X[0]->sunctx);
   sunindextype i;
-  int retval;
 
   SUNAssert(nvec > 0, SUN_ERR_ARG_OUTOFRANGE);
 
@@ -1727,7 +1739,6 @@ SUNErrCode MVAPPEND(N_VWrmsNormVectorArray)(int nvec, N_Vector* X, N_Vector* W,
   }
 
   /* accumulate totals */
-  retval = 0;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
   if (MANYVECTOR_COMM(X[0]) != MPI_COMM_NULL)
   {
@@ -1742,7 +1753,7 @@ SUNErrCode MVAPPEND(N_VWrmsNormVectorArray)(int nvec, N_Vector* X, N_Vector* W,
     nrm[i] = SUNRsqrt(nrm[i] / (MANYVECTOR_GLOBLENGTH(X[i])));
   }
 
-  return (retval);
+  return SUN_SUCCESS;
 }
 
 /* Performs the WrmsNormMaskVectorArray operation by calling N_VWSqrSumMaskLocal and
@@ -1759,8 +1770,8 @@ SUNErrCode MVAPPEND(N_VWrmsNormMaskVectorArray)(int nvec, N_Vector* X,
                                                 sunrealtype* nrm)
 {
   SUNFunctionBegin(X[0]->sunctx);
+
   sunindextype i;
-  int retval;
 
   SUNAssert(nvec > 0, SUN_ERR_ARG_OUTOFRANGE);
 
@@ -1772,7 +1783,6 @@ SUNErrCode MVAPPEND(N_VWrmsNormMaskVectorArray)(int nvec, N_Vector* X,
   }
 
   /* accumulate totals */
-  retval = 0;
 #ifdef MANYVECTOR_BUILD_WITH_MPI
   if (MANYVECTOR_COMM(X[0]) != MPI_COMM_NULL)
   {
@@ -1787,7 +1797,7 @@ SUNErrCode MVAPPEND(N_VWrmsNormMaskVectorArray)(int nvec, N_Vector* X,
     nrm[i] = SUNRsqrt(nrm[i] / (MANYVECTOR_GLOBLENGTH(X[i])));
   }
 
-  return (retval);
+  return SUN_SUCCESS;
 }
 
 /* Performs the BufSize operation by calling N_VBufSize for each subvector and
@@ -1823,7 +1833,6 @@ SUNErrCode MVAPPEND(N_VBufPack)(N_Vector x, void* buf)
   sunindextype offset; /* subvector buffer offset   */
   sunindextype i;
 
-  SUNAssert(x, SUN_ERR_ARG_CORRUPT);
   SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   /* start at the beginning of the output buffer */
@@ -1854,7 +1863,6 @@ SUNErrCode MVAPPEND(N_VBufUnpack)(N_Vector x, void* buf)
   sunindextype offset; /* subvector buffer offset   */
   sunindextype i;
 
-  SUNAssert(x, SUN_ERR_ARG_CORRUPT);
   SUNAssert(buf, SUN_ERR_ARG_CORRUPT);
 
   /* start at the beginning of the input buffer */
@@ -2101,12 +2109,19 @@ static N_Vector ManyVectorClone(N_Vector w, sunbooleantype cloneempty)
    returns 0.  If an error occurs in the call to MPI_Comm_Rank, it returns -1. */
 static int SubvectorMPIRank(N_Vector x)
 {
-  int rank = 0;
   SUNFunctionBegin(x->sunctx);
+
+  int rank      = 0;
   MPI_Comm comm = N_VGetCommunicator(x);
   SUNCheckLastErrNoRet();
-  if (comm == MPI_COMM_NULL) { return SUN_SUCCESS; }
-  SUNCheckMPICallNoRet(MPI_Comm_rank(comm, &rank));
+
+  if (comm != MPI_COMM_NULL)
+  {
+    int status = MPI_Comm_rank(comm, &rank);
+    SUNCheckMPICallNoRet(status);
+    if (status != MPI_SUCCESS) { return -1; }
+  }
+
   return rank;
 }
 #endif

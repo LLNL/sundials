@@ -23,6 +23,8 @@
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
 
+#include "sundials/sundials_errors.h"
+
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)
 #define ONE    SUN_RCONST(1.0)
@@ -176,8 +178,11 @@ N_Vector N_VNew_Serial(sunindextype length, SUNContext sunctx)
 
   /* Create data */
   data = NULL;
-  data = (sunrealtype*)malloc(length * sizeof(sunrealtype));
-  SUNAssertNull(data, SUN_ERR_MALLOC_FAIL);
+  if (length > 0)
+  {
+    data = (sunrealtype*)malloc(length * sizeof(sunrealtype));
+    SUNAssertNull(data, SUN_ERR_MALLOC_FAIL);
+  }
 
   /* Attach data */
   NV_OWN_DATA_S(v) = SUNTRUE;
@@ -202,23 +207,14 @@ N_Vector N_VMake_Serial(sunindextype length, sunrealtype* v_data,
   v = N_VNewEmpty_Serial(length, sunctx);
   SUNCheckLastErrNull();
 
-  /* Attach data */
-  NV_OWN_DATA_S(v) = SUNFALSE;
-  NV_DATA_S(v)     = v_data;
+  if (length > 0)
+  {
+    /* Attach data */
+    NV_OWN_DATA_S(v) = SUNFALSE;
+    NV_DATA_S(v)     = v_data;
+  }
 
   return (v);
-}
-
-/* ----------------------------------------------------------------------------
- * Function to create an array of new serial vectors.
- */
-
-N_Vector* N_VCloneVectorArray_Serial(int count, N_Vector w)
-{
-  SUNFunctionBegin(w->sunctx);
-  N_Vector* result = N_VCloneVectorArray(count, w);
-  SUNCheckLastErrNull();
-  return result;
 }
 
 /* ----------------------------------------------------------------------------
@@ -317,12 +313,15 @@ N_Vector N_VClone_Serial(N_Vector w)
 
   /* Create data */
   data = NULL;
-  data = (sunrealtype*)malloc(length * sizeof(sunrealtype));
-  SUNAssertNull(data, SUN_ERR_MALLOC_FAIL);
+  if (length > 0)
+  {
+    data = (sunrealtype*)malloc(length * sizeof(sunrealtype));
+    SUNAssertNull(data, SUN_ERR_MALLOC_FAIL);
 
-  /* Attach data */
-  NV_OWN_DATA_S(v) = SUNTRUE;
-  NV_DATA_S(v)     = data;
+    /* Attach data */
+    NV_OWN_DATA_S(v) = SUNTRUE;
+    NV_DATA_S(v)     = data;
+  }
 
   return (v);
 }
@@ -1335,7 +1334,9 @@ SUNErrCode N_VScaleAddMultiVectorArray_Serial(int nvec, int nsum,
 
     /* should have called N_VScaleAddMulti */
     YY = (N_Vector*)malloc(nsum * sizeof(N_Vector));
+    SUNAssert(YY, SUN_ERR_MALLOC_FAIL);
     ZZ = (N_Vector*)malloc(nsum * sizeof(N_Vector));
+    SUNAssert(ZZ, SUN_ERR_MALLOC_FAIL);
 
     for (j = 0; j < nsum; j++)
     {
@@ -1443,6 +1444,7 @@ SUNErrCode N_VLinearCombinationVectorArray_Serial(int nvec, int nsum,
 
     /* should have called N_VLinearCombination */
     Y = (N_Vector*)malloc(nsum * sizeof(N_Vector));
+    SUNAssert(Y, SUN_ERR_MALLOC_FAIL);
 
     for (i = 0; i < nsum; i++) { Y[i] = X[i][0]; }
 
@@ -1461,6 +1463,7 @@ SUNErrCode N_VLinearCombinationVectorArray_Serial(int nvec, int nsum,
   if (nsum == 1)
   {
     ctmp = (sunrealtype*)malloc(nvec * sizeof(sunrealtype));
+    SUNAssert(ctmp, SUN_ERR_MALLOC_FAIL);
 
     for (j = 0; j < nvec; j++) { ctmp[j] = c[0]; }
 

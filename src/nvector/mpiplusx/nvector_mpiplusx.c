@@ -80,7 +80,9 @@ N_Vector N_VGetLocalVector_MPIPlusX(N_Vector v)
 sunindextype N_VGetLocalLength_MPIPlusX(N_Vector v)
 {
   SUNFunctionBegin(v->sunctx);
-  sunindextype len = N_VGetLength(N_VGetLocalVector_MPIPlusX(v));
+  N_Vector local_vector = N_VGetLocalVector_MPIPlusX(v);
+  SUNCheckLastErrNoRet();
+  sunindextype len = N_VGetLength(local_vector);
   SUNCheckLastErrNoRet();
   return len;
 }
