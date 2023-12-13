@@ -3340,7 +3340,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
 
     if (error_code == ARK_WARNING)
     {
-#if SUNDIALS_LOGGING_LEVEL >= 1
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_WARNING
       char* file_and_line = sunCombineFileAndLine(line, file);
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_WARNING, file_and_line, func,
                          msg);

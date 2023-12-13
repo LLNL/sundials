@@ -621,14 +621,6 @@ typedef struct CVodeMemRec
   sunbooleantype cv_QuadSensMallocDone;
 
   /*-------------------------------------------
-    Error handler function and error ouput file
-    -------------------------------------------*/
-
-  CVErrHandlerFn cv_ehfun; /* error messages are handled by ehfun          */
-  void* cv_eh_data;        /* data pointer passed to ehfun                 */
-  FILE* cv_errfp;          /* CVODE error messages are sent to errfp       */
-
-  /*-------------------------------------------
     User access function
     -------------------------------------------*/
   CVMonitorFn cv_monitorfun;    /* func called with CVODE mem and user data  */
@@ -1138,8 +1130,8 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void* data);
 
 /* High level error handler */
 
-void cvProcessError(CVodeMem cv_mem, int error_code, const char* module,
-                    const char* fname, const char* msgfmt, ...);
+void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
+                    const char* file, const char* msgfmt, ...);
 
 /* Prototype of internal ErrHandler function */
 

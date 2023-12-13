@@ -82,9 +82,6 @@ extern "C" {
 
 typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void* user_data);
 
-typedef void (*KINErrHandlerFn)(int error_code, const char* module,
-                                const char* function, char* msg, void* user_data);
-
 typedef void (*KINInfoHandlerFn)(const char* module, const char* function,
                                  char* msg, void* user_data);
 
@@ -130,11 +127,6 @@ SUNDIALS_EXPORT int KINSetFuncNormTol(void* kinmem, sunrealtype fnormtol);
 SUNDIALS_EXPORT int KINSetScaledStepTol(void* kinmem, sunrealtype scsteptol);
 SUNDIALS_EXPORT int KINSetConstraints(void* kinmem, N_Vector constraints);
 SUNDIALS_EXPORT int KINSetSysFunc(void* kinmem, KINSysFn func);
-
-/* Optional input functions for handling error events */
-SUNDIALS_EXPORT int KINSetErrHandlerFn(void* kinmem, KINErrHandlerFn ehfun,
-                                       void* eh_data);
-SUNDIALS_EXPORT int KINSetErrFile(void* kinmem, FILE* errfp);
 
 /* Optional output functions */
 SUNDIALS_EXPORT int KINGetWorkSpace(void* kinmem, long int* lenrw,
