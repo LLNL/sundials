@@ -66,7 +66,7 @@ The implementation provides the following operations defined by the
 
    **Returns:**
 
-   * A new :c:type:`SUNMemory` object
+   * A new :c:type:`SUNMemory` object.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, \

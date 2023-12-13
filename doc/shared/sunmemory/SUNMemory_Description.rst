@@ -145,7 +145,7 @@ must define:
 
    **Returns:**
 
-   *  A new :c:type:`SUNMemory` object
+   * A new :c:type:`SUNMemory` object.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Dealloc(SUNMemoryHelper helper, \
