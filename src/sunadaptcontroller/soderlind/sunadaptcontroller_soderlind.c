@@ -367,6 +367,7 @@ SUNErrCode SUNAdaptController_SetDefaults_Soderlind(SUNAdaptController C)
 SUNErrCode SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE* fptr)
 {
   SUNFunctionBegin(C->sunctx);
+  SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
   fprintf(fptr, "Soderlind SUNAdaptController module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   fprintf(fptr, "  k1 = %32Lg\n", SODERLIND_K1(C));

@@ -95,6 +95,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
                                       void* queue)
 {
   SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
+  SUNCheckLastErr();
 
   mem->ptr   = NULL;
   mem->own   = SUNTRUE;
@@ -183,13 +184,13 @@ SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
   }
 
   *memptr = mem;
-  return (0);
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
                                         void* queue)
 {
-  if (mem == NULL) { return (0); }
+  if (mem == NULL) { return SUN_SUCCESS; }
 
   if (mem->ptr != NULL && mem->own)
   {
@@ -245,14 +246,14 @@ SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
   }
 
   free(mem);
-  return (0);
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, SUNMemory dst,
                                      SUNMemory src, size_t memory_size,
                                      void* queue)
 {
-  int retval        = 0;
+  int retval        = SUN_SUCCESS;
   cudaError_t cuerr = cudaSuccess;
 
   switch (src->type)
@@ -295,7 +296,7 @@ SUNErrCode SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, SUNMemory dst,
                                           SUNMemory src, size_t memory_size,
                                           void* queue)
 {
-  int retval          = 0;
+  int retval          = SUN_SUCCESS;
   cudaError_t cuerr   = cudaSuccess;
   cudaStream_t stream = 0;
 
@@ -347,7 +348,7 @@ SUNErrCode SUNMemoryHelper_Destroy_Cuda(SUNMemoryHelper helper)
     if (helper->ops) { free(helper->ops); }
     free(helper);
   }
-  return 0;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNMemoryHelper_GetAllocStats_Cuda(SUNMemoryHelper helper,

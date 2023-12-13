@@ -153,6 +153,7 @@ SUNErrCode SUNMemoryHelper_GetAllocStats_Sys(SUNMemoryHelper helper,
 SUNMemoryHelper SUNMemoryHelper_Clone_Sys(SUNMemoryHelper helper)
 {
   SUNMemoryHelper hclone = SUNMemoryHelper_Sys(helper->sunctx);
+  SUNCheckLastErrNull();
   return hclone;
 }
 

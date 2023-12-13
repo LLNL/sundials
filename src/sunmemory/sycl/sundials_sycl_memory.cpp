@@ -207,13 +207,13 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
   }
 
   *memptr = mem;
-  return 0;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
                                         void* queue)
 {
-  if (!mem) { return 0; }
+  if (!mem) { return SUN_SUCCESS; }
 
   if (mem->ptr && mem->own)
   {
@@ -262,7 +262,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
   }
 
   free(mem);
-  return 0;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, SUNMemory dst,
@@ -281,7 +281,7 @@ SUNErrCode SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, SUNMemory dst,
     return -1;
   }
   sycl_queue->wait_and_throw();
-  return 0;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
@@ -301,7 +301,7 @@ SUNErrCode SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
     memcpy(dst->ptr, src->ptr, memory_size);
   }
   else { sycl_queue->memcpy(dst->ptr, src->ptr, memory_size); }
-  return 0;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNMemoryHelper_Destroy_Sycl(SUNMemoryHelper helper)
@@ -312,7 +312,7 @@ SUNErrCode SUNMemoryHelper_Destroy_Sycl(SUNMemoryHelper helper)
     if (helper->ops) { free(helper->ops); }
     free(helper);
   }
-  return 0;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNMemoryHelper_GetAllocStats_Sycl(SUNMemoryHelper helper,

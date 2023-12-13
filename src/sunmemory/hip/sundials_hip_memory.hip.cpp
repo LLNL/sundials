@@ -183,13 +183,13 @@ SUNErrCode SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
   }
 
   *memptr = mem;
-  return (0);
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem,
                                        void* queue)
 {
-  if (mem == NULL) { return (0); }
+  if (mem == NULL) { return SUN_SUCCESS; }
 
   if (mem->ptr != NULL && mem->own)
   {
@@ -245,14 +245,14 @@ SUNErrCode SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem,
   }
 
   free(mem);
-  return (0);
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNMemoryHelper_Copy_Hip(SUNMemoryHelper helper, SUNMemory dst,
                                     SUNMemory src, size_t memory_size,
                                     void* queue)
 {
-  int retval        = 0;
+  int retval        = SUN_SUCCESS;
   hipError_t hiperr = hipSuccess;
 
   switch (src->type)
@@ -295,7 +295,7 @@ SUNErrCode SUNMemoryHelper_CopyAsync_Hip(SUNMemoryHelper helper, SUNMemory dst,
                                          SUNMemory src, size_t memory_size,
                                          void* queue)
 {
-  int retval         = 0;
+  int retval         = SUN_SUCCESS;
   hipError_t hiperr  = hipSuccess;
   hipStream_t stream = 0;
 
@@ -347,7 +347,7 @@ SUNErrCode SUNMemoryHelper_Destroy_Hip(SUNMemoryHelper helper)
     if (helper->ops) { free(helper->ops); }
     free(helper);
   }
-  return 0;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNMemoryHelper_GetAllocStats_Hip(SUNMemoryHelper helper,
