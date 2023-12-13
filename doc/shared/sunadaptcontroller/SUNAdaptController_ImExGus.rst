@@ -108,7 +108,7 @@ routines:
 
       SUNAdaptController C = SUNAdaptController_ImExGus(sunctx);
 
-.. c:function:: int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, sunrealtype k1e, sunrealtype k2e, sunrealtype k1i, sunrealtype k2i)
+.. c:function:: SUNErrCode SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, sunrealtype k1e, sunrealtype k2e, sunrealtype k1i, sunrealtype k2i)
 
    This user-callable function provides control over the relevant parameters
    above.  This should be called *before* the time integrator is called to evolve
