@@ -95,6 +95,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
                                      void* queue)
 {
   SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
+  SUNCheckLastErrNull();
 
   mem->ptr   = NULL;
   mem->own   = SUNTRUE;
