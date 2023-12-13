@@ -36,9 +36,9 @@ target_link_libraries(test_arkode_error_handling
   ${EXE_EXTRA_LINK_LIBS}
 )
 
-# Tell CMake that we depend on the CVODE library since it does not pick
-# that up from $<TARGET_OBJECTS:sundials_cvode_obj>.
-add_dependencies(test_arkode_error_handling sundials_cvode_obj)
+# Tell CMake that we depend on the ARKODE library since it does not pick
+# that up from $<TARGET_OBJECTS:sundials_arkode_obj>.
+add_dependencies(test_arkode_error_handling sundials_arkode_obj)
 
 target_link_libraries(test_arkode_error_handling 
   PRIVATE 
