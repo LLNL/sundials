@@ -59,14 +59,14 @@ function pointers to the various controller operations, and is defined as
 
     struct _generic_SUNAdaptController_Ops {
         SUNAdaptController_Type (*getid)(SUNAdaptController C);
-        int (*destroy)(SUNAdaptController C);
-        int (*estimatestep)(SUNAdaptController C, sunrealtype h, int p, sunrealtype dsm, sunrealtype* hnew);
-        int (*reset)(SUNAdaptController C);
-        int (*setdefaults)(SUNAdaptController C);
-        int (*write)(SUNAdaptController C, FILE* fptr);
-        int (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
-        int (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
-        int (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
+        SUNErrCode (*destroy)(SUNAdaptController C);
+        SUNErrCode (*estimatestep)(SUNAdaptController C, sunrealtype h, int p, sunrealtype dsm, sunrealtype* hnew);
+        SUNErrCode (*reset)(SUNAdaptController C);
+        SUNErrCode (*setdefaults)(SUNAdaptController C);
+        SUNErrCode (*write)(SUNAdaptController C, FILE* fptr);
+        SUNErrCode (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
+        SUNErrCode (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+        SUNErrCode (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
     };
 
 

@@ -103,6 +103,8 @@ SUNErrCode SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
                                      size_t mem_size, SUNMemoryType mem_type,
                                      void* queue)
 {
+  SUNFunctionBegin(helper->sunctx);
+
   SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
   SUNCheckLastErrNull();
 
@@ -114,21 +116,12 @@ SUNErrCode SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
   if (mem_type == SUNMEMTYPE_HOST)
   {
     mem->ptr = malloc(mem_size);
-    if (mem->ptr == NULL)
-    {
-      SUNDIALS_DEBUG_PRINT(
-        "ERROR in SUNMemoryHelper_Alloc_Hip: malloc returned NULL\n");
-      free(mem);
-      return (-1);
-    }
-    else
-    {
-      SUNHELPER_CONTENT(helper)->bytes_allocated_host += mem_size;
-      SUNHELPER_CONTENT(helper)->num_allocations_host++;
-      SUNHELPER_CONTENT(helper)->bytes_high_watermark_host =
-        SUNMAX(SUNHELPER_CONTENT(helper)->bytes_allocated_host,
-               SUNHELPER_CONTENT(helper)->bytes_high_watermark_host);
-    }
+    SUNAssert(mem->ptr, SUN_ERR_MALLOC_FAIL);
+    SUNHELPER_CONTENT(helper)->bytes_allocated_host += mem_size;
+    SUNHELPER_CONTENT(helper)->num_allocations_host++;
+    SUNHELPER_CONTENT(helper)->bytes_high_watermark_host =
+      SUNMAX(SUNHELPER_CONTENT(helper)->bytes_allocated_host,
+             SUNHELPER_CONTENT(helper)->bytes_high_watermark_host);
   }
   else if (mem_type == SUNMEMTYPE_PINNED)
   {
@@ -137,7 +130,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Hip: hipMallocHost failed\n");
       free(mem);
-      return (-1);
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -155,7 +148,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Hip: hipMalloc failed\n");
       free(mem);
-      return (-1);
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -173,7 +166,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Hip: hipMallocManaged failed\n");
       free(mem);
-      return (-1);
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -189,7 +182,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Hip(SUNMemoryHelper helper, SUNMemory* memptr,
     SUNDIALS_DEBUG_PRINT(
       "ERROR in SUNMemoryHelper_Alloc_Hip: unknown memory type\n");
     free(mem);
-    return (-1);
+    return SUN_ERR_OUTOFRANGE;
   }
 
   *memptr = mem;
@@ -218,7 +211,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem,
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Hip: hipFreeHost failed\n");
-        return (-1);
+        return SUN_ERR_EXT_FAIL;
       }
       mem->ptr = NULL;
     }
@@ -230,7 +223,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem,
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Hip: hipFree failed\n");
-        return (-1);
+        return SUN_ERR_EXT_FAIL;
       }
       mem->ptr = NULL;
     }
@@ -242,7 +235,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem,
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Hip: hipFree failed\n");
-        return (-1);
+        return SUN_ERR_EXT_FAIL;
       }
       mem->ptr = NULL;
     }
@@ -250,7 +243,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Hip(SUNMemoryHelper helper, SUNMemory mem,
     {
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Dealloc_Hip: unknown memory type\n");
-      return (-1);
+      return SUN_ERR_OUTOFRANGE;
     }
   }
 
@@ -295,7 +288,7 @@ SUNErrCode SUNMemoryHelper_Copy_Hip(SUNMemoryHelper helper, SUNMemory dst,
   default:
     SUNDIALS_DEBUG_PRINT(
       "ERROR in SUNMemoryHelper_CopyAsync_Hip: unknown memory type\n");
-    retval = SUN_ERR_CORRUPT;
+    retval = SUN_ERR_OUTOFRANGE;
   }
 
   return (retval);
@@ -343,7 +336,7 @@ SUNErrCode SUNMemoryHelper_CopyAsync_Hip(SUNMemoryHelper helper, SUNMemory dst,
   default:
     SUNDIALS_DEBUG_PRINT(
       "ERROR in SUNMemoryHelper_CopyAsync_Hip: unknown memory type\n");
-    retval = SUN_ERR_CORRUPT;
+    retval = SUN_ERR_OUTOFRANGE;
   }
 
   return (retval);
@@ -395,6 +388,6 @@ SUNErrCode SUNMemoryHelper_GetAllocStats_Hip(SUNMemoryHelper helper,
     *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated_uvm;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_uvm;
   }
-  else { return SUN_ERR_CORRUPT; }
+  else { return SUN_ERR_ARG_OUTOFRANGE; }
   return SUN_SUCCESS;
 }

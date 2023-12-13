@@ -48,14 +48,11 @@ typedef struct SUNMemoryHelper_Content_Sycl_ SUNMemoryHelper_Content_Sycl;
 
 SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx)
 {
+  SUNFunctionBegin(sunctx);
+
   // Allocate the helper
   SUNMemoryHelper helper = SUNMemoryHelper_NewEmpty(sunctx);
-  if (!helper)
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Sycl: "
-                         "SUNMemoryHelper_NewEmpty returned NULL\n");
-    return NULL;
-  }
+  SUNCheckLastErrNull();
 
   // Set the ops
   helper->ops->alloc         = SUNMemoryHelper_Alloc_Sycl;
@@ -69,6 +66,8 @@ SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx)
   // Attach content
   helper->content =
     (SUNMemoryHelper_Content_Sycl*)malloc(sizeof(SUNMemoryHelper_Content_Sycl));
+  SUNAssertNull(helper->content, SUN_ERR_MALLOC_FAIL);
+
   SUNHELPER_CONTENT(helper)->num_allocations_host        = 0;
   SUNHELPER_CONTENT(helper)->num_deallocations_host      = 0;
   SUNHELPER_CONTENT(helper)->bytes_allocated_host        = 0;
@@ -199,7 +198,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
     SUNDIALS_DEBUG_PRINT(
       "ERROR in SUNMemoryHelper_Alloc_Sycl: unknown memory type\n");
     free(mem);
-    return SUN_ERR_CORRUPT;
+    return SUN_ERR_ARG_OUTOFRANGE;
   }
 
   *memptr = mem;
@@ -250,7 +249,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
     {
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Dealloc_Sycl: unknown memory type\n");
-      return SUN_ERR_CORRUPT;
+      return SUN_ERR_OUTOFRANGE;
     }
   }
 
@@ -336,6 +335,6 @@ SUNErrCode SUNMemoryHelper_GetAllocStats_Sycl(SUNMemoryHelper helper,
     *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated_uvm;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_uvm;
   }
-  else { return SUN_ERR_EXT_FAIL; }
+  else { return SUN_ERR_ARG_OUTOFRANGE; }
   return SUN_SUCCESS;
 }
