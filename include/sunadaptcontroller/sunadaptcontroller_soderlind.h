@@ -52,59 +52,78 @@ typedef struct _SUNAdaptControllerContent_Soderlind* SUNAdaptControllerContent_S
 
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_SetParams_Soderlind(SUNAdaptController C, sunrealtype k1,
-                                           sunrealtype k2, sunrealtype k3,
-                                           sunrealtype k4, sunrealtype k5);
+SUNErrCode SUNAdaptController_SetParams_Soderlind(SUNAdaptController C,
+                                                  sunrealtype k1, sunrealtype k2,
+                                                  sunrealtype k3, sunrealtype k4,
+                                                  sunrealtype k5);
+
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_Soderlind(SUNAdaptController C);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
-                                              sunrealtype h, int p,
-                                              sunrealtype dsm, sunrealtype* hnew);
+SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
+                                                     sunrealtype h, int p,
+                                                     sunrealtype dsm,
+                                                     sunrealtype* hnew);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_Reset_Soderlind(SUNAdaptController C);
+SUNErrCode SUNAdaptController_Reset_Soderlind(SUNAdaptController C);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_SetDefaults_Soderlind(SUNAdaptController C);
+SUNErrCode SUNAdaptController_SetDefaults_Soderlind(SUNAdaptController C);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE* fptr);
+SUNErrCode SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE* fptr);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_SetErrorBias_Soderlind(SUNAdaptController C,
-                                              sunrealtype bias);
+SUNErrCode SUNAdaptController_SetErrorBias_Soderlind(SUNAdaptController C,
+                                                     sunrealtype bias);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_UpdateH_Soderlind(SUNAdaptController C, sunrealtype h,
-                                         sunrealtype dsm);
+SUNErrCode SUNAdaptController_UpdateH_Soderlind(SUNAdaptController C,
+                                                sunrealtype h, sunrealtype dsm);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_Space_Soderlind(SUNAdaptController C, long int* lenrw,
-                                       long int* leniw);
+SUNErrCode SUNAdaptController_Space_Soderlind(SUNAdaptController C,
+                                              long int* lenrw, long int* leniw);
 
 /* Convenience routines to construct subsidiary controllers */
+
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_PID(SUNContext sunctx);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_SetParams_PID(SUNAdaptController C, sunrealtype k1,
-                                     sunrealtype k2, sunrealtype k3);
+SUNErrCode SUNAdaptController_SetParams_PID(SUNAdaptController C, sunrealtype k1,
+                                            sunrealtype k2, sunrealtype k3);
+
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_PI(SUNContext sunctx);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_SetParams_PI(SUNAdaptController C, sunrealtype k1,
-                                    sunrealtype k2);
+SUNErrCode SUNAdaptController_SetParams_PI(SUNAdaptController C, sunrealtype k1,
+                                           sunrealtype k2);
+
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_I(SUNContext sunctx);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1);
+SUNErrCode SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1);
 
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunrealtype k1,
-                                        sunrealtype k2);
+SUNErrCode SUNAdaptController_SetParams_ExpGus(SUNAdaptController C,
+                                               sunrealtype k1, sunrealtype k2);
 
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C, sunrealtype k1,
-                                        sunrealtype k2);
+SUNErrCode SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
+                                               sunrealtype k1, sunrealtype k2);
 
 #ifdef __cplusplus
 }

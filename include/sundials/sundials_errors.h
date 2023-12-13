@@ -36,12 +36,15 @@
   ENTRY(SUN_ERR_ARG_DIMSMISMATCH, "argument dimensions do not agree")          \
                                                                                \
   ENTRY(SUN_ERR_CORRUPT, "Object is NULL or corrupt")                          \
+  ENTRY(SUN_ERR_OUTOFRANGE, "Value is out of the expected range")              \
   ENTRY(SUN_ERR_FILE_OPEN, "Unable to open file")                              \
   ENTRY(SUN_ERR_MEM_FAIL, "a memory operation failed")                         \
   ENTRY(SUN_ERR_MALLOC_FAIL, "malloc returned NULL")                           \
+  ENTRY(SUN_ERR_EXT_FAIL, "a failure occurred in an external library")         \
   ENTRY(SUN_ERR_DESTROY_FAIL, "a destroy function returned an error")          \
   ENTRY(SUN_ERR_NOT_IMPLEMENTED,                                               \
         "operation is not implemented: function pointer is NULL")              \
+  ENTRY(SUN_ERR_USER_FCN_FAIL, "the user provided callback function failed")   \
                                                                                \
   ENTRY(SUN_ERR_PROFILER_MAPFULL,                                              \
         "the number of profiler entries exceeded SUNPROFILER_MAX_ENTRIES")     \
