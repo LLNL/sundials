@@ -45,6 +45,7 @@
 // Include KINSOL,vectors, and linear solvers
 #include "kinsol/kinsol.h"
 #include "nvector/nvector_serial.h"
+#include "sundials/sundials_core.hpp"
 #include "sundials/sundials_math.h"
 #include "sunlinsol/sunlinsol_dense.h"
 #include "sunmatrix/sunmatrix_dense.h"
