@@ -24,6 +24,10 @@
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_mpi_errors.h>
 
+#ifdef __cplusplus /* wrapper to enable C++ usage */
+extern "C" {
+#endif
+
 /*
    SUNCheckMPICallMsg performs the MPI function call, and checks the
    returned error code. If an error occured, then it will log the error, set the
@@ -125,5 +129,9 @@
 #define SUNCheckMPICallNoRet(call) SUNCheckMPICallNoRetMsg(call, NULL)
 #define SUNCheckMPICallNull(call)  SUNCheckMPICallNullMsg(call, NULL)
 #define SUNCheckMPICallVoid(call)  SUNCheckMPICallVoidMsg(call, NULL)
+
+#ifdef __cplusplus /* wrapper to enable C++ usage */
+}
+#endif
 
 #endif /* _SUNDIALS_MPI_ERRORS_IMPL_H */
