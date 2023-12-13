@@ -68,7 +68,7 @@ The implementation provides the following operations defined by the
 
    **Returns:**
 
-   * A :c:type:`SUNErrCode` indicating success or failure
+   * A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, \
@@ -85,7 +85,7 @@ The implementation provides the following operations defined by the
 
    **Returns:**
 
-   * A :c:type:`SUNErrCode` indicating success or failure
+   * A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, \
@@ -108,7 +108,7 @@ The implementation provides the following operations defined by the
 
    **Returns:**
 
-   * A :c:type:`SUNErrCode` indicating success or failure
+   * A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, \
@@ -133,7 +133,7 @@ The implementation provides the following operations defined by the
 
    **Returns:**
 
-   * A :c:type:`SUNErrCode` indicating success or failure
+   * A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_GetAllocStats_Cuda(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations, \
@@ -153,4 +153,4 @@ The implementation provides the following operations defined by the
 
    **Returns:**
 
-   * A :c:type:`SUNErrCode` indicating success or failure
+   * A :c:type:`SUNErrCode` indicating success or failure.

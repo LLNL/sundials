@@ -111,7 +111,7 @@ also provides the following additional user-callable routines:
    :param k3: parameter used within the controller time step estimate.
    :param k4: parameter used within the controller time step estimate.
    :param k5: parameter used within the controller time step estimate.
-   :return: :c:type:`SUNErrCode` indicating success of failure.
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -147,7 +147,7 @@ also provides the following additional user-callable routines:
    :param k1: parameter used within the controller time step estimate.
    :param k2: parameter used within the controller time step estimate.
    :param k3: parameter used within the controller time step estimate.
-   :return: :c:type:`SUNErrCode` indicating success of failure.
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -181,7 +181,7 @@ also provides the following additional user-callable routines:
    :param C: the SUNAdaptController_Soderlind object.
    :param k1: parameter used within the controller time step estimate.
    :param k2: parameter used within the controller time step estimate.
-   :return: :c:type:`SUNErrCode` indicating success of failure.
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -214,7 +214,7 @@ also provides the following additional user-callable routines:
 
    :param C: the SUNAdaptController_Soderlind object.
    :param k1: parameter used within the controller time step estimate.
-   :return: :c:type:`SUNErrCode` indicating success of failure.
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -260,7 +260,7 @@ also provides the following additional user-callable routines:
    :param C: the SUNAdaptController_Soderlind object.
    :param k1_hat: parameter used within the explicit Gustafsson controller time step estimate.
    :param k2_hat: parameter used within the explicit Gustafsson controller time step estimate.
-   :return: :c:type:`SUNErrCode` indicating success of failure.
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -306,7 +306,7 @@ also provides the following additional user-callable routines:
    :param C: the SUNAdaptController_Soderlind object.
    :param k1_hat: parameter used within the implicit Gustafsson controller time step estimate.
    :param k2_hat: parameter used within the implicit Gustafsson controller time step estimate.
-   :return: :c:type:`SUNErrCode` indicating success of failure.
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 

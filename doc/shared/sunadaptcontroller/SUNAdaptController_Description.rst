@@ -147,7 +147,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    routine).
 
    :param C: the :c:type:`SUNAdaptController` object.
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -166,7 +166,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param p: the current order of accuracy for the time integration method.
    :param dsm: the local temporal estimate from the previous step attempt.
    :param hnew: (output) the estimated step size.
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -180,7 +180,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    of previous *dsm* or *h* values.
 
    :param C:  the :c:type:`SUNAdaptController` object.
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -193,7 +193,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    Sets the controller parameters to their default values.
 
    :param C:  the :c:type:`SUNAdaptController` object.
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -207,7 +207,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
    :param C:  the :c:type:`SUNAdaptController` object.
    :param fptr:  the output stream to write the parameters to.
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -224,7 +224,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param C:  the :c:type:`SUNAdaptController` object.
    :param bias:  the error bias factor -- an input :math:`\leq 0` indicates to use
                  the default value for the controller.
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -243,7 +243,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param C:  the :c:type:`SUNAdaptController` object.
    :param h:  the successful step size.
    :param dsm:  the successful temporal error estimate.
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -262,7 +262,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param leniw: (output)  number of ``sunindextype`` words stored in the
                  controller. This may also include pointers, `int` and
                  `long int` words.
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 

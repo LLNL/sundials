@@ -119,7 +119,7 @@ routines:
    :param k2e: parameter used within the controller time step estimate.
    :param k1i: parameter used within the controller time step estimate.
    :param k2i: parameter used within the controller time step estimate.
-   :return: :c:type:`SUNErrCode` indicating success or failure
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
