@@ -61,7 +61,7 @@ int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq,
   int retval;
 
   /* access ARKMilsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecInit", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
@@ -298,7 +298,7 @@ int ARKBBDPrecReInit(void* arkode_mem, sunindextype mudq, sunindextype mldq,
   int retval;
 
   /* access ARKMilsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecReInit", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately ARKBBDPrecData is NULL */
@@ -334,8 +334,7 @@ int ARKBBDPrecGetWorkSpace(void* arkode_mem, long int* lenrwBBDP,
   int retval;
 
   /* access ARKMilsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecGetWorkSpace", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately ARKBBDPrecData is NULL */
@@ -363,8 +362,7 @@ int ARKBBDPrecGetNumGfnEvals(void* arkode_mem, long int* ngevalsBBDP)
   int retval;
 
   /* access ARKMilsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "ARKBBDPrecGetNumGfnEvals", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately if ARKBBDPrecData is NULL */
