@@ -147,7 +147,7 @@ SUNErrCode SUNMemoryHelper_GetAllocStats_Sys(SUNMemoryHelper helper,
   *num_deallocations    = SUNHELPER_CONTENT(helper)->num_deallocations;
   *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated;
   *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark;
-  return 0;
+  return SUN_SUCCESS;
 }
 
 SUNMemoryHelper SUNMemoryHelper_Clone_Sys(SUNMemoryHelper helper)
@@ -165,5 +165,5 @@ SUNErrCode SUNMemoryHelper_Destroy_Sys(SUNMemoryHelper helper)
     if (helper->ops) { free(helper->ops); }
     free(helper);
   }
-  return 0;
+  return SUN_SUCCESS;
 }

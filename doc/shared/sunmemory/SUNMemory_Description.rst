@@ -97,21 +97,20 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
       struct SUNMemoryHelper_Ops_
       {
         /* operations that implementations are required to provide */
-        int (*alloc)(SUNMemoryHelper, SUNMemory* memptr size_t mem_size,
+        SUNErrCode (*alloc)(SUNMemoryHelper, SUNMemory* memptr size_t mem_size,
                      SUNMemoryType mem_type, void* queue);
-        int (*dealloc)(SUNMemoryHelper, SUNMemory mem, void* queue);
-        int (*copy)(SUNMemoryHelper, SUNMemory dst, SUNMemory src,
+        SUNErrCode (*dealloc)(SUNMemoryHelper, SUNMemory mem, void* queue);
+        SUNErrCode (*copy)(SUNMemoryHelper, SUNMemory dst, SUNMemory src,
                     size_t mem_size, void* queue);
 
         /* operations that provide default implementations */
-        int             (*copyasync)(SUNMemoryHelper, SUNMemory dst,
-                                     SUNMemory src, size_t mem_size,
-                                     void* queue);
-        int             (*getallocstats)(SUNMemoryHelper, SUNMemoryType mem_type, unsigned long* num_allocations,
-                                         unsigned long* num_deallocations, size_t* bytes_allocated,
-                                         size_t* bytes_high_watermark);
+        SUNErrCode (*copyasync)(SUNMemoryHelper, SUNMemory dst,
+                                SUNMemory src, size_t mem_size, void* queue);
+        SUNErrCode (*getallocstats)(SUNMemoryHelper, SUNMemoryType mem_type, unsigned long* num_allocations,
+                                    unsigned long* num_deallocations, size_t* bytes_allocated,
+                                    size_t* bytes_high_watermark);
         SUNMemoryHelper (*clone)(SUNMemoryHelper);
-        int             (*destroy)(SUNMemoryHelper);
+        SUNErrCode      (*destroy)(SUNMemoryHelper);
       };
 
 
@@ -146,7 +145,7 @@ must define:
 
    **Returns:**
 
-   * An ``int`` flag indicating success (zero) or failure (non-zero).
+   * A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Dealloc(SUNMemoryHelper helper, \
@@ -165,7 +164,7 @@ must define:
 
    **Returns:**
 
-   * An ``int`` flag indicating success (zero) or failure (non-zero).
+   * A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Copy(SUNMemoryHelper helper, \
@@ -190,7 +189,7 @@ must define:
 
    **Returns:**
 
-   * An ``int`` flag indicating success (zero) or failure (non-zero).
+   * A :c:type:`SUNErrCode` indicating success or failure.
 
 
 
@@ -276,7 +275,7 @@ require a SUNMemoryHelper instance:
 
    **Returns:**
 
-   * An ``int`` flag indicating success (zero) or failure (non-zero).
+   * A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations, \
@@ -296,7 +295,7 @@ require a SUNMemoryHelper instance:
 
    **Returns:**
 
-   * An ``int`` flag indicating success (zero) or failure (non-zero).
+   * A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. _SUNMemory.Description.Overridable:
@@ -369,7 +368,7 @@ overridable* operations which an implementation may define:
 
    **Returns:**
 
-   * An ``int`` flag indicating success (zero) or failure (non-zero).
+   * A :c:type:`SUNErrCode` indicating success or failure.
 
    .. note::
 

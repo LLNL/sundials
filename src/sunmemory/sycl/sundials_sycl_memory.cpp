@@ -18,6 +18,8 @@
 #include <sundials/sundials_math.h>
 #include <sunmemory/sunmemory_sycl.h>
 
+#include "sundials/priv/sundials_errors_impl.h"
+#include "sundials/sundials_errors.h"
 #include "sundials_debug.h"
 
 struct SUNMemoryHelper_Content_Sycl_
@@ -89,7 +91,9 @@ SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx)
 
 SUNMemoryHelper SUNMemoryHelper_Clone_Sycl(SUNMemoryHelper helper)
 {
+  SUNFunctionBegin(helper->sunctx);
   SUNMemoryHelper hclone = SUNMemoryHelper_Sycl(helper->sunctx);
+  SUNCheckLastErrNull();
   return hclone;
 }
 
@@ -97,23 +101,15 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
                                       size_t mem_size, SUNMemoryType mem_type,
                                       void* queue)
 {
+  SUNFunctionBegin(helper->sunctx);
+
   // Check inputs
-  if (!queue)
-  {
-    SUNDIALS_DEBUG_PRINT(
-      "ERROR in SUNMemoryHelper_Alloc_Sycl: queue is NULL\n");
-    return -1;
-  }
+  SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
   ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
 
   // Allocate the memory struct
   SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
-  if (!mem)
-  {
-    SUNDIALS_DEBUG_PRINT(
-      "ERROR in SUNMemoryHelper_Sycl: SUNMemoryNewEmpty returned NULL\n");
-    return -1;
-  }
+  SUNCheckLastErr();
 
   // Initialize the memory content
   mem->ptr   = nullptr;
@@ -130,7 +126,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Sycl: malloc returned NULL\n");
       free(mem);
-      return -1;
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -149,7 +145,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Sycl: malloc_host returned NULL\n");
       free(mem);
-      return -1;
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -168,7 +164,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Sycl: malloc_device returned NULL\n");
       free(mem);
-      return -1;
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -187,7 +183,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Sycl: malloc_shared returned NULL\n");
       free(mem);
-      return -1;
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -203,7 +199,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
     SUNDIALS_DEBUG_PRINT(
       "ERROR in SUNMemoryHelper_Alloc_Sycl: unknown memory type\n");
     free(mem);
-    return -1;
+    return SUN_ERR_CORRUPT;
   }
 
   *memptr = mem;
@@ -213,16 +209,13 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
 SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
                                         void* queue)
 {
+  SUNFunctionBegin(helper->sunctx);
+
   if (!mem) { return SUN_SUCCESS; }
 
   if (mem->ptr && mem->own)
   {
-    if (!queue)
-    {
-      SUNDIALS_DEBUG_PRINT(
-        "ERROR in SUNMemoryHelper_Dealloc_Sycl: queue is NULL\n");
-      return -1;
-    }
+    SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
     ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
 
     if (mem->type == SUNMEMTYPE_HOST)
@@ -257,7 +250,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
     {
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Dealloc_Sycl: unknown memory type\n");
-      return -1;
+      return SUN_ERR_CORRUPT;
     }
   }
 
@@ -269,16 +262,13 @@ SUNErrCode SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, SUNMemory dst,
                                      SUNMemory src, size_t memory_size,
                                      void* queue)
 {
-  if (!queue)
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Copy_Sycl: queue is NULL\n");
-    return -1;
-  }
+  SUNFunctionBegin(helper->sunctx);
+  SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
   ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
 
   if (SUNMemoryHelper_CopyAsync_Sycl(helper, dst, src, memory_size, queue))
   {
-    return -1;
+    return SUN_ERR_EXT_FAIL;
   }
   sycl_queue->wait_and_throw();
   return SUN_SUCCESS;
@@ -288,12 +278,8 @@ SUNErrCode SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
                                           SUNMemory src, size_t memory_size,
                                           void* queue)
 {
-  if (!queue)
-  {
-    SUNDIALS_DEBUG_PRINT(
-      "ERROR in SUNMemoryHelper_CopyAsync_Sycl: queue is NULL\n");
-    return -1;
-  }
+  SUNFunctionBegin(helper->sunctx);
+  SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
   ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
 
   if (src->type == SUNMEMTYPE_HOST && dst->type == SUNMEMTYPE_HOST)
@@ -350,6 +336,6 @@ SUNErrCode SUNMemoryHelper_GetAllocStats_Sycl(SUNMemoryHelper helper,
     *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated_uvm;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_uvm;
   }
-  else { return -1; }
-  return 0;
+  else { return SUN_ERR_EXT_FAIL; }
+  return SUN_SUCCESS;
 }

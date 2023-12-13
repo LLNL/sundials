@@ -18,6 +18,8 @@
 #include <sundials/sundials_math.h>
 #include <sunmemory/sunmemory_cuda.h>
 
+#include "sundials/priv/sundials_errors_impl.h"
+#include "sundials/sundials_errors.h"
 #include "sundials_cuda.h"
 #include "sundials_debug.h"
 
@@ -47,10 +49,13 @@ typedef struct SUNMemoryHelper_Content_Cuda_ SUNMemoryHelper_Content_Cuda;
 
 SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx)
 {
+  SUNFunctionBegin(sunctx);
+
   SUNMemoryHelper helper;
 
   /* Allocate the helper */
   helper = SUNMemoryHelper_NewEmpty(sunctx);
+  SUNCheckLastErrNull();
 
   /* Set the ops */
   helper->ops->alloc         = SUNMemoryHelper_Alloc_Cuda;
@@ -64,6 +69,8 @@ SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx)
   /* Attach content */
   helper->content =
     (SUNMemoryHelper_Content_Cuda*)malloc(sizeof(SUNMemoryHelper_Content_Cuda));
+  SUNAssertNull(helper->content, SUN_ERR_MALLOC_FAIL);
+
   SUNHELPER_CONTENT(helper)->num_allocations_host        = 0;
   SUNHELPER_CONTENT(helper)->num_deallocations_host      = 0;
   SUNHELPER_CONTENT(helper)->bytes_allocated_host        = 0;
@@ -86,7 +93,9 @@ SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx)
 
 SUNMemoryHelper SUNMemoryHelper_Clone_Cuda(SUNMemoryHelper helper)
 {
+  SUNFunctionBegin(helper->sunctx);
   SUNMemoryHelper hclone = SUNMemoryHelper_Cuda(helper->sunctx);
+  SUNCheckLastErrNull();
   return hclone;
 }
 
@@ -95,7 +104,6 @@ SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
                                       void* queue)
 {
   SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
-  SUNCheckLastErr();
 
   mem->ptr   = NULL;
   mem->own   = SUNTRUE;
@@ -146,7 +154,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Cuda: cudaMalloc failed\n");
       free(mem);
-      return (-1);
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -164,7 +172,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Cuda: cudaMallocManaged failed\n");
       free(mem);
-      return (-1);
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -180,7 +188,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
     SUNDIALS_DEBUG_PRINT(
       "ERROR in SUNMemoryHelper_Alloc_Cuda: unknown memory type\n");
     free(mem);
-    return (-1);
+    return SUN_ERR_CORRUPT;
   }
 
   *memptr = mem;
@@ -209,7 +217,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Cuda: cudaFreeHost failed\n");
-        return (-1);
+        return SUN_ERR_EXT_FAIL;
       }
       mem->ptr = NULL;
     }
@@ -221,7 +229,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Cuda: cudaFree failed\n");
-        return (-1);
+        return SUN_ERR_EXT_FAIL;
       }
       mem->ptr = NULL;
     }
@@ -233,7 +241,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Cuda: cudaFree failed\n");
-        return (-1);
+        return SUN_ERR_EXT_FAIL;
       }
       mem->ptr = NULL;
     }
@@ -241,7 +249,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
     {
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Dealloc_Cuda: unknown memory type\n");
-      return (-1);
+      return SUN_ERR_EXT_FAIL;
     }
   }
 
@@ -286,7 +294,7 @@ SUNErrCode SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, SUNMemory dst,
   default:
     SUNDIALS_DEBUG_PRINT(
       "ERROR in SUNMemoryHelper_CopyAsync_Cuda: unknown memory type\n");
-    retval = -1;
+    retval = SUN_ERR_CORRUPT;
   }
 
   return (retval);
@@ -334,7 +342,7 @@ SUNErrCode SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, SUNMemory dst,
   default:
     SUNDIALS_DEBUG_PRINT(
       "ERROR in SUNMemoryHelper_CopyAsync_Cuda: unknown memory type\n");
-    retval = -1;
+    retval = SUN_ERR_CORRUPT;
   }
 
   return (retval);
@@ -386,6 +394,6 @@ SUNErrCode SUNMemoryHelper_GetAllocStats_Cuda(SUNMemoryHelper helper,
     *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated_uvm;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_uvm;
   }
-  else { return -1; }
-  return 0;
+  else { return SUN_ERR_ARG_OUTOFRANGE; }
+  return SUN_SUCCESS;
 }
