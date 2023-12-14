@@ -51,12 +51,12 @@
 #include <limits>
 #include <sstream>
 
-#include "HYPRE_struct_ls.h"           // HYPRE structured grid solver interface
-#include "arkode/arkode_arkstep.h"     // access to ARKStep
-#include "arkode/arkode_mristep.h"     // access to MRIStep
-#include "mpi.h"                       // MPI header file
-#include "nvector/nvector_parallel.h"  // access to the MPI N_Vector
-#include "sundials/sundials_math.h"    // def. math fcns eg. SUNMAX
+#include "HYPRE_struct_ls.h"          // HYPRE structured grid solver interface
+#include "arkode/arkode_arkstep.h"    // access to ARKStep
+#include "arkode/arkode_mristep.h"    // access to MRIStep
+#include "mpi.h"                      // MPI header file
+#include "nvector/nvector_parallel.h" // access to the MPI N_Vector
+#include "sundials/sundials_core.hpp"
 #include "sunlinsol/sunlinsol_pcg.h"   // access to PCG SUNLinearSolver
 #include "sunlinsol/sunlinsol_spgmr.h" // access to GMRES SUNLinearSolver
 

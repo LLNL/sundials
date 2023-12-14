@@ -18,8 +18,13 @@
 # We require clang-format 17.0.4. Other versions may produce different styles!
 # ---------------------------------------------------------------------------------
 
-paths="$@"
+if [ $# -lt 1 ]; then  
+    echo "ERROR: At least one path to format required"  
+    exit 1  
+fi  
 
-find $paths -iname '*.h' -o -iname '*.hpp' -o \
+paths=( "$@" )  
+
+find "${paths[@]}" -iname '*.h' -o -iname '*.hpp' -o \  
   -iname '*.c' -o -iname '*.cpp' -o \
   -iname '*.cuh' -o -iname '*.cu' | grep -v fmod | xargs clang-format -i

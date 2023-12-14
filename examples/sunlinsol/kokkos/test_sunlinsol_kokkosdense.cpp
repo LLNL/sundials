@@ -20,6 +20,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <nvector/nvector_kokkos.hpp>
+#include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_kokkosdense.hpp>
 #include <sunmatrix/sunmatrix_kokkosdense.hpp>
 

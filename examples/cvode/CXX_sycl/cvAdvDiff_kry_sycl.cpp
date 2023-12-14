@@ -41,7 +41,8 @@
 #include <cstdlib>
 #include <cvode/cvode.h> // access CVODE fcts., consts.
 #include <iostream>
-#include <nvector/nvector_sycl.h>      // access the SYCL NVector
+#include <nvector/nvector_sycl.h> // access the SYCL NVector
+#include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_spgmr.h> // access the SPGMR SUNLinearSolver
 
 // Real Constants
