@@ -218,61 +218,57 @@ options as the vector they are cloned from while vectors created with
 .. c:function:: SUNErrCode N_VEnableDotProdMulti_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
-  dot products fused operation in the NVECTOR_OPENMPDEV vector. The return value is ``0``
-  for success and ``-1`` if the input vector or its ``ops`` structure are
-  ``NULL``.
+  dot products fused operation in the NVECTOR_OPENMPDEV vector. The return value is  
+  a :c:type:`SUNErrCode`.  
 
 
 .. c:function:: SUNErrCode N_VEnableLinearSumVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
-  operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is ``0`` for
-  success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+  operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is  
+  a :c:type:`SUNErrCode`.  
 
 
 .. c:function:: SUNErrCode N_VEnableScaleVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
-  operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is ``0`` for
-  success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+  operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is  
+  a :c:type:`SUNErrCode`.
 
 
 .. c:function:: SUNErrCode N_VEnableConstVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
-  operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is ``0`` for
-  success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+  operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is  
+  a :c:type:`SUNErrCode`.  
 
 
 .. c:function:: SUNErrCode N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
-  operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is ``0`` for
-  success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+  operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is  
+  a :c:type:`SUNErrCode`.  
 
 
 .. c:function:: SUNErrCode N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
-  norm operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is
-  ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
-  ``NULL``.
+  norm operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is  
+  a :c:type:`SUNErrCode`.  
 
 
 .. c:function:: SUNErrCode N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
-  add a vector array to multiple vector arrays operation in the NVECTOR_OPENMPDEV vector. The
-  return value is ``0`` for success and ``-1`` if the input vector or its
-  ``ops`` structure are ``NULL``.
+  add a vector array to multiple vector arrays operation in the NVECTOR_OPENMPDEV vector. 
+  The return value is a :c:type:`SUNErrCode`.  
 
 
 .. c:function:: SUNErrCode N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
-  combination operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value
-  is ``0`` for success and ``-1`` if the input vector or its ``ops`` structure
-  are ``NULL``.
+  combination operation for vector arrays in the NVECTOR_OPENMPDEV vector. 
+  The return value is a :c:type:`SUNErrCode`.
 
 
 **Notes**
