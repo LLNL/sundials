@@ -1226,7 +1226,9 @@ SUNErrCode Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y)
   SUNCheckLastErr();
   yd = N_VGetArrayPointer(y);
   SUNCheckLastErr();
-
+   SUNAssert(xd, SUN_ERR_ARG_CORRUPT);
+   SUNAssert(yd, SUN_ERR_ARG_CORRUPT);
+   SUNAssert(xd != yd, SUN_ERR_ARG_CORRUPT);
   /* initialize result */
   for (i = 0; i < SM_ROWS_S(A); i++) { yd[i] = 0.0; }
 

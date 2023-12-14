@@ -188,7 +188,7 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
 sunindextype SUNMatrix_OneMklDense_Rows(SUNMatrix A)
 {
   if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_ROWS(A); }
-  else { return SUN_ERR_ARG_INCOMPATIBLE; }
+  else { return SUN_ERR_ARG_WRONGTYPE; }
 }
 
 sunindextype SUNMatrix_OneMklDense_Columns(SUNMatrix A)
@@ -606,7 +606,7 @@ SUNErrCode SUNMatSpace_OneMklDense(SUNMatrix A, long int* lenrw, long int* leniw
   if (SUNMatGetID(A) != SUNMATRIX_ONEMKLDENSE)
   {
     SUNDIALS_DEBUG_ERROR("Invalid matrix ID\n");
-    return SUN_ERR_ARG_INCOMPATIBLE;
+    return SUN_ERR_ARG_WRONGTYPE;
   }
 
   *lenrw = MAT_LDATA(A);

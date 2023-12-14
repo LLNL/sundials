@@ -192,7 +192,7 @@ sunindextype SUNMatrix_MagmaDense_Rows(SUNMatrix Amat)
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
   if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return (A->M * A->nblocks); }
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  else { return (SUN_ERR_ARG_WRONGTYPE); }
 }
 
 sunindextype SUNMatrix_MagmaDense_Columns(SUNMatrix Amat)
@@ -293,7 +293,7 @@ SUNErrCode SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix Amat, sunrealtype* h_data
 {
   if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return (SUN_ERR_ARG_WRONGTYPE);
   }
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
@@ -316,7 +316,7 @@ SUNErrCode SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix Amat, sunrealtype* h_da
 {
   if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return (SUN_ERR_ARG_WRONGTYPE);
   }
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
@@ -418,7 +418,7 @@ SUNErrCode SUNMatZero_MagmaDense(SUNMatrix Amat)
 
   if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return (SUN_ERR_ARG_WRONGTYPE);
   }
 
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
@@ -444,7 +444,7 @@ SUNErrCode SUNMatCopy_MagmaDense(SUNMatrix Amat, SUNMatrix Bmat)
 
   if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return (SUN_ERR_ARG_WRONGTYPE);
   }
 
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
@@ -469,11 +469,11 @@ SUNErrCode SUNMatCopy_MagmaDense(SUNMatrix Amat, SUNMatrix Bmat)
 
 SUNErrCode SUNMatScaleAddI_MagmaDense(sunrealtype c, SUNMatrix Amat)
 {
-  if (Amat == NULL) { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  if (Amat == NULL) { return (SUN_ERR_ARG_CORRUPT; }
 
   if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return (SUN_ERR_ARG_WRONGTYPE);
   }
 
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
@@ -619,7 +619,7 @@ SUNErrCode SUNMatSpace_MagmaDense(SUNMatrix Amat, long int* lenrw, long int* len
 
   if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return (SUN_ERR_ARG_WRONGTYPE);
   }
 
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
