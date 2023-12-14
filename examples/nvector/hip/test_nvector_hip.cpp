@@ -134,10 +134,12 @@ int main(int argc, char* argv[])
       printf("Vector length: %ld \n", (long int)length);
 
       /* Create new vectors */
-      if (memtype == UNMANAGED) X = N_VNew_Hip(length, sunctx);
-      else if (memtype == MANAGED) X = N_VNewManaged_Hip(length, sunctx);
+      if (memtype == UNMANAGED) { X = N_VNew_Hip(length, sunctx); }
+      else if (memtype == MANAGED) { X = N_VNewManaged_Hip(length, sunctx); }
       else if (memtype == SUNMEMORY)
+      {
         X = N_VNewWithMemHelp_Hip(length, SUNFALSE, mem_helper, sunctx);
+      }
       if (X == NULL)
       {
         delete stream_exec_policy;
