@@ -198,20 +198,20 @@ SUNDIALS_EXPORT SUNErrCode N_VEnableScaleAddMulti_OpenMPDEV(N_Vector v,
 SUNDIALS_EXPORT SUNErrCode N_VEnableDotProdMulti_OpenMPDEV(N_Vector v,
                                                            sunbooleantype tf);
 
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableLinearSumVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableLinearSumVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf);
 SUNDIALS_EXPORT SUNErrCode N_VEnableScaleVectorArray_OpenMPDEV(N_Vector v,
                                                                sunbooleantype tf);
 SUNDIALS_EXPORT SUNErrCode N_VEnableConstVectorArray_OpenMPDEV(N_Vector v,
                                                                sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf);
 
 #ifdef __cplusplus
 }

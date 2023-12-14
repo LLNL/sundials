@@ -74,9 +74,10 @@ SUNDIALS_EXPORT void N_VSetHostArrayPointer_Sycl(sunrealtype* h_vdata,
 SUNDIALS_EXPORT void N_VSetDeviceArrayPointer_Sycl(sunrealtype* d_vdata,
                                                    N_Vector v);
 SUNDIALS_EXPORT sunbooleantype N_VIsManagedMemory_Sycl(N_Vector x);
-SUNDIALS_EXPORT SUNErrCode
-N_VSetKernelExecPolicy_Sycl(N_Vector x, SUNSyclExecPolicy* stream_exec_policy,
-                            SUNSyclExecPolicy* reduce_exec_policy);
+SUNDIALS_EXPORT
+SUNErrCode N_VSetKernelExecPolicy_Sycl(N_Vector x,
+                                       SUNSyclExecPolicy* stream_exec_policy,
+                                       SUNSyclExecPolicy* reduce_exec_policy);
 SUNDIALS_EXPORT void N_VCopyToDevice_Sycl(N_Vector v);
 SUNDIALS_EXPORT void N_VCopyFromDevice_Sycl(N_Vector v);
 
@@ -201,12 +202,12 @@ SUNDIALS_EXPORT SUNErrCode N_VEnableConstVectorArray_Sycl(N_Vector v,
                                                           sunbooleantype tf);
 SUNDIALS_EXPORT SUNErrCode N_VEnableWrmsNormVectorArray_Sycl(N_Vector v,
                                                              sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableWrmsNormMaskVectorArray_Sycl(N_Vector v, sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableScaleAddMultiVectorArray_Sycl(N_Vector v, sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableLinearCombinationVectorArray_Sycl(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableWrmsNormMaskVectorArray_Sycl(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableScaleAddMultiVectorArray_Sycl(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableLinearCombinationVectorArray_Sycl(N_Vector v, sunbooleantype tf);
 
 #ifdef __cplusplus
 }

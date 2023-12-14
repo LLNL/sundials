@@ -202,12 +202,12 @@ SUNDIALS_EXPORT SUNErrCode N_VEnableConstVectorArray_ParHyp(N_Vector v,
                                                             sunbooleantype tf);
 SUNDIALS_EXPORT SUNErrCode N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v,
                                                                sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, sunbooleantype tf);
 
 SUNDIALS_EXPORT SUNErrCode N_VEnableDotProdMultiLocal_ParHyp(N_Vector v,
                                                              sunbooleantype tf);
