@@ -275,6 +275,7 @@ N_Vector N_VNew_MPIManyVector(sunindextype num_subvectors, N_Vector* vec_array,
                             "i.e., MPI_Comm_compare must return MPI_IDENT or "
                             "MPI_CONGRUENT.",
                             SUN_ERR_ARG_INCOMPATIBLE, SUNCTX_);
+        return NULL;
       }
     }
   }
