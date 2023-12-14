@@ -244,15 +244,6 @@ N_Vector N_VMake_OpenMPDEV(sunindextype length, sunrealtype* h_vdata,
 }
 
 /* ----------------------------------------------------------------------------
- * Function to create an array of new vectors.
- */
-
-N_Vector* N_VCloneVectorArray_OpenMPDEV(int count, N_Vector w)
-{
-  return (N_VCloneVectorArray(count, w));
-}
-
-/* ----------------------------------------------------------------------------
  * Function to return number of vector elements
  */
 sunindextype N_VGetLength_OpenMPDEV(N_Vector v) { return NV_LENGTH_OMPDEV(v); }

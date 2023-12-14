@@ -236,18 +236,6 @@ N_Vector N_VMake_OpenMP(sunindextype length, sunrealtype* v_data,
 }
 
 /* ----------------------------------------------------------------------------
- * Function to create an array of new vectors.
- */
-
-N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w)
-{
-  SUNFunctionBegin(w->sunctx);
-  N_Vector* result = N_VCloneVectorArray(count, w);
-  SUNCheckLastErrNull();
-  return result;
-}
-
-/* ----------------------------------------------------------------------------
  * Function to return number of vector elements
  */
 sunindextype N_VGetLength_OpenMP(N_Vector v) { return NV_LENGTH_OMP(v); }

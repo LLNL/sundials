@@ -235,15 +235,6 @@ N_Vector N_VMake_Petsc(Vec pvec, SUNContext sunctx)
 }
 
 /* ----------------------------------------------------------------
- * Function to create an array of new PETSc vector wrappers.
- */
-
-N_Vector* N_VCloneVectorArray_Petsc(int count, N_Vector w)
-{
-  return (N_VCloneVectorArray(count, w));
-}
-
-/* ----------------------------------------------------------------
  * Function to extract PETSc vector
  */
 

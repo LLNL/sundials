@@ -256,15 +256,6 @@ N_Vector N_VMake_ParHyp(HYPRE_ParVector x, SUNContext sunctx)
 }
 
 /* ----------------------------------------------------------------
- * Function to create an array of new parhyp vectors.
- */
-
-N_Vector* N_VCloneVectorArray_ParHyp(int count, N_Vector w)
-{
-  return (N_VCloneVectorArray(count, w));
-}
-
-/* ----------------------------------------------------------------
  * Extract HYPRE vector
  */
 
