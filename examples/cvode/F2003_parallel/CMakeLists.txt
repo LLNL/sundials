@@ -21,7 +21,7 @@ if(MPI_ENABLED)
   set(FCVODE_examples
     "cv_diag_kry_bbd_f2003\;\;1\;4\;develop\;2"
     "cv_diag_kry_f2003\;\;1\;4\;develop\;2"
-    "cv_diag_non_f2003\;\;1\;4\;develop\;2")
+    "cv_diag_non_p_f2003\;\;1\;4\;develop\;2")
 endif()
 
 
