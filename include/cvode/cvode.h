@@ -94,9 +94,6 @@ typedef int (*CVRootFn)(sunrealtype t, N_Vector y, sunrealtype* gout,
 
 typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void* user_data);
 
-typedef void (*CVErrHandlerFn)(int error_code, const char* module,
-                               const char* function, char* msg, void* user_data);
-
 typedef int (*CVMonitorFn)(void* cvode_mem, void* user_data);
 
 /* -------------------
@@ -122,9 +119,6 @@ SUNDIALS_EXPORT int CVodeWFtolerances(void* cvode_mem, CVEwtFn efun);
 SUNDIALS_EXPORT int CVodeSetConstraints(void* cvode_mem, N_Vector constraints);
 SUNDIALS_EXPORT int CVodeSetDeltaGammaMaxLSetup(void* cvode_mem,
                                                 sunrealtype dgmax_lsetup);
-SUNDIALS_EXPORT int CVodeSetErrFile(void* cvode_mem, FILE* errfp);
-SUNDIALS_EXPORT int CVodeSetErrHandlerFn(void* cvode_mem, CVErrHandlerFn ehfun,
-                                         void* eh_data);
 SUNDIALS_EXPORT int CVodeSetInitStep(void* cvode_mem, sunrealtype hin);
 SUNDIALS_EXPORT int CVodeSetLSetupFrequency(void* cvode_mem, long int msbp);
 SUNDIALS_EXPORT int CVodeSetMaxConvFails(void* cvode_mem, int maxncf);

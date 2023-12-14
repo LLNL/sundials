@@ -276,7 +276,7 @@ int arkSetAdaptController(void* arkode_mem, SUNAdaptController C)
      (delete if owned, and then nullify pointer) */
   retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
                                     &leniw);
-  if (retval == SUNADAPTCONTROLLER_SUCCESS)
+  if (retval == SUN_SUCCESS)
   {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
@@ -285,7 +285,7 @@ int arkSetAdaptController(void* arkode_mem, SUNAdaptController C)
   {
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
     ark_mem->hadapt_mem->owncontroller = SUNFALSE;
-    if (retval != SUNADAPTCONTROLLER_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "SUNAdaptController_Destroy failure");
@@ -310,7 +310,7 @@ int arkSetAdaptController(void* arkode_mem, SUNAdaptController C)
 
   /* Attach new SUNAdaptController object */
   retval = SUNAdaptController_Space(C, &lenrw, &leniw);
-  if (retval == SUNADAPTCONTROLLER_SUCCESS)
+  if (retval == SUN_SUCCESS)
   {
     ark_mem->liw += leniw;
     ark_mem->lrw += lenrw;
@@ -392,7 +392,7 @@ int arkSetInitStep(void* arkode_mem, sunrealtype hin)
 
   /* Reset error controller (e.g., error and step size history) */
   retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
-  if (retval != SUNADAPTCONTROLLER_SUCCESS) { return (ARK_CONTROLLER_ERR); }
+  if (retval != SUN_SUCCESS) { return (ARK_CONTROLLER_ERR); }
 
   return (ARK_SUCCESS);
 }
@@ -857,7 +857,7 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
      (delete if owned, and then nullify pointer) */
   retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
                                     &leniw);
-  if (retval == SUNADAPTCONTROLLER_SUCCESS)
+  if (retval == SUN_SUCCESS)
   {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
@@ -866,7 +866,7 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
   {
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
     ark_mem->hadapt_mem->owncontroller = SUNFALSE;
-    if (retval != SUNADAPTCONTROLLER_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "SUNAdaptController_Destroy failure");
@@ -901,7 +901,7 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
     if (idefault != 1)
     {
       retval = SUNAdaptController_SetParams_PID(C, k1, -k2, k3);
-      if (retval != SUNADAPTCONTROLLER_SUCCESS)
+      if (retval != SUN_SUCCESS)
       {
         (void)SUNAdaptController_Destroy(C);
         arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__,
@@ -921,7 +921,7 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
     if (idefault != 1)
     {
       retval = SUNAdaptController_SetParams_PI(C, k1, -k2);
-      if (retval != SUNADAPTCONTROLLER_SUCCESS)
+      if (retval != SUN_SUCCESS)
       {
         (void)SUNAdaptController_Destroy(C);
         arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__,
@@ -941,7 +941,7 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
     if (idefault != 1)
     {
       retval = SUNAdaptController_SetParams_I(C, k1);
-      if (retval != SUNADAPTCONTROLLER_SUCCESS)
+      if (retval != SUN_SUCCESS)
       {
         (void)SUNAdaptController_Destroy(C);
         arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__,
@@ -961,7 +961,7 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
     if (idefault != 1)
     {
       retval = SUNAdaptController_SetParams_ExpGus(C, k1, k2);
-      if (retval != SUNADAPTCONTROLLER_SUCCESS)
+      if (retval != SUN_SUCCESS)
       {
         (void)SUNAdaptController_Destroy(C);
         arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__,
@@ -981,7 +981,7 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
     if (idefault != 1)
     {
       retval = SUNAdaptController_SetParams_ImpGus(C, k1, k2);
-      if (retval != SUNADAPTCONTROLLER_SUCCESS)
+      if (retval != SUN_SUCCESS)
       {
         (void)SUNAdaptController_Destroy(C);
         arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__,
@@ -1001,7 +1001,7 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
     if (idefault != 1)
     {
       retval = SUNAdaptController_SetParams_ImExGus(C, k1, k2, k3, k3);
-      if (retval != SUNADAPTCONTROLLER_SUCCESS)
+      if (retval != SUN_SUCCESS)
       {
         (void)SUNAdaptController_Destroy(C);
         arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__,
@@ -1018,7 +1018,7 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
 
   /* Attach new SUNAdaptController object */
   retval = SUNAdaptController_Space(C, &lenrw, &leniw);
-  if (retval == SUNADAPTCONTROLLER_SUCCESS)
+  if (retval == SUN_SUCCESS)
   {
     ark_mem->liw += leniw;
     ark_mem->lrw += lenrw;
@@ -1058,7 +1058,7 @@ int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
      (delete if owned, and then nullify pointer) */
   retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
                                     &leniw);
-  if (retval == SUNADAPTCONTROLLER_SUCCESS)
+  if (retval == SUN_SUCCESS)
   {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
@@ -1067,7 +1067,7 @@ int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
   {
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
     ark_mem->hadapt_mem->owncontroller = SUNFALSE;
-    if (retval != SUNADAPTCONTROLLER_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "SUNAdaptController_Destroy failure");
@@ -1101,7 +1101,7 @@ int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
 
   /* Attach new SUNAdaptController object */
   retval = SUNAdaptController_Space(C, &lenrw, &leniw);
-  if (retval == SUNADAPTCONTROLLER_SUCCESS)
+  if (retval == SUN_SUCCESS)
   {
     ark_mem->liw += leniw;
     ark_mem->lrw += lenrw;
@@ -1220,7 +1220,7 @@ int arkSetErrorBias(void* arkode_mem, sunrealtype bias)
   {
     retval = SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, bias);
   }
-  if (retval != SUNADAPTCONTROLLER_SUCCESS)
+  if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__, __FILE__,
                     "SUNAdaptController_SetErrorBias failure");

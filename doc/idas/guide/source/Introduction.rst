@@ -195,6 +195,12 @@ Users now need to link to ``sundials_core`` in addition to the libraries already
 This will be picked up automatically in projects that use the SUNDIALS CMake target. The library ``sundials_generic`` has been superceded by ``sundials_core`` and is no longer available.
 This fixes some duplicate symbol errors on Windows when linking to multiple SUNDIALS libraries.
 
+**Breaking change**
+The functions ``IDASetErrFile`` and ``IDASetHandlerErrFn`` have been removed.
+Users of these functions can use the functions :c:func:`SUNContext_PushErrHandler`,
+and :c:func:`SUNLogger_SetErrorFilename` instead. For further details see
+Sections :numref:`SUNDIALS.Errors` and :numref:`SUNDIALS.Logging`.
+
 Changes in v5.6.2
 -----------------
 

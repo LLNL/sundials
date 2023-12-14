@@ -115,8 +115,6 @@ module fidas_mod
  public :: FIDASetStepToleranceIC
  public :: FIDASetMaxBacksIC
  public :: FIDASetDeltaCjLSetup
- public :: FIDASetErrHandlerFn
- public :: FIDASetErrFile
  public :: FIDASetUserData
  public :: FIDASetMaxOrd
  public :: FIDASetMaxNumSteps
@@ -509,25 +507,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FIDASetErrHandlerFn(farg1, farg2, farg3) &
-bind(C, name="_wrap_FIDASetErrHandlerFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-type(C_PTR), value :: farg3
-integer(C_INT) :: fresult
-end function
-
-function swigc_FIDASetErrFile(farg1, farg2) &
-bind(C, name="_wrap_FIDASetErrFile") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2916,41 +2895,6 @@ real(C_DOUBLE) :: farg2
 farg1 = ida_max
 farg2 = dcj
 fresult = swigc_FIDASetDeltaCjLSetup(farg1, farg2)
-swig_result = fresult
-end function
-
-function FIDASetErrHandlerFn(ida_mem, ehfun, eh_data) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: ida_mem
-type(C_FUNPTR), intent(in), value :: ehfun
-type(C_PTR) :: eh_data
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = ida_mem
-farg2 = ehfun
-farg3 = eh_data
-fresult = swigc_FIDASetErrHandlerFn(farg1, farg2, farg3)
-swig_result = fresult
-end function
-
-function FIDASetErrFile(ida_mem, errfp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: ida_mem
-type(C_PTR) :: errfp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = ida_mem
-farg2 = errfp
-fresult = swigc_FIDASetErrFile(farg1, farg2)
 swig_result = fresult
 end function
 

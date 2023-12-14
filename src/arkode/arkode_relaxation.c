@@ -39,7 +39,7 @@ static int arkRelaxAccessMem(void* arkode_mem, const char* fname,
 {
   if (!arkode_mem)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, fname, __FILE__,
                     MSG_ARK_NO_MEM);
     return ARK_MEM_NULL;
   }
@@ -47,7 +47,7 @@ static int arkRelaxAccessMem(void* arkode_mem, const char* fname,
 
   if (!((*ark_mem)->relax_mem))
   {
-    arkProcessError(*ark_mem, ARK_RELAX_MEM_NULL, __LINE__, __func__, __FILE__,
+    arkProcessError(*ark_mem, ARK_RELAX_MEM_NULL, __LINE__, fname, __FILE__,
                     MSG_RELAX_MEM_NULL);
     return ARK_RELAX_MEM_NULL;
   }
@@ -421,8 +421,7 @@ int arkRelaxSetEtaFail(void* arkode_mem, sunrealtype eta_fail)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetEtaFail", &ark_mem,
-                             &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   if (eta_fail > ZERO && eta_fail < ONE) { relax_mem->eta_fail = eta_fail; }
@@ -437,8 +436,7 @@ int arkRelaxSetLowerBound(void* arkode_mem, sunrealtype lower)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetLowerBound", &ark_mem,
-                             &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   if (lower > ZERO && lower < ONE) { relax_mem->lower_bound = lower; }
@@ -453,8 +451,7 @@ int arkRelaxSetMaxFails(void* arkode_mem, int max_fails)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetMaxFails", &ark_mem,
-                             &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   if (max_fails > 0) { relax_mem->max_fails = max_fails; }
@@ -469,8 +466,7 @@ int arkRelaxSetMaxIters(void* arkode_mem, int max_iters)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetMaxIters", &ark_mem,
-                             &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   if (max_iters > 0) { relax_mem->max_iters = max_iters; }
@@ -485,8 +481,7 @@ int arkRelaxSetSolver(void* arkode_mem, ARKRelaxSolver solver)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetSolver", &ark_mem,
-                             &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   if (solver != ARK_RELAX_BRENT && solver != ARK_RELAX_NEWTON)
@@ -507,8 +502,7 @@ int arkRelaxSetResTol(void* arkode_mem, sunrealtype res_tol)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetResTol", &ark_mem,
-                             &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   if (res_tol > ZERO) { relax_mem->res_tol = res_tol; }
@@ -523,7 +517,7 @@ int arkRelaxSetTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetTol", &ark_mem, &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   if (rel_tol > ZERO) { relax_mem->rel_tol = rel_tol; }
@@ -541,8 +535,7 @@ int arkRelaxSetUpperBound(void* arkode_mem, sunrealtype upper)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxSetUpperBound", &ark_mem,
-                             &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   if (upper > ONE) { relax_mem->upper_bound = upper; }
@@ -561,8 +554,7 @@ int arkRelaxGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxFnEvals", &ark_mem,
-                             &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   *r_evals = relax_mem->num_relax_fn_evals;
@@ -576,8 +568,7 @@ int arkRelaxGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxJacEvals",
-                             &ark_mem, &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   *J_evals = relax_mem->num_relax_jac_evals;
@@ -591,8 +582,7 @@ int arkRelaxGetNumRelaxFails(void* arkode_mem, long int* relax_fails)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxFails", &ark_mem,
-                             &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   *relax_fails = relax_mem->num_fails;
@@ -606,8 +596,7 @@ int arkRelaxGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxSolveFails",
-                             &ark_mem, &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   *fails = relax_mem->nls_fails;
@@ -621,8 +610,7 @@ int arkRelaxGetNumRelaxBoundFails(void* arkode_mem, long int* fails)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxBoundFails",
-                             &ark_mem, &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   *fails = relax_mem->bound_fails;
@@ -636,8 +624,7 @@ int arkRelaxGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxGetNumRelaxSolveIters",
-                             &ark_mem, &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   *iters = relax_mem->nls_iters;
@@ -651,8 +638,7 @@ int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
   ARKodeMem ark_mem;
   ARKodeRelaxMem relax_mem;
 
-  retval = arkRelaxAccessMem(arkode_mem, "arkRelaxPrintAllStats", &ark_mem,
-                             &relax_mem);
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
   switch (fmt)

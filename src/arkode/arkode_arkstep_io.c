@@ -765,7 +765,7 @@ int ARKStepSetOptimalParams(void* arkode_mem)
 
   /* Remove current SUNAdaptController object */
   retval = SUNAdaptController_Space(hadapt_mem->hcontroller, &lenrw, &leniw);
-  if (retval == SUNADAPTCONTROLLER_SUCCESS)
+  if (retval == SUN_SUCCESS)
   {
     ark_mem->liw -= leniw;
     ark_mem->lrw -= lenrw;
@@ -774,7 +774,7 @@ int ARKStepSetOptimalParams(void* arkode_mem)
   {
     retval = SUNAdaptController_Destroy(hadapt_mem->hcontroller);
     ark_mem->hadapt_mem->owncontroller = SUNFALSE;
-    if (retval != SUNADAPTCONTROLLER_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "SUNAdaptController_Destroy failure");
@@ -1012,7 +1012,7 @@ int ARKStepSetOptimalParams(void* arkode_mem)
     hadapt_mem->owncontroller = SUNTRUE;
 
     retval = SUNAdaptController_Space(hadapt_mem->hcontroller, &lenrw, &leniw);
-    if (retval == SUNADAPTCONTROLLER_SUCCESS)
+    if (retval == SUN_SUCCESS)
     {
       ark_mem->liw += leniw;
       ark_mem->lrw += lenrw;

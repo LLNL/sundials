@@ -48,31 +48,38 @@ typedef struct _SUNAdaptControllerContent_ImExGus* SUNAdaptControllerContent_ImE
 
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, sunrealtype k1e,
-                                         sunrealtype k2e, sunrealtype k1i,
-                                         sunrealtype k2i);
+SUNErrCode SUNAdaptController_SetParams_ImExGus(SUNAdaptController C,
+                                                sunrealtype k1e, sunrealtype k2e,
+                                                sunrealtype k1i, sunrealtype k2i);
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_ImExGus(SUNAdaptController C);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C, sunrealtype h,
-                                            int p, sunrealtype dsm,
-                                            sunrealtype* hnew);
+SUNErrCode SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C,
+                                                   sunrealtype h, int p,
+                                                   sunrealtype dsm,
+                                                   sunrealtype* hnew);
 SUNDIALS_EXPORT
-int SUNAdaptController_Reset_ImExGus(SUNAdaptController C);
+SUNErrCode SUNAdaptController_Reset_ImExGus(SUNAdaptController C);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_SetDefaults_ImExGus(SUNAdaptController C);
+SUNErrCode SUNAdaptController_SetDefaults_ImExGus(SUNAdaptController C);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE* fptr);
+SUNErrCode SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE* fptr);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController C,
-                                            sunrealtype bias);
+SUNErrCode SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController C,
+                                                   sunrealtype bias);
 SUNDIALS_EXPORT
-int SUNAdaptController_UpdateH_ImExGus(SUNAdaptController C, sunrealtype h,
-                                       sunrealtype dsm);
+SUNErrCode SUNAdaptController_UpdateH_ImExGus(SUNAdaptController C,
+                                              sunrealtype h, sunrealtype dsm);
+
 SUNDIALS_EXPORT
-int SUNAdaptController_Space_ImExGus(SUNAdaptController C, long int* lenrw,
-                                     long int* leniw);
+SUNErrCode SUNAdaptController_Space_ImExGus(SUNAdaptController C,
+                                            long int* lenrw, long int* leniw);
 
 #ifdef __cplusplus
 }
