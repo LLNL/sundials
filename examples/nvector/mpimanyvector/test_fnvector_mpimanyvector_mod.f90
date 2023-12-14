@@ -111,6 +111,7 @@ contains
     ival = FN_VGetNumSubvectors_MPIManyVector(x)
     xptr => FN_VGetSubvectorArrayPointer_MPIManyVector(x, ival-1)
     ival = FN_VSetSubvectorArrayPointer_MPIManyVector(xptr, x, ival-1)
+    ival = FN_VGetNumSubvectors_MPIManyVector(x)
     tmp  => FN_VGetSubvector_MPIManyVector(x, ival-1)
 
     !==== Cleanup =====

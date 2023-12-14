@@ -524,7 +524,7 @@ the name, usage of the function, and a description of its mathematical
 operations below.
 
 
-.. c:function:: int N_VLinearCombination(int nv, sunrealtype* c, N_Vector* X, N_Vector z)
+.. c:function:: SUNErrCode N_VLinearCombination(int nv, sunrealtype* c, N_Vector* X, N_Vector z)
 
    This routine computes the linear combination of *nv* vectors with :math:`n` elements:
 
@@ -534,8 +534,7 @@ operations below.
    where :math:`c` is an array of :math:`nv` scalars, :math:`x_j` is a
    vector in the vector array *X*, and *z* is the output
    vector. If the output vector *z* is one of the vectors in *X*, then
-   it *must* be the first vector in the vector array. The operation
-   returns 0 for success and a non-zero value otherwise.
+   it *must* be the first vector in the vector array. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
 
@@ -544,7 +543,7 @@ operations below.
       retval = N_VLinearCombination(nv, c, X, z);
 
 
-.. c:function:: int N_VScaleAddMulti(int nv, sunrealtype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
+.. c:function:: SUNErrCode N_VScaleAddMulti(int nv, sunrealtype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
 
    This routine scales and adds one vector to *nv* vectors with :math:`n` elements:
 
@@ -553,8 +552,7 @@ operations below.
 
    where *c* is an array of scalars, *x* is a vector, :math:`y_j` is a
    vector in the vector array *Y*, and :math:`z_j` is an output vector
-   in the vector array *Z*. The operation returns 0 for success and a
-   non-zero value otherwise.
+   in the vector array *Z*. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
 
@@ -563,7 +561,7 @@ operations below.
       retval = N_VScaleAddMulti(nv, c, x, Y, Z);
 
 
-.. c:function:: int N_VDotProdMulti(int nv, N_Vector x, N_Vector* Y, sunrealtype* d)
+.. c:function:: SUNErrCode N_VDotProdMulti(int nv, N_Vector x, N_Vector* Y, sunrealtype* d)
 
    This routine computes the dot product of a vector with *nv* vectors
    having :math:`n` elements:
@@ -573,8 +571,7 @@ operations below.
 
    where *d* is an array of scalars containing the computed dot
    products, *x* is a vector, and :math:`y_j` is a vector the vector
-   array *Y*. The operation returns 0 for success and a non-zero value
-   otherwise.
+   array *Y*. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
 
@@ -599,7 +596,7 @@ operation, we give the name, usage of the function, and a description
 of its mathematical operations below.
 
 
-.. c:function:: int N_VLinearSumVectorArray(int nv, sunrealtype a, N_Vector X, sunrealtype b, N_Vector* Y, N_Vector* Z)
+.. c:function:: SUNErrCode N_VLinearSumVectorArray(int nv, sunrealtype a, N_Vector X, sunrealtype b, N_Vector* Y, N_Vector* Z)
 
    This routine computes the linear sum of two vector arrays of *nv* vectors with :math:`n` elements:
 
@@ -608,8 +605,7 @@ of its mathematical operations below.
 
    where *a* and *b* are scalars, :math:`x_j` and :math:`y_j` are
    vectors in the vector arrays *X* and *Y* respectively, and
-   :math:`z_j` is a vector in the output vector array *Z*. The
-   operation returns 0 for success and a non-zero value otherwise.
+   :math:`z_j` is a vector in the output vector array *Z*. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
 
@@ -618,7 +614,7 @@ of its mathematical operations below.
       retval = N_VLinearSumVectorArray(nv, a, X, b, Y, Z);
 
 
-.. c:function:: int N_VScaleVectorArray(int nv, sunrealtype* c, N_Vector* X, N_Vector* Z)
+.. c:function:: SUNErrCode N_VScaleVectorArray(int nv, sunrealtype* c, N_Vector* X, N_Vector* Z)
 
    This routine scales each element in a vector of :math:`n` elements
    in a vector array of *nv* vectors by a potentially different constant:
@@ -628,7 +624,7 @@ of its mathematical operations below.
 
    where *c* is an array of scalars, :math:`x_j` is a vector in the
    vector array *X*, and :math:`z_j` is a vector in the output vector
-   array *Z*. The operation returns 0 for success and a non-zero value otherwise.
+   array *Z*. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
 
@@ -637,7 +633,7 @@ of its mathematical operations below.
       retval = N_VScaleVectorArray(nv, c, X, Z);
 
 
-.. c:function:: int N_VConstVectorArray(int nv, sunrealtype c, N_Vector* Z)
+.. c:function:: SUNErrCode N_VConstVectorArray(int nv, sunrealtype c, N_Vector* Z)
 
    This routine sets each element in a vector of :math:`n` elements in
    a vector array of *nv* vectors to the same value:
@@ -646,7 +642,7 @@ of its mathematical operations below.
       z_{j,i} = c, \quad i=0,\ldots,n-1 \quad j=0,\ldots,nv-1,
 
    where *c* is a scalar and :math:`z_j` is a vector in the vector
-   array *Z*. The operation returns 0 for success and a non-zero value otherwise.
+   array *Z*. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
 
@@ -655,7 +651,7 @@ of its mathematical operations below.
       retval = N_VConstVectorArray(nv, c, Z);
 
 
-.. c:function:: int N_VWrmsNormVectorArray(int nv, N_Vector* X, N_Vector* W, sunrealtype* m)
+.. c:function:: SUNErrCode N_VWrmsNormVectorArray(int nv, N_Vector* X, N_Vector* W, sunrealtype* m)
 
    This routine computes the weighted root mean square norm of each
    vector in a vector array:
@@ -665,8 +661,7 @@ of its mathematical operations below.
 
    where :math:`x_j` is a vector in the vector array *X*, :math:`w_j`
    is a weight vector in the vector array *W*, and *m* is the output
-   array of scalars containing the computed norms. The operation
-   returns 0 for success and a non-zero value otherwise.
+   array of scalars containing the computed norms. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
 
@@ -675,7 +670,7 @@ of its mathematical operations below.
       retval = N_VWrmsNormVectorArray(nv, X, W, m);
 
 
-.. c:function:: int N_VWrmsNormMaskVectorArray(int nv, N_Vector* X, N_Vector* W, N_Vector id, sunrealtype* m)
+.. c:function:: SUNErrCode N_VWrmsNormMaskVectorArray(int nv, N_Vector* X, N_Vector* W, N_Vector id, sunrealtype* m)
 
    This routine computes the masked weighted root mean square norm of
    each vector in a vector array:
@@ -687,8 +682,7 @@ of its mathematical operations below.
    :math:`x_j` is a vector in the vector array *X*, :math:`w_j` is a
    weight vector in the vector array *W*, *id* is the mask vector, and
    *m* is the output array of scalars containing the computed
-   norms. The operation returns 0 for success and a non-zero value
-   otherwise.
+   norms. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
 
@@ -697,7 +691,7 @@ of its mathematical operations below.
       retval = N_VWrmsNormMaskVectorArray(nv, X, W, id, m);
 
 
-.. c:function:: int N_VScaleAddMultiVectorArray(int nv, int nsum, sunrealtype* c, N_Vector* X, N_Vector** YY, N_Vector** ZZ)
+.. c:function:: SUNErrCode N_VScaleAddMultiVectorArray(int nv, int nsum, sunrealtype* c, N_Vector* X, N_Vector** YY, N_Vector** ZZ)
 
    This routine scales and adds a vector array of *nv* vectors to
    *nsum* other vector arrays:
@@ -708,8 +702,7 @@ of its mathematical operations below.
    where *c* is an array of scalars, :math:`x_j` is a vector in the
    vector array *X*, :math:`y_{k,j}` is a vector in the array of
    vector arrays *YY*, and :math:`z_{k,j}` is an output vector in the
-   array of vector arrays *ZZ*. The operation returns 0 for success
-   and a non-zero value otherwise.
+   array of vector arrays *ZZ*. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
 
@@ -718,7 +711,7 @@ of its mathematical operations below.
       retval = N_VScaleAddMultiVectorArray(nv, nsum, c, x, YY, ZZ);
 
 
-.. c:function:: int N_VLinearCombinationVectorArray(int nv, int nsum, sunrealtype* c, N_Vector** XX, N_Vector* Z)
+.. c:function:: SUNErrCode N_VLinearCombinationVectorArray(int nv, int nsum, sunrealtype* c, N_Vector** XX, N_Vector* Z)
 
    This routine computes the linear combination of *nsum* vector
    arrays containing *nv* vectors:
@@ -730,8 +723,7 @@ of its mathematical operations below.
    array of vector arrays *XX*, and :math:`z_{j,i}` is an output
    vector in the vector array *Z*. If the output vector array is one
    of the vector arrays in *XX*, it *must* be the first vector array
-   in *XX*. The operation returns 0 for success and a non-zero value
-   otherwise.
+   in *XX*. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
 
@@ -953,7 +945,7 @@ orthogonalization methods to reduce the number of MPI ``Allreduce`` calls. If a
 particular NVECTOR implementation does not define these operations additional
 communication will be required.
 
-.. c:function:: int N_VDotProdMultiLocal(int nv, N_Vector x, N_Vector* Y, sunrealtype* d)
+.. c:function:: SUNErrCode N_VDotProdMultiLocal(int nv, N_Vector x, N_Vector* Y, sunrealtype* d)
 
    This routine computes the MPI task-local portion of the dot product of a
    vector :math:`x` with *nv* vectors :math:`y_j`:
@@ -964,8 +956,7 @@ communication will be required.
    where :math:`d` is an array of scalars containing the computed dot products,
    :math:`x` is a vector, :math:`y_j` is a vector in the vector array *Y*, and
    :math:`n_{local}` corresponds to the number of components in the vector on
-   this MPI task. The operation returns 0 for success and a non-zero value
-   otherwise.
+   this MPI task. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
 
@@ -974,7 +965,7 @@ communication will be required.
       retval = N_VDotProdMultiLocal(nv, x, Y, d);
 
 
-.. c:function:: int N_VDotProdMultiAllReduce(int nv, N_Vector x, sunrealtype* d)
+.. c:function:: SUNErrCode N_VDotProdMultiAllReduce(int nv, N_Vector x, sunrealtype* d)
 
    This routine combines the MPI task-local portions of the dot product of a
    vector :math:`x` with *nv* vectors:
@@ -985,7 +976,7 @@ communication will be required.
 
    where *d* is an array of *nv* scalars containing the local contributions to
    the dot product and *comm* is the MPI communicator associated with the vector
-   *x*. The operation returns 0 for success and a non-zero value otherwise.
+   *x*. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
 
@@ -1009,7 +1000,7 @@ usage.
 
 
 
-.. c:function:: int N_VBufSize(N_Vector x, sunindextype *size)
+.. c:function:: SUNErrCode N_VBufSize(N_Vector x, sunindextype *size)
 
    This routine returns the buffer size need to exchange in the data in the
    vector *x* between computational nodes.
@@ -1022,7 +1013,7 @@ usage.
 
 
 
-.. c:function:: int N_VBufPack(N_Vector x, void *buf)
+.. c:function:: SUNErrCode N_VBufPack(N_Vector x, void *buf)
 
    This routine fills the exchange buffer *buf* with the vector data in *x*.
 
@@ -1033,7 +1024,7 @@ usage.
       flag = N_VBufPack(x, &buf)
 
 
-.. c:function:: int N_VBufUnpack(N_Vector x, void *buf)
+.. c:function:: SUNErrCode N_VBufUnpack(N_Vector x, void *buf)
 
    This routine unpacks the data in the exchange buffer *buf* into the vector
    *x*.

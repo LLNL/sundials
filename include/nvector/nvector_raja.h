@@ -141,26 +141,23 @@ SUNDIALS_EXPORT sunbooleantype N_VConstrMask_Raja(N_Vector c, N_Vector x,
 SUNDIALS_EXPORT sunrealtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
-SUNDIALS_EXPORT int N_VLinearCombination_Raja(int nvec, sunrealtype* c,
-                                              N_Vector* X, N_Vector z);
-SUNDIALS_EXPORT int N_VScaleAddMulti_Raja(int nvec, sunrealtype* c, N_Vector x,
-                                          N_Vector* Y, N_Vector* Z);
+SUNDIALS_EXPORT SUNErrCode N_VLinearCombination_Raja(int nvec, sunrealtype* c,
+                                                     N_Vector* X, N_Vector z);
+SUNDIALS_EXPORT SUNErrCode N_VScaleAddMulti_Raja(int nvec, sunrealtype* c,
+                                                 N_Vector x, N_Vector* Y,
+                                                 N_Vector* Z);
 
 /* vector array operations */
-SUNDIALS_EXPORT int N_VLinearSumVectorArray_Raja(int nvec, sunrealtype a,
-                                                 N_Vector* X, sunrealtype b,
-                                                 N_Vector* Y, N_Vector* Z);
-SUNDIALS_EXPORT int N_VScaleVectorArray_Raja(int nvec, sunrealtype* c,
-                                             N_Vector* X, N_Vector* Z);
-SUNDIALS_EXPORT int N_VConstVectorArray_Raja(int nvec, sunrealtype c,
-                                             N_Vector* Z);
-SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum,
-                                                     sunrealtype* a, N_Vector* X,
-                                                     N_Vector** Y, N_Vector** Z);
-SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum,
-                                                         sunrealtype* c,
-                                                         N_Vector** X,
-                                                         N_Vector* Z);
+SUNDIALS_EXPORT SUNErrCode N_VLinearSumVectorArray_Raja(
+  int nvec, sunrealtype a, N_Vector* X, sunrealtype b, N_Vector* Y, N_Vector* Z);
+SUNDIALS_EXPORT SUNErrCode N_VScaleVectorArray_Raja(int nvec, sunrealtype* c,
+                                                    N_Vector* X, N_Vector* Z);
+SUNDIALS_EXPORT SUNErrCode N_VConstVectorArray_Raja(int nvec, sunrealtype c,
+                                                    N_Vector* Z);
+SUNDIALS_EXPORT SUNErrCode N_VScaleAddMultiVectorArray_Raja(
+  int nvec, int nsum, sunrealtype* a, N_Vector* X, N_Vector** Y, N_Vector** Z);
+SUNDIALS_EXPORT SUNErrCode N_VLinearCombinationVectorArray_Raja(
+  int nvec, int nsum, sunrealtype* c, N_Vector** X, N_Vector* Z);
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
 SUNDIALS_EXPORT sunrealtype N_VWSqrSumLocal_Raja(N_Vector x, N_Vector w);
@@ -168,9 +165,9 @@ SUNDIALS_EXPORT sunrealtype N_VWSqrSumMaskLocal_Raja(N_Vector x, N_Vector w,
                                                      N_Vector id);
 
 /* OPTIONAL XBraid interface operations */
-SUNDIALS_EXPORT int N_VBufSize_Raja(N_Vector x, sunindextype* size);
-SUNDIALS_EXPORT int N_VBufPack_Raja(N_Vector x, void* buf);
-SUNDIALS_EXPORT int N_VBufUnpack_Raja(N_Vector x, void* buf);
+SUNDIALS_EXPORT SUNErrCode N_VBufSize_Raja(N_Vector x, sunindextype* size);
+SUNDIALS_EXPORT SUNErrCode N_VBufPack_Raja(N_Vector x, void* buf);
+SUNDIALS_EXPORT SUNErrCode N_VBufUnpack_Raja(N_Vector x, void* buf);
 
 /* OPTIONAL operations for debugging */
 SUNDIALS_EXPORT void N_VPrint_Raja(N_Vector v);
@@ -182,20 +179,24 @@ SUNDIALS_EXPORT void N_VPrintFile_Raja(N_Vector v, FILE* outfile);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int N_VEnableFusedOps_Raja(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode N_VEnableFusedOps_Raja(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearCombination_Raja(N_Vector v,
-                                                    sunbooleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Raja(N_Vector v, sunbooleantype tf);
-
-SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Raja(N_Vector v,
-                                                       sunbooleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Raja(N_Vector v, sunbooleantype tf);
-SUNDIALS_EXPORT int N_VEnableConstVectorArray_Raja(N_Vector v, sunbooleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v,
+SUNDIALS_EXPORT SUNErrCode N_VEnableLinearCombination_Raja(N_Vector v,
                                                            sunbooleantype tf);
-SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Raja(N_Vector v,
-                                                               sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode N_VEnableScaleAddMulti_Raja(N_Vector v,
+                                                       sunbooleantype tf);
+
+SUNDIALS_EXPORT SUNErrCode N_VEnableLinearSumVectorArray_Raja(N_Vector v,
+                                                              sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode N_VEnableScaleVectorArray_Raja(N_Vector v,
+                                                          sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode N_VEnableConstVectorArray_Raja(N_Vector v,
+                                                          sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableLinearCombinationVectorArray_Raja(N_Vector v,
+                                                      sunbooleantype tf);
 
 #ifdef __cplusplus
 }

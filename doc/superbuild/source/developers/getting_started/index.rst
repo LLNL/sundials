@@ -20,7 +20,7 @@ Getting Started
 SUNDIALS uses Git for distributed version control. If you have not setup Git on
 your system, see the :ref:`GitSetup` section for details on configuring Git and
 cloning the SUNDIALS repository. A list of helpful commands can be found in the
-:ref:`GitCheatSheet`. The typical evelopment workflow is described in the
+:ref:`GitCheatSheet`. The typical development workflow is described in the
 :ref:`Workflow` section.
 
 .. toctree::
