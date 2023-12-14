@@ -202,7 +202,8 @@ SUNErrCode N_VEnableWrmsNormMaskVectorArray_Petsc(N_Vector v, sunbooleantype tf)
 SUNDIALS_EXPORT
 SUNErrCode N_VEnableScaleAddMultiVectorArray_Petsc(N_Vector v, sunbooleantype tf);
 SUNDIALS_EXPORT
-SUNErrCode N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v, sunbooleantype tf);
+SUNErrCode N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v,
+                                                       sunbooleantype tf);
 
 SUNDIALS_EXPORT SUNErrCode N_VEnableDotProdMultiLocal_Petsc(N_Vector v,
                                                             sunbooleantype tf);

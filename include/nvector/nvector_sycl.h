@@ -207,7 +207,8 @@ SUNErrCode N_VEnableWrmsNormMaskVectorArray_Sycl(N_Vector v, sunbooleantype tf);
 SUNDIALS_EXPORT
 SUNErrCode N_VEnableScaleAddMultiVectorArray_Sycl(N_Vector v, sunbooleantype tf);
 SUNDIALS_EXPORT
-SUNErrCode N_VEnableLinearCombinationVectorArray_Sycl(N_Vector v, sunbooleantype tf);
+SUNErrCode N_VEnableLinearCombinationVectorArray_Sycl(N_Vector v,
+                                                      sunbooleantype tf);
 
 #ifdef __cplusplus
 }
