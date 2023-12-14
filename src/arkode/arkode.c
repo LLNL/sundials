@@ -3322,8 +3322,6 @@ int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
 void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
                      const char* func, const char* file, const char* msgfmt, ...)
 {
-  SUNFunctionBegin(ark_mem->sunctx);
-
   /* Initialize the argument pointer variable
      (msgfmt is the last required argument to arkProcessError) */
   va_list ap;
@@ -3353,10 +3351,10 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
     }
 
     /* Call the SUNDIALS main error handler */
-    SUNHandleErrWithMsg(line, func, file, msg, error_code, SUNCTX_);
+    SUNHandleErrWithMsg(line, func, file, msg, error_code, ark_mem->sunctx);
 
     /* Clear the error now */
-    (void)SUNContext_GetLastError(SUNCTX_);
+    (void)SUNContext_GetLastError(ark_mem->sunctx);
   }
   while (0);
 

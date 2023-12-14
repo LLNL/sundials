@@ -8756,8 +8756,6 @@ static int IDAQuadSensRhs1InternalDQ(IDAMem IDA_mem, int is, sunrealtype t,
 void IDAProcessError(IDAMem IDA_mem, int error_code, int line, const char* func,
                      const char* file, const char* msgfmt, ...)
 {
-  SUNFunctionBegin(IDA_mem->ida_sunctx);
-
   /* Initialize the argument pointer variable
      (msgfmt is the last required argument to IDAProcessError) */
   va_list ap;
@@ -8787,10 +8785,10 @@ void IDAProcessError(IDAMem IDA_mem, int error_code, int line, const char* func,
     }
 
     /* Call the SUNDIALS main error handler */
-    SUNHandleErrWithMsg(line, func, file, msg, error_code, SUNCTX_);
+    SUNHandleErrWithMsg(line, func, file, msg, error_code, IDA_mem->ida_sunctx);
 
     /* Clear the last error value */
-    (void)SUNContext_GetLastError(SUNCTX_);
+    (void)SUNContext_GetLastError(IDA_mem->ida_sunctx);
   }
   while (0);
 
