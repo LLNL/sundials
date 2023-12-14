@@ -14,17 +14,17 @@
 #
 # Usage:
 #    ./format.sh <paths to directories or files to format>
-# 
+#
 # We require clang-format 17.0.4. Other versions may produce different styles!
 # ---------------------------------------------------------------------------------
 
-if [ $# -lt 1 ]; then  
-    echo "ERROR: At least one path to format required"  
-    exit 1  
-fi  
+if [ $# -lt 1 ]; then
+    echo "ERROR: At least one path to format required"
+    exit 1
+fi
 
-paths=( "$@" )  
+paths=( "$@" )
 
-find "${paths[@]}" -iname '*.h' -o -iname '*.hpp' -o \  
+find "${paths[@]}" -iname '*.h' -o -iname '*.hpp' -o \
   -iname '*.c' -o -iname '*.cpp' -o \
   -iname '*.cuh' -o -iname '*.cu' | grep -v fmod | xargs clang-format -i
