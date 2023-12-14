@@ -223,15 +223,14 @@ options as the vector they are cloned from while vectors created with
    .. c:function:: SUNErrCode N_VEnableWrmsNormVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
       This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
-      operation for vector arrays in the RAJA vector. The return value is ``0`` for
-      success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+      operation for vector arrays in the RAJA vector. The return value is
+      a :c:type:`SUNErrCode`.
 
    .. c:function:: SUNErrCode N_VEnableWrmsNormMaskVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
       This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
       norm operation for vector arrays in the RAJA vector. The return value is
-      ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
-      ``NULL``.
+      a :c:type:`SUNErrCode`.
 
 .. c:function:: SUNErrCode N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
