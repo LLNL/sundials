@@ -25,6 +25,7 @@
 #include <sunmemory/sunmemory_sycl.h>
 
 // SUNDIALS private headers
+#include "sundials/sundials_errors.h"
 #include "sundials_debug.h"
 #include "sundials_sycl.h"
 
@@ -625,7 +626,7 @@ static int GetKernelParameters(SUNMatrix A, sunbooleantype reduction,
   if (!MAT_EXECPOLICY(A))
   {
     SUNDIALS_DEBUG_ERROR("The execution policy is NULL\n");
-    return -1;
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   /* Get the number of threads per block and total number threads */
@@ -635,16 +636,16 @@ static int GetKernelParameters(SUNMatrix A, sunbooleantype reduction,
   if (nthreads_per_block == 0)
   {
     SUNDIALS_DEBUG_ERROR("The number of threads per block must be > 0\n");
-    return -1;
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   if (nthreads_total == 0)
   {
     SUNDIALS_DEBUG_ERROR("The total number of threads must be > 0\n");
-    return -1;
+    return SUN_ERR_ARG_CORRUPT;
   }
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 static sunbooleantype Compatible_AB(SUNMatrix A, SUNMatrix B)
