@@ -50,6 +50,7 @@
 // Include integrator, vector, matrix, and linear solver headers
 #include <cvode/cvode.h>
 #include <nvector/nvector_serial.h>
+#include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_pcg.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 

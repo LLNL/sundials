@@ -48,7 +48,7 @@
 #include <nvector/nvector_raja.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sundials/sundials_math.h>
+#include <sundials/sundials_core.hpp>
 #include <sundials/sundials_types.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 

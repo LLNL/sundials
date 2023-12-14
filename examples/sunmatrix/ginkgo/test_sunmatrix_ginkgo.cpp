@@ -17,7 +17,7 @@
 #include <cstring>
 #include <iostream>
 #include <memory>
-#include <sundials/sundials_math.h>
+#include <sundials/sundials_core.hpp>
 #include <sundials/sundials_types.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>

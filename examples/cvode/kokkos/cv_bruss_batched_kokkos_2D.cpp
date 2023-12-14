@@ -74,6 +74,7 @@
 #include <cvode/cvode.h>
 #include <memory>
 #include <nvector/nvector_kokkos.hpp>
+#include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_kokkosdense.hpp>
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <sunmatrix/sunmatrix_kokkosdense.hpp>
