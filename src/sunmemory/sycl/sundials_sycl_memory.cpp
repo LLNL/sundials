@@ -18,6 +18,8 @@
 #include <sundials/sundials_math.h>
 #include <sunmemory/sunmemory_sycl.h>
 
+#include "sundials/priv/sundials_errors_impl.h"
+#include "sundials/sundials_errors.h"
 #include "sundials_debug.h"
 
 struct SUNMemoryHelper_Content_Sycl_
@@ -46,14 +48,11 @@ typedef struct SUNMemoryHelper_Content_Sycl_ SUNMemoryHelper_Content_Sycl;
 
 SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx)
 {
+  SUNFunctionBegin(sunctx);
+
   // Allocate the helper
   SUNMemoryHelper helper = SUNMemoryHelper_NewEmpty(sunctx);
-  if (!helper)
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Sycl: "
-                         "SUNMemoryHelper_NewEmpty returned NULL\n");
-    return NULL;
-  }
+  SUNCheckLastErrNull();
 
   // Set the ops
   helper->ops->alloc         = SUNMemoryHelper_Alloc_Sycl;
@@ -67,6 +66,8 @@ SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx)
   // Attach content
   helper->content =
     (SUNMemoryHelper_Content_Sycl*)malloc(sizeof(SUNMemoryHelper_Content_Sycl));
+  SUNAssertNull(helper->content, SUN_ERR_MALLOC_FAIL);
+
   SUNHELPER_CONTENT(helper)->num_allocations_host        = 0;
   SUNHELPER_CONTENT(helper)->num_deallocations_host      = 0;
   SUNHELPER_CONTENT(helper)->bytes_allocated_host        = 0;
@@ -89,31 +90,25 @@ SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx)
 
 SUNMemoryHelper SUNMemoryHelper_Clone_Sycl(SUNMemoryHelper helper)
 {
+  SUNFunctionBegin(helper->sunctx);
   SUNMemoryHelper hclone = SUNMemoryHelper_Sycl(helper->sunctx);
+  SUNCheckLastErrNull();
   return hclone;
 }
 
-int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
-                               size_t mem_size, SUNMemoryType mem_type,
-                               void* queue)
+SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
+                                      size_t mem_size, SUNMemoryType mem_type,
+                                      void* queue)
 {
+  SUNFunctionBegin(helper->sunctx);
+
   // Check inputs
-  if (!queue)
-  {
-    SUNDIALS_DEBUG_PRINT(
-      "ERROR in SUNMemoryHelper_Alloc_Sycl: queue is NULL\n");
-    return -1;
-  }
+  SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
   ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
 
   // Allocate the memory struct
   SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
-  if (!mem)
-  {
-    SUNDIALS_DEBUG_PRINT(
-      "ERROR in SUNMemoryHelper_Sycl: SUNMemoryNewEmpty returned NULL\n");
-    return -1;
-  }
+  SUNCheckLastErr();
 
   // Initialize the memory content
   mem->ptr   = nullptr;
@@ -130,7 +125,7 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Sycl: malloc returned NULL\n");
       free(mem);
-      return -1;
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -149,7 +144,7 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Sycl: malloc_host returned NULL\n");
       free(mem);
-      return -1;
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -168,7 +163,7 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Sycl: malloc_device returned NULL\n");
       free(mem);
-      return -1;
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -187,7 +182,7 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Sycl: malloc_shared returned NULL\n");
       free(mem);
-      return -1;
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -203,26 +198,23 @@ int SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
     SUNDIALS_DEBUG_PRINT(
       "ERROR in SUNMemoryHelper_Alloc_Sycl: unknown memory type\n");
     free(mem);
-    return -1;
+    return SUN_ERR_ARG_OUTOFRANGE;
   }
 
   *memptr = mem;
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
-                                 void* queue)
+SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
+                                        void* queue)
 {
-  if (!mem) { return 0; }
+  SUNFunctionBegin(helper->sunctx);
+
+  if (!mem) { return SUN_SUCCESS; }
 
   if (mem->ptr && mem->own)
   {
-    if (!queue)
-    {
-      SUNDIALS_DEBUG_PRINT(
-        "ERROR in SUNMemoryHelper_Dealloc_Sycl: queue is NULL\n");
-      return -1;
-    }
+    SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
     ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
 
     if (mem->type == SUNMEMTYPE_HOST)
@@ -257,41 +249,36 @@ int SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
     {
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Dealloc_Sycl: unknown memory type\n");
-      return -1;
+      return SUN_ERR_OUTOFRANGE;
     }
   }
 
   free(mem);
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, SUNMemory dst,
-                              SUNMemory src, size_t memory_size, void* queue)
+SUNErrCode SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, SUNMemory dst,
+                                     SUNMemory src, size_t memory_size,
+                                     void* queue)
 {
-  if (!queue)
-  {
-    SUNDIALS_DEBUG_PRINT("ERROR in SUNMemoryHelper_Copy_Sycl: queue is NULL\n");
-    return -1;
-  }
+  SUNFunctionBegin(helper->sunctx);
+  SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
   ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
 
   if (SUNMemoryHelper_CopyAsync_Sycl(helper, dst, src, memory_size, queue))
   {
-    return -1;
+    return SUN_ERR_EXT_FAIL;
   }
   sycl_queue->wait_and_throw();
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
-                                   SUNMemory src, size_t memory_size, void* queue)
+SUNErrCode SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
+                                          SUNMemory src, size_t memory_size,
+                                          void* queue)
 {
-  if (!queue)
-  {
-    SUNDIALS_DEBUG_PRINT(
-      "ERROR in SUNMemoryHelper_CopyAsync_Sycl: queue is NULL\n");
-    return -1;
-  }
+  SUNFunctionBegin(helper->sunctx);
+  SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
   ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
 
   if (src->type == SUNMEMTYPE_HOST && dst->type == SUNMEMTYPE_HOST)
@@ -299,10 +286,10 @@ int SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
     memcpy(dst->ptr, src->ptr, memory_size);
   }
   else { sycl_queue->memcpy(dst->ptr, src->ptr, memory_size); }
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int SUNMemoryHelper_Destroy_Sycl(SUNMemoryHelper helper)
+SUNErrCode SUNMemoryHelper_Destroy_Sycl(SUNMemoryHelper helper)
 {
   if (helper)
   {
@@ -310,15 +297,15 @@ int SUNMemoryHelper_Destroy_Sycl(SUNMemoryHelper helper)
     if (helper->ops) { free(helper->ops); }
     free(helper);
   }
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int SUNMemoryHelper_GetAllocStats_Sycl(SUNMemoryHelper helper,
-                                       SUNMemoryType mem_type,
-                                       unsigned long* num_allocations,
-                                       unsigned long* num_deallocations,
-                                       size_t* bytes_allocated,
-                                       size_t* bytes_high_watermark)
+SUNErrCode SUNMemoryHelper_GetAllocStats_Sycl(SUNMemoryHelper helper,
+                                              SUNMemoryType mem_type,
+                                              unsigned long* num_allocations,
+                                              unsigned long* num_deallocations,
+                                              size_t* bytes_allocated,
+                                              size_t* bytes_high_watermark)
 {
   if (mem_type == SUNMEMTYPE_HOST)
   {
@@ -348,6 +335,6 @@ int SUNMemoryHelper_GetAllocStats_Sycl(SUNMemoryHelper helper,
     *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated_uvm;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_uvm;
   }
-  else { return -1; }
-  return 0;
+  else { return SUN_ERR_ARG_OUTOFRANGE; }
+  return SUN_SUCCESS;
 }

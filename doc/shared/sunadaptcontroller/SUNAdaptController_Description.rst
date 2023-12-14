@@ -59,14 +59,14 @@ function pointers to the various controller operations, and is defined as
 
     struct _generic_SUNAdaptController_Ops {
         SUNAdaptController_Type (*getid)(SUNAdaptController C);
-        int (*destroy)(SUNAdaptController C);
-        int (*estimatestep)(SUNAdaptController C, sunrealtype h, int p, sunrealtype dsm, sunrealtype* hnew);
-        int (*reset)(SUNAdaptController C);
-        int (*setdefaults)(SUNAdaptController C);
-        int (*write)(SUNAdaptController C, FILE* fptr);
-        int (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
-        int (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
-        int (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
+        SUNErrCode (*destroy)(SUNAdaptController C);
+        SUNErrCode (*estimatestep)(SUNAdaptController C, sunrealtype h, int p, sunrealtype dsm, sunrealtype* hnew);
+        SUNErrCode (*reset)(SUNAdaptController C);
+        SUNErrCode (*setdefaults)(SUNAdaptController C);
+        SUNErrCode (*write)(SUNAdaptController C, FILE* fptr);
+        SUNErrCode (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
+        SUNErrCode (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+        SUNErrCode (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
     };
 
 
@@ -137,7 +137,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
       SUNAdaptController_Type id = SUNAdaptController_GetType(C);
 
-.. c:function:: int SUNAdaptController_Destroy(SUNAdaptController C)
+.. c:function:: SUNErrCode SUNAdaptController_Destroy(SUNAdaptController C)
 
    Deallocates the controller *C*. If this method is not provided by the
    implementation, the base class method will free both the *content* and
@@ -147,8 +147,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    routine).
 
    :param C: the :c:type:`SUNAdaptController` object.
-   :return: error code indicating success failure
-            (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -156,7 +155,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
       retval = SUNAdaptController_Destroy(C);
 
-.. c:function:: int SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h, int p, sunrealtype dsm, sunrealtype* hnew)
+.. c:function:: SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h, int p, sunrealtype dsm, sunrealtype* hnew)
 
    Estimates a single-rate step size. This routine is required for controllers
    of type ``SUN_ADAPTCONTROLLER_H``.  If this is not provided by the
@@ -167,8 +166,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param p: the current order of accuracy for the time integration method.
    :param dsm: the local temporal estimate from the previous step attempt.
    :param hnew: (output) the estimated step size.
-   :return: error code indicating success failure
-            (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -176,14 +174,13 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
       retval = SUNAdaptController_EstimateStep(C, hcur, p, dsm, &hnew);
 
-.. c:function:: int SUNAdaptController_Reset(SUNAdaptController C)
+.. c:function:: SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
 
    Resets the controller to its initial state, e.g., if it stores a small number
    of previous *dsm* or *h* values.
 
    :param C:  the :c:type:`SUNAdaptController` object.
-   :return: error code indicating success failure
-            (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -191,13 +188,12 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
       retval = SUNAdaptController_Reset(C);
 
-.. c:function:: int SUNAdaptController_SetDefaults(SUNAdaptController C)
+.. c:function:: SUNErrCode SUNAdaptController_SetDefaults(SUNAdaptController C)
 
    Sets the controller parameters to their default values.
 
    :param C:  the :c:type:`SUNAdaptController` object.
-   :return: error code indicating success failure
-            (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -205,14 +201,13 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
       retval = SUNAdaptController_SetDefaults(C);
 
-.. c:function:: int SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
+.. c:function:: SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
 
    Writes all controller parameters to the indicated file pointer.
 
    :param C:  the :c:type:`SUNAdaptController` object.
    :param fptr:  the output stream to write the parameters to.
-   :return: error code indicating success failure
-            (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -220,7 +215,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
       retval = SUNAdaptController_Write(C, stdout);
 
-.. c:function:: int SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias)
+.. c:function:: SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias)
 
    Sets an error bias factor for scaling the local error factors. This is
    typically used to slightly exaggerate the temporal error during the
@@ -229,8 +224,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param C:  the :c:type:`SUNAdaptController` object.
    :param bias:  the error bias factor -- an input :math:`\leq 0` indicates to use
                  the default value for the controller.
-   :return: error code indicating success failure
-            (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -238,7 +232,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
       retval = SUNAdaptController_SetErrorBias(C, 1.2);
 
-.. c:function:: int SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
+.. c:function:: SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 
    Notifies a controller of type SUN_ADAPTCONTROLLER_H that a successful time step
    was taken with stepsize *h* and local error factor *dsm*, indicating that these
@@ -249,8 +243,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param C:  the :c:type:`SUNAdaptController` object.
    :param h:  the successful step size.
    :param dsm:  the successful temporal error estimate.
-   :return: error code indicating success failure
-            (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -258,7 +251,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
       retval = SUNAdaptController_UpdateH(C, h, dsm);
 
-.. c:function:: int SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long int *leniw)
+.. c:function:: SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long int *leniw)
 
    Informative routine that returns the memory requirements of the
    :c:type:`SUNAdaptController` object.
@@ -269,8 +262,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param leniw: (output)  number of ``sunindextype`` words stored in the
                  controller. This may also include pointers, `int` and
                  `long int` words.
-   :return: error code indicating success failure
-            (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -278,30 +270,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
       retval = SUNAdaptController_Space(C, &lenrw, &leniw);
 
-
-
-.. _SUNAdaptController.Description.errorCodes:
-
-SUNAdaptController Error Codes
-------------------------------
-
-SUNAdaptController functions return one of the following set of error codes:
-
-* ``SUNADAPTCONTROLLER_SUCCESS`` (0) -- successful call.
-
-* ``SUNADAPTCONTROLLER_ILL_INPUT`` (-1001) -- an illegal input has been provided to the function.
-
-* ``SUNADAPTCONTROLLER_MEM_FAIL`` (-1002) -- a memory access or allocation failed.
-
-* ``SUNADAPTCONTROLLER_USER_FCN_FAIL`` (-1003) -- a user-supplied function returned a nonzero [error] value.
-
-* ``SUNADAPTCONTROLLER_OPERATION_FAIL`` (-1004) -- catch-all for errors not in the above list.
-
-.. note::
-   The SUNDIALS time integrators do not rely on these specific return values and only
-   on whether the returned values are 0 (successful) or non-zero (failure).  Thus,
-   user-defined implementations are not required to use these specific error codes,
-   so long as the zero/non-zero convention is followed.
 
 
 C/C++ API Usage

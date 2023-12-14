@@ -18,6 +18,8 @@
 #include <sundials/sundials_math.h>
 #include <sunmemory/sunmemory_cuda.h>
 
+#include "sundials/priv/sundials_errors_impl.h"
+#include "sundials/sundials_errors.h"
 #include "sundials_cuda.h"
 #include "sundials_debug.h"
 
@@ -47,10 +49,13 @@ typedef struct SUNMemoryHelper_Content_Cuda_ SUNMemoryHelper_Content_Cuda;
 
 SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx)
 {
+  SUNFunctionBegin(sunctx);
+
   SUNMemoryHelper helper;
 
   /* Allocate the helper */
   helper = SUNMemoryHelper_NewEmpty(sunctx);
+  SUNCheckLastErrNull();
 
   /* Set the ops */
   helper->ops->alloc         = SUNMemoryHelper_Alloc_Cuda;
@@ -64,6 +69,8 @@ SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx)
   /* Attach content */
   helper->content =
     (SUNMemoryHelper_Content_Cuda*)malloc(sizeof(SUNMemoryHelper_Content_Cuda));
+  SUNAssertNull(helper->content, SUN_ERR_MALLOC_FAIL);
+
   SUNHELPER_CONTENT(helper)->num_allocations_host        = 0;
   SUNHELPER_CONTENT(helper)->num_deallocations_host      = 0;
   SUNHELPER_CONTENT(helper)->bytes_allocated_host        = 0;
@@ -86,15 +93,20 @@ SUNMemoryHelper SUNMemoryHelper_Cuda(SUNContext sunctx)
 
 SUNMemoryHelper SUNMemoryHelper_Clone_Cuda(SUNMemoryHelper helper)
 {
+  SUNFunctionBegin(helper->sunctx);
   SUNMemoryHelper hclone = SUNMemoryHelper_Cuda(helper->sunctx);
+  SUNCheckLastErrNull();
   return hclone;
 }
 
-int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
-                               size_t mem_size, SUNMemoryType mem_type,
-                               void* queue)
+SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
+                                      size_t mem_size, SUNMemoryType mem_type,
+                                      void* queue)
 {
+  SUNFunctionBegin(helper->sunctx);
+
   SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
+  SUNCheckLastErr();
 
   mem->ptr   = NULL;
   mem->own   = SUNTRUE;
@@ -104,21 +116,12 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
   if (mem_type == SUNMEMTYPE_HOST)
   {
     mem->ptr = malloc(mem_size);
-    if (mem->ptr == NULL)
-    {
-      SUNDIALS_DEBUG_PRINT(
-        "ERROR in SUNMemoryHelper_Alloc_Cuda: malloc returned NULL\n");
-      free(mem);
-      return (-1);
-    }
-    else
-    {
-      SUNHELPER_CONTENT(helper)->bytes_allocated_host += mem_size;
-      SUNHELPER_CONTENT(helper)->num_allocations_host++;
-      SUNHELPER_CONTENT(helper)->bytes_high_watermark_host =
-        SUNMAX(SUNHELPER_CONTENT(helper)->bytes_allocated_host,
-               SUNHELPER_CONTENT(helper)->bytes_high_watermark_host);
-    }
+    SUNAssert(mem->ptr, SUN_ERR_MALLOC_FAIL);
+    SUNHELPER_CONTENT(helper)->bytes_allocated_host += mem_size;
+    SUNHELPER_CONTENT(helper)->num_allocations_host++;
+    SUNHELPER_CONTENT(helper)->bytes_high_watermark_host =
+      SUNMAX(SUNHELPER_CONTENT(helper)->bytes_allocated_host,
+             SUNHELPER_CONTENT(helper)->bytes_high_watermark_host);
   }
   else if (mem_type == SUNMEMTYPE_PINNED)
   {
@@ -127,7 +130,7 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Cuda: cudaMallocHost failed\n");
       free(mem);
-      return (-1);
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -145,7 +148,7 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Cuda: cudaMalloc failed\n");
       free(mem);
-      return (-1);
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -163,7 +166,7 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Alloc_Cuda: cudaMallocManaged failed\n");
       free(mem);
-      return (-1);
+      return SUN_ERR_EXT_FAIL;
     }
     else
     {
@@ -179,17 +182,17 @@ int SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
     SUNDIALS_DEBUG_PRINT(
       "ERROR in SUNMemoryHelper_Alloc_Cuda: unknown memory type\n");
     free(mem);
-    return (-1);
+    return SUN_ERR_ARG_OUTOFRANGE;
   }
 
   *memptr = mem;
-  return (0);
+  return SUN_SUCCESS;
 }
 
-int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
-                                 void* queue)
+SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
+                                        void* queue)
 {
-  if (mem == NULL) { return (0); }
+  if (mem == NULL) { return SUN_SUCCESS; }
 
   if (mem->ptr != NULL && mem->own)
   {
@@ -208,7 +211,7 @@ int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Cuda: cudaFreeHost failed\n");
-        return (-1);
+        return SUN_ERR_EXT_FAIL;
       }
       mem->ptr = NULL;
     }
@@ -220,7 +223,7 @@ int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Cuda: cudaFree failed\n");
-        return (-1);
+        return SUN_ERR_EXT_FAIL;
       }
       mem->ptr = NULL;
     }
@@ -232,7 +235,7 @@ int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in SUNMemoryHelper_Dealloc_Cuda: cudaFree failed\n");
-        return (-1);
+        return SUN_ERR_EXT_FAIL;
       }
       mem->ptr = NULL;
     }
@@ -240,18 +243,19 @@ int SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
     {
       SUNDIALS_DEBUG_PRINT(
         "ERROR in SUNMemoryHelper_Dealloc_Cuda: unknown memory type\n");
-      return (-1);
+      return SUN_ERR_EXT_FAIL;
     }
   }
 
   free(mem);
-  return (0);
+  return SUN_SUCCESS;
 }
 
-int SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, SUNMemory dst,
-                              SUNMemory src, size_t memory_size, void* queue)
+SUNErrCode SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, SUNMemory dst,
+                                     SUNMemory src, size_t memory_size,
+                                     void* queue)
 {
-  int retval        = 0;
+  int retval        = SUN_SUCCESS;
   cudaError_t cuerr = cudaSuccess;
 
   switch (src->type)
@@ -266,7 +270,7 @@ int SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, SUNMemory dst,
     {
       cuerr = cudaMemcpy(dst->ptr, src->ptr, memory_size, cudaMemcpyHostToDevice);
     }
-    if (!SUNDIALS_CUDA_VERIFY(cuerr)) { retval = -1; }
+    if (!SUNDIALS_CUDA_VERIFY(cuerr)) { retval = SUN_ERR_EXT_FAIL; }
     break;
   case SUNMEMTYPE_UVM:
   case SUNMEMTYPE_DEVICE:
@@ -279,21 +283,22 @@ int SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, SUNMemory dst,
       cuerr = cudaMemcpy(dst->ptr, src->ptr, memory_size,
                          cudaMemcpyDeviceToDevice);
     }
-    if (!SUNDIALS_CUDA_VERIFY(cuerr)) { retval = -1; }
+    if (!SUNDIALS_CUDA_VERIFY(cuerr)) { retval = SUN_ERR_EXT_FAIL; }
     break;
   default:
     SUNDIALS_DEBUG_PRINT(
       "ERROR in SUNMemoryHelper_CopyAsync_Cuda: unknown memory type\n");
-    retval = -1;
+    retval = SUN_ERR_OUTOFRANGE;
   }
 
   return (retval);
 }
 
-int SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, SUNMemory dst,
-                                   SUNMemory src, size_t memory_size, void* queue)
+SUNErrCode SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, SUNMemory dst,
+                                          SUNMemory src, size_t memory_size,
+                                          void* queue)
 {
-  int retval          = 0;
+  int retval          = SUN_SUCCESS;
   cudaError_t cuerr   = cudaSuccess;
   cudaStream_t stream = 0;
 
@@ -312,7 +317,7 @@ int SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, SUNMemory dst,
       cuerr = cudaMemcpyAsync(dst->ptr, src->ptr, memory_size,
                               cudaMemcpyHostToDevice, stream);
     }
-    if (!SUNDIALS_CUDA_VERIFY(cuerr)) { retval = -1; }
+    if (!SUNDIALS_CUDA_VERIFY(cuerr)) { retval = SUN_ERR_EXT_FAIL; }
     break;
   case SUNMEMTYPE_UVM:
   case SUNMEMTYPE_DEVICE:
@@ -326,18 +331,18 @@ int SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, SUNMemory dst,
       cuerr = cudaMemcpyAsync(dst->ptr, src->ptr, memory_size,
                               cudaMemcpyDeviceToDevice, stream);
     }
-    if (!SUNDIALS_CUDA_VERIFY(cuerr)) { retval = -1; }
+    if (!SUNDIALS_CUDA_VERIFY(cuerr)) { retval = SUN_ERR_EXT_FAIL; }
     break;
   default:
     SUNDIALS_DEBUG_PRINT(
       "ERROR in SUNMemoryHelper_CopyAsync_Cuda: unknown memory type\n");
-    retval = -1;
+    retval = SUN_ERR_OUTOFRANGE;
   }
 
   return (retval);
 }
 
-int SUNMemoryHelper_Destroy_Cuda(SUNMemoryHelper helper)
+SUNErrCode SUNMemoryHelper_Destroy_Cuda(SUNMemoryHelper helper)
 {
   if (helper)
   {
@@ -345,15 +350,15 @@ int SUNMemoryHelper_Destroy_Cuda(SUNMemoryHelper helper)
     if (helper->ops) { free(helper->ops); }
     free(helper);
   }
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int SUNMemoryHelper_GetAllocStats_Cuda(SUNMemoryHelper helper,
-                                       SUNMemoryType mem_type,
-                                       unsigned long* num_allocations,
-                                       unsigned long* num_deallocations,
-                                       size_t* bytes_allocated,
-                                       size_t* bytes_high_watermark)
+SUNErrCode SUNMemoryHelper_GetAllocStats_Cuda(SUNMemoryHelper helper,
+                                              SUNMemoryType mem_type,
+                                              unsigned long* num_allocations,
+                                              unsigned long* num_deallocations,
+                                              size_t* bytes_allocated,
+                                              size_t* bytes_high_watermark)
 {
   if (mem_type == SUNMEMTYPE_HOST)
   {
@@ -383,6 +388,6 @@ int SUNMemoryHelper_GetAllocStats_Cuda(SUNMemoryHelper helper,
     *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated_uvm;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_uvm;
   }
-  else { return -1; }
-  return 0;
+  else { return SUN_ERR_ARG_OUTOFRANGE; }
+  return SUN_SUCCESS;
 }

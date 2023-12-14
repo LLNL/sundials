@@ -121,7 +121,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
   }
   retval = SUNAdaptController_EstimateStep(hadapt_mem->hcontroller, hcur,
                                            controller_order, dsm, &h_acc);
-  if (retval != SUNADAPTCONTROLLER_SUCCESS)
+  if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__, __FILE__,
                     "SUNAdaptController_EstimateStep failure.");
