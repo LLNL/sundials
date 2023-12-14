@@ -85,8 +85,6 @@ module fcvode_mod
  public :: FCVodeWFtolerances
  public :: FCVodeSetConstraints
  public :: FCVodeSetDeltaGammaMaxLSetup
- public :: FCVodeSetErrFile
- public :: FCVodeSetErrHandlerFn
  public :: FCVodeSetInitStep
  public :: FCVodeSetLSetupFrequency
  public :: FCVodeSetMaxConvFails
@@ -298,25 +296,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetErrFile(farg1, farg2) &
-bind(C, name="_wrap_FCVodeSetErrFile") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetErrHandlerFn(farg1, farg2, farg3) &
-bind(C, name="_wrap_FCVodeSetErrHandlerFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -1524,41 +1503,6 @@ real(C_DOUBLE) :: farg2
 farg1 = cvode_mem
 farg2 = dgmax_lsetup
 fresult = swigc_FCVodeSetDeltaGammaMaxLSetup(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetErrFile(cvode_mem, errfp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-type(C_PTR) :: errfp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = cvode_mem
-farg2 = errfp
-fresult = swigc_FCVodeSetErrFile(farg1, farg2)
-swig_result = fresult
-end function
-
-function FCVodeSetErrHandlerFn(cvode_mem, ehfun, eh_data) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-type(C_FUNPTR), intent(in), value :: ehfun
-type(C_PTR) :: eh_data
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = cvode_mem
-farg2 = ehfun
-farg3 = eh_data
-fresult = swigc_FCVodeSetErrHandlerFn(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

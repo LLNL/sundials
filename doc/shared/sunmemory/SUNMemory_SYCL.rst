@@ -66,10 +66,10 @@ The implementation provides the following operations defined by the
 
    **Returns:**
 
-   * An ``int`` flag indicating success (zero) or failure (non-zero).
+   * A new :c:type:`SUNMemory` object.
 
 
-.. c:function:: int SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, \
+.. c:function:: SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, \
                                                  SUNMemory mem, void* queue)
 
    Deallocates the ``mem->ptr`` field if it is owned by ``mem``, and then
@@ -84,10 +84,10 @@ The implementation provides the following operations defined by the
 
    **Returns:**
 
-   * An ``int`` flag indicating success (zero) or failure (non-zero).
+   * A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: int SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, \
+.. c:function:: SUNErrCode SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, \
                                               SUNMemory dst, SUNMemory src, \
                                               size_t mem_size, void* queue)
 
@@ -108,10 +108,10 @@ The implementation provides the following operations defined by the
 
    **Returns:**
 
-   * An ``int`` flag indicating success (zero) or failure (non-zero).
+   * A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: int SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, \
+.. c:function:: SUNErrCode SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, \
                                                    SUNMemory dst, \
                                                    SUNMemory src, \
                                                    size_t mem_size, void* queue)
@@ -133,10 +133,10 @@ The implementation provides the following operations defined by the
 
    **Returns:**
 
-   * An ``int`` flag indicating success (zero) or failure (non-zero).
+   * A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: int SUNMemoryHelper_GetAllocStats_Sycl(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations, \
+.. c:function:: SUNErrCode SUNMemoryHelper_GetAllocStats_Sycl(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations, \
                                                        unsigned long* num_deallocations, size_t* bytes_allocated, \
                                                        size_t* bytes_high_watermark)
 
@@ -153,4 +153,4 @@ The implementation provides the following operations defined by the
 
    **Returns:**
 
-   * An ``int`` flag indicating success (zero) or failure (non-zero).
+   * A :c:type:`SUNErrCode` indicating success or failure.

@@ -534,7 +534,7 @@ int arkLSSetJacFn(void* arkode_mem, ARKLsJacFn jac)
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetJacFn", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* return with failure if jac cannot be used */
@@ -577,8 +577,7 @@ int arkLSSetMassFn(void* arkode_mem, ARKLsMassFn mass)
   int retval;
 
   /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSSetMassFn", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* return with failure if mass cannot be used */
@@ -613,7 +612,7 @@ int arkLSSetEpsLin(void* arkode_mem, sunrealtype eplifac)
   int retval;
 
   /* access ARKLsMem structure; store input and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetEpsLin", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   arkls_mem->eplifac = (eplifac <= ZERO) ? ARKLS_EPLIN : eplifac;
 
@@ -632,8 +631,7 @@ int arkLSSetNormFactor(void* arkode_mem, sunrealtype nrmfac)
   int retval;
 
   /* access ARKLsMem structure; store input and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetNormFactor", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   if (nrmfac > ZERO)
@@ -667,8 +665,7 @@ int arkLSSetJacEvalFrequency(void* arkode_mem, long int msbj)
   int retval;
 
   /* access ARKLsMem structure; store input and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetJacEvalFrequency", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   arkls_mem->msbj = (msbj <= ZERO) ? ARKLS_MSBJ : msbj;
 
@@ -686,8 +683,7 @@ int arkLSSetLinearSolutionScaling(void* arkode_mem, sunbooleantype onoff)
   int retval;
 
   /* access ARKLsMem structure; store input and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetLinearSolutionScaling",
-                            &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* check for valid solver type */
@@ -713,8 +709,7 @@ int arkLSSetPreconditioner(void* arkode_mem, ARKLsPrecSetupFn psetup,
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetPreconditioner", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* issue error if LS object does not allow user-supplied preconditioning */
@@ -757,7 +752,7 @@ int arkLSSetJacTimes(void* arkode_mem, ARKLsJacTimesSetupFn jtsetup,
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetJacTimes", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* issue error if LS object does not allow user-supplied ATimes */
@@ -808,8 +803,7 @@ int arkLSSetJacTimesRhsFn(void* arkode_mem, ARKRhsFn jtimesRhsFn)
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetJacTimesRhsFn", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* check if using internal finite difference approximation */
@@ -845,7 +839,7 @@ int arkLSSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys)
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetJacFn", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return (retval); }
 
   /* return with failure if linsys cannot be used */
@@ -881,7 +875,7 @@ int arkLSSetUserData(void* arkode_mem, void* user_data)
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSSetUserData", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return (retval); }
 
   /* Set data for Jacobian */
@@ -910,7 +904,7 @@ int arkLSGetJac(void* arkode_mem, SUNMatrix* J)
   int retval;
 
   /* access ARKLsMem structure; set output and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetJac", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return retval; }
   *J = arkls_mem->savedJ;
   return ARKLS_SUCCESS;
@@ -923,7 +917,7 @@ int arkLSGetJacTime(void* arkode_mem, sunrealtype* t_J)
   int retval;
 
   /* access ARKLsMem structure; set output and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetJacTime", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return retval; }
   *t_J = arkls_mem->tnlj;
   return ARKLS_SUCCESS;
@@ -936,8 +930,7 @@ int arkLSGetJacNumSteps(void* arkode_mem, long int* nst_J)
   int retval;
 
   /* access ARKLsMem structure; set output and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetJacNumSteps", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return retval; }
   *nst_J = arkls_mem->nstlj;
   return ARKLS_SUCCESS;
@@ -956,8 +949,7 @@ int arkLSGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetWorkSpace", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* start with fixed sizes plus vector/matrix pointers */
@@ -1010,8 +1002,7 @@ int arkLSGetNumJacEvals(void* arkode_mem, long int* njevals)
   int retval;
 
   /* access ARKLsMem structure; set output value and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetNumJacEvals", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *njevals = arkls_mem->nje;
   return (ARKLS_SUCCESS);
@@ -1029,8 +1020,7 @@ int arkLSGetNumRhsEvals(void* arkode_mem, long int* nfevalsLS)
   int retval;
 
   /* access ARKLsMem structure; set output value and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetNumRhsEvals", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *nfevalsLS = arkls_mem->nfeDQ;
   return (ARKLS_SUCCESS);
@@ -1047,8 +1037,7 @@ int arkLSGetNumPrecEvals(void* arkode_mem, long int* npevals)
   int retval;
 
   /* access ARKLsMem structure; set output value and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetNumPrecEvals", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *npevals = arkls_mem->npe;
   return (ARKLS_SUCCESS);
@@ -1065,8 +1054,7 @@ int arkLSGetNumPrecSolves(void* arkode_mem, long int* npsolves)
   int retval;
 
   /* access ARKLsMem structure; set output value and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetNumPrecSolves", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *npsolves = arkls_mem->nps;
   return (ARKLS_SUCCESS);
@@ -1083,8 +1071,7 @@ int arkLSGetNumLinIters(void* arkode_mem, long int* nliters)
   int retval;
 
   /* access ARKLsMem structure; set output value and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetNumLinIters", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *nliters = arkls_mem->nli;
   return (ARKLS_SUCCESS);
@@ -1101,8 +1088,7 @@ int arkLSGetNumConvFails(void* arkode_mem, long int* nlcfails)
   int retval;
 
   /* access ARKLsMem structure; set output value and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetNumConvFails", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *nlcfails = arkls_mem->ncfl;
   return (ARKLS_SUCCESS);
@@ -1119,8 +1105,7 @@ int arkLSGetNumJTSetupEvals(void* arkode_mem, long int* njtsetups)
   int retval;
 
   /* access ARKLsMem structure; set output value and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetNumJTSetupEvals", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *njtsetups = arkls_mem->njtsetup;
   return (ARKLS_SUCCESS);
@@ -1137,8 +1122,7 @@ int arkLSGetNumJtimesEvals(void* arkode_mem, long int* njvevals)
   int retval;
 
   /* access ARKLsMem structure; set output value and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetNumJtimesEvals", &ark_mem,
-                            &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *njvevals = arkls_mem->njtimes;
   return (ARKLS_SUCCESS);
@@ -1155,8 +1139,7 @@ int arkLSGetNumMassMatvecSetups(void* arkode_mem, long int* nmvsetups)
   int retval;
 
   /* access ARKMassMem structure; set output value and return */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetNumMassMatvecSetups",
-                               &ark_mem, &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *nmvsetups = arkls_mem->nmvsetup;
   return (ARKLS_SUCCESS);
@@ -1173,7 +1156,7 @@ int arkLSGetLastFlag(void* arkode_mem, long int* flag)
   int retval;
 
   /* access ARKLsMem structure; set output value and return */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLSGetLastFlag", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *flag = arkls_mem->last_flag;
   return (ARKLS_SUCCESS);
@@ -1219,8 +1202,7 @@ int arkLSSetMassEpsLin(void* arkode_mem, sunrealtype eplifac)
   int retval;
 
   /* access ARKLsMassMem structure; store input and return */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSSetMassEpsLin", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   arkls_mem->eplifac = (eplifac <= ZERO) ? ARKLS_EPLIN : eplifac;
 
@@ -1239,8 +1221,7 @@ int arkLSSetMassNormFactor(void* arkode_mem, sunrealtype nrmfac)
   int retval;
 
   /* access ARKLsMem structure; store input and return */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSSetMassNormFactor", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   if (nrmfac > ZERO)
@@ -1277,8 +1258,7 @@ int arkLSSetMassPreconditioner(void* arkode_mem, ARKLsMassPrecSetupFn psetup,
   int retval;
 
   /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSSetMassPreconditioner",
-                               &ark_mem, &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* issue error if LS object does not allow user-supplied preconditioning */
@@ -1321,8 +1301,7 @@ int arkLSSetMassTimes(void* arkode_mem, ARKLsMassTimesSetupFn mtsetup,
   int retval;
 
   /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSSetMassTimes", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* issue error if mtimes function is unusable */
@@ -1367,8 +1346,7 @@ int arkLSSetMassUserData(void* arkode_mem, void* user_data)
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSSetMassUserData", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return (retval); }
 
   /* Set data for mass matrix */
@@ -1394,8 +1372,7 @@ int arkLSGetMassWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
   int retval;
 
   /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetMassWorkSpace", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* start with fixed sizes plus vector/matrix pointers */
@@ -1449,8 +1426,7 @@ int arkLSGetNumMassSetups(void* arkode_mem, long int* nmsetups)
   int retval;
 
   /* access ARKLsMassMem structure; set output value and return */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetNumMassSetups", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *nmsetups = arkls_mem->nmsetups;
   return (ARKLS_SUCCESS);
@@ -1467,8 +1443,7 @@ int arkLSGetNumMassMult(void* arkode_mem, long int* nmvevals)
   int retval;
 
   /* access ARKLsMassMem structure; set output value and return */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetNumMassMult", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *nmvevals = arkls_mem->nmtimes;
   return (ARKLS_SUCCESS);
@@ -1485,8 +1460,7 @@ int arkLSGetNumMassSolves(void* arkode_mem, long int* nmsolves)
   int retval;
 
   /* access ARKLsMassMem structure; set output value and return */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetNumMassSolves", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *nmsolves = arkls_mem->nmsolves;
   return (ARKLS_SUCCESS);
@@ -1503,8 +1477,7 @@ int arkLSGetNumMassPrecEvals(void* arkode_mem, long int* npevals)
   int retval;
 
   /* access ARKLsMassMem structure; set output value and return */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetNumMassPrecEvals", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *npevals = arkls_mem->npe;
   return (ARKLS_SUCCESS);
@@ -1521,8 +1494,7 @@ int arkLSGetNumMassPrecSolves(void* arkode_mem, long int* npsolves)
   int retval;
 
   /* access ARKLsMassMem structure; set output value and return */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetNumMassPrecSolves",
-                               &ark_mem, &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *npsolves = arkls_mem->nps;
   return (ARKLS_SUCCESS);
@@ -1539,8 +1511,7 @@ int arkLSGetNumMassIters(void* arkode_mem, long int* nmiters)
   int retval;
 
   /* access ARKLsMassMem structure; set output value and return */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetNumMassIters", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *nmiters = arkls_mem->nli;
   return (ARKLS_SUCCESS);
@@ -1557,8 +1528,7 @@ int arkLSGetNumMassConvFails(void* arkode_mem, long int* nmcfails)
   int retval;
 
   /* access ARKLsMassMem structure; set output value and return */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetNumMassConvFails", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *nmcfails = arkls_mem->ncfl;
   return (ARKLS_SUCCESS);
@@ -1574,8 +1544,7 @@ int arkLSGetCurrentMassMatrix(void* arkode_mem, SUNMatrix* M)
   int retval;
 
   /* access ARKLsMassMem structure; set output value and return */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetCurrentMassMatrix",
-                               &ark_mem, &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *M = arkls_mem->M;
   return (ARKLS_SUCCESS);
@@ -1592,8 +1561,7 @@ int arkLSGetNumMTSetups(void* arkode_mem, long int* nmtsetups)
   int retval;
 
   /* access ARKLsMassMem structure; set output value and return */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetNumMTSetups", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *nmtsetups = arkls_mem->nmtsetup;
   return (ARKLS_SUCCESS);
@@ -1610,8 +1578,7 @@ int arkLSGetLastMassFlag(void* arkode_mem, long int* flag)
   int retval;
 
   /* access ARKLsMassMem structure; set output value and return */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetLastMassFlag", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *flag = arkls_mem->last_flag;
   return (ARKLS_SUCCESS);
@@ -1642,7 +1609,7 @@ int arkLsATimes(void* arkode_mem, N_Vector v, N_Vector z)
   sunbooleantype dgamma_fail, *jcur;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLsATimes", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Access mass matrix solver (if it exists) */
@@ -1701,7 +1668,7 @@ int arkLsPSetup(void* arkode_mem)
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLsPSetup", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get gamma values from time step module */
@@ -1742,7 +1709,7 @@ int arkLsPSolve(void* arkode_mem, N_Vector r, N_Vector z, sunrealtype tol, int l
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLsPSolve", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get gamma values from time step module */
@@ -1777,7 +1744,7 @@ int arkLsMTimes(void* arkode_mem, N_Vector v, N_Vector z)
   int retval;
 
   /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLsMTimes", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* perform multiply by either calling the user-supplied routine
@@ -1833,7 +1800,7 @@ int arkLsMPSetup(void* arkode_mem)
   int retval;
 
   /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLsMPSetup", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* only proceed if the mass matrix is time-independent or if
@@ -1864,7 +1831,7 @@ int arkLsMPSolve(void* arkode_mem, N_Vector r, N_Vector z, sunrealtype tol, int 
   int retval;
 
   /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLsMPSolve", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* call the user-supplied psolve routine, and accumulate count */
@@ -1889,7 +1856,7 @@ int arkLsDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLsDQJac", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* verify that Jac is non-NULL */
@@ -2163,7 +2130,7 @@ int arkLsDQJtimes(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
   int iter, retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLsDQJtimes", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Initialize perturbation to 1/||v|| */
@@ -2209,7 +2176,7 @@ static int arkLsLinSys(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLsLinSys", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return (retval); }
 
   /* Check if Jacobian needs to be updated */
@@ -2301,7 +2268,7 @@ int arkLsInitialize(void* arkode_mem)
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLsInitialize", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* access ARKLsMassMem (if applicable) */
@@ -2310,7 +2277,7 @@ int arkLsInitialize(void* arkode_mem)
   {
     if (ark_mem->step_getmassmem(arkode_mem) != NULL)
     {
-      retval = arkLs_AccessMassMem(arkode_mem, "arkLsInitialize", &ark_mem,
+      retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem,
                                    &arkls_massmem);
       if (retval != ARK_SUCCESS) { return (retval); }
     }
@@ -2493,7 +2460,7 @@ int arkLsSetup(void* arkode_mem, int convfail, sunrealtype tpred,
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLsSetup", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Immediately return when using matrix-embedded linear solver */
@@ -2636,7 +2603,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
   int nli_inc, retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, "arkLsSolve", &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Set scalar tcur and vectors ycur and fcur for use by the
@@ -2879,8 +2846,7 @@ int arkLsMassInitialize(void* arkode_mem)
   int retval;
 
   /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLsMassInitialize", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* reset counters */
@@ -2958,8 +2924,7 @@ int arkLsMassSetup(void* arkode_mem, sunrealtype t, N_Vector vtemp1,
   int retval;
 
   /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLsMassSetup", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Immediately return when using matrix-embedded linear solver */
@@ -3113,8 +3078,7 @@ int arkLsMassSolve(void* arkode_mem, N_Vector b, sunrealtype nlscoef)
   int nli_inc, retval;
 
   /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, "arkLsMassSolve", &ark_mem,
-                               &arkls_mem);
+  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Set input tolerance for iterative solvers (in 2-norm) */
@@ -3357,7 +3321,7 @@ int arkLs_AccessLMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
   void* ark_step_lmem;
   if (arkode_mem == NULL)
   {
-    arkProcessError(NULL, ARKLS_MEM_NULL, __LINE__, __func__, __FILE__,
+    arkProcessError(NULL, ARKLS_MEM_NULL, __LINE__, fname, __FILE__,
                     MSG_LS_ARKMEM_NULL);
     return (ARKLS_MEM_NULL);
   }
@@ -3365,7 +3329,7 @@ int arkLs_AccessLMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
   ark_step_lmem = (*ark_mem)->step_getlinmem(arkode_mem);
   if (ark_step_lmem == NULL)
   {
-    arkProcessError(*ark_mem, ARKLS_LMEM_NULL, __LINE__, __func__, __FILE__,
+    arkProcessError(*ark_mem, ARKLS_LMEM_NULL, __LINE__, fname, __FILE__,
                     MSG_LS_LMEM_NULL);
     return (ARKLS_LMEM_NULL);
   }
@@ -3379,7 +3343,7 @@ int arkLs_AccessMassMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
   void* ark_step_massmem;
   if (arkode_mem == NULL)
   {
-    arkProcessError(NULL, ARKLS_MEM_NULL, __LINE__, __func__, __FILE__,
+    arkProcessError(NULL, ARKLS_MEM_NULL, __LINE__, fname, __FILE__,
                     MSG_LS_ARKMEM_NULL);
     return (ARKLS_MEM_NULL);
   }
@@ -3387,7 +3351,7 @@ int arkLs_AccessMassMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
   ark_step_massmem = (*ark_mem)->step_getmassmem(arkode_mem);
   if (ark_step_massmem == NULL)
   {
-    arkProcessError(*ark_mem, ARKLS_MASSMEM_NULL, __LINE__, __func__, __FILE__,
+    arkProcessError(*ark_mem, ARKLS_MASSMEM_NULL, __LINE__, fname, __FILE__,
                     MSG_LS_MASSMEM_NULL);
     return (ARKLS_MASSMEM_NULL);
   }

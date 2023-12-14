@@ -145,10 +145,6 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
   free(msg);
 }
 
-#ifdef __cplusplus
-}
-#endif
-
 /*
   The SUNCTX_ macro expands to the name of the local SUNContext object
   defined by SUNFunctionBegin. SUNCTX_ should be used to reference the
@@ -504,6 +500,10 @@ void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
 #define SUNAssertVoid(expr, code) SUNCheckVoid(expr, code)
 #else
 #define SUNAssertVoid(expr, code) SUNAssume(expr)
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* _SUNDIALS_ERRORS_IMPL_H */

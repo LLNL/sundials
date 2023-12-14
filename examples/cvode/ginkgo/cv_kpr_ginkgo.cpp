@@ -32,6 +32,7 @@
 // Include integrator, matrix, linear solver, and vector headers
 #include <cvode/cvode.h>
 #include <nvector/nvector_serial.h>
+#include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_ginkgo.hpp>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 

@@ -127,8 +127,6 @@ are in bold.
    parameters with respect to which the sensitivities are computed may also be
    provided to :c:func:`IDASetSensParams`.
 
-   check :c:func:`IDASetErrFile`
-
 #. **Set sensitivity integration tolerances (optional)**
 
    Call :c:func:`IDASensSStolerances` or :c:func:`IDASensSVtolerances` to set

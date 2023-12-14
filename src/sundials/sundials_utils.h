@@ -24,7 +24,8 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
 
-static char* sunCombineFileAndLine(int line, const char* file)
+SUNDIALS_STATIC_INLINE
+char* sunCombineFileAndLine(int line, const char* file)
 {
   size_t total_str_len = strlen(file) + 6;
   char* file_and_line  = (char*)malloc(total_str_len * sizeof(char));
@@ -32,8 +33,8 @@ static char* sunCombineFileAndLine(int line, const char* file)
   return file_and_line;
 }
 
-static int sunvsnprintf(char* buffer, size_t bufsz, const char* format,
-                        va_list vlist)
+SUNDIALS_STATIC_INLINE
+int sunvsnprintf(char* buffer, size_t bufsz, const char* format, va_list vlist)
 {
   int size = 0;
 #ifdef SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY
@@ -53,7 +54,8 @@ static int sunvsnprintf(char* buffer, size_t bufsz, const char* format,
   return size;
 }
 
-static int sunsnprintf(char* buffer, size_t bufsz, const char* format, ...)
+SUNDIALS_STATIC_INLINE
+int sunsnprintf(char* buffer, size_t bufsz, const char* format, ...)
 {
   int size = 0;
   va_list args;
@@ -68,7 +70,8 @@ static int sunsnprintf(char* buffer, size_t bufsz, const char* format, ...)
  * is itself an analog for vsprintf, except it allocates a string
  * large enough to hold the output byte ('\0').
  */
-static int sunvasnprintf(char** str, const char* fmt, va_list args)
+SUNDIALS_STATIC_INLINE
+int sunvasnprintf(char** str, const char* fmt, va_list args)
 {
   int size = 0;
 

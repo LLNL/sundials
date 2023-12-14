@@ -22,13 +22,16 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
-#include <nvector/nvector_cuda.h>     // access to the cuda N_Vector
-#include <nvector/nvector_mpiplusx.h> // to be used with the MPI + X N_Vector
 #include <random>
 #include <sstream>
 
-#include "kinsol/kinsol.h" // access to KINSOL
-#include "mpi.h"           // MPI header file
+// SUNDIALS headers
+#include <kinsol/kinsol.h>            // access to KINSOL
+#include <nvector/nvector_cuda.h>     // access to the cuda N_Vector
+#include <nvector/nvector_mpiplusx.h> // to be used with the MPI + X N_Vector
+#include <sundials/sundials_core.hpp>
+
+#include "mpi.h" // MPI header file
 
 // Macros for problem constants
 #define PI      SUN_RCONST(3.141592653589793238462643383279502884197169)
