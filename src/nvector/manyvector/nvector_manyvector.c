@@ -2119,7 +2119,7 @@ static int SubvectorMPIRank(N_Vector x)
   {
     int status = MPI_Comm_rank(comm, &rank);
     SUNCheckMPICallNoRet(status);
-    if (status != MPI_SUCCESS) { return SUN_ERR_GENERIC; }
+    if (status != MPI_SUCCESS) { return -1; }
   }
 
   return rank;
