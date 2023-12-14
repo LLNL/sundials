@@ -24,6 +24,7 @@
 
 #include "VectorArrayKernels.hip.hpp"
 #include "VectorKernels.hip.hpp"
+#include "sundials/sundials_errors.h"
 #include "sundials_debug.h"
 #include "sundials_hip.h"
 
@@ -507,7 +508,6 @@ SUNErrCode N_VSetKernelExecPolicy_Hip(N_Vector x,
   }
 
   return SUN_SUCCESS;
-  ;
 }
 
 /* ----------------------------------------------------------------------------
@@ -1372,7 +1372,6 @@ SUNErrCode N_VLinearCombination_Hip(int nvec, sunrealtype* c, N_Vector* X,
   if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VScaleAddMulti_Hip(int nvec, sunrealtype* c, N_Vector X,
@@ -1434,7 +1433,6 @@ SUNErrCode N_VScaleAddMulti_Hip(int nvec, sunrealtype* c, N_Vector X,
   if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y,
@@ -1490,7 +1488,6 @@ SUNErrCode N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y,
   if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   return SUN_SUCCESS;
-  ;
 }
 
 /*
@@ -1562,7 +1559,6 @@ SUNErrCode N_VLinearSumVectorArray_Hip(int nvec, sunrealtype a, N_Vector* X,
   if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VScaleVectorArray_Hip(int nvec, sunrealtype* c, N_Vector* X,
@@ -1624,7 +1620,6 @@ SUNErrCode N_VScaleVectorArray_Hip(int nvec, sunrealtype* c, N_Vector* X,
   if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VConstVectorArray_Hip(int nvec, sunrealtype c, N_Vector* Z)
@@ -1663,7 +1658,6 @@ SUNErrCode N_VConstVectorArray_Hip(int nvec, sunrealtype c, N_Vector* Z)
   if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
@@ -1736,7 +1730,6 @@ SUNErrCode N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
@@ -1810,7 +1803,6 @@ SUNErrCode N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VScaleAddMultiVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
@@ -1901,7 +1893,6 @@ SUNErrCode N_VScaleAddMultiVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
   if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VLinearCombinationVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
@@ -1982,7 +1973,6 @@ SUNErrCode N_VBufSize_Hip(N_Vector x, sunindextype* size)
   if (x == NULL) { return SUN_ERR_GENERIC; }
   *size = (sunindextype)NVEC_HIP_MEMSIZE(x);
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VBufPack_Hip(N_Vector x, void* buf)
@@ -2007,7 +1997,8 @@ SUNErrCode N_VBufPack_Hip(N_Vector x, void* buf)
   SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem,
                           (void*)NVEC_HIP_STREAM(x));
 
-  return (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail ? -1 : 0);
+  if (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail) { return SUN_ERR_GENERIC; }
+  else { return SUN_SUCCESS; }
 }
 
 SUNErrCode N_VBufUnpack_Hip(N_Vector x, void* buf)
@@ -2032,7 +2023,8 @@ SUNErrCode N_VBufUnpack_Hip(N_Vector x, void* buf)
   SUNMemoryHelper_Dealloc(NVEC_HIP_MEMHELP(x), buf_mem,
                           (void*)NVEC_HIP_STREAM(x));
 
-  return (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail ? -1 : 0);
+  if (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail) { return SUN_ERR_GENERIC; }
+  else { return SUN_SUCCESS; }
 }
 
 /*
@@ -2086,7 +2078,6 @@ SUNErrCode N_VEnableFusedOps_Hip(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableLinearCombination_Hip(N_Vector v, sunbooleantype tf)
@@ -2103,7 +2094,6 @@ SUNErrCode N_VEnableLinearCombination_Hip(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableScaleAddMulti_Hip(N_Vector v, sunbooleantype tf)
@@ -2120,7 +2110,6 @@ SUNErrCode N_VEnableScaleAddMulti_Hip(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableDotProdMulti_Hip(N_Vector v, sunbooleantype tf)
@@ -2145,7 +2134,6 @@ SUNErrCode N_VEnableDotProdMulti_Hip(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableLinearSumVectorArray_Hip(N_Vector v, sunbooleantype tf)
@@ -2162,7 +2150,6 @@ SUNErrCode N_VEnableLinearSumVectorArray_Hip(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableScaleVectorArray_Hip(N_Vector v, sunbooleantype tf)
@@ -2179,7 +2166,6 @@ SUNErrCode N_VEnableScaleVectorArray_Hip(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableConstVectorArray_Hip(N_Vector v, sunbooleantype tf)
@@ -2196,7 +2182,6 @@ SUNErrCode N_VEnableConstVectorArray_Hip(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableWrmsNormVectorArray_Hip(N_Vector v, sunbooleantype tf)
@@ -2213,7 +2198,6 @@ SUNErrCode N_VEnableWrmsNormVectorArray_Hip(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableWrmsNormMaskVectorArray_Hip(N_Vector v, sunbooleantype tf)
@@ -2233,7 +2217,6 @@ SUNErrCode N_VEnableWrmsNormMaskVectorArray_Hip(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, sunbooleantype tf)
@@ -2253,7 +2236,6 @@ SUNErrCode N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, sunbooleantype tf)
@@ -2273,7 +2255,6 @@ SUNErrCode N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, sunbooleantype 
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 } // extern "C"
@@ -2288,11 +2269,7 @@ int AllocateData(N_Vector v)
   N_VectorContent_Hip vc         = NVEC_HIP_CONTENT(v);
   N_PrivateVectorContent_Hip vcp = NVEC_HIP_PRIVATE(v);
 
-  if (N_VGetLength_Hip(v) == 0)
-  {
-    return SUN_SUCCESS;
-    ;
-  }
+  if (N_VGetLength_Hip(v) == 0) { return SUN_SUCCESS; }
 
   if (vcp->use_managed_mem)
   {
@@ -2327,7 +2304,7 @@ int AllocateData(N_Vector v)
     }
   }
 
-  return (alloc_fail ? -1 : 0);
+  return (alloc_fail ? SUN_ERR_GENERIC : SUN_SUCCESS);
 }
 
 /*
@@ -2466,7 +2443,8 @@ static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
 
   /* we synchronize with respect to the host, but only in this stream */
   cuerr = hipStreamSynchronize(*NVEC_HIP_STREAM(v));
-  return (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail ? -1 : 0);
+  if (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail) { return SUN_ERR_GENERIC; }
+  else { return SUN_SUCCESS; }
 }
 
 static int InitializeDeviceCounter(N_Vector v)
@@ -2560,7 +2538,6 @@ static int GetKernelParameters(N_Vector v, sunbooleantype reduction,
   }
 
   return SUN_SUCCESS;
-  ;
 }
 
 static int GetKernelParameters(N_Vector v, sunbooleantype reduction,

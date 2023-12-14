@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
 
+#include "sundials/sundials_errors.h"
 #include "sundials/sundials_nvector.h"
 
 #define ZERO   SUN_RCONST(0.0)
@@ -970,7 +971,6 @@ SUNErrCode N_VLinearCombination_ParHyp(int nvec, sunrealtype* c, N_Vector* X,
   {
     N_VScale_ParHyp(c[0], X[0], z);
     return SUN_SUCCESS;
-    ;
   }
 
   /* should have called N_VLinearSum */
@@ -978,7 +978,6 @@ SUNErrCode N_VLinearCombination_ParHyp(int nvec, sunrealtype* c, N_Vector* X,
   {
     N_VLinearSum_ParHyp(c[0], X[0], c[1], X[1], z);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector length and data array */
@@ -996,7 +995,6 @@ SUNErrCode N_VLinearCombination_ParHyp(int nvec, sunrealtype* c, N_Vector* X,
       for (j = 0; j < N; j++) { zd[j] += c[i] * xd[j]; }
     }
     return SUN_SUCCESS;
-    ;
   }
 
   /*
@@ -1011,7 +1009,6 @@ SUNErrCode N_VLinearCombination_ParHyp(int nvec, sunrealtype* c, N_Vector* X,
       for (j = 0; j < N; j++) { zd[j] += c[i] * xd[j]; }
     }
     return SUN_SUCCESS;
-    ;
   }
 
   /*
@@ -1025,7 +1022,6 @@ SUNErrCode N_VLinearCombination_ParHyp(int nvec, sunrealtype* c, N_Vector* X,
     for (j = 0; j < N; j++) { zd[j] += c[i] * xd[j]; }
   }
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VScaleAddMulti_ParHyp(int nvec, sunrealtype* a, N_Vector x,
@@ -1045,7 +1041,6 @@ SUNErrCode N_VScaleAddMulti_ParHyp(int nvec, sunrealtype* a, N_Vector x,
   {
     N_VLinearSum_ParHyp(a[0], x, ONE, Y[0], Z[0]);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector length and data array */
@@ -1063,7 +1058,6 @@ SUNErrCode N_VScaleAddMulti_ParHyp(int nvec, sunrealtype* a, N_Vector x,
       for (j = 0; j < N; j++) { yd[j] += a[i] * xd[j]; }
     }
     return SUN_SUCCESS;
-    ;
   }
 
   /*
@@ -1076,7 +1070,6 @@ SUNErrCode N_VScaleAddMulti_ParHyp(int nvec, sunrealtype* a, N_Vector x,
     for (j = 0; j < N; j++) { zd[j] = a[i] * xd[j] + yd[j]; }
   }
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
@@ -1096,7 +1089,6 @@ SUNErrCode N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
   {
     dotprods[0] = N_VDotProd_ParHyp(x, Y[0]);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector length, data array, and communicator */
@@ -1114,7 +1106,7 @@ SUNErrCode N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
   retval = MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, MPI_SUNREALTYPE, MPI_SUM,
                          comm);
 
-  return retval == MPI_SUCCESS ? 0 : -1;
+  return retval == MPI_SUCCESS ? SUN_SUCCESS : SUN_ERR_GENERIC;
 }
 
 /*
@@ -1154,7 +1146,7 @@ SUNErrCode N_VDotProdMultiAllReduce_ParHyp(int nvec, N_Vector x, sunrealtype* su
   int retval;
   retval = MPI_Allreduce(MPI_IN_PLACE, sum, nvec, MPI_SUNREALTYPE, MPI_SUM,
                          NV_COMM_PH(x));
-  return retval == MPI_SUCCESS ? 0 : -1;
+  return retval == MPI_SUCCESS ? SUN_SUCCESS : SUN_ERR_GENERIC;
 }
 
 /*
@@ -1180,7 +1172,6 @@ SUNErrCode N_VLinearSumVectorArray_ParHyp(int nvec, sunrealtype a, N_Vector* X,
   {
     N_VLinearSum_ParHyp(a, X[0], b, Y[0], Z[0]);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector length */
@@ -1196,7 +1187,6 @@ SUNErrCode N_VLinearSumVectorArray_ParHyp(int nvec, sunrealtype a, N_Vector* X,
   }
 
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VScaleVectorArray_ParHyp(int nvec, sunrealtype* c, N_Vector* X,
@@ -1215,7 +1205,6 @@ SUNErrCode N_VScaleVectorArray_ParHyp(int nvec, sunrealtype* c, N_Vector* X,
   {
     N_VScale_ParHyp(c[0], X[0], Z[0]);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector length */
@@ -1232,7 +1221,6 @@ SUNErrCode N_VScaleVectorArray_ParHyp(int nvec, sunrealtype* c, N_Vector* X,
       for (j = 0; j < N; j++) { xd[j] *= c[i]; }
     }
     return SUN_SUCCESS;
-    ;
   }
 
   /*
@@ -1246,7 +1234,6 @@ SUNErrCode N_VScaleVectorArray_ParHyp(int nvec, sunrealtype* c, N_Vector* X,
   }
 
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VConstVectorArray_ParHyp(int nvec, sunrealtype c, N_Vector* Z)
@@ -1263,7 +1250,6 @@ SUNErrCode N_VConstVectorArray_ParHyp(int nvec, sunrealtype c, N_Vector* Z)
   {
     N_VConst_ParHyp(c, Z[0]);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector length */
@@ -1277,7 +1263,6 @@ SUNErrCode N_VConstVectorArray_ParHyp(int nvec, sunrealtype c, N_Vector* Z)
   }
 
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
@@ -1297,7 +1282,6 @@ SUNErrCode N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
   {
     nrm[0] = N_VWrmsNorm_ParHyp(X[0], W[0]);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector lengths and communicator */
@@ -1317,7 +1301,7 @@ SUNErrCode N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
 
   for (i = 0; i < nvec; i++) { nrm[i] = SUNRsqrt(nrm[i] / Ng); }
 
-  return retval == MPI_SUCCESS ? 0 : -1;
+  return retval == MPI_SUCCESS ? SUN_SUCCESS : SUN_ERR_GENERIC;
 }
 
 SUNErrCode N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
@@ -1338,7 +1322,6 @@ SUNErrCode N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
   {
     nrm[0] = N_VWrmsNormMask_ParHyp(X[0], W[0], id);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector lengths, communicator, and mask data */
@@ -1362,7 +1345,7 @@ SUNErrCode N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
 
   for (i = 0; i < nvec; i++) { nrm[i] = SUNRsqrt(nrm[i] / Ng); }
 
-  return retval == MPI_SUCCESS ? 0 : -1;
+  return retval == MPI_SUCCESS ? SUN_SUCCESS : SUN_ERR_GENERIC;
 }
 
 SUNErrCode N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum,
@@ -1394,7 +1377,6 @@ SUNErrCode N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum,
     {
       N_VLinearSum_ParHyp(a[0], X[0], ONE, Y[0][0], Z[0][0]);
       return SUN_SUCCESS;
-      ;
     }
 
     /* should have called N_VScaleAddMulti */
@@ -1447,7 +1429,6 @@ SUNErrCode N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum,
       }
     }
     return SUN_SUCCESS;
-    ;
   }
 
   /*
@@ -1464,7 +1445,6 @@ SUNErrCode N_VScaleAddMultiVectorArray_ParHyp(int nvec, int nsum,
     }
   }
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
@@ -1496,7 +1476,6 @@ SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
     {
       N_VScale_ParHyp(c[0], X[0][0], Z[0]);
       return SUN_SUCCESS;
-      ;
     }
 
     /* should have called N_VLinearSum */
@@ -1504,7 +1483,6 @@ SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
     {
       N_VLinearSum_ParHyp(c[0], X[0][0], c[1], X[1][0], Z[0]);
       return SUN_SUCCESS;
-      ;
     }
 
     /* should have called N_VLinearCombination */
@@ -1516,7 +1494,6 @@ SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
 
     free(Y);
     return SUN_SUCCESS;
-    ;
   }
 
   /* --------------------------
@@ -1534,7 +1511,6 @@ SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
 
     free(ctmp);
     return SUN_SUCCESS;
-    ;
   }
 
   /* should have called N_VLinearSumVectorArray */
@@ -1542,7 +1518,6 @@ SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
   {
     N_VLinearSumVectorArray_ParHyp(nvec, c[0], X[0], c[1], X[1], Z);
     return SUN_SUCCESS;
-    ;
   }
 
   /* --------------------------
@@ -1567,7 +1542,6 @@ SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
       }
     }
     return SUN_SUCCESS;
-    ;
   }
 
   /*
@@ -1586,7 +1560,6 @@ SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
       }
     }
     return SUN_SUCCESS;
-    ;
   }
 
   /*
@@ -1604,7 +1577,6 @@ SUNErrCode N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
     }
   }
   return SUN_SUCCESS;
-  ;
 }
 
 /*
@@ -1618,7 +1590,6 @@ SUNErrCode N_VBufSize_ParHyp(N_Vector x, sunindextype* size)
   if (x == NULL) { return SUN_ERR_GENERIC; }
   *size = NV_LOCLENGTH_PH(x) * ((sunindextype)sizeof(sunrealtype));
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VBufPack_ParHyp(N_Vector x, void* buf)
@@ -1636,7 +1607,6 @@ SUNErrCode N_VBufPack_ParHyp(N_Vector x, void* buf)
   for (i = 0; i < N; i++) { bd[i] = xd[i]; }
 
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VBufUnpack_ParHyp(N_Vector x, void* buf)
@@ -1654,7 +1624,6 @@ SUNErrCode N_VBufUnpack_ParHyp(N_Vector x, void* buf)
   for (i = 0; i < N; i++) { xd[i] = bd[i]; }
 
   return SUN_SUCCESS;
-  ;
 }
 
 /*
@@ -1817,7 +1786,6 @@ SUNErrCode N_VEnableFusedOps_ParHyp(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableLinearCombination_ParHyp(N_Vector v, sunbooleantype tf)
@@ -1834,7 +1802,6 @@ SUNErrCode N_VEnableLinearCombination_ParHyp(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableScaleAddMulti_ParHyp(N_Vector v, sunbooleantype tf)
@@ -1851,7 +1818,6 @@ SUNErrCode N_VEnableScaleAddMulti_ParHyp(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableDotProdMulti_ParHyp(N_Vector v, sunbooleantype tf)
@@ -1868,7 +1834,6 @@ SUNErrCode N_VEnableDotProdMulti_ParHyp(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableLinearSumVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
@@ -1885,7 +1850,6 @@ SUNErrCode N_VEnableLinearSumVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableScaleVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
@@ -1902,7 +1866,6 @@ SUNErrCode N_VEnableScaleVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableConstVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
@@ -1919,7 +1882,6 @@ SUNErrCode N_VEnableConstVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
@@ -1936,7 +1898,6 @@ SUNErrCode N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
@@ -1956,7 +1917,6 @@ SUNErrCode N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, sunbooleantype tf
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
@@ -1976,7 +1936,6 @@ SUNErrCode N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, sunbooleantype t
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v,
@@ -1998,7 +1957,6 @@ SUNErrCode N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v,
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, sunbooleantype tf)
@@ -2015,5 +1973,4 @@ SUNErrCode N_VEnableDotProdMultiLocal_ParHyp(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }

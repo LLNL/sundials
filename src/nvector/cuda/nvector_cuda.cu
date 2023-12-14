@@ -27,6 +27,7 @@
 
 #include "VectorArrayKernels.cuh"
 #include "VectorKernels.cuh"
+#include "sundials/sundials_errors.h"
 #include "sundials_cuda.h"
 #include "sundials_debug.h"
 
@@ -540,7 +541,6 @@ SUNErrCode N_VSetKernelExecPolicy_Cuda(N_Vector x,
   }
 
   return SUN_SUCCESS;
-  ;
 }
 
 /* ----------------------------------------------------------------------------
@@ -2030,7 +2030,6 @@ SUNErrCode N_VBufSize_Cuda(N_Vector x, sunindextype* size)
   if (x == NULL) { return SUN_ERR_GENERIC; }
   *size = (sunindextype)NVEC_CUDA_MEMSIZE(x);
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VBufPack_Cuda(N_Vector x, void* buf)
@@ -2055,7 +2054,8 @@ SUNErrCode N_VBufPack_Cuda(N_Vector x, void* buf)
   SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(x), buf_mem,
                           (void*)NVEC_CUDA_STREAM(x));
 
-  return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
+  if (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail) { return SUN_ERR_GENERIC; }
+  else { return SUN_SUCCESS; }
 }
 
 SUNErrCode N_VBufUnpack_Cuda(N_Vector x, void* buf)
@@ -2080,7 +2080,8 @@ SUNErrCode N_VBufUnpack_Cuda(N_Vector x, void* buf)
   SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(x), buf_mem,
                           (void*)NVEC_CUDA_STREAM(x));
 
-  return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
+  if (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail) { return SUN_ERR_GENERIC; }
+  else { return SUN_SUCCESS; }
 }
 
 /*
@@ -2134,7 +2135,6 @@ SUNErrCode N_VEnableFusedOps_Cuda(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableLinearCombination_Cuda(N_Vector v, sunbooleantype tf)
@@ -2233,11 +2233,7 @@ static int AllocateData(N_Vector v)
   N_VectorContent_Cuda vc         = NVEC_CUDA_CONTENT(v);
   N_PrivateVectorContent_Cuda vcp = NVEC_CUDA_PRIVATE(v);
 
-  if (N_VGetLength_Cuda(v) == 0)
-  {
-    return SUN_SUCCESS;
-    ;
-  }
+  if (N_VGetLength_Cuda(v) == 0) { return SUN_SUCCESS; }
 
   if (vcp->use_managed_mem)
   {
@@ -2272,7 +2268,7 @@ static int AllocateData(N_Vector v)
     }
   }
 
-  return (alloc_fail ? -1 : 0);
+  return (alloc_fail ? SUN_ERR_GENERIC : SUN_SUCCESS);
 }
 
 /*
@@ -2362,7 +2358,7 @@ static int InitializeReductionBuffer(N_Vector v, sunrealtype value, size_t n)
     }
   }
 
-  return ((alloc_fail || copy_fail) ? -1 : 0);
+  return ((alloc_fail || copy_fail) ? SUN_ERR_GENERIC : SUN_SUCCESS);
 }
 
 /* Free the reduction buffer
@@ -2414,7 +2410,8 @@ static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
 
   /* we synchronize with respect to the host, but only in this stream */
   cuerr = cudaStreamSynchronize(*NVEC_CUDA_STREAM(v));
-  return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
+  if (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail) { return SUN_ERR_GENERIC; }
+  else { return SUN_SUCCESS; }
 }
 
 static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
@@ -2728,7 +2725,6 @@ static int GetKernelParameters(N_Vector v, sunbooleantype reduction,
   }
 
   return SUN_SUCCESS;
-  ;
 }
 
 static int GetKernelParameters(N_Vector v, sunbooleantype reduction,

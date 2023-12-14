@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "sundials/sundials_errors.h"
 #include "sundials_debug.h"
 
 // RAJA defines
@@ -1446,7 +1447,6 @@ SUNErrCode N_VBufSize_Raja(N_Vector x, sunindextype* size)
   if (x == NULL) { return SUN_ERR_GENERIC; }
   *size = (sunindextype)NVEC_RAJA_MEMSIZE(x);
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VBufPack_Raja(N_Vector x, void* buf)
@@ -1483,9 +1483,10 @@ SUNErrCode N_VBufPack_Raja(N_Vector x, void* buf)
   SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(x), buf_mem, queue);
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  return (copy_fail ? -1 : 0);
+  return (copy_fail ? SUN_ERR_GENERIC : SUN_SUCCESS);
 #else
-  return (!SUNDIALS_GPU_VERIFY(cuerr) || copy_fail ? -1 : 0);
+  return (!SUNDIALS_GPU_VERIFY(cuerr) || copy_fail ? SUN_ERR_GENERIC
+                                                   : SUN_SUCCESS);
 #endif
 }
 
@@ -1523,9 +1524,10 @@ SUNErrCode N_VBufUnpack_Raja(N_Vector x, void* buf)
   SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(x), buf_mem, queue);
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  return (copy_fail ? -1 : 0);
+  return (copy_fail ? SUN_ERR_GENERIC : SUN_SUCCESS);
 #else
-  return (!SUNDIALS_GPU_VERIFY(cuerr) || copy_fail ? -1 : 0);
+  return (!SUNDIALS_GPU_VERIFY(cuerr) || copy_fail ? SUN_ERR_GENERIC
+                                                   : SUN_SUCCESS);
 #endif
 }
 
@@ -1576,7 +1578,6 @@ SUNErrCode N_VEnableFusedOps_Raja(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableLinearCombination_Raja(N_Vector v, sunbooleantype tf)
@@ -1593,7 +1594,6 @@ SUNErrCode N_VEnableLinearCombination_Raja(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableScaleAddMulti_Raja(N_Vector v, sunbooleantype tf)
@@ -1610,7 +1610,6 @@ SUNErrCode N_VEnableScaleAddMulti_Raja(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableLinearSumVectorArray_Raja(N_Vector v, sunbooleantype tf)
@@ -1627,7 +1626,6 @@ SUNErrCode N_VEnableLinearSumVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableScaleVectorArray_Raja(N_Vector v, sunbooleantype tf)
@@ -1644,7 +1642,6 @@ SUNErrCode N_VEnableScaleVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableConstVectorArray_Raja(N_Vector v, sunbooleantype tf)
@@ -1661,7 +1658,6 @@ SUNErrCode N_VEnableConstVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, sunbooleantype tf)
@@ -1681,7 +1677,6 @@ SUNErrCode N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableLinearCombinationVectorArray_Raja(N_Vector v,
@@ -1702,7 +1697,6 @@ SUNErrCode N_VEnableLinearCombinationVectorArray_Raja(N_Vector v,
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 /*
@@ -1717,11 +1711,7 @@ int AllocateData(N_Vector v)
   N_VectorContent_Raja vc         = NVEC_RAJA_CONTENT(v);
   N_PrivateVectorContent_Raja vcp = NVEC_RAJA_PRIVATE(v);
 
-  if (N_VGetLength_Raja(v) == 0)
-  {
-    return SUN_SUCCESS;
-    ;
-  }
+  if (N_VGetLength_Raja(v) == 0) { return SUN_SUCCESS; }
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());

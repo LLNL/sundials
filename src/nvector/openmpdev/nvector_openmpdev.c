@@ -1205,7 +1205,6 @@ SUNErrCode N_VLinearCombination_OpenMPDEV(int nvec, sunrealtype* c, N_Vector* X,
   {
     N_VScale_OpenMPDEV(c[0], X[0], z);
     return SUN_SUCCESS;
-    ;
   }
 
   /* should have called N_VLinearSum */
@@ -1213,7 +1212,6 @@ SUNErrCode N_VLinearCombination_OpenMPDEV(int nvec, sunrealtype* c, N_Vector* X,
   {
     N_VLinearSum_OpenMPDEV(c[0], X[0], c[1], X[1], z);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector length and data array */
@@ -1250,7 +1248,6 @@ SUNErrCode N_VLinearCombination_OpenMPDEV(int nvec, sunrealtype* c, N_Vector* X,
     }
     free(xd_dev_ptrs);
     return SUN_SUCCESS;
-    ;
   }
 
   /*
@@ -1283,7 +1280,6 @@ SUNErrCode N_VLinearCombination_OpenMPDEV(int nvec, sunrealtype* c, N_Vector* X,
     }
     free(xd_dev_ptrs);
     return SUN_SUCCESS;
-    ;
   }
 
   /*
@@ -1315,7 +1311,6 @@ SUNErrCode N_VLinearCombination_OpenMPDEV(int nvec, sunrealtype* c, N_Vector* X,
   }
   free(xd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VScaleAddMulti_OpenMPDEV(int nvec, sunrealtype* a, N_Vector x,
@@ -1337,7 +1332,6 @@ SUNErrCode N_VScaleAddMulti_OpenMPDEV(int nvec, sunrealtype* a, N_Vector x,
   {
     N_VLinearSum_OpenMPDEV(a[0], x, ONE, Y[0], Z[0]);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector length and data array */
@@ -1369,7 +1363,6 @@ SUNErrCode N_VScaleAddMulti_OpenMPDEV(int nvec, sunrealtype* a, N_Vector x,
     }
     free(yd_dev_ptrs);
     return SUN_SUCCESS;
-    ;
   }
 
   /* Allocate and store dev pointers to copy to device */
@@ -1395,7 +1388,6 @@ SUNErrCode N_VScaleAddMulti_OpenMPDEV(int nvec, sunrealtype* a, N_Vector x,
   free(yd_dev_ptrs);
   free(zd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VDotProdMulti_OpenMPDEV(int nvec, N_Vector x, N_Vector* Y,
@@ -1416,7 +1408,6 @@ SUNErrCode N_VDotProdMulti_OpenMPDEV(int nvec, N_Vector x, N_Vector* Y,
   {
     dotprods[0] = N_VDotProd_OpenMPDEV(x, Y[0]);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector length and data array */
@@ -1448,7 +1439,6 @@ SUNErrCode N_VDotProdMulti_OpenMPDEV(int nvec, N_Vector x, N_Vector* Y,
 
   free(yd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 /*
@@ -1482,7 +1472,6 @@ SUNErrCode N_VLinearSumVectorArray_OpenMPDEV(int nvec, sunrealtype a,
   {
     N_VLinearSum_OpenMPDEV(a, X[0], b, Y[0], Z[0]);
     return SUN_SUCCESS;
-    ;
   }
 
   /* BLAS usage: axpy y <- ax+y */
@@ -1582,7 +1571,6 @@ SUNErrCode N_VLinearSumVectorArray_OpenMPDEV(int nvec, sunrealtype a,
   free(yd_dev_ptrs);
   free(zd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VScaleVectorArray_OpenMPDEV(int nvec, sunrealtype* c, N_Vector* X,
@@ -1603,7 +1591,6 @@ SUNErrCode N_VScaleVectorArray_OpenMPDEV(int nvec, sunrealtype* c, N_Vector* X,
   {
     N_VScale_OpenMPDEV(c[0], X[0], Z[0]);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector length */
@@ -1634,7 +1621,6 @@ SUNErrCode N_VScaleVectorArray_OpenMPDEV(int nvec, sunrealtype* c, N_Vector* X,
     }
     free(xd_dev_ptrs);
     return SUN_SUCCESS;
-    ;
   }
 
   /* Allocate and store dev pointers to copy to device */
@@ -1660,7 +1646,6 @@ SUNErrCode N_VScaleVectorArray_OpenMPDEV(int nvec, sunrealtype* c, N_Vector* X,
   free(xd_dev_ptrs);
   free(zd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VConstVectorArray_OpenMPDEV(int nvec, sunrealtype c, N_Vector* Z)
@@ -1678,7 +1663,6 @@ SUNErrCode N_VConstVectorArray_OpenMPDEV(int nvec, sunrealtype c, N_Vector* Z)
   {
     N_VConst_OpenMPDEV(c, Z[0]);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector length */
@@ -1706,7 +1690,6 @@ SUNErrCode N_VConstVectorArray_OpenMPDEV(int nvec, sunrealtype c, N_Vector* Z)
 
   free(zd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VWrmsNormVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* W,
@@ -1728,7 +1711,6 @@ SUNErrCode N_VWrmsNormVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* W,
   {
     nrm[0] = N_VWrmsNorm_OpenMPDEV(X[0], W[0]);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector length */
@@ -1767,7 +1749,6 @@ SUNErrCode N_VWrmsNormVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* W,
   free(wd_dev_ptrs);
   free(xd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VWrmsNormMaskVectorArray_OpenMPDEV(int nvec, N_Vector* X,
@@ -1791,7 +1772,6 @@ SUNErrCode N_VWrmsNormMaskVectorArray_OpenMPDEV(int nvec, N_Vector* X,
   {
     nrm[0] = N_VWrmsNormMask_OpenMPDEV(X[0], W[0], id);
     return SUN_SUCCESS;
-    ;
   }
 
   /* get vector length and mask data array */
@@ -1834,7 +1814,6 @@ SUNErrCode N_VWrmsNormMaskVectorArray_OpenMPDEV(int nvec, N_Vector* X,
   free(xd_dev_ptrs);
   free(wd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VScaleAddMultiVectorArray_OpenMPDEV(int nvec, int nsum,
@@ -1869,7 +1848,6 @@ SUNErrCode N_VScaleAddMultiVectorArray_OpenMPDEV(int nvec, int nsum,
     {
       N_VLinearSum_OpenMPDEV(a[0], X[0], ONE, Y[0][0], Z[0][0]);
       return SUN_SUCCESS;
-      ;
     }
 
     /* should have called N_VScaleAddMulti */
@@ -1946,7 +1924,6 @@ SUNErrCode N_VScaleAddMultiVectorArray_OpenMPDEV(int nvec, int nsum,
     free(xd_dev_ptrs);
     free(yd_dev_ptrs);
     return SUN_SUCCESS;
-    ;
   }
 
   /* Allocate and store dev pointers to copy to device */
@@ -1985,7 +1962,6 @@ SUNErrCode N_VScaleAddMultiVectorArray_OpenMPDEV(int nvec, int nsum,
   free(yd_dev_ptrs);
   free(zd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
@@ -2020,7 +1996,6 @@ SUNErrCode N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
     {
       N_VScale_OpenMPDEV(c[0], X[0][0], Z[0]);
       return SUN_SUCCESS;
-      ;
     }
 
     /* should have called N_VLinearSum */
@@ -2028,7 +2003,6 @@ SUNErrCode N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
     {
       N_VLinearSum_OpenMPDEV(c[0], X[0][0], c[1], X[1][0], Z[0]);
       return SUN_SUCCESS;
-      ;
     }
 
     /* should have called N_VLinearCombination */
@@ -2040,7 +2014,6 @@ SUNErrCode N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
 
     free(Y);
     return SUN_SUCCESS;
-    ;
   }
 
   /* --------------------------
@@ -2058,7 +2031,6 @@ SUNErrCode N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
 
     free(ctmp);
     return SUN_SUCCESS;
-    ;
   }
 
   /* should have called N_VLinearSumVectorArray */
@@ -2066,7 +2038,6 @@ SUNErrCode N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
   {
     N_VLinearSumVectorArray_OpenMPDEV(nvec, c[0], X[0], c[1], X[1], Z);
     return SUN_SUCCESS;
-    ;
   }
 
   /* --------------------------
@@ -2115,7 +2086,6 @@ SUNErrCode N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
     free(xd_dev_ptrs);
     free(zd_dev_ptrs);
     return SUN_SUCCESS;
-    ;
   }
 
   /*
@@ -2144,7 +2114,6 @@ SUNErrCode N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
     free(xd_dev_ptrs);
     free(zd_dev_ptrs);
     return SUN_SUCCESS;
-    ;
   }
 
   /*
@@ -2174,7 +2143,6 @@ SUNErrCode N_VLinearCombinationVectorArray_OpenMPDEV(int nvec, int nsum,
   free(xd_dev_ptrs);
   free(zd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 /*
@@ -2514,7 +2482,6 @@ static int VSumVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* Y,
   free(yd_dev_ptrs);
   free(zd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 static int VDiffVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* Y,
@@ -2561,7 +2528,6 @@ static int VDiffVectorArray_OpenMPDEV(int nvec, N_Vector* X, N_Vector* Y,
   free(yd_dev_ptrs);
   free(zd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 static int VScaleSumVectorArray_OpenMPDEV(int nvec, sunrealtype c, N_Vector* X,
@@ -2608,7 +2574,6 @@ static int VScaleSumVectorArray_OpenMPDEV(int nvec, sunrealtype c, N_Vector* X,
   free(yd_dev_ptrs);
   free(zd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 static int VScaleDiffVectorArray_OpenMPDEV(int nvec, sunrealtype c, N_Vector* X,
@@ -2655,7 +2620,6 @@ static int VScaleDiffVectorArray_OpenMPDEV(int nvec, sunrealtype c, N_Vector* X,
   free(yd_dev_ptrs);
   free(zd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 static int VLin1VectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X,
@@ -2702,7 +2666,6 @@ static int VLin1VectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X,
   free(yd_dev_ptrs);
   free(zd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 static int VLin2VectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X,
@@ -2749,7 +2712,6 @@ static int VLin2VectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X,
   free(yd_dev_ptrs);
   free(zd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 static int VaxpyVectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X,
@@ -2790,7 +2752,6 @@ static int VaxpyVectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X,
     free(xd_dev_ptrs);
     free(yd_dev_ptrs);
     return SUN_SUCCESS;
-    ;
   }
 
   if (a == -ONE)
@@ -2810,7 +2771,6 @@ static int VaxpyVectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X,
     free(xd_dev_ptrs);
     free(yd_dev_ptrs);
     return SUN_SUCCESS;
-    ;
   }
 
 #pragma omp target map(to : N, xd_dev_ptrs[ : nvec], yd_dev_ptrs[ : nvec]) \
@@ -2828,7 +2788,6 @@ static int VaxpyVectorArray_OpenMPDEV(int nvec, sunrealtype a, N_Vector* X,
   free(xd_dev_ptrs);
   free(yd_dev_ptrs);
   return SUN_SUCCESS;
-  ;
 }
 
 /*
@@ -2883,7 +2842,6 @@ SUNErrCode N_VEnableFusedOps_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableLinearCombination_OpenMPDEV(N_Vector v, sunbooleantype tf)
@@ -2900,7 +2858,6 @@ SUNErrCode N_VEnableLinearCombination_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableScaleAddMulti_OpenMPDEV(N_Vector v, sunbooleantype tf)
@@ -2917,7 +2874,6 @@ SUNErrCode N_VEnableScaleAddMulti_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableDotProdMulti_OpenMPDEV(N_Vector v, sunbooleantype tf)
@@ -2942,7 +2898,6 @@ SUNErrCode N_VEnableDotProdMulti_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableLinearSumVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
@@ -2962,7 +2917,6 @@ SUNErrCode N_VEnableLinearSumVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableScaleVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
@@ -2979,7 +2933,6 @@ SUNErrCode N_VEnableScaleVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableConstVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
@@ -2996,7 +2949,6 @@ SUNErrCode N_VEnableConstVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
@@ -3013,7 +2965,6 @@ SUNErrCode N_VEnableWrmsNormVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v,
@@ -3034,7 +2985,6 @@ SUNErrCode N_VEnableWrmsNormMaskVectorArray_OpenMPDEV(N_Vector v,
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v,
@@ -3055,7 +3005,6 @@ SUNErrCode N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v,
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
 
 SUNErrCode N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v,
@@ -3077,5 +3026,4 @@ SUNErrCode N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v,
 
   /* return success */
   return SUN_SUCCESS;
-  ;
 }
