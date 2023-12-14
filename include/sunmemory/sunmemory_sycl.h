@@ -17,8 +17,8 @@
 #ifndef _SUNDIALS_SYCLMEMORY_H
 #define _SUNDIALS_SYCLMEMORY_H
 
-#include <sycl/sycl.hpp>
 #include <sundials/sundials_memory.h>
+#include <sycl/sycl.hpp>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

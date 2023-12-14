@@ -17,7 +17,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <sycl/sycl.hpp>
 
 /* SUNDIALS public headers */
