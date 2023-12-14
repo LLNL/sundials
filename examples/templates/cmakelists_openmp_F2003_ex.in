@@ -48,9 +48,6 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_Fortran_FLAGS}")
 # ------------------------------------------------------------------------------
 
 # Set cmake variables from template inputsd
-set(NVEC_LIB  "@NVEC_LIB@"  CACHE STRING "NVECTOR library")
-set(NVEC_FLIB  "@NVEC_FLIB@"  CACHE STRING "NVECTOR library")
-
 set(SUNLS_LIB "@SUNLS_LIB@" CACHE STRING "SUNLinearSolver library")
 set(SUNLS_FLIB "@SUNLS_FLIB@" CACHE STRING "SUNLinearSolver library")
 
@@ -63,6 +60,14 @@ set(SUNDIALS_INCLUDE_DIR
 set(SUNDIALS_LIBRARY_DIR
   @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@
   CACHE PATH "Location of SUNDIALS libraries")
+
+find_library(SUNDIALS_CORE_LIB
+  sundials_core ${SUNDIALS_LIBRARY_DIR}
+  DOC "SUNDIALS core library")
+
+find_library(SUNDIALS_FCORE_LIB
+  sundials_fcore_mod ${SUNDIALS_LIBRARY_DIR}
+  DOC "SUNDIALS Fortran core library")
 
 # Find the SUNDIALS libraries
 find_library(SUNDIALS_SOLVER_LIB
@@ -78,7 +83,7 @@ find_library(SUNDIALS_NVEC_LIB
   DOC "NVECTOR_OPENMP library")
 
 find_library(SUNDIALS_NVEC_FLIB
-  sundials_fnvecopenmp ${SUNDIALS_LIBRARY_DIR}
+  sundials_fnvecopenmp_mod ${SUNDIALS_LIBRARY_DIR}
   DOC "NVECTOR_OPENMP library")
 
 if("${SUNLS_LIB}" STREQUAL "")
@@ -111,6 +116,8 @@ set(SUNDIALS_LIBRARIES
   ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVEC_LIB}
   ${SUNDIALS_SUNLS_LIB}
+  ${SUNDIALS_FCORE_LIB}
+  ${SUNDIALS_CORE_LIB}
   ${SUNDIALS_EXTRA_LIBS})
 
 # ------------------------------------------------------------------------------
@@ -125,19 +132,22 @@ endif()
 # Create targets for each example
 foreach(example ${examples})
 
+  # extract the file name without extension
+  get_filename_component(example_target ${example} NAME_WE)
+
   # Keep fortran modules to a unique directory to avoid naming collisions
-  set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+  set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example_target}.dir)
 
   # example source files
-  add_executable(${example} ${example}.f90 ${examples_dependencies})
+  add_executable(${example_target} ${example} ${examples_dependencies})
 
   # directories to include
-  target_include_directories(${example} PRIVATE ${SUNDIALS_INCLUDE_DIR})
+  target_include_directories(${example_target} PRIVATE ${SUNDIALS_INCLUDE_DIR})
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBRARIES})
+  target_link_libraries(${example_target} ${SUNDIALS_LIBRARIES})
 
   # add the example to ctest
-  add_test(NAME ${example} COMMAND ${example})
+  add_test(NAME ${example_target} COMMAND ${example_target})
 
 endforeach()
