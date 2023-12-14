@@ -201,9 +201,8 @@ options as the vector they are cloned from while vectors created with
    .. c:function:: SUNErrCode N_VEnableDotProdMulti_Raja(N_Vector v, sunbooleantype tf)
 
       This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
-      dot products fused operation in the RAJA vector. The return value is ``0``
-      for success and ``-1`` if the input vector or its ``ops`` structure are
-      ``NULL``.
+      dot products fused operation in the RAJA vector. The return value is
+      a :c:type:`SUNErrCode`.
 
 .. c:function:: SUNErrCode N_VEnableLinearSumVectorArray_Raja(N_Vector v, sunbooleantype tf)
 
