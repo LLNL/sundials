@@ -42,7 +42,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_core.hpp>
-#include <sundials/sundials_core.hpp>  /* definition of ABS and EXP   */
 #include <sundials/sundials_types.h>   /* definition of type sunrealtype */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver     */
 
