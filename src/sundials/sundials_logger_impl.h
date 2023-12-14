@@ -60,37 +60,25 @@ struct SUNLogger_
   SUNErrCode (*destroy)(SUNLogger* logger);
 };
 
-static void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
-                                const char* label, const char* txt,
-                                va_list args, char** log_msg)
-{
-  char* prefix;
-  char* formatted_txt;
-  int msg_length;
+/*
+  This function creates a log message string in the correct format.
+  It allocates the log_msg parameter, which must be freed by the caller.
+  The format of the log message is:
 
-  prefix        = NULL;
-  formatted_txt = NULL;
-  msg_length    = 0;
-  *log_msg      = NULL;
+    [ERROR][rank <rank>][<scope>][<label>] <formatted txt>
 
-  msg_length = sunvasnprintf(&formatted_txt, txt, args);
-  if (msg_length < 0)
-  {
-    fprintf(stderr, "[FATAL LOGGER ERROR] %s\n",
-            "SUNDIALS_MAX_SPRINTF_SIZE is too small");
-  }
+  :param lvl: the logging level (ERROR, WARNING, INFO, DEBUG)
+  :param rank: the MPI rank of the caller
+  :param scope: the scope part of the log message (see above)
+  :param label: the label part of the log message (see above)
+  :param txt: descriptive text for the log message in the form of a format string
+  :param args: format string substitutions
+  :param log_msg: on output this is an allocated string containing the log message
 
-  if (lvl == SUN_LOGLEVEL_DEBUG) { prefix = (char*)"DEBUG"; }
-  else if (lvl == SUN_LOGLEVEL_WARNING) { prefix = (char*)"WARNING"; }
-  else if (lvl == SUN_LOGLEVEL_INFO) { prefix = (char*)"INFO"; }
-  else if (lvl == SUN_LOGLEVEL_ERROR) { prefix = (char*)"ERROR"; }
-
-  msg_length = sunsnprintf(NULL, 0, "[%s][rank %d][%s][%s] %s\n", prefix, rank,
-                           scope, label, formatted_txt);
-  *log_msg   = (char*)malloc(msg_length + 1);
-  sunsnprintf(*log_msg, msg_length + 1, "[%s][rank %d][%s][%s] %s\n", prefix,
-              rank, scope, label, formatted_txt);
-  free(formatted_txt);
-}
+  :return: void
+*/
+void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
+                         const char* label, const char* txt, va_list args,
+                         char** log_msg);
 
 #endif /* _SUNDIALS_LOGGER_IMPL_H */

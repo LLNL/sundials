@@ -51,13 +51,13 @@ int KINSetLinearSolver(void* kinmem, SUNLinearSolver LS, SUNMatrix A)
   /* Return immediately if either kinmem or LS inputs are NULL */
   if (kinmem == NULL)
   {
-    KINProcessError(NULL, KINLS_MEM_NULL, "KINLS", "KINSetLinearSolver",
+    KINProcessError(NULL, KINLS_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_KINMEM_NULL);
     return (KINLS_MEM_NULL);
   }
   if (LS == NULL)
   {
-    KINProcessError(NULL, KINLS_ILL_INPUT, "KINLS", "KINSetLinearSolver",
+    KINProcessError(NULL, KINLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "LS must be non-NULL");
     return (KINLS_ILL_INPUT);
   }
@@ -66,7 +66,7 @@ int KINSetLinearSolver(void* kinmem, SUNLinearSolver LS, SUNMatrix A)
   /* Test if solver is compatible with LS interface */
   if ((LS->ops->gettype == NULL) || (LS->ops->solve == NULL))
   {
-    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetLinearSolver",
+    KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "LS object is missing a required operation");
     return (KINLS_ILL_INPUT);
   }
@@ -77,7 +77,7 @@ int KINSetLinearSolver(void* kinmem, SUNLinearSolver LS, SUNMatrix A)
   /* Return with error if LS has 'matrix-embedded' type */
   if (LSType == SUNLINEARSOLVER_MATRIX_EMBEDDED)
   {
-    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetLinearSolver",
+    KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "KINSOL is incompatible with MATRIX_EMBEDDED LS objects");
     return (KINLS_ILL_INPUT);
   }
@@ -90,7 +90,7 @@ int KINSetLinearSolver(void* kinmem, SUNLinearSolver LS, SUNMatrix A)
   if ((kin_mem->kin_vtemp1->ops->nvconst == NULL) ||
       (kin_mem->kin_vtemp1->ops->nvdotprod == NULL))
   {
-    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetLinearSolver",
+    KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_LS_BAD_NVECTOR);
     return (KINLS_ILL_INPUT);
   }
@@ -101,28 +101,28 @@ int KINSetLinearSolver(void* kinmem, SUNLinearSolver LS, SUNMatrix A)
     if ((LS->ops->setscalingvectors == NULL) &&
         (kin_mem->kin_vtemp1->ops->nvgetlength == NULL))
     {
-      KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetLinearSolver",
+      KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_NVECTOR);
       return (KINLS_ILL_INPUT);
     }
 
     if (!matrixbased && (LS->ops->setatimes == NULL))
     {
-      KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS",
-                      "KINSetLinearSolver", "Incompatible inputs: iterative LS must support ATimes routine");
+      KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__,
+                      __FILE__, "Incompatible inputs: iterative LS must support ATimes routine");
       return (KINLS_ILL_INPUT);
     }
 
     if (matrixbased && A == NULL)
     {
-      KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS",
-                      "KINSetLinearSolver", "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
+      KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__,
+                      __FILE__, "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
       return (KINLS_ILL_INPUT);
     }
   }
   else if (A == NULL)
   {
-    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetLinearSolver",
+    KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Incompatible inputs: direct LS requires non-NULL matrix");
     return (KINLS_ILL_INPUT);
   }
@@ -144,7 +144,7 @@ int KINSetLinearSolver(void* kinmem, SUNLinearSolver LS, SUNMatrix A)
   kinls_mem = (KINLsMem)malloc(sizeof(struct KINLsMemRec));
   if (kinls_mem == NULL)
   {
-    KINProcessError(kin_mem, KINLS_MEM_FAIL, "KINLS", "KINSetLinearSolver",
+    KINProcessError(kin_mem, KINLS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_LS_MEM_FAIL);
     return (KINLS_MEM_FAIL);
   }
@@ -189,7 +189,7 @@ int KINSetLinearSolver(void* kinmem, SUNLinearSolver LS, SUNMatrix A)
     retval = SUNLinSolSetATimes(LS, kin_mem, kinLsATimes);
     if (retval != SUN_SUCCESS)
     {
-      KINProcessError(kin_mem, KINLS_SUNLS_FAIL, "KINLS", "KINSetLinearSolver",
+      KINProcessError(kin_mem, KINLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetATimes");
       free(kinls_mem);
       kinls_mem = NULL;
@@ -203,7 +203,7 @@ int KINSetLinearSolver(void* kinmem, SUNLinearSolver LS, SUNMatrix A)
     retval = SUNLinSolSetPreconditioner(LS, kin_mem, NULL, NULL);
     if (retval != SUN_SUCCESS)
     {
-      KINProcessError(kin_mem, KINLS_SUNLS_FAIL, "KINLS", "KINSetLinearSolver",
+      KINProcessError(kin_mem, KINLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetPreconditioner");
       free(kinls_mem);
       kinls_mem = NULL;
@@ -237,13 +237,13 @@ int KINSetJacFn(void* kinmem, KINLsJacFn jac)
   int retval;
 
   /* access KINLsMem structure */
-  retval = kinLs_AccessLMem(kinmem, "KINSetJacFn", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
 
   /* return with failure if jac cannot be used */
   if ((jac != NULL) && (kinls_mem->J == NULL))
   {
-    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetJacFn",
+    KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Jacobian routine cannot be supplied for NULL SUNMatrix");
     return (KINLS_ILL_INPUT);
   }
@@ -278,7 +278,7 @@ int KINSetPreconditioner(void* kinmem, KINLsPrecSetupFn psetup,
   int retval;
 
   /* access KINLsMem structure */
-  retval = kinLs_AccessLMem(kinmem, "KINSetPreconditioner", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
 
   /* store function pointers for user-supplied routines in KINLS interface */
@@ -288,7 +288,7 @@ int KINSetPreconditioner(void* kinmem, KINLsPrecSetupFn psetup,
   /* issue error if LS object does not support user-supplied preconditioning */
   if (kinls_mem->LS->ops->setpreconditioner == NULL)
   {
-    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetPreconditioner",
+    KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "SUNLinearSolver object does not support user-supplied "
                     "preconditioning");
     return (KINLS_ILL_INPUT);
@@ -301,7 +301,7 @@ int KINSetPreconditioner(void* kinmem, KINLsPrecSetupFn psetup,
                                       kinls_psolve);
   if (retval != SUN_SUCCESS)
   {
-    KINProcessError(kin_mem, KINLS_SUNLS_FAIL, "KINLS", "KINSetPreconditioner",
+    KINProcessError(kin_mem, KINLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                     "Error in calling SUNLinSolSetPreconditioner");
     return (KINLS_SUNLS_FAIL);
   }
@@ -319,13 +319,13 @@ int KINSetJacTimesVecFn(void* kinmem, KINLsJacTimesVecFn jtv)
   KINLsMem kinls_mem;
 
   /* access KINLsMem structure */
-  retval = kinLs_AccessLMem(kinmem, "KINSetJacTimesVecFn", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
 
   /* issue error if LS object does not support user-supplied ATimes */
   if (kinls_mem->LS->ops->setatimes == NULL)
   {
-    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "KINSetJacTimesVecFn",
+    KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "SUNLinearSolver object does not support user-supplied "
                     "ATimes routine");
     return (KINLS_ILL_INPUT);
@@ -359,15 +359,14 @@ int KINSetJacTimesVecSysFn(void* kinmem, KINSysFn jtimesSysFn)
   KINLsMem kinls_mem = NULL;
 
   /* access KINLsMem structure */
-  retval = kinLs_AccessLMem(kin_mem, "KINSetJacTimesVecSysFn", &kin_mem,
-                            &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
 
   /* check if using internal finite difference approximation */
   if (!(kinls_mem->jtimesDQ))
   {
-    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS",
-                    "KINSetJacTimesVecSysFn", "Internal finite-difference Jacobian-vector product is disabled.");
+    KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "Internal finite-difference Jacobian-vector product is disabled.");
     return (KINLS_ILL_INPUT);
   }
 
@@ -389,7 +388,7 @@ int KINGetJac(void* kinmem, SUNMatrix* J)
   int retval;
 
   /* access KINLsMem structure; set output and return */
-  retval = kinLs_AccessLMem(kinmem, "KINGetJac", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KINLS_SUCCESS) { return retval; }
   *J = kinls_mem->J;
   return KINLS_SUCCESS;
@@ -402,7 +401,7 @@ int KINGetJacNumIters(void* kinmem, long int* nni_J)
   int retval;
 
   /* access KINLsMem structure; set output and return */
-  retval = kinLs_AccessLMem(kinmem, "KINGetJacNumIters", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KINLS_SUCCESS) { return retval; }
   *nni_J = kin_mem->kin_nnilset;
   return KINLS_SUCCESS;
@@ -420,7 +419,7 @@ int KINGetLinWorkSpace(void* kinmem, long int* lenrwLS, long int* leniwLS)
   int retval;
 
   /* access KINLsMem structure */
-  retval = kinLs_AccessLMem(kinmem, "KINGetLinWorkSpace", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
 
   /* start with fixed sizes plus vector/matrix pointers */
@@ -459,7 +458,7 @@ int KINGetNumJacEvals(void* kinmem, long int* njevals)
   int retval;
 
   /* access KINLsMem structure; set output value and return */
-  retval = kinLs_AccessLMem(kinmem, "KINGetNumJacEvals", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
   *njevals = kinls_mem->nje;
   return (KINLS_SUCCESS);
@@ -476,7 +475,7 @@ int KINGetNumPrecEvals(void* kinmem, long int* npevals)
   int retval;
 
   /* access KINLsMem structure; set output value and return */
-  retval = kinLs_AccessLMem(kinmem, "KINGetNumPrecEvals", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
   *npevals = kinls_mem->npe;
   return (KINLS_SUCCESS);
@@ -493,7 +492,7 @@ int KINGetNumPrecSolves(void* kinmem, long int* npsolves)
   int retval;
 
   /* access KINLsMem structure; set output value and return */
-  retval = kinLs_AccessLMem(kinmem, "KINGetNumPrecSolves", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
   *npsolves = kinls_mem->nps;
   return (KINLS_SUCCESS);
@@ -510,7 +509,7 @@ int KINGetNumLinIters(void* kinmem, long int* nliters)
   int retval;
 
   /* access KINLsMem structure; set output value and return */
-  retval = kinLs_AccessLMem(kinmem, "KINGetNumLinIters", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
   *nliters = kinls_mem->nli;
   return (KINLS_SUCCESS);
@@ -527,8 +526,7 @@ int KINGetNumLinConvFails(void* kinmem, long int* nlcfails)
   int retval;
 
   /* access KINLsMem structure; set output value and return */
-  retval = kinLs_AccessLMem(kinmem, "KINGetNumLinConvFails", &kin_mem,
-                            &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
   *nlcfails = kinls_mem->ncfl;
   return (KINLS_SUCCESS);
@@ -545,7 +543,7 @@ int KINGetNumJtimesEvals(void* kinmem, long int* njvevals)
   int retval;
 
   /* access KINLsMem structure; set output value and return */
-  retval = kinLs_AccessLMem(kinmem, "KINGetNumJtimesEvals", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
   *njvevals = kinls_mem->njtimes;
   return (KINLS_SUCCESS);
@@ -562,8 +560,7 @@ int KINGetNumLinFuncEvals(void* kinmem, long int* nfevals)
   int retval;
 
   /* access KINLsMem structure; set output value and return */
-  retval = kinLs_AccessLMem(kinmem, "KINGetNumLinFuncEvals", &kin_mem,
-                            &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
   *nfevals = kinls_mem->nfeDQ;
   return (KINLS_SUCCESS);
@@ -580,7 +577,7 @@ int KINGetLastLinFlag(void* kinmem, long int* flag)
   int retval;
 
   /* access KINLsMem structure; set output value and return */
-  retval = kinLs_AccessLMem(kinmem, "KINGetLastLinFlag", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
   *flag = kinls_mem->last_flag;
   return (KINLS_SUCCESS);
@@ -631,7 +628,7 @@ int kinLsATimes(void* kinmem, N_Vector v, N_Vector z)
   int retval;
 
   /* access KINLsMem structure */
-  retval = kinLs_AccessLMem(kinmem, "kinLsATimes", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
 
   /* call Jacobian-times-vector product routine
@@ -659,7 +656,7 @@ int kinLsPSetup(void* kinmem)
   int retval;
 
   /* access KINLsMem structure */
-  retval = kinLs_AccessLMem(kinmem, "kinLsPSetup", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
 
   /* Call user pset routine to update preconditioner */
@@ -688,7 +685,7 @@ int kinLsPSolve(void* kinmem, N_Vector r, N_Vector z, sunrealtype tol, int lr)
   int retval;
 
   /* access KINLsMem structure */
-  retval = kinLs_AccessLMem(kinmem, "kinLsPSolve", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
 
   /* copy the rhs into z before the psolve call */
@@ -719,7 +716,7 @@ int kinLsDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, void* kinmem,
   /* access KINMem structure */
   if (kinmem == NULL)
   {
-    KINProcessError(NULL, KINLS_MEM_NULL, "KINLS", "kinLsDQJac",
+    KINProcessError(NULL, KINLS_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_KINMEM_NULL);
     return (KINLS_MEM_NULL);
   }
@@ -728,7 +725,7 @@ int kinLsDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, void* kinmem,
   /* verify that Jac is non-NULL */
   if (Jac == NULL)
   {
-    KINProcessError(kin_mem, KINLS_LMEM_NULL, "KINLS", "kinLsDQJac",
+    KINProcessError(kin_mem, KINLS_LMEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_LMEM_NULL);
     return (KINLS_LMEM_NULL);
   }
@@ -744,7 +741,7 @@ int kinLsDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, void* kinmem,
   }
   else
   {
-    KINProcessError(kin_mem, KIN_ILL_INPUT, "KINLS", "kinLsDQJac",
+    KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "unrecognized matrix type for kinLsDQJac");
     retval = KIN_ILL_INPUT;
   }
@@ -953,14 +950,14 @@ int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u, sunbooleantype* new_u,
   int retval;
 
   /* access KINLsMem structure */
-  retval = kinLs_AccessLMem(kinmem, "kinLsDQJtimes", &kin_mem, &kinls_mem);
+  retval = kinLs_AccessLMem(kinmem, __func__, &kin_mem, &kinls_mem);
   if (retval != KIN_SUCCESS) { return (retval); }
 
   /* ensure that NVector supplies requisite routines */
   if ((v->ops->nvprod == NULL) || (v->ops->nvdotprod == NULL) ||
       (v->ops->nvl1norm == NULL) || (v->ops->nvlinearsum == NULL))
   {
-    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "kinLsDQJtimes",
+    KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_LS_BAD_NVECTOR);
     return (KINLS_ILL_INPUT);
   }
@@ -1011,7 +1008,7 @@ int kinLsInitialize(KINMem kin_mem)
   /* Access KINLsMem structure */
   if (kin_mem->kin_lmem == NULL)
   {
-    KINProcessError(kin_mem, KINLS_LMEM_NULL, "KINLS", "kinLsInitialize",
+    KINProcessError(kin_mem, KINLS_LMEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_LMEM_NULL);
     return (KINLS_LMEM_NULL);
   }
@@ -1044,7 +1041,7 @@ int kinLsInitialize(KINMem kin_mem)
     else { retval++; }
     if (retval)
     {
-      KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "kinLsInitialize",
+      KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "No Jacobian constructor available for SUNMatrix type");
       kinls_mem->last_flag = KINLS_ILL_INPUT;
       return (KINLS_ILL_INPUT);
@@ -1056,7 +1053,7 @@ int kinLsInitialize(KINMem kin_mem)
         (kin_mem->kin_vtemp1->ops->nvgetarraypointer == NULL) ||
         (kin_mem->kin_vtemp1->ops->nvsetarraypointer == NULL))
     {
-      KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "kinLsInitialize",
+      KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_NVECTOR);
       return (KINLS_ILL_INPUT);
     }
@@ -1072,7 +1069,7 @@ int kinLsInitialize(KINMem kin_mem)
   if ((kin_mem->kin_globalstrategy == KIN_PICARD) && kinls_mem->jacDQ &&
       kinls_mem->jtimesDQ)
   {
-    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS", "kinLsInitialize",
+    KINProcessError(kin_mem, KINLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_NOL_FAIL);
     return (KINLS_ILL_INPUT);
   }
@@ -1108,7 +1105,7 @@ int kinLsInitialize(KINMem kin_mem)
                                         kin_mem->kin_fscale);
     if (retval != SUN_SUCCESS)
     {
-      KINProcessError(kin_mem, KINLS_SUNLS_FAIL, "KINLS", "kinLsInitialize",
+      KINProcessError(kin_mem, KINLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetScalingVectors");
       return (KINLS_SUNLS_FAIL);
     }
@@ -1153,7 +1150,7 @@ int kinLsSetup(KINMem kin_mem)
   /* Access KINLsMem structure */
   if (kin_mem->kin_lmem == NULL)
   {
-    KINProcessError(kin_mem, KINLS_LMEM_NULL, "KINLS", "kinLsSetup",
+    KINProcessError(kin_mem, KINLS_LMEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_LMEM_NULL);
     return (KINLS_LMEM_NULL);
   }
@@ -1171,8 +1168,8 @@ int kinLsSetup(KINMem kin_mem)
       retval = SUNMatZero(kinls_mem->J);
       if (retval != 0)
       {
-        KINProcessError(kin_mem, KINLS_SUNMAT_FAIL, "KINLS", "kinLsSetup",
-                        MSG_LS_MATZERO_FAILED);
+        KINProcessError(kin_mem, KINLS_SUNMAT_FAIL, __LINE__, __func__,
+                        __FILE__, MSG_LS_MATZERO_FAILED);
         kinls_mem->last_flag = KINLS_SUNMAT_FAIL;
         return (kinls_mem->last_flag);
       }
@@ -1184,7 +1181,7 @@ int kinLsSetup(KINMem kin_mem)
                             kin_mem->kin_vtemp2);
     if (retval != 0)
     {
-      KINProcessError(kin_mem, KINLS_JACFUNC_ERR, "KINLS", "kinLsSetup",
+      KINProcessError(kin_mem, KINLS_JACFUNC_ERR, __LINE__, __func__, __FILE__,
                       MSG_LS_JACFUNC_FAILED);
       kinls_mem->last_flag = KINLS_JACFUNC_ERR;
       return (kinls_mem->last_flag);
@@ -1214,7 +1211,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, sunrealtype* sJpnorm,
   /* Access KINLsMem structure */
   if (kin_mem->kin_lmem == NULL)
   {
-    KINProcessError(kin_mem, KINLS_LMEM_NULL, "KINLS", "kinLsSolve",
+    KINProcessError(kin_mem, KINLS_LMEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_LMEM_NULL);
     return (KINLS_LMEM_NULL);
   }
@@ -1279,20 +1276,20 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, sunrealtype* sJpnorm,
     case SUNLS_LUFACT_FAIL:
     case SUNLS_QRSOL_FAIL: break;
     case SUNLS_PACKAGE_FAIL_REC:
-      KINProcessError(kin_mem, SUNLS_PACKAGE_FAIL_REC, "KINLS", "kinLsSolve",
-                      "Failure in SUNLinSol external package");
+      KINProcessError(kin_mem, SUNLS_PACKAGE_FAIL_REC, __LINE__, __func__,
+                      __FILE__, "Failure in SUNLinSol external package");
       break;
     case SUNLS_PACKAGE_FAIL_UNREC:
-      KINProcessError(kin_mem, SUNLS_PACKAGE_FAIL_UNREC, "KINLS", "kinLsSolve",
-                      "Failure in SUNLinSol external package");
+      KINProcessError(kin_mem, SUNLS_PACKAGE_FAIL_UNREC, __LINE__, __func__,
+                      __FILE__, "Failure in SUNLinSol external package");
       break;
     case SUNLS_ATIMES_FAIL_UNREC:
-      KINProcessError(kin_mem, SUNLS_ATIMES_FAIL_UNREC, "KINLS", "kinLsSolve",
-                      MSG_LS_JTIMES_FAILED);
+      KINProcessError(kin_mem, SUNLS_ATIMES_FAIL_UNREC, __LINE__, __func__,
+                      __FILE__, MSG_LS_JTIMES_FAILED);
       break;
     case SUNLS_PSOLVE_FAIL_UNREC:
-      KINProcessError(kin_mem, SUNLS_PSOLVE_FAIL_UNREC, "KINLS", "kinLsSolve",
-                      MSG_LS_PSOLVE_FAILED);
+      KINProcessError(kin_mem, SUNLS_PSOLVE_FAIL_UNREC, __LINE__, __func__,
+                      __FILE__, MSG_LS_PSOLVE_FAILED);
       break;
     }
     return (retval);
@@ -1397,13 +1394,15 @@ int kinLs_AccessLMem(void* kinmem, const char* fname, KINMem* kin_mem,
 {
   if (kinmem == NULL)
   {
-    KINProcessError(NULL, KINLS_MEM_NULL, "KINLS", fname, MSG_LS_KINMEM_NULL);
+    KINProcessError(NULL, KINLS_MEM_NULL, __LINE__, fname, __FILE__,
+                    MSG_LS_KINMEM_NULL);
     return (KINLS_MEM_NULL);
   }
   *kin_mem = (KINMem)kinmem;
   if ((*kin_mem)->kin_lmem == NULL)
   {
-    KINProcessError(*kin_mem, KINLS_LMEM_NULL, "KINLS", fname, MSG_LS_LMEM_NULL);
+    KINProcessError(*kin_mem, KINLS_LMEM_NULL, __LINE__, fname, __FILE__,
+                    MSG_LS_LMEM_NULL);
     return (KINLS_LMEM_NULL);
   }
   *kinls_mem = (KINLsMem)(*kin_mem)->kin_lmem;

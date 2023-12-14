@@ -1443,7 +1443,7 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
 
     /* Reset error controller object */
     retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
-    if (retval != SUNADAPTCONTROLLER_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__, __FILE__,
                       "Unable to reset error controller object");
@@ -2663,7 +2663,7 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
   /* Notify time step controller object of successful step */
   retval = SUNAdaptController_UpdateH(ark_mem->hadapt_mem->hcontroller,
                                       ark_mem->h, dsm);
-  if (retval != SUNADAPTCONTROLLER_SUCCESS)
+  if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__, __FILE__,
                     "Failure updating controller object");
@@ -3340,7 +3340,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
 
     if (error_code == ARK_WARNING)
     {
-#if SUNDIALS_LOGGING_LEVEL >= 1
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_WARNING
       char* file_and_line = sunCombineFileAndLine(line, file);
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_WARNING, file_and_line, func,
                          msg);

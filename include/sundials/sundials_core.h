@@ -31,4 +31,8 @@
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_version.h>
 
+#if SUNDIALS_MPI_ENABLED
+#include <sundials/sundials_mpi_errors.h>
+#endif
+
 #endif /* _SUNDIALS_CORE_H */

@@ -56,6 +56,7 @@
 #include "cvode/cvode.h"              // access to CVODE
 #include "mpi.h"                      // MPI header file
 #include "nvector/nvector_parallel.h" // access to the MPI N_Vector
+#include "sundials/sundials_core.hpp"
 #include "sundials/sundials_linearsolver.h" // definition SUNLinearSolver
 #include "sundials/sundials_matrix.h"       // definition SUNMatrix
 

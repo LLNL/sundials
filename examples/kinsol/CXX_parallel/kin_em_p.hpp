@@ -29,6 +29,7 @@
 
 #include "kinsol/kinsol.h" // access to KINSOL
 #include "mpi.h"           // MPI header file
+#include "sundials/sundials_core.hpp"
 
 // Macros for problem constants
 #define PI      SUN_RCONST(3.141592653589793238462643383279502884197169)

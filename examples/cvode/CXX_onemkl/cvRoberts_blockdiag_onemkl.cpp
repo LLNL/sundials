@@ -48,7 +48,8 @@
 #include <cstdio>
 #include <cvode/cvode.h> // access to CVODE fcts., consts.
 #include <iostream>
-#include <nvector/nvector_sycl.h>            // access the SYCL NVector
+#include <nvector/nvector_sycl.h> // access the SYCL NVector
+#include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_onemkldense.h> // access the oneMKL SUNLinearSolver
 #include <sunlinsol/sunlinsol_spgmr.h>       // access the GMRES SUNLinearSolver
 #include <sunmatrix/sunmatrix_onemkldense.h> // access the oneMKL SUNMatrix
