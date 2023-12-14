@@ -1034,7 +1034,8 @@ sunrealtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
  * -----------------------------------------------------------------------------
  */
 
-int N_VLinearCombination_Raja(int nvec, sunrealtype* c, N_Vector* X, N_Vector z)
+SUNErrCode N_VLinearCombination_Raja(int nvec, sunrealtype* c, N_Vector* X,
+                                     N_Vector z)
 {
   const sunindextype N = NVEC_RAJA_CONTENT(z)->length;
   sunrealtype* zdata   = NVEC_RAJA_DDATAp(z);
@@ -1048,28 +1049,28 @@ int N_VLinearCombination_Raja(int nvec, sunrealtype* c, N_Vector* X, N_Vector z)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Raja: FusedBuffer_Init "
                          "returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyRealArray(z, c, nvec, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Raja: "
                          "FusedBuffer_CopyRealArray returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(z, X, nvec, &xdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Raja: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(z))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Raja: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   RAJA::forall<SUNDIALS_RAJA_EXEC_STREAM>(RAJA::RangeSegment(zeroIdx, N),
@@ -1080,11 +1081,11 @@ int N_VLinearCombination_Raja(int nvec, sunrealtype* c, N_Vector* X, N_Vector z)
                                               zdata[i] += cdata[j] * xdata[j][i];
                                           });
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VScaleAddMulti_Raja(int nvec, sunrealtype* c, N_Vector x, N_Vector* Y,
-                          N_Vector* Z)
+SUNErrCode N_VScaleAddMulti_Raja(int nvec, sunrealtype* c, N_Vector x,
+                                 N_Vector* Y, N_Vector* Z)
 {
   const sunindextype N     = NVEC_RAJA_CONTENT(x)->length;
   const sunrealtype* xdata = NVEC_RAJA_DDATAp(x);
@@ -1099,35 +1100,35 @@ int N_VScaleAddMulti_Raja(int nvec, sunrealtype* c, N_Vector x, N_Vector* Y,
   {
     SUNDIALS_DEBUG_PRINT(
       "ERROR in N_VScaleAddMulti_Raja: FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyRealArray(x, c, nvec, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Raja: "
                          "FusedBuffer_CopyRealArray returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(x, Y, nvec, &ydata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Raja: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(x, Z, nvec, &zdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Raja: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(x))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Raja: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   RAJA::forall<SUNDIALS_RAJA_EXEC_STREAM>(RAJA::RangeSegment(zeroIdx, N),
@@ -1138,7 +1139,7 @@ int N_VScaleAddMulti_Raja(int nvec, sunrealtype* c, N_Vector x, N_Vector* Y,
                                                             ydata[j][i];
                                           });
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 /*
@@ -1147,8 +1148,8 @@ int N_VScaleAddMulti_Raja(int nvec, sunrealtype* c, N_Vector x, N_Vector* Y,
  * -----------------------------------------------------------------------------
  */
 
-int N_VLinearSumVectorArray_Raja(int nvec, sunrealtype a, N_Vector* X,
-                                 sunrealtype b, N_Vector* Y, N_Vector* Z)
+SUNErrCode N_VLinearSumVectorArray_Raja(int nvec, sunrealtype a, N_Vector* X,
+                                        sunrealtype b, N_Vector* Y, N_Vector* Z)
 {
   const sunindextype N = NVEC_RAJA_CONTENT(Z[0])->length;
 
@@ -1162,35 +1163,35 @@ int N_VLinearSumVectorArray_Raja(int nvec, sunrealtype a, N_Vector* X,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Sycl: "
                          "FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], X, nvec, &xdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Sycl: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], Y, nvec, &ydata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Sycl: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Sycl: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(Z[0]))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinaerSumVectorArray_Sycl: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   RAJA::forall<SUNDIALS_RAJA_EXEC_STREAM>(RAJA::RangeSegment(zeroIdx, N),
@@ -1201,10 +1202,11 @@ int N_VLinearSumVectorArray_Raja(int nvec, sunrealtype a, N_Vector* X,
                                                             b * ydata[j][i];
                                           });
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VScaleVectorArray_Raja(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
+SUNErrCode N_VScaleVectorArray_Raja(int nvec, sunrealtype* c, N_Vector* X,
+                                    N_Vector* Z)
 {
   const sunindextype N = NVEC_RAJA_CONTENT(Z[0])->length;
 
@@ -1218,35 +1220,35 @@ int N_VScaleVectorArray_Raja(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
   {
     SUNDIALS_DEBUG_PRINT(
       "ERROR in N_VScaleVectorArray_Sycl: FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyRealArray(Z[0], c, nvec, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: "
                          "FusedBuffer_CopyReadArray returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], X, nvec, &xdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(Z[0]))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   RAJA::forall<SUNDIALS_RAJA_EXEC_STREAM>(RAJA::RangeSegment(zeroIdx, N),
@@ -1257,10 +1259,10 @@ int N_VScaleVectorArray_Raja(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
                                                             xdata[j][i];
                                           });
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VConstVectorArray_Raja(int nvec, sunrealtype c, N_Vector* Z)
+SUNErrCode N_VConstVectorArray_Raja(int nvec, sunrealtype c, N_Vector* Z)
 {
   const sunindextype N = NVEC_RAJA_CONTENT(Z[0])->length;
 
@@ -1272,21 +1274,21 @@ int N_VConstVectorArray_Raja(int nvec, sunrealtype c, N_Vector* Z)
   {
     SUNDIALS_DEBUG_PRINT(
       "ERROR in N_VConstVectorArray_Sycl: FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Sycl: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(Z[0]))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Sycl: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   RAJA::forall<SUNDIALS_RAJA_EXEC_STREAM>(RAJA::RangeSegment(zeroIdx, N),
@@ -1296,11 +1298,12 @@ int N_VConstVectorArray_Raja(int nvec, sunrealtype c, N_Vector* Z)
                                               zdata[j][i] = c;
                                           });
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, sunrealtype* c,
-                                     N_Vector* X, N_Vector** Y, N_Vector** Z)
+SUNErrCode N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, sunrealtype* c,
+                                            N_Vector* X, N_Vector** Y,
+                                            N_Vector** Z)
 {
   const sunindextype N = NVEC_RAJA_CONTENT(X[0])->length;
 
@@ -1315,42 +1318,42 @@ int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, sunrealtype* c,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiArray_Sycl: "
                          "FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyRealArray(X[0], c, nsum, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiArray_Sycl: "
                          "FusedBuffer_CopyRealArray returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(X[0], X, nvec, &xdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Sycl: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray2D(X[0], Y, nvec, nsum, &ydata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Sycl: "
                          "FusedBuffer_CopyPtrArray2D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray2D(X[0], Z, nvec, nsum, &zdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Sycl: "
                          "FusedBuffer_CopyPtrArray2D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(X[0]))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Sycl: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   RAJA::forall<SUNDIALS_RAJA_EXEC_STREAM>(RAJA::RangeSegment(zeroIdx, N),
@@ -1363,11 +1366,12 @@ int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, sunrealtype* c,
                                                   ydata[j * nsum + k][i];
                                           });
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum, sunrealtype* c,
-                                         N_Vector** X, N_Vector* Z)
+SUNErrCode N_VLinearCombinationVectorArray_Raja(int nvec, int nsum,
+                                                sunrealtype* c, N_Vector** X,
+                                                N_Vector* Z)
 {
   const sunindextype N = NVEC_RAJA_CONTENT(Z[0])->length;
 
@@ -1381,35 +1385,35 @@ int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum, sunrealtype* c,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: "
                          "FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyRealArray(Z[0], c, nsum, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: "
                          "FusedBuffer_CopyRealArray returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray2D(Z[0], X, nvec, nsum, &xdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: "
                          "FusedBuffer_CopyPtrArray2D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(Z[0]))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Sycl: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   RAJA::forall<SUNDIALS_RAJA_EXEC_STREAM>(RAJA::RangeSegment(zeroIdx, N),
@@ -1428,7 +1432,7 @@ int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum, sunrealtype* c,
                                             }
                                           });
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 /*
@@ -1437,25 +1441,26 @@ int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum, sunrealtype* c,
  * -----------------------------------------------------------------
  */
 
-int N_VBufSize_Raja(N_Vector x, sunindextype* size)
+SUNErrCode N_VBufSize_Raja(N_Vector x, sunindextype* size)
 {
-  if (x == NULL) { return (-1); }
+  if (x == NULL) { return SUN_ERR_GENERIC; }
   *size = (sunindextype)NVEC_RAJA_MEMSIZE(x);
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VBufPack_Raja(N_Vector x, void* buf)
+SUNErrCode N_VBufPack_Raja(N_Vector x, void* buf)
 {
   int copy_fail = 0;
 #if !defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   SUNDIALS_GPU_PREFIX(Error_t) cuerr;
 #endif
 
-  if (x == NULL || buf == NULL) { return (-1); }
+  if (x == NULL || buf == NULL) { return SUN_ERR_GENERIC; }
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) { return (-1); }
+  if (buf_mem == NULL) { return SUN_ERR_GENERIC; }
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
@@ -1484,18 +1489,18 @@ int N_VBufPack_Raja(N_Vector x, void* buf)
 #endif
 }
 
-int N_VBufUnpack_Raja(N_Vector x, void* buf)
+SUNErrCode N_VBufUnpack_Raja(N_Vector x, void* buf)
 {
   int copy_fail = 0;
 #if !defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   SUNDIALS_GPU_PREFIX(Error_t) cuerr;
 #endif
 
-  if (x == NULL || buf == NULL) { return (-1); }
+  if (x == NULL || buf == NULL) { return SUN_ERR_GENERIC; }
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) { return (-1); }
+  if (buf_mem == NULL) { return SUN_ERR_GENERIC; }
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
@@ -1530,13 +1535,13 @@ int N_VBufUnpack_Raja(N_Vector x, void* buf)
  * -----------------------------------------------------------------
  */
 
-int N_VEnableFusedOps_Raja(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableFusedOps_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   if (tf)
   {
@@ -1570,96 +1575,102 @@ int N_VEnableFusedOps_Raja(N_Vector v, sunbooleantype tf)
   }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableLinearCombination_Raja(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableLinearCombination_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf) { v->ops->nvlinearcombination = N_VLinearCombination_Raja; }
   else { v->ops->nvlinearcombination = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableScaleAddMulti_Raja(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableScaleAddMulti_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf) { v->ops->nvscaleaddmulti = N_VScaleAddMulti_Raja; }
   else { v->ops->nvscaleaddmulti = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableLinearSumVectorArray_Raja(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableLinearSumVectorArray_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf) { v->ops->nvlinearsumvectorarray = N_VLinearSumVectorArray_Raja; }
   else { v->ops->nvlinearsumvectorarray = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableScaleVectorArray_Raja(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableScaleVectorArray_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf) { v->ops->nvscalevectorarray = N_VScaleVectorArray_Raja; }
   else { v->ops->nvscalevectorarray = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableConstVectorArray_Raja(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableConstVectorArray_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf) { v->ops->nvconstvectorarray = N_VConstVectorArray_Raja; }
   else { v->ops->nvconstvectorarray = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf)
@@ -1669,16 +1680,18 @@ int N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, sunbooleantype tf)
   else { v->ops->nvscaleaddmultivectorarray = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableLinearCombinationVectorArray_Raja(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableLinearCombinationVectorArray_Raja(N_Vector v,
+                                                      sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf)
@@ -1688,7 +1701,8 @@ int N_VEnableLinearCombinationVectorArray_Raja(N_Vector v, sunbooleantype tf)
   else { v->ops->nvlinearcombinationvectorarray = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
 /*
@@ -1703,7 +1717,11 @@ int AllocateData(N_Vector v)
   N_VectorContent_Raja vc         = NVEC_RAJA_CONTENT(v);
   N_PrivateVectorContent_Raja vcp = NVEC_RAJA_PRIVATE(v);
 
-  if (N_VGetLength_Raja(v) == 0) { return (0); }
+  if (N_VGetLength_Raja(v) == 0)
+  {
+    return SUN_SUCCESS;
+    ;
+  }
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
@@ -1789,7 +1807,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
       {
         SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc "
                              "failed to alloc SUNMEMTYPE_HOST\n");
-        return -1;
+        return SUN_ERR_GENERIC;
       }
     }
 
@@ -1801,7 +1819,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc "
                            "failed to alloc SUNMEMTYPE_DEVICE\n");
-      return -1;
+      return SUN_ERR_GENERIC;
     }
 
     // Store the size of the fused op buffer
@@ -1811,7 +1829,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
   // Reset the buffer offset
   vcp->fused_buffer_offset = 0;
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 static int FusedBuffer_CopyRealArray(N_Vector v, sunrealtype* rdata, int nval,
@@ -1825,7 +1843,7 @@ static int FusedBuffer_CopyRealArray(N_Vector v, sunrealtype* rdata, int nval,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyRealArray: Buffer offset is "
                          "exceedes the buffer size\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   sunrealtype* h_buffer = (sunrealtype*)((char*)(vcp->fused_buffer_host->ptr) +
@@ -1839,7 +1857,7 @@ static int FusedBuffer_CopyRealArray(N_Vector v, sunrealtype* rdata, int nval,
 
   vcp->fused_buffer_offset += nval * sizeof(sunrealtype);
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector* X, int nvec,
@@ -1853,8 +1871,8 @@ static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector* X, int nvec,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyPtrArray1D: Buffer offset "
                          "is exceedes the buffer size\n");
-    return -1;
-    return -1;
+    return SUN_ERR_GENERIC;
+    return SUN_ERR_GENERIC;
   }
 
   sunrealtype** h_buffer = (sunrealtype**)((char*)(vcp->fused_buffer_host->ptr) +
@@ -1868,7 +1886,7 @@ static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector* X, int nvec,
 
   vcp->fused_buffer_offset += nvec * sizeof(sunrealtype*);
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
@@ -1882,7 +1900,7 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyPtrArray2D: Buffer offset "
                          "is exceedes the buffer size\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   sunrealtype** h_buffer = (sunrealtype**)((char*)(vcp->fused_buffer_host->ptr) +
@@ -1903,7 +1921,7 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
   // Update the offset
   vcp->fused_buffer_offset += nvec * nsum * sizeof(sunrealtype*);
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 static int FusedBuffer_CopyToDevice(N_Vector v)
@@ -1926,17 +1944,17 @@ static int FusedBuffer_CopyToDevice(N_Vector v)
   {
     SUNDIALS_DEBUG_PRINT(
       "ERROR in FusedBuffer_CopyToDevice: SUNMemoryHelper_CopyAsync failed\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 static int FusedBuffer_Free(N_Vector v)
 {
   N_PrivateVectorContent_Raja vcp = NVEC_RAJA_PRIVATE(v);
 
-  if (vcp == NULL) { return 0; }
+  if (vcp == NULL) { return SUN_SUCCESS; }
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
@@ -1959,7 +1977,7 @@ static int FusedBuffer_Free(N_Vector v)
   vcp->fused_buffer_bytes  = 0;
   vcp->fused_buffer_offset = 0;
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 } // extern "C"

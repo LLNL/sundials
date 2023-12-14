@@ -476,10 +476,11 @@ sunbooleantype N_VIsManagedMemory_Hip(N_Vector x)
   return NVEC_HIP_PRIVATE(x)->use_managed_mem;
 }
 
-int N_VSetKernelExecPolicy_Hip(N_Vector x, SUNHipExecPolicy* stream_exec_policy,
-                               SUNHipExecPolicy* reduce_exec_policy)
+SUNErrCode N_VSetKernelExecPolicy_Hip(N_Vector x,
+                                      SUNHipExecPolicy* stream_exec_policy,
+                                      SUNHipExecPolicy* reduce_exec_policy)
 {
-  if (x == NULL) { return (-1); }
+  if (x == NULL) { return SUN_ERR_GENERIC; }
 
   /* Delete the old policies */
   delete NVEC_HIP_CONTENT(x)->stream_exec_policy;
@@ -505,7 +506,8 @@ int N_VSetKernelExecPolicy_Hip(N_Vector x, SUNHipExecPolicy* stream_exec_policy,
     NVEC_HIP_CONTENT(x)->reduce_exec_policy = reduce_exec_policy->clone();
   }
 
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
 /* ----------------------------------------------------------------------------
@@ -1323,16 +1325,17 @@ sunrealtype N_VMinQuotient_Hip(N_Vector num, N_Vector denom)
  * -----------------------------------------------------------------
  */
 
-int N_VLinearCombination_Hip(int nvec, sunrealtype* c, N_Vector* X, N_Vector Z)
+SUNErrCode N_VLinearCombination_Hip(int nvec, sunrealtype* c, N_Vector* X,
+                                    N_Vector Z)
 {
   hipError_t err;
 
   // Copy c array to device
   sunrealtype* d_c;
   err = hipMalloc((void**)&d_c, nvec * sizeof(sunrealtype));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_c, c, nvec * sizeof(sunrealtype), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Create array of device pointers on host
   sunrealtype** h_Xd = new sunrealtype*[nvec];
@@ -1341,9 +1344,9 @@ int N_VLinearCombination_Hip(int nvec, sunrealtype* c, N_Vector* X, N_Vector Z)
   // Copy array of device pointers to device from host
   sunrealtype** d_Xd;
   err = hipMalloc((void**)&d_Xd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Xd, h_Xd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Set kernel parameters and launch
   size_t grid, block, shMemSize;
@@ -1351,7 +1354,7 @@ int N_VLinearCombination_Hip(int nvec, sunrealtype* c, N_Vector* X, N_Vector Z)
 
   if (GetKernelParameters(X[0], false, grid, block, shMemSize, stream))
   {
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
   linearCombinationKernel<<<grid, block, shMemSize, stream>>>(nvec, d_c, d_Xd,
                                                               NVEC_HIP_DDATAp(Z),
@@ -1364,24 +1367,25 @@ int N_VLinearCombination_Hip(int nvec, sunrealtype* c, N_Vector* X, N_Vector Z)
 
   // Free device arrays
   err = hipFree(d_c);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Xd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VScaleAddMulti_Hip(int nvec, sunrealtype* c, N_Vector X, N_Vector* Y,
-                         N_Vector* Z)
+SUNErrCode N_VScaleAddMulti_Hip(int nvec, sunrealtype* c, N_Vector X,
+                                N_Vector* Y, N_Vector* Z)
 {
   hipError_t err;
 
   // Copy c array to device
   sunrealtype* d_c;
   err = hipMalloc((void**)&d_c, nvec * sizeof(sunrealtype));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_c, c, nvec * sizeof(sunrealtype), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Create array of device pointers on host
   sunrealtype** h_Yd = new sunrealtype*[nvec];
@@ -1393,15 +1397,15 @@ int N_VScaleAddMulti_Hip(int nvec, sunrealtype* c, N_Vector X, N_Vector* Y,
   // Copy array of device pointers to device from host
   sunrealtype** d_Yd;
   err = hipMalloc((void**)&d_Yd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Yd, h_Yd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   sunrealtype** d_Zd;
   err = hipMalloc((void**)&d_Zd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Zd, h_Zd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Set kernel parameters
   size_t grid, block, shMemSize;
@@ -1409,7 +1413,7 @@ int N_VScaleAddMulti_Hip(int nvec, sunrealtype* c, N_Vector X, N_Vector* Y,
 
   if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
   {
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
   scaleAddMultiKernel<<<grid, block, shMemSize, stream>>>(nvec, d_c,
                                                           NVEC_HIP_DDATAp(X),
@@ -1423,16 +1427,18 @@ int N_VScaleAddMulti_Hip(int nvec, sunrealtype* c, N_Vector X, N_Vector* Y,
 
   // Free device arrays
   err = hipFree(d_c);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Yd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Zd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y, sunrealtype* dots)
+SUNErrCode N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y,
+                               sunrealtype* dots)
 {
   hipError_t err;
 
@@ -1443,9 +1449,9 @@ int N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y, sunrealtype* dots)
   // Copy array of device pointers to device from host
   sunrealtype** d_Yd;
   err = hipMalloc((void**)&d_Yd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Yd, h_Yd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Set kernel parameters
   size_t grid, block, shMemSize;
@@ -1453,16 +1459,16 @@ int N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y, sunrealtype* dots)
 
   if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
   {
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
   grid = nvec;
 
   // Allocate reduction buffer on device
   sunrealtype* d_buff;
   err = hipMalloc((void**)&d_buff, grid * sizeof(sunrealtype));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemsetAsync(d_buff, 0, grid * sizeof(sunrealtype));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   dotProdMultiKernel<sunrealtype, sunindextype, GridReducerAtomic>
     <<<grid, block, shMemSize, stream>>>(nvec, NVEC_HIP_DDATAp(X), d_Yd, d_buff,
@@ -1472,18 +1478,19 @@ int N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y, sunrealtype* dots)
   // Copy GPU result to the cpu.
   err = hipMemcpy(dots, d_buff, grid * sizeof(sunrealtype),
                   hipMemcpyDeviceToHost);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Free host array
   delete[] h_Yd;
 
   // Free device arrays
   err = hipFree(d_Yd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_buff);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
 /*
@@ -1492,8 +1499,8 @@ int N_VDotProdMulti_Hip(int nvec, N_Vector X, N_Vector* Y, sunrealtype* dots)
  * -----------------------------------------------------------------------------
  */
 
-int N_VLinearSumVectorArray_Hip(int nvec, sunrealtype a, N_Vector* X,
-                                sunrealtype b, N_Vector* Y, N_Vector* Z)
+SUNErrCode N_VLinearSumVectorArray_Hip(int nvec, sunrealtype a, N_Vector* X,
+                                       sunrealtype b, N_Vector* Y, N_Vector* Z)
 {
   hipError_t err;
 
@@ -1510,21 +1517,21 @@ int N_VLinearSumVectorArray_Hip(int nvec, sunrealtype a, N_Vector* X,
   // Copy array of device pointers to device from host
   sunrealtype** d_Xd;
   err = hipMalloc((void**)&d_Xd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Xd, h_Xd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   sunrealtype** d_Yd;
   err = hipMalloc((void**)&d_Yd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Yd, h_Yd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   sunrealtype** d_Zd;
   err = hipMalloc((void**)&d_Zd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Zd, h_Zd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Set kernel parameters
   size_t grid, block, shMemSize;
@@ -1532,7 +1539,7 @@ int N_VLinearSumVectorArray_Hip(int nvec, sunrealtype a, N_Vector* X,
 
   if (GetKernelParameters(Z[0], false, grid, block, shMemSize, stream))
   {
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
   linearSumVectorArrayKernel<<<grid, block, shMemSize, stream>>>(nvec, a, d_Xd,
                                                                  b, d_Yd, d_Zd,
@@ -1548,25 +1555,27 @@ int N_VLinearSumVectorArray_Hip(int nvec, sunrealtype a, N_Vector* X,
 
   // Free device arrays
   err = hipFree(d_Xd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Yd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Zd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VScaleVectorArray_Hip(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
+SUNErrCode N_VScaleVectorArray_Hip(int nvec, sunrealtype* c, N_Vector* X,
+                                   N_Vector* Z)
 {
   hipError_t err;
 
   // Copy c array to device
   sunrealtype* d_c;
   err = hipMalloc((void**)&d_c, nvec * sizeof(sunrealtype));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_c, c, nvec * sizeof(sunrealtype), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Create array of device pointers on host
   sunrealtype** h_Xd = new sunrealtype*[nvec];
@@ -1578,15 +1587,15 @@ int N_VScaleVectorArray_Hip(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
   // Copy array of device pointers to device from host
   sunrealtype** d_Xd;
   err = hipMalloc((void**)&d_Xd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Xd, h_Xd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   sunrealtype** d_Zd;
   err = hipMalloc((void**)&d_Zd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Zd, h_Zd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Set kernel parameters
   size_t grid, block, shMemSize;
@@ -1594,7 +1603,7 @@ int N_VScaleVectorArray_Hip(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
 
   if (GetKernelParameters(Z[0], false, grid, block, shMemSize, stream))
   {
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
   scaleVectorArrayKernel<<<grid, block, shMemSize, stream>>>(nvec, d_c, d_Xd,
                                                              d_Zd,
@@ -1608,16 +1617,17 @@ int N_VScaleVectorArray_Hip(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
 
   // Free device arrays
   err = hipFree(d_c);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Xd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Zd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VConstVectorArray_Hip(int nvec, sunrealtype c, N_Vector* Z)
+SUNErrCode N_VConstVectorArray_Hip(int nvec, sunrealtype c, N_Vector* Z)
 {
   hipError_t err;
 
@@ -1628,9 +1638,9 @@ int N_VConstVectorArray_Hip(int nvec, sunrealtype c, N_Vector* Z)
   // Copy array of device pointers to device from host
   sunrealtype** d_Zd;
   err = hipMalloc((void**)&d_Zd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Zd, h_Zd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Set kernel parameters
   size_t grid, block, shMemSize;
@@ -1638,7 +1648,7 @@ int N_VConstVectorArray_Hip(int nvec, sunrealtype c, N_Vector* Z)
 
   if (GetKernelParameters(Z[0], false, grid, block, shMemSize, stream))
   {
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
   constVectorArrayKernel<<<grid, block, shMemSize, stream>>>(nvec, c, d_Zd,
                                                              NVEC_HIP_CONTENT(Z[0])
@@ -1650,13 +1660,14 @@ int N_VConstVectorArray_Hip(int nvec, sunrealtype c, N_Vector* Z)
 
   // Free device arrays
   err = hipFree(d_Zd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
-                               sunrealtype* norms)
+SUNErrCode N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
+                                      sunrealtype* norms)
 {
   hipError_t err;
 
@@ -1669,15 +1680,15 @@ int N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   // Copy array of device pointers to device from host
   sunrealtype** d_Xd;
   err = hipMalloc((void**)&d_Xd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Xd, h_Xd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   sunrealtype** d_Wd;
   err = hipMalloc((void**)&d_Wd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Wd, h_Wd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Set kernel parameters
   size_t grid, block, shMemSize;
@@ -1685,16 +1696,16 @@ int N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
 
   if (GetKernelParameters(X[0], true, grid, block, shMemSize, stream))
   {
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
   grid = nvec;
 
   // Allocate reduction buffer on device
   sunrealtype* d_buff;
   err = hipMalloc((void**)&d_buff, grid * sizeof(sunrealtype));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemsetAsync(d_buff, 0, grid * sizeof(sunrealtype));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   wL2NormSquareVectorArrayKernel<sunrealtype, sunindextype, GridReducerAtomic>
     <<<grid, block, shMemSize, stream>>>(nvec, d_Xd, d_Wd, d_buff,
@@ -1704,7 +1715,7 @@ int N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   // Copy GPU result to the cpu.
   err = hipMemcpy(norms, d_buff, grid * sizeof(sunrealtype),
                   hipMemcpyDeviceToHost);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Finish computation
   for (int k = 0; k < nvec; ++k)
@@ -1718,17 +1729,18 @@ int N_VWrmsNormVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
 
   // Free device arrays
   err = hipFree(d_Xd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Wd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_buff);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
-                                   N_Vector id, sunrealtype* norms)
+SUNErrCode N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
+                                          N_Vector id, sunrealtype* norms)
 {
   hipError_t err;
 
@@ -1742,15 +1754,15 @@ int N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   // Copy array of device pointers to device from host
   sunrealtype** d_Xd;
   err = hipMalloc((void**)&d_Xd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Xd, h_Xd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   sunrealtype** d_Wd;
   err = hipMalloc((void**)&d_Wd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Wd, h_Wd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Set kernel parameters
   size_t grid, block, shMemSize;
@@ -1758,16 +1770,16 @@ int N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
 
   if (GetKernelParameters(X[0], true, grid, block, shMemSize, stream))
   {
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
   grid = nvec;
 
   // Allocate reduction buffer on device
   sunrealtype* d_buff;
   err = hipMalloc((void**)&d_buff, grid * sizeof(sunrealtype));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemsetAsync(d_buff, 0, grid * sizeof(sunrealtype));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   wL2NormSquareMaskVectorArrayKernel<sunrealtype, sunindextype, GridReducerAtomic>
     <<<grid, block, shMemSize, stream>>>(nvec, d_Xd, d_Wd, NVEC_HIP_DDATAp(id),
@@ -1777,7 +1789,7 @@ int N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
   // Copy GPU result to the cpu.
   err = hipMemcpy(norms, d_buff, grid * sizeof(sunrealtype),
                   hipMemcpyDeviceToHost);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Finish computation
   for (int k = 0; k < nvec; ++k)
@@ -1791,26 +1803,28 @@ int N_VWrmsNormMaskVectorArray_Hip(int nvec, N_Vector* X, N_Vector* W,
 
   // Free device arrays
   err = hipFree(d_Xd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Wd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_buff);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VScaleAddMultiVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
-                                    N_Vector* X, N_Vector** Y, N_Vector** Z)
+SUNErrCode N_VScaleAddMultiVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
+                                           N_Vector* X, N_Vector** Y,
+                                           N_Vector** Z)
 {
   hipError_t err;
 
   // Copy c array to device
   sunrealtype* d_c;
   err = hipMalloc((void**)&d_c, nsum * sizeof(sunrealtype));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_c, c, nsum * sizeof(sunrealtype), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Create array of device pointers on host
   sunrealtype** h_Xd = new sunrealtype*[nvec];
@@ -1837,23 +1851,23 @@ int N_VScaleAddMultiVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
   // Copy array of device pointers to device from host
   sunrealtype** d_Xd;
   err = hipMalloc((void**)&d_Xd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Xd, h_Xd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   sunrealtype** d_Yd;
   err = hipMalloc((void**)&d_Yd, nsum * nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Yd, h_Yd, nsum * nvec * sizeof(sunrealtype*),
                   hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   sunrealtype** d_Zd;
   err = hipMalloc((void**)&d_Zd, nsum * nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Zd, h_Zd, nsum * nvec * sizeof(sunrealtype*),
                   hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Set kernel parameters
   size_t grid, block, shMemSize;
@@ -1861,7 +1875,7 @@ int N_VScaleAddMultiVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
 
   if (GetKernelParameters(Z[0][0], false, grid, block, shMemSize, stream))
   {
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
   scaleAddMultiVectorArrayKernel<<<grid, block, shMemSize, stream>>>(nvec, nsum,
                                                                      d_c, d_Xd,
@@ -1878,28 +1892,29 @@ int N_VScaleAddMultiVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
 
   // Free device arrays
   err = hipFree(d_c);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Xd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Yd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Zd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VLinearCombinationVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
-                                        N_Vector** X, N_Vector* Z)
+SUNErrCode N_VLinearCombinationVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
+                                               N_Vector** X, N_Vector* Z)
 {
   hipError_t err;
 
   // Copy c array to device
   sunrealtype* d_c;
   err = hipMalloc((void**)&d_c, nsum * sizeof(sunrealtype));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_c, c, nsum * sizeof(sunrealtype), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Create array of device pointers on host
   sunrealtype** h_Xd = new sunrealtype*[nsum * nvec];
@@ -1917,16 +1932,16 @@ int N_VLinearCombinationVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
   // Copy array of device pointers to device from host
   sunrealtype** d_Xd;
   err = hipMalloc((void**)&d_Xd, nsum * nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Xd, h_Xd, nsum * nvec * sizeof(sunrealtype*),
                   hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   sunrealtype** d_Zd;
   err = hipMalloc((void**)&d_Zd, nvec * sizeof(sunrealtype*));
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipMemcpy(d_Zd, h_Zd, nvec * sizeof(sunrealtype*), hipMemcpyHostToDevice);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   // Set kernel parameters
   size_t grid, block, shMemSize;
@@ -1934,7 +1949,7 @@ int N_VLinearCombinationVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
 
   if (GetKernelParameters(Z[0], false, grid, block, shMemSize, stream))
   {
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
   linearCombinationVectorArrayKernel<<<grid, block, shMemSize,
                                        stream>>>(nvec, nsum, d_c, d_Xd, d_Zd,
@@ -1947,11 +1962,11 @@ int N_VLinearCombinationVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
 
   // Free device arrays
   err = hipFree(d_c);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Xd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
   err = hipFree(d_Zd);
-  if (!SUNDIALS_HIP_VERIFY(err)) { return (-1); }
+  if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
   return hipGetLastError();
 }
@@ -1962,23 +1977,24 @@ int N_VLinearCombinationVectorArray_Hip(int nvec, int nsum, sunrealtype* c,
  * -----------------------------------------------------------------
  */
 
-int N_VBufSize_Hip(N_Vector x, sunindextype* size)
+SUNErrCode N_VBufSize_Hip(N_Vector x, sunindextype* size)
 {
-  if (x == NULL) { return (-1); }
+  if (x == NULL) { return SUN_ERR_GENERIC; }
   *size = (sunindextype)NVEC_HIP_MEMSIZE(x);
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VBufPack_Hip(N_Vector x, void* buf)
+SUNErrCode N_VBufPack_Hip(N_Vector x, void* buf)
 {
   int copy_fail = 0;
   hipError_t cuerr;
 
-  if (x == NULL || buf == NULL) { return (-1); }
+  if (x == NULL || buf == NULL) { return SUN_ERR_GENERIC; }
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) { return (-1); }
+  if (buf_mem == NULL) { return SUN_ERR_GENERIC; }
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_HIP_MEMHELP(x), buf_mem,
                                         NVEC_HIP_CONTENT(x)->device_data,
@@ -1994,16 +2010,16 @@ int N_VBufPack_Hip(N_Vector x, void* buf)
   return (!SUNDIALS_HIP_VERIFY(cuerr) || copy_fail ? -1 : 0);
 }
 
-int N_VBufUnpack_Hip(N_Vector x, void* buf)
+SUNErrCode N_VBufUnpack_Hip(N_Vector x, void* buf)
 {
   int copy_fail = 0;
   hipError_t cuerr;
 
-  if (x == NULL || buf == NULL) { return (-1); }
+  if (x == NULL || buf == NULL) { return SUN_ERR_GENERIC; }
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) { return (-1); }
+  if (buf_mem == NULL) { return SUN_ERR_GENERIC; }
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_HIP_MEMHELP(x),
                                         NVEC_HIP_CONTENT(x)->device_data,
@@ -2025,13 +2041,13 @@ int N_VBufUnpack_Hip(N_Vector x, void* buf)
  * -----------------------------------------------------------------
  */
 
-int N_VEnableFusedOps_Hip(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableFusedOps_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   if (tf)
   {
@@ -2069,48 +2085,51 @@ int N_VEnableFusedOps_Hip(N_Vector v, sunbooleantype tf)
   }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableLinearCombination_Hip(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableLinearCombination_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf) { v->ops->nvlinearcombination = N_VLinearCombination_Hip; }
   else { v->ops->nvlinearcombination = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableScaleAddMulti_Hip(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableScaleAddMulti_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf) { v->ops->nvscaleaddmulti = N_VScaleAddMulti_Hip; }
   else { v->ops->nvscaleaddmulti = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableDotProdMulti_Hip(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableDotProdMulti_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf)
@@ -2125,80 +2144,85 @@ int N_VEnableDotProdMulti_Hip(N_Vector v, sunbooleantype tf)
   }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableLinearSumVectorArray_Hip(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableLinearSumVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf) { v->ops->nvlinearsumvectorarray = N_VLinearSumVectorArray_Hip; }
   else { v->ops->nvlinearsumvectorarray = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableScaleVectorArray_Hip(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableScaleVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf) { v->ops->nvscalevectorarray = N_VScaleVectorArray_Hip; }
   else { v->ops->nvscalevectorarray = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableConstVectorArray_Hip(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableConstVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf) { v->ops->nvconstvectorarray = N_VConstVectorArray_Hip; }
   else { v->ops->nvconstvectorarray = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableWrmsNormVectorArray_Hip(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableWrmsNormVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf) { v->ops->nvwrmsnormvectorarray = N_VWrmsNormVectorArray_Hip; }
   else { v->ops->nvwrmsnormvectorarray = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableWrmsNormMaskVectorArray_Hip(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableWrmsNormMaskVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf)
@@ -2208,16 +2232,17 @@ int N_VEnableWrmsNormMaskVectorArray_Hip(N_Vector v, sunbooleantype tf)
   else { v->ops->nvwrmsnormmaskvectorarray = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf)
@@ -2227,16 +2252,17 @@ int N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, sunbooleantype tf)
   else { v->ops->nvscaleaddmultivectorarray = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
-int N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   /* enable/disable operation */
   if (tf)
@@ -2246,7 +2272,8 @@ int N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, sunbooleantype tf)
   else { v->ops->nvlinearcombinationvectorarray = NULL; }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
 } // extern "C"
@@ -2261,7 +2288,11 @@ int AllocateData(N_Vector v)
   N_VectorContent_Hip vc         = NVEC_HIP_CONTENT(v);
   N_PrivateVectorContent_Hip vcp = NVEC_HIP_PRIVATE(v);
 
-  if (N_VGetLength_Hip(v) == 0) { return (0); }
+  if (N_VGetLength_Hip(v) == 0)
+  {
+    return SUN_SUCCESS;
+    ;
+  }
 
   if (vcp->use_managed_mem)
   {
@@ -2490,7 +2521,7 @@ static int GetKernelParameters(N_Vector v, sunbooleantype reduction,
 #ifdef SUNDIALS_DEBUG
         throw std::runtime_error("SUNMemoryHelper_Alloc returned nonzero\n");
 #endif
-        return (-1);
+        return SUN_ERR_GENERIC;
       }
     }
 
@@ -2500,7 +2531,7 @@ static int GetKernelParameters(N_Vector v, sunbooleantype reduction,
       throw std::runtime_error(
         "the block size must be a multiple must be of the HIP warp size");
 #endif
-      return (-1);
+      return SUN_ERR_GENERIC;
     }
   }
   else
@@ -2518,17 +2549,18 @@ static int GetKernelParameters(N_Vector v, sunbooleantype reduction,
 #ifdef SUNDIALS_DEBUG
     throw std::runtime_error("the grid size must be > 0");
 #endif
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
   if (block == 0)
   {
 #ifdef SUNDIALS_DEBUG
     throw std::runtime_error("the block size must be > 0");
 #endif
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
 
-  return (0);
+  return SUN_SUCCESS;
+  ;
 }
 
 static int GetKernelParameters(N_Vector v, sunbooleantype reduction,

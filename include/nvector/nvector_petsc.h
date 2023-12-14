@@ -122,34 +122,31 @@ SUNDIALS_EXPORT sunbooleantype N_VConstrMask_Petsc(N_Vector c, N_Vector x,
 SUNDIALS_EXPORT sunrealtype N_VMinQuotient_Petsc(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
-SUNDIALS_EXPORT int N_VLinearCombination_Petsc(int nvec, sunrealtype* c,
-                                               N_Vector* X, N_Vector z);
-SUNDIALS_EXPORT int N_VScaleAddMulti_Petsc(int nvec, sunrealtype* a, N_Vector x,
-                                           N_Vector* Y, N_Vector* Z);
-SUNDIALS_EXPORT int N_VDotProdMulti_Petsc(int nvec, N_Vector x, N_Vector* Y,
-                                          sunrealtype* dotprods);
+SUNDIALS_EXPORT SUNErrCode N_VLinearCombination_Petsc(int nvec, sunrealtype* c,
+                                                      N_Vector* X, N_Vector z);
+SUNDIALS_EXPORT SUNErrCode N_VScaleAddMulti_Petsc(int nvec, sunrealtype* a,
+                                                  N_Vector x, N_Vector* Y,
+                                                  N_Vector* Z);
+SUNDIALS_EXPORT SUNErrCode N_VDotProdMulti_Petsc(int nvec, N_Vector x,
+                                                 N_Vector* Y,
+                                                 sunrealtype* dotprods);
 
 /* vector array operations */
-SUNDIALS_EXPORT int N_VLinearSumVectorArray_Petsc(int nvec, sunrealtype a,
-                                                  N_Vector* X, sunrealtype b,
-                                                  N_Vector* Y, N_Vector* Z);
-SUNDIALS_EXPORT int N_VScaleVectorArray_Petsc(int nvec, sunrealtype* c,
-                                              N_Vector* X, N_Vector* Z);
-SUNDIALS_EXPORT int N_VConstVectorArray_Petsc(int nvecs, sunrealtype c,
-                                              N_Vector* Z);
-SUNDIALS_EXPORT int N_VWrmsNormVectorArray_Petsc(int nvecs, N_Vector* X,
-                                                 N_Vector* W, sunrealtype* nrm);
-SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray_Petsc(int nvec, N_Vector* X,
-                                                     N_Vector* W, N_Vector id,
-                                                     sunrealtype* nrm);
-SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray_Petsc(int nvec, int nsum,
-                                                      sunrealtype* a,
-                                                      N_Vector* X, N_Vector** Y,
-                                                      N_Vector** Z);
-SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Petsc(int nvec, int nsum,
-                                                          sunrealtype* c,
-                                                          N_Vector** X,
-                                                          N_Vector* Z);
+SUNDIALS_EXPORT SUNErrCode N_VLinearSumVectorArray_Petsc(
+  int nvec, sunrealtype a, N_Vector* X, sunrealtype b, N_Vector* Y, N_Vector* Z);
+SUNDIALS_EXPORT SUNErrCode N_VScaleVectorArray_Petsc(int nvec, sunrealtype* c,
+                                                     N_Vector* X, N_Vector* Z);
+SUNDIALS_EXPORT SUNErrCode N_VConstVectorArray_Petsc(int nvecs, sunrealtype c,
+                                                     N_Vector* Z);
+SUNDIALS_EXPORT SUNErrCode N_VWrmsNormVectorArray_Petsc(int nvecs, N_Vector* X,
+                                                        N_Vector* W,
+                                                        sunrealtype* nrm);
+SUNDIALS_EXPORT SUNErrCode N_VWrmsNormMaskVectorArray_Petsc(
+  int nvec, N_Vector* X, N_Vector* W, N_Vector id, sunrealtype* nrm);
+SUNDIALS_EXPORT SUNErrCode N_VScaleAddMultiVectorArray_Petsc(
+  int nvec, int nsum, sunrealtype* a, N_Vector* X, N_Vector** Y, N_Vector** Z);
+SUNDIALS_EXPORT SUNErrCode N_VLinearCombinationVectorArray_Petsc(
+  int nvec, int nsum, sunrealtype* c, N_Vector** X, N_Vector* Z);
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
 SUNDIALS_EXPORT sunrealtype N_VDotProdLocal_Petsc(N_Vector x, N_Vector y);
@@ -166,15 +163,16 @@ SUNDIALS_EXPORT sunrealtype N_VMinQuotientLocal_Petsc(N_Vector num,
                                                       N_Vector denom);
 
 /* OPTIONAL single buffer reduction operations */
-SUNDIALS_EXPORT int N_VDotProdMultiLocal_Petsc(int nvec, N_Vector x, N_Vector* Y,
-                                               sunrealtype* dotprods);
-SUNDIALS_EXPORT int N_VDotProdMultiAllReduce_Petsc(int nvec, N_Vector x,
-                                                   sunrealtype* sum);
+SUNDIALS_EXPORT SUNErrCode N_VDotProdMultiLocal_Petsc(int nvec, N_Vector x,
+                                                      N_Vector* Y,
+                                                      sunrealtype* dotprods);
+SUNDIALS_EXPORT SUNErrCode N_VDotProdMultiAllReduce_Petsc(int nvec, N_Vector x,
+                                                          sunrealtype* sum);
 
 /* OPTIONAL XBraid interface operations */
-SUNDIALS_EXPORT int N_VBufSize_Petsc(N_Vector x, sunindextype* size);
-SUNDIALS_EXPORT int N_VBufPack_Petsc(N_Vector x, void* buf);
-SUNDIALS_EXPORT int N_VBufUnpack_Petsc(N_Vector x, void* buf);
+SUNDIALS_EXPORT SUNErrCode N_VBufSize_Petsc(N_Vector x, sunindextype* size);
+SUNDIALS_EXPORT SUNErrCode N_VBufPack_Petsc(N_Vector x, void* buf);
+SUNDIALS_EXPORT SUNErrCode N_VBufUnpack_Petsc(N_Vector x, void* buf);
 
 /*
  * -----------------------------------------------------------------
@@ -182,30 +180,32 @@ SUNDIALS_EXPORT int N_VBufUnpack_Petsc(N_Vector x, void* buf);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int N_VEnableFusedOps_Petsc(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode N_VEnableFusedOps_Petsc(N_Vector v, sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableLinearCombination_Petsc(N_Vector v,
-                                                     sunbooleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Petsc(N_Vector v, sunbooleantype tf);
-SUNDIALS_EXPORT int N_VEnableDotProdMulti_Petsc(N_Vector v, sunbooleantype tf);
-
-SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Petsc(N_Vector v,
-                                                        sunbooleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Petsc(N_Vector v,
-                                                    sunbooleantype tf);
-SUNDIALS_EXPORT int N_VEnableConstVectorArray_Petsc(N_Vector v,
-                                                    sunbooleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Petsc(N_Vector v,
-                                                       sunbooleantype tf);
-SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Petsc(N_Vector v,
-                                                           sunbooleantype tf);
-SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Petsc(N_Vector v,
+SUNDIALS_EXPORT SUNErrCode N_VEnableLinearCombination_Petsc(N_Vector v,
                                                             sunbooleantype tf);
-SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v,
-                                                                sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode N_VEnableScaleAddMulti_Petsc(N_Vector v,
+                                                        sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode N_VEnableDotProdMulti_Petsc(N_Vector v,
+                                                       sunbooleantype tf);
 
-SUNDIALS_EXPORT int N_VEnableDotProdMultiLocal_Petsc(N_Vector v,
-                                                     sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode N_VEnableLinearSumVectorArray_Petsc(N_Vector v,
+                                                               sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode N_VEnableScaleVectorArray_Petsc(N_Vector v,
+                                                           sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode N_VEnableConstVectorArray_Petsc(N_Vector v,
+                                                           sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode N_VEnableWrmsNormVectorArray_Petsc(N_Vector v,
+                                                              sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode
+N_VEnableWrmsNormMaskVectorArray_Petsc(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode
+N_VEnableScaleAddMultiVectorArray_Petsc(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT SUNErrCode
+N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v, sunbooleantype tf);
+
+SUNDIALS_EXPORT SUNErrCode N_VEnableDotProdMultiLocal_Petsc(N_Vector v,
+                                                            sunbooleantype tf);
 
 #ifdef __cplusplus
 }
