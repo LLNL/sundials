@@ -317,6 +317,7 @@ SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
 
   SUNAssert(xd, SUN_ERR_MEM_FAIL);
   SUNAssert(yd, SUN_ERR_MEM_FAIL);
+  SUNAssert(xd != yd, SUN_ERR_MEM_FAIL);
 
   /* Perform operation y = Ax */
   for (i = 0; i < SM_ROWS_D(A); i++) { yd[i] = ZERO; }

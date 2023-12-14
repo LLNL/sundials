@@ -618,7 +618,7 @@ SUNErrCode SUNMatrix_cuSparse_SetKernelExecPolicy(SUNMatrix A,
 {
   if (SUNMatGetID(A) != SUNMATRIX_CUSPARSE)
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return (SUN_ERR_ARG_WRONGTYPE);
   }
 
   /* Reset to the default policy if the new one is NULL */
@@ -643,7 +643,7 @@ SUNErrCode SUNMatrix_cuSparse_CopyToDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (SUNMatGetID(dA) != SUNMATRIX_CUSPARSE)
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return (SUN_ERR_ARG_WRONGTYPE);
   }
 
   stream = SMCU_EXECPOLICY(dA)->stream();
@@ -709,7 +709,7 @@ SUNErrCode SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix dA, sunrealtype* h_data,
 
   if (SUNMatGetID(dA) != SUNMATRIX_CUSPARSE)
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return (SUN_ERR_ARG_WRONGTYPE);
   }
 
   stream = SMCU_EXECPOLICY(dA)->stream();
