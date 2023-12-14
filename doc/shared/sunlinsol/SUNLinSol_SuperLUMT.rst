@@ -94,8 +94,8 @@ The module SUNLinSol_SuperLUMT provides the following user-callable routines:
 
    **Return value:**
       * ``SUN_SUCCESS`` -- option successfully set
-      * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``
-      * ``SUNLS_ILL_INPUT`` -- invalid ``ordering_choice``
+      * ``SUN_ERR_ARG_CORRUPT`` -- ``S`` is ``NULL``
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- invalid ``ordering_choice``
 
 
 For backwards compatibility, we also provide the following wrapper functions,

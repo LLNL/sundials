@@ -100,8 +100,8 @@ The module SUNLinSol_SPTFQMR provides the following user-callable routines:
 
    **Return value:**
       * ``SUN_SUCCESS`` -- successful update.
-      * ``SUNLS_ILL_INPUT`` -- illegal ``pretype``
-      * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- illegal ``pretype``
+      * ``SUN_ERR_ARG_CORRUPT`` -- ``S`` is ``NULL``
 
 
 .. c:function:: int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
@@ -115,7 +115,7 @@ The module SUNLinSol_SPTFQMR provides the following user-callable routines:
 
    **Return value:**
       * ``SUN_SUCCESS`` -- successful update.
-      * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``
+      * ``SUN_ERR_ARG_CORRUPT`` -- ``S`` is ``NULL``
 
 
 .. c:function:: int SUNLinSolSetInfoFile_SPTFQMR(SUNLinearSolver LS, FILE* info_file)

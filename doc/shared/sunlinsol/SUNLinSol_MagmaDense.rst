@@ -96,7 +96,7 @@ In addition, the module provides the following user-callable routines:
 
    **Return value:**
       * ``SUN_SUCCESS`` if successful
-      * ``SUNLS_MEM_NULL`` if *LS* is ``NULL``
+      * ``SUN_ERR_ARG_CORRUPT`` if *LS* is ``NULL``
 
 
 SUNLinearSolver_MagmaDense Content

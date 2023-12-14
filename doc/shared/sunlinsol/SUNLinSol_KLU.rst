@@ -89,8 +89,8 @@ user-callable routines:
 
    **Return value:**
       * ``SUN_SUCCESS`` -- reinitialization successful.
-      * ``SUNLS_MEM_NULL`` -- either ``S`` or ``A`` are ``NULL``.
-      * ``SUNLS_ILL_INPUT`` -- ``A`` does not have type ``SUNMATRIX_SPARSE`` or
+      * ``SUN_ERR_ARK_CORRUPT`` -- either ``S`` or ``A`` are ``NULL``.
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- ``A`` does not have type ``SUNMATRIX_SPARSE`` or
          ``reinit_type`` is invalid.
       * ``SUNLS_MEM_FAIL`` reallocation of the sparse matrix failed.
 
@@ -117,8 +117,8 @@ user-callable routines:
 
    **Return value:**
       * ``SUN_SUCCESS`` -- ordering choice successfully updated.
-      * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``.
-      * ``SUNLS_ILL_INPUT`` -- ``ordering_choice``.
+      * ``SUN_ERR_ARG_CORRUPT`` -- ``S`` is ``NULL``.
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- ``ordering_choice``.
 
 
 .. c:function:: sun_klu_symbolic* SUNLinSol_KLUGetSymbolic(SUNLinearSolver S)

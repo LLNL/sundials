@@ -99,8 +99,8 @@ user-callable routines:
 
    **Return value:**
       * ``SUN_SUCCESS`` -- successful update.
-      * ``SUNLS_ILL_INPUT`` -- illegal ``pretype``
-      * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``
+      * ``SUN_ERR_ARG_INCOMPATIBLET`` -- illegal ``pretype``
+      * ``SUN_ERR_ARG_CORRUPT`` -- ``S`` is ``NULL``
 
    **Notes:**
       Since the FGMRES algorithm is designed to only support right
@@ -123,8 +123,8 @@ user-callable routines:
 
    **Return value:**
       * ``SUN_SUCCESS`` -- successful update.
-      * ``SUNLS_ILL_INPUT`` -- illegal ``gstype``
-      * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- illegal ``gstype``
+      * ``SUN_ERR_ARG_CORRUPT`` -- ``S`` is ``NULL``
 
 
 .. c:function:: int SUNLinSol_SPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
@@ -138,7 +138,7 @@ user-callable routines:
 
    **Return value:**
       * ``SUN_SUCCESS`` -- successful update.
-      * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``
+      * ``SUN_ERR_ARG_CORRUPT`` -- ``S`` is ``NULL``
 
 
 .. c:function:: int SUNLinSolSetInfoFile_SPFGMR(SUNLinearSolver LS, FILE* info_file)
