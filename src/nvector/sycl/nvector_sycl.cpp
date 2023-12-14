@@ -1896,7 +1896,8 @@ SUNErrCode N_VBufPack_Sycl(N_Vector x, void* buf)
 
   SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(x), buf_mem, NVEC_SYCL_QUEUE(x));
 
-  return (copy_fail ? -1 : 0);
+  if (copy_fail) { return SUN_ERR_GENERIC) };
+  else { return SUN_SUCCESS; }
 }
 
 SUNErrCode N_VBufUnpack_Sycl(N_Vector x, void* buf)
