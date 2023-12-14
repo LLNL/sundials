@@ -35,6 +35,7 @@
   ENTRY(SUN_ERR_ARG_WRONGTYPE, "argument provided is not the right type")      \
   ENTRY(SUN_ERR_ARG_DIMSMISMATCH, "argument dimensions do not agree")          \
                                                                                \
+  ENTRY(SUN_ERR_GENERIC, "an error occurred")                                  \
   ENTRY(SUN_ERR_CORRUPT, "Object is NULL or corrupt")                          \
   ENTRY(SUN_ERR_OUTOFRANGE, "Value is out of the expected range")              \
   ENTRY(SUN_ERR_FILE_OPEN, "Unable to open file")                              \
