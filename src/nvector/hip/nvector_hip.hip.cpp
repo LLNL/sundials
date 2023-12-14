@@ -1959,7 +1959,7 @@ SUNErrCode N_VLinearCombinationVectorArray_Hip(int nvec, int nsum, sunrealtype* 
   err = hipFree(d_Zd);
   if (!SUNDIALS_HIP_VERIFY(err)) { return SUN_ERR_GENERIC; }
 
-  return hipGetLastError();
+  return SUN_SUCCESS;
 }
 
 /*

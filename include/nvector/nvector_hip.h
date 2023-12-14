@@ -72,9 +72,10 @@ SUNDIALS_EXPORT void N_VSetHostArrayPointer_Hip(sunrealtype* h_vdata, N_Vector v
 SUNDIALS_EXPORT void N_VSetDeviceArrayPointer_Hip(sunrealtype* d_vdata,
                                                   N_Vector v);
 SUNDIALS_EXPORT sunbooleantype N_VIsManagedMemory_Hip(N_Vector x);
-SUNDIALS_EXPORT SUNErrCode
-N_VSetKernelExecPolicy_Hip(N_Vector x, SUNHipExecPolicy* stream_exec_policy,
-                           SUNHipExecPolicy* reduce_exec_policy);
+SUNDIALS_EXPORT
+SUNErrCode N_VSetKernelExecPolicy_Hip(N_Vector x,
+                                      SUNHipExecPolicy* stream_exec_policy,
+                                      SUNHipExecPolicy* reduce_exec_policy);
 SUNDIALS_EXPORT void N_VCopyToDevice_Hip(N_Vector v);
 SUNDIALS_EXPORT void N_VCopyFromDevice_Hip(N_Vector v);
 
@@ -208,10 +209,10 @@ SUNDIALS_EXPORT SUNErrCode N_VEnableWrmsNormVectorArray_Hip(N_Vector v,
                                                             sunbooleantype tf);
 SUNDIALS_EXPORT SUNErrCode N_VEnableWrmsNormMaskVectorArray_Hip(N_Vector v,
                                                                 sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableScaleAddMultiVectorArray_Hip(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableLinearCombinationVectorArray_Hip(N_Vector v, sunbooleantype tf);
 
 #ifdef __cplusplus
 }

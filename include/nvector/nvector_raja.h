@@ -192,10 +192,10 @@ SUNDIALS_EXPORT SUNErrCode N_VEnableScaleVectorArray_Raja(N_Vector v,
                                                           sunbooleantype tf);
 SUNDIALS_EXPORT SUNErrCode N_VEnableConstVectorArray_Raja(N_Vector v,
                                                           sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, sunbooleantype tf);
-SUNDIALS_EXPORT SUNErrCode
-N_VEnableLinearCombinationVectorArray_Raja(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, sunbooleantype tf);
+SUNDIALS_EXPORT
+SUNErrCode N_VEnableLinearCombinationVectorArray_Raja(N_Vector v, sunbooleantype tf);
 
 #ifdef __cplusplus
 }
