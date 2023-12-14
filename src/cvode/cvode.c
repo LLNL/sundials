@@ -4856,7 +4856,7 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
     SUNHandleErrWithMsg(line, func, file, msg, error_code, cv_mem->cv_sunctx);
 
     /* Clear the error now */
-    (void)SUNContext_GetLastError(SUNCTX_);
+    (void)SUNContext_GetLastError(cv_mem->cv_sunctx);
   }
   while (0);
 
