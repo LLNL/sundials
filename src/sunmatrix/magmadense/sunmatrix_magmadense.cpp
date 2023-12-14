@@ -316,7 +316,7 @@ SUNErrCode SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix Amat, sunrealtype* h_da
 {
   if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return (SUN_ERR_ARG_WRONGTYPE);
   }
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
