@@ -24,6 +24,7 @@
 #include <sunmemory/sunmemory_sycl.h>
 
 /* SUNDIALS private headers */
+#include "sundials/sundials_errors.h"
 #include "sundials_debug.h"
 #include "sundials_sycl.h"
 
@@ -1896,8 +1897,7 @@ SUNErrCode N_VBufPack_Sycl(N_Vector x, void* buf)
 
   SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(x), buf_mem, NVEC_SYCL_QUEUE(x));
 
-  if (copy_fail) { return SUN_ERR_GENERIC) };
-  else { return SUN_SUCCESS; }
+  return (copy_fail ? SUN_ERR_GENERIC : SUN_SUCCESS);
 }
 
 SUNErrCode N_VBufUnpack_Sycl(N_Vector x, void* buf)
@@ -1919,7 +1919,7 @@ SUNErrCode N_VBufUnpack_Sycl(N_Vector x, void* buf)
 
   SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(x), buf_mem, NVEC_SYCL_QUEUE(x));
 
-  return (copy_fail ? -1 : 0);
+  return (copy_fail ? SUN_ERR_GENERIC : SUN_SUCCESS);
 }
 
 /* --------------------------------------------------------------------------
@@ -2073,7 +2073,7 @@ static int AllocateData(N_Vector v)
     }
   }
 
-  return (alloc_fail ? -1 : 0);
+  return (alloc_fail ? SUN_ERR_GENERIC : SUN_SUCCESS);
 }
 
 /* Allocate and initializes the internal memory used for reductions */
@@ -2157,7 +2157,7 @@ static int InitializeReductionBuffer(N_Vector v, const sunrealtype value, size_t
   /* deallocate the wrapper */
   SUNMemoryHelper_Dealloc(NVEC_SYCL_MEMHELP(v), value_mem, NVEC_SYCL_QUEUE(v));
 
-  return ((alloc_fail || copy_fail) ? -1 : 0);
+  return ((alloc_fail || copy_fail) ? SUN_ERR_GENERIC : SUN_SUCCESS);
 }
 
 /* Free the reduction memory */
@@ -2207,7 +2207,7 @@ static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
   /* synchronize with respect to the host */
   NVEC_SYCL_QUEUE(v)->wait_and_throw();
 
-  return (copy_fail ? -1 : 0);
+  return (copy_fail ? SUN_ERR_GENERIC : SUN_SUCCESS);
 }
 
 static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)

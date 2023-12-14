@@ -1752,7 +1752,7 @@ int AllocateData(N_Vector v)
     }
   }
 
-  return (alloc_fail ? -1 : 0);
+  return (alloc_fail ? SUN_ERR_GENERIC : SUN_SUCCESS);
 }
 
 static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)

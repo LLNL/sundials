@@ -2391,7 +2391,7 @@ static int InitializeReductionBuffer(N_Vector v, sunrealtype value, size_t n)
     }
   }
 
-  return ((alloc_fail || copy_fail) ? -1 : 0);
+  return ((alloc_fail || copy_fail) ? SUN_ERR_GENERIC : SUN_SUCCESS);
 }
 
 /* Free the reduction buffer
