@@ -78,7 +78,7 @@
 #include <nvector/nvector_serial.h> // serial N_Vector type, fcts., macros
 #include <stdio.h>
 #include <string.h>
-#include <sundials/sundials_math.h>    // def. math fcns, 'sunrealtype'
+#include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_dense.h> // dense linear solver
 #include <sunmatrix/sunmatrix_dense.h> // dense matrix type, fcts., macros
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h> // fixed-point nonlinear solver

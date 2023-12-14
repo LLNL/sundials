@@ -18,13 +18,7 @@
 #include <sundials/sundials_mpi_types.h>
 #include <unistd.h>
 
-static inline char* sunCombineFileAndLine(int line, const char* file)
-{
-  size_t total_str_len = strlen(file) + 6;
-  char* file_and_line  = malloc(total_str_len * sizeof(char));
-  snprintf(file_and_line, total_str_len, "%s:%d", file, line);
-  return file_and_line;
-}
+#include "sundials_utils.h"
 
 void SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file,
                              const char* msg, SUNErrCode err_code,

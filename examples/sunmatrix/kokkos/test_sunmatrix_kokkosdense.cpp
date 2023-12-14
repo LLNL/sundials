@@ -18,7 +18,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <nvector/nvector_kokkos.hpp>
-#include <sundials/sundials_math.h>
+#include <sundials/sundials_core.hpp>
 #include <sundials/sundials_types.h>
 #include <sunmatrix/sunmatrix_kokkosdense.hpp>
 

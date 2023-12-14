@@ -74,6 +74,7 @@
 #include <cstdio>
 #include <cvode/cvode.h> /* prototypes for CVODE fcts., consts.           */
 #include <memory>
+#include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_magmadense.h> /* access to MAGMA dense SUNLinearSolver         */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to GMRES SUNLinearSolver               */
 #include <sunmatrix/sunmatrix_magmadense.h> /* access to the MAGMA dense SUNMatrix           */

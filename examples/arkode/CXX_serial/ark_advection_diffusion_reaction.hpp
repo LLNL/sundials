@@ -31,6 +31,7 @@
 #include "arkode/arkode_mristep.h"
 #include "cvode/cvode.h"
 #include "nvector/nvector_serial.h"
+#include "sundials/sundials_core.hpp"
 #include "sunlinsol/sunlinsol_band.h"
 #include "sunmatrix/sunmatrix_band.h"
 

@@ -27,6 +27,7 @@
 // Include desired integrators, vectors, linear solvers, and nonlinear solvers
 #include "cvode/cvode.h"
 #include "nvector/nvector_serial.h"
+#include "sundials/sundials_core.hpp"
 #include "sunlinsol/sunlinsol_dense.h"
 #include "sunmatrix/sunmatrix_dense.h"
 
