@@ -213,7 +213,6 @@ sunindextype SUNMatrix_MagmaDense_BlockColumns(SUNMatrix Amat)
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
   return A->N;
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
 }
 
 sunindextype SUNMatrix_MagmaDense_NumBlocks(SUNMatrix Amat)
