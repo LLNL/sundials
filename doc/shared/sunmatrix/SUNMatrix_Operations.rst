@@ -82,8 +82,8 @@ below.
 
 .. c:function:: SUNErrCode SUNMatZero(SUNMatrix A)
 
-   Zeros all entries of the ``SUNMatrix`` *A*.  The return value is an
-   integer flag denoting success/failure of the operation:
+   Zeros all entries of the ``SUNMatrix`` *A*.  The return value
+   denotes the success/failure of the operation:
 
    .. math::
       A_{i,j} = 0, \quad i=1,\ldots,m, \; j=1,\ldots,n.
@@ -98,7 +98,7 @@ below.
 .. c:function:: SUNErrCode SUNMatCopy(SUNMatrix A, SUNMatrix B)
 
    Performs the operation *B \gets A* for all entries of the matrices *A*
-   and *B*.  The return value is an integer flag denoting success/failure of
+   and *B*.  The return value denotes the success/failure of
    the operation:
 
    .. math::
@@ -113,8 +113,8 @@ below.
 
 .. c:function:: SUNErrCode SUNMatScaleAdd(sunrealtype c, SUNMatrix A, SUNMatrix B)
 
-   Performs the operation *A \gets cA + B*.  The return value is an integer
-   flag denoting success/failure of the operation:
+   Performs the operation *A \gets cA + B*.  The return value
+   denotes the success/failure of the operation:
 
    .. math::
       A_{i,j} = cA_{i,j} + B_{i,j}, \quad i=1,\ldots,m, \; j=1,\ldots,n.
@@ -128,8 +128,8 @@ below.
 
 .. c:function:: SUNErrCode SUNMatScaleAddI(sunrealtype c, SUNMatrix A)
 
-   Performs the operation *A \gets cA + I*.  The return value is an integer
-   flag denoting success/failure of the operation:
+   Performs the operation *A \gets cA + I*.  The return value
+   denotes the success/failure of the operation:
 
    .. math::
       A_{i,j} = cA_{i,j} + \delta_{i,j}, \quad i,j=1,\ldots,n.
@@ -144,7 +144,7 @@ below.
 .. c:function:: SUNErrCode SUNMatMatvecSetup(SUNMatrix A)
 
    Performs any setup necessary to perform a matrix-vector product.
-   The return value is an integer flag denoting success/failure of the
+   The return value denotes the success/failure of the
    operation. It is useful for SUNMatrix implementations which need to
    prepare the matrix itself, or communication structures before performing
    the matrix-vector product.

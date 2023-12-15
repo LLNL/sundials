@@ -157,49 +157,49 @@ void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile)
 sunindextype SUNBandMatrix_Rows(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
   return SM_ROWS_B(A);
 }
 
 sunindextype SUNBandMatrix_Columns(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
   return SM_COLUMNS_B(A);
 }
 
 sunindextype SUNBandMatrix_LowerBandwidth(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
   return SM_LBAND_B(A);
 }
 
 sunindextype SUNBandMatrix_UpperBandwidth(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
   return SM_UBAND_B(A);
 }
 
 sunindextype SUNBandMatrix_StoredUpperBandwidth(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
   return SM_SUBAND_B(A);
 }
 
 sunindextype SUNBandMatrix_LDim(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
   return SM_LDIM_B(A);
 }
 
 sunindextype SUNBandMatrix_LData(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
   return SM_LDATA_B(A);
 }
 

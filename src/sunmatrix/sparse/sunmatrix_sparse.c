@@ -438,35 +438,35 @@ void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
 sunindextype SUNSparseMatrix_Rows(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
   return SM_ROWS_S(A);
 }
 
 sunindextype SUNSparseMatrix_Columns(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
   return SM_COLUMNS_S(A);
 }
 
 sunindextype SUNSparseMatrix_NNZ(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
   return SM_NNZ_S(A);
 }
 
 sunindextype SUNSparseMatrix_NP(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
   return SM_NP_S(A);
 }
 
 int SUNSparseMatrix_SparseType(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
   return SM_SPARSETYPE_S(A);
 }
 
@@ -1080,7 +1080,7 @@ SUNErrCode SUNMatScaleAdd_Sparse(sunrealtype c, SUNMatrix A, SUNMatrix B)
   free(x);
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
@@ -1226,9 +1226,9 @@ SUNErrCode Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y)
   SUNCheckLastErr();
   yd = N_VGetArrayPointer(y);
   SUNCheckLastErr();
-   SUNAssert(xd, SUN_ERR_ARG_CORRUPT);
-   SUNAssert(yd, SUN_ERR_ARG_CORRUPT);
-   SUNAssert(xd != yd, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(xd, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(yd, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(xd != yd, SUN_ERR_ARG_CORRUPT);
   /* initialize result */
   for (i = 0; i < SM_ROWS_S(A); i++) { yd[i] = 0.0; }
 
