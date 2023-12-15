@@ -43,8 +43,8 @@
 #define SUNDIALS_GPU_PREFIX(val)  hip##val
 #define SUNDIALS_GPU_VERIFY       SUNDIALS_HIP_VERIFY
 #elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-#include <CL/sycl.hpp>
 #include <sunmemory/sunmemory_sycl.h>
+#include <sycl/sycl.hpp>
 #define SUNDIALS_RAJA_EXEC_STREAM RAJA::sycl_exec<256>
 #if RAJA_VERSION_MAJOR >= 2022
 #define SUNDIALS_RAJA_EXEC_REDUCE RAJA::sycl_exec<256>

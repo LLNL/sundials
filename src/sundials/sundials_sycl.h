@@ -15,8 +15,8 @@
  * with SYCL.
  * ---------------------------------------------------------------------------*/
 
-#include <CL/sycl.hpp>
 #include <sundials/sundials_types.h>
+#include <sycl/sycl.hpp>
 
 #ifndef _SUNDIALS_SYCL_H
 #define _SUNDIALS_SYCL_H

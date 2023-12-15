@@ -15,10 +15,10 @@
  * SUNMATRIX class using the Intel oneAPI Math Kernel Library (oneMKL).
  * ---------------------------------------------------------------------------*/
 
-#include <CL/sycl.hpp>
 #include <oneapi/mkl/blas.hpp>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sycl/sycl.hpp>
 
 // SUNDIALS public headers
 #include <sunmatrix/sunmatrix_onemkldense.h>

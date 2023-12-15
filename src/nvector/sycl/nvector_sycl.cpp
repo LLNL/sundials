@@ -15,9 +15,9 @@
  * of the NVECTOR package.
  * -----------------------------------------------------------------*/
 
-#include <CL/sycl.hpp>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sycl/sycl.hpp>
 
 /* SUNDIALS public headers */
 #include <nvector/nvector_sycl.h>
@@ -2081,8 +2081,8 @@ static int InitializeReductionBuffer(N_Vector v, const sunrealtype value, size_t
   N_PrivateVectorContent_Sycl vcp = NVEC_SYCL_PRIVATE(v);
 
   /* Wrap the initial value as SUNMemory object */
-  SUNMemory value_mem =
-    SUNMemoryHelper_Wrap((NVEC_SYCL_MEMHELP(v), void*)&value, SUNMEMTYPE_HOST);
+  SUNMemory value_mem = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v),
+                                             (void*)&value, SUNMEMTYPE_HOST);
 
   /* check if the existing reduction memory is not large enough */
   if (vcp->reduce_buffer_bytes < bytes)
