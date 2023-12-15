@@ -462,7 +462,7 @@ SUNErrCode SUNMatCopy_MagmaDense(SUNMatrix Amat, SUNMatrix Bmat)
 
 SUNErrCode SUNMatScaleAddI_MagmaDense(sunrealtype c, SUNMatrix Amat)
 {
-  if (Amat == NULL) {return (SUN_ERR_ARG_CORRUPT; }
+  if (Amat == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   if (SUNMatGetID(Amat) != SUNMATRIX_MAGMADENSE)
   {
