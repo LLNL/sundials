@@ -2227,9 +2227,10 @@ static int cvStep(CVodeMem cv_mem)
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "-----\n");
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "tn             = %g\n", cv_mem->cv_tn);
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "current h      = %g\n", cv_mem->cv_h);
-  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "next h         = %g\n", cv_mem->cv_hprime);
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "h prime        = %g\n", cv_mem->cv_hprime);
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "next h (?)     = %g\n", cv_mem->cv_next_h);
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "h scale        = %g\n", cv_mem->cv_hscale);
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "eta            = %g\n", cv_mem->cv_eta);
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "current order  = %d\n", cv_mem->cv_q);
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "next order     = %d\n", cv_mem->cv_qprime);
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "next order (?) = %d\n", cv_mem->cv_next_q);
@@ -2457,9 +2458,10 @@ static int cvStep(CVodeMem cv_mem)
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "-----\n");
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "tn             = %g\n", cv_mem->cv_tn);
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "current h      = %g\n", cv_mem->cv_h);
-  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "next h         = %g\n", cv_mem->cv_hprime);
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "h prime        = %g\n", cv_mem->cv_hprime);
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "next h (?)     = %g\n", cv_mem->cv_next_h);
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "h scale        = %g\n", cv_mem->cv_hscale);
+  fprintf(cv_mem->cv_sunctx->logger->debug_fp, "eta            = %g\n", cv_mem->cv_eta);
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "current order  = %d\n", cv_mem->cv_q);
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "next order     = %d\n", cv_mem->cv_qprime);
   fprintf(cv_mem->cv_sunctx->logger->debug_fp, "next order (?) = %d\n", cv_mem->cv_next_q);

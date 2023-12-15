@@ -260,6 +260,9 @@ SUNDIALS_EXPORT
 int CVodeSetSingleNonlinSolvIter(void* cvode_mem,
                                  sunbooleantype on_off);
 
+SUNDIALS_EXPORT
+int CVodeSetNextStep(void* cvode_mem, sunrealtype hnew);
+
 #ifdef __cplusplus
 }
 #endif

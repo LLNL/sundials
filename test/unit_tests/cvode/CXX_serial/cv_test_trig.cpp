@@ -305,6 +305,11 @@ int main(int argc, char* argv[])
     // PrintNordsieck(cv_mem);
     // if (check_flag(flag, "PrintNordsieck")) { return 1; }
 
+    if (i == 2)
+    {
+      CVodeSetNextStep(cvode_mem, 0.0005);
+    }
+
     flag = CVode(cvode_mem, tf, y, &(t_ret), CV_ONE_STEP);
     if (check_flag(flag, "CVode"))
     {
