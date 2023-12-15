@@ -73,14 +73,14 @@
  * ----------------------------------------------------------------*/
 
 /* Header files */
-#include <stdio.h>
+#include <arkode/arkode_arkstep.h> /* prototypes for ARKStep fcts., consts */
+#include <arkode/arkode_mristep.h> /* prototypes for MRIStep fcts., consts */
 #include <math.h>
-#include <arkode/arkode_mristep.h>      /* prototypes for MRIStep fcts., consts */
-#include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
-#include <nvector/nvector_serial.h>     /* serial N_Vector type, fcts., macros  */
-#include <sunmatrix/sunmatrix_dense.h>  /* dense matrix type, fcts., macros     */
-#include <sunlinsol/sunlinsol_dense.h>  /* dense linear solver                  */
-#include <sundials/sundials_math.h>     /* def. math fcns, 'sunrealtype'           */
+#include <nvector/nvector_serial.h> /* serial N_Vector type, fcts., macros  */
+#include <stdio.h>
+#include <sundials/sundials_math.h> /* def. math fcns, 'sunrealtype'           */
+#include <sunlinsol/sunlinsol_dense.h> /* dense linear solver                  */
+#include <sunmatrix/sunmatrix_dense.h> /* dense matrix type, fcts., macros     */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM ".20Lg"
@@ -97,65 +97,64 @@
 #define TWO  SUN_RCONST(2.0)
 
 /* User-supplied functions called by the solver */
-static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
-              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
-              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
-              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
-static sunrealtype r(sunrealtype t, void *user_data);
-static sunrealtype s(sunrealtype t, void *user_data);
-static sunrealtype rdot(sunrealtype t, void *user_data);
-static sunrealtype sdot(sunrealtype t, void *user_data);
-static sunrealtype utrue(sunrealtype t, void *user_data);
-static sunrealtype vtrue(sunrealtype t, void *user_data);
-static int Ytrue(sunrealtype t, N_Vector y, void *user_data);
-static int check_retval(void *returnvalue, const char *funcname, int opt);
-
+static sunrealtype r(sunrealtype t, void* user_data);
+static sunrealtype s(sunrealtype t, void* user_data);
+static sunrealtype rdot(sunrealtype t, void* user_data);
+static sunrealtype sdot(sunrealtype t, void* user_data);
+static sunrealtype utrue(sunrealtype t, void* user_data);
+static sunrealtype vtrue(sunrealtype t, void* user_data);
+static int Ytrue(sunrealtype t, N_Vector y, void* user_data);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /* Main Program */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   SUNContext ctx;
 
   /* general problem parameters */
-  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
-  sunrealtype Tf = SUN_RCONST(5.0);     /* final time */
-  sunrealtype dTout = SUN_RCONST(0.1);  /* time between outputs */
-  sunindextype NEQ = 2;          /* number of dependent vars. */
-  int Nt = (int) ceil(Tf/dTout); /* number of output times */
-  int solve_type = 0;            /* problem configuration type */
-  sunrealtype hs = SUN_RCONST(0.01);    /* slow step size */
-  sunrealtype e = SUN_RCONST(0.5);      /* fast/slow coupling strength */
-  sunrealtype G = SUN_RCONST(-100.0);   /* stiffness at slow time scale */
-  sunrealtype w = SUN_RCONST(100.0);    /* time-scale separation factor */
+  sunrealtype T0     = SUN_RCONST(0.0);       /* initial time */
+  sunrealtype Tf     = SUN_RCONST(5.0);       /* final time */
+  sunrealtype dTout  = SUN_RCONST(0.1);       /* time between outputs */
+  sunindextype NEQ   = 2;                     /* number of dependent vars. */
+  int Nt             = (int)ceil(Tf / dTout); /* number of output times */
+  int solve_type     = 0;                     /* problem configuration type */
+  sunrealtype hs     = SUN_RCONST(0.01);      /* slow step size */
+  sunrealtype e      = SUN_RCONST(0.5);       /* fast/slow coupling strength */
+  sunrealtype G      = SUN_RCONST(-100.0);    /* stiffness at slow time scale */
+  sunrealtype w      = SUN_RCONST(100.0);     /* time-scale separation factor */
   sunrealtype reltol = SUN_RCONST(0.01);
   sunrealtype abstol = 1e-11;
 
   /* general problem variables */
   int retval;                               /* reusable error-checking flag */
-  N_Vector y = NULL;                        /* vector for the solution      */
-  void *arkode_mem = NULL;                  /* ARKode memory structure      */
-  void *inner_arkode_mem = NULL;            /* ARKode memory structure      */
+  N_Vector y                        = NULL; /* vector for the solution      */
+  void* arkode_mem                  = NULL; /* ARKode memory structure      */
+  void* inner_arkode_mem            = NULL; /* ARKode memory structure      */
   MRIStepInnerStepper inner_stepper = NULL; /* inner stepper                */
-  ARKodeButcherTable B = NULL;              /* fast method Butcher table    */
-  MRIStepCoupling C = NULL;                 /* slow coupling coefficients   */
-  SUNMatrix Af = NULL;                      /* matrix for fast solver       */
-  SUNLinearSolver LSf = NULL;               /* fast linear solver object    */
-  SUNMatrix As = NULL;                      /* matrix for slow solver       */
-  SUNLinearSolver LSs = NULL;               /* slow linear solver object    */
+  ARKodeButcherTable B              = NULL; /* fast method Butcher table    */
+  MRIStepCoupling C                 = NULL; /* slow coupling coefficients   */
+  SUNMatrix Af                      = NULL; /* matrix for fast solver       */
+  SUNLinearSolver LSf               = NULL; /* fast linear solver object    */
+  SUNMatrix As                      = NULL; /* matrix for slow solver       */
+  SUNLinearSolver LSs               = NULL; /* slow linear solver object    */
   sunbooleantype implicit_slow;
   sunbooleantype imex_slow = SUNFALSE;
-  sunbooleantype deduce = SUNFALSE;
-  FILE *UFID;
+  sunbooleantype deduce    = SUNFALSE;
+  FILE* UFID;
   sunrealtype hf, gamma, beta, t, tout, rpar[3];
   sunrealtype uerr, verr, uerrtot, verrtot, errtot;
   int iout;
@@ -166,12 +165,12 @@ int main(int argc, char *argv[])
    */
 
   /* Retrieve the command-line options: solve_type h G w e */
-  if (argc > 1)  solve_type = (sunindextype) atol(argv[1]);
-  if (argc > 2)  hs = SUNStrToReal(argv[2]);
-  if (argc > 3)  G = SUNStrToReal(argv[3]);
-  if (argc > 4)  w = SUNStrToReal(argv[4]);
-  if (argc > 5)  e = SUNStrToReal(argv[5]);
-  if (argc > 6)  deduce = (sunbooleantype) atoi(argv[6]);
+  if (argc > 1) { solve_type = (sunindextype)atol(argv[1]); }
+  if (argc > 2) { hs = SUNStrToReal(argv[2]); }
+  if (argc > 3) { G = SUNStrToReal(argv[3]); }
+  if (argc > 4) { w = SUNStrToReal(argv[4]); }
+  if (argc > 5) { e = SUNStrToReal(argv[5]); }
+  if (argc > 6) { deduce = (sunbooleantype)atoi(argv[6]); }
 
   /* Check arguments for validity */
   /*   0 <= solve_type <= 9      */
@@ -179,103 +178,108 @@ int main(int argc, char *argv[])
   /*   h > 0                     */
   /*   h < 1/|G| (explicit slow) */
   /*   w >= 1.0                  */
-  if ((solve_type < 0) || (solve_type > 9)) {
+  if ((solve_type < 0) || (solve_type > 9))
+  {
     printf("ERROR: solve_type be an integer in [0,9] \n");
-    return(-1);
+    return (-1);
   }
-  if (G >= ZERO) {
+  if (G >= ZERO)
+  {
     printf("ERROR: G must be a negative real number\n");
-    return(-1);
+    return (-1);
   }
   implicit_slow = SUNFALSE;
-  if ((solve_type == 4) || (solve_type == 7))
+  if ((solve_type == 4) || (solve_type == 7)) { implicit_slow = SUNTRUE; }
+  if ((solve_type == 8) || (solve_type == 9))
+  {
     implicit_slow = SUNTRUE;
-  if ((solve_type == 8) || (solve_type == 9)) {
-    implicit_slow = SUNTRUE;
-    imex_slow = SUNTRUE;
+    imex_slow     = SUNTRUE;
   }
-  if (hs <= ZERO){
+  if (hs <= ZERO)
+  {
     printf("ERROR: hs must be in positive\n");
-    return(-1);
+    return (-1);
   }
-  if ((hs > ONE/SUNRabs(G)) && (!implicit_slow)) {
+  if ((hs > ONE / SUNRabs(G)) && (!implicit_slow))
+  {
     printf("ERROR: hs must be in (0, 1/|G|)\n");
-    return(-1);
+    return (-1);
   }
-  if (w < ONE) {
+  if (w < ONE)
+  {
     printf("ERROR: w must be >= 1.0\n");
-    return(-1);
+    return (-1);
   }
   rpar[0] = G;
   rpar[1] = w;
   rpar[2] = e;
-  hf = hs/w;
+  hf      = hs / w;
 
   /* Initial problem output (and set implicit solver tolerances as needed) */
   printf("\nMultirate nonlinear Kvaerno-Prothero-Robinson test problem:\n");
-  printf("    time domain:  (%"GSYM",%"GSYM"]\n",T0,Tf);
-  printf("    hs = %"GSYM"\n",hs);
-  printf("    hf = %"GSYM"\n",hf);
-  printf("    G = %"GSYM"\n",G);
-  printf("    w = %"GSYM"\n",w);
-  printf("    e = %"GSYM"\n",e);
-  switch (solve_type) {
-  case(0):
-    printf("    solver: exp-3/exp-3 (standard MIS)\n\n");
-    break;
-  case(1):
+  printf("    time domain:  (%" GSYM ",%" GSYM "]\n", T0, Tf);
+  printf("    hs = %" GSYM "\n", hs);
+  printf("    hf = %" GSYM "\n", hf);
+  printf("    G = %" GSYM "\n", G);
+  printf("    w = %" GSYM "\n", w);
+  printf("    e = %" GSYM "\n", e);
+  switch (solve_type)
+  {
+  case (0): printf("    solver: exp-3/exp-3 (standard MIS)\n\n"); break;
+  case (1):
     printf("    solver: none/exp-3 (no slow, explicit fast)\n\n");
     break;
-  case(2):
-    reltol = SUNMAX(hs*hs*hs, 1e-10);
+  case (2):
+    reltol = SUNMAX(hs * hs * hs, 1e-10);
     abstol = 1e-11;
     printf("    solver: none/dirk-3 (no slow, dirk fast)\n\n");
-    printf("    reltol = %.2"ESYM",  abstol = %.2"ESYM"\n", reltol, abstol);
+    printf("    reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
-  case(3):
-    printf("    solver: exp-3/none (explicit slow, no fast)\n");
-    break;
-  case(4):
-    reltol = SUNMAX(hs*hs, 1e-10);
+  case (3): printf("    solver: exp-3/none (explicit slow, no fast)\n"); break;
+  case (4):
+    reltol = SUNMAX(hs * hs, 1e-10);
     abstol = 1e-11;
     printf("    solver: dirk-2/none (dirk slow, no fast)\n");
-    printf("    reltol = %.2"ESYM",  abstol = %.2"ESYM"\n", reltol, abstol);
+    printf("    reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
-  case(5):
+  case (5):
     printf("    solver: exp-4/exp-4 (MRI-GARK-ERK45a / ERK-4-4)\n\n");
     break;
-  case(6):
+  case (6):
     printf("    solver: exp-4/exp-3 (MRI-GARK-ERK45a / ERK-3-3)\n\n");
     break;
-  case(7):
-    reltol = SUNMAX(hs*hs*hs, 1e-10);
+  case (7):
+    reltol = SUNMAX(hs * hs * hs, 1e-10);
     abstol = 1e-11;
-    printf("    solver: dirk-3/exp-3 (MRI-GARK-ESDIRK34a / ERK-3-3) -- solve decoupled\n");
-    printf("    reltol = %.2"ESYM",  abstol = %.2"ESYM"\n", reltol, abstol);
+    printf("    solver: dirk-3/exp-3 (MRI-GARK-ESDIRK34a / ERK-3-3) -- solve "
+           "decoupled\n");
+    printf("    reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
-  case(8):
-    reltol = SUNMAX(hs*hs*hs, 1e-10);
+  case (8):
+    reltol = SUNMAX(hs * hs * hs, 1e-10);
     abstol = 1e-11;
-    printf("    solver: ars343/exp-3 (IMEX-MRI3b / ERK-3-3) -- solve decoupled\n");
-    printf("    reltol = %.2"ESYM",  abstol = %.2"ESYM"\n", reltol, abstol);
+    printf(
+      "    solver: ars343/exp-3 (IMEX-MRI3b / ERK-3-3) -- solve decoupled\n");
+    printf("    reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
-  case(9):
-    reltol = SUNMAX(hs*hs*hs*hs, 1e-14);
+  case (9):
+    reltol = SUNMAX(hs * hs * hs * hs, 1e-14);
     abstol = 1e-14;
-    printf("    solver: imexark4/exp-4 (IMEX-MRI4 / ERK-4-4) -- solve decoupled\n");
-    printf("    reltol = %.2"ESYM",  abstol = %.2"ESYM"\n", reltol, abstol);
+    printf(
+      "    solver: imexark4/exp-4 (IMEX-MRI4 / ERK-4-4) -- solve decoupled\n");
+    printf("    reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   }
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
 
   /* Create and initialize serial vector for the solution */
   y = N_VNew_Serial(NEQ, ctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
+  if (check_retval((void*)y, "N_VNew_Serial", 0)) { return 1; }
   retval = Ytrue(T0, y, rpar);
-  if (check_retval(&retval, "Ytrue", 1)) return 1;
+  if (check_retval(&retval, "Ytrue", 1)) { return 1; }
 
   /*
    * Create the fast integrator and set options
@@ -284,137 +288,140 @@ int main(int argc, char *argv[])
   /* Initialize the fast integrator. Specify the fast right-hand side
      function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the inital time T0,
      and the initial dependent variable vector y. */
-  switch (solve_type) {
-  case(0):
-  case(6):
-  case(7):
-  case(8):  /* erk-3-3 fast solver */
+  switch (solve_type)
+  {
+  case (0):
+  case (6):
+  case (7):
+  case (8): /* erk-3-3 fast solver */
     inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
-    if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+    if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
     B = ARKodeButcherTable_Alloc(3, SUNTRUE);
-    if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
+    if (check_retval((void*)B, "ARKodeButcherTable_Alloc", 0)) { return 1; }
     B->A[1][0] = SUN_RCONST(0.5);
     B->A[2][0] = -ONE;
     B->A[2][1] = TWO;
-    B->b[0] = ONE/SUN_RCONST(6.0);
-    B->b[1] = TWO/SUN_RCONST(3.0);
-    B->b[2] = ONE/SUN_RCONST(6.0);
-    B->d[1] = ONE;
-    B->c[1] = SUN_RCONST(0.5);
-    B->c[2] = ONE;
-    B->q=3;
-    B->p=2;
-    retval = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
-    if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
+    B->b[0]    = ONE / SUN_RCONST(6.0);
+    B->b[1]    = TWO / SUN_RCONST(3.0);
+    B->b[2]    = ONE / SUN_RCONST(6.0);
+    B->d[1]    = ONE;
+    B->c[1]    = SUN_RCONST(0.5);
+    B->c[2]    = ONE;
+    B->q       = 3;
+    B->p       = 2;
+    retval     = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
+    if (check_retval(&retval, "ARKStepSetTables", 1)) { return 1; }
     ARKodeButcherTable_Free(B);
     break;
-  case(1):  /* erk-3-3 fast solver (full problem) */
+  case (1): /* erk-3-3 fast solver (full problem) */
     inner_arkode_mem = ARKStepCreate(fn, NULL, T0, y, ctx);
-    if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+    if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
     B = ARKodeButcherTable_Alloc(3, SUNTRUE);
-    if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
+    if (check_retval((void*)B, "ARKodeButcherTable_Alloc", 0)) { return 1; }
     B->A[1][0] = SUN_RCONST(0.5);
     B->A[2][0] = -ONE;
     B->A[2][1] = TWO;
-    B->b[0] = ONE/SUN_RCONST(6.0);
-    B->b[1] = TWO/SUN_RCONST(3.0);
-    B->b[2] = ONE/SUN_RCONST(6.0);
-    B->d[1] = ONE;
-    B->c[1] = SUN_RCONST(0.5);
-    B->c[2] = ONE;
-    B->q=3;
-    B->p=2;
-    retval = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
-    if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
+    B->b[0]    = ONE / SUN_RCONST(6.0);
+    B->b[1]    = TWO / SUN_RCONST(3.0);
+    B->b[2]    = ONE / SUN_RCONST(6.0);
+    B->d[1]    = ONE;
+    B->c[1]    = SUN_RCONST(0.5);
+    B->c[2]    = ONE;
+    B->q       = 3;
+    B->p       = 2;
+    retval     = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
+    if (check_retval(&retval, "ARKStepSetTables", 1)) { return 1; }
     ARKodeButcherTable_Free(B);
     break;
-  case(9):
-  case(5):  /* erk-4-4 fast solver */
+  case (9):
+  case (5): /* erk-4-4 fast solver */
     inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
-    if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+    if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
     B = ARKodeButcherTable_Alloc(4, SUNFALSE);
-    if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
+    if (check_retval((void*)B, "ARKodeButcherTable_Alloc", 0)) { return 1; }
     B->A[1][0] = SUN_RCONST(0.5);
     B->A[2][1] = SUN_RCONST(0.5);
     B->A[3][2] = ONE;
-    B->b[0] = ONE/SUN_RCONST(6.0);
-    B->b[1] = ONE/SUN_RCONST(3.0);
-    B->b[2] = ONE/SUN_RCONST(3.0);
-    B->b[3] = ONE/SUN_RCONST(6.0);
-    B->c[1] = SUN_RCONST(0.5);
-    B->c[2] = SUN_RCONST(0.5);
-    B->c[3] = ONE;
-    B->q=4;
-    retval = ARKStepSetTables(inner_arkode_mem, 4, 0, NULL, B);
-    if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
+    B->b[0]    = ONE / SUN_RCONST(6.0);
+    B->b[1]    = ONE / SUN_RCONST(3.0);
+    B->b[2]    = ONE / SUN_RCONST(3.0);
+    B->b[3]    = ONE / SUN_RCONST(6.0);
+    B->c[1]    = SUN_RCONST(0.5);
+    B->c[2]    = SUN_RCONST(0.5);
+    B->c[3]    = ONE;
+    B->q       = 4;
+    retval     = ARKStepSetTables(inner_arkode_mem, 4, 0, NULL, B);
+    if (check_retval(&retval, "ARKStepSetTables", 1)) { return 1; }
     ARKodeButcherTable_Free(B);
     break;
-  case(2):  /* esdirk-3-3 fast solver (full problem) */
+  case (2): /* esdirk-3-3 fast solver (full problem) */
     inner_arkode_mem = ARKStepCreate(NULL, fn, T0, y, ctx);
-    if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+    if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
     B = ARKodeButcherTable_Alloc(3, SUNFALSE);
-    if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
-    beta  = SUNRsqrt(SUN_RCONST(3.0))/SUN_RCONST(6.0) + SUN_RCONST(0.5);
-    gamma = (-ONE/SUN_RCONST(8.0))*(SUNRsqrt(SUN_RCONST(3.0))+ONE);
-    B->A[1][0] = SUN_RCONST(4.0)*gamma+TWO*beta;
-    B->A[1][1] = ONE-SUN_RCONST(4.0)*gamma-TWO*beta;
-    B->A[2][0] = SUN_RCONST(0.5)-beta-gamma;
+    if (check_retval((void*)B, "ARKodeButcherTable_Alloc", 0)) { return 1; }
+    beta       = SUNRsqrt(SUN_RCONST(3.0)) / SUN_RCONST(6.0) + SUN_RCONST(0.5);
+    gamma      = (-ONE / SUN_RCONST(8.0)) * (SUNRsqrt(SUN_RCONST(3.0)) + ONE);
+    B->A[1][0] = SUN_RCONST(4.0) * gamma + TWO * beta;
+    B->A[1][1] = ONE - SUN_RCONST(4.0) * gamma - TWO * beta;
+    B->A[2][0] = SUN_RCONST(0.5) - beta - gamma;
     B->A[2][1] = gamma;
     B->A[2][2] = beta;
-    B->b[0] = ONE/SUN_RCONST(6.0);
-    B->b[1] = ONE/SUN_RCONST(6.0);
-    B->b[2] = TWO/SUN_RCONST(3.0);
-    B->c[1] = ONE;
-    B->c[2] = SUN_RCONST(0.5);
-    B->q=3;
-    retval = ARKStepSetTables(inner_arkode_mem, 3, 0, B, NULL);
-    if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
+    B->b[0]    = ONE / SUN_RCONST(6.0);
+    B->b[1]    = ONE / SUN_RCONST(6.0);
+    B->b[2]    = TWO / SUN_RCONST(3.0);
+    B->c[1]    = ONE;
+    B->c[2]    = SUN_RCONST(0.5);
+    B->q       = 3;
+    retval     = ARKStepSetTables(inner_arkode_mem, 3, 0, B, NULL);
+    if (check_retval(&retval, "ARKStepSetTables", 1)) { return 1; }
     Af = SUNDenseMatrix(NEQ, NEQ, ctx);
-    if (check_retval((void *)Af, "SUNDenseMatrix", 0)) return 1;
+    if (check_retval((void*)Af, "SUNDenseMatrix", 0)) { return 1; }
     LSf = SUNLinSol_Dense(y, Af, ctx);
-    if (check_retval((void *)LSf, "SUNLinSol_Dense", 0)) return 1;
+    if (check_retval((void*)LSf, "SUNLinSol_Dense", 0)) { return 1; }
     retval = ARKStepSetLinearSolver(inner_arkode_mem, LSf, Af);
-    if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) return 1;
+    if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) { return 1; }
     retval = ARKStepSetJacFn(inner_arkode_mem, Jn);
-    if (check_retval(&retval, "ARKStepSetJacFn", 1)) return 1;
+    if (check_retval(&retval, "ARKStepSetJacFn", 1)) { return 1; }
     retval = ARKStepSStolerances(inner_arkode_mem, reltol, abstol);
-    if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
+    if (check_retval(&retval, "ARKStepSStolerances", 1)) { return 1; }
     ARKodeButcherTable_Free(B);
     break;
-  case(3):  /* no fast dynamics ('evolve' explicitly w/ erk-3-3) */
-  case(4):
+  case (3): /* no fast dynamics ('evolve' explicitly w/ erk-3-3) */
+  case (4):
     inner_arkode_mem = ARKStepCreate(f0, NULL, T0, y, ctx);
-    if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+    if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
     B = ARKodeButcherTable_Alloc(3, SUNTRUE);
-    if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
+    if (check_retval((void*)B, "ARKodeButcherTable_Alloc", 0)) { return 1; }
     B->A[1][0] = SUN_RCONST(0.5);
     B->A[2][0] = -ONE;
     B->A[2][1] = TWO;
-    B->b[0] = ONE/SUN_RCONST(6.0);
-    B->b[1] = TWO/SUN_RCONST(3.0);
-    B->b[2] = ONE/SUN_RCONST(6.0);
-    B->d[1] = ONE;
-    B->c[1] = SUN_RCONST(0.5);
-    B->c[2] = ONE;
-    B->q=3;
-    B->p=2;
-    retval = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
-    if (check_retval(&retval, "ARKStepSetTables", 1)) return 1;
+    B->b[0]    = ONE / SUN_RCONST(6.0);
+    B->b[1]    = TWO / SUN_RCONST(3.0);
+    B->b[2]    = ONE / SUN_RCONST(6.0);
+    B->d[1]    = ONE;
+    B->c[1]    = SUN_RCONST(0.5);
+    B->c[2]    = ONE;
+    B->q       = 3;
+    B->p       = 2;
+    retval     = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
+    if (check_retval(&retval, "ARKStepSetTables", 1)) { return 1; }
     ARKodeButcherTable_Free(B);
   }
 
   /* Set the user data pointer */
-  retval = ARKStepSetUserData(inner_arkode_mem, (void *) rpar);
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
+  retval = ARKStepSetUserData(inner_arkode_mem, (void*)rpar);
+  if (check_retval(&retval, "ARKStepSetUserData", 1)) { return 1; }
 
   /* Set the fast step size */
   retval = ARKStepSetFixedStep(inner_arkode_mem, hf);
-  if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetFixedStep", 1)) { return 1; }
 
   /* Create inner stepper */
-  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
-                                            &inner_stepper);
-  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
+  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1))
+  {
+    return 1;
+  }
 
   /*
    * Create the slow integrator and set options
@@ -423,179 +430,184 @@ int main(int argc, char *argv[])
   /* Initialize the slow integrator. Specify the slow right-hand side
      function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the inital time
      T0, the initial dependent variable vector y, and the fast integrator. */
-  switch (solve_type) {
-  case(0):  /* KW3 slow solver */
+  switch (solve_type)
+  {
+  case (0): /* KW3 slow solver */
     arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
-    if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
+    if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }
     C = MRIStepCoupling_LoadTable(ARKODE_MIS_KW3);
-    if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
     retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     break;
-  case(3):  /* KW3 slow solver (full problem) */
+  case (3): /* KW3 slow solver (full problem) */
     arkode_mem = MRIStepCreate(fn, NULL, T0, y, inner_stepper, ctx);
-    if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
+    if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }
     C = MRIStepCoupling_LoadTable(ARKODE_MIS_KW3);
-    if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
     retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     break;
-  case(5):  /* MRI-GARK-ERK45a slow solver */
-  case(6):
+  case (5): /* MRI-GARK-ERK45a slow solver */
+  case (6):
     arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
-    if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
+    if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }
     C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ERK45a);
-    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) { return 1; }
     retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     break;
-  case(1):
-  case(2):  /* no slow dynamics (use ERK-2-2) */
+  case (1):
+  case (2): /* no slow dynamics (use ERK-2-2) */
     arkode_mem = MRIStepCreate(f0, NULL, T0, y, inner_stepper, ctx);
-    if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
+    if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }
     B = ARKodeButcherTable_Alloc(2, SUNFALSE);
-    if (check_retval((void *)B, "ARKodeButcherTable_Alloc", 0)) return 1;
-    B->A[1][0] = TWO/SUN_RCONST(3.0);
-    B->b[0] = SUN_RCONST(0.25);
-    B->b[1] = SUN_RCONST(0.75);
-    B->c[1] = TWO/SUN_RCONST(3.0);
-    B->q=2;
-    C = MRIStepCoupling_MIStoMRI(B, 2, 0);
-    if (check_retval((void *)C, "MRIStepCoupling_MIStoMRI", 0)) return 1;
+    if (check_retval((void*)B, "ARKodeButcherTable_Alloc", 0)) { return 1; }
+    B->A[1][0] = TWO / SUN_RCONST(3.0);
+    B->b[0]    = SUN_RCONST(0.25);
+    B->b[1]    = SUN_RCONST(0.75);
+    B->c[1]    = TWO / SUN_RCONST(3.0);
+    B->q       = 2;
+    C          = MRIStepCoupling_MIStoMRI(B, 2, 0);
+    if (check_retval((void*)C, "MRIStepCoupling_MIStoMRI", 0)) { return 1; }
     retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     ARKodeButcherTable_Free(B);
     break;
-  case(4):  /* dirk-2 (trapezoidal), solve-decoupled slow solver */
+  case (4): /* dirk-2 (trapezoidal), solve-decoupled slow solver */
     arkode_mem = MRIStepCreate(NULL, fn, T0, y, inner_stepper, ctx);
-    if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
+    if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }
     C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_IRK21a);
-    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) { return 1; }
     retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     As = SUNDenseMatrix(NEQ, NEQ, ctx);
-    if (check_retval((void *)As, "SUNDenseMatrix", 0)) return 1;
+    if (check_retval((void*)As, "SUNDenseMatrix", 0)) { return 1; }
     LSs = SUNLinSol_Dense(y, As, ctx);
-    if (check_retval((void *)LSs, "SUNLinSol_Dense", 0)) return 1;
+    if (check_retval((void*)LSs, "SUNLinSol_Dense", 0)) { return 1; }
     retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
-    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) { return 1; }
     retval = MRIStepSetJacFn(arkode_mem, Jn);
-    if (check_retval(&retval, "MRIStepSetJacFn", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetJacFn", 1)) { return 1; }
     retval = MRIStepSStolerances(arkode_mem, reltol, abstol);
-    if (check_retval(&retval, "MRIStepSStolerances", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSStolerances", 1)) { return 1; }
     break;
-  case(7):  /* MRI-GARK-ESDIRK34a, solve-decoupled slow solver */
+  case (7): /* MRI-GARK-ESDIRK34a, solve-decoupled slow solver */
     arkode_mem = MRIStepCreate(NULL, fs, T0, y, inner_stepper, ctx);
-    if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
+    if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }
     C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ESDIRK34a);
-    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) return 1;
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) { return 1; }
     retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     As = SUNDenseMatrix(NEQ, NEQ, ctx);
-    if (check_retval((void *)As, "SUNDenseMatrix", 0)) return 1;
+    if (check_retval((void*)As, "SUNDenseMatrix", 0)) { return 1; }
     LSs = SUNLinSol_Dense(y, As, ctx);
-    if (check_retval((void *)LSs, "SUNLinSol_Dense", 0)) return 1;
+    if (check_retval((void*)LSs, "SUNLinSol_Dense", 0)) { return 1; }
     retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
-    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) { return 1; }
     retval = MRIStepSetJacFn(arkode_mem, Js);
-    if (check_retval(&retval, "MRIStepSetJacFn", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetJacFn", 1)) { return 1; }
     retval = MRIStepSStolerances(arkode_mem, reltol, abstol);
-    if (check_retval(&retval, "MRIStepSStolerances", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSStolerances", 1)) { return 1; }
     break;
-  case(8):  /* IMEX-MRI-GARK3b, solve-decoupled slow solver */
+  case (8): /* IMEX-MRI-GARK3b, solve-decoupled slow solver */
     arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper, ctx);
-    if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
+    if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }
     C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_GARK3b);
-    if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
     retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     As = SUNDenseMatrix(NEQ, NEQ, ctx);
-    if (check_retval((void *)As, "SUNDenseMatrix", 0)) return 1;
+    if (check_retval((void*)As, "SUNDenseMatrix", 0)) { return 1; }
     LSs = SUNLinSol_Dense(y, As, ctx);
-    if (check_retval((void *)LSs, "SUNLinSol_Dense", 0)) return 1;
+    if (check_retval((void*)LSs, "SUNLinSol_Dense", 0)) { return 1; }
     retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
-    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) { return 1; }
     retval = MRIStepSetJacFn(arkode_mem, Jsi);
-    if (check_retval(&retval, "MRIStepSetJacFn", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetJacFn", 1)) { return 1; }
     retval = MRIStepSStolerances(arkode_mem, reltol, abstol);
-    if (check_retval(&retval, "MRIStepSStolerances", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSStolerances", 1)) { return 1; }
     break;
-  case(9):  /* IMEX-MRI-GARK4, solve-decoupled slow solver */
+  case (9): /* IMEX-MRI-GARK4, solve-decoupled slow solver */
     arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper, ctx);
-    if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
+    if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }
     C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_GARK4);
-    if (check_retval((void *)C, "MRIStepCoupling_LoadTable", 0)) return 1;
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
     retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     As = SUNDenseMatrix(NEQ, NEQ, ctx);
-    if (check_retval((void *)As, "SUNDenseMatrix", 0)) return 1;
+    if (check_retval((void*)As, "SUNDenseMatrix", 0)) { return 1; }
     LSs = SUNLinSol_Dense(y, As, ctx);
-    if (check_retval((void *)LSs, "SUNLinSol_Dense", 0)) return 1;
+    if (check_retval((void*)LSs, "SUNLinSol_Dense", 0)) { return 1; }
     retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
-    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) { return 1; }
     retval = MRIStepSetJacFn(arkode_mem, Jsi);
-    if (check_retval(&retval, "MRIStepSetJacFn", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSetJacFn", 1)) { return 1; }
     retval = MRIStepSStolerances(arkode_mem, reltol, abstol);
-    if (check_retval(&retval, "MRIStepSStolerances", 1)) return 1;
+    if (check_retval(&retval, "MRIStepSStolerances", 1)) { return 1; }
     break;
   }
 
   /* Set the user data pointer */
-  retval = MRIStepSetUserData(arkode_mem, (void *) rpar);
-  if (check_retval(&retval, "MRIStepSetUserData", 1)) return 1;
+  retval = MRIStepSetUserData(arkode_mem, (void*)rpar);
+  if (check_retval(&retval, "MRIStepSetUserData", 1)) { return 1; }
 
   retval = MRIStepSetDeduceImplicitRhs(arkode_mem, deduce);
-  if (check_retval(&retval, "MRIStepSetDeduceImplicitRhs", 1)) return 1;
+  if (check_retval(&retval, "MRIStepSetDeduceImplicitRhs", 1)) { return 1; }
 
   /* Set the slow step size */
   retval = MRIStepSetFixedStep(arkode_mem, hs);
-  if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
+  if (check_retval(&retval, "MRIStepSetFixedStep", 1)) { return 1; }
 
   /*
    * Integrate ODE
    */
 
   /* Open output stream for results, output comment line */
-  UFID = fopen("ark_kpr_mri_solution.txt","w");
-  fprintf(UFID,"# t u v uerr verr\n");
+  UFID = fopen("ark_kpr_mri_solution.txt", "w");
+  fprintf(UFID, "# t u v uerr verr\n");
 
   /* output initial condition to disk */
-  fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",
-          T0, NV_Ith_S(y,0), NV_Ith_S(y,1),
-          SUNRabs(NV_Ith_S(y,0)-utrue(T0,rpar)),
-          SUNRabs(NV_Ith_S(y,1)-vtrue(T0,rpar)));
+  fprintf(UFID,
+          " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM "\n",
+          T0, NV_Ith_S(y, 0), NV_Ith_S(y, 1),
+          SUNRabs(NV_Ith_S(y, 0) - utrue(T0, rpar)),
+          SUNRabs(NV_Ith_S(y, 1) - vtrue(T0, rpar)));
 
   /* Main time-stepping loop: calls MRIStepEvolve to perform the
      integration, then prints results. Stops when the final time
      has been reached */
-  t = T0;
-  tout = T0+dTout;
-  uerr = ZERO;
-  verr = ZERO;
+  t       = T0;
+  tout    = T0 + dTout;
+  uerr    = ZERO;
+  verr    = ZERO;
   uerrtot = ZERO;
   verrtot = ZERO;
   errtot  = ZERO;
   printf("        t           u           v       uerr      verr\n");
   printf("   ------------------------------------------------------\n");
-  printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %.2"ESYM"  %.2"ESYM"\n",
-         t, NV_Ith_S(y,0), NV_Ith_S(y,1), uerr, verr);
+  printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %.2" ESYM "  %.2" ESYM
+         "\n",
+         t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), uerr, verr);
 
-  for (iout=0; iout<Nt; iout++) {
-
+  for (iout = 0; iout < Nt; iout++)
+  {
     /* call integrator */
     retval = MRIStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_retval(&retval, "MRIStepEvolve", 1)) break;
+    if (check_retval(&retval, "MRIStepEvolve", 1)) { break; }
 
     /* access/print solution and error */
-    uerr = SUNRabs(NV_Ith_S(y,0)-utrue(t,rpar));
-    verr = SUNRabs(NV_Ith_S(y,1)-vtrue(t,rpar));
-    printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %.2"ESYM"  %.2"ESYM"\n",
-           t, NV_Ith_S(y,0), NV_Ith_S(y,1), uerr, verr);
-    fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",
-            t, NV_Ith_S(y,0), NV_Ith_S(y,1), uerr, verr);
-    uerrtot += uerr*uerr;
-    verrtot += verr*verr;
-    errtot += uerr*uerr + verr*verr;
+    uerr = SUNRabs(NV_Ith_S(y, 0) - utrue(t, rpar));
+    verr = SUNRabs(NV_Ith_S(y, 1) - vtrue(t, rpar));
+    printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %.2" ESYM
+           "  %.2" ESYM "\n",
+           t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), uerr, verr);
+    fprintf(UFID,
+            " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM "\n",
+            t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), uerr, verr);
+    uerrtot += uerr * uerr;
+    verrtot += verr * verr;
+    errtot += uerr * uerr + verr * verr;
 
     /* successful solve: update time */
     tout += dTout;
@@ -603,7 +615,7 @@ int main(int argc, char *argv[])
   }
   uerrtot = SUNRsqrt(uerrtot / Nt);
   verrtot = SUNRsqrt(verrtot / Nt);
-  errtot = SUNRsqrt(errtot / Nt / 2);
+  errtot  = SUNRsqrt(errtot / Nt / 2);
   printf("   ------------------------------------------------------\n");
   fclose(UFID);
 
@@ -626,20 +638,24 @@ int main(int argc, char *argv[])
   /* Print some final statistics */
   printf("\nFinal Solver Statistics:\n");
   printf("   Steps: nsts = %li, nstf = %li\n", nsts, nstf);
-  printf("   u error = %.3"ESYM", v error = %.3"ESYM", total error = %.3"ESYM"\n",
+  printf("   u error = %.3" ESYM ", v error = %.3" ESYM
+         ", total error = %.3" ESYM "\n",
          uerrtot, verrtot, errtot);
-  if (imex_slow) {
-    printf("   Total RHS evals:  Fse = %li, Fsi = %li,  Ff = %li\n", nfse, nfsi, nff);
-  } else if (implicit_slow) {
+  if (imex_slow)
+  {
+    printf("   Total RHS evals:  Fse = %li, Fsi = %li,  Ff = %li\n", nfse, nfsi,
+           nff);
+  }
+  else if (implicit_slow)
+  {
     printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfsi, nff);
   }
-  else {
-    printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfse, nff);
-  }
+  else { printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfse, nff); }
 
   /* Get/print slow integrator decoupled implicit solver statistics */
-  if ((solve_type == 4) || (solve_type == 7) ||
-      (solve_type == 8) || (solve_type == 9)) {
+  if ((solve_type == 4) || (solve_type == 7) || (solve_type == 8) ||
+      (solve_type == 9))
+  {
     retval = MRIStepGetNonlinSolvStats(arkode_mem, &nnis, &nncs);
     check_retval(&retval, "MRIStepGetNonlinSolvStats", 1);
     retval = MRIStepGetNumJacEvals(arkode_mem, &njes);
@@ -650,7 +666,8 @@ int main(int argc, char *argv[])
   }
 
   /* Get/print fast integrator implicit solver statistics */
-  if (solve_type == 2) {
+  if (solve_type == 2)
+  {
     retval = ARKStepGetNonlinSolvStats(inner_arkode_mem, &nnif, &nncf);
     check_retval(&retval, "ARKStepGetNonlinSolvStats", 1);
     retval = ARKStepGetNumJacEvals(inner_arkode_mem, &njef);
@@ -661,16 +678,16 @@ int main(int argc, char *argv[])
   }
 
   /* Clean up and return */
-  N_VDestroy(y);                             /* Free y vector */
-  MRIStepCoupling_Free(C);                   /* free coupling coefficients */
-  SUNMatDestroy(Af);                         /* free fast matrix */
-  SUNLinSolFree(LSf);                        /* free fast linear solver */
-  SUNMatDestroy(As);                         /* free fast matrix */
-  SUNLinSolFree(LSs);                        /* free fast linear solver */
-  ARKStepFree(&inner_arkode_mem);            /* Free fast integrator memory */
-  MRIStepInnerStepper_Free(&inner_stepper);  /* Free inner stepper */
-  MRIStepFree(&arkode_mem);                  /* Free slow integrator memory */
-  SUNContext_Free(&ctx);                     /* Free context */
+  N_VDestroy(y);                            /* Free y vector */
+  MRIStepCoupling_Free(C);                  /* free coupling coefficients */
+  SUNMatDestroy(Af);                        /* free fast matrix */
+  SUNLinSolFree(LSf);                       /* free fast linear solver */
+  SUNMatDestroy(As);                        /* free fast matrix */
+  SUNLinSolFree(LSs);                       /* free fast linear solver */
+  ARKStepFree(&inner_arkode_mem);           /* Free fast integrator memory */
+  MRIStepInnerStepper_Free(&inner_stepper); /* Free inner stepper */
+  MRIStepFree(&arkode_mem);                 /* Free slow integrator memory */
+  SUNContext_Free(&ctx);                    /* Free context */
 
   return 0;
 }
@@ -680,214 +697,220 @@ int main(int argc, char *argv[])
  * ------------------------------*/
 
 /* ff routine to compute the fast portion of the ODE RHS. */
-static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype *rpar = (sunrealtype *) user_data;
+  sunrealtype* rpar   = (sunrealtype*)user_data;
   const sunrealtype e = rpar[2];
-  const sunrealtype u = NV_Ith_S(y,0);
-  const sunrealtype v = NV_Ith_S(y,1);
+  const sunrealtype u = NV_Ith_S(y, 0);
+  const sunrealtype v = NV_Ith_S(y, 1);
   sunrealtype tmp1, tmp2;
 
   /* fill in the RHS function:
      [0  0]*[(-1+u^2-r(t))/(2*u)] + [         0          ]
      [e -1] [(-2+v^2-s(t))/(2*v)]   [sdot(t)/(2*vtrue(t))] */
-  tmp1 = (-ONE+u*u-r(t,rpar))/(TWO*u);
-  tmp2 = (-TWO+v*v-s(t,rpar))/(TWO*v);
-  NV_Ith_S(ydot,0) = ZERO;
-  NV_Ith_S(ydot,1) = e*tmp1 - tmp2 + sdot(t,rpar)/(TWO*vtrue(t,rpar));
+  tmp1              = (-ONE + u * u - r(t, rpar)) / (TWO * u);
+  tmp2              = (-TWO + v * v - s(t, rpar)) / (TWO * v);
+  NV_Ith_S(ydot, 0) = ZERO;
+  NV_Ith_S(ydot, 1) = e * tmp1 - tmp2 + sdot(t, rpar) / (TWO * vtrue(t, rpar));
 
   /* Return with success */
   return 0;
 }
 
 /* fs routine to compute the slow portion of the ODE RHS. */
-static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype *rpar = (sunrealtype *) user_data;
+  sunrealtype* rpar   = (sunrealtype*)user_data;
   const sunrealtype G = rpar[0];
   const sunrealtype e = rpar[2];
-  const sunrealtype u = NV_Ith_S(y,0);
-  const sunrealtype v = NV_Ith_S(y,1);
+  const sunrealtype u = NV_Ith_S(y, 0);
+  const sunrealtype v = NV_Ith_S(y, 1);
   sunrealtype tmp1, tmp2;
 
   /* fill in the RHS function:
      [G e]*[(-1+u^2-r(t))/(2*u))] + [rdot(t)/(2*u)]
      [0 0] [(-2+v^2-s(t))/(2*v)]    [      0      ] */
-  tmp1 = (-ONE+u*u-r(t,rpar))/(TWO*u);
-  tmp2 = (-TWO+v*v-s(t,rpar))/(TWO*v);
-  NV_Ith_S(ydot,0) = G*tmp1 + e*tmp2 + rdot(t,rpar)/(TWO*u);
-  NV_Ith_S(ydot,1) = ZERO;
+  tmp1              = (-ONE + u * u - r(t, rpar)) / (TWO * u);
+  tmp2              = (-TWO + v * v - s(t, rpar)) / (TWO * v);
+  NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + rdot(t, rpar) / (TWO * u);
+  NV_Ith_S(ydot, 1) = ZERO;
 
   /* Return with success */
   return 0;
 }
 
 /* fse routine to compute the slow portion of the ODE RHS. */
-static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype *rpar = (sunrealtype *) user_data;
-  const sunrealtype u = NV_Ith_S(y,0);
+  sunrealtype* rpar   = (sunrealtype*)user_data;
+  const sunrealtype u = NV_Ith_S(y, 0);
 
   /* fill in the slow explicit RHS function:
      [rdot(t)/(2*u)]
      [      0      ] */
-  NV_Ith_S(ydot,0) = rdot(t,rpar)/(TWO*u);
-  NV_Ith_S(ydot,1) = ZERO;
+  NV_Ith_S(ydot, 0) = rdot(t, rpar) / (TWO * u);
+  NV_Ith_S(ydot, 1) = ZERO;
 
   /* Return with success */
   return 0;
 }
 
 /* fsi routine to compute the slow portion of the ODE RHS.(currently same as fse) */
-static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype *rpar = (sunrealtype *) user_data;
+  sunrealtype* rpar   = (sunrealtype*)user_data;
   const sunrealtype G = rpar[0];
   const sunrealtype e = rpar[2];
-  const sunrealtype u = NV_Ith_S(y,0);
-  const sunrealtype v = NV_Ith_S(y,1);
+  const sunrealtype u = NV_Ith_S(y, 0);
+  const sunrealtype v = NV_Ith_S(y, 1);
   sunrealtype tmp1, tmp2;
 
   /* fill in the slow implicit RHS function:
      [G e]*[(-1+u^2-r(t))/(2*u))]
      [0 0] [(-2+v^2-s(t))/(2*v)]  */
-  tmp1 = (-ONE+u*u-r(t,rpar))/(TWO*u);
-  tmp2 = (-TWO+v*v-s(t,rpar))/(TWO*v);
-  NV_Ith_S(ydot,0) = G*tmp1 + e*tmp2;
-  NV_Ith_S(ydot,1) = ZERO;
+  tmp1              = (-ONE + u * u - r(t, rpar)) / (TWO * u);
+  tmp2              = (-TWO + v * v - s(t, rpar)) / (TWO * v);
+  NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2;
+  NV_Ith_S(ydot, 1) = ZERO;
 
   /* Return with success */
   return 0;
 }
 
-static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype *rpar = (sunrealtype *) user_data;
+  sunrealtype* rpar   = (sunrealtype*)user_data;
   const sunrealtype G = rpar[0];
   const sunrealtype e = rpar[2];
-  const sunrealtype u = NV_Ith_S(y,0);
-  const sunrealtype v = NV_Ith_S(y,1);
+  const sunrealtype u = NV_Ith_S(y, 0);
+  const sunrealtype v = NV_Ith_S(y, 1);
   sunrealtype tmp1, tmp2;
 
   /* fill in the RHS function:
      [G e]*[(-1+u^2-r(t))/(2*u))] + [rdot(t)/(2*u)]
      [e -1] [(-2+v^2-s(t))/(2*v)]   [sdot(t)/(2*vtrue(t))] */
-  tmp1 = (-ONE+u*u-r(t,rpar))/(TWO*u);
-  tmp2 = (-TWO+v*v-s(t,rpar))/(TWO*v);
-  NV_Ith_S(ydot,0) = G*tmp1 + e*tmp2 + rdot(t,rpar)/(TWO*u);
-  NV_Ith_S(ydot,1) = e*tmp1 - tmp2 + sdot(t,rpar)/(TWO*vtrue(t,rpar));
+  tmp1              = (-ONE + u * u - r(t, rpar)) / (TWO * u);
+  tmp2              = (-TWO + v * v - s(t, rpar)) / (TWO * v);
+  NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + rdot(t, rpar) / (TWO * u);
+  NV_Ith_S(ydot, 1) = e * tmp1 - tmp2 + sdot(t, rpar) / (TWO * vtrue(t, rpar));
 
   /* Return with success */
   return 0;
 }
 
-static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   N_VConst(ZERO, ydot);
-  return(0);
+  return (0);
 }
 
-static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
-              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype *rpar = (sunrealtype *) user_data;
+  sunrealtype* rpar   = (sunrealtype*)user_data;
   const sunrealtype G = rpar[0];
   const sunrealtype e = rpar[2];
-  const sunrealtype u = NV_Ith_S(y,0);
-  const sunrealtype v = NV_Ith_S(y,1);
+  const sunrealtype u = NV_Ith_S(y, 0);
+  const sunrealtype v = NV_Ith_S(y, 1);
 
   /* fill in the Jacobian:
      [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
      [                 0                             0           ] */
-  SM_ELEMENT_D(J,0,0) = G/TWO + (G*(ONE+r(t,rpar))-rdot(t,rpar))/(2*u*u);
-  SM_ELEMENT_D(J,0,1) = e/TWO + e*(TWO+s(t,rpar))/(TWO*v*v);
-  SM_ELEMENT_D(J,1,0) = ZERO;
-  SM_ELEMENT_D(J,1,1) = ZERO;
+  SM_ELEMENT_D(J, 0, 0) = G / TWO + (G * (ONE + r(t, rpar)) - rdot(t, rpar)) /
+                                      (2 * u * u);
+  SM_ELEMENT_D(J, 0, 1) = e / TWO + e * (TWO + s(t, rpar)) / (TWO * v * v);
+  SM_ELEMENT_D(J, 1, 0) = ZERO;
+  SM_ELEMENT_D(J, 1, 1) = ZERO;
 
   /* Return with success */
   return 0;
 }
 
-static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
-              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype *rpar = (sunrealtype *) user_data;
+  sunrealtype* rpar   = (sunrealtype*)user_data;
   const sunrealtype G = rpar[0];
   const sunrealtype e = rpar[2];
-  const sunrealtype u = NV_Ith_S(y,0);
-  const sunrealtype v = NV_Ith_S(y,1);
+  const sunrealtype u = NV_Ith_S(y, 0);
+  const sunrealtype v = NV_Ith_S(y, 1);
 
   /* fill in the Jacobian:
      [G/2 + (G*(1+r(t)))/(2*u^2)   e/2 + e*(2+s(t))/(2*v^2)]
      [                 0                       0           ] */
-  SM_ELEMENT_D(J,0,0) = G/TWO + (G*(ONE+r(t,rpar)))/(2*u*u);
-  SM_ELEMENT_D(J,0,1) = e/TWO + e*(TWO+s(t,rpar))/(TWO*v*v);
-  SM_ELEMENT_D(J,1,0) = ZERO;
-  SM_ELEMENT_D(J,1,1) = ZERO;
+  SM_ELEMENT_D(J, 0, 0) = G / TWO + (G * (ONE + r(t, rpar))) / (2 * u * u);
+  SM_ELEMENT_D(J, 0, 1) = e / TWO + e * (TWO + s(t, rpar)) / (TWO * v * v);
+  SM_ELEMENT_D(J, 1, 0) = ZERO;
+  SM_ELEMENT_D(J, 1, 1) = ZERO;
 
   /* Return with success */
   return 0;
 }
 
-static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
-              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype *rpar = (sunrealtype *) user_data;
+  sunrealtype* rpar   = (sunrealtype*)user_data;
   const sunrealtype G = rpar[0];
   const sunrealtype e = rpar[2];
-  const sunrealtype u = NV_Ith_S(y,0);
-  const sunrealtype v = NV_Ith_S(y,1);
+  const sunrealtype u = NV_Ith_S(y, 0);
+  const sunrealtype v = NV_Ith_S(y, 1);
 
   /* fill in the Jacobian:
      [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)     e/2 + e*(2+s(t))/(2*v^2)]
      [e/2+e*(1+r(t))/(2*u^2)                -1/2 - (2+s(t))/(2*v^2)  ] */
-  SM_ELEMENT_D(J,0,0) = G/TWO + (G*(ONE+r(t,rpar))-rdot(t,rpar))/(2*u*u);
-  SM_ELEMENT_D(J,0,1) = e/TWO + e*(TWO+s(t,rpar))/(TWO*v*v);
-  SM_ELEMENT_D(J,1,0) = e/TWO + e*(ONE+r(t,rpar))/(TWO*u*u);
-  SM_ELEMENT_D(J,1,1) = -ONE/TWO - (TWO+s(t,rpar))/(TWO*v*v);
+  SM_ELEMENT_D(J, 0, 0) = G / TWO + (G * (ONE + r(t, rpar)) - rdot(t, rpar)) /
+                                      (2 * u * u);
+  SM_ELEMENT_D(J, 0, 1) = e / TWO + e * (TWO + s(t, rpar)) / (TWO * v * v);
+  SM_ELEMENT_D(J, 1, 0) = e / TWO + e * (ONE + r(t, rpar)) / (TWO * u * u);
+  SM_ELEMENT_D(J, 1, 1) = -ONE / TWO - (TWO + s(t, rpar)) / (TWO * v * v);
 
   /* Return with success */
   return 0;
 }
-
 
 /* ------------------------------
  * Private helper functions
  * ------------------------------*/
 
-static sunrealtype r(sunrealtype t, void *user_data)
+static sunrealtype r(sunrealtype t, void* user_data)
 {
-  return( SUN_RCONST(0.5)*cos(t) );
-}
-static sunrealtype s(sunrealtype t, void *user_data)
-{
-  sunrealtype *rpar = (sunrealtype *) user_data;
-  return( cos(rpar[1]*t) );
-}
-static sunrealtype rdot(sunrealtype t, void *user_data)
-{
-  return( -SUN_RCONST(0.5)*sin(t) );
-}
-static sunrealtype sdot(sunrealtype t, void *user_data)
-{
-  sunrealtype *rpar = (sunrealtype *) user_data;
-  return( -rpar[1]*sin(rpar[1]*t) );
-}
-static sunrealtype utrue(sunrealtype t, void *user_data)
-{
-  return( SUNRsqrt(ONE+r(t,user_data)) );
-}
-static sunrealtype vtrue(sunrealtype t, void *user_data)
-{
-  return( SUNRsqrt(TWO+s(t,user_data)) );
-}
-static int Ytrue(sunrealtype t, N_Vector y, void *user_data)
-{
-  NV_Ith_S(y,0) = utrue(t,user_data);
-  NV_Ith_S(y,1) = vtrue(t,user_data);
-  return(0);
+  return (SUN_RCONST(0.5) * cos(t));
 }
 
+static sunrealtype s(sunrealtype t, void* user_data)
+{
+  sunrealtype* rpar = (sunrealtype*)user_data;
+  return (cos(rpar[1] * t));
+}
+
+static sunrealtype rdot(sunrealtype t, void* user_data)
+{
+  return (-SUN_RCONST(0.5) * sin(t));
+}
+
+static sunrealtype sdot(sunrealtype t, void* user_data)
+{
+  sunrealtype* rpar = (sunrealtype*)user_data;
+  return (-rpar[1] * sin(rpar[1] * t));
+}
+
+static sunrealtype utrue(sunrealtype t, void* user_data)
+{
+  return (SUNRsqrt(ONE + r(t, user_data)));
+}
+
+static sunrealtype vtrue(sunrealtype t, void* user_data)
+{
+  return (SUNRsqrt(TWO + s(t, user_data)));
+}
+
+static int Ytrue(sunrealtype t, N_Vector y, void* user_data)
+{
+  NV_Ith_S(y, 0) = utrue(t, user_data);
+  NV_Ith_S(y, 1) = vtrue(t, user_data);
+  return (0);
+}
 
 /* Check function return value...
     opt == 0 means SUNDIALS function allocates memory so check if
@@ -897,32 +920,39 @@ static int Ytrue(sunrealtype t, N_Vector y, void *user_data)
     opt == 2 means function allocates memory so check if returned
              NULL pointer
 */
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return 1; }
+    return 1;
+  }
 
   /* Check if retval < 0 */
-  else if (opt == 1) {
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
+  else if (opt == 1)
+  {
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return 1; }}
+      return 1;
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && returnvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return 1; }
+    return 1;
+  }
 
   return 0;
 }
-
 
 /*---- end of file ----*/

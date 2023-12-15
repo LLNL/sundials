@@ -15,61 +15,65 @@
  * implementation.
  * -----------------------------------------------------------------*/
 
+#include <nvector/nvector_serial.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <sundials/sundials_types.h>
-#include <nvector/nvector_serial.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
+
 #include "test_nvector.h"
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  int          fails = 0;         /* counter for test failures */
-  int          retval;            /* function return value     */
-  sunindextype length;            /* vector length             */
-  N_Vector     U, V, W, X, Y, Z;  /* test vectors              */
-  int          print_timing;      /* turn timing on/off        */
+  int fails = 0;             /* counter for test failures */
+  int retval;                /* function return value     */
+  sunindextype length;       /* vector length             */
+  N_Vector U, V, W, X, Y, Z; /* test vectors              */
+  int print_timing;          /* turn timing on/off        */
 
   Test_Init(SUN_COMM_NULL);
 
   /* check input and set vector length */
-  if (argc < 3){
+  if (argc < 3)
+  {
     printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
     Test_Finalize();
-    return(-1);
+    return (-1);
   }
 
-  length = (sunindextype) atol(argv[1]);
-  if (length <= 0) {
+  length = (sunindextype)atol(argv[1]);
+  if (length <= 0)
+  {
     printf("ERROR: length of vector must be a positive integer \n");
     Test_Finalize();
-    return(-1);
+    return (-1);
   }
 
   print_timing = atoi(argv[2]);
   SetTiming(print_timing, 0);
 
   printf("Testing serial N_Vector \n");
-  printf("Vector length %ld \n", (long int) length);
+  printf("Vector length %ld \n", (long int)length);
 
   /* Create new vectors */
   W = N_VNewEmpty_Serial(length, sunctx);
-  if (W == NULL) {
+  if (W == NULL)
+  {
     printf("FAIL: Unable to create a new empty vector \n\n");
     Test_Finalize();
-    return(1);
+    return (1);
   }
 
   X = N_VNew_Serial(length, sunctx);
-  if (X == NULL) {
+  if (X == NULL)
+  {
     N_VDestroy(W);
     printf("FAIL: Unable to create a new vector \n\n");
     Test_Finalize();
-    return(1);
+    return (1);
   }
 
   /* Check vector ID */
@@ -93,22 +97,24 @@ int main(int argc, char *argv[])
 
   /* Clone additional vectors for testing */
   Y = N_VClone(X);
-  if (Y == NULL) {
+  if (Y == NULL)
+  {
     N_VDestroy(W);
     N_VDestroy(X);
     printf("FAIL: Unable to create a new vector \n\n");
     Test_Finalize();
-    return(1);
+    return (1);
   }
 
   Z = N_VClone(X);
-  if (Z == NULL) {
+  if (Z == NULL)
+  {
     N_VDestroy(W);
     N_VDestroy(X);
     N_VDestroy(Y);
     printf("FAIL: Unable to create a new vector \n\n");
     Test_Finalize();
-    return(1);
+    return (1);
   }
 
   /* Standard vector operation tests */
@@ -138,16 +144,17 @@ int main(int argc, char *argv[])
   printf("\nTesting fused and vector array operations (disabled):\n\n");
 
   /* create vector and disable all fused and vector array operations */
-  U = N_VNew_Serial(length, sunctx);
+  U      = N_VNew_Serial(length, sunctx);
   retval = N_VEnableFusedOps_Serial(U, SUNFALSE);
-  if (U == NULL || retval != 0) {
+  if (U == NULL || retval != 0)
+  {
     N_VDestroy(W);
     N_VDestroy(X);
     N_VDestroy(Y);
     N_VDestroy(Z);
     printf("FAIL: Unable to create a new vector \n\n");
     Test_Finalize();
-    return(1);
+    return (1);
   }
 
   /* fused operations */
@@ -168,9 +175,10 @@ int main(int argc, char *argv[])
   printf("\nTesting fused and vector array operations (enabled):\n\n");
 
   /* create vector and enable all fused and vector array operations */
-  V = N_VNew_Serial(length, sunctx);
+  V      = N_VNew_Serial(length, sunctx);
   retval = N_VEnableFusedOps_Serial(V, SUNTRUE);
-  if (V == NULL || retval != 0) {
+  if (V == NULL || retval != 0)
+  {
     N_VDestroy(W);
     N_VDestroy(X);
     N_VDestroy(Y);
@@ -178,7 +186,7 @@ int main(int argc, char *argv[])
     N_VDestroy(U);
     printf("FAIL: Unable to create a new vector \n\n");
     Test_Finalize();
-    return(1);
+    return (1);
   }
 
   /* fused operations */
@@ -228,14 +236,11 @@ int main(int argc, char *argv[])
   N_VDestroy(V);
 
   /* Print result */
-  if (fails) {
-    printf("FAIL: NVector module failed %i tests \n\n", fails);
-  } else {
-    printf("SUCCESS: NVector module passed all tests \n\n");
-  }
+  if (fails) { printf("FAIL: NVector module failed %i tests \n\n", fails); }
+  else { printf("SUCCESS: NVector module passed all tests \n\n"); }
 
   Test_Finalize();
-  return(fails);
+  return (fails);
 }
 
 /* ----------------------------------------------------------------------
@@ -243,16 +248,14 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
-  int          failure = 0;
+  int failure = 0;
   sunindextype i;
-  sunrealtype     *Xdata;
+  sunrealtype* Xdata;
 
   Xdata = N_VGetArrayPointer(X);
 
   /* check vector data */
-  for (i = 0; i < local_length; i++) {
-    failure += SUNRCompare(Xdata[i], ans);
-  }
+  for (i = 0; i < local_length; i++) { failure += SUNRCompare(Xdata[i], ans); }
 
   return (failure > ZERO) ? (1) : (0);
 }
@@ -276,19 +279,19 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
 
   /* set elements [is,ie] of the data array */
   sunrealtype* xd = N_VGetArrayPointer(X);
-  for(i = is; i <= ie; i++) xd[i] = val;
+  for (i = is; i <= ie; i++) { xd[i] = val; }
 }
 
 sunrealtype get_element(N_Vector X, sunindextype i)
 {
   /* get i-th element of data array */
-  return NV_Ith_S(X,i);
+  return NV_Ith_S(X, i);
 }
 
 double max_time(N_Vector X, double time)
 {
   /* not running in parallel, just return input time */
-  return(time);
+  return (time);
 }
 
 void sync_device(N_Vector x)

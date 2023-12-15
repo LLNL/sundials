@@ -34,30 +34,29 @@
  * -----------------------------------------------------------------
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <cmath>
-
-#include <Trilinos_version.h>
 #include <Tpetra_Core.hpp>
 #include <Tpetra_Vector.hpp>
 #include <Tpetra_Version.hpp>
+#include <Trilinos_version.h>
+#include <cmath>
+#include <stdio.h>
+#include <stdlib.h>
 
 #if TRILINOS_MAJOR_VERSION > 13
 #include <Tpetra_Access.hpp>
 #endif
 
-#include <ida/ida.h>                   /* prototypes for IDA methods           */
-#include <nvector/trilinos/SundialsTpetraVectorInterface.hpp>
+#include <ida/ida.h> /* prototypes for IDA methods           */
 #include <nvector/nvector_trilinos.h>
+#include <nvector/trilinos/SundialsTpetraVectorInterface.hpp>
+#include <sundials/sundials_types.h> /* definition of type sunrealtype          */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver      */
-#include <sundials/sundials_types.h>   /* definition of type sunrealtype          */
 
 /* Problem Constants */
 
 #define NOUT  11
 #define MGRID 10
-#define NEQ   MGRID*MGRID
+#define NEQ   MGRID* MGRID
 #define ZERO  SUN_RCONST(0.0)
 #define ONE   SUN_RCONST(1.0)
 #define TWO   SUN_RCONST(2.0)
@@ -65,12 +64,13 @@
 
 /* User data type */
 
-struct UserData {
+struct UserData
+{
   sunindextype mm;  /* number of grid points in one dimension */
   sunindextype neq; /* number of equations */
   sunrealtype dx;
   sunrealtype coeff;
-  N_Vector pp;  /* vector of prec. diag. elements */
+  N_Vector pp; /* vector of prec. diag. elements */
 };
 
 typedef sundials::trilinos::nvector_tpetra::TpetraVectorInterface::vector_type vector_type;
@@ -82,28 +82,25 @@ typedef vector_type::node_type::memory_space memory_space;
 typedef vector_type::node_type::execution_space execution_space;
 typedef vector_type::map_type map_type;
 
-
 /* Prototypes for functions called by IDA */
 
-int resHeat(sunrealtype tres, N_Vector uu, N_Vector up,
-            N_Vector resval, void *user_data);
+int resHeat(sunrealtype tres, N_Vector uu, N_Vector up, N_Vector resval,
+            void* user_data);
 
-int PsetupHeat(sunrealtype tt,
-               N_Vector uu, N_Vector up, N_Vector rr,
-               sunrealtype c_j, void *prec_data);
+int PsetupHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+               sunrealtype c_j, void* prec_data);
 
-int PsolveHeat(sunrealtype tt,
-               N_Vector uu, N_Vector up, N_Vector rr,
-               N_Vector rvec, N_Vector zvec,
-               sunrealtype c_j, sunrealtype delta, void *prec_data);
+int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+               N_Vector rvec, N_Vector zvec, sunrealtype c_j, sunrealtype delta,
+               void* prec_data);
 
 /* Prototypes for private functions */
 
-static int SetInitialProfile(UserData *data, N_Vector uu, N_Vector up,
+static int SetInitialProfile(UserData* data, N_Vector uu, N_Vector up,
                              N_Vector res);
 static void PrintHeader(sunrealtype rtol, sunrealtype atol);
-static void PrintOutput(void *mem, sunrealtype t, N_Vector uu);
-static int check_retval(void *flagvalue, const char *funcname, int opt);
+static void PrintOutput(void* mem, sunrealtype t, N_Vector uu);
+static int check_retval(void* flagvalue, const char* funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -111,9 +108,9 @@ static int check_retval(void *flagvalue, const char *funcname, int opt);
  *--------------------------------------------------------------------
  */
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  void *mem;
+  void* mem;
   N_Vector uu, up, constraints, res;
   int retval, iout;
   sunrealtype rtol, atol, t0, t1, tout, tret;
@@ -122,7 +119,7 @@ int main(int argc, char *argv[])
 
   mem = NULL;
   uu = up = constraints = res = NULL;
-  LS = NULL;
+  LS                          = NULL;
 
   using Teuchos::RCP;
   using Teuchos::rcp;
@@ -130,18 +127,18 @@ int main(int argc, char *argv[])
   /* Create the SUNDIALS context object for this simulation. */
   SUNContext ctx;
   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return -1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return -1; }
 
   /* Assign parameters in the user data structure. */
 
-  UserData *data = new UserData();
-  data->pp = NULL;
-  if(check_retval((void *)data, "malloc", 2)) return(1);
+  UserData* data = new UserData();
+  data->pp       = NULL;
+  if (check_retval((void*)data, "malloc", 2)) { return (1); }
 
-  data->mm  = MGRID;
-  data->neq = data->mm * data->mm;
-  data->dx = ONE/(data->mm-ONE);
-  data->coeff = ONE/(data->dx * data->dx);
+  data->mm    = MGRID;
+  data->neq   = data->mm * data->mm;
+  data->dx    = ONE / (data->mm - ONE);
+  data->coeff = ONE / (data->dx * data->dx);
 
   /* Start an MPI session */
   Tpetra::ScopeGuard tpetraScope(&argc, &argv);
@@ -157,15 +154,14 @@ int main(int argc, char *argv[])
   const sunindextype index_base = 0;
 
   /* Construct an MPI Map */
-  Teuchos::RCP<const map_type> testMap =
-    Teuchos::rcp(new map_type (global_length, index_base, comm,
-                               Tpetra::GloballyDistributed));
+  Teuchos::RCP<const map_type> testMap = Teuchos::rcp(
+    new map_type(global_length, index_base, comm, Tpetra::GloballyDistributed));
 
   /* Construct a Tpetra vector and return refernce counting pointer to it. */
-  Teuchos::RCP<vector_type> rcpuu =
-    Teuchos::rcp(new vector_type(testMap));
+  Teuchos::RCP<vector_type> rcpuu = Teuchos::rcp(new vector_type(testMap));
 
-  if (comm->getSize() != 1) {
+  if (comm->getSize() != 1)
+  {
     printf("Warning: This test case works only with one MPI rank!\n");
     return -1;
   }
@@ -173,19 +169,19 @@ int main(int argc, char *argv[])
   /* Allocate N-vectors and the user data structure objects. */
 
   uu = N_VMake_Trilinos(rcpuu, ctx);
-  if(check_retval((void *)uu, "N_VMake_Trilinos", 0)) return(1);
+  if (check_retval((void*)uu, "N_VMake_Trilinos", 0)) { return (1); }
 
   up = N_VClone(uu);
-  if(check_retval((void *)up, "N_VClone", 0)) return(1);
+  if (check_retval((void*)up, "N_VClone", 0)) { return (1); }
 
   res = N_VClone(uu);
-  if(check_retval((void *)res, "N_VClone", 0)) return(1);
+  if (check_retval((void*)res, "N_VClone", 0)) { return (1); }
 
   constraints = N_VClone(uu);
-  if(check_retval((void *)constraints, "N_VClone", 0)) return(1);
+  if (check_retval((void*)constraints, "N_VClone", 0)) { return (1); }
 
   data->pp = N_VClone(uu);
-  if(check_retval((void *)data->pp, "N_VClone", 0)) return(1);
+  if (check_retval((void*)data->pp, "N_VClone", 0)) { return (1); }
 
   /* Initialize uu, up. */
 
@@ -205,37 +201,37 @@ int main(int argc, char *argv[])
   /* Call IDACreate and IDAMalloc to initialize solution */
 
   mem = IDACreate(ctx);
-  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
+  if (check_retval((void*)mem, "IDACreate", 0)) { return (1); }
 
   retval = IDASetUserData(mem, data);
-  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserData", 1)) { return (1); }
 
   retval = IDASetConstraints(mem, constraints);
-  if(check_retval(&retval, "IDASetConstraints", 1)) return(1);
+  if (check_retval(&retval, "IDASetConstraints", 1)) { return (1); }
   N_VDestroy(constraints);
 
   retval = IDAInit(mem, resHeat, t0, uu, up);
-  if(check_retval(&retval, "IDAInit", 1)) return(1);
+  if (check_retval(&retval, "IDAInit", 1)) { return (1); }
 
   retval = IDASStolerances(mem, rtol, atol);
-  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerances", 1)) { return (1); }
 
   /* Create the linear solver SUNSPGMR with left preconditioning
      and the default Krylov dimension */
   LS = SUNLinSol_SPGMR(uu, SUN_PREC_LEFT, 0, ctx);
-  if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
+  if (check_retval((void*)LS, "SUNSPGMR", 0)) { return (1); }
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
   retval = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);
-  if(check_retval(&retval, "SUNSPGMRSetMaxRestarts", 1)) return(1);
+  if (check_retval(&retval, "SUNSPGMRSetMaxRestarts", 1)) { return (1); }
 
   /* Attach the linear sovler */
   retval = IDASetLinearSolver(mem, LS, NULL);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) { return (1); }
 
   /* Set the preconditioner solve and setup functions */
   retval = IDASetPreconditioner(mem, PsetupHeat, PsolveHeat);
-  if(check_retval(&retval, "IDASetPreconditioner", 1)) return(1);
+  if (check_retval(&retval, "IDASetPreconditioner", 1)) { return (1); }
 
   /* Print output heading. */
   PrintHeader(rtol, atol);
@@ -250,14 +246,17 @@ int main(int argc, char *argv[])
 
   printf("\n\nCase 1: gsytpe = SUN_MODIFIED_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
-  printf("----------------------------------------------------------------------\n");
+  printf(
+    "  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n");
+  printf(
+    "----------------------------------------------------------------------\n");
 
   /* Loop over output times, call IDASolve, and print results. */
 
-  for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
+  for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO)
+  {
     retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_retval(&retval, "IDASolve", 1)) return(1);
+    if (check_retval(&retval, "IDASolve", 1)) { return (1); }
     PrintOutput(mem, tret, uu);
   }
 
@@ -289,23 +288,26 @@ int main(int argc, char *argv[])
   /* Re-initialize IDA and SPGMR */
 
   retval = IDAReInit(mem, t0, uu, up);
-  if(check_retval(&retval, "IDAReInit", 1)) return(1);
+  if (check_retval(&retval, "IDAReInit", 1)) { return (1); }
 
   retval = SUNLinSol_SPGMRSetGSType(LS, SUN_CLASSICAL_GS);
-  if(check_retval(&retval, "SUNSPGMRSetGSType",1)) return(1);
+  if (check_retval(&retval, "SUNSPGMRSetGSType", 1)) { return (1); }
 
   /* Print case number, output table heading, and initial line of table. */
 
   printf("\n\nCase 2: gstype = SUN_CLASSICAL_GS\n");
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n" );
-  printf("----------------------------------------------------------------------\n");
+  printf(
+    "  time     umax       k  nst  nni  nje   nre   nreLS    h      npe nps\n");
+  printf(
+    "----------------------------------------------------------------------\n");
 
   /* Loop over output times, call IDASolve, and print results. */
 
-  for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
+  for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO)
+  {
     retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_retval(&retval, "IDASolve", 1)) return(1);
+    if (check_retval(&retval, "IDASolve", 1)) { return (1); }
     PrintOutput(mem, tret, uu);
   }
 
@@ -341,7 +343,7 @@ int main(int argc, char *argv[])
 
   SUNContext_Free(&ctx);
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -358,11 +360,9 @@ int main(int argc, char *argv[])
  *    res_i = u'_i - (central difference)_i
  * while for each boundary point, it is res_i = u_i.
  */
-int resHeat(sunrealtype tt,
-            N_Vector uu, N_Vector up, N_Vector rr,
-            void *user_data)
+int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr, void* user_data)
 {
-  UserData *data = reinterpret_cast<UserData*>(user_data);
+  UserData* data = reinterpret_cast<UserData*>(user_data);
   sunindextype mm;
   sunrealtype coeff;
 
@@ -372,43 +372,44 @@ int resHeat(sunrealtype tt,
 
 #if TRILINOS_MAJOR_VERSION < 14
   const auto uu_2d = uutp->getLocalView<memory_space>();
-  const auto uu_1d = Kokkos::subview (uu_2d, Kokkos::ALL(), 0);
+  const auto uu_1d = Kokkos::subview(uu_2d, Kokkos::ALL(), 0);
   const auto up_2d = uptp->getLocalView<memory_space>();
-  const auto up_1d = Kokkos::subview (up_2d, Kokkos::ALL(), 0);
-  auto rr_2d = rrtp->getLocalView<memory_space>();
-  auto rr_1d = Kokkos::subview (rr_2d, Kokkos::ALL(), 0);
+  const auto up_1d = Kokkos::subview(up_2d, Kokkos::ALL(), 0);
+  auto rr_2d       = rrtp->getLocalView<memory_space>();
+  auto rr_1d       = Kokkos::subview(rr_2d, Kokkos::ALL(), 0);
 #else
   const auto uu_2d = uutp->getLocalView<memory_space>(Tpetra::Access::ReadOnly);
-  const auto uu_1d = Kokkos::subview (uu_2d, Kokkos::ALL(), 0);
+  const auto uu_1d = Kokkos::subview(uu_2d, Kokkos::ALL(), 0);
   const auto up_2d = uptp->getLocalView<memory_space>(Tpetra::Access::ReadOnly);
-  const auto up_1d = Kokkos::subview (up_2d, Kokkos::ALL(), 0);
+  const auto up_1d = Kokkos::subview(up_2d, Kokkos::ALL(), 0);
   auto rr_2d = rrtp->getLocalView<memory_space>(Tpetra::Access::ReadWrite);
-  auto rr_1d = Kokkos::subview (rr_2d, Kokkos::ALL(), 0);
+  auto rr_1d = Kokkos::subview(rr_2d, Kokkos::ALL(), 0);
 #endif
 
   coeff = data->coeff;
   mm    = data->mm;
 
-  Kokkos::parallel_for(Kokkos::RangePolicy<execution_space>(0, mm*mm),
-    KOKKOS_LAMBDA(const local_ordinal_type &loc)
-    {
+  Kokkos::parallel_for(
+    Kokkos::RangePolicy<execution_space>(0, mm * mm),
+    KOKKOS_LAMBDA(const local_ordinal_type& loc) {
       sunindextype i = loc % mm;
       sunindextype j = loc / mm;
-      if (j==0 || j==mm-1 || i==0 || i==mm-1) {
+      if (j == 0 || j == mm - 1 || i == 0 || i == mm - 1)
+      {
         /* Initialize rr to uu, to take care of boundary equations. */
         rr_1d(loc) = uu_1d(loc);
-      } else {
-        /* Loop over interior points; set res = up - (central difference). */
-        sunrealtype dif1 = uu_1d(loc-1)  + uu_1d(loc+1)  - TWO * uu_1d(loc);
-        sunrealtype dif2 = uu_1d(loc-mm) + uu_1d(loc+mm) - TWO * uu_1d(loc);
-        rr_1d(loc) = up_1d(loc) - coeff * ( dif1 + dif2 );
       }
-    }
-  );
+      else
+      {
+        /* Loop over interior points; set res = up - (central difference). */
+        sunrealtype dif1 = uu_1d(loc - 1) + uu_1d(loc + 1) - TWO * uu_1d(loc);
+        sunrealtype dif2 = uu_1d(loc - mm) + uu_1d(loc + mm) - TWO * uu_1d(loc);
+        rr_1d(loc)       = up_1d(loc) - coeff * (dif1 + dif2);
+      }
+    });
 
-  return(0);
+  return (0);
 }
-
 
 /*
  * PsetupHeat: setup for diagonal preconditioner for idaHeat2D_kry.
@@ -426,44 +427,44 @@ int resHeat(sunrealtype tt,
  * In this instance, only cj and data (user data structure, with
  * pp etc.) are used from the PsetupdHeat argument list.
  */
-int PsetupHeat(sunrealtype tt,
-               N_Vector uu, N_Vector up, N_Vector rr,
-               sunrealtype c_j, void *prec_data)
+int PsetupHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+               sunrealtype c_j, void* prec_data)
 {
-  UserData *data = reinterpret_cast<UserData*>(prec_data);
+  UserData* data = reinterpret_cast<UserData*>(prec_data);
   sunindextype mm;
 
-  mm = data->mm;
+  mm                = data->mm;
   sunrealtype coeff = data->coeff;
 
   Teuchos::RCP<vector_type> pptp = N_VGetVector_Trilinos(data->pp);
 
 #if TRILINOS_MAJOR_VERSION < 14
   auto pp_2d = pptp->getLocalView<memory_space>();
-  auto pp_1d = Kokkos::subview (pp_2d, Kokkos::ALL(), 0);
+  auto pp_1d = Kokkos::subview(pp_2d, Kokkos::ALL(), 0);
 #else
   auto pp_2d = pptp->getLocalView<memory_space>(Tpetra::Access::ReadWrite);
-  auto pp_1d = Kokkos::subview (pp_2d, Kokkos::ALL(), 0);
+  auto pp_1d = Kokkos::subview(pp_2d, Kokkos::ALL(), 0);
 #endif
 
-  Kokkos::parallel_for (Kokkos::RangePolicy<execution_space>(0, mm*mm),
-    KOKKOS_LAMBDA (const local_ordinal_type &loc)
-    {
+  Kokkos::parallel_for(
+    Kokkos::RangePolicy<execution_space>(0, mm * mm),
+    KOKKOS_LAMBDA(const local_ordinal_type& loc) {
       sunindextype i = loc % mm;
       sunindextype j = loc / mm;
-      if (j==0 || j==mm-1 || i==0 || i==mm-1) {
+      if (j == 0 || j == mm - 1 || i == 0 || i == mm - 1)
+      {
         /* Set ppv to one, to take care of boundary equations. */
         pp_1d(loc) = ONE;
-      } else {
-        /* Loop over interior points; ppv_i = 1/J_ii */
-        pp_1d(loc) = ONE/(c_j + FOUR*coeff);
       }
-    }
-  );
+      else
+      {
+        /* Loop over interior points; ppv_i = 1/J_ii */
+        pp_1d(loc) = ONE / (c_j + FOUR * coeff);
+      }
+    });
 
-  return(0);
+  return (0);
 }
-
 
 /*
  * PsolveHeat: solve preconditioner linear system.
@@ -471,14 +472,13 @@ int PsetupHeat(sunrealtype tt,
  * containing the inverse diagonal Jacobian elements, returning the
  * result in zvec.
  */
-int PsolveHeat(sunrealtype tt,
-               N_Vector uu, N_Vector up, N_Vector rr,
-               N_Vector rvec, N_Vector zvec,
-               sunrealtype c_j, sunrealtype delta, void *prec_data)
+int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
+               N_Vector rvec, N_Vector zvec, sunrealtype c_j, sunrealtype delta,
+               void* prec_data)
 {
-  UserData *data = reinterpret_cast<UserData*>(prec_data);
+  UserData* data = reinterpret_cast<UserData*>(prec_data);
   N_VProd(data->pp, rvec, zvec);
-  return(0);
+  return (0);
 }
 
 /*
@@ -490,7 +490,7 @@ int PsolveHeat(sunrealtype tt,
 /*
  * SetInitialProfile: routine to initialize u and up vectors.
  */
-static int SetInitialProfile(UserData *data, N_Vector uu, N_Vector up,
+static int SetInitialProfile(UserData* data, N_Vector uu, N_Vector up,
                              N_Vector res)
 {
   sunindextype mm, mm1, i, j;
@@ -513,11 +513,14 @@ static int SetInitialProfile(UserData *data, N_Vector uu, N_Vector up,
 #endif
 
   /* Initialize uu on all grid points. */
-  for (j = 0; j < mm; j++) {
+  for (j = 0; j < mm; j++)
+  {
     yfact = data->dx * j;
-    for (i = 0; i < mm; i++) {
-      xfact = data->dx * i;
-      u_1d(mm*j + i) = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+    for (i = 0; i < mm; i++)
+    {
+      xfact            = data->dx * i;
+      u_1d(mm * j + i) = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact *
+                         (ONE - yfact);
     }
   }
 
@@ -546,27 +549,24 @@ static int SetInitialProfile(UserData *data, N_Vector uu, N_Vector up,
 
   mm1 = mm - 1;
 
-  Kokkos::parallel_for (Kokkos::RangePolicy<execution_space>(0, mm),
-    KOKKOS_LAMBDA (const local_ordinal_type &loc)
-    {
+  Kokkos::parallel_for(
+    Kokkos::RangePolicy<execution_space>(0, mm),
+    KOKKOS_LAMBDA(const local_ordinal_type& loc) {
       sunindextype i = loc % mm;
       sunindextype j = loc / mm;
-      if (j==0 || j==mm1 || i==0 || i==mm1) {
-        p_1d(loc) = ZERO;
-      }
-    }
-  );
+      if (j == 0 || j == mm1 || i == 0 || i == mm1) { p_1d(loc) = ZERO; }
+    });
 
-  return(0);
+  return (0);
 }
-
 
 /*
  * Print first lines of output (problem description)
  */
 static void PrintHeader(sunrealtype rtol, sunrealtype atol)
 {
-  printf("\nidaHeat2D_kry_tpetra: Heat equation, serial example problem for IDA \n");
+  printf(
+    "\nidaHeat2D_kry_tpetra: Heat equation, serial example problem for IDA \n");
   printf("         Discretized heat equation on 2D unit square. \n");
   printf("         Zero boundary conditions,");
   printf(" polynomial initial conditions.\n");
@@ -583,11 +583,10 @@ static void PrintHeader(sunrealtype rtol, sunrealtype atol)
   printf("Linear solver: SPGMR, preconditioner using diagonal elements. \n");
 }
 
-
 /*
  * PrintOutput: print max norm of solution and current solver statistics
  */
-static void PrintOutput(void *mem, sunrealtype t, N_Vector uu)
+static void PrintOutput(void* mem, sunrealtype t, N_Vector uu)
 {
   sunrealtype hused, umax;
   long int nst, nni, nje, nre, nreLS, nli, npe, nps;
@@ -617,7 +616,8 @@ static void PrintOutput(void *mem, sunrealtype t, N_Vector uu)
   check_retval(&retval, "IDAGetNumPrecSolves", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
+  printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld "
+         "%3ld\n",
          t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
@@ -628,7 +628,6 @@ static void PrintOutput(void *mem, sunrealtype t, N_Vector uu)
 #endif
 }
 
-
 /*
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
@@ -638,32 +637,35 @@ static void PrintOutput(void *mem, sunrealtype t, N_Vector uu)
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer
  */
-static int check_retval(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void* flagvalue, const char* funcname, int opt)
 {
-  int *errflag;
+  int* errflag;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr,
-            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+  if (opt == 0 && flagvalue == NULL)
+  {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1);
-  } else if (opt == 1) {
+    return (1);
+  }
+  else if (opt == 1)
+  {
     /* Check if flag < 0 */
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr,
-              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+    errflag = (int*)flagvalue;
+    if (*errflag < 0)
+    {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
               funcname, *errflag);
-      return(1);
+      return (1);
     }
-  } else if (opt == 2 && flagvalue == NULL) {
+  }
+  else if (opt == 2 && flagvalue == NULL)
+  {
     /* Check if function returned NULL pointer - no memory allocated */
-    fprintf(stderr,
-            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1);
+    return (1);
   }
 
-  return(0);
+  return (0);
 }

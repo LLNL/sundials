@@ -67,7 +67,7 @@
 // Analytic solution
 #define XTRUE HALF
 #define YTRUE ONE
-#define ZTRUE -PI/SIX
+#define ZTRUE -PI / SIX
 
 #define SQR(x) ((x) * (x))
 
@@ -82,7 +82,7 @@
  * x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0
  * exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0
  * ---------------------------------------------------------------------------*/
-int res(N_Vector uu, N_Vector fuu, void *user_data)
+int res(N_Vector uu, N_Vector fuu, void* user_data)
 {
   /* Get vector data arrays */
   sunrealtype* udata = N_VGetArrayPointer(uu);
@@ -107,7 +107,7 @@ int res(N_Vector uu, N_Vector fuu, void *user_data)
  *  [ exp(-x(y-1))(1-y)   -exp(-x(y-1))x  20              ]
  * ---------------------------------------------------------------------------*/
 
-int J(N_Vector uu, N_Vector fuu, SUNMatrix J, void *user_data, N_Vector tmp1,
+int J(N_Vector uu, N_Vector fuu, SUNMatrix J, void* user_data, N_Vector tmp1,
       N_Vector tmp2)
 {
   sunrealtype* udata = N_VGetArrayPointer(uu);
@@ -139,23 +139,23 @@ int J(N_Vector uu, N_Vector fuu, SUNMatrix J, void *user_data, N_Vector tmp1,
 // Custom linear solver solve function
 // -----------------------------------------------------------------------------
 
-int DenseSetupAndSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                       N_Vector b, sunrealtype tol)
+int DenseSetupAndSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
+                       sunrealtype tol)
 {
   // Create a copy of the matrix for factorization
   SUNMatrix Acpy = SUNMatClone(A);
 
   // Copy the input matrix
   int flag = SUNMatCopy_Dense(A, Acpy);
-  if (flag) return flag;
+  if (flag) { return flag; }
 
   // Factor the matrix
   flag = SUNLinSolSetup_Dense(S, Acpy);
-  if (flag) return flag;
+  if (flag) { return flag; }
 
   // Solve the system
   flag = SUNLinSolSolve_Dense(S, A, x, b, tol);
-  if (flag) return flag;
+  if (flag) { return flag; }
 
   // Destroy matrix copy
   SUNMatDestroy(Acpy);
@@ -170,9 +170,9 @@ int DenseSetupAndSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 // Check function return flag
 int check_flag(int flag, const std::string funcname)
 {
-  if (!flag) return 0;
-  if (flag < 0) std::cerr << "ERROR: ";
-  if (flag > 0) std::cerr << "WARNING: ";
+  if (!flag) { return 0; }
+  if (flag < 0) { std::cerr << "ERROR: "; }
+  if (flag > 0) { std::cerr << "WARNING: "; }
   std::cerr << funcname << " returned " << flag << std::endl;
   return 1;
 }
@@ -180,7 +180,7 @@ int check_flag(int flag, const std::string funcname)
 // Check if a function returned a NULL pointer
 int check_ptr(void* ptr, const std::string funcname)
 {
-  if (ptr) return 0;
+  if (ptr) { return 0; }
   std::cerr << "ERROR: " << funcname << " returned NULL" << std::endl;
   return 1;
 }
@@ -219,83 +219,83 @@ int main(int argc, char* argv[])
 
   // Create initial guess and scaling vectors
   N_Vector uu = N_VNew_Serial(3, sunctx);
-  if (check_ptr(uu, "N_VNew_Serial")) return 1;
+  if (check_ptr(uu, "N_VNew_Serial")) { return 1; }
 
   sunrealtype* udata = N_VGetArrayPointer(uu);
-  if (check_ptr(uu, "N_VGetArrayPointer")) return 1;
+  if (check_ptr(uu, "N_VGetArrayPointer")) { return 1; }
 
-  udata[0] =  PTONE;
-  udata[1] =  PTONE;
+  udata[0] = PTONE;
+  udata[1] = PTONE;
   udata[2] = -PTONE;
 
   N_Vector scale = N_VClone(uu);
-  if (check_ptr(scale, "N_VNew_Serial")) return 1;
+  if (check_ptr(scale, "N_VNew_Serial")) { return 1; }
 
   N_VConst(ONE, scale);
 
   // Create KINSOL memory structure
   void* kin_mem = KINCreate(sunctx);
-  if (check_ptr(kin_mem, "KINCreate")) return 1;
+  if (check_ptr(kin_mem, "KINCreate")) { return 1; }
 
   int flag = KINInit(kin_mem, res, uu);
-  if (check_flag(flag, "KINInit")) return 1;
+  if (check_flag(flag, "KINInit")) { return 1; }
 
   SUNMatrix A = SUNDenseMatrix(3, 3, sunctx);
-  if (check_ptr(A, "SUNDenseMatrix")) return 1;
+  if (check_ptr(A, "SUNDenseMatrix")) { return 1; }
 
   SUNLinearSolver LS = SUNLinSol_Dense(uu, A, sunctx);
-  if (check_ptr(LS, "SUNLinSol_Dense")) return 1;
+  if (check_ptr(LS, "SUNLinSol_Dense")) { return 1; }
 
   // Disable the linear solver setup function and attach custom solve function
   LS->ops->setup = nullptr;
   LS->ops->solve = DenseSetupAndSolve;
 
   flag = KINSetLinearSolver(kin_mem, LS, A);
-  if (check_flag(flag, "KINSetLinearSolver")) return 1;
+  if (check_flag(flag, "KINSetLinearSolver")) { return 1; }
 
   // Disable residual monitoring
   flag = KINSetNoResMon(kin_mem, SUNTRUE);
-  if (check_flag(flag, "KINSetNoResMon")) return 1;
+  if (check_flag(flag, "KINSetNoResMon")) { return 1; }
 
   // Update Jacobian every iteration
   flag = KINSetMaxSetupCalls(kin_mem, 1);
-  if (check_flag(flag, "KINSetMaxSetupCalls")) return 1;
+  if (check_flag(flag, "KINSetMaxSetupCalls")) { return 1; }
 
   // Set function norm tolerance
   flag = KINSetFuncNormTol(kin_mem, ftol);
-  if (check_flag(flag, "KINSetFuncNormTol")) return 1;
+  if (check_flag(flag, "KINSetFuncNormTol")) { return 1; }
 
   // Call main solver
   flag = KINSol(kin_mem, uu, KIN_NONE, scale, scale);
-  if (check_flag(flag, "KINSol")) return 1;
+  if (check_flag(flag, "KINSol")) { return 1; }
 
   long int nni;
   flag = KINGetNumNonlinSolvIters(kin_mem, &nni);
-  if (check_flag(flag, "KINGetNumNonlinSolvIters")) return 1;
+  if (check_flag(flag, "KINGetNumNonlinSolvIters")) { return 1; }
 
   // Get the internal finite difference approximation to J
   SUNMatrix Jdq;
   flag = KINGetJac(kin_mem, &Jdq);
-  if (check_flag(flag, "KINGetJac")) return 1;
+  if (check_flag(flag, "KINGetJac")) { return 1; }
 
   // Get the iteration the Jacobian was computed
   long int nni_Jdq;
   flag = KINGetJacNumIters(kin_mem, &nni_Jdq);
-  if (check_flag(flag, "KINGetJacNumSteps")) return 1;
+  if (check_flag(flag, "KINGetJacNumSteps")) { return 1; }
 
   // Compute the Jacobian at the returned solution
   SUNMatrix Jtrue = SUNDenseMatrix(3, 3, sunctx);
-  if (check_ptr(Jtrue, "SUNDenseMatrix")) return 1;
+  if (check_ptr(Jtrue, "SUNDenseMatrix")) { return 1; }
 
   flag = J(uu, nullptr, Jtrue, nullptr, nullptr, nullptr);
-  if (check_flag(flag, "J")) return 1;
+  if (check_flag(flag, "J")) { return 1; }
 
   // Compare finite difference and true Jacobian
   sunrealtype* Jdq_data = SUNDenseMatrix_Data(Jdq);
-  if (check_ptr(Jdq_data, "SUNDenseMatrix_Data")) return 1;
+  if (check_ptr(Jdq_data, "SUNDenseMatrix_Data")) { return 1; }
 
   sunrealtype* Jtrue_data = SUNDenseMatrix_Data(Jtrue);
-  if (check_ptr(Jtrue_data, "SUNDenseMatrix_Data")) return 1;
+  if (check_ptr(Jtrue_data, "SUNDenseMatrix_Data")) { return 1; }
 
   // Output Jacobian data
   std::cout << std::scientific;
@@ -307,19 +307,19 @@ int main(int argc, char* argv[])
             << std::right << "J DQ" << std::setw(25) << std::right << "J true"
             << std::setw(25) << std::right << "absolute difference"
             << std::setw(25) << std::right << "relative difference" << std::endl;
-  for (int i = 0; i < 4 * 25 + 8; i++) std::cout << "-";
+  for (int i = 0; i < 4 * 25 + 8; i++) { std::cout << "-"; }
   std::cout << std::endl;
 
-  int result = 0;
+  int result         = 0;
   sunindextype ldata = SUNDenseMatrix_LData(Jtrue);
   for (sunindextype i = 0; i < ldata; i++)
   {
     std::cout << std::setw(8) << std::right << i << std::setw(25) << std::right
               << Jdq_data[i] << std::setw(25) << std::right << Jtrue_data[i]
               << std::setw(25) << std::right
-              << std::abs(Jdq_data[i] - Jtrue_data[i])
-              << std::setw(25) << std::right
-              << std::abs(Jdq_data[i] - Jtrue_data[i])/Jtrue_data[i]
+              << std::abs(Jdq_data[i] - Jtrue_data[i]) << std::setw(25)
+              << std::right
+              << std::abs(Jdq_data[i] - Jtrue_data[i]) / Jtrue_data[i]
               << std::endl;
     result += SUNRCompareTol(Jdq_data[i], Jtrue_data[i], tol);
   }

@@ -17,12 +17,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "arkode/arkode_arkstep.h"
 #include "nvector/nvector_serial.h"
 #include "sundials/sundials_matrix.h"
 #include "sundials/sundials_nvector.h"
-#include "sunmatrix/sunmatrix_dense.h"
 #include "sunlinsol/sunlinsol_dense.h"
-#include "arkode/arkode_arkstep.h"
+#include "sunmatrix/sunmatrix_dense.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -33,41 +33,38 @@
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 
-
-int ode_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+int ode_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* ydot_data = N_VGetArrayPointer(ydot);
-  ydot_data[0] = ONE;
+  ydot_data[0]           = ONE;
   return 0;
 }
 
-
-int ode_jac(sunrealtype t, N_Vector y, N_Vector f, SUNMatrix J, void *user_data,
+int ode_jac(sunrealtype t, N_Vector y, N_Vector f, SUNMatrix J, void* user_data,
             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   sunrealtype* J_data = SUNDenseMatrix_Data(J);
-  J_data[0] = ZERO;
+  J_data[0]           = ZERO;
   return 0;
 }
 
-
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  SUNContext      sunctx     = NULL;
-  N_Vector        y          = NULL;
-  SUNMatrix       A          = NULL;
-  SUNLinearSolver LS         = NULL;
-  void*           arkode_mem = NULL;
+  SUNContext sunctx  = NULL;
+  N_Vector y         = NULL;
+  SUNMatrix A        = NULL;
+  SUNLinearSolver LS = NULL;
+  void* arkode_mem   = NULL;
 
-  int         flag        = 0;
-  int         arkode_flag = 0;
-  int         i           = 0;
-  sunrealtype tout        = SUN_RCONST(0.10);
-  sunrealtype dt_tout     = SUN_RCONST(0.25);
-  sunrealtype tstop       = SUN_RCONST(0.30);
-  sunrealtype dt_tstop    = SUN_RCONST(0.30);
-  sunrealtype tret        = ZERO;
-  sunrealtype tcur        = ZERO;
+  int flag             = 0;
+  int arkode_flag      = 0;
+  int i                = 0;
+  sunrealtype tout     = SUN_RCONST(0.10);
+  sunrealtype dt_tout  = SUN_RCONST(0.25);
+  sunrealtype tstop    = SUN_RCONST(0.30);
+  sunrealtype dt_tstop = SUN_RCONST(0.30);
+  sunrealtype tret     = ZERO;
+  sunrealtype tcur     = ZERO;
 
   /* --------------
    * Create context
@@ -120,18 +117,24 @@ int main(int argc, char *argv[])
    * Advance in time
    * --------------- */
 
-  printf("0: tout = %" GSYM ", tstop = %" GSYM ", tret = %" GSYM ", tcur = %" GSYM "\n",
+  printf("0: tout = %" GSYM ", tstop = %" GSYM ", tret = %" GSYM
+         ", tcur = %" GSYM "\n",
          tout, tstop, tret, tcur);
 
   for (i = 1; i <= 6; i++)
   {
     arkode_flag = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
-    if (arkode_flag < 0) { flag = 1; break; }
+    if (arkode_flag < 0)
+    {
+      flag = 1;
+      break;
+    }
 
     flag = ARKStepGetCurrentTime(arkode_mem, &tcur);
     if (flag) { break; }
 
-    printf("%i: tout = %" GSYM ", tstop = %" GSYM ", tret = %" GSYM ", tcur = %" GSYM ", return = %i\n",
+    printf("%i: tout = %" GSYM ", tstop = %" GSYM ", tret = %" GSYM
+           ", tcur = %" GSYM ", return = %i\n",
            i, tout, tstop, tret, tcur, arkode_flag);
 
     /* First return: output time < stop time */
@@ -220,10 +223,7 @@ int main(int argc, char *argv[])
   SUNLinSolFree(LS);
   SUNContext_Free(&sunctx);
 
-  if (!flag)
-  {
-    printf("SUCCESS\n");
-  }
+  if (!flag) { printf("SUCCESS\n"); }
 
   return flag;
 }

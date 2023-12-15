@@ -19,7 +19,6 @@
 
 #include <arkode/arkode.h>
 #include <arkode/arkode_sprk.h>
-#include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

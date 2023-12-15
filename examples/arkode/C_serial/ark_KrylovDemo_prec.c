@@ -95,15 +95,14 @@
  * Laboratory Report UCRL-95088, Rev. 1, June 1987.
  *-----------------------------------------------------------------*/
 
+#include <arkode/arkode_arkstep.h> /* prototypes for ARKStep fcts., consts        */
+#include <math.h>
+#include <nvector/nvector_serial.h> /* serial N_Vector types, fct. and macros      */
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-
-#include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts        */
-#include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver             */
-#include <nvector/nvector_serial.h>     /* serial N_Vector types, fct. and macros      */
-#include <sundials/sundials_dense.h>    /* use generic DENSE solver in preconditioning */
-#include <sundials/sundials_types.h>    /* definition of sunrealtype                      */
+#include <sundials/sundials_dense.h> /* use generic DENSE solver in preconditioning */
+#include <sundials/sundials_types.h> /* definition of sunrealtype                      */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver             */
 
 /* helpful macros */
 
@@ -112,7 +111,7 @@
 #endif
 
 #ifndef SQR
-#define SQR(A) ((A)*(A))
+#define SQR(A) ((A) * (A))
 #endif
 
 #ifndef SQRT
@@ -132,44 +131,44 @@
 
 /* Problem Specification Constants */
 
-#define AA    ONE               /* AA = a */
-#define EE    SUN_RCONST(1.0e4)     /* EE = e */
-#define GG    SUN_RCONST(0.5e-6)    /* GG = g */
-#define BB    ONE               /* BB = b */
+#define AA    ONE                /* AA = a */
+#define EE    SUN_RCONST(1.0e4)  /* EE = e */
+#define GG    SUN_RCONST(0.5e-6) /* GG = g */
+#define BB    ONE                /* BB = b */
 #define DPREY ONE
 #define DPRED SUN_RCONST(0.5)
 #define ALPH  ONE
 #define NP    3
-#define NS    (2*NP)
+#define NS    (2 * NP)
 
 /* Method Constants */
 
 #define MX    6
 #define MY    6
-#define MXNS  (MX*NS)
+#define MXNS  (MX * NS)
 #define AX    ONE
 #define AY    ONE
-#define DX    (AX/(sunrealtype)(MX-1))
-#define DY    (AY/(sunrealtype)(MY-1))
+#define DX    (AX / (sunrealtype)(MX - 1))
+#define DY    (AY / (sunrealtype)(MY - 1))
 #define MP    NS
-#define MQ    (MX*MY)
-#define MXMP  (MX*MP)
+#define MQ    (MX * MY)
+#define MXMP  (MX * MP)
 #define NGX   2
 #define NGY   2
-#define NGRP  (NGX*NGY)
+#define NGRP  (NGX * NGY)
 #define ITMAX 5
 
 /* Init Constants */
 
-#define NEQ  (NS*MX*MY)
+#define NEQ  (NS * MX * MY)
 #define T0   ZERO
 #define RTOL SUN_RCONST(1.0e-5)
 #define ATOL SUN_RCONST(1.0e-5)
 
 /* Spgmr Constants */
 
-#define MAXL 0     /* => use default = MIN(NEQ, 5)            */
-#define DELT ZERO  /* => use default = 0.05                   */
+#define MAXL 0    /* => use default = MIN(NEQ, 5)            */
+#define DELT ZERO /* => use default = 0.05                   */
 
 /* Output Constants */
 
@@ -184,20 +183,21 @@
 
 /* Structure for user data */
 
-typedef struct {
-  sunrealtype **P[NGRP];
-  sunindextype *pivot[NGRP];
+typedef struct
+{
+  sunrealtype** P[NGRP];
+  sunindextype* pivot[NGRP];
   int ns, mxns;
   int mp, mq, mx, my, ngrp, ngx, ngy, mxmp;
-  int jgx[NGX+1], jgy[NGY+1], jigx[MX], jigy[MY];
+  int jgx[NGX + 1], jgy[NGY + 1], jigx[MX], jigy[MY];
   int jxr[NGX], jyr[NGY];
   sunrealtype acoef[NS][NS], bcoef[NS], diff[NS];
   sunrealtype cox[NS], coy[NS], dx, dy, srur;
   sunrealtype fsave[NEQ];
   N_Vector tmp;
   N_Vector rewt;
-  void *arkode_mem;
-} *WebData;
+  void* arkode_mem;
+}* WebData;
 
 /* Private Helper Functions */
 
@@ -208,76 +208,78 @@ static void CInit(N_Vector c, WebData wdata);
 static void PrintIntro(void);
 static void PrintHeader(int jpre, int gstype);
 static void PrintAllSpecies(N_Vector c, int ns, int mxns, sunrealtype t);
-static void PrintOutput(void *arkode_mem, sunrealtype t);
-static void PrintFinalStats(void *arkode_mem);
+static void PrintOutput(void* arkode_mem, sunrealtype t);
+static void PrintFinalStats(void* arkode_mem);
 static void FreeUserData(WebData wdata);
-static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t, sunrealtype c[],
-                     sunrealtype rate[], WebData wdata);
-static void fblock (sunrealtype t, sunrealtype cdata[], int jx, int jy,
-                    sunrealtype cdotdata[], WebData wdata);
+static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t,
+                     sunrealtype c[], sunrealtype rate[], WebData wdata);
+static void fblock(sunrealtype t, sunrealtype cdata[], int jx, int jy,
+                   sunrealtype cdotdata[], WebData wdata);
 static void GSIter(sunrealtype gamma, N_Vector z, N_Vector x, WebData wdata);
 
 /* Small Vector Kernels */
 
-static void v_inc_by_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[], int n);
-static void v_sum_prods(sunrealtype u[], sunrealtype p[], sunrealtype q[], sunrealtype v[],
-                        sunrealtype w[], int n);
+static void v_inc_by_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[],
+                          int n);
+static void v_sum_prods(sunrealtype u[], sunrealtype p[], sunrealtype q[],
+                        sunrealtype v[], sunrealtype w[], int n);
 static void v_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[], int n);
 static void v_zero(sunrealtype u[], int n);
 
 /* Functions Called By The Solver */
 
-static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 static int Precond(sunrealtype tn, N_Vector c, N_Vector fc, sunbooleantype jok,
-                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data);
+                   sunbooleantype* jcurPtr, sunrealtype gamma, void* user_data);
 
 static int PSolve(sunrealtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
-                  sunrealtype gamma, sunrealtype delta, int lr, void *user_data);
+                  sunrealtype gamma, sunrealtype delta, int lr, void* user_data);
 
 /* Private function to check function return values */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_flag(void* flagvalue, const char* funcname, int opt);
 
 /* Implementation */
 
 int main(int argc, char* argv[])
 {
-  sunrealtype abstol=ATOL, reltol=RTOL, t, tout;
-  N_Vector c = NULL;
-  WebData wdata = NULL;
+  sunrealtype abstol = ATOL, reltol = RTOL, t, tout;
+  N_Vector c         = NULL;
+  WebData wdata      = NULL;
   SUNLinearSolver LS = NULL;
-  void *arkode_mem = NULL;
+  void* arkode_mem   = NULL;
   sunbooleantype firstrun;
   int jpre, gstype, flag;
   int ns, mxns, iout;
-  int nrmfactor = 0;   /* LS norm conversion factor flag */
-  sunrealtype nrmfac;     /* LS norm conversion factor      */
+  int nrmfactor = 0;  /* LS norm conversion factor flag */
+  sunrealtype nrmfac; /* LS norm conversion factor      */
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   flag = SUNContext_Create(SUN_COMM_NULL, &ctx);
-  if (check_flag(&flag, "SUNContext_Create", 1)) return 1;
+  if (check_flag(&flag, "SUNContext_Create", 1)) { return 1; }
 
   /* Retrieve the command-line options */
-  if (argc > 1) nrmfactor = atoi(argv[1]);
+  if (argc > 1) { nrmfactor = atoi(argv[1]); }
 
   /* Initializations */
   c = N_VNew_Serial(NEQ, ctx);
-  if(check_flag((void *)c, "N_VNew_Serial", 0)) return(1);
+  if (check_flag((void*)c, "N_VNew_Serial", 0)) { return (1); }
   wdata = AllocUserData(ctx);
-  if(check_flag((void *)wdata, "AllocUserData", 2)) return(1);
+  if (check_flag((void*)wdata, "AllocUserData", 2)) { return (1); }
   InitUserData(wdata);
-  ns = wdata->ns;
+  ns   = wdata->ns;
   mxns = wdata->mxns;
 
   /* Print problem description */
   PrintIntro();
 
   /* Loop over jpre and gstype (four cases) */
-  for (jpre = SUN_PREC_LEFT; jpre <= SUN_PREC_RIGHT; jpre++) {
-    for (gstype = SUN_MODIFIED_GS; gstype <= SUN_CLASSICAL_GS; gstype++) {
-
+  for (jpre = SUN_PREC_LEFT; jpre <= SUN_PREC_RIGHT; jpre++)
+  {
+    for (gstype = SUN_MODIFIED_GS; gstype <= SUN_CLASSICAL_GS; gstype++)
+    {
       /* Initialize c and print heading */
       CInit(c, wdata);
       PrintHeader(jpre, gstype);
@@ -285,47 +287,48 @@ int main(int argc, char* argv[])
       /* Call ARKStepCreate or ARKStepReInit, then SPGMR to set up problem */
 
       firstrun = (jpre == SUN_PREC_LEFT) && (gstype == SUN_MODIFIED_GS);
-      if (firstrun) {
+      if (firstrun)
+      {
         arkode_mem = ARKStepCreate(NULL, f, T0, c, ctx);
-        if(check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return(1);
+        if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return (1); }
 
         wdata->arkode_mem = arkode_mem;
 
         flag = ARKStepSetUserData(arkode_mem, wdata);
-        if(check_flag(&flag, "ARKStepSetUserData", 1)) return(1);
+        if (check_flag(&flag, "ARKStepSetUserData", 1)) { return (1); }
 
         flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
-        if(check_flag(&flag, "ARKStepSStolerances", 1)) return(1);
+        if (check_flag(&flag, "ARKStepSStolerances", 1)) { return (1); }
 
         flag = ARKStepSetMaxNumSteps(arkode_mem, 1000);
-        if(check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return(1);
+        if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return (1); }
 
         flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-3);
-        if(check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return(1);
+        if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) { return (1); }
 
         LS = SUNLinSol_SPGMR(c, jpre, MAXL, ctx);
-        if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
+        if (check_flag((void*)LS, "SUNLinSol_SPGMR", 0)) { return (1); }
 
         flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
-        if(check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+        if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
 
         flag = SUNLinSol_SPGMRSetGSType(LS, gstype);
-        if(check_flag(&flag, "SUNLinSol_SPGMRSetGSType", 1)) return(1);
+        if (check_flag(&flag, "SUNLinSol_SPGMRSetGSType", 1)) { return (1); }
 
         flag = ARKStepSetEpsLin(arkode_mem, DELT);
-        if(check_flag(&flag, "ARKStepSetEpsLin", 1)) return(1);
+        if (check_flag(&flag, "ARKStepSetEpsLin", 1)) { return (1); }
 
         flag = ARKStepSetPreconditioner(arkode_mem, Precond, PSolve);
-        if(check_flag(&flag, "ARKStepSetPreconditioner", 1)) return(1);
+        if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) { return (1); }
 
         /* Set the linear solver tolerance conversion factor */
-        switch(nrmfactor) {
-
-        case(1):
+        switch (nrmfactor)
+        {
+        case (1):
           /* use the square root of the vector length */
           nrmfac = SQRT((sunrealtype)NEQ);
           break;
-        case(2):
+        case (2):
           /* compute with dot product */
           nrmfac = -ONE;
           break;
@@ -336,37 +339,37 @@ int main(int argc, char* argv[])
         }
 
         flag = ARKStepSetLSNormFactor(arkode_mem, nrmfac);
-        if (check_flag(&flag, "ARKStepSetLSNormFactor", 1)) return(1);
-
-      } else {
-
+        if (check_flag(&flag, "ARKStepSetLSNormFactor", 1)) { return (1); }
+      }
+      else
+      {
         flag = ARKStepReInit(arkode_mem, NULL, f, T0, c);
-        if(check_flag(&flag, "ARKStepReInit", 1)) return(1);
+        if (check_flag(&flag, "ARKStepReInit", 1)) { return (1); }
 
         flag = SUNLinSol_SPGMRSetPrecType(LS, jpre);
-        if(check_flag(&flag, "SUNLinSol_SPGMRSetPrecType", 1)) return(1);
+        if (check_flag(&flag, "SUNLinSol_SPGMRSetPrecType", 1)) { return (1); }
 
         flag = SUNLinSol_SPGMRSetGSType(LS, gstype);
-        if(check_flag(&flag, "SUNLinSol_SPGMRSetGSType", 1)) return(1);
-
+        if (check_flag(&flag, "SUNLinSol_SPGMRSetGSType", 1)) { return (1); }
       }
 
       /* Print initial values */
-      if (firstrun) PrintAllSpecies(c, ns, mxns, T0);
+      if (firstrun) { PrintAllSpecies(c, ns, mxns, T0); }
 
       /* Loop over output points, call ARKStepEvolve, print sample solution values. */
       tout = T1;
-      for (iout = 1; iout <= NOUT; iout++) {
+      for (iout = 1; iout <= NOUT; iout++)
+      {
         flag = ARKStepEvolve(arkode_mem, tout, c, &t, ARK_NORMAL);
         PrintOutput(arkode_mem, t);
-        if (firstrun && (iout % 3 == 0)) PrintAllSpecies(c, ns, mxns, t);
-        if(check_flag(&flag, "ARKStepEvolve", 1)) break;
-        if (tout > SUN_RCONST(0.9)) tout += DTOUT; else tout *= TOUT_MULT;
+        if (firstrun && (iout % 3 == 0)) { PrintAllSpecies(c, ns, mxns, t); }
+        if (check_flag(&flag, "ARKStepEvolve", 1)) { break; }
+        if (tout > SUN_RCONST(0.9)) { tout += DTOUT; }
+        else { tout *= TOUT_MULT; }
       }
 
       /* Print final statistics, and loop for next case */
       PrintFinalStats(arkode_mem);
-
     }
   }
 
@@ -377,7 +380,7 @@ int main(int argc, char* argv[])
   FreeUserData(wdata);
   SUNContext_Free(&ctx);
 
-  return(0);
+  return (0);
 }
 
 static WebData AllocUserData(SUNContext ctx)
@@ -386,41 +389,47 @@ static WebData AllocUserData(SUNContext ctx)
   sunindextype ns = NS;
   WebData wdata;
 
-  wdata = (WebData) malloc(sizeof *wdata);
-  for(i=0; i < ngrp; i++) {
-    (wdata->P)[i] = SUNDlsMat_newDenseMat(ns, ns);
+  wdata = (WebData)malloc(sizeof *wdata);
+  for (i = 0; i < ngrp; i++)
+  {
+    (wdata->P)[i]     = SUNDlsMat_newDenseMat(ns, ns);
     (wdata->pivot)[i] = SUNDlsMat_newIndexArray(ns);
   }
   wdata->rewt = N_VNew_Serial(NEQ, ctx);
-  wdata->tmp = N_VNew_Serial(NEQ, ctx);
-  return(wdata);
+  wdata->tmp  = N_VNew_Serial(NEQ, ctx);
+  return (wdata);
 }
 
 static void InitUserData(WebData wdata)
 {
   int i, j, ns;
   sunrealtype *bcoef, *diff, *cox, *coy, dx, dy;
-  sunrealtype (*acoef)[NS];
+  sunrealtype(*acoef)[NS];
 
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
-  diff = wdata->diff;
-  cox = wdata->cox;
-  coy = wdata->coy;
+  diff  = wdata->diff;
+  cox   = wdata->cox;
+  coy   = wdata->coy;
   ns = wdata->ns = NS;
 
-  for (j = 0; j < NS; j++) { for (i = 0; i < NS; i++) acoef[i][j] = 0.; }
-  for (j = 0; j < NP; j++) {
-    for (i = 0; i < NP; i++) {
-      acoef[NP+i][j] = EE;
-      acoef[i][NP+j] = -GG;
+  for (j = 0; j < NS; j++)
+  {
+    for (i = 0; i < NS; i++) { acoef[i][j] = 0.; }
+  }
+  for (j = 0; j < NP; j++)
+  {
+    for (i = 0; i < NP; i++)
+    {
+      acoef[NP + i][j] = EE;
+      acoef[i][NP + j] = -GG;
     }
-    acoef[j][j] = -AA;
-    acoef[NP+j][NP+j] = -AA;
-    bcoef[j] = BB;
-    bcoef[NP+j] = -BB;
-    diff[j] = DPREY;
-    diff[NP+j] = DPRED;
+    acoef[j][j]           = -AA;
+    acoef[NP + j][NP + j] = -AA;
+    bcoef[j]              = BB;
+    bcoef[NP + j]         = -BB;
+    diff[j]               = DPREY;
+    diff[NP + j]          = DPRED;
   }
 
   /* Set remaining problem parameters */
@@ -428,22 +437,23 @@ static void InitUserData(WebData wdata)
   wdata->mxns = MXNS;
   dx = wdata->dx = DX;
   dy = wdata->dy = DY;
-  for (i = 0; i < ns; i++) {
-    cox[i] = diff[i]/SQR(dx);
-    coy[i] = diff[i]/SQR(dy);
+  for (i = 0; i < ns; i++)
+  {
+    cox[i] = diff[i] / SQR(dx);
+    coy[i] = diff[i] / SQR(dy);
   }
 
   /* Set remaining method parameters */
 
-  wdata->mp = MP;
-  wdata->mq = MQ;
-  wdata->mx = MX;
-  wdata->my = MY;
+  wdata->mp   = MP;
+  wdata->mq   = MQ;
+  wdata->mx   = MX;
+  wdata->my   = MY;
   wdata->srur = sqrt(SUN_UNIT_ROUNDOFF);
   wdata->mxmp = MXMP;
   wdata->ngrp = NGRP;
-  wdata->ngx = NGX;
-  wdata->ngy = NGY;
+  wdata->ngx  = NGX;
+  wdata->ngy  = NGY;
   SetGroups(MX, NGX, wdata->jgx, wdata->jigx, wdata->jxr);
   SetGroups(MY, NGY, wdata->jgy, wdata->jigy, wdata->jyr);
 }
@@ -463,17 +473,17 @@ static void SetGroups(int m, int ng, int jg[], int jig[], int jr[])
 {
   int ig, j, len1, mper, ngm1;
 
-  mper = m/ng; /* does integer division */
-  for (ig=0; ig < ng; ig++) jg[ig] = ig*mper;
+  mper = m / ng; /* does integer division */
+  for (ig = 0; ig < ng; ig++) { jg[ig] = ig * mper; }
   jg[ng] = m;
 
   ngm1 = ng - 1;
-  len1 = ngm1*mper;
-  for (j = 0; j < len1; j++) jig[j] = j/mper;
-  for (j = len1; j < m; j++) jig[j] = ngm1;
+  len1 = ngm1 * mper;
+  for (j = 0; j < len1; j++) { jig[j] = j / mper; }
+  for (j = len1; j < m; j++) { jig[j] = ngm1; }
 
-  for (ig = 0; ig < ngm1; ig++) jr[ig] = ((2*ig+1)*mper-1)/2;
-  jr[ngm1] = (ngm1*mper+m-1)/2;
+  for (ig = 0; ig < ngm1; ig++) { jr[ig] = ((2 * ig + 1) * mper - 1) / 2; }
+  jr[ngm1] = (ngm1 * mper + m - 1) / 2;
 }
 
 /* This routine computes and loads the vector of initial values. */
@@ -483,24 +493,27 @@ static void CInit(N_Vector c, WebData wdata)
   sunrealtype argx, argy, x, y, dx, dy, x_factor, y_factor, *cdata;
 
   cdata = N_VGetArrayPointer(c);
-  ns = wdata->ns;
-  mxns = wdata->mxns;
-  dx = wdata->dx;
-  dy = wdata->dy;
+  ns    = wdata->ns;
+  mxns  = wdata->mxns;
+  dx    = wdata->dx;
+  dy    = wdata->dy;
 
-  x_factor = SUN_RCONST(4.0)/SQR(AX);
-  y_factor = SUN_RCONST(4.0)/SQR(AY);
-  for (jy = 0; jy < MY; jy++) {
-    y = jy*dy;
-    argy = SQR(y_factor*y*(AY-y));
-    iyoff = mxns*jy;
-    for (jx = 0; jx < MX; jx++) {
-      x = jx*dx;
-      argx = SQR(x_factor*x*(AX-x));
-      ioff = iyoff + ns*jx;
-      for (i = 1; i <= ns; i++) {
-        ici = ioff + i-1;
-        cdata[ici] = SUN_RCONST(10.0) + i*argx*argy;
+  x_factor = SUN_RCONST(4.0) / SQR(AX);
+  y_factor = SUN_RCONST(4.0) / SQR(AY);
+  for (jy = 0; jy < MY; jy++)
+  {
+    y     = jy * dy;
+    argy  = SQR(y_factor * y * (AY - y));
+    iyoff = mxns * jy;
+    for (jx = 0; jx < MX; jx++)
+    {
+      x    = jx * dx;
+      argx = SQR(x_factor * x * (AX - x));
+      ioff = iyoff + ns * jx;
+      for (i = 1; i <= ns; i++)
+      {
+        ici        = ioff + i - 1;
+        cdata[ici] = SUN_RCONST(10.0) + i * argx * argy;
       }
     }
   }
@@ -512,38 +525,29 @@ static void PrintIntro(void)
   printf("Food web problem with ns species, ns = %d\n", NS);
   printf("Predator-prey interaction and diffusion on a 2-D square\n\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("Matrix parameters: a = %.2Lg   e = %.2Lg   g = %.2Lg\n",
-         AA, EE, GG);
+  printf("Matrix parameters: a = %.2Lg   e = %.2Lg   g = %.2Lg\n", AA, EE, GG);
   printf("b parameter = %.2Lg\n", BB);
-  printf("Diffusion coefficients: Dprey = %.2Lg   Dpred = %.2Lg\n",
-         DPREY, DPRED);
+  printf("Diffusion coefficients: Dprey = %.2Lg   Dpred = %.2Lg\n", DPREY, DPRED);
   printf("Rate parameter alpha = %.2Lg\n\n", ALPH);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Matrix parameters: a = %.2g   e = %.2g   g = %.2g\n",
-         AA, EE, GG);
+  printf("Matrix parameters: a = %.2g   e = %.2g   g = %.2g\n", AA, EE, GG);
   printf("b parameter = %.2g\n", BB);
-  printf("Diffusion coefficients: Dprey = %.2g   Dpred = %.2g\n",
-         DPREY, DPRED);
+  printf("Diffusion coefficients: Dprey = %.2g   Dpred = %.2g\n", DPREY, DPRED);
   printf("Rate parameter alpha = %.2g\n\n", ALPH);
 #else
-  printf("Matrix parameters: a = %.2g   e = %.2g   g = %.2g\n",
-         AA, EE, GG);
+  printf("Matrix parameters: a = %.2g   e = %.2g   g = %.2g\n", AA, EE, GG);
   printf("b parameter = %.2g\n", BB);
-  printf("Diffusion coefficients: Dprey = %.2g   Dpred = %.2g\n",
-         DPREY, DPRED);
+  printf("Diffusion coefficients: Dprey = %.2g   Dpred = %.2g\n", DPREY, DPRED);
   printf("Rate parameter alpha = %.2g\n\n", ALPH);
 #endif
   printf("Mesh dimensions (mx,my) are %d, %d.  ", MX, MY);
   printf("Total system size is neq = %d \n\n", NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("Tolerances: reltol = %.2Lg, abstol = %.2Lg \n\n",
-         RTOL, ATOL);
+  printf("Tolerances: reltol = %.2Lg, abstol = %.2Lg \n\n", RTOL, ATOL);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerances: reltol = %.2g, abstol = %.2g \n\n",
-         RTOL, ATOL);
+  printf("Tolerances: reltol = %.2g, abstol = %.2g \n\n", RTOL, ATOL);
 #else
-  printf("Tolerances: reltol = %.2g, abstol = %.2g \n\n",
-         RTOL, ATOL);
+  printf("Tolerances: reltol = %.2g, abstol = %.2g \n\n", RTOL, ATOL);
 #endif
   printf("Preconditioning uses a product of:\n");
   printf("  (1) Gauss-Seidel iterations with ");
@@ -558,21 +562,32 @@ static void PrintIntro(void)
 
 static void PrintHeader(int jpre, int gstype)
 {
-  if(jpre == SUN_PREC_LEFT)
+  if (jpre == SUN_PREC_LEFT)
+  {
     printf("\n\nPreconditioner type is           jpre = %s\n", "SUN_PREC_LEFT");
+  }
   else
-    printf("\n\nPreconditioner type is           jpre = %s\n", "SUN_PREC_RIGHT");
+  {
+    printf("\n\nPreconditioner type is           jpre = %s\n",
+           "SUN_PREC_RIGHT");
+  }
 
-  if(gstype == SUN_MODIFIED_GS)
-    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "SUN_MODIFIED_GS");
+  if (gstype == SUN_MODIFIED_GS)
+  {
+    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n",
+           "SUN_MODIFIED_GS");
+  }
   else
-    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n", "SUN_CLASSICAL_GS");
+  {
+    printf("\nGram-Schmidt method type is    gstype = %s\n\n\n",
+           "SUN_CLASSICAL_GS");
+  }
 }
 
 static void PrintAllSpecies(N_Vector c, int ns, int mxns, sunrealtype t)
 {
-  int i, jx ,jy;
-  sunrealtype *cdata;
+  int i, jx, jy;
+  sunrealtype* cdata;
 
   cdata = N_VGetArrayPointer(c);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -582,16 +597,19 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, sunrealtype t)
 #else
   printf("c values at t = %g:\n\n", t);
 #endif
-  for (i=1; i <= ns; i++) {
+  for (i = 1; i <= ns; i++)
+  {
     printf("Species %d\n", i);
-    for (jy=MY-1; jy >= 0; jy--) {
-      for (jx=0; jx < MX; jx++) {
+    for (jy = MY - 1; jy >= 0; jy--)
+    {
+      for (jx = 0; jx < MX; jx++)
+      {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-        printf("%-10.6Lg", cdata[(i-1) + jx*ns + jy*mxns]);
+        printf("%-10.6Lg", cdata[(i - 1) + jx * ns + jy * mxns]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-        printf("%-10.6g", cdata[(i-1) + jx*ns + jy*mxns]);
+        printf("%-10.6g", cdata[(i - 1) + jx * ns + jy * mxns]);
 #else
-        printf("%-10.6g", cdata[(i-1) + jx*ns + jy*mxns]);
+        printf("%-10.6g", cdata[(i - 1) + jx * ns + jy * mxns]);
 #endif
       }
       printf("\n");
@@ -600,7 +618,7 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, sunrealtype t)
   }
 }
 
-static void PrintOutput(void *arkode_mem, sunrealtype t)
+static void PrintOutput(void* arkode_mem, sunrealtype t)
 {
   long int nst, nfe, nfi, nni;
   int flag;
@@ -616,20 +634,23 @@ static void PrintOutput(void *arkode_mem, sunrealtype t)
   check_flag(&flag, "ARKStepGetLastStep", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("t = %10.2Le  nst = %ld  nfe = %ld  nfi = %ld  nni = %ld", t, nst, nfe, nfi, nni);
+  printf("t = %10.2Le  nst = %ld  nfe = %ld  nfi = %ld  nni = %ld", t, nst, nfe,
+         nfi, nni);
   printf("  hu = %11.2Le\n\n", hu);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("t = %10.2e  nst = %ld  nfe = %ld  nfi = %ld  nni = %ld", t, nst, nfe, nfi, nni);
+  printf("t = %10.2e  nst = %ld  nfe = %ld  nfi = %ld  nni = %ld", t, nst, nfe,
+         nfi, nni);
   printf("  hu = %11.2e\n\n", hu);
 #else
-  printf("t = %10.2e  nst = %ld  nfe = %ld  nfi = %ld  nni = %ld", t, nst, nfe, nfi, nni);
+  printf("t = %10.2e  nst = %ld  nfe = %ld  nfi = %ld  nni = %ld", t, nst, nfe,
+         nfi, nni);
   printf("  hu = %11.2e\n\n", hu);
 #endif
 }
 
-static void PrintFinalStats(void *arkode_mem)
+static void PrintFinalStats(void* arkode_mem)
 {
-  long int lenrw, leniw ;
+  long int lenrw, leniw;
   long int lenrwLS, leniwLS;
   long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
@@ -682,7 +703,7 @@ static void PrintFinalStats(void *arkode_mem)
   printf(" Number of error test failures         = %4ld \n", netf);
   printf(" Number of nonlinear conv. failures    = %4ld \n", ncfn);
   printf(" Number of linear convergence failures = %4ld \n", ncfl);
-  avdim = (nni > 0) ? ((sunrealtype)nli)/((sunrealtype)nni) : ZERO;
+  avdim = (nni > 0) ? ((sunrealtype)nli) / ((sunrealtype)nni) : ZERO;
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" Average Krylov subspace dimension     = %.3Lf \n", avdim);
 #else
@@ -690,7 +711,7 @@ static void PrintFinalStats(void *arkode_mem)
 #endif
   printf("\n\n--------------------------------------------------------------");
   printf("--------------\n");
-  printf(    "--------------------------------------------------------------");
+  printf("--------------------------------------------------------------");
   printf("--------------\n");
 }
 
@@ -699,7 +720,8 @@ static void FreeUserData(WebData wdata)
   int i, ngrp;
 
   ngrp = wdata->ngrp;
-  for(i=0; i < ngrp; i++) {
+  for (i = 0; i < ngrp; i++)
+  {
     SUNDlsMat_destroyMat((wdata->P)[i]);
     SUNDlsMat_destroyArray((wdata->pivot)[i]);
   }
@@ -713,54 +735,57 @@ static void FreeUserData(WebData wdata)
  returns it in cdot. The interaction rates are computed by calls to WebRates,
  and these are saved in fsave for use in preconditioning.
 */
-static int f(sunrealtype t, N_Vector c, N_Vector cdot,void *user_data)
+static int f(sunrealtype t, N_Vector c, N_Vector cdot, void* user_data)
 {
   int i, ic, ici, idxl, idxu, jx, ns, mxns, iyoff, jy, idyu, idyl;
   sunrealtype dcxli, dcxui, dcyli, dcyui, x, y, *cox, *coy, *fsave, dx, dy;
   sunrealtype *cdata, *cdotdata;
   WebData wdata;
 
-  wdata = (WebData) user_data;
-  cdata = N_VGetArrayPointer(c);
+  wdata    = (WebData)user_data;
+  cdata    = N_VGetArrayPointer(c);
   cdotdata = N_VGetArrayPointer(cdot);
 
-  mxns = wdata->mxns;
-  ns = wdata->ns;
+  mxns  = wdata->mxns;
+  ns    = wdata->ns;
   fsave = wdata->fsave;
-  cox = wdata->cox;
-  coy = wdata->coy;
-  mxns = wdata->mxns;
-  dx = wdata->dx;
-  dy = wdata->dy;
+  cox   = wdata->cox;
+  coy   = wdata->coy;
+  mxns  = wdata->mxns;
+  dx    = wdata->dx;
+  dy    = wdata->dy;
 
-  for (jy = 0; jy < MY; jy++) {
-    y = jy*dy;
-    iyoff = mxns*jy;
-    idyu = (jy == MY-1) ? -mxns : mxns;
-    idyl = (jy == 0) ? -mxns : mxns;
-    for (jx = 0; jx < MX; jx++) {
-      x = jx*dx;
-      ic = iyoff + ns*jx;
+  for (jy = 0; jy < MY; jy++)
+  {
+    y     = jy * dy;
+    iyoff = mxns * jy;
+    idyu  = (jy == MY - 1) ? -mxns : mxns;
+    idyl  = (jy == 0) ? -mxns : mxns;
+    for (jx = 0; jx < MX; jx++)
+    {
+      x  = jx * dx;
+      ic = iyoff + ns * jx;
       /* Get interaction rates at one point (x,y). */
-      WebRates(x, y, t, cdata+ic, fsave+ic, wdata);
-      idxu = (jx == MX-1) ? -ns : ns;
+      WebRates(x, y, t, cdata + ic, fsave + ic, wdata);
+      idxu = (jx == MX - 1) ? -ns : ns;
       idxl = (jx == 0) ? -ns : ns;
-      for (i = 1; i <= ns; i++) {
-        ici = ic + i-1;
+      for (i = 1; i <= ns; i++)
+      {
+        ici = ic + i - 1;
         /* Do differencing in y. */
-        dcyli = cdata[ici] - cdata[ici-idyl];
-        dcyui = cdata[ici+idyu] - cdata[ici];
+        dcyli = cdata[ici] - cdata[ici - idyl];
+        dcyui = cdata[ici + idyu] - cdata[ici];
         /* Do differencing in x. */
-        dcxli = cdata[ici] - cdata[ici-idxl];
-        dcxui = cdata[ici+idxu] - cdata[ici];
+        dcxli = cdata[ici] - cdata[ici - idxl];
+        dcxui = cdata[ici + idxu] - cdata[ici];
         /* Collect terms and load cdot elements. */
-        cdotdata[ici] = coy[i-1]*(dcyui - dcyli) + cox[i-1]*(dcxui - dcxli) +
-          fsave[ici];
+        cdotdata[ici] = coy[i - 1] * (dcyui - dcyli) +
+                        cox[i - 1] * (dcxui - dcxli) + fsave[ici];
       }
     }
   }
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -768,27 +793,26 @@ static int f(sunrealtype t, N_Vector c, N_Vector cdot,void *user_data)
   c_1, ... ,c_ns (stored in c[0],...,c[ns-1]), at one spatial point
   and at time t.
 */
-static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t, sunrealtype c[],
-                     sunrealtype rate[], WebData wdata)
+static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t,
+                     sunrealtype c[], sunrealtype rate[], WebData wdata)
 {
   int i, j, ns;
   sunrealtype fac, *bcoef;
-  sunrealtype (*acoef)[NS];
+  sunrealtype(*acoef)[NS];
 
-  ns = wdata->ns;
+  ns    = wdata->ns;
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
 
-  for (i = 0; i < ns; i++)
-    rate[i] = ZERO;
+  for (i = 0; i < ns; i++) { rate[i] = ZERO; }
 
   for (j = 0; j < ns; j++)
-    for (i = 0; i < ns; i++)
-      rate[i] += c[j] * acoef[i][j];
+  {
+    for (i = 0; i < ns; i++) { rate[i] += c[j] * acoef[i][j]; }
+  }
 
-  fac = ONE + ALPH*x*y;
-  for (i = 0; i < ns; i++)
-    rate[i] = c[i]*(bcoef[i]*fac + rate[i]);
+  fac = ONE + ALPH * x * y;
+  for (i = 0; i < ns; i++) { rate[i] = c[i] * (bcoef[i] * fac + rate[i]); }
 }
 
 /*
@@ -805,39 +829,39 @@ static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t, sunrealtype c[
  there are ngrp=ngx*ngy blocks computed in the block-grouping scheme.
 */
 static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
-                   sunbooleantype *jcurPtr, sunrealtype gamma, void *user_data)
+                   sunbooleantype* jcurPtr, sunrealtype gamma, void* user_data)
 {
-  sunrealtype ***P;
+  sunrealtype*** P;
   sunindextype ier;
-  sunindextype **pivot;
+  sunindextype** pivot;
   int i, if0, if00, ig, igx, igy, j, jj, jx, jy;
   int *jxr, *jyr, ngrp, ngx, ngy, mxmp, mp, flag;
   sunrealtype uround, fac, r, r0, save, srur;
   sunrealtype *f1, *fsave, *cdata, *rewtdata;
   WebData wdata;
-  void *arkode_mem;
+  void* arkode_mem;
   N_Vector rewt;
 
-  wdata = (WebData) user_data;
+  wdata      = (WebData)user_data;
   arkode_mem = wdata->arkode_mem;
-  cdata = N_VGetArrayPointer(c);
-  rewt = wdata->rewt;
-  flag = ARKStepGetErrWeights(arkode_mem, rewt);
-  if(check_flag(&flag, "ARKStepGetErrWeights", 1)) return(1);
+  cdata      = N_VGetArrayPointer(c);
+  rewt       = wdata->rewt;
+  flag       = ARKStepGetErrWeights(arkode_mem, rewt);
+  if (check_flag(&flag, "ARKStepGetErrWeights", 1)) { return (1); }
   rewtdata = N_VGetArrayPointer(rewt);
 
   uround = SUN_UNIT_ROUNDOFF;
 
-  P = wdata->P;
+  P     = wdata->P;
   pivot = wdata->pivot;
-  jxr = wdata->jxr;
-  jyr = wdata->jyr;
-  mp = wdata->mp;
-  srur = wdata->srur;
-  ngrp = wdata->ngrp;
-  ngx = wdata->ngx;
-  ngy = wdata->ngy;
-  mxmp = wdata->mxmp;
+  jxr   = wdata->jxr;
+  jyr   = wdata->jyr;
+  mp    = wdata->mp;
+  srur  = wdata->srur;
+  ngrp  = wdata->ngrp;
+  ngx   = wdata->ngx;
+  ngy   = wdata->ngy;
+  mxmp  = wdata->mxmp;
   fsave = wdata->fsave;
 
   /* Make mp calls to fblock to approximate each diagonal block of Jacobian.
@@ -846,28 +870,32 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
 
   f1 = N_VGetArrayPointer(wdata->tmp);
 
-  fac = N_VWrmsNorm (fc, rewt);
-  r0 = SUN_RCONST(1000.0)*fabs(gamma)*uround*NEQ*fac;
-  if (r0 == ZERO) r0 = ONE;
+  fac = N_VWrmsNorm(fc, rewt);
+  r0  = SUN_RCONST(1000.0) * fabs(gamma) * uround * NEQ * fac;
+  if (r0 == ZERO) { r0 = ONE; }
 
-  for (igy = 0; igy < ngy; igy++) {
-    jy = jyr[igy];
-    if00 = jy*mxmp;
-    for (igx = 0; igx < ngx; igx++) {
-      jx = jxr[igx];
-      if0 = if00 + jx*mp;
-      ig = igx + igy*ngx;
+  for (igy = 0; igy < ngy; igy++)
+  {
+    jy   = jyr[igy];
+    if00 = jy * mxmp;
+    for (igx = 0; igx < ngx; igx++)
+    {
+      jx  = jxr[igx];
+      if0 = if00 + jx * mp;
+      ig  = igx + igy * ngx;
       /* Generate ig-th diagonal block */
-      for (j = 0; j < mp; j++) {
+      for (j = 0; j < mp; j++)
+      {
         /* Generate the jth column as a difference quotient */
-        jj = if0 + j;
+        jj   = if0 + j;
         save = cdata[jj];
-        r = MAX(srur*fabs(save),r0/rewtdata[jj]);
+        r    = MAX(srur * fabs(save), r0 / rewtdata[jj]);
         cdata[jj] += r;
-        fac = -gamma/r;
-        fblock (t, cdata, jx, jy, f1, wdata);
-        for (i = 0; i < mp; i++) {
-          P[ig][j][i] = (f1[i] - fsave[if0+i])*fac;
+        fac = -gamma / r;
+        fblock(t, cdata, jx, jy, f1, wdata);
+        for (i = 0; i < mp; i++)
+        {
+          P[ig][j][i] = (f1[i] - fsave[if0 + i]) * fac;
         }
         cdata[jj] = save;
       }
@@ -876,14 +904,15 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
 
   /* Add identity matrix and do LU decompositions on blocks. */
 
-  for (ig = 0; ig < ngrp; ig++) {
+  for (ig = 0; ig < ngrp; ig++)
+  {
     SUNDlsMat_denseAddIdentity(P[ig], mp);
     ier = SUNDlsMat_denseGETRF(P[ig], mp, mp, pivot[ig]);
-    if (ier != 0) return(1);
+    if (ier != 0) { return (1); }
   }
 
   *jcurPtr = SUNTRUE;
-  return(0);
+  return (0);
 }
 
 /*
@@ -897,11 +926,11 @@ static void fblock(sunrealtype t, sunrealtype cdata[], int jx, int jy,
   int iblok, ic;
   sunrealtype x, y;
 
-  iblok = jx + jy*(wdata->mx);
-  y = jy*(wdata->dy);
-  x = jx*(wdata->dx);
-  ic = (wdata->ns)*(iblok);
-  WebRates(x, y, t, cdata+ic, cdotdata, wdata);
+  iblok = jx + jy * (wdata->mx);
+  y     = jy * (wdata->dy);
+  x     = jx * (wdata->dx);
+  ic    = (wdata->ns) * (iblok);
+  WebRates(x, y, t, cdata + ic, cdotdata, wdata);
 }
 
 /*
@@ -915,14 +944,14 @@ static void fblock(sunrealtype t, sunrealtype cdata[], int jx, int jy,
   blocks in P, and pivot information in pivot, and returns the result in z.
 */
 static int PSolve(sunrealtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector z,
-                  sunrealtype gamma, sunrealtype delta, int lr, void *user_data)
+                  sunrealtype gamma, sunrealtype delta, int lr, void* user_data)
 {
-  sunrealtype   ***P;
-  sunindextype **pivot;
+  sunrealtype*** P;
+  sunindextype** pivot;
   int jx, jy, igx, igy, iv, ig, *jigx, *jigy, mx, my, ngx, mp;
   WebData wdata;
 
-  wdata = (WebData) user_data;
+  wdata = (WebData)user_data;
 
   N_VScale(ONE, r, z);
 
@@ -932,27 +961,29 @@ static int PSolve(sunrealtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector 
 
   /* Do backsolves for inverse of block-diagonal preconditioner factor */
 
-  P = wdata->P;
+  P     = wdata->P;
   pivot = wdata->pivot;
-  mx = wdata->mx;
-  my = wdata->my;
-  ngx = wdata->ngx;
-  mp = wdata->mp;
-  jigx = wdata->jigx;
-  jigy = wdata->jigy;
+  mx    = wdata->mx;
+  my    = wdata->my;
+  ngx   = wdata->ngx;
+  mp    = wdata->mp;
+  jigx  = wdata->jigx;
+  jigy  = wdata->jigy;
 
   iv = 0;
-  for (jy = 0; jy < my; jy++) {
+  for (jy = 0; jy < my; jy++)
+  {
     igy = jigy[jy];
-    for (jx = 0; jx < mx; jx++) {
+    for (jx = 0; jx < mx; jx++)
+    {
       igx = jigx[jx];
-      ig = igx + igy*ngx;
+      ig  = igx + igy * ngx;
       SUNDlsMat_denseGETRS(P[ig], mp, pivot[ig], &(N_VGetArrayPointer(z)[iv]));
       iv += mp;
     }
   }
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -971,158 +1002,168 @@ static void GSIter(sunrealtype gamma, N_Vector z, N_Vector x, WebData wdata)
   sunrealtype beta[NS], beta2[NS], cof1[NS], gam[NS], gam2[NS];
   sunrealtype temp, *cox, *coy, *xd, *zd;
 
-  xd = N_VGetArrayPointer(x);
-  zd = N_VGetArrayPointer(z);
-  ns = wdata->ns;
-  mx = wdata->mx;
-  my = wdata->my;
+  xd   = N_VGetArrayPointer(x);
+  zd   = N_VGetArrayPointer(z);
+  ns   = wdata->ns;
+  mx   = wdata->mx;
+  my   = wdata->my;
   mxns = wdata->mxns;
-  cox = wdata->cox;
-  coy = wdata->coy;
+  cox  = wdata->cox;
+  coy  = wdata->coy;
 
   /* Write matrix as P = D - L - U.
      Load local arrays beta, beta2, gam, gam2, and cof1. */
 
-  for (i = 0; i < ns; i++) {
-    temp = ONE/(ONE + SUN_RCONST(2.0)*gamma*(cox[i] + coy[i]));
-    beta[i] = gamma*cox[i]*temp;
-    beta2[i] = SUN_RCONST(2.0)*beta[i];
-    gam[i] = gamma*coy[i]*temp;
-    gam2[i] = SUN_RCONST(2.0)*gam[i];
-    cof1[i] = temp;
+  for (i = 0; i < ns; i++)
+  {
+    temp     = ONE / (ONE + SUN_RCONST(2.0) * gamma * (cox[i] + coy[i]));
+    beta[i]  = gamma * cox[i] * temp;
+    beta2[i] = SUN_RCONST(2.0) * beta[i];
+    gam[i]   = gamma * coy[i] * temp;
+    gam2[i]  = SUN_RCONST(2.0) * gam[i];
+    cof1[i]  = temp;
   }
 
   /* Begin iteration loop.
      Load vector x with (D-inverse)*z for first iteration. */
 
-  for (jy = 0; jy < my; jy++) {
-    iyoff = mxns*jy;
-    for (jx = 0; jx < mx; jx++) {
-      ic = iyoff + ns*jx;
-      v_prod(xd+ic, cof1, zd+ic, ns); /* x[ic+i] = cof1[i]z[ic+i] */
+  for (jy = 0; jy < my; jy++)
+  {
+    iyoff = mxns * jy;
+    for (jx = 0; jx < mx; jx++)
+    {
+      ic = iyoff + ns * jx;
+      v_prod(xd + ic, cof1, zd + ic, ns); /* x[ic+i] = cof1[i]z[ic+i] */
     }
   }
   N_VConst(ZERO, z);
 
   /* Looping point for iterations. */
 
-  for (iter=1; iter <= ITMAX; iter++) {
-
+  for (iter = 1; iter <= ITMAX; iter++)
+  {
     /* Calculate (D-inverse)*U*x if not the first iteration. */
 
-    if (iter > 1) {
-      for (jy=0; jy < my; jy++) {
-        iyoff = mxns*jy;
-        for (jx=0; jx < mx; jx++) { /* order of loops matters */
-          ic = iyoff + ns*jx;
-          x_loc = (jx == 0) ? 0 : ((jx == mx-1) ? 2 : 1);
-          y_loc = (jy == 0) ? 0 : ((jy == my-1) ? 2 : 1);
-          switch (3*y_loc+x_loc) {
-          case 0 :
+    if (iter > 1)
+    {
+      for (jy = 0; jy < my; jy++)
+      {
+        iyoff = mxns * jy;
+        for (jx = 0; jx < mx; jx++)
+        { /* order of loops matters */
+          ic    = iyoff + ns * jx;
+          x_loc = (jx == 0) ? 0 : ((jx == mx - 1) ? 2 : 1);
+          y_loc = (jy == 0) ? 0 : ((jy == my - 1) ? 2 : 1);
+          switch (3 * y_loc + x_loc)
+          {
+          case 0:
             /* jx == 0, jy == 0 */
             /* x[ic+i] = beta2[i]x[ic+ns+i] + gam2[i]x[ic+mxns+i] */
-            v_sum_prods(xd+ic, beta2, xd+ic+ns, gam2, xd+ic+mxns, ns);
+            v_sum_prods(xd + ic, beta2, xd + ic + ns, gam2, xd + ic + mxns, ns);
             break;
-          case 1 :
+          case 1:
             /* 1 <= jx <= mx-2, jy == 0 */
             /* x[ic+i] = beta[i]x[ic+ns+i] + gam2[i]x[ic+mxns+i] */
-            v_sum_prods(xd+ic, beta, xd+ic+ns, gam2, xd+ic+mxns, ns);
+            v_sum_prods(xd + ic, beta, xd + ic + ns, gam2, xd + ic + mxns, ns);
             break;
-          case 2 :
+          case 2:
             /* jx == mx-1, jy == 0 */
             /* x[ic+i] = gam2[i]x[ic+mxns+i] */
-            v_prod(xd+ic, gam2, xd+ic+mxns, ns);
+            v_prod(xd + ic, gam2, xd + ic + mxns, ns);
             break;
-          case 3 :
+          case 3:
             /* jx == 0, 1 <= jy <= my-2 */
             /* x[ic+i] = beta2[i]x[ic+ns+i] + gam[i]x[ic+mxns+i] */
-            v_sum_prods(xd+ic, beta2, xd+ic+ns, gam, xd+ic+mxns, ns);
+            v_sum_prods(xd + ic, beta2, xd + ic + ns, gam, xd + ic + mxns, ns);
             break;
-          case 4 :
+          case 4:
             /* 1 <= jx <= mx-2, 1 <= jy <= my-2 */
             /* x[ic+i] = beta[i]x[ic+ns+i] + gam[i]x[ic+mxns+i] */
-            v_sum_prods(xd+ic, beta, xd+ic+ns, gam, xd+ic+mxns, ns);
+            v_sum_prods(xd + ic, beta, xd + ic + ns, gam, xd + ic + mxns, ns);
             break;
-          case 5 :
+          case 5:
             /* jx == mx-1, 1 <= jy <= my-2 */
             /* x[ic+i] = gam[i]x[ic+mxns+i] */
-            v_prod(xd+ic, gam, xd+ic+mxns, ns);
+            v_prod(xd + ic, gam, xd + ic + mxns, ns);
             break;
-          case 6 :
+          case 6:
             /* jx == 0, jy == my-1 */
             /* x[ic+i] = beta2[i]x[ic+ns+i] */
-            v_prod(xd+ic, beta2, xd+ic+ns, ns);
+            v_prod(xd + ic, beta2, xd + ic + ns, ns);
             break;
-          case 7 :
+          case 7:
             /* 1 <= jx <= mx-2, jy == my-1 */
             /* x[ic+i] = beta[i]x[ic+ns+i] */
-            v_prod(xd+ic, beta, xd+ic+ns, ns);
+            v_prod(xd + ic, beta, xd + ic + ns, ns);
             break;
-          case 8 :
+          case 8:
             /* jx == mx-1, jy == my-1 */
             /* x[ic+i] = 0.0 */
-            v_zero(xd+ic, ns);
+            v_zero(xd + ic, ns);
             break;
           }
         }
       }
-    }  /* end if (iter > 1) */
+    } /* end if (iter > 1) */
 
     /* Overwrite x with [(I - (D-inverse)*L)-inverse]*x. */
 
-    for (jy=0; jy < my; jy++) {
-      iyoff = mxns*jy;
-      for (jx=0; jx < mx; jx++) { /* order of loops matters */
-        ic = iyoff + ns*jx;
-        x_loc = (jx == 0) ? 0 : ((jx == mx-1) ? 2 : 1);
-        y_loc = (jy == 0) ? 0 : ((jy == my-1) ? 2 : 1);
-        switch (3*y_loc+x_loc) {
-        case 0 :
+    for (jy = 0; jy < my; jy++)
+    {
+      iyoff = mxns * jy;
+      for (jx = 0; jx < mx; jx++)
+      { /* order of loops matters */
+        ic    = iyoff + ns * jx;
+        x_loc = (jx == 0) ? 0 : ((jx == mx - 1) ? 2 : 1);
+        y_loc = (jy == 0) ? 0 : ((jy == my - 1) ? 2 : 1);
+        switch (3 * y_loc + x_loc)
+        {
+        case 0:
           /* jx == 0, jy == 0 */
           break;
-        case 1 :
+        case 1:
           /* 1 <= jx <= mx-2, jy == 0 */
           /* x[ic+i] += beta[i]x[ic-ns+i] */
-          v_inc_by_prod(xd+ic, beta, xd+ic-ns, ns);
+          v_inc_by_prod(xd + ic, beta, xd + ic - ns, ns);
           break;
-        case 2 :
+        case 2:
           /* jx == mx-1, jy == 0 */
           /* x[ic+i] += beta2[i]x[ic-ns+i] */
-          v_inc_by_prod(xd+ic, beta2, xd+ic-ns, ns);
+          v_inc_by_prod(xd + ic, beta2, xd + ic - ns, ns);
           break;
-        case 3 :
+        case 3:
           /* jx == 0, 1 <= jy <= my-2 */
           /* x[ic+i] += gam[i]x[ic-mxns+i] */
-          v_inc_by_prod(xd+ic, gam, xd+ic-mxns, ns);
+          v_inc_by_prod(xd + ic, gam, xd + ic - mxns, ns);
           break;
-        case 4 :
+        case 4:
           /* 1 <= jx <= mx-2, 1 <= jy <= my-2 */
           /* x[ic+i] += beta[i]x[ic-ns+i] + gam[i]x[ic-mxns+i] */
-          v_inc_by_prod(xd+ic, beta, xd+ic-ns, ns);
-          v_inc_by_prod(xd+ic, gam, xd+ic-mxns, ns);
+          v_inc_by_prod(xd + ic, beta, xd + ic - ns, ns);
+          v_inc_by_prod(xd + ic, gam, xd + ic - mxns, ns);
           break;
-        case 5 :
+        case 5:
           /* jx == mx-1, 1 <= jy <= my-2 */
           /* x[ic+i] += beta2[i]x[ic-ns+i] + gam[i]x[ic-mxns+i] */
-          v_inc_by_prod(xd+ic, beta2, xd+ic-ns, ns);
-          v_inc_by_prod(xd+ic, gam, xd+ic-mxns, ns);
+          v_inc_by_prod(xd + ic, beta2, xd + ic - ns, ns);
+          v_inc_by_prod(xd + ic, gam, xd + ic - mxns, ns);
           break;
-        case 6 :
+        case 6:
           /* jx == 0, jy == my-1 */
           /* x[ic+i] += gam2[i]x[ic-mxns+i] */
-          v_inc_by_prod(xd+ic, gam2, xd+ic-mxns, ns);
+          v_inc_by_prod(xd + ic, gam2, xd + ic - mxns, ns);
           break;
-        case 7 :
+        case 7:
           /* 1 <= jx <= mx-2, jy == my-1 */
           /* x[ic+i] += beta[i]x[ic-ns+i] + gam2[i]x[ic-mxns+i] */
-          v_inc_by_prod(xd+ic, beta, xd+ic-ns, ns);
-          v_inc_by_prod(xd+ic, gam2, xd+ic-mxns, ns);
+          v_inc_by_prod(xd + ic, beta, xd + ic - ns, ns);
+          v_inc_by_prod(xd + ic, gam2, xd + ic - mxns, ns);
           break;
-        case 8 :
+        case 8:
           /* jx == mx-1, jy == my-1 */
           /* x[ic+i] += beta2[i]x[ic-ns+i] + gam2[i]x[ic-mxns+i] */
-          v_inc_by_prod(xd+ic, beta2, xd+ic-ns, ns);
-          v_inc_by_prod(xd+ic, gam2, xd+ic-mxns, ns);
+          v_inc_by_prod(xd + ic, beta2, xd + ic - ns, ns);
+          v_inc_by_prod(xd + ic, gam2, xd + ic - mxns, ns);
           break;
         }
       }
@@ -1131,33 +1172,32 @@ static void GSIter(sunrealtype gamma, N_Vector z, N_Vector x, WebData wdata)
     /* Add increment x to z : z <- z+x */
 
     N_VLinearSum(ONE, z, ONE, x, z);
-
   }
 }
 
 static void v_inc_by_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] += v[i]*w[i];
+  for (i = 0; i < n; i++) { u[i] += v[i] * w[i]; }
 }
 
 static void v_sum_prods(sunrealtype u[], sunrealtype p[], sunrealtype q[],
                         sunrealtype v[], sunrealtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = p[i]*q[i] + v[i]*w[i];
+  for (i = 0; i < n; i++) { u[i] = p[i] * q[i] + v[i] * w[i]; }
 }
 
 static void v_prod(sunrealtype u[], sunrealtype v[], sunrealtype w[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = v[i]*w[i];
+  for (i = 0; i < n; i++) { u[i] = v[i] * w[i]; }
 }
 
 static void v_zero(sunrealtype u[], int n)
 {
   int i;
-  for (i=0; i < n; i++) u[i] = ZERO;
+  for (i = 0; i < n; i++) { u[i] = ZERO; }
 }
 
 /* Check function return value...
@@ -1168,29 +1208,37 @@ static void v_zero(sunrealtype u[], int n)
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_flag(void* flagvalue, const char* funcname, int opt)
 {
-  int *errflag;
+  int* errflag;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && flagvalue == NULL)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1); }
+    return (1);
+  }
 
   /* Check if flag < 0 */
-  else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+  else if (opt == 1)
+  {
+    errflag = (int*)flagvalue;
+    if (*errflag < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
               funcname, *errflag);
-      return(1); }}
+      return (1);
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && flagvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1); }
+    return (1);
+  }
 
-  return(0);
+  return (0);
 }

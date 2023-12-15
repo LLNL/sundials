@@ -33,12 +33,12 @@
  * ----------------------------------------------------------------*/
 
 /* Header files */
-#include <stdio.h>
+#include <arkode/arkode_arkstep.h> /* prototypes for ARKStep fcts., consts */
+#include <arkode/arkode_mristep.h> /* prototypes for MRIStep fcts., consts */
 #include <math.h>
-#include <arkode/arkode_mristep.h>    /* prototypes for MRIStep fcts., consts */
-#include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
-#include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
-#include <sundials/sundials_types.h>  /* def. of type 'sunrealtype'              */
+#include <nvector/nvector_serial.h> /* serial N_Vector types, fcts., macros */
+#include <stdio.h>
+#include <sundials/sundials_types.h> /* def. of type 'sunrealtype'              */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -51,34 +51,34 @@
 #endif
 
 /* User-supplied functions called by the solver */
-static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 /* Private function to check function return values */
-static int check_retval(void *returnvalue, const char *funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /* Main Program */
-int main()
+int main(void)
 {
   /* general problem parameters */
-  sunrealtype T0 = SUN_RCONST(0.0);     /* initial time */
-  sunrealtype Tf = SUN_RCONST(2.0);     /* final time */
-  sunrealtype dTout = SUN_RCONST(0.1);  /* time between outputs */
-  sunindextype NEQ = 3;          /* number of dependent vars. */
-  int Nt = (int) ceil(Tf/dTout); /* number of output times */
-  sunrealtype hs = SUN_RCONST(0.025);   /* slow step size */
-  sunrealtype hf = SUN_RCONST(0.001);   /* fast step size */
-  sunrealtype a, b, ep;             /* ODE parameters */
-  sunrealtype u0, v0, w0;           /* initial conditions */
-  sunrealtype rdata[3];             /* user data */
+  sunrealtype T0    = SUN_RCONST(0.0);       /* initial time */
+  sunrealtype Tf    = SUN_RCONST(2.0);       /* final time */
+  sunrealtype dTout = SUN_RCONST(0.1);       /* time between outputs */
+  sunindextype NEQ  = 3;                     /* number of dependent vars. */
+  int Nt            = (int)ceil(Tf / dTout); /* number of output times */
+  sunrealtype hs    = SUN_RCONST(0.025);     /* slow step size */
+  sunrealtype hf    = SUN_RCONST(0.001);     /* fast step size */
+  sunrealtype a, b, ep;                      /* ODE parameters */
+  sunrealtype u0, v0, w0;                    /* initial conditions */
+  sunrealtype rdata[3];                      /* user data */
 
   /* general problem variables */
-  int retval;                               /* reusable error-checking flag */
-  N_Vector y = NULL;                        /* empty vector for storing solution */
-  void *arkode_mem = NULL;                  /* empty ARKode memory structure */
-  void *inner_arkode_mem = NULL;            /* empty ARKode memory structure */
+  int retval;                    /* reusable error-checking flag */
+  N_Vector y             = NULL; /* empty vector for storing solution */
+  void* arkode_mem       = NULL; /* empty ARKode memory structure */
+  void* inner_arkode_mem = NULL; /* empty ARKode memory structure */
   MRIStepInnerStepper inner_stepper = NULL; /* inner stepper */
-  FILE *UFID;
+  FILE* UFID;
   sunrealtype t, tout;
   int iout;
   long int nsts, nstf, nfse, nfsi, nff, tmp;
@@ -90,7 +90,7 @@ int main()
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
 
   /* Set up the test problem parameters */
   a  = SUN_RCONST(1.0);
@@ -104,9 +104,13 @@ int main()
 
   /* Initial problem output */
   printf("\nBrusselator ODE test problem:\n");
-  printf("    initial conditions:  u0 = %"GSYM",  v0 = %"GSYM",  w0 = %"GSYM"\n",u0,v0,w0);
-  printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",a,b,ep);
-  printf("    hs = %"GSYM",  hf = %"GSYM"\n\n",hs,hf);
+  printf("    initial conditions:  u0 = %" GSYM ",  v0 = %" GSYM
+         ",  w0 = %" GSYM "\n",
+         u0, v0, w0);
+  printf("    problem parameters:  a = %" GSYM ",  b = %" GSYM ",  ep = %" GSYM
+         "\n",
+         a, b, ep);
+  printf("    hs = %" GSYM ",  hf = %" GSYM "\n\n", hs, hf);
 
   /* Set parameters in user data */
   rdata[0] = a;
@@ -115,10 +119,10 @@ int main()
 
   /* Create and initialize serial vector for the solution */
   y = N_VNew_Serial(NEQ, ctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
-  NV_Ith_S(y,0) = u0;
-  NV_Ith_S(y,1) = v0;
-  NV_Ith_S(y,2) = w0;
+  if (check_retval((void*)y, "N_VNew_Serial", 0)) { return 1; }
+  NV_Ith_S(y, 0) = u0;
+  NV_Ith_S(y, 1) = v0;
+  NV_Ith_S(y, 2) = w0;
 
   /*
    * Create the fast integrator and set options
@@ -128,24 +132,26 @@ int main()
      function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, and the
      initial dependent variable vector y. */
   inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
-  if (check_retval((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   /* Attach user data to fast integrator */
-  retval = ARKStepSetUserData(inner_arkode_mem, (void *) rdata);
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
+  retval = ARKStepSetUserData(inner_arkode_mem, (void*)rdata);
+  if (check_retval(&retval, "ARKStepSetUserData", 1)) { return 1; }
 
   /* Set the fast method */
   retval = ARKStepSetTableNum(inner_arkode_mem, -1, ARKODE_KNOTH_WOLKE_3_3);
-  if (check_retval(&retval, "ARKStepSetTableNum", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetTableNum", 1)) { return 1; }
 
   /* Set the fast step size */
   retval = ARKStepSetFixedStep(inner_arkode_mem, hf);
-  if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
+  if (check_retval(&retval, "ARKStepSetFixedStep", 1)) { return 1; }
 
   /* Create inner stepper */
-  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
-                                            &inner_stepper);
-  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
+  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1))
+  {
+    return 1;
+  }
 
   /*
    * Create the slow integrator and set options
@@ -155,49 +161,49 @@ int main()
      function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, the
      initial dependent variable vector y, and the fast integrator. */
   arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
-  if (check_retval((void *)arkode_mem, "MRIStepCreate", 0)) return 1;
+  if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }
 
   /* Pass rdata to user functions */
-  retval = MRIStepSetUserData(arkode_mem, (void *) rdata);
-  if (check_retval(&retval, "MRIStepSetUserData", 1)) return 1;
+  retval = MRIStepSetUserData(arkode_mem, (void*)rdata);
+  if (check_retval(&retval, "MRIStepSetUserData", 1)) { return 1; }
 
   /* Set the slow step size */
   retval = MRIStepSetFixedStep(arkode_mem, hs);
-  if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
+  if (check_retval(&retval, "MRIStepSetFixedStep", 1)) { return 1; }
 
   /*
    * Integrate ODE
    */
 
   /* Open output stream for results, output comment line */
-  UFID = fopen("ark_brusselator_mri_solution.txt","w");
-  fprintf(UFID,"# t u v w\n");
+  UFID = fopen("ark_brusselator_mri_solution.txt", "w");
+  fprintf(UFID, "# t u v w\n");
 
   /* output initial condition to disk */
-  fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",
-          T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
+  fprintf(UFID, " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM "\n", T0,
+          NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2));
 
   /* Main time-stepping loop: calls MRIStepEvolve to perform the
      integration, then prints results. Stops when the final time
      has been reached */
-  t = T0;
-  tout = T0+dTout;
+  t    = T0;
+  tout = T0 + dTout;
   printf("        t           u           v           w\n");
   printf("   ----------------------------------------------\n");
-  printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n",
-         t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
+  printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "\n", t,
+         NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2));
 
-  for (iout=0; iout<Nt; iout++) {
-
+  for (iout = 0; iout < Nt; iout++)
+  {
     /* call integrator */
     retval = MRIStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_retval(&retval, "MRIStepEvolve", 1)) break;
+    if (check_retval(&retval, "MRIStepEvolve", 1)) { break; }
 
     /* access/print solution */
-    printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n",
-           t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
-    fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",
-            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
+    printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "\n", t,
+           NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2));
+    fprintf(UFID, " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM "\n", t,
+            NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2));
 
     /* successful solve: update time */
     tout += dTout;
@@ -228,11 +234,11 @@ int main()
   printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfse, nff);
 
   /* Clean up and return */
-  N_VDestroy(y);                             /* Free y vector */
-  ARKStepFree(&inner_arkode_mem);            /* Free integrator memory */
-  MRIStepInnerStepper_Free(&inner_stepper);  /* Free inner stepper */
-  MRIStepFree(&arkode_mem);                  /* Free integrator memory */
-  SUNContext_Free(&ctx);                     /* Free context */
+  N_VDestroy(y);                            /* Free y vector */
+  ARKStepFree(&inner_arkode_mem);           /* Free integrator memory */
+  MRIStepInnerStepper_Free(&inner_stepper); /* Free inner stepper */
+  MRIStepFree(&arkode_mem);                 /* Free integrator memory */
+  SUNContext_Free(&ctx);                    /* Free context */
 
   return 0;
 }
@@ -242,35 +248,35 @@ int main()
  * ------------------------------*/
 
 /* ff routine to compute the fast portion of the ODE RHS. */
-static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
-  sunrealtype b  = rdata[1];                     /* access data entries */
+  sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
+  sunrealtype b  = rdata[1];                    /* access data entries */
   sunrealtype ep = rdata[2];
-  sunrealtype w  = NV_Ith_S(y,2);                /* access solution values */
+  sunrealtype w  = NV_Ith_S(y, 2); /* access solution values */
 
   /* fill in the RHS function */
-  NV_Ith_S(ydot,0) = 0.0;
-  NV_Ith_S(ydot,1) = 0.0;
-  NV_Ith_S(ydot,2) = (b-w)/ep;
+  NV_Ith_S(ydot, 0) = 0.0;
+  NV_Ith_S(ydot, 1) = 0.0;
+  NV_Ith_S(ydot, 2) = (b - w) / ep;
 
   /* Return with success */
   return 0;
 }
 
 /* fs routine to compute the slow portion of the ODE RHS. */
-static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
-  sunrealtype a = rdata[0];                      /* access data entries */
-  sunrealtype u = NV_Ith_S(y,0);                 /* access solution values */
-  sunrealtype v = NV_Ith_S(y,1);
-  sunrealtype w = NV_Ith_S(y,2);
+  sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
+  sunrealtype a = rdata[0];                     /* access data entries */
+  sunrealtype u = NV_Ith_S(y, 0);               /* access solution values */
+  sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype w = NV_Ith_S(y, 2);
 
   /* fill in the RHS function */
-  NV_Ith_S(ydot,0) = a - (w+1.0)*u + v*u*u;
-  NV_Ith_S(ydot,1) = w*u - v*u*u;
-  NV_Ith_S(ydot,2) = -w*u;
+  NV_Ith_S(ydot, 0) = a - (w + 1.0) * u + v * u * u;
+  NV_Ith_S(ydot, 1) = w * u - v * u * u;
+  NV_Ith_S(ydot, 2) = -w * u;
 
   /* Return with success */
   return 0;
@@ -288,32 +294,39 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
     opt == 2 means function allocates memory so check if returned
              NULL pointer
 */
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return 1; }
+    return 1;
+  }
 
   /* Check if retval < 0 */
-  else if (opt == 1) {
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
+  else if (opt == 1)
+  {
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return 1; }}
+      return 1;
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && returnvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return 1; }
+    return 1;
+  }
 
   return 0;
 }
-
 
 /*---- end of file ----*/

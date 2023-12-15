@@ -36,21 +36,20 @@
  * IDACalcIC cost statistics only.)
  * -----------------------------------------------------------------*/
 
+#include <ida/ida.h> /* prototypes for IDA fcts., consts.    */
+#include <math.h>
+#include <nvector/nvector_serial.h> /* access to serial N_Vector            */
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-
-#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
-#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
-#include <sundials/sundials_types.h>   /* definition of type sunrealtype          */
+#include <sundials/sundials_types.h> /* definition of type sunrealtype          */
+#include <sunlinsol/sunlinsol_band.h> /* access to band SUNLinearSolver       */
+#include <sunmatrix/sunmatrix_band.h> /* access to band SUNMatrix             */
 
 /* Problem Constants */
 
 #define NOUT  11
 #define MGRID 10
-#define NEQ   MGRID*MGRID
+#define NEQ   MGRID* MGRID
 #define ZERO  SUN_RCONST(0.0)
 #define ONE   SUN_RCONST(1.0)
 #define TWO   SUN_RCONST(2.0)
@@ -58,24 +57,26 @@
 
 /* Type: UserData */
 
-typedef struct {
+typedef struct
+{
   sunindextype mm;
   sunrealtype dx;
   sunrealtype coeff;
-} *UserData;
+}* UserData;
 
 /* Prototypes of functions called by IDA */
 
-int heatres(sunrealtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *user_data);
+int heatres(sunrealtype tres, N_Vector uu, N_Vector up, N_Vector resval,
+            void* user_data);
 
 /* Prototypes of private functions */
 
 static void PrintHeader(sunrealtype rtol, sunrealtype atol);
-static void PrintOutput(void *mem, sunrealtype t, N_Vector u);
+static void PrintOutput(void* mem, sunrealtype t, N_Vector u);
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res);
 
-static int check_retval(void *returnvalue, const char *funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -85,7 +86,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 int main(void)
 {
-  void *mem;
+  void* mem;
   UserData data;
   N_Vector uu, up, constraints, id, res;
   int retval, iout;
@@ -96,34 +97,34 @@ int main(void)
   SUNLinearSolver LS;
   SUNContext ctx;
 
-  mem = NULL;
+  mem  = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
-  A = NULL;
-  LS = NULL;
+  A                                = NULL;
+  LS                               = NULL;
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
 
   /* Create vectors uu, up, res, constraints, id. */
   uu = N_VNew_Serial(NEQ, ctx);
-  if(check_retval((void *)uu, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)uu, "N_VNew_Serial", 0)) { return (1); }
   up = N_VClone(uu);
-  if(check_retval((void *)up, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)up, "N_VNew_Serial", 0)) { return (1); }
   res = N_VClone(uu);
-  if(check_retval((void *)res, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)res, "N_VNew_Serial", 0)) { return (1); }
   constraints = N_VClone(uu);
-  if(check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)constraints, "N_VNew_Serial", 0)) { return (1); }
   id = N_VClone(uu);
-  if(check_retval((void *)id, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)id, "N_VNew_Serial", 0)) { return (1); }
 
   /* Create and load problem data block. */
-  data = (UserData) malloc(sizeof *data);
-  if(check_retval((void *)data, "malloc", 2)) return(1);
-  data->mm = MGRID;
-  data->dx = ONE/(MGRID - ONE);
-  data->coeff = ONE/( (data->dx) * (data->dx) );
+  data = (UserData)malloc(sizeof *data);
+  if (check_retval((void*)data, "malloc", 2)) { return (1); }
+  data->mm    = MGRID;
+  data->dx    = ONE / (MGRID - ONE);
+  data->coeff = ONE / ((data->dx) * (data->dx));
 
   /* Initialize uu, up, id. */
   SetInitialProfile(data, uu, up, id, res);
@@ -139,58 +140,57 @@ int main(void)
 
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate(ctx);
-  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
+  if (check_retval((void*)mem, "IDACreate", 0)) { return (1); }
 
   retval = IDASetUserData(mem, data);
-  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserData", 1)) { return (1); }
 
   /* Set which components are algebraic or differential */
   retval = IDASetId(mem, id);
-  if(check_retval(&retval, "IDASetId", 1)) return(1);
+  if (check_retval(&retval, "IDASetId", 1)) { return (1); }
 
   retval = IDASetConstraints(mem, constraints);
-  if(check_retval(&retval, "IDASetConstraints", 1)) return(1);
+  if (check_retval(&retval, "IDASetConstraints", 1)) { return (1); }
   N_VDestroy(constraints);
 
   retval = IDAInit(mem, heatres, t0, uu, up);
-  if(check_retval(&retval, "IDAInit", 1)) return(1);
+  if (check_retval(&retval, "IDAInit", 1)) { return (1); }
 
   retval = IDASStolerances(mem, rtol, atol);
-  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerances", 1)) { return (1); }
 
   /* Create banded SUNMatrix for use in linear solves */
-  mu = MGRID; ml = MGRID;
-  A = SUNBandMatrix(NEQ, mu, ml, ctx);
-  if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
+  mu = MGRID;
+  ml = MGRID;
+  A  = SUNBandMatrix(NEQ, mu, ml, ctx);
+  if (check_retval((void*)A, "SUNBandMatrix", 0)) { return (1); }
 
   /* Create banded SUNLinearSolver object */
   LS = SUNLinSol_Band(uu, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
+  if (check_retval((void*)LS, "SUNLinSol_Band", 0)) { return (1); }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) { return (1); }
 
   /* Call IDACalcIC to correct the initial values. */
 
   retval = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
-  if(check_retval(&retval, "IDACalcIC", 1)) return(1);
+  if (check_retval(&retval, "IDACalcIC", 1)) { return (1); }
 
   /* Print output heading. */
   PrintHeader(rtol, atol);
 
   PrintOutput(mem, t0, uu);
 
-
   /* Loop over output times, call IDASolve, and print results. */
 
-  for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
-
+  for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO)
+  {
     retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_retval(&retval, "IDASolve", 1)) return(1);
+    if (check_retval(&retval, "IDASolve", 1)) { return (1); }
 
     PrintOutput(mem, tret, uu);
-
   }
 
   /* Print remaining counters and free memory. */
@@ -210,7 +210,7 @@ int main(void)
   free(data);
   SUNContext_Free(&ctx);
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -229,33 +229,36 @@ int main(void)
  */
 
 int heatres(sunrealtype tres, N_Vector uu, N_Vector up, N_Vector resval,
-            void *user_data)
+            void* user_data)
 {
   sunindextype mm, i, j, offset, loc;
   sunrealtype *uv, *upv, *resv, coeff;
   UserData data;
 
-  uv = N_VGetArrayPointer(uu); upv = N_VGetArrayPointer(up); resv = N_VGetArrayPointer(resval);
+  uv   = N_VGetArrayPointer(uu);
+  upv  = N_VGetArrayPointer(up);
+  resv = N_VGetArrayPointer(resval);
 
-  data = (UserData)user_data;
-  mm = data->mm;
+  data  = (UserData)user_data;
+  mm    = data->mm;
   coeff = data->coeff;
 
   /* Initialize resval to uu, to take care of boundary equations. */
   N_VScale(ONE, uu, resval);
 
   /* Loop over interior points; set res = up - (central difference). */
-  for (j = 1; j < mm-1; j++) {
-    offset = mm*j;
-    for (i = 1; i < mm-1; i++) {
-      loc = offset + i;
-      resv[loc] = upv[loc] - coeff *
-	  (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - SUN_RCONST(4.0)*uv[loc]);
+  for (j = 1; j < mm - 1; j++)
+  {
+    offset = mm * j;
+    for (i = 1; i < mm - 1; i++)
+    {
+      loc       = offset + i;
+      resv[loc] = upv[loc] - coeff * (uv[loc - 1] + uv[loc + 1] + uv[loc - mm] +
+                                      uv[loc + mm] - SUN_RCONST(4.0) * uv[loc]);
     }
   }
 
-  return(0);
-
+  return (0);
 }
 
 /*
@@ -274,10 +277,10 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   sunrealtype xfact, yfact, *udata, *updata, *iddata;
   sunindextype mm, mm1, i, j, offset, loc;
 
-  mm = data->mm;
+  mm  = data->mm;
   mm1 = mm - 1;
 
-  udata = N_VGetArrayPointer(uu);
+  udata  = N_VGetArrayPointer(uu);
   updata = N_VGetArrayPointer(up);
   iddata = N_VGetArrayPointer(id);
 
@@ -285,13 +288,16 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   N_VConst(ONE, id);
 
   /* Initialize uu on all grid points. */
-  for (j = 0; j < mm; j++) {
-    yfact = data->dx * j;
-    offset = mm*j;
-    for (i = 0;i < mm; i++) {
-      xfact = data->dx * i;
-      loc = offset + i;
-      udata[loc] = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+  for (j = 0; j < mm; j++)
+  {
+    yfact  = data->dx * j;
+    offset = mm * j;
+    for (i = 0; i < mm; i++)
+    {
+      xfact      = data->dx * i;
+      loc        = offset + i;
+      udata[loc] = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact *
+                   (ONE - yfact);
     }
   }
 
@@ -305,17 +311,22 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   N_VScale(-ONE, res, up);
 
   /* Finally, set values of u, up, and id at boundary points. */
-  for (j = 0; j < mm; j++) {
-    offset = mm*j;
-    for (i = 0;i < mm; i++) {
+  for (j = 0; j < mm; j++)
+  {
+    offset = mm * j;
+    for (i = 0; i < mm; i++)
+    {
       loc = offset + i;
-      if (j == 0 || j == mm1 || i == 0 || i == mm1 ) {
-        udata[loc] = BVAL; updata[loc] = ZERO; iddata[loc] = ZERO; }
+      if (j == 0 || j == mm1 || i == 0 || i == mm1)
+      {
+        udata[loc]  = BVAL;
+        updata[loc] = ZERO;
+        iddata[loc] = ZERO;
+      }
     }
   }
 
-  return(0);
-
+  return (0);
 }
 
 /*
@@ -339,17 +350,17 @@ static void PrintHeader(sunrealtype rtol, sunrealtype atol)
 #endif
   printf("Constraints set to force all solution components >= 0. \n");
   printf("Linear solver: BAND, banded direct solver \n");
-  printf("       difference quotient Jacobian, half-bandwidths = %d \n",MGRID);
+  printf("       difference quotient Jacobian, half-bandwidths = %d \n", MGRID);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("IDACalcIC called with input boundary values = %Lg \n",BVAL);
+  printf("IDACalcIC called with input boundary values = %Lg \n", BVAL);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("IDACalcIC called with input boundary values = %g \n",BVAL);
+  printf("IDACalcIC called with input boundary values = %g \n", BVAL);
 #else
-  printf("IDACalcIC called with input boundary values = %g \n",BVAL);
+  printf("IDACalcIC called with input boundary values = %g \n", BVAL);
 #endif
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
-  printf("  time       umax     k  nst  nni  nje   nre   nreLS    h      \n" );
+  printf("  time       umax     k  nst  nni  nje   nre   nreLS    h      \n");
   printf(" .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . \n");
 }
 
@@ -357,7 +368,7 @@ static void PrintHeader(sunrealtype rtol, sunrealtype atol)
  * Print Output
  */
 
-static void PrintOutput(void *mem, sunrealtype t, N_Vector uu)
+static void PrintOutput(void* mem, sunrealtype t, N_Vector uu)
 {
   int retval;
   sunrealtype umax, hused;
@@ -382,16 +393,15 @@ static void PrintOutput(void *mem, sunrealtype t, N_Vector uu)
   check_retval(&retval, "IDAGetNumLinResEvals", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le \n",
-         t, umax, kused, nst, nni, nje, nre, nreLS, hused);
+  printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le \n", t,
+         umax, kused, nst, nni, nje, nre, nreLS, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e \n",
-         t, umax, kused, nst, nni, nje, nre, nreLS, hused);
+  printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e \n", t, umax,
+         kused, nst, nni, nje, nre, nreLS, hused);
 #else
-  printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e \n",
-         t, umax, kused, nst, nni, nje, nre, nreLS, hused);
+  printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e \n", t, umax,
+         kused, nst, nni, nje, nre, nreLS, hused);
 #endif
-
 }
 
 /*
@@ -404,32 +414,35 @@ static void PrintOutput(void *mem, sunrealtype t, N_Vector uu)
  *            NULL pointer
  */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL) {
-    fprintf(stderr,
-            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+  if (opt == 0 && returnvalue == NULL)
+  {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1);
-  } else if (opt == 1) {
+    return (1);
+  }
+  else if (opt == 1)
+  {
     /* Check if retval < 0 */
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
-      fprintf(stderr,
-              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return(1);
+      return (1);
     }
-  } else if (opt == 2 && returnvalue == NULL) {
+  }
+  else if (opt == 2 && returnvalue == NULL)
+  {
     /* Check if function returned NULL pointer - no memory allocated */
-    fprintf(stderr,
-            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1);
+    return (1);
   }
 
-  return(0);
+  return (0);
 }

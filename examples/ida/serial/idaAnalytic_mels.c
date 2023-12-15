@@ -28,11 +28,11 @@
  * outputs) are printed at the end.
  * -----------------------------------------------------------------*/
 
+#include <ida/ida.h>                /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h> /* access to serial N_Vector            */
 #include <stdio.h>
-#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
-#include <sundials/sundials_types.h>          /* defs. of sunrealtype, sunindextype      */
-#include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <sundials/sundials_math.h> /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <sundials/sundials_types.h> /* defs. of sunrealtype, sunindextype      */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -45,21 +45,23 @@
 #endif
 
 /* User-supplied functions called by IDA */
-int fres(sunrealtype tres, N_Vector yy, N_Vector yp, N_Vector resval, void *user_data);
+int fres(sunrealtype tres, N_Vector yy, N_Vector yp, N_Vector resval,
+         void* user_data);
 
 /* Custom linear solver data structure, accessor macros, and routines */
-static SUNLinearSolver MatrixEmbeddedLS(void *ida_mem, SUNContext ctx);
+static SUNLinearSolver MatrixEmbeddedLS(void* ida_mem, SUNContext ctx);
 static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S);
 static int MatrixEmbeddedLSSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                  N_Vector b, sunrealtype tol);
 static int MatrixEmbeddedLSFree(SUNLinearSolver S);
 
 /* Private function to check function return values */
-static int check_retval(void *returnvalue, const char *funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /* Private function to check computed solution */
 static void analytical_solution(sunrealtype t, N_Vector y, N_Vector yp);
-static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol);
+static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol,
+                     sunrealtype atol);
 
 /* Main Program */
 int main(void)
@@ -68,77 +70,80 @@ int main(void)
   SUNContext ctx;
 
   /* general problem parameters */
-  sunrealtype T0 = SUN_RCONST(0.0);         /* initial time */
-  sunrealtype Tf = SUN_RCONST(1.0);         /* final time */
-  sunrealtype dTout = SUN_RCONST(0.1);      /* time between outputs */
-  sunindextype NEQ = 2;              /* number of dependent vars. */
-  sunrealtype reltol = SUN_RCONST(1.0e-4);  /* tolerances */
+  sunrealtype T0     = SUN_RCONST(0.0);    /* initial time */
+  sunrealtype Tf     = SUN_RCONST(1.0);    /* final time */
+  sunrealtype dTout  = SUN_RCONST(0.1);    /* time between outputs */
+  sunindextype NEQ   = 2;                  /* number of dependent vars. */
+  sunrealtype reltol = SUN_RCONST(1.0e-4); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-9);
-  sunrealtype alpha  = SUN_RCONST(10.0);    /* stiffness parameter */
+  sunrealtype alpha  = SUN_RCONST(10.0); /* stiffness parameter */
 
   /* general problem variables */
-  int retval;                     /* reusable error-checking flag */
-  N_Vector yy = NULL;             /* empty vector for storing solution */
-  N_Vector yp = NULL;             /* empty vector for storing solution derivative */
-  SUNLinearSolver LS = NULL;      /* empty linear solver object */
-  void *ida_mem = NULL;           /* empty IDA memory structure */
+  int retval;                /* reusable error-checking flag */
+  N_Vector yy        = NULL; /* empty vector for storing solution */
+  N_Vector yp        = NULL; /* empty vector for storing solution derivative */
+  SUNLinearSolver LS = NULL; /* empty linear solver object */
+  void* ida_mem      = NULL; /* empty IDA memory structure */
   sunrealtype t, tout;
   long int nst, nre, nni, netf, ncfn, nreLS;
 
   /* Initial diagnostics output */
   printf("\nAnalytical DAE test problem:\n");
-  printf("    alpha = %"GSYM"\n",    alpha);
-  printf("   reltol = %.1"ESYM"\n",  reltol);
-  printf("   abstol = %.1"ESYM"\n\n",abstol);
+  printf("    alpha = %" GSYM "\n", alpha);
+  printf("   reltol = %.1" ESYM "\n", reltol);
+  printf("   abstol = %.1" ESYM "\n\n", abstol);
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
 
   /* Initialize data structures */
-  yy = N_VNew_Serial(NEQ, ctx);         /* Create serial vector for solution */
-  if (check_retval((void *)yy, "N_VNew_Serial", 0)) return 1;
-  yp = N_VClone(yy);               /* Create serial vector for solution derivative */
-  if (check_retval((void *)yp, "N_VClone", 0)) return 1;
+  yy = N_VNew_Serial(NEQ, ctx); /* Create serial vector for solution */
+  if (check_retval((void*)yy, "N_VNew_Serial", 0)) { return 1; }
+  yp = N_VClone(yy); /* Create serial vector for solution derivative */
+  if (check_retval((void*)yp, "N_VClone", 0)) { return 1; }
   analytical_solution(T0, yy, yp); /* Specify initial conditions */
 
   /* Call IDACreate and IDAInit to initialize IDA memory */
   ida_mem = IDACreate(ctx);
-  if(check_retval((void *)ida_mem, "IDACreate", 0)) return(1);
+  if (check_retval((void*)ida_mem, "IDACreate", 0)) { return (1); }
   retval = IDAInit(ida_mem, fres, T0, yy, yp);
-  if(check_retval(&retval, "IDAInit", 1)) return(1);
+  if (check_retval(&retval, "IDAInit", 1)) { return (1); }
 
   /* Set routines */
-  retval = IDASetUserData(ida_mem, (void *) &alpha);
-  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
+  retval = IDASetUserData(ida_mem, (void*)&alpha);
+  if (check_retval(&retval, "IDASetUserData", 1)) { return (1); }
   retval = IDASStolerances(ida_mem, reltol, abstol);
-  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerances", 1)) { return (1); }
 
   /* Create custom matrix-embedded linear solver */
   LS = MatrixEmbeddedLS(ida_mem, ctx);
-  if (check_retval((void *)LS, "MatrixEmbeddedLS", 0)) return 1;
+  if (check_retval((void*)LS, "MatrixEmbeddedLS", 0)) { return 1; }
 
   /* Attach the linear solver */
   retval = IDASetLinearSolver(ida_mem, LS, NULL);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) { return (1); }
 
   /* In loop, call IDASolve, print results, and test for error.
      Stops when the final time has been reached. */
-  t = T0;
-  tout = T0+dTout;
+  t    = T0;
+  tout = T0 + dTout;
   printf("        t          x1         x2\n");
   printf("   ----------------------------------\n");
-  while (Tf - t > 1.0e-15) {
-
-    retval = IDASolve(ida_mem, tout, &t, yy, yp, IDA_NORMAL);   /* call integrator */
-    if(check_retval(&retval, "IDASolve", 1)) return(1);
-    printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n", t,
-           NV_Ith_S(yy,0), NV_Ith_S(yy,1));                     /* access/print solution */
-    if (retval >= 0) {                                          /* successful solve: update time */
+  while (Tf - t > 1.0e-15)
+  {
+    retval = IDASolve(ida_mem, tout, &t, yy, yp, IDA_NORMAL); /* call integrator */
+    if (check_retval(&retval, "IDASolve", 1)) { return (1); }
+    printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "\n", t,
+           NV_Ith_S(yy, 0), NV_Ith_S(yy, 1)); /* access/print solution */
+    if (retval >= 0)
+    { /* successful solve: update time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
-    } else {                                                    /* unsuccessful solve: break */
-      fprintf(stderr,"Solver failure, stopping integration\n");
+    }
+    else
+    { /* unsuccessful solve: break */
+      fprintf(stderr, "Solver failure, stopping integration\n");
       break;
     }
   }
@@ -160,7 +165,7 @@ int main(void)
 
   printf("\nFinal Solver Statistics: \n\n");
   printf("Number of steps                    = %ld\n", nst);
-  printf("Number of residual evaluations     = %ld\n", nre+nreLS);
+  printf("Number of residual evaluations     = %ld\n", nre + nreLS);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
   printf("Number of nonlinear conv. failures = %ld\n", ncfn);
@@ -175,7 +180,7 @@ int main(void)
   N_VDestroy(yp);
   SUNContext_Free(&ctx);
 
-  return(retval);
+  return (retval);
 }
 
 /*-------------------------------
@@ -186,20 +191,21 @@ int main(void)
       0 = (1-alpha)/(t-2)*x1 - x1 + (alpha-1)*x2 + 2*exp(t) - x1'(t)
       0 = (t+2)*x1 - (t+2)*exp(t)
 */
-int fres(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
+int fres(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector rr, void* user_data)
 {
-  sunrealtype *rdata = (sunrealtype *) user_data;   /* cast user_data to sunrealtype */
-  sunrealtype alpha = rdata[0];                  /* set shortcut for stiffness parameter */
-  sunrealtype x1 = NV_Ith_S(yy,0);               /* access current solution values */
-  sunrealtype x2 = NV_Ith_S(yy,1);
-  sunrealtype x1p = NV_Ith_S(yp,0);              /* access current derivative values */
-  sunrealtype ONE = SUN_RCONST(1.0);
-  sunrealtype TWO = SUN_RCONST(2.0);
+  sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
+  sunrealtype alpha = rdata[0]; /* set shortcut for stiffness parameter */
+  sunrealtype x1    = NV_Ith_S(yy, 0); /* access current solution values */
+  sunrealtype x2    = NV_Ith_S(yy, 1);
+  sunrealtype x1p   = NV_Ith_S(yp, 0); /* access current derivative values */
+  sunrealtype ONE   = SUN_RCONST(1.0);
+  sunrealtype TWO   = SUN_RCONST(2.0);
 
-  NV_Ith_S(rr,0) = (ONE-alpha)/(t-TWO)*x1 - x1 + (alpha-ONE)*x2 + TWO*exp(t) - x1p;
-  NV_Ith_S(rr,1) = (t+TWO)*x1 - (t+TWO)*SUNRexp(t);
+  NV_Ith_S(rr, 0) = (ONE - alpha) / (t - TWO) * x1 - x1 + (alpha - ONE) * x2 +
+                    TWO * exp(t) - x1p;
+  NV_Ith_S(rr, 1) = (t + TWO) * x1 - (t + TWO) * SUNRexp(t);
 
-  return(0);
+  return (0);
 }
 
 /*-------------------------------------
@@ -207,11 +213,11 @@ int fres(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
  *-------------------------------------*/
 
 /* constructor */
-static SUNLinearSolver MatrixEmbeddedLS(void *ida_mem, SUNContext ctx)
+static SUNLinearSolver MatrixEmbeddedLS(void* ida_mem, SUNContext ctx)
 {
   /* Create an empty linear solver */
   SUNLinearSolver LS = SUNLinSolNewEmpty(ctx);
-  if (LS == NULL) return NULL;
+  if (LS == NULL) { return NULL; }
 
   /* Attach operations */
   LS->ops->gettype = MatrixEmbeddedLSType;
@@ -222,13 +228,13 @@ static SUNLinearSolver MatrixEmbeddedLS(void *ida_mem, SUNContext ctx)
   LS->content = ida_mem;
 
   /* Return solver */
-  return(LS);
+  return (LS);
 }
 
 /* type descriptor */
 static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S)
 {
-  return(SUNLINEARSOLVER_MATRIX_EMBEDDED);
+  return (SUNLINEARSOLVER_MATRIX_EMBEDDED);
 }
 
 /* linear solve routine */
@@ -236,24 +242,26 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
                                  N_Vector b, sunrealtype tol)
 {
   /* temporary variables */
-  int       retval;
-  N_Vector  yypred, yppred, yyn, ypn, res;
-  sunrealtype  tcur, cj;
-  void      *user_data;
-  sunrealtype  *rdata;
-  sunrealtype  alpha;
-  sunrealtype  a11, a12, a21, b1, b2;
-  sunrealtype  ONE   = SUN_RCONST(1.0);
-  sunrealtype  TWO   = SUN_RCONST(2.0);
+  int retval;
+  N_Vector yypred, yppred, yyn, ypn, res;
+  sunrealtype tcur, cj;
+  void* user_data;
+  sunrealtype* rdata;
+  sunrealtype alpha;
+  sunrealtype a11, a12, a21, b1, b2;
+  sunrealtype ONE = SUN_RCONST(1.0);
+  sunrealtype TWO = SUN_RCONST(2.0);
 
   /* retrieve implicit system data from IDA */
-  retval = IDAGetNonlinearSystemData(LS->content, &tcur, &yypred, &yppred,
-                                     &yyn, &ypn, &res, &cj, &user_data);
-  if (check_retval((void *)&retval, "IDAGetNonlinearSystemData", 1))
-    return(-1);
+  retval = IDAGetNonlinearSystemData(LS->content, &tcur, &yypred, &yppred, &yyn,
+                                     &ypn, &res, &cj, &user_data);
+  if (check_retval((void*)&retval, "IDAGetNonlinearSystemData", 1))
+  {
+    return (-1);
+  }
 
   /* extract stiffness parameter from user_data */
-  rdata = (sunrealtype *) user_data;
+  rdata = (sunrealtype*)user_data;
   alpha = rdata[0];
 
   /* perform linear solve: A*x=b
@@ -263,25 +271,25 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
              [                          t + 2,         0]
 
    */
-  a11 = - cj - (alpha - ONE)/(tcur - TWO) - ONE;
-  a12 = alpha - ONE;
-  a21 = tcur + TWO;
-  b1 = NV_Ith_S(b,0);
-  b2 = NV_Ith_S(b,1);
-  NV_Ith_S(x,0) = b2/a21;
-  NV_Ith_S(x,1) = -(a11*b2 - a21*b1)/(a12*a21);
+  a11            = -cj - (alpha - ONE) / (tcur - TWO) - ONE;
+  a12            = alpha - ONE;
+  a21            = tcur + TWO;
+  b1             = NV_Ith_S(b, 0);
+  b2             = NV_Ith_S(b, 1);
+  NV_Ith_S(x, 0) = b2 / a21;
+  NV_Ith_S(x, 1) = -(a11 * b2 - a21 * b1) / (a12 * a21);
 
   /* return with success */
-  return(SUNLS_SUCCESS);
+  return (SUNLS_SUCCESS);
 }
 
 /* destructor */
 static int MatrixEmbeddedLSFree(SUNLinearSolver LS)
 {
-  if (LS == NULL) return(SUNLS_SUCCESS);
+  if (LS == NULL) { return (SUNLS_SUCCESS); }
   LS->content = NULL;
   SUNLinSolFreeEmpty(LS);
-  return(SUNLS_SUCCESS);
+  return (SUNLS_SUCCESS);
 }
 
 /*-------------------------------
@@ -297,29 +305,37 @@ static int MatrixEmbeddedLSFree(SUNLinearSolver LS)
              NULL pointer
 */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && returnvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return 1; }
+    return 1;
+  }
 
   /* Check if flag < 0 */
-  else if (opt == 1) {
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
+  else if (opt == 1)
+  {
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
               funcname, *retval);
-      return 1; }}
+      return 1;
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && returnvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return 1; }
+    return 1;
+  }
 
   return 0;
 }
@@ -327,25 +343,26 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 /* routine to fill analytical solution and its derivative */
 static void analytical_solution(sunrealtype t, N_Vector y, N_Vector yp)
 {
-  NV_Ith_S(y,0) = SUNRexp(t);
-  NV_Ith_S(y,1) = SUNRexp(t)/(t-SUN_RCONST(2.0));
-  NV_Ith_S(yp,0) = SUNRexp(t);
-  NV_Ith_S(yp,1) = SUNRexp(t)/(t-SUN_RCONST(2.0)) - SUNRexp(t)/(t-SUN_RCONST(2.0))/(t-SUN_RCONST(2.0));
+  NV_Ith_S(y, 0)  = SUNRexp(t);
+  NV_Ith_S(y, 1)  = SUNRexp(t) / (t - SUN_RCONST(2.0));
+  NV_Ith_S(yp, 0) = SUNRexp(t);
+  NV_Ith_S(yp, 1) = SUNRexp(t) / (t - SUN_RCONST(2.0)) -
+                    SUNRexp(t) / (t - SUN_RCONST(2.0)) / (t - SUN_RCONST(2.0));
 }
 
 /* check the computed solution */
 static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol)
 {
-  int      passfail=0;        /* answer pass (0) or fail (1) retval */
-  N_Vector ytrue;             /* true solution vector               */
-  N_Vector ewt;               /* error weight vector                */
-  N_Vector abstol;            /* absolute tolerance vector          */
-  sunrealtype err;               /* wrms error                         */
+  int passfail = 0; /* answer pass (0) or fail (1) retval */
+  N_Vector ytrue;   /* true solution vector               */
+  N_Vector ewt;     /* error weight vector                */
+  N_Vector abstol;  /* absolute tolerance vector          */
+  sunrealtype err;  /* wrms error                         */
   sunrealtype ONE = SUN_RCONST(1.0);
 
   /* create solution and error weight vectors */
-  ytrue = N_VClone(y);
-  ewt = N_VClone(y);
+  ytrue  = N_VClone(y);
+  ewt    = N_VClone(y);
   abstol = N_VClone(y);
 
   /* set the solution data */
@@ -355,9 +372,10 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
   N_VConst(atol, abstol);
   N_VAbs(ytrue, ewt);
   N_VLinearSum(rtol, ewt, SUN_RCONST(10.0), abstol, ewt);
-  if (N_VMin(ewt) <= SUN_RCONST(0.0)) {
+  if (N_VMin(ewt) <= SUN_RCONST(0.0))
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: check_ans failed - ewt <= 0\n\n");
-    return(-1);
+    return (-1);
   }
   N_VInv(ewt, ewt);
 
@@ -368,8 +386,9 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
   /* is the solution within the tolerances? */
   passfail = (err < ONE) ? 0 : 1;
 
-  if (passfail) {
-    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%"GSYM"\n\n", err);
+  if (passfail)
+  {
+    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%" GSYM "\n\n", err);
   }
 
   /* Free vectors */
@@ -377,7 +396,7 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
   N_VDestroy(abstol);
   N_VDestroy(ewt);
 
-  return(passfail);
+  return (passfail);
 }
 
 /*---- end of file ----*/

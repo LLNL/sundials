@@ -1,0 +1,47 @@
+name: Checks - clang-format
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  clang_format_check:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/llnl/sundials_spack_cache:llvm-17.0.4-h4lflucc3v2vage45opbo2didtcuigsn.spack
+    steps:
+      - name: Install git
+        run: | 
+          apt update
+          apt install -y git
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Add safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Print clang-format version
+        run: clang-format --version
+      
+      - name: Run checker on code
+        run: |
+          ./scripts/format.sh .
+      
+      - name: Run git diff to see if anything changed
+        run: /usr/bin/git diff --name-only --exit-code
+      
+      - name: Run git diff if we failed
+        if: failure()
+        run:  /usr/bin/git diff > diff
+      
+      - name: Archive diff if we failed
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: diff
+          path: |
+            ${{ github.workspace }}/diff

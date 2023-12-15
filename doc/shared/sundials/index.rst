@@ -27,6 +27,7 @@ in this section.
    Install
    Types
    SUNContext
+   Errors
    Logging
    Profiling
    version_information

@@ -14,28 +14,28 @@
  * Kvaerno-Prothero-Robinson ODE test problem, see .cpp file for details
  * ---------------------------------------------------------------------------*/
 
-#include <cstdio>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-#include <limits>
-#include <cmath>
-#include <vector>
 #include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <sstream>
+#include <vector>
 
 // Include desired integrators, vectors, linear solvers, and nonlinear solvers
 #include "ida/ida.h"
 #include "nvector/nvector_serial.h"
-#include "sunmatrix/sunmatrix_dense.h"
 #include "sunlinsol/sunlinsol_dense.h"
+#include "sunmatrix/sunmatrix_dense.h"
 
 // Macros for problem constants
-#define ZERO    SUN_RCONST(0.0)
-#define HALF    SUN_RCONST(0.5)
-#define ONE     SUN_RCONST(1.0)
-#define TWO     SUN_RCONST(2.0)
-#define TWENTY  SUN_RCONST(20.0)
+#define ZERO   SUN_RCONST(0.0)
+#define HALF   SUN_RCONST(0.5)
+#define ONE    SUN_RCONST(1.0)
+#define TWO    SUN_RCONST(2.0)
+#define TWENTY SUN_RCONST(20.0)
 
 using namespace std;
 
@@ -68,7 +68,7 @@ struct TestOptions
 
   // Output options
   sunrealtype dtout = ONE; // output interval
-  int      nout  = 10;  // number of outputs
+  int nout          = 10;  // number of outputs
 };
 
 // -----------------------------------------------------------------------------
@@ -76,11 +76,11 @@ struct TestOptions
 // -----------------------------------------------------------------------------
 
 // DAE residual function
-int res(sunrealtype t, N_Vector y, N_Vector yp, N_Vector rr, void *user_data);
+int res(sunrealtype t, N_Vector y, N_Vector yp, N_Vector rr, void* user_data);
 
 // Jacobian of RHS function
-int J(sunrealtype t,  sunrealtype cj, N_Vector y, N_Vector yp, N_Vector rr,
-      SUNMatrix J, void *user_data, N_Vector tempv1, N_Vector tempv2,
+int J(sunrealtype t, sunrealtype cj, N_Vector y, N_Vector yp, N_Vector rr,
+      SUNMatrix J, void* user_data, N_Vector tempv1, N_Vector tempv2,
       N_Vector tempv3);
 
 // -----------------------------------------------------------------------------
@@ -88,28 +88,16 @@ int J(sunrealtype t,  sunrealtype cj, N_Vector y, N_Vector yp, N_Vector rr,
 // -----------------------------------------------------------------------------
 
 // Compute r(t)
-static sunrealtype r(sunrealtype t)
-{
-  return HALF * cos(t);
-}
+static sunrealtype r(sunrealtype t) { return HALF * cos(t); }
 
 // Compute the derivative of r(t)
-static sunrealtype rdot(sunrealtype t)
-{
-  return -HALF * sin(t);
-}
+static sunrealtype rdot(sunrealtype t) { return -HALF * sin(t); }
 
 // Compute s(t)
-static sunrealtype s(sunrealtype t)
-{
-  return cos(TWENTY * t);
-}
+static sunrealtype s(sunrealtype t) { return cos(TWENTY * t); }
 
 // Compute the derivative of s(t)
-static sunrealtype sdot(sunrealtype t)
-{
-  return -TWENTY * sin(TWENTY * t);
-}
+static sunrealtype sdot(sunrealtype t) { return -TWENTY * sin(TWENTY * t); }
 
 // Compute the true solution
 static int true_sol(sunrealtype t, sunrealtype* u, sunrealtype* v)
@@ -136,21 +124,21 @@ static int true_sol_p(sunrealtype t, sunrealtype* up, sunrealtype* vp)
 // Check function return flag
 int check_flag(int flag, const string funcname)
 {
-  if (!flag) return 0;
-  if (flag < 0) cerr << "ERROR: ";
+  if (!flag) { return 0; }
+  if (flag < 0) { cerr << "ERROR: "; }
   cerr << funcname << " returned " << flag << endl;
   return 1;
 }
 
 // Check if a function returned a NULL pointer
-int check_ptr(void *ptr, const string funcname)
+int check_ptr(void* ptr, const string funcname)
 {
-  if (ptr) return 0;
+  if (ptr) { return 0; }
   cerr << "ERROR: " << funcname << " returned NULL" << endl;
   return 1;
 }
 
-inline void find_arg(vector<string> &args, const string key, sunrealtype &dest)
+inline void find_arg(vector<string>& args, const string key, sunrealtype& dest)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())
@@ -166,7 +154,7 @@ inline void find_arg(vector<string> &args, const string key, sunrealtype &dest)
   }
 }
 
-inline void find_arg(vector<string> &args, const string key, long int &dest)
+inline void find_arg(vector<string>& args, const string key, long int& dest)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())
@@ -176,7 +164,7 @@ inline void find_arg(vector<string> &args, const string key, long int &dest)
   }
 }
 
-inline void find_arg(vector<string> &args, const string key, int &dest)
+inline void find_arg(vector<string>& args, const string key, int& dest)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())
@@ -186,7 +174,7 @@ inline void find_arg(vector<string> &args, const string key, int &dest)
   }
 }
 
-inline void find_arg(vector<string> &args, const string key, bool &dest,
+inline void find_arg(vector<string>& args, const string key, bool& dest,
                      bool store = true)
 {
   auto it = find(args.begin(), args.end(), key);
@@ -216,7 +204,7 @@ void InputHelp()
   cout << "  --nout        : number of outputs\n";
 }
 
-int ReadInputs(vector<string> &args, TestOptions &opts, SUNContext ctx)
+int ReadInputs(vector<string>& args, TestOptions& opts, SUNContext ctx)
 {
   if (find(args.begin(), args.end(), "--help") != args.end())
   {

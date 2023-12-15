@@ -17,8 +17,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sundials/sundials_types.h"
 #include "nvector/nvector_petsc.h"
+#include "sundials/sundials_types.h"
 #include "sunnonlinsol/sunnonlinsol_petscsnes.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -31,17 +31,17 @@
 #define FSYM "f"
 #endif
 
-#define NEQ   3                /* number of equations        */
-#define TOL   SUN_RCONST(1.0e-2)   /* nonlinear solver tolerance */
-#define MAXIT 10               /* max nonlinear iterations   */
+#define NEQ   3                  /* number of equations        */
+#define TOL   SUN_RCONST(1.0e-2) /* nonlinear solver tolerance */
+#define MAXIT 10                 /* max nonlinear iterations   */
 
-#define ZERO  SUN_RCONST(0.0)  /* real 0.0 */
-#define HALF  SUN_RCONST(0.5)  /* real 0.5 */
-#define ONE   SUN_RCONST(1.0)  /* real 1.0 */
-#define TWO   SUN_RCONST(2.0)  /* real 2.0 */
-#define THREE SUN_RCONST(3.0)  /* real 3.0 */
-#define FOUR  SUN_RCONST(4.0)  /* real 4.0 */
-#define SIX   SUN_RCONST(6.0)  /* real 6.0 */
+#define ZERO  SUN_RCONST(0.0) /* real 0.0 */
+#define HALF  SUN_RCONST(0.5) /* real 0.5 */
+#define ONE   SUN_RCONST(1.0) /* real 1.0 */
+#define TWO   SUN_RCONST(2.0) /* real 2.0 */
+#define THREE SUN_RCONST(3.0) /* real 3.0 */
+#define FOUR  SUN_RCONST(4.0) /* real 4.0 */
+#define SIX   SUN_RCONST(6.0) /* real 6.0 */
 
 /* approximate solution */
 #define Y1 0.785196933062355226
@@ -49,34 +49,35 @@
 #define Y3 0.369922830745872357
 
 /* Check function return values */
-static int check_retval(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void* flagvalue, const char* funcname, int opt);
 
 /* Nonlinear residual function */
-static int Res(N_Vector y, N_Vector f, void *mem);
+static int Res(N_Vector y, N_Vector f, void* mem);
 
 /* Jacobian of the nonlinear residual */
-int Jac(SNES snes, Vec y, Mat J, Mat Jpre, void *ctx);
+int Jac(SNES snes, Vec y, Mat J, Mat Jpre, void* ctx);
 
 /* -----------------------------------------------------------------------------
  * Main testing routine
  * ---------------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  int                retval = 0;
-  N_Vector           y, y0, w;
+  int retval = 0;
+  N_Vector y, y0, w;
   SUNNonlinearSolver NLS;
-  long int           niters;
-  SUNContext         sunctx;
+  long int niters;
+  SUNContext sunctx;
 
   SNES snes;
   Vec X, Y0, Y, W;
   Mat J;
 
-  retval = PetscInitializeNoArguments();CHKERRQ(retval);
+  retval = PetscInitializeNoArguments();
+  CHKERRQ(retval);
 
   /* create SUNDIALS context */
   retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return(1);
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
   /* create vector */
   VecCreate(PETSC_COMM_WORLD, &X);
@@ -106,25 +107,21 @@ int main(int argc, char *argv[])
   SNESCreate(PETSC_COMM_WORLD, &snes);
   SNESSetJacobian(snes, J, J, Jac, NULL);
   /* set the maximum number of nonlinear iterations */
-  SNESSetTolerances(snes,
-                    TOL,
-                    PETSC_DEFAULT,
-                    PETSC_DEFAULT,
-                    MAXIT,
+  SNESSetTolerances(snes, TOL, PETSC_DEFAULT, PETSC_DEFAULT, MAXIT,
                     PETSC_DEFAULT);
   SNESSetFromOptions(snes);
 
   /* create nonlinear solver */
   NLS = SUNNonlinSol_PetscSNES(y, snes, sunctx);
-  if (check_retval((void *)NLS, "SUNNonlinSol_PetscSNES", 0)) return(1);
+  if (check_retval((void*)NLS, "SUNNonlinSol_PetscSNES", 0)) { return (1); }
 
   /* set the nonlinear residual function */
   retval = SUNNonlinSolSetSysFn(NLS, Res);
-  if (check_retval(&retval, "SUNNonlinSolSetSysFn", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSetSysFn", 1)) { return (1); }
 
   /* solve the nonlinear system */
   retval = SUNNonlinSolSolve(NLS, y0, y, w, TOL, SUNFALSE, NULL);
-  if (check_retval(&retval, "SUNNonlinSolSolve", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSolve", 1)) { return (1); }
 
   /* get the solution */
   sunrealtype yvals[3];
@@ -133,21 +130,21 @@ int main(int argc, char *argv[])
 
   /* print the solution */
   printf("Solution:\n");
-  printf("y1 = %"GSYM"\n", yvals[0]);
-  printf("y2 = %"GSYM"\n", yvals[1]);
-  printf("y3 = %"GSYM"\n", yvals[2]);
+  printf("y1 = %" GSYM "\n", yvals[0]);
+  printf("y2 = %" GSYM "\n", yvals[1]);
+  printf("y3 = %" GSYM "\n", yvals[2]);
 
   /* print the solution error */
   printf("Solution Error:\n");
-  printf("e1 = %"GSYM"\n", yvals[0] - Y1);
-  printf("e2 = %"GSYM"\n", yvals[1] - Y2);
-  printf("e3 = %"GSYM"\n", yvals[2] - Y3);
+  printf("e1 = %" GSYM "\n", yvals[0] - Y1);
+  printf("e2 = %" GSYM "\n", yvals[1] - Y2);
+  printf("e3 = %" GSYM "\n", yvals[2] - Y3);
 
   /* get the number of linear iterations */
   retval = SUNNonlinSolGetNumIters(NLS, &niters);
-  if (check_retval(&retval, "SUNNonlinSolGetNumIters", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolGetNumIters", 1)) { return (1); }
 
-  printf("Number of nonlinear iterations: %ld\n",niters);
+  printf("Number of nonlinear iterations: %ld\n", niters);
 
   /* Free vector, matrix, and nonlinear solver */
   VecDestroy(&X);
@@ -163,15 +160,11 @@ int main(int argc, char *argv[])
   SUNContext_Free(&sunctx);
 
   /* Print result */
-  if (retval) {
-    printf("FAIL\n");
-  } else {
-    printf("SUCCESS\n");
-  }
+  if (retval) { printf("FAIL\n"); }
+  else { printf("SUCCESS\n"); }
 
-  return(retval);
+  return (retval);
 }
-
 
 /* -----------------------------------------------------------------------------
  * Nonlinear residual function
@@ -181,7 +174,7 @@ int main(int argc, char *argv[])
  * f3(x,y,z) = 3x^2 - 4y + z^2     = 0
  *
  * ---------------------------------------------------------------------------*/
-int Res(N_Vector y, N_Vector f, void *mem)
+int Res(N_Vector y, N_Vector f, void* mem)
 {
   Vec yvec, fvec;
   sunrealtype vals[3];
@@ -195,21 +188,22 @@ int Res(N_Vector y, N_Vector f, void *mem)
 
   /* get y vector values */
   VecGetValues(yvec, 3, indc, vals);
-  y1 = vals[0]; y2 = vals[1]; y3 = vals[2];
+  y1 = vals[0];
+  y2 = vals[1];
+  y3 = vals[2];
 
   /* set f vector values */
-  vals[0] = y1*y1 + y2*y2 + y3*y3 - ONE;
-  vals[1] = TWO * y1*y1 + y2*y2 - FOUR * y3;
-  vals[2] = THREE * (y1*y1) - FOUR * y2 + y3*y3;
+  vals[0] = y1 * y1 + y2 * y2 + y3 * y3 - ONE;
+  vals[1] = TWO * y1 * y1 + y2 * y2 - FOUR * y3;
+  vals[2] = THREE * (y1 * y1) - FOUR * y2 + y3 * y3;
   VecSetValues(fvec, 3, indc, vals, INSERT_VALUES);
 
   /* assemble the f vector */
   VecAssemblyBegin(fvec);
   VecAssemblyEnd(fvec);
 
-  return(0);
+  return (0);
 }
-
 
 /* -----------------------------------------------------------------------------
  * Jacobian of the nonlinear residual function
@@ -219,67 +213,72 @@ int Res(N_Vector y, N_Vector f, void *mem)
  *            ( 6x  -4  2z )
  *
  * ---------------------------------------------------------------------------*/
-int Jac(SNES snes, Vec y, Mat J, Mat Jpre, void *ctx)
+int Jac(SNES snes, Vec y, Mat J, Mat Jpre, void* ctx)
 {
   sunrealtype y1, y2, y3;
   sunrealtype yvals[3];
 
   /* set vector indices */
-  sunindextype indc[3] = { 0, 1, 2 };
+  sunindextype indc[3] = {0, 1, 2};
 
   /* get y vector values */
   VecGetValues(y, 3, indc, yvals);
-  y1 = yvals[0]; y2 = yvals[1]; y3 = yvals[2];
+  y1 = yvals[0];
+  y2 = yvals[1];
+  y3 = yvals[2];
 
   /* set the Jacobian values */
-  sunrealtype jvals[3][3] =  { { TWO*y1,  TWO*y2,  TWO*y3 },
-                            { FOUR*y1, TWO*y2, -FOUR   },
-                            { SIX*y1, -FOUR,    TWO*y3 } };
+  sunrealtype jvals[3][3] = {{TWO * y1, TWO * y2, TWO * y3},
+                             {FOUR * y1, TWO * y2, -FOUR},
+                             {SIX * y1, -FOUR, TWO * y3}};
   MatSetValues(J, 3, indc, 3, indc, &jvals[0][0], INSERT_VALUES);
 
   /* assemble the matrix */
-  if (J != Jpre) {
+  if (J != Jpre)
+  {
     MatAssemblyBegin(Jpre, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(Jpre, MAT_FINAL_ASSEMBLY);
   }
   MatAssemblyBegin(J, MAT_FINAL_ASSEMBLY);
   MatAssemblyEnd(J, MAT_FINAL_ASSEMBLY);
 
-  return(0);
+  return (0);
 }
-
 
 /* -----------------------------------------------------------------------------
  * Check function return value
  *   opt == 0 check if returned NULL pointer
  *   opt == 1 check if returned a non-zero value
  * ---------------------------------------------------------------------------*/
-static int check_retval(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void* flagvalue, const char* funcname, int opt)
 {
-  int *errflag;
+  int* errflag;
 
   /* Check if the function returned a NULL pointer -- no memory allocated */
-  if (opt == 0) {
-    if (flagvalue == NULL) {
+  if (opt == 0)
+  {
+    if (flagvalue == NULL)
+    {
       fprintf(stderr, "\nERROR: %s() failed -- returned NULL\n\n", funcname);
-      return(1);
-    } else {
-      return(0);
+      return (1);
     }
+    else { return (0); }
   }
 
   /* Check if the function returned an non-zero value -- internal failure */
-  if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag != 0) {
-      fprintf(stderr, "\nERROR: %s() failed -- returned %d\n\n", funcname, *errflag);
-      return(1);
-    } else {
-      return(0);
+  if (opt == 1)
+  {
+    errflag = (int*)flagvalue;
+    if (*errflag != 0)
+    {
+      fprintf(stderr, "\nERROR: %s() failed -- returned %d\n\n", funcname,
+              *errflag);
+      return (1);
     }
+    else { return (0); }
   }
 
   /* if we make it here then opt was not 0 or 1 */
   fprintf(stderr, "\nERROR: check_retval failed -- Invalid opt value\n\n");
-  return(1);
+  return (1);
 }

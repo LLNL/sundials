@@ -22,17 +22,16 @@
 
 #if defined(BENCHMARK_ODE)
 
-int diffusion(sunrealtype t, N_Vector u, N_Vector f, void *user_data)
+int diffusion(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
 {
   // Access problem data
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Compute the Laplacian
   int flag = laplacian(t, u, f, udata);
-  if (check_flag(&flag, "laplacian", 1))
-    return -1;
+  if (check_flag(&flag, "laplacian", 1)) return -1;
 
   return 0;
 }
@@ -41,15 +40,14 @@ int diffusion_jac(sunrealtype t, N_Vector u, N_Vector f, SUNMatrix Jac,
                   void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   // Access problem data
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Compute the Laplacian matrix
 #if defined(USE_SUPERLU_DIST)
   int flag = laplacian_matrix_sludist(u, Jac, udata);
-  if (check_flag(&flag, "laplacian_matrix_sludist", 1))
-    return -1;
+  if (check_flag(&flag, "laplacian_matrix_sludist", 1)) return -1;
 #else
   std::cerr << "ERROR: Diffusion Jacobian not implemented!\n";
   return -1;
@@ -61,17 +59,16 @@ int diffusion_jac(sunrealtype t, N_Vector u, N_Vector f, SUNMatrix Jac,
 #elif defined(BENCHMARK_DAE)
 
 int diffusion(sunrealtype t, N_Vector u, N_Vector up, N_Vector res,
-              void *user_data)
+              void* user_data)
 {
   // Access problem data
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Compute the Laplacian
   int flag = laplacian(t, u, res, udata);
-  if (check_flag(&flag, "laplacian", 1))
-    return -1;
+  if (check_flag(&flag, "laplacian", 1)) return -1;
 
   // Compute the residual
   N_VLinearSum(ONE, up, -ONE, res, res);
@@ -84,15 +81,14 @@ int diffusion_jac(sunrealtype t, sunrealtype cj, N_Vector u, N_Vector up,
                   N_Vector tmp2, N_Vector tmp3)
 {
   // Access problem data
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
   // Compute the Laplacian matrix
 #if defined(USE_SUPERLU_DIST)
   int flag = laplacian_matrix_sludist(u, cj, Jac, udata);
-  if (check_flag(&flag, "laplacian_matrix_sludist", 1))
-    return -1;
+  if (check_flag(&flag, "laplacian_matrix_sludist", 1)) return -1;
 #else
   std::cerr << "ERROR: Diffusion Jacobian not implemented!\n";
   return -1;
@@ -110,14 +106,14 @@ int diffusion_jac(sunrealtype t, sunrealtype cj, N_Vector u, N_Vector up,
 // -----------------------------------------------------------------------------
 
 // Parse command line inputs
-int UserData::parse_args(vector<string> &args, bool outproc)
+int UserData::parse_args(vector<string>& args, bool outproc)
 {
   vector<string>::iterator it;
 
   it = find(args.begin(), args.end(), "--help");
   if (it != args.end())
   {
-    if (outproc) help();
+    if (outproc) { help(); }
     return 0;
   }
 
@@ -201,7 +197,6 @@ int UserData::parse_args(vector<string> &args, bool outproc)
   return 0;
 }
 
-
 // Print command line options
 void UserData::help()
 {
@@ -217,28 +212,27 @@ void UserData::help()
   cout << "  --tf <time>  : final time" << endl;
 }
 
-
 void UserData::print()
 {
   cout << endl;
   cout << " Problem options:" << endl;
   cout << " --------------------------------- " << endl;
-  cout << "  nprocs         = " << np       << endl;
-  cout << "  npx            = " << npx      << endl;
-  cout << "  npy            = " << npy      << endl;
+  cout << "  nprocs         = " << np << endl;
+  cout << "  npx            = " << npx << endl;
+  cout << "  npy            = " << npy << endl;
   cout << " --------------------------------- " << endl;
-  cout << "  kx             = " << kx      << endl;
-  cout << "  ky             = " << ky      << endl;
+  cout << "  kx             = " << kx << endl;
+  cout << "  ky             = " << ky << endl;
   cout << "  forcing        = " << forcing << endl;
-  cout << "  tf             = " << tf      << endl;
-  cout << "  xu             = " << xu      << endl;
-  cout << "  yu             = " << yu      << endl;
-  cout << "  nx             = " << nx      << endl;
-  cout << "  ny             = " << ny      << endl;
-  cout << "  nxl (proc 0)   = " << nx_loc  << endl;
-  cout << "  nyl (proc 0)   = " << ny_loc  << endl;
-  cout << "  dx             = " << dx      << endl;
-  cout << "  dy             = " << dy      << endl;
+  cout << "  tf             = " << tf << endl;
+  cout << "  xu             = " << xu << endl;
+  cout << "  yu             = " << yu << endl;
+  cout << "  nx             = " << nx << endl;
+  cout << "  ny             = " << ny << endl;
+  cout << "  nxl (proc 0)   = " << nx_loc << endl;
+  cout << "  nyl (proc 0)   = " << ny_loc << endl;
+  cout << "  dx             = " << dx << endl;
+  cout << "  dy             = " << dy << endl;
   cout << " --------------------------------- " << endl;
 }
 
@@ -247,8 +241,7 @@ int UserData::setup()
   int flag;
 
   // Check that this has not been called before
-  if (Erecv != NULL || Wrecv != NULL ||
-      Srecv != NULL || Nrecv != NULL)
+  if (Erecv != NULL || Wrecv != NULL || Srecv != NULL || Nrecv != NULL)
   {
     cerr << "SetupDecomp error: parallel decomposition already set up" << endl;
     return -1;
@@ -345,9 +338,9 @@ int UserData::setup()
 
   // Determine if this proc has neighbors
   HaveNbrW = (is != 0);
-  HaveNbrE = (ie != nx-1);
+  HaveNbrE = (ie != nx - 1);
   HaveNbrS = (js != 0);
-  HaveNbrN = (je != ny-1);
+  HaveNbrN = (je != ny - 1);
 
   // Allocate exchange buffers if necessary
   flag = allocate_buffers();
@@ -363,9 +356,9 @@ int UserData::setup()
   // West neighbor
   if (HaveNbrW)
   {
-    nbcoords[0] = coords[0]-1;
+    nbcoords[0] = coords[0] - 1;
     nbcoords[1] = coords[1];
-    flag = MPI_Cart_rank(comm_c, nbcoords, &ipW);
+    flag        = MPI_Cart_rank(comm_c, nbcoords, &ipW);
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Cart_rank = " << flag << endl;
@@ -376,9 +369,9 @@ int UserData::setup()
   // East neighbor
   if (HaveNbrE)
   {
-    nbcoords[0] = coords[0]+1;
+    nbcoords[0] = coords[0] + 1;
     nbcoords[1] = coords[1];
-    flag = MPI_Cart_rank(comm_c, nbcoords, &ipE);
+    flag        = MPI_Cart_rank(comm_c, nbcoords, &ipE);
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Cart_rank = " << flag << endl;
@@ -390,8 +383,8 @@ int UserData::setup()
   if (HaveNbrS)
   {
     nbcoords[0] = coords[0];
-    nbcoords[1] = coords[1]-1;
-    flag = MPI_Cart_rank(comm_c, nbcoords, &ipS);
+    nbcoords[1] = coords[1] - 1;
+    flag        = MPI_Cart_rank(comm_c, nbcoords, &ipS);
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Cart_rank = " << flag << endl;
@@ -403,8 +396,8 @@ int UserData::setup()
   if (HaveNbrN)
   {
     nbcoords[0] = coords[0];
-    nbcoords[1] = coords[1]+1;
-    flag = MPI_Cart_rank(comm_c, nbcoords, &ipN);
+    nbcoords[1] = coords[1] + 1;
+    flag        = MPI_Cart_rank(comm_c, nbcoords, &ipN);
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Cart_rank = " << flag << endl;
@@ -416,11 +409,9 @@ int UserData::setup()
   return 0;
 }
 
-
 // -----------------------------------------------------------------------------
 // UserData boundary exchange functions
 // -----------------------------------------------------------------------------
-
 
 int UserData::start_exchange(const N_Vector u)
 {
@@ -445,8 +436,8 @@ int UserData::start_exchange(const N_Vector u)
 
   if (HaveNbrW)
   {
-    flag = MPI_Irecv(Wrecv, (int) ny_loc, MPI_SUNREALTYPE,
-                     ipW, MPI_ANY_TAG, comm_c, &reqRW);
+    flag = MPI_Irecv(Wrecv, (int)ny_loc, MPI_SUNREALTYPE, ipW, MPI_ANY_TAG,
+                     comm_c, &reqRW);
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Irecv = " << flag << endl;
@@ -456,8 +447,8 @@ int UserData::start_exchange(const N_Vector u)
 
   if (HaveNbrE)
   {
-    flag = MPI_Irecv(Erecv, (int) ny_loc, MPI_SUNREALTYPE,
-                     ipE, MPI_ANY_TAG, comm_c, &reqRE);
+    flag = MPI_Irecv(Erecv, (int)ny_loc, MPI_SUNREALTYPE, ipE, MPI_ANY_TAG,
+                     comm_c, &reqRE);
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Irecv = " << flag << endl;
@@ -467,8 +458,8 @@ int UserData::start_exchange(const N_Vector u)
 
   if (HaveNbrS)
   {
-    flag = MPI_Irecv(Srecv, (int) nx_loc, MPI_SUNREALTYPE,
-                     ipS, MPI_ANY_TAG, comm_c, &reqRS);
+    flag = MPI_Irecv(Srecv, (int)nx_loc, MPI_SUNREALTYPE, ipS, MPI_ANY_TAG,
+                     comm_c, &reqRS);
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Irecv = " << flag << endl;
@@ -478,8 +469,8 @@ int UserData::start_exchange(const N_Vector u)
 
   if (HaveNbrN)
   {
-    flag = MPI_Irecv(Nrecv, (int) nx_loc, MPI_SUNREALTYPE,
-                     ipN, MPI_ANY_TAG, comm_c, &reqRN);
+    flag = MPI_Irecv(Nrecv, (int)nx_loc, MPI_SUNREALTYPE, ipN, MPI_ANY_TAG,
+                     comm_c, &reqRN);
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Irecv = " << flag << endl;
@@ -501,8 +492,7 @@ int UserData::start_exchange(const N_Vector u)
 
   if (HaveNbrW)
   {
-    flag = MPI_Isend(Wsend, (int) ny_loc, MPI_SUNREALTYPE,
-                     ipW, 0, comm_c, &reqSW);
+    flag = MPI_Isend(Wsend, (int)ny_loc, MPI_SUNREALTYPE, ipW, 0, comm_c, &reqSW);
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Isend = " << flag << endl;
@@ -512,8 +502,7 @@ int UserData::start_exchange(const N_Vector u)
 
   if (HaveNbrE)
   {
-    flag = MPI_Isend(Esend, (int) ny_loc, MPI_SUNREALTYPE,
-                     ipE, 1, comm_c, &reqSE);
+    flag = MPI_Isend(Esend, (int)ny_loc, MPI_SUNREALTYPE, ipE, 1, comm_c, &reqSE);
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Isend = " << flag << endl;
@@ -523,8 +512,7 @@ int UserData::start_exchange(const N_Vector u)
 
   if (HaveNbrS)
   {
-    flag = MPI_Isend(Ssend, (int) nx_loc, MPI_SUNREALTYPE,
-                     ipS, 2, comm_c, &reqSS);
+    flag = MPI_Isend(Ssend, (int)nx_loc, MPI_SUNREALTYPE, ipS, 2, comm_c, &reqSS);
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Isend = " << flag << endl;
@@ -534,8 +522,7 @@ int UserData::start_exchange(const N_Vector u)
 
   if (HaveNbrN)
   {
-    flag = MPI_Isend(Nsend, (int) nx_loc, MPI_SUNREALTYPE,
-                     ipN, 3, comm_c, &reqSN);
+    flag = MPI_Isend(Nsend, (int)nx_loc, MPI_SUNREALTYPE, ipN, 3, comm_c, &reqSN);
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Isend = " << flag << endl;
@@ -546,7 +533,6 @@ int UserData::start_exchange(const N_Vector u)
   // Return success
   return 0;
 }
-
 
 int UserData::end_exchange()
 {
@@ -622,9 +608,8 @@ int UserData::end_exchange()
   }
 
   // Return success
-    return 0;
+  return 0;
 }
-
 
 // -----------------------------------------------------------------------------
 // UserData helper functions
@@ -643,21 +628,19 @@ UserData::~UserData()
   }
 }
 
-
 // -----------------------------------------------------------------------------
 // UserOutput functions
 // -----------------------------------------------------------------------------
 
-
 // Parse command line inputs
-int UserOutput::parse_args(vector<string> &args, bool outproc)
+int UserOutput::parse_args(vector<string>& args, bool outproc)
 {
   vector<string>::iterator it;
 
   it = find(args.begin(), args.end(), "--help");
   if (it != args.end())
   {
-    if (outproc) help();
+    if (outproc) { help(); }
     return 0;
   }
 
@@ -678,7 +661,6 @@ int UserOutput::parse_args(vector<string> &args, bool outproc)
   return 0;
 }
 
-
 // Print command line options
 void UserOutput::help()
 {
@@ -688,19 +670,17 @@ void UserOutput::help()
   cout << "  --nout <nout>     : number of outputs" << endl;
 }
 
-
 void UserOutput::print()
 {
   cout << endl;
   cout << " Output options:" << endl;
   cout << " --------------------------------- " << endl;
   cout << " output level = " << output << endl;
-  cout << " nout         = " << nout   << endl;
+  cout << " nout         = " << nout << endl;
   cout << " --------------------------------- " << endl;
 }
 
-
-int UserOutput::open(UserData *udata)
+int UserOutput::open(UserData* udata)
 {
   bool outproc = (udata->myid_c == 0);
 
@@ -740,20 +720,20 @@ int UserOutput::open(UserData *udata)
     uoutstream << "# title Diffusion 2D" << endl;
     uoutstream << "# nvar 1" << endl;
     uoutstream << "# vars u" << endl;
-    uoutstream << "# nt  " << nout + 1   << endl;
-    uoutstream << "# nx  " << udata->nx  << endl;
-    uoutstream << "# xl  " << udata->xl  << endl;
-    uoutstream << "# xu  " << udata->xu  << endl;
-    uoutstream << "# ny  " << udata->ny  << endl;
-    uoutstream << "# yl  " << udata->yl  << endl;
-    uoutstream << "# yu  " << udata->yu  << endl;
+    uoutstream << "# nt  " << nout + 1 << endl;
+    uoutstream << "# nx  " << udata->nx << endl;
+    uoutstream << "# xl  " << udata->xl << endl;
+    uoutstream << "# xu  " << udata->xu << endl;
+    uoutstream << "# ny  " << udata->ny << endl;
+    uoutstream << "# yl  " << udata->yl << endl;
+    uoutstream << "# yu  " << udata->yu << endl;
     uoutstream << "# px  " << udata->npx << endl;
     uoutstream << "# py  " << udata->npy << endl;
-    uoutstream << "# np  " << udata->np  << endl;
-    uoutstream << "# is  " << udata->is  << endl;
-    uoutstream << "# ie  " << udata->ie  << endl;
-    uoutstream << "# js  " << udata->js  << endl;
-    uoutstream << "# je  " << udata->je  << endl;
+    uoutstream << "# np  " << udata->np << endl;
+    uoutstream << "# is  " << udata->is << endl;
+    uoutstream << "# ie  " << udata->ie << endl;
+    uoutstream << "# js  " << udata->js << endl;
+    uoutstream << "# je  " << udata->je << endl;
 
     uoutstream << scientific;
     uoutstream << setprecision(numeric_limits<sunrealtype>::digits10);
@@ -769,20 +749,20 @@ int UserOutput::open(UserData *udata)
       eoutstream << "# title Diffusion 2D Error" << endl;
       eoutstream << "# nvar 1" << endl;
       eoutstream << "# vars u" << endl;
-      eoutstream << "# nt  " << nout + 1   << endl;
-      eoutstream << "# nx  " << udata->nx  << endl;
-      eoutstream << "# xl  " << udata->xl  << endl;
-      eoutstream << "# xu  " << udata->xu  << endl;
-      eoutstream << "# ny  " << udata->ny  << endl;
-      eoutstream << "# yl  " << udata->yl  << endl;
-      eoutstream << "# yu  " << udata->yu  << endl;
+      eoutstream << "# nt  " << nout + 1 << endl;
+      eoutstream << "# nx  " << udata->nx << endl;
+      eoutstream << "# xl  " << udata->xl << endl;
+      eoutstream << "# xu  " << udata->xu << endl;
+      eoutstream << "# ny  " << udata->ny << endl;
+      eoutstream << "# yl  " << udata->yl << endl;
+      eoutstream << "# yu  " << udata->yu << endl;
       eoutstream << "# px  " << udata->npx << endl;
       eoutstream << "# py  " << udata->npy << endl;
-      eoutstream << "# np  " << udata->np  << endl;
-      eoutstream << "# is  " << udata->is  << endl;
-      eoutstream << "# ie  " << udata->ie  << endl;
-      eoutstream << "# js  " << udata->js  << endl;
-      eoutstream << "# je  " << udata->je  << endl;
+      eoutstream << "# np  " << udata->np << endl;
+      eoutstream << "# is  " << udata->is << endl;
+      eoutstream << "# ie  " << udata->ie << endl;
+      eoutstream << "# js  " << udata->js << endl;
+      eoutstream << "# je  " << udata->je << endl;
 
       eoutstream << scientific;
       eoutstream << setprecision(numeric_limits<sunrealtype>::digits10);
@@ -792,12 +772,11 @@ int UserOutput::open(UserData *udata)
   return 0;
 }
 
-
-int UserOutput::write(sunrealtype t, N_Vector u, UserData *udata)
+int UserOutput::write(sunrealtype t, N_Vector u, UserData* udata)
 {
-  int      flag;
+  int flag;
   sunrealtype max;
-  bool     outproc = (udata->myid_c == 0);
+  bool outproc = (udata->myid_c == 0);
 
   if (output > 0)
   {
@@ -805,7 +784,7 @@ int UserOutput::write(sunrealtype t, N_Vector u, UserData *udata)
     {
       // Compute the error
       flag = SolutionError(t, u, error, udata);
-      if (check_flag(&flag, "SolutionError", 1)) return 1;
+      if (check_flag(&flag, "SolutionError", 1)) { return 1; }
 
       // Compute max error
       max = N_VMaxNorm(error);
@@ -821,10 +800,7 @@ int UserOutput::write(sunrealtype t, N_Vector u, UserData *udata)
       {
         cout << setw(22) << t << setw(25) << urms << setw(25) << max << endl;
       }
-      else
-      {
-        cout << setw(22) << t << setw(25) << urms << endl;
-      }
+      else { cout << setw(22) << t << setw(25) << urms << endl; }
     }
 
     // Write solution and error to disk
@@ -832,10 +808,10 @@ int UserOutput::write(sunrealtype t, N_Vector u, UserData *udata)
     {
       // Sync host and device memory
       flag = CopyDataFromDevice(u);
-      if (check_flag(&flag, "CopyDataFromDevice", 1)) return -1;
+      if (check_flag(&flag, "CopyDataFromDevice", 1)) { return -1; }
 
-      sunrealtype *uarray = N_VGetArrayPointer(u);
-      if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
+      sunrealtype* uarray = N_VGetArrayPointer(u);
+      if (check_flag((void*)uarray, "N_VGetArrayPointer", 0)) { return -1; }
 
       uoutstream << t << " ";
       for (sunindextype i = 0; i < udata->nodes_loc; i++)
@@ -848,11 +824,11 @@ int UserOutput::write(sunrealtype t, N_Vector u, UserData *udata)
       {
         // Sync host and device memory
         flag = CopyDataFromDevice(error);
-        if (check_flag(&flag, "CopyDataFromDevice", 1)) return -1;
+        if (check_flag(&flag, "CopyDataFromDevice", 1)) { return -1; }
 
         // Output error to disk
-        sunrealtype *earray = N_VGetArrayPointer(error);
-        if (check_flag((void *) earray, "N_VGetArrayPointer", 0)) return -1;
+        sunrealtype* earray = N_VGetArrayPointer(error);
+        if (check_flag((void*)earray, "N_VGetArrayPointer", 0)) { return -1; }
 
         eoutstream << t << " ";
         for (sunindextype i = 0; i < udata->nodes_loc; i++)
@@ -866,8 +842,7 @@ int UserOutput::write(sunrealtype t, N_Vector u, UserData *udata)
   return 0;
 }
 
-
-int UserOutput::close(UserData *udata)
+int UserOutput::close(UserData* udata)
 {
   bool outproc = (udata->myid_c == 0);
 
@@ -893,7 +868,7 @@ int UserOutput::close(UserData *udata)
   {
     // Close output streams
     uoutstream.close();
-    if (error) eoutstream.close();
+    if (error) { eoutstream.close(); }
   }
 
   if (error)
@@ -906,17 +881,16 @@ int UserOutput::close(UserData *udata)
   return 0;
 }
 
-
 // -----------------------------------------------------------------------------
 // Output and utility functions
 // -----------------------------------------------------------------------------
 
 // Compute the solution error
-int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData *udata)
+int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData* udata)
 {
   // Compute true solution
   int flag = Solution(t, e, udata);
-  if (flag != 0) return -1;
+  if (flag != 0) { return -1; }
 
   // Compute absolute error
   N_VLinearSum(ONE, u, -ONE, e, e);
@@ -925,16 +899,16 @@ int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData *udata)
   return 0;
 }
 
-
 // Check function return value
-int check_flag(void *flagvalue, const string funcname, int opt)
+int check_flag(void* flagvalue, const string funcname, int opt)
 {
   // Check if the function returned a NULL pointer
   if (opt == 0)
   {
     if (flagvalue == NULL)
     {
-      cerr << endl << "ERROR: " << funcname << " returned NULL pointer" << endl
+      cerr << endl
+           << "ERROR: " << funcname << " returned NULL pointer" << endl
            << endl;
       return 1;
     }
@@ -942,18 +916,19 @@ int check_flag(void *flagvalue, const string funcname, int opt)
   // Check the function return flag value
   else if (opt == 1 || opt == 2)
   {
-    int errflag = *((int *) flagvalue);
-    if  ((opt == 1 && errflag < 0) || (opt == 2 && errflag != 0))
+    int errflag = *((int*)flagvalue);
+    if ((opt == 1 && errflag < 0) || (opt == 2 && errflag != 0))
     {
-      cerr << endl << "ERROR: " << funcname << " returned with flag = "
-           << errflag << endl << endl;
+      cerr << endl
+           << "ERROR: " << funcname << " returned with flag = " << errflag << endl
+           << endl;
       return 1;
     }
   }
   else
   {
-    cerr << endl << "ERROR: check_flag called with an invalid option value"
-         << endl;
+    cerr << endl
+         << "ERROR: check_flag called with an invalid option value" << endl;
     return 1;
   }
 

@@ -88,45 +88,44 @@
  *     pp. 1495-1512.
  * -----------------------------------------------------------------*/
 
+#include <ida/ida.h> /* prototypes for IDA fcts., consts.    */
+#include <math.h>
+#include <nvector/nvector_serial.h> /* access to serial N_Vector            */
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-
-#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
-#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
-#include <sundials/sundials_types.h>   /* definition of type sunrealtype          */
+#include <sundials/sundials_types.h> /* definition of type sunrealtype          */
+#include <sunlinsol/sunlinsol_band.h> /* access to band SUNLinearSolver       */
+#include <sunmatrix/sunmatrix_band.h> /* access to band SUNMatrix             */
 
 /* Problem Constants. */
 
-#define NPREY       1              /* No. of prey (= no. of predators). */
-#define NUM_SPECIES 2*NPREY
+#define NPREY       1 /* No. of prey (= no. of predators). */
+#define NUM_SPECIES 2 * NPREY
 
-#define PI          SUN_RCONST(3.1415926535898)
-#define FOURPI      (SUN_RCONST(4.0)*PI)
+#define PI     SUN_RCONST(3.1415926535898)
+#define FOURPI (SUN_RCONST(4.0) * PI)
 
-#define MX          20             /* MX = number of x mesh points      */
-#define MY          20             /* MY = number of y mesh points      */
-#define NSMX        (NUM_SPECIES * MX)
-#define NEQ         (NUM_SPECIES*MX*MY)
-#define AA          SUN_RCONST(1.0)    /* Coefficient in above eqns. for a  */
-#define EE          SUN_RCONST(10000.) /* Coefficient in above eqns. for a  */
-#define GG          SUN_RCONST(0.5e-6) /* Coefficient in above eqns. for a  */
-#define BB          SUN_RCONST(1.0)    /* Coefficient in above eqns. for b  */
-#define DPREY       SUN_RCONST(1.0)    /* Coefficient in above eqns. for d  */
-#define DPRED       SUN_RCONST(0.05)   /* Coefficient in above eqns. for d  */
-#define ALPHA       SUN_RCONST(50.)    /* Coefficient alpha in above eqns.  */
-#define BETA        SUN_RCONST(1000.)  /* Coefficient beta in above eqns.   */
-#define AX          SUN_RCONST(1.0)    /* Total range of x variable         */
-#define AY          SUN_RCONST(1.0)    /* Total range of y variable         */
-#define RTOL        SUN_RCONST(1.e-5)  /* Relative tolerance                */
-#define ATOL        SUN_RCONST(1.e-5)  /* Absolute tolerance                */
-#define NOUT        6              /* Number of output times            */
-#define TMULT       SUN_RCONST(10.0)   /* Multiplier for tout values        */
-#define TADD        SUN_RCONST(0.3)    /* Increment for tout values         */
-#define ZERO        SUN_RCONST(0.)
-#define ONE         SUN_RCONST(1.0)
+#define MX    20 /* MX = number of x mesh points      */
+#define MY    20 /* MY = number of y mesh points      */
+#define NSMX  (NUM_SPECIES * MX)
+#define NEQ   (NUM_SPECIES * MX * MY)
+#define AA    SUN_RCONST(1.0)    /* Coefficient in above eqns. for a  */
+#define EE    SUN_RCONST(10000.) /* Coefficient in above eqns. for a  */
+#define GG    SUN_RCONST(0.5e-6) /* Coefficient in above eqns. for a  */
+#define BB    SUN_RCONST(1.0)    /* Coefficient in above eqns. for b  */
+#define DPREY SUN_RCONST(1.0)    /* Coefficient in above eqns. for d  */
+#define DPRED SUN_RCONST(0.05)   /* Coefficient in above eqns. for d  */
+#define ALPHA SUN_RCONST(50.)    /* Coefficient alpha in above eqns.  */
+#define BETA  SUN_RCONST(1000.)  /* Coefficient beta in above eqns.   */
+#define AX    SUN_RCONST(1.0)    /* Total range of x variable         */
+#define AY    SUN_RCONST(1.0)    /* Total range of y variable         */
+#define RTOL  SUN_RCONST(1.e-5)  /* Relative tolerance                */
+#define ATOL  SUN_RCONST(1.e-5)  /* Absolute tolerance                */
+#define NOUT  6                  /* Number of output times            */
+#define TMULT SUN_RCONST(10.0)   /* Multiplier for tout values        */
+#define TADD  SUN_RCONST(0.3)    /* Increment for tout values         */
+#define ZERO  SUN_RCONST(0.)
+#define ONE   SUN_RCONST(1.0)
 
 /*
  * User-defined vector and accessor macro: IJ_Vptr.
@@ -136,35 +135,38 @@
  * species index is = 0, x-index ix = i, and y-index jy = j.
  */
 
-#define IJ_Vptr(vv,i,j) (&NV_Ith_S(vv, (i)*NUM_SPECIES + (j)*NSMX))
+#define IJ_Vptr(vv, i, j) (&NV_Ith_S(vv, (i) * NUM_SPECIES + (j) * NSMX))
 
 /* Type: UserData.  Contains problem constants, etc. */
 
-typedef struct {
+typedef struct
+{
   sunindextype Neq, ns, np, mx, my;
   sunrealtype dx, dy, **acoef;
   sunrealtype cox[NUM_SPECIES], coy[NUM_SPECIES], bcoef[NUM_SPECIES];
   N_Vector rates;
-} *UserData;
+}* UserData;
 
 /* Prototypes for functions called by the IDA Solver. */
 
 static int resweb(sunrealtype time, N_Vector cc, N_Vector cp, N_Vector resval,
-                  void *user_data);
+                  void* user_data);
 
 /* Prototypes for private Helper Functions. */
 
 static void InitUserData(UserData webdata);
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata);
-static void PrintHeader(sunindextype mu, sunindextype ml, sunrealtype rtol, sunrealtype atol);
-static void PrintOutput(void *mem, N_Vector c, sunrealtype t);
-static void PrintFinalStats(void *mem);
-static void Fweb(sunrealtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
-static void WebRates(sunrealtype xx, sunrealtype yy, sunrealtype *cxy, sunrealtype *ratesxy,
-                     UserData webdata);
-static sunrealtype dotprod(sunindextype size, sunrealtype *x1, sunrealtype *x2);
-static int check_retval(void *returnvalue, const char *funcname, int opt);
+static void PrintHeader(sunindextype mu, sunindextype ml, sunrealtype rtol,
+                        sunrealtype atol);
+static void PrintOutput(void* mem, N_Vector c, sunrealtype t);
+static void PrintFinalStats(void* mem);
+static void Fweb(sunrealtype tcalc, N_Vector cc, N_Vector crate,
+                 UserData webdata);
+static void WebRates(sunrealtype xx, sunrealtype yy, sunrealtype* cxy,
+                     sunrealtype* ratesxy, UserData webdata);
+static sunrealtype dotprod(sunindextype size, sunrealtype* x1, sunrealtype* x2);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -172,9 +174,9 @@ static int check_retval(void *returnvalue, const char *funcname, int opt);
  *--------------------------------------------------------------------
  */
 
-int main()
+int main(void)
 {
-  void *mem;
+  void* mem;
   UserData webdata;
   N_Vector cc, cp, id;
   int iout, retval;
@@ -184,19 +186,19 @@ int main()
   SUNLinearSolver LS;
   SUNContext ctx;
 
-  mem = NULL;
+  mem     = NULL;
   webdata = NULL;
   cc = cp = id = NULL;
-  A = NULL;
-  LS = NULL;
+  A            = NULL;
+  LS           = NULL;
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
-  if (check_retval(&retval, "SUNContext_Create", 1)) return 1;
+  if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
 
   /* Allocate and initialize user data block webdata. */
 
-  webdata = (UserData) malloc(sizeof *webdata);
+  webdata        = (UserData)malloc(sizeof *webdata);
   webdata->rates = N_VNew_Serial(NEQ, ctx);
   webdata->acoef = SUNDlsMat_newDenseMat(NUM_SPECIES, NUM_SPECIES);
 
@@ -205,57 +207,57 @@ int main()
   /* Allocate N-vectors and initialize cc, cp, and id. */
 
   cc = N_VNew_Serial(NEQ, ctx);
-  if(check_retval((void *)cc, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)cc, "N_VNew_Serial", 0)) { return (1); }
 
   cp = N_VClone(cc);
-  if(check_retval((void *)cp, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)cp, "N_VNew_Serial", 0)) { return (1); }
 
   id = N_VClone(cc);
-  if(check_retval((void *)id, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void*)id, "N_VNew_Serial", 0)) { return (1); }
 
   SetInitialProfiles(cc, cp, id, webdata);
 
   /* Set remaining inputs to IDAMalloc. */
 
-  t0 = ZERO;
+  t0   = ZERO;
   rtol = RTOL;
   atol = ATOL;
 
   /* Call IDACreate and IDAMalloc to initialize IDA. */
 
   mem = IDACreate(ctx);
-  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
+  if (check_retval((void*)mem, "IDACreate", 0)) { return (1); }
 
   retval = IDASetUserData(mem, webdata);
-  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
+  if (check_retval(&retval, "IDASetUserData", 1)) { return (1); }
 
   retval = IDASetId(mem, id);
-  if(check_retval(&retval, "IDASetId", 1)) return(1);
+  if (check_retval(&retval, "IDASetId", 1)) { return (1); }
 
   retval = IDAInit(mem, resweb, t0, cc, cp);
-  if(check_retval(&retval, "IDAInit", 1)) return(1);
+  if (check_retval(&retval, "IDAInit", 1)) { return (1); }
 
   retval = IDASStolerances(mem, rtol, atol);
-  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
+  if (check_retval(&retval, "IDASStolerances", 1)) { return (1); }
 
   /* Create banded SUNMatrix for use in linear solves */
   mu = ml = NSMX;
-  A = SUNBandMatrix(NEQ, mu, ml, ctx);
-  if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
+  A       = SUNBandMatrix(NEQ, mu, ml, ctx);
+  if (check_retval((void*)A, "SUNBandMatrix", 0)) { return (1); }
 
   /* Create banded SUNLinearSolver object */
   LS = SUNLinSol_Band(cc, A, ctx);
-  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
+  if (check_retval((void*)LS, "SUNLinSol_Band", 0)) { return (1); }
 
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "IDASetLinearSolver", 1)) { return (1); }
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
-  tout = SUN_RCONST(0.001);
+  tout   = SUN_RCONST(0.001);
   retval = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
-  if(check_retval(&retval, "IDACalcIC", 1)) return(1);
+  if (check_retval(&retval, "IDACalcIC", 1)) { return (1); }
 
   /* Print heading, basic parameters, and initial values. */
 
@@ -264,15 +266,15 @@ int main()
 
   /* Loop over iout, call IDASolve (normal mode), print selected output. */
 
-  for (iout = 1; iout <= NOUT; iout++) {
-
+  for (iout = 1; iout <= NOUT; iout++)
+  {
     retval = IDASolve(mem, tout, &tret, cc, cp, IDA_NORMAL);
-    if(check_retval(&retval, "IDASolve", 1)) return(retval);
+    if (check_retval(&retval, "IDASolve", 1)) { return (retval); }
 
     PrintOutput(mem, cc, tret);
 
-    if (iout < 3) tout *= TMULT; else tout += TADD;
-
+    if (iout < 3) { tout *= TMULT; }
+    else { tout += TADD; }
   }
 
   /* Print final statistics and free memory. */
@@ -289,22 +291,21 @@ int main()
   N_VDestroy(cp);
   N_VDestroy(id);
 
-
   SUNDlsMat_destroyMat(webdata->acoef);
   N_VDestroy(webdata->rates);
   free(webdata);
 
   SUNContext_Free(&ctx);
 
-  return(0);
+  return (0);
 }
 
 /* Define lines for readability in later routines */
 
-#define acoef  (webdata->acoef)
-#define bcoef  (webdata->bcoef)
-#define cox    (webdata->cox)
-#define coy    (webdata->coy)
+#define acoef (webdata->acoef)
+#define bcoef (webdata->bcoef)
+#define cox   (webdata->cox)
+#define coy   (webdata->coy)
 
 /*
  *--------------------------------------------------------------------
@@ -319,8 +320,8 @@ int main()
  * using cp in the case of prey species.
  */
 
-static int resweb(sunrealtype tt, N_Vector cc, N_Vector cp,
-                  N_Vector res,  void *user_data)
+static int resweb(sunrealtype tt, N_Vector cc, N_Vector cp, N_Vector res,
+                  void* user_data)
 {
   sunindextype jx, jy, is, yloc, loc, np;
   sunrealtype *resv, *cpv;
@@ -328,9 +329,9 @@ static int resweb(sunrealtype tt, N_Vector cc, N_Vector cp,
 
   webdata = (UserData)user_data;
 
-  cpv = N_VGetArrayPointer(cp);
+  cpv  = N_VGetArrayPointer(cp);
   resv = N_VGetArrayPointer(res);
-  np = webdata->np;
+  np   = webdata->np;
 
   /* Call Fweb to set res to vector of right-hand sides. */
   Fweb(tt, cc, res, webdata);
@@ -338,21 +339,21 @@ static int resweb(sunrealtype tt, N_Vector cc, N_Vector cp,
   /* Loop over all grid points, setting residual values appropriately
      for differential or algebraic components.                        */
 
-  for (jy = 0; jy < MY; jy++) {
+  for (jy = 0; jy < MY; jy++)
+  {
     yloc = NSMX * jy;
-    for (jx = 0; jx < MX; jx++) {
+    for (jx = 0; jx < MX; jx++)
+    {
       loc = yloc + NUM_SPECIES * jx;
-      for (is = 0; is < NUM_SPECIES; is++) {
-        if (is < np)
-          resv[loc+is] = cpv[loc+is] - resv[loc+is];
-        else
-          resv[loc+is] = -resv[loc+is];
+      for (is = 0; is < NUM_SPECIES; is++)
+      {
+        if (is < np) { resv[loc + is] = cpv[loc + is] - resv[loc + is]; }
+        else { resv[loc + is] = -resv[loc + is]; }
       }
     }
   }
 
-  return(0);
-
+  return (0);
 }
 
 /*
@@ -368,42 +369,48 @@ static int resweb(sunrealtype tt, N_Vector cc, N_Vector cp,
 static void InitUserData(UserData webdata)
 {
   sunindextype i, j, np;
-  sunrealtype *a1,*a2, *a3, *a4, dx2, dy2;
+  sunrealtype *a1, *a2, *a3, *a4, dx2, dy2;
 
-  webdata->mx = MX;
-  webdata->my = MY;
-  webdata->ns = NUM_SPECIES;
-  webdata->np = NPREY;
-  webdata->dx = AX/(MX-1);
-  webdata->dy = AY/(MY-1);
-  webdata->Neq= NEQ;
+  webdata->mx  = MX;
+  webdata->my  = MY;
+  webdata->ns  = NUM_SPECIES;
+  webdata->np  = NPREY;
+  webdata->dx  = AX / (MX - 1);
+  webdata->dy  = AY / (MY - 1);
+  webdata->Neq = NEQ;
 
   /* Set up the coefficients a and b, and others found in the equations. */
-  np = webdata->np;
-  dx2 = (webdata->dx)*(webdata->dx); dy2 = (webdata->dy)*(webdata->dy);
+  np  = webdata->np;
+  dx2 = (webdata->dx) * (webdata->dx);
+  dy2 = (webdata->dy) * (webdata->dy);
 
-  for (i = 0; i < np; i++) {
+  for (i = 0; i < np; i++)
+  {
     a1 = &(acoef[i][np]);
-    a2 = &(acoef[i+np][0]);
+    a2 = &(acoef[i + np][0]);
     a3 = &(acoef[i][0]);
-    a4 = &(acoef[i+np][np]);
+    a4 = &(acoef[i + np][np]);
     /*  Fill in the portion of acoef in the four quadrants, row by row. */
-    for (j = 0; j < np; j++) {
-      *a1++ =  -GG;
-      *a2++ =   EE;
+    for (j = 0; j < np; j++)
+    {
+      *a1++ = -GG;
+      *a2++ = EE;
       *a3++ = ZERO;
       *a4++ = ZERO;
     }
 
     /* Reset the diagonal elements of acoef to -AA. */
-    acoef[i][i] = -AA; acoef[i+np][i+np] = -AA;
+    acoef[i][i]           = -AA;
+    acoef[i + np][i + np] = -AA;
 
     /* Set coefficients for b and diffusion terms. */
-    bcoef[i] = BB; bcoef[i+np] = -BB;
-    cox[i] = DPREY/dx2; cox[i+np] = DPRED/dx2;
-    coy[i] = DPREY/dy2; coy[i+np] = DPRED/dy2;
+    bcoef[i]      = BB;
+    bcoef[i + np] = -BB;
+    cox[i]        = DPREY / dx2;
+    cox[i + np]   = DPRED / dx2;
+    coy[i]        = DPREY / dy2;
+    coy[i + np]   = DPRED / dy2;
   }
-
 }
 
 /*
@@ -425,26 +432,31 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
   ccv = N_VGetArrayPointer(cc);
   cpv = N_VGetArrayPointer(cp);
   idv = N_VGetArrayPointer(id);
-  np = webdata->np;
+  np  = webdata->np;
 
   /* Loop over grid, load cc values and id values. */
-  for (jy = 0; jy < MY; jy++) {
-    yy = jy * webdata->dy;
+  for (jy = 0; jy < MY; jy++)
+  {
+    yy   = jy * webdata->dy;
     yloc = NSMX * jy;
-    for (jx = 0; jx < MX; jx++) {
-      xx = jx * webdata->dx;
-      xyfactor = SUN_RCONST(16.0)*xx*(ONE-xx)*yy*(ONE-yy);
+    for (jx = 0; jx < MX; jx++)
+    {
+      xx       = jx * webdata->dx;
+      xyfactor = SUN_RCONST(16.0) * xx * (ONE - xx) * yy * (ONE - yy);
       xyfactor *= xyfactor;
-      loc = yloc + NUM_SPECIES*jx;
+      loc = yloc + NUM_SPECIES * jx;
 
-      for (is = 0; is < NUM_SPECIES; is++) {
-        if (is < np) {
-          ccv[loc+is] = SUN_RCONST(10.0) + (sunrealtype)(is+1) * xyfactor;
-          idv[loc+is] = ONE;
+      for (is = 0; is < NUM_SPECIES; is++)
+      {
+        if (is < np)
+        {
+          ccv[loc + is] = SUN_RCONST(10.0) + (sunrealtype)(is + 1) * xyfactor;
+          idv[loc + is] = ONE;
         }
-        else {
-	  ccv[loc+is] = SUN_RCONST(1.0e5);
-          idv[loc+is] = ZERO;
+        else
+        {
+          ccv[loc + is] = SUN_RCONST(1.0e5);
+          idv[loc + is] = ZERO;
         }
       }
     }
@@ -454,13 +466,13 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
   Fweb(ZERO, cc, cp, webdata);
 
   /* Set c' for predators to 0. */
-  for (jy = 0; jy < MY; jy++) {
+  for (jy = 0; jy < MY; jy++)
+  {
     yloc = NSMX * jy;
-    for (jx = 0; jx < MX; jx++) {
+    for (jx = 0; jx < MX; jx++)
+    {
       loc = yloc + NUM_SPECIES * jx;
-      for (is = np; is < NUM_SPECIES; is++) {
-        cpv[loc+is] = ZERO;
-      }
+      for (is = np; is < NUM_SPECIES; is++) { cpv[loc + is] = ZERO; }
     }
   }
 }
@@ -469,9 +481,11 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
  * Print first lines of output (problem description)
  */
 
-static void PrintHeader(sunindextype mu, sunindextype ml, sunrealtype rtol, sunrealtype atol)
+static void PrintHeader(sunindextype mu, sunindextype ml, sunrealtype rtol,
+                        sunrealtype atol)
 {
-  printf("\nidaFoodWeb_bnd: Predator-prey DAE serial example problem for IDA \n\n");
+  printf(
+    "\nidaFoodWeb_bnd: Predator-prey DAE serial example problem for IDA \n\n");
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
   printf("     System size: %d\n", NEQ);
@@ -482,13 +496,13 @@ static void PrintHeader(sunindextype mu, sunindextype ml, sunrealtype rtol, sunr
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: BAND,  Band parameters mu = %ld, ml = %ld\n", (long int) mu, (long int) ml);
+  printf("Linear solver: BAND,  Band parameters mu = %ld, ml = %ld\n",
+         (long int)mu, (long int)ml);
   printf("CalcIC called to correct initial predator concentrations.\n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");
   printf("    | nst  k      h\n");
   printf("-----------------------------------------------------------\n\n");
-
 }
 
 /*
@@ -497,7 +511,7 @@ static void PrintHeader(sunindextype mu, sunindextype ml, sunrealtype rtol, sunr
  * are printed for the bottom left and top right grid points only.
  */
 
-static void PrintOutput(void *mem, N_Vector c, sunrealtype t)
+static void PrintOutput(void* mem, N_Vector c, sunrealtype t)
 {
   int i, kused, retval;
   long int nst;
@@ -510,24 +524,26 @@ static void PrintOutput(void *mem, N_Vector c, sunrealtype t)
   retval = IDAGetLastStep(mem, &hused);
   check_retval(&retval, "IDAGetLastStep", 1);
 
-  c_bl = IJ_Vptr(c,0,0);
-  c_tr = IJ_Vptr(c,MX-1,MY-1);
+  c_bl = IJ_Vptr(c, 0, 0);
+  c_tr = IJ_Vptr(c, MX - 1, MY - 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("%8.2Le %12.4Le %12.4Le   | %3ld  %1d %12.4Le\n",
-         t, c_bl[0], c_tr[0], nst, kused, hused);
-  for (i=1;i<NUM_SPECIES;i++)
-    printf("         %12.4Le %12.4Le   |\n",c_bl[i],c_tr[i]);
+  printf("%8.2Le %12.4Le %12.4Le   | %3ld  %1d %12.4Le\n", t, c_bl[0], c_tr[0],
+         nst, kused, hused);
+  for (i = 1; i < NUM_SPECIES; i++)
+    printf("         %12.4Le %12.4Le   |\n", c_bl[i], c_tr[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("%8.2e %12.4e %12.4e   | %3ld  %1d %12.4e\n",
-         t, c_bl[0], c_tr[0], nst, kused, hused);
-  for (i=1;i<NUM_SPECIES;i++)
-    printf("         %12.4e %12.4e   |\n",c_bl[i],c_tr[i]);
+  printf("%8.2e %12.4e %12.4e   | %3ld  %1d %12.4e\n", t, c_bl[0], c_tr[0], nst,
+         kused, hused);
+  for (i = 1; i < NUM_SPECIES; i++)
+  {
+    printf("         %12.4e %12.4e   |\n", c_bl[i], c_tr[i]);
+  }
 #else
-  printf("%8.2e %12.4e %12.4e   | %3ld  %1d %12.4e\n",
-         t, c_bl[0], c_tr[0], nst, kused, hused);
-  for (i=1;i<NUM_SPECIES;i++)
-    printf("         %12.4e %12.4e   |\n",c_bl[i],c_tr[i]);
+  printf("%8.2e %12.4e %12.4e   | %3ld  %1d %12.4e\n", t, c_bl[0], c_tr[0], nst,
+         kused, hused);
+  for (i = 1; i < NUM_SPECIES; i++)
+    printf("         %12.4e %12.4e   |\n", c_bl[i], c_tr[i]);
 #endif
 
   printf("\n");
@@ -537,7 +553,7 @@ static void PrintOutput(void *mem, N_Vector c, sunrealtype t)
  * PrintFinalStats: Print final run data contained in iopt.
  */
 
-static void PrintFinalStats(void *mem)
+static void PrintFinalStats(void* mem)
 {
   long int nst, nre, nreLS, nni, nnf, nje, netf, ncfn;
   int retval;
@@ -562,13 +578,12 @@ static void PrintFinalStats(void *mem)
   printf("-----------------------------------------------------------\n");
   printf("Final run statistics: \n\n");
   printf("Number of steps                    = %ld\n", nst);
-  printf("Number of residual evaluations     = %ld\n", nre+nreLS);
+  printf("Number of residual evaluations     = %ld\n", nre + nreLS);
   printf("Number of Jacobian evaluations     = %ld\n", nje);
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
   printf("Number of nonlinear conv. failures = %ld\n", nnf);
   printf("Number of step solver failures     = %ld\n", ncfn);
-
 }
 
 /*
@@ -578,8 +593,7 @@ static void PrintFinalStats(void *mem)
  * The interaction term is computed by the function WebRates.
  */
 
-static void Fweb(sunrealtype tcalc, N_Vector cc, N_Vector crate,
-                 UserData webdata)
+static void Fweb(sunrealtype tcalc, N_Vector cc, N_Vector crate, UserData webdata)
 {
   sunindextype jx, jy, is, idyu, idyl, idxu, idxl;
   sunrealtype xx, yy, *cxy, *ratesxy, *cratexy, dcyli, dcyui, dcxli, dcxui;
@@ -587,41 +601,42 @@ static void Fweb(sunrealtype tcalc, N_Vector cc, N_Vector crate,
   /* Loop over grid points, evaluate interaction vector (length ns),
      form diffusion difference terms, and load crate.                    */
 
-  for (jy = 0; jy < MY; jy++) {
-    yy = (webdata->dy) * jy ;
-    idyu = (jy!=MY-1) ? NSMX : -NSMX;
-    idyl = (jy!= 0  ) ? NSMX : -NSMX;
+  for (jy = 0; jy < MY; jy++)
+  {
+    yy   = (webdata->dy) * jy;
+    idyu = (jy != MY - 1) ? NSMX : -NSMX;
+    idyl = (jy != 0) ? NSMX : -NSMX;
 
-    for (jx = 0; jx < MX; jx++) {
-      xx = (webdata->dx) * jx;
-      idxu = (jx!= MX-1) ?  NUM_SPECIES : -NUM_SPECIES;
-      idxl = (jx!=  0  ) ?  NUM_SPECIES : -NUM_SPECIES;
-      cxy = IJ_Vptr(cc,jx,jy);
-      ratesxy = IJ_Vptr(webdata->rates,jx,jy);
-      cratexy = IJ_Vptr(crate,jx,jy);
+    for (jx = 0; jx < MX; jx++)
+    {
+      xx      = (webdata->dx) * jx;
+      idxu    = (jx != MX - 1) ? NUM_SPECIES : -NUM_SPECIES;
+      idxl    = (jx != 0) ? NUM_SPECIES : -NUM_SPECIES;
+      cxy     = IJ_Vptr(cc, jx, jy);
+      ratesxy = IJ_Vptr(webdata->rates, jx, jy);
+      cratexy = IJ_Vptr(crate, jx, jy);
 
       /* Get interaction vector at this grid point. */
       WebRates(xx, yy, cxy, ratesxy, webdata);
 
       /* Loop over species, do differencing, load crate segment. */
-      for (is = 0; is < NUM_SPECIES; is++) {
-
+      for (is = 0; is < NUM_SPECIES; is++)
+      {
         /* Differencing in y. */
-        dcyli = *(cxy+is) - *(cxy - idyl + is) ;
-        dcyui = *(cxy + idyu + is) - *(cxy+is);
+        dcyli = *(cxy + is) - *(cxy - idyl + is);
+        dcyui = *(cxy + idyu + is) - *(cxy + is);
 
         /* Differencing in x. */
-        dcxli = *(cxy+is) - *(cxy - idxl + is);
-        dcxui = *(cxy + idxu +is) - *(cxy+is);
+        dcxli = *(cxy + is) - *(cxy - idxl + is);
+        dcxui = *(cxy + idxu + is) - *(cxy + is);
 
         /* Compute the crate values at (xx,yy). */
-        cratexy[is] = coy[is] * (dcyui - dcyli) +
-          cox[is] * (dcxui - dcxli) + ratesxy[is];
+        cratexy[is] = coy[is] * (dcyui - dcyli) + cox[is] * (dcxui - dcxli) +
+                      ratesxy[is];
 
       } /* End is loop */
-    } /* End of jx loop */
-  } /* End of jy loop */
-
+    }   /* End of jx loop */
+  }     /* End of jy loop */
 }
 
 /*
@@ -629,35 +644,38 @@ static void Fweb(sunrealtype tcalc, N_Vector cc, N_Vector crate,
  * At a given (x,y), evaluate the array of ns reaction terms R.
  */
 
-static void WebRates(sunrealtype xx, sunrealtype yy, sunrealtype *cxy, sunrealtype *ratesxy,
-                     UserData webdata)
+static void WebRates(sunrealtype xx, sunrealtype yy, sunrealtype* cxy,
+                     sunrealtype* ratesxy, UserData webdata)
 {
   int is;
   sunrealtype fac;
 
   for (is = 0; is < NUM_SPECIES; is++)
+  {
     ratesxy[is] = dotprod(NUM_SPECIES, cxy, acoef[is]);
+  }
 
-  fac = ONE + ALPHA*xx*yy + BETA*sin(FOURPI*xx)*sin(FOURPI*yy);
+  fac = ONE + ALPHA * xx * yy + BETA * sin(FOURPI * xx) * sin(FOURPI * yy);
 
   for (is = 0; is < NUM_SPECIES; is++)
-    ratesxy[is] = cxy[is]*( bcoef[is]*fac + ratesxy[is] );
-
+  {
+    ratesxy[is] = cxy[is] * (bcoef[is] * fac + ratesxy[is]);
+  }
 }
 
 /*
  * dotprod: dot product routine for sunrealtype arrays, for use by WebRates.
  */
 
-static sunrealtype dotprod(sunindextype size, sunrealtype *x1, sunrealtype *x2)
+static sunrealtype dotprod(sunindextype size, sunrealtype* x1, sunrealtype* x2)
 {
   sunindextype i;
   sunrealtype *xx1, *xx2, temp = ZERO;
 
-  xx1 = x1; xx2 = x2;
-  for (i = 0; i < size; i++) temp += (*xx1++) * (*xx2++);
-  return(temp);
-
+  xx1 = x1;
+  xx2 = x2;
+  for (i = 0; i < size; i++) { temp += (*xx1++) * (*xx2++); }
+  return (temp);
 }
 
 /*
@@ -670,32 +688,35 @@ static sunrealtype dotprod(sunindextype size, sunrealtype *x1, sunrealtype *x2)
  *            NULL pointer
  */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
-  if (opt == 0 && returnvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL)
+  {
     /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-    fprintf(stderr,
-            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1);
-  } else if (opt == 1) {
+    return (1);
+  }
+  else if (opt == 1)
+  {
     /* Check if retval < 0 */
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
-      fprintf(stderr,
-              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return(1);
+      return (1);
     }
-  } else if (opt == 2 && returnvalue == NULL) {
+  }
+  else if (opt == 2 && returnvalue == NULL)
+  {
     /* Check if function returned NULL pointer - no memory allocated */
-    fprintf(stderr,
-            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1);
+    return (1);
   }
 
-  return(0);
+  return (0);
 }

@@ -148,15 +148,15 @@ int main(int argc, char* argv[])
     int argi = 0;
 
     // Total number of batch systems
-    if (argc > 1) udata.nbatches = atoi(argv[++argi]);
+    if (argc > 1) { udata.nbatches = atoi(argv[++argi]); }
 
     // Linear solver type
     int solver_type = 0;
-    if (argc > 2) solver_type = atoi(argv[++argi]);
+    if (argc > 2) { solver_type = atoi(argv[++argi]); }
 
     // Problem setup
     int test_type = 2;
-    if (argc > 3) test_type = atoi(argv[++argi]);
+    if (argc > 3) { test_type = atoi(argv[++argi]); }
 
     // Shortcuts
     int nbatches  = udata.nbatches;
@@ -216,9 +216,9 @@ int main(int argc, char* argv[])
     Kokkos::parallel_for(
       "fill_y", Kokkos::RangePolicy<ExecSpace>(0, nbatches),
       KOKKOS_LAMBDA(const SizeType i) {
-        y2d(i,0) = u0;
-        y2d(i,1) = v0;
-        y2d(i,2) = w0;
+        y2d(i, 0) = u0;
+        y2d(i, 1) = v0;
+        y2d(i, 2) = w0;
       });
 
     // Create vector of absolute tolerances
@@ -255,11 +255,11 @@ int main(int argc, char* argv[])
 
       // Attach the matrix and linear solver to CVODE
       retval = CVodeSetLinearSolver(cvode_mem, LS->Convert(), A->Convert());
-      if (check_flag(retval, "CVodeSetLinearSolver")) return 1;
+      if (check_flag(retval, "CVodeSetLinearSolver")) { return 1; }
 
       // Set the user-supplied Jacobian function
       retval = CVodeSetJacFn(cvode_mem, Jac);
-      if (check_flag(retval, "CVodeSetJacFn")) return 1;
+      if (check_flag(retval, "CVodeSetJacFn")) { return 1; }
     }
     else
     {
@@ -269,7 +269,7 @@ int main(int argc, char* argv[])
 
       // Attach the linear solver to CVODE
       retval = CVodeSetLinearSolver(cvode_mem, LS->Convert(), nullptr);
-      if (check_flag(retval, "CVodeSetLinearSolver")) return 1;
+      if (check_flag(retval, "CVodeSetLinearSolver")) { return 1; }
     }
 
     // Final time and time between outputs
@@ -290,8 +290,8 @@ int main(int argc, char* argv[])
     std::cout << "At t = " << t << std::endl;
     for (int j = 0; j < nbatches; j += 10)
     {
-      std::cout << "  batch " << j << ": y = " << y2d_h(j,0) << " "
-                << y2d_h(j,1) << " " << y2d_h(j,2) << std::endl;
+      std::cout << "  batch " << j << ": y = " << y2d_h(j, 0) << " "
+                << y2d_h(j, 1) << " " << y2d_h(j, 2) << std::endl;
     }
 
     // Loop over output times
@@ -299,7 +299,7 @@ int main(int argc, char* argv[])
     {
       // Advance in time
       retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-      if (check_flag(retval, "CVode")) break;
+      if (check_flag(retval, "CVode")) { break; }
 
       // Output solution from some batches
       sundials::kokkos::CopyFromDevice(y);
@@ -307,8 +307,8 @@ int main(int argc, char* argv[])
       std::cout << "At t = " << t << std::endl;
       for (int j = 0; j < nbatches; j += 10)
       {
-        std::cout << "  batch " << j << ": y = " << y2d_h(j,0) << " "
-                  << y2d_h(j,1) << " " << y2d_h(j,2) << std::endl;
+        std::cout << "  batch " << j << ": y = " << y2d_h(j, 0) << " "
+                  << y2d_h(j, 1) << " " << y2d_h(j, 2) << std::endl;
       }
 
       tout += dTout;
@@ -372,12 +372,12 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   Kokkos::parallel_for(
     "RHS", Kokkos::RangePolicy<ExecSpace>(0, nbatches),
     KOKKOS_LAMBDA(const SizeType i) {
-      auto u = y2d(i,0);
-      auto v = y2d(i,1);
-      auto w = y2d(i,2);
-      ydot2d(i,0) = a - (w + ONE) * u + v * u * u;
-      ydot2d(i,1) = w * u - v * u * u;
-      ydot2d(i,2) = (b - w) / ep - w * u;
+      auto u       = y2d(i, 0);
+      auto v       = y2d(i, 1);
+      auto w       = y2d(i, 2);
+      ydot2d(i, 0) = a - (w + ONE) * u + v * u * u;
+      ydot2d(i, 1) = w * u - v * u * u;
+      ydot2d(i, 2) = (b - w) / ep - w * u;
     });
 
   return 0;
@@ -401,9 +401,9 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
     "Jac", Kokkos::RangePolicy<ExecSpace>(0, nbatches),
     KOKKOS_LAMBDA(const SizeType i) {
       // get y values
-      auto u = y2d(i,0);
-      auto v = y2d(i,1);
-      auto w = y2d(i,2);
+      auto u = y2d(i, 0);
+      auto v = y2d(i, 1);
+      auto w = y2d(i, 2);
 
       // first col of block
       J_data(i, 0, 0) = -(w + ONE) + TWO * u * v;

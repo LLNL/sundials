@@ -15,42 +15,46 @@
  * implementation.
  * -----------------------------------------------------------------*/
 
+#include <nvector/nvector_openmp.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <sundials/sundials_types.h>
-#include <nvector/nvector_openmp.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
+
 #include "test_nvector.h"
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  int          fails = 0;         /* counter for test failures */
-  int          retval;            /* function return value     */
-  sunindextype length;            /* vector length             */
-  N_Vector     U, V, W, X, Y, Z;  /* test vectors              */
-  int          print_timing;      /* turn timing on/off        */
-  int          nthreads;          /* number of OpenMP threads  */
+  int fails = 0;             /* counter for test failures */
+  int retval;                /* function return value     */
+  sunindextype length;       /* vector length             */
+  N_Vector U, V, W, X, Y, Z; /* test vectors              */
+  int print_timing;          /* turn timing on/off        */
+  int nthreads;              /* number of OpenMP threads  */
 
   Test_Init(SUN_COMM_NULL);
 
   /* check input and set vector length */
-  if (argc < 4){
-    printf("ERROR: THREE (3) Inputs required: vector length, number of threads, print timing \n");
+  if (argc < 4)
+  {
+    printf("ERROR: THREE (3) Inputs required: vector length, number of "
+           "threads, print timing \n");
     Test_Abort(1);
   }
 
-  length = (sunindextype) atol(argv[1]);
-  if (length <= 0) {
+  length = (sunindextype)atol(argv[1]);
+  if (length <= 0)
+  {
     printf("ERROR: length of vector must be a positive integer \n");
     Test_Abort(1);
   }
 
   nthreads = atoi(argv[2]);
-  if (nthreads < 1) {
+  if (nthreads < 1)
+  {
     printf("ERROR: number of threads must be at least 1 \n");
     Test_Abort(1);
   }
@@ -59,18 +63,20 @@ int main(int argc, char *argv[])
   SetTiming(print_timing, 0);
 
   printf("Testing the OpenMP N_Vector \n");
-  printf("Vector length %ld \n", (long int) length);
+  printf("Vector length %ld \n", (long int)length);
   printf("Number of threads %d \n\n", nthreads);
 
   /* Create new vectors */
   W = N_VNewEmpty_OpenMP(length, nthreads, sunctx);
-  if (W == NULL) {
+  if (W == NULL)
+  {
     printf("FAIL: Unable to create a new empty vector \n\n");
     Test_Abort(1);
   }
 
   X = N_VNew_OpenMP(length, nthreads, sunctx);
-  if (X == NULL) {
+  if (X == NULL)
+  {
     N_VDestroy(W);
     printf("FAIL: Unable to create a new vector \n\n");
     Test_Abort(1);
@@ -97,7 +103,8 @@ int main(int argc, char *argv[])
 
   /* Clone additional vectors for testing */
   Y = N_VClone(X);
-  if (Y == NULL) {
+  if (Y == NULL)
+  {
     N_VDestroy(W);
     N_VDestroy(X);
     printf("FAIL: Unable to create a new vector \n\n");
@@ -105,7 +112,8 @@ int main(int argc, char *argv[])
   }
 
   Z = N_VClone(X);
-  if (Z == NULL) {
+  if (Z == NULL)
+  {
     N_VDestroy(W);
     N_VDestroy(X);
     N_VDestroy(Y);
@@ -140,9 +148,10 @@ int main(int argc, char *argv[])
   printf("\nTesting fused and vector array operations (disabled):\n\n");
 
   /* create vector and disable all fused and vector array operations */
-  U = N_VNew_OpenMP(length, nthreads, sunctx);
+  U      = N_VNew_OpenMP(length, nthreads, sunctx);
   retval = N_VEnableFusedOps_OpenMP(U, SUNFALSE);
-  if (U == NULL || retval != 0) {
+  if (U == NULL || retval != 0)
+  {
     N_VDestroy(W);
     N_VDestroy(X);
     N_VDestroy(Y);
@@ -169,9 +178,10 @@ int main(int argc, char *argv[])
   printf("\nTesting fused and vector array operations (enabled):\n\n");
 
   /* create vector and enable all fused and vector array operations */
-  V = N_VNew_OpenMP(length, nthreads, sunctx);
+  V      = N_VNew_OpenMP(length, nthreads, sunctx);
   retval = N_VEnableFusedOps_OpenMP(V, SUNTRUE);
-  if (V == NULL || retval != 0) {
+  if (V == NULL || retval != 0)
+  {
     N_VDestroy(W);
     N_VDestroy(X);
     N_VDestroy(Y);
@@ -228,14 +238,11 @@ int main(int argc, char *argv[])
   N_VDestroy(V);
 
   /* Print result */
-  if (fails) {
-    printf("FAIL: NVector module failed %i tests \n\n", fails);
-  } else {
-    printf("SUCCESS: NVector module passed all tests \n\n");
-  }
+  if (fails) { printf("FAIL: NVector module failed %i tests \n\n", fails); }
+  else { printf("SUCCESS: NVector module passed all tests \n\n"); }
 
   Test_Finalize();
-  return(fails);
+  return (fails);
 }
 
 /* ----------------------------------------------------------------------
@@ -243,16 +250,14 @@ int main(int argc, char *argv[])
  * --------------------------------------------------------------------*/
 int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
-  int          failure = 0;
+  int failure = 0;
   sunindextype i;
-  sunrealtype     *Xdata;
+  sunrealtype* Xdata;
 
   Xdata = N_VGetArrayPointer(X);
 
   /* check vector data */
-  for (i = 0; i < local_length; i++) {
-    failure += SUNRCompare(Xdata[i], ans);
-  }
+  for (i = 0; i < local_length; i++) { failure += SUNRCompare(Xdata[i], ans); }
 
   return (failure > ZERO) ? (1) : (0);
 }
@@ -276,19 +281,19 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
 
   /* set elements [is,ie] of the data array */
   sunrealtype* xd = N_VGetArrayPointer(X);
-  for(i = is; i <= ie; i++) xd[i] = val;
+  for (i = is; i <= ie; i++) { xd[i] = val; }
 }
 
 sunrealtype get_element(N_Vector X, sunindextype i)
 {
   /* get i-th element of data array */
-  return NV_Ith_OMP(X,i);
+  return NV_Ith_OMP(X, i);
 }
 
 double max_time(N_Vector X, double time)
 {
   /* not running in parallel, just return input time */
-  return(time);
+  return (time);
 }
 
 void sync_device(N_Vector x)

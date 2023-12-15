@@ -22,7 +22,7 @@
 #include <map>
 #include <memory>
 #include <random>
-#include <sundials/sundials_context.hpp>
+#include <sundials/sundials_core.hpp>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_ginkgo.hpp>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>

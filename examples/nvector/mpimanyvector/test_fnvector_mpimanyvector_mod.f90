@@ -49,7 +49,7 @@ contains
     type(c_ptr)             :: xvecs, zvecs           ! C pointer to array of MPIManyVectors
 
     !===== Setup ====
-    subvecs = FN_VNewVectorArray(nsubvecs)
+    subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
     tmp  => FN_VMake_Serial(N1, x1data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
@@ -147,7 +147,7 @@ contains
       stop 1
     endif
 
-    subvecs = FN_VNewVectorArray(nsubvecs)
+    subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
     tmp  => FN_VMake_Serial(N1, x1data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)

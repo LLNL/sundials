@@ -23,7 +23,7 @@
 
 namespace sundials {
 namespace impl {
-using BaseMemoryHelper = BaseObject<_SUNMemoryHelper, _SUNMemoryHelper_Ops>;
+using BaseMemoryHelper = BaseObject<SUNMemoryHelper_, SUNMemoryHelper_Ops_>;
 } // namespace impl
 
 namespace experimental {
@@ -31,9 +31,10 @@ struct SUNMemoryHelperDeleter
 {
   void operator()(SUNMemoryHelper helper)
   {
-    if (helper) SUNMemoryHelper_Destroy(helper);
+    if (helper) { SUNMemoryHelper_Destroy(helper); }
   }
 };
+
 using SUNMemoryHelperView = ClassView<SUNMemoryHelper, SUNMemoryHelperDeleter>;
 } // namespace experimental
 } // namespace sundials

@@ -55,14 +55,14 @@
  * and ARKStep/MRIStep/CVODE settings. Use the flag --help for more information.
  * ---------------------------------------------------------------------------*/
 
-#include <cstdio>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-#include <limits>
 #include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
 #include <random>
+#include <sstream>
 
 // Include MPI
 #include "mpi.h"
@@ -71,68 +71,63 @@
 #include "arkode/arkode_arkstep.h"
 #include "arkode/arkode_mristep.h"
 #include "cvode/cvode.h"
-#include "nvector/nvector_serial.h"
 #include "nvector/nvector_mpiplusx.h"
+#include "nvector/nvector_serial.h"
 #include "sunlinsol/sunlinsol_pcg.h"
 #include "sunlinsol/sunlinsol_spgmr.h"
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
 // Macros for problem constants
-#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
-#define TWO   SUN_RCONST(2.0)
+#define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 #define NSPECIES 2
 
 #define WIDTH (10 + numeric_limits<sunrealtype>::digits10)
 
 // Macro to access each species at an (x,y) location in a 1D array
-#define UIDX(x,y,nx) (NSPECIES * ((nx) * (y) + (x)))
-#define VIDX(x,y,nx) (NSPECIES * ((nx) * (y) + (x)) + 1)
+#define UIDX(x, y, nx) (NSPECIES * ((nx) * (y) + (x)))
+#define VIDX(x, y, nx) (NSPECIES * ((nx) * (y) + (x)) + 1)
 
 using namespace std;
-
 
 // -----------------------------------------------------------------------------
 // Simple timer class
 // -----------------------------------------------------------------------------
 
-
 class Timer
 {
 public:
   Timer() : total_(0.0), start_(0.0), end_(0.0) {}
-  void start()
-  {
-    start_ = MPI_Wtime();
-  }
+
+  void start() { start_ = MPI_Wtime(); }
+
   void stop()
   {
     end_ = MPI_Wtime();
-    total_ += (end_-start_);
+    total_ += (end_ - start_);
   }
-  sunrealtype total() const
-  {
-    return total_;
-  }
+
+  sunrealtype total() const { return total_; }
+
   sunrealtype max(MPI_Comm comm)
   {
     double maxtime = 0.0;
     MPI_Reduce(&total_, &maxtime, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
     return maxtime;
   }
+
 private:
   sunrealtype total_;
   sunrealtype start_;
   sunrealtype end_;
 };
 
-
 // -----------------------------------------------------------------------------
 // User data structure
 // -----------------------------------------------------------------------------
-
 
 struct UserData
 {
@@ -220,18 +215,18 @@ struct UserData
   int ybufcount = 0;
 
   // Receive and send buffers
-  sunrealtype *Wrecv = NULL;
-  sunrealtype *Erecv = NULL;
-  sunrealtype *Srecv = NULL;
-  sunrealtype *Nrecv = NULL;
+  sunrealtype* Wrecv = NULL;
+  sunrealtype* Erecv = NULL;
+  sunrealtype* Srecv = NULL;
+  sunrealtype* Nrecv = NULL;
 
-  sunrealtype *Wsend = NULL;
-  sunrealtype *Esend = NULL;
-  sunrealtype *Ssend = NULL;
-  sunrealtype *Nsend = NULL;
+  sunrealtype* Wsend = NULL;
+  sunrealtype* Esend = NULL;
+  sunrealtype* Ssend = NULL;
+  sunrealtype* Nsend = NULL;
 
-  sunrealtype *SWsend = NULL;
-  sunrealtype *NErecv = NULL;
+  sunrealtype* SWsend = NULL;
+  sunrealtype* NErecv = NULL;
 
   // Recieve and send requests
   MPI_Request reqRW, reqRE, reqRS, reqRN;
@@ -274,8 +269,8 @@ struct UserData
   sunrealtype atol_fast = SUN_RCONST(1.e-9);
 
   // Fixed step size (slow and fast)
-  sunrealtype h_slow = SUN_RCONST(-1.0);  // use multiple of CFL
-  sunrealtype h_fast = ZERO;          // use adaptive stepping
+  sunrealtype h_slow = SUN_RCONST(-1.0); // use multiple of CFL
+  sunrealtype h_fast = ZERO;             // use adaptive stepping
 
   // Inner ARKODE method order
   int order_fast = 3;
@@ -287,48 +282,48 @@ struct UserData
   // Shared IMEX and MRI settings
   // ----------------------------
 
-  int  controller  = 0;      // step size adaptivity method (0 = use default)
-  int  maxsteps    = 0;      // max steps between outputs (0 = use default)
-  bool linear      = true;   // enable/disable linearly implicit option
-  bool diagnostics = false;  // output diagnostics
+  int controller   = 0;     // step size adaptivity method (0 = use default)
+  int maxsteps     = 0;     // max steps between outputs (0 = use default)
+  bool linear      = true;  // enable/disable linearly implicit option
+  bool diagnostics = false; // output diagnostics
 
   // -----------------------------------------
   // Nonlinear solver settings
   // -----------------------------------------
 
-  int fp_iters = 10;  // max number of fixed-point iterations with CVODE
-  int fp_aa    = 3;   // Anderson acceleration depth with fixed-point
+  int fp_iters = 10; // max number of fixed-point iterations with CVODE
+  int fp_aa    = 3;  // Anderson acceleration depth with fixed-point
 
   // -----------------------------------------
   // Linear solver and preconditioner settings
   // -----------------------------------------
 
-  bool     pcg      = true;   // use PCG (true) or GMRES (false)
-  bool     prec     = true;   // preconditioner on/off
-  bool     lsinfo   = false;  // output residual history
-  int      liniters = 10;     // number of linear iterations
-  int      msbp     = 0;      // preconditioner setup frequency (0 = default)
-  sunrealtype epslin   = ZERO;   // linear solver tolerance factor (ZERO = default)
-  N_Vector diag     = NULL;   // inverse of Jacobian diagonal
+  bool pcg           = true;  // use PCG (true) or GMRES (false)
+  bool prec          = true;  // preconditioner on/off
+  bool lsinfo        = false; // output residual history
+  int liniters       = 10;    // number of linear iterations
+  int msbp           = 0;     // preconditioner setup frequency (0 = default)
+  sunrealtype epslin = ZERO;  // linear solver tolerance factor (ZERO = default)
+  N_Vector diag      = NULL;  // inverse of Jacobian diagonal
 
   // ---------------
   // Ouput variables
   // ---------------
 
-  int output = 1;   // 0 = no output, 1 = output stats, 2 = write to disk
-  int nout   = 20;  // number of output times
-  ofstream uout;    // output file stream
+  int output = 1;  // 0 = no output, 1 = output stats, 2 = write to disk
+  int nout   = 20; // number of output times
+  ofstream uout;   // output file stream
 
   // ----------------
   // Timing variables
   // ----------------
 
-  bool  timing = false;  // print timings
-  Timer evolve;          // evolve time (excluding output)
-  Timer rhsD;            // diffustion rhs time (including exchange)
-  Timer rhsR;            // reaction rhs time
-  Timer psolve;          // preconditioner solve time
-  Timer exchange;        // MPI exchange time
+  bool timing = false; // print timings
+  Timer evolve;        // evolve time (excluding output)
+  Timer rhsD;          // diffustion rhs time (including exchange)
+  Timer rhsR;          // reaction rhs time
+  Timer psolve;        // preconditioner solve time
+  Timer exchange;      // MPI exchange time
 
   // ---------
   // Debugging
@@ -338,127 +333,112 @@ struct UserData
   int onestep = 0;
 };
 
-
 // -----------------------------------------------------------------------------
 // Custom inner stepper content and functions
 // -----------------------------------------------------------------------------
 
-
 struct InnerStepperContent
 {
-  void* cvode_mem = NULL;   // CVODE memory structure
-  void* user_data = NULL;   // user data pointer
-  bool  local     = false;  // global or task-local inner integrator
+  void* cvode_mem = NULL;  // CVODE memory structure
+  void* user_data = NULL;  // user data pointer
+  bool local      = false; // global or task-local inner integrator
 
   // saved integrator stats
-  long int nst  = 0;  // time steps
-  long int netf = 0;  // error test fails
-  long int nfe  = 0;  // rhs evals
-  long int nni  = 0;  // nonlinear iterations
-  long int nncf = 0;  // nonlinear convergence failures
+  long int nst  = 0; // time steps
+  long int netf = 0; // error test fails
+  long int nfe  = 0; // rhs evals
+  long int nni  = 0; // nonlinear iterations
+  long int nncf = 0; // nonlinear convergence failures
 };
 
-static int CVodeInnerStepper_Evolve(MRIStepInnerStepper stepper,
-                                    sunrealtype t0, sunrealtype tout, N_Vector y);
-static int CVodeInnerStepper_FullRhs(MRIStepInnerStepper stepper,
-                                     sunrealtype t, N_Vector y, N_Vector f,
-                                     int mode);
-static int CVodeInnerStepper_Reset(MRIStepInnerStepper stepper,
-                                   sunrealtype tR, N_Vector yR);
-
+static int CVodeInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
+                                    sunrealtype tout, N_Vector y);
+static int CVodeInnerStepper_FullRhs(MRIStepInnerStepper stepper, sunrealtype t,
+                                     N_Vector y, N_Vector f, int mode);
+static int CVodeInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
+                                   N_Vector yR);
 
 // -----------------------------------------------------------------------------
 // Functions provided to the SUNDIALS integrator
 // -----------------------------------------------------------------------------
 
-
 // ODE right hand side functions
-static int diffusion(sunrealtype t, N_Vector u, N_Vector f, void *user_data);
-static int reaction(sunrealtype t, N_Vector u, N_Vector f, void *user_data);
+static int diffusion(sunrealtype t, N_Vector u, N_Vector f, void* user_data);
+static int reaction(sunrealtype t, N_Vector u, N_Vector f, void* user_data);
 
 // Preconditioner solve function
-static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
-                  N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
-                  void *user_data);
-
+static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z,
+                  sunrealtype gamma, sunrealtype delta, int lr, void* user_data);
 
 // -----------------------------------------------------------------------------
 // Helper functions
 // -----------------------------------------------------------------------------
 
-
 // Setup the parallel decomposition
-static int SetupDecomp(UserData *udata);
+static int SetupDecomp(UserData* udata);
 
 // Integrator setup functions
-static int SetupARK(SUNContext ctx, UserData *udata, N_Vector u,
-                    SUNLinearSolver LS, SUNAdaptController *Ctrl,
-                    void **arkode_mem);
-static int SetupMRI(SUNContext ctx, UserData *udata, N_Vector u,
-                    SUNLinearSolver LS, SUNAdaptController *Ctrl,
-                    void **arkode_mem, MRIStepInnerStepper *stepper);
-static int SetupMRICVODE(SUNContext ctx, UserData *udata, N_Vector u,
-                         SUNLinearSolver LS, SUNNonlinearSolver *NLS,
-                         void **arkode_mem, MRIStepInnerStepper *stepper);
+static int SetupARK(SUNContext ctx, UserData* udata, N_Vector u,
+                    SUNLinearSolver LS, SUNAdaptController* Ctrl,
+                    void** arkode_mem);
+static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector u,
+                    SUNLinearSolver LS, SUNAdaptController* Ctrl,
+                    void** arkode_mem, MRIStepInnerStepper* stepper);
+static int SetupMRICVODE(SUNContext ctx, UserData* udata, N_Vector u,
+                         SUNLinearSolver LS, SUNNonlinearSolver* NLS,
+                         void** arkode_mem, MRIStepInnerStepper* stepper);
 
 // Perform neighbor exchange
-static int StartExchange(N_Vector y, UserData *udata);
-static int EndExchange(UserData *udata);
+static int StartExchange(N_Vector y, UserData* udata);
+static int EndExchange(UserData* udata);
 
 // Exchange boundary data for output
-static int ExchangeBC(N_Vector y, UserData *udata);
-
+static int ExchangeBC(N_Vector y, UserData* udata);
 
 // -----------------------------------------------------------------------------
 // UserData and input functions
 // -----------------------------------------------------------------------------
 
-
 // Free memory allocated within UserData
-static int FreeUserData(UserData *udata);
+static int FreeUserData(UserData* udata);
 
 // Read the command line inputs and set UserData values
-static int ReadInputs(int *argc, char ***argv, UserData *udata);
-
+static int ReadInputs(int* argc, char*** argv, UserData* udata);
 
 // -----------------------------------------------------------------------------
 // Output and utility functions
 // -----------------------------------------------------------------------------
 
-
 // Compute the initial condition
-static int SetIC(N_Vector u, UserData *udata);
+static int SetIC(N_Vector u, UserData* udata);
 
 // Print the command line options
 static void InputHelp();
 
 // Print some UserData information
-static int PrintUserData(UserData *udata);
+static int PrintUserData(UserData* udata);
 
 // Output solution
-static int OpenOutput(UserData *udata);
-static int WriteOutput(sunrealtype t, N_Vector u, UserData *udata);
-static int CloseOutput(UserData *udata);
+static int OpenOutput(UserData* udata);
+static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata);
+static int CloseOutput(UserData* udata);
 
 // Print integration statistics
-static int OutputStatsIMEX(void *arkode_mem, UserData *udata);
-static int OutputStatsMRI(void *arkode_mem, MRIStepInnerStepper stepper,
-                          UserData *udata);
-static int OutputStatsMRICVODE(void *arkode_mem,
-                               MRIStepInnerStepper stepper,
+static int OutputStatsIMEX(void* arkode_mem, UserData* udata);
+static int OutputStatsMRI(void* arkode_mem, MRIStepInnerStepper stepper,
+                          UserData* udata);
+static int OutputStatsMRICVODE(void* arkode_mem, MRIStepInnerStepper stepper,
                                UserData* udata);
 
 // Print integration timing
-static int OutputTiming(UserData *udata);
+static int OutputTiming(UserData* udata);
 
 // Check function return values
-static int check_flag(void *flagvalue, const string funcname, int opt);
-
+static int check_flag(void* flagvalue, const string funcname, int opt);
 
 // -----------------------------------------------------------------------------
 // Main Program
 // -----------------------------------------------------------------------------
-
 
 int main(int argc, char* argv[])
 {
@@ -467,7 +447,7 @@ int main(int argc, char* argv[])
 
   // Initialize MPI
   flag = MPI_Init(&argc, &argv);
-  if (check_flag(&flag, "MPI_Init", 1)) return 1;
+  if (check_flag(&flag, "MPI_Init", 1)) { return 1; }
 
   // Create the SUNDIALS context object for this simulation.
   SUNContext ctx = NULL;
@@ -477,7 +457,7 @@ int main(int argc, char* argv[])
   // MPI process ID
   int myid;
   flag = MPI_Comm_rank(MPI_COMM_WORLD, &myid);
-  if (check_flag(&flag, "MPI_Comm_rank", 1)) return 1;
+  if (check_flag(&flag, "MPI_Comm_rank", 1)) { return 1; }
 
   // Set output process flag
   bool outproc = (myid == 0);
@@ -491,43 +471,43 @@ int main(int argc, char* argv[])
   udata.outproc = outproc;
 
   flag = ReadInputs(&argc, &argv, &udata);
-  if (flag != 0) return 1;
+  if (flag != 0) { return 1; }
 
   // ----------------------------
   // Setup parallel decomposition
   // ----------------------------
 
   flag = SetupDecomp(&udata);
-  if (check_flag(&flag, "SetupDecomp", 1)) return 1;
+  if (check_flag(&flag, "SetupDecomp", 1)) { return 1; }
 
   // Output problem setup/options
   if (outproc)
   {
     flag = PrintUserData(&udata);
-    if (check_flag(&flag, "PrintUserData", 1)) return 1;
+    if (check_flag(&flag, "PrintUserData", 1)) { return 1; }
   }
 
   if (udata.diagnostics || udata.lsinfo)
   {
     SUNLogger logger;
-  
+
     flag = SUNContext_GetLogger(ctx, &logger);
-    if (check_flag(&flag, "SUNContext_GetLogger", 1)) return 1;
+    if (check_flag(&flag, "SUNContext_GetLogger", 1)) { return 1; }
 
     flag = SUNLogger_SetInfoFilename(logger, "diagnostics.txt");
-    if (check_flag(&flag, "SUNLogger_SetInfoFilename", 1)) return 1;
+    if (check_flag(&flag, "SUNLogger_SetInfoFilename", 1)) { return 1; }
 
     flag = SUNLogger_SetDebugFilename(logger, "diagnostics.txt");
-    if (check_flag(&flag, "SUNLogger_SetDebugFilename", 1)) return 1;
+    if (check_flag(&flag, "SUNLogger_SetDebugFilename", 1)) { return 1; }
   }
 
   // --------------
   // Create vectors
   // --------------
 
-  N_Vector u = N_VMake_MPIPlusX(udata.comm,
-                                N_VNew_Serial(udata.neq_loc, ctx), ctx);
-  if (check_flag((void *) u, "N_VNew_MPIPlusX", 0)) return 1;
+  N_Vector u = N_VMake_MPIPlusX(udata.comm, N_VNew_Serial(udata.neq_loc, ctx),
+                                ctx);
+  if (check_flag((void*)u, "N_VNew_MPIPlusX", 0)) { return 1; }
 
   // --------------------
   // Create linear solver
@@ -542,19 +522,19 @@ int main(int argc, char* argv[])
   if (udata.pcg)
   {
     LS = SUNLinSol_PCG(u, prectype, udata.liniters, ctx);
-    if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
+    if (check_flag((void*)LS, "SUNLinSol_PCG", 0)) { return 1; }
   }
   else
   {
     LS = SUNLinSol_SPGMR(u, prectype, udata.liniters, ctx);
-    if (check_flag((void *) LS, "SUNLinSol_SPGMR", 0)) return 1;
+    if (check_flag((void*)LS, "SUNLinSol_SPGMR", 0)) { return 1; }
   }
 
   // Allocate preconditioner workspace
   if (udata.prec)
   {
     udata.diag = N_VClone(u);
-    if (check_flag((void *) (udata.diag), "N_VClone", 0)) return 1;
+    if (check_flag((void*)(udata.diag), "N_VClone", 0)) { return 1; }
   }
 
   // ---------------------
@@ -562,14 +542,14 @@ int main(int argc, char* argv[])
   // ---------------------
 
   flag = SetIC(u, &udata);
-  if (check_flag(&flag, "SetIC", 1)) return 1;
+  if (check_flag(&flag, "SetIC", 1)) { return 1; }
 
   // ----------------
   // Setup Integrator
   // ----------------
 
   // ARKODE memory structure
-  void *arkode_mem = NULL;
+  void* arkode_mem = NULL;
 
   // Custom inner stepper memory (CVODE)
   MRIStepInnerStepper stepper = NULL;
@@ -581,24 +561,22 @@ int main(int argc, char* argv[])
   SUNAdaptController Ctrl = NULL;
 
   // Create integrator
-  switch(udata.integrator)
+  switch (udata.integrator)
   {
-  case(0):
+  case (0):
     flag = SetupARK(ctx, &udata, u, LS, &Ctrl, &arkode_mem);
-    if (check_flag((void *) arkode_mem, "SetupARK", 0)) return 1;
+    if (check_flag((void*)arkode_mem, "SetupARK", 0)) { return 1; }
     break;
-  case(1):
+  case (1):
     flag = SetupMRI(ctx, &udata, u, LS, &Ctrl, &arkode_mem, &stepper);
-    if (check_flag((void *) arkode_mem, "SetupMRI", 0)) return 1;
+    if (check_flag((void*)arkode_mem, "SetupMRI", 0)) { return 1; }
     break;
-  case(2):
-  case(3):
+  case (2):
+  case (3):
     flag = SetupMRICVODE(ctx, &udata, u, LS, &NLS, &arkode_mem, &stepper);
-    if (check_flag((void *) arkode_mem, "SetupMRICVODE", 0)) return 1;
+    if (check_flag((void*)arkode_mem, "SetupMRICVODE", 0)) { return 1; }
     break;
-  default:
-    cerr << "Invalid integrator option" << endl;
-    break;
+  default: cerr << "Invalid integrator option" << endl; break;
   }
 
   // ----------------------
@@ -621,10 +599,10 @@ int main(int argc, char* argv[])
 
   // Inital output
   flag = OpenOutput(&udata);
-  if (check_flag(&flag, "OpenOutput", 1)) return 1;
+  if (check_flag(&flag, "OpenOutput", 1)) { return 1; }
 
   flag = WriteOutput(t, u, &udata);
-  if (check_flag(&flag, "WriteOutput", 1)) return 1;
+  if (check_flag(&flag, "WriteOutput", 1)) { return 1; }
 
   // Loop over output times
   for (int iout = 0; iout < udata.nout; iout++)
@@ -636,12 +614,12 @@ int main(int argc, char* argv[])
     if (udata.integrator)
     {
       flag = MRIStepEvolve(arkode_mem, tout, u, &t, stepmode);
-      if (check_flag(&flag, "MRIStepEvolve", 1)) break;
+      if (check_flag(&flag, "MRIStepEvolve", 1)) { break; }
     }
     else
     {
       flag = ARKStepEvolve(arkode_mem, tout, u, &t, stepmode);
-      if (check_flag(&flag, "ARKStepEvolve", 1)) break;
+      if (check_flag(&flag, "ARKStepEvolve", 1)) { break; }
     }
 
     // Stop timer
@@ -649,7 +627,7 @@ int main(int argc, char* argv[])
 
     // Output solution
     flag = WriteOutput(t, u, &udata);
-    if (check_flag(&flag, "WriteOutput", 1)) return 1;
+    if (check_flag(&flag, "WriteOutput", 1)) { return 1; }
 
     // Update output time
     tout += dTout;
@@ -658,7 +636,7 @@ int main(int argc, char* argv[])
 
   // Close output
   flag = CloseOutput(&udata);
-  if (check_flag(&flag, "CloseOutput", 1)) return 1;
+  if (check_flag(&flag, "CloseOutput", 1)) { return 1; }
 
   // -------------
   // Final outputs
@@ -668,24 +646,22 @@ int main(int argc, char* argv[])
   if (udata.output > 0 && outproc)
   {
     cout << "Final integrator statistics:" << endl;
-    switch(udata.integrator)
+    switch (udata.integrator)
     {
-    case(0):
+    case (0):
       flag = OutputStatsIMEX(arkode_mem, &udata);
-      if (check_flag(&flag, "OutputStatsIMEX", 1)) return 1;
+      if (check_flag(&flag, "OutputStatsIMEX", 1)) { return 1; }
       break;
-    case(1):
+    case (1):
       flag = OutputStatsMRI(arkode_mem, stepper, &udata);
-      if (check_flag(&flag, "OutputStatsMRI", 1)) return 1;
+      if (check_flag(&flag, "OutputStatsMRI", 1)) { return 1; }
       break;
-    case(2):
-    case(3):
+    case (2):
+    case (3):
       flag = OutputStatsMRICVODE(arkode_mem, stepper, &udata);
-      if (check_flag(&flag, "OutputStatsMRICVODE", 1)) return 1;
+      if (check_flag(&flag, "OutputStatsMRICVODE", 1)) { return 1; }
       break;
-    default:
-      cerr << "Invalid integrator option" << endl;
-      break;
+    default: cerr << "Invalid integrator option" << endl; break;
     }
   }
 
@@ -693,68 +669,62 @@ int main(int argc, char* argv[])
   if (udata.timing)
   {
     flag = OutputTiming(&udata);
-    if (check_flag(&flag, "OutputTiming", 1)) return 1;
+    if (check_flag(&flag, "OutputTiming", 1)) { return 1; }
   }
 
   // --------------------
   // Clean up and return
   // --------------------
 
-  switch(udata.integrator)
+  switch (udata.integrator)
   {
-  case(0):
-    ARKStepFree(&arkode_mem);
+  case (0): ARKStepFree(&arkode_mem); break;
+  case (1):
+  {
+    void* inner_arkode_mem = NULL;
+    MRIStepInnerStepper_GetContent(stepper, &inner_arkode_mem);
+    ARKStepFree(&inner_arkode_mem);
+    MRIStepInnerStepper_Free(&stepper);
+    MRIStepFree(&arkode_mem);
     break;
-  case(1):
-    {
-      void* inner_arkode_mem = NULL;
-      MRIStepInnerStepper_GetContent(stepper, &inner_arkode_mem);
-      ARKStepFree(&inner_arkode_mem);
-      MRIStepInnerStepper_Free(&stepper);
-      MRIStepFree(&arkode_mem);
-      break;
-    }
-  case(2):
-  case(3):
-    {
-      void* inner_content = NULL;
-      MRIStepInnerStepper_GetContent(stepper, &inner_content);
-      InnerStepperContent* content = (InnerStepperContent *) inner_content;
-      CVodeFree(&(content->cvode_mem));
-      delete content;
-      MRIStepInnerStepper_Free(&stepper);
-      SUNNonlinSolFree(NLS);
-      MRIStepFree(&arkode_mem);
-      break;
-    }
-  default:
-    cerr << "Invalid integrator option" << endl;
+  }
+  case (2):
+  case (3):
+  {
+    void* inner_content = NULL;
+    MRIStepInnerStepper_GetContent(stepper, &inner_content);
+    InnerStepperContent* content = (InnerStepperContent*)inner_content;
+    CVodeFree(&(content->cvode_mem));
+    delete content;
+    MRIStepInnerStepper_Free(&stepper);
+    SUNNonlinSolFree(NLS);
+    MRIStepFree(&arkode_mem);
     break;
+  }
+  default: cerr << "Invalid integrator option" << endl; break;
   }
 
   SUNLinSolFree(LS);
   N_VDestroy(N_VGetLocalVector_MPIPlusX(u));
   N_VDestroy(u);
   FreeUserData(&udata);
-  (void) SUNAdaptController_Destroy(Ctrl);
+  (void)SUNAdaptController_Destroy(Ctrl);
   SUNContext_Free(&ctx);
   flag = MPI_Finalize();
   return 0;
 }
 
-
 // -----------------------------------------------------------------------------
 // Setup the parallel decomposition
 // -----------------------------------------------------------------------------
 
-
-static int SetupDecomp(UserData *udata)
+static int SetupDecomp(UserData* udata)
 {
   int flag;
 
   // Check that this has not been called before
-  if (udata->Erecv != NULL || udata->Wrecv != NULL ||
-      udata->Srecv != NULL || udata->Nrecv != NULL)
+  if (udata->Erecv != NULL || udata->Wrecv != NULL || udata->Srecv != NULL ||
+      udata->Nrecv != NULL)
   {
     cerr << "SetupDecomp error: parallel decomposition already set up" << endl;
     return -1;
@@ -802,7 +772,7 @@ static int SetupDecomp(UserData *udata)
     return -1;
   }
 
-  if (udata->myid == 0) udata->outproc = true;
+  if (udata->myid == 0) { udata->outproc = true; }
 
   // Get dimension of the Cartesian communicator and my coordinates
   int coords[2];
@@ -871,9 +841,9 @@ static int SetupDecomp(UserData *udata)
   int nbcoords[2];
 
   // West neighbor
-  nbcoords[0] = coords[0]-1;
+  nbcoords[0] = coords[0] - 1;
   nbcoords[1] = coords[1];
-  flag = MPI_Cart_rank(udata->comm, nbcoords, &(udata->ipW));
+  flag        = MPI_Cart_rank(udata->comm, nbcoords, &(udata->ipW));
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Cart_rank = " << flag << endl;
@@ -881,9 +851,9 @@ static int SetupDecomp(UserData *udata)
   }
 
   // East neighbor
-  nbcoords[0] = coords[0]+1;
+  nbcoords[0] = coords[0] + 1;
   nbcoords[1] = coords[1];
-  flag = MPI_Cart_rank(udata->comm, nbcoords, &(udata->ipE));
+  flag        = MPI_Cart_rank(udata->comm, nbcoords, &(udata->ipE));
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Cart_rank = " << flag << endl;
@@ -892,8 +862,8 @@ static int SetupDecomp(UserData *udata)
 
   // South neighbor
   nbcoords[0] = coords[0];
-  nbcoords[1] = coords[1]-1;
-  flag = MPI_Cart_rank(udata->comm, nbcoords, &(udata->ipS));
+  nbcoords[1] = coords[1] - 1;
+  flag        = MPI_Cart_rank(udata->comm, nbcoords, &(udata->ipS));
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Cart_rank = " << flag << endl;
@@ -902,8 +872,8 @@ static int SetupDecomp(UserData *udata)
 
   // North neighbor
   nbcoords[0] = coords[0];
-  nbcoords[1] = coords[1]+1;
-  flag = MPI_Cart_rank(udata->comm, nbcoords, &(udata->ipN));
+  nbcoords[1] = coords[1] + 1;
+  flag        = MPI_Cart_rank(udata->comm, nbcoords, &(udata->ipN));
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Cart_rank = " << flag << endl;
@@ -915,7 +885,7 @@ static int SetupDecomp(UserData *udata)
   {
     nbcoords[0] = coords[0] - 1;
     nbcoords[1] = coords[1] - 1;
-    flag = MPI_Cart_rank(udata->comm, nbcoords, &(udata->ipSW));
+    flag        = MPI_Cart_rank(udata->comm, nbcoords, &(udata->ipSW));
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Cart_rank = " << flag << endl;
@@ -927,7 +897,7 @@ static int SetupDecomp(UserData *udata)
   {
     nbcoords[0] = coords[0] + 1;
     nbcoords[1] = coords[1] + 1;
-    flag = MPI_Cart_rank(udata->comm, nbcoords, &(udata->ipNE));
+    flag        = MPI_Cart_rank(udata->comm, nbcoords, &(udata->ipNE));
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Cart_rank = " << flag << endl;
@@ -939,101 +909,99 @@ static int SetupDecomp(UserData *udata)
   return 0;
 }
 
-
 // -----------------------------------------------------------------------------
 // Setup the integrator
 // -----------------------------------------------------------------------------
 
-
 static int SetupARK(SUNContext ctx, UserData* udata, N_Vector u,
-                    SUNLinearSolver LS, SUNAdaptController *Ctrl,
+                    SUNLinearSolver LS, SUNAdaptController* Ctrl,
                     void** arkode_mem)
 {
   int flag;
 
   // Optionally enable/disable diffusion or reactions (helpful for debugging)
-  ARKRhsFn fe = udata->reaction  ? reaction  : NULL;
+  ARKRhsFn fe = udata->reaction ? reaction : NULL;
   ARKRhsFn fi = udata->diffusion ? diffusion : NULL;
 
   // Create ARKStep memory with explicit reactions and implicit diffusion
   *arkode_mem = ARKStepCreate(fe, fi, ZERO, u, ctx);
-  if (check_flag((void *) *arkode_mem, "ARKStepCreate", 0)) return 1;
+  if (check_flag((void*)*arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   // Specify tolerances
   flag = ARKStepSStolerances(*arkode_mem, udata->rtol_imex, udata->atol_imex);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
 
   // Attach user data
-  flag = ARKStepSetUserData(*arkode_mem, (void *) udata);
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  flag = ARKStepSetUserData(*arkode_mem, (void*)udata);
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) { return 1; }
 
   if (udata->diffusion)
   {
     // Attach linear solver
     flag = ARKStepSetLinearSolver(*arkode_mem, LS, NULL);
-    if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+    if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
 
     if (udata->prec)
     {
       // Attach preconditioner
       flag = ARKStepSetPreconditioner(*arkode_mem, NULL, PSolve);
-      if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) return 1;
+      if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) { return 1; }
 
       // Set linear solver setup frequency (update preconditioner)
       flag = ARKStepSetLSetupFrequency(*arkode_mem, udata->msbp);
-      if (check_flag(&flag, "ARKStepSetLSetupFrequency", 1)) return 1;
+      if (check_flag(&flag, "ARKStepSetLSetupFrequency", 1)) { return 1; }
     }
 
     // Set linear solver tolerance factor
     flag = ARKStepSetEpsLin(*arkode_mem, udata->epslin);
-    if (check_flag(&flag, "ARKStepSetEpsLin", 1)) return 1;
+    if (check_flag(&flag, "ARKStepSetEpsLin", 1)) { return 1; }
 
     // Specify linearly implicit non-time-dependent RHS
     if (udata->linear)
     {
       flag = ARKStepSetLinear(*arkode_mem, 0);
-      if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
+      if (check_flag(&flag, "ARKStepSetLinear", 1)) { return 1; }
     }
   }
 
   // Select method order
   flag = ARKStepSetOrder(*arkode_mem, udata->order_imex);
-  if (check_flag(&flag, "ARKStepSetOrder", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetOrder", 1)) { return 1; }
 
   // Set fixed step size or adaptivity method
   if (udata->h_imex > ZERO)
   {
     flag = ARKStepSetFixedStep(*arkode_mem, udata->h_imex);
-    if (check_flag(&flag, "ARKStepSetFixedStep", 1)) return 1;
+    if (check_flag(&flag, "ARKStepSetFixedStep", 1)) { return 1; }
   }
   else
   {
-    switch (udata->controller) {
-    case (ARK_ADAPT_PID):      *Ctrl = SUNAdaptController_PID(ctx);     break;
-    case (ARK_ADAPT_PI):       *Ctrl = SUNAdaptController_PI(ctx);      break;
-    case (ARK_ADAPT_I):        *Ctrl = SUNAdaptController_I(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  *Ctrl = SUNAdaptController_ExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  *Ctrl = SUNAdaptController_ImpGus(ctx);  break;
+    switch (udata->controller)
+    {
+    case (ARK_ADAPT_PID): *Ctrl = SUNAdaptController_PID(ctx); break;
+    case (ARK_ADAPT_PI): *Ctrl = SUNAdaptController_PI(ctx); break;
+    case (ARK_ADAPT_I): *Ctrl = SUNAdaptController_I(ctx); break;
+    case (ARK_ADAPT_EXP_GUS): *Ctrl = SUNAdaptController_ExpGus(ctx); break;
+    case (ARK_ADAPT_IMP_GUS): *Ctrl = SUNAdaptController_ImpGus(ctx); break;
     case (ARK_ADAPT_IMEX_GUS): *Ctrl = SUNAdaptController_ImExGus(ctx); break;
     }
     flag = ARKStepSetAdaptController(*arkode_mem, *Ctrl);
-    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
+    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) { return 1; }
   }
 
   // Set max steps between outputs
   flag = ARKStepSetMaxNumSteps(*arkode_mem, udata->maxsteps);
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return 1; }
 
   // Set stopping time
   flag = ARKStepSetStopTime(*arkode_mem, udata->tf);
-  if (check_flag(&flag, "ARKStepSetStopTime", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetStopTime", 1)) { return 1; }
 
   return 0;
 }
 
-
 static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
-                    SUNLinearSolver LS, SUNAdaptController *Ctrl,
+                    SUNLinearSolver LS, SUNAdaptController* Ctrl,
                     void** arkode_mem, MRIStepInnerStepper* stepper)
 {
   int flag;
@@ -1043,50 +1011,50 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   // -------------------------
 
   // Create fast explicit integrator for reactions
-  void *inner_arkode_mem = ARKStepCreate(reaction, NULL, ZERO, y, ctx);
-  if (check_flag((void *) inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+  void* inner_arkode_mem = ARKStepCreate(reaction, NULL, ZERO, y, ctx);
+  if (check_flag((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   // Specify tolerances
   flag = ARKStepSStolerances(inner_arkode_mem, udata->rtol_fast,
                              udata->atol_fast);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
 
   // Attach user data
-  flag = ARKStepSetUserData(inner_arkode_mem, (void *) udata);
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  flag = ARKStepSetUserData(inner_arkode_mem, (void*)udata);
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) { return 1; }
 
   // Select method order
   flag = ARKStepSetOrder(inner_arkode_mem, udata->order_fast);
-  if (check_flag(&flag, "ARKStepSetOrder", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetOrder", 1)) { return 1; }
 
   // Set fixed step size or adaptivity method
   if (udata->h_fast > ZERO)
   {
     flag = ARKStepSetFixedStep(inner_arkode_mem, udata->h_fast);
-    if (check_flag(&flag, "ARKStepSetFixedStep", 1)) return 1;
+    if (check_flag(&flag, "ARKStepSetFixedStep", 1)) { return 1; }
   }
   else
   {
-    switch (udata->controller) {
-    case (ARK_ADAPT_PID):      *Ctrl = SUNAdaptController_PID(ctx);     break;
-    case (ARK_ADAPT_PI):       *Ctrl = SUNAdaptController_PI(ctx);      break;
-    case (ARK_ADAPT_I):        *Ctrl = SUNAdaptController_I(ctx);       break;
-    case (ARK_ADAPT_EXP_GUS):  *Ctrl = SUNAdaptController_ExpGus(ctx);  break;
-    case (ARK_ADAPT_IMP_GUS):  *Ctrl = SUNAdaptController_ImpGus(ctx);  break;
+    switch (udata->controller)
+    {
+    case (ARK_ADAPT_PID): *Ctrl = SUNAdaptController_PID(ctx); break;
+    case (ARK_ADAPT_PI): *Ctrl = SUNAdaptController_PI(ctx); break;
+    case (ARK_ADAPT_I): *Ctrl = SUNAdaptController_I(ctx); break;
+    case (ARK_ADAPT_EXP_GUS): *Ctrl = SUNAdaptController_ExpGus(ctx); break;
+    case (ARK_ADAPT_IMP_GUS): *Ctrl = SUNAdaptController_ImpGus(ctx); break;
     case (ARK_ADAPT_IMEX_GUS): *Ctrl = SUNAdaptController_ImExGus(ctx); break;
     }
     flag = ARKStepSetAdaptController(inner_arkode_mem, *Ctrl);
-    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) return 1;
+    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) { return 1; }
   }
 
   // Set max steps between outputs
   flag = ARKStepSetMaxNumSteps(inner_arkode_mem, udata->maxsteps);
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return 1; }
 
   // Wrap ARKODE as an MRIStepInnerStepper
-  flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
-                                          stepper);
-  if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
+  flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, stepper);
+  if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) { return 1; }
 
   // -------------------------
   // Setup the slow integrator
@@ -1094,70 +1062,70 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
 
   // Create slow integrator for diffusion and attach fast integrator
   *arkode_mem = MRIStepCreate(NULL, diffusion, ZERO, y, *stepper, ctx);
-  if (check_flag((void *)*arkode_mem, "MRIStepCreate", 0)) return 1;
+  if (check_flag((void*)*arkode_mem, "MRIStepCreate", 0)) { return 1; }
 
   // Set method coupling table (solve-decoupled implicit method)
-  MRIStepCoupling C = MRIStepCoupling_LoadTableByName("ARKODE_MRI_GARK_ESDIRK34a");
-  if (check_flag((void*)C, "MRIStepCoupling_LoadTableByName", 1)) return 1;
+  MRIStepCoupling C =
+    MRIStepCoupling_LoadTableByName("ARKODE_MRI_GARK_ESDIRK34a");
+  if (check_flag((void*)C, "MRIStepCoupling_LoadTableByName", 1)) { return 1; }
 
   flag = MRIStepSetCoupling(*arkode_mem, C);
-  if (check_flag(&flag, "MRIStepSetCoupling", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSetCoupling", 1)) { return 1; }
 
   MRIStepCoupling_Free(C);
 
   // Set the slow step size
   flag = MRIStepSetFixedStep(*arkode_mem, udata->h_slow);
-  if (check_flag(&flag, "MRIStepSetFixedStep", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSetFixedStep", 1)) { return 1; }
 
   // Specify tolerances
   flag = MRIStepSStolerances(*arkode_mem, udata->rtol_slow, udata->atol_slow);
-  if (check_flag(&flag, "MRIStepSStolerances", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSStolerances", 1)) { return 1; }
 
   // Attach user data
-  flag = MRIStepSetUserData(*arkode_mem, (void *) udata);
-  if (check_flag(&flag, "MRIStepSetUserData", 1)) return 1;
+  flag = MRIStepSetUserData(*arkode_mem, (void*)udata);
+  if (check_flag(&flag, "MRIStepSetUserData", 1)) { return 1; }
 
   // Attach linear solver
   flag = MRIStepSetLinearSolver(*arkode_mem, LS, NULL);
-  if (check_flag(&flag, "MRIStepSetLinearSolver", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSetLinearSolver", 1)) { return 1; }
 
   if (udata->prec)
   {
     // Attach preconditioner
     flag = MRIStepSetPreconditioner(*arkode_mem, NULL, PSolve);
-    if (check_flag(&flag, "MRIStepSetPreconditioner", 1)) return 1;
+    if (check_flag(&flag, "MRIStepSetPreconditioner", 1)) { return 1; }
 
     // Set linear solver setup frequency (update preconditioner)
     flag = MRIStepSetLSetupFrequency(*arkode_mem, udata->msbp);
-    if (check_flag(&flag, "MRIStepSetLSetupFrequency", 1)) return 1;
+    if (check_flag(&flag, "MRIStepSetLSetupFrequency", 1)) { return 1; }
   }
 
   // Set linear solver tolerance factor
   flag = MRIStepSetEpsLin(*arkode_mem, udata->epslin);
-  if (check_flag(&flag, "MRIStepSetEpsLin", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSetEpsLin", 1)) { return 1; }
 
   // Specify linearly implicit non-time-dependent RHS
   if (udata->linear)
   {
     flag = MRIStepSetLinear(*arkode_mem, 0);
-    if (check_flag(&flag, "MRIStepSetLinear", 1)) return 1;
+    if (check_flag(&flag, "MRIStepSetLinear", 1)) { return 1; }
   }
 
   // Set max steps between outputs
   flag = MRIStepSetMaxNumSteps(*arkode_mem, udata->maxsteps);
-  if (check_flag(&flag, "MRIStepSetMaxNumSteps", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSetMaxNumSteps", 1)) { return 1; }
 
   // Set stopping time
   flag = MRIStepSetStopTime(*arkode_mem, udata->tf);
-  if (check_flag(&flag, "MRIStepSetStopTime", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSetStopTime", 1)) { return 1; }
 
   return 0;
 }
 
-
-static int SetupMRICVODE(SUNContext ctx, UserData *udata, N_Vector y,
-                         SUNLinearSolver LS, SUNNonlinearSolver *NLS,
-                         void **arkode_mem, MRIStepInnerStepper* stepper)
+static int SetupMRICVODE(SUNContext ctx, UserData* udata, N_Vector y,
+                         SUNLinearSolver LS, SUNNonlinearSolver* NLS,
+                         void** arkode_mem, MRIStepInnerStepper* stepper)
 {
   int flag;
 
@@ -1167,14 +1135,8 @@ static int SetupMRICVODE(SUNContext ctx, UserData *udata, N_Vector y,
 
   // Use the global or local state vector to create the inner integrator
   N_Vector y_vec;
-  if (udata->integrator == 2)
-  {
-    y_vec = y;
-  }
-  else if (udata->integrator == 3)
-  {
-    y_vec = N_VGetLocalVector_MPIPlusX(y);
-  }
+  if (udata->integrator == 2) { y_vec = y; }
+  else if (udata->integrator == 3) { y_vec = N_VGetLocalVector_MPIPlusX(y); }
   else
   {
     cerr << "ERROR: Invalid MRIStep + CVODE option" << endl;
@@ -1182,61 +1144,58 @@ static int SetupMRICVODE(SUNContext ctx, UserData *udata, N_Vector y,
   }
 
   // Create the solver memory and specify the Adams methods
-  void *cvode_mem = CVodeCreate(CV_ADAMS, ctx);
-  if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  void* cvode_mem = CVodeCreate(CV_ADAMS, ctx);
+  if (check_flag((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   // Initialize the integrator memory
   flag = CVodeInit(cvode_mem, reaction, ZERO, y_vec);
-  if (check_flag(&flag, "CVodeInit", 1)) return(1);
+  if (check_flag(&flag, "CVodeInit", 1)) { return (1); }
 
   // Specify tolerances
   flag = CVodeSStolerances(cvode_mem, udata->rtol_fast, udata->atol_fast);
-  if (check_flag(&flag, "CVodeSVtolerances", 1)) return(1);
+  if (check_flag(&flag, "CVodeSVtolerances", 1)) { return (1); }
 
   // Attach user data
-  flag = CVodeSetUserData(cvode_mem, (void *) udata);
-  if (check_flag(&flag, "CVodeSetUserData", 1)) return 1;
+  flag = CVodeSetUserData(cvode_mem, (void*)udata);
+  if (check_flag(&flag, "CVodeSetUserData", 1)) { return 1; }
 
   // Create and attach fixed-point nonlinear solver
   *NLS = SUNNonlinSol_FixedPoint(y_vec, udata->fp_aa, ctx);
-  if(check_flag((void *)*NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
+  if (check_flag((void*)*NLS, "SUNNonlinSol_FixedPoint", 0)) { return (1); }
 
   flag = CVodeSetNonlinearSolver(cvode_mem, *NLS);
-  if(check_flag(&flag, "CVodeSetNonlinearSolver", 1)) return(1);
+  if (check_flag(&flag, "CVodeSetNonlinearSolver", 1)) { return (1); }
 
   // Set max number of fixed-point iterations
   flag = CVodeSetMaxNonlinIters(cvode_mem, udata->fp_iters);
-  if(check_flag(&flag, "CVodeSetMaxNonlinIters", 1)) return(1);
+  if (check_flag(&flag, "CVodeSetMaxNonlinIters", 1)) { return (1); }
 
   // Set max steps between outputs
   flag = CVodeSetMaxNumSteps(cvode_mem, udata->maxsteps);
-  if (check_flag(&flag, "CVodeSetMaxNumSteps", 1)) return 1;
+  if (check_flag(&flag, "CVodeSetMaxNumSteps", 1)) { return 1; }
 
   // Create the inner stepper wrapper
   flag = MRIStepInnerStepper_Create(ctx, stepper);
-  if (check_flag(&flag, "MRIStepInnerStepper_Create", 1)) return 1;
+  if (check_flag(&flag, "MRIStepInnerStepper_Create", 1)) { return 1; }
 
   // Attach memory and operations
-  InnerStepperContent *inner_content = new InnerStepperContent;
+  InnerStepperContent* inner_content = new InnerStepperContent;
 
   inner_content->cvode_mem = cvode_mem;
   inner_content->user_data = udata;
-  inner_content->local = (udata->integrator == 2) ? false : true;
+  inner_content->local     = (udata->integrator == 2) ? false : true;
 
   flag = MRIStepInnerStepper_SetContent(*stepper, inner_content);
-  if (check_flag(&flag, "MRIStepInnerStepper_SetContent", 1)) return 1;
+  if (check_flag(&flag, "MRIStepInnerStepper_SetContent", 1)) { return 1; }
 
-  flag = MRIStepInnerStepper_SetEvolveFn(*stepper,
-                                         CVodeInnerStepper_Evolve);
-  if (check_flag(&flag, "MRIStepInnerStepper_SetEvolve", 1)) return 1;
+  flag = MRIStepInnerStepper_SetEvolveFn(*stepper, CVodeInnerStepper_Evolve);
+  if (check_flag(&flag, "MRIStepInnerStepper_SetEvolve", 1)) { return 1; }
 
-  flag = MRIStepInnerStepper_SetFullRhsFn(*stepper,
-                                          CVodeInnerStepper_FullRhs);
-  if (check_flag(&flag, "MRIStepInnerStepper_SetFullRhsFn", 1)) return 1;
+  flag = MRIStepInnerStepper_SetFullRhsFn(*stepper, CVodeInnerStepper_FullRhs);
+  if (check_flag(&flag, "MRIStepInnerStepper_SetFullRhsFn", 1)) { return 1; }
 
-  flag = MRIStepInnerStepper_SetResetFn(*stepper,
-                                        CVodeInnerStepper_Reset);
-  if (check_flag(&flag, "MRIStepInnerStepper_SetResetFn", 1)) return 1;
+  flag = MRIStepInnerStepper_SetResetFn(*stepper, CVodeInnerStepper_Reset);
+  if (check_flag(&flag, "MRIStepInnerStepper_SetResetFn", 1)) { return 1; }
 
   // Attach inner stepper memory to user data
   udata->stepper = *stepper;
@@ -1247,83 +1206,82 @@ static int SetupMRICVODE(SUNContext ctx, UserData *udata, N_Vector y,
 
   // Create slow integrator for diffusion and attach fast integrator
   *arkode_mem = MRIStepCreate(NULL, diffusion, ZERO, y, *stepper, ctx);
-  if (check_flag((void *)*arkode_mem, "MRIStepCreate", 0)) return 1;
+  if (check_flag((void*)*arkode_mem, "MRIStepCreate", 0)) { return 1; }
 
   // Set method coupling table (solve-decoupled implicit method)
-  MRIStepCoupling C = MRIStepCoupling_LoadTableByName("ARKODE_MRI_GARK_ESDIRK34a");
-  if (check_flag((void*)C, "MRIStepCoupling_LoadTableByName", 1)) return 1;
+  MRIStepCoupling C =
+    MRIStepCoupling_LoadTableByName("ARKODE_MRI_GARK_ESDIRK34a");
+  if (check_flag((void*)C, "MRIStepCoupling_LoadTableByName", 1)) { return 1; }
 
   flag = MRIStepSetCoupling(*arkode_mem, C);
-  if (check_flag(&flag, "MRIStepSetCoupling", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSetCoupling", 1)) { return 1; }
 
   MRIStepCoupling_Free(C);
 
   // Set the slow step size
   flag = MRIStepSetFixedStep(*arkode_mem, udata->h_slow);
-  if (check_flag(&flag, "MRIStepSetFixedStep", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSetFixedStep", 1)) { return 1; }
 
   // Specify tolerances
   flag = MRIStepSStolerances(*arkode_mem, udata->rtol_slow, udata->atol_slow);
-  if (check_flag(&flag, "MRIStepSStolerances", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSStolerances", 1)) { return 1; }
 
   // Attach user data
-  flag = MRIStepSetUserData(*arkode_mem, (void *) udata);
-  if (check_flag(&flag, "MRIStepSetUserData", 1)) return 1;
+  flag = MRIStepSetUserData(*arkode_mem, (void*)udata);
+  if (check_flag(&flag, "MRIStepSetUserData", 1)) { return 1; }
 
   // Attach linear solver
   flag = MRIStepSetLinearSolver(*arkode_mem, LS, NULL);
-  if (check_flag(&flag, "MRIStepSetLinearSolver", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSetLinearSolver", 1)) { return 1; }
 
   if (udata->prec)
   {
     // Attach preconditioner
     flag = MRIStepSetPreconditioner(*arkode_mem, NULL, PSolve);
-    if (check_flag(&flag, "MRIStepSetPreconditioner", 1)) return 1;
+    if (check_flag(&flag, "MRIStepSetPreconditioner", 1)) { return 1; }
 
     // Set linear solver setup frequency (update preconditioner)
     flag = MRIStepSetLSetupFrequency(*arkode_mem, udata->msbp);
-    if (check_flag(&flag, "MRIStepSetLSetupFrequency", 1)) return 1;
+    if (check_flag(&flag, "MRIStepSetLSetupFrequency", 1)) { return 1; }
   }
 
   // Set linear solver tolerance factor
   flag = MRIStepSetEpsLin(*arkode_mem, udata->epslin);
-  if (check_flag(&flag, "MRIStepSetEpsLin", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSetEpsLin", 1)) { return 1; }
 
   // Specify linearly implicit non-time-dependent RHS
   if (udata->linear)
   {
     flag = MRIStepSetLinear(*arkode_mem, 0);
-    if (check_flag(&flag, "MRIStepSetLinear", 1)) return 1;
+    if (check_flag(&flag, "MRIStepSetLinear", 1)) { return 1; }
   }
 
   // Set max steps between outputs
   flag = MRIStepSetMaxNumSteps(*arkode_mem, udata->maxsteps);
-  if (check_flag(&flag, "MRIStepSetMaxNumSteps", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSetMaxNumSteps", 1)) { return 1; }
 
   // Set stopping time
   flag = MRIStepSetStopTime(*arkode_mem, udata->tf);
-  if (check_flag(&flag, "MRIStepSetStopTime", 1)) return 1;
+  if (check_flag(&flag, "MRIStepSetStopTime", 1)) { return 1; }
 
   return 0;
 }
-
 
 // -----------------------------------------------------------------------------
 // Custom inner stepper functions
 // -----------------------------------------------------------------------------
 
-
-static int CVodeInnerStepper_Evolve(MRIStepInnerStepper stepper,
-                                    sunrealtype t0, sunrealtype tout, N_Vector y)
+static int CVodeInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
+                                    sunrealtype tout, N_Vector y)
 {
-  int      flag;
+  int flag;
   sunrealtype tret;
-  void*    inner_content = NULL;
+  void* inner_content = NULL;
 
   flag = MRIStepInnerStepper_GetContent(stepper, &inner_content);
-  if (check_flag(&flag, "MRIStepInnerStepper_GetContent", 1)) return -1;
+  if (check_flag(&flag, "MRIStepInnerStepper_GetContent", 1)) { return -1; }
 
-  InnerStepperContent *content = (InnerStepperContent*) inner_content;
+  InnerStepperContent* content = (InnerStepperContent*)inner_content;
 
   N_Vector y_vec;
   if (content->local)
@@ -1338,34 +1296,32 @@ static int CVodeInnerStepper_Evolve(MRIStepInnerStepper stepper,
   }
 
   flag = CVodeSetStopTime(content->cvode_mem, tout);
-  if (check_flag(&flag, "CVodeSetStopTime", 1)) return -1;
+  if (check_flag(&flag, "CVodeSetStopTime", 1)) { return -1; }
 
   flag = CVode(content->cvode_mem, tout, y_vec, &tret, CV_NORMAL);
-  if (flag < 0) return -1;
+  if (flag < 0) { return -1; }
 
   return 0;
 }
 
-
-static int CVodeInnerStepper_FullRhs(MRIStepInnerStepper stepper,
-                                     sunrealtype t, N_Vector y, N_Vector f,
-                                     int mode)
+static int CVodeInnerStepper_FullRhs(MRIStepInnerStepper stepper, sunrealtype t,
+                                     N_Vector y, N_Vector f, int mode)
 {
-  int   flag;
+  int flag;
   void* inner_content = NULL;
 
   flag = MRIStepInnerStepper_GetContent(stepper, &inner_content);
-  if (check_flag(&flag, "MRIStepInnerStepper_GetContent", 1)) return -1;
+  if (check_flag(&flag, "MRIStepInnerStepper_GetContent", 1)) { return -1; }
 
-  InnerStepperContent *content = (InnerStepperContent*) inner_content;
-  UserData *udata = (UserData *) content->user_data;
+  InnerStepperContent* content = (InnerStepperContent*)inner_content;
+  UserData* udata              = (UserData*)content->user_data;
 
   // disable forcing
-  int integrator = udata->integrator;
+  int integrator    = udata->integrator;
   udata->integrator = 0;
 
   flag = reaction(t, y, f, content->user_data);
-  if (flag != 0) return -1;
+  if (flag != 0) { return -1; }
 
   // enable forcing
   udata->integrator = integrator;
@@ -1373,78 +1329,69 @@ static int CVodeInnerStepper_FullRhs(MRIStepInnerStepper stepper,
   return 0;
 }
 
-
-static int CVodeInnerStepper_Reset(MRIStepInnerStepper stepper,
-                                   sunrealtype tR, N_Vector yR)
+static int CVodeInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
+                                   N_Vector yR)
 {
-  int   flag;
+  int flag;
   void* inner_content = NULL;
 
   flag = MRIStepInnerStepper_GetContent(stepper, &inner_content);
-  if (check_flag(&flag, "MRIStepInnerStepper_GetContent", 1)) return -1;
+  if (check_flag(&flag, "MRIStepInnerStepper_GetContent", 1)) { return -1; }
 
-  InnerStepperContent *content = (InnerStepperContent*) inner_content;
+  InnerStepperContent* content = (InnerStepperContent*)inner_content;
 
   N_Vector yR_vec;
-  if (content->local)
-  {
-    yR_vec = N_VGetLocalVector_MPIPlusX(yR);
-  }
-  else
-  {
-    yR_vec = yR;
-  }
+  if (content->local) { yR_vec = N_VGetLocalVector_MPIPlusX(yR); }
+  else { yR_vec = yR; }
 
   // Save current stats before reinitializing
   long int nst, netf, nfe, nni, nncf;
 
   flag = CVodeGetNumSteps(content->cvode_mem, &nst);
-  if (check_flag(&flag, "CVodeGetNumSteps", 1)) return -1;
+  if (check_flag(&flag, "CVodeGetNumSteps", 1)) { return -1; }
   content->nst += nst;
 
   flag = CVodeGetNumErrTestFails(content->cvode_mem, &netf);
-  if (check_flag(&flag, "CVodeGetNumErrTestFails", 1)) return -1;
+  if (check_flag(&flag, "CVodeGetNumErrTestFails", 1)) { return -1; }
   content->netf += netf;
 
   flag = CVodeGetNumRhsEvals(content->cvode_mem, &nfe);
-  if (check_flag(&flag, "CVodeGetNumRhsEvals", 1)) return -1;
+  if (check_flag(&flag, "CVodeGetNumRhsEvals", 1)) { return -1; }
   content->nfe += nfe;
 
   flag = CVodeGetNumNonlinSolvIters(content->cvode_mem, &nni);
-  if (check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1)) return -1;
+  if (check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1)) { return -1; }
   content->nni += nni;
 
   flag = CVodeGetNumNonlinSolvConvFails(content->cvode_mem, &nncf);
-  if (check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1)) return -1;
+  if (check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1)) { return -1; }
   content->nncf += nncf;
 
   // Reinitialize CVODE with new state
   flag = CVodeReInit(content->cvode_mem, tR, yR_vec);
-  if (check_flag(&flag, "CVodeReInit", 1)) return -1;
+  if (check_flag(&flag, "CVodeReInit", 1)) { return -1; }
 
   return 0;
 }
-
 
 // -----------------------------------------------------------------------------
 // Functions called by the integrator
 // -----------------------------------------------------------------------------
 
-
 // Routine to compute the ODE diffusion RHS function
-static int diffusion(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
+static int diffusion(sunrealtype t, N_Vector y, N_Vector f, void* user_data)
 {
   int flag;
 
   // Access problem data
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   // Start timer
   udata->rhsD.start();
 
   // Open exchange receives and exchange data
   flag = StartExchange(y, udata);
-  if (check_flag(&flag, "StartExchange", 1)) return -1;
+  if (check_flag(&flag, "StartExchange", 1)) { return -1; }
 
   // Constants for computing diffusion term
   sunrealtype cxu = udata->Dux / (udata->dx * udata->dx);
@@ -1456,11 +1403,11 @@ static int diffusion(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
   sunrealtype ccv = -TWO * (cxv + cyv);
 
   // Access data arrays
-  sunrealtype *ydata = N_VGetArrayPointer(y);
-  if (check_flag((void *) ydata, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  if (check_flag((void*)ydata, "N_VGetArrayPointer", 0)) { return -1; }
 
-  sunrealtype *fdata = N_VGetArrayPointer(f);
-  if (check_flag((void *) fdata, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* fdata = N_VGetArrayPointer(f);
+  if (check_flag((void*)fdata, "N_VGetArrayPointer", 0)) { return -1; }
 
   // Shortcuts to array indices (center, west, east, south, north)
   sunindextype uc, uw, ue, us, un;
@@ -1475,36 +1422,34 @@ static int diffusion(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
   {
     for (sunindextype i = 1; i < nx_loc - 1; i++)
     {
-      uc = UIDX(i,   j,   nx_loc);
-      uw = UIDX(i-1, j,   nx_loc);
-      ue = UIDX(i+1, j,   nx_loc);
-      us = UIDX(i,   j-1, nx_loc);
-      un = UIDX(i,   j+1, nx_loc);
+      uc = UIDX(i, j, nx_loc);
+      uw = UIDX(i - 1, j, nx_loc);
+      ue = UIDX(i + 1, j, nx_loc);
+      us = UIDX(i, j - 1, nx_loc);
+      un = UIDX(i, j + 1, nx_loc);
 
-      vc = VIDX(i,   j,   nx_loc);
-      vw = VIDX(i-1, j,   nx_loc);
-      ve = VIDX(i+1, j,   nx_loc);
-      vs = VIDX(i,   j-1, nx_loc);
-      vn = VIDX(i,   j+1, nx_loc);
+      vc = VIDX(i, j, nx_loc);
+      vw = VIDX(i - 1, j, nx_loc);
+      ve = VIDX(i + 1, j, nx_loc);
+      vs = VIDX(i, j - 1, nx_loc);
+      vn = VIDX(i, j + 1, nx_loc);
 
-      fdata[uc] = ccu * ydata[uc]
-        + cxu * (ydata[uw] + ydata[ue])
-        + cyu * (ydata[us] + ydata[un]);
+      fdata[uc] = ccu * ydata[uc] + cxu * (ydata[uw] + ydata[ue]) +
+                  cyu * (ydata[us] + ydata[un]);
 
-      fdata[vc] = ccv * ydata[vc]
-        + cxv * (ydata[vw] + ydata[ve])
-        + cyv * (ydata[vs] + ydata[vn]);
+      fdata[vc] = ccv * ydata[vc] + cxv * (ydata[vw] + ydata[ve]) +
+                  cyv * (ydata[vs] + ydata[vn]);
     }
   }
 
   // Wait for exchange receives and compute diffusion term on subdomain boundary
   flag = EndExchange(udata);
-  if (check_flag(&flag, "EndExchange", 1)) return -1;
+  if (check_flag(&flag, "EndExchange", 1)) { return -1; }
 
-  sunrealtype *Wdata = udata->Wrecv;
-  sunrealtype *Edata = udata->Erecv;
-  sunrealtype *Sdata = udata->Srecv;
-  sunrealtype *Ndata = udata->Nrecv;
+  sunrealtype* Wdata = udata->Wrecv;
+  sunrealtype* Edata = udata->Erecv;
+  sunrealtype* Sdata = udata->Srecv;
+  sunrealtype* Ndata = udata->Nrecv;
 
   sunindextype i, j;
 
@@ -1516,62 +1461,56 @@ static int diffusion(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
   // South-West corner
   j = 0;
 
-  uc = UIDX(i,   j,   nx_loc);
-  ue = UIDX(i+1, j,   nx_loc);
-  un = UIDX(i,   j+1, nx_loc);
+  uc = UIDX(i, j, nx_loc);
+  ue = UIDX(i + 1, j, nx_loc);
+  un = UIDX(i, j + 1, nx_loc);
 
-  vc = VIDX(i,   j,   nx_loc);
-  ve = VIDX(i+1, j,   nx_loc);
-  vn = VIDX(i,   j+1, nx_loc);
+  vc = VIDX(i, j, nx_loc);
+  ve = VIDX(i + 1, j, nx_loc);
+  vn = VIDX(i, j + 1, nx_loc);
 
-  fdata[uc] = ccu * ydata[uc]
-    + cxu * (Wdata[NSPECIES * j] + ydata[ue])
-    + cyu * (Sdata[NSPECIES * i] + ydata[un]);
+  fdata[uc] = ccu * ydata[uc] + cxu * (Wdata[NSPECIES * j] + ydata[ue]) +
+              cyu * (Sdata[NSPECIES * i] + ydata[un]);
 
-  fdata[vc] = ccv * ydata[vc]
-    + cxv * (Wdata[NSPECIES * j + 1] + ydata[ve])
-    + cyv * (Sdata[NSPECIES * i + 1] + ydata[vn]);
+  fdata[vc] = ccv * ydata[vc] + cxv * (Wdata[NSPECIES * j + 1] + ydata[ve]) +
+              cyv * (Sdata[NSPECIES * i + 1] + ydata[vn]);
 
   // West face interior
   for (j = 1; j < ny_loc - 1; j++)
   {
-    uc = UIDX(i,   j,   nx_loc);
-    ue = UIDX(i+1, j,   nx_loc);
-    us = UIDX(i,   j-1, nx_loc);
-    un = UIDX(i,   j+1, nx_loc);
+    uc = UIDX(i, j, nx_loc);
+    ue = UIDX(i + 1, j, nx_loc);
+    us = UIDX(i, j - 1, nx_loc);
+    un = UIDX(i, j + 1, nx_loc);
 
-    vc = VIDX(i,   j,   nx_loc);
-    ve = VIDX(i+1, j,   nx_loc);
-    vs = VIDX(i,   j-1, nx_loc);
-    vn = VIDX(i,   j+1, nx_loc);
+    vc = VIDX(i, j, nx_loc);
+    ve = VIDX(i + 1, j, nx_loc);
+    vs = VIDX(i, j - 1, nx_loc);
+    vn = VIDX(i, j + 1, nx_loc);
 
-    fdata[uc] = ccu * ydata[uc]
-      + cxu * (Wdata[NSPECIES * j] + ydata[ue])
-      + cyu * (ydata[us] + ydata[un]);
+    fdata[uc] = ccu * ydata[uc] + cxu * (Wdata[NSPECIES * j] + ydata[ue]) +
+                cyu * (ydata[us] + ydata[un]);
 
-    fdata[vc] = ccv * ydata[vc]
-      + cxv * (Wdata[NSPECIES * j + 1] + ydata[ve])
-      + cyv * (ydata[vs] + ydata[vn]);
+    fdata[vc] = ccv * ydata[vc] + cxv * (Wdata[NSPECIES * j + 1] + ydata[ve]) +
+                cyv * (ydata[vs] + ydata[vn]);
   }
 
   // North-West corner
   j = ny_loc - 1;
 
-  uc = UIDX(i,   j,   nx_loc);
-  ue = UIDX(i+1, j,   nx_loc);
-  us = UIDX(i,   j-1, nx_loc);
+  uc = UIDX(i, j, nx_loc);
+  ue = UIDX(i + 1, j, nx_loc);
+  us = UIDX(i, j - 1, nx_loc);
 
-  vc = VIDX(i,   j,   nx_loc);
-  ve = VIDX(i+1, j,   nx_loc);
-  vs = VIDX(i,   j-1, nx_loc);
+  vc = VIDX(i, j, nx_loc);
+  ve = VIDX(i + 1, j, nx_loc);
+  vs = VIDX(i, j - 1, nx_loc);
 
-  fdata[uc] = ccu * ydata[uc]
-    + cxu * (Wdata[NSPECIES * j] + ydata[ue])
-    + cyu * (ydata[us] + Ndata[NSPECIES * i]);
+  fdata[uc] = ccu * ydata[uc] + cxu * (Wdata[NSPECIES * j] + ydata[ue]) +
+              cyu * (ydata[us] + Ndata[NSPECIES * i]);
 
-  fdata[vc] = ccv * ydata[vc]
-    + cxv * (Wdata[NSPECIES * j + 1] + ydata[ve])
-    + cyv * (ydata[vs] + Ndata[NSPECIES * i + 1]);
+  fdata[vc] = ccv * ydata[vc] + cxv * (Wdata[NSPECIES * j + 1] + ydata[ve]) +
+              cyv * (ydata[vs] + Ndata[NSPECIES * i + 1]);
 
   // -----------------------------------------------------
   // East face (updates south-east and north-east corners)
@@ -1581,62 +1520,56 @@ static int diffusion(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
   // South-East corner
   j = 0;
 
-  uc = UIDX(i,   j,   nx_loc);
-  uw = UIDX(i-1, j,   nx_loc);
-  un = UIDX(i,   j+1, nx_loc);
+  uc = UIDX(i, j, nx_loc);
+  uw = UIDX(i - 1, j, nx_loc);
+  un = UIDX(i, j + 1, nx_loc);
 
-  vc = VIDX(i,   j,   nx_loc);
-  vw = VIDX(i-1, j,   nx_loc);
-  vn = VIDX(i,   j+1, nx_loc);
+  vc = VIDX(i, j, nx_loc);
+  vw = VIDX(i - 1, j, nx_loc);
+  vn = VIDX(i, j + 1, nx_loc);
 
-  fdata[uc] = ccu * ydata[uc]
-    + cxu * (ydata[uw] + Edata[NSPECIES * j])
-    + cyu * (Sdata[NSPECIES * i] + ydata[un]);
+  fdata[uc] = ccu * ydata[uc] + cxu * (ydata[uw] + Edata[NSPECIES * j]) +
+              cyu * (Sdata[NSPECIES * i] + ydata[un]);
 
-  fdata[vc] = ccv * ydata[vc]
-    + cxv * (ydata[vw] + Edata[NSPECIES * j + 1])
-    + cyv * (Sdata[NSPECIES * i + 1] + ydata[vn]);
+  fdata[vc] = ccv * ydata[vc] + cxv * (ydata[vw] + Edata[NSPECIES * j + 1]) +
+              cyv * (Sdata[NSPECIES * i + 1] + ydata[vn]);
 
   // East face interior
   for (j = 1; j < ny_loc - 1; j++)
   {
-    uc = UIDX(i,   j,   nx_loc);
-    uw = UIDX(i-1, j,   nx_loc);
-    us = UIDX(i,   j-1, nx_loc);
-    un = UIDX(i,   j+1, nx_loc);
+    uc = UIDX(i, j, nx_loc);
+    uw = UIDX(i - 1, j, nx_loc);
+    us = UIDX(i, j - 1, nx_loc);
+    un = UIDX(i, j + 1, nx_loc);
 
-    vc = VIDX(i,   j,   nx_loc);
-    vw = VIDX(i-1, j,   nx_loc);
-    vs = VIDX(i,   j-1, nx_loc);
-    vn = VIDX(i,   j+1, nx_loc);
+    vc = VIDX(i, j, nx_loc);
+    vw = VIDX(i - 1, j, nx_loc);
+    vs = VIDX(i, j - 1, nx_loc);
+    vn = VIDX(i, j + 1, nx_loc);
 
-    fdata[uc] = ccu * ydata[uc]
-      + cxu * (ydata[uw] + Edata[NSPECIES * j])
-      + cyu * (ydata[us] + ydata[un]);
+    fdata[uc] = ccu * ydata[uc] + cxu * (ydata[uw] + Edata[NSPECIES * j]) +
+                cyu * (ydata[us] + ydata[un]);
 
-    fdata[vc] = ccv * ydata[vc]
-      + cxv * (ydata[vw] + Edata[NSPECIES * j + 1])
-      + cyv * (ydata[vs] + ydata[vn]);
+    fdata[vc] = ccv * ydata[vc] + cxv * (ydata[vw] + Edata[NSPECIES * j + 1]) +
+                cyv * (ydata[vs] + ydata[vn]);
   }
 
   // North-East corner
   j = ny_loc - 1;
 
-  uc = UIDX(i,   j,   nx_loc);
-  uw = UIDX(i-1, j,   nx_loc);
-  us = UIDX(i,   j-1, nx_loc);
+  uc = UIDX(i, j, nx_loc);
+  uw = UIDX(i - 1, j, nx_loc);
+  us = UIDX(i, j - 1, nx_loc);
 
-  vc = VIDX(i,   j,   nx_loc);
-  vw = VIDX(i-1, j,   nx_loc);
-  vs = VIDX(i,   j-1, nx_loc);
+  vc = VIDX(i, j, nx_loc);
+  vw = VIDX(i - 1, j, nx_loc);
+  vs = VIDX(i, j - 1, nx_loc);
 
-  fdata[uc] = ccu * ydata[uc]
-    + cxu * (ydata[uw] + Edata[NSPECIES * j])
-    + cyu * (ydata[us] + Ndata[NSPECIES * i]);
+  fdata[uc] = ccu * ydata[uc] + cxu * (ydata[uw] + Edata[NSPECIES * j]) +
+              cyu * (ydata[us] + Ndata[NSPECIES * i]);
 
-  fdata[vc] = ccv * ydata[vc]
-    + cxv * (ydata[vw] + Edata[NSPECIES * j + 1])
-    + cyv * (ydata[vs] + Ndata[NSPECIES * i + 1]);
+  fdata[vc] = ccv * ydata[vc] + cxv * (ydata[vw] + Edata[NSPECIES * j + 1]) +
+              cyv * (ydata[vs] + Ndata[NSPECIES * i + 1]);
 
   // -----------------------------
   // South face (excludes corners)
@@ -1645,23 +1578,21 @@ static int diffusion(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
 
   for (i = 1; i < nx_loc - 1; i++)
   {
-    uc = UIDX(i,   j,   nx_loc);
-    uw = UIDX(i-1, j,   nx_loc);
-    ue = UIDX(i+1, j,   nx_loc);
-    un = UIDX(i,   j+1, nx_loc);
+    uc = UIDX(i, j, nx_loc);
+    uw = UIDX(i - 1, j, nx_loc);
+    ue = UIDX(i + 1, j, nx_loc);
+    un = UIDX(i, j + 1, nx_loc);
 
-    vc = VIDX(i,   j,   nx_loc);
-    vw = VIDX(i-1, j,   nx_loc);
-    ve = VIDX(i+1, j,   nx_loc);
-    vn = VIDX(i,   j+1, nx_loc);
+    vc = VIDX(i, j, nx_loc);
+    vw = VIDX(i - 1, j, nx_loc);
+    ve = VIDX(i + 1, j, nx_loc);
+    vn = VIDX(i, j + 1, nx_loc);
 
-    fdata[uc] = ccu * ydata[uc]
-      + cxu * (ydata[uw] + ydata[ue])
-      + cyu * (Sdata[NSPECIES * i] + ydata[un]);
+    fdata[uc] = ccu * ydata[uc] + cxu * (ydata[uw] + ydata[ue]) +
+                cyu * (Sdata[NSPECIES * i] + ydata[un]);
 
-    fdata[vc] = ccv * ydata[vc]
-      + cxv * (ydata[vw] + ydata[ve])
-      + cyv * (Sdata[NSPECIES * i + 1] + ydata[vn]);
+    fdata[vc] = ccv * ydata[vc] + cxv * (ydata[vw] + ydata[ve]) +
+                cyv * (Sdata[NSPECIES * i + 1] + ydata[vn]);
   }
 
   // -----------------------------
@@ -1671,23 +1602,21 @@ static int diffusion(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
 
   for (i = 1; i < nx_loc - 1; i++)
   {
-    uc = UIDX(i,   j,   nx_loc);
-    uw = UIDX(i-1, j,   nx_loc);
-    ue = UIDX(i+1, j,   nx_loc);
-    us = UIDX(i,   j-1, nx_loc);
+    uc = UIDX(i, j, nx_loc);
+    uw = UIDX(i - 1, j, nx_loc);
+    ue = UIDX(i + 1, j, nx_loc);
+    us = UIDX(i, j - 1, nx_loc);
 
-    vc = VIDX(i,   j,   nx_loc);
-    vw = VIDX(i-1, j,   nx_loc);
-    ve = VIDX(i+1, j,   nx_loc);
-    vs = VIDX(i,   j-1, nx_loc);
+    vc = VIDX(i, j, nx_loc);
+    vw = VIDX(i - 1, j, nx_loc);
+    ve = VIDX(i + 1, j, nx_loc);
+    vs = VIDX(i, j - 1, nx_loc);
 
-    fdata[uc] = ccu * ydata[uc]
-      + cxu * (ydata[uw] + ydata[ue])
-      + cyu * (ydata[us] + Ndata[NSPECIES * i]);
+    fdata[uc] = ccu * ydata[uc] + cxu * (ydata[uw] + ydata[ue]) +
+                cyu * (ydata[us] + Ndata[NSPECIES * i]);
 
-    fdata[vc] = ccv * ydata[vc]
-      + cxv * (ydata[vw] + ydata[ve])
-      + cyv * (ydata[vs] + Ndata[NSPECIES * i + 1]);
+    fdata[vc] = ccv * ydata[vc] + cxv * (ydata[vw] + ydata[ve]) +
+                cyv * (ydata[vs] + Ndata[NSPECIES * i + 1]);
   }
 
   // Stop timer
@@ -1697,22 +1626,21 @@ static int diffusion(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
   return 0;
 }
 
-
 // Routine to compute the ODE reaction RHS function
-static int reaction(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
+static int reaction(sunrealtype t, N_Vector y, N_Vector f, void* user_data)
 {
   // Access problem data
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   // Start timer
   udata->rhsR.start();
 
   // Access data arrays
-  sunrealtype *ydata = N_VGetArrayPointer(y);
-  if (check_flag((void *) ydata, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  if (check_flag((void*)ydata, "N_VGetArrayPointer", 0)) { return -1; }
 
-  sunrealtype *fdata = N_VGetArrayPointer(f);
-  if (check_flag((void *) fdata, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* fdata = N_VGetArrayPointer(f);
+  if (check_flag((void*)fdata, "N_VGetArrayPointer", 0)) { return -1; }
 
   // Shortcuts to local number of nodes
   sunindextype ny_loc = udata->ny_loc;
@@ -1725,11 +1653,11 @@ static int reaction(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
   {
     for (sunindextype i = 0; i < nx_loc; i++)
     {
-      u = ydata[UIDX(i,j,nx_loc)];
-      v = ydata[VIDX(i,j,nx_loc)];
+      u = ydata[UIDX(i, j, nx_loc)];
+      v = ydata[VIDX(i, j, nx_loc)];
 
-      fdata[UIDX(i,j,nx_loc)] = udata->A + u * u * v - (udata->B + 1) * u;
-      fdata[VIDX(i,j,nx_loc)] = udata->B * u - u * u * v;
+      fdata[UIDX(i, j, nx_loc)] = udata->A + u * u * v - (udata->B + 1) * u;
+      fdata[VIDX(i, j, nx_loc)] = udata->B * u - u * u * v;
     }
   }
 
@@ -1747,17 +1675,16 @@ static int reaction(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
     }
     else if (udata->integrator == 3)
     {
-      int      nforcing;
+      int nforcing;
       sunrealtype tshift, tscale;
-      N_Vector *forcing;
+      N_Vector* forcing;
 
       // With a local inner stepper the RHS vector f is a serial vector and the
       // forcing vectors from the outer integrator are MPIPlusX vectors as such
       // we need to extract the local serial vectors and apply the forcing
-      flag = MRIStepInnerStepper_GetForcingData(udata->stepper,
-                                                &tshift, &tscale,
-                                                &forcing, &nforcing);
-      if (flag != 0) return flag;
+      flag = MRIStepInnerStepper_GetForcingData(udata->stepper, &tshift,
+                                                &tscale, &forcing, &nforcing);
+      if (flag != 0) { return flag; }
 
       N_Vector forcing_loc;
       sunrealtype tau  = (t - tshift) / tscale;
@@ -1784,14 +1711,12 @@ static int reaction(sunrealtype t, N_Vector y, N_Vector f, void *user_data)
   return 0;
 }
 
-
 // Preconditioner solve routine for Pz = r
-static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
-                  N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
-                  void *user_data)
+static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z,
+                  sunrealtype gamma, sunrealtype delta, int lr, void* user_data)
 {
   // Access user_data structure
-  UserData *udata = (UserData *) user_data;
+  UserData* udata = (UserData*)user_data;
 
   // Start timer
   udata->psolve.start();
@@ -1806,11 +1731,11 @@ static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
   sunrealtype ccv = -TWO * (cxv + cyv);
 
   // Access data arrays
-  sunrealtype *rdata = N_VGetArrayPointer(r);
-  if (check_flag((void *) rdata, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* rdata = N_VGetArrayPointer(r);
+  if (check_flag((void*)rdata, "N_VGetArrayPointer", 0)) { return -1; }
 
-  sunrealtype *zdata = N_VGetArrayPointer(z);
-  if (check_flag((void *) zdata, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* zdata = N_VGetArrayPointer(z);
+  if (check_flag((void*)zdata, "N_VGetArrayPointer", 0)) { return -1; }
 
   // Shortcuts to local number of nodes
   sunindextype ny_loc = udata->ny_loc;
@@ -1836,14 +1761,12 @@ static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
   return 0;
 }
 
-
 // -----------------------------------------------------------------------------
 // RHS helper functions
 // -----------------------------------------------------------------------------
 
-
 // Open exchange receives
-static int StartExchange(N_Vector y, UserData *udata)
+static int StartExchange(N_Vector y, UserData* udata)
 {
   int flag;
 
@@ -1851,8 +1774,8 @@ static int StartExchange(N_Vector y, UserData *udata)
   udata->exchange.start();
 
   // East face (from neighbor's West face)
-  flag = MPI_Irecv(udata->Erecv, udata->ybufcount, MPI_SUNREALTYPE,
-                   udata->ipE, 0, udata->comm, &(udata->reqRE));
+  flag = MPI_Irecv(udata->Erecv, udata->ybufcount, MPI_SUNREALTYPE, udata->ipE,
+                   0, udata->comm, &(udata->reqRE));
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Irecv = " << flag << endl;
@@ -1860,8 +1783,8 @@ static int StartExchange(N_Vector y, UserData *udata)
   }
 
   // West face (from neighbor's East face)
-  flag = MPI_Irecv(udata->Wrecv, udata->ybufcount, MPI_SUNREALTYPE,
-                   udata->ipW, 1, udata->comm, &(udata->reqRW));
+  flag = MPI_Irecv(udata->Wrecv, udata->ybufcount, MPI_SUNREALTYPE, udata->ipW,
+                   1, udata->comm, &(udata->reqRW));
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Irecv = " << flag << endl;
@@ -1869,8 +1792,8 @@ static int StartExchange(N_Vector y, UserData *udata)
   }
 
   // North face (from neighbor's South face)
-  flag = MPI_Irecv(udata->Nrecv, udata->xbufcount, MPI_SUNREALTYPE,
-                   udata->ipN, 2, udata->comm, &(udata->reqRN));
+  flag = MPI_Irecv(udata->Nrecv, udata->xbufcount, MPI_SUNREALTYPE, udata->ipN,
+                   2, udata->comm, &(udata->reqRN));
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Irecv = " << flag << endl;
@@ -1878,8 +1801,8 @@ static int StartExchange(N_Vector y, UserData *udata)
   }
 
   // South face (from neighbor's North face)
-  flag = MPI_Irecv(udata->Srecv, udata->xbufcount, MPI_SUNREALTYPE,
-                   udata->ipS, 3, udata->comm, &(udata->reqRS));
+  flag = MPI_Irecv(udata->Srecv, udata->xbufcount, MPI_SUNREALTYPE, udata->ipS,
+                   3, udata->comm, &(udata->reqRS));
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Irecv = " << flag << endl;
@@ -1891,17 +1814,17 @@ static int StartExchange(N_Vector y, UserData *udata)
   sunindextype nx_loc = udata->nx_loc;
 
   // Access data array
-  sunrealtype *ydata = N_VGetArrayPointer(y);
-  if (check_flag((void *) ydata, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  if (check_flag((void*)ydata, "N_VGetArrayPointer", 0)) { return -1; }
 
   // Send West face data to neighbor's East face
   for (sunindextype i = 0; i < ny_loc; i++)
   {
-    udata->Wsend[NSPECIES * i]     = ydata[UIDX(0,i,nx_loc)];
-    udata->Wsend[NSPECIES * i + 1] = ydata[VIDX(0,i,nx_loc)];
+    udata->Wsend[NSPECIES * i]     = ydata[UIDX(0, i, nx_loc)];
+    udata->Wsend[NSPECIES * i + 1] = ydata[VIDX(0, i, nx_loc)];
   }
-  flag = MPI_Isend(udata->Wsend, udata->ybufcount, MPI_SUNREALTYPE,
-                   udata->ipW, 0, udata->comm, &(udata->reqSW));
+  flag = MPI_Isend(udata->Wsend, udata->ybufcount, MPI_SUNREALTYPE, udata->ipW,
+                   0, udata->comm, &(udata->reqSW));
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Isend = " << flag << endl;
@@ -1911,11 +1834,11 @@ static int StartExchange(N_Vector y, UserData *udata)
   // Send East face data to neighbor's West face
   for (sunindextype i = 0; i < ny_loc; i++)
   {
-    udata->Esend[NSPECIES * i]     = ydata[UIDX(nx_loc-1,i,nx_loc)];
-    udata->Esend[NSPECIES * i + 1] = ydata[VIDX(nx_loc-1,i,nx_loc)];
+    udata->Esend[NSPECIES * i]     = ydata[UIDX(nx_loc - 1, i, nx_loc)];
+    udata->Esend[NSPECIES * i + 1] = ydata[VIDX(nx_loc - 1, i, nx_loc)];
   }
-  flag = MPI_Isend(udata->Esend, udata->ybufcount, MPI_SUNREALTYPE,
-                   udata->ipE, 1, udata->comm, &(udata->reqSE));
+  flag = MPI_Isend(udata->Esend, udata->ybufcount, MPI_SUNREALTYPE, udata->ipE,
+                   1, udata->comm, &(udata->reqSE));
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Isend = " << flag << endl;
@@ -1925,11 +1848,11 @@ static int StartExchange(N_Vector y, UserData *udata)
   // Send South face data to neighbor's North face
   for (sunindextype i = 0; i < nx_loc; i++)
   {
-    udata->Ssend[NSPECIES * i]     = ydata[UIDX(i,0,nx_loc)];
-    udata->Ssend[NSPECIES * i + 1] = ydata[VIDX(i,0,nx_loc)];
+    udata->Ssend[NSPECIES * i]     = ydata[UIDX(i, 0, nx_loc)];
+    udata->Ssend[NSPECIES * i + 1] = ydata[VIDX(i, 0, nx_loc)];
   }
-  flag = MPI_Isend(udata->Ssend, udata->xbufcount, MPI_SUNREALTYPE,
-                   udata->ipS, 2, udata->comm, &(udata->reqSS));
+  flag = MPI_Isend(udata->Ssend, udata->xbufcount, MPI_SUNREALTYPE, udata->ipS,
+                   2, udata->comm, &(udata->reqSS));
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Isend = " << flag << endl;
@@ -1939,11 +1862,11 @@ static int StartExchange(N_Vector y, UserData *udata)
   // Send North face data to neighbor's South face
   for (sunindextype i = 0; i < nx_loc; i++)
   {
-    udata->Nsend[NSPECIES * i]     = ydata[UIDX(i,ny_loc-1,nx_loc)];
-    udata->Nsend[NSPECIES * i + 1] = ydata[VIDX(i,ny_loc-1,nx_loc)];
+    udata->Nsend[NSPECIES * i]     = ydata[UIDX(i, ny_loc - 1, nx_loc)];
+    udata->Nsend[NSPECIES * i + 1] = ydata[VIDX(i, ny_loc - 1, nx_loc)];
   }
-  flag = MPI_Isend(udata->Nsend, udata->xbufcount, MPI_SUNREALTYPE,
-                   udata->ipN, 3, udata->comm, &(udata->reqSN));
+  flag = MPI_Isend(udata->Nsend, udata->xbufcount, MPI_SUNREALTYPE, udata->ipN,
+                   3, udata->comm, &(udata->reqSN));
   if (flag != MPI_SUCCESS)
   {
     cerr << "Error in MPI_Isend = " << flag << endl;
@@ -1957,9 +1880,8 @@ static int StartExchange(N_Vector y, UserData *udata)
   return 0;
 }
 
-
 // Wait for exchange data
-static int EndExchange(UserData *udata)
+static int EndExchange(UserData* udata)
 {
   // Local variables
   int flag;
@@ -2017,8 +1939,8 @@ static int EndExchange(UserData *udata)
   flag = MPI_Wait(&(udata->reqSN), &stat);
   if (flag != MPI_SUCCESS)
   {
-      cerr << "Error in MPI_Wait = " << flag << endl;
-      return -1;
+    cerr << "Error in MPI_Wait = " << flag << endl;
+    return -1;
   }
 
   // Stop timer
@@ -2028,9 +1950,8 @@ static int EndExchange(UserData *udata)
   return 0;
 }
 
-
 // Send exchange data
-static int ExchangeBC(N_Vector y, UserData *udata)
+static int ExchangeBC(N_Vector y, UserData* udata)
 {
   int flag;
   MPI_Status stat;
@@ -2066,8 +1987,8 @@ static int ExchangeBC(N_Vector y, UserData *udata)
   // Post North-East corner exchange receive
   if (udata->ie == udata->nx - 1 && udata->je == udata->ny - 1)
   {
-    flag = MPI_Irecv(udata->NErecv, NSPECIES, MPI_SUNREALTYPE,
-                     udata->ipNE, MPI_ANY_TAG, udata->comm, &(udata->reqRC));
+    flag = MPI_Irecv(udata->NErecv, NSPECIES, MPI_SUNREALTYPE, udata->ipNE,
+                     MPI_ANY_TAG, udata->comm, &(udata->reqRC));
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Irecv = " << flag << endl;
@@ -2075,16 +1996,16 @@ static int ExchangeBC(N_Vector y, UserData *udata)
     }
   }
 
-  sunrealtype *ydata = N_VGetArrayPointer(y);
-  if (check_flag((void *) ydata, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  if (check_flag((void*)ydata, "N_VGetArrayPointer", 0)) { return -1; }
 
   // Send West face data
   if (udata->is == 0)
   {
     for (sunindextype i = 0; i < ny_loc; i++)
     {
-      udata->Wsend[NSPECIES * i]     = ydata[UIDX(0,i,nx_loc)];
-      udata->Wsend[NSPECIES * i + 1] = ydata[VIDX(0,i,nx_loc)];
+      udata->Wsend[NSPECIES * i]     = ydata[UIDX(0, i, nx_loc)];
+      udata->Wsend[NSPECIES * i + 1] = ydata[VIDX(0, i, nx_loc)];
     }
     flag = MPI_Isend(udata->Wsend, udata->ybufcount, MPI_SUNREALTYPE,
                      udata->ipW, 0, udata->comm, &(udata->reqSW));
@@ -2100,8 +2021,8 @@ static int ExchangeBC(N_Vector y, UserData *udata)
   {
     for (sunindextype i = 0; i < nx_loc; i++)
     {
-      udata->Ssend[NSPECIES * i]     = ydata[UIDX(i,0,nx_loc)];
-      udata->Ssend[NSPECIES * i + 1] = ydata[VIDX(i,0,nx_loc)];
+      udata->Ssend[NSPECIES * i]     = ydata[UIDX(i, 0, nx_loc)];
+      udata->Ssend[NSPECIES * i + 1] = ydata[VIDX(i, 0, nx_loc)];
     }
     flag = MPI_Isend(udata->Ssend, udata->xbufcount, MPI_SUNREALTYPE,
                      udata->ipS, 2, udata->comm, &(udata->reqSS));
@@ -2115,10 +2036,10 @@ static int ExchangeBC(N_Vector y, UserData *udata)
   // Send South-West corner data
   if (udata->is == 0 && udata->js == 0)
   {
-    udata->SWsend[0] = ydata[UIDX(0,0,nx_loc)];
-    udata->SWsend[1] = ydata[VIDX(0,0,nx_loc)];
-    flag = MPI_Isend(udata->SWsend, NSPECIES, MPI_SUNREALTYPE,
-                     udata->ipSW, 2, udata->comm, &(udata->reqSC));
+    udata->SWsend[0] = ydata[UIDX(0, 0, nx_loc)];
+    udata->SWsend[1] = ydata[VIDX(0, 0, nx_loc)];
+    flag = MPI_Isend(udata->SWsend, NSPECIES, MPI_SUNREALTYPE, udata->ipSW, 2,
+                     udata->comm, &(udata->reqSC));
     if (flag != MPI_SUCCESS)
     {
       cerr << "Error in MPI_Isend = " << flag << endl;
@@ -2187,29 +2108,27 @@ static int ExchangeBC(N_Vector y, UserData *udata)
     }
   }
 
-  return(0);
+  return (0);
 }
-
 
 // -----------------------------------------------------------------------------
 // UserData and input functions
 // -----------------------------------------------------------------------------
 
-
 // Free memory allocated within Userdata
-static int FreeUserData(UserData *udata)
+static int FreeUserData(UserData* udata)
 {
   // Free exchange buffers
-  if (udata->Wrecv  != NULL) delete[] udata->Wrecv;
-  if (udata->Wsend  != NULL) delete[] udata->Wsend;
-  if (udata->Erecv  != NULL) delete[] udata->Erecv;
-  if (udata->Esend  != NULL) delete[] udata->Esend;
-  if (udata->Srecv  != NULL) delete[] udata->Srecv;
-  if (udata->Ssend  != NULL) delete[] udata->Ssend;
-  if (udata->Nrecv  != NULL) delete[] udata->Nrecv;
-  if (udata->Nsend  != NULL) delete[] udata->Nsend;
-  if (udata->NErecv != NULL) delete[] udata->NErecv;
-  if (udata->SWsend != NULL) delete[] udata->SWsend;
+  if (udata->Wrecv != NULL) { delete[] udata->Wrecv; }
+  if (udata->Wsend != NULL) { delete[] udata->Wsend; }
+  if (udata->Erecv != NULL) { delete[] udata->Erecv; }
+  if (udata->Esend != NULL) { delete[] udata->Esend; }
+  if (udata->Srecv != NULL) { delete[] udata->Srecv; }
+  if (udata->Ssend != NULL) { delete[] udata->Ssend; }
+  if (udata->Nrecv != NULL) { delete[] udata->Nrecv; }
+  if (udata->Nsend != NULL) { delete[] udata->Nsend; }
+  if (udata->NErecv != NULL) { delete[] udata->NErecv; }
+  if (udata->SWsend != NULL) { delete[] udata->SWsend; }
 
   // Free preconditioner data
   if (udata->diag)
@@ -2229,9 +2148,8 @@ static int FreeUserData(UserData *udata)
   return 0;
 }
 
-
 // Read command line inputs
-static int ReadInputs(int *argc, char ***argv, UserData *udata)
+static int ReadInputs(int* argc, char*** argv, UserData* udata)
 {
   // Check for input args
   int arg_idx = 1;
@@ -2269,36 +2187,15 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata)
       udata->Dvy = stod((*argv)[arg_idx++]);
     }
     // Reaction parameters
-    else if (arg == "--A")
-    {
-      udata->A = stod((*argv)[arg_idx++]);
-    }
-    else if (arg == "--B")
-    {
-      udata->B = stod((*argv)[arg_idx++]);
-    }
+    else if (arg == "--A") { udata->A = stod((*argv)[arg_idx++]); }
+    else if (arg == "--B") { udata->B = stod((*argv)[arg_idx++]); }
     // Temporal domain settings
-    else if (arg == "--tf")
-    {
-      udata->tf = stod((*argv)[arg_idx++]);
-    }
+    else if (arg == "--tf") { udata->tf = stod((*argv)[arg_idx++]); }
     // Integrator options
-    else if (arg == "--imex")
-    {
-      udata->integrator = 0;
-    }
-    else if (arg == "--mri-arkstep")
-    {
-      udata->integrator = 1;
-    }
-    else if (arg == "--mri-cvode-global")
-    {
-      udata->integrator = 2;
-    }
-    else if (arg == "--mri-cvode-local")
-    {
-      udata->integrator = 3;
-    }
+    else if (arg == "--imex") { udata->integrator = 0; }
+    else if (arg == "--mri-arkstep") { udata->integrator = 1; }
+    else if (arg == "--mri-cvode-global") { udata->integrator = 2; }
+    else if (arg == "--mri-cvode-local") { udata->integrator = 3; }
     // IMEX integrator settings
     else if (arg == "--rtol_imex")
     {
@@ -2308,10 +2205,7 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata)
     {
       udata->atol_imex = stod((*argv)[arg_idx++]);
     }
-    else if (arg == "--h_imex")
-    {
-      udata->h_imex = stod((*argv)[arg_idx++]);
-    }
+    else if (arg == "--h_imex") { udata->h_imex = stod((*argv)[arg_idx++]); }
     else if (arg == "--order_imex")
     {
       udata->order_imex = stoi((*argv)[arg_idx++]);
@@ -2333,87 +2227,42 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata)
     {
       udata->atol_fast = stod((*argv)[arg_idx++]);
     }
-    else if (arg == "--h_slow")
-    {
-      udata->h_slow = stod((*argv)[arg_idx++]);
-    }
-    else if (arg == "--h_fast")
-    {
-      udata->h_fast = stod((*argv)[arg_idx++]);
-    }
+    else if (arg == "--h_slow") { udata->h_slow = stod((*argv)[arg_idx++]); }
+    else if (arg == "--h_fast") { udata->h_fast = stod((*argv)[arg_idx++]); }
     // Shared IMEX and MRI settings
     else if (arg == "--controller")
     {
       udata->controller = stoi((*argv)[arg_idx++]);
     }
-    else if (arg == "--nonlinear")
-    {
-      udata->linear = false;
-    }
-    else if (arg == "--diagnostics")
-    {
-      udata->diagnostics = true;
-    }
+    else if (arg == "--nonlinear") { udata->linear = false; }
+    else if (arg == "--diagnostics") { udata->diagnostics = true; }
     // Linear solver settings
-    else if (arg == "--gmres")
-    {
-      udata->pcg = false;
-    }
-    else if (arg == "--lsinfo")
-    {
-      udata->lsinfo = true;
-    }
+    else if (arg == "--gmres") { udata->pcg = false; }
+    else if (arg == "--lsinfo") { udata->lsinfo = true; }
     else if (arg == "--liniters")
     {
       udata->liniters = stoi((*argv)[arg_idx++]);
     }
-    else if (arg == "--epslin")
-    {
-      udata->epslin = stod((*argv)[arg_idx++]);
-    }
+    else if (arg == "--epslin") { udata->epslin = stod((*argv)[arg_idx++]); }
     // Preconditioner settings
-    else if (arg == "--noprec")
-    {
-      udata->prec = false;
-    }
-    else if (arg == "--msbp")
-    {
-      udata->msbp = stoi((*argv)[arg_idx++]);
-    }
+    else if (arg == "--noprec") { udata->prec = false; }
+    else if (arg == "--msbp") { udata->msbp = stoi((*argv)[arg_idx++]); }
     // Output settings
-    else if (arg == "--output")
-    {
-      udata->output = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--nout")
-    {
-      udata->nout = stoi((*argv)[arg_idx++]);
-    }
+    else if (arg == "--output") { udata->output = stoi((*argv)[arg_idx++]); }
+    else if (arg == "--nout") { udata->nout = stoi((*argv)[arg_idx++]); }
     else if (arg == "--maxsteps")
     {
       udata->maxsteps = stoi((*argv)[arg_idx++]);
     }
-    else if (arg == "--timing")
-    {
-      udata->timing = true;
-    }
+    else if (arg == "--timing") { udata->timing = true; }
     // Debugging
-    else if (arg == "--onestep")
-    {
-      udata->onestep = stoi((*argv)[arg_idx++]);
-    }
-    else if (arg == "--no_diffusion")
-    {
-      udata->diffusion = false;
-    }
-    else if (arg == "--no_reaction")
-    {
-      udata->reaction = false;
-    }
+    else if (arg == "--onestep") { udata->onestep = stoi((*argv)[arg_idx++]); }
+    else if (arg == "--no_diffusion") { udata->diffusion = false; }
+    else if (arg == "--no_reaction") { udata->reaction = false; }
     // Help
     else if (arg == "--help")
     {
-      if (udata->outproc) InputHelp();
+      if (udata->outproc) { InputHelp(); }
       return -1;
     }
     // Unknown input
@@ -2438,10 +2287,12 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata)
   // Compute slow step size based on CFL if not set by input
   if (udata->h_slow < ZERO)
   {
-    sunrealtype cfl_u = SUN_RCONST(0.5) / ((udata->Dux / (udata->dx * udata->dx)) +
-                                    (udata->Duy / (udata->dy * udata->dy)));
-    sunrealtype cfl_v = SUN_RCONST(0.5) / ((udata->Dvx / (udata->dx * udata->dx)) +
-                                    (udata->Dvy / (udata->dy * udata->dy)));
+    sunrealtype cfl_u = SUN_RCONST(0.5) /
+                        ((udata->Dux / (udata->dx * udata->dx)) +
+                         (udata->Duy / (udata->dy * udata->dy)));
+    sunrealtype cfl_v = SUN_RCONST(0.5) /
+                        ((udata->Dvx / (udata->dx * udata->dx)) +
+                         (udata->Dvy / (udata->dy * udata->dy)));
     udata->h_slow = SUN_RCONST(5.0) * min(cfl_u, cfl_v);
   }
 
@@ -2449,14 +2300,12 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata)
   return 0;
 }
 
-
 // -----------------------------------------------------------------------------
 // Output and utility functions
 // -----------------------------------------------------------------------------
 
-
 // Compute the initial condition
-static int SetIC(N_Vector u, UserData *udata)
+static int SetIC(N_Vector u, UserData* udata)
 {
   sunrealtype x, y, a, b;
 
@@ -2468,8 +2317,8 @@ static int SetIC(N_Vector u, UserData *udata)
   default_random_engine generator;
   normal_distribution<double> dist(SUN_RCONST(0.0), SUN_RCONST(0.001));
 
-  sunrealtype *data = N_VGetArrayPointer(u);
-  if (check_flag((void *) data, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* data = N_VGetArrayPointer(u);
+  if (check_flag((void*)data, "N_VGetArrayPointer", 0)) { return -1; }
 
   for (sunindextype j = 0; j < ny_loc; j++)
   {
@@ -2481,138 +2330,132 @@ static int SetIC(N_Vector u, UserData *udata)
       a = TWO * PI * (x - udata->xl) / (udata->xu - udata->xl);
       b = TWO * PI * (y - udata->yl) / (udata->yu - udata->yl);
 
-      data[UIDX(i,j,nx_loc)] = udata->A + SUN_RCONST(0.5) * sin(a) * sin(b);
-      data[VIDX(i,j,nx_loc)] = udata->B / udata->A;
+      data[UIDX(i, j, nx_loc)] = udata->A + SUN_RCONST(0.5) * sin(a) * sin(b);
+      data[VIDX(i, j, nx_loc)] = udata->B / udata->A;
     }
   }
 
   return 0;
 }
 
-
 // Print command line options
 static void InputHelp()
 {
   cout << endl;
   cout << "Command line options:" << endl;
-  cout << "  --mesh <nx> <ny>             : number of mesh points"       << endl;
-  cout << "  --np <npx> <npy>             : number of MPI processes"     << endl;
-  cout << "  --domain <xl> <xu> <yl> <yu> : domain boundaries"           << endl;
-  cout << "  --D <Dux> <Duy> <Dvx> <Dvy>  : diffusion coefficients"      << endl;
-  cout << "  --A <A>                      : species A concentration"     << endl;
-  cout << "  --B <A>                      : species B concentration"     << endl;
-  cout << "  --tf <time>                  : final time"                  << endl;
-  cout << "  --imex                       : use an IMEX method"          << endl;
-  cout << "  --mri-arkstep                : use MRI with ARKStep"        << endl;
-  cout << "  --mri-cvode-global           : use MRI with CVODE global stepper"     << endl;
-  cout << "  --mri-cvode-local            : use MRI with CVODE task-local stepper" << endl;
-  cout << "  --rtol_imex <rtol>           : IMEX relative tolerance"     << endl;
-  cout << "  --atol_imex <atol>           : IMEX absoltue tolerance"     << endl;
-  cout << "  --h_imex <h>                 : IMEX fixed step size"        << endl;
-  cout << "  --order_imex <ord>           : IMEX method order"           << endl;
+  cout << "  --mesh <nx> <ny>             : number of mesh points" << endl;
+  cout << "  --np <npx> <npy>             : number of MPI processes" << endl;
+  cout << "  --domain <xl> <xu> <yl> <yu> : domain boundaries" << endl;
+  cout << "  --D <Dux> <Duy> <Dvx> <Dvy>  : diffusion coefficients" << endl;
+  cout << "  --A <A>                      : species A concentration" << endl;
+  cout << "  --B <A>                      : species B concentration" << endl;
+  cout << "  --tf <time>                  : final time" << endl;
+  cout << "  --imex                       : use an IMEX method" << endl;
+  cout << "  --mri-arkstep                : use MRI with ARKStep" << endl;
+  cout << "  --mri-cvode-global           : use MRI with CVODE global stepper"
+       << endl;
+  cout
+    << "  --mri-cvode-local            : use MRI with CVODE task-local stepper"
+    << endl;
+  cout << "  --rtol_imex <rtol>           : IMEX relative tolerance" << endl;
+  cout << "  --atol_imex <atol>           : IMEX absoltue tolerance" << endl;
+  cout << "  --h_imex <h>                 : IMEX fixed step size" << endl;
+  cout << "  --order_imex <ord>           : IMEX method order" << endl;
   cout << "  --rtol_slow <rtol>           : MRI slow relative tolerance" << endl;
   cout << "  --atol_slow <atol>           : MRI slow absoltue tolerance" << endl;
-  cout << "  --h_slow <h>                 : MRI slow step size"          << endl;
+  cout << "  --h_slow <h>                 : MRI slow step size" << endl;
   cout << "  --rtol_fast <rtol>           : MRI fast relative tolerance" << endl;
   cout << "  --atol_fast <atol>           : MRI fast absoltue tolerance" << endl;
-  cout << "  --h_fast <h>                 : MRI fast step size"          << endl;
-  cout << "  --controller <ctr>           : time step adaptivity"        << endl;
-  cout << "  --nonlinear                  : nonlinearly implicit"        << endl;
-  cout << "  --diagnostics                : output diagnostics"          << endl;
-  cout << "  --gmres                      : use GMRES linear solver"     << endl;
-  cout << "  --lsinfo                     : output residual history"     << endl;
-  cout << "  --liniters <iters>           : max number of iterations"    << endl;
-  cout << "  --epslin <factor>            : linear tolerance factor"     << endl;
-  cout << "  --noprec                     : disable preconditioner"      << endl;
-  cout << "  --msbp <steps>               : prec setup frequency"        << endl;
-  cout << "  --output <level>             : output level"                << endl;
-  cout << "  --nout <nout>                : number of outputs"           << endl;
-  cout << "  --maxsteps <steps>           : max steps between outputs"   << endl;
-  cout << "  --timing                     : print timing data"           << endl;
-  cout << "  --onestep <steps>            : fixed number of steps"       << endl;
-  cout << "  --nodiffusion                : no diffusion (IMEX only)"    << endl;
-  cout << "  --noreaction                 : no reactions (IMEX only)"    << endl;
-  cout << "  --help                       : print options and exit"      << endl;
+  cout << "  --h_fast <h>                 : MRI fast step size" << endl;
+  cout << "  --controller <ctr>           : time step adaptivity" << endl;
+  cout << "  --nonlinear                  : nonlinearly implicit" << endl;
+  cout << "  --diagnostics                : output diagnostics" << endl;
+  cout << "  --gmres                      : use GMRES linear solver" << endl;
+  cout << "  --lsinfo                     : output residual history" << endl;
+  cout << "  --liniters <iters>           : max number of iterations" << endl;
+  cout << "  --epslin <factor>            : linear tolerance factor" << endl;
+  cout << "  --noprec                     : disable preconditioner" << endl;
+  cout << "  --msbp <steps>               : prec setup frequency" << endl;
+  cout << "  --output <level>             : output level" << endl;
+  cout << "  --nout <nout>                : number of outputs" << endl;
+  cout << "  --maxsteps <steps>           : max steps between outputs" << endl;
+  cout << "  --timing                     : print timing data" << endl;
+  cout << "  --onestep <steps>            : fixed number of steps" << endl;
+  cout << "  --nodiffusion                : no diffusion (IMEX only)" << endl;
+  cout << "  --noreaction                 : no reactions (IMEX only)" << endl;
+  cout << "  --help                       : print options and exit" << endl;
 }
 
-
 // Print user data
-static int PrintUserData(UserData *udata)
+static int PrintUserData(UserData* udata)
 {
   cout << endl;
-  cout << "2D Heat PDE test problem:"                << endl;
-  cout << " --------------------------------- "      << endl;
-  cout << "  nprocs         = " << udata->nprocs     << endl;
-  cout << "  npx            = " << udata->npx        << endl;
-  cout << "  npy            = " << udata->npy        << endl;
-  cout << " --------------------------------- "      << endl;
-  cout << "  Dux            = " << udata->Dux        << endl;
-  cout << "  Duy            = " << udata->Duy        << endl;
-  cout << "  Dvx            = " << udata->Dvx        << endl;
-  cout << "  Dvy            = " << udata->Dvy        << endl;
-  cout << "  A              = " << udata->A          << endl;
-  cout << "  B              = " << udata->B          << endl;
-  cout << " --------------------------------- "      << endl;
-  cout << "  tf             = " << udata->tf         << endl;
-  cout << "  xl             = " << udata->xl         << endl;
-  cout << "  xu             = " << udata->xu         << endl;
-  cout << "  yl             = " << udata->yl         << endl;
-  cout << "  yu             = " << udata->yu         << endl;
-  cout << " --------------------------------- "      << endl;
-  cout << "  nx             = " << udata->nx         << endl;
-  cout << "  ny             = " << udata->ny         << endl;
-  cout << "  dx             = " << udata->dx         << endl;
-  cout << "  dy             = " << udata->dy         << endl;
-  cout << "  nxl (proc 0)   = " << udata->nx_loc     << endl;
-  cout << "  nyl (proc 0)   = " << udata->ny_loc     << endl;
-  cout << "  is  (proc 0)   = " << udata->is         << endl;
-  cout << "  ie  (proc 0)   = " << udata->ie         << endl;
-  cout << "  je  (proc 0)   = " << udata->js         << endl;
-  cout << "  je  (proc 0)   = " << udata->je         << endl;
-  cout << " --------------------------------- "      << endl;
+  cout << "2D Heat PDE test problem:" << endl;
+  cout << " --------------------------------- " << endl;
+  cout << "  nprocs         = " << udata->nprocs << endl;
+  cout << "  npx            = " << udata->npx << endl;
+  cout << "  npy            = " << udata->npy << endl;
+  cout << " --------------------------------- " << endl;
+  cout << "  Dux            = " << udata->Dux << endl;
+  cout << "  Duy            = " << udata->Duy << endl;
+  cout << "  Dvx            = " << udata->Dvx << endl;
+  cout << "  Dvy            = " << udata->Dvy << endl;
+  cout << "  A              = " << udata->A << endl;
+  cout << "  B              = " << udata->B << endl;
+  cout << " --------------------------------- " << endl;
+  cout << "  tf             = " << udata->tf << endl;
+  cout << "  xl             = " << udata->xl << endl;
+  cout << "  xu             = " << udata->xu << endl;
+  cout << "  yl             = " << udata->yl << endl;
+  cout << "  yu             = " << udata->yu << endl;
+  cout << " --------------------------------- " << endl;
+  cout << "  nx             = " << udata->nx << endl;
+  cout << "  ny             = " << udata->ny << endl;
+  cout << "  dx             = " << udata->dx << endl;
+  cout << "  dy             = " << udata->dy << endl;
+  cout << "  nxl (proc 0)   = " << udata->nx_loc << endl;
+  cout << "  nyl (proc 0)   = " << udata->ny_loc << endl;
+  cout << "  is  (proc 0)   = " << udata->is << endl;
+  cout << "  ie  (proc 0)   = " << udata->ie << endl;
+  cout << "  je  (proc 0)   = " << udata->js << endl;
+  cout << "  je  (proc 0)   = " << udata->je << endl;
+  cout << " --------------------------------- " << endl;
   if (udata->integrator)
   {
-    cout << "  rtol_slow      = " << udata->rtol_slow  << endl;
-    cout << "  atol_slow      = " << udata->atol_slow  << endl;
-    cout << "  rtol_fast      = " << udata->rtol_fast  << endl;
-    cout << "  atol_fast      = " << udata->atol_fast  << endl;
+    cout << "  rtol_slow      = " << udata->rtol_slow << endl;
+    cout << "  atol_slow      = " << udata->atol_slow << endl;
+    cout << "  rtol_fast      = " << udata->rtol_fast << endl;
+    cout << "  atol_fast      = " << udata->atol_fast << endl;
     cout << "  order_fast     = " << udata->order_fast << endl;
-    cout << "  fixed h slow   = " << udata->h_slow     << endl;
-    cout << "  fixed h fast   = " << udata->h_fast     << endl;
+    cout << "  fixed h slow   = " << udata->h_slow << endl;
+    cout << "  fixed h fast   = " << udata->h_fast << endl;
   }
   else
   {
-    cout << "  rtol           = " << udata->rtol_imex  << endl;
-    cout << "  atol           = " << udata->atol_imex  << endl;
+    cout << "  rtol           = " << udata->rtol_imex << endl;
+    cout << "  atol           = " << udata->atol_imex << endl;
     cout << "  order          = " << udata->order_imex << endl;
-    cout << "  fixed h        = " << udata->h_imex     << endl;
+    cout << "  fixed h        = " << udata->h_imex << endl;
   }
   cout << "  controller     = " << udata->controller << endl;
-  cout << "  linear         = " << udata->linear     << endl;
-  cout << " --------------------------------- "      << endl;
-  if (udata->pcg)
-  {
-    cout << "  linear solver  = PCG" << endl;
-  }
-  else
-  {
-    cout << "  linear solver  = GMRES" << endl;
-  }
+  cout << "  linear         = " << udata->linear << endl;
+  cout << " --------------------------------- " << endl;
+  if (udata->pcg) { cout << "  linear solver  = PCG" << endl; }
+  else { cout << "  linear solver  = GMRES" << endl; }
   cout << "  lin iters      = " << udata->liniters << endl;
-  cout << "  eps lin        = " << udata->epslin   << endl;
-  cout << "  prec           = " << udata->prec     << endl;
-  cout << "  msbp           = " << udata->msbp     << endl;
-  cout << " --------------------------------- "    << endl;
-  cout << "  output         = " << udata->output   << endl;
-  cout << " --------------------------------- "    << endl;
+  cout << "  eps lin        = " << udata->epslin << endl;
+  cout << "  prec           = " << udata->prec << endl;
+  cout << "  msbp           = " << udata->msbp << endl;
+  cout << " --------------------------------- " << endl;
+  cout << "  output         = " << udata->output << endl;
+  cout << " --------------------------------- " << endl;
   cout << endl;
 
   return 0;
 }
 
-
 // Initialize output
-static int OpenOutput(UserData *udata)
+static int OpenOutput(UserData* udata)
 {
   // Header for status output
   if (udata->output > 0 && udata->outproc)
@@ -2630,8 +2473,8 @@ static int OpenOutput(UserData *udata)
   {
     // Open output stream
     stringstream fname;
-    fname << "diffusion_reaction." << setfill('0') << setw(5)
-          << udata->myid << ".out";
+    fname << "diffusion_reaction." << setfill('0') << setw(5) << udata->myid
+          << ".out";
     udata->uout.open(fname.str());
 
     udata->uout << scientific;
@@ -2640,37 +2483,38 @@ static int OpenOutput(UserData *udata)
     // Add 1 to the total number of nodes in the x and y directions and to the
     // end indices in the x and y direction at the North and East boundary to
     // account for additional output at the periodic boundary
-    udata->uout <<  "# title Diffusion-Reaction (Brusselator)" << endl;
-    udata->uout <<  "# nprocs "  << udata->nprocs << endl;
-    udata->uout <<  "# npx "     << udata->npx << endl;
-    udata->uout <<  "# npy "     << udata->npy << endl;
-    udata->uout <<  "# nvar 2"   << endl;
-    udata->uout <<  "# vars u v" << endl;
-    udata->uout <<  "# nt "      << udata->nout + 1 << endl;
-    udata->uout <<  "# nx "      << udata->nx + 1 << endl;
-    udata->uout <<  "# xl "      << udata->xl << endl;
-    udata->uout <<  "# xu "      << udata->xu << endl;
-    udata->uout <<  "# is "      << udata->is << endl;
+    udata->uout << "# title Diffusion-Reaction (Brusselator)" << endl;
+    udata->uout << "# nprocs " << udata->nprocs << endl;
+    udata->uout << "# npx " << udata->npx << endl;
+    udata->uout << "# npy " << udata->npy << endl;
+    udata->uout << "# nvar 2" << endl;
+    udata->uout << "# vars u v" << endl;
+    udata->uout << "# nt " << udata->nout + 1 << endl;
+    udata->uout << "# nx " << udata->nx + 1 << endl;
+    udata->uout << "# xl " << udata->xl << endl;
+    udata->uout << "# xu " << udata->xu << endl;
+    udata->uout << "# is " << udata->is << endl;
     if (udata->ie == udata->nx - 1)
-      udata->uout <<  "# ie " << udata->ie + 1 << endl;
-    else
-      udata->uout <<  "# ie " << udata->ie << endl;
-    udata->uout <<  "# ny "      << udata->ny + 1 << endl;
-    udata->uout <<  "# yl "      << udata->yl << endl;
-    udata->uout <<  "# yu "      << udata->yu << endl;
-    udata->uout <<  "# js " << udata->js << endl;
+    {
+      udata->uout << "# ie " << udata->ie + 1 << endl;
+    }
+    else { udata->uout << "# ie " << udata->ie << endl; }
+    udata->uout << "# ny " << udata->ny + 1 << endl;
+    udata->uout << "# yl " << udata->yl << endl;
+    udata->uout << "# yu " << udata->yu << endl;
+    udata->uout << "# js " << udata->js << endl;
     if (udata->je == udata->ny - 1)
-      udata->uout <<  "# je " << udata->je + 1 << endl;
-    else
-      udata->uout <<  "# je " << udata->je << endl;
+    {
+      udata->uout << "# je " << udata->je + 1 << endl;
+    }
+    else { udata->uout << "# je " << udata->je << endl; }
   }
 
   return 0;
 }
 
-
 // Write output
-static int WriteOutput(sunrealtype t, N_Vector y, UserData *udata)
+static int WriteOutput(sunrealtype t, N_Vector y, UserData* udata)
 {
   int flag;
 
@@ -2680,7 +2524,7 @@ static int WriteOutput(sunrealtype t, N_Vector y, UserData *udata)
     sunrealtype urms = sqrt(N_VDotProd(y, y) / udata->nx / udata->ny);
 
     // Output current status
-    if (udata->outproc) cout << setw(22) << t << setw(25) << urms << endl;
+    if (udata->outproc) { cout << setw(22) << t << setw(25) << urms << endl; }
 
     // Write solution to disk
     if (udata->output == 2)
@@ -2690,18 +2534,18 @@ static int WriteOutput(sunrealtype t, N_Vector y, UserData *udata)
       sunindextype nx_loc = udata->nx_loc;
 
       flag = ExchangeBC(y, udata);
-      if (check_flag(&flag, "ExchangeBC", 1)) return -1;
+      if (check_flag(&flag, "ExchangeBC", 1)) { return -1; }
 
-      sunrealtype *ydata = N_VGetArrayPointer(y);
-      if (check_flag((void *) ydata, "N_VGetArrayPointer", 0)) return -1;
+      sunrealtype* ydata = N_VGetArrayPointer(y);
+      if (check_flag((void*)ydata, "N_VGetArrayPointer", 0)) { return -1; }
 
       udata->uout << t;
       for (sunindextype j = 0; j < ny_loc; j++)
       {
         for (sunindextype i = 0; i < nx_loc; i++)
         {
-          udata->uout << setw(WIDTH) << ydata[UIDX(i,j,nx_loc)];
-          udata->uout << setw(WIDTH) << ydata[VIDX(i,j,nx_loc)];
+          udata->uout << setw(WIDTH) << ydata[UIDX(i, j, nx_loc)];
+          udata->uout << setw(WIDTH) << ydata[VIDX(i, j, nx_loc)];
         }
         // East boundary (same as West face)
         if (udata->ie == udata->nx - 1)
@@ -2732,9 +2576,8 @@ static int WriteOutput(sunrealtype t, N_Vector y, UserData *udata)
   return 0;
 }
 
-
 // Finalize output
-static int CloseOutput(UserData *udata)
+static int CloseOutput(UserData* udata)
 {
   // Footer for status output
   if (udata->outproc && (udata->output > 0))
@@ -2754,69 +2597,66 @@ static int CloseOutput(UserData *udata)
 }
 
 // Print integrator statistics
-static int OutputStatsIMEX(void *arkode_mem, UserData* udata)
+static int OutputStatsIMEX(void* arkode_mem, UserData* udata)
 {
   int flag;
 
   // Get integrator and solver stats
   long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) return -1;
+  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) { return -1; }
   flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  if (check_flag(&flag, "ARKStepGetNumStepAttempts", 1)) return -1;
+  if (check_flag(&flag, "ARKStepGetNumStepAttempts", 1)) { return -1; }
   flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  if (check_flag(&flag, "ARKStepGetNumErrTestFails", 1)) return -1;
+  if (check_flag(&flag, "ARKStepGetNumErrTestFails", 1)) { return -1; }
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) return -1;
+  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
 
   if (udata->diffusion)
   {
     flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-    if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return -1;
+    if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) { return -1; }
     flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-    if (check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1)) return -1;
+    if (check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1)) { return -1; }
     flag = ARKStepGetNumLinIters(arkode_mem, &nli);
-    if (check_flag(&flag, "ARKStepGetNumLinIters", 1)) return -1;
+    if (check_flag(&flag, "ARKStepGetNumLinIters", 1)) { return -1; }
     flag = ARKStepGetNumLinConvFails(arkode_mem, &nlcf);
-    if (check_flag(&flag, "ARKStepGetNumLinConvFails", 1)) return -1;
+    if (check_flag(&flag, "ARKStepGetNumLinConvFails", 1)) { return -1; }
     flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-    if (check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1)) return -1;
+    if (check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1)) { return -1; }
     flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfi_ls);
-    if (check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1)) return -1;
+    if (check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1)) { return -1; }
     flag = ARKStepGetNumJtimesEvals(arkode_mem, &nJv);
-    if (check_flag(&flag, "ARKStepGetNumJtimesEvals", 1)) return -1;
+    if (check_flag(&flag, "ARKStepGetNumJtimesEvals", 1)) { return -1; }
   }
 
   cout << fixed;
   cout << setprecision(6);
 
-  cout << "  Steps            = " << nst     << endl;
-  cout << "  Step attempts    = " << nst_a   << endl;
-  cout << "  Error test fails = " << netf    << endl;
-  if (udata->reaction)
-  {
-    cout << "  RHS reaction     = " << nfe     << endl;
-  }
+  cout << "  Steps            = " << nst << endl;
+  cout << "  Step attempts    = " << nst_a << endl;
+  cout << "  Error test fails = " << netf << endl;
+  if (udata->reaction) { cout << "  RHS reaction     = " << nfe << endl; }
   if (udata->diffusion)
   {
-    cout << "  RHS diffusion    = " << nfi     << endl;
-    cout << "  NLS iters        = " << nni     << endl;
-    cout << "  NLS fails        = " << ncfn    << endl;
-    cout << "  LS iters         = " << nli     << endl;
-    cout << "  LS fails         = " << nlcf    << endl;
+    cout << "  RHS diffusion    = " << nfi << endl;
+    cout << "  NLS iters        = " << nni << endl;
+    cout << "  NLS fails        = " << ncfn << endl;
+    cout << "  LS iters         = " << nli << endl;
+    cout << "  LS fails         = " << nlcf << endl;
     cout << "  LS setups        = " << nsetups << endl;
-    cout << "  LS RHS evals     = " << nfi_ls  << endl;
-    cout << "  Jv products      = " << nJv     << endl;
+    cout << "  LS RHS evals     = " << nfi_ls << endl;
+    cout << "  Jv products      = " << nJv << endl;
   }
   cout << endl;
 
   if (udata->diffusion)
   {
     // Compute average nls iters per step attempt and ls iters per nls iter
-    sunrealtype avgnli = (sunrealtype) nni / (sunrealtype) nst_a;
-    sunrealtype avgli  = (sunrealtype) nli / (sunrealtype) nni;
+    sunrealtype avgnli = (sunrealtype)nni / (sunrealtype)nst_a;
+    sunrealtype avgli  = (sunrealtype)nli / (sunrealtype)nni;
     cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
-    cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
+    cout << "  Avg LS iters per NLS iter      = " << avgli << endl;
     cout << endl;
 
     // Get preconditioner stats
@@ -2824,9 +2664,9 @@ static int OutputStatsIMEX(void *arkode_mem, UserData* udata)
     {
       long int npe, nps;
       flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
-      if (check_flag(&flag, "ARKStepGetNumPrecEvals", 1)) return -1;
+      if (check_flag(&flag, "ARKStepGetNumPrecEvals", 1)) { return -1; }
       flag = ARKStepGetNumPrecSolves(arkode_mem, &nps);
-      if (check_flag(&flag, "ARKStepGetNumPrecSolves", 1)) return -1;
+      if (check_flag(&flag, "ARKStepGetNumPrecSolves", 1)) { return -1; }
 
       cout << "  Preconditioner setups = " << npe << endl;
       cout << "  Preconditioner solves = " << nps << endl;
@@ -2837,9 +2677,8 @@ static int OutputStatsIMEX(void *arkode_mem, UserData* udata)
   return 0;
 }
 
-
 // Print integrator statistics
-static int OutputStatsMRI(void *arkode_mem, MRIStepInnerStepper stepper,
+static int OutputStatsMRI(void* arkode_mem, MRIStepInnerStepper stepper,
                           UserData* udata)
 {
   int flag;
@@ -2847,45 +2686,45 @@ static int OutputStatsMRI(void *arkode_mem, MRIStepInnerStepper stepper,
   // Get slow integrator and solver stats
   long int nsts, nfse, nfsi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = MRIStepGetNumSteps(arkode_mem, &nsts);
-  if (check_flag(&flag, "MRIStepGetNumSteps", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumSteps", 1)) { return -1; }
   flag = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return -1; }
   flag = MRIStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) { return -1; }
   flag = MRIStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  if (check_flag(&flag, "MRIStepGetNumNonlinSolvConvFails", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumNonlinSolvConvFails", 1)) { return -1; }
   flag = MRIStepGetNumLinIters(arkode_mem, &nli);
-  if (check_flag(&flag, "MRIStepGetNumLinIters", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumLinIters", 1)) { return -1; }
   flag = MRIStepGetNumLinConvFails(arkode_mem, &nlcf);
-  if (check_flag(&flag, "MRIStepGetNumLinConvFails", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumLinConvFails", 1)) { return -1; }
   flag = MRIStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  if (check_flag(&flag, "MRIStepGetNumLinSolvSetups", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumLinSolvSetups", 1)) { return -1; }
   flag = MRIStepGetNumLinRhsEvals(arkode_mem, &nfi_ls);
-  if (check_flag(&flag, "MRIStepGetNumLinRhsEvals", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumLinRhsEvals", 1)) { return -1; }
   flag = MRIStepGetNumJtimesEvals(arkode_mem, &nJv);
-  if (check_flag(&flag, "MRIStepGetNumJtimesEvals", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumJtimesEvals", 1)) { return -1; }
 
   cout << fixed;
   cout << setprecision(6);
 
   cout << endl << "Slow Integrator:" << endl;
 
-  cout << "  Steps            = " << nsts    << endl;
-  cout << "  RHS diffusion    = " << nfsi    << endl;
-  cout << "  NLS iters        = " << nni     << endl;
-  cout << "  NLS fails        = " << ncfn    << endl;
-  cout << "  LS iters         = " << nli     << endl;
-  cout << "  LS fails         = " << nlcf    << endl;
+  cout << "  Steps            = " << nsts << endl;
+  cout << "  RHS diffusion    = " << nfsi << endl;
+  cout << "  NLS iters        = " << nni << endl;
+  cout << "  NLS fails        = " << ncfn << endl;
+  cout << "  LS iters         = " << nli << endl;
+  cout << "  LS fails         = " << nlcf << endl;
   cout << "  LS setups        = " << nsetups << endl;
-  cout << "  LS RHS evals     = " << nfi_ls  << endl;
-  cout << "  Jv products      = " << nJv     << endl;
+  cout << "  LS RHS evals     = " << nfi_ls << endl;
+  cout << "  Jv products      = " << nJv << endl;
   cout << endl;
 
   // Compute average nls iters per step and ls iters per nls iter
-  sunrealtype avgnli = (sunrealtype) nni / (sunrealtype) nsts;
-  sunrealtype avgli  = (sunrealtype) nli / (sunrealtype) nni;
+  sunrealtype avgnli = (sunrealtype)nni / (sunrealtype)nsts;
+  sunrealtype avgli  = (sunrealtype)nli / (sunrealtype)nni;
   cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
-  cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
+  cout << "  Avg LS iters per NLS iter      = " << avgli << endl;
   cout << endl;
 
   // Get preconditioner stats
@@ -2893,9 +2732,9 @@ static int OutputStatsMRI(void *arkode_mem, MRIStepInnerStepper stepper,
   {
     long int npe, nps;
     flag = MRIStepGetNumPrecEvals(arkode_mem, &npe);
-    if (check_flag(&flag, "MRIStepGetNumPrecEvals", 1)) return -1;
+    if (check_flag(&flag, "MRIStepGetNumPrecEvals", 1)) { return -1; }
     flag = MRIStepGetNumPrecSolves(arkode_mem, &nps);
-    if (check_flag(&flag, "MRIStepGetNumPrecSolves", 1)) return -1;
+    if (check_flag(&flag, "MRIStepGetNumPrecSolves", 1)) { return -1; }
 
     cout << "  Preconditioner setups = " << npe << endl;
     cout << "  Preconditioner solves = " << nps << endl;
@@ -2909,27 +2748,25 @@ static int OutputStatsMRI(void *arkode_mem, MRIStepInnerStepper stepper,
   long int nstf, nstf_a, netff, nffe, nffi;
 
   flag = ARKStepGetNumSteps(inner_arkode_mem, &nstf);
-  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) return -1;
+  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) { return -1; }
   flag = ARKStepGetNumStepAttempts(inner_arkode_mem, &nstf_a);
-  if (check_flag(&flag, "ARKStepGetNumStepAttempts", 1)) return -1;
+  if (check_flag(&flag, "ARKStepGetNumStepAttempts", 1)) { return -1; }
   flag = ARKStepGetNumErrTestFails(inner_arkode_mem, &netff);
-  if (check_flag(&flag, "ARKStepGetNumErrTestFails", 1)) return -1;
+  if (check_flag(&flag, "ARKStepGetNumErrTestFails", 1)) { return -1; }
   flag = ARKStepGetNumRhsEvals(inner_arkode_mem, &nffe, &nffi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) return -1;
+  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
 
   cout << "Fast Integrator:" << endl;
-  cout << "  Steps            = " << nstf   << endl;
+  cout << "  Steps            = " << nstf << endl;
   cout << "  Step attempts    = " << nstf_a << endl;
-  cout << "  Error test fails = " << netff  << endl;
-  cout << "  RHS reaction     = " << nffe   << endl;
+  cout << "  Error test fails = " << netff << endl;
+  cout << "  RHS reaction     = " << nffe << endl;
 
   return 0;
 }
 
-
 // Print integrator statistics
-static int OutputStatsMRICVODE(void *arkode_mem,
-                               MRIStepInnerStepper stepper,
+static int OutputStatsMRICVODE(void* arkode_mem, MRIStepInnerStepper stepper,
                                UserData* udata)
 {
   int flag;
@@ -2937,45 +2774,45 @@ static int OutputStatsMRICVODE(void *arkode_mem,
   // Get slow integrator and solver stats
   long int nsts, nfse, nfsi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = MRIStepGetNumSteps(arkode_mem, &nsts);
-  if (check_flag(&flag, "MRIStepGetNumSteps", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumSteps", 1)) { return -1; }
   flag = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return -1; }
   flag = MRIStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) { return -1; }
   flag = MRIStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  if (check_flag(&flag, "MRIStepGetNumNonlinSolvConvFails", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumNonlinSolvConvFails", 1)) { return -1; }
   flag = MRIStepGetNumLinIters(arkode_mem, &nli);
-  if (check_flag(&flag, "MRIStepGetNumLinIters", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumLinIters", 1)) { return -1; }
   flag = MRIStepGetNumLinConvFails(arkode_mem, &nlcf);
-  if (check_flag(&flag, "MRIStepGetNumLinConvFails", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumLinConvFails", 1)) { return -1; }
   flag = MRIStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  if (check_flag(&flag, "MRIStepGetNumLinSolvSetups", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumLinSolvSetups", 1)) { return -1; }
   flag = MRIStepGetNumLinRhsEvals(arkode_mem, &nfi_ls);
-  if (check_flag(&flag, "MRIStepGetNumLinRhsEvals", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumLinRhsEvals", 1)) { return -1; }
   flag = MRIStepGetNumJtimesEvals(arkode_mem, &nJv);
-  if (check_flag(&flag, "MRIStepGetNumJtimesEvals", 1)) return -1;
+  if (check_flag(&flag, "MRIStepGetNumJtimesEvals", 1)) { return -1; }
 
   cout << fixed;
   cout << setprecision(6);
 
   cout << endl << "Slow Integrator:" << endl;
 
-  cout << "  Steps            = " << nsts    << endl;
-  cout << "  RHS diffusion    = " << nfsi    << endl;
-  cout << "  NLS iters        = " << nni     << endl;
-  cout << "  NLS fails        = " << ncfn    << endl;
-  cout << "  LS iters         = " << nli     << endl;
-  cout << "  LS fails         = " << nlcf    << endl;
+  cout << "  Steps            = " << nsts << endl;
+  cout << "  RHS diffusion    = " << nfsi << endl;
+  cout << "  NLS iters        = " << nni << endl;
+  cout << "  NLS fails        = " << ncfn << endl;
+  cout << "  LS iters         = " << nli << endl;
+  cout << "  LS fails         = " << nlcf << endl;
   cout << "  LS setups        = " << nsetups << endl;
-  cout << "  LS RHS evals     = " << nfi_ls  << endl;
-  cout << "  Jv products      = " << nJv     << endl;
+  cout << "  LS RHS evals     = " << nfi_ls << endl;
+  cout << "  Jv products      = " << nJv << endl;
   cout << endl;
 
   // Compute average nls iters per step and ls iters per nls iter
-  sunrealtype avgnli = (sunrealtype) nni / (sunrealtype) nsts;
-  sunrealtype avgli  = (sunrealtype) nli / (sunrealtype) nni;
+  sunrealtype avgnli = (sunrealtype)nni / (sunrealtype)nsts;
+  sunrealtype avgli  = (sunrealtype)nli / (sunrealtype)nni;
   cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
-  cout << "  Avg LS iters per NLS iter      = " << avgli  << endl;
+  cout << "  Avg LS iters per NLS iter      = " << avgli << endl;
   cout << endl;
 
   // Get preconditioner stats
@@ -2983,9 +2820,9 @@ static int OutputStatsMRICVODE(void *arkode_mem,
   {
     long int npe, nps;
     flag = MRIStepGetNumPrecEvals(arkode_mem, &npe);
-    if (check_flag(&flag, "MRIStepGetNumPrecEvals", 1)) return -1;
+    if (check_flag(&flag, "MRIStepGetNumPrecEvals", 1)) { return -1; }
     flag = MRIStepGetNumPrecSolves(arkode_mem, &nps);
-    if (check_flag(&flag, "MRIStepGetNumPrecSolves", 1)) return -1;
+    if (check_flag(&flag, "MRIStepGetNumPrecSolves", 1)) { return -1; }
 
     cout << "  Preconditioner setups = " << npe << endl;
     cout << "  Preconditioner solves = " << nps << endl;
@@ -2995,25 +2832,24 @@ static int OutputStatsMRICVODE(void *arkode_mem,
   // Get fast integrator stats and solver stats
   void* inner_content;
   MRIStepInnerStepper_GetContent(stepper, &inner_content);
-  InnerStepperContent* content = (InnerStepperContent *) inner_content;
+  InnerStepperContent* content = (InnerStepperContent*)inner_content;
 
   cout << fixed;
   cout << setprecision(6);
 
   cout << "Fast Integrator:" << endl;
-  cout << "  Steps            = " << content->nst  << endl;
+  cout << "  Steps            = " << content->nst << endl;
   cout << "  Error test fails = " << content->netf << endl;
-  cout << "  RHS reaction     = " << content->nfe  << endl;
-  cout << "  NLS iters        = " << content->nni  << endl;
+  cout << "  RHS reaction     = " << content->nfe << endl;
+  cout << "  NLS iters        = " << content->nni << endl;
   cout << "  NLS fails        = " << content->nncf << endl;
   cout << endl;
 
   return 0;
 }
 
-
 // Ouput timing stats
-static int OutputTiming(UserData *udata)
+static int OutputTiming(UserData* udata)
 {
   if (udata->outproc)
   {
@@ -3023,29 +2859,22 @@ static int OutputTiming(UserData *udata)
 
   double max = 0.0;
 
-  MPI_Reduce(&(udata->evolve), &max, 1, MPI_DOUBLE, MPI_MAX, 0,
-             udata->comm);
-  if (udata->outproc)
-  {
-    cout << "  Evolve time   = " << max << " sec" << endl;
-  }
+  MPI_Reduce(&(udata->evolve), &max, 1, MPI_DOUBLE, MPI_MAX, 0, udata->comm);
+  if (udata->outproc) { cout << "  Evolve time   = " << max << " sec" << endl; }
 
-  MPI_Reduce(&(udata->rhsD), &max, 1, MPI_DOUBLE, MPI_MAX, 0,
-             udata->comm);
+  MPI_Reduce(&(udata->rhsD), &max, 1, MPI_DOUBLE, MPI_MAX, 0, udata->comm);
   if (udata->outproc)
   {
     cout << "  Diffusion RHS time = " << max << " sec" << endl;
   }
 
-  MPI_Reduce(&(udata->rhsD), &max, 1, MPI_DOUBLE, MPI_MAX, 0,
-             udata->comm);
+  MPI_Reduce(&(udata->rhsD), &max, 1, MPI_DOUBLE, MPI_MAX, 0, udata->comm);
   if (udata->outproc)
   {
     cout << "  Reaction RHS time = " << max << " sec" << endl;
   }
 
-  MPI_Reduce(&(udata->exchange), &max, 1, MPI_DOUBLE, MPI_MAX, 0,
-             udata->comm);
+  MPI_Reduce(&(udata->exchange), &max, 1, MPI_DOUBLE, MPI_MAX, 0, udata->comm);
   if (udata->outproc)
   {
     cout << "  Exchange time = " << max << " sec" << endl;
@@ -3054,8 +2883,7 @@ static int OutputTiming(UserData *udata)
 
   if (udata->prec)
   {
-    MPI_Reduce(&(udata->psolve), &max, 1, MPI_DOUBLE, MPI_MAX, 0,
-               udata->comm);
+    MPI_Reduce(&(udata->psolve), &max, 1, MPI_DOUBLE, MPI_MAX, 0, udata->comm);
     if (udata->outproc)
     {
       cout << "  PSolve time   = " << max << " sec" << endl;
@@ -3066,16 +2894,16 @@ static int OutputTiming(UserData *udata)
   return 0;
 }
 
-
 // Check function return value
-static int check_flag(void *flagvalue, const string funcname, int opt)
+static int check_flag(void* flagvalue, const string funcname, int opt)
 {
   // Check if the function returned a NULL pointer
   if (opt == 0)
   {
     if (flagvalue == NULL)
     {
-      cerr << endl << "ERROR: " << funcname << " returned NULL pointer" << endl
+      cerr << endl
+           << "ERROR: " << funcname << " returned NULL pointer" << endl
            << endl;
       return 1;
     }
@@ -3083,18 +2911,19 @@ static int check_flag(void *flagvalue, const string funcname, int opt)
   // Check the function return flag value
   else if (opt == 1 || opt == 2)
   {
-    int errflag = *((int *) flagvalue);
-    if  ((opt == 1 && errflag < 0) || (opt == 2 && errflag != 0))
+    int errflag = *((int*)flagvalue);
+    if ((opt == 1 && errflag < 0) || (opt == 2 && errflag != 0))
     {
-      cerr << endl << "ERROR: " << funcname << " returned with flag = "
-           << errflag << endl << endl;
+      cerr << endl
+           << "ERROR: " << funcname << " returned with flag = " << errflag << endl
+           << endl;
       return 1;
     }
   }
   else
   {
-    cerr << endl << "ERROR: check_flag called with an invalid option value"
-         << endl;
+    cerr << endl
+         << "ERROR: check_flag called with an invalid option value" << endl;
     return 1;
   }
 

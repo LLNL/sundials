@@ -377,7 +377,7 @@ case "$testtype" in
         # Don't creat tarballs
         tarball=NONE
 
-        # C90 compile test and sanitizer tests
+        # Address sanitizer tests (TPLs OFF)
         for is in 32 64; do
             args_realtypes+=("double")
             args_indexsizes+=("${is}")
@@ -402,7 +402,7 @@ case "$testtype" in
         # Create sundials tarball
         tarball=sundials
 
-        # C90 compile test and sanitizer tests
+        # Address sanitizer tests (TPLs OFF)
         for is in 32 64; do
             args_realtypes+=("double")
             args_indexsizes+=("${is}")
@@ -434,7 +434,7 @@ case "$testtype" in
         # Create sundials tarball
         tarball=sundials
 
-        # C90 compile test and sanitizer tests
+        # Address sanitizer tests (TPLs OFF)
         for is in 32 64; do
             args_realtypes+=("double")
             args_indexsizes+=("${is}")

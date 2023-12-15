@@ -44,55 +44,54 @@
  * This problem is comparable to the cvRoberts_block_klu.c example.
  * ---------------------------------------------------------------------------*/
 
-#include <cstdio>
-#include <iostream>
 #include <chrono>
-
-#include <cvode/cvode.h>                      // access to CVODE fcts., consts.
-#include <nvector/nvector_sycl.h>             // access the SYCL NVector
-#include <sunmemory/sunmemory_sycl.h>         // access the SYCL Memory helper
-#include <sunmatrix/sunmatrix_onemkldense.h>  // access the oneMKL SUNMatrix
-#include <sunlinsol/sunlinsol_onemkldense.h>  // access the oneMKL SUNLinearSolver
-#include <sunlinsol/sunlinsol_spgmr.h>        // access the GMRES SUNLinearSolver
+#include <cstdio>
+#include <cvode/cvode.h> // access to CVODE fcts., consts.
+#include <iostream>
+#include <nvector/nvector_sycl.h>            // access the SYCL NVector
+#include <sunlinsol/sunlinsol_onemkldense.h> // access the oneMKL SUNLinearSolver
+#include <sunlinsol/sunlinsol_spgmr.h>       // access the GMRES SUNLinearSolver
+#include <sunmatrix/sunmatrix_onemkldense.h> // access the oneMKL SUNMatrix
+#include <sunmemory/sunmemory_sycl.h>        // access the SYCL Memory helper
 
 using namespace std;
 
 // Problem Constants
 
-#define GROUPSIZE 3            // number of equations per group
-#define Y1    SUN_RCONST(1.0)      // initial y components
-#define Y2    SUN_RCONST(0.0)
-#define Y3    SUN_RCONST(0.0)
-#define RTOL  SUN_RCONST(1.0e-4)   // scalar relative tolerance
-#define ATOL1 SUN_RCONST(1.0e-8)   // vector absolute tolerance components
-#define ATOL2 SUN_RCONST(1.0e-14)
-#define ATOL3 SUN_RCONST(1.0e-6)
-#define T0    SUN_RCONST(0.0)      // initial time
-#define T1    SUN_RCONST(0.1)      // first output time
-#define TMULT SUN_RCONST(10.0)     // output time factor
-#define NOUT  10               // number of output times
+#define GROUPSIZE 3               // number of equations per group
+#define Y1        SUN_RCONST(1.0) // initial y components
+#define Y2        SUN_RCONST(0.0)
+#define Y3        SUN_RCONST(0.0)
+#define RTOL      SUN_RCONST(1.0e-4) // scalar relative tolerance
+#define ATOL1     SUN_RCONST(1.0e-8) // vector absolute tolerance components
+#define ATOL2     SUN_RCONST(1.0e-14)
+#define ATOL3     SUN_RCONST(1.0e-6)
+#define T0        SUN_RCONST(0.0)  // initial time
+#define T1        SUN_RCONST(0.1)  // first output time
+#define TMULT     SUN_RCONST(10.0) // output time factor
+#define NOUT      10               // number of output times
 
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 // Functions Called by the Solver
-static int f(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r,
-                  N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
-                  void *user_data);
+static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z,
+                  sunrealtype gamma, sunrealtype delta, int lr, void* user_data);
 
 // Private function to output results
-static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3);
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2,
+                        sunrealtype y3);
 
 // Private function to print final statistics
-static void PrintFinalStats(void *cvode_mem, bool direct);
+static void PrintFinalStats(void* cvode_mem, bool direct);
 
 // Private function to check function return values
-static int check_retval(void *returnvalue, const char *funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 // User data structure
 typedef struct
@@ -106,7 +105,7 @@ typedef struct
  * Main Program
  * ---------------------------------------------------------------------------*/
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   // SUNDIALS simulation context
   sundials::Context sunctx;
@@ -118,15 +117,15 @@ int main(int argc, char *argv[])
 
   // Number of ODE groups
   int ngroups = 100;
-  if (argc > 1) ngroups = atoi(argv[1]);
+  if (argc > 1) { ngroups = atoi(argv[1]); }
 
   // Use a direct or iterative linear sovler
   bool direct = true;
-  if (argc > 2) direct = (atoi(argv[2])) ? true : false;
+  if (argc > 2) { direct = (atoi(argv[2])) ? true : false; }
 
   // Write the solution to the screen
   bool output = true;
-  if (argc > 3) output = (atoi(argv[3])) ? true : false;
+  if (argc > 3) { output = (atoi(argv[3])) ? true : false; }
 
   // Create an in-order GPU queue
 #if SYCL_LANGUAGE_VERSION >= 2020 && !defined(SUNDIALS_SYCL_2020_UNSUPPORTED)
@@ -139,9 +138,7 @@ int main(int argc, char *argv[])
 #endif
 
   sycl::device dev = myQueue.get_device();
-  cout << "Running on "
-       << (dev.get_info<sycl::info::device::name>())
-       << endl;
+  cout << "Running on " << (dev.get_info<sycl::info::device::name>()) << endl;
 
   // Total number of equations
   sunindextype neq = ngroups * GROUPSIZE;
@@ -154,14 +151,14 @@ int main(int argc, char *argv[])
 
   // Create the SYCL memory helper
   SUNMemoryHelper memhelper = SUNMemoryHelper_Sycl(sunctx);
-  if (check_retval((void *)memhelper, "SUNMemoryHelper_Sycl", 0)) return 1;
+  if (check_retval((void*)memhelper, "SUNMemoryHelper_Sycl", 0)) { return 1; }
 
   // Create SYCL vector for state and absolute tolerances
   N_Vector y = N_VNew_Sycl(neq, &myQueue, sunctx);
-  if (check_retval((void *)y, "N_VNew", 0)) return 1;
+  if (check_retval((void*)y, "N_VNew", 0)) { return 1; }
 
   N_Vector abstol = N_VClone(y);
-  if (check_retval((void *)abstol, "N_VClone", 0)) return 1;
+  if (check_retval((void*)abstol, "N_VClone", 0)) { return 1; }
 
   // Initialize y
   sunrealtype* ydata = N_VGetArrayPointer(y);
@@ -188,22 +185,22 @@ int main(int argc, char *argv[])
 
   // Create CVODE with BDF methods
   void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return 1;
+  if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return 1; }
 
   // Initialize CVODE
   retval = CVodeInit(cvode_mem, f, T0, y);
-  if (check_retval(&retval, "CVodeInit", 1)) return 1;
+  if (check_retval(&retval, "CVodeInit", 1)) { return 1; }
 
   // Call CVodeSetUserData to attach the user data structure
   retval = CVodeSetUserData(cvode_mem, &udata);
-  if (check_retval(&retval, "CVodeSetUserData", 1)) return 1;
+  if (check_retval(&retval, "CVodeSetUserData", 1)) { return 1; }
 
   // Set tolerances
   retval = CVodeSVtolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSVtolerances", 1)) return 1;
+  if (check_retval(&retval, "CVodeSVtolerances", 1)) { return 1; }
 
   // Create and attach linear solver
-  SUNMatrix       A  = NULL;
+  SUNMatrix A        = NULL;
   SUNLinearSolver LS = NULL;
 
   if (direct)
@@ -212,59 +209,55 @@ int main(int argc, char *argv[])
     A = SUNMatrix_OneMklDenseBlock(ngroups, GROUPSIZE, GROUPSIZE,
                                    SUNMEMTYPE_DEVICE, memhelper, &myQueue,
                                    sunctx);
-    if (check_retval((void *)A, "SUNMatrix_OneMklDenseBlock", 0)) return 1;
+    if (check_retval((void*)A, "SUNMatrix_OneMklDenseBlock", 0)) { return 1; }
 
     // Create the SUNLinearSolver object for use by CVode
     LS = SUNLinSol_OneMklDense(y, A, sunctx);
-    if (check_retval((void *)LS, "SUNLinSol_OneMklDense", 0)) return 1;
+    if (check_retval((void*)LS, "SUNLinSol_OneMklDense", 0)) { return 1; }
 
     // Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode
     retval = CVodeSetLinearSolver(cvode_mem, LS, A);
-    if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+    if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
 
     // Set the user-supplied Jacobian routine Jac
     retval = CVodeSetJacFn(cvode_mem, Jac);
-    if (check_retval(&retval, "CVodeSetJacFn", 1)) return 1;
+    if (check_retval(&retval, "CVodeSetJacFn", 1)) { return 1; }
   }
   else
   {
     // Create SPGMR solver
     LS = SUNLinSol_SPGMR(y, SUN_PREC_RIGHT, 10, sunctx);
-    if (check_retval(&retval, "SUNLinSol_SPGMR", 1)) return 1;
+    if (check_retval(&retval, "SUNLinSol_SPGMR", 1)) { return 1; }
 
     // Call CVodeSetLinearSolver to attach the linear solver to CVode
     retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-    if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
+    if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
 
     // Attach preconditioner
     retval = CVodeSetPreconditioner(cvode_mem, NULL, PSolve);
-    if (check_retval(&retval, "CVodeSetPreconditioner", 1)) return 1;
+    if (check_retval(&retval, "CVodeSetPreconditioner", 1)) { return 1; }
   }
 
   // Loop over output times and print solution
   printf("\nGroup of independent 3-species kinetics problems\n");
   printf("  number of groups = %d\n", ngroups);
-  if (direct)
-    printf("  using direct linear solver\n");
-  else
-    printf("  using iterative linear solver\n");
-  if (output)
-    printf("  output enabled\n");
-  else
-    printf("  output disabled\n");
+  if (direct) { printf("  using direct linear solver\n"); }
+  else { printf("  using iterative linear solver\n"); }
+  if (output) { printf("  output enabled\n"); }
+  else { printf("  output disabled\n"); }
 
-  int      iout = 0;
+  int iout         = 0;
   sunrealtype tout = T1;
   sunrealtype t;
 
   // Start timer
   chrono::time_point<chrono::steady_clock> tstart = chrono::steady_clock::now();
 
-  while(1)
+  while (1)
   {
     // Evolve in time
     retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-    if (check_retval(&retval, "CVode", 1)) break;
+    if (check_retval(&retval, "CVode", 1)) { break; }
 
     if (output)
     {
@@ -272,9 +265,8 @@ int main(int argc, char *argv[])
       N_VCopyFromDevice_Sycl(y);
       for (sunindextype groupj = 0; groupj < ngroups; groupj += 10)
       {
-        printf("group %ld: ", (long int) groupj);
-        PrintOutput(t, ydata[GROUPSIZE * groupj],
-                    ydata[1 + GROUPSIZE * groupj],
+        printf("group %ld: ", (long int)groupj);
+        PrintOutput(t, ydata[GROUPSIZE * groupj], ydata[1 + GROUPSIZE * groupj],
                     ydata[2 + GROUPSIZE * groupj]);
       }
     }
@@ -284,7 +276,7 @@ int main(int argc, char *argv[])
     tout *= TMULT;
 
     // Stop after NOUT outputs
-    if (iout == NOUT) break;
+    if (iout == NOUT) { break; }
   }
 
   // Stop timer
@@ -295,8 +287,8 @@ int main(int argc, char *argv[])
   PrintFinalStats(cvode_mem, direct);
 
   // Print evoltuion time
-  cout << "Evolution time: "
-       << chrono::duration<double>(tstop - tstart).count() << endl;
+  cout << "Evolution time: " << chrono::duration<double>(tstop - tstart).count()
+       << endl;
 
   // Free objects and integrator
   N_VDestroy(y);
@@ -309,159 +301,162 @@ int main(int argc, char *argv[])
   return 0;
 }
 
-
 /* ---------------------------------------------------------------------------
  * Functions called by the solver
  * ---------------------------------------------------------------------------*/
 
-
 // Compute the right-hand side function, ydot = f(t, y).
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  UserData* udata    = (UserData*) user_data;
+  UserData* udata       = (UserData*)user_data;
   sunrealtype* ydata    = N_VGetDeviceArrayPointer(y);
   sunrealtype* ydotdata = N_VGetDeviceArrayPointer(ydot);
 
-  const size_t       ngroups = static_cast<size_t>(udata->ngroups);
-  const sunindextype N       = GROUPSIZE;
+  const size_t ngroups = static_cast<size_t>(udata->ngroups);
+  const sunindextype N = GROUPSIZE;
 
-  udata->myQueue->submit([&](sycl::handler& h)
-  {
-    h.parallel_for(sycl::range{ngroups}, [=](sycl::id<1> idx)
+  udata->myQueue->submit(
+    [&](sycl::handler& h)
     {
-      sunindextype groupj = idx[0];
+      h.parallel_for(sycl::range{ngroups},
+                     [=](sycl::id<1> idx)
+                     {
+                       sunindextype groupj = idx[0];
 
-      sunrealtype y1 = ydata[N * groupj];
-      sunrealtype y2 = ydata[N * groupj + 1];
-      sunrealtype y3 = ydata[N * groupj + 2];
+                       sunrealtype y1 = ydata[N * groupj];
+                       sunrealtype y2 = ydata[N * groupj + 1];
+                       sunrealtype y3 = ydata[N * groupj + 2];
 
-      sunrealtype yd1 = SUN_RCONST(-0.04) * y1 + SUN_RCONST(1.0e4) * y2 * y3;
-      sunrealtype yd3 = SUN_RCONST(3.0e7) * y2 * y2;
+                       sunrealtype yd1 = SUN_RCONST(-0.04) * y1 +
+                                         SUN_RCONST(1.0e4) * y2 * y3;
+                       sunrealtype yd3 = SUN_RCONST(3.0e7) * y2 * y2;
 
-      ydotdata[N * groupj]     = yd1;
-      ydotdata[N * groupj + 1] = -yd1 - yd3;
-      ydotdata[N * groupj + 2] = yd3;
+                       ydotdata[N * groupj]     = yd1;
+                       ydotdata[N * groupj + 1] = -yd1 - yd3;
+                       ydotdata[N * groupj + 2] = yd3;
+                     });
     });
-  });
 
   udata->myQueue->wait_and_throw();
 
   return 0;
 }
-
 
 // Compute the right-hand side Jacobian, J(t,y) = df/dy.
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  UserData* udata = (UserData*) user_data;
+  UserData* udata    = (UserData*)user_data;
   sunrealtype* Jdata = SUNMatrix_OneMklDense_Data(J);
   sunrealtype* ydata = N_VGetDeviceArrayPointer(y);
 
-  const size_t       ngroups = static_cast<size_t>(udata->ngroups);
-  const sunindextype N       = GROUPSIZE;
-  const sunindextype NN      = GROUPSIZE * GROUPSIZE;
+  const size_t ngroups  = static_cast<size_t>(udata->ngroups);
+  const sunindextype N  = GROUPSIZE;
+  const sunindextype NN = GROUPSIZE * GROUPSIZE;
 
-  udata->myQueue->submit([&](sycl::handler& h)
-  {
-    h.parallel_for(sycl::range{ngroups}, [=](sycl::id<1> idx)
+  udata->myQueue->submit(
+    [&](sycl::handler& h)
     {
-      sunindextype groupj = idx[0];
+      h.parallel_for(sycl::range{ngroups},
+                     [=](sycl::id<1> idx)
+                     {
+                       sunindextype groupj = idx[0];
 
-      // get y values
-      sunrealtype y2 = ydata[N * groupj + 1];
-      sunrealtype y3 = ydata[N * groupj + 2];
+                       // get y values
+                       sunrealtype y2 = ydata[N * groupj + 1];
+                       sunrealtype y3 = ydata[N * groupj + 2];
 
-      // first col of block
-      Jdata[NN * groupj]     = SUN_RCONST(-0.04);
-      Jdata[NN * groupj + 1] = SUN_RCONST(0.04);
-      Jdata[NN * groupj + 2] = ZERO;
+                       // first col of block
+                       Jdata[NN * groupj]     = SUN_RCONST(-0.04);
+                       Jdata[NN * groupj + 1] = SUN_RCONST(0.04);
+                       Jdata[NN * groupj + 2] = ZERO;
 
-      // second col of block
-      Jdata[NN * groupj + 3] = SUN_RCONST(1.0e4) * y3;
-      Jdata[NN * groupj + 4] = SUN_RCONST(-1.0e4) * y3 - SUN_RCONST(6.0e7) * y2;
-      Jdata[NN * groupj + 5] = SUN_RCONST(6.0e7) * y2;
+                       // second col of block
+                       Jdata[NN * groupj + 3] = SUN_RCONST(1.0e4) * y3;
+                       Jdata[NN * groupj + 4] = SUN_RCONST(-1.0e4) * y3 -
+                                                SUN_RCONST(6.0e7) * y2;
+                       Jdata[NN * groupj + 5] = SUN_RCONST(6.0e7) * y2;
 
-      // third col of block
-      Jdata[NN * groupj + 6] = SUN_RCONST(1.0e4) * y2;
-      Jdata[NN * groupj + 7] = SUN_RCONST(-1.0e4) * y2;
-      Jdata[NN * groupj + 8] = ZERO;
+                       // third col of block
+                       Jdata[NN * groupj + 6] = SUN_RCONST(1.0e4) * y2;
+                       Jdata[NN * groupj + 7] = SUN_RCONST(-1.0e4) * y2;
+                       Jdata[NN * groupj + 8] = ZERO;
+                     });
     });
-  });
 
   udata->myQueue->wait_and_throw();
 
   return 0;
 }
 
-
-static int PSolve(sunrealtype t, N_Vector y, N_Vector f, N_Vector r,
-                  N_Vector z, sunrealtype gamma, sunrealtype delta, int lr,
-                  void *user_data)
+static int PSolve(sunrealtype t, N_Vector y, N_Vector f, N_Vector r, N_Vector z,
+                  sunrealtype gamma, sunrealtype delta, int lr, void* user_data)
 {
-  UserData* udata = (UserData*) user_data;
+  UserData* udata    = (UserData*)user_data;
   sunrealtype* ydata = N_VGetDeviceArrayPointer(y);
   sunrealtype* rdata = N_VGetDeviceArrayPointer(r);
   sunrealtype* zdata = N_VGetDeviceArrayPointer(z);
 
-  const size_t       ngroups = static_cast<size_t>(udata->ngroups);
-  const sunindextype N       = GROUPSIZE;
+  const size_t ngroups = static_cast<size_t>(udata->ngroups);
+  const sunindextype N = GROUPSIZE;
 
-  udata->myQueue->submit([&](sycl::handler& h)
-  {
-    h.parallel_for(sycl::range{ngroups}, [=](sycl::id<1> idx)
+  udata->myQueue->submit(
+    [&](sycl::handler& h)
     {
-      sunindextype groupj = idx[0];
-      sunindextype i0     = N * groupj;
-      sunindextype i1     = N * groupj + 1;
-      sunindextype i2     = N * groupj + 2;
+      h.parallel_for(sycl::range{ngroups},
+                     [=](sycl::id<1> idx)
+                     {
+                       sunindextype groupj = idx[0];
+                       sunindextype i0     = N * groupj;
+                       sunindextype i1     = N * groupj + 1;
+                       sunindextype i2     = N * groupj + 2;
 
-      // Solve (I - gamma J) z = r
-      //
-      // [ 1 + a     -b      -c ] [ z0 ]   [ r0 ]
-      // [  -a    1 + b + d   c ] [ z1 ] = [ r1 ]
-      // [   0       -d       1 ] [ z2 ]   [ r2 ]
+                       // Solve (I - gamma J) z = r
+                       //
+                       // [ 1 + a     -b      -c ] [ z0 ]   [ r0 ]
+                       // [  -a    1 + b + d   c ] [ z1 ] = [ r1 ]
+                       // [   0       -d       1 ] [ z2 ]   [ r2 ]
 
-      // get y values
-      sunrealtype y2 = ydata[i1];
-      sunrealtype y3 = ydata[i2];
+                       // get y values
+                       sunrealtype y2 = ydata[i1];
+                       sunrealtype y3 = ydata[i2];
 
-      // set matrix values
-      sunrealtype a = gamma * SUN_RCONST(0.04);
-      sunrealtype b = gamma * SUN_RCONST(1.0e4) * y3;
-      sunrealtype c = gamma * SUN_RCONST(1.0e4) * y2;
-      sunrealtype d = gamma * SUN_RCONST(6.0e7) * y2;
+                       // set matrix values
+                       sunrealtype a = gamma * SUN_RCONST(0.04);
+                       sunrealtype b = gamma * SUN_RCONST(1.0e4) * y3;
+                       sunrealtype c = gamma * SUN_RCONST(1.0e4) * y2;
+                       sunrealtype d = gamma * SUN_RCONST(6.0e7) * y2;
 
-      // Initial Jacobi iteration with zero guess
+                       // Initial Jacobi iteration with zero guess
 
-      // z0 = r0 / (1 + a)
-      zdata[i0] = rdata[i0] / (ONE + a);
+                       // z0 = r0 / (1 + a)
+                       zdata[i0] = rdata[i0] / (ONE + a);
 
-      // z1 = r1 / (1 + b + d)
-      zdata[i1] = rdata[i1] / (1 + b + d);
+                       // z1 = r1 / (1 + b + d)
+                       zdata[i1] = rdata[i1] / (1 + b + d);
 
-      // z2 = r2 + d
-      zdata[i2] = rdata[i2];
+                       // z2 = r2 + d
+                       zdata[i2] = rdata[i2];
 
-      // Subsequent Jacobi iterations
+                       // Subsequent Jacobi iterations
 
-      for (int i = 1; i < 10; ++i)
-      {
-        sunrealtype z0 = zdata[i0];
-        sunrealtype z1 = zdata[i1];
-        sunrealtype z2 = zdata[i2];
+                       for (int i = 1; i < 10; ++i)
+                       {
+                         sunrealtype z0 = zdata[i0];
+                         sunrealtype z1 = zdata[i1];
+                         sunrealtype z2 = zdata[i2];
 
-        // z0 = (r0 + b * z1 + x * z2 / (1 + a)
-        zdata[i0] = (rdata[i0] + b * z1 + c * z2) / (ONE + a);
+                         // z0 = (r0 + b * z1 + x * z2 / (1 + a)
+                         zdata[i0] = (rdata[i0] + b * z1 + c * z2) / (ONE + a);
 
-        // z1 = r1 / (1 + b + d)
-        zdata[i1] = (rdata[i1] + a * z0 - c * z2) / (1 + b + d);
+                         // z1 = r1 / (1 + b + d)
+                         zdata[i1] = (rdata[i1] + a * z0 - c * z2) / (1 + b + d);
 
-        // z2 = r2 + d
-        zdata[i2] = (rdata[i2] + d * z1);
-      }
+                         // z2 = r2 + d
+                         zdata[i2] = (rdata[i2] + d * z1);
+                       }
+                     });
     });
-  });
 
   return 0;
 }
@@ -470,9 +465,9 @@ static int PSolve(sunrealtype t, N_Vector y, N_Vector f, N_Vector r,
  * Private helper functions
  * ---------------------------------------------------------------------------*/
 
-
 // Output solution
-static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
+static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2,
+                        sunrealtype y3)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);
@@ -485,9 +480,8 @@ static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealty
   return;
 }
 
-
 // Get and print some final statistics
-static void PrintFinalStats(void *cvode_mem, bool direct)
+static void PrintFinalStats(void* cvode_mem, bool direct)
 {
   int retval;
 
@@ -503,8 +497,8 @@ static void PrintFinalStats(void *cvode_mem, bool direct)
   retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
   check_retval(&retval, "CVodeGetNumErrTestFails", 1);
 
-  cout << "Time steps:       " << nst  << "\n";
-  cout << "RHS evals:        " << nfe  << "\n";
+  cout << "Time steps:       " << nst << "\n";
+  cout << "RHS evals:        " << nfe << "\n";
   cout << "Error test fails: " << netf << "\n\n";
 
   // Nonlinear solver stats
@@ -515,7 +509,7 @@ static void PrintFinalStats(void *cvode_mem, bool direct)
   retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  cout << "NLS iters: " << nni  << "\n";
+  cout << "NLS iters: " << nni << "\n";
   cout << "NLS fails: " << ncfn << "\n\n";
 
   // Linear solver stats
@@ -528,7 +522,7 @@ static void PrintFinalStats(void *cvode_mem, bool direct)
     check_retval(&retval, "CVodeGetNumJacEvals", 1);
 
     cout << "LS setups: " << nsetups << "\n";
-    cout << "Jac evals: " << nje     << "\n\n";
+    cout << "Jac evals: " << nje << "\n\n";
   }
   else
   {
@@ -542,15 +536,14 @@ static void PrintFinalStats(void *cvode_mem, bool direct)
     retval = CVodeGetNumPrecSolves(cvode_mem, &nps);
     check_retval(&retval, "CVodeGetNumPrecSolves", 1);
 
-    cout << "LS iters:     " << nli   << "\n";
-    cout << "LS fails:     " << ncfl  << "\n";
+    cout << "LS iters:     " << nli << "\n";
+    cout << "LS fails:     " << ncfl << "\n";
     cout << "LS RHS evals: " << nfeLS << "\n";
-    cout << "P solves:     " << nps   << "\n\n";
+    cout << "P solves:     " << nps << "\n\n";
   }
 
   return;
 }
-
 
 /* Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
@@ -559,9 +552,9 @@ static void PrintFinalStats(void *cvode_mem, bool direct)
  *            retval < 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer */
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   // Check if SUNDIALS function returned NULL pointer - no memory allocated
   if (opt == 0 && returnvalue == NULL)
@@ -574,7 +567,7 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   // Check if retval < 0
   else if (opt == 1)
   {
-    retval = (int *) returnvalue;
+    retval = (int*)returnvalue;
     if (*retval < 0)
     {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",

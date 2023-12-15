@@ -29,7 +29,7 @@
 #include <sundials/sundials_nvector.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -37,32 +37,32 @@ extern "C" {
  * LAPACK dense implementation of SUNLinearSolver
  * ----------------------------------------------- */
 
-struct _SUNLinearSolverContent_LapackDense {
+struct _SUNLinearSolverContent_LapackDense
+{
   sunindextype N;
-  sunindextype *pivots;
+  sunindextype* pivots;
   sunindextype last_flag;
 };
 
-typedef struct _SUNLinearSolverContent_LapackDense *SUNLinearSolverContent_LapackDense;
-
+typedef struct _SUNLinearSolverContent_LapackDense* SUNLinearSolverContent_LapackDense;
 
 /* ---------------------------------------------
  * Exported Functions for SUNLINSOL_LAPACKDENSE
  * --------------------------------------------- */
 
-SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_LapackDense(N_Vector y,
-                                                      SUNMatrix A,
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A,
                                                       SUNContext sunctx);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A,
-                                               N_Vector x, N_Vector b, sunrealtype tol);
+                                               N_Vector x, N_Vector b,
+                                               sunrealtype tol);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_LapackDense(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSpace_LapackDense(SUNLinearSolver S,
-                                               long int *lenrwLS,
-                                               long int *leniwLS);
+                                               long int* lenrwLS,
+                                               long int* leniwLS);
 SUNDIALS_EXPORT int SUNLinSolFree_LapackDense(SUNLinearSolver S);
 
 #ifdef __cplusplus
