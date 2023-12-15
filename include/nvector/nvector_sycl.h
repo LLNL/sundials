@@ -18,12 +18,12 @@
 #ifndef _NVECTOR_SYCL_H
 #define _NVECTOR_SYCL_H
 
-#include <CL/sycl.hpp>
 #include <stdio.h>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_sycl_policies.hpp>
 #include <sunmemory/sunmemory_sycl.h>
+#include <sycl/sycl.hpp>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

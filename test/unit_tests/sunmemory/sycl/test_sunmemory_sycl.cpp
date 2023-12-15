@@ -10,11 +10,11 @@
  * SUNDIALS Copyright End
  *-----------------------------------------------------------------*/
 
-#include <CL/sycl.hpp>
 #include <iostream>
 #include <sundials/sundials_memory.h>
 #include <sundials/sundials_types.h>
 #include <sunmemory/sunmemory_sycl.h>
+#include <sycl/sycl.hpp>
 
 int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
                   bool print_test_status)

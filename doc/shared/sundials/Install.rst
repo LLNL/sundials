@@ -1012,6 +1012,10 @@ illustration only.
 
    .. note::
 
+      Building with SYCL enabled requires a compiler that supports a subset of
+      the of SYCL 2020 specification (specifically ``sycl/sycl.hpp`` must be
+      available).
+
       CMake does not currently support autodetection of SYCL compilers and
       ``CMAKE_CXX_COMPILER`` must be set to a valid SYCL compiler. At present
       the only supported SYCL compilers are the Intel oneAPI compilers i.e.,
