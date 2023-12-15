@@ -191,31 +191,28 @@ sunindextype SUNMatrix_MagmaDense_Rows(SUNMatrix Amat)
 {
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
-  if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return (A->M * A->nblocks); }
-  else { return (SUN_ERR_ARG_WRONGTYPE); }
+  return (A->M * A->nblocks);
 }
 
 sunindextype SUNMatrix_MagmaDense_Columns(SUNMatrix Amat)
 {
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
-  if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return (A->N * A->nblocks); }
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  return (A->N * A->nblocks);
 }
 
 sunindextype SUNMatrix_MagmaDense_BlockRows(SUNMatrix Amat)
 {
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
-  if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return (A->M); }
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  return A->M;
 }
 
 sunindextype SUNMatrix_MagmaDense_BlockColumns(SUNMatrix Amat)
 {
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
-  if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return (A->N); }
+  return A->N;
   else { return (SUN_ERR_ARG_INCOMPATIBLE); }
 }
 
@@ -223,24 +220,21 @@ sunindextype SUNMatrix_MagmaDense_NumBlocks(SUNMatrix Amat)
 {
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
-  if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return (A->nblocks); }
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  return A->nblocks;
 }
 
 sunindextype SUNMatrix_MagmaDense_LData(SUNMatrix Amat)
 {
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
-  if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return (A->ldata); }
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  return A->ldata;
 }
 
 sunindextype SUNMatrix_MagmaDense_BlockLData(SUNMatrix Amat)
 {
   SUNMatrixContent_MagmaDense A = SMLD_CONTENT(Amat);
 
-  if (SUNMatGetID(Amat) == SUNMATRIX_MAGMADENSE) { return A->M * A->N; }
-  else { return SUN_ERR_ARG_INCOMPATIBLE; }
+  return A->M * A->N;
 }
 
 sunrealtype* SUNMatrix_MagmaDense_Data(SUNMatrix Amat)

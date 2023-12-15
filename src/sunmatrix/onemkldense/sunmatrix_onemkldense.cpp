@@ -187,38 +187,32 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
 
 sunindextype SUNMatrix_OneMklDense_Rows(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_ROWS(A); }
-  else { return SUN_ERR_ARG_WRONGTYPE; }
+  return MAT_ROWS(A);
 }
 
 sunindextype SUNMatrix_OneMklDense_Columns(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_COLS(A); }
-  else { return SUN_ERR_ARG_INCOMPATIBLE; }
+  return MAT_COLS(A);
 }
 
 sunindextype SUNMatrix_OneMklDense_NumBlocks(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_NBLOCKS(A); }
-  else { return SUN_ERR_ARG_INCOMPATIBLE; }
+  return MAT_NBLOCKS(A);
 }
 
 sunindextype SUNMatrix_OneMklDense_BlockRows(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_BLOCK_ROWS(A); }
-  else { return SUN_ERR_ARG_INCOMPATIBLE; }
+  return MAT_BLOCK_ROWS(A);
 }
 
 sunindextype SUNMatrix_OneMklDense_BlockColumns(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_BLOCK_COLS(A); }
-  else { return SUN_ERR_ARG_INCOMPATIBLE; }
+  return MAT_BLOCK_COLS(A);
 }
 
 sunindextype SUNMatrix_OneMklDense_LData(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_ONEMKLDENSE) { return MAT_LDATA(A); }
-  else { return SUN_ERR_ARG_INCOMPATIBLE; }
+  return MAT_LDATA(A);
 }
 
 sunrealtype* SUNMatrix_OneMklDense_Data(SUNMatrix A)
