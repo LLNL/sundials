@@ -89,8 +89,8 @@ user-callable routines:
 
    **Return value:**
       * ``SUN_SUCCESS`` -- reinitialization successful.
-      * ``SUNLS_MEM_NULL`` -- either ``S`` or ``A`` are ``NULL``.
-      * ``SUNLS_ILL_INPUT`` -- ``A`` does not have type ``SUNMATRIX_SPARSE`` or
+      * ``SUN_ERR_ARK_CORRUPT`` -- either ``S`` or ``A`` are ``NULL``.
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- ``A`` does not have type ``SUNMATRIX_SPARSE`` or
          ``reinit_type`` is invalid.
       * ``SUNLS_MEM_FAIL`` reallocation of the sparse matrix failed.
 

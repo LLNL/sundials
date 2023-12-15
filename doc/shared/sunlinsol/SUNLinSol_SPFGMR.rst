@@ -134,7 +134,7 @@ user-callable routines:
 
    **Return value:**
       * ``SUN_SUCCESS`` -- successful update.
-      * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``
+      * ``SUN_ERR_ARG_CORRUPT`` -- ``S`` is ``NULL``
 
 
 
