@@ -241,7 +241,7 @@ if(NOT SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME)
     int main(int argc, const char* argv[]) {
       double a = 0.0;
       __builtin_assume(a >= 0.0);
-      a = a + 1.0; 
+      a = a + 1.0;
       return 0;
     }
   " SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME)
@@ -476,20 +476,42 @@ endforeach()
 # Configure clang-tidy for linting
 # ===============================================================
 
+set(SUNDIALS_DEV_CLANG_TIDY_DIR ${CMAKE_BINARY_DIR}/clang-tidy/)
+
 if(SUNDIALS_DEV_CLANG_TIDY)
-  make_directory(${CMAKE_BINARY_DIR}/clang-tidy)
+  find_program(CLANG_TIDY_PATH NAMES clang-tidy)
+  if(NOT CLANG_TIDY_PATH)
+      message(FATAL_ERROR "Could not find the program clang-tidy")
+  endif()
+  message("Found IWYU: ${CLANG_TIDY_PATH}")
+  make_directory(${SUNDIALS_DEV_IWYU_DIR})
+  make_directory(${SUNDIALS_DEV_CLANG_TIDY_DIR})
   if(SUNDIALS_DEV_CLANG_TIDY_FIX_ERRORS)
-    set(CMAKE_C_CLANG_TIDY clang-tidy -format-style='file' --fix)
-    set(CMAKE_CXX_CLANG_TIDY clang-tidy -format-style='file' --fix)
+    set(CMAKE_C_CLANG_TIDY ${CLANG_TIDY_PATH} -format-style='file' --fix)
+    set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_PATH} -format-style='file' --fix)
   else()
-    set(CMAKE_C_CLANG_TIDY clang-tidy 
-      -format-style='file' 
-      --export-fixes=${CMAKE_BINARY_DIR}/clang-tidy/clang-tidy-fixes.yaml
+    set(CMAKE_C_CLANG_TIDY ${CLANG_TIDY_PATH}
+      -format-style='file'
+      --export-fixes=${SUNDIALS_DEV_CLANG_TIDY_DIR}/clang-tidy-fixes.yaml
     )
-    set(CMAKE_CXX_CLANG_TIDY 
-      clang-tidy 
-      -format-style='file' 
-      --export-fixes=${CMAKE_B_DIR}/clang-tidy/clang-tidy-cxx-fixes.yaml
+    set(CMAKE_CXX_CLANG_TIDY
+      ${CLANG_TIDY_PATH}
+      -format-style='file'
+      --export-fixes=${SUNDIALS_DEV_CLANG_TIDY_DIR}/clang-tidy-cxx-fixes.yaml
     )
   endif()
+endif()
+
+if(SUNDIALS_DEV_IWYU)
+  find_program(IWYU_PATH NAMES include-what-you-use iwyu)
+  if(NOT IWYU_PATH)
+    message(FATAL_ERROR "Could not find the program include-what-you-use")
+  endif()
+  message("Found IWYU: ${IWYU_PATH}")
+  set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU_PATH}
+    -Xiwyu --mapping_file=${CMAKE_SOURCE_DIR}/scripts/iwyu.imp
+    -Xiwyu --error_always)
+  set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH}
+    -Xiwyu --mapping_file=${CMAKE_SOURCE_DIR}/scripts/iwyu.imp
+    -Xiwyu --error_always)
 endif()
