@@ -2089,7 +2089,7 @@ static int InitializeReductionBuffer(N_Vector v, const sunrealtype value, size_t
 
   /* Wrap the initial value as SUNMemory object */
   SUNMemory value_mem =
-    SUNMemoryHelper_Wrap((NVEC_SYCL_MEMHELP(v), void*)&value, SUNMEMTYPE_HOST);
+    SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), (void*)&value, SUNMEMTYPE_HOST);
 
   /* check if the existing reduction memory is not large enough */
   if (vcp->reduce_buffer_bytes < bytes)
