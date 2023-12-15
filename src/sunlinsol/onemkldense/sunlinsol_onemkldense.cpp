@@ -586,13 +586,6 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
 sunindextype SUNLinSolLastFlag_OneMklDense(SUNLinearSolver S)
 {
-  // return the stored 'last_flag' value
-  if (!S)
-  {
-    SUNDIALS_DEBUG_ERROR("Linear solver is NULL\n");
-    return SUN_ERR_ARG_CORRUPT;
-  }
-
   return LS_LASTFLAG(S);
 }
 
