@@ -80,8 +80,9 @@ SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_MakeCSR(
   cusparseMatDescr_t mat_descr, int M, int N, int NNZ, int* rowptrs,
   int* colind, sunrealtype* data, cusparseHandle_t cusp, SUNContext sunctx);
 
-/* Creates a CSR block-diagonal matrix where each block shares the same sparsity structure.
-   Reduces memory usage by only storing the row pointers and column indices for one block. */
+/* Creates a CSR block-diagonal matrix where each block shares the same sparsity
+   structure. Reduces memory usage by only storing the row pointers and column
+   indices for one block. */
 SUNDIALS_EXPORT SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(
   int nblocks, int blockrows, int blockcols, int blocknnz,
   cusparseHandle_t cusp, SUNContext sunctx);
@@ -98,9 +99,9 @@ SUNDIALS_EXPORT int* SUNMatrix_cuSparse_IndexPointers(SUNMatrix A);
 SUNDIALS_EXPORT int* SUNMatrix_cuSparse_IndexValues(SUNMatrix A);
 SUNDIALS_EXPORT sunrealtype* SUNMatrix_cuSparse_Data(SUNMatrix A);
 
-SUNDIALS_EXPORT int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A,
-                                                       sunbooleantype yesno);
-SUNDIALS_EXPORT int SUNMatrix_cuSparse_SetKernelExecPolicy(
+SUNDIALS_EXPORT
+SUNErrCode SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, sunbooleantype yesno);
+SUNDIALS_EXPORT SUNErrCode SUNMatrix_cuSparse_SetKernelExecPolicy(
   SUNMatrix A, SUNCudaExecPolicy* exec_policy);
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_NumBlocks(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatrix_cuSparse_BlockRows(SUNMatrix A);
@@ -109,14 +110,14 @@ SUNDIALS_EXPORT int SUNMatrix_cuSparse_BlockNNZ(SUNMatrix A);
 SUNDIALS_EXPORT sunrealtype* SUNMatrix_cuSparse_BlockData(SUNMatrix A,
                                                           int blockidx);
 SUNDIALS_EXPORT cusparseMatDescr_t SUNMatrix_cuSparse_MatDescr(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix device,
-                                                    sunrealtype* h_data,
-                                                    int* h_idxptrs,
-                                                    int* h_idxvals);
-SUNDIALS_EXPORT int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix device,
-                                                      sunrealtype* h_data,
-                                                      int* h_idxptrs,
-                                                      int* h_idxvals);
+SUNDIALS_EXPORT SUNErrCode SUNMatrix_cuSparse_CopyToDevice(SUNMatrix device,
+                                                           sunrealtype* h_data,
+                                                           int* h_idxptrs,
+                                                           int* h_idxvals);
+SUNDIALS_EXPORT SUNErrCode SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix device,
+                                                             sunrealtype* h_data,
+                                                             int* h_idxptrs,
+                                                             int* h_idxvals);
 
 /* ------------------------------------------------------------------
  * SUNMatrix API routines.
@@ -125,13 +126,14 @@ SUNDIALS_EXPORT int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix device,
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_cuSparse(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_cuSparse(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy_cuSparse(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatZero_cuSparse(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatCopy_cuSparse(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAdd_cuSparse(sunrealtype c, SUNMatrix A,
-                                            SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAddI_cuSparse(sunrealtype c, SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatMatvecSetup_cuSparse(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatMatvec_cuSparse(SUNMatrix A, N_Vector x, N_Vector y);
+SUNDIALS_EXPORT SUNErrCode SUNMatZero_cuSparse(SUNMatrix A);
+SUNDIALS_EXPORT SUNErrCode SUNMatCopy_cuSparse(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT SUNErrCode SUNMatScaleAdd_cuSparse(sunrealtype c, SUNMatrix A,
+                                                   SUNMatrix B);
+SUNDIALS_EXPORT SUNErrCode SUNMatScaleAddI_cuSparse(sunrealtype c, SUNMatrix A);
+SUNDIALS_EXPORT SUNErrCode SUNMatMatvecSetup_cuSparse(SUNMatrix A);
+SUNDIALS_EXPORT SUNErrCode SUNMatMatvec_cuSparse(SUNMatrix A, N_Vector x,
+                                                 N_Vector y);
 
 #ifdef __cplusplus
 }

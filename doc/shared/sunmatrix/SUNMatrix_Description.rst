@@ -57,13 +57,13 @@ defined as
      SUNMatrix_ID (*getid)(SUNMatrix);
      SUNMatrix    (*clone)(SUNMatrix);
      void         (*destroy)(SUNMatrix);
-     int          (*zero)(SUNMatrix);
-     int          (*copy)(SUNMatrix, SUNMatrix);
-     int          (*scaleadd)(sunrealtype, SUNMatrix, SUNMatrix);
-     int          (*scaleaddi)(sunrealtype, SUNMatrix);
-     int          (*matvecsetup)(SUNMatrix);
-     int          (*matvec)(SUNMatrix, N_Vector, N_Vector);
-     int          (*space)(SUNMatrix, long int*, long int*);
+     SUNErrCode   (*zero)(SUNMatrix);
+     SUNErrCode   (*copy)(SUNMatrix, SUNMatrix);
+     SUNErrCode   (*scaleadd)(sunrealtype, SUNMatrix, SUNMatrix);
+     SUNErrCode   (*scaleaddi)(sunrealtype, SUNMatrix);
+     SUNErrCode   (*matvecsetup)(SUNMatrix);
+     SUNErrCode   (*matvec)(SUNMatrix, N_Vector, N_Vector);
+     SUNErrCode   (*space)(SUNMatrix, long int*, long int*);
    };
 
 
@@ -79,9 +79,9 @@ operation:
 
 .. code-block:: c
 
-   int SUNMatZero(SUNMatrix A)
+   SUNErrCode SUNMatZero(SUNMatrix A)
    {
-     return((int) A->ops->zero(A));
+     return(A->ops->zero(A));
    }
 
 :numref:`SUNMatrix.Ops` contains a complete list of all
@@ -127,7 +127,7 @@ set and all operations are copied when cloning a matrix.
      If successful, this function returns a ``SUNMatrix`` object. If an error
      occurs when allocating the object, then this routine will return ``NULL``.
 
-.. c:function:: int SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
+.. c:function:: SUNErrCode SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
 
   This function copies the function pointers in the ``ops`` structure of ``A``
   into the ``ops`` structure of ``B``.
@@ -137,9 +137,7 @@ set and all operations are copied when cloning a matrix.
       * *B* -- the matrix to copy operations to.
 
    **Return value:**
-      If successful, this function returns ``0``. If either of the inputs
-      are ``NULL`` or the ``ops`` structure of either input is ``NULL``,
-      then is function returns a non-zero value.
+      * A :c:type:`SUNErrCode`
 
 .. c:function:: void SUNMatFreeEmpty(SUNMatrix A)
 
@@ -164,15 +162,15 @@ identifier.
    :align: center
 
    ======================  =================================================
-   Matrix ID               Matrix type                                      
+   Matrix ID               Matrix type
    ======================  =================================================
-   SUNMATRIX_BAND          Band :math:`M \times M` matrix                     
-   SUNMATRIX_CUSPARSE      CUDA sparse CSR matrix                             
-   SUNMATRIX_CUSTOM        User-provided custom matrix                      
-   SUNMATRIX_DENSE         Dense :math:`M \times N` matrix      
+   SUNMATRIX_BAND          Band :math:`M \times M` matrix
+   SUNMATRIX_CUSPARSE      CUDA sparse CSR matrix
+   SUNMATRIX_CUSTOM        User-provided custom matrix
+   SUNMATRIX_DENSE         Dense :math:`M \times N` matrix
    SUNMATRIX_GINKGO        SUNMatrix wraper for Ginkgo matrices
-   SUNMATRIX_MAGMADENSE    Dense :math:`M \times N` matrix        
-   SUNMATRIX_ONEMKLDENSE   oneMKL dense :math:`M \times N` matrix             
-   SUNMATRIX_SLUNRLOC      SUNMatrix wrapper for SuperLU_DIST SuperMatrix     
-   SUNMATRIX_SPARSE        Sparse (CSR or CSC) :math:`M\times N` matrix       
+   SUNMATRIX_MAGMADENSE    Dense :math:`M \times N` matrix
+   SUNMATRIX_ONEMKLDENSE   oneMKL dense :math:`M \times N` matrix
+   SUNMATRIX_SLUNRLOC      SUNMatrix wrapper for SuperLU_DIST SuperMatrix
+   SUNMATRIX_SPARSE        Sparse (CSR or CSC) :math:`M\times N` matrix
    ======================  =================================================

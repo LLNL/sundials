@@ -77,7 +77,7 @@
 enum
 {
   SUN_ERR_MINIMUM                                       = -10000,
-  SUN_ERR_CODE_LIST(SUN_EXPAND_TO_ENUM) 
+  SUN_ERR_CODE_LIST(SUN_EXPAND_TO_ENUM)
   SUN_ERR_MAXIMUM                                       = -1000,
   SUN_SUCCESS                                           = 0
 };

@@ -37,6 +37,8 @@
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
+#include "sundials/sundials_types.h"
+
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
@@ -98,47 +100,83 @@ typedef struct _SUNMatrixContent_Sparse* SUNMatrixContent_Sparse;
  * Exported Functions for SUNMATRIX_SPARSE
  * ---------------------------------------- */
 
-SUNDIALS_EXPORT SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N,
-                                          sunindextype NNZ, int sparsetype,
-                                          SUNContext sunctx);
+SUNDIALS_EXPORT
+SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N, sunindextype NNZ,
+                          int sparsetype, SUNContext sunctx);
 
-SUNDIALS_EXPORT SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix A,
-                                                   sunrealtype droptol,
-                                                   int sparsetype);
+SUNDIALS_EXPORT
+SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix A, sunrealtype droptol,
+                                   int sparsetype);
 
-SUNDIALS_EXPORT SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A,
-                                                  sunrealtype droptol,
-                                                  int sparsetype);
+SUNDIALS_EXPORT
+SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A, sunrealtype droptol,
+                                  int sparsetype);
 
-SUNDIALS_EXPORT int SUNSparseMatrix_ToCSR(const SUNMatrix A, SUNMatrix* Bout);
-SUNDIALS_EXPORT int SUNSparseMatrix_ToCSC(const SUNMatrix A, SUNMatrix* Bout);
+SUNDIALS_EXPORT
+SUNErrCode SUNSparseMatrix_ToCSR(const SUNMatrix A, SUNMatrix* Bout);
 
-SUNDIALS_EXPORT int SUNSparseMatrix_Realloc(SUNMatrix A);
+SUNDIALS_EXPORT
+SUNErrCode SUNSparseMatrix_ToCSC(const SUNMatrix A, SUNMatrix* Bout);
 
-SUNDIALS_EXPORT int SUNSparseMatrix_Reallocate(SUNMatrix A, sunindextype NNZ);
+SUNDIALS_EXPORT
+SUNErrCode SUNSparseMatrix_Realloc(SUNMatrix A);
 
-SUNDIALS_EXPORT void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile);
+SUNDIALS_EXPORT
+SUNErrCode SUNSparseMatrix_Reallocate(SUNMatrix A, sunindextype NNZ);
 
-SUNDIALS_EXPORT sunindextype SUNSparseMatrix_Rows(SUNMatrix A);
-SUNDIALS_EXPORT sunindextype SUNSparseMatrix_Columns(SUNMatrix A);
-SUNDIALS_EXPORT sunindextype SUNSparseMatrix_NNZ(SUNMatrix A);
-SUNDIALS_EXPORT sunindextype SUNSparseMatrix_NP(SUNMatrix A);
-SUNDIALS_EXPORT int SUNSparseMatrix_SparseType(SUNMatrix A);
-SUNDIALS_EXPORT sunrealtype* SUNSparseMatrix_Data(SUNMatrix A);
-SUNDIALS_EXPORT sunindextype* SUNSparseMatrix_IndexValues(SUNMatrix A);
-SUNDIALS_EXPORT sunindextype* SUNSparseMatrix_IndexPointers(SUNMatrix A);
+SUNDIALS_EXPORT
+void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile);
 
-SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_Sparse(SUNMatrix A);
-SUNDIALS_EXPORT SUNMatrix SUNMatClone_Sparse(SUNMatrix A);
-SUNDIALS_EXPORT void SUNMatDestroy_Sparse(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatZero_Sparse(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAdd_Sparse(sunrealtype c, SUNMatrix A,
-                                          SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT int SUNMatSpace_Sparse(SUNMatrix A, long int* lenrw,
-                                       long int* leniw);
+SUNDIALS_EXPORT
+sunindextype SUNSparseMatrix_Rows(SUNMatrix A);
+
+SUNDIALS_EXPORT
+sunindextype SUNSparseMatrix_Columns(SUNMatrix A);
+
+SUNDIALS_EXPORT
+sunindextype SUNSparseMatrix_NNZ(SUNMatrix A);
+
+SUNDIALS_EXPORT
+sunindextype SUNSparseMatrix_NP(SUNMatrix A);
+
+SUNDIALS_EXPORT
+int SUNSparseMatrix_SparseType(SUNMatrix A);
+
+SUNDIALS_EXPORT
+sunrealtype* SUNSparseMatrix_Data(SUNMatrix A);
+
+SUNDIALS_EXPORT
+sunindextype* SUNSparseMatrix_IndexValues(SUNMatrix A);
+
+SUNDIALS_EXPORT
+sunindextype* SUNSparseMatrix_IndexPointers(SUNMatrix A);
+
+SUNDIALS_EXPORT
+SUNMatrix_ID SUNMatGetID_Sparse(SUNMatrix A);
+
+SUNDIALS_EXPORT
+SUNMatrix SUNMatClone_Sparse(SUNMatrix A);
+
+SUNDIALS_EXPORT
+void SUNMatDestroy_Sparse(SUNMatrix A);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatZero_Sparse(SUNMatrix A);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatScaleAdd_Sparse(sunrealtype c, SUNMatrix A, SUNMatrix B);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMatSpace_Sparse(SUNMatrix A, long int* lenrw, long int* leniw);
 
 #ifdef __cplusplus
 }
