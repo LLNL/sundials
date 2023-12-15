@@ -79,9 +79,9 @@ operation:
 
 .. code-block:: c
 
-   int SUNMatZero(SUNMatrix A)
+   SUNErrCode SUNMatZero(SUNMatrix A)
    {
-     return((int) A->ops->zero(A));
+     return(A->ops->zero(A));
    }
 
 :numref:`SUNMatrix.Ops` contains a complete list of all
