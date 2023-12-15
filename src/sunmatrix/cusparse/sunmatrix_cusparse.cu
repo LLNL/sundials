@@ -516,26 +516,22 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows,
 
 int SUNMatrix_cuSparse_SparseType(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_CUSPARSE) { return (SMCU_SPARSETYPE(A)); }
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  return SMCU_SPARSETYPE(A);
 }
 
 int SUNMatrix_cuSparse_Rows(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_CUSPARSE) { return (SMCU_ROWS(A)); }
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  return SMCU_ROWS(A);
 }
 
 int SUNMatrix_cuSparse_Columns(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_CUSPARSE) { return (SMCU_COLUMNS(A)); }
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  return SMCU_COLUMNS(A);
 }
 
 int SUNMatrix_cuSparse_NNZ(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_CUSPARSE) { return (SMCU_NNZ(A)); }
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  return SMCU_NNZ(A);
 }
 
 int* SUNMatrix_cuSparse_IndexPointers(SUNMatrix A)
@@ -558,26 +554,22 @@ sunrealtype* SUNMatrix_cuSparse_Data(SUNMatrix A)
 
 int SUNMatrix_cuSparse_NumBlocks(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_CUSPARSE) { return (SMCU_NBLOCKS(A)); }
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  return SMCU_NBLOCKS(A);
 }
 
 int SUNMatrix_cuSparse_BlockRows(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_CUSPARSE) { return (SMCU_BLOCKROWS(A)); }
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  return SMCU_BLOCKROWS(A);
 }
 
 int SUNMatrix_cuSparse_BlockColumns(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_CUSPARSE) { return (SMCU_BLOCKCOLS(A)); }
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  return SMCU_BLOCKCOLS(A);
 }
 
 int SUNMatrix_cuSparse_BlockNNZ(SUNMatrix A)
 {
-  if (SUNMatGetID(A) == SUNMATRIX_CUSPARSE) { return (SMCU_BLOCKNNZ(A)); }
-  else { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  return SMCU_BLOCKNNZ(A);
 }
 
 sunrealtype* SUNMatrix_cuSparse_BlockData(SUNMatrix A, int blockidx)
@@ -605,7 +597,7 @@ SUNErrCode SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, sunbooleantype yesno)
 {
   if (SUNMatGetID(A) != SUNMATRIX_CUSPARSE)
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return (SUN_ERR_ARG_WRONGTYPE);
   }
 
   SMCU_FIXEDPATTERN(A) = yesno;
