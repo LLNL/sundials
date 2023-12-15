@@ -143,7 +143,7 @@ program main
 
   ! compute B = A*X
   retval = FSUNMatMatvec(sA, sX, sB)
-  if (retval /= SUNMAT_SUCCESS) then
+  if (retval /= SUN_SUCCESS) then
      print *, 'ERROR: FSUNMatMatvec fail'
      stop 1
   end if

@@ -34,6 +34,7 @@
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
 #include "sundials/priv/sundials_errors_impl.h"
+#include "sundials/sundials_context.h"
 #include "sundials/sundials_logger.h"
 #include "sundials_utils.h"
 
@@ -3351,6 +3352,9 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
 
     /* Call the SUNDIALS main error handler */
     SUNHandleErrWithMsg(line, func, file, msg, error_code, ark_mem->sunctx);
+
+    /* Clear the error now */
+    (void)SUNContext_GetLastError(ark_mem->sunctx);
   }
   while (0);
 

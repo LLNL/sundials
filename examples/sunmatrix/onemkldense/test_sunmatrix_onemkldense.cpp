@@ -216,9 +216,15 @@ int main(int argc, char* argv[])
   if (square)
   {
     for (k = 0; k < nblocks; k++)
+    {
       for (j = 0; j < matcols; j++)
+      {
         for (i = 0; i < matrows; i++)
+        {
           Idata[k * matcols * matrows + j * matrows + i] = (j == i) ? ONE : ZERO;
+        }
+      }
+    }
 
     myQueue.wait_and_throw();
 
@@ -227,7 +233,9 @@ int main(int argc, char* argv[])
 
   sunrealtype* xdata = N_VGetArrayPointer(x);
   for (k = 0; k < nblocks; k++)
-    for (i = 0; i < matcols; i++) xdata[matcols * k + i] = ONE / (i + 1);
+  {
+    for (i = 0; i < matcols; i++) { xdata[matcols * k + i] = ONE / (i + 1); }
+  }
 
   myQueue.wait_and_throw();
 

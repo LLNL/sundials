@@ -375,15 +375,18 @@ following additional user-callable routines:
 
 
 
-.. c:function:: int SUNSparseMatrix_Realloc(SUNMatrix A)
+.. c:function:: SUNErrCode SUNSparseMatrix_Realloc(SUNMatrix A)
 
    This function reallocates internal storage arrays in a sparse matrix
    so that the resulting sparse matrix has no wasted space (i.e. the
    space allocated for nonzero entries equals the actual number of
-   nonzeros, ``indexptrs[NP]``). Returns 0 on success and
-   1 on failure (e.g. if the input matrix is not sparse).
+   nonzeros, ``indexptrs[NP]``). Returns a :c:type:`SUNErrCode`.
 
+.. c:function:: SUNErrCode SUNSparseMatrix_Reallocate(SUNMatrix A)
 
+   Function to reallocate internal sparse matrix storage arrays so that the
+   resulting sparse matrix has storage for a specified number of nonzeros.
+   Returns a :c:type:`SUNErrCode`.
 
 .. c:function:: void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
 

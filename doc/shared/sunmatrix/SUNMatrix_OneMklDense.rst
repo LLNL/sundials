@@ -303,7 +303,7 @@ Copy Data
 ^^^^^^^^^
 
 
-.. c:function:: int SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
+.. c:function:: SUNErrCode SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
 
    This function copies the matrix data to the GPU device from the provided host
    array.
@@ -313,13 +313,13 @@ Copy Data
       * *h_data* -- a host array pointer to copy data from.
 
    **Return value:**
-      * ``SUNMAT_SUCCESS`` -- if the copy is successful.
-      * ``SUNMAT_ILL_INPUT`` -- if either the ``SUNMatrix`` is not a
+      * ``SUN_SUCCESS`` -- if the copy is successful.
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- if the ``SUNMatrix`` is not a
         ``SUNMATRIX_ONEMKLDENSE`` matrix.
-      * ``SUNMAT_MEM_FAIL`` -- if the copy fails.
+      * ``SUN_ERR_MEM_FAIL`` -- if the copy fails.
 
 
-.. c:function:: int SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
+.. c:function:: SUNErrCode SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data)
 
    This function copies the matrix data from the GPU device to the provided host
    array.
@@ -329,10 +329,10 @@ Copy Data
       * *h_data* -- a host array pointer to copy data to.
 
    **Return value:**
-      * ``SUNMAT_SUCCESS`` -- if the copy is successful.
-      * ``SUNMAT_ILL_INPUT`` -- if either the ``SUNMatrix`` is not a
+      * ``SUN_SUCCESS`` -- if the copy is successful.
+      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- if the ``SUNMatrix`` is not a
         ``SUNMATRIX_ONEMKLDENSE`` matrix.
-      * ``SUNMAT_MEM_FAIL`` -- if the copy fails.
+      * ``SUN_ERR_MEM_FAIL`` -- if the copy fails.
 
 
 SUNMATRIX_ONEMKLDENSE Usage Notes

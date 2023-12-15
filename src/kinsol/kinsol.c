@@ -2563,8 +2563,6 @@ void KINPrintInfo(KINMem kin_mem, int info_code, const char* module,
 void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
                      const char* file, const char* msgfmt, ...)
 {
-  SUNFunctionBegin(kin_mem->kin_sunctx);
-
   /* Initialize the argument pointer variable
      (msgfmt is the last required argument to KINProcessError) */
   va_list ap;
@@ -2594,10 +2592,10 @@ void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
     }
 
     /* Call the SUNDIALS main error handler */
-    SUNHandleErrWithMsg(line, func, file, msg, error_code, SUNCTX_);
+    SUNHandleErrWithMsg(line, func, file, msg, error_code, kin_mem->kin_sunctx);
 
     /* Clear the last error value */
-    (void)SUNContext_GetLastError(SUNCTX_);
+    (void)SUNContext_GetLastError(kin_mem->kin_sunctx);
   }
   while (0);
 

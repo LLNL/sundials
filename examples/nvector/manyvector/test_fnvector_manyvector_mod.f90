@@ -107,6 +107,7 @@ contains
     ival = FN_VGetNumSubvectors_ManyVector(x)
     xptr => FN_VGetSubvectorArrayPointer_ManyVector(x, ival-1)
     ival = FN_VSetSubvectorArrayPointer_ManyVector(xptr, x, ival-1)
+    ival = FN_VGetNumSubvectors_ManyVector(x)
     tmp  => FN_VGetSubvector_ManyVector(x, ival-1)
 
     !==== Cleanup =====

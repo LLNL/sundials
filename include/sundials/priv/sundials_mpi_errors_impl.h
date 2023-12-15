@@ -109,7 +109,7 @@ extern "C" {
    :param msg: an error message
  */
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
-#define SUNCheckMPICallNoRetMsg(call)                                          \
+#define SUNCheckMPICallNoRetMsg(call, msg)                                     \
   do {                                                                         \
     int sun_chk_mpi_call_err_code_ = call;                                     \
     if (sun_chk_mpi_call_err_code_ != MPI_SUCCESS)                             \

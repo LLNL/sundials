@@ -9908,8 +9908,6 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, sunrealtype t,
 void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
                     const char* file, const char* msgfmt, ...)
 {
-  SUNFunctionBegin(cv_mem->cv_sunctx);
-
   /* Initialize the argument pointer variable
      (msgfmt is the last required argument to cvProcessError) */
   va_list ap;
@@ -9939,10 +9937,10 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
     }
 
     /* Call the SUNDIALS main error handler */
-    SUNHandleErrWithMsg(line, func, file, msg, error_code, SUNCTX_);
+    SUNHandleErrWithMsg(line, func, file, msg, error_code, cv_mem->cv_sunctx);
 
     /* Clear the last error value */
-    (void)SUNContext_GetLastError(SUNCTX_);
+    (void)SUNContext_GetLastError(cv_mem->cv_sunctx);
   }
   while (0);
 
