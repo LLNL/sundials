@@ -180,7 +180,7 @@ SUNErrCode SUNLinSolInitialize_cuSolverSp_batchQR(SUNLinearSolver S)
 {
   SUN_CUSP_FIRSTFACTORIZE(S) = SUNTRUE;
   SUN_CUSP_LASTFLAG(S)       = SUN_SUCCESS;
-  return (SUN_CUSP_LASTFLAG(S));
+  return SUN_CUSP_LASTFLAG(S);
 }
 
 int SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A)
@@ -259,7 +259,7 @@ int SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A)
   }
 
   SUN_CUSP_LASTFLAG(S) = SUN_SUCCESS;
-  return (SUN_CUSP_LASTFLAG(S));
+  return SUN_CUSP_LASTFLAG(S);
 }
 
 int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A,

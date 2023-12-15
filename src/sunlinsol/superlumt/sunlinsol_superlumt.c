@@ -211,11 +211,11 @@ SUNErrCode SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice
   /* Check for legal ordering_choice */
   if ((ordering_choice < 0) || (ordering_choice > 3))
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   /* Check for non-NULL SUNLinearSolver */
-  if (S == NULL) { return (SUN_ERR_ARG_CORRUPT); }
+  if (S == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   /* Set ordering_choice */
   ORDERING(S) = ordering_choice;
@@ -231,12 +231,12 @@ SUNErrCode SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice
 
 SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(SUNLinearSolver S)
 {
-  return (SUNLINEARSOLVER_DIRECT);
+  return SUNLINEARSOLVER_DIRECT;
 }
 
 SUNLinearSolver_ID SUNLinSolGetID_SuperLUMT(SUNLinearSolver S)
 {
-  return (SUNLINEARSOLVER_SUPERLUMT);
+  return SUNLINEARSOLVER_SUPERLUMT;
 }
 
 SUNErrCode SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S)

@@ -351,7 +351,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   {
     *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUN_ERR_ARG_INCOMPATIBLE;
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   /* Check if Atimes function has been set */

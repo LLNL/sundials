@@ -286,7 +286,7 @@ SUNErrCode SUNNonlinSolSetSysFn_PetscSNES(SUNNonlinearSolver NLS,
   if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   /* check that the nonlinear system function is non-null */
-  if (SysFn == NULL) { return (SUN_ERR_ARG_CORRUPT); }
+  if (SysFn == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   SUNNLS_SNES_CONTENT(NLS)->Sys = SysFn;
   return SUN_SUCCESS;

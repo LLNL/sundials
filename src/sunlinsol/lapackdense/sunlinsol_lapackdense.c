@@ -150,13 +150,13 @@ int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
   sunindextype n, ier;
 
   /* check for valid inputs */
-  if ((A == NULL) || (S == NULL)) { return (SUN_ERR_ARG_CORRUPT); }
+  if ((A == NULL) || (S == NULL)) { return SUN_ERR_ARG_CORRUPT; }
 
   /* Ensure that A is a dense matrix */
   if (SUNMatGetID(A) != SUNMATRIX_DENSE)
   {
     LASTFLAG(S) = SUN_ERR_ARG_INCOMPATIBLE;
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   /* Call LAPACK to do LU factorization of A */
@@ -165,7 +165,7 @@ int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
   xgetrf_f77(&n, &n, SUNDenseMatrix_Data(A), &n, PIVOTS(S), &ier);
   LASTFLAG(S) = ier;
   if (ier > 0) { return (SUNLS_LUFACT_FAIL); }
-  if (ier < 0) { return (SUN_ERR_EXT_FAIL); }
+  if (ier < 0) { return SUN_ERR_EXT_FAIL; }
   return SUN_SUCCESS;
 }
 
@@ -177,7 +177,7 @@ int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   if ((A == NULL) || (S == NULL) || (x == NULL) || (b == NULL))
   {
-    return (SUN_ERR_ARG_CORRUPT);
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   /* copy b into x */
@@ -188,7 +188,7 @@ int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (xdata == NULL)
   {
     LASTFLAG(S) = SUN_ERR_MEM_FAIL;
-    return (SUN_ERR_MEM_FAIL);
+    return SUN_ERR_MEM_FAIL;
   }
 
   /* Call LAPACK to solve the linear system */
@@ -198,7 +198,7 @@ int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   xgetrs_f77("N", &n, &one, SUNDenseMatrix_Data(A), &n, PIVOTS(S), xdata, &n,
              &ier);
   LASTFLAG(S) = ier;
-  if (ier < 0) { return (SUN_ERR_EXT_FAIL); }
+  if (ier < 0) { return SUN_ERR_EXT_FAIL; }
 
   LASTFLAG(S) = SUN_SUCCESS;
   return SUN_SUCCESS;

@@ -219,7 +219,7 @@ int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   if ((S == NULL) || (A == NULL) || (x == NULL) || (b == NULL))
   {
-    return (SUN_ERR_ARG_CORRUPT);
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   Asuper = SUNMatrix_SLUNRloc_SuperMatrix(A);

@@ -238,14 +238,14 @@ int SUNLinSolSetup_MagmaDense(SUNLinearSolver S, SUNMatrix A)
   if (A == NULL)
   {
     LASTFLAG(S) = SUN_ERR_ARG_CORRUPT;
-    return (SUN_ERR_ARG_CORRUPT);
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   /* Ensure that A is a magma dense matrix */
   if (SUNMatGetID(A) != SUNMATRIX_MAGMADENSE)
   {
     LASTFLAG(S) = SUN_ERR_ARG_INCOMPATIBLE;
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   sunindextype ier     = 0;
@@ -298,7 +298,7 @@ int SUNLinSolSetup_MagmaDense(SUNLinearSolver S, SUNMatrix A)
 
   LASTFLAG(S) = ier;
   if (ier > 0) { return (SUNLS_LUFACT_FAIL); }
-  if (ier < 0) { return (SUN_ERR_EXT_FAIL); }
+  if (ier < 0) { return SUN_ERR_EXT_FAIL; }
   return SUN_SUCCESS;
 }
 
@@ -306,19 +306,19 @@ int SUNLinSolSolve_MagmaDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                               N_Vector b, sunrealtype tol)
 {
   /* Check for valid inputs */
-  if (S == NULL) { return (SUN_ERR_ARG_CORRUPT); }
+  if (S == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   if ((A == NULL) || (x == NULL) || (b == NULL))
   {
     LASTFLAG(S) = SUN_ERR_ARG_CORRUPT;
-    return (SUN_ERR_ARG_CORRUPT);
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   /* Ensure that A is a magma dense matrix */
   if (SUNMatGetID(A) != SUNMATRIX_MAGMADENSE)
   {
     LASTFLAG(S) = SUN_ERR_ARG_INCOMPATIBLE;
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   int ier              = 0;
@@ -333,7 +333,7 @@ int SUNLinSolSolve_MagmaDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (xdata == NULL)
   {
     LASTFLAG(S) = SUN_ERR_MEM_FAIL;
-    return (SUN_ERR_MEM_FAIL);
+    return SUN_ERR_MEM_FAIL;
   }
 
   /* Call MAGMA to solve the linear system */

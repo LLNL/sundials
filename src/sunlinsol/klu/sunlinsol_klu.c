@@ -152,22 +152,22 @@ SUNErrCode SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz,
                                int reinit_type)
 {
   /* Check for non-NULL SUNLinearSolver */
-  if ((S == NULL) || (A == NULL)) { return (SUN_ERR_ARG_CORRUPT); }
+  if ((S == NULL) || (A == NULL)) { return SUN_ERR_ARG_CORRUPT; }
 
   /* Check for valid SUNMatrix */
-  if (SUNMatGetID(A) != SUNMATRIX_SPARSE) { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  if (SUNMatGetID(A) != SUNMATRIX_SPARSE) { return SUN_ERR_ARG_INCOMPATIBLE; }
 
   /* Check for valid reinit_type */
   if ((reinit_type != SUNKLU_REINIT_FULL) &&
       (reinit_type != SUNKLU_REINIT_PARTIAL))
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   /* Full re-initialization: reallocate matrix for updated storage */
   if (reinit_type == SUNKLU_REINIT_FULL)
   {
-    if (SUNSparseMatrix_Reallocate(A, nnz) != 0) { return (SUN_ERR_MEM_FAIL); }
+    if (SUNSparseMatrix_Reallocate(A, nnz) != 0) { return SUN_ERR_MEM_FAIL; }
   }
 
   /* Free the prior factorization and reset for first factorization */
@@ -188,11 +188,11 @@ SUNErrCode SUNLinSol_KLUSetOrdering(SUNLinearSolver S, int ordering_choice)
   /* Check for legal ordering_choice */
   if ((ordering_choice < 0) || (ordering_choice > 2))
   {
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   /* Check for non-NULL SUNLinearSolver */
-  if (S == NULL) { return (SUN_ERR_ARG_CORRUPT); }
+  if (S == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   /* Set ordering_choice */
   COMMON(S).ordering = ordering_choice;
@@ -360,7 +360,7 @@ int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
   /* check for valid inputs */
   if ((A == NULL) || (S == NULL) || (x == NULL) || (b == NULL))
   {
-    return (SUN_ERR_ARG_CORRUPT);
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   /* copy b into x */

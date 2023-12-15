@@ -261,7 +261,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
   /* if we've reached this point, then we exhausted the iteration limit;
      increment the convergence failure count and return */
   FP_CONTENT(NLS)->nconvfails++;
-  return (SUN_NLS_CONV_RECVR);
+  return SUN_NLS_CONV_RECVR;
 }
 
 SUNErrCode SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS)

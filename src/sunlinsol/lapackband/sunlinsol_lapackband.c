@@ -149,13 +149,13 @@ int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
   sunindextype n, ml, mu, ldim, ier;
 
   /* check for valid inputs */
-  if ((A == NULL) || (S == NULL)) { return (SUN_ERR_ARG_CORRUPT); }
+  if ((A == NULL) || (S == NULL)) { return SUN_ERR_ARG_CORRUPT; }
 
   /* Ensure that A is a band matrix */
   if (SUNMatGetID(A) != SUNMATRIX_BAND)
   {
     LASTFLAG(S) = SUN_ERR_ARG_INCOMPATIBLE;
-    return (SUN_ERR_ARG_INCOMPATIBLE);
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   /* Call LAPACK to do LU factorization of A */
@@ -168,7 +168,7 @@ int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
 
   LASTFLAG(S) = ier;
   if (ier > 0) { return (SUNLS_LUFACT_FAIL); }
-  if (ier < 0) { return (SUN_ERR_EXT_FAIL); }
+  if (ier < 0) { return SUN_ERR_EXT_FAIL; }
   return SUN_SUCCESS;
 }
 
@@ -181,7 +181,7 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   /* check for valid inputs */
   if ((A == NULL) || (S == NULL) || (x == NULL) || (b == NULL))
   {
-    return (SUN_ERR_ARG_CORRUPT);
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   /* copy b into x */
@@ -192,7 +192,7 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (xdata == NULL)
   {
     LASTFLAG(S) = SUN_ERR_MEM_FAIL;
-    return (SUN_ERR_MEM_FAIL);
+    return SUN_ERR_MEM_FAIL;
   }
 
   /* Call LAPACK to solve the linear system */
@@ -205,7 +205,7 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   xgbtrs_f77("N", &n, &ml, &mu, &one, SUNBandMatrix_Data(A), &ldim, PIVOTS(S),
              xdata, &n, &ier);
   LASTFLAG(S) = ier;
-  if (ier < 0) { return (SUN_ERR_EXT_FAIL); }
+  if (ier < 0) { return SUN_ERR_EXT_FAIL; }
 
   LASTFLAG(S) = SUN_SUCCESS;
   return SUN_SUCCESS;

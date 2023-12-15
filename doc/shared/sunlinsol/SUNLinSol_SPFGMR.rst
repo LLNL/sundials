@@ -133,8 +133,7 @@ user-callable routines:
         result in the default of 0.
 
    **Return value:**
-      * ``SUN_SUCCESS`` -- successful update.
-      * ``SUN_ERR_ARG_CORRUPT`` -- ``S`` is ``NULL``
+      * A :c:type:`SUNErrCode`
 
 
 

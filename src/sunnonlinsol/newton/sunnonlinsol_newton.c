@@ -262,7 +262,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
       if (retval == SUN_SUCCESS)
       {
         NEWTON_CONTENT(NLS)->jcur = SUNFALSE;
-        return (SUN_SUCCESS);
+        return SUN_SUCCESS;
       }
 
       /* check if the iteration should continue; otherwise exit Newton loop */
