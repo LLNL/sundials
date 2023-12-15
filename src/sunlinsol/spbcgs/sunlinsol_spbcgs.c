@@ -639,7 +639,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       cv[2] = omega;
       Xv[2] = q;
 
-      SUNCheckCallNoRet(N_VLinearCombination(3, cv, Xv, x));
+      SUNCheckCall(N_VLinearCombination(3, cv, Xv, x));
     }
 
     /* Update the residual r = q - omega*u */
