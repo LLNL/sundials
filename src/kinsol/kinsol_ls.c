@@ -1261,7 +1261,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, sunrealtype* sJpnorm,
   /* Interpret solver return value */
   kinls_mem->last_flag = retval;
 
-  if ((retval != 0) && (retval != SUNLS_RES_REDUCED))
+  if ((retval != SUN_SUCCESS) && (retval != SUNLS_RES_REDUCED))
   {
     switch (retval)
     {
