@@ -254,8 +254,7 @@ parameters. Only the routine for setting the nonlinear system defining function
       * *maxiters* -- the maximum number of nonlinear iterations.
 
    **Return value:**
-      The return value should be zero for a successful call, and a
-      negative value for a failure (e.g., :math:`maxiters < 1`).
+      * A :c:type:`SUNErrCode`
 
 
 
@@ -274,7 +273,7 @@ provided by the SUNDIALS integrator or when using an iterative SUNLinSol
 linear solver module; otherwise :c:func:`SUNNonlinSolGetCurIter` is optional.
 
 
-.. c:function:: int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int *niters)
+.. c:function:: SUNErrCode SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int *niters)
 
    This *optional* function returns the number of nonlinear solver iterations
    in the most recent solve. This is typically called by the SUNDIALS
@@ -289,7 +288,7 @@ linear solver module; otherwise :c:func:`SUNNonlinSolGetCurIter` is optional.
       * A :c:type:`SUNErrCode`
 
 
-.. c:function:: int SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int *iter)
+.. c:function:: SUNErrCode SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int *iter)
 
    This function returns the iteration index of the current nonlinear
    solve. This function is *required* when using SUNDIALS
@@ -305,7 +304,7 @@ linear solver module; otherwise :c:func:`SUNNonlinSolGetCurIter` is optional.
       * A :c:type:`SUNErrCode`
 
 
-.. c:function:: int SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int *nconvfails)
+.. c:function:: SUNErrCode SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int *nconvfails)
 
    This *optional* function returns the number of nonlinear solver convergence
    failures in the most recent solve. This is typically called by the SUNDIALS

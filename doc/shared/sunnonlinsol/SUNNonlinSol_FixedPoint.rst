@@ -161,8 +161,7 @@ user-callable functions.
       * *SysFn* -- the function defining the nonlinear system.
 
    **Return value:**
-      The return value is zero for a successful call, and a
-      negative value for a failure.
+      * A :c:type:`SUNErrCode`
 
    **Notes:**
       This function is intended for users that wish to evaluate the
@@ -204,27 +203,27 @@ following structure.
      SUNNonlinSolSysFn      Sys;
      SUNNonlinSolConvTestFn CTest;
 
-     int          m;
-     int         *imap;
+     int            m;
+     int            *imap;
      sunrealtype    *R;
-     sunbooleantype  damping
-     sunrealtype     beta
+     sunbooleantype damping
+     sunrealtype    beta
      sunrealtype    *gamma;
      sunrealtype    *cvals;
-     N_Vector    *df;
-     N_Vector    *dg;
-     N_Vector    *q;
-     N_Vector    *Xvecs;
-     N_Vector     yprev;
-     N_Vector     gy;
-     N_Vector     fold;
-     N_Vector     gold;
-     N_Vector     delta;
-     int          curiter;
-     int          maxiters;
-     long int     niters;
-     long int     nconvfails;
-     void        *ctest_data;
+     N_Vector       *df;
+     N_Vector       *dg;
+     N_Vector       *q;
+     N_Vector       *Xvecs;
+     N_Vector        yprev;
+     N_Vector        gy;
+     N_Vector        fold;
+     N_Vector        gold;
+     N_Vector        delta;
+     int             curiter;
+     int             maxiters;
+     long int        niters;
+     long int        nconvfails;
+     void           *ctest_data;
    };
 
 The following entries of the *content* field are always

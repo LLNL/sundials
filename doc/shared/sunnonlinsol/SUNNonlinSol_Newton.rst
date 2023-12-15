@@ -140,8 +140,7 @@ user-callable function.
       * *SysFn* -- the function defining the nonlinear system.
 
    **Return value:**
-      The return value should be zero for a successful call, and a
-      negative value for a failure.
+      * A :c:type:`SUNErrCode`
 
    **Notes:**
       This function is intended for users that wish to evaluate the
@@ -167,13 +166,13 @@ following structure.
      SUNNonlinSolLSolveFn   LSolve;
      SUNNonlinSolConvTestFn CTest;
 
-     N_Vector    delta;
+     N_Vector       delta;
      sunbooleantype jcur;
-     int         curiter;
-     int         maxiters;
-     long int    niters;
-     long int    nconvfails;
-     void*       ctest_data;
+     int            curiter;
+     int            maxiters;
+     long int       niters;
+     long int       nconvfails;
+     void*          ctest_data;
    };
 
 These entries of the *content* field contain the following
