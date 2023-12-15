@@ -133,21 +133,21 @@ void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile)
 sunindextype SUNDenseMatrix_Rows(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
   return SM_ROWS_D(A);
 }
 
 sunindextype SUNDenseMatrix_Columns(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
   return SM_COLUMNS_D(A);
 }
 
 sunindextype SUNDenseMatrix_LData(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
   return SM_LDATA_D(A);
 }
 
