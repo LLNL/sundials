@@ -338,7 +338,7 @@ SUNErrCode SUNSparseMatrix_Realloc(SUNMatrix A)
 
   /* get total number of nonzeros (return with failure if illegal) */
   nzmax = (SM_INDEXPTRS_S(A))[SM_NP_S(A)];
-  SUNCheck(nzmax >= 0, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(nzmax >= 0, SUN_ERR_ARG_CORRUPT);
 
   /* perform reallocation */
   SM_INDEXVALS_S(A) = (sunindextype*)realloc(SM_INDEXVALS_S(A),
@@ -642,11 +642,11 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
   Ai = NULL;
   Ax = NULL;
   Ap = SM_INDEXPTRS_S(A);
-  SUNCheck(Ap, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Ap, SUN_ERR_ARG_CORRUPT);
   Ai = SM_INDEXVALS_S(A);
-  SUNCheck(Ai, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Ai, SUN_ERR_ARG_CORRUPT);
   Ax = SM_DATA_S(A);
-  SUNCheck(Ax, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Ax, SUN_ERR_ARG_CORRUPT);
 
   /* determine if A: contains values on the diagonal (so I can just be added
      in); if not, then increment counter for extra storage that should be
@@ -775,11 +775,11 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
     Ci = NULL;
     Cx = NULL;
     Cp = SM_INDEXPTRS_S(C);
-    SUNCheck(Cp, SUN_ERR_ARG_CORRUPT);
+    SUNAssert(Cp, SUN_ERR_ARG_CORRUPT);
     Ci = SM_INDEXVALS_S(C);
-    SUNCheck(Ci, SUN_ERR_ARG_CORRUPT);
+    SUNAssert(Ci, SUN_ERR_ARG_CORRUPT);
     Cx = SM_DATA_S(C);
-    SUNCheck(Cx, SUN_ERR_ARG_CORRUPT);
+    SUNAssert(Cx, SUN_ERR_ARG_CORRUPT);
 
     /* initialize total nonzero count */
     nz = 0;
@@ -878,17 +878,17 @@ SUNErrCode SUNMatScaleAdd_Sparse(sunrealtype c, SUNMatrix A, SUNMatrix B)
   Ap = Ai = Bp = Bi = NULL;
   Ax = Bx = NULL;
   Ap      = SM_INDEXPTRS_S(A);
-  SUNCheck(Ap, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Ap, SUN_ERR_ARG_CORRUPT);
   Ai = SM_INDEXVALS_S(A);
-  SUNCheck(Ai, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Ai, SUN_ERR_ARG_CORRUPT);
   Ax = SM_DATA_S(A);
-  SUNCheck(Ax, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Ax, SUN_ERR_ARG_CORRUPT);
   Bp = SM_INDEXPTRS_S(B);
-  SUNCheck(Bp, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Bp, SUN_ERR_ARG_CORRUPT);
   Bi = SM_INDEXVALS_S(B);
-  SUNCheck(Bi, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Bi, SUN_ERR_ARG_CORRUPT);
   Bx = SM_DATA_S(B);
-  SUNCheck(Bx, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Bx, SUN_ERR_ARG_CORRUPT);
 
   /* create work arrays for row indices and nonzero column values */
   w = (sunindextype*)malloc(M * sizeof(sunindextype));
@@ -1006,11 +1006,11 @@ SUNErrCode SUNMatScaleAdd_Sparse(sunrealtype c, SUNMatrix A, SUNMatrix B)
     Ci = NULL;
     Cx = NULL;
     Cp = SM_INDEXPTRS_S(C);
-    SUNCheck(Cp, SUN_ERR_ARG_CORRUPT);
+    SUNAssert(Cp, SUN_ERR_ARG_CORRUPT);
     Ci = SM_INDEXVALS_S(C);
-    SUNCheck(Ci, SUN_ERR_ARG_CORRUPT);
+    SUNAssert(Ci, SUN_ERR_ARG_CORRUPT);
     Cx = SM_DATA_S(C);
-    SUNCheck(Cx, SUN_ERR_ARG_CORRUPT);
+    SUNAssert(Cx, SUN_ERR_ARG_CORRUPT);
 
     /* initialize total nonzero count */
     nz = 0;
@@ -1174,11 +1174,11 @@ SUNErrCode Matvec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y)
 
   /* access data from CSC structure (return if failure) */
   Ap = SM_INDEXPTRS_S(A);
-  SUNCheck(Ap, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Ap, SUN_ERR_ARG_CORRUPT);
   Ai = SM_INDEXVALS_S(A);
-  SUNCheck(Ai, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Ai, SUN_ERR_ARG_CORRUPT);
   Ax = SM_DATA_S(A);
-  SUNCheck(Ax, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Ax, SUN_ERR_ARG_CORRUPT);
 
   /* access vector data (return if failure) */
   xd = N_VGetArrayPointer(x);
@@ -1215,11 +1215,11 @@ SUNErrCode Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y)
 
   /* access data from CSR structure (return if failure) */
   Ap = SM_INDEXPTRS_S(A);
-  SUNCheck(Ap, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Ap, SUN_ERR_ARG_CORRUPT);
   Aj = SM_INDEXVALS_S(A);
-  SUNCheck(Aj, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Aj, SUN_ERR_ARG_CORRUPT);
   Ax = SM_DATA_S(A);
-  SUNCheck(Ax, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Ax, SUN_ERR_ARG_CORRUPT);
 
   /* access vector data (return if failure) */
   xd = N_VGetArrayPointer(x);
@@ -1239,7 +1239,7 @@ SUNErrCode Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y)
     for (j = Ap[i]; j < Ap[i + 1]; j++) { yd[i] += Ax[j] * xd[Aj[j]]; }
   }
 
-  return (0);
+  return SUN_SUCCESS;
 }
 
 /* -----------------------------------------------------------------
@@ -1263,11 +1263,11 @@ SUNErrCode format_convert(const SUNMatrix A, SUNMatrix B)
   }
 
   Ap = SM_INDEXPTRS_S(A);
-  SUNCheck(Ap, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Ap, SUN_ERR_ARG_CORRUPT);
   Aj = SM_INDEXVALS_S(A);
-  SUNCheck(Aj, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Aj, SUN_ERR_ARG_CORRUPT);
   Ax = SM_DATA_S(A);
-  SUNCheck(Ax, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Ax, SUN_ERR_ARG_CORRUPT);
 
   n_row = (SM_SPARSETYPE_S(A) == CSR_MAT) ? SM_ROWS_S(A) : SM_COLUMNS_S(A);
   n_col = (SM_SPARSETYPE_S(A) == CSR_MAT) ? SM_COLUMNS_S(A) : SM_ROWS_S(A);

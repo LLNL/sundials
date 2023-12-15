@@ -160,7 +160,7 @@ below.
    Performs the matrix-vector product *y \gets Ax*.  It should
    only be called with vectors *x* and *y* that are compatible with
    the matrix *A* -- both in storage type and dimensions.  The return
-   value is an integer flag denoting success/failure of the operation:
+   value is a :c:type:`SUNErrCode`.
 
    .. math::
       y_i = \sum_{j=1}^n A_{i,j} x_j, \quad i=1,\ldots,m.
