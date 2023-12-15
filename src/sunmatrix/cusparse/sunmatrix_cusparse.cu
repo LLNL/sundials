@@ -24,6 +24,7 @@
 
 #include "cusparse_kernels.cuh"
 #include "sundials/sundials_errors.h"
+#include "sundials/sundials_math.h"
 #include "sundials_cuda.h"
 #include "sundials_cusparse.h"
 #include "sundials_debug.h"
@@ -907,9 +908,9 @@ SUNErrCode SUNMatScaleAddI_cuSparse(sunrealtype c, SUNMatrix A)
     /* Choose the grid size to be the number of rows in the matrix,
         and then choose threadsPerBlock to be a multiple of the warp size
         that results in enough threads to have one per 2 columns. */
-    threadsPerBlock = SMCU_EXECPOLICY(A)->blockSize(SMCU_COLUMNS(A) / 2);
-    gridSize = SMCU_EXECPOLICY(A)->gridSize(SMCU_ROWS(A) * SMCU_COLUMNS(A) / 2,
-                                            threadsPerBlock);
+    threadsPerBlock = SUNMAX(1, SMCU_EXECPOLICY(A)->blockSize(SMCU_COLUMNS(A) / 2));
+    gridSize = SUNMAX(1, SMCU_EXECPOLICY(A)->gridSize(SMCU_ROWS(A) * SMCU_COLUMNS(A) / 2,
+                                                      threadsPerBlock));
     scaleAddIKernelCSR<sunrealtype, int>
       <<<gridSize, threadsPerBlock, 0, stream>>>(SMCU_ROWS(A), c, SMCU_DATAp(A),
                                                  SMCU_INDEXPTRSp(A),
@@ -965,9 +966,9 @@ SUNErrCode SUNMatScaleAdd_cuSparse(sunrealtype c, SUNMatrix A, SUNMatrix B)
     /* Choose the grid size to be the number of rows in the matrix,
         and then choose threadsPerBlock to be a multiple of the warp size
         that results in enough threads to have one per 2 columns. */
-    threadsPerBlock = SMCU_EXECPOLICY(A)->blockSize(SMCU_COLUMNS(A) / 2);
-    gridSize = SMCU_EXECPOLICY(A)->gridSize(SMCU_ROWS(A) * SMCU_COLUMNS(A) / 2,
-                                            threadsPerBlock);
+    threadsPerBlock = SUNMAX(1, SMCU_EXECPOLICY(A)->blockSize(SMCU_COLUMNS(A) / 2));
+    gridSize = SUNMAX(1, SMCU_EXECPOLICY(A)->gridSize(SMCU_ROWS(A) * SMCU_COLUMNS(A) / 2,
+                                                      threadsPerBlock));
     scaleAddKernelCSR<sunrealtype, int>
       <<<gridSize, threadsPerBlock, 0, stream>>>(SMCU_NNZ(A), c, SMCU_DATAp(A),
                                                  SMCU_DATAp(B));
