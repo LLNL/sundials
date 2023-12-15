@@ -42,24 +42,22 @@
  * -----------------------------------------------------------------
  */
 
+#include <RAJA/RAJA.hpp>
+#include <cvode/cvode.h>
+#include <math.h>
+#include <nvector/nvector_raja.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-
-#include <cvode/cvode.h>
-#include <sunlinsol/sunlinsol_spgmr.h>
-#include <nvector/nvector_raja.h>
-#include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
-
-#include <RAJA/RAJA.hpp>
+#include <sundials/sundials_types.h>
+#include <sunlinsol/sunlinsol_spgmr.h>
 
 #if defined(SUNDIALS_RAJA_BACKENDS_CUDA)
-#define MY_EXEC RAJA::cuda_exec< 256 >
+#define MY_EXEC RAJA::cuda_exec<256>
 #elif defined(SUNDIALS_RAJA_BACKENDS_HIP)
-#define MY_EXEC RAJA::hip_exec< 512 >
+#define MY_EXEC RAJA::hip_exec<512>
 #elif defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-#define MY_EXEC RAJA::sycl_exec< 256 >
+#define MY_EXEC RAJA::sycl_exec<256>
 #else
 #error "Unsupported RAJA backend"
 #endif
@@ -70,7 +68,7 @@
 #define T0    SUN_RCONST(0.0)    /* initial time              */
 #define T1    SUN_RCONST(0.1)    /* first output time         */
 #define DTOUT SUN_RCONST(0.1)    /* output time increment     */
-#define NOUT  10             /* number of output times    */
+#define NOUT  10                 /* number of output times    */
 
 #define ZERO SUN_RCONST(0.0)
 #define HALF SUN_RCONST(0.5)
@@ -78,34 +76,33 @@
 #define TWO  SUN_RCONST(2.0)
 #define FIVE SUN_RCONST(5.0)
 
-
 /* Type : _UserData (contains model and discretization parameters) */
-struct _UserData {
+struct _UserData
+{
   sunindextype MX, MY, NEQ;
   sunrealtype dx, dy, XMAX, YMAX;
   sunrealtype hdcoef, hacoef, vdcoef;
 };
 
-typedef _UserData *UserData;
+typedef _UserData* UserData;
 
 /* Problem setup and initialization functions */
 static UserData SetUserData(int argc, char** argv);
 static void SetIC(N_Vector u, UserData data);
 
 /* Functions Called by the Solver */
-static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data);
-static int jtv(N_Vector v, N_Vector Jv, sunrealtype t,
-               N_Vector u, N_Vector fu,
-               void *user_data, N_Vector tmp);
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data);
+static int jtv(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector u, N_Vector fu,
+               void* user_data, N_Vector tmp);
 
 /* Private Helper Functions */
-static void PrintHeader(sunrealtype reltol, sunrealtype abstol, sunrealtype umax, UserData data);
+static void PrintHeader(sunrealtype reltol, sunrealtype abstol,
+                        sunrealtype umax, UserData data);
 static void PrintOutput(sunrealtype t, sunrealtype umax, long int nst);
-static void PrintFinalStats(void *cvode_mem);
+static void PrintFinalStats(void* cvode_mem);
 
 /* Private function to check function return values */
-static int check_retval(void *returnvalue, const char *funcname, int opt);
-
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /*
  *-------------------------------
@@ -120,87 +117,89 @@ int main(int argc, char** argv)
   N_Vector u;
   UserData data;
   SUNLinearSolver LS;
-  void *cvode_mem;
+  void* cvode_mem;
   int iout, retval;
   long int nst;
 
-  u = NULL;
-  data = NULL;
-  LS = NULL;
+  u         = NULL;
+  data      = NULL;
+  LS        = NULL;
   cvode_mem = NULL;
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
-  camp::resources::Resource* sycl_res = new camp::resources::Resource{camp::resources::Sycl()};
+  camp::resources::Resource* sycl_res =
+    new camp::resources::Resource{camp::resources::Sycl()};
   ::RAJA::sycl::detail::setQueue(sycl_res);
 #endif
 
   /* Set model parameters */
   data = SetUserData(argc, argv);
-  if(check_retval((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void*)data, "malloc", 2)) { return (1); }
 
   /* Set the tolerances */
   reltol = ZERO;
   abstol = ATOL;
 
   /* Create a RAJA vector with initial values */
-  u = N_VNew_Raja(data->NEQ, sunctx);  /* Allocate u vector */
-  if(check_retval((void*)u, "N_VNew_Raja", 0)) return(1);
+  u = N_VNew_Raja(data->NEQ, sunctx); /* Allocate u vector */
+  if (check_retval((void*)u, "N_VNew_Raja", 0)) { return (1); }
 
-  SetIC(u, data);  /* Initialize u vector */
+  SetIC(u, data); /* Initialize u vector */
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the initial time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
-  if(check_retval(&retval, "CVodeInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerance */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+  if (check_retval(&retval, "CVodeSStolerances", 1)) { return (1); }
 
   /* Set the pointer to user-defined data */
   retval = CVodeSetUserData(cvode_mem, data);
-  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) { return (1); }
 
   /* Create SPGMR solver structure without preconditioning
    * and the maximum Krylov dimension maxl */
   LS = SUNLinSol_SPGMR(u, SUN_PREC_NONE, 0, sunctx);
-  if(check_retval(&retval, "SUNLinSol_SPGMR", 1)) return(1);
+  if (check_retval(&retval, "SUNLinSol_SPGMR", 1)) { return (1); }
 
   /* Set CVode linear solver to LS */
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
-  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return (1); }
 
   /* Set the Jacobian-times-vector function */
   retval = CVodeSetJacTimes(cvode_mem, NULL, jtv);
-  if(check_retval(&retval, "CVodeSetJacTimesVecFn", 1)) return(1);
+  if (check_retval(&retval, "CVodeSetJacTimesVecFn", 1)) { return (1); }
 
   /* In loop over output points: call CVode, print results, test for errors */
 
   umax = N_VMaxNorm(u);
   PrintHeader(reltol, abstol, umax, data);
-  for(iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
+  for (iout = 1, tout = T1; iout <= NOUT; iout++, tout += DTOUT)
+  {
     retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_retval(&retval, "CVode", 1)) break;
-    umax = N_VMaxNorm(u);
+    if (check_retval(&retval, "CVode", 1)) { break; }
+    umax   = N_VMaxNorm(u);
     retval = CVodeGetNumSteps(cvode_mem, &nst);
     check_retval(&retval, "CVodeGetNumSteps", 1);
     PrintOutput(t, umax, nst);
   }
 
-  PrintFinalStats(cvode_mem);  /* Print some final statistics   */
+  PrintFinalStats(cvode_mem); /* Print some final statistics   */
 
-  N_VDestroy(u);          /* Free the u vector */
-  CVodeFree(&cvode_mem);  /* Free the integrator memory */
-  free(data);             /* Free the user data */
+  N_VDestroy(u);         /* Free the u vector */
+  CVodeFree(&cvode_mem); /* Free the integrator memory */
+  free(data);            /* Free the user data */
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -211,31 +210,30 @@ int main(int argc, char** argv)
 
 /* Set model and discretization parameters */
 
-UserData SetUserData(int argc, char *argv[])
+UserData SetUserData(int argc, char* argv[])
 {
-  const sunindextype MX = 10;
-  const sunindextype MY = 5;
-  const sunrealtype XMAX = SUN_RCONST(2.0);    /* domain boundaries         */
+  const sunindextype MX  = 10;
+  const sunindextype MY  = 5;
+  const sunrealtype XMAX = SUN_RCONST(2.0); /* domain boundaries         */
   const sunrealtype YMAX = SUN_RCONST(1.0);
 
   /* Allocate user data structure */
-  UserData ud = (UserData) malloc(sizeof *ud);
-  if(check_retval((void*) ud, "AllocUserData", 2)) return(NULL);
+  UserData ud = (UserData)malloc(sizeof *ud);
+  if (check_retval((void*)ud, "AllocUserData", 2)) { return (NULL); }
 
-  ud->MX  = MX;
-  ud->MY  = MY;
-  ud->NEQ = MX*MY;
-  ud->XMAX = XMAX;
-  ud->YMAX = YMAX;
-  ud->dx = XMAX/(MX+1);  /* Set grid coefficients in data */
-  ud->dy = YMAX/(MY+1);
-  ud->hdcoef = ONE/(ud->dx*ud->dx);
-  ud->hacoef = HALF/(TWO*ud->dx);
-  ud->vdcoef = ONE/(ud->dy*ud->dy);
+  ud->MX     = MX;
+  ud->MY     = MY;
+  ud->NEQ    = MX * MY;
+  ud->XMAX   = XMAX;
+  ud->YMAX   = YMAX;
+  ud->dx     = XMAX / (MX + 1); /* Set grid coefficients in data */
+  ud->dy     = YMAX / (MY + 1);
+  ud->hdcoef = ONE / (ud->dx * ud->dx);
+  ud->hacoef = HALF / (TWO * ud->dx);
+  ud->vdcoef = ONE / (ud->dy * ud->dy);
 
   return ud;
 }
-
 
 /* Set initial conditions in u vector */
 
@@ -243,34 +241,33 @@ static void SetIC(N_Vector u, UserData data)
 {
   /* Extract needed constants from data */
 
-  const sunrealtype dx = data->dx;
-  const sunrealtype dy = data->dy;
+  const sunrealtype dx   = data->dx;
+  const sunrealtype dy   = data->dy;
   const sunrealtype xmax = data->XMAX;
   const sunrealtype ymax = data->YMAX;
-  const sunindextype MY = data->MY;
+  const sunindextype MY  = data->MY;
   const sunindextype NEQ = data->NEQ;
 
   /* Extract pointer to solution vector data on the host */
-  sunrealtype *udata = N_VGetHostArrayPointer_Raja(u);
+  sunrealtype* udata = N_VGetHostArrayPointer_Raja(u);
 
   sunindextype i, j, tid;
   sunrealtype x, y;
 
-
   /* Load initial profile into u vector */
 
-  for (tid=0; tid < NEQ; tid++) {
+  for (tid = 0; tid < NEQ; tid++)
+  {
     i = tid / MY;
     j = tid % MY;
 
-    x = (i+1)*dx;
-    y = (j+1)*dy;
+    x = (i + 1) * dx;
+    y = (j + 1) * dy;
 
-    udata[tid] = x*(xmax - x)*y*(ymax - y)*SUNRexp(FIVE*x*y);
+    udata[tid] = x * (xmax - x) * y * (ymax - y) * SUNRexp(FIVE * x * y);
   }
   N_VCopyToDevice_Raja(u);
 }
-
 
 /*
  *-------------------------------
@@ -280,88 +277,91 @@ static void SetIC(N_Vector u, UserData data)
 
 /* f routine. Compute f(t,u). */
 
-static int f(sunrealtype t, N_Vector u, N_Vector udot, void *user_data)
+static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data)
 {
-  UserData data = (UserData) user_data;
+  UserData data = (UserData)user_data;
 
   /* Extract needed constants from data */
-  const sunindextype MX  = data->MX;
-  const sunindextype MY  = data->MY;
-  const sunindextype NEQ = data->NEQ;
-  const sunrealtype hordc   = data->hdcoef;
-  const sunrealtype horac   = data->hacoef;
-  const sunrealtype verdc   = data->vdcoef;
+  const sunindextype MX   = data->MX;
+  const sunindextype MY   = data->MY;
+  const sunindextype NEQ  = data->NEQ;
+  const sunrealtype hordc = data->hdcoef;
+  const sunrealtype horac = data->hacoef;
+  const sunrealtype verdc = data->vdcoef;
 
   /* Extract pointers to vector data */
-  const sunrealtype *udata = N_VGetDeviceArrayPointer_Raja(u);
-  sunrealtype *dudata      = N_VGetDeviceArrayPointer_Raja(udot);
+  const sunrealtype* udata = N_VGetDeviceArrayPointer_Raja(u);
+  sunrealtype* dudata      = N_VGetDeviceArrayPointer_Raja(udot);
 
   const sunindextype zero = 0;
 
-  RAJA::forall< MY_EXEC >(RAJA::RangeSegment(zero, NEQ),
-    [=] RAJA_DEVICE (sunindextype index) {
-      sunindextype i = index/MY;
-      sunindextype j = index%MY;
+  RAJA::forall<MY_EXEC>(RAJA::RangeSegment(zero, NEQ),
+                        [=] RAJA_DEVICE(sunindextype index)
+                        {
+                          sunindextype i = index / MY;
+                          sunindextype j = index % MY;
 
-      sunrealtype uab = udata[index];
+                          sunrealtype uab = udata[index];
 
-      sunrealtype udn = (j == 0)    ? ZERO : udata[index - 1];
-      sunrealtype uup = (j == MY-1) ? ZERO : udata[index + 1];
-      sunrealtype ult = (i == 0)    ? ZERO : udata[index - MY];
-      sunrealtype urt = (i == MX-1) ? ZERO : udata[index + MY];
+                          sunrealtype udn = (j == 0) ? ZERO : udata[index - 1];
+                          sunrealtype uup = (j == MY - 1) ? ZERO
+                                                          : udata[index + 1];
+                          sunrealtype ult = (i == 0) ? ZERO : udata[index - MY];
+                          sunrealtype urt = (i == MX - 1) ? ZERO
+                                                          : udata[index + MY];
 
-      /* Set diffusion and advection terms and load into udot */
+                          /* Set diffusion and advection terms and load into udot */
 
-      sunrealtype hdiff = hordc*(ult -TWO*uab + urt);
-      sunrealtype hadv  = horac*(urt - ult);
-      sunrealtype vdiff = verdc*(udn -TWO*uab + uup);
+                          sunrealtype hdiff = hordc * (ult - TWO * uab + urt);
+                          sunrealtype hadv  = horac * (urt - ult);
+                          sunrealtype vdiff = verdc * (udn - TWO * uab + uup);
 
-      dudata[index] = hdiff + hadv + vdiff;
-    }
-  );
+                          dudata[index] = hdiff + hadv + vdiff;
+                        });
 
-  return(0);
+  return (0);
 }
-
 
 /* Jacobian-times-vector routine. */
 
-static int jtv(N_Vector v, N_Vector Jv, sunrealtype t,
-               N_Vector u, N_Vector fu,
-               void *user_data, N_Vector tmp)
+static int jtv(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector u, N_Vector fu,
+               void* user_data, N_Vector tmp)
 {
-  UserData data = (UserData) user_data;
+  UserData data = (UserData)user_data;
 
   /* Extract needed constants from data */
-  const sunindextype MX  = data->MX;
-  const sunindextype MY  = data->MY;
-  const sunindextype NEQ = data->NEQ;
-  const sunrealtype hordc   = data->hdcoef;
-  const sunrealtype horac   = data->hacoef;
-  const sunrealtype verdc   = data->vdcoef;
+  const sunindextype MX   = data->MX;
+  const sunindextype MY   = data->MY;
+  const sunindextype NEQ  = data->NEQ;
+  const sunrealtype hordc = data->hdcoef;
+  const sunrealtype horac = data->hacoef;
+  const sunrealtype verdc = data->vdcoef;
 
   /* Extract pointers to vector data */
-  const sunrealtype *vdata = N_VGetDeviceArrayPointer_Raja(v);
-  sunrealtype *Jvdata      = N_VGetDeviceArrayPointer_Raja(Jv);
+  const sunrealtype* vdata = N_VGetDeviceArrayPointer_Raja(v);
+  sunrealtype* Jvdata      = N_VGetDeviceArrayPointer_Raja(Jv);
 
   const sunindextype zero = 0;
 
   N_VConst(ZERO, Jv);
 
-  RAJA::forall< MY_EXEC >(RAJA::RangeSegment(zero, NEQ),
-    [=] RAJA_DEVICE (sunindextype index) {
-      sunindextype i = index/MY;
-      sunindextype j = index%MY;
+  RAJA::forall<MY_EXEC>(RAJA::RangeSegment(zero, NEQ),
+                        [=] RAJA_DEVICE(sunindextype index)
+                        {
+                          sunindextype i = index / MY;
+                          sunindextype j = index % MY;
 
-      Jvdata[index] = -TWO*(verdc+hordc) * vdata[index];
-      if (i !=    0) Jvdata[index] += (hordc - horac) * vdata[index-MY];
-      if (i != MX-1) Jvdata[index] += (hordc + horac) * vdata[index+MY];
-      if (j !=    0) Jvdata[index] += verdc * vdata[index-1];
-      if (j != MY-1) Jvdata[index] += verdc * vdata[index+1];
-    }
-  );
+                          Jvdata[index] = -TWO * (verdc + hordc) * vdata[index];
+                          if (i != 0)
+                            Jvdata[index] += (hordc - horac) * vdata[index - MY];
+                          if (i != MX - 1)
+                            Jvdata[index] += (hordc + horac) * vdata[index + MY];
+                          if (j != 0) Jvdata[index] += verdc * vdata[index - 1];
+                          if (j != MY - 1)
+                            Jvdata[index] += verdc * vdata[index + 1];
+                        });
 
-  return(0);
+  return (0);
 }
 
 /*
@@ -372,18 +372,17 @@ static int jtv(N_Vector v, N_Vector Jv, sunrealtype t,
 
 /* Print first lines of output (problem description) */
 
-static void PrintHeader(sunrealtype reltol, sunrealtype abstol, sunrealtype umax, UserData data)
+static void PrintHeader(sunrealtype reltol, sunrealtype abstol,
+                        sunrealtype umax, UserData data)
 {
   printf("\n2-D Advection-Diffusion Equation\n");
-  printf("Mesh dimensions = %ld X %ld\n", (long) data->MX, (long) data->MY);
-  printf("Total system size = %ld\n", (long) data->NEQ);
+  printf("Mesh dimensions = %ld X %ld\n", (long)data->MX, (long)data->MY);
+  printf("Total system size = %ld\n", (long)data->NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n",
-         reltol, abstol);
+  printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n", reltol, abstol);
   printf("At t = %Lg      max.norm(u) =%14.6Le \n", T0, umax);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("Tolerance parameters: reltol = %g   abstol = %g\n\n",
-         reltol, abstol);
+  printf("Tolerance parameters: reltol = %g   abstol = %g\n\n", reltol, abstol);
   printf("At t = %g      max.norm(u) =%14.6e \n", T0, umax);
 #else
   printf("Tolerance parameters: reltol = %g   abstol = %g\n\n", reltol, abstol);
@@ -410,9 +409,9 @@ static void PrintOutput(sunrealtype t, sunrealtype umax, long int nst)
 
 /* Get and print some final statistics */
 
-static void PrintFinalStats(void *cvode_mem)
+static void PrintFinalStats(void* cvode_mem)
 {
-  long lenrw, leniw ;
+  long lenrw, leniw;
   long lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
@@ -447,13 +446,13 @@ static void PrintFinalStats(void *cvode_mem)
   check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n"  , lenrw, leniw);
-  printf("lenrwLS = %5ld     leniwLS = %5ld\n"  , lenrwLS, leniwLS);
-  printf("nst     = %5ld\n"                     , nst);
-  printf("nfe     = %5ld     nfeLS   = %5ld\n"  , nfe, nfeLS);
-  printf("nni     = %5ld     nli     = %5ld\n"  , nni, nli);
-  printf("nsetups = %5ld     netf    = %5ld\n"  , nsetups, netf);
-  printf("npe     = %5ld     nps     = %5ld\n"  , npe, nps);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
+  printf("lenrwLS = %5ld     leniwLS = %5ld\n", lenrwLS, leniwLS);
+  printf("nst     = %5ld\n", nst);
+  printf("nfe     = %5ld     nfeLS   = %5ld\n", nfe, nfeLS);
+  printf("nni     = %5ld     nli     = %5ld\n", nni, nli);
+  printf("nsetups = %5ld     netf    = %5ld\n", nsetups, netf);
+  printf("npe     = %5ld     nps     = %5ld\n", npe, nps);
   printf("ncfn    = %5ld     ncfl    = %5ld\n\n", ncfn, ncfl);
 
   return;
@@ -467,32 +466,40 @@ static void PrintFinalStats(void *cvode_mem)
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
 
-  if (opt == 0 && returnvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1); }
+    return (1);
+  }
 
   /* Check if retval < 0 */
 
-  else if (opt == 1) {
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
+  else if (opt == 1)
+  {
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return(1); }}
+      return (1);
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
 
-  else if (opt == 2 && returnvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return(1); }
+    return (1);
+  }
 
-  return(0);
+  return (0);
 }

@@ -37,7 +37,6 @@ typedef struct
   const char* method_name;
 } ProgramArgs;
 
-
 int ComputeConvergence(int num_dt, sunrealtype* orders,
                        sunrealtype expected_order, sunrealtype a11,
                        sunrealtype a12, sunrealtype a21, sunrealtype a22,
@@ -59,8 +58,7 @@ int ComputeConvergence(int num_dt, sunrealtype* orders,
   return 0;
 }
 
-
-static void PrintHelp()
+static void PrintHelp(void)
 {
   fprintf(stderr, "ark_kepler: an ARKODE example demonstrating the SPRKStep "
                   "time-stepping module solving the Kepler problem\n");

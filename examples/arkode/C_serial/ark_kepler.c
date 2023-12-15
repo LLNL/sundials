@@ -72,7 +72,7 @@
 #include <nvector/nvector_serial.h> /* serial N_Vector type, fcts., macros  */
 #include <stdio.h>
 #include <string.h>
-#include <sundials/sundials_context.h>
+#include <sundials/sundials_core.h>
 #include <sundials/sundials_math.h> /* def. math fcns, 'sunrealtype'           */
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
@@ -82,7 +82,7 @@
 typedef struct
 {
   sunrealtype ecc;
-} * UserData;
+}* UserData;
 
 typedef struct
 {
@@ -162,22 +162,22 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
     if (count_orbits)
     {
       SPRKStepRootInit(arkode_mem, 1, rootfn);
-      if (check_retval(&retval, "SPRKStepRootInit", 1)) return 1;
+      if (check_retval(&retval, "SPRKStepRootInit", 1)) { return 1; }
     }
 
     retval = SPRKStepSetMethodName(arkode_mem, method_name);
-    if (check_retval(&retval, "SPRKStepSetMethodName", 1)) return 1;
+    if (check_retval(&retval, "SPRKStepSetMethodName", 1)) { return 1; }
 
     retval = SPRKStepSetUseCompensatedSums(arkode_mem, use_compsums);
-    if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) return 1;
+    if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) { return 1; }
 
     if (step_mode == 0)
     {
       retval = SPRKStepSetFixedStep(arkode_mem, dt);
-      if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) return 1;
+      if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) { return 1; }
 
       retval = SPRKStepSetMaxNumSteps(arkode_mem, ((long int)ceil(Tf / dt)) + 1);
-      if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) return 1;
+      if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) { return 1; }
     }
     else
     {
@@ -187,32 +187,32 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
     }
 
     retval = SPRKStepSetUserData(arkode_mem, (void*)udata);
-    if (check_retval(&retval, "SPRKStepSetUserData", 1)) return 1;
+    if (check_retval(&retval, "SPRKStepSetUserData", 1)) { return 1; }
   }
   else if (stepper == 1)
   {
     arkode_mem = ARKStepCreate(dydt, NULL, T0, y, sunctx);
 
     retval = ARKStepSetTableName(arkode_mem, "ARKODE_DIRK_NONE", method_name);
-    if (check_retval(&retval, "ARKStepSetTableName", 1)) return 1;
+    if (check_retval(&retval, "ARKStepSetTableName", 1)) { return 1; }
 
     if (count_orbits)
     {
       ARKStepRootInit(arkode_mem, 1, rootfn);
-      if (check_retval(&retval, "ARKStepRootInit", 1)) return 1;
+      if (check_retval(&retval, "ARKStepRootInit", 1)) { return 1; }
     }
 
     retval = ARKStepSetUserData(arkode_mem, (void*)udata);
-    if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
+    if (check_retval(&retval, "ARKStepSetUserData", 1)) { return 1; }
 
     retval = ARKStepSetMaxNumSteps(arkode_mem, ((long int)ceil(Tf / dt)) + 1);
-    if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return 1;
+    if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) { return 1; }
 
     if (step_mode == 0) { retval = ARKStepSetFixedStep(arkode_mem, dt); }
     else
     {
       retval = ARKStepSStolerances(arkode_mem, dt, dt);
-      if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
+      if (check_retval(&retval, "ARKStepSStolerances", 1)) { return 1; }
     }
   }
 
@@ -468,7 +468,7 @@ int main(int argc, char* argv[])
   int retval        = 0;
 
   /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
 
   /* Parse the command line arguments */

@@ -95,9 +95,9 @@ int main(int argc, char* argv[])
    * Output Problem Setup *
    * -------------------- */
 
-  if (argc > 1) relax = atoi(argv[1]);
-  if (argc > 2) implicit = atoi(argv[2]);
-  if (argc > 3) fixed_h = atof(argv[3]);
+  if (argc > 1) { relax = atoi(argv[1]); }
+  if (argc > 2) { implicit = atoi(argv[2]); }
+  if (argc > 3) { fixed_h = atof(argv[3]); }
 
   std::cout << "Nonlinear Pendulum problem:\n";
   if (implicit) { std::cout << "   method     = DIRK\n"; }
@@ -118,10 +118,10 @@ int main(int argc, char* argv[])
 
   // Create serial vector and set the initial condition values
   N_Vector y = N_VNew_Serial(2, ctx);
-  if (check_ptr(y, "N_VNew_Serial")) return 1;
+  if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   sunrealtype* ydata = N_VGetArrayPointer(y);
-  if (check_ptr(ydata, "N_VGetArrayPointer")) return 1;
+  if (check_ptr(ydata, "N_VGetArrayPointer")) { return 1; }
 
   ydata[0] = SUN_RCONST(1.5);
   ydata[1] = SUN_RCONST(1.0);
@@ -129,23 +129,23 @@ int main(int argc, char* argv[])
   // Initial energy
   sunrealtype eng0;
   int flag = Eng(y, &eng0, nullptr);
-  if (check_flag(flag, "Eng")) return 1;
+  if (check_flag(flag, "Eng")) { return 1; }
 
   // Initialize ARKStep
   void* arkode_mem = nullptr;
   if (implicit) { arkode_mem = ARKStepCreate(nullptr, f, t0, y, ctx); }
   else { arkode_mem = ARKStepCreate(f, nullptr, t0, y, ctx); }
-  if (check_ptr(arkode_mem, "ARKStepCreate")) return 1;
+  if (check_ptr(arkode_mem, "ARKStepCreate")) { return 1; }
 
   // Specify tolerances
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(flag, "ARKStepSStolerances")) return 1;
+  if (check_flag(flag, "ARKStepSStolerances")) { return 1; }
 
   if (relax)
   {
     // Enable relaxation methods
     flag = ARKStepSetRelaxFn(arkode_mem, Eng, JacEng);
-    if (check_flag(flag, "ARKStepSetRelaxFn")) return 1;
+    if (check_flag(flag, "ARKStepSetRelaxFn")) { return 1; }
   }
 
   SUNMatrix A        = nullptr;
@@ -155,26 +155,26 @@ int main(int argc, char* argv[])
   {
     // Create dense matrix and linear solver
     A = SUNDenseMatrix(2, 2, ctx);
-    if (check_ptr(A, "SUNDenseMatrix")) return 1;
+    if (check_ptr(A, "SUNDenseMatrix")) { return 1; }
 
     LS = SUNLinSol_Dense(y, A, ctx);
-    if (check_ptr(LS, "SUNLinSol_Dense")) return 1;
+    if (check_ptr(LS, "SUNLinSol_Dense")) { return 1; }
 
     // Attach the matrix and linear solver
     flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
-    if (check_flag(flag, "ARKStepSetLinearSolver")) return 1;
+    if (check_flag(flag, "ARKStepSetLinearSolver")) { return 1; }
 
     // Set Jacobian routine
     flag = ARKStepSetJacFn(arkode_mem, Jac);
-    if (check_flag(flag, "ARKStepSetJacFn")) return 1;
+    if (check_flag(flag, "ARKStepSetJacFn")) { return 1; }
 
     if (fixed_h > SUN_RCONST(0.0))
     {
       // 3rd-order SDIRK method of Norsett
       ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNFALSE);
 
-      const sunrealtype gamma = ((SUN_RCONST(3.0) + std::sqrt(SUN_RCONST(3.0)))
-                                 / SUN_RCONST(6.0));
+      const sunrealtype gamma =
+        ((SUN_RCONST(3.0) + std::sqrt(SUN_RCONST(3.0))) / SUN_RCONST(6.0));
 
       B->A[0][0] = gamma;
       B->A[1][0] = SUN_RCONST(1.0) - SUN_RCONST(2.0) * gamma;
@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
       B->p = 0;
 
       flag = ARKStepSetTables(arkode_mem, 3, 0, B, nullptr);
-      if (check_flag(flag, "ARKStepSetTables")) return 1;
+      if (check_flag(flag, "ARKStepSetTables")) { return 1; }
 
       ARKodeButcherTable_Free(B);
     }
@@ -199,18 +199,18 @@ int main(int argc, char* argv[])
       // Select a Butcher table with non-negative b values
       flag = ARKStepSetTableName(arkode_mem, "ARKODE_SDIRK_2_1_2",
                                  "ARKODE_ERK_NONE");
-      if (check_flag(flag, "ARKStepSetTableName")) return 1;
+      if (check_flag(flag, "ARKStepSetTableName")) { return 1; }
     }
   }
 
   if (fixed_h > SUN_RCONST(0.0))
   {
     flag = ARKStepSetFixedStep(arkode_mem, fixed_h);
-    if (check_flag(flag, "ARKStepSetFixedStep")) return 1;
+    if (check_flag(flag, "ARKStepSetFixedStep")) { return 1; }
   }
 
   flag = ARKStepSetNonlinConvCoef(arkode_mem, SUN_RCONST(0.01));
-  if (check_flag(flag, "ARKStepSetNonlinConvCoef")) return 1;
+  if (check_flag(flag, "ARKStepSetNonlinConvCoef")) { return 1; }
 
   /* --------------- *
    * Advance in Time *
@@ -234,27 +234,26 @@ int main(int argc, char* argv[])
             << std::setw(rwidth) << "u" << std::setw(rwidth) << "v"
             << std::setw(rwidth) << "e" << std::setw(rwidth) << "e err"
             << std::endl;
-  for (int i = 0; i < swidth + 5 * rwidth; i++) std::cout << "-";
+  for (int i = 0; i < swidth + 5 * rwidth; i++) { std::cout << "-"; }
 
   std::cout << std::endl;
   std::cout << std::scientific;
   std::cout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
   std::cout << std::setw(swidth) << 0 << std::setw(rwidth) << t
             << std::setw(rwidth) << ydata[0] << std::setw(rwidth) << ydata[1]
-            << std::setw(rwidth) << eng0 << std::setw(rwidth)
-            << SUN_RCONST(0.0);
+            << std::setw(rwidth) << eng0 << std::setw(rwidth) << SUN_RCONST(0.0);
   std::cout << std::endl;
 
   while (t < tf)
   {
     // Evolve in time
     flag = ARKStepEvolve(arkode_mem, tf, y, &t, ARK_ONE_STEP);
-    if (check_flag(flag, "ARKStepEvolve")) break;
+    if (check_flag(flag, "ARKStepEvolve")) { break; }
 
     // Output solution and errors
     sunrealtype eng;
     flag = Eng(y, &eng, nullptr);
-    if (check_flag(flag, "Eng")) return 1;
+    if (check_flag(flag, "Eng")) { return 1; }
 
     sunrealtype eng_chng = eng - eng0;
 
@@ -274,9 +273,9 @@ int main(int argc, char* argv[])
     /* Write all steps to file */
     outfile << t << " " << ydata[0] << " " << ydata[1] << " " << eng << " "
             << eng_chng << std::endl;
-    }
+  }
 
-  for (int i = 0; i < swidth + 5 * rwidth; i++) std::cout << "-";
+  for (int i = 0; i < swidth + 5 * rwidth; i++) { std::cout << "-"; }
   std::cout << std::endl;
   outfile.close();
 

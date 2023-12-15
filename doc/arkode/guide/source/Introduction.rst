@@ -154,9 +154,6 @@ release, but for some applications a value of :math:`0` is more appropriate.
 Users who notice that their simulations encounter a large number of
 temporal error test failures may want to experiment with adjusting this value.
 
-Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
-and fixed the targets used for rocBLAS and rocSPARSE.
-
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where ARKODE
 steppers would return at the stop time rather than the requested output time if
 the stop time was reached in the same step in which the output time was passed.
@@ -188,10 +185,92 @@ This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_.
 
 Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
+**Major feature**
+SUNDIALS now has more robust and uniform error handling. Non-release builds will
+be built with additional error checking by default. See :numref:`SUNDIALS.Errors`
+for details.
+
+**Deprecation notice**
+The functions in `sundials_math.h` will be deprecated in the next release.
+
+.. code-block:: c
+
+  sunrealtype SUNRpowerI(sunrealtype base, int exponent);
+  sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
+  sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b);
+  sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol);
+  sunrealtype SUNStrToReal(const char* str);
+
+Additionally, the following header files (and everything in them) will be deprecated -- users who
+rely on these are recommended to transition to the corresponding :c:type:`SUNMatrix` and
+:c:type:`SUNLinearSolver` modules:
+
+.. code-block:: c
+
+  sundials_direct.h
+  sundials_dense.h
+  sundials_band.h
+
+
+**Breaking change**
+The following functions have had their signature updated to ensure they can leverage
+the new SUNDIALS error handling capabilties. 
+
+From sundials_futils.h
+* :c:func:`SUNDIALSFileOpen`
+* :c:func:`SUNDIALSFileClose`
+
+From sundials_memory.h
+* :c:func:`SUNMemorNewEmpty`
+* :c:func:`SUNMemoryHelper_Alias`
+* :c:func:`SUNMemoryHelper_Wrap`
+
+From sundials_nvector.h
+* :c:func:`N_VNewVectorArray`
+
+**Breaking change** 
+We have replaced the use of a type-erased (i.e., ``void*``) pointer to a
+communicator in place of ``MPI_Comm`` throughout the SUNDIALS API with a
+:c:type:`SUNComm`, which is just a typedef to an ``int`` in builds without MPI
+and a typedef to a ``MPI_Comm`` in builds with MPI. Here is what this means:
+
+- All users will need to update their codes because the call to 
+  :c:func:`SUNContext_Create` now takes a :c:type:`SUNComm` instead
+  of type-erased pointer to a communicator. For non-MPI codes,
+  pass :c:type:`SUN_COMM_NULL` to the ``comm`` argument instead of
+  ``NULL``. For MPI codes, pass the ``MPI_Comm`` directly. 
+  The required change should be doable with a find-and-replace. 
+
+- The same change must be made for calls to 
+  :c:func:`SUNLogger_Create` or :c:func:`SUNProfiler_Create`. 
+  
+- Some users will need to update their calls to ``N_VGetCommunicator``, and 
+  update any custom ``N_Vector`` implementations tht provide 
+  ``N_VGetCommunicator``, since it now returns a ``SUNComm``. 
+
+The change away from type-erased pointers for :c:type:`SUNComm` fixes problems like the 
+one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`_.
+
+**Breaking change**
+The SUNLogger is now always MPI-aware if MPI is enabled in SUNDIALS and the
+``SUNDIALS_LOGGING_ENABLE_MPI`` CMake option and macro definition were removed 
+accordingly.
+
 **Breaking change**
 Functions, types and header files that were previously deprecated have been
-removed. 
+removed.
 
+**Breaking change**
+Users now need to link to ``sundials_core`` in addition to the libraries already linked to. 
+This will be picked up automatically in projects that use the SUNDIALS CMake target. The library ``sundials_generic`` has been superceded by ``sundials_core`` and is no longer available.
+This fixes some duplicate symbol errors on Windows when linking to multiple SUNDIALS libraries.
+
+
+Changes in v5.6.2
+-----------------
+
+Fixed the build system support for MAGMA when using a NVIDIA HPC SDK installation of CUDA
+and fixed the targets used for rocBLAS and rocSPARSE.
 
 Changes in v5.6.1
 -----------------

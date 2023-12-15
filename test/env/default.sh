@@ -104,11 +104,7 @@ spack load "${compiler}"
 # make sure spack knows about the compiler
 spack compiler find
 
-if [ "$SUNDIALS_TPLS" == "ON" ]; then
-  spack load cmake@3.18.6
-else
-  spack load cmake@3.12.4
-fi
+spack load cmake@3.18.6
 
 # add CUDA
 if [[ ":${PATH}:" != *":/usr/local/cuda-11.5/bin:"* ]]; then
@@ -212,7 +208,6 @@ export SUNDIALS_PROFILING=ON
 
 # Sundials logging
 export SUNDIALS_LOGGING_LEVEL=3
-export SUNDIALS_LOGGING_ENABLE_MPI=ON
 
 # Uncomment to override the default output file comparison precisions. The float
 # precision is number of digits to compare (0 = all digits) and the integer

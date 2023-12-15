@@ -367,9 +367,9 @@ int check_matrix_dense(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 
 extern "C" int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
-  if (using_csr_matrix_type) return check_matrix_csr(A, B, tol);
-  else if (using_dense_matrix_type) return check_matrix_dense(A, B, tol);
-  else return 1;
+  if (using_csr_matrix_type) { return check_matrix_csr(A, B, tol); }
+  else if (using_dense_matrix_type) { return check_matrix_dense(A, B, tol); }
+  else { return 1; }
 }
 
 int check_matrix_entry_csr(SUNMatrix A, sunrealtype val, sunrealtype tol)
@@ -466,16 +466,22 @@ extern "C" int check_vector(N_Vector expected, N_Vector computed, sunrealtype to
 
   /* check vector data */
   for (sunindextype i = 0; i < xldata; i++)
+  {
     failure += SUNRCompareTol(xdata[i], ydata[i], tol);
+  }
 
   if (failure > ZERO)
   {
     std::cerr << "Check_vector failures:\n";
     for (sunindextype i = 0; i < xldata; i++)
+    {
       if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0)
+      {
         std::cerr << "  computed[" << i << "] = " << xdata[i]
                   << " != " << ydata[i]
                   << " (err = " << SUNRabs(xdata[i] - ydata[i]) << ")\n";
+      }
+    }
   }
 
   return failure > 0;

@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
   // Read input options
   UserData udata;
   std::vector<std::string> args(argv + 1, argv + argc);
-  if (ReadInputs(args, udata)) return 1;
+  if (ReadInputs(args, udata)) { return 1; }
   PrintUserData(udata);
 
   // ---------------------------------------
@@ -141,15 +141,15 @@ int main(int argc, char* argv[])
 #else
   N_Vector u = N_VNew(udata.nodes, sunctx);
 #endif
-  if (check_ptr(u, "N_VNew")) return 1;
+  if (check_ptr(u, "N_VNew")) { return 1; }
 
   // Set initial condition
   int flag = Solution(ZERO, u, udata);
-  if (check_flag(flag, "Solution")) return 1;
+  if (check_flag(flag, "Solution")) { return 1; }
 
   // Create error vector
   N_Vector e = N_VClone(u);
-  if (check_ptr(e, "N_VClone")) return 1;
+  if (check_ptr(e, "N_VClone")) { return 1; }
 
   auto gko_matrix_dim = gko::dim<2>(udata.nodes, udata.nodes);
   auto gko_matrix_nnz{(5 * (udata.nx - 2) + 2) * (udata.ny - 2) + 2 * udata.nx};
@@ -180,39 +180,39 @@ int main(int argc, char* argv[])
 
   // Create integrator
   void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_ptr(cvode_mem, "CVodeCreate")) return 1;
+  if (check_ptr(cvode_mem, "CVodeCreate")) { return 1; }
 
   // Initialize integrator
   flag = CVodeInit(cvode_mem, f, ZERO, u);
-  if (check_flag(flag, "CVodeInit")) return 1;
+  if (check_flag(flag, "CVodeInit")) { return 1; }
 
   // Specify tolerances
   flag = CVodeSStolerances(cvode_mem, udata.rtol, udata.atol);
-  if (check_flag(flag, "CVodeSStolerances")) return 1;
+  if (check_flag(flag, "CVodeSStolerances")) { return 1; }
 
   // Attach user data
   flag = CVodeSetUserData(cvode_mem, (void*)&udata);
-  if (check_flag(flag, "CVodeSetUserData")) return 1;
+  if (check_flag(flag, "CVodeSetUserData")) { return 1; }
 
   // Attach linear solver
   flag = CVodeSetLinearSolver(cvode_mem, LS, A);
-  if (check_flag(flag, "CVodeSetLinearSolver")) return 1;
+  if (check_flag(flag, "CVodeSetLinearSolver")) { return 1; }
 
   // Attach Jacobian function
   flag = CVodeSetJacFn(cvode_mem, J);
-  if (check_flag(flag, "CVodeSetJacFn")) return 1;
+  if (check_flag(flag, "CVodeSetJacFn")) { return 1; }
 
   // Set linear solver tolerance factor
   flag = CVodeSetEpsLin(cvode_mem, udata.epslin);
-  if (check_flag(flag, "CVodeSetEpsLin")) return 1;
+  if (check_flag(flag, "CVodeSetEpsLin")) { return 1; }
 
   // Set max steps between outputs
   flag = CVodeSetMaxNumSteps(cvode_mem, udata.maxsteps);
-  if (check_flag(flag, "CVodeSetMaxNumSteps")) return 1;
+  if (check_flag(flag, "CVodeSetMaxNumSteps")) { return 1; }
 
   // Set stopping time
   flag = CVodeSetStopTime(cvode_mem, udata.tf);
-  if (check_flag(flag, "CVodeSetStopTime")) return 1;
+  if (check_flag(flag, "CVodeSetStopTime")) { return 1; }
 
   // -----------------------
   // Loop over output times
@@ -224,20 +224,20 @@ int main(int argc, char* argv[])
 
   // Inital output
   flag = OpenOutput(udata);
-  if (check_flag(flag, "OpenOutput")) return 1;
+  if (check_flag(flag, "OpenOutput")) { return 1; }
 
   flag = WriteOutput(t, u, e, udata);
-  if (check_flag(flag, "WriteOutput")) return 1;
+  if (check_flag(flag, "WriteOutput")) { return 1; }
 
   for (int iout = 0; iout < udata.nout; iout++)
   {
     // Evolve in time
     flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if (check_flag(flag, "CVode")) break;
+    if (check_flag(flag, "CVode")) { break; }
 
     // Output solution and error
     flag = WriteOutput(t, u, e, udata);
-    if (check_flag(flag, "WriteOutput")) return 1;
+    if (check_flag(flag, "WriteOutput")) { return 1; }
 
     // Update output time
     tout += dTout;
@@ -246,7 +246,7 @@ int main(int argc, char* argv[])
 
   // Close output
   flag = CloseOutput(udata);
-  if (check_flag(flag, "CloseOutput")) return 1;
+  if (check_flag(flag, "CloseOutput")) { return 1; }
 
   // --------------
   // Final outputs
@@ -255,11 +255,11 @@ int main(int argc, char* argv[])
   // Print final integrator stats
   std::cout << "Final integrator statistics:" << std::endl;
   flag = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-  if (check_flag(flag, "CVodePrintAllStats")) return 1;
+  if (check_flag(flag, "CVodePrintAllStats")) { return 1; }
 
   // Output final error
   flag = SolutionError(t, u, e, udata);
-  if (check_flag(flag, "SolutionError")) return 1;
+  if (check_flag(flag, "SolutionError")) { return 1; }
 
   sunrealtype maxerr = N_VMaxNorm(e);
 
@@ -424,10 +424,10 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
 
   // Access host data arrays
   sunrealtype* uarray = N_VGetArrayPointer(u);
-  if (check_ptr(uarray, "N_VGetArrayPointer")) return -1;
+  if (check_ptr(uarray, "N_VGetArrayPointer")) { return -1; }
 
   sunrealtype* farray = N_VGetArrayPointer(f);
-  if (check_ptr(farray, "N_VGetArrayPointer")) return -1;
+  if (check_ptr(farray, "N_VGetArrayPointer")) { return -1; }
 
   // Iterate over domain interior and fill the RHS vector
   for (sunindextype j = 1; j < ny - 1; j++)

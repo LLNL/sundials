@@ -36,7 +36,7 @@ foreach(test_tuple ${unit_tests})
       ${CMAKE_SOURCE_DIR}/src)
 
     # libraries to link against
-    target_link_libraries(${test} PRIVATE sundials_generic_obj sundials_sunmemsycl_obj ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(${test} PRIVATE sundials_core sundials_sunmemsycl_obj ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 

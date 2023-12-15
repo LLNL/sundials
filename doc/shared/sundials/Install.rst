@@ -14,22 +14,30 @@
 
 .. _Installation:
 
-======================
-Installation Procedure
-======================
+Acquiring SUNDIALS
+==================
 
-The installation of any SUNDIALS package is accomplished by installing the
-SUNDIALS suite as a whole, according to the instructions that follow.  The same
-procedure applies whether or not the downloaded file contains one or all solvers
-in SUNDIALS.
+There are two supported ways for building and installing SUNDIALS from
+source. One option is to use the `Spack HPC package manager <https://spack.io/>`_:
 
-The SUNDIALS suite (or individual solvers) are distributed as compressed
-archives (``.tar.gz``).  The name of the distribution archive is of the form
+.. code-block:: bash
+
+   spack install sundials
+
+The second supported option for building and installing SUNDIALS is with CMake.
+Before proceeding with CMake, the source code must be downloaded. This can be done
+by cloning the `SUNDIALS GitHub repository <https://github.com/LLNL/sundials>`_
+(run ``git clone https://github.com/LLNL/sundials``), or by downloading the 
+SUNDIALS release compressed archives (``.tar.gz``) from  the SUNDIALS 
+`website <https://computing.llnl.gov/projects/sundials/sundials-software>`_.
+
+The compressed archives allow for downloading of indvidual SUNDIALS packages.
+The name of the distribution archive is of the form
 ``SOLVER-X.Y.Z.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
 ``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``X.Y.Z``
 represents the version number (of the SUNDIALS suite or of the individual
-solver).  To begin the installation, first uncompress and expand the sources, by
-issuing
+solver). After downloading the relevant archives, uncompress and expand the sources, 
+by running
 
 .. code-block:: bash
 
@@ -84,8 +92,8 @@ and :numref:`Installation.Results`.
 
 .. _Installation.CMake:
 
-CMake-based installation
-======================================
+Building and Installing with CMake
+==================================
 
 CMake-based installation provides a platform-independent build system. CMake can
 generate Unix and Linux Makefiles, as well as KDevelop, Visual Studio, and
@@ -519,15 +527,6 @@ illustration only.
 
    Default: ``sm_30``
 
-.. cmakeoption:: ENABLE_XBRAID
-
-   Enable or disable the ARKStep + XBraid interface.
-
-   Default: ``OFF``
-
-   .. note:: See additional information on building with *XBraid*
-             enabled in  :numref:`Installation.CMake.ExternalLibraries`.
-
 .. cmakeoption:: EXAMPLES_ENABLE_C
 
    Build the SUNDIALS C examples
@@ -590,6 +589,55 @@ illustration only.
    Enable Fortran 2003 interface
 
    Default: ``OFF``
+
+.. cmakeoption:: SUNDIALS_LOGGING_LEVEL
+
+   Set the maximum logging level for the SUNLogger runtime API. The higher this is set,
+   the more output that may be logged, and the more performance may degrade. The options are:
+
+   - ``0`` -- no logging
+   - ``1`` -- log errors
+   - ``2`` -- log errors + warnings
+   - ``3`` -- log errors + warnings + informational output
+   - ``4`` -- log errors + warnings + informational output + debug output
+   - ``5`` -- log all of the above and even more (e.g. vector valued variables may be logged)
+
+   Default: 0
+
+
+.. cmakeoption:: SUNDIALS_BUILD_WITH_MONITORING
+
+   Build SUNDIALS with capabilties for fine-grained monitoring of solver progress
+   and statistics. This is primarily useful for debugging.
+
+   Default: OFF
+
+   .. warning::
+
+      Building with monitoring may result in minor performance degradation even
+      if monitoring is not utilized.
+
+.. cmakeoption:: SUNDIALS_BUILD_WITH_PROFILING
+
+   Build SUNDIALS with capabilties for fine-grained profiling.
+   This requires POSIX timers or the Windows ``profileapi.h`` timers.
+
+   Default: OFF
+
+   .. warning::
+
+      Profiling will impact performance, and should be enabled judiciously.
+
+.. cmakeoption:: SUNDIALS_ENABLE_ERROR_CHECKS
+
+   Build SUNDIALS with more extensive checks for unrecoverable errors. 
+   
+   Default: ``OFF`` when ``CMAKE_BUILD_TYPE=Release|RelWithDebInfo `` and ``ON`` otherwise.
+
+   .. warning::
+
+      Error checks will impact performance, but can be helpful for debugging.
+
 
 .. cmakeoption:: ENABLE_GINKGO
 
@@ -964,6 +1012,10 @@ illustration only.
 
    .. note::
 
+      Building with SYCL enabled requires a compiler that supports a subset of
+      the of SYCL 2020 specification (specifically ``sycl/sycl.hpp`` must be
+      available).
+
       CMake does not currently support autodetection of SYCL compilers and
       ``CMAKE_CXX_COMPILER`` must be set to a valid SYCL compiler. At present
       the only supported SYCL compilers are the Intel oneAPI compilers i.e.,
@@ -977,58 +1029,6 @@ illustration only.
    some cases of incomplete compiler support for SYCL 2020.
 
    Default: OFF
-
-
-.. cmakeoption:: SUNDIALS_LOGGING_LEVEL
-
-   Set the maximum logging level for the SUNLogger runtime API. The higher this is set,
-   the more output that may be logged, and the more performance may degrade. The options are:
-
-   - ``0`` -- no logging
-   - ``1`` -- log errors
-   - ``2`` -- log errors + warnings
-   - ``3`` -- log errors + warnings + informational output
-   - ``4`` -- log errors + warnings + informational output + debug output
-   - ``5`` -- log all of the above and even more (e.g. vector valued variables may be logged)
-
-   Default: 0
-
-
-.. cmakeoption:: SUNDIALS_LOGGING_ENABLE_MPI
-
-   Enables MPI support in the SUNLogger runtime API. I.e., makes the logger MPI
-   aware and capable of outputting only on specific ranks.
-
-   Default: ``OFF``
-
-   .. note::
-
-      The logger may be used in an MPI application without MPI support turned on,
-      but it will output on all ranks.
-
-
-.. cmakeoption:: SUNDIALS_BUILD_WITH_MONITORING
-
-   Build SUNDIALS with capabilties for fine-grained monitoring of solver progress
-   and statistics. This is primarily useful for debugging.
-
-   Default: OFF
-
-   .. warning::
-
-      Building with monitoring may result in minor performance degradation even
-      if monitoring is not utilized.
-
-.. cmakeoption:: SUNDIALS_BUILD_WITH_PROFILING
-
-   Build SUNDIALS with capabilties for fine-grained profiling.
-   This requires POSIX timers or the Windows ``profileapi.h`` timers.
-
-   Default: OFF
-
-   .. warning::
-
-      Profiling will impact performance, and should be enabled judiciously.
 
 .. cmakeoption:: ENABLE_CALIPER
 
@@ -1120,18 +1120,18 @@ illustration only.
       The advanced option, :cmakeop:`SUNDIALS_INDEX_TYPE` can be used to provide
       a type not listed here.
 
-.. cmakeoption:: SUNDIALS_MATH_LIBRARY
-
-   The standard C math library (e.g., ``libm``) to link with.
-
-   Default: ``-lm`` on Unix systems, none otherwise
-
 .. cmakeoption:: SUNDIALS_PRECISION
 
    The floating-point precision used in SUNDIALS packages and class
    implementations, options are: ``double``, ``single``, or ``extended``
 
    Default: ``double``
+
+.. cmakeoption:: SUNDIALS_MATH_LIBRARY
+
+   The standard C math library (e.g., ``libm``) to link with.
+
+   Default: ``-lm`` on Unix systems, none otherwise
 
 .. cmakeoption:: SUNDIALS_INSTALL_CMAKEDIR
 
@@ -1149,6 +1149,15 @@ illustration only.
    .. note::
 
       This option is deprecated. Use :cmakeop:`SUNDIALS_MATH_LIBRARY`.
+
+.. cmakeoption:: ENABLE_XBRAID
+
+   Enable or disable the ARKStep + XBraid interface.
+
+   Default: ``OFF``
+
+   .. note:: See additional information on building with *XBraid*
+             enabled in  :numref:`Installation.CMake.ExternalLibraries`.
 
 .. cmakeoption:: XBRAID_DIR
 
@@ -1647,11 +1656,10 @@ dependencies for your project.
 
 
 
-
 .. _Installation.Results:
 
 Installed libraries and exported header files
-====================================================
+---------------------------------------------
 
 Using the CMake SUNDIALS build system, the command
 
@@ -1672,12 +1680,48 @@ the table below.  The file extension ``.LIB`` is typically
 table names are relative to ``LIBDIR`` for libraries and to ``INCLUDEDIR`` for
 header files.
 
-A typical user program need not explicitly include any of the shared SUNDIALS
-header files from under the ``INCLUDEDIR/include/sundials`` directory since they
-are explicitly included by the appropriate solver header files (e.g.,
-``sunlinsol_dense.h`` includes ``sundials_dense.h``). However, it is both legal and
-safe to do so, and would be useful, for example, if the functions declared in
-``sundials_dense.h`` are to be used in building a preconditioner.
+.. warning::
+
+   SUNDIALS installs some header files to ``INSTDIR/include/sundials/priv``.
+   All of the header files in this directory are private and **should not
+   be included in user code**. The private headers are subject to change
+   without any notice and relying on them may break your code. 
+
+
+Using SUNDIALS in your prpject
+------------------------------
+
+After building and installing SUNDIALS, using SUNDIALS in your application involves
+two steps: including the right header files and linking to the right libraries.
+
+Depending on what features of SUNDIALS that your application uses, the header
+files needed will vary. For example, if you want to use CVODE for serial computations
+you need the following includes:
+
+.. code-block:: c
+
+   #include <cvode/cvode.h>
+   #include <nvector/nvector_serial.h>
+
+If you wanted to use CVODE with the GMRES linear solver and our CUDA
+enabled vector:
+
+.. code-block:: c
+
+   #include <cvode/cvode.h>
+   #include <nvector/nvector_cuda.h>
+   #include <sunlinsol/sunlinsol_spgmr.h>
+
+The story is similar for linking to SUNDIALS. Starting in v7.0.0, all
+applications will need to link to ``libsundials_core``. Furthermore, depending
+on the packages and modules of SUNDIALS of interest an application will need to
+link to a few more libraries. Using the same examples as for the includes, we
+would need to also link to ``libsundials_cvode``, ``libsundials_nvecserial`` for
+the first example and ``libsundials_cvode``, ``libsundials_nveccuda``,
+``libsundials_sunlinsolspgmr`` for the second.
+
+Refer to the documentations sections for the individual packages and modules of
+SUNDIALS that interest you for the proper includes and libraries to link to.
 
 
 Using SUNDIALS as a Third Party Library in other CMake Projects
@@ -1716,14 +1760,20 @@ configuration file to build against SUNDIALS in their own CMake project.
   target_link_libraries(myexec PUBLIC SUNDIALS::cvode SUNDIALS::nvecpetsc)
 
 
+Table of SUNDIALS libraries and header files
+--------------------------------------------
+
 .. _Installation.Table:
 
 .. tabularcolumns:: |\Y{0.3}|\Y{0.2}|\Y{0.5}|
 
 .. table:: SUNDIALS shared libraries and header files
+   :align: center
 
    +------------------------------+--------------+----------------------------------------------+
-   | Shared                       | Headers      | ``sundials/sundials_band.h``                 |
+   | Core                         | Libraries    | ``libsundials_core.LIB``                     |
+   |                              +--------------+----------------------------------------------+
+   |                              | Headers      | ``sundials/sundials_band.h``                 |
    |                              |              +----------------------------------------------+
    |                              |              | ``sundials/sundials_config.h``               |
    |                              |              +----------------------------------------------+

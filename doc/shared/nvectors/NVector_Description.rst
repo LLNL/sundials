@@ -54,10 +54,10 @@ defined as
       N_Vector     (*nvcloneempty)(N_Vector);
       void         (*nvdestroy)(N_Vector);
       void         (*nvspace)(N_Vector, sunindextype *, sunindextype *);
-      sunrealtype*    (*nvgetarraypointer)(N_Vector);
-      sunrealtype*    (*nvgetdevicearraypointer)(N_Vector);
+      sunrealtype* (*nvgetarraypointer)(N_Vector);
+      sunrealtype* (*nvgetdevicearraypointer)(N_Vector);
       void         (*nvsetarraypointer)(sunrealtype *, N_Vector);
-      void*        (*nvgetcommunicator)(N_Vector);
+      SUNComm      (*nvgetcommunicator)(N_Vector);
       sunindextype (*nvgetlength)(N_Vector);
       sunindextype (*nvgetlocallength)(N_Vector);
       void         (*nvlinearsum)(sunrealtype, N_Vector, sunrealtype, N_Vector, N_Vector);
@@ -240,17 +240,22 @@ that are wrapped as ``FN_NewVectorArray``, ``FN_VGetVecAtIndexVectorArray``, and
 set a vector within this array:
 
 
-.. c:function:: N_Vector *N_VNewVectorArray(int count)
+.. c:function:: N_Vector *N_VNewVectorArray(int count, SUNContext sunctx)
 
    Creates an array of ``count``  ``N_Vector`` objects, the pointers to each
    are initialized as ``NULL``.
 
    **Arguments:**
       * ``count`` -- length of desired ``N_Vector`` array.
+      * ``sunctx`` -- a ``SUNContext`` object
 
    **Return value:**
       * pointer to a new ``N_Vector`` array on success.
       * ``NULL`` pointer on failure.
+
+   .. versionchanged:: 7.0.0
+
+      The function signature was updated to add the ``SUNContext`` argument.
 
 
 .. c:function:: N_Vector *N_VGetVecAtIndexVectorArray(N_Vector* vs, int index)

@@ -17,6 +17,7 @@
 module test_utilities
 
     use, intrinsic :: iso_c_binding
+    use fsundials_types_mod
     use fsundials_context_mod
     implicit none
 
@@ -40,8 +41,8 @@ contains
 
   subroutine Test_Init(comm)
     implicit none
-    type(C_PTR), value :: comm
-    integer(C_INT)     :: retval
+    integer(C_INT), value :: comm
+    integer(C_INT)        :: retval
 
     retval = FSUNContext_Create(comm, sunctx)
     if (retval /= 0) then

@@ -17,7 +17,7 @@
 #include "diffusion_2D.hpp"
 
 // Compute the exact solution
-int Solution(sunrealtype t, N_Vector u, UserData *udata)
+int Solution(sunrealtype t, N_Vector u, UserData* udata)
 {
   // Initialize u to zero (handles boundary conditions)
   N_VConst(ZERO, u);
@@ -35,29 +35,28 @@ int Solution(sunrealtype t, N_Vector u, UserData *udata)
   sunindextype jstart = (udata->HaveNbrS) ? 0 : 1;
   sunindextype jend   = (udata->HaveNbrN) ? udata->ny_loc : udata->ny_loc - 1;
 
-  sunrealtype *uarray = N_VGetArrayPointer(u);
-  if (check_flag((void *) uarray, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* uarray = N_VGetArrayPointer(u);
+  if (check_flag((void*)uarray, "N_VGetArrayPointer", 0)) { return -1; }
 
   for (sunindextype j = jstart; j < jend; j++)
   {
     for (sunindextype i = istart; i < iend; i++)
     {
-      x  = (udata->is + i) * udata->dx;
-      y  = (udata->js + j) * udata->dy;
+      x = (udata->is + i) * udata->dx;
+      y = (udata->js + j) * udata->dy;
 
       sin_sqr_x = sin(PI * x) * sin(PI * x);
       sin_sqr_y = sin(PI * y) * sin(PI * y);
 
-      uarray[IDX(i,j,udata->nx_loc)] = sin_sqr_x * sin_sqr_y * cos_sqr_t;
+      uarray[IDX(i, j, udata->nx_loc)] = sin_sqr_x * sin_sqr_y * cos_sqr_t;
     }
   }
 
   return 0;
 }
 
-
 // Compute the exact solution derivative
-int SolutionDerivative(sunrealtype t, N_Vector up, UserData *udata)
+int SolutionDerivative(sunrealtype t, N_Vector up, UserData* udata)
 {
   // Initialize u to zero (handles boundary conditions)
   N_VConst(ZERO, up);
@@ -75,20 +74,20 @@ int SolutionDerivative(sunrealtype t, N_Vector up, UserData *udata)
   sunindextype jstart = (udata->HaveNbrS) ? 0 : 1;
   sunindextype jend   = (udata->HaveNbrN) ? udata->ny_loc : udata->ny_loc - 1;
 
-  sunrealtype *uparray = N_VGetArrayPointer(up);
-  if (check_flag((void *) uparray, "N_VGetArrayPointer", 0)) return -1;
+  sunrealtype* uparray = N_VGetArrayPointer(up);
+  if (check_flag((void*)uparray, "N_VGetArrayPointer", 0)) { return -1; }
 
   for (sunindextype j = jstart; j < jend; j++)
   {
     for (sunindextype i = istart; i < iend; i++)
     {
-      x  = (udata->is + i) * udata->dx;
-      y  = (udata->js + j) * udata->dy;
+      x = (udata->is + i) * udata->dx;
+      y = (udata->js + j) * udata->dy;
 
       sin_sqr_x = sin(PI * x) * sin(PI * x);
       sin_sqr_y = sin(PI * y) * sin(PI * y);
 
-      uparray[IDX(i,j,udata->nx_loc)] = sin_sqr_x * sin_sqr_y * cos_sin_t;
+      uparray[IDX(i, j, udata->nx_loc)] = sin_sqr_x * sin_sqr_y * cos_sin_t;
     }
   }
 

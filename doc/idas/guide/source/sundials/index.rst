@@ -16,7 +16,7 @@
 Using SUNDIALS
 **************
 
-As discussed in :numref:`Organization`, the all SUNDIALS packages are built upon
+As discussed in :numref:`IDAS.Organization`, the all SUNDIALS packages are built upon
 a common set of interfaces for vectors, matrices, and algebraic solvers. In
 addition, the packages all leverage some other common infrastructure discussed
 in this section.
@@ -24,6 +24,7 @@ in this section.
 .. toctree::
    Types_link
    SUNContext_link
+   Errors_link
    Logging_link
    Profiling_link
    version_information_link

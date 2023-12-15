@@ -47,9 +47,9 @@ typedef struct ARKodeSPRKStepMemRec
 {
   /* SPRK method and storage */
   ARKodeSPRKTable method; /* method spec  */
-  int q;                    /* method order */
-  N_Vector sdata;           /* persisted stage data */
-  N_Vector yerr;            /* error vector for compensated summation */
+  int q;                  /* method order */
+  N_Vector sdata;         /* persisted stage data */
+  N_Vector yerr;          /* error vector for compensated summation */
 
   /* SPRK problem specification */
   ARKRhsFn f1; /* p' = f1(t,q) = - dV(t,q)/dq  */
@@ -60,7 +60,7 @@ typedef struct ARKodeSPRKStepMemRec
   long int nf2; /* number of calls to f2        */
   int istage;
 
-} * ARKodeSPRKStepMem;
+}* ARKodeSPRKStepMem;
 
 /*===============================================================
   SPRK time step module private function prototypes

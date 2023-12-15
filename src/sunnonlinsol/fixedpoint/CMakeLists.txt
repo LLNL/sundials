@@ -24,8 +24,9 @@ sundials_add_library(sundials_sunnonlinsolfixedpoint
     ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_fixedpoint.h
   INCLUDE_SUBDIR
     sunnonlinsol
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
   OUTPUT_NAME
     sundials_sunnonlinsolfixedpoint
   VERSION

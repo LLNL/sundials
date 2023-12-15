@@ -16,19 +16,19 @@
 #ifndef KIN_HEAT2D_NONLIN_HYPRE_PFMG_HPP
 #define KIN_HEAT2D_NONLIN_HYPRE_PFMG_HPP
 
-#include <cstdio>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-#include <limits>
 #include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <sstream>
 
-#include "kinsol/kinsol.h"                  // access to KINSOL
-#include "nvector/nvector_parallel.h"       // access to the MPI N_Vector
-#include "sunlinsol/sunlinsol_pcg.h"        // access to PCG SUNLinearSolver
-#include "HYPRE_struct_ls.h"                // HYPRE structured grid solver interface
-#include "mpi.h"                            // MPI header file
+#include "HYPRE_struct_ls.h"          // HYPRE structured grid solver interface
+#include "kinsol/kinsol.h"            // access to KINSOL
+#include "mpi.h"                      // MPI header file
+#include "nvector/nvector_parallel.h" // access to the MPI N_Vector
+#include "sunlinsol/sunlinsol_pcg.h"  // access to PCG SUNLinearSolver
 
 // Macros for problem constants
 #define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
@@ -38,7 +38,7 @@
 #define EIGHT SUN_RCONST(8.0)
 
 // Macro to access (x,y) location in 1D NVector array
-#define IDX(x,y,n) ((n)*(y)+(x))
+#define IDX(x, y, n) ((n) * (y) + (x))
 
 // Define c function type
 typedef sunrealtype (*cFn)(sunrealtype u_val);
@@ -81,10 +81,10 @@ struct UserData
   sunindextype nodes_loc;
 
   // Global x and y indices of this subdomain
-  sunindextype is;  // x starting index
-  sunindextype ie;  // x ending index
-  sunindextype js;  // y starting index
-  sunindextype je;  // y ending index
+  sunindextype is; // x starting index
+  sunindextype ie; // x ending index
+  sunindextype js; // y starting index
+  sunindextype je; // y ending index
 
   // MPI variables
   MPI_Comm comm_c; // Cartesian communicator in space
@@ -108,10 +108,10 @@ struct UserData
   int ipN;
 
   // Receive buffers for neighbor exchange
-  sunrealtype *Wrecv;
-  sunrealtype *Erecv;
-  sunrealtype *Srecv;
-  sunrealtype *Nrecv;
+  sunrealtype* Wrecv;
+  sunrealtype* Erecv;
+  sunrealtype* Srecv;
+  sunrealtype* Nrecv;
 
   // Receive requests for neighbor exchange
   MPI_Request reqRW;
@@ -120,10 +120,10 @@ struct UserData
   MPI_Request reqRN;
 
   // Send buffers for neighbor exchange
-  sunrealtype *Wsend;
-  sunrealtype *Esend;
-  sunrealtype *Ssend;
-  sunrealtype *Nsend;
+  sunrealtype* Wsend;
+  sunrealtype* Esend;
+  sunrealtype* Ssend;
+  sunrealtype* Nsend;
 
   // Send requests for neighor exchange
   MPI_Request reqSW;
@@ -132,45 +132,45 @@ struct UserData
   MPI_Request reqSN;
 
   // Fixed Point Solver settings
-  sunrealtype rtol;        // relative tolerance
-  int      maa;         // m for Anderson Acceleration
-  sunrealtype damping;     // daming for Anderson Acceleration
-  int      orthaa;      // orthogonalization routine for AA
-  int      maxits;      // max number of fixed point iterations
+  sunrealtype rtol;    // relative tolerance
+  int maa;             // m for Anderson Acceleration
+  sunrealtype damping; // daming for Anderson Acceleration
+  int orthaa;          // orthogonalization routine for AA
+  int maxits;          // max number of fixed point iterations
 
   // Linear solver and preconditioner settings
-  int      liniters;  // number of linear iterations
-  int      msbp;      // max number of steps between preconditioner setups
-  sunrealtype epslin;    // linear solver tolerance factor
+  int liniters;       // number of linear iterations
+  int msbp;           // max number of steps between preconditioner setups
+  sunrealtype epslin; // linear solver tolerance factor
 
   // Linear solver object
-  SUNLinearSolver LS;  // linear solver memory structure
+  SUNLinearSolver LS; // linear solver memory structure
 
   // c(u) Function and integer for help setting
   cFn c;
   int c_int;
 
   // Vectors to help with FPFunction definition and execution
-  N_Vector b;      // defined using c(u_exact)
-  N_Vector vtemp;  // temporary vector for function evaluation
+  N_Vector b;     // defined using c(u_exact)
+  N_Vector vtemp; // temporary vector for function evaluation
 
   // hypre objects
-  HYPRE_StructGrid    grid;
+  HYPRE_StructGrid grid;
   HYPRE_StructStencil stencil;
-  HYPRE_StructMatrix  Jmatrix;
-  HYPRE_StructVector  bvec;
-  HYPRE_StructVector  xvec;
-  HYPRE_StructVector  vvec;
-  HYPRE_StructVector  Jvvec;
-  HYPRE_StructSolver  precond;
+  HYPRE_StructMatrix Jmatrix;
+  HYPRE_StructVector bvec;
+  HYPRE_StructVector xvec;
+  HYPRE_StructVector vvec;
+  HYPRE_StructVector Jvvec;
+  HYPRE_StructSolver precond;
 
   // hypre grid extents
   HYPRE_Int ilower[2];
   HYPRE_Int iupper[2];
 
   // hypre workspace
-  HYPRE_Int   nwork;
-  HYPRE_Real *work;
+  HYPRE_Int nwork;
+  HYPRE_Real* work;
 
   // hypre counters
   HYPRE_Int pfmg_its;
@@ -184,14 +184,14 @@ struct UserData
   HYPRE_Int pfmg_nrelax; // number of pre and post relaxation sweeps (2)
 
   // Ouput variables
-  int      output; // output level
-  ofstream uout;   // output file stream
-  ofstream rout;   // output residual file stream
-  ofstream eout;   // output error file stream
-  N_Vector e;      // error vector
+  int output;    // output level
+  ofstream uout; // output file stream
+  ofstream rout; // output residual file stream
+  ofstream eout; // output error file stream
+  N_Vector e;    // error vector
 
   // Timing variables
-  bool   timing;     // print timings
+  bool timing; // print timings
   double totaltime;
   double fevaltime;
   double matfilltime;
@@ -205,121 +205,106 @@ struct UserData
 // -----------------------------------------------------------------------------
 
 // Nonlinear fixed point function
-static int FPFunction(N_Vector u, N_Vector f, void *user_data);
+static int FPFunction(N_Vector u, N_Vector f, void* user_data);
 
 // Nonlinear function c(u)
-static int c(N_Vector u, N_Vector z, void *user_data);
+static int c(N_Vector u, N_Vector z, void* user_data);
 
 // Jacobian-vector product function
-static int JTimes(void *user_data, N_Vector v, N_Vector Jv);
+static int JTimes(void* user_data, N_Vector v, N_Vector Jv);
 
 // Preconditioner setup and solve functions
-static int PSetup(void *user_data);
+static int PSetup(void* user_data);
 
-static int PSolve(void *user_data, N_Vector r, N_Vector z,
-                  sunrealtype tol, int lr);
+static int PSolve(void* user_data, N_Vector r, N_Vector z, sunrealtype tol,
+                  int lr);
 
 // -----------------------------------------------------------------------------
 // Helper functions
 // -----------------------------------------------------------------------------
 
 // Setup the parallel decomposition
-static int SetupDecomp(MPI_Comm comm_w, UserData *udata);
+static int SetupDecomp(MPI_Comm comm_w, UserData* udata);
 
 // Create rhs = b - c(u) for FPFunction
-static int SetupRHS(void *user_data);
+static int SetupRHS(void* user_data);
 
 // Set nonlinear function c(u)
-static int SetC(UserData *udata);
+static int SetC(UserData* udata);
 
 // Create hypre objects
-static int SetupHypre(UserData *udata);
+static int SetupHypre(UserData* udata);
 
 // Create PCG Linear Solver and attach hypre
-static int SetupLS(N_Vector u, void *user_data, SUNContext sunctx);
+static int SetupLS(N_Vector u, void* user_data, SUNContext sunctx);
 
 // Fill Jacobian and A = I - gamma * J
-static int Jac(UserData *udata);
+static int Jac(UserData* udata);
 
 // -----------------------------------------------------------------------------
 // UserData and input functions
 // -----------------------------------------------------------------------------
 
 // Set the default values in the UserData structure
-static int InitUserData(UserData *udata);
+static int InitUserData(UserData* udata);
 
 // Free memory allocated within UserData
-static int FreeUserData(UserData *udata);
+static int FreeUserData(UserData* udata);
 
 // Read the command line inputs and set UserData values
-static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc);
+static int ReadInputs(int* argc, char*** argv, UserData* udata, bool outproc);
 
 // -----------------------------------------------------------------------------
 // Output and utility functions
 // -----------------------------------------------------------------------------
 
 // Compute the true solution
-static int Solution(N_Vector u, UserData *udata);
+static int Solution(N_Vector u, UserData* udata);
 
 // Compute the solution error solution
-static int SolutionError(N_Vector u,  N_Vector e, UserData *udata);
+static int SolutionError(N_Vector u, N_Vector e, UserData* udata);
 
 // Print the command line options
 static void InputHelp();
 
 // Print some UserData information
-static int PrintUserData(UserData *udata);
+static int PrintUserData(UserData* udata);
 
 // Print solver statistics
-static int OutputStats(void *kinsol_mem, UserData *udata);
+static int OutputStats(void* kinsol_mem, UserData* udata);
 
 // Print solver timing
-static int OutputTiming(UserData *udata);
+static int OutputTiming(UserData* udata);
 
 // Write solution to a file
-static int WriteSolution(N_Vector u, UserData *udata);
+static int WriteSolution(N_Vector u, UserData* udata);
 
 // Functions for outputting residual history to file
-static int OpenOutput(UserData *udata);
-static int WriteOutput(N_Vector u, N_Vector f, UserData *udata);
-static int CloseOutput(UserData *udata);
+static int OpenOutput(UserData* udata);
+static int WriteOutput(N_Vector u, N_Vector f, UserData* udata);
+static int CloseOutput(UserData* udata);
 
 // Check function return values
-static int check_retval(void *flagvalue, const string funcname, int opt);
+static int check_retval(void* flagvalue, const string funcname, int opt);
 
 // -----------------------------------------------------------------------------
 // Multiple nonlinear functions for testing
 // -----------------------------------------------------------------------------
 
 // c(u) = u
-sunrealtype c1(sunrealtype u_val)
-{
-  return u_val;
-}
+sunrealtype c1(sunrealtype u_val) { return u_val; }
 
 // c(u) = u^3 - u
-sunrealtype c2(sunrealtype u_val)
-{
-  return u_val * u_val * u_val - u_val;
-}
+sunrealtype c2(sunrealtype u_val) { return u_val * u_val * u_val - u_val; }
 
 // c(u) = u - u^2
-sunrealtype c3(sunrealtype u_val)
-{
-  return u_val - u_val * u_val;
-}
+sunrealtype c3(sunrealtype u_val) { return u_val - u_val * u_val; }
 
 // c(u) = e^u
-sunrealtype c4(sunrealtype u_val)
-{
-  return exp(u_val);
-}
+sunrealtype c4(sunrealtype u_val) { return exp(u_val); }
 
 // c(u) = u^4
-sunrealtype c5(sunrealtype u_val)
-{
-  return u_val * u_val * u_val * u_val;
-}
+sunrealtype c5(sunrealtype u_val) { return u_val * u_val * u_val * u_val; }
 
 // c(u) = cos^2(u) - sin^2(u)
 sunrealtype c6(sunrealtype u_val)
@@ -365,7 +350,7 @@ sunrealtype c11(sunrealtype u_val)
 sunrealtype c12(sunrealtype u_val)
 {
   sunrealtype temp = sqrt(5);
-  sunrealtype u2 = u_val * u_val;
+  sunrealtype u2   = u_val * u_val;
   return temp * (u_val - u2);
 }
 

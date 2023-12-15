@@ -233,14 +233,40 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
   return result;
 }
 
+SWIGEXPORT int _wrap_FSUNProfiler_Create(int const *farg1, SwigArrayWrapper *farg2, void *farg3) {
+  int fresult ;
+  SUNComm arg1 ;
+  char *arg2 = (char *) 0 ;
+  SUNProfiler *arg3 = (SUNProfiler *) 0 ;
+  SUNErrCode result;
+  
+#if SUNDIALS_MPI_ENABLED
+  int flag = 0;
+  MPI_Initialized(&flag);
+  if(flag) {
+    arg1 = MPI_Comm_f2c((MPI_Fint)(*farg1));
+  } else {
+    arg1 = SUN_COMM_NULL;
+  }
+#else
+  arg1 = *farg1;
+#endif
+  arg2 = (char *)(farg2->data);
+  arg3 = (SUNProfiler *)(farg3);
+  result = (SUNErrCode)SUNProfiler_Create(arg1,(char const *)arg2,arg3);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNProfiler_Free(void *farg1) {
   int fresult ;
   SUNProfiler *arg1 = (SUNProfiler *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler *)(farg1);
-  result = (int)SUNProfiler_Free(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNProfiler_Free(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -249,12 +275,12 @@ SWIGEXPORT int _wrap_FSUNProfiler_Begin(void *farg1, SwigArrayWrapper *farg2) {
   int fresult ;
   SUNProfiler arg1 = (SUNProfiler) 0 ;
   char *arg2 = (char *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
   arg2 = (char *)(farg2->data);
-  result = (int)SUNProfiler_Begin(arg1,(char const *)arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNProfiler_Begin(arg1,(char const *)arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -263,12 +289,12 @@ SWIGEXPORT int _wrap_FSUNProfiler_End(void *farg1, SwigArrayWrapper *farg2) {
   int fresult ;
   SUNProfiler arg1 = (SUNProfiler) 0 ;
   char *arg2 = (char *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
   arg2 = (char *)(farg2->data);
-  result = (int)SUNProfiler_End(arg1,(char const *)arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNProfiler_End(arg1,(char const *)arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -277,12 +303,12 @@ SWIGEXPORT int _wrap_FSUNProfiler_GetTimerResolution(void *farg1, double *farg2)
   int fresult ;
   SUNProfiler arg1 = (SUNProfiler) 0 ;
   double *arg2 = (double *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
   arg2 = (double *)(farg2);
-  result = (int)SUNProfiler_GetTimerResolution(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNProfiler_GetTimerResolution(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -292,13 +318,13 @@ SWIGEXPORT int _wrap_FSUNProfiler_GetElapsedTime(void *farg1, SwigArrayWrapper *
   SUNProfiler arg1 = (SUNProfiler) 0 ;
   char *arg2 = (char *) 0 ;
   double *arg3 = (double *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
   arg2 = (char *)(farg2->data);
   arg3 = (double *)(farg3);
-  result = (int)SUNProfiler_GetElapsedTime(arg1,(char const *)arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNProfiler_GetElapsedTime(arg1,(char const *)arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -307,12 +333,12 @@ SWIGEXPORT int _wrap_FSUNProfiler_Print(void *farg1, void *farg2) {
   int fresult ;
   SUNProfiler arg1 = (SUNProfiler) 0 ;
   FILE *arg2 = (FILE *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
   arg2 = (FILE *)(farg2);
-  result = (int)SUNProfiler_Print(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNProfiler_Print(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -320,42 +346,13 @@ SWIGEXPORT int _wrap_FSUNProfiler_Print(void *farg1, void *farg2) {
 SWIGEXPORT int _wrap_FSUNProfiler_Reset(void *farg1) {
   int fresult ;
   SUNProfiler arg1 = (SUNProfiler) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNProfiler)(farg1);
-  result = (int)SUNProfiler_Reset(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNProfiler_Reset(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
-
-
-SWIGEXPORT int _wrap_FSUNProfiler_Create(void *farg1, SwigArrayWrapper *farg2, void *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  char *arg2 = (char *) 0 ;
-  SUNProfiler *arg3 = (SUNProfiler *) 0 ;
-  int result;
-#if SUNDIALS_MPI_ENABLED
-  MPI_Comm comm;
-#endif
-
-  arg1 = (void *)(farg1);
-  arg2 = (char *)(farg2->data);
-  arg3 = (SUNProfiler *)(farg3);
-#if SUNDIALS_MPI_ENABLED
-  if (arg1 != NULL) {
-    comm = MPI_Comm_f2c(*((MPI_Fint *) arg1));
-    result = (int)SUNProfiler_Create((void*)&comm,(char const *)arg2,arg3);
-  }
-  else {
-    result = (int)SUNProfiler_Create(arg1,(char const *)arg2,arg3);
-  }
-#else
-  result = (int)SUNProfiler_Create(arg1,(char const *)arg2,arg3);
-#endif
-  fresult = (int)(result);
-  return fresult;
-}
 
 

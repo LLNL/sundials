@@ -110,7 +110,7 @@ the LAPACK band matrix factorization and solve routines, ``*GBTRF``
 and ``*GBTRS``, where ``*`` is either ``D`` or ``S``, depending on
 whether SUNDIALS was configured to have :c:type:`sunrealtype` set to
 ``double`` or ``single``, respectively (see
-:numref:`Usage.CC.DataTypes` for details).
+:numref:`SUNDIALS.DataTypes` for details).
 In order to use the SUNLinSol_LapackBand module it is assumed
 that LAPACK has been installed on the system prior to installation of
 SUNDIALS, and that SUNDIALS has been configured appropriately to

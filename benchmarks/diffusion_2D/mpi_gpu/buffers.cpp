@@ -33,9 +33,9 @@
 // Pack exchange buffers kernel
 __global__ void pack_buffers_kernel(const sunindextype nx_loc,
                                     const sunindextype ny_loc,
-                                    const sunrealtype *u,
-                                    sunrealtype *wbuf, sunrealtype *ebuf,
-                                    sunrealtype *sbuf, sunrealtype *nbuf)
+                                    const sunrealtype* u, sunrealtype* wbuf,
+                                    sunrealtype* ebuf, sunrealtype* sbuf,
+                                    sunrealtype* nbuf)
 {
   // Thread ID
   int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -43,36 +43,35 @@ __global__ void pack_buffers_kernel(const sunindextype nx_loc,
   // West and East faces
   if (i < ny_loc)
   {
-    if (wbuf) wbuf[i] = u[i * nx_loc];
-    if (ebuf) ebuf[i] = u[(i + 1) * nx_loc - 1];
+    if (wbuf) { wbuf[i] = u[i * nx_loc]; }
+    if (ebuf) { ebuf[i] = u[(i + 1) * nx_loc - 1]; }
   }
 
   // South and North faces
   if (i < nx_loc)
   {
-    if (sbuf) sbuf[i] = u[i];
-    if (nbuf) nbuf[i] = u[i + (ny_loc - 1) * nx_loc];
+    if (sbuf) { sbuf[i] = u[i]; }
+    if (nbuf) { nbuf[i] = u[i + (ny_loc - 1) * nx_loc]; }
   }
 }
-
 
 // Pack exchange buffers
 int UserData::pack_buffers(const N_Vector u)
 {
   // Access data array
-  const sunrealtype *uarray = N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(u));
-  if (check_flag((void *) uarray, "N_VGetDeviceArrayPointer", 0)) return -1;
+  const sunrealtype* uarray =
+    N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(u));
+  if (check_flag((void*)uarray, "N_VGetDeviceArrayPointer", 0)) return -1;
 
   sunindextype maxdim = max(nx_loc, ny_loc);
   dim3 block(BLOCK_SIZE);
   dim3 grid(ICEIL(maxdim, BLOCK_SIZE));
 
-  pack_buffers_kernel<<<grid,block>>>(nx_loc, ny_loc, uarray,
-                                      Wsend, Esend, Ssend, Nsend);
+  pack_buffers_kernel<<<grid, block>>>(nx_loc, ny_loc, uarray, Wsend, Esend,
+                                       Ssend, Nsend);
 
   return 0;
 }
-
 
 // Allocate exchange buffers
 int UserData::allocate_buffers()
@@ -132,28 +131,27 @@ int UserData::allocate_buffers()
   return 0;
 }
 
-
 // Free exchange buffers
 int UserData::free_buffers()
 {
 #if defined(USE_HIP)
-  if (Wrecv != NULL)  hipFree(Wrecv);
-  if (Wsend != NULL)  hipFree(Wsend);
-  if (Erecv != NULL)  hipFree(Erecv);
-  if (Esend != NULL)  hipFree(Esend);
-  if (Srecv != NULL)  hipFree(Srecv);
-  if (Ssend != NULL)  hipFree(Ssend);
-  if (Nrecv != NULL)  hipFree(Nrecv);
-  if (Nsend != NULL)  hipFree(Nsend);
+  if (Wrecv != NULL) hipFree(Wrecv);
+  if (Wsend != NULL) hipFree(Wsend);
+  if (Erecv != NULL) hipFree(Erecv);
+  if (Esend != NULL) hipFree(Esend);
+  if (Srecv != NULL) hipFree(Srecv);
+  if (Ssend != NULL) hipFree(Ssend);
+  if (Nrecv != NULL) hipFree(Nrecv);
+  if (Nsend != NULL) hipFree(Nsend);
 #elif defined(USE_CUDA)
-  if (Wrecv != NULL)  cudaFree(Wrecv);
-  if (Wsend != NULL)  cudaFree(Wsend);
-  if (Erecv != NULL)  cudaFree(Erecv);
-  if (Esend != NULL)  cudaFree(Esend);
-  if (Srecv != NULL)  cudaFree(Srecv);
-  if (Ssend != NULL)  cudaFree(Ssend);
-  if (Nrecv != NULL)  cudaFree(Nrecv);
-  if (Nsend != NULL)  cudaFree(Nsend);
+  if (Wrecv != NULL) cudaFree(Wrecv);
+  if (Wsend != NULL) cudaFree(Wsend);
+  if (Erecv != NULL) cudaFree(Erecv);
+  if (Esend != NULL) cudaFree(Esend);
+  if (Srecv != NULL) cudaFree(Srecv);
+  if (Ssend != NULL) cudaFree(Ssend);
+  if (Nrecv != NULL) cudaFree(Nrecv);
+  if (Nsend != NULL) cudaFree(Nsend);
 #else
 #error Define USE_CUDA or USE_HIP
 #endif

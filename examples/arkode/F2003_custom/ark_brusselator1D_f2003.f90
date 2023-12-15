@@ -265,6 +265,7 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
+  use fsundials_types_mod
   use fsundials_context_mod
   use farkode_mod                ! Fortran interface to the ARKode module
   use farkode_arkstep_mod        ! Fortran interface to the ARKStep module
@@ -300,7 +301,7 @@ program main
   print '(2(a,es8.1))', "    reltol = ",reltol,",  abstol = ",abstol
 
   ! create the SUNDIALS context for the simulation
-  ierr = FSUNContext_Create(c_null_ptr, sunctx)
+  ierr = FSUNContext_Create(SUN_COMM_NULL, sunctx)
   if (ierr /= 0) then
     write(*,*) 'Error in FSUNContext_Create'
     stop 1

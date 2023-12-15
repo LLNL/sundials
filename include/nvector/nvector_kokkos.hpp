@@ -589,33 +589,33 @@ private:
     this->object_->ops->nvgetvectorid = impl::N_VGetVectorID_Kokkos;
 
     /* standard vector operations */
-    this->object_->ops->nvabs          = impl::N_VAbs_Kokkos<this_type>;
-    this->object_->ops->nvaddconst     = impl::N_VAddConst_Kokkos<this_type>;
-    this->object_->ops->nvcompare      = impl::N_VCompare_Kokkos<this_type>;
-    this->object_->ops->nvconst        = impl::N_VConst_Kokkos<this_type>;
-    this->object_->ops->nvconstrmask   = impl::N_VConstrMask_Kokkos<this_type>;
-    this->object_->ops->nvdiv          = impl::N_VDiv_Kokkos<this_type>;
-    this->object_->ops->nvdotprod      = impl::N_VDotProd_Kokkos<this_type>;
-    this->object_->ops->nvinv          = impl::N_VInv_Kokkos<this_type>;
-    this->object_->ops->nvinvtest      = impl::N_VInvTest_Kokkos<this_type>;
-    this->object_->ops->nvl1norm       = impl::N_VL1Norm_Kokkos<this_type>;
-    this->object_->ops->nvlinearsum    = impl::N_VLinearSum_Kokkos<this_type>;
-    this->object_->ops->nvmaxnorm      = impl::N_VMaxNorm_Kokkos<this_type>;
-    this->object_->ops->nvmin          = impl::N_VMin_Kokkos<this_type>;
-    this->object_->ops->nvminquotient  = impl::N_VMinQuotient_Kokkos<this_type>;
-    this->object_->ops->nvprod         = impl::N_VProd_Kokkos<this_type>;
-    this->object_->ops->nvscale        = impl::N_VScale_Kokkos<this_type>;
-    this->object_->ops->nvwl2norm      = impl::N_VWL2Norm_Kokkos<this_type>;
-    this->object_->ops->nvwrmsnorm     = impl::N_VWrmsNorm_Kokkos<this_type>;
+    this->object_->ops->nvabs         = impl::N_VAbs_Kokkos<this_type>;
+    this->object_->ops->nvaddconst    = impl::N_VAddConst_Kokkos<this_type>;
+    this->object_->ops->nvcompare     = impl::N_VCompare_Kokkos<this_type>;
+    this->object_->ops->nvconst       = impl::N_VConst_Kokkos<this_type>;
+    this->object_->ops->nvconstrmask  = impl::N_VConstrMask_Kokkos<this_type>;
+    this->object_->ops->nvdiv         = impl::N_VDiv_Kokkos<this_type>;
+    this->object_->ops->nvdotprod     = impl::N_VDotProd_Kokkos<this_type>;
+    this->object_->ops->nvinv         = impl::N_VInv_Kokkos<this_type>;
+    this->object_->ops->nvinvtest     = impl::N_VInvTest_Kokkos<this_type>;
+    this->object_->ops->nvl1norm      = impl::N_VL1Norm_Kokkos<this_type>;
+    this->object_->ops->nvlinearsum   = impl::N_VLinearSum_Kokkos<this_type>;
+    this->object_->ops->nvmaxnorm     = impl::N_VMaxNorm_Kokkos<this_type>;
+    this->object_->ops->nvmin         = impl::N_VMin_Kokkos<this_type>;
+    this->object_->ops->nvminquotient = impl::N_VMinQuotient_Kokkos<this_type>;
+    this->object_->ops->nvprod        = impl::N_VProd_Kokkos<this_type>;
+    this->object_->ops->nvscale       = impl::N_VScale_Kokkos<this_type>;
+    this->object_->ops->nvwl2norm     = impl::N_VWL2Norm_Kokkos<this_type>;
+    this->object_->ops->nvwrmsnorm    = impl::N_VWrmsNorm_Kokkos<this_type>;
     this->object_->ops->nvwrmsnormmask = impl::N_VWrmsNormMask_Kokkos<this_type>;
 
     /* local reduction operations */
     this->object_->ops->nvconstrmasklocal = impl::N_VConstrMask_Kokkos<this_type>;
-    this->object_->ops->nvdotprodlocal    = impl::N_VDotProd_Kokkos<this_type>;
-    this->object_->ops->nvinvtestlocal    = impl::N_VInvTest_Kokkos<this_type>;
-    this->object_->ops->nvl1normlocal     = impl::N_VL1Norm_Kokkos<this_type>;
-    this->object_->ops->nvmaxnormlocal    = impl::N_VMaxNorm_Kokkos<this_type>;
-    this->object_->ops->nvminlocal        = impl::N_VMin_Kokkos<this_type>;
+    this->object_->ops->nvdotprodlocal = impl::N_VDotProd_Kokkos<this_type>;
+    this->object_->ops->nvinvtestlocal = impl::N_VInvTest_Kokkos<this_type>;
+    this->object_->ops->nvl1normlocal  = impl::N_VL1Norm_Kokkos<this_type>;
+    this->object_->ops->nvmaxnormlocal = impl::N_VMaxNorm_Kokkos<this_type>;
+    this->object_->ops->nvminlocal     = impl::N_VMin_Kokkos<this_type>;
     this->object_->ops->nvminquotientlocal =
       impl::N_VMinQuotient_Kokkos<this_type>;
     this->object_->ops->nvwsqrsumlocal = impl::N_VWSqrSumLocal_Kokkos<this_type>;

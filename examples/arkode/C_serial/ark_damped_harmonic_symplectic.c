@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
   dTout = (Tf - T0) / ((sunrealtype)num_output_times);
 
   /* Create the SUNDIALS context object for this simulation */
-  retval = SUNContext_Create(NULL, &sunctx);
+  retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
 
   printf("\n   Begin time-dependent damped harmonic oscillator problem\n\n");

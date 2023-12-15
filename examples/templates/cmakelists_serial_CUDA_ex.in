@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION @CMAKE_VERSION@)
 
 # Set cache variables for compilers and flags
 set(CMAKE_C_COMPILER
-  @_EXAMPLES_C_COMPILER@
+  "@_EXAMPLES_C_COMPILER@"
   CACHE FILEPATH "C compiler")
 
 set(CMAKE_C_FLAGS
@@ -36,7 +36,7 @@ if("@CMAKE_C_STANDARD@")
 endif()
 
 set(CMAKE_CXX_COMPILER
-  @_EXAMPLES_CXX_COMPILER@
+  "@_EXAMPLES_CXX_COMPILER@"
   CACHE FILEPATH "C++ compiler")
 
 set(CMAKE_CXX_FLAGS
@@ -77,11 +77,13 @@ set(SUNDIALS_LIBRARY_DIR
   @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@
   CACHE PATH "Location of SUNDIALS libraries")
 
-# Find the SUNDIALS libraries
+find_library(SUNDIALS_CORE_LIB
+  sundials_core ${SUNDIALS_LIBRARY_DIR}
+  DOC "SUNDIALS core library")
+
 find_library(SUNDIALS_SOLVER_LIB
   @SOLVER_LIB@ ${SUNDIALS_LIBRARY_DIR}
   DOC "@SOLVER@ library")
-
 find_library(SUNDIALS_NVEC_LIB
   sundials_nveccuda ${SUNDIALS_LIBRARY_DIR}
   DOC "NVECTOR_CUDA library")
@@ -119,6 +121,7 @@ set(SUNDIALS_LIBRARIES
   ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVEC_LIB}
   ${SUNDIALS_CUSPARSEMAT_LIB}
+  ${SUNDIALS_CORE_LIB}
   ${SUNDIALS_EXTRA_LIBS})
 
 # ------------------------------------------------------------------------------
@@ -160,10 +163,12 @@ endif()
 
 # List of SUNDIALS libraries
 set(SUNDIALS_LIBRARIES
+  -L${SUNDIALS_LIBRARY_DIR}
   ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVEC_LIB}
   ${SUNDIALS_CUSPARSEMAT_LIB}
   ${SUNDIALS_CUSOLVERSP_LIB}
+  ${SUNDIALS_CORE_LIB}
   ${SUNDIALS_EXTRA_LIBS})
 
 # Create targets for each example

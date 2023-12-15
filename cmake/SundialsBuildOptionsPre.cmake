@@ -72,6 +72,23 @@ set(DOCSTR "Build with simulation profiling capabilities enabled")
 sundials_option(SUNDIALS_BUILD_WITH_PROFILING BOOL "${DOCSTR}" OFF)
 
 # ---------------------------------------------------------------
+# Option to enable/disable error checking
+# ---------------------------------------------------------------
+
+if(CMAKE_BUILD_TYPE MATCHES "Release|RelWithDebInfo")
+  set(_default_err_checks OFF)
+else()
+  set(_default_err_checks ON)
+endif()
+
+set(DOCSTR "Build with error checking enabled/disabled. Enabling error checks may affect performance.")
+sundials_option(SUNDIALS_ENABLE_ERROR_CHECKS BOOL "${DOCSTR}" ${_default_err_checks})
+if(SUNDIALS_ENABLE_ERROR_CHECKS)
+  message(STATUS "SUNDIALS error checking enabled")
+  message(WARNING "SUNDIALS is being built with extensive error checks, performance may be affected.")
+endif()
+
+# ---------------------------------------------------------------
 # Option to enable logging
 # ---------------------------------------------------------------
 
@@ -83,10 +100,6 @@ if(SUNDIALS_LOGGING_LEVEL GREATER_EQUAL 3)
   message(STATUS "SUNDIALS logging level set to ${SUNDIALS_LOGGING_LEVEL}")
   message(WARNING "SUNDIALS built with additional logging turned on, performance may be affected.")
 endif()
-
-set(DOCSTR "Build SUNDIALS logging with MPI support")
-sundials_option(SUNDIALS_LOGGING_ENABLE_MPI BOOL "${DOCSTR}" "OFF"
-                DEPENDS_ON ENABLE_MPI)
 
 # ---------------------------------------------------------------
 # Option to use the generic math libraries
@@ -281,12 +294,21 @@ sundials_option(SUNDIALS_TEST_OUTPUT_DIR PATH
 sundials_option(SUNDIALS_TEST_ANSWER_DIR PATH
   "Location of testing answer files" "" ADVANCED)
 
-sundials_option(SUNDIALS_TEST_PROFILE BOOL 
+sundials_option(SUNDIALS_TEST_PROFILE BOOL
   "Use Caliper to profile SUNDIALS tests" OFF ADVANCED)
 
 sundials_option(SUNDIALS_TEST_NODIFF BOOL
   "Disable output comparison in the regression test suite" OFF ADVANCED)
-  
+
+sundials_option(SUNDIALS_TEST_CONTAINER_EXE PATH
+  "Path to docker or podman" "" ADVANCED)
+
+sundials_option(SUNDIALS_TEST_CONTAINER_RUN_EXTRA_ARGS STRING
+  "Extra arguments to pass to docker/podman run command" "--tls-verify=false" ADVANCED)
+
+sundials_option(SUNDIALS_TEST_CONTAINER_MNT STRING
+  "Path to project root inside the container" "/sundials" ADVANCED)
+
 # Include development examples in regression tests
 sundials_option(SUNDIALS_TEST_DEVTESTS BOOL
   "Include development tests in make test" OFF ADVANCED)
@@ -294,6 +316,11 @@ sundials_option(SUNDIALS_TEST_DEVTESTS BOOL
 # Include unit tests in regression tests
 sundials_option(SUNDIALS_TEST_UNITTESTS BOOL
   "Include unit tests in make test" OFF ADVANCED)
+
+# Include unit tests in regression tests
+sundials_option(SUNDIALS_TEST_ENABLE_GTEST BOOL
+  "Disable GTest unit tests" ON ADVANCED)
+
 
 sundials_option(SUNDIALS_SCHEDULER_COMMAND STRING "Job scheduler command to use to launch SUNDIALS MPI tests" "" ADVANCED)
 

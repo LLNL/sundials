@@ -46,7 +46,7 @@ TMP_LIBDIRS  = ${libdir}
 LIBDIRS      = $(addprefix -L, ${TMP_LIBDIRS})
 
 TMP_SUNDIALSLIBS = @SOLVER_LIB@ sundials_nvecparallel sundials_nveccuda sundials_nvecserial \
-									sundials_nvecmpimanyvector sundials_nvecmpiplusx
+									sundials_nvecmpimanyvector sundials_nvecmpiplusx sundials_core 
 SUNDIALSLIBS     = $(addprefix -l, ${TMP_SUNDIALSLIBS})
 LIBRARIES = ${SUNDIALSLIBS} ${LIBS}
 

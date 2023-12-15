@@ -28,8 +28,9 @@ sundials_add_library(sundials_sunmatrixslunrloc
     ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_slunrloc.h
   INCLUDE_SUBDIR
     sunmatrix
+  LINK_LIBRARIES
+    PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_generic_obj
   LINK_LIBRARIES
     PUBLIC SUNDIALS::SUPERLUDIST
     $<IF:$<BOOL:${SUPERLUDIST_OpenMP}>,OpenMP::OpenMP_C,>

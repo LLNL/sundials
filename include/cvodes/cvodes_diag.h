@@ -19,7 +19,7 @@
 
 #include <sundials/sundials_nvector.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -27,11 +27,11 @@ extern "C" {
  * CVDIAG return values
  * --------------------- */
 
-#define CVDIAG_SUCCESS          0
-#define CVDIAG_MEM_NULL        -1
-#define CVDIAG_LMEM_NULL       -2
-#define CVDIAG_ILL_INPUT       -3
-#define CVDIAG_MEM_FAIL        -4
+#define CVDIAG_SUCCESS   0
+#define CVDIAG_MEM_NULL  -1
+#define CVDIAG_LMEM_NULL -2
+#define CVDIAG_ILL_INPUT -3
+#define CVDIAG_MEM_FAIL  -4
 
 /* Additional last_flag values */
 
@@ -41,7 +41,7 @@ extern "C" {
 
 /* Return values for adjoint module */
 
-#define CVDIAG_NO_ADJ          -101
+#define CVDIAG_NO_ADJ -101
 
 /* -----------------
  * Forward Problems
@@ -49,22 +49,21 @@ extern "C" {
 
 /* CVDiag initialization function */
 
-SUNDIALS_EXPORT int CVDiag(void *cvode_mem);
+SUNDIALS_EXPORT int CVDiag(void* cvode_mem);
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int CVDiagGetWorkSpace(void *cvode_mem, long int *lenrwLS,
-                                       long int *leniwLS);
-SUNDIALS_EXPORT int CVDiagGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
-SUNDIALS_EXPORT int CVDiagGetLastFlag(void *cvode_mem, long int *flag);
-SUNDIALS_EXPORT char *CVDiagGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT int CVDiagGetWorkSpace(void* cvode_mem, long int* lenrwLS,
+                                       long int* leniwLS);
+SUNDIALS_EXPORT int CVDiagGetNumRhsEvals(void* cvode_mem, long int* nfevalsLS);
+SUNDIALS_EXPORT int CVDiagGetLastFlag(void* cvode_mem, long int* flag);
+SUNDIALS_EXPORT char* CVDiagGetReturnFlagName(long int flag);
 
 /* -------------------------------------
  * Backward Problems - Function CVDiagB
  * ------------------------------------- */
 
-SUNDIALS_EXPORT int CVDiagB(void *cvode_mem, int which);
-
+SUNDIALS_EXPORT int CVDiagB(void* cvode_mem, int which);
 
 #ifdef __cplusplus
 }

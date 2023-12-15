@@ -146,9 +146,9 @@ int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
 // Check function return flag
 int check_flag(int flag, const std::string funcname)
 {
-  if (!flag) return 0;
-  if (flag < 0) std::cerr << "ERROR: ";
-  if (flag > 0) std::cerr << "WARNING: ";
+  if (!flag) { return 0; }
+  if (flag < 0) { std::cerr << "ERROR: "; }
+  if (flag > 0) { std::cerr << "WARNING: "; }
   std::cerr << funcname << " returned " << flag << std::endl;
   return 1;
 }
@@ -156,7 +156,7 @@ int check_flag(int flag, const std::string funcname)
 // Check if a function returned a NULL pointer
 int check_ptr(void* ptr, const std::string funcname)
 {
-  if (ptr) return 0;
+  if (ptr) { return 0; }
   std::cerr << "ERROR: " << funcname << " returned NULL" << std::endl;
   return 1;
 }
@@ -204,31 +204,31 @@ int main(int argc, char* argv[])
 
   // Create initial condition
   N_Vector y = N_VNew_Serial(2, sunctx);
-  if (check_ptr(y, "N_VNew_Serial")) return 1;
+  if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   int flag = ytrue(ZERO, y);
-  if (check_flag(flag, "ytrue")) return 1;
+  if (check_flag(flag, "ytrue")) { return 1; }
 
   // Create ARKStep memory structure
   void* arkode_mem = ARKStepCreate(nullptr, f, ZERO, y, sunctx);
-  if (check_ptr(arkode_mem, "ARKStepCreate")) return 1;
+  if (check_ptr(arkode_mem, "ARKStepCreate")) { return 1; }
 
   flag = ARKStepSStolerances(arkode_mem, rtol, atol);
-  if (check_flag(flag, "ARKStepSStolerances")) return 1;
+  if (check_flag(flag, "ARKStepSStolerances")) { return 1; }
 
   SUNMatrix A = SUNDenseMatrix(2, 2, sunctx);
-  if (check_ptr(A, "SUNDenseMatrix")) return 1;
+  if (check_ptr(A, "SUNDenseMatrix")) { return 1; }
 
   SUNLinearSolver LS = SUNLinSol_Dense(y, A, sunctx);
-  if (check_ptr(LS, "SUNLinSol_Dense")) return 1;
+  if (check_ptr(LS, "SUNLinSol_Dense")) { return 1; }
 
   flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
-  if (check_flag(flag, "ARKStepSetLinearSolver")) return 1;
+  if (check_flag(flag, "ARKStepSetLinearSolver")) { return 1; }
 
   sunrealtype udata[4] = {-TWO, HALF, HALF, -ONE};
 
   flag = ARKStepSetUserData(arkode_mem, udata);
-  if (check_flag(flag, "ARKStepSetUserData")) return 1;
+  if (check_flag(flag, "ARKStepSetUserData")) { return 1; }
 
   // Initial time and fist output time
   sunrealtype tret = ZERO;
@@ -236,38 +236,38 @@ int main(int argc, char* argv[])
 
   // Advance one step in time
   flag = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
-  if (check_flag(flag, "ARKStep")) return 1;
+  if (check_flag(flag, "ARKStep")) { return 1; }
 
   // Get the internal finite difference approximation to J
   SUNMatrix Jdq;
   flag = ARKStepGetJac(arkode_mem, &Jdq);
-  if (check_flag(flag, "ARKStepGetJac")) return 1;
+  if (check_flag(flag, "ARKStepGetJac")) { return 1; }
 
   // Get the step and time at which the approximation was computed
   long int nst_Jdq;
   flag = ARKStepGetJacNumSteps(arkode_mem, &nst_Jdq);
-  if (check_flag(flag, "ARKStepGetJacNumSteps")) return 1;
+  if (check_flag(flag, "ARKStepGetJacNumSteps")) { return 1; }
 
   sunrealtype t_Jdq;
   flag = ARKStepGetJacTime(arkode_mem, &t_Jdq);
-  if (check_flag(flag, "ARKStepGetJacTime")) return 1;
+  if (check_flag(flag, "ARKStepGetJacTime")) { return 1; }
 
   // Compute the true Jacobian
   SUNMatrix Jtrue = SUNDenseMatrix(2, 2, sunctx);
-  if (check_ptr(Jtrue, "SUNDenseMatrix")) return 1;
+  if (check_ptr(Jtrue, "SUNDenseMatrix")) { return 1; }
 
   flag = ytrue(t_Jdq, y);
-  if (check_flag(flag, "ytrue")) return 1;
+  if (check_flag(flag, "ytrue")) { return 1; }
 
   flag = J(t_Jdq, y, nullptr, Jtrue, &udata, nullptr, nullptr, nullptr);
-  if (check_flag(flag, "J")) return 1;
+  if (check_flag(flag, "J")) { return 1; }
 
   // Compare finite difference and true Jacobian
   sunrealtype* Jdq_data = SUNDenseMatrix_Data(Jdq);
-  if (check_ptr(Jdq_data, "SUNDenseMatrix_Data")) return 1;
+  if (check_ptr(Jdq_data, "SUNDenseMatrix_Data")) { return 1; }
 
   sunrealtype* Jtrue_data = SUNDenseMatrix_Data(Jtrue);
-  if (check_ptr(Jtrue_data, "SUNDenseMatrix_Data")) return 1;
+  if (check_ptr(Jtrue_data, "SUNDenseMatrix_Data")) { return 1; }
 
   // Output Jacobian data
   std::cout << std::scientific;
@@ -279,19 +279,19 @@ int main(int argc, char* argv[])
             << std::right << "J DQ" << std::setw(25) << std::right << "J true"
             << std::setw(25) << std::right << "absolute difference"
             << std::setw(25) << std::right << "relative difference" << std::endl;
-  for (int i = 0; i < 4 * 25 + 8; i++) std::cout << "-";
+  for (int i = 0; i < 4 * 25 + 8; i++) { std::cout << "-"; }
   std::cout << std::endl;
 
-  int result = 0;
+  int result         = 0;
   sunindextype ldata = SUNDenseMatrix_LData(Jtrue);
   for (sunindextype i = 0; i < ldata; i++)
   {
     std::cout << std::setw(8) << std::right << i << std::setw(25) << std::right
               << Jdq_data[i] << std::setw(25) << std::right << Jtrue_data[i]
               << std::setw(25) << std::right
-              << std::abs(Jdq_data[i] - Jtrue_data[i])
-              << std::setw(25) << std::right
-              << std::abs(Jdq_data[i] - Jtrue_data[i])/Jtrue_data[i]
+              << std::abs(Jdq_data[i] - Jtrue_data[i]) << std::setw(25)
+              << std::right
+              << std::abs(Jdq_data[i] - Jtrue_data[i]) / Jtrue_data[i]
               << std::endl;
     result += SUNRCompareTol(Jdq_data[i], Jtrue_data[i], tol);
   }

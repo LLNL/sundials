@@ -28,7 +28,6 @@ module test_nvector_parallel
   integer(c_int),  parameter :: ns = 2                ! number of vector arrays
 
   integer(c_int), target  :: comm = MPI_COMM_WORLD ! default MPI communicator
-  integer(c_int), pointer :: commptr
   integer(c_long)         :: global_length ! vector global_length
   integer(c_int)          :: nprocs        ! number of MPI processes
   contains
@@ -38,7 +37,6 @@ module test_nvector_parallel
 
     integer(c_long)         :: lenrw(1), leniw(1)  ! real and int work space size
     integer(c_long)         :: ival                ! integer work value
-    type(c_ptr)             :: cptr                ! c_ptr work value
     real(c_double)          :: rval                ! real work value
     real(c_double)          :: xdata(local_length) ! vector data array
     real(c_double), pointer :: xptr(:)             ! pointer to vector data array
@@ -75,7 +73,7 @@ module test_nvector_parallel
     call FN_VSpace_Parallel(x, lenrw, leniw)
     xptr => FN_VGetArrayPointer_Parallel(x)
     call FN_VSetArrayPointer_Parallel(xdata, x)
-    cptr = FN_VGetCommunicator_Parallel(x)
+    ival = FN_VGetCommunicator_Parallel(x)
     ival = FN_VGetLength_Parallel(x)
 
     ! test standard vector operations
@@ -215,12 +213,10 @@ program main
     stop 1
   endif
 
-  commptr => comm
-
   !============== Introduction =============
   if (myid == 0) print *, 'Parallel N_Vector Fortran 2003 interface test'
 
-  call Test_Init(c_loc(commptr))
+  call Test_Init(comm)
 
   call MPI_Comm_size(comm, nprocs, fails)
   if (fails /= 0) then

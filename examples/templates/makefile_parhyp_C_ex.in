@@ -49,7 +49,7 @@ LINKFLAGS_HYPRE = ${LINKFLAGS}:@HYPRE_LIBRARY_DIR@
 
 TMP_INCS = ${includedir} ${MPI_INC_DIR} ${INCLUDES_HYPRE}
 INCLUDES = $(addprefix -I, ${TMP_INCS})
-LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecparhyp ${LIBS} ${LIBRARIES_HYPRE}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecparhyp -lsundials_core ${LIBS} ${LIBRARIES_HYPRE}
 
 # -----------------------------------------------------------------------------------------
 

@@ -31,9 +31,10 @@ struct SUNMatrixDeleter
 {
   void operator()(SUNMatrix A)
   {
-    if (A) SUNMatDestroy(A);
+    if (A) { SUNMatDestroy(A); }
   }
 };
+
 using SUNMatrixView = ClassView<SUNMatrix, SUNMatrixDeleter>;
 } // namespace experimental
 } // namespace sundials

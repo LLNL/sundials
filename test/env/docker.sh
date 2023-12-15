@@ -158,7 +158,6 @@ export SUNDIALS_PROFILING=ON
 
 # Sundials logging
 export SUNDIALS_LOGGING_LEVEL=3
-export SUNDIALS_LOGGING_ENABLE_MPI=ON
 
 # Answer files
 if [ -z "${SUNDIALS_TEST_ANSWER_DIR}" ]; then

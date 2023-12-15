@@ -15,20 +15,20 @@
 #ifndef KIN_EM_P_H
 #define KIN_EM_P_H
 
-#include <cstdio>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-#include <limits>
-#include <cmath>
-#include <random>
 #include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <nvector/nvector_mpiplusx.h> // to be used with the MPI + X N_Vector
+#include <nvector/nvector_serial.h>   // access to the serial N_Vector
+#include <random>
+#include <sstream>
 
-#include "kinsol/kinsol.h"             // access to KINSOL
-#include <nvector/nvector_serial.h>    // access to the serial N_Vector
-#include <nvector/nvector_mpiplusx.h>  // to be used with the MPI + X N_Vector
-#include "mpi.h"                       // MPI header file
+#include "kinsol/kinsol.h" // access to KINSOL
+#include "mpi.h"           // MPI header file
 
 // Macros for problem constants
 #define PI      SUN_RCONST(3.141592653589793238462643383279502884197169)
@@ -45,7 +45,7 @@
 #define MXSTR 2048
 
 // Macro to access (x,mu) location in 1D NVector array
-#define IDX(x,mu) ((3)*(x)+(mu))
+#define IDX(x, mu) ((3) * (x) + (mu))
 
 using namespace std;
 
@@ -75,30 +75,30 @@ struct UserData
   int myid;      // process ID in communicator
 
   // Fixed Point Solver settings
-  sunrealtype rtol;        // relative tolerance
-  int      maa;         // m for Anderson Acceleration
-  double   damping;     // daming for Anderson Acceleration
-  int      orthaa;      // orthogonalization routine for AA
-  int      maxits;      // max number of fixed point iterations
+  sunrealtype rtol; // relative tolerance
+  int maa;          // m for Anderson Acceleration
+  double damping;   // daming for Anderson Acceleration
+  int orthaa;       // orthogonalization routine for AA
+  int maxits;       // max number of fixed point iterations
 
   // Vectors to help with FPFunction definition and execution
   N_Vector samples_local; // vector containing distribution samples
   N_Vector px;            // temporary vector
   N_Vector mu_bottom;     // temporary vector
   N_Vector mu_top;
-  N_Vector mu_true;       // vector of true means
+  N_Vector mu_true; // vector of true means
 
   int num_samples;
 
   // Ouput variables
-  int      output; // output level
-  N_Vector vtemp;  // error vector
-  ofstream uout;   // output file stream
-  ofstream rout;   // output residual file stream
-  ofstream eout;   // error file stream
+  int output;     // output level
+  N_Vector vtemp; // error vector
+  ofstream uout;  // output file stream
+  ofstream rout;  // output residual file stream
+  ofstream eout;  // error file stream
 
   // Timing variables
-  bool   timing;     // print timings
+  bool timing; // print timings
   double totaltime;
   double fevaltime;
 
@@ -110,32 +110,32 @@ struct UserData
 // -----------------------------------------------------------------------------
 
 // Nonlinear fixed point function
-static int FPFunction(N_Vector u, N_Vector f, void *user_data);
+static int FPFunction(N_Vector u, N_Vector f, void* user_data);
 
 // Expectation Maximization Algorithm
-static int EM(N_Vector u, N_Vector f, void *user_data);
+static int EM(N_Vector u, N_Vector f, void* user_data);
 
 // Setup up mean distribution samples
-static int SetupSamples(UserData *udata);
+static int SetupSamples(UserData* udata);
 
 // Random Vector
-static int SetMus(UserData *udata);
+static int SetMus(UserData* udata);
 
 // Starting Vector
-static int SetStartGuess(N_Vector u, UserData *udata);
+static int SetStartGuess(N_Vector u, UserData* udata);
 
 // -----------------------------------------------------------------------------
 // UserData and input functions
 // -----------------------------------------------------------------------------
 
 // Set the default values in the UserData structure
-static int InitUserData(UserData *udata);
+static int InitUserData(UserData* udata);
 
 // Free memory allocated within UserData
-static int FreeUserData(UserData *udata);
+static int FreeUserData(UserData* udata);
 
 // Read the command line inputs and set UserData values
-static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc);
+static int ReadInputs(int* argc, char*** argv, UserData* udata, bool outproc);
 
 // -----------------------------------------------------------------------------
 // Output and utility functions
@@ -143,26 +143,26 @@ static int ReadInputs(int *argc, char ***argv, UserData *udata, bool outproc);
 
 // Compute the solution error solution
 static int SolutionError(N_Vector u_true, N_Vector u, N_Vector e,
-                         UserData *udata);
+                         UserData* udata);
 
 // Print the command line options
 static void InputHelp();
 
 // Print some UserData information
-static int PrintUserData(UserData *udata);
+static int PrintUserData(UserData* udata);
 
 // Print Fixed Point statistics
-static int OutputStats(void *kinsol_mem, UserData *udata);
+static int OutputStats(void* kinsol_mem, UserData* udata);
 
 // Print integration timing
-static int OutputTiming(UserData *udata);
+static int OutputTiming(UserData* udata);
 
 // Functions for outputting residual history to file
-static int OpenOutput(UserData *udata);
-static int WriteOutput(N_Vector u, N_Vector f, UserData *udata);
-static int CloseOutput(UserData *udata);
+static int OpenOutput(UserData* udata);
+static int WriteOutput(N_Vector u, N_Vector f, UserData* udata);
+static int CloseOutput(UserData* udata);
 
 // Check function return values
-static int check_retval(void *flagvalue, const string funcname, int opt);
+static int check_retval(void* flagvalue, const string funcname, int opt);
 
 #endif

@@ -19,15 +19,14 @@
  * -----------------------------------------------------------------*/
 
 #include <stdlib.h>
-#include <sundials/sundials_matrix.h>
-#include <sundials/sundials_nvector.h>
-#include "sundials_context_impl.h"
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_core.h>
+
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
-static SUNProfiler getSUNProfiler(SUNMatrix A)
-{
-  return(A->sunctx->profiler);
-}
+static SUNProfiler getSUNProfiler(SUNMatrix A) { return (A->sunctx->profiler); }
 #endif
 
 /* -----------------------------------------------------------------
@@ -36,21 +35,21 @@ static SUNProfiler getSUNProfiler(SUNMatrix A)
 
 SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
 {
-  SUNMatrix     A;
-  SUNMatrix_Ops ops;
+  if (sunctx == NULL) { return NULL; }
 
-  /* a context is required */
-  if (sunctx == NULL) return(NULL);
+  SUNFunctionBegin(sunctx);
+  SUNMatrix A;
+  SUNMatrix_Ops ops;
 
   /* create matrix object */
   A = NULL;
-  A = (SUNMatrix) malloc(sizeof *A);
-  if (A == NULL) return(NULL);
+  A = (SUNMatrix)malloc(sizeof *A);
+  SUNAssertNull(A, SUN_ERR_MALLOC_FAIL);
 
   /* create matrix ops structure */
   ops = NULL;
-  ops = (SUNMatrix_Ops) malloc(sizeof *ops);
-  if (ops == NULL) { free(A); return(NULL); }
+  ops = (SUNMatrix_Ops)malloc(sizeof *ops);
+  SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
   ops->getid       = NULL;
@@ -69,9 +68,8 @@ SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
   A->content = NULL;
   A->sunctx  = sunctx;
 
-  return(A);
+  return (A);
 }
-
 
 /* -----------------------------------------------------------------
  * Free a generic SUNMatrix (assumes content is already empty)
@@ -79,10 +77,10 @@ SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
 
 void SUNMatFreeEmpty(SUNMatrix A)
 {
-  if (A == NULL)  return;
+  if (A == NULL) { return; }
 
   /* free non-NULL ops structure */
-  if (A->ops)  free(A->ops);
+  if (A->ops) { free(A->ops); }
   A->ops = NULL;
 
   /* free overall SUNMatrix object and return */
@@ -90,16 +88,16 @@ void SUNMatFreeEmpty(SUNMatrix A)
   return;
 }
 
-
 /* -----------------------------------------------------------------
  * Copy a matrix 'ops' structure
  * -----------------------------------------------------------------*/
 
-int SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
 {
+  SUNFunctionBegin(A->sunctx);
   /* Check that ops structures exist */
-  if (A == NULL || B == NULL) return(-1);
-  if (A->ops == NULL || B->ops == NULL) return(-1);
+  SUNAssert(A && A->ops, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(B && B->ops, SUN_ERR_ARG_CORRUPT);
 
   /* Copy ops from A to B */
   B->ops->getid       = A->ops->getid;
@@ -113,9 +111,8 @@ int SUNMatCopyOps(SUNMatrix A, SUNMatrix B)
   B->ops->matvec      = A->ops->matvec;
   B->ops->space       = A->ops->space;
 
-  return(0);
+  return (0);
 }
-
 
 /* -----------------------------------------------------------------
  * Functions in the 'ops' structure
@@ -125,96 +122,110 @@ SUNMatrix_ID SUNMatGetID(SUNMatrix A)
 {
   SUNMatrix_ID id;
   id = A->ops->getid(A);
-  return(id);
+  return (id);
 }
 
 SUNMatrix SUNMatClone(SUNMatrix A)
 {
   SUNMatrix B = NULL;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
-  B = A->ops->clone(A);
+  B         = A->ops->clone(A);
   B->sunctx = A->sunctx;
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
-  return(B);
+  return (B);
 }
 
 void SUNMatDestroy(SUNMatrix A)
 {
-  if (A == NULL) return;
+  if (A == NULL) { return; }
 
   /* if the destroy operation exists use it */
   if (A->ops)
-    if (A->ops->destroy) { A->ops->destroy(A); return; }
+  {
+    if (A->ops->destroy)
+    {
+      A->ops->destroy(A);
+      return;
+    }
+  }
 
   /* if we reach this point, either ops == NULL or destroy == NULL,
      try to cleanup by freeing the content, ops, and matrix */
-  if (A->content) { free(A->content); A->content = NULL; }
-  if (A->ops) { free(A->ops); A->ops = NULL; }
-  free(A); A = NULL;
+  if (A->content)
+  {
+    free(A->content);
+    A->content = NULL;
+  }
+  if (A->ops)
+  {
+    free(A->ops);
+    A->ops = NULL;
+  }
+  free(A);
+  A = NULL;
 
   return;
 }
 
-int SUNMatZero(SUNMatrix A)
+SUNErrCode SUNMatZero(SUNMatrix A)
 {
-  int ier;
+  SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   ier = A->ops->zero(A);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
-  return(ier);
+  return (ier);
 }
 
-int SUNMatCopy(SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatCopy(SUNMatrix A, SUNMatrix B)
 {
-  int ier;
+  SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   ier = A->ops->copy(A, B);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
-  return(ier);
+  return (ier);
 }
 
-int SUNMatScaleAdd(sunrealtype c, SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatScaleAdd(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
-  int ier;
+  SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   ier = A->ops->scaleadd(c, A, B);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
-  return(ier);
+  return (ier);
 }
 
-int SUNMatScaleAddI(sunrealtype c, SUNMatrix A)
+SUNErrCode SUNMatScaleAddI(sunrealtype c, SUNMatrix A)
 {
-  int ier;
+  SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   ier = A->ops->scaleaddi(c, A);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
-  return(ier);
+  return (ier);
 }
 
-int SUNMatMatvecSetup(SUNMatrix A)
+SUNErrCode SUNMatMatvecSetup(SUNMatrix A)
 {
-  int ier = 0;
+  SUNErrCode ier = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
-  if (A->ops->matvecsetup)
-    ier = A->ops->matvecsetup(A);
+  if (A->ops->matvecsetup) { ier = A->ops->matvecsetup(A); }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
-  return(ier);
+  return (ier);
 }
 
-int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
+SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
 {
-  int ier;
+  SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   ier = A->ops->matvec(A, x, y);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
-  return(ier);
+  return (ier);
 }
 
-int SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw)
+SUNErrCode SUNMatSpace(SUNMatrix A, long int* lenrw, long int* leniw)
 {
-  int ier;
+  SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   ier = A->ops->space(A, lenrw, leniw);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
-  return(ier);
+  return (ier);
 }

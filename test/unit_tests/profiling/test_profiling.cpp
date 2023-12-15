@@ -21,6 +21,7 @@
 
 #include "sundials/sundials_math.h"
 #include "sundials/sundials_profiler.h"
+#include "sundials/sundials_types.h"
 
 int sleep(SUNProfiler prof, int sec, double* chrono)
 {
@@ -67,7 +68,7 @@ int main()
   std::cout << "Testing SUNProfiler\n";
 
   SUNProfiler prof = nullptr;
-  int flag         = SUNProfiler_Create(nullptr, "SUNProfiler Test", &prof);
+  int flag = SUNProfiler_Create(SUN_COMM_NULL, "SUNProfiler Test", &prof);
   if (flag)
   {
     std::cerr << ">>> FAILURE: "
