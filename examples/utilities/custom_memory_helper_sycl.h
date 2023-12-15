@@ -15,9 +15,9 @@
  * unmanaged memory only and synchronous copies.
  * -----------------------------------------------------------------*/
 
-#include <CL/sycl.hpp>
 #include <cstdlib>
 #include <sundials/sundials_memory.h>
+#include <sycl/sycl.hpp>
 
 int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
                          size_t mem_size, SUNMemoryType mem_type, void* queue)

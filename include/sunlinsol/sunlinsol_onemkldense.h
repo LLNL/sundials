@@ -18,11 +18,11 @@
 #ifndef _SUNLINSOL_ONEMKLDENSE_H
 #define _SUNLINSOL_ONEMKLDENSE_H
 
-#include <CL/sycl.hpp>
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_memory.h>
 #include <sundials/sundials_nvector.h>
+#include <sycl/sycl.hpp>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
