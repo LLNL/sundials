@@ -1016,8 +1016,7 @@ int CVodeSetUseIntegratorFusedKernels(void* cvode_mem, sunbooleantype onoff)
   if (!cv_mem->cv_MallocDone ||
       (id != SUNDIALS_NVEC_CUDA && id != SUNDIALS_NVEC_HIP))
   {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE",
-                   "CVodeSetUseIntegratorFusedKernels",
+    cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
                    "Fused Kernels not supported for the provided vector");
     return (CV_MEM_NULL);
   }
