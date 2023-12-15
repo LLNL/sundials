@@ -6973,7 +6973,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   }
 
   /* if the solve failed return */
-  if (flag != SUN_NLS_SUCCESS) { return (flag); }
+  if (flag != SUN_SUCCESS) { return (flag); }
 
   /* solve successful */
 
@@ -7195,7 +7195,7 @@ static int cvStgrNls(CVodeMem cv_mem)
   cv_mem->sens_solve = SUNFALSE;
 
   /* if the solve failed return */
-  if (flag != SUN_NLS_SUCCESS) { return (flag); }
+  if (flag != SUN_SUCCESS) { return (flag); }
 
   /* solve successful */
 
@@ -7249,7 +7249,7 @@ static int cvStgr1Nls(CVodeMem cv_mem, int is)
   cv_mem->sens_solve = SUNFALSE;
 
   /* if the solve failed return */
-  if (flag != SUN_NLS_SUCCESS) { return (flag); }
+  if (flag != SUN_SUCCESS) { return (flag); }
 
   /* solve successful */
 
@@ -8099,7 +8099,7 @@ static int cvHandleFailure(CVodeMem cv_mem, int flag)
   case CV_MEM_NULL:
     cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__, MSGCV_NO_MEM);
     break;
-  case SUN_NLS_MEM_NULL:
+  case SUN_ERR_ARG_CORRUPT:
     cvProcessError(cv_mem, CV_MEM_NULL, __LINE__, __func__, __FILE__,
                    MSGCV_NLS_INPUT_NULL, cv_mem->cv_tn);
     break;

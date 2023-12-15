@@ -267,16 +267,16 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
   NV_Ith_S(x, 0) = NV_Ith_S(b, 0) / (1 - gamma * lamda);
 
   /* return with success */
-  return (SUNLS_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
 /* destructor */
 static int MatrixEmbeddedLSFree(SUNLinearSolver LS)
 {
-  if (LS == NULL) { return (SUNLS_SUCCESS); }
+  if (LS == NULL) { return (SUN_SUCCESS); }
   LS->content = NULL;
   SUNLinSolFreeEmpty(LS);
-  return (SUNLS_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
 /*-------------------------------

@@ -250,7 +250,7 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
   if (LS->ops->setatimes)
   {
     retval = SUNLinSolSetATimes(LS, IDA_mem, idaLsATimes);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetATimes");
@@ -264,7 +264,7 @@ int IDASetLinearSolver(void* ida_mem, SUNLinearSolver LS, SUNMatrix A)
   if (LS->ops->setpreconditioner)
   {
     retval = SUNLinSolSetPreconditioner(LS, IDA_mem, NULL, NULL);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetPreconditioner");
@@ -497,7 +497,7 @@ int IDASetPreconditioner(void* ida_mem, IDALsPrecSetupFn psetup,
   idals_psolve = (psolve == NULL) ? NULL : idaLsPSolve;
   retval = SUNLinSolSetPreconditioner(idals_mem->LS, IDA_mem, idals_psetup,
                                       idals_psolve);
-  if (retval != SUNLS_SUCCESS)
+  if (retval != SUN_SUCCESS)
   {
     IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                     "Error in calling SUNLinSolSetPreconditioner");
@@ -1508,7 +1508,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
   if (idals_mem->LS->ops->setscalingvectors)
   {
     retval = SUNLinSolSetScalingVectors(idals_mem->LS, weight, weight);
-    if (retval != SUNLS_SUCCESS)
+    if (retval != SUN_SUCCESS)
     {
       IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetScalingVectors");
@@ -1543,7 +1543,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(idals_mem->LS, SUNTRUE);
-  if (retval != SUNLS_SUCCESS) { return (-1); }
+  if (retval != SUN_SUCCESS) { return (-1); }
 
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (idals_mem->jtsetup)
@@ -1594,28 +1594,28 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
   }
 
   /* Increment ncfl counter */
-  if (retval != SUNLS_SUCCESS) { idals_mem->ncfl++; }
+  if (retval != SUN_SUCCESS) { idals_mem->ncfl++; }
 
   /* Interpret solver return value  */
   idals_mem->last_flag = retval;
 
   switch (retval)
   {
-  case SUNLS_SUCCESS: return (0); break;
+  case SUN_SUCCESS: return (0); break;
   case SUNLS_RES_REDUCED:
   case SUNLS_CONV_FAIL:
   case SUNLS_PSOLVE_FAIL_REC:
   case SUNLS_PACKAGE_FAIL_REC:
   case SUNLS_QRFACT_FAIL:
   case SUNLS_LUFACT_FAIL: return (1); break;
-  case SUNLS_MEM_NULL:
-  case SUNLS_ILL_INPUT:
-  case SUNLS_MEM_FAIL:
+  case SUN_ERR_ARG_CORRUPT:
+  case SUN_ERR_ARG_INCOMPATIBLE:
+  case SUN_ERR_MEM_FAIL:
   case SUNLS_GS_FAIL:
   case SUNLS_QRSOL_FAIL: return (-1); break;
-  case SUNLS_PACKAGE_FAIL_UNREC:
-    IDAProcessError(IDA_mem, SUNLS_PACKAGE_FAIL_UNREC, __LINE__, __func__,
-                    __FILE__, "Failure in SUNLinSol external package");
+  case SUN_ERR_EXT_FAIL:
+    IDAProcessError(IDA_mem, SUN_ERR_EXT_FAIL, __LINE__, __func__, __FILE__,
+                    "Failure in SUNLinSol external package");
     return (-1);
     break;
   case SUNLS_PSOLVE_FAIL_UNREC:

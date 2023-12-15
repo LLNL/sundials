@@ -246,7 +246,7 @@ contains
     delnrm = FN_VWrmsNorm(del, ewt)
 
     if (delnrm <= tol) then
-      retval = SUN_NLS_SUCCESS  ! converged
+      retval = SUN_SUCCESS  ! converged
     else
       retval = SUN_NLS_CONTINUE ! not converged
     end if

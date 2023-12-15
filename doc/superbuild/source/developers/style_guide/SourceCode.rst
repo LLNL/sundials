@@ -168,7 +168,7 @@ C++ private class members should use snake case with a trailing underscore
 
 .. _Style.Code:
 
-Coding Conventions and Rules 
+Coding Conventions and Rules
 ============================
 
 #. Do not use language features that are not compatible with C99, C++14,
@@ -176,8 +176,8 @@ Coding Conventions and Rules
    variable-length arrays. Exceptions are allowed when interfacing with a
    library which requires a newer standard.
 
-#. All new code added to SUNDIALS should be 
-   formatted with `clang-format <https://clang.llvm.org/docs/ClangFormat.html>`_. 
+#. All new code added to SUNDIALS should be
+   formatted with `clang-format <https://clang.llvm.org/docs/ClangFormat.html>`_.
    See :ref:`Style.Formatting` for details.
 
 #. Spaces not tabs.
@@ -201,18 +201,18 @@ Coding Conventions and Rules
 
      /* TODO(DJG): Update to new API in the next major release (Issue #256) */
 
-#. All SUNDIALS data structures should hold onto a ``SUNContext`` object. Exceptions 
+#. All SUNDIALS data structures should hold onto a ``SUNContext`` object. Exceptions
    are the ``SUNLogger`` and ``SUNProfiler`` classes.
 
 #. All SUNDIALS functions should return a ``SUNErrCode``. Many older functions
-   do not do this and are exceptions to the rule for backwards compatibility. 
+   do not do this and are exceptions to the rule for backwards compatibility.
    In addition, internal helper functions may or may-not return a ``SUNErrCode``.
 
 #. All SUNDIALS functions, with the exception of some functions
-   that do not have access to a ``SUNContext``, should begin with a call to 
+   that do not have access to a ``SUNContext``, should begin with a call to
    ``SUNFunctionBegin()``. The argument to ``SUNFunctionBegin()`` is a ``SUNContext``
    which should come from the first object in the function parameter list that has a
-   ``SUNContext``.  This macro is used for error handling and declares a 
+   ``SUNContext``.  This macro is used for error handling and declares a
    local variable access via the macro ``SUNCTX_``.
 
    .. code-block:: c
@@ -220,7 +220,7 @@ Coding Conventions and Rules
       SUNErrCode N_VLinearCombination_Serial(int nvec, realtype* c, N_Vector* X, N_Vector z)
       {
          SUNFunctionBegin(X[0]->sunctx); // Correct
-         
+
          int          i;
          sunindextype j, N;
          realtype*    zd=NULL;
@@ -239,7 +239,7 @@ Coding Conventions and Rules
          realtype*    zd=NULL;
          realtype*    xd=NULL;
 
-         SUNFunctionBegin(X[0]->sunctx); // Incorrect, SUNFunctionBegin should occur as early as possible  
+         SUNFunctionBegin(X[0]->sunctx); // Incorrect, SUNFunctionBegin should occur as early as possible
 
          /* invalid number of vectors */
          SUNAssert(nvec >= 1, SUN_ERR_ARG_OUTOFRANGE);
@@ -267,7 +267,7 @@ Coding Conventions and Rules
 
 
 #. All references to ``SUNContext`` objects should be done via the ``SUNCTX_``
-   macro. The only exceptions are functions in the ``SUNContext`` class. 
+   macro. The only exceptions are functions in the ``SUNContext`` class.
 
 #. All calls to SUNDIALS functions that return a ``SUNErrCode`` should have
    their return value checked with a macro from the ``SUNCheckCall`` family.
@@ -287,30 +287,30 @@ Coding Conventions and Rules
     SUNCheckCall(err); // Avoid except when absolutely necessary.
 
 #. All calls to SUNDIALS functions that *do not* return a ``SUNErrCode`` should
-   be followed by checking the last error stored in the ``SUNContext``. 
-   The exception to this rule is for internal helper functions. 
-   These should not be checked unless they return a ``SUNErrCode``. 
-   These checks are done with the ``SUNCheckLastErr`` macros. 
+   be followed by checking the last error stored in the ``SUNContext``.
+   The exception to this rule is for internal helper functions.
+   These should not be checked unless they return a ``SUNErrCode``.
+   These checks are done with the ``SUNCheckLastErr`` macros.
 
    .. code-block:: c
 
-    // Correct 
-    (void) N_VLinearSum(...); SUNCheckLastErr(); 
+    // Correct
+    (void) N_VLinearSum(...); SUNCheckLastErr();
 
     // Incorrect - we must check for errors in N_VDotProd before calling a second function
-    sunrealtype norm2 = SUNRsqrt(N_VDotProd(...)); SUNCheckLastErr(); 
+    sunrealtype norm2 = SUNRsqrt(N_VDotProd(...)); SUNCheckLastErr();
 
     // Correct
-    sunrealtype norm2 = N_VDotProd(...); SUNCheckLastErr(); 
+    sunrealtype norm2 = N_VDotProd(...); SUNCheckLastErr();
     norm2 = SUNRsqrt(norm2);
 
 #. Programmer errors should be checked with the ``SUNAssert`` macro, that verifies whether its
    argument evaluates to "true", and specifies an error flag otherwise. By programmer errors we
    mean, for example, illegal inputs such as mismatching dimensions or a ``NULL`` value for
-   something that should not be. 
+   something that should not be.
 
    .. code-block:: c
-      
+
       SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
       {
          SUNFunctionBegin(sunctx);
@@ -330,7 +330,7 @@ Coding Conventions and Rules
 
 #. Return statements should not unnecessarily use parentheses. Prefer ``return
    x;`` to ``return(x);``. Note, however, lots of older SUNDIALS source code
-   uses ``return(x);``. 
+   uses ``return(x);``.
 
 
 .. _Style.Formatting:
@@ -339,9 +339,13 @@ Formatting
 ----------
 
 All new code added to SUNDIALS should be formatted with `clang-format
-<https://clang.llvm.org/docs/ClangFormat.html>`_. The 
+<https://clang.llvm.org/docs/ClangFormat.html>`_. The
 ``.clang-format`` files in the root of the project define our configurations
-for the tools respectively. To run both tools on a directory, you can run
+for the tools respectively. To apply clang-format you can run:
+
+.. code-block:: shell
+
+   ./scripts/format.sh <path to directories to format>
 
 If clang-format breaks lines in a way that is unreadable, use ``//`` to break the line. For example,
 sometimes (mostly in C++ code) you may have code like this:
@@ -377,21 +381,6 @@ unless you add the `//`.
          .doSomethingElse();  //
 
 There are other scenarios (e.g., a function call with a lot of parameters) where doing this type of line break is useful for readability too.
-
-..
-   .. code-block::
-..    cd scripts
-..    ./format.sh <path to directory to tidy and format> <path to builddir>
-
-.. For clang-tidy to work, the build directory must have a ``compile_commands.json``, which 
-.. can be generated by setting the CMake option ``CMAKE_EXPORT_COMPILE_COMMANDS``
-.. to ``ON``. If you just want to run the formatter, then you can run
-
-.. 
-   .. code-block::
-
-..    cd scripts
-..    ./format.sh <path to directory to format>
 
 .. It may be necessary to override clang-tidy at times. This can be done with the
 .. ``NOLINT`` magic comments e.g.,

@@ -375,7 +375,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
   step_mem->nls_fails += nls_fails_inc;
 
   /* successful solve -- reset jcur flag and apply correction */
-  if (retval == SUN_NLS_SUCCESS)
+  if (retval == SUN_SUCCESS)
   {
     step_mem->jcur = SUNFALSE;
     N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
@@ -452,7 +452,7 @@ int arkStep_NlsLSolve(N_Vector b, void* arkode_mem)
 
   /* retrieve nonlinear solver iteration from module */
   retval = SUNNonlinSolGetCurIter(step_mem->NLS, &nonlin_iter);
-  if (retval != SUN_NLS_SUCCESS) { return (ARK_NLS_OP_ERR); }
+  if (retval != SUN_SUCCESS) { return (ARK_NLS_OP_ERR); }
 
   /* call linear solver interface, and handle return value */
   retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur, ark_mem->ycur,
@@ -889,7 +889,7 @@ int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* if the problem is linearly implicit, just return success */
-  if (step_mem->linear) { return (SUN_NLS_SUCCESS); }
+  if (step_mem->linear) { return (SUN_SUCCESS); }
 
   /* compute the norm of the correction */
   delnrm = N_VWrmsNorm(del, ewt);
@@ -909,7 +909,7 @@ int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
   dcon = SUNMIN(step_mem->crate, ONE) * delnrm / tol;
 
   /* check for convergence; if so return with success */
-  if (dcon <= ONE) { return (SUN_NLS_SUCCESS); }
+  if (dcon <= ONE) { return (SUN_SUCCESS); }
 
   /* check for divergence */
   if ((m >= 1) && (delnrm > step_mem->rdiv * step_mem->delp))

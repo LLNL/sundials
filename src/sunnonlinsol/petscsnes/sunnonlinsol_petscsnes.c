@@ -23,6 +23,8 @@
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_petscsnes.h>
 
+#include "sundials/sundials_errors.h"
+
 #define SUNNLS_SNES_CONTENT(NLS) \
   ((SUNNonlinearSolverContent_PetscSNES)(NLS->content))
 #define SUNNLS_SNESOBJ(NLS) (SUNNLS_SNES_CONTENT(NLS)->snes)
@@ -132,7 +134,7 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType_PetscSNES(SUNNonlinearSolver NLS)
 }
 
 /* performs any initialization needed */
-int SUNNonlinSolInitialize_PetscSNES(SUNNonlinearSolver NLS)
+SUNErrCode SUNNonlinSolInitialize_PetscSNES(SUNNonlinearSolver NLS)
 {
   PetscErrorCode ptcerr;
 
@@ -142,17 +144,17 @@ int SUNNonlinSolInitialize_PetscSNES(SUNNonlinearSolver NLS)
   if (ptcerr != 0)
   {
     SUNNLS_SNES_CONTENT(NLS)->petsc_last_err = ptcerr;
-    return SUN_NLS_EXT_FAIL;
+    return SUN_ERR_EXT_FAIL;
   }
 
-  return SUN_NLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 /*------------------------------------------------------------------------------
   SUNNonlinSolSolve_PetscSNES: Performs the nonlinear solve F(y) = 0 or G(y) = y
 
   Successful solve return code:
-    SUN_NLS_SUCCESS = 0
+    SUN_SUCCESS = 0
 
   Recoverable failure return codes (positive):
     SUN_NLS_CONV_RECVR
@@ -177,7 +179,7 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
   /* check that the inputs are non-null */
   if ((NLS == NULL) || (y0 == NULL) || (y == NULL) || (w == NULL))
   {
-    return SUN_NLS_MEM_NULL;
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   /* store a pointer to the integrator memory so it can be
@@ -191,7 +193,7 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
   ierr = SNESSolve(SUNNLS_SNESOBJ(NLS), NULL, N_VGetVector_Petsc(y));
 
   /* check if the call to the system function failed */
-  if (SUNNLS_SNES_CONTENT(NLS)->sysfn_last_err != SUN_NLS_SUCCESS)
+  if (SUNNLS_SNES_CONTENT(NLS)->sysfn_last_err != SUN_SUCCESS)
   {
     return SUNNLS_SNES_CONTENT(NLS)->sysfn_last_err;
   }
@@ -200,7 +202,7 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
   if (ierr != 0)
   {
     SUNNLS_SNES_CONTENT(NLS)->petsc_last_err = ierr;
-    return SUN_NLS_EXT_FAIL; /* ierr != 0 is not recoverable with PETSc */
+    return SUN_ERR_EXT_FAIL; /* ierr != 0 is not recoverable with PETSc */
   }
 
   /*
@@ -212,7 +214,7 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
   if (ierr != 0)
   {
     SUNNLS_SNES_CONTENT(NLS)->petsc_last_err = ierr;
-    return SUN_NLS_EXT_FAIL; /* ierr != 0 is not recoverable with PETSc */
+    return SUN_ERR_EXT_FAIL; /* ierr != 0 is not recoverable with PETSc */
   }
 
   if ((reason == SNES_CONVERGED_ITERATING) ||
@@ -221,7 +223,7 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
       (reason == SNES_CONVERGED_SNORM_RELATIVE))
   {
     /* success */
-    retval = SUN_NLS_SUCCESS;
+    retval = SUN_SUCCESS;
   }
   else
   {
@@ -235,10 +237,10 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
 }
 
 /* free the SUNNonlinearSolver */
-int SUNNonlinSolFree_PetscSNES(SUNNonlinearSolver NLS)
+SUNErrCode SUNNonlinSolFree_PetscSNES(SUNNonlinearSolver NLS)
 {
   /* return if NLS is already free */
-  if (NLS == NULL) { return SUN_NLS_SUCCESS; }
+  if (NLS == NULL) { return SUN_SUCCESS; }
 
   /* free items from contents, then the generic structure */
   if (NLS->content)
@@ -269,7 +271,7 @@ int SUNNonlinSolFree_PetscSNES(SUNNonlinearSolver NLS)
   /* free the nonlinear solver */
   free(NLS);
 
-  return SUN_NLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 /*==============================================================================
@@ -277,16 +279,17 @@ int SUNNonlinSolFree_PetscSNES(SUNNonlinearSolver NLS)
   ============================================================================*/
 
 /* set the system residual function */
-int SUNNonlinSolSetSysFn_PetscSNES(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
+SUNErrCode SUNNonlinSolSetSysFn_PetscSNES(SUNNonlinearSolver NLS,
+                                          SUNNonlinSolSysFn SysFn)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL) { return SUN_NLS_MEM_NULL; }
+  if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   /* check that the nonlinear system function is non-null */
-  if (SysFn == NULL) { return (SUN_NLS_ILL_INPUT); }
+  if (SysFn == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   SUNNLS_SNES_CONTENT(NLS)->Sys = SysFn;
-  return SUN_NLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 /*==============================================================================
@@ -294,73 +297,73 @@ int SUNNonlinSolSetSysFn_PetscSNES(SUNNonlinearSolver NLS, SUNNonlinSolSysFn Sys
   ============================================================================*/
 
 /* get the PETSc SNES context underneath the SUNNonlinearSolver object */
-int SUNNonlinSolGetSNES_PetscSNES(SUNNonlinearSolver NLS, SNES* snes)
+SUNErrCode SUNNonlinSolGetSNES_PetscSNES(SUNNonlinearSolver NLS, SNES* snes)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL) { return SUN_NLS_MEM_NULL; }
+  if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   /* return the SNES context */
   *snes = SUNNLS_SNESOBJ(NLS);
-  return SUN_NLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 /* get the last error return by SNES */
-int SUNNonlinSolGetPetscError_PetscSNES(SUNNonlinearSolver NLS,
-                                        PetscErrorCode* err)
+SUNErrCode SUNNonlinSolGetPetscError_PetscSNES(SUNNonlinearSolver NLS,
+                                               PetscErrorCode* err)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL) { return SUN_NLS_MEM_NULL; }
+  if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   /* return the last PETSc error code returned by SNES */
   *err = SUNNLS_SNES_CONTENT(NLS)->petsc_last_err;
-  return SUN_NLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 /* get a pointer to the SUNDIALS integrator-provided system function F(y) */
-int SUNNonlinSolGetSysFn_PetscSNES(SUNNonlinearSolver NLS,
-                                   SUNNonlinSolSysFn* SysFn)
+SUNErrCode SUNNonlinSolGetSysFn_PetscSNES(SUNNonlinearSolver NLS,
+                                          SUNNonlinSolSysFn* SysFn)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL) { return SUN_NLS_MEM_NULL; }
+  if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   /* return the nonlinear system defining function */
   *SysFn = SUNNLS_SNES_CONTENT(NLS)->Sys;
-  return SUN_NLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 /* get the number of iterations performed in the last solve */
-int SUNNonlinSolGetNumIters_PetscSNES(SUNNonlinearSolver NLS, long int* nni)
+SUNErrCode SUNNonlinSolGetNumIters_PetscSNES(SUNNonlinearSolver NLS, long int* nni)
 {
   int ierr;
   sunindextype niters;
 
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL) { return SUN_NLS_MEM_NULL; }
+  if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   /* get iteration count */
   ierr = SNESGetIterationNumber(SUNNLS_SNESOBJ(NLS), &niters);
   if (ierr != 0)
   {
     SUNNLS_SNES_CONTENT(NLS)->petsc_last_err = ierr;
-    return SUN_NLS_EXT_FAIL; /* ierr != 0 is not recoverable with PETSc */
+    return SUN_ERR_EXT_FAIL; /* ierr != 0 is not recoverable with PETSc */
   }
 
   *nni = (long int)niters;
 
-  return SUN_NLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 /* get the total number of nonlinear convergence failures in the
    lifetime of this SUNNonlinearSolver object */
-int SUNNonlinSolGetNumConvFails_PetscSNES(SUNNonlinearSolver NLS,
-                                          long int* nconvfails)
+SUNErrCode SUNNonlinSolGetNumConvFails_PetscSNES(SUNNonlinearSolver NLS,
+                                                 long int* nconvfails)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL) { return SUN_NLS_MEM_NULL; }
+  if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   *nconvfails = SUNNLS_SNES_CONTENT(NLS)->nconvfails;
 
-  return SUN_NLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 /*==============================================================================

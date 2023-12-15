@@ -3260,13 +3260,13 @@ Linear Solver) has been added here (e.g. *lenrwLS*).
    Otherwise, if the ARKLS setup function failed
    (:c:func:`MRIStepEvolve()` returned *ARK_LSETUP_FAIL*), then
    *lsflag* will be *SUNLS_PSET_FAIL_UNREC*, *SUNLS_ASET_FAIL_UNREC*
-   or *SUNLS_PACKAGE_FAIL_UNREC*.
+   or *SUN_ERR_EXT_FAIL*.
 
    If the ARKLS solve function failed (:c:func:`MRIStepEvolve()`
    returned *ARK_LSOLVE_FAIL*), then *lsflag* contains the error
    return flag from the ``SUNLinearSolver`` object, which will
    be one of:
-   *SUNLS_MEM_NULL*, indicating that the ``SUNLinearSolver``
+   *SUN_ERR_ARG_CORRUPTRRUPT*, indicating that the ``SUNLinearSolver``
    memory is ``NULL``;
    *SUNLS_ATIMES_NULL*, indicating that a matrix-free iterative solver
    was provided, but is missing a routine for the matrix-vector product
@@ -3282,7 +3282,7 @@ Linear Solver) has been added here (e.g. *lenrwLS*).
    (SPGMR and SPFGMR only);
    *SUNLS_QRSOL_FAIL*, indicating that the matrix :math:`R` was found
    to be singular during the QR solve phase (SPGMR and SPFGMR only); or
-   *SUNLS_PACKAGE_FAIL_UNREC*, indicating an unrecoverable failure in
+   *SUN_ERR_EXT_FAIL*, indicating an unrecoverable failure in
    an external iterative linear solver package.
 
 

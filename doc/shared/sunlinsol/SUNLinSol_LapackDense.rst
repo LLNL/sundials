@@ -62,15 +62,6 @@ user-callable constructor routine:
       compatibility check.
 
 
-For backwards compatibility, we also provide the following wrapper function:
-
-.. c:function:: SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A)
-
-   Wrapper function for :c:func:`SUNLinSol_LapackDense`, with
-   identical input and output arguments.
-
-
-
 .. _SUNLinSol_LapackDense.Description:
 
 SUNLinSol_LapackDense Description

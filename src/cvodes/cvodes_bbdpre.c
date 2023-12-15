@@ -241,7 +241,7 @@ int CVBBDPrecInit(void* cvode_mem, sunindextype Nlocal, sunindextype mudq,
 
   /* initialize band linear solver object */
   flag = SUNLinSolInitialize(pdata->LS);
-  if (flag != SUNLS_SUCCESS)
+  if (flag != SUN_SUCCESS)
   {
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->tmp2);
