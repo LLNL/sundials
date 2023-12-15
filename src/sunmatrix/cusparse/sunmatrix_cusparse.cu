@@ -514,25 +514,13 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows,
  * Implementation specific routines.
  * ------------------------------------------------------------------ */
 
-int SUNMatrix_cuSparse_SparseType(SUNMatrix A)
-{
-  return SMCU_SPARSETYPE(A);
-}
+int SUNMatrix_cuSparse_SparseType(SUNMatrix A) { return SMCU_SPARSETYPE(A); }
 
-int SUNMatrix_cuSparse_Rows(SUNMatrix A)
-{
-  return SMCU_ROWS(A);
-}
+int SUNMatrix_cuSparse_Rows(SUNMatrix A) { return SMCU_ROWS(A); }
 
-int SUNMatrix_cuSparse_Columns(SUNMatrix A)
-{
-  return SMCU_COLUMNS(A);
-}
+int SUNMatrix_cuSparse_Columns(SUNMatrix A) { return SMCU_COLUMNS(A); }
 
-int SUNMatrix_cuSparse_NNZ(SUNMatrix A)
-{
-  return SMCU_NNZ(A);
-}
+int SUNMatrix_cuSparse_NNZ(SUNMatrix A) { return SMCU_NNZ(A); }
 
 int* SUNMatrix_cuSparse_IndexPointers(SUNMatrix A)
 {
@@ -552,25 +540,13 @@ sunrealtype* SUNMatrix_cuSparse_Data(SUNMatrix A)
   else { return (NULL); }
 }
 
-int SUNMatrix_cuSparse_NumBlocks(SUNMatrix A)
-{
-  return SMCU_NBLOCKS(A);
-}
+int SUNMatrix_cuSparse_NumBlocks(SUNMatrix A) { return SMCU_NBLOCKS(A); }
 
-int SUNMatrix_cuSparse_BlockRows(SUNMatrix A)
-{
-  return SMCU_BLOCKROWS(A);
-}
+int SUNMatrix_cuSparse_BlockRows(SUNMatrix A) { return SMCU_BLOCKROWS(A); }
 
-int SUNMatrix_cuSparse_BlockColumns(SUNMatrix A)
-{
-  return SMCU_BLOCKCOLS(A);
-}
+int SUNMatrix_cuSparse_BlockColumns(SUNMatrix A) { return SMCU_BLOCKCOLS(A); }
 
-int SUNMatrix_cuSparse_BlockNNZ(SUNMatrix A)
-{
-  return SMCU_BLOCKNNZ(A);
-}
+int SUNMatrix_cuSparse_BlockNNZ(SUNMatrix A) { return SMCU_BLOCKNNZ(A); }
 
 sunrealtype* SUNMatrix_cuSparse_BlockData(SUNMatrix A, int blockidx)
 {
@@ -595,10 +571,7 @@ cusparseMatDescr_t SUNMatrix_cuSparse_MatDescr(SUNMatrix A)
 
 SUNErrCode SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, sunbooleantype yesno)
 {
-  if (SUNMatGetID(A) != SUNMATRIX_CUSPARSE)
-  {
-    return (SUN_ERR_ARG_WRONGTYPE);
-  }
+  if (SUNMatGetID(A) != SUNMATRIX_CUSPARSE) { return (SUN_ERR_ARG_WRONGTYPE); }
 
   SMCU_FIXEDPATTERN(A) = yesno;
 
@@ -608,10 +581,7 @@ SUNErrCode SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, sunbooleantype yesno)
 SUNErrCode SUNMatrix_cuSparse_SetKernelExecPolicy(SUNMatrix A,
                                                   SUNCudaExecPolicy* exec_policy)
 {
-  if (SUNMatGetID(A) != SUNMATRIX_CUSPARSE)
-  {
-    return (SUN_ERR_ARG_WRONGTYPE);
-  }
+  if (SUNMatGetID(A) != SUNMATRIX_CUSPARSE) { return (SUN_ERR_ARG_WRONGTYPE); }
 
   /* Reset to the default policy if the new one is NULL */
   delete SMCU_EXECPOLICY(A);
@@ -633,10 +603,7 @@ SUNErrCode SUNMatrix_cuSparse_CopyToDevice(SUNMatrix dA, sunrealtype* h_data,
   const cudaStream_t* stream;
   int nidxvals, nidxptrs;
 
-  if (SUNMatGetID(dA) != SUNMATRIX_CUSPARSE)
-  {
-    return (SUN_ERR_ARG_WRONGTYPE);
-  }
+  if (SUNMatGetID(dA) != SUNMATRIX_CUSPARSE) { return (SUN_ERR_ARG_WRONGTYPE); }
 
   stream = SMCU_EXECPOLICY(dA)->stream();
 
@@ -699,10 +666,7 @@ SUNErrCode SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix dA, sunrealtype* h_data,
   const cudaStream_t* stream;
   int nidxvals, nidxptrs;
 
-  if (SUNMatGetID(dA) != SUNMATRIX_CUSPARSE)
-  {
-    return (SUN_ERR_ARG_WRONGTYPE);
-  }
+  if (SUNMatGetID(dA) != SUNMATRIX_CUSPARSE) { return (SUN_ERR_ARG_WRONGTYPE); }
 
   stream = SMCU_EXECPOLICY(dA)->stream();
 

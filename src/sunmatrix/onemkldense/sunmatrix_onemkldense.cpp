@@ -185,15 +185,9 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
  * Accessor functions
  * -------------------------------------------------------------------------- */
 
-sunindextype SUNMatrix_OneMklDense_Rows(SUNMatrix A)
-{
-  return MAT_ROWS(A);
-}
+sunindextype SUNMatrix_OneMklDense_Rows(SUNMatrix A) { return MAT_ROWS(A); }
 
-sunindextype SUNMatrix_OneMklDense_Columns(SUNMatrix A)
-{
-  return MAT_COLS(A);
-}
+sunindextype SUNMatrix_OneMklDense_Columns(SUNMatrix A) { return MAT_COLS(A); }
 
 sunindextype SUNMatrix_OneMklDense_NumBlocks(SUNMatrix A)
 {
@@ -210,10 +204,7 @@ sunindextype SUNMatrix_OneMklDense_BlockColumns(SUNMatrix A)
   return MAT_BLOCK_COLS(A);
 }
 
-sunindextype SUNMatrix_OneMklDense_LData(SUNMatrix A)
-{
-  return MAT_LDATA(A);
-}
+sunindextype SUNMatrix_OneMklDense_LData(SUNMatrix A) { return MAT_LDATA(A); }
 
 sunrealtype* SUNMatrix_OneMklDense_Data(SUNMatrix A)
 {
