@@ -2,6 +2,11 @@
 pipeline {
     agent any
 
+    options {
+        // Abort a running Pipeline build if a new one is started
+        disableConcurrentBuilds(abortPrevious: true)
+    }
+
     stages {
 
         stage('print-environment') {
