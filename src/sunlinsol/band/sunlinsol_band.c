@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_band.h>
 
@@ -125,82 +126,68 @@ SUNErrCode SUNLinSolInitialize_Band(SUNLinearSolver S)
 
 int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
 {
-  /* Error checks in this function must be NoRet because the return value
-     is an integer code specific to the SUNLinearSolver. */
-
   SUNFunctionBegin(S->sunctx);
   sunrealtype** A_cols;
   sunindextype* pivots;
 
-  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssert(A, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(SUNMatGetID(A) == SUNMATRIX_BAND, SUN_ERR_ARG_WRONGTYPE);
 
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
   pivots = NULL;
   A_cols = SM_COLS_B(A);
   pivots = PIVOTS(S);
-  if ((A_cols == NULL) || (pivots == NULL))
-  {
-    LASTFLAG(S) = SUN_ERR_MEM_FAIL;
-    return (SUN_ERR_MEM_FAIL);
-  }
+  SUNAssert(A_cols, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(pivots, SUN_ERR_ARG_CORRUPT);
 
   /* ensure that storage upper bandwidth is sufficient for fill-in */
-  if (SM_SUBAND_B(A) < SUNMIN(SM_COLUMNS_B(A) - 1, SM_UBAND_B(A) + SM_LBAND_B(A)))
-  {
-    LASTFLAG(S) = SUN_ERR_MEM_FAIL;
-    return (SUN_ERR_MEM_FAIL);
-  }
+  SUNAssert(SM_SUBAND_B(A) <
+              SUNMIN(SM_COLUMNS_B(A) - 1, SM_UBAND_B(A) + SM_LBAND_B(A)),
+            SUN_ERR_ARG_INCOMPATIBLE);
 
   /* perform LU factorization of input matrix */
   LASTFLAG(S) = SUNDlsMat_bandGBTRF(A_cols, SM_COLUMNS_B(A), SM_UBAND_B(A),
                                     SM_LBAND_B(A), SM_SUBAND_B(A), pivots);
 
-  /* store error flag (if nonzero, that row encountered zero-valued pivod) */
+  /* store error flag (if nonzero, that row encountered zero-valued pivot) */
   if (LASTFLAG(S) > 0) { return (SUNLS_LUFACT_FAIL); }
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
                         sunrealtype tol)
 {
-  /* Error checks in this function must be NoRet because the return value
-     is an integer code specific to the SUNLinearSolver. */
-
   SUNFunctionBegin(S->sunctx);
   sunrealtype **A_cols, *xdata;
   sunindextype* pivots;
 
   /* copy b into x */
   N_VScale(ONE, b, x);
-  SUNCheckLastErrNoRet();
+  SUNCheckLastErr();
 
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
   xdata  = NULL;
   pivots = NULL;
   A_cols = SUNBandMatrix_Cols(A);
-  SUNCheckLastErrNoRet();
+  SUNCheckLastErr();
   xdata = N_VGetArrayPointer(x);
-  SUNCheckLastErrNoRet();
+  SUNCheckLastErr();
   pivots = PIVOTS(S);
-  if ((A_cols == NULL) || (xdata == NULL) || (pivots == NULL))
-  {
-    LASTFLAG(S) = SUN_ERR_MEM_FAIL;
-    return (SUN_ERR_MEM_FAIL);
-  }
+  SUNAssert(pivots, SUN_ERR_ARG_CORRUPT);
 
   /* solve using LU factors */
   SUNDlsMat_bandGBTRS(A_cols, SM_COLUMNS_B(A), SM_SUBAND_B(A), SM_LBAND_B(A),
                       pivots, xdata);
   LASTFLAG(S) = SUN_SUCCESS;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 sunindextype SUNLinSolLastFlag_Band(SUNLinearSolver S)
 {
   /* return the stored 'last_flag' value */
-  return (LASTFLAG(S));
+  return LASTFLAG(S);
 }
 
 SUNErrCode SUNLinSolSpace_Band(SUNLinearSolver S, long int* lenrwLS,

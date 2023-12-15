@@ -247,7 +247,7 @@ int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A, N_Vector x,
        the solve couldn't be completed. */
     if (retval < 0 || retval > Asuper->ncol)
     {
-      SLU_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
+      SLU_LASTFLAG(S) = SUN_ERR_EXT_FAIL;
     }
     else { SLU_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_REC; }
     return (SLU_LASTFLAG(S));
@@ -262,14 +262,13 @@ int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
 sunindextype SUNLinSolLastFlag_SuperLUDIST(SUNLinearSolver S)
 {
-  if (S == NULL) { return (-1); }
   return (SLU_LASTFLAG(S));
 }
 
 SUNErrCode SUNLinSolFree_SuperLUDIST(SUNLinearSolver S)
 {
   /* return with success if already freed */
-  if (S == NULL) { return (SUN_SUCCESS); }
+  if (S == NULL) { return SUN_SUCCESS; }
 
   /* Call SuperLU DIST destroy/finalize routines,
      but don't free the sturctures themselves - that is the user's job */
@@ -294,7 +293,7 @@ SUNErrCode SUNLinSolFree_SuperLUDIST(SUNLinearSolver S)
   free(S);
   S = NULL;
 
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNLinSolSpace_SuperLUDIST(SUNLinearSolver S, long int* leniwLS,
@@ -306,5 +305,5 @@ SUNErrCode SUNLinSolSpace_SuperLUDIST(SUNLinearSolver S, long int* leniwLS,
   *leniwLS = 2; /* last_flag, N */
   *lenrwLS = 1; /* berr */
 
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }

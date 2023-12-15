@@ -88,11 +88,7 @@ user-callable routines:
             constructor routine (or the previous ``SUNKLUReInit`` call).
 
    **Return value:**
-      * ``SUN_SUCCESS`` -- reinitialization successful.
-      * ``SUN_ERR_ARK_CORRUPT`` -- either ``S`` or ``A`` are ``NULL``.
-      * ``SUN_ERR_ARG_INCOMPATIBLE`` -- ``A`` does not have type ``SUNMATRIX_SPARSE`` or
-         ``reinit_type`` is invalid.
-      * ``SUNLS_MEM_FAIL`` reallocation of the sparse matrix failed.
+      * A :c:type:`SUNErrCode`
 
    **Notes:**
       This routine assumes no other changes to solver use are necessary.

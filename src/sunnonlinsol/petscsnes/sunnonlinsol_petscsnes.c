@@ -23,6 +23,8 @@
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_petscsnes.h>
 
+#include "sundials/sundials_errors.h"
+
 #define SUNNLS_SNES_CONTENT(NLS) \
   ((SUNNonlinearSolverContent_PetscSNES)(NLS->content))
 #define SUNNLS_SNESOBJ(NLS) (SUNNLS_SNES_CONTENT(NLS)->snes)
@@ -142,7 +144,7 @@ SUNErrCode SUNNonlinSolInitialize_PetscSNES(SUNNonlinearSolver NLS)
   if (ptcerr != 0)
   {
     SUNNLS_SNES_CONTENT(NLS)->petsc_last_err = ptcerr;
-    return SUN_ERR_OP_FAIL;
+    return SUN_ERR_EXT_FAIL;
   }
 
   return SUN_SUCCESS;
@@ -200,7 +202,7 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
   if (ierr != 0)
   {
     SUNNLS_SNES_CONTENT(NLS)->petsc_last_err = ierr;
-    return SUN_ERR_OP_FAIL; /* ierr != 0 is not recoverable with PETSc */
+    return SUN_ERR_EXT_FAIL; /* ierr != 0 is not recoverable with PETSc */
   }
 
   /*
@@ -212,7 +214,7 @@ int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
   if (ierr != 0)
   {
     SUNNLS_SNES_CONTENT(NLS)->petsc_last_err = ierr;
-    return SUN_ERR_OP_FAIL; /* ierr != 0 is not recoverable with PETSc */
+    return SUN_ERR_EXT_FAIL; /* ierr != 0 is not recoverable with PETSc */
   }
 
   if ((reason == SNES_CONVERGED_ITERATING) ||
@@ -284,7 +286,7 @@ SUNErrCode SUNNonlinSolSetSysFn_PetscSNES(SUNNonlinearSolver NLS,
   if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   /* check that the nonlinear system function is non-null */
-  if (SysFn == NULL) { return (SUN_ERR_ARG_INCOMPATIBLE); }
+  if (SysFn == NULL) { return (SUN_ERR_ARG_CORRUPT); }
 
   SUNNLS_SNES_CONTENT(NLS)->Sys = SysFn;
   return SUN_SUCCESS;
@@ -343,7 +345,7 @@ SUNErrCode SUNNonlinSolGetNumIters_PetscSNES(SUNNonlinearSolver NLS, long int* n
   if (ierr != 0)
   {
     SUNNLS_SNES_CONTENT(NLS)->petsc_last_err = ierr;
-    return SUN_ERR_OP_FAIL; /* ierr != 0 is not recoverable with PETSc */
+    return SUN_ERR_EXT_FAIL; /* ierr != 0 is not recoverable with PETSc */
   }
 
   *nni = (long int)niters;

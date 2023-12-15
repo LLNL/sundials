@@ -1613,9 +1613,9 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
   case SUN_ERR_MEM_FAIL:
   case SUNLS_GS_FAIL:
   case SUNLS_QRSOL_FAIL: return (-1); break;
-  case SUNLS_PACKAGE_FAIL_UNREC:
-    IDAProcessError(IDA_mem, SUNLS_PACKAGE_FAIL_UNREC, __LINE__, __func__,
-                    __FILE__, "Failure in SUNLinSol external package");
+  case SUN_ERR_EXT_FAIL:
+    IDAProcessError(IDA_mem, SUN_ERR_EXT_FAIL, __LINE__, __func__, __FILE__,
+                    "Failure in SUNLinSol external package");
     return (-1);
     break;
   case SUNLS_PSOLVE_FAIL_UNREC:

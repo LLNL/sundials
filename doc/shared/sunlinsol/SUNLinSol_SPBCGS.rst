@@ -147,8 +147,6 @@ The SUNLinSol_SPBCGS module defines the *content* field of a
      N_Vector u;
      N_Vector Ap;
      N_Vector vtemp;
-     int      print_level;
-     FILE*    info_file;
    };
 
 These entries of the *content* field contain the following
@@ -189,9 +187,7 @@ information:
 * ``p, q, u, Ap, vtemp`` - ``N_Vector`` used for workspace by the
   SPBCGS algorithm.
 
-* ``print_level`` - controls the amount of information to be printed to the info file
 
-* ``info_file``   - the file where all informative (non-error) messages will be directed
 
 
 This solver is constructed to perform the following operations:

@@ -209,7 +209,7 @@ int SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A)
     status = cusolverSpCreateCsrqrInfo(&SUN_CUSP_QRINFO(S));
     if (!SUNDIALS_CUSOLVER_VERIFY(status))
     {
-      SUN_CUSP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
+      SUN_CUSP_LASTFLAG(S) = SUN_ERR_EXT_FAIL;
       return SUN_CUSP_LASTFLAG(S);
     }
 
@@ -230,7 +230,7 @@ int SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A)
 
     if (!SUNDIALS_CUSOLVER_VERIFY(status))
     {
-      SUN_CUSP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
+      SUN_CUSP_LASTFLAG(S) = SUN_ERR_EXT_FAIL;
       return SUN_CUSP_LASTFLAG(S);
     }
 
@@ -244,14 +244,14 @@ int SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A)
 
     if (!SUNDIALS_CUSOLVER_VERIFY(status))
     {
-      SUN_CUSP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
+      SUN_CUSP_LASTFLAG(S) = SUN_ERR_EXT_FAIL;
       return SUN_CUSP_LASTFLAG(S);
     }
 
     cuerr = cudaMalloc((void**)&SUN_CUSP_QRWORKSPACE(S), SUN_CUSP_WORK_SIZE(S));
     if (!SUNDIALS_CUDA_VERIFY(cuerr))
     {
-      SUN_CUSP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
+      SUN_CUSP_LASTFLAG(S) = SUN_ERR_EXT_FAIL;
       return SUN_CUSP_LASTFLAG(S);
     }
 
@@ -281,8 +281,6 @@ int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A,
   sunrealtype* device_b = N_VGetDeviceArrayPointer(b);
   sunrealtype* device_x = N_VGetDeviceArrayPointer(x);
 
-  if (SUN_CUSP_LASTFLAG(S) != SUN_SUCCESS) { return SUN_CUSP_LASTFLAG(S); }
-
   /* solve the system */
   nblock    = SUNMatrix_cuSparse_NumBlocks(A);
   blocknnz  = SUNMatrix_cuSparse_BlockNNZ(A);
@@ -301,7 +299,7 @@ int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A,
 
   if (!SUNDIALS_CUSOLVER_VERIFY(status))
   {
-    SUN_CUSP_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
+    SUN_CUSP_LASTFLAG(S) = SUN_ERR_EXT_FAIL;
     return SUN_CUSP_LASTFLAG(S);
   }
 
@@ -310,7 +308,6 @@ int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S, SUNMatrix A,
 
 sunindextype SUNLinSolLastFlag_cuSolverSp_batchQR(SUNLinearSolver S)
 {
-  if (S == NULL) { return -1; }
   return SUN_CUSP_LASTFLAG(S);
 }
 
@@ -341,5 +338,5 @@ SUNErrCode SUNLinSolFree_cuSolverSp_batchQR(SUNLinearSolver S)
   free(S);
   S = NULL;
 
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }

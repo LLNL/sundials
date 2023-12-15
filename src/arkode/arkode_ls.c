@@ -2763,9 +2763,9 @@ int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
   case SUN_ERR_MEM_FAIL:
   case SUNLS_GS_FAIL:
   case SUNLS_QRSOL_FAIL: return (-1); break;
-  case SUNLS_PACKAGE_FAIL_UNREC:
-    arkProcessError(ark_mem, SUNLS_PACKAGE_FAIL_UNREC, __LINE__, __func__,
-                    __FILE__, "Failure in SUNLinSol external package");
+  case SUN_ERR_EXT_FAIL:
+    arkProcessError(ark_mem, SUN_ERR_EXT_FAIL, __LINE__, __func__, __FILE__,
+                    "Failure in SUNLinSol external package");
     return (-1);
     break;
   case SUNLS_ATIMES_FAIL_UNREC:
@@ -3190,9 +3190,9 @@ int arkLsMassSolve(void* arkode_mem, N_Vector b, sunrealtype nlscoef)
   case SUN_ERR_MEM_FAIL:
   case SUNLS_GS_FAIL:
   case SUNLS_QRSOL_FAIL: return (-1); break;
-  case SUNLS_PACKAGE_FAIL_UNREC:
-    arkProcessError(ark_mem, SUNLS_PACKAGE_FAIL_UNREC, __LINE__, __func__,
-                    __FILE__, "Failure in SUNLinSol external package");
+  case SUN_ERR_EXT_FAIL:
+    arkProcessError(ark_mem, SUN_ERR_EXT_FAIL, __LINE__, __func__, __FILE__,
+                    "Failure in SUNLinSol external package");
     return (-1);
     break;
   case SUNLS_ATIMES_FAIL_UNREC:

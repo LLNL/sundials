@@ -69,9 +69,6 @@ struct _SUNLinearSolverContent_SPTFQMR
   N_Vector vtemp1;
   N_Vector vtemp2;
   N_Vector vtemp3;
-
-  int print_level;
-  FILE* info_file;
 };
 
 typedef struct _SUNLinearSolverContent_SPTFQMR* SUNLinearSolverContent_SPTFQMR;
@@ -82,8 +79,9 @@ typedef struct _SUNLinearSolverContent_SPTFQMR* SUNLinearSolverContent_SPTFQMR;
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype,
                                                   int maxl, SUNContext sunctx);
-SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S, int pretype);
-SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl);
+SUNDIALS_EXPORT SUNErrCode SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S,
+                                                        int pretype);
+SUNDIALS_EXPORT SUNErrCode SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S);

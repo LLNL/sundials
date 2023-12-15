@@ -3052,7 +3052,7 @@ The following optional outputs are available from the IDALS modules:
       banded) Jacobian matrix.  If the IDALS setup function failed when using
       another ``SUNLinearSolver`` object, then ``lsflag`` will be
       ``SUNLS_PSET_FAIL_UNREC``, ``SUNLS_ASET_FAIL_UNREC``, or
-      ``SUNLS_PACKAGE_FAIL_UNREC``.  If the IDALS solve function failed
+      ``SUN_ERR_EXT_FAIL``.  If the IDALS solve function failed
       (:c:func:`IDASolve` returned ``IDA_LSOLVE_FAIL``), ``lsflag`` contains the
       error return flag from the ``SUNLinearSolver`` object, which will be one of:
       ``SUN_ERR_ARG_CORRUPTRRUPT``, indicating that the ``SUNLinearSolver`` memory is
@@ -3062,7 +3062,7 @@ The following optional outputs are available from the IDALS modules:
       ``SUNLS_GS_FAIL``, indicating a failure in the Gram-Schmidt procedure
       (generated only in SPGMR or SPFGMR); ``SUNLS_QRSOL_FAIL``, indicating that
       the matrix :math:`R` was found to be singular during the QR solve phase
-      (SPGMR and SPFGMR only); or ``SUNLS_PACKAGE_FAIL_UNREC``, indicating an
+      (SPGMR and SPFGMR only); or ``SUN_ERR_EXT_FAIL``, indicating an
       unrecoverable failure in an external iterative linear solver package.
 
    .. warning::

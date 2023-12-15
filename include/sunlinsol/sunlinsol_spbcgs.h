@@ -67,9 +67,6 @@ struct _SUNLinearSolverContent_SPBCGS
   N_Vector u;
   N_Vector Ap;
   N_Vector vtemp;
-
-  int print_level;
-  FILE* info_file;
 };
 
 typedef struct _SUNLinearSolverContent_SPBCGS* SUNLinearSolverContent_SPBCGS;
@@ -80,8 +77,9 @@ typedef struct _SUNLinearSolverContent_SPBCGS* SUNLinearSolverContent_SPBCGS;
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype,
                                                  int maxl, SUNContext sunctx);
-SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S, int pretype);
-SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S, int maxl);
+SUNDIALS_EXPORT SUNErrCode SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S,
+                                                       int pretype);
+SUNDIALS_EXPORT SUNErrCode SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S, int maxl);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolInitialize_SPBCGS(SUNLinearSolver S);

@@ -1279,9 +1279,9 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, sunrealtype* sJpnorm,
       KINProcessError(kin_mem, SUNLS_PACKAGE_FAIL_REC, __LINE__, __func__,
                       __FILE__, "Failure in SUNLinSol external package");
       break;
-    case SUNLS_PACKAGE_FAIL_UNREC:
-      KINProcessError(kin_mem, SUNLS_PACKAGE_FAIL_UNREC, __LINE__, __func__,
-                      __FILE__, "Failure in SUNLinSol external package");
+    case SUN_ERR_EXT_FAIL:
+      KINProcessError(kin_mem, SUN_ERR_EXT_FAIL, __LINE__, __func__, __FILE__,
+                      "Failure in SUNLinSol external package");
       break;
     case SUNLS_ATIMES_FAIL_UNREC:
       KINProcessError(kin_mem, SUNLS_ATIMES_FAIL_UNREC, __LINE__, __func__,

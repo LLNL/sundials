@@ -74,9 +74,6 @@ struct _SUNLinearSolverContent_SPGMR
 
   sunrealtype* cv;
   N_Vector* Xv;
-
-  int print_level;
-  FILE* info_file;
 };
 
 typedef struct _SUNLinearSolverContent_SPGMR* SUNLinearSolverContent_SPGMR;
@@ -87,9 +84,12 @@ typedef struct _SUNLinearSolverContent_SPGMR* SUNLinearSolverContent_SPGMR;
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype,
                                                 int maxl, SUNContext sunctx);
-SUNDIALS_EXPORT int SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S, int pretype);
-SUNDIALS_EXPORT int SUNLinSol_SPGMRSetGSType(SUNLinearSolver S, int gstype);
-SUNDIALS_EXPORT int SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs);
+SUNDIALS_EXPORT SUNErrCode SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S,
+                                                      int pretype);
+SUNDIALS_EXPORT SUNErrCode SUNLinSol_SPGMRSetGSType(SUNLinearSolver S,
+                                                    int gstype);
+SUNDIALS_EXPORT SUNErrCode SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S,
+                                                         int maxrs);
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S);

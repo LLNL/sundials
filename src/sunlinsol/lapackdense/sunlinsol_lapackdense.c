@@ -142,7 +142,7 @@ SUNErrCode SUNLinSolInitialize_LapackDense(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUN_SUCCESS;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
@@ -165,8 +165,8 @@ int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
   xgetrf_f77(&n, &n, SUNDenseMatrix_Data(A), &n, PIVOTS(S), &ier);
   LASTFLAG(S) = ier;
   if (ier > 0) { return (SUNLS_LUFACT_FAIL); }
-  if (ier < 0) { return (SUNLS_PACKAGE_FAIL_UNREC); }
-  return (SUN_SUCCESS);
+  if (ier < 0) { return (SUN_ERR_EXT_FAIL); }
+  return SUN_SUCCESS;
 }
 
 int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
@@ -198,16 +198,14 @@ int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   xgetrs_f77("N", &n, &one, SUNDenseMatrix_Data(A), &n, PIVOTS(S), xdata, &n,
              &ier);
   LASTFLAG(S) = ier;
-  if (ier < 0) { return (SUNLS_PACKAGE_FAIL_UNREC); }
+  if (ier < 0) { return (SUN_ERR_EXT_FAIL); }
 
   LASTFLAG(S) = SUN_SUCCESS;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 sunindextype SUNLinSolLastFlag_LapackDense(SUNLinearSolver S)
 {
-  /* return the stored 'last_flag' value */
-  if (S == NULL) { return (-1); }
   return (LASTFLAG(S));
 }
 
@@ -216,13 +214,13 @@ SUNErrCode SUNLinSolSpace_LapackDense(SUNLinearSolver S, long int* lenrwLS,
 {
   *lenrwLS = 0;
   *leniwLS = 2 + LAPACKDENSE_CONTENT(S)->N;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNLinSolFree_LapackDense(SUNLinearSolver S)
 {
   /* return if S is already free */
-  if (S == NULL) { return (SUN_SUCCESS); }
+  if (S == NULL) { return SUN_SUCCESS; }
 
   /* delete items from contents, then delete generic structure */
   if (S->content)
@@ -242,5 +240,5 @@ SUNErrCode SUNLinSolFree_LapackDense(SUNLinearSolver S)
   }
   free(S);
   S = NULL;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }

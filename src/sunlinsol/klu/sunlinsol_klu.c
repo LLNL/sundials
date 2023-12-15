@@ -21,6 +21,8 @@
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_klu.h>
 
+#include "sundials/sundials_errors.h"
+
 #define ZERO      SUN_RCONST(0.0)
 #define ONE       SUN_RCONST(1.0)
 #define TWO       SUN_RCONST(2.0)
@@ -146,8 +148,8 @@ SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A, SUNContext sunctx)
  * Function to reinitialize a KLU linear solver
  */
 
-int SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz,
-                        int reinit_type)
+SUNErrCode SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz,
+                               int reinit_type)
 {
   /* Check for non-NULL SUNLinearSolver */
   if ((S == NULL) || (A == NULL)) { return (SUN_ERR_ARG_CORRUPT); }
@@ -168,20 +170,20 @@ int SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz,
     if (SUNSparseMatrix_Reallocate(A, nnz) != 0) { return (SUN_ERR_MEM_FAIL); }
   }
 
-  /* Free the prior factorazation and reset for first factorization */
+  /* Free the prior factorization and reset for first factorization */
   if (SYMBOLIC(S) != NULL) { sun_klu_free_symbolic(&SYMBOLIC(S), &COMMON(S)); }
   if (NUMERIC(S) != NULL) { sun_klu_free_numeric(&NUMERIC(S), &COMMON(S)); }
   FIRSTFACTORIZE(S) = 1;
 
   LASTFLAG(S) = SUN_SUCCESS;
-  return (LASTFLAG(S));
+  return SUN_SUCCESS;
 }
 
 /* ----------------------------------------------------------------------------
  * Function to set the ordering type for a KLU linear solver
  */
 
-int SUNLinSol_KLUSetOrdering(SUNLinearSolver S, int ordering_choice)
+SUNErrCode SUNLinSol_KLUSetOrdering(SUNLinearSolver S, int ordering_choice)
 {
   /* Check for legal ordering_choice */
   if ((ordering_choice < 0) || (ordering_choice > 2))
@@ -195,8 +197,7 @@ int SUNLinSol_KLUSetOrdering(SUNLinearSolver S, int ordering_choice)
   /* Set ordering_choice */
   COMMON(S).ordering = ordering_choice;
 
-  LASTFLAG(S) = SUN_SUCCESS;
-  return (LASTFLAG(S));
+  return SUN_SUCCESS;
 }
 
 /*
@@ -270,7 +271,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
                       (KLU_INDEXTYPE*)SUNSparseMatrix_IndexValues(A), &COMMON(S));
     if (SYMBOLIC(S) == NULL)
     {
-      LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
+      LASTFLAG(S) = SUN_ERR_EXT_FAIL;
       return (LASTFLAG(S));
     }
 
@@ -283,7 +284,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
                                 SUNSparseMatrix_Data(A), SYMBOLIC(S), &COMMON(S));
     if (NUMERIC(S) == NULL)
     {
-      LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
+      LASTFLAG(S) = SUN_ERR_EXT_FAIL;
       return (LASTFLAG(S));
     }
 
@@ -339,7 +340,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
                          SUNSparseMatrix_Data(A), SYMBOLIC(S), &COMMON(S));
         if (NUMERIC(S) == NULL)
         {
-          LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
+          LASTFLAG(S) = SUN_ERR_EXT_FAIL;
           return (LASTFLAG(S));
         }
       }
@@ -386,12 +387,7 @@ int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
   return (LASTFLAG(S));
 }
 
-sunindextype SUNLinSolLastFlag_KLU(SUNLinearSolver S)
-{
-  /* return the stored 'last_flag' value */
-  if (S == NULL) { return (-1); }
-  return (LASTFLAG(S));
-}
+sunindextype SUNLinSolLastFlag_KLU(SUNLinearSolver S) { return (LASTFLAG(S)); }
 
 SUNErrCode SUNLinSolSpace_KLU(SUNLinearSolver S, long int* lenrwLS,
                               long int* leniwLS)
@@ -400,13 +396,13 @@ SUNErrCode SUNLinSolSpace_KLU(SUNLinearSolver S, long int* lenrwLS,
      omit those from these results */
   *leniwLS = 2;
   *lenrwLS = 0;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNLinSolFree_KLU(SUNLinearSolver S)
 {
   /* return with success if already freed */
-  if (S == NULL) { return (SUN_SUCCESS); }
+  if (S == NULL) { return SUN_SUCCESS; }
 
   /* delete items from the contents structure (if it exists) */
   if (S->content)
@@ -425,5 +421,5 @@ SUNErrCode SUNLinSolFree_KLU(SUNLinearSolver S)
   }
   free(S);
   S = NULL;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }

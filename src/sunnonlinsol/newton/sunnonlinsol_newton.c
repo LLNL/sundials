@@ -45,7 +45,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx)
   /* Check that the supplied N_Vector supports all required operations */
   SUNAssertNull(y->ops->nvclone && y->ops->nvdestroy && y->ops->nvscale &&
                   y->ops->nvlinearsum,
-                SUN_ERR_ARG_CORRUPT);
+                SUN_ERR_ARG_INCOMPATIBLE);
 
   /* Create an empty nonlinear linear solver object */
   NLS = SUNNonlinSolNewEmpty(sunctx);
@@ -77,22 +77,16 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx)
   NLS->content = content;
 
   /* Fill general content */
-  content->Sys         = NULL;
-  content->LSetup      = NULL;
-  content->LSolve      = NULL;
-  content->CTest       = NULL;
-  content->jcur        = SUNFALSE;
-  content->curiter     = 0;
-  content->maxiters    = 3;
-  content->niters      = 0;
-  content->nconvfails  = 0;
-  content->ctest_data  = NULL;
-  content->print_level = 0;
-  content->info_file   = stdout;
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  content->info_file = (sunctx->logger->info_fp) ? sunctx->logger->info_fp
-                                                 : stdout;
-#endif
+  content->Sys        = NULL;
+  content->LSetup     = NULL;
+  content->LSolve     = NULL;
+  content->CTest      = NULL;
+  content->jcur       = SUNFALSE;
+  content->curiter    = 0;
+  content->maxiters   = 3;
+  content->niters     = 0;
+  content->nconvfails = 0;
+  content->ctest_data = NULL;
 
   /* Fill allocatable content */
   content->delta = N_VClone(y);
@@ -168,7 +162,7 @@ SUNErrCode SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
     *_LSOLVE_RECVR
 
   Unrecoverable failure return codes (negative):
-    *_MEM_NULL
+    SUN_ERR_*
     *_RHSFUNC_FAIL (ODEs) or *_RES_FAIL (DAEs)
     *_LSETUP_FAIL
     *_LSOLVE_FAIL
@@ -180,7 +174,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
                              N_Vector w, sunrealtype tol,
                              sunbooleantype callLSetup, void* mem)
 {
-  /* Error checks in this function must be NoRet because the return value
+  /* Error checks in this function must be  because the return value
      is an integer code specific to the SUNNonlinearSolver. */
 
   SUNFunctionBegin(NLS->sunctx);
@@ -190,11 +184,11 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
   N_Vector delta;
 
   /* check that all required function pointers have been set */
-  SUNAssertNoRet(NEWTON_CONTENT(NLS)->Sys && NEWTON_CONTENT(NLS)->CTest &&
-                   NEWTON_CONTENT(NLS)->LSolve,
-                 SUN_ERR_ARG_CORRUPT);
-  SUNAssertNoRet(!callLSetup || (callLSetup && NEWTON_CONTENT(NLS)->LSetup),
-                 SUN_ERR_ARG_CORRUPT);
+  SUNAssert(NEWTON_CONTENT(NLS)->Sys && NEWTON_CONTENT(NLS)->CTest &&
+              NEWTON_CONTENT(NLS)->LSolve,
+            SUN_ERR_ARG_CORRUPT);
+  SUNAssert(!callLSetup || (callLSetup && NEWTON_CONTENT(NLS)->LSetup),
+            SUN_ERR_ARG_CORRUPT);
 
   /* set local shortcut variables */
   delta = NEWTON_CONTENT(NLS)->delta;
@@ -228,13 +222,6 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
     NEWTON_CONTENT(NLS)->curiter = 0;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    /* print current iteration number and the nonlinear residual */
-    if (NEWTON_CONTENT(NLS)->print_level && NEWTON_CONTENT(NLS)->info_file &&
-        (NEWTON_CONTENT(NLS)->info_file != NLS->sunctx->logger->info_fp))
-    {
-      fprintf(NEWTON_CONTENT(NLS)->info_file, "SUNNONLINSOL_NEWTON (nni=%ld):\n",
-              (long int)NEWTON_CONTENT(NLS)->niters);
-    }
     SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
                        "SUNNonlinSolSolve_Newton", "begin-iteration",
                        "iter = %ld, nni = %ld", (long int)0,
@@ -249,7 +236,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
 
       /* compute the negative of the residual for the linear system rhs */
       N_VScale(-ONE, delta, delta);
-      SUNCheckLastErrNoRet();
+      SUNCheckLastErr();
 
       /* solve the linear system to get Newton update delta */
       retval = NEWTON_CONTENT(NLS)->LSolve(delta, mem);
@@ -257,21 +244,13 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
 
       /* update the Newton iterate */
       N_VLinearSum(ONE, ycor, ONE, delta, ycor);
-      SUNCheckLastErrNoRet();
+      SUNCheckLastErr();
 
       /* test for convergence */
       retval = NEWTON_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
                                           NEWTON_CONTENT(NLS)->ctest_data);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      /* print current iteration number and the nonlinear residual */
-      if (NEWTON_CONTENT(NLS)->print_level && NEWTON_CONTENT(NLS)->info_file &&
-          (NEWTON_CONTENT(NLS)->info_file != NLS->sunctx->logger->info_fp))
-      {
-        fprintf(NEWTON_CONTENT(NLS)->info_file,
-                "SUNNONLINSOL_NEWTON (nni=%ld):\n",
-                (long int)NEWTON_CONTENT(NLS)->niters);
-      }
       SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
                          "SUNNonlinSolSolve_Newton", "end-of-iterate",
                          "iter = %ld, nni = %ld, wrmsnorm = %.16g",
@@ -316,6 +295,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
       callLSetup = SUNTRUE;
       jbad       = SUNTRUE;
       N_VConst(ZERO, ycor);
+      SUNCheckLastErr();
       continue;
     }
     else { break; }

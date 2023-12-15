@@ -62,12 +62,6 @@ struct _SUNNonlinearSolverContent_FixedPoint
   long int niters;     /* total number of iterations across all solves   */
   long int nconvfails; /* total number of convergence failures           */
   void* ctest_data;    /* data to pass to convergence test function      */
-
-  /* if 0 (default) nothing is printed, if 1 the residual is printed every
-   * iteration */
-  int print_level;
-  /* if NULL nothing is printed, if 1 the residual is printed every iteration */
-  FILE* info_file;
 };
 
 typedef struct _SUNNonlinearSolverContent_FixedPoint* SUNNonlinearSolverContent_FixedPoint;

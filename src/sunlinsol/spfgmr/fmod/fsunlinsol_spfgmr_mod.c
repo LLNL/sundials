@@ -230,12 +230,12 @@ SWIGEXPORT int _wrap_FSUNLinSol_SPFGMRSetPrecType(SUNLinearSolver farg1, int con
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNLinSol_SPFGMRSetPrecType(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSol_SPFGMRSetPrecType(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -244,12 +244,12 @@ SWIGEXPORT int _wrap_FSUNLinSol_SPFGMRSetGSType(SUNLinearSolver farg1, int const
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNLinSol_SPFGMRSetGSType(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSol_SPFGMRSetGSType(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -258,12 +258,12 @@ SWIGEXPORT int _wrap_FSUNLinSol_SPFGMRSetMaxRestarts(SUNLinearSolver farg1, int 
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNLinSol_SPFGMRSetMaxRestarts(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSol_SPFGMRSetMaxRestarts(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 

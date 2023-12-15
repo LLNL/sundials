@@ -202,9 +202,8 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat, SUNContext sunc
  * Set functions
  */
 
-int SUNLinSol_MagmaDense_SetAsync(SUNLinearSolver S, sunbooleantype onoff)
+SUNErrCode SUNLinSol_MagmaDense_SetAsync(SUNLinearSolver S, sunbooleantype onoff)
 {
-  if (S == NULL) { return SUN_ERR_ARG_CORRUPT; }
   ASYNCHRONOUS(S) = onoff;
   return SUN_SUCCESS;
 }
@@ -228,15 +227,13 @@ SUNLinearSolver_ID SUNLinSolGetID_MagmaDense(SUNLinearSolver S)
 SUNErrCode SUNLinSolInitialize_MagmaDense(SUNLinearSolver S)
 {
   /* All solver-specific memory has already been allocated */
-  if (S == NULL) { return SUN_ERR_ARG_CORRUPT; }
   LASTFLAG(S) = SUN_SUCCESS;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 int SUNLinSolSetup_MagmaDense(SUNLinearSolver S, SUNMatrix A)
 {
   /* Check for valid inputs */
-  if (S == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   if (A == NULL)
   {
@@ -301,8 +298,8 @@ int SUNLinSolSetup_MagmaDense(SUNLinearSolver S, SUNMatrix A)
 
   LASTFLAG(S) = ier;
   if (ier > 0) { return (SUNLS_LUFACT_FAIL); }
-  if (ier < 0) { return (SUNLS_PACKAGE_FAIL_UNREC); }
-  return (SUN_SUCCESS);
+  if (ier < 0) { return (SUN_ERR_EXT_FAIL); }
+  return SUN_SUCCESS;
 }
 
 int SUNLinSolSolve_MagmaDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
@@ -373,13 +370,11 @@ int SUNLinSolSolve_MagmaDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (!ASYNCHRONOUS(S)) { magma_queue_sync(QUEUE(S)); }
 
   LASTFLAG(S) = ier;
-  return ((ier < 0) ? SUNLS_PACKAGE_FAIL_UNREC : SUN_SUCCESS);
+  return ((ier < 0) ? SUN_ERR_EXT_FAIL : SUN_SUCCESS);
 }
 
 sunindextype SUNLinSolLastFlag_MagmaDense(SUNLinearSolver S)
 {
-  /* return the stored 'last_flag' value */
-  if (S == NULL) { return (-1); }
   return (LASTFLAG(S));
 }
 
@@ -388,13 +383,13 @@ SUNErrCode SUNLinSolSpace_MagmaDense(SUNLinearSolver S, long int* lenrwLS,
 {
   *lenrwLS = 0;
   *leniwLS = 2 + MAGMADENSE_CONTENT(S)->N;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNLinSolFree_MagmaDense(SUNLinearSolver S)
 {
   /* return if S is already free */
-  if (S == NULL) { return (SUN_SUCCESS); }
+  if (S == NULL) { return SUN_SUCCESS; }
 
   /* delete items from contents, then delete generic structure */
   if (S->content)
@@ -426,5 +421,5 @@ SUNErrCode SUNLinSolFree_MagmaDense(SUNLinearSolver S)
   }
   free(S);
   S = NULL;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }

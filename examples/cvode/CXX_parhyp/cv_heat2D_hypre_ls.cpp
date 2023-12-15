@@ -2683,7 +2683,7 @@ int HypreLS_Solve(SUNLinearSolver LS, SUNMatrix A, N_Vector x, N_Vector b,
     return SUNLS_CONV_FAIL;
   }
   // If any other error occured return with an unrecoverable error.
-  else if (flag != 0) { return SUNLS_PACKAGE_FAIL_UNREC; }
+  else if (flag != 0) { return SUN_ERR_EXT_FAIL; }
 
   // Update iteration count
   if (HLS_PCG(LS))

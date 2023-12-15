@@ -141,7 +141,7 @@ SUNErrCode SUNLinSolInitialize_LapackBand(SUNLinearSolver S)
 {
   /* all solver-specific memory has already been allocated */
   LASTFLAG(S) = SUN_SUCCESS;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
@@ -168,8 +168,8 @@ int SUNLinSolSetup_LapackBand(SUNLinearSolver S, SUNMatrix A)
 
   LASTFLAG(S) = ier;
   if (ier > 0) { return (SUNLS_LUFACT_FAIL); }
-  if (ier < 0) { return (SUNLS_PACKAGE_FAIL_UNREC); }
-  return (SUN_SUCCESS);
+  if (ier < 0) { return (SUN_ERR_EXT_FAIL); }
+  return SUN_SUCCESS;
 }
 
 int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
@@ -205,16 +205,14 @@ int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   xgbtrs_f77("N", &n, &ml, &mu, &one, SUNBandMatrix_Data(A), &ldim, PIVOTS(S),
              xdata, &n, &ier);
   LASTFLAG(S) = ier;
-  if (ier < 0) { return (SUNLS_PACKAGE_FAIL_UNREC); }
+  if (ier < 0) { return (SUN_ERR_EXT_FAIL); }
 
   LASTFLAG(S) = SUN_SUCCESS;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 sunindextype SUNLinSolLastFlag_LapackBand(SUNLinearSolver S)
 {
-  /* return the stored 'last_flag' value */
-  if (S == NULL) { return (-1); }
   return (LASTFLAG(S));
 }
 
@@ -223,13 +221,13 @@ SUNErrCode SUNLinSolSpace_LapackBand(SUNLinearSolver S, long int* lenrwLS,
 {
   *lenrwLS = 0;
   *leniwLS = 2 + LAPACKBAND_CONTENT(S)->N;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNLinSolFree_LapackBand(SUNLinearSolver S)
 {
   /* return with success if already freed */
-  if (S == NULL) { return (SUN_SUCCESS); }
+  if (S == NULL) { return SUN_SUCCESS; }
 
   /* delete items from contents, then delete generic structure */
   if (S->content)
@@ -249,5 +247,5 @@ SUNErrCode SUNLinSolFree_LapackBand(SUNLinearSolver S)
   }
   free(S);
   S = NULL;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }

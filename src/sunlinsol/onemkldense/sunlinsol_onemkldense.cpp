@@ -429,7 +429,7 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
   if (ier < 0)
   {
     LS_LASTFLAG(S) = ier;
-    return SUNLS_PACKAGE_FAIL_UNREC;
+    return SUN_ERR_EXT_FAIL;
   }
 
   LS_LASTFLAG(S) = SUN_SUCCESS;
@@ -577,7 +577,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (ier < 0)
   {
     LS_LASTFLAG(S) = ier;
-    return SUNLS_PACKAGE_FAIL_UNREC;
+    return SUN_ERR_EXT_FAIL;
   }
 
   LS_LASTFLAG(S) = SUN_SUCCESS;

@@ -174,9 +174,6 @@ following structure.
      long int    niters;
      long int    nconvfails;
      void*       ctest_data;
-
-     int         print_level;
-     FILE*       info_file;
    };
 
 These entries of the *content* field contain the following
@@ -206,7 +203,3 @@ information:
   all solves,
 
 * ``ctest_data`` -- the data pointer passed to the convergence test function,
-
-* ``print_level`` - controls the amount of information to be printed to the info file,
-
-* ``info_file``   - the file where all informative (non-error) messages will be directed.

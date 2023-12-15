@@ -1733,7 +1733,7 @@ The following optional outputs are available from the KINLS modules:
 
       If the KINLS setup function failed when using another ``SUNLinearSolver``
       object, then ``lsflag`` will be ``SUNLS_PSET_FAIL_UNREC``,
-      ``SUNLS_ASET_FAIL_UNREC``, or ``SUNLS_PACKAGE_FAIL_UNREC``.
+      ``SUNLS_ASET_FAIL_UNREC``, or ``SUN_ERR_EXT_FAIL``.
 
       If the KINLS solve function failed (:c:func:`KINSolve` returned ``KIN_LSOLVE_FAIL``),
       ``lsflag`` contains the error return flag from the ``SUNLinearSolver``
@@ -1745,7 +1745,7 @@ The following optional outputs are available from the KINLS modules:
       failure in the Gram-Schmidt procedure (generated only in SPGMR or SPFGMR);
       ``SUNLS_QRSOL_FAIL``, indicating that the matrix :math:`R` was found to be
       singular during the QR solve phase (SPGMR and SPFGMR only); or
-      ``SUNLS_PACKAGE_FAIL_UNREC``, indicating an unrecoverable failure in an
+      ``SUN_ERR_EXT_FAIL``, indicating an unrecoverable failure in an
       external iterative linear solver package.
 
    .. warning::

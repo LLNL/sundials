@@ -172,8 +172,6 @@ The SUNLinSol_SPFGMR module defines the *content* field of a
      N_Vector xcor;
      sunrealtype *yg;
      N_Vector vtemp;
-     int      print_level;
-     FILE*    info_file;
    };
 
 These entries of the *content* field contain the following
@@ -254,9 +252,7 @@ information:
 
 * ``vtemp`` - temporary vector storage.
 
-* ``print_level`` - controls the amount of information to be printed to the info file
 
-* ``info_file``   - the file where all informative (non-error) messages will be directed
 
 
 This solver is constructed to perform the following operations:

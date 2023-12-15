@@ -21,6 +21,7 @@
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_dense.h>
 
+#include "sundials/sundials_errors.h"
 #include "sundials_logger_impl.h"
 
 #define ONE SUN_RCONST(1.0)
@@ -120,25 +121,20 @@ SUNErrCode SUNLinSolInitialize_Dense(SUNLinearSolver S)
 
 int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
 {
-  /* Error checks in this function must be NoRet because the return value
-     is an integer code specific to the SUNLinearSolver. */
-
   SUNFunctionBegin(S->sunctx);
   sunrealtype** A_cols;
   sunindextype* pivots;
 
-  SUNAssertNoRet(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssert(A, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
 
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
   pivots = NULL;
   A_cols = SUNDenseMatrix_Cols(A);
   pivots = PIVOTS(S);
-  if ((A_cols == NULL) || (pivots == NULL))
-  {
-    LASTFLAG(S) = SUN_ERR_MEM_FAIL;
-    return (SUN_ERR_MEM_FAIL);
-  }
+  SUNAssert(pivots, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(A_cols, SUN_ERR_ARG_CORRUPT);
 
   /* perform LU factorization of input matrix */
   LASTFLAG(S) = SUNDlsMat_denseGETRF(A_cols, SUNDenseMatrix_Rows(A),
@@ -146,42 +142,38 @@ int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
 
   /* store error flag (if nonzero, this row encountered zero-valued pivod) */
   if (LASTFLAG(S) > 0) { return (SUNLS_LUFACT_FAIL); }
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
                          sunrealtype tol)
 {
-  /* Error checks in this function must be NoRet because the return value
-     is an integer code specific to the SUNLinearSolver. */
-
   SUNFunctionBegin(S->sunctx);
   sunrealtype **A_cols, *xdata;
   sunindextype* pivots;
 
   /* copy b into x */
   N_VScale(ONE, b, x);
-  SUNCheckLastErrNoRet();
+  SUNCheckLastErr();
 
   /* access data pointers (return with failure on NULL) */
   A_cols = NULL;
   xdata  = NULL;
   pivots = NULL;
   A_cols = SUNDenseMatrix_Cols(A);
-  SUNCheckLastErrNoRet();
+  SUNCheckLastErr();
   xdata = N_VGetArrayPointer(x);
-  SUNCheckLastErrNoRet();
+  SUNCheckLastErr();
   pivots = PIVOTS(S);
-  if ((A_cols == NULL) || (xdata == NULL) || (pivots == NULL))
-  {
-    LASTFLAG(S) = SUN_ERR_MEM_FAIL;
-    return (SUN_ERR_MEM_FAIL);
-  }
+
+  SUNAssert(A_cols, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(xdata, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(pivots, SUN_ERR_ARG_CORRUPT);
 
   /* solve using LU factors */
   SUNDlsMat_denseGETRS(A_cols, SUNDenseMatrix_Rows(A), pivots, xdata);
   LASTFLAG(S) = SUN_SUCCESS;
-  return (SUN_SUCCESS);
+  return SUN_SUCCESS;
 }
 
 sunindextype SUNLinSolLastFlag_Dense(SUNLinearSolver S)

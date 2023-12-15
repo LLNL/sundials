@@ -225,8 +225,6 @@ following structure.
      long int     niters;
      long int     nconvfails;
      void        *ctest_data;
-     int          print_level;
-     FILE*        info_file;
    };
 
 The following entries of the *content* field are always
@@ -245,8 +243,6 @@ allocated:
 * ``nconvfails`` -- the total number of nonlinear convergence failures across all solves,
 * ``ctest_data`` -- the data pointer passed to the convergence test function,
 * ``m``          -- number of acceleration vectors,
-* ``print_level`` - controls the amount of information to be printed to the info file, and
-* ``info_file``   - the file where all informative (non-error) messages will be directed.
 
 If Anderson acceleration is requested (i.e., :math:`m>0` in the call
 to :c:func:`SUNNonlinSol_FixedPoint`), then the following items are also

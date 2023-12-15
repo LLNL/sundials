@@ -230,12 +230,12 @@ SWIGEXPORT int _wrap_FSUNLinSol_SPBCGSSetPrecType(SUNLinearSolver farg1, int con
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNLinSol_SPBCGSSetPrecType(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSol_SPBCGSSetPrecType(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -244,12 +244,12 @@ SWIGEXPORT int _wrap_FSUNLinSol_SPBCGSSetMaxl(SUNLinearSolver farg1, int const *
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNLinSol_SPBCGSSetMaxl(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSol_SPBCGSSetMaxl(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 

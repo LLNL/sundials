@@ -150,8 +150,6 @@ The SUNLinSol_SPTFQMR module defines the *content* field of a
      N_Vector vtemp1;
      N_Vector vtemp2;
      N_Vector vtemp3;
-     int      print_level;
-     FILE*    info_file;
    };
 
 These entries of the *content* field contain the following
@@ -194,9 +192,7 @@ information:
 
 * ``vtemp1, vtemp2, vtemp3`` - temporary vector storage.
 
-* ``print_level`` - controls the amount of information to be printed to the info file
 
-* ``info_file``   - the file where all informative (non-error) messages will be directed
 
 
 This solver is constructed to perform the following operations:

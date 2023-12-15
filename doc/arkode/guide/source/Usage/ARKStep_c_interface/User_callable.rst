@@ -4173,7 +4173,7 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       Otherwise, if the ARKLS setup function failed
       (:c:func:`ARKStepEvolve()` returned *ARK_LSETUP_FAIL*), then
       *lsflag* will be *SUNLS_PSET_FAIL_UNREC*, *SUNLS_ASET_FAIL_UNREC*
-      or *SUNLS_PACKAGE_FAIL_UNREC*.
+      or *SUN_ERR_EXT_FAIL*.
 
       If the ARKLS solve function failed (:c:func:`ARKStepEvolve()`
       returned *ARK_LSOLVE_FAIL*), then *lsflag* contains the error
@@ -4195,7 +4195,7 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       (SPGMR and SPFGMR only);
       *SUNLS_QRSOL_FAIL*, indicating that the matrix :math:`R` was found
       to be singular during the QR solve phase (SPGMR and SPFGMR only); or
-      *SUNLS_PACKAGE_FAIL_UNREC*, indicating an unrecoverable failure in
+      *SUN_ERR_EXT_FAIL*, indicating an unrecoverable failure in
       an external iterative linear solver package.
 
 

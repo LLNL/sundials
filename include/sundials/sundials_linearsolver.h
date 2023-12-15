@@ -214,14 +214,13 @@ SUNErrCode SUNLinSolFree(SUNLinearSolver S);
  * SUNLinearSolver return values
  * ----------------------------------------------------------------- */
 
-#define SUNLS_ATIMES_NULL        -804 /* atimes function is NULL       */
-#define SUNLS_ATIMES_FAIL_UNREC  -805 /* atimes unrecoverable failure  */
-#define SUNLS_PSET_FAIL_UNREC    -806 /* pset unrecoverable failure    */
-#define SUNLS_PSOLVE_NULL        -807 /* psolve function is NULL       */
-#define SUNLS_PSOLVE_FAIL_UNREC  -808 /* psolve unrecoverable failure  */
-#define SUNLS_PACKAGE_FAIL_UNREC -809 /* external package unrec. fail  */
-#define SUNLS_GS_FAIL            -810 /* Gram-Schmidt failure          */
-#define SUNLS_QRSOL_FAIL         -811 /* QRsol found singular R        */
+#define SUNLS_ATIMES_NULL       -804 /* atimes function is NULL       */
+#define SUNLS_ATIMES_FAIL_UNREC -805 /* atimes unrecoverable failure  */
+#define SUNLS_PSET_FAIL_UNREC   -806 /* pset unrecoverable failure    */
+#define SUNLS_PSOLVE_NULL       -807 /* psolve function is NULL       */
+#define SUNLS_PSOLVE_FAIL_UNREC -808 /* psolve unrecoverable failure  */
+#define SUNLS_GS_FAIL           -810 /* Gram-Schmidt failure          */
+#define SUNLS_QRSOL_FAIL        -811 /* QRsol found singular R        */
 
 #define SUNLS_RECOV_FAILURE    800 /* generic recoverable failure   */
 #define SUNLS_RES_REDUCED      801 /* nonconv. solve, resid reduced */
