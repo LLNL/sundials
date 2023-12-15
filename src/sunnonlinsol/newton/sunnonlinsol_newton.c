@@ -308,6 +308,9 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
 
 SUNErrCode SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
 {
+  /* return if NLS is already free */
+  if (NLS == NULL) { return SUN_SUCCESS; }
+
   SUNFunctionBegin(NLS->sunctx);
   /* free items from contents, then the generic structure */
   if (NLS->content)
