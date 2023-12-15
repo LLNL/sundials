@@ -169,9 +169,6 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
                                  N_Vector ycor, N_Vector w, sunrealtype tol,
                                  sunbooleantype callSetup, void* mem)
 {
-  /* Error checks in this function must be  because the return value
-     is an integer code specific to the SUNNonlinearSolver. */
-
   SUNFunctionBegin(NLS->sunctx);
   /* local variables */
   int retval;
