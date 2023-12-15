@@ -62,15 +62,6 @@ The SUNLinSol_Band module provides the following user-callable constructor routi
       factorization.
 
 
-For backwards compatibility, we also provide the following wrapper function:
-
-.. c:function:: SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
-
-   Wrapper function for :c:func:`SUNLinSol_Band`, with identical input and
-   output arguments.
-
-
-
 .. _SUNLinSol_Band.Description:
 
 SUNLinSol_Band Description

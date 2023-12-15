@@ -73,7 +73,7 @@ The module SUNLinSol_SuperLUMT provides the following user-callable routines:
       and is passed directly to SuperLU_MT routines.
 
 
-.. c:function:: int SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
+.. c:function:: SUNErrCode SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
 
    This function sets the ordering used by SuperLU_MT for reducing fill in
    the linear solve.
@@ -93,26 +93,7 @@ The module SUNLinSol_SuperLUMT provides the following user-callable routines:
       The default is 3 for COLAMD.
 
    **Return value:**
-      * ``SUN_SUCCESS`` -- option successfully set
-      * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``
-      * ``SUNLS_ILL_INPUT`` -- invalid ``ordering_choice``
-
-
-For backwards compatibility, we also provide the following wrapper functions,
-each with identical input and output arguments to the routines that
-they wrap:
-
-.. c:function:: SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
-
-   Wrapper for :c:func:`SUNLinSol_SuperLUMT`.
-
-and
-
-.. c:function:: int SUNSuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
-
-   Wrapper for :c:func:`SUNLinSol_SuperLUMTSetOrdering()`.
-
-
+      * A :c:type:`SUNErrCode`
 
 
 .. _SUNLinSol.SuperLUMT.Description:

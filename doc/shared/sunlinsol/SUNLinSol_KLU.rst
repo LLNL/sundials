@@ -61,7 +61,7 @@ user-callable routines:
       check.
 
 
-.. c:function:: int SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz, int reinit_type)
+.. c:function:: SUNErrCode SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz, int reinit_type)
 
    This function reinitializes memory and flags for a new factorization
    (symbolic and numeric) to be conducted at the next solver setup
@@ -98,7 +98,7 @@ user-callable routines:
       This routine assumes no other changes to solver use are necessary.
 
 
-.. c:function:: int SUNLinSol_KLUSetOrdering(SUNLinearSolver S, int ordering_choice)
+.. c:function:: SUNErrCode SUNLinSol_KLUSetOrdering(SUNLinearSolver S, int ordering_choice)
 
    This function sets the ordering used by KLU for reducing fill in
    the linear solve.
@@ -116,9 +116,7 @@ user-callable routines:
          The default is 1 for COLAMD.
 
    **Return value:**
-      * ``SUN_SUCCESS`` -- ordering choice successfully updated.
-      * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``.
-      * ``SUNLS_ILL_INPUT`` -- ``ordering_choice``.
+      * A :c:type:`SUNErrCode`
 
 
 .. c:function:: sun_klu_symbolic* SUNLinSol_KLUGetSymbolic(SUNLinearSolver S)
@@ -152,25 +150,6 @@ user-callable routines:
    ``sun_klu_common`` is mapped to the KLU type ``klu_common``; when
    SUNDIALS is compiled with 64-bit indices  (``SUNDIALS_INDEX_SIZE=64``) this is
    mapped to the KLU type ``klu_l_common``.
-
-
-For backwards compatibility, we also provide the following wrapper functions,
-each with identical input and output arguments to the routines that
-they wrap:
-
-.. c:function:: SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
-
-   Wrapper function for :c:func:`SUNLinSol_KLU`
-
-.. c:function:: int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz, int reinit_type)
-
-   Wrapper function for :c:func:`SUNLinSol_KLUReInit()`
-
-.. c:function:: int SUNKLUSetOrdering(SUNLinearSolver S, int ordering_choice)
-
-   Wrapper function for :c:func:`SUNLinSol_KLUSetOrdering()`
-
-
 
 
 .. _SUNLinSol.KLU.Description:
