@@ -142,7 +142,7 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
   SUNAssert(pivots, SUN_ERR_ARG_CORRUPT);
 
   /* ensure that storage upper bandwidth is sufficient for fill-in */
-  SUNAssert(SM_SUBAND_B(A) <
+  SUNAssert(SM_SUBAND_B(A) >=
               SUNMIN(SM_COLUMNS_B(A) - 1, SM_UBAND_B(A) + SM_LBAND_B(A)),
             SUN_ERR_ARG_INCOMPATIBLE);
 
