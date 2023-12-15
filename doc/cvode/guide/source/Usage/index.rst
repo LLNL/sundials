@@ -63,7 +63,7 @@ where ``instdir`` is the directory where SUNDIALS was installed.
 Regardless of where the user's application program resides, its
 associated compilation and load commands must make reference to the
 appropriate locations for the library and header files required by
-CVODE. CVODE symbols are found in ``libdir/libsundials_cvode.lib``. 
+CVODE. CVODE symbols are found in ``libdir/libsundials_cvode.lib``.
 Thus, in addition to linking to ``libdir/libsundials_core.lib``, CVODE
 users need to link to the CVODE library. Symbols for additional SUNDIALS
 modules, vectors and algebraic solvers, are found in
@@ -76,44 +76,44 @@ modules, vectors and algebraic solvers, are found in
   <libdir>/libsundials_sunnonlinsol*.lib
   <libdir>/libsundials_sunmem*.lib
 
-The file extension ``.lib`` is typically ``.so`` for shared libraries 
-and ``.a`` for static libraries.  
+The file extension ``.lib`` is typically ``.so`` for shared libraries
+and ``.a`` for static libraries.
 
 The relevant header files for CVODE are located in the subdirectories
-``incdir/include/cvode``. To use CVODE the application needs to include 
+``incdir/include/cvode``. To use CVODE the application needs to include
 the header file for CVODE in addition to the SUNDIALS core header file:
 
 .. code:: c
 
   #include <sundials/sundials_core.h> // Provides core SUNDIALS types
-  #include <cvode/cvode.h>            // CVODE provides linear multistep methods 
+  #include <cvode/cvode.h>            // CVODE provides linear multistep methods
 
-The calling program must also include an :c:type:`N_Vector` implementation header file, of the form  
+The calling program must also include an :c:type:`N_Vector` implementation header file, of the form
 ``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name.
 
-If using a non-default nonlinear solver module, or when interacting with a  
-:c:type:`SUNNonlinearSolver` module directly, the calling program must  
-also include a :c:type:`SUNNonlinearSolver` implementation header file,  
-of the form ``sunnonlinsol/sunnonlinsol_*.h`` where ``*`` is the name of  
-the nonlinear solver module (see :numref:`SUNNonlinSol` for more  
-information).  
+If using a non-default nonlinear solver module, or when interacting with a
+:c:type:`SUNNonlinearSolver` module directly, the calling program must
+also include a :c:type:`SUNNonlinearSolver` implementation header file,
+of the form ``sunnonlinsol/sunnonlinsol_*.h`` where ``*`` is the name of
+the nonlinear solver module (see :numref:`SUNNonlinSol` for more
+information).
 
 If using a nonlinear solver that requires the solution of a linear system of the form
 :eq:`CVODE_Newton` (e.g., the default Newton iteration), then a linear solver module header file
-will be required. In this case it will be necessary to include the header file for a  
-:c:type:`SUNLinearSolver` solver, which is of the form ``sunlinsol/sunlinsol_***.h``  
-(see :numref:`SUNLinSol` for more information). 
+will be required. In this case it will be necessary to include the header file for a
+:c:type:`SUNLinearSolver` solver, which is of the form ``sunlinsol/sunlinsol_***.h``
+(see :numref:`SUNLinSol` for more information).
 
-If the linear solver is matrix-based, the linear solver header will also include a  
-header file of the from ``sunmatrix/sunmatrix_*.h`` where ``*`` is the name of the  
-matrix implementation compatible with the linear solver (see :numref:`SUNMatrix` for  
-more information). 
+If the linear solver is matrix-based, the linear solver header will also include a
+header file of the from ``sunmatrix/sunmatrix_*.h`` where ``*`` is the name of the
+matrix implementation compatible with the linear solver (see :numref:`SUNMatrix` for
+more information).
 
 Other headers may be needed, according to the choice of preconditioner, etc. For example, in the
 example (see :cite:p:`cvode_ex`), preconditioning is done with a block-diagonal matrix. For this,
-even though the ``SUNLINSOL_SPGMR`` linear solver is used, the header  
-``sundials_dense.h`` is included for access to the underlying generic dense matrix  
-arithmetic routines.  
+even though the ``SUNLINSOL_SPGMR`` linear solver is used, the header
+``sundials_dense.h`` is included for access to the underlying generic dense matrix
+arithmetic routines.
 
 .. _CVODE.Usage.CC.skeleton_sim:
 
@@ -3078,7 +3078,7 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
 
       If the CVLS setup function failed when using another ``SUNLinearSolver``  module, then ``lsflag`` will be ``SUNLS_PSET_FAIL_UNREC``,  ``SUNLS_ASET_FAIL_UNREC``, or  ``SUNLS_PACKAGE_FAIL_UNREC``.
 
-      If the CVLS solve function failed (i.e., :c:func:`CVode` returned  ``CV_LSOLVE_FAIL``), then ``lsflag`` contains the error return  flag from the ``SUNLinearSolver`` object, which will be one of: ``SUNLS_MEM_NULL``, indicating that the ``SUNLinearSolver`` memory is ``NULL``;   ``SUNLS_ATIMES_FAIL_UNREC``, indicating an unrecoverable failure in the  Jv function; ``SUNLS_PSOLVE_FAIL_UNREC``, indicating that the preconditioner solve  function ``psolve`` failed unrecoverably;  ``SUNLS_GS_FAIL``, indicating a failure in the Gram-Schmidt  procedure (SPGMR and SPFGMR only);  ``SUNLS_QRSOL_FAIL``, indicating that the matrix R was found to be  singular during the QR solve phase (SPGMR and SPFGMR only); or  ``SUNLS_PACKAGE_FAIL_UNREC``, indicating an unrecoverable  failure in an external iterative linear solver package.
+      If the CVLS solve function failed (i.e., :c:func:`CVode` returned  ``CV_LSOLVE_FAIL``), then ``lsflag`` contains the error return  flag from the ``SUNLinearSolver`` object, which will be one of: ``SUN_ERR_ARG_CORRUPTRRUPT``, indicating that the ``SUNLinearSolver`` memory is ``NULL``;   ``SUNLS_ATIMES_FAIL_UNREC``, indicating an unrecoverable failure in the  Jv function; ``SUNLS_PSOLVE_FAIL_UNREC``, indicating that the preconditioner solve  function ``psolve`` failed unrecoverably;  ``SUNLS_GS_FAIL``, indicating a failure in the Gram-Schmidt  procedure (SPGMR and SPFGMR only);  ``SUNLS_QRSOL_FAIL``, indicating that the matrix R was found to be  singular during the QR solve phase (SPGMR and SPFGMR only); or  ``SUNLS_PACKAGE_FAIL_UNREC``, indicating an unrecoverable  failure in an external iterative linear solver package.
 
       The previous routines ``CVDlsGetLastFlag`` and  ``CVSpilsGetLastFlag`` are now wrappers for this routine, and may  still be used for backward-compatibility.  However, these will be  deprecated in future releases, so we recommend that users transition  to the new routine name soon.
 

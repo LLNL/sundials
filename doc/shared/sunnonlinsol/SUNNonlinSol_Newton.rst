@@ -131,7 +131,7 @@ The SUNNonlinSol_Newton module also defines the following
 user-callable function.
 
 
-.. c:function:: int SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *SysFn)
+.. c:function:: SUNErrCode SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *SysFn)
 
    This returns the residual function that defines the nonlinear system.
 
@@ -148,68 +148,6 @@ user-callable function.
       nonlinear residual in a custom convergence test function for the
       SUNNonlinSol_Newton module.  We note that SUNNonlinSol_Newton
       will not leverage the results from any user calls to *SysFn*.
-
-
-.. c:function:: int SUNNonlinSolSetInfoFile_Newton(SUNNonlinearSolver NLS, FILE* info_file)
-
-   This sets the output file where all informative (non-error) messages should be directed.
-
-   **Arguments:**
-      * *NLS* -- a SUNNonlinSol object.
-      * *info_file* -- pointer to output file (``stdout`` by default);
-         a ``NULL`` input will disable output.
-
-   **Return value:**
-      * ``SUN_SUCCESS`` if successful.
-      * ``SUN_ERR_ARG_CORRUPT`` if the SUNNonlinSol memory was ``NULL``.
-      * ``SUN_ERR_ARG_INCOMPATIBLE`` if SUNDIALS was not built with monitoring enabled.
-
-   **Notes:**
-      This function is intended for users that wish to monitor the nonlinear
-      solver progress. By default, the file pointer is set to ``stdout``.
-
-   .. warning::
-
-      SUNDIALS must be built with the CMake option
-      ``SUNDIALS_LOGGING_LEVEL >= 3`` to utilize this function.
-      See :numref:`Installation.CMake.Options` for more information.
-
-   .. deprecated:: 6.2.0
-
-      Use :c:func:`SUNLogger_SetInfoFilename` instead.
-
-
-.. c:function:: int SUNNonlinSolSetPrintLevel_Newton(SUNNonlinearSolver NLS, int print_level)
-
-   This specifies the level of verbosity of the output.
-
-   **Arguments:**
-      * *NLS* -- a SUNNonlinSol object.
-      * *print_level* -- flag indicating level of verbosity;
-        must be one of:
-
-         * 0, no information is printed (default).
-         * 1, for each nonlinear iteration the residual norm is printed.
-
-   **Return value:**
-      * ``SUN_SUCCESS`` if successful.
-      * ``SUN_ERR_ARG_CORRUPT`` if the SUNNonlinearSolver memory was ``NULL``.
-      * ``SUN_ERR_ARG_INCOMPATIBLE`` if SUNDIALS was not built with monitoring enabled,
-        or the print level value was invalid.
-
-   **Notes:**
-      This function is intended for users that wish to monitor the nonlinear
-      solver progress. By default, the print level is 0.
-
-   .. warning::
-
-      SUNDIALS must be built with the CMake option
-      ``SUNDIALS_BUILD_WITH_MONITORING`` to utilize this function.
-      See :numref:`Installation.CMake.Options` for more information.
-
-   .. deprecated:: 6.2.0
-
-      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. _SUNNonlinSol.Newton.Content:

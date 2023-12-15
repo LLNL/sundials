@@ -152,7 +152,7 @@ user-callable functions.
 
 
 
-.. c:function:: int SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *SysFn)
+.. c:function:: SUNErrCode SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *SysFn)
 
    This returns the fixed-point function that defines the nonlinear system.
 
@@ -172,7 +172,7 @@ user-callable functions.
       calls to *SysFn*.
 
 
-.. c:function:: int SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS, sunrealtype beta)
+.. c:function:: SUNErrCode SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS, sunrealtype beta)
 
    This sets the damping parameter :math:`\beta` to use with Anderson
    acceleration. By default damping is disabled i.e., :math:`\beta = 1.0`.
@@ -182,76 +182,11 @@ user-callable functions.
      * *beta* -- the damping parameter :math:`0 < \beta \leq 1`.
 
    **Return value:**
-      * ``SUN_SUCCESS`` if successful.
-      * ``SUN_ERR_ARG_CORRUPT`` if ``NLS`` was ``NULL``.
-      * ``SUN_ERR_ARG_INCOMPATIBLE`` if ``beta`` was negative.
+      * A :c:type:`SUNErrCode`
 
    **Notes:**
       A ``beta`` value should satisfy :math:`0 < \beta < 1` if
       damping is to be used. A value of one or more will disable damping.
-
-
-.. c:function:: int SUNNonlinSolSetInfoFile_FixedPoint(SUNNonlinearSolver NLS, FILE* info_file)
-
-   Thissets the output file where all informative (non-error)
-   messages should be directed.
-
-   **Arguments:**
-      * *NLS* -- a SUNNonlinSol object.
-      * *info_file* -- pointer to output file (``stdout`` by default);
-         a ``NULL`` input will disable output.
-
-   **Return value:**
-      * ``SUN_SUCCESS`` if successful.
-      * ``SUN_ERR_ARG_CORRUPT`` if ``NLS`` was ``NULL``.
-      * ``SUN_ERR_ARG_INCOMPATIBLE`` if SUNDIALS was not built with monitoring enabled.
-
-   **Notes:**
-      This function is intended for users that wish to monitor the nonlinear
-      solver progress. By default, the file pointer is set to ``stdout``.
-
-   .. warning::
-
-      SUNDIALS must be built with the CMake option
-      ``SUNDIALS_LOGGING_LEVEL >= 3`` to utilize this function.
-      See :numref:`Installation.CMake.Options` for more information.
-
-   .. deprecated:: 6.2.0
-
-      Use :c:func:`SUNLogger_SetInfoFilename` instead.
-
-
-.. c:function:: int SUNNonlinSolSetPrintLevel_FixedPoint(SUNNonlinearSolver NLS, int print_level)
-
-   This specifies the level of verbosity of the output.
-
-   **Arguments:**
-      * *NLS* -- a SUNNonlinSol object.
-      * *print_level* -- flag indicating level of verbosity;
-        must be one of:
-
-         * 0, no information is printed (default).
-         * 1, for each nonlinear iteration the residual norm is printed.
-
-   **Return value:**
-      * ``SUN_SUCCESS`` if successful.
-      * ``SUN_ERR_ARG_CORRUPT`` if ``NLS`` was ``NULL``.
-      * ``SUN_ERR_ARG_INCOMPATIBLE`` if SUNDIALS was not built with monitoring enabled,
-        or the print level value was invalid.
-
-   **Notes:**
-      This function is intended for users that wish to monitor the nonlinear
-      solver progress. By default, the print level is 0.
-
-   .. warning::
-
-      SUNDIALS must be built with the CMake option
-      ``SUNDIALS_BUILD_WITH_MONITORING`` to utilize this function.
-      See :numref:`Installation.CMake.Options` for more information.
-
-   .. deprecated:: 6.2.0
-
-      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. _SUNNonlinSol.FixedPoint.Content:

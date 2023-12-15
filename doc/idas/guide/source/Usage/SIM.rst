@@ -55,7 +55,7 @@ where ``instdir`` is the directory where SUNDIALS was installed.
 Regardless of where the user's application program resides, its
 associated compilation and load commands must make reference to the
 appropriate locations for the library and header files required by
-IDAS. IDAS symbols are found in ``libdir/libsundials_idas.lib``. 
+IDAS. IDAS symbols are found in ``libdir/libsundials_idas.lib``.
 Thus, in addition to linking to ``libdir/libsundials_core.lib``, IDAS
 users need to link to the IDAS library. Symbols for additional SUNDIALS
 modules, vectors and algebraic solvers, are found in
@@ -68,11 +68,11 @@ modules, vectors and algebraic solvers, are found in
   <libdir>/libsundials_sunnonlinsol*.lib
   <libdir>/libsundials_sunmem*.lib
 
-The file extension ``.lib`` is typically ``.so`` for shared libraries 
-and ``.a`` for static libraries.  
+The file extension ``.lib`` is typically ``.so`` for shared libraries
+and ``.a`` for static libraries.
 
 The relevant header files for IDAS are located in the subdirectories
-``incdir/include/idas``. To use IDAS the application needs to include 
+``incdir/include/idas``. To use IDAS the application needs to include
 the header file for IDAS in addition to the SUNDIALS core header file:
 
 .. code:: c
@@ -80,25 +80,25 @@ the header file for IDAS in addition to the SUNDIALS core header file:
   #include <sundials/sundials_core.h> // Provides core SUNDIALS types
   #include <idas/idas.h>              // IDAS provides methods for DAEs with sensitivity analysis
 
-The calling program must also include an :c:type:`N_Vector` implementation header file, of the form  
+The calling program must also include an :c:type:`N_Vector` implementation header file, of the form
 ``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name.
 
 If using a non-default nonlinear solver object, or when interacting with a
-:c:type:`SUNNonlinearSolver` object directly, the calling program must also include a  
-:c:type:`SUNNonlinearSolver` implementation header file, of the form 
+:c:type:`SUNNonlinearSolver` object directly, the calling program must also include a
+:c:type:`SUNNonlinearSolver` implementation header file, of the form
 ``sunnonlinsol/sunnonlinsol_*.h`` where ``*`` is the name of the nonlinear
 solver (see Chapter :numref:`SUNNonlinSol` for more information).
 
 If using a nonlinear solver that requires the solution of a linear system of the
 form :eq:`IDAS_DAE_nls` (e.g., the default Newton iteration), the calling program
-must also include a :c:type:`SUNLinearSolver` implementation header file, of the from  
+must also include a :c:type:`SUNLinearSolver` implementation header file, of the from
 ``sunlinsol/sunlinsol_*.h`` where ``*`` is the name of the linear solver
-(see Chapter :numref:`SUNLinSol` for more information). 
+(see Chapter :numref:`SUNLinSol` for more information).
 
 If the linear solver is matrix-based, the linear solver header will also include
 a header file of the from ``sunmatrix/sunmatrix_*.h`` where ``*`` is the name of
-the matrix implementation compatible with the linear solver. (see Chapter  
-:numref:`SUNMatrix` for more information). 
+the matrix implementation compatible with the linear solver. (see Chapter
+:numref:`SUNMatrix` for more information).
 
 Other headers may be needed, according to the choice of preconditioner, etc. For
 example, in the example ``idasFoodWeb_kry_p`` (see :cite:p:`ida_ex`),
@@ -3055,7 +3055,7 @@ The following optional outputs are available from the IDALS modules:
       ``SUNLS_PACKAGE_FAIL_UNREC``.  If the IDALS solve function failed
       (:c:func:`IDASolve` returned ``IDA_LSOLVE_FAIL``), ``lsflag`` contains the
       error return flag from the ``SUNLinearSolver`` object, which will be one of:
-      ``SUNLS_MEM_NULL``, indicating that the ``SUNLinearSolver`` memory is
+      ``SUN_ERR_ARG_CORRUPTRRUPT``, indicating that the ``SUNLinearSolver`` memory is
       ``NULL``; ``SUNLS_ATIMES_FAIL_UNREC``, indicating an unrecoverable failure in
       the :math:`J*v` function; ``SUNLS_PSOLVE_FAIL_UNREC``, indicating that the
       preconditioner solve function ``psolve`` failed unrecoverably;

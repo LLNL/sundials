@@ -1734,7 +1734,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
       a custom function through a call to :c:func:`ARKStepSetAdaptivityFn()`.
 
       .. versionchanged:: x.x.x
-         
+
          Prior to version x.x.x, any nonzero value for *pq* would result in use of the
          embedding order of accuracy.
 
@@ -4179,7 +4179,7 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       returned *ARK_LSOLVE_FAIL*), then *lsflag* contains the error
       return flag from the ``SUNLinearSolver`` object, which will
       be one of:
-      *SUNLS_MEM_NULL*, indicating that the ``SUNLinearSolver``
+      *SUN_ERR_ARG_CORRUPTRRUPT*, indicating that the ``SUNLinearSolver``
       memory is ``NULL``;
       *SUNLS_ATIMES_NULL*, indicating that a matrix-free iterative solver
       was provided, but is missing a routine for the matrix-vector product
