@@ -53,7 +53,7 @@ static SUNLinearSolver MatrixEmbeddedLS(void* cvode_mem);
 static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S);
 static int MatrixEmbeddedLSSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                  N_Vector b, sunrealtype tol);
-static int MatrixEmbeddedLSFree(SUNLinearSolver S);
+static SUNErrCode MatrixEmbeddedLSFree(SUNLinearSolver S);
 
 /* Private function to check computed solution */
 static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol,
@@ -271,7 +271,7 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
 }
 
 /* destructor */
-static int MatrixEmbeddedLSFree(SUNLinearSolver LS)
+static SUNErrCode MatrixEmbeddedLSFree(SUNLinearSolver LS)
 {
   if (LS == NULL) { return (SUN_SUCCESS); }
   LS->content = NULL;

@@ -101,10 +101,10 @@ SUNAdaptController_Type SUNAdaptController_GetType_ARKUserControl(
   return SUN_ADAPTCONTROLLER_H;
 }
 
-int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C,
-                                                   sunrealtype h, int p,
-                                                   sunrealtype dsm,
-                                                   sunrealtype* hnew)
+SUNErrCode SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C,
+                                                          sunrealtype h, int p,
+                                                          sunrealtype dsm,
+                                                          sunrealtype* hnew)
 {
   /* call user-provided function to compute new step */
   sunrealtype ttmp = (dsm <= ONE) ? SC_ARKMEM(C)->tn + SC_ARKMEM(C)->h
@@ -116,7 +116,7 @@ int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C,
   return SUN_SUCCESS;
 }
 
-int SUNAdaptController_Reset_ARKUserControl(SUNAdaptController C)
+SUNErrCode SUNAdaptController_Reset_ARKUserControl(SUNAdaptController C)
 {
   SC_EP(C)  = SUN_RCONST(1.0);
   SC_EPP(C) = SUN_RCONST(1.0);
@@ -125,7 +125,8 @@ int SUNAdaptController_Reset_ARKUserControl(SUNAdaptController C)
   return SUN_SUCCESS;
 }
 
-int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE* fptr)
+SUNErrCode SUNAdaptController_Write_ARKUserControl(SUNAdaptController C,
+                                                   FILE* fptr)
 {
   fprintf(fptr, "ARKUserControl module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -143,8 +144,9 @@ int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE* fptr)
   return SUN_SUCCESS;
 }
 
-int SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C,
-                                              sunrealtype h, sunrealtype dsm)
+SUNErrCode SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C,
+                                                     sunrealtype h,
+                                                     sunrealtype dsm)
 {
   SC_HPP(C) = SC_HP(C);
   SC_HP(C)  = h;
@@ -153,8 +155,9 @@ int SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C,
   return SUN_SUCCESS;
 }
 
-int SUNAdaptController_Space_ARKUserControl(SUNAdaptController C,
-                                            long int* lenrw, long int* leniw)
+SUNErrCode SUNAdaptController_Space_ARKUserControl(SUNAdaptController C,
+                                                   long int* lenrw,
+                                                   long int* leniw)
 {
   *lenrw = 4;
   *leniw = 2;
