@@ -14,17 +14,20 @@
 #define _SUNMATRIX_GINKGOBLOCK_HPP
 
 #include <cstring>
+#include <ginkgo/core/base/batch_multi_vector.hpp>
 #include <ginkgo/ginkgo.hpp>
 #include <memory>
 #include <sundials/sundials_matrix.hpp>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 
+#include "sundials/sundials_types.h"
+
 namespace sundials {
 namespace ginkgo {
 
-using GkoBatchDenseMat = gko::matrix::BatchDense<sunrealtype>;
-using GkoBatchCsrMat   = gko::matrix::BatchCsr<sunrealtype, sunindextype>;
-using GkoBatchVecType  = GkoBatchDenseMat;
+using GkoBatchDenseMat = gko::batch::matrix::Dense<sunrealtype>;
+using GkoBatchCsrMat   = gko::batch::matrix::Csr<sunrealtype, sunindextype>;
+using GkoBatchVecType  = gko::batch::MultiVector<sunrealtype>;
 
 // Forward declare BlockMatrix class
 template<class GkoBatchMatType>
@@ -152,14 +155,14 @@ public:
 
   // const gko::dim<2>& blockSize(gko::size_type block = 0) const { return
   // GkoSize().at(block); } sunindextype blockDim(gko::size_type block = 0,
-  // sunindextype dim = 0) const { return GkoSize().at(block)[dim]; } sunindextype
-  // blockNNZ(gko::size_type block = 0) const
+  // sunindextype dim = 0) const { return GkoSize().at(block)[dim]; }
+  // sunindextype blockNNZ(gko::size_type block = 0) const
   // {
   // return GkoMtx()->get_num_stored_elements() /
   // GkoMtx()->get_num_batch_entries();
   // }
 
-  sunindextype NumBlocks() const { return GkoSize().get_num_batch_entries(); }
+  sunindextype NumBlocks() const { return GkoSize().get_num_batch_items(); }
 
   using sundials::impl::BaseMatrix::sunctx;
 
@@ -211,9 +214,10 @@ inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(
   gko::size_type num_blocks, sunindextype M, sunindextype N,
   sunindextype num_nonzeros, std::shared_ptr<const gko::Executor> gko_exec,
   SUNContext sunctx)
-  : gkomtx_(GkoBatchCsrMat::create(gko_exec,
-                                   gko::batch_dim<>(num_blocks, gko::dim<2>(M, N)),
-                                   num_nonzeros)),
+  : gkomtx_(
+      GkoBatchCsrMat::create(gko_exec,
+                             gko::batch_dim<2>(num_blocks, gko::dim<2>(M, N)),
+                             num_nonzeros)),
     sundials::impl::BaseMatrix(sunctx)
 {
   initSUNMatrix();
@@ -230,12 +234,10 @@ inline std::unique_ptr<GkoBatchVecType> WrapBatchVector(
   auto x_arr{(x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x)
                                                : N_VGetArrayPointer(x)};
   const auto xvec_len{N_VGetLength(x)};
-  auto batch_vec_stride{gko::batch_stride(num_blocks, 1)};
   auto batch_xvec_size{
     gko::batch_dim<2>(num_blocks, gko::dim<2>(xvec_len / num_blocks, 1))};
   auto xvec_view{gko::Array<sunrealtype>::view(gko_exec, xvec_len, x_arr)};
-  return GkoBatchVecType::create(gko_exec, batch_xvec_size,
-                                 std::move(xvec_view), batch_vec_stride);
+  return GkoBatchVecType::create(gko_exec, batch_xvec_size, std::move(xvec_view));
 }
 
 inline std::unique_ptr<const GkoBatchVecType> WrapConstBatchVector(
@@ -245,12 +247,11 @@ inline std::unique_ptr<const GkoBatchVecType> WrapConstBatchVector(
   auto x_arr{(x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x)
                                                : N_VGetArrayPointer(x)};
   const auto xvec_len{N_VGetLength(x)};
-  auto batch_vec_stride{gko::batch_stride(num_blocks, 1)};
   auto batch_xvec_size{
     gko::batch_dim<2>(num_blocks, gko::dim<2>(xvec_len / num_blocks, 1))};
   auto xvec_view{gko::Array<sunrealtype>::const_view(gko_exec, xvec_len, x_arr)};
   return GkoBatchVecType::create_const(gko_exec, batch_xvec_size,
-                                       std::move(xvec_view), batch_vec_stride);
+                                       std::move(xvec_view));
 }
 
 template<class GkoBatchMatType>
@@ -285,23 +286,25 @@ void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchMatrixType>& A,
               BlockMatrix<GkoBatchMatrixType>& B)
 {
   // NOTE: This is not implemented by Ginkgo for BatchCsr yet
-  const auto I{
-    gko::matrix::BatchIdentity<sunrealtype>::create(A.GkoExec(), A.GkoSize())};
-  const auto one{
-    gko::batch_initialize<GkoBatchDenseMat>(A.NumBlocks(), {1.0}, A.GkoExec())};
-  const auto cmat{
-    gko::batch_initialize<GkoBatchDenseMat>(A.NumBlocks(), {c}, A.GkoExec())};
+  auto cmat =
+    GkoBatchVecType::create(A.GkoExec(),
+                            gko::batch_dim<2>(A.NumBlocks(), gko::dim<2>(1, 1)));
+  cmat->fill(c);
   // A = B + cA
-  B.GkoMtx()->apply(one.get(), I.get(), cmat.get(), A.GkoMtx().get());
+  A.GkoMtx()->scale_add(cmat.get(), B.GkoMtx().get());
 }
 
 template<class GkoBatchMatType>
 void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchMatType>& A)
 {
-  const auto one{
-    gko::batch_initialize<GkoBatchDenseMat>(A.NumBlocks(), {1.0}, A.GkoExec())};
-  const auto cmat{
-    gko::batch_initialize<GkoBatchDenseMat>(A.NumBlocks(), {c}, A.GkoExec())};
+  auto one =
+    GkoBatchVecType::create(A.GkoExec(),
+                            gko::batch_dim<2>(A.NumBlocks(), gko::dim<2>(1, 1)));
+  one->fill(gko::one<sunrealtype>());
+  auto cmat =
+    GkoBatchVecType::create(A.GkoExec(),
+                            gko::batch_dim<2>(A.NumBlocks(), gko::dim<2>(1, 1)));
+  cmat->fill(c);
   // A = 1*I + c*A = cA + I
   A.GkoMtx()->add_scaled_identity(one.get(), cmat.get());
 }
