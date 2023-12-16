@@ -40,12 +40,11 @@ constexpr auto N_VNew = N_VNew_Cuda;
 #elif defined(USE_OMP)
 #include <nvector/nvector_openmp.h>
 #define HIP_OR_CUDA(a, b)
-auto N_VNew = [](sunindextype length, SUNContext sunctx) {
+auto N_VNew = [](sunindextype length, SUNContext sunctx)
+{
   auto omp_num_threads_var{std::getenv("OMP_NUM_THREADS")};
   int num_threads{1};
-  if (omp_num_threads_var) {
-    num_threads = std::atoi(omp_num_threads_var);
-  }
+  if (omp_num_threads_var) { num_threads = std::atoi(omp_num_threads_var); }
   return N_VNew_OpenMP(length, num_threads, sunctx);
 };
 #else
@@ -60,8 +59,10 @@ constexpr auto N_VNew = N_VNew_Serial;
 
 // "multigrid" does not support the combined stopping criteria we use
 // "cbgmres" does not support setting stopping criteria
-const std::unordered_map<std::string, int> methods{{"bicg", 0}, {"bicgstab", 1}, {"cg", 2}, {"cgs", 3},
-                                                   {"fcg", 4},  {"gmres", 5},    {"idr", 6}};
+const std::unordered_map<std::string, int> methods{{"bicg", 0}, {"bicgstab", 1},
+                                                   {"cg", 2},   {"cgs", 3},
+                                                   {"fcg", 4},  {"gmres", 5},
+                                                   {"idr", 6}};
 
 const std::unordered_map<std::string, int> matrix_types{{"csr", 0}, {"dense", 1}};
 
@@ -70,13 +71,15 @@ const std::unordered_map<std::string, int> matrix_types{{"csr", 0}, {"dense", 1}
  * -------------------------------------------------------------------------- */
 
 #if defined(USE_CUDA) || defined(USE_HIP)
-__global__ void fill_kernel(sunindextype mat_rows, sunindextype mat_cols, sunindextype* row_ptrs,
-                            sunindextype* col_idxs, sunrealtype* mat_data)
+__global__ void fill_kernel(sunindextype mat_rows, sunindextype mat_cols,
+                            sunindextype* row_ptrs, sunindextype* col_idxs,
+                            sunrealtype* mat_data)
 {
   const sunindextype row = blockIdx.x * blockDim.x + threadIdx.x;
   const sunindextype nnz = 3 * mat_rows - 2;
 
-  if (row == 0) {
+  if (row == 0)
+  {
     // first row
     mat_data[0] = 2;
     mat_data[1] = -1;
@@ -84,7 +87,8 @@ __global__ void fill_kernel(sunindextype mat_rows, sunindextype mat_cols, sunind
     col_idxs[1] = 1;
     row_ptrs[0] = 0;
   }
-  else if (row == mat_rows - 1) {
+  else if (row == mat_rows - 1)
+  {
     // last row
     mat_data[nnz - 2]      = -1;
     mat_data[nnz - 1]      = 2;
@@ -93,7 +97,8 @@ __global__ void fill_kernel(sunindextype mat_rows, sunindextype mat_cols, sunind
     row_ptrs[mat_rows - 1] = nnz - 2;
     row_ptrs[mat_rows]     = nnz;
   }
-  else if (row < mat_rows) {
+  else if (row < mat_rows)
+  {
     // other rows
     sunindextype idx  = 3 * row - 1;
     mat_data[idx]     = -1;
@@ -106,21 +111,25 @@ __global__ void fill_kernel(sunindextype mat_rows, sunindextype mat_cols, sunind
   }
 }
 
-__global__ void fill_kernel(sunindextype mat_rows, sunindextype mat_cols, sunrealtype* mat_data)
+__global__ void fill_kernel(sunindextype mat_rows, sunindextype mat_cols,
+                            sunrealtype* mat_data)
 {
   const sunindextype row = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (row == 0) {
+  if (row == 0)
+  {
     // first row
     mat_data[0] = 2;
     mat_data[1] = -1;
   }
-  else if (row == mat_rows - 1) {
+  else if (row == mat_rows - 1)
+  {
     // last row
     mat_data[mat_cols * mat_rows - 2] = -1;
     mat_data[mat_cols * mat_rows - 1] = 2;
   }
-  else if (row < mat_rows) {
+  else if (row < mat_rows)
+  {
     // other rows
     sunindextype idx  = mat_cols * row + row;
     mat_data[idx - 1] = -1;
@@ -140,9 +149,10 @@ void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
 
 #if defined(USE_CUDA) || defined(USE_HIP)
   unsigned threads_per_block = 256;
-  unsigned num_blocks        = (mat_rows + threads_per_block - 1) / threads_per_block;
+  unsigned num_blocks = (mat_rows + threads_per_block - 1) / threads_per_block;
 
-  fill_kernel<<<num_blocks, threads_per_block>>>(mat_rows, mat_cols, row_ptrs, col_idxs, mat_data);
+  fill_kernel<<<num_blocks, threads_per_block>>>(mat_rows, mat_cols, row_ptrs,
+                                                 col_idxs, mat_data);
   HIP_OR_CUDA(hipDeviceSynchronize();, cudaDeviceSynchronize(););
 #else
   // Matrix entries
@@ -151,10 +161,13 @@ void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
   // Fill matrix
   int idx     = 0;
   row_ptrs[0] = idx;
-  for (auto row = 0; row < mat_rows; ++row) {
-    for (auto diag_offset : {-1, 0, 1}) {
+  for (auto row = 0; row < mat_rows; ++row)
+  {
+    for (auto diag_offset : {-1, 0, 1})
+    {
       auto col = row + diag_offset;
-      if (0 <= col && col < mat_cols) {
+      if (0 <= col && col < mat_cols)
+      {
         mat_data[idx] = vals[diag_offset + 1];
         col_idxs[idx] = col;
         ++idx;
@@ -173,7 +186,7 @@ void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
 
 #if defined(USE_CUDA)
   unsigned threads_per_block = 256;
-  unsigned num_blocks        = (mat_rows + threads_per_block - 1) / threads_per_block;
+  unsigned num_blocks = (mat_rows + threads_per_block - 1) / threads_per_block;
 
   fill_kernel<<<num_blocks, threads_per_block>>>(mat_rows, mat_cols, mat_data);
   HIP_OR_CUDA(hipDeviceSynchronize();, cudaDeviceSynchronize(););
@@ -182,10 +195,13 @@ void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
   const sunrealtype vals[] = {-1, 2, -1};
 
   // Fill matrix
-  for (auto row = 0; row < mat_rows; ++row) {
-    for (auto diag_offset : {-1, 0, 1}) {
+  for (auto row = 0; row < mat_rows; ++row)
+  {
+    for (auto diag_offset : {-1, 0, 1})
+    {
       auto col = row + diag_offset;
-      if (0 <= col && col < mat_cols) {
+      if (0 <= col && col < mat_cols)
+      {
         // Data stored in row-major format
         auto idx      = row * mat_cols + col;
         mat_data[idx] = vals[diag_offset + 1];
@@ -200,11 +216,14 @@ void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
  * -------------------------------------------------------------------------- */
 
 template<class GkoSolverType, class GkoMatrixType>
-void Test_Move(std::unique_ptr<typename GkoSolverType::Factory>&& gko_solver_factory, sundials::Context& sunctx)
+void Test_Move(std::unique_ptr<typename GkoSolverType::Factory>&& gko_solver_factory,
+               sundials::Context& sunctx)
 {
   // Move constructor
-  sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType> solver{std::move(gko_solver_factory), sunctx};
-  sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType> solver2{std::move(solver)};
+  sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>
+    solver{std::move(gko_solver_factory), sunctx};
+  sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType> solver2{
+    std::move(solver)};
   assert(solver2.GkoFactory());
   assert(solver2.GkoExec());
   assert(SUNLinSolNumIters(solver2) == 0);
@@ -231,9 +250,11 @@ int main(int argc, char* argv[])
   sundials::Context sunctx;
 
 #if defined(USE_HIP)
-  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create(), false, gko::allocation_mode::device)};
+  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create(), false,
+                                         gko::allocation_mode::device)};
 #elif defined(USE_CUDA)
-  auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create(), false, gko::allocation_mode::device)};
+  auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create(), false,
+                                          gko::allocation_mode::device)};
 #elif defined(USE_OMP)
   auto gko_exec{gko::OmpExecutor::create()};
 #else
@@ -244,7 +265,8 @@ int main(int argc, char* argv[])
    * Check inputs *
    * ------------ */
 
-  if (argc < 7) {
+  if (argc < 7)
+  {
     std::cerr << "ERROR: SIX (6) inputs required:\n"
               << "  1) method\n"
               << "  2) matrix type\n"
@@ -256,13 +278,13 @@ int main(int argc, char* argv[])
   }
 
   std::string method{argv[++argi]};
-  std::transform(method.begin(), method.end(), method.begin(), [](unsigned char c) { return std::tolower(c); });
+  std::transform(method.begin(), method.end(), method.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
 
-  if (!methods.count(method)) {
+  if (!methods.count(method))
+  {
     std::cerr << "ERROR: method must be one of ";
-    for (const auto& m : methods) {
-      std::cout << m.first << ", ";
-    }
+    for (const auto& m : methods) { std::cout << m.first << ", "; }
     std::cout << std::endl;
     return 1;
   }
@@ -271,31 +293,33 @@ int main(int argc, char* argv[])
   std::transform(matrix_type.begin(), matrix_type.end(), matrix_type.begin(),
                  [](unsigned char c) { return std::tolower(c); });
 
-  if (!matrix_types.count(matrix_type)) {
+  if (!matrix_types.count(matrix_type))
+  {
     std::cerr << "ERROR: matrix type must be one of ";
-    for (const auto& m : matrix_types) {
-      std::cout << m.first << ", ";
-    }
+    for (const auto& m : matrix_types) { std::cout << m.first << ", "; }
     std::cout << std::endl;
     return 1;
   }
 
   const auto matcols{static_cast<sunindextype>(atoll(argv[++argi]))};
-  if (matcols <= 0) {
+  if (matcols <= 0)
+  {
     std::cerr << "ERROR: number of matrix columns must be a positive integer\n";
     return 1;
   }
   const auto matrows{matcols};
 
   const auto matcond{static_cast<sunrealtype>(atof(argv[++argi]))};
-  if (matcond < 0) {
+  if (matcond < 0)
+  {
     std::cerr << "ERROR: matrix condition number must be positive or 0 "
                  "(poisson test)\n";
     return 1;
   }
 
   const auto max_iters{static_cast<unsigned long>(atoll(argv[++argi]))};
-  if (max_iters <= 0) {
+  if (max_iters <= 0)
+  {
     std::cerr << "ERROR: max iterations must be a positive integer\n";
     return 1;
   }
@@ -322,7 +346,8 @@ int main(int argc, char* argv[])
   std::uniform_real_distribution<sunrealtype> distribution_real(8, 10);
 
   auto xdata{N_VGetArrayPointer(x)};
-  for (sunindextype i = 0; i < matcols; i++) {
+  for (sunindextype i = 0; i < matcols; i++)
+  {
     xdata[i] = distribution_real(engine);
   }
   HIP_OR_CUDA(N_VCopyToDevice_Hip(x), N_VCopyToDevice_Cuda(x));
@@ -338,44 +363,55 @@ int main(int argc, char* argv[])
 
   auto matrix_dim{gko::dim<2>(matrows, matcols)};
 
-  if (matrix_type == "csr") {
+  if (matrix_type == "csr")
+  {
     using GkoMatrixType = gko::matrix::Csr<sunrealtype, sunindextype>;
     auto matrix_nnz{3 * matrows - 2};
-    auto gko_matrix = gko::share(GkoMatrixType::create(gko_exec, matrix_dim, matrix_nnz));
+    auto gko_matrix =
+      gko::share(GkoMatrixType::create(gko_exec, matrix_dim, matrix_nnz));
 
-    if (matcond) {
-      auto gko_matdata{gko::matrix_data<sunrealtype, sunindextype>::cond(matrows,
-                                                                         gko::remove_complex<sunrealtype>{matcond},
-                                                                         distribution_real, engine)};
+    if (matcond)
+    {
+      auto gko_matdata{gko::matrix_data<
+        sunrealtype, sunindextype>::cond(matrows,
+                                         gko::remove_complex<sunrealtype>{matcond},
+                                         distribution_real, engine)};
       gko_matdata.remove_zeros();
       gko_matrix->read(gko_matdata);
     }
-    else {
-      fill_matrix(gko::lend(gko_matrix));
-    }
-    A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(gko_matrix), sunctx);
+    else { fill_matrix(gko_matrix.get()); }
+    A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(
+                                                                    gko_matrix),
+                                                                  sunctx);
   }
-  else if (matrix_type == "dense") {
+  else if (matrix_type == "dense")
+  {
     using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
-    auto gko_matrix     = gko::share(GkoMatrixType::create(gko_exec, matrix_dim));
-    if (matcond) {
-      auto gko_matdata{gko::matrix_data<sunrealtype, sunindextype>::cond(matrows,
-                                                                         gko::remove_complex<sunrealtype>{matcond},
-                                                                         distribution_real, engine)};
+    auto gko_matrix = gko::share(GkoMatrixType::create(gko_exec, matrix_dim));
+    if (matcond)
+    {
+      auto gko_matdata{gko::matrix_data<
+        sunrealtype, sunindextype>::cond(matrows,
+                                         gko::remove_complex<sunrealtype>{matcond},
+                                         distribution_real, engine)};
       gko_matdata.remove_zeros();
       gko_matrix->read(gko_matdata);
     }
-    else {
+    else
+    {
       gko_matrix->fill(0.0);
-      fill_matrix(gko::lend(gko_matrix));
+      fill_matrix(gko_matrix.get());
     }
-    A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(gko_matrix), sunctx);
+    A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(
+                                                                    gko_matrix),
+                                                                  sunctx);
   }
 
   /* Create right-hand side vector for linear solve */
   fails += SUNMatMatvecSetup(A->Convert());
   fails += SUNMatMatvec(A->Convert(), x, b);
-  if (fails) {
+  if (fails)
+  {
     std::cerr << "FAIL: SUNLinSol SUNMatMatvec failure\n";
     N_VDestroy(x);
     N_VDestroy(b);
@@ -387,154 +423,208 @@ int main(int argc, char* argv[])
    * -------------------- */
 
   /* Use default stopping criteria */
-  auto crit{sundials::ginkgo::DefaultStop::build().with_max_iters(max_iters).on(gko_exec)};
+  auto crit{sundials::ginkgo::DefaultStop::build().with_max_iters(max_iters).on(
+    gko_exec)};
 
   /* Use a Jacobi preconditioner */
-  auto precon{gko::preconditioner::Jacobi<sunrealtype, sunindextype>::build().on(gko_exec)};
+  auto precon{
+    gko::preconditioner::Jacobi<sunrealtype, sunindextype>::build().on(gko_exec)};
 
   /* Wrap ginkgo matrix for SUNDIALS,
      Matrix is overloaded to a SUNLinearSolver. */
   std::unique_ptr<sundials::ConvertibleTo<SUNLinearSolver>> LS;
 
-  if (method == "bicg") {
+  if (method == "bicg")
+  {
     using GkoSolverType = gko::solver::Bicg<sunrealtype>;
-    auto gko_solver_factory{
-        GkoSolverType::build().with_criteria(std::move(crit)).with_preconditioner(std::move(precon)).on(gko_exec)};
-    if (matrix_type == "csr") {
+    auto gko_solver_factory{GkoSolverType::build()
+                              .with_criteria(std::move(crit))
+                              .with_preconditioner(std::move(precon))
+                              .on(gko_exec)};
+    if (matrix_type == "csr")
+    {
       using GkoMatrixType = gko::matrix::Csr<sunrealtype, sunindextype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
-    else if (matrix_type == "dense") {
+    else if (matrix_type == "dense")
+    {
       using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
   }
-  else if (method == "bicgstab") {
+  else if (method == "bicgstab")
+  {
     using GkoSolverType = gko::solver::Bicgstab<sunrealtype>;
-    auto gko_solver_factory{
-        GkoSolverType::build().with_criteria(std::move(crit)).with_preconditioner(std::move(precon)).on(gko_exec)};
-    if (matrix_type == "csr") {
+    auto gko_solver_factory{GkoSolverType::build()
+                              .with_criteria(std::move(crit))
+                              .with_preconditioner(std::move(precon))
+                              .on(gko_exec)};
+    if (matrix_type == "csr")
+    {
       using GkoMatrixType = gko::matrix::Csr<sunrealtype, sunindextype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
-    else if (matrix_type == "dense") {
+    else if (matrix_type == "dense")
+    {
       using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
   }
-  else if (method == "cg") {
+  else if (method == "cg")
+  {
     using GkoSolverType = gko::solver::Cg<sunrealtype>;
-    auto gko_solver_factory{
-        GkoSolverType::build().with_criteria(std::move(crit)).with_preconditioner(std::move(precon)).on(gko_exec)};
-    if (matrix_type == "csr") {
+    auto gko_solver_factory{GkoSolverType::build()
+                              .with_criteria(std::move(crit))
+                              .with_preconditioner(std::move(precon))
+                              .on(gko_exec)};
+    if (matrix_type == "csr")
+    {
       using GkoMatrixType = gko::matrix::Csr<sunrealtype, sunindextype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
-    else if (matrix_type == "dense") {
+    else if (matrix_type == "dense")
+    {
       using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
   }
-  else if (method == "cgs") {
+  else if (method == "cgs")
+  {
     using GkoSolverType = gko::solver::Cgs<sunrealtype>;
-    auto gko_solver_factory{
-        GkoSolverType::build().with_criteria(std::move(crit)).with_preconditioner(std::move(precon)).on(gko_exec)};
-    if (matrix_type == "csr") {
+    auto gko_solver_factory{GkoSolverType::build()
+                              .with_criteria(std::move(crit))
+                              .with_preconditioner(std::move(precon))
+                              .on(gko_exec)};
+    if (matrix_type == "csr")
+    {
       using GkoMatrixType = gko::matrix::Csr<sunrealtype, sunindextype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
-    else if (matrix_type == "dense") {
+    else if (matrix_type == "dense")
+    {
       using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
   }
-  else if (method == "fcg") {
+  else if (method == "fcg")
+  {
     using GkoSolverType = gko::solver::Fcg<sunrealtype>;
-    auto gko_solver_factory{
-        GkoSolverType::build().with_criteria(std::move(crit)).with_preconditioner(std::move(precon)).on(gko_exec)};
-    if (matrix_type == "csr") {
+    auto gko_solver_factory{GkoSolverType::build()
+                              .with_criteria(std::move(crit))
+                              .with_preconditioner(std::move(precon))
+                              .on(gko_exec)};
+    if (matrix_type == "csr")
+    {
       using GkoMatrixType = gko::matrix::Csr<sunrealtype, sunindextype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
-    else if (matrix_type == "dense") {
+    else if (matrix_type == "dense")
+    {
       using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
   }
-  else if (method == "gmres") {
+  else if (method == "gmres")
+  {
     using GkoSolverType = gko::solver::Gmres<sunrealtype>;
-    auto gko_solver_factory{
-        GkoSolverType::build().with_criteria(std::move(crit)).with_preconditioner(std::move(precon)).on(gko_exec)};
-    if (matrix_type == "csr") {
+    auto gko_solver_factory{GkoSolverType::build()
+                              .with_criteria(std::move(crit))
+                              .with_preconditioner(std::move(precon))
+                              .on(gko_exec)};
+    if (matrix_type == "csr")
+    {
       using GkoMatrixType = gko::matrix::Csr<sunrealtype, sunindextype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
-    else if (matrix_type == "dense") {
+    else if (matrix_type == "dense")
+    {
       using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
   }
-  else if (method == "idr") {
+  else if (method == "idr")
+  {
     using GkoSolverType = gko::solver::Idr<sunrealtype>;
-    auto gko_solver_factory{
-        GkoSolverType::build().with_criteria(std::move(crit)).with_preconditioner(std::move(precon)).on(gko_exec)};
-    if (matrix_type == "csr") {
+    auto gko_solver_factory{GkoSolverType::build()
+                              .with_criteria(std::move(crit))
+                              .with_preconditioner(std::move(precon))
+                              .on(gko_exec)};
+    if (matrix_type == "csr")
+    {
       using GkoMatrixType = gko::matrix::Csr<sunrealtype, sunindextype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
-    else if (matrix_type == "dense") {
+    else if (matrix_type == "dense")
+    {
       using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
-      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(), sunctx);
-      LS = std::make_unique<sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory),
-                                                                                          sunctx);
+      Test_Move<GkoSolverType, GkoMatrixType>(gko_solver_factory->clone(),
+                                              sunctx);
+      LS = std::make_unique<sundials::ginkgo::LinearSolver<
+        GkoSolverType, GkoMatrixType>>(std::move(gko_solver_factory), sunctx);
     }
   }
 
   /* Run Tests */
   fails += Test_SUNLinSolGetID(LS->Convert(), SUNLINEARSOLVER_GINKGO, 0);
-  fails += Test_SUNLinSolGetType(LS->Convert(), SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
+  fails += Test_SUNLinSolGetType(LS->Convert(),
+                                 SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
   fails += Test_SUNLinSolInitialize(LS->Convert(), 0);
   fails += Test_SUNLinSolSetup(LS->Convert(), A->Convert(), 0);
-  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b, 1e4 * SUN_UNIT_ROUNDOFF, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b,
+                               1e4 * SUN_UNIT_ROUNDOFF, SUNTRUE, 0);
 
   /* Print result */
-  if (fails) {
+  if (fails)
+  {
     std::cerr << "FAIL: SUNLinSol module failed " << fails << " tests\n\n";
   }
-  else {
-    std::cout << "\nSUCCESS: SUNLinSol module passed all tests\n\n";
-  }
+  else { std::cout << "\nSUCCESS: SUNLinSol module passed all tests\n\n"; }
 
   /* Print solve information */
-  std::cout << "Number of linear solver iterations: " << static_cast<long int>(SUNLinSolNumIters(LS->Convert()))
+  std::cout << "Number of linear solver iterations: "
+            << static_cast<long int>(SUNLinSolNumIters(LS->Convert()))
             << std::endl;
-  std::cout << "Final residual norm: " << SUNLinSolResNorm(LS->Convert()) << std::endl;
+  std::cout << "Final residual norm: " << SUNLinSolResNorm(LS->Convert())
+            << std::endl;
 
   /* Free solver, matrix and vectors */
   N_VDestroy(x);
@@ -563,22 +653,27 @@ int check_vector(N_Vector expected, N_Vector actual, sunrealtype check_tol)
   auto xldata{N_VGetLength(actual)};
   auto yldata{N_VGetLength(expected)};
 
-  if (xldata != yldata) {
+  if (xldata != yldata)
+  {
     std::cerr << ">>> ERROR: check_vector: Different data array lengths\n";
     return 1;
   }
 
   /* check vector data */
-  for (sunindextype i = 0; i < xldata; i++) {
+  for (sunindextype i = 0; i < xldata; i++)
+  {
     failure += SUNRCompareTol(xdata[i], ydata[i], check_tol);
   }
 
-  if (failure > ZERO) {
+  if (failure > ZERO)
+  {
     std::cerr << "check_vector failures:\n";
-    for (sunindextype i = 0; i < xldata; i++) {
-      if (SUNRCompareTol(xdata[i], ydata[i], check_tol) != 0) {
-        std::cerr << "  x[" << i << "] = " << xdata[i] << " != " << ydata[i] << " (err = " << abs(xdata[i] - ydata[i])
-                  << ")\n";
+    for (sunindextype i = 0; i < xldata; i++)
+    {
+      if (SUNRCompareTol(xdata[i], ydata[i], check_tol) != 0)
+      {
+        std::cerr << "  x[" << i << "] = " << xdata[i] << " != " << ydata[i]
+                  << " (err = " << abs(xdata[i] - ydata[i]) << ")\n";
       }
     }
   }
