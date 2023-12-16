@@ -1,7 +1,6 @@
 # SUNDIALS Changelog
 
-
-## Changes to SUNDIALS in release X.X.X
+## Changes to SUNDIALS in release 6.7.0
 
 Added the `SUNAdaptController` base class, ported ARKODE's internal
 implementations of time step controllers into implementations of this class,

@@ -1724,7 +1724,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
       * *ARK_MEM_FAIL* if *C* was ``NULL`` and the PID controller could not be allocated.
 
-   .. versionadded:: x.x.x
+   .. versionadded:: 5.7.0
 
 
 .. c:function:: int ARKStepSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
@@ -1748,7 +1748,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
       :c:func:`ARKStepSetStabilityFn()` should be used instead.
 
 
-   .. deprecated:: x.x.x
+   .. deprecated:: 5.7.0
 
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
@@ -1786,13 +1786,13 @@ Explicit stability function                                 :c:func:`ARKStepSetS
       parameter values are desired, it is recommended to instead provide
       a custom function through a call to :c:func:`ARKStepSetAdaptivityFn()`.
 
-      .. versionchanged:: x.x.x
+      .. versionchanged:: 5.7.0
          
-         Prior to version x.x.x, any nonzero value for *pq* would result in use of the
+         Prior to version 5.7.0, any nonzero value for *pq* would result in use of the
          embedding order of accuracy.
 
 
-   .. deprecated:: x.x.x
+   .. deprecated:: 5.7.0
 
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
@@ -1818,7 +1818,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
       This should be called prior to calling :c:func:`ARKStepEvolve()`, and can only be
       reset following a call to :c:func:`ARKStepReInit()`.
 
-   .. versionadded:: x.x.x
+   .. versionadded:: 5.7.0
 
 .. c:function:: int ARKStepSetCFLFraction(void* arkode_mem, realtype cfl_frac)
 
@@ -1861,7 +1861,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
       :c:func:`ARKStepSetAdaptController` will be called, then this routine must be called
       *second*.
 
-   .. deprecated:: x.x.x
+   .. deprecated:: 5.7.0
 
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
