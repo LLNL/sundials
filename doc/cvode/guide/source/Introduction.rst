@@ -1203,8 +1203,7 @@ Changes in v5.0.0
 -  The generic ``SUNMatrix`` API now defines error codes to be returned
    by ``SUNMatrix`` operations. Operations which return an integer flag
    indiciating success/failure may return different values than
-   previously. See :numref:`SUNMatrix.Ops.errorCodes` for
-   more details.
+   previously.
 -  A new ``SUNMatrix`` (and ``SUNLinearSolver``) implementation was added to
    facilitate the use of the SuperLU_DIST library with SUNDIALS. See
    :numref:`SUNMatrix.SLUNRloc` for more details.
