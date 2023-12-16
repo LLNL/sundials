@@ -48,18 +48,23 @@ using namespace sundials::ginkgo;
 
 #if defined(USE_CSR)
 using GkoMatrixType      = gko::matrix::Csr<sunrealtype>;
-using GkoBatchMatrixType = gko::matrix::BatchCsr<sunrealtype>;
+using GkoBatchMatrixType = gko::batch::matrix::Csr<sunrealtype>;
 using SUNMatrixType      = BlockMatrix<GkoBatchMatrixType>;
 #else
 using GkoMatrixType      = gko::matrix::Dense<sunrealtype>;
-using GkoBatchMatrixType = gko::matrix::BatchDense<sunrealtype>;
+using GkoBatchMatrixType = gko::batch::matrix::Dense<sunrealtype>;
 using SUNMatrixType      = BlockMatrix<GkoBatchMatrixType>;
 #endif
 
-const std::unordered_map<std::string, int> methods{{"bicgstab", 0}, {"cg", 2},  {"direct", 3},
-                                                   {"gmres", 4},    {"idr", 5}, {"richardson", 6}};
+const std::unordered_map<std::string, int> methods{{"bicgstab", 0},
+                                                   {"cg", 2},
+                                                   {"direct", 3},
+                                                   {"gmres", 4},
+                                                   {"idr", 5},
+                                                   {"richardson", 6}};
 
-constexpr sunrealtype solve_tolerance = 1000 * std::numeric_limits<sunrealtype>::epsilon();
+constexpr sunrealtype solve_tolerance =
+  1000 * std::numeric_limits<sunrealtype>::epsilon();
 
 /* ----------------------------------------------------------------------
  * SUNLinSol_Ginkgo Testing Routine
@@ -79,48 +84,57 @@ int main(int argc, char* argv[])
   sundials::Context sunctx;
 
   auto gko_exec =
-      OMP_OR_HIP_OR_CUDA(gko::OmpExecutor::create(), gko::HipExecutor::create(0, gko::OmpExecutor::create(), true),
-                         gko::CudaExecutor::create(0, gko::OmpExecutor::create(), true));
+    OMP_OR_HIP_OR_CUDA(gko::OmpExecutor::create(),
+                       gko::HipExecutor::create(0, gko::OmpExecutor::create(),
+                                                true),
+                       gko::CudaExecutor::create(0, gko::OmpExecutor::create(),
+                                                 true));
 
   /* check input and set matrix dimensions */
-  if (argc < 7) {
-    printf("ERROR: SIX (6) Inputs required: method, number of matrix columns, condition number, number of blocks, "
+  if (argc < 7)
+  {
+    printf("ERROR: SIX (6) Inputs required: method, number of matrix columns, "
+           "condition number, number of blocks, "
            "max iterations, print timing \n");
     return (-1);
   }
 
   method = argv[++argi];
-  std::transform(method.begin(), method.end(), method.begin(), [](unsigned char c) { return std::tolower(c); });
-  if (methods.count(method) == 0) {
+  std::transform(method.begin(), method.end(), method.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+  if (methods.count(method) == 0)
+  {
     printf("ERROR: method must be one of ");
-    for (const auto& m : methods) {
-      std::cout << m.first << ", ";
-    }
+    for (const auto& m : methods) { std::cout << m.first << ", "; }
     printf("\n");
     return (-1);
   }
 
   matcols = static_cast<sunindextype>(atol(argv[++argi]));
-  if (matcols <= 0) {
+  if (matcols <= 0)
+  {
     printf("ERROR: number of matrix columns must be a positive integer \n");
     return (-1);
   }
   matrows = matcols;
 
   matcond = static_cast<sunrealtype>(atof(argv[++argi]));
-  if (matcond <= 0) {
+  if (matcond <= 0)
+  {
     printf("ERROR: matrix condition number must be positive\n");
     return (-1);
   }
 
   num_blocks = static_cast<sunindextype>(atol(argv[++argi]));
-  if (num_blocks <= 0) {
+  if (num_blocks <= 0)
+  {
     printf("ERROR: number of blocks must be a positive integer \n");
     return (-1);
   }
 
   max_iters = static_cast<sunindextype>(atol(argv[++argi]));
-  if (max_iters <= 0) {
+  if (max_iters <= 0)
+  {
     printf("ERROR: max iterations must be a positive integer \n");
     return (-1);
   }
@@ -128,37 +142,65 @@ int main(int argc, char* argv[])
   print_timing = atoi(argv[++argi]);
   SetTiming(print_timing);
 
-  printf("\nGinkgo linear solver test: method = %s, size = %ld x %ld, blocks = %ld, condition = %g, max iters. = "
+  printf("\nGinkgo linear solver test: method = %s, size = %ld x %ld, blocks = "
+         "%ld, condition = %g, max iters. = "
          "%ld\n\n",
-         method.c_str(), static_cast<long int>(matrows), static_cast<long int>(matcols), static_cast<long int>(num_blocks), matcond, static_cast<long int>(max_iters));
+         method.c_str(), static_cast<long int>(matrows),
+         static_cast<long int>(matcols), static_cast<long int>(num_blocks),
+         matcond, static_cast<long int>(max_iters));
 
   /* Create vectors and matrices */
   std::default_random_engine engine;
   std::uniform_real_distribution<sunrealtype> distribution_real(8, 10);
 
-  x  = OMP_OR_HIP_OR_CUDA(N_VNew_Serial(num_blocks * matcols, sunctx), N_VNew_Hip(num_blocks * matcols, sunctx),
+  x  = OMP_OR_HIP_OR_CUDA(N_VNew_Serial(num_blocks * matcols, sunctx),
+                          N_VNew_Hip(num_blocks * matcols, sunctx),
                           N_VNew_Cuda(num_blocks * matcols, sunctx));
   b  = N_VClone(x);
   y  = N_VClone(x);
   s1 = N_VClone(x);
   s2 = N_VClone(x);
 
-  auto batch_mat_size = gko::batch_dim<>(num_blocks, gko::dim<2>(matrows, matcols));
-  auto batch_vec_size = gko::batch_dim<>(num_blocks, gko::dim<2>(matrows, 1));
-  auto gko_matdata = gko::matrix_data<sunrealtype, sunindextype>::cond(matrows, gko::remove_complex<sunrealtype>{matcond},
-                                                                       distribution_real, engine);
-  gko_matdata.remove_zeros();
-  auto gko_matrixA = GkoMatrixType::create(gko_exec, batch_mat_size.at(0));
-  gko_matrixA->read(gko::matrix_data<sunrealtype>(batch_mat_size.at(0), distribution_real, engine));
-  auto gko_batch_matrixA = gko::share(GkoBatchMatrixType::create(gko_exec, num_blocks, gko_matrixA.get()));
-  auto gko_matrixB       = GkoMatrixType::create(gko_exec, batch_mat_size.at(0));
-  gko_matrixB->read(gko::matrix_data<sunrealtype>(batch_mat_size.at(0), distribution_real, engine));
-  auto gko_batch_matrixB = gko::share(GkoBatchMatrixType::create(gko_exec, num_blocks, gko_matrixB.get()));
+  auto common_size    = gko::dim<2>(matrows, matcols);
+  auto batch_mat_size = gko::batch_dim<2>(num_blocks, common_size);
+  auto batch_vec_size = gko::batch_dim<2>(num_blocks, gko::dim<2>(matrows, 1));
+
+  auto gko_matrixA = GkoMatrixType::create(gko_exec,
+                                           batch_mat_size.get_common_size());
+  auto gko_matdata =
+    gko::matrix_data<sunrealtype>(batch_mat_size.get_common_size(),
+                                  distribution_real, engine);
+  gko_matrixA->read(gko_matdata);
+  // FIXME: batch::matrix::Csr needs additional param for num_nnz, dynamic_cast
+  // check
+  auto gko_batch_matrixA =
+    gko::share(GkoBatchMatrixType::create(gko_exec, batch_mat_size));
+  for (int b = 0; b < num_blocks; ++b)
+  {
+    gko_batch_matrixA->create_view_for_item(b)->read(gko_matdata);
+  }
+
+  auto gko_matrixB = GkoMatrixType::create(gko_exec,
+                                           batch_vec_size.get_common_size());
+  auto gko_matdata2 =
+    gko::matrix_data<sunrealtype>(batch_vec_size.get_common_size(),
+                                  distribution_real, engine);
+  gko_matrixA->read(gko_matdata2);
+  // FIXME: batch::matrix::Csr needs additional param for num_nnz, dynamic_cast
+  // check
+  auto gko_batch_matrixB =
+    gko::share(GkoBatchMatrixType::create(gko_exec, batch_vec_size));
+  for (int b = 0; b < num_blocks; ++b)
+  {
+    gko_batch_matrixB->create_view_for_item(b)->read(gko_matdata2);
+  }
 
   /* Fill x with random data */
   xdata = N_VGetArrayPointer(x);
-  for (sunindextype blocki = 0; blocki < num_blocks; blocki++) {
-    for (sunindextype i = 0; i < matcols; i++) {
+  for (sunindextype blocki = 0; blocki < num_blocks; blocki++)
+  {
+    for (sunindextype i = 0; i < matcols; i++)
+    {
       xdata[blocki * matcols + i] = distribution_real(engine);
     }
   }
@@ -180,7 +222,8 @@ int main(int argc, char* argv[])
   /* Create right-hand side vector for linear solve */
   fails += SUNMatMatvecSetup(A);
   fails += SUNMatMatvec(A, x, b);
-  if (fails) {
+  if (fails)
+  {
     printf("FAIL: SUNLinSol SUNMatMatvec failure\n");
 
     N_VDestroy(x);
@@ -196,51 +239,77 @@ int main(int argc, char* argv[])
    * Create linear solver.
    */
 
-  auto precond_factory = gko::share(gko::preconditioner::BatchJacobi<sunrealtype>::build().on(gko_exec));
+  // auto precond_factory = gko::share(
+  //   gko::batch::preconditioner::Identity<sunrealtype>::build().on(gko_exec));
 
   std::unique_ptr<sundials::ConvertibleTo<SUNLinearSolver>> LS;
-  if (method == "bicgstab") {
-    using GkoSolverType           = gko::solver::BatchBicgstab<sunrealtype>;
-    using SUNLinearSolverViewType = BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
-    LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, gko::stop::batch::ToleranceType::absolute, precond_factory,
-                                                   num_blocks, sunctx);
+  if (method == "bicgstab")
+  {
+    using GkoSolverType = gko::batch::solver::Bicgstab<sunrealtype>;
+    using SUNLinearSolverViewType =
+      BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
+    LS =
+      std::make_unique<SUNLinearSolverViewType>(gko_exec,
+                                                gko::batch::stop::tolerance_type::absolute,
+                                                nullptr, num_blocks, sunctx);
   }
-  else if (method == "cg") {
-    using GkoSolverType           = gko::solver::BatchCg<sunrealtype>;
-    using SUNLinearSolverViewType = BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
-    LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, gko::stop::batch::ToleranceType::absolute, precond_factory,
-                                                   num_blocks, sunctx);
+  else if (method == "cg")
+  {
+    // using GkoSolverType = gko::solver::BatchCg<sunrealtype>;
+    // using SUNLinearSolverViewType =
+    //   BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
+    // LS =
+    //   std::make_unique<SUNLinearSolverViewType>(gko_exec,
+    //                                             gko::stop::batch::ToleranceType::absolute,
+    //                                             precond_factory, num_blocks,
+    //                                             sunctx);
   }
-  else if (method == "direct") {
+  else if (method == "direct")
+  {
     // using SUNLinearSolverViewType = BlockLinearSolver<SUNMatrixType>;
-    // LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, num_blocks, sunctx);
+    // LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, num_blocks,
+    // sunctx);
   }
-  else if (method == "gmres") {
-    using GkoSolverType           = gko::solver::BatchGmres<sunrealtype>;
-    using SUNLinearSolverViewType = BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
-    LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, gko::stop::batch::ToleranceType::absolute, precond_factory,
-                                                   num_blocks, sunctx);
+  else if (method == "gmres")
+  {
+    // using GkoSolverType = gko::solver::BatchGmres<sunrealtype>;
+    // using SUNLinearSolverViewType =
+    //   BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
+    // LS =
+    //   std::make_unique<SUNLinearSolverViewType>(gko_exec,
+    //                                             gko::stop::batch::ToleranceType::absolute,
+    //                                             precond_factory, num_blocks,
+    //                                             sunctx);
   }
-  else if (method == "idr") {
-    using GkoSolverType           = gko::solver::BatchIdr<sunrealtype>;
-    using SUNLinearSolverViewType = BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
-    LS = std::make_unique<SUNLinearSolverViewType>(gko_exec, gko::stop::batch::ToleranceType::absolute, precond_factory,
-                                                   num_blocks, sunctx);
+  else if (method == "idr")
+  {
+    // using GkoSolverType = gko::solver::BatchIdr<sunrealtype>;
+    // using SUNLinearSolverViewType =
+    //   BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
+    // LS =
+    //   std::make_unique<SUNLinearSolverViewType>(gko_exec,
+    //                                             gko::stop::batch::ToleranceType::absolute,
+    //                                             precond_factory, num_blocks,
+    //                                             sunctx);
   }
 
   /* Run Tests */
   fails += Test_SUNLinSolGetID(LS->Convert(), SUNLINEARSOLVER_GINKGOBLOCK, 0);
-  fails += Test_SUNLinSolGetType(LS->Convert(), SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
+  fails += Test_SUNLinSolGetType(LS->Convert(),
+                                 SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
   fails += Test_SUNLinSolInitialize(LS->Convert(), 0);
   fails += Test_SUNLinSolSetScalingVectors(LS->Convert(), s1, s2, 0);
   fails += Test_SUNLinSolSetup(LS->Convert(), A, 0);
-  fails += Test_SUNLinSolSolve(LS->Convert(), A, x, b, solve_tolerance, SUNTRUE, 0);
+  fails += Test_SUNLinSolSolve(LS->Convert(), A, x, b, solve_tolerance, SUNTRUE,
+                               0);
 
   /* Print result */
-  if (fails) {
+  if (fails)
+  {
     printf("FAIL: SUNLinSol module failed %i tests \n \n", fails);
     /* only print if its a small problem */
-    if (matcols < 4) {
+    if (matcols < 4)
+    {
       printf("\nx (original) =\n");
       N_VPrint(y);
       printf("\nx (computed) =\n");
@@ -249,9 +318,7 @@ int main(int argc, char* argv[])
       N_VPrint(b);
     }
   }
-  else {
-    printf("\nSUCCESS: SUNLinSol module passed all tests \n \n");
-  }
+  else { printf("\nSUCCESS: SUNLinSol module passed all tests \n \n"); }
 
   /* Free solver, matrix and vectors */
   N_VDestroy(x);
@@ -274,8 +341,10 @@ int check_vector(N_Vector expected, N_Vector actual, realtype tol)
   sunindextype i;
 
   /* copy vectors to host */
-  OMP_OR_HIP_OR_CUDA(, N_VCopyFromDevice_Hip(actual), N_VCopyFromDevice_Cuda(actual));
-  OMP_OR_HIP_OR_CUDA(, N_VCopyFromDevice_Hip(expected), N_VCopyFromDevice_Cuda(expected));
+  OMP_OR_HIP_OR_CUDA(, N_VCopyFromDevice_Hip(actual),
+                     N_VCopyFromDevice_Cuda(actual));
+  OMP_OR_HIP_OR_CUDA(, N_VCopyFromDevice_Hip(expected),
+                     N_VCopyFromDevice_Cuda(expected));
 
   /* get vector data */
   xdata = N_VGetArrayPointer(actual);
@@ -285,22 +354,29 @@ int check_vector(N_Vector expected, N_Vector actual, realtype tol)
   xldata = N_VGetLength(actual);
   yldata = N_VGetLength(expected);
 
-  if (xldata != yldata) {
+  if (xldata != yldata)
+  {
     printf(">>> ERROR: check_vector: Different data array lengths \n");
     return (1);
   }
 
   /* check vector data */
-  for (i = 0; i < xldata; i++) failure += SUNRCompareTol(xdata[i], ydata[i], tol);
+  for (i = 0; i < xldata; i++)
+    failure += SUNRCompareTol(xdata[i], ydata[i], tol);
 
-  if (failure > ZERO) {
+  if (failure > ZERO)
+  {
     printf("Check_vector failures:\n");
     for (i = 0; i < xldata; i++)
       if (SUNRCompareTol(xdata[i], ydata[i], tol) != 0)
-        printf("  actual[%ld] = %g != %e (err = %g)\n", (long int)i, xdata[i], ydata[i], SUNRabs(xdata[i] - ydata[i]));
+        printf("  actual[%ld] = %g != %e (err = %g)\n", (long int)i, xdata[i],
+               ydata[i], SUNRabs(xdata[i] - ydata[i]));
   }
 
   return failure > 0;
 }
 
-void sync_device() { OMP_OR_HIP_OR_CUDA(, hipDeviceSynchronize(), cudaDeviceSynchronize()); }
+void sync_device()
+{
+  OMP_OR_HIP_OR_CUDA(, hipDeviceSynchronize(), cudaDeviceSynchronize());
+}

@@ -25,8 +25,7 @@ set(examples
   "test_sunlinsol_ginkgo.cpp\;gmres dense 100 0 100 0\;"
   "test_sunlinsol_ginkgo.cpp\;idr csr 100 0 100 0\;"
   "test_sunlinsol_ginkgo.cpp\;idr dense 100 0 100 0\;"
-  "test_sunlinsol_ginkgo_block.cpp\;gmres csr 100 0 1 100 0\;"
-  "test_sunlinsol_ginkgo_block.cpp\;gmres dense 100 0 1 100 0\;"
+  "test_sunlinsol_ginkgo_block.cpp\;bicgstab 50 10 2 500 0\;"
 )
 
 # Add source directory to include directories
