@@ -111,20 +111,14 @@ endif()
 # C settings
 # ===============================================================
 
-set(DOCSTR "The C standard to use (90, 99, 11, 17)")
+set(DOCSTR "The C standard to use (99, 11, 17)")
 sundials_option(CMAKE_C_STANDARD STRING "${DOCSTR}" "99"
-                OPTIONS "90;99;11;17")
+                OPTIONS "99;11;17")
 message(STATUS "C standard set to ${CMAKE_C_STANDARD}")
 
 set(DOCSTR "Enable C compiler specific extensions")
 sundials_option(CMAKE_C_EXTENSIONS BOOL "${DOCSTR}" ON)
 message(STATUS "C extensions set to ${CMAKE_C_EXTENSIONS}")
-
-# Profiling generally requires ISO C99 or newer for __func__ though some
-# compilers define __func__ even with ISO C90.
-if(SUNDIALS_BUILD_WITH_PROFILING AND (CMAKE_C_STANDARD STREQUAL "90"))
-  message(WARNING "SUNDIALS_BUILD_WITH_PROFILING=ON requires __func__, compilation may fail with CMAKE_C_STANDARD=90")
-endif()
 
 # ---------------------------------------------------------------
 # Check for snprintf and va_copy
