@@ -400,7 +400,7 @@ illustration only.
 
    Default: 99
 
-   Options: 90, 99, 11, 17.
+   Options: 99, 11, 17.
 
 .. cmakeoption:: CMAKE_C_EXTENSIONS
 
