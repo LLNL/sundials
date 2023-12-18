@@ -88,8 +88,10 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
-Changes in vX.X.X
+Changes in v6.7.0
 -----------------
+
+Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
 Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)`` to
 ``O(NNZ)``.
@@ -98,8 +100,6 @@ Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 
 Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
 CMake targets.
-
-Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
 
 Changes in v6.6.2
 -----------------

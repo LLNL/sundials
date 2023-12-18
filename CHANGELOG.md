@@ -1,7 +1,7 @@
 # SUNDIALS Changelog
 
 
-## Changes to SUNDIALS in release X.X.X
+## Changes to SUNDIALS in release 6.7.0
 
 Added the `SUNAdaptController` base class, ported ARKODE's internal
 implementations of time step controllers into implementations of this class,
@@ -18,10 +18,29 @@ release, but for some applications a value of 0 is more appropriate.
 Users who notice that their simulations encounter a large number of
 temporal error test failures may want to experiment with adjusting this value.
 
+Added the third order ERK method `ARKODE_SHU_OSHER_3_2_3`, the fourth order
+ERK method `ARKODE_SOFRONIOU_SPALETTA_5_3_4`, the sixth order ERK method
+`ARKODE_VERNER_9_5_6`, the seventh order ERK method `ARKODE_VERNER_10_6_7`,
+the eighth order ERK method `ARKODE_VERNER_13_7_8`, and the ninth order ERK
+method `ARKODE_VERNER_16_8_9`.
+
+ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
+unnecessary right-hand side evaluation at the end of an integration. ARKStep was
+additionally updated to remove extra right-hand side evaluations when using an
+explicit method or an implicit method with an explicit first stage.
+
+Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
+`O(NNZ)`.
+
+Added Fortran support for the LAPACK dense `SUNLinearSolver` implementation.
+
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where ARKODE,
 CVODE, CVODES, IDA, and IDAS would return at the stop time rather than the
 requested output time if the stop time was reached in the same step in which the
 output time was passed.
+
+Fixed a bug in ERKStep where methods with `c[s-1] = 1` but `a[s-1,j] != b[j]`
+were incorrectly treated as having the first same as last (FSAL) property.
 
 Fixed a bug in ARKODE where `ARKStepSetInterpolateStopTime` would return an
 interpolated solution at the stop time in some cases when interpolation was
@@ -31,27 +50,22 @@ Fixed a bug in `ARKStepSetTableNum` wherein it did not recognize
 `ARKODE_ARK2_ERK_3_1_2` and `ARKODE_ARK2_DIRK_3_1_2` as a valid additive
 Runge--Kutta Butcher table pair.
 
-Renamed some internal types in CVODES and IDAS to allow both packages to be
-built together in the same binary.
+Fixed a bug in `MRIStepCoupling_Write` where explicit coupling tables were not
+written to the output file pointer.
 
-Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
-`O(NNZ)`.
+The `MRIStepInnerStepper` class in MRIStep was updated to make supplying an
+`MRIStepInnerFullRhsFn` optional.
 
 Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
+
+Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
+This fixes [GitHub Issue #312](https://github.com/LLNL/sundials/issues/312).
 
 Fixed missing soversions in some `SUNLinearSolver` and `SUNNonlinearSolver`
 CMake targets.
 
-Added Fortran support for the LAPACK dense `SUNLinearSolver` implementation.
-
-Added the third order ERK method `ARKODE_SHU_OSHER_3_2_3`, the fourth order
-ERK method `ARKODE_SOFRONIOU_SPALETTA_5_3_4`, the sixth order ERK method
-`ARKODE_VERNER_9_5_6`, the seventh order ERK method `ARKODE_VERNER_10_6_7`,
-the eighth order ERK method `ARKODE_VERNER_13_7_8`, and the ninth order ERK
-method `ARKODE_VERNER_16_8_9`.
-
-Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
-This fixes https://github.com/LLNL/sundials/issues/312.
+Renamed some internal types in CVODES and IDAS to allow both packages to be
+built together in the same binary.
 
 ## Changes to SUNDIALS in release 6.6.2
 
@@ -70,20 +84,6 @@ be cleared when using normal mode if the requested output time is the same as
 the stop time. Additionally, with ARKODE, CVODE, and CVODES this fix removes an
 unnecessary interpolation of the solution at the stop time that could occur in
 this case.
-
-Fixed a bug in ERKStep where methods with `c[s-1] = 1` but `a[s-1,j] != b[j]`
-were incorrectly treated as having the first same as last (FSAL) property.
-
-Fixed a bug in `MRIStepCoupling_Write` where explicit coupling tables were not
-written to the output file pointer.
-
-ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
-unnecessary right-hand side evaluation at the end of an integration. ARKStep was
-additionally updated to remove extra right-hand side evaluations when using an
-explicit method or an implicit method with an explicit first stage.
-
-The `MRIStepInnerStepper` class in MRIStep was updated to make supplying an
-`MRIStepInnerFullRhsFn` optional.
 
 ## Changes to SUNDIALS in release 6.6.0
 

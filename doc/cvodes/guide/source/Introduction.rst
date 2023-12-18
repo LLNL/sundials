@@ -111,28 +111,28 @@ Fortran.
 Changes from previous versions
 ==============================
 
-Changes in vX.X.X
+Changes in v6.7.0
 -----------------
-
-Fixed a regression introduced by the stop time bug fix in v6.6.1 where CVODES
-would return at the stop time rather than the requested output time if the stop
-time was reached in the same step in which the output time was passed.
-
-Renamed some internal types in CVODES and IDAS to allow both packages to be
-built together in the same binary.
 
 Improved computational complexity of ``SUNMatScaleAddI_Sparse`` from ``O(M*N)``
 to ``O(NNZ)``.
 
+Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
+
+Fixed a regression introduced by the stop time bug fix in v6.6.1 where CVODE
+would return at the stop time rather than the requested output time if the stop
+time was reached in the same step in which the output time was passed.
+
 Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
+
+Changed the ``SUNProfiler`` so that it does not rely on ``MPI_WTime`` in any case.
+This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_.
 
 Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
 CMake targets.
 
-Changed the ``SUNProfiler`` so that it does not rely on ``MPI_WTime`` in any case.
-This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_. 
-
-Added Fortran support for the LAPACK  dense ``SUNLinearSolver`` implementation.
+Renamed some internal types in CVODES and IDAS to allow both packages to be
+built together in the same binary.
 
 Changes in v6.6.2
 -----------------
