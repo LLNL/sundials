@@ -130,22 +130,143 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
-Changes in vX.X.X
------------------
+Changes in v6.0.0-rc.1
+----------------------
 
-The previously deprecated types ``realtype`` and ``booleantype`` were removed
-from ``sundials_types.h`` and replaced with ``sunrealtype`` and
-``sunbooleantype``. The deprecated names for these types can be used by including
-the header file ``sundials_types_deprecated.h`` but will be fully removed in the
-next major release.
+**Major Features**
 
-**Major feature**
 SUNDIALS now has more robust and uniform error handling. Non-release builds will
 be built with additional error checking by default. See :numref:`SUNDIALS.Errors`
 for details.
 
+**Breaking Changes**
+
+*Deprecated Types and Functions Removed*
+
+The previously deprecated types ``realtype`` and ``booleantype`` were removed
+from ``sundials_types.h`` and replaced with ``sunrealtype`` and
+``sunbooleantype``. The deprecated names for these types can be used by
+including the header file ``sundials_types_deprecated.h`` but will be fully
+removed in the next major release. Functions, types, and header files that were
+previously deprecated have also been removed.
+
+*Error Handling Changes*
+
+With the addition of the new error handling capability, the following functions
+have been removed
+
+* ``ARKStepSetErrHandlerFn``
+* ``ARKStepSetErrFile``
+* ``ERKStepSetErrHandlerFn``
+* ``ERKStepSetErrFile``
+* ``MRIStepSetErrHandlerFn``
+* ``MRIStepSetErrFile``
+* ``SPRKStepSetErrHandlerFn``
+* ``SPRKStepSetErrFile``
+
+Users of these functions can use the functions :c:func:`SUNContext_PushErrHandler`,
+and :c:func:`SUNLogger_SetErrorFilename` instead. For further details see
+Sections :numref:`SUNDIALS.Errors` and :numref:`SUNDIALS.Logging`.
+
+In addition the following names/symbols were replaced by ``SUN_ERR_*`` codes:
+
++-------------------------------+-----------------------------------+
+| Removed                       | Replaced with ``SUNErrCode``      |
++===============================+===================================+
+| SUNLS_SUCCESS                 | SUN_SUCCESS                       |
++-------------------------------+-----------------------------------+
+| SUNLS_UNRECOV_FAILURE         | no replacement (value was unused) |
++-------------------------------+-----------------------------------+
+| SUNLS_MEM_NULL                | SUN_ERR_ARG_CORRUPT               |
++-------------------------------+-----------------------------------+
+| SUNLS_ILL_INPUT               | SUN_ERR_ARG_*                     |
++-------------------------------+-----------------------------------+
+| SUNLS_MEM_FAIL                | SUN_ERR_MEM_FAIL                  |
++-------------------------------+-----------------------------------+
+| SUNLS_PACKAGE_FAIL_UNREC      | SUN_ERR_EXT_FAIL                  |
++-------------------------------+-----------------------------------+
+| SUNLS_VECTOROP_ERR            | SUN_ERR_OP_FAIL                   |
++-------------------------------+-----------------------------------+
+| SUN_NLS_SUCCESS               | SUN_SUCCESS                       |
++-------------------------------+-----------------------------------+
+| SUN_NLS_MEM_NULL              | SUN_ERR_ARG_CORRUPT               |
++-------------------------------+-----------------------------------+
+| SUN_NLS_MEM_FAIL              | SUN_ERR_MEM_FAIL                  |
++-------------------------------+-----------------------------------+
+| SUN_NLS_ILL_INPUT             | SUN_ERR_ARG_*                     |
++-------------------------------+-----------------------------------+
+| SUN_NLS_VECTOROP_ERR          | SUN_ERR_OP_FAIL                   |
++-------------------------------+-----------------------------------+
+| SUN_NLS_EXT_FAIL              | SUN_ERR_EXT_FAIL                  |
++-------------------------------+-----------------------------------+
+| SUNMAT_SUCCESS                | SUN_SUCCESS                       |
++-------------------------------+-----------------------------------+
+| SUNMAT_ILL_INPUT              | SUN_ERR_ARG_*                     |
++-------------------------------+-----------------------------------+
+| SUNMAT_MEM_FAIL               | SUN_ERR_MEM_FAIL                  |
++-------------------------------+-----------------------------------+
+| SUNMAT_OPERATION_FAIL         | SUN_ERR_OP_FAIL                   |
++-------------------------------+-----------------------------------+
+| SUNMAT_MATVEC_SETUP_REQUIRED  | SUN_ERR_OP_FAIL                   |
++-------------------------------+-----------------------------------+
+
+The following functions have had their signature updated to ensure they can
+leverage the new SUNDIALS error handling capabilities.
+
+* From ``sundials_futils.h``
+
+  * :c:func:`SUNDIALSFileOpen`
+  * :c:func:`SUNDIALSFileClose`
+
+* From ``sundials_memory.h``
+
+  * :c:func:`SUNMemorNewEmpty`
+  * :c:func:`SUNMemoryHelper_Alias`
+  * :c:func:`SUNMemoryHelper_Wrap`
+
+* From ``sundials_nvector.h``
+
+  * :c:func:`N_VNewVectorArray`
+
+*SUNComm Type Added*
+
+We have replaced the use of a type-erased (i.e., ``void*``) pointer to a
+communicator in place of ``MPI_Comm`` throughout the SUNDIALS API with a
+:c:type:`SUNComm`, which is just a typedef to an ``int`` in builds without MPI
+and a typedef to a ``MPI_Comm`` in builds with MPI. As a result:
+
+- All users will need to update their codes because the call to
+  :c:func:`SUNContext_Create` now takes a :c:type:`SUNComm` instead
+  of type-erased pointer to a communicator. For non-MPI codes,
+  pass :c:type:`SUN_COMM_NULL` to the ``comm`` argument instead of
+  ``NULL``. For MPI codes, pass the ``MPI_Comm`` directly.
+
+- The same change must be made for calls to
+  :c:func:`SUNLogger_Create` or :c:func:`SUNProfiler_Create`.
+
+- Some users will need to update their calls to ``N_VGetCommunicator``, and
+  update any custom ``N_Vector`` implementations tht provide
+  ``N_VGetCommunicator``, since it now returns a ``SUNComm``.
+
+The change away from type-erased pointers for :c:type:`SUNComm` fixes problems
+like the one described in
+`GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`_.
+
+The SUNLogger is now always MPI-aware if MPI is enabled in SUNDIALS and the
+``SUNDIALS_LOGGING_ENABLE_MPI`` CMake option and macro definition were removed
+accordingly.
+
+*SUNDIALS Core Library*
+
+Users now need to link to ``sundials_core`` in addition to the libraries already
+linked to. This will be picked up automatically in projects that use the
+SUNDIALS CMake target. The library ``sundials_generic`` has been superseded by
+``sundials_core`` and is no longer available. This fixes some duplicate symbol
+errors on Windows when linking to multiple SUNDIALS libraries.
+
 **Deprecation notice**
-The functions in `sundials_math.h` will be deprecated in the next release.
+
+The functions in ``sundials_math.h`` will be deprecated in the next release.
 
 .. code-block:: c
 
@@ -164,101 +285,6 @@ rely on these are recommended to transition to the corresponding :c:type:`SUNMat
   sundials_direct.h
   sundials_dense.h
   sundials_band.h
-
-
-**Breaking change**
-The following functions have had their signature updated to ensure they can leverage
-the new SUNDIALS error handling capabilties.
-
-From sundials_futils.h
-* :c:func:`SUNDIALSFileOpen`
-* :c:func:`SUNDIALSFileClose`
-
-From sundials_memory.h
-* :c:func:`SUNMemorNewEmpty`
-* :c:func:`SUNMemoryHelper_Alias`
-* :c:func:`SUNMemoryHelper_Wrap`
-
-From sundials_nvector.h
-* :c:func:`N_VNewVectorArray`
-
-**Breaking change**
-We have replaced the use of a type-erased (i.e., ``void*``) pointer to a
-communicator in place of ``MPI_Comm`` throughout the SUNDIALS API with a
-:c:type:`SUNComm`, which is just a typedef to an ``int`` in builds without MPI
-and a typedef to a ``MPI_Comm`` in builds with MPI. Here is what this means:
-
-- All users will need to update their codes because the call to
-  :c:func:`SUNContext_Create` now takes a :c:type:`SUNComm` instead
-  of type-erased pointer to a communicator. For non-MPI codes,
-  pass :c:type:`SUN_COMM_NULL` to the ``comm`` argument instead of
-  ``NULL``. For MPI codes, pass the ``MPI_Comm`` directly.
-  The required change should be doable with a find-and-replace.
-
-- The same change must be made for calls to
-  :c:func:`SUNLogger_Create` or :c:func:`SUNProfiler_Create`.
-
-- Some users will need to update their calls to ``N_VGetCommunicator``, and
-  update any custom ``N_Vector`` implementations tht provide
-  ``N_VGetCommunicator``, since it now returns a ``SUNComm``.
-
-The change away from type-erased pointers for :c:type:`SUNComm` fixes problems like the
-one described in `GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`_.
-
-**Breaking change**
-The SUNLogger is now always MPI-aware if MPI is enabled in SUNDIALS and the
-``SUNDIALS_LOGGING_ENABLE_MPI`` CMake option and macro definition were removed
-accordingly.
-
-**Breaking change**
-Functions, types and header files that were previously deprecated have been
-removed. In addition the following names/symbols were replaced by ``SUN_ERR_*``
-codes instead:
-
-.. code-block::
-
-  SUNLS_SUCCESS --> SUN_SUCCESS
-  SUNLS_UNRECOV_FAILURE --> no replacement (this value was unused)
-  SUNLS_MEM_NULL --> SUN_ERR_ARG_CORRUPT
-  SUNLS_ILL_INPUT --> SUN_ERR_ARG_*
-  SUNLS_MEM_FAIL --> SUN_ERR_MEM_FAIL
-  SUNLS_PACKAGE_FAIL_UNREC --> SUN_ERR_EXT_FAIL
-  SUNLS_VECTOROP_ERR --> SUN_ERR_OP_FAIL
-  SUN_NLS_SUCCESS --> SUN_SUCCESS
-  SUN_NLS_MEM_NULL --> SUN_ERR_ARG_CORRUPT
-  SUN_NLS_MEM_FAIL --> SUN_ERR_MEM_FAIL
-  SUN_NLS_ILL_INPUT --> SUN_ERR_ARG_*
-  SUN_NLS_VECTOROP_ERR --> SUN_ERR_OP_FAIL
-  SUN_NLS_EXT_FAIL --> SUN_ERR_EXT_FAIL
-  SUNMAT_SUCCESS --> SUN_SUCCESS
-  SUNMAT_ILL_INPUT --> SUN_ERR_ARG_*
-  SUNMAT_MEM_FAIL --> SUN_ERR_MEM_FAIL
-  SUNMAT_OPERATION_FAIL --> SUN_ERR_OP_FAIL
-  SUNMAT_MATVEC_SETUP_REQUIRED --> SUN_ERR_OP_FAIL
-
-
-**Breaking change**
-Users now need to link to ``sundials_core`` in addition to the libraries already linked to.
-This will be picked up automatically in projects that use the SUNDIALS CMake target. The library ``sundials_generic`` has been superceded by ``sundials_core`` and is no longer available.
-This fixes some duplicate symbol errors on Windows when linking to multiple SUNDIALS libraries.
-
-**Breaking change**
-The following functions have been removed
-
-.. code-block::
-
-  ARKStepSetErrHandlerFn
-  ARKStepSetErrFile
-  ERKStepSetErrHandlerFn
-  ERKStepSetErrFile
-  MRIStepSetErrHandlerFn
-  MRIStepSetErrFile
-  SPRKStepSetErrHandlerFn
-  SPRKStepSetErrFile
-
-Users of these functions can use the functions :c:func:`SUNContext_PushErrHandler`,
-and :c:func:`SUNLogger_SetErrorFilename` instead. For further details see
-Sections :numref:`SUNDIALS.Errors` and :numref:`SUNDIALS.Logging`.
 
 Changes in v5.7.0
 -----------------

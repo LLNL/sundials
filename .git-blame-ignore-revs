@@ -1,2 +1,4 @@
-78770ef9b40fb163bf6d0fd582b6a449f0298585
-e75d0c03345b230def5713cda2e1b2748171634b
+# Apply formatting across sundials
+fab1cecb7d91cff53b31730af5d00ff154c3b6ce
+# Remove deprecated types in 7.0.0
+cc6960349aa92e2bcad9168a6dacff99b21c329c

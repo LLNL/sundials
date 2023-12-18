@@ -1,5 +1,5 @@
 # IDA
-### Version 6.7.0 (Dec 2023)
+### Version 7.0.0-rc.1 (Dec 2023)
 
 **Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, 
   and Carol S. Woodward, Center for Applied Scientific Computing, LLNL**
@@ -47,10 +47,10 @@ the "SUNDIALS Release History" appendix of the IDA User Guide.
 ## References
 
 * A. C. Hindmarsh, R. Serban, C. J. Balos, D. J. Gardner, D. R. Reynolds
-  and C. S. Woodward, "User Documentation for IDA v6.7.0,"
+  and C. S. Woodward, "User Documentation for IDA v7.0.0-rc.1,"
   LLNL technical report UCRL-SM-208112, Dec 2023.
 
-* A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v6.7.0,"
+* A. C. Hindmarsh, R. Serban, and A. Collier, "Example Programs for IDA v7.0.0-rc.1,"
   LLNL technical report UCRL-SM-208113, Dec 2023.
 
 * A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban,
