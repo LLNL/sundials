@@ -120,6 +120,12 @@ set(DOCSTR "Enable C compiler specific extensions")
 sundials_option(CMAKE_C_EXTENSIONS BOOL "${DOCSTR}" ON)
 message(STATUS "C extensions set to ${CMAKE_C_EXTENSIONS}")
 
+# Before we do compile checks, ensure warnings are reported as errors
+set(OLD_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAHS})
+if(NOT ENABLE_WARNINGS_AS_ERRORS)
+  set(CMAKE_REQUIRED_FLAGS "-Werror")
+endif()
+
 # ---------------------------------------------------------------
 # Check for snprintf and va_copy
 #
@@ -151,6 +157,7 @@ endif()
 set(CMAKE_REQUIRED_LIBRARIES ${SUNDIALS_MATH_LIBRARY})
 check_c_source_compiles("
   #include <math.h>
+  #include <stdio.h>
   int main(void) {
     float a, a_result;
     long double b, b_result;
@@ -163,12 +170,14 @@ check_c_source_compiles("
     a_result = expf(a);
     a_result = ceilf(a);
     a_result = powf(a, 1.0F);
+    printf(\"a_result=%g\", a_result);
 
     b_result = sqrtl(b);
     b_result = fabsl(b);
     b_result = expl(b);
     b_result = ceill(b);
     b_result = powl(b, 1.0L);
+    printf(\"b_result=%Lg\", b_result);
 
     return 0;
   }
@@ -207,12 +216,14 @@ check_c_source_compiles("
 # ---------------------------------------------------------------
 
 check_c_source_compiles("
+  #include <stdio.h>
   int main(void) {
     double a = 0.0;
     if (__builtin_expect(a < 0, 0)) {
       a = 0.0;
     }
     a = a + 1.0;
+    printf(\"a=%g\", a);
     return 0;
   }
 " SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT)
@@ -221,37 +232,48 @@ check_c_source_compiles("
 # Check for assume related extensions
 # ---------------------------------------------------------------
 
+# gcc >= 13 should have __attribute__((assume))
 check_c_source_compiles("
+  #include <stdio.h>
   int main(void) {
     double a = 0.0;
+    #if defined(__has_attribute) && !__has_attribute(assume)
+    #error __has_attribute(assume) fails
+    #endif
     __attribute__((assume(a >= 0.0)));
     a = a + 1.0;
+    printf(\"a=%g\", a);
     return 0;
   }
 " SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME)
 
+# LLVM based compilers should have __builtin_assume
 if(NOT SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME)
   check_c_source_compiles("
+    #include <stdio.h>
     int main(void) {
       double a = 0.0;
       __builtin_assume(a >= 0.0);
       a = a + 1.0;
+      printf(\"a=%g\", a);
       return 0;
     }
   " SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME)
 endif()
 
+# MSVC provides __assume
 if(NOT (SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME OR SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME))
   check_c_source_compiles("
+    #include <stdio.h>
     int main(void) {
       double a = 0.0;
       __assume(a >= 0.0));
       a = a + 1.0;
+      printf(\"a=%g\", a);
       return 0;
     }
   " SUNDIALS_C_COMPILER_HAS_ASSUME)
 endif()
-
 
 # ---------------------------------------------------------------
 # Check for POSIX timers
@@ -279,6 +301,9 @@ check_c_source_compiles("
   ${COMPILER_DEPRECATED_MSG_ATTRIBUTE} int somefunc(void) { return 0; }
   int main(void) { return somefunc();}" COMPILER_HAS_DEPRECATED_MSG
 )
+
+# Compile checks are done, so now we reset the required flags
+set(CMAKE_REQUIRED_FLAGS ${OLD_CMAKE_REQUIRED_FLAGS})
 
 # ===============================================================
 # Fortran settings
