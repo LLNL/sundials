@@ -231,7 +231,7 @@ program main
   ! test SUNMatZero
   retval = FSUNMatZero(sB)
   if ( (check_matrix_entry(sB, 0.d0, 1.d-14, Nvar, N) /= 0) &
-       .or. (retval /= SUNMAT_SUCCESS) ) then
+       .or. (retval /= SUN_SUCCESS) ) then
      fails = fails + 1
      print *, '>>> FAILED test -- FSUNMatZero'
   else
@@ -241,7 +241,7 @@ program main
   ! test SUNMatCopy
   retval = FSUNMatCopy(sA, sB)
   if ( (check_matrix(sA, sB, 1.d-14, Nvar, N) /= 0) &
-       .or. (retval /= SUNMAT_SUCCESS) ) then
+       .or. (retval /= SUN_SUCCESS) ) then
      fails = fails + 1
      print *, '>>> FAILED test -- FSUNMatCopy'
   else
@@ -252,7 +252,7 @@ program main
   retval = FSUNMatCopy(sA, sB)
   retval = FSUNMatScaleAdd(-1.d0, sB, sB)
   if ( (check_matrix_entry(sB, 0.d0, 1.d-14, Nvar, N) /= 0) &
-       .or. (retval /= SUNMAT_SUCCESS) ) then
+       .or. (retval /= SUN_SUCCESS) ) then
      fails = fails + 1
      print *, '>>> FAILED test -- FSUNMatScaleAdd case 1'
   else
@@ -262,9 +262,9 @@ program main
   retval = FSUNMatCopy(sA, sD)
   retval = FSUNMatCopy(sI, sC)
   retval = FSUNMatScaleAdd(1.d0, sD, sI)
-  if (retval == SUNMAT_SUCCESS)  retval = FSUNMatScaleAdd(1.d0, sC, sA)
+  if (retval == SUN_SUCCESS)  retval = FSUNMatScaleAdd(1.d0, sC, sA)
   if ( (check_matrix(sD, sC, 1.d-14, Nvar, N) /= 0) &
-       .or. (retval /= SUNMAT_SUCCESS) ) then
+       .or. (retval /= SUN_SUCCESS) ) then
      fails = fails + 1
      print *, '>>> FAILED test -- FSUNMatScaleAdd case 2'
   else
@@ -275,7 +275,7 @@ program main
   retval = FSUNMatCopy(sI, sB)
   retval = FSUNMatScaleAddI(-1.d0, sB)
   if ( (check_matrix_entry(sB, 0.d0, 1.d-14, Nvar, N) /= 0) &
-       .or. (retval /= SUNMAT_SUCCESS) ) then
+       .or. (retval /= SUN_SUCCESS) ) then
      fails = fails + 1
      print *, '>>> FAILED test -- FSUNMatScaleAddI'
   else
@@ -288,7 +288,7 @@ program main
   retval = FSUNMatMatvec(sB, sX, sZ)
   call FN_VLinearSum(3.d0, sY, 1.d0, sX, sW)
   if ( (check_vector(sW, sZ, 1.d-15*Nvar*Nvar, Nvar, N) /= 0) &
-       .or. (retval /= SUNMAT_SUCCESS) ) then
+       .or. (retval /= SUN_SUCCESS) ) then
      fails = fails + 1
      print *, '>>> FAILED test -- FSUNMatMatvec'
   else

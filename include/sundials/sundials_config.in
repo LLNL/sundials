@@ -61,6 +61,7 @@
 #cmakedefine SUNDIALS_C_COMPILER_HAS_INLINE
 #cmakedefine SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT
 #cmakedefine SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME
+#cmakedefine SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME
 #cmakedefine SUNDIALS_C_COMPILER_HAS_ASSUME
 
 /* Define precision of SUNDIALS data type 'sunrealtype'
@@ -382,7 +383,7 @@
 #if __cplusplus >= 202302L
 #define SUNAssume(...) [[assume(__VA_ARGS__)]]
 #elif defined(SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME)
-#define SUNAssume(...) __attribute__((assume(__VA_ARGS__)));
+#define SUNAssume(...) __attribute__((assume(__VA_ARGS__)))
 #elif defined(SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME)
 #define SUNAssume(...) __builtin_assume(__VA_ARGS__)
 #elif defined(SUNDIALS_C_COMPILER_HAS_ASSUME)

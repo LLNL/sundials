@@ -143,7 +143,7 @@ program main
 
   ! compute B = A*X
   retval = FSUNMatMatvec(sA, sX, sB)
-  if (retval /= SUNMAT_SUCCESS) then
+  if (retval /= SUN_SUCCESS) then
      print *, 'ERROR: FSUNMatMatvec fail'
      stop 1
   end if
@@ -167,7 +167,7 @@ program main
 
   ! test SUNLinSolSetup
   retval = FSUNLinSolSetup(LS, sA)
-  if (retval /= SUNLS_SUCCESS) then
+  if (retval /= SUN_SUCCESS) then
      fails = fails + 1
      print *, '>>> FAILED test -- FSUNLinSolSetup'
   else
@@ -178,7 +178,7 @@ program main
   call FN_VConst(0.d0, sY)
   retval = FSUNLinSolSolve(LS, sA, sY, sB, 1.d-9)
   if ( (check_vector(sX, sY, 1.d-15*Nvar*Nvar, Nvar, N) /= 0) &
-       .or. (retval /= SUNLS_SUCCESS) ) then
+       .or. (retval /= SUN_SUCCESS) ) then
      fails = fails + 1
      print *, '>>> FAILED test -- FSUNLinSolSolve'
   else

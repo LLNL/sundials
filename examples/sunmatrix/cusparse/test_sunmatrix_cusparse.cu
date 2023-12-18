@@ -625,16 +625,16 @@ int check_matrix(SUNMatrix dA, SUNMatrix dB, sunrealtype tol)
   /* matrices must have same sparsetype, shape and actual data lengths */
   if (SUNMatGetID(dA) != SUNMatGetID(dB))
   {
-    printf(">>> ERROR: check_matrix: Different storage types (%d vs %d)\n",
+    printf(">>> ERROR: check_matrix: Different IDs (%d vs %d)\n",
            SUNMatGetID(dA), SUNMatGetID(dB));
     SUNMatDestroy(dA);
     SUNMatDestroy(dB);
     return (1);
   }
-  if (SUNMatrix_cuSparse_SparseType(A) != SUNMatrix_cuSparse_SparseType(B))
+  if (SUNMatrix_cuSparse_SparseType(dA) != SUNMatrix_cuSparse_SparseType(dB))
   {
     printf(">>> ERROR: check_matrix: Different storage types (%d vs %d)\n",
-           SUNMatrix_cuSparse_SparseType(A), SUNMatrix_cuSparse_SparseType(B));
+           SUNMatrix_cuSparse_SparseType(dA), SUNMatrix_cuSparse_SparseType(dB));
     SUNMatDestroy(A);
     SUNMatDestroy(B);
     return (1);

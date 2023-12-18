@@ -25,6 +25,7 @@
 // insert the include into the swig wrapper
 %{
 #include "sundials/sundials_context.h"
+#include "sundials/sundials_errors.h"
 #include "sundials/sundials_profiler.h"
 %}
 
@@ -33,6 +34,8 @@
 %apply void** { SUNProfiler* };
 %apply void* { SUNLogger };
 %apply void** { SUNLogger* };
+%apply void* { SUNErrHandler };
 
 // Process and wrap functions in the following files
+%include "sundials/sundials_errors.h"
 %include "sundials/sundials_context.h"

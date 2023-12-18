@@ -53,7 +53,7 @@ int SUNLinSolSetup_Ginkgo(SUNLinearSolver S, SUNMatrix A)
   auto solver{
     static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
   solver->Setup(static_cast<Matrix<GkoMatrixType>*>(A->content));
-  return SUNLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 template<class GkoSolverType, class GkoMatrixType>
@@ -63,16 +63,16 @@ int SUNLinSolSolve_Ginkgo(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   auto solver{
     static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
   solver->Solve(b, x, tol);
-  return SUNLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 template<class GkoSolverType, class GkoMatrixType>
-int SUNLinSolFree_Ginkgo(SUNLinearSolver S)
+SUNErrCode SUNLinSolFree_Ginkgo(SUNLinearSolver S)
 {
   auto solver{
     static_cast<LinearSolver<GkoSolverType, GkoMatrixType>*>(S->content)};
   delete solver; // NOLINT
-  return SUNLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 template<class GkoSolverType, class GkoMatrixType>

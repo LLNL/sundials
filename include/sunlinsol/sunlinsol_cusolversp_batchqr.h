@@ -71,7 +71,7 @@ SUNLinSolGetType_cuSolverSp_batchQR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID
 SUNLinSolGetID_cuSolverSp_batchQR(SUNLinearSolver S);
 
-SUNDIALS_EXPORT int SUNLinSolInitialize_cuSolverSp_batchQR(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNErrCode SUNLinSolInitialize_cuSolverSp_batchQR(SUNLinearSolver S);
 
 SUNDIALS_EXPORT int SUNLinSolSetup_cuSolverSp_batchQR(SUNLinearSolver S,
                                                       SUNMatrix A);
@@ -83,7 +83,7 @@ SUNDIALS_EXPORT int SUNLinSolSolve_cuSolverSp_batchQR(SUNLinearSolver S,
 
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_cuSolverSp_batchQR(SUNLinearSolver S);
 
-SUNDIALS_EXPORT int SUNLinSolFree_cuSolverSp_batchQR(SUNLinearSolver S);
+SUNDIALS_EXPORT SUNErrCode SUNLinSolFree_cuSolverSp_batchQR(SUNLinearSolver S);
 
 /*
  * ----------------------------------------------------------------------------

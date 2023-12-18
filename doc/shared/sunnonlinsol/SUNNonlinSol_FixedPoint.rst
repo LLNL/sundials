@@ -152,7 +152,7 @@ user-callable functions.
 
 
 
-.. c:function:: int SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *SysFn)
+.. c:function:: SUNErrCode SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *SysFn)
 
    This returns the fixed-point function that defines the nonlinear system.
 
@@ -161,8 +161,7 @@ user-callable functions.
       * *SysFn* -- the function defining the nonlinear system.
 
    **Return value:**
-      The return value is zero for a successful call, and a
-      negative value for a failure.
+      * A :c:type:`SUNErrCode`
 
    **Notes:**
       This function is intended for users that wish to evaluate the
@@ -172,7 +171,7 @@ user-callable functions.
       calls to *SysFn*.
 
 
-.. c:function:: int SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS, sunrealtype beta)
+.. c:function:: SUNErrCode SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS, sunrealtype beta)
 
    This sets the damping parameter :math:`\beta` to use with Anderson
    acceleration. By default damping is disabled i.e., :math:`\beta = 1.0`.
@@ -182,76 +181,11 @@ user-callable functions.
      * *beta* -- the damping parameter :math:`0 < \beta \leq 1`.
 
    **Return value:**
-      * ``SUN_NLS_SUCCESS`` if successful.
-      * ``SUN_NLS_MEM_NULL`` if ``NLS`` was ``NULL``.
-      * ``SUN_NLS_ILL_INPUT`` if ``beta`` was negative.
+      * A :c:type:`SUNErrCode`
 
    **Notes:**
       A ``beta`` value should satisfy :math:`0 < \beta < 1` if
       damping is to be used. A value of one or more will disable damping.
-
-
-.. c:function:: int SUNNonlinSolSetInfoFile_FixedPoint(SUNNonlinearSolver NLS, FILE* info_file)
-
-   Thissets the output file where all informative (non-error)
-   messages should be directed.
-
-   **Arguments:**
-      * *NLS* -- a SUNNonlinSol object.
-      * *info_file* -- pointer to output file (``stdout`` by default);
-         a ``NULL`` input will disable output.
-
-   **Return value:**
-      * ``SUN_NLS_SUCCESS`` if successful.
-      * ``SUN_NLS_MEM_NULL`` if ``NLS`` was ``NULL``.
-      * ``SUN_NLS_ILL_INPUT`` if SUNDIALS was not built with monitoring enabled.
-
-   **Notes:**
-      This function is intended for users that wish to monitor the nonlinear
-      solver progress. By default, the file pointer is set to ``stdout``.
-
-   .. warning::
-
-      SUNDIALS must be built with the CMake option
-      ``SUNDIALS_LOGGING_LEVEL >= 3`` to utilize this function.
-      See :numref:`Installation.CMake.Options` for more information.
-
-   .. deprecated:: 6.2.0
-
-      Use :c:func:`SUNLogger_SetInfoFilename` instead.
-
-
-.. c:function:: int SUNNonlinSolSetPrintLevel_FixedPoint(SUNNonlinearSolver NLS, int print_level)
-
-   This specifies the level of verbosity of the output.
-
-   **Arguments:**
-      * *NLS* -- a SUNNonlinSol object.
-      * *print_level* -- flag indicating level of verbosity;
-        must be one of:
-
-         * 0, no information is printed (default).
-         * 1, for each nonlinear iteration the residual norm is printed.
-
-   **Return value:**
-      * ``SUN_NLS_SUCCESS`` if successful.
-      * ``SUN_NLS_MEM_NULL`` if ``NLS`` was ``NULL``.
-      * ``SUN_NLS_ILL_INPUT`` if SUNDIALS was not built with monitoring enabled,
-        or the print level value was invalid.
-
-   **Notes:**
-      This function is intended for users that wish to monitor the nonlinear
-      solver progress. By default, the print level is 0.
-
-   .. warning::
-
-      SUNDIALS must be built with the CMake option
-      ``SUNDIALS_BUILD_WITH_MONITORING`` to utilize this function.
-      See :numref:`Installation.CMake.Options` for more information.
-
-   .. deprecated:: 6.2.0
-
-      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. _SUNNonlinSol.FixedPoint.Content:
@@ -269,29 +203,27 @@ following structure.
      SUNNonlinSolSysFn      Sys;
      SUNNonlinSolConvTestFn CTest;
 
-     int          m;
-     int         *imap;
+     int            m;
+     int            *imap;
      sunrealtype    *R;
-     sunbooleantype  damping
-     sunrealtype     beta
+     sunbooleantype damping
+     sunrealtype    beta
      sunrealtype    *gamma;
      sunrealtype    *cvals;
-     N_Vector    *df;
-     N_Vector    *dg;
-     N_Vector    *q;
-     N_Vector    *Xvecs;
-     N_Vector     yprev;
-     N_Vector     gy;
-     N_Vector     fold;
-     N_Vector     gold;
-     N_Vector     delta;
-     int          curiter;
-     int          maxiters;
-     long int     niters;
-     long int     nconvfails;
-     void        *ctest_data;
-     int          print_level;
-     FILE*        info_file;
+     N_Vector       *df;
+     N_Vector       *dg;
+     N_Vector       *q;
+     N_Vector       *Xvecs;
+     N_Vector        yprev;
+     N_Vector        gy;
+     N_Vector        fold;
+     N_Vector        gold;
+     N_Vector        delta;
+     int             curiter;
+     int             maxiters;
+     long int        niters;
+     long int        nconvfails;
+     void           *ctest_data;
    };
 
 The following entries of the *content* field are always
@@ -310,8 +242,6 @@ allocated:
 * ``nconvfails`` -- the total number of nonlinear convergence failures across all solves,
 * ``ctest_data`` -- the data pointer passed to the convergence test function,
 * ``m``          -- number of acceleration vectors,
-* ``print_level`` - controls the amount of information to be printed to the info file, and
-* ``info_file``   - the file where all informative (non-error) messages will be directed.
 
 If Anderson acceleration is requested (i.e., :math:`m>0` in the call
 to :c:func:`SUNNonlinSol_FixedPoint`), then the following items are also

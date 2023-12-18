@@ -347,8 +347,10 @@ int main(int argc, char* argv[])
       for (j = 0; j < rowptrs[i + 1] - rowptrs[i]; j++)
       {
         if (colind[rowptrs[i] + j] == (fst_row + i))
+        {
           matdata[rowptrs[i] + j] = ONE;
-        else matdata[rowptrs[i] + j] = ZERO;
+        }
+        else { matdata[rowptrs[i] + j] = ZERO; }
       }
     }
   }

@@ -85,7 +85,7 @@ user-callable routines:
       :c:func:`SUNLinSolSetZeroGuess` to indicate the initial guess is zero).
 
 
-.. c:function:: int SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S, int pretype)
+.. c:function:: SUNErrCode SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S, int pretype)
 
    This function updates the flag indicating use of preconditioning.
 
@@ -99,12 +99,10 @@ user-callable routines:
         * ``SUN_PREC_BOTH``
 
    **Return value:**
-      * ``SUNLS_SUCCESS`` -- successful update.
-      * ``SUNLS_ILL_INPUT`` -- illegal ``pretype``
-      * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``
+      * A :c:type:`SUNErrCode`
 
 
-.. c:function:: int SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S, int maxl)
+.. c:function:: SUNErrCode SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S, int maxl)
 
    This function updates the number of linear solver iterations to allow.
 
@@ -114,88 +112,7 @@ user-callable routines:
         non-positive input will result in the default value (5).
 
    **Return value:**
-      * ``SUNLS_SUCCESS`` -- successful update.
-      * ``SUNLS_MEM_NULL`` -- ``S`` is ``NULL``
-
-
-.. c:function:: int SUNLinSolSetInfoFile_SPBCGS(SUNLinearSolver LS, FILE* info_file)
-
-   The function :c:func:`SUNLinSolSetInfoFile_SPBCGS()` sets the
-   output file where all informative (non-error) messages should be directed.
-
-   **Arguments:**
-      * *LS* -- a SUNLinSol object
-      * *info_file* -- pointer to output file (``stdout`` by default);
-         a ``NULL`` input will disable output
-
-   **Return value:**
-      * *SUNLS_SUCCESS* if successful
-      * *SUNLS_MEM_NULL* if the SUNLinearSolver memory was ``NULL``
-      * *SUNLS_ILL_INPUT* if SUNDIALS was not built with monitoring enabled
-
-   **Notes:**
-      This function is intended for users that wish to monitor the linear
-      solver progress. By default, the file pointer is set to ``stdout``.
-
-      **SUNDIALS must be built with the CMake option**
-      ``SUNDIALS_BUILD_WITH_MONITORING`` **to utilize this function.**
-      See :numref:`Installation.CMake.Options` for more information.
-
-   .. deprecated:: 6.2.0
-
-      Use :c:func:`SUNLogger_SetInfoFilename` instead.
-
-
-.. c:function:: int SUNLinSolSetPrintLevel_SPBCGS(SUNLinearSolver LS, int print_level)
-
-   The function :c:func:`SUNLinSolSetPrintLevel_SPBCGS()` specifies the
-   level of verbosity of the output.
-
-   **Arguments:**
-      * *LS* -- a SUNLinSol object
-      * *print_level* -- flag indicating level of verbosity;
-        must be one of:
-
-         * 0, no information is printed (default)
-         * 1, for each linear iteration the residual norm is printed
-
-   **Return value:**
-      * *SUNLS_SUCCESS* if successful
-      * *SUNLS_MEM_NULL* if the SUNLinearSolver memory was ``NULL``
-      * *SUNLS_ILL_INPUT* if SUNDIALS was not built with monitoring enabled, or
-        if the print level value was invalid
-
-   **Notes:**
-      This function is intended for users that wish to monitor the linear
-      solver progress. By default, the print level is 0.
-
-   .. warning::
-
-      SUNDIALS must be built with the CMake option
-      ``SUNDIALS_LOGGING_LEVEL >= 3`` to utilize this function.
-      See :numref:`Installation.CMake.Options` for more information.
-
-   .. deprecated:: 6.2.0
-
-      Use :c:func:`SUNLogger_SetInfoFilename` instead.
-
-
-For backwards compatibility, we also provide the following wrapper functions,
-each with identical input and output arguments to the routines that
-they wrap:
-
-.. c:function:: SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl)
-
-   Wrapper function for :c:func:`SUNLinSol_SPBCGS`
-
-.. c:function:: int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype)
-
-   Wrapper function for :c:func:`SUNLinSol_SPBCGSSetPrecType()`
-
-.. c:function:: int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl)
-
-   Wrapper function for :c:func:`SUNLinSol_SPBCGSSetMaxl()`
-
+      * A :c:type:`SUNErrCode`
 
 
 
@@ -230,8 +147,6 @@ The SUNLinSol_SPBCGS module defines the *content* field of a
      N_Vector u;
      N_Vector Ap;
      N_Vector vtemp;
-     int      print_level;
-     FILE*    info_file;
    };
 
 These entries of the *content* field contain the following
@@ -272,9 +187,7 @@ information:
 * ``p, q, u, Ap, vtemp`` - ``N_Vector`` used for workspace by the
   SPBCGS algorithm.
 
-* ``print_level`` - controls the amount of information to be printed to the info file
 
-* ``info_file``   - the file where all informative (non-error) messages will be directed
 
 
 This solver is constructed to perform the following operations:

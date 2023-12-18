@@ -1,0 +1,14 @@
+[
+  {
+    include: ["@<sundials/sundials_.*h>", "private", "<sundials/sundials_core.h>", "public"],
+    include: ["@\"sundials/sundials_.*h\"", "private", "<sundials/sundials_core.h>", "public"],
+    include: ["@<sundials/sundials_.*hpp>", "private", "<sundials/sundials_core.hpp>", "public"],
+    include: ["@\"sundials/sundials_.*hpp\"", "private", "<sundials/sundials_core.hpp>", "public"],
+    include: ["<sundials/priv/sundials_context_impl.h>", "private", "<sundials/sundials_core.h>", "public"]
+    include: ["<sundials/priv/sundials_errors_impl.h>", "private", "<sundials/sundials_core.h>", "public"]
+    include: ["<sundials/priv/sundials_mpi_errors_impl.h>", "private", "<sundials/sundials_core.h>", "public"]
+    include: ["\"sundials/priv/sundials_context_impl.h\"", "private", "<sundials/sundials_core.h>", "public"]
+    include: ["\"sundials/priv/sundials_errors_impl.h\"", "private", "<sundials/sundials_core.h>", "public"]
+    include: ["\"sundials/priv/sundials_mpi_errors_impl.h\"", "private", "<sundials/sundials_core.h>", "public"]
+  }
+]

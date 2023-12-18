@@ -130,13 +130,43 @@ accordingly.
 
 **Breaking change**
 Functions, types and header files that were previously deprecated have been
-removed.
+removed. In addition the following names/symbols were replaced by ``SUN_ERR_*``
+codes instead:
+
+```
+SUNLS_SUCCESS --> SUN_SUCCESS
+SUNLS_UNRECOV_FAILURE --> no replacement (this value was unused)
+SUNLS_MEM_NULL --> SUN_ERR_ARG_CORRUPT
+SUNLS_ILL_INPUT --> SUN_ERR_ARG_*
+SUNLS_MEM_FAIL --> SUN_ERR_MEM_FAIL
+SUNLS_PACKAGE_FAIL_UNREC --> SUN_ERR_EXT_FAIL
+SUNLS_VECTOROP_ERR --> SUN_ERR_OP_FAIL
+SUN_NLS_SUCCESS --> SUN_SUCCESS
+SUN_NLS_MEM_NULL --> SUN_ERR_ARG_CORRUPT
+SUN_NLS_MEM_FAIL --> SUN_ERR_MEM_FAIL
+SUN_NLS_ILL_INPUT --> SUN_ERR_ARG_*
+SUN_NLS_VECTOROP_ERR --> SUN_ERR_OP_FAIL
+SUN_NLS_EXT_FAIL --> SUN_ERR_EXT_FAIL
+SUNMAT_SUCCESS --> SUN_SUCCESS
+SUNMAT_ILL_INPUT --> SUN_ERR_ARG_*
+SUNMAT_MEM_FAIL --> SUN_ERR_MEM_FAIL
+SUNMAT_OPERATION_FAIL --> SUN_ERR_OP_FAIL
+SUNMAT_MATVEC_SETUP_REQUIRED --> SUN_ERR_OP_FAIL
+```
 
 **Breaking change**
 Users now need to link to `sundials_core` in addition to the libraries already linked to.
 This will be picked up automatically in projects that use the SUNDIALS CMake target.
-The library `sundials_generic` has been superceded by `sundials_core` and is no longer available.
+The library `sundials_generic` has been superseded by `sundials_core` and is no longer available.
 This fixes some duplicate symbol errors on Windows when linking to multiple SUNDIALS libraries.
+
+**Breaking change**
+The `*SetErrHandlerFn` and `*SetErrFile` functions in CVODE(S), IDA(S), ARKODE and KINSOL have been
+removed. Users of these functions can use the functions `SUNContext_PushErrHandler`, and
+`SUNLogger_SetErrorFilename` instead. For further details see the [Error
+Checking](https://sundials.readthedocs.io/en/latest/sundials/Errors_link.html) and
+[Logging](https://sundials.readthedocs.io/en/latest/sundials/Logging_link.html) sections in the
+documentation.
 
 
 ## Changes to SUNDIALS in release 6.6.2

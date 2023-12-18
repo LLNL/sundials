@@ -864,8 +864,6 @@ Return ARKStep parameters to their defaults       :c:func:`ARKStepSetDefaults`  
 Set dense output interpolation type               :c:func:`ARKStepSetInterpolantType`      ``ARK_INTERP_HERMITE``
 Set dense output polynomial degree                :c:func:`ARKStepSetInterpolantDegree`    5
 Supply a pointer to a diagnostics output file     :c:func:`ARKStepSetDiagnostics`          ``NULL``
-Supply a pointer to an error output file          :c:func:`ARKStepSetErrFile`              ``stderr``
-Supply a custom error handler function            :c:func:`ARKStepSetErrHandlerFn`         internal fn
 Disable time step adaptivity (fixed-step mode)    :c:func:`ARKStepSetFixedStep`            disabled
 Supply an initial step size to attempt            :c:func:`ARKStepSetInitStep`             estimated
 Maximum no. of warnings for :math:`t_n+h = t_n`   :c:func:`ARKStepSetMaxHnilWarns`         10
@@ -1018,57 +1016,6 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
    .. deprecated:: 5.2.0
 
       Use :c:func:`SUNLogger_SetInfoFilename` instead.
-
-
-.. c:function:: int ARKStepSetErrFile(void* arkode_mem, FILE* errfp)
-
-   Specifies a pointer to the file where all ARKStep warning and error
-   messages will be written if the default internal error handling
-   function is used.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *errfp* -- pointer to the output file.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-      The default value for *errfp* is ``stderr``.
-
-      Passing a ``NULL`` value disables all future error message output
-      (except for the case wherein the ARKStep memory pointer is
-      ``NULL``).  This use of the function is strongly discouraged.
-
-      If used, this routine should be called before any other
-      optional input functions, in order to take effect for subsequent
-      error messages.
-
-
-
-.. c:function:: int ARKStepSetErrHandlerFn(void* arkode_mem, ARKErrHandlerFn ehfun, void* eh_data)
-
-   Specifies the optional user-defined function to be used
-   in handling error messages.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *ehfun* -- name of user-supplied error handler function.
-      * *eh_data* -- pointer to user data passed to *ehfun* every time
-        it is called.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-      Error messages indicating that the ARKStep solver memory is
-      ``NULL`` will always be directed to ``stderr``.
-
-
 
 
 .. c:function:: int ARKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed)
@@ -1787,7 +1734,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
       a custom function through a call to :c:func:`ARKStepSetAdaptivityFn()`.
 
       .. versionchanged:: x.x.x
-         
+
          Prior to version x.x.x, any nonzero value for *pq* would result in use of the
          embedding order of accuracy.
 
@@ -4226,13 +4173,13 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       Otherwise, if the ARKLS setup function failed
       (:c:func:`ARKStepEvolve()` returned *ARK_LSETUP_FAIL*), then
       *lsflag* will be *SUNLS_PSET_FAIL_UNREC*, *SUNLS_ASET_FAIL_UNREC*
-      or *SUNLS_PACKAGE_FAIL_UNREC*.
+      or *SUN_ERR_EXT_FAIL*.
 
       If the ARKLS solve function failed (:c:func:`ARKStepEvolve()`
       returned *ARK_LSOLVE_FAIL*), then *lsflag* contains the error
       return flag from the ``SUNLinearSolver`` object, which will
       be one of:
-      *SUNLS_MEM_NULL*, indicating that the ``SUNLinearSolver``
+      *SUN_ERR_ARG_CORRUPTRRUPT*, indicating that the ``SUNLinearSolver``
       memory is ``NULL``;
       *SUNLS_ATIMES_NULL*, indicating that a matrix-free iterative solver
       was provided, but is missing a routine for the matrix-vector product
@@ -4248,7 +4195,7 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       (SPGMR and SPFGMR only);
       *SUNLS_QRSOL_FAIL*, indicating that the matrix :math:`R` was found
       to be singular during the QR solve phase (SPGMR and SPFGMR only); or
-      *SUNLS_PACKAGE_FAIL_UNREC*, indicating an unrecoverable failure in
+      *SUN_ERR_EXT_FAIL*, indicating an unrecoverable failure in
       an external iterative linear solver package.
 
 

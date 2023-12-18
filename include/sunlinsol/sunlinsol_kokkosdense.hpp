@@ -76,7 +76,7 @@ int SUNLinSolSetup_KokkosDense(SUNLinearSolver S, SUNMatrix A)
                                                                  A_subdata);
     });
 
-  return SUNLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 template<class VectorType, class MatrixType, class LinearSolverType>
@@ -128,15 +128,15 @@ int SUNLinSolSolve_KokkosDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                                       A_subdata, x_subdata);
     });
 
-  return SUNLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 template<class LinearSolverType>
-int SUNLinSolFree_KokkosDense(SUNLinearSolver S)
+SUNErrCode SUNLinSolFree_KokkosDense(SUNLinearSolver S)
 {
   auto S_ls{static_cast<LinearSolverType*>(S->content)};
   delete S_ls; // NOLINT
-  return SUNLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 } // namespace impl

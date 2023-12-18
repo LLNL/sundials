@@ -131,7 +131,7 @@ The SUNNonlinSol_Newton module also defines the following
 user-callable function.
 
 
-.. c:function:: int SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *SysFn)
+.. c:function:: SUNErrCode SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *SysFn)
 
    This returns the residual function that defines the nonlinear system.
 
@@ -140,76 +140,13 @@ user-callable function.
       * *SysFn* -- the function defining the nonlinear system.
 
    **Return value:**
-      The return value should be zero for a successful call, and a
-      negative value for a failure.
+      * A :c:type:`SUNErrCode`
 
    **Notes:**
       This function is intended for users that wish to evaluate the
       nonlinear residual in a custom convergence test function for the
       SUNNonlinSol_Newton module.  We note that SUNNonlinSol_Newton
       will not leverage the results from any user calls to *SysFn*.
-
-
-.. c:function:: int SUNNonlinSolSetInfoFile_Newton(SUNNonlinearSolver NLS, FILE* info_file)
-
-   This sets the output file where all informative (non-error) messages should be directed.
-
-   **Arguments:**
-      * *NLS* -- a SUNNonlinSol object.
-      * *info_file* -- pointer to output file (``stdout`` by default);
-         a ``NULL`` input will disable output.
-
-   **Return value:**
-      * ``SUN_NLS_SUCCESS`` if successful.
-      * ``SUN_NLS_MEM_NULL`` if the SUNNonlinSol memory was ``NULL``.
-      * ``SUN_NLS_ILL_INPUT`` if SUNDIALS was not built with monitoring enabled.
-
-   **Notes:**
-      This function is intended for users that wish to monitor the nonlinear
-      solver progress. By default, the file pointer is set to ``stdout``.
-
-   .. warning::
-
-      SUNDIALS must be built with the CMake option
-      ``SUNDIALS_LOGGING_LEVEL >= 3`` to utilize this function.
-      See :numref:`Installation.CMake.Options` for more information.
-
-   .. deprecated:: 6.2.0
-
-      Use :c:func:`SUNLogger_SetInfoFilename` instead.
-
-
-.. c:function:: int SUNNonlinSolSetPrintLevel_Newton(SUNNonlinearSolver NLS, int print_level)
-
-   This specifies the level of verbosity of the output.
-
-   **Arguments:**
-      * *NLS* -- a SUNNonlinSol object.
-      * *print_level* -- flag indicating level of verbosity;
-        must be one of:
-
-         * 0, no information is printed (default).
-         * 1, for each nonlinear iteration the residual norm is printed.
-
-   **Return value:**
-      * ``SUN_NLS_SUCCESS`` if successful.
-      * ``SUN_NLS_MEM_NULL`` if the SUNNonlinearSolver memory was ``NULL``.
-      * ``SUN_NLS_ILL_INPUT`` if SUNDIALS was not built with monitoring enabled,
-        or the print level value was invalid.
-
-   **Notes:**
-      This function is intended for users that wish to monitor the nonlinear
-      solver progress. By default, the print level is 0.
-
-   .. warning::
-
-      SUNDIALS must be built with the CMake option
-      ``SUNDIALS_BUILD_WITH_MONITORING`` to utilize this function.
-      See :numref:`Installation.CMake.Options` for more information.
-
-   .. deprecated:: 6.2.0
-
-      Use :c:func:`SUNLogger_SetInfoFilename` instead.
 
 
 .. _SUNNonlinSol.Newton.Content:
@@ -229,16 +166,13 @@ following structure.
      SUNNonlinSolLSolveFn   LSolve;
      SUNNonlinSolConvTestFn CTest;
 
-     N_Vector    delta;
+     N_Vector       delta;
      sunbooleantype jcur;
-     int         curiter;
-     int         maxiters;
-     long int    niters;
-     long int    nconvfails;
-     void*       ctest_data;
-
-     int         print_level;
-     FILE*       info_file;
+     int            curiter;
+     int            maxiters;
+     long int       niters;
+     long int       nconvfails;
+     void*          ctest_data;
    };
 
 These entries of the *content* field contain the following
@@ -268,7 +202,3 @@ information:
   all solves,
 
 * ``ctest_data`` -- the data pointer passed to the convergence test function,
-
-* ``print_level`` - controls the amount of information to be printed to the info file,
-
-* ``info_file``   - the file where all informative (non-error) messages will be directed.

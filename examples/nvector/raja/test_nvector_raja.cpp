@@ -97,10 +97,12 @@ int main(int argc, char* argv[])
     }
     printf("Vector length: %ld \n", (long int)length);
     /* Create new vectors */
-    if (memtype == UNMANAGED) X = N_VNew_Raja(length, sunctx);
-    else if (memtype == MANAGED) X = N_VNewManaged_Raja(length, sunctx);
+    if (memtype == UNMANAGED) { X = N_VNew_Raja(length, sunctx); }
+    else if (memtype == MANAGED) { X = N_VNewManaged_Raja(length, sunctx); }
     else if (memtype == SUNMEMORY)
+    {
       X = N_VNewWithMemHelp_Raja(length, SUNFALSE, mem_helper, sunctx);
+    }
     if (X == NULL)
     {
       if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }

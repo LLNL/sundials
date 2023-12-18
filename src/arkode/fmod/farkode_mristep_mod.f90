@@ -156,8 +156,6 @@ module farkode_mristep_mod
  public :: FMRIStepSetFixedStep
  public :: FMRIStepSetRootDirection
  public :: FMRIStepSetNoInactiveRootWarn
- public :: FMRIStepSetErrHandlerFn
- public :: FMRIStepSetErrFile
  public :: FMRIStepSetUserData
  public :: FMRIStepSetPostprocessStepFn
  public :: FMRIStepSetPostprocessStageFn
@@ -765,25 +763,6 @@ bind(C, name="_wrap_FMRIStepSetNoInactiveRootWarn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepSetErrHandlerFn(farg1, farg2, farg3) &
-bind(C, name="_wrap_FMRIStepSetErrHandlerFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-type(C_PTR), value :: farg3
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepSetErrFile(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetErrFile") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2375,41 +2354,6 @@ type(C_PTR) :: farg1
 
 farg1 = arkode_mem
 fresult = swigc_FMRIStepSetNoInactiveRootWarn(farg1)
-swig_result = fresult
-end function
-
-function FMRIStepSetErrHandlerFn(arkode_mem, ehfun, eh_data) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_FUNPTR), intent(in), value :: ehfun
-type(C_PTR) :: eh_data
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = arkode_mem
-farg2 = ehfun
-farg3 = eh_data
-fresult = swigc_FMRIStepSetErrHandlerFn(farg1, farg2, farg3)
-swig_result = fresult
-end function
-
-function FMRIStepSetErrFile(arkode_mem, errfp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR) :: errfp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = errfp
-fresult = swigc_FMRIStepSetErrFile(farg1, farg2)
 swig_result = fresult
 end function
 

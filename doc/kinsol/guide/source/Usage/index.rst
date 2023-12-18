@@ -57,7 +57,7 @@ where ``instdir`` is the directory where SUNDIALS was installed.
 Regardless of where the user's application program resides, its
 associated compilation and load commands must make reference to the
 appropriate locations for the library and header files required by
-KINSOL. KINSOL symbols are found in ``libdir/libsundials_kinsol.lib``. 
+KINSOL. KINSOL symbols are found in ``libdir/libsundials_kinsol.lib``.
 Thus, in addition to linking to ``libdir/libsundials_core.lib``, KINSOL
 users need to link to the KINSOL library. Symbols for additional SUNDIALS
 modules, vectors and algebraic solvers, are found in
@@ -70,11 +70,11 @@ modules, vectors and algebraic solvers, are found in
   <libdir>/libsundials_sunnonlinsol*.lib
   <libdir>/libsundials_sunmem*.lib
 
-The file extension ``.lib`` is typically ``.so`` for shared libraries 
-and ``.a`` for static libraries.  
+The file extension ``.lib`` is typically ``.so`` for shared libraries
+and ``.a`` for static libraries.
 
 The relevant header files for KINSOL are located in the subdirectories
-``incdir/include/kinsol``. To use KINSOL the application needs to include 
+``incdir/include/kinsol``. To use KINSOL the application needs to include
 the header file for KINSOL in addition to the SUNDIALS core header file:
 
 .. code:: c
@@ -82,19 +82,19 @@ the header file for KINSOL in addition to the SUNDIALS core header file:
   #include <sundials/sundials_core.h> // Provides core SUNDIALS types
   #include <kinsol/kinsol.h>          // KINSOL provides methods for solving nonlinear systems
 
-The calling program must also include an :c:type:`N_Vector` implementation header file, of the form  
+The calling program must also include an :c:type:`N_Vector` implementation header file, of the form
 ``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name.
 
 If using a Newton or Picard nonlinear solver that requires the solution of a
 linear system, the calling program must also include a ``SUNLinearSolver``
 implementation header file, of the from ``sunlinsol/sunlinsol_*.h`` where ``*``
 is the name of the linear solver (see Chapter :numref:`SUNLinSol` for more
-information). 
+information).
 
 If the linear solver is matrix-based, the linear solver header will also include
 a header file of the from ``sunmatrix/sunmatrix_*.h`` where ``*`` is the name of
-the matrix implementation compatible with the linear solver. (see Chapter  
-:numref:`SUNMatrix` for more information). 
+the matrix implementation compatible with the linear solver. (see Chapter
+:numref:`SUNMatrix` for more information).
 
 Other headers may be needed, according to the choice of preconditioner, etc. For
 example, in the example ``kinFoodWeb_kry_p`` (see :cite:p:`kinsol_ex`),
@@ -458,10 +458,6 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
   +========================================================+==================================+==============================+
   | **KINSOL main solver**                                 |                                  |                              |
   +--------------------------------------------------------+----------------------------------+------------------------------+
-  | Error handler function                                 | :c:func:`KINSetErrHandlerFn`     | internal fn.                 |
-  +--------------------------------------------------------+----------------------------------+------------------------------+
-  | Pointer to an error file                               | :c:func:`KINSetErrFile`          | ``stderr``                   |
-  +--------------------------------------------------------+----------------------------------+------------------------------+
   | Info handler function                                  | :c:func:`KINSetInfoHandlerFn`    | internal fn.                 |
   +--------------------------------------------------------+----------------------------------+------------------------------+
   | Data for problem-defining function                     | :c:func:`KINSetUserData`         | ``NULL``                     |
@@ -525,57 +521,6 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
   +--------------------------------------------------------+----------------------------------+------------------------------+
   | Jacobian-times-vector system function                  | :c:func:`KINSetJacTimesVecSysFn` | ``NULL``                     |
   +--------------------------------------------------------+----------------------------------+------------------------------+
-
-
-.. c:function:: int KINSetErrFile(void * kin_mem, FILE * errfp)
-
-   The function :c:func:`KINSetErrFile` specifies the pointer to the file  where
-   all KINSOL messages should be directed when the default  KINSOL error handler
-   function is used.
-
-   **Arguments:**
-     * ``kin_mem`` -- pointer to the KINSOL memory block.
-     * ``errfp`` -- pointer to output file.
-
-   **Return value:**
-     * ``KIN_SUCCESS`` -- The optional value has been successfully set.
-     * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
-
-   **Notes:**
-      The default value for ``errfp`` is ``stderr``.
-
-      Passing a value of
-      ``NULL`` disables all future error message output  (except for the case in
-      which the KINSOL memory pointer is ``NULL``).  This use of
-      :c:func:`KINSetErrFile` is strongly discouraged.
-
-   .. warning::
-      If :c:func:`KINSetErrFile` is to be called, it should be called before any
-      other optional input functions, in order to take effect for any later
-      error message.
-
-
-.. c:function:: int KINSetErrHandlerFn(void * kin_mem, KINErrHandlerFn ehfun, void * eh_data)
-
-   The function :c:func:`KINSetErrHandlerFn` specifies the optional user-defined
-   function  to be used in handling error messages.
-
-   **Arguments:**
-     * ``kin_mem`` -- pointer to the KINSOL memory block.
-     * ``ehfun`` -- is the user's CC error handler function (see :numref:`KINSOL.Usage.CC.user_fct_sim.ehFn`).
-     * ``eh_data`` -- pointer to user data passed to ``ehfun`` every time it is called.
-
-   **Return value:**
-     * ``KIN_SUCCESS`` -- The function ``ehfun`` and data pointer ``eh_data`` have been successfully set.
-     * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
-
-   **Notes:**
-      The default internal error handler function directs error messages to the
-      file specified by the file pointer ``errfp`` (see :c:func:`KINSetErrFile`
-      above).
-
-      Error messages indicating that the KINSOL solver memory is
-      ``NULL`` will  always be directed to ``stderr``.
 
 
 .. c:function:: int KINSetUserData(void * kin_mem, void * user_data)
@@ -1788,11 +1733,11 @@ The following optional outputs are available from the KINLS modules:
 
       If the KINLS setup function failed when using another ``SUNLinearSolver``
       object, then ``lsflag`` will be ``SUNLS_PSET_FAIL_UNREC``,
-      ``SUNLS_ASET_FAIL_UNREC``, or ``SUNLS_PACKAGE_FAIL_UNREC``.
+      ``SUNLS_ASET_FAIL_UNREC``, or ``SUN_ERR_EXT_FAIL``.
 
       If the KINLS solve function failed (:c:func:`KINSolve` returned ``KIN_LSOLVE_FAIL``),
       ``lsflag`` contains the error return flag from the ``SUNLinearSolver``
-      object, which will be one of: ``SUNLS_MEM_NULL``, indicating that the
+      object, which will be one of: ``SUN_ERR_ARG_CORRUPTRRUPT``, indicating that the
       ``SUNLinearSolver`` memory is ``NULL``; ``SUNLS_ATIMES_FAIL_UNREC``,
       indicating an unrecoverable failure in the :math:`J*v` function;
       ``SUNLS_PSOLVE_FAIL_UNREC``, indicating that the preconditioner solve
@@ -1800,7 +1745,7 @@ The following optional outputs are available from the KINLS modules:
       failure in the Gram-Schmidt procedure (generated only in SPGMR or SPFGMR);
       ``SUNLS_QRSOL_FAIL``, indicating that the matrix :math:`R` was found to be
       singular during the QR solve phase (SPGMR and SPFGMR only); or
-      ``SUNLS_PACKAGE_FAIL_UNREC``, indicating an unrecoverable failure in an
+      ``SUN_ERR_EXT_FAIL``, indicating an unrecoverable failure in an
       external iterative linear solver package.
 
    .. warning::
@@ -1867,38 +1812,6 @@ The user must provide a function of type :c:type:`KINSysFn` defined as follows:
 
    **Notes:**
       Allocation of memory for ``fval`` is handled within KINSOL.
-
-
-.. _KINSOL.Usage.CC.user_fct_sim.ehFn:
-
-Error message handler function
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-As an alternative to the default behavior of directing error and warning
-messages to the file pointed to by ``errfp`` (see :c:func:`KINSetErrFile`), the
-user may provide a function of type :c:type:`KINErrHandlerFn` to process any
-such messages.  The function type :c:type:`KINErrHandlerFn` is defined as
-follows:
-
-.. c:type:: void (*KINErrHandlerFn)(int error_code, const char *module, const char *function, char *msg, void *user_data)
-
-   This function processes error and warning messages from KINSOL and its
-   sub-modules.
-
-   **Arguments:**
-      * ``error_code`` -- is the error code
-      * ``module`` -- is the name of the KINSOL module reporting the error
-      * ``function`` -- is the name of the function in which the error occurred
-      * ``eH_data`` -- is a pointer to user data, the same as the ``eh_data``
-        parameter passed to :c:func:`KINSetErrHandlerFn`
-
-   **Return value:**
-      This function has no return value.
-
-   **Notes:**
-      ``error_code`` is negative for errors and positive (``KIN_WARNING``) for
-      warnings. If a function that returns a pointer to memory encounters an error,
-      it sets ``error_code`` to 0.
 
 
 .. _KINSOL.Usage.CC.user_fct_sim.jacFn:

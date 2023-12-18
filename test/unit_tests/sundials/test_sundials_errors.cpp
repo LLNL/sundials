@@ -20,28 +20,13 @@
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_nvector.h>
 
+#include "../utilities/dumpstderr.hpp"
 #include "sundials/sundials_context.h"
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_logger.h"
 #include "sundials/sundials_types.h"
 
 static const std::string errfile{"test_sundials_errors.err"};
-
-std::string dumpstderr(SUNContext sunctx)
-{
-  SUNLogger logger = NULL;
-  SUNContext_GetLogger(sunctx, &logger);
-  SUNLogger_Flush(logger, SUN_LOGLEVEL_ERROR);
-  std::ifstream file(errfile);
-  std::string line;
-  std::string file_contents;
-  while (std::getline(file, line))
-  {
-    file_contents += line;
-    file_contents.push_back('\n');
-  }
-  return file_contents;
-}
 
 class SUNErrConditionTest : public testing::Test
 {
@@ -86,7 +71,7 @@ TEST_F(SUNErrConditionTest, LastErrConditionResultsInHandlerCalled)
 {
   SUNLogger_SetErrorFilename(logger, errfile.c_str());
   N_VCloneEmptyVectorArray(-1, v); // -1 is an out of range argument
-  std::string output = dumpstderr(sunctx);
+  std::string output = dumpstderr(sunctx, errfile);
   EXPECT_THAT(output,
               testing::AllOf(testing::StartsWith("[ERROR]"),
                              testing::HasSubstr("[rank 0]"),
@@ -126,7 +111,7 @@ TEST_F(SUNErrConditionTest, ErrConditionResultsInHandlerCalled)
   sunindextype size = 0;
   v->ops->nvbufsize = NULL; // Force a SUN_ERR_NOT_IMPLEMENTED
   (void)N_VBufSize(v, &size);
-  std::string output = dumpstderr(sunctx);
+  std::string output = dumpstderr(sunctx, errfile);
   EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[ERROR]"),
                                      testing::HasSubstr("[rank 0]"),
                                      testing::HasSubstr("N_VBufSize")));
@@ -155,7 +140,7 @@ TEST_F(SUNErrHandlerFnTest, SUNLogErrHandlerFnLogsWhenCalled)
   std::string message = "Test log handler";
   SUNLogErrHandlerFn(__LINE__, __func__, __FILE__, message.c_str(), -1, nullptr,
                      sunctx);
-  std::string output = dumpstderr(sunctx);
+  std::string output = dumpstderr(sunctx, errfile);
   EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[ERROR]"),
                                      testing::HasSubstr("[rank 0]"),
                                      testing::HasSubstr(__func__),

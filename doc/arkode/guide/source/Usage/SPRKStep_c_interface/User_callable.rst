@@ -271,10 +271,6 @@ Optional inputs for SPRKStep
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Supply a pointer to a diagnostics output file       | :c:func:`SPRKStepSetDiagnostics()`       | ``NULL``               |
   +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Supply a pointer to an error output file            | :c:func:`SPRKStepSetErrFile()`           | ``stderr``             |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Supply a custom error handler function              | :c:func:`SPRKStepSetErrHandlerFn()`      | internal fn            |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
   | Set fixed step size (required user input)           | :c:func:`SPRKStepSetFixedStep()`         | user defined           |
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Maximum no. of internal steps before *tout*         | :c:func:`SPRKStepSetMaxNumSteps()`       | 500                    |
@@ -377,51 +373,6 @@ Optional inputs for SPRKStep
 
       When `q = 1`, a linear interpolant is the default to ensure values
       obtained by the integrator are returned at the ends of the time interval.
-
-
-.. c:function:: int SPRKStepSetErrFile(void* arkode_mem, FILE* errfp)
-
-   Specifies a pointer to the file where all SPRKStep warning and error
-   messages will be written if the default internal error handling
-   function is used.
-
-   The default value for *errfp* is ``stderr``.
-
-   Passing a ``NULL`` value disables all future error message output
-   (except for the case wherein the SPRKStep memory pointer is
-   ``NULL``).  This use of the function is strongly discouraged.
-
-   :param arkode_mem: pointer to the SPRKStep memory block.
-   :param errfp: pointer to the output file.
-
-   :retval ARK_SUCCESS: if successful
-   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
-   :retval ARK_ILL_INPUT: if an argument has an illegal value
-
-   .. note::
-
-      If used, this routine should be called before any other
-      optional input functions, in order to take effect for subsequent
-      error messages.
-
-
-.. c:function:: int SPRKStepSetErrHandlerFn(void* arkode_mem, ARKErrHandlerFn ehfun, void* eh_data)
-
-   Specifies the optional user-defined function to be used
-   in handling error messages.
-
-   :param arkode_mem: pointer to the SPRKStep memory block.
-   :param ehfun: name of user-supplied error handler function.
-   :param eh_data: pointer to user data passed to *ehfun* every time it is called.
-
-   :retval ARK_SUCCESS: if successful
-   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
-   :retval ARK_ILL_INPUT: if an argument has an illegal value
-
-   .. note::
-
-      Error messages indicating that the SPRKStep solver memory is
-      ``NULL`` will always be directed to ``stderr``.
 
 
 .. c:function:: int SPRKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed)

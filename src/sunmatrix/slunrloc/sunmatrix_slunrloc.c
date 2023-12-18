@@ -218,8 +218,8 @@ void SUNMatDestroy_SLUNRloc(SUNMatrix A)
     if (SM_COLSORTED_SLUNRLOC(A))
     {
       /* if CS exists, then the Matvec has been initialized and we must finalize
-         it by calling the SuperLU DIST pdgsmv_finalize routine to free up memory
-         allocated */
+         it by calling the SuperLU DIST pdgsmv_finalize routine to free up
+         memory allocated */
 
       pdgsmv_finalize(SM_COMMPATTERN_SLUNRLOC(A));
       Destroy_CompRowLoc_Matrix_dist(SM_COLSORTED_SLUNRLOC(A));
@@ -252,40 +252,40 @@ void SUNMatDestroy_SLUNRloc(SUNMatrix A)
   return;
 }
 
-int SUNMatZero_SLUNRloc(SUNMatrix A)
+SUNErrCode SUNMatZero_SLUNRloc(SUNMatrix A)
 {
   /* call SuperLU-DIST clone function */
   dZero_CompRowLoc_Matrix_dist(SM_SUPERMATRIX_SLUNRLOC(A));
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNMatCopy_SLUNRloc(SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatCopy_SLUNRloc(SUNMatrix A, SUNMatrix B)
 {
   /* call SuperLU-DIST copy function */
   dCopy_CompRowLoc_Matrix_dist(SM_SUPERMATRIX_SLUNRLOC(A),
                                SM_SUPERMATRIX_SLUNRLOC(B));
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNMatScaleAdd_SLUNRloc(sunrealtype c, SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatScaleAdd_SLUNRloc(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   /* check that B can be added into A */
-  if (!SMCompatible_SLUNRloc(A, B)) { return (SUNMAT_ILL_INPUT); }
+  if (!SMCompatible_SLUNRloc(A, B)) { return (SUN_ERR_ARG_INCOMPATIBLE); }
 
   /* call SuperLU-DIST ScaleAdd function */
   dScaleAdd_CompRowLoc_Matrix_dist(SM_SUPERMATRIX_SLUNRLOC(A),
                                    SM_SUPERMATRIX_SLUNRLOC(B), c);
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNMatScaleAddI_SLUNRloc(sunrealtype c, SUNMatrix A)
+SUNErrCode SUNMatScaleAddI_SLUNRloc(sunrealtype c, SUNMatrix A)
 {
   /* call SuperLU-DIST ScaleAddI function */
   dScaleAddId_CompRowLoc_Matrix_dist(SM_SUPERMATRIX_SLUNRLOC(A), c);
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNMatMatvec_SLUNRloc(SUNMatrix A, N_Vector x, N_Vector y)
+SUNErrCode SUNMatMatvec_SLUNRloc(SUNMatrix A, N_Vector x, N_Vector y)
 {
   SuperMatrix* ACS;
   sunrealtype *xdata, *ydata;
@@ -298,20 +298,20 @@ int SUNMatMatvec_SLUNRloc(SUNMatrix A, N_Vector x, N_Vector y)
   if (ACS == NULL || SM_ROWTOPROC_SLUNRLOC(A) == NULL ||
       SM_COMMPATTERN_SLUNRLOC(A) == NULL)
   {
-    return (SUNMAT_MATVEC_SETUP_REQUIRED);
+    return (SUN_ERR_OP_FAIL);
   }
 
   xdata = N_VGetArrayPointer(x);
   ydata = N_VGetArrayPointer(y);
-  if (xdata == NULL || ydata == NULL) { return (SUNMAT_MEM_FAIL); }
+  if (xdata == NULL || ydata == NULL) { return (SUN_ERR_MEM_FAIL); }
 
   /* Call SuperLU-DIST Matvec routine to perform the actual Matvec. */
   pdgsmv(0, ACS, SM_GRID_SLUNRLOC(A), SM_COMMPATTERN_SLUNRLOC(A), xdata, ydata);
 
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNMatMatvecSetup_SLUNRloc(SUNMatrix A)
+SUNErrCode SUNMatMatvecSetup_SLUNRloc(SUNMatrix A)
 {
   sunindextype* temp;
   sunindextype nprocs;
@@ -337,7 +337,7 @@ int SUNMatMatvecSetup_SLUNRloc(SUNMatrix A)
     {
       Destroy_CompRowLoc_Matrix_dist(ACS);
       free(ACS);
-      return (SUNMAT_MEM_FAIL);
+      return (SUN_ERR_MEM_FAIL);
     }
 
     SM_COMMPATTERN_SLUNRLOC(A) = (pdgsmv_comm_t*)malloc(sizeof(pdgsmv_comm_t));
@@ -346,7 +346,7 @@ int SUNMatMatvecSetup_SLUNRloc(SUNMatrix A)
       free(SM_ROWTOPROC_SLUNRLOC(A));
       Destroy_CompRowLoc_Matrix_dist(ACS);
       free(ACS);
-      return (SUNMAT_MEM_FAIL);
+      return (SUN_ERR_MEM_FAIL);
     }
 
     SM_COLSORTED_SLUNRLOC(A) = ACS;
@@ -366,7 +366,7 @@ int SUNMatMatvecSetup_SLUNRloc(SUNMatrix A)
   if (temp == NULL)
   {
     SUNMatDestroy(A);
-    return (SUNMAT_MEM_FAIL);
+    return (SUN_ERR_MEM_FAIL);
   }
 
   MPI_Allgather(&SM_FSTROW_SLUNRLOC(A), 1, MPI_SUNINDEXTYPE, temp, 1,
@@ -385,10 +385,10 @@ int SUNMatMatvecSetup_SLUNRloc(SUNMatrix A)
   pdgsmv_init(ACS, SM_ROWTOPROC_SLUNRLOC(A), SM_GRID_SLUNRLOC(A),
               SM_COMMPATTERN_SLUNRLOC(A));
 
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
-int SUNMatSpace_SLUNRloc(SUNMatrix A, long int* lenrw, long int* leniw)
+SUNErrCode SUNMatSpace_SLUNRloc(SUNMatrix A, long int* lenrw, long int* leniw)
 {
   /* since the SuperLU_DIST structures are opaque objects, we omit those
      from these results */
@@ -396,7 +396,7 @@ int SUNMatSpace_SLUNRloc(SUNMatrix A, long int* lenrw, long int* leniw)
   *leniw = SM_GLOBALROWS_SLUNRLOC(A); /* length(row_to_proc) */
   *lenrw = 0;
 
-  return (SUNMAT_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
 /*

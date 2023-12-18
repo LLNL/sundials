@@ -64,7 +64,7 @@ SUNLinearSolver_ID SUNLinSolGetID_OneMklDense(SUNLinearSolver S)
 };
 
 SUNDIALS_EXPORT
-int SUNLinSolInitialize_OneMklDense(SUNLinearSolver S);
+SUNErrCode SUNLinSolInitialize_OneMklDense(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
 int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A);
@@ -77,11 +77,11 @@ SUNDIALS_EXPORT
 sunindextype SUNLinSolLastFlag_OneMklDense(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-int SUNLinSolSpace_OneMklDense(SUNLinearSolver S, long int* lenrwLS,
-                               long int* leniwLS);
+SUNErrCode SUNLinSolSpace_OneMklDense(SUNLinearSolver S, long int* lenrwLS,
+                                      long int* leniwLS);
 
 SUNDIALS_EXPORT
-int SUNLinSolFree_OneMklDense(SUNLinearSolver S);
+SUNErrCode SUNLinSolFree_OneMklDense(SUNLinearSolver S);
 
 #ifdef __cplusplus
 }

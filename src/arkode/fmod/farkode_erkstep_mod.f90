@@ -97,8 +97,6 @@ module farkode_erkstep_mod
  public :: FERKStepSetMaxNumConstrFails
  public :: FERKStepSetRootDirection
  public :: FERKStepSetNoInactiveRootWarn
- public :: FERKStepSetErrHandlerFn
- public :: FERKStepSetErrFile
  public :: FERKStepSetUserData
  public :: FERKStepSetPostprocessStepFn
  public :: FERKStepSetPostprocessStageFn
@@ -558,25 +556,6 @@ bind(C, name="_wrap_FERKStepSetNoInactiveRootWarn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT) :: fresult
-end function
-
-function swigc_FERKStepSetErrHandlerFn(farg1, farg2, farg3) &
-bind(C, name="_wrap_FERKStepSetErrHandlerFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-type(C_PTR), value :: farg3
-integer(C_INT) :: fresult
-end function
-
-function swigc_FERKStepSetErrFile(farg1, farg2) &
-bind(C, name="_wrap_FERKStepSetErrFile") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1790,41 +1769,6 @@ type(C_PTR) :: farg1
 
 farg1 = arkode_mem
 fresult = swigc_FERKStepSetNoInactiveRootWarn(farg1)
-swig_result = fresult
-end function
-
-function FERKStepSetErrHandlerFn(arkode_mem, ehfun, eh_data) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_FUNPTR), intent(in), value :: ehfun
-type(C_PTR) :: eh_data
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = arkode_mem
-farg2 = ehfun
-farg3 = eh_data
-fresult = swigc_FERKStepSetErrHandlerFn(farg1, farg2, farg3)
-swig_result = fresult
-end function
-
-function FERKStepSetErrFile(arkode_mem, errfp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR) :: errfp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = errfp
-fresult = swigc_FERKStepSetErrFile(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -117,16 +117,14 @@ set up the linear solver object to utilize an updated matrix :math:`A`
       ``SUNLINEARSOLVER_CUSTOM`` identifier.
 
 
-.. c:function:: int SUNLinSolInitialize(SUNLinearSolver LS)
+.. c:function:: SUNErrCode SUNLinSolInitialize(SUNLinearSolver LS)
 
    Performs linear solver initialization (assuming that all
    solver-specific options have been set).
 
    **Return value:**
 
-      Zero for a successful call, and a negative value for a failure.
-      Ideally, this should return one of the generic error codes listed in
-      :numref:`SUNLinSol.ErrorCodes`.
+      A :c:type:`SUNErrCode`.
 
    **Usage:**
 
@@ -207,15 +205,13 @@ set up the linear solver object to utilize an updated matrix :math:`A`
          retval = SUNLinSolSolve(LS, A, x, b, tol);
 
 
-.. c:function:: int SUNLinSolFree(SUNLinearSolver LS)
+.. c:function:: SUNErrCode SUNLinSolFree(SUNLinearSolver LS)
 
    Frees memory allocated by the linear solver.
 
    **Return value:**
 
-      Zero for a successful call, and a negative value for a failure.
-      Ideally, this should return one of the generic error codes listed in
-      :numref:`SUNLinSol.ErrorCodes`.
+      A :c:type:`SUNErrCode`.
 
    **Usage:**
 
@@ -240,7 +236,7 @@ the functionality for any optional routine should leave the corresponding
 function pointer ``NULL`` instead of supplying a dummy routine.
 
 
-.. c:function:: int SUNLinSolSetATimes(SUNLinearSolver LS, void* A_data, SUNATimesFn ATimes)
+.. c:function:: SUNErrCode SUNLinSolSetATimes(SUNLinearSolver LS, void* A_data, SUNATimesFn ATimes)
 
    *Required for matrix-free linear solvers* (otherwise optional).
 
@@ -253,9 +249,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
    **Return value:**
 
-      Zero for a successful call, and a negative value for a failure.
-      Ideally, this should return one of the generic error codes listed in
-      :numref:`SUNLinSol.ErrorCodes`.
+      A :c:type:`SUNErrCode`.
 
    **Usage:**
 
@@ -264,7 +258,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
          retval = SUNLinSolSetATimes(LS, A_data, ATimes);
 
 
-.. c:function:: int SUNLinSolSetPreconditioner(SUNLinearSolver LS, void* P_data, SUNPSetupFn Pset, SUNPSolveFn Psol)
+.. c:function:: SUNErrCode SUNLinSolSetPreconditioner(SUNLinearSolver LS, void* P_data, SUNPSetupFn Pset, SUNPSolveFn Psol)
 
    This *optional* routine provides :c:type:`SUNPSetupFn` and
    :c:type:`SUNPSolveFn` function pointers that implement the
@@ -276,9 +270,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
    **Return value:**
 
-      Zero for a successful call, and a negative value for a failure.
-      Ideally, this should return one of the generic error codes listed in
-      :numref:`SUNLinSol.ErrorCodes`.
+      A :c:type:`SUNErrCode`.
 
    **Usage:**
 
@@ -287,7 +279,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
          retval = SUNLinSolSetPreconditioner(LS, Pdata, Pset, Psol);
 
 
-.. c:function:: int SUNLinSolSetScalingVectors(SUNLinearSolver LS, N_Vector s1, N_Vector s2)
+.. c:function:: SUNErrCode SUNLinSolSetScalingVectors(SUNLinearSolver LS, N_Vector s1, N_Vector s2)
 
    This *optional* routine provides left/right scaling vectors for the
    linear system solve.  Here, *s1* and *s2* are ``N_Vectors`` of positive
@@ -299,9 +291,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
    **Return value:**
 
-      Zero for a successful call, and a negative value for a failure.
-      Ideally, this should return one of the generic error codes listed in
-      :numref:`SUNLinSol.ErrorCodes`.
+      A :c:type:`SUNErrCode`.
 
    **Usage:**
 
@@ -310,7 +300,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
          retval = SUNLinSolSetScalingVectors(LS, s1, s2);
 
 
-.. c:function:: int SUNLinSolSetZeroGuess(SUNLinearSolver LS, sunbooleantype onoff)
+.. c:function:: SUNErrCode SUNLinSolSetZeroGuess(SUNLinearSolver LS, sunbooleantype onoff)
 
    This *optional* routine indicates if the upcoming :c:func:`SUNlinSolSolve` call
    will be made with a zero initial guess (``SUNTRUE``) or a non-zero initial
@@ -318,9 +308,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
    **Return value:**
 
-      Zero for a successful call, and a negative value for a failure.
-      Ideally, this should return one of the generic error codes listed in
-      :numref:`SUNLinSol.ErrorCodes`.
+      A :c:type:`SUNErrCode`.
 
    **Usage:**
 
@@ -407,7 +395,7 @@ linear solve.  *All routines are optional.*
          lflag = SUNLinLastFlag(LS);
 
 
-.. c:function:: int SUNLinSolSpace(SUNLinearSolver LS, long int *lenrwLS, long int *leniwLS)
+.. c:function:: SUNErrCode SUNLinSolSpace(SUNLinearSolver LS, long int *lenrwLS, long int *leniwLS)
 
    This *optional* routine should return the storage requirements for
    the linear solver *LS*:
@@ -415,10 +403,13 @@ linear solve.  *All routines are optional.*
    * *lrw* is a ``long int`` containing the number of sunrealtype words
    * *liw* is a ``long int`` containing the number of integer words.
 
-   The return value is an integer flag denoting success/failure of the operation.
-
    This function is advisory only, for use by users to help determine
    their total space requirements.
+
+   **Return value:**
+
+      A :c:type:`SUNErrCode`.
+
 
    **Usage:**
 
@@ -523,14 +514,7 @@ provide additional information to the user in case of a linear solver failure.
    +------------------------------+-------+---------------------------------------------------+
    | Error code                   | Value | Meaning                                           |
    +==============================+=======+===================================================+
-   | ``SUNLS_SUCCESS``            | 0     | successful call or converged solve                |
-   +------------------------------+-------+---------------------------------------------------+
-   | ``SUNLS_MEM_NULL``           | -801  | the memory argument to the function is ``NULL``   |
-   +------------------------------+-------+---------------------------------------------------+
-   | ``SUNLS_ILL_INPUT``          | -802  | an illegal input has been provided to the         |
-   |                              |       | function                                          |
-   +------------------------------+-------+---------------------------------------------------+
-   | ``SUNLS_MEM_FAIL``           | -803  | failed memory access or allocation                |
+   | ``SUN_SUCCESS``              | 0     | successful call or converged solve                |
    +------------------------------+-------+---------------------------------------------------+
    | ``SUNLS_ATIMES_NULL``        | -804  | the ``Atimes`` function is ``NULL``               |
    +------------------------------+-------+---------------------------------------------------+
@@ -545,16 +529,11 @@ provide additional information to the user in case of a linear solver failure.
    | ``SUNLS_PSOLVE_FAIL_UNREC``  | -808  | an unrecoverable failure occurred in the          |
    |                              |       | ``Psolve`` routine                                |
    +------------------------------+-------+---------------------------------------------------+
-   | ``SUNLS_PACKAGE_FAIL_UNREC`` | -809  | an unrecoverable failure occurred in an external  |
-   |                              |       | linear solver package                             |
-   +------------------------------+-------+---------------------------------------------------+
    | ``SUNLS_GS_FAIL``            | -810  | a failure occurred during Gram-Schmidt            |
    |                              |       | orthogonalization (SPGMR/SPFGMR)                  |
    +------------------------------+-------+---------------------------------------------------+
    | ``SUNLS_QRSOL_FAIL``         | -811  | a singular $R$ matrix was encountered in a QR     |
    |                              |       | factorization (SPGMR/SPFGMR)                      |
-   +------------------------------+-------+---------------------------------------------------+
-   | ``SUNLS_VECTOROP_ERR``       | -812  | a vector operation error occurred                 |
    +------------------------------+-------+---------------------------------------------------+
    | ``SUNLS_RES_REDUCED``        | 801   | an iterative solver reduced the residual, but did |
    |                              |       | not converge to the desired tolerance             |
@@ -615,22 +594,22 @@ structure is defined as
    struct _generic_SUNLinearSolver_Ops {
      SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
      SUNLinearSolver_ID   (*getid)(SUNLinearSolver);
-     int                  (*setatimes)(SUNLinearSolver, void*, SUNATimesFn);
-     int                  (*setpreconditioner)(SUNLinearSolver, void*,
+     SUNErrCode           (*setatimes)(SUNLinearSolver, void*, SUNATimesFn);
+     SUNErrCode           (*setpreconditioner)(SUNLinearSolver, void*,
                                                SUNPSetupFn, SUNPSolveFn);
-     int                  (*setscalingvectors)(SUNLinearSolver,
+     SUNErrCode           (*setscalingvectors)(SUNLinearSolver,
                                                N_Vector, N_Vector);
-     int                  (*setzeroguess)(SUNLinearSolver, sunbooleantype);
-     int                  (*initialize)(SUNLinearSolver);
+     SUNErrCode           (*setzeroguess)(SUNLinearSolver, sunbooleantype);
+     SUNErrCode           (*initialize)(SUNLinearSolver);
      int                  (*setup)(SUNLinearSolver, SUNMatrix);
      int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector,
                                    N_Vector, sunrealtype);
      int                  (*numiters)(SUNLinearSolver);
      sunrealtype          (*resnorm)(SUNLinearSolver);
      sunindextype         (*lastflag)(SUNLinearSolver);
-     int                  (*space)(SUNLinearSolver, long int*, long int*);
+     SUNErrCode           (*space)(SUNLinearSolver, long int*, long int*);
      N_Vector             (*resid)(SUNLinearSolver);
-     int                  (*free)(SUNLinearSolver);
+     SUNErrCode           (*free)(SUNLinearSolver);
    };
 
 

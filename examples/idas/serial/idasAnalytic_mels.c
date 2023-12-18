@@ -53,7 +53,7 @@ static SUNLinearSolver MatrixEmbeddedLS(void* ida_mem, SUNContext ctx);
 static SUNLinearSolver_Type MatrixEmbeddedLSType(SUNLinearSolver S);
 static int MatrixEmbeddedLSSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                  N_Vector b, sunrealtype tol);
-static int MatrixEmbeddedLSFree(SUNLinearSolver S);
+static SUNErrCode MatrixEmbeddedLSFree(SUNLinearSolver S);
 
 /* Private function to check function return values */
 static int check_retval(void* returnvalue, const char* funcname, int opt);
@@ -280,16 +280,16 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
   NV_Ith_S(x, 1) = -(a11 * b2 - a21 * b1) / (a12 * a21);
 
   /* return with success */
-  return (SUNLS_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
 /* destructor */
-static int MatrixEmbeddedLSFree(SUNLinearSolver LS)
+static SUNErrCode MatrixEmbeddedLSFree(SUNLinearSolver LS)
 {
-  if (LS == NULL) { return (SUNLS_SUCCESS); }
+  if (LS == NULL) { return (SUN_SUCCESS); }
   LS->content = NULL;
   SUNLinSolFreeEmpty(LS);
-  return (SUNLS_SUCCESS);
+  return (SUN_SUCCESS);
 }
 
 /*-------------------------------

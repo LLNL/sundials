@@ -115,7 +115,7 @@ be called in favor of the SUNNonlinSol_PetscSNES specific implementations.
 The SUNNonlinSol_PetscSNES module also defines the following
 user-callable functions.
 
-.. c:function:: int SUNNonlinSolGetSNES_PetscSNES(SUNNonlinearSolver NLS, SNES* snes)
+.. c:function:: SUNErrCode SUNNonlinSolGetSNES_PetscSNES(SUNNonlinearSolver NLS, SNES* snes)
 
   This gets the ``SNES`` object that was wrapped.
 
@@ -124,11 +124,10 @@ user-callable functions.
     * *snes* -- a pointer to a PETSc ``SNES`` object that will be set upon return.
 
   **Return value:**
-     The return value (of type ``int``) should be zero for a successful call,
-     and a negative value for a failure.
+    A :c:type:`SUNErrCode`
 
 
-.. c:function:: int SUNNonlinSolGetPetscError_PetscSNES(SUNNonlinearSolver NLS, PestcErrorCode* error)
+.. c:function:: SUNErrCode SUNNonlinSolGetPetscError_PetscSNES(SUNNonlinearSolver NLS, PestcErrorCode* error)
 
   This gets the last error code returned by the last internal call to a PETSc API function.
 
@@ -137,11 +136,10 @@ user-callable functions.
     * *error* -- a pointer to a PETSc error integer that will be set upon return.
 
   **Return value:**
-     The return value (of type ``int``) should be zero for a successful call,
-     and a negative value for a failure.
+    A :c:type:`SUNErrCode`
 
 
-.. c:function:: int SUNNonlinSolGetSysFn_PetscSNES(SUNNonlinearSolver NLS, SUNNonlinSolSysFn* SysFn)
+.. c:function:: SUNErrCode SUNNonlinSolGetSysFn_PetscSNES(SUNNonlinearSolver NLS, SUNNonlinSolSysFn* SysFn)
 
   This returns the residual function that defines the nonlinear system.
 
@@ -150,8 +148,7 @@ user-callable functions.
     * *SysFn* -- the function defining the nonlinear system.
 
   **Return value:**
-     The return value (of type ``int``) should be zero for a successful call,
-     and a negative value for a failure.
+    A :c:type:`SUNErrCode`
 
 
 .. _SUNNonlinSolPetscSNES.Content:

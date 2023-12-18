@@ -66,16 +66,6 @@ user-callable routine:
       :math:`LU` factorization.
 
 
-For backwards compatibility, we also provide the following wrapper function:
-
-.. c:function:: SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
-
-   Wrapper function for :c:func:`SUNLinSol_LapackBand`, with
-   identical input and output arguments.
-
-
-
-
 .. _SUNLinSol_LapackBand.Description:
 
 SUNLinSol_LapackBand Description
