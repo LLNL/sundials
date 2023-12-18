@@ -199,16 +199,16 @@ functions:
    the matrix.
 
 
-.. c:function:: int SUNMatrix_cuSparse_CopyToDevice(SUNMatrix A, sunrealtype* h_data, int* h_idxptrs, int* h_idxvals)
+.. c:function:: SUNErrCode SUNMatrix_cuSparse_CopyToDevice(SUNMatrix A, sunrealtype* h_data, int* h_idxptrs, int* h_idxvals)
 
    This functions copies the matrix information to the GPU device from the provided
    host arrays. A user may provide ``NULL`` for any of ``h_data``, ``h_idxptrs``, or
    ``h_idxvals`` to avoid copying that information.
 
-   The function returns ``SUNMAT_SUCCESS`` if the copy operation(s) were successful,
+   The function returns ``SUN_SUCCESS`` if the copy operation(s) were successful,
    or a nonzero error code otherwise.
 
-.. c:function:: int SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix A, sunrealtype* h_data, int* h_idxptrs, int* h_idxvals)
+.. c:function:: SUNErrCode SUNMatrix_cuSparse_CopyFromDevice(SUNMatrix A, sunrealtype* h_data, int* h_idxptrs, int* h_idxvals)
 
    This functions copies the matrix information from the GPU device to the provided
    host arrays. A user may provide ``NULL`` for any of ``h_data``, ``h_idxptrs``, or
@@ -223,11 +223,11 @@ functions:
    * The ``h_idxvals`` array must be at least
      ``(SUNMatrix_cuSparse_BlockNNZ(A))*sizeof(int)`` bytes.
 
-   The function returns ``SUNMAT_SUCCESS`` if the copy operation(s) were successful,
+   The function returns ``SUN_SUCCESS`` if the copy operation(s) were successful,
    or a nonzero error code otherwise.
 
 
-.. c:function:: int SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, sunbooleantype yesno)
+.. c:function:: SUNErrCode SUNMatrix_cuSparse_SetFixedPattern(SUNMatrix A, sunbooleantype yesno)
 
    This function changes the behavior of the the ``SUNMatZero`` operation on the object
    ``A``.  By default the matrix sparsity pattern is not considered to be fixed, thus,
@@ -238,7 +238,7 @@ functions:
    Providing a value of ``0`` or ``SUNFALSE`` for the ``yesno`` argument is equivalent
    to the default behavior.
 
-.. c:function:: int SUNMatrix_cuSparse_SetKernelExecPolicy(SUNMatrix A, SUNCudaExecPolicy* exec_policy)
+.. c:function:: SUNErrCode SUNMatrix_cuSparse_SetKernelExecPolicy(SUNMatrix A, SUNCudaExecPolicy* exec_policy)
 
    This function sets the execution policies which control the kernel parameters
    utilized when launching the CUDA kernels. By default the matrix is setup to use

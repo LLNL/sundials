@@ -243,13 +243,13 @@ SWIGEXPORT int _wrap_FN_VSetSubvectorArrayPointer_ManyVector(double *farg1, N_Ve
   sunrealtype *arg1 = (sunrealtype *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   sunindextype arg3 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (sunrealtype *)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (sunindextype)(*farg3);
-  result = (int)N_VSetSubvectorArrayPointer_ManyVector(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VSetSubvectorArrayPointer_ManyVector(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -522,14 +522,14 @@ SWIGEXPORT int _wrap_FN_VLinearCombination_ManyVector(int const *farg1, double *
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (int)(*farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (N_Vector)(farg4);
-  result = (int)N_VLinearCombination_ManyVector(arg1,arg2,arg3,arg4);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VLinearCombination_ManyVector(arg1,arg2,arg3,arg4);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -541,15 +541,15 @@ SWIGEXPORT int _wrap_FN_VScaleAddMulti_ManyVector(int const *farg1, double *farg
   N_Vector arg3 = (N_Vector) 0 ;
   N_Vector *arg4 = (N_Vector *) 0 ;
   N_Vector *arg5 = (N_Vector *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (int)(*farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (N_Vector *)(farg4);
   arg5 = (N_Vector *)(farg5);
-  result = (int)N_VScaleAddMulti_ManyVector(arg1,arg2,arg3,arg4,arg5);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VScaleAddMulti_ManyVector(arg1,arg2,arg3,arg4,arg5);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -560,14 +560,14 @@ SWIGEXPORT int _wrap_FN_VDotProdMulti_ManyVector(int const *farg1, N_Vector farg
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   sunrealtype *arg4 = (sunrealtype *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (sunrealtype *)(farg4);
-  result = (int)N_VDotProdMulti_ManyVector(arg1,arg2,arg3,arg4);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VDotProdMulti_ManyVector(arg1,arg2,arg3,arg4);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -580,7 +580,7 @@ SWIGEXPORT int _wrap_FN_VLinearSumVectorArray_ManyVector(int const *farg1, doubl
   sunrealtype arg4 ;
   N_Vector *arg5 = (N_Vector *) 0 ;
   N_Vector *arg6 = (N_Vector *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (int)(*farg1);
   arg2 = (sunrealtype)(*farg2);
@@ -588,8 +588,8 @@ SWIGEXPORT int _wrap_FN_VLinearSumVectorArray_ManyVector(int const *farg1, doubl
   arg4 = (sunrealtype)(*farg4);
   arg5 = (N_Vector *)(farg5);
   arg6 = (N_Vector *)(farg6);
-  result = (int)N_VLinearSumVectorArray_ManyVector(arg1,arg2,arg3,arg4,arg5,arg6);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VLinearSumVectorArray_ManyVector(arg1,arg2,arg3,arg4,arg5,arg6);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -600,14 +600,14 @@ SWIGEXPORT int _wrap_FN_VScaleVectorArray_ManyVector(int const *farg1, double *f
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   N_Vector *arg4 = (N_Vector *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (int)(*farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (N_Vector *)(farg4);
-  result = (int)N_VScaleVectorArray_ManyVector(arg1,arg2,arg3,arg4);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VScaleVectorArray_ManyVector(arg1,arg2,arg3,arg4);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -617,13 +617,13 @@ SWIGEXPORT int _wrap_FN_VConstVectorArray_ManyVector(int const *farg1, double co
   int arg1 ;
   sunrealtype arg2 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (int)(*farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector *)(farg3);
-  result = (int)N_VConstVectorArray_ManyVector(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VConstVectorArray_ManyVector(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -634,14 +634,14 @@ SWIGEXPORT int _wrap_FN_VWrmsNormVectorArray_ManyVector(int const *farg1, void *
   N_Vector *arg2 = (N_Vector *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   sunrealtype *arg4 = (sunrealtype *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector *)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (sunrealtype *)(farg4);
-  result = (int)N_VWrmsNormVectorArray_ManyVector(arg1,arg2,arg3,arg4);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VWrmsNormVectorArray_ManyVector(arg1,arg2,arg3,arg4);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -653,15 +653,15 @@ SWIGEXPORT int _wrap_FN_VWrmsNormMaskVectorArray_ManyVector(int const *farg1, vo
   N_Vector *arg3 = (N_Vector *) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
   sunrealtype *arg5 = (sunrealtype *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector *)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (N_Vector)(farg4);
   arg5 = (sunrealtype *)(farg5);
-  result = (int)N_VWrmsNormMaskVectorArray_ManyVector(arg1,arg2,arg3,arg4,arg5);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VWrmsNormMaskVectorArray_ManyVector(arg1,arg2,arg3,arg4,arg5);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -796,14 +796,14 @@ SWIGEXPORT int _wrap_FN_VDotProdMultiLocal_ManyVector(int const *farg1, N_Vector
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   sunrealtype *arg4 = (sunrealtype *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (int)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector *)(farg3);
   arg4 = (sunrealtype *)(farg4);
-  result = (int)N_VDotProdMultiLocal_ManyVector(arg1,arg2,arg3,arg4);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VDotProdMultiLocal_ManyVector(arg1,arg2,arg3,arg4);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -812,12 +812,12 @@ SWIGEXPORT int _wrap_FN_VBufSize_ManyVector(N_Vector farg1, int64_t *farg2) {
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunindextype *arg2 = (sunindextype *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (sunindextype *)(farg2);
-  result = (int)N_VBufSize_ManyVector(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VBufSize_ManyVector(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -826,12 +826,12 @@ SWIGEXPORT int _wrap_FN_VBufPack_ManyVector(N_Vector farg1, void *farg2) {
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   void *arg2 = (void *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (void *)(farg2);
-  result = (int)N_VBufPack_ManyVector(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VBufPack_ManyVector(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -840,12 +840,12 @@ SWIGEXPORT int _wrap_FN_VBufUnpack_ManyVector(N_Vector farg1, void *farg2) {
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   void *arg2 = (void *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (void *)(farg2);
-  result = (int)N_VBufUnpack_ManyVector(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VBufUnpack_ManyVector(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -854,12 +854,12 @@ SWIGEXPORT int _wrap_FN_VEnableFusedOps_ManyVector(N_Vector farg1, int const *fa
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)N_VEnableFusedOps_ManyVector(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VEnableFusedOps_ManyVector(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -868,12 +868,12 @@ SWIGEXPORT int _wrap_FN_VEnableLinearCombination_ManyVector(N_Vector farg1, int 
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)N_VEnableLinearCombination_ManyVector(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VEnableLinearCombination_ManyVector(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -882,12 +882,12 @@ SWIGEXPORT int _wrap_FN_VEnableScaleAddMulti_ManyVector(N_Vector farg1, int cons
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)N_VEnableScaleAddMulti_ManyVector(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VEnableScaleAddMulti_ManyVector(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -896,12 +896,12 @@ SWIGEXPORT int _wrap_FN_VEnableDotProdMulti_ManyVector(N_Vector farg1, int const
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)N_VEnableDotProdMulti_ManyVector(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VEnableDotProdMulti_ManyVector(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -910,12 +910,12 @@ SWIGEXPORT int _wrap_FN_VEnableLinearSumVectorArray_ManyVector(N_Vector farg1, i
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)N_VEnableLinearSumVectorArray_ManyVector(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VEnableLinearSumVectorArray_ManyVector(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -924,12 +924,12 @@ SWIGEXPORT int _wrap_FN_VEnableScaleVectorArray_ManyVector(N_Vector farg1, int c
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)N_VEnableScaleVectorArray_ManyVector(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VEnableScaleVectorArray_ManyVector(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -938,12 +938,12 @@ SWIGEXPORT int _wrap_FN_VEnableConstVectorArray_ManyVector(N_Vector farg1, int c
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)N_VEnableConstVectorArray_ManyVector(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VEnableConstVectorArray_ManyVector(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -952,12 +952,12 @@ SWIGEXPORT int _wrap_FN_VEnableWrmsNormVectorArray_ManyVector(N_Vector farg1, in
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)N_VEnableWrmsNormVectorArray_ManyVector(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VEnableWrmsNormVectorArray_ManyVector(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -966,12 +966,12 @@ SWIGEXPORT int _wrap_FN_VEnableWrmsNormMaskVectorArray_ManyVector(N_Vector farg1
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)N_VEnableWrmsNormMaskVectorArray_ManyVector(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VEnableWrmsNormMaskVectorArray_ManyVector(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -980,12 +980,12 @@ SWIGEXPORT int _wrap_FN_VEnableDotProdMultiLocal_ManyVector(N_Vector farg1, int 
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)N_VEnableDotProdMultiLocal_ManyVector(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)N_VEnableDotProdMultiLocal_ManyVector(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 

@@ -23,6 +23,8 @@
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_superlumt.h>
 
+#include "sundials/sundials_errors.h"
+
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 #define TWO  SUN_RCONST(2.0)
@@ -204,22 +206,21 @@ SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads,
  * Function to set the ordering type for a SuperLUMT linear solver
  */
 
-int SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
+SUNErrCode SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
 {
   /* Check for legal ordering_choice */
   if ((ordering_choice < 0) || (ordering_choice > 3))
   {
-    return (SUNLS_ILL_INPUT);
+    return SUN_ERR_ARG_INCOMPATIBLE;
   }
 
   /* Check for non-NULL SUNLinearSolver */
-  if (S == NULL) { return (SUNLS_MEM_NULL); }
+  if (S == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   /* Set ordering_choice */
   ORDERING(S) = ordering_choice;
 
-  LASTFLAG(S) = SUNLS_SUCCESS;
-  return (LASTFLAG(S));
+  return SUN_SUCCESS;
 }
 
 /*
@@ -230,15 +231,15 @@ int SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
 
 SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(SUNLinearSolver S)
 {
-  return (SUNLINEARSOLVER_DIRECT);
+  return SUNLINEARSOLVER_DIRECT;
 }
 
 SUNLinearSolver_ID SUNLinSolGetID_SuperLUMT(SUNLinearSolver S)
 {
-  return (SUNLINEARSOLVER_SUPERLUMT);
+  return SUNLINEARSOLVER_SUPERLUMT;
 }
 
-int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S)
+SUNErrCode SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S)
 {
   /* force a first factorization */
   FIRSTFACTORIZE(S) = 1;
@@ -246,8 +247,8 @@ int SUNLinSolInitialize_SuperLUMT(SUNLinearSolver S)
   /* Initialize statistics variables */
   StatInit(SIZE(S), NUMTHREADS(S), GSTAT(S));
 
-  LASTFLAG(S) = SUNLS_SUCCESS;
-  return (LASTFLAG(S));
+  LASTFLAG(S) = SUN_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
@@ -309,12 +310,11 @@ int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
           &retval);
   if (retval != 0)
   {
-    LASTFLAG(S) = (retval < 0) ? SUNLS_PACKAGE_FAIL_UNREC
-                               : SUNLS_PACKAGE_FAIL_REC;
+    LASTFLAG(S) = (retval < 0) ? SUN_ERR_EXT_FAIL : SUNLS_PACKAGE_FAIL_REC;
     return (LASTFLAG(S));
   }
 
-  LASTFLAG(S) = SUNLS_SUCCESS;
+  LASTFLAG(S) = SUN_SUCCESS;
   return (LASTFLAG(S));
 }
 
@@ -333,7 +333,7 @@ int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   xdata = N_VGetArrayPointer(x);
   if (xdata == NULL)
   {
-    LASTFLAG(S) = SUNLS_MEM_FAIL;
+    LASTFLAG(S) = SUN_ERR_MEM_FAIL;
     return (LASTFLAG(S));
   }
 
@@ -346,35 +346,33 @@ int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
          GSTAT(S), &retval);
   if (retval != 0)
   {
-    LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
+    LASTFLAG(S) = SUN_ERR_EXT_FAIL;
     return (LASTFLAG(S));
   }
 
-  LASTFLAG(S) = SUNLS_SUCCESS;
+  LASTFLAG(S) = SUN_SUCCESS;
   return (LASTFLAG(S));
 }
 
 sunindextype SUNLinSolLastFlag_SuperLUMT(SUNLinearSolver S)
 {
-  /* return the stored 'last_flag' value */
-  if (S == NULL) { return (-1); }
   return (LASTFLAG(S));
 }
 
-int SUNLinSolSpace_SuperLUMT(SUNLinearSolver S, long int* lenrwLS,
-                             long int* leniwLS)
+SUNErrCode SUNLinSolSpace_SuperLUMT(SUNLinearSolver S, long int* lenrwLS,
+                                    long int* leniwLS)
 {
   /* since the SuperLU_MT structures are opaque objects, we
      omit those from these results */
   *leniwLS = 5 + 2 * SIZE(S);
   *lenrwLS = 1;
-  return (SUNLS_SUCCESS);
+  return SUN_SUCCESS;
 }
 
-int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
+SUNErrCode SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
 {
   /* return with success if already freed */
-  if (S == NULL) { return (SUNLS_SUCCESS); }
+  if (S == NULL) { return SUN_SUCCESS; }
 
   /* delete items from the contents structure (if it exists) */
   if (S->content)
@@ -446,5 +444,5 @@ int SUNLinSolFree_SuperLUMT(SUNLinearSolver S)
   }
   free(S);
   S = NULL;
-  return (SUNLS_SUCCESS);
+  return SUN_SUCCESS;
 }

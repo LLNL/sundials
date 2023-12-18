@@ -534,36 +534,6 @@ SWIGEXPORT int _wrap_FIDASetDeltaCjLSetup(void *farg1, double const *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FIDASetErrHandlerFn(void *farg1, IDAErrHandlerFn farg2, void *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  IDAErrHandlerFn arg2 = (IDAErrHandlerFn) 0 ;
-  void *arg3 = (void *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (IDAErrHandlerFn)(farg2);
-  arg3 = (void *)(farg3);
-  result = (int)IDASetErrHandlerFn(arg1,arg2,arg3);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FIDASetErrFile(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  FILE *arg2 = (FILE *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (FILE *)(farg2);
-  result = (int)IDASetErrFile(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FIDASetUserData(void *farg1, void *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;

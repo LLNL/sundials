@@ -268,15 +268,6 @@ typedef struct KINMemRec
   sunbooleantype kin_MallocDone; /* flag indicating if KINMalloc has been
                                  called yet                                    */
 
-  /* message files */
-  /*-------------------------------------------
-    Error handler function and error ouput file
-    -------------------------------------------*/
-
-  KINErrHandlerFn kin_ehfun; /* Error messages are handled by ehfun          */
-  void* kin_eh_data;         /* dats pointer passed to ehfun                 */
-  FILE* kin_errfp;           /* KINSOL error messages are sent to errfp      */
-
 }* KINMem;
 
 /*
@@ -385,13 +376,8 @@ typedef struct KINMemRec
 
 /* High level error handler */
 
-void KINProcessError(KINMem kin_mem, int error_code, const char* module,
-                     const char* fname, const char* msgfmt, ...);
-
-/* Prototype of internal errHandler function */
-
-void KINErrHandler(int error_code, const char* module, const char* function,
-                   char* msg, void* user_data);
+void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
+                     const char* file, const char* msgfmt, ...);
 
 /* High level info handler */
 

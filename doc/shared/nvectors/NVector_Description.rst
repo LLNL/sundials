@@ -49,64 +49,67 @@ defined as
 .. code-block:: c
 
    struct _generic_N_Vector_Ops {
-      N_Vector_ID  (*nvgetvectorid)(N_Vector);
-      N_Vector     (*nvclone)(N_Vector);
-      N_Vector     (*nvcloneempty)(N_Vector);
-      void         (*nvdestroy)(N_Vector);
-      void         (*nvspace)(N_Vector, sunindextype *, sunindextype *);
+      N_Vector_ID (*nvgetvectorid)(N_Vector);
+      N_Vector (*nvclone)(N_Vector);
+      N_Vector (*nvcloneempty)(N_Vector);
+      void (*nvdestroy)(N_Vector);
+      void (*nvspace)(N_Vector, sunindextype*, sunindextype*);
       sunrealtype* (*nvgetarraypointer)(N_Vector);
       sunrealtype* (*nvgetdevicearraypointer)(N_Vector);
-      void         (*nvsetarraypointer)(sunrealtype *, N_Vector);
-      SUNComm      (*nvgetcommunicator)(N_Vector);
+      void (*nvsetarraypointer)(sunrealtype*, N_Vector);
+      SUNComm (*nvgetcommunicator)(N_Vector);
       sunindextype (*nvgetlength)(N_Vector);
       sunindextype (*nvgetlocallength)(N_Vector);
-      void         (*nvlinearsum)(sunrealtype, N_Vector, sunrealtype, N_Vector, N_Vector);
-      void         (*nvconst)(sunrealtype, N_Vector);
-      void         (*nvprod)(N_Vector, N_Vector, N_Vector);
-      void         (*nvdiv)(N_Vector, N_Vector, N_Vector);
-      void         (*nvscale)(sunrealtype, N_Vector, N_Vector);
-      void         (*nvabs)(N_Vector, N_Vector);
-      void         (*nvinv)(N_Vector, N_Vector);
-      void         (*nvaddconst)(N_Vector, sunrealtype, N_Vector);
-      sunrealtype     (*nvdotprod)(N_Vector, N_Vector);
-      sunrealtype     (*nvmaxnorm)(N_Vector);
-      sunrealtype     (*nvwrmsnorm)(N_Vector, N_Vector);
-      sunrealtype     (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
-      sunrealtype     (*nvmin)(N_Vector);
-      sunrealtype     (*nvwl2norm)(N_Vector, N_Vector);
-      sunrealtype     (*nvl1norm)(N_Vector);
-      void         (*nvcompare)(sunrealtype, N_Vector, N_Vector);
-      sunbooleantype  (*nvinvtest)(N_Vector, N_Vector);
-      sunbooleantype  (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
-      sunrealtype     (*nvminquotient)(N_Vector, N_Vector);
-      int          (*nvlinearcombination)(int, sunrealtype *, N_Vector *, N_Vector);
-      int          (*nvscaleaddmulti)(int, sunrealtype *, N_Vector, N_Vector *, N_Vector *);
-      int          (*nvdotprodmulti)(int, N_Vector, N_Vector *,  sunrealtype *);
-      int          (*nvlinearsumvectorarray)(int, sunrealtype, N_Vector *, sunrealtype,
-                                             N_Vector *, N_Vector *);
-      int          (*nvscalevectorarray)(int, sunrealtype *,  N_Vector *, N_Vector *);
-      int          (*nvconstvectorarray)(int, sunrealtype, N_Vector *);
-      int          (*nvwrmsnomrvectorarray)(int, N_Vector *, N_Vector *, sunrealtype *);
-      int          (*nvwrmsnomrmaskvectorarray)(int, N_Vector *, N_Vector *, N_Vector,
-                                                sunrealtype *);
-      int          (*nvscaleaddmultivectorarray)(int, int, sunrealtype *, N_Vector *,
-                                                 N_Vector **, N_Vector **);
-      int          (*nvlinearcombinationvectorarray)(int, int, sunrealtype *, N_Vector **,
-                                                     N_Vector *);
-      sunrealtype     (*nvdotprodlocal)(N_Vector, N_Vector);
-      sunrealtype     (*nvmaxnormlocal)(N_Vector);
-      sunrealtype     (*nvminlocal)(N_Vector);
-      sunrealtype     (*nvl1normlocal)(N_Vector);
-      sunbooleantype  (*nvinvtestlocal)(N_Vector, N_Vector);
-      sunbooleantype  (*nvconstrmasklocal)(N_Vector, N_Vector, N_Vector);
-      sunrealtype     (*nvminquotientlocal)(N_Vector, N_Vector);
-      sunrealtype     (*nvwsqrsumlocal)(N_Vector, N_Vector);
-      sunrealtype     (*nvwsqrsummasklocal(N_Vector, N_Vector, N_Vector);
-      int          (*nvdotprodmultilocal)(int, N_Vector, N_Vector *, sunrealtype *);
-      int          (*nvdotprodmultiallreduce)(int, N_Vector, sunrealtype *);
-      int          (*nvbufsize)(N_Vector, sunindextype *);
-      int          (*nvbufpack)(N_Vector, void*);
-      int          (*nvbufunpack)(N_Vector, void*);
+      void (*nvlinearsum)(sunrealtype, N_Vector, sunrealtype, N_Vector, N_Vector);
+      void (*nvconst)(sunrealtype, N_Vector);
+      void (*nvprod)(N_Vector, N_Vector, N_Vector);
+      void (*nvdiv)(N_Vector, N_Vector, N_Vector);
+      void (*nvscale)(sunrealtype, N_Vector, N_Vector);
+      void (*nvabs)(N_Vector, N_Vector);
+      void (*nvinv)(N_Vector, N_Vector);
+      void (*nvaddconst)(N_Vector, sunrealtype, N_Vector);
+      sunrealtype (*nvdotprod)(N_Vector, N_Vector);
+      sunrealtype (*nvmaxnorm)(N_Vector);
+      sunrealtype (*nvwrmsnorm)(N_Vector, N_Vector);
+      sunrealtype (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
+      sunrealtype (*nvmin)(N_Vector);
+      sunrealtype (*nvwl2norm)(N_Vector, N_Vector);
+      sunrealtype (*nvl1norm)(N_Vector);
+      void (*nvcompare)(sunrealtype, N_Vector, N_Vector);
+      sunbooleantype (*nvinvtest)(N_Vector, N_Vector);
+      sunbooleantype (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
+      sunrealtype (*nvminquotient)(N_Vector, N_Vector);
+      SUNErrCode (*nvlinearcombination)(int, sunrealtype*, N_Vector*, N_Vector);
+      SUNErrCode (*nvscaleaddmulti)(int, sunrealtype*, N_Vector, N_Vector*,
+                                    N_Vector*);
+      SUNErrCode (*nvdotprodmulti)(int, N_Vector, N_Vector*, sunrealtype*);
+      SUNErrCode (*nvlinearsumvectorarray)(int, sunrealtype, N_Vector*, sunrealtype,
+                                             N_Vector*, N_Vector*);
+      SUNErrCode (*nvscalevectorarray)(int, sunrealtype*, N_Vector*, N_Vector*);
+      SUNErrCode (*nvconstvectorarray)(int, sunrealtype, N_Vector*);
+      SUNErrCode (*nvwrmsnormvectorarray)(int, N_Vector*, N_Vector*, sunrealtype*);
+      SUNErrCode (*nvwrmsnormmaskvectorarray)(int, N_Vector*, N_Vector*, N_Vector,
+                                                sunrealtype*);
+      SUNErrCode (*nvscaleaddmultivectorarray)(int, int, sunrealtype*, N_Vector*,
+                                                N_Vector**, N_Vector**);
+      SUNErrCode (*nvlinearcombinationvectorarray)(int, int, sunrealtype*,
+                                                   N_Vector**, N_Vector*);
+      sunrealtype (*nvdotprodlocal)(N_Vector, N_Vector);
+      sunrealtype (*nvmaxnormlocal)(N_Vector);
+      sunrealtype (*nvminlocal)(N_Vector);
+      sunrealtype (*nvl1normlocal)(N_Vector);
+      sunbooleantype (*nvinvtestlocal)(N_Vector, N_Vector);
+      sunbooleantype (*nvconstrmasklocal)(N_Vector, N_Vector, N_Vector);
+      sunrealtype (*nvminquotientlocal)(N_Vector, N_Vector);
+      sunrealtype (*nvwsqrsumlocal)(N_Vector, N_Vector);
+      sunrealtype (*nvwsqrsummasklocal)(N_Vector, N_Vector, N_Vector);
+      SUNErrCode (*nvdotprodmultilocal)(int, N_Vector, N_Vector*, sunrealtype*);
+      SUNErrCode (*nvdotprodmultiallreduce)(int, N_Vector, sunrealtype*);
+      SUNErrCode (*nvbufsize)(N_Vector, sunindextype*);
+      SUNErrCode (*nvbufpack)(N_Vector, void*);
+      SUNErrCode (*nvbufunpack)(N_Vector, void*);
+      void (*nvprint)(N_Vector);
+      void (*nvprintfile)(N_Vector, FILE*);
    };
 
 
@@ -345,7 +348,7 @@ to be set, and that all operations are copied when cloning a vector.
    **Arguments:**
       * *v* -- an N_Vector object
 
-.. c:function:: int N_VCopyOps(N_Vector w, N_Vector v)
+.. c:function:: SUNErrCode N_VCopyOps(N_Vector w, N_Vector v)
 
    This function copies the function pointers in the ``ops`` structure of ``w``
    into the ``ops`` structure of ``v``.
@@ -354,9 +357,7 @@ to be set, and that all operations are copied when cloning a vector.
       * *w* -- the vector to copy operations from
       * *v* -- the vector to copy operations to
 
-   **Return value:**  If successful, this function returns ``0``. If either of
-   the inputs are ``NULL`` or the ``ops`` structure of either input is ``NULL``,
-   then is function returns a non-zero value.
+   **Return value:**  Returns a :c:type:`SUNErrCode`.
 
 Each NVECTOR implementation included in SUNDIALS has a unique
 identifier specified in enumeration and shown in

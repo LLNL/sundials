@@ -52,10 +52,11 @@
 #include <limits>
 #include <sstream>
 
-#include "HYPRE_struct_ls.h"           // HYPRE structured grid solver interface
-#include "cvode/cvode.h"               // access to CVODE
-#include "mpi.h"                       // MPI header file
-#include "nvector/nvector_parallel.h"  // access to the MPI N_Vector
+#include "HYPRE_struct_ls.h"          // HYPRE structured grid solver interface
+#include "cvode/cvode.h"              // access to CVODE
+#include "mpi.h"                      // MPI header file
+#include "nvector/nvector_parallel.h" // access to the MPI N_Vector
+#include "sundials/sundials_core.hpp"
 #include "sunlinsol/sunlinsol_pcg.h"   // access to PCG SUNLinearSolver
 #include "sunlinsol/sunlinsol_spgmr.h" // access to SPGMR SUNLinearSolver
 

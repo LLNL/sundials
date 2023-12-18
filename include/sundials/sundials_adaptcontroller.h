@@ -97,7 +97,7 @@ SUNAdaptController_Type SUNAdaptController_GetType(SUNAdaptController C);
 
 /* Function to deallocate a SUNAdaptController object.
 
-   Any return value other than SUNADAPTCONTROLLER_SUCCESS will be treated as
+   Any return value other than SUN_SUCCESS will be treated as
    an unrecoverable failure. */
 SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_Destroy(SUNAdaptController C);
@@ -107,7 +107,7 @@ SUNErrCode SUNAdaptController_Destroy(SUNAdaptController C);
    controller should estimate 'hnew' so that the ensuing step
    will have 'dsm' value JUST BELOW 1.
 
-   Any return value other than SUNADAPTCONTROLLER_SUCCESS will be treated as
+   Any return value other than SUN_SUCCESS will be treated as
    an unrecoverable failure. */
 SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
@@ -145,15 +145,6 @@ SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
 SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int* lenrw,
                                     long int* leniw);
-
-/* -----------------------------------------------------------------
- * SUNAdaptController error codes
- * ----------------------------------------------------------------- */
-
-/* TODO(CJB): eliminate these after updating soderlind and imexgus in follow-on PR */
-#define SUNADAPTCONTROLLER_SUCCESS       0     /* function successfull        */
-#define SUNADAPTCONTROLLER_ILL_INPUT     -1001 /* illegal function input      */
-#define SUNADAPTCONTROLLER_USER_FCN_FAIL -1003 /* user-supplied fcn failure */
 
 #ifdef __cplusplus
 }

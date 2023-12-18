@@ -637,36 +637,6 @@ SWIGEXPORT int _wrap_FKINSetSysFunc(void *farg1, KINSysFn farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FKINSetErrHandlerFn(void *farg1, KINErrHandlerFn farg2, void *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  KINErrHandlerFn arg2 = (KINErrHandlerFn) 0 ;
-  void *arg3 = (void *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (KINErrHandlerFn)(farg2);
-  arg3 = (void *)(farg3);
-  result = (int)KINSetErrHandlerFn(arg1,arg2,arg3);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FKINSetErrFile(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  FILE *arg2 = (FILE *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (FILE *)(farg2);
-  result = (int)KINSetErrFile(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FKINGetWorkSpace(void *farg1, long *farg2, long *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;

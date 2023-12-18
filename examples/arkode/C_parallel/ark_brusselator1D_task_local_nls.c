@@ -1032,10 +1032,10 @@ SUNNonlinearSolver_Type TaskLocalNewton_GetType(SUNNonlinearSolver NLS)
   return SUNNONLINEARSOLVER_ROOTFIND;
 }
 
-int TaskLocalNewton_Initialize(SUNNonlinearSolver NLS)
+SUNErrCode TaskLocalNewton_Initialize(SUNNonlinearSolver NLS)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL) { return SUN_NLS_MEM_NULL; }
+  if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   /* override default system and lsolve functions with local versions */
   SUNNonlinSolSetSysFn(LOCAL_NLS(NLS), TaskLocalNlsResidual);
@@ -1056,7 +1056,7 @@ int TaskLocalNewton_Solve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
   if ((NLS == NULL) || (y0 == NULL) || (ycor == NULL) || (w == NULL) ||
       (mem == NULL))
   {
-    return SUN_NLS_MEM_NULL;
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   /* shortcuts */
@@ -1080,10 +1080,10 @@ int TaskLocalNewton_Solve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
   return recover;
 }
 
-int TaskLocalNewton_Free(SUNNonlinearSolver NLS)
+SUNErrCode TaskLocalNewton_Free(SUNNonlinearSolver NLS)
 {
   /* return if NLS is already free */
-  if (NLS == NULL) { return SUN_NLS_SUCCESS; }
+  if (NLS == NULL) { return SUN_SUCCESS; }
 
   /* free items from contents, then the generic structure */
   if (NLS->content)
@@ -1103,31 +1103,33 @@ int TaskLocalNewton_Free(SUNNonlinearSolver NLS)
   /* free the nonlinear solver */
   free(NLS);
 
-  return SUN_NLS_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int TaskLocalNewton_SetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
+SUNErrCode TaskLocalNewton_SetSysFn(SUNNonlinearSolver NLS,
+                                    SUNNonlinSolSysFn SysFn)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL) { return SUN_NLS_MEM_NULL; }
+  if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   return (SUNNonlinSolSetSysFn(LOCAL_NLS(NLS), SysFn));
 }
 
-int TaskLocalNewton_SetConvTestFn(SUNNonlinearSolver NLS,
-                                  SUNNonlinSolConvTestFn CTestFn,
-                                  void* ctest_data)
+SUNErrCode TaskLocalNewton_SetConvTestFn(SUNNonlinearSolver NLS,
+                                         SUNNonlinSolConvTestFn CTestFn,
+                                         void* ctest_data)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL) { return SUN_NLS_MEM_NULL; }
+  if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   return (SUNNonlinSolSetConvTestFn(LOCAL_NLS(NLS), CTestFn, ctest_data));
 }
 
-int TaskLocalNewton_GetNumConvFails(SUNNonlinearSolver NLS, long int* nconvfails)
+SUNErrCode TaskLocalNewton_GetNumConvFails(SUNNonlinearSolver NLS,
+                                           long int* nconvfails)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL) { return SUN_NLS_MEM_NULL; }
+  if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
   return (GET_NLS_CONTENT(NLS)->ncnf);
 }

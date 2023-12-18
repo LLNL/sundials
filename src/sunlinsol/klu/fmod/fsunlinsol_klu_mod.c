@@ -343,11 +343,11 @@ SWIGEXPORT int _wrap_FSUNLinSolGetID_KLU(SUNLinearSolver farg1) {
 SWIGEXPORT int _wrap_FSUNLinSolInitialize_KLU(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
-  result = (int)SUNLinSolInitialize_KLU(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSolInitialize_KLU(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -403,13 +403,13 @@ SWIGEXPORT int _wrap_FSUNLinSolSpace_KLU(SUNLinearSolver farg1, long *farg2, lon
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
-  result = (int)SUNLinSolSpace_KLU(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSolSpace_KLU(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -417,11 +417,11 @@ SWIGEXPORT int _wrap_FSUNLinSolSpace_KLU(SUNLinearSolver farg1, long *farg2, lon
 SWIGEXPORT int _wrap_FSUNLinSolFree_KLU(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNLinearSolver)(farg1);
-  result = (int)SUNLinSolFree_KLU(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNLinSolFree_KLU(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 

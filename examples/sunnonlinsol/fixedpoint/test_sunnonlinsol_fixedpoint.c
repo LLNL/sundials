@@ -238,7 +238,7 @@ int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, sunrealtype tol,
   /* compute the norm of the correction */
   delnrm = N_VMaxNorm(del);
 
-  if (delnrm <= tol) { return (SUN_NLS_SUCCESS); /* success       */ }
+  if (delnrm <= tol) { return (SUN_SUCCESS); /* success       */ }
   else { return (SUN_NLS_CONTINUE); /* not converged */ }
 }
 

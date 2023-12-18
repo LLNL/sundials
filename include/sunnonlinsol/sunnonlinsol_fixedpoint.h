@@ -22,8 +22,8 @@
 #ifndef _SUNNONLINSOL_FIXEDPOINT_H
 #define _SUNNONLINSOL_FIXEDPOINT_H
 
-#include "sundials/sundials_nonlinearsolver.h"
-#include "sundials/sundials_nvector.h"
+#include <sundials/sundials_core.h>
+
 #include "sundials/sundials_types.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
@@ -62,11 +62,6 @@ struct _SUNNonlinearSolverContent_FixedPoint
   long int niters;     /* total number of iterations across all solves   */
   long int nconvfails; /* total number of convergence failures           */
   void* ctest_data;    /* data to pass to convergence test function      */
-
-  /* if 0 (default) nothing is printed, if 1 the residual is printed every iteration */
-  int print_level;
-  /* if NULL nothing is printed, if 1 the residual is printed every iteration */
-  FILE* info_file;
 };
 
 typedef struct _SUNNonlinearSolverContent_FixedPoint* SUNNonlinearSolverContent_FixedPoint;
@@ -84,44 +79,53 @@ SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m,
                                                SUNContext sunctx);
 
 /* core functions */
-SUNDIALS_EXPORT SUNNonlinearSolver_Type
-SUNNonlinSolGetType_FixedPoint(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT
+SUNNonlinearSolver_Type SUNNonlinSolGetType_FixedPoint(SUNNonlinearSolver NLS);
 
-SUNDIALS_EXPORT int SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS);
 
-SUNDIALS_EXPORT int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
-                                                 N_Vector y0, N_Vector y,
-                                                 N_Vector w, sunrealtype tol,
-                                                 sunbooleantype callSetup,
-                                                 void* mem);
+SUNDIALS_EXPORT
+int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
+                                 N_Vector y, N_Vector w, sunrealtype tol,
+                                 sunbooleantype callSetup, void* mem);
 
-SUNDIALS_EXPORT int SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS);
 
 /* set functions */
-SUNDIALS_EXPORT int SUNNonlinSolSetSysFn_FixedPoint(SUNNonlinearSolver NLS,
-                                                    SUNNonlinSolSysFn SysFn);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolSetSysFn_FixedPoint(SUNNonlinearSolver NLS,
+                                           SUNNonlinSolSysFn SysFn);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetConvTestFn_FixedPoint(
-  SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn, void* ctest_data);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS,
+                                                SUNNonlinSolConvTestFn CTestFn,
+                                                void* ctest_data);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver NLS,
-                                                       int maxiters);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver NLS,
+                                              int maxiters);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS,
-                                                      sunrealtype beta);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS,
+                                             sunrealtype beta);
 
 /* get functions */
-SUNDIALS_EXPORT int SUNNonlinSolGetNumIters_FixedPoint(SUNNonlinearSolver NLS,
-                                                       long int* niters);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetNumIters_FixedPoint(SUNNonlinearSolver NLS,
+                                              long int* niters);
 
-SUNDIALS_EXPORT int SUNNonlinSolGetCurIter_FixedPoint(SUNNonlinearSolver NLS,
-                                                      int* iter);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetCurIter_FixedPoint(SUNNonlinearSolver NLS, int* iter);
 
-SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails_FixedPoint(SUNNonlinearSolver NLS,
-                                                           long int* nconvfails);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetNumConvFails_FixedPoint(SUNNonlinearSolver NLS,
+                                                  long int* nconvfails);
 
-SUNDIALS_EXPORT int SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS,
-                                                    SUNNonlinSolSysFn* SysFn);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS,
+                                           SUNNonlinSolSysFn* SysFn);
 
 #ifdef __cplusplus
 }

@@ -11,8 +11,7 @@
  *-----------------------------------------------------------------*/
 
 #include <iostream>
-#include <sundials/sundials_memory.h>
-#include <sundials/sundials_types.h>
+#include <sundials/sundials_core.hpp>
 #include <sunmemory/sunmemory_hip.h>
 
 int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,

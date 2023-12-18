@@ -168,7 +168,7 @@ int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A)
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
   if (S->ops->setup) { ier = S->ops->setup(S, A); }
-  else { ier = SUNLS_SUCCESS; }
+  else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
   return (ier);
 }
@@ -224,7 +224,7 @@ SUNErrCode SUNLinSolSpace(SUNLinearSolver S, long int* lenrwLS, long int* leniwL
   {
     *lenrwLS = 0;
     *leniwLS = 0;
-    return SUNLS_SUCCESS;
+    return SUN_SUCCESS;
   }
 }
 

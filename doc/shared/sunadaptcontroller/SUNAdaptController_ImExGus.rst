@@ -108,7 +108,7 @@ routines:
 
       SUNAdaptController C = SUNAdaptController_ImExGus(sunctx);
 
-.. c:function:: int SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, sunrealtype k1e, sunrealtype k2e, sunrealtype k1i, sunrealtype k2i)
+.. c:function:: SUNErrCode SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, sunrealtype k1e, sunrealtype k2e, sunrealtype k1i, sunrealtype k2i)
 
    This user-callable function provides control over the relevant parameters
    above.  This should be called *before* the time integrator is called to evolve
@@ -119,7 +119,7 @@ routines:
    :param k2e: parameter used within the controller time step estimate.
    :param k1i: parameter used within the controller time step estimate.
    :param k2i: parameter used within the controller time step estimate.
-   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 

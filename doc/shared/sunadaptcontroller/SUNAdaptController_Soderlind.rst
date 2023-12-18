@@ -99,7 +99,7 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
 
-.. c:function:: int SUNAdaptController_SetParams_Soderlind(SUNAdaptController C, sunrealtype k1, sunrealtype k2, sunrealtype k3, sunrealtype k4, sunrealtype k5)
+.. c:function:: SUNErrCode SUNAdaptController_SetParams_Soderlind(SUNAdaptController C, sunrealtype k1, sunrealtype k2, sunrealtype k3, sunrealtype k4, sunrealtype k5)
 
    This user-callable function provides control over the relevant parameters
    above.  This should be called *before* the time integrator is called to evolve
@@ -111,7 +111,7 @@ also provides the following additional user-callable routines:
    :param k3: parameter used within the controller time step estimate.
    :param k4: parameter used within the controller time step estimate.
    :param k5: parameter used within the controller time step estimate.
-   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -137,7 +137,7 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_PID(sunctx);
 
-.. c:function:: int SUNAdaptController_SetParams_PID(SUNAdaptController C, sunrealtype k1, sunrealtype k2, sunrealtype k3)
+.. c:function:: SUNErrCode SUNAdaptController_SetParams_PID(SUNAdaptController C, sunrealtype k1, sunrealtype k2, sunrealtype k3)
 
    This user-callable function provides control over the relevant parameters
    above for a PID controller, setting :math:`k_4 = k_5 = 0`.  This should be
@@ -147,7 +147,7 @@ also provides the following additional user-callable routines:
    :param k1: parameter used within the controller time step estimate.
    :param k2: parameter used within the controller time step estimate.
    :param k3: parameter used within the controller time step estimate.
-   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -172,7 +172,7 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_PI(sunctx);
 
-.. c:function:: int SUNAdaptController_SetParams_PI(SUNAdaptController C, sunrealtype k1, sunrealtype k2)
+.. c:function:: SUNErrCode SUNAdaptController_SetParams_PI(SUNAdaptController C, sunrealtype k1, sunrealtype k2)
 
    This user-callable function provides control over the relevant parameters
    above for a PI controller, setting :math:`k_3 = k_4 = k_5 = 0`.  This should
@@ -181,7 +181,7 @@ also provides the following additional user-callable routines:
    :param C: the SUNAdaptController_Soderlind object.
    :param k1: parameter used within the controller time step estimate.
    :param k2: parameter used within the controller time step estimate.
-   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -206,7 +206,7 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_I(sunctx);
 
-.. c:function:: int SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
+.. c:function:: SUNErrCode SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
 
    This user-callable function provides control over the relevant parameters
    above for an I controller, setting :math:`k_2 = k_3 = k_4 = k_5 = 0`.  This
@@ -214,7 +214,7 @@ also provides the following additional user-callable routines:
 
    :param C: the SUNAdaptController_Soderlind object.
    :param k1: parameter used within the controller time step estimate.
-   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -240,7 +240,7 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_ExpGus(sunctx);
 
-.. c:function:: int SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunrealtype k1_hat, sunrealtype k2_hat)
+.. c:function:: SUNErrCode SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunrealtype k1_hat, sunrealtype k2_hat)
 
    This user-callable function provides control over the relevant parameters
    above for the explicit Gustafsson controller, setting :math:`k_3 = k_4 = k_5 = 0`. 
@@ -260,7 +260,7 @@ also provides the following additional user-callable routines:
    :param C: the SUNAdaptController_Soderlind object.
    :param k1_hat: parameter used within the explicit Gustafsson controller time step estimate.
    :param k2_hat: parameter used within the explicit Gustafsson controller time step estimate.
-   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 
@@ -286,7 +286,7 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_ImpGus(sunctx);
 
-.. c:function:: int SUNAdaptController_SetParams_ImpGus(SUNAdaptController C, sunrealtype k1_hat, sunrealtype k2_hat)
+.. c:function:: SUNErrCode SUNAdaptController_SetParams_ImpGus(SUNAdaptController C, sunrealtype k1_hat, sunrealtype k2_hat)
 
    This user-callable function provides control over the relevant parameters
    above for the implicit Gustafsson controller, setting :math:`k_3 = k_4 = k_5 = 0`.
@@ -306,7 +306,7 @@ also provides the following additional user-callable routines:
    :param C: the SUNAdaptController_Soderlind object.
    :param k1_hat: parameter used within the implicit Gustafsson controller time step estimate.
    :param k2_hat: parameter used within the implicit Gustafsson controller time step estimate.
-   :return: error code indication success or failure (see :numref:`SUNAdaptController.Description.errorCodes`).
+   :return: :c:type:`SUNErrCode` indicating success or failure.
 
    Usage:
 

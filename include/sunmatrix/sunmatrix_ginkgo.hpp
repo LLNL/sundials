@@ -23,6 +23,8 @@
 #include <sundials/sundials_matrix.hpp>
 #include <utility>
 
+#include "sundials/sundials_errors.h"
+
 namespace sundials {
 namespace ginkgo {
 
@@ -102,45 +104,45 @@ void SUNMatDestroy_Ginkgo(SUNMatrix A)
 }
 
 template<typename GkoMatType>
-int SUNMatZero_Ginkgo(SUNMatrix A)
+SUNErrCode SUNMatZero_Ginkgo(SUNMatrix A)
 {
   auto A_mat{static_cast<Matrix<GkoMatType>*>(A->content)};
   impl::Zero(*A_mat);
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 template<typename GkoMatType>
-int SUNMatCopy_Ginkgo(SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatCopy_Ginkgo(SUNMatrix A, SUNMatrix B)
 {
   auto A_mat{static_cast<Matrix<GkoMatType>*>(A->content)};
   auto B_mat{static_cast<Matrix<GkoMatType>*>(B->content)};
   impl::Copy(*A_mat, *B_mat);
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 template<typename GkoMatType>
-int SUNMatScaleAdd_Ginkgo(sunrealtype c, SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatScaleAdd_Ginkgo(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   auto A_mat{static_cast<Matrix<GkoMatType>*>(A->content)};
   auto B_mat{static_cast<Matrix<GkoMatType>*>(B->content)};
   impl::ScaleAdd(c, *A_mat, *B_mat);
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 template<typename GkoMatType>
-int SUNMatScaleAddI_Ginkgo(sunrealtype c, SUNMatrix A)
+SUNErrCode SUNMatScaleAddI_Ginkgo(sunrealtype c, SUNMatrix A)
 {
   auto A_mat{static_cast<Matrix<GkoMatType>*>(A->content)};
   impl::ScaleAddI(c, *A_mat);
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 template<typename GkoMatType>
-int SUNMatMatvec_Ginkgo(SUNMatrix A, N_Vector x, N_Vector y)
+SUNErrCode SUNMatMatvec_Ginkgo(SUNMatrix A, N_Vector x, N_Vector y)
 {
   auto A_mat{static_cast<Matrix<GkoMatType>*>(A->content)};
   impl::Matvec(*A_mat, x, y);
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 } // namespace impl
@@ -149,7 +151,8 @@ int SUNMatMatvec_Ginkgo(SUNMatrix A, N_Vector x, N_Vector y)
 // Public namespace
 // =============================================================================
 
-/// Class that wraps a Ginkgo matrix and allows it to convert to a fully functioning `SUNMatrix`.
+/// Class that wraps a Ginkgo matrix and allows it to convert to a fully
+/// functioning `SUNMatrix`.
 template<typename GkoMatType>
 class Matrix : public sundials::impl::BaseMatrix,
                public sundials::ConvertibleTo<SUNMatrix>

@@ -68,15 +68,16 @@ SUNDIALS_EXPORT sunbooleantype SUNMatrix_SLUNRloc_OwnData(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_SLUNRloc(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_SLUNRloc(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy_SLUNRloc(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatZero_SLUNRloc(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatCopy_SLUNRloc(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAdd_SLUNRloc(sunrealtype c, SUNMatrix A,
-                                            SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAddI_SLUNRloc(sunrealtype c, SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatMatvecSetup_SLUNRloc(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatMatvec_SLUNRloc(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT int SUNMatSpace_SLUNRloc(SUNMatrix A, long int* lenrw,
-                                         long int* leniw);
+SUNDIALS_EXPORT SUNErrCode SUNMatZero_SLUNRloc(SUNMatrix A);
+SUNDIALS_EXPORT SUNErrCode SUNMatCopy_SLUNRloc(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT SUNErrCode SUNMatScaleAdd_SLUNRloc(sunrealtype c, SUNMatrix A,
+                                                   SUNMatrix B);
+SUNDIALS_EXPORT SUNErrCode SUNMatScaleAddI_SLUNRloc(sunrealtype c, SUNMatrix A);
+SUNDIALS_EXPORT SUNErrCode SUNMatMatvecSetup_SLUNRloc(SUNMatrix A);
+SUNDIALS_EXPORT SUNErrCode SUNMatMatvec_SLUNRloc(SUNMatrix A, N_Vector x,
+                                                 N_Vector y);
+SUNDIALS_EXPORT SUNErrCode SUNMatSpace_SLUNRloc(SUNMatrix A, long int* lenrw,
+                                                long int* leniw);
 
 #ifdef __cplusplus
 }

@@ -290,7 +290,7 @@ SUNErrCode SUNProfiler_End(SUNProfiler p, const char* name)
   return SUN_SUCCESS;
 }
 
-int SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution)
+SUNErrCode SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution)
 {
   if (!p) { return SUN_ERR_ARG_CORRUPT; }
 
@@ -317,7 +317,8 @@ int SUNProfiler_GetTimerResolution(SUNProfiler p, double* resolution)
 #endif
 }
 
-int SUNProfiler_GetElapsedTime(SUNProfiler p, const char* name, double* time)
+SUNErrCode SUNProfiler_GetElapsedTime(SUNProfiler p, const char* name,
+                                      double* time)
 {
   sunTimerStruct* timer;
 

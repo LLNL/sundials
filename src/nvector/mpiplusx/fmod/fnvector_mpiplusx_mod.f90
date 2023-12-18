@@ -32,11 +32,11 @@ module fnvector_mpiplusx_mod
  public :: FN_VMake_MPIPlusX
  public :: FN_VGetVectorID_MPIPlusX
  public :: FN_VSetArrayPointer_MPIPlusX
- public :: FN_VPrint_MPIPlusX
- public :: FN_VPrintFile_MPIPlusX
  public :: FN_VGetLocalVector_MPIPlusX
  public :: FN_VGetLocalLength_MPIPlusX
  public :: FN_VEnableFusedOps_MPIPlusX
+ public :: FN_VPrint_MPIPlusX
+ public :: FN_VPrintFile_MPIPlusX
 
  public :: FN_VGetArrayPointer_MPIPlusX
 
@@ -68,19 +68,6 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
 
-subroutine swigc_FN_VPrint_MPIPlusX(farg1) &
-bind(C, name="_wrap_FN_VPrint_MPIPlusX")
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-end subroutine
-
-subroutine swigc_FN_VPrintFile_MPIPlusX(farg1, farg2) &
-bind(C, name="_wrap_FN_VPrintFile_MPIPlusX")
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-end subroutine
-
 function swigc_FN_VGetLocalVector_MPIPlusX(farg1) &
 bind(C, name="_wrap_FN_VGetLocalVector_MPIPlusX") &
 result(fresult)
@@ -105,6 +92,19 @@ type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
+
+subroutine swigc_FN_VPrint_MPIPlusX(farg1) &
+bind(C, name="_wrap_FN_VPrint_MPIPlusX")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+end subroutine
+
+subroutine swigc_FN_VPrintFile_MPIPlusX(farg1, farg2) &
+bind(C, name="_wrap_FN_VPrintFile_MPIPlusX")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+end subroutine
 
 
 function swigc_FN_VGetArrayPointer_MPIPlusX(farg1) &
@@ -164,27 +164,6 @@ farg2 = c_loc(v)
 call swigc_FN_VSetArrayPointer_MPIPlusX(farg1, farg2)
 end subroutine
 
-subroutine FN_VPrint_MPIPlusX(x)
-use, intrinsic :: ISO_C_BINDING
-type(N_Vector), target, intent(inout) :: x
-type(C_PTR) :: farg1 
-
-farg1 = c_loc(x)
-call swigc_FN_VPrint_MPIPlusX(farg1)
-end subroutine
-
-subroutine FN_VPrintFile_MPIPlusX(x, outfile)
-use, intrinsic :: ISO_C_BINDING
-type(N_Vector), target, intent(inout) :: x
-type(C_PTR) :: outfile
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = c_loc(x)
-farg2 = outfile
-call swigc_FN_VPrintFile_MPIPlusX(farg1, farg2)
-end subroutine
-
 function FN_VGetLocalVector_MPIPlusX(v) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -226,6 +205,27 @@ farg2 = tf
 fresult = swigc_FN_VEnableFusedOps_MPIPlusX(farg1, farg2)
 swig_result = fresult
 end function
+
+subroutine FN_VPrint_MPIPlusX(x)
+use, intrinsic :: ISO_C_BINDING
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(x)
+call swigc_FN_VPrint_MPIPlusX(farg1)
+end subroutine
+
+subroutine FN_VPrintFile_MPIPlusX(x, outfile)
+use, intrinsic :: ISO_C_BINDING
+type(N_Vector), target, intent(inout) :: x
+type(C_PTR) :: outfile
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(x)
+farg2 = outfile
+call swigc_FN_VPrintFile_MPIPlusX(farg1, farg2)
+end subroutine
 
 
 function FN_VGetArrayPointer_MPIPlusX(v) &

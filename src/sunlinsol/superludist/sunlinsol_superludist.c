@@ -176,11 +176,11 @@ SUNLinearSolver_ID SUNLinSolGetID_SuperLUDIST(SUNLinearSolver S)
   return (SUNLINEARSOLVER_SUPERLUDIST);
 }
 
-int SUNLinSolInitialize_SuperLUDIST(SUNLinearSolver S)
+SUNErrCode SUNLinSolInitialize_SuperLUDIST(SUNLinearSolver S)
 {
   SLU_FIRSTFACTORIZE(S) = SUNTRUE;
 
-  SLU_LASTFLAG(S) = SUNLS_SUCCESS;
+  SLU_LASTFLAG(S) = SUN_SUCCESS;
   return (SLU_LASTFLAG(S));
 }
 
@@ -205,7 +205,7 @@ int SUNLinSolSetup_SuperLUDIST(SUNLinearSolver S, SUNMatrix A)
     SLU_OPTIONS(S)->Fact = SamePattern;
   }
 
-  SLU_LASTFLAG(S) = SUNLS_SUCCESS;
+  SLU_LASTFLAG(S) = SUN_SUCCESS;
   return (SLU_LASTFLAG(S));
 }
 
@@ -219,7 +219,7 @@ int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   if ((S == NULL) || (A == NULL) || (x == NULL) || (b == NULL))
   {
-    return (SUNLS_MEM_NULL);
+    return SUN_ERR_ARG_CORRUPT;
   }
 
   Asuper = SUNMatrix_SLUNRloc_SuperMatrix(A);
@@ -231,7 +231,7 @@ int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   xdata = N_VGetArrayPointer(x);
   if (xdata == NULL)
   {
-    SLU_LASTFLAG(S) = SUNLS_MEM_FAIL;
+    SLU_LASTFLAG(S) = SUN_ERR_MEM_FAIL;
     return (SLU_LASTFLAG(S));
   }
 
@@ -247,7 +247,7 @@ int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A, N_Vector x,
        the solve couldn't be completed. */
     if (retval < 0 || retval > Asuper->ncol)
     {
-      SLU_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
+      SLU_LASTFLAG(S) = SUN_ERR_EXT_FAIL;
     }
     else { SLU_LASTFLAG(S) = SUNLS_PACKAGE_FAIL_REC; }
     return (SLU_LASTFLAG(S));
@@ -256,20 +256,19 @@ int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   /* Tell SuperLU-DIST that A is already factored so do not factorize */
   SLU_OPTIONS(S)->Fact = FACTORED;
 
-  SLU_LASTFLAG(S) = SUNLS_SUCCESS;
+  SLU_LASTFLAG(S) = SUN_SUCCESS;
   return (SLU_LASTFLAG(S));
 }
 
 sunindextype SUNLinSolLastFlag_SuperLUDIST(SUNLinearSolver S)
 {
-  if (S == NULL) { return (-1); }
   return (SLU_LASTFLAG(S));
 }
 
-int SUNLinSolFree_SuperLUDIST(SUNLinearSolver S)
+SUNErrCode SUNLinSolFree_SuperLUDIST(SUNLinearSolver S)
 {
   /* return with success if already freed */
-  if (S == NULL) { return (SUNLS_SUCCESS); }
+  if (S == NULL) { return SUN_SUCCESS; }
 
   /* Call SuperLU DIST destroy/finalize routines,
      but don't free the sturctures themselves - that is the user's job */
@@ -294,11 +293,11 @@ int SUNLinSolFree_SuperLUDIST(SUNLinearSolver S)
   free(S);
   S = NULL;
 
-  return (SUNLS_SUCCESS);
+  return SUN_SUCCESS;
 }
 
-int SUNLinSolSpace_SuperLUDIST(SUNLinearSolver S, long int* leniwLS,
-                               long int* lenrwLS)
+SUNErrCode SUNLinSolSpace_SuperLUDIST(SUNLinearSolver S, long int* leniwLS,
+                                      long int* lenrwLS)
 {
   /* since the SuperLU_DIST structures are opaque objects, we
      omit those from these results */
@@ -306,5 +305,5 @@ int SUNLinSolSpace_SuperLUDIST(SUNLinearSolver S, long int* leniwLS,
   *leniwLS = 2; /* last_flag, N */
   *lenrwLS = 1; /* berr */
 
-  return (SUNLS_SUCCESS);
+  return SUN_SUCCESS;
 }
