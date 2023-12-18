@@ -28,8 +28,8 @@ Parallel Fortran 77 example problems
 fark_diag_kry_bbd_p
 ===================================================
 
-This problem is an ARKode clone of the CVODE problem,
-``fcv_diag_kry_bbd_p``.  As described in [HSR2017]_, this problem
+This problem is an ARKODE clone of the CVODE problem,
+``fcv_diag_kry_bbd_p``.  As described in :cite:p:`cvode_ex`, this problem
 models a stiff, linear, diagonal ODE system,
 
 .. math::
@@ -40,7 +40,7 @@ models a stiff, linear, diagonal ODE system,
 Here :math:`\alpha=10` and :math:`N=10 N_P`, where :math:`N_P` is the
 number of MPI tasks used for the problem.  The problem has initial
 conditions :math:`y_i=1` and evolves for the time interval :math:`t\in
-[0,1]`. 
+[0,1]`.
 
 
 
@@ -50,7 +50,7 @@ Numerical method
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
-solver module and ARKSPILS interface.
+solver module.
 
 A diagonal preconditioner matrix is used, formed automatically through
 difference quotients within the ARKBBDPRE module.  Since ARKBBDPRE is
@@ -75,8 +75,8 @@ errors and final performance counters are printed on completion.
 fark_diag_non_p
 ===================================================
 
-This problem is an ARKode clone of the CVODE problem,
-``fcv_diag_non_p``.  As described in [HSR2017]_, this problem models a
+This problem is an ARKODE clone of the CVODE problem,
+``fcv_diag_non_p``.  As described in :cite:p:`cvode_ex`, this problem models a
 nonstiff, linear, diagonal ODE system,
 
 .. math::

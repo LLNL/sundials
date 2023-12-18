@@ -1,5 +1,5 @@
-.. ----------------------------------------------------------------
-   Programmer(s): Daniel R. Reynolds @ SMU
+..
+   Programmer(s): Daniel M. Margolis @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -12,14 +12,11 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _ARKODE.References:
+:tocdepth: 3
 
-.. only:: html
 
-   ************
-   Bibliography
-   ************
+.. _tests_deep_c:
 
-.. bibliography::
-   :cited:
-   :style: plain
+=========================
+Detailed C Parallel Tests
+=========================
