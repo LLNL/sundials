@@ -120,12 +120,6 @@ set(DOCSTR "Enable C compiler specific extensions")
 sundials_option(CMAKE_C_EXTENSIONS BOOL "${DOCSTR}" ON)
 message(STATUS "C extensions set to ${CMAKE_C_EXTENSIONS}")
 
-# Before we do compile checks, ensure warnings are reported as errors
-set(OLD_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS})
-if(NOT ENABLE_WARNINGS_AS_ERRORS)
-  set(CMAKE_REQUIRED_FLAGS "-Werror")
-endif()
-
 # ---------------------------------------------------------------
 # Check for snprintf and va_copy
 #
@@ -237,8 +231,12 @@ check_c_source_compiles("
   #include <stdio.h>
   int main(void) {
     double a = 0.0;
-    #if defined(__has_attribute) && !__has_attribute(assume)
-    #error __has_attribute(assume) fails
+    #if defined(__has_attribute)
+    # if !__has_attribute(assume)
+    #   error no assume
+    # endif
+    #else
+    #error no __has_attribute
     #endif
     __attribute__((assume(a >= 0.0)));
     a = a + 1.0;
@@ -301,9 +299,6 @@ check_c_source_compiles("
   ${COMPILER_DEPRECATED_MSG_ATTRIBUTE} int somefunc(void) { return 0; }
   int main(void) { return somefunc();}" COMPILER_HAS_DEPRECATED_MSG
 )
-
-# Compile checks are done, so now we reset the required flags
-set(CMAKE_REQUIRED_FLAGS ${OLD_CMAKE_REQUIRED_FLAGS})
 
 # ===============================================================
 # Fortran settings
