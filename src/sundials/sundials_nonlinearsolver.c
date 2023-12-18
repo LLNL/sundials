@@ -117,7 +117,7 @@ int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
   int ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(NLS));
   if (NLS->ops->setup) { ier = NLS->ops->setup(NLS, y, mem); }
-  else { ier = SUN_NLS_SUCCESS; }
+  else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(NLS));
   return (ier);
 }

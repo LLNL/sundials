@@ -64,38 +64,44 @@ SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes,
 
 /* SUNNonlinearSolver API functions */
 
-SUNDIALS_EXPORT SUNNonlinearSolver_Type
-SUNNonlinSolGetType_PetscSNES(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT
+SUNNonlinearSolver_Type SUNNonlinSolGetType_PetscSNES(SUNNonlinearSolver NLS);
 
-SUNDIALS_EXPORT int SUNNonlinSolInitialize_PetscSNES(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolInitialize_PetscSNES(SUNNonlinearSolver NLS);
 
-SUNDIALS_EXPORT int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS,
-                                                N_Vector y0, N_Vector y,
-                                                N_Vector w, sunrealtype tol,
-                                                sunbooleantype callLSetup,
-                                                void* mem);
+SUNDIALS_EXPORT
+int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
+                                N_Vector w, sunrealtype tol,
+                                sunbooleantype callLSetup, void* mem);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetSysFn_PetscSNES(SUNNonlinearSolver NLS,
-                                                   SUNNonlinSolSysFn SysFn);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolSetSysFn_PetscSNES(SUNNonlinearSolver NLS,
+                                          SUNNonlinSolSysFn SysFn);
 
-SUNDIALS_EXPORT int SUNNonlinSolGetNumIters_PetscSNES(SUNNonlinearSolver NLS,
-                                                      long int* nni);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetNumIters_PetscSNES(SUNNonlinearSolver NLS,
+                                             long int* nni);
 
-SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails_PetscSNES(SUNNonlinearSolver NLS,
-                                                          long int* nconvfails);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetNumConvFails_PetscSNES(SUNNonlinearSolver NLS,
+                                                 long int* nconvfails);
 
-SUNDIALS_EXPORT int SUNNonlinSolFree_PetscSNES(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolFree_PetscSNES(SUNNonlinearSolver NLS);
 
 /* Implementation specific functions */
 
-SUNDIALS_EXPORT int SUNNonlinSolGetSNES_PetscSNES(SUNNonlinearSolver NLS,
-                                                  SNES* snes);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetSNES_PetscSNES(SUNNonlinearSolver NLS, SNES* snes);
 
-SUNDIALS_EXPORT int SUNNonlinSolGetPetscError_PetscSNES(SUNNonlinearSolver NLS,
-                                                        PetscErrorCode* err);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetPetscError_PetscSNES(SUNNonlinearSolver NLS,
+                                               PetscErrorCode* err);
 
-SUNDIALS_EXPORT int SUNNonlinSolGetSysFn_PetscSNES(SUNNonlinearSolver NLS,
-                                                   SUNNonlinSolSysFn* SysFn);
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetSysFn_PetscSNES(SUNNonlinearSolver NLS,
+                                          SUNNonlinSolSysFn* SysFn);
 
 #ifdef __cplusplus
 }

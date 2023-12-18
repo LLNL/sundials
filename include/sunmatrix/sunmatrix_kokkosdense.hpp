@@ -68,7 +68,7 @@ void SUNMatDestroy_KokkosDense(SUNMatrix A)
 }
 
 template<class MatrixType>
-int SUNMatZero_KokkosDense(SUNMatrix A)
+SUNErrCode SUNMatZero_KokkosDense(SUNMatrix A)
 {
   auto A_mat{GetDenseMat<MatrixType>(A)};
 
@@ -89,11 +89,11 @@ int SUNMatZero_KokkosDense(SUNMatrix A)
       A_data(i, j, k) = SUN_RCONST(0.0);
     });
 
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 template<class MatrixType>
-int SUNMatCopy_KokkosDense(SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatCopy_KokkosDense(SUNMatrix A, SUNMatrix B)
 {
   auto A_mat{GetDenseMat<MatrixType>(A)};
   auto B_mat{GetDenseMat<MatrixType>(B)};
@@ -116,11 +116,11 @@ int SUNMatCopy_KokkosDense(SUNMatrix A, SUNMatrix B)
       B_data(i, j, k) = A_data(i, j, k);
     });
 
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 template<class MatrixType>
-int SUNMatScaleAdd_KokkosDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatScaleAdd_KokkosDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
 {
   auto A_mat{GetDenseMat<MatrixType>(A)};
   auto B_mat{GetDenseMat<MatrixType>(B)};
@@ -143,11 +143,11 @@ int SUNMatScaleAdd_KokkosDense(sunrealtype c, SUNMatrix A, SUNMatrix B)
       A_data(i, j, k) = c * A_data(i, j, k) + B_data(i, j, k);
     });
 
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 template<class MatrixType>
-int SUNMatScaleAddI_KokkosDense(sunrealtype c, SUNMatrix A)
+SUNErrCode SUNMatScaleAddI_KokkosDense(sunrealtype c, SUNMatrix A)
 {
   auto A_mat{GetDenseMat<MatrixType>(A)};
 
@@ -169,11 +169,11 @@ int SUNMatScaleAddI_KokkosDense(sunrealtype c, SUNMatrix A)
       else A_data(i, j, k) = c * A_data(i, j, k);
     });
 
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 template<class VectorType, class MatrixType>
-int SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
+SUNErrCode SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
 {
   auto A_mat{GetDenseMat<MatrixType>(A)};
   auto x_vec{GetVec<VectorType>(x)};
@@ -226,7 +226,7 @@ int SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
                      y_data);
   }
 
-  return SUNMAT_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 } // namespace impl

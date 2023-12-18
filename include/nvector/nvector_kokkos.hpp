@@ -486,41 +486,44 @@ public:
   Vector() = default;
 
   Vector(size_type length, SUNContext sunctx)
-    : view_("Vector device view", length),
-      host_view_(Kokkos::create_mirror_view(view_)),
-      sundials::impl::BaseNVector(sunctx)
+    : sundials::impl::BaseNVector(sunctx),
+      view_("Vector device view", length),
+      host_view_(Kokkos::create_mirror_view(view_))
+
   {
     initNvector();
   }
 
   Vector(view_type view, SUNContext sunctx)
-    : view_(view),
-      host_view_(Kokkos::create_mirror_view(view_)),
-      sundials::impl::BaseNVector(sunctx)
+    : sundials::impl::BaseNVector(sunctx),
+      view_(view),
+      host_view_(Kokkos::create_mirror_view(view_))
+
   {
     initNvector();
   }
 
   Vector(view_type view, host_view_type host_view, SUNContext sunctx)
-    : view_(view), host_view_(host_view), sundials::impl::BaseNVector(sunctx)
+    : sundials::impl::BaseNVector(sunctx), view_(view), host_view_(host_view)
   {
     initNvector();
   }
 
   // Move constructor
   Vector(Vector&& that_vector) noexcept
-    : view_(std::move(that_vector.view_)),
-      host_view_(std::move(that_vector.host_view_)),
-      sundials::impl::BaseNVector(std::move(that_vector))
+    : sundials::impl::BaseNVector(std::move(that_vector)),
+      view_(std::move(that_vector.view_)),
+      host_view_(std::move(that_vector.host_view_))
+
   {
     initNvector();
   }
 
   // Copy constructor
   Vector(const Vector& that_vector)
-    : view_("Vector device view", that_vector.Length()),
-      host_view_(Kokkos::create_mirror_view(view_)),
-      sundials::impl::BaseNVector(that_vector)
+    : sundials::impl::BaseNVector(that_vector),
+      view_("Vector device view", that_vector.Length()),
+      host_view_(Kokkos::create_mirror_view(view_))
   {
     initNvector();
   }

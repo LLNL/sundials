@@ -24,6 +24,7 @@
 #include <iostream>
 #include <nvector/nvector_serial.h>
 #include <string>
+#include <sundials/sundials_core.hpp>
 
 #include "arkode/arkode_butcher.h"
 

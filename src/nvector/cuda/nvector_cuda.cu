@@ -21,9 +21,13 @@
 #include <iostream>
 #include <limits>
 #include <nvector/nvector_cuda.h>
+#include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_core.h>
 
 #include "VectorArrayKernels.cuh"
 #include "VectorKernels.cuh"
+#include "sundials/sundials_errors.h"
 #include "sundials_cuda.h"
 #include "sundials_debug.h"
 
@@ -504,10 +508,11 @@ sunbooleantype N_VIsManagedMemory_Cuda(N_Vector x)
   return NVEC_CUDA_PRIVATE(x)->use_managed_mem;
 }
 
-int N_VSetKernelExecPolicy_Cuda(N_Vector x, SUNCudaExecPolicy* stream_exec_policy,
-                                SUNCudaExecPolicy* reduce_exec_policy)
+SUNErrCode N_VSetKernelExecPolicy_Cuda(N_Vector x,
+                                       SUNCudaExecPolicy* stream_exec_policy,
+                                       SUNCudaExecPolicy* reduce_exec_policy)
 {
-  if (x == NULL) { return (-1); }
+  if (x == NULL) { return SUN_ERR_GENERIC; }
 
   /* Delete the old policies */
   delete NVEC_CUDA_CONTENT(x)->stream_exec_policy;
@@ -535,7 +540,7 @@ int N_VSetKernelExecPolicy_Cuda(N_Vector x, SUNCudaExecPolicy* stream_exec_polic
     NVEC_CUDA_CONTENT(x)->reduce_exec_policy = reduce_exec_policy->clone();
   }
 
-  return (0);
+  return SUN_SUCCESS;
 }
 
 /* ----------------------------------------------------------------------------
@@ -1364,7 +1369,8 @@ sunrealtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
  * -----------------------------------------------------------------
  */
 
-int N_VLinearCombination_Cuda(int nvec, sunrealtype* c, N_Vector* X, N_Vector z)
+SUNErrCode N_VLinearCombination_Cuda(int nvec, sunrealtype* c, N_Vector* X,
+                                     N_Vector z)
 {
   // Fused op workspace shortcuts
   sunrealtype* cdata  = NULL;
@@ -1375,28 +1381,28 @@ int N_VLinearCombination_Cuda(int nvec, sunrealtype* c, N_Vector* X, N_Vector z)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: FusedBuffer_Init "
                          "returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyRealArray(z, c, nvec, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: "
                          "FusedBuffer_CopyRealArray returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(z, X, nvec, &xdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(z))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   // Set kernel parameters and launch
@@ -1407,7 +1413,7 @@ int N_VLinearCombination_Cuda(int nvec, sunrealtype* c, N_Vector* X, N_Vector z)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: "
                          "GetKernelParameters returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   linearCombinationKernel<<<grid, block, shMemSize, stream>>>(nvec, cdata, xdata,
@@ -1416,11 +1422,11 @@ int N_VLinearCombination_Cuda(int nvec, sunrealtype* c, N_Vector* X, N_Vector z)
                                                                 ->length);
   PostKernelLaunch();
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VScaleAddMulti_Cuda(int nvec, sunrealtype* c, N_Vector x, N_Vector* Y,
-                          N_Vector* Z)
+SUNErrCode N_VScaleAddMulti_Cuda(int nvec, sunrealtype* c, N_Vector x,
+                                 N_Vector* Y, N_Vector* Z)
 {
   // Shortcuts to the fused op workspace
   sunrealtype* cdata  = NULL;
@@ -1432,35 +1438,35 @@ int N_VScaleAddMulti_Cuda(int nvec, sunrealtype* c, N_Vector x, N_Vector* Y,
   {
     SUNDIALS_DEBUG_PRINT(
       "ERROR in N_VScaleAddMulti_Cuda: FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyRealArray(x, c, nvec, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Cuda: "
                          "FusedBuffer_CopyRealArray returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(x, Y, nvec, &ydata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(x, Z, nvec, &zdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(x))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Cuda: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   // Set kernel parameters
@@ -1471,7 +1477,7 @@ int N_VScaleAddMulti_Cuda(int nvec, sunrealtype* c, N_Vector x, N_Vector* Y,
   {
     SUNDIALS_DEBUG_PRINT(
       "ERROR in N_VScaleAddMulti_Cuda: GetKernelParameters returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   scaleAddMultiKernel<<<grid, block, shMemSize, stream>>>(nvec, cdata,
@@ -1481,10 +1487,11 @@ int N_VScaleAddMulti_Cuda(int nvec, sunrealtype* c, N_Vector x, N_Vector* Y,
                                                             ->length);
   PostKernelLaunch();
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, sunrealtype* dots)
+SUNErrCode N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y,
+                                sunrealtype* dots)
 {
   // Fused op workspace shortcuts
   sunrealtype** ydata = NULL;
@@ -1494,21 +1501,21 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, sunrealtype* dots)
   {
     SUNDIALS_DEBUG_PRINT(
       "ERROR in N_VDotProdMulti_Cuda: FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(x, Y, nvec, &ydata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(x))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VDotProdMulti_Cuda: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   // Set kernel parameters
@@ -1519,7 +1526,7 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, sunrealtype* dots)
   {
     SUNDIALS_DEBUG_PRINT(
       "ERROR in N_VDotProdMulti_Cuda: GetKernelParameters returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
   grid = nvec;
 
@@ -1540,7 +1547,7 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, sunrealtype* dots)
   CopyReductionBufferFromDevice(x, nvec);
   for (int i = 0; i < nvec; ++i) { dots[i] = NVEC_CUDA_HBUFFERp(x)[i]; }
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 /*
@@ -1549,8 +1556,8 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, sunrealtype* dots)
  * -----------------------------------------------------------------------------
  */
 
-int N_VLinearSumVectorArray_Cuda(int nvec, sunrealtype a, N_Vector* X,
-                                 sunrealtype b, N_Vector* Y, N_Vector* Z)
+SUNErrCode N_VLinearSumVectorArray_Cuda(int nvec, sunrealtype a, N_Vector* X,
+                                        sunrealtype b, N_Vector* Y, N_Vector* Z)
 {
   // Shortcuts to the fused op workspace
   sunrealtype** xdata = NULL;
@@ -1562,35 +1569,35 @@ int N_VLinearSumVectorArray_Cuda(int nvec, sunrealtype a, N_Vector* X,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Cuda: "
                          "FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], X, nvec, &xdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], Y, nvec, &ydata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(Z[0]))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinaerSumVectorArray_Cuda: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   // Set kernel parameters
@@ -1601,7 +1608,7 @@ int N_VLinearSumVectorArray_Cuda(int nvec, sunrealtype a, N_Vector* X,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearSumVectorArray_Cuda: "
                          "GetKernelParameters returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   linearSumVectorArrayKernel<<<grid, block, shMemSize, stream>>>(nvec, a, xdata,
@@ -1611,10 +1618,11 @@ int N_VLinearSumVectorArray_Cuda(int nvec, sunrealtype a, N_Vector* X,
                                                                    ->length);
   PostKernelLaunch();
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VScaleVectorArray_Cuda(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
+SUNErrCode N_VScaleVectorArray_Cuda(int nvec, sunrealtype* c, N_Vector* X,
+                                    N_Vector* Z)
 {
   // Shortcuts to the fused op workspace arrays
   sunrealtype* cdata  = NULL;
@@ -1626,35 +1634,35 @@ int N_VScaleVectorArray_Cuda(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
   {
     SUNDIALS_DEBUG_PRINT(
       "ERROR in N_VScaleVectorArray_Cuda: FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyRealArray(Z[0], c, nvec, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Cuda: "
                          "FusedBuffer_CopyRealArray returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], X, nvec, &xdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(Z[0]))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Cuda: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   // Set kernel parameters
@@ -1665,7 +1673,7 @@ int N_VScaleVectorArray_Cuda(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Cuda: "
                          "GetKernelParameters returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   scaleVectorArrayKernel<<<grid, block, shMemSize, stream>>>(nvec, cdata, xdata,
@@ -1675,10 +1683,10 @@ int N_VScaleVectorArray_Cuda(int nvec, sunrealtype* c, N_Vector* X, N_Vector* Z)
                                                                ->length);
   PostKernelLaunch();
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VConstVectorArray_Cuda(int nvec, sunrealtype c, N_Vector* Z)
+SUNErrCode N_VConstVectorArray_Cuda(int nvec, sunrealtype c, N_Vector* Z)
 {
   // Shortcuts to the fused op workspace arrays
   sunrealtype** zdata = NULL;
@@ -1688,21 +1696,21 @@ int N_VConstVectorArray_Cuda(int nvec, sunrealtype c, N_Vector* Z)
   {
     SUNDIALS_DEBUG_PRINT(
       "ERROR in N_VConstVectorArray_Cuda: FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(Z[0]))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Cuda: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   // Set kernel parameters
@@ -1713,7 +1721,7 @@ int N_VConstVectorArray_Cuda(int nvec, sunrealtype c, N_Vector* Z)
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VConstVectorArray_Cuda: "
                          "GetKernelParameters returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   constVectorArrayKernel<<<grid, block, shMemSize, stream>>>(nvec, c, zdata,
@@ -1722,11 +1730,11 @@ int N_VConstVectorArray_Cuda(int nvec, sunrealtype c, N_Vector* Z)
                                                                ->length);
   PostKernelLaunch();
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
-                                sunrealtype* norms)
+SUNErrCode N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
+                                       sunrealtype* norms)
 {
   // Fused op workspace shortcuts
   sunrealtype** xdata = NULL;
@@ -1737,28 +1745,28 @@ int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_Cuda: "
                          "FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(W[0], X, nvec, &xdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(W[0], W, nvec, &wdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(W[0]))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_Cuda: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (InitializeReductionBuffer(W[0], ZERO, nvec))
@@ -1775,7 +1783,7 @@ int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_Cuda: "
                          "GetKernelParameters returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
   grid = nvec;
 
@@ -1793,11 +1801,11 @@ int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
       std::sqrt(NVEC_CUDA_HBUFFERp(W[0])[i] / NVEC_CUDA_CONTENT(W[0])->length);
   }
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
-                                    N_Vector id, sunrealtype* norms)
+SUNErrCode N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
+                                           N_Vector id, sunrealtype* norms)
 {
   // Fused op workspace shortcuts
   sunrealtype** xdata = NULL;
@@ -1808,28 +1816,28 @@ int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_Cuda: "
                          "FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(W[0], X, nvec, &xdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(W[0], W, nvec, &wdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(W[0]))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormVectorArray_Cuda: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (InitializeReductionBuffer(W[0], ZERO, nvec))
@@ -1846,7 +1854,7 @@ int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VWrmsNormMaskVectorArray_Cuda: "
                          "GetKernelParameters returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
   grid = nvec;
 
@@ -1864,11 +1872,12 @@ int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
       std::sqrt(NVEC_CUDA_HBUFFERp(W[0])[i] / NVEC_CUDA_CONTENT(W[0])->length);
   }
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VScaleAddMultiVectorArray_Cuda(int nvec, int nsum, sunrealtype* c,
-                                     N_Vector* X, N_Vector** Y, N_Vector** Z)
+SUNErrCode N_VScaleAddMultiVectorArray_Cuda(int nvec, int nsum, sunrealtype* c,
+                                            N_Vector* X, N_Vector** Y,
+                                            N_Vector** Z)
 {
   // Shortcuts to the fused op workspace
   sunrealtype* cdata  = NULL;
@@ -1881,42 +1890,42 @@ int N_VScaleAddMultiVectorArray_Cuda(int nvec, int nsum, sunrealtype* c,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiArray_Cuda: "
                          "FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyRealArray(X[0], c, nsum, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiArray_Cuda: "
                          "FusedBuffer_CopyRealArray returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(X[0], X, nvec, &xdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray2D(X[0], Y, nvec, nsum, &ydata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray2D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray2D(X[0], Z, nvec, nsum, &zdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray2D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(X[0]))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Cuda: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   // Set kernel parameters
@@ -1927,7 +1936,7 @@ int N_VScaleAddMultiVectorArray_Cuda(int nvec, int nsum, sunrealtype* c,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiVectorArray_Cuda: "
                          "GetKernelParameters returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   scaleAddMultiVectorArrayKernel<<<grid, block, shMemSize, stream>>>(nvec, nsum,
@@ -1938,11 +1947,12 @@ int N_VScaleAddMultiVectorArray_Cuda(int nvec, int nsum, sunrealtype* c,
                                                                        ->length);
   PostKernelLaunch();
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VLinearCombinationVectorArray_Cuda(int nvec, int nsum, sunrealtype* c,
-                                         N_Vector** X, N_Vector* Z)
+SUNErrCode N_VLinearCombinationVectorArray_Cuda(int nvec, int nsum,
+                                                sunrealtype* c, N_Vector** X,
+                                                N_Vector* Z)
 {
   // Shortcuts to the fused op workspace arrays
   sunrealtype* cdata  = NULL;
@@ -1954,35 +1964,35 @@ int N_VLinearCombinationVectorArray_Cuda(int nvec, int nsum, sunrealtype* c,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Cuda: "
                          "FusedBuffer_Init returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyRealArray(Z[0], c, nsum, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Cuda: "
                          "FusedBuffer_CopyRealArray returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray2D(Z[0], X, nvec, nsum, &xdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray2D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyPtrArray1D(Z[0], Z, nvec, &zdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Cuda: "
                          "FusedBuffer_CopyPtrArray1D returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   if (FusedBuffer_CopyToDevice(Z[0]))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Cuda: "
                          "FusedBuffer_CopyToDevice returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   // Set kernel parameters
@@ -1993,7 +2003,7 @@ int N_VLinearCombinationVectorArray_Cuda(int nvec, int nsum, sunrealtype* c,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Cuda: "
                          "GetKernelParameters returned nonzero\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   linearCombinationVectorArrayKernel<<<grid, block, shMemSize, stream>>>(nvec,
@@ -2006,7 +2016,7 @@ int N_VLinearCombinationVectorArray_Cuda(int nvec, int nsum, sunrealtype* c,
                                                                            ->length);
   PostKernelLaunch();
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 /*
@@ -2015,23 +2025,23 @@ int N_VLinearCombinationVectorArray_Cuda(int nvec, int nsum, sunrealtype* c,
  * -----------------------------------------------------------------
  */
 
-int N_VBufSize_Cuda(N_Vector x, sunindextype* size)
+SUNErrCode N_VBufSize_Cuda(N_Vector x, sunindextype* size)
 {
-  if (x == NULL) { return (-1); }
+  if (x == NULL) { return SUN_ERR_GENERIC; }
   *size = (sunindextype)NVEC_CUDA_MEMSIZE(x);
-  return (0);
+  return SUN_SUCCESS;
 }
 
-int N_VBufPack_Cuda(N_Vector x, void* buf)
+SUNErrCode N_VBufPack_Cuda(N_Vector x, void* buf)
 {
   int copy_fail = 0;
   cudaError_t cuerr;
 
-  if (x == NULL || buf == NULL) { return (-1); }
+  if (x == NULL || buf == NULL) { return SUN_ERR_GENERIC; }
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) { return (-1); }
+  if (buf_mem == NULL) { return SUN_ERR_GENERIC; }
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_CUDA_MEMHELP(x), buf_mem,
                                         NVEC_CUDA_CONTENT(x)->device_data,
@@ -2044,19 +2054,20 @@ int N_VBufPack_Cuda(N_Vector x, void* buf)
   SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(x), buf_mem,
                           (void*)NVEC_CUDA_STREAM(x));
 
-  return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
+  if (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail) { return SUN_ERR_GENERIC; }
+  else { return SUN_SUCCESS; }
 }
 
-int N_VBufUnpack_Cuda(N_Vector x, void* buf)
+SUNErrCode N_VBufUnpack_Cuda(N_Vector x, void* buf)
 {
   int copy_fail = 0;
   cudaError_t cuerr;
 
-  if (x == NULL || buf == NULL) { return (-1); }
+  if (x == NULL || buf == NULL) { return SUN_ERR_GENERIC; }
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(x), buf,
                                            SUNMEMTYPE_HOST);
-  if (buf_mem == NULL) { return (-1); }
+  if (buf_mem == NULL) { return SUN_ERR_GENERIC; }
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_CUDA_MEMHELP(x),
                                         NVEC_CUDA_CONTENT(x)->device_data,
@@ -2069,7 +2080,8 @@ int N_VBufUnpack_Cuda(N_Vector x, void* buf)
   SUNMemoryHelper_Dealloc(NVEC_CUDA_MEMHELP(x), buf_mem,
                           (void*)NVEC_CUDA_STREAM(x));
 
-  return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
+  if (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail) { return SUN_ERR_GENERIC; }
+  else { return SUN_SUCCESS; }
 }
 
 /*
@@ -2078,13 +2090,13 @@ int N_VBufUnpack_Cuda(N_Vector x, void* buf)
  * -----------------------------------------------------------------
  */
 
-int N_VEnableFusedOps_Cuda(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableFusedOps_Cuda(N_Vector v, sunbooleantype tf)
 {
   /* check that vector is non-NULL */
-  if (v == NULL) { return (-1); }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
 
   /* check that ops structure is non-NULL */
-  if (v->ops == NULL) { return (-1); }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
 
   if (tf)
   {
@@ -2122,90 +2134,91 @@ int N_VEnableFusedOps_Cuda(N_Vector v, sunbooleantype tf)
   }
 
   /* return success */
-  return (0);
+  return SUN_SUCCESS;
 }
 
-int N_VEnableLinearCombination_Cuda(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableLinearCombination_Cuda(N_Vector v, sunbooleantype tf)
 {
-  if (v == NULL) { return -1; }
-  if (v->ops == NULL) { return -1; }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
   v->ops->nvlinearcombination = tf ? N_VLinearCombination_Cuda : NULL;
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VEnableScaleAddMulti_Cuda(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableScaleAddMulti_Cuda(N_Vector v, sunbooleantype tf)
 {
-  if (v == NULL) { return -1; }
-  if (v->ops == NULL) { return -1; }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
   v->ops->nvscaleaddmulti = tf ? N_VScaleAddMulti_Cuda : NULL;
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VEnableDotProdMulti_Cuda(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableDotProdMulti_Cuda(N_Vector v, sunbooleantype tf)
 {
-  if (v == NULL) { return -1; }
-  if (v->ops == NULL) { return -1; }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
   v->ops->nvdotprodmulti      = tf ? N_VDotProdMulti_Cuda : NULL;
   v->ops->nvdotprodmultilocal = tf ? N_VDotProdMulti_Cuda : NULL;
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VEnableLinearSumVectorArray_Cuda(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableLinearSumVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 {
-  if (v == NULL) { return -1; }
-  if (v->ops == NULL) { return -1; }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
   v->ops->nvlinearsumvectorarray = tf ? N_VLinearSumVectorArray_Cuda : NULL;
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VEnableScaleVectorArray_Cuda(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableScaleVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 {
-  if (v == NULL) { return -1; }
-  if (v->ops == NULL) { return -1; }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
   v->ops->nvscalevectorarray = tf ? N_VScaleVectorArray_Cuda : NULL;
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VEnableConstVectorArray_Cuda(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableConstVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 {
-  if (v == NULL) { return -1; }
-  if (v->ops == NULL) { return -1; }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
   v->ops->nvconstvectorarray = tf ? N_VConstVectorArray_Cuda : NULL;
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VEnableWrmsNormVectorArray_Cuda(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableWrmsNormVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 {
-  if (v == NULL) { return -1; }
-  if (v->ops == NULL) { return -1; }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
   v->ops->nvwrmsnormvectorarray = tf ? N_VWrmsNormVectorArray_Cuda : NULL;
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VEnableWrmsNormMaskVectorArray_Cuda(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableWrmsNormMaskVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 {
-  if (v == NULL) { return -1; }
-  if (v->ops == NULL) { return -1; }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
   v->ops->nvwrmsnormmaskvectorarray = tf ? N_VWrmsNormMaskVectorArray_Cuda : NULL;
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VEnableScaleAddMultiVectorArray_Cuda(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableScaleAddMultiVectorArray_Cuda(N_Vector v, sunbooleantype tf)
 {
-  if (v == NULL) { return -1; }
-  if (v->ops == NULL) { return -1; }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
   v->ops->nvscaleaddmultivectorarray = tf ? N_VScaleAddMultiVectorArray_Cuda
                                           : NULL;
-  return 0;
+  return SUN_SUCCESS;
 }
 
-int N_VEnableLinearCombinationVectorArray_Cuda(N_Vector v, sunbooleantype tf)
+SUNErrCode N_VEnableLinearCombinationVectorArray_Cuda(N_Vector v,
+                                                      sunbooleantype tf)
 {
-  if (v == NULL) { return -1; }
-  if (v->ops == NULL) { return -1; }
+  if (v == NULL) { return SUN_ERR_GENERIC; }
+  if (v->ops == NULL) { return SUN_ERR_GENERIC; }
   v->ops->nvlinearcombinationvectorarray =
     tf ? N_VLinearCombinationVectorArray_Cuda : NULL;
-  return 0;
+  return SUN_SUCCESS;
 }
 
 } // extern "C"
@@ -2220,7 +2233,7 @@ static int AllocateData(N_Vector v)
   N_VectorContent_Cuda vc         = NVEC_CUDA_CONTENT(v);
   N_PrivateVectorContent_Cuda vcp = NVEC_CUDA_PRIVATE(v);
 
-  if (N_VGetLength_Cuda(v) == 0) { return (0); }
+  if (N_VGetLength_Cuda(v) == 0) { return SUN_SUCCESS; }
 
   if (vcp->use_managed_mem)
   {
@@ -2255,7 +2268,7 @@ static int AllocateData(N_Vector v)
     }
   }
 
-  return (alloc_fail ? -1 : 0);
+  return (alloc_fail ? SUN_ERR_GENERIC : SUN_SUCCESS);
 }
 
 /*
@@ -2345,7 +2358,7 @@ static int InitializeReductionBuffer(N_Vector v, sunrealtype value, size_t n)
     }
   }
 
-  return ((alloc_fail || copy_fail) ? -1 : 0);
+  return ((alloc_fail || copy_fail) ? SUN_ERR_GENERIC : SUN_SUCCESS);
 }
 
 /* Free the reduction buffer
@@ -2397,7 +2410,8 @@ static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
 
   /* we synchronize with respect to the host, but only in this stream */
   cuerr = cudaStreamSynchronize(*NVEC_CUDA_STREAM(v));
-  return (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail ? -1 : 0);
+  if (!SUNDIALS_CUDA_VERIFY(cuerr) || copy_fail) { return SUN_ERR_GENERIC; }
+  else { return SUN_SUCCESS; }
 }
 
 static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
@@ -2446,7 +2460,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
       {
         SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc "
                              "failed to alloc SUNMEMTYPE_HOST\n");
-        return -1;
+        return SUN_ERR_GENERIC;
       }
     }
 
@@ -2459,7 +2473,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc "
                            "failed to alloc SUNMEMTYPE_DEVICE\n");
-      return -1;
+      return SUN_ERR_GENERIC;
     }
 
     // Store the size of the fused op buffer
@@ -2469,7 +2483,7 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
   // Reset the buffer offset
   vcp->fused_buffer_offset = 0;
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 static int FusedBuffer_CopyRealArray(N_Vector v, sunrealtype* rdata, int nval,
@@ -2483,7 +2497,7 @@ static int FusedBuffer_CopyRealArray(N_Vector v, sunrealtype* rdata, int nval,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyRealArray: Buffer offset is "
                          "exceedes the buffer size\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   sunrealtype* h_buffer = (sunrealtype*)((char*)(vcp->fused_buffer_host->ptr) +
@@ -2504,7 +2518,7 @@ static int FusedBuffer_CopyRealArray(N_Vector v, sunrealtype* rdata, int nval,
 #error Incompatible precision for CUDA
 #endif
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector* X, int nvec,
@@ -2518,7 +2532,7 @@ static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector* X, int nvec,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyPtrArray1D: Buffer offset "
                          "is exceedes the buffer size\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   sunrealtype** h_buffer = (sunrealtype**)((char*)(vcp->fused_buffer_host->ptr) +
@@ -2532,7 +2546,7 @@ static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector* X, int nvec,
 
   vcp->fused_buffer_offset += nvec * sizeof(sunrealtype*);
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
@@ -2546,7 +2560,7 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
   {
     SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyPtrArray2D: Buffer offset "
                          "is exceedes the buffer size\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   sunrealtype** h_buffer = (sunrealtype**)((char*)(vcp->fused_buffer_host->ptr) +
@@ -2567,7 +2581,7 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
   // Update the offset
   vcp->fused_buffer_offset += nvec * nsum * sizeof(sunrealtype*);
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 static int FusedBuffer_CopyToDevice(N_Vector v)
@@ -2584,20 +2598,20 @@ static int FusedBuffer_CopyToDevice(N_Vector v)
   {
     SUNDIALS_DEBUG_PRINT(
       "ERROR in FusedBuffer_CopyToDevice: SUNMemoryHelper_CopyAsync failed\n");
-    return -1;
+    return SUN_ERR_GENERIC;
   }
 
   // Synchronize with respect to the host, but only in this stream
   SUNDIALS_CUDA_VERIFY(cudaStreamSynchronize(*NVEC_CUDA_STREAM(v)));
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 static int FusedBuffer_Free(N_Vector v)
 {
   N_PrivateVectorContent_Cuda vcp = NVEC_CUDA_PRIVATE(v);
 
-  if (vcp == NULL) { return 0; }
+  if (vcp == NULL) { return SUN_SUCCESS; }
 
   if (vcp->fused_buffer_host)
   {
@@ -2616,7 +2630,7 @@ static int FusedBuffer_Free(N_Vector v)
   vcp->fused_buffer_bytes  = 0;
   vcp->fused_buffer_offset = 0;
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 static int InitializeDeviceCounter(N_Vector v)
@@ -2671,7 +2685,7 @@ static int GetKernelParameters(N_Vector v, sunbooleantype reduction,
 #ifdef SUNDIALS_DEBUG
         throw std::runtime_error("SUNMemoryHelper_Alloc returned nonzero\n");
 #endif
-        return (-1);
+        return SUN_ERR_GENERIC;
       }
     }
 
@@ -2681,7 +2695,7 @@ static int GetKernelParameters(N_Vector v, sunbooleantype reduction,
       throw std::runtime_error(
         "the block size must be a multiple must be of the CUDA warp size");
 #endif
-      return (-1);
+      return SUN_ERR_GENERIC;
     }
   }
   else
@@ -2700,17 +2714,17 @@ static int GetKernelParameters(N_Vector v, sunbooleantype reduction,
 #ifdef SUNDIALS_DEBUG
     throw std::runtime_error("the grid size must be > 0");
 #endif
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
   if (block == 0)
   {
 #ifdef SUNDIALS_DEBUG
     throw std::runtime_error("the block size must be > 0");
 #endif
-    return (-1);
+    return SUN_ERR_GENERIC;
   }
 
-  return (0);
+  return SUN_SUCCESS;
 }
 
 static int GetKernelParameters(N_Vector v, sunbooleantype reduction,

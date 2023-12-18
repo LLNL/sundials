@@ -56,20 +56,23 @@ SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_ARKUserControl(
   SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C,
-                                                   sunrealtype h, int p,
-                                                   sunrealtype dsm,
-                                                   sunrealtype* hnew);
+SUNErrCode SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C,
+                                                          sunrealtype h, int p,
+                                                          sunrealtype dsm,
+                                                          sunrealtype* hnew);
 SUNDIALS_EXPORT
-int SUNAdaptController_Reset_ARKUserControl(SUNAdaptController C);
+SUNErrCode SUNAdaptController_Reset_ARKUserControl(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptController_Write_ARKUserControl(SUNAdaptController C, FILE* fptr);
+SUNErrCode SUNAdaptController_Write_ARKUserControl(SUNAdaptController C,
+                                                   FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C,
-                                              sunrealtype h, sunrealtype dsm);
+SUNErrCode SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C,
+                                                     sunrealtype h,
+                                                     sunrealtype dsm);
 SUNDIALS_EXPORT
-int SUNAdaptController_Space_ARKUserControl(SUNAdaptController C,
-                                            long int* lenrw, long int* leniw);
+SUNErrCode SUNAdaptController_Space_ARKUserControl(SUNAdaptController C,
+                                                   long int* lenrw,
+                                                   long int* leniw);
 
 #ifdef __cplusplus
 }

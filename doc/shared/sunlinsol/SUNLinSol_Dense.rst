@@ -57,14 +57,6 @@ The module SUNLinSol_Dense provides the following user-callable constructor rout
       SUNDIALS, these will be included within this compatibility check.
 
 
-For backwards compatibility, we also provide the following wrapper function:
-
-.. c:function:: SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
-
-   Wrapper function for :c:func:`SUNLinSol_Dense`, with identical input and
-   output arguments
-
-
 
 .. _SUNLinSol_Dense.Description:
 

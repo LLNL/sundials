@@ -61,7 +61,7 @@ initialization (:c:func:`SUNNonlinSolInitialization`), setup
 
 
 
-.. c:function:: int SUNNonlinSolInitialize(SUNNonlinearSolver NLS)
+.. c:function:: SUNErrCode SUNNonlinSolInitialize(SUNNonlinearSolver NLS)
 
    This *optional* function handles nonlinear solver initialization
    and may perform any necessary memory allocations.
@@ -70,8 +70,7 @@ initialization (:c:func:`SUNNonlinSolInitialization`), setup
       * *NLS* -- a SUNNonlinSol object.
 
    **Return value:**
-      The return value is zero for a successful call and a
-      negative value for a failure.
+      A :c:type:`SUNErrCode`.
 
    **Notes:**
       It is assumed all solver-specific options have been set
@@ -80,7 +79,7 @@ initialization (:c:func:`SUNNonlinSolInitialization`), setup
       operation to ``NULL``.
 
 
-.. c:function:: int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
+.. c:function:: SUNErrCode SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 
    This *optional* function performs any solver setup needed for a nonlinear solve.
 
@@ -90,8 +89,7 @@ initialization (:c:func:`SUNNonlinSolInitialization`), setup
       * *mem* -- the SUNDIALS integrator memory structure.
 
    **Return value:**
-      The return value is zero for a successful call and a
-      negative value for a failure.
+      A :c:type:`SUNErrCode`.
 
    **Notes:**
       SUNDIALS integrators call :c:func:`SUNonlinSolSetup` before
@@ -125,7 +123,7 @@ initialization (:c:func:`SUNNonlinSolInitialization`), setup
       the integrator should halt and return an error to the user).
 
 
-.. c:function:: int SUNNonlinSolFree(SUNNonlinearSolver NLS)
+.. c:function:: SUNErrCode SUNNonlinSolFree(SUNNonlinearSolver NLS)
 
    This *optional* function frees any memory allocated by the
    nonlinear solver.
@@ -134,9 +132,7 @@ initialization (:c:func:`SUNNonlinSolInitialization`), setup
       * *NLS* -- a SUNNonlinSol object.
 
    **Return value:**
-      The return value should be zero for a successful call, and a
-      negative value for a failure. SUNNonlinSol implementations that
-      do not allocate data may set this operation to ``NULL``.
+      * A :c:type:`SUNErrCode`
 
 
 
@@ -152,7 +148,7 @@ parameters. Only the routine for setting the nonlinear system defining function
 (:c:func:`SUNNonlinSolSetSysFn`) is required. All other set functions are optional.
 
 
-.. c:function:: int SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
+.. c:function:: SUNErrCode SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 
    This *required* function is used to provide the nonlinear solver
    with the function defining the nonlinear system. This is the function
@@ -166,11 +162,10 @@ parameters. Only the routine for setting the nonlinear system defining function
         :c:type:`SUNNonlinSolSysFn`.
 
    **Return value:**
-      The return value should be zero for a successful call, and a
-      negative value for a failure.
+      * A :c:type:`SUNErrCode`
 
 
-.. c:function:: int SUNNonlinSolSetLSetupFn(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn SetupFn)
+.. c:function:: SUNErrCode SUNNonlinSolSetLSetupFn(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn SetupFn)
 
    This *optional* function is called by SUNDIALS integrators to provide
    the nonlinear solver with access to its linear solver setup function.
@@ -182,8 +177,7 @@ parameters. Only the routine for setting the nonlinear system defining function
         definition of :c:type:`SUNNonlinSolLSetupFn`.
 
    **Return value:**
-      The return value should be zero for a successful call, and a
-      negative value for a failure.
+      * A :c:type:`SUNErrCode`
 
    **Notes:**
       The :c:type:`SUNNonlinSolLSetupFn` function sets up the
@@ -198,7 +192,7 @@ parameters. Only the routine for setting the nonlinear system defining function
 
 
 
-.. c:function:: int SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn SolveFn)
+.. c:function:: SUNErrCode SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn SolveFn)
 
    This *optional* function is called by SUNDIALS integrators to provide
    the nonlinear solver with access to its linear solver solve function.
@@ -211,8 +205,7 @@ parameters. Only the routine for setting the nonlinear system defining function
         :c:type:`SUNNonlinSolLSolveFn`.
 
    **Return value:**
-      The return value should be zero for a successful call, and a
-      negative value for a failure.
+      * A :c:type:`SUNErrCode`
 
    **Notes:**
       The :c:type:`SUNNonlinSolLSolveFn` function solves the
@@ -224,7 +217,7 @@ parameters. Only the routine for setting the nonlinear system defining function
 
 
 
-.. c:function:: int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn, void* ctest_data)
+.. c:function:: SUNErrCode SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn, void* ctest_data)
 
    This *optional* function is used to provide the nonlinear solver
    with a function for determining if the nonlinear solver iteration
@@ -242,8 +235,7 @@ parameters. Only the routine for setting the nonlinear system defining function
         called.
 
    **Return value:**
-      The return value should be zero for a successful call, and a
-      negative value for a failure.
+      * A :c:type:`SUNErrCode`
 
    **Notes:**
       SUNNonlinSol implementations utilizing their own convergence test
@@ -251,7 +243,7 @@ parameters. Only the routine for setting the nonlinear system defining function
 
 
 
-.. c:function:: int SUNNonlinSolSetMaxIters(SUNNonlinearSolver NLS, int maxiters)
+.. c:function:: SUNErrCode SUNNonlinSolSetMaxIters(SUNNonlinearSolver NLS, int maxiters)
 
    This *optional* function sets the maximum number of nonlinear solver
    iterations. This is typically called by SUNDIALS integrators to
@@ -262,8 +254,7 @@ parameters. Only the routine for setting the nonlinear system defining function
       * *maxiters* -- the maximum number of nonlinear iterations.
 
    **Return value:**
-      The return value should be zero for a successful call, and a
-      negative value for a failure (e.g., :math:`maxiters < 1`).
+      * A :c:type:`SUNErrCode`
 
 
 
@@ -282,7 +273,7 @@ provided by the SUNDIALS integrator or when using an iterative SUNLinSol
 linear solver module; otherwise :c:func:`SUNNonlinSolGetCurIter` is optional.
 
 
-.. c:function:: int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int *niters)
+.. c:function:: SUNErrCode SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int *niters)
 
    This *optional* function returns the number of nonlinear solver iterations
    in the most recent solve. This is typically called by the SUNDIALS
@@ -294,11 +285,10 @@ linear solver module; otherwise :c:func:`SUNNonlinSolGetCurIter` is optional.
       * *niters* -- the total number of nonlinear solver iterations.
 
    **Return value:**
-      The return value should be zero for a successful call, and a
-      negative value for a failure.
+      * A :c:type:`SUNErrCode`
 
 
-.. c:function:: int SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int *iter)
+.. c:function:: SUNErrCode SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int *iter)
 
    This function returns the iteration index of the current nonlinear
    solve. This function is *required* when using SUNDIALS
@@ -311,11 +301,10 @@ linear solver module; otherwise :c:func:`SUNNonlinSolGetCurIter` is optional.
         starting from zero.
 
    **Return value:**
-      The return value should be zero for a successful call, and a
-      negative value for a failure.
+      * A :c:type:`SUNErrCode`
 
 
-.. c:function:: int SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int *nconvfails)
+.. c:function:: SUNErrCode SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int *nconvfails)
 
    This *optional* function returns the number of nonlinear solver convergence
    failures in the most recent solve. This is typically called by the SUNDIALS
@@ -327,8 +316,7 @@ linear solver module; otherwise :c:func:`SUNNonlinSolGetCurIter` is optional.
       * *nconvfails* -- the total number of nonlinear solver convergence failures.
 
    **Return value:**
-      The return value should be zero for a successful call, and a
-      negative value for a failure.
+      * A :c:type:`SUNErrCode`
 
 
 .. _SUNNonlinSol.API.SUNSuppliedFn:
@@ -458,7 +446,7 @@ module have types defined in the header file
       The return value of this routine will be a negative value if an
       unrecoverable error occurred or one of the following:
 
-      * ``SUN_NLS_SUCCESS`` -- the iteration is converged.
+      * ``SUN_SUCCESS`` -- the iteration is converged.
 
       * ``SUN_NLS_CONTINUE`` -- the iteration has not converged, keep
         iterating.
@@ -493,21 +481,11 @@ successful call.
    +-----------------------+---------+---------------------------------------------------------------+
    | Name                  | Value   | Description                                                   |
    +=======================+=========+===============================================================+
-   | SUN_NLS_SUCCESS       |    0    | successful call or converged solve                            |
+   | SUN_SUCCESS           |    0    | successful call or converged solve                            |
    +-----------------------+---------+---------------------------------------------------------------+
    | SUN_NLS_CONTINUE      |  901    | the nonlinear solver is not converged, keep iterating         |
    +-----------------------+---------+---------------------------------------------------------------+
    | SUN_NLS_CONV_RECVR    |  902    | the nonlinear solver appears to be diverging, try to recover  |
-   +-----------------------+---------+---------------------------------------------------------------+
-   | SUN_NLS_MEM_NULL      | -901    | a memory argument is ``NULL``                                 |
-   +-----------------------+---------+---------------------------------------------------------------+
-   | SUN_NLS_MEM_FAIL      | -902    | a memory access or allocation failed                          |
-   +-----------------------+---------+---------------------------------------------------------------+
-   | SUN_NLS_ILL_INPUT     | -903    | an illegal input option was provided                          |
-   +-----------------------+---------+---------------------------------------------------------------+
-   | SUN_NLS_VECTOROP_ERR  | -904    | a NVECTOR operation failed                                    |
-   +-----------------------+---------+---------------------------------------------------------------+
-   | SUN_NLS_EXT_FAIL      | -905    | an external library call returned an error                    |
    +-----------------------+---------+---------------------------------------------------------------+
 
 

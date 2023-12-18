@@ -43,6 +43,7 @@
 #include <nvector/nvector_hip.h> /* access to hip N_Vector               */
 #include <stdio.h>
 #include <stdlib.h>
+#include <sundials/sundials_core.hpp>
 #include <sundials/sundials_types.h> /* definition of type sunrealtype          */
 
 /* Problem Constants */

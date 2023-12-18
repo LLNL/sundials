@@ -109,76 +109,62 @@ operations enabled/disabled as cloned vectors inherit the same enable/disable
 options as the vector they are cloned from while vectors created with
 :c:func:`N_VMake_ParHyp` will have the default settings for the NVECTOR_PARHYP module.
 
-.. c:function:: int N_VEnableFusedOps_ParHyp(N_Vector v, sunbooleantype tf)
+.. c:function:: SUNErrCode N_VEnableFusedOps_ParHyp(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
-   vector array operations in the parhyp vector. The return value is ``0`` for
-   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+   vector array operations in the parhyp vector. The return value is a :c:type:`SUNErrCode`.
 
-.. c:function:: int N_VEnableLinearCombination_ParHyp(N_Vector v, sunbooleantype tf)
+.. c:function:: SUNErrCode N_VEnableLinearCombination_ParHyp(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
-   combination fused operation in the parhyp vector. The return value is ``0`` for
-   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+   combination fused operation in the parhyp vector. The return value is a :c:type:`SUNErrCode`.
 
-.. c:function:: int N_VEnableScaleAddMulti_ParHyp(N_Vector v, sunbooleantype tf)
+.. c:function:: SUNErrCode N_VEnableScaleAddMulti_ParHyp(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector to multiple vectors fused operation in the parhyp vector. The
-   return value is ``0`` for success and ``-1`` if the input vector or its
-   ``ops`` structure are ``NULL``.
+   return value is a :c:type:`SUNErrCode`.
 
-.. c:function:: int N_VEnableDotProdMulti_ParHyp(N_Vector v, sunbooleantype tf)
+.. c:function:: SUNErrCode N_VEnableDotProdMulti_ParHyp(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
-   dot products fused operation in the parhyp vector. The return value is ``0``
-   for success and ``-1`` if the input vector or its ``ops`` structure are
-   ``NULL``.
+   dot products fused operation in the parhyp vector. The return value is a :c:type:`SUNErrCode`.
 
-.. c:function:: int N_VEnableLinearSumVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
+.. c:function:: SUNErrCode N_VEnableLinearSumVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
-   operation for vector arrays in the parhyp vector. The return value is ``0`` for
-   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+   operation for vector arrays in the parhyp vector. The return value is a :c:type:`SUNErrCode`.
 
-.. c:function:: int N_VEnableScaleVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
+.. c:function:: SUNErrCode N_VEnableScaleVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
-   operation for vector arrays in the parhyp vector. The return value is ``0`` for
-   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+   operation for vector arrays in the parhyp vector. The return value is a :c:type:`SUNErrCode`.
 
-.. c:function:: int N_VEnableConstVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
+.. c:function:: SUNErrCode N_VEnableConstVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
-   operation for vector arrays in the parhyp vector. The return value is ``0`` for
-   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+   operation for vector arrays in the parhyp vector. The return value is a :c:type:`SUNErrCode`.
 
-.. c:function:: int N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
+.. c:function:: SUNErrCode N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
-   operation for vector arrays in the parhyp vector. The return value is ``0`` for
-   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+   operation for vector arrays in the parhyp vector. The return value is a :c:type:`SUNErrCode`.
 
-.. c:function:: int N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
+.. c:function:: SUNErrCode N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
-   norm operation for vector arrays in the parhyp vector. The return value is
-   ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
-   ``NULL``.
+   norm operation for vector arrays in the parhyp vector. The return value is a :c:type:`SUNErrCode`.
 
-.. c:function:: int N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
+.. c:function:: SUNErrCode N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector array to multiple vector arrays operation in the parhyp vector. The
-   return value is ``0`` for success and ``-1`` if the input vector or its
-   ``ops`` structure are ``NULL``.
+   return value is a :c:type:`SUNErrCode`.
 
-.. c:function:: int N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
+.. c:function:: SUNErrCode N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, sunbooleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
-   combination operation for vector arrays in the parhyp vector. The return value
-   is ``0`` for success and ``-1`` if the input vector or its ``ops`` structure
-   are ``NULL``.
+   combination operation for vector arrays in the parhyp vector. The return value is a :c:type:`SUNErrCode`.
 
 
 **Notes**

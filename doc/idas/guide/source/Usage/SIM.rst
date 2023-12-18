@@ -55,7 +55,7 @@ where ``instdir`` is the directory where SUNDIALS was installed.
 Regardless of where the user's application program resides, its
 associated compilation and load commands must make reference to the
 appropriate locations for the library and header files required by
-IDAS. IDAS symbols are found in ``libdir/libsundials_idas.lib``. 
+IDAS. IDAS symbols are found in ``libdir/libsundials_idas.lib``.
 Thus, in addition to linking to ``libdir/libsundials_core.lib``, IDAS
 users need to link to the IDAS library. Symbols for additional SUNDIALS
 modules, vectors and algebraic solvers, are found in
@@ -68,11 +68,11 @@ modules, vectors and algebraic solvers, are found in
   <libdir>/libsundials_sunnonlinsol*.lib
   <libdir>/libsundials_sunmem*.lib
 
-The file extension ``.lib`` is typically ``.so`` for shared libraries 
-and ``.a`` for static libraries.  
+The file extension ``.lib`` is typically ``.so`` for shared libraries
+and ``.a`` for static libraries.
 
 The relevant header files for IDAS are located in the subdirectories
-``incdir/include/idas``. To use IDAS the application needs to include 
+``incdir/include/idas``. To use IDAS the application needs to include
 the header file for IDAS in addition to the SUNDIALS core header file:
 
 .. code:: c
@@ -80,25 +80,25 @@ the header file for IDAS in addition to the SUNDIALS core header file:
   #include <sundials/sundials_core.h> // Provides core SUNDIALS types
   #include <idas/idas.h>              // IDAS provides methods for DAEs with sensitivity analysis
 
-The calling program must also include an :c:type:`N_Vector` implementation header file, of the form  
+The calling program must also include an :c:type:`N_Vector` implementation header file, of the form
 ``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name.
 
 If using a non-default nonlinear solver object, or when interacting with a
-:c:type:`SUNNonlinearSolver` object directly, the calling program must also include a  
-:c:type:`SUNNonlinearSolver` implementation header file, of the form 
+:c:type:`SUNNonlinearSolver` object directly, the calling program must also include a
+:c:type:`SUNNonlinearSolver` implementation header file, of the form
 ``sunnonlinsol/sunnonlinsol_*.h`` where ``*`` is the name of the nonlinear
 solver (see Chapter :numref:`SUNNonlinSol` for more information).
 
 If using a nonlinear solver that requires the solution of a linear system of the
 form :eq:`IDAS_DAE_nls` (e.g., the default Newton iteration), the calling program
-must also include a :c:type:`SUNLinearSolver` implementation header file, of the from  
+must also include a :c:type:`SUNLinearSolver` implementation header file, of the from
 ``sunlinsol/sunlinsol_*.h`` where ``*`` is the name of the linear solver
-(see Chapter :numref:`SUNLinSol` for more information). 
+(see Chapter :numref:`SUNLinSol` for more information).
 
 If the linear solver is matrix-based, the linear solver header will also include
 a header file of the from ``sunmatrix/sunmatrix_*.h`` where ``*`` is the name of
-the matrix implementation compatible with the linear solver. (see Chapter  
-:numref:`SUNMatrix` for more information). 
+the matrix implementation compatible with the linear solver. (see Chapter
+:numref:`SUNMatrix` for more information).
 
 Other headers may be needed, according to the choice of preconditioner, etc. For
 example, in the example ``idasFoodWeb_kry_p`` (see :cite:p:`ida_ex`),
@@ -898,11 +898,9 @@ an error message to the error handler function. All error return values are
 negative, so the test ``flag < 0`` will catch all errors.
 
 The optional input calls can, unless otherwise noted, be executed in any order.
-However, if the user’s program calls either :c:func:`IDASetErrFile` or
-:c:func:`IDASetErrHandlerFn`, then that call should appear first, in order to
-take effect for any later error message. Finally, a call to an ``IDASet***``
-function can, unless otherwise noted, be made at any time from the user’s
-calling program and, if successful, takes effect immediately.
+Finally, a call to an ``IDASet***`` function can, unless otherwise noted, be
+made at any time from the user’s calling program and, if successful, takes
+effect immediately.
 
 
 .. _IDAS.Usage.SIM.user_callable.optional_input.main:
@@ -916,10 +914,6 @@ Main solver optional input functions
 
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | **Optional input**                                                 | **Function name**               | **Default**    |
-   +--------------------------------------------------------------------+---------------------------------+----------------+
-   | Pointer to an error file                                           | :c:func:`IDASetErrFile`         | ``stderr``     |
-   +--------------------------------------------------------------------+---------------------------------+----------------+
-   | Error handler function                                             | :c:func:`IDASetErrHandlerFn`    | internal fn.   |
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | User data                                                          | :c:func:`IDASetUserData`        | NULL           |
    +--------------------------------------------------------------------+---------------------------------+----------------+
@@ -946,53 +940,6 @@ Main solver optional input functions
    | Inequality constraints on solution                                 | :c:func:`IDASetConstraints`     | NULL           |
    +--------------------------------------------------------------------+---------------------------------+----------------+
 
-
-.. c:function:: int IDASetErrFile(void * ida_mem, FILE * errfp)
-
-   The function :c:func:`IDASetErrFile` specifies the file pointer where all IDAS
-   messages should be directed when using the default IDAS error handler
-   function.
-
-   **Arguments:**
-      * ``ida_mem`` -- pointer to the IDAS solver object.
-      * ``errfp`` -- pointer to output file.
-
-   **Return value:**
-      * ``IDA_SUCCESS`` -- The optional value has been successfully set.
-      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
-
-   **Notes:**
-      The default value for ``errfp`` is ``stderr``.  Passing a value ``NULL``
-      disables all future error message output (except for the case in which the
-      IDAS memory pointer is ``NULL``).  This use of :c:func:`IDASetErrFile` is
-      strongly discouraged.
-
-   .. warning::
-
-      If :c:func:`IDASetErrFile` is to be called, it should be called before any
-      other optional input functions, in order to take effect for any later
-      error message.
-
-.. c:function:: int IDASetErrHandlerFn(void * ida_mem, IDAErrHandlerFn ehfun, void * eh_data)
-
-   The function :c:func:`IDASetErrHandlerFn` specifies the optional user-defined
-   function to be used in handling error messages.
-
-   **Arguments:**
-      * ``ida_mem`` -- pointer to the IDAS solver object.
-      * ``ehfun`` -- is the user's error handler function. See
-        :c:type:`IDAErrHandlerFn` for more details.
-      * ``eh_data`` -- pointer to user data passed to ``ehfun`` every time it is
-        called.
-
-   **Return value:**
-      * ``IDA_SUCCESS`` -- The function ``ehfun`` and data pointer ``eh_data`` have
-        been successfully set.
-      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
-
-   **Notes:**
-      Error messages indicating that the IDAS solver memory is ``NULL`` will always
-      be directed to ``stderr``.
 
 .. c:function:: int IDASetUserData(void * ida_mem, void * user_data)
 
@@ -3105,17 +3052,17 @@ The following optional outputs are available from the IDALS modules:
       banded) Jacobian matrix.  If the IDALS setup function failed when using
       another ``SUNLinearSolver`` object, then ``lsflag`` will be
       ``SUNLS_PSET_FAIL_UNREC``, ``SUNLS_ASET_FAIL_UNREC``, or
-      ``SUNLS_PACKAGE_FAIL_UNREC``.  If the IDALS solve function failed
+      ``SUN_ERR_EXT_FAIL``.  If the IDALS solve function failed
       (:c:func:`IDASolve` returned ``IDA_LSOLVE_FAIL``), ``lsflag`` contains the
       error return flag from the ``SUNLinearSolver`` object, which will be one of:
-      ``SUNLS_MEM_NULL``, indicating that the ``SUNLinearSolver`` memory is
+      ``SUN_ERR_ARG_CORRUPTRRUPT``, indicating that the ``SUNLinearSolver`` memory is
       ``NULL``; ``SUNLS_ATIMES_FAIL_UNREC``, indicating an unrecoverable failure in
       the :math:`J*v` function; ``SUNLS_PSOLVE_FAIL_UNREC``, indicating that the
       preconditioner solve function ``psolve`` failed unrecoverably;
       ``SUNLS_GS_FAIL``, indicating a failure in the Gram-Schmidt procedure
       (generated only in SPGMR or SPFGMR); ``SUNLS_QRSOL_FAIL``, indicating that
       the matrix :math:`R` was found to be singular during the QR solve phase
-      (SPGMR and SPFGMR only); or ``SUNLS_PACKAGE_FAIL_UNREC``, indicating an
+      (SPGMR and SPFGMR only); or ``SUN_ERR_EXT_FAIL``, indicating an
       unrecoverable failure in an external iterative linear solver package.
 
    .. warning::
@@ -3285,37 +3232,6 @@ The user must provide a function of type :c:type:`IDAResFn` defined as follows:
       solution of the nonlinear system, and a recoverable error at that point
       can be flagged, and IDAS will then try to correct it.
 
-
-.. _IDAS.Usage.SIM.user_supplied.ehFn:
-
-Error message handler function
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-As an alternative to the default behavior of directing error and warning
-messages to the file pointed to by ``errfp`` (see :c:func:`IDASetErrFile`), the
-user may provide a function of type :c:type:`IDAErrHandlerFn` to process any
-such messages.  The function type :c:type:`IDAErrHandlerFn` is defined as
-follows:
-
-.. c:type:: void (*IDAErrHandlerFn)(int error_code, const char *module, const char *function, char *msg, void *user_data)
-
-   This function processes error and warning messages from IDAS and its
-   sub-modules.
-
-   **Arguments:**
-      * ``error_code`` -- is the error code.
-      * ``module`` -- is the name of the IDAS module reporting the error.
-      * ``function`` -- is the name of the function in which the error occurred.
-      * ``eH_data`` -- is a pointer to user data, the same as the ``eh_data``
-        parameter passed to :c:func:`IDASetErrHandlerFn`.
-
-   **Return value:**
-      This function has no return value.
-
-   **Notes:**
-      ``error_code`` is negative for errors and positive (``IDA_WARNING``) for
-      warnings. If a function that returns a pointer to memory encounters an error,
-      it sets ``error_code`` to 0.
 
 
 .. _IDAS.Usage.SIM.user_supplied.ewtsetFn:

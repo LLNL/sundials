@@ -46,6 +46,7 @@
 // SUNDIALS headers
 #include <arkode/arkode_arkstep.h>
 #include <nvector/nvector_serial.h>
+#include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_dense.h>
 #include <sunmatrix/sunmatrix_dense.h>
 

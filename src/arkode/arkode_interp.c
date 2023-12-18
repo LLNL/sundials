@@ -343,8 +343,8 @@ int arkInterpSetDegree_Hermite(void* arkode_mem, ARKInterp interp, int degree)
   {
     if (degree > ARK_INTERP_MAX_DEGREE)
     {
-      arkProcessError(ark_mem, ARK_INTERP_FAIL, "ARKODE",
-                      "arkInterpSetDegree_Hermite", "Illegal degree specified.");
+      arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
+                      "Illegal degree specified.");
       return (ARK_ILL_INPUT);
     }
 
@@ -541,8 +541,8 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
   /* error on illegal d */
   if (d < 0)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkInterpEvaluate_Hermite", "Requested illegal derivative.");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Requested illegal derivative.");
     return (ARK_ILL_INPUT);
   }
 
@@ -836,8 +836,8 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
     break;
 
   default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkInterpEvaluate_Hermite", "Illegal polynomial order");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Illegal polynomial order");
     return (ARK_ILL_INPUT);
   }
 
@@ -1105,8 +1105,8 @@ int arkInterpSetDegree_Lagrange(void* arkode_mem, ARKInterp I, int degree)
   {
     if (degree > ARK_INTERP_MAX_DEGREE)
     {
-      arkProcessError(ark_mem, ARK_INTERP_FAIL, "ARKODE",
-                      "arkInterpSetDegree_Lagrange", "Illegal degree specified.");
+      arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
+                      "Illegal degree specified.");
       return (ARK_ILL_INPUT);
     }
 
@@ -1333,8 +1333,7 @@ int arkInterpEvaluate_Lagrange(void* arkode_mem, ARKInterp I, sunrealtype tau,
   /* error on illegal deriv */
   if ((deriv < 0) || (deriv > 3))
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkInterpEvaluate_Lagrange",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Requested illegal derivative.");
     return (ARK_ILL_INPUT);
   }

@@ -125,46 +125,6 @@ ODE system to MRIStep:
 
 
 
-
-.. _ARKODE.Usage.ErrorHandler:
-
-Error message handler function
---------------------------------------
-
-As an alternative to the default behavior of directing error and
-warning messages to the file pointed to by `errfp` (see
-:c:func:`ARKStepSetErrFile`, :c:func:`ERKStepSetErrFile`, and
-:c:func:`MRIStepSetErrFile`), the user may provide a function of type
-:c:type:`ARKErrHandlerFn` to process any such messages.
-
-
-
-.. c:type:: void (*ARKErrHandlerFn)(int error_code, const char* module, const char* function, char* msg, void* user_data)
-
-   This function processes error and warning messages from
-   ARKODE and its sub-modules.
-
-   **Arguments:**
-      * *error_code* -- the error code.
-      * *module* -- the name of the ARKODE module reporting the error.
-      * *function* -- the name of the function in which the error occurred.
-      * *msg* -- the error message.
-      * *user_data* -- a pointer to user data, the same as the
-        *eh_data* parameter that was passed to :c:func:`ARKStepSetErrHandlerFn`,
-        :c:func:`ERKStepSetErrHandlerFn`, or :c:func:`MRIStepSetErrHandlerFn`.
-
-   **Return value:**
-      An *ARKErrHandlerFn* function has no return value.
-
-   **Notes:**
-      *error_code* is negative for errors and positive
-      (*ARK_WARNING*) for warnings.  If a function that returns a
-      pointer to memory encounters an error, it sets *error_code* to
-      0.
-
-
-
-
 .. _ARKODE.Usage.ErrorWeight:
 
 Error weight function

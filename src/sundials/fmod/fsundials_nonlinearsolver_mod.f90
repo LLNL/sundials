@@ -75,14 +75,8 @@ module fsundials_nonlinearsolver_mod
  public :: FSUNNonlinSolGetNumIters
  public :: FSUNNonlinSolGetCurIter
  public :: FSUNNonlinSolGetNumConvFails
- integer(C_INT), parameter, public :: SUN_NLS_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: SUN_NLS_CONTINUE = +901_C_INT
  integer(C_INT), parameter, public :: SUN_NLS_CONV_RECVR = +902_C_INT
- integer(C_INT), parameter, public :: SUN_NLS_MEM_NULL = -901_C_INT
- integer(C_INT), parameter, public :: SUN_NLS_MEM_FAIL = -902_C_INT
- integer(C_INT), parameter, public :: SUN_NLS_ILL_INPUT = -903_C_INT
- integer(C_INT), parameter, public :: SUN_NLS_VECTOROP_ERR = -904_C_INT
- integer(C_INT), parameter, public :: SUN_NLS_EXT_FAIL = -905_C_INT
 
 ! WRAPPER DECLARATIONS
 interface

@@ -257,11 +257,11 @@ SWIGEXPORT int _wrap_FSUNNonlinSolGetType_FixedPoint(SUNNonlinearSolver farg1) {
 SWIGEXPORT int _wrap_FSUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver farg1) {
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
-  result = (int)SUNNonlinSolInitialize_FixedPoint(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolInitialize_FixedPoint(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -293,11 +293,11 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver farg1, N_V
 SWIGEXPORT int _wrap_FSUNNonlinSolFree_FixedPoint(SUNNonlinearSolver farg1) {
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
-  result = (int)SUNNonlinSolFree_FixedPoint(arg1);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolFree_FixedPoint(arg1);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -306,12 +306,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetSysFn_FixedPoint(SUNNonlinearSolver farg1, 
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   SUNNonlinSolSysFn arg2 = (SUNNonlinSolSysFn) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (SUNNonlinSolSysFn)(farg2);
-  result = (int)SUNNonlinSolSetSysFn_FixedPoint(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolSetSysFn_FixedPoint(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -321,13 +321,13 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver fa
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   SUNNonlinSolConvTestFn arg2 = (SUNNonlinSolConvTestFn) 0 ;
   void *arg3 = (void *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (SUNNonlinSolConvTestFn)(farg2);
   arg3 = (void *)(farg3);
-  result = (int)SUNNonlinSolSetConvTestFn_FixedPoint(arg1,arg2,arg3);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolSetConvTestFn_FixedPoint(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -336,12 +336,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver farg
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   int arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)SUNNonlinSolSetMaxIters_FixedPoint(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolSetMaxIters_FixedPoint(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -350,12 +350,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver farg1
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   sunrealtype arg2 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (sunrealtype)(*farg2);
-  result = (int)SUNNonlinSolSetDamping_FixedPoint(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolSetDamping_FixedPoint(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -364,12 +364,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolGetNumIters_FixedPoint(SUNNonlinearSolver farg
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   long *arg2 = (long *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (long *)(farg2);
-  result = (int)SUNNonlinSolGetNumIters_FixedPoint(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolGetNumIters_FixedPoint(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -378,12 +378,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolGetCurIter_FixedPoint(SUNNonlinearSolver farg1
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   int *arg2 = (int *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (int *)(farg2);
-  result = (int)SUNNonlinSolGetCurIter_FixedPoint(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolGetCurIter_FixedPoint(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -392,12 +392,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolGetNumConvFails_FixedPoint(SUNNonlinearSolver 
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   long *arg2 = (long *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (long *)(farg2);
-  result = (int)SUNNonlinSolGetNumConvFails_FixedPoint(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolGetNumConvFails_FixedPoint(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
@@ -406,12 +406,12 @@ SWIGEXPORT int _wrap_FSUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver farg1, 
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
   SUNNonlinSolSysFn *arg2 = (SUNNonlinSolSysFn *) 0 ;
-  int result;
+  SUNErrCode result;
   
   arg1 = (SUNNonlinearSolver)(farg1);
   arg2 = (SUNNonlinSolSysFn *)(farg2);
-  result = (int)SUNNonlinSolGetSysFn_FixedPoint(arg1,arg2);
-  fresult = (int)(result);
+  result = (SUNErrCode)SUNNonlinSolGetSysFn_FixedPoint(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 

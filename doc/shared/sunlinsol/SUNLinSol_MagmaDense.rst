@@ -83,7 +83,7 @@ In addition, the module provides the following user-callable routines:
       the input matrix and vector to determine the linear system size and to
       assess compatibility with the solver.
 
-.. c:function:: int SUNLinSol_MagmaDense_SetAsync(SUNLinearSolver LS, sunbooleantype onoff)
+.. c:function:: SUNErrCode SUNLinSol_MagmaDense_SetAsync(SUNLinearSolver LS, sunbooleantype onoff)
 
    This function can be used to toggle the linear solver between asynchronous
    and synchronous modes. In asynchronous mode (default), SUNLinearSolver
@@ -95,8 +95,7 @@ In addition, the module provides the following user-callable routines:
       * *onoff* -- 0 for synchronous mode or 1 for asynchronous mode (default 1)
 
    **Return value:**
-      * ``SUNLS_SUCCESS`` if successful
-      * ``SUNLS_MEM_NULL`` if *LS* is ``NULL``
+      * A :c:type:`SUNErrCode`
 
 
 SUNLinearSolver_MagmaDense Content

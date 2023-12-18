@@ -92,13 +92,15 @@ SUNDIALS_EXPORT sunrealtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j);
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_Dense(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_Dense(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy_Dense(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatZero_Dense(SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAdd_Dense(sunrealtype c, SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT int SUNMatScaleAddI_Dense(sunrealtype c, SUNMatrix A);
-SUNDIALS_EXPORT int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT int SUNMatSpace_Dense(SUNMatrix A, long int* lenrw,
-                                      long int* leniw);
+SUNDIALS_EXPORT SUNErrCode SUNMatZero_Dense(SUNMatrix A);
+SUNDIALS_EXPORT SUNErrCode SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B);
+SUNDIALS_EXPORT SUNErrCode SUNMatScaleAdd_Dense(sunrealtype c, SUNMatrix A,
+                                                SUNMatrix B);
+SUNDIALS_EXPORT SUNErrCode SUNMatScaleAddI_Dense(sunrealtype c, SUNMatrix A);
+SUNDIALS_EXPORT SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x,
+                                              N_Vector y);
+SUNDIALS_EXPORT SUNErrCode SUNMatSpace_Dense(SUNMatrix A, long int* lenrw,
+                                             long int* leniw);
 
 #ifdef __cplusplus
 }

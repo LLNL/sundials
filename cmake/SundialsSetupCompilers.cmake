@@ -111,20 +111,14 @@ endif()
 # C settings
 # ===============================================================
 
-set(DOCSTR "The C standard to use (90, 99, 11, 17)")
+set(DOCSTR "The C standard to use (99, 11, 17)")
 sundials_option(CMAKE_C_STANDARD STRING "${DOCSTR}" "99"
-                OPTIONS "90;99;11;17")
+                OPTIONS "99;11;17")
 message(STATUS "C standard set to ${CMAKE_C_STANDARD}")
 
 set(DOCSTR "Enable C compiler specific extensions")
 sundials_option(CMAKE_C_EXTENSIONS BOOL "${DOCSTR}" ON)
 message(STATUS "C extensions set to ${CMAKE_C_EXTENSIONS}")
-
-# Profiling generally requires ISO C99 or newer for __func__ though some
-# compilers define __func__ even with ISO C90.
-if(SUNDIALS_BUILD_WITH_PROFILING AND (CMAKE_C_STANDARD STREQUAL "90"))
-  message(WARNING "SUNDIALS_BUILD_WITH_PROFILING=ON requires __func__, compilation may fail with CMAKE_C_STANDARD=90")
-endif()
 
 # ---------------------------------------------------------------
 # Check for snprintf and va_copy
@@ -136,7 +130,7 @@ endif()
 check_c_source_compiles("
   #include <stdio.h>
   #include <stdarg.h>
-  int main() {
+  int main(void) {
     int size = snprintf(NULL, 0, \"%s\", \"snprintf works\");
     va_list args;
     va_list tmp;
@@ -157,7 +151,8 @@ endif()
 set(CMAKE_REQUIRED_LIBRARIES ${SUNDIALS_MATH_LIBRARY})
 check_c_source_compiles("
   #include <math.h>
-  int main() {
+  #include <stdio.h>
+  int main(void) {
     float a, a_result;
     long double b, b_result;
 
@@ -169,12 +164,14 @@ check_c_source_compiles("
     a_result = expf(a);
     a_result = ceilf(a);
     a_result = powf(a, 1.0F);
+    printf(\"a_result=%g\", a_result);
 
     b_result = sqrtl(b);
     b_result = fabsl(b);
     b_result = expl(b);
     b_result = ceill(b);
     b_result = powl(b, 1.0L);
+    printf(\"b_result=%Lg\", b_result);
 
     return 0;
   }
@@ -186,7 +183,7 @@ check_c_source_compiles("
 
 check_c_source_compiles("
   #include <math.h>
-  int main() {
+  int main(void) {
     double a = 0.0;
     int result = isinf(a);
     result = isnan(a);
@@ -202,7 +199,7 @@ check_c_source_compiles("
   static inline double add1(double a) {
     return a + 1.0;
   }
-  int main(int argc, const char* argv[]) {
+  int main(void) {
     double a = 0.0;
     return add1(a) < a;
   }
@@ -213,12 +210,14 @@ check_c_source_compiles("
 # ---------------------------------------------------------------
 
 check_c_source_compiles("
-  int main(int argc, const char* argv[]) {
+  #include <stdio.h>
+  int main(void) {
     double a = 0.0;
     if (__builtin_expect(a < 0, 0)) {
       a = 0.0;
     }
     a = a + 1.0;
+    printf(\"a=%g\", a);
     return 0;
   }
 " SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT)
@@ -227,37 +226,52 @@ check_c_source_compiles("
 # Check for assume related extensions
 # ---------------------------------------------------------------
 
+# gcc >= 13 should have __attribute__((assume))
 check_c_source_compiles("
-  int main(int argc, const char* argv[]) {
+  #include <stdio.h>
+  int main(void) {
     double a = 0.0;
+    #if defined(__has_attribute)
+    # if !__has_attribute(assume)
+    #   error no assume
+    # endif
+    #else
+    #error no __has_attribute
+    #endif
     __attribute__((assume(a >= 0.0)));
     a = a + 1.0;
+    printf(\"a=%g\", a);
     return 0;
   }
 " SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME)
 
+# LLVM based compilers should have __builtin_assume
 if(NOT SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME)
   check_c_source_compiles("
-    int main(int argc, const char* argv[]) {
+    #include <stdio.h>
+    int main(void) {
       double a = 0.0;
       __builtin_assume(a >= 0.0);
-      a = a + 1.0; 
+      a = a + 1.0;
+      printf(\"a=%g\", a);
       return 0;
     }
   " SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME)
 endif()
 
+# MSVC provides __assume
 if(NOT (SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME OR SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME))
   check_c_source_compiles("
-    int main(int argc, const char* argv[]) {
+    #include <stdio.h>
+    int main(void) {
       double a = 0.0;
       __assume(a >= 0.0));
       a = a + 1.0;
+      printf(\"a=%g\", a);
       return 0;
     }
   " SUNDIALS_C_COMPILER_HAS_ASSUME)
 endif()
-
 
 # ---------------------------------------------------------------
 # Check for POSIX timers
@@ -282,8 +296,8 @@ else()
 endif()
 check_c_source_compiles("
   #define msg \"test\"
-  ${COMPILER_DEPRECATED_MSG_ATTRIBUTE} int somefunc() { return 0; }
-  int main() { return somefunc();}" COMPILER_HAS_DEPRECATED_MSG
+  ${COMPILER_DEPRECATED_MSG_ATTRIBUTE} int somefunc(void) { return 0; }
+  int main(void) { return somefunc();}" COMPILER_HAS_DEPRECATED_MSG
 )
 
 # ===============================================================
@@ -476,20 +490,42 @@ endforeach()
 # Configure clang-tidy for linting
 # ===============================================================
 
+set(SUNDIALS_DEV_CLANG_TIDY_DIR ${CMAKE_BINARY_DIR}/clang-tidy/)
+
 if(SUNDIALS_DEV_CLANG_TIDY)
-  make_directory(${CMAKE_BINARY_DIR}/clang-tidy)
+  find_program(CLANG_TIDY_PATH NAMES clang-tidy)
+  if(NOT CLANG_TIDY_PATH)
+      message(FATAL_ERROR "Could not find the program clang-tidy")
+  endif()
+  message(STATUS "Found clang-tidy: ${CLANG_TIDY_PATH}")
+
+  make_directory(${SUNDIALS_DEV_CLANG_TIDY_DIR})
   if(SUNDIALS_DEV_CLANG_TIDY_FIX_ERRORS)
-    set(CMAKE_C_CLANG_TIDY clang-tidy -format-style='file' --fix)
-    set(CMAKE_CXX_CLANG_TIDY clang-tidy -format-style='file' --fix)
+    set(CMAKE_C_CLANG_TIDY ${CLANG_TIDY_PATH} -format-style='file' --fix)
+    set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_PATH} -format-style='file' --fix)
   else()
-    set(CMAKE_C_CLANG_TIDY clang-tidy 
-      -format-style='file' 
-      --export-fixes=${CMAKE_BINARY_DIR}/clang-tidy/clang-tidy-fixes.yaml
+    set(CMAKE_C_CLANG_TIDY ${CLANG_TIDY_PATH}
+      -format-style='file'
+      --export-fixes=${SUNDIALS_DEV_CLANG_TIDY_DIR}/clang-tidy-fixes.yaml
     )
-    set(CMAKE_CXX_CLANG_TIDY 
-      clang-tidy 
-      -format-style='file' 
-      --export-fixes=${CMAKE_B_DIR}/clang-tidy/clang-tidy-cxx-fixes.yaml
+    set(CMAKE_CXX_CLANG_TIDY
+      ${CLANG_TIDY_PATH}
+      -format-style='file'
+      --export-fixes=${SUNDIALS_DEV_CLANG_TIDY_DIR}/clang-tidy-cxx-fixes.yaml
     )
   endif()
+endif()
+
+if(SUNDIALS_DEV_IWYU)
+  find_program(IWYU_PATH NAMES include-what-you-use iwyu)
+  if(NOT IWYU_PATH)
+    message(FATAL_ERROR "Could not find the program include-what-you-use")
+  endif()
+  message(STATUS "Found IWYU: ${IWYU_PATH}")
+  set(CMAKE_C_INCLUDE_WHAT_YOU_USE ${IWYU_PATH}
+    -Xiwyu --mapping_file=${CMAKE_SOURCE_DIR}/scripts/iwyu.imp
+    -Xiwyu --error_always)
+  set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH}
+    -Xiwyu --mapping_file=${CMAKE_SOURCE_DIR}/scripts/iwyu.imp
+    -Xiwyu --error_always)
 endif()

@@ -62,7 +62,7 @@ int IDAAdjSetNoSensi(void* ida_mem)
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDAAdjSetNoSensi",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return IDA_MEM_NULL;
   }
@@ -71,7 +71,7 @@ int IDAAdjSetNoSensi(void* ida_mem)
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAAdjSetNoSensi",
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
@@ -98,7 +98,7 @@ int IDASetNonlinearSolverB(void* ida_mem, int which, SUNNonlinearSolver NLS)
   /* Check if ida_mem exists */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDASetNonlinearSolverB",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return (IDA_MEM_NULL);
   }
@@ -107,7 +107,7 @@ int IDASetNonlinearSolverB(void* ida_mem, int which, SUNNonlinearSolver NLS)
   /* Was ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASetNonlinearSolverB",
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
@@ -116,7 +116,7 @@ int IDASetNonlinearSolverB(void* ida_mem, int which, SUNNonlinearSolver NLS)
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetNonlinearSolverB",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSGAM_BAD_WHICH);
     return (IDA_ILL_INPUT);
   }
@@ -144,7 +144,7 @@ int IDASetUserDataB(void* ida_mem, int which, void* user_dataB)
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDASetUserDataB",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return IDA_MEM_NULL;
   }
@@ -153,7 +153,8 @@ int IDASetUserDataB(void* ida_mem, int which, void* user_dataB)
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASetUserDataB", MSGAM_NO_ADJ);
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
+                    MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -161,7 +162,7 @@ int IDASetUserDataB(void* ida_mem, int which, void* user_dataB)
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetUserDataB",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSGAM_BAD_WHICH);
     return (IDA_ILL_INPUT);
   }
@@ -191,7 +192,7 @@ int IDASetMaxOrdB(void* ida_mem, int which, int maxordB)
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDASetMaxOrdB",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return IDA_MEM_NULL;
   }
@@ -200,7 +201,8 @@ int IDASetMaxOrdB(void* ida_mem, int which, int maxordB)
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASetMaxOrdB", MSGAM_NO_ADJ);
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
+                    MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -208,7 +210,7 @@ int IDASetMaxOrdB(void* ida_mem, int which, int maxordB)
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetMaxOrdB",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSGAM_BAD_WHICH);
     return (IDA_ILL_INPUT);
   }
@@ -236,7 +238,7 @@ int IDASetMaxNumStepsB(void* ida_mem, int which, long int mxstepsB)
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDASetMaxNumStepsB",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return IDA_MEM_NULL;
   }
@@ -245,7 +247,7 @@ int IDASetMaxNumStepsB(void* ida_mem, int which, long int mxstepsB)
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASetMaxNumStepsB",
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
@@ -254,7 +256,7 @@ int IDASetMaxNumStepsB(void* ida_mem, int which, long int mxstepsB)
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetMaxNumStepsB",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSGAM_BAD_WHICH);
     return (IDA_ILL_INPUT);
   }
@@ -282,7 +284,7 @@ int IDASetInitStepB(void* ida_mem, int which, sunrealtype hinB)
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDASetInitStepB",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return IDA_MEM_NULL;
   }
@@ -291,7 +293,8 @@ int IDASetInitStepB(void* ida_mem, int which, sunrealtype hinB)
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASetInitStepB", MSGAM_NO_ADJ);
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
+                    MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -299,7 +302,7 @@ int IDASetInitStepB(void* ida_mem, int which, sunrealtype hinB)
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetInitStepB",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSGAM_BAD_WHICH);
     return (IDA_ILL_INPUT);
   }
@@ -327,7 +330,7 @@ int IDASetMaxStepB(void* ida_mem, int which, sunrealtype hmaxB)
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDASetMaxStepB",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return IDA_MEM_NULL;
   }
@@ -336,7 +339,8 @@ int IDASetMaxStepB(void* ida_mem, int which, sunrealtype hmaxB)
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASetMaxStepB", MSGAM_NO_ADJ);
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
+                    MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -344,7 +348,7 @@ int IDASetMaxStepB(void* ida_mem, int which, sunrealtype hmaxB)
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetMaxStepB",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSGAM_BAD_WHICH);
     return (IDA_ILL_INPUT);
   }
@@ -372,7 +376,7 @@ int IDASetSuppressAlgB(void* ida_mem, int which, sunbooleantype suppressalgB)
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDASetSuppressAlgB",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return IDA_MEM_NULL;
   }
@@ -381,7 +385,7 @@ int IDASetSuppressAlgB(void* ida_mem, int which, sunbooleantype suppressalgB)
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASetSuppressAlgB",
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
@@ -390,7 +394,7 @@ int IDASetSuppressAlgB(void* ida_mem, int which, sunbooleantype suppressalgB)
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetSuppressAlgB",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSGAM_BAD_WHICH);
     return (IDA_ILL_INPUT);
   }
@@ -418,7 +422,8 @@ int IDASetIdB(void* ida_mem, int which, N_Vector idB)
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDASetIdB", MSGAM_NULL_IDAMEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSGAM_NULL_IDAMEM);
     return IDA_MEM_NULL;
   }
   IDA_mem = (IDAMem)ida_mem;
@@ -426,7 +431,8 @@ int IDASetIdB(void* ida_mem, int which, N_Vector idB)
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASetIdB", MSGAM_NO_ADJ);
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
+                    MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -434,7 +440,8 @@ int IDASetIdB(void* ida_mem, int which, N_Vector idB)
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetIdB", MSGAM_BAD_WHICH);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSGAM_BAD_WHICH);
     return (IDA_ILL_INPUT);
   }
 
@@ -461,7 +468,7 @@ int IDASetConstraintsB(void* ida_mem, int which, N_Vector constraintsB)
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDASetConstraintsB",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return IDA_MEM_NULL;
   }
@@ -470,7 +477,7 @@ int IDASetConstraintsB(void* ida_mem, int which, N_Vector constraintsB)
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASetConstraintsB",
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
@@ -479,7 +486,7 @@ int IDASetConstraintsB(void* ida_mem, int which, N_Vector constraintsB)
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetConstraintsB",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSGAM_BAD_WHICH);
     return (IDA_ILL_INPUT);
   }
@@ -513,7 +520,7 @@ int IDASetQuadErrConB(void* ida_mem, int which, int errconQB)
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDASetQuadErrConB",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return IDA_MEM_NULL;
   }
@@ -522,7 +529,7 @@ int IDASetQuadErrConB(void* ida_mem, int which, int errconQB)
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDASetQuadErrConB",
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
@@ -531,7 +538,7 @@ int IDASetQuadErrConB(void* ida_mem, int which, int errconQB)
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDASetQuadErrConB",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSGAM_BAD_WHICH);
     return (IDA_ILL_INPUT);
   }
@@ -574,7 +581,7 @@ void* IDAGetAdjIDABmem(void* ida_mem, int which)
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, 0, "IDAA", "IDAGetAdjIDABmem", MSGAM_NULL_IDAMEM);
+    IDAProcessError(NULL, 0, __LINE__, __func__, __FILE__, MSGAM_NULL_IDAMEM);
     return (NULL);
   }
   IDA_mem = (IDAMem)ida_mem;
@@ -582,7 +589,7 @@ void* IDAGetAdjIDABmem(void* ida_mem, int which)
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, 0, "IDAA", "IDAGetAdjIDABmem", MSGAM_NO_ADJ);
+    IDAProcessError(IDA_mem, 0, __LINE__, __func__, __FILE__, MSGAM_NO_ADJ);
     return (NULL);
   }
   IDAADJ_mem = IDA_mem->ida_adj_mem;
@@ -590,7 +597,7 @@ void* IDAGetAdjIDABmem(void* ida_mem, int which)
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, 0, "IDAA", "IDAGetAdjIDABmem", MSGAM_BAD_WHICH);
+    IDAProcessError(IDA_mem, 0, __LINE__, __func__, __FILE__, MSGAM_BAD_WHICH);
     return (NULL);
   }
 
@@ -626,7 +633,7 @@ int IDAGetAdjCheckPointsInfo(void* ida_mem, IDAadjCheckPointRec* ckpnt)
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDAGetAdjCheckPointsInfo",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return (IDA_MEM_NULL);
   }
@@ -635,7 +642,7 @@ int IDAGetAdjCheckPointsInfo(void* ida_mem, IDAadjCheckPointRec* ckpnt)
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAGetAdjCheckPointsInfo",
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
@@ -681,7 +688,7 @@ int IDAGetConsistentICB(void* ida_mem, int which, N_Vector yyB0_mod,
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDAGetConsistentICB",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return IDA_MEM_NULL;
   }
@@ -690,7 +697,7 @@ int IDAGetConsistentICB(void* ida_mem, int which, N_Vector yyB0_mod,
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAGetConsistentICB",
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
@@ -699,7 +706,7 @@ int IDAGetConsistentICB(void* ida_mem, int which, N_Vector yyB0_mod,
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDAGetConsistentICB",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSGAM_BAD_WHICH);
     return (IDA_ILL_INPUT);
   }
@@ -750,7 +757,7 @@ int IDAGetAdjDataPointHermite(void* ida_mem, int which, sunrealtype* t,
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDAGetAdjDataPointHermite",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return (IDA_MEM_NULL);
   }
@@ -759,7 +766,7 @@ int IDAGetAdjDataPointHermite(void* ida_mem, int which, sunrealtype* t,
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAGetAdjDataPointHermite",
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
@@ -769,7 +776,7 @@ int IDAGetAdjDataPointHermite(void* ida_mem, int which, sunrealtype* t,
 
   if (IDAADJ_mem->ia_interpType != IDA_HERMITE)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA", "IDAGetAdjDataPointHermite",
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSGAM_WRONG_INTERP);
     return (IDA_ILL_INPUT);
   }
@@ -804,7 +811,7 @@ int IDAGetAdjDataPointPolynomial(void* ida_mem, int which, sunrealtype* t,
   /* Is ida_mem valid? */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDAGetAdjDataPointPolynomial",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return (IDA_MEM_NULL);
   }
@@ -813,7 +820,7 @@ int IDAGetAdjDataPointPolynomial(void* ida_mem, int which, sunrealtype* t,
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAGetAdjDataPointPolynomial",
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
@@ -823,8 +830,8 @@ int IDAGetAdjDataPointPolynomial(void* ida_mem, int which, sunrealtype* t,
 
   if (IDAADJ_mem->ia_interpType != IDA_POLYNOMIAL)
   {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAA",
-                    "IDAGetAdjDataPointPolynomial", MSGAM_WRONG_INTERP);
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSGAM_WRONG_INTERP);
     return (IDA_ILL_INPUT);
   }
 
@@ -851,7 +858,7 @@ int IDAGetAdjCurrentCheckPoint(void* ida_mem, void** addr)
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAA", "IDAGetAdjCurrentCheckPoint",
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGAM_NULL_IDAMEM);
     return (IDA_MEM_NULL);
   }
@@ -860,7 +867,7 @@ int IDAGetAdjCurrentCheckPoint(void* ida_mem, void** addr)
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, "IDAA", "IDAGetAdjCurrentCheckPoint",
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }

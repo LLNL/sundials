@@ -477,10 +477,6 @@ Optional inputs for ERKStep
    +----------------------------------------------------+-------------------------------------------+------------------------+
    | Supply a pointer to a diagnostics output file      | :c:func:`ERKStepSetDiagnostics()`         | ``NULL``               |
    +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Supply a pointer to an error output file           | :c:func:`ERKStepSetErrFile()`             | ``stderr``             |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Supply a custom error handler function             | :c:func:`ERKStepSetErrHandlerFn()`        |  internal fn           |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
    | Disable time step adaptivity (fixed-step mode)     | :c:func:`ERKStepSetFixedStep()`           |  disabled              |
    +----------------------------------------------------+-------------------------------------------+------------------------+
    | Supply an initial step size to attempt             | :c:func:`ERKStepSetInitStep()`            |  estimated             |
@@ -643,57 +639,6 @@ Optional inputs for ERKStep
    .. deprecated:: 5.2.0
 
       Use :c:func:`SUNLogger_SetInfoFilename` instead.
-
-
-.. c:function:: int ERKStepSetErrFile(void* arkode_mem, FILE* errfp)
-
-   Specifies a pointer to the file where all ERKStep warning and error
-   messages will be written if the default internal error handling
-   function is used.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *errfp* -- pointer to the output file.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-      The default value for *errfp* is ``stderr``.
-
-      Passing a ``NULL`` value disables all future error message output
-      (except for the case wherein the ERKStep memory pointer is
-      ``NULL``).  This use of the function is strongly discouraged.
-
-      If used, this routine should be called before any other
-      optional input functions, in order to take effect for subsequent
-      error messages.
-
-
-
-.. c:function:: int ERKStepSetErrHandlerFn(void* arkode_mem, ARKErrHandlerFn ehfun, void* eh_data)
-
-   Specifies the optional user-defined function to be used
-   in handling error messages.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *ehfun* -- name of user-supplied error handler function.
-      * *eh_data* -- pointer to user data passed to *ehfun* every time
-        it is called.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-      Error messages indicating that the ERKStep solver memory is
-      ``NULL`` will always be directed to ``stderr``.
-
-
 
 
 .. c:function:: int ERKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed)

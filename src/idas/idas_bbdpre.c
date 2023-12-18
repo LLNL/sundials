@@ -82,7 +82,7 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASBBDPRE", "IDABBDPrecInit",
+    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGBBD_MEM_NULL);
     return (IDALS_MEM_NULL);
   }
@@ -91,7 +91,7 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
   /* Test if the LS linear solver interface has been created */
   if (IDA_mem->ida_lmem == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDASBBDPRE", "IDABBDPrecInit",
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, __LINE__, __func__, __FILE__,
                     MSGBBD_LMEM_NULL);
     return (IDALS_LMEM_NULL);
   }
@@ -100,7 +100,7 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
   if (IDA_mem->ida_tempv1->ops->nvgetarraypointer == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASBBDPRE", "IDABBDPrecInit",
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSGBBD_BAD_NVECTOR);
     return (IDALS_ILL_INPUT);
   }
@@ -110,7 +110,7 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
   pdata = (IBBDPrecData)malloc(sizeof *pdata);
   if (pdata == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE", "IDABBDPrecInit",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSGBBD_MEM_FAIL);
     return (IDALS_MEM_FAIL);
   }
@@ -137,7 +137,7 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
   {
     free(pdata);
     pdata = NULL;
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE", "IDABBDPrecInit",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSGBBD_MEM_FAIL);
     return (IDALS_MEM_FAIL);
   }
@@ -150,7 +150,7 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
     SUNMatDestroy(pdata->PP);
     free(pdata);
     pdata = NULL;
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE", "IDABBDPrecInit",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSGBBD_MEM_FAIL);
     return (IDALS_MEM_FAIL);
   }
@@ -162,7 +162,7 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
     SUNMatDestroy(pdata->PP);
     free(pdata);
     pdata = NULL;
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE", "IDABBDPrecInit",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSGBBD_MEM_FAIL);
     return (IDALS_MEM_FAIL);
   }
@@ -175,7 +175,7 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
     SUNMatDestroy(pdata->PP);
     free(pdata);
     pdata = NULL;
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE", "IDABBDPrecInit",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSGBBD_MEM_FAIL);
     return (IDALS_MEM_FAIL);
   }
@@ -189,7 +189,7 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
     SUNMatDestroy(pdata->PP);
     free(pdata);
     pdata = NULL;
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE", "IDABBDPrecInit",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSGBBD_MEM_FAIL);
     return (IDALS_MEM_FAIL);
   }
@@ -204,7 +204,7 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
     SUNMatDestroy(pdata->PP);
     free(pdata);
     pdata = NULL;
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE", "IDABBDPrecInit",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSGBBD_MEM_FAIL);
     return (IDALS_MEM_FAIL);
   }
@@ -220,7 +220,7 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
     SUNMatDestroy(pdata->PP);
     free(pdata);
     pdata = NULL;
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE", "IDABBDPrecInit",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSGBBD_MEM_FAIL);
     return (IDALS_MEM_FAIL);
   }
@@ -239,14 +239,14 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
     SUNMatDestroy(pdata->PP);
     free(pdata);
     pdata = NULL;
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE", "IDABBDPrecInit",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSGBBD_MEM_FAIL);
     return (IDALS_MEM_FAIL);
   }
 
   /* initialize band linear solver object */
   flag = SUNLinSolInitialize(pdata->LS);
-  if (flag != SUNLS_SUCCESS)
+  if (flag != SUN_SUCCESS)
   {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
@@ -258,7 +258,7 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
     SUNLinSolFree(pdata->LS);
     free(pdata);
     pdata = NULL;
-    IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDASBBDPRE", "IDABBDPrecInit",
+    IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                     MSGBBD_SUNLS_FAIL);
     return (IDALS_SUNLS_FAIL);
   }
@@ -324,7 +324,7 @@ int IDABBDPrecReInit(void* ida_mem, sunindextype mudq, sunindextype mldq,
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASBBDPRE", "IDABBDPrecReInit",
+    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSGBBD_MEM_NULL);
     return (IDALS_MEM_NULL);
   }
@@ -333,7 +333,7 @@ int IDABBDPrecReInit(void* ida_mem, sunindextype mudq, sunindextype mldq,
   /* Test if the LS linear solver interface has been created */
   if (IDA_mem->ida_lmem == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDASBBDPRE", "IDABBDPrecReInit",
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, __LINE__, __func__, __FILE__,
                     MSGBBD_LMEM_NULL);
     return (IDALS_LMEM_NULL);
   }
@@ -342,7 +342,7 @@ int IDABBDPrecReInit(void* ida_mem, sunindextype mudq, sunindextype mldq,
   /* Test if the preconditioner data is non-NULL */
   if (idals_mem->pdata == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_PMEM_NULL, "IDASBBDPRE", "IDABBDPrecReInit",
+    IDAProcessError(IDA_mem, IDALS_PMEM_NULL, __LINE__, __func__, __FILE__,
                     MSGBBD_PMEM_NULL);
     return (IDALS_PMEM_NULL);
   }
@@ -371,24 +371,24 @@ int IDABBDPrecGetWorkSpace(void* ida_mem, long int* lenrwBBDP, long int* leniwBB
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASBBDPRE",
-                    "IDABBDPrecGetWorkSpace", MSGBBD_MEM_NULL);
+    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSGBBD_MEM_NULL);
     return (IDALS_MEM_NULL);
   }
   IDA_mem = (IDAMem)ida_mem;
 
   if (IDA_mem->ida_lmem == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDASBBDPRE",
-                    "IDABBDPrecGetWorkSpace", MSGBBD_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, __LINE__, __func__, __FILE__,
+                    MSGBBD_LMEM_NULL);
     return (IDALS_LMEM_NULL);
   }
   idals_mem = (IDALsMem)IDA_mem->ida_lmem;
 
   if (idals_mem->pdata == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_PMEM_NULL, "IDASBBDPRE",
-                    "IDABBDPrecGetWorkSpace", MSGBBD_PMEM_NULL);
+    IDAProcessError(IDA_mem, IDALS_PMEM_NULL, __LINE__, __func__, __FILE__,
+                    MSGBBD_PMEM_NULL);
     return (IDALS_PMEM_NULL);
   }
   pdata = (IBBDPrecData)idals_mem->pdata;
@@ -408,24 +408,24 @@ int IDABBDPrecGetNumGfnEvals(void* ida_mem, long int* ngevalsBBDP)
 
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASBBDPRE",
-                    "IDABBDPrecGetNumGfnEvals", MSGBBD_MEM_NULL);
+    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSGBBD_MEM_NULL);
     return (IDALS_MEM_NULL);
   }
   IDA_mem = (IDAMem)ida_mem;
 
   if (IDA_mem->ida_lmem == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDASBBDPRE",
-                    "IDABBDPrecGetNumGfnEvals", MSGBBD_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, __LINE__, __func__, __FILE__,
+                    MSGBBD_LMEM_NULL);
     return (IDALS_LMEM_NULL);
   }
   idals_mem = (IDALsMem)IDA_mem->ida_lmem;
 
   if (idals_mem->pdata == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_PMEM_NULL, "IDASBBDPRE",
-                    "IDABBDPrecGetNumGfnEvals", MSGBBD_PMEM_NULL);
+    IDAProcessError(IDA_mem, IDALS_PMEM_NULL, __LINE__, __func__, __FILE__,
+                    MSGBBD_PMEM_NULL);
     return (IDALS_PMEM_NULL);
   }
   pdata = (IBBDPrecData)idals_mem->pdata;
@@ -485,7 +485,7 @@ static int IDABBDPrecSetup(sunrealtype tt, N_Vector yy, N_Vector yp,
                      pdata->tempv3, pdata->tempv4);
   if (retval < 0)
   {
-    IDAProcessError(IDA_mem, -1, "IDASBBDPRE", "IDABBDPrecSetup",
+    IDAProcessError(IDA_mem, -1, __LINE__, __func__, __FILE__,
                     MSGBBD_FUNC_FAILED);
     return (-1);
   }
@@ -739,7 +739,7 @@ int IDABBDPrecInitB(void* ida_mem, int which, sunindextype NlocalB,
   /* Check if ida_mem is allright. */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASBBDPRE", "IDABBDPrecInitB",
+    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_IDAMEM_NULL);
     return (IDALS_MEM_NULL);
   }
@@ -748,7 +748,7 @@ int IDABBDPrecInitB(void* ida_mem, int which, sunindextype NlocalB,
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDALS_NO_ADJ, "IDASBBDPRE", "IDABBDPrecInitB",
+    IDAProcessError(IDA_mem, IDALS_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSG_LS_NO_ADJ);
     return (IDALS_NO_ADJ);
   }
@@ -757,7 +757,7 @@ int IDABBDPrecInitB(void* ida_mem, int which, sunindextype NlocalB,
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASBBDPRE", "IDABBDPrecInitB",
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_LS_BAD_WHICH);
     return (IDALS_ILL_INPUT);
   }
@@ -784,7 +784,7 @@ int IDABBDPrecInitB(void* ida_mem, int which, sunindextype NlocalB,
   idabbdB_mem = (IDABBDPrecDataB)malloc(sizeof(*idabbdB_mem));
   if (idabbdB_mem == NULL)
   {
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDASBBDPRE", "IDABBDPrecInitB",
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSGBBD_MEM_FAIL);
     return (IDALS_MEM_FAIL);
   }
@@ -813,7 +813,7 @@ int IDABBDPrecReInitB(void* ida_mem, int which, sunindextype mudqB,
   /* Check if ida_mem is allright. */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDALS_MEM_NULL, "IDASBBDPRE", "IDABBDPrecReInitB",
+    IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_LS_IDAMEM_NULL);
     return (IDALS_MEM_NULL);
   }
@@ -822,7 +822,7 @@ int IDABBDPrecReInitB(void* ida_mem, int which, sunindextype mudqB,
   /* Is ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDALS_NO_ADJ, "IDASBBDPRE", "IDABBDPrecReInitB",
+    IDAProcessError(IDA_mem, IDALS_NO_ADJ, __LINE__, __func__, __FILE__,
                     MSG_LS_NO_ADJ);
     return (IDALS_NO_ADJ);
   }
@@ -831,7 +831,7 @@ int IDABBDPrecReInitB(void* ida_mem, int which, sunindextype mudqB,
   /* Check the value of which */
   if (which >= IDAADJ_mem->ia_nbckpbs)
   {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDASBBDPRE", "IDABBDPrecReInitB",
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_LS_BAD_WHICH);
     return (IDALS_ILL_INPUT);
   }
@@ -895,7 +895,7 @@ static int IDAAglocal(sunindextype NlocalB, sunrealtype tt, N_Vector yyB,
                                IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (flag != IDA_SUCCESS)
     {
-      IDAProcessError(IDA_mem, -1, "IDASBBDPRE", "IDAAglocal", MSGBBD_BAD_T);
+      IDAProcessError(IDA_mem, -1, __LINE__, __func__, __FILE__, MSGBBD_BAD_T);
       return (-1);
     }
   }
@@ -937,7 +937,7 @@ static int IDAAgcomm(sunindextype NlocalB, sunrealtype tt, N_Vector yyB,
                                IDAADJ_mem->ia_ypTmp, NULL, NULL);
     if (flag != IDA_SUCCESS)
     {
-      IDAProcessError(IDA_mem, -1, "IDASBBDPRE", "IDAAgcomm", MSGBBD_BAD_T);
+      IDAProcessError(IDA_mem, -1, __LINE__, __func__, __FILE__, MSGBBD_BAD_T);
       return (-1);
     }
   }

@@ -194,24 +194,9 @@ SUNErrCode SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS,
  * SUNNonlinearSolver return values
  * ---------------------------------------------------------------------------*/
 
-#define SUN_NLS_SUCCESS 0 /* successful / converged */
-
 /* Recoverable */
 #define SUN_NLS_CONTINUE   +901 /* not converged, keep iterating      */
 #define SUN_NLS_CONV_RECVR +902 /* convergece failure, try to recover */
-
-/* Unrecoverable */
-
-/* DEPRECATED: use SUNErrCode instead */
-#define SUN_NLS_MEM_NULL -901 /* memory argument is NULL            */
-/* DEPRECATED: use SUNErrCode instead */
-#define SUN_NLS_MEM_FAIL -902 /* failed memory access / allocation  */
-/* DEPRECATED: use SUNErrCode instead */
-#define SUN_NLS_ILL_INPUT -903 /* illegal function input             */
-/* DEPRECATED: use SUNErrCode instead */
-#define SUN_NLS_VECTOROP_ERR -904 /* failed NVector operation           */
-/* DEPRECATED: use SUNErrCode instead */
-#define SUN_NLS_EXT_FAIL -905 /* failed in external library call    */
 
 /* -----------------------------------------------------------------------------
  * SUNNonlinearSolver messages
