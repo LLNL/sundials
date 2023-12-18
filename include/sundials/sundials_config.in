@@ -60,6 +60,7 @@
 #cmakedefine SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME
 #cmakedefine SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME
 #cmakedefine SUNDIALS_C_COMPILER_HAS_ASSUME
+#cmakedefine SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_UNUSED
 
 /* Define precision of SUNDIALS data type 'sunrealtype'
  * Depending on the precision level, one of the following
@@ -270,5 +271,22 @@
  * -----------------------------------------------------------------*/
 
 @SUNDIALS_CONFIGH_BUILDS@
+
+/* -----------------------------------------------------------------------------
+ * SUNDIALS_MAYBE_UNSUED
+ *
+ * This maps to an attribute that can be used to silence warnings about unused
+ * classes, typedefs, variables, functions, or methods when the entity cannot be
+ * removed. For example, functions or variables that are only used when error
+ * checks or profiling is enabled.
+ * ---------------------------------------------------------------------------*/
+
+#if __cplusplus >= 201703L || __STDC_VERSION__ > 201710L
+#define SUNDIALS_MAYBE_UNUSED [[maybe_unused]]
+#elif defined(SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_UNUSED)
+#define SUNDIALS_MAYBE_UNUSED __attribute__((unused))
+#else
+#define SUNDIALS_MAYBE_UNUSED
+#endif
 
 #endif /* _SUNDIALS_CONFIG_H */

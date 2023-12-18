@@ -189,6 +189,17 @@ if(NOT (SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME OR SUNDIALS_C_COMPILER_HAS_BUIL
 endif()
 
 # ---------------------------------------------------------------
+# Check for unused extension
+# ---------------------------------------------------------------
+
+check_c_source_compiles("
+  int main(void) {
+    __attribute__((unused)) double a = 0.0;
+    return 0;
+  }
+" SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_UNUSED)
+
+# ---------------------------------------------------------------
 # Check for POSIX timers
 # ---------------------------------------------------------------
 include(SundialsPOSIXTimers)
