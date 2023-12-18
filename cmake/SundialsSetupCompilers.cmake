@@ -121,7 +121,7 @@ sundials_option(CMAKE_C_EXTENSIONS BOOL "${DOCSTR}" ON)
 message(STATUS "C extensions set to ${CMAKE_C_EXTENSIONS}")
 
 # Before we do compile checks, ensure warnings are reported as errors
-set(OLD_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAHS})
+set(OLD_CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS})
 if(NOT ENABLE_WARNINGS_AS_ERRORS)
   set(CMAKE_REQUIRED_FLAGS "-Werror")
 endif()
