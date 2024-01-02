@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -29,7 +29,7 @@ NOTICE files provided with all SUNDIALS packages.
 BSD 3-Clause License
 --------------------
 
-Copyright (c) 2002-2023, Lawrence Livermore National Security and Southern
+Copyright (c) 2002-2024, Lawrence Livermore National Security and Southern
 Methodist University.
 
 All rights reserved.
