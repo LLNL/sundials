@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -18,10 +18,10 @@
 # Set the SUNDIALS major, minor, and patch numbers and the label string. For
 # development releases the label string is of the form "-dev.#" and for full
 # releases the label string is "".
-sun_major=${1:-6}
-sun_minor=${2:-7}
+sun_major=${1:-7}
+sun_minor=${2:-0}
 sun_patch=${3:-0}
-sun_label=${4:-""}
+sun_label=${4:-"rc.1"}
 month=${5:-$(date +"%b")}
 year=${6:-$(date +"%Y")}
 

@@ -3,7 +3,7 @@
 ! Based on ark_kpr_mri.c in examples/arkode/C_serial.
 ! -------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !

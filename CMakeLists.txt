@@ -3,7 +3,7 @@
 #                and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -43,7 +43,7 @@ include(FindPackageHandleStandardArgs)
 # Set some variables with info on the SUNDIALS project
 set(PACKAGE_BUGREPORT "sundials-users@llnl.gov")
 set(PACKAGE_NAME "SUNDIALS")
-set(PACKAGE_STRING "SUNDIALS 6.7.0")
+set(PACKAGE_STRING "SUNDIALS 7.0.0-rc.1")
 set(PACKAGE_TARNAME "sundials")
 
 # Set SUNDIALS version numbers
@@ -51,10 +51,10 @@ sundials_git_version() # sets SUNDIALS_GIT_VERSION
 message(STATUS "SUNDIALS_GIT_VERSION: ${SUNDIALS_GIT_VERSION}")
 
 # (use "" for the version label if none is needed)
-set(PACKAGE_VERSION_MAJOR "6")
-set(PACKAGE_VERSION_MINOR "7")
+set(PACKAGE_VERSION_MAJOR "7")
+set(PACKAGE_VERSION_MINOR "0")
 set(PACKAGE_VERSION_PATCH "0")
-set(PACKAGE_VERSION_LABEL "")
+set(PACKAGE_VERSION_LABEL "rc.1")
 
 if(PACKAGE_VERSION_LABEL)
   set(PACKAGE_VERSION
@@ -68,38 +68,38 @@ endif()
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-set(arkodelib_VERSION "5.7.0")
-set(arkodelib_SOVERSION "5")
+set(arkodelib_VERSION "6.0.0-rc.1")
+set(arkodelib_SOVERSION "6")
 
-set(cvodelib_VERSION "6.7.0")
-set(cvodelib_SOVERSION "6")
+set(cvodelib_VERSION "7.0.0-rc.1")
+set(cvodelib_SOVERSION "7")
 
-set(cvodeslib_VERSION "6.7.0")
-set(cvodeslib_SOVERSION "6")
+set(cvodeslib_VERSION "7.0.0-rc.1")
+set(cvodeslib_SOVERSION "7")
 
-set(idalib_VERSION "6.7.0")
-set(idalib_SOVERSION "6")
+set(idalib_VERSION "7.0.0-rc.1")
+set(idalib_SOVERSION "7")
 
-set(idaslib_VERSION "5.7.0")
-set(idaslib_SOVERSION "5")
+set(idaslib_VERSION "6.0.0-rc.1")
+set(idaslib_SOVERSION "6")
 
-set(kinsollib_VERSION "6.7.0")
-set(kinsollib_SOVERSION "6")
+set(kinsollib_VERSION "7.0.0-rc.1")
+set(kinsollib_SOVERSION "7")
 
 set(cpodeslib_VERSION "0.0.0")
 set(cpodeslib_SOVERSION "0")
 
-set(nveclib_VERSION "6.7.0")
-set(nveclib_SOVERSION "6")
+set(nveclib_VERSION "7.0.0-rc.1")
+set(nveclib_SOVERSION "7")
 
-set(sunmatrixlib_VERSION "4.7.0")
-set(sunmatrixlib_SOVERSION "4")
+set(sunmatrixlib_VERSION "5.0.0-rc.1")
+set(sunmatrixlib_SOVERSION "5")
 
-set(sunlinsollib_VERSION "4.7.0")
-set(sunlinsollib_SOVERSION "4")
+set(sunlinsollib_VERSION "5.0.0-rc.1")
+set(sunlinsollib_SOVERSION "5")
 
-set(sunnonlinsollib_VERSION "3.7.0")
-set(sunnonlinsollib_SOVERSION "3")
+set(sunnonlinsollib_VERSION "4.0.0-rc.1")
+set(sunnonlinsollib_SOVERSION "4")
 
 set(sundialslib_VERSION
     "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}"
