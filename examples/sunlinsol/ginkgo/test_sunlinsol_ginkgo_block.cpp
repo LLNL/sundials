@@ -66,6 +66,23 @@ const std::unordered_map<std::string, int> methods{{"bicgstab", 0},
 constexpr sunrealtype solve_tolerance =
   1000 * std::numeric_limits<sunrealtype>::epsilon();
 
+void fill_matrix_data(gko::matrix_data<sunrealtype>& data)
+{
+  auto num_rows = data.size[0];
+  for (int row = 0; row < num_rows; ++row)
+  {
+    if (row > 0)
+    {
+      data.nonzeros.emplace_back(row - 1, row, sunrealtype{-1.0});
+    }
+    data.nonzeros.emplace_back(row, row, sunrealtype{5.0});
+    if (row < num_rows - 1)
+    {
+      data.nonzeros.emplace_back(row, row + 1, sunrealtype{-1.0});
+    }
+  }
+}
+
 /* ----------------------------------------------------------------------
  * SUNLinSol_Ginkgo Testing Routine
  * --------------------------------------------------------------------*/
@@ -168,8 +185,8 @@ int main(int argc, char* argv[])
   auto gko_matrixA = GkoMatrixType::create(gko_exec,
                                            batch_mat_size.get_common_size());
   auto gko_matdata =
-    gko::matrix_data<sunrealtype>(batch_mat_size.get_common_size(),
-                                  distribution_real, engine);
+    gko::matrix_data<sunrealtype>(batch_mat_size.get_common_size());
+  fill_matrix_data(gko_matdata);
   gko_matrixA->read(gko_matdata);
   // FIXME: batch::matrix::Csr needs additional param for num_nnz, dynamic_cast
   // check
