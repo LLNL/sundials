@@ -49,8 +49,7 @@ void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
   msg_length = sunvasnprintf(&formatted_txt, txt, args);
   if (msg_length < 0)
   {
-    fprintf(stderr, "[FATAL LOGGER ERROR] %s\n",
-            "SUNDIALS_MAX_SPRINTF_SIZE is too small");
+    fprintf(stderr, "[FATAL LOGGER ERROR] %s\n", "message size too large");
   }
 
   if (lvl == SUN_LOGLEVEL_DEBUG) { prefix = (char*)"DEBUG"; }
