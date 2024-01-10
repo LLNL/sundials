@@ -178,20 +178,6 @@ check_c_source_compiles("
 " SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 
 # ---------------------------------------------------------------
-# Check for isinf and isnan
-# ---------------------------------------------------------------
-
-check_c_source_compiles("
-  #include <math.h>
-  int main(void) {
-    double a = 0.0;
-    int result = isinf(a);
-    result = isnan(a);
-    return result;
-  }
-" SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
-
-# ---------------------------------------------------------------
 # Check for inline
 # ---------------------------------------------------------------
 
