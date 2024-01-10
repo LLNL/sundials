@@ -74,18 +74,15 @@ extern "C" {
  */
 
 #ifndef SUNRsqrt
-#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : (sqrt((x))))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
 #define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : (sqrtf((x))))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNRsqrt(x) ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) : (sqrtl((x))))
-#endif
 #else
-#define SUNRsqrt(x)                           \
-  ((x) <= SUN_RCONST(0.0) ? (SUN_RCONST(0.0)) \
-                          : ((sunrealtype)sqrt((double)(x))))
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
 #endif
 
@@ -101,16 +98,15 @@ extern "C" {
  */
 
 #ifndef SUNRabs
-#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNRabs(x) (fabs((x)))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
 #define SUNRabs(x) (fabsf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNRabs(x) (fabsl((x)))
-#endif
 #else
-#define SUNRabs(x) ((sunrealtype)fabs((double)(x)))
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
 #endif
 
@@ -126,16 +122,15 @@ extern "C" {
  */
 
 #ifndef SUNRexp
-#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNRexp(x) (exp((x)))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
 #define SUNRexp(x) (expf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNRexp(x) (expl((x)))
-#endif
 #else
-#define SUNRexp(x) ((sunrealtype)exp((double)(x)))
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
 #endif
 
@@ -151,16 +146,15 @@ extern "C" {
  */
 
 #ifndef SUNRceil
-#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNRceil(x) (ceil((x)))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
 #define SUNRceil(x) (ceilf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNRceil(x) (ceill((x)))
-#endif
 #else
-#define SUNRceil(x) ((sunrealtype)ceil((double)(x)))
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
 #endif
 
