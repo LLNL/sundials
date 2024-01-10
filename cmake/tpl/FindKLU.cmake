@@ -30,6 +30,18 @@
 #   KLU_LIBRARIES   - all of the libraries needed for KLU
 # ---------------------------------------------------------------
 
+if (NOT (KLU_INCLUDE_DIR OR KLU_LIBRARY_DIR OR KLU_LIBRARY))
+  # prefer import target from upstream SuiteSparse if available and
+  # user didn't point to a specific (different) version
+  include ( CMakeFindDependencyMacro )
+  find_dependency(KLU CONFIG)
+
+  if(TARGET SuiteSparse::KLU)
+    add_library(SUNDIALS::KLU ALIAS SuiteSparse::KLU)
+    return()
+  endif()
+endif()
+
 # Set library prefixes for Windows
 if(WIN32)
   set(CMAKE_FIND_LIBRARY_PREFIXES lib ${CMAKE_FIND_LIBRARY_PREFIXES})
