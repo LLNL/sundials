@@ -1,5 +1,17 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release v.v.v
+
+Added Multirate time step adaptivity controllers, based on the recently introduced
+`SUNAdaptController` base class, to ARKODE's MRIStep module.
+
+Added functionality to ARKStep and ERKStep to accumulate a temporal error
+estimate over multiple time steps.  See the routines `ARKStepSetAccumulatedErrorType`,
+`ARKStepResetAccumulatedError`, `ARKStepGetAccumulatedError`,
+`ERKStepSetAccumulatedErrorType`, `ERKStepResetAccumulatedError`,
+and `ERKStepGetAccumulatedError` for details.
+
+
 ## Changes to SUNDIALS in release 7.0.0-rc.1
 
 ⚠️ This is a release candidate.

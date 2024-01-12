@@ -25,7 +25,7 @@ NVECTOR=openmp pthreads serial parallel manyvector mpiplusx
 SUNMATRIX=band dense sparse
 SUNLINSOL=band dense lapackdense klu spbcgs spfgmr spgmr sptfqmr pcg
 SUNNONLINSOL=newton fixedpoint
-SUNADAPTCONTROLLER=imexgus soderlind
+SUNADAPTCONTROLLER=imexgus soderlind mricc mrihtol mrill mripid mripi
 
 INCLUDES=-I../include
 

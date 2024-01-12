@@ -1493,10 +1493,99 @@ int arkSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
 
   return (ARK_SUCCESS);
 }
+/*---------------------------------------------------------------
+  arkSetAccumulatedErrorType:
+
+  This routine sets the accumulated temporal error estimation
+  strategy:
+     0 => scalar 'max' accumulation
+     1 => scalar 'mean' accumulation
+  ---------------------------------------------------------------*/
+int arkSetAccumulatedErrorType(void *arkode_mem, int accum_type)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Check for valid accumulation type */
+  if ((accum_type < 0) || (accum_type > 1)) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
+                    "arkSetAccumulatedErrorType",
+                    "illegal accumulation type");
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Store type, reset accumulated error value and counter, and return */
+  ark_mem->AccumErrorType = accum_type;
+  ark_mem->AccumErrorStep = ark_mem->nst;
+  ark_mem->AccumError = ZERO;
+  return (ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkResetAccumulatedError:
+
+  This routine resets the accumulated temporal error estimate.
+  ---------------------------------------------------------------*/
+int arkResetAccumulatedError(void *arkode_mem)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Reset value and counter, and return */
+  ark_mem->AccumErrorStep = ark_mem->nst;
+  ark_mem->AccumError = ZERO;
+  return (ARK_SUCCESS);
+}
 
 /*===============================================================
   ARKODE optional output utility functions
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  arkGetAccumulatedError:
+
+  This routine returns the accumulated temporal error estimate.
+  ---------------------------------------------------------------*/
+int arkGetAccumulatedError(void *arkode_mem, sunrealtype *accum_error)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Get number of steps since last accumulated error reset
+     (set floor of 1 to safeguard against division-by-zero) */
+  long int steps = SUNMAX(1, ark_mem->nst - ark_mem->AccumErrorStep);
+
+  /* Fill output based on error accumulation type */
+  if (ark_mem->AccumErrorType == 0) 
+  {
+    *accum_error = ark_mem->AccumError * ark_mem->reltol;
+  } 
+  else if (ark_mem->AccumErrorType == 1) 
+  {
+    *accum_error = ark_mem->AccumError * ark_mem->reltol / steps;
+  }
+
+  return (ARK_SUCCESS);
+}
 
 /*---------------------------------------------------------------
   arkGetNumStepAttempts:
@@ -1696,6 +1785,26 @@ int arkGetResWeights(void* arkode_mem, N_Vector rweight)
   ark_mem = (ARKodeMem)arkode_mem;
 
   N_VScale(ONE, ark_mem->rwt, rweight);
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  arkGetEstLocalErrors:
+
+  This routine returns the current local temporal error estimate.
+  ---------------------------------------------------------------*/
+int arkGetEstLocalErrors(void *arkode_mem, N_Vector ele)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  N_VScale(ONE, ark_mem->tempv1, ele);
   return (ARK_SUCCESS);
 }
 

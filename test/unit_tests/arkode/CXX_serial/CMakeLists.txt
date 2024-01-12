@@ -16,6 +16,12 @@
 
 # List of test tuples of the form "name\;args"
 set(unit_tests
+  "ark_test_accumerror_brusselator.cpp\;3 1"
+  "ark_test_accumerror_brusselator.cpp\;-4 2"
+  "ark_test_accumerror_brusselator.cpp\;5 3"
+  "ark_test_accumerror_kpr.cpp\;0 3"
+  "ark_test_accumerror_kpr.cpp\;1 3 -5.0"
+  "ark_test_accumerror_kpr.cpp\;1 5 -5.0"
   "ark_test_analytic_sys_mri.cpp\;0"
   "ark_test_analytic_sys_mri.cpp\;1"
   "ark_test_dahlquist_ark.cpp\;0 0"
@@ -30,6 +36,11 @@ set(unit_tests
   "ark_test_butcher.cpp\;"
   "ark_test_getjac.cpp\;"
   "ark_test_getjac_mri.cpp\;"
+  "ark_test_kpr_mriadapt.cpp\;--hs 0.01 --mri_type 0 --scontrol 0 --fast_type 2 --fcontrol 1"
+  "ark_test_kpr_mriadapt.cpp\;--hs 0.01 --mri_type 0 --scontrol 0 --fast_type 0"
+  "ark_test_kpr_mriadapt.cpp\;--hs 0.002 --rtol 0.000004 --mri_type 5 --scontrol 0 --fast_type 0"
+  "ark_test_kpr_mriadapt.cpp\;--hs 0.002 --mri_type 4 --scontrol 0 --fast_type 3"
+  "ark_test_kpr_mriadapt.cpp\;--hs 0.001 --hf 1.e-5 --rtol 1.e-9 --G -100.0 --w 100.0 --e 0.5 --mri_type 10 --scontrol 0 --fast_type 2 --fcontrol 0"
 )
 
 # Add the build and install targets for each test
@@ -55,6 +66,7 @@ foreach(test_tuple ${unit_tests})
     # Include location of public and private header files
     target_include_directories(${test_target} PRIVATE
       $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+      ${PROJECT_SOURCE_DIR}/test/unit_tests/utilities
       ${CMAKE_SOURCE_DIR}/include
       ${CMAKE_SOURCE_DIR}/src)
 
@@ -71,6 +83,11 @@ foreach(test_tuple ${unit_tests})
       sundials_sunnonlinsolfixedpoint_obj
       sundials_sunadaptcontrollerimexgus_obj
       sundials_sunadaptcontrollersoderlind_obj
+      sundials_sunadaptcontrollermricc_obj
+      sundials_sunadaptcontrollermrill_obj
+      sundials_sunadaptcontrollermrihtol_obj
+      sundials_sunadaptcontrollermripi_obj
+      sundials_sunadaptcontrollermripid_obj
       ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick

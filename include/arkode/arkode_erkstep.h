@@ -133,6 +133,14 @@ SUNDIALS_EXPORT int ERKStepEvolve(void* arkode_mem, sunrealtype tout,
 SUNDIALS_EXPORT int ERKStepGetDky(void* arkode_mem, sunrealtype t, int k,
                                   N_Vector dky);
 
+
+/* Utility functions to reset/get accumulated temporal error estimate */
+SUNDIALS_EXPORT int ERKStepSetAccumulatedErrorType(void *arkode_mem,
+                                                   int accum_type);
+SUNDIALS_EXPORT int ERKStepResetAccumulatedError(void *arkode_mem);
+SUNDIALS_EXPORT int ERKStepGetAccumulatedError(void *arkode_mem,
+                                               sunrealtype* accum_error);
+
 /* Optional output functions */
 SUNDIALS_EXPORT int ERKStepGetNumExpSteps(void* arkode_mem, long int* expsteps);
 SUNDIALS_EXPORT int ERKStepGetNumAccSteps(void* arkode_mem, long int* accsteps);
@@ -181,6 +189,10 @@ SUNDIALS_EXPORT void ERKStepFree(void** arkode_mem);
 
 /* Output the ERKStep memory structure (useful when debugging) */
 SUNDIALS_EXPORT void ERKStepPrintMem(void* arkode_mem, FILE* outfile);
+
+/* Utility to wrap ERKStep as an MRIStepInnerStepper */
+SUNDIALS_EXPORT int ERKStepCreateMRIStepInnerStepper(void *arkode_mem,
+                                                     MRIStepInnerStepper *stepper);
 
 /* Relaxation functions */
 SUNDIALS_EXPORT int ERKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn,

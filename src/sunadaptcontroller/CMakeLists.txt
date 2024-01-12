@@ -17,3 +17,8 @@
 # required native matrices
 add_subdirectory(imexgus)
 add_subdirectory(soderlind)
+add_subdirectory(mricc)
+add_subdirectory(mrihtol)
+add_subdirectory(mrill)
+add_subdirectory(mripi)
+add_subdirectory(mripid)

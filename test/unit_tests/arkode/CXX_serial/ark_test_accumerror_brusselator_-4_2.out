@@ -1,0 +1,25 @@
+
+Accumulated error estimation test (Brusselator ODE problem):
+    time domain:  (0,10]
+    initial conditions:  u0 = 1.2,  v0 = 3.1,  w0 = 3
+    problem parameters:  a = 1,  b = 3.5,  ep = 5e-06
+    DIRK solver, order = 4
+
+ Fixed-step runs:
+   H: 0.025
+     acc type = 0,  dsm = 2.19886e-07,  dsm_est = 0.319529,  dsm/dsm_est = 6.88155e-07,  nsteps = 400
+     acc type = 1,  dsm = 2.19886e-07,  dsm_est = 0.000801535,  dsm/dsm_est = 0.000274331,  nsteps = 400
+     acc type = 2,  dsm = 2.19886e-07,  dsm_est = 3.25817e-06,  dsm/dsm_est = 0.0674874,  nsteps = 600
+   H: 0.00625
+     acc type = 0,  dsm = 1.4907e-09,  dsm_est = 0.316255,  dsm/dsm_est = 4.71359e-09,  nsteps = 1601
+     acc type = 1,  dsm = 1.4907e-09,  dsm_est = 0.000198796,  dsm/dsm_est = 7.49864e-06,  nsteps = 1601
+     acc type = 2,  dsm = 1.4907e-09,  dsm_est = 1.33138e-08,  dsm/dsm_est = 0.111966,  nsteps = 2401
+   H: 0.0015625
+     acc type = 0,  dsm = 8.28214e-10,  dsm_est = 0.30357,  dsm/dsm_est = 2.72824e-09,  nsteps = 6400
+     acc type = 1,  dsm = 8.28214e-10,  dsm_est = 4.86053e-05,  dsm/dsm_est = 1.70396e-05,  nsteps = 6400
+     acc type = 2,  dsm = 8.28214e-10,  dsm_est = 1.91377e-10,  dsm/dsm_est = 4.32766,  nsteps = 9600
+   H: 0.000390625
+     acc type = 0,  dsm = 8.36284e-10,  dsm_est = 0.258744,  dsm/dsm_est = 3.23209e-09,  nsteps = 25601
+     acc type = 1,  dsm = 8.36284e-10,  dsm_est = 1.099e-05,  dsm/dsm_est = 7.6095e-05,  nsteps = 25601
+     acc type = 2,  dsm = 8.36284e-10,  dsm_est = 3.77853e-11,  dsm/dsm_est = 22.1325,  nsteps = 38402
+   ------------------------------------------------------

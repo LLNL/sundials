@@ -34,8 +34,7 @@ extern "C" {
   ===============================================================*/
 
 #define MAXCOR 3 /* max number of nonlinear iterations */
-#define CRDOWN \
-  SUN_RCONST(0.3)             /* constant to estimate the convergence
+#define CRDOWN SUN_RCONST(0.3)   /* constant to estimate the convergence
                                     rate for the nonlinear equation */
 #define DGMAX SUN_RCONST(0.2) /* if |gamma/gammap-1| > DGMAX then call lsetup */
 #define RDIV  SUN_RCONST(2.3) /* declare divergence if ratio del/delp > RDIV */
@@ -224,6 +223,11 @@ int arkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
                                 N_Vector y, N_Vector f, int mode);
 int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
                               N_Vector yR);
+int arkStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
+                                            sunrealtype* accum_error);
+int arkStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
+int arkStep_MRIStepInnerSetFixedStep(MRIStepInnerStepper stepper, sunrealtype h);
+int arkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 
 /* private functions for relaxation */
 int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,

@@ -46,15 +46,19 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
   SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
-  ops->gettype      = NULL;
-  ops->destroy      = NULL;
-  ops->reset        = NULL;
-  ops->estimatestep = NULL;
-  ops->setdefaults  = NULL;
-  ops->write        = NULL;
-  ops->seterrorbias = NULL;
-  ops->updateh      = NULL;
-  ops->space        = NULL;
+  ops->gettype          = NULL;
+  ops->destroy          = NULL;
+  ops->reset            = NULL;
+  ops->estimatestep     = NULL;
+  ops->estimatemristeps = NULL;
+  ops->estimatesteptol  = NULL;
+  ops->setdefaults      = NULL;
+  ops->write            = NULL;
+  ops->seterrorbias     = NULL;
+  ops->updateh          = NULL;
+  ops->updatemrih       = NULL;
+  ops->updatemritol     = NULL;
+  ops->space            = NULL;
 
   /* attach ops and initialize content to NULL */
   C->ops     = ops;
@@ -137,6 +141,44 @@ SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
   return (ier);
 }
 
+SUNErrCode SUNControlEstimateMRISteps(SUNControl C, sunrealtype H, sunrealtype h,
+                                      sunrealtype DSM, sunrealtype dsm,
+                                      sunrealtype* Hnew, sunrealtype *hnew)
+{
+  SUNErrCode ier = SUN_SUCCESS;
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(Hnew, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
+  *Hnew = H;   /* initialize outputs with identity */
+  *hnew = h;
+  if (C->ops->estimatemristeps) 
+  {
+    ier = C->ops->estimatemristeps(C, H, h, DSM, dsm, Hnew, hnew);
+  }
+  return (ier);
+}
+
+SUNErrCode SUNControlEstimateStepTol(SUNControl C, sunrealtype H,
+                                     sunrealtype tolfac, sunrealtype DSM,
+                                     sunrealtype dsm, sunrealtype *Hnew,
+                                     sunrealtype* tolfacnew)
+{
+  SUNErrCode ier = SUN_SUCCESS;
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(Hnew, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(tolfacnew, SUN_ERR_ARG_CORRUPT);
+  *Hnew = H;   /* initialize outputs with identity */
+  *tolfacnew = tolfac;
+  if (C->ops->estimatesteptol)
+  {
+    ier = C->ops->estimatesteptol(C, H, tolfac, DSM, dsm,
+                                  Hnew, tolfacnew);
+  }
+  return (ier);
+}
+
 SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
 {
   SUNErrCode ier = SUN_SUCCESS;
@@ -181,6 +223,27 @@ SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   if (C->ops->updateh) { ier = C->ops->updateh(C, h, dsm); }
+  return (ier);
+}
+
+SUNErrCode SUNControlUpdateMRIH(SUNControl C, sunrealtype H, sunrealtype h,
+                                sunrealtype DSM, sunrealtype dsm)
+{
+  SUNErrCode ier = SUN_SUCCESS;
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
+  if (C->ops->updatemrih) { ier = C->ops->updatemrih(C, H, h, DSM, dsm); }
+  return (ier);
+}
+
+SUNErrCode SUNControlUpdateMRITol(SUNControl C, sunrealtype H, sunrealtype tolfac,
+                                  sunrealtype DSM, sunrealtype dsm)
+{
+  SUNErrCode ier = SUN_SUCCESS;
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
+  if (C->ops->updatemritol) { ier = C->ops->updatemritol(C, H, tolfac,
+                                                         DSM, dsm); }
   return (ier);
 }
 

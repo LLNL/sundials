@@ -1,0 +1,18 @@
+
+Accumulated error estimation test (Brusselator ODE problem):
+    time domain:  (0,10]
+    initial conditions:  u0 = 3,  v0 = 3,  w0 = 3.5
+    problem parameters:  a = 0.5,  b = 3,  ep = 0.0005
+    DIRK solver, order = 5
+
+ Adaptive-step runs:
+   Rtol: 0.01
+     acc type = 0,  dsm = 0.00225032,  dsm_est = 0.000149199,  dsm/dsm_est = 15.0827,  nsteps = 19
+     acc type = 1,  dsm = 0.00225032,  dsm_est = 3.4359e-05,  dsm/dsm_est = 65.4942,  nsteps = 19
+   Rtol: 0.0001
+     acc type = 0,  dsm = 0.000104807,  dsm_est = 1.4563e-05,  dsm/dsm_est = 7.19676,  nsteps = 46
+     acc type = 1,  dsm = 0.000104807,  dsm_est = 1.17724e-06,  dsm/dsm_est = 89.0278,  nsteps = 46
+   Rtol: 1e-06
+     acc type = 0,  dsm = 6.25929e-08,  dsm_est = 1.4866e-07,  dsm/dsm_est = 0.421047,  nsteps = 79
+     acc type = 1,  dsm = 6.25929e-08,  dsm_est = 1.52961e-08,  dsm/dsm_est = 4.09208,  nsteps = 79
+   ------------------------------------------------------

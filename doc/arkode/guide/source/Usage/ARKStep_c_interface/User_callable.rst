@@ -3264,6 +3264,9 @@ No. of local error test failures that have occurred    :c:func:`ARKStepGetNumErr
 No. of failed steps due to a nonlinear solver failure  :c:func:`ARKStepGetNumStepSolveFails()`
 Current ERK and DIRK Butcher tables                    :c:func:`ARKStepGetCurrentButcherTables()`
 Estimated local truncation error vector                :c:func:`ARKStepGetEstLocalErrors()`
+Accumulated temporal error estimation strategy         :c:func:`ARKStepSetAccumulatedErrorType()`
+Reset accumulated temporal error estimate              :c:func:`ARKStepResetAccumulatedError()`
+Get accumulated temporal error estimate                :c:func:`ARKStepGetAccumulatedError()`
 Single accessor to many statistics at once             :c:func:`ARKStepGetTimestepperStats()`
 Number of constraint test failures                     :c:func:`ARKStepGetNumConstrFails()`
 Retrieve a pointer for user data                       :c:func:`ARKStepGetUserData`
@@ -3628,9 +3631,9 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
 
       typedef struct ARKStepButcherTableMem {
 
-        int q;           /* method order of accuracy       */
-        int p;           /* embedding order of accuracy    */
-        int stages;      /* number of stages               */
+        int q;              /* method order of accuracy       */
+        int p;              /* embedding order of accuracy    */
+        int stages;         /* number of stages               */
         sunrealtype **A;    /* Butcher table coefficients     */
         sunrealtype *c;     /* canopy node coefficients       */
         sunrealtype *b;     /* root node coefficients         */
@@ -3669,6 +3672,75 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
       two vectors.  Thus, for example, if there were recent error test
       failures, the components causing the failures are those with largest
       values for the products, denoted loosely as ``eweight[i]*ele[i]``.
+
+
+
+.. c:function:: int ARKStepSetAccumulatedErrorType(void* arkode_mem, int accum_type)
+
+   Sets the strategy to use for accumulating a temporal error estimate
+   over multiple time steps.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *accum_type* -- accumulation strategy:
+
+        * 0 -- maximum accumulation (default).
+        * 1 -- additive accumulation.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+      * *ARK_ILL_INPUT* if *accum_type* was illegal
+
+   **Notes:**
+      At each step, ARKStep computes both a solution and embedding,
+      :math:`y_n` and :math:`\tilde{y}_n`, resulting in a vector-valued
+      local temporal error estimate, :math:`y_n - \tilde{y}_n`.  Accumulation
+      strategy 0 computes
+      :math:`\text{reltol} \max_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`,
+      while accumulation strategy 1 computes
+      :math:`\frac{\text{reltol}}{N} \sum_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`,
+      where the sum or maximum is taken over all steps since the accumulation estimate was
+      created or reset (whichever came most recently), :math:`n\in N`, the norm is
+      taken using the tolerance-informed error-weight vector
+      (see :c:func:`ARKStepGetErrWeights`), and ``reltol`` is the user-specified
+      relative solution tolerance.
+
+   .. versionadded:: v.v.v
+
+
+.. c:function:: int ARKStepResetAccumulatedError(void* arkode_mem)
+
+   Resets the accumulated temporal error estimate.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+
+   .. versionadded:: v.v.v
+
+
+.. c:function:: int ARKStepGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
+
+   Gets the accumulated temporal error estimate.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *accum_error* -- pointer to accumulated error estimate.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+
+   **Notes:**
+      This routine is only useful if a Runge--Kutta method with an embedding is used
+      by ARKStep.  If a non-embedded method is used then this routine will always return
+      ``*accum_error = 0.0``.
+
+   .. versionadded:: v.v.v
 
 
 

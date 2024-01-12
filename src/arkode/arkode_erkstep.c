@@ -117,6 +117,14 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
 
   /* Initialize all the counters */
   step_mem->nfe = 0;
+  /* Initialize fused op work space */
+  step_mem->cvals        = NULL;
+  step_mem->Xvecs        = NULL;
+  step_mem->nfusedopvecs = 0;
+
+  /* Initialize external polynomial forcing data */
+  step_mem->forcing  = NULL;
+  step_mem->nforcing = 0;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
@@ -420,14 +428,15 @@ void ERKStepFree(void** arkode_mem)
     {
       free(step_mem->cvals);
       step_mem->cvals = NULL;
-      ark_mem->lrw -= (step_mem->stages + 1);
+      ark_mem->lrw -= step_mem->nfusedopvecs;
     }
     if (step_mem->Xvecs != NULL)
     {
       free(step_mem->Xvecs);
       step_mem->Xvecs = NULL;
-      ark_mem->liw -= (step_mem->stages + 1);
+      ark_mem->liw -= step_mem->nfusedopvecs;
     }
+    step_mem->nfusedopvecs = 0;
 
     /* free the time stepper module itself */
     free(ark_mem->step_mem);
@@ -578,18 +587,18 @@ int erkStep_Init(void* arkode_mem, int init_type)
   ark_mem->liw += step_mem->stages; /* pointers */
 
   /* Allocate reusable arrays for fused vector interface */
+  step_mem->nfusedopvecs = step_mem->stages + 1 + step_mem->nforcing;
   if (step_mem->cvals == NULL)
   {
-    step_mem->cvals = (sunrealtype*)calloc(step_mem->stages + 1,
-                                           sizeof(sunrealtype));
-    if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
-    ark_mem->lrw += (step_mem->stages + 1);
+    step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs, sizeof(sunrealtype));
+    if (step_mem->cvals == NULL) { return(ARK_MEM_FAIL); }
+    ark_mem->lrw += step_mem->nfusedopvecs;
   }
   if (step_mem->Xvecs == NULL)
   {
-    step_mem->Xvecs = (N_Vector*)calloc(step_mem->stages + 1, sizeof(N_Vector));
-    if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
-    ark_mem->liw += (step_mem->stages + 1); /* pointers */
+    step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs, sizeof(N_Vector));
+    if (step_mem->Xvecs == NULL) { return(ARK_MEM_FAIL); }
+    ark_mem->liw += step_mem->nfusedopvecs;   /* pointers */
   }
 
   /* Limit max interpolant degree (negative input only overwrites the current
@@ -654,14 +663,19 @@ int erkStep_Init(void* arkode_mem, int init_type)
 int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
 {
-  int retval;
+  int nvec, retval;
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   sunbooleantype recomputeRHS;
+  sunrealtype* cvals;
+  N_Vector* Xvecs;
 
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
+  /* local shortcuts for use with fused vector operations */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
 
   /* perform RHS functions contingent on 'mode' argument */
   switch (mode)
@@ -678,6 +692,15 @@ int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                         MSG_ARK_RHSFUNC_FAILED, t);
         return (ARK_RHSFUNC_FAIL);
+      }
+
+      /* apply external polynomial forcing */
+      if (step_mem->nforcing > 0) {
+        cvals[0] = ONE;
+        Xvecs[0] = step_mem->F[0];
+        nvec     = 1;
+        erkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+        N_VLinearCombination(nvec, cvals, Xvecs, step_mem->F[0]);
       }
     }
 
@@ -708,6 +731,14 @@ int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                           __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
           return (ARK_RHSFUNC_FAIL);
         }
+        /* apply external polynomial forcing */
+        if (step_mem->nforcing > 0) {
+          cvals[0] = ONE;
+          Xvecs[0] = step_mem->F[0];
+          nvec     = 1;
+          erkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+          N_VLinearCombination(nvec, cvals, Xvecs, step_mem->F[0]);
+        }
       }
       else { N_VScale(ONE, step_mem->F[step_mem->stages - 1], step_mem->F[0]); }
     }
@@ -727,6 +758,14 @@ int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_RHSFUNC_FAILED, t);
       return (ARK_RHSFUNC_FAIL);
+    }
+    /* apply external polynomial forcing */
+    if (step_mem->nforcing > 0) {
+      cvals[0] = ONE;
+      Xvecs[0] = f;
+      nvec     = 1;
+      erkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+      N_VLinearCombination(nvec, cvals, Xvecs, f);
     }
 
     break;
@@ -855,6 +894,14 @@ int erkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->nfe++;
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
+    /* apply external polynomial forcing */
+    if (step_mem->nforcing > 0) {
+      cvals[0] = ONE;
+      Xvecs[0] = step_mem->F[is];
+      nvec     = 1;
+      erkStep_ApplyForcing(step_mem, ark_mem->tcur, ONE, &nvec);
+      N_VLinearCombination(nvec, cvals, Xvecs, step_mem->F[is]);
+    }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1157,13 +1204,11 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   retval = N_VLinearCombination(nvec, cvals, Xvecs, y);
   if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
-  /* Compute yerr (if step adaptivity enabled) */
-  if (!ark_mem->fixedstep)
-  {
+  /* Compute yerr (if embedding coefficients are enabled) */
+  if (step_mem->B->d) {
     /* set arrays for fused vector operation */
     nvec = 0;
-    for (j = 0; j < step_mem->stages; j++)
-    {
+    for (j=0; j<step_mem->stages; j++) {
       cvals[nvec] = ark_mem->h * (step_mem->B->b[j] - step_mem->B->d[j]);
       Xvecs[nvec] = step_mem->F[j];
       nvec += 1;
@@ -1171,13 +1216,13 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
 
     /* call fused vector operation to do the work */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, yerr);
-    if (retval != 0) { return (ARK_VECTOROP_ERR); }
+    if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* fill error norm */
     *dsmPtr = N_VWrmsNorm(yerr, ark_mem->ewt);
   }
 
-  return (ARK_SUCCESS);
+  return(ARK_SUCCESS);
 }
 
 /* -----------------------------------------------------------------------------
@@ -1271,6 +1316,374 @@ int erkStep_GetOrder(ARKodeMem ark_mem)
 {
   ARKodeERKStepMem step_mem = (ARKodeERKStepMem)(ark_mem->step_mem);
   return step_mem->q;
+}
+
+/*---------------------------------------------------------------
+  Utility routines for ERKStep to serve as an MRIStepInnerStepper
+  ---------------------------------------------------------------*/
+
+
+/*------------------------------------------------------------------------------
+  ERKStepCreateMRIStepInnerStepper
+
+  Wraps an ERKStep memory structure as an MRIStep inner stepper.
+  ----------------------------------------------------------------------------*/
+
+int ERKStepCreateMRIStepInnerStepper(void *inner_arkode_mem,
+                                     MRIStepInnerStepper *stepper)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeERKStepMem step_mem;
+
+  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetEvolveFn(*stepper,
+                                           erkStep_MRIStepInnerEvolve);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
+                                            erkStep_MRIStepInnerFullRhs);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetResetFn(*stepper,
+                                          erkStep_MRIStepInnerReset);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetAccumulatedErrorGetFn(*stepper,
+                               erkStep_MRIStepInnerGetAccumulatedError);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetAccumulatedErrorResetFn(*stepper,
+                               erkStep_MRIStepInnerResetAccumulatedError);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetFixedStepFn(*stepper,
+                               erkStep_MRIStepInnerSetFixedStep);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetRTolFn(*stepper,
+                               erkStep_MRIStepInnerSetRTol);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARK_SUCCESS);
+}
+
+
+/*------------------------------------------------------------------------------
+  erkStep_MRIStepInnerEvolve
+
+  Implementation of MRIStepInnerStepperEvolveFn to advance the inner (fast)
+  ODE IVP.
+  ----------------------------------------------------------------------------*/
+
+int erkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
+                               sunrealtype tout, N_Vector y)
+{
+  void*       arkode_mem;     /* arkode memory             */
+  sunrealtype tret;           /* return time               */
+  sunrealtype tshift, tscale; /* time normalization values */
+  N_Vector    *forcing;       /* forcing vectors           */
+  int         nforcing;       /* number of forcing vectors */
+  int         retval;         /* return value              */
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* get the forcing data */
+  retval = MRIStepInnerStepper_GetForcingData(stepper,
+                                              &tshift, &tscale,
+                                              &forcing, &nforcing);
+  if (retval != ARK_SUCCESS) { return(retval); }
+
+  /* set the inner forcing data */
+  retval = erkStep_SetInnerForcing(arkode_mem, tshift, tscale,
+                                   forcing, nforcing);
+  if (retval != ARK_SUCCESS) { return(retval); }
+
+  /* set the stop time */
+  retval = ERKStepSetStopTime(arkode_mem, tout);
+  if (retval != ARK_SUCCESS) { return(retval); }
+
+  /* evolve inner ODE */
+  retval = ERKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+  if (retval < 0) { return(retval); }
+
+  /* disable inner forcing */
+  retval = erkStep_SetInnerForcing(arkode_mem, ZERO, ONE, NULL, 0);
+  if (retval != ARK_SUCCESS) { return(retval); }
+
+  return (ARK_SUCCESS);
+}
+
+
+/*------------------------------------------------------------------------------
+  erkStep_MRIStepInnerFullRhs
+
+  Implementation of MRIStepInnerStepperFullRhsFn to compute the full inner
+  (fast) ODE IVP RHS.
+  ----------------------------------------------------------------------------*/
+
+int erkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
+                                N_Vector y, N_Vector f, int mode)
+{
+  void* arkode_mem;
+  int   retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return(retval); }
+
+  return (erkStep_FullRHS(arkode_mem, t, y, f, mode));
+}
+
+
+/*------------------------------------------------------------------------------
+  erkStep_MRIStepInnerReset
+
+  Implementation of MRIStepInnerStepperResetFn to reset the inner (fast) stepper
+  state.
+  ----------------------------------------------------------------------------*/
+
+int erkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
+                              N_Vector yR)
+{
+  void* arkode_mem;
+  int   retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return(retval); }
+
+  return (ERKStepReset(arkode_mem, tR, yR));
+}
+
+
+/*------------------------------------------------------------------------------
+  erkStep_MRIStepInnerGetAccumulatedError
+
+  Implementation of MRIStepInnerGetAccumulatedError to retrieve the accumulated
+  temporal error estimate from the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int erkStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
+                                            sunrealtype* accum_error)
+{
+  void* arkode_mem;
+  int   retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return(retval); }
+
+  return (ERKStepGetAccumulatedError(arkode_mem, accum_error));
+}
+
+
+/*------------------------------------------------------------------------------
+  erkStep_MRIStepInnerResetAccumulatedError
+
+  Implementation of MRIStepInnerResetAccumulatedError to reset the accumulated
+  temporal error estimator in the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int erkStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper)
+{
+  void* arkode_mem;
+  int   retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return(retval); }
+
+  return (ERKStepResetAccumulatedError(arkode_mem));
+}
+
+
+/*------------------------------------------------------------------------------
+  erkStep_MRIStepInnerSetFixedStep
+
+  Implementation of MRIStepInnerSetFixedStep to set a fixed step size for
+  the upcoming evolution using the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int erkStep_MRIStepInnerSetFixedStep(MRIStepInnerStepper stepper, sunrealtype h)
+{
+  void* arkode_mem;
+  int   retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return(retval); }
+
+  return (ERKStepSetFixedStep(arkode_mem, h));
+}
+
+
+/*------------------------------------------------------------------------------
+  erkStep_MRIStepInnerSetRTol
+
+  Implementation of MRIStepInnerSetRTol to set a relative tolerance for the
+  upcoming evolution using the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int erkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol)
+{
+  void* arkode_mem;
+  ARKodeMem ark_mem;
+  int   retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return(retval); }
+  if (arkode_mem==NULL) 
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ERKSTEP_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+
+  if (rtol > ZERO) 
+  {
+    ark_mem->reltol = rtol;
+    return (ARK_SUCCESS);
+  } 
+  else { return(ARK_ILL_INPUT); }
+}
+
+
+/*------------------------------------------------------------------------------
+  erkStep_ApplyForcing
+
+  Determines the linear combination coefficients and vectors to apply forcing
+  at a given value of the independent variable (t).  This occurs through
+  appending coefficients and N_Vector pointers to the underlying cvals and Xvecs
+  arrays in the step_mem structure.  The dereferenced input *nvec should indicate
+  the next available entry in the cvals/Xvecs arrays.  The input 's' is a
+  scaling factor that should be applied to each of these coefficients.
+  ----------------------------------------------------------------------------*/
+
+void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype t,
+                          sunrealtype s, int *nvec)
+{
+  realtype tau, taui;
+  int i;
+
+  /* always append the constant forcing term */
+  step_mem->cvals[*nvec] = s;
+  step_mem->Xvecs[*nvec] = step_mem->forcing[0];
+  (*nvec) += 1;
+
+  /* compute normalized time tau and initialize tau^i */
+  tau  = (t - step_mem->tshift) / (step_mem->tscale);
+  taui = tau;
+  for (i = 1; i < step_mem->nforcing; i++) 
+  {
+    step_mem->cvals[*nvec] = s*taui;
+    step_mem->Xvecs[*nvec] = step_mem->forcing[i];
+    taui *= tau;
+    (*nvec) += 1;
+  }
+}
+
+/*------------------------------------------------------------------------------
+  erkStep_SetInnerForcing
+
+  Sets an array of coefficient vectors for a time-dependent external polynomial
+  forcing term in the ODE RHS i.e., y' = f(t,y) + p(t). This function is
+  primarily intended for use with multirate integration methods (e.g., MRIStep)
+  where ERKStep is used to solve a modified ODE at a fast time scale. The
+  polynomial is of the form
+
+  p(t) = sum_{i = 0}^{nvecs - 1} forcing[i] * ((t - tshift) / (tscale))^i
+
+  where tshift and tscale are used to normalize the time t (e.g., with MRIGARK
+  methods).
+  ----------------------------------------------------------------------------*/
+
+int erkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift, 
+                            sunrealtype tscale, N_Vector* forcing, int nvecs)
+{
+  ARKodeMem ark_mem;
+  ARKodeERKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeERKStepMem structure */
+  retval = erkStep_AccessStepMem(arkode_mem, "erkStep_SetInnerForcing",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return(retval); }
+
+  if (nvecs > 0) 
+  {
+
+    /* store forcing inputs */
+    step_mem->tshift   = tshift;
+    step_mem->tscale   = tscale;
+    step_mem->forcing  = forcing;
+    step_mem->nforcing = nvecs;
+
+    /* If cvals and Xvecs are not allocated then erkStep_Init has not been
+       called and the number of stages has not been set yet. These arrays will
+       be allocated in erkStep_Init and take into account the value of nforcing.
+       On subsequent calls will check if enough space has allocated in case
+       nforcing has increased since the original allocation. */
+    if (step_mem->cvals != NULL && step_mem->Xvecs != NULL) 
+    {
+
+      /* check if there are enough reusable arrays for fused operations */
+      if ((step_mem->nfusedopvecs - nvecs) < (step_mem->stages + 1)) 
+      {
+
+        /* free current work space */
+        if (step_mem->cvals != NULL) 
+        {
+          free(step_mem->cvals);
+          ark_mem->lrw -= step_mem->nfusedopvecs;
+        }
+        if (step_mem->Xvecs != NULL) 
+        {
+          free(step_mem->Xvecs);
+          ark_mem->liw -= step_mem->nfusedopvecs;
+        }
+
+        /* allocate reusable arrays for fused vector operations */
+        step_mem->nfusedopvecs = step_mem->stages + 1 + nvecs;
+
+        step_mem->cvals = NULL;
+        step_mem->cvals = (realtype*)calloc(step_mem->nfusedopvecs,
+                                            sizeof(realtype));
+        if (step_mem->cvals == NULL) { return(ARK_MEM_FAIL); }
+        ark_mem->lrw += step_mem->nfusedopvecs;
+
+        step_mem->Xvecs = NULL;
+        step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
+                                            sizeof(N_Vector));
+        if (step_mem->Xvecs == NULL) { return(ARK_MEM_FAIL); }
+        ark_mem->liw += step_mem->nfusedopvecs;
+      }
+    }
+  } 
+  else 
+  {
+
+    /* disable forcing */
+    step_mem->tshift   = ZERO;
+    step_mem->tscale   = ONE;
+    step_mem->forcing  = NULL;
+    step_mem->nforcing = 0;
+
+  }
+
+  return (ARK_SUCCESS);
 }
 
 /*===============================================================

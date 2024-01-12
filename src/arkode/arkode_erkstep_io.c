@@ -186,6 +186,24 @@ int ERKStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
   return (arkSetAdaptController(arkode_mem, C));
 }
 
+/*---------------------------------------------------------------
+  Wrapper functions for accumulated temporal error estimation.
+  ---------------------------------------------------------------*/
+int ERKStepSetAccumulatedErrorType(void *arkode_mem, int accum_type) 
+{
+  return (arkSetAccumulatedErrorType(arkode_mem, accum_type)); 
+}
+
+int ERKStepResetAccumulatedError(void *arkode_mem) 
+{
+  return (arkResetAccumulatedError(arkode_mem)); 
+}
+
+int ERKStepGetAccumulatedError(void *arkode_mem, sunrealtype* accum_error) 
+{
+  return (arkGetAccumulatedError(arkode_mem, accum_error)); 
+}
+
 /*===============================================================
   ERKStep Optional output functions (wrappers for generic ARKODE
   utility routines). All are documented in arkode_io.c.
@@ -229,6 +247,11 @@ int ERKStepGetTolScaleFactor(void* arkode_mem, sunrealtype* tolsfact)
 int ERKStepGetErrWeights(void* arkode_mem, N_Vector eweight)
 {
   return (arkGetErrWeights(arkode_mem, eweight));
+}
+
+int ERKStepGetEstLocalErrors(void *arkode_mem, N_Vector ele) 
+{
+  return (arkGetEstLocalErrors(arkode_mem, ele)); 
 }
 
 int ERKStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
@@ -686,28 +709,7 @@ int ERKStepGetCurrentButcherTable(void* arkode_mem, ARKodeButcherTable* B)
   return (ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
-  ERKStepGetEstLocalErrors: (updated to the correct vector, but
-  need to verify that it is unchanged between filling the
-  estimated error and the end of the time step)
 
-  Returns an estimate of the local error
-  ---------------------------------------------------------------*/
-int ERKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele)
-{
-  ARKodeMem ark_mem;
-  ARKodeERKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* copy vector to output */
-  N_VScale(ONE, ark_mem->tempv1, ele);
-
-  return (ARK_SUCCESS);
-}
 
 /*---------------------------------------------------------------
   ERKStepGetTimestepperStats:

@@ -130,6 +130,20 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
+Changes in v.v.v
+----------------
+
+Added Multirate time step adaptivity controllers, based on the recently introduced 
+`SUNAdaptController` base class, to ARKODE's MRIStep module.
+
+Added functionality to ARKStep and ERKStep to accumulate a temporal error
+estimate over multiple time steps.  See the routines :c:func:`ARKStepSetAccumulatedErrorType`,
+:c:func:`ARKStepResetAccumulatedError`, :c:func:`ARKStepGetAccumulatedError`,
+:c:func:`ERKStepSetAccumulatedErrorType`, :c:func:`ERKStepResetAccumulatedError`,
+and :c:func:`ERKStepGetAccumulatedError` for details.
+
+
+
 Changes in v6.0.0-rc.1
 ----------------------
 

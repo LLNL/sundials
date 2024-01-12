@@ -991,10 +991,10 @@ Here the explicit stability step factor :math:`c>0` (often called the
 Fixed time stepping
 ===================
 
-While both the ARKStep and ERKStep time-stepping modules are
+While the ARKStep, ERKStep and MRIStep time-stepping modules are
 designed for tolerance-based time step adaptivity, they additionally support a
 "fixed-step" mode. This mode is typically used for debugging
-purposes, for verification against hand-coded Runge--Kutta methods, or for
+purposes, for verification against hand-coded methods, or for
 problems where the time steps should be chosen based on other problem-specific
 information.  In this mode, all internal time step adaptivity is disabled:
 

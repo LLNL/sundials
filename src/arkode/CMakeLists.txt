@@ -79,6 +79,11 @@ sundials_add_library(sundials_arkode
     sundials_nvecserial_obj
     sundials_sunadaptcontrollerimexgus_obj
     sundials_sunadaptcontrollersoderlind_obj
+    sundials_sunadaptcontrollermrill_obj
+    sundials_sunadaptcontrollermricc_obj
+    sundials_sunadaptcontrollermripi_obj
+    sundials_sunadaptcontrollermripid_obj
+    sundials_sunadaptcontrollermrihtol_obj
     sundials_sunmatrixband_obj
     sundials_sunmatrixdense_obj
     sundials_sunmatrixsparse_obj
