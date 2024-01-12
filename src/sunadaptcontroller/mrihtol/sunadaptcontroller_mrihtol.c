@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2023, Lawrence Livermore National Security
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,22 +11,26 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for the SUNControl_MRIHTol module.
+ * This is the implementation file for the
+ * SUNAdaptController_MRIHTol module.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <suncontrol/suncontrol_mrihtol.h>
-#include <sundials/sundials_math.h>
+#include <sunadaptcontroller/sunadaptcontroller_mrihtol.h>
+#include <sundials/sundials_core.h>
+
+#include "sundials/priv/sundials_errors_impl.h"
+#include "sundials/sundials_errors.h"
 
 
 /* ---------------
  * Macro accessors
  * --------------- */
 
-#define SC_MRIHTOL_CONTENT(C) ( (SUNControlContent_MRIHTol)(C->content) )
-#define SC_MRIHTOL_CSLOW(C)   ( SC_MRIHTOL_CONTENT(C)->HControl )
-#define SC_MRIHTOL_CFAST(C)   ( SC_MRIHTOL_CONTENT(C)->TolControl )
+#define MRIHTOL_CONTENT(C) ( (SUNAdaptControllerContent_MRIHTol)(C->content) )
+#define MRIHTOL_CSLOW(C)   ( MRIHTOL_CONTENT(C)->HControl )
+#define MRIHTOL_CFAST(C)   ( MRIHTOL_CONTENT(C)->TolControl )
 
 
 /* -----------------------------------------------------------------
@@ -37,44 +41,40 @@
  * Function to create a new MRIHTol controller
  */
 
-SUNControl SUNControlMRIHTol(SUNContext sunctx, SUNControl HControl,
-                             SUNControl TolControl)
+SUNAdaptController SUNAdaptController_MRIHTol(SUNContext sunctx,
+                                              SUNAdaptController HControl,
+                                              SUNAdaptController TolControl)
 {
-  SUNControl C;
-  SUNControlContent_MRIHTol content;
+  SUNFunctionBegin(sunctx);
+
+  SUNAdaptController C;
+  SUNAdaptControllerContent_MRIHTol content;
+
+  /* Verify that input controllers have the appropriate type */
+  SUNAssert(SUNAdaptController_GetType(HControl) == SUN_ADAPTCONTROLLER_H,
+            SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssert(SUNAdaptController_GetType(TolControl) == SUN_ADAPTCONTROLLER_H,
+            SUN_ERR_ARG_INCOMPATIBLE);
 
   /* Create an empty controller object */
   C = NULL;
-  C = SUNControlNewEmpty(sunctx);
-  if (C == NULL) { return (NULL); }
+  C = SUNAdaptController_NewEmpty(sunctx);
+  SUNCheckLastErrNull();
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetID_MRIHTol;
-  C->ops->estimatesteptol   = SUNControlEstimateStepTol_MRIHTol;
-  C->ops->reset             = SUNControlReset_MRIHTol;
-  C->ops->setdefaults       = SUNControlSetDefaults_MRIHTol;
-  C->ops->write             = SUNControlWrite_MRIHTol;
-  C->ops->setmethodorder    = SUNControlSetMethodOrder_MRIHTol;
-  C->ops->setembeddingorder = SUNControlSetEmbeddingOrder_MRIHTol;
-  C->ops->seterrorbias      = SUNControlSetErrorBias_MRIHTol;
-  C->ops->updatemritol      = SUNControlUpdateMRITol_MRIHTol;
-  C->ops->space             = SUNControlSpace_MRIHTol;
+  C->ops->gettype         = SUNAdaptController_GetType_MRIHTol;
+  C->ops->estimatesteptol = SUNAdaptController_EstimateStepTol_MRIHTol;
+  C->ops->reset           = SUNAdaptController_Reset_MRIHTol;
+  C->ops->setdefaults     = SUNAdaptController_SetDefaults_MRIHTol;
+  C->ops->write           = SUNAdaptController_Write_MRIHTol;
+  C->ops->seterrorbias    = SUNAdaptController_SetErrorBias_MRIHTol;
+  C->ops->updatemritol    = SUNAdaptController_UpdateMRITol_MRIHTol;
+  C->ops->space           = SUNAdaptController_Space_MRIHTol;
 
   /* Create content */
   content = NULL;
-  content = (SUNControlContent_MRIHTol)malloc(sizeof *content);
-  if (content == NULL)
-  {
-    SUNControlDestroy(C);
-    return (NULL);
-  }
-
-  /* Set method and embedding "order" into tolerance controller:
-     no matter the order of the fast integrator, we expect the
-     fast integrator error to be directly proportional to the
-     relative tolerance factor */
-  SUNControlSetMethodOrder(TolControl, 1);
-  SUNControlSetEmbeddingOrder(TolControl, 1);
+  content = (SUNAdaptControllerContent_MRIHTol)malloc(sizeof *content);
+  SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach input controllers */
   content->HControl = HControl;
@@ -90,11 +90,17 @@ SUNControl SUNControlMRIHTol(SUNContext sunctx, SUNControl HControl,
  * Function to get slow and fast sub-controllers
  */
 
-SUNControl SUNControlMRIHTol_GetSlowController(SUNControl C)
-{ return SC_MRIHTOL_CSLOW(C); }
+SUNAdaptController SUNAdaptController_GetSlowController_MRIHTol(SUNAdaptController C)
+{
+  SUNFunctionBegin(C->sunctx);
+  return MRIHTOL_CSLOW(C);
+}
 
-SUNControl SUNControlMRIHTol_GetFastController(SUNControl C)
-{ return SC_MRIHTOL_CFAST(C); }
+SUNAdaptController SUNAdaptController_GetFastController_MRIHTol(SUNAdaptController C)
+{
+  SUNFunctionBegin(C->sunctx);
+  return MRIHTOL_CFAST(C);
+}
 
 
 
@@ -102,103 +108,87 @@ SUNControl SUNControlMRIHTol_GetFastController(SUNControl C)
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNControl_ID SUNControlGetID_MRIHTol(SUNControl C) { return SUNDIALS_CONTROL_MRI_TOL; }
-
-int SUNControlEstimateStepTol_MRIHTol(SUNControl C, realtype H,
-                                         realtype tolfac, realtype DSM,
-                                         realtype dsm, realtype *Hnew,
-                                         realtype* tolfacnew)
+SUNAdaptController_Type SUNAdaptController_GetType_MRIHTol(SUNAdaptController C)
 {
-  /* Call sub-controllers to fill outputs, and return with success */
-  int retval;
-  retval = SUNControlEstimateStep(SC_MRIHTOL_CSLOW(C), H, DSM, Hnew);
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
-  retval = SUNControlEstimateStep(SC_MRIHTOL_CFAST(C), tolfac, dsm, tolfacnew);
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
-  return SUNCONTROL_SUCCESS;
+  return SUNDIALS_CONTROL_MRI_TOL;
 }
 
-int SUNControlReset_MRIHTol(SUNControl C)
+SUNErrCode SUNAdaptController_EstimateStepTol_MRIHTol(SUNAdaptController C,
+                                                      sunrealtype H, sunrealtype tolfac,
+                                                      int P, sunrealtype DSM,
+                                                      sunrealtype dsm,
+                                                      sunrealtype* Hnew,
+                                                      sunrealtype* tolfacnew)
 {
-  /* Reset sub-controllers, and return with success */
-  int retval;
-  retval = SUNControlReset(SC_MRIHTOL_CSLOW(C));
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
-  retval = SUNControlReset(SC_MRIHTOL_CFAST(C));
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
-  return SUNCONTROL_SUCCESS;
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(Hnew, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(tolfacnew, SUN_ERR_ARG_CORRUPT);
+
+  /* Call slow time scale sub-controller to fill Hnew */
+  SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CSLOW(C), H, P, DSM, Hnew));
+
+  /* Call fast time sacle sub-controller with order=1: no matter the integrator
+     order, we expect its error to be proportional to the tolerance factor */
+  SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CFAST(C), tolfac, 1, dsm, tolfacnew));
+
+  return SUN_SUCCESS;
 }
 
-int SUNControlSetDefaults_MRIHTol(SUNControl C)
+SUNErrCode SUNAdaptController_Reset_MRIHTol(SUNAdaptController C)
 {
-  /* Set defaults in sub-controllers, and return with success */
-  int retval;
-  retval = SUNControlSetDefaults(SC_MRIHTOL_CSLOW(C));
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
-  retval = SUNControlSetDefaults(SC_MRIHTOL_CFAST(C));
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
-  return SUNCONTROL_SUCCESS;
+  SUNFunctionBegin(C->sunctx);
+  SUNCheckCall(SUNAdaptController_Reset(MRIHTOL_CSLOW(C)));
+  SUNCheckCall(SUNAdaptController_Reset(MRIHTOL_CFAST(C)));
+  return SUN_SUCCESS;
 }
 
-int SUNControlWrite_MRIHTol(SUNControl C, FILE *fptr)
+SUNErrCode SUNAdaptController_SetDefaults_MRIHTol(SUNAdaptController C)
 {
-  /* Write both sub-controllers, and return with success */
-  fprintf(fptr, "Multirate H-Tol SUNControl module:\n");
+  SUNFunctionBegin(C->sunctx);
+  SUNCheckCall(SUNAdaptController_SetDefaults(MRIHTOL_CSLOW(C)));
+  SUNCheckCall(SUNAdaptController_SetDefaults(MRIHTOL_CFAST(C)));
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNAdaptController_Write_MRIHTol(SUNAdaptController C, FILE *fptr)
+{
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
+  fprintf(fptr, "Multirate H-Tol SUNAdaptController module:\n");
   fprintf(fptr, "\nSlow step controller:\n");
-  int retval= SUNControlWrite(SC_MRIHTOL_CSLOW(C), fptr);
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
+  SUNCheckCall(SUNAdaptController_Write(MRIHTOL_CSLOW(C), fptr));
   fprintf(fptr, "\nFast tolerance controller:\n");
-  retval= SUNControlWrite(SC_MRIHTOL_CFAST(C), fptr);
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
-  return SUNCONTROL_SUCCESS;
+  SUNCheckCall(SUNAdaptController_Write(MRIHTOL_CFAST(C), fptr));
+  return SUN_SUCCESS;
 }
 
-int SUNControlSetMethodOrder_MRIHTol(SUNControl C, int q)
+SUNErrCode SUNAdaptController_SetErrorBias_MRIHTol(SUNAdaptController C, sunrealtype bias)
 {
-  /* Send method order to slow controller */
-  return (SUNControlSetMethodOrder(SC_MRIHTOL_CSLOW(C), q));
+  SUNFunctionBegin(C->sunctx);
+  SUNCheckCall(SUNAdaptController_SetErrorBias(MRIHTOL_CSLOW(C), bias));
+  SUNCheckCall(SUNAdaptController_SetErrorBias(MRIHTOL_CFAST(C), bias));
+  return SUN_SUCCESS;
 }
 
-int SUNControlSetEmbeddingOrder_MRIHTol(SUNControl C, int p)
+SUNErrCode SUNAdaptController_UpdateMRITol_MRIHTol(SUNAdaptController C, sunrealtype H,
+                                                   sunrealtype tolfac, sunrealtype DSM,
+                                                   sunrealtype dsm)
 {
-  /* Send method order to slow controller */
-  return (SUNControlSetEmbeddingOrder(SC_MRIHTOL_CSLOW(C), p));
+  SUNFunctionBegin(C->sunctx);
+  SUNCheckCall(SUNAdaptController_Update(MRIHTOL_CSLOW(C), H, DSM));
+  SUNCheckCall(SUNAdaptController_Update(MRIHTOL_CFAST(C), tolfac, dsm));
+  return SUN_SUCCESS;
 }
 
-int SUNControlSetErrorBias_MRIHTol(SUNControl C, realtype bias)
+SUNErrCode SUNAdaptController_Space_MRIHTol(SUNAdaptController C, long int* lenrw, long int* leniw)
 {
-  /* Set defaults in sub-controllers, and return with success */
-  int retval;
-  retval = SUNControlSetErrorBias(SC_MRIHTOL_CSLOW(C), bias);
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
-  retval = SUNControlSetErrorBias(SC_MRIHTOL_CFAST(C), bias);
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
-  return SUNCONTROL_SUCCESS;
-}
-
-int SUNControlUpdateMRITol_MRIHTol(SUNControl C, realtype H,
-                                   realtype tolfac, realtype DSM,
-                                   realtype dsm)
-{
-  /* Update sub-controllers, and return with success */
-  int retval;
-  retval = SUNControlUpdate(SC_MRIHTOL_CSLOW(C), H, DSM);
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
-  retval = SUNControlUpdate(SC_MRIHTOL_CFAST(C), tolfac, dsm);
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
-  return SUNCONTROL_SUCCESS;
-}
-
-int SUNControlSpace_MRIHTol(SUNControl C, long int* lenrw, long int* leniw)
-{
-  /* Accumulate space from sub-controllers, and return with success */
-  int retval;
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
   long int lrw, liw;
-  retval = SUNControlSpace(SC_MRIHTOL_CSLOW(C), lenrw, leniw);
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
-  retval = SUNControlSpace(SC_MRIHTOL_CFAST(C), &lrw, &liw);
-  if (retval != SUNCONTROL_SUCCESS) { return retval; }
+  SUNCheckCall(SUNAdaptController_Space(MRIHTOL_CSLOW(C), lenrw, leniw));
+  SUNCheckCall(SUNAdaptController_Space(MRIHTOL_CFAST(C), &lrw, &liw));
   *lenrw += lrw;
   *leniw += liw;
-  return SUNCONTROL_SUCCESS;
+  return SUN_SUCCESS;
 }

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2023, Lawrence Livermore National Security
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,11 +11,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the SUNControl_MRICC module.
+ * This is the header file for the SUNAdaptController_MRICC module.
  * -----------------------------------------------------------------*/
 
-#ifndef _SUNCONTROL_MRICC_H
-#define _SUNCONTROL_MRICC_H
+#ifndef _SUNADAPTCONTROLLER_MRICC_H
+#define _SUNADAPTCONTROLLER_MRICC_H
 
 #include <stdio.h>
 #include <sundials/sundials_control.h>
@@ -25,45 +25,46 @@ extern "C" {
 #endif
 
 /* --------------------------------------------------
- * MRI constant-constant implementation of SUNControl
+ * MRI constant-constant implementation of SUNAdaptController
  * -------------------------------------------------- */
 
-struct _SUNControlContent_MRICC {
-  realtype k1;     /* internal controller parameters */
-  realtype k2;
-  realtype bias;   /* error bias factor */
-  int P;           /* slow order of accuracy to use for controller */
-  int p;           /* fast order of accuracy to use for controller */
+struct _SUNAdaptControllerContent_MRICC {
+  sunrealtype k1;     /* internal controller parameters */
+  sunrealtype k2;
+  sunrealtype bias;   /* error bias factor */
+  int p;              /* fast order of accuracy to use */
 };
 
-typedef struct _SUNControlContent_MRICC *SUNControlContent_MRICC;
+typedef struct _SUNAdaptControllerContent_MRICC* SUNAdaptControllerContent_MRICC;
 
 /* ------------------
  * Exported Functions
  * ------------------ */
 
 SUNDIALS_EXPORT
-SUNControl SUNControlMRICC(SUNContext sunctx, int P, int p);
+SUNAdaptController SUNAdaptController_MRICC(SUNContext sunctx, int p);
 SUNDIALS_EXPORT
-int SUNControlMRICC_SetParams(SUNControl C, realtype k1, realtype k2);
+int SUNAdaptController_SetParams_MRICC(SUNAdaptController C, sunrealtype k1,
+                                       sunrealtype k2);
 SUNDIALS_EXPORT
-SUNControl_ID SUNControlGetID_MRICC(SUNControl C);
+SUNAdaptController_Type SUNAdaptController_GetType_MRICC(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNControlEstimateMRISteps_MRICC(SUNControl C, realtype H, realtype h,
-                                     realtype DSM, realtype dsm,
-                                     realtype* Hnew, realtype *hnew);
+int SUNAdaptController_EstimateMRISteps_MRICC(SUNAdaptController C, sunrealtype H,
+                                              sunrealtype h, int P, sunrealtype DSM,
+                                              sunrealtype dsm, sunrealtype* Hnew,
+                                              sunrealtype* hnew);
 SUNDIALS_EXPORT
-int SUNControlSetDefaults_MRICC(SUNControl C);
+int SUNAdaptController_SetDefaults_MRICC(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNControlWrite_MRICC(SUNControl C, FILE* fptr);
+int SUNAdaptController_Write_MRICC(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNControlSetErrorBias_MRICC(SUNControl C, realtype bias);
+int SUNAdaptController_SetErrorBias_MRICC(SUNAdaptController C, sunrealtype bias);
 SUNDIALS_EXPORT
-int SUNControlSpace_MRICC(SUNControl C, long int *lenrw,
-                          long int *leniw);
+int SUNAdaptController_Space_MRICC(SUNAdaptController C, long int* lenrw,
+                                   long int* leniw);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* _SUNCONTROL_MRICC_H */
+#endif  /* _SUNADAPTCONTROLLER_MRICC_H */

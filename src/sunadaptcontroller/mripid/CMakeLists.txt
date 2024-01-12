@@ -2,7 +2,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -13,13 +13,15 @@
 # ---------------------------------------------------------------
 
 # Create a library out of the generic sundials modules
-sundials_add_library(sundials_suncontrolmripid
+sundials_add_library(sundials_sunadaptcontrollermripid
   SOURCES
-    suncontrol_mripid.c
+    sunadaptcontroller_mripid.c
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/suncontrol/suncontrol_mripid.h
+    ${SUNDIALS_SOURCE_DIR}/include/sunadaptcontroller/sunadaptcontroller_mripid.h
+  LINK LIBRARIES
+    PUBLIC sundials_core
   INCLUDE_SUBDIR
-    suncontrol
+    sunadaptcontroller
   OBJECT_LIB_ONLY
 )
 

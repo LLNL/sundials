@@ -67,14 +67,14 @@ struct _generic_SUNAdaptController_Ops
                              sunrealtype dsm, sunrealtype* hnew);
 
   /* REQUIRED for controllers of SUN_ADAPTCONTROLLER_MRI_H type. */
-  int (*estimatemristeps)(SUNControl C, sunrealtype H, sunrealtype h,
-                          sunrealtype DSM, sunrealtype dsm,
-                          sunrealtype* Hnew, sunrealtype *hnew);
+  SUNErrCode (*estimatemristeps)(SUNControl C, sunrealtype H, sunrealtype h,
+                                 int P, sunrealtype DSM, sunrealtype dsm,
+                                 sunrealtype* Hnew, sunrealtype *hnew);
 
   /* REQUIRED for controllers of SUN_ADAPTCONTROLLER_MRI_TOL type. */
-  int (*estimatesteptol)(SUNControl C, sunrealtype H, sunrealtype tolfac,
-                         sunrealtype DSM, sunrealtype dsm, sunrealtype *Hnew,
-                         sunrealtype* tolfacnew);
+  SUNErrCode (*estimatesteptol)(SUNControl C, sunrealtype H, sunrealtype tolfac,
+                                int P, sunrealtype DSM, sunrealtype dsm,
+                                sunrealtype *Hnew, sunrealtype* tolfacnew);
 
   /* OPTIONAL for all SUNAdaptController implementations. */
   SUNErrCode (*destroy)(SUNAdaptController C);
@@ -86,7 +86,7 @@ struct _generic_SUNAdaptController_Ops
   SUNErrCode (*updatemrih)(SUNControl C, sunrealtype H, sunrealtype h,
                            sunrealtype DSM, sunrealtype dsm);
   SUNErrCode (*updatemritol)(SUNControl C, sunrealtype H, sunrealtype tolfac,
-                      sunrealtype DSM, sunrealtype dsm);
+                             sunrealtype DSM, sunrealtype dsm);
   SUNErrCode (*space)(SUNAdaptController C, long int* lenrw, long int* leniw);
 };
 
@@ -188,8 +188,8 @@ SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
    the step sizes or local error factors can be saved for subsequent
    controller functions. */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_UpdateMRIH(SUNControl C, sunrealtype H, 
-                                         sunrealtype h, sunrealtype DSM, 
+SUNErrCode SUNAdaptController_UpdateMRIH(SUNControl C, sunrealtype H,
+                                         sunrealtype h, sunrealtype DSM,
                                          sunrealtype dsm);
 
 /* Function to notify the controller of a successful multirate time step
@@ -197,8 +197,8 @@ SUNErrCode SUNAdaptController_UpdateMRIH(SUNControl C, sunrealtype H,
    DSM and dsm, indicating that the step size, tolerance factor, or local
    error factors can be saved for subsequent controller functions. */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_UpdateMRITol(SUNControl C, sunrealtype H, 
-                                           sunrealtype tolfac, sunrealtype DSM, 
+SUNErrCode SUNAdaptController_UpdateMRITol(SUNControl C, sunrealtype H,
+                                           sunrealtype tolfac, sunrealtype DSM,
                                            sunrealtype dsm);
 
 /* Function to return the memory requirements of the controller object. */

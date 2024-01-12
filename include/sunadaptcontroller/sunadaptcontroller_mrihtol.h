@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2023, Lawrence Livermore National Security
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,11 +11,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the SUNControl_MRIHTol module.
+ * This is the header file for the SUNAdaptController_MRIHTol module.
  * -----------------------------------------------------------------*/
 
-#ifndef _SUNCONTROL_MRIHTOL_H
-#define _SUNCONTROL_MRIHTOL_H
+#ifndef _SUNADAPTCONTROLLER_MRIHTOL_H
+#define _SUNADAPTCONTROLLER_MRIHTOL_H
 
 #include <stdio.h>
 #include <sundials/sundials_control.h>
@@ -25,55 +25,54 @@ extern "C" {
 #endif
 
 /* --------------------------------------------
- * MRI H+tolerance implementation of SUNControl
+ * MRI H+tolerance implementation of SUNAdaptController
  * -------------------------------------------- */
 
-struct _SUNControlContent_MRIHTol {
-  SUNControl HControl;
-  SUNControl TolControl;
+struct _SUNAdaptControllerContent_MRIHTol {
+  SUNAdaptController HControl;
+  SUNAdaptController TolControl;
 };
 
-typedef struct _SUNControlContent_MRIHTol *SUNControlContent_MRIHTol;
+typedef struct _SUNAdaptControllerContent_MRIHTol* SUNAdaptControllerContent_MRIHTol;
 
 /* ------------------
  * Exported Functions
  * ------------------ */
 
 SUNDIALS_EXPORT
-SUNControl SUNControlMRIHTol(SUNContext sunctx, SUNControl HControl,
-                             SUNControl TolControl);
+SUNAdaptController SUNAdaptController_MRIHTol(SUNContext sunctx,
+                                              SUNAdaptController HControl,
+                                              SUNAdaptController TolControl);
 SUNDIALS_EXPORT
-SUNControl SUNControlMRIHTol_GetSlowController(SUNControl C);
+SUNAdaptController SUNAdaptController_GetSlowController_MRIHTol(SUNAdaptController C);
 SUNDIALS_EXPORT
-SUNControl SUNControlMRIHTol_GetFastController(SUNControl C);
+SUNAdaptController SUNAdaptController_GetFastController_MRIHTol(SUNAdaptController C);
 SUNDIALS_EXPORT
-SUNControl_ID SUNControlGetID_MRIHTol(SUNControl C);
+SUNAdaptController_Type SUNAdaptController_GetType_MRIHTol(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNControlEstimateStepTol_MRIHTol(SUNControl C, realtype H,
-                                      realtype tolfac, realtype DSM,
-                                      realtype dsm, realtype *Hnew,
-                                      realtype* tolfacnew);
+int SUNAdaptController_EstimateStepTol_MRIHTol(SUNAdaptController C, sunrealtype H,
+                                               sunrealtype tolfac, int P,
+                                               sunrealtype DSM, sunrealtype dsm,
+                                               sunrealtype* Hnew,
+                                               sunrealtype* tolfacnew);
 SUNDIALS_EXPORT
-int SUNControlReset_MRIHTol(SUNControl C);
+int SUNAdaptController_Reset_MRIHTol(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNControlSetDefaults_MRIHTol(SUNControl C);
+int SUNAdaptController_SetDefaults_MRIHTol(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNControlWrite_MRIHTol(SUNControl C, FILE* fptr);
+int SUNAdaptController_Write_MRIHTol(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNControlSetMethodOrder_MRIHTol(SUNControl C, int q);
+int SUNAdaptController_SetErrorBias_MRIHTol(SUNAdaptController C, sunrealtype bias);
 SUNDIALS_EXPORT
-int SUNControlSetEmbeddingOrder_MRIHTol(SUNControl C, int p);
+int SUNAdaptController_UpdateMRITol_MRIHTol(SUNAdaptController C, sunrealtype H,
+                                            sunrealtype tolfac, sunrealtype DSM,
+                                            sunrealtype dsm);
 SUNDIALS_EXPORT
-int SUNControlSetErrorBias_MRIHTol(SUNControl C, realtype bias);
-SUNDIALS_EXPORT
-int SUNControlUpdateMRITol_MRIHTol(SUNControl C, realtype H, realtype tolfac,
-                                   realtype DSM, realtype dsm);
-SUNDIALS_EXPORT
-int SUNControlSpace_MRIHTol(SUNControl C, long int *lenrw,
-                            long int *leniw);
+int SUNAdaptController_Space_MRIHTol(SUNAdaptController C, long int* lenrw,
+                                     long int* leniw);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* _SUNCONTROL_MRIHTOL_H */
+#endif  /* _SUNADAPTCONTROLLER_MRIHTOL_H */

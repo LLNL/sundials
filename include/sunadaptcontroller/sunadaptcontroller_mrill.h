@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2023, Lawrence Livermore National Security
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,11 +11,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the SUNControl_MRILL module.
+ * This is the header file for the SUNAdaptController_MRILL module.
  * -----------------------------------------------------------------*/
 
-#ifndef _SUNCONTROL_MRILL_H
-#define _SUNCONTROL_MRILL_H
+#ifndef _SUNADAPTCONTROLLER_MRILL_H
+#define _SUNADAPTCONTROLLER_MRILL_H
 
 #include <stdio.h>
 #include <sundials/sundials_control.h>
@@ -25,58 +25,60 @@ extern "C" {
 #endif
 
 /* ----------------------------------------------
- * MRI linear-linear implementation of SUNControl
+ * MRI linear-linear implementation of SUNAdaptController
  * ---------------------------------------------- */
 
-struct _SUNControlContent_MRILL {
-  realtype k11;    /* internal controller parameters */
-  realtype k12;
-  realtype k21;
-  realtype k22;
-  realtype bias;   /* error bias factor */
-  realtype esp;    /* slow error from previous step */
-  realtype efp;    /* fast error from previous step */
-  realtype hsp;    /* slow previous step size */
-  realtype hfp;    /* fast previous step size */
-  int P;           /* slow order of accuracy to use for controller */
-  int p;           /* fast order of accuracy to use for controller */
+struct _SUNAdaptControllerContent_MRILL {
+  sunrealtype k11;    /* internal controller parameters */
+  sunrealtype k12;
+  sunrealtype k21;
+  sunrealtype k22;
+  sunrealtype bias;   /* error bias factor */
+  sunrealtype esp;    /* slow error from previous step */
+  sunrealtype efp;    /* fast error from previous step */
+  sunrealtype hsp;    /* slow previous step size */
+  sunrealtype hfp;    /* fast previous step size */
+  int p;              /* fast order of accuracy to use */
   sunbooleantype firststep; /* flag indicating first step */
 };
 
-typedef struct _SUNControlContent_MRILL *SUNControlContent_MRILL;
+typedef struct _SUNAdaptControllerContent_MRILL* SUNAdaptControllerContent_MRILL;
 
 /* ------------------
  * Exported Functions
  * ------------------ */
 
 SUNDIALS_EXPORT
-SUNControl SUNControlMRILL(SUNContext sunctx, int P, int p);
+SUNAdaptController SUNAdaptController_MRILL(SUNContext sunctx, int p);
 SUNDIALS_EXPORT
-int SUNControlMRILL_SetParams(SUNControl C, realtype k11, realtype k12,
-                              realtype k21, realtype k22);
+int SUNAdaptController_SetParams_MRILL(SUNAdaptController C, sunrealtype k11,
+                                       sunrealtype k12, sunrealtype k21,
+                                       sunrealtype k22);
 SUNDIALS_EXPORT
-SUNControl_ID SUNControlGetID_MRILL(SUNControl C);
+SUNAdaptController_Type SUNAdaptController_GetType_MRILL(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNControlEstimateMRISteps_MRILL(SUNControl C, realtype H, realtype h,
-                                     realtype DSM, realtype dsm,
-                                     realtype* Hnew, realtype *hnew);
+int SUNAdaptController_EstimateMRISteps_MRILL(SUNAdaptController C, sunrealtype H,
+                                              sunrealtype h, int P, sunrealtype DSM,
+                                              sunrealtype dsm, sunrealtype* Hnew,
+                                              sunrealtype* hnew);
 SUNDIALS_EXPORT
-int SUNControlReset_MRILL(SUNControl C);
+int SUNAdaptController_Reset_MRILL(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNControlSetDefaults_MRILL(SUNControl C);
+int SUNAdaptController_SetDefaults_MRILL(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNControlWrite_MRILL(SUNControl C, FILE* fptr);
+int SUNAdaptController_Write_MRILL(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNControlSetErrorBias_MRILL(SUNControl C, realtype bias);
+int SUNAdaptController_SetErrorBias_MRILL(SUNAdaptController C, sunrealtype bias);
 SUNDIALS_EXPORT
-int SUNControlUpdateMRIH_MRILL(SUNControl C, realtype H, realtype h,
-                               realtype DSM, realtype dsm);
+int SUNAdaptController_UpdateMRIH_MRILL(SUNAdaptController C, sunrealtype H,
+                                        sunrealtype h, sunrealtype DSM,
+                                        sunrealtype dsm);
 SUNDIALS_EXPORT
-int SUNControlSpace_MRILL(SUNControl C, long int *lenrw,
-                          long int *leniw);
+int SUNAdaptController_Space_MRILL(SUNAdaptController C, long int* lenrw,
+                                   long int* leniw);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* _SUNCONTROL_MRILL_H */
+#endif  /* _SUNADAPTCONTROLLER_MRILL_H */

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2023, Lawrence Livermore National Security
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,46 +11,49 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for the SUNControl_MRIPID module.
+ * This is the implementation file for the
+ * SUNAdaptController_MRIPID module.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <suncontrol/suncontrol_mripid.h>
-#include <sundials/sundials_math.h>
+#include <sunadaptcontroller/sunadaptcontroller_mripid.h>
+#include <sundials/sundials_core.h>
+
+#include "sundials/priv/sundials_errors_impl.h"
+#include "sundials/sundials_errors.h"
 
 
 /* ---------------
  * Macro accessors
  * --------------- */
 
-#define SC_MRIPID_CONTENT(C) ( (SUNControlContent_MRIPID)(C->content) )
-#define SC_MRIPID_K11(C)     ( SC_MRIPID_CONTENT(C)->k11 )
-#define SC_MRIPID_K12(C)     ( SC_MRIPID_CONTENT(C)->k12 )
-#define SC_MRIPID_K13(C)     ( SC_MRIPID_CONTENT(C)->k13 )
-#define SC_MRIPID_K21(C)     ( SC_MRIPID_CONTENT(C)->k21 )
-#define SC_MRIPID_K22(C)     ( SC_MRIPID_CONTENT(C)->k22 )
-#define SC_MRIPID_K23(C)     ( SC_MRIPID_CONTENT(C)->k23 )
-#define SC_MRIPID_BIAS(C)    ( SC_MRIPID_CONTENT(C)->bias )
-#define SC_MRIPID_ESP(C)     ( SC_MRIPID_CONTENT(C)->esp )
-#define SC_MRIPID_EFP(C)     ( SC_MRIPID_CONTENT(C)->efp )
-#define SC_MRIPID_ESPP(C)    ( SC_MRIPID_CONTENT(C)->espp )
-#define SC_MRIPID_EFPP(C)    ( SC_MRIPID_CONTENT(C)->efpp )
-#define SC_MRIPID_PSLOW(C)   ( SC_MRIPID_CONTENT(C)->P )
-#define SC_MRIPID_PFAST(C)   ( SC_MRIPID_CONTENT(C)->p )
+#define MRIPID_CONTENT(C) ( (SUNAdaptControllerContent_MRIPID)(C->content) )
+#define MRIPID_K11(C)     ( MRIPID_CONTENT(C)->k11 )
+#define MRIPID_K12(C)     ( MRIPID_CONTENT(C)->k12 )
+#define MRIPID_K13(C)     ( MRIPID_CONTENT(C)->k13 )
+#define MRIPID_K21(C)     ( MRIPID_CONTENT(C)->k21 )
+#define MRIPID_K22(C)     ( MRIPID_CONTENT(C)->k22 )
+#define MRIPID_K23(C)     ( MRIPID_CONTENT(C)->k23 )
+#define MRIPID_BIAS(C)    ( MRIPID_CONTENT(C)->bias )
+#define MRIPID_ESP(C)     ( MRIPID_CONTENT(C)->esp )
+#define MRIPID_EFP(C)     ( MRIPID_CONTENT(C)->efp )
+#define MRIPID_ESPP(C)    ( MRIPID_CONTENT(C)->espp )
+#define MRIPID_EFPP(C)    ( MRIPID_CONTENT(C)->efpp )
+#define MRIPID_PFAST(C)   ( MRIPID_CONTENT(C)->p )
 
 /* ------------------
  * Default parameters
  * ------------------ */
 
-#define DEFAULT_K11  RCONST(0.34)
-#define DEFAULT_K12  RCONST(0.1)
-#define DEFAULT_K13  RCONST(0.78)
-#define DEFAULT_K21  RCONST(0.46)
-#define DEFAULT_K22  RCONST(0.42)
-#define DEFAULT_K23  RCONST(0.74)
-#define DEFAULT_BIAS RCONST(1.5)
-#define TINY         RCONST(1.0e-10)
+#define DEFAULT_K11  SUN_RCONST(0.34)
+#define DEFAULT_K12  SUN_RCONST(0.1)
+#define DEFAULT_K13  SUN_RCONST(0.78)
+#define DEFAULT_K21  SUN_RCONST(0.46)
+#define DEFAULT_K22  SUN_RCONST(0.42)
+#define DEFAULT_K23  SUN_RCONST(0.74)
+#define DEFAULT_BIAS SUN_RCONST(1.5)
+#define TINY         SUN_RCONST(1.0e-10)
 
 
 /* -----------------------------------------------------------------
@@ -61,45 +64,42 @@
  * Function to create a new MRIPID controller
  */
 
-SUNControl SUNControlMRIPID(SUNContext sunctx, int P, int p)
+SUNAdaptController SUNAdaptController_MRIPID(SUNContext sunctx, int p)
 {
-  SUNControl C;
-  SUNControlContent_MRIPID content;
+  SUNFunctionBegin(sunctx);
+
+  SUNAdaptController C;
+  SUNAdaptControllerContent_MRIPID content;
 
   /* Create an empty controller object */
   C = NULL;
-  C = SUNControlNewEmpty(sunctx);
-  if (C == NULL) { return (NULL); }
+  C = SUNAdaptController_NewEmpty(sunctx);
+  SUNCheckLastErrNull();
 
   /* Attach operations */
-  C->ops->getid             = SUNControlGetID_MRIPID;
-  C->ops->estimatemristeps  = SUNControlEstimateMRISteps_MRIPID;
-  C->ops->reset             = SUNControlReset_MRIPID;
-  C->ops->setdefaults       = SUNControlSetDefaults_MRIPID;
-  C->ops->write             = SUNControlWrite_MRIPID;
-  C->ops->seterrorbias      = SUNControlSetErrorBias_MRIPID;
-  C->ops->updatemrih        = SUNControlUpdateMRIH_MRIPID;
-  C->ops->space             = SUNControlSpace_MRIPID;
+  C->ops->gettype          = SUNAdaptController_GetType_MRIPID;
+  C->ops->estimatemristeps = SUNAdaptController_EstimateMRISteps_MRIPID;
+  C->ops->reset            = SUNAdaptController_Reset_MRIPID;
+  C->ops->setdefaults      = SUNAdaptController_SetDefaults_MRIPID;
+  C->ops->write            = SUNAdaptController_Write_MRIPID;
+  C->ops->seterrorbias     = SUNAdaptController_SetErrorBias_MRIPID;
+  C->ops->updatemrih       = SUNAdaptController_UpdateMRIH_MRIPID;
+  C->ops->space            = SUNAdaptController_Space_MRIPID;
 
   /* Create content */
   content = NULL;
-  content = (SUNControlContent_MRIPID)malloc(sizeof *content);
-  if (content == NULL)
-  {
-    SUNControlDestroy(C);
-    return (NULL);
-  }
+  content = (SUNAdaptControllerContent_MRIPID)malloc(sizeof *content);
+  SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach content */
   C->content = content;
 
-  /* Initialize method orders */
-  content->P = P;
+  /* Set fast method order */
   content->p = p;
 
   /* Fill content with default/reset values */
-  SUNControlSetDefaults_MRIPID(C);
-  SUNControlReset_MRIPID(C);
+  SUNCheckCallNull(SUNAdaptController_SetDefaults_MRIPID(C));
+  SUNCheckCallNull(SUNAdaptController_Reset_MRIPID(C));
 
   return (C);
 }
@@ -108,19 +108,19 @@ SUNControl SUNControlMRIPID(SUNContext sunctx, int P, int p)
  * Function to set MRIPID parameters
  */
 
-int SUNControlMRIPID_SetParams(SUNControl C, realtype k11,
-                               realtype k12, realtype k13,
-                               realtype k21, realtype k22,
-                               realtype k23)
+SUNErrCode SUNAdaptController_SetParams_MRIPID(SUNAdaptController C,
+                                               sunrealtype k11, sunrealtype k12,
+                                               sunrealtype k13, sunrealtype k21,
+                                               sunrealtype k22, sunrealtype k23)
 {
-  /* store legal inputs, and return with success */
-  if (k11 >= RCONST(0.0)) { SC_MRIPID_K11(C) = k11; }
-  if (k12 >= RCONST(0.0)) { SC_MRIPID_K12(C) = k12; }
-  if (k13 >= RCONST(0.0)) { SC_MRIPID_K13(C) = k13; }
-  if (k21 >= RCONST(0.0)) { SC_MRIPID_K21(C) = k21; }
-  if (k22 >= RCONST(0.0)) { SC_MRIPID_K22(C) = k22; }
-  if (k23 >= RCONST(0.0)) { SC_MRIPID_K23(C) = k23; }
-  return SUNCONTROL_SUCCESS;
+  SUNFunctionBegin(C->sunctx);
+  MRIPID_K11(C) = k11;
+  MRIPID_K12(C) = k12;
+  MRIPID_K13(C) = k13;
+  MRIPID_K21(C) = k21;
+  MRIPID_K22(C) = k22;
+  MRIPID_K23(C) = k23;
+  return SUN_SUCCESS;
 }
 
 
@@ -129,129 +129,143 @@ int SUNControlMRIPID_SetParams(SUNControl C, realtype k11,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNControl_ID SUNControlGetID_MRIPID(SUNControl C) { return SUNDIALS_CONTROL_MRI_H; }
-
-int SUNControlEstimateMRISteps_MRIPID(SUNControl C, realtype H, realtype h,
-                                      realtype DSM, realtype dsm,
-                                      realtype* Hnew, realtype *hnew)
+SUNAdaptController_Type SUNAdaptController_GetType_MRIPID(SUNAdaptController C)
 {
+  return SUNDIALS_CONTROL_MRI_H;
+}
+
+SUNErrCode SUNAdaptController_EstimateMRISteps_MRIPID(SUNAdaptController C,
+                                                      sunrealtype H, sunrealtype h,
+                                                      int P, sunrealtype DSM,
+                                                      sunrealtype dsm,
+                                                      sunrealtype* Hnew,
+                                                      sunrealtype* hnew)
+{
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(Hnew, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
+
   /* set usable time-step adaptivity parameters */
-  const realtype a1 = (SC_MRIPID_K11(C) + SC_MRIPID_K12(C) + SC_MRIPID_K13(C))
-                    / (3 * SC_MRIPID_PSLOW(C));
-  const realtype a2 = -(SC_MRIPID_K11(C) + SC_MRIPID_K12(C))
-                    / (3 * SC_MRIPID_PSLOW(C));
-  const realtype a3 = SC_MRIPID_K11(C) / (3 * SC_MRIPID_PSLOW(C));
-  const realtype b11 = (SC_MRIPID_PFAST(C) + 1)
-                     * (SC_MRIPID_K11(C) + SC_MRIPID_K12(C) + SC_MRIPID_K13(C))
-                     / (3 * SC_MRIPID_PSLOW(C) * SC_MRIPID_PFAST(C));
-  const realtype b12 = -(SC_MRIPID_PFAST(C) + 1)
-                     * (SC_MRIPID_K11(C) + SC_MRIPID_K12(C))
-                     / (3 * SC_MRIPID_PSLOW(C) * SC_MRIPID_PFAST(C));
-  const realtype b13 = (SC_MRIPID_PFAST(C) + 1) * SC_MRIPID_K11(C)
-                     / (3 * SC_MRIPID_PSLOW(C) * SC_MRIPID_PFAST(C));
-  const realtype b21 = -(SC_MRIPID_K21(C) + SC_MRIPID_K22(C) + SC_MRIPID_K23(C))
-                     / (3 * SC_MRIPID_PFAST(C));
-  const realtype b22 = (SC_MRIPID_K21(C) + SC_MRIPID_K22(C))
-                     / (3 * SC_MRIPID_PFAST(C));
-  const realtype b23 = -SC_MRIPID_K21(C) / (3 * SC_MRIPID_PFAST(C));
-  const realtype es1 = SUNMAX(SC_MRIPID_BIAS(C) * DSM, TINY);
-  const realtype es2 = SC_MRIPID_ESP(C);
-  const realtype es3 = SC_MRIPID_ESPP(C);
-  const realtype ef1 = SUNMAX(SC_MRIPID_BIAS(C) * dsm, TINY);
-  const realtype ef2 = SC_MRIPID_EFP(C);
-  const realtype ef3 = SC_MRIPID_EFPP(C);
-  const realtype M = SUNRceil(H/h);
+  const int p = MRIPID_PFAST(C);
+  const sunrealtype k11 = MRIPID_K11(C);
+  const sunrealtype k12 = MRIPID_K12(C);
+  const sunrealtype k13 = MRIPID_K13(C);
+  const sunrealtype k21 = MRIPID_K21(C);
+  const sunrealtype k22 = MRIPID_K22(C);
+  const sunrealtype k23 = MRIPID_K23(C);
+  const sunrealtype a1 = (k11 + k12 + k13) / (3 * P);
+  const sunrealtype a2 = -(k11 + k12) / (3 * P);
+  const sunrealtype a3 = k11 / (3 * P);
+  const sunrealtype b11 = (p + 1) * (k11 + k12 + k13) / (3 * P * p);
+  const sunrealtype b12 = -(p + 1) * (k11 + k12) / (3 * P * p);
+  const sunrealtype b13 = (p + 1) * k11 / (3 * P * p);
+  const sunrealtype b21 = -(k21 + k22 + k23) / (3 * p);
+  const sunrealtype b22 = (k21 + k22) / (3 * p);
+  const sunrealtype b23 = -k21 / (3 * p);
+  const sunrealtype es1 = SUNMAX(MRIPID_BIAS(C) * DSM, TINY);
+  const sunrealtype es2 = MRIPID_ESP(C);
+  const sunrealtype es3 = MRIPID_ESPP(C);
+  const sunrealtype ef1 = SUNMAX(MRIPID_BIAS(C) * dsm, TINY);
+  const sunrealtype ef2 = MRIPID_EFP(C);
+  const sunrealtype ef3 = MRIPID_EFPP(C);
+  const sunrealtype M = SUNRceil(H/h);
 
   /* compute estimated optimal time step size */
   *Hnew = H * SUNRpowerR(es1,a1) * SUNRpowerR(es2,a2) * SUNRpowerR(es3,a3);
-  const realtype Mnew = M * SUNRpowerR(es1,b11) * SUNRpowerR(es2,b12)
-                          * SUNRpowerR(es3,b13) * SUNRpowerR(ef1,b21)
-                          * SUNRpowerR(ef2,b22) * SUNRpowerR(ef3,b23);
+  const sunrealtype Mnew = M * SUNRpowerR(es1,b11) * SUNRpowerR(es2,b12) *
+                           SUNRpowerR(es3,b13) * SUNRpowerR(ef1,b21) *
+                           SUNRpowerR(ef2,b22) * SUNRpowerR(ef3,b23);
   *hnew = (*Hnew) / Mnew;
 
   /* return with success */
-  return SUNCONTROL_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNControlReset_MRIPID(SUNControl C)
+SUNErrCode SUNAdaptController_Reset_MRIPID(SUNAdaptController C)
 {
-  SC_MRIPID_ESP(C)  = RCONST(1.0);
-  SC_MRIPID_EFP(C)  = RCONST(1.0);
-  SC_MRIPID_ESPP(C) = RCONST(1.0);
-  SC_MRIPID_EFPP(C) = RCONST(1.0);
-  return SUNCONTROL_SUCCESS;
+  SUNFunctionBegin(C->sunctx);
+  MRIPID_ESP(C)  = SUN_RCONST(1.0);
+  MRIPID_EFP(C)  = SUN_RCONST(1.0);
+  MRIPID_ESPP(C) = SUN_RCONST(1.0);
+  MRIPID_EFPP(C) = SUN_RCONST(1.0);
+  return SUN_SUCCESS;
 }
 
-int SUNControlSetDefaults_MRIPID(SUNControl C)
+SUNErrCode SUNAdaptController_SetDefaults_MRIPID(SUNAdaptController C)
 {
-  SC_MRIPID_K11(C)  = DEFAULT_K11;
-  SC_MRIPID_K12(C)  = DEFAULT_K12;
-  SC_MRIPID_K13(C)  = DEFAULT_K13;
-  SC_MRIPID_K21(C)  = DEFAULT_K21;
-  SC_MRIPID_K22(C)  = DEFAULT_K22;
-  SC_MRIPID_K23(C)  = DEFAULT_K23;
-  SC_MRIPID_BIAS(C) = DEFAULT_BIAS;
-  return SUNCONTROL_SUCCESS;
+  SUNFunctionBegin(C->sunctx);
+  MRIPID_K11(C)  = DEFAULT_K11;
+  MRIPID_K12(C)  = DEFAULT_K12;
+  MRIPID_K13(C)  = DEFAULT_K13;
+  MRIPID_K21(C)  = DEFAULT_K21;
+  MRIPID_K22(C)  = DEFAULT_K22;
+  MRIPID_K23(C)  = DEFAULT_K23;
+  MRIPID_BIAS(C) = DEFAULT_BIAS;
+  return SUN_SUCCESS;
 }
 
-int SUNControlWrite_MRIPID(SUNControl C, FILE *fptr)
+SUNErrCode SUNAdaptController_Write_MRIPID(SUNAdaptController C, FILE *fptr)
 {
-  fprintf(fptr, "Multirate PID SUNControl module:\n");
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
+  fprintf(fptr, "Multirate PID SUNAdaptController module:\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  fprintf(fptr, "  k11 = %32Lg\n", SC_MRIPID_K11(C));
-  fprintf(fptr, "  k12 = %32Lg\n", SC_MRIPID_K12(C));
-  fprintf(fptr, "  k13 = %32Lg\n", SC_MRIPID_K13(C));
-  fprintf(fptr, "  k21 = %32Lg\n", SC_MRIPID_K21(C));
-  fprintf(fptr, "  k22 = %32Lg\n", SC_MRIPID_K22(C));
-  fprintf(fptr, "  k23 = %32Lg\n", SC_MRIPID_K23(C));
-  fprintf(fptr, "  bias factor = %32Lg\n", SC_MRIPID_BIAS(C));
+  fprintf(fptr, "  k11 = %32Lg\n", MRIPID_K11(C));
+  fprintf(fptr, "  k12 = %32Lg\n", MRIPID_K12(C));
+  fprintf(fptr, "  k13 = %32Lg\n", MRIPID_K13(C));
+  fprintf(fptr, "  k21 = %32Lg\n", MRIPID_K21(C));
+  fprintf(fptr, "  k22 = %32Lg\n", MRIPID_K22(C));
+  fprintf(fptr, "  k23 = %32Lg\n", MRIPID_K23(C));
+  fprintf(fptr, "  bias factor = %32Lg\n", MRIPID_BIAS(C));
   fprintf(fptr, "  previous slow errors = %32Lg  %32Lg\n",
-          SC_MRIPID_ESP(C), SC_MRIPID_ESPP(C));
+          MRIPID_ESP(C), MRIPID_ESPP(C));
   fprintf(fptr, "  previous fast errors = %32Lg  %32Lg\n",
-          SC_MRIPID_EFP(C), SC_MRIPID_EFPP(C));
+          MRIPID_EFP(C), MRIPID_EFPP(C));
 #else
-  fprintf(fptr, "  k11 = %16g\n", SC_MRIPID_K11(C));
-  fprintf(fptr, "  k12 = %16g\n", SC_MRIPID_K12(C));
-  fprintf(fptr, "  k13 = %16g\n", SC_MRIPID_K13(C));
-  fprintf(fptr, "  k21 = %16g\n", SC_MRIPID_K21(C));
-  fprintf(fptr, "  k22 = %16g\n", SC_MRIPID_K22(C));
-  fprintf(fptr, "  k23 = %16g\n", SC_MRIPID_K23(C));
-  fprintf(fptr, "  bias factor = %16g\n", SC_MRIPID_BIAS(C));
+  fprintf(fptr, "  k11 = %16g\n", MRIPID_K11(C));
+  fprintf(fptr, "  k12 = %16g\n", MRIPID_K12(C));
+  fprintf(fptr, "  k13 = %16g\n", MRIPID_K13(C));
+  fprintf(fptr, "  k21 = %16g\n", MRIPID_K21(C));
+  fprintf(fptr, "  k22 = %16g\n", MRIPID_K22(C));
+  fprintf(fptr, "  k23 = %16g\n", MRIPID_K23(C));
+  fprintf(fptr, "  bias factor = %16g\n", MRIPID_BIAS(C));
   fprintf(fptr, "  previous slow errors = %16g  %16g\n",
-          SC_MRIPID_ESP(C), SC_MRIPID_ESPP(C));
+          MRIPID_ESP(C), MRIPID_ESPP(C));
   fprintf(fptr, "  previous fast errors = %16g  %16g\n",
-          SC_MRIPID_EFP(C), SC_MRIPID_EFPP(C));
+          MRIPID_EFP(C), MRIPID_EFPP(C));
 #endif
-  fprintf(fptr, "  P = %i (slow method order)\n", SC_MRIPID_PSLOW(C));
-  fprintf(fptr, "  p = %i (fast method order)\n", SC_MRIPID_PFAST(C));
-  return SUNCONTROL_SUCCESS;
+  fprintf(fptr, "  p = %i (fast method order)\n", MRIPID_PFAST(C));
+  return SUN_SUCCESS;
 }
 
-int SUNControlSetErrorBias_MRIPID(SUNControl C, realtype bias)
+SUNErrCode SUNAdaptController_SetErrorBias_MRIPID(SUNAdaptController C, sunrealtype bias)
 {
+  SUNFunctionBegin(C->sunctx);
+
   /* set allowed value, otherwise set default */
-  if (bias <= RCONST(0.0)) {
-    SC_MRIPID_BIAS(C) = DEFAULT_BIAS;
-  } else {
-    SC_MRIPID_BIAS(C) = bias;
-  }
+  if (bias <= SUN_RCONST(0.0)) { MRIPID_BIAS(C) = DEFAULT_BIAS; }
+  else { MRIPID_BIAS(C) = bias; }
 
-  return SUNCONTROL_SUCCESS;
+  return SUN_SUCCESS;
 }
 
-int SUNControlUpdateMRIH_MRIPID(SUNControl C, realtype H, realtype h,
-                                realtype DSM, realtype dsm)
+SUNErrCode SUNAdaptController_UpdateMRIH_MRIPID(SUNAdaptController C, sunrealtype H, sunrealtype h,
+                                sunrealtype DSM, sunrealtype dsm)
 {
-  SC_MRIPID_ESPP(C) = SC_MRIPID_ESP(C);
-  SC_MRIPID_EFPP(C) = SC_MRIPID_EFP(C);
-  SC_MRIPID_ESP(C)  = SUNMAX(SC_MRIPID_BIAS(C) * DSM, TINY);
-  SC_MRIPID_EFP(C)  = SUNMAX(SC_MRIPID_BIAS(C) * dsm, TINY);
-  return SUNCONTROL_SUCCESS;
+  SUNFunctionBegin(C->sunctx);
+  MRIPID_ESPP(C) = MRIPID_ESP(C);
+  MRIPID_EFPP(C) = MRIPID_EFP(C);
+  MRIPID_ESP(C)  = SUNMAX(MRIPID_BIAS(C) * DSM, TINY);
+  MRIPID_EFP(C)  = SUNMAX(MRIPID_BIAS(C) * dsm, TINY);
+  return SUN_SUCCESS;
 }
 
-int SUNControlSpace_MRIPID(SUNControl C, long int* lenrw, long int* leniw)
+SUNErrCode SUNAdaptController_Space_MRIPID(SUNAdaptController C, long int* lenrw, long int* leniw)
 {
+  SUNFunctionBegin(C->sunctx);
+  SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
   *lenrw = 11;
-  *leniw = 2;
-  return SUNCONTROL_SUCCESS;
+  *leniw = 1;
+  return SUN_SUCCESS;
 }

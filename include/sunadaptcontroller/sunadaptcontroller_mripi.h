@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2023, Lawrence Livermore National Security
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -11,11 +11,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the SUNControl_MRIPI module.
+ * This is the header file for the SUNAdaptController_MRIPI module.
  * -----------------------------------------------------------------*/
 
-#ifndef _SUNCONTROL_MRIPI_H
-#define _SUNCONTROL_MRIPI_H
+#ifndef _SUNADAPTCONTROLLER_MRIPI_H
+#define _SUNADAPTCONTROLLER_MRIPI_H
 
 #include <stdio.h>
 #include <sundials/sundials_control.h>
@@ -25,55 +25,57 @@ extern "C" {
 #endif
 
 /* -----------------------------------
- * MRI PI implementation of SUNControl
+ * MRI PI implementation of SUNAdaptController
  * ----------------------------------- */
 
-struct _SUNControlContent_MRIPI {
-  realtype k11;    /* internal controller parameters */
-  realtype k12;
-  realtype k21;
-  realtype k22;
-  realtype bias;   /* error bias factor */
-  realtype esp;    /* slow error from previous step */
-  realtype efp;    /* fast error from previous step */
-  int P;           /* slow order of accuracy to use for controller */
-  int p;           /* fast order of accuracy to use for controller */
+struct _SUNAdaptControllerContent_MRIPI {
+  sunrealtype k11;    /* internal controller parameters */
+  sunrealtype k12;
+  sunrealtype k21;
+  sunrealtype k22;
+  sunrealtype bias;   /* error bias factor */
+  sunrealtype esp;    /* slow error from previous step */
+  sunrealtype efp;    /* fast error from previous step */
+  int p;              /* fast order of accuracy to use */
 };
 
-typedef struct _SUNControlContent_MRIPI *SUNControlContent_MRIPI;
+typedef struct _SUNAdaptControllerContent_MRIPI* SUNAdaptControllerContent_MRIPI;
 
 /* ------------------
  * Exported Functions
  * ------------------ */
 
 SUNDIALS_EXPORT
-SUNControl SUNControlMRIPI(SUNContext sunctx, int P, int p);
+SUNAdaptController SUNAdaptController_MRIPI(SUNContext sunctx, int p);
 SUNDIALS_EXPORT
-int SUNControlMRIPI_SetParams(SUNControl C, realtype k11, realtype k12,
-                              realtype k21, realtype k22);
+int SUNAdaptController_SetParams_MRIPI(SUNAdaptController C, sunrealtype k11,
+                                       sunrealtype k12, sunrealtype k21,
+                                       sunrealtype k22);
 SUNDIALS_EXPORT
-SUNControl_ID SUNControlGetID_MRIPI(SUNControl C);
+SUNAdaptController_Type SUNAdaptController_GetType_MRIPI(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNControlEstimateMRISteps_MRIPI(SUNControl C, realtype H, realtype h,
-                                     realtype DSM, realtype dsm,
-                                     realtype* Hnew, realtype *hnew);
+int SUNAdaptController_EstimateMRISteps_MRIPI(SUNAdaptController C, sunrealtype H,
+                                              sunrealtype h, int P, sunrealtype DSM,
+                                              sunrealtype dsm, sunrealtype* Hnew,
+                                              sunrealtype* hnew);
 SUNDIALS_EXPORT
-int SUNControlReset_MRIPI(SUNControl C);
+int SUNAdaptController_Reset_MRIPI(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNControlSetDefaults_MRIPI(SUNControl C);
+int SUNAdaptController_SetDefaults_MRIPI(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNControlWrite_MRIPI(SUNControl C, FILE* fptr);
+int SUNAdaptController_Write_MRIPI(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNControlSetErrorBias_MRIPI(SUNControl C, realtype bias);
+int SUNAdaptController_SetErrorBias_MRIPI(SUNAdaptController C, sunrealtype bias);
 SUNDIALS_EXPORT
-int SUNControlUpdateMRIH_MRIPI(SUNControl C, realtype H, realtype h,
-                               realtype DSM, realtype dsm);
+int SUNAdaptController_UpdateMRIH_MRIPI(SUNAdaptController C, sunrealtype H,
+                                        sunrealtype h, sunrealtype DSM,
+                                        sunrealtype dsm);
 SUNDIALS_EXPORT
-int SUNControlSpace_MRIPI(SUNControl C, long int *lenrw,
-                          long int *leniw);
+int SUNAdaptController_Space_MRIPI(SUNAdaptController C, long int* lenrw,
+                                   long int* leniw);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* _SUNCONTROL_MRIPI_H */
+#endif  /* _SUNADAPTCONTROLLER_MRIPI_H */
