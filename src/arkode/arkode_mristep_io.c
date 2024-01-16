@@ -88,6 +88,49 @@ int MRIStepSetPostprocessStageFn(void* arkode_mem, ARKPostProcessFn ProcessStage
   return (arkSetPostprocessStageFn(arkode_mem, ProcessStage));
 }
 
+int MRIStepSetMaxErrTestFails(void* arkode_mem, int maxnef) 
+{
+  return (arkSetMaxErrTestFails(arkode_mem, maxnef)); 
+}
+
+int MRIStepSetInitStep(void* arkode_mem, sunrealtype hin) 
+{
+  return (arkSetInitStep(arkode_mem, hin)); 
+}
+
+int MRIStepSetMaxConvFails(void* arkode_mem, int maxncf) 
+{
+  return (arkSetMaxConvFails(arkode_mem, maxncf)); 
+}
+
+int MRIStepSetConstraints(void* arkode_mem, N_Vector constraints) 
+{
+  return (arkSetConstraints(arkode_mem, constraints)); 
+}
+
+int MRIStepSetMaxNumConstrFails(void* arkode_mem, int maxfails) 
+{
+  return (arkSetMaxNumConstrFails(arkode_mem, maxfails)); 
+}
+
+/*---------------------------------------------------------------
+  Wrapper functions for accumulated temporal error estimation.
+  ---------------------------------------------------------------*/
+int MRIStepSetAccumulatedErrorType(void* arkode_mem, int accum_type) 
+{
+  return (arkSetAccumulatedErrorType(arkode_mem, accum_type)); 
+}
+
+int MRIStepResetAccumulatedError(void* arkode_mem) 
+{
+  return (arkResetAccumulatedError(arkode_mem)); 
+}
+
+int MRIStepGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error) 
+{
+  return (arkGetAccumulatedError(arkode_mem, accum_error)); 
+}
+
 /*---------------------------------------------------------------
   These wrappers for ARKLs module 'set' routines all are
   documented in arkode_mristep.h.
@@ -201,6 +244,46 @@ int MRIStepGetUserData(void* arkode_mem, void** user_data)
 char* MRIStepGetReturnFlagName(long int flag)
 {
   return (arkGetReturnFlagName(flag));
+}
+
+int MRIStepGetNumStepAttempts(void* arkode_mem, long int* nstep_attempts) 
+{
+  return (arkGetNumStepAttempts(arkode_mem, nstep_attempts)); 
+}
+
+int MRIStepGetNumErrTestFails(void* arkode_mem, long int* netfails) 
+{
+  return (arkGetNumErrTestFails(arkode_mem, netfails)); 
+}
+
+int MRIStepGetEstLocalErrors(void* arkode_mem, N_Vector ele) 
+{
+  return (arkGetEstLocalErrors(arkode_mem, ele)); 
+}
+
+int MRIStepGetActualInitStep(void* arkode_mem, sunrealtype* hinused) 
+{
+  return (arkGetActualInitStep(arkode_mem, hinused)); 
+}
+
+int MRIStepGetCurrentStep(void* arkode_mem, sunrealtype* hcur) 
+{
+  return (arkGetCurrentStep(arkode_mem, hcur)); 
+}
+
+int MRIStepGetNumConstrFails(void* arkode_mem, long int* nconstrfails) 
+{
+  return (arkGetNumConstrFails(arkode_mem, nconstrfails)); 
+}
+
+int MRIStepGetNumExpSteps(void* arkode_mem, long int* nsteps)
+{
+  return (arkGetNumExpSteps(arkode_mem, nsteps));
+}
+
+int MRIStepGetNumAccSteps(void* arkode_mem, long int* nsteps)
+{
+  return (arkGetNumAccSteps(arkode_mem, nsteps));
 }
 
 /*---------------------------------------------------------------
@@ -348,6 +431,7 @@ int MRIStepSetDefaults(void* arkode_mem)
   step_mem->jcur     = SUNFALSE;
   step_mem->convfail = ARK_NO_FAILURES;
   step_mem->stage_predict = NULL; /* no user-supplied stage predictor */
+  step_mem->inner_hfactor = -INNER_HFACTOR;
 
   return (ARK_SUCCESS);
 }
@@ -431,7 +515,7 @@ int MRIStepSetOrder(void* arkode_mem, int ord)
   if (retval) { return (retval); }
 
   /* check for illegal inputs */
-  if (ord < 3 || ord > 4) { step_mem->q = 3; }
+  if (ord < 2 || ord > 4) { step_mem->q = 3; }
   else { step_mem->q = ord; }
 
   /* Clear tables, the user is requesting a change in method or a reset to
@@ -799,6 +883,70 @@ int MRIStepSetDeduceImplicitRhs(void* arkode_mem, sunbooleantype deduce)
 
   step_mem->deduce_rhs = deduce;
   return (ARK_SUCCESS);
+}
+/*---------------------------------------------------------------
+  MRIStepSetFastErrorStepFactor:
+
+  Specifies a fast stepsize factor to use when estimating the
+  accumulated fast time scale solution error when MRI adaptivity
+  is enabled.  The fast integrator is run twice over each fast
+  time interval, once using the inner step size h, and again
+  using hfactor*h.  This is only needed when the results from
+  mriStepInnerStepper_GetError() cannot be trusted.  In our
+  tests, we found this to be the case when the inner integrator
+  uses fixed step sizes.
+
+  An argument of 0 disables this fast error estimation strategy.
+  Arguments of hfactor < 0 or hfactor == 1 are illegal.
+  All other positive hfactor values will *attempt* to be used.
+  ---------------------------------------------------------------*/
+int MRIStepSetFastErrorStepFactor(void *arkode_mem, sunrealtype hfactor)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMRIStepMem structure and set function pointer */
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* return with error on illegal input */
+  if ((hfactor < ZERO) || (hfactor == ONE)) {
+    arkProcessError(ark_mem, ARK_NLS_OP_ERR, __LINE__, __func__, __FILE__,
+                    "No SUNNonlinearSolver object is present");
+    return (ARK_ILL_INPUT);
+  }
+
+  /* set value and return */
+  step_mem->inner_hfactor = hfactor;
+  return (ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  MRIStepSetController:
+
+  Specifies a temporal adaptivity controller for MRIStep to use.
+  If a non-MRI controller is provided, this just passes that
+  through to arkSetController.  However, if an MRI controller is
+  provided, then this wraps that inside an "mriStepControl"
+  wrapper, which will properly retrieve the fast accumulatd
+  error estimate.
+  ---------------------------------------------------------------*/
+int MRIStepSetController(void *arkode_mem, SUNAdaptController C) {
+
+  /* Retrieve the controller type */
+  SUNAdaptController_Type ctype = SUNAdaptController_GetType(C);
+
+  /* If this does not have MRI type, then just pass to ARKODE */
+  if ((ctype != SUNDIALS_CONTROL_MRI_H) &&
+      (ctype != SUNDIALS_CONTROL_MRI_TOL)) {
+    return (arkSetAdaptController(arkode_mem, C));
+  }
+
+  /* Create the mriStepControl wrapper, and pass that to ARKODE */
+  SUNAdaptController Cwrapper = SUNAdaptController_MRIStep(arkode_mem, C);
+  return (arkSetAdaptController(arkode_mem, Cwrapper));
 }
 
 /*===============================================================
