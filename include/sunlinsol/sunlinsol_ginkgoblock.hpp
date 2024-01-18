@@ -241,8 +241,6 @@ public:
                           .with_tolerance(SUN_UNIT_ROUNDOFF)    //
                           .with_tolerance_type(tolerance_type_) //
                           .with_preconditioner(precon_factory_) //
-                          .with_col_scaling(col_scale_vec_)     //
-                          .with_row_scaling(row_scale_vec_)     //
                           .on(gkoExec());
       SUNDIALS_MARK_END(sunProfiler(), "build solver factory");
 
@@ -273,8 +271,6 @@ public:
                           .with_tolerance(SUN_UNIT_ROUNDOFF)    //
                           .with_tolerance_type(tolerance_type_) //
                           .with_preconditioner(precon_factory_) //
-                          .with_col_scaling(col_scale_vec_)     //
-                          .with_row_scaling(row_scale_vec_)     //
                           .on(gkoExec());
       SUNDIALS_MARK_END(sunProfiler(), "build solver factory");
 

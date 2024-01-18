@@ -281,17 +281,22 @@ void Matvec(BlockMatrix<GkoBatchMatType>& A, N_Vector x, N_Vector y)
   }
 }
 
-template<typename GkoBatchMatrixType>
-void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchMatrixType>& A,
-              BlockMatrix<GkoBatchMatrixType>& B)
+void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchDenseMat>& A,
+              BlockMatrix<GkoBatchDenseMat>& B)
 {
-  // NOTE: This is not implemented by Ginkgo for BatchCsr yet
   auto cmat =
     GkoBatchVecType::create(A.GkoExec(),
                             gko::batch_dim<2>(A.NumBlocks(), gko::dim<2>(1, 1)));
   cmat->fill(c);
   // A = B + cA
   A.GkoMtx()->scale_add(cmat.get(), B.GkoMtx().get());
+}
+
+void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchCsrMat>& A,
+              BlockMatrix<GkoBatchCsrMat>& B)
+{
+  // NOTE: This is not implemented by Ginkgo for BatchCsr yet
+  throw("scale_add not implemented for gko::batch::matrix::Csr");
 }
 
 template<class GkoBatchMatType>
