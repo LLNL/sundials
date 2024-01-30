@@ -186,10 +186,10 @@ type(SUNNonlinearSolver), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: y
 integer(C_INT), intent(in) :: m
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT) :: farg2
-type(C_PTR) :: farg3
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(y)
 farg2 = m
@@ -206,11 +206,11 @@ integer(C_INT), intent(in) :: count
 type(N_Vector), target, intent(inout) :: y
 integer(C_INT), intent(in) :: m
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
-integer(C_INT) :: farg3
-type(C_PTR) :: farg4
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+integer(C_INT) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = count
 farg2 = c_loc(y)
@@ -225,8 +225,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNNonlinearSolver_Type) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(nls)
 fresult = swigc_FSUNNonlinSolGetType_FixedPoint(farg1)
@@ -238,8 +238,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(nls)
 fresult = swigc_FSUNNonlinSolInitialize_FixedPoint(farg1)
@@ -257,14 +257,14 @@ type(N_Vector), target, intent(inout) :: w
 real(C_DOUBLE), intent(in) :: tol
 integer(C_INT), intent(in) :: callsetup
 type(C_PTR) :: mem
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
-real(C_DOUBLE) :: farg5
-integer(C_INT) :: farg6
-type(C_PTR) :: farg7
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+real(C_DOUBLE) :: farg5 
+integer(C_INT) :: farg6 
+type(C_PTR) :: farg7 
 
 farg1 = c_loc(nls)
 farg2 = c_loc(y0)
@@ -282,8 +282,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(nls)
 fresult = swigc_FSUNNonlinSolFree_FixedPoint(farg1)
@@ -296,9 +296,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 type(C_FUNPTR), intent(in), value :: sysfn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = sysfn
@@ -313,10 +313,10 @@ integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 type(C_FUNPTR), intent(in), value :: ctestfn
 type(C_PTR) :: ctest_data
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(nls)
 farg2 = ctestfn
@@ -331,9 +331,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 integer(C_INT), intent(in) :: maxiters
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = maxiters
@@ -347,9 +347,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 real(C_DOUBLE), intent(in) :: beta
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = beta
@@ -363,9 +363,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 integer(C_LONG), dimension(*), target, intent(inout) :: niters
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = c_loc(niters(1))
@@ -379,9 +379,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 integer(C_INT), dimension(*), target, intent(inout) :: iter
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = c_loc(iter(1))
@@ -395,9 +395,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 integer(C_LONG), dimension(*), target, intent(inout) :: nconvfails
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = c_loc(nconvfails(1))
@@ -411,9 +411,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 type(C_FUNPTR), target, intent(inout) :: sysfn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = c_loc(sysfn)

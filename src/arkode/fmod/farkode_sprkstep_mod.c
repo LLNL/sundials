@@ -192,15 +192,15 @@
  * the fortran.cxx file.
  */
 #define SWIG_contract_assert(RETURNNULL, EXPR, MSG) \
- if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); }
+ if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); } 
 
 
-#define SWIGVERSION 0x040000
+#define SWIGVERSION 0x040000 
 #define SWIG_VERSION SWIGVERSION
 
 
-#define SWIG_as_voidptr(a) (void *)((const void *)(a))
-#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a))
+#define SWIG_as_voidptr(a) (void *)((const void *)(a)) 
+#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
 #include "arkode/arkode_sprkstep.h"
@@ -241,7 +241,7 @@ SWIGEXPORT void * _wrap_FSPRKStepCreate(ARKRhsFn farg1, ARKRhsFn farg2, double c
   N_Vector arg4 = (N_Vector) 0 ;
   SUNContext arg5 = (SUNContext) 0 ;
   void *result = 0 ;
-
+  
   arg1 = (ARKRhsFn)(farg1);
   arg2 = (ARKRhsFn)(farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -261,7 +261,7 @@ SWIGEXPORT int _wrap_FSPRKStepReInit(void *farg1, ARKRhsFn farg2, ARKRhsFn farg3
   sunrealtype arg4 ;
   N_Vector arg5 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (ARKRhsFn)(farg2);
   arg3 = (ARKRhsFn)(farg3);
@@ -279,7 +279,7 @@ SWIGEXPORT int _wrap_FSPRKStepReset(void *farg1, double const *farg2, N_Vector f
   sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
@@ -295,7 +295,7 @@ SWIGEXPORT int _wrap_FSPRKStepRootInit(void *farg1, int const *farg2, ARKRootFn 
   int arg2 ;
   ARKRootFn arg3 = (ARKRootFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (ARKRootFn)(farg3);
@@ -309,7 +309,7 @@ SWIGEXPORT int _wrap_FSPRKStepSetDefaults(void *farg1) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   result = (int)SPRKStepSetDefaults(arg1);
   fresult = (int)(result);
@@ -322,7 +322,7 @@ SWIGEXPORT int _wrap_FSPRKStepSetUseCompensatedSums(void *farg1, int const *farg
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SPRKStepSetUseCompensatedSums(arg1,arg2);
@@ -336,7 +336,7 @@ SWIGEXPORT int _wrap_FSPRKStepSetMethod(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   ARKodeSPRKTable arg2 = (ARKodeSPRKTable) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (ARKodeSPRKTable)(farg2);
   result = (int)SPRKStepSetMethod(arg1,arg2);
@@ -350,7 +350,7 @@ SWIGEXPORT int _wrap_FSPRKStepSetMethodName(void *farg1, SwigArrayWrapper *farg2
   void *arg1 = (void *) 0 ;
   char *arg2 = (char *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (char *)(farg2->data);
   result = (int)SPRKStepSetMethodName(arg1,(char const *)arg2);
@@ -364,7 +364,7 @@ SWIGEXPORT int _wrap_FSPRKStepSetOrder(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SPRKStepSetOrder(arg1,arg2);
@@ -378,7 +378,7 @@ SWIGEXPORT int _wrap_FSPRKStepSetInterpolantType(void *farg1, int const *farg2) 
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SPRKStepSetInterpolantType(arg1,arg2);
@@ -392,7 +392,7 @@ SWIGEXPORT int _wrap_FSPRKStepSetInterpolantDegree(void *farg1, int const *farg2
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)SPRKStepSetInterpolantDegree(arg1,arg2);
@@ -406,7 +406,7 @@ SWIGEXPORT int _wrap_FSPRKStepSetMaxNumSteps(void *farg1, long const *farg2) {
   void *arg1 = (void *) 0 ;
   long arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   result = (int)SPRKStepSetMaxNumSteps(arg1,arg2);
@@ -420,7 +420,7 @@ SWIGEXPORT int _wrap_FSPRKStepSetStopTime(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)SPRKStepSetStopTime(arg1,arg2);
@@ -434,7 +434,7 @@ SWIGEXPORT int _wrap_FSPRKStepSetFixedStep(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)SPRKStepSetFixedStep(arg1,arg2);
@@ -448,7 +448,7 @@ SWIGEXPORT int _wrap_FSPRKStepSetUserData(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   void *arg2 = (void *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (void *)(farg2);
   result = (int)SPRKStepSetUserData(arg1,arg2);
@@ -462,7 +462,7 @@ SWIGEXPORT int _wrap_FSPRKStepSetPostprocessStepFn(void *farg1, ARKPostProcessFn
   void *arg1 = (void *) 0 ;
   ARKPostProcessFn arg2 = (ARKPostProcessFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (ARKPostProcessFn)(farg2);
   result = (int)SPRKStepSetPostprocessStepFn(arg1,arg2);
@@ -476,7 +476,7 @@ SWIGEXPORT int _wrap_FSPRKStepSetPostprocessStageFn(void *farg1, ARKPostProcessF
   void *arg1 = (void *) 0 ;
   ARKPostProcessFn arg2 = (ARKPostProcessFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (ARKPostProcessFn)(farg2);
   result = (int)SPRKStepSetPostprocessStageFn(arg1,arg2);
@@ -493,7 +493,7 @@ SWIGEXPORT int _wrap_FSPRKStepEvolve(void *farg1, double const *farg2, N_Vector 
   sunrealtype *arg4 = (sunrealtype *) 0 ;
   int arg5 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
@@ -512,7 +512,7 @@ SWIGEXPORT int _wrap_FSPRKStepGetDky(void *farg1, double const *farg2, int const
   int arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
@@ -527,7 +527,7 @@ SWIGEXPORT SwigArrayWrapper _wrap_FSPRKStepGetReturnFlagName(long const *farg1) 
   SwigArrayWrapper fresult ;
   long arg1 ;
   char *result = 0 ;
-
+  
   arg1 = (long)(*farg1);
   result = (char *)SPRKStepGetReturnFlagName(arg1);
   fresult.size = strlen((const char*)(result));
@@ -541,7 +541,7 @@ SWIGEXPORT int _wrap_FSPRKStepGetCurrentMethod(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   ARKodeSPRKTable *arg2 = (ARKodeSPRKTable *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (ARKodeSPRKTable *)(farg2);
   result = (int)SPRKStepGetCurrentMethod(arg1,arg2);
@@ -555,7 +555,7 @@ SWIGEXPORT int _wrap_FSPRKStepGetCurrentState(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   N_Vector *arg2 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector *)(farg2);
   result = (int)SPRKStepGetCurrentState(arg1,arg2);
@@ -569,7 +569,7 @@ SWIGEXPORT int _wrap_FSPRKStepGetCurrentStep(void *farg1, double *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)SPRKStepGetCurrentStep(arg1,arg2);
@@ -583,7 +583,7 @@ SWIGEXPORT int _wrap_FSPRKStepGetCurrentTime(void *farg1, double *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)SPRKStepGetCurrentTime(arg1,arg2);
@@ -597,7 +597,7 @@ SWIGEXPORT int _wrap_FSPRKStepGetLastStep(void *farg1, double *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)SPRKStepGetLastStep(arg1,arg2);
@@ -612,7 +612,7 @@ SWIGEXPORT int _wrap_FSPRKStepGetNumRhsEvals(void *farg1, long *farg2, long *far
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -627,7 +627,7 @@ SWIGEXPORT int _wrap_FSPRKStepGetNumStepAttempts(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)SPRKStepGetNumStepAttempts(arg1,arg2);
@@ -641,7 +641,7 @@ SWIGEXPORT int _wrap_FSPRKStepGetNumSteps(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)SPRKStepGetNumSteps(arg1,arg2);
@@ -655,7 +655,7 @@ SWIGEXPORT int _wrap_FSPRKStepGetRootInfo(void *farg1, int *farg2) {
   void *arg1 = (void *) 0 ;
   int *arg2 = (int *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
   result = (int)SPRKStepGetRootInfo(arg1,arg2);
@@ -669,7 +669,7 @@ SWIGEXPORT int _wrap_FSPRKStepGetUserData(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   void **arg2 = (void **) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (void **)(farg2);
   result = (int)SPRKStepGetUserData(arg1,arg2);
@@ -684,7 +684,7 @@ SWIGEXPORT int _wrap_FSPRKStepPrintAllStats(void *farg1, void *farg2, int const 
   FILE *arg2 = (FILE *) 0 ;
   SUNOutputFormat arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (FILE *)(farg2);
   arg3 = (SUNOutputFormat)(*farg3);
@@ -699,7 +699,7 @@ SWIGEXPORT int _wrap_FSPRKStepWriteParameters(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   FILE *arg2 = (FILE *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (FILE *)(farg2);
   result = (int)SPRKStepWriteParameters(arg1,arg2);
@@ -717,7 +717,7 @@ SWIGEXPORT int _wrap_FSPRKStepGetStepStats(void *farg1, long *farg2, double *far
   sunrealtype *arg5 = (sunrealtype *) 0 ;
   sunrealtype *arg6 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (sunrealtype *)(farg3);
@@ -732,7 +732,7 @@ SWIGEXPORT int _wrap_FSPRKStepGetStepStats(void *farg1, long *farg2, double *far
 
 SWIGEXPORT void _wrap_FSPRKStepFree(void *farg1) {
   void **arg1 = (void **) 0 ;
-
+  
   arg1 = (void **)(farg1);
   SPRKStepFree(arg1);
 }

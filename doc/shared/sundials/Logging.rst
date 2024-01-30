@@ -32,7 +32,7 @@ set to a value greater than ``0`` when configuring SUNDIALS. This option
 specifies the maximum desired output level. See the documentation entry for
 :cmakeop:`SUNDIALS_LOGGING_LEVEL` for the numeric values correspond to errors,
 warnings, info output, and debug output where errors < warnings < info
-output < debug output < extra debug output.
+output < debug output < extra debug output. 
 More details in regards to configuring SUNDIALS with CMake can be
 found in :numref:`Installation`.
 

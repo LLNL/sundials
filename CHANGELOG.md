@@ -1,11 +1,137 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release X.X.X
+## Changes to SUNDIALS in release 7.0.0-rc.1
 
-The previously deprecated types `realtype` and `booleantype` were removed from `sundials_types.h`
-and replaced with `sunrealtype` and `sunbooleantype`. The deprecated names for these types
-can be used by including the header file `sundials_types_deprecated.h` but will be fully removed in the
-next major release.
+⚠️ This is a release candidate.
+
+### Major Feature
+
+SUNDIALS now has more robust and uniform error handling. Non-release builds will
+be built with additional error checking by default. See the
+[Error Checking](https://sundials.readthedocs.io/en/latest/sundials/Errors_link.html)
+section in the user guide for details.
+
+### Breaking Changes
+
+#### Deprecated Types and Functions Removed
+
+The previously deprecated types `realtype` and `booleantype` were removed from
+`sundials_types.h` and replaced with `sunrealtype` and `sunbooleantype`. The
+deprecated names for these types can be used by including the header file
+`sundials_types_deprecated.h` but will be fully removed in the next major
+release. Functions, types and header files that were previously deprecated have
+also been removed.
+
+#### Error Handling Changes
+
+With the addition of the new error handling capability, the `*SetErrHandlerFn`
+and `*SetErrFile` functions in CVODE(S), IDA(S), ARKODE, and KINSOL have been
+removed. Users of these functions can use the functions
+`SUNContext_PushErrHandler`, and `SUNLogger_SetErrorFilename` instead. For
+further details see the
+[Error Checking](https://sundials.readthedocs.io/en/latest/sundials/Errors_link.html)
+and
+[Logging](https://sundials.readthedocs.io/en/latest/sundials/Logging_link.html)
+sections in the documentation.
+
+In addition the following names/symbols were replaced by ``SUN_ERR_*`` codes:
+
+| Removed                        | Replaced with ``SUNErrCode``      |
+|:-------------------------------|:----------------------------------|
+| `SUNLS_SUCCESS`                | `SUN_SUCCESS`                     |
+| `SUNLS_UNRECOV_FAILURE`        | no replacement (value was unused) |
+| `SUNLS_MEM_NULL`               | `SUN_ERR_ARG_CORRUPT`             |
+| `SUNLS_ILL_INPUT`              | `SUN_ERR_ARG_*`                   |
+| `SUNLS_MEM_FAIL`               | `SUN_ERR_MEM_FAIL`                |
+| `SUNLS_PACKAGE_FAIL_UNREC`     | `SUN_ERR_EXT_FAIL`                |
+| `SUNLS_VECTOROP_ERR`           | `SUN_ERR_OP_FAIL`                 |
+| `SUN_NLS_SUCCESS`              | `SUN_SUCCESS`                     |
+| `SUN_NLS_MEM_NULL`             | `SUN_ERR_ARG_CORRUPT`             |
+| `SUN_NLS_MEM_FAIL`             | `SUN_ERR_MEM_FAIL`                |
+| `SUN_NLS_ILL_INPUT`            | `SUN_ERR_ARG_*`                   |
+| `SUN_NLS_VECTOROP_ERR`         | `SUN_ERR_OP_FAIL`                 |
+| `SUN_NLS_EXT_FAIL`             | `SUN_ERR_EXT_FAIL`                |
+| `SUNMAT_SUCCESS`               | `SUN_SUCCESS`                     |
+| `SUNMAT_ILL_INPUT`             | `SUN_ERR_ARG_*`                   |
+| `SUNMAT_MEM_FAIL`              | `SUN_ERR_MEM_FAIL`                |
+| `SUNMAT_OPERATION_FAIL`        | `SUN_ERR_OP_FAIL`                 |
+| `SUNMAT_MATVEC_SETUP_REQUIRED` | `SUN_ERR_OP_FAIL`                 |
+
+The following functions have had their signature updated to ensure they can
+leverage the new SUNDIALS error handling capabilities.
+
+```c
+// From sundials_futils.h
+SUNDIALSFileOpen
+SUNDIALSFileClose
+
+// From sundials_memory.h
+SUNMemorNewEmpty
+SUNMemoryHelper_Alias
+SUNMemoryHelper_Wrap
+
+// From sundials_nvector.h
+N_VNewVectorArray
+```
+
+#### SUNComm Type Added
+
+We have replaced the use of a type-erased (i.e., `void*`) pointer to a
+communicator in place of `MPI_Comm` throughout the SUNDIALS API with a
+`SUNComm`, which is just a typedef to an `int` in builds without MPI
+and a typedef to a `MPI_Comm` in builds with MPI. As a result:
+
+- All users will need to update their codes because the call to
+  `SUNContext_Create` now takes a `SUNComm` instead
+  of type-erased pointer to a communicator. For non-MPI codes,
+  pass `SUN_COMM_NULL` to the `comm` argument instead of
+  `NULL`. For MPI codes, pass the `MPI_Comm` directly.
+
+- The same change must be made for calls to
+  `SUNLogger_Create` or `SUNProfiler_Create`.
+
+- Some users will need to update their calls to `N_VGetCommunicator`, and
+  update any custom `N_Vector` implementations tht provide
+  `N_VGetCommunicator`, since it now returns a `SUNComm`.
+
+The change away from type-erased pointers for `SUNComm` fixes problems like the
+one described in [GitHub Issue #275](https://github.com/LLNL/sundials/issues/275).
+
+The SUNLogger is now always MPI-aware if MPI is enabled in SUNDIALS and the
+`SUNDIALS_LOGGING_ENABLE_MPI` CMake option and macro definition were removed
+accordingly.
+
+#### SUNDIALS Core Library
+
+Users now need to link to `sundials_core` in addition to the libraries already
+linked to. This will be picked up automatically in projects that use the
+SUNDIALS CMake target. The library `sundials_generic` has been superseded by
+`sundials_core` and is no longer available. This fixes some duplicate symbol
+errors on Windows when linking to multiple SUNDIALS libraries.
+
+### Deprecation notice
+
+The functions in `sundials_math.h` will be deprecated in the next release.
+
+```c
+  sunrealtype SUNRpowerI(sunrealtype base, int exponent);
+  sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
+  sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b);
+  sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol);
+  sunrealtype SUNStrToReal(const char* str);
+```
+
+Additionally, the following header files (and everything in them) will be
+deprecated -- users who rely on these are recommended to transition to the
+corresponding `SUNMatrix` and `SUNLinearSolver` modules:
+
+```c
+sundials_direct.h
+sundials_dense.h
+sundials_band.h
+```
+
+## Changes to SUNDIALS in release 6.7.0
 
 Added the `SUNAdaptController` base class, ported ARKODE's internal
 implementations of time step controllers into implementations of this class,
@@ -22,10 +148,29 @@ release, but for some applications a value of 0 is more appropriate.
 Users who notice that their simulations encounter a large number of
 temporal error test failures may want to experiment with adjusting this value.
 
+Added the third order ERK method `ARKODE_SHU_OSHER_3_2_3`, the fourth order
+ERK method `ARKODE_SOFRONIOU_SPALETTA_5_3_4`, the sixth order ERK method
+`ARKODE_VERNER_9_5_6`, the seventh order ERK method `ARKODE_VERNER_10_6_7`,
+the eighth order ERK method `ARKODE_VERNER_13_7_8`, and the ninth order ERK
+method `ARKODE_VERNER_16_8_9`.
+
+ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
+unnecessary right-hand side evaluation at the end of an integration. ARKStep was
+additionally updated to remove extra right-hand side evaluations when using an
+explicit method or an implicit method with an explicit first stage.
+
+Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
+`O(NNZ)`.
+
+Added Fortran support for the LAPACK dense `SUNLinearSolver` implementation.
+
 Fixed a regression introduced by the stop time bug fix in v6.6.1 where ARKODE,
 CVODE, CVODES, IDA, and IDAS would return at the stop time rather than the
 requested output time if the stop time was reached in the same step in which the
 output time was passed.
+
+Fixed a bug in ERKStep where methods with `c[s-1] = 1` but `a[s-1,j] != b[j]`
+were incorrectly treated as having the first same as last (FSAL) property.
 
 Fixed a bug in ARKODE where `ARKStepSetInterpolateStopTime` would return an
 interpolated solution at the stop time in some cases when interpolation was
@@ -35,139 +180,22 @@ Fixed a bug in `ARKStepSetTableNum` wherein it did not recognize
 `ARKODE_ARK2_ERK_3_1_2` and `ARKODE_ARK2_DIRK_3_1_2` as a valid additive
 Runge--Kutta Butcher table pair.
 
-Renamed some internal types in CVODES and IDAS to allow both packages to be
-built together in the same binary.
+Fixed a bug in `MRIStepCoupling_Write` where explicit coupling tables were not
+written to the output file pointer.
 
-Improved computational complexity of `SUNMatScaleAddI_Sparse` from `O(M*N)` to
-`O(NNZ)`.
+The `MRIStepInnerStepper` class in MRIStep was updated to make supplying an
+`MRIStepInnerFullRhsFn` optional.
 
 Fixed scaling bug in `SUNMatScaleAddI_Sparse` for non-square matrices.
+
+Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
+This fixes [GitHub Issue #312](https://github.com/LLNL/sundials/issues/312).
 
 Fixed missing soversions in some `SUNLinearSolver` and `SUNNonlinearSolver`
 CMake targets.
 
-Added Fortran support for the LAPACK dense `SUNLinearSolver` implementation.
-
-Added the third order ERK method `ARKODE_SHU_OSHER_3_2_3`, the fourth order
-ERK method `ARKODE_SOFRONIOU_SPALETTA_5_3_4`, the sixth order ERK method
-`ARKODE_VERNER_9_5_6`, the seventh order ERK method `ARKODE_VERNER_10_6_7`,
-the eighth order ERK method `ARKODE_VERNER_13_7_8`, and the ninth order ERK
-method `ARKODE_VERNER_16_8_9`.
-
-Changed the `SUNProfiler` so that it does not rely on `MPI_WTime` in any case.
-This fixes https://github.com/LLNL/sundials/issues/312.
-
-**Major feature**
-SUNDIALS now has more robust and uniform error handling. Non-release builds will
-be built with additional error checking by default. See the "Error Handling"
-section in the user guide for details.
-
-**Deprecation notice**
-The functions in `sundials_math.h` will be deprecated in the next release.
-
-```c
-  sunrealtype SUNRpowerI(sunrealtype base, int exponent);
-  sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
-  sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b);
-  sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol);
-  sunrealtype SUNStrToReal(const char* str);
-```
-
-Additionally, the following header files (and everything in them) will be deprecated -- users who
-rely on these are recommended to transition to the corresponding `SUNMatrix` and `SUNLinearSolver`
-modules:
-
-```
-sundials_direct.h
-sundials_dense.h
-sundials_band.h
-```
-
-**Breaking change**
-The following functions have had their signature updated to ensure they can leverage
-the new SUNDIALS error handling capabilties.
-
-```c
-// From sundials_futils.h
-SUNDIALSFileOpen
-SUNDIALSFileClose
-
-// From sundials_memory.h
-SUNMemorNewEmpty
-SUNMemoryHelper_Alias
-SUNMemoryHelper_Wrap
-
-// From sundials_nvector.h
-N_VNewVectorArray
-```
-
-**Breaking change**
-We have replaced the use of a type-erased (i.e., `void*`) pointer to a
-communicator in place of `MPI_Comm` throughout the SUNDIALS API with a
-`SUNComm`, which is just a typedef to an `int` in builds without MPI
-and a typedef to a `MPI_Comm` in builds with MPI. Here is what this means:
-
-- All users will need to update their codes because the call to
-  `SUNContext_Create` now takes a `SUNComm` instead
-  of type-erased pointer to a communicator. For non-MPI codes,
-  pass `SUN_COMM_NULL` to the `comm` argument instead of
-  `NULL`. For MPI codes, pass the `MPI_Comm` directly.
-  The required change should be doable with a find-and-replace.
-
-- The same change must be made for calls to
-  `SUNLogger_Create` or `SUNProfiler_Create`.
-
-- Some users will need to update their calls to `N_VGetCommunicator`, and
-  update any custom `N_Vector` implementations tht provide
-  `N_VGetCommunicator`, since it now returns a `SUNComm`.
-
-The change away from type-erased pointers for `SUNComm` fixes problems like the
-one described in [GitHub Issue #275](https://github.com/LLNL/sundials/issues/275).
-
-The SUNLogger is now always MPI-aware if MPI is enabled in SUNDIALS and the
-`SUNDIALS_LOGGING_ENABLE_MPI` CMake option and macro definition were removed
-accordingly.
-
-**Breaking change**
-Functions, types and header files that were previously deprecated have been
-removed. In addition the following names/symbols were replaced by ``SUN_ERR_*``
-codes instead:
-
-```
-SUNLS_SUCCESS --> SUN_SUCCESS
-SUNLS_UNRECOV_FAILURE --> no replacement (this value was unused)
-SUNLS_MEM_NULL --> SUN_ERR_ARG_CORRUPT
-SUNLS_ILL_INPUT --> SUN_ERR_ARG_*
-SUNLS_MEM_FAIL --> SUN_ERR_MEM_FAIL
-SUNLS_PACKAGE_FAIL_UNREC --> SUN_ERR_EXT_FAIL
-SUNLS_VECTOROP_ERR --> SUN_ERR_OP_FAIL
-SUN_NLS_SUCCESS --> SUN_SUCCESS
-SUN_NLS_MEM_NULL --> SUN_ERR_ARG_CORRUPT
-SUN_NLS_MEM_FAIL --> SUN_ERR_MEM_FAIL
-SUN_NLS_ILL_INPUT --> SUN_ERR_ARG_*
-SUN_NLS_VECTOROP_ERR --> SUN_ERR_OP_FAIL
-SUN_NLS_EXT_FAIL --> SUN_ERR_EXT_FAIL
-SUNMAT_SUCCESS --> SUN_SUCCESS
-SUNMAT_ILL_INPUT --> SUN_ERR_ARG_*
-SUNMAT_MEM_FAIL --> SUN_ERR_MEM_FAIL
-SUNMAT_OPERATION_FAIL --> SUN_ERR_OP_FAIL
-SUNMAT_MATVEC_SETUP_REQUIRED --> SUN_ERR_OP_FAIL
-```
-
-**Breaking change**
-Users now need to link to `sundials_core` in addition to the libraries already linked to.
-This will be picked up automatically in projects that use the SUNDIALS CMake target.
-The library `sundials_generic` has been superseded by `sundials_core` and is no longer available.
-This fixes some duplicate symbol errors on Windows when linking to multiple SUNDIALS libraries.
-
-**Breaking change**
-The `*SetErrHandlerFn` and `*SetErrFile` functions in CVODE(S), IDA(S), ARKODE and KINSOL have been
-removed. Users of these functions can use the functions `SUNContext_PushErrHandler`, and
-`SUNLogger_SetErrorFilename` instead. For further details see the [Error
-Checking](https://sundials.readthedocs.io/en/latest/sundials/Errors_link.html) and
-[Logging](https://sundials.readthedocs.io/en/latest/sundials/Logging_link.html) sections in the
-documentation.
-
+Renamed some internal types in CVODES and IDAS to allow both packages to be
+built together in the same binary.
 
 ## Changes to SUNDIALS in release 6.6.2
 
@@ -186,20 +214,6 @@ be cleared when using normal mode if the requested output time is the same as
 the stop time. Additionally, with ARKODE, CVODE, and CVODES this fix removes an
 unnecessary interpolation of the solution at the stop time that could occur in
 this case.
-
-Fixed a bug in ERKStep where methods with `c[s-1] = 1` but `a[s-1,j] != b[j]`
-were incorrectly treated as having the first same as last (FSAL) property.
-
-Fixed a bug in `MRIStepCoupling_Write` where explicit coupling tables were not
-written to the output file pointer.
-
-ARKStep, ERKStep, MRIStep, and SPRKStep were updated to remove a potentially
-unnecessary right-hand side evaluation at the end of an integration. ARKStep was
-additionally updated to remove extra right-hand side evaluations when using an
-explicit method or an implicit method with an explicit first stage.
-
-The `MRIStepInnerStepper` class in MRIStep was updated to make supplying an
-`MRIStepInnerFullRhsFn` optional.
 
 ## Changes to SUNDIALS in release 6.6.0
 

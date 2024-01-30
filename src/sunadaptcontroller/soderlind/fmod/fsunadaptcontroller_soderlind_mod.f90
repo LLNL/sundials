@@ -243,8 +243,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNAdaptController), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNAdaptController_Soderlind(farg1)
@@ -261,13 +261,13 @@ real(C_DOUBLE), intent(in) :: k2
 real(C_DOUBLE), intent(in) :: k3
 real(C_DOUBLE), intent(in) :: k4
 real(C_DOUBLE), intent(in) :: k5
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-real(C_DOUBLE) :: farg3
-real(C_DOUBLE) :: farg4
-real(C_DOUBLE) :: farg5
-real(C_DOUBLE) :: farg6
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+real(C_DOUBLE) :: farg4 
+real(C_DOUBLE) :: farg5 
+real(C_DOUBLE) :: farg6 
 
 farg1 = c_loc(c)
 farg2 = k1
@@ -284,8 +284,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNAdaptController_Type) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_GetType_Soderlind(farg1)
@@ -301,12 +301,12 @@ real(C_DOUBLE), intent(in) :: h
 integer(C_INT), intent(in) :: p
 real(C_DOUBLE), intent(in) :: dsm
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-integer(C_INT) :: farg3
-real(C_DOUBLE) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+integer(C_INT) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = c_loc(c)
 farg2 = h
@@ -322,8 +322,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_Reset_Soderlind(farg1)
@@ -335,8 +335,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_SetDefaults_Soderlind(farg1)
@@ -349,9 +349,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 type(C_PTR) :: fptr
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(c)
 farg2 = fptr
@@ -365,9 +365,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: bias
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
 
 farg1 = c_loc(c)
 farg2 = bias
@@ -382,10 +382,10 @@ integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: dsm
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-real(C_DOUBLE) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
 
 farg1 = c_loc(c)
 farg2 = h
@@ -401,10 +401,10 @@ integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrw
 integer(C_LONG), dimension(*), target, intent(inout) :: leniw
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(c)
 farg2 = c_loc(lenrw(1))
@@ -418,8 +418,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNAdaptController), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNAdaptController_PID(farg1)
@@ -434,11 +434,11 @@ type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: k1
 real(C_DOUBLE), intent(in) :: k2
 real(C_DOUBLE), intent(in) :: k3
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-real(C_DOUBLE) :: farg3
-real(C_DOUBLE) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+real(C_DOUBLE) :: farg4 
 
 farg1 = c_loc(c)
 farg2 = k1
@@ -453,8 +453,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNAdaptController), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNAdaptController_PI(farg1)
@@ -468,10 +468,10 @@ integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: k1
 real(C_DOUBLE), intent(in) :: k2
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-real(C_DOUBLE) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
 
 farg1 = c_loc(c)
 farg2 = k1
@@ -485,8 +485,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNAdaptController), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNAdaptController_I(farg1)
@@ -499,9 +499,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: k1
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
 
 farg1 = c_loc(c)
 farg2 = k1
@@ -514,8 +514,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNAdaptController), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNAdaptController_ExpGus(farg1)
@@ -529,10 +529,10 @@ integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: k1
 real(C_DOUBLE), intent(in) :: k2
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-real(C_DOUBLE) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
 
 farg1 = c_loc(c)
 farg2 = k1
@@ -546,8 +546,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNAdaptController), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNAdaptController_ImpGus(farg1)
@@ -561,10 +561,10 @@ integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: k1
 real(C_DOUBLE), intent(in) :: k2
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-real(C_DOUBLE) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
 
 farg1 = c_loc(c)
 farg2 = k1

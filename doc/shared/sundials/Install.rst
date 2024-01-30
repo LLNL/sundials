@@ -27,8 +27,8 @@ source. One option is to use the `Spack HPC package manager <https://spack.io/>`
 The second supported option for building and installing SUNDIALS is with CMake.
 Before proceeding with CMake, the source code must be downloaded. This can be done
 by cloning the `SUNDIALS GitHub repository <https://github.com/LLNL/sundials>`_
-(run ``git clone https://github.com/LLNL/sundials``), or by downloading the
-SUNDIALS release compressed archives (``.tar.gz``) from  the SUNDIALS
+(run ``git clone https://github.com/LLNL/sundials``), or by downloading the 
+SUNDIALS release compressed archives (``.tar.gz``) from  the SUNDIALS 
 `website <https://computing.llnl.gov/projects/sundials/sundials-software>`_.
 
 The compressed archives allow for downloading of indvidual SUNDIALS packages.
@@ -36,7 +36,7 @@ The name of the distribution archive is of the form
 ``SOLVER-X.Y.Z.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
 ``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``X.Y.Z``
 represents the version number (of the SUNDIALS suite or of the individual
-solver). After downloading the relevant archives, uncompress and expand the sources,
+solver). After downloading the relevant archives, uncompress and expand the sources, 
 by running
 
 .. code-block:: bash
@@ -630,8 +630,8 @@ illustration only.
 
 .. cmakeoption:: SUNDIALS_ENABLE_ERROR_CHECKS
 
-   Build SUNDIALS with more extensive checks for unrecoverable errors.
-
+   Build SUNDIALS with more extensive checks for unrecoverable errors. 
+   
    Default: ``OFF`` when ``CMAKE_BUILD_TYPE=Release|RelWithDebInfo `` and ``ON`` otherwise.
 
    .. warning::
@@ -1048,7 +1048,7 @@ illustration only.
    Default: None
 
 .. cmakeoption:: ENABLE_ADIAK
-
+   
    Enable Adiak support
 
    Default: OFF
@@ -1685,7 +1685,7 @@ header files.
    SUNDIALS installs some header files to ``INSTDIR/include/sundials/priv``.
    All of the header files in this directory are private and **should not
    be included in user code**. The private headers are subject to change
-   without any notice and relying on them may break your code.
+   without any notice and relying on them may break your code. 
 
 
 Using SUNDIALS in your prpject

@@ -192,15 +192,15 @@
  * the fortran.cxx file.
  */
 #define SWIG_contract_assert(RETURNNULL, EXPR, MSG) \
- if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); }
+ if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); } 
 
 
-#define SWIGVERSION 0x040000
+#define SWIGVERSION 0x040000 
 #define SWIG_VERSION SWIGVERSION
 
 
-#define SWIG_as_voidptr(a) (void *)((const void *)(a))
-#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a))
+#define SWIG_as_voidptr(a) (void *)((const void *)(a)) 
+#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
 #include "kinsol/kinsol.h"
@@ -239,7 +239,7 @@ SWIGEXPORT void * _wrap_FKINCreate(void *farg1) {
   void * fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
   void *result = 0 ;
-
+  
   arg1 = (SUNContext)(farg1);
   result = (void *)KINCreate(arg1);
   fresult = result;
@@ -253,7 +253,7 @@ SWIGEXPORT int _wrap_FKINInit(void *farg1, KINSysFn farg2, N_Vector farg3) {
   KINSysFn arg2 = (KINSysFn) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (KINSysFn)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -271,7 +271,7 @@ SWIGEXPORT int _wrap_FKINSol(void *farg1, N_Vector farg2, int const *farg3, N_Ve
   N_Vector arg4 = (N_Vector) 0 ;
   N_Vector arg5 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (int)(*farg3);
@@ -288,7 +288,7 @@ SWIGEXPORT int _wrap_FKINSetUserData(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   void *arg2 = (void *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (void *)(farg2);
   result = (int)KINSetUserData(arg1,arg2);
@@ -302,7 +302,7 @@ SWIGEXPORT int _wrap_FKINSetDamping(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)KINSetDamping(arg1,arg2);
@@ -316,7 +316,7 @@ SWIGEXPORT int _wrap_FKINSetMAA(void *farg1, long const *farg2) {
   void *arg1 = (void *) 0 ;
   long arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   result = (int)KINSetMAA(arg1,arg2);
@@ -330,7 +330,7 @@ SWIGEXPORT int _wrap_FKINSetOrthAA(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)KINSetOrthAA(arg1,arg2);
@@ -344,7 +344,7 @@ SWIGEXPORT int _wrap_FKINSetDelayAA(void *farg1, long const *farg2) {
   void *arg1 = (void *) 0 ;
   long arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   result = (int)KINSetDelayAA(arg1,arg2);
@@ -358,7 +358,7 @@ SWIGEXPORT int _wrap_FKINSetDampingAA(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)KINSetDampingAA(arg1,arg2);
@@ -372,7 +372,7 @@ SWIGEXPORT int _wrap_FKINSetReturnNewest(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)KINSetReturnNewest(arg1,arg2);
@@ -386,7 +386,7 @@ SWIGEXPORT int _wrap_FKINSetNumMaxIters(void *farg1, long const *farg2) {
   void *arg1 = (void *) 0 ;
   long arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   result = (int)KINSetNumMaxIters(arg1,arg2);
@@ -400,7 +400,7 @@ SWIGEXPORT int _wrap_FKINSetNoInitSetup(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)KINSetNoInitSetup(arg1,arg2);
@@ -414,7 +414,7 @@ SWIGEXPORT int _wrap_FKINSetNoResMon(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)KINSetNoResMon(arg1,arg2);
@@ -428,7 +428,7 @@ SWIGEXPORT int _wrap_FKINSetMaxSetupCalls(void *farg1, long const *farg2) {
   void *arg1 = (void *) 0 ;
   long arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   result = (int)KINSetMaxSetupCalls(arg1,arg2);
@@ -442,7 +442,7 @@ SWIGEXPORT int _wrap_FKINSetMaxSubSetupCalls(void *farg1, long const *farg2) {
   void *arg1 = (void *) 0 ;
   long arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   result = (int)KINSetMaxSubSetupCalls(arg1,arg2);
@@ -456,7 +456,7 @@ SWIGEXPORT int _wrap_FKINSetEtaForm(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)KINSetEtaForm(arg1,arg2);
@@ -470,7 +470,7 @@ SWIGEXPORT int _wrap_FKINSetEtaConstValue(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)KINSetEtaConstValue(arg1,arg2);
@@ -485,7 +485,7 @@ SWIGEXPORT int _wrap_FKINSetEtaParams(void *farg1, double const *farg2, double c
   sunrealtype arg2 ;
   sunrealtype arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -501,7 +501,7 @@ SWIGEXPORT int _wrap_FKINSetResMonParams(void *farg1, double const *farg2, doubl
   sunrealtype arg2 ;
   sunrealtype arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -516,7 +516,7 @@ SWIGEXPORT int _wrap_FKINSetResMonConstValue(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)KINSetResMonConstValue(arg1,arg2);
@@ -530,7 +530,7 @@ SWIGEXPORT int _wrap_FKINSetNoMinEps(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)KINSetNoMinEps(arg1,arg2);
@@ -544,7 +544,7 @@ SWIGEXPORT int _wrap_FKINSetMaxNewtonStep(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)KINSetMaxNewtonStep(arg1,arg2);
@@ -558,7 +558,7 @@ SWIGEXPORT int _wrap_FKINSetMaxBetaFails(void *farg1, long const *farg2) {
   void *arg1 = (void *) 0 ;
   long arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   result = (int)KINSetMaxBetaFails(arg1,arg2);
@@ -572,7 +572,7 @@ SWIGEXPORT int _wrap_FKINSetRelErrFunc(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)KINSetRelErrFunc(arg1,arg2);
@@ -586,7 +586,7 @@ SWIGEXPORT int _wrap_FKINSetFuncNormTol(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)KINSetFuncNormTol(arg1,arg2);
@@ -600,7 +600,7 @@ SWIGEXPORT int _wrap_FKINSetScaledStepTol(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)KINSetScaledStepTol(arg1,arg2);
@@ -614,7 +614,7 @@ SWIGEXPORT int _wrap_FKINSetConstraints(void *farg1, N_Vector farg2) {
   void *arg1 = (void *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector)(farg2);
   result = (int)KINSetConstraints(arg1,arg2);
@@ -628,7 +628,7 @@ SWIGEXPORT int _wrap_FKINSetSysFunc(void *farg1, KINSysFn farg2) {
   void *arg1 = (void *) 0 ;
   KINSysFn arg2 = (KINSysFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (KINSysFn)(farg2);
   result = (int)KINSetSysFunc(arg1,arg2);
@@ -643,7 +643,7 @@ SWIGEXPORT int _wrap_FKINGetWorkSpace(void *farg1, long *farg2, long *farg3) {
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -658,7 +658,7 @@ SWIGEXPORT int _wrap_FKINGetNumNonlinSolvIters(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINGetNumNonlinSolvIters(arg1,arg2);
@@ -672,7 +672,7 @@ SWIGEXPORT int _wrap_FKINGetNumFuncEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINGetNumFuncEvals(arg1,arg2);
@@ -686,7 +686,7 @@ SWIGEXPORT int _wrap_FKINGetNumBetaCondFails(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINGetNumBetaCondFails(arg1,arg2);
@@ -700,7 +700,7 @@ SWIGEXPORT int _wrap_FKINGetNumBacktrackOps(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINGetNumBacktrackOps(arg1,arg2);
@@ -714,7 +714,7 @@ SWIGEXPORT int _wrap_FKINGetFuncNorm(void *farg1, double *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)KINGetFuncNorm(arg1,arg2);
@@ -728,7 +728,7 @@ SWIGEXPORT int _wrap_FKINGetStepLength(void *farg1, double *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)KINGetStepLength(arg1,arg2);
@@ -742,7 +742,7 @@ SWIGEXPORT int _wrap_FKINGetUserData(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   void **arg2 = (void **) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (void **)(farg2);
   result = (int)KINGetUserData(arg1,arg2);
@@ -757,7 +757,7 @@ SWIGEXPORT int _wrap_FKINPrintAllStats(void *farg1, void *farg2, int const *farg
   FILE *arg2 = (FILE *) 0 ;
   SUNOutputFormat arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (FILE *)(farg2);
   arg3 = (SUNOutputFormat)(*farg3);
@@ -771,7 +771,7 @@ SWIGEXPORT SwigArrayWrapper _wrap_FKINGetReturnFlagName(long const *farg1) {
   SwigArrayWrapper fresult ;
   long arg1 ;
   char *result = 0 ;
-
+  
   arg1 = (long)(*farg1);
   result = (char *)KINGetReturnFlagName(arg1);
   fresult.size = strlen((const char*)(result));
@@ -782,7 +782,7 @@ SWIGEXPORT SwigArrayWrapper _wrap_FKINGetReturnFlagName(long const *farg1) {
 
 SWIGEXPORT void _wrap_FKINFree(void *farg1) {
   void **arg1 = (void **) 0 ;
-
+  
   arg1 = (void **)(farg1);
   KINFree(arg1);
 }
@@ -793,7 +793,7 @@ SWIGEXPORT int _wrap_FKINSetJacTimesVecSysFn(void *farg1, KINSysFn farg2) {
   void *arg1 = (void *) 0 ;
   KINSysFn arg2 = (KINSysFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (KINSysFn)(farg2);
   result = (int)KINSetJacTimesVecSysFn(arg1,arg2);
@@ -814,7 +814,7 @@ SWIGEXPORT int _wrap_FKINBBDPrecInit(void *farg1, int64_t const *farg2, int64_t 
   KINBBDLocalFn arg8 = (KINBBDLocalFn) 0 ;
   KINBBDCommFn arg9 = (KINBBDCommFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunindextype)(*farg2);
   arg3 = (sunindextype)(*farg3);
@@ -836,7 +836,7 @@ SWIGEXPORT int _wrap_FKINBBDPrecGetWorkSpace(void *farg1, long *farg2, long *far
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -851,7 +851,7 @@ SWIGEXPORT int _wrap_FKINBBDPrecGetNumGfnEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINBBDPrecGetNumGfnEvals(arg1,arg2);
@@ -866,7 +866,7 @@ SWIGEXPORT int _wrap_FKINSetLinearSolver(void *farg1, SUNLinearSolver farg2, SUN
   SUNLinearSolver arg2 = (SUNLinearSolver) 0 ;
   SUNMatrix arg3 = (SUNMatrix) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (SUNLinearSolver)(farg2);
   arg3 = (SUNMatrix)(farg3);
@@ -881,7 +881,7 @@ SWIGEXPORT int _wrap_FKINSetJacFn(void *farg1, KINLsJacFn farg2) {
   void *arg1 = (void *) 0 ;
   KINLsJacFn arg2 = (KINLsJacFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (KINLsJacFn)(farg2);
   result = (int)KINSetJacFn(arg1,arg2);
@@ -896,7 +896,7 @@ SWIGEXPORT int _wrap_FKINSetPreconditioner(void *farg1, KINLsPrecSetupFn farg2, 
   KINLsPrecSetupFn arg2 = (KINLsPrecSetupFn) 0 ;
   KINLsPrecSolveFn arg3 = (KINLsPrecSolveFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (KINLsPrecSetupFn)(farg2);
   arg3 = (KINLsPrecSolveFn)(farg3);
@@ -911,7 +911,7 @@ SWIGEXPORT int _wrap_FKINSetJacTimesVecFn(void *farg1, KINLsJacTimesVecFn farg2)
   void *arg1 = (void *) 0 ;
   KINLsJacTimesVecFn arg2 = (KINLsJacTimesVecFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (KINLsJacTimesVecFn)(farg2);
   result = (int)KINSetJacTimesVecFn(arg1,arg2);
@@ -925,7 +925,7 @@ SWIGEXPORT int _wrap_FKINGetJac(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   SUNMatrix *arg2 = (SUNMatrix *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (SUNMatrix *)(farg2);
   result = (int)KINGetJac(arg1,arg2);
@@ -939,7 +939,7 @@ SWIGEXPORT int _wrap_FKINGetJacNumIters(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINGetJacNumIters(arg1,arg2);
@@ -954,7 +954,7 @@ SWIGEXPORT int _wrap_FKINGetLinWorkSpace(void *farg1, long *farg2, long *farg3) 
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -969,7 +969,7 @@ SWIGEXPORT int _wrap_FKINGetNumJacEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINGetNumJacEvals(arg1,arg2);
@@ -983,7 +983,7 @@ SWIGEXPORT int _wrap_FKINGetNumLinFuncEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINGetNumLinFuncEvals(arg1,arg2);
@@ -997,7 +997,7 @@ SWIGEXPORT int _wrap_FKINGetNumPrecEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINGetNumPrecEvals(arg1,arg2);
@@ -1011,7 +1011,7 @@ SWIGEXPORT int _wrap_FKINGetNumPrecSolves(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINGetNumPrecSolves(arg1,arg2);
@@ -1025,7 +1025,7 @@ SWIGEXPORT int _wrap_FKINGetNumLinIters(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINGetNumLinIters(arg1,arg2);
@@ -1039,7 +1039,7 @@ SWIGEXPORT int _wrap_FKINGetNumLinConvFails(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINGetNumLinConvFails(arg1,arg2);
@@ -1053,7 +1053,7 @@ SWIGEXPORT int _wrap_FKINGetNumJtimesEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINGetNumJtimesEvals(arg1,arg2);
@@ -1067,7 +1067,7 @@ SWIGEXPORT int _wrap_FKINGetLastLinFlag(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)KINGetLastLinFlag(arg1,arg2);
@@ -1080,7 +1080,7 @@ SWIGEXPORT SwigArrayWrapper _wrap_FKINGetLinReturnFlagName(long const *farg1) {
   SwigArrayWrapper fresult ;
   long arg1 ;
   char *result = 0 ;
-
+  
   arg1 = (long)(*farg1);
   result = (char *)KINGetLinReturnFlagName(arg1);
   fresult.size = strlen((const char*)(result));

@@ -38,7 +38,7 @@ SWIGEXPORT double * _wrap_FSUNBandMatrix_Data(SUNMatrix farg1) {
   double * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunrealtype *result = 0 ;
-
+  
   arg1 = (SUNMatrix)(farg1);
   result = (sunrealtype *)SUNBandMatrix_Data(arg1);
   fresult = result;
@@ -50,7 +50,7 @@ SWIGEXPORT double * _wrap_FSUNBandMatrix_Column(SUNMatrix farg1, int64_t const *
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunindextype arg2 ;
   sunrealtype *result = 0 ;
-
+  
   arg1 = (SUNMatrix)(farg1);
   arg2 = (sunindextype)(*farg2);
   result = (sunrealtype *)SUNBandMatrix_Column(arg1,arg2);
@@ -89,8 +89,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNBandMatrix_Data(farg1)
@@ -103,14 +103,14 @@ use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 integer(C_INT64_T), intent(in) :: j
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
 
 farg1 = c_loc(a)
 farg2 = j
 fresult = swigc_FSUNBandMatrix_Column(farg1, farg2)
-! We set the array shape to [1] because only the diagonal element
+! We set the array shape to [1] because only the diagonal element 
 ! can be accessed through this function from Fortran.
 call c_f_pointer(fresult, swig_result, [1])
 end function

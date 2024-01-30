@@ -288,12 +288,12 @@ integer(C_INT64_T), intent(in) :: n
 integer(C_INT64_T), intent(in) :: nnz
 integer(C_INT), intent(in) :: sparsetype
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-integer(C_INT64_T) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-integer(C_INT) :: farg4
-type(C_PTR) :: farg5
+type(C_PTR) :: fresult 
+integer(C_INT64_T) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+integer(C_INT) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = m
 farg2 = n
@@ -311,10 +311,10 @@ type(SUNMatrix), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 real(C_DOUBLE), intent(in) :: droptol
 integer(C_INT), intent(in) :: sparsetype
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-integer(C_INT) :: farg3
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+integer(C_INT) :: farg3 
 
 farg1 = c_loc(a)
 farg2 = droptol
@@ -330,10 +330,10 @@ type(SUNMatrix), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 real(C_DOUBLE), intent(in) :: droptol
 integer(C_INT), intent(in) :: sparsetype
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-integer(C_INT) :: farg3
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+integer(C_INT) :: farg3 
 
 farg1 = c_loc(a)
 farg2 = droptol
@@ -348,9 +348,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 type(C_PTR), target, intent(inout) :: bout
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(a)
 farg2 = c_loc(bout)
@@ -364,9 +364,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 type(C_PTR), target, intent(inout) :: bout
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(a)
 farg2 = c_loc(bout)
@@ -379,8 +379,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_Realloc(farg1)
@@ -393,9 +393,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 integer(C_INT64_T), intent(in) :: nnz
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
 
 farg1 = c_loc(a)
 farg2 = nnz
@@ -407,8 +407,8 @@ subroutine FSUNSparseMatrix_Print(a, outfile)
 use, intrinsic :: ISO_C_BINDING
 type(SUNMatrix), target, intent(inout) :: a
 type(C_PTR) :: outfile
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(a)
 farg2 = outfile
@@ -420,8 +420,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT64_T) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT64_T) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_Rows(farg1)
@@ -433,8 +433,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT64_T) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT64_T) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_Columns(farg1)
@@ -446,8 +446,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT64_T) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT64_T) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_NNZ(farg1)
@@ -459,8 +459,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT64_T) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT64_T) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_NP(farg1)
@@ -472,8 +472,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_SparseType(farg1)
@@ -485,8 +485,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNMatrix_ID) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNMatGetID_Sparse(farg1)
@@ -498,8 +498,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNMatrix), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNMatClone_Sparse(farg1)
@@ -509,7 +509,7 @@ end function
 subroutine FSUNMatDestroy_Sparse(a)
 use, intrinsic :: ISO_C_BINDING
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: farg1
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 call swigc_FSUNMatDestroy_Sparse(farg1)
@@ -520,8 +520,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNMatZero_Sparse(farg1)
@@ -534,9 +534,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 type(SUNMatrix), target, intent(inout) :: b
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(a)
 farg2 = c_loc(b)
@@ -551,10 +551,10 @@ integer(C_INT) :: swig_result
 real(C_DOUBLE), intent(in) :: c
 type(SUNMatrix), target, intent(inout) :: a
 type(SUNMatrix), target, intent(inout) :: b
-integer(C_INT) :: fresult
-real(C_DOUBLE) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+real(C_DOUBLE) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c
 farg2 = c_loc(a)
@@ -569,9 +569,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 real(C_DOUBLE), intent(in) :: c
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult
-real(C_DOUBLE) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+real(C_DOUBLE) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c
 farg2 = c_loc(a)
@@ -586,10 +586,10 @@ integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: y
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(a)
 farg2 = c_loc(x)
@@ -605,10 +605,10 @@ integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrw
 integer(C_LONG), dimension(*), target, intent(inout) :: leniw
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(a)
 farg2 = c_loc(lenrw(1))
@@ -624,8 +624,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_Data(farg1)
@@ -637,8 +637,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), dimension(:), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_IndexValues(farg1)
@@ -650,13 +650,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), dimension(:), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_IndexPointers(farg1)
 call c_f_pointer(fresult, swig_result, [FSUNSparseMatrix_NP(a)+1])
-end function
+end function  
 
 
 end module

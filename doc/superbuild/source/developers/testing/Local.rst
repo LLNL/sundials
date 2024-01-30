@@ -29,9 +29,9 @@ and ``test_local_ci``, for example:
 .. code-block:: shell
 
    $ cd builddir
-   $ make setup_local_ci
+   $ make setup_local_ci 
    ...
-   $ make test_local_ci
+   $ make test_local_ci 
    ...
 
 The ``setup_local_ci`` target will pull the container for the configured ``SUNDIALS_PRECISION``

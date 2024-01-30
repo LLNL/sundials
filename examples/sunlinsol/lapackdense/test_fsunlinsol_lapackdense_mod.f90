@@ -120,7 +120,6 @@ end module
 
 integer(C_INT) function check_vector(X, Y, tol) result(failure)
   use, intrinsic :: iso_c_binding
-
   use test_utilities
 
   implicit none

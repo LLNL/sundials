@@ -180,7 +180,6 @@ end function has_data
 program main
   !======== Inclusions ==========
   use, intrinsic :: iso_c_binding
-
   use test_nvector_serial
 
   !======== Declarations ========

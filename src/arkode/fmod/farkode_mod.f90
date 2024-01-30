@@ -811,11 +811,11 @@ type(C_PTR) :: arkode_mem
 integer(C_INT64_T), intent(in) :: n
 integer(C_INT64_T), intent(in) :: mu
 integer(C_INT64_T), intent(in) :: ml
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-integer(C_INT64_T) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+integer(C_INT64_T) :: farg4 
 
 farg1 = arkode_mem
 farg2 = n
@@ -832,10 +832,10 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrwls
 integer(C_LONG), dimension(*), target, intent(inout) :: leniwls
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = arkode_mem
 farg2 = c_loc(lenrwls(1))
@@ -850,9 +850,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
 integer(C_LONG), dimension(*), target, intent(inout) :: nfevalsbp
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = arkode_mem
 farg2 = c_loc(nfevalsbp(1))
@@ -873,16 +873,16 @@ integer(C_INT64_T), intent(in) :: mlkeep
 real(C_DOUBLE), intent(in) :: dqrely
 type(C_FUNPTR), intent(in), value :: gloc
 type(C_FUNPTR), intent(in), value :: cfn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-integer(C_INT64_T) :: farg4
-integer(C_INT64_T) :: farg5
-integer(C_INT64_T) :: farg6
-real(C_DOUBLE) :: farg7
-type(C_FUNPTR) :: farg8
-type(C_FUNPTR) :: farg9
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+integer(C_INT64_T) :: farg4 
+integer(C_INT64_T) :: farg5 
+integer(C_INT64_T) :: farg6 
+real(C_DOUBLE) :: farg7 
+type(C_FUNPTR) :: farg8 
+type(C_FUNPTR) :: farg9 
 
 farg1 = arkode_mem
 farg2 = nlocal
@@ -905,11 +905,11 @@ type(C_PTR) :: arkode_mem
 integer(C_INT64_T), intent(in) :: mudq
 integer(C_INT64_T), intent(in) :: mldq
 real(C_DOUBLE), intent(in) :: dqrely
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-real(C_DOUBLE) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+real(C_DOUBLE) :: farg4 
 
 farg1 = arkode_mem
 farg2 = mudq
@@ -926,10 +926,10 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrwbbdp
 integer(C_LONG), dimension(*), target, intent(inout) :: leniwbbdp
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = arkode_mem
 farg2 = c_loc(lenrwbbdp(1))
@@ -944,9 +944,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
 integer(C_LONG), dimension(*), target, intent(inout) :: ngevalsbbdp
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = arkode_mem
 farg2 = c_loc(ngevalsbbdp(1))
@@ -958,8 +958,8 @@ subroutine swigf_ARKodeButcherTableMem_q_set(self, q)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeButcherTableMem), intent(in) :: self
 integer(C_INT), intent(in) :: q
-type(SwigClassWrapper) :: farg1
-integer(C_INT) :: farg2
+type(SwigClassWrapper) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = self%swigdata
 farg2 = q
@@ -971,8 +971,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 class(ARKodeButcherTableMem), intent(in) :: self
-integer(C_INT) :: fresult
-type(SwigClassWrapper) :: farg1
+integer(C_INT) :: fresult 
+type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeButcherTableMem_q_get(farg1)
@@ -983,8 +983,8 @@ subroutine swigf_ARKodeButcherTableMem_p_set(self, p)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeButcherTableMem), intent(in) :: self
 integer(C_INT), intent(in) :: p
-type(SwigClassWrapper) :: farg1
-integer(C_INT) :: farg2
+type(SwigClassWrapper) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = self%swigdata
 farg2 = p
@@ -996,8 +996,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 class(ARKodeButcherTableMem), intent(in) :: self
-integer(C_INT) :: fresult
-type(SwigClassWrapper) :: farg1
+integer(C_INT) :: fresult 
+type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeButcherTableMem_p_get(farg1)
@@ -1008,8 +1008,8 @@ subroutine swigf_ARKodeButcherTableMem_stages_set(self, stages)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeButcherTableMem), intent(in) :: self
 integer(C_INT), intent(in) :: stages
-type(SwigClassWrapper) :: farg1
-integer(C_INT) :: farg2
+type(SwigClassWrapper) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = self%swigdata
 farg2 = stages
@@ -1021,8 +1021,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 class(ARKodeButcherTableMem), intent(in) :: self
-integer(C_INT) :: fresult
-type(SwigClassWrapper) :: farg1
+integer(C_INT) :: fresult 
+type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeButcherTableMem_stages_get(farg1)
@@ -1033,8 +1033,8 @@ subroutine swigf_ARKodeButcherTableMem_A_set(self, a)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeButcherTableMem), intent(in) :: self
 type(C_PTR), target, intent(inout) :: a
-type(SwigClassWrapper) :: farg1
-type(C_PTR) :: farg2
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = self%swigdata
 farg2 = c_loc(a)
@@ -1046,8 +1046,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), pointer :: swig_result
 class(ARKodeButcherTableMem), intent(in) :: self
-type(C_PTR) :: fresult
-type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeButcherTableMem_A_get(farg1)
@@ -1058,8 +1058,8 @@ subroutine swigf_ARKodeButcherTableMem_c_set(self, c)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeButcherTableMem), intent(in) :: self
 real(C_DOUBLE), dimension(*), target, intent(inout) :: c
-type(SwigClassWrapper) :: farg1
-type(C_PTR) :: farg2
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = self%swigdata
 farg2 = c_loc(c(1))
@@ -1071,8 +1071,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 class(ARKodeButcherTableMem), intent(in) :: self
-type(C_PTR) :: fresult
-type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeButcherTableMem_c_get(farg1)
@@ -1083,8 +1083,8 @@ subroutine swigf_ARKodeButcherTableMem_b_set(self, b)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeButcherTableMem), intent(in) :: self
 real(C_DOUBLE), dimension(*), target, intent(inout) :: b
-type(SwigClassWrapper) :: farg1
-type(C_PTR) :: farg2
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = self%swigdata
 farg2 = c_loc(b(1))
@@ -1096,8 +1096,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 class(ARKodeButcherTableMem), intent(in) :: self
-type(C_PTR) :: fresult
-type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeButcherTableMem_b_get(farg1)
@@ -1108,8 +1108,8 @@ subroutine swigf_ARKodeButcherTableMem_d_set(self, d)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeButcherTableMem), intent(in) :: self
 real(C_DOUBLE), dimension(*), target, intent(inout) :: d
-type(SwigClassWrapper) :: farg1
-type(C_PTR) :: farg2
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = self%swigdata
 farg2 = c_loc(d(1))
@@ -1121,8 +1121,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 class(ARKodeButcherTableMem), intent(in) :: self
-type(C_PTR) :: fresult
-type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeButcherTableMem_d_get(farg1)
@@ -1133,7 +1133,7 @@ function swigf_create_ARKodeButcherTableMem() &
 result(self)
 use, intrinsic :: ISO_C_BINDING
 type(ARKodeButcherTableMem) :: self
-type(SwigClassWrapper) :: fresult
+type(SwigClassWrapper) :: fresult 
 
 fresult = swigc_new_ARKodeButcherTableMem()
 self%swigdata = fresult
@@ -1142,7 +1142,7 @@ end function
 subroutine swigf_release_ARKodeButcherTableMem(self)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeButcherTableMem), intent(inout) :: self
-type(SwigClassWrapper) :: farg1
+type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 if (btest(farg1%cmemflags, swig_cmem_own_bit)) then
@@ -1157,8 +1157,8 @@ subroutine swigf_ARKodeButcherTableMem_op_assign__(self, other)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeButcherTableMem), intent(inout) :: self
 type(ARKodeButcherTableMem), intent(in) :: other
-type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: farg2
+type(SwigClassWrapper) :: farg1 
+type(SwigClassWrapper) :: farg2 
 
 farg1 = self%swigdata
 farg2 = other%swigdata
@@ -1172,9 +1172,9 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: stages
 integer(C_INT), intent(in) :: embedded
-type(C_PTR) :: fresult
-integer(C_INT) :: farg1
-integer(C_INT) :: farg2
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = stages
 farg2 = embedded
@@ -1193,14 +1193,14 @@ real(C_DOUBLE), dimension(*), target, intent(inout) :: c
 real(C_DOUBLE), dimension(*), target, intent(inout) :: a
 real(C_DOUBLE), dimension(*), target, intent(inout) :: b
 real(C_DOUBLE), dimension(*), target, intent(inout) :: d
-type(C_PTR) :: fresult
-integer(C_INT) :: farg1
-integer(C_INT) :: farg2
-integer(C_INT) :: farg3
-type(C_PTR) :: farg4
-type(C_PTR) :: farg5
-type(C_PTR) :: farg6
-type(C_PTR) :: farg7
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+integer(C_INT) :: farg2 
+integer(C_INT) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
 
 farg1 = s
 farg2 = q
@@ -1218,8 +1218,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 type(C_PTR) :: b
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = b
 fresult = swigc_FARKodeButcherTable_Copy(farg1)
@@ -1231,9 +1231,9 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: b
 integer(C_INT64_T), dimension(*), target, intent(inout) :: liw
 integer(C_INT64_T), dimension(*), target, intent(inout) :: lrw
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = b
 farg2 = c_loc(liw(1))
@@ -1244,7 +1244,7 @@ end subroutine
 subroutine FARKodeButcherTable_Free(b)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: b
-type(C_PTR) :: farg1
+type(C_PTR) :: farg1 
 
 farg1 = b
 call swigc_FARKodeButcherTable_Free(farg1)
@@ -1254,8 +1254,8 @@ subroutine FARKodeButcherTable_Write(b, outfile)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: b
 type(C_PTR) :: outfile
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = b
 farg2 = outfile
@@ -1267,8 +1267,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: b
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = b
 fresult = swigc_FARKodeButcherTable_IsStifflyAccurate(farg1)
@@ -1283,11 +1283,11 @@ type(C_PTR) :: b
 integer(C_INT), dimension(*), target, intent(inout) :: q
 integer(C_INT), dimension(*), target, intent(inout) :: p
 type(C_PTR) :: outfile
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = b
 farg2 = c_loc(q(1))
@@ -1306,12 +1306,12 @@ type(C_PTR) :: b2
 integer(C_INT), dimension(*), target, intent(inout) :: q
 integer(C_INT), dimension(*), target, intent(inout) :: p
 type(C_PTR) :: outfile
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = b1
 farg2 = b2
@@ -1327,8 +1327,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(ARKODE_DIRKTableID), intent(in) :: imethod
-type(C_PTR) :: fresult
-integer(C_INT) :: farg1
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
 
 farg1 = imethod
 fresult = swigc_FARKodeButcherTable_LoadDIRK(farg1)
@@ -1359,8 +1359,8 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 character(kind=C_CHAR, len=*), target :: imethod
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg1_chars
-type(C_PTR) :: fresult
-type(SwigArrayWrapper) :: farg1
+type(C_PTR) :: fresult 
+type(SwigArrayWrapper) :: farg1 
 
 call SWIG_string_to_chararray(imethod, farg1_chars, farg1)
 fresult = swigc_FARKodeButcherTable_LoadDIRKByName(farg1)
@@ -1372,8 +1372,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(ARKODE_ERKTableID), intent(in) :: emethod
-type(C_PTR) :: fresult
-integer(C_INT) :: farg1
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
 
 farg1 = emethod
 fresult = swigc_FARKodeButcherTable_LoadERK(farg1)
@@ -1386,8 +1386,8 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 character(kind=C_CHAR, len=*), target :: emethod
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg1_chars
-type(C_PTR) :: fresult
-type(SwigArrayWrapper) :: farg1
+type(C_PTR) :: fresult 
+type(SwigArrayWrapper) :: farg1 
 
 call SWIG_string_to_chararray(emethod, farg1_chars, farg1)
 fresult = swigc_FARKodeButcherTable_LoadERKByName(farg1)
@@ -1398,8 +1398,8 @@ subroutine swigf_ARKodeSPRKTableMem_q_set(self, q)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeSPRKTableMem), intent(in) :: self
 integer(C_INT), intent(in) :: q
-type(SwigClassWrapper) :: farg1
-integer(C_INT) :: farg2
+type(SwigClassWrapper) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = self%swigdata
 farg2 = q
@@ -1411,8 +1411,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 class(ARKodeSPRKTableMem), intent(in) :: self
-integer(C_INT) :: fresult
-type(SwigClassWrapper) :: farg1
+integer(C_INT) :: fresult 
+type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeSPRKTableMem_q_get(farg1)
@@ -1423,8 +1423,8 @@ subroutine swigf_ARKodeSPRKTableMem_stages_set(self, stages)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeSPRKTableMem), intent(in) :: self
 integer(C_INT), intent(in) :: stages
-type(SwigClassWrapper) :: farg1
-integer(C_INT) :: farg2
+type(SwigClassWrapper) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = self%swigdata
 farg2 = stages
@@ -1436,8 +1436,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 class(ARKodeSPRKTableMem), intent(in) :: self
-integer(C_INT) :: fresult
-type(SwigClassWrapper) :: farg1
+integer(C_INT) :: fresult 
+type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeSPRKTableMem_stages_get(farg1)
@@ -1448,8 +1448,8 @@ subroutine swigf_ARKodeSPRKTableMem_a_set(self, a)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeSPRKTableMem), intent(in) :: self
 real(C_DOUBLE), dimension(*), target, intent(inout) :: a
-type(SwigClassWrapper) :: farg1
-type(C_PTR) :: farg2
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = self%swigdata
 farg2 = c_loc(a(1))
@@ -1461,8 +1461,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 class(ARKodeSPRKTableMem), intent(in) :: self
-type(C_PTR) :: fresult
-type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeSPRKTableMem_a_get(farg1)
@@ -1473,8 +1473,8 @@ subroutine swigf_ARKodeSPRKTableMem_ahat_set(self, ahat)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeSPRKTableMem), intent(in) :: self
 real(C_DOUBLE), dimension(*), target, intent(inout) :: ahat
-type(SwigClassWrapper) :: farg1
-type(C_PTR) :: farg2
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = self%swigdata
 farg2 = c_loc(ahat(1))
@@ -1486,8 +1486,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 class(ARKodeSPRKTableMem), intent(in) :: self
-type(C_PTR) :: fresult
-type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 fresult = swigc_ARKodeSPRKTableMem_ahat_get(farg1)
@@ -1498,7 +1498,7 @@ function swigf_create_ARKodeSPRKTableMem() &
 result(self)
 use, intrinsic :: ISO_C_BINDING
 type(ARKodeSPRKTableMem) :: self
-type(SwigClassWrapper) :: fresult
+type(SwigClassWrapper) :: fresult 
 
 fresult = swigc_new_ARKodeSPRKTableMem()
 self%swigdata = fresult
@@ -1507,7 +1507,7 @@ end function
 subroutine swigf_release_ARKodeSPRKTableMem(self)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeSPRKTableMem), intent(inout) :: self
-type(SwigClassWrapper) :: farg1
+type(SwigClassWrapper) :: farg1 
 
 farg1 = self%swigdata
 if (btest(farg1%cmemflags, swig_cmem_own_bit)) then
@@ -1522,8 +1522,8 @@ subroutine swigf_ARKodeSPRKTableMem_op_assign__(self, other)
 use, intrinsic :: ISO_C_BINDING
 class(ARKodeSPRKTableMem), intent(inout) :: self
 type(ARKodeSPRKTableMem), intent(in) :: other
-type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: farg2
+type(SwigClassWrapper) :: farg1 
+type(SwigClassWrapper) :: farg2 
 
 farg1 = self%swigdata
 farg2 = other%swigdata
@@ -1539,11 +1539,11 @@ integer(C_INT), intent(in) :: s
 integer(C_INT), intent(in) :: q
 real(C_DOUBLE), dimension(*), target, intent(inout) :: a
 real(C_DOUBLE), dimension(*), target, intent(inout) :: ahat
-type(C_PTR) :: fresult
-integer(C_INT) :: farg1
-integer(C_INT) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+integer(C_INT) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = s
 farg2 = q
@@ -1558,8 +1558,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: stages
-type(C_PTR) :: fresult
-integer(C_INT) :: farg1
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
 
 farg1 = stages
 fresult = swigc_FARKodeSPRKTable_Alloc(farg1)
@@ -1571,8 +1571,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(ARKODE_SPRKMethodID), intent(in) :: id
-type(C_PTR) :: fresult
-integer(C_INT) :: farg1
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
 
 farg1 = id
 fresult = swigc_FARKodeSPRKTable_Load(farg1)
@@ -1585,8 +1585,8 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 character(kind=C_CHAR, len=*), target :: method
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg1_chars
-type(C_PTR) :: fresult
-type(SwigArrayWrapper) :: farg1
+type(C_PTR) :: fresult 
+type(SwigArrayWrapper) :: farg1 
 
 call SWIG_string_to_chararray(method, farg1_chars, farg1)
 fresult = swigc_FARKodeSPRKTable_LoadByName(farg1)
@@ -1598,8 +1598,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 type(C_PTR) :: that_sprk_storage
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = that_sprk_storage
 fresult = swigc_FARKodeSPRKTable_Copy(farg1)
@@ -1610,8 +1610,8 @@ subroutine FARKodeSPRKTable_Write(sprk_table, outfile)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: sprk_table
 type(C_PTR) :: outfile
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = sprk_table
 farg2 = outfile
@@ -1623,9 +1623,9 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: sprk_storage
 integer(C_INT64_T), dimension(*), target, intent(inout) :: liw
 integer(C_INT64_T), dimension(*), target, intent(inout) :: lrw
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = sprk_storage
 farg2 = c_loc(liw(1))
@@ -1636,7 +1636,7 @@ end subroutine
 subroutine FARKodeSPRKTable_Free(sprk_storage)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: sprk_storage
-type(C_PTR) :: farg1
+type(C_PTR) :: farg1 
 
 farg1 = sprk_storage
 call swigc_FARKodeSPRKTable_Free(farg1)
@@ -1649,10 +1649,10 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: sprk_storage
 type(C_PTR), target, intent(inout) :: a_ptr
 type(C_PTR), target, intent(inout) :: b_ptr
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = sprk_storage
 farg2 = c_loc(a_ptr)

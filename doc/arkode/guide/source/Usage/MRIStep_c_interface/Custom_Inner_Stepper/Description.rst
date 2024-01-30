@@ -398,7 +398,7 @@ following member functions:
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
-   .. versionchanged:: vX.X.X
+   .. versionchanged:: v5.7.0
 
       Supplying a full right-hand side function was made optional.
 

@@ -11,7 +11,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ----------------------------------------------------------------------
+<<<<<<< HEAD
 # CMakeLists.txt file for the F2003 LAPACK dense SUNLinearSolver
+=======
+# CMakeLists.txt file for the F2003 LAPACK dense SUNLinearSolver 
+>>>>>>> origin/develop
 # object library
 # ----------------------------------------------------------------------
 

@@ -221,15 +221,15 @@ enum {
  * the fortran.cxx file.
  */
 #define SWIG_contract_assert(RETURNNULL, EXPR, MSG) \
- if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); }
+ if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); } 
 
 
-#define SWIGVERSION 0x040000
+#define SWIGVERSION 0x040000 
 #define SWIG_VERSION SWIGVERSION
 
 
-#define SWIG_as_voidptr(a) (void *)((const void *)(a))
-#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a))
+#define SWIG_as_voidptr(a) (void *)((const void *)(a)) 
+#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
 #include "cvodes/cvodes.h"
@@ -317,7 +317,7 @@ SWIGEXPORT void * _wrap_FCVodeCreate(int const *farg1, void *farg2) {
   int arg1 ;
   SUNContext arg2 = (SUNContext) 0 ;
   void *result = 0 ;
-
+  
   arg1 = (int)(*farg1);
   arg2 = (SUNContext)(farg2);
   result = (void *)CVodeCreate(arg1,arg2);
@@ -333,7 +333,7 @@ SWIGEXPORT int _wrap_FCVodeInit(void *farg1, CVRhsFn farg2, double const *farg3,
   sunrealtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (CVRhsFn)(farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -350,7 +350,7 @@ SWIGEXPORT int _wrap_FCVodeReInit(void *farg1, double const *farg2, N_Vector far
   sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
@@ -366,7 +366,7 @@ SWIGEXPORT int _wrap_FCVodeSStolerances(void *farg1, double const *farg2, double
   sunrealtype arg2 ;
   sunrealtype arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -382,7 +382,7 @@ SWIGEXPORT int _wrap_FCVodeSVtolerances(void *farg1, double const *farg2, N_Vect
   sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
@@ -397,7 +397,7 @@ SWIGEXPORT int _wrap_FCVodeWFtolerances(void *farg1, CVEwtFn farg2) {
   void *arg1 = (void *) 0 ;
   CVEwtFn arg2 = (CVEwtFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (CVEwtFn)(farg2);
   result = (int)CVodeWFtolerances(arg1,arg2);
@@ -411,7 +411,7 @@ SWIGEXPORT int _wrap_FCVodeSetConstraints(void *farg1, N_Vector farg2) {
   void *arg1 = (void *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector)(farg2);
   result = (int)CVodeSetConstraints(arg1,arg2);
@@ -425,7 +425,7 @@ SWIGEXPORT int _wrap_FCVodeSetDeltaGammaMaxLSetup(void *farg1, double const *far
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetDeltaGammaMaxLSetup(arg1,arg2);
@@ -439,7 +439,7 @@ SWIGEXPORT int _wrap_FCVodeSetInitStep(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetInitStep(arg1,arg2);
@@ -453,7 +453,7 @@ SWIGEXPORT int _wrap_FCVodeSetLSetupFrequency(void *farg1, long const *farg2) {
   void *arg1 = (void *) 0 ;
   long arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   result = (int)CVodeSetLSetupFrequency(arg1,arg2);
@@ -467,7 +467,7 @@ SWIGEXPORT int _wrap_FCVodeSetMaxConvFails(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVodeSetMaxConvFails(arg1,arg2);
@@ -481,7 +481,7 @@ SWIGEXPORT int _wrap_FCVodeSetMaxErrTestFails(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVodeSetMaxErrTestFails(arg1,arg2);
@@ -495,7 +495,7 @@ SWIGEXPORT int _wrap_FCVodeSetMaxHnilWarns(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVodeSetMaxHnilWarns(arg1,arg2);
@@ -509,7 +509,7 @@ SWIGEXPORT int _wrap_FCVodeSetMaxNonlinIters(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVodeSetMaxNonlinIters(arg1,arg2);
@@ -523,7 +523,7 @@ SWIGEXPORT int _wrap_FCVodeSetMaxNumSteps(void *farg1, long const *farg2) {
   void *arg1 = (void *) 0 ;
   long arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   result = (int)CVodeSetMaxNumSteps(arg1,arg2);
@@ -537,7 +537,7 @@ SWIGEXPORT int _wrap_FCVodeSetMaxOrd(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVodeSetMaxOrd(arg1,arg2);
@@ -551,7 +551,7 @@ SWIGEXPORT int _wrap_FCVodeSetMaxStep(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetMaxStep(arg1,arg2);
@@ -565,7 +565,7 @@ SWIGEXPORT int _wrap_FCVodeSetMinStep(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetMinStep(arg1,arg2);
@@ -579,7 +579,7 @@ SWIGEXPORT int _wrap_FCVodeSetMonitorFn(void *farg1, CVMonitorFn farg2) {
   void *arg1 = (void *) 0 ;
   CVMonitorFn arg2 = (CVMonitorFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (CVMonitorFn)(farg2);
   result = (int)CVodeSetMonitorFn(arg1,arg2);
@@ -593,7 +593,7 @@ SWIGEXPORT int _wrap_FCVodeSetMonitorFrequency(void *farg1, long const *farg2) {
   void *arg1 = (void *) 0 ;
   long arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   result = (int)CVodeSetMonitorFrequency(arg1,arg2);
@@ -607,7 +607,7 @@ SWIGEXPORT int _wrap_FCVodeSetNlsRhsFn(void *farg1, CVRhsFn farg2) {
   void *arg1 = (void *) 0 ;
   CVRhsFn arg2 = (CVRhsFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (CVRhsFn)(farg2);
   result = (int)CVodeSetNlsRhsFn(arg1,arg2);
@@ -621,7 +621,7 @@ SWIGEXPORT int _wrap_FCVodeSetNonlinConvCoef(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetNonlinConvCoef(arg1,arg2);
@@ -635,7 +635,7 @@ SWIGEXPORT int _wrap_FCVodeSetNonlinearSolver(void *farg1, SUNNonlinearSolver fa
   void *arg1 = (void *) 0 ;
   SUNNonlinearSolver arg2 = (SUNNonlinearSolver) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (SUNNonlinearSolver)(farg2);
   result = (int)CVodeSetNonlinearSolver(arg1,arg2);
@@ -649,7 +649,7 @@ SWIGEXPORT int _wrap_FCVodeSetStabLimDet(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVodeSetStabLimDet(arg1,arg2);
@@ -663,7 +663,7 @@ SWIGEXPORT int _wrap_FCVodeSetStopTime(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetStopTime(arg1,arg2);
@@ -677,7 +677,7 @@ SWIGEXPORT int _wrap_FCVodeSetInterpolateStopTime(void *farg1, int const *farg2)
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVodeSetInterpolateStopTime(arg1,arg2);
@@ -690,7 +690,7 @@ SWIGEXPORT int _wrap_FCVodeClearStopTime(void *farg1) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   result = (int)CVodeClearStopTime(arg1);
   fresult = (int)(result);
@@ -703,7 +703,7 @@ SWIGEXPORT int _wrap_FCVodeSetUserData(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   void *arg2 = (void *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (void *)(farg2);
   result = (int)CVodeSetUserData(arg1,arg2);
@@ -718,7 +718,7 @@ SWIGEXPORT int _wrap_FCVodeSetEtaFixedStepBounds(void *farg1, double const *farg
   sunrealtype arg2 ;
   sunrealtype arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -733,7 +733,7 @@ SWIGEXPORT int _wrap_FCVodeSetEtaMaxFirstStep(void *farg1, double const *farg2) 
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetEtaMaxFirstStep(arg1,arg2);
@@ -747,7 +747,7 @@ SWIGEXPORT int _wrap_FCVodeSetEtaMaxEarlyStep(void *farg1, double const *farg2) 
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetEtaMaxEarlyStep(arg1,arg2);
@@ -761,7 +761,7 @@ SWIGEXPORT int _wrap_FCVodeSetNumStepsEtaMaxEarlyStep(void *farg1, long const *f
   void *arg1 = (void *) 0 ;
   long arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   result = (int)CVodeSetNumStepsEtaMaxEarlyStep(arg1,arg2);
@@ -775,7 +775,7 @@ SWIGEXPORT int _wrap_FCVodeSetEtaMax(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetEtaMax(arg1,arg2);
@@ -789,7 +789,7 @@ SWIGEXPORT int _wrap_FCVodeSetEtaMin(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetEtaMin(arg1,arg2);
@@ -803,7 +803,7 @@ SWIGEXPORT int _wrap_FCVodeSetEtaMinErrFail(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetEtaMinErrFail(arg1,arg2);
@@ -817,7 +817,7 @@ SWIGEXPORT int _wrap_FCVodeSetEtaMaxErrFail(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetEtaMaxErrFail(arg1,arg2);
@@ -831,7 +831,7 @@ SWIGEXPORT int _wrap_FCVodeSetNumFailsEtaMaxErrFail(void *farg1, int const *farg
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVodeSetNumFailsEtaMaxErrFail(arg1,arg2);
@@ -845,7 +845,7 @@ SWIGEXPORT int _wrap_FCVodeSetEtaConvFail(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetEtaConvFail(arg1,arg2);
@@ -860,7 +860,7 @@ SWIGEXPORT int _wrap_FCVodeRootInit(void *farg1, int const *farg2, CVRootFn farg
   int arg2 ;
   CVRootFn arg3 = (CVRootFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVRootFn)(farg3);
@@ -875,7 +875,7 @@ SWIGEXPORT int _wrap_FCVodeSetRootDirection(void *farg1, int *farg2) {
   void *arg1 = (void *) 0 ;
   int *arg2 = (int *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
   result = (int)CVodeSetRootDirection(arg1,arg2);
@@ -888,7 +888,7 @@ SWIGEXPORT int _wrap_FCVodeSetNoInactiveRootWarn(void *farg1) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   result = (int)CVodeSetNoInactiveRootWarn(arg1);
   fresult = (int)(result);
@@ -904,7 +904,7 @@ SWIGEXPORT int _wrap_FCVode(void *farg1, double const *farg2, N_Vector farg3, do
   sunrealtype *arg4 = (sunrealtype *) 0 ;
   int arg5 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
@@ -922,7 +922,7 @@ SWIGEXPORT int _wrap_FCVodeComputeState(void *farg1, N_Vector farg2, N_Vector fa
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -938,7 +938,7 @@ SWIGEXPORT int _wrap_FCVodeComputeStateSens(void *farg1, void *farg2, void *farg
   N_Vector *arg2 = (N_Vector *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector *)(farg2);
   arg3 = (N_Vector *)(farg3);
@@ -955,7 +955,7 @@ SWIGEXPORT int _wrap_FCVodeComputeStateSens1(void *farg1, int const *farg2, N_Ve
   N_Vector arg3 = (N_Vector) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (N_Vector)(farg3);
@@ -973,7 +973,7 @@ SWIGEXPORT int _wrap_FCVodeGetDky(void *farg1, double const *farg2, int const *f
   int arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
@@ -990,7 +990,7 @@ SWIGEXPORT int _wrap_FCVodeGetWorkSpace(void *farg1, long *farg2, long *farg3) {
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -1005,7 +1005,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumSteps(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumSteps(arg1,arg2);
@@ -1019,7 +1019,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumRhsEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumRhsEvals(arg1,arg2);
@@ -1033,7 +1033,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumLinSolvSetups(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumLinSolvSetups(arg1,arg2);
@@ -1047,7 +1047,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumErrTestFails(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumErrTestFails(arg1,arg2);
@@ -1061,7 +1061,7 @@ SWIGEXPORT int _wrap_FCVodeGetLastOrder(void *farg1, int *farg2) {
   void *arg1 = (void *) 0 ;
   int *arg2 = (int *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
   result = (int)CVodeGetLastOrder(arg1,arg2);
@@ -1075,7 +1075,7 @@ SWIGEXPORT int _wrap_FCVodeGetCurrentOrder(void *farg1, int *farg2) {
   void *arg1 = (void *) 0 ;
   int *arg2 = (int *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
   result = (int)CVodeGetCurrentOrder(arg1,arg2);
@@ -1089,7 +1089,7 @@ SWIGEXPORT int _wrap_FCVodeGetCurrentGamma(void *farg1, double *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)CVodeGetCurrentGamma(arg1,arg2);
@@ -1103,7 +1103,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumStabLimOrderReds(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumStabLimOrderReds(arg1,arg2);
@@ -1117,7 +1117,7 @@ SWIGEXPORT int _wrap_FCVodeGetActualInitStep(void *farg1, double *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)CVodeGetActualInitStep(arg1,arg2);
@@ -1131,7 +1131,7 @@ SWIGEXPORT int _wrap_FCVodeGetLastStep(void *farg1, double *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)CVodeGetLastStep(arg1,arg2);
@@ -1145,7 +1145,7 @@ SWIGEXPORT int _wrap_FCVodeGetCurrentStep(void *farg1, double *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)CVodeGetCurrentStep(arg1,arg2);
@@ -1159,7 +1159,7 @@ SWIGEXPORT int _wrap_FCVodeGetCurrentState(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   N_Vector *arg2 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector *)(farg2);
   result = (int)CVodeGetCurrentState(arg1,arg2);
@@ -1173,7 +1173,7 @@ SWIGEXPORT int _wrap_FCVodeGetCurrentStateSens(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   N_Vector **arg2 = (N_Vector **) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector **)(farg2);
   result = (int)CVodeGetCurrentStateSens(arg1,arg2);
@@ -1187,7 +1187,7 @@ SWIGEXPORT int _wrap_FCVodeGetCurrentSensSolveIndex(void *farg1, int *farg2) {
   void *arg1 = (void *) 0 ;
   int *arg2 = (int *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
   result = (int)CVodeGetCurrentSensSolveIndex(arg1,arg2);
@@ -1201,7 +1201,7 @@ SWIGEXPORT int _wrap_FCVodeGetCurrentTime(void *farg1, double *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)CVodeGetCurrentTime(arg1,arg2);
@@ -1215,7 +1215,7 @@ SWIGEXPORT int _wrap_FCVodeGetTolScaleFactor(void *farg1, double *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)CVodeGetTolScaleFactor(arg1,arg2);
@@ -1229,7 +1229,7 @@ SWIGEXPORT int _wrap_FCVodeGetErrWeights(void *farg1, N_Vector farg2) {
   void *arg1 = (void *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector)(farg2);
   result = (int)CVodeGetErrWeights(arg1,arg2);
@@ -1243,7 +1243,7 @@ SWIGEXPORT int _wrap_FCVodeGetEstLocalErrors(void *farg1, N_Vector farg2) {
   void *arg1 = (void *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector)(farg2);
   result = (int)CVodeGetEstLocalErrors(arg1,arg2);
@@ -1257,7 +1257,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumGEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumGEvals(arg1,arg2);
@@ -1271,7 +1271,7 @@ SWIGEXPORT int _wrap_FCVodeGetRootInfo(void *farg1, int *farg2) {
   void *arg1 = (void *) 0 ;
   int *arg2 = (int *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
   result = (int)CVodeGetRootInfo(arg1,arg2);
@@ -1294,7 +1294,7 @@ SWIGEXPORT int _wrap_FCVodeGetIntegratorStats(void *farg1, long *farg2, long *fa
   sunrealtype *arg10 = (sunrealtype *) 0 ;
   sunrealtype *arg11 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -1324,7 +1324,7 @@ SWIGEXPORT int _wrap_FCVodeGetNonlinearSystemData(void *farg1, double *farg2, vo
   N_Vector *arg8 = (N_Vector *) 0 ;
   void **arg9 = (void **) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector *)(farg3);
@@ -1351,7 +1351,7 @@ SWIGEXPORT int _wrap_FCVodeGetNonlinearSystemDataSens(void *farg1, double *farg2
   N_Vector **arg7 = (N_Vector **) 0 ;
   void **arg8 = (void **) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector **)(farg3);
@@ -1371,7 +1371,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumNonlinSolvIters(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumNonlinSolvIters(arg1,arg2);
@@ -1385,7 +1385,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumNonlinSolvConvFails(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumNonlinSolvConvFails(arg1,arg2);
@@ -1400,7 +1400,7 @@ SWIGEXPORT int _wrap_FCVodeGetNonlinSolvStats(void *farg1, long *farg2, long *fa
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -1415,7 +1415,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumStepSolveFails(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumStepSolveFails(arg1,arg2);
@@ -1429,7 +1429,7 @@ SWIGEXPORT int _wrap_FCVodeGetUserData(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   void **arg2 = (void **) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (void **)(farg2);
   result = (int)CVodeGetUserData(arg1,arg2);
@@ -1444,7 +1444,7 @@ SWIGEXPORT int _wrap_FCVodePrintAllStats(void *farg1, void *farg2, int const *fa
   FILE *arg2 = (FILE *) 0 ;
   SUNOutputFormat arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (FILE *)(farg2);
   arg3 = (SUNOutputFormat)(*farg3);
@@ -1458,7 +1458,7 @@ SWIGEXPORT SwigArrayWrapper _wrap_FCVodeGetReturnFlagName(long const *farg1) {
   SwigArrayWrapper fresult ;
   long arg1 ;
   char *result = 0 ;
-
+  
   arg1 = (long)(*farg1);
   result = (char *)CVodeGetReturnFlagName(arg1);
   fresult.size = strlen((const char*)(result));
@@ -1469,7 +1469,7 @@ SWIGEXPORT SwigArrayWrapper _wrap_FCVodeGetReturnFlagName(long const *farg1) {
 
 SWIGEXPORT void _wrap_FCVodeFree(void *farg1) {
   void **arg1 = (void **) 0 ;
-
+  
   arg1 = (void **)(farg1);
   CVodeFree(arg1);
 }
@@ -1480,7 +1480,7 @@ SWIGEXPORT int _wrap_FCVodeSetJacTimesRhsFn(void *farg1, CVRhsFn farg2) {
   void *arg1 = (void *) 0 ;
   CVRhsFn arg2 = (CVRhsFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (CVRhsFn)(farg2);
   result = (int)CVodeSetJacTimesRhsFn(arg1,arg2);
@@ -1495,7 +1495,7 @@ SWIGEXPORT int _wrap_FCVodeQuadInit(void *farg1, CVQuadRhsFn farg2, N_Vector far
   CVQuadRhsFn arg2 = (CVQuadRhsFn) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (CVQuadRhsFn)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -1510,7 +1510,7 @@ SWIGEXPORT int _wrap_FCVodeQuadReInit(void *farg1, N_Vector farg2) {
   void *arg1 = (void *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector)(farg2);
   result = (int)CVodeQuadReInit(arg1,arg2);
@@ -1525,7 +1525,7 @@ SWIGEXPORT int _wrap_FCVodeQuadSStolerances(void *farg1, double const *farg2, do
   sunrealtype arg2 ;
   sunrealtype arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -1541,7 +1541,7 @@ SWIGEXPORT int _wrap_FCVodeQuadSVtolerances(void *farg1, double const *farg2, N_
   sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
@@ -1556,7 +1556,7 @@ SWIGEXPORT int _wrap_FCVodeSetQuadErrCon(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVodeSetQuadErrCon(arg1,arg2);
@@ -1571,7 +1571,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuad(void *farg1, double *farg2, N_Vector farg3) {
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -1588,7 +1588,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadDky(void *farg1, double const *farg2, int cons
   int arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
@@ -1604,7 +1604,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadNumRhsEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetQuadNumRhsEvals(arg1,arg2);
@@ -1618,7 +1618,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadNumErrTestFails(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetQuadNumErrTestFails(arg1,arg2);
@@ -1632,7 +1632,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadErrWeights(void *farg1, N_Vector farg2) {
   void *arg1 = (void *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector)(farg2);
   result = (int)CVodeGetQuadErrWeights(arg1,arg2);
@@ -1647,7 +1647,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadStats(void *farg1, long *farg2, long *farg3) {
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -1659,7 +1659,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadStats(void *farg1, long *farg2, long *farg3) {
 
 SWIGEXPORT void _wrap_FCVodeQuadFree(void *farg1) {
   void *arg1 = (void *) 0 ;
-
+  
   arg1 = (void *)(farg1);
   CVodeQuadFree(arg1);
 }
@@ -1673,7 +1673,7 @@ SWIGEXPORT int _wrap_FCVodeSensInit(void *farg1, int const *farg2, int const *fa
   CVSensRhsFn arg4 = (CVSensRhsFn) 0 ;
   N_Vector *arg5 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (int)(*farg3);
@@ -1693,7 +1693,7 @@ SWIGEXPORT int _wrap_FCVodeSensInit1(void *farg1, int const *farg2, int const *f
   CVSensRhs1Fn arg4 = (CVSensRhs1Fn) 0 ;
   N_Vector *arg5 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (int)(*farg3);
@@ -1711,7 +1711,7 @@ SWIGEXPORT int _wrap_FCVodeSensReInit(void *farg1, int const *farg2, void *farg3
   int arg2 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (N_Vector *)(farg3);
@@ -1727,7 +1727,7 @@ SWIGEXPORT int _wrap_FCVodeSensSStolerances(void *farg1, double const *farg2, do
   sunrealtype arg2 ;
   sunrealtype *arg3 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype *)(farg3);
@@ -1743,7 +1743,7 @@ SWIGEXPORT int _wrap_FCVodeSensSVtolerances(void *farg1, double const *farg2, vo
   sunrealtype arg2 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector *)(farg3);
@@ -1757,7 +1757,7 @@ SWIGEXPORT int _wrap_FCVodeSensEEtolerances(void *farg1) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   result = (int)CVodeSensEEtolerances(arg1);
   fresult = (int)(result);
@@ -1771,7 +1771,7 @@ SWIGEXPORT int _wrap_FCVodeSetSensDQMethod(void *farg1, int const *farg2, double
   int arg2 ;
   sunrealtype arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -1786,7 +1786,7 @@ SWIGEXPORT int _wrap_FCVodeSetSensErrCon(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVodeSetSensErrCon(arg1,arg2);
@@ -1800,7 +1800,7 @@ SWIGEXPORT int _wrap_FCVodeSetSensMaxNonlinIters(void *farg1, int const *farg2) 
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVodeSetSensMaxNonlinIters(arg1,arg2);
@@ -1816,7 +1816,7 @@ SWIGEXPORT int _wrap_FCVodeSetSensParams(void *farg1, double *farg2, double *far
   sunrealtype *arg3 = (sunrealtype *) 0 ;
   int *arg4 = (int *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (sunrealtype *)(farg3);
@@ -1832,7 +1832,7 @@ SWIGEXPORT int _wrap_FCVodeSetNonlinearSolverSensSim(void *farg1, SUNNonlinearSo
   void *arg1 = (void *) 0 ;
   SUNNonlinearSolver arg2 = (SUNNonlinearSolver) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (SUNNonlinearSolver)(farg2);
   result = (int)CVodeSetNonlinearSolverSensSim(arg1,arg2);
@@ -1846,7 +1846,7 @@ SWIGEXPORT int _wrap_FCVodeSetNonlinearSolverSensStg(void *farg1, SUNNonlinearSo
   void *arg1 = (void *) 0 ;
   SUNNonlinearSolver arg2 = (SUNNonlinearSolver) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (SUNNonlinearSolver)(farg2);
   result = (int)CVodeSetNonlinearSolverSensStg(arg1,arg2);
@@ -1860,7 +1860,7 @@ SWIGEXPORT int _wrap_FCVodeSetNonlinearSolverSensStg1(void *farg1, SUNNonlinearS
   void *arg1 = (void *) 0 ;
   SUNNonlinearSolver arg2 = (SUNNonlinearSolver) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (SUNNonlinearSolver)(farg2);
   result = (int)CVodeSetNonlinearSolverSensStg1(arg1,arg2);
@@ -1873,7 +1873,7 @@ SWIGEXPORT int _wrap_FCVodeSensToggleOff(void *farg1) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   result = (int)CVodeSensToggleOff(arg1);
   fresult = (int)(result);
@@ -1887,7 +1887,7 @@ SWIGEXPORT int _wrap_FCVodeGetSens(void *farg1, double *farg2, void *farg3) {
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector *)(farg3);
@@ -1904,7 +1904,7 @@ SWIGEXPORT int _wrap_FCVodeGetSens1(void *farg1, double *farg2, int const *farg3
   int arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (int)(*farg3);
@@ -1922,7 +1922,7 @@ SWIGEXPORT int _wrap_FCVodeGetSensDky(void *farg1, double const *farg2, int cons
   int arg3 ;
   N_Vector *arg4 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
@@ -1941,7 +1941,7 @@ SWIGEXPORT int _wrap_FCVodeGetSensDky1(void *farg1, double const *farg2, int con
   int arg4 ;
   N_Vector arg5 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
@@ -1958,7 +1958,7 @@ SWIGEXPORT int _wrap_FCVodeGetSensNumRhsEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetSensNumRhsEvals(arg1,arg2);
@@ -1972,7 +1972,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumRhsEvalsSens(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumRhsEvalsSens(arg1,arg2);
@@ -1986,7 +1986,7 @@ SWIGEXPORT int _wrap_FCVodeGetSensNumErrTestFails(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetSensNumErrTestFails(arg1,arg2);
@@ -2000,7 +2000,7 @@ SWIGEXPORT int _wrap_FCVodeGetSensNumLinSolvSetups(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetSensNumLinSolvSetups(arg1,arg2);
@@ -2014,7 +2014,7 @@ SWIGEXPORT int _wrap_FCVodeGetSensErrWeights(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   N_Vector *arg2 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector *)(farg2);
   result = (int)CVodeGetSensErrWeights(arg1,arg2);
@@ -2031,7 +2031,7 @@ SWIGEXPORT int _wrap_FCVodeGetSensStats(void *farg1, long *farg2, long *farg3, l
   long *arg4 = (long *) 0 ;
   long *arg5 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -2048,7 +2048,7 @@ SWIGEXPORT int _wrap_FCVodeGetSensNumNonlinSolvIters(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetSensNumNonlinSolvIters(arg1,arg2);
@@ -2062,7 +2062,7 @@ SWIGEXPORT int _wrap_FCVodeGetSensNumNonlinSolvConvFails(void *farg1, long *farg
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetSensNumNonlinSolvConvFails(arg1,arg2);
@@ -2077,7 +2077,7 @@ SWIGEXPORT int _wrap_FCVodeGetSensNonlinSolvStats(void *farg1, long *farg2, long
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -2092,7 +2092,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumStepSensSolveFails(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumStepSensSolveFails(arg1,arg2);
@@ -2106,7 +2106,7 @@ SWIGEXPORT int _wrap_FCVodeGetStgrSensNumNonlinSolvIters(void *farg1, long *farg
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetStgrSensNumNonlinSolvIters(arg1,arg2);
@@ -2120,7 +2120,7 @@ SWIGEXPORT int _wrap_FCVodeGetStgrSensNumNonlinSolvConvFails(void *farg1, long *
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetStgrSensNumNonlinSolvConvFails(arg1,arg2);
@@ -2135,7 +2135,7 @@ SWIGEXPORT int _wrap_FCVodeGetStgrSensNonlinSolvStats(void *farg1, long *farg2, 
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -2150,7 +2150,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumStepStgrSensSolveFails(void *farg1, long *farg2
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumStepStgrSensSolveFails(arg1,arg2);
@@ -2161,7 +2161,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumStepStgrSensSolveFails(void *farg1, long *farg2
 
 SWIGEXPORT void _wrap_FCVodeSensFree(void *farg1) {
   void *arg1 = (void *) 0 ;
-
+  
   arg1 = (void *)(farg1);
   CVodeSensFree(arg1);
 }
@@ -2173,7 +2173,7 @@ SWIGEXPORT int _wrap_FCVodeQuadSensInit(void *farg1, CVQuadSensRhsFn farg2, void
   CVQuadSensRhsFn arg2 = (CVQuadSensRhsFn) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (CVQuadSensRhsFn)(farg2);
   arg3 = (N_Vector *)(farg3);
@@ -2188,7 +2188,7 @@ SWIGEXPORT int _wrap_FCVodeQuadSensReInit(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   N_Vector *arg2 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector *)(farg2);
   result = (int)CVodeQuadSensReInit(arg1,arg2);
@@ -2203,7 +2203,7 @@ SWIGEXPORT int _wrap_FCVodeQuadSensSStolerances(void *farg1, double const *farg2
   sunrealtype arg2 ;
   sunrealtype *arg3 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype *)(farg3);
@@ -2219,7 +2219,7 @@ SWIGEXPORT int _wrap_FCVodeQuadSensSVtolerances(void *farg1, double const *farg2
   sunrealtype arg2 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector *)(farg3);
@@ -2233,7 +2233,7 @@ SWIGEXPORT int _wrap_FCVodeQuadSensEEtolerances(void *farg1) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   result = (int)CVodeQuadSensEEtolerances(arg1);
   fresult = (int)(result);
@@ -2246,7 +2246,7 @@ SWIGEXPORT int _wrap_FCVodeSetQuadSensErrCon(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVodeSetQuadSensErrCon(arg1,arg2);
@@ -2261,7 +2261,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadSens(void *farg1, double *farg2, void *farg3) 
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector *)(farg3);
@@ -2278,7 +2278,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadSens1(void *farg1, double *farg2, int const *f
   int arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (int)(*farg3);
@@ -2296,7 +2296,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadSensDky(void *farg1, double const *farg2, int 
   int arg3 ;
   N_Vector *arg4 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
@@ -2315,7 +2315,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadSensDky1(void *farg1, double const *farg2, int
   int arg4 ;
   N_Vector arg5 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
@@ -2332,7 +2332,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadSensNumRhsEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetQuadSensNumRhsEvals(arg1,arg2);
@@ -2346,7 +2346,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadSensNumErrTestFails(void *farg1, long *farg2) 
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetQuadSensNumErrTestFails(arg1,arg2);
@@ -2360,7 +2360,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadSensErrWeights(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   N_Vector *arg2 = (N_Vector *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (N_Vector *)(farg2);
   result = (int)CVodeGetQuadSensErrWeights(arg1,arg2);
@@ -2375,7 +2375,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadSensStats(void *farg1, long *farg2, long *farg
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -2387,7 +2387,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadSensStats(void *farg1, long *farg2, long *farg
 
 SWIGEXPORT void _wrap_FCVodeQuadSensFree(void *farg1) {
   void *arg1 = (void *) 0 ;
-
+  
   arg1 = (void *)(farg1);
   CVodeQuadSensFree(arg1);
 }
@@ -2399,7 +2399,7 @@ SWIGEXPORT int _wrap_FCVodeAdjInit(void *farg1, long const *farg2, int const *fa
   long arg2 ;
   int arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   arg3 = (int)(*farg3);
@@ -2413,7 +2413,7 @@ SWIGEXPORT int _wrap_FCVodeAdjReInit(void *farg1) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   result = (int)CVodeAdjReInit(arg1);
   fresult = (int)(result);
@@ -2423,7 +2423,7 @@ SWIGEXPORT int _wrap_FCVodeAdjReInit(void *farg1) {
 
 SWIGEXPORT void _wrap_FCVodeAdjFree(void *farg1) {
   void *arg1 = (void *) 0 ;
-
+  
   arg1 = (void *)(farg1);
   CVodeAdjFree(arg1);
 }
@@ -2435,7 +2435,7 @@ SWIGEXPORT int _wrap_FCVodeCreateB(void *farg1, int const *farg2, int *farg3) {
   int arg2 ;
   int *arg3 = (int *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (int *)(farg3);
@@ -2453,7 +2453,7 @@ SWIGEXPORT int _wrap_FCVodeInitB(void *farg1, int const *farg2, CVRhsFnB farg3, 
   sunrealtype arg4 ;
   N_Vector arg5 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVRhsFnB)(farg3);
@@ -2473,7 +2473,7 @@ SWIGEXPORT int _wrap_FCVodeInitBS(void *farg1, int const *farg2, CVRhsFnBS farg3
   sunrealtype arg4 ;
   N_Vector arg5 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVRhsFnBS)(farg3);
@@ -2492,7 +2492,7 @@ SWIGEXPORT int _wrap_FCVodeReInitB(void *farg1, int const *farg2, double const *
   sunrealtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -2510,7 +2510,7 @@ SWIGEXPORT int _wrap_FCVodeSStolerancesB(void *farg1, int const *farg2, double c
   sunrealtype arg3 ;
   sunrealtype arg4 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -2528,7 +2528,7 @@ SWIGEXPORT int _wrap_FCVodeSVtolerancesB(void *farg1, int const *farg2, double c
   sunrealtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -2546,7 +2546,7 @@ SWIGEXPORT int _wrap_FCVodeQuadInitB(void *farg1, int const *farg2, CVQuadRhsFnB
   CVQuadRhsFnB arg3 = (CVQuadRhsFnB) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVQuadRhsFnB)(farg3);
@@ -2564,7 +2564,7 @@ SWIGEXPORT int _wrap_FCVodeQuadInitBS(void *farg1, int const *farg2, CVQuadRhsFn
   CVQuadRhsFnBS arg3 = (CVQuadRhsFnBS) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVQuadRhsFnBS)(farg3);
@@ -2581,7 +2581,7 @@ SWIGEXPORT int _wrap_FCVodeQuadReInitB(void *farg1, int const *farg2, N_Vector f
   int arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (N_Vector)(farg3);
@@ -2598,7 +2598,7 @@ SWIGEXPORT int _wrap_FCVodeQuadSStolerancesB(void *farg1, int const *farg2, doub
   sunrealtype arg3 ;
   sunrealtype arg4 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -2616,7 +2616,7 @@ SWIGEXPORT int _wrap_FCVodeQuadSVtolerancesB(void *farg1, int const *farg2, doub
   sunrealtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -2636,7 +2636,7 @@ SWIGEXPORT int _wrap_FCVodeF(void *farg1, double const *farg2, N_Vector farg3, d
   int arg5 ;
   int *arg6 = (int *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
@@ -2655,7 +2655,7 @@ SWIGEXPORT int _wrap_FCVodeB(void *farg1, double const *farg2, int const *farg3)
   sunrealtype arg2 ;
   int arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
@@ -2669,7 +2669,7 @@ SWIGEXPORT int _wrap_FCVodeSetAdjNoSensi(void *farg1) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   result = (int)CVodeSetAdjNoSensi(arg1);
   fresult = (int)(result);
@@ -2683,7 +2683,7 @@ SWIGEXPORT int _wrap_FCVodeSetUserDataB(void *farg1, int const *farg2, void *far
   int arg2 ;
   void *arg3 = (void *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (void *)(farg3);
@@ -2699,7 +2699,7 @@ SWIGEXPORT int _wrap_FCVodeSetMaxOrdB(void *farg1, int const *farg2, int const *
   int arg2 ;
   int arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (int)(*farg3);
@@ -2715,7 +2715,7 @@ SWIGEXPORT int _wrap_FCVodeSetMaxNumStepsB(void *farg1, int const *farg2, long c
   int arg2 ;
   long arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (long)(*farg3);
@@ -2731,7 +2731,7 @@ SWIGEXPORT int _wrap_FCVodeSetStabLimDetB(void *farg1, int const *farg2, int con
   int arg2 ;
   int arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (int)(*farg3);
@@ -2747,7 +2747,7 @@ SWIGEXPORT int _wrap_FCVodeSetInitStepB(void *farg1, int const *farg2, double co
   int arg2 ;
   sunrealtype arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -2763,7 +2763,7 @@ SWIGEXPORT int _wrap_FCVodeSetMinStepB(void *farg1, int const *farg2, double con
   int arg2 ;
   sunrealtype arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -2779,7 +2779,7 @@ SWIGEXPORT int _wrap_FCVodeSetMaxStepB(void *farg1, int const *farg2, double con
   int arg2 ;
   sunrealtype arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -2795,7 +2795,7 @@ SWIGEXPORT int _wrap_FCVodeSetConstraintsB(void *farg1, int const *farg2, N_Vect
   int arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (N_Vector)(farg3);
@@ -2811,7 +2811,7 @@ SWIGEXPORT int _wrap_FCVodeSetQuadErrConB(void *farg1, int const *farg2, int con
   int arg2 ;
   int arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (int)(*farg3);
@@ -2827,7 +2827,7 @@ SWIGEXPORT int _wrap_FCVodeSetNonlinearSolverB(void *farg1, int const *farg2, SU
   int arg2 ;
   SUNNonlinearSolver arg3 = (SUNNonlinearSolver) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (SUNNonlinearSolver)(farg3);
@@ -2844,7 +2844,7 @@ SWIGEXPORT int _wrap_FCVodeGetB(void *farg1, int const *farg2, double *farg3, N_
   sunrealtype *arg3 = (sunrealtype *) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype *)(farg3);
@@ -2862,7 +2862,7 @@ SWIGEXPORT int _wrap_FCVodeGetQuadB(void *farg1, int const *farg2, double *farg3
   sunrealtype *arg3 = (sunrealtype *) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype *)(farg3);
@@ -2878,7 +2878,7 @@ SWIGEXPORT void * _wrap_FCVodeGetAdjCVodeBmem(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   void *result = 0 ;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (void *)CVodeGetAdjCVodeBmem(arg1,arg2);
@@ -2893,7 +2893,7 @@ SWIGEXPORT int _wrap_FCVodeGetAdjY(void *farg1, double const *farg2, N_Vector fa
   sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
@@ -2906,7 +2906,7 @@ SWIGEXPORT int _wrap_FCVodeGetAdjY(void *farg1, double const *farg2, N_Vector fa
 SWIGEXPORT void _wrap_CVadjCheckPointRec_my_addr_set(SwigClassWrapper const *farg1, void *farg2) {
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   void *arg2 = (void *) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::my_addr", return );
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   arg2 = (void *)(farg2);
@@ -2918,7 +2918,7 @@ SWIGEXPORT void * _wrap_CVadjCheckPointRec_my_addr_get(SwigClassWrapper const *f
   void * fresult ;
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   void *result = 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::my_addr", return 0);
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   result = (void *) ((arg1)->my_addr);
@@ -2930,7 +2930,7 @@ SWIGEXPORT void * _wrap_CVadjCheckPointRec_my_addr_get(SwigClassWrapper const *f
 SWIGEXPORT void _wrap_CVadjCheckPointRec_next_addr_set(SwigClassWrapper const *farg1, void *farg2) {
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   void *arg2 = (void *) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::next_addr", return );
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   arg2 = (void *)(farg2);
@@ -2942,7 +2942,7 @@ SWIGEXPORT void * _wrap_CVadjCheckPointRec_next_addr_get(SwigClassWrapper const 
   void * fresult ;
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   void *result = 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::next_addr", return 0);
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   result = (void *) ((arg1)->next_addr);
@@ -2954,7 +2954,7 @@ SWIGEXPORT void * _wrap_CVadjCheckPointRec_next_addr_get(SwigClassWrapper const 
 SWIGEXPORT void _wrap_CVadjCheckPointRec_t0_set(SwigClassWrapper const *farg1, double const *farg2) {
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   sunrealtype arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::t0", return );
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   arg2 = (sunrealtype)(*farg2);
@@ -2966,7 +2966,7 @@ SWIGEXPORT double _wrap_CVadjCheckPointRec_t0_get(SwigClassWrapper const *farg1)
   double fresult ;
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   sunrealtype result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::t0", return 0);
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   result = (sunrealtype) ((arg1)->t0);
@@ -2978,7 +2978,7 @@ SWIGEXPORT double _wrap_CVadjCheckPointRec_t0_get(SwigClassWrapper const *farg1)
 SWIGEXPORT void _wrap_CVadjCheckPointRec_t1_set(SwigClassWrapper const *farg1, double const *farg2) {
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   sunrealtype arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::t1", return );
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   arg2 = (sunrealtype)(*farg2);
@@ -2990,7 +2990,7 @@ SWIGEXPORT double _wrap_CVadjCheckPointRec_t1_get(SwigClassWrapper const *farg1)
   double fresult ;
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   sunrealtype result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::t1", return 0);
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   result = (sunrealtype) ((arg1)->t1);
@@ -3002,7 +3002,7 @@ SWIGEXPORT double _wrap_CVadjCheckPointRec_t1_get(SwigClassWrapper const *farg1)
 SWIGEXPORT void _wrap_CVadjCheckPointRec_nstep_set(SwigClassWrapper const *farg1, long const *farg2) {
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   long arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::nstep", return );
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   arg2 = (long)(*farg2);
@@ -3014,7 +3014,7 @@ SWIGEXPORT long _wrap_CVadjCheckPointRec_nstep_get(SwigClassWrapper const *farg1
   long fresult ;
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   long result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::nstep", return 0);
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   result = (long) ((arg1)->nstep);
@@ -3026,7 +3026,7 @@ SWIGEXPORT long _wrap_CVadjCheckPointRec_nstep_get(SwigClassWrapper const *farg1
 SWIGEXPORT void _wrap_CVadjCheckPointRec_order_set(SwigClassWrapper const *farg1, int const *farg2) {
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   int arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::order", return );
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   arg2 = (int)(*farg2);
@@ -3038,7 +3038,7 @@ SWIGEXPORT int _wrap_CVadjCheckPointRec_order_get(SwigClassWrapper const *farg1)
   int fresult ;
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   int result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::order", return 0);
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   result = (int) ((arg1)->order);
@@ -3050,7 +3050,7 @@ SWIGEXPORT int _wrap_CVadjCheckPointRec_order_get(SwigClassWrapper const *farg1)
 SWIGEXPORT void _wrap_CVadjCheckPointRec_step_set(SwigClassWrapper const *farg1, double const *farg2) {
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   sunrealtype arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::step", return );
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   arg2 = (sunrealtype)(*farg2);
@@ -3062,7 +3062,7 @@ SWIGEXPORT double _wrap_CVadjCheckPointRec_step_get(SwigClassWrapper const *farg
   double fresult ;
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   sunrealtype result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::step", return 0);
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   result = (sunrealtype) ((arg1)->step);
@@ -3074,7 +3074,7 @@ SWIGEXPORT double _wrap_CVadjCheckPointRec_step_get(SwigClassWrapper const *farg
 SWIGEXPORT SwigClassWrapper _wrap_new_CVadjCheckPointRec() {
   SwigClassWrapper fresult ;
   CVadjCheckPointRec *result = 0 ;
-
+  
   result = (CVadjCheckPointRec *)calloc(1, sizeof(CVadjCheckPointRec));
   fresult.cptr = result;
   fresult.cmemflags = SWIG_MEM_RVALUE | (1 ? SWIG_MEM_OWN : 0);
@@ -3084,7 +3084,7 @@ SWIGEXPORT SwigClassWrapper _wrap_new_CVadjCheckPointRec() {
 
 SWIGEXPORT void _wrap_delete_CVadjCheckPointRec(SwigClassWrapper *farg1) {
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
-
+  
   SWIG_check_mutable(*farg1, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVadjCheckPointRec::~CVadjCheckPointRec()", return );
   arg1 = (CVadjCheckPointRec *)(farg1->cptr);
   free((char *) arg1);
@@ -3094,11 +3094,11 @@ SWIGEXPORT void _wrap_delete_CVadjCheckPointRec(SwigClassWrapper *farg1) {
 SWIGEXPORT void _wrap_CVadjCheckPointRec_op_assign__(SwigClassWrapper *farg1, SwigClassWrapper const *farg2) {
   CVadjCheckPointRec *arg1 = (CVadjCheckPointRec *) 0 ;
   CVadjCheckPointRec *arg2 = 0 ;
-
+  
   (void)sizeof(arg1);
   (void)sizeof(arg2);
   SWIG_assign(farg1, *farg2);
-
+  
 }
 
 
@@ -3107,7 +3107,7 @@ SWIGEXPORT int _wrap_FCVodeGetAdjCheckPointsInfo(void *farg1, SwigClassWrapper c
   void *arg1 = (void *) 0 ;
   CVadjCheckPointRec *arg2 = (CVadjCheckPointRec *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   SWIG_check_mutable(*farg2, "CVadjCheckPointRec *", "CVadjCheckPointRec", "CVodeGetAdjCheckPointsInfo(void *,CVadjCheckPointRec *)", return 0);
   arg2 = (CVadjCheckPointRec *)(farg2->cptr);
@@ -3123,7 +3123,7 @@ SWIGEXPORT int _wrap_FCVodeSetJacTimesRhsFnB(void *farg1, int const *farg2, CVRh
   int arg2 ;
   CVRhsFn arg3 = (CVRhsFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVRhsFn)(farg3);
@@ -3141,7 +3141,7 @@ SWIGEXPORT int _wrap_FCVodeGetAdjDataPointHermite(void *farg1, int const *farg2,
   N_Vector arg4 = (N_Vector) 0 ;
   N_Vector arg5 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype *)(farg3);
@@ -3161,7 +3161,7 @@ SWIGEXPORT int _wrap_FCVodeGetAdjDataPointPolynomial(void *farg1, int const *far
   int *arg4 = (int *) 0 ;
   N_Vector arg5 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype *)(farg3);
@@ -3178,7 +3178,7 @@ SWIGEXPORT int _wrap_FCVodeGetAdjCurrentCheckPoint(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   void **arg2 = (void **) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (void **)(farg2);
   result = (int)CVodeGetAdjCurrentCheckPoint(arg1,arg2);
@@ -3194,7 +3194,7 @@ SWIGEXPORT int _wrap_FCVBandPrecInit(void *farg1, int64_t const *farg2, int64_t 
   sunindextype arg3 ;
   sunindextype arg4 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunindextype)(*farg2);
   arg3 = (sunindextype)(*farg3);
@@ -3211,7 +3211,7 @@ SWIGEXPORT int _wrap_FCVBandPrecGetWorkSpace(void *farg1, long *farg2, long *far
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -3226,7 +3226,7 @@ SWIGEXPORT int _wrap_FCVBandPrecGetNumRhsEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVBandPrecGetNumRhsEvals(arg1,arg2);
@@ -3243,7 +3243,7 @@ SWIGEXPORT int _wrap_FCVBandPrecInitB(void *farg1, int const *farg2, int64_t con
   sunindextype arg4 ;
   sunindextype arg5 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunindextype)(*farg3);
@@ -3267,7 +3267,7 @@ SWIGEXPORT int _wrap_FCVBBDPrecInit(void *farg1, int64_t const *farg2, int64_t c
   CVLocalFn arg8 = (CVLocalFn) 0 ;
   CVCommFn arg9 = (CVCommFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunindextype)(*farg2);
   arg3 = (sunindextype)(*farg3);
@@ -3290,7 +3290,7 @@ SWIGEXPORT int _wrap_FCVBBDPrecReInit(void *farg1, int64_t const *farg2, int64_t
   sunindextype arg3 ;
   sunrealtype arg4 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunindextype)(*farg2);
   arg3 = (sunindextype)(*farg3);
@@ -3307,7 +3307,7 @@ SWIGEXPORT int _wrap_FCVBBDPrecGetWorkSpace(void *farg1, long *farg2, long *farg
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -3322,7 +3322,7 @@ SWIGEXPORT int _wrap_FCVBBDPrecGetNumGfnEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVBBDPrecGetNumGfnEvals(arg1,arg2);
@@ -3344,7 +3344,7 @@ SWIGEXPORT int _wrap_FCVBBDPrecInitB(void *farg1, int const *farg2, int64_t cons
   CVLocalFnB arg9 = (CVLocalFnB) 0 ;
   CVCommFnB arg10 = (CVCommFnB) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunindextype)(*farg3);
@@ -3369,7 +3369,7 @@ SWIGEXPORT int _wrap_FCVBBDPrecReInitB(void *farg1, int const *farg2, int64_t co
   sunindextype arg4 ;
   sunrealtype arg5 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunindextype)(*farg3);
@@ -3385,7 +3385,7 @@ SWIGEXPORT int _wrap_FCVDiag(void *farg1) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   result = (int)CVDiag(arg1);
   fresult = (int)(result);
@@ -3399,7 +3399,7 @@ SWIGEXPORT int _wrap_FCVDiagGetWorkSpace(void *farg1, long *farg2, long *farg3) 
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -3414,7 +3414,7 @@ SWIGEXPORT int _wrap_FCVDiagGetNumRhsEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVDiagGetNumRhsEvals(arg1,arg2);
@@ -3428,7 +3428,7 @@ SWIGEXPORT int _wrap_FCVDiagGetLastFlag(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVDiagGetLastFlag(arg1,arg2);
@@ -3441,7 +3441,7 @@ SWIGEXPORT SwigArrayWrapper _wrap_FCVDiagGetReturnFlagName(long const *farg1) {
   SwigArrayWrapper fresult ;
   long arg1 ;
   char *result = 0 ;
-
+  
   arg1 = (long)(*farg1);
   result = (char *)CVDiagGetReturnFlagName(arg1);
   fresult.size = strlen((const char*)(result));
@@ -3455,7 +3455,7 @@ SWIGEXPORT int _wrap_FCVDiagB(void *farg1, int const *farg2) {
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVDiagB(arg1,arg2);
@@ -3470,7 +3470,7 @@ SWIGEXPORT int _wrap_FCVodeSetLinearSolver(void *farg1, SUNLinearSolver farg2, S
   SUNLinearSolver arg2 = (SUNLinearSolver) 0 ;
   SUNMatrix arg3 = (SUNMatrix) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (SUNLinearSolver)(farg2);
   arg3 = (SUNMatrix)(farg3);
@@ -3485,7 +3485,7 @@ SWIGEXPORT int _wrap_FCVodeSetJacFn(void *farg1, CVLsJacFn farg2) {
   void *arg1 = (void *) 0 ;
   CVLsJacFn arg2 = (CVLsJacFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (CVLsJacFn)(farg2);
   result = (int)CVodeSetJacFn(arg1,arg2);
@@ -3499,7 +3499,7 @@ SWIGEXPORT int _wrap_FCVodeSetJacEvalFrequency(void *farg1, long const *farg2) {
   void *arg1 = (void *) 0 ;
   long arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long)(*farg2);
   result = (int)CVodeSetJacEvalFrequency(arg1,arg2);
@@ -3513,7 +3513,7 @@ SWIGEXPORT int _wrap_FCVodeSetLinearSolutionScaling(void *farg1, int const *farg
   void *arg1 = (void *) 0 ;
   int arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)CVodeSetLinearSolutionScaling(arg1,arg2);
@@ -3527,7 +3527,7 @@ SWIGEXPORT int _wrap_FCVodeSetDeltaGammaMaxBadJac(void *farg1, double const *far
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetDeltaGammaMaxBadJac(arg1,arg2);
@@ -3541,7 +3541,7 @@ SWIGEXPORT int _wrap_FCVodeSetEpsLin(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetEpsLin(arg1,arg2);
@@ -3555,7 +3555,7 @@ SWIGEXPORT int _wrap_FCVodeSetLSNormFactor(void *farg1, double const *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype arg2 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)CVodeSetLSNormFactor(arg1,arg2);
@@ -3570,7 +3570,7 @@ SWIGEXPORT int _wrap_FCVodeSetPreconditioner(void *farg1, CVLsPrecSetupFn farg2,
   CVLsPrecSetupFn arg2 = (CVLsPrecSetupFn) 0 ;
   CVLsPrecSolveFn arg3 = (CVLsPrecSolveFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (CVLsPrecSetupFn)(farg2);
   arg3 = (CVLsPrecSolveFn)(farg3);
@@ -3586,7 +3586,7 @@ SWIGEXPORT int _wrap_FCVodeSetJacTimes(void *farg1, CVLsJacTimesSetupFn farg2, C
   CVLsJacTimesSetupFn arg2 = (CVLsJacTimesSetupFn) 0 ;
   CVLsJacTimesVecFn arg3 = (CVLsJacTimesVecFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (CVLsJacTimesSetupFn)(farg2);
   arg3 = (CVLsJacTimesVecFn)(farg3);
@@ -3601,7 +3601,7 @@ SWIGEXPORT int _wrap_FCVodeSetLinSysFn(void *farg1, CVLsLinSysFn farg2) {
   void *arg1 = (void *) 0 ;
   CVLsLinSysFn arg2 = (CVLsLinSysFn) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (CVLsLinSysFn)(farg2);
   result = (int)CVodeSetLinSysFn(arg1,arg2);
@@ -3615,7 +3615,7 @@ SWIGEXPORT int _wrap_FCVodeGetJac(void *farg1, void *farg2) {
   void *arg1 = (void *) 0 ;
   SUNMatrix *arg2 = (SUNMatrix *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (SUNMatrix *)(farg2);
   result = (int)CVodeGetJac(arg1,arg2);
@@ -3629,7 +3629,7 @@ SWIGEXPORT int _wrap_FCVodeGetJacTime(void *farg1, double *farg2) {
   void *arg1 = (void *) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)CVodeGetJacTime(arg1,arg2);
@@ -3643,7 +3643,7 @@ SWIGEXPORT int _wrap_FCVodeGetJacNumSteps(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetJacNumSteps(arg1,arg2);
@@ -3658,7 +3658,7 @@ SWIGEXPORT int _wrap_FCVodeGetLinWorkSpace(void *farg1, long *farg2, long *farg3
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -3673,7 +3673,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumJacEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumJacEvals(arg1,arg2);
@@ -3687,7 +3687,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumPrecEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumPrecEvals(arg1,arg2);
@@ -3701,7 +3701,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumPrecSolves(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumPrecSolves(arg1,arg2);
@@ -3715,7 +3715,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumLinIters(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumLinIters(arg1,arg2);
@@ -3729,7 +3729,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumLinConvFails(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumLinConvFails(arg1,arg2);
@@ -3743,7 +3743,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumJTSetupEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumJTSetupEvals(arg1,arg2);
@@ -3757,7 +3757,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumJtimesEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumJtimesEvals(arg1,arg2);
@@ -3771,7 +3771,7 @@ SWIGEXPORT int _wrap_FCVodeGetNumLinRhsEvals(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetNumLinRhsEvals(arg1,arg2);
@@ -3792,7 +3792,7 @@ SWIGEXPORT int _wrap_FCVodeGetLinSolveStats(void *farg1, long *farg2, long *farg
   long *arg8 = (long *) 0 ;
   long *arg9 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -3813,7 +3813,7 @@ SWIGEXPORT int _wrap_FCVodeGetLastLinFlag(void *farg1, long *farg2) {
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)CVodeGetLastLinFlag(arg1,arg2);
@@ -3826,7 +3826,7 @@ SWIGEXPORT SwigArrayWrapper _wrap_FCVodeGetLinReturnFlagName(long const *farg1) 
   SwigArrayWrapper fresult ;
   long arg1 ;
   char *result = 0 ;
-
+  
   arg1 = (long)(*farg1);
   result = (char *)CVodeGetLinReturnFlagName(arg1);
   fresult.size = strlen((const char*)(result));
@@ -3842,7 +3842,7 @@ SWIGEXPORT int _wrap_FCVodeSetLinearSolverB(void *farg1, int const *farg2, SUNLi
   SUNLinearSolver arg3 = (SUNLinearSolver) 0 ;
   SUNMatrix arg4 = (SUNMatrix) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (SUNLinearSolver)(farg3);
@@ -3859,7 +3859,7 @@ SWIGEXPORT int _wrap_FCVodeSetJacFnB(void *farg1, int const *farg2, CVLsJacFnB f
   int arg2 ;
   CVLsJacFnB arg3 = (CVLsJacFnB) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVLsJacFnB)(farg3);
@@ -3875,7 +3875,7 @@ SWIGEXPORT int _wrap_FCVodeSetJacFnBS(void *farg1, int const *farg2, CVLsJacFnBS
   int arg2 ;
   CVLsJacFnBS arg3 = (CVLsJacFnBS) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVLsJacFnBS)(farg3);
@@ -3891,7 +3891,7 @@ SWIGEXPORT int _wrap_FCVodeSetEpsLinB(void *farg1, int const *farg2, double cons
   int arg2 ;
   sunrealtype arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -3907,7 +3907,7 @@ SWIGEXPORT int _wrap_FCVodeSetLSNormFactorB(void *farg1, int const *farg2, doubl
   int arg2 ;
   sunrealtype arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -3923,7 +3923,7 @@ SWIGEXPORT int _wrap_FCVodeSetLinearSolutionScalingB(void *farg1, int const *far
   int arg2 ;
   int arg3 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (int)(*farg3);
@@ -3940,7 +3940,7 @@ SWIGEXPORT int _wrap_FCVodeSetPreconditionerB(void *farg1, int const *farg2, CVL
   CVLsPrecSetupFnB arg3 = (CVLsPrecSetupFnB) 0 ;
   CVLsPrecSolveFnB arg4 = (CVLsPrecSolveFnB) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVLsPrecSetupFnB)(farg3);
@@ -3958,7 +3958,7 @@ SWIGEXPORT int _wrap_FCVodeSetPreconditionerBS(void *farg1, int const *farg2, CV
   CVLsPrecSetupFnBS arg3 = (CVLsPrecSetupFnBS) 0 ;
   CVLsPrecSolveFnBS arg4 = (CVLsPrecSolveFnBS) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVLsPrecSetupFnBS)(farg3);
@@ -3976,7 +3976,7 @@ SWIGEXPORT int _wrap_FCVodeSetJacTimesB(void *farg1, int const *farg2, CVLsJacTi
   CVLsJacTimesSetupFnB arg3 = (CVLsJacTimesSetupFnB) 0 ;
   CVLsJacTimesVecFnB arg4 = (CVLsJacTimesVecFnB) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVLsJacTimesSetupFnB)(farg3);
@@ -3994,7 +3994,7 @@ SWIGEXPORT int _wrap_FCVodeSetJacTimesBS(void *farg1, int const *farg2, CVLsJacT
   CVLsJacTimesSetupFnBS arg3 = (CVLsJacTimesSetupFnBS) 0 ;
   CVLsJacTimesVecFnBS arg4 = (CVLsJacTimesVecFnBS) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVLsJacTimesSetupFnBS)(farg3);
@@ -4011,7 +4011,7 @@ SWIGEXPORT int _wrap_FCVodeSetLinSysFnB(void *farg1, int const *farg2, CVLsLinSy
   int arg2 ;
   CVLsLinSysFnB arg3 = (CVLsLinSysFnB) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVLsLinSysFnB)(farg3);
@@ -4027,7 +4027,7 @@ SWIGEXPORT int _wrap_FCVodeSetLinSysFnBS(void *farg1, int const *farg2, CVLsLinS
   int arg2 ;
   CVLsLinSysFnBS arg3 = (CVLsLinSysFnBS) 0 ;
   int result;
-
+  
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (CVLsLinSysFnBS)(farg3);

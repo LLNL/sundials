@@ -192,15 +192,15 @@
  * the fortran.cxx file.
  */
 #define SWIG_contract_assert(RETURNNULL, EXPR, MSG) \
- if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); }
+ if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); } 
 
 
-#define SWIGVERSION 0x040000
+#define SWIGVERSION 0x040000 
 #define SWIG_VERSION SWIGVERSION
 
 
-#define SWIG_as_voidptr(a) (void *)((const void *)(a))
-#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a))
+#define SWIG_as_voidptr(a) (void *)((const void *)(a)) 
+#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
 #include "sundials/sundials_nvector.h"
@@ -214,7 +214,7 @@ SWIGEXPORT N_Vector _wrap_FN_VNew_Pthreads(int64_t const *farg1, int const *farg
   int arg2 ;
   SUNContext arg3 = (SUNContext) 0 ;
   N_Vector result;
-
+  
   arg1 = (sunindextype)(*farg1);
   arg2 = (int)(*farg2);
   arg3 = (SUNContext)(farg3);
@@ -230,7 +230,7 @@ SWIGEXPORT N_Vector _wrap_FN_VNewEmpty_Pthreads(int64_t const *farg1, int const 
   int arg2 ;
   SUNContext arg3 = (SUNContext) 0 ;
   N_Vector result;
-
+  
   arg1 = (sunindextype)(*farg1);
   arg2 = (int)(*farg2);
   arg3 = (SUNContext)(farg3);
@@ -247,7 +247,7 @@ SWIGEXPORT N_Vector _wrap_FN_VMake_Pthreads(int64_t const *farg1, int const *far
   sunrealtype *arg3 = (sunrealtype *) 0 ;
   SUNContext arg4 = (SUNContext) 0 ;
   N_Vector result;
-
+  
   arg1 = (sunindextype)(*farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype *)(farg3);
@@ -262,7 +262,7 @@ SWIGEXPORT int64_t _wrap_FN_VGetLength_Pthreads(N_Vector farg1) {
   int64_t fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunindextype result;
-
+  
   arg1 = (N_Vector)(farg1);
   result = N_VGetLength_Pthreads(arg1);
   fresult = (sunindextype)(result);
@@ -272,7 +272,7 @@ SWIGEXPORT int64_t _wrap_FN_VGetLength_Pthreads(N_Vector farg1) {
 
 SWIGEXPORT void _wrap_FN_VPrint_Pthreads(N_Vector farg1) {
   N_Vector arg1 = (N_Vector) 0 ;
-
+  
   arg1 = (N_Vector)(farg1);
   N_VPrint_Pthreads(arg1);
 }
@@ -281,7 +281,7 @@ SWIGEXPORT void _wrap_FN_VPrint_Pthreads(N_Vector farg1) {
 SWIGEXPORT void _wrap_FN_VPrintFile_Pthreads(N_Vector farg1, void *farg2) {
   N_Vector arg1 = (N_Vector) 0 ;
   FILE *arg2 = (FILE *) 0 ;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (FILE *)(farg2);
   N_VPrintFile_Pthreads(arg1,arg2);
@@ -292,7 +292,7 @@ SWIGEXPORT int _wrap_FN_VGetVectorID_Pthreads(N_Vector farg1) {
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector_ID result;
-
+  
   arg1 = (N_Vector)(farg1);
   result = (N_Vector_ID)N_VGetVectorID_Pthreads(arg1);
   fresult = (int)(result);
@@ -304,7 +304,7 @@ SWIGEXPORT N_Vector _wrap_FN_VCloneEmpty_Pthreads(N_Vector farg1) {
   N_Vector fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector result;
-
+  
   arg1 = (N_Vector)(farg1);
   result = (N_Vector)N_VCloneEmpty_Pthreads(arg1);
   fresult = result;
@@ -316,7 +316,7 @@ SWIGEXPORT N_Vector _wrap_FN_VClone_Pthreads(N_Vector farg1) {
   N_Vector fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector result;
-
+  
   arg1 = (N_Vector)(farg1);
   result = (N_Vector)N_VClone_Pthreads(arg1);
   fresult = result;
@@ -326,7 +326,7 @@ SWIGEXPORT N_Vector _wrap_FN_VClone_Pthreads(N_Vector farg1) {
 
 SWIGEXPORT void _wrap_FN_VDestroy_Pthreads(N_Vector farg1) {
   N_Vector arg1 = (N_Vector) 0 ;
-
+  
   arg1 = (N_Vector)(farg1);
   N_VDestroy_Pthreads(arg1);
 }
@@ -336,7 +336,7 @@ SWIGEXPORT void _wrap_FN_VSpace_Pthreads(N_Vector farg1, int64_t *farg2, int64_t
   N_Vector arg1 = (N_Vector) 0 ;
   sunindextype *arg2 = (sunindextype *) 0 ;
   sunindextype *arg3 = (sunindextype *) 0 ;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (sunindextype *)(farg2);
   arg3 = (sunindextype *)(farg3);
@@ -347,7 +347,7 @@ SWIGEXPORT void _wrap_FN_VSpace_Pthreads(N_Vector farg1, int64_t *farg2, int64_t
 SWIGEXPORT void _wrap_FN_VSetArrayPointer_Pthreads(double *farg1, N_Vector farg2) {
   sunrealtype *arg1 = (sunrealtype *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-
+  
   arg1 = (sunrealtype *)(farg1);
   arg2 = (N_Vector)(farg2);
   N_VSetArrayPointer_Pthreads(arg1,arg2);
@@ -360,7 +360,7 @@ SWIGEXPORT void _wrap_FN_VLinearSum_Pthreads(double const *farg1, N_Vector farg2
   sunrealtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   N_Vector arg5 = (N_Vector) 0 ;
-
+  
   arg1 = (sunrealtype)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -373,7 +373,7 @@ SWIGEXPORT void _wrap_FN_VLinearSum_Pthreads(double const *farg1, N_Vector farg2
 SWIGEXPORT void _wrap_FN_VConst_Pthreads(double const *farg1, N_Vector farg2) {
   sunrealtype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
-
+  
   arg1 = (sunrealtype)(*farg1);
   arg2 = (N_Vector)(farg2);
   N_VConst_Pthreads(arg1,arg2);
@@ -384,7 +384,7 @@ SWIGEXPORT void _wrap_FN_VProd_Pthreads(N_Vector farg1, N_Vector farg2, N_Vector
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -396,7 +396,7 @@ SWIGEXPORT void _wrap_FN_VDiv_Pthreads(N_Vector farg1, N_Vector farg2, N_Vector 
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -408,7 +408,7 @@ SWIGEXPORT void _wrap_FN_VScale_Pthreads(double const *farg1, N_Vector farg2, N_
   sunrealtype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
-
+  
   arg1 = (sunrealtype)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -419,7 +419,7 @@ SWIGEXPORT void _wrap_FN_VScale_Pthreads(double const *farg1, N_Vector farg2, N_
 SWIGEXPORT void _wrap_FN_VAbs_Pthreads(N_Vector farg1, N_Vector farg2) {
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   N_VAbs_Pthreads(arg1,arg2);
@@ -429,7 +429,7 @@ SWIGEXPORT void _wrap_FN_VAbs_Pthreads(N_Vector farg1, N_Vector farg2) {
 SWIGEXPORT void _wrap_FN_VInv_Pthreads(N_Vector farg1, N_Vector farg2) {
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   N_VInv_Pthreads(arg1,arg2);
@@ -440,7 +440,7 @@ SWIGEXPORT void _wrap_FN_VAddConst_Pthreads(N_Vector farg1, double const *farg2,
   N_Vector arg1 = (N_Vector) 0 ;
   sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
@@ -453,7 +453,7 @@ SWIGEXPORT double _wrap_FN_VDotProd_Pthreads(N_Vector farg1, N_Vector farg2) {
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   sunrealtype result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   result = (sunrealtype)N_VDotProd_Pthreads(arg1,arg2);
@@ -466,7 +466,7 @@ SWIGEXPORT double _wrap_FN_VMaxNorm_Pthreads(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunrealtype result;
-
+  
   arg1 = (N_Vector)(farg1);
   result = (sunrealtype)N_VMaxNorm_Pthreads(arg1);
   fresult = (sunrealtype)(result);
@@ -479,7 +479,7 @@ SWIGEXPORT double _wrap_FN_VWrmsNorm_Pthreads(N_Vector farg1, N_Vector farg2) {
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   sunrealtype result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   result = (sunrealtype)N_VWrmsNorm_Pthreads(arg1,arg2);
@@ -494,7 +494,7 @@ SWIGEXPORT double _wrap_FN_VWrmsNormMask_Pthreads(N_Vector farg1, N_Vector farg2
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   sunrealtype result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -508,7 +508,7 @@ SWIGEXPORT double _wrap_FN_VMin_Pthreads(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunrealtype result;
-
+  
   arg1 = (N_Vector)(farg1);
   result = (sunrealtype)N_VMin_Pthreads(arg1);
   fresult = (sunrealtype)(result);
@@ -521,7 +521,7 @@ SWIGEXPORT double _wrap_FN_VWL2Norm_Pthreads(N_Vector farg1, N_Vector farg2) {
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   sunrealtype result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   result = (sunrealtype)N_VWL2Norm_Pthreads(arg1,arg2);
@@ -534,7 +534,7 @@ SWIGEXPORT double _wrap_FN_VL1Norm_Pthreads(N_Vector farg1) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunrealtype result;
-
+  
   arg1 = (N_Vector)(farg1);
   result = (sunrealtype)N_VL1Norm_Pthreads(arg1);
   fresult = (sunrealtype)(result);
@@ -546,7 +546,7 @@ SWIGEXPORT void _wrap_FN_VCompare_Pthreads(double const *farg1, N_Vector farg2, 
   sunrealtype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
-
+  
   arg1 = (sunrealtype)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -559,7 +559,7 @@ SWIGEXPORT int _wrap_FN_VInvTest_Pthreads(N_Vector farg1, N_Vector farg2) {
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   result = (int)N_VInvTest_Pthreads(arg1,arg2);
@@ -574,7 +574,7 @@ SWIGEXPORT int _wrap_FN_VConstrMask_Pthreads(N_Vector farg1, N_Vector farg2, N_V
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   int result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -589,7 +589,7 @@ SWIGEXPORT double _wrap_FN_VMinQuotient_Pthreads(N_Vector farg1, N_Vector farg2)
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   sunrealtype result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   result = (sunrealtype)N_VMinQuotient_Pthreads(arg1,arg2);
@@ -605,7 +605,7 @@ SWIGEXPORT int _wrap_FN_VLinearCombination_Pthreads(int const *farg1, double *fa
   N_Vector *arg3 = (N_Vector *) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (int)(*farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector *)(farg3);
@@ -624,7 +624,7 @@ SWIGEXPORT int _wrap_FN_VScaleAddMulti_Pthreads(int const *farg1, double *farg2,
   N_Vector *arg4 = (N_Vector *) 0 ;
   N_Vector *arg5 = (N_Vector *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (int)(*farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -643,7 +643,7 @@ SWIGEXPORT int _wrap_FN_VDotProdMulti_Pthreads(int const *farg1, N_Vector farg2,
   N_Vector *arg3 = (N_Vector *) 0 ;
   sunrealtype *arg4 = (sunrealtype *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (int)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector *)(farg3);
@@ -663,7 +663,7 @@ SWIGEXPORT int _wrap_FN_VLinearSumVectorArray_Pthreads(int const *farg1, double 
   N_Vector *arg5 = (N_Vector *) 0 ;
   N_Vector *arg6 = (N_Vector *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (int)(*farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector *)(farg3);
@@ -683,7 +683,7 @@ SWIGEXPORT int _wrap_FN_VScaleVectorArray_Pthreads(int const *farg1, double *far
   N_Vector *arg3 = (N_Vector *) 0 ;
   N_Vector *arg4 = (N_Vector *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (int)(*farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (N_Vector *)(farg3);
@@ -700,7 +700,7 @@ SWIGEXPORT int _wrap_FN_VConstVectorArray_Pthreads(int const *farg1, double cons
   sunrealtype arg2 ;
   N_Vector *arg3 = (N_Vector *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (int)(*farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector *)(farg3);
@@ -717,7 +717,7 @@ SWIGEXPORT int _wrap_FN_VWrmsNormVectorArray_Pthreads(int const *farg1, void *fa
   N_Vector *arg3 = (N_Vector *) 0 ;
   sunrealtype *arg4 = (sunrealtype *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (int)(*farg1);
   arg2 = (N_Vector *)(farg2);
   arg3 = (N_Vector *)(farg3);
@@ -736,7 +736,7 @@ SWIGEXPORT int _wrap_FN_VWrmsNormMaskVectorArray_Pthreads(int const *farg1, void
   N_Vector arg4 = (N_Vector) 0 ;
   sunrealtype *arg5 = (sunrealtype *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (int)(*farg1);
   arg2 = (N_Vector *)(farg2);
   arg3 = (N_Vector *)(farg3);
@@ -753,7 +753,7 @@ SWIGEXPORT double _wrap_FN_VWSqrSumLocal_Pthreads(N_Vector farg1, N_Vector farg2
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
   sunrealtype result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   result = (sunrealtype)N_VWSqrSumLocal_Pthreads(arg1,arg2);
@@ -768,7 +768,7 @@ SWIGEXPORT double _wrap_FN_VWSqrSumMaskLocal_Pthreads(N_Vector farg1, N_Vector f
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   sunrealtype result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -783,7 +783,7 @@ SWIGEXPORT int _wrap_FN_VBufSize_Pthreads(N_Vector farg1, int64_t *farg2) {
   N_Vector arg1 = (N_Vector) 0 ;
   sunindextype *arg2 = (sunindextype *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (sunindextype *)(farg2);
   result = (SUNErrCode)N_VBufSize_Pthreads(arg1,arg2);
@@ -797,7 +797,7 @@ SWIGEXPORT int _wrap_FN_VBufPack_Pthreads(N_Vector farg1, void *farg2) {
   N_Vector arg1 = (N_Vector) 0 ;
   void *arg2 = (void *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (void *)(farg2);
   result = (SUNErrCode)N_VBufPack_Pthreads(arg1,arg2);
@@ -811,7 +811,7 @@ SWIGEXPORT int _wrap_FN_VBufUnpack_Pthreads(N_Vector farg1, void *farg2) {
   N_Vector arg1 = (N_Vector) 0 ;
   void *arg2 = (void *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (void *)(farg2);
   result = (SUNErrCode)N_VBufUnpack_Pthreads(arg1,arg2);
@@ -825,7 +825,7 @@ SWIGEXPORT int _wrap_FN_VEnableFusedOps_Pthreads(N_Vector farg1, int const *farg
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)N_VEnableFusedOps_Pthreads(arg1,arg2);
@@ -839,7 +839,7 @@ SWIGEXPORT int _wrap_FN_VEnableLinearCombination_Pthreads(N_Vector farg1, int co
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)N_VEnableLinearCombination_Pthreads(arg1,arg2);
@@ -853,7 +853,7 @@ SWIGEXPORT int _wrap_FN_VEnableScaleAddMulti_Pthreads(N_Vector farg1, int const 
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)N_VEnableScaleAddMulti_Pthreads(arg1,arg2);
@@ -867,7 +867,7 @@ SWIGEXPORT int _wrap_FN_VEnableDotProdMulti_Pthreads(N_Vector farg1, int const *
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)N_VEnableDotProdMulti_Pthreads(arg1,arg2);
@@ -881,7 +881,7 @@ SWIGEXPORT int _wrap_FN_VEnableLinearSumVectorArray_Pthreads(N_Vector farg1, int
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)N_VEnableLinearSumVectorArray_Pthreads(arg1,arg2);
@@ -895,7 +895,7 @@ SWIGEXPORT int _wrap_FN_VEnableScaleVectorArray_Pthreads(N_Vector farg1, int con
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)N_VEnableScaleVectorArray_Pthreads(arg1,arg2);
@@ -909,7 +909,7 @@ SWIGEXPORT int _wrap_FN_VEnableConstVectorArray_Pthreads(N_Vector farg1, int con
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)N_VEnableConstVectorArray_Pthreads(arg1,arg2);
@@ -923,7 +923,7 @@ SWIGEXPORT int _wrap_FN_VEnableWrmsNormVectorArray_Pthreads(N_Vector farg1, int 
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)N_VEnableWrmsNormVectorArray_Pthreads(arg1,arg2);
@@ -937,7 +937,7 @@ SWIGEXPORT int _wrap_FN_VEnableWrmsNormMaskVectorArray_Pthreads(N_Vector farg1, 
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)N_VEnableWrmsNormMaskVectorArray_Pthreads(arg1,arg2);

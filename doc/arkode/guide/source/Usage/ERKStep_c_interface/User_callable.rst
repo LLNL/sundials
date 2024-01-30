@@ -1156,7 +1156,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       To reset ERKStep to its default behavior after a non-default controller has been used, users should either
       specifically create the PI controller *C* and attach it here, or call :c:func:`ERKStepSetDefaults()`.
 
-   .. versionadded:: x.x.x
+   .. versionadded:: 5.7.0
 
 
 .. c:function:: int ERKStepSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
@@ -1180,7 +1180,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       :c:func:`ERKStepSetStabilityFn()` should be used instead.
 
 
-   .. deprecated:: x.x.x
+   .. deprecated:: 5.7.0
 
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
@@ -1217,12 +1217,12 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       parameter values are desired, it is recommended to instead provide
       a custom function through a call to :c:func:`ERKStepSetAdaptivityFn()`.
 
-      .. versionchanged:: x.x.x
-
-         Prior to version x.x.x, any nonzero value for *pq* would result in use of the
+      .. versionchanged:: 5.7.0
+         
+         Prior to version 5.7.0, any nonzero value for *pq* would result in use of the
          embedding order of accuracy.
 
-   .. deprecated:: x.x.x
+   .. deprecated:: 5.7.0
 
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 
@@ -1247,7 +1247,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       This should be called prior to calling :c:func:`ERKStepEvolve()`, and can only be
       reset following a call to :c:func:`ERKStepReInit()`.
 
-   .. versionadded:: x.x.x
+   .. versionadded:: 5.7.0
 
 .. c:function:: int ERKStepSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac)
 
@@ -1290,7 +1290,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       :c:func:`ERKStepSetAdaptController` will be called, then this routine must be called
       *second*.
 
-   .. deprecated:: x.x.x
+   .. deprecated:: 5.7.0
 
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
 

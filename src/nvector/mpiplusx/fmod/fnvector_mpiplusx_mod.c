@@ -192,15 +192,15 @@
  * the fortran.cxx file.
  */
 #define SWIG_contract_assert(RETURNNULL, EXPR, MSG) \
- if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); }
+ if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); } 
 
 
-#define SWIGVERSION 0x040000
+#define SWIGVERSION 0x040000 
 #define SWIG_VERSION SWIGVERSION
 
 
-#define SWIG_as_voidptr(a) (void *)((const void *)(a))
-#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a))
+#define SWIG_as_voidptr(a) (void *)((const void *)(a)) 
+#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
 #include "sundials/sundials_nvector.h"
@@ -214,7 +214,7 @@ SWIGEXPORT N_Vector _wrap_FN_VMake_MPIPlusX(int const *farg1, N_Vector farg2, vo
   N_Vector arg2 = (N_Vector) 0 ;
   SUNContext arg3 = (SUNContext) 0 ;
   N_Vector result;
-
+  
 #if SUNDIALS_MPI_ENABLED
   int flag = 0;
   MPI_Initialized(&flag);
@@ -238,7 +238,7 @@ SWIGEXPORT int _wrap_FN_VGetVectorID_MPIPlusX(N_Vector farg1) {
   int fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector_ID result;
-
+  
   arg1 = (N_Vector)(farg1);
   result = (N_Vector_ID)N_VGetVectorID_MPIPlusX(arg1);
   fresult = (int)(result);
@@ -249,7 +249,7 @@ SWIGEXPORT int _wrap_FN_VGetVectorID_MPIPlusX(N_Vector farg1) {
 SWIGEXPORT void _wrap_FN_VSetArrayPointer_MPIPlusX(double *farg1, N_Vector farg2) {
   sunrealtype *arg1 = (sunrealtype *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
-
+  
   arg1 = (sunrealtype *)(farg1);
   arg2 = (N_Vector)(farg2);
   N_VSetArrayPointer_MPIPlusX(arg1,arg2);
@@ -260,7 +260,7 @@ SWIGEXPORT N_Vector _wrap_FN_VGetLocalVector_MPIPlusX(N_Vector farg1) {
   N_Vector fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   N_Vector result;
-
+  
   arg1 = (N_Vector)(farg1);
   result = (N_Vector)N_VGetLocalVector_MPIPlusX(arg1);
   fresult = result;
@@ -272,7 +272,7 @@ SWIGEXPORT int64_t _wrap_FN_VGetLocalLength_MPIPlusX(N_Vector farg1) {
   int64_t fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunindextype result;
-
+  
   arg1 = (N_Vector)(farg1);
   result = N_VGetLocalLength_MPIPlusX(arg1);
   fresult = (sunindextype)(result);
@@ -285,7 +285,7 @@ SWIGEXPORT int _wrap_FN_VEnableFusedOps_MPIPlusX(N_Vector farg1, int const *farg
   N_Vector arg1 = (N_Vector) 0 ;
   int arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)N_VEnableFusedOps_MPIPlusX(arg1,arg2);
@@ -296,7 +296,7 @@ SWIGEXPORT int _wrap_FN_VEnableFusedOps_MPIPlusX(N_Vector farg1, int const *farg
 
 SWIGEXPORT void _wrap_FN_VPrint_MPIPlusX(N_Vector farg1) {
   N_Vector arg1 = (N_Vector) 0 ;
-
+  
   arg1 = (N_Vector)(farg1);
   N_VPrint_MPIPlusX(arg1);
 }
@@ -305,7 +305,7 @@ SWIGEXPORT void _wrap_FN_VPrint_MPIPlusX(N_Vector farg1) {
 SWIGEXPORT void _wrap_FN_VPrintFile_MPIPlusX(N_Vector farg1, void *farg2) {
   N_Vector arg1 = (N_Vector) 0 ;
   FILE *arg2 = (FILE *) 0 ;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (FILE *)(farg2);
   N_VPrintFile_MPIPlusX(arg1,arg2);

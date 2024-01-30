@@ -192,15 +192,15 @@
  * the fortran.cxx file.
  */
 #define SWIG_contract_assert(RETURNNULL, EXPR, MSG) \
- if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); }
+ if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); } 
 
 
-#define SWIGVERSION 0x040000
+#define SWIGVERSION 0x040000 
 #define SWIG_VERSION SWIGVERSION
 
 
-#define SWIG_as_voidptr(a) (void *)((const void *)(a))
-#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a))
+#define SWIG_as_voidptr(a) (void *)((const void *)(a)) 
+#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
 #include "sundials/sundials_linearsolver.h"
@@ -215,7 +215,7 @@ SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_SPTFQMR(N_Vector farg1, int const *f
   int arg3 ;
   SUNContext arg4 = (SUNContext) 0 ;
   SUNLinearSolver result;
-
+  
   arg1 = (N_Vector)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (int)(*farg3);
@@ -231,7 +231,7 @@ SWIGEXPORT int _wrap_FSUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver farg1, int co
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)SUNLinSol_SPTFQMRSetPrecType(arg1,arg2);
@@ -245,7 +245,7 @@ SWIGEXPORT int _wrap_FSUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver farg1, int const 
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)SUNLinSol_SPTFQMRSetMaxl(arg1,arg2);
@@ -258,7 +258,7 @@ SWIGEXPORT int _wrap_FSUNLinSolGetType_SPTFQMR(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   SUNLinearSolver_Type result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   result = (SUNLinearSolver_Type)SUNLinSolGetType_SPTFQMR(arg1);
   fresult = (int)(result);
@@ -270,7 +270,7 @@ SWIGEXPORT int _wrap_FSUNLinSolGetID_SPTFQMR(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   SUNLinearSolver_ID result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   result = (SUNLinearSolver_ID)SUNLinSolGetID_SPTFQMR(arg1);
   fresult = (int)(result);
@@ -282,7 +282,7 @@ SWIGEXPORT int _wrap_FSUNLinSolInitialize_SPTFQMR(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   result = (SUNErrCode)SUNLinSolInitialize_SPTFQMR(arg1);
   fresult = (SUNErrCode)(result);
@@ -296,7 +296,7 @@ SWIGEXPORT int _wrap_FSUNLinSolSetATimes_SPTFQMR(SUNLinearSolver farg1, void *fa
   void *arg2 = (void *) 0 ;
   SUNATimesFn arg3 = (SUNATimesFn) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (void *)(farg2);
   arg3 = (SUNATimesFn)(farg3);
@@ -313,7 +313,7 @@ SWIGEXPORT int _wrap_FSUNLinSolSetPreconditioner_SPTFQMR(SUNLinearSolver farg1, 
   SUNPSetupFn arg3 = (SUNPSetupFn) 0 ;
   SUNPSolveFn arg4 = (SUNPSolveFn) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (void *)(farg2);
   arg3 = (SUNPSetupFn)(farg3);
@@ -330,7 +330,7 @@ SWIGEXPORT int _wrap_FSUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver farg1, 
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -345,7 +345,7 @@ SWIGEXPORT int _wrap_FSUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver farg1, int c
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)SUNLinSolSetZeroGuess_SPTFQMR(arg1,arg2);
@@ -359,7 +359,7 @@ SWIGEXPORT int _wrap_FSUNLinSolSetup_SPTFQMR(SUNLinearSolver farg1, SUNMatrix fa
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   int result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (SUNMatrix)(farg2);
   result = (int)SUNLinSolSetup_SPTFQMR(arg1,arg2);
@@ -376,7 +376,7 @@ SWIGEXPORT int _wrap_FSUNLinSolSolve_SPTFQMR(SUNLinearSolver farg1, SUNMatrix fa
   N_Vector arg4 = (N_Vector) 0 ;
   sunrealtype arg5 ;
   int result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (SUNMatrix)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -392,7 +392,7 @@ SWIGEXPORT int _wrap_FSUNLinSolNumIters_SPTFQMR(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   int result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   result = (int)SUNLinSolNumIters_SPTFQMR(arg1);
   fresult = (int)(result);
@@ -404,7 +404,7 @@ SWIGEXPORT double _wrap_FSUNLinSolResNorm_SPTFQMR(SUNLinearSolver farg1) {
   double fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   sunrealtype result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   result = (sunrealtype)SUNLinSolResNorm_SPTFQMR(arg1);
   fresult = (sunrealtype)(result);
@@ -416,7 +416,7 @@ SWIGEXPORT N_Vector _wrap_FSUNLinSolResid_SPTFQMR(SUNLinearSolver farg1) {
   N_Vector fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   N_Vector result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   result = (N_Vector)SUNLinSolResid_SPTFQMR(arg1);
   fresult = result;
@@ -428,7 +428,7 @@ SWIGEXPORT int64_t _wrap_FSUNLinSolLastFlag_SPTFQMR(SUNLinearSolver farg1) {
   int64_t fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   sunindextype result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   result = SUNLinSolLastFlag_SPTFQMR(arg1);
   fresult = (sunindextype)(result);
@@ -442,7 +442,7 @@ SWIGEXPORT int _wrap_FSUNLinSolSpace_SPTFQMR(SUNLinearSolver farg1, long *farg2,
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
@@ -456,7 +456,7 @@ SWIGEXPORT int _wrap_FSUNLinSolFree_SPTFQMR(SUNLinearSolver farg1) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNLinearSolver)(farg1);
   result = (SUNErrCode)SUNLinSolFree_SPTFQMR(arg1);
   fresult = (SUNErrCode)(result);

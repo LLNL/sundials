@@ -130,10 +130,10 @@ type(SUNLinearSolver), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: y
 type(SUNMatrix), target, intent(inout) :: a
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(y)
 farg2 = c_loc(a)
@@ -147,8 +147,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNLinearSolver_Type) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolGetType_Band(farg1)
@@ -160,8 +160,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNLinearSolver_ID) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolGetID_Band(farg1)
@@ -173,8 +173,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolInitialize_Band(farg1)
@@ -187,9 +187,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(s)
 farg2 = c_loc(a)
@@ -206,12 +206,12 @@ type(SUNMatrix), target, intent(inout) :: a
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: b
 real(C_DOUBLE), intent(in) :: tol
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
-real(C_DOUBLE) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+real(C_DOUBLE) :: farg5 
 
 farg1 = c_loc(s)
 farg2 = c_loc(a)
@@ -227,8 +227,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT64_T) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT64_T) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolLastFlag_Band(farg1)
@@ -242,10 +242,10 @@ integer(C_INT) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrwls
 integer(C_LONG), dimension(*), target, intent(inout) :: leniwls
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(s)
 farg2 = c_loc(lenrwls(1))
@@ -259,8 +259,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolFree_Band(farg1)

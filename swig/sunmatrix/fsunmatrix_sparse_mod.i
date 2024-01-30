@@ -40,7 +40,7 @@ SWIGEXPORT double * _wrap_FSUNSparseMatrix_Data(SUNMatrix farg1) {
   double * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunrealtype *result = 0 ;
-
+  
   arg1 = (SUNMatrix)(farg1);
   result = (sunrealtype *)SUNSparseMatrix_Data(arg1);
   fresult = result;
@@ -51,7 +51,7 @@ SWIGEXPORT int64_t * _wrap_FSUNSparseMatrix_IndexValues(SUNMatrix farg1) {
   int64_t * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunindextype *result = 0 ;
-
+  
   arg1 = (SUNMatrix)(farg1);
   result = (sunindextype *)SUNSparseMatrix_IndexValues(arg1);
   fresult = result;
@@ -62,7 +62,7 @@ SWIGEXPORT int64_t * _wrap_FSUNSparseMatrix_IndexPointers(SUNMatrix farg1) {
   int64_t * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunindextype *result = 0 ;
-
+  
   arg1 = (SUNMatrix)(farg1);
   result = (sunindextype *)SUNSparseMatrix_IndexPointers(arg1);
   fresult = result;
@@ -109,8 +109,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_Data(farg1)
@@ -122,8 +122,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), dimension(:), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_IndexValues(farg1)
@@ -135,11 +135,11 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), dimension(:), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_IndexPointers(farg1)
 call c_f_pointer(fresult, swig_result, [FSUNSparseMatrix_NP(a)+1])
-end function
+end function  
 %}

@@ -192,15 +192,15 @@
  * the fortran.cxx file.
  */
 #define SWIG_contract_assert(RETURNNULL, EXPR, MSG) \
- if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); }
+ if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); } 
 
 
-#define SWIGVERSION 0x040000
+#define SWIGVERSION 0x040000 
 #define SWIG_VERSION SWIGVERSION
 
 
-#define SWIG_as_voidptr(a) (void *)((const void *)(a))
-#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a))
+#define SWIG_as_voidptr(a) (void *)((const void *)(a)) 
+#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
 #include "sundials/sundials_adaptcontroller.h"
@@ -212,7 +212,7 @@ SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_ImExGus(void *farg1) {
   SUNAdaptController fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
   SUNAdaptController result;
-
+  
   arg1 = (SUNContext)(farg1);
   result = (SUNAdaptController)SUNAdaptController_ImExGus(arg1);
   fresult = result;
@@ -228,7 +228,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_ImExGus(SUNAdaptController fa
   sunrealtype arg4 ;
   sunrealtype arg5 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -244,7 +244,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_GetType_ImExGus(SUNAdaptController farg
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   SUNAdaptController_Type result;
-
+  
   arg1 = (SUNAdaptController)(farg1);
   result = (SUNAdaptController_Type)SUNAdaptController_GetType_ImExGus(arg1);
   fresult = (int)(result);
@@ -260,7 +260,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep_ImExGus(SUNAdaptController
   sunrealtype arg4 ;
   sunrealtype *arg5 = (sunrealtype *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (int)(*farg3);
@@ -276,7 +276,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Reset_ImExGus(SUNAdaptController farg1)
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdaptController)(farg1);
   result = (SUNErrCode)SUNAdaptController_Reset_ImExGus(arg1);
   fresult = (SUNErrCode)(result);
@@ -288,7 +288,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetDefaults_ImExGus(SUNAdaptController 
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdaptController)(farg1);
   result = (SUNErrCode)SUNAdaptController_SetDefaults_ImExGus(arg1);
   fresult = (SUNErrCode)(result);
@@ -301,7 +301,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Write_ImExGus(SUNAdaptController farg1,
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   FILE *arg2 = (FILE *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (FILE *)(farg2);
   result = (SUNErrCode)SUNAdaptController_Write_ImExGus(arg1,arg2);
@@ -315,7 +315,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   sunrealtype arg2 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (SUNErrCode)SUNAdaptController_SetErrorBias_ImExGus(arg1,arg2);
@@ -330,7 +330,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_UpdateH_ImExGus(SUNAdaptController farg
   sunrealtype arg2 ;
   sunrealtype arg3 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -346,7 +346,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Space_ImExGus(SUNAdaptController farg1,
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdaptController)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);

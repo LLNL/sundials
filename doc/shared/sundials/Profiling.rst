@@ -49,7 +49,7 @@ for information on getting profiler output. In most cases, this involves
 setting the ``CALI_CONFIG`` environment variable.
 
 
-.. note::
+.. note:: 
 
    The SUNDIALS profiler requires POSIX timers or the Windows ``profileapi.h`` timers.
 

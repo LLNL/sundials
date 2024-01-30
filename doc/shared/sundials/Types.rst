@@ -16,7 +16,7 @@ Data Types
 ==========
 
 SUNDIALS defines several data types in the header file ``sundials_types.h``.
-These types are used in the SUNDIALS API and internally in SUNDIALS. It is
+These types are used in the SUNDIALS API and internally in SUNDIALS. It is 
 not necessary to use these types in your application, but the type must
 be compatible with the SUNDIALS types in the API when calling SUNDIALS functions.
 The types that are defined are:
@@ -29,7 +29,7 @@ The types that are defined are:
 
 * :c:type:`SUNOutputFormat` -- an enumerated type for SUNDIALS output formats
 
-* :c:type:`SUNComm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI.
+* :c:type:`SUNComm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI. 
 
 
 Floating point types
@@ -153,8 +153,9 @@ Output formatting type
 MPI types
 ---------
 
-.. c:type:: SUNComm
+.. c:type:: SUNComm 
 
    A simple typedef to an `int` when SUNDIALS is built without MPI, or a
    ``MPI_Comm`` when built with MPI. This type exists solely to ensure SUNDIALS
-   can support MPI and non-MPI builds.
+   can support MPI and non-MPI builds. 
+   

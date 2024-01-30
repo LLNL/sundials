@@ -265,7 +265,7 @@ ARKodeButcherTable functions
       * ``SUNTRUE`` if the method is "stiffly accurate", otherwise returns
         ``SUNFALSE``
 
-   .. versionadded:: vX.X.X
+   .. versionadded:: v5.7.0
 
 .. c:function:: int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p, FILE* outfile)
 
