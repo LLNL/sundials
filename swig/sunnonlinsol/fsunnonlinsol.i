@@ -2,7 +2,7 @@
 // Programmer: Cody J. Balos @ LLNL
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2023, Lawrence Livermore National Security
+// Copyright (c) 2002-2024, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -22,8 +22,7 @@
 %}
 
 // Load the typedefs and generate "use" statements
-%import "../sundials/fsundials_nvector_mod.i"
-%import "../sundials/fsundials_nonlinearsolver_mod.i"
+%import "../sundials/fsundials_core_mod.i"
 
 // Macro for creating an interface to an N_Vector
 %define %sunnonlinsol_impl(TYPE)

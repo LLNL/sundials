@@ -1,7 +1,7 @@
 ..
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -29,9 +29,9 @@ and ``test_local_ci``, for example:
 .. code-block:: shell
 
    $ cd builddir
-   $ make setup_local_ci 
+   $ make setup_local_ci
    ...
-   $ make test_local_ci 
+   $ make test_local_ci
    ...
 
 The ``setup_local_ci`` target will pull the container for the configured ``SUNDIALS_PRECISION``

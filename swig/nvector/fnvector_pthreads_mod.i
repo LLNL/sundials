@@ -2,7 +2,7 @@
 // Programmer: Cody J. Balos @ LLNL
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2023, Lawrence Livermore National Security
+// Copyright (c) 2002-2024, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -27,9 +27,9 @@
 // nvector_impl macro defines some ignore and inserts with the vector name appended
 %nvector_impl(Pthreads)
 
-// ignore the Pthreads_Data struct  
+// ignore the Pthreads_Data struct
 %ignore _Pthreads_Data;
-  
+
 // Process and wrap functions in the following files
 %include "nvector/nvector_pthreads.h"
 
@@ -38,7 +38,7 @@ SWIGEXPORT double * _wrap_FN_VGetArrayPointer_Pthreads(N_Vector farg1) {
   double * fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunrealtype *result = 0 ;
-  
+
   arg1 = (N_Vector)(farg1);
   result = (sunrealtype *)N_VGetArrayPointer_Pthreads(arg1);
   fresult = result;
@@ -66,8 +66,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetArrayPointer_Pthreads(farg1)

@@ -2,7 +2,7 @@
    Programmer(s): Cody J. Balos @ LLNL
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -259,14 +259,14 @@ options as the vector they are cloned from while vectors created with
 .. c:function:: SUNErrCode N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
-  add a vector array to multiple vector arrays operation in the NVECTOR_OPENMPDEV vector. 
+  add a vector array to multiple vector arrays operation in the NVECTOR_OPENMPDEV vector.
   The return value is a :c:type:`SUNErrCode`.
 
 
 .. c:function:: SUNErrCode N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
-  combination operation for vector arrays in the NVECTOR_OPENMPDEV vector. 
+  combination operation for vector arrays in the NVECTOR_OPENMPDEV vector.
   The return value is a :c:type:`SUNErrCode`.
 
 

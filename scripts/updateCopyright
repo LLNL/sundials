@@ -92,7 +92,7 @@ $|=1;
 
 my $end_of_line = $/;
 
-my $endyear = '2023';
+my $endyear = '2024';
 
 my $newCopyright = <<"END";
  # SUNDIALS Copyright Start

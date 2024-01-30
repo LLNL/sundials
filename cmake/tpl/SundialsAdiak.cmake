@@ -2,7 +2,7 @@
 # Programmer(s): Yu Pan @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -62,7 +62,7 @@ if(adiak_FOUND AND (NOT adiak_WORKS))
   "int main()\n"
   "{\n"
   "  adiak_init(NULL);\n"
-  "  adiak_fini();\n" 
+  "  adiak_fini();\n"
   "  return 0;\n"
   "}\n")
 

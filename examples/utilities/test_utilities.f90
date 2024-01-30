@@ -2,7 +2,7 @@
 ! Programmer(s): Cody J. Balos @ LLNL
 ! -----------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -17,8 +17,7 @@
 module test_utilities
 
     use, intrinsic :: iso_c_binding
-    use fsundials_types_mod
-    use fsundials_context_mod
+    use fsundials_core_mod
     implicit none
 
     real(C_DOUBLE), parameter :: SUN_UNIT_ROUNDOFF = epsilon(1.0d0)

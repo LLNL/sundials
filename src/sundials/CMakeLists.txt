@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -148,13 +148,13 @@ sundials_add_library(sundials_core
 )
 
 # Install private headers
-install(FILES 
+install(FILES
   ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_context_impl.h
   ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_errors_impl.h
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials/priv")
 
 if(ENABLE_MPI)
-  install(FILES 
+  install(FILES
     ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_mpi_errors_impl.h
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials/priv")
 endif()

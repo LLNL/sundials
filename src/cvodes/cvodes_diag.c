@@ -1,9 +1,9 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2023, Lawrence Livermore National Security
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -40,7 +40,7 @@ static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
 static int CVDiagFree(CVodeMem cv_mem);
 
-/* 
+/*
  * ================================================================
  *
  *                   PART I - forward problems
@@ -78,7 +78,7 @@ static int CVDiagFree(CVodeMem cv_mem);
 
 /*
  * -----------------------------------------------------------------
- * CVDiag 
+ * CVDiag
  * -----------------------------------------------------------------
  * This routine initializes the memory record and sets various function
  * fields specific to the diagonal linear solver module.  CVDense first
@@ -89,7 +89,7 @@ static int CVDiagFree(CVodeMem cv_mem);
  * CVDiagMemRec and sets the cv_lmem field in (*cvode_mem) to the
  * address of this structure.  It sets setupNonNull in (*cvode_mem) to
  * SUNTRUE.  Finally, it allocates memory for M, bit, and bitcomp.
- * The CVDiag return value is SUCCESS = 0, LMEM_FAIL = -1, or 
+ * The CVDiag return value is SUCCESS = 0, LMEM_FAIL = -1, or
  * LIN_ILL_INPUT=-2.
  * -----------------------------------------------------------------
  */
@@ -320,8 +320,8 @@ static int CVDiagInit(CVodeMem cv_mem)
  * -----------------------------------------------------------------
  * CVDiagSetup
  * -----------------------------------------------------------------
- * This routine does the setup operations for the diagonal linear 
- * solver.  It constructs a diagonal approximation to the Newton matrix 
+ * This routine does the setup operations for the diagonal linear
+ * solver.  It constructs a diagonal approximation to the Newton matrix
  * M = I - gamma*J, updates counters, and inverts M.
  * -----------------------------------------------------------------
  */
@@ -457,7 +457,7 @@ static int CVDiagFree(CVodeMem cv_mem)
   return (0);
 }
 
-/* 
+/*
  * ================================================================
  *
  *                   PART II - backward problems
@@ -468,7 +468,7 @@ static int CVDiagFree(CVodeMem cv_mem)
 /*
  * CVDiagB
  *
- * Wrappers for the backward phase around the corresponding 
+ * Wrappers for the backward phase around the corresponding
  * CVODES functions
  */
 

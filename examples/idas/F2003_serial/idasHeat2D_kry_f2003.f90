@@ -2,7 +2,7 @@
 ! Programmer(s): Daniel R. Reynolds @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -39,6 +39,7 @@ module dae_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -66,7 +67,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
 
     !======= Declarations =========
     implicit none
@@ -122,7 +122,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+
     use fnvector_serial_mod
 
     !======= Declarations =========
@@ -169,7 +169,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+
 
     !======= Declarations =========
     implicit none
@@ -210,14 +210,10 @@ end module dae_mod
 
 program main
   use, intrinsic :: iso_c_binding
-  use fsundials_types_mod
-  use fsundials_context_mod
+  use fsundials_core_mod
   use fidas_mod                  ! Fortran interface to IDA
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunlinsol_spgmr_mod       ! Fortran interface to spgmr SUNLinearSolver
-  use fsundials_matrix_mod       ! Fortran interface to generic SUNMatrix
-  use fsundials_nvector_mod      ! Fortran interface to generic N_Vector
-  use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
   use dae_mod                    ! DAE problem module
   implicit none
 
@@ -487,7 +483,6 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-  use fsundials_nvector_mod
   use fnvector_serial_mod
   use dae_mod
 

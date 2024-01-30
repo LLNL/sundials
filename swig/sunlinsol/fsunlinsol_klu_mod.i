@@ -2,7 +2,7 @@
 // Programmer: Cody J. Balos @ LLNL
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2023, Lawrence Livermore National Security
+// Copyright (c) 2002-2024, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -20,7 +20,7 @@
 %include "fsunlinsol.i"
 
 %{
-#include "sunlinsol/sunlinsol_klu.h"  
+#include "sunlinsol/sunlinsol_klu.h"
 %}
 
 // sunlinsol_impl macro defines some ignore and inserts with the linear solver name appended

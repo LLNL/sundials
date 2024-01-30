@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -53,7 +53,7 @@ foreach(example_tuple ${sunmatrix_slunrloc_examples})
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     target_include_directories(${example_target} PRIVATE . ..)
-    
+
     # libraries to link against
     target_link_libraries(${example_target}
       PRIVATE

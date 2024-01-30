@@ -2,7 +2,7 @@
 ! Programmer(s): Cody J. Balos @ LLNL
 ! -----------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -17,9 +17,9 @@
 
 module test_fsunnonlinsol_newton
   use, intrinsic :: iso_c_binding
-  use fsundials_matrix_mod
-  use fsundials_nvector_mod
-  use fsundials_linearsolver_mod
+
+
+
   use test_utilities
 
   implicit none
@@ -47,12 +47,7 @@ contains
 
   integer(C_INT) function unit_tests() result(retval)
     use, intrinsic :: iso_c_binding
-    use fsundials_types_mod
-    use fsundials_context_mod
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
-    use fsundials_linearsolver_mod
-    use fsundials_nonlinearsolver_mod
+    use fsundials_core_mod
     use fnvector_serial_mod
     use fsunmatrix_dense_mod
     use fsunlinsol_dense_mod
@@ -177,8 +172,8 @@ contains
   integer(C_INT) function LSetup(jbad, jcur, mem) &
     result(retval) bind(C)
     use, intrinsic :: iso_c_binding
-    use fsundials_linearsolver_mod
-    use fsundials_nvector_mod
+
+
 
     implicit none
 
@@ -211,8 +206,8 @@ contains
   integer(C_INT) function LSolve(b, mem) &
     result(retval) bind(C)
     use, intrinsic :: iso_c_binding
-    use fsundials_linearsolver_mod
-    use fsundials_nvector_mod
+
+
 
     implicit none
 
@@ -231,8 +226,8 @@ contains
   integer(C_INT) function ConvTest(NLS, y, del, tol, ewt, mem) &
     result(retval) bind(C)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_nonlinearsolver_mod
+
+
 
     implicit none
 
@@ -256,7 +251,7 @@ contains
   integer(C_INT) function Res(ycor, f, mem) &
     result(retval) bind(C)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+
 
     implicit none
 
@@ -290,8 +285,8 @@ contains
   integer(C_INT) function Jac(t, y, fy, J, user_data, tmp1, tmp2, tmp3) &
     result(retval) bind(C)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
+
+
     use fsunmatrix_dense_mod
 
     implicit none

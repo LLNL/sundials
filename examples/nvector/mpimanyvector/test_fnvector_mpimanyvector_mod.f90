@@ -2,7 +2,7 @@
 ! Programmer(s): Cody J. Balos @ LLNL
 ! -----------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -17,8 +17,8 @@
 
 module test_nvector_mpimanyvector
   use, intrinsic :: iso_c_binding
-  use fsundials_types_mod
-  use fsundials_nvector_mod
+
+
   use fnvector_mpimanyvector_mod
   use fnvector_serial_mod
   use test_utilities
@@ -177,7 +177,7 @@ end module
 integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   use, intrinsic :: iso_c_binding
   use fnvector_mpimanyvector_mod
-  use fsundials_nvector_mod
+
   use test_utilities
   implicit none
 
@@ -217,7 +217,7 @@ end function check_ans
 
 logical function has_data(X) result(failure)
   use, intrinsic :: iso_c_binding
-  use fsundials_nvector_mod
+
   use test_utilities
   implicit none
 

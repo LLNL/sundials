@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -32,7 +32,7 @@ set to a value greater than ``0`` when configuring SUNDIALS. This option
 specifies the maximum desired output level. See the documentation entry for
 :cmakeop:`SUNDIALS_LOGGING_LEVEL` for the numeric values correspond to errors,
 warnings, info output, and debug output where errors < warnings < info
-output < debug output < extra debug output. 
+output < debug output < extra debug output.
 More details in regards to configuring SUNDIALS with CMake can be
 found in :numref:`Installation`.
 

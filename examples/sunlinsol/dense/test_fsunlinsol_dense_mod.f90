@@ -2,7 +2,7 @@
 ! Programmer(s): Cody J. Balos @ LLNL
 ! -----------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -26,9 +26,9 @@ contains
 
   integer(C_INT) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
-    use fsundials_linearsolver_mod
+
+
+
     use fnvector_serial_mod
     use fsunmatrix_dense_mod
     use fsunlinsol_dense_mod
@@ -120,7 +120,7 @@ end module
 
 integer(C_INT) function check_vector(X, Y, tol) result(failure)
   use, intrinsic :: iso_c_binding
-  use fsundials_nvector_mod
+
   use test_utilities
 
   implicit none

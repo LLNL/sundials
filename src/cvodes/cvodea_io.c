@@ -6,7 +6,7 @@
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2023, Lawrence Livermore National Security
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -20,7 +20,7 @@
  * -----------------------------------------------------------------
  */
 
-/* 
+/*
  * =================================================================
  * IMPORTED HEADER FILES
  * =================================================================
@@ -32,7 +32,7 @@
 
 #include "cvodes_impl.h"
 
-/* 
+/*
  * =================================================================
  * CVODEA PRIVATE CONSTANTS
  * =================================================================
@@ -40,13 +40,13 @@
 
 #define ONE SUN_RCONST(1.0)
 
-/* 
+/*
  * =================================================================
  * EXPORTED FUNCTIONS IMPLEMENTATION
  * =================================================================
  */
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Optional input functions for ASA
  * -----------------------------------------------------------------
@@ -78,7 +78,7 @@ int CVodeSetAdjNoSensi(void* cvode_mem)
   return (CV_SUCCESS);
 }
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Optional input functions for backward integration
  * -----------------------------------------------------------------
@@ -501,7 +501,7 @@ int CVodeSetConstraintsB(void* cvode_mem, int which, N_Vector constraintsB)
 /*
  * CVodeSetQuad*B
  *
- * Wrappers for the backward phase around the corresponding 
+ * Wrappers for the backward phase around the corresponding
  * CVODES quadrature optional input functions
  */
 
@@ -552,7 +552,7 @@ int CVodeSetQuadErrConB(void* cvode_mem, int which, sunbooleantype errconQB)
   return (flag);
 }
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Optional output functions for backward integration
  * -----------------------------------------------------------------
@@ -561,9 +561,9 @@ int CVodeSetQuadErrConB(void* cvode_mem, int which, sunbooleantype errconQB)
 /*
  * CVodeGetAdjCVodeBmem
  *
- * This function returns a (void *) pointer to the CVODES     
- * memory allocated for the backward problem. This pointer can    
- * then be used to call any of the CVodeGet* CVODES routines to  
+ * This function returns a (void *) pointer to the CVODES
+ * memory allocated for the backward problem. This pointer can
+ * then be used to call any of the CVodeGet* CVODES routines to
  * extract optional output for the backward integration phase.
  */
 
@@ -661,7 +661,7 @@ int CVodeGetAdjCheckPointsInfo(void* cvode_mem, CVadjCheckPointRec* ckpnt)
   return (CV_SUCCESS);
 }
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Undocumented Development User-Callable Functions
  * -----------------------------------------------------------------

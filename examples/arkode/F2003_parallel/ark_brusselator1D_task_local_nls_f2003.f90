@@ -2,7 +2,7 @@
 ! Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
 ! -----------------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -63,8 +63,7 @@ module ode_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_nvector_mod
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -136,7 +135,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
 
     !======= Declarations =========
     implicit none
@@ -223,7 +221,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
 
     !======= Declarations =========
     implicit none
@@ -300,7 +297,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
 
     !======= Declarations =========
     implicit none
@@ -334,9 +330,7 @@ module prec_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_matrix_mod
-  use fsundials_linearsolver_mod
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -359,10 +353,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
     use fsunmatrix_dense_mod
-    use fsundials_linearsolver_mod
     use fsunlinsol_dense_mod
 
     use ode_mod, only : Nvar, Npts, Neq, k2, k3, k4, k6
@@ -471,7 +462,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+
     use fnvector_mpiplusx_mod
 
     !======= Declarations =========
@@ -516,11 +507,7 @@ module nls_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_nvector_mod
-  use fsundials_matrix_mod
-  use fsundials_linearsolver_mod
-  use fsundials_nonlinearsolver_mod
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -559,7 +546,7 @@ contains
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
     use farkode_arkstep_mod
-    use fsundials_nvector_mod
+
 
     use ode_mod, only : Neq, Reaction
 
@@ -653,10 +640,10 @@ contains
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
     use farkode_arkstep_mod
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
+
+
     use fsunmatrix_dense_mod
-    use fsundials_linearsolver_mod
+
 
     use ode_mod, only : Nvar, Npts, k2, k3, k4, k6
 
@@ -772,7 +759,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nonlinearsolver_mod
+
 
     !======= Declarations =========
     implicit none
@@ -792,7 +779,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nonlinearsolver_mod
+
 
     !======= Declarations =========
     implicit none
@@ -832,8 +819,8 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_nonlinearsolver_mod
+
+
     use fnvector_mpiplusx_mod
 
     use ode_mod, only : comm
@@ -894,10 +881,10 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
-    use fsundials_linearsolver_mod
-    use fsundials_nonlinearsolver_mod
+
+
+
+
 
     !======= Declarations =========
     implicit none
@@ -925,7 +912,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nonlinearsolver_mod
+
 
     !======= Declarations =========
     implicit none
@@ -946,7 +933,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nonlinearsolver_mod
+
 
     !======= Declarations =========
     implicit none
@@ -968,7 +955,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nonlinearsolver_mod
+
 
     !======= Declarations =========
     implicit none
@@ -991,9 +978,9 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+
     use fnvector_serial_mod
-    use fsundials_nonlinearsolver_mod
+
     use fsunnonlinsol_newton_mod
     use fsunlinsol_dense_mod
     use fsunmatrix_dense_mod
@@ -1062,15 +1049,10 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_types_mod        ! sundials defined types
-  use fsundials_nvector_mod      ! Access generic N_Vector
+  use fsundials_core_mod         ! Access SUNDIALS core types, data structures, etc.
   use fnvector_mpiplusx_mod      ! Access MPI+X N_Vector
   use fnvector_mpimanyvector_mod ! Access MPIManyVector N_Vector
   use fnvector_serial_mod        ! Access serial N_Vector
-  use fsundials_types_mod
-  use fsundials_context_mod      ! Access sundials context
-  use fsundials_logger_mod       ! Access SUNLogger
 
   use ode_mod, only : sunctx, logger, comm, myid, Nx, Neq, dx, fused, explicit, printtime, nout
 
@@ -1199,17 +1181,12 @@ subroutine EvolveProblemIMEX(sunvec_y)
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_futils_mod          ! Fortran utilities
+  use fsundials_core_mod
   use farkode_mod                   ! Access ARKode
   use farkode_arkstep_mod           ! Access ARKStep
-  use fsundials_nvector_mod         ! Access generic N_Vector
-  use fsundials_matrix_mod          ! Access generic SUNMatrix
   use fsunmatrix_dense_mod          ! Access dense SUNMatrix
-  use fsundials_linearsolver_mod    ! Access generic SUNLinearSolver
   use fsunlinsol_dense_mod          ! Access dense SUNLinearSolver
   use fsunlinsol_spgmr_mod          ! Access GMRES SUNLinearSolver
-  use fsundials_nonlinearsolver_mod ! Access generic SUNNonlinearSolver
   use fsunnonlinsol_newton_mod      ! Access Newton SUNNonlinearSolver
 
   use ode_mod, only : sunctx, comm, myid, Neq, t0, tf, atol, rtol, order, &
@@ -1511,11 +1488,9 @@ subroutine EvolveProblemExplicit(sunvec_y)
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_futils_mod  ! Fortran utilities
+  use fsundials_core_mod
   use farkode_mod           ! Access ARKode
   use farkode_erkstep_mod   ! Access ERKStep
-  use fsundials_nvector_mod ! Access generic N_Vector
 
   use ode_mod, only : sunctx, comm, myid, t0, tf, atol, rtol, order, monitor, &
        nout, AdvectionReaction
@@ -1663,10 +1638,10 @@ subroutine WriteOutput(t, sunvec_y)
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
+  use fsundials_core_mod
   use farkode_mod           ! Access ARKode
   use farkode_erkstep_mod   ! Access ERKStep
-  use fsundials_nvector_mod ! Access generic N_Vector
+
 
   use ode_mod, only : Nvar, nprocs, myid, Erecv, Nx, Npts, monitor,  nout, &
        umask, vmask, wmask
@@ -1746,8 +1721,7 @@ subroutine SetIC(sunvec_y)
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_nvector_mod
+  use fsundials_core_mod
 
   use ode_mod, only : Nvar, myid, Npts, xmax, dx, A, B, k1, k2, k4, k3
 
@@ -1808,8 +1782,7 @@ subroutine ExchangeBCOnly(sunvec_y)
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_nvector_mod
+  use fsundials_core_mod
 
   use ode_mod, only : Nvar, comm, myid, nprocs, Erecv, Wsend
 
@@ -1884,8 +1857,7 @@ subroutine ExchangeAllStart(sunvec_y)
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_nvector_mod
+  use fsundials_core_mod
 
   use ode_mod, only : Nvar, comm, myid, nprocs, reqS, reqR, Wrecv, Wsend, &
        Erecv, Esend, Npts, c
@@ -1980,7 +1952,6 @@ subroutine ExchangeAllEnd()
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
   use ode_mod, only : comm, reqS, reqR, c
 
   !======= Declarations =========
@@ -2017,8 +1988,8 @@ subroutine SetupProblem()
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
-  use fsundials_types_mod
-  use fsundials_nvector_mod
+
+
   use fnvector_serial_mod
   use fnvector_mpiplusx_mod
   use fnvector_mpimanyvector_mod
@@ -2284,14 +2255,7 @@ subroutine FreeProblem()
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_types_mod
-  use fsundials_context_mod
-  use fsundials_logger_mod
-  use fsundials_nvector_mod
-  use fsundials_matrix_mod
-  use fsundials_linearsolver_mod
-
+  use fsundials_core_mod
   use ode_mod, only : sunctx, logger, myid, nout, umask_s, umask, vmask, wmask
 
   !======= Declarations =========

@@ -3,7 +3,7 @@
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2023, Lawrence Livermore National Security
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -44,7 +44,7 @@ typedef struct IBBDPrecDataRec
   IDABBDLocalFn glocal;
   IDABBDCommFn gcomm;
 
-  /* set by IDABBDPrecSetup and used by IDABBDPrecSetup and 
+  /* set by IDABBDPrecSetup and used by IDABBDPrecSetup and
      IDABBDPrecSolve functions */
   sunindextype n_local;
   SUNMatrix PP;

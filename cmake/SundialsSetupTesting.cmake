@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -82,10 +82,10 @@ if(SUNDIALS_TEST_DEVTESTS)
   if(SUNDIALS_TEST_INTEGER_PRECISION GREATER_EQUAL "0")
     message(STATUS "Using non-default integer precision: ${SUNDIALS_TEST_INTEGER_PRECISION}")
   endif()
-  
+
   #
   # Target to run tests in CI containers
-  # 
+  #
   if(NOT SUNDIALS_TEST_CONTAINER_EXE)
     find_program(container_exe docker)
     if(NOT container_exe)
@@ -95,7 +95,7 @@ if(SUNDIALS_TEST_DEVTESTS)
   endif()
 
   if(SUNDIALS_TEST_CONTAINER_EXE)
-    add_custom_target(setup_local_ci 
+    add_custom_target(setup_local_ci
       ${CMAKE_COMMAND} -E cmake_echo_color --cyan
       "Pulled SUNDIALS CI containers.")
 
@@ -106,7 +106,7 @@ if(SUNDIALS_TEST_DEVTESTS)
     macro(add_local_ci_target index_size precision tag)
       string(TOLOWER "${precision}" precision_)
       set(container sundials-ci-int${index_size}-${precision_})
-      set(container_exe_args run ${SUNDIALS_TEST_CONTAINER_RUN_EXTRA_ARGS} -t -d --name ${container} --cap-add SYS_PTRACE 
+      set(container_exe_args run ${SUNDIALS_TEST_CONTAINER_RUN_EXTRA_ARGS} -t -d --name ${container} --cap-add SYS_PTRACE
           -v ${CMAKE_SOURCE_DIR}:${SUNDIALS_TEST_CONTAINER_MNT} ghcr.io/llnl/${container}:${tag})
       add_custom_target(setup_local_ci_${index_size}_${precision_}
         COMMENT "Pulling SUNDIALS CI container ghcr.io/llnl/${container}:${tag}"
@@ -142,7 +142,7 @@ if(SUNDIALS_TEST_UNITTESTS AND SUNDIALS_TEST_ENABLE_GTEST)
     FetchContent_Declare(
       googletest
       URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-      GIT_TAG v1.14.0  
+      GIT_TAG v1.14.0
     )
     if(WIN32)
       # For Windows: Prevent overriding the parent project's compiler/linker settings
@@ -184,7 +184,7 @@ endif()
 if(BUILD_BENCHMARKS)
 
   message("SUNDIALS Benchmarking")
-  
+
   # Create benchmark targets
   add_custom_target(benchmark
     ${CMAKE_COMMAND} -E cmake_echo_color --cyan

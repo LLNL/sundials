@@ -1,11 +1,11 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2023, Lawrence Livermore National Security
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *

@@ -2,7 +2,7 @@
 # Programmer(s): Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -52,7 +52,7 @@ foreach(example_tuple ${IDA_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  target_link_libraries(${example} PRIVATE 
+  target_link_libraries(${example} PRIVATE
     MPI::MPI_CXX ${SUNDIALS_LIBS})
 
   # install example source and out files

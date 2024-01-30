@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -81,13 +81,13 @@ if(MAGMA_LIBRARY AND MAGMA_INCLUDE_DIR)
     if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
       if (NOT TARGET CUDA::cudart)
         find_package(CUDAToolkit REQUIRED)
-      endif() 
+      endif()
     endif()
 
     foreach(lib ${_libraries_list})
       if(NOT (lib STREQUAL "-lmagma" OR lib STREQUAL "-lmagma_sparse"
             OR lib STREQUAL "-L\${libdir}" OR lib STREQUAL "") )
-        
+
         # Check if we need to find cusparse or cublas
         if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
           # Replace cublas, cusparse with the CMake targets because the library path in
@@ -100,7 +100,7 @@ if(MAGMA_LIBRARY AND MAGMA_INCLUDE_DIR)
             set(lib CUDA::cusparse)
           endif()
         endif()
-        
+
         list(APPEND _interface_libraires ${lib})
       endif()
     endforeach()

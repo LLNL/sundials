@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -171,7 +171,7 @@ The :c:type:`SUNContext` API further consists of the following functions:
    Gets the :c:type:`SUNLogger` object associated with the :c:type:`SUNContext` object.
 
    :param sunctx: a valid :c:type:`SUNContext` object.
-   :param logger: [in,out] a pointer to the :c:type:`SUNLogger` object associated with this context; will be ``NULL`` if logging is not enabled.  
+   :param logger: [in,out] a pointer to the :c:type:`SUNLogger` object associated with this context; will be ``NULL`` if logging is not enabled.
 
    :return: :c:type:`SUNErrCode` indicating success or failure.
 

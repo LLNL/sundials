@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -35,7 +35,7 @@ set(SUNDIALS_LIBS sundials_arkode
   sundials_nvecmpiplusx
   sundials_fnvecmpiplusx_mod
   sundials_nvecmpimanyvector
-  sundials_fnvecmpimanyvector_mod 
+  sundials_fnvecmpimanyvector_mod
   ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
@@ -107,7 +107,7 @@ if(EXAMPLES_INSTALL)
   set(SOLVER "ARKODE")
 
   # Makefile: convert semi-colon separated target list to space separated string
-  set(EXAMPLE_LIBS_LIST 
+  set(EXAMPLE_LIBS_LIST
     sundials_farkode_mod
     sundials_arkode
     sundials_fnvecmpiplusx_mod

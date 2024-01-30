@@ -1,10 +1,10 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2023, Lawrence Livermore National Security
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -46,7 +46,7 @@ typedef struct
 
   N_Vector di_bitcomp; /* temporary storage vector                  */
 
-  long int di_nfeDI; /* no. of calls to f due to difference 
+  long int di_nfeDI; /* no. of calls to f due to difference
                           quotient diagonal Jacobian approximation  */
 
   long int di_last_flag; /* last error return flag               */

@@ -2,7 +2,7 @@
 // Programmer: Cody J. Balos @ LLNL
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2023, Lawrence Livermore National Security
+// Copyright (c) 2002-2024, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -29,12 +29,7 @@
 #include "arkode/arkode_ls.h"
 %}
 
-// Load the typedefs and generate a "use" statements in the module
-%import "../sundials/fsundials_nvector_mod.i"
-%import "../sundials/fsundials_matrix_mod.i"
-%import "../sundials/fsundials_linearsolver_mod.i"
-%import "../sundials/fsundials_nonlinearsolver_mod.i"
-%import "../sundials/fsundials_adaptcontroller_mod.i"
+%import "../sundials/fsundials_core_mod.i"
 
 // Treat ARKodeButcherTable as an opaque pointer
 %apply void* { ARKodeButcherTable };

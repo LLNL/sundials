@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -23,7 +23,7 @@ ARKode Example documentation
 
 This is the documentation for the ARKode examples.  ARKode is an
 adaptive step time integration package for stiff, nonstiff and
-multi-rate systems of ordinary differential equations (ODEs).  
+multi-rate systems of ordinary differential equations (ODEs).
 The ARKode solver is a component of the `SUNDIALS
 <https://computing.llnl.gov/projects/sundials>`_ suite of
 nonlinear and differential/algebraic equation solvers. It is designed
@@ -34,14 +34,14 @@ output times, return after each internal step and root-finding
 capabilities, for calculations both in serial and parallel (via
 MPI). The default integration and solver options should apply to most
 users, though complete control over all internal parameters and time
-adaptivity algorithms is enabled through optional interface routines.  
+adaptivity algorithms is enabled through optional interface routines.
 
 ARKode is developed by `Southern Methodist University
 <http://www.smu.edu>`_, with support by the `US Department of Energy
 <http://www.doe.gov>`_ through the `FASTMath
 <http://www.fastmath-scidac.org/>`_ SciDAC Institute, under subcontract
 B598130 from `Lawrence Livermore National Laboratory
-<http://www.llnl.gov>`_. 
+<http://www.llnl.gov>`_.
 
 Along with the ARKode solver, we have created a suite of example
 problems demonstrating its usage on applications written in C, C++ and
@@ -65,24 +65,24 @@ examples according to programming language (C, C++, Fortran).
 
 ARKode example problems written in C are summarized in the table
 below, and are further described in the chapters :ref:`serial_c`,
-:ref:`openmp_c`, :ref:`parallel_c` and :ref:`parhyp_c`. 
+:ref:`openmp_c`, :ref:`parallel_c` and :ref:`parhyp_c`.
 
 .. cssclass:: table-bordered
 
 ================================  ==========  ===========  ==========  =============  =====================================================
 Problem                           Integrator  Nonlinear    Linear      Size           Extras
 ================================  ==========  ===========  ==========  =============  =====================================================
-:ref:`ark_analytic`               DIRK        Newton       Dense       1              
+:ref:`ark_analytic`               DIRK        Newton       Dense       1
 :ref:`ark_analytic_nonlin`        ERK         N.A.         N.A.        1              ERKStep timestepping module
-:ref:`ark_brusselator`            DIRK        Newton       Dense       3              
-:ref:`ark_brusselator_fp`         ARK         Fixed-point  N.A.        3              
-:ref:`ark_robertson`              DIRK        Newton       Dense       3              
+:ref:`ark_brusselator`            DIRK        Newton       Dense       3
+:ref:`ark_brusselator_fp`         ARK         Fixed-point  N.A.        3
+:ref:`ark_robertson`              DIRK        Newton       Dense       3
 :ref:`ark_robertson_root`         DIRK        Newton       Dense       3              rootfinding
-:ref:`ark_brusselator1D`          DIRK        Newton       Band        3N             
+:ref:`ark_brusselator1D`          DIRK        Newton       Band        3N
 :ref:`ark_brusselator1D_omp`      DIRK        Newton       Band        3N             OpenMP-enabled
 :ref:`ark_brusselator1D_klu`      DIRK        Newton       KLU         3N             sparse matrices
 :ref:`ark_brusselator1D_FEM_slu`  DIRK        Newton       SuperLU_MT  3N             finite-element, :math:`M\ne I`, sparse matrices
-:ref:`ark_heat1D`                 DIRK        Newton       PCG         N              
+:ref:`ark_heat1D`                 DIRK        Newton       PCG         N
 :ref:`ark_heat1D_adapt`           DIRK        Newton       PCG         (dynamic)      adaptive vector resizing
 :ref:`ark_KrylovDemo_prec`        DIRK        Newton       SPGMR       216            multiple preconditioners
 :ref:`ark_diurnal_kry_bbd_p`      DIRK        Newton       SPGMR       200            parallel, BBD preconditioner
@@ -93,14 +93,14 @@ Problem                           Integrator  Nonlinear    Linear      Size     
 
 ARKode example problems written in C++ are summarized in the table
 below, and are further described in the chapters :ref:`serial_cpp` and
-:ref:`parallel_cpp`. 
+:ref:`parallel_cpp`.
 
 .. cssclass:: table-bordered
 
 =======================  ==========  ===========  ======  =============  =================================
 Problem                  Integrator  Nonlinear    Linear  Size           Extras
 =======================  ==========  ===========  ======  =============  =================================
-:ref:`ark_analytic_sys`  DIRK        Newton       Dense   3              
+:ref:`ark_analytic_sys`  DIRK        Newton       Dense   3
 :ref:`ark_heat2D`        DIRK        Newton       PCG     :math:`nx*ny`  parallel
 =======================  ==========  ===========  ======  =============  =================================
 

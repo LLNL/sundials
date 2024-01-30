@@ -2,7 +2,7 @@
 ! Programmer(s): David J. Gardner, and Cody J. Balos @ LLNL
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -28,6 +28,7 @@ module ode_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -54,7 +55,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
 
     !======= Declarations =========
     implicit none
@@ -91,13 +91,9 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
+  use fsundials_core_mod            ! Access SUNDIALS core types, data structures, etc.
   use fcvodes_mod                   ! Fortran interface to CVODES
-  use fsundials_types_mod
-  use fsundials_context_mod         ! Fortran interface to SUNContext
-  use fsundials_nvector_mod         ! Fortran interface to generic N_Vector
   use fnvector_serial_mod           ! Fortran interface to serial N_Vector
-  use fsundials_nonlinearsolver_mod ! Fortran interface to generic SUNNonlinearSolver
   use fsunnonlinsol_fixedpoint_mod  ! Fortran interface to fixed point SUNNonlinearSolver
   use ode_mod                   ! ODE functions and problem parameters
 

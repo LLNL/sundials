@@ -3,7 +3,7 @@
 # Programmer: Slaven Peles, Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -45,7 +45,7 @@ INCLUDES 		 = $(addprefix -I, ${TMP_INCS})
 TMP_LIBDIRS  = ${libdir} ${RAJA_LIB_DIR}
 LIBDIRS      = $(addprefix -L, ${TMP_LIBDIRS})
 
-TMP_SUNDIALSLIBS = @SOLVER_LIB@ @NVECTOR_LIB@ sundials_core 
+TMP_SUNDIALSLIBS = @SOLVER_LIB@ @NVECTOR_LIB@ sundials_core
 SUNDIALSLIBS     = $(addprefix -l, ${TMP_SUNDIALSLIBS})
 LIBRARIES = ${SUNDIALSLIBS} ${RAJALIBS} ${LIBS}
 

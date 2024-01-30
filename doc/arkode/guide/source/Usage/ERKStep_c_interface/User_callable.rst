@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -1218,7 +1218,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       a custom function through a call to :c:func:`ERKStepSetAdaptivityFn()`.
 
       .. versionchanged:: x.x.x
-         
+
          Prior to version x.x.x, any nonzero value for *pq* would result in use of the
          embedding order of accuracy.
 

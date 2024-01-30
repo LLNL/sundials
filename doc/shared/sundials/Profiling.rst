@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -49,7 +49,7 @@ for information on getting profiler output. In most cases, this involves
 setting the ``CALI_CONFIG`` environment variable.
 
 
-.. note:: 
+.. note::
 
    The SUNDIALS profiler requires POSIX timers or the Windows ``profileapi.h`` timers.
 

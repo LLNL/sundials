@@ -2,7 +2,7 @@
 ! Programmer(s): Steven Roberts @ LLNL
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -15,7 +15,7 @@
 ! ------------------------------------------------------------------
 
 program main
-  
+
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
   use, intrinsic :: iso_fortran_env

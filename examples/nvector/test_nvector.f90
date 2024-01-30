@@ -5,7 +5,7 @@
 ! test_nvector.c written by David Gardner and Slaven Peles @ LLNL.
 ! -----------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -22,8 +22,8 @@
 
 module test_fnvector
   use, intrinsic :: iso_c_binding
-  use fsundials_nvector_mod
-  use fsundials_types_mod
+
+
   use test_utilities
   implicit none
 

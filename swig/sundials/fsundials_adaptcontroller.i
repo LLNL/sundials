@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------
-// Programmer: Cody J. Balos @ LLNL
+// Programmer: Daniel R. Reynolds @ SMU
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2023, Lawrence Livermore National Security
+// Copyright (c) 2002-2024, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -14,15 +14,9 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fsundials_futils_mod
-
-%include "../sundials/fsundials.i"
-
-// Insert code into the C wrapper to check that the sizes match
 %{
-#include "sundials/sundials_futils.h"
+#include "sundials/sundials_adaptcontroller.h"
 %}
 
 // Process and wrap functions in the following files
-%include "sundials/sundials_futils.h"
-
+%include "sundials/sundials_adaptcontroller.h"

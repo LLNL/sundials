@@ -2,7 +2,7 @@
 ! Programmer(s): Daniel R. Reynolds @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -17,7 +17,7 @@
 module fnvector_complex_mod
 
   use, intrinsic :: iso_c_binding
-  use fsundials_nvector_mod
+  use fsundials_core_mod
 
   implicit none
 
@@ -495,7 +495,6 @@ contains
   ! ----------------------------------------------------------------
   real(c_double) function FN_VWRMSNormMask_Complex(sunvec_x, sunvec_w, sunvec_id) &
        result(wrmsnorm) bind(C)
-
     implicit none
     type(N_Vector)      :: sunvec_x
     type(N_Vector)      :: sunvec_w

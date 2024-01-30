@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -40,7 +40,7 @@ models a stiff, linear, diagonal ODE system,
 Here :math:`\alpha=10` and :math:`N=10 N_P`, where :math:`N_P` is the
 number of MPI tasks used for the problem.  The problem has initial
 conditions :math:`y_i=1` and evolves for the time interval :math:`t\in
-[0,1]`. 
+[0,1]`.
 
 
 

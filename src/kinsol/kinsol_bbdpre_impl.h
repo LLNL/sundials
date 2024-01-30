@@ -4,7 +4,7 @@
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2023, Lawrence Livermore National Security
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -39,7 +39,7 @@ typedef struct KBBDPrecDataRec
   KINBBDLocalFn gloc;
   KINBBDCommFn gcomm;
 
-  /* set by KINBBDPrecSetup and used by KINBBDPrecSetup and 
+  /* set by KINBBDPrecSetup and used by KINBBDPrecSetup and
      KINBBDPrecSolve functions */
   sunindextype n_local;
   SUNMatrix PP;

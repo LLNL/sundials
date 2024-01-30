@@ -2,7 +2,7 @@
 ! Programmer(s): Daniel R. Reynolds @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -52,7 +52,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+    use fsundials_core_mod
 
     !======= Declarations =========
     implicit none
@@ -118,16 +118,11 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_types_mod
-  use fsundials_context_mod
+  use fsundials_core_mod
   use fkinsol_mod                ! Fortran interface to KINSOL
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunmatrix_band_mod        ! Fortran interface to band SUNMatrix
   use fsunlinsol_band_mod        ! Fortran interface to band SUNLinearSolver
-  use fsundials_matrix_mod       ! Fortran interface to generic SUNMatrix
-  use fsundials_nvector_mod      ! Fortran interface to generic N_Vector
-  use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
   use prob_mod                   ! problem-defining functions
 
   !======= Declarations =========

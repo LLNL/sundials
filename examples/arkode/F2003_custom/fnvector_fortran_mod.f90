@@ -3,7 +3,7 @@
 !                Daniel R. Reynolds @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -18,7 +18,7 @@
 module fnvector_fortran_mod
 
   use, intrinsic :: iso_c_binding
-  use fsundials_nvector_mod
+  use fsundials_core_mod
 
   implicit none
 
@@ -35,7 +35,6 @@ contains
 
   ! ----------------------------------------------------------------
   function FN_VNew_Fortran(n1, n2, sunctx) result(sunvec_y)
-
     implicit none
     integer(c_long),    value   :: n1
     integer(c_long),    value   :: n2
@@ -97,7 +96,6 @@ contains
 
   ! ----------------------------------------------------------------
   function FN_VMake_Fortran(n1, n2, data, sunctx) result(sunvec_y)
-
     implicit none
     integer(c_long),    value   :: n1
     integer(c_long),    value   :: n2
@@ -160,7 +158,6 @@ contains
 
   ! ----------------------------------------------------------------
   function FN_VGetFVec(sunvec_x) result(x)
-
     implicit none
     type(N_Vector)         :: sunvec_x
     type(FVec),    pointer :: x
@@ -175,7 +172,6 @@ contains
   ! ----------------------------------------------------------------
   integer(N_Vector_ID) function FN_VGetVectorID_Fortran(sunvec_y) &
     result(id) bind(C)
-
     implicit none
     type(N_Vector) :: sunvec_y
 
@@ -186,7 +182,6 @@ contains
 
   ! ----------------------------------------------------------------
   subroutine FN_VDestroy_Fortran(sunvec_y) bind(C)
-
     implicit none
     type(N_Vector), target  :: sunvec_y
     type(FVec),     pointer :: y
@@ -226,7 +221,6 @@ contains
 
   ! ----------------------------------------------------------------
   subroutine FN_VConst_Fortran(const, sunvec_y) bind(C)
-
     implicit none
     type(N_Vector)          :: sunvec_y
     real(c_double), value   :: const
@@ -244,7 +238,6 @@ contains
   ! ----------------------------------------------------------------
   real(c_double) function FN_VDotProd_Fortran(sunvec_x, sunvec_y) &
     result(a) bind(C)
-
     implicit none
     type(N_Vector)         :: sunvec_x, sunvec_y
     type(FVec),    pointer :: x, y
@@ -261,7 +254,6 @@ contains
 
   ! ----------------------------------------------------------------
   function FN_VClone_Fortran(sunvec_x) result(y_ptr) bind(C)
-
     implicit none
     type(N_Vector)          :: sunvec_x
     type(N_Vector), pointer :: sunvec_y
@@ -296,7 +288,6 @@ contains
 
   ! ----------------------------------------------------------------
   subroutine FN_VSpace_Fortran(sunvec_x, lrw, liw) bind(C)
-
     implicit none
     type(N_Vector)      :: sunvec_x
     integer(c_int64_t)  :: lrw(1)
@@ -338,7 +329,6 @@ contains
 
   ! ----------------------------------------------------------------
   subroutine FN_VProd_Fortran(sunvec_x, sunvec_y, sunvec_z) bind(C)
-
     implicit none
     type(N_Vector)      :: sunvec_x
     type(N_Vector)      :: sunvec_y
@@ -358,7 +348,6 @@ contains
 
   ! ----------------------------------------------------------------
   subroutine FN_VDiv_Fortran(sunvec_x, sunvec_y, sunvec_z) bind(C)
-
     implicit none
     type(N_Vector)      :: sunvec_x
     type(N_Vector)      :: sunvec_y
@@ -378,7 +367,6 @@ contains
 
   ! ----------------------------------------------------------------
   subroutine FN_VScale_Fortran(c, sunvec_x, sunvec_z) bind(C)
-
     implicit none
     real(c_double), value   :: c
     type(N_Vector)          :: sunvec_x
@@ -397,7 +385,6 @@ contains
 
   ! ----------------------------------------------------------------
   subroutine FN_VAbs_Fortran(sunvec_x, sunvec_z) bind(C)
-
     implicit none
     type(N_Vector)      :: sunvec_x
     type(N_Vector)      :: sunvec_z
@@ -415,7 +402,6 @@ contains
 
   ! ----------------------------------------------------------------
   subroutine FN_VInv_Fortran(sunvec_x, sunvec_z) bind(C)
-
     implicit none
     type(N_Vector)      :: sunvec_x
     type(N_Vector)      :: sunvec_z
@@ -433,7 +419,6 @@ contains
 
   ! ----------------------------------------------------------------
   subroutine FN_VAddConst_Fortran(sunvec_x, b, sunvec_z) bind(C)
-
     implicit none
     type(N_Vector)          :: sunvec_x
     real(c_double), value   :: b
@@ -606,7 +591,6 @@ contains
 
   ! ----------------------------------------------------------------
   subroutine FN_VCompare_Fortran(c, sunvec_x, sunvec_z) bind(C)
-
     implicit none
     real(c_double), value   :: c
     type(N_Vector)          :: sunvec_x

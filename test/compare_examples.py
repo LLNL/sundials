@@ -3,7 +3,7 @@
 # Programmer(s): Yu Pan @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -54,7 +54,7 @@ def main():
     runDir = runDirs[0]
 
     runFile = glob.glob(runDir)[0]
-    th_temp = tt.Thicket.from_caliperreader(runFile) 
+    th_temp = tt.Thicket.from_caliperreader(runFile)
     cluster = th_temp.metadata['cluster']
     # get machine from the file
     if release:
@@ -88,7 +88,7 @@ def main():
         outFile.close()
 
     if (len(outLines) == 0):
-        return -1 
+        return -1
     return 0
 
 

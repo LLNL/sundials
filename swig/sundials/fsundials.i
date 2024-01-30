@@ -3,7 +3,7 @@
 //             Cody J. Balos @ LLNL
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2023, Lawrence Livermore National Security
+// Copyright (c) 2002-2024, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -23,9 +23,6 @@
 #define SUNDIALS_DEPRECATED_EXPORT
 #define SUNDIALS_DEPRECATED_EXPORT_MSG(msg)
 #define SUNDIALS_STATIC_INLINE
-
-// All modules need sundials_types
-%import "../sundials/fsundials_types_mod.i"
 
 // Prefix all functions with F
 // E.g. CVodeCreate -> FCVodeCreate

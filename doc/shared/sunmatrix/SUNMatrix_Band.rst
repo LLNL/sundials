@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -402,7 +402,7 @@ following additional user-callable routines:
       When calling this function from the Fortran interfaces the shape of the array
       that is returned is ``[1]``, and the only element you can (legally) access
       is the diagonal element. Fortran users should instead work with the
-      data array returned by :c:func:`SUNBandMatrix_Data` directly. 
+      data array returned by :c:func:`SUNBandMatrix_Data` directly.
 
 
 **Notes**

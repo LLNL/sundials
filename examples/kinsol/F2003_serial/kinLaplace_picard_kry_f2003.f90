@@ -4,7 +4,7 @@
 ! Based on kinLaplace_picard_bnd.c by Carol S. Woodward @ LLNL
 ! -----------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -29,6 +29,7 @@ module prob_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -50,7 +51,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+
 
     !======= Declarations =========
     implicit none
@@ -120,7 +121,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+
 
     !======= Declarations =========
     implicit none
@@ -189,16 +190,10 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_types_mod
-  use fsundials_context_mod
-  use fsundials_futils_mod       ! Fortran utilities
+  use fsundials_core_mod
   use fkinsol_mod                ! Fortran interface to KINSOL
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunlinsol_spgmr_mod       ! Fortran interface to SPGMR SUNLinearSolver
-  use fsundials_nvector_mod      ! Fortran interface to generic N_Vector
-  use fsundials_matrix_mod       ! Fortran interface to generic SUNMatrix
-  use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
   use prob_mod                   ! problem-defining functions
 
   !======= Declarations =========

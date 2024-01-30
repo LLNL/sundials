@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -22,9 +22,9 @@ each of ARKODE's time-stepping modules, including locations and naming
 conventions for the library and header files, and discussion of data types in
 SUNDIALS.  We then separately discuss the C and C++ interfaces to each of
 ARKODE's time stepping modules: :ref:`ARKStep <ARKODE.Usage.ARKStep>`,
-:ref:`ERKStep <ARKODE.Usage.ERKStep>`, :ref:`SPRKStep <ARKODE.Usage.SPRKStep>` 
-and :ref:`MRIStep <ARKODE.Usage.MRIStep>`. Following these, we describe the set of 
-:ref:`user-supplied routines <ARKODE.Usage.UserSupplied>` 
+:ref:`ERKStep <ARKODE.Usage.ERKStep>`, :ref:`SPRKStep <ARKODE.Usage.SPRKStep>`
+and :ref:`MRIStep <ARKODE.Usage.MRIStep>`. Following these, we describe the set of
+:ref:`user-supplied routines <ARKODE.Usage.UserSupplied>`
 (both required and optional) that can be supplied to ARKODE.
 
 .. toctree::

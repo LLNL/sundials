@@ -2,7 +2,7 @@
 ! Programmer(s): Cody J. Balos @ LLNL
 ! -----------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -30,8 +30,8 @@ contains
 
     !======== Inclusions ==========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
+
+
     use fsunmatrix_band_mod
     use fnvector_serial_mod
 
@@ -96,11 +96,11 @@ contains
 
   integer(C_INT) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
+
+
     use fnvector_serial_mod
     use fsunmatrix_band_mod
-    use fsundials_futils_mod
+
     use test_sunmatrix
 
     implicit none
@@ -199,7 +199,7 @@ end program main
 ! exported functions used by test_sunmatrix
 integer(C_INT) function check_matrix(B, A, tol) result(fails)
   use, intrinsic :: iso_c_binding
-  use fsundials_matrix_mod
+
   use fsunmatrix_band_mod
   use test_utilities
 
@@ -262,7 +262,7 @@ end function check_matrix
 
 integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
   use, intrinsic :: iso_c_binding
-  use fsundials_matrix_mod
+
   use fsunmatrix_band_mod
   use test_utilities
 
@@ -297,7 +297,7 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
 end function check_matrix_entry
 
 logical function is_square(A) result(res)
-  use fsundials_matrix_mod
+  use fsundials_core_mod
   use fsunmatrix_band_mod
 
   implicit none

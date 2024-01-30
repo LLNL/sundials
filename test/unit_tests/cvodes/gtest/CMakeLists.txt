@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -15,15 +15,15 @@
 add_executable(test_cvodes_error_handling test_cvodes_error_handling.cpp)
 target_include_directories(test_cvodes_error_handling
   PRIVATE
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include> 
-  ${CMAKE_SOURCE_DIR}/include 
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  ${CMAKE_SOURCE_DIR}/include
   ${CMAKE_SOURCE_DIR}/src
 )
 
 # We explicitly choose which object libraries to link to and link in the
 # cvode objects so that we have access to private functions w/o changing
 # their visibility in the installed libraries.
-target_link_libraries(test_cvodes_error_handling 
+target_link_libraries(test_cvodes_error_handling
   PRIVATE
   $<TARGET_OBJECTS:sundials_cvodes_obj>
   sundials_sunmemsys_obj
@@ -38,8 +38,8 @@ target_link_libraries(test_cvodes_error_handling
 # that up from $<TARGET_OBJECTS:sundials_cvode_obj>.
 add_dependencies(test_cvodes_error_handling sundials_cvodes_obj)
 
-target_link_libraries(test_cvodes_error_handling 
-  PRIVATE 
+target_link_libraries(test_cvodes_error_handling
+  PRIVATE
   GTest::gtest_main
   GTest::gmock
 )

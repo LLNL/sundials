@@ -2,7 +2,7 @@
 # Programmer: David J. Gardner @ LLNL
 # -----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -77,7 +77,7 @@ find_library(SUNDIALS_XBRAID_LIB
 set(SUNDIALS_EXTRA_LIBS @LIBS@ CACHE STRING "Additional libraries")
 
 # List of SUNDIALS libraries
-set(SUNDIALS_LIBRARIES 
+set(SUNDIALS_LIBRARIES
   -L${SUNDIALS_LIBRARY_DIR}
   ${SUNDIALS_SOLVER_LIB}
   ${SUNDIALS_NVECPAR_LIB}

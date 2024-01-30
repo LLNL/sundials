@@ -1,7 +1,7 @@
 ..
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -13,7 +13,7 @@
 
 .. _CI:
 
-GitHub CI Testing 
+GitHub CI Testing
 =================
 
 There are two categories of CI testing that we run on GitHub via `GitHub actions <https://github.com/LLNL/sundials/actions>`_:
@@ -278,5 +278,5 @@ To update the spack commit used for the CI:
 ``SHARED_SPACK`` CI variable set to ``ON`` and the ``SPACK_PREFIX`` variable to
 the version of spack being set in the uberenv_config.json.
 
-This will create a new spack installation and rebuild all of the specs. 
+This will create a new spack installation and rebuild all of the specs.
 

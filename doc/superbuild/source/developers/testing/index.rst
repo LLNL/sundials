@@ -2,7 +2,7 @@
    Author(s): David J. Gardner @ LLNL
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -19,7 +19,7 @@ Testing
 
 We include several types of tests in SUNDIALS: unit tests, integration test and performance tests.
 These tests are run via as part of our :ref:`Continuous Integration suite <CI>`.
- 
+
 **Unit Tests**
 
 The unit tests reside in two places: ``test/unit_tests`` and in files named ``test_`` within
@@ -47,4 +47,3 @@ These tests are benchmarks of SUNDIALS performance and are found in ``benchmarks
    Answers
    Benchmarking
    Spot
-   

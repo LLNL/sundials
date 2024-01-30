@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------
-// Programmer: Daniel R. Reynolds @ SMU
+// Programmer: Cody J. Balos @ LLNL
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2023, Lawrence Livermore National Security
+// Copyright (c) 2002-2024, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -14,17 +14,11 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fsundials_adaptcontroller_mod
-
-// Load the typedefs and generate a "use fsundials_types_mod" statement in the module  
-%import "../sundials/fsundials_context_mod.i"  
-%import "../sundials/fsundials_types_mod.i"  
-
-%include "../sundials/fcopyright.i"  
-
+// Insert code into the C wrapper to check that the sizes match
 %{
-#include "sundials/sundials_adaptcontroller.h"
+#include "sundials/sundials_futils.h"
 %}
 
 // Process and wrap functions in the following files
-%include "sundials/sundials_adaptcontroller.h"
+%include "sundials/sundials_futils.h"
+

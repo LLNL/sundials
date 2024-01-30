@@ -2,7 +2,7 @@
 // Programmer: Daniel R. Reynolds @ SMU
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2023, Lawrence Livermore National Security
+// Copyright (c) 2002-2024, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -21,8 +21,7 @@
 #include "sundials/sundials_adaptcontroller.h"
 %}
 
-// Load the typedefs and generate "use" statements
-%import "../sundials/fsundials_adaptcontroller_mod.i"
+%import "../sundials/fsundials_core_mod.i"
 
 // Macro for creating an interface to a SUNAdaptController
 %define %sunadaptcontroller_impl(TYPE)

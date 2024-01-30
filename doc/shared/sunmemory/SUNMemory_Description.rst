@@ -1,7 +1,7 @@
 ..
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -48,7 +48,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
    **Returns:**
 
    * an uninitialized ``SUNMemory`` object
-   
+
    .. versionchanged:: 7.0.0
 
       The function signature was updated to add the ``SUNContext`` argument.

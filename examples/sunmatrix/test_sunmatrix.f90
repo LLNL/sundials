@@ -6,7 +6,7 @@
 ! R. Reynolds @ SMU.
 ! -----------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -22,9 +22,9 @@
 module test_sunmatrix
   use, intrinsic :: iso_c_binding
   use test_utilities
-  use fsundials_nvector_mod
-  use fsundials_matrix_mod
-  use fsundials_types_mod
+
+
+
 
   implicit none
 
@@ -103,7 +103,7 @@ contains
   integer(C_INT) function Test_FSUNMatGetID(A, sunid, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
-    use fsundials_matrix_mod
+
 
     implicit none
 
@@ -131,7 +131,7 @@ contains
   integer(C_INT) function Test_FSUNMatClone(A, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
-    use fsundials_matrix_mod
+
 
     implicit none
 
@@ -175,7 +175,7 @@ contains
   integer(C_INT) function Test_FSUNMatZero(A, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
-    use fsundials_matrix_mod
+
 
     implicit none
 
@@ -213,7 +213,7 @@ contains
   integer(C_INT) function Test_FSUNMatCopy(A, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
-    use fsundials_matrix_mod
+
 
     implicit none
 
@@ -252,7 +252,7 @@ contains
   integer(C_INT) function Test_FSUNMatScaleAdd(A, I, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
-    use fsundials_matrix_mod
+
 
     implicit none
 
@@ -301,7 +301,7 @@ contains
   integer(C_INT) function Test_FSUNMatScaleAddI(A, I, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
-    use fsundials_matrix_mod
+
 
     implicit none
 
@@ -346,7 +346,7 @@ contains
   integer(C_INT) function Test_FSUNMatMatvecSetup(A, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
-    use fsundials_matrix_mod
+
 
     implicit none
 
@@ -376,8 +376,8 @@ contains
   integer(C_INT) function Test_FSUNMatMatvec(A, x, y, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
+
+
 
     implicit none
 
@@ -467,7 +467,7 @@ contains
   integer(C_INT) function Test_FSUNMatSpace(A, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
-    use fsundials_matrix_mod
+
 
     implicit none
 

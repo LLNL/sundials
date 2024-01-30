@@ -2,7 +2,7 @@
 ! Programmer(s): Cody J. Balos @ LLNL
 ! -----------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2024, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -21,7 +21,7 @@
 
 module test_fsunlinsol_sptfqmr_serial
   use, intrinsic :: iso_c_binding
-  use fsundials_nvector_mod
+
   use test_utilities
   implicit none
 
@@ -39,9 +39,9 @@ contains
 
   integer(C_INT) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
-    use fsundials_linearsolver_mod
+
+
+
     use fnvector_serial_mod
     use fsunlinsol_sptfqmr_mod
     use test_sunlinsol
@@ -208,7 +208,7 @@ contains
 
   integer(C_INT) function ATimes(udata, vvec, zvec) result(ret) bind(C)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+
     use test_utilities
 
     implicit none
@@ -250,7 +250,7 @@ contains
   integer(C_INT) function PSolve(udata, rvec, zvec, tol, lr) &
       result(ret) bind(C)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+
     use test_utilities
 
     implicit none
