@@ -1527,6 +1527,46 @@ SWIGEXPORT int _wrap_FARKStepComputeState(void *farg1, N_Vector farg2, N_Vector 
 }
 
 
+SWIGEXPORT int _wrap_FARKStepSetAccumulatedErrorType(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)ARKStepSetAccumulatedErrorType(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepResetAccumulatedError(void *farg1) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  result = (int)ARKStepResetAccumulatedError(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepGetAccumulatedError(void *farg1, double *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype *)(farg2);
+  result = (int)ARKStepGetAccumulatedError(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepGetNumExpSteps(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;

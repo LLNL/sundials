@@ -141,9 +141,10 @@ SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
   return (ier);
 }
 
-SUNErrCode SUNControlEstimateMRISteps(SUNControl C, sunrealtype H, sunrealtype h,
-                                      sunrealtype DSM, sunrealtype dsm,
-                                      sunrealtype* Hnew, sunrealtype *hnew)
+SUNErrCode SUNAdaptController_EstimateMRISteps(SUNAdaptController C, sunrealtype H,
+                                               sunrealtype h, int P, sunrealtype DSM,
+                                               sunrealtype dsm, sunrealtype* Hnew,
+                                               sunrealtype* hnew)
 {
   SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
@@ -152,17 +153,17 @@ SUNErrCode SUNControlEstimateMRISteps(SUNControl C, sunrealtype H, sunrealtype h
   SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
   *Hnew = H;   /* initialize outputs with identity */
   *hnew = h;
-  if (C->ops->estimatemristeps) 
+  if (C->ops->estimatemristeps)
   {
-    ier = C->ops->estimatemristeps(C, H, h, DSM, dsm, Hnew, hnew);
+    ier = C->ops->estimatemristeps(C, H, h, P, DSM, dsm, Hnew, hnew);
   }
   return (ier);
 }
 
-SUNErrCode SUNControlEstimateStepTol(SUNControl C, sunrealtype H,
-                                     sunrealtype tolfac, sunrealtype DSM,
-                                     sunrealtype dsm, sunrealtype *Hnew,
-                                     sunrealtype* tolfacnew)
+SUNErrCode SUNAdaptController_EstimateStepTol(SUNAdaptController C, sunrealtype H,
+                                              sunrealtype tolfac, int P,
+                                              sunrealtype DSM, sunrealtype dsm,
+                                              sunrealtype* Hnew, sunrealtype* tolfacnew)
 {
   SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
@@ -173,7 +174,7 @@ SUNErrCode SUNControlEstimateStepTol(SUNControl C, sunrealtype H,
   *tolfacnew = tolfac;
   if (C->ops->estimatesteptol)
   {
-    ier = C->ops->estimatesteptol(C, H, tolfac, DSM, dsm,
+    ier = C->ops->estimatesteptol(C, H, tolfac, P, DSM, dsm,
                                   Hnew, tolfacnew);
   }
   return (ier);
@@ -226,8 +227,9 @@ SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
   return (ier);
 }
 
-SUNErrCode SUNControlUpdateMRIH(SUNControl C, sunrealtype H, sunrealtype h,
-                                sunrealtype DSM, sunrealtype dsm)
+SUNErrCode SUNAdaptController_UpdateMRIH(SUNAdaptController C, sunrealtype H,
+                                         sunrealtype h, sunrealtype DSM,
+                                         sunrealtype dsm)
 {
   SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
@@ -236,8 +238,9 @@ SUNErrCode SUNControlUpdateMRIH(SUNControl C, sunrealtype H, sunrealtype h,
   return (ier);
 }
 
-SUNErrCode SUNControlUpdateMRITol(SUNControl C, sunrealtype H, sunrealtype tolfac,
-                                  sunrealtype DSM, sunrealtype dsm)
+SUNErrCode SUNAdaptController_UpdateMRITol(SUNAdaptController C, sunrealtype H,
+                                           sunrealtype tolfac, sunrealtype DSM,
+                                           sunrealtype dsm)
 {
   SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }

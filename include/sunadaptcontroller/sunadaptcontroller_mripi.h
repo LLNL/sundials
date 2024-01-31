@@ -18,7 +18,7 @@
 #define _SUNADAPTCONTROLLER_MRIPI_H
 
 #include <stdio.h>
-#include <sundials/sundials_control.h>
+#include <sundials/sundials_adaptcontroller.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

@@ -110,7 +110,7 @@ SUNAdaptController SUNAdaptController_GetFastController_MRIHTol(SUNAdaptControll
 
 SUNAdaptController_Type SUNAdaptController_GetType_MRIHTol(SUNAdaptController C)
 {
-  return SUNDIALS_CONTROL_MRI_TOL;
+  return SUN_ADAPTCONTROLLER_MRI_TOL;
 }
 
 SUNErrCode SUNAdaptController_EstimateStepTol_MRIHTol(SUNAdaptController C,
@@ -175,8 +175,8 @@ SUNErrCode SUNAdaptController_UpdateMRITol_MRIHTol(SUNAdaptController C, sunreal
                                                    sunrealtype dsm)
 {
   SUNFunctionBegin(C->sunctx);
-  SUNCheckCall(SUNAdaptController_Update(MRIHTOL_CSLOW(C), H, DSM));
-  SUNCheckCall(SUNAdaptController_Update(MRIHTOL_CFAST(C), tolfac, dsm));
+  SUNCheckCall(SUNAdaptController_UpdateH(MRIHTOL_CSLOW(C), H, DSM));
+  SUNCheckCall(SUNAdaptController_UpdateH(MRIHTOL_CFAST(C), tolfac, dsm));
   return SUN_SUCCESS;
 }
 

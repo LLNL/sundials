@@ -88,47 +88,47 @@ int MRIStepSetPostprocessStageFn(void* arkode_mem, ARKPostProcessFn ProcessStage
   return (arkSetPostprocessStageFn(arkode_mem, ProcessStage));
 }
 
-int MRIStepSetMaxErrTestFails(void* arkode_mem, int maxnef) 
+int MRIStepSetMaxErrTestFails(void* arkode_mem, int maxnef)
 {
-  return (arkSetMaxErrTestFails(arkode_mem, maxnef)); 
+  return (arkSetMaxErrTestFails(arkode_mem, maxnef));
 }
 
-int MRIStepSetInitStep(void* arkode_mem, sunrealtype hin) 
+int MRIStepSetInitStep(void* arkode_mem, sunrealtype hin)
 {
-  return (arkSetInitStep(arkode_mem, hin)); 
+  return (arkSetInitStep(arkode_mem, hin));
 }
 
-int MRIStepSetMaxConvFails(void* arkode_mem, int maxncf) 
+int MRIStepSetMaxConvFails(void* arkode_mem, int maxncf)
 {
-  return (arkSetMaxConvFails(arkode_mem, maxncf)); 
+  return (arkSetMaxConvFails(arkode_mem, maxncf));
 }
 
-int MRIStepSetConstraints(void* arkode_mem, N_Vector constraints) 
+int MRIStepSetConstraints(void* arkode_mem, N_Vector constraints)
 {
-  return (arkSetConstraints(arkode_mem, constraints)); 
+  return (arkSetConstraints(arkode_mem, constraints));
 }
 
-int MRIStepSetMaxNumConstrFails(void* arkode_mem, int maxfails) 
+int MRIStepSetMaxNumConstrFails(void* arkode_mem, int maxfails)
 {
-  return (arkSetMaxNumConstrFails(arkode_mem, maxfails)); 
+  return (arkSetMaxNumConstrFails(arkode_mem, maxfails));
 }
 
 /*---------------------------------------------------------------
   Wrapper functions for accumulated temporal error estimation.
   ---------------------------------------------------------------*/
-int MRIStepSetAccumulatedErrorType(void* arkode_mem, int accum_type) 
+int MRIStepSetAccumulatedErrorType(void* arkode_mem, int accum_type)
 {
-  return (arkSetAccumulatedErrorType(arkode_mem, accum_type)); 
+  return (arkSetAccumulatedErrorType(arkode_mem, accum_type));
 }
 
-int MRIStepResetAccumulatedError(void* arkode_mem) 
+int MRIStepResetAccumulatedError(void* arkode_mem)
 {
-  return (arkResetAccumulatedError(arkode_mem)); 
+  return (arkResetAccumulatedError(arkode_mem));
 }
 
-int MRIStepGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error) 
+int MRIStepGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
 {
-  return (arkGetAccumulatedError(arkode_mem, accum_error)); 
+  return (arkGetAccumulatedError(arkode_mem, accum_error));
 }
 
 /*---------------------------------------------------------------
@@ -246,34 +246,34 @@ char* MRIStepGetReturnFlagName(long int flag)
   return (arkGetReturnFlagName(flag));
 }
 
-int MRIStepGetNumStepAttempts(void* arkode_mem, long int* nstep_attempts) 
+int MRIStepGetNumStepAttempts(void* arkode_mem, long int* nstep_attempts)
 {
-  return (arkGetNumStepAttempts(arkode_mem, nstep_attempts)); 
+  return (arkGetNumStepAttempts(arkode_mem, nstep_attempts));
 }
 
-int MRIStepGetNumErrTestFails(void* arkode_mem, long int* netfails) 
+int MRIStepGetNumErrTestFails(void* arkode_mem, long int* netfails)
 {
-  return (arkGetNumErrTestFails(arkode_mem, netfails)); 
+  return (arkGetNumErrTestFails(arkode_mem, netfails));
 }
 
-int MRIStepGetEstLocalErrors(void* arkode_mem, N_Vector ele) 
+int MRIStepGetEstLocalErrors(void* arkode_mem, N_Vector ele)
 {
-  return (arkGetEstLocalErrors(arkode_mem, ele)); 
+  return (arkGetEstLocalErrors(arkode_mem, ele));
 }
 
-int MRIStepGetActualInitStep(void* arkode_mem, sunrealtype* hinused) 
+int MRIStepGetActualInitStep(void* arkode_mem, sunrealtype* hinused)
 {
-  return (arkGetActualInitStep(arkode_mem, hinused)); 
+  return (arkGetActualInitStep(arkode_mem, hinused));
 }
 
-int MRIStepGetCurrentStep(void* arkode_mem, sunrealtype* hcur) 
+int MRIStepGetCurrentStep(void* arkode_mem, sunrealtype* hcur)
 {
-  return (arkGetCurrentStep(arkode_mem, hcur)); 
+  return (arkGetCurrentStep(arkode_mem, hcur));
 }
 
-int MRIStepGetNumConstrFails(void* arkode_mem, long int* nconstrfails) 
+int MRIStepGetNumConstrFails(void* arkode_mem, long int* nconstrfails)
 {
-  return (arkGetNumConstrFails(arkode_mem, nconstrfails)); 
+  return (arkGetNumConstrFails(arkode_mem, nconstrfails));
 }
 
 int MRIStepGetNumExpSteps(void* arkode_mem, long int* nsteps)
@@ -884,6 +884,7 @@ int MRIStepSetDeduceImplicitRhs(void* arkode_mem, sunbooleantype deduce)
   step_mem->deduce_rhs = deduce;
   return (ARK_SUCCESS);
 }
+
 /*---------------------------------------------------------------
   MRIStepSetFastErrorStepFactor:
 
@@ -906,14 +907,14 @@ int MRIStepSetFastErrorStepFactor(void *arkode_mem, sunrealtype hfactor)
   ARKodeMRIStepMem step_mem;
   int retval;
 
-  /* access ARKodeMRIStepMem structure and set function pointer */
+  /* access ARKodeMRIStepMem structure */
   retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* return with error on illegal input */
   if ((hfactor < ZERO) || (hfactor == ONE)) {
-    arkProcessError(ark_mem, ARK_NLS_OP_ERR, __LINE__, __func__, __FILE__,
-                    "No SUNNonlinearSolver object is present");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Illegal input; must be >0 and not identically 1");
     return (ARK_ILL_INPUT);
   }
 
@@ -924,23 +925,23 @@ int MRIStepSetFastErrorStepFactor(void *arkode_mem, sunrealtype hfactor)
 
 
 /*---------------------------------------------------------------
-  MRIStepSetController:
+  MRIStepSetAdaptController:
 
   Specifies a temporal adaptivity controller for MRIStep to use.
   If a non-MRI controller is provided, this just passes that
-  through to arkSetController.  However, if an MRI controller is
-  provided, then this wraps that inside an "mriStepControl"
-  wrapper, which will properly retrieve the fast accumulatd
-  error estimate.
+  through to arkSetAdaptController.  However, if an MRI
+  controller is provided, then this wraps that inside a
+  "SUNAdaptController_MRIStep" wrapper, which will properly
+  interact with the fast integration module.
   ---------------------------------------------------------------*/
-int MRIStepSetController(void *arkode_mem, SUNAdaptController C) {
+int MRIStepSetAdaptController(void *arkode_mem, SUNAdaptController C) {
 
   /* Retrieve the controller type */
   SUNAdaptController_Type ctype = SUNAdaptController_GetType(C);
 
   /* If this does not have MRI type, then just pass to ARKODE */
-  if ((ctype != SUNDIALS_CONTROL_MRI_H) &&
-      (ctype != SUNDIALS_CONTROL_MRI_TOL)) {
+  if ((ctype != SUN_ADAPTCONTROLLER_MRI_H) &&
+      (ctype != SUN_ADAPTCONTROLLER_MRI_TOL)) {
     return (arkSetAdaptController(arkode_mem, C));
   }
 

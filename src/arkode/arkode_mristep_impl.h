@@ -37,7 +37,7 @@ extern "C" {
 #define MRISTAGE_DIRK_FAST   3
 
 /* Default inner_factor value */
-#define INNER_HFACTOR RCONST(2.0)
+#define INNER_HFACTOR SUN_RCONST(2.0)
 /* Implicit solver constants (duplicate from arkode_arkstep_impl.h) */
 #define MAXCOR  3               /* max number of nonlinear iterations */
 #define CRDOWN  SUN_RCONST(0.3) /* constant to estimate the convergence
@@ -274,9 +274,9 @@ int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
 int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int* stage_map,
                      sunrealtype* Ae_row, sunrealtype* Ai_row);
 /*===============================================================
-  MRIStep SUNControl wrapper module -- this is used to insert
-  MRIStep in-between ARKODE at the "slow" time scale, and the
-  inner-steppers that comprise the MRI time-step evolution.
+  MRIStep SUNAdaptController wrapper module -- this is used to
+  insert MRIStep in-between ARKODE at the "slow" time scale, and
+  the inner-steppers that comprise the MRI time-step evolution.
   ===============================================================*/
 
 typedef struct _mriStepControlContent {
@@ -288,16 +288,17 @@ typedef struct _mriStepControlContent {
 #define MRICONTROL_A(C)  ( ((mriStepControlContent)(C->content))->ark_mem )
 #define MRICONTROL_S(C)  ( ((mriStepControlContent)(C->content))->step_mem )
 
-SUNAdaptController SUNAdaptController_MRIStep(void *arkode_mem, SUNAdaptController C);
+SUNAdaptController SUNAdaptController_MRIStep(void* arkode_mem, SUNAdaptController C);
 SUNAdaptController_Type SUNAdaptController_GetType_MRIStep(SUNAdaptController C);
-SUNErrCode SUNAdaptController_EstimateStep_MRIStep(SUNControl C, sunrealtype H, int P,
-                                                   sunrealtype DSM, sunrealtype* Hnew);
+SUNErrCode SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C, sunrealtype H,
+                                                   int P, sunrealtype DSM,
+                                                   sunrealtype* Hnew);
 SUNErrCode SUNAdaptController_Reset_MRIStep(SUNAdaptController C);
 SUNErrCode SUNAdaptController_Write_MRIStep(SUNAdaptController C, FILE* fptr);
 SUNErrCode SUNAdaptController_UpdateH_MRIStep(SUNAdaptController C, sunrealtype h,
                                               sunrealtype dsm);
-SUNErrCode SUNAdaptController_Space_MRIStep(SUNAdaptController C, long int *lenrw,
-                                            long int *leniw);
+SUNErrCode SUNAdaptController_Space_MRIStep(SUNAdaptController C, long int* lenrw,
+                                            long int* leniw);
 
 /*===============================================================
   Reusable MRIStep Error Messages

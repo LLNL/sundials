@@ -348,7 +348,7 @@ struct ARKodeMemRec
   sunrealtype eta;            /* eta = hprime / h                         */
   sunrealtype tcur;           /* current internal value of t
                                   (changes with each stage)               */
-  realtype tout;              /* user's requested output time             */
+  sunrealtype tout;           /* user's requested output time             */
   sunrealtype tretlast;       /* value of tret last returned by ARKODE    */
   sunbooleantype fixedstep;   /* flag to disable temporal adaptivity      */
   ARKodeHAdaptMem hadapt_mem; /* time step adaptivity structure           */

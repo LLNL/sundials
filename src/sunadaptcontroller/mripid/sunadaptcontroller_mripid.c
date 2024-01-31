@@ -131,7 +131,7 @@ SUNErrCode SUNAdaptController_SetParams_MRIPID(SUNAdaptController C,
 
 SUNAdaptController_Type SUNAdaptController_GetType_MRIPID(SUNAdaptController C)
 {
-  return SUNDIALS_CONTROL_MRI_H;
+  return SUN_ADAPTCONTROLLER_MRI_H;
 }
 
 SUNErrCode SUNAdaptController_EstimateMRISteps_MRIPID(SUNAdaptController C,

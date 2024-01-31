@@ -102,6 +102,9 @@ module farkode_erkstep_mod
  public :: FERKStepSetPostprocessStageFn
  public :: FERKStepEvolve
  public :: FERKStepGetDky
+ public :: FERKStepSetAccumulatedErrorType
+ public :: FERKStepResetAccumulatedError
+ public :: FERKStepGetAccumulatedError
  public :: FERKStepGetNumExpSteps
  public :: FERKStepGetNumAccSteps
  public :: FERKStepGetNumStepAttempts
@@ -129,6 +132,7 @@ module farkode_erkstep_mod
  public :: FERKStepGetStepStats
  public :: FERKStepFree
  public :: FERKStepPrintMem
+ public :: FERKStepCreateMRIStepInnerStepper
  public :: FERKStepSetRelaxFn
  public :: FERKStepSetRelaxEtaFail
  public :: FERKStepSetRelaxLowerBound
@@ -609,6 +613,32 @@ type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
 
+function swigc_FERKStepSetAccumulatedErrorType(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetAccumulatedErrorType") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepResetAccumulatedError(farg1) &
+bind(C, name="_wrap_FERKStepResetAccumulatedError") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepGetAccumulatedError(farg1, farg2) &
+bind(C, name="_wrap_FERKStepGetAccumulatedError") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FERKStepGetNumExpSteps(farg1, farg2) &
 bind(C, name="_wrap_FERKStepGetNumExpSteps") &
 result(fresult)
@@ -861,6 +891,15 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
+
+function swigc_FERKStepCreateMRIStepInnerStepper(farg1, farg2) &
+bind(C, name="_wrap_FERKStepCreateMRIStepInnerStepper") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
 
 function swigc_FERKStepSetRelaxFn(farg1, farg2, farg3) &
 bind(C, name="_wrap_FERKStepSetRelaxFn") &
@@ -1867,6 +1906,51 @@ fresult = swigc_FERKStepGetDky(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
+function FERKStepSetAccumulatedErrorType(arkode_mem, accum_type) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: accum_type
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = accum_type
+fresult = swigc_FERKStepSetAccumulatedErrorType(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepResetAccumulatedError(arkode_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = arkode_mem
+fresult = swigc_FERKStepResetAccumulatedError(farg1)
+swig_result = fresult
+end function
+
+function FERKStepGetAccumulatedError(arkode_mem, accum_error) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: accum_error
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(accum_error(1))
+fresult = swigc_FERKStepGetAccumulatedError(farg1, farg2)
+swig_result = fresult
+end function
+
 function FERKStepGetNumExpSteps(arkode_mem, expsteps) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2329,6 +2413,22 @@ farg1 = arkode_mem
 farg2 = outfile
 call swigc_FERKStepPrintMem(farg1, farg2)
 end subroutine
+
+function FERKStepCreateMRIStepInnerStepper(arkode_mem, stepper) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: stepper
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(stepper)
+fresult = swigc_FERKStepCreateMRIStepInnerStepper(farg1, farg2)
+swig_result = fresult
+end function
 
 function FERKStepSetRelaxFn(arkode_mem, rfn, rjac) &
 result(swig_result)

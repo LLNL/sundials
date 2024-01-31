@@ -1514,8 +1514,7 @@ int arkSetAccumulatedErrorType(void *arkode_mem, int accum_type)
 
   /* Check for valid accumulation type */
   if ((accum_type < 0) || (accum_type > 1)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE",
-                    "arkSetAccumulatedErrorType",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "illegal accumulation type");
     return (ARK_ILL_INPUT);
   }
@@ -1575,11 +1574,11 @@ int arkGetAccumulatedError(void *arkode_mem, sunrealtype *accum_error)
   long int steps = SUNMAX(1, ark_mem->nst - ark_mem->AccumErrorStep);
 
   /* Fill output based on error accumulation type */
-  if (ark_mem->AccumErrorType == 0) 
+  if (ark_mem->AccumErrorType == 0)
   {
     *accum_error = ark_mem->AccumError * ark_mem->reltol;
-  } 
-  else if (ark_mem->AccumErrorType == 1) 
+  }
+  else if (ark_mem->AccumErrorType == 1)
   {
     *accum_error = ark_mem->AccumError * ark_mem->reltol / steps;
   }

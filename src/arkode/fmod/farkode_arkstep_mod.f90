@@ -153,6 +153,9 @@ module farkode_arkstep_mod
  public :: FARKStepEvolve
  public :: FARKStepGetDky
  public :: FARKStepComputeState
+ public :: FARKStepSetAccumulatedErrorType
+ public :: FARKStepResetAccumulatedError
+ public :: FARKStepGetAccumulatedError
  public :: FARKStepGetNumExpSteps
  public :: FARKStepGetNumAccSteps
  public :: FARKStepGetNumStepAttempts
@@ -1055,6 +1058,32 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepSetAccumulatedErrorType(farg1, farg2) &
+bind(C, name="_wrap_FARKStepSetAccumulatedErrorType") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepResetAccumulatedError(farg1) &
+bind(C, name="_wrap_FARKStepResetAccumulatedError") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKStepGetAccumulatedError(farg1, farg2) &
+bind(C, name="_wrap_FARKStepGetAccumulatedError") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -3308,6 +3337,51 @@ farg1 = arkode_mem
 farg2 = c_loc(zcor)
 farg3 = c_loc(z)
 fresult = swigc_FARKStepComputeState(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FARKStepSetAccumulatedErrorType(arkode_mem, accum_type) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: accum_type
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = accum_type
+fresult = swigc_FARKStepSetAccumulatedErrorType(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepResetAccumulatedError(arkode_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = arkode_mem
+fresult = swigc_FARKStepResetAccumulatedError(farg1)
+swig_result = fresult
+end function
+
+function FARKStepGetAccumulatedError(arkode_mem, accum_error) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: accum_error
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(accum_error(1))
+fresult = swigc_FARKStepGetAccumulatedError(farg1, farg2)
 swig_result = fresult
 end function
 

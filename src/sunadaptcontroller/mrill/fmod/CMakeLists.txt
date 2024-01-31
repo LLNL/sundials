@@ -12,20 +12,15 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-# Create a library out of the generic sundials modules
-sundials_add_library(sundials_sunadaptcontrollermricc
+sundials_add_f2003_library(sundials_fsunadaptcontrollermrill_mod
   SOURCES
-    sunadaptcontroller_mricc.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunadaptcontroller/sunadaptcontroller_mricc.h
+    fsunadaptcontroller_mrill_mod.f90 fsunadaptcontroller_mrill_mod.c
   LINK_LIBRARIES
-    PUBLIC sundials_core
-  INCLUDE_SUBDIR
-    sunadaptcontroller
+    PUBLIC sundials_fcore_mod
+  OBJECT_LIBRARIES
+  OUTPUT_NAME
+    sundials_fsunadaptcontrollermrill_mod
   OBJECT_LIB_ONLY
 )
 
-# Add F2003 module if the interface is enabled
-if(BUILD_FORTRAN_MODULE_INTERFACE)
-  add_subdirectory(fmod)
-endif()
+message(STATUS "Added SUNAdaptController_MRILL F2003 interface")

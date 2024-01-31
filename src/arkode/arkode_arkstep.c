@@ -3235,9 +3235,8 @@ int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
 
-  retval = arkStep_AccessStepMem(inner_arkode_mem,
-                                 "ARKStepCreateMRIStepInnerStepper", &ark_mem,
-                                 &step_mem);
+  retval = arkStep_AccessStepMem(inner_arkode_mem, __func__,
+                                 &ark_mem, &step_mem);
   if (retval)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -3442,7 +3441,7 @@ int arkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol)
   /* extract the ARKODE memory struct */
   retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) return(retval);
-  if (arkode_mem==NULL) 
+  if (arkode_mem==NULL)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
@@ -3450,11 +3449,11 @@ int arkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  if (rtol > ZERO) 
+  if (rtol > ZERO)
   {
     ark_mem->reltol = rtol;
     return(ARK_SUCCESS);
-  } 
+  }
   else { return(ARK_ILL_INPUT); }
 }
 /*------------------------------------------------------------------------------

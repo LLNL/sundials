@@ -1336,8 +1336,14 @@ int ERKStepCreateMRIStepInnerStepper(void *inner_arkode_mem,
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
 
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  retval = erkStep_AccessStepMem(inner_arkode_mem, __func__,
+                                 &ark_mem, &step_mem);
+  if (retval)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "The ERKStep memory pointer is NULL");
+    return ARK_ILL_INPUT;
+  }
 
   retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
   if (retval != ARK_SUCCESS) { return (retval); }
@@ -1544,7 +1550,7 @@ int erkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol)
   /* extract the ARKODE memory struct */
   retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return(retval); }
-  if (arkode_mem==NULL) 
+  if (arkode_mem==NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ERKSTEP_NO_MEM);
@@ -1552,11 +1558,11 @@ int erkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol)
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
-  if (rtol > ZERO) 
+  if (rtol > ZERO)
   {
     ark_mem->reltol = rtol;
     return (ARK_SUCCESS);
-  } 
+  }
   else { return(ARK_ILL_INPUT); }
 }
 
@@ -1575,7 +1581,7 @@ int erkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol)
 void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype t,
                           sunrealtype s, int *nvec)
 {
-  realtype tau, taui;
+  sunrealtype tau, taui;
   int i;
 
   /* always append the constant forcing term */
@@ -1586,7 +1592,7 @@ void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype t,
   /* compute normalized time tau and initialize tau^i */
   tau  = (t - step_mem->tshift) / (step_mem->tscale);
   taui = tau;
-  for (i = 1; i < step_mem->nforcing; i++) 
+  for (i = 1; i < step_mem->nforcing; i++)
   {
     step_mem->cvals[*nvec] = s*taui;
     step_mem->Xvecs[*nvec] = step_mem->forcing[i];
@@ -1610,7 +1616,7 @@ void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype t,
   methods).
   ----------------------------------------------------------------------------*/
 
-int erkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift, 
+int erkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
                             sunrealtype tscale, N_Vector* forcing, int nvecs)
 {
   ARKodeMem ark_mem;
@@ -1622,7 +1628,7 @@ int erkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return(retval); }
 
-  if (nvecs > 0) 
+  if (nvecs > 0)
   {
 
     /* store forcing inputs */
@@ -1636,20 +1642,20 @@ int erkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
        be allocated in erkStep_Init and take into account the value of nforcing.
        On subsequent calls will check if enough space has allocated in case
        nforcing has increased since the original allocation. */
-    if (step_mem->cvals != NULL && step_mem->Xvecs != NULL) 
+    if (step_mem->cvals != NULL && step_mem->Xvecs != NULL)
     {
 
       /* check if there are enough reusable arrays for fused operations */
-      if ((step_mem->nfusedopvecs - nvecs) < (step_mem->stages + 1)) 
+      if ((step_mem->nfusedopvecs - nvecs) < (step_mem->stages + 1))
       {
 
         /* free current work space */
-        if (step_mem->cvals != NULL) 
+        if (step_mem->cvals != NULL)
         {
           free(step_mem->cvals);
           ark_mem->lrw -= step_mem->nfusedopvecs;
         }
-        if (step_mem->Xvecs != NULL) 
+        if (step_mem->Xvecs != NULL)
         {
           free(step_mem->Xvecs);
           ark_mem->liw -= step_mem->nfusedopvecs;
@@ -1659,8 +1665,8 @@ int erkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
         step_mem->nfusedopvecs = step_mem->stages + 1 + nvecs;
 
         step_mem->cvals = NULL;
-        step_mem->cvals = (realtype*)calloc(step_mem->nfusedopvecs,
-                                            sizeof(realtype));
+        step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
+                                               sizeof(sunrealtype));
         if (step_mem->cvals == NULL) { return(ARK_MEM_FAIL); }
         ark_mem->lrw += step_mem->nfusedopvecs;
 
@@ -1671,8 +1677,8 @@ int erkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
         ark_mem->liw += step_mem->nfusedopvecs;
       }
     }
-  } 
-  else 
+  }
+  else
   {
 
     /* disable forcing */

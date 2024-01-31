@@ -18,7 +18,7 @@ sundials_add_library(sundials_sunadaptcontrollermripi
     sunadaptcontroller_mripi.c
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/sunadaptcontroller/sunadaptcontroller_mripi.h
-  LINK LIBRARIES
+  LINK_LIBRARIES
     PUBLIC sundials_core
   INCLUDE_SUBDIR
     sunadaptcontroller

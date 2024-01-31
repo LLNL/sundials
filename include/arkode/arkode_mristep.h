@@ -22,7 +22,7 @@
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
 #include <arkode/arkode_ls.h>
-#include <arkode/arkode_sunadaptcontroller.h>
+#include <sundials/sundials_adaptcontroller.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

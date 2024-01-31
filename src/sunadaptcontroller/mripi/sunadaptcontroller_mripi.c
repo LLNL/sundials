@@ -122,7 +122,7 @@ SUNErrCode SUNAdaptController_SetParams_MRIPI(SUNAdaptController C,
 
 SUNAdaptController_Type SUNAdaptController_GetType_MRIPI(SUNAdaptController C)
 {
-  return SUNDIALS_CONTROL_MRI_H;
+  return SUN_ADAPTCONTROLLER_MRI_H;
 }
 
 SUNErrCode SUNAdaptController_EstimateMRISteps_MRIPI(SUNAdaptController C,

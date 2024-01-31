@@ -959,6 +959,46 @@ SWIGEXPORT int _wrap_FERKStepGetDky(void *farg1, double const *farg2, int const 
 }
 
 
+SWIGEXPORT int _wrap_FERKStepSetAccumulatedErrorType(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)ERKStepSetAccumulatedErrorType(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FERKStepResetAccumulatedError(void *farg1) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  result = (int)ERKStepResetAccumulatedError(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FERKStepGetAccumulatedError(void *farg1, double *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype *)(farg2);
+  result = (int)ERKStepGetAccumulatedError(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FERKStepGetNumExpSteps(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1343,6 +1383,20 @@ SWIGEXPORT void _wrap_FERKStepPrintMem(void *farg1, void *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (FILE *)(farg2);
   ERKStepPrintMem(arg1,arg2);
+}
+
+
+SWIGEXPORT int _wrap_FERKStepCreateMRIStepInnerStepper(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  MRIStepInnerStepper *arg2 = (MRIStepInnerStepper *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (MRIStepInnerStepper *)(farg2);
+  result = (int)ERKStepCreateMRIStepInnerStepper(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
 }
 
 

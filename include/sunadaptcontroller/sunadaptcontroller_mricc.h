@@ -18,7 +18,7 @@
 #define _SUNADAPTCONTROLLER_MRICC_H
 
 #include <stdio.h>
-#include <sundials/sundials_control.h>
+#include <sundials/sundials_adaptcontroller.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -28,7 +28,8 @@ extern "C" {
  * MRI constant-constant implementation of SUNAdaptController
  * -------------------------------------------------- */
 
-struct _SUNAdaptControllerContent_MRICC {
+struct _SUNAdaptControllerContent_MRICC 
+{
   sunrealtype k1;     /* internal controller parameters */
   sunrealtype k2;
   sunrealtype bias;   /* error bias factor */

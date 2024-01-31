@@ -1277,7 +1277,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
   if ((adapt_type != SUN_ADAPTCONTROLLER_MRI_H) &&
       (adapt_type != SUN_ADAPTCONTROLLER_MRI_TOL) &&
       (adapt_type != SUN_ADAPTCONTROLLER_H) &&
-      (adapt_type != SUN_ADAPTCONTROLLER_NONE)) 
+      (adapt_type != SUN_ADAPTCONTROLLER_NONE))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "SUNAdaptController type is unsupported by MRIStep");
@@ -1286,29 +1286,29 @@ int mriStep_Init(void* arkode_mem, int init_type)
 
   /*** Perform timestep adaptivity checks and initial setup ***/
 
-  if (adapt_type == SUN_ADAPTCONTROLLER_NONE) 
+  if (adapt_type == SUN_ADAPTCONTROLLER_NONE)
   {
     /* Non-adaptive controller: user must have supplied initial step
        size, and indicated fixed time stepping */
-    if ((ark_mem->hin == ZERO) || (ark_mem->fixedstep == SUNFALSE)) 
+    if ((ark_mem->hin == ZERO) || (ark_mem->fixedstep == SUNFALSE))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Timestep adaptivity disabled, but missing user-defined fixed stepsize");
       return (ARK_ILL_INPUT);
     }
-  } 
-  else 
+  }
+  else
   {
     /* Controller provides adaptivity (at least at the slow time scale):
        - verify that the MRI method includes an embedding, and
        - estimate initial slow step size (store in ark_mem->hin) */
-    if (step_mem->MRIC->p == 0) 
+    if (step_mem->MRIC->p == 0)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Timestep adaptivity enabled, but non-embedded MRI table specified");
       return (ARK_ILL_INPUT);
     }
-    if (ark_mem->hin == ZERO) 
+    if (ark_mem->hin == ZERO)
     {
       /*   tempv1 = fslow(t0, y0) */
       if(mriStep_SlowRHS(arkode_mem, ark_mem->tcur, ark_mem->yn,
@@ -1320,7 +1320,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
       retval = mriStep_Hin(ark_mem, ark_mem->tcur, ark_mem->tout, ark_mem->yn,
                            ark_mem->tempv1, ark_mem->ycur, ark_mem->tempv2,
                            ark_mem->tempv3, mriStep_SlowRHS, &(ark_mem->hin));
-      if (retval != ARK_SUCCESS) 
+      if (retval != ARK_SUCCESS)
       {
         retval = arkHandleFailure(ark_mem, retval);
         return (retval);
@@ -1329,13 +1329,13 @@ int mriStep_Init(void* arkode_mem, int init_type)
   }
 
   /* Perform additional setup for (H,tol) controller */
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL) 
+  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
   {
     /* Verify that adaptivity type is supported by inner stepper */
-    if (!mriStepInnerStepper_SupportsRTolAdaptivity(step_mem->stepper)) 
+    if (!mriStepInnerStepper_SupportsRTolAdaptivity(step_mem->stepper))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "MRI-TOL SUNController provided, but unsupported by inner stepper");
+                      "MRI-TOL SUNAdaptController provided, but unsupported by inner stepper");
       return (ARK_ILL_INPUT);
     }
 
@@ -1344,12 +1344,12 @@ int mriStep_Init(void* arkode_mem, int init_type)
   }
 
   /* Perform additional setup for (H,h) controller */
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H) 
+  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H)
   {
     /* verify that adaptivity type is supported by inner stepper */
     if (!mriStepInnerStepper_SupportsStepAdaptivity(step_mem->stepper)) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "MRI-H SUNController provided, but unsupported by inner stepper");
+                      "MRI-H SUNAdaptController provided, but unsupported by inner stepper");
       return (ARK_ILL_INPUT);
     }
 
@@ -1358,7 +1358,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
     if (step_mem->inner_hfactor < ZERO) { step_mem->inner_hfactor = INNER_HFACTOR; }
 
     /* initialize fast stepper fixed step size (store in step_mem->inner_control) */
-    if (step_mem->stepper->ops->fullrhs) 
+    if (step_mem->stepper->ops->fullrhs)
     {
       /* tempv1 = ffast(t0, y0) */
       if(mriStep_FastRHS(arkode_mem, ark_mem->tcur, ark_mem->yn,
@@ -1372,13 +1372,13 @@ int mriStep_Init(void* arkode_mem, int init_type)
       retval = arkHin(ark_mem, ark_mem->tcur, ark_mem->tout, ark_mem->yn,
                       ark_mem->tempv1, ark_mem->ycur, ark_mem->tempv2,
                       ark_mem->tempv3, mriStep_FastRHS, &(step_mem->inner_control));
-      if (retval != ARK_SUCCESS) 
+      if (retval != ARK_SUCCESS)
       {
         retval = arkHandleFailure(ark_mem, retval);
         return (retval);
       }
-    } 
-    else 
+    }
+    else
     {
       /* set step_mem->inner_control to equal H/100 */
       step_mem->inner_control = SUN_RCONST(0.01) * ark_mem->hin;
@@ -1386,14 +1386,14 @@ int mriStep_Init(void* arkode_mem, int init_type)
     /* Pass fixed stepsize to inner stepper */
     retval = mriStepInnerStepper_SetFixedStep(step_mem->stepper,
                                               step_mem->inner_control);
-    if (retval != ARK_SUCCESS) 
+    if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
                       "error setting fast fixed step");
       return (ARK_INNERSTEP_FAIL);
     }
-  } 
-  else 
+  }
+  else
   {
     /* If user has left inner_hfactor unset, reset to zero to indicate
        either that we **trust** tolerance-based adaptive fast error
@@ -1709,19 +1709,19 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
      and send appropriate control parameter to the fast integrator */
   adapt_type = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
   if ((adapt_type == SUN_ADAPTCONTROLLER_MRI_H) ||
-      (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)) 
+      (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL))
   {
     step_mem->inner_dsm = ZERO;
     retval = mriStepInnerStepper_ResetError(step_mem->stepper);
     if (retval != ARK_SUCCESS) { return (ARK_INNERSTEP_FAIL); }
   }
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H) 
+  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H)
   {
     retval = mriStepInnerStepper_SetFixedStep(step_mem->stepper,
                                               step_mem->inner_control);
     if (retval != ARK_SUCCESS) { return (ARK_INNERSTEP_FAIL); }
   }
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL) 
+  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
   {
     retval = mriStepInnerStepper_SetRTol(step_mem->stepper,
                                          step_mem->inner_control*ark_mem->reltol);
@@ -1730,7 +1730,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   /* if any temporal adaptivity is enabled: reset the inner integrator
      to the beginning of this step (in case of recomputation) */
-  if (adapt_type != SUN_ADAPTCONTROLLER_NONE) 
+  if (adapt_type != SUN_ADAPTCONTROLLER_NONE)
   {
     retval = mriStepInnerStepper_Reset(step_mem->stepper,
                                        ark_mem->tn, ark_mem->ycur);
@@ -1920,7 +1920,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
       /* if this is the next-to-last internal stage, and if adaptivity is enabled,
          save ycur into ark_mem->tempv4 (may be needed for embedding) */
-      if ((is == step_mem->stages-2) && (!ark_mem->fixedstep)) 
+      if ((is == step_mem->stages-2) && (!ark_mem->fixedstep))
       {
         N_VScale(ONE, ark_mem->ycur, ark_mem->tempv4);
       }
@@ -1935,7 +1935,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #endif
 
   /* if adaptivity is enabled: compute slow time scale error and store in dsmPtr */
-  if (!ark_mem->fixedstep) 
+  if (!ark_mem->fixedstep)
   {
 
     /* Temporarily swap ark_mem->ycur and ark_mem->tempv4 pointers, so that
@@ -1953,7 +1953,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Determine embedding stage type, and call corresponding routine; the
        vector ark_mem->ycur stores the previous stage solution on input, and
        should store the result of this stage solution on output. */
-    switch (step_mem->stagetypes[step_mem->stages]) 
+    switch (step_mem->stagetypes[step_mem->stages])
     {
     case (MRISTAGE_ERK_FAST):
       retval = mriStep_StageERKFast(ark_mem, step_mem, step_mem->stages);
@@ -2073,10 +2073,10 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "No adaptive ImEx MRI methods are yet available.");
       step_mem->MRIC = NULL;
-    } 
-    else 
+    }
+    else
     {
-      switch (step_mem->q) 
+      switch (step_mem->q)
       {
       case 3:
         step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_3);
@@ -2124,12 +2124,12 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
       step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_2);
       break;
     case 3:
-      if (!ark_mem->fixedstep) 
+      if (!ark_mem->fixedstep)
       {
         step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_3_AD);
         break;
-      } 
-      else 
+      }
+      else
       {
         step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_3);
         break;
@@ -2408,19 +2408,19 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is)
 
   /* for normal stages with MRI adaptivity enabled, get an
      estimate for the fast time scale error */
-  if (!embedded_stage) 
+  if (!embedded_stage)
   {
     /* if MRI adaptivity is enabled, get fast temporal error estimate */
     if ((SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller) == SUN_ADAPTCONTROLLER_MRI_H) ||
-        (SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller) == SUN_ADAPTCONTROLLER_MRI_TOL)) 
+        (SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller) == SUN_ADAPTCONTROLLER_MRI_TOL))
     {
       /* if we trust inner integrator accumulated error estimate, call it here */
-      if (step_mem->inner_hfactor == ZERO) 
+      if (step_mem->inner_hfactor == ZERO)
       {
         retval = mriStepInnerStepper_GetError(step_mem->stepper, &(step_mem->inner_dsm));
         if (retval != 0) { return (ARK_INNERSTEP_FAIL); }
-      } 
-      else 
+      }
+      else
       {
         /* store initial condition for subsequent fast error estimation */
         N_VScale(ONE, ark_mem->ycur, ytilde);
@@ -2429,7 +2429,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is)
 
     /* manually accumulate fast error estimate, if needed */
     if ((SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller) == SUN_ADAPTCONTROLLER_MRI_H) &&
-        (step_mem->inner_hfactor != ZERO)) 
+        (step_mem->inner_hfactor != ZERO))
     {
       /* reset fast integrator for time interval */
       retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ytilde);
@@ -3023,11 +3023,11 @@ int mriStep_SlowRHS(void* arkode_mem, sunrealtype t, N_Vector y,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* call fse if the problem has an explicit component */
-  if (step_mem->explicit_rhs) 
+  if (step_mem->explicit_rhs)
   {
     retval = step_mem->fse(t, y, step_mem->Fse[0], ark_mem->user_data);
     step_mem->nfse++;
-    if (retval != 0) 
+    if (retval != 0)
     {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_RHSFUNC_FAILED, t);
@@ -3036,11 +3036,11 @@ int mriStep_SlowRHS(void* arkode_mem, sunrealtype t, N_Vector y,
   }
 
   /* call fsi if the problem has an implicit component */
-  if (step_mem->implicit_rhs) 
+  if (step_mem->implicit_rhs)
   {
     retval = step_mem->fsi(t, y, step_mem->Fsi[0], ark_mem->user_data);
     step_mem->nfsi++;
-    if (retval != 0) 
+    if (retval != 0)
     {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_RHSFUNC_FAILED, t);
@@ -3052,10 +3052,10 @@ int mriStep_SlowRHS(void* arkode_mem, sunrealtype t, N_Vector y,
   if (step_mem->explicit_rhs && step_mem->implicit_rhs) /* ImEx */
   {
     N_VLinearSum(ONE, step_mem->Fse[0], ONE, step_mem->Fsi[0], f);
-  } 
+  }
   else
   {
-    if (step_mem->implicit_rhs) { N_VScale(ONE, step_mem->Fsi[0], f); } 
+    if (step_mem->implicit_rhs) { N_VScale(ONE, step_mem->Fsi[0], f); }
     else { N_VScale(ONE, step_mem->Fse[0], f); }
   }
 
@@ -3436,7 +3436,7 @@ sunbooleantype mriStepInnerStepper_SupportsStepAdaptivity(MRIStepInnerStepper st
   if (stepper == NULL) { return SUNFALSE; }
   if (stepper->ops == NULL) { return SUNFALSE; }
 
-  if (stepper->ops->geterror && stepper->ops->reseterror 
+  if (stepper->ops->geterror && stepper->ops->reseterror
       && stepper->ops->setfixedstep) { return SUNTRUE; }
   else { return SUNFALSE; }
 }
@@ -3445,7 +3445,7 @@ sunbooleantype mriStepInnerStepper_SupportsStepAdaptivity(MRIStepInnerStepper st
 /* Check whether stepper supports fast/slow tolerance adaptivity */
 sunbooleantype mriStepInnerStepper_SupportsRTolAdaptivity(MRIStepInnerStepper stepper)
 {
-  if (stepper == NULL) { return SUNFALSE; {
+  if (stepper == NULL) { return SUNFALSE; }
   if (stepper->ops == NULL) { return SUNFALSE; }
 
   if (stepper->ops->geterror && stepper->ops->reseterror &&
@@ -3528,11 +3528,11 @@ int mriStepInnerStepper_GetError(MRIStepInnerStepper stepper,
   {
     stepper->last_flag = stepper->ops->geterror(stepper, accum_error);
     return stepper->last_flag;
-  } 
+  }
   else
   {
     /* assume stepper provides exact solution */
-    *accum_error = RCONST(0.0);
+    *accum_error = SUN_RCONST(0.0);
     return ARK_SUCCESS;
   }
 }
@@ -3728,7 +3728,7 @@ void mriStepInnerStepper_PrintMem(MRIStepInnerStepper stepper, FILE* outfile)
   MRIStep SUNAdaptController wrapper functions
   --------------------------------------------*/
 
-SUNAdaptController SUNAdaptController_MRIStep(void *arkode_mem, 
+SUNAdaptController SUNAdaptController_MRIStep(void *arkode_mem,
                                               SUNAdaptController CMRI)
 {
   SUNAdaptController C;
@@ -3753,7 +3753,7 @@ SUNAdaptController SUNAdaptController_MRIStep(void *arkode_mem,
 
   /* Create an empty controller object */
   C = NULL;
-  C = SUNControlNewEmpty(CMRI->sunctx);
+  C = SUNAdaptController_NewEmpty(CMRI->sunctx);
   if (C == NULL) { return (NULL); }
 
   /* Attach operations */
@@ -3769,7 +3769,7 @@ SUNAdaptController SUNAdaptController_MRIStep(void *arkode_mem,
   content = (mriStepControlContent)malloc(sizeof *content);
   if (content == NULL)
   {
-    SUNControlDestroy(C);
+    SUNAdaptController_Destroy(C);
     return (NULL);
   }
 
@@ -3783,8 +3783,9 @@ SUNAdaptController SUNAdaptController_MRIStep(void *arkode_mem,
   return (C);
 }
 
-int SUNAdaptController_EstimateStep_MRIStep(SUNControl C, sunrealtype H, int P,
-                                            sunrealtype DSM, sunrealtype* Hnew)
+int SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C, sunrealtype H,
+                                            int P, sunrealtype DSM,
+                                            sunrealtype* Hnew)
 {
   /* Shortcuts to ARKODE and MRIStep memory */
   ARKodeMem ark_mem = MRICONTROL_A(C);
@@ -3792,23 +3793,26 @@ int SUNAdaptController_EstimateStep_MRIStep(SUNControl C, sunrealtype H, int P,
   if ((ark_mem == NULL) || (step_mem == NULL)) { return SUN_ERR_MEM_FAIL; }
 
   /* Estimate slow stepsize based on MRI controller type */
-  if (SUNAdaptController_GetType(MRICONTROL_C(C)) == SUN_ADAPTCONTROLLER_MRI_H) 
+  if (SUNAdaptController_GetType(MRICONTROL_C(C)) == SUN_ADAPTCONTROLLER_MRI_H)
   {
-    return SUNControlEstimateMRISteps(MRICONTROL_C(C),
-                                      H, step_mem->inner_control,
-                                      DSM, step_mem->inner_dsm,
-                                      Hnew, &(step_mem->inner_control_new));
+    return SUNAdaptController_EstimateMRISteps(MRICONTROL_C(C), H,
+                                               step_mem->inner_control,
+                                               step_mem->p, DSM,
+                                               step_mem->inner_dsm, Hnew,
+                                               &(step_mem->inner_control_new));
   }
-  else /* SUNDIALS_CONTROL_MRI_TOL */
+  else /* SUN_ADAPTCONTROLLER_MRI_TOL */
   {
-    return SUNControlEstimateStepTol(MRICONTROL_C(C),
-                                     H, step_mem->inner_control,
-                                     DSM, step_mem->inner_dsm,
-                                     Hnew, &(step_mem->inner_control_new));
+    return SUNAdaptController_EstimateStepTol(MRICONTROL_C(C), H,
+                                              step_mem->inner_control,
+                                              step_mem->p, DSM,
+                                              step_mem->inner_dsm, Hnew,
+                                              &(step_mem->inner_control_new));
   }
 }
 
-int SUNAdaptController_UpdateH_MRIStep(SUNControl C, sunrealtype H, sunrealtype DSM)
+int SUNAdaptController_UpdateH_MRIStep(SUNAdaptController C, sunrealtype H,
+                                       sunrealtype DSM)
 {
   /* Shortcuts to ARKODE and MRIStep memory */
   ARKodeMem ark_mem = MRICONTROL_A(C);
@@ -3823,19 +3827,19 @@ int SUNAdaptController_UpdateH_MRIStep(SUNControl C, sunrealtype H, sunrealtype 
                                            H, step_mem->inner_control,
                                            DSM, step_mem->inner_dsm);
   }
-  else /* SUNDIALS_CONTROL_MRI_TOL */
+  else /* SUN_ADAPTCONTROLLER_MRI_TOL */
   {
-    retval = SUNControlUpdateMRITol(MRICONTROL_C(C),
-                                    H, step_mem->inner_control,
-                                    DSM, step_mem->inner_dsm);
+    retval = SUNAdaptController_UpdateMRITol(MRICONTROL_C(C),
+                                             H, step_mem->inner_control,
+                                             DSM, step_mem->inner_dsm);
   }
-  if (retval != SUNCONTROL_SUCCESS) { return(retval); }
+  if (retval != SUN_SUCCESS) { return(retval); }
 
   /* Update inner controller parameter to most-recent prediction */
   step_mem->inner_control = step_mem->inner_control_new;
 
   /* return with success*/
-  return SUNCONTROL_SUCCESS;
+  return SUN_SUCCESS;
 }
 
 SUNAdaptController_Type SUNAdaptController_GetType_MRIStep(SUNAdaptController C)
