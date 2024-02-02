@@ -105,6 +105,8 @@
  * CVodeCreate
  *
  *   CORTES       constant in nonlinear iteration convergence test
+ *   CRDOWN       coefficient in corrector convergence rate computation
+ *   RDIV         coefficient used when checking for corrector divergence
  *
  */
 
@@ -116,6 +118,11 @@
 #define MAX_ITERS  4
 
 #define CORTES RCONST(0.1)
+#define CRDOWN RCONST(0.3)
+#define CRDOWN_LSODE RCONST(0.2)  // this is the same as LSODE
+#define CRCOEF2 RCONST(1.0)
+#define CRCOEF2_LSODE RCONST(1.5) // this is the same as LSODE
+#define RDIV   RCONST(2.0)
 
 /*=================================================================*/
 /* Private Helper Functions Prototypes                             */
@@ -327,6 +334,9 @@ void *CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->cv_maxnef           = MXNEF;
   cv_mem->cv_maxncf           = MXNCF;
   cv_mem->cv_nlscoef          = CORTES;
+  cv_mem->cv_cratecoef        = CRDOWN;
+  cv_mem->cv_cratecoef2       = CRCOEF2;
+  cv_mem->cv_rdiv             = RDIV;
   cv_mem->cv_msbp             = MSBP_DEFAULT;
   cv_mem->cv_dgmax_lsetup     = DGMAX_LSETUP_DEFAULT;
   cv_mem->convfail            = CV_NO_FAILURES;

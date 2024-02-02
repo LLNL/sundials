@@ -27,7 +27,6 @@
      RDIV        declare divergence if ratio del/delp > RDIV
  */
 #define NLS_MAXCOR 3
-#define CRDOWN     RCONST(0.3)
 #define RDIV       RCONST(2.0)
 
 /* private functions */
@@ -328,18 +327,34 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
   /* Test for convergence. If m > 0, an estimate of the convergence
      rate constant is stored in crate, and used in the test.        */
   if (m > 0) {
-    cv_mem->cv_crate = SUNMAX(CRDOWN * cv_mem->cv_crate, del/cv_mem->cv_delp);
+    cv_mem->cv_crate = SUNMAX(cv_mem->cv_cratecoef * cv_mem->cv_crate, del/cv_mem->cv_delp);
   }
-  dcon = del * SUNMIN(ONE, cv_mem->cv_crate) / tol;
+  dcon = del * SUNMIN(ONE, cv_mem->cv_cratecoef2 * cv_mem->cv_crate) / tol;
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
+      "CVODE::cvNlsConvTest", "dcon-test",
+      "del = %.16g, crate = %.16g, dcon = %.16g, m = %ld",
+      del, cv_mem->cv_crate, dcon, (long int) m);
+#endif
 
   if (dcon <= ONE) {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(CV_LOGGER, SUNDIALS_LOGGING_INFO,
+      "CVODE::cvNlsConvTest", "dcon-passed", "nonlinear solver converged");
+#endif
     cv_mem->cv_acnrm = (m==0) ? del : N_VWrmsNorm(ycor, ewt);
     cv_mem->cv_acnrmcur = SUNTRUE;
     return(CV_SUCCESS); /* Nonlinear system was solved successfully */
   }
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(CV_LOGGER, SUNDIALS_LOGGING_INFO,
+      "CVODE::cvNlsConvTest", "dcon-passed", "nonlinear solver not yet converged");
+#endif
+
   /* check if the iteration seems to be diverging */
-  if ((m >= 1) && (del > RDIV*cv_mem->cv_delp)) return(SUN_NLS_CONV_RECVR);
+  if ((m >= 1) && (del > cv_mem->cv_rdiv*cv_mem->cv_delp)) return(SUN_NLS_CONV_RECVR);
 
   /* Save norm of correction and loop again */
   cv_mem->cv_delp = del;

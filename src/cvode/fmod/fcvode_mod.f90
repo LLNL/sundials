@@ -100,6 +100,9 @@ module fcvode_mod
  public :: FCVodeSetMonitorFrequency
  public :: FCVodeSetNlsRhsFn
  public :: FCVodeSetNonlinConvCoef
+ public :: FCVodeSetNonlinConvRateCoef
+ public :: FCVodeSetNonlinConvRateCoef2
+ public :: FCVodeSetNonlinDivCoef
  public :: FCVodeSetNonlinearSolver
  public :: FCVodeSetStabLimDet
  public :: FCVodeSetStopTime
@@ -438,6 +441,33 @@ end function
 
 function swigc_FCVodeSetNonlinConvCoef(farg1, farg2) &
 bind(C, name="_wrap_FCVodeSetNonlinConvCoef") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetNonlinConvRateCoef(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetNonlinConvRateCoef") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetNonlinConvRateCoef2(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetNonlinConvRateCoef2") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeSetNonlinDivCoef(farg1, farg2) &
+bind(C, name="_wrap_FCVodeSetNonlinDivCoef") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1782,6 +1812,54 @@ real(C_DOUBLE) :: farg2
 farg1 = cvode_mem
 farg2 = nlscoef
 fresult = swigc_FCVodeSetNonlinConvCoef(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetNonlinConvRateCoef(cvode_mem, cratecoef) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: cratecoef
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = cratecoef
+fresult = swigc_FCVodeSetNonlinConvRateCoef(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetNonlinConvRateCoef2(cvode_mem, cratecoef2) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: cratecoef2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = cratecoef2
+fresult = swigc_FCVodeSetNonlinConvRateCoef2(farg1, farg2)
+swig_result = fresult
+end function
+
+function FCVodeSetNonlinDivCoef(cvode_mem, divcoef) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+real(C_DOUBLE), intent(in) :: divcoef
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = cvode_mem
+farg2 = divcoef
+fresult = swigc_FCVodeSetNonlinDivCoef(farg1, farg2)
 swig_result = fresult
 end function
 

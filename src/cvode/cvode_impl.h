@@ -292,10 +292,13 @@ typedef struct CVodeMemRec {
   realtype cv_gamrat;          /* gamma / gammap                              */
 
   realtype cv_crate;           /* estimated corrector convergence rate        */
+  realtype cv_cratecoef;       /* coefficient used when computing corrector convergence rate */
+  realtype cv_cratecoef2;      /* coefficient applied to crate used when computing dcon */
+  realtype cv_rdiv;            /* coefficient used when checking for corrector divergence */
   realtype cv_delp;            /* norm of previous nonlinear solver update    */
   realtype cv_acnrm;           /* | acor |                                    */
   booleantype cv_acnrmcur;     /* is | acor | current?                        */
-  realtype cv_nlscoef;         /* coeficient in nonlinear convergence test    */
+  realtype cv_nlscoef;         /* coefficient in nonlinear convergence test   */
 
   /*------
     Limits

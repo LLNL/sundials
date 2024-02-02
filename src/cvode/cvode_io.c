@@ -852,6 +852,72 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
 }
 
 /*
+ * CVodeSetNonlinConvCoef
+ *
+ * Specifies the coefficient used in computing the nonlinear solver convergence rate.
+ */
+
+int CVodeSetNonlinConvRateCoef(void *cvode_mem, realtype cratecoef)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetNonlinConvRateCoef", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  cv_mem->cv_cratecoef = cratecoef;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetNonlinConvCoef
+ *
+ * Specifies the coefficient used in computing the nonlinear solver convergence rate.
+ */
+
+int CVodeSetNonlinConvRateCoef2(void *cvode_mem, realtype cratecoef2)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetNonlinConvRateCoef2", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  cv_mem->cv_cratecoef2 = cratecoef2;
+
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetNonlinConvCoef
+ *
+ * Specifies the coefficient used in computing the nonlinear solver convergence rate.
+ */
+
+int CVodeSetNonlinDivCoef(void *cvode_mem, realtype divcoef)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetNonlinDivCoef", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  cv_mem->cv_rdiv = divcoef;
+
+  return(CV_SUCCESS);
+}
+
+/*
  * CVodeSetLSetupFrequency
  *
  * Specifies the frequency for calling the linear solver setup function to
