@@ -94,9 +94,6 @@ struct _generic_SUNMatrix_Ops
   SUNErrCode (*matvecsetup)(SUNMatrix);
   SUNErrCode (*matvec)(SUNMatrix, N_Vector, N_Vector);
   SUNErrCode (*space)(SUNMatrix, long int*, long int*);
-#ifdef __cplusplus
-  _generic_SUNMatrix_Ops() = default;
-#endif
 };
 
 /* A matrix is a structure with an implementation-dependent
@@ -107,9 +104,6 @@ struct _generic_SUNMatrix
   void* content;
   SUNMatrix_Ops ops;
   SUNContext sunctx;
-#ifdef __cplusplus
-  _generic_SUNMatrix() = default;
-#endif
 };
 
 /* -----------------------------------------------------------------
