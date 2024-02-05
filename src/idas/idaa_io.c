@@ -32,8 +32,6 @@
 
 #include "idas_impl.h"
 
-#include "idas_impl.h"
-
 /*
  * =================================================================
  * IDAA PRIVATE CONSTANTS

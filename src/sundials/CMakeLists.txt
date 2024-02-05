@@ -97,16 +97,12 @@ set(sundials_SOURCES
   sundials_nonlinearsolver.c
   sundials_nvector_senswrapper.c
   sundials_nvector.c
+  sundials_profiler.c
   sundials_version.c
   )
 
 if(ENABLE_MPI)
   list(APPEND sundials_SOURCES sundials_mpi_errors.c)
-endif()
-
-if(SUNDIALS_BUILD_WITH_PROFILING)
-  message(WARNING "SUNDIALS built with profiling turned on, performance may be affected.")
-  list(APPEND sundials_SOURCES sundials_profiler.c)
 endif()
 
 if(BUILD_FORTRAN_MODULE_INTERFACE)

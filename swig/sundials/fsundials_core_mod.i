@@ -16,7 +16,6 @@
 
 %include "fsundials_types.i"
 %include "fsundials.i"
-//%include "fsundials_errors.i"
 %include "fsundials_context.i"
 %include "fsundials_profiler.i"
 %include "fsundials_logger.i"

@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2023, Lawrence Livermore National Security
+   Copyright (c) 2002-2024, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -22,8 +22,8 @@ most of the C API including:
 
 - All of the time-stepping modules in ARKODE:
 
-  * The ``farkode_arkstep_mod``, ``farkode_erkstep_mod``, and
-    ``farkode_mristep_mod``, ``farkode_sprkstep_mod`` modules provide interfaces
+  * The ``farkode_arkstep_mod``, ``farkode_erkstep_mod``,
+    ``farkode_mristep_mod``, and ``farkode_sprkstep_mod`` modules provide interfaces
    to the ARKStep, ERKStep, MRIStep, and SPRKStep integrators respectively.
 
   * The ``farkode_mod`` module interfaces to the components of ARKODE which are
@@ -491,7 +491,7 @@ There are a few functions in the SUNDIALS C API which take a ``FILE*`` argument.
 Since there is no portable way to convert between a Fortran file descriptor and
 a C file pointer, SUNDIALS provides two utility functions for creating a
 ``FILE*`` and destroying it. These functions are defined in the module
-``fsundials_futils_mod``.
+``fsundials_core_mod``.
 
 .. c:function:: SUNErrCode SUNDIALSFileOpen(const char* filename, const char* mode, FILE** fp)
 
