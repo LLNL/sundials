@@ -334,8 +334,8 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG,
       "CVODE::cvNlsConvTest", "dcon-test",
-      "del = %.16g, crate = %.16g, dcon = %.16g, m = %ld",
-      del, cv_mem->cv_crate, dcon, (long int) m);
+      "del = %.16g, crate = %.16g, dcon = %.16g, tol=%.16g, m = %ld",
+      del, cv_mem->cv_crate, dcon, tol, (long int) m);
 #endif
 
   if (dcon <= ONE) {
