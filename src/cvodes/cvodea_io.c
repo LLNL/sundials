@@ -29,8 +29,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_types.h>
-#include "cvodes_impl.h"
 
+#include "cvodes_impl.h"
 
 /*
  * =================================================================
