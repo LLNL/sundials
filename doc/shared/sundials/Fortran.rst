@@ -24,7 +24,7 @@ most of the C API including:
 
   * The ``farkode_arkstep_mod``, ``farkode_erkstep_mod``,
     ``farkode_mristep_mod``, and ``farkode_sprkstep_mod`` modules provide interfaces
-   to the ARKStep, ERKStep, MRIStep, and SPRKStep integrators respectively.
+    to the ARKStep, ERKStep, MRIStep, and SPRKStep integrators respectively.
 
   * The ``farkode_mod`` module interfaces to the components of ARKODE which are
     shared by the time-stepping modules.
@@ -65,7 +65,8 @@ and by linking to the Fortran 2003 library in addition to the C library, e.g.
 ``libsundials_fcore_mod.<so|a>``, ``libsundials_core.<so|a>``,
 ``libsundials_fnvecpenmp_mod.<so|a>``, ``libsundials_nvecopenmp.<so|a>``,
 ``libsundials_fcvode_mod.<so|a>`` and ``libsundials_cvode.<so|a>``.
-The ``use`` statements mirror the ``#include``s needed when using the C API.
+The ``use`` statements mirror the ``#include`` statements needed when using the
+C API.
 
 
 The Fortran 2003 interfaces leverage the ``iso_c_binding`` module and the
