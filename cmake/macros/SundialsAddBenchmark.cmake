@@ -69,7 +69,7 @@ macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
     "--outputdir=${SUNDIALS_BENCHMARK_OUTPUT_DIR}/output"
     "--calidir=${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${TARGET_NAME}"
     "--nodiff")
-  
+
   # incorporate scheduler arguments into test_runner
   if(SUNDIALS_SCHEDULER_COMMAND STREQUAL "flux run")
     set(SCHEDULER_STRING " -n${sundials_add_benchmark_NUM_CORES}")

@@ -14,25 +14,19 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fcvode_mod
-
-%include "../sundials/fsundials.i"
-
+// insert the include into the swig wrapper
 %{
-#include "cvode/cvode.h"
-#include "cvode/cvode_bandpre.h"
-#include "cvode/cvode_bbdpre.h"
-#include "cvode/cvode_diag.h"
-#include "cvode/cvode_ls.h"
-#include "cvode/cvode_proj.h"
+#include "sundials/sundials_profiler.h"
+#if SUNDIALS_MPI_ENABLED
+#include <mpi.h>
+#endif
 %}
 
-%import "../sundials/fsundials_core_mod.i"
+%apply void* { SUNProfiler };
+%apply void** { SUNProfiler* };
 
-// Process definitions from these files
-%include "cvode/cvode.h"
-%include "cvode/cvode_bandpre.h"
-%include "cvode/cvode_bbdpre.h"
-%include "cvode/cvode_diag.h"
-%include "cvode/cvode_ls.h"
-%include "cvode/cvode_proj.h"
+// Utility class for C++ only.
+%ignore SUNProfilerMarkScope;
+
+// Process and wrap functions in the following files
+%include "sundials/sundials_profiler.h"

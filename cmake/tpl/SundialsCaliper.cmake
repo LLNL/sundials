@@ -79,7 +79,7 @@ if(CALIPER_FOUND AND (NOT CALIPER_WORKS))
   # Create a C source file
   file(WRITE ${CALIPER_TEST_DIR}/ltest.c
   "\#include <caliper/cali.h>\n"
-  "int main()\n"
+  "int main(void)\n"
   "{\n"
   "  CALI_MARK_FUNCTION_BEGIN;\n"
   "  CALI_MARK_FUNCTION_END;\n"

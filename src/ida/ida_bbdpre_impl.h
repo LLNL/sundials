@@ -44,7 +44,7 @@ typedef struct IBBDPrecDataRec
   IDABBDLocalFn glocal;
   IDABBDCommFn gcomm;
 
-  /* set by IDABBDPrecSetup and used by IDABBDPrecSetup and 
+  /* set by IDABBDPrecSetup and used by IDABBDPrecSetup and
      IDABBDPrecSolve functions */
   sunindextype n_local;
   SUNMatrix PP;

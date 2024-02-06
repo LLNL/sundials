@@ -57,7 +57,7 @@ should only require a single iteration per stage.  Internally, Newton
 will use the SUNLINSOL_DENSE linear solver via the ARKDLS interface,
 which in the case of this scalar-valued problem is just division.  The
 example file contains functions to evaluate both :math:`f(t,y)` and
-:math:`J(t,y)=\lambda`.  
+:math:`J(t,y)=\lambda`.
 
 We specify the relative and absolute tolerances, :math:`rtol=10^{-6}`
 and :math:`atol=10^{-10}`, respectively.  Aside from these choices,
@@ -96,7 +96,7 @@ the preceding problem would also work on this example, because it is
 not stiff we use this to demonstrate how to use ARKode's explicit
 solver interface.  Although both the ARKStep and ERKStep time stepping
 modules are appropriate in this scenario, we use the ERKStep module
-here. 
+here.
 
 The ODE problem is
 
@@ -106,7 +106,7 @@ The ODE problem is
 
 for the interval :math:`t \in [0.0, 10.0]`, with initial condition
 :math:`y(0)=0`.  This has analytical solution :math:`y(t) =
-\log\left(\frac{t^2}{2} + t + 1\right)`.  
+\log\left(\frac{t^2}{2} + t + 1\right)`.
 
 
 
@@ -114,9 +114,9 @@ Numerical method
 ----------------
 
 This program solves the problem with the default ERK method.  Output
-is printed every 1.0 units of time (10 total). 
+is printed every 1.0 units of time (10 total).
 Run statistics (optional outputs) are printed at the end.
-   
+
 
 
 Solutions
@@ -147,7 +147,7 @@ We now wish to exercise the ARKode solvers on more challenging
 nonlinear ODE systems.  The following test simulates a brusselator
 problem from chemical kinetics, and is widely used as a standard
 benchmark problem for new solvers.  The ODE system has 3 components,
-:math:`Y = [u,\, v,\, w]`, satisfying the equations, 
+:math:`Y = [u,\, v,\, w]`, satisfying the equations,
 
 .. math::
 
@@ -158,21 +158,21 @@ benchmark problem for new solvers.  The ODE system has 3 components,
 We integrate over the interval :math:`0 \le t \le 10`, with the
 initial conditions :math:`u(0) = u_0`, :math:`v(0) = v_0`, :math:`w(0)
 = w_0`. After each unit time interval, the solution is output to the
-screen. 
+screen.
 
 The problem implements 3 different testing scenarios:
 
 Test 1:  :math:`u_0=3.9`,  :math:`v_0=1.1`,  :math:`w_0=2.8`,
-:math:`a=1.2`, :math:`b=2.5`, and :math:`\varepsilon=10^{-5}` 
+:math:`a=1.2`, :math:`b=2.5`, and :math:`\varepsilon=10^{-5}`
 
 Test 2:  :math:`u_0=1.2`, :math:`v_0=3.1`, :math:`w_0=3`, :math:`a=1`,
-:math:`b=3.5`, and :math:`\varepsilon=5\cdot10^{-6}` 
+:math:`b=3.5`, and :math:`\varepsilon=5\cdot10^{-6}`
 
 Test 3:  :math:`u_0=3`, :math:`v_0=3`, :math:`w_0=3.5`, :math:`a=0.5`,
-:math:`b=3`, and :math:`\varepsilon=5\cdot10^{-4}` 
+:math:`b=3`, and :math:`\varepsilon=5\cdot10^{-4}`
 
 The example problem currently selects test 2, though that value may be
-easily adjusted to explore different testing scenarios.  
+easily adjusted to explore different testing scenarios.
 
 
 
@@ -182,17 +182,17 @@ Numerical method
 This program solves the problem with the DIRK method, using a
 Newton iteration with the SUNLINSOL_DENSE linear solver module via
 the ARKDLS interface.  Additionally, this example provides a routine
-to ARKDLS to compute the dense Jacobian. 
+to ARKDLS to compute the dense Jacobian.
 
 The problem is run using scalar relative and absolute tolerances of
 :math:`rtol=10^{-6}` and :math:`atol=10^{-10}`, respectively.
 
-10 outputs are printed at equal intervals, and run statistics 
+10 outputs are printed at equal intervals, and run statistics
 are printed at the end.
 
 
-   
-   
+
+
 Solutions
 ---------
 
@@ -254,20 +254,20 @@ that depend on the independent variable :math:`t` via the IVP system
 We integrate over the interval :math:`0 \le t \le 10`, with the
 initial conditions :math:`u(0) = u_0`, :math:`v(0) = v_0`,
 :math:`w(0) = w_0`.  After each unit time interval, the solution is
-output to the screen. 
+output to the screen.
 
 Again, we have 3 different testing scenarios,
 
 Test 1:  :math:`u_0=3.9`,  :math:`v_0=1.1`,  :math:`w_0=2.8`,
-:math:`a=1.2`, :math:`b=2.5`, and :math:`\varepsilon=10^{-5}` 
+:math:`a=1.2`, :math:`b=2.5`, and :math:`\varepsilon=10^{-5}`
 
 Test 2:  :math:`u_0=1.2`, :math:`v_0=3.1`, :math:`w_0=3`, :math:`a=1`,
-:math:`b=3.5`, and :math:`\varepsilon=5\cdot10^{-6}` 
+:math:`b=3.5`, and :math:`\varepsilon=5\cdot10^{-6}`
 
 Test 3:  :math:`u_0=3`, :math:`v_0=3`, :math:`w_0=3.5`, :math:`a=0.5`,
-:math:`b=3`, and :math:`\varepsilon=5\cdot10^{-4}` 
+:math:`b=3`, and :math:`\varepsilon=5\cdot10^{-4}`
 
-with test 2 selected within in the example file. 
+with test 2 selected within in the example file.
 
 
 
@@ -280,11 +280,11 @@ split the right-hand side into stiff (:math:`f_i(t,y)`) and non-stiff
 
 .. math::
 
-   f_i(t,y) = \left[\begin{array}{c} 
-      0 \\ 0 \\ \frac{b-w}{\varepsilon} 
+   f_i(t,y) = \left[\begin{array}{c}
+      0 \\ 0 \\ \frac{b-w}{\varepsilon}
    \end{array}\right]
    \qquad
-   f_e(t,y) = \left[\begin{array}{c} 
+   f_e(t,y) = \left[\begin{array}{c}
       a - (w+1)u + v u^2 \\ w u - v u^2 \\ - w u
    \end{array}\right].
 
@@ -293,7 +293,7 @@ stages using the available accelerated fixed-point solver, enabled
 through a call to ``ARKodeSetFixedPoint``, with an acceleration
 subspace of dimension 3.
 
-10 outputs are printed at equal intervals, and run statistics 
+10 outputs are printed at equal intervals, and run statistics
 are printed at the end.
 
 
@@ -317,11 +317,11 @@ previous test, this problem has 3 dependent variables :math:`u`, :math:`v` and
 We integrate over the interval :math:`0 \le t \le 2`, with the
 initial conditions :math:`u(0) = u_0`, :math:`v(0) = v_0`, :math:`w(0)
 = w_0`.  The solution is output to the screen at equal intervals of 0.1 time
-units. 
+units.
 
 The problem implements the following testing scenario: :math:`u_0=1.2`,
 :math:`v_0=3.1`,  :math:`w_0=3`, :math:`a=1`, :math:`b=3.5`, and
-:math:`\varepsilon=10^{-2}`  
+:math:`\varepsilon=10^{-2}`
 
 Numerical method
 ----------------
@@ -331,7 +331,7 @@ This program solves the problem with the default thrid order method.
 The problem is run using a fixed slow step size :math:`hs=0.025` and fast step
 size :math:`0.001`.
 
-20 outputs are printed at equal intervals, and run statistics 
+20 outputs are printed at equal intervals, and run statistics
 are printed at the end.
 
 
@@ -353,7 +353,7 @@ components, :math:`Y = [u,\, v,\, w]^T`, satisfying the equations,
    \frac{dw}{dt} &= 3\cdot10^7 v^2.
 
 We integrate over the interval :math:`0\le t\le 10^{11}`, with initial
-conditions  :math:`Y(0) = [1,\, 0,\, 0]^T`. 
+conditions  :math:`Y(0) = [1,\, 0,\, 0]^T`.
 
 
 Numerical method
@@ -362,7 +362,7 @@ Numerical method
 This program is constructed to solve the problem with the DIRK solver.
 Implicit subsystems are solved using a Newton iteration with the
 SUNLINSOL_DENSE dense linear solver module via the ARKDLS interface; a
-routine is provided to ARKDLS to supply the Jacobian matrix. 
+routine is provided to ARKDLS to supply the Jacobian matrix.
 
 The problem is run using scalar relative and absolute tolerances of
 :math:`rtol=10^{-4}` and :math:`atol=10^{-11}`, respectively.
@@ -370,7 +370,7 @@ The problem is run using scalar relative and absolute tolerances of
 100 outputs are printed at equal intervals, and run statistics are
 printed at the end.
 
-   
+
 
 Solutions
 ---------
@@ -378,13 +378,13 @@ Solutions
 Due to the linearly-spaced requested output times in this example, and
 since we plot in a log-log scale, by the first output at
 :math:`t=10^9`, the solutions have already undergone a sharp
-transition from their initial values of :math:`(u,v,w) = (1, 0, 0)`. 
+transition from their initial values of :math:`(u,v,w) = (1, 0, 0)`.
 For additional detail on the early evolution of this problem, see the
 following example, that requests logarithmically-spaced output times.
 
 From the plot here, it is somewhat difficult to see the solution
 values for :math:`w`, which here all have a value of
-:math:`1 \pm 10^{-5}`.  Additionally, we see that near the end of the 
+:math:`1 \pm 10^{-5}`.  Additionally, we see that near the end of the
 evolution, the values for :math:`v` begin to exhibit oscillations;
 this is due to the fact that by this point those values have fallen
 below their specified absolute tolerance.  A smoother behavior (with
@@ -416,7 +416,7 @@ with 3 components, :math:`Y = [u,\, v,\, w]^T`, satisfying the equations,
    \frac{dw}{dt} &= 3\cdot10^7 v^2.
 
 We integrate over the interval :math:`0\le t\le 10^{11}`, with initial
-conditions  :math:`Y(0) = [1,\, 0,\, 0]^T`.  
+conditions  :math:`Y(0) = [1,\, 0,\, 0]^T`.
 
 Additionally, we supply the following two root-finding equations:
 
@@ -458,7 +458,7 @@ Solutions
 ---------
 
 In the solutions below, we now see the early-time evolution of the
-solution components for the Robertson ODE system.  
+solution components for the Robertson ODE system.
 
 .. figure:: figs/plot-ark_robertson_root.png
    :scale: 70 %
@@ -485,7 +485,7 @@ We now investigate a time-dependent system of partial differential
 equations.  We adapt the previously-described brusselator test problem
 by adding diffusion into the chemical reaction network.  We again have
 a system with 3 components, :math:`Y = [u,\, v,\, w]^T` that satisfy
-the equations, 
+the equations,
 
 .. math::
 
@@ -498,7 +498,7 @@ the equations,
 
 However, now these solutions are also spatially dependent.  We
 integrate for :math:`t \in [0, 10]`, and :math:`x \in [0, 1]`, with
-initial conditions 
+initial conditions
 
 .. math::
 
@@ -506,7 +506,7 @@ initial conditions
    v(0,x) &= \frac{b}{a} + \frac{1}{10}\sin(\pi x),\\
    w(0,x) &=  b + \frac{1}{10}\sin(\pi x),
 
-and with stationary boundary conditions, i.e. 
+and with stationary boundary conditions, i.e.
 
 .. math::
 
@@ -515,7 +515,7 @@ and with stationary boundary conditions, i.e.
    \frac{\partial w}{\partial t}(t,0) &= \frac{\partial w}{\partial t}(t,1) = 0.
 
 We note that these can also be implemented as Dirichlet boundary
-conditions with values identical to the initial conditions. 
+conditions with values identical to the initial conditions.
 
 
 
@@ -533,13 +533,13 @@ The problem is run using :math:`N=201` spatial points, with parameters
 :math:`a=0.6`, :math:`b=2.0`, :math:`d_u=0.025`, :math:`d_v=0.025`,
 :math:`d_w=0.025` and :math:`\varepsilon=10^{-5}`.  We specify scalar
 relative and absolute solver tolerances of :math:`rtol=10^{-6}` and
-:math:`atol=10^{-10}`, respectively. 
- 
+:math:`atol=10^{-10}`, respectively.
+
 This program solves the problem with a DIRK method, using a Newton
 iteration with the SUNLINSOL_BAND linear solver module via the ARKDLS
 interface; a routine is supplied to fill the banded Jacobian matrix.
 
-100 outputs are printed at equal intervals, and run statistics 
+100 outputs are printed at equal intervals, and run statistics
 are printed at the end.
 
 
@@ -600,7 +600,7 @@ discretize in space using a standard piecewise linear, Galerkin finite
 element method, over a non-uniform discretization of the interval
 :math:`[0,1]` into 100 subintervals.  To this end, we must integrate
 each term in each equation, multiplied by test functions, over each
-subinterval, e.g. 
+subinterval, e.g.
 
 .. math::
 
@@ -619,12 +619,12 @@ As with the preceding problem :ref:`ark_brusselator1D_klu`, this
 example solves the problem with a DIRK method, using a Newton
 iteration, and the SUNMATRIX_SPARSE module.  However, this example
 uses the SUNLINSOL_SUPERLUMT linear solver module, both for the Newton
-systems having Jacobian :math:`A=M-\gamma J`, as well as for the 
+systems having Jacobian :math:`A=M-\gamma J`, as well as for the
 mass-matrix-only linear systems with matrix :math:`M`.  Functions
 implementing both :math:`J` and :math:`M` in compressed-sparse-column
-format are supplied.  
+format are supplied.
 
-100 outputs are printed at equal intervals, and run statistics 
+100 outputs are printed at equal intervals, and run statistics
 are printed at the end.
 
 
@@ -655,7 +655,7 @@ ark_heat1D
 
 As with the previous brusselator problem, this example simulates a
 simple one-dimensional partial differential equation; in this case we
-consider the heat equation, 
+consider the heat equation,
 
 .. math::
 
@@ -668,28 +668,28 @@ condition :math:`u(0,x) = 0`, stationary boundary conditions,
 
    \frac{\partial u}{\partial t}(t,0) = \frac{\partial u}{\partial t}(t,1) = 0,
 
-and a point-source heating term, 
+and a point-source heating term,
 
 .. math::
 
    f(t,x) = \begin{cases} 1 & \text{if}\;\; x=1/2, \\
                           0 & \text{otherwise}. \end{cases}
 
- 
+
 
 Numerical method
 ----------------
 
 As with the :ref:`ark_brusselator1D` test problem, this test computes
 spatial derivatives using second-order centered differences, with the
-data distributed over :math:`N` points on a uniform spatial grid. 
+data distributed over :math:`N` points on a uniform spatial grid.
 
 In this example, we use :math:`N=201` spatial points, with heat
 conductivity parameter :math:`k=0.5`, and discretize the equation
 using second-order centered finite-differences.  The problem is run
 using scalar relative and absolute solver tolerances of
-:math:`rtol=10^{-6}` and :math:`atol=10^{-10}`, respectively. 
- 
+:math:`rtol=10^{-6}` and :math:`atol=10^{-10}`, respectively.
+
 This program solves the problem with a DIRK method, utilizing a Newton
 iteration.  The primary utility in including this example is that
 since the Newton linear systems are now symmetric, we solve these
@@ -736,14 +736,14 @@ condition :math:`u(0,x) = 0`, stationary boundary conditions,
 
    \frac{\partial u}{\partial t}(t,0) = \frac{\partial u}{\partial t}(t,1) = 0,
 
-and a point-source heating term, 
+and a point-source heating term,
 
 .. math::
 
    f(t,x) = \begin{cases} 1 & \text{if}\;\; x=1/2, \\
                           0 & \text{otherwise}. \end{cases}
 
- 
+
 
 Numerical method
 ----------------
@@ -756,13 +756,13 @@ x_{i-1}`; however, if these neighbor distances are unequal the
 approximation reduces to first-order accuracy.  The spatial mesh is
 initially distributed uniformly over 21 points in :math:`[0,1]`, but
 as the simulation proceeds the mesh is [crudely] adapted to add points
-to the center of subintervals bordering any node where 
-:math:`\left|\frac{\partial^2 u}{\partial x^2}\right| > 0.003`.  
+to the center of subintervals bordering any node where
+:math:`\left|\frac{\partial^2 u}{\partial x^2}\right| > 0.003`.
 We note that the spatial adaptivity approach employed in this example
 is *ad-hoc*, designed only to exemplify ARKode usage on a problem with
 varying size (not to show optimally-adaptive spatial refinement
-methods). 
-      
+methods).
+
 This program solves the problem with a DIRK method, utilizing a Newton
 iteration and the SUNLINSOL_PCG iterative linear solver.
 Additionally, the test problem utilizes ARKode's spatial adaptivity
@@ -785,7 +785,7 @@ SUNLINSOL_SPGMR linear solver module.  As explained more thoroughly in
 system of PDEs modeling a six-species food web population model, with
 predator-prey interaction and diffusion on the unit square in two
 dimensions.  We have a system with 6 components, :math:`C = [c^1,\,
-c^2,\,\ldots, c^6]^T` that satisfy the equations,  
+c^2,\,\ldots, c^6]^T` that satisfy the equations,
 
 .. math::
 
@@ -819,13 +819,13 @@ predators.  The coefficients :math:`a_{i,j}, b_i, d_i` are:
          \end{cases}
 
 The spatial domain is :math:`(x,y) \in [0, 1]^2`; the time domain is
-:math:`t \in [0,10]`, with initial conditions 
+:math:`t \in [0,10]`, with initial conditions
 
 .. math::
 
    c^i(x,y) &=  10 + i \sqrt{4x(1-x)}\sqrt{4y(1-y)}
 
-and with homogeneous Neumann boundary conditions, 
+and with homogeneous Neumann boundary conditions,
 :math:`\nabla c^i \cdot \vec{n} = 0`.
 
 
@@ -838,8 +838,8 @@ We employ a method of lines approach, wherein we first semi-discretize
 in space to convert the system of 6 PDEs into a larger system of ODEs.
 To this end, the spatial derivatives are computed using second-order
 centered differences, with the data distributed over :math:`Mx*My`
-points on a uniform spatial grid.  As a result, ARKode approaches the 
-problem as one involving :math:`6*Mx*My` coupled ODEs. 
+points on a uniform spatial grid.  As a result, ARKode approaches the
+problem as one involving :math:`6*Mx*My` coupled ODEs.
 
 This program solves the problem with a DIRK method, using a Newton
 iteration with the preconditioned SUNLINSOL_SPGMR iterative linear
@@ -847,11 +847,11 @@ solver module, and ARKSPILS interface.  The preconditioner matrix used
 is the product of two matrices:
 
 1. A matrix, only defined implicitly, based on a fixed number of
-   Gauss-Seidel iterations using the diffusion terms only. 
+   Gauss-Seidel iterations using the diffusion terms only.
 
 2. A block-diagonal matrix based on the partial derivatives of the
    interaction terms :math:`f` only, using block-grouping (computing
-   only a subset of the :math:`3\times3` blocks). 
+   only a subset of the :math:`3\times3` blocks).
 
 Four different runs are made for this problem.  The product
 preconditoner is applied on the left and on the right.  In each case,
@@ -868,7 +868,7 @@ A problem description, performance statistics at selected output
 times, and final statistics are written to standard output.  On the
 first run, solution values are also printed at output times.  Error
 and warning messages are written to standard error, but there should
-be no such messages. 
+be no such messages.
 
 
 
@@ -889,7 +889,7 @@ the IVP system
 
 We integrate over the interval :math:`0 \le t \le 1`, with the initial
 conditions :math:`u(0) = 1`, :math:`v(0) = 0`, :math:`w(0)= 2`.  The
-solution is output to the screen at equal intervals of 0.1 time units. 
+solution is output to the screen at equal intervals of 0.1 time units.
 
 Numerical method
 ----------------
@@ -899,9 +899,9 @@ This program solves the problem with the default third order method.
 The problem is run using a fixed slow step size :math:`hs=0.001` and fast step
 size :math:`0.0001`.
 
-10 outputs are printed at equal intervals, and run statistics 
+10 outputs are printed at equal intervals, and run statistics
 are printed at the end.
-   
+
 
 Solutions
 ---------
@@ -909,7 +909,7 @@ Solutions
 This system has the analytic solution,
 
 .. math::
-   
+
    u(t) &= \cos(50t), \\
    v(t) &= \sin(50t), \\
    w(t) &= 5051/2501*\exp(-t) - 49/2501*\cos(50t) + 51/2501*\sin(50t).
@@ -923,7 +923,7 @@ ark_twowaycouple_mri
 
 This example simulates a linear system of 3 dependent variables :math:`u`,
 :math:`v` and :math:`w`, that depend on the independent variable :math:`t` via
-the IVP system 
+the IVP system
 
 .. math::
 
@@ -944,5 +944,5 @@ This program solves the problem with the default third order method.
 The problem is run using a fixed slow step size :math:`hs=0.001` and fast step
 size :math:`0.00002`.
 
-20 outputs are printed at equal intervals, and run statistics 
+20 outputs are printed at equal intervals, and run statistics
 are printed at the end.

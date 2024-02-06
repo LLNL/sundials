@@ -1,5 +1,5 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -44,7 +44,7 @@ typedef struct
 
   N_Vector di_bitcomp; /* temporary storage vector                  */
 
-  long int di_nfeDI; /* no. of calls to f due to difference 
+  long int di_nfeDI; /* no. of calls to f due to difference
 			  quotient diagonal Jacobian approximation  */
 
   long int di_last_flag; /* last error return flag                  */
