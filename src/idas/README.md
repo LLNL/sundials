@@ -1,7 +1,7 @@
 # IDAS
 ### Version 6.0.0-rc.1 (Jan 2024)
 
-**Radu Serban, Cosmin Petra, Alan C. Hindmarsh, Cody J. Balos, David J. Gardner, 
+**Radu Serban, Cosmin Petra, Alan C. Hindmarsh, Cody J. Balos, David J. Gardner,
   and Carol S. Woodward, Center for Applied Scientific Computing, LLNL**
 
 **Daniel R. Reynolds, Department of Mathematics, Southern Methodist University**

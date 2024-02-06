@@ -20,11 +20,7 @@
 
 module fnvector_manyvector_mod
  use, intrinsic :: ISO_C_BINDING
- use fsundials_types_mod
- use fsundials_nvector_mod
- use fsundials_context_mod
- use fsundials_types_mod
- use fsundials_types_mod
+ use fsundials_core_mod
  implicit none
  private
 
@@ -1535,9 +1531,9 @@ use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: v
 integer(C_INT64_T), intent(in) :: vec_num
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT64_T) :: farg2 
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
+integer(C_INT64_T) :: farg2
 
 farg1 = c_loc(v)
 farg2 = vec_num
