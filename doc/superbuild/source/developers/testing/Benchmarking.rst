@@ -17,12 +17,12 @@
 Continuous Performance Testing (CPT)
 ====================================
 
-In order to protect against performance regression of SUNDIALS at all scales, 
-we leverage the GitLab CI infrastructure setup for CI testing to perform 
-continuous performance testing. 
+In order to protect against performance regression of SUNDIALS at all scales,
+we leverage the GitLab CI infrastructure setup for CI testing to perform
+continuous performance testing.
 
-The CPT suite consists of the :ref:`SUNDIALS benchmark programs<Benchmarks>` 
-programs, which can scale up to full supercomputers, and the normal SUNDIALS 
+The CPT suite consists of the :ref:`SUNDIALS benchmark programs<Benchmarks>`
+programs, which can scale up to full supercomputers, and the normal SUNDIALS
 examples program suite (i.e., the programs in the ``examples`` directory of
 the SUNDIALS repo).
 
@@ -60,7 +60,7 @@ This command will result in ``--profile`` option being passed to the SUNDIALS
 test runner Python script, ``test/testRunner``, which will in turn set the
 ``CALI_CONFIG`` environment variable before running every test so that when
 you run ``make test`` the examples will produce `.cali` output files
-documenting the performance. 
+documenting the performance.
 
 Note: Caliper prints to the `.out` files by default. Ensure all Caliper configs
 requested have the `output` option defined to ensure output data is saved in a

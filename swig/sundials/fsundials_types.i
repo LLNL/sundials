@@ -15,8 +15,6 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fsundials_types_mod
-
 %include <stdint.i>
 
 // Inform SWIG of the configure-provided types
@@ -86,7 +84,7 @@
 // (2) We need it to be equivalent to MPI_COMM_NULL when MPI is enabled
 
 %insert("wrapper") %{
-SWIGEXPORT SWIGEXTERN int const _wrap_SUN_COMM_NULL = (int)(0);  
+SWIGEXPORT SWIGEXTERN int const _wrap_SUN_COMM_NULL = (int)(0);
 %}
 
 %insert("fdecl") %{

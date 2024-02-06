@@ -35,7 +35,7 @@ SWIGEXPORT double * _wrap_FN_VGetArrayPointer_OpenMP(N_Vector farg1) {
   double * fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunrealtype *result = 0 ;
-  
+
   arg1 = (N_Vector)(farg1);
   result = (sunrealtype *)N_VGetArrayPointer_OpenMP(arg1);
   fresult = result;
@@ -63,8 +63,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetArrayPointer_OpenMP(farg1)

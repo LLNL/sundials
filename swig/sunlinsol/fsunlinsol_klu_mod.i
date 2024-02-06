@@ -20,7 +20,7 @@
 %include "fsunlinsol.i"
 
 %{
-#include "sunlinsol/sunlinsol_klu.h"  
+#include "sunlinsol/sunlinsol_klu.h"
 %}
 
 // sunlinsol_impl macro defines some ignore and inserts with the linear solver name appended

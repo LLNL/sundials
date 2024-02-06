@@ -32,7 +32,7 @@ This problem is mathematically identical to the one-dimensional
 reaction-diffusion brusselator model, :ref:`ark_brusselator1D`.  As
 before, we investigate a time-dependent system of partial differential
 equations with 3 components, :math:`Y = [u,\, v,\, w]^T` that satisfy
-the equations,  
+the equations,
 
 .. math::
 
@@ -43,8 +43,8 @@ the equations,
    \frac{\partial w}{\partial t} &= d_w \frac{\partial^2 w}{\partial
       x^2} + \frac{b-w}{\varepsilon} - w u.
 
-We integrate for :math:`t \in [0, 10]`, and :math:`x \in [0, 1]`, with 
-initial conditions 
+We integrate for :math:`t \in [0, 10]`, and :math:`x \in [0, 1]`, with
+initial conditions
 
 .. math::
 
@@ -52,7 +52,7 @@ initial conditions
    v(0,x) &= \frac{b}{a} + \frac{1}{10}\sin(\pi x),\\
    w(0,x) &=  b + \frac{1}{10}\sin(\pi x),
 
-and with stationary boundary conditions, i.e. 
+and with stationary boundary conditions, i.e.
 
 .. math::
 

@@ -21,8 +21,7 @@
 #include "sundials/sundials_adaptcontroller.h"
 %}
 
-// Load the typedefs and generate "use" statements
-%import "../sundials/fsundials_adaptcontroller_mod.i"
+%import "../sundials/fsundials_core_mod.i"
 
 // Macro for creating an interface to a SUNAdaptController
 %define %sunadaptcontroller_impl(TYPE)

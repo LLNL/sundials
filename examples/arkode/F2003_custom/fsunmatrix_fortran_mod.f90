@@ -22,7 +22,7 @@
 module fsunmatrix_fortran_mod
 
   use, intrinsic :: iso_c_binding
-  use fsundials_matrix_mod
+  use fsundials_core_mod
   use fnvector_fortran_mod
 
   implicit none

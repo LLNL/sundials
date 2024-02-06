@@ -62,7 +62,7 @@ if(adiak_FOUND AND (NOT adiak_WORKS))
   "int main(void)\n"
   "{\n"
   "  adiak_init(NULL);\n"
-  "  adiak_fini();\n" 
+  "  adiak_fini();\n"
   "  return 0;\n"
   "}\n")
 
