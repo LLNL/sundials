@@ -20,11 +20,7 @@
 
 module fnvector_pthreads_mod
  use, intrinsic :: ISO_C_BINDING
- use fsundials_types_mod
- use fsundials_nvector_mod
- use fsundials_context_mod
- use fsundials_types_mod
- use fsundials_types_mod
+ use fsundials_core_mod
  implicit none
  private
 
@@ -1453,8 +1449,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetArrayPointer_Pthreads(farg1)

@@ -17,7 +17,7 @@
 
 module test_nvector_manyvector
   use, intrinsic :: iso_c_binding
-  use fsundials_nvector_mod
+
   use fnvector_manyvector_mod
   use fnvector_serial_mod
   use test_utilities
@@ -160,7 +160,7 @@ end module
 integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   use, intrinsic :: iso_c_binding
   use fnvector_manyvector_mod
-  use fsundials_nvector_mod
+
   use test_utilities
   implicit none
 
@@ -200,7 +200,7 @@ end function check_ans
 
 logical function has_data(X) result(failure)
   use, intrinsic :: iso_c_binding
-  use fsundials_nvector_mod
+
   use test_utilities
   implicit none
 

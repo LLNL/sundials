@@ -14,28 +14,10 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fsundials_context_mod
-
-// Load the typedefs and generate a "use fsundials_types_mod" statement in the module
-%import "../sundials/fsundials_types_mod.i"
-
-%include "../sundials/fsundials.i"
-%include "../sundials/fcopyright.i"
-
-// insert the include into the swig wrapper
 %{
-#include "sundials/sundials_context.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_profiler.h"
+#include "sundials/sundials_matrix.h"
 %}
 
-%apply void* { SUNContext };
-%apply void* { SUNProfiler };
-%apply void** { SUNProfiler* };
-%apply void* { SUNLogger };
-%apply void** { SUNLogger* };
-%apply void* { SUNErrHandler };
-
 // Process and wrap functions in the following files
-%include "sundials/sundials_errors.h"
-%include "sundials/sundials_context.h"
+%include "sundials/sundials_matrix.h"
+

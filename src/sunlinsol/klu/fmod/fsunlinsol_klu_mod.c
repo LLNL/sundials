@@ -213,7 +213,7 @@ enum {
 #include "sundials/sundials_linearsolver.h"
 
 
-#include "sunlinsol/sunlinsol_klu.h"  
+#include "sunlinsol/sunlinsol_klu.h"
 
 
 typedef struct {

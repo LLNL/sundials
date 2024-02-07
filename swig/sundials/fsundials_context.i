@@ -14,27 +14,20 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fsundials_profiler_mod
-
-// Load the typedefs and generate a "use fsundials_types_mod" statement in the module
-%import "../sundials/fsundials_types_mod.i"
-
-%include "../sundials/fsundials.i"
-%include "../sundials/fcopyright.i"
-
 // insert the include into the swig wrapper
 %{
+#include "sundials/sundials_context.h"
+#include "sundials/sundials_errors.h"
 #include "sundials/sundials_profiler.h"
-#if SUNDIALS_MPI_ENABLED
-#include <mpi.h>
-#endif
 %}
 
+%apply void* { SUNContext };
 %apply void* { SUNProfiler };
 %apply void** { SUNProfiler* };
-
-// Utility class for C++ only.
-%ignore SUNProfilerMarkScope;
+%apply void* { SUNLogger };
+%apply void** { SUNLogger* };
+%apply void* { SUNErrHandler };
 
 // Process and wrap functions in the following files
-%include "sundials/sundials_profiler.h"
+%include "sundials/sundials_errors.h"
+%include "sundials/sundials_context.h"

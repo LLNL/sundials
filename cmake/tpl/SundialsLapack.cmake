@@ -94,7 +94,7 @@ if(LAPACK_LIBRARIES AND (NOT LAPACK_WORKS))
     "#define dgetrf_f77 SUNDIALS_F77_FUNC(dgetrf, DGETRF)\n"
     "extern void dcopy_f77(int *n, const double *x, const int *inc_x, double *y, const int *inc_y);\n"
     "extern void dgetrf_f77(const int *m, const int *n, double *a, int *lda, int *ipiv, int *info);\n"
-    "int main(){\n"
+    "int main(void) {\n"
     "int n=1;\n"
     "double x, y;\n"
     "dcopy_f77(&n, &x, &n, &y, &n);\n"

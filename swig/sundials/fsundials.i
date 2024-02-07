@@ -23,9 +23,6 @@
 #define SUNDIALS_DEPRECATED_EXPORT
 #define SUNDIALS_DEPRECATED_EXPORT_MSG(msg)
 
-// All modules need sundials_types
-%import "../sundials/fsundials_types_mod.i"
-
 // Prefix all functions with F
 // E.g. CVodeCreate -> FCVodeCreate
 %rename("F%s", %$isfunction) "";

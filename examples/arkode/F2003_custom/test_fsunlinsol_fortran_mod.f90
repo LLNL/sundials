@@ -19,6 +19,7 @@
 ! ------------------------------------------------------------------
 module fsunlinsol_test_mod
   use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
   use fsunlinsol_fortran_mod
   use fsunmatrix_fortran_mod
   use fnvector_fortran_mod
@@ -72,8 +73,7 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-  use fsundials_types_mod
-  use fsundials_context_mod
+  use fsundials_core_mod
   use fsunlinsol_test_mod
 
   !======= Declarations =========
