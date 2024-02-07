@@ -36,6 +36,7 @@ module dnsL_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -58,7 +59,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
 
     !======= Declarations =========
     implicit none
@@ -104,8 +104,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fnvector_serial_mod
 
     !======= Declarations =========
     implicit none
@@ -149,9 +147,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
-    use fnvector_serial_mod
     use fsunmatrix_dense_mod
 
     !======= Declarations =========
@@ -203,18 +198,12 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
-  use fsundials_types_mod
   use farkode_mod                   ! Fortran interface to ARKODE
   use farkode_arkstep_mod           ! Fortran interface to the ARKStep module
-  use fsundials_context_mod         ! Fortran interface to SUNContext
   use fnvector_serial_mod           ! Fortran interface to serial N_Vector
   use fsunmatrix_dense_mod          ! Fortran interface to dense SUNMatrix
   use fsunlinsol_lapackdense_mod    ! Fortran interface to LAPACK SUNLinearSolver
   use fsunnonlinsol_newton_mod      ! Fortran interface to Newton SUNNonlinearSolver
-  use fsundials_matrix_mod          ! Fortran interface to generic SUNMatrix
-  use fsundials_nvector_mod         ! Fortran interface to generic N_Vector
-  use fsundials_linearsolver_mod    ! Fortran interface to generic SUNLinearSolver
-  use fsundials_nonlinearsolver_mod ! Fortran interface to generic SUNNonlinearSolver
   use dnsL_mod                      ! ODE functions
 
   !======= Declarations =========
