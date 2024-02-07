@@ -56,7 +56,6 @@
  * SUNDIALS build information
  * -----------------------------------------------------------------*/
 
-#cmakedefine SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN
 #cmakedefine SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT
 #cmakedefine SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME
 #cmakedefine SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME

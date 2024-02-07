@@ -121,20 +121,6 @@ sundials_option(CMAKE_C_EXTENSIONS BOOL "${DOCSTR}" ON)
 message(STATUS "C extensions set to ${CMAKE_C_EXTENSIONS}")
 
 # ---------------------------------------------------------------
-# Check for isinf and isnan
-# ---------------------------------------------------------------
-
-check_c_source_compiles("
-  #include <math.h>
-  int main(void) {
-    double a = 0.0;
-    int result = isinf(a);
-    result = isnan(a);
-    return result;
-  }
-" SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
-
-# ---------------------------------------------------------------
 # Check for __builtin_expect
 # ---------------------------------------------------------------
 

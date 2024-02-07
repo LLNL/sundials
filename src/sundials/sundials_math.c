@@ -22,28 +22,6 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-static sunbooleantype sunIsInf(sunrealtype a)
-{
-#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
-  return (isinf(a));
-#else
-  return (a < -SUN_BIG_REAL || a > SUN_BIG_REAL);
-#endif
-}
-
-static sunbooleantype sunIsNaN(sunrealtype a)
-{
-#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
-  return (isnan(a));
-#else
-  /* Most compilers/platforms follow NaN != a,
-   * but since C89 does not require this, it is
-   * possible some platforms might not follow it.
-   */
-  return (a != a);
-#endif
-}
-
 sunrealtype SUNRpowerI(sunrealtype base, int exponent)
 {
   int i, expt;
@@ -88,10 +66,10 @@ sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
   if (a == b) { return (SUNFALSE); }
 
   /* If a or b are NaN */
-  if (sunIsNaN(a) || sunIsNaN(b)) { return (SUNTRUE); }
+  if (isnan(a) || isnan(b)) { return (SUNTRUE); }
 
   /* If one of a or b are Inf (since we handled both being inf above) */
-  if (sunIsInf(a) || sunIsInf(b)) { return (SUNTRUE); }
+  if (isinf(a) || isinf(b)) { return (SUNTRUE); }
 
   diff = SUNRabs(a - b);
   norm = SUNMIN(SUNRabs(a + b), SUN_BIG_REAL);
