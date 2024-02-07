@@ -57,7 +57,6 @@
  * -----------------------------------------------------------------*/
 
 #cmakedefine SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN
-#cmakedefine SUNDIALS_C_COMPILER_HAS_INLINE
 #cmakedefine SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT
 #cmakedefine SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME
 #cmakedefine SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME
@@ -310,38 +309,6 @@
  */
 @F77_MPI_COMM_F2C@
 
-
-/* ------------------------------------------------------------------
- * SUNDIALS inline macros.
- * -----------------------------------------------------------------*/
-
-
-/* Mark SUNDIALS function as inline.
- */
-#ifndef SUNDIALS_CXX_INLINE
-#define SUNDIALS_CXX_INLINE inline
-#endif
-
-#ifndef SUNDIALS_C_INLINE
-#ifdef SUNDIALS_C_COMPILER_HAS_INLINE
-#define SUNDIALS_C_INLINE inline
-#else
-#define SUNDIALS_C_INLINE
-#endif
-#endif
-
-#ifdef __cplusplus
-#define SUNDIALS_INLINE SUNDIALS_CXX_INLINE
-#else
-#define SUNDIALS_INLINE SUNDIALS_C_INLINE
-#endif
-
-/* Mark SUNDIALS function as static inline.
- */
-#define SUNDIALS_STATIC_INLINE static SUNDIALS_INLINE
-
-#endif /* _SUNDIALS_CONFIG_H */
-
 /* ------------------------------------------------------------------
  * SUNDIALS __builtin_expect related macros.
  * These macros provide hints to the compiler that the condition
@@ -385,3 +352,5 @@
 #else
 #define SUNAssume(...)
 #endif
+
+#endif /* _SUNDIALS_CONFIG_H */

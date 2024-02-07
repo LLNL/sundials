@@ -159,20 +159,6 @@ check_c_source_compiles("
 " SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
 
 # ---------------------------------------------------------------
-# Check for inline
-# ---------------------------------------------------------------
-
-check_c_source_compiles("
-  static inline double add1(double a) {
-    return a + 1.0;
-  }
-  int main(void) {
-    double a = 0.0;
-    return add1(a) < a;
-  }
-" SUNDIALS_C_COMPILER_HAS_INLINE)
-
-# ---------------------------------------------------------------
 # Check for __builtin_expect
 # ---------------------------------------------------------------
 

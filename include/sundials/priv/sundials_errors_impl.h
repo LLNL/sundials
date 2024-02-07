@@ -97,9 +97,9 @@ void SUNGlobalFallbackErrHandler(int line, const char* func, const char* file,
 
   :return: void
 */
-SUNDIALS_STATIC_INLINE
-void SUNHandleErrWithMsg(int line, const char* func, const char* file,
-                         const char* msg, SUNErrCode code, SUNContext sunctx)
+static inline void SUNHandleErrWithMsg(int line, const char* func,
+                                       const char* file, const char* msg,
+                                       SUNErrCode code, SUNContext sunctx)
 {
   if (!sunctx) { SUNGlobalFallbackErrHandler(line, func, file, msg, code); }
 
@@ -126,10 +126,9 @@ void SUNHandleErrWithMsg(int line, const char* func, const char* file,
 
   :return: void
 */
-SUNDIALS_STATIC_INLINE
-void SUNHandleErrWithFmtMsg(int line, const char* func, const char* file,
-                            const char* msgfmt, SUNErrCode code,
-                            SUNContext sunctx, ...)
+static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
+                                          const char* file, const char* msgfmt,
+                                          SUNErrCode code, SUNContext sunctx, ...)
 {
   size_t msglen;
   char* msg;

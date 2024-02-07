@@ -473,9 +473,8 @@ int SPRKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
 }
 
 /* Utility to call f1 and increment the counter */
-SUNDIALS_INLINE
-int sprkStep_f1(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
-                N_Vector f1, void* user_data)
+inline int sprkStep_f1(ARKodeSPRKStepMem step_mem, sunrealtype tcur,
+                       N_Vector ycur, N_Vector f1, void* user_data)
 {
   int retval = step_mem->f1(tcur, ycur, f1, user_data);
   step_mem->nf1++;
@@ -483,9 +482,8 @@ int sprkStep_f1(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
 }
 
 /* Utility to call f2 and increment the counter */
-SUNDIALS_INLINE
-int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
-                N_Vector f2, void* user_data)
+inline int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur,
+                       N_Vector ycur, N_Vector f2, void* user_data)
 {
   int retval = step_mem->f2(tcur, ycur, f2, user_data);
   step_mem->nf2++;
