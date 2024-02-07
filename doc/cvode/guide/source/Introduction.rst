@@ -257,6 +257,11 @@ corresponding :c:type:`SUNMatrix` and :c:type:`SUNLinearSolver` modules:
    sundials_dense.h
    sundials_band.h
 
+**Minor changes**
+
+Fixed `GitHub Issue #329 <https://github.com/LLNL/sundials/issues/329>`_ so
+that C++20 aggregate initialization can be used.
+
 Changes in v6.7.0
 -----------------
 
@@ -272,7 +277,7 @@ time was reached in the same step in which the output time was passed.
 Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 
 Changed the ``SUNProfiler`` so that it does not rely on ``MPI_WTime`` in any case.
-This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_. 
+This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_.
 
 Fixed missing soversions in some ``SUNLinearSolver`` and ``SUNNonlinearSolver``
 CMake targets.

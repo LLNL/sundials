@@ -131,6 +131,10 @@ sundials_dense.h
 sundials_band.h
 ```
 
+### Minor Changes
+
+Fixed [#329](https://github.com/LLNL/sundials/issues/329) so that C++20 aggregate initialization can be used.
+
 ## Changes to SUNDIALS in release 6.7.0
 
 Added the `SUNAdaptController` base class, ported ARKODE's internal
