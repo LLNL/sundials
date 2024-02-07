@@ -51,7 +51,7 @@ macro(posix_timers_test)
   file(WRITE ${POSIX_TIMER_TEST_DIR}/ltest.c
     "#include <time.h>\n"
     "#include <unistd.h>\n"
-    "int main(){\n"
+    "int main(void) {\n"
     "struct timespec spec;\n"
     "clock_gettime(CLOCK_MONOTONIC, &spec);\n"
     "clock_getres(CLOCK_MONOTONIC, &spec);\n"

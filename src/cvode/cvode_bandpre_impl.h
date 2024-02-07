@@ -1,5 +1,5 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Michael Wittman, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL

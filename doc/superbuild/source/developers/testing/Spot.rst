@@ -16,7 +16,7 @@ SPOT Performance Visualization Tool
 
 In order to protect against performance regression of SUNDIALS at all scales,
 we leverage the GitLab CI infrastructure setup for CI testing to perform
-continuous performance testing. 
+continuous performance testing.
 
 To track and visualize performance over time, we collect data with
 `Caliper <https://lc.llnl.gov/confluence/display/CALI/Spot+DB>`_ and
@@ -38,7 +38,7 @@ generated in the build directory under ``Benchmarking`` and
 the CMake option SUNDIALS_CALIPER_OUTPUT_DIR with the desired directory path.
 
 To retain the same filters as a given SPOT visualization link in
-:ref:`Bookmarks`, swap out the ``sf`` value in the URL with the 
+:ref:`Bookmarks`, swap out the ``sf`` value in the URL with the
 directory path containing the `.cali` files.
 
 .. _Bookmarks:
@@ -62,7 +62,7 @@ true sum of the results.
 
 **Benchmarks**
 
-**Advection Reaction 3D** 
+**Advection Reaction 3D**
 
 - `All configurations <https://lc.llnl.gov/spot2/?sf=/usr/workspace/sundials/califiles/Benchmarking/advection_reaction_3D&ch_executable=1&ch_launchdate=1&groupby=cmdline&yaxis=Max%20time%2Frank&aggregate=avg>`_
 

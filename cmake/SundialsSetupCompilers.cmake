@@ -145,39 +145,6 @@ if(NOT SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY)
 endif()
 
 # ---------------------------------------------------------------
-# Check for float and long double math functions
-# ---------------------------------------------------------------
-
-set(CMAKE_REQUIRED_LIBRARIES ${SUNDIALS_MATH_LIBRARY})
-check_c_source_compiles("
-  #include <math.h>
-  #include <stdio.h>
-  int main(void) {
-    float a, a_result;
-    long double b, b_result;
-
-    a = 1.0F;
-    b = 1.0L;
-
-    a_result = sqrtf(a);
-    a_result = fabsf(a);
-    a_result = expf(a);
-    a_result = ceilf(a);
-    a_result = powf(a, 1.0F);
-    printf(\"a_result=%g\", a_result);
-
-    b_result = sqrtl(b);
-    b_result = fabsl(b);
-    b_result = expl(b);
-    b_result = ceill(b);
-    b_result = powl(b, 1.0L);
-    printf(\"b_result=%Lg\", b_result);
-
-    return 0;
-  }
-" SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
-
-# ---------------------------------------------------------------
 # Check for inline
 # ---------------------------------------------------------------
 

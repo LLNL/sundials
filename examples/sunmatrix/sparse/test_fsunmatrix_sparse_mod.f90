@@ -28,8 +28,8 @@ contains
 
     !======== Inclusions ==========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
+
+
     use fsunmatrix_sparse_mod
     use fnvector_serial_mod
 
@@ -94,8 +94,8 @@ contains
 
   integer(C_INT) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
+
+
     use fnvector_serial_mod
     use fsunmatrix_dense_mod
     use fsunmatrix_sparse_mod
@@ -200,7 +200,7 @@ end program main
 ! exported functions used by test_sunmatrix
 integer(C_INT) function check_matrix(A, B, tol) result(fails)
   use, intrinsic :: iso_c_binding
-  use fsundials_matrix_mod
+
   use fsunmatrix_sparse_mod
   use test_utilities
 
@@ -286,7 +286,7 @@ end function check_matrix
 
 integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
   use, intrinsic :: iso_c_binding
-  use fsundials_matrix_mod
+
   use fsunmatrix_sparse_mod
   use test_utilities
 
@@ -319,7 +319,7 @@ end function check_matrix_entry
 
 logical function is_square(A) result(res)
   use, intrinsic :: iso_c_binding
-  use fsundials_matrix_mod
+  use fsundials_core_mod
   use fsunmatrix_sparse_mod
 
   implicit none

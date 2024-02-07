@@ -207,7 +207,7 @@ if(NEED_FORTRAN_NAME_MANGLING)
       # Generate C source which calls the "mysub" function using the current scheme
       file(WRITE ${FortranTest_DIR}/ctest1.c
         "extern void ${opt}();\n"
-        "int main(){${opt}();return(0);}\n")
+        "int main(void){${opt}();return(0);}\n")
       # Use TRY_COMPILE to make the "ctest1" executable from the current C source
       # and linking to the previously created "flib" library.
       try_compile(CTEST_OK ${FortranTest_DIR} ${FortranTest_DIR}
@@ -253,7 +253,7 @@ if(NEED_FORTRAN_NAME_MANGLING)
       list(GET options ${iopt} opt)
       file(WRITE ${FortranTest_DIR}/ctest2.c
         "extern void ${opt}();\n"
-        "int main(){${opt}();return(0);}\n")
+        "int main(void){${opt}();return(0);}\n")
       try_compile(CTEST_OK ${FortranTest_DIR} ${FortranTest_DIR}
         ctest2 OUTPUT_VARIABLE MY_OUTPUT)
       file(WRITE ${FortranTest_DIR}/ctest2_${opt}.out "${MY_OUTPUT}")
