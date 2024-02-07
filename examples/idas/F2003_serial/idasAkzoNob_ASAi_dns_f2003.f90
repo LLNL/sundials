@@ -30,6 +30,7 @@
 
 module dae_mod
   use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
   implicit none
 
   ! problem parameters
@@ -62,7 +63,7 @@ contains
   integer(c_int) function res(t, nv_yy, nv_yd, nv_resval, userdata) &
     result(retval) bind(C,name='res')
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+
     implicit none
 
     ! function arguments
@@ -114,7 +115,7 @@ contains
   integer(c_int) function rhsQ(t, nv_yy, nv_yp, nv_qdot, userdata) &
     result(retval) bind(C,name='rhsQ')
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+
     implicit none
 
     ! function arguments
@@ -136,7 +137,6 @@ contains
   integer(c_int) function resB(tt, nv_yy, nv_yp, nv_yyB, nv_ypB, nv_rrB, userdata) &
     result(retval) bind(C,name='resB')
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
     implicit none
 
     ! function arguments
@@ -208,7 +208,7 @@ contains
 
   subroutine PrintOutput(nv_yB, nv_ypB)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+    use fsundials_core_mod
     implicit none
 
     ! function arguments
@@ -234,15 +234,12 @@ end module dae_mod
 ! Main program
 program main
   use, intrinsic :: iso_c_binding
-  use fsundials_types_mod
-  use fsundials_context_mod
+  use fsundials_core_mod
   use fidas_mod                  ! Fortran interface to IDA
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
   use fsunlinsol_dense_mod       ! Fortran interface to dense SUNLinearSolver
-  use fsundials_matrix_mod       ! Fortran interface to generic SUNMatrix
-  use fsundials_nvector_mod      ! Fortran interface to generic N_Vector
-  use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
+
   use dae_mod                    ! DAE problem module
   implicit none
 

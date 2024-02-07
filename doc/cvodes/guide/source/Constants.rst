@@ -224,7 +224,7 @@ CVODES output constants
    | ``CV_PROJFUNC_FAIL``             | -57  | The projection function failed in an unrecoverable     |
    |                                  |      | manner.                                                |
    +----------------------------------+------+--------------------------------------------------------+
-   | ``CV_REPTD_PROJFUNC_ERR``        | -58  | The projection function had repeated recoverable       |     
+   | ``CV_REPTD_PROJFUNC_ERR``        | -58  | The projection function had repeated recoverable       |
    |                                  |      | errors.                                                |
    +----------------------------------+------+--------------------------------------------------------+
    |                                  |      |                                                        |

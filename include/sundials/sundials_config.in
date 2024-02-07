@@ -56,7 +56,6 @@
  * SUNDIALS build information
  * -----------------------------------------------------------------*/
 
-#cmakedefine SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS
 #cmakedefine SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN
 #cmakedefine SUNDIALS_C_COMPILER_HAS_INLINE
 #cmakedefine SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT
@@ -85,11 +84,6 @@
  * The macro will be defined with a type of the appropriate size.
  */
 #define SUNDIALS_INDEX_TYPE @SUNDIALS_CINDEX_TYPE@
-
-/* Use std-c math functions
- * DEPRECATED SUNDIALS_USE_GENERIC_MATH
- */
-#cmakedefine SUNDIALS_USE_GENERIC_MATH
 
 /* Use POSIX timers if available.
  *     #define SUNDIALS_HAVE_POSIX_TIMERS
@@ -345,7 +339,7 @@
 /* ------------------------------------------------------------------
  * SUNDIALS __builtin_expect related macros.
  * These macros provide hints to the compiler that the condition
- * is typically false (or true) which may allow the compiler to 
+ * is typically false (or true) which may allow the compiler to
  * optimize.
  * -----------------------------------------------------------------*/
 
@@ -369,9 +363,9 @@
  * This macro tells the compiler that the condition should be assumed
  * to be true. The consequence is that what happens if the assumption
  * is violated is undefined. If there is not compiler support for
- * assumptions, then we dont do anything as there is no reliable 
+ * assumptions, then we dont do anything as there is no reliable
  * way to avoid the condition being executed in all cases (such as
- * the condition being an opaque function call, which we have a lot of). 
+ * the condition being an opaque function call, which we have a lot of).
  * -----------------------------------------------------------------*/
 
 #if __cplusplus >= 202302L
@@ -383,5 +377,5 @@
 #elif defined(SUNDIALS_C_COMPILER_HAS_ASSUME)
 #define SUNAssume(...) __assume(__VA_ARGS__)
 #else
-#define SUNAssume(...) 
+#define SUNAssume(...)
 #endif

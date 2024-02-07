@@ -21,7 +21,7 @@
 
 module test_fsunlinsol_spgmr_serial
   use, intrinsic :: iso_c_binding
-  use fsundials_nvector_mod
+
   use test_utilities
   implicit none
 
@@ -40,9 +40,9 @@ contains
 
   integer(C_INT) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
-    use fsundials_linearsolver_mod
+
+
+
     use fnvector_serial_mod
     use fsunlinsol_spgmr_mod
     use test_sunlinsol
@@ -210,7 +210,7 @@ contains
 
   integer(C_INT) function ATimes(udata, vvec, zvec) result(ret) bind(C)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+
     use test_utilities
 
     implicit none
@@ -252,7 +252,7 @@ contains
   integer(C_INT) function PSolve(udata, rvec, zvec, tol, lr) &
       result(ret) bind(C)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+
     use test_utilities
 
     implicit none

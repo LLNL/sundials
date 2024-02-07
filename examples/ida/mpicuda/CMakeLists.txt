@@ -52,7 +52,7 @@ foreach(example_tuple ${IDA_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  target_link_libraries(${example} PRIVATE 
+  target_link_libraries(${example} PRIVATE
     MPI::MPI_CXX ${SUNDIALS_LIBS})
 
   # install example source and out files

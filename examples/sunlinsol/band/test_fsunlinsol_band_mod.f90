@@ -28,9 +28,9 @@ contains
 
   integer(C_INT) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
-    use fsundials_linearsolver_mod
+
+
+
     use fnvector_serial_mod
     use fsunmatrix_band_mod
     use fsunlinsol_band_mod
@@ -121,7 +121,7 @@ end module
 
 integer(C_INT) function check_vector(X, Y, tol) result(failure)
   use, intrinsic :: iso_c_binding
-  use fsundials_nvector_mod
+
   use test_utilities
 
   implicit none

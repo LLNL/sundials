@@ -97,7 +97,7 @@ if(XBRAID_FOUND AND (NOT XBRAID_WORKS))
   file(WRITE ${XBRAID_TEST_DIR}/ltest.c
     "\#include <stdlib.h>\n"
     "\#include \"braid.h\"\n"
-    "int main(){\n"
+    "int main(void) {\n"
     "braid_Int rand;\n"
     "rand = braid_Rand();\n"
     "if (rand < 0) return 1;\n"

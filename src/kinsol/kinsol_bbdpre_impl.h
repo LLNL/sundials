@@ -39,7 +39,7 @@ typedef struct KBBDPrecDataRec
   KINBBDLocalFn gloc;
   KINBBDCommFn gcomm;
 
-  /* set by KINBBDPrecSetup and used by KINBBDPrecSetup and 
+  /* set by KINBBDPrecSetup and used by KINBBDPrecSetup and
      KINBBDPrecSolve functions */
   sunindextype n_local;
   SUNMatrix PP;
