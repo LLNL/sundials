@@ -106,12 +106,9 @@ if(SUNDIALS_LOGGING_LEVEL GREATER_EQUAL 3)
 endif()
 
 # ---------------------------------------------------------------
-# Option to use the generic math libraries
+# Option to set the math library
 # ---------------------------------------------------------------
 
-# We still provide USE_GENERIC_MATH for backwards compatibility
-# We also provide it for non-unix systems, but with different defaults,
-# in order to present a uniform CMake interface.
 if(UNIX)
   sundials_option(SUNDIALS_MATH_LIBRARY PATH "Which math library (e.g., libm) to link to" "-lm" ADVANCED)
 else()

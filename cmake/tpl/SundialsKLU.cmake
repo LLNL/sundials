@@ -81,7 +81,7 @@ if(KLU_FOUND AND (NOT KLU_WORKS))
   # Create a C source file which calls a KLU function
   file(WRITE ${KLU_TEST_DIR}/ltest.c
   "\#include \"klu.h\"\n"
-  "int main(){\n"
+  "int main(void) {\n"
   "klu_common Common;\n"
   "klu_defaults (&Common);\n"
   "return(0);\n"

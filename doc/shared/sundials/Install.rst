@@ -1140,16 +1140,6 @@ illustration only.
 
    Default: ``CMAKE_INSTALL_PREFIX/cmake/sundials``
 
-.. cmakeoption:: USE_GENERIC_MATH
-
-   Link to :cmakeop:`SUNDIALS_MATH_LIBRARY`, which defaults to ``libm`` on Unix systems.
-
-   Default: ``ON``
-
-   .. note::
-
-      This option is deprecated. Use :cmakeop:`SUNDIALS_MATH_LIBRARY`.
-
 .. cmakeoption:: ENABLE_XBRAID
 
    Enable or disable the ARKStep + XBraid interface.
