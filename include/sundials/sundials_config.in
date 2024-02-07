@@ -56,7 +56,6 @@
  * SUNDIALS build information
  * -----------------------------------------------------------------*/
 
-#cmakedefine SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS
 #cmakedefine SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN
 #cmakedefine SUNDIALS_C_COMPILER_HAS_INLINE
 #cmakedefine SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT
@@ -85,11 +84,6 @@
  * The macro will be defined with a type of the appropriate size.
  */
 #define SUNDIALS_INDEX_TYPE @SUNDIALS_CINDEX_TYPE@
-
-/* Use std-c math functions
- * DEPRECATED SUNDIALS_USE_GENERIC_MATH
- */
-#cmakedefine SUNDIALS_USE_GENERIC_MATH
 
 /* Use POSIX timers if available.
  *     #define SUNDIALS_HAVE_POSIX_TIMERS

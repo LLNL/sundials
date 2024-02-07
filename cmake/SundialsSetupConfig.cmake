@@ -32,13 +32,6 @@ else()
   set(SUNDIALS_DEPRECATED_MSG_MACRO "SUNDIALS_DEPRECATED")
 endif()
 
-# prepare substitution variable SUNDIALS_USE_GENERIC_MATH for sundials_config.h
-if(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
-  set(SUNDIALS_USE_GENERIC_MATH FALSE)
-else()
-  set(SUNDIALS_USE_GENERIC_MATH TRUE)
-endif()
-
 if($ENV{CI_JOB_ID})
   set(JOB_ID $ENV{CI_JOB_ID})
 else()
