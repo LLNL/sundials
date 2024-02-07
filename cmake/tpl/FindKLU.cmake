@@ -31,13 +31,14 @@
 # ---------------------------------------------------------------
 
 if (NOT (KLU_INCLUDE_DIR OR KLU_LIBRARY_DIR OR KLU_LIBRARY))
-  # prefer import target from upstream SuiteSparse if available and
-  # user didn't point to a specific (different) version
-  include ( CMakeFindDependencyMacro )
-  find_dependency(KLU CONFIG)
+  # Prefer the import target from upstream SuiteSparse if it is available
+  # and the user didn't point to a specific (different) version.
+  find_package(KLU CONFIG)
 
   if(TARGET SuiteSparse::KLU)
-    add_library(SUNDIALS::KLU ALIAS SuiteSparse::KLU)
+    if(NOT TARGET SUNDIALS::KLU)
+      add_library(SUNDIALS::KLU ALIAS SuiteSparse::KLU)
+    endif()
     return()
   endif()
 endif()
