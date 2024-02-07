@@ -120,7 +120,7 @@ extern "C" {
   }                                                                            \
   while (0)
 #else
-#define SUNCheckMPICallNoRetMsg(call) (void)call
+#define SUNCheckMPICallNoRetMsg(call, msg) (void)call
 #endif
 
 /* These versions of SUNCheckMPICall do not take a custom message so a
