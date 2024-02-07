@@ -128,9 +128,6 @@ struct _generic_SUNLinearSolver_Ops
   SUNErrCode (*space)(SUNLinearSolver, long int*, long int*);
   N_Vector (*resid)(SUNLinearSolver);
   SUNErrCode (*free)(SUNLinearSolver);
-#ifdef __cplusplus
-  _generic_SUNLinearSolver_Ops() = default;
-#endif
 };
 
 /* A linear solver is a structure with an implementation-dependent
@@ -141,9 +138,6 @@ struct _generic_SUNLinearSolver
   void* content;
   SUNLinearSolver_Ops ops;
   SUNContext sunctx;
-#ifdef __cplusplus
-  _generic_SUNLinearSolver() = default;
-#endif
 };
 
 /* -----------------------------------------------------------------

@@ -245,6 +245,11 @@ corresponding :c:type:`SUNMatrix` and :c:type:`SUNLinearSolver` modules:
    sundials_dense.h
    sundials_band.h
 
+**Minor changes**
+
+Fixed `GitHub Issue #329 <https://github.com/LLNL/sundials/issues/329>`_ so
+that C++20 aggregate initialization can be used.
+
 Changes in v6.7.0
 -----------------
 

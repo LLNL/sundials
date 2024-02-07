@@ -189,10 +189,6 @@ struct _generic_N_Vector_Ops
   /* Debugging functions (called when SUNDIALS_DEBUG_PRINTVEC is defined). */
   void (*nvprint)(N_Vector);
   void (*nvprintfile)(N_Vector, FILE*);
-
-#ifdef __cplusplus
-  _generic_N_Vector_Ops() = default;
-#endif
 };
 
 /* A vector is a structure with an implementation-dependent
@@ -203,9 +199,6 @@ struct _generic_N_Vector
   void* content;
   N_Vector_Ops ops;
   SUNContext sunctx;
-#ifdef __cplusplus
-  _generic_N_Vector() = default;
-#endif
 };
 
 /* -----------------------------------------------------------------
