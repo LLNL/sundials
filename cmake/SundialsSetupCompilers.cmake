@@ -121,30 +121,6 @@ sundials_option(CMAKE_C_EXTENSIONS BOOL "${DOCSTR}" ON)
 message(STATUS "C extensions set to ${CMAKE_C_EXTENSIONS}")
 
 # ---------------------------------------------------------------
-# Check for snprintf and va_copy
-#
-# 199901L is the minimum ISO C standard for snprintf but some
-# C89 compilers provide extensions that define it.
-# ---------------------------------------------------------------
-
-check_c_source_compiles("
-  #include <stdio.h>
-  #include <stdarg.h>
-  int main(void) {
-    int size = snprintf(NULL, 0, \"%s\", \"snprintf works\");
-    va_list args;
-    va_list tmp;
-    va_copy(tmp, args);
-    printf(\"%d\", size);
-    return 0;
-  }
-" SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY)
-if(NOT SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY)
-  sundials_option(SUNDIALS_MAX_SPRINTF_SIZE STRING
-    "Max size of buffer for sprintf" "5120" ADVANCED)
-endif()
-
-# ---------------------------------------------------------------
 # Check for __builtin_expect
 # ---------------------------------------------------------------
 
