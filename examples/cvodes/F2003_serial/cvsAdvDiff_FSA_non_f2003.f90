@@ -53,6 +53,7 @@
 module ode_problem
 
   use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
   implicit none
 
   ! SUNDIALS simulation context
@@ -93,7 +94,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
     use fnvector_serial_mod
 
     !======= Declarations =========
@@ -157,7 +157,6 @@ contains
   ! Set initial conditions in u vector.
   subroutine SetIC(nv_u)
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
 
     implicit none
 
@@ -183,13 +182,9 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_types_mod
-  use fsundials_context_mod         ! Fortran interface to SUNDIALS context
+  use fsundials_core_mod            ! Access SUNDIALS core types, data structures, etc.
   use fcvodes_mod                   ! Fortran interface to CVODES
   use fnvector_serial_mod           ! Fortran interface to serial N_Vector
-  use fsundials_nvector_mod         ! Fortran interface to generic N_Vector
-  use fsundials_nonlinearsolver_mod ! Fortran interface to generic SUNNonlinearSolver
   use fsunnonlinsol_fixedpoint_mod  ! Fortran interface to fixed point SUNNonlinearSolver
   use ode_problem                   ! ODE defining functions and parameters
 
@@ -464,8 +459,9 @@ end subroutine
 ! Print the current number of steps, order, stepsize, and max norm of solution
 subroutine PrintOutput(cvodes_mem, t, u)
   use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
   use fcvodes_mod
-  use fsundials_nvector_mod
+
   implicit none
 
   ! subroutine args
@@ -493,7 +489,7 @@ end subroutine
 
 subroutine PrintOutputS(uS)
   use, intrinsic :: iso_c_binding
-  use fsundials_nvector_mod
+  use fsundials_core_mod
 
   ! subroutine args
   type(c_ptr) :: uS

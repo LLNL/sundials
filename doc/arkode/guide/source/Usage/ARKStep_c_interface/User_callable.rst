@@ -1734,7 +1734,7 @@ Explicit stability function                                 :c:func:`ARKStepSetS
       a custom function through a call to :c:func:`ARKStepSetAdaptivityFn()`.
 
       .. versionchanged:: 5.7.0
-         
+
          Prior to version 5.7.0, any nonzero value for *pq* would result in use of the
          embedding order of accuracy.
 

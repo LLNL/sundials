@@ -87,7 +87,7 @@ if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
 
   file(WRITE ${HYPRE_TEST_DIR}/ltest.c
   "\#include \"HYPRE_parcsr_ls.h\"\n"
-  "int main(){\n"
+  "int main(void) {\n"
   "HYPRE_ParVector par_b;\n"
   "HYPRE_IJVector b;\n"
   "par_b = 0;\n"

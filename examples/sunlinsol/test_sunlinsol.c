@@ -20,7 +20,7 @@
 
 #include "test_sunlinsol.h"
 
-#include <math.h> /* include isnan */
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_linearsolver.h>

@@ -117,8 +117,7 @@ void N_VPrint_Parallel(N_Vector v);
 SUNDIALS_EXPORT
 void N_VPrintFile_Parallel(N_Vector v, FILE* outfile);
 
-SUNDIALS_STATIC_INLINE
-N_Vector_ID N_VGetVectorID_Parallel(N_Vector v)
+static inline N_Vector_ID N_VGetVectorID_Parallel(N_Vector v)
 {
   return SUNDIALS_NVEC_PARALLEL;
 }

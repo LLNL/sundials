@@ -93,8 +93,8 @@ sunindextype SUNMatrix_OneMklDense_LData(SUNMatrix A);
 SUNDIALS_EXPORT
 sunrealtype* SUNMatrix_OneMklDense_Data(SUNMatrix A);
 
-SUNDIALS_STATIC_INLINE
-sunrealtype* SUNMatrix_OneMklDense_Column(SUNMatrix Amat, sunindextype j)
+static inline sunrealtype* SUNMatrix_OneMklDense_Column(SUNMatrix Amat,
+                                                        sunindextype j)
 {
   SUNMatrixContent_OneMklDense A = (SUNMatrixContent_OneMklDense)Amat->content;
   return (((sunrealtype*)A->data->ptr) + j * A->block_rows);
@@ -108,16 +108,16 @@ sunindextype SUNMatrix_OneMklDense_BlockLData(SUNMatrix A);
 SUNDIALS_EXPORT
 sunrealtype** SUNMatrix_OneMklDense_BlockData(SUNMatrix A);
 
-SUNDIALS_STATIC_INLINE
-sunrealtype* SUNMatrix_OneMklDense_Block(SUNMatrix Amat, sunindextype k)
+static inline sunrealtype* SUNMatrix_OneMklDense_Block(SUNMatrix Amat,
+                                                       sunindextype k)
 {
   SUNMatrixContent_OneMklDense A = (SUNMatrixContent_OneMklDense)Amat->content;
   return (((sunrealtype*)A->data->ptr) + k * A->block_rows * A->block_cols);
 }
 
-SUNDIALS_STATIC_INLINE
-sunrealtype* SUNMatrix_OneMklDense_BlockColumn(SUNMatrix Amat, sunindextype k,
-                                               sunindextype j)
+static inline sunrealtype* SUNMatrix_OneMklDense_BlockColumn(SUNMatrix Amat,
+                                                             sunindextype k,
+                                                             sunindextype j)
 {
   SUNMatrixContent_OneMklDense A = (SUNMatrixContent_OneMklDense)Amat->content;
   return (((sunrealtype*)A->data->ptr) + k * A->block_rows * A->block_cols +
@@ -136,8 +136,7 @@ SUNErrCode SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data
  * SUNMatrix API functions
  * ---------------------------------------------------------------------------*/
 
-SUNDIALS_STATIC_INLINE
-SUNMatrix_ID SUNMatGetID_OneMklDense(SUNMatrix A)
+static inline SUNMatrix_ID SUNMatGetID_OneMklDense(SUNMatrix A)
 {
   return SUNMATRIX_ONEMKLDENSE;
 }

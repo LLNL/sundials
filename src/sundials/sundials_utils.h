@@ -24,8 +24,7 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
 
-SUNDIALS_STATIC_INLINE
-char* sunCombineFileAndLine(int line, const char* file)
+static inline char* sunCombineFileAndLine(int line, const char* file)
 {
   size_t total_str_len = strlen(file) + 6;
   char* file_and_line  = (char*)malloc(total_str_len * sizeof(char));
@@ -33,29 +32,18 @@ char* sunCombineFileAndLine(int line, const char* file)
   return file_and_line;
 }
 
-SUNDIALS_STATIC_INLINE
-int sunvsnprintf(char* buffer, size_t bufsz, const char* format, va_list vlist)
+static inline int sunvsnprintf(char* buffer, size_t bufsz, const char* format,
+                               va_list vlist)
 {
   int size = 0;
-#ifdef SUNDIALS_C_COMPILER_HAS_SNPRINTF_AND_VA_COPY
   va_list tmp;
   va_copy(tmp, vlist);
   size = vsnprintf(buffer, bufsz, format, tmp);
   va_end(tmp);
-#else
-  size = SUNDIALS_MAX_SPRINTF_SIZE;
-  if ((int)strlen(format) > size)
-  {
-    /* buffer is definitely not big enough */
-    size = -1;
-  }
-  else if (buffer != NULL) { vsprintf(buffer, format, vlist); }
-#endif
   return size;
 }
 
-SUNDIALS_STATIC_INLINE
-int sunsnprintf(char* buffer, size_t bufsz, const char* format, ...)
+static inline int sunsnprintf(char* buffer, size_t bufsz, const char* format, ...)
 {
   int size = 0;
   va_list args;
@@ -70,8 +58,7 @@ int sunsnprintf(char* buffer, size_t bufsz, const char* format, ...)
  * is itself an analog for vsprintf, except it allocates a string
  * large enough to hold the output byte ('\0').
  */
-SUNDIALS_STATIC_INLINE
-int sunvasnprintf(char** str, const char* fmt, va_list args)
+static inline int sunvasnprintf(char** str, const char* fmt, va_list args)
 {
   int size = 0;
 
@@ -89,9 +76,8 @@ int sunvasnprintf(char** str, const char* fmt, va_list args)
   return size;
 }
 
-SUNDIALS_STATIC_INLINE
-void sunCompensatedSum(sunrealtype base, sunrealtype inc, sunrealtype* sum,
-                       sunrealtype* error)
+static inline void sunCompensatedSum(sunrealtype base, sunrealtype inc,
+                                     sunrealtype* sum, sunrealtype* error)
 {
   sunrealtype err           = *error;
   volatile sunrealtype tmp1 = inc - err;

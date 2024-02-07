@@ -79,23 +79,23 @@ SUNDIALS_EXPORT SUNErrCode SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix A,
 SUNDIALS_EXPORT
 SUNErrCode SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data);
 
-SUNDIALS_STATIC_INLINE
-sunrealtype* SUNMatrix_MagmaDense_Block(SUNMatrix Amat, sunindextype k)
+static inline sunrealtype* SUNMatrix_MagmaDense_Block(SUNMatrix Amat,
+                                                      sunindextype k)
 {
   SUNMatrixContent_MagmaDense A = (SUNMatrixContent_MagmaDense)Amat->content;
   return (((sunrealtype*)A->data->ptr) + k * A->M * A->N);
 }
 
-SUNDIALS_STATIC_INLINE
-sunrealtype* SUNMatrix_MagmaDense_Column(SUNMatrix Amat, sunindextype j)
+static inline sunrealtype* SUNMatrix_MagmaDense_Column(SUNMatrix Amat,
+                                                       sunindextype j)
 {
   SUNMatrixContent_MagmaDense A = (SUNMatrixContent_MagmaDense)Amat->content;
   return (((sunrealtype*)A->data->ptr) + j * A->M);
 }
 
-SUNDIALS_STATIC_INLINE
-sunrealtype* SUNMatrix_MagmaDense_BlockColumn(SUNMatrix Amat, sunindextype k,
-                                              sunindextype j)
+static inline sunrealtype* SUNMatrix_MagmaDense_BlockColumn(SUNMatrix Amat,
+                                                            sunindextype k,
+                                                            sunindextype j)
 {
   SUNMatrixContent_MagmaDense A = (SUNMatrixContent_MagmaDense)Amat->content;
   return (((sunrealtype*)A->data->ptr) + k * A->M * A->N + j * A->M);
@@ -105,8 +105,7 @@ sunrealtype* SUNMatrix_MagmaDense_BlockColumn(SUNMatrix Amat, sunindextype k,
  * SUNMatrix API functions
  * ---------------------------------------*/
 
-SUNDIALS_STATIC_INLINE
-SUNMatrix_ID SUNMatGetID_MagmaDense(SUNMatrix A)
+static inline SUNMatrix_ID SUNMatGetID_MagmaDense(SUNMatrix A)
 {
   return SUNMATRIX_MAGMADENSE;
 }

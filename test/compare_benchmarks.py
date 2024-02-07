@@ -66,7 +66,7 @@ def main():
         outFile.close()
 
     if (len(outLines) == 0):
-        return -1 
+        return -1
     return 0
 
 def process_benchmark(jobID, isRelease, releaseDir, benchmarkDir, threshold):
@@ -74,8 +74,8 @@ def process_benchmark(jobID, isRelease, releaseDir, benchmarkDir, threshold):
     benchmarkFiles = glob.glob("%s/*.cali" % benchmarkDir)
     # Don't compare if the run didn't include this benchmark
     if (len(benchmarkFiles) == 0):
-        return 
-    
+        return
+
     th_files = tt.Thicket.from_caliperreader(benchmarkFiles)
     curFilter = lambda x: x['job_id'] == jobID
     th_current = th_files.filter_metadata(curFilter)
