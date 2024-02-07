@@ -69,9 +69,9 @@
 ! This program solves the problem with the MRI stepper. Outputs are
 ! printed at equal intervals of 0.1 and run statistics are printed
 ! at the end.
-!--------------------------------------------------------------------
+! -------------------------------------------------------------------
 
-module ode_mod
+module kpr_mod
 
   use, intrinsic :: iso_c_binding
   use fsundials_core_mod
@@ -119,14 +119,14 @@ contains
     implicit none
 
     real(c_double), value :: t
-    type(N_Vector) :: yvec
-    type(N_Vector) :: ydotvec
-    type(c_ptr)    :: user_data
+    type(N_Vector)        :: yvec
+    type(N_Vector)        :: ydotvec
+    type(c_ptr),    value :: user_data
 
     real(c_double) :: u, v
     real(c_double) :: tmp1, tmp2
-    real(c_double), pointer :: yarr(:)
-    real(c_double), pointer :: ydotarr(:)
+    real(c_double), pointer, dimension(NEQ) :: yarr(:)
+    real(c_double), pointer, dimension(NEQ) :: ydotarr(:)
 
     ! get N_Vector data arrays
     yarr => FN_VGetArrayPointer(yvec)
@@ -148,7 +148,8 @@ contains
     ierr = 0
     return
 
-  end function
+  end function ff
+  ! ----------------------------------------------------------------
 
   ! fs routine to compute the slow portion of the ODE RHS.
   integer(c_int) function fs(t, yvec, ydotvec, user_data) &
@@ -159,14 +160,14 @@ contains
     implicit none
 
     real(c_double), value :: t
-    type(N_Vector) :: yvec
-    type(N_Vector) :: ydotvec
-    type(c_ptr)    :: user_data
+    type(N_Vector)       :: yvec
+    type(N_Vector)       :: ydotvec
+    type(c_ptr),   value :: user_data
 
     real(c_double) :: u, v
     real(c_double) :: tmp1, tmp2
-    real(c_double), pointer :: yarr(:)
-    real(c_double), pointer :: ydotarr(:)
+    real(c_double), pointer, dimension(NEQ) :: yarr(:)
+    real(c_double), pointer, dimension(NEQ) :: ydotarr(:)
 
     ! get N_Vector data arrays
     yarr => FN_VGetArrayPointer(yvec)
@@ -188,7 +189,8 @@ contains
     ierr = 0
     return
 
-  end function
+  end function fs
+  ! ----------------------------------------------------------------
 
   ! fse routine to compute the slow portion of the ODE RHS.
   integer(c_int) function fse(t, yvec, ydotvec, user_data) &
@@ -199,13 +201,13 @@ contains
     implicit none
 
     real(c_double), value :: t
-    type(N_Vector) :: yvec
-    type(N_Vector) :: ydotvec
-    type(c_ptr)    :: user_data
+    type(N_Vector)        :: yvec
+    type(N_Vector)        :: ydotvec
+    type(c_ptr),    value :: user_data
 
     real(c_double) :: u, v
-    real(c_double), pointer :: yarr(:)
-    real(c_double), pointer :: ydotarr(:)
+    real(c_double), pointer, dimension(NEQ) :: yarr(:)
+    real(c_double), pointer, dimension(NEQ) :: ydotarr(:)
 
     ! get N_Vector data arrays
     yarr => FN_VGetArrayPointer(yvec)
@@ -225,7 +227,8 @@ contains
     ierr = 0
     return
 
-  end function
+  end function fse
+  ! ----------------------------------------------------------------
 
   ! fsi routine to compute the slow portion of the ODE RHS.(currently same as fse)
   integer(c_int) function fsi(t, yvec, ydotvec, user_data) &
@@ -236,14 +239,14 @@ contains
     implicit none
 
     real(c_double), value :: t
-    type(N_Vector) :: yvec
-    type(N_Vector) :: ydotvec
-    type(c_ptr)    :: user_data
+    type(N_Vector)        :: yvec
+    type(N_Vector)        :: ydotvec
+    type(c_ptr),    value :: user_data
 
     real(c_double) :: u, v
     real(c_double) :: tmp1, tmp2
-    real(c_double), pointer :: yarr(:)
-    real(c_double), pointer :: ydotarr(:)
+    real(c_double), pointer, dimension(NEQ) :: yarr(:)
+    real(c_double), pointer, dimension(NEQ) :: ydotarr(:)
 
     ! get N_Vector data arrays
     yarr => FN_VGetArrayPointer(yvec)
@@ -265,7 +268,8 @@ contains
     ierr = 0
     return
 
-  end function
+  end function fsi
+  ! ----------------------------------------------------------------
 
   integer(c_int) function fn(t, yvec, ydotvec, user_data) &
     result(ierr) bind(C)
@@ -275,14 +279,14 @@ contains
     implicit none
 
     real(c_double), value :: t
-    type(N_Vector) :: yvec
-    type(N_Vector) :: ydotvec
-    type(c_ptr)    :: user_data
+    type(N_Vector)        :: yvec
+    type(N_Vector)        :: ydotvec
+    type(c_ptr),    value :: user_data
 
     real(c_double) :: u, v
     real(c_double) :: tmp1, tmp2
-    real(c_double), pointer :: yarr(:)
-    real(c_double), pointer :: ydotarr(:)
+    real(c_double), pointer, dimension(NEQ) :: yarr(:)
+    real(c_double), pointer, dimension(NEQ) :: ydotarr(:)
 
     ! get N_Vector data arrays
     yarr => FN_VGetArrayPointer(yvec)
@@ -304,7 +308,8 @@ contains
     ierr = 0
     return
 
-  end function
+  end function fn
+  ! ----------------------------------------------------------------
 
   integer(c_int) function f0(t, yvec, ydotvec, user_data) &
     result(ierr) bind(C)
@@ -314,9 +319,9 @@ contains
     implicit none
 
     real(c_double), value :: t
-    type(N_Vector) :: yvec
-    type(N_Vector) :: ydotvec
-    type(c_ptr)    :: user_data
+    type(N_Vector)        :: yvec
+    type(N_Vector)        :: ydotvec
+    type(c_ptr),    value :: user_data
 
     call FN_VConst(ZERO, ydotvec)
 
@@ -324,7 +329,8 @@ contains
     ierr = 0
     return
 
-  end function
+  end function f0
+  ! ----------------------------------------------------------------
 
   !
   ! Jacobian functions
@@ -336,22 +342,22 @@ contains
     use, intrinsic :: iso_c_binding
     implicit none
 
-    real(c_double), value  :: t
-    type(N_Vector)  :: y
-    type(N_Vector)  :: fy
-    type(SUNMatrix) :: J
-    type(c_ptr)     :: user_data
-    type(N_Vector)  :: tmp1, tmp2, tmp3
+    real(c_double), value :: t
+    type(N_Vector)        :: y
+    type(N_Vector)        :: fy
+    type(SUNMatrix)       :: J
+    type(c_ptr),    value :: user_data
+    type(N_Vector)        :: tmp1, tmp2, tmp3
 
     real(c_double) :: u, v
-    real(c_double), pointer :: yarr(:)
-    real(c_double), pointer :: Jarr(:)
+    real(c_double), pointer, dimension(NEQ) :: yarr(:)
+    real(c_double), pointer, dimension(NEQ,NEQ) :: Jarr(:,:)
 
     ! get N_Vector data arrays
     yarr => FN_VGetArrayPointer(y)
 
     ! get Jacobian data array
-    Jarr => FSUNDenseMatrix_Data(J)
+    Jarr(1:NEQ,1:NEQ) => FSUNDenseMatrix_Data(J)
 
     ! extract variables
     u = yarr(1)
@@ -360,16 +366,17 @@ contains
     ! fill in the Jacobian:
     !  [G/2 + (w*(1+r(t))-rdot(t))/(2*u^2)   e/2 + e*(2+s(t))/(2*v^2)]
     !  [                 0                              0            ]
-    Jarr(1) = G/TWO + (G*(ONE+r(t))-rdot(t))/(2*u*u)
-    Jarr(2) = ZERO
-    Jarr(3) = e/TWO + e*(TWO+s(t))/(TWO*v*v)
-    Jarr(4) = ZERO
+    Jarr(1,1) = G/TWO + (G*(ONE+r(t))-rdot(t))/(2*u*u)
+    Jarr(2,1) = ZERO
+    Jarr(1,2) = e/TWO + e*(TWO+s(t))/(TWO*v*v)
+    Jarr(2,2) = ZERO
 
     ! return success
     ierr = 0
     return
 
-  end function
+  end function Js
+  ! ----------------------------------------------------------------
 
   integer(c_int) function Jsi(t, y, fy, J, user_data, tmp1, tmp2, tmp3) &
     result(ierr) bind(C)
@@ -378,21 +385,21 @@ contains
     implicit none
 
     real(c_double), value :: t
-    type(N_Vector)  :: y
-    type(N_Vector)  :: fy
-    type(SUNMatrix) :: J
-    type(c_ptr)     :: user_data
-    type(N_Vector)  :: tmp1, tmp2, tmp3
+    type(N_Vector)        :: y
+    type(N_Vector)        :: fy
+    type(SUNMatrix)       :: J
+    type(c_ptr),    value :: user_data
+    type(N_Vector)        :: tmp1, tmp2, tmp3
 
     real(c_double) :: u, v
-    real(c_double), pointer :: yarr(:)
-    real(c_double), pointer :: Jarr(:)
+    real(c_double), pointer, dimension(NEQ) :: yarr(:)
+    real(c_double), pointer, dimension(NEQ,NEQ) :: Jarr(:,:)
 
     ! get N_Vector data array
     yarr => FN_VGetArrayPointer(y)
 
     ! get Jacobian data array
-    Jarr => FSUNDenseMatrix_Data(J)
+    Jarr(1:NEQ,1:NEQ) => FSUNDenseMatrix_Data(J)
 
     ! extract variables
     u = yarr(1)
@@ -401,16 +408,17 @@ contains
     ! fill in the Jacobian:
     !  [G/2 + (G*(1+r(t)))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
     !  [                 0                             0   ]
-    Jarr(1) = G/TWO + (G*(ONE+r(t)))/(2*u*u)
-    Jarr(2) = ZERO
-    Jarr(3) = e/TWO + e*(TWO+s(t))/(TWO*v*v)
-    Jarr(4) = ZERO
+    Jarr(1,1) = G/TWO + (G*(ONE+r(t)))/(2*u*u)
+    Jarr(2,1) = ZERO
+    Jarr(1,2) = e/TWO + e*(TWO+s(t))/(TWO*v*v)
+    Jarr(2,2) = ZERO
 
     ! return success
     ierr = 0
     return
 
-  end function
+  end function Jsi
+  ! ----------------------------------------------------------------
 
   integer(c_int) function Jn(t, y, fy, J, user_data, tmp1, tmp2, tmp3) &
     result(ierr) bind(C)
@@ -418,22 +426,22 @@ contains
     use, intrinsic :: iso_c_binding
     implicit none
 
-    real(c_double), value  :: t
-    type(N_Vector)  :: y
-    type(N_Vector)  :: fy
-    type(SUNMatrix) :: J
-    type(c_ptr)     :: user_data
-    type(N_Vector)  :: tmp1, tmp2, tmp3
+    real(c_double), value :: t
+    type(N_Vector)        :: y
+    type(N_Vector)        :: fy
+    type(SUNMatrix)       :: J
+    type(c_ptr),    value :: user_data
+    type(N_Vector)        :: tmp1, tmp2, tmp3
 
     real(c_double) :: u, v
-    real(c_double), pointer :: yarr(:)
-    real(c_double), pointer :: Jarr(:)
+    real(c_double), pointer, dimension(NEQ) :: yarr(:)
+    real(c_double), pointer, dimension(NEQ,NEQ) :: Jarr(:,:)
 
     ! get N_Vector data array
     yarr => FN_VGetArrayPointer(y)
 
     ! get Jacobian data array
-    Jarr => FSUNDenseMatrix_Data(J)
+    Jarr(1:NEQ,1:NEQ) => FSUNDenseMatrix_Data(J)
 
     ! extract variables
     u = yarr(1)
@@ -442,16 +450,17 @@ contains
     ! fill in the Jacobian:
     ! [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)     e/2 + e*(2+s(t))/(2*v^2)]
     ! [e/2 + e*(1+r(t))/(2*u^2)              -1/2 - (2+s(t))/(2*v^2)]
-    Jarr(1) = G/TWO + (G*(1+r(t))-rdot(t))/(TWO*u*u)
-    Jarr(2) = e/TWO + e*(ONE+r(t))/(TWO*u*u)
-    Jarr(3) = e/TWO + e*(TWO+s(t))/(TWO*v*v)
-    Jarr(4) = -ONE/TWO - (TWO+s(t))/(TWO*v*v)
+    Jarr(1,1) = G/TWO + (G*(1+r(t))-rdot(t))/(TWO*u*u)
+    Jarr(2,1) = e/TWO + e*(ONE+r(t))/(TWO*u*u)
+    Jarr(1,2) = e/TWO + e*(TWO+s(t))/(TWO*v*v)
+    Jarr(2,2) = -ONE/TWO - (TWO+s(t))/(TWO*v*v)
 
     ! return success
     ierr = 0
     return
 
-  end function
+  end function Jn
+  ! ----------------------------------------------------------------
 
   ! Helper functions
   real(c_double) function r(t) &
@@ -464,7 +473,8 @@ contains
     result = 0.5d0*cos(t)
     return
 
-  end function
+  end function r
+  ! ----------------------------------------------------------------
 
   real(c_double) function s(t) &
     result(result)
@@ -477,7 +487,8 @@ contains
     result = cos(w*t)
     return
 
-  end function
+  end function s
+  ! ----------------------------------------------------------------
 
   real(c_double) function rdot(t) &
     result(result)
@@ -490,7 +501,8 @@ contains
     result = -0.5d0*sin(t)
     return
 
-  end function
+  end function rdot
+  ! ----------------------------------------------------------------
 
   real(c_double) function sdot(t) &
     result(result)
@@ -503,7 +515,8 @@ contains
     result = -w*sin(w*t)
     return
 
-  end function
+  end function sdot
+  ! ----------------------------------------------------------------
 
   real(c_double) function utrue(t) &
     result(result)
@@ -516,7 +529,8 @@ contains
     result = sqrt(ONE+r(t))
     return
 
-  end function
+  end function utrue
+  ! ----------------------------------------------------------------
 
   real(c_double) function vtrue(t) &
     result(result)
@@ -529,7 +543,8 @@ contains
     result = sqrt(TWO+s(t))
     return
 
-  end function
+  end function vtrue
+  ! ----------------------------------------------------------------
 
   integer(c_int) function Ytrue(t, y) &
     result(ierr)
@@ -540,7 +555,7 @@ contains
     real(c_double), value :: t
     type(N_Vector) :: y
 
-    real(c_double), pointer :: yarr(:)
+    real(c_double), pointer, dimension(NEQ) :: yarr(:)
 
     yarr => FN_VGetArrayPointer(y)
 
@@ -550,31 +565,37 @@ contains
     ierr = 0
     return
 
-  end function
+  end function Ytrue
+  ! ----------------------------------------------------------------
 
-end module
+end module kpr_mod
+! ------------------------------------------------------------------
 
+
+! ------------------------------------------------------------------
+! Main driver program
+! ------------------------------------------------------------------
 program main
 
-  use ode_mod
+  use kpr_mod
   implicit none
 
 
   ! general problem variables
-  type(c_ptr) sunctx                       ! SUNDIALS simulation context
-  integer(c_int) :: retval                 ! reusable error-checking flag
-  type(N_Vector), pointer :: y             ! vector for the solution
-  real(c_double), pointer :: yarr(:)       ! array of data for y vector
-  type(c_ptr) :: arkode_mem                ! ARKODE memory structure
-  type(c_ptr) :: inner_arkode_mem          ! ARKODE memory structure
-  type(c_ptr) :: inner_stepper             ! inner stepper
-  type(c_ptr) :: BTf, BTs                  ! fast/slow method Butcher table
-  type(c_ptr) :: SC                        ! slow coupling coefficients
-  type(SUNMatrix), pointer :: MATf         ! matrix for fast solver
-  type(SUNLinearSolver), pointer :: LSf    ! fast linear solver object
-  type(SUNMatrix), pointer :: MATs         ! matrix for slow solver
-  type(SUNLinearSolver), pointer :: LSs    ! slow linear solver object
-  integer(c_int) :: solve_type = 0         ! problem configuration type
+  type(c_ptr) sunctx                                 ! SUNDIALS simulation context
+  integer(c_int) :: retval                           ! reusable error-checking flag
+  type(N_Vector), pointer :: y                       ! vector for the solution
+  real(c_double), pointer, dimension(NEQ) :: yarr(:) ! array of data for y vector
+  type(c_ptr) :: arkode_mem                          ! ARKODE memory structure
+  type(c_ptr) :: inner_arkode_mem                    ! ARKODE memory structure
+  type(c_ptr) :: inner_stepper                       ! inner stepper
+  type(c_ptr) :: BTf, BTs                            ! fast/slow method Butcher table
+  type(c_ptr) :: SC                                  ! slow coupling coefficients
+  type(SUNMatrix), pointer :: MATf                   ! matrix for fast solver
+  type(SUNLinearSolver), pointer :: LSf              ! fast linear solver object
+  type(SUNMatrix), pointer :: MATs                   ! matrix for slow solver
+  type(SUNLinearSolver), pointer :: LSs              ! slow linear solver object
+  integer(c_int) :: solve_type = 0                   ! problem configuration type
   logical :: implicit_slow
   logical :: imex_slow = .FALSE.
   real(c_double) :: hf, gamma, beta, t, tret(1), tout
@@ -1100,7 +1121,8 @@ program main
   call FMRIStepFree(arkode_mem)                      ! Free slow integrator memory
   retval = FSUNContext_Free(sunctx)                  ! Free context
 
-end program
+end program main
+! ----------------------------------------------------------------
 
 subroutine check_retval(retval, name)
   use, intrinsic :: iso_c_binding
@@ -1112,4 +1134,5 @@ subroutine check_retval(retval, name)
     write(*,'(A,A,A)') 'ERROR: ', name,' returned nonzero'
     stop 1
   end if
-end subroutine
+end subroutine check_retval
+! ----------------------------------------------------------------

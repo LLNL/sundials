@@ -1,0 +1,49 @@
+  
+ ark_roberts_dns_f2003.f90: Robertson ARK ODE serial example problem for ARKODE
+          Three equation chemical kinetics problem.
+  
+ Linear solver: DENSE, with user-supplied Jacobian.
+Tolerance parameters:  rtol = 0.0001   atol =  1.E-08  1.E-11  1.E-08
+Initial conditions y0 = ( 1.00  0.00  0.00 )
+ Constraints not used.
+  
+ ----------------------------------------------------------------------
+    t            y1           y2           y3       | nst      h
+ ----------------------------------------------------------------------
+  2.6402E-01   9.8997E-01   3.4706E-05   1.0000E-02 |  31    4.4841E-02
+    rootsfound[] =  0   1
+  4.0000E-01   9.8517E-01   3.3864E-05   1.4794E-02 |  34    4.4841E-02
+  4.0000E+00   9.0552E-01   2.2405E-05   9.4459E-02 |  87    1.0144E-01
+  4.0000E+01   7.1583E-01   9.1856E-06   2.8416E-01 | 217    7.7919E-01
+  4.0000E+02   4.5052E-01   3.2229E-06   5.4948E-01 | 356    6.0414E+00
+  4.0000E+03   1.8320E-01   8.9423E-07   8.1680E-01 | 445    1.1101E+02
+  4.0000E+04   3.8983E-02   1.6218E-07   9.6102E-01 | 526    1.5172E+03
+  4.0000E+05   4.9383E-03   1.9849E-08   9.9506E-01 | 622    3.2703E+04
+  4.0000E+06   5.1679E-04   2.0689E-09   9.9948E-01 | 668    6.7110E+05
+  2.0796E+07   1.0000E-04   3.9998E-10   9.9990E-01 | 681    2.5236E+06
+    rootsfound[] = -1   0
+  4.0000E+07   5.2028E-05   2.0644E-10   9.9995E-01 | 685    7.2040E+06
+  4.0000E+08   5.2075E-06   2.0694E-11   9.9999E-01 | 699    9.3020E+07
+  4.0000E+09   5.2087E-07   2.2947E-12   1.0000E+00 | 714    4.1703E+08
+  4.0000E+10   5.2085E-08   2.0139E-13   1.0000E+00 | 747    4.5921E+09
+  
+ ------------------------------------------------------
+      Final      y1'          y2'          y3'
+ ------------------------------------------------------
+              -1.3023E-18  -3.1154E-23   1.3023E-18
+  
+  General Solver Stats:
+    Total internal steps taken    =      747
+    Total internal steps attempts =      807
+    Total rhs exp function calls  =        0
+    Total rhs imp function calls  =    25557
+    Total Jacobian function calls =       61
+    Num lin solver setup calls    =      239
+    Num error test failures       =       45
+    First internal step size      = 1.00000E-08
+    Last internal step size       = 4.59208E+09
+    Next internal step size       = 4.59208E+09
+    Current internal time         = 4.43176E+10
+    Num nonlinear solver iters    =    21568
+    Num nonlinear solver fails    =       56
+  

@@ -130,6 +130,12 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
+Changes in vX.X.X
+-----------------
+
+Converted most previous Fortran 77 and 90 examples to use SUNDIALS' current
+Fortran 2003 interface.
+
 Changes in v6.0.0-rc.1
 ----------------------
 
