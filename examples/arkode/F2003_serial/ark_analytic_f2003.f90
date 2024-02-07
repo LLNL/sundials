@@ -29,6 +29,7 @@ module analytic_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -55,7 +56,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
 
     !======= Declarations =========
     implicit none
@@ -100,15 +100,9 @@ program main
 
   use farkode_mod                ! Fortran interface to the ARKODE
   use farkode_arkstep_mod        ! Fortran interface to the ARKStep time-stepper module
-  use fsundials_nvector_mod      ! Fortran interface to the generic N_Vector
-  use fsundials_matrix_mod       ! Fortran interface to the generic SUNMatrix
-  use fsundials_linearsolver_mod ! Fortran interface to the generic SUNLinearSolver
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunmatrix_dense_mod       ! Fortran interface to dense SUNMatrix
   use fsunlinsol_dense_mod       ! Fortran interface to dense SUNLinearSolver
-  use fsundials_types_mod
-  use fsundials_context_mod      ! Fortran interface to SUNContext
-  use fsundials_adaptcontroller_mod  ! Fortran interface to the generic SUNAdaptController
   use fsunadaptcontroller_soderlind_mod ! Fortran interface to Soderlind controller
   use analytic_mod               ! ODE functions
 

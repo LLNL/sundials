@@ -29,6 +29,7 @@ module kinDiagonKry_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -52,9 +53,6 @@ contains
   ! init: Initializes variables u, scale, constr
   ! ----------------------------------------------------------------
   subroutine init(sunvec_u, sunvec_s, sunvec_c)
-
-    !======= Inclusions ===========
-    use fsundials_nvector_mod
 
     !======= Declarations =========
     implicit none
@@ -90,9 +88,6 @@ contains
   ! ----------------------------------------------------------------
   integer(c_int) function func(sunvec_u, sunvec_f, user_data) &
        result(ierr) bind(C)
-
-    !======= Inclusions ===========
-    use fsundials_nvector_mod
 
     !======= Declarations =========
     implicit none
@@ -136,9 +131,6 @@ contains
   ! ----------------------------------------------------------------
   integer(c_int) function kpsetup(sunvec_u, sunvec_s, sunvec_f, &
        sunvec_fs, user_data) result(ierr) bind(C)
-
-    !======= Inclusions ===========
-    use fsundials_nvector_mod
 
     !======= Declarations =========
     implicit none
@@ -184,9 +176,6 @@ contains
   integer(c_int) function kpsolve(sunvec_u, sunvec_s, sunvec_f, &
        sunvec_fs, sunvec_v, user_data) result(ierr) bind(C)
 
-    !======= Inclusions ===========
-    use fsundials_nvector_mod
-
     !======= Declarations =========
     implicit none
 
@@ -230,14 +219,9 @@ end module kinDiagonKry_mod
 program main
 
   !======= Inclusions ===========
-  use fsundials_types_mod
-  use fsundials_context_mod
   use fkinsol_mod                ! Fortran interface to KINSOL
-  use fsundials_nvector_mod      ! Fortran interface to generic N_Vector
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunlinsol_spgmr_mod       ! Fortran interface to SPGMR SUNLinearSolver
-  use fsundials_matrix_mod       ! Fortran interface to generic SUNmatrix
-  use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
   use kinDiagonKry_mod           ! problem-defining functions
 
   !======= Declarations =========

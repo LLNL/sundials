@@ -48,6 +48,7 @@ module diurnal_bp_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -111,7 +112,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
 
     !======= Declarations =========
     implicit none
@@ -211,14 +211,9 @@ program main
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
 
-  use fsundials_types_mod
   use fcvode_mod                 ! Fortran interface to the CVode module
-  use fsundials_nvector_mod      ! Fortran interface to the generic N_Vector
-  use fsundials_matrix_mod       ! Fortran interface to generic SUNMatrix
-  use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
   use fnvector_serial_mod        ! Fortran interface to serial N_Vector
   use fsunlinsol_spgmr_mod       ! Fortran interface to spgmr SUNLinearSolver
-  use fsundials_context_mod      ! Fortran interface to SUNContext
   use diurnal_bp_mod             ! ODE functions
 
   !======= Declarations =========

@@ -39,6 +39,7 @@ module roberts_klu_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -61,7 +62,6 @@ contains
        result(ierr) bind(C,name='fcnrob')
 
     !======= Inclusions ===========
-    use fsundials_nvector_mod
 
     !======= Declarations =========
     implicit none
@@ -105,9 +105,6 @@ contains
   integer(c_int) function grob(t, sunvec_y, gout, user_data) &
        result(ierr) bind(C,name='grob')
 
-    !======= Inclusions ===========
-    use fsundials_nvector_mod
-
     !======= Declarations =========
     implicit none
 
@@ -149,8 +146,6 @@ contains
        result(ierr) bind(C,name='jacrob')
 
     !======= Inclusions ===========
-    use fsundials_nvector_mod
-    use fsundials_matrix_mod
     use fsunmatrix_sparse_mod
 
     !======= Declarations =========
@@ -231,13 +226,7 @@ program main
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-  use fsundials_types_mod
   use fcvode_mod                    ! Fortran interface to CVODE
-  use fsundials_context_mod         ! Fortran interface to SUNContext
-  use fsundials_nvector_mod         ! Fortran interface to generic N_Vector
-  use fsundials_matrix_mod          ! Fortran interface to generic SUNMatrix
-  use fsundials_linearsolver_mod    ! Fortran interface to generic SUNLinearSolver
-  use fsundials_nonlinearsolver_mod ! Fortran interface to generic SUNNonlinearSolver
   use fnvector_serial_mod           ! Fortran interface to serial N_Vector
   use fsunmatrix_sparse_mod         ! Fortran interface to sparse SUNMatrix
   use fsunlinsol_klu_mod            ! Fortran interface to KLU sparse SUNLinearSolver
@@ -485,7 +474,6 @@ subroutine PrintOutput(cvode_mem, t, y)
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-  use fcvode_mod
   use roberts_klu_mod
 
   !======= Declarations =========
