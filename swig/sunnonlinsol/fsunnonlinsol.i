@@ -22,8 +22,7 @@
 %}
 
 // Load the typedefs and generate "use" statements
-%import "../sundials/fsundials_nvector_mod.i"
-%import "../sundials/fsundials_nonlinearsolver_mod.i"
+%import "../sundials/fsundials_core_mod.i"
 
 // Macro for creating an interface to an N_Vector
 %define %sunnonlinsol_impl(TYPE)

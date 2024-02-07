@@ -126,7 +126,7 @@ if(Trilinos_FOUND AND (NOT Trilinos_WORKS))
   # Create a C++ source file which calls a Trilinos function
   file(WRITE ${Trilinos_TEST_DIR}/ltest.cpp
   "#include <Tpetra_Version.hpp>\n"
-  "int main(){\n"
+  "int main(void) {\n"
   "std::cout << Tpetra::version() << std::endl;\n"
   "return(0);\n"
   "}\n")

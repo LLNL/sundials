@@ -80,23 +80,20 @@ SUNErrCode N_VSetKernelExecPolicy_Cuda(N_Vector x,
 SUNDIALS_EXPORT void N_VCopyToDevice_Cuda(N_Vector v);
 SUNDIALS_EXPORT void N_VCopyFromDevice_Cuda(N_Vector v);
 
-SUNDIALS_STATIC_INLINE
-sunindextype N_VGetLength_Cuda(N_Vector x)
+static inline sunindextype N_VGetLength_Cuda(N_Vector x)
 {
   N_VectorContent_Cuda content = (N_VectorContent_Cuda)x->content;
   return content->length;
 }
 
-SUNDIALS_STATIC_INLINE
-sunrealtype* N_VGetHostArrayPointer_Cuda(N_Vector x)
+static inline sunrealtype* N_VGetHostArrayPointer_Cuda(N_Vector x)
 {
   N_VectorContent_Cuda content = (N_VectorContent_Cuda)x->content;
   return (content->host_data == NULL ? NULL
                                      : (sunrealtype*)content->host_data->ptr);
 }
 
-SUNDIALS_STATIC_INLINE
-sunrealtype* N_VGetDeviceArrayPointer_Cuda(N_Vector x)
+static inline sunrealtype* N_VGetDeviceArrayPointer_Cuda(N_Vector x)
 {
   N_VectorContent_Cuda content = (N_VectorContent_Cuda)x->content;
   return (content->device_data == NULL ? NULL
@@ -109,8 +106,10 @@ sunrealtype* N_VGetDeviceArrayPointer_Cuda(N_Vector x)
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_STATIC_INLINE
-N_Vector_ID N_VGetVectorID_Cuda(N_Vector /*v*/) { return SUNDIALS_NVEC_CUDA; }
+static inline N_Vector_ID N_VGetVectorID_Cuda(N_Vector /*v*/)
+{
+  return SUNDIALS_NVEC_CUDA;
+}
 
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Cuda(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Cuda(N_Vector w);
