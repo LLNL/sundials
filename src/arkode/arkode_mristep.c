@@ -1276,8 +1276,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
   adapt_type = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
   if ((adapt_type != SUN_ADAPTCONTROLLER_MRI_H) &&
       (adapt_type != SUN_ADAPTCONTROLLER_MRI_TOL) &&
-      (adapt_type != SUN_ADAPTCONTROLLER_H) &&
-      (adapt_type != SUN_ADAPTCONTROLLER_NONE))
+      (adapt_type != SUN_ADAPTCONTROLLER_H))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "SUNAdaptController type is unsupported by MRIStep");
@@ -1286,7 +1285,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
 
   /*** Perform timestep adaptivity checks and initial setup ***/
 
-  if (adapt_type == SUN_ADAPTCONTROLLER_NONE)
+  if (ark_mem->fixedstep)
   {
     /* Non-adaptive controller: user must have supplied initial step
        size, and indicated fixed time stepping */
@@ -1730,7 +1729,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   /* if any temporal adaptivity is enabled: reset the inner integrator
      to the beginning of this step (in case of recomputation) */
-  if (adapt_type != SUN_ADAPTCONTROLLER_NONE)
+  if (!ark_mem->fixedstep)
   {
     retval = mriStepInnerStepper_Reset(step_mem->stepper,
                                        ark_mem->tn, ark_mem->ycur);
@@ -2369,6 +2368,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is)
   int retval;        /* reusable return flag */
   N_Vector ytilde = ark_mem->tempv2;  /* scratch vector */
   sunbooleantype embedded_stage;
+  SUNAdaptController_Type adapt_type; /* timestep adaptivity type   */
 
 #ifdef SUNDIALS_DEBUG
   printf("    MRIStep ERK fast stage\n");
@@ -2411,8 +2411,9 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is)
   if (!embedded_stage)
   {
     /* if MRI adaptivity is enabled, get fast temporal error estimate */
-    if ((SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller) == SUN_ADAPTCONTROLLER_MRI_H) ||
-        (SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller) == SUN_ADAPTCONTROLLER_MRI_TOL))
+    adapt_type = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
+    if ((adapt_type == SUN_ADAPTCONTROLLER_MRI_H) ||
+        (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL))
     {
       /* if we trust inner integrator accumulated error estimate, call it here */
       if (step_mem->inner_hfactor == ZERO)
@@ -2428,7 +2429,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is)
     }
 
     /* manually accumulate fast error estimate, if needed */
-    if ((SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller) == SUN_ADAPTCONTROLLER_MRI_H) &&
+    if ((adapt_type == SUN_ADAPTCONTROLLER_MRI_H) &&
         (step_mem->inner_hfactor != ZERO))
     {
       /* reset fast integrator for time interval */
