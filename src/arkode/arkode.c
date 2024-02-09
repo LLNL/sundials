@@ -2090,17 +2090,6 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
       return (ARK_MEM_FAIL);
     }
 
-    /*** DRR ToDo: update this block so that it only calls fullrhs when absolutely necessary ***/
-    /* If necessary, temporarily set h as it is used to compute the tolerance in a
-       potential mass matrix solve when computing the full rhs */
-    if (ark_mem->h == ZERO) ark_mem->h = ONE;
-
-    /* Call fullrhs */
-    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
-                                   ark_mem->fn, ARK_FULLRHS_START);
-    if (retval != 0) return(ARK_RHSFUNC_FAIL);
-    /*******/
-
   }
 
   /* initialization complete */
@@ -2121,9 +2110,17 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     /* Estimate initial h if not set */
     if (ark_mem->h == ZERO)
     {
-      /* Again, temporarily set h for estimating an optimal value */
+
+      /* If necessary, temporarily set h as it is used to compute the tolerance
+         in a potential mass matrix solve when computing the full rhs */
       ark_mem->h = SUNRabs(tout - ark_mem->tcur);
-      if (ark_mem->h == ZERO) { ark_mem->h = ONE; }
+      if (ark_mem->h == ZERO) ark_mem->h = ONE;
+
+      /* Call fullrhs */
+      retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
+                                     ark_mem->fn, ARK_FULLRHS_START);
+      if (retval != 0) return(ARK_RHSFUNC_FAIL);
+
       /* Estimate the first step size */
       tout_hin = tout;
       if (ark_mem->tstopset &&

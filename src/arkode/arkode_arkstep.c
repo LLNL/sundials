@@ -3017,7 +3017,10 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
   }
 
-  /* Compute yerr (if step adaptivity enabled) */
+  /* Compute yerr (if step adaptivity enabled)
+     TODO (DRR): this also needs to be done with fixed stepping when ARKStep is an MRIStepInnerStepper.
+     Think of an efficient way to test for this case, and add similar logic to ERKStep
+     (which currently does this whenever embedding coefficients are present). */
   if (!ark_mem->fixedstep)
   {
     /* set arrays for fused vector operation */

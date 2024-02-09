@@ -1004,9 +1004,9 @@ int mriStep_GetGammas(void* arkode_mem, sunrealtype* gamma, sunrealtype* gamrat,
   within arkInitialSetup.
 
   With initialization types FIRST_INIT this routine:
-  - sets/checks the ARK Butcher tables to be used
-  - allocates any memory that depends on the number of ARK
-    stages, method order, or solver options
+  - sets/checks the coefficient tables to be used
+  - allocates any internal memory that depend on the MRI method
+    structure or solver options
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/

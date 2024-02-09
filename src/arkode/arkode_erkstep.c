@@ -695,7 +695,8 @@ int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
       }
 
       /* apply external polynomial forcing */
-      if (step_mem->nforcing > 0) {
+      if (step_mem->nforcing > 0)
+      {
         cvals[0] = ONE;
         Xvecs[0] = step_mem->F[0];
         nvec     = 1;
@@ -732,7 +733,8 @@ int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
           return (ARK_RHSFUNC_FAIL);
         }
         /* apply external polynomial forcing */
-        if (step_mem->nforcing > 0) {
+        if (step_mem->nforcing > 0)
+        {
           cvals[0] = ONE;
           Xvecs[0] = step_mem->F[0];
           nvec     = 1;
@@ -760,7 +762,8 @@ int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
       return (ARK_RHSFUNC_FAIL);
     }
     /* apply external polynomial forcing */
-    if (step_mem->nforcing > 0) {
+    if (step_mem->nforcing > 0)
+    {
       cvals[0] = ONE;
       Xvecs[0] = f;
       nvec     = 1;
@@ -895,7 +898,8 @@ int erkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
     /* apply external polynomial forcing */
-    if (step_mem->nforcing > 0) {
+    if (step_mem->nforcing > 0)
+    {
       cvals[0] = ONE;
       Xvecs[0] = step_mem->F[is];
       nvec     = 1;
@@ -1205,10 +1209,12 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
   /* Compute yerr (if embedding coefficients are enabled) */
-  if (step_mem->B->d) {
+  if (step_mem->B->d)
+  {
     /* set arrays for fused vector operation */
     nvec = 0;
-    for (j=0; j<step_mem->stages; j++) {
+    for (j = 0; j < step_mem->stages; j++)
+    {
       cvals[nvec] = ark_mem->h * (step_mem->B->b[j] - step_mem->B->d[j]);
       Xvecs[nvec] = step_mem->F[j];
       nvec += 1;
@@ -1216,7 +1222,7 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
 
     /* call fused vector operation to do the work */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, yerr);
-    if (retval != 0) return(ARK_VECTOROP_ERR);
+    if (retval != 0) { return(ARK_VECTOROP_ERR); }
 
     /* fill error norm */
     *dsmPtr = N_VWrmsNorm(yerr, ark_mem->ewt);
