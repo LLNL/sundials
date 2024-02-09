@@ -22,30 +22,6 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-static long double sunNextafterl(long double from, long double to);
-
-static sunbooleantype sunIsInf(sunrealtype a)
-{
-#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
-  return (isinf(a));
-#else
-  return (a < -SUN_BIG_REAL || a > SUN_BIG_REAL);
-#endif
-}
-
-static sunbooleantype sunIsNaN(sunrealtype a)
-{
-#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_ISINF_ISNAN)
-  return (isnan(a));
-#else
-  /* Most compilers/platforms follow NaN != a,
-   * but since C89 does not require this, it is
-   * possible some platforms might not follow it.
-   */
-  return (a != a);
-#endif
-}
-
 sunrealtype SUNRpowerI(sunrealtype base, int exponent)
 {
   int i, expt;
@@ -62,16 +38,15 @@ sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
 {
   if (base <= SUN_RCONST(0.0)) { return (SUN_RCONST(0.0)); }
 
-#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #if defined(SUNDIALS_DOUBLE_PRECISION)
   return (pow(base, exponent));
 #elif defined(SUNDIALS_SINGLE_PRECISION)
   return (powf(base, exponent));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
   return (powl(base, exponent));
-#endif
 #else
-  return ((sunrealtype)pow((double)base, (double)exponent));
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
 }
 
@@ -91,10 +66,10 @@ sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
   if (a == b) { return (SUNFALSE); }
 
   /* If a or b are NaN */
-  if (sunIsNaN(a) || sunIsNaN(b)) { return (SUNTRUE); }
+  if (isnan(a) || isnan(b)) { return (SUNTRUE); }
 
   /* If one of a or b are Inf (since we handled both being inf above) */
-  if (sunIsInf(a) || sunIsInf(b)) { return (SUNTRUE); }
+  if (isinf(a) || isinf(b)) { return (SUNTRUE); }
 
   diff = SUNRabs(a - b);
   norm = SUNMIN(SUNRabs(a + b), SUN_BIG_REAL);
@@ -111,47 +86,9 @@ sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
   return (diff >= SUNMAX(10 * SUN_UNIT_ROUNDOFF, tol * norm));
 }
 
-long double sunNextafterl(long double from, long double to)
-{
-#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
-  return nextafterl(from, to);
-#else
-  union
-  {
-    long double f;
-    int i;
-  } u;
-
-  u.i = 0;
-  u.f = from;
-
-  /* if either are NaN, then return NaN via the sum */
-  if (sunIsNaN((sunrealtype)from) || sunIsNaN((sunrealtype)to))
-  {
-    return from + to;
-  }
-
-  if (from == to) { return to; }
-
-  /* ordering is -0.0, +0.0 so nextafter(-0.0, 0.0) should give +0.0
-     and nextafter(0.0, -0.0) should give -0.0 */
-  if (from == 0)
-  {
-    u.i = 1;
-    return to > 0 ? u.f : -u.f;
-  }
-
-  if ((from > 0) == (to > from)) { u.i++; }
-  else { u.i--; }
-
-  return u.f;
-#endif
-}
-
 sunrealtype SUNStrToReal(const char* str)
 {
   char* end;
-#if defined(__cplusplus) || defined(SUNDIALS_C_COMPILER_HAS_MATH_PRECISIONS)
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   return strtold(str, &end);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -160,18 +97,6 @@ sunrealtype SUNStrToReal(const char* str)
   return strtof(str, &end);
 #else
 #error \
-  "Should not be here, no SUNDIALS precision defined, report to github.com/LLNL/sundials/issues"
-#endif
-#else
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-  /* Use strtod, but then round down to the closest double value
-     since strtod will effectively round up to the closest long double. */
-  double val = strtod(str, &end);
-  return (sunrealtype)sunNextafterl(val, -0.0);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  return strtod(str, &end);
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-  return strtod(str, &end);
-#endif
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
 }

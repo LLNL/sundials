@@ -160,22 +160,3 @@ if(DEFINED CUDA_ARCH)
   set(CMAKE_CUDA_ARCHITECTURES ${arch_name} CACHE STRING "CUDA Architectures" FORCE)
   unset(CUDA_ARCH)
 endif()
-
-#
-# Deprecated USE_GENERIC_MATH option
-#
-
-if(DEFINED USE_GENERIC_MATH)
-  print_warning("The CMake option USE_GENERIC_MATH is deprecated" "Use SUNDIALS_MATH_LIBRARY instead"
-                MODE DEPRECATION)
-  if(USE_GENERIC_MATH)
-    if(UNIX)
-      set(SUNDIALS_MATH_LIBRARY "-lm" CACHE PATH "Which math library (e.g., libm) to link to" FORCE)
-    else()
-      set(SUNDIALS_MATH_LIBRARY "" CACHE PATH "Which math library (e.g., libm) to link to" FORCE)
-    endif()
-  else()
-    set(SUNDIALS_MATH_LIBRARY "" CACHE PATH "Which math library (e.g., libm) to link to" FORCE)
-  endif()
-  unset(USE_GENERIC_MATH CACHE)
-endif()

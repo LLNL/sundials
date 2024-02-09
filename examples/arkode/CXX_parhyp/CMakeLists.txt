@@ -58,7 +58,7 @@ foreach(example_tuple ${ARKODE_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE 
+    target_link_libraries(${example} PRIVATE
       MPI::MPI_CXX ${SUNDIALS_LIBS} SUNDIALS::HYPRE)
   endif()
 

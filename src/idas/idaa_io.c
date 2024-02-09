@@ -20,7 +20,7 @@
  * -----------------------------------------------------------------
  */
 
-/* 
+/*
  * =================================================================
  * IMPORTED HEADER FILES
  * =================================================================
@@ -32,7 +32,7 @@
 
 #include "idas_impl.h"
 
-/* 
+/*
  * =================================================================
  * IDAA PRIVATE CONSTANTS
  * =================================================================
@@ -40,7 +40,7 @@
 
 #define ONE SUN_RCONST(1.0)
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Optional input functions for ASA
  * -----------------------------------------------------------------
@@ -82,7 +82,7 @@ int IDAAdjSetNoSensi(void* ida_mem)
   return (IDA_SUCCESS);
 }
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Optional input functions for backward integration
  * -----------------------------------------------------------------
@@ -556,7 +556,7 @@ int IDASetQuadErrConB(void* ida_mem, int which, int errconQB)
   return IDASetQuadErrCon(ida_memB, errconQB);
 }
 
-/* 
+/*
  * -----------------------------------------------------------------
  * Optional output functions for backward integration
  * -----------------------------------------------------------------
@@ -565,9 +565,9 @@ int IDASetQuadErrConB(void* ida_mem, int which, int errconQB)
 /*
  * IDAGetAdjIDABmem
  *
- * This function returns a (void *) pointer to the IDAS     
- * memory allocated for the backward problem. This pointer can    
- * then be used to call any of the IDAGet* IDAS routines to  
+ * This function returns a (void *) pointer to the IDAS
+ * memory allocated for the backward problem. This pointer can
+ * then be used to call any of the IDAGet* IDAS routines to
  * extract optional output for the backward integration phase.
  */
 
@@ -738,9 +738,9 @@ int IDAGetConsistentICB(void* ida_mem, int which, N_Vector yyB0_mod,
  * -----------------------------------------------------------------
  * Returns the 2 vectors stored for cubic Hermite interpolation at
  * the data point 'which'. The user must allocate space for yy and
- * yd. 
+ * yd.
  *
- * Returns IDA_MEM_NULL if ida_mem is NULL, IDA_ILL_INPUT if the 
+ * Returns IDA_MEM_NULL if ida_mem is NULL, IDA_ILL_INPUT if the
  * interpolation type previously specified is not IDA_HERMITE or
  * IDA_SUCCESS otherwise.
  *
@@ -792,11 +792,11 @@ int IDAGetAdjDataPointHermite(void* ida_mem, int which, sunrealtype* t,
 
 /*
  * IDAGetAdjDataPointPolynomial
- * 
+ *
  * Returns the vector stored for polynomial interpolation at the
  * data point 'which'. The user must allocate space for y.
  *
- * Returns IDA_MEM_NULL if ida_mem is NULL, IDA_ILL_INPUT if the 
+ * Returns IDA_MEM_NULL if ida_mem is NULL, IDA_ILL_INPUT if the
  * interpolation type previously specified is not IDA_POLYNOMIAL or
  * IDA_SUCCESS otherwise.
  */
@@ -847,7 +847,7 @@ int IDAGetAdjDataPointPolynomial(void* ida_mem, int which, sunrealtype* t,
 
 /*
  * IDAGetAdjCurrentCheckPoint
- * 
+ *
  * Returns the address of the 'active' check point.
  */
 

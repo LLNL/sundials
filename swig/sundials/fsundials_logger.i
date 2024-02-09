@@ -14,25 +14,17 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fsundials_linearsolver_mod
-
-// Load the typedefs and generate a "use" statement in the module
-%import "../sundials/fsundials_context_mod.i"  
-%import "../sundials/fsundials_types_mod.i"  
-%import "../sundials/fsundials_nvector_mod.i"
-%import "../sundials/fsundials_matrix_mod.i"
-
-%include "../sundials/fcopyright.i"  
 
 // insert the include into the swig wrapper
 %{
-#include "sundials/sundials_iterative.h"
-#include "sundials/sundials_linearsolver.h"
+#include "sundials/sundials_logger.h"
+#if SUNDIALS_MPI_ENABLED
+#include <mpi.h>
+#endif
 %}
 
-%ignore SUNLS_MSG_RESIDUAL;
+%apply void* { SUNLogger };
+%apply void** { SUNLogger* };
 
 // Process and wrap functions in the following files
-%include "sundials/sundials_iterative.h"
-%include "sundials/sundials_linearsolver.h"
-
+%include "sundials/sundials_logger.h"

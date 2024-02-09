@@ -210,6 +210,27 @@ SUNDIALS CMake target. The library ``sundials_generic`` has been superseded by
 ``sundials_core`` and is no longer available. This fixes some duplicate symbol
 errors on Windows when linking to multiple SUNDIALS libraries.
 
+*Fortran Interface Modules Streamlined*
+
+We have streamlined the Fortran modules that need to be included by users by combining
+the SUNDIALS core into one Fortran module, ``fsundials_core_mod``. Modules for
+implementations of the core APIs still exist (e.g., for the Dense linear solver there
+is ``fsunlinsol_dense_mod``) as do the modules for the SUNDIALS packages (e.g., ``fcvode_mod``).
+The following modules are the ones that have been consolidated into ``fsundials_core_mod``:
+
+.. code-block::
+
+  fsundials_adaptcontroller_mod
+  fsundials_context_mod
+  fsundials_futils_mod
+  fsundials_linearsolver_mod
+  fsundials_logger_mod
+  fsundials_matrix_mod
+  fsundials_nonlinearsolver_mod
+  fsundials_nvector_mod
+  fsundials_profiler_mod
+  fsundials_types_mod
+
 **Deprecation notice**
 
 The functions in ``sundials_math.h`` will be deprecated in the next release.
@@ -231,6 +252,11 @@ corresponding :c:type:`SUNMatrix` and :c:type:`SUNLinearSolver` modules:
    sundials_direct.h
    sundials_dense.h
    sundials_band.h
+
+**Minor changes**
+
+Fixed `GitHub Issue #329 <https://github.com/LLNL/sundials/issues/329>`_ so
+that C++20 aggregate initialization can be used.
 
 Changes in v5.7.0
 -----------------

@@ -113,9 +113,6 @@ struct _generic_SUNNonlinearSolver_Ops
   SUNErrCode (*getnumiters)(SUNNonlinearSolver, long int*);
   SUNErrCode (*getcuriter)(SUNNonlinearSolver, int*);
   SUNErrCode (*getnumconvfails)(SUNNonlinearSolver, long int*);
-#ifdef __cplusplus
-  _generic_SUNNonlinearSolver_Ops() = default;
-#endif
 };
 
 /* A nonlinear solver is a structure with an implementation-dependent 'content'
@@ -126,9 +123,6 @@ struct _generic_SUNNonlinearSolver
   void* content;
   SUNNonlinearSolver_Ops ops;
   SUNContext sunctx;
-#ifdef __cplusplus
-  _generic_SUNNonlinearSolver() = default;
-#endif
 };
 
 /* -----------------------------------------------------------------------------

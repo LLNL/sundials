@@ -1156,7 +1156,7 @@ SWIGEXPORT double * _wrap_FN_VGetSubvectorArrayPointer_MPIManyVector(N_Vector fa
   N_Vector arg1 = (N_Vector) 0 ;
   sunindextype arg2 ;
   sunrealtype *result = 0 ;
-  
+
   arg1 = (N_Vector)(farg1);
   arg2 = (sunindextype)(*farg2);
   result = (sunrealtype *)N_VGetSubvectorArrayPointer_MPIManyVector(arg1,arg2);

@@ -22,8 +22,8 @@
 
 module test_fnvector
   use, intrinsic :: iso_c_binding
-  use fsundials_nvector_mod
-  use fsundials_types_mod
+
+
   use test_utilities
   implicit none
 

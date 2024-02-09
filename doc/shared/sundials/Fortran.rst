@@ -18,11 +18,13 @@ Fortran Interface
 SUNDIALS provides modern, Fortran 2003 based, interfaces as Fortran modules to
 most of the C API including:
 
+- The SUNDIALS core types, utilities, and data structures via the ``fsundials_core_mod`` module.
+
 - All of the time-stepping modules in ARKODE:
 
-  * The ``farkode_arkstep_mod``, ``farkode_erkstep_mod``, and
-    ``farkode_mristep_mod`` modules provide interfaces to the ARKStep, ERKStep,
-    and MRIStep integrators respectively.
+  * The ``farkode_arkstep_mod``, ``farkode_erkstep_mod``,
+    ``farkode_mristep_mod``, and ``farkode_sprkstep_mod`` modules provide interfaces
+    to the ARKStep, ERKStep, MRIStep, and SPRKStep integrators respectively.
 
   * The ``farkode_mod`` module interfaces to the components of ARKODE which are
     shared by the time-stepping modules.
@@ -50,16 +52,22 @@ most of the C API including:
    A complete list of class implementations with Fortran 2003 interface modules is given in
    :numref:`SUNDIALS.Fortran.Table`.
 
+
 An interface module can be accessed with the ``use`` statement, e.g.
 
 .. code-block:: fortran
 
-   use fcvode_mod
-   use fnvector_openmp_mod
+   use fsundials_core_mod   ! this is needed to access core SUNDIALS types, utilities, and data structures
+   use fcvode_mod           ! this is needed to access CVODE functions and types
+   use fnvector_openmp_mod  ! this is needed to access the OpenMP implementation of the N_Vector class
 
 and by linking to the Fortran 2003 library in addition to the C library, e.g.
+``libsundials_fcore_mod.<so|a>``, ``libsundials_core.<so|a>``,
 ``libsundials_fnvecpenmp_mod.<so|a>``, ``libsundials_nvecopenmp.<so|a>``,
 ``libsundials_fcvode_mod.<so|a>`` and ``libsundials_cvode.<so|a>``.
+The ``use`` statements mirror the ``#include`` statements needed when using the
+C API.
+
 
 The Fortran 2003 interfaces leverage the ``iso_c_binding`` module and the
 ``bind(C)`` attribute to closely follow the SUNDIALS C API (modulo language
@@ -104,16 +112,17 @@ team.
    =======================  ====================================
    **Class/Module**          **Fortran 2003 Module Name**
    =======================  ====================================
+   SUNDIALS core            ``fsundials_core_mode``
    ARKODE                   ``farkode_mod``
    ARKODE::ARKSTEP          ``farkode_arkstep_mod``
    ARKODE::ERKSTEP          ``farkode_erkstep_mod``
    ARKODE::MRISTEP          ``farkode_mristep_mod``
+   ARKODE::SPRKSTEP         ``farkode_sprkstep_mod``
    CVODE                    ``fcvode_mod``
    CVODES                   ``fcvodes_mod``
    IDA                      ``fida_mod``
    IDAS                     ``fidas_mod``
    KINSOL                   ``fkinsol_mod``
-   NVECTOR                  ``fsundials_nvector_mod``
    NVECTOR_SERIAL           ``fnvector_serial_mod``
    NVECTOR_OPENMP           ``fnvector_openmp_mod``
    NVECTOR_PTHREADS         ``fnvector_pthreads_mod``
@@ -126,13 +135,11 @@ team.
    NVECTOR_MANVECTOR        ``fnvector_manyvector_mod``
    NVECTOR_MPIMANVECTOR     ``fnvector_mpimanyvector_mod``
    NVECTOR_MPIPLUSX         ``fnvector_mpiplusx_mod``
-   SUNMATRIX                ``fsundials_matrix_mod``
    SUNMATRIX_BAND           ``fsunmatrix_band_mod``
    SUNMATRIX_DENSE          ``fsunmatrix_dense_mod``
    SUNMATRIX_MAGMADENSE     Not interfaced
    SUNMATRIX_ONEMKLDENSE    Not interfaced
    SUNMATRIX_SPARSE         ``fsunmatrix_sparse_mod``
-   SUNLINSOL                ``fsundials_linearsolver_mod``
    SUNLINSOL_BAND           ``fsunlinsol_band_mod``
    SUNLINSOL_DENSE          ``fsunlinsol_dense_mod``
    SUNLINSOL_LAPACKBAND     Not interfaced
@@ -147,7 +154,6 @@ team.
    SUNLINSOL_SPBCGS         ``fsunlinsol_spbcgs_mod``
    SUNLINSOL_SPTFQMR        ``fsunlinsol_sptfqmr_mod``
    SUNLINSOL_PCG            ``fsunlinsol_pcg_mof``
-   SUNNONLINSOL             ``fsundials_nonlinearsolver_mod``
    SUNNONLINSOL_NEWTON      ``fsunnonlinsol_newton_mod``
    SUNNONLINSOL_FIXEDPOINT  ``fsunnonlinsol_fixedpoint_mod``
    SUNNONLINSOL_PETSCSNES   Not interfaced
@@ -486,7 +492,7 @@ There are a few functions in the SUNDIALS C API which take a ``FILE*`` argument.
 Since there is no portable way to convert between a Fortran file descriptor and
 a C file pointer, SUNDIALS provides two utility functions for creating a
 ``FILE*`` and destroying it. These functions are defined in the module
-``fsundials_futils_mod``.
+``fsundials_core_mod``.
 
 .. c:function:: SUNErrCode SUNDIALSFileOpen(const char* filename, const char* mode, FILE** fp)
 
@@ -497,7 +503,7 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
       type ``character(kind=C_CHAR, len=*)``.  There are two special filenames:
       ``stdout`` and ``stderr`` -- these two filenames will result in output
       going to the standard output file and standard error file, respectively.
- 
+
    :param mode: the I/O mode to use for the file.  This should have the
       Fortran type ``character(kind=C_CHAR, len=*)``.  The string begins
       with one of the following characters:
@@ -525,17 +531,17 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
 
       ! Open up the file output.log for writing
       ierr = FSUNDIALSFileOpen("output.log", "w+", fp)
-     
+
       ! The C function ARKStepPrintMem takes void* arkode_mem and FILE* fp as arguments
       call FARKStepPrintMem(arkode_mem, fp)
-     
+
       ! Close the file
       ierr = FSUNDIALSFileClose(fp)
 
    .. versionchanged:: 7.0.0
-   
+
       The function signature was updated to return a `SUNErrCode` and take a `FILE**` as the last input parameter rather then return a `FILE*`.
- 
+
 .. c:function:: SUNErrCode SUNDIALSFileClose(FILE** fp)
 
    The function deallocates a C ``FILE*`` by calling the C function ``fclose``
@@ -548,9 +554,9 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
    :return: A :c:type:`SUNErrCode`
 
    .. versionchanged:: 7.0.0
-   
-      The function signature was updated to return a `SUNErrCode` and the `fp` parameter was changed from `FILE*` to `FILE**`.  
- 
+
+      The function signature was updated to return a `SUNErrCode` and the `fp` parameter was changed from `FILE*` to `FILE**`.
+
 
 
 .. _SUNDIALS.Fortran.Portability:

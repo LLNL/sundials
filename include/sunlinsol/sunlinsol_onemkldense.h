@@ -51,14 +51,12 @@ typedef struct _SUNLinearSolverContent_OneMklDense* SUNLinearSolverContent_OneMk
 SUNDIALS_EXPORT
 SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix A, SUNContext sunctx);
 
-SUNDIALS_STATIC_INLINE
-SUNLinearSolver_Type SUNLinSolGetType_OneMklDense(SUNLinearSolver S)
+static inline SUNLinearSolver_Type SUNLinSolGetType_OneMklDense(SUNLinearSolver S)
 {
   return SUNLINEARSOLVER_DIRECT;
 };
 
-SUNDIALS_STATIC_INLINE
-SUNLinearSolver_ID SUNLinSolGetID_OneMklDense(SUNLinearSolver S)
+static inline SUNLinearSolver_ID SUNLinSolGetID_OneMklDense(SUNLinearSolver S)
 {
   return SUNLINEARSOLVER_ONEMKLDENSE;
 };
