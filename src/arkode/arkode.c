@@ -2063,6 +2063,13 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     }
   }
 
+  /* Fill initial interpolation data (if needed) */
+  if (ark_mem->interp != NULL)
+  {
+    retval = arkInterpInit(ark_mem, ark_mem->interp, ark_mem->tcur);
+    if (retval != 0) { return (retval); }
+  }
+
   /* If fullrhs will be called (to estimate initial step, explicit steppers, Hermite
      interpolation module, and possibly (but not always) arkRootCheck1), then
      ensure that it is provided, and space is allocated for fn. */
@@ -2082,25 +2089,18 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
                       MSG_ARK_MEM_FAIL);
       return (ARK_MEM_FAIL);
     }
-  }
 
-  /*** DRR ToDo: update this block so that it only calls fullrhs when absolutely necessary ***/
-  /* If necessary, temporarily set h as it is used to compute the tolerance in a
-     potential mass matrix solve when computing the full rhs */
-  if (ark_mem->h == ZERO) ark_mem->h = ONE;
+    /*** DRR ToDo: update this block so that it only calls fullrhs when absolutely necessary ***/
+    /* If necessary, temporarily set h as it is used to compute the tolerance in a
+       potential mass matrix solve when computing the full rhs */
+    if (ark_mem->h == ZERO) ark_mem->h = ONE;
 
-  /* Call fullrhs (used in estimating initial step, explicit steppers, Hermite
-     interpolation module, and possibly (but not always) arkRootCheck1) */
-  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
-                                 ark_mem->fn, ARK_FULLRHS_START);
-  if (retval != 0) return(ARK_RHSFUNC_FAIL);
-  /*******/
+    /* Call fullrhs */
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
+                                   ark_mem->fn, ARK_FULLRHS_START);
+    if (retval != 0) return(ARK_RHSFUNC_FAIL);
+    /*******/
 
-  /* Fill initial interpolation data (if needed) */
-  if (ark_mem->interp != NULL)
-  {
-    retval = arkInterpInit(ark_mem, ark_mem->interp, ark_mem->tcur);
-    if (retval != 0) { return (retval); }
   }
 
   /* initialization complete */
@@ -2653,11 +2653,11 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
 #endif
 
   /* store this step's contribution to accumulated temporal error */
-  if (ark_mem->AccumErrorType == 0) 
+  if (ark_mem->AccumErrorType == 0)
   {
     ark_mem->AccumError = SUNMAX(dsm, ark_mem->AccumError);
-  } 
-  else if (ark_mem->AccumErrorType == 1) 
+  }
+  else if (ark_mem->AccumErrorType == 1)
   {
     ark_mem->AccumError += dsm;
   }
@@ -2677,7 +2677,7 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
   }
 
   /* call fullrhs if needed */
-  if (ark_mem->call_fullrhs) 
+  if (ark_mem->call_fullrhs)
   {
     mode = (ark_mem->ProcessStep != NULL) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->ycur,

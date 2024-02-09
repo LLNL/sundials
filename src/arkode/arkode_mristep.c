@@ -1091,8 +1091,8 @@ int mriStep_Init(void* arkode_mem, int init_type)
       step_mem->stagetypes = NULL;
       ark_mem->liw -= step_mem->stages;
     }
-    step_mem->stagetypes = (int*)calloc(step_mem->stages, sizeof(int));
-    ark_mem->liw += step_mem->stages;
+    step_mem->stagetypes = (int*)calloc(step_mem->stages+1, sizeof(int));
+    ark_mem->liw += (step_mem->stages+1);
     for (j = 0; j <= step_mem->stages; j++)
     {
       step_mem->stagetypes[j] = mriStepCoupling_GetStageType(step_mem->MRIC, j);
@@ -1400,9 +1400,9 @@ int mriStep_Init(void* arkode_mem, int init_type)
     if (step_mem->inner_hfactor < ZERO) { step_mem->inner_hfactor = ZERO; }
   }
 
-  /* Signal to shared arkode module that fullrhs is required after each step */
-  /* TO-DO: verify whether this is actually required */
-  ark_mem->call_fullrhs = SUNTRUE;
+  /* /\* Signal to shared arkode module that fullrhs is required after each step *\/ */
+  /* /\* TO-DO: verify whether this is actually required *\/ */
+  /* ark_mem->call_fullrhs = SUNTRUE; */
   return (ARK_SUCCESS);
 }
 
