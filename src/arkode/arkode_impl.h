@@ -383,7 +383,7 @@ struct ARKodeMemRec
   sunrealtype hold;  /* last successful h value used                */
   sunrealtype tolsf; /* tolerance scale factor (suggestion to user) */
   int AccumErrorType;       /* accumulated error estimation type:
-                               scalar-max (0), scalar-sum (1)              */
+                               none (-1), scalar-max (0), scalar-sum (1)   */
   long int AccumErrorStep;  /* time step of last accumulated error reset   */
   sunrealtype AccumError;   /* accumulated error estimate                  */
   sunbooleantype VabstolMallocDone;
@@ -909,7 +909,7 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
            N_Vector temp1, N_Vector temp2,
            ARKTimestepFullRHSFn rhs, sunrealtype* h);
 sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist,
-                            N_Vector y, N_Vector f, N_Vector temp1, 
+                            N_Vector y, N_Vector f, N_Vector temp1,
                             N_Vector temp2);
 int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype t,
                N_Vector y, N_Vector f, N_Vector ycur,

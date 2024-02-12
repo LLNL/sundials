@@ -1500,6 +1500,7 @@ int arkSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
   strategy:
      0 => scalar 'max' accumulation
      1 => scalar 'mean' accumulation
+    -1 => no accumulation
   ---------------------------------------------------------------*/
 int arkSetAccumulatedErrorType(void *arkode_mem, int accum_type)
 {
@@ -1512,12 +1513,8 @@ int arkSetAccumulatedErrorType(void *arkode_mem, int accum_type)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  /* Check for valid accumulation type */
-  if ((accum_type < 0) || (accum_type > 1)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "illegal accumulation type");
-    return (ARK_ILL_INPUT);
-  }
+  /* Check for valid accumulation type (set to none on illegal input) */
+  if ((accum_type < 0) || (accum_type > 1)) { accum_type = -1; }
 
   /* Store type, reset accumulated error value and counter, and return */
   ark_mem->AccumErrorType = accum_type;
@@ -1581,6 +1578,10 @@ int arkGetAccumulatedError(void *arkode_mem, sunrealtype *accum_error)
   else if (ark_mem->AccumErrorType == 1)
   {
     *accum_error = ark_mem->AccumError * ark_mem->reltol / steps;
+  }
+  else
+  {
+    *accum_error = ZERO;
   }
 
   return (ARK_SUCCESS);

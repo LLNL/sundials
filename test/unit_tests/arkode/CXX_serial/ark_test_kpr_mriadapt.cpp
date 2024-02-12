@@ -101,23 +101,19 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <sundials/sundials_core.hpp>
 #include <arkode/arkode_mristep.h>      // prototypes for MRIStep fcts., consts
 #include <arkode/arkode_arkstep.h>      // prototypes for ARKStep fcts., consts
 #include <nvector/nvector_serial.h>     // serial N_Vector type, fcts., macros
 #include <sunmatrix/sunmatrix_dense.h>  // dense matrix type, fcts., macros
 #include <sunlinsol/sunlinsol_dense.h>  // dense linear solver
-#include <sundials/sundials_math.h>     // def. math fcns, 'realtype'
-#include <suncontrol/suncontrol_i.h>    // SUNDIALS time step controllers
-#include <suncontrol/suncontrol_pi.h>
-#include <suncontrol/suncontrol_pid.h>
-#include <suncontrol/suncontrol_expgus.h>
-#include <suncontrol/suncontrol_impgus.h>
-#include <suncontrol/suncontrol_imexgus.h>
-#include <suncontrol/suncontrol_mricc.h>
-#include <suncontrol/suncontrol_mrill.h>
-#include <suncontrol/suncontrol_mripi.h>
-#include <suncontrol/suncontrol_mripid.h>
-#include <suncontrol/suncontrol_mrihtol.h>
+#include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
+#include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include <sunadaptcontroller/sunadaptcontroller_mricc.h>
+#include <sunadaptcontroller/sunadaptcontroller_mrill.h>
+#include <sunadaptcontroller/sunadaptcontroller_mripi.h>
+#include <sunadaptcontroller/sunadaptcontroller_mripid.h>
+#include <sunadaptcontroller/sunadaptcontroller_mrihtol.h>
 #include <test_utilities.hpp>           // common utility functions
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -128,25 +124,25 @@
 #define FSYM "f"
 #endif
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 // Problem options
 struct Options
 {
 
   // Problem parameters
-  sunrealtype e = RCONST(0.5);
-  sunrealtype G = RCONST(-100.0);
-  sunrealtype w = RCONST(100.0);
+  sunrealtype e = SUN_RCONST(0.5);
+  sunrealtype G = SUN_RCONST(-100.0);
+  sunrealtype w = SUN_RCONST(100.0);
 
   // Step sizes and tolerances
   int set_h0       = 0;
-  sunrealtype hs   = RCONST(1.0e-2);
-  sunrealtype hf   = RCONST(1.0e-4);
-  sunrealtype rtol = RCONST(1.0e-4);
-  sunrealtype atol = RCONST(1.0e-11);
+  sunrealtype hs   = SUN_RCONST(1.0e-2);
+  sunrealtype hf   = SUN_RCONST(1.0e-4);
+  sunrealtype rtol = SUN_RCONST(1.0e-4);
+  sunrealtype atol = SUN_RCONST(1.0e-11);
 
   // Method selection
   int mri_type = 3;
@@ -159,19 +155,19 @@ struct Options
 };
 
 // User-supplied functions called by the solver
-static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jf(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int Jf(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Utility functions
@@ -181,17 +177,17 @@ static void PrintSlowAdaptivity(Options opts);
 static void PrintFastAdaptivity(Options opts);
 
 // Private function to check function return values
-static realtype r(realtype t, Options* opts);
-static realtype s(realtype t, Options* opts);
-static realtype rdot(realtype t, Options* opts);
-static realtype sdot(realtype t, Options* opts);
-static realtype utrue(realtype t, Options* opts);
-static realtype vtrue(realtype t, Options* opts);
-static int Ytrue(realtype t, N_Vector y, Options* opts);
+static sunrealtype r(sunrealtype t, Options* opts);
+static sunrealtype s(sunrealtype t, Options* opts);
+static sunrealtype rdot(sunrealtype t, Options* opts);
+static sunrealtype sdot(sunrealtype t, Options* opts);
+static sunrealtype utrue(sunrealtype t, Options* opts);
+static sunrealtype vtrue(sunrealtype t, Options* opts);
+static int Ytrue(sunrealtype t, N_Vector y, Options* opts);
 
 
 // Main Program
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   // SUNDIALS context object for this simulation
   sundials::Context sunctx;
@@ -203,9 +199,9 @@ int main(int argc, char *argv[])
   if (check_flag(flag, "ReadInputs")) return 1;
 
   // General problem parameters
-  realtype T0 = RCONST(0.0);     // initial time
-  realtype Tf = RCONST(5.0);     // final time
-  realtype dTout = RCONST(0.5);  // time between outputs
+  sunrealtype T0 = SUN_RCONST(0.0);     // initial time
+  sunrealtype Tf = SUN_RCONST(5.0);     // final time
+  sunrealtype dTout = SUN_RCONST(0.5);  // time between outputs
   sunindextype NEQ = 2;          // number of dependent vars.
   int Nt = (int) ceil(Tf/dTout); // number of output times
 
@@ -364,64 +360,52 @@ int main(int argc, char *argv[])
   // Create and initialize serial vector for the solution
   N_Vector y = NULL;
   y = N_VNew_Serial(NEQ, sunctx);
-  if (check_ptr((void *)y, "N_VNew_Serial")) return 1;
+  if (check_ptr((void*)y, "N_VNew_Serial")) return 1;
   retval = Ytrue(T0, y, &opts);
   if (check_flag(retval, "Ytrue")) return 1;
 
   // Create and configure fast controller object
-  SUNControl fcontrol = NULL;
+  SUNAdaptController fcontrol = NULL;
   switch (opts.fcontrol) {
   case(1):
-    fcontrol = SUNControlI(sunctx);
-    if (check_ptr((void *)fcontrol, "SUNControlI")) return 1;
-    retval = SUNControlI_SetParams(fcontrol, opts.fast_pq, -1.0);
-    if (check_flag(retval, "SUNControlI_SetParams")) return 1;
+    fcontrol = SUNAdaptController_I(sunctx);
+    if (check_ptr((void*)fcontrol, "SUNAdaptController_I")) return 1;
     break;
   case(2):
-    fcontrol = SUNControlPI(sunctx);
-    if (check_ptr((void *)fcontrol, "SUNControlPI")) return 1;
-    retval = SUNControlPI_SetParams(fcontrol, opts.fast_pq, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlPI_SetParams")) return 1;
+    fcontrol = SUNAdaptController_PI(sunctx);
+    if (check_ptr((void*)fcontrol, "SUNAdaptController_PI")) return 1;
     break;
   case(3):
-    fcontrol = SUNControlPID(sunctx);
-    if (check_ptr((void *)fcontrol, "SUNControlPID")) return 1;
-    retval = SUNControlPID_SetParams(fcontrol, opts.fast_pq, -1.0, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlPID_SetParams")) return 1;
+    fcontrol = SUNAdaptController_PID(sunctx);
+    if (check_ptr((void*)fcontrol, "SUNAdaptController_PID")) return 1;
     break;
   case(4):
-    fcontrol = SUNControlExpGus(sunctx);
-    if (check_ptr((void *)fcontrol, "SUNControlExpGus")) return 1;
-    retval = SUNControlExpGus_SetParams(fcontrol, opts.fast_pq, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlExpGus_SetParams")) return 1;
+    fcontrol = SUNAdaptController_ExpGus(sunctx);
+    if (check_ptr((void*)fcontrol, "SUNAdaptController_ExpGus")) return 1;
     break;
   case(5):
-    fcontrol = SUNControlImpGus(sunctx);
-    if (check_ptr((void *)fcontrol, "SUNControlImpGus")) return 1;
-    retval = SUNControlImpGus_SetParams(fcontrol, opts.fast_pq, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlImpGus_SetParams")) return 1;
+    fcontrol = SUNAdaptController_ImpGus(sunctx);
+    if (check_ptr((void*)fcontrol, "SUNAdaptController_ImpGus")) return 1;
     break;
   case(6):
-    fcontrol = SUNControlImExGus(sunctx);
-    if (check_ptr((void *)fcontrol, "SUNControlImExGus")) return 1;
-    retval = SUNControlImExGus_SetParams(fcontrol, opts.fast_pq, -1.0, -1.0, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlImExGus_SetParams")) return 1;
+    fcontrol = SUNAdaptController_ImExGus(sunctx);
+    if (check_ptr((void*)fcontrol, "SUNAdaptController_ImExGus")) return 1;
     break;
   }
 
   // Create ARKStep (fast) integrator, storing desired adaptivity order in p
-  void *inner_arkode_mem = NULL;            // ARKode memory structure
+  void* inner_arkode_mem = NULL;            // ARKode memory structure
   inner_arkode_mem = ARKStepCreate(f_fe, f_fi, T0, y, sunctx);
-  if (check_ptr((void *) inner_arkode_mem, "ARKStepCreate")) return 1;
+  if (check_ptr((void*) inner_arkode_mem, "ARKStepCreate")) return 1;
   retval = ARKStepSetOrder(inner_arkode_mem, p);
   if (check_flag(retval, "ARKStepSetOrder")) return 1;
   SUNMatrix Af = NULL;                      // matrix for fast solver
   SUNLinearSolver LSf = NULL;               // fast linear solver object
   if (fastimplicit) {
     Af = SUNDenseMatrix(NEQ, NEQ, sunctx);
-    if (check_ptr((void *)Af, "SUNDenseMatrix")) return 1;
+    if (check_ptr((void*)Af, "SUNDenseMatrix")) return 1;
     LSf = SUNLinSol_Dense(y, Af, sunctx);
-    if (check_ptr((void *)LSf, "SUNLinSol_Dense")) return 1;
+    if (check_ptr((void*)LSf, "SUNLinSol_Dense")) return 1;
     retval = ARKStepSetLinearSolver(inner_arkode_mem, LSf, Af);
     if (check_flag(retval, "ARKStepSetLinearSolver")) return 1;
     retval = ARKStepSetJacFn(inner_arkode_mem, J_f);
@@ -430,11 +414,16 @@ int main(int argc, char *argv[])
   retval = ARKStepSStolerances(inner_arkode_mem, opts.rtol, opts.atol);
   if (check_flag(retval, "ARKStepSStolerances")) return 1;
   if (opts.fcontrol != 0) {
-    retval = ARKStepSetController(inner_arkode_mem, fcontrol);
-    if (check_flag(retval, "ARKStepSetController")) return 1;
+    retval = ARKStepSetAdaptController(inner_arkode_mem, fcontrol);
+    if (check_flag(retval, "ARKStepSetAdaptController")) return 1;
     if (opts.set_h0 != 0) {
       retval = ARKStepSetInitStep(inner_arkode_mem, opts.hf);
       if (check_flag(retval, "ARKStepSetInitStep")) return 1;
+    }
+    if (opts.fast_pq == 1)
+    {
+      retval = ARKStepSetAdaptivityAdjustment(inner_arkode_mem, 0);
+      if (check_flag(retval, "ARKStepSetAdaptivityAdjustment")) return 1;
     }
   } else {
     retval = ARKStepSetFixedStep(inner_arkode_mem, opts.hf);
@@ -442,7 +431,7 @@ int main(int argc, char *argv[])
   }
   retval = ARKStepSetMaxNumSteps(inner_arkode_mem, 10000);
   if (check_flag(retval, "ARKStepSetMaxNumSteps")) return 1;
-  retval = ARKStepSetUserData(inner_arkode_mem, (void *) &opts);
+  retval = ARKStepSetUserData(inner_arkode_mem, (void*) &opts);
   if (check_flag(retval, "ARKStepSetUserData")) return 1;
 
   // Create inner stepper
@@ -452,127 +441,103 @@ int main(int argc, char *argv[])
   if (check_flag(retval, "ARKStepCreateMRIStepInnerStepper")) return 1;
 
   // Create slow controller object, and select orders of accuracy as relevant
-  SUNControl scontrol = NULL;
-  SUNControl scontrol_inner = NULL;
+  SUNAdaptController scontrol = NULL;
+  SUNAdaptController scontrol_inner = NULL;
   switch (opts.scontrol) {
   case(1):
-    scontrol = SUNControlMRICC(sunctx, P, p);
-    if (check_ptr((void *)scontrol, "SUNControlMRICC")) return 1;
+    scontrol = SUNAdaptController_MRICC(sunctx, p);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRICC")) return 1;
     break;
   case(2):
-    scontrol = SUNControlMRILL(sunctx, P, p);
-    if (check_ptr((void *)scontrol, "SUNControlLL")) return 1;
+    scontrol = SUNAdaptController_MRILL(sunctx, p);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRILL")) return 1;
     break;
   case(3):
-    scontrol = SUNControlMRIPI(sunctx, P, p);
-    if (check_ptr((void *)scontrol, "SUNControlPI")) return 1;
+    scontrol = SUNAdaptController_MRIPI(sunctx, p);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIPI")) return 1;
     break;
   case(4):
-    scontrol = SUNControlMRIPID(sunctx, P, p);
-    if (check_ptr((void *)scontrol, "SUNControlPID")) return 1;
+    scontrol = SUNAdaptController_MRIPID(sunctx, p);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIPID")) return 1;
     break;
   case(5):
-    scontrol_inner = SUNControlI(sunctx);
-    if (check_ptr((void *)scontrol_inner, "SUNControlI (slow)")) return 1;
-    retval = SUNControlI_SetParams(scontrol_inner, opts.slow_pq, -1.0);
-    if (check_flag(retval, "SUNControlI_SetParams")) return 1;
-    scontrol = SUNControlMRIHTol(sunctx, scontrol_inner, fcontrol);
-    if (check_ptr((void *)scontrol, "SUNControlMRIHTol")) return 1;
+    scontrol_inner = SUNAdaptController_I(sunctx);
+    if (check_ptr((void*)scontrol_inner, "SUNAdaptController_I (slow)")) return 1;
+    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_inner, fcontrol);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     break;
   case(6):
-    scontrol = SUNControlI(sunctx);
-    if (check_ptr((void *)scontrol, "SUNControlI (slow)")) return 1;
-    retval = SUNControlI_SetParams(scontrol, opts.slow_pq, -1.0);
-    if (check_flag(retval, "SUNControlI_SetParams")) return 1;
+    scontrol = SUNAdaptController_I(sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptControllerI (slow)")) return 1;
     break;
   case(7):
-    scontrol_inner = SUNControlPI(sunctx);
-    if (check_ptr((void *)scontrol_inner, "SUNControlPI (slow)")) return 1;
-    retval = SUNControlPI_SetParams(scontrol_inner, opts.slow_pq, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlPI_SetParams")) return 1;
-    scontrol = SUNControlMRIHTol(sunctx, scontrol_inner, fcontrol);
-    if (check_ptr((void *)scontrol, "SUNControlMRIHTol")) return 1;
+    scontrol_inner = SUNAdaptController_PI(sunctx);
+    if (check_ptr((void*)scontrol_inner, "SUNAdaptController_PI (slow)")) return 1;
+    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_inner, fcontrol);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     break;
   case(8):
-    scontrol = SUNControlPI(sunctx);
-    if (check_ptr((void *)scontrol, "SUNControlPI (slow)")) return 1;
-    retval = SUNControlPI_SetParams(scontrol, opts.slow_pq, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlPI_SetParams")) return 1;
+    scontrol = SUNAdaptController_PI(sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_PI (slow)")) return 1;
     break;
   case(9):
-    scontrol_inner = SUNControlPID(sunctx);
-    if (check_ptr((void *)scontrol_inner, "SUNControlPID (slow)")) return 1;
-    retval = SUNControlPID_SetParams(scontrol_inner, opts.slow_pq, -1.0, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlPID_SetParams")) return 1;
-    scontrol = SUNControlMRIHTol(sunctx, scontrol_inner, fcontrol);
-    if (check_ptr((void *)scontrol, "SUNControlMRIHTol")) return 1;
+    scontrol_inner = SUNAdaptController_PID(sunctx);
+    if (check_ptr((void*)scontrol_inner, "SUNAdaptController_PID (slow)")) return 1;
+    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_inner, fcontrol);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     break;
   case(10):
-    scontrol = SUNControlPID(sunctx);
-    if (check_ptr((void *)scontrol, "SUNControlPID (slow)")) return 1;
-    retval = SUNControlPID_SetParams(scontrol, opts.slow_pq, -1.0, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlPID_SetParams")) return 1;
+    scontrol = SUNAdaptController_PID(sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_PID (slow)")) return 1;
     break;
   case(11):
-    scontrol_inner = SUNControlExpGus(sunctx);
-    if (check_ptr((void *)scontrol_inner, "SUNControlExpGus (slow)")) return 1;
-    retval = SUNControlExpGus_SetParams(scontrol_inner, opts.slow_pq, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlExpGus_SetParams")) return 1;
-    scontrol = SUNControlMRIHTol(sunctx, scontrol_inner, fcontrol);
-    if (check_ptr((void *)scontrol, "SUNControlMRIHTol")) return 1;
+    scontrol_inner = SUNAdaptController_ExpGus(sunctx);
+    if (check_ptr((void*)scontrol_inner, "SUNAdaptController_ExpGus (slow)")) return 1;
+    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_inner, fcontrol);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     break;
   case(12):
-    scontrol = SUNControlExpGus(sunctx);
-    if (check_ptr((void *)scontrol, "SUNControlExpGus (slow)")) return 1;
-    retval = SUNControlExpGus_SetParams(scontrol, opts.slow_pq, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlExpGus_SetParams")) return 1;
+    scontrol = SUNAdaptController_ExpGus(sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_ExpGus (slow)")) return 1;
     break;
   case(13):
-    scontrol_inner = SUNControlImpGus(sunctx);
-    if (check_ptr((void *)scontrol_inner, "SUNControlImpGus (slow)")) return 1;
-    retval = SUNControlImpGus_SetParams(scontrol_inner, opts.slow_pq, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlImpGus_SetParams")) return 1;
-    scontrol = SUNControlMRIHTol(sunctx, scontrol_inner, fcontrol);
-    if (check_ptr((void *)scontrol, "SUNControlMRIHTol")) return 1;
+    scontrol_inner = SUNAdaptController_ImpGus(sunctx);
+    if (check_ptr((void*)scontrol_inner, "SUNAdaptController_ImpGus (slow)")) return 1;
+    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_inner, fcontrol);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     break;
   case(14):
-    scontrol = SUNControlImpGus(sunctx);
-    if (check_ptr((void *)scontrol, "SUNControlImpGus (slow)")) return 1;
-    retval = SUNControlImpGus_SetParams(scontrol, opts.slow_pq, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlImpGus_SetParams")) return 1;
+    scontrol = SUNAdaptController_ImpGus(sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_ImpGus (slow)")) return 1;
     break;
   case(15):
-    scontrol_inner = SUNControlImExGus(sunctx);
-    if (check_ptr((void *)scontrol_inner, "SUNControlImExGus (slow)")) return 1;
-    retval = SUNControlImExGus_SetParams(scontrol_inner, opts.slow_pq, -1.0, -1.0, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlImExGus_SetParams")) return 1;
-    scontrol = SUNControlMRIHTol(sunctx, scontrol_inner, fcontrol);
-    if (check_ptr((void *)scontrol, "SUNControlMRIHTol")) return 1;
+    scontrol_inner = SUNAdaptController_ImExGus(sunctx);
+    if (check_ptr((void*)scontrol_inner, "SUNAdaptController_ImExGus (slow)")) return 1;
+    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_inner, fcontrol);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     break;
   case(16):
-    scontrol = SUNControlImExGus(sunctx);
-    if (check_ptr((void *)scontrol, "SUNControlImExGus (slow)")) return 1;
-    retval = SUNControlImExGus_SetParams(scontrol, opts.slow_pq, -1.0, -1.0, -1.0, -1.0);
-    if (check_flag(retval, "SUNControlImExGus_SetParams")) return 1;
+    scontrol = SUNAdaptController_ImExGus(sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_ImExGus (slow)")) return 1;
     break;
   }
 
   // Create MRI (slow) integrator, storing desired adaptivity order in P
-  void *arkode_mem = NULL;                  // ARKode memory structure
+  void* arkode_mem = NULL;                  // ARKode memory structure
   arkode_mem = MRIStepCreate(f_se, f_si, T0, y, inner_stepper, sunctx);
-  if (check_ptr((void *)arkode_mem, "MRIStepCreate")) return 1;
+  if (check_ptr((void*) arkode_mem, "MRIStepCreate")) return 1;
   MRIStepCoupling C = NULL;                 // slow coupling coefficients
   C = MRIStepCoupling_LoadTable(mri_table);
-  if (check_ptr((void *)C, "MRIStepCoupling_LoadTable")) return 1;
+  if (check_ptr((void*) C, "MRIStepCoupling_LoadTable")) return 1;
   retval = MRIStepSetCoupling(arkode_mem, C);
   if (check_flag(retval, "MRIStepSetCoupling")) return 1;
   SUNMatrix As = NULL;                      // matrix for slow solver
   SUNLinearSolver LSs = NULL;               // slow linear solver object
   if (slowimplicit) {
     As = SUNDenseMatrix(NEQ, NEQ, sunctx);
-    if (check_ptr((void *)As, "SUNDenseMatrix")) return 1;
+    if (check_ptr((void*) As, "SUNDenseMatrix")) return 1;
     LSs = SUNLinSol_Dense(y, As, sunctx);
-    if (check_ptr((void *)LSs, "SUNLinSol_Dense")) return 1;
+    if (check_ptr((void*) LSs, "SUNLinSol_Dense")) return 1;
     retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
     if (check_flag(retval, "MRIStepSetLinearSolver")) return 1;
     retval = MRIStepSetJacFn(arkode_mem, J_s);
@@ -582,14 +547,19 @@ int main(int argc, char *argv[])
   if (check_flag(retval, "MRIStepSStolerances")) return 1;
   retval = MRIStepSetMaxNumSteps(arkode_mem, 10000);
   if (check_flag(retval, "MRIStepSetMaxNumSteps")) return 1;
-  retval = MRIStepSetUserData(arkode_mem, (void *) &opts);
+  retval = MRIStepSetUserData(arkode_mem, (void*) &opts);
   if (check_flag(retval, "MRIStepSetUserData")) return 1;
   if (opts.scontrol != 0) {
-    retval = MRIStepSetController(arkode_mem, scontrol);
+    retval = MRIStepSetAdaptController(arkode_mem, scontrol);
     if (check_flag(retval, "MRIStepSetController")) return 1;
     if (opts.set_h0 != 0) {
       retval = MRIStepSetInitStep(arkode_mem, opts.hs);
       if (check_flag(retval, "MRIStepSetInitStep")) return 1;
+    }
+    if (opts.slow_pq == 1)
+    {
+      retval = ARKStepSetAdaptivityAdjustment(arkode_mem, 0);
+      if (check_flag(retval, "ARKStepSetAdaptivityAdjustment")) return 1;
     }
   } else {
     retval = MRIStepSetFixedStep(arkode_mem, opts.hs);
@@ -601,7 +571,7 @@ int main(int argc, char *argv[])
   //
 
   // Open output stream for results, output comment line
-  FILE *UFID = NULL;
+  FILE* UFID = NULL;
   UFID = fopen("ark_kpr_mri_solution.txt","w");
   fprintf(UFID, "# t u v uerr verr\n");
 
@@ -614,8 +584,8 @@ int main(int argc, char *argv[])
   // Main time-stepping loop: calls MRIStepEvolve to perform the
   // integration, then prints results. Stops when the final time
   // has been reached
-  realtype t, tout;
-  realtype uerr, verr, uerrtot, verrtot, errtot;
+  sunrealtype t, tout;
+  sunrealtype uerr, verr, uerrtot, verrtot, errtot;
   t = T0;
   tout = T0+dTout;
   uerr = ZERO;
@@ -728,13 +698,13 @@ int main(int argc, char *argv[])
     SUNLinSolFree(LSs);                      // free slow linear solver
   }
   // if (opts.scontrol != 0) {
-  //   SUNControlDestroy(scontrol);             // free slow controller(s)
+  //   SUNAdaptControllerDestroy(scontrol);             // free slow controller(s)
   //   if (opts.scontrol > 4) {
-  //     SUNControlDestroy(scontrol_inner);
+  //     SUNAdaptControllerDestroy(scontrol_inner);
   //   }
   // }
   // if (opts.fcontrol != 0) {
-  //   SUNControlDestroy(fcontrol);             // free slow controller
+  //   SUNAdaptControllerDestroy(fcontrol);             // free slow controller
   // }
   ARKStepFree(&inner_arkode_mem);            // Free fast integrator memory
   MRIStepInnerStepper_Free(&inner_stepper);  // Free inner stepper
@@ -748,12 +718,12 @@ int main(int argc, char *argv[])
 // -----------------------------
 
 // ff routine to compute the fast portion of the ODE RHS.
-static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts = (Options*) user_data;
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype tmp1, tmp2;
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [0  0]*[(-1+u^2-r(t))/(2*u)] + [         0          ]
@@ -768,12 +738,12 @@ static int ff(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // fs routine to compute the slow portion of the ODE RHS.
-static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts = (Options*) user_data;
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype tmp1, tmp2;
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [G e]*[(-1+u^2-r(t))/(2*u))] + [rdot(t)/(2*u)]
@@ -788,10 +758,10 @@ static int fs(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // fse routine to compute the slow portion of the ODE RHS.
-static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts = (Options*) user_data;
-  const realtype u = NV_Ith_S(y,0);
+  const sunrealtype u = NV_Ith_S(y,0);
 
   // fill in the slow explicit RHS function:
   //   [rdot(t)/(2*u)]
@@ -804,12 +774,12 @@ static int fse(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 // fsi routine to compute the slow portion of the ODE RHS.(currently same as fse)
-static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts = (Options*) user_data;
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype tmp1, tmp2;
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype tmp1, tmp2;
 
   // fill in the slow implicit RHS function:
   //   [G e]*[(-1+u^2-r(t))/(2*u))]
@@ -823,12 +793,12 @@ static int fsi(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return 0;
 }
 
-static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts = (Options*) user_data;
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype tmp1, tmp2;
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [G e]*[(-1+u^2-r(t))/(2*u))] + [rdot(t)/(2*u)]
@@ -842,18 +812,18 @@ static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return 0;
 }
 
-static int f0(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   N_VConst(ZERO, ydot);
   return(0);
 }
 
-static int Jf(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jf(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   Options* opts = (Options*) user_data;
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
 
   // fill in the Jacobian:
   //   [         0                            0         ]
@@ -867,12 +837,12 @@ static int Jf(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
   return 0;
 }
 
-static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   Options* opts = (Options*) user_data;
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
 
   // fill in the Jacobian:
   //   [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
@@ -886,12 +856,12 @@ static int Js(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
   return 0;
 }
 
-static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   Options* opts = (Options*) user_data;
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
 
   // fill in the Jacobian:
   //   [G/2 + (G*(1+r(t)))/(2*u^2)   e/2 + e*(2+s(t))/(2*v^2)]
@@ -905,12 +875,12 @@ static int Jsi(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data
   return 0;
 }
 
-static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options *opts = (Options *) user_data;
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
+  Options* opts = (Options*) user_data;
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
 
   // fill in the Jacobian:
   //   [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)     e/2 + e*(2+s(t))/(2*v^2)]
@@ -929,31 +899,31 @@ static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
 // Private helper functions
 // -----------------------------
 
-static realtype r(realtype t, Options* opts)
+static sunrealtype r(sunrealtype t, Options* opts)
 {
-  return( RCONST(0.5)*cos(t) );
+  return( SUN_RCONST(0.5)*cos(t) );
 }
-static realtype s(realtype t, Options* opts)
+static sunrealtype s(sunrealtype t, Options* opts)
 {
   return( cos(opts->w * t) );
 }
-static realtype rdot(realtype t, Options* opts)
+static sunrealtype rdot(sunrealtype t, Options* opts)
 {
-  return( -RCONST(0.5)*sin(t) );
+  return( -SUN_RCONST(0.5)*sin(t) );
 }
-static realtype sdot(realtype t, Options* opts)
+static sunrealtype sdot(sunrealtype t, Options* opts)
 {
   return( -opts->w * sin(opts->w * t) );
 }
-static realtype utrue(realtype t, Options* opts)
+static sunrealtype utrue(sunrealtype t, Options* opts)
 {
   return( SUNRsqrt(ONE+r(t,opts)) );
 }
-static realtype vtrue(realtype t, Options* opts)
+static sunrealtype vtrue(sunrealtype t, Options* opts)
 {
   return( SUNRsqrt(TWO+s(t,opts)) );
 }
-static int Ytrue(realtype t, N_Vector y, Options* opts)
+static int Ytrue(sunrealtype t, N_Vector y, Options* opts)
 {
   NV_Ith_S(y,0) = utrue(t,opts);
   NV_Ith_S(y,1) = vtrue(t,opts);

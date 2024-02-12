@@ -60,12 +60,12 @@
 #include <string.h>
 #include <cmath>
 #include <vector>
+#include <sundials/sundials_core.hpp>
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_erkstep.h>
 #include <nvector/nvector_serial.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunlinsol/sunlinsol_dense.h>
-#include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -78,49 +78,49 @@
 #define FSYM "f"
 #endif
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
-#define TWO  RCONST(2.0)
-#define PI4  RCONST(0.78539816339744830961566084581987572)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
+#define PI4  SUN_RCONST(0.78539816339744830961566084581987572)
 
 using namespace std;
 
 // User data structure
 struct UserData
 {
-  realtype G;
-  realtype e;
+  sunrealtype G;
+  sunrealtype e;
 };
 
 // User-supplied functions called by the solver
-static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
+static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
+static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Private utility functions
-static int adaptive_run(void *arkode_mem, N_Vector y, realtype T0,
-                        realtype Tf, int rk_type, UserData &udata);
-static int fixed_run(void *arkode_mem, N_Vector y, realtype T0, realtype Tf,
+static int adaptive_run(void *arkode_mem, N_Vector y, sunrealtype T0,
+                        sunrealtype Tf, int rk_type, UserData &udata);
+static int fixed_run(void *arkode_mem, N_Vector y, sunrealtype T0, sunrealtype Tf,
                      int rk_type, UserData &udata);
-static realtype r(realtype t);
-static realtype s(realtype t);
-static realtype rdot(realtype t);
-static realtype sdot(realtype t);
-static realtype utrue(realtype t);
-static realtype vtrue(realtype t);
-static int Ytrue(realtype t, N_Vector y);
+static sunrealtype r(sunrealtype t);
+static sunrealtype s(sunrealtype t);
+static sunrealtype rdot(sunrealtype t);
+static sunrealtype sdot(sunrealtype t);
+static sunrealtype utrue(sunrealtype t);
+static sunrealtype vtrue(sunrealtype t);
+static int Ytrue(sunrealtype t, N_Vector y);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 // Main Program
 int main(int argc, char *argv[])
 {
   // general problem parameters
-  realtype T0 = RCONST(-3.0);       // initial time
-  realtype Tf = RCONST(7.0);        // final time
+  sunrealtype T0 = SUN_RCONST(-3.0);       // initial time
+  sunrealtype Tf = SUN_RCONST(7.0);        // final time
   sunindextype NEQ = 2;             // number of dependent vars.
   int rk_type = 0;                  // type of RK method [DIRK=0, ERK=1]
   int order = 4;                    // order of accuracy for RK method
-  booleantype adaptive = SUNTRUE;   // adaptive run vs convergence order
+  sunbooleantype adaptive = SUNTRUE;   // adaptive run vs convergence order
 
   // general problem variables
   int retval;                    // reusable error-checking flag
@@ -129,8 +129,8 @@ int main(int argc, char *argv[])
   SUNMatrix A = NULL;            // empty system matrix
   SUNLinearSolver LS = NULL;     // empty system linear solver object
   UserData udata;                // user-data structure
-  udata.G = RCONST(-100.0);      // stiffness parameter
-  udata.e = RCONST(0.5);         // coupling strength
+  udata.G = SUN_RCONST(-100.0);      // stiffness parameter
+  udata.e = SUN_RCONST(0.5);         // coupling strength
 
   //
   // Initialization
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
   // Retrieve the command-line options:  method ord G
   if (argc > 1)  rk_type = (int) atoi(argv[1]);
   if (argc > 2)  order = (int) atoi(argv[2]);
-  if (argc > 3)  udata.G = (realtype) atof(argv[3]);
+  if (argc > 3)  udata.G = (sunrealtype) atof(argv[3]);
 
   // Check arguments for validity
   //   0 <= rk_type <= 1
@@ -252,12 +252,12 @@ int main(int argc, char *argv[])
 // Functions called by the solver
 //------------------------------
 
-static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   UserData *udata = (UserData *) user_data;
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype tmp1, tmp2;
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [G  e]*[(-1+u^2-r(t))/(2*u)] + [rdot(t)/(2u)]
@@ -271,13 +271,13 @@ static int fn(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   return 0;
 }
 
-static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData *udata = (UserData *) user_data;
-  const realtype u = NV_Ith_S(y,0);
-  const realtype v = NV_Ith_S(y,1);
-  realtype t11, t12, t21, t22;
+  const sunrealtype u = NV_Ith_S(y,0);
+  const sunrealtype v = NV_Ith_S(y,1);
+  sunrealtype t11, t12, t21, t22;
 
   // fill in the Jacobian:
   //   [G  e]*[1-(u^2-r(t)-1)/(2*u^2),  0] + [-r'(t)/(2*u^2),  0]
@@ -301,18 +301,18 @@ static int Jn(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 // Private helper functions
 //------------------------------
 
-static int adaptive_run(void *arkode_mem, N_Vector y, realtype T0,
-                        realtype Tf, int rk_type, UserData &udata)
+static int adaptive_run(void *arkode_mem, N_Vector y, sunrealtype T0,
+                        sunrealtype Tf, int rk_type, UserData &udata)
 {
   // Reused variables
   int retval;
   long int nsteps;
-  realtype dsm_est;
-  realtype t = T0;
+  sunrealtype dsm_est;
+  sunrealtype t = T0;
 
   // Set testing tolerances
-  realtype abstol = RCONST(1.e-12);
-  vector<realtype> rtols = {RCONST(1.e-2), RCONST(1.e-4), RCONST(1.e-6)};
+  sunrealtype abstol = SUN_RCONST(1.e-12);
+  vector<sunrealtype> rtols = {SUN_RCONST(1.e-2), SUN_RCONST(1.e-4), SUN_RCONST(1.e-6)};
   vector<int> accum_types = {0, 1};
 
   // Loop over tolerances
@@ -369,9 +369,9 @@ static int adaptive_run(void *arkode_mem, N_Vector y, realtype T0,
       }
 
       // Compute/print solution error
-      realtype udsm = abs(NV_Ith_S(y,0)-utrue(t))/(abstol + rtols[irtol]*abs(utrue(t)));
-      realtype vdsm = abs(NV_Ith_S(y,1)-vtrue(t))/(abstol + rtols[irtol]*abs(vtrue(t)));
-      realtype dsm = rtols[irtol]*sqrt(0.5*(udsm*udsm + vdsm*vdsm));
+      sunrealtype udsm = abs(NV_Ith_S(y,0)-utrue(t))/(abstol + rtols[irtol]*abs(utrue(t)));
+      sunrealtype vdsm = abs(NV_Ith_S(y,1)-vtrue(t))/(abstol + rtols[irtol]*abs(vtrue(t)));
+      sunrealtype dsm = rtols[irtol]*sqrt(0.5*(udsm*udsm + vdsm*vdsm));
       cout << "     acc type = " << accum_types[iaccum]
            << ",  dsm = " << dsm
            << ",  dsm_est = " << dsm_est
@@ -385,21 +385,21 @@ static int adaptive_run(void *arkode_mem, N_Vector y, realtype T0,
   return(0);
 }
 
-static int fixed_run(void *arkode_mem, N_Vector y, realtype T0, realtype Tf,
+static int fixed_run(void *arkode_mem, N_Vector y, sunrealtype T0, sunrealtype Tf,
                      int rk_type, UserData &udata)
 {
   // local variables
   int retval;
   long int nsteps, nsteps2;
-  realtype dsm_est;
-  realtype t, t2;
+  sunrealtype dsm_est;
+  sunrealtype t, t2;
   N_Vector y2 = N_VClone(y);
   N_Vector ewt = N_VClone(y);
 
   // Set array of fixed step sizes to use, storage for corresponding errors/orders
-  realtype hmax = (Tf - T0)/1000;
+  sunrealtype hmax = (Tf - T0)/1000;
   if (rk_type == 1) hmax = min(hmax, ONE/abs(udata.G));
-  vector<realtype> hvals = {hmax, hmax/4, hmax/16, hmax/64};
+  vector<sunrealtype> hvals = {hmax, hmax/4, hmax/16, hmax/64};
   vector<int> accum_types = {0, 1};
 
   // Loop over step sizes
@@ -428,7 +428,7 @@ static int fixed_run(void *arkode_mem, N_Vector y, realtype T0, realtype Tf,
         if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return(1);
         retval = ARKStepSetStopTime(arkode_mem, Tf);
         if (check_retval(&retval, "ARKStepSetStopTime", 1)) return 1;
-        retval = ARKStepSStolerances(arkode_mem, RCONST(1.e-9), RCONST(1.e-12));
+        retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(1.e-9), SUN_RCONST(1.e-12));
         if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
         retval = ARKStepSetJacEvalFrequency(arkode_mem, 1);
         if (check_retval(&retval, "ARKStepSetJacEvalFrequency", 1)) return 1;
@@ -453,7 +453,7 @@ static int fixed_run(void *arkode_mem, N_Vector y, realtype T0, realtype Tf,
         if (check_retval(&retval, "ERKStepSetFixedStep", 1)) return 1;
         retval = ERKStepSetMaxNumSteps(arkode_mem, 1000000);
         if (check_retval(&retval, "ERKStepSetMaxNumSteps", 1)) return(1);
-        retval = ERKStepSStolerances(arkode_mem, RCONST(1.e-9), RCONST(1.e-12));
+        retval = ERKStepSStolerances(arkode_mem, SUN_RCONST(1.e-9), SUN_RCONST(1.e-12));
         if (check_retval(&retval, "ERKStepSStolerances", 1)) return 1;
         retval = ERKStepSetStopTime(arkode_mem, Tf);
         if (check_retval(&retval, "ERKStepSetStopTime", 1)) return 1;
@@ -466,9 +466,9 @@ static int fixed_run(void *arkode_mem, N_Vector y, realtype T0, realtype Tf,
       }
 
       // Compute/print solution error
-      realtype udsm = abs(NV_Ith_S(y,0)-utrue(t))/((1.e-12) + (1.e-9)*abs(utrue(t)));
-      realtype vdsm = abs(NV_Ith_S(y,1)-vtrue(t))/((1.e-12) + (1.e-9)*abs(vtrue(t)));
-      realtype dsm = (1.e-9)*sqrt(0.5*(udsm*udsm + vdsm*vdsm));
+      sunrealtype udsm = abs(NV_Ith_S(y,0)-utrue(t))/((1.e-12) + (1.e-9)*abs(utrue(t)));
+      sunrealtype vdsm = abs(NV_Ith_S(y,1)-vtrue(t))/((1.e-12) + (1.e-9)*abs(vtrue(t)));
+      sunrealtype dsm = (1.e-9)*sqrt(0.5*(udsm*udsm + vdsm*vdsm));
       cout << "     acc type = " << accum_types[iaccum]
            << ",  dsm = " << dsm
            << ",  dsm_est = " << dsm_est
@@ -495,7 +495,7 @@ static int fixed_run(void *arkode_mem, N_Vector y, realtype T0, realtype Tf,
       if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return(1);
       retval = ARKStepSetStopTime(arkode_mem, Tf);
       if (check_retval(&retval, "ARKStepSetStopTime", 1)) return 1;
-      retval = ARKStepSStolerances(arkode_mem, RCONST(1.e-9), RCONST(1.e-12));
+      retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(1.e-9), SUN_RCONST(1.e-12));
       if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
       retval = ARKStepSetJacEvalFrequency(arkode_mem, 1);
       if (check_retval(&retval, "ARKStepSetJacEvalFrequency", 1)) return 1;
@@ -535,7 +535,7 @@ static int fixed_run(void *arkode_mem, N_Vector y, realtype T0, realtype Tf,
       if (check_retval(&retval, "ERKStepSetMaxNumSteps", 1)) return(1);
       retval = ERKStepSetStopTime(arkode_mem, Tf);
       if (check_retval(&retval, "ERKStepSetStopTime", 1)) return 1;
-      retval = ERKStepSStolerances(arkode_mem, RCONST(1.e-9), RCONST(1.e-12));
+      retval = ERKStepSStolerances(arkode_mem, SUN_RCONST(1.e-9), SUN_RCONST(1.e-12));
       if (check_retval(&retval, "ERKStepSStolerances", 1)) return 1;
       retval = ERKStepEvolve(arkode_mem, Tf, y, &t, ARK_NORMAL);
       if (check_retval(&retval, "ERKStepEvolve", 1)) break;
@@ -559,9 +559,9 @@ static int fixed_run(void *arkode_mem, N_Vector y, realtype T0, realtype Tf,
       dsm_est = (1.e-9)*N_VWrmsNorm(y2, ewt);
       nsteps += nsteps2;
     }
-    realtype udsm = abs(NV_Ith_S(y,0)-utrue(t))/((1.e-12) + (1.e-9)*abs(utrue(t)));
-    realtype vdsm = abs(NV_Ith_S(y,1)-vtrue(t))/((1.e-12) + (1.e-9)*abs(vtrue(t)));
-    realtype dsm = (1.e-9)*sqrt(0.5*(udsm*udsm + vdsm*vdsm));
+    sunrealtype udsm = abs(NV_Ith_S(y,0)-utrue(t))/((1.e-12) + (1.e-9)*abs(utrue(t)));
+    sunrealtype vdsm = abs(NV_Ith_S(y,1)-vtrue(t))/((1.e-12) + (1.e-9)*abs(vtrue(t)));
+    sunrealtype dsm = (1.e-9)*sqrt(0.5*(udsm*udsm + vdsm*vdsm));
     cout << "     acc type = " << 2
          << ",  dsm = " << dsm
          << ",  dsm_est = " << dsm_est
@@ -581,31 +581,31 @@ static int fixed_run(void *arkode_mem, N_Vector y, realtype T0, realtype Tf,
   return(0);
 }
 
-static realtype r(realtype t)
+static sunrealtype r(sunrealtype t)
 {
-  return( RCONST(0.5)*cos(t) );
+  return( SUN_RCONST(0.5)*cos(t) );
 }
-static realtype s(realtype t)
+static sunrealtype s(sunrealtype t)
 {
   return( sin(t) );
 }
-static realtype rdot(realtype t)
+static sunrealtype rdot(sunrealtype t)
 {
-  return( -RCONST(0.5)*sin(t) );
+  return( -SUN_RCONST(0.5)*sin(t) );
 }
-static realtype sdot(realtype t)
+static sunrealtype sdot(sunrealtype t)
 {
   return( cos(t) );
 }
-static realtype utrue(realtype t)
+static sunrealtype utrue(sunrealtype t)
 {
   return( SUNRsqrt(ONE+r(t)) );
 }
-static realtype vtrue(realtype t)
+static sunrealtype vtrue(sunrealtype t)
 {
   return( SUNRsqrt(TWO+s(t)) );
 }
-static int Ytrue(realtype t, N_Vector y)
+static int Ytrue(sunrealtype t, N_Vector y)
 {
   NV_Ith_S(y,0) = utrue(t);
   NV_Ith_S(y,1) = vtrue(t);

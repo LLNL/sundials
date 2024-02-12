@@ -563,11 +563,13 @@ int erkStep_Init(void* arkode_mem, int init_type)
   step_mem->q = ark_mem->hadapt_mem->q = step_mem->B->q;
   step_mem->p = ark_mem->hadapt_mem->p = step_mem->B->p;
 
-  /* Ensure that if adaptivity is enabled, then method includes embedding coefficients */
-  if (!ark_mem->fixedstep && (step_mem->p == 0))
+  /* Ensure that if adaptivity or error accumulation is enabled, then
+       method includes embedding coefficients */
+  if ((!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0)) &&
+      (step_mem->p == 0))
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "Adaptive timestepping cannot be performed without embedding coefficients");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Temporal error estimation cannot be performed without embedding coefficients");
     return (ARK_ILL_INPUT);
   }
 
@@ -1208,8 +1210,8 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   retval = N_VLinearCombination(nvec, cvals, Xvecs, y);
   if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
-  /* Compute yerr (if embedding coefficients are enabled) */
-  if (step_mem->B->d)
+  /* Compute yerr (if step adaptivity or error accumulation enabled) */
+  if (!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0))
   {
     /* set arrays for fused vector operation */
     nvec = 0;

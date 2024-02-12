@@ -1201,11 +1201,13 @@ int arkStep_Init(void* arkode_mem, int init_type)
       step_mem->p = ark_mem->hadapt_mem->p = step_mem->Be->p;
     }
 
-    /* Ensure that if adaptivity is enabled, then method includes embedding coefficients */
-    if (!ark_mem->fixedstep && (step_mem->p == 0))
+    /* Ensure that if adaptivity or error accumulation is enabled, then
+       method includes embedding coefficients */
+    if ((!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0)) &&
+        (step_mem->p == 0))
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "Adaptive timestepping cannot be performed without embedding coefficients");
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Temporal error estimation cannot be performed without embedding coefficients");
       return (ARK_ILL_INPUT);
     }
 
@@ -3017,11 +3019,8 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
   }
 
-  /* Compute yerr (if step adaptivity enabled)
-     TODO (DRR): this also needs to be done with fixed stepping when ARKStep is an MRIStepInnerStepper.
-     Think of an efficient way to test for this case, and add similar logic to ERKStep
-     (which currently does this whenever embedding coefficients are present). */
-  if (!ark_mem->fixedstep)
+  /* Compute yerr (if step adaptivity or error accumulation enabled). */
+  if (!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0))
   {
     /* set arrays for fused vector operation */
     nvec = 0;

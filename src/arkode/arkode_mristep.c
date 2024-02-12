@@ -1063,6 +1063,16 @@ int mriStep_Init(void* arkode_mem, int init_type)
     step_mem->q      = ark_mem->hadapt_mem->q = step_mem->MRIC->q;
     step_mem->p      = ark_mem->hadapt_mem->p = step_mem->MRIC->p;
 
+    /* Ensure that if adaptivity or error accumulation is enabled, then
+       method includes embedding coefficients */
+    if ((!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0)) &&
+        (step_mem->p == 0))
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Temporal error estimation cannot be performed without embedding coefficients");
+      return (ARK_ILL_INPUT);
+    }
+
     /* allocate/fill derived quantities from MRIC structure */
 
     /* stage map */

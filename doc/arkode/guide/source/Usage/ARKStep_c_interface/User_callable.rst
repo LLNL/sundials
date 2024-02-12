@@ -3684,27 +3684,33 @@ Retrieve a pointer for user data                       :c:func:`ARKStepGetUserDa
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *accum_type* -- accumulation strategy:
 
-        * 0 -- maximum accumulation (default).
-        * 1 -- additive accumulation.
+        * ``-1`` -- no accumulation (default).
+        * ``0`` -- maximum accumulation.
+        * ``1`` -- additive accumulation.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
-      * *ARK_ILL_INPUT* if *accum_type* was illegal
 
    **Notes:**
-      At each step, ARKStep computes both a solution and embedding,
-      :math:`y_n` and :math:`\tilde{y}_n`, resulting in a vector-valued
-      local temporal error estimate, :math:`y_n - \tilde{y}_n`.  Accumulation
-      strategy 0 computes
-      :math:`\text{reltol} \max_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`,
-      while accumulation strategy 1 computes
-      :math:`\frac{\text{reltol}}{N} \sum_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`,
-      where the sum or maximum is taken over all steps since the accumulation estimate was
-      created or reset (whichever came most recently), :math:`n\in N`, the norm is
-      taken using the tolerance-informed error-weight vector
-      (see :c:func:`ARKStepGetErrWeights`), and ``reltol`` is the user-specified
-      relative solution tolerance.
+      At each internal step, ARKStep can compute both a solution and embedding
+      (if coefficients are available), :math:`y_n` and :math:`\tilde{y}_n`,
+      resulting in a vector-valued local temporal error estimate, :math:`y_n - \tilde{y}_n`.
+      By default, ARKStep will not accumulate these local error estimates, but
+      accumulation can be triggered by setting one of two options:
+
+      * ``0`` computes :math:`\text{reltol} \max_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`
+
+      * ``1`` computes :math:`\frac{\text{reltol}}{N} \sum_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`,
+
+      In both cases, the sum or maximum is taken over all steps :math:`n\in N` since the most
+      recent call to either :c:func:`ARKStepSetAccumulatedErrorType` or
+      :c:func:`ARKStepResetAccumulatedError`.  The norm is taken using the tolerance-informed
+      error-weight vector (see :c:func:`ARKStepGetErrWeights`), and ``reltol`` is the
+      user-specified relative solution tolerance.
+
+      Error accumulation can be disabled by calling :c:func:`ARKStepSetAccumulatedErrorType`
+      with the argument ``-1``.
 
    .. versionadded:: v.v.v
 

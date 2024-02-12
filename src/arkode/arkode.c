@@ -175,7 +175,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->h0u = ZERO;
 
   /* Accumulated error estimation strategy */
-  ark_mem->AccumErrorType = 0;
+  ark_mem->AccumErrorType = -1;
   ark_mem->AccumError = ZERO;
 
   /* Set default values for integrator optional inputs */

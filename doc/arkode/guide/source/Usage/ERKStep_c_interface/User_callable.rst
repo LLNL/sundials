@@ -1218,7 +1218,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       a custom function through a call to :c:func:`ERKStepSetAdaptivityFn()`.
 
       .. versionchanged:: 5.7.0
-         
+
          Prior to version 5.7.0, any nonzero value for *pq* would result in use of the
          embedding order of accuracy.
 
@@ -2030,27 +2030,33 @@ Main solver optional output functions
       * *arkode_mem* -- pointer to the ERKStep memory block.
       * *accum_type* -- accumulation strategy:
 
-        * 0 -- maximum accumulation (default).
-        * 1 -- additive accumulation.
+        * ``-1`` -- no accumulation (default).
+        * ``0`` -- maximum accumulation.
+        * ``1`` -- additive accumulation.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
-      * *ARK_ILL_INPUT* if *accum_type* was illegal
 
    **Notes:**
-      At each step, ERKStep computes both a solution and embedding,
-      :math:`y_n` and :math:`\tilde{y}_n`, resulting in a vector-valued
-      local temporal error estimate, :math:`y_n - \tilde{y}_n`.  Accumulation
-      strategy 0 computes
-      :math:`\text{reltol} \max_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`,
-      while accumulation strategy 1 computes
-      :math:`\frac{\text{reltol}}{N} \sum_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`,
-      where the sum or maximum is taken over all steps since the accumulation estimate was
-      created or reset (whichever came most recently), :math:`n\in N`, the norm is
-      taken using the tolerance-informed error-weight vector
-      (see :c:func:`ERKStepGetErrWeights`), and ``reltol`` is the user-specified
-      relative solution tolerance.
+      At each internal step, ERKStep computes both a solution and embedding,
+      (if coefficients are available), :math:`y_n` and :math:`\tilde{y}_n`,
+      resulting in a vector-valued local temporal error estimate, :math:`y_n - \tilde{y}_n`.
+      By default, ERKStep will not accumulate these local error estimates, but
+      accumulation can be triggered by setting one of two options:
+
+      * ``0`` computes :math:`\text{reltol} \max_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`
+
+      * ``1`` computes :math:`\frac{\text{reltol}}{N} \sum_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`,
+
+      In both cases, the sum or maximum is taken over all steps :math:`n\in N` since the most
+      recent call to either :c:func:`ERKStepSetAccumulatedErrorType` or
+      :c:func:`ERKStepResetAccumulatedError`.  The norm is taken using the tolerance-informed
+      error-weight vector (see :c:func:`ERKStepGetErrWeights`), and ``reltol`` is the
+      user-specified relative solution tolerance.
+
+      Error accumulation can be disabled by calling :c:func:`ERKStepSetAccumulatedErrorType`
+      with the argument ``-1``.
 
    .. versionadded:: v.v.v
 
