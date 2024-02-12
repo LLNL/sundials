@@ -1336,10 +1336,21 @@ Texas A&M University and is available from the `SuiteSparse GitHub repository
 
 To enable KLU, set ``ENABLE_KLU`` to ``ON``, set ``KLU_INCLUDE_DIR`` to the
 ``include`` path of the KLU installation and set ``KLU_LIBRARY_DIR``
-to the ``lib`` path of the KLU installation.  The CMake configure will
-result in populating the following variables: ``AMD_LIBRARY``,
+to the ``lib`` path of the KLU installation.  In that case, the CMake configure
+will result in populating the following variables: ``AMD_LIBRARY``,
 ``AMD_LIBRARY_DIR``,  ``BTF_LIBRARY``, ``BTF_LIBRARY_DIR``,
 ``COLAMD_LIBRARY``, ``COLAMD_LIBRARY_DIR``, and ``KLU_LIBRARY``.
+
+For SuiteSparse 7.4.0 and newer, the necessary information can also be gathered
+from a CMake import target.  If SuiteSparse is installed in a non-default
+prefix, the path to the CMake Config file can be set using
+``CMAKE_PREFIX_PATH``.  In that case, the CMake configure step won't populate
+the previously mentioned variables.  It is still possible to set
+``KLU_INCLUDE_DIR`` and ``KLU_LIBRARY_DIR`` which takes precedence over a
+potentially installed CMake import target file.
+
+In either case, a CMake target ``SUNDIALS::KLU`` will be created if the KLU
+library could be found.  Dependent targets should link to that target.
 
 SUNDIALS has been tested with SuiteSparse version 5.10.1.
 
