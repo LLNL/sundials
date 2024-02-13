@@ -314,7 +314,7 @@ Fixed `GitHub Issue #329 <https://github.com/LLNL/sundials/issues/329>`_ so
 that C++20 aggregate initialization can be used.
 
 Fixed integer overflow in the internal SUNDIALS hashmap. This resolves
-`GitHub Issue #409 <https://github.com/LLNL/sundials/issues/409>`_ and
+`GitHub Issues #409 <https://github.com/LLNL/sundials/issues/409>`_ and
 `#249 <https://github.com/LLNL/sundials/issues/249>`_.
 
 Changes in v5.7.0
