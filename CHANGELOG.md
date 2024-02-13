@@ -157,6 +157,10 @@ sundials_band.h
 
 Fixed [#329](https://github.com/LLNL/sundials/issues/329) so that C++20 aggregate initialization can be used.
 
+Fixed integer overflow in the internal SUNDIALS hashmap. This resolves
+[#409](https://github.com/LLNL/sundials/issues/409) and
+[#249](https://github.com/LLNL/sundials/issues/249)
+
 ## Changes to SUNDIALS in release 6.7.0
 
 Added the `SUNAdaptController` base class, ported ARKODE's internal
