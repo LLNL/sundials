@@ -25,14 +25,6 @@ set(FARKODE_examples
     "ark_diag_non_f2003\;\;1\;4\;develop\;2"
     "ark_heat2D_f2003\;\;1\;4\;develop\;2")
 
-if(MPI_Fortran_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
-else()
-  # add MPI_INCLUDE_PATH to include directories
-  include_directories(${MPI_INCLUDE_PATH})
-endif()
-
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS sundials_arkode
   sundials_farkode_mod
@@ -112,7 +104,7 @@ if(EXAMPLES_INSTALL)
   set(EXAMPLE_LIBS_LIST
     sundials_farkode_mod
     sundials_nvecparallel
-    sundials_fnvecparallel_mod 
+    sundials_fnvecparallel_mod
     sundials_arkode
     sundials_fnvecmpiplusx_mod
     sundials_nvecmpiplusx

@@ -23,14 +23,6 @@ if(MPI_ENABLED)
 endif()
 
 
-if(MPI_Fortran_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
-else()
-  # add MPI_INCLUDE_PATH to include directories
-  include_directories(${MPI_INCLUDE_PATH})
-endif()
-
 # Specify libraries to link against
 set(IDA_LIBS
   sundials_ida

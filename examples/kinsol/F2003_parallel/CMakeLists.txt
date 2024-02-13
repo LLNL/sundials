@@ -22,15 +22,6 @@ if(MPI_ENABLED)
     "kin_diagon_kry_f2003\;\;1\;4\;develop\;2")
 endif()
 
-
-if(MPI_Fortran_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
-else()
-  # add MPI_INCLUDE_PATH to include directories
-  include_directories(${MPI_INCLUDE_PATH})
-endif()
-
 # Specify libraries to link against
 set(KINSOL_LIBS
   sundials_kinsol
