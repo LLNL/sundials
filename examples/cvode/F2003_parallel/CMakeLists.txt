@@ -53,7 +53,7 @@ foreach(example_tuple ${FCVODE_examples})
     add_executable(${example} ${example}.f90)
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example} MPI::MPI_Fortran ${SUNDIALS_LIBS})
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
   endif()
