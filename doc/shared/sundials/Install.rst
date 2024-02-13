@@ -1346,7 +1346,7 @@ from a CMake import target.  If SuiteSparse is installed in a non-default
 prefix, the path to the CMake Config file can be set using
 ``CMAKE_PREFIX_PATH``.  In that case, the CMake configure step won't populate
 the previously mentioned variables.  It is still possible to set
-``KLU_INCLUDE_DIR`` and ``KLU_LIBRARY_DIR`` which takes precedence over a
+``KLU_INCLUDE_DIR`` and ``KLU_LIBRARY_DIR`` which take precedence over a
 potentially installed CMake import target file.
 
 In either case, a CMake target ``SUNDIALS::KLU`` will be created if the KLU
