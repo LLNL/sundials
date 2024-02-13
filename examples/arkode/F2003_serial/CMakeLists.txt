@@ -155,11 +155,10 @@ endif()
 
 
 # Add the build and install targets for each LAPACK example (if needed)
-if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
+if(BUILD_SUNLINSOL_LAPACKDENSE)
 
   # Sundials LAPACK linear solver modules
   set(SUNLINSOLLAPACK_LIBS
-    sundials_sunlinsollapackband
     sundials_sunlinsollapackdense
     sundials_fsunlinsollapackdense_mod)
 
