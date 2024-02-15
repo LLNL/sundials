@@ -355,7 +355,7 @@ illustration only.
    Choose the type of build, options are:
    ``Debug``, ``Release``, ``RelWithDebInfo``, and ``MinSizeRel``
 
-   Default: ``Release``
+   Default: ``RelWithDebInfo``
 
    .. note::
 
