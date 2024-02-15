@@ -139,6 +139,16 @@ set(_SHARED_LIB_SUFFIX
 set(_SUNDIALS_ALIAS_TARGETS ""
     CACHE INTERNAL "" FORCE)
 
+# We default to release builds
+set(_DEFAULT_CMAKE_BUILD_TYPE Release)
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Building SUNDIALS in '${_DEFAULT_CMAKE_BUILD_TYPE}' mode as CMAKE_BUILD_TYPE was not specified.")
+  set(CMAKE_BUILD_TYPE "${_DEFAULT_CMAKE_BUILD_TYPE}" CACHE STRING "Choose the type of build." FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+else()
+  message(STATUS "Building SUNDIALS in '${CMAKE_BUILD_TYPE}' mode.")
+endif()
+
 # ===============================================================
 # Build options to be processed first
 # ===============================================================
