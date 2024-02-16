@@ -1,4 +1,4 @@
-name: Build and Test - Windows/mingw/ninja (short)
+name: Build and Test - Windows/intel/ninja (short)
 
 on:
   push: # temporary
@@ -19,13 +19,19 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: fortran-lang/setup-fortran@v1
+      id: setup-fortran
+      with:
+        compiler: intel
+        version: '2023.2'
 
     - name: Install Ninja
       run: choco install ninja
 
+    - uses: actions/checkout@v3
+
     - name: Configure CMake (Shared)
-      run: cmake -G "Ninja" -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_STATIC_LIBS=OFF -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=OFF -DEXAMPLES_ENABLE_CXX=ON
+      run: cmake -G "Ninja" -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx -DCMAKE_Fortran_COMPILER=ifx -DBUILD_STATIC_LIBS=OFF -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=OFF -DEXAMPLES_ENABLE_CXX=ON
 
     - name: Build
       # Build your program with the given configuration
