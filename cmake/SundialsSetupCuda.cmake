@@ -14,11 +14,6 @@
 # Setup the CUDA languge and CUDA libraries.
 # ---------------------------------------------------------------
 
-# For CUDA support, require CMake 3.18 so we can use FindCUDAToolkit
-# FindCUDAToolkit was introduced in 3.17, but 3.18 fixes a lot
-# of issues with it and CUDA as a native language.
-cmake_minimum_required(VERSION 3.18.0)
-
 # ===============================================================
 # Configure options needed prior to enabling the CUDA language
 # ===============================================================
@@ -44,18 +39,6 @@ sundials_option(CMAKE_CUDA_STANDARD STRING "${DOCSTR}" "${CMAKE_CXX_STANDARD}"
 message(STATUS "CUDA standard set to ${CMAKE_CUDA_STANDARD}")
 
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda --expt-relaxed-constexpr")
-
-if(${CMAKE_VERSION} VERSION_LESS "3.18.0")
-  if(CMAKE_CUDA_ARCHITECTURES)
-    foreach(arch ${CMAKE_CUDA_ARCHITECTURES})
-      # Remove real/virtual specifiers
-      string(REGEX MATCH "[0-9]+" arch_name "${arch}")
-      string(APPEND _nvcc_arch_flags " -gencode=arch=compute_${arch_name},code=sm_${arch_name}")
-    endforeach()
-
-    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} ${_nvcc_arch_flags}")
-  endif()
-endif()
 
 if( (CMAKE_CXX_COMPILER_ID MATCHES GNU)
     OR (CMAKE_CXX_COMPILER_ID MATCHES Clang)
