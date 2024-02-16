@@ -26,8 +26,8 @@ jobs:
 
     - name: Configure CMake
       run: >
-        cmake -G "MinGW Makefiles" -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-          -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=OFF -DEXAMPLES_ENABLE_CXX=ON \
+        cmake -G "MinGW Makefiles" -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ^
+          -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=OFF -DEXAMPLES_ENABLE_CXX=ON ^
           -DBUILD_FORTRAN_MODULE_INTERFACE=ON 
 
     - name: Build

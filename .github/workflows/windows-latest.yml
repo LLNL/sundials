@@ -22,8 +22,8 @@ jobs:
 
     - name: Configure CMake (Shared)
       run: >
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_STATIC_LIBS=OFF \
-          -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=ON -DEXAMPLES_ENABLE_CXX=ON \
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_STATIC_LIBS=OFF ^
+          -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=ON -DEXAMPLES_ENABLE_CXX=ON ^
           -DBUILD_FORTRAN_MODULE_INTERFACE=ON
 
     - name: Build
@@ -38,8 +38,8 @@ jobs:
 
     - name: Configure CMake (Static)
       run: >
-        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_SHARED_LIBS=OFF \
-          -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=ON -DEXAMPLES_ENABLE_CXX=ON \
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_SHARED_LIBS=OFF ^
+          -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=ON -DEXAMPLES_ENABLE_CXX=ON ^
           -DBUILD_FORTRAN_MODULE_INTERFACE=ON
 
     - name: Build
