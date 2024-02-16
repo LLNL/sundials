@@ -14,12 +14,16 @@
 # examples level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
-# We need this to ensure the installed templates have MPI when ENABLE_MPI=TRUE,
-# at least until we convert all of the templates to use the SUNDIALS CMake target.
-
 # ===============================================================
 # Configure compilers for installed examples
 # ===============================================================
+
+# unset the fortran module directory for the examples so that the
+# example module names don't collide
+set(CMAKE_Fortran_MODULE_DIRECTORY )
+
+# We need this to ensure the installed templates have MPI when ENABLE_MPI=TRUE,
+# at least until we convert all of the templates to use the SUNDIALS CMake target.
 
 foreach(lang ${_SUNDIALS_ENABLED_LANGS})
   if(ENABLE_MPI)

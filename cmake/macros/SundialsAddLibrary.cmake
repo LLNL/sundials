@@ -419,31 +419,16 @@ macro(sundials_add_f2003_library target)
 
   # set target properties and target dependencies so that includes
   # and links get passed on when this target is used
-  if(CMAKE_Fortran_MODULE_DIRECTORY)
-    set(_includes
-      PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_Fortran_MODULE_DIRECTORY}_{{libtype}}>
-        $<INSTALL_INTERFACE:${Fortran_INSTALL_MODDIR}>
-    )
-    set(_properties PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_Fortran_MODULE_DIRECTORY}_{{libtype}}")
-  else()
-    set(_includes
-      PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_Fortran_MODULE_DIRECTORY}_{{libtype}}>
-        $<INSTALL_INTERFACE:${Fortran_INSTALL_MODDIR}>
-    )
-    set(_properties PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir")
-  endif()
+  set(_includes
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_Fortran_MODULE_DIRECTORY}>
+      $<INSTALL_INTERFACE:${Fortran_INSTALL_MODDIR}>
+  )
+  set(_properties PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_Fortran_MODULE_DIRECTORY}")
 
   # get the name of the C library which the fortran library interfaces to
   string(REPLACE "sundials_f" "sundials_" _clib_name "${target}")
   string(REPLACE "_mod" "" _clib_name "${_clib_name}")
-
-  # If SundialsSetupFortran.cmake did not set CMAKE_Fortran_PREPROCESS to ON,
-  # then add a compiler flag to preprocess Fortran code.
-  if(CMAKE_VERSION VERSION_LESS "3.18")
-    set(_preprocess PRIVATE -cpp)
-  endif()
 
   sundials_add_library(${target}
     SOURCES ${sundials_add_f2003_library_SOURCES}
@@ -455,8 +440,8 @@ macro(sundials_add_f2003_library target)
       ${sundials_add_f2003_library_INCLUDE_DIRECTORIES}
       ${_includes}
     COMPILE_DEFINITIONS ${sundials_add_f2003_library_COMPILE_DEFINITIONS}
-    COMPILE_OPTIONS ${sundials_add_f2003_library_COMPILE_OPTIONS} ${_preprocess}
-    PROPERTIES ${sundials_add_f2003_library_PROPERTIES} ${_properties}
+    COMPILE_OPTIONS ${sundials_add_f2003_library_COMPILE_OPTIONS}
+    PROPERTIES ${sundials_add_f2003_library_PROPERTIES}
     OUTPUT_NAME ${sundials_add_f2003_library_OUTPUT_NAME}
     VERSION ${sundials_add_f2003_library_VERSION}
     SOVERSION ${sundials_add_f2003_library_SOVERSION}

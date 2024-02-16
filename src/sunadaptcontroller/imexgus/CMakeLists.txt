@@ -22,7 +22,6 @@ sundials_add_library(sundials_sunadaptcontrollerimexgus
     PUBLIC sundials_core
   INCLUDE_SUBDIR
     sunadaptcontroller
-  OBJECT_LIB_ONLY
 )
 
 # Add F2003 module if the interface is enabled

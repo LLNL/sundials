@@ -19,36 +19,14 @@
 #                   Fortran 2003 standard
 # ---------------------------------------------------------------
 
-# If the Fortran compiler flags are set using environemnt variables (i.e.,
-# CMAKE_Fortran_FLAGS is not set), then check if both FFLAGS and FCFLAGS are
-# set. If both are set and not the same then a fatal error occurs.
-#
-# NOTE: This check must occur before 'enable_language(Fortran)' as it will use
-# the value of FFLAGS to set CMAKE_Fortran_FLAGS
-set(ENV_FFLAGS "$ENV{FFLAGS}")
-set(ENV_FCFLAGS "$ENV{FCFLAGS}")
-
-# check if environment variables are used and CMAKE_Fortran_FLAGS is not
-if ((NOT "${ENV_FFLAGS}" STREQUAL "") AND (NOT "${ENV_FCFLAGS}" STREQUAL "")
-    AND ("${CMAKE_Fortran_FLAGS}" STREQUAL ""))
-
-  # check if environment variables are equal
-  if (NOT "${ENV_FFLAGS}" STREQUAL "${ENV_FCFLAGS}")
-    print_error("FFLAGS='${ENV_FFLAGS}' and FCFLAGS='${ENV_FCFLAGS}' are both set but are not equal.")
-  endif()
-endif()
-
 # -----------------------------------------------------------------------------
 # Enable Fortran
 # -----------------------------------------------------------------------------
 enable_language(Fortran)
 set(Fortran_FOUND TRUE)
 
-# Enable preprocessing Fortran code. With older versions of CMake is this
-# handled in SundialsAddLibrary.cmake by adding a compiler option.
-if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.18")
-  set(CMAKE_Fortran_PREPROCESS ON)
-endif()
+# Enable preprocessing Fortran code.
+set(CMAKE_Fortran_PREPROCESS ON)
 
 # -----------------------------------------------------------------------------
 # Check if Fortran 2003 is supported

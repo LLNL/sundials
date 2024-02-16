@@ -19,7 +19,6 @@ sundials_add_f2003_library(sundials_fnvecserial_mod
     fnvector_serial_mod.f90 fnvector_serial_mod.c
   LINK_LIBRARIES
     PUBLIC sundials_fcore_mod
-  OBJECT_LIBRARIES
   OUTPUT_NAME
     sundials_fnvecserial_mod
   VERSION
