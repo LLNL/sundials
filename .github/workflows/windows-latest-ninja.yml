@@ -1,6 +1,7 @@
 name: Build and Test - Windows/MSVC (short)
 
 on:
+  push: # temporary
   pull_request:
   merge_group:
   workflow_dispatch:
