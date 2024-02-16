@@ -23,7 +23,10 @@ jobs:
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_STATIC_LIBS=OFF -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_LOGGING_LEVEL=2 -DSUNDIALS_TEST_UNITTESTS=ON -DEXAMPLES_ENABLE_CXX=ON
+      run: |
+        cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_STATIC_LIBS=OFF
+          -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=ON -DEXAMPLES_ENABLE_CXX=ON
+          -DBUILD_FORTRAN_MODULE_INTERFACE=ON
 
     - name: Build
       # Build your program with the given configuration
