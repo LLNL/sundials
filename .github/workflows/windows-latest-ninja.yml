@@ -28,13 +28,10 @@ jobs:
     - name: Install Ninja
       run: choco install ninja
 
-    - name: Check cmake version
-      run: cmake --version
-
     - uses: actions/checkout@v3
 
     - name: Configure CMake (Shared)
-      run: cmake -G "Ninja" -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx -DCMAKE_Fortran_COMPILER=ifx -DBUILD_STATIC_LIBS=OFF -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=OFF -DEXAMPLES_ENABLE_CXX=ON
+      run: cmake -G "Ninja" -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_C_COMPILER=icx-cl -DCMAKE_CXX_COMPILER=icx-cl -DCMAKE_Fortran_COMPILER=ifx -DBUILD_STATIC_LIBS=OFF -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=OFF -DEXAMPLES_ENABLE_CXX=ON
 
     - name: Build
       # Build your program with the given configuration
