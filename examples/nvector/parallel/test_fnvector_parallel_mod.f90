@@ -35,7 +35,7 @@ module test_nvector_parallel
   integer function smoke_tests() result(ret)
     implicit none
 
-    integer(c_long)         :: lenrw(1), leniw(1)  ! real and int work space size
+    integer(c_long_long)    :: lenrw(1), leniw(1)  ! real and int work space size
     integer(c_long)         :: ival                ! integer work value
     real(c_double)          :: rval                ! real work value
     real(c_double)          :: xdata(local_length) ! vector data array

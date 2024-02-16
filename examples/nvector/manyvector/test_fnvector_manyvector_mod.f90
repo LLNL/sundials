@@ -34,7 +34,7 @@ contains
   integer function smoke_tests() result(ret)
     implicit none
 
-    integer(c_long)         :: lenrw(1), leniw(1)     ! real and int work space size
+    integer(c_long_long)    :: lenrw(1), leniw(1)     ! real and int work space size
     integer(c_long)         :: ival                   ! integer work value
     real(c_double)          :: rval                   ! real work value
     real(c_double)          :: x1data(N1), x2data(N2) ! vector data array
