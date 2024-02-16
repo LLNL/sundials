@@ -1,4 +1,4 @@
-name: Build and Test - Windows/MSVC (short)
+name: Build and Test - Windows/Ninja/MSVC (short)
 
 on:
   push: # temporary
