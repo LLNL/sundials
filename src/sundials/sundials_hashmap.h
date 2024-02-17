@@ -20,14 +20,15 @@
 #ifndef _SUNDIALS_HASHMAP_H
 #define _SUNDIALS_HASHMAP_H
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_types.h"
 
-static const unsigned long HASH_PRIME        = 14695981039346656037U;
-static const unsigned long HASH_OFFSET_BASIS = 1099511628211U;
+static const uint64_t HASH_PRIME        = 14695981039346656037U;
+static const uint64_t HASH_OFFSET_BASIS = 1099511628211U;
 
 /*
   For a nice discussion on popular hashing algorithms see:
@@ -36,9 +37,9 @@ static const unsigned long HASH_OFFSET_BASIS = 1099511628211U;
   This is a 64-bit implementation of the 'a' modification of the
   Fowler–Noll–Vo hash (i.e., FNV1-a).
  */
-static unsigned long fnv1a_hash(const char* str)
+static uint64_t fnv1a_hash(const char* str)
 {
-  unsigned long hash = HASH_OFFSET_BASIS;
+  uint64_t hash = HASH_OFFSET_BASIS;
   char c;
   while ((c = *str++)) { hash = (hash ^ c) * HASH_PRIME; }
   return hash;
