@@ -50,8 +50,8 @@ SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Create(int s, int q, int p
                                                              sunrealtype* d);
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Copy(ARKodeButcherTable B);
 SUNDIALS_EXPORT void ARKodeButcherTable_Space(ARKodeButcherTable B,
-                                              sunindextype* liw,
-                                              sunindextype* lrw);
+                                              long int* liw,
+                                              long int* lrw);
 SUNDIALS_EXPORT void ARKodeButcherTable_Free(ARKodeButcherTable B);
 SUNDIALS_EXPORT void ARKodeButcherTable_Write(ARKodeButcherTable B,
                                               FILE* outfile);

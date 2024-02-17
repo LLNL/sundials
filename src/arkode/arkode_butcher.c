@@ -293,8 +293,8 @@ ARKodeButcherTable ARKodeButcherTable_Copy(ARKodeButcherTable B)
 /*---------------------------------------------------------------
   Routine to query the Butcher table structure workspace size
   ---------------------------------------------------------------*/
-void ARKodeButcherTable_Space(ARKodeButcherTable B, sunindextype* liw,
-                              sunindextype* lrw)
+void ARKodeButcherTable_Space(ARKodeButcherTable B, long int* liw,
+                              long int* lrw)
 {
   /* initialize outputs and return if B is not allocated */
   *liw = 0;

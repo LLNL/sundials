@@ -78,8 +78,8 @@ SUNDIALS_EXPORT
 void ARKodeSPRKTable_Write(ARKodeSPRKTable sprk_table, FILE* outfile);
 
 SUNDIALS_EXPORT
-void ARKodeSPRKTable_Space(ARKodeSPRKTable sprk_storage, sunindextype* liw,
-                           sunindextype* lrw);
+void ARKodeSPRKTable_Space(ARKodeSPRKTable sprk_storage, long int* liw,
+                           long int* lrw);
 SUNDIALS_EXPORT
 void ARKodeSPRKTable_Free(ARKodeSPRKTable sprk_storage);
 

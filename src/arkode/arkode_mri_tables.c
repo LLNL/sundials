@@ -444,8 +444,8 @@ MRIStepCoupling MRIStepCoupling_Copy(MRIStepCoupling MRIC)
 /*---------------------------------------------------------------
   Routine to query the MRIStepCoupling structure workspace size
   ---------------------------------------------------------------*/
-void MRIStepCoupling_Space(MRIStepCoupling MRIC, sunindextype* liw,
-                           sunindextype* lrw)
+void MRIStepCoupling_Space(MRIStepCoupling MRIC, long int* liw,
+                           long int* lrw)
 {
   /* initialize outputs and return if MRIC is not allocated */
   *liw = 0;

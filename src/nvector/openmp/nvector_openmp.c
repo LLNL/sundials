@@ -386,7 +386,7 @@ void N_VDestroy_OpenMP(N_Vector v)
  * Get storage requirement for N_Vector
  */
 
-void N_VSpace_OpenMP(N_Vector v, sunindextype* lrw, sunindextype* liw)
+void N_VSpace_OpenMP(N_Vector v, long int* lrw, long int* liw)
 {
   SUNFunctionBegin(v->sunctx);
 
