@@ -124,7 +124,7 @@ SUNDIALS_EXPORT
 void N_VDestroy_OpenMP(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VSpace_OpenMP(N_Vector v, sunindextype* lrw, sunindextype* liw);
+void N_VSpace_OpenMP(N_Vector v, long int* lrw, long int* liw);
 
 SUNDIALS_EXPORT
 sunrealtype* N_VGetArrayPointer_OpenMP(N_Vector v);

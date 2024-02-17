@@ -117,8 +117,8 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_OpenMPDEV(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_OpenMPDEV(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_OpenMPDEV(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_OpenMPDEV(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_OpenMPDEV(N_Vector v, sunindextype* lrw,
-                                        sunindextype* liw);
+SUNDIALS_EXPORT void N_VSpace_OpenMPDEV(N_Vector v, long int* lrw,
+                                        long int* liw);
 
 /* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_OpenMPDEV(sunrealtype a, N_Vector x,
