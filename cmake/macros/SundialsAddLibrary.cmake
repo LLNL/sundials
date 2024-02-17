@@ -434,8 +434,8 @@ macro(sundials_add_f2003_library target)
     SOURCES ${sundials_add_f2003_library_SOURCES}
     OBJECT_LIBRARIES ${sundials_add_f2003_library_OBJECT_LIBRARIES}
     LINK_LIBRARIES
-      ${sundials_add_f2003_library_LINK_LIBRARIES}
       PUBLIC ${_clib_name} # depend on the c library
+      ${sundials_add_f2003_library_LINK_LIBRARIES}
     INCLUDE_DIRECTORIES
       ${sundials_add_f2003_library_INCLUDE_DIRECTORIES}
       ${_includes}
