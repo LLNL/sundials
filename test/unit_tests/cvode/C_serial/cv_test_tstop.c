@@ -28,9 +28,9 @@
 #include "sunmatrix/sunmatrix_dense.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
+#define FMT "-7.4Lg"
 #else
-#define GSYM "g"
+#define FMT "-7.4g"
 #endif
 
 #define ZERO SUN_RCONST(0.0)
@@ -62,13 +62,14 @@ int main(int argc, char* argv[])
 
   int flag             = 0;
   int cvode_flag       = 0;
-  int i                = 0;
   sunrealtype tout     = SUN_RCONST(0.10);
   sunrealtype dt_tout  = SUN_RCONST(0.25);
   sunrealtype tstop    = SUN_RCONST(0.30);
   sunrealtype dt_tstop = SUN_RCONST(0.30);
   sunrealtype tret     = ZERO;
   sunrealtype tcur     = ZERO;
+
+  long int num_steps = 0;
 
   /* --------------
    * Create context
@@ -120,15 +121,15 @@ int main(int argc, char* argv[])
   flag = CVodeSetStopTime(cvode_mem, tstop);
   if (flag) { return 1; }
 
-  /* ---------------
-   * Advance in time
-   * --------------- */
+  /* -------------------
+   * Forward Integration
+   * ------------------- */
 
-  printf("0: tout = %" GSYM ", tstop = %" GSYM ", tret = %" GSYM
-         ", tcur = %" GSYM "\n",
+  printf("0: tout = %" FMT " tstop = %" FMT " tret = %" FMT
+         " tcur = %" FMT "  steps =   0\n",
          tout, tstop, tret, tcur);
 
-  for (i = 1; i <= 6; i++)
+  for (int i = 1; i <= 6; i++)
   {
     cvode_flag = CVode(cvode_mem, tout, y, &tret, CV_NORMAL);
     if (cvode_flag < 0)
@@ -140,9 +141,134 @@ int main(int argc, char* argv[])
     flag = CVodeGetCurrentTime(cvode_mem, &tcur);
     if (flag) { break; }
 
-    printf("%i: tout = %" GSYM ", tstop = %" GSYM ", tret = %" GSYM
-           ", tcur = %" GSYM ", return = %i\n",
-           i, tout, tstop, tret, tcur, cvode_flag);
+    flag = CVodeGetNumSteps(cvode_mem, &num_steps);
+    if (flag) { break; }
+
+    printf("%i: tout = %" FMT " tstop = %" FMT " tret = %" FMT
+           " tcur = %" FMT "  steps = %3li  return = %i\n",
+           i, tout, tstop, tret, tcur, num_steps, cvode_flag);
+
+    /* First return: output time < stop time < current time -- should return at
+       the output time */
+    if (i == 1 && cvode_flag != CV_SUCCESS)
+    {
+      printf("ERROR: Expected output return!\n");
+      flag = 1;
+      break;
+    }
+
+    /* Second return: output time > stop time = current time -- should return at
+       the stop time */
+    if (i == 2)
+    {
+      if (cvode_flag != CV_TSTOP_RETURN)
+      {
+        printf("ERROR: Expected stop return!\n");
+        flag = 1;
+        break;
+      }
+
+      /* Update stop time */
+      tstop += dt_tstop;
+      flag = CVodeSetStopTime(cvode_mem, tstop);
+      if (flag) { break; }
+    }
+
+    /* Third return: output time = stop time = current time -- should return at
+       the stop time */
+    if (i == 3)
+    {
+      if (cvode_flag != CV_TSTOP_RETURN)
+      {
+        printf("ERROR: Expected stop return!\n");
+        flag = 1;
+        break;
+      }
+
+      /* Update stop time */
+      tstop += dt_tstop;
+      flag = CVodeSetStopTime(cvode_mem, tstop);
+      if (flag) { break; }
+    }
+
+    /* Fourth return: output time < stop time = current time and the output time
+       is overtaken in the same step that the stop time is reached -- should
+       return at the output time with current time == stop time */
+    if (i == 4)
+    {
+      if (cvode_flag != CV_SUCCESS)
+      {
+        printf("ERROR: Expected output return!\n");
+        flag = 1;
+        break;
+      }
+    }
+
+    /* Fifth return: output time > stop time = current time and the stop time
+       was already reached but we did not return at that time because of an
+       earlier output time return -- should return at the stop time without
+       taking a step */
+    if (i == 5)
+    {
+      if (cvode_flag != CV_TSTOP_RETURN)
+      {
+        printf("ERROR: Expected stop return!\n");
+        flag = 1;
+        break;
+      }
+    }
+
+    /* Sixth return: current time > output time > stop time (not updated) --
+       should return at the output time */
+    if (i == 6 && cvode_flag != CV_SUCCESS)
+    {
+      printf("ERROR: Expected output return!\n");
+      flag = 1;
+      break;
+    }
+
+    /* update output time */
+    tout += dt_tout;
+  }
+
+  /* --------------------
+   * Backward Integration
+   * -------------------- */
+
+  N_VConst(ONE, y);
+
+  CVodeReInit(cvode_mem, ONE, y);
+  if (flag) { return 1; }
+
+  tout     = SUN_RCONST(0.30);
+  dt_tout  = -dt_tout;
+  tstop    = SUN_RCONST(0.10);
+  dt_tstop = -dt_tstop;
+  tret     = ZERO;
+  tcur     = ZERO;
+
+  flag = CVodeSetStopTime(cvode_mem, tstop);
+  if (flag) { return 1; }
+
+  printf("0: tout = %" FMT " tstop = %" FMT " tret = %" FMT
+         " tcur = %" FMT "  steps =   0\n",
+         tout, tstop, tret, tcur);
+
+  for (int i = 1; i <= 6; i++)
+  {
+    cvode_flag = CVode(cvode_mem, tout, y, &tret, CV_NORMAL);
+    if (cvode_flag < 0)
+    {
+      flag = 1;
+      break;
+    }
+
+    flag = CVodeGetCurrentTime(cvode_mem, &tcur);
+    if (flag) { break; }
+
+    printf("%i: tout = %" FMT " tstop = %" FMT " tret = %" FMT
+           " tcur = %" FMT "  steps = %3li  return = %i\n",
+           i, tout, tstop, tret, tcur, num_steps, cvode_flag);
 
     /* First return: output time < stop time */
     if (i == 1 && cvode_flag != CV_SUCCESS)
