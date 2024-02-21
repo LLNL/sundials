@@ -1,5 +1,10 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release X.X.X
+
+Converted most previous Fortran 77 and 90 examples to use SUNDIALS' current
+Fortran 2003 interface.
+
 ## Changes to SUNDIALS in release 7.0.0-rc.1
 
 ⚠️ This is a release candidate.
