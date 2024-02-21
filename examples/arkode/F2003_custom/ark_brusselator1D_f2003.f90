@@ -285,7 +285,7 @@ program main
   type(SUNLinearSolver), pointer :: sunls         ! sundials linear solver
   type(c_ptr)                    :: arkode_mem    ! ARKODE memory
 
-  ! solution vector, N and Nvar are set in the ode_mod moduel
+  ! solution vector, N and Nvar are set in the ode_mod module
   real(c_double) :: y(Nvar,N)
 
   !======= Internals ============

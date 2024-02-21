@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
 # Programmer(s): David J. Gardner @ LLNL
+#                modified by Daniel M. Margolis @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2024, Lawrence Livermore National Security
@@ -19,19 +20,16 @@
 set(FARKODE_examples
     "ark_brusselator1D_task_local_nls_f2003\;--monitor\;1\;4\;develop\;2"
     "ark_brusselator1D_task_local_nls_f2003\;--monitor --global-nls\;1\;4\;develop\;2"
-    "ark_brusselator1D_task_local_nls_f2003\;--monitor --explicit --tf 3\;1\;4\;develop\;2")
-
-if(MPI_Fortran_COMPILER)
-  # use MPI wrapper as the compiler
-  set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
-else()
-  # add MPI_INCLUDE_PATH to include directories
-  include_directories(${MPI_INCLUDE_PATH})
-endif()
+    "ark_brusselator1D_task_local_nls_f2003\;--monitor --explicit --tf 3\;1\;4\;develop\;2"
+    "ark_diag_kry_bbd_f2003\;\;1\;4\;develop\;2"
+    "ark_diag_non_f2003\;\;1\;4\;develop\;2"
+    "ark_heat2D_f2003\;\;1\;4\;develop\;2")
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS sundials_arkode
   sundials_farkode_mod
+  sundials_nvecparallel
+  sundials_fnvecparallel_mod
   sundials_nvecmpiplusx
   sundials_fnvecmpiplusx_mod
   sundials_nvecmpimanyvector
@@ -57,7 +55,7 @@ foreach(example_tuple ${FARKODE_examples})
     add_executable(${example} ${example}.f90)
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+    target_link_libraries(${example} MPI::MPI_Fortran ${SUNDIALS_LIBS})
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
   endif()
@@ -93,10 +91,6 @@ endforeach(example_tuple ${FARKODE_examples})
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel)
-
   # Install the extra files
   foreach(extrafile ${ARKODE_extras})
     install(FILES ${extrafile}
@@ -109,6 +103,8 @@ if(EXAMPLES_INSTALL)
   # Makefile: convert semi-colon separated target list to space separated string
   set(EXAMPLE_LIBS_LIST
     sundials_farkode_mod
+    sundials_nvecparallel
+    sundials_fnvecparallel_mod
     sundials_arkode
     sundials_fnvecmpiplusx_mod
     sundials_nvecmpiplusx
