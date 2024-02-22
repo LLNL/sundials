@@ -24,18 +24,18 @@ SUNDIALS core API (i.e., ``SUN`` or ``N_V`` functions only) either return a :c:t
 occurs) within the :c:type:`SUNContext` for the execution stream. This "last error" is accessible
 via the :c:func:`SUNContext_GetLastError` or :c:func:`SUNContext_PeekLastError` functions.
 
-.. c:type:: int SUNErrCode 
+.. c:type:: int SUNErrCode
 
 Thus, in user code, SUNDIALS core API functions can be checked for errors in one of two ways:
 
 .. code-block:: C
 
   SUNContext sunctx;
-  SUNErrCode sunerr; 
+  SUNErrCode sunerr;
   N_Vector v;
   int length;
   sunrealtype dotprod;
-  
+
   // Every code that uses SUNDIALS must create a SUNContext.
   sunctx = SUNContext_Create(...);
 
@@ -54,8 +54,8 @@ Thus, in user code, SUNDIALS core API functions can be checked for errors in one
   // Another function that does not return a SUNErrCode.
   dotprod = N_VDotProd(...);
   SUNContext_GetLastError(sunctx);
-  if (sunerr) { 
-   /* an error occured, do something */ 
+  if (sunerr) {
+   /* an error occured, do something */
   } else {
     print("dotprod = %.2f\n", dotprod);
   }
@@ -80,9 +80,9 @@ The function :c:func:`SUNGetErrMsg` can be used to get a message describing the 
 
 .. warning::
 
-  If a function returns a :c:type:`SUNErrCode` then the return value is the only place the error is available  
-  i.e., these functions do not store their error code as the "last error" so it is invalid to use  
-  :c:func:`SUNContext_GetLastError` to check these functions for errors.  
+  If a function returns a :c:type:`SUNErrCode` then the return value is the only place the error is available
+  i.e., these functions do not store their error code as the "last error" so it is invalid to use
+  :c:func:`SUNContext_GetLastError` to check these functions for errors.
 
 
 .. _SUNDIALS.Errors.Handlers:
@@ -90,8 +90,11 @@ The function :c:func:`SUNGetErrMsg` can be used to get a message describing the 
 Error Handler Functions
 -----------------------
 
-Errors that occur internally to SUNDIALS result in an error handler function being called. 
-These error handler functions have the type
+Errors that occur internally to SUNDIALS result in an error handler function
+being called. The error handlers are enabled by pushing them onto the error
+handler stack with the function :c:func:`SUNContext_PushErrHandler`. They may
+disabled with :c:func:`SUNContext_PopErrHandler` or
+:c:func:`SUNContext_ClearErrHandlers`. The error handler functions have the type
 
 .. c:type:: int (*SUNErrHandlerFn)(int line, const char* func, const char* file, \
                                            const char* msg, SUNErrCode err_code, \
@@ -113,7 +116,7 @@ The error handlers provided in SUNDIALS are:
 
   :param line: the line number at which the error occured
   :param func: the function in which the error occured
-  :param file: the file in which the error occured 
+  :param file: the file in which the error occured
   :param msg: the message to log, if this is ``NULL`` then the default error message for the error code will be used
   :param err_code: the error code for the error that occured
   :param err_user_data: the user pointer provided to :c:func:`SUNContext_PushErrHandler`
@@ -129,7 +132,7 @@ The error handlers provided in SUNDIALS are:
 
   :param line: the line number at which the error occured
   :param func: the function in which the error occured
-  :param file: the file in which the error occured 
+  :param file: the file in which the error occured
   :param msg: this parameter is ignored
   :param err_code: the error code for the error that occured
   :param err_user_data: the user pointer provided to :c:func:`SUNContext_PushErrHandler`
@@ -146,7 +149,7 @@ The error handlers provided in SUNDIALS are:
 
   :param line: the line number at which the error occured
   :param func: the function in which the error occured
-  :param file: the file in which the error occured 
+  :param file: the file in which the error occured
   :param msg: this parameter is ignored
   :param err_code: the error code for the error that occured
   :param err_user_data: the user pointer provided to :c:func:`SUNContext_PushErrHandler`
