@@ -90,11 +90,11 @@ The function :c:func:`SUNGetErrMsg` can be used to get a message describing the 
 Error Handler Functions
 -----------------------
 
-Errors that occur internally to SUNDIALS result in an error handler function
-being called. The error handlers are enabled by pushing them onto the error
-handler stack with the function :c:func:`SUNContext_PushErrHandler`. They may
-disabled with :c:func:`SUNContext_PopErrHandler` or
-:c:func:`SUNContext_ClearErrHandlers`. The error handler functions have the type
+When an error occurs in SUNDIALS, it calls error handler functions that have
+been pushed onto the error handler stack in last-in first-out order.
+Specific error handlers can be enabled by pushing them onto the error handler stack
+with the function :c:func:`SUNContext_PushErrHandler`. They may disabled by calling :c:func:`SUNContext_PopErrHandler` or :c:func:`SUNContext_ClearErrHandlers`.
+A SUNDIALS error handler function has the type
 
 .. c:type:: int (*SUNErrHandlerFn)(int line, const char* func, const char* file, \
                                            const char* msg, SUNErrCode err_code, \
