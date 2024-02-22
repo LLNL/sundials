@@ -243,9 +243,10 @@ Fixed integer overflow in the internal SUNDIALS hashmap. This resolves
 `GitHub Issues #409 <https://github.com/LLNL/sundials/issues/409>`_ and
 `#249 <https://github.com/LLNL/sundials/issues/249>`_.
 
-The ``CMAKE_BUILD_TYPE`` defaults to ``Release`` mode now i.e., SUNDIALS will be
-built with optimizations enabled by default. Previously the build type was unset
-by default so no optimization or debug flags were set.
+The ``CMAKE_BUILD_TYPE`` defaults to ``RelWithDebInfo`` mode now i.e., SUNDIALS
+will be built with optimizations and debugging symbols enabled by default.
+Previously the build type was unset by default so no optimization or debugging
+flags were set.
 
 Changes in v6.7.0
 -----------------
