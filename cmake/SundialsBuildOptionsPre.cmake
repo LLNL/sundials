@@ -24,13 +24,6 @@ sundials_option(USE_XSDK_DEFAULTS BOOL "Enable default xSDK settings" OFF)
 
 if(USE_XSDK_DEFAULTS)
   message(STATUS "Enabling xSDK defaults:")
-
-  # set the CMake build type, SUNDIALS does not set a build type by default
-  if(NOT CMAKE_BUILD_TYPE)
-    message(STATUS "  Setting build type to Debug")
-    set(DOCSTR "Choose the type of build: None Debug Release RelWithDebInfo MinSizeRel")
-    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "${DOCSTR}" FORCE)
-  endif()
 endif()
 
 # ---------------------------------------------------------------
