@@ -21,6 +21,11 @@
 
 cmake_minimum_required(VERSION 3.18)
 
+# Address DOWNLOAD_EXTRACT_TIMESTAMP warning with CMake 3.24+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24")
+  cmake_policy(SET CMP0135 NEW)
+endif()
+
 # Project SUNDIALS (initially only C supported)
 # sets PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR variables.
 project(SUNDIALS C)
