@@ -19,9 +19,10 @@
 
 # Examples using SUNDIALS linear solvers
 set(FKINSOL_examples
-  "kinRoboKin_dns_f2003\;develop"
-  "kinLaplace_bnd_f2003\;develop"
-  "kinLaplace_picard_kry_f2003\;develop"
+  "kinDiagon_kry_f2003\;\;develop"
+  "kinRoboKin_dns_f2003\;\;develop"
+  "kinLaplace_bnd_f2003\;\;develop"
+  "kinLaplace_picard_kry_f2003\;\;develop"
   )
 
 # Specify libraries to link against
@@ -34,7 +35,8 @@ set(SUNDIALS_LIBS ${KINSOL_LIB} ${EXE_EXTRA_LINK_LIBS})
 foreach(example_tuple ${FKINSOL_examples})
   # parse the example tuple
   list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_type)
+  list(GET example_tuple 1 example_args)
+  list(GET example_tuple 2 example_type)
 
   # Install fortran modules to a unique directory to avoid naming collisions
   set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
@@ -46,6 +48,7 @@ foreach(example_tuple ${FKINSOL_examples})
 
   # add example to regression tests
   sundials_add_test(${example} ${example}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
@@ -62,9 +65,6 @@ endforeach(example_tuple ${FKINSOL_examples})
 
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/F2003_serial)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "KINSOL")
