@@ -381,7 +381,7 @@ program main
 
   call FCVodeFree(cvodes_mem)
   retval = FSUNNonlinSolFree(NLS)
-  if (sensi /= 0) then
+  if (associated(NLSsens)) then
     retval = FSUNNonlinSolFree(NLSsens)
   endif
 
