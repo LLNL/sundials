@@ -125,9 +125,9 @@ static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_d
 
 // Private utility functions
 static int adaptive_run(void *arkode_mem, N_Vector y, sunrealtype T0, sunrealtype Tf,
-                        int rk_type, N_Vector* yref, UserData &udata);
+                        int rk_type, int order, N_Vector* yref, UserData &udata);
 static int fixed_run(void *arkode_mem, N_Vector y, sunrealtype T0, sunrealtype Tf,
-                     int rk_type, N_Vector* yref, UserData &udata);
+                     int rk_type, int order, N_Vector* yref, UserData &udata);
 static int computeErrorWeights(N_Vector ycur, N_Vector weight,
                                sunrealtype rtol, sunrealtype atol,
                                N_Vector vtemp);
@@ -302,10 +302,10 @@ int main(int argc, char *argv[])
 
   // Integrate ODE, based on run type
   if (adaptive) {
-    retval = adaptive_run(arkode_mem, y, T0, Tf, rk_type, yref, udata);
+    retval = adaptive_run(arkode_mem, y, T0, Tf, rk_type, order, yref, udata);
     if (check_retval(&retval, "adaptive_run", 1)) return 1;
   } else {
-    retval = fixed_run(arkode_mem, y, T0, Tf, rk_type, yref, udata);
+    retval = fixed_run(arkode_mem, y, T0, Tf, rk_type, order, yref, udata);
     if (check_retval(&retval, "fixed_run", 1)) return 1;
   }
 
@@ -372,7 +372,7 @@ static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_d
 //------------------------------
 
 static int adaptive_run(void *arkode_mem, N_Vector y, sunrealtype T0, sunrealtype Tf,
-                        int rk_type, N_Vector* yref, UserData &udata)
+                        int rk_type, int order, N_Vector* yref, UserData &udata)
 {
   // Reused variables
   int retval;
@@ -386,15 +386,11 @@ static int adaptive_run(void *arkode_mem, N_Vector y, sunrealtype T0, sunrealtyp
   vector<long int> Nsteps(udata.Npart);
 
   // Loop over tolerances
-  cout << "\n Adaptive-step runs:\n";
+  cout << "\nAdaptive-step runs:\n";
   for (size_t irtol=0; irtol<rtols.size(); irtol++) {
-
-    cout << "   Rtol: " << rtols[irtol] << endl;
 
     // Loop over accumulation types
     for (size_t iaccum=0; iaccum<accum_types.size(); iaccum++) {
-
-      cout << "     acc type: " << accum_types[iaccum] << endl;
 
       // Loop over partition
       for (size_t ipart=0; ipart<udata.Npart; ipart++) {
@@ -433,38 +429,24 @@ static int adaptive_run(void *arkode_mem, N_Vector y, sunrealtype T0, sunrealtyp
         sunrealtype vdsm = abs(NV_Ith_S(y,1)-vref)/(abstol + rtols[irtol]*abs(vref));
         sunrealtype wdsm = abs(NV_Ith_S(y,2)-wref)/(abstol + rtols[irtol]*abs(wref));
         dsm[ipart] = rtols[irtol]*sqrt((udsm*udsm + vdsm*vdsm + wdsm*wdsm)/SUN_RCONST(3.0));
+        cout << "  rtol " << rtols[irtol]
+             << "  rk_type " << rk_type
+             << "  order " << order
+             << "  acc " << accum_types[iaccum]
+             << "  t " << t
+             << "  dsm " << dsm[ipart]
+             << "  dsm_est " << dsm_est[ipart]
+             << "  nsteps " << Nsteps[ipart]
+             << endl;
       }
-      sunrealtype dsm_min = dsm[0];
-      sunrealtype dsm_max = dsm[0];
-      sunrealtype dsmest_min = dsm_est[0];
-      sunrealtype dsmest_max = dsm_est[0];
-      sunrealtype dsmratio_min = dsm[0]/dsm_est[0];
-      sunrealtype dsmratio_max = dsm[0]/dsm_est[0];
-      int Nsteps_total = 0;
-      for (size_t ipart=0; ipart<udata.Npart; ipart++) {
-        dsm_min = min(dsm_min, dsm[ipart]);
-        dsm_max = max(dsm_max, dsm[ipart]);
-        dsmest_min = min(dsmest_min, dsm_est[ipart]);
-        dsmest_max = max(dsmest_max, dsm_est[ipart]);
-        dsmratio_min = min(dsmratio_min, dsm[ipart]/dsm_est[ipart]);
-        dsmratio_max = max(dsmratio_max, dsm[ipart]/dsm_est[ipart]);
-        Nsteps_total += Nsteps[ipart];
-      }
-      cout << "       stats (min,max):"
-           << "  dsm (" << dsm_min << ", " << dsm_max << ")"
-           << "  dsm_est (" << dsmest_min << ", " << dsmest_max << ")"
-           << "  dsm_ratio (" << dsmratio_min << ", " << dsmratio_max << ")"
-           << "  nsteps = " << Nsteps_total
-           << endl;
     }
   }
-  cout << "   ------------------------------------------------------\n";
 
   return(0);
 }
 
 static int fixed_run(void *arkode_mem, N_Vector y, sunrealtype T0, sunrealtype Tf,
-                     int rk_type, N_Vector* yref, UserData &udata)
+                     int rk_type, int order, N_Vector* yref, UserData &udata)
 {
   // Reused variables
   int retval;
@@ -487,15 +469,11 @@ static int fixed_run(void *arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
   vector<long int> Nsteps(udata.Npart);
 
   // Loop over step sizes
-  cout << "\n Fixed-step runs:\n";
+  cout << "\nFixed-step runs:\n";
   for (size_t ih=0; ih<hvals.size(); ih++) {
-
-    cout << "   h: " << hvals[ih] << endl;
 
     // Loop over built-in accumulation types
     for (size_t iaccum=0; iaccum<accum_types.size(); iaccum++) {
-
-      cout << "     acc type: " << accum_types[iaccum] << endl;
 
       // Loop over partition
       for (size_t ipart=0; ipart<udata.Npart; ipart++) {
@@ -541,33 +519,19 @@ static int fixed_run(void *arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
         sunrealtype vdsm = abs(NV_Ith_S(y,1)-NV_Ith_S(yref[ipart+1],1))/(abstol + reltol*abs(NV_Ith_S(yref[ipart+1],1)));
         sunrealtype wdsm = abs(NV_Ith_S(y,2)-NV_Ith_S(yref[ipart+1],2))/(abstol + reltol*abs(NV_Ith_S(yref[ipart+1],2)));
         dsm[ipart] = reltol*sqrt((udsm*udsm + vdsm*vdsm + wdsm*wdsm)/SUN_RCONST(3.0));
+        cout << "  h " << hvals[ih]
+             << "  rk_type " << rk_type
+             << "  order " << order
+             << "  acc " << accum_types[iaccum]
+             << "  t " << t
+             << "  dsm " << dsm[ipart]
+             << "  dsm_est " << dsm_est[ipart]
+             << "  nsteps " << Nsteps[ipart]
+             << endl;
       }
-      sunrealtype dsm_min = dsm[0];
-      sunrealtype dsm_max = dsm[0];
-      sunrealtype dsmest_min = dsm_est[0];
-      sunrealtype dsmest_max = dsm_est[0];
-      sunrealtype dsmratio_min = dsm[0]/dsm_est[0];
-      sunrealtype dsmratio_max = dsm[0]/dsm_est[0];
-      int Nsteps_total = 0;
-      for (size_t ipart=0; ipart<udata.Npart; ipart++) {
-        dsm_min = min(dsm_min, dsm[ipart]);
-        dsm_max = max(dsm_max, dsm[ipart]);
-        dsmest_min = min(dsmest_min, dsm_est[ipart]);
-        dsmest_max = max(dsmest_max, dsm_est[ipart]);
-        dsmratio_min = min(dsmratio_min, dsm[ipart]/dsm_est[ipart]);
-        dsmratio_max = max(dsmratio_max, dsm[ipart]/dsm_est[ipart]);
-        Nsteps_total += Nsteps[ipart];
-      }
-      cout << "       stats (min,max):"
-           << "  dsm (" << dsm_min << ", " << dsm_max << ")"
-           << "  dsm_est (" << dsmest_min << ", " << dsmest_max << ")"
-           << "  dsm_ratio (" << dsmratio_min << ", " << dsmratio_max << ")"
-           << "  nsteps = " << Nsteps_total
-           << endl;
     }
 
     // Test double-step error estimator
-    cout << "     acc type: " << 2 << endl;
 
     // Loop over partition
     for (size_t ipart=0; ipart<udata.Npart; ipart++) {
@@ -630,31 +594,17 @@ static int fixed_run(void *arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
       sunrealtype vdsm = abs(NV_Ith_S(y,1)-NV_Ith_S(yref[ipart+1],1))/(abstol + reltol*abs(NV_Ith_S(yref[ipart+1],1)));
       sunrealtype wdsm = abs(NV_Ith_S(y,2)-NV_Ith_S(yref[ipart+1],2))/(abstol + reltol*abs(NV_Ith_S(yref[ipart+1],2)));
       dsm[ipart] = reltol*sqrt((udsm*udsm + vdsm*vdsm + wdsm*wdsm)/SUN_RCONST(3.0));
+      cout << "  h " << hvals[ih]
+           << "  rk_type " << rk_type
+           << "  order " << order
+           << "  acc " << 2
+           << "  t " << t
+           << "  dsm " << dsm[ipart]
+           << "  dsm_est " << dsm_est[ipart]
+           << "  nsteps " << Nsteps[ipart]
+           << endl;
     }
-    sunrealtype dsm_min = dsm[0];
-    sunrealtype dsm_max = dsm[0];
-    sunrealtype dsmest_min = dsm_est[0];
-    sunrealtype dsmest_max = dsm_est[0];
-    sunrealtype dsmratio_min = dsm[0]/dsm_est[0];
-    sunrealtype dsmratio_max = dsm[0]/dsm_est[0];
-    int Nsteps_total = 0;
-    for (size_t ipart=0; ipart<udata.Npart; ipart++) {
-      dsm_min = min(dsm_min, dsm[ipart]);
-      dsm_max = max(dsm_max, dsm[ipart]);
-      dsmest_min = min(dsmest_min, dsm_est[ipart]);
-      dsmest_max = max(dsmest_max, dsm_est[ipart]);
-      dsmratio_min = min(dsmratio_min, dsm[ipart]/dsm_est[ipart]);
-      dsmratio_max = max(dsmratio_max, dsm[ipart]/dsm_est[ipart]);
-      Nsteps_total += Nsteps[ipart];
-    }
-    cout << "       stats (min,max):"
-         << "  dsm (" << dsm_min << ", " << dsm_max << ")"
-         << "  dsm_est (" << dsmest_min << ", " << dsmest_max << ")"
-         << "  dsm_ratio (" << dsmratio_min << ", " << dsmratio_max << ")"
-         << "  nsteps = " << Nsteps_total
-         << endl;
   }
-  cout << "   ------------------------------------------------------\n";
 
   N_VDestroy(y2);
   N_VDestroy(ewt);
