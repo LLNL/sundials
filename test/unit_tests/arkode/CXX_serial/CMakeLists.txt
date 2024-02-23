@@ -16,12 +16,12 @@
 
 # List of test tuples of the form "name\;args"
 set(unit_tests
-  "ark_test_accumerror_brusselator.cpp\;3 1"
-  "ark_test_accumerror_brusselator.cpp\;-4 2"
-  "ark_test_accumerror_brusselator.cpp\;5 3"
-  "ark_test_accumerror_kpr.cpp\;0 3"
-  "ark_test_accumerror_kpr.cpp\;1 3 -5.0"
-  "ark_test_accumerror_kpr.cpp\;1 5 -5.0"
+  "ark_test_accumerror_brusselator.cpp\;20 3 1"
+  "ark_test_accumerror_brusselator.cpp\;20 -4 0"
+  "ark_test_accumerror_brusselator.cpp\;20 5 0"
+  "ark_test_accumerror_kpr.cpp\;20 2 0"
+  "ark_test_accumerror_kpr.cpp\;20 3 1"
+  "ark_test_accumerror_kpr.cpp\;20 -4 1"
   "ark_test_analytic_sys_mri.cpp\;0"
   "ark_test_analytic_sys_mri.cpp\;1"
   "ark_test_dahlquist_ark.cpp\;0 0"
