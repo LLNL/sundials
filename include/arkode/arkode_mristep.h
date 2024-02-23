@@ -256,6 +256,13 @@ SUNDIALS_EXPORT int MRIStepComputeState(void* arkode_mem, N_Vector zcor,
                                         N_Vector z);
 
 /* Utility functions to reset/get accumulated temporal error estimate */
+SUNDIALS_EXPORT int MRIStepSetAccumulatedErrorType(void *arkode_mem,
+                                                   int accum_type);
+SUNDIALS_EXPORT int MRIStepResetAccumulatedError(void *arkode_mem);
+SUNDIALS_EXPORT int MRIStepGetAccumulatedError(void *arkode_mem,
+                                               sunrealtype* accum_error);
+
+/* Utility functions to reset/get accumulated temporal error estimate */
 SUNDIALS_EXPORT int MRIStepSetAccumulatedErrorType(void *arkode_mem, int accum_type);
 SUNDIALS_EXPORT int MRIStepResetAccumulatedError(void *arkode_mem);
 SUNDIALS_EXPORT int MRIStepGetAccumulatedError(void *arkode_mem, sunrealtype* accum_error);

@@ -113,6 +113,11 @@ int MRIStepSetMaxNumConstrFails(void* arkode_mem, int maxfails)
   return (arkSetMaxNumConstrFails(arkode_mem, maxfails));
 }
 
+int MRIStepSetFixedStep(void* arkode_mem, sunrealtype hsfixed)
+{
+  return (arkSetFixedStep(arkode_mem, hsfixed));
+}
+
 /*---------------------------------------------------------------
   Wrapper functions for accumulated temporal error estimation.
   ---------------------------------------------------------------*/
@@ -629,34 +634,6 @@ int MRIStepSetPostInnerFn(void* arkode_mem, MRIStepPostInnerFn postfn)
 }
 
 /*---------------------------------------------------------------
-  MRIStepSetFixedStep:
-
-  Wrapper for generic arkSetFixedStep routine.  Additionally
-  enforces current MRIStep constraint for fixed time-stepping.
-  ---------------------------------------------------------------*/
-int MRIStepSetFixedStep(void* arkode_mem, sunrealtype hsfixed)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-
-  if (hsfixed == ZERO)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "MRIStep does not support adaptive steps at this time.");
-    return (ARK_ILL_INPUT);
-  }
-
-  /* call generic routine for remaining work */
-  return (arkSetFixedStep(ark_mem, hsfixed));
-}
-
-/*---------------------------------------------------------------
   MRIStepSetNonlinCRDown:
 
   Specifies the user-provided nonlinear convergence constant
@@ -892,7 +869,8 @@ int MRIStepSetDeduceImplicitRhs(void* arkode_mem, sunbooleantype deduce)
   accumulated fast time scale solution error when MRI adaptivity
   is enabled.  The fast integrator is run twice over each fast
   time interval, once using the inner step size h, and again
-  using hfactor*h.  This is only needed when the results from
+  using hfactor*h (typically hfactor=k or 1/k for an integer k>1).
+  This is only needed when the results from
   mriStepInnerStepper_GetError() cannot be trusted.  In our
   tests, we found this to be the case when the inner integrator
   uses fixed step sizes.

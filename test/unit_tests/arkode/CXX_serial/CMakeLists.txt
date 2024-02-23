@@ -41,6 +41,8 @@ set(unit_tests
   "ark_test_kpr_mriadapt.cpp\;--hs 0.002 --rtol 0.000004 --mri_type 5 --scontrol 0 --fast_type 0"
   "ark_test_kpr_mriadapt.cpp\;--hs 0.002 --mri_type 4 --scontrol 0 --fast_type 3"
   "ark_test_kpr_mriadapt.cpp\;--hs 0.001 --hf 1.e-5 --rtol 1.e-9 --G -100.0 --w 100.0 --e 0.5 --mri_type 10 --scontrol 0 --fast_type 2 --fcontrol 0"
+  "ark_test_slowerror_brusselator.cpp\;"
+  "ark_test_slowerror_kpr.cpp\;"
 )
 
 # Add the build and install targets for each test
