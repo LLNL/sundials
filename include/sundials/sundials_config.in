@@ -294,14 +294,6 @@
  */
 @F77_MANGLE_MACRO2@
 
-/* Allow user to specify different MPI communicator
- * If it was found that the MPI implementation supports MPI_Comm_f2c, then
- *      #define SUNDIALS_MPI_COMM_F2C 1
- * otherwise
- *      #define SUNDIALS_MPI_COMM_F2C 0
- */
-@F77_MPI_COMM_F2C@
-
 /* ------------------------------------------------------------------
  * SUNDIALS __builtin_expect related macros.
  * These macros provide hints to the compiler that the condition
