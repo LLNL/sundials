@@ -271,37 +271,6 @@
 
 @SUNDIALS_CONFIGH_BUILDS@
 
-
-/* ------------------------------------------------------------------
- * SUNDIALS fortran configuration
- * -----------------------------------------------------------------*/
-
-
-/* Define Fortran name-mangling macro for C identifiers.
- * Depending on the inferred scheme, one of the following six
- * macros will be defined:
- *     #define SUNDIALS_F77_FUNC(name,NAME) name
- *     #define SUNDIALS_F77_FUNC(name,NAME) name ## _
- *     #define SUNDIALS_F77_FUNC(name,NAME) name ## __
- *     #define SUNDIALS_F77_FUNC(name,NAME) NAME
- *     #define SUNDIALS_F77_FUNC(name,NAME) NAME ## _
- *     #define SUNDIALS_F77_FUNC(name,NAME) NAME ## __
- */
-@F77_MANGLE_MACRO1@
-
-/* Define Fortran name-mangling macro for C identifiers
- * which contain underscores.
- */
-@F77_MANGLE_MACRO2@
-
-/* Allow user to specify different MPI communicator
- * If it was found that the MPI implementation supports MPI_Comm_f2c, then
- *      #define SUNDIALS_MPI_COMM_F2C 1
- * otherwise
- *      #define SUNDIALS_MPI_COMM_F2C 0
- */
-@F77_MPI_COMM_F2C@
-
 /* ------------------------------------------------------------------
  * SUNDIALS __builtin_expect related macros.
  * These macros provide hints to the compiler that the condition
