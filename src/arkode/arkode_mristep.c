@@ -230,7 +230,7 @@ int MRIStepResize(void* arkode_mem, N_Vector y0, sunrealtype t0,
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   SUNNonlinearSolver NLS;
-  sunindextype lrw1, liw1, lrw_diff, liw_diff;
+  long int lrw1, liw1, lrw_diff, liw_diff;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
@@ -2964,7 +2964,7 @@ int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
 int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
                                   N_Vector tmpl)
 {
-  sunindextype lrw1, liw1;
+  long int lrw1, liw1;
 
   if (stepper == NULL) { return ARK_ILL_INPUT; }
 

@@ -414,7 +414,7 @@ int KINGetLinWorkSpace(void* kinmem, long int* lenrwLS, long int* leniwLS)
 {
   KINMem kin_mem;
   KINLsMem kinls_mem;
-  sunindextype lrw1, liw1;
+  long int lrw1, liw1;
   long int lrw, liw;
   int retval;
 

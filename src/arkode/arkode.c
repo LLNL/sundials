@@ -228,7 +228,7 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
               sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
 {
   sunbooleantype resizeOK;
-  sunindextype lrw1, liw1, lrw_diff, liw_diff;
+  long int lrw1, liw1, lrw_diff, liw_diff;
   int retval;
 
   /* Check ark_mem */
@@ -1329,7 +1329,7 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
 {
   sunbooleantype stepperOK, nvectorOK, allocOK;
   int retval;
-  sunindextype lrw1, liw1;
+  long int lrw1, liw1;
 
   /* Check ark_mem */
   if (ark_mem == NULL)
@@ -1649,7 +1649,7 @@ sunbooleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector* v)
 }
 
 sunbooleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector** v,
-                                sunindextype lrw1, long int* lrw,
+                                long int lrw1, long int* lrw,
                                 sunindextype liw1, long int* liw)
 {
   /* allocate the new vector array if necessary */
@@ -1682,7 +1682,7 @@ void arkFreeVec(ARKodeMem ark_mem, N_Vector* v)
   }
 }
 
-void arkFreeVecArray(int count, N_Vector** v, sunindextype lrw1, long int* lrw,
+void arkFreeVecArray(int count, N_Vector** v, long int lrw1, long int* lrw,
                      sunindextype liw1, long int* liw)
 {
   if (*v != NULL)

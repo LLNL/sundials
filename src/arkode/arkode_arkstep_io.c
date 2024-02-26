@@ -1036,7 +1036,7 @@ int ARKStepSetOrder(void* arkode_mem, int ord)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  sunindextype Blrw, Bliw;
+  long int Blrw, Bliw;
   int retval;
 
   /* access ARKodeARKStepMem structure */
@@ -1270,7 +1270,7 @@ int ARKStepSetTables(void* arkode_mem, int q, int p, ARKodeButcherTable Bi,
   int retval;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  sunindextype Blrw, Bliw;
+  long int Blrw, Bliw;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
@@ -1436,7 +1436,7 @@ int ARKStepSetTableNum(void* arkode_mem, ARKODE_DIRKTableID itable,
   int flag, retval;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  sunindextype Blrw, Bliw;
+  long int Blrw, Bliw;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
