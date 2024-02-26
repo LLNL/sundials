@@ -108,7 +108,7 @@ struct _generic_N_Vector_Ops
   N_Vector (*nvclone)(N_Vector);
   N_Vector (*nvcloneempty)(N_Vector);
   void (*nvdestroy)(N_Vector);
-  void (*nvspace)(N_Vector, sunindextype*, sunindextype*);
+  void (*nvspace)(N_Vector, long int*, long int*);
   sunrealtype* (*nvgetarraypointer)(N_Vector);
   sunrealtype* (*nvgetdevicearraypointer)(N_Vector);
   void (*nvsetarraypointer)(sunrealtype*, N_Vector);
