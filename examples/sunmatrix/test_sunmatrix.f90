@@ -473,7 +473,7 @@ contains
 
     integer(C_INT)  :: myid
     type(SUNMatrix) :: A
-    integer(c_int64_t) :: lenrw(1), leniw(1)
+    integer(C_LONG) :: lenrw(1), leniw(1)
 
     failure = 0
 

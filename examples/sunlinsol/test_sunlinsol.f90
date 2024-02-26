@@ -83,7 +83,7 @@ contains
 
     type(SUNLinearSolver), pointer :: S
     integer(C_INT)                 :: myid
-    integer(c_int64_t)                :: lenrw(1), leniw(1)
+    integer(C_LONG)                :: lenrw(1), leniw(1)
 
     failure = 0
 

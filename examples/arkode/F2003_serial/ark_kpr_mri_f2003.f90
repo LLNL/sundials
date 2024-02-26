@@ -71,14 +71,13 @@
 ! at the end.
 !--------------------------------------------------------------------
 
-module ode_mod
+module ark_kpr_mri_mod
 
   use, intrinsic :: iso_c_binding
   use fsundials_core_mod
   use farkode_mod
   use farkode_arkstep_mod
   use farkode_mristep_mod
-  use fnvector_serial_mod
   use fsunmatrix_dense_mod
   use fsunlinsol_dense_mod
 
@@ -556,9 +555,17 @@ end module
 
 program main
 
-  use ode_mod
-  implicit none
+  use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
+  use farkode_mod
+  use farkode_arkstep_mod
+  use farkode_mristep_mod
+  use fnvector_serial_mod
+  use fsunmatrix_dense_mod
+  use fsunlinsol_dense_mod
+  use ark_kpr_mri_mod
 
+  implicit none
 
   ! general problem variables
   type(c_ptr) sunctx                       ! SUNDIALS simulation context
@@ -666,14 +673,14 @@ program main
       print *, "   solver: none/exp-3 (no slow, explicit fast)"
     case (2)
       reltol = max(hs*hs*hs, real(1e-10,8))
-      abstol = 1e-11
+      abstol = real(1e-11,8)
       print *, "   solver: none/dirk-3 (no slow, dirk fast)"
       print '(A,E12.4,A,E12.4)', "    reltol: ", reltol, " abstol: ", abstol
     case (3)
       print *, "   solver: exp-3/none (explicit slow, no fast)"
     case (4)
       reltol = max(hs*hs, real(1e-10,8))
-      abstol = 1e-11
+      abstol = real(1e-11,8)
       print *, "   solver: dirk-2/none (dirk slow, no fast)"
       print '(A,E12.4,A,E12.4)', "    reltol: ", reltol, " abstol: ", abstol
     case (5)
@@ -682,17 +689,17 @@ program main
       print *, "   solver: exp-4/exp-3 (MRI-GARK-ERK45a / ERK-3-3)"
     case (7)
       reltol = max(hs*hs*hs, real(1e-10,8))
-      abstol = 1e-11
+      abstol = real(1e-11,8)
       print *, "   solver: dirk-3/exp-3 (MRI-GARK-ESDIRK34a / ERK-3-3) -- solve decoupled"
       print '(A,E12.4,A,E12.4)', "    reltol: ", reltol, " abstol: ", abstol
     case (8)
       reltol = max(hs*hs*hs, real(1e-10,8))
-      abstol = 1e-11
+      abstol = real(1e-11,8)
       print *, "   solver: ars343/exp-3 (IMEX-MRI3b / ERK-3-3) -- solve decoupled"
       print '(A,E12.4,A,E12.4)', "    reltol: ", reltol, " abstol: ", abstol
     case (9)
       reltol = max(hs*hs*hs*hs, real(1e-14,8))
-      abstol = 1e-14
+      abstol = real(1e-14,8)
       print *, "   solver: imexark4/exp-4 (IMEX-MRI4 / ERK-4-4) -- solve decoupled"
       print '(A,E12.4,A,E12.4)', "    reltol: ", reltol, " abstol: ", abstol
   end select

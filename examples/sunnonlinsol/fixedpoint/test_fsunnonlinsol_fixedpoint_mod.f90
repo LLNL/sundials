@@ -45,7 +45,7 @@ contains
     type(SUNNonlinearSolver), pointer :: NLS         ! test nonlinear solver
     type(N_Vector),           pointer :: x, y0, y, w ! test vectors
     real(C_DOUBLE),           pointer :: ydata(:)
-    integer(c_int64_t)                   :: niters(1)
+    integer(C_LONG)                   :: niters(1)
     integer(C_INT)                    :: tmp
 
     x  => FN_VNew_Serial(NEQ, sunctx)

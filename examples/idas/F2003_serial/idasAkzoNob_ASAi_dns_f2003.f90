@@ -408,7 +408,7 @@ program main
   retval = FIDASStolerancesB(mem, indexB(1), RTOLB, ATOLB)
   call check_retval(retval, "FIDASStolerancesB")
 
-  retval = FIDASetMaxNumStepsB(mem, indexB(1), 1000_8)
+  retval = FIDASetMaxNumStepsB(mem, indexB(1), 1000)
   call check_retval(retval, "FIDASetMaxNumStepsB")
 
   ! Create dense SUNMatrix for use in linear solves

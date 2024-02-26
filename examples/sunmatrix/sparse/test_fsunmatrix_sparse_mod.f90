@@ -41,7 +41,7 @@ contains
     type(N_Vector),  pointer      :: x, y
     real(C_DOUBLE),  pointer      :: matdat(:)          ! matrix data pointer
     integer(c_int64_t), pointer :: inddat(:)          ! indices data pointer
-    integer(c_int64_t)               :: lenrw(1), leniw(1) ! matrix real and int work space size
+    integer(C_LONG)               :: lenrw(1), leniw(1) ! matrix real and int work space size
 
     integer(c_int64_t) :: tmp1
     integer(C_INT)  :: tmp2
