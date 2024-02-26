@@ -783,7 +783,7 @@ SUNErrCode SUNLinSolSpace_SPGMR(SUNLinearSolver S, long int* lenrwLS,
 {
   SUNFunctionBegin(S->sunctx);
   int maxl;
-  sunindextype liw1, lrw1;
+  long int liw1, lrw1;
   maxl = SPGMR_CONTENT(S)->maxl;
   if (SPGMR_CONTENT(S)->vtemp->ops->nvspace)
   {
