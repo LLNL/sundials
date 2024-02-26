@@ -1229,8 +1229,8 @@ end function
 subroutine FARKodeButcherTable_Space(b, liw, lrw)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: b
-integer(C_INT64_T), dimension(*), target, intent(inout) :: liw
-integer(C_INT64_T), dimension(*), target, intent(inout) :: lrw
+integer(C_LONG), dimension(*), target, intent(inout) :: liw
+integer(C_LONG), dimension(*), target, intent(inout) :: lrw
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 
@@ -1621,8 +1621,8 @@ end subroutine
 subroutine FARKodeSPRKTable_Space(sprk_storage, liw, lrw)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: sprk_storage
-integer(C_INT64_T), dimension(*), target, intent(inout) :: liw
-integer(C_INT64_T), dimension(*), target, intent(inout) :: lrw
+integer(C_LONG), dimension(*), target, intent(inout) :: liw
+integer(C_LONG), dimension(*), target, intent(inout) :: lrw
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 
