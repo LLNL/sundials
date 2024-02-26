@@ -11,7 +11,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
@@ -25,25 +24,19 @@ jobs:
       run: cmake -G "Visual Studio 17 2022" -B ${{github.workspace}}/build_shared -DBUILD_STATIC_LIBS=OFF -DBUILD_SHARED_LIBS=ON -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=ON -DEXAMPLES_ENABLE_CXX=ON
 
     - name: Build
-      # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build_shared --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}/build_shared
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
 
     - name: Configure CMake (Static)
       run: cmake -G "Visual Studio 17 2022" -B ${{github.workspace}}/build_static -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=ON -DEXAMPLES_ENABLE_CXX=ON
 
     - name: Build
-      # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build_static --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}/build_static
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
 
