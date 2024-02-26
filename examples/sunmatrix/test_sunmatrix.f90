@@ -77,7 +77,7 @@ contains
 
     type(N_Vector)  :: x, y
     real(C_DOUBLE)  :: tol
-    integer(C_LONG) :: i, xlen, ylen
+    integer(C_INT64_T) :: i, xlen, ylen
     real(C_DOUBLE), pointer :: xdata(:), ydata(:)
 
     failure = 0
@@ -473,7 +473,7 @@ contains
 
     integer(C_INT)  :: myid
     type(SUNMatrix) :: A
-    integer(C_LONG) :: lenrw(1), leniw(1)
+    integer(c_int64_t) :: lenrw(1), leniw(1)
 
     failure = 0
 

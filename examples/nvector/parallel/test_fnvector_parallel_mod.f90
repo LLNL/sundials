@@ -23,20 +23,20 @@ module test_nvector_parallel
   implicit none
   include "mpif.h"
 
-  integer(c_long), parameter :: local_length = 100    ! vector local length
+  integer(c_int64_t), parameter :: local_length = 100    ! vector local length
   integer(c_int),  parameter :: nv = 3                ! length of vector arrays
   integer(c_int),  parameter :: ns = 2                ! number of vector arrays
 
   integer(c_int), target  :: comm = MPI_COMM_WORLD ! default MPI communicator
-  integer(c_long)         :: global_length ! vector global_length
+  integer(c_int64_t)         :: global_length ! vector global_length
   integer(c_int)          :: nprocs        ! number of MPI processes
   contains
 
   integer function smoke_tests() result(ret)
     implicit none
 
-    integer(c_long_long)    :: lenrw(1), leniw(1)  ! real and int work space size
-    integer(c_long)         :: ival                ! integer work value
+    integer(C_LONG)    :: lenrw(1), leniw(1)  ! real and int work space size
+    integer(c_int64_t)         :: ival                ! integer work value
     real(c_double)          :: rval                ! real work value
     real(c_double)          :: xdata(local_length) ! vector data array
     real(c_double), pointer :: xptr(:)             ! pointer to vector data array
@@ -162,7 +162,7 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
 
   real(C_DOUBLE)          :: ans
   type(N_Vector)          :: X
-  integer(C_LONG)         :: local_length, i
+  integer(c_int64_t)         :: local_length, i
   real(C_DOUBLE), pointer :: Xdata(:)
 
   failure = 0

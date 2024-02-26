@@ -1032,8 +1032,8 @@ contains
     Fi_ptr    = FN_VNewVectorArray(1, sunctx)
     sdata_ptr = FN_VNewVectorArray(1, sunctx)
 
-    sunvec_bnode => FN_VNew_Serial(int(Nvar, c_long), sunctx)
-    sunmat_Jnode => FSUNDenseMatrix(int(Nvar, c_long), int(Nvar, c_long), sunctx)
+    sunvec_bnode => FN_VNew_Serial(int(Nvar, c_int64_t), sunctx)
+    sunmat_Jnode => FSUNDenseMatrix(int(Nvar, c_int64_t), int(Nvar, c_int64_t), sunctx)
     sunls_Jnode  => FSUNLinSol_Dense(sunvec_bnode, sunmat_Jnode, sunctx)
 
     ! initialize number of nonlinear solver function evals and fails
@@ -1124,7 +1124,7 @@ program main
   call SetupProblem()
 
   ! Create solution vector
-  sunvec_ys => FN_VNew_Serial(int(Neq, c_long), sunctx)
+  sunvec_ys => FN_VNew_Serial(int(Neq, c_int64_t), sunctx)
   sunvec_y  => FN_VMake_MPIPlusX(comm, sunvec_ys, sunctx)
 
   ! Enable fused vector ops in local and MPI+X vectors
@@ -1253,7 +1253,7 @@ subroutine EvolveProblemIMEX(sunvec_y)
   end if
 
   ! Increase the max number of steps allowed between outputs
-  retval = FARKStepSetMaxNumSteps(arkode_mem, int(100000, c_long))
+  retval = FARKStepSetMaxNumSteps(arkode_mem, int(100000, c_int64_t))
   if (retval /= 0) then
      print *, "Error: FARKStepMaxNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
@@ -1300,7 +1300,7 @@ subroutine EvolveProblemIMEX(sunvec_y)
      end if
 
      ! Create MPI task-local data structures for preconditioning
-     sunmat_P => FSUNDenseMatrix(int(Neq, c_long), int(Neq, c_long), sunctx)
+     sunmat_P => FSUNDenseMatrix(int(Neq, c_int64_t), int(Neq, c_int64_t), sunctx)
      sunls_P  => FSUNLinSol_Dense(umask_s, sunmat_P, sunctx)
 
   else
@@ -1541,7 +1541,7 @@ subroutine EvolveProblemExplicit(sunvec_y)
   end if
 
   ! Increase the max number of steps allowed between outputs
-  retval = FERKStepSetMaxNumSteps(arkode_mem, int(100000, c_long))
+  retval = FERKStepSetMaxNumSteps(arkode_mem, int(100000, C_INT64_T))
   if (retval /= 0) then
      print *, "Error: FERKStepMaxNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
@@ -2160,7 +2160,7 @@ subroutine SetupProblem()
   dx   = xmax / Nx   ! Nx is number of intervals
 
   ! Create the solution masks
-  umask_s => FN_VNew_Serial(int(Neq, c_long), sunctx)
+  umask_s => FN_VNew_Serial(int(Neq, c_int64_t), sunctx)
   umask   => FN_VMake_MPIPlusX(comm, umask_s, sunctx)
 
   if (fused) then

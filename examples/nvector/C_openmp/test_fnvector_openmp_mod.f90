@@ -22,7 +22,7 @@ module test_nvector_openmp
   use test_utilities
   implicit none
 
-  integer(c_long), parameter :: N = 100 ! vector length
+  integer(c_int64_t), parameter :: N = 100 ! vector length
   integer(c_int),  parameter :: nv = 3  ! length of vector arrays
   integer(c_int),  parameter :: ns = 2  ! number of vector arrays
 
@@ -31,8 +31,8 @@ module test_nvector_openmp
   integer function smoke_tests() result(ret)
     implicit none
 
-    integer(c_long_long)    :: lenrw(1), leniw(1) ! real and int work space size
-    integer(c_long)         :: ival               ! integer work value
+    integer(c_int64_t)    :: lenrw(1), leniw(1) ! real and int work space size
+    integer(c_int)         :: ival               ! integer work value
     real(c_double)          :: rval               ! real work value
     real(c_double)          :: xdata(N)           ! vector data array
     real(c_double), pointer :: xptr(:)            ! pointer to vector data array
@@ -150,7 +150,7 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
 
   real(C_DOUBLE)          :: ans
   type(N_Vector)          :: X
-  integer(C_LONG)         :: local_length, i
+  integer(c_int64_t)         :: local_length, i
   real(C_DOUBLE), pointer :: Xdata(:)
 
   failure = 0

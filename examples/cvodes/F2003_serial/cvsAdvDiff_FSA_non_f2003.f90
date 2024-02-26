@@ -68,8 +68,8 @@ module ode_problem
   integer(c_int),  parameter :: NOUT  = 10
   integer(c_int),  parameter :: NP    = 2
   integer(c_int),  parameter :: NS    = 2
-  integer(c_long), parameter :: MX    = 10
-  integer(c_long), parameter :: NEQ   = MX
+  integer(C_INT64_T), parameter :: MX    = 10
+  integer(c_int64_t), parameter :: neq   = MX
 
   ! problem constants
   real(c_double) :: ZERO  = 0.d0

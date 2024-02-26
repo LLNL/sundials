@@ -20,7 +20,7 @@ module test_fsunmatrix_dense
   use test_utilities
   implicit none
 
-  integer(C_LONG), parameter :: N = 4
+  integer(c_int64_t), parameter :: N = 4
 
 contains
 
@@ -40,8 +40,8 @@ contains
     type(SUNMatrix), pointer :: A, B               ! SUNMatrix
     type(N_Vector),  pointer :: x, y               ! NVectors
     real(C_DOUBLE),  pointer :: matdat(:)          ! matrix data pointer
-    integer(C_LONG)          :: lenrw(1), leniw(1) ! matrix real and int work space size
-    integer(C_LONG)          :: val
+    integer(c_int64_t)          :: lenrw(1), leniw(1) ! matrix real and int work space size
+    integer(c_int64_t)          :: val
 
     fails = 0
 
@@ -99,7 +99,7 @@ contains
     type(SUNMatrix), pointer :: A, I
     type(N_Vector),  pointer :: x, y
     real(C_DOUBLE),  pointer :: Adata(:), Idata(:), xdata(:), ydata(:)
-    integer(C_LONG)          :: ii, jj, tmp1, tmp2
+    integer(C_INT64_T)          :: ii, jj, tmp1, tmp2
 
     fails = 0
 
@@ -193,7 +193,7 @@ integer(C_INT) function check_matrix(A, B, tol) result(fails)
   type(SUNMatrix) :: A, B
   real(C_DOUBLE)  :: tol
   real(C_DOUBLE), pointer :: Adata(:), Bdata(:)
-  integer(C_LONG) :: Aldata, Bldata, i
+  integer(C_INT64_T) :: Aldata, Bldata, i
 
   fails = 0
 
@@ -229,7 +229,7 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
   type(SUNMatrix) :: A
   real(C_DOUBLE)  :: c, tol
   real(C_DOUBLE), pointer :: Adata(:)
-  integer(C_LONG) :: Aldata, i
+  integer(C_INT64_T) :: Aldata, i
 
   fails = 0
 

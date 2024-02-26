@@ -34,7 +34,7 @@ module ode_mod
   implicit none
 
   ! number of equations
-  integer(c_long), parameter :: neq = 1
+  integer(c_int64_t), parameter :: neq = 1
 
   ! ODE parameters
   double precision, parameter :: lamda = -100.0d0

@@ -39,7 +39,7 @@ module ode_mod
 
   !======= Declarations =========
   implicit none
-  integer(c_long),            parameter :: neq = 1
+  integer(c_int64_t),         parameter :: neq = 1
   integer(c_int),             parameter :: Nt = 10
   complex(c_double_complex),  parameter :: lambda = (-1d-2, 10.d0)
   real(c_double),             parameter :: T0 = 0.d0

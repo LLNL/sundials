@@ -20,7 +20,7 @@ module test_fsunlinsol_lapackdense
   use test_utilities
   implicit none
 
-  integer(C_LONG), private, parameter :: N = 100
+  integer(c_int64_t), private, parameter :: N = 100
 
 contains
 
@@ -42,7 +42,7 @@ contains
     real(C_DOUBLE),        pointer :: colj(:), colIj(:) ! matrix column data
     real(C_DOUBLE),        pointer :: xdata(:)          ! x vector data
     real(C_DOUBLE)                 :: tmpr              ! temporary real value
-    integer(C_LONG)                :: j, k
+    integer(C_INT64_T)                :: j, k
     integer(C_INT)                 :: tmp
 
     fails = 0
@@ -125,7 +125,7 @@ integer(C_INT) function check_vector(X, Y, tol) result(failure)
   implicit none
   type(N_Vector)  :: x, y
   real(C_DOUBLE)  :: tol, maxerr
-  integer(C_LONG) :: i, xlen, ylen
+  integer(C_INT64_T) :: i, xlen, ylen
   real(C_DOUBLE), pointer :: xdata(:), ydata(:)
 
   failure = 0

@@ -21,7 +21,7 @@ module test_fsunnonlinsol_fixedpoint
 
   implicit none
 
-  integer(C_LONG), parameter :: NEQ   = 3      ! number of equations
+  integer(c_int64_t), parameter :: neq   = 3      ! number of equations
   integer(C_INT),  parameter :: MAXIT = 10     ! max nonlinear iters.
   real(C_DOUBLE),  parameter :: TOL   = 1.0e-4 ! nonlinear solver tolerance
 
@@ -45,7 +45,7 @@ contains
     type(SUNNonlinearSolver), pointer :: NLS         ! test nonlinear solver
     type(N_Vector),           pointer :: x, y0, y, w ! test vectors
     real(C_DOUBLE),           pointer :: ydata(:)
-    integer(C_LONG)                   :: niters(1)
+    integer(c_int64_t)                   :: niters(1)
     integer(C_INT)                    :: tmp
 
     x  => FN_VNew_Serial(NEQ, sunctx)

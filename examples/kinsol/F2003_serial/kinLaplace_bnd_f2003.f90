@@ -31,10 +31,10 @@ module prob_mod
   !======= Declarations =========
   implicit none
 
-  integer(c_long), parameter :: nx = 31
-  integer(c_long), parameter :: ny = 31
-  integer(c_long), parameter :: neq = nx*ny
-  integer(c_long), parameter :: skip = 3
+  integer(c_int64_t), parameter :: nx = 31
+  integer(c_int64_t), parameter :: ny = 31
+  integer(c_int64_t), parameter :: neq = nx*ny
+  integer(c_int64_t), parameter :: skip = 3
   real(c_double),  parameter :: ftol = 1.d-12
 
 contains
@@ -66,7 +66,7 @@ contains
     real(c_double), pointer :: u(:,:), f(:,:)
 
     ! internal variables
-    integer(c_long) :: i, j
+    integer(C_INT64_T) :: i, j
     real(c_double)  :: dx, dy, hdiff, vdiff, hdc, vdc, uij, udn, uup, ult, urt
 
     !======= Internals ============
@@ -315,7 +315,7 @@ subroutine PrintOutput(u)
   real(c_double), dimension(nx,ny) :: u
 
   ! internal variables
-  integer(c_long) :: i, j
+  integer(C_INT64_T) :: i, j
   real(c_double)  :: dx, dy, x, y
 
   !======= Internals ============

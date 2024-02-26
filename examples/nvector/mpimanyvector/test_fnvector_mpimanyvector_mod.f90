@@ -26,10 +26,10 @@ module test_nvector_mpimanyvector
   include "mpif.h"
 
   integer(c_int), parameter  :: nsubvecs = 2
-  integer(c_long), parameter :: N1       = 100        ! individual vector length
-  integer(c_long), parameter :: N2       = 200        ! individual vector length
+  integer(c_int64_t), parameter :: N1       = 100        ! individual vector length
+  integer(c_int64_t), parameter :: N2       = 200        ! individual vector length
   integer(c_int),  parameter :: nv       = 3          ! length of vector arrays
-  integer(c_long), parameter :: N        = N1 + N2    ! overall manyvector length
+  integer(c_int64_t), parameter :: N        = N1 + N2    ! overall manyvector length
   integer(c_int), target     :: comm = MPI_COMM_WORLD ! default MPI communicator
   integer(c_int)             :: nprocs                ! number of MPI processes
 
@@ -38,8 +38,8 @@ contains
   integer function smoke_tests() result(ret)
     implicit none
 
-    integer(c_long_long)    :: lenrw(1), leniw(1)     ! real and int work space size
-    integer(c_long)         :: ival                   ! integer work value
+    integer(c_int64_t)    :: lenrw(1), leniw(1)     ! real and int work space size
+    integer(c_int64_t)         :: ival                   ! integer work value
     real(c_double)          :: rval                   ! real work value
     real(c_double)          :: x1data(N1), x2data(N2) ! vector data array
     real(c_double), pointer :: xptr(:)                ! pointer to vector data array
@@ -184,7 +184,7 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   real(C_DOUBLE)          :: ans
   type(N_Vector)          :: X
   type(N_Vector), pointer :: X0, X1
-  integer(C_LONG)         :: local_length, i, x0len, x1len
+  integer(c_int64_t)         :: local_length, i, x0len, x1len
   real(C_DOUBLE), pointer :: x0data(:), x1data(:)
 
   failure = 0

@@ -20,9 +20,9 @@ module test_fsunlinsol_band
   use test_utilities
   implicit none
 
-  integer(C_LONG), parameter :: N = 10
-  integer(C_LONG), parameter :: mu = 2
-  integer(C_LONG), parameter :: ml = 3
+  integer(c_int64_t), parameter :: N = 10
+  integer(c_int64_t), parameter :: mu = 2
+  integer(c_int64_t), parameter :: ml = 3
 
 contains
 
@@ -43,8 +43,8 @@ contains
     type(N_Vector),  pointer :: x, y, b            ! test vectors
     real(C_DOUBLE),  pointer :: xdata(:), Adata(:) ! data arrays
     real(C_DOUBLE)           :: tmpr               ! temporary real value
-    integer(C_LONG)          :: j, k
-    integer(C_LONG)          :: smu, kstart, kend, offset
+    integer(c_int64_t)          :: j, k
+    integer(c_int64_t)          :: smu, kstart, kend, offset
     integer(C_INT)           :: tmp
 
     fails = 0
@@ -127,7 +127,7 @@ integer(C_INT) function check_vector(X, Y, tol) result(failure)
   implicit none
   type(N_Vector)  :: x, y
   real(C_DOUBLE)  :: tol, maxerr
-  integer(C_LONG) :: i, xlen, ylen
+  integer(c_int64_t) :: i, xlen, ylen
   real(C_DOUBLE), pointer :: xdata(:), ydata(:)
 
   failure = 0

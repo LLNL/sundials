@@ -34,7 +34,7 @@ module dae_mod
   implicit none
 
   ! problem parameters
-  integer(c_long), parameter :: NEQ   = 6
+  integer(c_int64_t), parameter :: neq   = 6
   integer(c_long), parameter :: STEPS = 150
   real(c_double),  parameter :: T0    = 0.0d0
   real(c_double),  parameter :: TF    = 180.d0

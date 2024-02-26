@@ -38,7 +38,7 @@ integer(C_INT) function Test_FN_VMake(X, local_length, myid) &
   implicit none
 
   type(N_Vector)  :: X
-  integer(C_LONG) :: local_length
+  integer(C_INT64_T) :: local_length
   integer(C_INT)  :: myid
 
   if (.not. has_data(X)) then
@@ -64,7 +64,7 @@ integer(C_INT) function Test_FN_VGetArrayPointer(W, local_length, myid) &
   implicit none
 
   type(N_Vector)  :: W
-  integer(C_LONG) :: local_length
+  integer(C_INT64_T) :: local_length
   integer(C_INT)  :: myid
 
   ! check vector data
@@ -98,7 +98,7 @@ integer(C_INT) function Test_FN_VLinearCombination(X, local_length, myid) &
     result(failure)
 
   type(N_Vector)          :: X
-  integer(C_LONG)         :: local_length
+  integer(C_INT64_T)         :: local_length
   integer(C_INT)          :: myid, ierr
   type(N_Vector), pointer :: Y1, Y2, Y3
   type(c_ptr), target     :: V(3)
