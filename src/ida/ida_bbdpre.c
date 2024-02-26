@@ -62,8 +62,8 @@ int IDABBDPrecInit(void* ida_mem, sunindextype Nlocal, sunindextype mudq,
   IDAMem IDA_mem;
   IDALsMem idals_mem;
   IBBDPrecData pdata;
-  sunindextype muk, mlk, storage_mu, lrw1, liw1;
-  long int lrw, liw;
+  sunindextype muk, mlk, storage_mu;
+  long int lrw, liw, lrw1, liw1;
   int flag;
 
   if (ida_mem == NULL)
