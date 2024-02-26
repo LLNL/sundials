@@ -297,6 +297,7 @@ program main
     call check_retval(retval, "FCVodeSetSensParams")
 
     ! create sensitivity fixed point nonlinear solver object
+    NLSsens => null()
     if (sensi_meth == CV_SIMULTANEOUS) then
       NLSsens => FSUNNonlinSol_FixedPointSens(NS+1, u, 0, ctx)
     else if (sensi_meth == CV_STAGGERED) then
