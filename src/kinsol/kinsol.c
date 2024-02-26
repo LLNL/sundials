@@ -322,7 +322,7 @@ void* KINCreate(SUNContext sunctx)
 
 int KINInit(void* kinmem, KINSysFn func, N_Vector tmpl)
 {
-  sunindextype liw1, lrw1;
+  long int liw1, lrw1;
   KINMem kin_mem;
   sunbooleantype allocOK, nvectorOK, dotprodSB;
 
