@@ -486,7 +486,7 @@ int ERKStepSetOrder(void* arkode_mem, int ord)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  sunindextype Blrw, Bliw;
+  long int Blrw, Bliw;
   int retval;
 
   /* access ARKodeERKStepMem structure */
@@ -526,7 +526,7 @@ int ERKStepSetTable(void* arkode_mem, ARKodeButcherTable B)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  sunindextype Blrw, Bliw;
+  long int Blrw, Bliw;
   int retval;
 
   /* access ARKodeERKStepMem structure */
@@ -584,7 +584,7 @@ int ERKStepSetTableNum(void* arkode_mem, ARKODE_ERKTableID etable)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  sunindextype Blrw, Bliw;
+  long int Blrw, Bliw;
   int retval;
 
   /* access ARKodeERKStepMem structure */

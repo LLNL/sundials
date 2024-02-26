@@ -568,7 +568,7 @@ int IDAInit(void* ida_mem, IDAResFn res, sunrealtype t0, N_Vector yy0,
   int retval;
   IDAMem IDA_mem;
   sunbooleantype nvectorOK, allocOK;
-  sunindextype lrw1, liw1;
+  long int lrw1, liw1;
   SUNNonlinearSolver NLS;
 
   /* Check ida_mem */
