@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2024, Lawrence Livermore National Security
