@@ -1,10 +1,5 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release X.X.X
-
-Converted most previous Fortran 77 and 90 examples to use SUNDIALS' current
-Fortran 2003 interface.
-
 ## Changes to SUNDIALS in release 7.0.0-rc.1
 
 ⚠️ This is a release candidate.
@@ -17,6 +12,12 @@ be built with additional error checking by default. See the
 section in the user guide for details.
 
 ### Breaking Changes
+
+#### Minimum C Standard
+
+SUNDIALS now requires using a compiler that supports a subset of the C99
+standard. Note with the Microsoft C/C++ compiler the subset of C99 features
+utilized by SUNDIALS are available starting with [Visual Studio 2015](https://learn.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-170#c-standard-library-features-1).
 
 #### Deprecated Types and Functions Removed
 
@@ -165,6 +166,9 @@ Fixed [#329](https://github.com/LLNL/sundials/issues/329) so that C++20 aggregat
 Fixed integer overflow in the internal SUNDIALS hashmap. This resolves
 [#409](https://github.com/LLNL/sundials/issues/409) and
 [#249](https://github.com/LLNL/sundials/issues/249)
+
+Converted most previous Fortran 77 and 90 examples to use SUNDIALS' Fortran 2003
+interface.
 
 ## Changes to SUNDIALS in release 6.7.0
 
