@@ -195,7 +195,8 @@ program main
   type(c_ptr)                       :: cvodes_mem
   type(N_Vector),           pointer :: u, uiS
   type(c_ptr)                       :: uS
-  type(SUNNonlinearSolver), pointer :: NLS, NLSsens
+  type(SUNNonlinearSolver), pointer :: NLS
+  type(SUNNonlinearSolver), pointer :: NLSsens => null()
   integer(c_int)                    :: iout, retval
   real(c_double)                    :: reltol, abstol, tout, t(1)
   integer(c_int)                    :: is
@@ -297,7 +298,6 @@ program main
     call check_retval(retval, "FCVodeSetSensParams")
 
     ! create sensitivity fixed point nonlinear solver object
-    NLSsens => null()
     if (sensi_meth == CV_SIMULTANEOUS) then
       NLSsens => FSUNNonlinSol_FixedPointSens(NS+1, u, 0, ctx)
     else if (sensi_meth == CV_STAGGERED) then
