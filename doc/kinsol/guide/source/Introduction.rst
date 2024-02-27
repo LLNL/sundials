@@ -249,6 +249,11 @@ Fixed integer overflow in the internal SUNDIALS hashmap. This resolves
 `GitHub Issues #409 <https://github.com/LLNL/sundials/issues/409>`_ and
 `#249 <https://github.com/LLNL/sundials/issues/249>`_.
 
+The advanced CMake options to override the inferred LAPACK name-mangling scheme
+have been updated from ``SUNDIALS_F77_FUNC_CASE`` and
+``SUNDIALS_F77_FUNC_UNDERSCORES`` to :cmakeop:`SUNDIALS_LAPACK_CASE` and
+:cmakeop:`SUNDIALS_LAPACK_UNDERSCORES`, respectively.
+
 Changes in v6.7.0
 -----------------
 

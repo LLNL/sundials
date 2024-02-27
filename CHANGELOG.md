@@ -166,6 +166,11 @@ Fixed integer overflow in the internal SUNDIALS hashmap. This resolves
 [#409](https://github.com/LLNL/sundials/issues/409) and
 [#249](https://github.com/LLNL/sundials/issues/249)
 
+The advanced CMake options to override the inferred LAPACK name-mangling scheme
+have been updated from `SUNDIALS_F77_FUNC_CASE` and
+`SUNDIALS_F77_FUNC_UNDERSCORES` to `SUNDIALS_LAPACK_CASE` and
+`SUNDIALS_LAPACK_UNDERSCORES`, respectively.
+
 ## Changes to SUNDIALS in release 6.7.0
 
 Added the `SUNAdaptController` base class, ported ARKODE's internal
