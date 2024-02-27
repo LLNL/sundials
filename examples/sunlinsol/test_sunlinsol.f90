@@ -43,12 +43,13 @@ contains
     integer(SUNLinearSolver_Type)  :: mysunid, sunid
     integer(C_INT)                 :: myid
 
+    failure = 0
+
     sunid = FSUNLinSolGetType(S)
     if (sunid /= mysunid) then
       failure = 1
       write(*,*) ">>> FAILED test -- FSUNLinSolGetType, Proc", myid
     else if (myid == 0) then
-      failure = 0
       write(*,*) "    PASSED test -- FSUNLinSolGetType"
     end if
   end function Test_FSUNLinSolGetType
