@@ -61,12 +61,12 @@ def main():
     else:
         # author of most recent commit
         cmd = "git log --format='%ae' -1"
-        recipient = runCommand(cmd).rstrip()
+        recipient = runCommand(cmd).rstrip().decode('UTF-8')
 
         # check if the last commit was a CI merge
         if (recipient == 'nobody@nowhere'):
             cmd = "git log HEAD~1 --pretty=format:'%ae' -1"
-            recipient = runCommand(cmd).rstrip()
+            recipient = runCommand(cmd).rstrip().decode('UTF-8')
 
     # send notification if tests fail, log file not found, or fixed
     if (args.teststatus == 'failed'):
@@ -103,15 +103,14 @@ def runCommand(cmd):
 def sendEmail(recipient, subject, message):
 
     import smtplib
-    from email.MIMEText import MIMEText
+    from email.message import EmailMessage
 
     # Open a plain text file for reading. Assumed that
     # the text file contains only ASCII characters.
-    fp = open(message, 'rb')
-
-    # Create a text/plain message
-    msg = MIMEText(fp.read())
-    fp.close()
+    with open(message) as fp:
+        # Create a text/plain message
+        msg = EmailMessage()
+        msg.set_content(fp.read())
 
     # sender's email address
     sender = "SUNDIALS.suntest@llnl.gov"
@@ -124,7 +123,7 @@ def sendEmail(recipient, subject, message):
     # Send the message via our own SMTP server, but don't include the
     # envelope header.
     s = smtplib.SMTP('smtp.llnl.gov')
-    s.sendmail(sender, [recipient], msg.as_string())
+    s.send_message(msg)
     s.quit()
 
 
