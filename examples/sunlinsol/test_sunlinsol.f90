@@ -45,7 +45,6 @@ contains
       failure = 1
       write(*,*) ">>> FAILED test -- FSUNLinSolGetType, Proc", myid
     else if (myid == 0) then
-      failure = 0
       write(*,*) "    PASSED test -- FSUNLinSolGetType"
     end if
   end function Test_FSUNLinSolGetType
