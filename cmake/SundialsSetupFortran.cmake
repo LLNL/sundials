@@ -44,11 +44,8 @@ endif()
 enable_language(Fortran)
 set(Fortran_FOUND TRUE)
 
-# Enable preprocessing Fortran code. With older versions of CMake is this
-# handled in SundialsAddLibrary.cmake by adding a compiler option.
-if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.18")
-  set(CMAKE_Fortran_PREPROCESS ON)
-endif()
+# Enable preprocessing Fortran code
+set(CMAKE_Fortran_PREPROCESS ON)
 
 # -----------------------------------------------------------------------------
 # Check if Fortran 2003 is supported

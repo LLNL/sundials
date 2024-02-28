@@ -77,9 +77,6 @@ endforeach(example_tuple ${FCVODES_examples})
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/F2003_serial)
-
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "CVODES")
   set(SOLVER_LIB "sundials_cvodes")
