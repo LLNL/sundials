@@ -195,7 +195,8 @@ program main
   type(c_ptr)                       :: cvodes_mem
   type(N_Vector),           pointer :: u, uiS
   type(c_ptr)                       :: uS
-  type(SUNNonlinearSolver), pointer :: NLS, NLSsens
+  type(SUNNonlinearSolver), pointer :: NLS
+  type(SUNNonlinearSolver), pointer :: NLSsens => null()
   integer(c_int)                    :: iout, retval
   real(c_double)                    :: reltol, abstol, tout, t(1)
   integer(c_int)                    :: is
@@ -381,7 +382,7 @@ program main
 
   call FCVodeFree(cvodes_mem)
   retval = FSUNNonlinSolFree(NLS)
-  if (sensi /= 0) then
+  if (associated(NLSsens)) then
     retval = FSUNNonlinSolFree(NLSsens)
   endif
 
