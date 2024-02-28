@@ -86,12 +86,6 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
-Changes in vX.X.X
------------------
-
-Converted most previous Fortran 77 and 90 examples to use SUNDIALS' current
-Fortran 2003 interface.
-
 Changes in v6.0.0-rc.1
 ----------------------
 
@@ -102,6 +96,13 @@ be built with additional error checking by default. See :numref:`SUNDIALS.Errors
 for details.
 
 **Breaking Changes**
+
+*Minimum C Standard*
+
+SUNDIALS now requires using a compiler that supports a subset of the C99
+standard. Note with the Microsoft C/C++ compiler the subset of C99 features
+utilized by SUNDIALS are available starting with
+`Visual Studio 2015 <https://learn.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-170#c-standard-library-features-1>`_.
 
 *Deprecated Types and Functions Removed*
 
@@ -272,6 +273,9 @@ The advanced CMake options to override the inferred LAPACK name-mangling scheme
 have been updated from ``SUNDIALS_F77_FUNC_CASE`` and
 ``SUNDIALS_F77_FUNC_UNDERSCORES`` to :cmakeop:`SUNDIALS_LAPACK_CASE` and
 :cmakeop:`SUNDIALS_LAPACK_UNDERSCORES`, respectively.
+
+Converted most previous Fortran 77 and 90 examples to use SUNDIALS' Fortran 2003
+interface.
 
 Changes in v5.7.0
 -----------------
