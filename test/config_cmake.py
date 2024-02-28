@@ -50,7 +50,8 @@ def main():
                                       Fortran, and CUDA compiler and flags.''')
 
     # Build type
-    add_arg(group, '--build-type', 'CMAKE_BUILD_TYPE', 'CMAKE_BUILD_TYPE', 'Debug', 'STRING',
+    add_arg(group, '--build-type', 'CMAKE_BUILD_TYPE', 'CMAKE_BUILD_TYPE',
+            'RelWithDebInfo', 'STRING',
             'CMake build type (Debug, RelWithDebInfo, Release)')
 
     # C compiler
