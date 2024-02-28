@@ -1059,7 +1059,7 @@ illustration only.
 
    Default: None
 
-.. cmakeoption:: SUNDIALS_F77_FUNC_CASE
+.. cmakeoption:: SUNDIALS_LAPACK_CASE
 
    Specify the case to use in the Fortran name-mangling scheme,
    options are: ``lower`` or ``upper``
@@ -1072,9 +1072,9 @@ illustration only.
       using the Fortran compiler. This option should only be used if a Fortran
       compiler is not available or to override the inferred or default
       (``lower``) scheme if one can not be determined. If used,
-      ``SUNDIALS_F77_FUNC_UNDERSCORES`` must also be set.
+      ``SUNDIALS_LAPACK_UNDERSCORES`` must also be set.
 
-.. cmakeoption:: SUNDIALS_F77_FUNC_UNDERSCORES
+.. cmakeoption:: SUNDIALS_LAPACK_UNDERSCORES
 
    Specify the number of underscores to append in the Fortran
    name-mangling scheme, options are: ``none``, ``one``, or ``two``
@@ -1086,7 +1086,7 @@ illustration only.
       The build system will attempt to infer the Fortran name-mangling scheme
       using the Fortran compiler. This option should only be used if a Fortran
       compiler is not available or to override the inferred or default (``one``)
-      scheme if one can not be determined. If used, ``SUNDIALS_F77_FUNC_CASE``
+      scheme if one can not be determined. If used, ``SUNDIALS_LAPACK_CASE``
       must also be set.
 
 .. cmakeoption:: SUNDIALS_INDEX_TYPE

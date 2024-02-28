@@ -260,6 +260,11 @@ will be built with optimizations and debugging symbols enabled by default.
 Previously the build type was unset by default so no optimization or debugging
 flags were set.
 
+The advanced CMake options to override the inferred LAPACK name-mangling scheme
+have been updated from ``SUNDIALS_F77_FUNC_CASE`` and
+``SUNDIALS_F77_FUNC_UNDERSCORES`` to :cmakeop:`SUNDIALS_LAPACK_CASE` and
+:cmakeop:`SUNDIALS_LAPACK_UNDERSCORES`, respectively.
+
 Converted most previous Fortran 77 and 90 examples to use SUNDIALS' Fortran 2003
 interface.
 

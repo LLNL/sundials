@@ -190,7 +190,8 @@ macro(sundials_add_library target)
       PUBLIC
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
       $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-      $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
+      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/sundials>
+      $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src/sundials>
     )
     if(sundials_add_library_INCLUDE_DIRECTORIES)
       string(REPLACE "{{libtype}}" "${_libtype}" _includes "${sundials_add_library_INCLUDE_DIRECTORIES}")
@@ -283,7 +284,8 @@ macro(sundials_add_library target)
       target_include_directories(${_actual_target_name} PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-        $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/sundials>
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src/sundials>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
       # add all other includes
