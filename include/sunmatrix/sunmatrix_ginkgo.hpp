@@ -45,9 +45,11 @@ using GkoVecType  = GkoDenseMat;
 // Prototypes for non-class methods that operate on Matrix
 //
 
-inline std::unique_ptr<GkoVecType> WrapVector(std::shared_ptr<const gko::Executor> gko_exec, N_Vector x);
+inline std::unique_ptr<GkoVecType> WrapVector(
+  std::shared_ptr<const gko::Executor> gko_exec, N_Vector x);
 
-inline std::unique_ptr<const GkoVecType> WrapConstVector(std::shared_ptr<const gko::Executor> gko_exec, N_Vector x);
+inline std::unique_ptr<const GkoVecType> WrapConstVector(
+  std::shared_ptr<const gko::Executor> gko_exec, N_Vector x);
 
 template<typename GkoMatType>
 void Print(Matrix<GkoMatType>& A, std::ostream& ost = std::cout);
@@ -147,9 +149,11 @@ int SUNMatMatvec_Ginkgo(SUNMatrix A, N_Vector x, N_Vector y)
 // Public namespace
 // =============================================================================
 
-/// Class that wraps a Ginkgo matrix and allows it to convert to a fully functioning `SUNMatrix`.
+/// Class that wraps a Ginkgo matrix and allows it to convert to a fully
+/// functioning `SUNMatrix`.
 template<typename GkoMatType>
-class Matrix : public sundials::impl::BaseMatrix, public sundials::ConvertibleTo<SUNMatrix>
+class Matrix : public sundials::impl::BaseMatrix,
+               public sundials::ConvertibleTo<SUNMatrix>
 {
 public:
   /// Default constructor - means the matrix must be copied or moved to
@@ -158,18 +162,22 @@ public:
   /// Constructs a Matrix from an existing Ginkgo matrix object.
   /// \param gko_mat A Ginkgo matrix object
   /// \param sunctx The SUNDIALS simulation context object
-  Matrix(std::shared_ptr<GkoMatType> gko_mat, SUNContext sunctx) : sundials::impl::BaseMatrix(sunctx), gkomtx_(gko_mat)
+  Matrix(std::shared_ptr<GkoMatType> gko_mat, SUNContext sunctx)
+    : sundials::impl::BaseMatrix(sunctx), gkomtx_(gko_mat)
   {
     initSUNMatrix();
   }
 
   /// Move constructor
   Matrix(Matrix&& that_matrix) noexcept
-      : sundials::impl::BaseMatrix(std::forward<Matrix>(that_matrix)), gkomtx_(std::move(that_matrix.gkomtx_))
+    : sundials::impl::BaseMatrix(std::forward<Matrix>(that_matrix)),
+      gkomtx_(std::move(that_matrix.gkomtx_))
   {}
 
   /// Copy constructor clones the ``gko::matrix`` and ``SUNMatrix``
-  Matrix(const Matrix& that_matrix) : sundials::impl::BaseMatrix(that_matrix), gkomtx_(gko::clone(that_matrix.gkomtx_))
+  Matrix(const Matrix& that_matrix)
+    : sundials::impl::BaseMatrix(that_matrix),
+      gkomtx_(gko::clone(that_matrix.gkomtx_))
   {}
 
   /// Move assignment
@@ -197,10 +205,7 @@ public:
   virtual ~Matrix() = default;
 
   /// Get the underlying Ginkgo matrix object
-  std::shared_ptr<GkoMatType> GkoMtx() const
-  {
-    return gkomtx_;
-  }
+  std::shared_ptr<GkoMatType> GkoMtx() const { return gkomtx_; }
 
   /// Get the ``gko::Executor`` associated with the Ginkgo matrix
   std::shared_ptr<const gko::Executor> GkoExec() const
@@ -209,38 +214,23 @@ public:
   }
 
   /// Get the size, i.e. ``gko::dim``, for the Ginkgo matrix
-  const gko::dim<2>& GkoSize() const
-  {
-    return GkoMtx()->get_size();
-  }
+  const gko::dim<2>& GkoSize() const { return GkoMtx()->get_size(); }
 
   using sundials::impl::BaseMatrix::sunctx;
 
   // Override the ConvertibleTo methods
 
   /// Implicit conversion to a :c:type:`SUNMatrix`
-  operator SUNMatrix() override
-  {
-    return object_.get();
-  }
+  operator SUNMatrix() override { return object_.get(); }
 
   /// Implicit conversion to a :c:type:`SUNMatrix`
-  operator SUNMatrix() const override
-  {
-    return object_.get();
-  }
+  operator SUNMatrix() const override { return object_.get(); }
 
   /// Explicit conversion to a :c:type:`SUNMatrix`
-  SUNMatrix Convert() override
-  {
-    return object_.get();
-  }
+  SUNMatrix Convert() override { return object_.get(); }
 
   /// Explicit conversion to a :c:type:`SUNMatrix`
-  SUNMatrix Convert() const override
-  {
-    return object_.get();
-  }
+  SUNMatrix Convert() const override { return object_.get(); }
 
 private:
   std::shared_ptr<GkoMatType> gkomtx_;
@@ -271,19 +261,30 @@ namespace impl {
 // Non-class methods that operate on Matrix
 //
 
-inline std::unique_ptr<GkoVecType> WrapVector(std::shared_ptr<const gko::Executor> gko_exec, N_Vector x)
+inline std::unique_ptr<GkoVecType> WrapVector(
+  std::shared_ptr<const gko::Executor> gko_exec, N_Vector x)
 {
-  sunrealtype* x_arr{(x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x)};
+  sunrealtype* x_arr{(x->ops->nvgetdevicearraypointer)
+                       ? N_VGetDeviceArrayPointer(x)
+                       : N_VGetArrayPointer(x)};
   const sunindextype x_len{N_VGetLength(x)};
-  return GkoVecType::create(gko_exec, gko::dim<2>(x_len, 1), gko::array<sunrealtype>::view(gko_exec, x_len, x_arr), 1);
+  return GkoVecType::create(gko_exec, gko::dim<2>(x_len, 1),
+                            gko::array<sunrealtype>::view(gko_exec, x_len, x_arr),
+                            1);
 }
 
-inline std::unique_ptr<const GkoVecType> WrapConstVector(std::shared_ptr<const gko::Executor> gko_exec, N_Vector x)
+inline std::unique_ptr<const GkoVecType> WrapConstVector(
+  std::shared_ptr<const gko::Executor> gko_exec, N_Vector x)
 {
-  sunrealtype* x_arr{(x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x) : N_VGetArrayPointer(x)};
+  sunrealtype* x_arr{(x->ops->nvgetdevicearraypointer)
+                       ? N_VGetDeviceArrayPointer(x)
+                       : N_VGetArrayPointer(x)};
   const sunindextype x_len{N_VGetLength(x)};
   return GkoVecType::create_const(gko_exec, gko::dim<2>(x_len, 1),
-                                  gko::array<sunrealtype>::const_view(gko_exec, x_len, x_arr), 1);
+                                  gko::array<sunrealtype>::const_view(gko_exec,
+                                                                      x_len,
+                                                                      x_arr),
+                                  1);
 }
 
 template<typename GkoMatType>
@@ -301,14 +302,16 @@ void Matvec(Matrix<GkoMatType>& A, GkoVecType* x, GkoVecType* y)
 template<typename GkoMatType>
 void Matvec(Matrix<GkoMatType>& A, N_Vector x, N_Vector y)
 {
-  if (x != y) {
+  if (x != y)
+  {
     auto x_vec{WrapConstVector(A.GkoExec(), x)};
     auto y_vec{WrapVector(A.GkoExec(), y)};
 
     // y = Ax
     A.GkoMtx()->apply(x_vec.get(), y_vec.get());
   }
-  else {
+  else
+  {
     auto x_vec{WrapVector(A.GkoExec(), x)};
 
     // x = Ax
@@ -319,7 +322,8 @@ void Matvec(Matrix<GkoMatType>& A, N_Vector x, N_Vector y)
 template<typename GkoMatType>
 void ScaleAdd(const sunrealtype c, Matrix<GkoMatType>& A, Matrix<GkoMatType>& B)
 {
-  const auto I{gko::matrix::Identity<sunrealtype>::create(A.GkoExec(), A.GkoSize())};
+  const auto I{
+    gko::matrix::Identity<sunrealtype>::create(A.GkoExec(), A.GkoSize()[0])};
   const auto one{gko::initialize<GkoDenseMat>({1.0}, A.GkoExec())};
   const auto cmat{gko::initialize<GkoDenseMat>({c}, A.GkoExec())};
   // A = B + cA

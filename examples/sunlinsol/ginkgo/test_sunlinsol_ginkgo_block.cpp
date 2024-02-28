@@ -47,9 +47,10 @@
 using namespace sundials::ginkgo;
 
 #if defined(USE_CSR)
-using GkoMatrixType      = gko::matrix::Csr<sunrealtype>;
-using GkoBatchMatrixType = gko::batch::matrix::Csr<sunrealtype>;
-using SUNMatrixType      = BlockMatrix<GkoBatchMatrixType>;
+using GkoMatrixType = gko::matrix::Csr<sunrealtype>;
+using GkoBatchMatrixType =
+  gko::batch::matrix::Csr<sunrealtype, gkoblock_indextype>;
+using SUNMatrixType = BlockMatrix<GkoBatchMatrixType>;
 #else
 using GkoMatrixType      = gko::matrix::Dense<sunrealtype>;
 using GkoBatchMatrixType = gko::batch::matrix::Dense<sunrealtype>;

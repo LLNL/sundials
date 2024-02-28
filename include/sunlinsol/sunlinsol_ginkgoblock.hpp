@@ -83,7 +83,7 @@ inline gko::array<sunrealtype> WrapBatchScalingArray(
                                                : N_VGetArrayPointer(x)};
   auto xvec_len{N_VGetLength(x)};
   return gko::array<sunrealtype>(gko_exec,
-                                 gko::Array<sunrealtype>::view(gko_exec,
+                                 gko::array<sunrealtype>::view(gko_exec,
                                                                xvec_len, x_arr));
 }
 

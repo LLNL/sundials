@@ -25,9 +25,11 @@
 namespace sundials {
 namespace ginkgo {
 
+using gkoblock_indextype = int;
+
 using GkoBatchDenseMat = gko::batch::matrix::Dense<sunrealtype>;
-using GkoBatchCsrMat   = gko::batch::matrix::Csr<sunrealtype, sunindextype>;
-using GkoBatchVecType  = gko::batch::MultiVector<sunrealtype>;
+using GkoBatchCsrMat = gko::batch::matrix::Csr<sunrealtype, gkoblock_indextype>;
+using GkoBatchVecType = gko::batch::MultiVector<sunrealtype>;
 
 // Forward declare BlockMatrix class
 template<class GkoBatchMatType>
@@ -236,7 +238,7 @@ inline std::unique_ptr<GkoBatchVecType> WrapBatchVector(
   const auto xvec_len{N_VGetLength(x)};
   auto batch_xvec_size{
     gko::batch_dim<2>(num_blocks, gko::dim<2>(xvec_len / num_blocks, 1))};
-  auto xvec_view{gko::Array<sunrealtype>::view(gko_exec, xvec_len, x_arr)};
+  auto xvec_view{gko::array<sunrealtype>::view(gko_exec, xvec_len, x_arr)};
   return GkoBatchVecType::create(gko_exec, batch_xvec_size, std::move(xvec_view));
 }
 
@@ -249,7 +251,7 @@ inline std::unique_ptr<const GkoBatchVecType> WrapConstBatchVector(
   const auto xvec_len{N_VGetLength(x)};
   auto batch_xvec_size{
     gko::batch_dim<2>(num_blocks, gko::dim<2>(xvec_len / num_blocks, 1))};
-  auto xvec_view{gko::Array<sunrealtype>::const_view(gko_exec, xvec_len, x_arr)};
+  auto xvec_view{gko::array<sunrealtype>::const_view(gko_exec, xvec_len, x_arr)};
   return GkoBatchVecType::create_const(gko_exec, batch_xvec_size,
                                        std::move(xvec_view));
 }
