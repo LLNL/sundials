@@ -111,12 +111,6 @@ implementations.
 Changes from previous versions
 ==============================
 
-Changes in vX.X.X
------------------
-
-Converted most previous Fortran 77 and 90 examples to use SUNDIALS' current
-Fortran 2003 interface.
-
 Changes in v7.0.0-rc.1
 ----------------------
 
@@ -127,6 +121,13 @@ be built with additional error checking by default. See :numref:`SUNDIALS.Errors
 for details.
 
 **Breaking Changes**
+
+*Minimum C Standard*
+
+SUNDIALS now requires using a compiler that supports a subset of the C99
+standard. Note with the Microsoft C/C++ compiler the subset of C99 features
+utilized by SUNDIALS are available starting with
+`Visual Studio 2015 <https://learn.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-170#c-standard-library-features-1>`_.
 
 *Deprecated Types and Functions Removed*
 
@@ -297,6 +298,9 @@ The ``CMAKE_BUILD_TYPE`` defaults to ``RelWithDebInfo`` mode now i.e., SUNDIALS
 will be built with optimizations and debugging symbols enabled by default.
 Previously the build type was unset by default so no optimization or debugging
 flags were set.
+
+Converted most previous Fortran 77 and 90 examples to use SUNDIALS' Fortran 2003
+interface.
 
 Changes in v6.7.0
 -----------------
