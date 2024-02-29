@@ -118,9 +118,9 @@ static int computeErrorWeights(N_Vector ycur, N_Vector weight,
                                sunrealtype rtol, sunrealtype atol,
                                N_Vector vtemp);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
-static int run_test(void *mristep_mem, N_Vector y, sunrealtype T0,
-                    sunrealtype Tf, sunrealtype H, sunbooleantype implicit,
-                    sunrealtype reltol, sunrealtype abstol, UserData &udata);
+static int run_test(void *mristep_mem, N_Vector y, sunrealtype T0, sunrealtype Tf,
+                    sunrealtype H, char *method, sunrealtype reltol,
+                    sunrealtype abstol, UserData &udata);
 
 // Main Program
 int main(int argc, char *argv[])
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
   sunrealtype hmax = (Tf-T0)/udata.Npart;
   vector<sunrealtype> Hvals = {hmax, hmax/2.0, hmax/4.0, hmax/8.0, hmax/16.0};
   for (size_t iH=0; iH<5; iH++) {
-    retval = run_test(mristep_mem, y, T0, Tf, Hvals[iH], implicit, reltol,
+    retval = run_test(mristep_mem, y, T0, Tf, Hvals[iH], method, reltol,
                       abstol, udata);
     if (check_retval(&retval, "run_test", 1)) return 1;
   }
@@ -325,14 +325,17 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 // Private helper functions
 //------------------------------
 
-static int run_test(void *mristep_mem, N_Vector y, sunrealtype T0, sunrealtype Tf,
-                    sunrealtype H, sunbooleantype implicit, sunrealtype reltol,
+static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0, sunrealtype Tf,
+                    sunrealtype H, char* method, sunrealtype reltol,
                     sunrealtype abstol, UserData &udata)
 {
   // Reused variables
   int retval;
   sunrealtype hpart = (Tf-T0)/udata.Npart;
   sunrealtype t;
+  N_Vector ele = N_VClone(y);
+  N_Vector ewt = N_VClone(y);
+  N_Vector vtemp = N_VClone(y);
 
   // Set storage for errors
   vector<sunrealtype> dsm(udata.Npart);
@@ -345,26 +348,39 @@ static int run_test(void *mristep_mem, N_Vector y, sunrealtype T0, sunrealtype T
     t = T0 + ipart*hpart;
     retval = Ytrue(t, y, udata);
     if (check_retval(&retval, "Ytrue", 1)) return 1;
-    if (implicit) { retval = MRIStepReInit(mristep_mem, NULL, fn, t, y); }
-    else { retval = MRIStepReInit(mristep_mem, fn, NULL, t, y); }
-    if (check_retval(&retval, "MRIStepReInit", 1)) return 1;
+    retval = MRIStepReset(mristep_mem, t, y);
+    if (check_retval(&retval, "MRIStepReset", 1)) return 1;
     retval = MRIStepSetFixedStep(mristep_mem, H);
     if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
     retval = MRIStepResetAccumulatedError(mristep_mem);
     if (check_retval(&retval, "MRIStepResetAccumulatedError", 1)) return 1;
 
     // Run MRIStep to compute one step
-    retval = MRIStepEvolve(mristep_mem, t+hpart, y, &t, ARK_ONE_STEP);
+    retval = MRIStepEvolve(mristep_mem, t+H, y, &t, ARK_ONE_STEP);
     if (check_retval(&retval, "MRIStepEvolve", 1)) break;
-    retval = MRIStepGetAccumulatedError(mristep_mem, &(dsm_est[ipart]));
-    if (check_retval(&retval, "MRIStepGetAccumulatedError", 1)) break;
+    //retval = MRIStepGetAccumulatedError(mristep_mem, &(dsm_est[ipart]));
+    //if (check_retval(&retval, "MRIStepGetAccumulatedError", 1)) break;
+    retval = MRIStepGetEstLocalErrors(mristep_mem, ele);
+    if (check_retval(&retval, "MRIStepGetEstLocalErrors", 1)) break;
+    retval = computeErrorWeights(y, ewt, reltol, abstol, vtemp);
+    if (check_retval(&retval, "computeErrorWeights", 1)) break;
+    dsm_est[ipart] = reltol*N_VWrmsNorm(ewt, ele);
 
     // Compute/print solution error
     sunrealtype udsm = abs(NV_Ith_S(y,0)-utrue(t))/(abstol + reltol*abs(utrue(t)));
     sunrealtype vdsm = abs(NV_Ith_S(y,1)-vtrue(t,udata))/(abstol + reltol*abs(vtrue(t,udata)));
     dsm[ipart] = reltol*sqrt(0.5*(udsm*udsm + vdsm*vdsm));
+    cout << "  H " << H
+         << "  method " << method
+         << "  t " << t
+         << "  dsm " << dsm[ipart]
+         << "  dsm_est " << dsm_est[ipart]
+         << endl;
   }
 
+  N_VDestroy(ele);
+  N_VDestroy(ewt);
+  N_VDestroy(vtemp);
   return(0);
 }
 

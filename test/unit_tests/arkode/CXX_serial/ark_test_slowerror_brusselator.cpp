@@ -126,9 +126,8 @@ static int computeErrorWeights(N_Vector ycur, N_Vector weight,
                                N_Vector vtemp);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 static int run_test(void *mristep_mem, void *arkode_ref, N_Vector y, sunrealtype T0,
-                    sunrealtype Tf, N_Vector* yref, sunrealtype H,
-                    sunbooleantype implicit, sunrealtype reltol, sunrealtype abstol,
-                    UserData &udata);
+                    sunrealtype Tf, N_Vector* yref, sunrealtype H, char* method,
+                    sunrealtype reltol, sunrealtype abstol, UserData &udata);
 
 // Main Program
 int main(int argc, char *argv[])
@@ -310,7 +309,7 @@ int main(int argc, char *argv[])
   vector<sunrealtype> Hvals = {hmax, hmax/2.0, hmax/4.0, hmax/8.0, hmax/16.0};
   for (size_t iH=0; iH<5; iH++) {
     retval = run_test(mristep_mem, arkode_ref, y, T0, Tf, yref, Hvals[iH],
-                      implicit, reltol, abstol, udata);
+                      method, reltol, abstol, udata);
     if (check_retval(&retval, "run_test", 1)) return 1;
   }
 
@@ -383,15 +382,17 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_da
 //------------------------------
 
 static int run_test(void *mristep_mem, void *arkode_ref, N_Vector y, sunrealtype T0,
-                    sunrealtype Tf, N_Vector* yref, sunrealtype H,
-                    sunbooleantype implicit, sunrealtype reltol, sunrealtype abstol,
-                    UserData &udata)
+                    sunrealtype Tf, N_Vector* yref, sunrealtype H, char* method,
+                    sunrealtype reltol, sunrealtype abstol, UserData &udata)
 {
   // Reused variables
   int retval;
   sunrealtype hpart = (Tf-T0)/udata.Npart;
   sunrealtype t, t2;
   N_Vector y2 = N_VClone(y);
+  N_Vector ele = N_VClone(y);
+  N_Vector ewt = N_VClone(y);
+  N_Vector vtemp = N_VClone(y);
 
   // Set storage for errors
   vector<sunrealtype> dsm(udata.Npart);
@@ -403,32 +404,42 @@ static int run_test(void *mristep_mem, void *arkode_ref, N_Vector y, sunrealtype
     // Reset integrators for this run
     t = t2 = T0 + ipart*hpart;
     N_VScale(ONE, yref[ipart], y);
-    if (implicit) { retval = MRIStepReInit(mristep_mem, NULL, fn, t, y); }
-    else { retval = MRIStepReInit(mristep_mem, fn, NULL, t, y); }
-    if (check_retval(&retval, "MRIStepReInit", 1)) return 1;
+    retval = MRIStepReset(mristep_mem, t, y);
+    if (check_retval(&retval, "MRIStepReset", 1)) return 1;
     retval = MRIStepSetFixedStep(mristep_mem, H);
     if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
     retval = MRIStepResetAccumulatedError(mristep_mem);
     if (check_retval(&retval, "MRIStepResetAccumulatedError", 1)) return 1;
     N_VScale(ONE, yref[ipart], y2);
-    retval = ARKStepReInit(arkode_ref, fn, NULL, t2, y2);
-    if (check_retval(&retval, "ARKStepReInit", 1)) return 1;
+    retval = ARKStepReset(arkode_ref, t2, y2);
+    if (check_retval(&retval, "ARKStepReset", 1)) return 1;
     retval = ARKStepSetStopTime(arkode_ref, t2+H);
     if (check_retval(&retval, "ARKStepSetStopTime", 1)) return 1;
 
     // Run ARKStep to compute reference solution, and MRIStep to compute one step
     retval = ARKStepEvolve(arkode_ref, t2+H, y2, &t2, ARK_NORMAL);
     if (check_retval(&retval, "ARKStepEvolve", 1)) break;
-    retval = MRIStepEvolve(mristep_mem, t+hpart, y, &t, ARK_ONE_STEP);
+    retval = MRIStepEvolve(mristep_mem, t+H, y, &t, ARK_ONE_STEP);
     if (check_retval(&retval, "MRIStepEvolve", 1)) break;
-    retval = MRIStepGetAccumulatedError(mristep_mem, &(dsm_est[ipart]));
-    if (check_retval(&retval, "MRIStepGetAccumulatedError", 1)) break;
+    //retval = MRIStepGetAccumulatedError(mristep_mem, &(dsm_est[ipart]));
+    //if (check_retval(&retval, "MRIStepGetAccumulatedError", 1)) break;
+    retval = MRIStepGetEstLocalErrors(mristep_mem, ele);
+    if (check_retval(&retval, "MRIStepGetEstLocalErrors", 1)) break;
+    retval = computeErrorWeights(y, ewt, reltol, abstol, vtemp);
+    if (check_retval(&retval, "computeErrorWeights", 1)) break;
+    dsm_est[ipart] = reltol*N_VWrmsNorm(ewt, ele);
 
     // Compute/print solution error
     sunrealtype udsm = abs(NV_Ith_S(y,0)-NV_Ith_S(y2,0))/(abstol + reltol*abs(NV_Ith_S(y2,0)));
     sunrealtype vdsm = abs(NV_Ith_S(y,1)-NV_Ith_S(y2,1))/(abstol + reltol*abs(NV_Ith_S(y2,1)));
     sunrealtype wdsm = abs(NV_Ith_S(y,2)-NV_Ith_S(y2,2))/(abstol + reltol*abs(NV_Ith_S(y2,2)));
     dsm[ipart] = reltol*sqrt((udsm*udsm + vdsm*vdsm + wdsm*wdsm)/SUN_RCONST(3.0));
+    cout << "  H " << H
+         << "  method " << method
+         << "  t " << t
+         << "  dsm " << dsm[ipart]
+         << "  dsm_est " << dsm_est[ipart]
+         << endl;
   }
 
   N_VDestroy(y2);
