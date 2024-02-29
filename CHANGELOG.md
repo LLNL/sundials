@@ -97,7 +97,7 @@ and a typedef to a `MPI_Comm` in builds with MPI. As a result:
   `SUNLogger_Create` or `SUNProfiler_Create`.
 
 - Some users will need to update their calls to `N_VGetCommunicator`, and
-  update any custom `N_Vector` implementations tht provide
+  update any custom `N_Vector` implementations that provide
   `N_VGetCommunicator`, since it now returns a `SUNComm`.
 
 The change away from type-erased pointers for `SUNComm` fixes problems like the
