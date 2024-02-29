@@ -1,8 +1,6 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release 7.0.0-rc.1
-
-⚠️ This is a release candidate.
+## Changes to SUNDIALS in release v7.0.0
 
 ### Major Feature
 
@@ -97,7 +95,7 @@ and a typedef to a `MPI_Comm` in builds with MPI. As a result:
   `SUNLogger_Create` or `SUNProfiler_Create`.
 
 - Some users will need to update their calls to `N_VGetCommunicator`, and
-  update any custom `N_Vector` implementations tht provide
+  update any custom `N_Vector` implementations that provide
   `N_VGetCommunicator`, since it now returns a `SUNComm`.
 
 The change away from type-erased pointers for `SUNComm` fixes problems like the

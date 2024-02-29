@@ -86,7 +86,7 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
-Changes in v6.0.0-rc.1
+Changes in v6.0.0
 ----------------------
 
 **Major Features**
@@ -198,7 +198,7 @@ and a typedef to a ``MPI_Comm`` in builds with MPI. As a result:
   :c:func:`SUNLogger_Create` or :c:func:`SUNProfiler_Create`.
 
 - Some users will need to update their calls to ``N_VGetCommunicator``, and
-  update any custom ``N_Vector`` implementations tht provide
+  update any custom ``N_Vector`` implementations that provide
   ``N_VGetCommunicator``, since it now returns a ``SUNComm``.
 
 The change away from type-erased pointers for :c:type:`SUNComm` fixes problems

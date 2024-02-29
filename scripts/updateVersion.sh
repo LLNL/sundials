@@ -21,7 +21,7 @@
 sun_major=${1:-7}
 sun_minor=${2:-0}
 sun_patch=${3:-0}
-sun_label=${4:-"rc.1"}
+sun_label=${4:-""}
 month=${5:-$(date +"%b")}
 year=${6:-$(date +"%Y")}
 
@@ -352,18 +352,18 @@ sedi '23 a\
 
 # Update CITATIONS.md
 fn="../CITATIONS.md"
-sedi '68s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '69s/.*/\ \ note   = {v'${ark_ver}'}/' $fn
-sedi '77s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '78s/.*/\ \ note   = {v'${cv_ver}'}/' $fn
-sedi '86s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '87s/.*/\ \ note   = {v'${cvs_ver}'}/' $fn
-sedi '95s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '96s/.*/\ \ note   = {v'${ida_ver}'}/' $fn
-sedi '104s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '105s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
-sedi '113s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '114s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
+sedi '71s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '72s/.*/\ \ note   = {v'${ark_ver}'}/' $fn
+sedi '80s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '81s/.*/\ \ note   = {v'${cv_ver}'}/' $fn
+sedi '89s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '90s/.*/\ \ note   = {v'${cvs_ver}'}/' $fn
+sedi '98s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '99s/.*/\ \ note   = {v'${ida_ver}'}/' $fn
+sedi '107s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '108s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
+sedi '116s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '117s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
 
 # Update all occurrences of x.x.x and X.X.X to the current version number
 fn="../CHANGELOG.md"
