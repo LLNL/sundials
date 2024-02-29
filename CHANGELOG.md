@@ -2,8 +2,6 @@
 
 ## Changes to SUNDIALS in release v7.0.0
 
-⚠️ This is a release candidate.
-
 ### Major Feature
 
 SUNDIALS now has more robust and uniform error handling. Non-release builds will
