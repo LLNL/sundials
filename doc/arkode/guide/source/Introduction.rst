@@ -130,7 +130,7 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes from previous versions
 ==============================
 
-Changes in v6.0.0-rc.1
+Changes in v6.0.0
 ----------------------
 
 **Major Features**

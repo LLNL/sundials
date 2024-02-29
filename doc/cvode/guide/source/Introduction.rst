@@ -111,7 +111,7 @@ implementations.
 Changes from previous versions
 ==============================
 
-Changes in v7.0.0-rc.1
+Changes in v7.0.0
 ----------------------
 
 **Major Features**

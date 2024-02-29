@@ -1,6 +1,6 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release 7.0.0-rc.1
+## Changes to SUNDIALS in release v7.0.0
 
 ⚠️ This is a release candidate.
 

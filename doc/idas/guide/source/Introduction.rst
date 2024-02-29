@@ -86,7 +86,7 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes from previous versions
 ==============================
 
-Changes in v6.0.0-rc.1
+Changes in v6.0.0
 ----------------------
 
 **Major Features**
