@@ -94,6 +94,7 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
           PRIVATE
           ${arg_TARGETS}
           sundials_${vector}
+          sundials_nvecserial
           Ginkgo::ginkgo
           ${EXTRA_LINK_LIBS})
 
