@@ -1641,7 +1641,7 @@ int CVode(void* cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype* tret,
 int CVodeGetDky(void* cvode_mem, sunrealtype t, int k, N_Vector dky)
 {
   sunrealtype s, r;
-  sunrealtype tfuzz, tp, tn1;
+  /* sunrealtype tfuzz, tp, tn1; */
   int i, j, nvec, ier;
   CVodeMem cv_mem;
 
@@ -1672,18 +1672,17 @@ int CVodeGetDky(void* cvode_mem, sunrealtype t, int k, N_Vector dky)
   }
 
   /* Allow for some slack */
-  tfuzz = FUZZ_FACTOR * cv_mem->cv_uround *
-          (SUNRabs(cv_mem->cv_tn) + SUNRabs(cv_mem->cv_hu));
-  if (cv_mem->cv_hu < ZERO) { tfuzz = -tfuzz; }
-  tp  = cv_mem->cv_tn - cv_mem->cv_hu - tfuzz;
-  tn1 = cv_mem->cv_tn + tfuzz;
-  if ((t - tp) * (t - tn1) > ZERO)
-  {
-    cvProcessError(cv_mem, CV_BAD_T, __LINE__, __func__, __FILE__, MSGCV_BAD_T,
-                   t, cv_mem->cv_tn - cv_mem->cv_hu, cv_mem->cv_tn);
-    SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
-    return (CV_BAD_T);
-  }
+  /* tfuzz = FUZZ_FACTOR * cv_mem->cv_uround * */
+  /*   (SUNRabs(cv_mem->cv_tn) + SUNRabs(cv_mem->cv_hu)); */
+  /* if (cv_mem->cv_hu < ZERO) tfuzz = -tfuzz; */
+  /* tp = cv_mem->cv_tn - cv_mem->cv_hu - tfuzz; */
+  /* tn1 = cv_mem->cv_tn + tfuzz; */
+  /* if ((t-tp)*(t-tn1) > ZERO) { */
+  /*   cvProcessError(cv_mem, CV_BAD_T, "CVODE", "CVodeGetDky", MSGCV_BAD_T, */
+  /*                  t, cv_mem->cv_tn-cv_mem->cv_hu, cv_mem->cv_tn); */
+  /*   SUNDIALS_MARK_FUNCTION_END(CV_PROFILER); */
+  /*   return(CV_BAD_T); */
+  /* } */
 
   /* Sum the differentiated interpolating polynomial */
   nvec = 0;
