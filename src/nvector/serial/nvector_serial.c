@@ -120,6 +120,7 @@ N_Vector N_VNewEmpty_Serial(sunindextype length, SUNContext sunctx)
   v->ops->nvinvtest      = N_VInvTest_Serial;
   v->ops->nvconstrmask   = N_VConstrMask_Serial;
   v->ops->nvminquotient  = N_VMinQuotient_Serial;
+  v->ops->nvmaxabsvec    = N_VMaxAbsVec_Serial;
 
   /* fused and vector array operations are disabled (NULL) by default */
 
@@ -867,6 +868,21 @@ sunrealtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
   }
 
   return (min);
+}
+
+void N_VMaxAbsVec_Serial(N_Vector x, N_Vector y, N_Vector z)
+{
+  sunindextype i;
+  sunindextype N      = NV_LENGTH_S(z);
+  sunrealtype* x_data = NV_DATA_S(x);
+  sunrealtype* y_data = NV_DATA_S(y);
+  sunrealtype* z_data = NV_DATA_S(z);
+
+  for (i = 0; i < N; i++)
+  {
+    z_data[i] = (SUNRabs(x_data[i]) > SUNRabs(y_data[i])) ? SUNRabs(x_data[i])
+                                                          : SUNRabs(y_data[i]);
+  }
 }
 
 /*
