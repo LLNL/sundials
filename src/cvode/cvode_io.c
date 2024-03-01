@@ -1862,3 +1862,24 @@ int CVodeSetErrWeightMethod(void* cvode_mem, int method)
   return (CV_SUCCESS);
 }
 
+int CVodeSetSingleNonlinSolvIter(void* cvode_mem, sunbooleantype on_off)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL)
+  {
+    cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__, MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem)cvode_mem;
+
+  /* Set option
+   * true = pass convergence test after single iteration
+   * false = (default) usual convergence test
+   */
+  cv_mem->cv_single_nls_iter = on_off;
+
+  return (CV_SUCCESS);
+}
+

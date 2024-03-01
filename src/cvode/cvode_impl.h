@@ -472,6 +472,7 @@ typedef struct CVodeMemRec
   sunbooleantype first_step_after_resize;
 
   int cv_err_weight_method;
+  sunbooleantype cv_single_nls_iter;
 
 }* CVodeMem;
 

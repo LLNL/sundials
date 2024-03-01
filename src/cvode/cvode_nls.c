@@ -337,7 +337,7 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
   }
   dcon = del * SUNMIN(ONE, cv_mem->cv_crate) / tol;
 
-  if (dcon <= ONE)
+  if (dcon <= ONE || cv_mem->cv_single_nls_iter)
   {
     cv_mem->cv_acnrm    = (m == 0) ? del : N_VWrmsNorm(ycor, ewt);
     cv_mem->cv_acnrmcur = SUNTRUE;
