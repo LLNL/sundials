@@ -27,7 +27,13 @@ set(unit_tests
     "cv_test_kpr.cpp\;--eta_cf 0.5"
     "cv_test_kpr.cpp\;--dgmax_lsetup 0.0"
     "cv_test_kpr.cpp\;--dgmax_jbad 1.0"
-    "cv_test_getjac.cpp\;")
+    "cv_test_getjac.cpp\;"
+    "cv_test_resize_history.cpp\;0 1"
+    "cv_test_resize_history.cpp\;0 2"
+    "cv_test_resize_history.cpp\;1 1"
+    "cv_test_resize_history.cpp\;1 2"
+    "cv_test_resize_history.cpp\;2 1"
+    "cv_test_resize_history.cpp\;2 2")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})

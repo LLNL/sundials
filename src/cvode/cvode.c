@@ -325,6 +325,9 @@ void* CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->proj_enabled = SUNFALSE;
   cv_mem->proj_applied = SUNFALSE;
 
+  /* Initialize resize variables */
+  cv_mem->first_step_after_resize = SUNFALSE;
+
   /* Set the saved value for qmax_alloc */
 
   cv_mem->cv_qmax_alloc = maxord;
@@ -1101,6 +1104,11 @@ int CVode(void* cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype* tret,
    *    - compute initial step size
    *    - check for approach to tstop
    *    - check for approach to a root
+   *    Or initializations performed after
+   *    resizing the integrator
+   *    - check constraints
+   *    - initialize linear solver
+   *    - initialize nonlinear solver
    * ----------------------------------------
    */
 
@@ -1220,7 +1228,45 @@ int CVode(void* cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype* tret,
       }
     }
 
-  } /* end of first call block */
+    /* end of first call block */
+  }
+  else if (cv_mem->first_step_after_resize)
+  {
+    /* Check if the resized y satisfies the constraints */
+    if (cv_mem->cv_constraintsSet)
+    {
+      sunbooleantype conOK = N_VConstrMask(cv_mem->cv_constraints, cv_mem->cv_zn[0],
+                                           cv_mem->cv_tempv);
+      if (!conOK)
+      {
+        cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
+                       "y does not satisfy the constraints");
+        return CV_ILL_INPUT;
+      }
+    }
+
+    /* Initialize the linear solver */
+    if (cv_mem->cv_linit)
+    {
+      ier = cv_mem->cv_linit(cv_mem);
+      if (ier)
+      {
+        cvProcessError(cv_mem, CV_LINIT_FAIL, __LINE__, __func__, __FILE__,
+                       MSGCV_LINIT_FAIL);
+        return CV_LINIT_FAIL;
+      }
+    }
+
+    /* Initialize the nonlinear solver (must occur after linear solver is
+       initialized) so the lsetup and lsolve pointers have been set */
+    ier = cvNlsInit(cv_mem);
+    if (ier)
+    {
+      cvProcessError(cv_mem, CV_NLS_INIT_FAIL, __LINE__, __func__, __FILE__,
+                     MSGCV_NLS_INIT_FAIL);
+      return CV_NLS_INIT_FAIL;
+    }
+  }
 
   /*
    * ------------------------------------------------------
@@ -1902,6 +1948,24 @@ static sunbooleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
     }
   }
 
+  for (j = 0; j <= cv_mem->cv_qmax; j++)
+  {
+    cv_mem->resize_wrk[j] = N_VClone(tmpl);
+    if (cv_mem->resize_wrk[j] == NULL)
+    {
+      N_VDestroy(cv_mem->cv_ewt);
+      N_VDestroy(cv_mem->cv_acor);
+      N_VDestroy(cv_mem->cv_tempv);
+      N_VDestroy(cv_mem->cv_ftemp);
+      N_VDestroy(cv_mem->cv_vtemp1);
+      N_VDestroy(cv_mem->cv_vtemp2);
+      N_VDestroy(cv_mem->cv_vtemp3);
+      for (i = 0; i <= cv_mem->cv_qmax; i++) { N_VDestroy(cv_mem->cv_zn[i]); }
+      for (i = 0; i < j; i++) { N_VDestroy(cv_mem->resize_wrk[i]); }
+      return (SUNFALSE);
+    }
+  }
+
   /* Update solver workspace lengths  */
   cv_mem->cv_lrw += (cv_mem->cv_qmax + 8) * cv_mem->cv_lrw1;
   cv_mem->cv_liw += (cv_mem->cv_qmax + 8) * cv_mem->cv_liw1;
@@ -1932,6 +1996,7 @@ static void cvFreeVectors(CVodeMem cv_mem)
   N_VDestroy(cv_mem->cv_vtemp2);
   N_VDestroy(cv_mem->cv_vtemp3);
   for (j = 0; j <= maxord; j++) { N_VDestroy(cv_mem->cv_zn[j]); }
+  for (j = 0; j <= maxord; j++) { N_VDestroy(cv_mem->resize_wrk[j]); }
 
   cv_mem->cv_lrw -= (maxord + 8) * cv_mem->cv_lrw1;
   cv_mem->cv_liw -= (maxord + 8) * cv_mem->cv_liw1;
@@ -2497,6 +2562,13 @@ static void cvAdjustAdams(CVodeMem cv_mem, int deltaq)
   int i, j;
   sunrealtype xi, hsum;
 
+  /* Order adjustment was already applied when resizing */
+  if (cv_mem->first_step_after_resize)
+  {
+    cv_mem->first_step_after_resize = SUNFALSE;
+    return;
+  }
+
   /* On an order increase, set new column of zn to zero and return */
 
   if (deltaq == 1)
@@ -2580,6 +2652,13 @@ static void cvIncreaseBDF(CVodeMem cv_mem)
   sunrealtype alpha0, alpha1, prod, xi, xiold, hsum, A1;
   int i, j;
 
+  /* Order adjustment was already applied when resizing */
+  if (cv_mem->first_step_after_resize)
+  {
+    cv_mem->first_step_after_resize = SUNFALSE;
+    return;
+  }
+
   for (i = 0; i <= cv_mem->cv_qmax; i++) { cv_mem->cv_l[i] = ZERO; }
   cv_mem->cv_l[2] = alpha1 = prod = xiold = ONE;
   alpha0                                  = -ONE;
@@ -2626,6 +2705,13 @@ static void cvDecreaseBDF(CVodeMem cv_mem)
 {
   sunrealtype hsum, xi;
   int i, j;
+
+  /* Order adjustment was already applied when resizing */
+  if (cv_mem->first_step_after_resize)
+  {
+    cv_mem->first_step_after_resize = SUNFALSE;
+    return;
+  }
 
   for (i = 0; i <= cv_mem->cv_qmax; i++) { cv_mem->cv_l[i] = ZERO; }
   cv_mem->cv_l[2] = ONE;
@@ -3027,7 +3113,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
                          : CV_FAIL_OTHER;
 
     callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
-                (cv_mem->cv_nst == 0) ||
+                (cv_mem->cv_nst == 0) || (cv_mem->first_step_after_resize) ||
                 (cv_mem->cv_nst >= cv_mem->cv_nstlp + cv_mem->cv_msbp) ||
                 (SUNRabs(cv_mem->cv_gamrat - ONE) > cv_mem->cv_dgmax_lsetup);
   }
