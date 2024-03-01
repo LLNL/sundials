@@ -245,6 +245,9 @@ SUNDIALS_EXPORT int CVodeSetErrWeightMethod(void* cvode_mem, int method);
 SUNDIALS_EXPORT
 int CVodeSetSingleNonlinSolvIter(void* cvode_mem, sunbooleantype on_off);
 
+SUNDIALS_EXPORT
+int CVodeSetNextStep(void* cvode_mem, sunrealtype hnew);
+
 #ifdef __cplusplus
 }
 #endif

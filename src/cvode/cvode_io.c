@@ -1883,3 +1883,21 @@ int CVodeSetSingleNonlinSolvIter(void* cvode_mem, sunbooleantype on_off)
   return (CV_SUCCESS);
 }
 
+int CVodeSetNextStep(void* cvode_mem, sunrealtype hnew)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL)
+  {
+    cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__, MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem)cvode_mem;
+
+  cv_mem->cv_hprime = hnew;
+  cv_mem->cv_next_h = hnew;
+  cv_mem->cv_eta    = hnew / cv_mem->cv_hscale;
+
+  return (CV_SUCCESS);
+}
