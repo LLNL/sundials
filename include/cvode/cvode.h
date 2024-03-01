@@ -240,6 +240,8 @@ SUNDIALS_EXPORT void CVodeFree(void** cvode_mem);
 /* CVLS interface function that depends on CVRhsFn */
 SUNDIALS_EXPORT int CVodeSetJacTimesRhsFn(void* cvode_mem, CVRhsFn jtimesRhsFn);
 
+SUNDIALS_EXPORT int CVodeSetErrWeightMethod(void* cvode_mem, int method);
+
 #ifdef __cplusplus
 }
 #endif
