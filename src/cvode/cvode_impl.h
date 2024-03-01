@@ -467,6 +467,10 @@ typedef struct CVodeMemRec
 
   sunbooleantype cv_usefused; /* flag indicating if CVODE specific fused kernels should be used */
 
+  /* Resize history workspace */
+  N_Vector resize_wrk[L_MAX];
+  sunbooleantype first_step_after_resize;
+
 }* CVodeMem;
 
 /*

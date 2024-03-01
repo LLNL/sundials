@@ -325,6 +325,9 @@ void* CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->proj_enabled = SUNFALSE;
   cv_mem->proj_applied = SUNFALSE;
 
+  /* Initialize resize variables */
+  cv_mem->first_step_after_resize = SUNFALSE;
+
   /* Set the saved value for qmax_alloc */
 
   cv_mem->cv_qmax_alloc = maxord;
@@ -1902,6 +1905,25 @@ static sunbooleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
     }
   }
 
+  for (j = 0; j <= cv_mem->cv_qmax; j++)
+  {
+    cv_mem->resize_wrk[j] = N_VClone(tmpl);
+    N_VConst(NAN, cv_mem->resize_wrk[j]);
+    if (cv_mem->resize_wrk[j] == NULL)
+    {
+      N_VDestroy(cv_mem->cv_ewt);
+      N_VDestroy(cv_mem->cv_acor);
+      N_VDestroy(cv_mem->cv_tempv);
+      N_VDestroy(cv_mem->cv_ftemp);
+      N_VDestroy(cv_mem->cv_vtemp1);
+      N_VDestroy(cv_mem->cv_vtemp2);
+      N_VDestroy(cv_mem->cv_vtemp3);
+      for (i = 0; i <= cv_mem->cv_qmax; i++) N_VDestroy(cv_mem->cv_zn[i]);
+      for (i = 0; i < j; i++) N_VDestroy(cv_mem->resize_wrk[i]);
+      return (SUNFALSE);
+    }
+  }
+
   /* Update solver workspace lengths  */
   cv_mem->cv_lrw += (cv_mem->cv_qmax + 8) * cv_mem->cv_lrw1;
   cv_mem->cv_liw += (cv_mem->cv_qmax + 8) * cv_mem->cv_liw1;
@@ -1931,7 +1953,8 @@ static void cvFreeVectors(CVodeMem cv_mem)
   N_VDestroy(cv_mem->cv_vtemp1);
   N_VDestroy(cv_mem->cv_vtemp2);
   N_VDestroy(cv_mem->cv_vtemp3);
-  for (j = 0; j <= maxord; j++) { N_VDestroy(cv_mem->cv_zn[j]); }
+  for (j = 0; j <= maxord; j++) N_VDestroy(cv_mem->cv_zn[j]);
+  for (j = 0; j <= maxord; j++) N_VDestroy(cv_mem->resize_wrk[j]);
 
   cv_mem->cv_lrw -= (maxord + 8) * cv_mem->cv_lrw1;
   cv_mem->cv_liw -= (maxord + 8) * cv_mem->cv_liw1;
@@ -2495,6 +2518,12 @@ static void cvAdjustAdams(CVodeMem cv_mem, int deltaq)
   int i, j;
   sunrealtype xi, hsum;
 
+  if (cv_mem->first_step_after_resize)
+  {
+    cv_mem->first_step_after_resize = SUNFALSE;
+    return;
+  }
+
   /* On an order increase, set new column of zn to zero and return */
 
   if (deltaq == 1)
@@ -2578,6 +2607,12 @@ static void cvIncreaseBDF(CVodeMem cv_mem)
   sunrealtype alpha0, alpha1, prod, xi, xiold, hsum, A1;
   int i, j;
 
+  if (cv_mem->first_step_after_resize)
+  {
+    cv_mem->first_step_after_resize = SUNFALSE;
+    return;
+  }
+
   for (i = 0; i <= cv_mem->cv_qmax; i++) { cv_mem->cv_l[i] = ZERO; }
   cv_mem->cv_l[2] = alpha1 = prod = xiold = ONE;
   alpha0                                  = -ONE;
@@ -2624,6 +2659,12 @@ static void cvDecreaseBDF(CVodeMem cv_mem)
 {
   sunrealtype hsum, xi;
   int i, j;
+
+  if (cv_mem->first_step_after_resize)
+  {
+    cv_mem->first_step_after_resize = SUNFALSE;
+    return;
+  }
 
   for (i = 0; i <= cv_mem->cv_qmax; i++) { cv_mem->cv_l[i] = ZERO; }
   cv_mem->cv_l[2] = ONE;
