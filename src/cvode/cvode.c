@@ -1907,6 +1907,7 @@ static sunbooleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
   for (j = 0; j <= cv_mem->cv_qmax; j++)
   {
     cv_mem->cv_zn[j] = N_VClone(tmpl);
+    N_VConst(NAN, cv_mem->cv_zn[j]);
     if (cv_mem->cv_zn[j] == NULL)
     {
       N_VDestroy(cv_mem->cv_ewt);
