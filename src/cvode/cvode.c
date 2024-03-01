@@ -353,6 +353,9 @@ void* CVodeCreate(int lmm, SUNContext sunctx)
   /* Error weight method */
   cv_mem->cv_err_weight_method = 0;
 
+  /* Force success on single NLS iteration */
+  cv_mem->cv_single_nls_iter = SUNFALSE;
+
   /* Return pointer to CVODE memory block */
 
   return ((void*)cv_mem);
