@@ -71,7 +71,7 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK22a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
 
     C->W[0][1][0] =  SUN_RCONST(0.5);
     C->W[0][2][0] = -SUN_RCONST(0.5);
-    C->W[0][2][1] =  TWO;
+    C->W[0][2][1] =  ONE;
     C->W[0][3][0] =  SUN_RCONST(0.5);
     return C;
   })
@@ -87,7 +87,7 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK22b, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
 
     C->W[0][1][0] =  ONE;
     C->W[0][2][0] = -SUN_RCONST(0.5);
-    C->W[0][2][1] =  ONE;
+    C->W[0][2][1] =  SUN_RCONST(0.5);
     return C;
   })
 
