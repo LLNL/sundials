@@ -98,6 +98,7 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
   ops->nvinvtest      = NULL;
   ops->nvconstrmask   = NULL;
   ops->nvminquotient  = NULL;
+  ops->nvmaxabsvec    = NULL;
 
   /*
    * OPTIONAL operations.
@@ -222,6 +223,7 @@ SUNErrCode N_VCopyOps(N_Vector w, N_Vector v)
   v->ops->nvinvtest      = w->ops->nvinvtest;
   v->ops->nvconstrmask   = w->ops->nvconstrmask;
   v->ops->nvminquotient  = w->ops->nvminquotient;
+  v->ops->nvmaxabsvec    = w->ops->nvmaxabsvec;
 
   /*
    * OPTIONAL operations.
@@ -537,6 +539,13 @@ sunrealtype N_VMinQuotient(N_Vector num, N_Vector denom)
   result = ((sunrealtype)num->ops->nvminquotient(num, denom));
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(num));
   return (result);
+}
+
+void N_VMaxAbsVec(N_Vector x, N_Vector y, N_Vector z)
+{
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(z));
+  z->ops->nvmaxabsvec(x, y, z);
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(z));
 }
 
 /* -----------------------------------------------------------------
