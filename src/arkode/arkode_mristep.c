@@ -1927,9 +1927,9 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #endif
       }
 
-      /* if this is the next-to-last internal stage, and if adaptivity is enabled,
-         save ycur into ark_mem->tempv4 (may be needed for embedding) */
-      if ((is == step_mem->stages-2) && (!ark_mem->fixedstep))
+      /* if this is the next-to-last internal stage, and if temporal error estimation
+         is enabled, save ycur into ark_mem->tempv4 (may be needed for embedding) */
+      if ((is == step_mem->stages-2) && (!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0)))
       {
         N_VScale(ONE, ark_mem->ycur, ark_mem->tempv4);
       }
@@ -1944,7 +1944,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #endif
 
   /* if adaptivity is enabled: compute slow time scale error and store in dsmPtr */
-  if (!ark_mem->fixedstep)
+  if (!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0))
   {
 
     /* Temporarily swap ark_mem->ycur and ark_mem->tempv4 pointers, so that
