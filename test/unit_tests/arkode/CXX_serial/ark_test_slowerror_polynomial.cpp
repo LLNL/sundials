@@ -24,7 +24,7 @@
  * absolute tolerances set to 1e-10 and 1e-12, respectively.
  *
  * We select the slow integrator based on a command-line argument,
- * with the default being ARKODE_MRI_GARK_ERK33a.
+ * with the default being ARKODE_MRI_GARK_ERK22a.
  *
  * The program should be run with arguments in the following order:
  *   $ a.out method a b c
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 
   // Retrieve the command-line options:  method Npart ep test
   if (argc > 1) { method = argv[1]; }
-  else { method = "ARKODE_MRI_GARK_ERK33a"; }
+  else { method = "ARKODE_MRI_GARK_ERK22a"; }
   if (argc > 2) { udata.a = (sunrealtype) atof(argv[2]); }
   else { udata.a = ONE; }
   if (argc > 3) { udata.b = (sunrealtype) atof(argv[3]); }
@@ -197,7 +197,8 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "MRIStepSetAccumulatedErrorType", 1)) return 1;
 
   // Run test for various H values
-  vector<sunrealtype> Hvals = {ONE, ONE/2.0, ONE/4.0, ONE/8.0, ONE/16.0};
+  //  vector<sunrealtype> Hvals = {ONE, ONE/2.0, ONE/4.0, ONE/8.0, ONE/16.0};
+  vector<sunrealtype> Hvals = {ONE/100.0, ONE/200.0, ONE/400.0, ONE/800.0, ONE/1600.0};
   retval = run_test(mristep_mem, y, T0, Hvals, method, reltol, abstol, udata);
   if (check_retval(&retval, "run_test", 1)) return 1;
 
@@ -280,13 +281,16 @@ static int run_test(void *mristep_mem, N_Vector y, sunrealtype T0,
     if (check_retval(&retval, "MRIStepGetEstLocalErrors", 1)) break;
     retval = computeErrorWeights(y, ewt, reltol, abstol, vtemp);
     if (check_retval(&retval, "computeErrorWeights", 1)) break;
-    dsm_est[iH] = reltol*N_VWrmsNorm(ewt, ele);
+    dsm_est[iH] = N_VWrmsNorm(ewt, ele);
 
     // Compute/print solution error
     retval = Ytrue(t, vtemp, udata);
     if (check_retval(&retval, "Ytrue", 1)) return 1;
-    dsm[iH] = reltol*abs(NV_Ith_S(y,0)-NV_Ith_S(vtemp,0))/(abstol + reltol*abs(NV_Ith_S(vtemp,0)));
-    printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e\n", Hvals[iH], dsm[iH], dsm_est[iH]);
+    dsm[iH] = abs(NV_Ith_S(y,0)-NV_Ith_S(vtemp,0))/(abstol + reltol*abs(NV_Ith_S(vtemp,0)));
+    printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e    dsm_anal  %.2e    dsm_est_anal  %.2e\n",
+           Hvals[iH], dsm[iH], dsm_est[iH],
+           Hvals[iH]*Hvals[iH]*Hvals[iH]*abs(udata.a/12.0)/(abstol + reltol*abs(NV_Ith_S(vtemp,0))),
+           Hvals[iH]*Hvals[iH]*abs(udata.a*Hvals[iH]/4.0 + udata.b/2.0)/(abstol + reltol*abs(NV_Ith_S(vtemp,0))));
   }
 
   N_VDestroy(ele);
