@@ -251,13 +251,13 @@ MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages, int q, int p,
         }
       }
     }
-  } 
-  else 
+  }
+  else
   {
     /* embedded method:  coupling coefficient 1D arrays have
        length nmat * (stages+1) * stages, with each (stages+1) * stages
        matrix stored in C (row-major) order */
-    if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX) 
+    if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
     {
       for (k = 0; k < nmat; k++)
       {
@@ -270,7 +270,7 @@ MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages, int q, int p,
         }
       }
     }
-    if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX) 
+    if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
     {
       for (k = 0; k < nmat; k++)
       {
@@ -682,7 +682,7 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
   if ((is < 1) || (is > MRIC->stages)) { return ARK_INVALID_TABLE; }
 
   /* separately handle an embedding "stage" from normal stages */
-  if (is <= MRIC->stages) 
+  if (is < MRIC->stages)
   {   /* normal */
     /* sum of stage diagonal entries across implicit tables */
     Gabs = ZERO;
@@ -693,19 +693,19 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
 
     /* abscissae difference */
     cdiff = MRIC->c[is] - MRIC->c[is-1];
-  } 
-  else 
+  }
+  else
   {                    /* embedding */
     Gabs = ZERO;
     if (MRIC->G)
     {
       for (i = 0; i < MRIC->nmat; i++) { Gabs += SUNRabs(MRIC->G[i][is][is-1]); }
     }
-    cdiff = MRIC->c[is] - MRIC->c[is-2];
+    cdiff = MRIC->c[is-1] - MRIC->c[is-2];
   }
 
   /* make determination */
-  if (Gabs > tol) 
+  if (Gabs > tol)
   { /* DIRK */
     if (cdiff > tol)
     { /* Fast */
