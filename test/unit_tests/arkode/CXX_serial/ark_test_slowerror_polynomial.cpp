@@ -84,9 +84,6 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_da
 
 // Private utility functions
 static int Ytrue(sunrealtype t, N_Vector y, UserData &udata);
-static int computeErrorWeights(N_Vector ycur, N_Vector weight,
-                               sunrealtype rtol, sunrealtype atol,
-                               N_Vector vtemp);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 static int run_test(void *mristep_mem, N_Vector y, sunrealtype T0,
                     vector<sunrealtype> Hvals, char* method, sunrealtype reltol,
@@ -193,6 +190,8 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "MRIStepSStolerances", 1)) return 1;
   retval = MRIStepSetUserData(mristep_mem, (void *) &udata);
   if (check_retval(&retval, "MRIStepSetUserData", 1)) return 1;
+  retval = MRIStepSetAccumulatedErrorType(mristep_mem, 0);
+  if (check_retval(&retval, "MRIStepSetAccumulatedErrorType", 1)) return 1;
 
   // Run test for various H values
   //  vector<sunrealtype> Hvals = {ONE, ONE/2.0, ONE/4.0, ONE/8.0, ONE/16.0};
@@ -248,8 +247,6 @@ static int run_test(void *mristep_mem, N_Vector y, sunrealtype T0,
   // Reused variables
   int retval;
   sunrealtype t;
-  N_Vector ele = N_VClone(y);
-  N_Vector ewt = N_VClone(y);
   N_Vector vtemp = N_VClone(y);
 
   // Set storage for errors
@@ -267,19 +264,19 @@ static int run_test(void *mristep_mem, N_Vector y, sunrealtype T0,
     if (check_retval(&retval, "MRIStepReset", 1)) return 1;
     retval = MRIStepSetFixedStep(mristep_mem, Hvals[iH]);
     if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
+    retval = MRIStepResetAccumulatedError(mristep_mem);
+    if (check_retval(&retval, "MRIStepResetAccumulatedError", 1)) return 1;
 
     // Run MRIStep to compute one step
     retval = MRIStepEvolve(mristep_mem, t+Hvals[iH], y, &t, ARK_ONE_STEP);
     if (check_retval(&retval, "MRIStepEvolve", 1)) break;
-    retval = MRIStepGetEstLocalErrors(mristep_mem, ele);
-    if (check_retval(&retval, "MRIStepGetEstLocalErrors", 1)) break;
-    retval = computeErrorWeights(y, ewt, reltol, abstol, vtemp);
-    if (check_retval(&retval, "computeErrorWeights", 1)) break;
-    dsm_est[iH] = N_VWrmsNorm(ewt, ele);
+    retval = MRIStepGetAccumulatedError(mristep_mem, &(dsm_est[iH]));
+    if (check_retval(&retval, "MRIStepGetAccumulatedError", 1)) break;
 
     // Compute/print solution error
     retval = Ytrue(t, vtemp, udata);
     if (check_retval(&retval, "Ytrue", 1)) return 1;
+    dsm_est[iH] /= reltol;
     dsm[iH] = abs(NV_Ith_S(y,0)-NV_Ith_S(vtemp,0))/(abstol + reltol*abs(NV_Ith_S(vtemp,0)));
     printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e    dsm_anal  %.2e    dsm_est_anal  %.2e\n",
            Hvals[iH], dsm[iH], dsm_est[iH],
@@ -287,8 +284,6 @@ static int run_test(void *mristep_mem, N_Vector y, sunrealtype T0,
            Hvals[iH]*Hvals[iH]*abs(udata.a*Hvals[iH]/4.0 + udata.b/2.0)/(abstol + reltol*abs(NV_Ith_S(vtemp,0))));
   }
 
-  N_VDestroy(ele);
-  N_VDestroy(ewt);
   N_VDestroy(vtemp);
   return(0);
 }
@@ -296,18 +291,6 @@ static int run_test(void *mristep_mem, N_Vector y, sunrealtype T0,
 static int Ytrue(sunrealtype t, N_Vector y, UserData &udata)
 {
   NV_Ith_S(y,0) = udata.a/SUN_RCONST(3.0)*t*t*t + udata.b/SUN_RCONST(2.0)*t*t + udata.c*t + ONE;
-  return(0);
-}
-
-/* Error weight calculation routine (mimics what's in ARKODE already) */
-static int computeErrorWeights(N_Vector ycur, N_Vector weight,
-                               sunrealtype rtol, sunrealtype atol,
-                               N_Vector vtemp)
-{
-  N_VAbs(ycur, vtemp);
-  N_VScale(rtol, vtemp, vtemp);
-  N_VAddConst(vtemp, atol, vtemp);
-  N_VInv(vtemp, weight);
   return(0);
 }
 

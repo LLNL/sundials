@@ -520,6 +520,7 @@ int erkStep_Init(void* arkode_mem, int init_type)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
+  sunbooleantype reset_efun;
   int retval, j;
 
   /* access ARKodeERKStepMem structure */
@@ -532,9 +533,13 @@ int erkStep_Init(void* arkode_mem, int init_type)
     return (ARK_SUCCESS);
   }
 
-  /* enforce use of arkEwtSmallReal if using a fixed step size
-     and an internal error weight function */
-  if (ark_mem->fixedstep && !ark_mem->user_efun)
+  /* enforce use of arkEwtSmallReal if using a fixed step size,
+     an internal error weight function, and not performing accumulated
+     temporal error estimation */
+  reset_efun = SUNTRUE;
+  if (ark_mem->user_efun) { reset_efun = SUNFALSE; }
+  if (ark_mem->AccumErrorType >= 0) { reset_efun = SUNFALSE; }
+  if (reset_efun)
   {
     ark_mem->user_efun = SUNFALSE;
     ark_mem->efun      = arkEwtSetSmallReal;

@@ -1148,12 +1148,14 @@ int arkStep_Init(void* arkode_mem, int init_type)
   if (init_type == FIRST_INIT)
   {
     /* enforce use of arkEwtSmallReal if using a fixed step size for
-       an explicit method, an internal error weight function, and not
-       using an iterative mass matrix solver with rwt=ewt */
+       an explicit method, an internal error weight function, not
+       using an iterative mass matrix solver with rwt=ewt, and not
+       performing accumulated temporal error estimation */
     reset_efun = SUNTRUE;
     if (step_mem->implicit) { reset_efun = SUNFALSE; }
     if (!ark_mem->fixedstep) { reset_efun = SUNFALSE; }
     if (ark_mem->user_efun) { reset_efun = SUNFALSE; }
+    if (ark_mem->AccumErrorType >= 0) { reset_efun = SUNFALSE; }
     if (ark_mem->rwt_is_ewt &&
         (step_mem->msolve_type == SUNLINEARSOLVER_ITERATIVE))
     {

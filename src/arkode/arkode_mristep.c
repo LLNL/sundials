@@ -1029,10 +1029,12 @@ int mriStep_Init(void* arkode_mem, int init_type)
   if (init_type == FIRST_INIT)
   {
     /* enforce use of arkEwtSmallReal if using a fixed step size for
-       an explicit method and an internal error weight function */
+       an explicit method, an internal error weight function, and not performing
+       accumulated temporal error estimation */
     reset_efun = SUNTRUE;
     if (step_mem->implicit_rhs) { reset_efun = SUNFALSE; }
     if (ark_mem->user_efun) { reset_efun = SUNFALSE; }
+    if (ark_mem->AccumErrorType >= 0) { reset_efun = SUNFALSE; }
     if (reset_efun)
     {
       ark_mem->user_efun = SUNFALSE;
