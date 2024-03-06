@@ -3019,7 +3019,7 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
   }
 
-  /* Compute yerr (if step adaptivity or error accumulation enabled). */
+  /* Compute yerr (if temporal error estimation is enabled). */
   if (!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0))
   {
     /* set arrays for fused vector operation */
