@@ -27,7 +27,7 @@
 namespace sundials {
 namespace hip {
 
-#if defined(__HIP_PLATFORM_HCC__)
+#if defined(__HIP_PLATFORM_HCC__) || defined(__HIP_PLATFORM_AMD__)
 constexpr const sunindextype WARP_SIZE = 64;
 #elif defined(__HIP_PLATFORM_NVCC__)
 constexpr const sunindextype WARP_SIZE = 32;
