@@ -193,8 +193,6 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "MRIStepSStolerances", 1)) return 1;
   retval = MRIStepSetUserData(mristep_mem, (void *) &udata);
   if (check_retval(&retval, "MRIStepSetUserData", 1)) return 1;
-  retval = MRIStepSetAccumulatedErrorType(mristep_mem, 0);
-  if (check_retval(&retval, "MRIStepSetAccumulatedErrorType", 1)) return 1;
 
   // Run test for various H values
   //  vector<sunrealtype> Hvals = {ONE, ONE/2.0, ONE/4.0, ONE/8.0, ONE/16.0};
@@ -269,14 +267,10 @@ static int run_test(void *mristep_mem, N_Vector y, sunrealtype T0,
     if (check_retval(&retval, "MRIStepReset", 1)) return 1;
     retval = MRIStepSetFixedStep(mristep_mem, Hvals[iH]);
     if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
-    retval = MRIStepResetAccumulatedError(mristep_mem);
-    if (check_retval(&retval, "MRIStepResetAccumulatedError", 1)) return 1;
 
     // Run MRIStep to compute one step
     retval = MRIStepEvolve(mristep_mem, t+Hvals[iH], y, &t, ARK_ONE_STEP);
     if (check_retval(&retval, "MRIStepEvolve", 1)) break;
-    //retval = MRIStepGetAccumulatedError(mristep_mem, &(dsm_est[iH]));
-    //if (check_retval(&retval, "MRIStepGetAccumulatedError", 1)) break;
     retval = MRIStepGetEstLocalErrors(mristep_mem, ele);
     if (check_retval(&retval, "MRIStepGetEstLocalErrors", 1)) break;
     retval = computeErrorWeights(y, ewt, reltol, abstol, vtemp);
