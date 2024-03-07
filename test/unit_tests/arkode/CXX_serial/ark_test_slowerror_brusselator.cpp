@@ -52,7 +52,7 @@
  * Npart pieces.  We then run a single time step starting at the
  * beginning of each partition, using a variety of slow step sizes,
  * H = {hmax, hmax/2, hmax/4, hmax/8, hmax/16} with
- * hmax=(t_f-t_0)/Npart.
+ * hmax=(t_f-t_0)/100/Npart.
  *
  * We place the entire ODE in the "slow" RHS partition.  All tests
  * use ARKODE's default fifth-order ERK method, with relative and
@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "MRIStepSetAccumulatedErrorType", 1)) return 1;
 
   // Run test for various H values
-  sunrealtype hmax = (Tf-T0)/udata.Npart;
+  sunrealtype hmax = (Tf-T0)/100.0/udata.Npart;
   vector<sunrealtype> Hvals = {hmax, hmax/2.0, hmax/4.0, hmax/8.0, hmax/16.0};
   retval = run_test(mristep_mem, arkode_ref, y, T0, Tf, yref, Hvals,
                     method, reltol, abstol, udata);
