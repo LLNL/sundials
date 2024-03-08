@@ -31,6 +31,8 @@ namespace hip {
 constexpr const sunindextype WARP_SIZE = 64;
 #elif defined(__HIP_PLATFORM_NVCC__) || defined(__HIP_PLATFORM_NVDIA__)
 constexpr const sunindextype WARP_SIZE = 32;
+#else
+#error "Unknown HIP_PLATFORM, report to github.com/LLNL/sundials/issues"
 #endif
 constexpr const sunindextype MAX_BLOCK_SIZE = 1024;
 constexpr const sunindextype MAX_WARPS      = MAX_BLOCK_SIZE / WARP_SIZE;
