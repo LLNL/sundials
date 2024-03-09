@@ -1,22 +1,3 @@
-.. ----------------------------------------------------------------
-   SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
-   and Southern Methodist University.
-   All rights reserved.
-
-   See the top-level LICENSE and NOTICE files for details.
-
-   SPDX-License-Identifier: BSD-3-Clause
-   SUNDIALS Copyright End
-
-   intersphinx and :numref: does not work currently see
-   https://github.com/sphinx-doc/sphinx/issues/12033
-   currently in master branch
-
-   Even if :numref: worked how would it show up? The section might
-   not exist or could conflict with other sections
-   ----------------------------------------------------------------
-
 **New Features**
 
 **Bug Fixes**

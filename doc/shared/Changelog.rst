@@ -19,6 +19,8 @@
 Changelog
 *********
 
+.. SED_REPLACEMENT_KEY
+
 Changes to SUNDIALS in release X.Y.Z
 ====================================
 
