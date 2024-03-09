@@ -8,13 +8,9 @@
 
    SPDX-License-Identifier: BSD-3-Clause
    SUNDIALS Copyright End
-
-   intersphinx and :numref: does not work currently see
-   https://github.com/sphinx-doc/sphinx/issues/12033
-   currently in master branch
-
-   Even if :numref: worked how would it show up? The section might
-   not exist or could conflict with other sections
+   ----------------------------------------------------------------
+   For package-specific references use :ref: rather than :numref:
+   so intersphinx links to the appropriate place on read the docs
    ----------------------------------------------------------------
 
 .. _Changelog:
@@ -22,6 +18,11 @@
 *********
 Changelog
 *********
+
+Changes to SUNDIALS in release X.Y.Z
+====================================
+
+.. include:: RecentChanges_link.rst
 
 Changes to SUNDIALS in release 7.0.0
 ====================================
