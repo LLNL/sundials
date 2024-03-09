@@ -51,10 +51,10 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNContext sunctx,
   SUNAdaptControllerContent_MRIHTol content;
 
   /* Verify that input controllers have the appropriate type */
-  SUNAssert(SUNAdaptController_GetType(HControl) == SUN_ADAPTCONTROLLER_H,
-            SUN_ERR_ARG_INCOMPATIBLE);
-  SUNAssert(SUNAdaptController_GetType(TolControl) == SUN_ADAPTCONTROLLER_H,
-            SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssertNull(SUNAdaptController_GetType(HControl) == SUN_ADAPTCONTROLLER_H,
+                SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssertNull(SUNAdaptController_GetType(TolControl) == SUN_ADAPTCONTROLLER_H,
+                SUN_ERR_ARG_INCOMPATIBLE);
 
   /* Create an empty controller object */
   C = NULL;
