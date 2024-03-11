@@ -819,6 +819,41 @@ Fe RHS evals:
 --------------------
 
 ========================
+ERK Table ID 22
+  stages:             2
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   2
+  expected: 2
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   8
+  expected: 8
+--------------------
+
+========================
 Test implicit RK methods
 ========================
 

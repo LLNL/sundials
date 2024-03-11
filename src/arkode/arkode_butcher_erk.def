@@ -39,6 +39,7 @@
      imeth                              QP
     --------------------------------------
      ARKODE_HEUN_EULER_2_1_2             Y
+     ARKODE_EXP_MID_EULER_2_1_2          Y
      ARKODE_BOGACKI_SHAMPINE_4_2_3       Y
      ARKODE_ARK324L2SA_ERK_4_2_3*        N
      ARKODE_SHU_OSHER_3_2_3              Y
@@ -81,6 +82,21 @@ ARK_BUTCHER_TABLE(ARKODE_HEUN_EULER_2_1_2, { /* Heun-Euler-ERK */
     B->d[0] = SUN_RCONST(1.0);
 
     B->c[1] = SUN_RCONST(1.0);
+    return B;
+ })
+
+ARK_BUTCHER_TABLE(ARKODE_EXP_MID_EULER_2_1_2, { /* Explicit-Midpoint-Euler-ERK */
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNTRUE);
+    B->q = 2;
+    B->p = 1;
+
+    B->A[1][0] = SUN_RCONST(0.5);
+
+    B->b[1] = SUN_RCONST(1.0);
+
+    B->d[0] = SUN_RCONST(1.0);
+
+    B->c[1] = SUN_RCONST(0.5);
     return B;
  })
 
