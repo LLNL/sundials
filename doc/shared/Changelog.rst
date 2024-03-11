@@ -2094,263 +2094,230 @@ Changes to SUNDIALS in release 4.0.0
 
 The direct and iterative linear solver interfaces in all SUNDIALS packages have
 been merged into a single unified linear solver interface to support any valid
-SUNLINSOL module. This includes the DIRECT and ITERATIVE types as well as the
-new MATRIX_ITERATIVE type. Details regarding how SUNDIALS packages utilize
-linear solvers of each type as well as discussion regarding intended use cases
-for user-supplied SUNLINSOL implementations are included in the SUNLINSOL
-chapter of the user guides. All example programs have been updated to use the
-new unified interfaces.
+:c:type:`SUNLinearSolver`. This includes the ``DIRECT`` and ``ITERATIVE`` types
+as well as the new ``MATRIX_ITERATIVE`` type. Details regarding how SUNDIALS
+packages utilize linear solvers of each type as well as a discussion regarding
+the intended use cases for user-supplied linear solver implementations are
+included in :numref:`SUNLinSol`. All example programs have been updated to use
+the new unified linear solver interfaces.
 
-The unified interface is very similar to the previous DLS and SPILS interfaces.
-To minimize challenges in user migration to the unified linear solver interface,
-the previous DLS and SPILS routines for all packages may still be used; these
-will be deprecated in future releases, so we recommend that users migrate to the
-new names soon. Additionally, we note that Fortran users will need to enlarge
-their iout array of optional integer outputs, and update the indices that they
-query for certain linear-solver-related statistics.
+The unified linear solver interface is very similar to the previous DLS (direct
+linear solver) and SPILS (scaled preconditioned iterative linear solver)
+interface in each package. To minimize challenges in user migration to the
+unified linear solver interfaces, the previous DLS and SPILS functions may still
+be used however, these are now deprecated and will be removed in a future
+release. Additionally, that Fortran users will need to enlarge their array of
+optional integer outputs, and update the indices that they query for certain
+linear solver related statistics.
 
-The names of all constructor routines for SUNDIALS-provided SUNLinSol
-implementations have been updated to follow the naming convention SUNLinSol_*
-where * is the name of the linear solver e.g., Dense, KLU, SPGMR, PCG, etc.
-Solver-specific "set" routine names have been similarly standardized. To
-minimize challenges in user migration to the new names, the previous routine
-names may still be used; these will be deprecated in future releases, so we
-recommend that users migrate to the new names soon. All example programs have
-been updated to used the new naming convention.
+The names of all SUNDIALS-provided :c:type:`SUNLinearSolver` constructors have
+have been updated to follow the naming convention ``SUNLinSol_*`` where ``*`` is
+the name of the linear solver. The new constructor names are:
 
-The SUNBandMatrix constructor has been simplified to remove the storage upper
-bandwidth argument.
+* :c:func:`SUNLinSol_Band`
+* :c:func:`SUNLinSol_Dense`
+* :c:func:`SUNLinSol_KLU`
+* :c:func:`SUNLinSol_LapackBand`
+* :c:func:`SUNLinSol_LapackDense`
+* :c:func:`SUNLinSol_PCG`
+* :c:func:`SUNLinSol_SPBCGS`
+* :c:func:`SUNLinSol_SPFGMR`
+* :c:func:`SUNLinSol_SPGMR`
+* :c:func:`SUNLinSol_SPTFQMR`
+* :c:func:`SUNLinSol_SuperLUMT`
 
-SUNDIALS integrators have been updated to utilize generic nonlinear solver
-modules defined through the ``SUNNonlinearSolver`` API. This API will ease the
-addition of new nonlinear solver options and allow for external or user-supplied
-nonlinear solvers. The ``SUNNonlinearSolver`` API and SUNDIALS provided modules
-are described in Chapter :numref:`SUNNonlinSol` and follow the same object
-oriented design and implementation used by the ``N_Vector``, ``SUNMatrix``, and
-``SUNLinearSolver`` modules. Currently two ``SUNNonlinearSolver``
-implementations are provided, ``SUNNONLINSOL_NEWTON`` and
-``SUNNONLINSOL_FIXEDPOINT``. These replicate the previous integrator specific
-implementations of a Newton iteration and a fixed-point iteration (previously
-referred to as a functional iteration), respectively. Note the
-``SUNNONLINSOL_FIXEDPOINT`` module can optionally utilize Anderson's method to
-accelerate convergence. Example programs using each of these nonlinear solver
-modules in a standalone manner have been added and all CVODES example programs
-have been updated to use generic ``SUNNonlinearSolver`` modules.
+Linear solver-specific "set" routine names have been similarly standardized. To
+minimize challenges in user migration to the new names, the previous function
+names may still be used however, these are now deprecated and will be removed in
+a future release. All example programs and the standalone linear solver examples
+have been updated to use the new naming convention.
 
-
-As with previous versions, ARKODE will use the Newton solver (now
-provided by SUNNonlinSol_Newton) by default. Use of the
-:c:func:`ARKStepSetLinear` routine (previously named
-``ARKodeSetLinear``) will indicate that the problem is
-linearly-implicit, using only a single Newton iteration per implicit
-stage. Users wishing to switch to the accelerated fixed-point solver
-are now required to create a SUNNonlinSol_FixedPoint object and attach
-that to ARKODE, instead of calling the previous
-``ARKodeSetFixedPoint`` routine. See the documentation sections
-:ref:`ARKODE.Usage.ARKStep.Skeleton`,
-:ref:`ARKODE.Usage.ARKStep.NonlinearSolvers`, and
-:numref:`SUNNonlinSol.FixedPoint` for further details, or the serial C
-example program ``ark_brusselator_fp.c`` for an example.
-
-With the introduction of ``SUNNonlinearSolver`` modules, the input parameter
-``iter`` to ``CVodeCreate`` has been removed along with the function
-``CVodeSetIterType`` and the constants ``CV_NEWTON`` and ``CV_FUNCTIONAL``.
-Instead of specifying the nonlinear iteration type when creating the CVODES
-memory structure, CVODES uses the ``SUNNONLINSOL_NEWTON`` module implementation
-of a Newton iteration by default. For details on using a non-default or
-user-supplied nonlinear solver see Chapters :ref:`CVODES.Usage.SIM`,
-:ref:`CVODES.Usage.FSA`, and :ref:`CVODES.Usage.ADJ`. CVODES functions for
-setting the nonlinear solver options (e.g., ``CVodeSetMaxNonlinIters``) or
-getting nonlinear solver statistics (e.g., ``CVodeGetNumNonlinSolvIters``)
-remain unchanged and internally call generic ``SUNNonlinearSolver`` functions as
-needed.
-
-By default IDA uses the :ref:`SUNNONLINSOL_NEWTON <SUNNonlinSol.Newton>`
-module. Since IDA previously only used an internal implementation of a Newton
-iteration no changes are required to user programs and functions for setting the
-nonlinear solver options (e.g., :c:func:`IDASetMaxNonlinIters`) or getting
-nonlinear solver statistics (e.g., :c:func:`IDAGetNumNonlinSolvIters`) remain
-unchanged and internally call generic ``SUNNonlinearSolver`` functions as
-needed. While SUNDIALS includes a fixed-point nonlinear solver module, it is not
-currently supported in IDA. For details on attaching a user-supplied nonlinear
-solver to IDA see :numref:IDA.Usage.CC. Additionally, the example program
-``idaRoberts_dns.c`` explicitly creates an attaches a :ref:`SUNNONLINSOL_NEWTON
-<SUNNonlinSol.Newton>` object to demonstrate the process of creating and
-attaching a nonlinear solver module (note this is not necessary in general as
-IDA uses the :ref:`SUNNONLINSOL_NEWTON <SUNNonlinSol.Newton>` module by
-default).
-
->>>>
-
-The names of all constructor routines for SUNDIALS-provided ``SUNLinearSolver``
-implementations have been updated to follow the naming convention ``SUNLinSol_``
-where ``*`` is the name of the linear solver. The new names are
-:c:func:`SUNLinSol_Band`, :c:func:`SUNLinSol_Dense`, :c:func:`SUNLinSol_KLU`,
-:c:func:`SUNLinSol_LapackBand`, :c:func:`SUNLinSol_LapackDense`,
-:c:func:`SUNLinSol_PCG`, :c:func:`SUNLinSol_SPBCGS`, :c:func:`SUNLinSol_SPFGMR`,
-:c:func:`SUNLinSol_SPGMR`, :c:func:`SUNLinSol_SPTFQMR`, and
-:c:func:`SUNLinSol_SuperLUMT`. Solver-specific "set" routine names have been
-similarly standardized. To minimize challenges in user migration to the new
-names, the previous routine names may still be used; these will be deprecated in
-future releases, so we recommend that users migrate to the new names soon. All
-IDA example programs and the standalone linear solver examples have been updated
-to use the new naming convention.
-
-The ``SUNBandMatrix`` constructor has been simplified to remove the
+The :c:func:`SUNLinSol_Band` constructor has been simplified to remove the
 storage upper bandwidth argument.
 
+SUNDIALS integrators (ARKODE, CVODE(S), and IDA(S)) have been updated to utilize
+generic nonlinear solvers defined by the :c:type:`SUNNonlinearSolver` API. This
+enables the addition of new nonlinear solver options and allows for external or
+user-supplied nonlinear solvers. The nonlinear solver API and SUNDIALS provided
+implementations are described in :numref:`SUNNonlinSol` and follow the same
+object oriented design used by the :c:type:`N_Vector`, :c:type:`SUNMatrix`, and
+:c:type:`SUNLinearSolver` classes. Currently two nonlinear solver
+implementations are provided, :ref:`Newton <SUNNonlinSol.Newton>` and
+:ref:`fixed-point <SUNNonlinSol.FixedPoint>`. These replicate the previous
+integrator-specific implementations of Newton's method and a fixed-point
+iteration (previously referred to as a functional iteration), respectively. Note
+the new :ref:`fixed-point <SUNNonlinSol.FixedPoint>` implementation can
+optionally utilize Anderson's method to accelerate convergence. Example programs
+using each of these nonlinear solvers in a standalone manner have been added and
+all example programs have been updated accordingly.
+
+The SUNDIALS integrators (ARKODE, CVODE(S), and IDA(S)) all now use the
+:ref:`Newton <SUNNonlinSol.Newton>` :c:type:`SUNNonlinearSolver` by default.
+Users that wish to use the :ref:`fixed-point <SUNNonlinSol.FixedPoint>`
+:c:type:`SUNNonlinearSolver` will need to create the corresponding nonlinear
+solver object and attach it to the integrator with the appropriate set function:
+
+* :c:func:`ARKStepSetNonlinearSolver`
+* :c:func:`CVodeSetNonlinearSolver`
+* :c:func:`IDASetNonlinearSolver`
+
+Functions for setting the nonlinear solver options or getting nonlinear solver
+statistics remain unchanged and internally call generic ``SUNNonlinearSolver``
+functions as needed.
+
+With the introduction of the :c:type:`SUNNonlinearSolver` class, the input
+parameter ``iter`` to :c:func:`CVodeCreate` has been removed along with the
+function :c:type:`CVodeSetIterType` and the constants ``CV_NEWTON`` and
+``CV_FUNCTIONAL``. While SUNDIALS includes a fixed-point nonlinear solver, it is
+not currently supported in IDA.
+
 Three fused vector operations and seven vector array operations have been added
-to the NVECTOR API. These *optional* operations are disabled by default and may
-be activated by calling vector specific routines after creating an NVector (see
-:numref:`NVectors.Description` for more details). The new operations are intended
-to increase data reuse in vector operations, reduce parallel communication on
-distributed memory systems, and lower the number of kernel launches on systems
-with accelerators. The fused operations are ``N_VLinearCombination``,
-``N_VScaleAddMulti``, and ``N_VDotProdMulti``, and the vector array operations
-are ``N_VLinearCombinationVectorArray``, ``N_VScaleVectorArray``,
-``N_VConstVectorArray``, ``N_VWrmsNormVectorArray``,
-``N_VWrmsNormMaskVectorArray``, ``N_VScaleAddMultiVectorArray``, and
-``N_VLinearCombinationVectorArray``. If an NVector implementation defines any of
-these operations as ``NULL``, then standard NVector operations will
-automatically be called as necessary to complete the computation.
+to the :c:type:`N_Vector` API. These *optional* operations are disabled by
+default and may be activated by calling vector specific routines after creating
+a vector (see :numref:`NVectors.Description` for more details). The new
+operations are intended to increase data reuse in vector operations, reduce
+parallel communication on distributed memory systems, and lower the number of
+kernel launches on systems with accelerators. The fused operations are:
 
-A new NVECTOR implementation for leveraging OpenMP 4.5+ device offloading has
-been added, NVECTOR_OpenMPDEV. See :numref:`NVectors.OpenMPDEV` for more details.
+* :c:func:`N_VLinearCombination`
+* :c:func:`N_VScaleAddMulti`
+* :c:func:`N_VDotProdMulti`
 
-Multiple updates to the CUDA NVECTOR were made:
+and the vector array operations are:
 
-* Changed the `N_VMake_Cuda` function to take a host data pointer and a device
-  data pointer instead of an `N_VectorContent_Cuda` object.
+* :c:func:`N_VLinearCombinationVectorArray`
+* :c:func:`N_VScaleVectorArray`
+* :c:func:`N_VConstVectorArray`
+* :c:func:`N_VWrmsNormVectorArray`
+* :c:func:`N_VWrmsNormMaskVectorArray`
+* :c:func:`N_VScaleAddMultiVectorArray`
+* :c:func:`N_VLinearCombinationVectorArray`
 
-* Changed `N_VGetLength_Cuda` to return the global vector length instead of
-  the local vector length.
+If an :c:type:`N_Vector` implementation defines the implementation any of these
+operations as ``NULL``, then standard vector operations will automatically be
+called as necessary to complete the computation.
 
-* Added `N_VGetLocalLength_Cuda` to return the local vector length.
+A new :c:func:`N_VECTOR` implementation, :ref:`OpenMPDEV <NVectors.OpenMPDEV>`,
+leveraging OpenMP device offloading has been added.
 
-* Added `N_VGetMPIComm_Cuda` to return the MPI communicator used.
+Multiple updates to the :ref:`CUDA <NVectors.CUDA>` vector were made:
 
-* Removed the accessor functions in the namespace suncudavec.
+* Changed the :c:func:`N_VMake_Cuda` function to take a host data pointer and a
+  device data pointer instead of an ``N_VectorContent_Cuda`` object.
 
-* Added the ability to set the `cudaStream_t` used for execution of the CUDA
-  NVECTOR kernels. See the function `N_VSetCudaStreams_Cuda`.
+* Changed :c:func:`N_VGetLength_Cuda` to return the global vector length instead
+  of the local vector length.
 
-* Added `N_VNewManaged_Cuda`, `N_VMakeManaged_Cuda`, and
-  `N_VIsManagedMemory_Cuda` functions to accommodate using managed memory with
-  the CUDA NVECTOR.
+* Added :c:func:`N_VGetLocalLength_Cuda` to return the local vector length.
 
-Multiple updates to the RAJA NVECTOR were made:
+* Added :c:func:`N_VGetMPIComm_Cuda` to return the MPI communicator used.
 
-* Changed `N_VGetLength_Raja` to return the global vector length instead of
-  the local vector length.
+* Removed the accessor functions in the ``suncudavec`` namespace.
 
-* Added `N_VGetLocalLength_Raja` to return the local vector length.
+* Added the ability to set the ``cudaStream_t`` used for execution of the CUDA
+  kernels. See the function :c:func:`N_VSetCudaStreams_Cuda`.
 
-* Added `N_VGetMPIComm_Raja` to return the MPI communicator used.
+* Added :c:func:`N_VNewManaged_Cuda`, :c:func:`N_VMakeManaged_Cuda`, and
+  :c:func:`N_VIsManagedMemory_Cuda` functions to accommodate using managed
+  memory with the CUDA vector.
 
-* Removed the accessor functions in the namespace sunrajavec.
+Multiple updates to the :ref:`RAJA <NVectors.RAJA>` vector were made:
 
-Two changes were made in the CVODE/CVODES/ARKODE initial step size algorithm:
+* Changed :c:func:`N_VGetLength_Raja` to return the global vector length instead
+  of the local vector length.
 
-  * Fixed an efficiency bug where an extra call to the RHS function was made.
+* Added :c:func:`N_VGetLocalLength_Raja` to return the local vector length.
 
-  * Changed the behavior of the algorithm if the max-iterations case is hit.
-    Before the algorithm would exit with the step size calculated on the
-    penultimate iteration. Now it will exit with the step size calculated
-    on the final iteration.
+* Added :c:func:`N_VGetMPIComm_Raja` to return the MPI communicator used.
 
-Fortran 2003 interfaces to CVODE, the fixed-point and Newton nonlinear solvers,
-the dense, band, KLU, PCG, SPBCGS, SPFGMR, SPGMR, and SPTFQMR linear solvers,
-and the serial, PThreads, and OpenMP NVECTORs have been added.
+* Removed the accessor functions in the ``sunrajavec`` namespace.
 
-The ARKODE library has been entirely rewritten to support a modular
-approach to one-step methods, which should allow rapid research and
-development of novel integration methods without affecting existing
-solver functionality. To support this, the existing ARK-based methods
-have been encapsulated inside the new ``ARKStep`` time-stepping
-module. Two new time-stepping modules have been added:
+Two changes were made in the ARKODE and CVODE(S) initial step size algorithm:
 
-* The ``ERKStep`` module provides an optimized implementation for explicit
-  Runge--Kutta methods with reduced storage and number of calls to the ODE
-  right-hand side function.
-
-* The ``MRIStep`` module implements two-rate explicit-explicit multirate
-  infinitesimal step methods utilizing different step sizes for slow
-  and fast processes in an additive splitting.
-
-This restructure has resulted in numerous small changes to the user
-interface, particularly the suite of "Set" routines for user-provided
-solver parameters and "Get" routines to access solver statistics,
-that are now prefixed with the name of time-stepping module (e.g., ``ARKStep``
-or ``ERKStep``) instead of ``ARKODE``. Aside from affecting the names of these
-routines, user-level changes have been kept to a minimum. However, we recommend
-that users consult both this documentation and the ARKODE example programs for
-further details on the updated infrastructure.
-
-As part of the ARKODE restructuring an :c:type:`ARKodeButcherTable` structure
-has been added for storing Butcher tables. Functions for creating new Butcher
-tables and checking their analytic order are provided along with other utility
-routines. For more details see :ref:`ARKodeButcherTable`.
-
-Two changes were made in the initial step size algorithm:
-
-* Fixed an efficiency bug where an extra call to the right hand side function was made.
+* Fixed an efficiency bug where an extra call to the RHS function was made.
 
 * Changed the behavior of the algorithm if the max-iterations case is hit.
   Before the algorithm would exit with the step size calculated on the
   penultimate iteration. Now it will exit with the step size calculated
   on the final iteration.
 
-ARKODE's dense output infrastructure has been improved to support
-higher-degree Hermite polynomial interpolants (up to degree 5) over
-the last successful time step.
+Fortran 2003 interfaces to CVODE, the fixed-point and Newton nonlinear solvers,
+the dense, band, KLU, PCG, SPBCGS, SPFGMR, SPGMR, and SPTFQMR linear solvers,
+and the serial, PThreads, and OpenMP vectors have been added.
 
-A Fortran 2003 interface to CVODE has been added along with Fortran 2003
-interfaces to the following shared SUNDIALS modules:
+The ARKODE library has been entirely rewritten to support a modular approach to
+one-step methods, which should allow rapid research and development of novel
+integration methods without affecting existing solver functionality. To support
+this, the existing ARK-based methods have been encapsulated inside the new
+``ARKStep`` time-stepping module. Two new time-stepping modules have been added:
 
-   -  ``SUNNONLINSOL_FIXEDPOINT`` and ``SUNNONLINSOL_NEWTON`` nonlinear solver modules
-   -  ``SUNLINSOL_BAND``, ``SUNLINSOL_DENSE``, ``SUNLINSOL_KLU``, ``SUNLINSOL_PCG``, ``SUNLINSOL_SPBCGS``, ``SUNLINSOL_SPFGMR``, ``SUNLINSOL_SPGMR``, and ``SUNLINSOL_SPTFQMR`` linear solver modules
-   -  ``NVECTOR_SERIAL``, ``NVECTOR_PTHREADS``, and ``NVECTOR_OPENMP`` vector modules
+* The ``ERKStep`` module provides an optimized implementation for explicit
+  Runge--Kutta methods with reduced storage and number of calls to the ODE
+  right-hand side function.
+
+* The ``MRIStep`` module implements two-rate explicit-explicit multirate
+  infinitesimal step methods utilizing different step sizes for slow and fast
+  processes in an additive splitting.
+
+This restructure has resulted in numerous small changes to the user interface,
+particularly the suite of "Set" routines for user-provided solver parameters and
+"Get" routines to access solver statistics, that are now prefixed with the name
+of time-stepping module (e.g., ``ARKStep`` or ``ERKStep``) instead of
+``ARKODE``. Aside from affecting the names of these routines, user-level changes
+have been kept to a minimum. However, we recommend that users consult both this
+documentation and the ARKODE example programs for further details on the updated
+infrastructure.
+
+As part of the ARKODE restructuring an :c:type:`ARKodeButcherTable` structure
+has been added for storing Butcher tables. Functions for creating new Butcher
+tables and checking their analytic order are provided along with other utility
+routines. For more details see the :ref:`ARKodeButcherTable` section.
+
+ARKODE's dense output infrastructure has been improved to support higher-degree
+Hermite polynomial interpolants (up to degree 5) over the last successful time
+step.
 
 Changes to SUNDIALS in release 3.2.1
 ====================================
 
-Fixed a bug in the :ref:`CUDA N_Vector <NVectors.CUDA>` where the
+Fixed a bug in the :ref:`CUDA <NVectors.CUDA>` vector where the
 :c:func:`N_VInvTest` operation could write beyond the allocated vector data.
 
-Fixed library installation path for multiarch systems. This fix changes the
-default library installation path to
-``CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR`` from
-``CMAKE_INSTALL_PREFIX/lib``. Note :cmakeop:`CMAKE_INSTALL_LIBDIR` is
-automatically set, but is available as a CMake option that can be modified.
+Fixed the library installation path for multiarch systems. This fix changes the
+default library installation path from ``CMAKE_INSTALL_PREFIX/lib`` to
+``CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR``. The default value library
+directory name is automatically set to ``lib``, ``lib64``, or
+``lib/<multiarch-tuple>`` depending on the system, but maybe be overridden by
+setting :cmakeop:`CMAKE_INSTALL_LIBDIR`.
 
 Changes to SUNDIALS in release 3.2.0
 ====================================
 
 **Library Name Change**
 
-Changed the name of the RAJA nvector library to `libsundials_nveccudaraja.lib`
-from `libsundials_nvecraja.lib` to better reflect that we only support CUDA as a
-backend for RAJA currently.
+Changed the name of the RAJA nvector library from ``libsundials_nvecraja.lib``
+to ``libsundials_nveccudaraja.lib`` to better reflect that the RAJA vector only
+support the CUDA backend currently.
 
 **New Features**
 
-Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more than one MPI
+Added hybrid MPI+CUDA and MPI+RAJA vectors to allow use of more than one MPI
 rank when using a GPU system. The vectors assume one GPU device per MPI rank.
 
 Support for optional inequality constraints on individual components of the
-solution vector has been added to CVODE and CVODES. See
-:numref:`CVODE.Mathematics` and the description of in :numref:`CVODE.Usage.CC.optional_input` for
-more details. Use of :c:func:`CVodeSetConstraints` requires the ``N_Vector``
-operations :c:func:`N_VMinQuotient`, :c:func:`N_VConstMask`, and
-:c:func:`N_VCompare` that were not previously required by CVODE and CVODES.
+solution vector has been added to CVODE and CVODES. For more details see the
+:ref:`CVODE.Mathematics` and :ref:`CVODE.Usage.CC.optional_input` sections.
+Use of :c:func:`CVodeSetConstraints` requires the :c:type:`N_Vector` operations
+:c:func:`N_VMinQuotient`, :c:func:`N_VConstMask`, and :c:func:`N_VCompare` that
+were not previously required by CVODE and CVODES.
 
 **CMake Updates**
 
 CMake 3.1.3 is now the minimum required CMake version.
 
-Deprecate the behavior of the :cmakeop:`SUNDIALS_INDEX_TYPE` CMake option and
+Deprecated the behavior of the :cmakeop:`SUNDIALS_INDEX_TYPE` CMake option and
 added the :cmakeop:`SUNDIALS_INDEX_SIZE` CMake option to select the
-``sunindextype`` integer size.
+:c:type:`sunindextype` integer size.
 
 The native CMake FindMPI module is now used to locate an MPI installation.
 
@@ -2359,26 +2326,26 @@ check if ``CMAKE_<language>_COMPILER`` can compile MPI programs before trying
 to locate and use an MPI installation.
 
 The previous options for setting MPI compiler wrappers and the executable for
-running MPI programs have been have been depreated. The new options that align
+running MPI programs have been have been deprecated. The new options that align
 with those used in native CMake FindMPI module are :cmakeop:`MPI_C_COMPILER`,
 :cmakeop:`MPI_CXX_COMPILER`, :cmakeop:`MPI_Fortran_COMPILER`, and
 :cmakeop:`MPIEXEC_EXECUTABLE`.
 
-When a Fortran name-mangling scheme is needed (e.g., :cmakeop:`ENABLE_LAPACK`
-is ``ON``) the build system will infer the scheme from the Fortran compiler.
-If a Fortran compiler is not available or the inferred or default scheme needs
-to be overridden, the advanced options :cmakeop:`SUNDIALS_F77_FUNC_CASE` and
+When a Fortran name-mangling scheme is needed (e.g., :cmakeop:`ENABLE_LAPACK` is
+``ON``) the build system will infer the scheme from the Fortran compiler. If a
+Fortran compiler is not available or the inferred or default scheme needs to be
+overridden, the advanced options :cmakeop:`SUNDIALS_F77_FUNC_CASE` and
 :cmakeop:`SUNDIALS_F77_FUNC_UNDERSCORES` can be used to manually set the
 name-mangling scheme and bypass trying to infer the scheme.
 
-Parts of the main CMakeLists.txt file were moved to new files in the ``src``
-and ``example`` directories to make the CMake configuration file structure
-more modular.
+Parts of the main ``CMakeLists.txt`` file were moved to new files in the ``src``
+and ``example`` directories to make the CMake configuration file structure more
+modular.
 
 **Bug Fixes**
 
-Fixed a problem with setting ``sunindextype`` which would occur with some
-compilers (e.g. armclang) that do not define ``__STDC_VERSION__``.
+Fixed a problem with setting :c:type:`sunindextype` which would occur with some
+compilers (e.g. ``armclang``) that do not define ``__STDC_VERSION__``.
 
 Fixed a thread-safety issue in CVODES and IDAS when using adjoint sensitivity
 analysis.
@@ -2389,6 +2356,8 @@ overwritten.
 
 Changes to SUNDIALS in release 3.1.2
 ====================================
+
+**HERE**
 
 Fixed Windows specific problem where `sunindextype` was not correctly defined
 when using 64-bit integers. On Windows `sunindextype` is now defined as the MSVC
