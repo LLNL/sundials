@@ -29,7 +29,7 @@ namespace hip {
 
 #if defined(__HIP_PLATFORM_HCC__) || defined(__HIP_PLATFORM_AMD__)
 constexpr const sunindextype WARP_SIZE = 64;
-#elif defined(__HIP_PLATFORM_NVCC__)
+#elif defined(__HIP_PLATFORM_NVCC__) || defined(__HIP_PLATFORM_NVDIA__)
 constexpr const sunindextype WARP_SIZE = 32;
 #endif
 constexpr const sunindextype MAX_BLOCK_SIZE = 1024;
