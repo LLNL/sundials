@@ -33,20 +33,91 @@
 
      imeth                       order   type    QP
     ------------------------------------------------
-     ARKODE_MIS_KW3                     3       E       Y
-     ARKODE_MRI_GARK_ERK33a             3       E       Y
-     ARKODE_MRI_GARK_ERK45a             4       E       Y
-     ARKODE_MRI_GARK_IRK21a             2       ID      Y
-     ARKODE_MRI_GARK_ESDIRK34a          3       ID      Y
-     ARKODE_MRI_GARK_ESDIRK46a          4       ID      Y
-     ARKODE_IMEX_MRI_GARK3a             3       ID      Y
-     ARKODE_IMEX_MRI_GARK3b             3       ID      Y
-     ARKODE_IMEX_MRI_GARK4              4       ID      Y
+     ARKODE_IMEX_MRI_EULER       1       ID      Y
+     ARKODE_IMEX_MRI_TRAPEZOID   2       ID      Y
+     ARKODE_IMEX_MRI_MIDPOINT    2       ID      Y
+     ARKODE_MRI_GARK_RALSTON2    2       E       Y
+     ARKODE_MIS_KW3              3       E       Y
+     ARKODE_MRI_GARK_ERK33a      3       E       Y
+     ARKODE_MRI_GARK_RALSTON3    3       E       Y
+     ARKODE_MRI_GARK_ERK45a      4       E       Y
+     ARKODE_MRI_GARK_IRK21a      2       ID      Y
+     ARKODE_MRI_GARK_ESDIRK34a   3       ID      Y
+     ARKODE_MRI_GARK_ESDIRK46a   4       ID      Y
+     ARKODE_IMEX_MRI_GARK3a      3       ID      Y
+     ARKODE_IMEX_MRI_GARK3b      3       ID      Y
+     ARKODE_IMEX_MRI_GARK4       4       ID      Y
     ------------------------------------------------
 */
 
+
 ARK_MRI_TABLE(ARKODE_MRI_NONE, {
     return NULL;
+  })
+
+ARK_MRI_TABLE(ARKODE_IMEX_MRI_EULER, {
+    MRIStepCoupling C = MRIStepCoupling_Alloc(1, 3, MRISTEP_IMEX);
+
+    C->q = 1;
+    C->p = 0;
+
+    C->c[1] = ONE;
+    C->c[2] = ONE;
+
+    C->W[0][1][0] = ONE;
+
+    C->G[0][1][0] = ONE;
+    C->G[0][2][0] = -ONE;
+    C->G[0][2][2] = ONE;
+    return C;
+  })
+
+ARK_MRI_TABLE(ARKODE_IMEX_MRI_TRAPEZOID, {
+    MRIStepCoupling C = MRIStepCoupling_Alloc(1, 4, MRISTEP_IMEX);
+
+    C->q = 2;
+    C->p = 0;
+
+    C->c[1] = ONE;
+    C->c[2] = ONE;
+    C->c[3] = ONE;
+
+    C->W[0][1][0] = ONE;
+    C->W[0][3][0] = -ONE/TWO;
+    C->W[0][3][2] = ONE/TWO;
+
+    C->G[0][1][0] = ONE;
+    C->G[0][2][0] = -ONE/TWO;
+    C->G[0][2][2] = ONE/TWO;
+    return C;
+  })
+
+ARK_MRI_TABLE(ARKODE_IMEX_MRI_MIDPOINT, {
+    MRIStepCoupling C = MRIStepCoupling_Alloc(1, 4, MRISTEP_IMEX);
+
+    C->q = 2;
+    C->p = 0;
+
+    C->c[1] = ONE/TWO;
+    C->c[2] = ONE/TWO;
+    C->c[3] = ONE;
+
+    C->W[0][1][0] = ONE/TWO;
+    C->W[0][3][0] = -ONE/TWO;
+    C->W[0][3][2] = ONE;
+
+    C->G[0][1][0] = ONE/TWO;
+    C->G[0][2][0] = -ONE/TWO;
+    C->G[0][2][2] = ONE/TWO;
+    C->G[0][3][2] = ONE/TWO;
+    return C;
+  })
+
+ARK_MRI_TABLE(ARKODE_MRI_GARK_RALSTON2, { /* TODO */
+    ARKodeButcherTable B = ARKodeButcherTable_LoadERK(ARKODE_RALSTON_EULER_2_1_2);
+    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, 2, 0);
+    ARKodeButcherTable_Free(B);
+    return C;
   })
 
 ARK_MRI_TABLE(ARKODE_MIS_KW3, { /* Schlegel et al., JCAM 226:345-357, 2009 */
@@ -74,6 +145,31 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK33a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
 
     C->W[1][3][0] =  ONE/TWO;
     C->W[1][3][2] = -ONE/TWO;
+    return C;
+  })
+
+ARK_MRI_TABLE(ARKODE_MRI_GARK_RALSTON3, {
+    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 4, MRISTEP_EXPLICIT);
+
+    C->q = 3;
+    C->p = 0;
+
+    C->c[1] = ONE/SUN_RCONST(2.0);
+    C->c[2] = SUN_RCONST(3.0)/SUN_RCONST(4.0);
+    C->c[3] = ONE;
+
+    C->W[0][1][0] =  ONE/SUN_RCONST(2.0);
+    C->W[0][2][0] = -SUN_RCONST(11.0)/SUN_RCONST(4.0);
+    C->W[0][2][1] =  SUN_RCONST(3.0);
+    C->W[0][3][0] =  SUN_RCONST(47.0)/SUN_RCONST(36.0);
+    C->W[0][3][1] =  -ONE/SUN_RCONST(6.0);
+    C->W[0][3][2] =  -SUN_RCONST(8.0)/SUN_RCONST(9.0);
+
+    C->W[1][2][0] =  SUN_RCONST(9.0)/TWO;
+    C->W[1][2][1] = -SUN_RCONST(9.0)/TWO;
+    C->W[1][3][0] = -SUN_RCONST(13.0)/SUN_RCONST(6.0);
+    C->W[1][3][1] = -ONE/TWO;
+    C->W[1][3][2] =  SUN_RCONST(8.0)/SUN_RCONST(3.0);
     return C;
   })
 
