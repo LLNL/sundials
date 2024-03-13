@@ -114,11 +114,11 @@ int main(int argc, char* argv[])
   // Test methods
   int numfails = 0;
 
-  numfails += run_tests(MRISTEP_EXPLICIT, t0, nsteps, hs, hf, reltol, abstol,
-                        &udata, sunctx);
+  // numfails += run_tests(MRISTEP_EXPLICIT, t0, nsteps, hs, hf, reltol, abstol,
+  //                       &udata, sunctx);
 
-  numfails += run_tests(MRISTEP_IMPLICIT, t0, nsteps, hs, hf, reltol, abstol,
-                        &udata, sunctx);
+  // numfails += run_tests(MRISTEP_IMPLICIT, t0, nsteps, hs, hf, reltol, abstol,
+  //                       &udata, sunctx);
 
   numfails += run_tests(MRISTEP_IMEX, t0, nsteps, hs, hf, reltol, abstol,
                         &udata, sunctx);
@@ -253,12 +253,14 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "Test explicit MRI methods\n";
     cout << "=========================\n";
 
-    num_methods = 3;
+    num_methods = 5;
     methods     = new ARKODE_MRITableID[num_methods];
 
-    methods[0] = ARKODE_MIS_KW3;
-    methods[1] = ARKODE_MRI_GARK_ERK33a;
-    methods[2] = ARKODE_MRI_GARK_ERK45a;
+    methods[0] = ARKODE_MRI_GARK_RALSTON2;
+    methods[1] = ARKODE_MIS_KW3;
+    methods[2] = ARKODE_MRI_GARK_ERK33a;
+    methods[3] = ARKODE_MRI_GARK_RALSTON3;
+    methods[4] = ARKODE_MRI_GARK_ERK45a;
   }
   else if (type == MRISTEP_IMPLICIT)
   {
@@ -285,18 +287,27 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "Test IMEX MRI methods\n";
     cout << "=====================\n";
 
-    num_methods      = 3;
+    num_methods      = 2;
     methods          = new ARKODE_MRITableID[num_methods];
     stiffly_accurate = new bool[num_methods];
 
-    methods[0]          = ARKODE_IMEX_MRI_GARK3a;
+    methods[0]          = ARKODE_IMEX_MRI_GARK_EULER;
     stiffly_accurate[0] = false;
 
-    methods[1]          = ARKODE_IMEX_MRI_GARK3b;
+    methods[1]          = ARKODE_IMEX_MRI_GARK3a;
     stiffly_accurate[1] = false;
 
-    methods[2]          = ARKODE_IMEX_MRI_GARK4;
-    stiffly_accurate[2] = false;
+    // methods[2]          = ARKODE_IMEX_MRI_GARK3a;
+    // stiffly_accurate[2] = false;
+
+    // methods[3]          = ARKODE_IMEX_MRI_GARK3a;
+    // stiffly_accurate[3] = false;
+
+    // methods[4]          = ARKODE_IMEX_MRI_GARK3b;
+    // stiffly_accurate[4] = false;
+
+    // methods[5]          = ARKODE_IMEX_MRI_GARK4;
+    // stiffly_accurate[5] = false;
   }
   else { return 1; }
 

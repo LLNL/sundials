@@ -31,23 +31,23 @@
   are known precisely enough for use in quad precision (128-bit)
   calculations.
 
-     imeth                       order   type    QP
-    ------------------------------------------------
-     ARKODE_IMEX_MRI_EULER       1       ID      Y
-     ARKODE_IMEX_MRI_TRAPEZOID   2       ID      Y
-     ARKODE_IMEX_MRI_MIDPOINT    2       ID      Y
-     ARKODE_MRI_GARK_RALSTON2    2       E       Y
-     ARKODE_MIS_KW3              3       E       Y
-     ARKODE_MRI_GARK_ERK33a      3       E       Y
-     ARKODE_MRI_GARK_RALSTON3    3       E       Y
-     ARKODE_MRI_GARK_ERK45a      4       E       Y
-     ARKODE_MRI_GARK_IRK21a      2       ID      Y
-     ARKODE_MRI_GARK_ESDIRK34a   3       ID      Y
-     ARKODE_MRI_GARK_ESDIRK46a   4       ID      Y
-     ARKODE_IMEX_MRI_GARK3a      3       ID      Y
-     ARKODE_IMEX_MRI_GARK3b      3       ID      Y
-     ARKODE_IMEX_MRI_GARK4       4       ID      Y
-    ------------------------------------------------
+     imeth                          order   type    QP
+    --------------------------------------------------
+     ARKODE_IMEX_MRI_GARK_EULER     1       ID      Y
+     ARKODE_IMEX_MRI_GARK_TRAPEZOID 2       ID      Y
+     ARKODE_IMEX_MRI_GARK_MIDPOINT  2       ID      Y
+     ARKODE_MRI_GARK_RALSTON2       2       E       Y
+     ARKODE_MIS_KW3                 3       E       Y
+     ARKODE_MRI_GARK_ERK33a         3       E       Y
+     ARKODE_MRI_GARK_RALSTON3       3       E       Y
+     ARKODE_MRI_GARK_ERK45a         4       E       Y
+     ARKODE_MRI_GARK_IRK21a         2       ID      Y
+     ARKODE_MRI_GARK_ESDIRK34a      3       ID      Y
+     ARKODE_MRI_GARK_ESDIRK46a      4       ID      Y
+     ARKODE_IMEX_MRI_GARK3a         3       ID      Y
+     ARKODE_IMEX_MRI_GARK3b         3       ID      Y
+     ARKODE_IMEX_MRI_GARK4          4       ID      Y
+    --------------------------------------------------
 */
 
 
@@ -55,7 +55,7 @@ ARK_MRI_TABLE(ARKODE_MRI_NONE, {
     return NULL;
   })
 
-ARK_MRI_TABLE(ARKODE_IMEX_MRI_EULER, {
+ARK_MRI_TABLE(ARKODE_IMEX_MRI_GARK_EULER, {
     MRIStepCoupling C = MRIStepCoupling_Alloc(1, 3, MRISTEP_IMEX);
 
     C->q = 1;
@@ -66,13 +66,13 @@ ARK_MRI_TABLE(ARKODE_IMEX_MRI_EULER, {
 
     C->W[0][1][0] = ONE;
 
-    C->G[0][1][0] = ONE;
+    C->G[0][1][0] =  ONE;
     C->G[0][2][0] = -ONE;
-    C->G[0][2][2] = ONE;
+    C->G[0][2][2] =  ONE;
     return C;
   })
 
-ARK_MRI_TABLE(ARKODE_IMEX_MRI_TRAPEZOID, {
+ARK_MRI_TABLE(ARKODE_IMEX_MRI_GARK_TRAPEZOID, {
     MRIStepCoupling C = MRIStepCoupling_Alloc(1, 4, MRISTEP_IMEX);
 
     C->q = 2;
@@ -92,7 +92,7 @@ ARK_MRI_TABLE(ARKODE_IMEX_MRI_TRAPEZOID, {
     return C;
   })
 
-ARK_MRI_TABLE(ARKODE_IMEX_MRI_MIDPOINT, {
+ARK_MRI_TABLE(ARKODE_IMEX_MRI_GARK_MIDPOINT, {
     MRIStepCoupling C = MRIStepCoupling_Alloc(1, 4, MRISTEP_IMEX);
 
     C->q = 2;
@@ -154,11 +154,11 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_RALSTON3, {
     C->q = 3;
     C->p = 0;
 
-    C->c[1] = ONE/SUN_RCONST(2.0);
+    C->c[1] = ONE/TWO;
     C->c[2] = SUN_RCONST(3.0)/SUN_RCONST(4.0);
     C->c[3] = ONE;
 
-    C->W[0][1][0] =  ONE/SUN_RCONST(2.0);
+    C->W[0][1][0] =  ONE/TWO;
     C->W[0][2][0] = -SUN_RCONST(11.0)/SUN_RCONST(4.0);
     C->W[0][2][1] =  SUN_RCONST(3.0);
     C->W[0][3][0] =  SUN_RCONST(47.0)/SUN_RCONST(36.0);

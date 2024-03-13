@@ -38,10 +38,7 @@
 
      imeth                               QP
     ---------------------------------------
-     ARKODE_EULER                         Y
-     ARKODE_HEUN_EULER_2_1_2              Y
      ARKODE_RALSTON_EULER_2_1_2           Y
-     ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2 Y
      ARKODE_BOGACKI_SHAMPINE_4_2_3        Y
      ARKODE_ARK324L2SA_ERK_4_2_3*         N
      ARKODE_SHU_OSHER_3_2_3               Y
@@ -70,15 +67,6 @@
 ARK_BUTCHER_TABLE(ARKODE_ERK_NONE, {
     return NULL;
   })
-
-ARK_BUTCHER_TABLE(ARKODE_EULER, { /* Euler-ERK */
-    ARKodeButcherTable B = ARKodeButcherTable_Alloc(1, SUNFALSE);
-    B->q = 1;
-    B->p = 0;
-
-    B->b[0] = SUN_RCONST(1.0);
-    return B;
-})
 
 ARK_BUTCHER_TABLE(ARKODE_HEUN_EULER_2_1_2, { /* Heun-Euler-ERK */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNTRUE);
@@ -109,21 +97,6 @@ ARK_BUTCHER_TABLE(ARKODE_RALSTON_EULER_2_1_2, { /* Ralston-Euler-ERK */
     B->d[0] = SUN_RCONST(1.0);
 
     B->c[1] = SUN_RCONST(2.0) / SUN_RCONST(3.0);
-    return B;
- })
-
-ARK_BUTCHER_TABLE(ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2, { /* Explicit-Midpoint-Euler-ERK */
-    ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNTRUE);
-    B->q = 2;
-    B->p = 1;
-
-    B->A[1][0] = SUN_RCONST(0.5);
-
-    B->b[1] = SUN_RCONST(1.0);
-
-    B->d[0] = SUN_RCONST(1.0);
-
-    B->c[1] = SUN_RCONST(0.5);
     return B;
  })
 
