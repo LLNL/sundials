@@ -47,4 +47,8 @@ sundials_add_library(sundials_sunlinsolsuperlumt
   ${sunlinsollib_SOVERSION}
 )
 
+if (BLAS_FOUND)
+  target_link_libraries(sundials_sunlinsolsuperlumt_shared PRIVATE ${BLAS_LIBRARIES})
+endif ()
+
 message(STATUS "Added SUNLINSOL_SUPERLUMT module")
