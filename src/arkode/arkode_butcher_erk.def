@@ -119,8 +119,7 @@ ARK_BUTCHER_TABLE(ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2, { /* Explicit-Midpoint-E
 
     B->A[1][0] = SUN_RCONST(1.0) / SUN_RCONST(2.0);
 
-    B->b[0] = SUN_RCONST(1.0) / SUN_RCONST(2.0);
-    B->b[1] = SUN_RCONST(1.0) / SUN_RCONST(2.0);
+    B->b[1] = SUN_RCONST(1.0);
 
     B->d[0] = SUN_RCONST(1.0);
 
