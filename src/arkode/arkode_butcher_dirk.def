@@ -34,7 +34,11 @@
 
      imeth                              type  A-stable  L-stable  QP
     -----------------------------------------------------------------
+     ARKODE_BACKWARD_EULER_1_1         SDIRK     Y         Y       Y
      ARKODE_SDIRK_2_1_2                SDIRK     Y         N       Y
+     ARKODE_ARK2_DIRK_3_1_2           ESDIRK     Y         Y       Y
+     ARKODE_IMPLICIT_MIDPOINT_1_2      SDIRK     Y         N       Y
+     ARKODE_IMPLICIT_TRAPEZOIDAL_1_2  ESDIRK     Y         N       Y
      ARKODE_BILLINGTON_3_3_2           SDIRK     N         N       N
      ARKODE_TRBDF2_3_3_2              ESDIRK     N         N       Y
      ARKODE_KVAERNO_4_2_3             ESDIRK     Y         Y       N
@@ -57,12 +61,24 @@
      ARKODE_ARK548L2SAb_DIRK_8_4_5*   ESDIRK     Y         Y       N
      ARKODE_ESDIRK547L2SA_7_4_5       ESDIRK     Y         Y       N
      ARKODE_ESDIRK547L2SA2_7_4_5      ESDIRK     Y         Y       N
-     ARKODE_ARK2_DIRK_3_1_2           ESDIRK     Y         Y       Y
      -----------------------------------------------------------------
 */
 
 ARK_BUTCHER_TABLE(ARKODE_DIRK_NONE, {
     return NULL;
+  })
+
+ARK_BUTCHER_TABLE(ARKODE_BACKWARD_EULER_1_1, { /* Backward Euler (L,B stable) */
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNFALSE);
+    B->q = 1;
+    B->p = 0;
+
+    B->A[0][0] = SUN_RCONST(1.0);
+
+    B->b[0] = SUN_RCONST(1.0);
+
+    B->c[0] = SUN_RCONST(1.0);
+    return B;
   })
 
 ARK_BUTCHER_TABLE(ARKODE_SDIRK_2_1_2, { /* SDIRK-2-1 (A,B stable) */
@@ -116,6 +132,34 @@ ARK_BUTCHER_TABLE(ARKODE_ARK2_DIRK_3_1_2, { /* ARK2 Implicit Table (A,L stable) 
     B->c[1] = twogamma;
     B->c[2] = SUN_RCONST(1.0);
 
+    return B;
+  })
+
+ARK_BUTCHER_TABLE(ARKODE_IMPLICIT_MIDPOINT_1_2, { /* Implicit Midpoint Rule (A,B stable) */
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(1, SUNFALSE);
+    B->q = 2;
+    B->p = 0;
+
+    B->A[0][0] = SUN_RCONST(0.5);
+
+    B->b[0] = SUN_RCONST(1);
+
+    B->c[0] = SUN_RCONST(0.5);
+    return B;
+  })
+
+ARK_BUTCHER_TABLE(ARKODE_IMPLICIT_TRAPEZOIDAL_1_2, { /* Implicit Trapezoidal Rule (A stable) */
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNFALSE);
+    B->q = 2;
+    B->p = 0;
+
+    B->A[1][0] = SUN_RCONST(0.5);
+    B->A[1][1] = SUN_RCONST(0.5);
+
+    B->b[0] = SUN_RCONST(0.5);
+    B->b[1] = SUN_RCONST(0.5);
+
+    B->c[1] = SUN_RCONST(1.0);
     return B;
   })
 

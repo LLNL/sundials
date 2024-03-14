@@ -36,38 +36,49 @@
   are known precisely enough for use in quad precision (128-bit)
   calculations.
 
-     imeth                              QP
-    --------------------------------------
-     ARKODE_RALSTON_EULER_2_1_2          Y
-     ARKODE_HEUN_EULER_2_1_2             Y
-     ARKODE_BOGACKI_SHAMPINE_4_2_3       Y
-     ARKODE_ARK324L2SA_ERK_4_2_3*        N
-     ARKODE_SHU_OSHER_3_2_3              Y
-     ARKODE_SOFRONIOU_SPALETTA_5_3_4     Y
-     ARKODE_ZONNEVELD_5_3_4              Y
-     ARKODE_ARK436L2SA_ERK_6_3_4*        N
-     ARKODE_ARK437L2SA_ERK_7_3_4*        N
-     ARKODE_SAYFY_ABURUB_6_3_4           N
-     ARKODE_CASH_KARP_6_4_5              Y
-     ARKODE_FEHLBERG_6_4_5               Y
-     ARKODE_DORMAND_PRINCE_7_4_5         Y
-     ARKODE_ARK548L2SA_ERK_8_4_5*        N
-     ARKODE_ARK548L2SAb_ERK_8_4_5*       N
-     ARKODE_VERNER_8_5_6                 Y
-     ARKODE_FEHLBERG_13_7_8              Y
-     ARKODE_ARK2_ERK_3_1_2               Y
-     ARKODE_VERNER_9_5_6                 Y
-     ARKODE_VERNER_10_6_7                Y
-     ARKODE_VERNER_13_7_8                Y
-     ARKODE_VERNER_16_8_9                Y
-    --------------------------------------
-     ARKODE_KNOTH_WOLKE_3_3^             Y
-    --------------------------------------
+     imeth                               QP
+    ---------------------------------------
+     ARKODE_FORWARD_EULER_1_1             Y
+     ARKODE_HEUN_EULER_2_1_2              Y
+     ARKODE_RALSTON_EULER_2_1_2           Y
+     ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2 Y
+     ARKODE_BOGACKI_SHAMPINE_4_2_3        Y
+     ARKODE_ARK324L2SA_ERK_4_2_3*         N
+     ARKODE_SHU_OSHER_3_2_3               Y
+     ARKODE_SOFRONIOU_SPALETTA_5_3_4      Y
+     ARKODE_ZONNEVELD_5_3_4               Y
+     ARKODE_ARK436L2SA_ERK_6_3_4*         N
+     ARKODE_ARK437L2SA_ERK_7_3_4*         N
+     ARKODE_SAYFY_ABURUB_6_3_4            N
+     ARKODE_CASH_KARP_6_4_5               Y
+     ARKODE_FEHLBERG_6_4_5                Y
+     ARKODE_DORMAND_PRINCE_7_4_5          Y
+     ARKODE_ARK548L2SA_ERK_8_4_5*         N
+     ARKODE_ARK548L2SAb_ERK_8_4_5*        N
+     ARKODE_VERNER_8_5_6                  Y
+     ARKODE_FEHLBERG_13_7_8               Y
+     ARKODE_ARK2_ERK_3_1_2                Y
+     ARKODE_VERNER_9_5_6                  Y
+     ARKODE_VERNER_10_6_7                 Y
+     ARKODE_VERNER_13_7_8                 Y
+     ARKODE_VERNER_16_8_9                 Y
+    ---------------------------------------
+     ARKODE_KNOTH_WOLKE_3_3^              Y
+    ---------------------------------------
 */
 
 ARK_BUTCHER_TABLE(ARKODE_ERK_NONE, {
     return NULL;
   })
+
+ARK_BUTCHER_TABLE(ARKODE_FORWARD_EULER_1_1, { /* Euler-ERK */
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(1, SUNFALSE);
+    B->q = 1;
+    B->p = 0;
+
+    B->b[0] = SUN_RCONST(1.0);
+    return B;
+ })
 
 ARK_BUTCHER_TABLE(ARKODE_HEUN_EULER_2_1_2, { /* Heun-Euler-ERK */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNTRUE);
@@ -98,6 +109,22 @@ ARK_BUTCHER_TABLE(ARKODE_RALSTON_EULER_2_1_2, { /* Ralston-Euler-ERK */
     B->d[0] = SUN_RCONST(1.0);
 
     B->c[1] = SUN_RCONST(2.0) / SUN_RCONST(3.0);
+    return B;
+ })
+
+ARK_BUTCHER_TABLE(ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2, { /* Explicit-Midpoint-Euler-ERK */
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNTRUE);
+    B->q = 2;
+    B->p = 1;
+
+    B->A[1][0] = SUN_RCONST(1.0) / SUN_RCONST(2.0);
+
+    B->b[0] = SUN_RCONST(1.0) / SUN_RCONST(2.0);
+    B->b[1] = SUN_RCONST(1.0) / SUN_RCONST(2.0);
+
+    B->d[0] = SUN_RCONST(1.0);
+
+    B->c[1] = SUN_RCONST(1.0) / SUN_RCONST(2.0);
     return B;
  })
 

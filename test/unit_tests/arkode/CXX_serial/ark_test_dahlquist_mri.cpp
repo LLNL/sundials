@@ -273,7 +273,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     methods          = new ARKODE_MRITableID[num_methods];
     stiffly_accurate = new bool[num_methods]();
 
-    methods[0]          = ARKODE_MRI_GARK_IRK21a;
+    methods[0]          = ARKODE_IMEX_MRI_GARK_MIDPOINT;
     stiffly_accurate[0] = true;
 
     methods[1]          = ARKODE_MRI_GARK_ESDIRK34a;
@@ -294,7 +294,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
     methods[0]          = ARKODE_IMEX_MRI_GARK_EULER;
     stiffly_accurate[0] = true;
-    methods[1]          = ARKODE_IMEX_MRI_GARK_TRAPEZOID;
+    methods[1]          = ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL;
     methods[2]          = ARKODE_IMEX_MRI_GARK_MIDPOINT;
     methods[3]          = ARKODE_IMEX_MRI_GARK3a;
     methods[4]          = ARKODE_IMEX_MRI_GARK3b;

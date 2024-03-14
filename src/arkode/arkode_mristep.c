@@ -37,7 +37,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
                     MRIStepInnerStepper stepper, SUNContext sunctx)
 {
   ARKodeMem ark_mem;         /* outer ARKODE memory   */
-  ARKodeMRIStepMem step_mem = NULL; /* outer stepper memory  */
+  ARKodeMRIStepMem step_mem; /* outer stepper memory  */
   SUNNonlinearSolver NLS;    /* default nonlin solver */
   sunbooleantype nvectorOK;
   int retval;
@@ -1815,6 +1815,8 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
 {
   ARKodeMRIStepMem step_mem;
   sunindextype Cliw, Clrw;
+  int q_actual;
+  ARKODE_MRITableID table_id;
 
   /* access ARKodeMRIStepMem structure */
   if (ark_mem->step_mem == NULL)
@@ -1824,72 +1826,56 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
     return (ARK_MEM_NULL);
   }
   step_mem = (ARKodeMRIStepMem)ark_mem->step_mem;
+  q_actual = step_mem->q;
 
   /* if coupling has already been specified, just return */
   if (step_mem->MRIC != NULL) { return (ARK_SUCCESS); }
+
+  if (q_actual < 1 || q_actual > 4) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "No MRI method at requested order, using q=3.");
+    q_actual = 3;
+  }
 
   /* select method based on order and type */
 
   /**** ImEx methods ****/
   if (step_mem->implicit_rhs && step_mem->explicit_rhs)
   {
-    switch (step_mem->q)
+    switch (q_actual)
     {
-    case 3:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_3);
-      break;
-    case 4:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_4);
-      break;
-    default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "No MRI method at requested order, using q=3.");
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_3);
-      break;
+    case 1: table_id = MRISTEP_DEFAULT_IMEX_SD_1; break;
+    case 2: table_id = MRISTEP_DEFAULT_IMEX_SD_2; break;
+    case 3: table_id = MRISTEP_DEFAULT_IMEX_SD_2; break;
+    case 4: table_id = MRISTEP_DEFAULT_IMEX_SD_2; break;
     }
 
     /**** implicit methods ****/
   }
   else if (step_mem->implicit_rhs)
   {
-    switch (step_mem->q)
+    switch (q_actual)
     {
-    case 2:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_3);
-      break;
-    case 3:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_3);
-      break;
-    case 4:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_4);
-      break;
-    default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "No MRI method at requested order, using q=3.");
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_3);
-      break;
+    case 1: table_id = MRISTEP_DEFAULT_IMPL_SD_1; break;
+    case 2: table_id = MRISTEP_DEFAULT_IMPL_SD_2; break;
+    case 3: table_id = MRISTEP_DEFAULT_IMPL_SD_3; break;
+    case 4: table_id = MRISTEP_DEFAULT_IMPL_SD_4; break;
     }
 
     /**** explicit methods ****/
   }
   else
   {
-    switch (step_mem->q)
+    switch (q_actual)
     {
-    case 3:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_3);
-      break;
-    case 4:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_4);
-      break;
-    default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "No MRI method at requested order, using q=3.");
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_3);
-      break;
+    case 1: table_id = MRISTEP_DEFAULT_EXPL_1; break;
+    case 2: table_id = MRISTEP_DEFAULT_EXPL_2; break;
+    case 3: table_id = MRISTEP_DEFAULT_EXPL_3; break;
+    case 4: table_id = MRISTEP_DEFAULT_EXPL_4; break;
     }
   }
 
+  step_mem->MRIC = MRIStepCoupling_LoadTable(table_id);
   if (step_mem->MRIC == NULL)
   {
     arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
