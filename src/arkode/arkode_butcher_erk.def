@@ -39,6 +39,7 @@
      imeth                              QP
     --------------------------------------
      ARKODE_RALSTON_EULER_2_1_2          Y
+     ARKODE_HEUN_EULER_2_1_2             Y
      ARKODE_BOGACKI_SHAMPINE_4_2_3       Y
      ARKODE_ARK324L2SA_ERK_4_2_3*        N
      ARKODE_SHU_OSHER_3_2_3              Y
