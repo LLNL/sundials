@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
   sunrealtype t0 = SUN_RCONST(0.0);
 
   // Number of time steps
-  int nsteps = 1;
+  int nsteps = 2;
 
   // Relative and absolute tolerances
   sunrealtype reltol = SUN_RCONST(1.0e-4);
@@ -114,11 +114,11 @@ int main(int argc, char* argv[])
   // Test methods
   int numfails = 0;
 
-  // numfails += run_tests(MRISTEP_EXPLICIT, t0, nsteps, hs, hf, reltol, abstol,
-  //                       &udata, sunctx);
+  numfails += run_tests(MRISTEP_EXPLICIT, t0, nsteps, hs, hf, reltol, abstol,
+                        &udata, sunctx);
 
-  // numfails += run_tests(MRISTEP_IMPLICIT, t0, nsteps, hs, hf, reltol, abstol,
-  //                       &udata, sunctx);
+  numfails += run_tests(MRISTEP_IMPLICIT, t0, nsteps, hs, hf, reltol, abstol,
+                        &udata, sunctx);
 
   numfails += run_tests(MRISTEP_IMEX, t0, nsteps, hs, hf, reltol, abstol,
                         &udata, sunctx);
@@ -255,6 +255,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
     num_methods = 5;
     methods     = new ARKODE_MRITableID[num_methods];
+    stiffly_accurate = new bool[num_methods]();
 
     methods[0] = ARKODE_MRI_GARK_RALSTON2;
     methods[1] = ARKODE_MIS_KW3;
@@ -270,7 +271,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
     num_methods      = 3;
     methods          = new ARKODE_MRITableID[num_methods];
-    stiffly_accurate = new bool[num_methods];
+    stiffly_accurate = new bool[num_methods]();
 
     methods[0]          = ARKODE_MRI_GARK_IRK21a;
     stiffly_accurate[0] = true;
@@ -287,27 +288,17 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "Test IMEX MRI methods\n";
     cout << "=====================\n";
 
-    num_methods      = 2;
+    num_methods      = 6;
     methods          = new ARKODE_MRITableID[num_methods];
-    stiffly_accurate = new bool[num_methods];
+    stiffly_accurate = new bool[num_methods]();
 
     methods[0]          = ARKODE_IMEX_MRI_GARK_EULER;
-    stiffly_accurate[0] = false;
-
-    methods[1]          = ARKODE_IMEX_MRI_GARK3a;
-    stiffly_accurate[1] = false;
-
-    // methods[2]          = ARKODE_IMEX_MRI_GARK3a;
-    // stiffly_accurate[2] = false;
-
-    // methods[3]          = ARKODE_IMEX_MRI_GARK3a;
-    // stiffly_accurate[3] = false;
-
-    // methods[4]          = ARKODE_IMEX_MRI_GARK3b;
-    // stiffly_accurate[4] = false;
-
-    // methods[5]          = ARKODE_IMEX_MRI_GARK4;
-    // stiffly_accurate[5] = false;
+    stiffly_accurate[0] = true;
+    methods[1]          = ARKODE_IMEX_MRI_GARK_TRAPEZOID;
+    methods[2]          = ARKODE_IMEX_MRI_GARK_MIDPOINT;
+    methods[3]          = ARKODE_IMEX_MRI_GARK3a;
+    methods[4]          = ARKODE_IMEX_MRI_GARK3b;
+    methods[5]          = ARKODE_IMEX_MRI_GARK4;
   }
   else { return 1; }
 
@@ -429,10 +420,11 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
     cout << "\nComparing Solver Statistics:\n";
 
+    int nstages_evaled = nstages_stored - stiffly_accurate[i];
     long int fe_evals = 0;
     if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
     {
-      fe_evals = mri_nst * nstages_stored;
+      fe_evals = mri_nst * nstages_evaled;
     }
 
     if (mri_nfse != fe_evals)
@@ -444,17 +436,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     long int fi_evals = 0;
     if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
     {
-      if (stiffly_accurate[i])
-      {
-        // The last stage is implicit so it does not correspond to a column of
-        // zeros in the coupling matrix and is counted in "nstages_stored"
-        // however we do not evaluate the RHS functions after the solve since
-        // the methods is "FSAL" (the index map value and allocated space is
-        // used in the nonlinear for this stage). The RHS functions will be
-        // evaluated and stored at the start of the next step.
-        fi_evals = mri_nst * (nstages_stored - 1) + mri_nni;
-      }
-      else { fi_evals = mri_nst * nstages_stored + mri_nni; }
+      fi_evals = mri_nst * nstages_evaled + mri_nni;
     }
 
     if (mri_nfsi != fi_evals)

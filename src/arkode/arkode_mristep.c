@@ -37,7 +37,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
                     MRIStepInnerStepper stepper, SUNContext sunctx)
 {
   ARKodeMem ark_mem;         /* outer ARKODE memory   */
-  ARKodeMRIStepMem step_mem; /* outer stepper memory  */
+  ARKodeMRIStepMem step_mem = NULL; /* outer stepper memory  */
   SUNNonlinearSolver NLS;    /* default nonlin solver */
   sunbooleantype nvectorOK;
   int retval;
@@ -93,8 +93,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   }
 
   /* Allocate ARKodeMRIStepMem structure, and initialize to zero */
-  step_mem = NULL;
-  step_mem = (ARKodeMRIStepMem)malloc(sizeof(struct ARKodeMRIStepMemRec));
+  step_mem = calloc(1, sizeof(*step_mem));
   if (step_mem == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -102,7 +101,6 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
     MRIStepFree((void**)&ark_mem);
     return (NULL);
   }
-  memset(step_mem, 0, sizeof(struct ARKodeMRIStepMemRec));
 
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_attachlinsol   = mriStep_AttachLinsol;
@@ -1007,7 +1005,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval, j;
-  sunbooleantype reset_efun;
+  int delta_stages;
 
   /* access ARKodeMRIStepMem structure */
   retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
@@ -1021,10 +1019,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
   {
     /* enforce use of arkEwtSmallReal if using a fixed step size for
        an explicit method and an internal error weight function */
-    reset_efun = SUNTRUE;
-    if (step_mem->implicit_rhs) { reset_efun = SUNFALSE; }
-    if (ark_mem->user_efun) { reset_efun = SUNFALSE; }
-    if (reset_efun)
+    if (!step_mem->implicit_rhs && !ark_mem->user_efun)
     {
       ark_mem->user_efun = SUNFALSE;
       ark_mem->efun      = arkEwtSetSmallReal;
@@ -1058,6 +1053,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
     }
 
     /* Retrieve/store method and embedding orders now that tables are finalized */
+    delta_stages = step_mem->MRIC->stages - step_mem->stages;
     step_mem->stages = step_mem->MRIC->stages;
     step_mem->q      = step_mem->MRIC->q;
     step_mem->p      = step_mem->MRIC->p;
@@ -1065,15 +1061,15 @@ int mriStep_Init(void* arkode_mem, int init_type)
     /* allocate/fill derived quantities from MRIC structure */
 
     /* stage map */
-    if (step_mem->stage_map)
+    step_mem->stage_map = realloc(step_mem->stage_map,
+                                  step_mem->stages * sizeof(*step_mem->stage_map));
+    if (step_mem->stage_map == NULL)
     {
-      free(step_mem->stage_map);
-      step_mem->stage_map = NULL;
-      ark_mem->liw -= step_mem->stages;
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return (ARK_MEM_FAIL);
     }
-    step_mem->stage_map = (int*)calloc(step_mem->stages, sizeof(int));
-    ark_mem->liw += step_mem->stages;
-
+    ark_mem->liw += delta_stages;
     retval = mriStepCoupling_GetStageMap(step_mem->MRIC, step_mem->stage_map,
                                          &(step_mem->nstages_active));
     if (retval != ARK_SUCCESS)
@@ -1082,42 +1078,65 @@ int mriStep_Init(void* arkode_mem, int init_type)
                       "Error in coupling table");
       return (ARK_ILL_INPUT);
     }
-
+    
     /* stage types */
-    if (step_mem->stagetypes)
+    step_mem->stagetypes = realloc(step_mem->stagetypes,
+                                   step_mem->stages * sizeof(*step_mem->stagetypes));
+    if (step_mem->stagetypes == NULL)
     {
-      free(step_mem->stagetypes);
-      step_mem->stagetypes = NULL;
-      ark_mem->liw -= step_mem->stages;
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return (ARK_MEM_FAIL);
     }
-    step_mem->stagetypes = (int*)calloc(step_mem->stages, sizeof(int));
-    ark_mem->liw += step_mem->stages;
+    ark_mem->liw += delta_stages;
     for (j = 0; j < step_mem->stages; j++)
     {
       step_mem->stagetypes[j] = mriStepCoupling_GetStageType(step_mem->MRIC, j);
     }
-
+    
     /* explicit RK coefficient row */
-    if (step_mem->Ae_row)
+    step_mem->Ae_row = realloc(step_mem->Ae_row,
+                               step_mem->stages * sizeof(*step_mem->Ae_row));
+    if (step_mem->Ae_row == NULL)
     {
-      free(step_mem->Ae_row);
-      step_mem->Ae_row = NULL;
-      ark_mem->lrw -= step_mem->stages;
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return (ARK_MEM_FAIL);
     }
-    step_mem->Ae_row = (sunrealtype*)calloc(step_mem->stages,
-                                            sizeof(sunrealtype));
-    ark_mem->lrw += step_mem->stages;
+    ark_mem->lrw += delta_stages;
 
     /* implicit RK coefficient row */
-    if (step_mem->Ai_row)
+    step_mem->Ai_row = realloc(step_mem->Ai_row,
+                               step_mem->stages * sizeof(*step_mem->Ai_row));
+    if (step_mem->Ai_row == NULL)
     {
-      free(step_mem->Ai_row);
-      step_mem->Ai_row = NULL;
-      ark_mem->lrw -= step_mem->stages;
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return (ARK_MEM_FAIL);
     }
-    step_mem->Ai_row = (sunrealtype*)calloc(step_mem->stages,
-                                            sizeof(sunrealtype));
-    ark_mem->lrw += step_mem->stages;
+    ark_mem->lrw += delta_stages;
+
+    /* Allocate reusable arrays for fused vector interface */
+    step_mem->nfusedopvecs = 2 * step_mem->stages + 2;
+    step_mem->cvals = realloc(step_mem->cvals,
+                              step_mem->nfusedopvecs * sizeof(*step_mem->cvals));
+    if (step_mem->cvals == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return (ARK_MEM_FAIL);
+    }
+    ark_mem->lrw += 2 * delta_stages;
+
+    step_mem->Xvecs = realloc(step_mem->Xvecs,
+                              step_mem->nfusedopvecs * sizeof(*step_mem->Xvecs));
+    if (step_mem->Xvecs == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return (ARK_MEM_FAIL);
+    }
+    ark_mem->liw += 2 * delta_stages;
 
     /* Allocate MRI RHS vector memory, update storage requirements */
     /*   Allocate Fse[0] ... Fse[nstages_active - 1] and           */
@@ -1192,23 +1211,6 @@ int mriStep_Init(void* arkode_mem, int init_type)
       step_mem->lsolve = NULL;
       step_mem->lfree  = NULL;
       step_mem->lmem   = NULL;
-    }
-
-    /* Allocate reusable arrays for fused vector interface */
-    step_mem->nfusedopvecs = 2 * step_mem->stages + 2;
-    if (step_mem->cvals == NULL)
-    {
-      step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
-                                             sizeof(sunrealtype));
-      if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
-      ark_mem->lrw += (step_mem->nfusedopvecs);
-    }
-    if (step_mem->Xvecs == NULL)
-    {
-      step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
-                                          sizeof(N_Vector));
-      if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
-      ark_mem->liw += (step_mem->nfusedopvecs); /* pointers */
     }
 
     /* Allocate inner stepper data */
