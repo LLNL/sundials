@@ -24,6 +24,7 @@
 #include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <nvector/nvector_serial.h>
 #include <string>
 #include <sundials/sundials_core.hpp>
@@ -77,7 +78,7 @@ int main(int argc, char* argv[])
   sunrealtype t0 = SUN_RCONST(0.0);
 
   // Number of time steps
-  int nsteps = 2;
+  int nsteps = 1;
 
   // Relative and absolute tolerances
   sunrealtype reltol = SUN_RCONST(1.0e-4);
@@ -242,10 +243,8 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
   // Evolve with various IMEX MRI methods
   // ------------------------------------
 
-  // Methods to test (order most stages to least since reinit does not realloc)
-  int num_methods;
-  ARKODE_MRITableID* methods = nullptr;
-  bool* stiffly_accurate     = nullptr;
+  // Methods to test paired with whether they are stiffly accurate
+  std::map<std::string, bool> methods;
 
   if (type == MRISTEP_EXPLICIT)
   {
@@ -253,15 +252,16 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "Test explicit MRI methods\n";
     cout << "=========================\n";
 
-    num_methods = 5;
-    methods     = new ARKODE_MRITableID[num_methods];
-    stiffly_accurate = new bool[num_methods]();
-
-    methods[0] = ARKODE_MRI_GARK_RALSTON2;
-    methods[1] = ARKODE_MIS_KW3;
-    methods[2] = ARKODE_MRI_GARK_ERK33a;
-    methods[3] = ARKODE_MRI_GARK_RALSTON3;
-    methods[4] = ARKODE_MRI_GARK_ERK45a;
+    methods.insert({
+      {"ARKODE_MRI_GARK_FORWARD_EULER", false},
+      {"ARKODE_MRI_GARK_ERK22a", false},
+      {"ARKODE_MRI_GARK_ERK22b", false},
+      {"ARKODE_MRI_GARK_RALSTON2", false},
+      {"ARKODE_MIS_KW3", false},
+      {"ARKODE_MRI_GARK_ERK33a", false},
+      {"ARKODE_MRI_GARK_RALSTON3", false},
+      {"ARKODE_MRI_GARK_ERK45a", false}
+    });
   }
   else if (type == MRISTEP_IMPLICIT)
   {
@@ -269,18 +269,13 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "Test implicit MRI methods\n";
     cout << "=========================\n";
 
-    num_methods      = 3;
-    methods          = new ARKODE_MRITableID[num_methods];
-    stiffly_accurate = new bool[num_methods]();
-
-    methods[0]          = ARKODE_IMEX_MRI_GARK_MIDPOINT;
-    stiffly_accurate[0] = true;
-
-    methods[1]          = ARKODE_MRI_GARK_ESDIRK34a;
-    stiffly_accurate[1] = true;
-
-    methods[2]          = ARKODE_MRI_GARK_ESDIRK46a;
-    stiffly_accurate[2] = true;
+    methods.insert({
+      {"ARKODE_MRI_GARK_BACKWARD_EULER", true},
+      {"ARKODE_MRI_GARK_IRK21a", true},
+      {"ARKODE_MRI_GARK_IMPLICIT_MIDPOINT", false},
+      {"ARKODE_MRI_GARK_ESDIRK34a", true},
+      {"ARKODE_MRI_GARK_ESDIRK46a", true}
+    });
   }
   else if (type == MRISTEP_IMEX)
   {
@@ -288,30 +283,29 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "Test IMEX MRI methods\n";
     cout << "=====================\n";
 
-    num_methods      = 6;
-    methods          = new ARKODE_MRITableID[num_methods];
-    stiffly_accurate = new bool[num_methods]();
-
-    methods[0]          = ARKODE_IMEX_MRI_GARK_EULER;
-    stiffly_accurate[0] = true;
-    methods[1]          = ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL;
-    methods[2]          = ARKODE_IMEX_MRI_GARK_MIDPOINT;
-    methods[3]          = ARKODE_IMEX_MRI_GARK3a;
-    methods[4]          = ARKODE_IMEX_MRI_GARK3b;
-    methods[5]          = ARKODE_IMEX_MRI_GARK4;
+    methods.insert({
+      {"ARKODE_IMEX_MRI_GARK_EULER", true},
+      {"ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL", false},
+      {"ARKODE_IMEX_MRI_GARK_MIDPOINT", false},
+      {"ARKODE_IMEX_MRI_GARK3a", false},
+      {"ARKODE_IMEX_MRI_GARK3b", false},
+      {"ARKODE_IMEX_MRI_GARK4", false}
+    });
   }
   else { return 1; }
 
-  for (int i = 0; i < num_methods; i++)
+  for (const auto &pair : methods)
   {
-    cout << "\nTesting method " << i << "\n";
+    std::string id = pair.first;
+    bool stiffly_accurate = pair.second;
+    cout << "\nTesting method " << id << "\n";
 
     // -------------
     // Select method
     // -------------
 
     // Load method table
-    MRIStepCoupling C = MRIStepCoupling_LoadTable(methods[i]);
+    MRIStepCoupling C = MRIStepCoupling_LoadTableByName(id.c_str());
     if (check_flag((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
 
     MRIStepCoupling_Write(C, stdout);
@@ -420,7 +414,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
     cout << "\nComparing Solver Statistics:\n";
 
-    int nstages_evaled = nstages_stored - stiffly_accurate[i];
+    int nstages_evaled = nstages_stored - stiffly_accurate;
     long int fe_evals = 0;
     if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
     {
@@ -489,8 +483,6 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     SUNMatDestroy(A);
   }
   N_VDestroy(y);
-  delete[] methods;
-  delete[] stiffly_accurate;
 
   return numfails;
 }
