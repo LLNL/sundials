@@ -32,9 +32,9 @@ endif()
 
 if(NOT DEFINED HIP_PLATFORM)
   if(NOT DEFINED ENV{HIP_PLATFORM})
-    set(HIP_PLATFORM "hcc" CACHE STRING "HIP platform (hcc, nvcc)")
+    set(HIP_PLATFORM "amd" CACHE STRING "HIP platform (amd, nvidia)")
   else()
-    set(HIP_PLATFORM "$ENV{HIP_PLATFORM}" CACHE STRING "HIP platform (hcc, nvcc)")
+    set(HIP_PLATFORM "$ENV{HIP_PLATFORM}" CACHE STRING "HIP platform (amd, nvidia)")
   endif()
 endif()
 
