@@ -204,7 +204,7 @@ relaxation.
    :eq:`ARKODE_RELAX_NLS`.
 
    If the residual or iteration update tolerance (see
-   :c:func:`ARKStepSetRelaxMaxIter`) is not reached within the maximum number of
+   :c:func:`ARKStepSetRelaxMaxIters`) is not reached within the maximum number of
    iterations (determined by :c:func:`ARKStepSetRelaxMaxIters`), the step will
    be repeated with a smaller step size (determined by
    :c:func:`ARKStepSetRelaxEtaFail`).

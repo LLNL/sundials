@@ -282,7 +282,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 .. c:function:: SUNErrCode SUNLinSolSetScalingVectors(SUNLinearSolver LS, N_Vector s1, N_Vector s2)
 
    This *optional* routine provides left/right scaling vectors for the
-   linear system solve.  Here, *s1* and *s2* are ``N_Vectors`` of positive
+   linear system solve.  Here, *s1* and *s2* are ``N_Vector``s of positive
    scale factors containing the diagonal of the matrices :math:`S_1`
    and :math:`S_2` from :eq:`eq:transformed_linear_system_components`, respectively.
    Neither vector needs to be tested for positivity, and a ``NULL`` argument for either
@@ -302,7 +302,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
 .. c:function:: SUNErrCode SUNLinSolSetZeroGuess(SUNLinearSolver LS, sunbooleantype onoff)
 
-   This *optional* routine indicates if the upcoming :c:func:`SUNlinSolSolve` call
+   This *optional* routine indicates if the upcoming :c:func:`SUNLinSolSolve` call
    will be made with a zero initial guess (``SUNTRUE``) or a non-zero initial
    guess (``SUNFALSE``).
 
@@ -862,7 +862,7 @@ the linear system *defined by the matrix*.  SUNDIALS packages strive to
 amortize the high cost of matrix construction by reusing matrix information for
 multiple nonlinear iterations or time steps. As a result, each package's linear
 solver interface recomputes matrix information as infrequently as possible.
-
+305
 Alternative matrix storage formats and compatible linear solvers that are not
 currently provided by, or interfaced with, SUNDIALS can leverage this
 infrastructure with minimal effort. To do so, a user must implement custom

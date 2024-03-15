@@ -623,7 +623,7 @@ attaches the nonlinear solver to the main CVODE integrator.
 
 .. c:function:: int CVodeSetNonlinearSolver(void* cvode_mem, SUNNonlinearSolver NLS)
 
-   The function ``CVodeSetNonLinearSolver`` attaches a ``SUNNonlinearSolver``  object (``NLS``) to CVODE.
+   The function ``CVodeSetNonlinearSolver`` attaches a ``SUNNonlinearSolver``  object (``NLS``) to CVODE.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.

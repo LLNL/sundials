@@ -718,7 +718,7 @@ correctly before any subsequent calls to :c:func:`IDASolveB`.
 
 .. c:function:: int IDASetNonlinearSolverB(void * ida_mem, int which, SUNNonlinearSolver NLS)
 
-   The function :c:func:`IDASetNonLinearSolverB` attaches a
+   The function :c:func:`IDASetNonlinearSolverB` attaches a
    ``SUNNonlinearSolver``  object (``NLS``) to IDAS for the solution of the
    backward problem.
 
@@ -778,7 +778,7 @@ Both functions require forward solutions at the final time ``tB0``.
    :c:func:`IDACalcICB` will correct the values of :math:`yB(tB_0)` and
    :math:`\dot{y}B(tB_0)` which were specified in the previous call to
    :c:func:`IDAInitB` or :c:func:`IDAReInitB`. To obtain the corrected values,
-   call :c:func:`IDAGetconsistentICB` (see
+   call :c:func:`IDAGetConsistentICB` (see
    :numref:`IDAS.Usage.ADJ.user_callable.optional_ouput_b.iccalcB`).
 
    :c:func:`IDACalcICB` will correct the values of :math:`yB(tB_0)` and
@@ -842,7 +842,7 @@ interpolation to provide the solution of the IVP to the backward problem.
 The function :c:func:`IDASolveB` does not return the solution ``yB`` itself. To obtain
 that, call the function :c:func:`IDAGetB`, which is also described below.
 
-The :c:func:`IDASolveB` function does not support rootfinding, unlike :c:func:`IDASoveF`,
+The :c:func:`IDASolveB` function does not support rootfinding, unlike :c:func:`IDASolveF`,
 which supports the finding of roots of functions of :math:`(t,y,\dot{y})`. If
 rootfinding was performed by :c:func:`IDASolveF`, then for the sake of efficiency, it
 should be disabled for :c:func:`IDASolveB` by first calling :c:func:`IDARootInit` with
@@ -1183,7 +1183,7 @@ These may be accomplished through calling the following functions:
 
 .. c:function:: int IDASetPreconditionerB(void * ida_mem, int which, IDALsPrecSetupFnB psetupB, IDALsPrecSolveFnB psolveB)
 
-   The function :c:func:`IDASetPrecSolveFnB` specifies the preconditioner  setup
+   The function :c:func:`IDASetPreconditionerB` specifies the preconditioner  setup
    and solve functions for the backward integration.
 
    **Arguments:**
@@ -1210,7 +1210,7 @@ These may be accomplished through calling the following functions:
 
 .. c:function:: int IDASetPreconditionerBS(void * ida_mem, int which, IDALsPrecSetupFnBS psetupBS, IDALsPrecSolveFnBS psolveBS)
 
-   The function :c:func:`IDASetPrecSolveFnBS` specifies the preconditioner
+   The function :c:func:`IDASetPreconditionerBS` specifies the preconditioner
    setup and solve functions for the backward integration, in the case  where
    the backward problem depends on the forward sensitivities.
 

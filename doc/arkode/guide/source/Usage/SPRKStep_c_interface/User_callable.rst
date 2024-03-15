@@ -501,7 +501,7 @@ Optional inputs for IVP method selection
    .. warning::
 
       This overrides any previously set method so it should not be used with
-      :c:func:`SPRKStepSetMethod` or :c:func:`SPRKStepMethodByName`.
+      :c:func:`SPRKStepSetMethod` or :c:func:`SPRKStepSetMethodName`.
 
 
 .. c:function:: int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKTable sprk_table)

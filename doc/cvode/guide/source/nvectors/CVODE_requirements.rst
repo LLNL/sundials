@@ -121,6 +121,6 @@ CVODE are: :c:func:`N_VWL2Norm`, :c:func:`N_VDotProd`, :c:func:`N_VL1Norm`,
 :c:func:`N_VWrmsNormMask`, and :c:func:`N_VGetCommunicator`. Therefore, a
 user-supplied NVECTOR module for CVODE could omit these functions (although
 some may be needed by SUNNONLINSOL or SUNLINSOL modules). The functions
-:c:func:`N_MinQuotient`, :c:func:`N_VConstrMask`, and :c:func:`N_VCompare`
+:c:func:`N_VMinQuotient`, :c:func:`N_VConstrMask`, and :c:func:`N_VCompare`
 are only used when constraint checking is enabled and may be omitted if this
 feature is not used.

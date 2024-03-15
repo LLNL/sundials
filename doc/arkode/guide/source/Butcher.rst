@@ -339,7 +339,8 @@ Knoth-Wolke-3-3
 .. index:: Knoth-Wolke-3-3 ERK method
 
 Accessible via the constant ``ARKODE_KNOTH_WOLKE_3_3`` to
-:c:func:`MRIStepSetMRITableNum` or :c:func:`ARKodeButcherTable_LoadERK`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_KNOTH_WOLKE_3_3"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.

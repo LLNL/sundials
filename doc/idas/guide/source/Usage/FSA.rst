@@ -436,7 +436,7 @@ as documented below.
 
 When changing the nonlinear solver in IDAS, :c:func:`IDASetNonlinearSolver` must
 be called after :c:func:`IDAInit`; similarly
-:c:func:`IDASetNonlinearSolverSensSim`, :c:func:`IDASetNonlinearSolverStg`, must
+:c:func:`IDASetNonlinearSolverSensSim`, :c:func:`IDASetNonlinearSolverSensStg`, must
 be called after :c:func:`IDASensInit`. If any calls to :c:func:`IDASolve` have been
 made, then IDAS will need to be reinitialized by calling :c:func:`IDAReInit` to
 ensure that the nonlinear solver is initialized correctly before any subsequent
@@ -452,7 +452,7 @@ attaches the nonlinear solver to the main IDAS integrator.
 
 .. c:function:: int IDASetNonlinearSolverSensSim(void * ida_mem, SUNNonlinearSolver NLS)
 
-   The function :c:func:`IDASetNonLinearSolverSensSim` attaches a
+   The function :c:func:`IDASetNonlinearSolverSensSim` attaches a
    ``SUNNonlinearSolver``  object (``NLS``) to IDAS when using the
    ``IDA_SIMULTANEOUS`` approach to  correct the state and sensitivity variables
    at the same time.
@@ -470,7 +470,7 @@ attaches the nonlinear solver to the main IDAS integrator.
 
 .. c:function:: int IDASetNonlinearSolverSensStg(void * ida_mem, SUNNonlinearSolver NLS)
 
-   The function :c:func:`IDASetNonLinearSolverSensStg` attaches a
+   The function :c:func:`IDASetNonlinearSolverSensStg` attaches a
    ``SUNNonlinearSolver``  object (``NLS``) to IDAS when using the
    ``IDA_STAGGERED`` approach to  correct all the sensitivity variables after the
    correction of the state  variables.
@@ -823,7 +823,7 @@ detail in the remainder of this section.
    Sensitivity-related statistics as a group                        :c:func:`IDAGetSensStats`
    No. of sens. nonlinear solver iterations                         :c:func:`IDAGetSensNumNonlinSolvIters`
    No. of sens. convergence failures                                :c:func:`IDAGetSensNumNonlinSolvConvFails`
-   Sens. nonlinear solver statistics as a group                     :c:func:`IDAGetSensNonlinSolveStats`
+   Sens. nonlinear solver statistics as a group                     :c:func:`IDAGetSensNonlinSolvStats`
    ================================================================ ================================================
 
 
@@ -844,7 +844,7 @@ detail in the remainder of this section.
 
 .. c:function:: int IDAGetNumResEvalsSens(void * ida_mem, long int * nfevalsS)
 
-   The function :c:func:`IDAGetNumResEvalsSEns` returns the number of calls to the
+   The function :c:func:`IDAGetNumResEvalsSens` returns the number of calls to the
    user's residual function due to the internal finite difference
    approximation  of the sensitivity residuals.
 
