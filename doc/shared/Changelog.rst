@@ -2357,757 +2357,185 @@ overwritten.
 Changes to SUNDIALS in release 3.1.2
 ====================================
 
-**HERE**
-
-Fixed Windows specific problem where `sunindextype` was not correctly defined
-when using 64-bit integers. On Windows `sunindextype` is now defined as the MSVC
-basic type `__int64`.
-
-Changed LICENSE install path to `instdir/include/sundials`.
+**CMake Updates**
 
 Updated the minimum required version of CMake to 2.8.12 and enabled using rpath
 by default to locate shared libraries on OSX.
 
-The misnamed function `CVSpilsSetJacTimesSetupFnBS` in cvodes has been
-deprecated and replaced by `CVSpilsSetJacTimesBS`. The deprecated function
-`CVSpilsSetJacTimesSetupFnBS` will be removed in the next major release.
+**New Features**
 
-Added and updated usage-notes examples from the SUNDIALS website to work with
-SUNDIALS 3.x. The new examples are `cvode/cvDisc_dns.c`,
-`cvode/cvRoberts_dns_negsol.c`, and `cvodes/cvsRoberts_FSA_dns_Switch.c`.
+Added the function :c:func:`SUNSparseMatrix_Reallocate` to allow specification
+of the matrix nonzero storage.
 
-Added sparse SUNMatrix "Reallocate" routine to allow specification of the
-nonzero storage.
+Added named constants for the two reinitialization types for the KLU
+SUNLinearSolver.
 
-Updated the KLU SUNLinearSolver module to set constants for the two
-reinitialization types, and fixed a bug in the full reinitialization approach
-where the sparse SUNMatrix pointer would go out of scope on some architectures.
+Updated the :c:func:`SUNMatScaleAdd` and :c:func:`SUNMatScaleAddI`
+implementations in the sparse SUNMatrix to more optimally handle the case where
+the target matrix contained sufficient storage for the sum, but had the wrong
+sparsity pattern. The sum now occurs in-place, by performing the sum backwards
+in the existing storage. However, it is still more efficient if the
+user-supplied Jacobian routine allocates storage for the sum
+:math:`M + \gamma J` or :math:`M + \gamma J` manually (with zero entries if
+needed).
 
-Updated the "ScaleAdd" and "ScaleAddI" implementations in the sparse SUNMatrix
-module to more optimally handle the case where the target matrix contained
-sufficient storage for the sum, but had the wrong sparsity pattern. The sum now
-occurs in-place, by performing the sum backwards in the existing storage.
-However, it is still more efficient if the user-supplied Jacobian routine
-allocates storage for the sum I + gamma J or M + gamma J manually (with zero
-entries if needed).
+The following examples from the usage notes page of the SUNDIALS website, and
+updated them to work with SUNDIALS 3.x:
 
-### ARKODE Changes in v2.1.2
+* ``cvDisc_dns.c`` demonstrates using CVODE with discontinuous solutions or RHS.
 
-Updated the minimum required version of CMake to 2.8.12 and enabled
-using rpath by default to locate shared libraries on OSX.
+* ``cvRoberts_dns_negsol.c`` illustrates the use of the RHS function return
+  value to control unphysical negative concentrations.
 
-Fixed Windows specific problem where sunindextype was not correctly
-defined when using 64-bit integers for the SUNDIALS index type. On Windows
-sunindextype is now defined as the MSVC basic type ``__int64``.
+* ``cvRoberts_FSA_dns_Switch.c`` demonstrates switching on/off forward
+  sensitivity computations. This example came from the usage notes page of the
+  SUNDIALS website.
 
-Added sparse SUNMatrix "Reallocate" routine to allow specification of
-the nonzero storage.
+**Bug Fixes**
 
-Updated the KLU SUNLinearSolver module to set constants for the two
-reinitialization types, and fixed a bug in the full reinitialization
-approach where the sparse SUNMatrix pointer would go out of scope on
-some architectures.
+Fixed a Windows specific problem where :c:type:`sunindextype` was not correctly
+defined when using 64-bit integers. On Windows :c:type:`sunindextype` is now
+defined as the MSVC basic type ``__int64``.
 
-Updated the "ScaleAdd" and "ScaleAddI" implementations in the
-sparse SUNMatrix module to more optimally handle the case where the
-target matrix contained sufficient storage for the sum, but had the
-wrong sparsity pattern. The sum now occurs in-place, by performing
-the sum backwards in the existing storage. However, it is still more
-efficient if the user-supplied Jacobian routine allocates storage for
-the sum :math:`I+\gamma J` or :math:`M+\gamma J` manually (with zero
-entries if needed).
+Fixed a bug in the full KLU SUNLinearSolver reinitialization approach where the
+sparse SUNMatrix pointer would go out of scope on some architectures.
+
+The misnamed function :c:func:`CVSpilsSetJacTimesSetupFnBS` has been deprecated
+and replaced by :c:func:`CVSpilsSetJacTimesBS`. The deprecated function
+:c:func:`CVSpilsSetJacTimesSetupFnBS` will be removed in the next major release.
 
 Changed LICENSE install path to ``instdir/include/sundials``.
-
-
-### CVODE Changes in v3.1.2
-
-The changes in this minor release include the following:
-
--  Updated the minimum required version of CMake to 2.8.12 and enabled
-   using rpath by default to locate shared libraries on OSX.
--  Fixed Windows specific problem where was not correctly defined when
-   using 64-bit integers for the SUNDIALS index type. On Windows ``sunindextype`` is
-   now defined as the MSVC basic type ``__int64``.
--  Added sparse SUNMatrix "Reallocate" routine to allow specification of
-   the nonzero storage.
--  Updated the KLU SUNLinearSolver module to set constants for the two
-   reinitialization types, and fixed a bug in the full reinitialization
-   approach where the sparse SUNMatrix pointer would go out of scope on
-   some architectures.
--  Updated the "ScaleAdd" and "ScaleAddI" implementations in the sparse
-   SUNMatrix module to more optimally handle the case where the target
-   matrix contained sufficient storage for the sum, but had the wrong
-   sparsity pattern. The sum now occurs in-place, by performing the sum
-   backwards in the existing storage. However, it is still more
-   efficient if the user-supplied Jacobian routine allocates storage for
-   the sum :math:`I+\gamma J` manually (with zero entries if needed).
--  Added the following examples from the usage notes page of the
-   SUNDIALS website, and updated them to work with SUNDIALS 3.x:
-
-   -  ``cvDisc_dns.c``, which demonstrates using CVODE with discontinuous solutions or RHS.
-   -  ``cvRoberts_dns_negsol.c``, which illustrates the use of the RHS function return value to
-      control unphysical negative concentrations.
-
--  Changed the LICENSE install path to `instdir/icnlude/sundials`.
-
-### CVODES Changes in v3.1.2
-
-The changes in this minor release include the following:
-
--  Updated the minimum required version of CMake to 2.8.12 and enabled using rpath by default to locate shared libraries
-   on OSX.
-
--  Fixed Windows specific problem where ``sunindextype`` was not correctly defined when using 64-bit integers for the
-   SUNDIALS index type. On Windows ``sunindextype`` is now defined as the MSVC basic type ``__int64``.
-
--  Added sparse SUNMatrix "Reallocate" routine to allow specification of the nonzero storage.
-
--  Updated the KLU SUNLinearSolver module to set constants for the two reinitialization types, and fixed a bug in the
-   full reinitialization approach where the sparse SUNMatrix pointer would go out of scope on some architectures.
-
--  Updated the "ScaleAdd" and "ScaleAddI" implementations in the sparse SUNMatrix module to more optimally handle the
-   case where the target matrix contained sufficient storage for the sum, but had the wrong sparsity pattern. The sum
-   now occurs in-place, by performing the sum backwards in the existing storage. However, it is still more efficient if
-   the user-supplied Jacobian routine allocates storage for the sum :math:`I+\gamma J` manually (with zero entries if
-   needed).
-
--  Added new example, ``cvRoberts_FSA_dns_Switch.c``, which demonstrates switching on/off forward sensitivity
-   computations. This example came from the usage notes page of the SUNDIALS website.
-
--  The misnamed function ``CVSpilsSetJacTimesSetupFnBS`` has been deprecated and replaced by ``CVSpilsSetJacTimesBS``.
-   The deprecated function ``CVSpilsSetJacTimesSetupFnBS`` will be removed in the next major release.
-
--  Changed the LICENSE install path to ``instdir/include/sundials``.
-
-### IDA Changes in v3.1.2
-
-The changes in this minor release include the following:
-
-* Updated the minimum required version of CMake to 2.8.12 and enabled using
-  rpath by default to locate shared libraries on OSX.
-
-* Fixed Windows specific problem where ``sunindextype`` was not correctly
-  defined when using 64-bit integers for the SUNDIALS index type. On Windows
-  ``sunindextype`` is now defined as the MSVC basic type ``__int64``.
-
-* Added sparse SUNMatrix "Reallocate" routine to allow specification of the
-  nonzero storage.
-
-* Updated the KLU SUNLinearSolver module to set constants for the two
-  reinitialization types, and fixed a bug in the full reinitialization approach
-  where the sparse SUNMatrix pointer would go out of scope on some
-  architectures.
-
-* Updated the :c:func:`SUNMatScaleAdd` and :c:func:`SUNMatScaleAddI`
-  implementations in the sparse SUNMatrix module to more optimally handle the
-  case where the target matrix contained sufficient storage for the sum, but had
-  the wrong sparsity pattern. The sum now occurs in-place, by performing the sum
-  backwards in the existing storage. However, it is still more efficient if the
-  user-supplied Jacobian routine allocates storage for the sum
-  :math:`I+\gamma J` manually (with zero entries if needed).
-
-* Changed the LICENSE install path to ``instdir/include/sundials``.
-
-### IDAS Changes in v2.1.2
-
-The changes in this minor release include the following:
-
-* Updated the minimum required version of CMake to 2.8.12 and enabled using
-  rpath by default to locate shared libraries on OSX.
-
-* Fixed Windows specific problem where ``sunindextype`` was not correctly
-  defined when using 64-bit integers for the SUNDIALS index type. On Windows
-  ``sunindextype`` is now defined as the MSVC basic type ``__int64``.
-
-* Added sparse SUNMatrix "Reallocate" routine to allow specification of the
-  nonzero storage.
-
-* Updated the KLU SUNLinearSolver module to set constants for the two
-  reinitialization types, and fixed a bug in the full reinitialization approach
-  where the sparse SUNMatrix pointer would go out of scope on some
-  architectures.
-
-* Updated the :c:func:`SUNMatScaleAdd` and :c:func:`SUNMatScaleAddI`
-  implementations in the sparse SUNMatrix module to more optimally handle the
-  case where the target matrix contained sufficient storage for the sum, but had
-  the wrong sparsity pattern. The sum now occurs in-place, by performing the sum
-  backwards in the existing storage. However, it is still more efficient if the
-  user-supplied Jacobian routine allocates storage for the sum
-  :math:`I+\gamma J` manually (with zero entries if needed).
-
-* Changed the LICENSE install path to ``instdir/include/sundials``.
-
-### KINSOL Changes in v3.1.2
-
-The changes in this minor release include the following:
-
--  Updated the minimum required version of CMake to 2.8.12 and enabled using rpath by default to locate shared libraries
-   on OSX.
-
--  Fixed Windows specific problem where ``sunindextype`` was not correctly defined when using 64-bit integers for the
-   SUNDIALS index type. On Windows ``sunindextype`` is now defined as the MSVC basic type ``__int64``.
-
--  Added sparse SUNMatrix "Reallocate" routine to allow specification of the nonzero storage.
-
--  Updated the KLU SUNLinearSolver module to set constants for the two reinitialization types, and fixed a bug in the
-   full reinitialization approach where the sparse SUNMatrix pointer would go out of scope on some architectures.
-
--  Updated the "ScaleAdd" and "ScaleAddI" implementations in the sparse SUNMatrix module to more optimally handle the
-   case where the target matrix contained sufficient storage for the sum, but had the wrong sparsity pattern. The sum
-   now occurs in-place, by performing the sum backwards in the existing storage. However, it is still more efficient if
-   the user-supplied Jacobian routine allocates storage for the sum :math:`I+\gamma J` manually (with zero entries if
-   needed).
-
--  Changed the LICENSE install path to ``instdir/include/sundials``.
-
 
 Changes to SUNDIALS in release 3.1.1
 ====================================
 
-Fixed a minor bug in the CVODE and CVODES `cvSLdet` routine, where a return was
+**Bug Fixes**
+
+Fixed a minor bug in the CVODE and CVODES :c:func:`cvSLdet`, where a return was
 missing in the error check for three inconsistent roots.
 
-Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers: if
-"Initialize" was called multiple times then the solver memory was reallocated
+Fixed a potential memory leak in the :ref:`SPGMR <SUNLinSol.SPGMR>` and
+:ref:`SPFGMR <SUNLinSol.SPFGMR>` linear solvers. If "Initialize" was called
+multiple times then the solver memory was reallocated (without being freed).
+
+Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers. If
+"Initialize" was called multiple times, the solver memory was reallocated
 (without being freed).
 
-Fixed a minor bug in the `ARKReInit` routine, where a flag was incorrectly set
+Fixed a minor bug in :c:func:`ARKReInit`, where a flag was incorrectly set
 to indicate that the problem had been resized (instead of just re-initialized).
 
 Fixed C++11 compiler errors/warnings about incompatible use of string literals.
 
-Updated KLU SUNLinearSolver module to use a typedef for the precision-specific
-solve function to be used (to avoid compiler warnings).
+Updated the KLU SUNLinearSolver to use a typedef for the precision-specific
+solve functions to avoid compiler warnings.
 
-Added missing typecasts for some (`void*`) pointers to avoid compiler warnings.
+Added missing typecasts for some (``void*``) pointers to avoid compiler
+warnings.
 
-Bugfix in `sunmatrix_sparse.c` where `int` was used instead of `sunindextype` in
-one location.
-
-Fixed a minor bug in `KINPrintInfo` where a case was missing for
-`KIN_REPTD_SYSFUNC_ERR` leading to an undefined info message.
-
-Added missing `#include <stdio.h>` in NVECTOR and SUNMATRIX header files.
-
-Added missing prototypes for `ARKSpilsGetNumMTSetups` in ARKODE and
-`IDASpilsGetNumJTSetupEvals` in IDA and IDAS.
-
-Fixed an indexing bug in the CUDA NVECTOR implementation of `N_VWrmsNormMask`
-and revised the RAJA NVECTOR implementation of `N_VWrmsNormMask` to work with
-mask arrays using values other than zero or one. Replaced `double` with
-`realtype` in the RAJA vector test functions.
-
-Fixed compilation issue with GCC 7.3.0 and Fortran programs that do not require
-a SUNMatrix or SUNLinearSolver module (e.g. iterative linear solvers, explicit
-methods in ARKODE, functional iteration in CVODE, etc.).
-
-### ARKODE Changes in v2.1.1
-
-Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers:
-if "Initialize" was called multiple times then the solver memory was
-reallocated (without being freed).
-
-Fixed a minor bug in the ARKReInit routine, where a flag was
-incorrectly set to indicate that the problem had been resized (instead
-of just re-initialized).
-
-Fixed C++11 compiler errors/warnings about incompatible use of string
-literals.
-
-Updated KLU SUNLinearSolver module to use a ``typedef`` for the
-precision-specific solve function to be used (to avoid compiler
-warnings).
-
-Added missing typecasts for some ``(void*)`` pointers (again, to avoid
-compiler warnings).
-
-Bugfix in ``sunmatrix_sparse.c`` where we had used ``int`` instead of
+Fixed bug in the sparse SUNMatrix where ``int`` was used instead of
 ``sunindextype`` in one location.
 
-Added missing ``#include <stdio.h>`` in NVECTOR and SUNMATRIX header files.
+Fixed a minor bug in :c:func:`KINPrintInfo` where a case was missing for
+``KIN_REPTD_SYSFUNC_ERR`` leading to an undefined info message.
 
-Added missing prototype for ``ARKSpilsGetNumMTSetups``.
+Added missing ``#include <stdio.h>`` in :c:type:`N_Vector` and
+:c:type:`SUNMatrix` header files.
 
-Fixed an indexing bug in the CUDA NVECTOR implementation of
-``N_VWrmsNormMask`` and revised the RAJA NVECTOR implementation of
-``N_VWrmsNormMask`` to work with mask arrays using values other than
-zero or one. Replaced ``double`` with ``realtype`` in the RAJA vector
-test functions.
+Added missing prototypes for :c:func:`ARKSpilsGetNumMTSetups` in ARKODE and
+:c:func:`IDASpilsGetNumJTSetupEvals` in IDA and IDAS.
 
-Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
-not require a SUNMatrix or SUNLinearSolver module (e.g. iterative
-linear solvers, explicit methods, fixed point solver, etc.).
+Fixed an indexing bug in the CUDA vector implementation of
+:c:func:`N_VWrmsNormMask` and revised the RAJA vector implementation of
+:c:func:`N_VWrmsNormMask` to work with mask arrays using values other than zero
+or one. Replaced ``double`` with ``realtype`` in the RAJA vector test functions.
 
-
-### CVODE Changes in v3.1.1
-
-The changes in this minor release include the following:
-
--  Fixed a minor bug in the cvSLdet routine, where a return was missing
-   in the error check for three inconsistent roots.
--  Fixed a potential memory leak in the SPGMR and SPFGMR linear
-   solvers: if "Initialize" was called multiple times then the solver
-   memory was reallocated (without being freed).
--  Updated KLU ``SUNLinearSolver`` module to use a for the precision-specific
-   solve function to be used (to avoid compiler warnings).
--  Added missing typecasts for some pointers (again, to avoid compiler
-   warnings).
--  Bugfix in ``sunmatric_sparse.c`` where we had used instead of in one location.
--  Added missing ``#include <stio.h>`` in ``N_Vector`` and ``SUNMatrix`` header files.
--  Fixed an indexing bug in the CUDA ``N_Vector`` implementation of
-   and revised the RAJA ``N_Vector`` implementation of :c:func:`N_VWrmsNormMask` to work with
-   mask arrays using values other than zero or one. Replaced ``double`` with ``realtype`` in the
-   RAJA vector test functions.
--  Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
-   not require a ``SUNMatrix`` or ``SUNLinearSolver`` module (e.g., iterative
-   linear solvers or fixed-point iteration).
+Fixed compilation issue with GCC 7.3.0 and Fortran programs that do not require
+a :c:type:`SUNMatrix` or :c:type:`SUNLinearSolver` e.g., iterative linear
+solvers, explicit methods in ARKODE, functional iteration in CVODE, etc.
 
 In addition to the changes above, minor corrections were also made to
 the example programs, build system, and user documentation.
 
-### CVODES Changes in v3.1.1
-
-The changes in this minor release include the following:
-
--  Fixed a minor bug in the cvSLdet routine, where a return was missing in the error check for three inconsistent roots.
-
--  Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers: if "Initialize" was called multiple
-   times then the solver memory was reallocated (without being freed).
-
--  Updated KLU ``SUNLinearSolver`` module to use a ``typedef`` for the precision-specific solve function to be used (to
-   avoid compiler warnings).
-
--  Added missing typecasts for some ``(void*)`` pointers (again, to avoid compiler warnings).
-
--  Bugfix in ``sunmatrix_sparse.c`` where we had used ``int`` instead of ``sunindextype`` in one location.
-
--  Added missing ``#include <stdio.h>`` in ``N_Vector`` and ``SUNMatrix`` header files.
-
--  Fixed an indexing bug in the CUDA ``N_Vector`` implementation of ``N_VWrmsNormMask`` and revised the
-   RAJA ``N_Vector`` implementation of ``N_VWrmsNormMask`` to work with mask arrays using values other than zero
-   or one. Replaced ``double`` with ``realtype`` in the RAJA vector test functions.
-
-In addition to the changes above, minor corrections were also made to the
-example programs, build system, and user documentation.
-
-### IDA Changes in v3.1.1
-
-The changes in this minor release include the following:
-
-* Fixed a potential memory leak in the :ref:`SUNLINSOL_SPGMR <SUNLinSol.SPGMR>`
-  and :ref:`SUNLINSOL_SPFGMR <SUNLinSol.SPFGMR>` linear solvers: if
-  "Initialize" was called multiple times then the solver memory was reallocated
-  (without being freed).
-
-* Updated KLU ``SUNLinearSolver`` module to use a ``typedef`` for the
-  precision-specific solve function to be used (to avoid compiler warnings).
-
-* Added missing typecasts for some ``(void*)`` pointers (again, to avoid
-  compiler warnings).
-
-* Bugfix in ``sunmatrix_sparse.c`` where we had used ``int`` instead of
-  ``sunindextype`` in one location.
-
-* Added missing ``#include <stdio.h>`` in ``N_Vector`` and ``SUNMatrix`` header
-  files.
-
-* Added missing prototype for :c:func:`IDASpilsGetNumJTSetupEvals`.
-
-* Fixed an indexing bug in the CUDA ``N_Vector`` implementation of
-  :c:func:`N_VWrmsNormMask` and revised the RAJA ``N_Vector`` implementation of
-  :c:func:`N_VWrmsNormMask` to work with mask arrays using values other than
-  zero or one. Replaced ``double`` with ``realtype`` in the RAJA vector test
-  functions.
-
-* Fixed compilation issue with GCC 7.3.0 and Fortran programs that do not
-  require a ``SUNMatrix`` module (e.g., iterative linear solvers).
-
-In addition to the changes above, minor corrections were also made to the
-example programs, build system, and user documentation.
-
-### IDAS Changes in v2.1.1
-
-The changes in this minor release include the following:
-
-* Fixed a potential memory leak in the :ref:`SUNLINSOL_SPGMR <SUNLinSol.SPGMR>`
-  and :ref:`SUNLINSOL_SPFGMR <SUNLinSol.SPFGMR>` linear solvers: if
-  "Initialize" was called multiple times then the solver memory was reallocated
-  (without being freed).
-
-* Updated KLU ``SUNLinearSolver`` module to use a ``typedef`` for the
-  precision-specific solve function to be used (to avoid compiler warnings).
-
-* Added missing typecasts for some ``(void*)`` pointers (again, to avoid
-  compiler warnings).
-
-* Bugfix in ``sunmatrix_sparse.c`` where we had used ``int`` instead of
-  ``sunindextype`` in one location.
-
-* Added missing ``#include <stdio.h>`` in ``N_Vector`` and ``SUNMatrix`` header
-  files.
-
-* Added missing prototype for :c:func:`IDASpilsGetNumJTSetupEvals`.
-
-* Fixed an indexing bug in the CUDA ``N_Vector`` implementation of
-  :c:func:`N_VWrmsNormMask` and revised the RAJA ``N_Vector`` implementation of
-  :c:func:`N_VWrmsNormMask` to work with mask arrays using values other than
-  zero or one. Replaced ``double`` with ``realtype`` in the RAJA vector test
-  functions.
-
-* Fixed compilation issue with GCC 7.3.0 and Fortran programs that do not
-  require a ``SUNMatrix`` module (e.g., iterative linear solvers).
-
-In addition to the changes above, minor corrections were also made to the
-example programs, build system, and user documentation.
-
-### KINSOL Changes in v3.1.1
-
-The changes in this minor release include the following:
-
--  Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers: if "Initialize" was called multiple
-   times then the solver memory was reallocated (without being freed).
-
--  Updated KLU SUNLinearSolver module to use a ``typedef`` for the precision-specific solve function to be used (to
-   avoid compiler warnings).
-
--  Added missing typecasts for some ``(void*)`` pointers (again, to avoid compiler warnings).
-
--  Bugfix in ``sunmatrix_sparse.c`` where we had used ``int`` instead of ``sunindextype`` in one location.
-
--  Fixed a minor bug in ``KINPrintInfo`` where a case was missing for ``KIN_REPTD_SYSFUNC_ERR`` leading to an undefined
-   info message.
-
--  Added missing ``#include <stdio.h>`` in ``N_Vector`` and ``SUNMatrix`` header files.
-
--  Fixed an indexing bug in the CUDA ``N_Vector`` implementation of ``N_VWrmsNormMask`` and revised the
-   RAJA ``N_Vector`` implementation of ``N_VWrmsNormMask`` to work with mask arrays using values other than zero
-   or one. Replaced ``double`` with ``realtype`` in the RAJA vector test functions.
-
--  Fixed compilation issue with GCC 7.3.0 and Fortran programs that do not require a ``SUNMatrix`` or ``SUNLinearSolver``
-   module (e.g., iterative linear solvers or fixed pointer solver).
-
-In addition to the changes above, minor corrections were also made to the example programs, build system, and user
-documentation.
-
-
 Changes to SUNDIALS in release 3.1.0
 ====================================
 
-Added ``N_Vector`` print functions that write vector data to a specified file
-(e.g., :c:func:`N_VPrintFile_Serial`).
+Added :c:type:`N_Vector` print functions that write vector data to a specified
+file (e.g., :c:func:`N_VPrintFile_Serial`).
 
 Added ``make test`` and ``make test_install`` options to the build system for
 testing SUNDIALS after building with ``make`` and installing with ``make
 install`` respectively.
 
-Added "Changes in ..." (latest version) to all User Guides.
-
 Changes to SUNDIALS in release 3.0.0
 ====================================
 
+**Major Feature**
+
 Added new linear solver and matrix interfaces for all SUNDIALS packages and
-updated the existing linear solver and matrix modules. The goal of the redesign
-is to provide greater encapsulation and ease interfacing custom linear solvers
-with linear solver libraries. Specific changes include:
+updated the existing linear solver and matrix implementations. The goal of the
+redesign is to provide greater encapsulation and ease interfacing custom linear
+solvers with linear solver libraries. Specific changes include:
 
- * Added generic SUNMATRIX module with three provided implementations:
-   dense, banded and sparse. These replicate previous SUNDIALS Dls and
-   Sls matrix structures in a single object-oriented API.
+* Added a :c:type:`SUNMatrix` interface with three provided implementations:
+  dense, banded, and sparse. These replicate previous SUNDIALS direct (Dls) and
+  sparse (Sls) matrix structures.
 
- * Added example problems demonstrating use of generic SUNMATRIX modules.
+* Added example problems demonstrating use of the matrices.
 
- * Added generic SUNLINEARSOLVER module with eleven provided
-   implementations: dense, banded, LAPACK dense, LAPACK band, KLU,
-   SuperLU_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, PCG. These replicate
-   previous SUNDIALS generic linear solvers in a single object-oriented
-   API.
+* Added a :c:type:`SUNLinearSolver` interface with eleven provided
+  implementations: dense, banded, LAPACK dense, LAPACK band, KLU, SuperLU_MT,
+  SPGMR, SPBCGS, SPTFQMR, SPFGMR, PCG. These replicate previous SUNDIALS generic
+  linear solvers.
 
- * Added example problems demonstrating use of generic SUNLINEARSOLVER
-   modules.
+* Added example problems demonstrating use of the linear solvers.
 
- * Expanded package-provided direct linear solver (Dls) interfaces and
-   scaled, preconditioned, iterative linear solver (Spils) interfaces
-   to utilize generic SUNMATRIX and SUNLINEARSOLVER objects.
+* Expanded package-provided direct linear solver (Dls) interfaces and scaled,
+  preconditioned, iterative linear solver (Spils) interfaces to utilize
+  :c:type:`SUNMatrix` and :c:type:`SUNLinearSolver` objects.
 
- * Removed package-specific, linear solver-specific, solver modules
-   (e.g. CVDENSE, KINBAND, IDAKLU, ARKSPGMR) since their functionality
-   is entirely replicated by the generic Dls/Spils interfaces and
-   SUNLINEARSOLVER/SUNMATRIX modules. The exception is CVDIAG, a
-   diagonal approximate Jacobian solver available to CVODE and CVODES.
+* Removed package-specific, linear solver-specific, solver modules (e.g.,
+  CVDENSE, KINBAND, IDAKLU, ARKSPGMR) since their functionality is entirely
+  replicated by the generic Dls/Spils interfaces and :c:type:`SUNLinearSolver` /
+  :c:type:`SUNMatrix` classes. The exception is ``CVDIAG``, a diagonal
+  approximate Jacobian solver available to CVODE and CVODES.
 
- * Converted all SUNDIALS example problems to utilize new generic
-   SUNMATRIX and SUNLINEARSOLVER objects, along with updated Dls and
-   Spils linear solver interfaces.
+* Converted all SUNDIALS example problems to utilize new the new matrix and
+  linear solver objects, along with updated Dls and Spils linear solver
+  interfaces.
 
- * Added Spils interface routines to ARKODE, CVODE, CVODES, IDA and
-   IDAS to allow specification of a user-provided "JTSetup" routine.
-   This change supports users who wish to set up data structures for
-   the user-provided Jacobian-times-vector ("JTimes") routine, and
-   where the cost of one JTSetup setup per Newton iteration can be
-   amortized between multiple JTimes calls.
+* Added Spils interface routines to ARKODE, CVODE, CVODES, IDA and IDAS to allow
+  specification of a user-provided ``JTSetup`` routine. This change supports
+  users who wish to set up data structures for the user-provided
+  Jacobian-times-vector (``JTimes``) routine, and where the cost of one
+  ``JTSetup`` setup per Newton iteration can be amortized between multiple
+  ``JTimes`` calls.
 
 Corresponding updates were made to all the example programs.
 
-Two new NVECTOR modules added: for CUDA and RAJA support for GPU systems
-(Information on RAJA: <https://software.llnl.gov/RAJA/> )
-These vectors are supplied to provide very basic support for running
-on GPU architectures. Users are advised that these vectors both move all data
-to the GPU device upon construction, and speedup will only be realized if the
-user also conducts the right-hand-side function evaluation on the device.
-In addition, these vectors assume the problem fits on one GPU.
-For further information about RAJA, users are referred to the web site,
-<https://software.llnl.gov/RAJA/.>
+**New Features**
 
-Addition of sunindextype option for 32-bit or 64-bit integer data index types
-within all SUNDIALS structures
+:ref:`CUDA <NVectors.CUDA>` and :ref:`RAJA <NVectors.RAJA>` :c:type:`N_Vector`
+implementations to support GPU systems. These vectors are supplied to provide
+very basic support for running on GPU architectures. Users are advised that
+these vectors both move all data to the GPU device upon construction, and
+speedup will only be realized if the user also conducts the right-hand-side
+function evaluation on the device. In addition, these vectors assume the problem
+fits on one GPU. For further information about RAJA, users are referred to the
+`RAJA web site <https://software.llnl.gov/RAJA/>`_.
 
-  * sunindextype is defined to be int32_t or int64_t when portable types are
-    supported, otherwise it is defined as int or long int.
-
-  * The Fortran interfaces continue to use `long int` for indices, except for
-    their sparse matrix interface that now uses the new sunindextype.
-
-  * Includes interfaces to PETSc, hypre, SuperLU_MT, and KLU with either 32-bit
-    or 64-bit capabilities depending how the user configures SUNDIALS.
-
-To avoid potential namespace conflicts, the macros defining booleantype
-values TRUE and FALSE have been changed to SUNTRUE and SUNFALSE respectively.
-
-Temporary vectors were removed from preconditioner setup and solve
-routines for all packages. It is assumed that all necessary data
-for user-provided preconditioner operations will be allocated and
-stored in user-provided data structures.
-
-The file include/sundials\_fconfig.h was added. This file contains
-SUNDIALS type information for use in Fortran programs.
-
-Added support for many xSDK-compliant build system keys
-(Information on xSDK compliance: <https://xsdk.info/policies/> )
-The xSDK is a movement in scientific software to provide a foundation for the
-rapid and efficient production of high-quality,
-sustainable extreme-scale scientific applications. More information can
-be found at <https://xsdk.info.>
-
-Added functions SUNDIALSGetVersion and SUNDIALSGetVersionNumber to
-get SUNDIALS release version information at runtime.
-
-### Build System
-
-Renamed CMake options to enable/disable examples for greater clarity
-and added option to enable/disable Fortran 77 examples:
-
-  * Changed `EXAMPLES_ENABLE` to `EXAMPLES_ENABLE_C`
-  * Changed `CXX_ENABLE` to `EXAMPLES_ENABLE_CXX`
-  * Changed `F90_ENABLE` to `EXAMPLES_ENABLE_F90`
-  * Added `EXAMPLES_ENABLE_F77` option
-
-Added separate `BLAS_ENABLE` and `BLAS_LIBRARIES` CMake variables
-
-Fixed minor CMake bugs and included additional error checking during CMake
-configuration
-
-Corrections and additions to all User Guides.
-
-Added "Changes in ..." (latest version) section to the introduction to in all
-User Guides.
-
-### ARKODE
-
-Added comments to `arkode_butcher.c` regarding which methods should have
-coefficients accurate enough for use in quad precision.
-
-Fixed `RCONST` usage in `arkode_butcher.c`.
-
-Fixed bug in `arkInitialSetup` to ensure the mass matrix vector product is
-set up before the "msetup" routine is called.
-
-Fixed ARKODE printf-related compiler warnings when building SUNDIALS
-with extended precision.
-
-### CVODE and CVODES
-
-In `CVodeFree`, now call `lfree` unconditionally (if non-NULL).
-
-### IDA and IDAS
-
-Added missing prototype for `IDASetMaxBacksIC` in `ida.h` and `idas.h`.
-
-### KINSOL
-
-Corrected KINSOL fcmix name translation for `FKIN_SPFGMR`.
-
-Renamed `KINLocalFn` and `KINCommFn` to `KINBBDLocalFn` and `KINBBDCommFn`
-respectively in the BBD preconditioner module for consistency with other
-SUNDIALS solvers.
-
-### ARKODE Changes in v2.0.0
-
-All interfaces to matrix structures and linear solvers have been
-reworked, and all example programs have been updated. The goal of the
-redesign of these interfaces was to provide more encapsulation and
-ease in interfacing custom linear solvers and interoperability with
-linear solver libraries.
-
-Specific changes include:
-
-* Added generic SUNMATRIX module with three provided implementations:
-  dense, banded and sparse. These replicate previous SUNDIALS Dls and
-  Sls matrix structures in a single object-oriented API.
-
-* Added example problems demonstrating use of generic SUNMATRIX modules.
-
-* Added generic SUNLINEARSOLVER module with eleven provided
-  implementations: dense, banded, LAPACK dense, LAPACK band, KLU,
-  SuperLU_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, PCG. These replicate
-  previous SUNDIALS generic linear solvers in a single object-oriented
-  API.
-
-* Added example problems demonstrating use of generic SUNLINEARSOLVER modules.
-
-* Expanded package-provided direct linear solver (Dls) interfaces and
-  scaled, preconditioned, iterative linear solver (Spils) interfaces
-  to utilize generic SUNMATRIX and SUNLINEARSOLVER objects.
-
-* Removed package-specific, linear solver-specific, solver modules
-  (e.g. CVDENSE, KINBAND, IDAKLU, ARKSPGMR) since their functionality
-  is entirely replicated by the generic Dls/Spils interfaces and
-  SUNLINEARSOLVER/SUNMATRIX modules. The exception is CVDIAG, a
-  diagonal approximate Jacobian solver available to CVODE and CVODES.
-
-* Converted all SUNDIALS example problems to utilize new generic
-  SUNMATRIX and SUNLINEARSOLVER objects, along with updated Dls and
-  Spils linear solver interfaces.
-
-* Added Spils interface routines to ARKODE, CVODE, CVODES, IDA and
-  IDAS to allow specification of a user-provided "JTSetup" routine.
-  This change supports users who wish to set up data structures for
-  the user-provided Jacobian-times-vector ("JTimes") routine, and
-  where the cost of one JTSetup setup per Newton iteration can be
-  amortized between multiple JTimes calls.
-
-Two additional NVECTOR implementations were added -- one for CUDA and
-one for RAJA vectors. These vectors are supplied to provide very
-basic support for running on GPU architectures. Users are advised
-that these vectors both move all data to the GPU device upon
-construction, and speedup will only be realized if the user also
-conducts the right-hand-side function evaluation on the device. In
-addition, these vectors assume the problem fits on one GPU. Further
-information about RAJA, users are referred to the web site,
-`https://software.llnl.gov/RAJA/ <https://software.llnl.gov/RAJA/>`_.
-These additions are accompanied by additions to various interface
-functions and to user documentation.
-
-All indices for data structures were updated to a new ``sunindextype``
-that can be configured to be a 32- or 64-bit integer data index type.
-``sunindextype`` is defined to be ``int32_t`` or ``int64_t`` when
-portable types are supported, otherwise it is defined as ``int`` or
-``long int``. The Fortran interfaces continue to use ``long int`` for
-indices, except for their sparse matrix interface that now uses the
-new ``sunindextype``. This new flexible capability for index types
-includes interfaces to PETSc, *hypre*, SuperLU_MT, and KLU with either
-32-bit or 64-bit capabilities depending how the user configures
-SUNDIALS.
+Added the type :c:type:`sunindextype` to support using 32-bit or 64-bit integer
+types for indexing arrays within all SUNDIALS structures. :c:type:`sunindextype`
+is defined to ``int32_t`` or ``int64_t`` when portable types are supported,
+otherwise it is defined as ``int`` or ``long int``. The Fortran interfaces
+continue to use ``long int`` for indices, except for the sparse matrix interface
+that now uses :c:type:`sunindextype`. Interfaces to PETSc, hypre, SuperLU_MT,
+and KLU have been updated with 32-bit or 64-bit capabilities depending how the
+user configures SUNDIALS.
 
 To avoid potential namespace conflicts, the macros defining
 ``booleantype`` values ``TRUE`` and ``FALSE`` have been changed to
-``SUNTRUE`` and ``SUNFALSE`` respectively.
-
-Temporary vectors were removed from preconditioner setup and solve
-routines for all packages. It is assumed that all necessary data
-for user-provided preconditioner operations will be allocated and
-stored in user-provided data structures.
-
-The file ``include/sundials_fconfig.h`` was added. This file contains
-SUNDIALS type information for use in Fortran programs.
-
-Added functions SUNDIALSGetVersion and SUNDIALSGetVersionNumber to get
-SUNDIALS release version information at runtime.
-
-The build system was expanded to support many of the xSDK-compliant keys.
-The xSDK is a movement in scientific software to provide a foundation for the
-rapid and efficient production of high-quality,
-sustainable extreme-scale scientific applications. More information can
-be found at, `https://xsdk.info <https://xsdk.info>`_.
-
-In addition, numerous changes were made to the build system.
-These include the addition of separate ``BLAS_ENABLE`` and ``BLAS_LIBRARIES``
-CMake variables, additional error checking during CMake configuration,
-minor bug fixes, and renaming CMake options to enable/disable examples
-for greater clarity and an added option to enable/disable Fortran 77 examples.
-These changes included changing ``ENABLE_EXAMPLES`` to ``ENABLE_EXAMPLES_C``,
-changing ``CXX_ENABLE`` to ``EXAMPLES_ENABLE_CXX``, changing ``F90_ENABLE`` to
-``EXAMPLES_ENABLE_F90``, and adding an ``EXAMPLES_ENABLE_F77`` option.
-
-Corrections and additions were made to the examples, to
-installation-related files, and to the user documentation.
-
-
-### CVODE Changes in v3.0.0
-
-All interfaces to matrix structures and linear solvers have been reworked, and
-all example programs have been updated. The goal of the redesign of these
-interfaces was to provide more encapsulation and ease in interfacing custom
-linear solvers and interoperability with linear solver libraries. Specific
-changes include:
-
--  Added generic SUNMATRIX module with three provided implementations:
-   dense, banded and sparse. These replicate previous SUNDIALS Dls and Sls
-   matrix structures in a single object-oriented API.
-
--  Added example problems demonstrating use of generic SUNMATRIX
-   modules.
-
--  Added generic SUNLINEARSOLVER module with eleven provided
-   implementations: dense, banded, LAPACK dense, LAPACK band, KLU, SuperLU_MT,
-   SPGMR, SPBCGS, SPTFQMR, SPFGMR, PCG. These replicate previous SUNDIALS
-   generic linear solvers in a single object-oriented API.
-
--  Added example problems demonstrating use of generic SUNLINEARSOLVER
-   modules.
-
--  Expanded package-provided direct linear solver (Dls) interfaces and
-   scaled, preconditioned, iterative linear solver (Spils) interfaces to utilize
-   generic SUNMATRIX and SUNLINEARSOLVER objects.
-
--  Removed package-specific, linear solver-specific, solver modules
-   (e.g. CVDENSE, KINBAND, IDAKLU, ARKSPGMR) since their functionality is
-   entirely replicated by the generic Dls/Spils interfaces and
-   SUNLINEARSOLVER/SUNMATRIX modules. The exception is CVDIAG, a diagonal
-   approximate Jacobian solver available to CVODE and CVODES.
-
--  Converted all SUNDIALS example problems to utilize new generic
-   SUNMATRIX and SUNLINEARSOLVER objects, along with updated Dls and Spils
-   linear solver interfaces.
-
--  Added Spils interface routines to ARKode, CVODE, CVODES, IDA and IDAS
-   to allow specification of a user-provided "JTSetup" routine. This change
-   supports users who wish to set up data structures for the user-provided
-   Jacobian-times-vector ("JTimes") routine, and where the cost of one JTSetup
-   setup per Newton iteration can be amortized between multiple JTimes calls.
-
-Two additional ``N_Vector`` implementations were added - one for CUDA and one
-for RAJA vectors. These vectors are supplied to provide very basic support for
-running on GPU architectures. Users are advised that these vectors both move all
-data to the GPU device upon construction, and speedup will only be realized if
-the user also conducts the right-hand-side function evaluation on the device. In
-addition, these vectors assume the problem fits on one GPU. Further information
-about RAJA, users are referred to th web site, https://software.llnl.gov/RAJA/.
-These additions are accompanied by additions to various interface functions and
-to user documentation.
-
-All indices for data structures were updated to a new ``sunindextype`` that can
-be configured to be a 32- or 64-bit integer data index type. ``sunindextype`` is
-defined to be ``int32_t`` or ``int64_t`` when portable types are supported,
-otherwise it is defined as ``int`` or ``long int``. The Fortran interfaces
-continue to use for indices, except for their sparse matrix interface that now
-uses the new . This new flexible capability for index types includes interfaces
-to PETSc, hypre, SuperLU_MT, and KLU with either 32-bit or 64-bit capabilities
-depending how the user configures SUNDIALS.
-
-To avoid potential namespace conflicts, the macros defining ``booleantype``
-values ``TRUE`` and ``FALSE`` have been changed to ``SUNTRUE`` and ``SUNFALSE``
-respectively.
+:c:macro:`SUNTRUE` and :c:macro:`SUNFALSE` respectively.
 
 Temporary vectors were removed from preconditioner setup and solve routines for
 all packages. It is assumed that all necessary data for user-provided
@@ -3116,389 +2544,71 @@ structures.
 
 The file ``include/sundials_fconfig.h`` was added. This file contains SUNDIALS
 type information for use in Fortran programs.
+
+Added support for many xSDK-compliant build system keys. For more information on
+on xSDK compliance the `xSDK policies <https://xsdk.info/policies/>`_. The xSDK
+is a movement in scientific software to provide a foundation for the rapid and
+efficient production of high-quality, sustainable extreme-scale scientific
+applications. For more information visit the
+`xSDK web site <https://xsdk.info>`_.
 
 Added functions :c:func:`SUNDIALSGetVersion` and
 :c:func:`SUNDIALSGetVersionNumber` to get SUNDIALS release version information
 at runtime.
 
-The build system was expanded to support many of the xSDK-compliant keys. The
-xSDK is a movement in scientific software to provide a foundation for the rapid
-and efficient production of high-quality, sustainable extreme-scale scientific
-applications. More information can be found at, https://xsdk.info.
+Added comments to ``arkode_butcher.c`` regarding which methods should have
+coefficients accurate enough for use in quad precision.
 
-In addition, numerous changes were made to the build system. These include the
-addition of separate ``BLAS_ENABLE`` and ``BLAS_LIBRARIES`` CMake variables,
-additional error checking during CMake configuration, minor bug fixes, and
-renaming CMake options to enable/disable examples for greater clarity and an
-added option to enable/disable Fortran 77 examples. These changes included
-changing ``EXAMPLES_ENABLE`` to ``EXAMPLES_ENABLE_C``, changing ``CXX_ENABLE``
-to ``EXAMPLES_ENABLE_CXX``, changing ``F90_ENABLE`` to ``EXAMPLES_ENABLE_F90``,
-and adding an ``EXAMPLES_ENABLE_F77`` option.
+**Build System**
 
-A bug fix was made in :c:func:`CVodeFree` to call ``lfree`` unconditionally (if
-non-NULL).
+Renamed CMake options to enable/disable examples for greater clarity and added
+option to enable/disable Fortran 77 examples:
 
-Corrections and additions were made to the examples, to installation-related
-files, and to the user documentation.
+  * Changed ``EXAMPLES_ENABLE`` to :cmakeop:`EXAMPLES_ENABLE_C`
 
-### CVODES Changes in v3.0.0
+  * Changed ``CXX_ENABLE`` to  :cmakeop:`EXAMPLES_ENABLE_CXX`
 
-All interfaces to matrix structures and linear solvers have been reworked, and
-all example programs have been updated. The goal of the redesign of these
-interfaces was to provide more encapsulation and ease in interfacing custom
-linear solvers and interoperability with linear solver libraries. Specific
-changes include:
+  * Changed ``F90_ENABLE`` to  ``EXAMPLES_ENABLE_F90``
 
--  Added generic SUNMATRIX module with three provided implementations: dense, banded and sparse. These replicate
-   previous SUNDIALS Dls and Sls matrix structures in a single object-oriented API.
+  * Added ``EXAMPLES_ENABLE_F77`` option
 
--  Added example problems demonstrating use of generic SUNMATRIX modules.
+Added separate ``BLAS_ENABLE`` and ``BLAS_LIBRARIES`` CMake variables.
 
--  Added generic SUNLINEARSOLVER module with eleven provided implementations: dense, banded, LAPACK dense, LAPACK band,
-   KLU, SuperLU_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, PCG. These replicate previous SUNDIALS generic linear solvers
-   in a single object-oriented API.
+Fixed minor CMake bugs and included additional error checking during CMake
+configuration.
 
--  Added example problems demonstrating use of generic SUNLINEARSOLVER modules.
+Corrections and additions to all User Guides.
 
--  Expanded package-provided direct linear solver (Dls) interfaces and scaled, preconditioned, iterative linear solver
-   (Spils) interfaces to utilize generic SUNMATRIX and SUNLINEARSOLVER objects.
+**Bug Fixes**
 
--  Removed package-specific, linear solver-specific, solver modules (e.g. CVDENSE, KINBAND, IDAKLU, ARKSPGMR) since
-   their functionality is entirely replicated by the generic Dls/Spils interfaces and SUNLINEARSOLVER/SUNMATRIX modules.
-   The exception is CVDIAG, a diagonal approximate Jacobian solver available to CVODE and CVODES.
+*ARKODE*
 
--  Converted all SUNDIALS example problems to utilize new generic SUNMATRIX and SUNLINEARSOLVER objects, along
-   with updated Dls and Spils linear solver interfaces.
+Fixed ``RCONST`` usage in ``arkode_butcher.c``.
 
--  Added Spils interface routines to ARKode, CVODE, CVODES, IDA and IDAS to allow specification of a user-provided
-   "JTSetup" routine. This change supports users who wish to set up data structures for the user-provided
-   Jacobian-times-vector ("JTimes") routine, and where the cost of one JTSetup setup per Newton iteration can be
-   amortized between multiple JTimes calls.
+Fixed bug in ``arkInitialSetup`` to ensure the mass matrix vector product is
+set up before the "msetup" routine is called.
 
-Two additional ``N_Vector`` implementations were added - one for CUDA and one
-for RAJA vectors. These vectors are supplied to provide very basic support for
-running on GPU architectures. Users are advised that these vectors both move all
-data to the GPU device upon construction, and speedup will only be realized if
-the user also conducts the right-hand-side function evaluation on the device. In
-addition, these vectors assume the problem fits on one GPU. Further information
-about RAJA, users are referred to th web site, https://software.llnl.gov/RAJA/.
-These additions are accompanied by additions to various interface functions and
-to user documentation.
+Fixed ARKODE ``printf``-related compiler warnings when building SUNDIALS
+with extended precision.
 
-All indices for data structures were updated to a new ``sunindextype`` that can
-be configured to be a 32- or 64-bit integer data index type. ``sunindextype`` is
-defined to be ``int32_t`` or ``int64_t`` when portable types are supported,
-otherwise it is defined as ``int`` or ``long int``. The Fortran interfaces
-continue to use ``long int`` for indices, except for their sparse matrix
-interface that now uses the new ``sunindextype``. This new flexible capability
-for index types includes interfaces to PETSc, hypre, SuperLU_MT, and KLU with
-either 32-bit or 64-bit capabilities depending how the user configures SUNDIALS.
+*CVODE and CVODES*
 
-To avoid potential namespace conflicts, the macros defining ``booleantype``
-values ``TRUE`` and ``FALSE`` have been changed to ``SUNTRUE`` and ``SUNFALSE``
-respectively.
+:c:func:`CVodeFree` now calls ``lfree`` unconditionally (if non-NULL).
 
-Temporary vectors were removed from preconditioner setup and solve routines for
-all packages. It is assumed that all necessary data for user-provided
-preconditioner operations will be allocated and stored in user-provided data
-structures.
+*IDA and IDAS*
 
-The file ``include/sundials_fconfig.h`` was added. This file contains SUNDIALS
-type information for use in Fortran programs.
-
-Added functions ``SUNDIALSGetVersion`` and ``SUNDIALSGetVersionNumber`` to get
-SUNDIALS release version information at runtime.
-
-The build system was expanded to support many of the xSDK-compliant keys. The
-xSDK is a movement in scientific software to provide a foundation for the rapid
-and efficient production of high-quality, sustainable extreme-scale scientific
-applications. More information can be found at, https://xsdk.info.
-
-In addition, numerous changes were made to the build system. These include the
-addition of separate ``BLAS_ENABLE`` and ``BLAS_LIBRARIES`` CMake variables,
-additional error checking during CMake configuration, minor bug fixes, and
-renaming CMake options to enable/disable examples for greater clarity and an
-added option to enable/disable Fortran 77 examples. These changes included
-changing ``EXAMPLES_ENABLE`` to ``EXAMPLES_ENABLE_C``, changing ``CXX_ENABLE``
-to ``EXAMPLES_ENABLE_CXX``, changing ``F90_ENABLE`` to ``EXAMPLES_ENABLE_F90``,
-and adding an ``EXAMPLES_ENABLE_F77`` option.
-
-A bug fix was made in ``CVodeFree`` to call ``lfree`` unconditionally (if
-non-NULL).
-
-Corrections and additions were made to the examples, to installation-related
-files, and to the user documentation.
-
-### IDA Changes in v3.0.0
-
-All interfaces to matrix structures and linear solvers have been reworked, and
-all example programs have been updated. The goal of the redesign of these
-interfaces was to provide more encapsulation and to ease interfacing of custom
-linear solvers and interoperability with linear solver libraries. Specific
-changes include:
-
-* Added generic ``SUNMatrix`` module with three provided implementations: dense,
-  banded, and sparse. These replicate previous SUNDIALS Dls and Sls matrix
-  structures in a single object-oriented API.
-
-* Added example problems demonstrating use of generic ``SUNMatrix`` modules.
-
-* Added generic ``SUNLinearSolver`` module with eleven provided implementations:
-  SUNDIALS native dense, SUNDIALS native banded, LAPACK dense, LAPACK band, KLU,
-  SuperLU_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, and PCG. These replicate previous
-  SUNDIALS generic linear solvers in a single object-oriented API.
-
-* Added example problems demonstrating use of generic ``SUNLinearSolver``
-  modules.
-
-* Expanded package-provided direct linear solver (Dls) interfaces and scaled,
-  preconditioned, iterative linear solver (Spils) interfaces to utilize generic
-  ``SUNMatrix`` and ``SUNLinearSolver`` objects.
-
-* Removed package-specific, linear solver-specific, solver modules
-  (e.g. ``CVDENSE``, ``KINBAND``, ``IDAKLU``, ``ARKSPGMR``) since their
-  functionality is entirely replicated by the generic Dls/Spils interfaces and
-  ``SUNLinearSolver`` and ``SUNMatrix`` modules. The exception is ``CVDIAG``, a
-  diagonal approximate Jacobian solver available to CVODE and CVODES.
-
-* Converted all SUNDIALS example problems and files to utilize the new generic
-  ``SUNMatrix`` and ``SUNLinearSolver`` objects, along with updated Dls and
-  Spils linear solver interfaces.
-
-* Added Spils interface routines to ARKODE, CVODE, CVODES, IDA, and IDAS to
-  allow specification of a user-provided "JTSetup" routine. This change
-  supports users who wish to set up data structures for the user-provided
-  Jacobian-times-vector ("JTimes") routine, and where the cost of one JTSetup
-  setup per Newton iteration can be amortized between multiple JTimes calls.
-
-Two additional ``N_Vector`` implementations were added - one for CUDA and one
-for RAJA vectors. These vectors are supplied to provide very basic support for
-running on GPU architectures. Users are advised that these vectors both move all
-data to the GPU device upon construction, and speedup will only be realized if
-the user also conducts the right-hand-side or residual function evaluation on
-the device. In addition, these vectors assume the problem fits on one GPU.
-For further information about RAJA, users are referred to the web site,
-https://software.llnl.gov/RAJA/. These additions are accompanied by updates
-to various interface functions and to user documentation.
-
-All indices for data structures were updated to a new ``sunindextype`` that can
-be configured to be a 32- or 64-bit integer data index type. ``sunindextype``
-is defined to be ``int32_t`` or ``int64_t`` when portable types are supported,
-otherwise it is defined as ``int`` or ``long int``. The Fortran interfaces
-continue to use ``long int`` for indices, except for their sparse matrix
-interface that now uses the new ``sunindextype``. This new flexible capability
-for index types includes interfaces to PETSc, hypre, SuperLU_MT, and KLU with
-either 32-bit or 64-bit capabilities depending how the user configures SUNDIALS.
-
-To avoid potential namespace conflicts, the macros defining ``booleantype``
-values ``TRUE`` and ``FALSE`` have been changed to ``SUNTRUE`` and ``SUNFALSE``
-respectively.
-
-Temporary vectors were removed from preconditioner setup and solve routines for
-all packages. It is assumed that all necessary data for user-provided
-preconditioner operations will be allocated and stored in user-provided data
-structures.
-
-The file ``include/sundials_fconfig.h`` was added. This file contains SUNDIALS
-type information for use in Fortran programs.
-
-The build system was expanded to support many of the xSDK-compliant keys. The
-xSDK is a movement in scientific software to provide a foundation for the rapid
-and efficient production of high-quality, sustainable extreme-scale scientific
-applications. More information can be found at, https://xsdk.info.
-
-Added functions :c:func:`SUNDIALSGetVersion` and
-:c:func:`SUNDIALSGetVersionNumber` to get SUNDIALS release version information
-at runtime.
-
-In addition, numerous changes were made to the build system. These include the
-addition of separate ``BLAS_ENABLE`` and ``BLAS_LIBRARIES`` CMake variables,
-additional error checking during CMake configuration, minor bug fixes, and
-renaming CMake options to enable/disable examples for greater clarity and an
-added option to enable/disable Fortran 77 examples. These changes included
-changing ``EXAMPLES_ENABLE`` to :cmakeop:`EXAMPLES_ENABLE_C`, changing
-``CXX_ENABLE`` to :cmakeop:`EXAMPLES_ENABLE_CXX`, changing ``F90_ENABLE`` to
-:cmakeop:`EXAMPLES_ENABLE_F90`, and adding an :cmakeop:`EXAMPLES_ENABLE_F77`
-option.
-
-A bug fix was done to add a missing prototype for :c:func:`IDASetMaxBacksIC` in
-``ida.h``.
-
-Corrections and additions were made to the examples, to installation-related
-files, and to the user documentation.
-
-### IDAS Changes in v2.0.0
-
-All interfaces to matrix structures and linear solvers have been reworked, and
-all example programs have been updated. The goal of the redesign of these
-interfaces was to provide more encapsulation and to ease interfacing of custom
-linear solvers and interoperability with linear solver libraries. Specific
-changes include:
-
-* Added generic ``SUNMatrix`` module with three provided implementations: dense,
-  banded, and sparse. These replicate previous SUNDIALS Dls and Sls matrix
-  structures in a single object-oriented API.
-
-* Added example problems demonstrating use of generic ``SUNMatrix`` modules.
-
-* Added generic ``SUNLinearSolver`` module with eleven provided implementations:
-  SUNDIALS native dense, SUNDIALS native banded, LAPACK dense, LAPACK band, KLU,
-  SuperLU_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, and PCG. These replicate previous
-  SUNDIALS generic linear solvers in a single object-oriented API.
-
-* Added example problems demonstrating use of generic ``SUNLinearSolver``
-  modules.
-
-* Expanded package-provided direct linear solver (Dls) interfaces and scaled,
-  preconditioned, iterative linear solver (Spils) interfaces to utilize generic
-  ``SUNMatrix`` and ``SUNLinearSolver`` objects.
-
-* Removed package-specific, linear solver-specific, solver modules
-  (e.g. ``CVDENSE``, ``KINBAND``, ``IDAKLU``, ``ARKSPGMR``) since their
-  functionality is entirely replicated by the generic Dls/Spils interfaces and
-  ``SUNLinearSolver`` and ``SUNMatrix`` modules. The exception is ``CVDIAG``, a
-  diagonal approximate Jacobian solver available to CVODE and CVODES.
-
-* Converted all SUNDIALS example problems and files to utilize the new generic
-  ``SUNMatrix`` and ``SUNLinearSolver`` objects, along with updated Dls and
-  Spils linear solver interfaces.
-
-* Added Spils interface routines to ARKODE, CVODE, CVODES, IDAS, and IDAS to
-  allow specification of a user-provided "JTSetup" routine. This change
-  supports users who wish to set up data structures for the user-provided
-  Jacobian-times-vector ("JTimes") routine, and where the cost of one JTSetup
-  setup per Newton iteration can be amortized between multiple JTimes calls.
-
-Two additional ``N_Vector`` implementations were added - one for CUDA and one
-for RAJA vectors. These vectors are supplied to provide very basic support for
-running on GPU architectures. Users are advised that these vectors both move all
-data to the GPU device upon construction, and speedup will only be realized if
-the user also conducts the right-hand-side or residual function evaluation on
-the device. In addition, these vectors assume the problem fits on one GPU.
-For further information about RAJA, users are referred to the web site,
-https://software.llnl.gov/RAJA/. These additions are accompanied by updates
-to various interface functions and to user documentation.
-
-All indices for data structures were updated to a new ``sunindextype`` that can
-be configured to be a 32- or 64-bit integer data index type. ``sunindextype``
-is defined to be ``int32_t`` or ``int64_t`` when portable types are supported,
-otherwise it is defined as ``int`` or ``long int``. The Fortran interfaces
-continue to use ``long int`` for indices, except for their sparse matrix
-interface that now uses the new ``sunindextype``. This new flexible capability
-for index types includes interfaces to PETSc, hypre, SuperLU_MT, and KLU with
-either 32-bit or 64-bit capabilities depending how the user configures SUNDIALS.
-
-To avoid potential namespace conflicts, the macros defining ``booleantype``
-values ``TRUE`` and ``FALSE`` have been changed to ``SUNTRUE`` and ``SUNFALSE``
-respectively.
-
-Temporary vectors were removed from preconditioner setup and solve routines for
-all packages. It is assumed that all necessary data for user-provided
-preconditioner operations will be allocated and stored in user-provided data
-structures.
-
-The file ``include/sundials_fconfig.h`` was added. This file contains SUNDIALS
-type information for use in Fortran programs.
-
-The build system was expanded to support many of the xSDK-compliant keys. The
-xSDK is a movement in scientific software to provide a foundation for the rapid
-and efficient production of high-quality, sustainable extreme-scale scientific
-applications. More information can be found at, https://xsdk.info.
-
-Added functions :c:func:`SUNDIALSGetVersion` and
-:c:func:`SUNDIALSGetVersionNumber` to get SUNDIALS release version information
-at runtime.
-
-In addition, numerous changes were made to the build system. These include the
-addition of separate ``BLAS_ENABLE`` and ``BLAS_LIBRARIES`` CMake variables,
-additional error checking during CMake configuration, minor bug fixes, and
-renaming CMake options to enable/disable examples for greater clarity and an
-added option to enable/disable Fortran 77 examples. These changes included
-changing ``EXAMPLES_ENABLE`` to :cmakeop:`EXAMPLES_ENABLE_C`, changing
-``CXX_ENABLE`` to :cmakeop:`EXAMPLES_ENABLE_CXX`, changing ``F90_ENABLE`` to
-:cmakeop:`EXAMPLES_ENABLE_F90`, and adding an :cmakeop:`EXAMPLES_ENABLE_F77`
-option.
-
-A bug fix was done to add a missing prototype for :c:func:`IDASetMaxBacksIC` in
+Added missing prototype for :c:func:`IDASetMaxBacksIC` in ``ida.h`` and
 ``idas.h``.
 
-Corrections and additions were made to the examples, to installation-related
-files, and to the user documentation.
+*KINSOL*
 
-### KINSOL Changes in v3.0.0
+Corrected KINSOL Fortran name translation for ``FKIN_SPFGMR``.
 
-All interfaces to matrix structures and linear solvers have been reworked, and all example programs have been updated.
-The goal of the redesign of these interfaces was to provide more encapsulation and ease in the interfacing of custom
-linear solvers and interoperability with linear solver libraries. Specific changes include:
+Renamed ``KINLocalFn`` and ``KINCommFn`` to :c:type:`KINBBDLocalFn` and
+:c:type:`KINBBDCommFn` respectively in the BBD preconditioner module for
+consistency with other SUNDIALS solvers.
 
--  Added generic SUNMATRIX module with three provided implementations: dense, banded and sparse. These replicate
-   previous SUNDIALS Dls and Sls matrix structures in a single object-oriented API.
-
--  Added example problems demonstrating use of generic SUNMATRIX modules.
-
--  Added generic ``SUNLinearSolver`` module with eleven provided implementations: SUNDIALS native dense,
-   SUNDIALS native banded, LAPACK dense, LAPACK band, KLU, SuperLU_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, and PCG.
-   These replicate previous SUNDIALS generic linear solvers in a single object-oriented API.
-
--  Added example problems demonstrating use of generic SUNLINEARSOLVER modules.
-
--  Expanded package-provided direct linear solver (Dls) interfaces and scaled, preconditioned, iterative linear solver
-   (Spils) interfaces to utilize generic SUNMATRIX and SUNLINEARSOLVER objects.
-
--  Removed package-specific, linear solver-specific, solver modules (e.g. CVDENSE, KINBAND, IDAKLU, ARKSPGMR) since
-   their functionality is entirely replicated by the generic Dls/Spils interfaces and SUNLINEARSOLVER/SUNMATRIX modules.
-   The exception is CVDIAG, a diagonal approximate Jacobian solver available to CVODE and CVODES.
-
--  Converted all SUNDIALS example problems to utilize new generic SUNMATRIX and SUNLINEARSOLVER objects, along
-   with updated Dls and Spils linear solver interfaces.
-
--  Added Spils interface routines to ARKode, CVODE, CVODES, IDA and IDAS to allow specification of a user-provided
-   "JTSetup" routine. This change supports users who wish to set up data structures for the user-provided
-   Jacobian-times-vector ("JTimes") routine, and where the cost of one JTSetup setup per Newton iteration can be
-   amortized between multiple JTimes calls.
-
-Two additional ``N_Vector`` implementations were added - one for CUDA and one for RAJA vectors. These
-vectors are supplied to provide very basic support for running on GPU architectures. Users are advised that these
-vectors both move all data to the GPU device upon construction, and speedup will only be realized if the user also
-conducts the right-hand-side function evaluation on the device. In addition, these vectors assume the problem fits on
-one GPU. Further information about RAJA, users are referred to th web site, https://software.llnl.gov/RAJA/. These
-additions are accompanied by additions to various interface functions and to user documentation.
-
-All indices for data structures were updated to a new ``sunindextype`` that can be configured to be a 32- or 64-bit
-integer data index type. ``sunindextype`` is defined to be ``int32_t`` or ``int64_t`` when portable types are supported,
-otherwise it is defined as ``int`` or ``long int``. The Fortran interfaces continue to use ``long int`` for indices,
-except for their sparse matrix interface that now uses the new ``sunindextype``. This new flexible capability for index
-types includes interfaces to PETSc, hypre, SuperLU_MT, and KLU with either 32-bit or 64-bit capabilities depending how
-the user configures SUNDIALS.
-
-To avoid potential namespace conflicts, the macros defining ``booleantype`` values ``TRUE`` and ``FALSE`` have been
-changed to ``SUNTRUE`` and ``SUNFALSE`` respectively.
-
-Temporary vectors were removed from preconditioner setup and solve routines for all packages. It is assumed that all
-necessary data for user-provided preconditioner operations will be allocated and stored in user-provided data
-structures.
-
-The file ``include/sundials_fconfig.h`` was added. This file contains SUNDIALS type information for use in Fortran
-programs.
-
-The build system was expanded to support many of the xSDK-compliant keys. The xSDK is a movement in scientific software
-to provide a foundation for the rapid and efficient production of high-quality, sustainable extreme-scale scientific
-applications. More information can be found at, https://xsdk.info.
-
-Added functions ``SUNDIALSGetVersion`` and ``SUNDIALSGetVersionNumber`` to get SUNDIALS release version
-information at runtime.
-
-In addition, numerous changes were made to the build system. These include the addition of separate ``BLAS_ENABLE`` and
-``BLAS_LIBRARIES`` CMake variables, additional error checking during CMake configuration, minor bug fixes, and renaming
-CMake options to enable/disable examples for greater clarity and an added option to enable/disable Fortran 77 examples.
-These changes included changing ``EXAMPLES_ENABLE`` to ``EXAMPLES_ENABLE_C``, changing ``CXX_ENABLE`` to
-``EXAMPLES_ENABLE_CXX``, changing ``F90_ENABLE`` to ``EXAMPLES_ENABLE_F90``, and adding an ``EXAMPLES_ENABLE_F77``
-option.
-
-A bug fix was done to correct the fcmix name translation for ``FKIN_SPFGMR``.
-
-Corrections and additions were made to the examples, to installation-related files, and to the user documentation.
-
+**HERE**
 
 Changes to SUNDIALS in release 2.7.0
 ====================================
