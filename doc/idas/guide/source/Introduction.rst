@@ -86,7 +86,7 @@ integrate any final-condition ODE dependent on the solution of the original IVP
 Changes to SUNDIALS in release X.Y.Z
 ====================================
 
-.. include:: RecentChanges_link.rst
+.. include:: ../../../shared/RecentChanges.rst
 
 For changes in prior versions of SUNDIALS see :numref:`Changelog`.
 

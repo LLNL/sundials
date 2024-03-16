@@ -3612,7 +3612,7 @@ Changes to SUNDIALS in release 2.2.0
 CVSPBCG and CVSPTFQMR modules have been added to interface with the Scaled
 Preconditioned Bi-CGstab (SPBCG) and Scaled Preconditioned Transpose-Free
 Quasi-Minimal Residual (SPTFQMR) linear solver modules, respectively (for
-details see :numref:`CVODE.Usage.CC`). Corresponding additions were made to the
+details see :ref:`CVODE.Usage.CC`). Corresponding additions were made to the
 Fortran interface module FCVODE. At the same time, function type names for
 Scaled Preconditioned Iterative Linear Solvers were added for the user-supplied
 Jacobian-times-vector and preconditioner setup and solve functions.
@@ -3882,8 +3882,8 @@ quantities controlling the solver and a set of extraction routines (with prefix
 ``CVodeGet``) to extract statistics after return from the main solver
 routine. Similarly, each linear solver module provides its own set of `Set`- and
 `Get`-type routines. For more details see
-:numref:`CVODE.Usage.CC.optional_input` and
-:numref:`CVODE.Usage.CC.optional_output`.
+:ref:`CVODE.Usage.CC.optional_input` and
+:ref:`CVODE.Usage.CC.optional_output`.
 
 Additionally, the interfaces to several user-supplied routines (such as those
 providing Jacobians and preconditioner information) were simplified by reducing

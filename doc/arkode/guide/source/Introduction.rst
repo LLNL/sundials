@@ -129,7 +129,7 @@ provided with SUNDIALS, or again may utilize a user-supplied module.
 Changes to SUNDIALS in release X.Y.Z
 ====================================
 
-.. include:: RecentChanges_link.rst
+.. include:: ../../../shared/RecentChanges.rst
 
 For changes in prior versions of SUNDIALS see :numref:`Changelog`.
 
