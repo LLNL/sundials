@@ -2606,319 +2606,173 @@ Renamed ``KINLocalFn`` and ``KINCommFn`` to :c:type:`KINBBDLocalFn` and
 :c:type:`KINBBDCommFn` respectively in the BBD preconditioner module for
 consistency with other SUNDIALS solvers.
 
-**HERE**
-
 Changes to SUNDIALS in release 2.7.0
 ====================================
 
-- Two new NVECTOR modules added: for _hypre_ ParVector and PETSC.
-- In vector API, added new required function, N\_VGetVectorID.
-- Upgrades to sparse solver interfaces; now support CSR matrix type with KLU solver.
-- In all packages, example codes were changed from using NV\_DATA macro to using N\_VGetArrayPointer\_\* when using the native vectors shipped with SUNDIALS
-- In all packages, fixed memory leak in banded preconditioner interface.
-- Fixed some examples w.r.t. switch to new macro/function names SUNRexp etc.
-- Various minor fixes to installation-related files.
-- Corrected name N\_VCloneEmptyVectorArray to N\_VCloneVectorArrayEmpty in all documentation files.
-- Updated all packages to return integers from linear solver and preconditioner 'free' functions.
-- Removed Matlab interface from distribution as it has not been updated since 2009. We expect to update this interface soon.
-- In FKINSOL, FCVODE, and FIDA, added missing Fortran interface routines so that users can supply the sparse Jacobian routine.
-- Minor corrections and additions to all User Guides, including removal of references to specific NVECTOR names in usage skeletons.
-- Additional example programs added throughout.
-- In CVODE
+**New Features and Enhancements**
 
-  - in FCVODE, fixed argument order bugs in FCVKLU and FCVSUPERLUMT linear solver interfaces.
+Two additional :c:type:`N_Vector` implementations were added -- one for
+:ref:`hypre parallel vectors <NVectors.ParHyp>` and one for :ref:`PETSc
+vectors <NVectors.NVPETSc>`. These additions are accompanied by additions to
+various interface functions and to user documentation.
 
-- In CVODES
+Added a new :c:type:`N_Vector` function, :c:func:`N_VGetVectorID`, that returns
+an identifier for the vector.
 
-  - changed each \*\*FreeB to type int; added return(0) to each.
-  - in interpolation routines for backward problems, added logic to bypass sensitivity interpolation if input sensitivity argument is NULL.
+The sparse matrix structure was enhanced to support both CSR and CSC matrix
+storage formats.
 
-- In ARKODE
+Various additions were made to the KLU and SuperLU_MT sparse linear solver
+interfaces, including support for the CSR matrix format when using KLU.
 
-  - updated linear and mass matrix solvers so that 'free' routines return integer instead of void; updated documentation accordingly.
-  - fixed initialization of linear solver performance counters.
-  - method and embedding for Billington and TRBDF2 explicit Runge-Kutta methods were swapped.
-  - fix for user specification of absolute tolerance array along with vector Resize functionality.
-  - fix for user-supplied Butcher tables without embeddings (if fixed time steps or manual adaptivity are employed).
-  - multiple documentation updates.
-  - added missing ARKSpilsGetNumMtimesEvals function.
-  - implicit predictor algorithms were updated: methods 2 and 3 were improved, a new predictor approach was added, and the default choice was modified.
-  - revised handling of integer codes for specifying built-in Butcher tables: a global numbering system is still used, but methods now have #defined names to simplify the user interface.
-  - maximum number of Butcher table stages was increased from 8 to 15 to accommodate very high-order methods, and an 8th-order adaptive ERK method was added.
-  - added support for the explicit and implicit methods in an additive Runge-Kutta method to utilize different stage times, solution and embedding coefficients, to support new SSP-ARK methods.
-  - extended FARKODE interface to include a routine to set scalar/array-valued residual tolerances, to support Fortran applications with non-identity mass-matrices.
+The Bi-CGstab linear solver was enhanced by removing a redundant dot product.
 
-- In IDA
+In all packages, the linear solver and preconditioner ``free`` routines were
+updated to return an integer.
 
-  - corrected example idaFoodWeb\_bnd.c in PrintOutput (wrong component printed).
-  - added optional input function IDASetMaxBacksIC to limit number of linesearch backtrack operations in IDACalcIC. User guides amended accordingly.
+In all packages, example codes were updated to use ``N_VGetArrayPointer_*``
+rather than the ``NV_DATA`` macro when using the native vectors shipped with
+SUNDIALS.
 
-- In IDAS
+Additional example programs were added throughout including new examples
+utilizing the OpenMP vector.
 
-  - added optional input function IDASetMaxBacksIC to limit number of linesearch backtrack operations in IDACalcIC. User guides amended accordingly.
-  - changed each \*\*FreeB to type int; added return(0) to each.
-  - in interpolation routines for backward problems, added logic to bypass sensitivity interpolation if input sensitivity argument is NULL.
+*ARKODE*
 
-- In KINSOL
+The ARKODE implicit predictor algorithms were updated: methods 2 and 3 were
+improved slightly, a new predictor approach was added, and the default choice
+was modified.
 
-  - minor bug fix in Picard iteration.
-  - minor bug fix in line search to prevent infinite loop when beta condition fails and lambda is below minimum size.
+The handling of integer codes for specifying built-in ARKODE Butcher tables was
+enhanced. While a global numbering system is still used, methods now have
+``#defined`` names to simplify the user interface and to streamline
+incorporation of new Butcher tables into ARKODE.
 
-### ARKODE Changes in v1.1.0
+The maximum number of Butcher table stages was increased from 8 to 15 to
+accommodate very high order methods, and an 8th-order adaptive ERK method was
+added.
 
-We have included numerous bugfixes and enhancements since the
-v1.0.2 release.
+Support was added for the explicit and implicit methods in an additive
+Runge--Kutta method with different stage times to support new SSP-ARK methods.
 
-The bugfixes include:
+The FARKODE interface was extended to include a routine to set
+scalar/array-valued residual tolerances, to support Fortran applications with
+non-identity mass-matrices.
 
-* For each linear solver, the various solver performance counters are
-  now initialized to 0 in both the solver specification function and
-  in the solver's ``linit`` function. This ensures that these solver
-  counters are initialized upon linear solver instantiation as well as
-  at the beginning of the problem solution.
+*IDA and IDAS*
 
-* The choice of the method vs embedding the Billington and TRBDF2
-  explicit Runge--Kutta methods were swapped, since in those the
-  lower-order coefficients result in an A-stable method, while the
-  higher-order coefficients do not. This change results in
-  significantly improved robustness when using those methods.
+The optional input function :c:func:`IDASetMaxBacksIC` was added to set the
+maximum number of linesearch backtracks in the initial condition calculation.
 
-* A bug was fixed for the situation where a user supplies a vector of
-  absolute tolerances, and also uses the vector Resize functionality.
+*KINSOL*
 
-* A bug was fixed wherein a user-supplied Butcher table without an
-  embedding is supplied, and the user is running with either fixed
-  time steps (or they do adaptivity manually); previously this had
-  resulted in an error since the embedding order was below 1.
+The Anderson acceleration scheme was enhanced by use of QR updating.
 
-* Numerous aspects of the documentation were fixed and/or clarified.
+**Bug Fixes**
 
+Various minor fixes to installation-related files.
 
-The feature changes/enhancements include:
+Fixed some examples with respect to the change to use new macro/function names
+e.g.,  ``SUNRexp``, etc.
 
-* Two additional NVECTOR implementations were added -- one for Hypre
-  (parallel) ParVector vectors, and one for PETSc vectors. These
-  additions are accompanied by additions to various interface
-  functions and to user documentation.
+In all packages, a memory leak was fixed in the banded preconditioner and
+banded-block-diagonal preconditioner interfaces.
 
-* Each NVECTOR module now includes a function, ``N_VGetVectorID``,
-  that returns the NVECTOR module name.
+Corrected name ``N_VCloneEmptyVectorArray`` to ``N_VCloneVectorArrayEmpty`` in
+all documentation files.
 
-* A memory leak was fixed in the banded preconditioner and
-  banded-block-diagonal preconditioner interfaces. In addition,
-  updates were done to return integers from linear solver and
-  preconditioner 'free' routines.
-
-* The Krylov linear solver Bi-CGstab was enhanced by removing a
-  redundant dot product. Various additions and corrections were made
-  to the interfaces to the sparse solvers KLU and SuperLU_MT,
-  including support for CSR format when using KLU.
-
-* The ARKODE implicit predictor algorithms were updated: methods 2 and
-  3 were improved slightly, a new predictor approach was added, and
-  the default choice was modified.
-
-* The underlying sparse matrix structure was enhanced to allow both
-  CSR and CSC matrices, with CSR supported by the KLU linear solver
-  interface. ARKODE interfaces to the KLU solver from both C and
-  Fortran were updated to enable selection of sparse matrix type, and a
-  Fortran-90 CSR example program was added.
-
-* The missing ``ARKSpilsGetNumMtimesEvals`` function was added
-  -- this had been included in the previous documentation but had not
-  been implemented.
-
-* The handling of integer codes for specifying built-in ARKODE Butcher
-  tables was enhanced. While a global numbering system is still used,
-  methods now have #defined names to simplify the user interface and to
-  streamline incorporation of new Butcher tables into ARKODE.
-
-* The maximum number of Butcher table stages was increased from 8 to
-  15 to accommodate very high order methods, and an 8th-order adaptive
-  ERK method was added.
-
-* Support was added for the explicit and implicit methods in an
-  additive Runge--Kutta method to utilize different stage times,
-  solution and embedding coefficients, to support new SSP-ARK
-  methods.
-
-* The FARKODE interface was extended to include a routine to set
-  scalar/array-valued residual tolerances, to support Fortran
-  applications with non-identity mass-matrices.
-
-### CVODE Changes in v2.9.0
-
-Two additional ``N_Vector`` implementations were added - one for Hypre
-(parallel) ParVector vectors, and one for PETSc vectors. These
-additions are accompanied by additions to various interface functions
-and to user documentation.
-
-Each ``N_Vector`` module now includes a function, :c:func:`N_VGetVectorID`, that returns the
-``N_Vector`` module name.
+Various corrections were made to the interfaces to the sparse solvers KLU and
+SuperLU_MT.
 
 For each linear solver, the various solver performance counters are now
-initialized to 0 in both the solver specification function and in solver
+initialized to 0 in both the solver specification function and in the solver
 ``linit`` function. This ensures that these solver counters are initialized upon
-linear solver instantiation as well as at the beginning of the problem
-solution.
+linear solver instantiation as well as at the beginning of the problem solution.
 
-In FCVODE, corrections were made to three Fortran interface
-functions. Missing Fortran interface routines were added so that users
-can supply the sparse Jacobian routine when using sparse direct solvers.
+*ARKODE*
 
-A memory leak was fixed in the banded preconditioner interface. In
-addition, updates were done to return integers from linear solver and
-preconditioner 'free' functions.
+The missing ``ARKSpilsGetNumMtimesEvals`` function was added -- this had been
+included in the previous documentation but had not been implemented.
 
-The Krylov linear solver Bi-CGstab was enhanced by removing a redundant
-dot product. Various additions and corrections were made to the
-interfaces to the sparse solvers KLU and SuperLU_MT, including support
-for CSR format when using KLU.
+The choice of the method vs embedding the Billington and TRBDF2 explicit
+Runge--Kutta methods were swapped, since in those the lower-order coefficients
+result in an A-stable method, while the higher-order coefficients do not. This
+change results in significantly improved robustness when using those methods.
 
-New examples were added for use of the OpenMP vector and for use of
-sparse direct solvers from Fortran.
+A bug was fixed for the situation where a user supplies a vector of absolute
+tolerances, and also uses the vector Resize functionality.
 
-Minor corrections and additions were made to the CVODE solver, to
-the Fortran interfaces, to the examples, to installation-related files,
-and to the user documentation.
+A bug was fixed wherein a user-supplied Butcher table without an embedding is
+supplied, and the user is running with either fixed time steps (or they do
+adaptivity manually); previously this had resulted in an error since the
+embedding order was below 1.
 
-### CVODES Changes in v2.9.0
+*CVODE*
 
-Two additional ``N_Vector`` implementations were added - one for Hypre
-(parallel) ParVector vectors, and one for PETSc vectors. These additions are
-accompanied by additions to various interface functions and to user
-documentation.
+Corrections were made to three Fortran interface functions.
 
-Each ``N_Vector`` module now includes a function, ``N_VGetVectorID``, that
-returns the ``N_Vector`` module name.
+In FCVODE, fixed argument order bugs in the ``FCVKLU`` and ``FCVSUPERLUMT``
+linear solver interfaces.
+
+Added missing Fortran interface routines for supplying a sparse Jacobian routine
+with sparse direct solvers.
+
+*CVODES*
 
 A bug was fixed in the interpolation functions used in solving backward problems
 for adjoint sensitivity analysis.
 
-For each linear solver, the various solver performance counters are now
-initialized to 0 in both the solver specification function and in solver
-``linit`` function. This ensures that these solver counters are initialized upon
-linear solver instantiation as well as at the beginning of the problem solution.
+In the interpolation routines for backward problems, added logic to bypass
+sensitivity interpolation if input sensitivity argument is ``NULL``.
 
-A memory leak was fixed in the banded preconditioner interface. In addition,
-updates were done to return integers from linear solver and preconditioner
-'free' functions.
+Changed each the return type of ``*FreeB`` functions to ``int`` and added
+``return(0)`` to each.
 
-The Krylov linear solver Bi-CGstab was enhanced by removing a redundant dot
-product. Various additions and corrections were made to the interfaces to the
-sparse solvers KLU and SuperLU_MT, including support for CSR format when using
-KLU.
+*IDA*
 
-In interpolation routines for backward problems, added logic to bypass
-sensitivity interpolation if input sensitivity argument is NULL.
+Corrections were made to three Fortran interface functions.
 
-New examples were added for use of sparse direct solvers within sensitivity
-integrations and for use of OpenMP.
+Corrected the output from the ``idaFoodWeb_bnd.c`` example, the wrong component
+was printed in ``PrintOutput``.
 
-Minor corrections and additions were made to the CVODES solver, to the examples,
-to installation-related files, and to the user documentation.
+*IDAS*
 
-### IDA Changes in v2.9.0
+In the interpolation routines for backward problems, added logic to bypass
+sensitivity interpolation if input sensitivity argument is ``NULL``.
 
-Two additional ``N_Vector`` implementations were added - one for Hypre
-(parallel) ParVector vectors, and one for PETSc vectors. These additions are
-accompanied by additions to various interface functions and to user
-documentation.
+A bug in for-loop indices was fixed in ``IDAAckpntAllocVectors``.
 
-Each ``N_Vector`` module now includes a function, :c:func:`N_VGetVectorID`, that
-returns the ``N_Vector`` module name.
+Changed each the return type of ``*FreeB`` functions to ``int`` and added
+``return(0)`` to each.
 
-An optional input function was added to set a maximum number of linesearch
-backtracks in the initial condition calculation. Also, corrections were made to
-three Fortran interface functions.
+Corrections were made to three Fortran interface functions.
 
-For each linear solver, the various solver performance counters are now
-initialized to 0 in both the solver specification function and in solver
-``linit`` function. This ensures that these solver counters are initialized upon
-linear solver instantiation as well as at the beginning of the problem solution.
+Added missing Fortran interface routines for supplying a sparse Jacobian routine
+with sparse direct solvers.
 
-A memory leak was fixed in the banded preconditioner interface. In addition,
-updates were done to return integers from linear solver and preconditioner
-"free" functions.
+*KINSOL*
 
-The Krylov linear solver Bi-CGstab was enhanced by removing a redundant dot
-product. Various additions and corrections were made to the interfaces to the
-sparse solvers KLU and SuperLU_MT, including support for CSR format when using
-KLU.
+The Picard iteration return was chanegd to always return the newest iterate upon
+success.
 
-New examples were added for use of the OpenMP vector.
+A minor bug in the line search was fixed to prevent an infinite loop when the
+beta condition fails and lambda is below the minimum size.
 
-Minor corrections and additions were made to the IDA solver, to the Fortran
-interfaces, to the examples, to installation-related files, and to the user
-documentation.
+Corrections were made to three Fortran interface functions.
 
-### IDAS Changes in v1.3.0
+The functions ``FKINCREATE`` and ``FKININIT`` were added to split the
+``FKINMALLOC`` routine into two pieces. ``FKINMALLOC`` remains for backward
+compatibility, but documentation for it has been removed.
 
-Two additional ``N_Vector`` implementations were added - one for Hypre
-(parallel) ParVector vectors, and one for PETSc vectors. These additions are
-accompanied by additions to various interface functions and to user
-documentation.
+Added missing Fortran interface routines for supplying a sparse Jacobian routine
+with sparse direct solvers.
 
-Each :c:func:`N_Vector` module now includes a function,
-:c:func:`N_VGetVectorID`, that returns the vector name.
+**Matlab Interfaces**
 
-An optional input function was added to set a maximum number of linesearch
-backtracks in the initial condition calculation. Also, corrections were made to
-three Fortran interface functions.
+Removed the Matlab interface from distribution as it has not been updated since
+2009.
 
-For each linear solver, the various solver performance counters are now
-initialized to 0 in both the solver specification function and in solver
-``linit`` function. This ensures that these solver counters are initialized upon
-linear solver instantiation as well as at the beginning of the problem solution.
-
-A bug in for-loop indices was fixed in ``IDAAckpntAllocVectors``. A bug
-was fixed in the interpolation functions used in solving backward problems.
-
-A memory leak was fixed in the banded preconditioner interface. In addition,
-updates were done to return integers from linear solver and preconditioner
-"free" functions.
-
-The Krylov linear solver Bi-CGstab was enhanced by removing a redundant dot
-product. Various additions and corrections were made to the interfaces to the
-sparse solvers KLU and SuperLU_MT, including support for CSR format when using
-KLU.
-
-New examples were added for use of the OpenMP vector.
-
-Minor corrections and additions were made to the IDAS solver, to the examples,
-to installation-related files, and to the user documentation.
-
-### KINSOL Changes in v2.9.0
-
-Two additional ``N_Vector`` implementations were added - one for Hypre (parallel) vectors, and one for PETSc vectors.
-These additions are accompanied by additions to various interface functions and to user documentation.
-
-Each ``N_Vector`` module now includes a function, ``N_VGetVectorID``, that returns the ``N_Vector`` module name.
-
-The Picard iteration return was chanegd to always return the newest iterate upon success. A minor bug in the line search
-was fixed to prevent an infinite loop when the beta condition fails and lamba is below the minimum size.
-
-For each linear solver, the various solver performance counters are now initialized to 0 in both the solver
-specification function and in solver ``linit`` function. This ensures that these solver counters are initialized upon
-linear solver instantiation as well as at the beginning of the problem solution.
-
-A memory leak was fixed in the banded preconditioner interface. In addition, updates were done to return integers from
-linear solver and preconditioner 'free' functions.
-
-Corrections were made to three Fortran interface functions. The Anderson acceleration scheme was enhanced by use of QR
-updating.
-
-The Krylov linear solver Bi-CGstab was enhanced by removing a redundant dot product. Various additions and corrections
-were made to the interfaces to the sparse solvers KLU and SuperLU_MT, including support for CSR format when using KLU.
-
-The functions FKINCREATE and FKININIT were added to split the FKINMALLOC routine into two pieces. FKINMALLOC remains for
-backward compatibility, but documentation for it has been removed.
-
-A new examples was added for use of the OpenMP vector.
-
-Minor corrections and additions were made to the KINSOL solver, to the Fortran interfaces, to the examples, to
-installation-related files, and to the user documentation.
-
+**HERE**
 
 Changes to SUNDIALS in release 2.6.2
 ====================================
