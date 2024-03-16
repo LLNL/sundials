@@ -2948,19 +2948,12 @@ In the FKINSOL optional input routines ``FKINSETIIN``, ``FKINSETRIN``, and
 ``FKINSETVIN``, the optional fourth argument ``key_length`` was removed, with
 hardcoded key string lengths passed to all ``strncmp`` tests.
 
-**HERE**
+
 
 Changes to SUNDIALS in release 2.5.0
 ====================================
 
-- Changes to user interface
-
-  - Problem size and related integers (bandwidth parameters etc.) all have type
-    long int, except in BLAS and LAPACK routines. Function NewIntArray is
-    replaced by a pair NewIntArray/NewLintArray, for int and long int arrays,
-    respectively.
-
-### CVODE Changes in v2.7.0
+**Integer Type Change**
 
 One significant design change was made with this release: The problem size and
 its relatives, bandwidth parameters, related internal indices, pivot arrays, and
@@ -2970,117 +2963,55 @@ routines specifying BLAS/LAPACK routines for the dense/band linear solvers. The
 function ``NewIntArray`` is replaced by a pair ``NewIntArray`` /
 ``NewLintArray``, for ``int`` and ``long int`` arrays, respectively.
 
-A large number of minor errors have been fixed. Among these are the following:
-In , the logic was changed to avoid a divide by zero. After the solver memory is
-created, it is set to zero before being filled. In ``CVSetTqBDF`` each linear
-solver interface function, the linear solver memory is freed on an error return,
-and the function now includes a line setting to NULL the main memory pointer to
-the linear solver memory. In the rootfinding functions ``CVRcheck1``/
-``CVRcheck2``, when an exact zero is found, the array ``glo`` of :math:`g`
-values at the left endpoint is adjusted, instead of shifting the :math:`t`
-location slightly. In the installation files, we modified the treatment of the
-macro SUNDIALS_USE_GENERIC_MATH, so that the parameter GENERIC_MATH_LIB is
+**Bug Fixes**
+
+In the installation files, we modified the treatment of the macro
+``SUNDIALS_USE_GENERIC_MATH``, so that the parameter ``GENERIC_MATH_LIB`` is
 either defined (with no value) or not defined.
 
-### CVODES Changes in v2.7.0
+In all packages, after the solver memory is created, it is set to zero before
+being filled.
 
-One significant design change was made with this release: The problem size and
-its relatives, bandwidth parameters, related internal indices, pivot arrays, and
-the optional output ``lsflag`` have all been changed from type ``int`` to type
-``long int``, except for the problem size and bandwidths in user calls to
-routines specifying BLAS/LAPACK routines for the dense/band linear solvers. The
-function ``NewIntArray`` is replaced by a pair ``NewIntArray`` /
-``NewLintArray``, for ``int`` and ``long int`` arrays, respectively. In a minor
-change to the user interface, the type of the index ``which`` in CVODES was
-changed from ``long int`` to ``int``.
+In each linear solver interface function, the linear solver memory is freed on
+an error return, and the function now includes a line setting to ``NULL`` the
+main memory pointer to the linear solver memory.
 
-Errors in the logic for the integration of backward problems were identified and
-fixed.
+*Rootfinding*
 
-A large number of minor errors have been fixed. Among these are the following:
-In ``CVSetTqBDF``, the logic was changed to avoid a divide by zero. After the
-solver memory is created, it is set to zero before being filled. In each linear
-solver interface function, the linear solver memory is freed on an error return,
-and the ``**Free`` function now includes a line setting to NULL the main memory
-pointer to the linear solver memory. In the rootfinding functions ``CVRcheck1``
-/ ``CVRcheck2``, when an exact zero is found, the array ``glo`` of :math:`g`
-values at the left endpoint is adjusted, instead of shifting the :math:`t`
-location ``tlo`` slightly. In the installation files, we modified the treatment
-of the macro SUNDIALS_USE_GENERIC_MATH, so that the parameter GENERIC_MATH_LIB
-is either defined (with no value) or not defined.
+In CVODE(S) and IDA(S), in the functions ``Rcheck1`` and ``Rcheck2``, when an
+exact zero is found, the array ``glo`` of :math:`g` values at the left endpoint
+is adjusted, instead of shifting the :math:`t` location ``tlo`` slightly.
 
-### IDA Changes in v2.7.0
+*CVODE and CVODES*
 
-One significant design change was made with this release: The problem size and
-its relatives, bandwidth parameters, related internal indices, pivot arrays, and
-the optional output ``lsflag`` have all been changed from type ``int`` to type
-``long int``, except for the problem size and bandwidths in user calls to
-routines specifying BLAS/LAPACK routines for the dense/band linear solvers. The
-function ``NewIntArray`` is replaced by a pair ``NewIntArray`` and
-``NewLintArray``, for ``int`` and ``long int`` arrays, respectively.
+In ``CVSetTqBDF``, the logic was changed to avoid a divide by zero.
 
-A large number of minor errors have been fixed. Among these are the following:
-After the solver memory is created, it is set to zero before being filled. To be
-consistent with IDAS, IDA uses the function ``IDAGetDky`` for optional output
-retrieval. In each linear solver interface function, the linear solver memory is
-freed on an error return, and the ``**Free`` function now includes a line
-setting to NULL the main memory pointer to the linear solver memory. A memory
-leak was fixed in two of the ``IDASp***Free`` functions. In the rootfinding
-functions ``IDARcheck1`` and ``IDARcheck2``, when an exact zero is found, the
-array ``glo`` of :math:`g` values at the left endpoint is adjusted, instead of
-shifting the :math:`t` location ``tlo`` slightly. In the installation files, we
-modified the treatment of the macro SUNDIALS_USE_GENERIC_MATH, so that the
-parameter GENERIC_MATH_LIB is either defined (with no value) or not defined.
+In a minor change to the CVODES user interface, the type of the index ``which``
+was changed from ``long int`` to ``int``.
 
-### IDAS Changes in v1.1.0
+Errors in the logic for the integration of backward problems in CVODES were
+identified and fixed.
 
-One significant design change was made with this release: The problem size and
-its relatives, bandwidth parameters, related internal indices, pivot arrays, and
-the optional output ``lsflag`` have all been changed from type ``int`` to type
-``long int``, except for the problem size and bandwidths in user calls to
-routines specifying BLAS/LAPACK routines for the dense/band linear solvers. The
-function ``NewIntArray`` is replaced by a pair ``NewIntArray`` and
-``NewLintArray``, for ``int`` and ``long int`` arrays, respectively.
+*IDA and IDAS*
 
-Errors in the logic for the integration of backward problems were identified and
-fixed. A large number of minor errors have been fixed. Among these are the
-following: A missing vector pointer setting was added in ``IDASensLineSrch``. In
-``IDACompleteStep``, conditionals around lines loading a new column of three
-auxiliary divided difference arrays, for a possible order increase, were
-fixed. After the solver memory is created, it is set to zero before being
-filled. In each linear solver interface function, the linear solver memory is
-freed on an error return, and the ``**Free`` function now includes a line
-setting to ``NULL`` the main memory pointer to the linear solver memory. A
-memory leak was fixed in two of the ``IDASp***Free`` functions.  In the
-rootfinding functions ``IDARcheck1`` and ``IDARcheck2``, when an exact zero is
-found, the array ``glo`` of ``g`` values at the left endpoint is adjusted,
-instead of shifting the ``t`` location ``tlo`` slightly. In the installation
-files, we modified the treatment of the macro ``SUNDIALS_USE_GENERIC_MATH``, so
-that the parameter ``GENERIC_MATH_LIB`` is either defined (with no value) or not
-defined.
+To be consistent with IDAS, IDA uses the function ``IDAGetDky`` for optional
+output retrieval.
 
-### KINSOL Changes in v2.7.0
+A memory leak was fixed in two of the ``IDASp***Free`` functions.
 
-One significant design change was made with this release: The problem size and
-its relatives, bandwidth parameters, related internal indices, pivot arrays, and
-the optional output ``lsflag`` have all been changed from type ``int`` to type
-``long int``, except for the problem size and bandwidths in user calls to
-routines specifying BLAS/LAPACK routines for the dense/band linear solvers. The
-function ``NewIntArray`` is replaced by a pair ``NewIntArray``/``NewLintArray``,
-for ``int`` and ``long int`` arrays, respectively.
+A missing vector pointer setting was added in ``IDASensLineSrch``.
 
-A large number of errors have been fixed. Three major logic bugs were fixed -
-involving updating the solution vector, updating the linesearch parameter, and a
-missing error return. Three minor errors were fixed - involving setting
-``etachoice`` in the Matlab/KINSOL interface, a missing error case in
-``KINPrintInfo``, and avoiding an exponential overflow in the evaluation of
-``omega``. In each linear solver interface function, the linear solver memory is
-freed on an error return, and the ``**Free`` function now includes a line
-setting to NULL the main memory pointer to the linear solver memory. In the
-installation files, we modified the treatment of the macro
-SUNDIALS_USE_GENERIC_MATH, so that the parameter GENERIC_MATH_LIB is either
-defined (with no value) or not defined.
+In ``IDACompleteStep``, conditionals around lines loading a new column of three
+auxiliary divided difference arrays, for a possible order increase, were fixed.
 
+*KINSOL*
+
+Three major logic bugs were fixed - involving updating the solution vector,
+updating the linesearch parameter, and a missing error return.
+
+Three minor errors were fixed - involving setting ``etachoice`` in the
+Matlab/KINSOL interface, a missing error case in ``KINPrintInfo``, and avoiding
+an exponential overflow in the evaluation of ``omega``.
 
 Changes to SUNDIALS in release 2.4.0
 ====================================
