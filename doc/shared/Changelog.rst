@@ -118,7 +118,7 @@ leverage the new SUNDIALS error handling capabilities.
 
 * From ``sundials_memory.h``
 
-  * :c:func:`SUNMemorNewEmpty`
+  * :c:func:`SUNMemoryNewEmpty`
   * :c:func:`SUNMemoryHelper_Alias`
   * :c:func:`SUNMemoryHelper_Wrap`
 
@@ -136,7 +136,7 @@ and a typedef to a ``MPI_Comm`` in builds with MPI. As a result:
 - All users will need to update their codes because the call to
   :c:func:`SUNContext_Create` now takes a :c:type:`SUNComm` instead
   of type-erased pointer to a communicator. For non-MPI codes,
-  pass :c:type:`SUN_COMM_NULL` to the ``comm`` argument instead of
+  pass :c:macro:`SUN_COMM_NULL` to the ``comm`` argument instead of
   ``NULL``. For MPI codes, pass the ``MPI_Comm`` directly.
 
 - The same change must be made for calls to
@@ -199,8 +199,8 @@ have been updated from ``SUNDIALS_F77_FUNC_CASE`` and
 ``SUNDIALS_F77_FUNC_UNDERSCORES`` to :cmakeop:`SUNDIALS_LAPACK_CASE` and
 :cmakeop:`SUNDIALS_LAPACK_UNDERSCORES`, respectively.
 
-As a subset of C99 is now required the CMake option :cmakeop:`USE_GENERIC_MATH`
-as been removed.
+As a subset of C99 is now required the CMake option ``USE_GENERIC_MATH`` as been
+removed.
 
 The C++ convenience classes (e.g., ``sundials::Context``) have been moved to
 from SUNDIALS ``.h`` headers to corresponding ``.hpp`` headers (e.g.,
@@ -277,7 +277,7 @@ additionally updated to remove extra right-hand side evaluations when using an
 explicit method or an implicit method with an explicit first stage.
 
 The :c:type:`MRIStepInnerStepper` class in MRIStep was updated to make supplying
-an :c:func:`MRIStepInnerFullRhsFn` optional.
+an :c:type:`MRIStepInnerFullRhsFn` optional.
 
 **Bug Fixes**
 
@@ -443,12 +443,12 @@ IDAS. This fixes `GitHub Issue #57 <https://github.com/LLNL/sundials/issues/57>`
 Fixed an issue with finding oneMKL when using the ``icpx`` compiler with the
 ``-fsycl`` flag as the C++ compiler instead of ``dpcpp``.
 
-Fixed the shape of the arrays returned by :c:func:`FN_VGetArrayPointer`
-functions as well as the :c:func:`FSUNDenseMatrix_Data`,
-:c:func:`FSUNBandMatrix_Data`, :c:func:`FSUNSparseMatrix_Data`,
-:c:func:`FSUNSparseMatrix_IndexValues`, and
-:c:func:`FSUNSparseMatrix_IndexPointers` functions. Compiling and running code
-that uses the SUNDIALS Fortran interfaces with bounds checking will now work.
+Fixed the shape of the arrays returned by the Fortran interfaces to
+:c:func:`N_VGetArrayPointer`, :c:func:`SUNDenseMatrix_Data`,
+:c:func:`SUNBandMatrix_Data`, :c:func:`SUNSparseMatrix_Data`,
+:c:func:`SUNSparseMatrix_IndexValues`, and
+:c:func:`SUNSparseMatrix_IndexPointers`. Compiling and running code that uses
+the SUNDIALS Fortran interfaces with bounds checking will now work.
 
 Fixed an implicit conversion error in the Butcher table for ESDIRK5(4)7L[2]SA2.
 
@@ -530,8 +530,8 @@ Added a variety of embedded DIRK methods from :cite:p:`KenCarp:16` and
 :cite:p:`KenCarp:19b`.
 
 Updated :c:func:`MRIStepReset` to call the corresponding
-:c:func:`MRIStepInnerResetFn` with the same ``tR`` and ``yR`` arguments for the
-:c:func:`MRIStepInnerStepper` object that is used to evolve the MRI "fast" time
+:c:type:`MRIStepInnerResetFn` with the same ``tR`` and ``yR`` arguments for the
+:c:type:`MRIStepInnerStepper` object that is used to evolve the MRI "fast" time
 scale subproblems.
 
 Added a new example (``examples/cvode/serial/cvRocket_dns.c``) which
@@ -546,15 +546,14 @@ Fixed a bug in :c:func:`ERKStepReset`, :c:func:`ERKStepReInit`,
 a call to :c:func:`ERKStepSetStopTime`, :c:func:`ARKStepSetStopTime`, or
 :c:func:`MRIStepSetStopTime`, respectively) would not be cleared.
 
-Fixed the unituitive behavior of the :cmakeop:`USE_GENERIC_MATH` CMake option
-which caused the double precision math functions to be used regardless of the
-value of :cmakeop:`SUNDIALS_PRECISION`. Now, SUNDIALS will use precision
-appropriate math functions when they are available and the user may provide the
-math library to link to via the advanced CMake option
-:cmakeop:`SUNDIALS_MATH_LIBRARY`.
+Fixed the unituitive behavior of the ``USE_GENERIC_MATH`` CMake option which
+caused the double precision math functions to be used regardless of the value of
+:cmakeop:`SUNDIALS_PRECISION`. Now, SUNDIALS will use precision appropriate math
+functions when they are available and the user may provide the math library to
+link to via the advanced CMake option :cmakeop:`SUNDIALS_MATH_LIBRARY`.
 
-Changed :cmakeop:`SUNDIALS_LOGGING_ENABLE_MPI` CMake option default to be
-``OFF``. This fixes `GitHub Issue #177 <https://github.com/LLNL/sundials/issues/177>`_.
+Changed ``SUNDIALS_LOGGING_ENABLE_MPI`` CMake option default to be ``OFF``. This
+fixes `GitHub Issue #177 <https://github.com/LLNL/sundials/issues/177>`_.
 
 Changes to SUNDIALS in release 6.2.0
 ====================================
@@ -579,7 +578,7 @@ linear solver, and other statistics in one call:
 
 * :c:func:`ARKStepPrintAllStats`
 * :c:func:`ERKStepPrintAllStats`
-* :c:func:`MRIStepPrintAll`
+* :c:func:`MRIStepPrintAllStats`
 * :c:func:`CVodePrintAllStats`
 * :c:func:`IDAPrintAllStats`
 * :c:func:`KINPrintAllStats`
@@ -621,7 +620,7 @@ Added the functions :c:func:`CVodeSetDeltaGammaMaxLSetup` and
 :math:`\gamma` change thresholds to require a linear solver setup or
 Jacobian/precondition update, respectively.
 
-Added the function :c:func:`IDASetDetlaCjLSetup` in IDA and IDAS to adjust the
+Added the function :c:func:`IDASetDeltaCjLSetup` in IDA and IDAS to adjust the
 parameter that determines when a change in :math:`c_j` requires calling the
 linear solver setup function.
 
@@ -632,10 +631,10 @@ Added the function :c:func:`IDASetMinStep` to set a minimum step size.
 Fixed the :c:type:`SUNContext` convenience class for C++ users to disallow copy
 construction and allow move construction.
 
-The behavior of :c:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
+The behavior of :cpp:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
 consistent with the CUDA and HIP vectors. The input execution policies are now
 cloned and may be freed after calling
-:c:func:`N_VSetKernelExecPolicy_Sycl`. Additionally, ``NULL`` inputs are now
+:cpp:func:`N_VSetKernelExecPolicy_Sycl`. Additionally, ``NULL`` inputs are now
 allowed and, if provided, will reset the vector execution policies to the
 defaults.
 
@@ -801,7 +800,7 @@ queue as an input.
 
 The previously deprecated constructor ``N_VMakeWithManagedAllocator_Cuda`` and
 the function ``N_VSetCudaStream_Cuda`` have been removed and replaced with
-:c:func:`N_VNewWithMemHelp_Cuda` and :c:func:`N_VSetKerrnelExecPolicy_Cuda`
+:c:func:`N_VNewWithMemHelp_Cuda` and :c:func:`N_VSetKernelExecPolicy_Cuda`
 respectively.
 
 The previously deprecated macros ``PVEC_REAL_MPI_TYPE`` and
@@ -876,7 +875,7 @@ create the corresponding MRI coupling table and attach it with
 
 The previously deprecated functions ``ARKStepSetMaxStepsBetweenLSet`` and
 ``ARKStepSetMaxStepsBetweenJac`` have been removed and replaced with
-:c:func:`ARKStepSetLSetupFrequency` and :c:func:`ARKStepSetMaxStepsBetweenJac`
+:c:func:`ARKStepSetLSetupFrequency` and :c:func:`ARKStepSetJacEvalFrequency`
 respectively.
 
 The previously deprecated function ``CVodeSetMaxStepsBetweenJac`` has been
@@ -928,8 +927,8 @@ appropriate. If ARKStep is used as the fast time scale integrator, codes will
 need to call :c:func:`ARKStepCreateMRIStepInnerStepper` to wrap the ARKStep
 memory as an MRIStepInnerStepper object. Additionally,
 :c:func:`MRIStepGetNumRhsEvals` has been updated to return the number of slow
-implicit and explicit function evaluations. The coupling table structure
-:c:type:`MRIStepCouplingMem` and the functions :c:func:`MRIStepCoupling_Alloc`
+implicit and explicit function evaluations. The coupling table,
+:c:type:`MRIStepCoupling`, and the functions :c:func:`MRIStepCoupling_Alloc`
 and :c:func:`MRIStepCoupling_Create` have also been updated to support
 IMEX-MRI-GARK methods.
 
@@ -1524,8 +1523,8 @@ Added support for CUDA 11.
 
 A minor inconsistency in CVODE(S) and a bug ARKODE when checking the Jacobian
 evaluation frequency has been fixed. As a result codes using using a non-default
-Jacobian update frequency through a call to :c:func:`CVodeSetMaxStepsBetweenJac`
-or :c:func:`ARKStepSetMaxStepsBetweenJac` will need to increase the provided
+Jacobian update frequency through a call to ``CVodeSetMaxStepsBetweenJac``
+or ``ARKStepSetMaxStepsBetweenJac`` will need to increase the provided
 value by 1 to achieve the same behavior as before.
 
 In IDAS and CVODES, the functions for forward integration with checkpointing
@@ -1544,9 +1543,9 @@ Fixed bug in using ERK method integration with static mass matrices.
 
 For greater clarity the following functions have been deprecated:
 
-* :c:func:`CVodeSetMaxStepsBetweenJac`
-* :c:func:`ARKStepSetMaxStepsBetweenJac`
-* :c:func:`ARKStepSetMaxStepsBetweenLSet`
+* ``CVodeSetMaxStepsBetweenJac``
+* ``ARKStepSetMaxStepsBetweenJac``
+* ``ARKStepSetMaxStepsBetweenLSet``
 
 The following functions should be used instead:
 
@@ -1576,7 +1575,7 @@ performance degradation with the default settings. Users are encouraged to
 contact the SUNDIALS team about any performance changes that they notice.
 
 Added new capabilities for monitoring the solve phase in the Newton and
-fixed-point :c:type:`SUNNonlinearSolvers`, and the SUNDIALS iterative linear
+fixed-point :c:type:`SUNNonlinearSolver`, and the SUNDIALS iterative linear
 solvers. SUNDIALS must be built with the CMake option
 :cmakeop:`SUNDIALS_BUILD_WITH_MONITORING` to use these capabilities.
 
@@ -1600,7 +1599,7 @@ system function (KINSOL) for use when computing Jacobian-vector products with
 the internal difference quotient approximation:
 
 * :c:func:`ARKStepSetJacTimesRhsFn`
-* :c:func:`CVodeSetJacTimsRhsFn`
+* :c:func:`CVodeSetJacTimesRhsFn`
 * :c:func:`CVodeSetJacTimesRhsFnB`
 * :c:func:`IDASetJacTimesResFn`
 * :c:func:`IDASetJacTimesResFnB`
@@ -1729,7 +1728,7 @@ Added two utility functions, :c:func:`SUNDIALSFileOpen` and
 :c:func:`SUNDIALSFileClose` for creating/destroying file pointers. These are
 useful when using the Fortran 2003 interfaces.
 
-Added a new build system option, :cmakeop:`CUDA_ARCH`, to specify the CUDA
+Added a new build system option, ``CUDA_ARCH``, to specify the CUDA
 architecture to target.
 
 **Bug Fixes**
@@ -1754,12 +1753,11 @@ Changes to SUNDIALS in release 5.0.0
 Increased the minimum required CMake version to 3.5 for most SUNDIALS
 configurations, and 3.10 when CUDA or OpenMP with device offloading are enabled.
 
-The CMake option :cmakeop:`BLAS_ENABLE` and the variable
-:cmakeop:`BLAS_LIBRARIES` have been removed to simplify builds as SUNDIALS
-packages do not use BLAS directly. For third party libraries that require
-linking to BLAS, the path to the BLAS library should be included in the
-``_LIBRARIES`` variable for the third party library e.g.,
-:cmakeop:`SUPERLUDIST_LIBRARIES` when enabling SuperLU_DIST.
+The CMake option ``BLAS_ENABLE`` and the variable ``BLAS_LIBRARIES`` have been
+removed to simplify builds as SUNDIALS packages do not use BLAS directly. For
+third party libraries that require linking to BLAS, the path to the BLAS library
+should be included in the ``_LIBRARIES`` variable for the third party library
+e.g., :cmakeop:`SUPERLUDIST_LIBRARIES` when enabling SuperLU_DIST.
 
 **NVector**
 
@@ -1880,7 +1878,7 @@ The return type of the :c:type:`SUNLinSolLastFlag` in the
 in dense and banded linear solver modules.
 
 Added a new optional operation to the :c:type:`SUNLinearSolver` API,
-:c:func:`SUNLinSolGetID`, that returns a :c:type:`SUNLinearSolver_ID` for
+:c:func:`SUNLinSolGetID`, that returns a :c:enum:`SUNLinearSolver_ID` for
 identifying the linear solver module.
 
 The :c:type:`SUNLinearSolver` API has been updated to make the initialize and
@@ -1927,8 +1925,8 @@ Added a new :c:type:`SUNNonlinearSolver` implementation for interfacing with the
 
 **New Features**
 
-A new linear solver interface functions, :c:func:`ARKLsLinSysFn` and
-:c:func:`CVLsLinSysFn`, as added as an alternative method for evaluating the
+A new linear solver interface functions, :c:type:`ARKLsLinSysFn` and
+:c:type:`CVLsLinSysFn`, as added as an alternative method for evaluating the
 linear systems :math:`M - \gamma J` or :math:`I - \gamma J`.
 
 Added the following functions to get the current state and gamma value to
@@ -2061,7 +2059,7 @@ documentation and SUNDIALS examples.
 
 **Bug Fixes**
 
-The :cmakeop:`EXAMPLES_ENABLE_RAJA` CMake option has been removed. The option
+The ``EXAMPLES_ENABLE_RAJA`` CMake option has been removed. The option
 :cmakeop:`EXAMPLES_ENABLE_CUDA` enables all examples that use CUDA including the
 RAJA examples with a CUDA back end (if RAJA is enabled).
 
@@ -2167,7 +2165,7 @@ functions as needed.
 
 With the introduction of the :c:type:`SUNNonlinearSolver` class, the input
 parameter ``iter`` to :c:func:`CVodeCreate` has been removed along with the
-function :c:type:`CVodeSetIterType` and the constants ``CV_NEWTON`` and
+function ``CVodeSetIterType`` and the constants ``CV_NEWTON`` and
 ``CV_FUNCTIONAL``. While SUNDIALS includes a fixed-point nonlinear solver, it is
 not currently supported in IDA.
 
@@ -2197,7 +2195,7 @@ If an :c:type:`N_Vector` implementation defines the implementation any of these
 operations as ``NULL``, then standard vector operations will automatically be
 called as necessary to complete the computation.
 
-A new :c:func:`N_VECTOR` implementation, :ref:`OpenMPDEV <NVectors.OpenMPDEV>`,
+A new :c:type:`N_Vector` implementation, :ref:`OpenMPDEV <NVectors.OpenMPDEV>`,
 leveraging OpenMP device offloading has been added.
 
 Multiple updates to the :ref:`CUDA <NVectors.CUDA>` vector were made:
@@ -2205,17 +2203,17 @@ Multiple updates to the :ref:`CUDA <NVectors.CUDA>` vector were made:
 * Changed the :c:func:`N_VMake_Cuda` function to take a host data pointer and a
   device data pointer instead of an ``N_VectorContent_Cuda`` object.
 
-* Changed :c:func:`N_VGetLength_Cuda` to return the global vector length instead
+* Changed ``N_VGetLength_Cuda`` to return the global vector length instead
   of the local vector length.
 
-* Added :c:func:`N_VGetLocalLength_Cuda` to return the local vector length.
+* Added ``N_VGetLocalLength_Cuda`` to return the local vector length.
 
-* Added :c:func:`N_VGetMPIComm_Cuda` to return the MPI communicator used.
+* Added ``N_VGetMPIComm_Cuda`` to return the MPI communicator used.
 
 * Removed the accessor functions in the ``suncudavec`` namespace.
 
 * Added the ability to set the ``cudaStream_t`` used for execution of the CUDA
-  kernels. See the function :c:func:`N_VSetCudaStreams_Cuda`.
+  kernels. See the function ``N_VSetCudaStreams_Cuda``.
 
 * Added :c:func:`N_VNewManaged_Cuda`, :c:func:`N_VMakeManaged_Cuda`, and
   :c:func:`N_VIsManagedMemory_Cuda` functions to accommodate using managed
@@ -2223,12 +2221,12 @@ Multiple updates to the :ref:`CUDA <NVectors.CUDA>` vector were made:
 
 Multiple updates to the :ref:`RAJA <NVectors.RAJA>` vector were made:
 
-* Changed :c:func:`N_VGetLength_Raja` to return the global vector length instead
+* Changed ``N_VGetLength_Raja`` to return the global vector length instead
   of the local vector length.
 
-* Added :c:func:`N_VGetLocalLength_Raja` to return the local vector length.
+* Added ``N_VGetLocalLength_Raja`` to return the local vector length.
 
-* Added :c:func:`N_VGetMPIComm_Raja` to return the MPI communicator used.
+* Added ``N_VGetMPIComm_Raja`` to return the MPI communicator used.
 
 * Removed the accessor functions in the ``sunrajavec`` namespace.
 
@@ -2306,9 +2304,9 @@ rank when using a GPU system. The vectors assume one GPU device per MPI rank.
 
 Support for optional inequality constraints on individual components of the
 solution vector has been added to CVODE and CVODES. For more details see the
-:ref:`CVODE.Mathematics` and :ref:`CVODE.Usage.CC.optional_input` sections.
-Use of :c:func:`CVodeSetConstraints` requires the :c:type:`N_Vector` operations
-:c:func:`N_VMinQuotient`, :c:func:`N_VConstMask`, and :c:func:`N_VCompare` that
+:ref:`CVODE.Mathematics` and :ref:`CVODE.Usage.CC.optional_input` sections.  Use
+of :c:func:`CVodeSetConstraints` requires the :c:type:`N_Vector` operations
+:c:func:`N_VMinQuotient`, :c:func:`N_VConstrMask`, and :c:func:`N_VCompare` that
 were not previously required by CVODE and CVODES.
 
 **CMake Updates**
@@ -2334,9 +2332,9 @@ with those used in native CMake FindMPI module are :cmakeop:`MPI_C_COMPILER`,
 When a Fortran name-mangling scheme is needed (e.g., :cmakeop:`ENABLE_LAPACK` is
 ``ON``) the build system will infer the scheme from the Fortran compiler. If a
 Fortran compiler is not available or the inferred or default scheme needs to be
-overridden, the advanced options :cmakeop:`SUNDIALS_F77_FUNC_CASE` and
-:cmakeop:`SUNDIALS_F77_FUNC_UNDERSCORES` can be used to manually set the
-name-mangling scheme and bypass trying to infer the scheme.
+overridden, the advanced options ``SUNDIALS_F77_FUNC_CASE`` and
+``SUNDIALS_F77_FUNC_UNDERSCORES`` can be used to manually set the name-mangling
+scheme and bypass trying to infer the scheme.
 
 Parts of the main ``CMakeLists.txt`` file were moved to new files in the ``src``
 and ``example`` directories to make the CMake configuration file structure more
@@ -2400,9 +2398,9 @@ defined as the MSVC basic type ``__int64``.
 Fixed a bug in the full KLU SUNLinearSolver reinitialization approach where the
 sparse SUNMatrix pointer would go out of scope on some architectures.
 
-The misnamed function :c:func:`CVSpilsSetJacTimesSetupFnBS` has been deprecated
-and replaced by :c:func:`CVSpilsSetJacTimesBS`. The deprecated function
-:c:func:`CVSpilsSetJacTimesSetupFnBS` will be removed in the next major release.
+The misnamed function ``CVSpilsSetJacTimesSetupFnBS`` has been deprecated and
+replaced by ``CVSpilsSetJacTimesBS``. The deprecated function
+``CVSpilsSetJacTimesSetupFnBS`` will be removed in the next major release.
 
 Changed LICENSE install path to ``instdir/include/sundials``.
 
@@ -2411,7 +2409,7 @@ Changes to SUNDIALS in release 3.1.1
 
 **Bug Fixes**
 
-Fixed a minor bug in the CVODE and CVODES :c:func:`cvSLdet`, where a return was
+Fixed a minor bug in the CVODE and CVODES ``cvSLdet``, where a return was
 missing in the error check for three inconsistent roots.
 
 Fixed a potential memory leak in the :ref:`SPGMR <SUNLinSol.SPGMR>` and
@@ -2422,8 +2420,8 @@ Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers. If
 "Initialize" was called multiple times, the solver memory was reallocated
 (without being freed).
 
-Fixed a minor bug in :c:func:`ARKReInit`, where a flag was incorrectly set
-to indicate that the problem had been resized (instead of just re-initialized).
+Fixed a minor bug in ``ARKReInit``, where a flag was incorrectly set to indicate
+that the problem had been resized (instead of just re-initialized).
 
 Fixed C++11 compiler errors/warnings about incompatible use of string literals.
 
@@ -2436,14 +2434,14 @@ warnings.
 Fixed bug in the sparse SUNMatrix where ``int`` was used instead of
 ``sunindextype`` in one location.
 
-Fixed a minor bug in :c:func:`KINPrintInfo` where a case was missing for
+Fixed a minor bug in ``KINPrintInfo`` where a case was missing for
 ``KIN_REPTD_SYSFUNC_ERR`` leading to an undefined info message.
 
 Added missing ``#include <stdio.h>`` in :c:type:`N_Vector` and
 :c:type:`SUNMatrix` header files.
 
-Added missing prototypes for :c:func:`ARKSpilsGetNumMTSetups` in ARKODE and
-:c:func:`IDASpilsGetNumJTSetupEvals` in IDA and IDAS.
+Added missing prototypes for ``ARKSpilsGetNumMTSetups`` in ARKODE and
+``IDASpilsGetNumJTSetupEvals`` in IDA and IDAS.
 
 Fixed an indexing bug in the CUDA vector implementation of
 :c:func:`N_VWrmsNormMask` and revised the RAJA vector implementation of
@@ -2726,7 +2724,7 @@ The feature changes/enhancements include:
   Fortran were updated to enable selection of sparse matrix type, and a
   Fortran-90 CSR example program was added.
 
-* The missing :c:func:`ARKSpilsGetNumMtimesEvals` function was added
+* The missing ``ARKSpilsGetNumMtimesEvals`` function was added
   -- this had been included in the previous documentation but had not
   been implemented.
 
@@ -2861,8 +2859,8 @@ Two additional ``N_Vector`` implementations were added - one for Hypre
 accompanied by additions to various interface functions and to user
 documentation.
 
-Each ``N_Vector`` module now includes a function, :c:func:`N_VGetVectorID`, that
-returns the ``N_Vector`` module name.
+Each :c:func:`N_Vector` module now includes a function,
+:c:func:`N_VGetVectorID`, that returns the vector name.
 
 An optional input function was added to set a maximum number of linesearch
 backtracks in the initial condition calculation. Also, corrections were made to
@@ -2873,7 +2871,7 @@ initialized to 0 in both the solver specification function and in solver
 ``linit`` function. This ensures that these solver counters are initialized upon
 linear solver instantiation as well as at the beginning of the problem solution.
 
-A bug in for-loop indices was fixed in :c:func:`IDAAckpntAllocVectors`. A bug
+A bug in for-loop indices was fixed in ``IDAAckpntAllocVectors``. A bug
 was fixed in the interpolation functions used in solving backward problems.
 
 A memory leak was fixed in the banded preconditioner interface. In addition,
@@ -3109,9 +3107,9 @@ IDA.
 
 Otherwise, only relatively minor modifications were made to IDA:
 
-In :c:func:`IDARootfind`, a minor bug was corrected, where the input array
-``rootdir`` was ignored, and a line was added to break out of root-search loop
-if the initial interval size is below the tolerance ``ttol``.
+In ``IDARootfind``, a minor bug was corrected, where the input array ``rootdir``
+was ignored, and a line was added to break out of root-search loop if the
+initial interval size is below the tolerance ``ttol``.
 
 In ``IDALapackBand``, the line ``smu = MIN(N-1,mu+ml)`` was changed to ``smu =
 mu + ml`` to correct an illegal input error for ``DGBTRF/DGBTRS``.
@@ -3154,9 +3152,9 @@ IDAS.
 
 Otherwise, only relatively minor modifications were made to IDAS:
 
-In :c:func:`IDARootfind`, a minor bug was corrected, where the input array
-``rootdir`` was ignored, and a line was added to break out of root-search loop
-if the initial interval size is below the tolerance ``ttol``.
+In ``IDARootfind``, a minor bug was corrected, where the input array ``rootdir``
+was ignored, and a line was added to break out of root-search loop if the
+initial interval size is below the tolerance ``ttol``.
 
 In ``IDALapackBand``, the line ``smu = MIN(N-1,mu+ml)`` was changed to ``smu =
 mu + ml`` to correct an illegal input error for ``DGBTRF/DGBTRS``.
@@ -3344,7 +3342,7 @@ function ``NewIntArray`` is replaced by a pair ``NewIntArray`` and
 Errors in the logic for the integration of backward problems were identified and
 fixed. A large number of minor errors have been fixed. Among these are the
 following: A missing vector pointer setting was added in
-:c:func:`IDASensLineSrch`. In :c:func:`IDACompleteStep`, conditionals around
+``IDASensLineSrch``. In ``IDACompleteStep``, conditionals around
 lines loading a new column of three auxiliary divided difference arrays, for a
 possible order increase, were fixed. After the solver memory is created, it is
 set to zero before being filled. In each linear solver interface function, the
