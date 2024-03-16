@@ -3016,97 +3016,50 @@ an exponential overflow in the evaluation of ``omega``.
 Changes to SUNDIALS in release 2.4.0
 ====================================
 
-- New features
+Added a CMake-based build option in addition to the one based on autotools.
 
-  - new linear solver module, based on Blas and Lapack for both dense and banded
-    matrices.
+The user interface has been further refined. Some of the API changes involve:
 
-- Changes to user interface
-
-  - reorganization of all linear solver modules into two families (besides the
+(a) a reorganization of all linear solver modules into two families (besides the
     existing family of scaled preconditioned iterative linear solvers, the
-    direct solvers, including the new Lapack-based ones, were also organized
-    into a direct family).
+    direct solvers, including new LAPACK-based ones, were also organized into a
+    *direct* family);
 
-- Changes related to the build system
+(b) maintaining a single pointer to user data, optionally specified through a
+    ``Set``-type function; and
 
-  - provide CMake-based build option, in addition to that based on autotools.
-
-### CVODE Changes in v2.6.0
-
-Two new features were added in this release: (a) a new linear solver module,
-based on BLAS and LAPACK for both dense and banded matrices, and
-(b) an option to specify which direction of zero-crossing is to be monitored
-while performing rootfinding.
-
-The user interface has been further refined. Some of the API changes
-involve: (a) a reorganization of all linear solver modules into two families
-(besides the existing family of scaled preconditioned iterative linear solvers,
-the direct solvers, including the new LAPACK-based ones, were also organized
-into a *direct* family); (b) maintaining a single pointer to user data,
-optionally specified through a -type function; and
 (c) a general streamlining of the preconditioner modules distributed with the
-solver.
+    solvers.
 
-### CVODES Changes in v2.6.0
+Added interfaces to LAPACK linear solvers for dense and banded matrices to all
+packages.
 
-Two new features related to the integration of ODE IVP problems were added in
-this release: (a) a new linear solver module, based on BLAS and LAPACK for both
-dense and banded matrices, and (b) an option to specify which direction of
-zero-crossing is to be monitored while performing rootfinding.
+An option was added to specify which direction of zero-crossing is to be
+monitored while performing rootfinding in CVODE(S) and IDA(S).
 
-This version also includes several new features related to sensitivity analysis,
-among which are: (a) support for integration of quadrature equations depending
-on both the states and forward sensitivity (and thus support for forward
-sensitivity analysis of quadrature equations), (b) support for simultaneous
-integration of multiple backward problems based on the same underlying ODE
-(e.g., for use in an *forward-over-adjoint* method for computing second order
-derivative information), (c) support for backward integration of ODEs and
-quadratures depending on both forward states and sensitivities (e.g., for use in
-computing second-order derivative information), and (d) support for
-reinitialization of the adjoint module.
+CVODES includes several new features related to sensitivity analysis, among
+which are:
 
-The user interface has been further refined. Some of the API changes involve:
-(a) a reorganization of all linear solver modules into two families (besides the
-existing family of scaled preconditioned iterative linear solvers, the direct
-solvers, including the new LAPACK-based ones, were also organized into a
-*direct* family); (b) maintaining a single pointer to user data, optionally
-specified through a ``Set``-type function; and (c) a general streamlining of the
-preconditioner modules distributed with the solver. Moreover, the prototypes of
-all functions related to integration of backward problems were modified to
-support the simultaneous integration of multiple problems. All backward problems
-defined by the user are internally managed through a linked list and identified
-in the user interface through a unique identifier.
+(a) support for integration of quadrature equations depending on both the states
+    and forward sensitivity (and thus support for forward sensitivity analysis
+    of quadrature equations),
 
-### IDA Changes in v2.6.0
+(b) support for simultaneous integration of multiple backward problems based on
+    the same underlying ODE (e.g., for use in an *forward-over-adjoint* method
+    for computing second order derivative information),
 
-Two new features were added in this release: (a) a new linear solver module,
-based on BLAS and LAPACK for both dense and banded matrices, and (b) option to
-specify which direction of zero-crossing is to be monitored while performing
-rootfinding.
+(c) support for backward integration of ODEs and quadratures depending on both
+    forward states and sensitivities (e.g., for use in computing second-order
+    derivative information), and
 
-The user interface has been further refined. Some of the API changes involve:
-(a) a reorganization of all linear solver modules into two families (besides the
-already present family of scaled preconditioned iterative linear solvers, the
-direct solvers, including the new LAPACK-based ones, were also organized into a
-*direct* family); (b) maintaining a single pointer to user data, optionally
-specified through a ``Set``-type function; (c) a general streamlining of the
-band-block-diagonal preconditioner module distributed with the solver.
+(d) support for reinitialization of the adjoint module.
 
-### KINSOL Changes in v2.6.0
+Moreover, the prototypes of all functions related to integration of backward
+problems were modified to support the simultaneous integration of multiple
+problems.
 
-This release introduces a new linear solver module, based on BLAS and LAPACK for
-both dense and banded matrices.
-
-The user interface has been further refined. Some of the API changes
-involve: (a) a reorganization of all linear solver modules into two families
-(besides the already present family of scaled preconditioned iterative linear
-solvers, the direct solvers, including the new LAPACK-based ones, were also
-organized into a *direct* family); (b) maintaining a single pointer to user
-data, optionally specified through a ``Set``-type function; (c) a general
-streamlining of the band-block-diagonal preconditioner module distributed with
-the solver.
-
+All backward problems defined by the user are internally managed through a
+linked list and identified in the user interface through a unique identifier.
 
 Changes to SUNDIALS in release 2.3.0
 ====================================
@@ -3592,84 +3545,3 @@ previously accessible through such arguments can now be obtained through
 
 Installation of KINSOL (and all of SUNDIALS) has been completely redesigned and
 is now based on configure scripts.
-
-
-
-# sundialsTB
-
-sundialsTB is no longer distributed as of sundials v. 2.7.0 as it has not been
-updated in many years.
-
-## What's new in v2.5.0?
-
-- Bug fixes
-
-  - fixed lines setting etachoice in kimOpts.c
-
-  - in cvm.c and idm.c, fixed size of rootsfound array; added lines to free
-    rootsfound and ckpnt arrays when done using each
-
-- What's new in v2.4.0?
-
-- New Features
-
-  - the Matlab interface to IDAS was extended to provide sensitivity analysis
-    capabilities.
-
-- Changes to user interface
-
-  - the API for adjoint sensitivity analysis (cvodes and idas) was modified to
-    support simultaneous integration of multiple backward problems.
-
-## What's new in v2.3.0?
-
-- New features
-
-  - added Matlab interface to IDA (named idas)
-
-  - on platforms which support configure scripts, installation of sundialsTB can
-    now be enabled while configuring SUNDIALS and installed through make and
-    make install (provided a working MEX compiler is found).
-
-- Bug fixes
-
-  - the installation script install\_STB.m was modified to increase robustness
-    on various platforms (related to path and file names).
-
-- Changes to user interface
-
-  - (cvodes) for improved legibility, some of the keys for forward sensitivity
-    optional inputs were renamed.
-
-  - (cvodes) removed xaxis type option for the internal monitoring function
-    CVodeMonitor.
-
-## What's new in v2.2.0?
-
-- New features
-
-  - modified installation procedure to use a Matlab script
-
-  - added sample Matlab startup file
-
-  - (cvodes) expanded CVodeMonitor
-
-  - (kinsol) added interface to KINSOL's performance monitoring function
-    ('Verbose' option to KINSetOptions)
-
-- Bug fixes
-
-  - (cvodes) fixed bug in interface to quadrature integration which was causing
-    a segmentation violation when monitoring was turned on.
-
-- Changes to user interface
-
-  - updated to reflect changes to the SUNDIALS libraries in v.2.2.0
-
-  - (cvodes) changed the interface for sensitivity analysis (both forward and
-    adjoint) to follow more closely the CVODES calling sequence
-
-  - (cvodes) optional inputs for forward sensitivity analysis are now provided
-    through a separate function, CVodeSensSetOptions
-
-  - removed NVM mex interface
