@@ -2759,7 +2759,7 @@ compatibility, but documentation for it has been removed.
 Added missing Fortran interface routines for supplying a sparse Jacobian routine
 with sparse direct solvers.
 
-**Matlab Interfaces**
+**Matlab Interfaces Removed**
 
 Removed the Matlab interface from distribution as it has not been updated since
 2009.
@@ -2814,56 +2814,69 @@ removed redundant KLU structure allocations.
 
 Minor bug fixes in ARKODE.
 
-**HERE**
-
 Changes to SUNDIALS in release 2.6.0
 ====================================
 
-- Addition of ARKode package of explicit, implicit, and additive Runge-Kutta
-  methods for ODES. This package API is close to CVODE so switching between the
-  two should be straightforward. Thanks go to Daniel Reynolds for the addition
-  of this package.
-- Addition of support for two sparse direct solver packages when using the
-  serial vector structure, KLU and SuperLU\_MT. exploits highly sparse
-  systems. SuperLU\_MT supports multithreading in the factorization.
-- Addition of openMP and PThreads vector kernels.
-- Addition of fixed point and Picard iterative solvers within KINSOL. These are
-  both optionally accelerated with Anderson acceleration.
-- Addition of FGMRES support for KINSOL.
-- Removal of autotools configuration support. We now exclusively use CMake.
-- Numerous bug fixes throughout.
+**Autotools Build Option Removed**
 
-### CVODE Changes in v2.8.0
+With this version of SUNDIALS, support and documentation of the Autotools mode
+of installation is being dropped, in favor of the CMake mode, which is
+considered more widely portable.
 
-Two major additions were made to the linear system solvers that are available
-for use with the CVODE solver. First, in the serial case, an interface to the
-sparse direct solver KLU was added. Second, an interface to SuperLU_MT, the
-multi-threaded version of SuperLU, was added as a thread-parallel sparse direct
-solver option, to be used with the serial version of the ``N_Vector`` module. As
-part of these additions, a sparse matrix (CSC format) structure was added to
-CVODE.
+**New Package: ARKODE**
 
-Otherwise, only relatively minor modifications were made to the CVODE solver:
+Addition of ARKODE package of explicit, implicit, and additive Runge-Kutta
+methods for ODEs. This package API is close to CVODE so switching between the
+two should be straightforward. Thanks go to Daniel Reynolds for the addition
+of this package.
+
+**New Features and Enhancements**
+
+Added :ref:`OpenMP <NVectors.OpenMP>` and :ref:`Pthreads <NVectors.Pthreads>`
+:c:type:`N_Vector` implementations for thread-parallel computing environments.
+
+Two major additions were made to the linear system solvers available in all
+packages. First, in the serial case, an interface to the sparse direct solver
+KLU was added. Second, an interface to SuperLU_MT, the multi-threaded version
+of SuperLU, was added as a thread-parallel sparse direct solver option, to be
+used with the serial version of the ``N_Vector`` module. As part of these
+additions, a sparse matrix (CSC format) structure was added to CVODE.
+
+*KINSOL*
+
+Two major additions were made to the globalization strategy options (``KINSol``
+argument ``strategy``). One is fixed-point iteration, and the other is Picard
+iteration. Both can be accelerated by use of the Anderson acceleration
+method. See the relevant paragraphs in Chapter :ref:`KINSOL.Mathematics`.
+
+An interface to the Flexible GMRES iterative linear solver was added.
+
+**Bug Fixes**
+
+In order to avoid possible name conflicts, the mathematical macro and function
+names ``MIN``, ``MAX``, ``SQR``, ``RAbs``, ``RSqrt``, ``RExp``, ``RPowerI``, and
+``RPowerR`` were changed to ``SUNMIN``, ``SUNMAX``, ``SUNSQR``, ``SUNRabs``,
+``SUNRsqrt``, ``SUNRexp``, ``SRpowerI``, and ``SUNRpowerR``, respectively. These
+names occur in both the solver and example programs.
+
+In the LAPACK banded linear solver interfaces, the line ``smu = MIN(N-1,mu+ml)``
+was changed to ``smu = mu + ml`` to correct an illegal input error for to
+``DGBTRF`` and ``DGBTRS``.
+
+In all Fortran examples, integer declarations were revised so that those which
+must match a C type ``long int`` are declared ``INTEGER*8``, and a comment was
+added about the type match. All other integer declarations are just
+``INTEGER``. Corresponding minor corrections were made to the user guide.
+
+*CVODE and CVODES*
 
 In ``cvRootFind``, a minor bug was corrected, where the input array was ignored,
 and a line was added to break out of root-search loop if the initial interval
 size is below the tolerance ``ttol``.
 
-In ``CVLapackBand``, the line ``smu = MIN(N-1,mu+ml)`` was changed to to correct
-an illegal input error for ``DGBTRF/DGBTRS``.
-
-In order to eliminate or minimize the differences between the sources for
-private functions in CVODE and CVODES, the names of 48 private functions were
-changed from to , and a few other names were also changed.
-
-Two minor bugs were fixed regarding the testing of input on the first call to -
-one involving and one involving the initialization of ``*tret``.
-
-In order to avoid possible name conflicts, the mathematical macro and function
-names ``MIN``, ``MAX``, ``SQR``, ``RAbs``, ``RSqrt``, ``RExp``, ``RPowerI``, and
-were changed to ``SUNMIN``, ``SUNMAX``, ``SUNSQR``, ``SUNRabs``, ``SUNRsqrt``,
-``SUNRexp``, ``SUNRpowerI``, and ``SUNRPowerR`` respectively. These names occur
-in both the solver and in various example programs.
+Two minor bugs were fixed regarding the testing of input on the first call to
+``CVode`` -- one involving ``tstop`` and one involving the initialization of
+``*tret``.
 
 The example program ``cvAdvDiff_diag_p`` was added to illustrate the use of in
 parallel.
@@ -2872,40 +2885,9 @@ In the FCVODE optional input routines ``FCVSETIIN`` and ``FCVSETRIN``, the
 optional fourth argument ``key_length`` was removed, with hardcoded key string
 lengths passed to all tests.
 
-In all FCVODE examples, integer declarations were revised so that those which
-must match a C type ``long int`` are declared ``INTEGER*8``, and a comment was
-added about the type match. All other integer declarations are just ``INTEGER``.
-Corresponding minor corrections were made to the user guide.
-
-Two new ``N_Vector`` modules have been added for thread-parallel computing
-environments - one for OpenMP, denoted ``NVECTOR_OPENMP``, and one for Pthreads,
-denoted ``NVECTOR_PTHREADS``.
-
-With this version of SUNDIALS, support and documentation of the Autotools mode
-of installation is being dropped, in favor of the CMake mode, which is
-considered more widely portable.
-
-### CVODES Changes in v2.8.0
-
-Two major additions were made to the linear system solvers that are available
-for use with the CVODES solver. First, in the serial case, an interface to the
-sparse direct solver KLU was added. Second, an interface to SuperLU_MT, the
-multi-threaded version of SuperLU, was added as a thread-parallel sparse direct
-solver option, to be used with the serial version of the ``N_Vector`` module. As
-part of these additions, a sparse matrix (CSC format) structure was added to
-CVODES.
-
-Otherwise, only relatively minor modifications were made to the CVODES solver:
-
-In ``cvRootfind``, a minor bug was corrected, where the input array ``rootdir``
-was ignored, and a line was added to break out of root-search loop if the
-initial interval size is below the tolerance ``ttol``.
-
-In ``CVLapackBand``, the line ``smu = MIN(N-1,mu+ml)`` was changed to ``smu = mu
-+ ml`` to correct an illegal input error for ``DGBTRF/DGBTRS``.
-
-Some minor changes were made in order to minimize the differences between the
-sources for private functions in CVODES and CVODE.
+In order to eliminate or minimize the differences between the sources for
+private functions in CVODE and CVODES, the names of many private functions were
+changed from ``CV*`` to ``cv*`` and a few other names were also changed.
 
 An option was added in the case of Adjoint Sensitivity Analysis with dense or
 banded Jacobian: With a call to ``CVDlsSetDenseJacFnBS`` or
@@ -2916,99 +2898,30 @@ the forward sensitivities.
 In ``CVodeQuadSensInit``, the line ``cv_mem->cv_fQS_data = ...`` was corrected
 (missing ``Q``).
 
-In the User Guide, a paragraph was added in Section 6.2.1 on ``CVodeAdjReInit``,
-and a paragraph was added in Section 6.2.9 on ``CVodeGetAdjY``. In the example
-``cvsRoberts_ASAi_dns``, the output was revised to include the use of
-``CVodeGetAdjY``.
-
-Two minor bugs were fixed regarding the testing of input on the first call to
-``CVode`` - one involving ``tstop`` and one involving the initialization of
-``*tret``.
+In the CVODES User Guide, a paragraph was added in Section 6.2.1 on
+``CVodeAdjReInit``, and a paragraph was added in Section 6.2.9 on
+``CVodeGetAdjY``. In the example ``cvsRoberts_ASAi_dns``, the output was revised
+to include the use of ``CVodeGetAdjY``.
 
 For the Adjoint Sensitivity Analysis case in which the backward problem depends
 on the forward sensitivities, options have been added to allow for user-supplied
 ``pset``, ``psolve``, and ``jtimes`` functions.
 
-In order to avoid possible name conflicts, the mathematical macro and function
-names ``MIN``, ``MAX``, ``SQR``, ``RAbs``, ``RSqrt``, ``RExp``, ``RPowerI``, and
-``RPowerR`` were changed to ``SUNMIN``, ``SUNMAX``, ``SUNSQR``, ``SUNRabs``,
-``SUNRsqrt``, ``SUNRexp``, ``SRpowerI``, and ``SUNRpowerR``, respectively. These
-names occur in both the solver and example programs.
-
 In the example ``cvsHessian_ASA_FSA``, an error was corrected in the function
 ``fB2``: ``y2`` in place of ``y3`` in the third term of ``Ith(yBdot,6)``.
 
-Two new ``N_Vector`` modules have been added for thread-parallel computing
-environments - one for OpenMP, denoted ``NVECTOR_OPENMP``, and one for Pthreads,
-denoted ``NVECTOR_PTHREADS``.
-
-With this version of SUNDIALS, support and documentation of the Autotools mode
-of installation is being dropped, in favor of the CMake mode, which is
-considered more widely portable.
-
-### IDA Changes in v2.8.0
-
-Two major additions were made to the linear system solvers that are available
-for use with the IDA solver. First, in the serial case, an interface to the
-sparse direct solver KLU was added. Second, an interface to SuperLU_MT, the
-multi-threaded version of SuperLU, was added as a thread-parallel sparse direct
-solver option, to be used with the serial version of the ``N_Vector`` module.
-As part of these additions, a sparse matrix (CSC format) structure was added to
-IDA.
-
-Otherwise, only relatively minor modifications were made to IDA:
+*IDA and IDAS*
 
 In ``IDARootfind``, a minor bug was corrected, where the input array ``rootdir``
 was ignored, and a line was added to break out of root-search loop if the
 initial interval size is below the tolerance ``ttol``.
-
-In ``IDALapackBand``, the line ``smu = MIN(N-1,mu+ml)`` was changed to ``smu =
-mu + ml`` to correct an illegal input error for ``DGBTRF/DGBTRS``.
 
 A minor bug was fixed regarding the testing of the input ``tstop`` on the first
 call to :c:func:`IDASolve`.
 
-In order to avoid possible name conflicts, the mathematical macro and function
-names ``MIN``, ``MAX``, ``SQR``, ``RAbs``, ``RSqrt``, ``RExp``, ``RPowerI``, and
-``RPowerR`` were changed to ``SUNMIN``, ``SUNMAX``, ``SUNSQR``, ``SUNRabs``,
-``SUNRsqrt``, ``SUNRexp``, ``SRpowerI``, and ``SUNRpowerR``, respectively.
-These names occur in both the solver and in various example programs.
-
 In the FIDA optional input routines ``FIDASETIIN``, ``FIDASETRIN``, and
 ``FIDASETVIN``, the optional fourth argument ``key_length`` was removed, with
 hardcoded key string lengths passed to all ``strncmp`` tests.
-
-In all FIDA examples, integer declarations were revised so that those which must
-match a C type ``long int`` are declared ``INTEGER*8``, and a comment was added
-about the type match. All other integer declarations are just
-``INTEGER``. Corresponding minor corrections were made to the user guide.
-
-Two new ``N_Vector`` modules have been added for thread-parallel computing
-environments - one for OpenMP, denoted :ref:`NVECTOR_OPENMP <NVectors.OpenMP>`,
-and one for Pthreads, denoted :ref:`NVECTOR_PTHREADS <NVectors.Pthreads>`.
-
-With this version of SUNDIALS, support and documentation of the Autotools mode
-of installation is being dropped, in favor of the CMake mode, which is
-considered more widely portable.
-
-### IDAS Changes in v1.2.0
-
-Two major additions were made to the linear system solvers that are available
-for use with the IDAS solver. First, in the serial case, an interface to the
-sparse direct solver KLU was added. Second, an interface to SuperLU_MT, the
-multi-threaded version of SuperLU, was added as a thread-parallel sparse direct
-solver option, to be used with the serial version of the ``N_Vector`` module.
-As part of these additions, a sparse matrix (CSC format) structure was added to
-IDAS.
-
-Otherwise, only relatively minor modifications were made to IDAS:
-
-In ``IDARootfind``, a minor bug was corrected, where the input array ``rootdir``
-was ignored, and a line was added to break out of root-search loop if the
-initial interval size is below the tolerance ``ttol``.
-
-In ``IDALapackBand``, the line ``smu = MIN(N-1,mu+ml)`` was changed to ``smu =
-mu + ml`` to correct an illegal input error for ``DGBTRF/DGBTRS``.
 
 An option was added in the case of Adjoint Sensitivity Analysis with dense or
 banded Jacobian: With a call to ``IDADlsSetDenseJacFnBS`` or
@@ -3016,48 +2929,7 @@ banded Jacobian: With a call to ``IDADlsSetDenseJacFnBS`` or
 of type ``IDADls***JacFnBS``, for the case where the backward problem depends on
 the forward sensitivities.
 
-A minor bug was fixed regarding the testing of the input ``tstop`` on the first
-call to :c:func:`IDASolve`.
-
-In order to avoid possible name conflicts, the mathematical macro and function
-names ``MIN``, ``MAX``, ``SQR``, ``RAbs``, ``RSqrt``, ``RExp``, ``RPowerI``, and
-``RPowerR`` were changed to ``SUNMIN``, ``SUNMAX``, ``SUNSQR``, ``SUNRabs``,
-``SUNRsqrt``, ``SUNRexp``, ``SRpowerI``, and ``SUNRpowerR``, respectively.
-These names occur in both the solver and in various example programs.
-
-In the FIDA optional input routines ``FIDASETIIN``, ``FIDASETRIN``, and
-``FIDASETVIN``, the optional fourth argument ``key_length`` was removed, with
-hardcoded key string lengths passed to all ``strncmp`` tests.
-
-In all FIDA examples, integer declarations were revised so that those which must
-match a C type ``long int`` are declared ``INTEGER*8``, and a comment was added
-about the type match. All other integer declarations are just
-``INTEGER``. Corresponding minor corrections were made to the user guide.
-
-Two new ``N_Vector`` modules have been added for thread-parallel computing
-environments - one for OpenMP, denoted :ref:`NVECTOR_OPENMP <NVectors.OpenMP>`,
-and one for Pthreads, denoted :ref:`NVECTOR_PTHREADS <NVectors.Pthreads>`.
-
-With this version of SUNDIALS, support and documentation of the Autotools mode
-of installation is being dropped, in favor of the CMake mode, which is
-considered more widely portable.
-
-### KINSOL Changes in v2.8.0
-
-Two major additions were made to the globalization strategy options (``KINSol``
-argument ``strategy``). One is fixed-point iteration, and the other is Picard
-iteration. Both can be accelerated by use of the Anderson acceleration
-method. See the relevant paragraphs in Chapter :ref:`KINSOL.Mathematics`.
-
-Three additions were made to the linear system solvers that are available for
-use with the KINSOL solver. First, in the serial case, an interface to the
-sparse direct solver KLU was added. Second, an interface to SuperLU_MT, the
-multi-threaded version of SuperLU, was added as a thread-parallel sparse direct
-solver option, to be used with the serial version of the ``N_Vector`` module. As
-part of these additions, a sparse matrix (CSC format) structure was added to
-KINSOL. Finally, a variation of GMRES called Flexible GMRES was added.
-
-Otherwise, only relatively minor modifications were made to KINSOL:
+*KINSOL*
 
 In function ``KINStop``, two return values were corrected to make the values of
 ``uu`` and ``fval`` consistent.
@@ -3069,15 +2941,6 @@ the case of repeated user calls to ``KINSol`` with no intervening call to
 A bug in the increments for difference quotient Jacobian approximations was
 fixed in function ``kinDlsBandDQJac``.
 
-In ``KINLapackBand``, the line ``smu = MIN(N-1,mu+ml)`` was changed to ``smu =
-mu + ml`` to correct an illegal input error for ``DGBTRF/DGBTRS``.
-
-In order to avoid possible name conflicts, the mathematical macro and function
-names ``MIN``, ``MAX``, ``SQR``, ``RAbs``, ``RSqrt``, ``RExp``, ``RPowerI``, and
-``RPowerR`` were changed to ``SUNMIN``, ``SUNMAX``, ``SUNSQR``, ``SUNRabs``,
-``SUNRsqrt``, ``SUNRexp``, ``SRpowerI``, and ``SUNRpowerR``, respectively. These
-names occur in both the solver and in various example programs.
-
 In the FKINSOL module, an incorrect return value ``ier`` in ``FKINfunc`` was
 fixed.
 
@@ -3085,18 +2948,7 @@ In the FKINSOL optional input routines ``FKINSETIIN``, ``FKINSETRIN``, and
 ``FKINSETVIN``, the optional fourth argument ``key_length`` was removed, with
 hardcoded key string lengths passed to all ``strncmp`` tests.
 
-In all FKINSOL examples, integer declarations were revised so that those which
-must match a C type ``long int`` are declared ``INTEGER*8``, and a comment was
-added about the type match. All other integer declarations are just
-``INTEGER``. Corresponding minor corrections were made to the user guide.
-
-Two new ``N_Vector`` modules have been added for thread-parallel computing
-environments - one for OpenMP, denoted ``NVECTOR_OPENMP``, and one for Pthreads,
-denoted ``NVECTOR_PTHREADS``.
-
-With this version of SUNDIALS, support and documentation of the Autotools mode
-of installation is being dropped, in favor of the CMake mode, which is
-considered more widely portable.
+**HERE**
 
 Changes to SUNDIALS in release 2.5.0
 ====================================
