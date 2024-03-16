@@ -33,6 +33,10 @@ extensions = ['sphinx_rtd_theme', 'sphinx.ext.ifconfig',
 
 intersphinx_mapping = {'sundials': (f'https://sundials.readthedocs.io/en/{sundials_version}', None)}
 
+nitpick_ignore = [
+    ('c:identifier', 'FILE'),
+]
+
 # References
 bibtex_bibfiles = ['../../../shared/sundials.bib']
 

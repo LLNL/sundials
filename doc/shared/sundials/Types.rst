@@ -161,8 +161,13 @@ Output formatting type
 MPI types
 ---------
 
-.. c:type:: SUNComm 
+.. c:type:: SUNComm
 
    A simple typedef to an `int` when SUNDIALS is built without MPI, or a
    ``MPI_Comm`` when built with MPI. This type exists solely to ensure SUNDIALS
    can support MPI and non-MPI builds.
+
+.. c:macro:: SUN_COMM_NULL
+
+   A macro defined as ``0`` when SUNDIALS is built without MPI, or as
+   ``MPI_COMM_NULL`` when built with MPI.

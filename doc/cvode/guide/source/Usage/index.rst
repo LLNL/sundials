@@ -2313,7 +2313,7 @@ the preconditioner.
    +-------------------------------------------------+------------------------------------------+
    | No. of Jacobian-vector product evaluations      | :c:func:`CVodeGetNumJtimesEvals`         |
    +-------------------------------------------------+------------------------------------------+
-   | Get all linear solver statistics in one         | :c:func:`CVodeGetLinSolvStats`           |
+   | Get all linear solver statistics in one         | :c:func:`CVodeGetLinSolveStats`          |
    | function call                                   |                                          |
    +-------------------------------------------------+------------------------------------------+
    | Last return from a linear solver function       | :c:func:`CVodeGetLastLinFlag`            |
@@ -3039,9 +3039,9 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
      * ``CVLS_LMEM_NULL`` -- The CVLS linear solver has not been initialized.
 
 
-.. c:function:: int CVodeGetLinSolvStats(void* cvode_mem, long int* njevals, long int* nfevalsLS, long int* nliters, long int* nlcfails, long int* npevals, long int* npsolves, long int* njtsetups, long int* njtimes)
+.. c:function:: int CVodeGetLinSolveStats(void* cvode_mem, long int* njevals, long int* nfevalsLS, long int* nliters, long int* nlcfails, long int* npevals, long int* npsolves, long int* njtsetups, long int* njtimes)
 
-   The function ``CVodeGetLinSolvStats`` returns CVODE linear solver  statistics.
+   The function ``CVodeGetLinSolveStats`` returns CVODE linear solver  statistics.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
