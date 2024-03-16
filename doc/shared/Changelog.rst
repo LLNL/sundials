@@ -2625,8 +2625,6 @@ storage formats.
 Various additions were made to the KLU and SuperLU_MT sparse linear solver
 interfaces, including support for the CSR matrix format when using KLU.
 
-The Bi-CGstab linear solver was enhanced by removing a redundant dot product.
-
 In all packages, the linear solver and preconditioner ``free`` routines were
 updated to return an integer.
 
@@ -2663,10 +2661,6 @@ non-identity mass-matrices.
 
 The optional input function :c:func:`IDASetMaxBacksIC` was added to set the
 maximum number of linesearch backtracks in the initial condition calculation.
-
-*KINSOL*
-
-The Anderson acceleration scheme was enhanced by use of QR updating.
 
 **Bug Fixes**
 
@@ -2740,8 +2734,6 @@ was printed in ``PrintOutput``.
 In the interpolation routines for backward problems, added logic to bypass
 sensitivity interpolation if input sensitivity argument is ``NULL``.
 
-A bug in for-loop indices was fixed in ``IDAAckpntAllocVectors``.
-
 Changed each the return type of ``*FreeB`` functions to ``int`` and added
 ``return(0)`` to each.
 
@@ -2772,38 +2764,57 @@ with sparse direct solvers.
 Removed the Matlab interface from distribution as it has not been updated since
 2009.
 
-**HERE**
-
 Changes to SUNDIALS in release 2.6.2
 ====================================
 
-- In IDAS, added missing backward problem support functions: IDALapackDenseB,
-  IDALapackDenseFreeB, IDALapackBandB, IDALapackBandFreeB
-- In KINSOL and ARKode, updated Anderson acceleration implementation with QR
-  updating.
-- Updated BiCGStab solver to remove redundant dot product call.
-- Minor corrections and additions to all User Guides.
-- In CVODES and IDAS header files, corrected documentation of backward
-  integration functions, especially the 'which' argument.
-- In CVODES, added DVKLUB prototype and corrected CVSuperLUMTB prototype.
-- In IDAS, made SuperLUMT call for backward problem consistent with CVODES.
-- In CVODES and IDAS, added ReInit and SetOrdering wrappers for backward
-  problems. Fixed potential memory leak in KLU ReInit functions in all solvers.
-- In CVODE, IDA, and ARKode, fixed Fortran interfaces to enable calls to
-  \*GetErrWeights, \*GetEstLocalErrors, and \*GetDky within a time step. In
-  ARKode, fixed a bug in one Butcher table.
-- In ARKode, fixed error in arkDoErrorTest in recovery after failure.
-- In IDAS, fixed for-loop bugs in IDAAckpntAllocVectors Various minor fixes to
-  installation-related files.
+**New Features and Enhancements**
+
+Various minor fixes to installation-related files
+
+In KINSOL and ARKODE, updated the Anderson acceleration implementation with QR
+updating.
+
+In CVODES and IDAS, added ``ReInit`` and ``SetOrdering`` wrappers for backward
+problems.
+
+In IDAS, fixed for-loop bugs in ``IDAAckpntAllocVectors`` that could lead to a
+memory leak.
+
+**Bug Fixes**
+
+Updated the BiCGStab linear solver to remove a redundant dot product call.
+
+Fixed potential memory leak in KLU ``ReInit`` functions in all solvers.
+
+In ARKODE, fixed a bug in the Cash-Karp Butcher table where the method and
+embedding coefficient were swapped.
+
+In ARKODE, fixed error in ``arkDoErrorTest`` in recovery after failure.
+
+In CVODES, added ``CVKLUB`` prototype and corrected ``CVSuperLUMTB`` prototype.
+
+In the CVODES and IDAS header files, corrected documentation of backward
+integration functions, especially the ``which`` argument.
+
+In IDAS, added missing backward problem support functions ``IDALapackDenseB``,
+``IDALapackDenseFreeB``, ``IDALapackBandB``, and ``IDALapackBandFreeB``.
+
+In IDAS, made SuperLUMT call for backward problem consistent with CVODES.
+
+In CVODE, IDA, and ARKODE, fixed Fortran interfaces to enable calls to
+``GetErrWeights``, ``GetEstLocalErrors``, and ``GetDky`` within a time step.
 
 Changes to SUNDIALS in release 2.6.1
 ====================================
 
-- Fixed loop limit bug in SlsAddMat function.
-- In all six solver interfaces to KLU and SuperLUMT, added #include lines, and
-  removed redundant KLU structure allocations.
-- Numerous minor documentation improvements
-- Minor bug fixes in ARKode
+Fixed loop limit bug in ``SlsAddMat`` function.
+
+In all six solver interfaces to KLU and SuperLUMT, added ``#include`` lines, and
+removed redundant KLU structure allocations.
+
+Minor bug fixes in ARKODE.
+
+**HERE**
 
 Changes to SUNDIALS in release 2.6.0
 ====================================
