@@ -2796,13 +2796,6 @@ Changes to SUNDIALS in release 2.6.2
 - In IDAS, fixed for-loop bugs in IDAAckpntAllocVectors Various minor fixes to
   installation-related files.
 
-### ARKODE Changes in v1.0.2
-### CVODE Changes in v2.8.2
-### CVODES Changes in v2.8.2
-### IDA Changes in v2.8.2
-### IDAS Changes in v1.2.2
-### KINSOL Changes in v2.8.2
-
 Changes to SUNDIALS in release 2.6.1
 ====================================
 
@@ -2811,13 +2804,6 @@ Changes to SUNDIALS in release 2.6.1
   removed redundant KLU structure allocations.
 - Numerous minor documentation improvements
 - Minor bug fixes in ARKode
-
-### ARKODE Changes in v1.0.1
-### CVODE Changes in v2.8.1
-### CVODES Changes in v2.8.1
-### IDA Changes in v2.8.1
-### IDAS Changes in v1.2.1
-### KINSOL Changes in v2.8.1
 
 Changes to SUNDIALS in release 2.6.0
 ====================================
@@ -3140,10 +3126,10 @@ its relatives, bandwidth parameters, related internal indices, pivot arrays, and
 the optional output ``lsflag`` have all been changed from type ``int`` to type
 ``long int``, except for the problem size and bandwidths in user calls to
 routines specifying BLAS/LAPACK routines for the dense/band linear solvers. The
-function ``NewIntArray`` is replaced by a pair ``NewIntArray`` / ``NewLintArray``,
-for ``int`` and ``long int`` arrays, respectively. In a minor change to the user
-interface, the type of the index ``which`` in CVODES was changed from ``long
-int`` to ``int``.
+function ``NewIntArray`` is replaced by a pair ``NewIntArray`` /
+``NewLintArray``, for ``int`` and ``long int`` arrays, respectively. In a minor
+change to the user interface, the type of the index ``which`` in CVODES was
+changed from ``long int`` to ``int``.
 
 Errors in the logic for the integration of backward problems were identified and
 fixed.
@@ -3153,12 +3139,12 @@ In ``CVSetTqBDF``, the logic was changed to avoid a divide by zero. After the
 solver memory is created, it is set to zero before being filled. In each linear
 solver interface function, the linear solver memory is freed on an error return,
 and the ``**Free`` function now includes a line setting to NULL the main memory
-pointer to the linear solver memory. In the rootfinding functions
-``CVRcheck1`` / ``CVRcheck2``, when an exact zero is found, the array ``glo`` of
-:math:`g` values at the left endpoint is adjusted, instead of shifting the
-:math:`t` location ``tlo`` slightly. In the installation files, we modified the
-treatment of the macro SUNDIALS_USE_GENERIC_MATH, so that the parameter
-GENERIC_MATH_LIB is either defined (with no value) or not defined.
+pointer to the linear solver memory. In the rootfinding functions ``CVRcheck1``
+/ ``CVRcheck2``, when an exact zero is found, the array ``glo`` of :math:`g`
+values at the left endpoint is adjusted, instead of shifting the :math:`t`
+location ``tlo`` slightly. In the installation files, we modified the treatment
+of the macro SUNDIALS_USE_GENERIC_MATH, so that the parameter GENERIC_MATH_LIB
+is either defined (with no value) or not defined.
 
 ### IDA Changes in v2.7.0
 
@@ -3171,10 +3157,10 @@ function ``NewIntArray`` is replaced by a pair ``NewIntArray`` and
 ``NewLintArray``, for ``int`` and ``long int`` arrays, respectively.
 
 A large number of minor errors have been fixed. Among these are the following:
-After the solver memory is created, it is set to zero before being filled. To
-be consistent with IDAS, IDA uses the function ``IDAGetDky`` for optional output
-retrieval. In each linear solver interface function, the linear solver memory
-is freed on an error return, and the ``**Free`` function now includes a line
+After the solver memory is created, it is set to zero before being filled. To be
+consistent with IDAS, IDA uses the function ``IDAGetDky`` for optional output
+retrieval. In each linear solver interface function, the linear solver memory is
+freed on an error return, and the ``**Free`` function now includes a line
 setting to NULL the main memory pointer to the linear solver memory. A memory
 leak was fixed in two of the ``IDASp***Free`` functions. In the rootfinding
 functions ``IDARcheck1`` and ``IDARcheck2``, when an exact zero is found, the
@@ -3195,20 +3181,20 @@ function ``NewIntArray`` is replaced by a pair ``NewIntArray`` and
 
 Errors in the logic for the integration of backward problems were identified and
 fixed. A large number of minor errors have been fixed. Among these are the
-following: A missing vector pointer setting was added in
-``IDASensLineSrch``. In ``IDACompleteStep``, conditionals around
-lines loading a new column of three auxiliary divided difference arrays, for a
-possible order increase, were fixed. After the solver memory is created, it is
-set to zero before being filled. In each linear solver interface function, the
-linear solver memory is freed on an error return, and the ``**Free`` function
-now includes a line setting to ``NULL`` the main memory pointer to the linear
-solver memory. A memory leak was fixed in two of the ``IDASp***Free`` functions.
-In the rootfinding functions ``IDARcheck1`` and ``IDARcheck2``, when an exact
-zero is found, the array ``glo`` of ``g`` values at the left endpoint is
-adjusted, instead of shifting the ``t`` location ``tlo`` slightly. In the
-installation files, we modified the treatment of the macro
-``SUNDIALS_USE_GENERIC_MATH``, so that the parameter ``GENERIC_MATH_LIB`` is
-either defined (with no value) or not defined.
+following: A missing vector pointer setting was added in ``IDASensLineSrch``. In
+``IDACompleteStep``, conditionals around lines loading a new column of three
+auxiliary divided difference arrays, for a possible order increase, were
+fixed. After the solver memory is created, it is set to zero before being
+filled. In each linear solver interface function, the linear solver memory is
+freed on an error return, and the ``**Free`` function now includes a line
+setting to ``NULL`` the main memory pointer to the linear solver memory. A
+memory leak was fixed in two of the ``IDASp***Free`` functions.  In the
+rootfinding functions ``IDARcheck1`` and ``IDARcheck2``, when an exact zero is
+found, the array ``glo`` of ``g`` values at the left endpoint is adjusted,
+instead of shifting the ``t`` location ``tlo`` slightly. In the installation
+files, we modified the treatment of the macro ``SUNDIALS_USE_GENERIC_MATH``, so
+that the parameter ``GENERIC_MATH_LIB`` is either defined (with no value) or not
+defined.
 
 ### KINSOL Changes in v2.7.0
 
@@ -3254,19 +3240,19 @@ Changes to SUNDIALS in release 2.4.0
 
 ### CVODE Changes in v2.6.0
 
-Two new features were added in this release: (a) a new linear solver
-module, based on BLAS and LAPACK for both dense and banded matrices, and
-(b) an option to specify which direction of zero-crossing is to be
-monitored while performing rootfinding.
+Two new features were added in this release: (a) a new linear solver module,
+based on BLAS and LAPACK for both dense and banded matrices, and
+(b) an option to specify which direction of zero-crossing is to be monitored
+while performing rootfinding.
 
 The user interface has been further refined. Some of the API changes
-involve: (a) a reorganization of all linear solver modules into two
-families (besides the existing family of scaled preconditioned iterative
-linear solvers, the direct solvers, including the new LAPACK-based ones,
-were also organized into a *direct* family); (b) maintaining a single
-pointer to user data, optionally specified through a -type function; and
-(c) a general streamlining of the preconditioner modules distributed
-with the solver.
+involve: (a) a reorganization of all linear solver modules into two families
+(besides the existing family of scaled preconditioned iterative linear solvers,
+the direct solvers, including the new LAPACK-based ones, were also organized
+into a *direct* family); (b) maintaining a single pointer to user data,
+optionally specified through a -type function; and
+(c) a general streamlining of the preconditioner modules distributed with the
+solver.
 
 ### CVODES Changes in v2.6.0
 
@@ -3372,11 +3358,11 @@ linear solver were renamed ``BandGBTRF`` and ``BandGBTRS``, respectively.
 ### CVODES Changes in v2.5.0
 
 The main changes in this release involve a rearrangement of the entire SUNDIALS
-source tree (see :ref:`CVODES.Organization`). At the user interface level,
-the main impact is in the mechanism of including SUNDIALS header files which
-must now include the relative path (e.g. ``#include <cvode/cvode.h>``).
-Additional changes were made to the build system: all exported header files are
-now installed in separate subdirectories of the instaltion *include* directory.
+source tree (see :ref:`CVODES.Organization`). At the user interface level, the
+main impact is in the mechanism of including SUNDIALS header files which must
+now include the relative path (e.g. ``#include <cvode/cvode.h>``).  Additional
+changes were made to the build system: all exported header files are now
+installed in separate subdirectories of the instaltion *include* directory.
 
 In the adjoint solver module, the following two bugs were fixed: in ``CVodeF``
 the solver was sometimes incorrectly taking an additional step before returning
@@ -3420,12 +3406,11 @@ linear solver were renamed ``BandGBTRF`` and ``BandGBTRS``, respectively.
 ### KINSOL Changes in v2.5.0
 
 The main changes in this release involve a rearrangement of the entire SUNDIALS
-source tree (see :ref:`KINSOL.Organization`). At the user interface level,
-the main impact is in the mechanism of including SUNDIALS header files which
-must now include the relative path (e.g. ``#include
-<cvode/cvode.h>``). Additional changes were made to the build system: all
-exported header files are now installed in separate subdirectories of the
-installation *include* directory.
+source tree (see :ref:`KINSOL.Organization`). At the user interface level, the
+main impact is in the mechanism of including SUNDIALS header files which must
+now include the relative path (e.g. ``#include <cvode/cvode.h>``). Additional
+changes were made to the build system: all exported header files are now
+installed in separate subdirectories of the installation *include* directory.
 
 The functions in the generic dense linear solver (``sundials_dense`` and
 ``sundials_smalldense``) were modified to work for rectangular :math:`m \times
@@ -3483,10 +3468,10 @@ subdirectories of the target directory. For more details see
 CVSPBCG and CVSPTFQMR modules have been added to interface with the Scaled
 Preconditioned Bi-CGstab (SPBCG) and Scaled Preconditioned Transpose-Free
 Quasi-Minimal Residual (SPTFQMR) linear solver modules, respectively (for
-details see Chapter :ref:`CVODES.Usage.SIM`). At the same time,
-function type names for Scaled Preconditioned Iterative Linear Solvers were
-added for the user-supplied Jacobian-times-vector and preconditioner setup and
-solve functions.
+details see Chapter :ref:`CVODES.Usage.SIM`). At the same time, function type
+names for Scaled Preconditioned Iterative Linear Solvers were added for the
+user-supplied Jacobian-times-vector and preconditioner setup and solve
+functions.
 
 A new interpolation method was added to the CVODES adjoint module. The function
 ``CVadjMalloc`` has an additional argument which can be used to select the
@@ -3508,8 +3493,8 @@ FIDA, a Fortran-C interface module, was added.
 IDASPBCG and IDASPTFQMR modules have been added to interface with the Scaled
 Preconditioned Bi-CGstab (SPBCG) and Scaled Preconditioned Transpose-Free
 Quasi-Minimal Residual (SPTFQMR) linear solver modules, respectively (for
-details see :numref:IDA.Usage.CC). At the same time, function type names for Scaled
-Preconditioned Iterative Linear Solvers were added for the user-supplied
+details see :numref:IDA.Usage.CC). At the same time, function type names for
+Scaled Preconditioned Iterative Linear Solvers were added for the user-supplied
 Jacobian-times-vector and preconditioner setup and solve functions.
 
 The rootfinding feature was added, whereby the roots of a set of given functions
@@ -3573,12 +3558,12 @@ Changes to SUNDIALS in release 2.1.0
 
 ### CVODE Changes in v2.3.0
 
-The user interface has been further refined. Several functions used for
-setting optional inputs were combined into a single one. An optional
-user-supplied routine for setting the error weight vector was added.
-Additionally, to resolve potential variable scope issues, all SUNDIALS
-solvers release user data right after its use. The build systems has
-been further improved to make it more robust.
+The user interface has been further refined. Several functions used for setting
+optional inputs were combined into a single one. An optional user-supplied
+routine for setting the error weight vector was added.  Additionally, to resolve
+potential variable scope issues, all SUNDIALS solvers release user data right
+after its use. The build systems has been further improved to make it more
+robust.
 
 ### CVODES Changes in v2.2.0
 
@@ -3733,9 +3718,8 @@ routines (with prefix ``CVodeSet``) to change the default values for various
 quantities controlling the solver and a set of extraction routines (with prefix
 ``CVodeGet``) to extract statistics after return from the main solver
 routine. Similarly, each linear solver module provides its own set of `Set`- and
-`Get`-type routines. For more details see
-:ref:`CVODE.Usage.CC.optional_input` and
-:ref:`CVODE.Usage.CC.optional_output`.
+`Get`-type routines. For more details see :ref:`CVODE.Usage.CC.optional_input`
+and :ref:`CVODE.Usage.CC.optional_output`.
 
 Additionally, the interfaces to several user-supplied routines (such as those
 providing Jacobians and preconditioner information) were simplified by reducing
