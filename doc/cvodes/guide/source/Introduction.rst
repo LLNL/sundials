@@ -63,7 +63,7 @@ failures with GMRES. Bi-CGStab and TFQMR have an advantage in storage
 requirements, in that the number of workspace vectors they require is fixed,
 while that number for GMRES depends on the desired Krylov subspace size. FGMRES
 has an advantage in that it is designed to support preconditioners that vary
-between iterations (e.g. iterative methods). PCG exhibits rapid convergence and
+between iterations (e.g., iterative methods). PCG exhibits rapid convergence and
 minimal workspace vectors, but only works for symmetric linear systems.
 
 In the process of translating the VODE and VODPK algorithms into C, the overall
@@ -195,12 +195,12 @@ The structure of this document is as follows:
 -  Chapter :numref:`NVectors` gives a brief overview of the generic ``N_Vector`` module shared among the
    various components of SUNDIALS, and details on the ``N_Vector`` implementations provided with SUNDIALS.
 
--  Chapter :numref:`SUNMatrix` gives a brief overview of the generic ``SUNMatrix`` module shared among
-   the various components of SUNDIALS, and details on the ``SUNMatrix``
-   implementations provided with SUNDIALS: a dense implementation (§\
-   :numref:`SUNMatrix.Dense`), a banded implementation (§\
-   :numref:`SUNMatrix.Band`) and a sparse implementation (§\
-   :numref:`SUNMatrix.Sparse`).
+- Chapter :numref:`SUNMatrix` gives a brief overview of the generic
+   ``SUNMatrix`` module shared among the various components of SUNDIALS, and
+   details on the ``SUNMatrix`` implementations provided with SUNDIALS: a dense
+   implementation (:numref:`SUNMatrix.Dense`), a banded implementation
+   (:numref:`SUNMatrix.Band`) and a sparse implementation
+   (:numref:`SUNMatrix.Sparse`).
 
 -  Chapter :numref:`SUNLinSol` gives a brief overview of the generic ``SUNLinearSolver`` module shared among
    the various components of SUNDIALS. This chapter contains details on the
