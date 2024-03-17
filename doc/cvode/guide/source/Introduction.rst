@@ -209,7 +209,7 @@ leverage the new SUNDIALS error handling capabilities.
 
 * From ``sundials_memory.h``
 
-  * :c:func:`SUNMemorNewEmpty`
+  * :c:func:`SUNMemoryNewEmpty`
   * :c:func:`SUNMemoryHelper_Alias`
   * :c:func:`SUNMemoryHelper_Wrap`
 
@@ -509,9 +509,9 @@ Added the functions :c:func:`CVodeSetDeltaGammaMaxLSetup` and
 thresholds to require a linear solver setup or Jacobian/precondition update,
 respectively.
 
-The behavior of :c:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
+The behavior of :cpp:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
 consistent with the CUDA and HIP vectors. The input execution policies are now
-cloned and may be freed after calling :c:func:`N_VSetKernelExecPolicy_Sycl`.
+cloned and may be freed after calling :cpp:func:`N_VSetKernelExecPolicy_Sycl`.
 Additionally, ``NULL`` inputs are now allowed and, if provided, will reset the
 vector execution policies to the defaults.
 
@@ -640,7 +640,7 @@ deprecated. The generic :c:func:`N_VCloneVectorArray` and
 
 The previously deprecated constructor ``N_VMakeWithManagedAllocator_Cuda`` and
 the function ``N_VSetCudaStream_Cuda`` have been removed and replaced with
-:c:func:`N_VNewWithMemHelp_Cuda` and :c:func:`N_VSetKerrnelExecPolicy_Cuda`
+:c:func:`N_VNewWithMemHelp_Cuda` and :c:func:`N_VSetKernelExecPolicy_Cuda`
 respectively.
 
 The previously deprecated macros ``PVEC_REAL_MPI_TYPE`` and
@@ -942,7 +942,7 @@ This module is experimental and is subject to change from version to version.
 
 Added a new *optional* function to the SUNLinearSolver API,
 :c:func:`SUNLinSolSetZeroGuess()`, to indicate that the next call to
-:c:func:`SUNlinSolSolve()` will be made with a zero initial guess. SUNLinearSolver
+:c:func:`SUNLinSolSolve()` will be made with a zero initial guess. SUNLinearSolver
 implementations that do not use the :c:func:`SUNLinSolNewEmpty` constructor will,
 at a minimum, need set the ``setzeroguess`` function pointer in the linear solver
 ``ops`` structure to ``NULL``. The SUNDIALS iterative linear solver
@@ -1335,7 +1335,7 @@ Changes in v5.0.0
 **SUNNonlinearSolver module changes**
 
 -  A new function was added to aid in creating custom ``SUNNonlinearSolver``
-   objects. The constructor :c:func:`SUNNonlinSolSetConvTestFN` allocates an
+   objects. The constructor :c:func:`SUNNonlinSolSetConvTestFn` allocates an
    “empty” generic ``SUNNonlinearSolver`` with the object’s content pointer and
    the function pointers in the operations structure initialized to . When used
    in the constructor for custom objects this function will ease the
@@ -1558,7 +1558,7 @@ Support for optional inequality constraints on individual components of the
 solution vector has been added to CVODE and CVODES. See
 :numref:`CVODE.Mathematics` and the description of in :numref:`CVODE.Usage.CC.optional_input` for
 more details. Use of :c:func:`CVodeSetConstraints` requires the ``N_Vector``
-operations :c:func:`N_VMinQuotient`, :c:func:`N_VConstMask`, and
+operations :c:func:`N_VMinQuotient`, :c:func:`N_VConstrMask`, and
 :c:func:`N_VCompare` that were not previously required by CVODE and CVODES.
 
 Fixed a problem with setting which would occur with some compilers (e.g.

@@ -81,7 +81,7 @@ solvers).  Specifically, SUNNonlinSol_Newton will call the
     :c:type:`SUNNonlinSolLSetupFn()` function.
 
 Whether the Jacobian matrix :math:`A` is fully or partially updated depends
-on logic unique to each integrator-supplied :c:type:`SUNNonlinSolSetupFn`
+on logic unique to each integrator-supplied :c:type:`SUNNonlinSolLSetupFn`
 routine. We refer to the discussion of nonlinear solver strategies
 provided in the package-specific Mathematics section of the documentation for details.
 

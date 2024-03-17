@@ -4434,7 +4434,7 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
    **Notes:**
       The values of *msflag* for each of the various solvers
       will match those described above for the function
-      :c:func:`ARKStepGetLastLSFlag()`.
+      :c:func:`ARKStepGetLastLinFlag()`.
 
 
 

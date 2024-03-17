@@ -189,7 +189,7 @@ the ARKBANDPRE module:
       object, and temporary vectors).
 
       The workspaces referred to here exist in addition to those given by
-      the corresponding function :c:func:`ARKStepGetLSWorkspace()`.
+      the corresponding function :c:func:`ARKStepGetLinWorkSpace()`.
 
 
 
@@ -213,7 +213,7 @@ the ARKBANDPRE module:
    **Notes:**
       The counter *nfevalsBP* is distinct from the counter
       *nfevalsLS* returned by the corresponding function
-      :c:func:`ARKStepGetNumLSRhsEvals()` and also from *nfi_evals* returned by
+      :c:func:`ARKStepGetNumLinRhsEvals()` and also from *nfi_evals* returned by
       :c:func:`ARKStepGetNumRhsEvals()`.  The total number of right-hand
       side function evaluations is the sum of all three of these
       counters, plus the *nfe_evals* counter for :math:`f^E` calls
@@ -620,7 +620,7 @@ the ARKBBDPRE module:
       object, temporary vectors). These values are local to each process.
 
       The workspaces referred to here exist in addition to those given by
-      the corresponding function :c:func:`ARKStepGetLSWorkSpace()`.
+      the corresponding function :c:func:`ARKStepGetLinWorkSpace()`.
 
 
 

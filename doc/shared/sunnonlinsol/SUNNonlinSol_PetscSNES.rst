@@ -127,7 +127,7 @@ user-callable functions.
     A :c:type:`SUNErrCode`
 
 
-.. c:function:: SUNErrCode SUNNonlinSolGetPetscError_PetscSNES(SUNNonlinearSolver NLS, PestcErrorCode* error)
+.. c:function:: SUNErrCode SUNNonlinSolGetPetscError_PetscSNES(SUNNonlinearSolver NLS, PetscErrorCode* error)
 
   This gets the last error code returned by the last internal call to a PETSc API function.
 

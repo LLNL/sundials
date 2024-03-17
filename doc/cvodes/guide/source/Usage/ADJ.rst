@@ -585,15 +585,15 @@ call to :c:func:`CVodeInitB` or :c:func:`CVodeInitBS`.
      * ``CV_ILL_INPUT`` -- One of the input tolerances was negative.
 
 
-.. c:function:: int CVodeSVtolerancesB(void * cvode_mem, int which, reltolBabstolB)
+.. c:function:: int CVodeSVtolerancesB(void * cvode_mem, int which, sunrealtype reltolB, N_Vector abstolB)
 
    The function :c:func:`CVodeSVtolerancesB` specifies scalar relative tolerance and  vector absolute tolerances.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block returned by :c:func:`CVodeCreate`.
      * ``which`` -- represents the identifier of the backward problem.
-     * ``reltol`` -- is the scalar relative error tolerance.
-     * ``abstol`` -- is the vector of absolute error tolerances.
+     * ``reltolB`` -- is the scalar relative error tolerance.
+     * ``abstolB`` -- is the vector of absolute error tolerances.
 
    **Return value:**
      * ``CV_SUCCESS`` -- The call to :c:func:`CVodeSVtolerancesB` was successful.
@@ -698,7 +698,7 @@ correctly before any subsequent calls to :c:func:`CVodeB`.
 
 .. c:function:: int CVodeSetNonlinearSolverB(void * cvode_mem, int which, SUNNonlinearSolver NLS)
 
-   The function :c:func:`CVodeSetNonLinearSolverB` attaches a
+   The function :c:func:`CVodeSetNonlinearSolverB` attaches a
    ``SUNNONLINEARSOLVER``  object (``NLS``) to CVODES for the solution of the
    backward problem.
 
@@ -1053,7 +1053,7 @@ potentially non-differentiable factor.
 
 .. c:function:: int CVodeSetJacTimesRhsFnB(void * cvode_mem, int which, CVRhsFn jtimesRhsFn)
 
-   The function :c:func:`CVodeSetJacTimesRhsFn` specifies an alternative ODE
+   The function :c:func:`CVodeSetJacTimesRhsFnB` specifies an alternative ODE
    right-hand side function for use in the internal Jacobian-vector product
    difference quotient approximation.
 
@@ -1077,9 +1077,9 @@ potentially non-differentiable factor.
       initialized through a call to :c:func:`CVodeSetLinearSolverB`.
 
 
-.. c:function:: int CVodeSetPreconditionerB(void * cvode_mem, int which, CVLPrecSetupFnB psetupB, CVLsPrecSolveFnB psolveB)
+.. c:function:: int CVodeSetPreconditionerB(void * cvode_mem, int which, CVLsPrecSetupFnB psetupB, CVLsPrecSetupFnB psolveB)
 
-   The function :c:func:`CVodeSetPrecSolveFnB` specifies the preconditioner
+   The function :c:func:`CVodeSetPreconditionerB` specifies the preconditioner
    setup and solve functions for the backward integration.
 
    **Arguments:**
@@ -1101,7 +1101,7 @@ potentially non-differentiable factor.
 
 .. c:function:: int CVodeSetPreconditionerBS(void * cvode_mem, int which, CVLsPrecSetupFnBS psetupBS, CVLsPrecSolveFnBS psolveBS)
 
-   The function :c:func:`CVodeSetPrecSolveFnBS` specifies the preconditioner
+   The function :c:func:`CVodeSetPreconditionerBS` specifies the preconditioner
    setup and solve functions for the backward integration, in the case  where
    the backward problem depends on the forward sensitivities.
 
@@ -1152,7 +1152,7 @@ potentially non-differentiable factor.
 
 .. c:function:: int CVodeSetLSNormFactorB(void * cvode_mem, int which, sunrealtype nrmfac)
 
-   The function :c:func:`CVodeSetLSNormFactor` specifies the factor to use when
+   The function :c:func:`CVodeSetLSNormFactorB` specifies the factor to use when
    converting from the integrator tolerance (WRMS norm) to the linear solver
    tolerance (L2 norm) for Newton linear system solves e.g.,  ``tol_L2 = fac *
    tol_WRMS``.  This routine can be used in both the cases wherethe backward
