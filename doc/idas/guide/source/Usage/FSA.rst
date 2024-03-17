@@ -428,9 +428,8 @@ by calling the appropriate constructor routine. The user must then attach the
 ``SUNNonlinearSolver`` object to IDAS by calling
 :c:func:`IDASetNonlinearSolverSensSim` when using the ``IDA_SIMULTANEOUS``
 corrector option, or :c:func:`IDASetNonlinearSolver` and
-:c:func:`IDASetNonlinearSolverSensStg` or
-:c:func:`IDASetNonlinearSolverSensStg1` when using the ``IDA_STAGGERED``
-as documented below.
+:c:func:`IDASetNonlinearSolverSensStg` when using the ``IDA_STAGGERED``
+corrector option as documented below.
 
 When changing the nonlinear solver in IDAS, :c:func:`IDASetNonlinearSolver` must
 be called after :c:func:`IDAInit`; similarly
