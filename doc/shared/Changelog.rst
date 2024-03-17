@@ -1619,10 +1619,10 @@ Fixed a bug in ARKODE where the prototypes for :c:func:`ERKStepSetMinReduction`
 and :c:func:`ARKStepSetMinReduction` were not included in ``arkode_erkstep.h``
 and ``arkode_arkstep.h`` respectively.
 
-Fixed a bug where inequality constraint checking would need to be disabled and
-then re-enabled to update the inequality constraint values after resizing a
-problem. Resizing a problem will now disable constraints and a call to
-:c:func:`ARKStepSetConstraints` or :c:func:`ERKStepSetConstraints` is
+Fixed a bug in ARKODE where inequality constraint checking would need to be
+disabled and then re-enabled to update the inequality constraint values after
+resizing a problem. Resizing a problem will now disable constraints and a call
+to :c:func:`ARKStepSetConstraints` or :c:func:`ERKStepSetConstraints` is
 required to re-enable constraint checking for the new problem size.
 
 Changes to SUNDIALS in release 5.2.0
@@ -1785,7 +1785,7 @@ MPI-based simulations together (see the :numref:`NVectors.ManyVector` and
 :numref:`NVectors.MPIManyVector` for more details). This implementation is
 accompanied by additions to user documentation and SUNDIALS examples.
 
-Additionally, an :ref:`MPI+X vector <NVectors.MPIPlusX>` implementation has been
+Additionally, an :ref:`MPIPlusX vector <NVectors.MPIPlusX>` implementation has been
 created to support the MPI+X paradigm where X is a type of on-node parallelism
 (e.g., OpenMP, CUDA, etc.). The implementation is accompanied by additions to
 user documentation and SUNDIALS examples.
@@ -1845,7 +1845,6 @@ also will ease the introduction of any new optional operations to the
 :c:type:`SUNMatrix` API by ensuring all operations are copied when cloning
 objects.
 
-
 A new operation, :c:func:`SUNMatMatvecSetup`, was added to the
 :c:type:`SUNMatrix` API to perform any setup necessary for computing a
 matrix-vector product. This operation is useful for :c:type:`SUNMatrix`
@@ -1853,11 +1852,6 @@ implementations which need to prepare the matrix itself, or communication
 structures before performing the matrix-vector product. Users who have
 implemented a custom :c:type:`SUNMatrix` will need to at least update their code
 to set the corresponding ``ops`` structure member, ``matvecsetup``, to ``NULL``.
-
-A new operation, :c:func:`SUNMatMatvecSetup`, was added to the
-:c:type:`SUNMatrix` API. Users who have implemented custom :c:type:`SUNMatrix`
-modules will need to at least update their code to set the corresponding ``ops``
-structure member, ``matvecsetup``, to ``NULL``.
 
 The generic :c:type:`SUNMatrix` API now defines error codes to be returned by
 matrix operations. Operations which return an integer flag indiciating
@@ -1997,7 +1991,7 @@ needed before or after the inner integration.
 Fixed a bug in the build system that prevented the PThreads NVECTOR module from
 being built.
 
-Fixed a memory leak in the PETSC :c:type:`N_Vector` clone function.
+Fixed a memory leak in the PETSc :c:type:`N_Vector` clone function.
 
 Fixed a memeory leak in the ARKODE, CVODE, and IDA F77 interfaces when not using
 the default nonlinear solver.
@@ -2028,7 +2022,7 @@ array of scalars for the fused vector scale operation stopped one iteration
 early.
 
 Fixed a bug in CVODES and IDAS where :c:func:`CVodeF` and :c:func:`IDASolveF`
-would return the wrong flag under certain cirumstances.
+would return the wrong flag under certain circumstances.
 
 Fixed a bug in CVODES and IDAS where :c:func:`CVodeF` and :c:func:`IDASolveF`
 would not return a root in ``NORMAL_STEP`` mode if the root occurred after the
@@ -2420,10 +2414,6 @@ Fixed a potential memory leak in the :ref:`SPGMR <SUNLinSol.SPGMR>` and
 :ref:`SPFGMR <SUNLinSol.SPFGMR>` linear solvers. If "Initialize" was called
 multiple times then the solver memory was reallocated (without being freed).
 
-Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers. If
-"Initialize" was called multiple times, the solver memory was reallocated
-(without being freed).
-
 Fixed a minor bug in ``ARKReInit``, where a flag was incorrectly set to indicate
 that the problem had been resized (instead of just re-initialized).
 
@@ -2455,9 +2445,6 @@ or one. Replaced ``double`` with ``realtype`` in the RAJA vector test functions.
 Fixed compilation issue with GCC 7.3.0 and Fortran programs that do not require
 a :c:type:`SUNMatrix` or :c:type:`SUNLinearSolver` e.g., iterative linear
 solvers, explicit methods in ARKODE, functional iteration in CVODE, etc.
-
-In addition to the changes above, minor corrections were also made to
-the example programs, build system, and user documentation.
 
 Changes to SUNDIALS in release 3.1.0
 ====================================
@@ -2578,8 +2565,6 @@ Added separate ``BLAS_ENABLE`` and ``BLAS_LIBRARIES`` CMake variables.
 
 Fixed minor CMake bugs and included additional error checking during CMake
 configuration.
-
-Corrections and additions to all User Guides.
 
 **Bug Fixes**
 
