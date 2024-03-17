@@ -269,8 +269,6 @@ Optional inputs for SPRKStep
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Set dense output polynomial degree                  | :c:func:`SPRKStepSetInterpolantDegree()` | 5                      |
   +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Supply a pointer to a diagnostics output file       | :c:func:`SPRKStepSetDiagnostics()`       | ``NULL``               |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
   | Set fixed step size (required user input)           | :c:func:`SPRKStepSetFixedStep()`         | user defined           |
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Maximum no. of internal steps before *tout*         | :c:func:`SPRKStepSetMaxNumSteps()`       | 500                    |
