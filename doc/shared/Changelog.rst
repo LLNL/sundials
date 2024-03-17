@@ -3217,147 +3217,78 @@ absolute tolerances) were made.
 Changes to SUNDIALS in release 2.0.0
 ====================================
 
-- Changes to the generic NVECTOR module
-
-  - removed machEnv, redefined table of vector operations (now contained in the
-    N\_Vector structure itself).
-
-  - all SUNDIALS functions create new N\_Vector variables through cloning, using
-    an N\_Vector passed by the user as a template.
-
-  - a particular NVECTOR implementation is supposed to provide user-callable
-    constructor and destructor functions.
-
-  - removed from structure of vector operations the following functions:
-    N\_VNew, N\_VNew\_S, N\_VFree, N\_VFree\_S, N\_VMake, N\_VDispose,
-    N\_VGetData, N\_VSetData, N\_VConstrProdPos, and N\_VOneMask.
-
-  - added in structure of vector operations the following functions: N\_VClone,
-    N\_VDestroy, N\_VSpace, N\_VGetArrayPointer, N\_VSetArrayPointer, and
-    N\_VWrmsNormMask.
-
-  - Note that nvec\_ser and nvec\_par are now separate modules outside the
-    shared SUNDIALS module.
-
-- Changes to the generic linear solvers
-
-  - in SPGMR, added a dummy N\_Vector argument to be used as a template for
-    cloning.
-
-  - in SPGMR, removed N (problem dimension) from argument list of SpgmrMalloc.
-
-  - iterative.{c,h} replace iterativ.{c,h}
-
-  - modified constant names in iterative.h (preconditioner types are prefixed
-    with 'PREC\_').
-
-  - changed numerical values for MODIFIED\_GS (from 0 to 1) and CLASSICAL\_GS
-    (from 1 to 2).
-
-- Changes to sundialsmath submodule
-
-  - replaced internal routine for estimation of unit roundoff with definition of
-    unit roundoff from float.h
-
-  - modified functions to call appropriate math routines given the precision
-    level specified by the user.
-
-- Changes to sundialstypes submodule
-
-  - removed type 'integertype'.
-
-  - added definitions for 'BIG\_REAL', 'SMALL\_REAL', and 'UNIT\_ROUNDOFF' using
-    values from float.h based on the precision.
-
-  - changed definition of macro RCONST to depend on precision.
-
-### CVODE Changes in v2.2.0
+Installation of all of SUNDIALS packages has been completely redesigned and is
+now based on configure scripts.
 
 The major changes from the previous version involve a redesign of the user
 interface across the entire SUNDIALS suite. We have eliminated the mechanism of
 providing optional inputs and extracting optional statistics from the solver
-through the `iopt` and `ropt` arrays. Instead, CVODE now provides a set of
-routines (with prefix ``CVodeSet``) to change the default values for various
-quantities controlling the solver and a set of extraction routines (with prefix
-``CVodeGet``) to extract statistics after return from the main solver
-routine. Similarly, each linear solver module provides its own set of `Set`- and
-`Get`-type routines. For more details see :ref:`CVODE.Usage.CC.optional_input`
-and :ref:`CVODE.Usage.CC.optional_output`.
-
-Additionally, the interfaces to several user-supplied routines (such as those
-providing Jacobians and preconditioner information) were simplified by reducing
-the number of arguments. The same information that was previously accessible
-through such arguments can now be obtained through `Get`-type functions.
-
-The rootfinding feature was added, whereby the roots of a set of given functions
-may be computed during the integration of the ODE system.
-
-Installation of CVODE (and all of SUNDIALS) has been completely redesigned and
-is now based on configure scripts.
-
-### CVODES Changes in v2.1.0
-
-The major changes from the previous version involve a redesign of the user
-interface across the entire SUNDIALS suite. We have eliminated the mechanism of
-providing optional inputs and extracting optional statistics from the solver
-through the ``iopt`` and ``ropt`` arrays. Instead, CVODES now provides a set of
-routines (with prefix ``CVodeSet``) to change the default values for various
-quantities controlling the solver and a set of extraction routines (with prefix
-``CVodeGet``) to extract statistics after return from the main solver routine.
-Similarly, each linear solver module provides its own set of ``Set``- and
-``Get``-type routines. For more details see
-:ref:`CVODES.Usage.SIM.optional_input` and
-:ref:`CVODES.Usage.SIM.optional_output`.
-
-Additionally, the interfaces to several user-supplied routines (such as those
-providing Jacobians, preconditioner information, and sensitivity right hand
-sides) were simplified by reducing the number of arguments. The same information
-that was previously accessible through such arguments can now be obtained
-through ``Get``-type functions.
-
-The rootfinding feature was added, whereby the roots of a set of given functions
-may be computed during the integration of the ODE system.
-
-Installation of CVODES (and all of SUNDIALS) has been completely redesigned and
-is now based on configure scripts.
-
-### IDA Changes in v2.2.0
-
-The major changes from the previous version involve a redesign of the user
-interface across the entire SUNDIALS suite. We have eliminated the mechanism of
-providing optional inputs and extracting optional statistics from the solver
-through the ``iopt`` and ``ropt`` arrays. Instead, IDA now provides a set of
-routines (with prefix ``IDASet``) to change the default values for various
-quantities controlling the solver and a set of extraction routines (with prefix
-``IDAGet``) to extract statistics after return from the main solver routine.
-Similarly, each linear solver module provides its own set of ``Set``- and
-``Get``-type routines. For more details see :ref:`IDA.Usage.CC.optional_output`.
+through the ``iopt`` and ``ropt`` arrays. Instead, packages now provide ``Set``
+functions to change the default values for various quantities controlling the
+solver and ``Get`` functions to extract statistics after return from the main
+solver routine.
 
 Additionally, the interfaces to several user-supplied routines (such as those
 providing Jacobians and preconditioner information) were simplified by reducing
 the number of arguments. The same information that was previously accessible
 through such arguments can now be obtained through ``Get``-type functions.
 
-Installation of IDA (and all of SUNDIALS) has been completely redesigned and is
-now based on configure scripts.
+In CVODE and CVODES a rootfinding feature was added, whereby the roots of a set
+of given functions may be computed during the integration of the ODE system.
 
-### KINSOL Changes in v2.2.0
+Changes to the NVector:
 
-The major changes from the previous version involve a redesign of the user
-interface across the entire SUNDIALS suite. We have eliminated the mechanism of
-providing optional inputs and extracting optional statistics from the solver
-through the ``iopt`` and ``ropt`` arrays. Instead, KINSOL now provides a set of
-routines (with prefix ``KINSet``) to change the default values for various
-quantities controlling the solver and a set of extraction routines (with prefix
-``KINGet``) to extract statistics after return from the main solver
-routine. Similarly, each linear solver module provides its own set of ``Set``-
-and ``Get``-type routines. For more details see Chapter :numref:KINSOL.Usage.CC.
+* Removed ``machEnv``, redefined table of vector operations (now contained in
+  the :c:type:`N_Vector` structure itself).
 
-Additionally, the interfaces to several user-supplied routines (such as those
-providing Jacobian-vector products and preconditioner information) were
-simplified by reducing the number of arguments. The same information that was
-previously accessible through such arguments can now be obtained through
-``Get``-type functions.
+* All SUNDIALS functions create new :c:type:`N_Vector` variables through
+  cloning, using an :c:type:`N_Vector` passed by the user as a template.
 
-Installation of KINSOL (and all of SUNDIALS) has been completely redesigned and
-is now based on configure scripts.
+* A particular vector implementation is supposed to provide user-callable
+  constructor and destructor functions.
+
+* Removed the following functions from the structure of vector operations:
+  ``N_VNew``, ``N_VNew_S``, ``N_VFree``, ``N_VFree_S``, ``N_VMake``,
+  ``N_VDispose``, ``N_VGetData``, ``N_VSetData``, ``N_VConstrProdPos``, and
+  ``N_VOneMask``.
+
+* Added the following functions to the structure of vector operations:
+  ``N_VClone``, ``N_VDestroy``, ``N_VSpace``, ``N_VGetArrayPointer``,
+  ``N_VSetArrayPointer``, and ``N_VWrmsNormMask``.
+
+* Note that ``nvec_ser`` and ``nvec_par`` are now separate modules outside the
+  shared SUNDIALS module.
+
+Changes to the linear solvers:
+
+* In SPGMR, added a dummy ``N_Vector`` argument to be used as a template for
+  cloning.
+
+* In SPGMR, removed ``N`` (problem dimension) from the argument list of
+  ``SpgmrMalloc``.
+
+* Replaced ``iterativ.{c,h}`` with ``iterative.{c,h}``.
+
+* Modified constant names in ``iterative.h`` (preconditioner types are prefixed
+  with ``PREC_``).
+
+* Changed numerical values for ``MODIFIED_GS`` (from ``0`` to ``1``) and
+  ``CLASSICAL_GS`` (from ``1`` to ``2``).
+
+Changes to ``sundialsmath`` submodule:
+
+* Replaced the internal routine for estimating unit roundoff with definition of
+  unit roundoff from ``float.h``.
+
+* Modified functions to call the appropriate math routines given the precision
+  level specified by the user.
+
+Changes to ``sundialstypes`` submodule:
+
+* Removed ``integertype``.
+
+* Added definitions for ``BIG_REAL``, ``SMALL_REAL``, and ``UNIT_ROUNDOFF``
+  using values from ``float.h`` based on the precision.
+
+* Changed definition of macro ``RCONST`` to depend on the precision level
+  specified by the user.
