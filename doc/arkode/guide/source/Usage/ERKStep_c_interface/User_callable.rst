@@ -491,7 +491,7 @@ Optional inputs for ERKStep
    +----------------------------------------------------+-------------------------------------------+------------------------+
    | Set a value for :math:`t_{stop}`                   | :c:func:`ERKStepSetStopTime()`            | undefined              |
    +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Interpolate at :math:`t_{stop}`                    | :c:func:`ERKStepInterpolateSetStopTime()` | ``SUNFALSE``           |
+   | Interpolate at :math:`t_{stop}`                    | :c:func:`ERKStepSetInterpolateStopTime()` | ``SUNFALSE``           |
    +----------------------------------------------------+-------------------------------------------+------------------------+
    | Disable the stop time                              | :c:func:`ERKStepClearStopTime`            | N/A                    |
    +----------------------------------------------------+-------------------------------------------+------------------------+

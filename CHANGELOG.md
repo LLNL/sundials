@@ -79,7 +79,7 @@ SUNDIALSFileOpen
 SUNDIALSFileClose
 
 // From sundials_memory.h
-SUNMemorNewEmpty
+SUNMemoryNewEmpty
 SUNMemoryHelper_Alias
 SUNMemoryHelper_Wrap
 
@@ -661,7 +661,7 @@ functions should be used instead.
 
 The previously deprecated constructor `N_VMakeWithManagedAllocator_Cuda` and
 the function `N_VSetCudaStream_Cuda` have been removed and replaced with
-`N_VNewWithMemHelp_Cuda` and `N_VSetKerrnelExecPolicy_Cuda` respectively.
+`N_VNewWithMemHelp_Cuda` and `N_VSetKernelExecPolicy_Cuda` respectively.
 
 The previously deprecated macros `PVEC_REAL_MPI_TYPE` and
 `PVEC_INTEGER_MPI_TYPE` have been removed and replaced with
@@ -1040,7 +1040,7 @@ linear systems. This module is experimental and is subject to change from
 version to version.
 
 Added a new *optional* function to the SUNLinearSolver API,
-`SUNLinSolSetZeroGuess`, to indicate that the next call to `SUNlinSolSolve` will
+`SUNLinSolSetZeroGuess`, to indicate that the next call to `SUNLinSolSolve` will
 be made with a zero initial guess. SUNLinearSolver implementations that do not
 use the `SUNLinSolNewEmpty` constructor will, at a minimum, need set the
 `setzeroguess` function pointer in the linear solver `ops` structure to

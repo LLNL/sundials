@@ -36,9 +36,9 @@ SUNNonlinearSolver core functions
 -----------------------------------------------------
 
 The core nonlinear solver functions consist of two required functions to get the
-nonlinear solver type (:c:func:`SUNNonlinsSolGetType`) and solve the nonlinear system
+nonlinear solver type (:c:func:`SUNNonlinSolGetType`) and solve the nonlinear system
 (:c:func:`SUNNonlinSolSolve`). The remaining three functions for nonlinear solver
-initialization (:c:func:`SUNNonlinSolInitialization`), setup
+initialization (:c:func:`SUNNonlinSolInitialize`), setup
 (:c:func:`SUNNonlinSolSetup`), and destruction (:c:func:`SUNNonlinSolFree`) are optional.
 
 
@@ -92,7 +92,7 @@ initialization (:c:func:`SUNNonlinSolInitialization`), setup
       A :c:type:`SUNErrCode`.
 
    **Notes:**
-      SUNDIALS integrators call :c:func:`SUNonlinSolSetup` before
+      SUNDIALS integrators call :c:func:`SUNNonlinSolSetup` before
       each step attempt. SUNNonlinSol implementations that do not
       require setup may set this operation to ``NULL``.
 
@@ -582,7 +582,7 @@ A SUNNonlinSol implementation *must* do the following:
 
 To aid in the creation of custom ``SUNNonlinearSolver`` modules, the generic
 ``SUNNonlinearSolver`` module provides the utility functions
-:c:func:`SUNNonlinSolNewEmpty` and :c:func:`SUNNonlinsolFreeEmpty`. When used
+:c:func:`SUNNonlinSolNewEmpty` and :c:func:`SUNNonlinSolFreeEmpty`. When used
 in custom ``SUNNonlinearSolver`` constructors these functions will ease the
 introduction of any new optional nonlinear solver operations to the
 ``SUNNonlinearSolver`` API by ensuring that only required operations need to

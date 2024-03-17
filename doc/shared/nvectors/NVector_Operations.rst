@@ -326,7 +326,7 @@ operations below.
 
 .. c:function:: sunrealtype N_VDotProd(N_Vector x, N_Vector z)
 
-   Returns the value of the dot-product of the ``N_Vectors`` *x* and *y*:
+   Returns the value of the dot-product of the vectors *x* and *y*:
 
    .. math::
       d = \sum_{i=0}^{n-1} x_i y_i.
@@ -399,7 +399,7 @@ operations below.
 
       m = N_VMin(x);
 
-.. c:function:: sunrealtype N_VWl2Norm(N_Vector x, N_Vector w)
+.. c:function:: sunrealtype N_VWL2Norm(N_Vector x, N_Vector w)
 
    Returns the weighted Euclidean :math:`l_2` norm of the ``N_Vector``
    *x* with ``sunrealtype`` weight vector *w*:

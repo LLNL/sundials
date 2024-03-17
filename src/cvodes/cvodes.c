@@ -2057,7 +2057,7 @@ int CVodeSensReInit(void* cvode_mem, int ism, N_Vector* yS0)
  * CVodeSensSVtolerances specifies scalar relative tolerance and a vector
  *   absolute tolerance for each sensitivity vector (a potentially different
  *   absolute tolerance for each vector component).
- * CVodeEEtolerances specifies that tolerances for sensitivity variables
+ * CVodeSensEEtolerances specifies that tolerances for sensitivity variables
  *   should be estimated from those provided for the state variables.
  */
 

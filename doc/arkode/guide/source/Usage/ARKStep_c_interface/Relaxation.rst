@@ -204,7 +204,7 @@ relaxation.
    :eq:`ARKODE_RELAX_NLS`.
 
    If the residual or iteration update tolerance (see
-   :c:func:`ARKStepSetRelaxMaxIter`) is not reached within the maximum number of
+   :c:func:`ARKStepSetRelaxMaxIters`) is not reached within the maximum number of
    iterations (determined by :c:func:`ARKStepSetRelaxMaxIters`), the step will
    be repeated with a smaller step size (determined by
    :c:func:`ARKStepSetRelaxEtaFail`).
@@ -289,7 +289,8 @@ about the performance of the relaxation method.
 
    The counter includes the sum of the number of nonlinear solver failures
    (see :c:func:`ARKStepGetNumRelaxSolveFails`) and the number of failures due
-   an unacceptable relaxation value (see :c:func:`ARKStepSetRelaxBoundFactor`).
+   an unacceptable relaxation value (see :c:func:`ARKStepSetRelaxLowerBound` and
+   :c:func:`ARKStepSetRelaxUpperBound`).
 
    :param arkode_mem: the ARKStep memory structure
    :param fails: the total number of failed relaxation attempts

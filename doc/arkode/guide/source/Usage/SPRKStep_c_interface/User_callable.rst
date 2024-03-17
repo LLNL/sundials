@@ -269,8 +269,6 @@ Optional inputs for SPRKStep
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Set dense output polynomial degree                  | :c:func:`SPRKStepSetInterpolantDegree()` | 5                      |
   +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Supply a pointer to a diagnostics output file       | :c:func:`SPRKStepSetDiagnostics()`       | ``NULL``               |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
   | Set fixed step size (required user input)           | :c:func:`SPRKStepSetFixedStep()`         | user defined           |
   +-----------------------------------------------------+------------------------------------------+------------------------+
   | Maximum no. of internal steps before *tout*         | :c:func:`SPRKStepSetMaxNumSteps()`       | 500                    |
@@ -501,7 +499,7 @@ Optional inputs for IVP method selection
    .. warning::
 
       This overrides any previously set method so it should not be used with
-      :c:func:`SPRKStepSetMethod` or :c:func:`SPRKStepMethodByName`.
+      :c:func:`SPRKStepSetMethod` or :c:func:`SPRKStepSetMethodName`.
 
 
 .. c:function:: int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKTable sprk_table)
