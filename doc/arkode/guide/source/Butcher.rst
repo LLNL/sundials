@@ -339,7 +339,7 @@ Knoth-Wolke-3-3
 .. index:: Knoth-Wolke-3-3 ERK method
 
 Accessible via the constant ``ARKODE_KNOTH_WOLKE_3_3`` to
-:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`,
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
 :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_KNOTH_WOLKE_3_3"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
@@ -412,8 +412,8 @@ Zonneveld-5-3-4
 .. index:: Zonneveld-5-3-4 ERK method
 
 Accessible via the constant ``ARKODE_ZONNEVELD_5_3_4`` to
-:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`, or
-:c:func:`ARKodeButcherTable_LoadERK`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ZONNEVELD_5_3_4"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
@@ -2034,11 +2034,9 @@ Symplectic Partitioned Butcher tables
 -------------------------------------
 
 In the category of symplectic partitioned Runge-Kutta (SPRK) methods, ARKODE
-includes methods that have orders :math:`q = \{1,2,3,4,5,6,8,10\}`.
+includes methods that have orders :math:`q = \{1,2,3,4,5,6,8,10\}`. Each of
+the ARKODE SPRK tables are specified via a unique ID and name.
 
-.. c:enum:: ARKODE_SPRKMethodID
-
-   Each of the ARKODE SPRK tables are specified via a unique ID and name.
 
 ARKODE_SPRK_EULER_1_1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
