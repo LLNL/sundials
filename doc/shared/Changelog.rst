@@ -1725,7 +1725,7 @@ Added support for damping when using Anderson acceleration in KINSOL. See the
 
 Added support for constant damping to the fixed-point
 :c:type:`SUNNonlinearSolver` when using Anderson acceleration. See
-:numref:`SUNNonlinSol.FixedPoint.Math` and the
+:ref:`SUNNonlinSol.FixedPoint.Math` and the
 :c:func:`SUNNonlinSolSetDamping_FixedPoint` for more details.
 
 Added two utility functions, :c:func:`SUNDIALSFileOpen` and
@@ -1922,7 +1922,7 @@ state and the initial guess for the correction to that state. Additionally,
 the definitions of :c:func:`SUNNonlinSolLSetupFn` and :c:func:`SUNNonlinSolLSolveFn` in the
 :c:type:`SUNNonlinearSolver` API have been updated to remove unused input parameters.
 For more information on the nonlinear system formulation and the API functions
-see :numref:`SUNNonlinSol`.
+see :ref:`SUNNonlinSol`.
 
 Added a new :c:type:`SUNNonlinearSolver` implementation for interfacing with the
 :ref:`PETSc SNES <SUNNonlinSol.PetscSNES>` nonlinear solver.
@@ -2141,7 +2141,7 @@ SUNDIALS integrators (ARKODE, CVODE(S), and IDA(S)) have been updated to utilize
 generic nonlinear solvers defined by the :c:type:`SUNNonlinearSolver` API. This
 enables the addition of new nonlinear solver options and allows for external or
 user-supplied nonlinear solvers. The nonlinear solver API and SUNDIALS provided
-implementations are described in :numref:`SUNNonlinSol` and follow the same
+implementations are described in :ref:`SUNNonlinSol` and follow the same
 object oriented design used by the :c:type:`N_Vector`, :c:type:`SUNMatrix`, and
 :c:type:`SUNLinearSolver` classes. Currently two nonlinear solver
 implementations are provided, :ref:`Newton <SUNNonlinSol.Newton>` and
