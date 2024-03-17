@@ -1405,7 +1405,7 @@ CMake variable. This vector remains experimental and is subject to change from
 version to version.
 
 A new optional operation, :c:func:`N_VGetDeviceArrayPointer`, was added to the
-N_Vector API. This operation is useful for N_Vectors that utilize dual memory
+N_Vector API. This operation is useful for vectors that utilize dual memory
 spaces, e.g. the native SUNDIALS CUDA N_Vector.
 
 The SUNDIALS matrix and linear solver interfaces to the :ref:`cuSparse matrix
