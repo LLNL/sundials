@@ -67,7 +67,7 @@ is expected/desired. Changing output files requires careful verification that th
      machines by going to `<https://github.com/LLNL/sundials/actions>`_ finding your failing
      test, clicking it, then at the bottom downloading the "output_files" artifact (you can also find your
      failing test at the bottom of a PR). The downloaded zip file will be the SUNDIALS build
-     directory. To update just the failed files you can use ``scripts/updateOutFiles.py ``e.g.,
+     directory. To update just the failed files you can use ``scripts/updateOutFiles.py`` e.g.,
 
      .. code:: console
 

@@ -412,8 +412,8 @@ Zonneveld-5-3-4
 .. index:: Zonneveld-5-3-4 ERK method
 
 Accessible via the constant ``ARKODE_ZONNEVELD_5_3_4`` to
-:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
-or :c:func:`ARKodeButcherTable_LoadERK`.
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`, or
+:c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ZONNEVELD_5_3_4"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
