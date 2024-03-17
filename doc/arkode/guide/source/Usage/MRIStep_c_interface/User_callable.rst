@@ -3484,6 +3484,7 @@ via a call to :c:func:`MRIStepSetStopTime()`.  Following a successful call to
 solving the problem. By default the next call to :c:func:`MRIStepEvolve()` will
 use the step size computed by MRIStep prior to calling :c:func:`MRIStepReset()`.
 To set a different step size use :c:func:`MRIStepSetFixedStep`.
+
 ..
    To set a different step size or have MRIStep estimate a new step size use
    :c:func:`MRIStepSetInitStep()`.

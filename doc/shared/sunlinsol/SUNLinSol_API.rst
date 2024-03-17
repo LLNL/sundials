@@ -282,7 +282,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 .. c:function:: SUNErrCode SUNLinSolSetScalingVectors(SUNLinearSolver LS, N_Vector s1, N_Vector s2)
 
    This *optional* routine provides left/right scaling vectors for the
-   linear system solve.  Here, *s1* and *s2* are ``N_Vector``s of positive
+   linear system solve.  Here, *s1* and *s2* are vectors of positive
    scale factors containing the diagonal of the matrices :math:`S_1`
    and :math:`S_2` from :eq:`eq:transformed_linear_system_components`, respectively.
    Neither vector needs to be tested for positivity, and a ``NULL`` argument for either

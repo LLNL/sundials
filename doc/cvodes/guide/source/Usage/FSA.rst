@@ -1192,7 +1192,7 @@ defined by:
      * ``yS`` -- contains the current values of the sensitivity vectors.
      * ``ySdot`` -- is the output of :c:type:`CVSensRhsFn` . On exit it must contain    the sensitivity right-hand side vectors.
      * ``user_data`` -- is a pointer to user data, the same as the ``user_data`` parameter passed to :c:func:`CVodeSetUserData` .
-     * ``tmp1``, ``tmp2`` -- are ``N_Vector``s of length :math:`N` which can be used as temporary storage.
+     * ``tmp1``, ``tmp2`` -- are vectors of length :math:`N` which can be used as temporary storage.
 
    **Return value:**
       A :c:type:`CVSensRhsFn` should return 0 if successful, a positive value if a recoverable
@@ -1243,7 +1243,7 @@ sensitivity parameter at a time, through a function of type
      * ``yS`` -- contains the current value of the ``iS`` -th sensitivity vector.
      * ``ySdot`` -- is the output of :c:type:`CVSensRhs1Fn` . On exit it must contain    the ``iS`` -th sensitivity right-hand side vector.
      * ``user_data`` -- is a pointer to user data, the same as the ``user_data`` parameter passed to :c:func:`CVodeSetUserData` .
-     * ``tmp1``, ``tmp2`` -- are ``N_Vector``s of length :math:`N` which can be used as temporary storage.
+     * ``tmp1``, ``tmp2`` -- are vectors of length :math:`N` which can be used as temporary storage.
 
    **Return value:**
       A :c:type:`CVSensRhs1Fn` should return 0 if successful, a positive value if a recoverable

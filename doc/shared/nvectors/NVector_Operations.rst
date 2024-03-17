@@ -326,7 +326,7 @@ operations below.
 
 .. c:function:: sunrealtype N_VDotProd(N_Vector x, N_Vector z)
 
-   Returns the value of the dot-product of the ``N_Vector``s *x* and *y*:
+   Returns the value of the dot-product of the vectors *x* and *y*:
 
    .. math::
       d = \sum_{i=0}^{n-1} x_i y_i.
