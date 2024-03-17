@@ -190,9 +190,6 @@ are the ones that have been consolidated into ``fsundials_core_mod``:
 
 **Minor Changes**
 
-Converted most previous Fortran 77 and 90 examples to use SUNDIALS' Fortran 2003
-interface.
-
 The ``CMAKE_BUILD_TYPE`` defaults to ``RelWithDebInfo`` mode now i.e., SUNDIALS
 will be built with optimizations and debugging symbols enabled by default.
 Previously the build type was unset by default so no optimization or debugging
@@ -210,6 +207,9 @@ The C++ convenience classes (e.g., ``sundials::Context``) have been moved to
 from SUNDIALS ``.h`` headers to corresponding ``.hpp`` headers (e.g.,
 ``sundials/sundials_context.hpp``) so C++ codes do not need to compile with
 C++14 support when using the C API.
+
+Converted most previous Fortran 77 and 90 examples to use SUNDIALS' Fortran 2003
+interface.
 
 **Bug Fixes**
 
@@ -325,7 +325,7 @@ installation of CUDA and fixed the targets used for rocBLAS and rocSPARSE.
 Changes to SUNDIALS in release 6.6.1
 ====================================
 
-**New Feature**
+**New Features**
 
 Updated the Trilinos Tpetra :c:type:`N_Vector` interface to support Trilinos 14.
 
@@ -588,7 +588,7 @@ linear solver, and other statistics in one call:
 * :c:func:`KINPrintAllStats`
 
 The file ``scripts/sundials_csv.py`` contains functions for parsing the
-comma-separated (CSV) value output files when using the CSV output format.
+comma-separated value (CSV) output files when using the CSV output format.
 
 Added functions to CVODE, CVODES, IDA, and IDAS to change the default step size
 adaptivity parameters. For more information see the documentation for:
@@ -757,7 +757,7 @@ Caliper.
 
 Fixed ``sundials_export.h`` include in ``sundials_config.h``.
 
-Fixed memory leaks in the ``SUNLINSOL_SUPERLUMT`` linear solver.
+Fixed memory leaks in the SuperLU_MT linear solver interface.
 
 Changes to SUNDIALS in release 6.0.0
 ====================================
@@ -1337,10 +1337,10 @@ with other SUNDIALS HIP features, this capability is considered experimental and
 may change from version to version.
 
 New KINSOL options have been added to apply a constant damping factor in the
-fixed point and Picard iterations (see `KINSetDamping`), to delay the start of
-Anderson acceleration with the fixed point and Picard iterations (see
-`KINSetDelayAA`), and to return the newest solution with the fixed point
-iteration (see `KINSetReturnNewest`).
+fixed point and Picard iterations (see :c:func:`KINSetDamping`), to delay the
+start of Anderson acceleration with the fixed point and Picard iterations (see
+:c:func:`KINSetDelayAA`), and to return the newest solution with the fixed point
+iteration (see :c:func:`KINSetReturnNewest`).
 
 The installed ``SUNDIALSConfig.cmake`` file now supports the ``COMPONENTS``
 option to ``find_package``. The exported targets no longer have IMPORTED_GLOBAL
@@ -1468,10 +1468,10 @@ respectively. The API documentation and SUNDIALS provided
 before, the cumulative number of nonlinear iterations and failures may be
 retrieved with the following functions:
 
-* :C:func:`ARKStepGetNumNonlinSolvIters`
+* :c:func:`ARKStepGetNumNonlinSolvIters`
 * :c:func:`ARKStepGetNumNonlinSolvConvFails`
 * :c:func:`ARKStepGetNonlinSolvStats`
-* :C:func:`MRIStepGetNumNonlinSolvIters`
+* :c:func:`MRIStepGetNumNonlinSolvIters`
 * :c:func:`MRIStepGetNumNonlinSolvConvFails`
 * :c:func:`MRIStepGetNonlinSolvStats`
 * :c:func:`CVodeGetNumNonlinSolvIters`
@@ -1562,11 +1562,11 @@ Changes to SUNDIALS in release 5.3.0
 
 **Major Feature**
 
-Added support for integrating IVPs with constraints using BDF methods
-and projecting the solution onto the constraint manifold with a user
-defined projection function. This implementation is accompanied by
-additions to user documentation and CVODE examples. See
-:c:func:`CVodeSetProjFn` for more information.
+Added support to CVODE for integrating IVPs with constraints using BDF methods
+and projecting the solution onto the constraint manifold with a user defined
+projection function. This implementation is accompanied by additions to user
+documentation and CVODE examples. See :c:func:`CVodeSetProjFn` for more
+information.
 
 **New Features**
 
@@ -1651,7 +1651,7 @@ matrix will need to update their code. This implementations are still considered
 to be experimental, thus they are subject to breaking changes even in minor
 releases.
 
-Added a new "stiff" interpolation module, based on Lagrange polynomial
+Added a new "stiff" interpolation module to ARKODE, based on Lagrange polynomial
 interpolation, that is accessible to each of the ARKStep, ERKStep and MRIStep
 time-stepping modules. This module is designed to provide increased
 interpolation accuracy when integrating stiff problems, as opposed to the
@@ -2566,13 +2566,13 @@ coefficients accurate enough for use in quad precision.
 Renamed CMake options to enable/disable examples for greater clarity and added
 option to enable/disable Fortran 77 examples:
 
-  * Changed ``EXAMPLES_ENABLE`` to :cmakeop:`EXAMPLES_ENABLE_C`
+  - Changed ``EXAMPLES_ENABLE`` to :cmakeop:`EXAMPLES_ENABLE_C`
 
-  * Changed ``CXX_ENABLE`` to  :cmakeop:`EXAMPLES_ENABLE_CXX`
+  - Changed ``CXX_ENABLE`` to  :cmakeop:`EXAMPLES_ENABLE_CXX`
 
-  * Changed ``F90_ENABLE`` to  ``EXAMPLES_ENABLE_F90``
+  - Changed ``F90_ENABLE`` to  ``EXAMPLES_ENABLE_F90``
 
-  * Added ``EXAMPLES_ENABLE_F77`` option
+  - Added ``EXAMPLES_ENABLE_F77`` option
 
 Added separate ``BLAS_ENABLE`` and ``BLAS_LIBRARIES`` CMake variables.
 
