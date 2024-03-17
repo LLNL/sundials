@@ -219,9 +219,7 @@ Forward sensitivity initialization and deallocation functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Activation of forward sensitivity computation is done by calling
-:c:func:`IDASensInit` or :c:func:`IDASensInit1`, depending on whether the
-sensitivity residual function returns all sensitivities at once or one by
-one, respectively. The form of the call to each of these routines is as follows:
+:c:func:`IDASensInit`. The form of the call is as follows:
 
 .. c:function:: int IDASensInit(void * ida_mem, int Ns, int ism, IDASensResFn fS, N_Vector * yS0, N_Vector * ypS0)
 
