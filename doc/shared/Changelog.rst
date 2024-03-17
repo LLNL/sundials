@@ -3064,238 +3064,97 @@ linked list and identified in the user interface through a unique identifier.
 Changes to SUNDIALS in release 2.3.0
 ====================================
 
-- Changes to the user interface
-
-  - modified the functions in the generic dense linear solver (sundials\_dense
-    and sundials\_smalldense) to work for rectangular m by n matrices (m <= n).
-
-  - renamed the factorization and solution functions in the generic dense linear
-    solver to DenseGETRF/denGETRF and DenseGETRS/denGETRS, respectively.
-
-  - renamed the factorization and solution functions in the generic band linear
-    solver to BandGBTRF and BandGBTRS, respectively.
-
-- Changes related to the build system
-
-  - rearranged the entire SUNDIALS source tree
-
-  - all exported header files are now installed in separate subdirectories of
-    the installation include directory
-
-  - header files are included now by specifying the relative path (e.g.,
-    #include \<sundials/sundials\_types.h\>)
-
-### CVODE Changes in v2.5.0
+**New Features and Enhancements**
 
 The main changes in this release involve a rearrangement of the entire
-:ref:`SUNDIALS source tree <CVODE.Organization>`. At the user interface level,
-the main impact is in the mechanism of including SUNDIALS header files which
-must now include the relative path (e.g. ``#include
-<cvode/cvode.h>``). Additional changes were made to the build system: all
-exported header files are now installed in separate subdirectories of the
-instaltion *include* directory.
-
-The functions in the generic dense linear solver (``sundials_dense`` and
-``sundials_smalldense``) were modified to work for rectangular :math:`m \times
-n` matrices (:math:`m \le n`), while the factorization and solution functions
-were renamed to ``DenseGETRF`` / ``denGETRF`` and ``DenseGETRS`` / ``denGETRS``,
-respectively. The factorization and solution functions in the generic band
-linear solver were renamed ``BandGBTRF`` and ``BandGBTRS``, respectively.
-
-### CVODES Changes in v2.5.0
-
-The main changes in this release involve a rearrangement of the entire SUNDIALS
-source tree (see :ref:`CVODES.Organization`). At the user interface level, the
-main impact is in the mechanism of including SUNDIALS header files which must
-now include the relative path (e.g. ``#include <cvode/cvode.h>``).  Additional
-changes were made to the build system: all exported header files are now
-installed in separate subdirectories of the instaltion *include* directory.
-
-In the adjoint solver module, the following two bugs were fixed: in ``CVodeF``
-the solver was sometimes incorrectly taking an additional step before returning
-control to the user (in ``CV_NORMAL`` mode) thus leading to a failure in the
-interpolated output function; in ``CVodeB``, while searching for the current
-check point, the solver was sometimes reaching outside the integration interval
-resulting in a segmentation fault.
-
-The functions in the generic dense linear solver (``sundials_dense`` and
-``sundials_smalldense``) were modified to work for rectangular :math:`m \times
-n` matrices (:math:`m \le n`), while the factorization and solution functions
-were renamed to ``DenseGETRF`` / ``denGETRF`` and ``DenseGETRS`` / ``denGETRS``,
-respectively. The factorization and solution functions in the generic band
-linear solver were renamed ``BandGBTRF`` and ``BandGBTRS``, respectively.
-
-### IDA Changes in v2.5.0
-
-The main changes in this release involve a rearrangement of the entire SUNDIALS
-source tree (see :ref:`IDA.Organization`). At the user interface level, the main
-impact is in the mechanism of including SUNDIALS header files which must now
-include the relative path (e.g. ``#include <cvode/cvode.h>``). Additional
-changes were made to the build system: all exported header files are now
+SUNDIALS source tree. At the user interface level, the main impact is in the
+mechanism of including SUNDIALS header files which must now include the relative
+path e.g., ``#include <cvode/cvode.h>`` as all exported header files are now
 installed in separate subdirectories of the installation *include* directory.
 
-A bug was fixed in the internal difference-quotient dense and banded Jacobian
-approximations, related to the estimation of the perturbation (which could have
-led to a failure of the linear solver when zero components with sufficiently
-small absolute tolerances were present).
+The functions in the generic dense linear solver (``sundials_dense`` and
+``sundials_smalldense``) were modified to work for rectangular :math:`m \times
+n` matrices (:math:`m \le n`), while the factorization and solution functions
+were renamed to ``DenseGETRF`` / ``denGETRF`` and ``DenseGETRS`` / ``denGETRS``,
+respectively. The factorization and solution functions in the generic band
+linear solver were renamed ``BandGBTRF`` and ``BandGBTRS``, respectively.
 
-The user interface to the consistent initial conditions calculations was
+In IDA, the user interface to the consistent initial conditions calculations was
 modified. The :c:func:`IDACalcIC` arguments ``t0``, ``yy0``, and ``yp0`` were
 removed and a new function, :c:func:`IDAGetConsistentIC` is provided.
 
-The functions in the generic dense linear solver (``sundials_dense`` and
-``sundials_smalldense``) were modified to work for rectangular :math:`m \times
-n` matrices (:math:`m \le n`), while the factorization and solution functions
-were renamed to ``DenseGETRF / denGETRF`` and ``DenseGETRS / denGETRS``,
-respectively. The factorization and solution functions in the generic band
-linear solver were renamed ``BandGBTRF`` and ``BandGBTRS``, respectively.
+**Bug Fixes**
 
-### KINSOL Changes in v2.5.0
+In the CVODES adjoint solver module, the following two bugs were fixed:
 
-The main changes in this release involve a rearrangement of the entire SUNDIALS
-source tree (see :ref:`KINSOL.Organization`). At the user interface level, the
-main impact is in the mechanism of including SUNDIALS header files which must
-now include the relative path (e.g. ``#include <cvode/cvode.h>``). Additional
-changes were made to the build system: all exported header files are now
-installed in separate subdirectories of the installation *include* directory.
+* In ``CVodeF`` the solver was sometimes incorrectly taking an additional step
+  before returning control to the user (in ``CV_NORMAL`` mode) thus leading to
+  a failure in the interpolated output function.
 
-The functions in the generic dense linear solver (``sundials_dense`` and
-``sundials_smalldense``) were modified to work for rectangular :math:`m \times
-n` matrices (:math:`m \le n`), while the factorization and solution functions
-were renamed to ``DenseGETRF``/``denGETRF`` and ``DenseGETRS``/``denGETRS``,
-respectively. The factorization and solution functions in the generic band
-linear solver were renamed ``BandGBTRF`` and ``BandGBTRS``, respectively.
+* In ``CVodeB``, while searching for the current check point, the solver was
+  sometimes reaching outside the integration interval resulting in a
+  segmentation fault.
 
+In IDA, a bug was fixed in the internal difference-quotient dense and banded
+Jacobian approximations, related to the estimation of the perturbation (which
+could have led to a failure of the linear solver when zero components with
+sufficiently small absolute tolerances were present).
 
 Changes to SUNDIALS in release 2.2.0
 ====================================
 
-- New features
-
-  - added SPBCG (scaled preconditioned Bi-CGStab) linear solver module
-
-  - added SPTFQMR (scaled preconditioned TFQMR) linear solver module
-
-- Changes related to the build system
-
-  - updated configure script and Makefiles for Fortran examples to avoid C++
-    compiler errors (now use CC and MPICC to link only if necessary)
-
-  - SUNDIALS shared header files are installed under a sundials subdirectory of
-    the installation include directory
-
-  - the shared object files are now linked into each SUNDIALS library rather
-    than into a separate libsundials\_shared library
-
-- Changes to the user interface
-
-  - added prefix sundials\_ to all shared header files
-
-### CVODE Changes in v2.4.0
-
-CVSPBCG and CVSPTFQMR modules have been added to interface with the Scaled
-Preconditioned Bi-CGstab (SPBCG) and Scaled Preconditioned Transpose-Free
-Quasi-Minimal Residual (SPTFQMR) linear solver modules, respectively (for
-details see :ref:`CVODE.Usage.CC`). Corresponding additions were made to the
-Fortran interface module FCVODE. At the same time, function type names for
-Scaled Preconditioned Iterative Linear Solvers were added for the user-supplied
-Jacobian-times-vector and preconditioner setup and solve functions.
-
-The deallocation functions now take as arguments the address of the respective
-memory block pointer.
+**New Header Files Names**
 
 To reduce the possibility of conflicts, the names of all header files have been
-changed by adding unique prefixes (``cvode_`` and ``sundials_``). When using the
-default installation procedure, the header files are exported under various
-subdirectories of the target directory. For more details see
-:numref:`Installation`.
+changed by adding unique prefixes (e.g., ``cvode_`` and ``sundials_``). When
+using the default installation procedure, the header files are exported under
+various subdirectories of the target ``include`` directory. For more details see
+Appendix :numref:`Installation`.
 
-### CVODES Changes in v2.4.0
+**Build System Changes**
 
-CVSPBCG and CVSPTFQMR modules have been added to interface with the Scaled
-Preconditioned Bi-CGstab (SPBCG) and Scaled Preconditioned Transpose-Free
-Quasi-Minimal Residual (SPTFQMR) linear solver modules, respectively (for
-details see Chapter :ref:`CVODES.Usage.SIM`). At the same time, function type
-names for Scaled Preconditioned Iterative Linear Solvers were added for the
+Updated configure script and Makefiles for Fortran examples to avoid C++
+compiler errors (now use ``CC`` and ``MPICC`` to link only if necessary).
+
+The shared object files are now linked into each SUNDIALS library rater than
+into a separate ``libsundials_shared`` library.
+
+**New Features and Enhancements**
+
+Deallocation functions now take the address of the respective memory block
+pointer as the input argument.
+
+Interfaces to the Scaled Preconditioned Bi-CGstab (SPBCG) and Scaled
+Preconditioned Transpose-Free Quasi-Minimal Residual (SPTFQMR) linear solver
+modules have been added to all packages. At the same time, function type names
+for Scaled Preconditioned Iterative Linear Solvers were added for the
 user-supplied Jacobian-times-vector and preconditioner setup and solve
-functions.
+functions. Additionally, in KINSOL interfaces have been added to the SUNDIALS
+DENSE, and BAND linear solvers and include support for nonlinear residual
+monitoring which can be used to control Jacobian updating.
 
 A new interpolation method was added to the CVODES adjoint module. The function
 ``CVadjMalloc`` has an additional argument which can be used to select the
 desired interpolation scheme.
 
-The deallocation functions now take as arguments the address of the respective
-memory block pointer.
-
-To reduce the possibility of conflicts, the names of all header files have been
-changed by adding unique prefixes (``cvodes_`` and ``sundials_``). When using
-the default installation procedure, the header files are exported under various
-subdirectories of the target ``include`` directory. For more details see
-Appendix :numref:`Installation`.
-
-### IDA Changes in v2.4.0
-
 FIDA, a Fortran-C interface module, was added.
 
-IDASPBCG and IDASPTFQMR modules have been added to interface with the Scaled
-Preconditioned Bi-CGstab (SPBCG) and Scaled Preconditioned Transpose-Free
-Quasi-Minimal Residual (SPTFQMR) linear solver modules, respectively (for
-details see :numref:IDA.Usage.CC). At the same time, function type names for
-Scaled Preconditioned Iterative Linear Solvers were added for the user-supplied
-Jacobian-times-vector and preconditioner setup and solve functions.
+The rootfinding feature was added to IDA, whereby the roots of a set of given
+functions may be computed during the integration of the DAE system.
 
-The rootfinding feature was added, whereby the roots of a set of given functions
-may be computed during the integration of the DAE system.
+In IDA a user-callable routine was added to access the estimated local error
+vector.
 
-A user-callable routine was added to access the estimated local error vector.
-
-The deallocation functions now take as arguments the address of the respective
-memory block pointer.
-
-To reduce the possibility of conflicts, the names of all header files have been
-changed by adding unique prefixes (``ida_`` and ``sundials_``). When using the
-default installation procedure, the header files are exported under various
-subdirectories of the target ``include`` directory. For more details see
-Appendix :numref:`Installation`.
-
-### KINSOL Changes in v2.4.0
-
-KINSPBCG, KINSPTFQMR, KINDENSE, and KINBAND modules have been added to interface
-with the Scaled Preconditioned Bi-CGStab (SPBCG), Scaled Preconditioned
-Transpose-Free Quasi-Minimal Residual (SPTFQMR), DENSE, and BAND linear solver
-modules, respectively. (For details see Chapter :numref:KINSOL.Usage.CC.)
-Corresponding additions were made to the Fortran interface module FKINSOL. At
-the same time, function type names for Scaled Preconditioned Iterative Linear
-Solvers were added for the user-supplied Jacobian-times-vector and
-preconditioner setup and solve functions.
-
-Regarding the Fortran interface module FKINSOL, optional inputs are now set
+In the KINSOL Fortran interface module, FKINSOL, optional inputs are now set
 using ``FKINSETIIN`` (integer inputs), ``FKINSETRIN`` (real inputs), and
 ``FKINSETVIN`` (vector inputs). Optional outputs are still obtained from the
 ``IOUT`` and ``ROUT`` arrays which are owned by the user and passed as arguments
 to ``FKINMALLOC``.
 
-The KINDENSE and KINBAND linear solver modules include support for nonlinear
-residual monitoring which can be used to control Jacobian updating.
-
-To reduce the possibility of conflicts, the names of all header files have been
-changed by adding unique prefixes (``kinsol_`` and ``sundials_``). When using
-the default installation procedure, the header files are exported under various
-subdirectories of the target ``include`` directory. For more details see
-Appendix :numref:`Installation`.
-
 Changes to SUNDIALS in release 2.1.1
 ====================================
 
-- Changes to the generic NVECTOR module
-
-  - N\_VCloneEmpty was added to the global vector operations table
-
-### CVODE Changes in v2.3.0
-
-None?
-
-### CVODES Changes in v2.3.0
+The function ``N_VCloneEmpty`` was added to the global vector operations table.
 
 A minor bug was fixed in the interpolation functions of the adjoint CVODES
 module.
@@ -3303,100 +3162,53 @@ module.
 Changes to SUNDIALS in release 2.1.0
 ====================================
 
-### CVODE Changes in v2.3.0
-
 The user interface has been further refined. Several functions used for setting
-optional inputs were combined into a single one. An optional user-supplied
-routine for setting the error weight vector was added.  Additionally, to resolve
-potential variable scope issues, all SUNDIALS solvers release user data right
-after its use. The build systems has been further improved to make it more
-robust.
+optional inputs were combined into a single one.
 
-### CVODES Changes in v2.2.0
+In CVODE(S) and IDA, an optional user-supplied routine for setting the error
+weight vector was added.
 
-The user interface has been further refined. Several functions used for setting
-optional inputs were combined into a single one. An optional user-supplied
-routine for setting the error weight vector was added. Additionally, to resolve
-potential variable scope issues, all SUNDIALS solvers release user data right
-after its use. The build systems has been further improved to make it more
-robust.
+Additionally, to resolve potential variable scope issues, all SUNDIALS solvers
+release user data right after its use.
 
-### IDA Changes in v2.3.0
-
-The user interface has been further refined. Several functions used for setting
-optional inputs were combined into a single one. An optional user-supplied
-routine for setting the error weight vector was added. Additionally, to resolve
-potential variable scope issues, all SUNDIALS solvers release user data right
-after its use. The build systems has been further improved to make it more
-robust.
-
-### KINSOL Changes in v2.3.0
-
-The user interface has been further refined. Several functions used for setting
-optional inputs were combined into a single one. Additionally, to resolve
-potential variable scope issues, all SUNDIALS solvers release user data right
-after its use. The build system has been further improved to make it more
-robust.
-
+The build systems has been further improved to make it more robust.
 
 Changes to SUNDIALS in release 2.0.2
 ====================================
 
-- Changes related to the build system
+Fixed autoconf-related bug to allow configuration with the PGI Fortran compiler.
 
-  - fixed autoconf-related bug to allow configuration with the PGI Fortran
-    compiler
-
-  - modified to use customized detection of the Fortran name mangling scheme
-    (autoconf's AC\_F77\_WRAPPERS routine is problematic on some platforms)
-
-### CVODE Changes in v2.2.2
-
-None?
-
-### CVODES Changes in v2.1.2
+Modified the build system to use customized detection of the Fortran name
+mangling scheme (autoconf's ``AC_F77_WRAPPERS`` routine is problematic on some
+platforms).
 
 A bug was fixed in the ``CVode`` function that was potentially leading to
-erroneous behaviour of the rootfinding procedure on the integration first step.
+erroneous behavior of the rootfinding procedure on the integration first step.
 
-### IDA Changes in v2.2.2
-
-Minor corrections and improvements were made to the build system. A new chapter
-in the User Guide was added - with constants that appear in the user interface.
+A new chapter in the User Guide was added - with constants that appear in the
+user interface.
 
 Changes to SUNDIALS in release 2.0.1
 ====================================
 
-- Changes related to the build system
+**Build System**
 
-  - changed order of compiler directives in header files to avoid compilation
-    errors when using a C++ compiler.
+Changed the order of compiler directives in header files to avoid compilation
+errors when using a C++ compiler.
 
-  - changed method of generating sundials\_config.h to avoid potential warnings
-    of redefinition of preprocessor symbols.
+Changed the method of generating ``sundials_config.h`` to avoid potential
+warnings of redefinition of preprocessor symbols.
 
-### CVODE Changes in v2.2.1
+**New Features**
 
-The changes in this minor SUNDIALS release affect only the build system.
+In CVODES the option of activating and deactivating forward sensitivity
+calculations on successive runs without memory allocation and deallocation.
 
-### CVODES Changes in v2.1.1
+**Bug Fixes**
 
-This CVODES release includes bug fixes related to forward sensitivity
-computations (possible loss of accuray on a BDF order increase and incorrect
-logic in testing user-supplied absolute tolerances). In addition, we have added
-the option of activating and deactivating forward sensitivity calculations on
-successive CVODES runs without memory allocation/deallocation.
-
-Other changes in this minor SUNDIALS release affect the build system.
-
-### IDA Changes in v2.2.1
-
-The changes in this minor SUNDIALS release affect only the build system.
-
-### KINSOL Changes in v2.2.1
-
-The changes in this minor SUNDIALS release affect only the build system.
-
+In CVODES bug fixes related to forward sensitivity computations (possible loss
+of accuracy on a BDF order increase and incorrect logic in testing user-supplied
+absolute tolerances) were made.
 
 Changes to SUNDIALS in release 2.0.0
 ====================================
