@@ -133,6 +133,10 @@ communicator in place of ``MPI_Comm`` throughout the SUNDIALS API with a
 :c:type:`SUNComm`, which is just a typedef to an ``int`` in builds without MPI
 and a typedef to a ``MPI_Comm`` in builds with MPI. As a result:
 
+- When MPI is enabled, all SUNDIALS libraries will include MPI symbols and
+  applications will need to include the path for MPI headers and link against
+  the corresponding MPI library.
+
 - All users will need to update their codes because the call to
   :c:func:`SUNContext_Create` now takes a :c:type:`SUNComm` instead
   of type-erased pointer to a communicator. For non-MPI codes,
