@@ -1012,7 +1012,7 @@ backward problem depends on the forward sensitivities.
      * ``IDALS_SUCCESS`` -- :c:func:`IDASetJacFnBS` succeeded.
      * ``IDALS_MEM_NULL`` -- The ``ida_mem`` was ``NULL``.
      * ``IDALS_NO_ADJ`` -- The function :c:func:`IDAAdjInit` has not been previously called.
-     * ``IDALS_LMEM_NULL`` -- The linear solver has not been initialized with a call to :c:func:`IDASetLinearSolverBS`.
+     * ``IDALS_LMEM_NULL`` -- The linear solver has not been initialized with a call to :c:func:`IDASetLinearSolverB`.
      * ``IDALS_ILL_INPUT`` -- The parameter ``which`` represented an invalid identifier.
 
    **Notes:**
