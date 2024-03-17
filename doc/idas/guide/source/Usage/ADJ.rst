@@ -807,7 +807,7 @@ conditions:
 
    **Return value:**
      * ``IDA_NO_ADJ`` -- :c:func:`IDAAdjInit` has not been previously called.
-     * ``IDA_ILL_INPUT`` -- Parameter ``which`` represented an invalid identifier, sensitivities were not active during forward integration, or :c:func:`IDAInitBS` or :c:func:`IDAReInitBS` has not been previously called.
+     * ``IDA_ILL_INPUT`` -- Parameter ``which`` represented an invalid identifier, sensitivities were not active during forward integration, or :c:func:`IDAInitBS` or :c:func:`IDAReInitB` has not been previously called.
 
    **Notes:**
 
@@ -815,13 +815,13 @@ conditions:
    0` will trap all :c:func:`IDACalcICBS` failures.  Note that
    :c:func:`IDACalcICBS` will correct the values of :math:`yB(tB_0)` and
    :math:`\dot{y}B(tB_0)` which were specified in the previous call to
-   :c:func:`IDAInitBS` or :c:func:`IDAReInitBS`. To obtain the corrected values,
+   :c:func:`IDAInitBS` or :c:func:`IDAReInitB`. To obtain the corrected values,
    call :c:func:`IDAGetConsistentICB` (see
    :numref:`IDAS.Usage.ADJ.user_callable.optional_ouput_b.iccalcB`).
 
    :c:func:`IDACalcICBS` will correct the values of :math:`yB(tB_0)` and
    :math:`\dot{y}B(tB_0)` which were specified in the previous call to
-   :c:func:`IDAInitBS` or :c:func:`IDAReInitBS`. To obtain the corrected values,
+   :c:func:`IDAInitBS` or :c:func:`IDAReInitB`. To obtain the corrected values,
    :call :c:func:`IDAGetConsistentICB`.
 
 
