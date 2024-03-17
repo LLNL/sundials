@@ -126,7 +126,7 @@ The structure of this document is as follows:
   sensitivity analysis. We begin by describing the IDAS checkpointing
   implementation for interpolation of the original IVP solution during
   integration of the adjoint system backward in time, and with an overview of a
-  user’s main program. Following that we provide complete descriptions of the
+  user's main program. Following that we provide complete descriptions of the
   user-callable interface routines for adjoint sensitivity analysis as well as
   descriptions of the required additional user-defined routines.
 

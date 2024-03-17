@@ -63,7 +63,7 @@ failures with GMRES. Bi-CGStab and TFQMR have an advantage in storage
 requirements, in that the number of workspace vectors they require is fixed,
 while that number for GMRES depends on the desired Krylov subspace size. FGMRES
 has an advantage in that it is designed to support preconditioners that vary
-between iterations (e.g.Â iterative methods). PCG exhibits rapid convergence and
+between iterations (e.g. iterative methods). PCG exhibits rapid convergence and
 minimal workspace vectors, but only works for symmetric linear systems.
 
 In the process of translating the VODE and VODPK algorithms into C, the overall
@@ -187,7 +187,7 @@ The structure of this document is as follows:
 -  Chapter :numref:`CVODES.Usage.ADJ` describes the usage of CVODES for adjoint sensitivity analysis. We begin
    by describing the CVODES checkpointing implementation for interpolation of
    the original IVP solution during integration of the adjoint system backward
-   in time, and with an overview of a userâ€™s main program. Following that we
+   in time, and with an overview of a user's main program. Following that we
    provide complete descriptions of the user-callable interface routines for
    adjoint sensitivity analysis as well as descriptions of the required
    additional user-defined routines.
@@ -197,9 +197,9 @@ The structure of this document is as follows:
 
 -  Chapter :numref:`SUNMatrix` gives a brief overview of the generic ``SUNMatrix`` module shared among
    the various components of SUNDIALS, and details on the ``SUNMatrix``
-   implementations provided with SUNDIALS: a dense implementation (Â§\
-   :numref:`SUNMatrix.Dense`), a banded implementation (Â§\
-   :numref:`SUNMatrix.Band`) and a sparse implementation (Â§\
+   implementations provided with SUNDIALS: a dense implementation (§\
+   :numref:`SUNMatrix.Dense`), a banded implementation (§\
+   :numref:`SUNMatrix.Band`) and a sparse implementation (§\
    :numref:`SUNMatrix.Sparse`).
 
 -  Chapter :numref:`SUNLinSol` gives a brief overview of the generic ``SUNLinearSolver`` module shared among

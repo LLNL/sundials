@@ -458,8 +458,6 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
   +========================================================+==================================+==============================+
   | **KINSOL main solver**                                 |                                  |                              |
   +--------------------------------------------------------+----------------------------------+------------------------------+
-  | Info handler function                                  | :c:func:`KINSetInfoHandlerFn`    | internal fn.                 |
-  +--------------------------------------------------------+----------------------------------+------------------------------+
   | Data for problem-defining function                     | :c:func:`KINSetUserData`         | ``NULL``                     |
   +--------------------------------------------------------+----------------------------------+------------------------------+
   | Max. number of nonlinear iterations                    | :c:func:`KINSetNumMaxIters`      | 200                          |
@@ -1164,7 +1162,7 @@ difference quotient approximation that comes with the KINLS solver
 interface.
 
 A user-defined Jacobian-vector function must be of type :c:type:`KINLsJacTimesVecFn`
-and can be specified through a call to :c:func:`KINLsSetJacTimesVecFn` (see
+and can be specified through a call to :c:func:`KINSetJacTimesVecFn` (see
 :numref:`KINSOL.Usage.CC.user_fct_sim.jtimesFn` for specification details). The pointer
 ``user_data`` received through :c:func:`KINSetUserData` (or a pointer to ``NULL`` if
 ``user_data`` was not specified) is passed to the Jacobian-times-vector function
@@ -1593,7 +1591,7 @@ The following optional outputs are available from the KINLS modules:
 
 .. c:function:: int KINGetNumLinFuncEvals(void * kin_mem, long int * nrevalsLS)
 
-   The function :c:func:`KINGetNumLinResEvals` returns the cumulative number of
+   The function :c:func:`KINGetNumLinFuncEvals` returns the cumulative number of
    calls to the user residual function due to the finite difference Jacobian
    approximation or finite difference Jacobian-vector product approximation.
 
@@ -1724,7 +1722,7 @@ The following optional outputs are available from the KINLS modules:
       * ``KINLS_LMEM_NULL`` -- The KINLS linear solver has not been initialized.
 
    **Notes:**
-      If the KINLS setup function failed (i.e., :c:func:`KINSolve` returned
+      If the KINLS setup function failed (i.e., :c:func:`KINSol` returned
       ``KIN_LSETUP_FAIL``) when using the :ref:`SUNLINSOL_DENSE <SUNLinSol_Dense>`
       or :ref:`SUNLINSOL_BAND <SUNLinSol_Band>` modules, then the value of
       ``lsflag`` is equal to the column index (numbered from one) at which a zero
@@ -1735,7 +1733,7 @@ The following optional outputs are available from the KINLS modules:
       object, then ``lsflag`` will be ``SUNLS_PSET_FAIL_UNREC``,
       ``SUNLS_ASET_FAIL_UNREC``, or ``SUN_ERR_EXT_FAIL``.
 
-      If the KINLS solve function failed (:c:func:`KINSolve` returned ``KIN_LSOLVE_FAIL``),
+      If the KINLS solve function failed (:c:func:`KINSol` returned ``KIN_LSOLVE_FAIL``),
       ``lsflag`` contains the error return flag from the ``SUNLinearSolver``
       object, which will be one of: ``SUN_ERR_ARG_CORRUPTRRUPT``, indicating that the
       ``SUNLinearSolver`` memory is ``NULL``; ``SUNLS_ATIMES_FAIL_UNREC``,
@@ -2245,7 +2243,7 @@ user main program presented in :numref:`KINSOL.Usage.CC.skeleton_sim` are not bo
 The user-callable functions that initialize or re-initialize the KINBBDPRE
 preconditioner module are described next.
 
-.. c:function:: int KINBBDPrecInit(void* kin_mem, sunindextype Nlocal, sunindextype mudq, sunindexype mldq, sunindextype mukeep, sunindextype mlkeep, sunrealtype dq_rel_u, KINBBDLocalFn Gloc, KINBBDCommFn Gcomm)
+.. c:function:: int KINBBDPrecInit(void* kin_mem, sunindextype Nlocal, sunindextype mudq, sunindextype mldq, sunindextype mukeep, sunindextype mlkeep, sunrealtype dq_rel_u, KINBBDLocalFn Gloc, KINBBDCommFn Gcomm)
 
    The function :c:func:`KINBBDPrecInit` initializes and allocates  memory for
    the KINBBDPRE preconditioner.
