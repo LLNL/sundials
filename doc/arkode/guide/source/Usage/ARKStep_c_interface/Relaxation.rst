@@ -289,7 +289,8 @@ about the performance of the relaxation method.
 
    The counter includes the sum of the number of nonlinear solver failures
    (see :c:func:`ARKStepGetNumRelaxSolveFails`) and the number of failures due
-   an unacceptable relaxation value (see :c:func:`ARKStepSetRelaxBoundFactor`).
+   an unacceptable relaxation value (see :c:func:`ARKStepSetRelaxLowerBound` and
+   :c:func:`ARKStepSetRelaxUpperBound`).
 
    :param arkode_mem: the ARKStep memory structure
    :param fails: the total number of failed relaxation attempts
