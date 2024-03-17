@@ -211,12 +211,10 @@ relaxation.
 
    Sets the nonlinear solver method used to compute the relaxation parameter.
 
-   The default value is ``ARK_RELAX_NEWTON``.
+   The default value is :c:enumerator:`ARK_RELAX_NEWTON`
 
    :param arkode_mem: the ARKStep memory structure
-   :param solver: the nonlinear solver to use: ``ARK_RELAX_BRENT`` or
-                  ``ARK_RELAX_NEWTON``
-
+   :param solver: the nonlinear solver to use
    :retval ARK_SUCCESS: the value was successfully set
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was

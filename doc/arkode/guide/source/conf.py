@@ -34,6 +34,71 @@ extensions = ['sphinx_rtd_theme', 'sphinx.ext.ifconfig',
 intersphinx_mapping = {'sundials': (f'https://sundials.readthedocs.io/en/{doc_version}',
                                     ('../../../superbuild/build/html/objects.inv', None))}
 
+nitpick_ignore = [
+    ('c:identifier', 'FILE'),
+    ('cpp:identifier', 'FILE'),
+    ('c:identifier', 'size_t'),
+    ('cpp:identifier', 'size_t'),
+    # CUDA
+    ('cpp:identifier', 'cudaStream_t'),
+    ('c:identifier', 'cusparseHandle_t'),
+    ('c:identifier', 'cusparseMatDescr_t'),
+    # Ginkgo
+    ('cpp:identifier', 'gko'),
+    ('cpp:identifier', 'gko::dim<2>'),
+    ('cpp:identifier', 'gko::Executor'),
+    ('cpp:identifier', 'gko::LinOp'),
+    # HIP
+    ('cpp:identifier', 'hipStream_t'),
+    # Kokkos
+    ('cpp:identifier', 'ExecutionSpace'),
+    ('cpp:identifier', 'ExecutionSpace::memory_space'),
+    ('cpp:identifier', 'Kokkos'),
+    ('cpp:identifier', 'Kokkos::DefaultExecutionSpace'),
+    ('cpp:identifier', 'Kokkos::RangePolicy<exec_space>'),
+    ('cpp:identifier', 'Kokkos::View<sunrealtype***, memory_space>'),
+    ('cpp:identifier', 'Kokkos::View<sunrealtype*, MemorySpace>'),
+    # MPI
+    ('c:identifier', 'MPI_Comm'),
+    # PETSc
+    ('c:identifier', 'SNES'),
+    ('c:identifier', 'PetscErrorCode'),
+    ('c:identifier', 'Vec'),
+    # SuperLU
+    ('c:identifier', 'gridinfo_t'),
+    ('c:identifier', 'SuperMatrix'),
+    # SYCL
+    ('cpp:identifier', 'sycl'),
+    ('cpp:identifier', 'sycl::queue'),
+    # Trilinos
+    ('cpp:identifier', 'Tpetra'),
+    ('cpp:identifier', 'Tpetra::Vector<sunrealtype, int, sunindextype>'),
+    ('cpp:identifier', 'Teuchos'),
+    ('cpp:identifier', 'Teuchos::RCP<vector_type>'),
+    # XBraid
+    ('c:identifier', 'braid_AccessStatus'),
+    ('c:identifier', 'braid_App'),
+    ('c:identifier', 'braid_BufferStatus'),
+    ('c:identifier', 'braid_Core'),
+    ('c:identifier', 'braid_Int'),
+    ('c:identifier', 'braid_PtFcnAccess'),
+    ('c:identifier', 'braid_PtFcnInit'),
+    ('c:identifier', 'braid_PtFcnSpatialNorm'),
+    ('c:identifier', 'braid_PtFcnStep'),
+    ('c:identifier', 'braid_Real'),
+    ('c:identifier', 'braid_StepStatus'),
+    ('c:identifier', 'braid_Vector'),
+    # C types referenced in C++ functions -- not sure how to fix currently
+    ('cpp:identifier', 'sunbooleantype'),
+    ('cpp:identifier', 'sunindextype'),
+    ('cpp:identifier', 'sunrealtype'),
+    ('cpp:identifier', 'SUNErrCode'),
+    ('cpp:identifier', 'SUNContext'),
+    ('cpp:identifier', 'N_Vector'),
+    ('cpp:identifier', 'SUNMatrix'),
+    ('cpp:identifier', 'SUNMemoryHelper')
+]
+
 # References
 bibtex_bibfiles = ['../../../shared/sundials.bib']
 

@@ -382,7 +382,7 @@ following additional user-callable routines:
    space allocated for nonzero entries equals the actual number of
    nonzeros, ``indexptrs[NP]``). Returns a :c:type:`SUNErrCode`.
 
-.. c:function:: SUNErrCode SUNSparseMatrix_Reallocate(SUNMatrix A)
+.. c:function:: SUNErrCode SUNSparseMatrix_Reallocate(SUNMatrix A, sunindextype NNZ)
 
    Function to reallocate internal sparse matrix storage arrays so that the
    resulting sparse matrix has storage for a specified number of nonzeros.

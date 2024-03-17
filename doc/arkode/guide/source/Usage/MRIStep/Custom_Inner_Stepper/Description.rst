@@ -20,10 +20,11 @@ The MRIStepInnerStepper Class
 As with other SUNDIALS classes, the :c:type:`MRIStepInnerStepper` abstract base
 class is implemented using a C structure containing a ``content`` pointer to the
 derived class member data and a structure of function pointers the derived class
-implementations of the virtual methods. The :c:type:`MRIStepInnerStepper`
-type is defined in ``include/arkode/arkode.h`` as
+implementations of the virtual methods.
 
-.. c:type:: struct _MRIStepInnerStepper *MRIStepInnerStepper
+.. c:type:: MRIStepInnerStepper
+
+   Pointer to an ``_MRIStepInnerStepper`` structure
 
 The actual definitions of the ``_MRIStepInnerStepper`` structure and the
 corresponding operations structure are kept private to allow for the object

@@ -18,59 +18,61 @@ MRI Coupling Coefficients Data Structure
 ----------------------------------------
 
 MRIStep supplies several built-in MIS, MRI-GARK, and IMEX-MRI-GARK methods, see
-:numref:`ARKODE.Usage.MRIStep.MRIStepCoupling.Tables` for the current set of coupling
-tables and their corresponding identifiers. Additionally, a user may supply a
-custom set of slow-to-fast time scale coupling coefficients by constructing a
-coupling table and attaching it with :c:func:`MRIStepSetCoupling()`.
-
-As described in :numref:`ARKODE.Mathematics.MRIStep`, the coupling from the slow time
-scale to the fast time scale is encoded by a vector of slow 'stage time'
-abscissae, :math:`c^S \in \mathbb{R}^{s+1}` and a set of coupling matrices
-:math:`\Gamma^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}` and
-:math:`\Omega^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}`. An ``MRIStepCoupling``
-object stores this information and provides several related utility functions
-for creating a coupling table. The ``MRIStepCoupling`` type is defined as:
+:numref:`ARKODE.Usage.MRIStep.MRIStepCoupling.Tables` for the current set of
+coupling tables and their corresponding identifiers. Additionally, a user may
+supply a custom set of slow-to-fast time scale coupling coefficients by
+constructing a coupling table and attaching it with
+:c:func:`MRIStepSetCoupling()`.
 
 .. c:type:: MRIStepCouplingMem *MRIStepCoupling
 
-where ``MRIStepCouplingMem`` is the structure
+   A pointer to a :c:type:`MRIStepCouplingMem` structure
 
-.. code-block:: c
+.. c:struct::  MRIStepCouplingMem
 
-   struct MRIStepCouplingMem
-   {
-     int nmat;
-     int stages;
-     int q;
-     int p;
-     sunrealtype ***G;
-     sunrealtype ***W;
-     sunrealtype *c;
-   };
+   Structure for storing the coupling coefficients defining an MIS, MRI-GARK, or
+   IMEX-MRI-GARK method.
 
-and the members of the strucutre are:
+   As described in :numref:`ARKODE.Mathematics.MRIStep`, the coupling from the
+   slow time scale to the fast time scale is encoded by a vector of slow
+   stage time abscissae, :math:`c^S \in \mathbb{R}^{s+1}` and a set of coupling
+   matrices :math:`\Gamma^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}` and
+   :math:`\Omega^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}`.
 
-   * ``nmat`` corresponds to the number of coupling matrices
-     :math:`\Omega^{\{k\}}` for the slow-nonstiff terms and/or
-     :math:`\Gamma^{\{k\}}` for the slow-stiff terms in :eq:`ARKODE_IVP_two_rate`,
+   .. c:member:: int nmat
 
-   * ``stages`` is the number of abscissae i.e., :math:`s+1` above,
+      The number of coupling matrices :math:`\Omega^{\{k\}}` for the
+      slow-nonstiff terms and/or :math:`\Gamma^{\{k\}}` for the slow-stiff terms
+      in :eq:`ARKODE_IVP_two_rate`,
 
-   * ``q`` and ``p`` indicate the orders of accuracy for both the method and
-     the embedding, respectively,
+   .. c:member:: int stages
 
-   * ``W`` is a three-dimensional array with dimensions
-     ``[nmat][stages][stages]`` containing the method's :math:`\Omega^{\{k\}}`
-     coupling matrices for the slow-nonstiff (explicit) terms in
-     :eq:`ARKODE_IVP_two_rate`,
+      The number of abscissae i.e., :math:`s+1` above
 
-   * ``G`` is a three-dimensional array with dimensions
-     ``[nmat][stages][stages]`` containing the method's :math:`\Gamma^{\{k\}}`
-     coupling matrices for the slow-stiff (implicit) terms in
-     :eq:`ARKODE_IVP_two_rate`, and
+   .. c:member:: int q
 
-   * ``c`` is an array of length ``stages`` containing the slow abscissae
-     :math:`c^S` for the method.
+      The method order of accuracy
+
+   .. c:member:: int p
+
+      The embedding order of accuracy
+
+   .. c:member:: sunrealtype*** W
+
+      A three-dimensional array with dimensions ``[nmat][stages][stages]``
+      containing the method's :math:`\Omega^{\{k\}}` coupling matrices for the
+      slow-nonstiff (explicit) terms in :eq:`ARKODE_IVP_two_rate`
+
+   .. c:member:: sunrealtype*** G
+
+      A three-dimensional array with dimensions ``[nmat][stages][stages]``
+      containing the method's :math:`\Gamma^{\{k\}}` coupling matrices for the
+      slow-stiff (implicit) terms in :eq:`ARKODE_IVP_two_rate`
+
+   .. c:member:: sunrealtype* c
+
+      An array of length ``[stages]`` containing the slow abscissae :math:`c^S`
+      for the method
 
 
 .. _ARKODE.Usage.MRIStep.MRIStepCoupling.Functions:
