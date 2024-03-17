@@ -862,7 +862,7 @@ the linear system *defined by the matrix*.  SUNDIALS packages strive to
 amortize the high cost of matrix construction by reusing matrix information for
 multiple nonlinear iterations or time steps. As a result, each package's linear
 solver interface recomputes matrix information as infrequently as possible.
-305
+
 Alternative matrix storage formats and compatible linear solvers that are not
 currently provided by, or interfaced with, SUNDIALS can leverage this
 infrastructure with minimal effort. To do so, a user must implement custom

@@ -44,10 +44,10 @@ The SUNMATRIX_GINKGO module is defined by the ``sundials::ginkgo::Matrix`` templ
 
 .. _SUNMatrix.Ginkgo.CompatibleNVectors:
 
-Compatible ``N_Vector``s
-------------------------
+Compatible Vectors
+------------------
 
-The  ``N_Vector`` to use with the SUNLINEARSOLVER_GINKGO module depends on the ``gko::Executor``
+The :c:type:`N_Vector` to use with the SUNLINEARSOLVER_GINKGO module depends on the ``gko::Executor``
 utilized. That is, when using the ``gko::CudaExecutor`` you should use a CUDA capable ``N_Vector``
 (e.g., :numref:`NVectors.CUDA`), ``gko::HipExecutor`` goes with a HIP capable ``N_Vector`` (e.g.,
 :numref:`NVectors.HIP`), ``gko::DpcppExecutor`` goes with a DPC++/SYCL capable ``N_Vector`` (e.g.,
