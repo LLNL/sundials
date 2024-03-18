@@ -712,7 +712,7 @@ Deprecated the following functions, it is recommended to use the
 * ``SUNLinSolSetInfoFile_SPBCGS``
 * ``SUNLinSolSetPrintLevel_SPBCGS``
 
-The ``SUNLinSolSetInfoFile_**`` and ``SUNNonlinSolSetInfoFile_*`` family of
+The ``SUNLinSolSetInfoFile_*`` and ``SUNNonlinSolSetInfoFile_*`` family of
 functions are now enabled by setting the CMake option
 :cmakeop:`SUNDIALS_LOGGING_LEVEL` to a value ``>= 3``.
 
@@ -2879,7 +2879,7 @@ private functions in CVODE and CVODES, the names of many private functions were
 changed from ``CV*`` to ``cv*`` and a few other names were also changed.
 
 An option was added in the case of Adjoint Sensitivity Analysis with dense or
-banded Jacobian: With a call to ``CVDlsSetDenseJacFnBS`` or
+banded Jacobian. With a call to ``CVDlsSetDenseJacFnBS`` or
 ``CVDlsSetBandJacFnBS``, the user can specify a user-supplied Jacobian function
 of type ``CVDls***JacFnBS``, for the case where the backward problem depends on
 the forward sensitivities.
@@ -2897,7 +2897,7 @@ on the forward sensitivities, options have been added to allow for user-supplied
 ``pset``, ``psolve``, and ``jtimes`` functions.
 
 In the example ``cvsHessian_ASA_FSA``, an error was corrected in the function
-``fB2``: ``y2`` in place of ``y3`` in the third term of ``Ith(yBdot,6)``.
+``fB2``, ``y2`` in place of ``y3`` in the third term of ``Ith(yBdot,6)``.
 
 *IDA and IDAS*
 
@@ -2913,7 +2913,7 @@ In the FIDA optional input routines ``FIDASETIIN``, ``FIDASETRIN``, and
 hardcoded key string lengths passed to all ``strncmp`` tests.
 
 An option was added in the case of Adjoint Sensitivity Analysis with dense or
-banded Jacobian: With a call to ``IDADlsSetDenseJacFnBS`` or
+banded Jacobian. With a call to ``IDADlsSetDenseJacFnBS`` or
 ``IDADlsSetBandJacFnBS``, the user can specify a user-supplied Jacobian function
 of type ``IDADls***JacFnBS``, for the case where the backward problem depends on
 the forward sensitivities.
@@ -2937,14 +2937,12 @@ In the FKINSOL optional input routines ``FKINSETIIN``, ``FKINSETRIN``, and
 ``FKINSETVIN``, the optional fourth argument ``key_length`` was removed, with
 hardcoded key string lengths passed to all ``strncmp`` tests.
 
-
-
 Changes to SUNDIALS in release 2.5.0
 ====================================
 
 **Integer Type Change**
 
-One significant design change was made with this release: The problem size and
+One significant design change was made with this release, the problem size and
 its relatives, bandwidth parameters, related internal indices, pivot arrays, and
 the optional output ``lsflag`` have all been changed from type ``int`` to type
 ``long int``, except for the problem size and bandwidths in user calls to
