@@ -335,6 +335,7 @@ sedi "s/ida_version =.*/ida_version = \'v${ida_ver}\'/" $fn
 sedi "s/idas_version =.*/idas_version = \'v${idas_ver}\'/" $fn
 sedi "s/kinsol_version =.*/kinsol_version = \'v${kin_ver}\'/" $fn
 sedi "s/sundials_version =.*/sundials_version = \'v${sun_ver}\'/" $fn
+sedi "s/doc_version =.*/doc_version = \'v${sun_ver}\'/" $fn
 sedi "s/year =.*/year = \'${year}\'/" $fn
 
 # release history table
