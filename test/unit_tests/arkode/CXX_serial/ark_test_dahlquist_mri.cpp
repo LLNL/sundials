@@ -414,11 +414,11 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
     cout << "\nComparing Solver Statistics:\n";
 
-    int nstages_evaled = nstages_stored - stiffly_accurate;
+    int nstages_evaluated = nstages_stored - stiffly_accurate;
     long int fe_evals = 0;
     if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
     {
-      fe_evals = mri_nst * nstages_evaled;
+      fe_evals = mri_nst * nstages_evaluated;
     }
 
     if (mri_nfse != fe_evals)
@@ -430,7 +430,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     long int fi_evals = 0;
     if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
     {
-      fi_evals = mri_nst * nstages_evaled + mri_nni;
+      fi_evals = mri_nst * nstages_evaluated + mri_nni;
     }
 
     if (mri_nfsi != fi_evals)
