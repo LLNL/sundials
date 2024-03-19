@@ -16,7 +16,7 @@
 The SUNAdaptController API
 ==========================
 
-.. versionadded:: x.x.x
+.. versionadded:: 6.7.0
 
 The SUNAdaptController base class provides a common API for accuracy-based adaptivity
 controllers to be used by SUNDIALS integrators. These controllers estimate step
