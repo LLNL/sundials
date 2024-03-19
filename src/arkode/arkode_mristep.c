@@ -1006,6 +1006,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
   ARKodeMRIStepMem step_mem;
   int retval, j;
   int delta_stages;
+  sunbooleantype reset_efun;
 
   /* access ARKodeMRIStepMem structure */
   retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
@@ -1019,7 +1020,10 @@ int mriStep_Init(void* arkode_mem, int init_type)
   {
     /* enforce use of arkEwtSmallReal if using a fixed step size for
        an explicit method and an internal error weight function */
-    if (!step_mem->implicit_rhs && !ark_mem->user_efun)
+    reset_efun = SUNTRUE;
+    if (step_mem->implicit_rhs) { reset_efun = SUNFALSE; }
+    if (ark_mem->user_efun) { reset_efun = SUNFALSE; }
+    if (reset_efun)
     {
       ark_mem->user_efun = SUNFALSE;
       ark_mem->efun      = arkEwtSetSmallReal;
