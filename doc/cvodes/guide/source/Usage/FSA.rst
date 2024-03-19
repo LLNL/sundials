@@ -165,7 +165,7 @@ sensitivity analysis beyond those for IVP solution
 #. **Set sensitivity tolerances**
 
    Call :c:func:`CVodeSensSStolerances`, :c:func:`CVodeSensSVtolerances` or
-   :c:func:`CVodeEEtolerances`.
+   :c:func:`CVodeSensEEtolerances`.
 
 #. **Set sensitivity analysis optional inputs**
 
@@ -502,8 +502,8 @@ corrector option, or :c:func:`CVodeSetNonlinearSolver` and
 
 When changing the nonlinear solver in CVODES, :c:func:`CVodeSetNonlinearSolver`
 must be called after :c:func:`CVodeInit`; similarly
-:c:func:`CVodeSetNonlinearSolverSensSim`, :c:func:`CVodeSetNonlinearSolverStg`,
-and :c:func:`CVodeSetNonlinearSolverStg1` must be called after
+:c:func:`CVodeSetNonlinearSolverSensSim`, :c:func:`CVodeSetNonlinearSolverSensStg`,
+and :c:func:`CVodeSetNonlinearSolverSensStg1` must be called after
 :c:func:`CVodeSensInit`. If any calls to :c:func:`CVode` have been made, then CVODES
 will need to be reinitialized by calling :c:func:`CVodeReInit` to ensure that
 the nonlinear solver is initialized correctly before any subsequent calls to
@@ -521,7 +521,7 @@ to the main CVODES integrator.
 
 .. c:function:: int CVodeSetNonlinearSolverSensSim(void * cvode_mem, SUNNonlinearSolver NLS)
 
-   The function :c:func:`CVodeSetNonLinearSolverSensSim` attaches a
+   The function :c:func:`CVodeSetNonlinearSolverSensSim` attaches a
    ``SUNNonlinearSolver``  object (``NLS``) to CVODES when using the
    ``CV_SIMULTANEOUS`` approach to  correct the state and sensitivity variables
    at the same time.
@@ -538,7 +538,7 @@ to the main CVODES integrator.
 
 .. c:function:: int CVodeSetNonlinearSolverSensStg(void * cvode_mem, SUNNonlinearSolver NLS)
 
-   The function :c:func:`CVodeSetNonLinearSolverSensStg` attaches a
+   The function :c:func:`CVodeSetNonlinearSolverSensStg` attaches a
    ``SUNNonlinearSolver``  object (``NLS``) to CVODES when using the
    ``CV_STAGGERED`` approach to  correct all the sensitivity variables after the
    correction of the state  variables.
@@ -560,7 +560,7 @@ to the main CVODES integrator.
 
 .. c:function:: int CVodeSetNonlinearSolverSensStg1(void * cvode_mem, SUNNonlinearSolver NLS)
 
-   The function :c:func:`CVodeSetNonLinearSolverSensStg1` attaches a
+   The function :c:func:`CVodeSetNonlinearSolverSensStg1` attaches a
    ``SUNNonlinearSolver``  object (``NLS``) to CVODES when using the
    ``CV_STAGGERED1`` approach to  correct the sensitivity variables one at a
    time after the correction of the  state variables.
@@ -611,7 +611,7 @@ Forward sensitivity extraction functions
 
 If forward sensitivity computations have been initialized by a call to
 :c:func:`CVodeSensInit` or :c:func:`CVodeSensInit1`, or reinitialized by a call
-to :c:func:`CVSensReInit`, then CVODES computes both a solution and
+to :c:func:`CVodeSensReInit`, then CVODES computes both a solution and
 sensitivities at time ``t``. However, :c:func:`CVode` will still return only the
 solution :math:`y` in ``yout``. Solution sensitivities can be obtained through
 one of the following functions:
@@ -900,7 +900,7 @@ detail in the remainder of this section.
 
 .. c:function:: int CVodeGetNumRhsEvalsSens(void * cvode_mem, long int nfevalsS)
 
-   The function :c:func:`CVodeGetNumRhsEvalsSEns` returns the number of calls to the
+   The function :c:func:`CVodeGetNumRhsEvalsSens` returns the number of calls to the
    user's right-hand side function due to the internal finite difference
    approximation  of the sensitivity right-hand sides.
 
@@ -1073,7 +1073,7 @@ detail in the remainder of this section.
       ``CV_STAGGERED1``.  In the ``CV_STAGGERED1`` case, the value of
       ``nSncfails`` is the sum of  the number of nonlinear convergence failures
       that occurred for each sensitivity equation.  These individual counters
-      can be obtained through a call to  :c:func:`CVodeGetStgrSensNumNonlinConvFails`
+      can be obtained through a call to  :c:func:`CVodeGetStgrSensNumNonlinSolvConvFails`
       (see below).
 
 
@@ -1192,7 +1192,7 @@ defined by:
      * ``yS`` -- contains the current values of the sensitivity vectors.
      * ``ySdot`` -- is the output of :c:type:`CVSensRhsFn` . On exit it must contain    the sensitivity right-hand side vectors.
      * ``user_data`` -- is a pointer to user data, the same as the ``user_data`` parameter passed to :c:func:`CVodeSetUserData` .
-     * ``tmp1``, ``tmp2`` -- are ``N_Vectors`` of length :math:`N` which can be used as temporary storage.
+     * ``tmp1``, ``tmp2`` -- are vectors of length :math:`N` which can be used as temporary storage.
 
    **Return value:**
       A :c:type:`CVSensRhsFn` should return 0 if successful, a positive value if a recoverable
@@ -1243,7 +1243,7 @@ sensitivity parameter at a time, through a function of type
      * ``yS`` -- contains the current value of the ``iS`` -th sensitivity vector.
      * ``ySdot`` -- is the output of :c:type:`CVSensRhs1Fn` . On exit it must contain    the ``iS`` -th sensitivity right-hand side vector.
      * ``user_data`` -- is a pointer to user data, the same as the ``user_data`` parameter passed to :c:func:`CVodeSetUserData` .
-     * ``tmp1``, ``tmp2`` -- are ``N_Vectors`` of length :math:`N` which can be used as temporary storage.
+     * ``tmp1``, ``tmp2`` -- are vectors of length :math:`N` which can be used as temporary storage.
 
    **Return value:**
       A :c:type:`CVSensRhs1Fn` should return 0 if successful, a positive value if a recoverable

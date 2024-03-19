@@ -1,5 +1,14 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release X.X.X
+
+Updated the CMake variable `HIP_PLATFORM` default to `amd` as the previous
+default, `hcc`, is no longer recognized in ROCm 5.7.0 or newer. The new default
+is also valid in older version of ROCm (at least back to version 4.3.1).
+
+Fixed a bug in the HIP execution policies where `WARP_SIZE` would not be set
+with ROCm 6.0.0 or newer.
+
 ## Changes to SUNDIALS in release v7.0.0
 
 ### Major Feature
@@ -70,7 +79,7 @@ SUNDIALSFileOpen
 SUNDIALSFileClose
 
 // From sundials_memory.h
-SUNMemorNewEmpty
+SUNMemoryNewEmpty
 SUNMemoryHelper_Alias
 SUNMemoryHelper_Wrap
 
@@ -652,7 +661,7 @@ functions should be used instead.
 
 The previously deprecated constructor `N_VMakeWithManagedAllocator_Cuda` and
 the function `N_VSetCudaStream_Cuda` have been removed and replaced with
-`N_VNewWithMemHelp_Cuda` and `N_VSetKerrnelExecPolicy_Cuda` respectively.
+`N_VNewWithMemHelp_Cuda` and `N_VSetKernelExecPolicy_Cuda` respectively.
 
 The previously deprecated macros `PVEC_REAL_MPI_TYPE` and
 `PVEC_INTEGER_MPI_TYPE` have been removed and replaced with
@@ -1031,7 +1040,7 @@ linear systems. This module is experimental and is subject to change from
 version to version.
 
 Added a new *optional* function to the SUNLinearSolver API,
-`SUNLinSolSetZeroGuess`, to indicate that the next call to `SUNlinSolSolve` will
+`SUNLinSolSetZeroGuess`, to indicate that the next call to `SUNLinSolSolve` will
 be made with a zero initial guess. SUNLinearSolver implementations that do not
 use the `SUNLinSolNewEmpty` constructor will, at a minimum, need set the
 `setzeroguess` function pointer in the linear solver `ops` structure to

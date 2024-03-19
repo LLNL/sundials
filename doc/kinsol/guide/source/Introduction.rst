@@ -88,6 +88,17 @@ applications written in Fortran.
 Changes from previous versions
 ==============================
 
+Changes in vX.X.X
+------------------
+
+Updated the CMake variable ``HIP_PLATFORM`` default to ``amd`` as the previous
+default, ``hcc``, is no longer recognized in ROCm 5.7.0 or newer. The new
+default is also valid in older version of ROCm (at least back to version 4.3.1).
+
+Fixed a bug in the HIP execution policies where ``WARP_SIZE`` would not be set
+with ROCm 6.0.0 or newer.
+
+
 Changes in v7.0.0
 ----------------------
 
@@ -175,7 +186,7 @@ leverage the new SUNDIALS error handling capabilities.
 
 * From ``sundials_memory.h``
 
-  * :c:func:`SUNMemorNewEmpty`
+  * :c:func:`SUNMemoryNewEmpty`
   * :c:func:`SUNMemoryHelper_Alias`
   * :c:func:`SUNMemoryHelper_Wrap`
 
@@ -408,9 +419,9 @@ solver, linear solver, and other statistics in one call.  The file
 ``scripts/sundials_csv.py`` contains functions for parsing the comma-separated
 value output files.
 
-The behavior of :c:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
+The behavior of :cpp:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
 consistent with the CUDA and HIP vectors. The input execution policies are now
-cloned and may be freed after calling :c:func:`N_VSetKernelExecPolicy_Sycl`.
+cloned and may be freed after calling :cpp:func:`N_VSetKernelExecPolicy_Sycl`.
 Additionally, ``NULL`` inputs are now allowed and, if provided, will reset the
 vector execution policies to the defaults.
 
@@ -525,7 +536,7 @@ deprecated. The generic :c:func:`N_VCloneVectorArray` and
 
 The previously deprecated constructor ``N_VMakeWithManagedAllocator_Cuda`` and
 the function ``N_VSetCudaStream_Cuda`` have been removed and replaced with
-:c:func:`N_VNewWithMemHelp_Cuda` and :c:func:`N_VSetKerrnelExecPolicy_Cuda`
+:c:func:`N_VNewWithMemHelp_Cuda` and :c:func:`N_VSetKernelExecPolicy_Cuda`
 respectively.
 
 The previously deprecated macros ``PVEC_REAL_MPI_TYPE`` and
@@ -820,7 +831,7 @@ linear systems. See :numref:`SUNLinSol.OneMklDense`  for more details. This modu
 experimental and is subject to change from version to version.
 
 Added a new *optional* function to the SUNLinearSolver API, ``SUNLinSolSetZeroGuess``, to indicate that the next call to
-``SUNlinSolSolve`` will be made with a zero initial guess. SUNLinearSolver implementations that do not use the
+``SUNLinSolSolve`` will be made with a zero initial guess. SUNLinearSolver implementations that do not use the
 ``SUNLinSolNewEmpty`` constructor will, at a minimum, need set the ``setzeroguess`` function pointer in the linear
 solver ``ops`` structure to ``NULL``. The SUNDIALS iterative linear solver implementations have been updated to leverage
 this new set function to remove one dot product per solve.

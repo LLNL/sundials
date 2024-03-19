@@ -72,6 +72,17 @@ systems.
 Changes from previous versions
 ==============================
 
+Changes in vX.X.X
+------------------
+
+Updated the CMake variable ``HIP_PLATFORM`` default to ``amd`` as the previous
+default, ``hcc``, is no longer recognized in ROCm 5.7.0 or newer. The new
+default is also valid in older version of ROCm (at least back to version 4.3.1).
+
+Fixed a bug in the HIP execution policies where ``WARP_SIZE`` would not be set
+with ROCm 6.0.0 or newer.
+
+
 Changes in v7.0.0
 ----------------------
 
@@ -159,7 +170,7 @@ leverage the new SUNDIALS error handling capabilities.
 
 * From ``sundials_memory.h``
 
-  * :c:func:`SUNMemorNewEmpty`
+  * :c:func:`SUNMemoryNewEmpty`
   * :c:func:`SUNMemoryHelper_Alias`
   * :c:func:`SUNMemoryHelper_Wrap`
 
@@ -438,9 +449,9 @@ in step size.
 
 Added the function :c:func:`IDASetMinStep` to set a minimum step size.
 
-The behavior of :c:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
+The behavior of :cpp:func:`N_VSetKernelExecPolicy_Sycl` has been updated to be
 consistent with the CUDA and HIP vectors. The input execution policies are now
-cloned and may be freed after calling :c:func:`N_VSetKernelExecPolicy_Sycl`.
+cloned and may be freed after calling :cpp:func:`N_VSetKernelExecPolicy_Sycl`.
 Additionally, ``NULL`` inputs are now allowed and, if provided, will reset the
 vector execution policies to the defaults.
 
@@ -569,7 +580,7 @@ deprecated. The generic :c:func:`N_VCloneVectorArray` and
 
 The previously deprecated constructor ``N_VMakeWithManagedAllocator_Cuda`` and
 the function ``N_VSetCudaStream_Cuda`` have been removed and replaced with
-:c:func:`N_VNewWithMemHelp_Cuda` and :c:func:`N_VSetKerrnelExecPolicy_Cuda`
+:c:func:`N_VNewWithMemHelp_Cuda` and :c:func:`N_VSetKernelExecPolicy_Cuda`
 respectively.
 
 The previously deprecated macros ``PVEC_REAL_MPI_TYPE`` and
@@ -937,7 +948,7 @@ CMake variable. This module remains experimental and is subject to change from
 version to version.
 
 A new optional operation, :c:func:`N_VGetDeviceArrayPointer`, was added to the
-``N_Vector`` API. This operation is useful for :c:type:`N_Vectors` that utilize
+``N_Vector`` API. This operation is useful for :c:type:`N_Vector` that utilize
 dual memory spaces, e.g. the native SUNDIALS CUDA ``N_Vector``.
 
 The :ref:`SUNMATRIX_CUSPARSE <SUNMatrix.cuSparse>` and
@@ -1440,12 +1451,12 @@ to complete the computation.
 
 Multiple updates to :ref:`NVECTOR_CUDA <NVectors.CUDA>` were made:
 
-* Changed :c:func:`N_VGetLength_Cuda` to return the global vector length instead
+* Changed ``N_VGetLength_Cuda`` to return the global vector length instead
   of the local vector length.
 
-* Added :c:func:`N_VGetLocalLength_Cuda` to return the local vector length.
+* Added ``N_VGetLocalLength_Cuda`` to return the local vector length.
 
-* Added :c:func:`N_VGetMPIComm_Cuda` to return the MPI communicator used.
+* Added ``N_VGetMPIComm_Cuda`` to return the MPI communicator used.
 
 * Removed the accessor functions in the namespace ``suncudavec``.
 
@@ -1454,7 +1465,7 @@ Multiple updates to :ref:`NVECTOR_CUDA <NVectors.CUDA>` were made:
 
 * Added the ability to set the ``cudaStream_t`` used for execution of the
   :ref:`NVECTOR_CUDA <NVectors.CUDA>` kernels. See the function
-  :c:func:`N_VSetCudaStreams_Cuda`.
+  ``N_VSetCudaStreams_Cuda``.
 
 * Added :c:func:`N_VNewManaged_Cuda`, :c:func:`N_VMakeManaged_Cuda`, and
   :c:func:`N_VIsManagedMemory_Cuda` functions to accommodate using managed
@@ -1462,12 +1473,12 @@ Multiple updates to :ref:`NVECTOR_CUDA <NVectors.CUDA>` were made:
 
 Multiple changes to :ref:`NVECTOR_RAJA <NVectors.RAJA>` were made:
 
-* Changed :c:func:`N_VGetLength_Raja` to return the global vector length instead
+* Changed ``N_VGetLength_Raja`` to return the global vector length instead
   of the local vector length.
 
-* Added :c:func:`N_VGetLocalLength_Raja` to return the local vector length.
+* Added ``N_VGetLocalLength_Raja`` to return the local vector length.
 
-* Added :c:func:`N_VGetMPIComm_Raja` to return the MPI communicator used.
+* Added ``N_VGetMPIComm_Raja`` to return the MPI communicator used.
 
 * Removed the accessor functions in the namespace ``suncudavec``.
 

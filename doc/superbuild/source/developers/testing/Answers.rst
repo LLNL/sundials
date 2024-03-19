@@ -67,9 +67,9 @@ is expected/desired. Changing output files requires careful verification that th
      machines by going to `<https://github.com/LLNL/sundials/actions>`_ finding your failing
      test, clicking it, then at the bottom downloading the "output_files" artifact (you can also find your
      failing test at the bottom of a PR). The downloaded zip file will be the SUNDIALS build
-     directory. To update just the failed files you can use ``scripts/updateOutFiles.py ``e.g.,
+     directory. To update just the failed files you can use ``scripts/updateOutFiles.py`` e.g.,
     
-     .. code::
+     .. code:: console
 
          cd scripts  
          ./updateOutFiles.py <source path> <destination path>  
@@ -85,7 +85,7 @@ is expected/desired. Changing output files requires careful verification that th
   #. If you need to use ssh authentication for pushing to GitHub, then you may need to update the 
      remote for the submodule:
 
-   .. code::
+   .. code:: console
 
          git remote set-url origin git@github.com:sundials-codes/answers.git
 
