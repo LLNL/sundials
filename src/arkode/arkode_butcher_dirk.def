@@ -69,7 +69,7 @@ ARK_BUTCHER_TABLE(ARKODE_DIRK_NONE, {
   })
 
 ARK_BUTCHER_TABLE(ARKODE_BACKWARD_EULER_1_1, { /* Backward Euler (L,B stable) */
-    ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNFALSE);
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(1, SUNFALSE);
     B->q = 1;
     B->p = 0;
 
