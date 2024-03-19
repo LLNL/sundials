@@ -369,6 +369,11 @@ sedi '117s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
 fn="../CHANGELOG.md"
 sedi "s/x.x.x/${sun_ver}/gI" $fn
 
+for fn in $(grep -Iirl "x.x.x" ../doc/shared/*)
+do
+    sedi "s/x.x.x/${sun_ver}/gI" $fn
+done
+
 for fn in $(grep -Iirl "x.x.x" ../doc/arkode/guide/source/*)
 do
     sedi "s/x.x.x/${ark_ver}/gI" $fn
