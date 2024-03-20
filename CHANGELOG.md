@@ -163,7 +163,7 @@ have been updated from `SUNDIALS_F77_FUNC_CASE` and
 `SUNDIALS_F77_FUNC_UNDERSCORES` to `SUNDIALS_LAPACK_CASE` and
 `SUNDIALS_LAPACK_UNDERSCORES`, respectively.
 
-s a subset of C99 is now required the CMake option `USE_GENERIC_MATH` as been
+As a subset of C99 is now required the CMake option `USE_GENERIC_MATH` as been
 removed.
 
 The C++ convenience classes (e.g., `sundials::Context`) have been moved to
