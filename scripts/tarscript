@@ -274,6 +274,15 @@ for f in $(git ls-files --others --directory benchmarks cmake doc examples inclu
 done
 cd -
 
+# Make superbuild for cross-package references
+if [ $doc = "T" ]; then
+    echo -e "--- SUNDIALS Superbuild documentation"
+    cd $sundialsdir/doc/superbuild
+    make clean
+    make html
+    cd -
+fi
+
 # Make install guide and copy to $tmpdir
 if [ $doc = "T" ]; then
     echo -e "--- SUNDIALS Common Installation documentation"

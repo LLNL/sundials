@@ -335,6 +335,7 @@ sedi "s/ida_version =.*/ida_version = \'v${ida_ver}\'/" $fn
 sedi "s/idas_version =.*/idas_version = \'v${idas_ver}\'/" $fn
 sedi "s/kinsol_version =.*/kinsol_version = \'v${kin_ver}\'/" $fn
 sedi "s/sundials_version =.*/sundials_version = \'v${sun_ver}\'/" $fn
+sedi "s/doc_version =.*/doc_version = \'v${sun_ver}\'/" $fn
 sedi "s/year =.*/year = \'${year}\'/" $fn
 
 # release history table
@@ -365,41 +366,44 @@ sedi '108s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
 sedi '116s/.*/\ \ year   = {'${year}'},/' $fn
 sedi '117s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
 
-# Update all occurrences of x.x.x and X.X.X to the current version number
+# Update all occurrences of x.y.z and X.Y.Z to the current version number
 fn="../CHANGELOG.md"
-sedi "s/x.x.x/${sun_ver}/gI" $fn
+sedi "s/x.y.z/${sun_ver}/gI" $fn
 
-for fn in $(grep -Iirl "x.x.x" ../doc/shared/*)
+fn="../doc/shared/Changelog.rst"
+sedi "s/x.y.z/${sun_ver}/gI" $fn
+
+for fn in $(grep -Iirl "x.y.z" ../doc/shared/*)
 do
-    sedi "s/x.x.x/${sun_ver}/gI" $fn
+    sedi "s/x.y.z/${sun_ver}/gI" $fn
 done
 
-for fn in $(grep -Iirl "x.x.x" ../doc/arkode/guide/source/*)
+for fn in $(grep -Iirl "x.y.z" ../doc/arkode/guide/source/*)
 do
-    sedi "s/x.x.x/${ark_ver}/gI" $fn
+    sedi "s/x.y.z/${ark_ver}/gI" $fn
 done
 
-for fn in $(grep -Iirl "x.x.x" ../doc/cvode/guide/source/*)
+for fn in $(grep -Iirl "x.y.z" ../doc/cvode/guide/source/*)
 do
-    sedi "s/x.x.x/${cv_ver}/gI" $fn
+    sedi "s/x.y.z/${cv_ver}/gI" $fn
 done
 
-for fn in $(grep -Iirl "x.x.x" ../doc/cvodes/guide/source/*)
+for fn in $(grep -Iirl "x.y.z" ../doc/cvodes/guide/source/*)
 do
-    sedi "s/x.x.x/${cvs_ver}/gI" $fn
+    sedi "s/x.y.z/${cvs_ver}/gI" $fn
 done
 
-for fn in $(grep -Iirl "x.x.x" ../doc/ida/guide/source/*)
+for fn in $(grep -Iirl "x.y.z" ../doc/ida/guide/source/*)
 do
-    sedi "s/x.x.x/${ida_ver}/gI" $fn
+    sedi "s/x.y.z/${ida_ver}/gI" $fn
 done
 
-for fn in $(grep -Iirl "x.x.x" ../doc/idas/guide/source/*)
+for fn in $(grep -Iirl "x.y.z" ../doc/idas/guide/source/*)
 do
-    sedi "s/x.x.x/${idas_ver}/gI" $fn
+    sedi "s/x.y.z/${idas_ver}/gI" $fn
 done
 
-for fn in $(grep -Iirl "x.x.x" ../doc/kinsol/guide/source/*)
+for fn in $(grep -Iirl "x.y.z" ../doc/kinsol/guide/source/*)
 do
-    sedi "s/x.x.x/${kin_ver}/gI" $fn
+    sedi "s/x.y.z/${kin_ver}/gI" $fn
 done

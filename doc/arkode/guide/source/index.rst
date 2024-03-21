@@ -70,6 +70,7 @@ with support by the `US Department of Energy <http://www.doe.gov>`_,
    Constants
    Butcher
    History_link.rst
+   Changelog_link.rst
    References
 .. only:: html
 

@@ -38,6 +38,7 @@ IDAS Documentation
    sundials/Install_link.rst
    Constants
    History_link.rst
+   Changelog_link.rst
    References
 .. only:: html
 
