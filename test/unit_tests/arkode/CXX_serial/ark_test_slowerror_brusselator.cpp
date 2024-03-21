@@ -394,8 +394,6 @@ static int run_test(void *mristep_mem, void *arkode_ref, N_Vector y, sunrealtype
   N_Vector vtemp = N_VClone(y);
 
   // Set storage for errors
-  //vector<sunrealtype> dsm(udata.Npart);
-  //vector<sunrealtype> dsm_est(udata.Npart);
   vector<vector<sunrealtype>> dsm(Hvals.size(), vector<sunrealtype> (udata.Npart, ZERO)) ;
   vector<vector<sunrealtype>> dsm_est(Hvals.size(), vector<sunrealtype> (udata.Npart, ZERO)) ;
 
@@ -422,22 +420,20 @@ static int run_test(void *mristep_mem, void *arkode_ref, N_Vector y, sunrealtype
 
       // Run ARKStep to compute reference solution, and MRIStep to compute one step
       retval = ARKStepEvolve(arkode_ref, t2+Hvals[iH], y2, &t2, ARK_NORMAL);
-      if (check_retval(&retval, "ARKStepEvolve", 1)) break;
+      if (check_retval(&retval, "ARKStepEvolve", 1)) return 1;
       retval = MRIStepEvolve(mristep_mem, t+Hvals[iH], y, &t, ARK_ONE_STEP);
-      if (check_retval(&retval, "MRIStepEvolve", 1)) break;
-      //retval = MRIStepGetAccumulatedError(mristep_mem, &(dsm_est[iH][ipart]));
-      //if (check_retval(&retval, "MRIStepGetAccumulatedError", 1)) break;
+      if (check_retval(&retval, "MRIStepEvolve", 1)) return 1;
       retval = MRIStepGetEstLocalErrors(mristep_mem, ele);
-      if (check_retval(&retval, "MRIStepGetEstLocalErrors", 1)) break;
+      if (check_retval(&retval, "MRIStepGetEstLocalErrors", 1)) return 1;
       retval = computeErrorWeights(y, ewt, reltol, abstol, vtemp);
-      if (check_retval(&retval, "computeErrorWeights", 1)) break;
-      dsm_est[iH][ipart] = reltol*N_VWrmsNorm(ewt, ele);
+      if (check_retval(&retval, "computeErrorWeights", 1)) return 1;
+      dsm_est[iH][ipart] = N_VWrmsNorm(ewt, ele);
 
       // Compute/print solution error
       sunrealtype udsm = abs(NV_Ith_S(y,0)-NV_Ith_S(y2,0))/(abstol + reltol*abs(NV_Ith_S(y2,0)));
       sunrealtype vdsm = abs(NV_Ith_S(y,1)-NV_Ith_S(y2,1))/(abstol + reltol*abs(NV_Ith_S(y2,1)));
       sunrealtype wdsm = abs(NV_Ith_S(y,2)-NV_Ith_S(y2,2))/(abstol + reltol*abs(NV_Ith_S(y2,2)));
-      dsm[iH][ipart] = reltol*sqrt((udsm*udsm + vdsm*vdsm + wdsm*wdsm)/SUN_RCONST(3.0));
+      dsm[iH][ipart] = sqrt((udsm*udsm + vdsm*vdsm + wdsm*wdsm)/SUN_RCONST(3.0));
       cout << "  H " << Hvals[iH]
            << "  method " << method
            << "  t " << t
