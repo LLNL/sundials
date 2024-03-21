@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
   MRIStepFree(&mristep_mem);
   if (LS) { SUNLinSolFree(LS); }  // free system linear solver
   if (A) { SUNMatDestroy(A); }    // free system matrix
-  N_VDestroy(y);                  // Free y and yref vectors
+  N_VDestroy(y);                  // Free y vector
   return 0;
 }
 
@@ -337,8 +337,6 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0, sunrealtype T
   N_Vector vtemp = N_VClone(y);
 
   // Set storage for errors
-  //vector<sunrealtype> dsm(udata.Npart);
-  //vector<sunrealtype> dsm_est(udata.Npart);
   vector<vector<sunrealtype>> dsm(Hvals.size(), vector<sunrealtype> (udata.Npart, ZERO)) ;
   vector<vector<sunrealtype>> dsm_est(Hvals.size(), vector<sunrealtype> (udata.Npart, ZERO)) ;
 
@@ -361,19 +359,17 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0, sunrealtype T
 
       // Run MRIStep to compute one step
       retval = MRIStepEvolve(mristep_mem, t+Hvals[iH], y, &t, ARK_ONE_STEP);
-      if (check_retval(&retval, "MRIStepEvolve", 1)) break;
-      //retval = MRIStepGetAccumulatedError(mristep_mem, &(dsm_est[iH][ipart]));
-      //if (check_retval(&retval, "MRIStepGetAccumulatedError", 1)) break;
+      if (check_retval(&retval, "MRIStepEvolve", 1)) return 1;
       retval = MRIStepGetEstLocalErrors(mristep_mem, ele);
-      if (check_retval(&retval, "MRIStepGetEstLocalErrors", 1)) break;
+      if (check_retval(&retval, "MRIStepGetEstLocalErrors", 1)) return 1;
       retval = computeErrorWeights(y, ewt, reltol, abstol, vtemp);
-      if (check_retval(&retval, "computeErrorWeights", 1)) break;
-      dsm_est[iH][ipart] = reltol*N_VWrmsNorm(ewt, ele);
+      if (check_retval(&retval, "computeErrorWeights", 1)) return 1;
+      dsm_est[iH][ipart] = N_VWrmsNorm(ewt, ele);
 
       // Compute/print solution error
       sunrealtype udsm = abs(NV_Ith_S(y,0)-utrue(t))/(abstol + reltol*abs(utrue(t)));
       sunrealtype vdsm = abs(NV_Ith_S(y,1)-vtrue(t,udata))/(abstol + reltol*abs(vtrue(t,udata)));
-      dsm[iH][ipart] = reltol*sqrt(0.5*(udsm*udsm + vdsm*vdsm));
+      dsm[iH][ipart] = sqrt(0.5*(udsm*udsm + vdsm*vdsm));
       cout << "  H " << Hvals[iH]
            << "  method " << method
            << "  t " << t
