@@ -264,7 +264,7 @@ include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
   SUNDIALSConfigVersion.cmake
   VERSION ${PACKAGE_VERSION}
-  COMPATIBILITY SameMajorVersion
+  COMPATIBILITY AnyNewerVersion
 )
 
 # install targets
