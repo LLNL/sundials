@@ -9,4 +9,4 @@
 	url = https://github.com/sundials-codes/answers.git
 [submodule "external/sundials-addon-example"]
 	path = external/sundials-addon-example
-	url = git@github.com:sundials-codes/sundials-addon-example.git
+	url = https://github.com/sundials-codes/sundials-addon-example.git
