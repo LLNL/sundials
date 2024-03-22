@@ -285,10 +285,19 @@ static int run_test(void *mristep_mem, N_Vector y, sunrealtype T0,
     retval = Ytrue(t, vtemp, udata);
     if (check_retval(&retval, "Ytrue", 1)) return 1;
     dsm[iH] = abs(NV_Ith_S(y,0)-NV_Ith_S(vtemp,0))/(abstol + reltol*abs(NV_Ith_S(vtemp,0)));
-    printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e    dsm_anal  %.2e    dsm_est_anal  %.2e\n",
-           Hvals[iH], dsm[iH], dsm_est[iH],
-           Hvals[iH]*Hvals[iH]*Hvals[iH]*abs(udata.a/12.0)/(abstol + reltol*abs(NV_Ith_S(vtemp,0))),
-           Hvals[iH]*Hvals[iH]*abs(udata.a*Hvals[iH]/4.0 + udata.b/2.0)/(abstol + reltol*abs(NV_Ith_S(vtemp,0))));
+    if (strcmp(method,"ARKODE_MRI_GARK_ERK22a")==0) {
+      printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e    dsm_anal  %.2e    dsm_est_anal  %.2e\n",
+             Hvals[iH], dsm[iH], dsm_est[iH],
+             Hvals[iH]*Hvals[iH]*Hvals[iH]*abs(udata.a/12.0)/(abstol + reltol*abs(NV_Ith_S(vtemp,0))),
+             Hvals[iH]*Hvals[iH]*abs(udata.a*Hvals[iH]/4.0 + udata.b/2.0)/(abstol + reltol*abs(NV_Ith_S(vtemp,0))));
+    } else if (strcmp(method,"ARKODE_MRI_GARK_IRK21a")==0) {
+      printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e    dsm_anal  %.2e    dsm_est_anal  %.2e\n",
+             Hvals[iH], dsm[iH], dsm_est[iH],
+             Hvals[iH]*Hvals[iH]*Hvals[iH]*abs(udata.a/6.0)/(abstol + reltol*abs(NV_Ith_S(vtemp,0))),
+             Hvals[iH]*Hvals[iH]*abs(udata.a*Hvals[iH]/2.0 + udata.b/2.0)/(abstol + reltol*abs(NV_Ith_S(vtemp,0))));
+    } else {
+      printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e\n", Hvals[iH], dsm[iH], dsm_est[iH]);
+    }
   }
 
   N_VDestroy(ele);
