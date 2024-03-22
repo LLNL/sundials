@@ -34,7 +34,7 @@ target_link_libraries(test_nvector_obj PRIVATE sundials_nvecserial)
 
 if(ENABLE_MPI AND MPI_C_FOUND)
   add_subdirectory(parallel)
-  if(BUILD_NVECTOR_MANYVECTOR OR BUILD_NVECTOR_MPIMANYVECTOR)
+  if(BUILD_NVECTOR_MPIMANYVECTOR)
     add_subdirectory(mpimanyvector)
   endif()
   add_subdirectory(mpiplusx)
