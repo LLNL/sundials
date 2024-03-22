@@ -348,6 +348,13 @@ MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
   {
     if (SUNRabs(B->A[B->stages - 1][j] - B->b[j]) > tol) { padding = SUNTRUE; }
   }
+
+  /* If final stage is implicit and the method contains an embedding,
+     we require padding since d != b */
+  if ((p > 0) && (SUNRabs(B->A[B->stages - 1][B->stages - 1]) > tol))
+  {
+    padding = SUNTRUE;
+  }
   stages = (padding) ? B->stages + 1 : B->stages;
 
   /* -------------------------
