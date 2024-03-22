@@ -1729,7 +1729,7 @@ Using SUNDIALS as a Third Party Library in other CMake Projects
 ---------------------------------------------------------------
 
 The ``make install`` command will also install a `CMake package configuration file
-<https://cmake.org/cmake/help/v3.12/manual/cmake-packages.7.html\#package-configuration-file>`_
+<https://cmake.org/cmake/help/v3.18/manual/cmake-packages.7.html>`_
 that other CMake projects can load to get all the information needed to build
 against SUNDIALS. In the consuming project's CMake code, the ``find_package``
 command may be used to search for the configuration file, which will be
@@ -1751,7 +1751,14 @@ configuration file to build against SUNDIALS in their own CMake project.
   # When using the cmake CLI command, this can be done like so:
   #   cmake -D SUNDIALS_DIR=/path/to/sundials/installation
 
+  # Find any SUNDIALS version...
   find_package(SUNDIALS REQUIRED)
+
+  # ... or find any version newer than some minimum...
+  find_package(SUNDIALS 7.1.0 REQUIRED)
+
+  # ... or find a version in a range
+  find_package(SUNDIALS 7.0.0...7.1.0 REQUIRED)
 
   add_executable(myexec main.c)
 
@@ -1759,6 +1766,13 @@ configuration file to build against SUNDIALS in their own CMake project.
   # This is just an example, users should link to the targets appropriate
   # for their use case.
   target_link_libraries(myexec PUBLIC SUNDIALS::cvode SUNDIALS::nvecpetsc)
+
+
+.. note::
+
+   Starting with SUNDIALS v7.1.0, a single version provided to ``find_package``
+   denotes the minimum version of SUNDIALS to look for, and any version equal
+   or newer than what is specified will match.
 
 
 Table of SUNDIALS libraries and header files
