@@ -546,7 +546,6 @@ struct ARKodeMemRec
   ARKAccumError AccumErrorType; /* accumulated error estimation type   */
   sunrealtype AccumErrorStart;  /* time of last accumulated error reset */
   sunrealtype AccumError;       /* accumulated error estimate               */
-  sunbooleantype VRabstolMallocDone;
   sunbooleantype MallocDone;
   sunbooleantype initsetup;    /* denotes a call to InitialSetup is needed   */
   int init_type;               /* initialization type (see constants above)  */
