@@ -17,7 +17,9 @@
 # C examples
 if(EXAMPLES_ENABLE_C)
   add_subdirectory(C_serial)
-  add_subdirectory(C_manyvector)
+  if(BUILD_NVECTOR_MANYVECTOR)
+    add_subdirectory(C_manyvector)
+  endif()
   if(ENABLE_OPENMP AND OPENMP_FOUND)
     add_subdirectory(C_openmp)
   endif()
