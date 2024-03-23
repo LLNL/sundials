@@ -469,6 +469,7 @@ int ARKodeResStolerance(void* arkode_mem, sunrealtype rabstol)
   /* Allocate space for rwt if necessary */
   if (ark_mem->rwt_is_ewt)
   {
+    /* need nullify first otherwise we think rwt has already been created */
     ark_mem->rwt = NULL;
     if (sunVec_Clone(ark_mem->ewt, &(ark_mem->rwt)))
     {
@@ -547,6 +548,7 @@ int ARKodeResVtolerance(void* arkode_mem, N_Vector rabstol)
   /* Allocate space for rwt if necessary */
   if (ark_mem->rwt_is_ewt)
   {
+    /* need nullify first otherwise we think rwt has already been created */
     ark_mem->rwt = NULL;
     if (sunVec_Clone(ark_mem->ewt, &(ark_mem->rwt)))
     {
@@ -605,6 +607,7 @@ int ARKodeResFtolerance(void* arkode_mem, ARKRwtFn rfun)
   /* Allocate space for rwt if necessary */
   if (ark_mem->rwt_is_ewt)
   {
+    /* need nullify first otherwise we think rwt has already been created */
     ark_mem->rwt = NULL;
     if (sunVec_Clone(ark_mem->ewt, &(ark_mem->rwt)))
     {
