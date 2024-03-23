@@ -1240,7 +1240,7 @@ void ARKodeFree(void** arkode_mem)
   if (ark_mem->step_free) { ark_mem->step_free(ark_mem); }
 
   /* free vector storage */
-  arkFreeVectors(ark_mem);
+  (void)arkFreeVectors(ark_mem);
 
   /* free the time step adaptivity module */
   if (ark_mem->hadapt_mem != NULL)
@@ -1714,7 +1714,8 @@ int arkRwtSet(N_Vector y, N_Vector weight, void* data)
   ---------------------------------------------------------------*/
 int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
 {
-  sunbooleantype stepperOK, nvectorOK, allocOK;
+  SUNErrCode err = SUN_SUCCESS;
+  sunbooleantype stepperOK, nvectorOK;
   int retval;
   sunindextype lrw1, liw1;
 
@@ -1772,9 +1773,10 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
     ark_mem->liw1 = liw1;
 
     /* Allocate the solver vectors (using y0 as a template) */
-    allocOK = arkAllocVectors(ark_mem, y0);
-    if (!allocOK)
+    err = arkAllocVectors(ark_mem, y0);
+    if (err)
     {
+      (void)arkFreeVectors(ark_mem);
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_MEM_FAIL);
       return (ARK_MEM_FAIL);
@@ -3476,30 +3478,16 @@ sunbooleantype arkResizeVecArray(ARKVecResizeFn resize, void* resize_data,
   If all memory allocations are successful, arkAllocVectors
   returns SUNTRUE, otherwise it returns SUNFALSE.
   ---------------------------------------------------------------*/
-sunbooleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
+SUNErrCode arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
 {
-  /* Allocate ewt if needed */
-  if (sunVec_Clone(tmpl, &ark_mem->ewt)) { return (SUNFALSE); }
-
-  /* Set rwt to point at ewt */
+  SUNCheckCall(sunVec_Clone(tmpl, &ark_mem->ewt));
+  SUNCheckCall(sunVec_Clone(tmpl, &ark_mem->yn));
+  SUNCheckCall(sunVec_Clone(tmpl, &ark_mem->tempv1));
+  SUNCheckCall(sunVec_Clone(tmpl, &ark_mem->tempv2));
+  SUNCheckCall(sunVec_Clone(tmpl, &ark_mem->tempv3));
+  SUNCheckCall(sunVec_Clone(tmpl, &ark_mem->tempv4));
   if (ark_mem->rwt_is_ewt) { ark_mem->rwt = ark_mem->ewt; }
-
-  /* Allocate yn if needed */
-  if (sunVec_Clone(tmpl, &ark_mem->yn)) { return (SUNFALSE); }
-
-  /* Allocate tempv1 if needed */
-  if (sunVec_Clone(tmpl, &ark_mem->tempv1)) { return (SUNFALSE); }
-
-  /* Allocate tempv2 if needed */
-  if (sunVec_Clone(tmpl, &ark_mem->tempv2)) { return (SUNFALSE); }
-
-  /* Allocate tempv3 if needed */
-  if (sunVec_Clone(tmpl, &ark_mem->tempv3)) { return (SUNFALSE); }
-
-  /* Allocate tempv4 if needed */
-  if (sunVec_Clone(tmpl, &ark_mem->tempv4)) { return (SUNFALSE); }
-
-  return (SUNTRUE);
+  return SUN_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -3610,18 +3598,19 @@ sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
   This routine frees the ARKODE vectors allocated in both
   arkAllocVectors and arkAllocRKVectors.
   ---------------------------------------------------------------*/
-void arkFreeVectors(ARKodeMem ark_mem)
+SUNErrCode arkFreeVectors(ARKodeMem ark_mem)
 {
-  (void)sunVec_Destroy(&ark_mem->ewt);
-  if (!ark_mem->rwt_is_ewt) { (void)sunVec_Destroy(&ark_mem->rwt); }
-  (void)sunVec_Destroy(&ark_mem->tempv1);
-  (void)sunVec_Destroy(&ark_mem->tempv2);
-  (void)sunVec_Destroy(&ark_mem->tempv3);
-  (void)sunVec_Destroy(&ark_mem->tempv4);
-  (void)sunVec_Destroy(&ark_mem->yn);
-  (void)sunVec_Destroy(&ark_mem->fn);
-  (void)sunVec_Destroy(&ark_mem->Vabstol);
-  (void)sunVec_Destroy(&ark_mem->constraints);
+  SUNCheckCall(sunVec_Destroy(&ark_mem->ewt));
+  SUNCheckCall(sunVec_Destroy(&ark_mem->tempv1));
+  SUNCheckCall(sunVec_Destroy(&ark_mem->tempv2));
+  SUNCheckCall(sunVec_Destroy(&ark_mem->tempv3));
+  SUNCheckCall(sunVec_Destroy(&ark_mem->tempv4));
+  SUNCheckCall(sunVec_Destroy(&ark_mem->yn));
+  SUNCheckCall(sunVec_Destroy(&ark_mem->fn));
+  SUNCheckCall(sunVec_Destroy(&ark_mem->Vabstol));
+  SUNCheckCall(sunVec_Destroy(&ark_mem->constraints));
+  if (!ark_mem->rwt_is_ewt) {  SUNCheckCall(sunVec_Destroy(&ark_mem->rwt)); }
+  return SUN_SUCCESS;
 }
 
 /*---------------------------------------------------------------
