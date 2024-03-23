@@ -168,17 +168,17 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
      (based on the number of ARK stages) */
 
   /* Clone the input vector to create sdata, zpred and zcor */
-  if (!arkAllocVec(ark_mem, y0, &(step_mem->sdata)))
+  if (sunVec_Clone(ark_mem->sunctx, y0, &(step_mem->sdata)))
   {
     ARKodeFree((void**)&ark_mem);
     return (NULL);
   }
-  if (!arkAllocVec(ark_mem, y0, &(step_mem->zpred)))
+  if (sunVec_Clone(ark_mem->sunctx, y0, &(step_mem->zpred)))
   {
     ARKodeFree((void**)&ark_mem);
     return (NULL);
   }
-  if (!arkAllocVec(ark_mem, y0, &(step_mem->zcor)))
+  if (sunVec_Clone(ark_mem->sunctx, y0, &(step_mem->zcor)))
   {
     ARKodeFree((void**)&ark_mem);
     return (NULL);
@@ -547,17 +547,17 @@ void arkStep_Free(ARKodeMem ark_mem)
     /* free the sdata, zpred and zcor vectors */
     if (step_mem->sdata != NULL)
     {
-      arkFreeVec(ark_mem, &step_mem->sdata);
+      (void)sunVec_Destroy(ark_mem->sunctx, &step_mem->sdata);
       step_mem->sdata = NULL;
     }
     if (step_mem->zpred != NULL)
     {
-      arkFreeVec(ark_mem, &step_mem->zpred);
+      (void)sunVec_Destroy(ark_mem->sunctx, &step_mem->zpred);
       step_mem->zpred = NULL;
     }
     if (step_mem->zcor != NULL)
     {
-      arkFreeVec(ark_mem, &step_mem->zcor);
+      (void)sunVec_Destroy(ark_mem->sunctx, &step_mem->zcor);
       step_mem->zcor = NULL;
     }
 
@@ -566,7 +566,7 @@ void arkStep_Free(ARKodeMem ark_mem)
     {
       for (j = 0; j < step_mem->stages; j++)
       {
-        arkFreeVec(ark_mem, &step_mem->Fe[j]);
+        (void)sunVec_Destroy(ark_mem->sunctx, &step_mem->Fe[j]);
       }
       free(step_mem->Fe);
       step_mem->Fe = NULL;
@@ -576,7 +576,7 @@ void arkStep_Free(ARKodeMem ark_mem)
     {
       for (j = 0; j < step_mem->stages; j++)
       {
-        arkFreeVec(ark_mem, &step_mem->Fi[j]);
+        (void)sunVec_Destroy(ark_mem->sunctx, &step_mem->Fi[j]);
       }
       free(step_mem->Fi);
       step_mem->Fi = NULL;
@@ -588,7 +588,7 @@ void arkStep_Free(ARKodeMem ark_mem)
     {
       for (j = 0; j < step_mem->stages; j++)
       {
-        arkFreeVec(ark_mem, &step_mem->z[j]);
+        (void)sunVec_Destroy(ark_mem->sunctx, &step_mem->z[j]);
       }
       free(step_mem->z);
       step_mem->z = NULL;
@@ -1046,7 +1046,7 @@ int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
       }
       for (j = 0; j < step_mem->stages; j++)
       {
-        if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fe[j])))
+        if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(step_mem->Fe[j])))
         {
           return (ARK_MEM_FAIL);
         }
@@ -1063,7 +1063,7 @@ int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
       }
       for (j = 0; j < step_mem->stages; j++)
       {
-        if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fi[j])))
+        if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(step_mem->Fi[j])))
         {
           return (ARK_MEM_FAIL);
         }
@@ -1082,7 +1082,7 @@ int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
       }
       for (j = 0; j < step_mem->stages; j++)
       {
-        if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->z[j])))
+        if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(step_mem->z[j])))
         {
           return (ARK_MEM_FAIL);
         }

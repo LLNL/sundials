@@ -636,34 +636,31 @@ void mriStep_Free(ARKodeMem ark_mem)
     /* free the sdata, zpred and zcor vectors */
     if (step_mem->sdata != NULL)
     {
-      arkFreeVec(ark_mem, &step_mem->sdata);
+      (void)sunVec_Destroy(ark_mem->sunctx, &step_mem->sdata);
       step_mem->sdata = NULL;
     }
     if (step_mem->zpred != NULL)
     {
-      arkFreeVec(ark_mem, &step_mem->zpred);
+      (void)sunVec_Destroy(ark_mem->sunctx, &step_mem->zpred);
       step_mem->zpred = NULL;
     }
     if (step_mem->zcor != NULL)
     {
-      arkFreeVec(ark_mem, &step_mem->zcor);
+      (void)sunVec_Destroy(ark_mem->sunctx, &step_mem->zcor);
       step_mem->zcor = NULL;
     }
 
     /* free the RHS vectors */
     if (step_mem->Fse)
     {
-      arkFreeVecArray(step_mem->nstages_allocated, &(step_mem->Fse),
-                      ark_mem->lrw1, &(ark_mem->lrw), ark_mem->liw1,
-                      &(ark_mem->liw));
-      if (step_mem->unify_Fs) { step_mem->Fsi = NULL; }
+      (void)sunVecArray_Destroy(ark_mem->sunctx, step_mem->nstages_allocated,
+                                &(step_mem->Fse));
     }
 
     if (step_mem->Fsi)
     {
-      arkFreeVecArray(step_mem->nstages_allocated, &(step_mem->Fsi),
-                      ark_mem->lrw1, &(ark_mem->lrw), ark_mem->liw1,
-                      &(ark_mem->liw));
+      (void)sunVecArray_Destroy(ark_mem->sunctx, step_mem->nstages_allocated,
+                                &(step_mem->Fsi));
     }
 
     /* free the reusable arrays for fused vector interface */
@@ -1145,33 +1142,27 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
       {
         if (step_mem->explicit_rhs)
         {
-          arkFreeVecArray(step_mem->nstages_allocated, &(step_mem->Fse),
-                          ark_mem->lrw1, &(ark_mem->lrw), ark_mem->liw1,
-                          &(ark_mem->liw));
-          if (step_mem->unify_Fs) { step_mem->Fsi = NULL; }
+          (void)sunVecArray_Destroy(ark_mem->sunctx, step_mem->nstages_allocated,
+                                    &(step_mem->Fse));
         }
         if (step_mem->implicit_rhs)
         {
-          arkFreeVecArray(step_mem->nstages_allocated, &(step_mem->Fsi),
-                          ark_mem->lrw1, &(ark_mem->lrw), ark_mem->liw1,
-                          &(ark_mem->liw));
-          if (step_mem->unify_Fs) { step_mem->Fse = NULL; }
+          (void)sunVecArray_Destroy(ark_mem->sunctx, step_mem->nstages_allocated,
+                                    &(step_mem->Fsi));
         }
       }
       if (step_mem->explicit_rhs && !step_mem->unify_Fs)
       {
-        if (!arkAllocVecArray(step_mem->nstages_active, ark_mem->ewt,
-                              &(step_mem->Fse), ark_mem->lrw1, &(ark_mem->lrw),
-                              ark_mem->liw1, &(ark_mem->liw)))
+        if (sunVecArray_Clone(ark_mem->sunctx, step_mem->nstages_active,
+                              ark_mem->ewt, &(step_mem->Fse)))
         {
           return (ARK_MEM_FAIL);
         }
       }
       if (step_mem->implicit_rhs && !step_mem->unify_Fs)
       {
-        if (!arkAllocVecArray(step_mem->nstages_active, ark_mem->ewt,
-                              &(step_mem->Fsi), ark_mem->lrw1, &(ark_mem->lrw),
-                              ark_mem->liw1, &(ark_mem->liw)))
+        if (sunVecArray_Clone(ark_mem->sunctx, step_mem->nstages_active,
+                              ark_mem->ewt, &(step_mem->Fsi)))
         {
           return (ARK_MEM_FAIL);
         }
@@ -1196,15 +1187,15 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
        SUNTRUE if an implicit table has been user-provided. */
     if (step_mem->implicit_rhs)
     {
-      if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->sdata)))
+      if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(step_mem->sdata)))
       {
         return (ARK_MEM_FAIL);
       }
-      if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->zpred)))
+      if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(step_mem->zpred)))
       {
         return (ARK_MEM_FAIL);
       }
-      if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->zcor)))
+      if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(step_mem->zcor)))
       {
         return (ARK_MEM_FAIL);
       }
@@ -4754,13 +4745,11 @@ int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
   {
     if (stepper->nforcing_allocated)
     {
-      arkFreeVecArray(stepper->nforcing_allocated, &(stepper->forcing),
-                      stepper->lrw1, &(stepper->lrw), stepper->liw1,
-                      &(stepper->liw));
+      (void)sunVecArray_Destroy(stepper->sunctx, stepper->nforcing_allocated,
+                                &(stepper->forcing));
     }
-    if (!arkAllocVecArray(stepper->nforcing, tmpl, &(stepper->forcing),
-                          stepper->lrw1, &(stepper->lrw), stepper->liw1,
-                          &(stepper->liw)))
+    if (sunVecArray_Clone(stepper->sunctx, stepper->nforcing, tmpl,
+                          &(stepper->forcing)))
     {
       mriStepInnerStepper_FreeVecs(stepper);
       return (ARK_MEM_FAIL);
@@ -4814,8 +4803,8 @@ int mriStepInnerStepper_FreeVecs(MRIStepInnerStepper stepper)
 {
   if (stepper == NULL) { return ARK_ILL_INPUT; }
 
-  arkFreeVecArray(stepper->nforcing_allocated, &(stepper->forcing),
-                  stepper->lrw1, &(stepper->lrw), stepper->liw1, &(stepper->liw));
+  (void)sunVecArray_Destroy(stepper->sunctx, stepper->nforcing_allocated,
+                            &(stepper->forcing));
 
   if (stepper->vecs != NULL)
   {

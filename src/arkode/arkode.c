@@ -355,7 +355,7 @@ int ARKodeSVtolerances(void* arkode_mem, sunrealtype reltol, N_Vector abstol)
   /* Copy tolerances into memory */
   if (!(ark_mem->VabstolMallocDone))
   {
-    if (!arkAllocVec(ark_mem, ark_mem->ewt, &(ark_mem->Vabstol)))
+    if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(ark_mem->Vabstol)))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_ARKMEM_FAIL);
@@ -474,7 +474,7 @@ int ARKodeResStolerance(void* arkode_mem, sunrealtype rabstol)
   if (ark_mem->rwt_is_ewt)
   {
     ark_mem->rwt = NULL;
-    if (!arkAllocVec(ark_mem, ark_mem->ewt, &(ark_mem->rwt)))
+    if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(ark_mem->rwt)))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_ARKMEM_FAIL);
@@ -552,7 +552,7 @@ int ARKodeResVtolerance(void* arkode_mem, N_Vector rabstol)
   if (ark_mem->rwt_is_ewt)
   {
     ark_mem->rwt = NULL;
-    if (!arkAllocVec(ark_mem, ark_mem->ewt, &(ark_mem->rwt)))
+    if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(ark_mem->rwt)))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_ARKMEM_FAIL);
@@ -564,7 +564,7 @@ int ARKodeResVtolerance(void* arkode_mem, N_Vector rabstol)
   /* Copy tolerances into memory */
   if (!(ark_mem->VRabstolMallocDone))
   {
-    if (!arkAllocVec(ark_mem, ark_mem->rwt, &(ark_mem->VRabstol)))
+    if (sunVec_Clone(ark_mem->sunctx, ark_mem->rwt, &(ark_mem->VRabstol)))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_ARKMEM_FAIL);
@@ -614,7 +614,7 @@ int ARKodeResFtolerance(void* arkode_mem, ARKRwtFn rfun)
   if (ark_mem->rwt_is_ewt)
   {
     ark_mem->rwt = NULL;
-    if (!arkAllocVec(ark_mem, ark_mem->ewt, &(ark_mem->rwt)))
+    if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(ark_mem->rwt)))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_ARKMEM_FAIL);
@@ -2145,7 +2145,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
       return ARK_ILL_INPUT;
     }
 
-    if (!arkAllocVec(ark_mem, ark_mem->yn, &ark_mem->fn))
+    if (sunVec_Clone(ark_mem->sunctx, ark_mem->yn, &ark_mem->fn))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_MEM_FAIL);
@@ -3392,91 +3392,6 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
 }
 
 /*---------------------------------------------------------------
-  arkAllocVec and arkAllocVecArray:
-
-  These routines allocate (respectively) single vector or a vector
-  array based on a template vector.  If the target vector or vector
-  array already exists it is left alone; otherwise it is allocated
-  by cloning the input vector.
-
-  This routine also updates the optional outputs lrw and liw, which
-  are (respectively) the lengths of the overall ARKODE real and
-  integer work spaces.
-
-  SUNTRUE is returned if the allocation is successful (or if the
-  target vector or vector array already exists) otherwise SUNFALSE
-  is returned.
-  ---------------------------------------------------------------*/
-sunbooleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector* v)
-{
-  /* return failure if N_VClone or N_VDestroy is not implemented */
-  if ((!tmpl->ops->nvclone) || (!tmpl->ops->nvdestroy)) { return SUNFALSE; }
-
-  /* allocate the new vector if necessary */
-  if (*v == NULL)
-  {
-    *v = N_VClone(tmpl);
-    if (*v == NULL)
-    {
-      arkFreeVectors(ark_mem);
-      return (SUNFALSE);
-    }
-    else
-    {
-      ark_mem->lrw += ark_mem->lrw1;
-      ark_mem->liw += ark_mem->liw1;
-    }
-  }
-  return (SUNTRUE);
-}
-
-sunbooleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector** v,
-                                sunindextype lrw1, long int* lrw,
-                                sunindextype liw1, long int* liw)
-{
-  /* allocate the new vector array if necessary */
-  if (*v == NULL)
-  {
-    *v = N_VCloneVectorArray(count, tmpl);
-    if (*v == NULL) { return (SUNFALSE); }
-    *lrw += count * lrw1;
-    *liw += count * liw1;
-  }
-  return (SUNTRUE);
-}
-
-/*---------------------------------------------------------------
-  arkFreeVec and arkFreeVecArray:
-
-  These routines (respectively) free a single vector or a vector
-  array. If the target vector or vector array is already NULL it
-  is left alone; otherwise it is freed and the optional outputs
-  lrw and liw are updated accordingly.
-  ---------------------------------------------------------------*/
-void arkFreeVec(ARKodeMem ark_mem, N_Vector* v)
-{
-  if (*v != NULL)
-  {
-    N_VDestroy(*v);
-    *v = NULL;
-    ark_mem->lrw -= ark_mem->lrw1;
-    ark_mem->liw -= ark_mem->liw1;
-  }
-}
-
-void arkFreeVecArray(int count, N_Vector** v, sunindextype lrw1, long int* lrw,
-                     sunindextype liw1, long int* liw)
-{
-  if (*v != NULL)
-  {
-    N_VDestroyVectorArray(*v, count);
-    *v = NULL;
-    *lrw -= count * lrw1;
-    *liw -= count * liw1;
-  }
-}
-
-/*---------------------------------------------------------------
   arkResizeVec and arkResizeVecArray:
 
   This routines (respectively) resize a single vector or a vector
@@ -3569,25 +3484,37 @@ sunbooleantype arkResizeVecArray(ARKVecResizeFn resize, void* resize_data,
 sunbooleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
 {
   /* Allocate ewt if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->ewt)) { return (SUNFALSE); }
+  if (sunVec_Clone(ark_mem->sunctx, tmpl, &ark_mem->ewt)) { return (SUNFALSE); }
 
   /* Set rwt to point at ewt */
   if (ark_mem->rwt_is_ewt) { ark_mem->rwt = ark_mem->ewt; }
 
   /* Allocate yn if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->yn)) { return (SUNFALSE); }
+  if (sunVec_Clone(ark_mem->sunctx, tmpl, &ark_mem->yn)) { return (SUNFALSE); }
 
   /* Allocate tempv1 if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv1)) { return (SUNFALSE); }
+  if (sunVec_Clone(ark_mem->sunctx, tmpl, &ark_mem->tempv1))
+  {
+    return (SUNFALSE);
+  }
 
   /* Allocate tempv2 if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv2)) { return (SUNFALSE); }
+  if (sunVec_Clone(ark_mem->sunctx, tmpl, &ark_mem->tempv2))
+  {
+    return (SUNFALSE);
+  }
 
   /* Allocate tempv3 if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv3)) { return (SUNFALSE); }
+  if (sunVec_Clone(ark_mem->sunctx, tmpl, &ark_mem->tempv3))
+  {
+    return (SUNFALSE);
+  }
 
   /* Allocate tempv4 if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv4)) { return (SUNFALSE); }
+  if (sunVec_Clone(ark_mem->sunctx, tmpl, &ark_mem->tempv4))
+  {
+    return (SUNFALSE);
+  }
 
   return (SUNTRUE);
 }
@@ -3684,12 +3611,6 @@ sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
     return (SUNFALSE);
   }
 
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
-                    &ark_mem->tempv5))
-  {
-    return (SUNFALSE);
-  }
-
   /* constraints */
   if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
                     &ark_mem->constraints))
@@ -3708,17 +3629,19 @@ sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
   ---------------------------------------------------------------*/
 void arkFreeVectors(ARKodeMem ark_mem)
 {
-  arkFreeVec(ark_mem, &ark_mem->ewt);
-  if (!ark_mem->rwt_is_ewt) { arkFreeVec(ark_mem, &ark_mem->rwt); }
-  arkFreeVec(ark_mem, &ark_mem->tempv1);
-  arkFreeVec(ark_mem, &ark_mem->tempv2);
-  arkFreeVec(ark_mem, &ark_mem->tempv3);
-  arkFreeVec(ark_mem, &ark_mem->tempv4);
-  arkFreeVec(ark_mem, &ark_mem->tempv5);
-  arkFreeVec(ark_mem, &ark_mem->yn);
-  arkFreeVec(ark_mem, &ark_mem->fn);
-  arkFreeVec(ark_mem, &ark_mem->Vabstol);
-  arkFreeVec(ark_mem, &ark_mem->constraints);
+  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->ewt);
+  if (!ark_mem->rwt_is_ewt)
+  {
+    (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->rwt);
+  }
+  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->tempv1);
+  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->tempv2);
+  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->tempv3);
+  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->tempv4);
+  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->yn);
+  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->fn);
+  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->Vabstol);
+  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->constraints);
 }
 
 /*---------------------------------------------------------------

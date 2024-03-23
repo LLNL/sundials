@@ -40,6 +40,7 @@ struct SUNContext_
   SUNErrCode last_err;
   SUNErrHandler err_handler;
   SUNComm comm;
+  int vec_count;
 };
 
 #ifdef __cplusplus

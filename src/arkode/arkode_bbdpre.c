@@ -153,7 +153,7 @@ int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq,
   }
 
   pdata->tmp1 = NULL;
-  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp1)))
+  if (sunVec_Clone(ark_mem->sunctx, ark_mem->tempv1, &(pdata->tmp1)))
   {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
@@ -167,9 +167,9 @@ int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq,
   }
 
   pdata->tmp2 = NULL;
-  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp2)))
+  if (sunVec_Clone(ark_mem->sunctx, ark_mem->tempv1, &(pdata->tmp2)))
   {
-    arkFreeVec(ark_mem, &(pdata->tmp1));
+    (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp1));
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
     SUNMatDestroy(pdata->savedP);
@@ -182,10 +182,10 @@ int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq,
   }
 
   pdata->tmp3 = NULL;
-  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp3)))
+  if (sunVec_Clone(ark_mem->sunctx, ark_mem->tempv1, &(pdata->tmp3)))
   {
-    arkFreeVec(ark_mem, &(pdata->tmp1));
-    arkFreeVec(ark_mem, &(pdata->tmp2));
+    (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp1));
+    (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp2));
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
     SUNMatDestroy(pdata->savedP);
@@ -202,9 +202,9 @@ int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq,
   pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->savedP, ark_mem->sunctx);
   if (pdata->LS == NULL)
   {
-    arkFreeVec(ark_mem, &(pdata->tmp1));
-    arkFreeVec(ark_mem, &(pdata->tmp2));
-    arkFreeVec(ark_mem, &(pdata->tmp3));
+    (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp1));
+    (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp2));
+    (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp3));
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
     SUNMatDestroy(pdata->savedP);
@@ -220,9 +220,9 @@ int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq,
   retval = SUNLinSolInitialize(pdata->LS);
   if (pdata->LS == NULL)
   {
-    arkFreeVec(ark_mem, &(pdata->tmp1));
-    arkFreeVec(ark_mem, &(pdata->tmp2));
-    arkFreeVec(ark_mem, &(pdata->tmp3));
+    (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp1));
+    (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp2));
+    (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp3));
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
     SUNMatDestroy(pdata->savedP);
@@ -565,9 +565,9 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
   pdata = (ARKBBDPrecData)arkls_mem->P_data;
 
   SUNLinSolFree(pdata->LS);
-  arkFreeVec(ark_mem, &(pdata->tmp1));
-  arkFreeVec(ark_mem, &(pdata->tmp2));
-  arkFreeVec(ark_mem, &(pdata->tmp3));
+  (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp1));
+  (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp2));
+  (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp3));
   N_VDestroy(pdata->zlocal);
   N_VDestroy(pdata->rlocal);
   SUNMatDestroy(pdata->savedP);

@@ -24,8 +24,58 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sundials/sundials_config.h>
-#include <sundials/sundials_types.h>
+#include <sundials/sundials_core.h>
+
+#include "sundials/sundials_errors.h"
+
+/* ----------------------------------------- *
+ * Vector creation and destruction utilities *
+ * ----------------------------------------- */
+
+static inline SUNErrCode sunVec_Clone(SUNContext sunctx, N_Vector tmpl,
+                                      N_Vector* v)
+{
+  if (*v != NULL) { return SUN_SUCCESS; }
+  *v = N_VClone(tmpl);
+  if (*v == NULL) { return SUN_ERR_MEM_FAIL; }
+  sunctx->vec_count++;
+  return SUN_SUCCESS;
+}
+
+static inline SUNErrCode sunVec_Destroy(SUNContext sunctx, N_Vector* v)
+{
+  if (v == NULL) { return SUN_SUCCESS; }
+  if (*v == NULL) { return SUN_SUCCESS; }
+  N_VDestroy(*v);
+  *v = NULL;
+  sunctx->vec_count--;
+  return SUN_SUCCESS;
+}
+
+static inline SUNErrCode sunVecArray_Clone(SUNContext sunctx, int count,
+                                           N_Vector tmpl, N_Vector** v)
+{
+  if (*v != NULL) { return SUN_SUCCESS; }
+  *v = N_VCloneVectorArray(count, tmpl);
+  if (*v == NULL) { return SUN_ERR_MEM_FAIL; }
+  sunctx->vec_count += count;
+  return SUN_SUCCESS;
+}
+
+static inline SUNErrCode sunVecArray_Destroy(SUNContext sunctx, int count,
+                                             N_Vector** v)
+{
+  if (v == NULL) { return SUN_SUCCESS; }
+  if (*v == NULL) { return SUN_SUCCESS; }
+  N_VDestroyVectorArray(*v, count);
+  *v = NULL;
+  sunctx->vec_count -= count;
+  return SUN_SUCCESS;
+}
+
+/* ------------------ *
+ * Printing utilities *
+ * ------------------ */
 
 /* width of name field in sunfprintf_<type> for aligning table output */
 #define SUN_TABLE_WIDTH 29
