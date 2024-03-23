@@ -355,7 +355,7 @@ int ARKodeSVtolerances(void* arkode_mem, sunrealtype reltol, N_Vector abstol)
   /* Copy tolerances into memory */
   if (!(ark_mem->VabstolMallocDone))
   {
-    if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(ark_mem->Vabstol)))
+    if (sunVec_Clone(ark_mem->ewt, &(ark_mem->Vabstol)))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_ARKMEM_FAIL);
@@ -474,7 +474,7 @@ int ARKodeResStolerance(void* arkode_mem, sunrealtype rabstol)
   if (ark_mem->rwt_is_ewt)
   {
     ark_mem->rwt = NULL;
-    if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(ark_mem->rwt)))
+    if (sunVec_Clone(ark_mem->ewt, &(ark_mem->rwt)))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_ARKMEM_FAIL);
@@ -552,7 +552,7 @@ int ARKodeResVtolerance(void* arkode_mem, N_Vector rabstol)
   if (ark_mem->rwt_is_ewt)
   {
     ark_mem->rwt = NULL;
-    if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(ark_mem->rwt)))
+    if (sunVec_Clone(ark_mem->ewt, &(ark_mem->rwt)))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_ARKMEM_FAIL);
@@ -564,7 +564,7 @@ int ARKodeResVtolerance(void* arkode_mem, N_Vector rabstol)
   /* Copy tolerances into memory */
   if (!(ark_mem->VRabstolMallocDone))
   {
-    if (sunVec_Clone(ark_mem->sunctx, ark_mem->rwt, &(ark_mem->VRabstol)))
+    if (sunVec_Clone(ark_mem->rwt, &(ark_mem->VRabstol)))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_ARKMEM_FAIL);
@@ -614,7 +614,7 @@ int ARKodeResFtolerance(void* arkode_mem, ARKRwtFn rfun)
   if (ark_mem->rwt_is_ewt)
   {
     ark_mem->rwt = NULL;
-    if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(ark_mem->rwt)))
+    if (sunVec_Clone(ark_mem->ewt, &(ark_mem->rwt)))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_ARKMEM_FAIL);
@@ -2145,7 +2145,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
       return ARK_ILL_INPUT;
     }
 
-    if (sunVec_Clone(ark_mem->sunctx, ark_mem->yn, &ark_mem->fn))
+    if (sunVec_Clone(ark_mem->yn, &ark_mem->fn))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_MEM_FAIL);
@@ -3484,34 +3484,34 @@ sunbooleantype arkResizeVecArray(ARKVecResizeFn resize, void* resize_data,
 sunbooleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
 {
   /* Allocate ewt if needed */
-  if (sunVec_Clone(ark_mem->sunctx, tmpl, &ark_mem->ewt)) { return (SUNFALSE); }
+  if (sunVec_Clone(tmpl, &ark_mem->ewt)) { return (SUNFALSE); }
 
   /* Set rwt to point at ewt */
   if (ark_mem->rwt_is_ewt) { ark_mem->rwt = ark_mem->ewt; }
 
   /* Allocate yn if needed */
-  if (sunVec_Clone(ark_mem->sunctx, tmpl, &ark_mem->yn)) { return (SUNFALSE); }
+  if (sunVec_Clone(tmpl, &ark_mem->yn)) { return (SUNFALSE); }
 
   /* Allocate tempv1 if needed */
-  if (sunVec_Clone(ark_mem->sunctx, tmpl, &ark_mem->tempv1))
+  if (sunVec_Clone(tmpl, &ark_mem->tempv1))
   {
     return (SUNFALSE);
   }
 
   /* Allocate tempv2 if needed */
-  if (sunVec_Clone(ark_mem->sunctx, tmpl, &ark_mem->tempv2))
+  if (sunVec_Clone(tmpl, &ark_mem->tempv2))
   {
     return (SUNFALSE);
   }
 
   /* Allocate tempv3 if needed */
-  if (sunVec_Clone(ark_mem->sunctx, tmpl, &ark_mem->tempv3))
+  if (sunVec_Clone(tmpl, &ark_mem->tempv3))
   {
     return (SUNFALSE);
   }
 
   /* Allocate tempv4 if needed */
-  if (sunVec_Clone(ark_mem->sunctx, tmpl, &ark_mem->tempv4))
+  if (sunVec_Clone(tmpl, &ark_mem->tempv4))
   {
     return (SUNFALSE);
   }
@@ -3629,19 +3629,19 @@ sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
   ---------------------------------------------------------------*/
 void arkFreeVectors(ARKodeMem ark_mem)
 {
-  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->ewt);
+  (void)sunVec_Destroy(&ark_mem->ewt);
   if (!ark_mem->rwt_is_ewt)
   {
-    (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->rwt);
+    (void)sunVec_Destroy(&ark_mem->rwt);
   }
-  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->tempv1);
-  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->tempv2);
-  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->tempv3);
-  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->tempv4);
-  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->yn);
-  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->fn);
-  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->Vabstol);
-  (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->constraints);
+  (void)sunVec_Destroy(&ark_mem->tempv1);
+  (void)sunVec_Destroy(&ark_mem->tempv2);
+  (void)sunVec_Destroy(&ark_mem->tempv3);
+  (void)sunVec_Destroy(&ark_mem->tempv4);
+  (void)sunVec_Destroy(&ark_mem->yn);
+  (void)sunVec_Destroy(&ark_mem->fn);
+  (void)sunVec_Destroy(&ark_mem->Vabstol);
+  (void)sunVec_Destroy(&ark_mem->constraints);
 }
 
 /*---------------------------------------------------------------
