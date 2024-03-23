@@ -299,7 +299,7 @@ void erkStep_Free(ARKodeMem ark_mem)
     {
       for (j = 0; j < step_mem->stages; j++)
       {
-        arkFreeVec(ark_mem, &step_mem->F[j]);
+        (void)sunVec_Destroy(ark_mem->sunctx, &step_mem->F[j]);
       }
       free(step_mem->F);
       step_mem->F = NULL;
@@ -469,7 +469,7 @@ int erkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
   }
   for (j = 0; j < step_mem->stages; j++)
   {
-    if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->F[j])))
+    if (sunVec_Clone(ark_mem->sunctx, ark_mem->ewt, &(step_mem->F[j])))
     {
       return (ARK_MEM_FAIL);
     }
