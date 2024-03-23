@@ -353,15 +353,11 @@ int ARKodeSVtolerances(void* arkode_mem, sunrealtype reltol, N_Vector abstol)
   ark_mem->atolmin0 = (abstolmin == ZERO);
 
   /* Copy tolerances into memory */
-  if (!(ark_mem->VabstolMallocDone))
+  if (sunVec_Clone(ark_mem->ewt, &(ark_mem->Vabstol)))
   {
-    if (sunVec_Clone(ark_mem->ewt, &(ark_mem->Vabstol)))
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_ARKMEM_FAIL);
-      return (ARK_ILL_INPUT);
-    }
-    ark_mem->VabstolMallocDone = SUNTRUE;
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_ARKMEM_FAIL);
+    return (ARK_ILL_INPUT);
   }
   N_VScale(ONE, abstol, ark_mem->Vabstol);
   ark_mem->reltol = reltol;
