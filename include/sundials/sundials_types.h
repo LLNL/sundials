@@ -219,6 +219,12 @@ typedef struct SUNProfiler_* SUNProfiler;
 /* SUNDIALS logger */
 typedef struct SUNLogger_* SUNLogger;
 
+/* Stack of SUNDIALS vectors */
+typedef struct SUNVecStack_* SUNVecStack;
+
+/* SUNDIALS vector -- see sundials_nvector.h */
+typedef _SUNDIALS_STRUCT_ _generic_N_Vector* N_Vector;
+
 /* -----------------------------------------------------------------------------
  * SUNDIALS function types
  * ---------------------------------------------------------------------------*/
