@@ -3493,28 +3493,16 @@ sunbooleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
   if (sunVec_Clone(tmpl, &ark_mem->yn)) { return (SUNFALSE); }
 
   /* Allocate tempv1 if needed */
-  if (sunVec_Clone(tmpl, &ark_mem->tempv1))
-  {
-    return (SUNFALSE);
-  }
+  if (sunVec_Clone(tmpl, &ark_mem->tempv1)) { return (SUNFALSE); }
 
   /* Allocate tempv2 if needed */
-  if (sunVec_Clone(tmpl, &ark_mem->tempv2))
-  {
-    return (SUNFALSE);
-  }
+  if (sunVec_Clone(tmpl, &ark_mem->tempv2)) { return (SUNFALSE); }
 
   /* Allocate tempv3 if needed */
-  if (sunVec_Clone(tmpl, &ark_mem->tempv3))
-  {
-    return (SUNFALSE);
-  }
+  if (sunVec_Clone(tmpl, &ark_mem->tempv3)) { return (SUNFALSE); }
 
   /* Allocate tempv4 if needed */
-  if (sunVec_Clone(tmpl, &ark_mem->tempv4))
-  {
-    return (SUNFALSE);
-  }
+  if (sunVec_Clone(tmpl, &ark_mem->tempv4)) { return (SUNFALSE); }
 
   return (SUNTRUE);
 }
@@ -3630,10 +3618,7 @@ sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
 void arkFreeVectors(ARKodeMem ark_mem)
 {
   (void)sunVec_Destroy(&ark_mem->ewt);
-  if (!ark_mem->rwt_is_ewt)
-  {
-    (void)sunVec_Destroy(&ark_mem->rwt);
-  }
+  if (!ark_mem->rwt_is_ewt) { (void)sunVec_Destroy(&ark_mem->rwt); }
   (void)sunVec_Destroy(&ark_mem->tempv1);
   (void)sunVec_Destroy(&ark_mem->tempv2);
   (void)sunVec_Destroy(&ark_mem->tempv3);
