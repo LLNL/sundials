@@ -1578,7 +1578,7 @@ int ARKodeSetConstraints(void* arkode_mem, N_Vector constraints)
   /* If there are no constraints, destroy data structures */
   if (constraints == NULL)
   {
-    arkFreeVec(ark_mem, &ark_mem->constraints);
+    (void)sunVec_Destroy(ark_mem->sunctx, &ark_mem->constraints);
     ark_mem->constraintsSet = SUNFALSE;
     return (ARK_SUCCESS);
   }
@@ -1604,7 +1604,7 @@ int ARKodeSetConstraints(void* arkode_mem, N_Vector constraints)
   }
 
   /* Allocate the internal constrains vector (if necessary) */
-  if (!arkAllocVec(ark_mem, constraints, &ark_mem->constraints))
+  if (sunVec_Clone(ark_mem->sunctx, constraints, &ark_mem->constraints))
   {
     return (ARK_MEM_FAIL);
   }

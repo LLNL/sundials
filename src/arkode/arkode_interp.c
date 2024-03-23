@@ -219,22 +219,22 @@ void arkInterpFree_Hermite(ARKodeMem ark_mem, ARKInterp interp)
   {
     if (HINT_FOLD(interp) != NULL)
     {
-      arkFreeVec(ark_mem, &(HINT_FOLD(interp)));
+      (void)sunVec_Destroy(ark_mem->sunctx, &(HINT_FOLD(interp)));
       HINT_FOLD(interp) = NULL;
     }
     if (HINT_YOLD(interp) != NULL)
     {
-      arkFreeVec(ark_mem, &(HINT_YOLD(interp)));
+      (void)sunVec_Destroy(ark_mem->sunctx, &(HINT_YOLD(interp)));
       HINT_YOLD(interp) = NULL;
     }
     if (HINT_FA(interp) != NULL)
     {
-      arkFreeVec(ark_mem, &(HINT_FA(interp)));
+      (void)sunVec_Destroy(ark_mem->sunctx, &(HINT_FA(interp)));
       HINT_FA(interp) = NULL;
     }
     if (HINT_FB(interp) != NULL)
     {
-      arkFreeVec(ark_mem, &(HINT_FB(interp)));
+      (void)sunVec_Destroy(ark_mem->sunctx, &(HINT_FB(interp)));
       HINT_FB(interp) = NULL;
     }
 
@@ -335,7 +335,7 @@ int arkInterpInit_Hermite(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew)
   /* allocate vectors based on interpolant degree */
   if (HINT_FOLD(interp) == NULL)
   {
-    if (!arkAllocVec(ark_mem, ark_mem->yn, &(HINT_FOLD(interp))))
+    if (sunVec_Clone(ark_mem->sunctx, ark_mem->yn, &(HINT_FOLD(interp))))
     {
       arkInterpFree(ark_mem, interp);
       return (ARK_MEM_FAIL);
@@ -343,7 +343,7 @@ int arkInterpInit_Hermite(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew)
   }
   if (HINT_YOLD(interp) == NULL)
   {
-    if (!arkAllocVec(ark_mem, ark_mem->yn, &(HINT_YOLD(interp))))
+    if (sunVec_Clone(ark_mem->sunctx, ark_mem->yn, &(HINT_YOLD(interp))))
     {
       arkInterpFree(ark_mem, interp);
       return (ARK_MEM_FAIL);
@@ -351,7 +351,7 @@ int arkInterpInit_Hermite(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew)
   }
   if ((HINT_DEGREE(interp) > 3) && (HINT_FA(interp) == NULL))
   {
-    if (!arkAllocVec(ark_mem, ark_mem->yn, &(HINT_FA(interp))))
+    if (sunVec_Clone(ark_mem->sunctx, ark_mem->yn, &(HINT_FA(interp))))
     {
       arkInterpFree(ark_mem, interp);
       return (ARK_MEM_FAIL);
@@ -359,7 +359,7 @@ int arkInterpInit_Hermite(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew)
   }
   if ((HINT_DEGREE(interp) > 4) && (HINT_FB(interp) == NULL))
   {
-    if (!arkAllocVec(ark_mem, ark_mem->yn, &(HINT_FB(interp))))
+    if (sunVec_Clone(ark_mem->sunctx, ark_mem->yn, &(HINT_FB(interp))))
     {
       arkInterpFree(ark_mem, interp);
       return (ARK_MEM_FAIL);
@@ -911,7 +911,7 @@ void arkInterpFree_Lagrange(ARKodeMem ark_mem, ARKInterp I)
       {
         if (LINT_YJ(I, i) != NULL)
         {
-          arkFreeVec(ark_mem, &(LINT_YJ(I, i)));
+          (void)sunVec_Destroy(ark_mem->sunctx, &(LINT_YJ(I, i)));
           LINT_YJ(I, i) = NULL;
         }
       }
@@ -1041,7 +1041,7 @@ int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tnew)
       {
         if (LINT_YJ(I, i) != NULL)
         {
-          arkFreeVec(ark_mem, &(LINT_YJ(I, i)));
+          (void)sunVec_Destroy(ark_mem->sunctx, &(LINT_YJ(I, i)));
           LINT_YJ(I, i) = NULL;
         }
       }
@@ -1073,7 +1073,7 @@ int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tnew)
     for (i = 0; i < LINT_NMAX(I); i++)
     {
       LINT_YJ(I, i) = NULL;
-      if (!arkAllocVec(ark_mem, ark_mem->yn, &(LINT_YJ(I, i))))
+      if (sunVec_Clone(ark_mem->sunctx, ark_mem->yn, &(LINT_YJ(I, i))))
       {
         arkInterpFree(ark_mem, I);
         return (ARK_MEM_FAIL);

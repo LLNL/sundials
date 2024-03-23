@@ -91,7 +91,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   memset(step_mem, 0, sizeof(struct ARKodeSPRKStepMemRec));
 
   /* Allocate vectors in stepper mem */
-  if (!arkAllocVec(ark_mem, y0, &(step_mem->sdata)))
+  if (sunVec_Clone(ark_mem->sunctx, y0, &(step_mem->sdata)))
   {
     ARKodeFree((void**)&ark_mem);
     return (NULL);
@@ -99,7 +99,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
 
   if (ark_mem->use_compensated_sums)
   {
-    if (!arkAllocVec(ark_mem, y0, &(step_mem->yerr)))
+    if (sunVec_Clone(ark_mem->sunctx, y0, &(step_mem->yerr)))
     {
       ARKodeFree((void**)&ark_mem);
       return (NULL);
@@ -324,13 +324,13 @@ void sprkStep_Free(ARKodeMem ark_mem)
 
     if (step_mem->sdata != NULL)
     {
-      arkFreeVec(ark_mem, &step_mem->sdata);
+      (void)sunVec_Destroy(ark_mem->sunctx, &step_mem->sdata);
       step_mem->sdata = NULL;
     }
 
     if (step_mem->yerr != NULL)
     {
-      arkFreeVec(ark_mem, &step_mem->yerr);
+      (void)sunVec_Destroy(ark_mem->sunctx, &step_mem->yerr);
       step_mem->yerr = NULL;
     }
 
