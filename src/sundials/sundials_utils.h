@@ -49,8 +49,7 @@ static inline SUNErrCode sunVec_Destroy(N_Vector* v)
   return SUN_SUCCESS;
 }
 
-static inline SUNErrCode sunVecArray_Clone(int count, N_Vector tmpl,
-                                           N_Vector** v)
+static inline SUNErrCode sunVecArray_Clone(int count, N_Vector tmpl, N_Vector** v)
 {
   if (count < 1) { return SUN_ERR_ARG_OUTOFRANGE; }
   if (*v != NULL) { return SUN_SUCCESS; }
