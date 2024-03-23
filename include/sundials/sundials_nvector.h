@@ -88,9 +88,6 @@ typedef enum
 /* Forward reference for pointer to N_Vector_Ops object */
 typedef _SUNDIALS_STRUCT_ _generic_N_Vector_Ops* N_Vector_Ops;
 
-/* Forward reference for pointer to N_Vector object */
-typedef _SUNDIALS_STRUCT_ _generic_N_Vector* N_Vector;
-
 /* Define array of N_Vectors */
 typedef N_Vector* N_Vector_S;
 

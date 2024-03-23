@@ -58,6 +58,15 @@ SUNDIALS_EXPORT
 SUNErrCode SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNContext_CreateTempVecStack(SUNContext sunctx, N_Vector tmpl);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNContext_PopTempVector(SUNContext sunctx, N_Vector* vec);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNContext_PushTempVector(SUNContext sunctx, N_Vector* vec);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNContext_PrintAllocStats(SUNContext sunctx, FILE* outfile,
                                       SUNOutputFormat fmt);
 

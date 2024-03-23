@@ -29,6 +29,7 @@
 
 #include "sundials_adiak_metadata.h"
 #include "sundials_macros.h"
+#include "sundials_utils.h"
 
 SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
 {
@@ -251,6 +252,52 @@ SUNErrCode SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger)
   return SUN_SUCCESS;
 }
 
+SUNErrCode SUNContext_CreateTempVecStack(SUNContext sunctx, N_Vector tmpl)
+{
+  if (!sunctx) { return SUN_ERR_SUNCTX_CORRUPT; }
+  SUNFunctionBegin(sunctx);
+
+  if (sunctx->temp_vec_stack) { return SUN_ERR_MEM_FAIL; }
+
+  SUNCheck(SUNVecStack_Create(tmpl, &(sunctx->temp_vec_stack)),
+           SUN_ERR_MEMFAIL);
+
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNContext_DestroyTempVecStack(SUNContext sunctx)
+{
+  if (!sunctx) { return SUN_ERR_SUNCTX_CORRUPT; }
+  SUNFunctionBegin(sunctx);
+
+  SUNCheck(SUNVecStack_Destroy(&(sunctx->temp_vec_stack)),
+           SUN_ERR_DESTROY_FAIL);
+
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNContext_PopTempVec(SUNContext sunctx, N_Vector* vec_out)
+{
+  if (!sunctx) { return SUN_ERR_SUNCTX_CORRUPT; }
+  SUNFunctionBegin(sunctx);
+
+  SUNCheck(SUNVecStack_Pop(sunctx->temp_vec_stack, vec_out),
+           SUN_ERR_OP_FAIL);
+
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNContext_PushTempVec(SUNContext sunctx, N_Vector* vec_in)
+{
+  if (!sunctx) { return SUN_ERR_SUNCTX_CORRUPT; }
+  SUNFunctionBegin(sunctx);
+
+  SUNCheck(SUNVecStack_Push(sunctx->temp_vec_stack, vec_in),
+           SUN_ERR_OP_FAIL);
+
+  return SUN_SUCCESS;
+}
+
 SUNErrCode SUNContext_PrintAllocStats(SUNContext sunctx, FILE* outfile,
                                       SUNOutputFormat fmt)
 {
@@ -262,10 +309,32 @@ SUNErrCode SUNContext_PrintAllocStats(SUNContext sunctx, FILE* outfile,
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "Vectors allocated = %d\n", sunctx->vec_count);
+    fprintf(outfile, "Total vectors allocated = %d\n", sunctx->vec_count);
+    if (sunctx->temp_vec_stack)
+    {
+      fprintf(outfile, "Temp vectors allocated  = 0");
+    }
+    else
+    {
+      fprintf(outfile, "Temp vectors allocated  = %d\n",
+              sunctx->temp_vec_stack->max);
+      fprintf(outfile, "Temp vectors available  = %d\n",
+              sunctx->temp_vec_stack->top + 1);
+    }
     break;
   case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, "Vectors allocated,%d", sunctx->vec_count);
+    fprintf(outfile, "Total vectors allocated,%d", sunctx->vec_count);
+    if (sunctx->temp_vec_stack)
+    {
+      fprintf(outfile, ",Temp vectors allocated,0");
+    }
+    else
+    {
+      fprintf(outfile, ",Temp vectors allocated,%d",
+              sunctx->temp_vec_stack->max);
+      fprintf(outfile, ",Temp vectors available,%d\n",
+              sunctx->temp_vec_stack->top + 1);
+    }
     break;
   default: return SUN_ERR_ARG_OUTOFRANGE;
   }

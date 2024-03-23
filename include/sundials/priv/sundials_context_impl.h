@@ -38,6 +38,7 @@ struct SUNContext_
   SUNErrHandler err_handler;
   SUNComm comm;
   int vec_count;
+  SUNVecStack temp_vec_stack;
 };
 
 #ifdef __cplusplus
