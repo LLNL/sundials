@@ -122,7 +122,7 @@ int ARKBraid_Free(braid_App* app)
 
     if (content->yout != NULL)
     {
-      arkFreeVec(content->ark_mem, &(content->yout));
+      sunDestroyVec(content->ark_mem->sunctx, &(content->yout));
       content->yout = NULL;
     }
     free((*app)->content);
@@ -369,7 +369,7 @@ int ARKBraid_Init(braid_App app, SUNDIALS_MAYBE_UNUSED sunrealtype t,
 
   /* Create new NVector */
   y = NULL;
-  if (!arkAllocVec(content->ark_mem, content->ark_mem->yn, &y))
+  if (sunCloneVec(content->ark_mem->sunctx, content->ark_mem->yn, &y))
   {
     return SUNBRAID_ALLOCFAIL;
   }
@@ -427,7 +427,8 @@ int ARKBraid_Access(braid_App app, braid_Vector u, braid_AccessStatus astatus)
       /* Allocate yout if necessary */
       if (content->yout == NULL)
       {
-        if (!arkAllocVec(content->ark_mem, content->ark_mem->yn, &(content->yout)))
+        if (sunCloneVec(content->ark_mem->sunctx, content->ark_mem->yn,
+                        &(content->yout)))
         {
           return SUNBRAID_ALLOCFAIL;
         }

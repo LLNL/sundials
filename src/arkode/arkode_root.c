@@ -63,7 +63,7 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
       return ARK_ILL_INPUT;
     }
 
-    if (!arkAllocVec(ark_mem, ark_mem->yn, &ark_mem->fn))
+    if (sunVec_Clone(ark_mem->sunctx, ark_mem->yn, &ark_mem->fn))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_MEM_FAIL);

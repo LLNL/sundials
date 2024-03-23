@@ -98,6 +98,7 @@ SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
     sunctx->last_err     = SUN_SUCCESS;
     sunctx->err_handler  = eh;
     sunctx->comm         = comm;
+    sunctx->vec_count    = 0;
   }
   while (0);
 
@@ -246,6 +247,28 @@ SUNErrCode SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger)
   /* set logger */
   sunctx->logger     = logger;
   sunctx->own_logger = SUNFALSE;
+
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNContext_PrintAllocStats(SUNContext sunctx, FILE* outfile,
+                                      SUNOutputFormat fmt)
+{
+  if (!sunctx) { return SUN_ERR_SUNCTX_CORRUPT; }
+  if (!outfile) { return SUN_ERR_ARG_CORRUPT; }
+
+  SUNFunctionBegin(sunctx);
+
+  switch (fmt)
+  {
+  case SUN_OUTPUTFORMAT_TABLE:
+    fprintf(outfile, "Vectors allocated = %d\n", sunctx->vec_count);
+    break;
+  case SUN_OUTPUTFORMAT_CSV:
+    fprintf(outfile, "Vectors allocated,%d", sunctx->vec_count);
+    break;
+  default: return SUN_ERR_ARG_OUTOFRANGE;
+  }
 
   return SUN_SUCCESS;
 }

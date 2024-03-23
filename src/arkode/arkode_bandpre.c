@@ -135,7 +135,7 @@ int ARKBandPrecInit(void* arkode_mem, sunindextype N, sunindextype mu,
 
   /* allocate memory for temporary N_Vectors */
   pdata->tmp1 = NULL;
-  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp1)))
+  if (sunVec_Clone(ark_mem->sunctx, ark_mem->tempv1, &(pdata->tmp1)))
   {
     SUNLinSolFree(pdata->LS);
     SUNMatDestroy(pdata->savedP);
@@ -148,12 +148,12 @@ int ARKBandPrecInit(void* arkode_mem, sunindextype N, sunindextype mu,
   }
 
   pdata->tmp2 = NULL;
-  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(pdata->tmp2)))
+  if (sunVec_Clone(ark_mem->sunctx, ark_mem->tempv1, &(pdata->tmp2)))
   {
     SUNLinSolFree(pdata->LS);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
-    arkFreeVec(ark_mem, &(pdata->tmp1));
+    (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp1));
     free(pdata);
     pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -168,8 +168,8 @@ int ARKBandPrecInit(void* arkode_mem, sunindextype N, sunindextype mu,
     SUNLinSolFree(pdata->LS);
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
-    arkFreeVec(ark_mem, &(pdata->tmp1));
-    arkFreeVec(ark_mem, &(pdata->tmp2));
+    (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp1));
+    (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp2));
     free(pdata);
     pdata = NULL;
     arkProcessError(ark_mem, ARKLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
@@ -450,8 +450,8 @@ static int ARKBandPrecFree(ARKodeMem ark_mem)
   SUNLinSolFree(pdata->LS);
   SUNMatDestroy(pdata->savedP);
   SUNMatDestroy(pdata->savedJ);
-  arkFreeVec(ark_mem, &(pdata->tmp1));
-  arkFreeVec(ark_mem, &(pdata->tmp2));
+  (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp1));
+  (void)sunVec_Destroy(ark_mem->sunctx, &(pdata->tmp2));
 
   free(pdata);
   pdata = NULL;
