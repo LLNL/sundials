@@ -33,6 +33,7 @@
 #include "arkode_erkstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials_utils.h"
 
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_types.h"
@@ -272,7 +273,6 @@ int erkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
   ---------------------------------------------------------------*/
 void erkStep_Free(ARKodeMem ark_mem)
 {
-  int j;
   sunindextype Bliw, Blrw;
   ARKodeERKStepMem step_mem;
 
@@ -295,16 +295,7 @@ void erkStep_Free(ARKodeMem ark_mem)
     }
 
     /* free the RHS vectors */
-    if (step_mem->F != NULL)
-    {
-      for (j = 0; j < step_mem->stages; j++)
-      {
-        (void)sunVec_Destroy(&step_mem->F[j]);
-      }
-      free(step_mem->F);
-      step_mem->F = NULL;
-      ark_mem->liw -= step_mem->stages;
-    }
+    (void)sunVecArray_Destroy(step_mem->stages, &(step_mem->F));
 
     /* free the reusable arrays for fused vector interface */
     if (step_mem->cvals != NULL)
@@ -403,7 +394,7 @@ int erkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
 {
   ARKodeERKStepMem step_mem;
   sunbooleantype reset_efun;
-  int retval, j;
+  int retval;
 
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -463,18 +454,10 @@ int erkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
 
   /* Allocate ARK RHS vector memory, update storage requirements */
   /*   Allocate F[0] ... F[stages-1] if needed */
-  if (step_mem->F == NULL)
+  if (sunVecArray_Clone(step_mem->stages, ark_mem->ewt, &(step_mem->F)))
   {
-    step_mem->F = (N_Vector*)calloc(step_mem->stages, sizeof(N_Vector));
+    return (ARK_MEM_FAIL);
   }
-  for (j = 0; j < step_mem->stages; j++)
-  {
-    if (sunVec_Clone(ark_mem->ewt, &(step_mem->F[j])))
-    {
-      return (ARK_MEM_FAIL);
-    }
-  }
-  ark_mem->liw += step_mem->stages; /* pointers */
 
   /* Allocate reusable arrays for fused vector interface */
   step_mem->nfusedopvecs = 2 * step_mem->stages + 2 + step_mem->nforcing;

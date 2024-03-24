@@ -29,6 +29,7 @@
 #include "arkode/arkode.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials_utils.h"
 
 /*---------------------------------------------------------------
   Section I: generic ARKInterp functions provided by all
@@ -220,26 +221,10 @@ void arkInterpFree_Hermite(ARKodeMem ark_mem, ARKInterp interp)
   /* free content */
   if (interp->content != NULL)
   {
-    if (HINT_FOLD(interp) != NULL)
-    {
-      (void)sunVec_Destroy(&(HINT_FOLD(interp)));
-      HINT_FOLD(interp) = NULL;
-    }
-    if (HINT_YOLD(interp) != NULL)
-    {
-      (void)sunVec_Destroy(&(HINT_YOLD(interp)));
-      HINT_YOLD(interp) = NULL;
-    }
-    if (HINT_FA(interp) != NULL)
-    {
-      (void)sunVec_Destroy(&(HINT_FA(interp)));
-      HINT_FA(interp) = NULL;
-    }
-    if (HINT_FB(interp) != NULL)
-    {
-      (void)sunVec_Destroy(&(HINT_FB(interp)));
-      HINT_FB(interp) = NULL;
-    }
+    (void)sunVec_Destroy(&(HINT_FOLD(interp)));
+    (void)sunVec_Destroy(&(HINT_YOLD(interp)));
+    (void)sunVec_Destroy(&(HINT_FA(interp)));
+    (void)sunVec_Destroy(&(HINT_FB(interp)));
 
     /* update work space sizes */
     ark_mem->lrw -= 2;
@@ -336,23 +321,17 @@ int arkInterpInit_Hermite(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew)
   HINT_H(interp)    = SUN_RCONST(0.0);
 
   /* allocate vectors based on interpolant degree */
-  if (HINT_FOLD(interp) == NULL)
+  if (sunVec_Clone(ark_mem->yn, &(HINT_FOLD(interp))))
   {
-    if (sunVec_Clone(ark_mem->yn, &(HINT_FOLD(interp))))
-    {
-      arkInterpFree(ark_mem, interp);
-      return (ARK_MEM_FAIL);
-    }
+    arkInterpFree(ark_mem, interp);
+    return (ARK_MEM_FAIL);
   }
-  if (HINT_YOLD(interp) == NULL)
+  if (sunVec_Clone(ark_mem->yn, &(HINT_YOLD(interp))))
   {
-    if (sunVec_Clone(ark_mem->yn, &(HINT_YOLD(interp))))
-    {
-      arkInterpFree(ark_mem, interp);
-      return (ARK_MEM_FAIL);
-    }
+    arkInterpFree(ark_mem, interp);
+    return (ARK_MEM_FAIL);
   }
-  if ((HINT_DEGREE(interp) > 3) && (HINT_FA(interp) == NULL))
+  if ((HINT_DEGREE(interp) > 3))
   {
     if (sunVec_Clone(ark_mem->yn, &(HINT_FA(interp))))
     {
@@ -360,7 +339,7 @@ int arkInterpInit_Hermite(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew)
       return (ARK_MEM_FAIL);
     }
   }
-  if ((HINT_DEGREE(interp) > 4) && (HINT_FB(interp) == NULL))
+  if ((HINT_DEGREE(interp) > 4))
   {
     if (sunVec_Clone(ark_mem->yn, &(HINT_FB(interp))))
     {
@@ -908,19 +887,8 @@ void arkInterpFree_Lagrange(ARKodeMem ark_mem, ARKInterp I)
   /* free content */
   if (I->content != NULL)
   {
-    if (LINT_YHIST(I) != NULL)
-    {
-      for (i = 0; i < LINT_NMAXALLOC(I); i++)
-      {
-        if (LINT_YJ(I, i) != NULL)
-        {
-          (void)sunVec_Destroy(&(LINT_YJ(I, i)));
-          LINT_YJ(I, i) = NULL;
-        }
-      }
-      free(LINT_YHIST(I));
-      LINT_YHIST(I) = NULL;
-    }
+    (void)sunVecArray_Destroy(LINT_NMAXALLOC(I), &(LINT_YHIST(I)));
+
     if (LINT_THIST(I) != NULL)
     {
       free(LINT_THIST(I));
@@ -1038,22 +1006,11 @@ int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tnew)
       free(LINT_THIST(I));
       LINT_THIST(I) = NULL;
     }
-    if (LINT_YHIST(I) != NULL)
-    {
-      for (i = 0; i < LINT_NMAXALLOC(I); i++)
-      {
-        if (LINT_YJ(I, i) != NULL)
-        {
-          (void)sunVec_Destroy(&(LINT_YJ(I, i)));
-          LINT_YJ(I, i) = NULL;
-        }
-      }
-      free(LINT_YHIST(I));
-      LINT_YHIST(I) = NULL;
-    }
+
+    (void)sunVecArray_Destroy(LINT_NMAXALLOC(I), &(LINT_YHIST(I)));
   }
 
-  /* allocate storage for time and solution histories */
+  /* allocate storage for time history */
   if (LINT_THIST(I) == NULL)
   {
     LINT_THIST(I) = (sunrealtype*)malloc(LINT_NMAX(I) * sizeof(sunrealtype));
@@ -1064,24 +1021,11 @@ int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tnew)
     }
   }
 
-  /* solution history allocation */
-  if (LINT_YHIST(I) == NULL)
+  /* allocate storage for solution history */
+  if (sunVecArray_Clone(LINT_NMAX(I), ark_mem->yn, &(LINT_YHIST(I))))
   {
-    LINT_YHIST(I) = (N_Vector*)malloc(LINT_NMAX(I) * sizeof(N_Vector));
-    if (LINT_YHIST(I) == NULL)
-    {
-      arkInterpFree(ark_mem, I);
-      return (ARK_MEM_FAIL);
-    }
-    for (i = 0; i < LINT_NMAX(I); i++)
-    {
-      LINT_YJ(I, i) = NULL;
-      if (sunVec_Clone(ark_mem->yn, &(LINT_YJ(I, i))))
-      {
-        arkInterpFree(ark_mem, I);
-        return (ARK_MEM_FAIL);
-      }
-    }
+    arkInterpFree(ark_mem, I);
+    return (ARK_MEM_FAIL);
   }
 
   /* update allocated size if necessary */

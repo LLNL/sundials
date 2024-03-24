@@ -634,32 +634,13 @@ void mriStep_Free(ARKodeMem ark_mem)
     }
 
     /* free the sdata, zpred and zcor vectors */
-    if (step_mem->sdata != NULL)
-    {
-      (void)sunVec_Destroy(&step_mem->sdata);
-      step_mem->sdata = NULL;
-    }
-    if (step_mem->zpred != NULL)
-    {
-      (void)sunVec_Destroy(&step_mem->zpred);
-      step_mem->zpred = NULL;
-    }
-    if (step_mem->zcor != NULL)
-    {
-      (void)sunVec_Destroy(&step_mem->zcor);
-      step_mem->zcor = NULL;
-    }
+    (void)sunVec_Destroy(&step_mem->sdata);
+    (void)sunVec_Destroy(&step_mem->zpred);
+    (void)sunVec_Destroy(&step_mem->zcor);
 
     /* free the RHS vectors */
-    if (step_mem->Fse)
-    {
-      (void)sunVecArray_Destroy(step_mem->nstages_allocated, &(step_mem->Fse));
-    }
-
-    if (step_mem->Fsi)
-    {
-      (void)sunVecArray_Destroy(step_mem->nstages_allocated, &(step_mem->Fsi));
-    }
+    (void)sunVecArray_Destroy(step_mem->nstages_allocated, &(step_mem->Fse));
+    (void)sunVecArray_Destroy(step_mem->nstages_allocated, &(step_mem->Fsi));
 
     /* free the reusable arrays for fused vector interface */
     if (step_mem->cvals != NULL)
@@ -1136,20 +1117,12 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
     /*   Fsi[0] ... Fsi[nstages_active - 1] if needed              */
     if (step_mem->nstages_allocated < step_mem->nstages_active)
     {
-      if (step_mem->nstages_allocated)
-      {
-        if (step_mem->explicit_rhs)
-        {
-          (void)sunVecArray_Destroy(step_mem->nstages_allocated,
-                                    &(step_mem->Fse));
-        }
-        if (step_mem->implicit_rhs)
-        {
-          (void)sunVecArray_Destroy(step_mem->nstages_allocated,
-                                    &(step_mem->Fsi));
-        }
-      }
-      if (step_mem->explicit_rhs && !step_mem->unify_Fs)
+      (void)sunVecArray_Destroy(step_mem->nstages_allocated,
+                                &(step_mem->Fse));
+      (void)sunVecArray_Destroy(step_mem->nstages_allocated,
+                                &(step_mem->Fsi));
+
+      if (step_mem->explicit_rhs)
       {
         if (sunVecArray_Clone(step_mem->nstages_active, ark_mem->ewt,
                               &(step_mem->Fse)))
@@ -4741,10 +4714,8 @@ int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
 
   if (stepper->nforcing_allocated < stepper->nforcing)
   {
-    if (stepper->nforcing_allocated)
-    {
-      (void)sunVecArray_Destroy(stepper->nforcing_allocated, &(stepper->forcing));
-    }
+    (void)sunVecArray_Destroy(stepper->nforcing_allocated, &(stepper->forcing));
+
     if (sunVecArray_Clone(stepper->nforcing, tmpl, &(stepper->forcing)))
     {
       mriStepInnerStepper_FreeVecs(stepper);
