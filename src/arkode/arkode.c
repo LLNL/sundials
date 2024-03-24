@@ -152,9 +152,10 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->lrw += lenrw;
   ark_mem->liw += leniw;
 
-  /* Initialize the interpolation structure to NULL */
-  ark_mem->interp      = NULL;
-  ark_mem->interp_type = -1;
+  /* Initialize the interpolation structure to NULL, set default type and degree */
+  ark_mem->interp        = NULL;
+  ark_mem->interp_type   = ARK_INTERP_HERMITE;
+  ark_mem->interp_degree = ARK_INTERP_MAX_DEGREE;
 
   /* Initially, rwt should point to ewt */
   ark_mem->rwt_is_ewt = SUNTRUE;
@@ -1067,7 +1068,7 @@ int arkEvolve(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
         if ((tout - ark_mem->tstop) * ark_mem->h >= ZERO ||
             SUNRabs(tout - ark_mem->tstop) <= troundoff)
         {
-          if (ark_mem->tstopinterp)
+          if (ark_mem->tstopinterp && ark_mem->interp)
           {
             retval = arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
             if (retval != ARK_SUCCESS)
@@ -1098,18 +1099,28 @@ int arkEvolve(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
     /* In NORMAL mode, check if tout reached */
     if ((itask == ARK_NORMAL) && (ark_mem->tcur - tout) * ark_mem->h >= ZERO)
     {
-      retval = arkGetDky(ark_mem, tout, 0, yout);
-      if (retval != ARK_SUCCESS)
+      if (ark_mem->interp)
       {
-        arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                        MSG_ARK_INTERPOLATION_FAIL, tout);
-        istate = retval;
+        retval = arkGetDky(ark_mem, tout, 0, yout);
+        if (retval != ARK_SUCCESS)
+        {
+          arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                          MSG_ARK_INTERPOLATION_FAIL, tout);
+          istate = retval;
+          break;
+        }
+        ark_mem->tretlast = *tret = tout;
+        ark_mem->next_h           = ark_mem->hprime;
+        istate                    = ARK_SUCCESS;
         break;
       }
-      ark_mem->tretlast = *tret = tout;
-      ark_mem->next_h           = ark_mem->hprime;
-      istate                    = ARK_SUCCESS;
-      break;
+      else
+      {
+        N_VScale(ONE, ark_mem->yn, yout);
+        ark_mem->tretlast = *tret = ark_mem->tcur;
+        istate                    = ARK_SUCCESS;
+        break;
+      }
     }
 
     /* In ONE_STEP mode, copy y and exit loop */
@@ -1231,8 +1242,7 @@ void arkFree(void** arkode_mem)
   if (ark_mem->interp != NULL)
   {
     arkInterpFree(ark_mem, ark_mem->interp);
-    ark_mem->interp      = NULL;
-    ark_mem->interp_type = -1;
+    ark_mem->interp = NULL;
   }
 
   /* free the root-finding module */
@@ -1393,19 +1403,6 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
       return (ARK_MEM_FAIL);
     }
 
-    /* Create default Hermite interpolation module */
-    if (!(ark_mem->interp))
-    {
-      ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ARK_INTERP_MAX_DEGREE);
-      if (ark_mem->interp == NULL)
-      {
-        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                        "Unable to allocate interpolation module");
-        return (ARK_MEM_FAIL);
-      }
-      ark_mem->interp_type = ARK_INTERP_HERMITE;
-    }
-
     /* All allocations are complete */
     ark_mem->MallocDone = SUNTRUE;
   }
@@ -1543,7 +1540,8 @@ void arkPrintMem(ARKodeMem ark_mem, FILE* outfile)
   }
 
   /* output interpolation quantities */
-  arkInterpPrintMem(ark_mem->interp, outfile);
+  if (ark_mem->interp) { arkInterpPrintMem(ark_mem->interp, outfile); }
+  else { fprintf(outfile, "interpolation = NULL\n"); }
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
@@ -2056,11 +2054,51 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     }
   }
 
+  /* Create default Hermite interpolation module (if needed) */
+  if (ark_mem->interp_type != ARK_INTERP_NONE && !(ark_mem->interp))
+  {
+    ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ark_mem->interp_degree);
+    if (ark_mem->interp == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "Unable to allocate interpolation module");
+      return (ARK_MEM_FAIL);
+    }
+    ark_mem->interp_type = ARK_INTERP_HERMITE;
+  }
+
   /* Fill initial interpolation data (if needed) */
   if (ark_mem->interp != NULL)
   {
-    retval = arkInterpInit(ark_mem, ark_mem->interp, ark_mem->tcur);
-    if (retval != 0) { return (retval); }
+    /* Stepper init may have limited the interpolation degree */
+    if (arkInterpSetDegree(ark_mem, ark_mem->interp, ark_mem->interp_degree))
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Unable to update interpolation polynomial degree");
+      return ARK_ILL_INPUT;
+    }
+
+    if (arkInterpInit(ark_mem, ark_mem->interp, ark_mem->tcur))
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Unable to initialize interpolation module");
+      return ARK_ILL_INPUT;
+    }
+  }
+
+  /* Check if the configuration requires interpolation */
+  if (ark_mem->root_mem && !(ark_mem->interp))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Rootfinding requires an interpolation module");
+    return ARK_ILL_INPUT;
+  }
+
+  if (ark_mem->tstopinterp && !(ark_mem->interp))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Stop time interpolation requires an interpolation module");
+    return ARK_ILL_INPUT;
   }
 
   /* If fullrhs will be called (to estimate initial step, explicit steppers, Hermite
@@ -2564,13 +2602,6 @@ sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist)
 int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype* yddnrm)
 {
   int retval;
-
-  if (ark_mem->interp == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    "Missing interpolation structure");
-    return (ARK_MEM_NULL);
-  }
 
   /* increment y with a multiple of f */
   N_VLinearSum(hg, ark_mem->fn, ONE, ark_mem->yn, ark_mem->ycur);

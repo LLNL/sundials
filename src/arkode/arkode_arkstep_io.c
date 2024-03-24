@@ -37,7 +37,6 @@ int ARKStepSetDenseOrder(void* arkode_mem, int dord)
 
 int ARKStepSetInterpolantDegree(void* arkode_mem, int degree)
 {
-  if (degree < 0) { degree = ARK_INTERP_MAX_DEGREE; }
   return (arkSetInterpolantDegree(arkode_mem, degree));
 }
 

@@ -73,7 +73,8 @@ SUNDIALS_EXPORT int ERKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int ERKStepSetOrder(void* arkode_mem, int maxord);
 SUNDIALS_EXPORT int ERKStepSetInterpolantType(void* arkode_mem, int itype);
 SUNDIALS_EXPORT int ERKStepSetInterpolantDegree(void* arkode_mem, int degree);
-SUNDIALS_EXPORT int ERKStepSetDenseOrder(void* arkode_mem, int dord);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ERKStepSetInterpolantDegree instead")
+int ERKStepSetDenseOrder(void* arkode_mem, int dord);
 SUNDIALS_EXPORT int ERKStepSetTable(void* arkode_mem, ARKodeButcherTable B);
 SUNDIALS_EXPORT int ERKStepSetTableNum(void* arkode_mem,
                                        ARKODE_ERKTableID etable);
