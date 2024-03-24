@@ -31,6 +31,7 @@
 
 static inline SUNErrCode sunVec_Clone(N_Vector tmpl, N_Vector* v)
 {
+  if (v == NULL) { return SUN_ERR_ARG_CORRUPT; }
   if (*v != NULL) { return SUN_SUCCESS; }
   *v = N_VClone(tmpl);
   if (*v == NULL) { return SUN_ERR_MEM_FAIL; }
@@ -52,6 +53,7 @@ static inline SUNErrCode sunVec_Destroy(N_Vector* v)
 static inline SUNErrCode sunVecArray_Clone(int count, N_Vector tmpl, N_Vector** v)
 {
   if (count < 0) { return SUN_ERR_ARG_OUTOFRANGE; }
+  if (v == NULL) { return SUN_ERR_ARG_CORRUPT; }
   if (*v != NULL) { return SUN_SUCCESS; }
   if (count == 0) { return SUN_SUCCESS; }
   *v = N_VCloneVectorArray(count, tmpl);
