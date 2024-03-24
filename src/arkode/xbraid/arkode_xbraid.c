@@ -23,7 +23,6 @@
 #include "arkode_arkstep_impl.h"
 #include "arkode_xbraid_impl.h"
 #include "sundials/sundials_math.h"
-#include "sundials/sundials_utils.h"
 
 #define ONE SUN_RCONST(1.0)
 
