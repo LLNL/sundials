@@ -176,26 +176,26 @@ int arkInterpResize_Hermite(ARKodeMem ark_mem, ARKInterp interp,
   /* resize vectors */
   if (interp == NULL) { return (ARK_SUCCESS); }
 
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                    &HINT_FOLD(interp)))
+  if (arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                   &HINT_FOLD(interp)))
   {
     return (ARK_MEM_FAIL);
   }
 
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                    &HINT_YOLD(interp)))
+  if (arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                   &HINT_YOLD(interp)))
   {
     return (ARK_MEM_FAIL);
   }
 
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                    &HINT_FA(interp)))
+  if (arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                   &HINT_FA(interp)))
   {
     return (ARK_MEM_FAIL);
   }
 
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                    &HINT_FB(interp)))
+  if (arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                   &HINT_FB(interp)))
   {
     return (ARK_MEM_FAIL);
   }
@@ -858,8 +858,8 @@ int arkInterpResize_Lagrange(ARKodeMem ark_mem, ARKInterp I,
   {
     for (i = 0; i < LINT_NMAXALLOC(I); i++)
     {
-      if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                        &(LINT_YJ(I, i))))
+      if (arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                       &(LINT_YJ(I, i))))
       {
         return (ARK_MEM_FAIL);
       }

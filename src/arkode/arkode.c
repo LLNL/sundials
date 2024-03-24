@@ -84,7 +84,6 @@
 int ARKodeResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
                  sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
 {
-  sunbooleantype resizeOK;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
   int retval;
   ARKodeMem ark_mem;
@@ -149,9 +148,7 @@ int ARKodeResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
   ark_mem->liw1 = liw1;
 
   /* Resize the solver vectors (using y0 as a template) */
-  resizeOK = arkResizeVectors(ark_mem, resize, resize_data, lrw_diff, liw_diff,
-                              y0);
-  if (!resizeOK)
+  if (arkResizeVectors(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0))
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Unable to resize vector");

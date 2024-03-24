@@ -379,24 +379,24 @@ int arkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
   ark_mem->liw1 = liw1;
 
   /* Resize the sdata, zpred and zcor vectors */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                    &step_mem->sdata))
+  if (arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                   &step_mem->sdata))
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Unable to resize vector");
     return (ARK_MEM_FAIL);
   }
 
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                    &step_mem->zpred))
+  if (arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                   &step_mem->zpred))
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Unable to resize vector");
     return (ARK_MEM_FAIL);
   }
 
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                    &step_mem->zcor))
+  if (arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                   &step_mem->zcor))
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Unable to resize vector");
@@ -409,8 +409,8 @@ int arkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
   {
     for (i = 0; i < step_mem->stages; i++)
     {
-      if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                        &step_mem->Fe[i]))
+      if (arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                       &step_mem->Fe[i]))
       {
         arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                         "Unable to resize vector");
@@ -423,8 +423,8 @@ int arkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
   {
     for (i = 0; i < step_mem->stages; i++)
     {
-      if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                        &step_mem->Fi[i]))
+      if (arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                       &step_mem->Fi[i]))
       {
         arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                         "Unable to resize vector");
