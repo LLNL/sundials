@@ -1117,10 +1117,8 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
     /*   Fsi[0] ... Fsi[nstages_active - 1] if needed              */
     if (step_mem->nstages_allocated < step_mem->nstages_active)
     {
-      (void)sunVecArray_Destroy(step_mem->nstages_allocated,
-                                &(step_mem->Fse));
-      (void)sunVecArray_Destroy(step_mem->nstages_allocated,
-                                &(step_mem->Fsi));
+      (void)sunVecArray_Destroy(step_mem->nstages_allocated, &(step_mem->Fse));
+      (void)sunVecArray_Destroy(step_mem->nstages_allocated, &(step_mem->Fsi));
 
       if (step_mem->explicit_rhs)
       {
