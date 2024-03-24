@@ -20,6 +20,7 @@
 #include "arkode_arkstep_impl.h"
 #include "arkode_xbraid_impl.h"
 #include "sundials/sundials_math.h"
+#include "sundials/sundials_utils.h"
 
 #define ONE SUN_RCONST(1.0)
 
@@ -120,11 +121,8 @@ int ARKBraid_Free(braid_App* app)
   {
     content = (ARKBraidContent)(*app)->content;
 
-    if (content->yout != NULL)
-    {
-      sunVec_Destroy(&(content->yout));
-      content->yout = NULL;
-    }
+    (void)sunVec_Destroy(&(content->yout));
+
     free((*app)->content);
     (*app)->content = NULL;
   }
@@ -422,12 +420,9 @@ int ARKBraid_Access(braid_App app, braid_Vector u, braid_AccessStatus astatus)
     if (idx == ntpoints - 1)
     {
       /* Allocate yout if necessary */
-      if (content->yout == NULL)
+      if (sunVec_Clone(content->ark_mem->yn, &(content->yout)))
       {
-        if (sunVec_Clone(content->ark_mem->yn, &(content->yout)))
-        {
-          return SUNBRAID_ALLOCFAIL;
-        }
+        return SUNBRAID_ALLOCFAIL;
       }
 
       /* Save solution for output to user */
