@@ -1770,9 +1770,13 @@ configuration file to build against SUNDIALS in their own CMake project.
 
 .. note::
 
-   Starting with SUNDIALS v7.1.0, a single version provided to ``find_package``
-   denotes the minimum version of SUNDIALS to look for, and any version equal
-   or newer than what is specified will match.
+   .. versionchanged:: x.y.z
+
+      A single version provided to ``find_package`` denotes the minimum version
+      of SUNDIALS to look for, and any version equal or newer than what is
+      specified will match. In prior versions ``SUNDIALSConfig.cmake`` required
+      the version found to have the same major version number as the single
+      version provided to ``find_package``.
 
 
 Table of SUNDIALS libraries and header files
