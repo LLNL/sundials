@@ -1720,6 +1720,14 @@ int ARKStepSetPredictorMethod(void* arkode_mem, int pred_method)
   retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  /* Higher-order predictors require interpolation */
+  if (ark_mem->interp_type == ARK_INTERP_NONE && pred_method != 0)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Non-trival predictors require an interpolation module");
+    return ARK_ILL_INPUT;
+  }
+
   /* set parameter */
   step_mem->predictor = pred_method;
 

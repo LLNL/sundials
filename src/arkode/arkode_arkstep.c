@@ -1321,6 +1321,14 @@ int arkStep_Init(void* arkode_mem, int init_type)
          solution values are returned at the time interval end points */
       ark_mem->interp_degree = 1;
     }
+
+    /* Higher-order predictors require interpolation */
+    if (ark_mem->interp_type == ARK_INTERP_NONE && step_mem->predictor != 0)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Non-trival predictors require an interpolation module");
+      return ARK_ILL_INPUT;
+    }
   }
 
   /* set appropriate TakeStep routine based on problem configuration */
