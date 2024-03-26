@@ -105,7 +105,7 @@ else
 fi
 
 # Fortran settings
-if [[ ("$SUNDIALS_PRECISION" == "double") && ("$indexsize" == "64") ]]; then
+if [[ ("$SUNDIALS_PRECISION" == "double") ]]; then
     export SUNDIALS_FMOD_INTERFACE=${FORTRAN_STATUS}
 else
     export SUNDIALS_FMOD_INTERFACE=OFF
