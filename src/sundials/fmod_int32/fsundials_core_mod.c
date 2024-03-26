@@ -227,10 +227,6 @@
 #error "The Fortran bindings are only targeted at double-precision"
 #endif
 
-#ifndef SUNDIALS_INT64_T
-#error "The Fortran bindings are only targeted at 64-bit indices"
-#endif
-
 
 #include "sundials/sundials_context.h"
 #include "sundials/sundials_errors.h"

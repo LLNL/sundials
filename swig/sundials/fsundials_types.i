@@ -79,10 +79,6 @@
 #ifndef SUNDIALS_DOUBLE_PRECISION
 #error "The Fortran bindings are only targeted at double-precision"
 #endif
-
-#ifndef SUNDIALS_INT64_T
-#error "The Fortran bindings are only targeted at 64-bit indices"
-#endif
 %}
 
 // We insert the binding code for SUN_COMM_NULL ourselves because

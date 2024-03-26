@@ -509,7 +509,7 @@ SWIGEXPORT double * _wrap_FSUNSparseMatrix_Data(SUNMatrix farg1) {
   double * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunrealtype *result = 0 ;
-  
+
   arg1 = (SUNMatrix)(farg1);
   result = (sunrealtype *)SUNSparseMatrix_Data(arg1);
   fresult = result;
@@ -520,7 +520,7 @@ SWIGEXPORT int64_t * _wrap_FSUNSparseMatrix_IndexValues(SUNMatrix farg1) {
   int64_t * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunindextype *result = 0 ;
-  
+
   arg1 = (SUNMatrix)(farg1);
   result = (sunindextype *)SUNSparseMatrix_IndexValues(arg1);
   fresult = result;
@@ -531,7 +531,7 @@ SWIGEXPORT int64_t * _wrap_FSUNSparseMatrix_IndexPointers(SUNMatrix farg1) {
   int64_t * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunindextype *result = 0 ;
-  
+
   arg1 = (SUNMatrix)(farg1);
   result = (sunindextype *)SUNSparseMatrix_IndexPointers(arg1);
   fresult = result;

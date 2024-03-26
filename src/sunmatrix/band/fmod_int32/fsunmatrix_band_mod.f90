@@ -238,7 +238,11 @@ bind(C, name="_wrap_FSUNBandMatrix_Column") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
+#ifdef SUNDIALS_INT32_T
+integer(C_INT32_T), intent(in) :: farg2
+#else
 integer(C_INT64_T), intent(in) :: farg2
+#endif
 type(C_PTR) :: fresult
 end function
 
@@ -553,8 +557,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNBandMatrix_Data(farg1)
@@ -566,15 +570,23 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
+#ifdef SUNDIALS_INT32_T
+integer(C_INT32_T), intent(in) :: j
+#else
 integer(C_INT64_T), intent(in) :: j
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT64_T) :: farg2 
+#endif
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
+#ifdef SUNDIALS_INT32_T
+integer(C_INT32_T) :: farg2
+#else
+integer(C_INT64_T) :: farg2
+#endif
 
 farg1 = c_loc(a)
 farg2 = j
 fresult = swigc_FSUNBandMatrix_Column(farg1, farg2)
-! We set the array shape to [1] because only the diagonal element 
+! We set the array shape to [1] because only the diagonal element
 ! can be accessed through this function from Fortran.
 call c_f_pointer(fresult, swig_result, [1])
 end function

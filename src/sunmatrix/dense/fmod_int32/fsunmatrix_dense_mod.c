@@ -407,7 +407,7 @@ SWIGEXPORT double * _wrap_FSUNDenseMatrix_Data(SUNMatrix farg1) {
   double * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunrealtype *result = 0 ;
-  
+
   arg1 = (SUNMatrix)(farg1);
   result = (sunrealtype *)SUNDenseMatrix_Data(arg1);
   fresult = result;
@@ -419,7 +419,7 @@ SWIGEXPORT double * _wrap_FSUNDenseMatrix_Column(SUNMatrix farg1, int64_t const 
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunindextype arg2 ;
   sunrealtype *result = 0 ;
-  
+
   arg1 = (SUNMatrix)(farg1);
   arg2 = (sunindextype)(*farg2);
   result = (sunrealtype *)SUNDenseMatrix_Column(arg1,arg2);

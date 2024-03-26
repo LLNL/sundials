@@ -624,8 +624,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_Data(farg1)
@@ -635,10 +635,14 @@ end function
 function FSUNSparseMatrix_IndexValues(a) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
+#ifdef SUNDIALS_INT32_T
+integer(C_INT32_T), dimension(:), pointer :: swig_result
+#else
 integer(C_INT64_T), dimension(:), pointer :: swig_result
+#endif
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_IndexValues(farg1)
@@ -648,15 +652,19 @@ end function
 function FSUNSparseMatrix_IndexPointers(a) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
+#ifdef SUNDIALS_INT32_T
+integer(C_INT32_T), dimension(:), pointer :: swig_result
+#else
 integer(C_INT64_T), dimension(:), pointer :: swig_result
+#endif
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNSparseMatrix_IndexPointers(farg1)
 call c_f_pointer(fresult, swig_result, [FSUNSparseMatrix_NP(a)+1])
-end function  
+end function
 
 
 end module

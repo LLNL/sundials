@@ -20,7 +20,7 @@ CVODES=fcvodes_mod
 IDA=fida_mod
 IDAS=fidas_mod
 KINSOL=fkinsol_mod
-GENERIC=fsundials_core_mod
+CORE=fsundials_core_mod
 NVECTOR=openmp pthreads serial parallel manyvector mpiplusx
 SUNMATRIX=band dense sparse
 SUNLINSOL=band dense lapackdense klu spbcgs spfgmr spgmr sptfqmr pcg
@@ -29,19 +29,27 @@ SUNADAPTCONTROLLER=imexgus soderlind
 
 INCLUDES=-I../include
 
-.PHONY: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller
+.PHONY: .SETINT64 .SETINT32 all all32 all64 modules core arkode cvode cvodes ida idas kinsol nvector mpimanyvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller clean
 
-all: all_64 all_32
-
-all_64: .SETINT64 generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller
+.SETINT32:
+	$(eval INT_SIZE=32)
 
 .SETINT64:
 	$(eval INT_SIZE=64)
 
-all_32: .SETINT32 generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller
+all: all32 all64
 
-.SETINT32:
-	$(eval INT_SIZE=32)
+all32: .SETINT32 modules
+
+all64: .SETINT64 modules
+
+modules: core arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller
+
+core: $(CORE:%:sundials/%.i)
+	@for i in ${CORE} ; do \
+		set -x; \
+		swig -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/sundials/fmod_int${INT_SIZE} -o ../src/sundials/fmod_int${INT_SIZE}/$${i}.c ${INCLUDES} sundials/$${i}.i; \
+	done
 
 arkode: $(ARKODE:%:arkode/%.i)
 	@for i in ${ARKODE} ; do \
@@ -79,12 +87,6 @@ kinsol: $(KINSOL:%:kinsol/%.i)
 		swig -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/kinsol/fmod_int${INT_SIZE} -o ../src/kinsol/fmod_int${INT_SIZE}/$${i}.c ${INCLUDES} kinsol/$${i}.i; \
 	done
 
-generic: $(GENERIC:%:sundials/%.i)
-	@for i in ${GENERIC} ; do \
-		set -x; \
-		swig -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/sundials/fmod_int${INT_SIZE} -o ../src/sundials/fmod_int${INT_SIZE}/$${i}.c ${INCLUDES} sundials/$${i}.i; \
-	done
-
 nvector: $(NVECTOR:%:nvector/fnvector_%_mod.i) mpimanyvector
 	@for i in ${NVECTOR} ; do \
 		set -x; \
@@ -93,7 +95,7 @@ nvector: $(NVECTOR:%:nvector/fnvector_%_mod.i) mpimanyvector
 
 mpimanyvector: nvector/fnvector_mpimanyvector_mod.i
 	set -x; \
-	swig -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/nvector/manyvector/fmod_int${INT_SIZE} -o ../src/nvector/manyvector/fmod_int${INT_SIZE}/fnvector_mpimanyvector_mod.c ${INCLUDES} nvector/fnvector_mpimanyvector_mod.i; \
+	swig -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/nvector/manyvector/fmod_int${INT_SIZE} -o ../src/nvector/manyvector/fmod_int${INT_SIZE}/fnvector_mpimanyvector_mod.c ${INCLUDES} nvector/fnvector_mpimanyvector_mod.i;
 
 sunmatrix: $(SUNMATRIX:%:sunmatrix/fsunmatrix_%_mod.i)
 	@for i in ${SUNMATRIX} ; do \
@@ -120,4 +122,4 @@ sunadaptcontroller: $(SUNADAPTCONTROLLER:%:sunadaptcontroller/fsunadaptcontrolle
 	done
 
 clean:
-	rm ../src/**/fmod_int${INT_SIZE}/*.c; rm ../src/**/fmod_int${INT_SIZE}/*.f90
+	rm ../src/**/fmod*/*.c; rm ../src/**/fmod*/*.f90
