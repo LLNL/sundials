@@ -17,6 +17,18 @@
 
 %include <stdint.i>
 
+#ifdef GENERATE_INT32
+// Inform SWIG of the configure-provided types
+#define SUNDIALS_INT32_T
+#define SUNDIALS_INDEX_TYPE int32_t
+#else
+// Inform SWIG of the configure-provided types
+#define SUNDIALS_INT64_T
+#define SUNDIALS_INDEX_TYPE int64_t
+#endif
+#define SUNDIALS_DOUBLE_PRECISION
+#define sunbooleantype int
+
 // Handle MPI_Comm and SUNComm
 %include <typemaps.i>
 
