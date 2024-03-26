@@ -185,11 +185,6 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
     print_error("F2003 interface is not compatible with ${SUNDIALS_PRECISION} precision")
   endif()
 
-  # F2003 interface only supports 64-bit indices
-  if(NOT (SUNDIALS_INDEX_SIZE MATCHES "64"))
-    print_error("F2003 interface is not compatible with ${SUNDIALS_INDEX_SIZE}-bit indicies")
-  endif()
-
   # Allow a user to set where the Fortran modules will be installed
   set(DOCSTR "Directory where Fortran module files are installed")
   sundials_option(Fortran_INSTALL_MODDIR STRING "${DOCSTR}" "fortran")
