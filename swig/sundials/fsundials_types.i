@@ -17,12 +17,6 @@
 
 %include <stdint.i>
 
-// Inform SWIG of the configure-provided types
-#define SUNDIALS_INT64_T
-#define SUNDIALS_INDEX_TYPE int64_t
-#define SUNDIALS_DOUBLE_PRECISION
-#define sunbooleantype int
-
 // Handle MPI_Comm and SUNComm
 %include <typemaps.i>
 

@@ -23,6 +23,20 @@
 #define SUNDIALS_DEPRECATED_EXPORT
 #define SUNDIALS_DEPRECATED_EXPORT_MSG(msg)
 
+#ifdef GENERATE_INT32
+// Inform SWIG of the configure-provided types
+#define SUNDIALS_INT32_T
+#define SUNDIALS_INDEX_TYPE int32_t
+#define SUNDIALS_DOUBLE_PRECISION
+#define sunbooleantype int
+#else
+// Inform SWIG of the configure-provided types
+#define SUNDIALS_INT64_T
+#define SUNDIALS_INDEX_TYPE int64_t
+#define SUNDIALS_DOUBLE_PRECISION
+#define sunbooleantype int
+#endif
+
 // Prefix all functions with F
 // E.g. CVodeCreate -> FCVodeCreate
 %rename("F%s", %$isfunction) "";
