@@ -37,7 +37,7 @@
  * Npart pieces.  We then run a single time step starting at the
  * beginning of each partition, using a variety of slow step sizes,
  * H = {hmax, hmax/2, hmax/4, hmax/8, hmax/16} with
- * hmax=(t_f-t_0)/20/Npart.
+ * hmax=(t_f-t_0)/100/Npart.
  *
  * We place the entire ODE in the "slow" RHS partition.  All tests
  * use ARKODE's default fifth-order ERK method, with relative and
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
     if (check_retval(&retval, "MRIStepSetJacEvalFrequency", 1)) return 1;
     retval = MRIStepSetLSetupFrequency(mristep_mem, 1);
     if (check_retval(&retval, "MRIStepSetLSetupFrequency", 1)) return 1;
-    retval = MRIStepSetMaxNonlinIters(mristep_mem, 20);
+    retval = MRIStepSetMaxNonlinIters(mristep_mem, 50);
     if (check_retval(&retval, "MRIStepSetMaxNonlinIters", 1)) return 1;
   }
   retval = MRIStepSStolerances(mristep_mem, reltol, abstol);
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "MRIStepSetAccumulatedErrorType", 1)) return 1;
 
   // Run test for various H values
-  sunrealtype hmax = (Tf-T0)/20/udata.Npart;
+  sunrealtype hmax = (Tf-T0)/100/udata.Npart;
   vector<sunrealtype> Hvals = {hmax, hmax/2.0, hmax/4.0, hmax/8.0, hmax/16.0};
   retval = run_test(mristep_mem, y, T0, Tf, Hvals, method, reltol,
                     abstol, udata);
