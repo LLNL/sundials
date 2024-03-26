@@ -42,17 +42,10 @@ nonlinear solver interfaces (abstract base classes), and the corresponding class
 implementations provided with SUNDIALS. For classes that provide interfaces to
 third-party libraries (i.e., LAPACK, KLU, SuperLU_MT, SuperLU_DIST, *hypre*,
 PETSc, Trilinos, and Raja) users will need to download and compile those
-packages independently of SUNDIALS. The directory structure is shown in
-:numref:`Organization.Sundials.DirectoryStructure`.
+packages independently of SUNDIALS.
 
 .. _Organization.Sundials.HighLevelDiagram:
 .. figure:: /figs/sunorg1.png
    :align: center
 
    High-level diagram of the SUNDIALS suite.
-
-.. _Organization.Sundials.DirectoryStructure:
-.. figure:: /figs/sunorg2.png
-   :align: center
-
-   Directory structure of the SUNDIALS source tree.
