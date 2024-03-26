@@ -29,13 +29,20 @@ SUNADAPTCONTROLLER=imexgus soderlind
 
 INCLUDES=-I../include
 
-INT_SIZE:=32
-
 .PHONY: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller patch
 
-all_64: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller patch
+.SETINT32:
+	$(eval INT_SIZE=32)
 
-all_32: generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller patch
+.SETINT64:
+	$(eval INT_SIZE=64)
+
+all_64: .SETINT64 generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller patch
+
+all_32: .SETINT32 generic arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller patch
+
+all: all_64 all_32
+
 
 arkode: $(ARKODE:%:arkode/%.i)
 	@for i in ${ARKODE} ; do \
