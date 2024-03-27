@@ -1,0 +1,38 @@
+/*---------------------------------------------------------------
+ * Programmer(s): Steven B. Roberts @ LLNL
+ *---------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ *---------------------------------------------------------------
+ * This file defines splitting coefficients using X-macros
+ *--------------------------------------------------------------*/
+
+/*
+  When adding a new method, enter the coefficients below and add
+  a new enum entry to include/arkode/arkode_splitting_coeffs.h
+
+  Method names and properties are listed in the table
+  below. The 'QP' column denotes whether the coefficients of the
+  method are known precisely enough for use in quad precision
+  (128-bit) calculations.
+
+     imeth                              QP
+    --------------------------------------
+     
+    --------------------------------------
+*/
+
+ARK_SPLITTING_COEFFS(ARKODE_SPLITTING_NONE, {
+    return NULL;
+  })
+
+ARK_SPLITTING_COEFFS(ARKODE_SPLITTING_LIE_TROTTER, {
+    return NULL;
+ })
