@@ -23,17 +23,17 @@
 #include <stdlib.h>
 #include <sundials/sundials_types.h>
 
-typedef struct _SUNHashMapKeyValue* SUNHashMapKeyValue;
+typedef struct SUNHashMapKeyValue_* SUNHashMapKeyValue;
 
-struct _SUNHashMapKeyValue
+struct SUNHashMapKeyValue_
 {
   const char* key;
   void* value;
 };
 
-typedef struct _SUNHashMap* SUNHashMap;
+typedef struct SUNHashMap_* SUNHashMap;
 
-struct _SUNHashMap
+struct SUNHashMap_
 {
   int size;     /* current number of entries */
   int max_size; /* max number of entries */
