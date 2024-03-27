@@ -751,7 +751,7 @@ program driver
   y = 0.d0
 
   ! Create the ARKStep timestepper module
-  arkode_mem = FARKStepCreate(c_null_ptr, c_funloc(frhs), t0, sunvec_y, sunctx)
+  arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(frhs), t0, sunvec_y, sunctx)
   if (.not. c_associated(arkode_mem)) then
      print *, "Error: FARKStepCreate returned NULL"
      call MPI_Abort(comm, 1, ierr)

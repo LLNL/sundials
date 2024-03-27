@@ -272,7 +272,7 @@ program main
   call PrintHeader(rtol, avtol, yval)
 
   ! Call FARKStepCreate to initialize ARKODE memory
-  arkode_mem = FARKStepCreate(c_null_ptr, c_funloc(fcnirob), t0, sunvec_y, sunctx)
+  arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(fcnirob), t0, sunvec_y, sunctx)
   if (.not. c_associated(arkode_mem)) print *, 'ERROR: arkode_mem = NULL'
 
   ! Call FARKStepSVtolerances to set tolerances
