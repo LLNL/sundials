@@ -16,6 +16,12 @@
 Using SUNDIALS
 **************
 
+.. _Organization.Sundials.HighLevelDiagram:
+.. figure:: ../figs/sunorg1.png
+   :align: center
+
+   High-level diagram of the SUNDIALS suite.
+
 The packages that make up SUNDIALS are built upon shared classes for vectors,
 matrices, and algebraic solvers. In addition, the packages all leverage some
 other common infrastructure, which we discuss in this section.
