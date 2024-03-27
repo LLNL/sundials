@@ -2142,6 +2142,8 @@ git clone https://github.com/LLNL/sundials.git && cd sundials
 
 Next we load the modules and set the environment variables needed to build SUNDIALS.
 This configuration enables both MPI and HIP support for distributed and GPU parallelism.
+It uses the HIP compiler for C and C++ and the Cray Fortran compiler. Other configurations
+are possible.
 
 ```bash
 # required dependencies
@@ -2166,14 +2168,15 @@ export LDFLAGS="-L${ROCM_PATH}/lib -lamdhip64 ${PE_MPICH_GTL_DIR_amd_gfx90a} -lm
 ```
 
 Now we can build SUNDIALS. In general, this is the same procedure described in the previous sections.
-The following command builds and install SUNDIALS with MPI and HIP enabled:
+The following command builds and install SUNDIALS with MPI, HIP, and the Fortran interface enabled:
 
 ```bash
-cmake -S . -B builddir -DCMAKE_INSTALL_PREFIX=instdir -DENABLE_HIP=ON -DENABLE_MPI=ON
+cmake -S . -B builddir -DCMAKE_INSTALL_PREFIX=<install path> \
+   -DENABLE_HIP=ON -DENABLE_MPI=ON -DBUILD_FORTRAN_MODULE_INTERFACE=ON
 cd builddir
 make -j8 install
+# Need an allocation to run the tests:
 salloc -A <account> -t 10 -N 1 -p batch
-# in the interactive allocation, we can nows run:
 make test
 make test_install_all
 ```
