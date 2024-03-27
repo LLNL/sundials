@@ -1143,7 +1143,7 @@ program main
   end do
 
   ! create ARKStep memory
-  arkode_mem = FARKStepCreate(c_null_ptr, c_funloc(ImpRhsFn), tstart, sunvec_y, ctx)
+  arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(ImpRhsFn), tstart, sunvec_y, ctx)
   if (.not. c_associated(arkode_mem)) print *,'ERROR: arkode_mem = NULL'
 
   ! Tell ARKODE to use a sparse linear solver for both Newton and mass matrix systems.
