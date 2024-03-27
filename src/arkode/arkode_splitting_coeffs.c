@@ -14,7 +14,7 @@
  * TODO
  *--------------------------------------------------------------*/
 
-#include <arkode/arkode_splitting.h>
+#include <arkode/arkode_splittingstep.h>
 #include <stdio.h>
 #include <stdlib.h>
 
