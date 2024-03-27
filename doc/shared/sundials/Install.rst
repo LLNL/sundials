@@ -2155,9 +2155,6 @@ module load cmake/3.23.2
 # GPU-aware MPI
 export MPICH_GPU_SUPPORT_ENABLED=1
 
-# optimize ROCm/HIP compilation for MI250X
-export AMD_ARCH=gfx90a
-
 # compiler environment hints
 export CC=$(which hipcc)
 export CXX=$(which hipcc)
@@ -2171,7 +2168,7 @@ Now we can build SUNDIALS. In general, this is the same procedure described in t
 The following command builds and install SUNDIALS with MPI, HIP, and the Fortran interface enabled:
 
 ```bash
-cmake -S . -B builddir -DCMAKE_INSTALL_PREFIX=<install path> \
+cmake -S . -B builddir -DCMAKE_INSTALL_PREFIX=<install path> -DAMDGPU_TARGETS=gfx90a \
    -DENABLE_HIP=ON -DENABLE_MPI=ON -DBUILD_FORTRAN_MODULE_INTERFACE=ON
 cd builddir
 make -j8 install
