@@ -10,8 +10,12 @@ Fixed a bug in the HIP execution policies where `WARP_SIZE` would not be set
 with ROCm 6.0.0 or newer.
 
 Changed the CMake version compatibility mode for SUNDIALS to `AnyNewerVersion`
-instead of `SameMajorVersion`. This fixes the issue seen 
-[here](https://github.com/AMReX-Codes/amrex/pull/3835). 
+instead of `SameMajorVersion`. This fixes the issue seen
+[here](https://github.com/AMReX-Codes/amrex/pull/3835).
+
+Fixed a bug in some Fortran examples where `c_null_ptr` was passed as an argument
+to a function pointer instead of `c_null_funptr`. This caused compilation issues
+with the Cray Fortran compiler.
 
 ## Changes to SUNDIALS in release v7.0.0
 
