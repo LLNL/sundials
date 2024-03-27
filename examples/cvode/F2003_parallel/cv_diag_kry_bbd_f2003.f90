@@ -304,7 +304,7 @@ module DiagkrybbdData
     mudq = 0
     mldq = 0
     retval = FCVBBDPrecInit(cvode_mem, nlocal, mudq, mldq, mu, ml, 0.d0, &
-                            c_funloc(LocalgFn), c_null_ptr)
+                            c_funloc(LocalgFn), c_null_funptr)
     if (retval /= 0) then
        print *, "Error: FCVBBDPrecInit returned ", retval
        call MPI_Abort(comm, 1, ierr)
