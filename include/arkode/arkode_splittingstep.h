@@ -14,8 +14,8 @@
  * TODO
  *--------------------------------------------------------------*/
 
-#ifndef _ARKODE_SPLITTING_H
-#define _ARKODE_SPLITTING_H
+#ifndef _ARKODE_SPLITTINGSTEP_H
+#define _ARKODE_SPLITTINGSTEP_H
 
 #include <sundials/sundials_types.h>
 #include <stdio.h>
