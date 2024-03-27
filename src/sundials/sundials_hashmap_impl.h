@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * A simple header-only hashmap implementation for char* keys and
+ * A simple hashmap implementation for char* keys and
  * void* values. Uses linear probing to resolve collisions.
  * The values can be anything, but will be freed by
  * the hash map upon its destruction.
