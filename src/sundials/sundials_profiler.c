@@ -12,6 +12,8 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
+#include <string.h>
+
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_config.h>
 
@@ -39,7 +41,7 @@
 #include <sundials/sundials_types.h>
 
 #include "sundials_debug.h"
-#include "sundials_hashmap.h"
+#include "sundials_hashmap_impl.h"
 
 #define SUNDIALS_ROOT_TIMER ((const char*)"From profiler epoch")
 
