@@ -142,7 +142,7 @@ ARK_BUTCHER_TABLE(ARKODE_IMPLICIT_MIDPOINT_1_2, { /* Implicit Midpoint Rule (A,B
 
     B->A[0][0] = SUN_RCONST(0.5);
 
-    B->b[0] = SUN_RCONST(1);
+    B->b[0] = SUN_RCONST(1.0);
 
     B->c[0] = SUN_RCONST(0.5);
     return B;
