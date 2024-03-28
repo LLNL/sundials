@@ -3023,7 +3023,7 @@ int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
   /* Allocate fused operation workspace arrays */
   if (stepper->vecs == NULL)
   {
-    stepper->vecs = (N_Vector*)calloc(count + 1, sizeof(N_Vector));
+    stepper->vecs = (N_Vector*)calloc(count + 1, sizeof(*stepper->vecs));
     if (stepper->vecs == NULL)
     {
       mriStepInnerStepper_FreeVecs(stepper);
@@ -3033,7 +3033,7 @@ int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
 
   if (stepper->vals == NULL)
   {
-    stepper->vals = (sunrealtype*)calloc(count + 1, sizeof(sunrealtype));
+    stepper->vals = (sunrealtype*)calloc(count + 1, sizeof(*stepper->vals));
     if (stepper->vals == NULL)
     {
       mriStepInnerStepper_FreeVecs(stepper);
