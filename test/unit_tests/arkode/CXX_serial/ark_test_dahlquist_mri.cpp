@@ -414,7 +414,8 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
     cout << "\nComparing Solver Statistics:\n";
 
-    int nstages_evaluated = nstages_stored - stiffly_accurate;
+    int nstages_evaluated = nstages_stored;
+    if (stiffly_accurate) nstages_evaluated--;
     long int fe_evals = 0;
     if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
     {
