@@ -11,14 +11,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * A simple header-only hashmap implementation for char* keys and
+ * A simple hashmap implementation for char* keys and
  * void* values. Uses linear probing to resolve collisions.
  * The values can be anything, but will be freed by
  * the hash map upon its destruction.
  * -----------------------------------------------------------------*/
-
-#ifndef _SUNDIALS_HASHMAP_H
-#define _SUNDIALS_HASHMAP_H
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -26,6 +23,7 @@
 
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_types.h"
+#include "sundials_hashmap_impl.h"
 
 static const uint64_t HASH_PRIME        = 14695981039346656037U;
 static const uint64_t HASH_OFFSET_BASIS = 1099511628211U;
@@ -45,23 +43,6 @@ static uint64_t fnv1a_hash(const char* str)
   return hash;
 }
 
-typedef struct _SUNHashMapKeyValue* SUNHashMapKeyValue;
-
-struct _SUNHashMapKeyValue
-{
-  const char* key;
-  void* value;
-};
-
-typedef struct _SUNHashMap* SUNHashMap;
-
-struct _SUNHashMap
-{
-  int size;     /* current number of entries */
-  int max_size; /* max number of entries */
-  SUNHashMapKeyValue* buckets;
-};
-
 /*
   This function creates a new SUNHashMap object allocated to hold
   up to 'max_size' entries.
@@ -74,14 +55,14 @@ struct _SUNHashMap
   **Returns:**
     * A SUNErrCode indicating success or a failure
  */
-static SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
+SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
 {
   int i;
 
   if (max_size <= 0) { return SUN_ERR_ARG_OUTOFRANGE; }
 
   *map = NULL;
-  *map = (SUNHashMap)malloc(sizeof(struct _SUNHashMap));
+  *map = (SUNHashMap)malloc(sizeof(**map));
 
   if (!map) { return SUN_ERR_MALLOC_FAIL; }
 
@@ -90,7 +71,7 @@ static SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
 
   (*map)->buckets = NULL;
   (*map)->buckets =
-    (SUNHashMapKeyValue*)malloc(max_size * sizeof(SUNHashMapKeyValue));
+    (SUNHashMapKeyValue*)malloc(max_size * sizeof(*((*map)->buckets)));
 
   if (!(*map)->buckets)
   {
@@ -115,8 +96,7 @@ static SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
   **Returns:**
     * A SUNErrCode indicating success or a failure
  */
-static SUNErrCode SUNHashMap_Destroy(SUNHashMap* map,
-                                     void (*freevalue)(void* ptr))
+SUNErrCode SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr))
 {
   int i;
 
@@ -159,9 +139,8 @@ static SUNErrCode SUNHashMap_Destroy(SUNHashMap* map,
     * ``>=0`` -- the index at which the iteration stopped
     * ``<-1`` -- an error occurred
  */
-static int SUNHashMap_Iterate(SUNHashMap map, int start,
-                              int (*yieldfn)(int, SUNHashMapKeyValue, void*),
-                              void* ctx)
+int SUNHashMap_Iterate(SUNHashMap map, int start,
+                       int (*yieldfn)(int, SUNHashMapKeyValue, void*), void* ctx)
 {
   int i;
 
@@ -201,7 +180,7 @@ static int sunHashMapLinearProbeInsert(int idx, SUNHashMapKeyValue kv, void* ctx
     * ``-1`` -- an error occurred
     * ``-2`` -- the map is full
  */
-static int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
+int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
 {
   int idx;
   int retval;
@@ -224,7 +203,7 @@ static int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   }
 
   /* Create the key-value pair */
-  kvp = (SUNHashMapKeyValue)malloc(sizeof(struct _SUNHashMapKeyValue));
+  kvp = (SUNHashMapKeyValue)malloc(sizeof(*kvp));
   if (kvp == NULL) { return (-1); }
 
   kvp->key   = key;
@@ -264,7 +243,7 @@ static int sunHashMapLinearProbeGet(int idx, SUNHashMapKeyValue kv, void* key)
     * ``-1`` -- an error occurred
     * ``-2`` -- key not found
  */
-static int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
+int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
 {
   int idx;
   int retval;
@@ -308,15 +287,14 @@ static int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
   **Returns:**
     * A SUNErrCode indicating success or a failure
  */
-static SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
-                                  int (*compar)(const void*, const void*))
+SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
+                           int (*compar)(const void*, const void*))
 {
   int i;
 
   if (!map || !compar) { return SUN_ERR_ARG_CORRUPT; }
 
-  *sorted =
-    (SUNHashMapKeyValue*)malloc(map->max_size * sizeof(SUNHashMapKeyValue));
+  *sorted = (SUNHashMapKeyValue*)malloc(map->max_size * sizeof(**sorted));
   if (!(*sorted)) { return SUN_ERR_MALLOC_FAIL; }
 
   /* Copy the buckets into a new array */
@@ -339,15 +317,14 @@ static SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
     * A SUNErrCode indicating success or a failure
  */
 #if SUNDIALS_MPI_ENABLED
-static SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values,
-                                    size_t value_size)
+SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
 {
   int i;
   int count = 0;
 
   if (!map) { return SUN_ERR_ARG_CORRUPT; }
 
-  *values = (void**)malloc(map->size * sizeof(value_size));
+  *values = (void**)malloc(map->size * value_size);
   if (!values) { return SUN_ERR_MALLOC_FAIL; }
 
   /* Copy the values into a new array */
@@ -358,6 +335,4 @@ static SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values,
 
   return SUN_SUCCESS;
 }
-#endif
-
 #endif
