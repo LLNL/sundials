@@ -2112,3 +2112,68 @@ Table of SUNDIALS libraries and header files
    |                              |              +----------------------------------------------+
    |                              |              | ``kinsol/kinsol_ls.h``                       |
    +------------------------------+--------------+----------------------------------------------+
+
+
+Installing SUNDIALS on HPC Clusters
+-----------------------------------
+
+.. _Installation.HPC:
+
+This section is a guide for installing SUNDIALS on specific HPC clusters.
+In general, the procedure is the same as described previously for Linux machines.
+The main differences are in the modules and environment variables that are specific
+to different HPC clusters. We aim to keep this section as up to date as possible,
+but it may lag the latest software updates to each cluster.
+
+Frontier
+^^^^^^^^
+
+`Frontier <https://www.olcf.ornl.gov/frontier/>`_ is an Exascale supercomputer at the Oak Ridge
+Leadership Computing Facility. If you are new to this system, then we recommend that you review the
+`Frontier user guide <https://docs.olcf.ornl.gov/systems/frontier_user_guide.html>`_.
+
+**A Standard Installation**
+
+Clone SUNDIALS:
+
+.. code-block:: bash
+
+   git clone https://github.com/LLNL/sundials.git && cd sundials
+
+Next we load the modules and set the environment variables needed to build SUNDIALS.
+This configuration enables both MPI and HIP support for distributed and GPU parallelism.
+It uses the HIP compiler for C and C++ and the Cray Fortran compiler. Other configurations
+are possible.
+
+.. code-block:: bash
+
+   # required dependencies
+   module load PrgEnv-cray-amd/8.5.0
+   module load craype-accel-amd-gfx90a
+   module load rocm/5.3.0
+   module load cmake/3.23.2
+
+   # GPU-aware MPI
+   export MPICH_GPU_SUPPORT_ENABLED=1
+
+   # compiler environment hints
+   export CC=$(which hipcc)
+   export CXX=$(which hipcc)
+   export FC=$(which ftn)
+   export CFLAGS="-I${ROCM_PATH}/include"
+   export CXXFLAGS="-I${ROCM_PATH}/include -Wno-pass-failed"
+   export LDFLAGS="-L${ROCM_PATH}/lib -lamdhip64 ${PE_MPICH_GTL_DIR_amd_gfx90a} -lmpi_gtl_hsa"
+
+Now we can build SUNDIALS. In general, this is the same procedure described in the previous sections.
+The following command builds and installs SUNDIALS with MPI, HIP, and the Fortran interface enabled, where `<install path>` is your desired installation location, and `<account>` is your allocation account on Frontier:
+
+.. code-block:: bash
+
+   cmake -S . -B builddir -DCMAKE_INSTALL_PREFIX=<install path> -DAMDGPU_TARGETS=gfx90a \
+   -DENABLE_HIP=ON -DENABLE_MPI=ON -DBUILD_FORTRAN_MODULE_INTERFACE=ON
+   cd builddir
+   make -j8 install
+   # Need an allocation to run the tests:
+   salloc -A <account> -t 10 -N 1 -p batch
+   make test
+   make test_install_all
