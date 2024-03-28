@@ -50,7 +50,6 @@
  *      4:  explicit ERK45a MRI-GARK [ARKODE_MRI_GARK_ERK45a]
  *      5:  implicit IRK21a MRI-GARK [ARKODE_MRI_GARK_IRK21a]
  *      6:  implicit ESDIRK34a MRI-GARK [ARKODE_MRI_GARK_ESDIRK34a]
- *      7:  implicit SDIRK33a MRI-GARK [ARKODE_MRI_GARK_SDIRK33a]
  *      8.  implicit ESDIRK46a MRI-GARK [ARKODE_MRI_GARK_ESDIRK46a]
  *      9.  ImEx 3a MRI-GARK [ARKODE_IMEX_MRI_GARK3a]
  *      10. ImEx 3b MRI-GARK [ARKODE_IMEX_MRI_GARK3b]
@@ -294,14 +293,6 @@ int main(int argc, char* argv[])
     slowimplicit = SUNTRUE;
     mri_table = ARKODE_MRI_GARK_ESDIRK34a;
     std::cout << "    implicit ESDIRK34a MRI-GARK\n";
-    PrintSlowAdaptivity(opts); break;
-  case(7):
-    f_si = (opts.fast_type == 0) ? fn : fs;
-    J_s  = (opts.fast_type == 0) ? Jn : Js;
-    P = 3;
-    slowimplicit = SUNTRUE;
-    mri_table = ARKODE_MRI_GARK_SDIRK33a;
-    std::cout << "    implicit SDIRK33a MRI-GARK\n";
     PrintSlowAdaptivity(opts); break;
   case(8):
     f_si = (opts.fast_type == 0) ? fn : fs;

@@ -158,8 +158,7 @@ int main(int argc, char *argv[])
   sunbooleantype implicit=SUNFALSE;
   if ((strcmp(method,"ARKODE_MRI_GARK_IRK21a")==0) ||
       (strcmp(method,"ARKODE_MRI_GARK_ESDIRK34a")==0) ||
-      (strcmp(method,"ARKODE_MRI_GARK_ESDIRK46a")==0) ||
-      (strcmp(method,"ARKODE_MRI_GARK_SDIRK33a")==0)) { implicit = SUNTRUE; }
+      (strcmp(method,"ARKODE_MRI_GARK_ESDIRK46a")==0)) { implicit = SUNTRUE; }
   void* mristep_mem = NULL;
   if (implicit) {
     mristep_mem = MRIStepCreate(NULL, fn, T0, y, inner_stepper, ctx);

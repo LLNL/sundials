@@ -313,8 +313,6 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_MRI_GARK_ESDIRK34a`            | Use the ESDIRK34a MRI-GARK method.                         |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MRI_GARK_SDIRK33a`             | Use the SDIRK33a MRI-GARK method.                          |
-   +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_MRI_GARK_ESDIRK46a`            | Use the ESDIRK46a MRI-GARK method.                         |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_IMEX_MRI_GARK3a`               | Use the IMEX-MRI-GARK3a method (non-embedded).             |

@@ -309,7 +309,6 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
    =============================  ============  ===============  ===============  ==================
    ``ARKODE_MRI_GARK_IRK21a``     :math:`2^*`   1                1                :cite:p:`Sandu:19`
    ``ARKODE_MRI_GARK_ESDIRK34a``  :math:`3^*`   2                3                :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_SDIRK33a``   3             2                3                :cite:p:`Sandu:19`
    ``ARKODE_MRI_GARK_ESDIRK46a``  :math:`4^*`   3                5                :cite:p:`Sandu:19`
    =============================  ============  ===============  ===============  ==================
 

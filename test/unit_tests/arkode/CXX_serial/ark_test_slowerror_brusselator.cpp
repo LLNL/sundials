@@ -51,8 +51,8 @@
  * We partition the full time integration interval, 0 < t < 5, into
  * Npart pieces.  We then run a single time step starting at the
  * beginning of each partition, using a variety of slow step sizes,
- * H = {hmax, hmax/2, hmax/4, hmax/8, hmax/16} with
- * hmax=(t_f-t_0)/500/Npart.
+ * H = {hmax, hmax/4, hmax/16, hmax/64, hmax/256} with
+ * hmax=(t_f-t_0)/20/Npart.
  *
  * We place the entire ODE in the "slow" RHS partition.  All tests
  * use ARKODE's default fifth-order ERK method, with relative and
@@ -267,8 +267,7 @@ int main(int argc, char *argv[])
   sunbooleantype implicit=SUNFALSE;
   if ((strcmp(method,"ARKODE_MRI_GARK_IRK21a")==0) ||
       (strcmp(method,"ARKODE_MRI_GARK_ESDIRK34a")==0) ||
-      (strcmp(method,"ARKODE_MRI_GARK_ESDIRK46a")==0) ||
-      (strcmp(method,"ARKODE_MRI_GARK_SDIRK33a")==0)) { implicit = SUNTRUE; }
+      (strcmp(method,"ARKODE_MRI_GARK_ESDIRK46a")==0)) { implicit = SUNTRUE; }
   void* mristep_mem = NULL;
   if (implicit) {
     mristep_mem = MRIStepCreate(NULL, fn, T0, y, inner_stepper, ctx);
@@ -306,8 +305,8 @@ int main(int argc, char *argv[])
   if (check_retval(&retval, "MRIStepSetAccumulatedErrorType", 1)) return 1;
 
   // Run test for various H values
-  sunrealtype hmax = (Tf-T0)/500.0/udata.Npart;
-  vector<sunrealtype> Hvals = {hmax, hmax/2.0, hmax/4.0, hmax/8.0, hmax/16.0};
+  sunrealtype hmax = (Tf-T0)/20.0/udata.Npart;
+  vector<sunrealtype> Hvals = {hmax, hmax/4.0, hmax/16.0, hmax/64.0, hmax/256.0};
   retval = run_test(mristep_mem, arkode_ref, y, T0, Tf, yref, Hvals,
                     method, reltol, abstol, udata);
   if (check_retval(&retval, "run_test", 1)) return 1;
