@@ -167,9 +167,8 @@ The structure of this document is as follows:
    (:numref:`CVODES.Mathematics.FSA`) and adjoint
    (:numref:`CVODES.Mathematics.ASA`).
 
--  The following chapter describes the structure of the SUNDIALS suite of solvers
-   (:numref:`CVODES.Organization`) and the software organization of the CVODES solver
-   (:numref:`CVODES.Organization.CVODES`).
+-  The following chapter describes the software organization of the CVODES
+   solver (:numref:`CVODES.Organization`).
 
 -  Chapter :numref:`CVODES.Usage.SIM` is the main usage document for CVODES for simulation applications.
    It includes a complete description of the user interface for the integration
@@ -195,7 +194,7 @@ The structure of this document is as follows:
 -  Chapter :numref:`NVectors` gives a brief overview of the generic ``N_Vector`` module shared among the
    various components of SUNDIALS, and details on the ``N_Vector`` implementations provided with SUNDIALS.
 
-- Chapter :numref:`SUNMatrix` gives a brief overview of the generic
+-  Chapter :numref:`SUNMatrix` gives a brief overview of the generic
    ``SUNMatrix`` module shared among the various components of SUNDIALS, and
    details on the ``SUNMatrix`` implementations provided with SUNDIALS: a dense
    implementation (:numref:`SUNMatrix.Dense`), a banded implementation
