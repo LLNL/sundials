@@ -62,7 +62,7 @@ SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
   if (max_size <= 0) { return SUN_ERR_ARG_OUTOFRANGE; }
 
   *map = NULL;
-  *map = (SUNHashMap)malloc(sizeof(struct SUNHashMap_));
+  *map = (SUNHashMap)malloc(sizeof(**map));
 
   if (!map) { return SUN_ERR_MALLOC_FAIL; }
 
@@ -71,7 +71,7 @@ SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
 
   (*map)->buckets = NULL;
   (*map)->buckets =
-    (SUNHashMapKeyValue*)malloc(max_size * sizeof(SUNHashMapKeyValue));
+    (SUNHashMapKeyValue*)malloc(max_size * sizeof(*((*map)->buckets)));
 
   if (!(*map)->buckets)
   {
@@ -203,7 +203,7 @@ int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   }
 
   /* Create the key-value pair */
-  kvp = (SUNHashMapKeyValue)malloc(sizeof(struct SUNHashMapKeyValue_));
+  kvp = (SUNHashMapKeyValue)malloc(sizeof(*kvp));
   if (kvp == NULL) { return (-1); }
 
   kvp->key   = key;
@@ -295,7 +295,7 @@ SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
   if (!map || !compar) { return SUN_ERR_ARG_CORRUPT; }
 
   *sorted =
-    (SUNHashMapKeyValue*)malloc(map->max_size * sizeof(SUNHashMapKeyValue));
+    (SUNHashMapKeyValue*)malloc(map->max_size * sizeof(**sorted));
   if (!(*sorted)) { return SUN_ERR_MALLOC_FAIL; }
 
   /* Copy the buckets into a new array */
