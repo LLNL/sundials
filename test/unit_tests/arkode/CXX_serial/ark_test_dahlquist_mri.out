@@ -12,7 +12,7 @@ Dahlquist ODE test problem:
 Test explicit MRI methods
 =========================
 
-Testing method 0
+Testing method ARKODE_MIS_KW3
   nmat = 1
   stages = 4
   method order (q) = 3
@@ -38,7 +38,57 @@ MRIStep Statistics:
 Comparing Solver Statistics:
 All checks passed
 
-Testing method 1
+Testing method ARKODE_MRI_GARK_ERK22a
+  nmat = 1
+  stages = 3
+  method order (q) = 2
+  embedding order (p) = 0
+  c = 0  0.5  1  
+  W[0] = 
+                            0                        0                        0  
+                          0.5                        0                        0  
+                         -0.5                        1                        0  
+
+  Stored stages = 2
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.980199
+   y_n         = 0.980199
+   Error       = -4.95647e-07
+   Steps       = 1
+   Fe evals    = 2
+   Fi evals    = 0
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method ARKODE_MRI_GARK_ERK22b
+  nmat = 1
+  stages = 3
+  method order (q) = 2
+  embedding order (p) = 0
+  c = 0  1  1  
+  W[0] = 
+                            0                        0                        0  
+                            1                        0                        0  
+                         -0.5                      0.5                        0  
+
+  Stored stages = 2
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.980199
+   y_n         = 0.980199
+   Error       = -4.95856e-07
+   Steps       = 1
+   Fe evals    = 2
+   Fi evals    = 0
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method ARKODE_MRI_GARK_ERK33a
   nmat = 2
   stages = 4
   method order (q) = 3
@@ -70,7 +120,7 @@ MRIStep Statistics:
 Comparing Solver Statistics:
 All checks passed
 
-Testing method 2
+Testing method ARKODE_MRI_GARK_ERK45a
   nmat = 2
   stages = 6
   method order (q) = 4
@@ -106,20 +156,40 @@ MRIStep Statistics:
 Comparing Solver Statistics:
 All checks passed
 
-=========================
-Test implicit MRI methods
-=========================
+Testing method ARKODE_MRI_GARK_FORWARD_EULER
+  nmat = 1
+  stages = 2
+  method order (q) = 1
+  embedding order (p) = 0
+  c = 0  1  
+  W[0] = 
+                            0                        0  
+                            1                        0  
 
-Testing method 0
+  Stored stages = 1
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.980199
+   y_n         = 0.9801
+   Error       = 9.90058e-05
+   Steps       = 1
+   Fe evals    = 1
+   Fi evals    = 0
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method ARKODE_MRI_GARK_RALSTON2
   nmat = 1
   stages = 3
   method order (q) = 2
   embedding order (p) = 0
-  c = 0  1  1  
-  G[0] = 
+  c = 0  0.6666666666666666  1  
+  W[0] = 
                             0                        0                        0  
-                            1                        0                        0  
-                         -0.5                        0                      0.5  
+           0.6666666666666666                        0                        0  
+          -0.4166666666666666                     0.75                        0  
 
   Stored stages = 2
 
@@ -127,7 +197,68 @@ MRIStep Statistics:
    Time        = 0.01
    y(t)        = 0.980199
    y_n         = 0.980199
-   Error       = -8.22598e-10
+   Error       = -4.9567e-07
+   Steps       = 1
+   Fe evals    = 2
+   Fi evals    = 0
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method ARKODE_MRI_GARK_RALSTON3
+  nmat = 2
+  stages = 4
+  method order (q) = 3
+  embedding order (p) = 0
+  c = 0  0.5  0.75  1  
+  W[0] = 
+                            0                        0                        0                        0  
+                          0.5                        0                        0                        0  
+                        -2.75                        3                        0                        0  
+            1.305555555555556      -0.1666666666666667      -0.8888888888888888                        0  
+
+  W[1] = 
+                            0                        0                        0                        0  
+                            0                        0                        0                        0  
+                          4.5                     -4.5                        0                        0  
+           -2.166666666666667                     -0.5        2.666666666666667                        0  
+
+  Stored stages = 3
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.980199
+   y_n         = 0.980199
+   Error       = 1.72143e-09
+   Steps       = 1
+   Fe evals    = 3
+   Fi evals    = 0
+
+Comparing Solver Statistics:
+All checks passed
+
+=========================
+Test implicit MRI methods
+=========================
+
+Testing method ARKODE_MRI_GARK_BACKWARD_EULER
+  nmat = 1
+  stages = 3
+  method order (q) = 1
+  embedding order (p) = 0
+  c = 0  1  1  
+  G[0] = 
+                            0                        0                        0  
+                            1                        0                        0  
+                           -1                        0                        1  
+
+  Stored stages = 2
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.980199
+   y_n         = 0.980297
+   Error       = -9.80272e-05
    Steps       = 1
    Fe evals    = 0
    Fi evals    = 2
@@ -140,7 +271,7 @@ MRIStep Statistics:
 Comparing Solver Statistics:
 All checks passed
 
-Testing method 1
+Testing method ARKODE_MRI_GARK_ESDIRK34a
   nmat = 1
   stages = 7
   method order (q) = 3
@@ -174,7 +305,7 @@ MRIStep Statistics:
 Comparing Solver Statistics:
 All checks passed
 
-Testing method 2
+Testing method ARKODE_MRI_GARK_ESDIRK46a
   nmat = 2
   stages = 11
   method order (q) = 4
@@ -225,11 +356,72 @@ MRIStep Statistics:
 Comparing Solver Statistics:
 All checks passed
 
+Testing method ARKODE_MRI_GARK_IMPLICIT_MIDPOINT
+  nmat = 1
+  stages = 4
+  method order (q) = 2
+  embedding order (p) = 0
+  c = 0  0.5  0.5  1  
+  G[0] = 
+                            0                        0                        0                        0  
+                          0.5                        0                        0                        0  
+                         -0.5                        0                      0.5                        0  
+                            0                        0                      0.5                        0  
+
+  Stored stages = 2
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.980199
+   y_n         = 0.980199
+   Error       = 1.2304e-07
+   Steps       = 1
+   Fe evals    = 0
+   Fi evals    = 3
+   NLS iters   = 1
+   NLS fails   = 0
+   LS setups   = 1
+   LS Fi evals = 0
+   Ji evals    = 1
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method ARKODE_MRI_GARK_IRK21a
+  nmat = 1
+  stages = 3
+  method order (q) = 2
+  embedding order (p) = 0
+  c = 0  1  1  
+  G[0] = 
+                            0                        0                        0  
+                            1                        0                        0  
+                         -0.5                        0                      0.5  
+
+  Stored stages = 2
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.980199
+   y_n         = 0.980199
+   Error       = -8.22598e-10
+   Steps       = 1
+   Fe evals    = 0
+   Fi evals    = 2
+   NLS iters   = 1
+   NLS fails   = 0
+   LS setups   = 1
+   LS Fi evals = 0
+   Ji evals    = 1
+
+Comparing Solver Statistics:
+All checks passed
+
 =====================
 Test IMEX MRI methods
 =====================
 
-Testing method 0
+Testing method ARKODE_IMEX_MRI_GARK3a
   nmat = 1
   stages = 8
   method order (q) = 3
@@ -274,7 +466,7 @@ MRIStep Statistics:
 Comparing Solver Statistics:
 All checks passed
 
-Testing method 1
+Testing method ARKODE_IMEX_MRI_GARK3b
   nmat = 1
   stages = 8
   method order (q) = 3
@@ -319,7 +511,7 @@ MRIStep Statistics:
 Comparing Solver Statistics:
 All checks passed
 
-Testing method 2
+Testing method ARKODE_IMEX_MRI_GARK4
   nmat = 2
   stages = 12
   method order (q) = 4
@@ -392,6 +584,115 @@ MRIStep Statistics:
    Fe evals    = 6
    Fi evals    = 11
    NLS iters   = 5
+   NLS fails   = 0
+   LS setups   = 1
+   LS Fi evals = 0
+   Ji evals    = 1
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method ARKODE_IMEX_MRI_GARK_EULER
+  nmat = 1
+  stages = 3
+  method order (q) = 1
+  embedding order (p) = 0
+  c = 0  1  1  
+  W[0] = 
+                            0                        0                        0  
+                            1                        0                        0  
+                            0                        0                        0  
+
+  G[0] = 
+                            0                        0                        0  
+                            1                        0                        0  
+                           -1                        0                        1  
+
+  Stored stages = 2
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.970446
+   y_n         = 0.970445
+   Error       = 4.82806e-07
+   Steps       = 1
+   Fe evals    = 1
+   Fi evals    = 2
+   NLS iters   = 1
+   NLS fails   = 0
+   LS setups   = 1
+   LS Fi evals = 0
+   Ji evals    = 1
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method ARKODE_IMEX_MRI_GARK_MIDPOINT
+  nmat = 1
+  stages = 4
+  method order (q) = 2
+  embedding order (p) = 0
+  c = 0  0.5  0.5  1  
+  W[0] = 
+                            0                        0                        0                        0  
+                          0.5                        0                        0                        0  
+                            0                        0                        0                        0  
+                         -0.5                        0                        1                        0  
+
+  G[0] = 
+                            0                        0                        0                        0  
+                          0.5                        0                        0                        0  
+                         -0.5                        0                      0.5                        0  
+                            0                        0                      0.5                        0  
+
+  Stored stages = 2
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.970446
+   y_n         = 0.970446
+   Error       = -8.01486e-07
+   Steps       = 1
+   Fe evals    = 2
+   Fi evals    = 3
+   NLS iters   = 1
+   NLS fails   = 0
+   LS setups   = 1
+   LS Fi evals = 0
+   Ji evals    = 1
+
+Comparing Solver Statistics:
+All checks passed
+
+Testing method ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL
+  nmat = 1
+  stages = 4
+  method order (q) = 2
+  embedding order (p) = 0
+  c = 0  1  1  1  
+  W[0] = 
+                            0                        0                        0                        0  
+                            1                        0                        0                        0  
+                            0                        0                        0                        0  
+                         -0.5                        0                      0.5                        0  
+
+  G[0] = 
+                            0                        0                        0                        0  
+                            1                        0                        0                        0  
+                         -0.5                        0                      0.5                        0  
+                            0                        0                        0                        0  
+
+  Stored stages = 2
+
+MRIStep Statistics:
+   Time        = 0.01
+   y(t)        = 0.970446
+   y_n         = 0.970447
+   Error       = -9.8759e-07
+   Steps       = 1
+   Fe evals    = 2
+   Fi evals    = 3
+   NLS iters   = 1
    NLS fails   = 0
    LS setups   = 1
    LS Fi evals = 0
