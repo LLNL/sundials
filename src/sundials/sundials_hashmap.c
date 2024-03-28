@@ -294,8 +294,7 @@ SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
 
   if (!map || !compar) { return SUN_ERR_ARG_CORRUPT; }
 
-  *sorted =
-    (SUNHashMapKeyValue*)malloc(map->max_size * sizeof(**sorted));
+  *sorted = (SUNHashMapKeyValue*)malloc(map->max_size * sizeof(**sorted));
   if (!(*sorted)) { return SUN_ERR_MALLOC_FAIL; }
 
   /* Copy the buckets into a new array */
