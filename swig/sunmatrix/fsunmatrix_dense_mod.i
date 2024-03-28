@@ -38,7 +38,7 @@ SWIGEXPORT double * _wrap_FSUNDenseMatrix_Data(SUNMatrix farg1) {
   double * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunrealtype *result = 0 ;
-  
+
   arg1 = (SUNMatrix)(farg1);
   result = (sunrealtype *)SUNDenseMatrix_Data(arg1);
   fresult = result;
@@ -50,7 +50,7 @@ SWIGEXPORT double * _wrap_FSUNDenseMatrix_Column(SUNMatrix farg1, int64_t const 
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunindextype arg2 ;
   sunrealtype *result = 0 ;
-  
+
   arg1 = (SUNMatrix)(farg1);
   arg2 = (sunindextype)(*farg2);
   result = (sunrealtype *)SUNDenseMatrix_Column(arg1,arg2);
@@ -78,7 +78,11 @@ bind(C, name="_wrap_FSUNDenseMatrix_Column") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
+#ifdef SUNDIALS_INT32_T
+integer(C_INT32_T), intent(in) :: farg2
+#else
 integer(C_INT64_T), intent(in) :: farg2
+#endif
 type(C_PTR) :: fresult
 end function
 %}
@@ -89,8 +93,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNDenseMatrix_Data(farg1)
@@ -102,10 +106,18 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
+#ifdef SUNDIALS_INT32_T
+integer(C_INT32_T), intent(in) :: j
+#else
 integer(C_INT64_T), intent(in) :: j
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT64_T) :: farg2 
+#endif
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
+#ifdef SUNDIALS_INT32_T
+integer(C_INT32_T) :: farg2
+#else
+integer(C_INT64_T) :: farg2
+#endif
 
 farg1 = c_loc(a)
 farg2 = j
