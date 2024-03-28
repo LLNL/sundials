@@ -16,11 +16,15 @@
 Using SUNDIALS
 **************
 
-As discussed in :numref:`KINSOL.Organization`, the six solvers packages
-(CVODE(S), IDA(S), ARKODE, KINSOL) that make up SUNDIALS are built upon common
-classes/modules for vectors, matrices, and algebraic solvers. In addition, the
-six packages all leverage some other common infrastructure, which we discuss
-in this section.
+The packages that make up SUNDIALS are built upon shared classes for vectors,
+matrices, and algebraic solvers. In addition, the packages all leverage some
+other common infrastructure, which we discuss in this section.
+
+.. _Organization.Sundials.HighLevelDiagram:
+.. figure:: ../figs/sunorg1.png
+   :align: center
+
+   High-level diagram of the SUNDIALS suite.
 
 .. toctree::
    Types_link
