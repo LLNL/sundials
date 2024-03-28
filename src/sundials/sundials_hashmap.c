@@ -325,7 +325,7 @@ SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
 
   if (!map) { return SUN_ERR_ARG_CORRUPT; }
 
-  *values = (void**)malloc(map->size * sizeof(value_size));
+  *values = (void**)malloc(map->size * value_size);
   if (!values) { return SUN_ERR_MALLOC_FAIL; }
 
   /* Copy the values into a new array */
