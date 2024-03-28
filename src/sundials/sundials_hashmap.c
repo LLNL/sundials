@@ -62,7 +62,7 @@ SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
   if (max_size <= 0) { return SUN_ERR_ARG_OUTOFRANGE; }
 
   *map = NULL;
-  *map = (SUNHashMap)malloc(sizeof(**map));
+  *map = (SUNHashMap)malloc(sizeof(struct SUNHashMap_));
 
   if (!map) { return SUN_ERR_MALLOC_FAIL; }
 
@@ -203,7 +203,7 @@ int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   }
 
   /* Create the key-value pair */
-  kvp = (SUNHashMapKeyValue)malloc(sizeof(*kvp));
+  kvp = (SUNHashMapKeyValue)malloc(sizeof(struct SUNHashMapKeyValue_));
   if (kvp == NULL) { return (-1); }
 
   kvp->key   = key;
