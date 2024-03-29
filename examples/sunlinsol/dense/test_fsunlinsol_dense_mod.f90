@@ -20,15 +20,18 @@ module test_fsunlinsol_dense
   use test_utilities
   implicit none
 
-  integer(C_LONG), private, parameter :: N = 100
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  integer(kind=sunindextype), private, parameter :: N = 100
 
 contains
 
   integer(C_INT) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-
-
-
     use fnvector_serial_mod
     use fsunmatrix_dense_mod
     use fsunlinsol_dense_mod
@@ -42,7 +45,7 @@ contains
     real(C_DOUBLE),        pointer :: colj(:), colIj(:) ! matrix column data
     real(C_DOUBLE),        pointer :: xdata(:)          ! x vector data
     real(C_DOUBLE)                 :: tmpr              ! temporary real value
-    integer(C_LONG)                :: j, k
+    integer(kind=sunindextype)     :: j, k
     integer(C_INT)                 :: tmp
 
     fails = 0
@@ -120,14 +123,19 @@ end module
 
 integer(C_INT) function check_vector(X, Y, tol) result(failure)
   use, intrinsic :: iso_c_binding
-
   use test_utilities
-
   implicit none
-  type(N_Vector)  :: x, y
-  real(C_DOUBLE)  :: tol, maxerr
-  integer(C_LONG) :: i, xlen, ylen
-  real(C_DOUBLE), pointer :: xdata(:), ydata(:)
+
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  type(N_Vector)             :: x, y
+  real(C_DOUBLE)             :: tol, maxerr
+  integer(kind=sunindextype) :: i, xlen, ylen
+  real(C_DOUBLE), pointer    :: xdata(:), ydata(:)
 
   failure = 0
 

@@ -20,9 +20,15 @@ module test_fsunmatrix_band
   use test_utilities
   implicit none
 
-  integer(C_LONG), parameter :: N  = 10
-  integer(C_LONG), parameter :: mu = 2
-  integer(C_LONG), parameter :: ml = 2
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  integer(kind=sunindextype), parameter :: N  = 10
+  integer(kind=sunindextype), parameter :: mu = 2
+  integer(kind=sunindextype), parameter :: ml = 2
 
 contains
 
@@ -105,15 +111,15 @@ contains
 
     implicit none
 
-    type(SUNMatrix), pointer :: A, I
-    type(N_Vector),  pointer :: x, y
-    real(C_DOUBLE),  pointer :: Adata(:), Idata(:), xdata(:), ydata(:)
-    integer(C_LONG)          :: ii, jj, smu, istart, iend, offset
+    type(SUNMatrix), pointer   :: A, I
+    type(N_Vector),  pointer   :: x, y
+    real(C_DOUBLE),  pointer   :: Adata(:), Idata(:), xdata(:), ydata(:)
+    integer(kind=sunindextype) :: ii, jj, smu, istart, iend, offset
 
     fails = 0
 
     A => FSUNBandMatrix(N, mu, ml, sunctx)
-    I => FSUNBandMatrix(N, 0_8, 0_8, sunctx)
+    I => FSUNBandMatrix(N, 0_sunindextype, 0_sunindextype, sunctx)
     x => FN_VNew_Serial(N, sunctx)
     y => FN_VNew_Serial(N, sunctx)
 

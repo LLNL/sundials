@@ -16,13 +16,15 @@
 
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
-
-# Examples using SUNDIALS linear solvers
 set(FCVODES_examples
-  "cvs_analytic_fp_f2003\;\;develop"
-  "cvsAdvDiff_FSA_non_f2003\;-sensi stg t\;develop"
-  "cvsAdvDiff_FSA_non_f2003\;-sensi sim t\;develop"
-  )
+  "cvs_analytic_fp_f2003\;\;develop")
+
+if(SUNDIALS_INDEX_SIZE MATCHES "64")
+  list(APPEND FCVODES_examples
+    "cvsAdvDiff_FSA_non_f2003\;-sensi stg t\;develop"
+    "cvsAdvDiff_FSA_non_f2003\;-sensi sim t\;develop"
+    )
+endif()
 
 # Specify libraries to link against
 set(CVODES_LIB sundials_fcvodes_mod)

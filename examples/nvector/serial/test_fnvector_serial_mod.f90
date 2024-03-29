@@ -22,8 +22,14 @@ module test_nvector_serial
   use test_utilities
   implicit none
 
-  integer(c_long), parameter :: N = 100 ! vector length
-  integer(c_int),  parameter :: nv = 3  ! length of vector arrays
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  integer(kind=sunindextype), parameter :: N = 100 ! vector length
+  integer(c_int),  parameter :: nv = 3 ! length of vector arrays
 
 contains
 
@@ -140,17 +146,22 @@ contains
 
 end module
 
-
-integer(C_INT) function check_ans(ans, X, local_length) result(failure)
+function check_ans(ans, X, local_length) result(failure)
   use, intrinsic :: iso_c_binding
-
   use test_utilities
   implicit none
 
-  real(C_DOUBLE)          :: ans
-  type(N_Vector)          :: X
-  integer(C_LONG)         :: local_length, i
-  real(C_DOUBLE), pointer :: Xdata(:)
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  integer(kind=sunindextype) :: failure
+  real(C_DOUBLE)             :: ans
+  type(N_Vector)             :: X
+  integer(kind=sunindextype) :: local_length, i
+  real(C_DOUBLE), pointer    :: Xdata(:)
 
   failure = 0
 
@@ -165,7 +176,6 @@ end function check_ans
 
 logical function has_data(X) result(failure)
   use, intrinsic :: iso_c_binding
-
   use test_utilities
   implicit none
 
@@ -175,7 +185,6 @@ logical function has_data(X) result(failure)
   xptr => FN_VGetArrayPointer(x)
   failure = associated(xptr)
 end function has_data
-
 
 program main
   !======== Inclusions ==========

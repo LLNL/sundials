@@ -38,8 +38,7 @@ endif()
 # Fortran 2003 interface is enabled.
 set(DOCSTR "Build SUNDIALS Fortran 2003 examples")
 if(BUILD_FORTRAN_MODULE_INTERFACE)
-
-  sundials_option(EXAMPLES_ENABLE_F2003 BOOL "${DOCSTR}" ON)
+  set(EXAMPLES_ENABLE_F2003 ON CACHE BOOL "${DOCSTR}")
 
   # Fortran 2003 examples only support double precision
   if(EXAMPLES_ENABLE_F2003 AND (NOT (SUNDIALS_PRECISION MATCHES "DOUBLE")))
@@ -47,14 +46,6 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
                   "Setting EXAMPLES_ENABLE_F2003 to OFF.")
     force_variable(EXAMPLES_ENABLE_F2003 BOOL "${DOCSTR}" OFF)
   endif()
-
-  # Fortran 2003 examples only support 64-bit indices
-  if(EXAMPLES_ENABLE_F2003 AND (NOT (SUNDIALS_INDEX_SIZE MATCHES "64")))
-    print_warning("F2003 examples are not compatible with ${SUNDIALS_INDEX_SIZE}-bit indices. "
-                  "Setting EXAMPLES_ENABLE_F2003 to OFF.")
-    force_variable(EXAMPLES_ENABLE_F2003 BOOL "${DOCSTR}" OFF)
-  endif()
-
 else()
 
   # set back to OFF (in case it was ON)

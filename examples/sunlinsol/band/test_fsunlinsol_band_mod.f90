@@ -20,17 +20,20 @@ module test_fsunlinsol_band
   use test_utilities
   implicit none
 
-  integer(C_LONG), parameter :: N = 10
-  integer(C_LONG), parameter :: mu = 2
-  integer(C_LONG), parameter :: ml = 3
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  integer(kind=sunindextype), parameter :: N = 10
+  integer(kind=sunindextype), parameter :: mu = 2
+  integer(kind=sunindextype), parameter :: ml = 3
 
 contains
 
   integer(C_INT) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-
-
-
     use fnvector_serial_mod
     use fsunmatrix_band_mod
     use fsunlinsol_band_mod
@@ -39,13 +42,13 @@ contains
     implicit none
 
     type(SUNLinearSolver), pointer :: LS           ! test linear solver
-    type(SUNMatrix), pointer :: A                  ! test matrices
-    type(N_Vector),  pointer :: x, y, b            ! test vectors
-    real(C_DOUBLE),  pointer :: xdata(:), Adata(:) ! data arrays
-    real(C_DOUBLE)           :: tmpr               ! temporary real value
-    integer(C_LONG)          :: j, k
-    integer(C_LONG)          :: smu, kstart, kend, offset
-    integer(C_INT)           :: tmp
+    type(SUNMatrix), pointer   :: A                  ! test matrices
+    type(N_Vector),  pointer   :: x, y, b            ! test vectors
+    real(C_DOUBLE),  pointer   :: xdata(:), Adata(:) ! data arrays
+    real(C_DOUBLE)             :: tmpr               ! temporary real value
+    integer(kind=sunindextype) :: j, k
+    integer(kind=sunindextype) :: smu, kstart, kend, offset
+    integer(C_INT)             :: tmp
 
     fails = 0
     smu = 0
@@ -121,13 +124,18 @@ end module
 
 integer(C_INT) function check_vector(X, Y, tol) result(failure)
   use, intrinsic :: iso_c_binding
-
   use test_utilities
-
   implicit none
+
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
   type(N_Vector)  :: x, y
   real(C_DOUBLE)  :: tol, maxerr
-  integer(C_LONG) :: i, xlen, ylen
+  integer(kind=sunindextype) :: i, xlen, ylen
   real(C_DOUBLE), pointer :: xdata(:), ydata(:)
 
   failure = 0

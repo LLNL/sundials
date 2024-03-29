@@ -17,14 +17,17 @@
 
 module test_fsunnonlinsol_newton
   use, intrinsic :: iso_c_binding
-
-
-
   use test_utilities
 
   implicit none
 
-  integer(C_LONG), parameter :: NEQ   = 3      ! number of equations
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  integer(kind=sunindextype), parameter :: NEQ = 3  ! number of equations
   integer(C_INT),  parameter :: MAXIT = 10     ! max nonlinear iters.
   real(C_DOUBLE),  parameter :: TOL   = 1.0e-2 ! nonlinear solver tolerance
 

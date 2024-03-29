@@ -20,7 +20,13 @@ module test_fsunmatrix_dense
   use test_utilities
   implicit none
 
-  integer(C_LONG), parameter :: N = 4
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  integer(kind=sunindextype), parameter :: N = 4
 
 contains
 
@@ -190,10 +196,16 @@ integer(C_INT) function check_matrix(A, B, tol) result(fails)
 
   implicit none
 
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
   type(SUNMatrix) :: A, B
   real(C_DOUBLE)  :: tol
   real(C_DOUBLE), pointer :: Adata(:), Bdata(:)
-  integer(C_LONG) :: Aldata, Bldata, i
+  integer(kind=sunindextype) :: Aldata, Bldata, i
 
   fails = 0
 

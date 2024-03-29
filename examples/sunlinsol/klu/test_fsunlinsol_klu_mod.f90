@@ -43,7 +43,7 @@ contains
     real(C_DOUBLE),        pointer :: colj(:)           ! matrix column data
     real(C_DOUBLE),        pointer :: xdata(:)          ! x vector data
     real(C_DOUBLE)                 :: tmpr              ! temporary real value
-    integer(C_LONG)                :: j, k, i
+    integer(kind=sunindextype)     :: j, k, i
     integer(C_INT)                 :: tmp
 
     fails = 0

@@ -23,19 +23,25 @@ module test_nvector_manyvector
   use test_utilities
   implicit none
 
-  integer(c_int), parameter  :: nsubvecs = 2
-  integer(c_long), parameter :: N1       = 100     ! individual vector length
-  integer(c_long), parameter :: N2       = 200     ! individual vector length
-  integer(c_int),  parameter :: nv       = 3       ! length of vector arrays
-  integer(c_long), parameter :: N        = N1 + N2 ! overall manyvector length
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  integer(kind=sunindextype), parameter :: nsubvecs = 2
+  integer(kind=sunindextype), parameter :: N1       = 100     ! individual vector length
+  integer(kind=sunindextype), parameter :: N2       = 200     ! individual vector length
+  integer(c_int), parameter             :: nv       = 3       ! length of vector arrays
+  integer(kind=sunindextype), parameter :: N        = N1 + N2 ! overall manyvector length
 
 contains
 
   integer function smoke_tests() result(ret)
     implicit none
 
+    integer(kind=sunindextype) :: ival                ! integer work value
     integer(c_long)         :: lenrw(1), leniw(1)     ! real and int work space size
-    integer(c_long)         :: ival                   ! integer work value
     real(c_double)          :: rval                   ! real work value
     real(c_double)          :: x1data(N1), x2data(N2) ! vector data array
     real(c_double), pointer :: xptr(:)                ! pointer to vector data array
@@ -51,7 +57,7 @@ contains
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VNew_ManyVector(int(nsubvecs,8), subvecs, sunctx)
+    x => FN_VNew_ManyVector(nsubvecs, subvecs, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_ManyVector(x)
     call FN_VConst(ONE, y)
@@ -140,7 +146,7 @@ contains
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VNew_ManyVector(int(nsubvecs,8), subvecs, sunctx)
+    x => FN_VNew_ManyVector(nsubvecs, subvecs, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
@@ -157,23 +163,28 @@ contains
 end module
 
 
-integer(C_INT) function check_ans(ans, X, local_length) result(failure)
+function check_ans(ans, X, local_length) result(failure)
   use, intrinsic :: iso_c_binding
   use fnvector_manyvector_mod
-
   use test_utilities
   implicit none
 
-  real(C_DOUBLE)          :: ans
-  type(N_Vector)          :: X
-  type(N_Vector), pointer :: X0, X1
-  integer(C_LONG)         :: local_length, i, x0len, x1len
-  real(C_DOUBLE), pointer :: x0data(:), x1data(:)
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  real(C_DOUBLE)             :: ans
+  type(N_Vector)             :: X
+  type(N_Vector), pointer    :: X0, X1
+  integer(kind=sunindextype) :: failure, local_length, i, x0len, x1len
+  real(C_DOUBLE), pointer    :: x0data(:), x1data(:)
 
   failure = 0
 
-  X0 => FN_VGetSubvector_ManyVector(X, 0_8)
-  X1 => FN_VGetSubvector_ManyVector(X, 1_8)
+  X0 => FN_VGetSubvector_ManyVector(X, 0_sunindextype)
+  X1 => FN_VGetSubvector_ManyVector(X, 1_sunindextype)
   x0len = FN_VGetLength(X0)
   x1len = FN_VGetLength(X1)
   x0data => FN_VGetArrayPointer(X0)

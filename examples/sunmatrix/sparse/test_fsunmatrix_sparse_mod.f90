@@ -20,7 +20,13 @@ module test_fsunmatrix_sparse
   use test_utilities
   implicit none
 
-  integer(C_LONG), parameter :: N = 5
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  integer(kind=sunindextype), parameter :: N = 5
 
 contains
 
@@ -37,14 +43,14 @@ contains
     implicit none
 
     ! local variables
-    type(SUNMatrix), pointer :: A, B               ! SUNMatrix
-    type(N_Vector),  pointer :: x, y               ! NVectors
-    real(C_DOUBLE),  pointer :: matdat(:)          ! matrix data pointer
-    integer(C_LONG), pointer :: inddat(:)          ! indices pointer
-    integer(C_LONG)          :: lenrw(1), leniw(1) ! matrix real and int work space size
+    type(SUNMatrix), pointer            :: A, B               ! SUNMatrix
+    type(N_Vector),  pointer            :: x, y               ! NVectors
+    real(C_DOUBLE),  pointer            :: matdat(:)          ! matrix data pointer
+    integer(kind=sunindextype), pointer :: inddat(:)          ! indices pointer
+    integer(C_LONG)                     :: lenrw(1), leniw(1) ! matrix real and int work space size
 
-    integer(C_LONG) :: tmp1
-    integer(C_INT)  :: tmp2
+    integer(kind=sunindextype) :: tmp1
+    integer(C_INT)             :: tmp2
 
     fails = 0
 
@@ -206,12 +212,18 @@ integer(C_INT) function check_matrix(A, B, tol) result(fails)
 
   implicit none
 
-  type(SUNMatrix)          :: A, B
-  real(C_DOUBLE)           :: tol
-  real(C_DOUBLE),  pointer :: Adata(:), Bdata(:)
-  integer(C_LONG), pointer :: Aidxvals(:), Bidxvals(:)
-  integer(C_LONG), pointer :: Aidxptrs(:), Bidxptrs(:)
-  integer(C_LONG)          :: i, np, Annz, Bnnz
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  type(SUNMatrix)                     :: A, B
+  real(C_DOUBLE)                      :: tol
+  real(C_DOUBLE),  pointer            :: Adata(:), Bdata(:)
+  integer(kind=sunindextype), pointer :: Aidxvals(:), Bidxvals(:)
+  integer(kind=sunindextype), pointer :: Aidxptrs(:), Bidxptrs(:)
+  integer(kind=sunindextype)          :: i, np, Annz, Bnnz
 
   fails = 0
 
@@ -292,11 +304,17 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
 
   implicit none
 
-  type(SUNMatrix)          :: A
-  real(C_DOUBLE)           :: c, tol
-  real(C_DOUBLE),  pointer :: Adata(:)
-  integer(C_LONG), pointer :: Aidxptrs(:)
-  integer(C_LONG)          :: i, np
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  type(SUNMatrix)                     :: A
+  real(C_DOUBLE)                      :: c, tol
+  real(C_DOUBLE),  pointer            :: Adata(:)
+  integer(kind=sunindextype), pointer :: Aidxptrs(:)
+  integer(kind=sunindextype)          :: i, np
 
   fails = 0
 

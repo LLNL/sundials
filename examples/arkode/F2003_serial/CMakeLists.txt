@@ -18,47 +18,44 @@
 # Example lists are tuples "name\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
-# Examples using SUNDIALS linear solvers
 set(FARKODE_examples
   "ark_analytic_f2003\;\;develop"
-  "ark_bruss_f2003\;\;develop"
-  "ark_diurnal_kry_bp_f2003\;\;develop"
-  "ark_roberts_dns_f2003\;\;develop"
-  "ark_kpr_mri_f2003\;\;develop"
-  "ark_kpr_mri_f2003\;0 0.002\;develop"
-  "ark_kpr_mri_f2003\;1 0.002\;develop"
-  "ark_kpr_mri_f2003\;2 0.005\;develop"
-  "ark_kpr_mri_f2003\;3 0.01\;develop"
-  "ark_kpr_mri_f2003\;4 0.002\;develop"
-  "ark_kpr_mri_f2003\;5 0.002\;develop"
-  "ark_kpr_mri_f2003\;6 0.005\;develop"
-  "ark_kpr_mri_f2003\;7 0.001\;develop"
-  "ark_kpr_mri_f2003\;8 0.001\;develop"
-  "ark_kpr_mri_f2003\;9 0.001\;develop"
-  )
-
-# Examples using SUNDIALS KLU interface
-if(SUNDIALS_INDEX_SIZE MATCHES "64")
-
-  set(FARKODE_examples_KLU
-    "ark_bruss1D_FEM_klu_f2003\;develop"
-    )
-
-endif()
-
-# Examples using LAPACK interface
-if(SUNDIALS_INDEX_SIZE MATCHES "64")
-
-  set(FARKODE_examples_LAPACK
-    "ark_roberts_dnsL_f2003\;\;develop"
-    )
-
-endif()
+)
 
 # Regression tests
 set(FARKODE_tests
   "test_ark_butcher_f2003\;develop"
+)
+
+if(SUNDIALS_INDEX_SIZE MATCHES "64")
+
+  # Examples using SUNDIALS linear solvers
+  list(APPEND FARKODE_examples
+    "ark_bruss_f2003\;\;develop"
+    "ark_diurnal_kry_bp_f2003\;\;develop"
+    "ark_roberts_dns_f2003\;\;develop"
+    "ark_kpr_mri_f2003\;\;develop"
+    "ark_kpr_mri_f2003\;0 0.002\;develop"
+    "ark_kpr_mri_f2003\;1 0.002\;develop"
+    "ark_kpr_mri_f2003\;2 0.005\;develop"
+    "ark_kpr_mri_f2003\;3 0.01\;develop"
+    "ark_kpr_mri_f2003\;4 0.002\;develop"
+    "ark_kpr_mri_f2003\;5 0.002\;develop"
+    "ark_kpr_mri_f2003\;6 0.005\;develop"
+    "ark_kpr_mri_f2003\;7 0.001\;develop"
+    "ark_kpr_mri_f2003\;8 0.001\;develop"
+    "ark_kpr_mri_f2003\;9 0.001\;develop"
   )
+
+  set(FARKODE_examples_KLU
+    "ark_bruss1D_FEM_klu_f2003\;develop"
+  )
+
+  set(FARKODE_examples_LAPACK
+    "ark_roberts_dnsL_f2003\;\;develop"
+  )
+
+endif()
 
 # Specify libraries to link against
 set(ARKODE_LIB sundials_arkode)

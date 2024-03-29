@@ -42,10 +42,20 @@ module advdiff_mod
   !======= Declarations =========
   implicit none
 
+  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
+  ! we set the integer kind used for indices in this example based
+  ! on the the index size SUNDIALS was compiled with so that it works
+  ! in both configurations. This is not a requirement for user codes.
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
   ! setup and number of equations
-  integer(c_int), parameter  :: mx = 10, my = 5
-  integer(c_int), parameter  :: mxmy = mx*my
-  integer(c_long), parameter :: neq = mxmy
+  integer(kind=sunindextype), parameter :: mx = 10, my = 5
+  integer(kind=sunindextype), parameter :: mxmy = mx*my
+  integer(kind=sunindextype), parameter :: neq = mxmy
 
   ! ODE constant parameters
   real(c_double), parameter :: xmax = 2.0d0, ymax = 1.0d0
@@ -61,8 +71,8 @@ module advdiff_mod
   real(c_double), parameter :: atol = 1.0d-5
 
   ! ODE non-constant parameters
-  integer(c_int) :: i, j      ! index variables
-  integer(c_int) :: mu, ml    ! band preconditioner constants
+  integer(kind=sunindextype) :: i, j   ! index variables
+  integer(kind=sunindextype) :: mu, ml ! band preconditioner constants
   real(c_double) :: x, y      ! initialization index variables
   real(c_double) :: unorm     ! solution output variable
 
@@ -277,7 +287,7 @@ program main
   end if
 
   ! Tell CVODE to use a Band linear solver.
-  sunmat_A => FSUNBandMatrix(neq, int(mu,c_long), int(ml,c_long), ctx)
+  sunmat_A => FSUNBandMatrix(neq, mu, ml, ctx)
   if (.not. associated(sunmat_A)) then
      print *, 'ERROR: sunmat = NULL'
      stop 1

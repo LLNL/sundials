@@ -40,8 +40,18 @@ module dae_mod
   !======= Declarations =========
   implicit none
 
-  integer(c_long), parameter :: neq = 3
-  integer(c_long), parameter :: nout = 12
+  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
+  ! we set the integer kind used for indices in this example based
+  ! on the the index size SUNDIALS was compiled with so that it works
+  ! in both configurations. This is not a requirement for user codes.
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
+  integer(kind=sunindextype), parameter :: neq = 3
+  integer(kind=sunindextype), parameter :: nout = 12
 
 contains
 
