@@ -90,9 +90,8 @@ The structure of this document is as follows:
   (:numref:`IDA.Mathematics.Preconditioning`) and rootfinding
   (:numref:`IDA.Mathematics.rootfinding`).
 
-* The following chapter describes the structure of the SUNDIALS suite of solvers
-  (:numref:`IDA.Organization`) and the software organization of the IDA solver
-  (:numref:`IDA.Organization.IDA`).
+* The following chapter describes the software organization of the IDA
+  solver (:numref:`IDA.Organization`).
 
 * Chapter :numref:`IDA.Usage.CC` is the main usage document for IDA for C and C++
   applications. It includes a complete description of the user interface for the

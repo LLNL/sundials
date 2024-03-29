@@ -104,9 +104,8 @@ The structure of this document is as follows:
   (:numref:`IDAS.Mathematics.Preconditioning`) and rootfinding
   (:numref:`IDAS.Mathematics.rootfinding`).
 
-* The following chapter describes the structure of the SUNDIALS suite of solvers
-  (:numref:`IDAS.Organization`) and the software organization of the IDAS solver
-  (:numref:`IDAS.Organization.IDAS`).
+* The following chapter describes the software organization of the IDAS
+  solver (:numref:`IDAS.Organization`).
 
 * Chapter :numref:`IDAS.Usage.SIM` is the main usage document for IDAS
   for simulation applications. It includes a complete description of the user

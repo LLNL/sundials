@@ -154,9 +154,8 @@ The structure of this document is as follows:
    detection (:numref:`CVODE.Mathematics.stablimit`), and rootfinding
    (:numref:`CVODE.Mathematics.rootfinding`).
 
--  The following chapter describes the structure of the SUNDIALS
-   suite of solvers (:numref:`CVODE.Organization`) and the software
-   organization of the CVODE solver (:numref:`CVODE.Organization.CVODE`).
+-  The following chapter describes the software organization of the CVODE
+   solver (:numref:`CVODE.Organization`).
 
 -  :numref:`CVODE.Usage.CC` is the main usage document
    for CVODE for C applications. It includes a complete
