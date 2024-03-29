@@ -32,7 +32,7 @@ module test_nvector_manyvector
   integer(kind=sunindextype), parameter  :: nsubvecs = 2
   integer(kind=sunindextype), parameter  :: N1       = 100     ! individual vector length
   integer(kind=sunindextype), parameter  :: N2       = 200     ! individual vector length
-  integer(kind=sunindextype),, parameter :: nv       = 3       ! length of vector arrays
+  integer(c_int), parameter              :: nv       = 3       ! length of vector arrays
   integer(kind=sunindextype), parameter  :: N        = N1 + N2 ! overall manyvector length
 
 contains
@@ -41,7 +41,7 @@ contains
     implicit none
 
     integer(kind=sunindextype) :: ival                ! integer work value
-    integer(c_long)         :: lenrw(1), leniw(1)     ! real and int work space size
+    integer(kind=sunindextype) :: lenrw(1), leniw(1)  ! real and int work space size
     real(c_double)          :: rval                   ! real work value
     real(c_double)          :: x1data(N1), x2data(N2) ! vector data array
     real(c_double), pointer :: xptr(:)                ! pointer to vector data array
@@ -53,9 +53,9 @@ contains
     !===== Setup ====
     subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
     tmp  => FN_VMake_Serial(N1, x1data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 0_sunindextype, tmp)
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 1_sunindextype, tmp)
 
     x => FN_VNew_ManyVector(nsubvecs, subvecs, sunctx)
     call FN_VConst(ONE, x)
@@ -64,8 +64,8 @@ contains
     z => FN_VClone_ManyVector(x)
     call FN_VConst(ONE, z)
 
-    xvecs = FN_VCloneVectorArray(nv, x)
-    zvecs = FN_VCloneVectorArray(nv, z)
+    xvecs = FN_VCloneVectorArray(int(nv,sunindextype), x)
+    zvecs = FN_VCloneVectorArray(int(nv,sunindextype), z)
     nvarr = (/ ONE, ONE, ONE /)
 
     !===== Test =====
@@ -121,8 +121,8 @@ contains
     call FN_VDestroy_ManyVector(x)
     call FN_VDestroy_ManyVector(y)
     call FN_VDestroy_ManyVector(z)
-    call FN_VDestroyVectorArray(xvecs, nv)
-    call FN_VDestroyVectorArray(zvecs, nv)
+    call FN_VDestroyVectorArray(xvecs, int(nv,sunindextype))
+    call FN_VDestroyVectorArray(zvecs, int(nv,sunindextype))
 
     ret = 0
 
@@ -140,11 +140,11 @@ contains
     !===== Setup ====
     fails = 0
 
-    subvecs = FN_VNewVectorArray(int(nsubvecs, 4), sunctx)
+    subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
     tmp  => FN_VMake_Serial(N1, x1data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 0_sunindextype, tmp)
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 1_sunindextype, tmp)
 
     x => FN_VNew_ManyVector(nsubvecs, subvecs, sunctx)
     call FN_VConst(ONE, x)
@@ -155,7 +155,7 @@ contains
     fails = Test_FN_VLinearCombination(x, N, 0)
 
     !=== cleanup ====
-    call FN_VDestroyVectorArray(subvecs, int(nsubvecs, 4))
+    call FN_VDestroyVectorArray(subvecs, nsubvecs)
     call FN_VDestroy_ManyVector(x)
 
   end function unit_tests

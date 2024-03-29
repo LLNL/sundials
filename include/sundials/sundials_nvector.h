@@ -324,14 +324,14 @@ SUNDIALS_EXPORT SUNErrCode N_VBufUnpack(N_Vector x, void* buf);
  * Additional functions exported by NVECTOR module
  * ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT N_Vector* N_VNewVectorArray(int count, SUNContext sunctx);
-SUNDIALS_EXPORT N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w);
-SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray(int count, N_Vector w);
-SUNDIALS_EXPORT void N_VDestroyVectorArray(N_Vector* vs, int count);
+SUNDIALS_EXPORT N_Vector* N_VNewVectorArray(sunindextype count, SUNContext sunctx);
+SUNDIALS_EXPORT N_Vector* N_VCloneEmptyVectorArray(sunindextype count, N_Vector w);
+SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray(sunindextype count, N_Vector w);
+SUNDIALS_EXPORT void N_VDestroyVectorArray(N_Vector* vs, sunindextype count);
 
 /* These function are really only for users of the Fortran interface */
-SUNDIALS_EXPORT N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index);
-SUNDIALS_EXPORT void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index,
+SUNDIALS_EXPORT N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, sunindextype index);
+SUNDIALS_EXPORT void N_VSetVecAtIndexVectorArray(N_Vector* vs, sunindextype index,
                                                  N_Vector w);
 
 /* -----------------------------------------------------------------

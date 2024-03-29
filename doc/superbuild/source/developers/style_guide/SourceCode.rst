@@ -171,6 +171,9 @@ C++ private class members should use snake case with a trailing underscore
 Coding Conventions and Rules
 ============================
 
+These rules should be followed for all new code. Unfortunately, old code might
+not adhere to all of these rules.
+
 #. Do not use language features that are not compatible with C99, C++14,
    and MSVC v1900+ (Visual Studio 2015). Examples of such features include
    variable-length arrays. Exceptions are allowed when interfacing with a
@@ -331,6 +334,17 @@ Coding Conventions and Rules
 #. Return statements should not unnecessarily use parentheses. Prefer ``return
    x;`` to ``return(x);``. Note, however, lots of older SUNDIALS source code
    uses ``return(x);``.
+
+#. Always use ``sunindextype`` for variables that are related to problem dimensions.
+   E.g., use it for the length of a vector, dimensions of a matrix, or for the number of vectors.
+   The only exception is when interfacing with a third party library requires a different
+   variable type.
+
+#. Conversely, never use ``sunindextype`` for variables that are not specifically related to
+   the dimensions of a vector, matrix, etc.. E.g., if you have a variable that
+   represents the number of integer "words" allocated in a workspace do not use
+   ``sunindextype`` for it. Instead use the appropriate integer type (e.g., ``uint64_t``) directly.
+   Do not use ``sunindextype`` for counters either.
 
 
 .. _Style.Formatting:

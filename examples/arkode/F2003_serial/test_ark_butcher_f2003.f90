@@ -16,6 +16,12 @@
 
 module test_arkode_butcher_table
 
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: sunindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: sunindextype = selected_int_kind(16)
+#endif
+
   contains
 
   integer function smoke_tests() result(ret)
@@ -27,9 +33,9 @@ module test_arkode_butcher_table
     !======== Declarations ========
     implicit none
     type(c_ptr) :: ERK, DIRK
-    integer(C_INT)  :: ierr, q(1), p(1)
-    integer(C_LONG) :: liw(1), lrw(1)
-    real(C_DOUBLE)  :: b(2), c(2), d(2), A(4)
+    integer(C_INT) :: ierr, q(1), p(1)
+    integer(kind=sunindextype) :: liw(1), lrw(1)
+    real(C_DOUBLE) :: b(2), c(2), d(2), A(4)
 
     !===== Setup ====
 

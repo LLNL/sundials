@@ -29,21 +29,21 @@ module test_nvector_serial
 #endif
 
   integer(kind=sunindextype), parameter :: N = 100 ! vector length
-  integer(kind=sunindextype), parameter :: nv = 3  ! length of vector arrays
+  integer(c_int), parameter :: nv = 3 ! length of vector arrays
 
 contains
 
   integer function smoke_tests() result(ret)
     implicit none
 
-    integer(c_long)         :: lenrw(1), leniw(1) ! real and int work space size
-    integer(c_long)         :: ival               ! integer work value
-    real(c_double)          :: rval               ! real work value
-    real(c_double)          :: xdata(N)           ! vector data array
-    real(c_double), pointer :: xptr(:)            ! pointer to vector data array
-    real(c_double)          :: nvarr(nv)          ! array of nv constants to go with vector array
-    type(N_Vector), pointer :: x, y, z, tmp       ! N_Vectors
-    type(c_ptr)             :: xvecs, zvecs       ! C pointer to array of C pointers to N_Vectors
+    integer(kind=sunindextype) :: lenrw(1), leniw(1) ! real and int work space size
+    integer(c_long)            :: ival               ! integer work value
+    real(c_double)             :: rval               ! real work value
+    real(c_double)             :: xdata(N)           ! vector data array
+    real(c_double), pointer    :: xptr(:)            ! pointer to vector data array
+    real(c_double)             :: nvarr(nv)          ! array of nv constants to go with vector array
+    type(N_Vector), pointer    :: x, y, z, tmp       ! N_Vectors
+    type(c_ptr)                :: xvecs, zvecs       ! C pointer to array of C pointers to N_Vectors
 
     !===== Setup ====
     x => FN_VMake_Serial(N, xdata, sunctx)
@@ -53,8 +53,8 @@ contains
     z => FN_VClone_Serial(x)
     call FN_VConst(ONE, z)
 
-    xvecs = FN_VCloneVectorArray(nv, x)
-    zvecs = FN_VCloneVectorArray(nv, z)
+    xvecs = FN_VCloneVectorArray(int(nv,sunindextype), x)
+    zvecs = FN_VCloneVectorArray(int(nv,sunindextype), z)
     nvarr = (/ ONE, ONE, ONE /)
 
     !===== Test =====
@@ -114,8 +114,8 @@ contains
     call FN_VDestroy_Serial(x)
     call FN_VDestroy_Serial(y)
     call FN_VDestroy_Serial(z)
-    call FN_VDestroyVectorArray(xvecs, nv)
-    call FN_VDestroyVectorArray(zvecs, nv)
+    call FN_VDestroyVectorArray(xvecs, int(nv,sunindextype))
+    call FN_VDestroyVectorArray(zvecs, int(nv,sunindextype))
 
     ret = 0
 
