@@ -185,7 +185,7 @@ The functions :c:func:`N_VCloneVectorArray` and
 variables of type :c:type:`N_Vector`, each of the same type as an existing
 ``N_Vector`` input:
 
-.. c:function:: N_Vector *N_VCloneVectorArray(int count, N_Vector w)
+.. c:function:: N_Vector *N_VCloneVectorArray(sunindextype count, N_Vector w)
 
    Clones an array of ``count``  ``N_Vector`` objects, allocating their data arrays (similar to :c:func:`N_VClone`).
 
@@ -198,7 +198,7 @@ variables of type :c:type:`N_Vector`, each of the same type as an existing
       * ``NULL`` pointer on failure.
 
 
-.. c:function:: N_Vector *N_VCloneVectorArrayEmpty(int count, N_Vector w)
+.. c:function:: N_Vector *N_VCloneVectorArrayEmpty(sunindextype count, N_Vector w)
 
    Clones an array of ``count``  ``N_Vector`` objects, leaving their data arrays unallocated (similar to :c:func:`N_VCloneEmpty`).
 
@@ -215,7 +215,7 @@ An array of variables of type :c:type:`N_Vector` can be destroyed
 by calling :c:func:`N_VDestroyVectorArray`:
 
 
-.. c:function:: void N_VDestroyVectorArray(N_Vector *vs, int count)
+.. c:function:: void N_VDestroyVectorArray(N_Vector *vs, sunindextype count)
 
    Destroys an array of ``count``  ``N_Vector`` objects.
 
@@ -243,7 +243,7 @@ that are wrapped as ``FN_NewVectorArray``, ``FN_VGetVecAtIndexVectorArray``, and
 set a vector within this array:
 
 
-.. c:function:: N_Vector *N_VNewVectorArray(int count, SUNContext sunctx)
+.. c:function:: N_Vector *N_VNewVectorArray(sunindextype count, SUNContext sunctx)
 
    Creates an array of ``count``  ``N_Vector`` objects, the pointers to each
    are initialized as ``NULL``.
@@ -261,7 +261,7 @@ set a vector within this array:
       The function signature was updated to add the ``SUNContext`` argument.
 
 
-.. c:function:: N_Vector *N_VGetVecAtIndexVectorArray(N_Vector* vs, int index)
+.. c:function:: N_Vector *N_VGetVecAtIndexVectorArray(N_Vector* vs, sunindextype index)
 
    Accesses the ``N_Vector`` at the location ``index`` within the ``N_Vector`` array ``vs``.
 
@@ -279,7 +279,7 @@ set a vector within this array:
       internally store its allocated length.
 
 
-.. c:function:: void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w)
+.. c:function:: void N_VSetVecAtIndexVectorArray(N_Vector* vs, sunindextype index, N_Vector w)
 
    Sets a pointer to ``w`` at the location ``index`` within the vector array ``vs``.
 

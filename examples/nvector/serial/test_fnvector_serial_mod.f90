@@ -29,7 +29,7 @@ module test_nvector_serial
 #endif
 
   integer(kind=sunindextype), parameter :: N = 100 ! vector length
-  integer(c_int),  parameter :: nv = 3 ! length of vector arrays
+  integer(kind=sunindextype), parameter :: nv = 3  ! length of vector arrays
 
 contains
 

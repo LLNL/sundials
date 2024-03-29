@@ -224,15 +224,15 @@ SWIGEXPORT SUNNonlinearSolver _wrap_FSUNNonlinSol_FixedPoint(N_Vector farg1, int
 }
 
 
-SWIGEXPORT SUNNonlinearSolver _wrap_FSUNNonlinSol_FixedPointSens(int const *farg1, N_Vector farg2, int const *farg3, void *farg4) {
+SWIGEXPORT SUNNonlinearSolver _wrap_FSUNNonlinSol_FixedPointSens(int64_t const *farg1, N_Vector farg2, int const *farg3, void *farg4) {
   SUNNonlinearSolver fresult ;
-  int arg1 ;
+  sunindextype arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   int arg3 ;
   SUNContext arg4 = (SUNContext) 0 ;
   SUNNonlinearSolver result;
   
-  arg1 = (int)(*farg1);
+  arg1 = (sunindextype)(*farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (int)(*farg3);
   arg4 = (SUNContext)(farg4);

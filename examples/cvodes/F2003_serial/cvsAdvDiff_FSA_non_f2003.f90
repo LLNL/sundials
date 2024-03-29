@@ -67,7 +67,7 @@ module ode_problem
   real(c_double),  parameter :: ATOL  = 1e-5
   integer(c_int),  parameter :: NOUT  = 10
   integer(c_int),  parameter :: NP    = 2
-  integer(c_int),  parameter :: NS    = 2
+  integer(c_int64_t), parameter :: NS = 2
   integer(c_long), parameter :: MX    = 10
   integer(c_long), parameter :: NEQ   = MX
 
@@ -199,7 +199,7 @@ program main
   type(SUNNonlinearSolver), pointer :: NLSsens => null()
   integer(c_int)                    :: iout, retval
   real(c_double)                    :: reltol, abstol, tout, t(1)
-  integer(c_int)                    :: is
+  integer(c_int64_t)                :: is
   real(c_double)                    :: pbar(0:NS-1)
   integer(c_int)                    :: plist(0:NS-1)
 
@@ -282,7 +282,7 @@ program main
       call FN_VConst(ZERO, uiS)
     end do
 
-    retval = FCVodeSensInit1(cvodes_mem, NS, sensi_meth, c_null_funptr, uS)
+    retval = FCVodeSensInit1(cvodes_mem, int(NS, 4), sensi_meth, c_null_funptr, uS)
     call check_retval(retval, "FCVodeSensInit1")
 
     retval = FCVodeSensEEtolerances(cvodes_mem)
@@ -499,10 +499,10 @@ subroutine PrintOutputS(uS)
   type(N_Vector), pointer :: uiS
   real(c_double)          :: norm
 
-  uiS => FN_VGetVecAtIndexVectorArray(uS, 0)
+  uiS => FN_VGetVecAtIndexVectorArray(uS, 0_8)
   norm = FN_VMaxNorm(uiS)
   write(*,'(1x,A,es12.4)') "                                Sensitivity 1   ", norm
-  uiS => FN_VGetVecAtIndexVectorArray(uS, 1)
+  uiS => FN_VGetVecAtIndexVectorArray(uS, 1_8)
   norm = FN_VMaxNorm(uiS)
   write(*,'(1x,A,es12.4)') "                                Sensitivity 2   ", norm
 

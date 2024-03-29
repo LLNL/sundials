@@ -102,7 +102,7 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m, SUNContext sunctx)
   Constructor wrapper to create a new fixed point solver for sensitivity solvers
   ============================================================================*/
 
-SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m,
+SUNNonlinearSolver SUNNonlinSol_FixedPointSens(sunindextype count, N_Vector y, int m,
                                                SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);

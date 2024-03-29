@@ -29,11 +29,11 @@ module test_nvector_manyvector
   integer, parameter :: sunindextype = selected_int_kind(16)
 #endif
 
-  integer(kind=sunindextype), parameter :: nsubvecs = 2
-  integer(kind=sunindextype), parameter :: N1       = 100     ! individual vector length
-  integer(kind=sunindextype), parameter :: N2       = 200     ! individual vector length
-  integer(c_int), parameter             :: nv       = 3       ! length of vector arrays
-  integer(kind=sunindextype), parameter :: N        = N1 + N2 ! overall manyvector length
+  integer(kind=sunindextype), parameter  :: nsubvecs = 2
+  integer(kind=sunindextype), parameter  :: N1       = 100     ! individual vector length
+  integer(kind=sunindextype), parameter  :: N2       = 200     ! individual vector length
+  integer(kind=sunindextype),, parameter :: nv       = 3       ! length of vector arrays
+  integer(kind=sunindextype), parameter  :: N        = N1 + N2 ! overall manyvector length
 
 contains
 
@@ -140,7 +140,7 @@ contains
     !===== Setup ====
     fails = 0
 
-    subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
+    subvecs = FN_VNewVectorArray(int(nsubvecs, 4), sunctx)
     tmp  => FN_VMake_Serial(N1, x1data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
@@ -155,7 +155,7 @@ contains
     fails = Test_FN_VLinearCombination(x, N, 0)
 
     !=== cleanup ====
-    call FN_VDestroyVectorArray(subvecs, nsubvecs)
+    call FN_VDestroyVectorArray(subvecs, int(nsubvecs, 4))
     call FN_VDestroy_ManyVector(x)
 
   end function unit_tests
