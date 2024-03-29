@@ -56,7 +56,7 @@
 #ifdef GENERATE_INT32
 %apply int[] { sunindextype* };
 #else
-%apply long int[] { sunindextype* };
+%apply long long[] { sunindextype* };
 #endif
 
 // Assume int* is an array of integers
