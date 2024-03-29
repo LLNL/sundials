@@ -88,6 +88,7 @@ set(sundials_SOURCES
   sundials_dense.c
   sundials_direct.c
   sundials_errors.c
+  sundials_hashmap.c
   sundials_iterative.c
   sundials_linearsolver.c
   sundials_logger.c
