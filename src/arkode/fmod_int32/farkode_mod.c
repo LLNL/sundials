@@ -688,14 +688,14 @@ SWIGEXPORT void * _wrap_FARKodeButcherTable_Copy(void *farg1) {
 }
 
 
-SWIGEXPORT void _wrap_FARKodeButcherTable_Space(void *farg1, long *farg2, long *farg3) {
+SWIGEXPORT void _wrap_FARKodeButcherTable_Space(void *farg1, int32_t *farg2, int32_t *farg3) {
   ARKodeButcherTable arg1 = (ARKodeButcherTable) 0 ;
-  long *arg2 = (long *) 0 ;
-  long *arg3 = (long *) 0 ;
+  sunindextype *arg2 = (sunindextype *) 0 ;
+  sunindextype *arg3 = (sunindextype *) 0 ;
   
   arg1 = (ARKodeButcherTable)(farg1);
-  arg2 = (long *)(farg2);
-  arg3 = (long *)(farg3);
+  arg2 = (sunindextype *)(farg2);
+  arg3 = (sunindextype *)(farg3);
   ARKodeButcherTable_Space(arg1,arg2,arg3);
 }
 
@@ -1019,14 +1019,14 @@ SWIGEXPORT void _wrap_FARKodeSPRKTable_Write(void *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT void _wrap_FARKodeSPRKTable_Space(void *farg1, long *farg2, long *farg3) {
+SWIGEXPORT void _wrap_FARKodeSPRKTable_Space(void *farg1, int32_t *farg2, int32_t *farg3) {
   ARKodeSPRKTable arg1 = (ARKodeSPRKTable) 0 ;
-  long *arg2 = (long *) 0 ;
-  long *arg3 = (long *) 0 ;
+  sunindextype *arg2 = (sunindextype *) 0 ;
+  sunindextype *arg3 = (sunindextype *) 0 ;
   
   arg1 = (ARKodeSPRKTable)(farg1);
-  arg2 = (long *)(farg2);
-  arg3 = (long *)(farg3);
+  arg2 = (sunindextype *)(farg2);
+  arg3 = (sunindextype *)(farg3);
   ARKodeSPRKTable_Space(arg1,arg2,arg3);
 }
 

@@ -870,8 +870,8 @@ end subroutine
 subroutine FN_VSpace_MPIManyVector(v, lrw, liw)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), target, intent(inout) :: v
-integer(C_LONG), dimension(*), target, intent(inout) :: lrw
-integer(C_LONG), dimension(*), target, intent(inout) :: liw
+integer(C_INT32_T), dimension(*), target, intent(inout) :: lrw
+integer(C_INT32_T), dimension(*), target, intent(inout) :: liw
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 

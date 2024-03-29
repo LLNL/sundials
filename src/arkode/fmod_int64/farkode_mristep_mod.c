@@ -599,14 +599,14 @@ SWIGEXPORT void * _wrap_FMRIStepCoupling_Copy(void *farg1) {
 }
 
 
-SWIGEXPORT void _wrap_FMRIStepCoupling_Space(void *farg1, long *farg2, long *farg3) {
+SWIGEXPORT void _wrap_FMRIStepCoupling_Space(void *farg1, int64_t *farg2, int64_t *farg3) {
   MRIStepCoupling arg1 = (MRIStepCoupling) 0 ;
-  long *arg2 = (long *) 0 ;
-  long *arg3 = (long *) 0 ;
+  sunindextype *arg2 = (sunindextype *) 0 ;
+  sunindextype *arg3 = (sunindextype *) 0 ;
   
   arg1 = (MRIStepCoupling)(farg1);
-  arg2 = (long *)(farg2);
-  arg3 = (long *)(farg3);
+  arg2 = (sunindextype *)(farg2);
+  arg3 = (sunindextype *)(farg3);
   MRIStepCoupling_Space(arg1,arg2,arg3);
 }
 
