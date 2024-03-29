@@ -27,7 +27,6 @@ meant for SUNDIALS developers.
    History
    getting_started/index
    style_guide/index
-   development/index
    testing/index
    benchmarks/index
    pull_requests/index
