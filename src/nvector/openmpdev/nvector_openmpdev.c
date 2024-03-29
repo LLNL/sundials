@@ -502,7 +502,7 @@ void N_VDestroy_OpenMPDEV(N_Vector v)
  * Get storage requirement for N_Vector
  */
 
-void N_VSpace_OpenMPDEV(N_Vector v, sunindextype* lrw, sunindextype* liw)
+void N_VSpace_OpenMPDEV(N_Vector v, long int* lrw, long int* liw)
 {
   *lrw = NV_LENGTH_OMPDEV(v);
   *liw = 1;

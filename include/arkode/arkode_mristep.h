@@ -113,7 +113,7 @@ SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B,
                                                          int q, int p);
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Copy(MRIStepCoupling MRIC);
 SUNDIALS_EXPORT void MRIStepCoupling_Space(MRIStepCoupling MRIC,
-                                           sunindextype* liw, sunindextype* lrw);
+                                           long int* liw, long int* lrw);
 SUNDIALS_EXPORT void MRIStepCoupling_Free(MRIStepCoupling MRIC);
 SUNDIALS_EXPORT void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile);
 

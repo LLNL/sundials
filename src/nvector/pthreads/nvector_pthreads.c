@@ -465,7 +465,7 @@ void N_VDestroy_Pthreads(N_Vector v)
  * Get storage requirement for vector
  */
 
-void N_VSpace_Pthreads(N_Vector v, sunindextype* lrw, sunindextype* liw)
+void N_VSpace_Pthreads(N_Vector v, long int* lrw, long int* liw)
 {
   SUNFunctionBegin(v->sunctx);
 

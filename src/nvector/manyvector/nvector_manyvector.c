@@ -569,10 +569,11 @@ void MVAPPEND(N_VDestroy)(N_Vector v)
 
 /* Returns the space requirements for the ManyVector, by accumulating this
    information from all subvectors. */
-void MVAPPEND(N_VSpace)(N_Vector v, sunindextype* lrw, sunindextype* liw)
+void MVAPPEND(N_VSpace)(N_Vector v, long int* lrw, long int* liw)
 {
   SUNFunctionBegin(v->sunctx);
-  sunindextype i, lrw1, liw1;
+  sunindextype i;
+  long int lrw1, liw1;
   *lrw = 0;
   *liw = 0;
   for (i = 0; i < MANYVECTOR_NUM_SUBVECS(v); i++)
