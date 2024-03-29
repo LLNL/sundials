@@ -94,8 +94,8 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_ParHyp(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_ParHyp(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_ParHyp(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, long int* lrw,
-                                     long int* liw);
+SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, sunindextype* lrw,
+                                     sunindextype* liw);
 SUNDIALS_EXPORT sunrealtype* N_VGetArrayPointer_ParHyp(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(sunrealtype* v_data, N_Vector v);
 SUNDIALS_EXPORT MPI_Comm N_VGetCommunicator_ParHyp(N_Vector v);
