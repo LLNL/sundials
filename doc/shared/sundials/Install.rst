@@ -639,6 +639,17 @@ illustration only.
       Error checks will impact performance, but can be helpful for debugging.
 
 
+.. cmakeoption:: SUNDIALS_ENABLE_EXTERNAL_ADDONS
+
+   Build SUNDIALS with any external addons that you have put in ``sundials/external``.
+
+   Default: ``OFF``
+
+   .. warning::
+
+      Addons are not maintained by the SUNDIALS team. Use at your own risk.
+
+
 .. cmakeoption:: ENABLE_GINKGO
 
    Enable interfaces to the Ginkgo linear algebra library.
@@ -2177,3 +2188,26 @@ The following command builds and installs SUNDIALS with MPI, HIP, and the Fortra
    salloc -A <account> -t 10 -N 1 -p batch
    make test
    make test_install_all
+
+
+Building with SUNDIALS Addons
+-----------------------------
+
+SUNDIALS "addons" are community developed code additions for SUNDIALS that can be subsumed by the
+SUNDIALS build system so that they have full access to all internal SUNDIALS symbols. The intent is
+for SUNDIALS addons to function as if they are part of the SUNDIALS library, while allowing them to
+potentially have different licenses (although we encourage BSD-3-Clause still), code style (although
+we encourage them to follow the SUNDIALS style outlined :ref:`here <Style>`).
+
+.. warning::
+
+   SUNDIALS addons are not maintained by the SUNDIALS team and may come with different
+   licenses. Use them at your own risk.
+
+To build with SUNDIALS addons,
+
+1. Clone/copy the addon(s) into ``<sundials root>/external/``
+2. Copy the ``sundials-addon-example`` block in the ``<sundials root>/external/CMakeLists.txt``,
+   paste it below the example block, and modify the path listed for your own external addon(s).
+3. When building SUNDIALS, set the CMake option :cmakeop:`SUNDIALS_ENABLE_EXTERNAL_ADDONS` to ON
+4. Build SUNDIALS as usual.

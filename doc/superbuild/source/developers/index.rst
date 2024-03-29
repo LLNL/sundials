@@ -12,9 +12,11 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-****************
-Developers Guide
-****************
+.. _Developer:
+
+***************
+Developer Guide
+***************
 
 The SUite of Nonlinear and DIfferential/ALgebraic equation Solvers (SUNDIALS) consists of the time
 integration packages CVODE, IDA, and ARKODE, the sensitivity analysis enabled variants CVODES and

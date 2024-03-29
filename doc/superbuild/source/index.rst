@@ -184,6 +184,7 @@ SUNDIALS License and Notices
    :hidden:
 
    developers/index.rst
+   contributing/index.rst
 
 .. toctree::
    :caption: REFERENCES
