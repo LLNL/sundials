@@ -115,9 +115,8 @@ The structure of this document is as follows:
 -  In Chapter :numref:`KINSOL.Mathematics`, we provide short descriptions of the numerical methods implemented by KINSOL
    for the solution of nonlinear systems.
 
--  The following chapter describes the structure of the SUNDIALS suite of solvers
-   (:numref:`KINSOL.Organization`) and the software organization of the KINSOL solver
-   (:numref:`KINSOL.Organization.KINSOL`).
+-  The following chapter describes the software organization of the KINSOL
+   solver (:numref:`KINSOL.Organization`).
 
 -  Chapter :numref:KINSOL.Usage.CC is the main usage document for KINSOL for C applications. It includes a
    complete description of the user interface for the solution of nonlinear algebraic systems.

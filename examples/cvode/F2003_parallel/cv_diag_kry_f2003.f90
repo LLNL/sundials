@@ -319,7 +319,7 @@ program driver
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FCVodeSetPreconditioner(cvode_mem, c_null_ptr, c_funloc(Psolve))
+  retval = FCVodeSetPreconditioner(cvode_mem, c_null_funptr, c_funloc(Psolve))
   if (retval /= 0) then
      print *, "Error: FCVodeSetPreconditioner returned ", retval
      call MPI_Abort(comm, 1, ierr)
