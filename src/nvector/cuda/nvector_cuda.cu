@@ -750,7 +750,7 @@ void N_VDestroy_Cuda(N_Vector v)
   return;
 }
 
-void N_VSpace_Cuda(N_Vector X, long int* lrw, long int* liw)
+void N_VSpace_Cuda(N_Vector X, sunindextype* lrw, sunindextype* liw)
 {
   *lrw = NVEC_CUDA_CONTENT(X)->length;
   *liw = 2;

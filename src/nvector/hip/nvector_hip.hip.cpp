@@ -716,7 +716,7 @@ void N_VDestroy_Hip(N_Vector v)
   return;
 }
 
-void N_VSpace_Hip(N_Vector X, long int* lrw, long int* liw)
+void N_VSpace_Hip(N_Vector X, sunindextype* lrw, sunindextype* liw)
 {
   *lrw = NVEC_HIP_CONTENT(X)->length;
   *liw = 2;
