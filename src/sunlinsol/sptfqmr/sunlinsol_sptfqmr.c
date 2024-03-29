@@ -947,7 +947,7 @@ SUNErrCode SUNLinSolSpace_SPTFQMR(SUNLinearSolver S, long int* lenrwLS,
                                   long int* leniwLS)
 {
   SUNFunctionBegin(S->sunctx);
-  long int liw1, lrw1;
+  sunindextype liw1, lrw1;
   if (SPTFQMR_CONTENT(S)->vtemp1->ops->nvspace)
   {
     N_VSpace(SPTFQMR_CONTENT(S)->vtemp1, &lrw1, &liw1);

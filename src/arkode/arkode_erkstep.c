@@ -142,7 +142,7 @@ int ERKStepResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  long int lrw1, liw1, lrw_diff, liw_diff;
+  sunindextype lrw1, liw1, lrw_diff, liw_diff;
   int i, retval;
 
   /* access ARKodeERKStepMem structure */

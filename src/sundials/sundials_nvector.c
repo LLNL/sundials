@@ -327,7 +327,7 @@ void N_VDestroy(N_Vector v)
   return;
 }
 
-void N_VSpace(N_Vector v, long int* lrw, long int* liw)
+void N_VSpace(N_Vector v, sunindextype* lrw, sunindextype* liw)
 {
   v->ops->nvspace(v, lrw, liw);
   return;
@@ -998,7 +998,7 @@ SUNErrCode N_VBufUnpack(N_Vector x, void* buf)
  *   N_VDestroyVectorArray
  * -----------------------------------------------------------------*/
 
-N_Vector* N_VNewVectorArray(sunindextype count, SUNContext sunctx)
+N_Vector* N_VNewVectorArray(int count, SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   N_Vector* vs = NULL;
@@ -1007,7 +1007,7 @@ N_Vector* N_VNewVectorArray(sunindextype count, SUNContext sunctx)
   return vs;
 }
 
-N_Vector* N_VCloneEmptyVectorArray(sunindextype count, N_Vector w)
+N_Vector* N_VCloneEmptyVectorArray(int count, N_Vector w)
 {
   SUNFunctionBegin(w->sunctx);
   N_Vector* vs = NULL;
@@ -1032,7 +1032,7 @@ N_Vector* N_VCloneEmptyVectorArray(sunindextype count, N_Vector w)
   return (vs);
 }
 
-N_Vector* N_VCloneVectorArray(sunindextype count, N_Vector w)
+N_Vector* N_VCloneVectorArray(int count, N_Vector w)
 {
   SUNFunctionBegin(w->sunctx);
   int j;
@@ -1057,7 +1057,7 @@ N_Vector* N_VCloneVectorArray(sunindextype count, N_Vector w)
   return (vs);
 }
 
-void N_VDestroyVectorArray(N_Vector* vs, sunindextype count)
+void N_VDestroyVectorArray(N_Vector* vs, int count)
 {
   int j;
 
@@ -1076,14 +1076,14 @@ void N_VDestroyVectorArray(N_Vector* vs, sunindextype count)
 }
 
 /* These function are really only for users of the Fortran interface */
-N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, sunindextype index)
+N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index)
 {
   SUNFunctionBegin(vs[0]->sunctx);
   SUNAssertNull(index >= 0, SUN_ERR_ARG_OUTOFRANGE);
   return vs[index];
 }
 
-void N_VSetVecAtIndexVectorArray(N_Vector* vs, sunindextype index, N_Vector w)
+void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index, N_Vector w)
 {
   SUNFunctionBegin(w->sunctx);
   SUNAssertVoid(index >= 0, SUN_ERR_ARG_OUTOFRANGE);

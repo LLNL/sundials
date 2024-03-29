@@ -240,7 +240,7 @@ int ARKStepResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   SUNNonlinearSolver NLS;
-  long int lrw1, liw1, lrw_diff, liw_diff;
+  sunindextype lrw1, liw1, lrw_diff, liw_diff;
   int i, retval;
 
   /* access ARKodeARKStepMem structure */
@@ -2243,7 +2243,7 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
 {
   int etable, itable;
   ARKodeARKStepMem step_mem;
-  long int Blrw, Bliw;
+  sunindextype Blrw, Bliw;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem == NULL)

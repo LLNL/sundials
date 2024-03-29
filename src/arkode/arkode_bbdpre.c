@@ -56,8 +56,7 @@ int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq,
   ARKodeMem ark_mem;
   ARKLsMem arkls_mem;
   ARKBBDPrecData pdata;
-  sunindextype muk, mlk, storage_mu;
-  long int lrw1, liw1;
+  sunindextype muk, mlk, storage_mu, lrw1, liw1;
   long int lrw, liw;
   int retval;
 

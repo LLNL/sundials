@@ -382,7 +382,7 @@ int CVodeInit(void* cvode_mem, CVRhsFn f, sunrealtype t0, N_Vector y0)
 {
   CVodeMem cv_mem;
   sunbooleantype nvectorOK, allocOK;
-  long int lrw1, liw1;
+  sunindextype lrw1, liw1;
   int i, k, retval;
   SUNNonlinearSolver NLS;
 
