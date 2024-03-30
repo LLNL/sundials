@@ -133,6 +133,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   {
     arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Allocation of step adaptivity structure failed");
+    free(ark_mem);
     return (NULL);
   }
   ark_mem->lrw += ARK_ADAPT_LRW;
@@ -144,6 +145,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   {
     arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Allocation of step controller object failed");
+    free(ark_mem);
     return (NULL);
   }
   ark_mem->hadapt_mem->owncontroller = SUNTRUE;
@@ -180,6 +182,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   {
     arkProcessError(NULL, 0, __LINE__, __func__, __FILE__,
                     "Error setting default solver options");
+    free(ark_mem);
     return (NULL);
   }
 
