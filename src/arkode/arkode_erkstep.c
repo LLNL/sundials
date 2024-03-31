@@ -85,6 +85,7 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_ARK_ARKMEM_FAIL);
+    ERKStepFree((void**)&ark_mem);
     return (NULL);
   }
   memset(step_mem, 0, sizeof(struct ARKodeERKStepMemRec));
@@ -101,6 +102,7 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Error setting default solver options");
+    ERKStepFree((void**)&ark_mem);
     return (NULL);
   }
 
@@ -124,6 +126,7 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to initialize main ARKODE infrastructure");
+    ERKStepFree((void**)&ark_mem);
     return (NULL);
   }
 
