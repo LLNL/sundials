@@ -185,12 +185,12 @@ SUNErrCode SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_SPGMR(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_SPGMR(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_ITERATIVE);
 }
 
-SUNLinearSolver_ID SUNLinSolGetID_SPGMR(SUNLinearSolver S)
+SUNLinearSolver_ID SUNLinSolGetID_SPGMR(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_SPGMR);
 }
@@ -317,7 +317,7 @@ SUNErrCode SUNLinSolSetZeroGuess_SPGMR(SUNLinearSolver S, sunbooleantype onff)
   return SUN_SUCCESS;
 }
 
-int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A)
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -344,8 +344,8 @@ int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A)
   return SUN_SUCCESS;
 }
 
-int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
-                         sunrealtype delta)
+int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
+                         N_Vector x, N_Vector b, sunrealtype delta)
 {
   SUNFunctionBegin(S->sunctx);
 

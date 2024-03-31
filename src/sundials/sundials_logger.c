@@ -84,7 +84,8 @@ static void sunCloseLogFile(void* fp)
   if (fp && fp != stdout && fp != stderr) { fclose((FILE*)fp); }
 }
 
-static sunbooleantype sunLoggerIsOutputRank(SUNLogger logger, int* rank_ref)
+static sunbooleantype sunLoggerIsOutputRank(SUNDIALS_MAYBE_UNUSED SUNLogger logger,
+                                            int* rank_ref)
 {
   sunbooleantype retval;
 

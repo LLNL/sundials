@@ -297,7 +297,8 @@ SUNErrCode SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNAdaptController_Type SUNAdaptController_GetType_Soderlind(SUNAdaptController C)
+SUNAdaptController_Type SUNAdaptController_GetType_Soderlind(
+  SUNDIALS_MAYBE_UNUSED SUNAdaptController C)
 {
   return SUN_ADAPTCONTROLLER_H;
 }

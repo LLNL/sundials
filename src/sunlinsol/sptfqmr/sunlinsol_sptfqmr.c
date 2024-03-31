@@ -184,12 +184,12 @@ SUNErrCode SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_SPTFQMR(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_SPTFQMR(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_ITERATIVE);
 }
 
-SUNLinearSolver_ID SUNLinSolGetID_SPTFQMR(SUNLinearSolver S)
+SUNLinearSolver_ID SUNLinSolGetID_SPTFQMR(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_SPTFQMR);
 }
@@ -260,7 +260,7 @@ SUNErrCode SUNLinSolSetZeroGuess_SPTFQMR(SUNLinearSolver S, sunbooleantype onoff
   return SUN_SUCCESS;
 }
 
-int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A)
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -289,8 +289,8 @@ int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A)
   return SUN_SUCCESS;
 }
 
-int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                           N_Vector b, sunrealtype delta)
+int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
+                           N_Vector x, N_Vector b, sunrealtype delta)
 {
   SUNFunctionBegin(S->sunctx);
 

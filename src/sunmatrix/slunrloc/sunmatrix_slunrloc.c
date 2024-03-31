@@ -171,7 +171,10 @@ sunbooleantype SUNMatrix_SLUNRloc_OwnData(SUNMatrix A)
  * ----------------------------------------------------------------------------
  */
 
-SUNMatrix_ID SUNMatGetID_SLUNRloc(SUNMatrix A) { return (SUNMATRIX_SLUNRLOC); }
+SUNMatrix_ID SUNMatGetID_SLUNRloc(SUNDIALS_MAYBE_UNUSED SUNMatrix A)
+{
+  return (SUNMATRIX_SLUNRLOC);
+}
 
 SUNMatrix SUNMatClone_SLUNRloc(SUNMatrix A)
 {

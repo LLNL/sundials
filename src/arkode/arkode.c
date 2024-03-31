@@ -2879,7 +2879,8 @@ int arkEwtSetSV(N_Vector ycur, N_Vector weight, void* arkode_mem)
   a fixed step size to avoid a potential too much error return
   to the user.
   ---------------------------------------------------------------*/
-int arkEwtSetSmallReal(N_Vector ycur, N_Vector weight, void* arkode_mem)
+int arkEwtSetSmallReal(SUNDIALS_MAYBE_UNUSED N_Vector ycur, N_Vector weight,
+                       SUNDIALS_MAYBE_UNUSED void* arkode_mem)
 {
   N_VConst(SUN_SMALL_REAL, weight);
   return (ARK_SUCCESS);
@@ -2932,7 +2933,9 @@ int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 /*---------------------------------------------------------------
   arkExpStab is the default explicit stability estimation function
   ---------------------------------------------------------------*/
-int arkExpStab(N_Vector y, sunrealtype t, sunrealtype* hstab, void* data)
+int arkExpStab(SUNDIALS_MAYBE_UNUSED N_Vector y,
+               SUNDIALS_MAYBE_UNUSED sunrealtype t, sunrealtype* hstab,
+               SUNDIALS_MAYBE_UNUSED void* data)
 {
   /* explicit stability not used by default,
      set to zero to disable */

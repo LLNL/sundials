@@ -95,14 +95,15 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNAdaptController_Type SUNAdaptController_GetType_ARKUserControl(
-  SUNAdaptController C)
+SUNAdaptController_Type
+SUNAdaptController_GetType_ARKUserControl(SUNDIALS_MAYBE_UNUSED SUNAdaptController C)
 {
   return SUN_ADAPTCONTROLLER_H;
 }
 
 SUNErrCode SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C,
-                                                          sunrealtype h, int p,
+                                                          sunrealtype h,
+                                                          SUNDIALS_MAYBE_UNUSED int p,
                                                           sunrealtype dsm,
                                                           sunrealtype* hnew)
 {
@@ -155,7 +156,7 @@ SUNErrCode SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_Space_ARKUserControl(SUNAdaptController C,
+SUNErrCode SUNAdaptController_Space_ARKUserControl(SUNDIALS_MAYBE_UNUSED SUNAdaptController C,
                                                    long int* lenrw,
                                                    long int* leniw)
 {

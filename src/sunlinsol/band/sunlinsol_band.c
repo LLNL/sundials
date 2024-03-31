@@ -46,7 +46,8 @@
  * Function to create a new band linear solver
  */
 
-SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
+SUNLinearSolver SUNLinSol_Band(SUNDIALS_MAYBE_UNUSED N_Vector y, SUNMatrix A,
+                               SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNLinearSolver S;
@@ -107,12 +108,12 @@ SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A, SUNContext sunctx)
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_Band(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_Band(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_DIRECT);
 }
 
-SUNLinearSolver_ID SUNLinSolGetID_Band(SUNLinearSolver S)
+SUNLinearSolver_ID SUNLinSolGetID_Band(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_BAND);
 }
@@ -156,7 +157,7 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
 }
 
 int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
-                        sunrealtype tol)
+                        SUNDIALS_MAYBE_UNUSED sunrealtype tol)
 {
   SUNFunctionBegin(S->sunctx);
   sunrealtype **A_cols, *xdata;

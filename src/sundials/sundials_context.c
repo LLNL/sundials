@@ -192,7 +192,8 @@ SUNErrCode SUNContext_GetProfiler(SUNContext sunctx, SUNProfiler* profiler)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler)
+SUNErrCode SUNContext_SetProfiler(SUNContext sunctx,
+                                  SUNDIALS_MAYBE_UNUSED SUNProfiler profiler)
 {
   if (!sunctx) { return SUN_ERR_SUNCTX_CORRUPT; }
 

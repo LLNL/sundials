@@ -166,12 +166,12 @@ SuperLUStat_t* SUNLinSol_SuperLUDIST_GetSuperLUStat(SUNLinearSolver LS)
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_SuperLUDIST(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_SuperLUDIST(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_DIRECT);
 }
 
-SUNLinearSolver_ID SUNLinSolGetID_SuperLUDIST(SUNLinearSolver S)
+SUNLinearSolver_ID SUNLinSolGetID_SuperLUDIST(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_SUPERLUDIST);
 }
@@ -184,7 +184,8 @@ SUNErrCode SUNLinSolInitialize_SuperLUDIST(SUNLinearSolver S)
   return (SLU_LASTFLAG(S));
 }
 
-int SUNLinSolSetup_SuperLUDIST(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_SuperLUDIST(SUNLinearSolver S,
+                               SUNDIALS_MAYBE_UNUSED SUNMatrix A)
 {
   if (SLU_FIRSTFACTORIZE(S))
   {
@@ -210,7 +211,8 @@ int SUNLinSolSetup_SuperLUDIST(SUNLinearSolver S, SUNMatrix A)
 }
 
 int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                               N_Vector b, sunrealtype tol)
+                               N_Vector b,
+                               SUNDIALS_MAYBE_UNUSED sunrealtype tol)
 {
   int retval;
   sunrealtype* xdata;
@@ -296,8 +298,8 @@ SUNErrCode SUNLinSolFree_SuperLUDIST(SUNLinearSolver S)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNLinSolSpace_SuperLUDIST(SUNLinearSolver S, long int* leniwLS,
-                                      long int* lenrwLS)
+SUNErrCode SUNLinSolSpace_SuperLUDIST(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S,
+                                      long int* leniwLS, long int* lenrwLS)
 {
   /* since the SuperLU_DIST structures are opaque objects, we
      omit those from these results */

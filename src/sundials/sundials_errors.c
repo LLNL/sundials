@@ -62,7 +62,8 @@ const char* SUNGetErrMsg(SUNErrCode code)
 
 void SUNLogErrHandlerFn(int line, const char* func, const char* file,
                         const char* msg, SUNErrCode err_code,
-                        void* err_user_data, SUNContext sunctx)
+                        SUNDIALS_MAYBE_UNUSED void* err_user_data,
+                        SUNContext sunctx)
 {
   char* file_and_line = sunCombineFileAndLine(line, file);
   if (msg == NULL) { msg = SUNGetErrMsg(err_code); }
@@ -72,8 +73,10 @@ void SUNLogErrHandlerFn(int line, const char* func, const char* file,
 }
 
 void SUNAbortErrHandlerFn(int line, const char* func, const char* file,
-                          const char* msg, SUNErrCode err_code,
-                          void* err_user_data, SUNContext sunctx)
+                          SUNDIALS_MAYBE_UNUSED const char* msg,
+                          SUNDIALS_MAYBE_UNUSED SUNErrCode err_code,
+                          SUNDIALS_MAYBE_UNUSED void* err_user_data,
+                          SUNContext sunctx)
 {
   char* file_and_line = sunCombineFileAndLine(line, file);
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,

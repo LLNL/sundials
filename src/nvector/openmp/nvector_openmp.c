@@ -82,7 +82,10 @@ static void VaxpyVectorArray_OpenMP(int nvec, sunrealtype a, N_Vector* X,
  * Returns vector type ID. Used to identify vector implementation
  * from abstract N_Vector interface.
  */
-N_Vector_ID N_VGetVectorID_OpenMP(N_Vector v) { return SUNDIALS_NVEC_OPENMP; }
+N_Vector_ID N_VGetVectorID_OpenMP(SUNDIALS_MAYBE_UNUSED N_Vector v)
+{
+  return SUNDIALS_NVEC_OPENMP;
+}
 
 /* ----------------------------------------------------------------------------
  * Function to create a new empty vector

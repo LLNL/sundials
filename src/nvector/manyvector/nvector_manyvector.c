@@ -472,7 +472,7 @@ sunindextype MVAPPEND(N_VGetNumSubvectors)(N_Vector v)
 
 /* Returns vector type ID. Used to identify vector implementation
    from abstract N_Vector interface. */
-N_Vector_ID MVAPPEND(N_VGetVectorID)(N_Vector v)
+N_Vector_ID MVAPPEND(N_VGetVectorID)(SUNDIALS_MAYBE_UNUSED N_Vector v)
 {
 #ifdef MANYVECTOR_BUILD_WITH_MPI
   return (SUNDIALS_NVEC_MPIMANYVECTOR);
@@ -597,7 +597,10 @@ MPI_Comm N_VGetCommunicator_MPIManyVector(N_Vector v)
 }
 #else
 /* This function retrieves the MPI Communicator from a ManyVector object. */
-SUNComm N_VGetCommunicator_ManyVector(N_Vector v) { return SUN_COMM_NULL; }
+SUNComm N_VGetCommunicator_ManyVector(SUNDIALS_MAYBE_UNUSED N_Vector v)
+{
+  return SUN_COMM_NULL;
+}
 #endif
 
 /* This function retrieves the global length of a ManyVector object. */

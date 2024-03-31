@@ -3272,7 +3272,8 @@ int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
   ODE IVP.
   ----------------------------------------------------------------------------*/
 
-int arkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
+int arkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
+                               SUNDIALS_MAYBE_UNUSED sunrealtype t0,
                                sunrealtype tout, N_Vector y)
 {
   void* arkode_mem;           /* arkode memory             */

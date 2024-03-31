@@ -88,7 +88,7 @@ int CVodeSetUserData(void* cvode_mem, void* user_data)
  * the solution and/or integrator statistics.
  */
 
-int CVodeSetMonitorFn(void* cvode_mem, CVMonitorFn fn)
+int CVodeSetMonitorFn(void* cvode_mem, SUNDIALS_MAYBE_UNUSED CVMonitorFn fn)
 {
   CVodeMem cv_mem;
 

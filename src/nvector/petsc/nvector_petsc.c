@@ -101,7 +101,10 @@
  * Returns vector type ID. Used to identify vector implementation
  * from abstract N_Vector interface.
  */
-N_Vector_ID N_VGetVectorID_Petsc(N_Vector v) { return SUNDIALS_NVEC_PETSC; }
+N_Vector_ID N_VGetVectorID_Petsc(SUNDIALS_MAYBE_UNUSED N_Vector v)
+{
+  return SUNDIALS_NVEC_PETSC;
+}
 
 /* ----------------------------------------------------------------
  * Function to create a new N_Vector wrapper with an empty (NULL)
@@ -397,12 +400,19 @@ void N_VSpace_Petsc(N_Vector v, sunindextype* lrw, sunindextype* liw)
 /*
  * Not implemented for PETSc wrapper.
  */
-sunrealtype* N_VGetArrayPointer_Petsc(N_Vector v) { return NULL; }
+sunrealtype* N_VGetArrayPointer_Petsc(SUNDIALS_MAYBE_UNUSED N_Vector v)
+{
+  return NULL;
+}
 
 /*
  * Not implemented for PETSc wrapper.
  */
-void N_VSetArrayPointer_Petsc(sunrealtype* v_data, N_Vector v) { return; }
+void N_VSetArrayPointer_Petsc(SUNDIALS_MAYBE_UNUSED sunrealtype* v_data,
+                              SUNDIALS_MAYBE_UNUSED N_Vector v)
+{
+  return;
+}
 
 MPI_Comm N_VGetCommunicator_Petsc(N_Vector v) { return (NV_COMM_PTC(v)); }
 

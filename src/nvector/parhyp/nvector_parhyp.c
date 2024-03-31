@@ -136,7 +136,10 @@ static void VLin2_ParHyp(sunrealtype a, N_Vector x, N_Vector y, N_Vector z);
  * Returns vector type ID. Used to identify vector implementation
  * from abstract N_Vector interface.
  */
-N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v) { return SUNDIALS_NVEC_PARHYP; }
+N_Vector_ID N_VGetVectorID_ParHyp(SUNDIALS_MAYBE_UNUSED N_Vector v)
+{
+  return SUNDIALS_NVEC_PARHYP;
+}
 
 /* ----------------------------------------------------------------
  * Function to create a new parhyp vector without underlying
@@ -426,7 +429,7 @@ void N_VSpace_ParHyp(N_Vector v, sunindextype* lrw, sunindextype* liw)
  * then use HYPRE functions to get pointer to raw data of the local HYPRE
  * vector.
  */
-sunrealtype* N_VGetArrayPointer_ParHyp(N_Vector v)
+sunrealtype* N_VGetArrayPointer_ParHyp(SUNDIALS_MAYBE_UNUSED N_Vector v)
 {
   return NULL; /* ((sunrealtype *) NV_DATA_PH(v)); */
 }
@@ -435,7 +438,8 @@ sunrealtype* N_VGetArrayPointer_ParHyp(N_Vector v)
  * This method is not implemented for HYPRE vector wrapper.
  * TODO: Put error handler in the function body.
  */
-void N_VSetArrayPointer_ParHyp(sunrealtype* v_data, N_Vector v)
+void N_VSetArrayPointer_ParHyp(SUNDIALS_MAYBE_UNUSED sunrealtype* v_data,
+                               SUNDIALS_MAYBE_UNUSED N_Vector v)
 {
   /* Not implemented for Hypre vector */
 }

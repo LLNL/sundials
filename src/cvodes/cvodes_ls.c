@@ -1055,7 +1055,8 @@ int cvLsPSolve(void* cvode_mem, N_Vector r, N_Vector z, sunrealtype tol, int lr)
   approximation routines.
   ---------------------------------------------------------------*/
 int cvLsDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
-              void* cvode_mem, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+              void* cvode_mem, N_Vector tmp1, N_Vector tmp2,
+              SUNDIALS_MAYBE_UNUSED N_Vector tmp3)
 {
   CVodeMem cv_mem;
   int retval;
@@ -1213,8 +1214,8 @@ int cvLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   a simple for loop to set each of the elements of a column in
   succession.
   -----------------------------------------------------------------*/
-int cvLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
-                  CVodeMem cv_mem, N_Vector tmp1, N_Vector tmp2)
+int cvLsBandDQJac(SUNDIALS_MAYBE_UNUSED sunrealtype t, N_Vector y, N_Vector fy,
+                  SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1, N_Vector tmp2)
 {
   N_Vector ftemp, ytemp;
   sunrealtype fnorm, minInc, inc, inc_inv, srur, conj;
@@ -2878,8 +2879,9 @@ int cvLs_AccessLMemB(void* cvode_mem, int which, const char* fname,
    cvlsB_mem structures from the void* cvode_mem pointer.
    If any are missing it returns CVLS_MEM_NULL, CVLS_NO_ADJ,
    or CVLS_LMEMB_NULL. */
-int cvLs_AccessLMemBCur(void* cvode_mem, const char* fname, CVodeMem* cv_mem,
-                        CVadjMem* ca_mem, CVodeBMem* cvB_mem, CVLsMemB* cvlsB_mem)
+int cvLs_AccessLMemBCur(void* cvode_mem, SUNDIALS_MAYBE_UNUSED const char* fname,
+                        CVodeMem* cv_mem, CVadjMem* ca_mem, CVodeBMem* cvB_mem,
+                        CVLsMemB* cvlsB_mem)
 {
   /* access CVodeMem structure */
   if (cvode_mem == NULL)

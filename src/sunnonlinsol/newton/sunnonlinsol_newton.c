@@ -126,7 +126,7 @@ SUNNonlinearSolver SUNNonlinSol_NewtonSens(int count, N_Vector y,
   GetType, Initialize, Setup, Solve, and Free operations
   ============================================================================*/
 
-SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS)
+SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNDIALS_MAYBE_UNUSED SUNNonlinearSolver NLS)
 {
   return (SUNNONLINEARSOLVER_ROOTFIND);
 }
@@ -170,7 +170,8 @@ SUNErrCode SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
   Note return values beginning with * are package specific values returned by
   the Sys, LSetup, and LSolve functions provided to the nonlinear solver.
   ----------------------------------------------------------------------------*/
-int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
+int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
+                             SUNDIALS_MAYBE_UNUSED N_Vector y0, N_Vector ycor,
                              N_Vector w, sunrealtype tol,
                              sunbooleantype callLSetup, void* mem)
 {

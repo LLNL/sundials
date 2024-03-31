@@ -12,6 +12,12 @@
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
 
+# Disable some warnings for examples
+if(ENABLE_ALL_WARNINGS)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated-declarations")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+endif()
+
 # Example lists are tuples "name\;args\;type"
 
 # Examples that support CPU and GPU Ginkgo backends

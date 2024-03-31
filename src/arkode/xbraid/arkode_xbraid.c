@@ -273,8 +273,9 @@ int ARKBraid_GetSolution(braid_App app, sunrealtype* tout, N_Vector yout)
  * -------------------------- */
 
 /* Take a time step */
-int ARKBraid_Step(braid_App app, braid_Vector ustop, braid_Vector fstop,
-                  braid_Vector u, braid_StepStatus status)
+int ARKBraid_Step(braid_App app, SUNDIALS_MAYBE_UNUSED braid_Vector ustop,
+                  SUNDIALS_MAYBE_UNUSED braid_Vector fstop, braid_Vector u,
+                  braid_StepStatus status)
 {
   braid_Int braid_flag;    /* braid function return flag  */
   int ark_flag;            /* arkode step return flag     */
@@ -340,7 +341,8 @@ int ARKBraid_Step(braid_App app, braid_Vector ustop, braid_Vector fstop,
 }
 
 /* Create and initialize vectors */
-int ARKBraid_Init(braid_App app, sunrealtype t, braid_Vector* u_ptr)
+int ARKBraid_Init(braid_App app, SUNDIALS_MAYBE_UNUSED sunrealtype t,
+                  braid_Vector* u_ptr)
 {
   int flag;                /* return flag          */
   N_Vector y;              /* output N_Vector      */

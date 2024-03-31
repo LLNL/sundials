@@ -1848,7 +1848,8 @@ int arkLsMPSolve(void* arkode_mem, N_Vector r, N_Vector z, sunrealtype tol, int 
   approximation routines.
   ---------------------------------------------------------------*/
 int arkLsDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
-               void* arkode_mem, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+               void* arkode_mem, N_Vector tmp1, N_Vector tmp2,
+               SUNDIALS_MAYBE_UNUSED N_Vector tmp3)
 {
   ARKodeMem ark_mem;
   ARKLsMem arkls_mem;
@@ -2005,9 +2006,9 @@ int arkLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   write a simple for loop to set each of the elements of a column
   in succession.
   ---------------------------------------------------------------*/
-int arkLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
-                   ARKodeMem ark_mem, ARKLsMem arkls_mem, ARKRhsFn fi,
-                   N_Vector tmp1, N_Vector tmp2)
+int arkLsBandDQJac(SUNDIALS_MAYBE_UNUSED sunrealtype t, N_Vector y, N_Vector fy,
+                   SUNMatrix Jac, ARKodeMem ark_mem, ARKLsMem arkls_mem,
+                   ARKRhsFn fi, N_Vector tmp1, N_Vector tmp2)
 {
   N_Vector ftemp, ytemp;
   sunrealtype fnorm, minInc, inc, inc_inv, srur, conj;

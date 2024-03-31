@@ -153,7 +153,7 @@ static void nvInitThreadData(Pthreads_Data* thread_data);
  * Returns vector type ID. Used to identify vector implementation
  * from abstract N_Vector interface.
  */
-N_Vector_ID N_VGetVectorID_Pthreads(N_Vector v)
+N_Vector_ID N_VGetVectorID_Pthreads(SUNDIALS_MAYBE_UNUSED N_Vector v)
 {
   return SUNDIALS_NVEC_PTHREADS;
 }

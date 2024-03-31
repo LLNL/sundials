@@ -128,12 +128,12 @@ SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A, SUNContext sunctx
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_LapackDense(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_LapackDense(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_DIRECT);
 }
 
-SUNLinearSolver_ID SUNLinSolGetID_LapackDense(SUNLinearSolver S)
+SUNLinearSolver_ID SUNLinSolGetID_LapackDense(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_LAPACKDENSE);
 }
@@ -170,7 +170,7 @@ int SUNLinSolSetup_LapackDense(SUNLinearSolver S, SUNMatrix A)
 }
 
 int SUNLinSolSolve_LapackDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                               N_Vector b, sunrealtype tol)
+                               N_Vector b, SUNDIALS_MAYBE_UNUSED sunrealtype tol)
 {
   sunindextype n, one, ier;
   sunrealtype* xdata;

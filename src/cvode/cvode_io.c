@@ -88,7 +88,7 @@ int CVodeSetUserData(void* cvode_mem, void* user_data)
  * the solution and/or integrator statistics.
  */
 
-int CVodeSetMonitorFn(void* cvode_mem, CVMonitorFn fn)
+int CVodeSetMonitorFn(void* cvode_mem, SUNDIALS_MAYBE_UNUSED CVMonitorFn fn)
 {
   CVodeMem cv_mem;
 
@@ -996,7 +996,8 @@ int CVodeSetConstraints(void* cvode_mem, N_Vector constraints)
  * Enable or disable integrator specific fused kernels
  */
 
-int CVodeSetUseIntegratorFusedKernels(void* cvode_mem, sunbooleantype onoff)
+int CVodeSetUseIntegratorFusedKernels(void* cvode_mem,
+                                      SUNDIALS_MAYBE_UNUSED sunbooleantype onoff)
 {
   CVodeMem cv_mem;
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS

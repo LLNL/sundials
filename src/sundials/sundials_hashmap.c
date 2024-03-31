@@ -159,7 +159,8 @@ int SUNHashMap_Iterate(SUNHashMap map, int start,
   return (map->max_size);
 }
 
-static int sunHashMapLinearProbeInsert(int idx, SUNHashMapKeyValue kv, void* ctx)
+static int sunHashMapLinearProbeInsert(int idx, SUNHashMapKeyValue kv,
+                                       SUNDIALS_MAYBE_UNUSED void* ctx)
 {
   /* find the next open spot */
   if (kv == NULL) { return (idx); /* open spot found at idx */ }

@@ -162,12 +162,12 @@ SUNErrCode SUNLinSol_PCGSetMaxl(SUNLinearSolver S, int maxl)
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_PCG(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_PCG(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_ITERATIVE);
 }
 
-SUNLinearSolver_ID SUNLinSolGetID_PCG(SUNLinearSolver S)
+SUNLinearSolver_ID SUNLinSolGetID_PCG(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_PCG);
 }
@@ -216,7 +216,7 @@ SUNErrCode SUNLinSolSetPreconditioner_PCG(SUNLinearSolver S, void* PData,
 }
 
 SUNErrCode SUNLinSolSetScalingVectors_PCG(SUNLinearSolver S, N_Vector s,
-                                          N_Vector nul)
+                                          SUNDIALS_MAYBE_UNUSED N_Vector nul)
 {
   /* set N_Vector pointer to integrator-supplied scaling vector
      (only use the first one), and return with success */
@@ -231,7 +231,7 @@ SUNErrCode SUNLinSolSetZeroGuess_PCG(SUNLinearSolver S, sunbooleantype onoff)
   return SUN_SUCCESS;
 }
 
-int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
+int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul)
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -260,8 +260,8 @@ int SUNLinSolSetup_PCG(SUNLinearSolver S, SUNMatrix nul)
   return SUN_SUCCESS;
 }
 
-int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNMatrix nul, N_Vector x, N_Vector b,
-                       sunrealtype delta)
+int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
+                       N_Vector x, N_Vector b, sunrealtype delta)
 {
   SUNFunctionBegin(S->sunctx);
 

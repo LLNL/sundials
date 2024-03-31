@@ -178,7 +178,10 @@ sunrealtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j)
  * -----------------------------------------------------------------
  */
 
-SUNMatrix_ID SUNMatGetID_Dense(SUNMatrix A) { return SUNMATRIX_DENSE; }
+SUNMatrix_ID SUNMatGetID_Dense(SUNDIALS_MAYBE_UNUSED SUNMatrix A)
+{
+  return SUNMATRIX_DENSE;
+}
 
 SUNMatrix SUNMatClone_Dense(SUNMatrix A)
 {
@@ -346,6 +349,7 @@ SUNErrCode SUNMatSpace_Dense(SUNMatrix A, long int* lenrw, long int* leniw)
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_MAYBE_UNUSED
 static sunbooleantype compatibleMatrices(SUNMatrix A, SUNMatrix B)
 {
   /* both matrices must have the same shape */
@@ -357,6 +361,7 @@ static sunbooleantype compatibleMatrices(SUNMatrix A, SUNMatrix B)
   return SUNTRUE;
 }
 
+SUNDIALS_MAYBE_UNUSED
 static sunbooleantype compatibleMatrixAndVectors(SUNMatrix A, N_Vector x,
                                                  N_Vector y)
 {

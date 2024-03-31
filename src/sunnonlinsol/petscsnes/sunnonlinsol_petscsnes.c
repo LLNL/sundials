@@ -128,7 +128,7 @@ SUNNonlinearSolver SUNNonlinSol_PetscSNES(N_Vector y, SNES snes, SUNContext sunc
   ============================================================================*/
 
 /* get the type of SUNNonlinearSolver */
-SUNNonlinearSolver_Type SUNNonlinSolGetType_PetscSNES(SUNNonlinearSolver NLS)
+SUNNonlinearSolver_Type SUNNonlinSolGetType_PetscSNES(SUNDIALS_MAYBE_UNUSED SUNNonlinearSolver NLS)
 {
   return (SUNNONLINEARSOLVER_ROOTFIND);
 }
@@ -168,8 +168,10 @@ SUNErrCode SUNNonlinSolInitialize_PetscSNES(SUNNonlinearSolver NLS)
   the Sys function provided to the nonlinear solver.
   ----------------------------------------------------------------------------*/
 int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
-                                N_Vector w, sunrealtype tol,
-                                sunbooleantype callLSetup, void* mem)
+                                N_Vector w,
+                                SUNDIALS_MAYBE_UNUSED sunrealtype tol,
+                                SUNDIALS_MAYBE_UNUSED sunbooleantype callLSetup,
+                                void* mem)
 {
   /* local variables */
   PetscErrorCode ierr;
@@ -370,7 +372,8 @@ SUNErrCode SUNNonlinSolGetNumConvFails_PetscSNES(SUNNonlinearSolver NLS,
   Private functions
   ============================================================================*/
 
-static PetscErrorCode PetscSysFn(SNES snes, Vec x, Vec f, void* ctx)
+static PetscErrorCode PetscSysFn(SUNDIALS_MAYBE_UNUSED SNES snes, Vec x, Vec f,
+                                 void* ctx)
 {
   int retval;
   SUNNonlinearSolver NLS = (SUNNonlinearSolver)ctx;

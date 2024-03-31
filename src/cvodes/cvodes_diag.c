@@ -326,9 +326,10 @@ static int CVDiagInit(CVodeMem cv_mem)
  * -----------------------------------------------------------------
  */
 
-static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                       N_Vector fpred, sunbooleantype* jcurPtr, N_Vector vtemp1,
-                       N_Vector vtemp2, N_Vector vtemp3)
+static int CVDiagSetup(CVodeMem cv_mem, SUNDIALS_MAYBE_UNUSED int convfail,
+                       N_Vector ypred, N_Vector fpred, sunbooleantype* jcurPtr,
+                       N_Vector vtemp1, N_Vector vtemp2,
+                       SUNDIALS_MAYBE_UNUSED N_Vector vtemp3)
 {
   sunrealtype r;
   N_Vector ftemp, y;
@@ -400,8 +401,10 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
  * -----------------------------------------------------------------
  */
 
-static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
-                       N_Vector ycur, N_Vector fcur)
+static int CVDiagSolve(CVodeMem cv_mem, N_Vector b,
+                       SUNDIALS_MAYBE_UNUSED N_Vector weight,
+                       SUNDIALS_MAYBE_UNUSED N_Vector ycur,
+                       SUNDIALS_MAYBE_UNUSED N_Vector fcur)
 {
   sunbooleantype invOK;
   sunrealtype r;

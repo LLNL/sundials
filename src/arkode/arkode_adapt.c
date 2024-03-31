@@ -92,7 +92,8 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE* outfile)
   data structure.
   ---------------------------------------------------------------*/
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
-             sunrealtype tcur, sunrealtype hcur, sunrealtype dsm, long int nst)
+             sunrealtype tcur, sunrealtype hcur, sunrealtype dsm,
+             SUNDIALS_MAYBE_UNUSED long int nst)
 {
   int retval;
   sunrealtype h_acc, h_cfl, int_dir;

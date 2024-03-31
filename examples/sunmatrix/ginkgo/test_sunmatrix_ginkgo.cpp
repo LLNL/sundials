@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
     auto Arowptrs{gko_matrix->get_const_row_ptrs()};
     auto Acolidxs{gko_matrix->get_const_col_idxs()};
     auto Avalues{gko_matrix->get_const_values()};
-    for (auto irow = 0; irow < gko_matrix->get_size()[0]; irow++)
+    for (sunindextype irow = 0; irow < static_cast<sunindextype>(gko_matrix->get_size()[0]); irow++)
     {
       for (auto inz = gko_exec->copy_val_to_host(Arowptrs + irow);
            inz < gko_exec->copy_val_to_host(Arowptrs + irow + 1); inz++)
@@ -309,10 +309,7 @@ int check_matrix_csr(SUNMatrix A, SUNMatrix B, sunrealtype tol)
   auto Amat_ref = Amat->clone(Amat->get_executor()->get_master());
   auto Bmat_ref = Bmat->clone(Bmat->get_executor()->get_master());
   auto Arowptrs{Amat_ref->get_const_row_ptrs()};
-  auto Acolidxs{Amat_ref->get_const_col_idxs()};
   auto Avalues{Amat_ref->get_const_values()};
-  auto Browptrs{Bmat_ref->get_const_row_ptrs()};
-  auto Bcolidxs{Bmat_ref->get_const_col_idxs()};
   auto Bvalues{Bmat_ref->get_const_values()};
 
   /* check lengths */
@@ -323,7 +320,7 @@ int check_matrix_csr(SUNMatrix A, SUNMatrix B, sunrealtype tol)
   }
 
   /* compare data */
-  for (sunindextype irow = 0; irow < Amat_ref->get_size()[0]; irow++)
+  for (sunindextype irow = 0; irow < static_cast<sunindextype>(Amat_ref->get_size()[0]); irow++)
   {
     for (sunindextype inz = Arowptrs[irow]; inz < Arowptrs[irow + 1]; inz++)
     {
@@ -354,9 +351,9 @@ int check_matrix_dense(SUNMatrix A, SUNMatrix B, sunrealtype tol)
   }
 
   /* compare data */
-  for (sunindextype i = 0; i < rows; i++)
+  for (sunindextype i = 0; i < static_cast<sunindextype>(rows); i++)
   {
-    for (sunindextype j = 0; j < cols; j++)
+    for (sunindextype j = 0; j < static_cast<sunindextype>(cols); j++)
     {
       failure += SUNRCompareTol(Amat_ref->at(i, j), Bmat_ref->at(i, j), tol);
     }
@@ -379,11 +376,10 @@ int check_matrix_entry_csr(SUNMatrix A, sunrealtype val, sunrealtype tol)
     static_cast<sundials::ginkgo::Matrix<GkoCsrMat>*>(A->content)->GkoMtx()};
   auto Amat_ref = Amat->clone(Amat->get_executor()->get_master());
   auto Arowptrs{Amat_ref->get_const_row_ptrs()};
-  auto Acolidxs{Amat_ref->get_const_col_idxs()};
   auto Avalues{Amat_ref->get_const_values()};
 
   /* compare data */
-  for (sunindextype irow = 0; irow < Amat_ref->get_size()[0]; irow++)
+  for (sunindextype irow = 0; irow < static_cast<sunindextype>(Amat_ref->get_size()[0]); irow++)
   {
     for (sunindextype inz = Arowptrs[irow]; inz < Arowptrs[irow + 1]; inz++)
     {
@@ -410,9 +406,9 @@ int check_matrix_entry_dense(SUNMatrix A, sunrealtype val, sunrealtype tol)
 
   auto Amat_ref = Amat->clone(Amat->get_executor()->get_master());
   /* compare data */
-  for (sunindextype i = 0; i < rows; i++)
+  for (sunindextype i = 0; i < static_cast<sunindextype>(rows); i++)
   {
-    for (sunindextype j = 0; j < cols; j++)
+    for (sunindextype j = 0; j < static_cast<sunindextype>(cols); j++)
     {
       int check = SUNRCompareTol(Amat_ref->at(i, j), val, tol);
       if (check)

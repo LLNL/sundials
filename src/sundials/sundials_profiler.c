@@ -443,7 +443,7 @@ SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
 
 #if SUNDIALS_MPI_ENABLED
 static void sunTimerStructReduceMaxAndSum(void* a, void* b, int* len,
-                                          MPI_Datatype* dType)
+                                          SUNDIALS_MAYBE_UNUSED MPI_Datatype* dType)
 {
   sunTimerStruct* a_ts = (sunTimerStruct*)a;
   sunTimerStruct* b_ts = (sunTimerStruct*)b;
@@ -523,7 +523,8 @@ SUNErrCode sunCollectTimers(SUNProfiler p)
 
 /* Print out the: timer name, percentage of exec time (based on the max),
    max across ranks, average across ranks, and the timer counter. */
-void sunPrintTimers(int idx, SUNHashMapKeyValue kv, FILE* fp, void* pvoid)
+void sunPrintTimers(SUNDIALS_MAYBE_UNUSED int idx, SUNHashMapKeyValue kv,
+                    FILE* fp, void* pvoid)
 {
   SUNProfiler p      = (SUNProfiler)pvoid;
   sunTimerStruct* ts = (sunTimerStruct*)kv->value;

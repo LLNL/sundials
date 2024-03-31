@@ -7836,8 +7836,9 @@ static sunrealtype IDAQuadSensWrmsNorm(IDAMem IDA_mem, N_Vector* xQS,
  * Updates the norm old_nrm to account for all quadratures.
  */
 
-static sunrealtype IDAQuadWrmsNormUpdate(IDAMem IDA_mem, sunrealtype old_nrm,
-                                         N_Vector xQ, N_Vector wQ)
+static sunrealtype IDAQuadWrmsNormUpdate(SUNDIALS_MAYBE_UNUSED IDAMem IDA_mem,
+                                         sunrealtype old_nrm, N_Vector xQ,
+                                         N_Vector wQ)
 {
   sunrealtype qnrm;
 
@@ -8441,10 +8442,11 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
  * (<0 if res fails unrecoverably, >0 if res has a recoverable error).
  */
 
-static int IDASensRes1DQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
-                         N_Vector resval, int is, N_Vector yyS, N_Vector ypS,
-                         N_Vector resvalS, void* user_dataS, N_Vector ytemp,
-                         N_Vector yptemp, N_Vector restemp)
+static int IDASensRes1DQ(SUNDIALS_MAYBE_UNUSED int Ns, sunrealtype t,
+                         N_Vector yy, N_Vector yp, N_Vector resval, int is,
+                         N_Vector yyS, N_Vector ypS, N_Vector resvalS,
+                         void* user_dataS, N_Vector ytemp, N_Vector yptemp,
+                         N_Vector restemp)
 {
   IDAMem IDA_mem;
   int method;

@@ -46,7 +46,8 @@
  * Function to create a new dense linear solver
  */
 
-SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx)
+SUNLinearSolver SUNLinSol_Dense(SUNDIALS_MAYBE_UNUSED N_Vector y, SUNMatrix A,
+                                SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNLinearSolver S;
@@ -102,12 +103,12 @@ SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx)
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_Dense(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_Dense(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_DIRECT);
 }
 
-SUNLinearSolver_ID SUNLinSolGetID_Dense(SUNLinearSolver S)
+SUNLinearSolver_ID SUNLinSolGetID_Dense(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_DENSE);
 }
@@ -146,7 +147,7 @@ int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
 }
 
 int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
-                         sunrealtype tol)
+                         SUNDIALS_MAYBE_UNUSED sunrealtype tol)
 {
   SUNFunctionBegin(S->sunctx);
   sunrealtype **A_cols, *xdata;

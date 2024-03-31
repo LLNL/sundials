@@ -113,7 +113,8 @@ SUNErrCode SUNAdaptController_SetParams_ImExGus(SUNAdaptController C,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNAdaptController_Type SUNAdaptController_GetType_ImExGus(SUNAdaptController C)
+SUNAdaptController_Type SUNAdaptController_GetType_ImExGus(
+  SUNDIALS_MAYBE_UNUSED SUNAdaptController C)
 {
   return SUN_ADAPTCONTROLLER_H;
 }
