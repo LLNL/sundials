@@ -15,6 +15,9 @@
  * different iterative solvers.
  * ---------------------------------------------------------------------------*/
 
+#ifndef _SUNDIALS_ITERATIVE_IMPL_H
+#define _SUNDIALS_ITERATIVE_IMPL_H
+
 #include <sundials/sundials_iterative.h>
 
 /* -----------------------------------------------------------------------------
@@ -33,3 +36,5 @@ struct _SUNQRData
   N_Vector vtemp2;
   sunrealtype* temp_array;
 };
+
+#endif
