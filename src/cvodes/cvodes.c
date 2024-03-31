@@ -8481,7 +8481,7 @@ static int cvSLdet(CVodeMem cv_mem)
         return (kflag);
       }
     } /*  end of if (sqmax < sqtol) else   */
-  }   /*  end of if (vmin < vrrtol*vrrtol) else, quartics to get rr. */
+  } /*  end of if (vmin < vrrtol*vrrtol) else, quartics to get rr. */
 
   /* given rr, find sigsq[k] and verify rr.  */
   /* All positive kflag drop to this section  */
@@ -9403,8 +9403,7 @@ static int cvQuadSensEwtSetSV(CVodeMem cv_mem, N_Vector* yQScur,
  */
 
 static sunrealtype cvQuadUpdateNorm(SUNDIALS_MAYBE_UNUSED CVodeMem cv_mem,
-                                    sunrealtype old_nrm, N_Vector xQ,
-                                    N_Vector wQ)
+                                    sunrealtype old_nrm, N_Vector xQ, N_Vector wQ)
 {
   sunrealtype qnrm;
 
@@ -9621,10 +9620,9 @@ int cvSensRhsInternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
  * non-zero return value from f().
  */
 
-int cvSensRhs1InternalDQ(SUNDIALS_MAYBE_UNUSED int Ns, sunrealtype t,
-                         N_Vector y, N_Vector ydot, int is, N_Vector yS,
-                         N_Vector ySdot, void* cvode_mem, N_Vector ytemp,
-                         N_Vector ftemp)
+int cvSensRhs1InternalDQ(SUNDIALS_MAYBE_UNUSED int Ns, sunrealtype t, N_Vector y,
+                         N_Vector ydot, int is, N_Vector yS, N_Vector ySdot,
+                         void* cvode_mem, N_Vector ytemp, N_Vector ftemp)
 {
   CVodeMem cv_mem;
   int retval, method;

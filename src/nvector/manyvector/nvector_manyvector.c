@@ -18,9 +18,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sundials/priv/sundials_errors_impl.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_errors.h>
+#include <sundials/sundials_types.h>
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 #include <nvector/nvector_mpimanyvector.h>
 #include <sundials/priv/sundials_mpi_errors_impl.h>
@@ -30,6 +30,8 @@
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
+
+#include "sundials_macros.h"
 
 /* Macro to handle separate MPI-aware/unaware installations */
 #ifdef MANYVECTOR_BUILD_WITH_MPI

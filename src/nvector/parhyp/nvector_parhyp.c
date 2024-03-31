@@ -18,13 +18,15 @@
  * for the NVECTOR package.
  * -----------------------------------------------------------------*/
 
-#include <nvector/nvector_parhyp.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sundials/sundials_math.h>
 
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_nvector.h"
+#include <nvector/nvector_parhyp.h>
+#include <sundials/sundials_errors.h>
+#include <sundials/sundials_math.h>
+#include <sundials/sundials_nvector.h>
+
+#include "sundials_macros.h"
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)

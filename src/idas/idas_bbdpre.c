@@ -521,8 +521,7 @@ static int IDABBDPrecSolve(SUNDIALS_MAYBE_UNUSED sunrealtype tt,
                            SUNDIALS_MAYBE_UNUSED N_Vector yy,
                            SUNDIALS_MAYBE_UNUSED N_Vector yp,
                            SUNDIALS_MAYBE_UNUSED N_Vector rr, N_Vector rvec,
-                           N_Vector zvec,
-                           SUNDIALS_MAYBE_UNUSED sunrealtype c_j,
+                           N_Vector zvec, SUNDIALS_MAYBE_UNUSED sunrealtype c_j,
                            SUNDIALS_MAYBE_UNUSED sunrealtype delta,
                            void* bbd_data)
 {

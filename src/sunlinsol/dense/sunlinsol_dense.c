@@ -17,12 +17,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_dense.h>
 
-#include "sundials/sundials_errors.h"
 #include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 
 #define ONE SUN_RCONST(1.0)
 

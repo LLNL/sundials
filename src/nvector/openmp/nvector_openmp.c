@@ -20,16 +20,18 @@
  * of the NVECTOR module.
  * -----------------------------------------------------------------*/
 
-#include <nvector/nvector_openmp.h>
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <nvector/nvector_openmp.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_core.h>
+#include <sundials/sundials_errors.h>
 
-#include "sundials/sundials_context.h"
-#include "sundials/sundials_errors.h"
+#include "sundials_macros.h"
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)

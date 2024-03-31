@@ -20,10 +20,14 @@
 #include <mpi.h>
 #include <stdarg.h>
 #include <stdlib.h>
+
+#include <superlu_ddefs.h>
+
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_mpi_types.h>
 #include <sunmatrix/sunmatrix_slunrloc.h>
-#include <superlu_ddefs.h>
+
+#include "sundials_macros.h"
 
 /*
  * ----------------------------------------------------------------------------

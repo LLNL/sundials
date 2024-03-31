@@ -18,10 +18,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_lapackdense.h>
 
 #include "sundials_lapack_defs.h"
+#include "sundials_macros.h"
 
 /* Interfaces to match 'sunrealtype' with the correct LAPACK functions */
 #if defined(SUNDIALS_DOUBLE_PRECISION)

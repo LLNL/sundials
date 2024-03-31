@@ -401,8 +401,7 @@ int KINBBDPrecGetNumGfnEvals(void* kinmem, long int* ngevalsBBDP)
   ------------------------------------------------------------------*/
 static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
                            SUNDIALS_MAYBE_UNUSED N_Vector fval,
-                           SUNDIALS_MAYBE_UNUSED N_Vector fscale,
-                           void* bbd_data)
+                           SUNDIALS_MAYBE_UNUSED N_Vector fscale, void* bbd_data)
 {
   KBBDPrecData pdata;
   KINMem kin_mem;
@@ -468,8 +467,8 @@ static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
 static int KINBBDPrecSolve(SUNDIALS_MAYBE_UNUSED N_Vector uu,
                            SUNDIALS_MAYBE_UNUSED N_Vector uscale,
                            SUNDIALS_MAYBE_UNUSED N_Vector fval,
-                           SUNDIALS_MAYBE_UNUSED N_Vector fscale,
-                           N_Vector vv, void* bbd_data)
+                           SUNDIALS_MAYBE_UNUSED N_Vector fscale, N_Vector vv,
+                           void* bbd_data)
 {
   KBBDPrecData pdata;
   sunrealtype* vd;

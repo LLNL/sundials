@@ -15,15 +15,18 @@
  * implementation that interfaces to the PETSc SNES nonlinear solvers.
  * ---------------------------------------------------------------------------*/
 
-#include <nvector/nvector_petsc.h>
-#include <petscsnes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <petscsnes.h>
+
+#include <nvector/nvector_petsc.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_petscsnes.h>
 
-#include "sundials/sundials_errors.h"
+#include "sundials_macros.h"
 
 #define SUNNLS_SNES_CONTENT(NLS) \
   ((SUNNonlinearSolverContent_PetscSNES)(NLS->content))
@@ -168,8 +171,7 @@ SUNErrCode SUNNonlinSolInitialize_PetscSNES(SUNNonlinearSolver NLS)
   the Sys function provided to the nonlinear solver.
   ----------------------------------------------------------------------------*/
 int SUNNonlinSolSolve_PetscSNES(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
-                                N_Vector w,
-                                SUNDIALS_MAYBE_UNUSED sunrealtype tol,
+                                N_Vector w, SUNDIALS_MAYBE_UNUSED sunrealtype tol,
                                 SUNDIALS_MAYBE_UNUSED sunbooleantype callLSetup,
                                 void* mem)
 {

@@ -10,17 +10,18 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include "sundials/sundials_errors.h"
-
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
+#include <sundials/sundials_errors.h>
+#include <sundials/sundials_logger.h>
+#include <sundials/sundials_types.h>
 
-#include "sundials/sundials_logger.h"
-#include "sundials/sundials_types.h"
 #include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 #include "sundials_utils.h"
 
 SUNErrCode SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data,

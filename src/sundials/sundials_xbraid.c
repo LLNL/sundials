@@ -14,9 +14,10 @@
  * This is the implementation file for the SUNDIALS + XBraid interface.
  * -------------------------------------------------------------------------- */
 
-#include "sundials/sundials_xbraid.h"
+#include <sundials/sundials_math.h>
+#include <sundials/sundials_xbraid.h>
 
-#include "sundials/sundials_math.h"
+#include "sundials_macros.h"
 
 #define ONE SUN_RCONST(1.0)
 

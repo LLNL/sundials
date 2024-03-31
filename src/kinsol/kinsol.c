@@ -2493,8 +2493,8 @@ static sunrealtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u)
 
 void KINPrintInfo(SUNDIALS_MAYBE_UNUSED KINMem kin_mem, int info_code,
                   SUNDIALS_MAYBE_UNUSED const char* module,
-                  SUNDIALS_MAYBE_UNUSED const char* fname,
-                  const char* msgfmt, ...)
+                  SUNDIALS_MAYBE_UNUSED const char* fname, const char* msgfmt,
+                  ...)
 {
   va_list ap;
   char msg[256], msg1[40];

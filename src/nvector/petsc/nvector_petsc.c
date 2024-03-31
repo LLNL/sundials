@@ -18,12 +18,14 @@
  * of the NVECTOR package.
  * -----------------------------------------------------------------*/
 
-#include <nvector/nvector_petsc.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <nvector/nvector_petsc.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 
-#include "sundials/sundials_errors.h"
+#include "sundials_macros.h"
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)

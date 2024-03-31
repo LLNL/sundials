@@ -17,10 +17,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <superlu_ddefs.h>
+
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_superludist.h>
 #include <sunmatrix/sunmatrix_slunrloc.h>
-#include <superlu_ddefs.h>
+
+#include "sundials_macros.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -211,8 +215,7 @@ int SUNLinSolSetup_SuperLUDIST(SUNLinearSolver S,
 }
 
 int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                               N_Vector b,
-                               SUNDIALS_MAYBE_UNUSED sunrealtype tol)
+                               N_Vector b, SUNDIALS_MAYBE_UNUSED sunrealtype tol)
 {
   int retval;
   sunrealtype* xdata;

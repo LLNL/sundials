@@ -1738,7 +1738,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #endif
       }
     } /* compute slow RHS */
-  }   /* loop over stages */
+  } /* loop over stages */
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
@@ -2345,8 +2345,8 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
   ---------------------------------------------------------------*/
 
 int mriStep_ComputeInnerForcing(SUNDIALS_MAYBE_UNUSED ARKodeMem ark_mem,
-                                ARKodeMRIStepMem step_mem,
-                                int stage, sunrealtype cdiff)
+                                ARKodeMRIStepMem step_mem, int stage,
+                                sunrealtype cdiff)
 {
   sunrealtype rcdiff;
   int j, k, nmat, nstore, retval;

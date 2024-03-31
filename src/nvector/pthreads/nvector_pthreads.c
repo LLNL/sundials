@@ -21,16 +21,17 @@
  * structures to pass data to threads.
  * -----------------------------------------------------------------*/
 
-#include <math.h> /* define NAN */
-#include <nvector/nvector_pthreads.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <nvector/nvector_pthreads.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
+#include <sundials/sundials_errors.h>
 
-#include "sundials/priv/sundials_errors_impl.h"
-#include "sundials/sundials_errors.h"
+#include "sundials_macros.h"
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)

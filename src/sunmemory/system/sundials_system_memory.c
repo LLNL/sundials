@@ -17,13 +17,15 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_memory.h>
 #include <sunmemory/sunmemory_system.h>
 
-#include "sundials/priv/sundials_errors_impl.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_memory.h"
 #include "sundials_debug.h"
+#include "sundials_macros.h"
 
 struct SUNMemoryHelper_Content_Sys_
 {

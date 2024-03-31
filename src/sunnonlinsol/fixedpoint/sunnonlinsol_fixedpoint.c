@@ -18,11 +18,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_nvector_senswrapper.h>
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
 
 #include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 
 /* Internal utility routines */
 static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,

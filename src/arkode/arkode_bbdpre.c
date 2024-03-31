@@ -520,13 +520,10 @@ static int ARKBBDPrecSetup(sunrealtype t, N_Vector y,
 ---------------------------------------------------------------*/
 static int ARKBBDPrecSolve(SUNDIALS_MAYBE_UNUSED sunrealtype t,
                            SUNDIALS_MAYBE_UNUSED N_Vector y,
-                           SUNDIALS_MAYBE_UNUSED N_Vector fy,
-                           N_Vector r,
-                           N_Vector z,
-                           SUNDIALS_MAYBE_UNUSED sunrealtype gamma,
+                           SUNDIALS_MAYBE_UNUSED N_Vector fy, N_Vector r,
+                           N_Vector z, SUNDIALS_MAYBE_UNUSED sunrealtype gamma,
                            SUNDIALS_MAYBE_UNUSED sunrealtype delta,
-                           SUNDIALS_MAYBE_UNUSED int lr,
-                           void* bbd_data)
+                           SUNDIALS_MAYBE_UNUSED int lr, void* bbd_data)
 {
   int retval;
   ARKBBDPrecData pdata;
