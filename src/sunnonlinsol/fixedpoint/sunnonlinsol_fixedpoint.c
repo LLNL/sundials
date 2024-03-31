@@ -131,7 +131,8 @@ SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m,
   GetType, Initialize, Setup, Solve, and Free operations
   ============================================================================*/
 
-SUNNonlinearSolver_Type SUNNonlinSolGetType_FixedPoint(SUNDIALS_MAYBE_UNUSED SUNNonlinearSolver NLS)
+SUNNonlinearSolver_Type SUNNonlinSolGetType_FixedPoint(
+  SUNDIALS_MAYBE_UNUSED SUNNonlinearSolver NLS)
 {
   return (SUNNONLINEARSOLVER_FIXEDPOINT);
 }

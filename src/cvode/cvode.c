@@ -4111,7 +4111,7 @@ static int cvSLdet(CVodeMem cv_mem)
         return (kflag);
       }
     } /*  end of if (sqmax < sqtol) else   */
-  } /*  end of if (vmin < vrrtol*vrrtol) else, quartics to get rr. */
+  }   /*  end of if (vmin < vrrtol*vrrtol) else, quartics to get rr. */
 
   /* given rr, find sigsq[k] and verify rr.  */
   /* All positive kflag drop to this section  */

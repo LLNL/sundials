@@ -128,7 +128,8 @@ SUNNonlinearSolver SUNNonlinSol_NewtonSens(int count, N_Vector y,
   GetType, Initialize, Setup, Solve, and Free operations
   ============================================================================*/
 
-SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNDIALS_MAYBE_UNUSED SUNNonlinearSolver NLS)
+SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(
+  SUNDIALS_MAYBE_UNUSED SUNNonlinearSolver NLS)
 {
   return (SUNNONLINEARSOLVER_ROOTFIND);
 }

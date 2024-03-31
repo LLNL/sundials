@@ -213,7 +213,8 @@ int main(int argc, char* argv[])
     auto Arowptrs{gko_matrix->get_const_row_ptrs()};
     auto Acolidxs{gko_matrix->get_const_col_idxs()};
     auto Avalues{gko_matrix->get_const_values()};
-    for (sunindextype irow = 0; irow < static_cast<sunindextype>(gko_matrix->get_size()[0]); irow++)
+    for (sunindextype irow = 0;
+         irow < static_cast<sunindextype>(gko_matrix->get_size()[0]); irow++)
     {
       for (auto inz = gko_exec->copy_val_to_host(Arowptrs + irow);
            inz < gko_exec->copy_val_to_host(Arowptrs + irow + 1); inz++)
@@ -320,7 +321,8 @@ int check_matrix_csr(SUNMatrix A, SUNMatrix B, sunrealtype tol)
   }
 
   /* compare data */
-  for (sunindextype irow = 0; irow < static_cast<sunindextype>(Amat_ref->get_size()[0]); irow++)
+  for (sunindextype irow = 0;
+       irow < static_cast<sunindextype>(Amat_ref->get_size()[0]); irow++)
   {
     for (sunindextype inz = Arowptrs[irow]; inz < Arowptrs[irow + 1]; inz++)
     {
@@ -379,7 +381,8 @@ int check_matrix_entry_csr(SUNMatrix A, sunrealtype val, sunrealtype tol)
   auto Avalues{Amat_ref->get_const_values()};
 
   /* compare data */
-  for (sunindextype irow = 0; irow < static_cast<sunindextype>(Amat_ref->get_size()[0]); irow++)
+  for (sunindextype irow = 0;
+       irow < static_cast<sunindextype>(Amat_ref->get_size()[0]); irow++)
   {
     for (sunindextype inz = Arowptrs[irow]; inz < Arowptrs[irow + 1]; inz++)
     {

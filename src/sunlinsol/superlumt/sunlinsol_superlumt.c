@@ -231,7 +231,8 @@ SUNErrCode SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(
+  SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return SUNLINEARSOLVER_DIRECT;
 }

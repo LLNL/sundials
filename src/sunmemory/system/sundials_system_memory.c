@@ -136,13 +136,10 @@ SUNErrCode SUNMemoryHelper_Copy_Sys(SUNMemoryHelper helper, SUNMemory dst,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNMemoryHelper_GetAllocStats_Sys(SUNMemoryHelper helper,
-                                             SUNDIALS_MAYBE_UNUSED
-                                             SUNMemoryType mem_type,
-                                             unsigned long* num_allocations,
-                                             unsigned long* num_deallocations,
-                                             size_t* bytes_allocated,
-                                             size_t* bytes_high_watermark)
+SUNErrCode SUNMemoryHelper_GetAllocStats_Sys(
+  SUNMemoryHelper helper, SUNDIALS_MAYBE_UNUSED SUNMemoryType mem_type,
+  unsigned long* num_allocations, unsigned long* num_deallocations,
+  size_t* bytes_allocated, size_t* bytes_high_watermark)
 {
   SUNFunctionBegin(helper->sunctx);
   SUNAssert(mem_type == SUNMEMTYPE_HOST, SUN_ERR_ARG_INCOMPATIBLE);
