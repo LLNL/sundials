@@ -4024,7 +4024,7 @@ static sunbooleantype __order6s(sunrealtype* b, sunrealtype** A1,
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A2, tmp1, s, tmp2))
+  if (__mv(A3, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
