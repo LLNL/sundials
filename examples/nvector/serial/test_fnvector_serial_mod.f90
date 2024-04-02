@@ -28,7 +28,7 @@ module test_nvector_serial
   integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
-  integer(kind=sunindextype), parameter :: N = 100 ! vector length
+  integer(kind=myindextype), parameter :: N = 100 ! vector length
   integer(c_int), parameter :: nv = 3 ! length of vector arrays
 
 contains
@@ -36,7 +36,7 @@ contains
   integer function smoke_tests() result(ret)
     implicit none
 
-    integer(kind=sunindextype) :: lenrw(1), leniw(1) ! real and int work space size
+    integer(kind=myindextype) :: lenrw(1), leniw(1) ! real and int work space size
     integer(c_long)            :: ival               ! integer work value
     real(c_double)             :: rval               ! real work value
     real(c_double)             :: xdata(N)           ! vector data array
@@ -53,8 +53,8 @@ contains
     z => FN_VClone_Serial(x)
     call FN_VConst(ONE, z)
 
-    xvecs = FN_VCloneVectorArray(int(nv,sunindextype), x)
-    zvecs = FN_VCloneVectorArray(int(nv,sunindextype), z)
+    xvecs = FN_VCloneVectorArray(int(nv,myindextype), x)
+    zvecs = FN_VCloneVectorArray(int(nv,myindextype), z)
     nvarr = (/ ONE, ONE, ONE /)
 
     !===== Test =====
@@ -114,8 +114,8 @@ contains
     call FN_VDestroy_Serial(x)
     call FN_VDestroy_Serial(y)
     call FN_VDestroy_Serial(z)
-    call FN_VDestroyVectorArray(xvecs, int(nv,sunindextype))
-    call FN_VDestroyVectorArray(zvecs, int(nv,sunindextype))
+    call FN_VDestroyVectorArray(xvecs, int(nv,myindextype))
+    call FN_VDestroyVectorArray(zvecs, int(nv,myindextype))
 
     ret = 0
 
@@ -157,10 +157,10 @@ function check_ans(ans, X, local_length) result(failure)
   integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
-  integer(kind=sunindextype) :: failure
+  integer(kind=myindextype) :: failure
   real(C_DOUBLE)             :: ans
   type(N_Vector)             :: X
-  integer(kind=sunindextype) :: local_length, i
+  integer(kind=myindextype) :: local_length, i
   real(C_DOUBLE), pointer    :: Xdata(:)
 
   failure = 0

@@ -50,8 +50,8 @@ module dae_mod
   integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
-  integer(kind=sunindextype), parameter :: neq = 3
-  integer(kind=sunindextype), parameter :: nout = 12
+  integer(kind=myindextype), parameter :: neq = 3
+  integer(kind=myindextype), parameter :: nout = 12
 
 contains
 

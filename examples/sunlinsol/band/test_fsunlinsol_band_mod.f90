@@ -26,9 +26,9 @@ module test_fsunlinsol_band
   integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
-  integer(kind=sunindextype), parameter :: N = 10
-  integer(kind=sunindextype), parameter :: mu = 2
-  integer(kind=sunindextype), parameter :: ml = 3
+  integer(kind=myindextype), parameter :: N = 10
+  integer(kind=myindextype), parameter :: mu = 2
+  integer(kind=myindextype), parameter :: ml = 3
 
 contains
 
@@ -46,8 +46,8 @@ contains
     type(N_Vector),  pointer   :: x, y, b            ! test vectors
     real(C_DOUBLE),  pointer   :: xdata(:), Adata(:) ! data arrays
     real(C_DOUBLE)             :: tmpr               ! temporary real value
-    integer(kind=sunindextype) :: j, k
-    integer(kind=sunindextype) :: smu, kstart, kend, offset
+    integer(kind=myindextype) :: j, k
+    integer(kind=myindextype) :: smu, kstart, kend, offset
     integer(C_INT)             :: tmp
 
     fails = 0
@@ -135,7 +135,7 @@ integer(C_INT) function check_vector(X, Y, tol) result(failure)
 
   type(N_Vector)  :: x, y
   real(C_DOUBLE)  :: tol, maxerr
-  integer(kind=sunindextype) :: i, xlen, ylen
+  integer(kind=myindextype) :: i, xlen, ylen
   real(C_DOUBLE), pointer :: xdata(:), ydata(:)
 
   failure = 0

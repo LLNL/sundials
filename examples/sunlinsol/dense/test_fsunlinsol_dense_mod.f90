@@ -26,7 +26,7 @@ module test_fsunlinsol_dense
   integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
-  integer(kind=sunindextype), private, parameter :: N = 100
+  integer(kind=myindextype), private, parameter :: N = 100
 
 contains
 
@@ -45,7 +45,7 @@ contains
     real(C_DOUBLE),        pointer :: colj(:), colIj(:) ! matrix column data
     real(C_DOUBLE),        pointer :: xdata(:)          ! x vector data
     real(C_DOUBLE)                 :: tmpr              ! temporary real value
-    integer(kind=sunindextype)     :: j, k
+    integer(kind=myindextype)     :: j, k
     integer(C_INT)                 :: tmp
 
     fails = 0
@@ -134,7 +134,7 @@ integer(C_INT) function check_vector(X, Y, tol) result(failure)
 
   type(N_Vector)             :: x, y
   real(C_DOUBLE)             :: tol, maxerr
-  integer(kind=sunindextype) :: i, xlen, ylen
+  integer(kind=myindextype) :: i, xlen, ylen
   real(C_DOUBLE), pointer    :: xdata(:), ydata(:)
 
   failure = 0

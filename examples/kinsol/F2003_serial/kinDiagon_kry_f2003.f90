@@ -44,7 +44,7 @@ module kinDiagonKry_mod
   integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
-  integer(kind=sunindextype), parameter :: neq = 128
+  integer(kind=myindextype), parameter :: neq = 128
 
   integer(c_int)  :: ierr, retval
   integer(c_long) :: i

@@ -53,9 +53,9 @@ module advdiff_mod
 #endif
 
   ! setup and number of equations
-  integer(kind=sunindextype), parameter :: mx = 10, my = 5
-  integer(kind=sunindextype), parameter :: mxmy = mx*my
-  integer(kind=sunindextype), parameter :: neq = mxmy
+  integer(kind=myindextype), parameter :: mx = 10, my = 5
+  integer(kind=myindextype), parameter :: mxmy = mx*my
+  integer(kind=myindextype), parameter :: neq = mxmy
 
   ! ODE constant parameters
   real(c_double), parameter :: xmax = 2.0d0, ymax = 1.0d0
@@ -71,8 +71,8 @@ module advdiff_mod
   real(c_double), parameter :: atol = 1.0d-5
 
   ! ODE non-constant parameters
-  integer(kind=sunindextype) :: i, j   ! index variables
-  integer(kind=sunindextype) :: mu, ml ! band preconditioner constants
+  integer(kind=myindextype) :: i, j   ! index variables
+  integer(kind=myindextype) :: mu, ml ! band preconditioner constants
   real(c_double) :: x, y      ! initialization index variables
   real(c_double) :: unorm     ! solution output variable
 

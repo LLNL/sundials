@@ -26,7 +26,7 @@ module test_fsunlinsol_lapackdense
   integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
-  integer(kind=sunindextype), private, parameter :: N = 100
+  integer(kind=myindextype), private, parameter :: N = 100
 
 contains
 
@@ -48,7 +48,7 @@ contains
     real(C_DOUBLE),        pointer :: colj(:), colIj(:) ! matrix column data
     real(C_DOUBLE),        pointer :: xdata(:)          ! x vector data
     real(C_DOUBLE)                 :: tmpr              ! temporary real value
-    integer(kind=sunindextype)     :: j, k
+    integer(kind=myindextype)     :: j, k
     integer(C_INT)                 :: tmp
 
     fails = 0

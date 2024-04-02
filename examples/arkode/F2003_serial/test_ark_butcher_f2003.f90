@@ -34,7 +34,7 @@ module test_arkode_butcher_table
     implicit none
     type(c_ptr) :: ERK, DIRK
     integer(C_INT) :: ierr, q(1), p(1)
-    integer(kind=sunindextype) :: liw(1), lrw(1)
+    integer(kind=myindextype) :: liw(1), lrw(1)
     real(C_DOUBLE) :: b(2), c(2), d(2), A(4)
 
     !===== Setup ====

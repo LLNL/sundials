@@ -45,7 +45,7 @@ module dae_mod
 #endif
 
   ! problem parameters
-  integer(kind=sunindextype), parameter :: NEQ = 6
+  integer(kind=myindextype), parameter :: NEQ = 6
   integer(c_long), parameter :: STEPS = 150
   real(c_double),  parameter :: T0    = 0.0d0
   real(c_double),  parameter :: TF    = 180.d0
@@ -319,7 +319,7 @@ program main
   call FN_VDestroy(nv_rr)
 
   ! Create and initialize q0 for quadratures.
-  nv_q => FN_VNew_Serial(1_sunindextype, sunctx)
+  nv_q => FN_VNew_Serial(1_myindextype, sunctx)
   if (.not. associated(nv_q)) then
     write(*,*) 'ERROR: FN_VNew_Serial returned NULL'
     stop 1

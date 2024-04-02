@@ -45,7 +45,7 @@ module analytic_mod
 #endif
 
   ! number of equations
-  integer(kind=sunindextype), parameter :: neq = 1
+  integer(kind=myindextype), parameter :: neq = 1
 
   ! ODE parameters
   real(c_double), parameter :: lamda = -100.0d0

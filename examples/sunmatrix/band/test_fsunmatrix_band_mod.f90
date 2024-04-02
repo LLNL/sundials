@@ -26,9 +26,9 @@ module test_fsunmatrix_band
   integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
-  integer(kind=sunindextype), parameter :: N  = 10
-  integer(kind=sunindextype), parameter :: mu = 2
-  integer(kind=sunindextype), parameter :: ml = 2
+  integer(kind=myindextype), parameter :: N  = 10
+  integer(kind=myindextype), parameter :: mu = 2
+  integer(kind=myindextype), parameter :: ml = 2
 
 contains
 
@@ -114,12 +114,12 @@ contains
     type(SUNMatrix), pointer   :: A, I
     type(N_Vector),  pointer   :: x, y
     real(C_DOUBLE),  pointer   :: Adata(:), Idata(:), xdata(:), ydata(:)
-    integer(kind=sunindextype) :: ii, jj, smu, istart, iend, offset
+    integer(kind=myindextype) :: ii, jj, smu, istart, iend, offset
 
     fails = 0
 
     A => FSUNBandMatrix(N, mu, ml, sunctx)
-    I => FSUNBandMatrix(N, 0_sunindextype, 0_sunindextype, sunctx)
+    I => FSUNBandMatrix(N, 0_myindextype, 0_myindextype, sunctx)
     x => FN_VNew_Serial(N, sunctx)
     y => FN_VNew_Serial(N, sunctx)
 
@@ -150,7 +150,7 @@ contains
       xdata(jj+1) = jj
       ! y vector
       ydata(jj+1) = ZERO
-      istart    = max(0_c_long, jj-ml)
+      istart    = max(0_myindextype, jj-ml)
       iend      = min(N-1, jj+mu)
       do ii = istart, iend
         ydata(jj+1) = ydata(jj+1) + (ii+ii-jj)*(ii)
