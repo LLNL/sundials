@@ -39,9 +39,9 @@ module dae_mod
   ! on the the index size SUNDIALS was compiled with so that it works
   ! in both configurations. This is not a requirement for user codes.
 #if defined(SUNDIALS_INT32_T)
-  integer, parameter :: sunindextype = selected_int_kind(8)
+  integer, parameter :: myindextype = selected_int_kind(8)
 #elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: sunindextype = selected_int_kind(16)
+  integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
   ! problem parameters

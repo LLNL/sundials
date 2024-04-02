@@ -21,9 +21,9 @@ module test_fsunmatrix_dense
   implicit none
 
 #if defined(SUNDIALS_INT32_T)
-  integer, parameter :: sunindextype = selected_int_kind(8)
+  integer, parameter :: myindextype = selected_int_kind(8)
 #elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: sunindextype = selected_int_kind(16)
+  integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
   integer(kind=sunindextype), parameter :: N = 4
@@ -197,9 +197,9 @@ integer(C_INT) function check_matrix(A, B, tol) result(fails)
   implicit none
 
 #if defined(SUNDIALS_INT32_T)
-  integer, parameter :: sunindextype = selected_int_kind(8)
+  integer, parameter :: myindextype = selected_int_kind(8)
 #elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: sunindextype = selected_int_kind(16)
+  integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
   type(SUNMatrix) :: A, B
