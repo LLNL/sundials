@@ -3,4 +3,3 @@ sphinx-fortran
 sphinx_rtd_theme
 sphinxcontrib.bibtex
 sphinx-copybutton
-graphviz

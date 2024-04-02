@@ -6,7 +6,9 @@ at https://sundials.readthedocs.io.
 
 To build the documentation with Sphinx you will need Python 3.9+. Sphinx and the
 necessary extensions can be installed using the requirements file i.e., `pip
-install -r requirements.txt`.
+install -r requirements.txt`. Additionally, building the developer
+documentation requires [Graphviz](https://graphviz.org/) for generating
+flowcharts.
 
 Once you have the dependencies installed, you can choose what you want to build.
 To build the so-called "superbuild" of HTML docs that includes everything

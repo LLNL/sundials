@@ -22,7 +22,8 @@
 
 include(FetchContent)
 
-# COPY THE BLOCK BELOW FOR YOUR OWN EXTERNAL ADDON
+# COPY THE FetchContent BLOCK BELOW FOR YOUR OWN EXTERNAL ADDON
+# COMMENT THESE LINES OUT TO DISABLE THE EXAMPLE ADDON
 FetchContent_Declare(sundials-addon-example
   SOURCE_DIR ${PROJECT_SOURCE_DIR}/external/sundials-addon-example
 )

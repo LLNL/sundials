@@ -92,12 +92,10 @@ Certificate of Origin (DCO) <http://developercertificate.org/>`_.
       this project or the open source license(s) involved.
 
 
-As discussed in the `Docker software project blog
-<https://blog.docker.com/2014/01/docker-code-contributions-require-developer-certificate-of-origin>`_
-this DCO "lets us know that you are entitled to contribute this code to [SUNDIALS] and that you are
-willing to have it used in distributions and derivative works."
+The DCO lets us know that you are entitled to contribute this code to SUNDIALS and that you are
+willing to have it used in distributions and derivative works.
 
-"By including the DCO signature, you are stating that one or
+By including the DCO signature, you are stating that one or
 more of the following is true of your contribution:
 
 1.  You created this contribution/change and have the right to submit it
@@ -107,7 +105,7 @@ more of the following is true of your contribution:
 3.  This contribution/change has been provided to you by someone who did
     1 or 2 and you are submitting the contribution unchanged.
 4.  You understand this contribution is public and may be redistributed as
-    open source software" under the BSD license.
+    open source software under the BSD license.
 
 All commits submitted to the SUNDIALS project need to have the following sign
 off line in the commit message:
@@ -155,3 +153,4 @@ The SUNDIALS team maintains a list of some SUNDIALS addons in our `Friends of SU
 <https://github.com/sundials-codes/friends-of-sundials>`_ repository. These addons are not
 maintained by the SUNDIALS team, but have been developed in consultation with us.
 **Currently we are only adding projects for existing collaborations**.
+Please contact the development team if you are interested in collaborating on an addon.
