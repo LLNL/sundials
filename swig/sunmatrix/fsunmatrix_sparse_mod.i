@@ -47,6 +47,29 @@ SWIGEXPORT double * _wrap_FSUNSparseMatrix_Data(SUNMatrix farg1) {
   return fresult;
 }
 
+#if SUNDIALS_INT32_T
+SWIGEXPORT int32_t * _wrap_FSUNSparseMatrix_IndexValues(SUNMatrix farg1) {
+  int32_t * fresult ;
+  SUNMatrix arg1 = (SUNMatrix) 0 ;
+  sunindextype *result = 0 ;
+
+  arg1 = (SUNMatrix)(farg1);
+  result = (sunindextype *)SUNSparseMatrix_IndexValues(arg1);
+  fresult = result;
+  return fresult;
+}
+
+SWIGEXPORT int32_t * _wrap_FSUNSparseMatrix_IndexPointers(SUNMatrix farg1) {
+  int32_t * fresult ;
+  SUNMatrix arg1 = (SUNMatrix) 0 ;
+  sunindextype *result = 0 ;
+
+  arg1 = (SUNMatrix)(farg1);
+  result = (sunindextype *)SUNSparseMatrix_IndexPointers(arg1);
+  fresult = result;
+  return fresult;
+}
+#else
 SWIGEXPORT int64_t * _wrap_FSUNSparseMatrix_IndexValues(SUNMatrix farg1) {
   int64_t * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
@@ -68,6 +91,7 @@ SWIGEXPORT int64_t * _wrap_FSUNSparseMatrix_IndexPointers(SUNMatrix farg1) {
   fresult = result;
   return fresult;
 }
+#endif
 %}
 
 %insert("fdecl") %{
