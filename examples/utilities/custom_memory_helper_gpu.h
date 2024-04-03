@@ -15,6 +15,9 @@
  * unmanaged memory only and synchronous copies.
  * -----------------------------------------------------------------*/
 
+#ifndef _CUSTOM_MEMORY_HELPER_GPU_H
+#define _CUSTOM_MEMORY_HELPER_GPU_H
+
 #include <assert.h>
 #include <string.h>
 #if defined(__NVCC__)
@@ -157,3 +160,5 @@ SUNMemoryHelper MyMemoryHelper(SUNContext sunctx)
 
   return helper;
 }
+
+#endif
