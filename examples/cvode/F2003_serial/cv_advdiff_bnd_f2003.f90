@@ -176,11 +176,11 @@ contains
     type(N_Vector)        :: sunvec_t3
 
     ! local data
-    integer(c_int) :: mband, k, ioff, mu1, mu2, smu, mdim
-    integer(c_int) :: start
+    integer(kind=myindextype) :: mband, k, ioff, mu1, mu2, smu, mdim
+    integer(kind=myindextype) :: start
     real(c_double), pointer, dimension(mdim,neq) :: Jmat(:,:)
 
-    smu = int(FSUNBandMatrix_StoredUpperBandwidth(sunmat_J), c_int)
+    smu = FSUNBandMatrix_StoredUpperBandwidth(sunmat_J)
     mdim = smu + 1 + ml
     Jmat(1:mdim,1:neq) => FSUNBandMatrix_Data(sunmat_J)
 
