@@ -2197,7 +2197,7 @@ SUNDIALS "addons" are community developed code additions for SUNDIALS that can b
 SUNDIALS build system so that they have full access to all internal SUNDIALS symbols. The intent is
 for SUNDIALS addons to function as if they are part of the SUNDIALS library, while allowing them to
 potentially have different licenses (although we encourage BSD-3-Clause still), code style (although
-we encourage them to follow the SUNDIALS style outlined :ref:`here <Style>`).
+we encourage them to follow the SUNDIALS style outlined :ref:`here <https://sundials.readthedocs.io/en/latest/developers/style_guide/index.html>`_).
 
 .. warning::
 
