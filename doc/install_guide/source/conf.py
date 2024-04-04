@@ -31,6 +31,9 @@ extensions = ['sphinx_rtd_theme', 'sphinx.ext.ifconfig', 'sphinx.ext.mathjax',
               'sphinxfortran.fortran_domain', 'sphinxcontrib.bibtex',
               'sphinx_copybutton', 'sphinx_sundials']
 
+intersphinx_mapping = {'sundials': (f'https://sundials.readthedocs.io/en/{doc_version}',
+                                    ('../../../superbuild/build/html/objects.inv', None))}
+
 # References
 bibtex_bibfiles = ['../../shared/sundials.bib']
 
