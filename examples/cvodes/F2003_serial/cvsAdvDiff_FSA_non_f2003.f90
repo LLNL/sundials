@@ -199,9 +199,8 @@ program main
   type(SUNNonlinearSolver), pointer :: NLSsens => null()
   integer(c_int)                    :: iout, retval
   real(c_double)                    :: reltol, abstol, tout, t(1)
-  integer(c_int64_t)                :: is
+  integer(c_int64_t)                :: is, plist(0:NS-1)
   real(c_double)                    :: pbar(0:NS-1)
-  integer(c_int)                    :: plist(0:NS-1)
 
   ! Command line arguments
   integer(c_int) :: sensi, err_con
