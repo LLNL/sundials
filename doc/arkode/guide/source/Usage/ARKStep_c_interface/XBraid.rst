@@ -639,7 +639,7 @@ error occurred. The possible return codes are given in
 .. c:function:: int ARKBraid_SetSpatialNormFn(braid_App app, braid_PtFcnSpatialNorm snorm)
 
    This function sets the spatial norm function provided to XBraid (default
-   :c:func:`SUNBraid_SpatialNorm()`).
+   :c:func:`SUNBraidVector_SpatialNorm()`).
 
    **Arguments:**
       * *app* -- input, an ARKBraid instance.
@@ -695,7 +695,7 @@ error occurred. The possible return codes are given in
 
    This function returns a vector from the ARKStep memory to use as a template
    for creating new vectors with :c:func:`N_VClone()` i.e., this is the ARKBraid
-   implementation of :c:func:`SUNBraidVector_GetVecTmpl()`.
+   implementation of :c:func:`SUNBraidApp_GetVecTmpl()`.
 
    **Arguments:**
       * *app* -- input, an ARKBraid instance.

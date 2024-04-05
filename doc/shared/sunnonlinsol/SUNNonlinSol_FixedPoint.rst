@@ -253,9 +253,9 @@ allocated within the *content* field:
 * ``R``       -- small matrix used in acceleration algorithm (length ``m*m``),
 * ``gamma``   -- small vector used in acceleration algorithm (length ``m``),
 * ``cvals``   -- small vector used in acceleration algorithm (length ``m+1``),
-* ``df``      -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``),
-* ``dg``      -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``),
-* ``q``       -- array of ``N_Vectors`` used in acceleration algorithm (length ``m``),
-* ``Xvecs``   -- ``N_Vector`` pointer array used in acceleration algorithm (length ``m+1``),
-* ``fold``    -- ``N_Vector`` used in acceleration algorithm, and
-* ``gold``    -- ``N_Vector`` used in acceleration algorithm.
+* ``df``      -- array of vectors used in acceleration algorithm (length ``m``),
+* ``dg``      -- array of vectors used in acceleration algorithm (length ``m``),
+* ``q``       -- array of vectors used in acceleration algorithm (length ``m``),
+* ``Xvecs``   -- vector pointer array used in acceleration algorithm (length ``m+1``),
+* ``fold``    -- vector used in acceleration algorithm, and
+* ``gold``    -- vector used in acceleration algorithm.

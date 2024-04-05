@@ -12,6 +12,9 @@
  * SUNDIALS Copyright End
  * ---------------------------------------------------------------------------*/
 
+#ifndef _ARK_BRUSSELATOR1D_H
+#define _ARK_BRUSSELATOR1D_H
+
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -265,4 +268,6 @@ static int check_retval(void* returnvalue, const char* funcname, int opt);
 #ifdef USE_CUDA_OR_HIP
 static void gpuAssert(GPU_PREFIX(Error_t) code, const char* file, int line,
                       int abort);
+#endif
+
 #endif

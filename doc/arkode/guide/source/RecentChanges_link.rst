@@ -10,10 +10,4 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _Organization:
-
-#####################
-SUNDIALS organization
-#####################
-
-.. include:: ../../shared/SundialsOrganization.rst
+.. include:: ../../../shared/RecentChanges.rst
