@@ -310,10 +310,10 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
    ``ARKODE_MRI_GARK_FORWARD_EULER``  :math:`1^*`
    ``ARKODE_MRI_GARK_ERK22b``         :math:`2^*`  :cite:p:`Sandu:19`
    ``ARKODE_MRI_GARK_ERK22a``         2            :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_RALSTON2``       2            :cite:p:`Roberts22`
+   ``ARKODE_MRI_GARK_RALSTON2``       2            :cite:p:`Roberts:22`
    ``ARKODE_MIS_KW3``                 :math:`3^*`  :cite:p:`Schlegel:09`
    ``ARKODE_MRI_GARK_ERK33a``         3            :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_RALSTON3``       3            :cite:p:`Roberts22`
+   ``ARKODE_MRI_GARK_RALSTON3``       3            :cite:p:`Roberts:22`
    ``ARKODE_MRI_GARK_ERK45a``         :math:`4^*`  :cite:p:`Sandu:19`
    =================================  ===========  =====================
 
