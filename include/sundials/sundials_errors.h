@@ -48,6 +48,9 @@
         "operation is not implemented: function pointer is NULL")              \
   ENTRY(SUN_ERR_USER_FCN_FAIL, "the user provided callback function failed")   \
                                                                                \
+  ENTRY(SUN_ERR_DATANODE_MAXCHILDREN,                                          \
+        "the data node has reached its max number of children")                \
+                                                                               \
   ENTRY(SUN_ERR_PROFILER_MAPFULL,                                              \
         "the number of profiler entries exceeded SUNPROFILER_MAX_ENTRIES")     \
   ENTRY(SUN_ERR_PROFILER_MAPGET, "unknown error getting SUNProfiler timer")    \

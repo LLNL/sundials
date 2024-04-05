@@ -29,6 +29,7 @@ set(sundials_HEADERS
   sundials_convertibleto.hpp
   sundials_core.h
   sundials_core.hpp
+  sundials_datanode.h
   sundials_dense.h
   sundials_direct.h
   sundials_errors.h
@@ -84,6 +85,7 @@ set(sundials_SOURCES
   sundials_band.c
   sundials_context.c
   sundials_dense.c
+  sundials_datanode.c
   sundials_direct.c
   sundials_errors.c
   sundials_futils.c

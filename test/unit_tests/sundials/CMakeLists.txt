@@ -10,13 +10,23 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-if(SUNDIALS_ENABLE_ERROR_CHECKS)
-  if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
-    add_executable(test_sundials_errors test_sundials_errors.cpp)
-    target_link_libraries(test_sundials_errors
+# List of test tuples of the form "name\;args"
+set(unit_tests
+  "test_sundials_errors\;"
+  "test_sundials_datanode\;")
+
+# Add the build and install targets for each test
+if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
+  foreach(test_tuple ${unit_tests})
+    # parse the test tuple
+    list(GET test_tuple 0 test)
+    list(GET test_tuple 1 test_args)
+
+    add_executable(${test} ${test}.cpp)
+    target_link_libraries(${test}
       PRIVATE sundials_core sundials_nvecserial GTest::gtest_main GTest::gmock)
-    gtest_discover_tests(test_sundials_errors)
-  endif()
+
+    gtest_discover_tests(${test})
+  endforeach()
 endif()
 
-add_subdirectory(reductions)
