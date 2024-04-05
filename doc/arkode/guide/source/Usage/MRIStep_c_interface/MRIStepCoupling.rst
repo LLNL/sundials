@@ -330,7 +330,7 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
    ``ARKODE_MRI_GARK_IMPLICIT_MIDPOINT``  2            2
    ``ARKODE_MRI_GARK_ESDIRK34a``          :math:`3^*`  3                :cite:p:`Sandu:19`
    ``ARKODE_MRI_GARK_ESDIRK46a``          :math:`4^*`  5                :cite:p:`Sandu:19`
-   ====================================   ===========  ===============  ==================
+   =====================================  ===========  ===============  ==================
 
 
 .. table:: Diagonally-implicit, solve-decoupled IMEX-MRI-GARK coupling tables.
