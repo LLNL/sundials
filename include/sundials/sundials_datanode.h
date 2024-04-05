@@ -44,7 +44,7 @@ struct SUNDataNode_s {
   SUNErrCode (*destroy)(SUNDataNode*);
 
   // Node basics
-  SUNDataNode* parent;
+  SUNDataNode parent;
 
   // Node can only be an object, leaf, or list. It cannot be more than one of these at a time.
 
@@ -77,6 +77,12 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_CreateLeaf(void* leaf_data, size_t data_stride, size_t data_bytes, SUNContext sunctx, SUNDataNode* node_out);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNDataNode_NodeIsLeaf(const SUNDataNode node, sunbooleantype* yes_or_no);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDataNode_NodeIsList(const SUNDataNode node, sunbooleantype* yes_or_no);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_HasChildren(const SUNDataNode node, sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT
@@ -86,7 +92,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_GetChild(const SUNDataNode parent_node, sundataindex_t index, SUNDataNode* child_node);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDataNode_RemoveChild(SUNDataNode node, sundataindex_t index);
+SUNErrCode SUNDataNode_RemoveChild(SUNDataNode node, sundataindex_t index, SUNDataNode* child_node);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_GetData(const SUNDataNode node, void** data);
