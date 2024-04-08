@@ -100,18 +100,18 @@ typedef struct ARKodeMRIStepMemRec
   sunrealtype crate;      /* estimated nonlin convergence rate        */
   sunrealtype delp;       /* norm of previous nonlinear solver update */
   sunrealtype eRNrm;      /* estimated residual norm, used in nonlin
-                                    and linear solver convergence tests      */
+                             and linear solver convergence tests      */
   sunrealtype nlscoef;    /* coefficient in nonlin. convergence test  */
 
-  int msbp;       /* positive => max # steps between lsetup
-                                    negative => call at each Newton iter     */
+  int msbp;               /* positive => max # steps between lsetup
+                             negative => call at each Newton iter     */
   long int nstlp; /* step number of last setup call           */
 
-  int maxcor;          /* max num iterations for solving the
-                                    nonlinear equation                       */
-  int convfail;        /* NLS fail flag (for interface routines)   */
-  sunbooleantype jcur; /* is Jacobian info for lin solver current? */
-  ARKStagePredictFn stage_predict; /* User-supplied stage predictor        */
+  int maxcor;             /* max num iterations for solving the
+                             nonlinear equation                       */
+  int convfail;           /* NLS fail flag (for interface routines)   */
+  sunbooleantype jcur;    /* is Jacobian info for lin solver current? */
+  ARKStagePredictFn stage_predict; /* User-supplied stage predictor   */
 
   /* Linear Solver Data */
   ARKLinsolInitFn linit;
@@ -208,7 +208,9 @@ int mriStep_GetGammas(void* arkode_mem, sunrealtype* gamma, sunrealtype* gamrat,
                       sunbooleantype** jcur, sunbooleantype* dgamma_fail);
 int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
-int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int mriStep_TakeStepMRIGARK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int mriStep_TakeStepMRISR(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int mriStep_TakeStepMERK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr);
 
 /* Internal utility routines */
 int mriStep_AccessStepMem(void* arkode_mem, const char* fname,

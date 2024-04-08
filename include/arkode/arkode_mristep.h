@@ -65,20 +65,23 @@ typedef enum
   ARKODE_MAX_MRI_NUM = ARKODE_IMEX_MRI_SR43
 } ARKODE_MRITableID;
 
-/* Default MRI coupling tables for each order */
+/* Default MRI coupling tables for each order and type */
 
 static const int MRISTEP_DEFAULT_3         = ARKODE_MIS_KW3;
-static const int MRISTEP_DEFAULT_3_AD      = ARKODE_MRI_GARK_ERK33a;
-static const int MRISTEP_DEFAULT_EXPL_2    = ARKODE_MRI_GARK_ERK22a;
 static const int MRISTEP_DEFAULT_EXPL_3    = ARKODE_MIS_KW3;
-static const int MRISTEP_DEFAULT_EXPL_3_AD = ARKODE_MRI_GARK_ERK33a;
 static const int MRISTEP_DEFAULT_EXPL_4    = ARKODE_MRI_GARK_ERK45a;
 static const int MRISTEP_DEFAULT_IMPL_SD_2 = ARKODE_MRI_GARK_IRK21a;
 static const int MRISTEP_DEFAULT_IMPL_SD_3 = ARKODE_MRI_GARK_ESDIRK34a;
 static const int MRISTEP_DEFAULT_IMPL_SD_4 = ARKODE_MRI_GARK_ESDIRK46a;
-static const int MRISTEP_DEFAULT_IMEX_SD_2 = ARKODE_IMEX_MRI_SR21;
-static const int MRISTEP_DEFAULT_IMEX_SD_3 = ARKODE_IMEX_MRI_SR32;
-static const int MRISTEP_DEFAULT_IMEX_SD_4 = ARKODE_IMEX_MRI_SR43;
+static const int MRISTEP_DEFAULT_IMEX_SD_3 = ARKODE_IMEX_MRI_GARK3b;
+static const int MRISTEP_DEFAULT_IMEX_SD_4 = ARKODE_IMEX_MRI_GARK4;
+static const int MRISTEP_DEFAULT_EXPL_2_AD = ARKODE_MRI_GARK_ERK22a;
+static const int MRISTEP_DEFAULT_EXPL_3_AD = ARKODE_MRI_GARK_ERK33a;
+static const int MRISTEP_DEFAULT_EXPL_4_AD = ARKODE_MRI_GARK_ERK45a;
+static const int MRISTEP_DEFAULT_EXPL_5_AD = ARKODE_MERK54;
+static const int MRISTEP_DEFAULT_IMEX_SD_2_AD = ARKODE_IMEX_MRI_SR21;
+static const int MRISTEP_DEFAULT_IMEX_SD_3_AD = ARKODE_IMEX_MRI_SR32;
+static const int MRISTEP_DEFAULT_IMEX_SD_4_AD = ARKODE_IMEX_MRI_SR43;
 
 /* ------------------------------------
  * MRIStep Inner Stepper Function Types

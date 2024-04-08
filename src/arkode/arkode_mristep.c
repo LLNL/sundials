@@ -112,7 +112,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   ark_mem->step_getgammas      = mriStep_GetGammas;
   ark_mem->step_init           = mriStep_Init;
   ark_mem->step_fullrhs        = mriStep_FullRHS;
-  ark_mem->step                = mriStep_TakeStep;
+  ark_mem->step                = mriStep_TakeStepMRIGARK;
   ark_mem->step_mem            = (void*)step_mem;
 
   /* Set default values for MRIStep optional inputs */
@@ -1663,7 +1663,7 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
 }
 
 /*---------------------------------------------------------------
-  mriStep_TakeStep:
+  mriStep_TakeStepMRIGARK:
 
   This routine serves the primary purpose of the MRIStep module:
   it performs a single MRI step (with embedding, if possible).
@@ -1699,7 +1699,7 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                  reduce step and retry (if possible)
            <0 => step encountered unrecoverable failure
   ---------------------------------------------------------------*/
-int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
+int mriStep_TakeStepMRIGARK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   ARKodeMem ark_mem;         /* outer ARKODE memory        */
   ARKodeMRIStepMem step_mem; /* outer stepper memory       */
@@ -1796,19 +1796,19 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #endif
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStepMRIGARK",
                      "slow stage", "z[0] =", "");
   N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 
   if (step_mem->explicit_rhs)
   {
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStepMRIGARK",
                        "slow explicit RHS", "Fse[0] =", "");
     N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp);
   }
   if (step_mem->implicit_rhs)
   {
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStepMRIGARK",
                        "slow implicit RHS", "Fsi[0] =", "");
     N_VPrintFile(step_mem->Fsi[0], ARK_LOGGER->debug_fp);
   }
@@ -1826,7 +1826,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Solver diagnostics reporting */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::mriStep_TakeStep", "start-stage",
+                       "ARKODE::mriStep_TakeStepMRIGARK", "start-stage",
                        "step = %li, stage = %i, stage type = %d, h = %" RSYM
                        ", tcur = %" RSYM,
                        ark_mem->nst, is, step_mem->stagetypes[is], ark_mem->h,
@@ -1856,7 +1856,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::mriStep_TakeStep", "slow stage", "z[%i] =", is);
+                       "ARKODE::mriStep_TakeStepMRIGARK", "slow stage", "z[%i] =", is);
     N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1893,7 +1893,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                           "ARKODE::mriStep_TakeStep", "slow explicit RHS",
+                           "ARKODE::mriStep_TakeStepMRIGARK", "slow explicit RHS",
                            "Fse[%i] =", is);
         N_VPrintFile(step_mem->Fse[step_mem->stage_map[is]],
                      ARK_LOGGER->debug_fp);
@@ -1923,7 +1923,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                           "ARKODE::mriStep_TakeStep", "slow implicit RHS",
+                           "ARKODE::mriStep_TakeStepMRIGARK", "slow implicit RHS",
                            "Fsi[%i] =", is);
         N_VPrintFile(step_mem->Fsi[step_mem->stage_map[is]],
                      ARK_LOGGER->debug_fp);
@@ -1941,7 +1941,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }   /* loop over stages */
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStepMRIGARK",
                      "updated solution", "ycur =", "");
   N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
@@ -1965,7 +1965,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Solver diagnostics reporting */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::mriStep_TakeStep", "embedding-stage",
+                       "ARKODE::mriStep_TakeStepMRIGARK", "embedding-stage",
                        "step = %li, stage = %i, stage type = %d, h = %" RSYM
                        ", tcur = %" RSYM,
                        ark_mem->nst, step_mem->stages, step_mem->stagetypes[step_mem->stages],
@@ -1994,7 +1994,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != ARK_SUCCESS) { return(retval); }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStepMRIGARK",
                      "embedded solution", "ytilde =", "");
   N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
@@ -2013,12 +2013,94 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   /* Solver diagnostics reporting */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStepMRIGARK",
                      "error-test", "step = %li, h = %" RSYM ", dsm = %" RSYM,
                      ark_mem->nst, ark_mem->h, *dsmPtr);
 #endif
 
   return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  mriStep_TakeStepMRISR:
+
+  This routine performs a single MRISR step.
+
+  The vector ark_mem->ycur holds the previous time-step solution
+  on input, and should hold the result of this step on output.
+
+  If timestep adaptivity is enabled, this routine also computes
+  the error estimate y-ytilde, where ytilde is the
+  embedded solution, and the norm weights come from ark_ewt.
+  This esimate is stored in ark_mem->tempv1, in case the calling
+  routine wishes to examine the error locations.
+
+  The output variable dsmPtr should contain a scalar-valued
+  estimate of the temporal error from this step, ||y-ytilde||_WRMS
+  if timestep adaptivity is enabled; otherwise it should be 0.
+
+  The input/output variable nflagPtr is used to gauge convergence
+  of any algebraic solvers within the step.  At the start of a new
+  time step, this will initially have the value FIRST_CALL.  On
+  return from this function, nflagPtr should have a value:
+            0 => algebraic solve completed successfully
+           >0 => solve did not converge at this step size
+                 (but may with a smaller stepsize)
+           <0 => solve encountered an unrecoverable failure
+  Since the fast-scale evolution could be considered a different
+  type of "algebraic solver", we similarly report any fast-scale
+  evolution error as a recoverable nflagPtr value.
+
+  The return value from this routine is:
+            0 => step completed successfully
+           >0 => step encountered recoverable failure;
+                 reduce step and retry (if possible)
+           <0 => step encountered unrecoverable failure
+  ---------------------------------------------------------------*/
+int mriStep_TakeStepMRISR(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
+{
+  // FILL THIS IN
+}
+
+/*---------------------------------------------------------------
+  mriStep_TakeStepMERK:
+
+  This routine performs a single MERK step.
+
+  The vector ark_mem->ycur holds the previous time-step solution
+  on input, and should hold the result of this step on output.
+
+  If timestep adaptivity is enabled, this routine also computes
+  the error estimate y-ytilde, where ytilde is the
+  embedded solution, and the norm weights come from ark_ewt.
+  This esimate is stored in ark_mem->tempv1, in case the calling
+  routine wishes to examine the error locations.
+
+  The output variable dsmPtr should contain a scalar-valued
+  estimate of the temporal error from this step, ||y-ytilde||_WRMS
+  if timestep adaptivity is enabled; otherwise it should be 0.
+
+  The input/output variable nflagPtr is used to gauge convergence
+  of any algebraic solvers within the step.  At the start of a new
+  time step, this will initially have the value FIRST_CALL.  On
+  return from this function, nflagPtr should have a value:
+            0 => algebraic solve completed successfully
+           >0 => solve did not converge at this step size
+                 (but may with a smaller stepsize)
+           <0 => solve encountered an unrecoverable failure
+  Since the fast-scale evolution could be considered a different
+  type of "algebraic solver", we similarly report any fast-scale
+  evolution error as a recoverable nflagPtr value.
+
+  The return value from this routine is:
+            0 => step completed successfully
+           >0 => step encountered recoverable failure;
+                 reduce step and retry (if possible)
+           <0 => step encountered unrecoverable failure
+  ---------------------------------------------------------------*/
+int mriStep_TakeStepMERK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
+{
+  // FILL THIS IN
 }
 
 /*---------------------------------------------------------------
