@@ -2188,12 +2188,31 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
     {
       switch (step_mem->q)
       {
+      case 2:
+        step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_2_AD);
+        break;
       case 3:
-        step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_3);
-        break;
+        if (!ark_mem->fixedstep)
+        {
+          step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_3);
+          break;
+        }
+        else
+        {
+          step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_3_AD);
+          break;
+        }
       case 4:
-        step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_4);
-        break;
+        if (!ark_mem->fixedstep)
+        {
+          step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_4);
+          break;
+        }
+        else
+        {
+          step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_4_AD);
+          break;
+        }
       default:
         arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                         "No ImEx MRI method at requested order, using q=3.");
@@ -2231,7 +2250,7 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
     switch (step_mem->q)
     {
     case 2:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_2);
+      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_2_AD);
       break;
     case 3:
       if (!ark_mem->fixedstep)
@@ -2245,7 +2264,10 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
         break;
       }
     case 4:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_4);
+      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_4_AD);
+      break;
+    case 5:
+      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_5_AD);
       break;
     default:
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
