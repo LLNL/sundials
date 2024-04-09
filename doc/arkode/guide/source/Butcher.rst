@@ -252,7 +252,7 @@ Accessible via the string ``"ARKODE_RALSTON_EULER_2_1_2"`` to
 .. _Butcher.Explicit_Midpoint_Euler:
 
 Explicit-Midpoint-Euler-2-1-2
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. index:: Explicit-Midpoint-Euler-2-1-2 ERK method
 
