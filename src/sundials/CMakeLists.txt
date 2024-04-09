@@ -29,7 +29,6 @@ set(sundials_HEADERS
   sundials_convertibleto.hpp
   sundials_core.h
   sundials_core.hpp
-  sundials_datanode.h
   sundials_dense.h
   sundials_direct.h
   sundials_errors.h
@@ -81,6 +80,7 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 
 set(sundials_SOURCES
+  sundatanode_mmap.c
   sundials_adaptcontroller.c
   sundials_band.c
   sundials_context.c

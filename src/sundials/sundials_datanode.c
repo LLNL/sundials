@@ -11,9 +11,10 @@
  * -----------------------------------------------------------------*/
 
 #include <sundials/sundials_core.h>
-#include <sundials/sundials_datanode.h>
 #include <sundials/priv/sundials_errors_impl.h>
 
+#include "sundials_datanode.h"
+#include "sundatanode_mmap.h"
 
 SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node_out)
 {
@@ -24,186 +25,152 @@ SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node_out)
   SUNAssert(node, SUN_ERR_MEM_FAIL);
 
   node->hasChildren = NULL;
+  node->isLeaf = NULL;
+  node->isList = NULL;
+  node->isObject = NULL;
   node->addChild = NULL;
   node->getChild = NULL;
   node->removeChild = NULL;
   node->getData = NULL;
   node->setData = NULL;
   node->destroy = NULL;
-
-  node->parent = NULL;
-
-  node->leaf_data = NULL;
-  node->data_stride = 0;
-  node->data_bytes = 0;
-
-  // node->name = NULL;
-  // node->named_children = NULL;
-  // node->num_named_children = NULL;
-
-  node->anon_children = NULL;
-  node->max_anon_children = 0;
-  node->num_anon_children = 0;
-
   node->impl = NULL;
-
   node->sunctx = sunctx;
 
   *node_out = node;
-
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_CreateList(sundataindex_t num_elements, SUNContext sunctx, SUNDataNode* node_out)
+SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode, void* leaf_data, size_t data_stride, size_t data_bytes,
+                                  SUNContext sunctx, SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNDataNode node;
-  SUNCheckCall(SUNDataNode_CreateEmpty(sunctx, &node));
-
-  node->anon_children = (SUNDataNode*)malloc(sizeof(*node) * num_elements);
-  SUNAssert(node, SUN_ERR_MEM_FAIL);
-
-  node->max_anon_children = num_elements;
-
-  *node_out = node;
-
-  return SUN_SUCCESS;
-}
-
-SUNErrCode SUNDataNode_CreateLeaf(void* leaf_data, size_t data_stride, size_t data_bytes, SUNContext sunctx, SUNDataNode* node_out)
-{
-  SUNFunctionBegin(sunctx);
-
-  SUNDataNode node;
-  SUNCheckCall(SUNDataNode_CreateEmpty(sunctx, &node));
-
-  node->leaf_data = leaf_data;
-  node->data_stride = data_stride;
-  node->data_bytes = data_bytes;
-
-  *node_out = node;
-
-  return SUN_SUCCESS;
-}
-
-SUNErrCode SUNDataNode_NodeIsLeaf(const SUNDataNode node, sunbooleantype* yes_or_no)
-{
-  SUNFunctionBegin(node->sunctx);
-
-  *yes_or_no = SUNFALSE;
-  if (node->leaf_data) {
-    *yes_or_no = SUNTRUE;
+  switch(io_mode)
+  {
+    case(SUNDATAIOMODE_MMAP):
+      SUNCheckCall(SUNDataNode_CreateLeaf_Mmap(leaf_data, data_stride, data_bytes, sunctx, node_out));
+      break;
+    default:
+      return SUN_ERR_ARG_OUTOFRANGE;
   }
 
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_NodeIsList(const SUNDataNode node, sunbooleantype* yes_or_no)
+SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode, sundataindex_t num_elements, SUNContext sunctx, SUNDataNode* node_out)
 {
-  SUNFunctionBegin(node->sunctx);
+  SUNFunctionBegin(sunctx);
 
-  *yes_or_no = SUNFALSE;
-  if (node->anon_children) {
-    *yes_or_no = SUNTRUE;
+  switch(io_mode)
+  {
+    case(SUNDATAIOMODE_MMAP):
+      SUNCheckCall(SUNDataNode_CreateList_Mmap(num_elements, sunctx, node_out));
+      break;
+    default:
+      return SUN_ERR_ARG_OUTOFRANGE;
   }
 
   return SUN_SUCCESS;
+}
+
+
+SUNErrCode SUNDataNode_IsLeaf(const SUNDataNode node, sunbooleantype* yes_or_no)
+{
+  SUNFunctionBegin(node->sunctx);
+
+  if (node->isLeaf) {
+    return node->isLeaf(node, yes_or_no);
+  }
+
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
+SUNErrCode SUNDataNode_IsList(const SUNDataNode node, sunbooleantype* yes_or_no)
+{
+  SUNFunctionBegin(node->sunctx);
+
+  if (node->isList) {
+    return node->isList(node, yes_or_no);
+  }
+
+  return SUN_ERR_NOT_IMPLEMENTED;
 }
 
 SUNErrCode SUNDataNode_HasChildren(const SUNDataNode node, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(node->sunctx);
-  *yes_or_no = node->num_anon_children != 0;
-  return SUN_SUCCESS;
+
+  if (node->hasChildren) {
+    return node->hasChildren(node, yes_or_no);
+  }
+
+  return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_AddChild(SUNDataNode parent_node, SUNDataNode child_node)
+SUNErrCode SUNDataNode_AddChild(SUNDataNode node, SUNDataNode child_node)
 {
-  SUNFunctionBegin(parent_node->sunctx);
+  SUNFunctionBegin(node->sunctx);
 
-  sunbooleantype is_leaf;
-  SUNCheckCall(SUNDataNode_NodeIsLeaf(parent_node, &is_leaf));
-
-  if (is_leaf) {
-    return SUN_ERR_DATANODE_NODEISLEAF;
+  if (node->addChild) {
+    return node->addChild(node, child_node);
   }
 
-  if (parent_node->num_anon_children == parent_node->max_anon_children) {
-    return SUN_ERR_DATANODE_MAXCHILDREN;
-  }
-
-  parent_node->anon_children[parent_node->num_anon_children++] = child_node;
-  child_node->parent = parent_node;
-
-  return SUN_SUCCESS;
+  return SUN_ERR_NOT_IMPLEMENTED;
 }
 
 SUNErrCode SUNDataNode_GetChild(const SUNDataNode node, sundataindex_t index, SUNDataNode* child_node)
 {
   SUNFunctionBegin(node->sunctx);
 
-  *child_node = NULL;
-
-  sunbooleantype has_children;
-  SUNCheckCall(SUNDataNode_HasChildren(node, &has_children));
-
-  if (has_children) {
-    *child_node = node->anon_children[index];
+  if (node->getChild) {
+    return node->getChild(node, index, child_node);
   }
 
-  return SUN_SUCCESS;
+  return SUN_ERR_NOT_IMPLEMENTED;
 }
 
 SUNErrCode SUNDataNode_RemoveChild(SUNDataNode node, sundataindex_t index, SUNDataNode* child_node)
 {
   SUNFunctionBegin(node->sunctx);
 
-  sunbooleantype has_children;
-  SUNCheckCall(SUNDataNode_HasChildren(node, &has_children));
-
-  if (has_children) {
-    *child_node = node->anon_children[index];
-    (*child_node)->parent = NULL;
-    node->anon_children[index] = NULL;
-    node->num_anon_children--;
+  if (node->removeChild) {
+    return node->removeChild(node, index, child_node);
   }
 
-  return SUN_SUCCESS;
+  return SUN_ERR_NOT_IMPLEMENTED;
 }
 
 SUNErrCode SUNDataNode_GetData(const SUNDataNode node, void** data)
 {
   SUNFunctionBegin(node->sunctx);
 
-  *data = node->leaf_data;
+  if (node->getData) {
+    return node->getData(node, data);
+  }
 
-  return SUN_SUCCESS;
+  return SUN_ERR_NOT_IMPLEMENTED;
 }
 
 SUNErrCode SUNDataNode_SetData(SUNDataNode node, void* data, size_t data_stride, size_t data_bytes)
 {
   SUNFunctionBegin(node->sunctx);
 
-  sunbooleantype is_list;
-  SUNCheckCall(SUNDataNode_NodeIsList(node, &is_list));
-
-  if (is_list) {
-    return SUN_ERR_DATANODE_NODEISLIST;
+  if (node->setData) {
+    return node->setData(node, data, data_stride, data_bytes);
   }
 
-  node->leaf_data = data;
-  node->data_stride = data_stride;
-  node->data_bytes = data_bytes;
-
-  return SUN_SUCCESS;
+  return SUN_ERR_NOT_IMPLEMENTED;
 }
 
 SUNErrCode SUNDataNode_Destroy(SUNDataNode* node)
 {
   SUNFunctionBegin((*node)->sunctx);
 
-  free((*node)->anon_children);
+  if ((*node)->destroy) {
+    SUNCheckCall((*node)->destroy(node));
+  }
+
   free(*node);
   *node = NULL;
 

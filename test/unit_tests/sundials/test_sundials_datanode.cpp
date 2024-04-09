@@ -16,14 +16,18 @@
 #include <iostream>
 #include <string>
 #include <sundials/sundials_core.h>
-#include <sundials/sundials_datanode.h>
 #include <nvector/nvector_serial.h>
 
-#include "../utilities/dumpstderr.hpp"
+#include "sundials_datanode.h"
+#include "sundatanode_mmap.h"
+
+#define GET_IMPL(node) ((SUNDataNode_MmapImpl) (node)->impl)
+#define GET_PROP(node, prop) (GET_IMPL(node)->prop)
 
 int get_leaf_as_int(SUNDataNode node)
 {
-  return *((int*) node->leaf_data);
+  SUNDataNode_MmapImpl impl = (SUNDataNode_MmapImpl)node->impl;
+  return *((int*) impl->leaf_data);
 }
 
 class SUNDataNodeTest : public testing::Test
@@ -60,7 +64,7 @@ TEST_F(SUNDataNodeTest, CreateLeafWorks)
   SUNDataNode node;
   int integer_value = 5;
 
-  err = SUNDataNode_CreateLeaf((void*)&integer_value, 0, sizeof(integer_value), sunctx, &node);
+  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   EXPECT_EQ(integer_value, get_leaf_as_int(node));
@@ -75,11 +79,11 @@ TEST_F(SUNDataNodeTest, CreateListWorks)
   SUNDataNode root_node;
   unsigned int num_elem = 1;
 
-  err = SUNDataNode_CreateList(num_elem, sunctx, &root_node);
+  err = SUNDataNode_CreateList(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  EXPECT_EQ(num_elem, root_node->max_anon_children);
-  EXPECT_EQ(0, root_node->num_anon_children);
+  EXPECT_EQ(num_elem, GET_PROP(root_node, max_anon_children));
+  EXPECT_EQ(0, GET_PROP(root_node, num_anon_children));
 
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -91,21 +95,21 @@ TEST_F(SUNDataNodeTest, AddChildWorks)
   SUNDataNode root_node, child_node;
   unsigned int num_elem = 1;
 
-  err = SUNDataNode_CreateList(num_elem, sunctx, &root_node);
+  err = SUNDataNode_CreateList(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   int integer_value = 5;
-  err = SUNDataNode_CreateLeaf((void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
+  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   err = SUNDataNode_AddChild(root_node, child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  EXPECT_EQ(1, root_node->num_anon_children);
+  EXPECT_EQ(1, GET_PROP(root_node, num_anon_children));
 
-  EXPECT_EQ(integer_value, get_leaf_as_int(root_node->anon_children[0]));
+  EXPECT_EQ(integer_value, get_leaf_as_int(GET_PROP(root_node, anon_children[0])));
 
-  EXPECT_EQ(root_node, child_node->parent);
+  EXPECT_EQ(root_node, GET_PROP(child_node, parent));
 
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -121,7 +125,7 @@ TEST_F(SUNDataNodeTest, AddChildFailsWhenLeaf)
   unsigned int num_elem = 1;
 
   int integer_value = 5;
-  err = SUNDataNode_CreateLeaf((void*)&integer_value, 0, sizeof(integer_value), sunctx, &root_node);
+  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   child_node = NULL;
@@ -138,11 +142,11 @@ TEST_F(SUNDataNodeTest, AddChildFailsCorrectlyWhenFull)
   SUNDataNode root_node, child_node;
   unsigned int num_elem = 1;
 
-  err = SUNDataNode_CreateList(num_elem, sunctx, &root_node);
+  err = SUNDataNode_CreateList(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   int integer_value = 5;
-  err = SUNDataNode_CreateLeaf((void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
+  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   err = SUNDataNode_AddChild(root_node, child_node);
@@ -151,8 +155,8 @@ TEST_F(SUNDataNodeTest, AddChildFailsCorrectlyWhenFull)
   err = SUNDataNode_AddChild(root_node, child_node);
   EXPECT_EQ(err, SUN_ERR_DATANODE_MAXCHILDREN);
 
-  EXPECT_EQ(1, root_node->num_anon_children);
-  EXPECT_EQ(integer_value, get_leaf_as_int(root_node->anon_children[0]));
+  EXPECT_EQ(1, GET_PROP(root_node, num_anon_children));
+  EXPECT_EQ(integer_value, get_leaf_as_int(GET_IMPL(root_node)->anon_children[0]));
 
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -168,7 +172,7 @@ TEST_F(SUNDataNodeTest, HasChildrenWorks)
   SUNDataNode root_node, child_node;
   unsigned int num_elem = 1;
 
-  err = SUNDataNode_CreateList(num_elem, sunctx, &root_node);
+  err = SUNDataNode_CreateList(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   sunbooleantype yes_or_no = SUNTRUE;
@@ -178,7 +182,7 @@ TEST_F(SUNDataNodeTest, HasChildrenWorks)
   EXPECT_FALSE(yes_or_no);
 
   int integer_value = 5;
-  err = SUNDataNode_CreateLeaf((void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
+  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   err = SUNDataNode_AddChild(root_node, child_node);
@@ -203,11 +207,11 @@ TEST_F(SUNDataNodeTest, RemoveChildWorks)
   SUNDataNode root_node, child_node;
   unsigned int num_elem = 1;
 
-  err = SUNDataNode_CreateList(num_elem, sunctx, &root_node);
+  err = SUNDataNode_CreateList(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   int integer_value = 5;
-  err = SUNDataNode_CreateLeaf((void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
+  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   err = SUNDataNode_AddChild(root_node, child_node);
@@ -222,7 +226,7 @@ TEST_F(SUNDataNodeTest, RemoveChildWorks)
 
   EXPECT_FALSE(yes_or_no);
 
-  EXPECT_FALSE(child_node->parent);
+  EXPECT_FALSE(GET_IMPL(child_node)->parent);
 
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -237,11 +241,11 @@ TEST_F(SUNDataNodeTest, RemoveChildWorksWhenEmpty)
   SUNDataNode root_node, child_node;
   unsigned int num_elem = 1;
 
-  err = SUNDataNode_CreateList(num_elem, sunctx, &root_node);
+  err = SUNDataNode_CreateList(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   int integer_value = 5;
-  err = SUNDataNode_CreateLeaf((void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
+  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   err = SUNDataNode_RemoveChild(root_node, 0, &child_node);
@@ -260,11 +264,11 @@ TEST_F(SUNDataNodeTest, GetChildWorks)
   SUNDataNode root_node, child_node;
   unsigned int num_elem = 1;
 
-  err = SUNDataNode_CreateList(num_elem, sunctx, &root_node);
+  err = SUNDataNode_CreateList(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   int integer_value = 5;
-  err = SUNDataNode_CreateLeaf((void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
+  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   err = SUNDataNode_AddChild(root_node, child_node);
@@ -289,7 +293,7 @@ TEST_F(SUNDataNodeTest, GetDataWorksWhenLeaf)
   unsigned int num_elem = 1;
 
   int integer_value = 5;
-  err = SUNDataNode_CreateLeaf((void*)&integer_value, 0, sizeof(integer_value), sunctx, &root_node);
+  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   void* raw_value;
@@ -309,7 +313,7 @@ TEST_F(SUNDataNodeTest, GetDataWorksWhenList)
   SUNDataNode root_node;
   unsigned int num_elem = 1;
 
-  err = SUNDataNode_CreateList(num_elem, sunctx, &root_node);
+  err = SUNDataNode_CreateList(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   void* raw_value;
@@ -328,7 +332,7 @@ TEST_F(SUNDataNodeTest, SetDataFailsCorrectlyWhenList)
   SUNDataNode root_node;
   unsigned int num_elem = 1;
 
-  err = SUNDataNode_CreateList(num_elem, sunctx, &root_node);
+  err = SUNDataNode_CreateList(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   void* raw_value;
@@ -346,7 +350,7 @@ TEST_F(SUNDataNodeTest, SetDataWorksWhenLeaf)
   unsigned int num_elem = 1;
 
   int integer_value = 5;
-  err = SUNDataNode_CreateLeaf((void*)&integer_value, 0, sizeof(integer_value), sunctx, &root_node);
+  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   int new_integer_value = 3;

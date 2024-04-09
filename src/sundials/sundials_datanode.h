@@ -25,43 +25,22 @@ extern "C" {
 typedef sunindextype sundataindex_t;
 
 typedef enum {
-  SUNDATANODE_BASIC,
-} SUNDataNode_ID;
-
-typedef enum {
-  SUNIOPROTOCOL_MMAP,
-} SUNIOProtocol;
+  SUNDATAIOMODE_MMAP,
+} SUNDataIOMode;
 
 typedef struct SUNDataNode_s* SUNDataNode;
 
 struct SUNDataNode_s {
   SUNErrCode (*hasChildren)(const SUNDataNode, sunbooleantype* yes_or_no);
-  SUNErrCode (*addChild)(SUNDataNode, sundataindex_t index);
-  SUNErrCode (*getChild)(const SUNDataNode, sundataindex_t index, SUNDataNode*);
-  SUNErrCode (*removeChild)(SUNDataNode, sundataindex_t index);
+  SUNErrCode (*isLeaf)(const SUNDataNode, sunbooleantype* yes_or_no);
+  SUNErrCode (*isList)(const SUNDataNode, sunbooleantype* yes_or_no);
+  SUNErrCode (*isObject)(const SUNDataNode, sunbooleantype* yes_or_no);
+  SUNErrCode (*addChild)(SUNDataNode, SUNDataNode child_node);
+  SUNErrCode (*getChild)(const SUNDataNode, sundataindex_t index, SUNDataNode* child_node);
+  SUNErrCode (*removeChild)(SUNDataNode, sundataindex_t index, SUNDataNode* child_node);
   SUNErrCode (*getData)(const SUNDataNode, void** data);
   SUNErrCode (*setData)(SUNDataNode, void* data, size_t data_stride, size_t data_bytes);
   SUNErrCode (*destroy)(SUNDataNode*);
-
-  // Node basics
-  SUNDataNode parent;
-
-  // Node can only be an object, leaf, or list. It cannot be more than one of these at a time.
-
-  // Properties for Leaf nodes (nodes that store data)
-  void* leaf_data;
-  size_t data_stride;
-  size_t data_bytes;
-
-  // // Properties for Object nodes (nodes that are a collection of named nodes)
-  // const char* name;
-  // SUNHashMap* named_children;
-  // sundataindex_t num_named_children;
-
-  // Properties for a List node (nodes that are a collection of anonymous nodes)
-  SUNDataNode* anon_children;
-  sundataindex_t num_anon_children;
-  sundataindex_t max_anon_children;
 
   void* impl;
   SUNContext sunctx;
@@ -71,16 +50,18 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDataNode_CreateList(sundataindex_t num_elements, SUNContext sunctx, SUNDataNode* node);
+SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode, void* leaf_data, size_t data_stride, size_t data_bytes,
+                                  SUNContext sunctx, SUNDataNode* node_out);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDataNode_CreateLeaf(void* leaf_data, size_t data_stride, size_t data_bytes, SUNContext sunctx, SUNDataNode* node_out);
+SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode, sundataindex_t num_elements,
+                                  SUNContext sunctx, SUNDataNode* node_out);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDataNode_NodeIsLeaf(const SUNDataNode node, sunbooleantype* yes_or_no);
+SUNErrCode SUNDataNode_IsLeaf(const SUNDataNode node, sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDataNode_NodeIsList(const SUNDataNode node, sunbooleantype* yes_or_no);
+SUNErrCode SUNDataNode_IsList(const SUNDataNode node, sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_HasChildren(const SUNDataNode node, sunbooleantype* yes_or_no);
