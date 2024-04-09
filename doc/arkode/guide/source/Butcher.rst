@@ -174,7 +174,7 @@ This is the default 1st order explicit method.
      1 & 1
    \end{array}
 
-.. figure:: /figs/arkode/euler_erk_stab_region.png
+.. figure:: /figs/arkode/forward_euler_erk_stab_region.png
    :scale: 50 %
    :align: center
 
