@@ -13,6 +13,13 @@
 #include <sundials/priv/sundials_errors_impl.h>
 #include "sundials_datanode.h"
 
+#ifndef SUNDATANODE_MMAP_H_
+#define SUNDATANODE_MMAP_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct SUNDataNode_MmapImpl_s* SUNDataNode_MmapImpl;
 
 struct SUNDataNode_MmapImpl_s {
@@ -59,3 +66,9 @@ SUNErrCode SUNDataNode_GetData_Mmap(const SUNDataNode node, void** data);
 SUNErrCode SUNDataNode_SetData_Mmap(SUNDataNode node, void* data, size_t data_stride, size_t data_bytes);
 
 SUNErrCode SUNDataNode_Destroy_Mmap(SUNDataNode* node);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // SUNDATANODE_MMAP_H_
