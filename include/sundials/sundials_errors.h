@@ -48,12 +48,10 @@
         "operation is not implemented: function pointer is NULL")              \
   ENTRY(SUN_ERR_USER_FCN_FAIL, "the user provided callback function failed")   \
                                                                                \
-  ENTRY(SUN_ERR_DATANODE_NODEISLEAF,                                           \
-        "the data node is a Leaf so children cannot be added")                 \
-  ENTRY(SUN_ERR_DATANODE_NODEISLIST,                                           \
-        "the data node is a List so data cannot be added")                     \
   ENTRY(SUN_ERR_DATANODE_MAXCHILDREN,                                          \
         "the data node has reached its max number of children")                \
+  ENTRY(SUN_ERR_DATANODE_NODENOTFOUND,                                         \
+        "the data node could not be found")                                    \
                                                                                \
   ENTRY(SUN_ERR_PROFILER_MAPFULL,                                              \
         "the number of profiler entries exceeded SUNPROFILER_MAX_ENTRIES")     \

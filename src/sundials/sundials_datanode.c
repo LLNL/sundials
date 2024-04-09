@@ -74,6 +74,21 @@ SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode, sundataindex_t num_elem
   return SUN_SUCCESS;
 }
 
+SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode, sundataindex_t num_elements, SUNContext sunctx, SUNDataNode* node_out)
+{
+  SUNFunctionBegin(sunctx);
+
+  switch(io_mode)
+  {
+    case(SUNDATAIOMODE_MMAP):
+      SUNCheckCall(SUNDataNode_CreateObject_Mmap(num_elements, sunctx, node_out));
+      break;
+    default:
+      return SUN_ERR_ARG_OUTOFRANGE;
+  }
+
+  return SUN_SUCCESS;
+}
 
 SUNErrCode SUNDataNode_IsLeaf(const SUNDataNode node, sunbooleantype* yes_or_no)
 {
@@ -119,12 +134,34 @@ SUNErrCode SUNDataNode_AddChild(SUNDataNode node, SUNDataNode child_node)
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+SUNErrCode SUNDataNode_AddNamedChild(SUNDataNode node, const char* name, SUNDataNode child_node)
+{
+  SUNFunctionBegin(node->sunctx);
+
+  if (node->addNamedChild) {
+    return node->addNamedChild(node, name, child_node);
+  }
+
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
 SUNErrCode SUNDataNode_GetChild(const SUNDataNode node, sundataindex_t index, SUNDataNode* child_node)
 {
   SUNFunctionBegin(node->sunctx);
 
   if (node->getChild) {
     return node->getChild(node, index, child_node);
+  }
+
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
+SUNErrCode SUNDataNode_GetNamedChild(const SUNDataNode node, const char* name, SUNDataNode* child_node)
+{
+  SUNFunctionBegin(node->sunctx);
+
+  if (node->getNamedChild) {
+    return node->getNamedChild(node, name, child_node);
   }
 
   return SUN_ERR_NOT_IMPLEMENTED;

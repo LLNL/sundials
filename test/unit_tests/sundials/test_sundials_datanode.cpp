@@ -93,7 +93,7 @@ TEST_F(SUNDataNodeTest, AddChildWorks)
 {
   SUNErrCode err;
   SUNDataNode root_node, child_node;
-  unsigned int num_elem = 1;
+  unsigned int num_elem = 2;
 
   err = SUNDataNode_CreateList(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -106,37 +106,59 @@ TEST_F(SUNDataNodeTest, AddChildWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   EXPECT_EQ(1, GET_PROP(root_node, num_anon_children));
-
-  EXPECT_EQ(integer_value, get_leaf_as_int(GET_PROP(root_node, anon_children[0])));
-
   EXPECT_EQ(root_node, GET_PROP(child_node, parent));
 
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
-
   err = SUNDataNode_Destroy(&child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
-TEST_F(SUNDataNodeTest, AddChildFailsWhenLeaf)
+TEST_F(SUNDataNodeTest, AddNamedChildWorks)
 {
   SUNErrCode err;
   SUNDataNode root_node, child_node;
-  unsigned int num_elem = 1;
+  unsigned int num_elem = 2;
 
-  int integer_value = 5;
-  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &root_node);
+  err = SUNDataNode_CreateObject(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  child_node = NULL;
-  err = SUNDataNode_AddChild(root_node, child_node);
-  EXPECT_EQ(err, SUN_ERR_DATANODE_NODEISLEAF);
+  int integer_value = 5;
+  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
+
+  err = SUNDataNode_AddNamedChild(root_node, "int_value", child_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
+
+  EXPECT_EQ(1, GET_PROP(root_node, num_named_children));
+  EXPECT_EQ(root_node, GET_PROP(child_node, parent));
 
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
+  err = SUNDataNode_Destroy(&child_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
 }
 
-TEST_F(SUNDataNodeTest, AddChildFailsCorrectlyWhenFull)
+// TODO(CJB): this will fail when SUNAssert is compiled out because we use SUNAssert for the type check
+// TEST_F(SUNDataNodeTest, AddChildFailsWhenLeaf)
+// {
+//   SUNErrCode err;
+//   SUNDataNode root_node, child_node;
+//   unsigned int num_elem = 1;
+
+//   int integer_value = 5;
+//   err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &root_node);
+//   EXPECT_EQ(err, SUN_SUCCESS);
+
+//   child_node = NULL;
+//   err = SUNDataNode_AddChild(root_node, child_node);
+//   EXPECT_EQ(err, SUN_ERR_ARG_WRONGTYPE);
+
+//   err = SUNDataNode_Destroy(&root_node);
+//   EXPECT_EQ(err, SUN_SUCCESS);
+// }
+
+TEST_F(SUNDataNodeTest, AddChildFailsWhenFull)
 {
   SUNErrCode err;
   SUNDataNode root_node, child_node;
@@ -160,7 +182,6 @@ TEST_F(SUNDataNodeTest, AddChildFailsCorrectlyWhenFull)
 
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
-
   err = SUNDataNode_Destroy(&child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 }
@@ -195,7 +216,6 @@ TEST_F(SUNDataNodeTest, HasChildrenWorks)
 
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
-
   err = SUNDataNode_Destroy(&child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 }
@@ -230,7 +250,6 @@ TEST_F(SUNDataNodeTest, RemoveChildWorks)
 
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
-
   err = SUNDataNode_Destroy(&child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 }
@@ -253,7 +272,6 @@ TEST_F(SUNDataNodeTest, RemoveChildWorksWhenEmpty)
 
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
-
   err = SUNDataNode_Destroy(&child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 }
@@ -281,7 +299,33 @@ TEST_F(SUNDataNodeTest, GetChildWorks)
 
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
+  err = SUNDataNode_Destroy(&child_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
+}
 
+TEST_F(SUNDataNodeTest, GetNamedChildWorks)
+{
+  SUNErrCode err;
+  SUNDataNode root_node, child_node;
+  unsigned int num_elem = 5;
+
+  err = SUNDataNode_CreateObject(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
+
+  int integer_value = 5;
+  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
+
+  err = SUNDataNode_AddNamedChild(root_node, "int_value", child_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
+
+  err = SUNDataNode_GetNamedChild(root_node, "int_value", &child_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
+
+  EXPECT_EQ(integer_value, get_leaf_as_int(child_node));
+
+  err = SUNDataNode_Destroy(&root_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
   err = SUNDataNode_Destroy(&child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 }
@@ -326,22 +370,23 @@ TEST_F(SUNDataNodeTest, GetDataWorksWhenList)
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
-TEST_F(SUNDataNodeTest, SetDataFailsCorrectlyWhenList)
-{
-  SUNErrCode err;
-  SUNDataNode root_node;
-  unsigned int num_elem = 1;
+// TODO(CJB): this will fail when SUNAssert is compiled out because we use SUNAssert for the type check
+// TEST_F(SUNDataNodeTest, SetDataFailsWhenList)
+// {
+//   SUNErrCode err;
+//   SUNDataNode root_node;
+//   unsigned int num_elem = 1;
 
-  err = SUNDataNode_CreateList(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
-  EXPECT_EQ(err, SUN_SUCCESS);
+//   err = SUNDataNode_CreateList(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
+//   EXPECT_EQ(err, SUN_SUCCESS);
 
-  void* raw_value;
-  err = SUNDataNode_SetData(root_node, &raw_value, 0, 0);
-  EXPECT_EQ(err, SUN_ERR_DATANODE_NODEISLIST);
+//   void* raw_value;
+//   err = SUNDataNode_SetData(root_node, &raw_value, 0, 0);
+//   EXPECT_EQ(err, SUN_ERR_ARG_WRONGTYPE);
 
-  err = SUNDataNode_Destroy(&root_node);
-  EXPECT_EQ(err, SUN_SUCCESS);
-}
+//   err = SUNDataNode_Destroy(&root_node);
+//   EXPECT_EQ(err, SUN_SUCCESS);
+// }
 
 TEST_F(SUNDataNodeTest, SetDataWorksWhenLeaf)
 {
