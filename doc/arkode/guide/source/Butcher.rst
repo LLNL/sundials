@@ -150,7 +150,7 @@ specified via a unique ID and name:
 with values specified for each method below (e.g., ``ARKODE_HEUN_EULER_2_1_2``).
 
 
-.. _Butcher.Euler:
+.. _Butcher.Forward_Euler:
 
 Forward-Euler-1-1
 ^^^^^^^^^^^^^^^^^
@@ -1222,7 +1222,7 @@ specified via a unique ID and name:
 with values specified for each method below (e.g., ``ARKODE_SDIRK_2_1_2``).
 
 
-.. _Butcher.Backward-Euler-1-1:
+.. _Butcher.Backward-Euler:
 
 Backward-Euler-1-1
 ^^^^^^^^^^^^^^^^^^
@@ -1324,7 +1324,7 @@ implicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Implicit-Midpoint-1-2:
+.. _Butcher.Implicit_Midpoint:
 
 Implicit-Midpoint-1-2
 ^^^^^^^^^^^^^^^^^^^^^
@@ -1355,7 +1355,7 @@ The method is A- and B-stable.
    Linear stability region for the implicit midpoint method.
 
 
-.. _Butcher.Implicit-Midpoint-1-2:
+.. _Butcher.Implicit_Midpoint:
 
 Implicit-Trapezoidal-2-2
 ^^^^^^^^^^^^^^^^^^^^^^^^
