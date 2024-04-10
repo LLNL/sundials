@@ -1222,7 +1222,7 @@ specified via a unique ID and name:
 with values specified for each method below (e.g., ``ARKODE_SDIRK_2_1_2``).
 
 
-.. _Butcher.SDIRK-2-1:
+.. _Butcher.Backward-Euler-1-1:
 
 Backward-Euler-1-1
 ^^^^^^^^^^^^^^^^^^
@@ -1322,6 +1322,69 @@ implicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
 
    Linear stability region for the ARK2-DIRK method. The method's
    region is outlined in blue; the embedding's region is in red.
+
+
+.. _Butcher.Implicit-Midpoint-1-2:
+
+Implicit-Midpoint-1-2
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Implicit-Midpoint-1-2 method
+
+Accessible via the constant ``ARKODE_IMPLICIT_MIDPOINT_1_2`` to
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_IMPLICIT_MIDPOINT_1_2"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+The method is A- and B-stable.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|c}
+     \frac{1}{2} & \frac{1}{2} \\
+     \hline
+     2 & 1
+   \end{array}
+
+.. figure:: /figs/arkode/implicit_midpoint_dirk_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the implicit midpoint method.
+
+
+.. _Butcher.Implicit-Midpoint-1-2:
+
+Implicit-Trapezoidal-2-2
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Implicit-Trapezoidal-2-2 method
+
+Accessible via the constant ``ARKODE_IMPLICIT_TRAPEZOIDAL_2_2`` to
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_IMPLICIT_TRAPEZOIDAL_2_2"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+The method is A-stable.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cc}
+     0 & 0 & 0 \\
+     1 & \frac{1}{2} & \frac{1}{2} \\
+     \hline
+     2 & \frac{1}{2} & \frac{1}{2}
+   \end{array}
+
+.. figure:: /figs/arkode/implicit_trapezoidal_dirk_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the implicit trapezoidal method.
 
 
 .. _Butcher.Billington:
