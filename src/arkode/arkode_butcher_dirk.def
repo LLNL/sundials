@@ -38,7 +38,7 @@
      ARKODE_SDIRK_2_1_2                SDIRK     Y         N       Y
      ARKODE_ARK2_DIRK_3_1_2           ESDIRK     Y         Y       Y
      ARKODE_IMPLICIT_MIDPOINT_1_2      SDIRK     Y         N       Y
-     ARKODE_IMPLICIT_TRAPEZOIDAL_1_2  ESDIRK     Y         N       Y
+     ARKODE_IMPLICIT_TRAPEZOIDAL_2_2  ESDIRK     Y         N       Y
      ARKODE_BILLINGTON_3_3_2           SDIRK     N         N       N
      ARKODE_TRBDF2_3_3_2              ESDIRK     N         N       Y
      ARKODE_KVAERNO_4_2_3             ESDIRK     Y         Y       N
@@ -148,7 +148,7 @@ ARK_BUTCHER_TABLE(ARKODE_IMPLICIT_MIDPOINT_1_2, { /* Implicit Midpoint Rule (A,B
     return B;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_IMPLICIT_TRAPEZOIDAL_1_2, { /* Implicit Trapezoidal Rule (A stable) */
+ARK_BUTCHER_TABLE(ARKODE_IMPLICIT_TRAPEZOIDAL_2_2, { /* Implicit Trapezoidal Rule (A stable) */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNFALSE);
     B->q = 2;
     B->p = 0;
