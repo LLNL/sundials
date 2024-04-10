@@ -330,6 +330,40 @@ TEST_F(SUNDataNodeTest, GetNamedChildWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
+TEST_F(SUNDataNodeTest, RemoveNamedChildWorks)
+{
+  SUNErrCode err;
+  SUNDataNode root_node, child_node;
+  unsigned int num_elem = 5;
+
+  err = SUNDataNode_CreateObject(SUNDATAIOMODE_MMAP, num_elem, sunctx, &root_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
+
+  int integer_value = 5;
+  err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_MMAP, (void*)&integer_value, 0, sizeof(integer_value), sunctx, &child_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
+
+  err = SUNDataNode_AddNamedChild(root_node, "int_value", child_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
+
+  err = SUNDataNode_RemoveNamedChild(root_node, "int_value", &child_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
+
+  EXPECT_EQ(integer_value, get_leaf_as_int(child_node));
+
+  sunbooleantype yes_or_no = SUNTRUE;
+  err = SUNDataNode_HasChildren(root_node, &yes_or_no);
+  EXPECT_EQ(err, SUN_SUCCESS);
+
+  EXPECT_FALSE(yes_or_no);
+  EXPECT_FALSE(GET_IMPL(child_node)->parent);
+
+  err = SUNDataNode_Destroy(&root_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
+  err = SUNDataNode_Destroy(&child_node);
+  EXPECT_EQ(err, SUN_SUCCESS);
+}
+
 TEST_F(SUNDataNodeTest, GetDataWorksWhenLeaf)
 {
   SUNErrCode err;

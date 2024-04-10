@@ -12,7 +12,7 @@
 
 #include <sundials/priv/sundials_errors_impl.h>
 #include "sundials_datanode.h"
-#include "sundials_hashmap.h"
+#include "sundials_hashmap_impl.h"
 
 #ifndef SUNDATANODE_MMAP_H_
 #define SUNDATANODE_MMAP_H_

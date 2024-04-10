@@ -32,6 +32,7 @@ static SUNDataNode sunDataNodeMmap_CreateEmpty(SUNContext sunctx)
   node->getChild = SUNDataNode_GetChild_Mmap;
   node->getNamedChild = SUNDataNode_GetNamedChild_Mmap;
   node->removeChild = SUNDataNode_RemoveChild_Mmap;
+  node->removeNamedChild = SUNDataNode_RemoveNamedChild_Mmap;
   node->getData = SUNDataNode_GetData_Mmap;
   node->setData = SUNDataNode_SetData_Mmap;
   node->destroy = SUNDataNode_Destroy_Mmap;
@@ -198,7 +199,7 @@ SUNErrCode SUNDataNode_GetNamedChild_Mmap(const SUNDataNode node, const char* na
   SUNCheckCall(SUNDataNode_HasChildren_Mmap(node, &has_children));
 
   if (has_children) {
-    if (SUNHashMap_GetValue(IMPL_PROP(node, named_children), name, child_node))
+    if (SUNHashMap_GetValue(IMPL_PROP(node, named_children), name, (void**)child_node))
     {
       return SUN_ERR_DATANODE_NODENOTFOUND;
     }
@@ -219,6 +220,27 @@ SUNErrCode SUNDataNode_RemoveChild_Mmap(SUNDataNode node, sundataindex_t index, 
     IMPL_PROP(*child_node, parent) = NULL;
     IMPL_PROP(node, anon_children)[index] = NULL;
     IMPL_PROP(node, num_anon_children)--;
+  }
+
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNDataNode_RemoveNamedChild_Mmap(const SUNDataNode node, const char* name, SUNDataNode* child_node)
+{
+  SUNFunctionBegin(node->sunctx);
+
+  *child_node = NULL;
+
+  sunbooleantype has_children;
+  SUNCheckCall(SUNDataNode_HasChildren_Mmap(node, &has_children));
+
+  if (has_children) {
+    if (SUNHashMap_Remove(IMPL_PROP(node, named_children), name, (void**)child_node))
+    {
+      return SUN_ERR_DATANODE_NODENOTFOUND;
+    }
+    IMPL_PROP(*child_node, parent) = NULL;
+    IMPL_PROP(node, num_named_children)--;
   }
 
   return SUN_SUCCESS;

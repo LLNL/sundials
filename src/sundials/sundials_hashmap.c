@@ -268,10 +268,56 @@ int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
     retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet, key);
     if (retval < 0) { return (-1); /* error occurred */ }
     if (retval == map->max_size) { return (-2); /* not found */ }
+    else { idx = retval; }
   }
 
   /* Return a reference to the value only */
   *value = map->buckets[idx]->value;
+
+  return (0);
+}
+
+/*
+  This function remove the key-value pair.
+
+  **Arguments:**
+    * ``map`` -- the ``SUNHashMap`` object to operate on
+    * ``key`` -- the key to remove
+    * ``value`` -- the value to remove
+
+  **Returns:**
+    * ``0`` -- success
+    * ``-1`` -- an error occurred
+    * ``-2`` -- key not found
+ */
+int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
+{
+  int idx;
+  int retval;
+
+  if (map == NULL || key == NULL) { return (-1); }
+
+  /* We want the index to be in (0, map->max_size) */
+  idx = (int)(fnv1a_hash(key) % map->max_size);
+
+  /* Check if the key exists */
+  if (map->buckets[idx] == NULL) { return (-2); }
+
+  /* Check to see if this is a collision */
+  if (strcmp(map->buckets[idx]->key, key))
+  {
+    /* Keys did not match, so we have a collision and need to probe */
+    retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet,
+                                (void*)key);
+    if (retval < 0) { return (-1); /* error occurred */ }
+    else if (retval == map->max_size) { return (-2); /* not found */ }
+    else { idx = retval; }
+  }
+
+  /* Return a reference to the value only */
+  *value = map->buckets[idx]->value;
+
+  map->buckets[idx] = NULL;
 
   return (0);
 }

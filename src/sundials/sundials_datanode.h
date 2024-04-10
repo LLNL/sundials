@@ -46,6 +46,7 @@ struct SUNDataNode_s {
   SUNErrCode (*getChild)(const SUNDataNode, sundataindex_t index, SUNDataNode* child_node);
   SUNErrCode (*getNamedChild)(const SUNDataNode, const char* name, SUNDataNode* child_node);
   SUNErrCode (*removeChild)(SUNDataNode, sundataindex_t index, SUNDataNode* child_node);
+  SUNErrCode (*removeNamedChild)(const SUNDataNode, const char* name, SUNDataNode* child_node);
   SUNErrCode (*getData)(const SUNDataNode, void** data);
   SUNErrCode (*setData)(SUNDataNode, void* data, size_t data_stride, size_t data_bytes);
   SUNErrCode (*destroy)(SUNDataNode*);
@@ -93,6 +94,9 @@ SUNErrCode SUNDataNode_GetNamedChild(const SUNDataNode parent_node, const char* 
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_RemoveChild(SUNDataNode node, sundataindex_t index, SUNDataNode* child_node);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDataNode_RemoveNamedChild(const SUNDataNode parent_node, const char* name, SUNDataNode* child_node);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_GetData(const SUNDataNode node, void** data);

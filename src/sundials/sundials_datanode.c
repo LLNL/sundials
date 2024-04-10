@@ -167,6 +167,17 @@ SUNErrCode SUNDataNode_GetNamedChild(const SUNDataNode node, const char* name, S
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+SUNErrCode SUNDataNode_RemoveNamedChild(const SUNDataNode node, const char* name, SUNDataNode* child_node)
+{
+  SUNFunctionBegin(node->sunctx);
+
+  if (node->removeNamedChild) {
+    return node->removeNamedChild(node, name, child_node);
+  }
+
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
 SUNErrCode SUNDataNode_RemoveChild(SUNDataNode node, sundataindex_t index, SUNDataNode* child_node)
 {
   SUNFunctionBegin(node->sunctx);

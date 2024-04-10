@@ -47,6 +47,7 @@ int SUNHashMap_Iterate(SUNHashMap map, int start,
                        const void* ctx);
 int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value);
 int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value);
+int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value);
 SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
                            int (*compar)(const void*, const void*));
 
