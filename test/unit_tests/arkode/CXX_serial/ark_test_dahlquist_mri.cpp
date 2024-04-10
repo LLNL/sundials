@@ -252,16 +252,14 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "Test explicit MRI methods\n";
     cout << "=========================\n";
 
-    methods.insert({
-      {"ARKODE_MRI_GARK_FORWARD_EULER", false},
-      {"ARKODE_MRI_GARK_ERK22a", false},
-      {"ARKODE_MRI_GARK_ERK22b", false},
-      {"ARKODE_MRI_GARK_RALSTON2", false},
-      {"ARKODE_MIS_KW3", false},
-      {"ARKODE_MRI_GARK_ERK33a", false},
-      {"ARKODE_MRI_GARK_RALSTON3", false},
-      {"ARKODE_MRI_GARK_ERK45a", false}
-    });
+    methods.insert({{"ARKODE_MRI_GARK_FORWARD_EULER", false},
+                    {"ARKODE_MRI_GARK_ERK22a", false},
+                    {"ARKODE_MRI_GARK_ERK22b", false},
+                    {"ARKODE_MRI_GARK_RALSTON2", false},
+                    {"ARKODE_MIS_KW3", false},
+                    {"ARKODE_MRI_GARK_ERK33a", false},
+                    {"ARKODE_MRI_GARK_RALSTON3", false},
+                    {"ARKODE_MRI_GARK_ERK45a", false}});
   }
   else if (type == MRISTEP_IMPLICIT)
   {
@@ -269,13 +267,11 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "Test implicit MRI methods\n";
     cout << "=========================\n";
 
-    methods.insert({
-      {"ARKODE_MRI_GARK_BACKWARD_EULER", true},
-      {"ARKODE_MRI_GARK_IRK21a", true},
-      {"ARKODE_MRI_GARK_IMPLICIT_MIDPOINT", false},
-      {"ARKODE_MRI_GARK_ESDIRK34a", true},
-      {"ARKODE_MRI_GARK_ESDIRK46a", true}
-    });
+    methods.insert({{"ARKODE_MRI_GARK_BACKWARD_EULER", true},
+                    {"ARKODE_MRI_GARK_IRK21a", true},
+                    {"ARKODE_MRI_GARK_IMPLICIT_MIDPOINT", false},
+                    {"ARKODE_MRI_GARK_ESDIRK34a", true},
+                    {"ARKODE_MRI_GARK_ESDIRK46a", true}});
   }
   else if (type == MRISTEP_IMEX)
   {
@@ -283,20 +279,18 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "Test IMEX MRI methods\n";
     cout << "=====================\n";
 
-    methods.insert({
-      {"ARKODE_IMEX_MRI_GARK_EULER", true},
-      {"ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL", false},
-      {"ARKODE_IMEX_MRI_GARK_MIDPOINT", false},
-      {"ARKODE_IMEX_MRI_GARK3a", false},
-      {"ARKODE_IMEX_MRI_GARK3b", false},
-      {"ARKODE_IMEX_MRI_GARK4", false}
-    });
+    methods.insert({{"ARKODE_IMEX_MRI_GARK_EULER", true},
+                    {"ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL", false},
+                    {"ARKODE_IMEX_MRI_GARK_MIDPOINT", false},
+                    {"ARKODE_IMEX_MRI_GARK3a", false},
+                    {"ARKODE_IMEX_MRI_GARK3b", false},
+                    {"ARKODE_IMEX_MRI_GARK4", false}});
   }
   else { return 1; }
 
-  for (const auto &pair : methods)
+  for (const auto& pair : methods)
   {
-    std::string id = pair.first;
+    std::string id        = pair.first;
     bool stiffly_accurate = pair.second;
     cout << "\nTesting method " << id << "\n";
 
