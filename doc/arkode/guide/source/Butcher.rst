@@ -178,7 +178,7 @@ This is the default 1st order explicit method.
    :scale: 50 %
    :align: center
 
-   Linear stability region for the forward Euler method
+   Linear stability region for the forward Euler method (from :cite:p:`Euler:68`).
 
 
 .. _Butcher.Heun_Euler:
