@@ -1224,6 +1224,37 @@ with values specified for each method below (e.g., ``ARKODE_SDIRK_2_1_2``).
 
 .. _Butcher.SDIRK-2-1:
 
+Backward-Euler-1-1
+^^^^^^^^^^^^^^^^^^
+
+.. index:: Backward-Euler-1-1 method
+
+Accessible via the constant ``ARKODE_BACKWARD_EULER_1_1`` to
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_BACKWARD_EULER_1_1"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the default 1st order implicit method.  The method is A-, L-, and B-stable.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|c}
+     1 & 1 \\
+     \hline
+     1 & 1
+   \end{array}
+
+.. figure:: /figs/arkode/backward_euler_dirk_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the backward Euler method.
+
+
+.. _Butcher.SDIRK-2-1:
+
 SDIRK-2-1-2
 ^^^^^^^^^^^^^^
 
