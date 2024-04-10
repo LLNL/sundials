@@ -13,7 +13,8 @@
 # List of test tuples of the form "name\;args"
 set(unit_tests
   "test_sundials_errors\;"
-  "test_sundials_datanode\;")
+  "test_sundials_datanode\;"
+  "test_sundials_arraylist\;")
 
 # Add the build and install targets for each test
 if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
