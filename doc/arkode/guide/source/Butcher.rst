@@ -163,7 +163,7 @@ Accessible via the constant ``ARKODE_FORWARD_EULER_1_1`` to
 Accessible via the string ``"ARKODE_FORWARD_EULER_1_1"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the default 1st order explicit method.
+This is the default 1st order explicit method (from :cite:p:`Euler:68`)..
 
 .. math::
 
@@ -178,7 +178,7 @@ This is the default 1st order explicit method.
    :scale: 50 %
    :align: center
 
-   Linear stability region for the forward Euler method (from :cite:p:`Euler:68`).
+   Linear stability region for the forward Euler method.
 
 
 .. _Butcher.Heun_Euler:
@@ -1355,7 +1355,7 @@ The method is A- and B-stable.
    Linear stability region for the implicit midpoint method.
 
 
-.. _Butcher.Implicit_Midpoint:
+.. _Butcher.Implicit_Trapezoidal:
 
 Implicit-Trapezoidal-2-2
 ^^^^^^^^^^^^^^^^^^^^^^^^
