@@ -14,10 +14,11 @@
  * TODO
  *--------------------------------------------------------------*/
 
-#ifndef _ARKODE_SPLITTINGSTEP_H
-#define _ARKODE_SPLITTINGSTEP_H
+#ifndef ARKODE_SPLITTINGSTEP_H_
+#define ARKODE_SPLITTINGSTEP_H_
 
 #include <sundials/sundials_types.h>
+#include <sundials/sundials_nvector.h>
 #include <stdio.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
@@ -48,7 +49,10 @@ typedef enum
   ARKODE_MAX_SPLITTING_NUM = ARKODE_SPLITTING_YOSHIDA
 } ARKODE_SplittingCoeffsID;
 
-/* Memory management */
+/* TODO: remove once SUNStepper is ready */
+typedef void* SUNStepper;
+
+/* Coefficient memory management */
 SUNDIALS_EXPORT ARKodeSplittingCoeffs
 ARKodeSplittingCoeffs_Alloc(int sequential_methods, int stages, int partitions);
 SUNDIALS_EXPORT void ARKodeSplittingCoeffs_Free(ARKodeSplittingCoeffs B);
@@ -67,10 +71,13 @@ ARKodeSplittingCoeffs_SymmetricParallel(int partitions);
 SUNDIALS_EXPORT ARKodeSplittingCoeffs
 ARKodeSplittingCoeffs_TripleJump(int partitions, int order);
 
-/* Other functions */
+/* Other coefficient functions */
 SUNDIALS_EXPORT void ARKodeSplittingCoeffs_Write(ARKodeSplittingCoeffs B,
                                                  FILE* outfile);
 SUNDIALS_EXPORT sunbooleantype ARKodeSplittingCoeffs_(ARKodeSplittingCoeffs B);
+
+/* ARKODE functions */
+void* ARKStepCreateSplitting(SUNStepper *steppers, int partitions, sunrealtype t0, N_Vector y0, SUNContext sunctx);
 
 #ifdef __cplusplus
 }
