@@ -342,13 +342,13 @@ SUNErrCode SUNProfiler_Reset(SUNProfiler p)
   sunResetTiming(p->overhead);
   sunStartTiming(p->overhead);
 
-  /* Reset all timers */
-  for (i = 0; i < p->map->max_size; i++)
-  {
-    if (!(p->map->buckets[i])) { continue; }
-    timer = p->map->buckets[i]->value;
-    if (timer) { sunResetTiming(timer); }
-  }
+  // /* Reset all timers */
+  // for (i = 0; i < SUNHashMap_Capacity(p->map); i++)
+  // {
+  //   if (!(p->map->buckets[i])) { continue; }
+  //   timer = p->map->buckets[i]->value;
+  //   if (timer) { sunResetTiming(timer); }
+  // }
 
   /* Reset the overall timer. */
   p->sundials_time = 0.0;
@@ -417,7 +417,7 @@ SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
 #endif
 
     /* Print all the other timers out */
-    for (i = 0; i < p->map->size; i++)
+    for (i = 0; i < SUNHashMap_Capacity(p->map); i++)
     {
       if (sorted[i]) { sunPrintTimer(sorted[i], fp, (void*)p); }
     }

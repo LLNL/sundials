@@ -47,44 +47,49 @@ static uint64_t fnv1a_hash(const char* str)
 
 /*
   This function creates a new SUNHashMap object allocated to hold
-  up to 'max_size' entries.
+  up to 'capacity' entries.
 
   **Arguments:**
-    * ``max_size`` -- the max number of entries in the hashmap
+    * ``capacity`` -- the initial capactity number of the hashmap
     * ``map`` -- on input, a SUNHasMap pointer, on output the SUNHashMap will be
                  allocated
 
   **Returns:**
     * A SUNErrCode indicating success or a failure
  */
-SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
+SUNErrCode SUNHashMap_New(size_t capacity, SUNHashMap* map)
 {
-  int i;
-
-  if (max_size <= 0) { return SUN_ERR_ARG_OUTOFRANGE; }
+  if (capacity <= 0) { return SUN_ERR_ARG_OUTOFRANGE; }
 
   *map = NULL;
   *map = (SUNHashMap)malloc(sizeof(**map));
 
   if (!map) { return SUN_ERR_MALLOC_FAIL; }
 
-  (*map)->size     = 0;
-  (*map)->max_size = max_size;
+  (*map)->capacity = capacity;
 
-  (*map)->buckets = NULL;
-  (*map)->buckets =
-    (SUNHashMapKeyValue*)malloc(max_size * sizeof(*((*map)->buckets)));
-
-  if (!(*map)->buckets)
+  SUNArrayList_SUNHashMapKeyValue buckets =
+    SUNArrayList_SUNHashMapKeyValue_New(capacity);
+  if (!buckets)
   {
     free(*map);
     return SUN_ERR_MALLOC_FAIL;
   }
 
   /* Initialize all buckets to NULL */
-  for (i = 0; i < max_size; i++) { (*map)->buckets[i] = NULL; }
+  for (size_t i = 0; i < capacity; i++)
+  {
+    SUNArrayList_SUNHashMapKeyValue_PushBack(buckets, NULL);
+  }
+
+  (*map)->buckets = buckets;
 
   return SUN_SUCCESS;
+}
+
+size_t SUNHashMap_Capacity(SUNHashMap map)
+{
+  return SUNArrayList_SUNHashMapKeyValue_Capacity(map->buckets);
 }
 
 /*
@@ -100,21 +105,18 @@ SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map)
  */
 SUNErrCode SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr))
 {
-  int i;
-
   if (map == NULL || freevalue == NULL) { return SUN_SUCCESS; }
 
-  for (i = 0; i < (*map)->max_size; i++)
+  SUNArrayList_SUNHashMapKeyValue buckets = (*map)->buckets;
+  for (size_t i = 0; i < (*map)->capacity; i++)
   {
-    if ((*map)->buckets[i] && (*map)->buckets[i]->value)
-    {
-      freevalue((*map)->buckets[i]->value);
-    }
-
-    if ((*map)->buckets[i]) { free((*map)->buckets[i]); }
+    SUNHashMapKeyValue bucket = *SUNArrayList_SUNHashMapKeyValue_At(buckets, i);
+    if (bucket && bucket->value) { freevalue(bucket); }
+    else if (bucket) { free(bucket); }
   }
-  if ((*map)->buckets) { free((*map)->buckets); }
-  if (*map) { free(*map); }
+
+  free(buckets);
+  free(*map);
   *map = NULL;
 
   return SUN_SUCCESS;
@@ -137,21 +139,22 @@ SUNErrCode SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr))
     * ``ctx`` -- a pointer to pass on to ``yieldfn``
 
   **Returns:**
-    * ``max_size`` -- iterated the whole map
+    * ``capacity + 1`` -- iterated the whole map
     * ``>=0`` -- the index at which the iteration stopped
     * ``<-1`` -- an error occurred
  */
-int SUNHashMap_Iterate(SUNHashMap map, int start,
-                       int (*yieldfn)(int, SUNHashMapKeyValue, const void*),
-                       const void* ctx)
+size_t SUNHashMap_Iterate(SUNHashMap map, int start,
+                          int (*yieldfn)(int, SUNHashMapKeyValue, void*),
+                          void* ctx)
 {
-  int i;
-
   if (map == NULL || yieldfn == NULL) { return (-2); }
 
-  for (i = start; i < map->max_size; i++)
+  // TODO(CJB): this probably should not use Size of the ArrayList, maybe Size of the map?
+  for (size_t i = start; i < SUNArrayList_SUNHashMapKeyValue_Size(map->buckets);
+       i++)
   {
-    int retval = yieldfn(i, map->buckets[i], ctx);
+    int retval =
+      yieldfn(i, *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, i), ctx);
     if (retval >= 0)
     {
       return (retval); /* yieldfn indicates the loop should break */
@@ -159,7 +162,7 @@ int SUNHashMap_Iterate(SUNHashMap map, int start,
     if (retval < -1) { return (retval); /* error occurred */ }
   }
 
-  return (map->max_size);
+  return SUNArrayList_SUNHashMapKeyValue_Size(map->buckets) + 1;
 }
 
 static int sunHashMapLinearProbeInsert(int idx, SUNHashMapKeyValue kv,
@@ -182,40 +185,53 @@ static int sunHashMapLinearProbeInsert(int idx, SUNHashMapKeyValue kv,
   **Returns:**
     * ``0`` -- success
     * ``-1`` -- an error occurred
-    * ``-2`` -- the map is full
+    * ``-2`` -- duplicate key
  */
 int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
 {
-  int idx;
-  int retval;
+  size_t idx;
+  size_t retval;
   SUNHashMapKeyValue kvp;
 
   if (map == NULL || key == NULL || value == NULL) { return (-1); }
 
-  /* We want the index to be in (0, map->max_size) */
-  idx = (int)(fnv1a_hash(key) % map->max_size);
+  /* We want the index to be in (0, SUNHashMap_Capacity(map)) */
+  idx = (size_t)(fnv1a_hash(key) % SUNHashMap_Capacity(map));
 
-  /* Check if the bucket is already filled */
-  if (map->buckets[idx] != NULL)
+  /* Check if the bucket is already filled (i.e., we might have had a collision) */
+  kvp = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, idx);
+  if (kvp != NULL)
   {
-    /* Find the next open spot */
+    /* Determine if key is actually a duplicate (not allowed) */
+    if (!strcmp(key, kvp->key)) { return (-2); }
+
+    /* OK, it was a real collision, so find the next open spot */
     retval = SUNHashMap_Iterate(map, idx, sunHashMapLinearProbeInsert, NULL);
     if (retval < 0) { return (-1); /* error occurred */ }
-    if (retval == map->max_size) { return (-2); /* no open entry */ }
+    if (retval >= SUNHashMap_Capacity(map))
+    {
+      size_t old_capacity = SUNHashMap_Capacity(map);
+      SUNArrayList_SUNHashMapKeyValue_Grow(map->buckets);
+      /* Set all of the new possible elements in the ArrayList to NULL
+         because we always want to have the list capacity == list size. */
+      for (size_t i = old_capacity; i < SUNHashMap_Capacity(map); i++)
+      {
+        SUNArrayList_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
+      }
+      return SUNHashMap_Insert(map, key, value); // Try again now
+    }
 
     idx = retval;
   }
 
   /* Create the key-value pair */
   kvp = (SUNHashMapKeyValue)malloc(sizeof(*kvp));
-  if (kvp == NULL) { return (-1); }
 
   kvp->key   = key;
   kvp->value = value;
 
   /* Insert the key-value pair */
-  map->buckets[idx] = kvp;
-  map->size++;
+  SUNArrayList_SUNHashMapKeyValue_Set(map->buckets, idx, kvp);
 
   return (0);
 }
@@ -250,29 +266,32 @@ static int sunHashMapLinearProbeGet(int idx, SUNHashMapKeyValue kv,
  */
 int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
 {
-  int idx;
-  int retval;
+  size_t idx;
+  size_t retval;
 
   if (map == NULL || key == NULL || value == NULL) { return (-1); }
 
-  /* We want the index to be in (0, map->max_size) */
-  idx = (int)(fnv1a_hash(key) % map->max_size);
+  /* We want the index to be in (0, SUNHashMap_Capacity(map)) */
+  idx = (int)(fnv1a_hash(key) % SUNHashMap_Capacity(map));
+
+  SUNHashMapKeyValue kvp = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, idx);
 
   /* Check if the key exists */
-  if (map->buckets[idx] == NULL) { return (-2); }
+  if (kvp == NULL) { return (-2); }
 
   /* Check to see if this is a collision */
-  if (strcmp(map->buckets[idx]->key, key))
+  if (strcmp(kvp->key, key))
   {
     /* Keys did not match, so we have a collision and need to probe */
     retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet, key);
     if (retval < 0) { return (-1); /* error occurred */ }
-    if (retval == map->max_size) { return (-2); /* not found */ }
+    if (retval > SUNHashMap_Capacity(map)) { return (-2); /* not found */ }
     else { idx = retval; }
   }
 
   /* Return a reference to the value only */
-  *value = map->buckets[idx]->value;
+  kvp    = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, idx);
+  *value = kvp->value;
 
   return (0);
 }
@@ -292,32 +311,36 @@ int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
  */
 int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
 {
-  int idx;
-  int retval;
+  size_t idx;
+  size_t retval;
 
   if (map == NULL || key == NULL) { return (-1); }
 
-  /* We want the index to be in (0, map->max_size) */
-  idx = (int)(fnv1a_hash(key) % map->max_size);
+  /* We want the index to be in (0, SUNHashMap_Capacity(map)) */
+  idx = (int)(fnv1a_hash(key) % SUNHashMap_Capacity(map));
+
+  SUNHashMapKeyValue kvp = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, idx);
 
   /* Check if the key exists */
-  if (map->buckets[idx] == NULL) { return (-2); }
+  if (kvp == NULL) { return (-2); }
 
   /* Check to see if this is a collision */
-  if (strcmp(map->buckets[idx]->key, key))
+  if (strcmp(kvp->key, key))
   {
     /* Keys did not match, so we have a collision and need to probe */
     retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet,
                                 (void*)key);
     if (retval < 0) { return (-1); /* error occurred */ }
-    else if (retval == map->max_size) { return (-2); /* not found */ }
+    else if (retval > SUNHashMap_Capacity(map)) { return (-2); /* not found */ }
     else { idx = retval; }
   }
 
   /* Return a reference to the value only */
-  *value = map->buckets[idx]->value;
+  kvp    = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, idx);
+  *value = kvp->value;
 
-  map->buckets[idx] = NULL;
+  /* Clear the bucket by setting it to NULL */
+  SUNArrayList_SUNHashMapKeyValue_Set(map->buckets, idx, NULL);
 
   return (0);
 }
@@ -344,13 +367,17 @@ SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
 
   if (!map || !compar) { return SUN_ERR_ARG_CORRUPT; }
 
-  *sorted = (SUNHashMapKeyValue*)malloc(map->max_size * sizeof(**sorted));
+  *sorted =
+    (SUNHashMapKeyValue*)malloc(SUNHashMap_Capacity(map) * sizeof(**sorted));
   if (!(*sorted)) { return SUN_ERR_MALLOC_FAIL; }
 
   /* Copy the buckets into a new array */
-  for (i = 0; i < map->max_size; i++) { (*sorted)[i] = map->buckets[i]; }
+  for (i = 0; i < SUNHashMap_Capacity(map); i++)
+  {
+    (*sorted)[i] = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, i);
+  }
 
-  qsort(*sorted, map->max_size, sizeof(SUNHashMapKeyValue), compar);
+  qsort(*sorted, SUNHashMap_Capacity(map), sizeof(SUNHashMapKeyValue), compar);
 
   return SUN_SUCCESS;
 }
@@ -367,6 +394,7 @@ SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
     * A SUNErrCode indicating success or a failure
  */
 #if SUNDIALS_MPI_ENABLED
+// TODO(CJB): update this function for ArrayList
 SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
 {
   int i;

@@ -37,8 +37,8 @@
 typedef struct SUNArrayListTtype_s* SUNArrayListTtype;
 
 struct SUNArrayListTtype_s {
-  sunindextype size;
-  sunindextype capacity;
+  size_t size;
+  size_t capacity;
   TTYPE* values;
 };
 
@@ -50,20 +50,11 @@ struct SUNArrayListTtype_s {
 #define GROWTH_FACTOR 1.5
 
 static inline
-SUNArrayListTtype MAKE_NAME(SUNArrayListTtype, New)(sunindextype init_capacity) {
+SUNArrayListTtype MAKE_NAME(SUNArrayListTtype, New)(size_t init_capacity) {
   SUNArrayListTtype list = (SUNArrayListTtype) malloc(sizeof(struct SUNArrayListTtype_s));
-  if (!list) {
-    // Handle memory allocation failure
-    return NULL;
-  }
   list->size = 0;
   list->capacity = init_capacity > 0 ? init_capacity : 1;
   list->values = (TTYPE*) malloc(sizeof(TTYPE) * list->capacity);
-  if (!list->values) {
-    // Handle memory allocation failure for values
-    free(list);
-    return NULL;
-  }
   return list;
 }
 
@@ -81,28 +72,31 @@ sunbooleantype MAKE_NAME(SUNArrayListTtype, IsEmpty)(SUNArrayListTtype list) {
 }
 
 static inline
-void MAKE_NAME(SUNArrayListTtype, Resize)(SUNArrayListTtype list, sunindextype new_capacity) {
+void MAKE_NAME(SUNArrayListTtype, Resize)(SUNArrayListTtype list, size_t new_capacity) {
   if (new_capacity <= list->capacity) return;
   TTYPE* new_values = (TTYPE*) realloc(list->values, sizeof(TTYPE) * new_capacity);
-  if (!new_values) {
-    // Handle memory reallocation failure
-    return;
-  }
   list->values = new_values;
   list->capacity = new_capacity;
 }
 
 static inline
-void MAKE_NAME(SUNArrayListTtype, PushBack)(SUNArrayListTtype list, TTYPE* element) {
+void MAKE_NAME(SUNArrayListTtype, Grow)(SUNArrayListTtype list) {
   if (list->size == list->capacity) {
-    sunindextype new_capacity = (sunindextype)(ceil(list->capacity * GROWTH_FACTOR));
+    size_t new_capacity = (size_t)(ceil(list->capacity * GROWTH_FACTOR));
     MAKE_NAME(SUNArrayListTtype, Resize)(list, new_capacity);
   }
-  list->values[list->size++] = *element;
 }
 
 static inline
-TTYPE* MAKE_NAME(SUNArrayListTtype, Get)(SUNArrayListTtype list, int index) {
+void MAKE_NAME(SUNArrayListTtype, PushBack)(SUNArrayListTtype list, TTYPE element) {
+  if (list->size == list->capacity) {
+    MAKE_NAME(SUNArrayListTtype, Grow)(list);
+  }
+  list->values[list->size++] = element;
+}
+
+static inline
+TTYPE* MAKE_NAME(SUNArrayListTtype, At)(SUNArrayListTtype list, int index) {
   if (index < 0 || index >= list->size) {
     // Handle index out of bounds
     return NULL;
@@ -111,18 +105,28 @@ TTYPE* MAKE_NAME(SUNArrayListTtype, Get)(SUNArrayListTtype list, int index) {
 }
 
 static inline
-void MAKE_NAME(SUNArrayListTtype, Set)(SUNArrayListTtype list, int index, TTYPE* element) {
+void MAKE_NAME(SUNArrayListTtype, Set)(SUNArrayListTtype list, int index, TTYPE element) {
   if (index < 0 || index >= list->size) {
     // Handle index out of bounds
     return;
   }
-  list->values[index] = *element;
+  list->values[index] = element;
 }
 
 static inline
 void MAKE_NAME(SUNArrayListTtype, PopBack)(SUNArrayListTtype list) {
   if (list->size == 0) return;
   list->size--;
+}
+
+static inline
+size_t MAKE_NAME(SUNArrayListTtype, Size)(SUNArrayListTtype list) {
+  return list->size;
+}
+
+static inline
+size_t MAKE_NAME(SUNArrayListTtype, Capacity)(SUNArrayListTtype list) {
+  return list->capacity;
 }
 
 #undef TTYPE

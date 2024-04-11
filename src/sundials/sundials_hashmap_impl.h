@@ -23,28 +23,36 @@
 #include <stdlib.h>
 #include <sundials/sundials_types.h>
 
-typedef struct SUNHashMapKeyValue_* SUNHashMapKeyValue;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-struct SUNHashMapKeyValue_
+typedef struct SUNHashMapKeyValue_s* SUNHashMapKeyValue;
+
+struct SUNHashMapKeyValue_s
 {
   const char* key;
   void* value;
 };
 
-typedef struct SUNHashMap_* SUNHashMap;
+#define TTYPE SUNHashMapKeyValue
+#include "sundials_arraylist.h"
 
-struct SUNHashMap_
+typedef struct SUNHashMap_s* SUNHashMap;
+
+struct SUNHashMap_s
 {
-  int size;     /* current number of entries */
-  int max_size; /* max number of entries */
-  SUNHashMapKeyValue* buckets;
+  size_t capacity; /* max number of entries */
+  SUNArrayList_SUNHashMapKeyValue buckets;
 };
 
-SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map);
+SUNErrCode SUNHashMap_New(size_t init_capacity, SUNHashMap* map);
+size_t SUNHashMap_Capacity(SUNHashMap map);
 SUNErrCode SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr));
-int SUNHashMap_Iterate(SUNHashMap map, int start,
-                       int (*yieldfn)(int, SUNHashMapKeyValue, const void*),
-                       const void* ctx);
+
+size_t SUNHashMap_Iterate(SUNHashMap map, int start,
+                          int (*yieldfn)(int, SUNHashMapKeyValue, void*),
+                          void* ctx);
 int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value);
 int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value);
 int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value);
@@ -53,6 +61,10 @@ SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
 
 #if SUNDIALS_MPI_ENABLED
 SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
