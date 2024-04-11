@@ -163,7 +163,7 @@ Accessible via the constant ``ARKODE_FORWARD_EULER_1_1`` to
 Accessible via the string ``"ARKODE_FORWARD_EULER_1_1"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the default 1st order explicit method (from :cite:p:`Euler:68`)..
+This is the default 1st order explicit method (from :cite:p:`Euler:68`).
 
 .. math::
 
