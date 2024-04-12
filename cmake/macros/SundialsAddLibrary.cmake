@@ -325,10 +325,17 @@ macro(sundials_add_library target)
 
       # set the correct output name
       if(sundials_add_library_OUTPUT_NAME)
-        set_target_properties(${_actual_target_name} PROPERTIES
-          OUTPUT_NAME ${sundials_add_library_OUTPUT_NAME}
-          CLEAN_DIRECT_OUTPUT 1
-        )
+        if(WIN32 AND ${_libtype} MATCHES "STATIC")
+          set_target_properties(${_actual_target_name} PROPERTIES
+            OUTPUT_NAME "${sundials_add_library_OUTPUT_NAME}_static"
+            CLEAN_DIRECT_OUTPUT 1
+          )
+        else()
+          set_target_properties(${_actual_target_name} PROPERTIES
+            OUTPUT_NAME ${sundials_add_library_OUTPUT_NAME}
+            CLEAN_DIRECT_OUTPUT 1
+          )
+        endif()
       else()
         set_target_properties(${_actual_target_name} PROPERTIES
           OUTPUT_NAME ${target}
