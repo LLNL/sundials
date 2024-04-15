@@ -648,7 +648,7 @@ int ERKStepSetTableName(void* arkode_mem, const char* etable)
 /*---------------------------------------------------------------
   ERKStepGetNumRhsEvals:
 
-  Returns the current number of calls to fe and fi
+  Returns the current number of calls to f
   ---------------------------------------------------------------*/
 int ERKStepGetNumRhsEvals(void* arkode_mem, long int* fevals)
 {
