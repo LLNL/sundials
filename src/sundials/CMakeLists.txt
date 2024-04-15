@@ -80,7 +80,7 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 
 set(sundials_SOURCES
-  sundatanode_mmap.c
+  sundatanode_inmem.c
   sundials_adaptcontroller.c
   sundials_band.c
   sundials_context.c

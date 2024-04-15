@@ -31,7 +31,7 @@ typedef enum {
 } SUNDataNodeType;
 
 typedef enum {
-  SUNDATAIOMODE_MMAP,
+  SUNDATAIOMODE_INMEM,
 } SUNDataIOMode;
 
 typedef struct SUNDataNode_s* SUNDataNode;

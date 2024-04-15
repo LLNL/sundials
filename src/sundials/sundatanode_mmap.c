@@ -10,9 +10,9 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include "sundatanode_mmap.h"
+#include "sundatanode_inmem.h"
 
-#define GET_IMPL(node) ((SUNDataNode_MmapImpl) (node)->impl)
+#define GET_IMPL(node) ((SUNDataNode_InMemImpl) (node)->impl)
 #define IMPL_PROP(node, prop) (GET_IMPL(node)->prop)
 #define BASE_PROP(node, prop) ((node)->prop)
 
@@ -23,21 +23,21 @@ static SUNDataNode sunDataNodeMmap_CreateEmpty(SUNContext sunctx)
   SUNDataNode node;
   SUNCheckCallNoRet(SUNDataNode_CreateEmpty(sunctx, &node));
 
-  node->hasChildren = SUNDataNode_HasChildren_Mmap;
-  node->isLeaf = SUNDataNode_IsLeaf_Mmap;
-  node->isList = SUNDataNode_IsList_Mmap;
-  node->isObject = SUNDataNode_IsObject_Mmap;
-  node->addChild = SUNDataNode_AddChild_Mmap;
-  node->addNamedChild = SUNDataNode_AddNamedChild_Mmap;
-  node->getChild = SUNDataNode_GetChild_Mmap;
-  node->getNamedChild = SUNDataNode_GetNamedChild_Mmap;
-  node->removeChild = SUNDataNode_RemoveChild_Mmap;
-  node->removeNamedChild = SUNDataNode_RemoveNamedChild_Mmap;
-  node->getData = SUNDataNode_GetData_Mmap;
-  node->setData = SUNDataNode_SetData_Mmap;
-  node->destroy = SUNDataNode_Destroy_Mmap;
+  node->hasChildren = SUNDataNode_HasChildren_InMem;
+  node->isLeaf = SUNDataNode_IsLeaf_InMem;
+  node->isList = SUNDataNode_IsList_InMem;
+  node->isObject = SUNDataNode_IsObject_InMem;
+  node->addChild = SUNDataNode_AddChild_InMem;
+  node->addNamedChild = SUNDataNode_AddNamedChild_InMem;
+  node->getChild = SUNDataNode_GetChild_InMem;
+  node->getNamedChild = SUNDataNode_GetNamedChild_InMem;
+  node->removeChild = SUNDataNode_RemoveChild_InMem;
+  node->removeNamedChild = SUNDataNode_RemoveNamedChild_InMem;
+  node->getData = SUNDataNode_GetData_InMem;
+  node->setData = SUNDataNode_SetData_InMem;
+  node->destroy = SUNDataNode_Destroy_InMem;
 
-  SUNDataNode_MmapImpl impl = (SUNDataNode_MmapImpl)malloc(sizeof(struct SUNDataNode_MmapImpl_s));
+  SUNDataNode_InMemImpl impl = (SUNDataNode_InMemImpl)malloc(sizeof(struct SUNDataNode_InMemImpl_s));
   SUNAssertNoRet(impl, SUN_ERR_MEM_FAIL);
 
   impl->parent = NULL;
@@ -66,7 +66,7 @@ static void sunDataNodeMmap_DestroyEmpty(SUNDataNode *node)
   BASE_PROP(*node, impl) = NULL;
 }
 
-SUNErrCode SUNDataNode_CreateList_Mmap(sundataindex_t num_elements, SUNContext sunctx, SUNDataNode* node_out)
+SUNErrCode SUNDataNode_CreateList_InMem(sundataindex_t num_elements, SUNContext sunctx, SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
 
@@ -83,7 +83,7 @@ SUNErrCode SUNDataNode_CreateList_Mmap(sundataindex_t num_elements, SUNContext s
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_CreateObject_Mmap(sundataindex_t num_elements, SUNContext sunctx, SUNDataNode* node_out)
+SUNErrCode SUNDataNode_CreateObject_InMem(sundataindex_t num_elements, SUNContext sunctx, SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
 
@@ -101,7 +101,7 @@ SUNErrCode SUNDataNode_CreateObject_Mmap(sundataindex_t num_elements, SUNContext
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_CreateLeaf_Mmap(void* leaf_data, size_t data_stride, size_t data_bytes,
+SUNErrCode SUNDataNode_CreateLeaf_InMem(void* leaf_data, size_t data_stride, size_t data_bytes,
                                        SUNContext sunctx, SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
@@ -118,35 +118,35 @@ SUNErrCode SUNDataNode_CreateLeaf_Mmap(void* leaf_data, size_t data_stride, size
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_IsLeaf_Mmap(const SUNDataNode node, sunbooleantype* yes_or_no)
+SUNErrCode SUNDataNode_IsLeaf_InMem(const SUNDataNode node, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(node->sunctx);
   *yes_or_no = BASE_PROP(node, dtype) == SUNDATANODE_LEAF;
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_IsList_Mmap(const SUNDataNode node, sunbooleantype* yes_or_no)
+SUNErrCode SUNDataNode_IsList_InMem(const SUNDataNode node, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(node->sunctx);
   *yes_or_no = BASE_PROP(node, dtype) == SUNDATANODE_LIST;
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_IsObject_Mmap(const SUNDataNode node, sunbooleantype* yes_or_no)
+SUNErrCode SUNDataNode_IsObject_InMem(const SUNDataNode node, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(node->sunctx);
   *yes_or_no = BASE_PROP(node, dtype) == SUNDATANODE_OBJECT;
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_HasChildren_Mmap(const SUNDataNode node, sunbooleantype* yes_or_no)
+SUNErrCode SUNDataNode_HasChildren_InMem(const SUNDataNode node, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(node->sunctx);
   *yes_or_no = IMPL_PROP(node, num_anon_children) != 0 || IMPL_PROP(node, num_named_children) != 0;
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_AddChild_Mmap(SUNDataNode node, SUNDataNode child_node)
+SUNErrCode SUNDataNode_AddChild_InMem(SUNDataNode node, SUNDataNode child_node)
 {
   SUNFunctionBegin(node->sunctx);
 
@@ -162,7 +162,7 @@ SUNErrCode SUNDataNode_AddChild_Mmap(SUNDataNode node, SUNDataNode child_node)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_AddNamedChild_Mmap(SUNDataNode node, const char* name, SUNDataNode child_node)
+SUNErrCode SUNDataNode_AddNamedChild_InMem(SUNDataNode node, const char* name, SUNDataNode child_node)
 {
   SUNFunctionBegin(node->sunctx);
 
@@ -183,14 +183,14 @@ SUNErrCode SUNDataNode_AddNamedChild_Mmap(SUNDataNode node, const char* name, SU
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_GetChild_Mmap(const SUNDataNode node, sundataindex_t index, SUNDataNode* child_node)
+SUNErrCode SUNDataNode_GetChild_InMem(const SUNDataNode node, sundataindex_t index, SUNDataNode* child_node)
 {
   SUNFunctionBegin(node->sunctx);
 
   *child_node = NULL;
 
   sunbooleantype has_children;
-  SUNCheckCall(SUNDataNode_HasChildren_Mmap(node, &has_children));
+  SUNCheckCall(SUNDataNode_HasChildren_InMem(node, &has_children));
 
   if (has_children) {
     *child_node = IMPL_PROP(node, anon_children)[index];
@@ -199,14 +199,14 @@ SUNErrCode SUNDataNode_GetChild_Mmap(const SUNDataNode node, sundataindex_t inde
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_GetNamedChild_Mmap(const SUNDataNode node, const char* name, SUNDataNode* child_node)
+SUNErrCode SUNDataNode_GetNamedChild_InMem(const SUNDataNode node, const char* name, SUNDataNode* child_node)
 {
   SUNFunctionBegin(node->sunctx);
 
   *child_node = NULL;
 
   sunbooleantype has_children;
-  SUNCheckCall(SUNDataNode_HasChildren_Mmap(node, &has_children));
+  SUNCheckCall(SUNDataNode_HasChildren_InMem(node, &has_children));
 
   if (has_children) {
     if (SUNHashMap_GetValue(IMPL_PROP(node, named_children), name, (void**)child_node))
@@ -218,12 +218,12 @@ SUNErrCode SUNDataNode_GetNamedChild_Mmap(const SUNDataNode node, const char* na
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_RemoveChild_Mmap(SUNDataNode node, sundataindex_t index, SUNDataNode* child_node)
+SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode node, sundataindex_t index, SUNDataNode* child_node)
 {
   SUNFunctionBegin(node->sunctx);
 
   sunbooleantype has_children;
-  SUNCheckCall(SUNDataNode_HasChildren_Mmap(node, &has_children));
+  SUNCheckCall(SUNDataNode_HasChildren_InMem(node, &has_children));
 
   if (has_children) {
     *child_node = IMPL_PROP(node, anon_children)[index];
@@ -235,14 +235,14 @@ SUNErrCode SUNDataNode_RemoveChild_Mmap(SUNDataNode node, sundataindex_t index, 
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_RemoveNamedChild_Mmap(const SUNDataNode node, const char* name, SUNDataNode* child_node)
+SUNErrCode SUNDataNode_RemoveNamedChild_InMem(const SUNDataNode node, const char* name, SUNDataNode* child_node)
 {
   SUNFunctionBegin(node->sunctx);
 
   *child_node = NULL;
 
   sunbooleantype has_children;
-  SUNCheckCall(SUNDataNode_HasChildren_Mmap(node, &has_children));
+  SUNCheckCall(SUNDataNode_HasChildren_InMem(node, &has_children));
 
   if (has_children) {
     if (SUNHashMap_Remove(IMPL_PROP(node, named_children), name, (void**)child_node))
@@ -256,7 +256,7 @@ SUNErrCode SUNDataNode_RemoveNamedChild_Mmap(const SUNDataNode node, const char*
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_GetData_Mmap(const SUNDataNode node, void** data)
+SUNErrCode SUNDataNode_GetData_InMem(const SUNDataNode node, void** data)
 {
   SUNFunctionBegin(node->sunctx);
 
@@ -265,7 +265,7 @@ SUNErrCode SUNDataNode_GetData_Mmap(const SUNDataNode node, void** data)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_SetData_Mmap(SUNDataNode node, void* data, size_t data_stride, size_t data_bytes)
+SUNErrCode SUNDataNode_SetData_InMem(SUNDataNode node, void* data, size_t data_stride, size_t data_bytes)
 {
   SUNFunctionBegin(node->sunctx);
 
@@ -281,10 +281,10 @@ SUNErrCode SUNDataNode_SetData_Mmap(SUNDataNode node, void* data, size_t data_st
 static void sunHashMapFreeDataNode(void* nodeptr)
 {
   SUNDataNode node = (SUNDataNode) nodeptr;
-  SUNDataNode_Destroy_Mmap(&node);
+  SUNDataNode_Destroy_InMem(&node);
 }
 
-SUNErrCode SUNDataNode_Destroy_Mmap(SUNDataNode* node)
+SUNErrCode SUNDataNode_Destroy_InMem(SUNDataNode* node)
 {
   SUNFunctionBegin((*node)->sunctx);
 

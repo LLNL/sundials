@@ -14,7 +14,7 @@
 #include <sundials/priv/sundials_errors_impl.h>
 
 #include "sundials_datanode.h"
-#include "sundatanode_mmap.h"
+#include "sundatanode_inmem.h"
 
 SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node_out)
 {
@@ -48,8 +48,8 @@ SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode, void* leaf_data, size_t
 
   switch(io_mode)
   {
-    case(SUNDATAIOMODE_MMAP):
-      SUNCheckCall(SUNDataNode_CreateLeaf_Mmap(leaf_data, data_stride, data_bytes, sunctx, node_out));
+    case(SUNDATAIOMODE_INMEM):
+      SUNCheckCall(SUNDataNode_CreateLeaf_InMem(leaf_data, data_stride, data_bytes, sunctx, node_out));
       break;
     default:
       return SUN_ERR_ARG_OUTOFRANGE;
@@ -64,8 +64,8 @@ SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode, sundataindex_t num_elem
 
   switch(io_mode)
   {
-    case(SUNDATAIOMODE_MMAP):
-      SUNCheckCall(SUNDataNode_CreateList_Mmap(num_elements, sunctx, node_out));
+    case(SUNDATAIOMODE_INMEM):
+      SUNCheckCall(SUNDataNode_CreateList_InMem(num_elements, sunctx, node_out));
       break;
     default:
       return SUN_ERR_ARG_OUTOFRANGE;
@@ -80,8 +80,8 @@ SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode, sundataindex_t num_el
 
   switch(io_mode)
   {
-    case(SUNDATAIOMODE_MMAP):
-      SUNCheckCall(SUNDataNode_CreateObject_Mmap(num_elements, sunctx, node_out));
+    case(SUNDATAIOMODE_INMEM):
+      SUNCheckCall(SUNDataNode_CreateObject_InMem(num_elements, sunctx, node_out));
       break;
     default:
       return SUN_ERR_ARG_OUTOFRANGE;
