@@ -56,6 +56,16 @@ static SUNDataNode sunDataNodeMmap_CreateEmpty(SUNContext sunctx)
   return node;
 }
 
+static void sunDataNodeMmap_DestroyEmpty(SUNDataNode *node)
+{
+  if (!node) { return; }
+  if (BASE_PROP(*node, impl))
+  {
+    free(BASE_PROP(*node, impl));
+  }
+  BASE_PROP(*node, impl) = NULL;
+}
+
 SUNErrCode SUNDataNode_CreateList_Mmap(sundataindex_t num_elements, SUNContext sunctx, SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
@@ -268,9 +278,10 @@ SUNErrCode SUNDataNode_SetData_Mmap(SUNDataNode node, void* data, size_t data_st
   return SUN_SUCCESS;
 }
 
-static void sunHashMapFreeDataNode(void* node)
+static void sunHashMapFreeDataNode(void* nodeptr)
 {
-
+  SUNDataNode node = (SUNDataNode) nodeptr;
+  SUNDataNode_Destroy_Mmap(&node);
 }
 
 SUNErrCode SUNDataNode_Destroy_Mmap(SUNDataNode* node)
@@ -279,9 +290,11 @@ SUNErrCode SUNDataNode_Destroy_Mmap(SUNDataNode* node)
 
   if (BASE_PROP(*node, dtype) == SUNDATANODE_OBJECT) {
     SUNHashMap map = IMPL_PROP(*node, named_children);
-    // SUNHashMap_Destroy(&map, sunHashMapFreeDataNode);
+    SUNHashMap_Destroy(&map, sunHashMapFreeDataNode);
+  } else if (BASE_PROP(*node, dtype) == SUNDATANODE_LIST) {
+    free(IMPL_PROP(*node, anon_children));
   }
-  free(IMPL_PROP(*node, anon_children));
+  sunDataNodeMmap_DestroyEmpty(node);
 
   return SUN_SUCCESS;
 }

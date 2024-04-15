@@ -155,5 +155,3 @@ TEST_F(SUNHashMapTest, RemoveWorks) {
   err = SUNHashMap_GetValue(map, key, &retrieved_value);
   ASSERT_EQ(err, -2);
 }
-
-// Add more tests for other functionalities like iteration, sorting, etc.

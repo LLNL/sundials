@@ -21,6 +21,9 @@
 extern "C" {
 #endif
 
+#define TTYPE SUNDataNode
+#include "sundials_arraylist.h"
+
 typedef struct SUNDataNode_MmapImpl_s* SUNDataNode_MmapImpl;
 
 struct SUNDataNode_MmapImpl_s {
@@ -40,6 +43,7 @@ struct SUNDataNode_MmapImpl_s {
   sundataindex_t max_named_children;
 
   // Properties for a List node (nodes that are a collection of anonymous nodes)
+  // SUNArrayList_SUNDataNode anon_children;
   SUNDataNode* anon_children;
   sundataindex_t num_anon_children;
   sundataindex_t max_anon_children;
