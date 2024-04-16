@@ -17,6 +17,10 @@ Fixed a bug in some Fortran examples where `c_null_ptr` was passed as an argumen
 to a function pointer instead of `c_null_funptr`. This caused compilation issues
 with the Cray Fortran compiler.
 
+Added CMake infrastructure that enables externally maintained addons/plugins
+to be *optionally* built with SUNDIALS. See the [Contributing Guide](./CONTRIBUTING.md)
+for more details.
+
 ## Changes to SUNDIALS in release v7.0.0
 
 ### Major Feature
