@@ -17,6 +17,9 @@ Fixed a bug in some Fortran examples where `c_null_ptr` was passed as an argumen
 to a function pointer instead of `c_null_funptr`. This caused compilation issues
 with the Cray Fortran compiler.
 
+Fixed a bug where `MRIStepEvolve` would not handle a recoverable error produced
+from evolving the inner stepper.
+
 ## Changes to SUNDIALS in release v7.0.0
 
 ### Major Feature
