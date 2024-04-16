@@ -70,7 +70,7 @@ By making a contribution to this project, I certify that:
 ```
 
 The DCO lets us know that you are entitled to contribute this code to
-[SUNDIALS] and that you are willing to have it used in distributions and
+SUNDIALS and that you are willing to have it used in distributions and
 derivative works.
 
 By including the DCO signature, you are stating that one or
@@ -110,9 +110,9 @@ and they **are not maintained by the SUNDIALS team**.
 
 To create a SUNDIALS addon and use it there are a few things you need to do:
 
-1. In your addon project, ensure that you have a `CMakeLists.txt` that uses
+1. In your addon project, ensure that you have a `CMakeLists.txt` that uses the
    `sundials_add_library` CMake macro to create the library target. The best thing to do is simply
-   copy from, or refer to, a CMakeLists.txt in the SUNDIALS `src` directory.
+   copy from, or refer to, a `CMakeLists.txt` in the SUNDIALS `src` directory.
 2. Follow the steps in the `README.md` file in the `external/` directory in the root of the SUNDIALS
    source code.
 
