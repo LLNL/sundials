@@ -2209,5 +2209,5 @@ To build with SUNDIALS addons,
 1. Clone/copy the addon(s) into ``<sundials root>/external/``
 2. Copy the ``sundials-addon-example`` block in the ``<sundials root>/external/CMakeLists.txt``,
    paste it below the example block, and modify the path listed for your own external addon(s).
-3. When building SUNDIALS, set the CMake option :cmakeop:`SUNDIALS_ENABLE_EXTERNAL_ADDONS` to ON
+3. When building SUNDIALS, set the CMake option :cmakeop:`SUNDIALS_ENABLE_EXTERNAL_ADDONS` to `ON`
 4. Build SUNDIALS as usual.

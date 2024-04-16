@@ -138,9 +138,9 @@ Creating an addon
 
 To create a SUNDIALS addon and use it there are a few things you need to do:
 
-1. In your addon project, ensure that you have a ``CMakeLists.txt`` that uses
+1. In your addon project, ensure that you have a ``CMakeLists.txt`` that uses the
    ``sundials_add_library`` CMake macro to create the library target. The best thing to do is simply
-   copy from, or refer to, a CMakeLists.txt in the SUNDIALS ``src`` directory.
+   copy from, or refer to, a ``CMakeLists.txt`` in the SUNDIALS ``src`` directory.
 2. Follow the steps in the ``README.md`` file in the ``external/`` directory in the root of the SUNDIALS
    source code.
 
