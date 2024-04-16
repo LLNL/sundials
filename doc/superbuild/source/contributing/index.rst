@@ -117,9 +117,9 @@ off line in the commit message:
 
 Replacing Jane Doe’s details with your name and email address.
 
-If you've set `user.name` and `user.email` in your Git configuration, you can
+If you've set ``user.name`` and ``user.email`` in your Git configuration, you can
 automatically add a sign off line at the end of the commit message by using the
-`-s` option (e.g., `git commit -s`).
+``-s`` option (e.g., ``git commit -s``).
 
 
 Contributions via SUNDIALS Addons
