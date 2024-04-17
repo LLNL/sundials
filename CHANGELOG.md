@@ -6,6 +6,10 @@
 
 ### New Features and Enhancements
 
+Added CMake infrastructure that enables externally maintained addons/plugins to
+be *optionally* built with SUNDIALS. See the [Contributing
+Guide](./CONTRIBUTING.md) for more details.
+
 Users may now disable interpolated output in ARKODE steppers by passing
 `ARK_INTERP_NONE` to the `SetInterpolantType` functions:
 

@@ -21,6 +21,9 @@ reduce the memory footprint of an integrator by two or more state vectors
 interpolation is not needed e.g., when integrating to a final time without
 output in between or using an explicit fast time scale integrator with MRIStep.
 
+Added CMake infrastructure that enables externally maintained addons/plugins
+to be *optionally* built with SUNDIALS. See :ref:`Contributing` for details.
+
 **Bug Fixes**
 
 Updated the CMake variable ``HIP_PLATFORM`` default to ``amd`` as the previous
