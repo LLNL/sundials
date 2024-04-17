@@ -542,8 +542,11 @@ void N_VAbs_Serial(N_Vector x, N_Vector z)
   xd = NV_DATA_S(x);
   zd = NV_DATA_S(z);
 
-  for (i = 0; i < N; i++)
-    zd[i] = SUNRabs(xd[i]);
+  for (i = 0; i < N; i+=2)
+  {
+    zd[i]   = SUNRsqrt(SUNSQR(xd[i]) + SUNSQR(xd[i+1]));
+    zd[i+1] = SUNRsqrt(SUNSQR(xd[i]) + SUNSQR(xd[i+1]));
+  }
 
   return;
 }
@@ -620,7 +623,7 @@ sunrealtype N_VMaxNorm_Serial(N_Vector x)
 
 sunrealtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
 {
-  return(SUNRsqrt(N_VWSqrSumLocal_Serial(x, w)/(NV_LENGTH_S(x))));
+  return(SUNRsqrt(N_VWSqrSumLocal_Serial(x, w)/(NV_LENGTH_S(x)/2)));
 }
 
 sunrealtype N_VWSqrSumLocal_Serial(N_Vector x, N_Vector w)
