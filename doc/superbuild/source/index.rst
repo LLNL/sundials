@@ -12,32 +12,9 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-######################
-SUNDIALS Documentation
-######################
-
-.. toctree::
-   :maxdepth: 1
-   :numbered:
-   :hidden:
-
-   sundials/index.rst
-   arkode/index.rst
-   cvode/index.rst
-   cvodes/index.rst
-   ida/index.rst
-   idas/index.rst
-   kinsol/index.rst
-   nvectors/index.rst
-   sunmatrix/index.rst
-   sunlinsol/index.rst
-   sunnonlinsol/index.rst
-   sunadaptcontroller/index.rst
-   sunmemory/index.rst
-   History_link.rst
-   Changelog_link.rst
-   developers/index.rst
-   References
+########
+SUNDIALS
+########
 
 The `SUNDIALS <https://computing.llnl.gov/projects/sundials>`_ library of time
 integrators and nonlinear solvers provides robust and efficient numerical
@@ -177,3 +154,41 @@ SUNDIALS License and Notices
 ============================
 
 .. include:: ../../shared/LicenseReleaseNumbers.rst
+
+
+.. toctree::
+   :caption: USAGE
+   :maxdepth: 1
+   :numbered:
+   :hidden:
+
+   sundials/index.rst
+   arkode/index.rst
+   cvode/index.rst
+   cvodes/index.rst
+   ida/index.rst
+   idas/index.rst
+   kinsol/index.rst
+   nvectors/index.rst
+   sunmatrix/index.rst
+   sunlinsol/index.rst
+   sunnonlinsol/index.rst
+   sunadaptcontroller/index.rst
+   sunmemory/index.rst
+   History_link.rst
+   Changelog_link.rst
+
+.. toctree::
+   :caption: DEVELOPMENT
+   :maxdepth: 1
+   :hidden:
+
+   developers/index.rst
+   contributing/index.rst
+
+.. toctree::
+   :caption: REFERENCES
+   :maxdepth: 1
+   :hidden:
+
+   References

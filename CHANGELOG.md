@@ -20,6 +20,10 @@ with the Cray Fortran compiler.
 Fixed a bug where `MRIStepEvolve` would not handle a recoverable error produced
 from evolving the inner stepper.
 
+Added CMake infrastructure that enables externally maintained addons/plugins
+to be *optionally* built with SUNDIALS. See the [Contributing Guide](./CONTRIBUTING.md)
+for more details.
+
 ## Changes to SUNDIALS in release v7.0.0
 
 ### Major Feature

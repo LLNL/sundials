@@ -1,5 +1,8 @@
 **New Features**
 
+Added CMake infrastructure that enables externally maintained addons/plugins
+to be *optionally* built with SUNDIALS. See :ref:`Contributing` for details.
+
 **Bug Fixes**
 
 Updated the CMake variable ``HIP_PLATFORM`` default to ``amd`` as the previous
