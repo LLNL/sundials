@@ -16,16 +16,6 @@
 Code Organization
 *****************
 
-.. ifconfig:: package_name != 'super'
-
-   .. include:: ../../../shared/SundialsOrganization.rst
-
-
-.. _CVODE.Organization.CVODE:
-
-CVODE organization
-==================
-
 The CVODE package is written in ANSI C. The following summarizes
 the basic structure of the package, although knowledge of this structure
 is not necessary for its use.

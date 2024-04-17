@@ -149,8 +149,8 @@ The structure of this document is as follows:
   underlying :ref:`mathematical algorithms <ARKODE.Mathematics>` used within
   the ARKODE family of solvers.
 
-* We follow this with an overview of how the source code for both
-  SUNDIALS and ARKODE are :ref:`organized <ARKODE.Organization>`.
+* We follow this with an overview of how the source code for
+  ARKODE is :ref:`organized <ARKODE.Organization>`.
 
 * The largest section follows, providing a full account of how to use
   ARKODE's time-stepping modules, :ref:`ARKStep <ARKODE.Usage.ARKStep>`,
