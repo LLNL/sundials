@@ -2065,7 +2065,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to allocate interpolation module");
-      return (ARK_MEM_FAIL);
+      return ARK_MEM_FAIL;
     }
     ark_mem->interp_type = ARK_INTERP_HERMITE;
   }
