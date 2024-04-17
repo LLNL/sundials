@@ -54,16 +54,16 @@ from evolving the inner stepper.
 Compiler warning messages have been added to the following previously deprecated
 functions:
 
-* ``ARKStepSetDenseOrder``
-* ``ERKStepSetDenseOrder``
-* ``MRIStepSetDenseOrder``
+* `ARKStepSetDenseOrder`
+* `ERKStepSetDenseOrder`
+* `MRIStepSetDenseOrder`
 
 These functions will be removed in the next major release and users should
 transition to the follow functions:
 
-* ``ARKStepSetInterpolantDegree``
-* ``ERKStepSetInterpolantDegree``
-* ``MRIStepSetInterpolantDegree``
+* `ARKStepSetInterpolantDegree`
+* `ERKStepSetInterpolantDegree`
+* `MRIStepSetInterpolantDegree`
 
 ## Changes to SUNDIALS in release v7.0.0
 
