@@ -155,12 +155,24 @@ int arkSetInterpolantType(void* arkode_mem, int itype)
   if (itype == ARK_INTERP_HERMITE)
   {
     ark_mem->interp = arkInterpCreate_Hermite(arkode_mem, ark_mem->interp_degree);
+    if (ark_mem->interp == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "Unable to allocate interpolation structure");
+      return ARK_MEM_FAIL;
+    }
     ark_mem->interp_type = ARK_INTERP_HERMITE;
   }
   else if (itype == ARK_INTERP_LAGRANGE)
   {
-    ark_mem->interp      = arkInterpCreate_Lagrange(arkode_mem,
-                                                    ark_mem->interp_degree);
+    ark_mem->interp = arkInterpCreate_Lagrange(arkode_mem,
+                                               ark_mem->interp_degree);
+    if (ark_mem->interp == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "Unable to allocate interpolation structure");
+      return ARK_MEM_FAIL;
+    }
     ark_mem->interp_type = ARK_INTERP_LAGRANGE;
   }
   else
@@ -205,14 +217,20 @@ int arkSetInterpolantDegree(void* arkode_mem, int degree)
     return (ARK_ILL_INPUT);
   }
 
-  if (degree < 0) { degree = ARK_INTERP_MAX_DEGREE; }
+  if (degree > ARK_INTERP_MAX_DEGREE)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Illegal degree specified.");
+    return ARK_ILL_INPUT;
+  }
+  else if (degree < 0) { ark_mem->interp_degree = ARK_INTERP_MAX_DEGREE; }
   else { ark_mem->interp_degree = degree; }
 
   /* Set the degree now if possible otherwise it will be used when creating the
      interpolation module */
   if (ark_mem->interp)
   {
-    return arkInterpSetDegree(ark_mem, ark_mem->interp, degree);
+    return arkInterpSetDegree(ark_mem, ark_mem->interp, ark_mem->interp_degree);
   }
 
   return ARK_SUCCESS;
