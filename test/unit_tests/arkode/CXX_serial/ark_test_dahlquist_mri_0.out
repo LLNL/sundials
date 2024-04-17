@@ -8,6 +8,7 @@ Dahlquist ODE test problem:
    relative tol = 0.0001
    absolute tol = 1e-06
    interp type  = Hermite
+
 =========================
 Test explicit MRI methods
 =========================

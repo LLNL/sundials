@@ -135,13 +135,13 @@ int main(int argc, char* argv[])
   std::cout << "   absolute tol = " << prob_opts.abstol << "\n";
   if (prob_opts.i_type == interp_type::hermite)
   {
-    std::cout << "   interp type  = Hermite";
+    std::cout << "   interp type  = Hermite\n";
   }
   else if (prob_opts.i_type == interp_type::lagrange)
   {
-    std::cout << "  interp type   = Lagrange";
+    std::cout << "   interp type  = Lagrange\n";
   }
-  else { std::cout << "  interp type   = None"; }
+  else { std::cout << "   interp type  = None\n"; }
 
   // Create SUNDIALS context
   sundials::Context sunctx;

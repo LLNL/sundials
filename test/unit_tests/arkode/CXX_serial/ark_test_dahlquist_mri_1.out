@@ -7,7 +7,8 @@ Dahlquist ODE test problem:
    h fast       = 0.01
    relative tol = 0.0001
    absolute tol = 1e-06
-  interp type   = Lagrange
+   interp type  = Lagrange
+
 =========================
 Test explicit MRI methods
 =========================
