@@ -606,9 +606,10 @@ Optional inputs for ERKStep
 
 .. c:function:: int ERKStepSetDenseOrder(void* arkode_mem, int dord)
 
-   *This function is deprecated, and will be removed in a future release.
-   Users should transition to calling* :c:func:`ERKStepSetInterpolantDegree()`
-   *instead.*
+   .. deprecated:: 5.2.0
+
+      This function will be removed in the next major release. Users should
+      transition to calling :c:func:`ERKStepSetInterpolantDegree()`.
 
 
 

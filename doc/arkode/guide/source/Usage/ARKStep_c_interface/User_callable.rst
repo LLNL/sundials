@@ -983,9 +983,10 @@ Set max number of constraint failures             :c:func:`ARKStepSetMaxNumConst
 
 .. c:function:: int ARKStepSetDenseOrder(void* arkode_mem, int dord)
 
-   *This function is deprecated, and will be removed in a future release.
-   Users should transition to calling* :c:func:`ARKStepSetInterpolantDegree()`
-   *instead.*
+   .. deprecated:: 5.2.0
+
+      This function will be removed in the next major release. Users should
+      transition to calling :c:func:`ARKStepSetInterpolantDegree()`.
 
 
 

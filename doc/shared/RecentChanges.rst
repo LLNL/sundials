@@ -42,3 +42,17 @@ to a function pointer instead of ``c_null_funptr``. This caused compilation issu
 with the Cray Fortran compiler.
 
 **Deprecation Notices**
+
+Compiler warning messages have been added to the following previously deprecated
+functions:
+
+* :c:func:`ARKStepSetDenseOrder`
+* :c:func:`ERKStepSetDenseOrder`
+* :c:func:`MRIStepSetDenseOrder`
+
+These functions will be removed in the next major release and users should
+transition to the follow functions:
+
+* :c:func:`ARKStepSetInterpolantDegree`
+* :c:func:`ERKStepSetInterpolantDegree`
+* :c:func:`MRIStepSetInterpolantDegree`

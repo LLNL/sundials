@@ -814,9 +814,10 @@ Optional inputs for MRIStep
 
 .. c:function:: int MRIStepSetDenseOrder(void* arkode_mem, int dord)
 
-   *This function is deprecated, and will be removed in a future release.
-   Users should transition to calling* :c:func:`MRIStepSetInterpolantDegree()`
-   *instead.*
+   .. deprecated:: 5.2.0
+
+      This function will be removed in the next major release. Users should
+      transition to calling :c:func:`MRIStepSetInterpolantDegree()`.
 
 
 
