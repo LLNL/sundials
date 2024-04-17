@@ -1,9 +1,16 @@
 # Contributing to SUNDIALS
 
-At this time, the SUNDIALS team does not have the resources to review and take
-in large additions to the code or significant new features. Contributions
-addressing bug fixes or minor changes are preferred via a pull request to the
-[SUNDIALS GitHub repository](https://github.com/LLNL/sundials).
+There are two primary ways of contributing to SUNDIALS. The first way is by particpating
+in the development of SUNDIALS directly through contributions of code to the primary
+[SUNDIALS repository](https://github.com/LLNL/sundials). This is the best way to contribute
+bug fixes and minor improvements. At this time, the SUNDIALS team does not have the resources
+to review and take in large additions to the code or significant new features.
+Larger additions can be contributed as a SUNDIALS "addon" which is a component that may be
+optionally downloaded by users and then compiled and installed with SUNDIALS.
+
+## Direct Contributions via Pull Requests
+
+Direct contributions to SUNDIALS are made by opening a Pull Request.
 
 All new contributions to SUNDIALS must be made under the BSD 3-clause license.
 See the [LICENSE](./LICENSE) and [NOTICE](./NOTICE) files for details. The
@@ -62,12 +69,11 @@ By making a contribution to this project, I certify that:
     this project or the open source license(s) involved.
 ```
 
-As discussed in the [Docker software project blog](https://blog.docker.com/2014/01/docker-code-contributions-require-developer-certificate-of-origin/)
-this DCO "lets us know that you are entitled to contribute this code to
-[SUNDIALS] and that you are willing to have it used in distributions and
-derivative works."
+The DCO lets us know that you are entitled to contribute this code to
+SUNDIALS and that you are willing to have it used in distributions and
+derivative works.
 
-"By including the DCO signature, you are stating that one or
+By including the DCO signature, you are stating that one or
 more of the following is true of your contribution:
 
 1.  You created this contribution/change and have the right to submit it
@@ -77,7 +83,7 @@ more of the following is true of your contribution:
 3.  This contribution/change has been provided to you by someone who did
     1 or 2 and you are submitting the contribution unchanged.
 4.  You understand this contribution is public and may be redistributed as
-    open source software" under the BSD license.
+    open source software under the BSD license.
 
 All commits submitted to the SUNDIALS project need to have the following sign
 off line in the commit message:
@@ -89,3 +95,31 @@ Replacing Jane Doe’s details with your name and email address.
 If you've set `user.name` and `user.email` in your Git configuration, you can
 automatically add a sign off line at the end of the commit message by using the
 `-s` option (e.g., `git commit -s`).
+
+## Contributions via SUNDIALS Addons
+
+SUNDIALS "addons" are community developed code additions for SUNDIALS that can be subsumed by the
+SUNDIALS build system so that they have full access to all internal SUNDIALS symbols.
+The intent is for SUNDIALS addons to function as if they are part of the SUNDIALS library,
+while allowing them to potentially have different licenses
+(although we encourage BSD-3-Clause still), code style
+(although we encourage them to follow the SUNDIALS style outlined :ref:`here <Style>`),
+and they **are not maintained by the SUNDIALS team**.
+
+### Creating an addon
+
+To create a SUNDIALS addon and use it there are a few things you need to do:
+
+1. In your addon project, ensure that you have a `CMakeLists.txt` that uses the
+   `sundials_add_library` CMake macro to create the library target. The best thing to do is simply
+   copy from, or refer to, a `CMakeLists.txt` in the SUNDIALS `src` directory.
+2. Follow the steps in the `README.md` file in the `external/` directory in the root of the SUNDIALS
+   source code.
+
+An example addon is available [here](https://github.com/sundials-codes/sundials-addon-example).
+
+### Friends of SUNDIALS
+
+The SUNDIALS team maintains a list of some SUNDIALS addons in our [Friends of SUNDIALS](https://github.com/sundials-codes/friends-of-sundials>) repository. These addons are not
+maintained by the SUNDIALS team, but have been developed in consultation with us.
+**Currently we are only adding projects for existing collaborations**. Please contact the development team if you are interested in collaborating on an addon.
