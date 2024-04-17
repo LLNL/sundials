@@ -52,6 +52,8 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    | **Interpolation module input constants**      |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARK_INTERP_NONE`                      | Disables polynomial interpolation for dense output.        |
+   +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARK_INTERP_HERMITE`                   | Specifies use of the Hermite polynomial interpolation      |
    |                                               | module (for non-stiff problems).                           |
    +-----------------------------------------------+------------------------------------------------------------+
