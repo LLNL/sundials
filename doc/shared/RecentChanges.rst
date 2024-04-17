@@ -8,10 +8,10 @@ to be *optionally* built with SUNDIALS. See :ref:`Contributing` for details.
 Users may now disable interpolated output in ARKODE steppers by passing
 ``ARK_INTERP_NONE`` to the ``SetInterpolantType`` functions:
 
-* :c:func:`ARKStepSetInterpolantType`,
-* :c:func:`ERKStepSetInterpolantType`,
-* :c:func:`MRIStepSetInterpolantType`, and
-* :c:func:`SPRKStepSetInterpolantType`.
+* :c:func:`ARKStepSetInterpolantType`
+* :c:func:`ERKStepSetInterpolantType`
+* :c:func:`MRIStepSetInterpolantType`
+* :c:func:`SPRKStepSetInterpolantType`
 
 When interpolation is disabled, rootfinding is not supported, implicit methods
 must use the trivial predictor (the default option), and interpolation at stop

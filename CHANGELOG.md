@@ -13,10 +13,10 @@ Guide](./CONTRIBUTING.md) for more details.
 Users may now disable interpolated output in ARKODE steppers by passing
 `ARK_INTERP_NONE` to the `SetInterpolantType` functions:
 
-* `ARKStepSetInterpolantType`,
-* `ERKStepSetInterpolantType`,
-* `MRIStepSetInterpolantType`, and
-* `SPRKStepSetInterpolantType`.
+* `ARKStepSetInterpolantType`
+* `ERKStepSetInterpolantType`
+* `MRIStepSetInterpolantType`
+* `SPRKStepSetInterpolantType`
 
 When interpolation is disabled, rootfinding is not supported, implicit methods
 must use the trivial predictor (the default option), and interpolation at stop
