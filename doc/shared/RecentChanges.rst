@@ -2,6 +2,9 @@
 
 **New Features and Enhancements**
 
+Added CMake infrastructure that enables externally maintained addons/plugins
+to be *optionally* built with SUNDIALS. See :ref:`Contributing` for details.
+
 Users may now disable interpolated output in ARKODE steppers by passing
 ``ARK_INTERP_NONE`` to the ``SetInterpolantType`` functions:
 
@@ -20,9 +23,6 @@ reduce the memory footprint of an integrator by two or more state vectors
 (depending on the interpolant type and degree) which can be beneficial when
 interpolation is not needed e.g., when integrating to a final time without
 output in between or using an explicit fast time scale integrator with MRIStep.
-
-Added CMake infrastructure that enables externally maintained addons/plugins
-to be *optionally* built with SUNDIALS. See :ref:`Contributing` for details.
 
 **Bug Fixes**
 
