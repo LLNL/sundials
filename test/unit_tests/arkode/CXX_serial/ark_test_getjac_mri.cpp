@@ -233,11 +233,11 @@ int main(int argc, char* argv[])
   void* arkode_mem = MRIStepCreate(nullptr, f, ZERO, y, inner_stepper, sunctx);
   if (check_ptr(arkode_mem, "MRIStepCreate")) { return 1; }
 
-  flag = MRIStepSStolerances(arkode_mem, rtol, atol);
-  if (check_flag(flag, "MRIStepSStolerances")) { return 1; }
+  flag = ARKodeSStolerances(arkode_mem, rtol, atol);
+  if (check_flag(flag, "ARKodeSStolerances")) { return 1; }
 
-  flag = MRIStepSetFixedStep(arkode_mem, SUN_RCONST(1.0e-5));
-  if (check_flag(flag, "MRIStepSetFixedStep")) { return 1; }
+  flag = ARKodeSetFixedStep(arkode_mem, SUN_RCONST(1.0e-5));
+  if (check_flag(flag, "ARKodeSetFixedStep")) { return 1; }
 
   SUNMatrix A = SUNDenseMatrix(2, 2, sunctx);
   if (check_ptr(A, "SUNDenseMatrix")) { return 1; }
@@ -245,35 +245,35 @@ int main(int argc, char* argv[])
   SUNLinearSolver LS = SUNLinSol_Dense(y, A, sunctx);
   if (check_ptr(LS, "SUNLinSol_Dense")) { return 1; }
 
-  flag = MRIStepSetLinearSolver(arkode_mem, LS, A);
-  if (check_flag(flag, "MRIStepSetLinearSolver")) { return 1; }
+  flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
+  if (check_flag(flag, "ARKodeSetLinearSolver")) { return 1; }
 
   sunrealtype udata[4] = {-TWO, HALF, HALF, -ONE};
 
-  flag = MRIStepSetUserData(arkode_mem, udata);
-  if (check_flag(flag, "MRIStepSetUserData")) { return 1; }
+  flag = ARKodeSetUserData(arkode_mem, udata);
+  if (check_flag(flag, "ARKodeSetUserData")) { return 1; }
 
   // Initial time and fist output time
   sunrealtype tret = ZERO;
   sunrealtype tout = tret + SUN_RCONST(0.1);
 
   // Advance one step in time
-  flag = MRIStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
-  if (check_flag(flag, "MRIStep")) { return 1; }
+  flag = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
+  if (check_flag(flag, "ARKode")) { return 1; }
 
   // Get the internal finite difference approximation to J
   SUNMatrix Jdq;
-  flag = MRIStepGetJac(arkode_mem, &Jdq);
-  if (check_flag(flag, "MRIStepGetJac")) { return 1; }
+  flag = ARKodeGetJac(arkode_mem, &Jdq);
+  if (check_flag(flag, "ARKodeGetJac")) { return 1; }
 
   // Get the step and time at which the approximation was computed
   long int nst_Jdq;
-  flag = MRIStepGetJacNumSteps(arkode_mem, &nst_Jdq);
-  if (check_flag(flag, "MRIStepGetJacNumSteps")) { return 1; }
+  flag = ARKodeGetJacNumSteps(arkode_mem, &nst_Jdq);
+  if (check_flag(flag, "ARKodeGetJacNumSteps")) { return 1; }
 
   sunrealtype t_Jdq;
-  flag = MRIStepGetJacTime(arkode_mem, &t_Jdq);
-  if (check_flag(flag, "MRIStepGetJacTime")) { return 1; }
+  flag = ARKodeGetJacTime(arkode_mem, &t_Jdq);
+  if (check_flag(flag, "ARKodeGetJacTime")) { return 1; }
 
   // Compute the true Jacobian
   SUNMatrix Jtrue = SUNDenseMatrix(2, 2, sunctx);
@@ -325,8 +325,8 @@ int main(int argc, char* argv[])
   SUNMatDestroy(Jtrue);
   SUNLinSolFree(LS);
   MRIStepInnerStepper_Free(&inner_stepper);
-  ARKStepFree(&inner_arkode_mem);
-  MRIStepFree(&arkode_mem);
+  ARKodeFree(&inner_arkode_mem);
+  ARKodeFree(&arkode_mem);
 
   return result;
 }

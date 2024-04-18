@@ -245,49 +245,49 @@ int main(int argc, char* argv[])
     if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
     // Specify tolerances
-    flag = ARKStepSStolerances(arkode_mem, uopts.rtol, uopts.atol);
-    if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+    flag = ARKodeSStolerances(arkode_mem, uopts.rtol, uopts.atol);
+    if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
     // Attach user data
-    flag = ARKStepSetUserData(arkode_mem, (void*)&udata);
-    if (check_flag(&flag, "ARKStepSetUserData", 1)) { return 1; }
+    flag = ARKodeSetUserData(arkode_mem, (void*)&udata);
+    if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
     // Attach linear solver
-    flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
-    if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
+    flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
+    if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
 #if defined(USE_SUPERLU_DIST)
     if (uopts.ls == "sludist")
     {
-      ARKStepSetJacFn(arkode_mem, diffusion_jac);
-      if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
+      ARKodeSetJacFn(arkode_mem, diffusion_jac);
+      if (check_flag(&flag, "ARKodeSetJacFn", 1)) return 1;
     }
 #endif
 
     if (uopts.preconditioning)
     {
       // Attach preconditioner
-      flag = ARKStepSetPreconditioner(arkode_mem, PSetup, PSolve);
-      if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) { return 1; }
+      flag = ARKodeSetPreconditioner(arkode_mem, PSetup, PSolve);
+      if (check_flag(&flag, "ARKodeSetPreconditioner", 1)) { return 1; }
 
       // Set linear solver setup frequency (update preconditioner)
-      flag = ARKStepSetLSetupFrequency(arkode_mem, uopts.msbp);
-      if (check_flag(&flag, "ARKStepSetLSetupFrequency", 1)) { return 1; }
+      flag = ARKodeSetLSetupFrequency(arkode_mem, uopts.msbp);
+      if (check_flag(&flag, "ARKodeSetLSetupFrequency", 1)) { return 1; }
     }
 
     // Set linear solver tolerance factor
-    flag = ARKStepSetEpsLin(arkode_mem, uopts.epslin);
-    if (check_flag(&flag, "ARKStepSetEpsLin", 1)) { return 1; }
+    flag = ARKodeSetEpsLin(arkode_mem, uopts.epslin);
+    if (check_flag(&flag, "ARKodeSetEpsLin", 1)) { return 1; }
 
     // Select method order
-    flag = ARKStepSetOrder(arkode_mem, uopts.order);
-    if (check_flag(&flag, "ARKStepSetOrder", 1)) { return 1; }
+    flag = ARKodeSetOrder(arkode_mem, uopts.order);
+    if (check_flag(&flag, "ARKodeSetOrder", 1)) { return 1; }
 
     // Set fixed step size or adaptivity method
     if (uopts.hfixed > ZERO)
     {
-      flag = ARKStepSetFixedStep(arkode_mem, uopts.hfixed);
-      if (check_flag(&flag, "ARKStepSetFixedStep", 1)) { return 1; }
+      flag = ARKodeSetFixedStep(arkode_mem, uopts.hfixed);
+      if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
     }
     else
     {
@@ -299,17 +299,17 @@ int main(int argc, char* argv[])
     // Specify linearly implicit non-time-dependent RHS
     if (uopts.linear)
     {
-      flag = ARKStepSetLinear(arkode_mem, 0);
-      if (check_flag(&flag, "ARKStepSetLinear", 1)) { return 1; }
+      flag = ARKodeSetLinear(arkode_mem, 0);
+      if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
     }
 
     // Set max steps between outputs
-    flag = ARKStepSetMaxNumSteps(arkode_mem, uopts.maxsteps);
-    if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return 1; }
+    flag = ARKodeSetMaxNumSteps(arkode_mem, uopts.maxsteps);
+    if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
     // Set stopping time
-    flag = ARKStepSetStopTime(arkode_mem, udata.tf);
-    if (check_flag(&flag, "ARKStepSetStopTime", 1)) { return 1; }
+    flag = ARKodeSetStopTime(arkode_mem, udata.tf);
+    if (check_flag(&flag, "ARKodeSetStopTime", 1)) { return 1; }
 
     // -----------------------
     // Loop over output times
@@ -341,8 +341,8 @@ int main(int argc, char* argv[])
       SUNDIALS_MARK_BEGIN(prof, "Evolve");
 
       // Evolve in time
-      flag = ARKStepEvolve(arkode_mem, tout, u, &t, stepmode);
-      if (check_flag(&flag, "ARKStepEvolve", 1)) { break; }
+      flag = ARKodeEvolve(arkode_mem, tout, u, &t, stepmode);
+      if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
 
       SUNDIALS_MARK_END(prof, "Evolve");
 
@@ -367,8 +367,8 @@ int main(int argc, char* argv[])
     if (outproc)
     {
       cout << "Final integrator statistics:" << endl;
-      flag = ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-      if (check_flag(&flag, "ARKStepPrintAllStats", 1)) { return 1; }
+      flag = ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+      if (check_flag(&flag, "ARKodePrintAllStats", 1)) { return 1; }
     }
 
     // ---------
@@ -378,7 +378,7 @@ int main(int argc, char* argv[])
     // Free MPI Cartesian communicator
     MPI_Comm_free(&(udata.comm_c));
 
-    ARKStepFree(&arkode_mem);
+    ARKodeFree(&arkode_mem);
     SUNLinSolFree(LS);
 
     // Free the SuperLU_DIST structures (also frees user allocated arrays
