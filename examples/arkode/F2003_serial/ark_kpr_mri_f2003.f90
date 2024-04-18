@@ -842,12 +842,12 @@ program main
     call check_retval(retval, "FARKStepSetTables")
     MATf => FSUNDenseMatrix(NEQ, NEQ, sunctx)
     LSf => FSUNLinSol_Dense(y, MATf, sunctx)
-    retval = FARKStepSetLinearSolver(inner_arkode_mem, LSf, MATf)
-    call check_retval(retval, "FARKStepSetLinearSolver")
-    retval = FARKStepSetJacFn(inner_arkode_mem, c_funloc(Jn))
-    call check_retval(retval, "FARKStepSetJacFn")
-    retval = FARKStepSStolerances(inner_arkode_mem, reltol, abstol)
-    call check_retval(retval, "FARKStepSStolerances")
+    retval = FARKodeSetLinearSolver(inner_arkode_mem, LSf, MATf)
+    call check_retval(retval, "FARKodeSetLinearSolver")
+    retval = FARKodeSetJacFn(inner_arkode_mem, c_funloc(Jn))
+    call check_retval(retval, "FARKodeSetJacFn")
+    retval = FARKodeSStolerances(inner_arkode_mem, reltol, abstol)
+    call check_retval(retval, "FARKodeSStolerances")
     call FARKodeButcherTable_Free(BTf)
   else if (solve_type == 3 .or. solve_type == 4) then
     ! no fast dynamics ('evolve' explicitly w/ erk-3-3)
@@ -881,9 +881,9 @@ program main
   end if
 
   ! Set the fast step size */
-  retval = FARKStepSetFixedStep(inner_arkode_mem, hf)
+  retval = FARKodeSetFixedStep(inner_arkode_mem, hf)
   if (retval /= 0) then
-    print *, 'ERROR: FARKStepSetFixedStep failed'
+    print *, 'ERROR: FARKodeSetFixedStep failed'
     stop 1
   end if
 
@@ -951,12 +951,12 @@ program main
     call check_retval(retval, "FMRIStepSetCoupling")
     MATs => FSUNDenseMatrix(NEQ, NEQ, sunctx)
     LSs => FSUNLinSol_Dense(y, MATs, sunctx)
-    retval = FMRIStepSetLinearSolver(arkode_mem, LSs, MATs)
-    call check_retval(retval, "FMRIStepSetLinearSolver")
-    retval = FMRIStepSetJacFn(arkode_mem, c_funloc(Jn))
-    call check_retval(retval, "FMRIStepSetJacFn")
-    retval = FMRIStepSStolerances(arkode_mem, reltol, abstol)
-    call check_retval(retval, "FMRIStepSStolerances")
+    retval = FARKodeSetLinearSolver(arkode_mem, LSs, MATs)
+    call check_retval(retval, "FARKodeSetLinearSolver")
+    retval = FARKodeSetJacFn(arkode_mem, c_funloc(Jn))
+    call check_retval(retval, "FARKodeSetJacFn")
+    retval = FARKodeSStolerances(arkode_mem, reltol, abstol)
+    call check_retval(retval, "FARKodeSStolerances")
   else if (solve_type == 7) then
     ! MRI-GARK-ESDIRK34a, solve-decoupled slow solver
     arkode_mem = FMRIStepCreate(c_null_funptr, c_funloc(fs), T0, y, inner_stepper, sunctx)
@@ -965,12 +965,12 @@ program main
     call check_retval(retval, "FMRIStepSetCoupling")
     MATs => FSUNDenseMatrix(NEQ, NEQ, sunctx)
     LSs => FSUNLinSol_Dense(y, MATs, sunctx)
-    retval = FMRIStepSetLinearSolver(arkode_mem, LSs, MATs)
-    call check_retval(retval, "FMRIStepSetLinearSolver")
-    retval = FMRIStepSetJacFn(arkode_mem, c_funloc(Js))
-    call check_retval(retval, "FMRIStepSetJacFn")
-    retval = FMRIStepSStolerances(arkode_mem, reltol, abstol)
-    call check_retval(retval, "FMRIStepSStolerances")
+    retval = FARKodeSetLinearSolver(arkode_mem, LSs, MATs)
+    call check_retval(retval, "FARKodeSetLinearSolver")
+    retval = FARKodeSetJacFn(arkode_mem, c_funloc(Js))
+    call check_retval(retval, "FARKodeSetJacFn")
+    retval = FARKodeSStolerances(arkode_mem, reltol, abstol)
+    call check_retval(retval, "FARKodeSStolerances")
   else if (solve_type == 8) then
     ! IMEX-MRI-GARK3b, solve-decoupled slow solver
     arkode_mem = FMRIStepCreate(c_funloc(fse), c_funloc(fsi), T0, y, inner_stepper, sunctx)
@@ -979,12 +979,12 @@ program main
     call check_retval(retval, "FMRIStepSetCoupling")
     MATs => FSUNDenseMatrix(NEQ, NEQ, sunctx)
     LSs => FSUNLinSol_Dense(y, MATs, sunctx)
-    retval = FMRIStepSetLinearSolver(arkode_mem, LSs, MATs)
-    call check_retval(retval, "FMRIStepSetLinearSolver")
-    retval = FMRIStepSetJacFn(arkode_mem, c_funloc(Jsi))
-    call check_retval(retval, "FMRIStepSetJacFn")
-    retval = FMRIStepSStolerances(arkode_mem, reltol, abstol)
-    call check_retval(retval, "FMRIStepSStolerances")
+    retval = FARKodeSetLinearSolver(arkode_mem, LSs, MATs)
+    call check_retval(retval, "FARKodeSetLinearSolver")
+    retval = FARKodeSetJacFn(arkode_mem, c_funloc(Jsi))
+    call check_retval(retval, "FARKodeSetJacFn")
+    retval = FARKodeSStolerances(arkode_mem, reltol, abstol)
+    call check_retval(retval, "FARKodeSStolerances")
   else if (solve_type == 9) then
     ! IMEX-MRI-GARK4, solve-decoupled slow solver
     arkode_mem = FMRIStepCreate(c_funloc(fse), c_funloc(fsi), T0, y, inner_stepper, sunctx)
@@ -992,12 +992,12 @@ program main
     retval = FMRIStepSetCoupling(arkode_mem, SC)
     MATs => FSUNDenseMatrix(NEQ, NEQ, sunctx)
     LSs => FSUNLinSol_Dense(y, MATs, sunctx)
-    retval = FMRIStepSetLinearSolver(arkode_mem, LSs, MATs)
-    call check_retval(retval, "FMRIStepSetLinearSolver")
-    retval = FMRIStepSetJacFn(arkode_mem, c_funloc(Jsi))
-    call check_retval(retval, "FMRIStepSetJacFn")
-    retval = FMRIStepSStolerances(arkode_mem, reltol, abstol)
-    call check_retval(retval, "FMRIStepSStolerances")
+    retval = FARKodeSetLinearSolver(arkode_mem, LSs, MATs)
+    call check_retval(retval, "FARKodeSetLinearSolver")
+    retval = FARKodeSetJacFn(arkode_mem, c_funloc(Jsi))
+    call check_retval(retval, "FARKodeSetJacFn")
+    retval = FARKodeSStolerances(arkode_mem, reltol, abstol)
+    call check_retval(retval, "FARKodeSStolerances")
   end if
 
   if (.not. c_associated(arkode_mem)) then
@@ -1006,14 +1006,14 @@ program main
   end if
 
   ! Set the slow step size
-  retval = FMRIStepSetFixedStep(arkode_mem, hs)
-  call check_retval(retval, "FMRIStepSetFixedStep")
+  retval = FARKodeSetFixedStep(arkode_mem, hs)
+  call check_retval(retval, "FARKodeSetFixedStep")
 
   !
   ! Integrate ODE
   !
 
-  ! Main time-stepping loop: calls MRIStepEvolve to perform the
+  ! Main time-stepping loop: calls ARKodeEvolve to perform the
   ! integration, then prints results. Stops when the final time
   ! has been reached
   t = T0
@@ -1030,8 +1030,8 @@ program main
 
   do iout = 1, Nt
     ! call integrator
-    retval = FMRIStepEvolve(arkode_mem, tout, y, tret, ARK_NORMAL)
-    call check_retval(retval, "FMRIStepEvolve")
+    retval = FARKodeEvolve(arkode_mem, tout, y, tret, ARK_NORMAL)
+    call check_retval(retval, "FARKodeEvolve")
 
     ! access/print solution and error
     uerr = abs(yarr(1)-utrue(tret(1)))
@@ -1058,11 +1058,11 @@ program main
   !
 
   ! Get some slow integrator statistics
-  retval = FMRIStepGetNumSteps(arkode_mem, nsts)
+  retval = FARKodeGetNumSteps(arkode_mem, nsts)
   retval = FMRIStepGetNumRhsEvals(arkode_mem, nfse, nfsi)
 
   ! Get some fast integrator statistics
-  retval = FARKStepGetNumSteps(inner_arkode_mem, nstf)
+  retval = FARKodeGetNumSteps(inner_arkode_mem, nstf)
   retval = FARKStepGetNumRhsEvals(inner_arkode_mem, nff, tmp)
 
   ! Print some final statistics
@@ -1080,10 +1080,10 @@ program main
   ! Get/print slow integrator decoupled implicit solver statistics
   if ((solve_type == 4) .or. (solve_type == 7) .or. &
       (solve_type == 8) .or. (solve_type == 9)) then
-    retval = FMRIStepGetNonlinSolvStats(arkode_mem, nnis, nncs)
-    call check_retval(retval, "MRIStepGetNonlinSolvStats")
-    retval = FMRIStepGetNumJacEvals(arkode_mem, njes)
-    call check_retval(retval, "MRIStepGetNumJacEvals")
+    retval = FARKodeGetNonlinSolvStats(arkode_mem, nnis, nncs)
+    call check_retval(retval, "ARKodeGetNonlinSolvStats")
+    retval = FARKodeGetNumJacEvals(arkode_mem, njes)
+    call check_retval(retval, "ARKodeGetNumJacEvals")
     print '(A, I7)', "   Slow Newton iters = ", nnis
     print '(A, I7)', "   Slow Newton conv fails = ", nncs
     print '(A, I7)', "   Slow Jacobian evals = ", njes
@@ -1091,10 +1091,10 @@ program main
 
   ! Get/print fast integrator implicit solver statistics
   if (solve_type == 2) then
-    retval = FARKStepGetNonlinSolvStats(inner_arkode_mem, nnif, nncf)
-    call check_retval(retval, "ARKStepGetNonlinSolvStats")
-    retval = FARKStepGetNumJacEvals(inner_arkode_mem, njef)
-    call check_retval(retval, "ARKStepGetNumJacEvals")
+    retval = FARKodeGetNonlinSolvStats(inner_arkode_mem, nnif, nncf)
+    call check_retval(retval, "ARKodeGetNonlinSolvStats")
+    retval = FARKodeGetNumJacEvals(inner_arkode_mem, njef)
+    call check_retval(retval, "ARKodeGetNumJacEvals")
     print '(A, I7)', "   Fast Newton iters = ", nnif
     print '(A, I7)', "   Fast Newton conv fails = ", nncf
     print '(A, I7)', "   Fast Jacobian evals = ", njef
@@ -1116,9 +1116,9 @@ program main
   if (associated(LSf)) retval = FSUNLinSolFree(LSf)  ! Free fast linear solver
   if (associated(MATs)) call FSUNMatDestroy(MATs)    ! Free slow matrix
   if (associated(LSs)) retval = FSUNLinSolFree(LSs)  ! Free slow linear solver
-  call FARKStepFree(inner_arkode_mem)                ! Free fast integrator memory
+  call FARKodeFree(inner_arkode_mem)                 ! Free fast integrator memory
   retval = FMRIStepInnerStepper_Free(inner_stepper)  ! Free inner stepper
-  call FMRIStepFree(arkode_mem)                      ! Free slow integrator memory
+  call FARKodeFree(arkode_mem)                       ! Free slow integrator memory
   retval = FSUNContext_Free(sunctx)                  ! Free context
 
 end program main

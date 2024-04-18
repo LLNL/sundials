@@ -89,8 +89,8 @@ int main(void)
   if (check_flag((void*)arkode_mem, "ERKStepCreate", 0)) { return 1; }
 
   /* Specify tolerances */
-  flag = ERKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ERKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
@@ -99,7 +99,7 @@ int main(void)
   /* output initial condition to disk */
   fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", T0, NV_Ith_S(y, 0));
 
-  /* Main time-stepping loop: calls ERKStepEvolve to perform the integration, then
+  /* Main time-stepping loop: calls ARKodeEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t    = T0;
   tout = T0 + dTout;
@@ -107,8 +107,8 @@ int main(void)
   printf("   ---------------------\n");
   while (Tf - t > 1.0e-15)
   {
-    flag = ERKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
-    if (check_flag(&flag, "ERKStepEvolve", 1)) { break; }
+    flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
     printf("  %10.6" FSYM "  %10.6" FSYM "\n", t,
            NV_Ith_S(y, 0)); /* access/print solution */
     fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", t, NV_Ith_S(y, 0));
@@ -128,16 +128,16 @@ int main(void)
 
   /* Print final statistics */
   printf("\nFinal Statistics:\n");
-  flag = ERKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  flag = ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   /* Print final statistics to a file in CSV format */
   FID  = fopen("ark_analytic_nonlin_stats.csv", "w");
-  flag = ERKStepPrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  flag = ARKodePrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
   fclose(FID);
 
   /* Clean up and return with successful completion */
   N_VDestroy(y);            /* Free y vector */
-  ERKStepFree(&arkode_mem); /* Free integrator memory */
+  ARKodeFree(&arkode_mem);  /* Free integrator memory */
   SUNContext_Free(&ctx);    /* Free context */
 
   return 0;

@@ -139,14 +139,14 @@ int main(int argc, char* argv[])
   if (check_ptr(arkode_mem, "ARKStepCreate")) { return 1; }
 
   // Specify tolerances
-  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(flag, "ARKStepSStolerances")) { return 1; }
+  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
+  if (check_flag(flag, "ARKodeSStolerances")) { return 1; }
 
   if (relax)
   {
     // Enable relaxation methods
-    flag = ARKStepSetRelaxFn(arkode_mem, Eng, JacEng);
-    if (check_flag(flag, "ARKStepSetRelaxFn")) { return 1; }
+    flag = ARKodeSetRelaxFn(arkode_mem, Eng, JacEng);
+    if (check_flag(flag, "ARKodeSetRelaxFn")) { return 1; }
   }
 
   SUNMatrix A        = nullptr;
@@ -162,12 +162,12 @@ int main(int argc, char* argv[])
     if (check_ptr(LS, "SUNLinSol_Dense")) { return 1; }
 
     // Attach the matrix and linear solver
-    flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
-    if (check_flag(flag, "ARKStepSetLinearSolver")) { return 1; }
+    flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
+    if (check_flag(flag, "ARKodeSetLinearSolver")) { return 1; }
 
     // Set Jacobian routine
-    flag = ARKStepSetJacFn(arkode_mem, Jac);
-    if (check_flag(flag, "ARKStepSetJacFn")) { return 1; }
+    flag = ARKodeSetJacFn(arkode_mem, Jac);
+    if (check_flag(flag, "ARKodeSetJacFn")) { return 1; }
 
     if (fixed_h > SUN_RCONST(0.0))
     {
@@ -206,12 +206,12 @@ int main(int argc, char* argv[])
 
   if (fixed_h > SUN_RCONST(0.0))
   {
-    flag = ARKStepSetFixedStep(arkode_mem, fixed_h);
-    if (check_flag(flag, "ARKStepSetFixedStep")) { return 1; }
+    flag = ARKodeSetFixedStep(arkode_mem, fixed_h);
+    if (check_flag(flag, "ARKodeSetFixedStep")) { return 1; }
   }
 
-  flag = ARKStepSetNonlinConvCoef(arkode_mem, SUN_RCONST(0.01));
-  if (check_flag(flag, "ARKStepSetNonlinConvCoef")) { return 1; }
+  flag = ARKodeSetNonlinConvCoef(arkode_mem, SUN_RCONST(0.01));
+  if (check_flag(flag, "ARKodeSetNonlinConvCoef")) { return 1; }
 
   /* --------------- *
    * Advance in Time *
@@ -248,8 +248,8 @@ int main(int argc, char* argv[])
   while (t < tf)
   {
     // Evolve in time
-    flag = ARKStepEvolve(arkode_mem, tf, y, &t, ARK_ONE_STEP);
-    if (check_flag(flag, "ARKStepEvolve")) { break; }
+    flag = ARKodeEvolve(arkode_mem, tf, y, &t, ARK_ONE_STEP);
+    if (check_flag(flag, "ARKodeEvolve")) { break; }
 
     // Output solution and errors
     sunrealtype eng;
@@ -260,8 +260,8 @@ int main(int argc, char* argv[])
 
     /* Output to the screen periodically */
     long int nst;
-    flag = ARKStepGetNumSteps(arkode_mem, &nst);
-    check_flag(flag, "ARKStepGetNumSteps");
+    flag = ARKodeGetNumSteps(arkode_mem, &nst);
+    check_flag(flag, "ARKodeGetNumSteps");
 
     if (nst % 1000 == 0)
     {
@@ -288,14 +288,14 @@ int main(int argc, char* argv[])
   long int nst, nst_a, netf, nfe, nfi;
 
   // Get final statistics on how the solve progressed
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(flag, "ARKStepGetNumSteps");
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_flag(flag, "ARKodeGetNumSteps");
 
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(flag, "ARKStepGetNumStepAttempts");
+  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(flag, "ARKodeGetNumStepAttempts");
 
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(flag, "ARKStepGetNumErrTestFails");
+  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(flag, "ARKodeGetNumErrTestFails");
 
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   check_flag(flag, "ARKStepGetNumRhsEvals");
@@ -311,20 +311,20 @@ int main(int argc, char* argv[])
   {
     long int nsetups, nje, nfeLS, nni, ncfn;
 
-    flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-    check_flag(flag, "ARKStepGetNumNonlinSolvIters");
+    flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+    check_flag(flag, "ARKodeGetNumNonlinSolvIters");
 
-    flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-    check_flag(flag, "ARKStepGetNumNonlinSolvConvFails");
+    flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+    check_flag(flag, "ARKodeGetNumNonlinSolvConvFails");
 
-    flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-    check_flag(flag, "ARKStepGetNumLinSolvSetups");
+    flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
+    check_flag(flag, "ARKodeGetNumLinSolvSetups");
 
-    flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
-    check_flag(flag, "ARKStepGetNumJacEvals");
+    flag = ARKodeGetNumJacEvals(arkode_mem, &nje);
+    check_flag(flag, "ARKodeGetNumJacEvals");
 
-    flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
-    check_flag(flag, "ARKStepGetNumLinRhsEvals");
+    flag = ARKodeGetNumLinRhsEvals(arkode_mem, &nfeLS);
+    check_flag(flag, "ARKodeGetNumLinRhsEvals");
 
     std::cout << "  Total number of Newton iterations = " << nni << "\n";
     std::cout << "  Total number of linear solver convergence failures = " << ncfn
@@ -339,23 +339,23 @@ int main(int argc, char* argv[])
   {
     long int nre, nrje, nrf, nrbf, nrnlsi, nrnlsf;
 
-    flag = ARKStepGetNumRelaxFnEvals(arkode_mem, &nre);
-    check_flag(flag, "ARKStepGetNumRelaxFnEvals");
+    flag = ARKodeGetNumRelaxFnEvals(arkode_mem, &nre);
+    check_flag(flag, "ARKodeGetNumRelaxFnEvals");
 
-    flag = ARKStepGetNumRelaxJacEvals(arkode_mem, &nrje);
-    check_flag(flag, "ARKStepGetNumRelaxJacEvals");
+    flag = ARKodeGetNumRelaxJacEvals(arkode_mem, &nrje);
+    check_flag(flag, "ARKodeGetNumRelaxJacEvals");
 
-    flag = ARKStepGetNumRelaxFails(arkode_mem, &nrf);
-    check_flag(flag, "ARKStepGetNumRelaxFails");
+    flag = ARKodeGetNumRelaxFails(arkode_mem, &nrf);
+    check_flag(flag, "ARKodeGetNumRelaxFails");
 
-    flag = ARKStepGetNumRelaxBoundFails(arkode_mem, &nrbf);
-    check_flag(flag, "ARKStepGetNumRelaxBoundFails");
+    flag = ARKodeGetNumRelaxBoundFails(arkode_mem, &nrbf);
+    check_flag(flag, "ARKodeGetNumRelaxBoundFails");
 
-    flag = ARKStepGetNumRelaxSolveFails(arkode_mem, &nrnlsf);
-    check_flag(flag, "ARKStepGetNumRelaxSolveFails");
+    flag = ARKodeGetNumRelaxSolveFails(arkode_mem, &nrnlsf);
+    check_flag(flag, "ARKodeGetNumRelaxSolveFails");
 
-    flag = ARKStepGetNumRelaxSolveIters(arkode_mem, &nrnlsi);
-    check_flag(flag, "ARKStepGetNumRelaxSolveIters");
+    flag = ARKodeGetNumRelaxSolveIters(arkode_mem, &nrnlsi);
+    check_flag(flag, "ARKodeGetNumRelaxSolveIters");
 
     std::cout << "  Total Relaxation Fn evals    = " << nre << "\n";
     std::cout << "  Total Relaxation Jac evals   = " << nrje << "\n";
@@ -370,8 +370,8 @@ int main(int argc, char* argv[])
    * Clean up *
    * -------- */
 
-  // Free ARKStep integrator and SUNDIALS objects
-  ARKStepFree(&arkode_mem);
+  // Free ARKode integrator and SUNDIALS objects
+  ARKodeFree(&arkode_mem);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   N_VDestroy(y);

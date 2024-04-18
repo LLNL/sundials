@@ -184,41 +184,41 @@ int main(void)
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   /* Set routines */
-  flag = ARKStepSetUserData(arkode_mem,
-                            (void*)udata); /* Pass udata to user functions */
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) { return 1; }
-  flag = ARKStepSetMaxNumSteps(arkode_mem, 10000); /* Increase max num steps  */
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return 1; }
-  flag = ARKStepSStolerances(arkode_mem, rtol, atol); /* Specify tolerances */
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
-  flag = ARKStepSetAdaptivityMethod(arkode_mem, 2, 1, 0,
-                                    NULL); /* Set adaptivity method */
-  if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) { return 1; }
-  flag = ARKStepSetPredictorMethod(arkode_mem, 0); /* Set predictor method */
-  if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) { return 1; }
+  flag = ARKodeSetUserData(arkode_mem,
+                           (void*)udata); /* Pass udata to user functions */
+  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
+  flag = ARKodeSetMaxNumSteps(arkode_mem, 10000); /* Increase max num steps  */
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
+  flag = ARKodeSStolerances(arkode_mem, rtol, atol); /* Specify tolerances */
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
+  flag = ARKodeSetAdaptivityMethod(arkode_mem, 2, 1, 0,
+                                   NULL); /* Set adaptivity method */
+  if (check_flag(&flag, "ARKodeSetAdaptivityMethod", 1)) { return 1; }
+  flag = ARKodeSetPredictorMethod(arkode_mem, 0); /* Set predictor method */
+  if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) { return 1; }
 
   /* Specify I-controller with default parameters */
   C = SUNAdaptController_I(ctx);
   if (check_flag((void*)C, "SUNAdaptController_I", 0)) { return 1; }
-  flag = ARKStepSetAdaptController(arkode_mem, C);
-  if (check_flag(&flag, "ARKStepSetAdaptController", 1)) { return 1; }
+  flag = ARKodeSetAdaptController(arkode_mem, C);
+  if (check_flag(&flag, "ARKodeSetAdaptController", 1)) { return 1; }
 
   /* Specify linearly implicit RHS, with time-dependent Jacobian */
-  flag = ARKStepSetLinear(arkode_mem, 1);
-  if (check_flag(&flag, "ARKStepSetLinear", 1)) { return 1; }
+  flag = ARKodeSetLinear(arkode_mem, 1);
+  if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
 
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
   LS = SUNLinSol_PCG(y, 0, (int)N, ctx);
   if (check_flag((void*)LS, "SUNLinSol_PCG", 0)) { return 1; }
 
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
-  flag = ARKStepSetLinearSolver(arkode_mem, LS,
-                                NULL); /* Attach linear solver to ARKStep */
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
-  flag = ARKStepSetJacTimes(arkode_mem, NULL, Jac); /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKStepSetJacTimes", 1)) { return 1; }
+  flag = ARKodeSetLinearSolver(arkode_mem, LS,
+                               NULL); /* Attach linear solver to ARKode */
+  if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
+  flag = ARKodeSetJacTimes(arkode_mem, NULL, Jac); /* Set the Jacobian routine */
+  if (check_flag(&flag, "ARKodeSetJacTimes", 1)) { return 1; }
 
-  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
+  /* Main time-stepping loop: calls ARKodeEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t     = T0;
   olddt = ZERO;
@@ -234,24 +234,24 @@ int main(void)
   while (t < Tf)
   {
     /* "set" routines */
-    flag = ARKStepSetStopTime(arkode_mem, Tf);
-    if (check_flag(&flag, "ARKStepSetStopTime", 1)) { return 1; }
-    flag = ARKStepSetInitStep(arkode_mem, newdt);
-    if (check_flag(&flag, "ARKStepSetInitStep", 1)) { return 1; }
+    flag = ARKodeSetStopTime(arkode_mem, Tf);
+    if (check_flag(&flag, "ARKodeSetStopTime", 1)) { return 1; }
+    flag = ARKodeSetInitStep(arkode_mem, newdt);
+    if (check_flag(&flag, "ARKodeSetInitStep", 1)) { return 1; }
 
     /* call integrator */
-    flag = ARKStepEvolve(arkode_mem, Tf, y, &t, ARK_ONE_STEP);
-    if (check_flag(&flag, "ARKStepEvolve", 1)) { return 1; }
+    flag = ARKodeEvolve(arkode_mem, Tf, y, &t, ARK_ONE_STEP);
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
 
     /* "get" routines */
-    flag = ARKStepGetLastStep(arkode_mem, &olddt);
-    if (check_flag(&flag, "ARKStepGetLastStep", 1)) { return 1; }
-    flag = ARKStepGetCurrentStep(arkode_mem, &newdt);
-    if (check_flag(&flag, "ARKStepGetCurrentStep", 1)) { return 1; }
-    flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-    if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) { return 1; }
-    flag = ARKStepGetNumLinIters(arkode_mem, &nli);
-    if (check_flag(&flag, "ARKStepGetNumLinIters", 1)) { return 1; }
+    flag = ARKodeGetLastStep(arkode_mem, &olddt);
+    if (check_flag(&flag, "ARKodeGetLastStep", 1)) { return 1; }
+    flag = ARKodeGetCurrentStep(arkode_mem, &newdt);
+    if (check_flag(&flag, "ARKodeGetCurrentStep", 1)) { return 1; }
+    flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+    if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
+    flag = ARKodeGetNumLinIters(arkode_mem, &nli);
+    if (check_flag(&flag, "ARKodeGetNumLinIters", 1)) { return 1; }
 
     /* print current solution stats */
     iout++;
@@ -307,18 +307,18 @@ int main(void)
     y  = y2;
     y2 = yt;
 
-    /* call ARKStepResize to notify integrator of change in mesh */
-    flag = ARKStepResize(arkode_mem, y, hscale, t, NULL, NULL);
-    if (check_flag(&flag, "ARKStepResize", 1)) { return 1; }
+    /* call ARKodeResize to notify integrator of change in mesh */
+    flag = ARKodeResize(arkode_mem, y, hscale, t, NULL, NULL);
+    if (check_flag(&flag, "ARKodeResize", 1)) { return 1; }
 
-    /* destroy and re-allocate linear solver memory; reattach to ARKStep interface */
+    /* destroy and re-allocate linear solver memory; reattach to ARKode interface */
     SUNLinSolFree(LS);
     LS = SUNLinSol_PCG(y, 0, (int)N, ctx);
     if (check_flag((void*)LS, "SUNLinSol_PCG", 0)) { return 1; }
-    flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
-    if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
-    flag = ARKStepSetJacTimes(arkode_mem, NULL, Jac);
-    if (check_flag(&flag, "ARKStepSetJacTimes", 1)) { return 1; }
+    flag = ARKodeSetLinearSolver(arkode_mem, LS, NULL);
+    if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
+    flag = ARKodeSetJacTimes(arkode_mem, NULL, Jac);
+    if (check_flag(&flag, "ARKodeSetJacTimes", 1)) { return 1; }
   }
   printf(" --------------------------------------------------------------------"
          "--------------------\n");
@@ -336,7 +336,7 @@ int main(void)
   free(udata->x_host); /* Free user data */
   omp_target_free(udata->x_dev, dev);
   free(udata);
-  ARKStepFree(&arkode_mem);            /* Free integrator memory */
+  ARKodeFree(&arkode_mem);             /* Free integrator memory */
   SUNLinSolFree(LS);                   /* Free linear solver */
   (void)SUNAdaptController_Destroy(C); /* Free time adaptivity controller */
   SUNContext_Free(&ctx);               /* Free context */

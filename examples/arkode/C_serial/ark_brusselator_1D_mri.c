@@ -228,24 +228,24 @@ int main(int argc, char* argv[])
   if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   /* Attach user data to fast integrator */
-  retval = ARKStepSetUserData(inner_arkode_mem, (void*)udata);
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) { return 1; }
+  retval = ARKodeSetUserData(inner_arkode_mem, (void*)udata);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
 
   /* Set the fast method */
   retval = ARKStepSetTableNum(inner_arkode_mem, ARKODE_ARK324L2SA_DIRK_4_2_3, -1);
   if (check_retval(&retval, "ARKStepSetTableNum", 1)) { return 1; }
 
   /* Specify fast tolerances */
-  retval = ARKStepSStolerances(inner_arkode_mem, reltol, abstol);
-  if (check_retval(&retval, "ARKStepSStolerances", 1)) { return 1; }
+  retval = ARKodeSStolerances(inner_arkode_mem, reltol, abstol);
+  if (check_retval(&retval, "ARKodeSStolerances", 1)) { return 1; }
 
   /* Attach matrix and linear solver */
-  retval = ARKStepSetLinearSolver(inner_arkode_mem, LS, A);
-  if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) { return 1; }
+  retval = ARKodeSetLinearSolver(inner_arkode_mem, LS, A);
+  if (check_retval(&retval, "ARKodeSetLinearSolver", 1)) { return 1; }
 
   /* Set the Jacobian routine */
-  retval = ARKStepSetJacFn(inner_arkode_mem, Jf);
-  if (check_retval(&retval, "ARKStepSetJacFn", 1)) { return 1; }
+  retval = ARKodeSetJacFn(inner_arkode_mem, Jf);
+  if (check_retval(&retval, "ARKodeSetJacFn", 1)) { return 1; }
 
   /* Create inner stepper */
   retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
@@ -265,12 +265,12 @@ int main(int argc, char* argv[])
   if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }
 
   /* Pass udata to user functions */
-  retval = MRIStepSetUserData(arkode_mem, (void*)udata);
-  if (check_retval(&retval, "MRIStepSetUserData", 1)) { return 1; }
+  retval = ARKodeSetUserData(arkode_mem, (void*)udata);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
 
   /* Set the slow step size */
-  retval = MRIStepSetFixedStep(arkode_mem, hs);
-  if (check_retval(&retval, "MRIStepSetFixedStep", 1)) { return 1; }
+  retval = ARKodeSetFixedStep(arkode_mem, hs);
+  if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
 
   /* output spatial mesh to disk (add extra point for periodic BC) */
   FID = fopen("mesh.txt", "w");
@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
   fprintf(WFID, " %.16" ESYM, data[IDX(0, 2)]);
   fprintf(WFID, "\n");
 
-  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration,
+  /* Main time-stepping loop: calls ARKodeEvolve to perform the integration,
      then prints results.  Stops when the final time has been reached */
   t     = T0;
   dTout = (Tf - T0) / Nt;
@@ -311,8 +311,8 @@ int main(int argc, char* argv[])
   for (iout = 0; iout < Nt; iout++)
   {
     /* call integrator */
-    retval = MRIStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_retval(&retval, "MRIStepEvolve", 1)) { break; }
+    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
+    if (check_retval(&retval, "ARKodeEvolve", 1)) { break; }
 
     /* access/print solution statistics */
     u = N_VWL2Norm(y, umask);
@@ -347,30 +347,30 @@ int main(int argc, char* argv[])
   fclose(WFID);
 
   /* Get some slow integrator statistics */
-  retval = MRIStepGetNumSteps(arkode_mem, &nsts);
-  check_retval(&retval, "MRIStepGetNumSteps", 1);
+  retval = ARKodeGetNumSteps(arkode_mem, &nsts);
+  check_retval(&retval, "ARKodeGetNumSteps", 1);
   retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
   check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
-  retval = ARKStepGetNumSteps(inner_arkode_mem, &nstf);
-  check_retval(&retval, "ARKStepGetNumSteps", 1);
-  retval = ARKStepGetNumStepAttempts(inner_arkode_mem, &nstf_a);
-  check_retval(&retval, "ARKStepGetNumStepAttempts", 1);
+  retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
+  check_retval(&retval, "ARKodeGetNumSteps", 1);
+  retval = ARKodeGetNumStepAttempts(inner_arkode_mem, &nstf_a);
+  check_retval(&retval, "ARKodeGetNumStepAttempts", 1);
   retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nffe, &nffi);
   check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
-  retval = ARKStepGetNumLinSolvSetups(inner_arkode_mem, &nsetups);
-  check_retval(&retval, "ARKStepGetNumLinSolvSetups", 1);
-  retval = ARKStepGetNumErrTestFails(inner_arkode_mem, &netf);
-  check_retval(&retval, "ARKStepGetNumErrTestFails", 1);
-  retval = ARKStepGetNumNonlinSolvIters(inner_arkode_mem, &nni);
-  check_retval(&retval, "ARKStepGetNumNonlinSolvIters", 1);
-  retval = ARKStepGetNumNonlinSolvConvFails(inner_arkode_mem, &ncfn);
-  check_retval(&retval, "ARKStepGetNumNonlinSolvConvFails", 1);
-  retval = ARKStepGetNumJacEvals(inner_arkode_mem, &nje);
-  check_retval(&retval, "ARKStepGetNumJacEvals", 1);
-  retval = ARKStepGetNumLinRhsEvals(inner_arkode_mem, &nfeLS);
-  check_retval(&retval, "ARKStepGetNumLinRhsEvals", 1);
+  retval = ARKodeGetNumLinSolvSetups(inner_arkode_mem, &nsetups);
+  check_retval(&retval, "ARKodeGetNumLinSolvSetups", 1);
+  retval = ARKodeGetNumErrTestFails(inner_arkode_mem, &netf);
+  check_retval(&retval, "ARKodeGetNumErrTestFails", 1);
+  retval = ARKodeGetNumNonlinSolvIters(inner_arkode_mem, &nni);
+  check_retval(&retval, "ARKodeGetNumNonlinSolvIters", 1);
+  retval = ARKodeGetNumNonlinSolvConvFails(inner_arkode_mem, &ncfn);
+  check_retval(&retval, "ARKodeGetNumNonlinSolvConvFails", 1);
+  retval = ARKodeGetNumJacEvals(inner_arkode_mem, &nje);
+  check_retval(&retval, "ARKodeGetNumJacEvals", 1);
+  retval = ARKodeGetNumLinRhsEvals(inner_arkode_mem, &nfeLS);
+  check_retval(&retval, "ARKodeGetNumLinRhsEvals", 1);
 
   /* Print some final statistics */
   printf("\nFinal Solver Statistics:\n");
@@ -387,9 +387,9 @@ int main(int argc, char* argv[])
 
   /* Clean up and return with successful completion */
   free(udata);                              /* Free user data         */
-  ARKStepFree(&inner_arkode_mem);           /* Free integrator memory */
+  ARKodeFree(&inner_arkode_mem);            /* Free integrator memory */
   MRIStepInnerStepper_Free(&inner_stepper); /* Free inner stepper */
-  MRIStepFree(&arkode_mem);                 /* Free integrator memory */
+  ARKodeFree(&arkode_mem);                  /* Free integrator memory */
   SUNLinSolFree(LS);                        /* Free linear solver     */
   SUNMatDestroy(A);                         /* Free matrix            */
   N_VDestroy(y);                            /* Free vectors           */

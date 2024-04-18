@@ -173,10 +173,9 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ERKStepGetNumARKodes instead")
 int ERKStepGetNumAccSteps(void* arkode_mem, long int* accsteps);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ERKStepGetARKodeAttempts instead")
 int ERKStepGetNumStepAttempts(void* arkode_mem, long int* step_attempts);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRhsEvals instead")
-int ERKStepGetNumRhsEvals(void* arkode_mem, long int* nfevals);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumErrTestFails instead")
 int ERKStepGetNumErrTestFails(void* arkode_mem, long int* netfails);
+SUNDIALS_EXPORT int ERKStepGetNumRhsEvals(void* arkode_mem, long int* nfevals);
 SUNDIALS_EXPORT int ERKStepGetCurrentButcherTable(void* arkode_mem,
                                                   ARKodeButcherTable* B);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetEstLocalErrors instead")

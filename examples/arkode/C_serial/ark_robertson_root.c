@@ -129,25 +129,24 @@ int main(void)
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   /* Set routines */
-  flag = ARKStepSetMaxErrTestFails(arkode_mem,
-                                   20); /* Increase max error test fails */
-  if (check_flag(&flag, "ARKStepSetMaxErrTestFails", 1)) { return 1; }
-  flag = ARKStepSetMaxNonlinIters(arkode_mem, 8); /* Increase max nonlin iters  */
-  if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) { return 1; }
-  flag = ARKStepSetNonlinConvCoef(arkode_mem,
-                                  SUN_RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
-  if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) { return 1; }
-  flag = ARKStepSetMaxNumSteps(arkode_mem, 100000); /* Increase max num steps */
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return 1; }
-  flag = ARKStepSetPredictorMethod(arkode_mem,
-                                   1); /* Specify maximum-order predictor */
-  if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) { return 1; }
-  flag = ARKStepSVtolerances(arkode_mem, reltol, atols); /* Specify tolerances */
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSetMaxErrTestFails(arkode_mem,
+                                  20); /* Increase max error test fails */
+  if (check_flag(&flag, "ARKodeSetMaxErrTestFails", 1)) { return 1; }
+  flag = ARKodeSetMaxNonlinIters(arkode_mem, 8); /* Increase max nonlin iters  */
+  if (check_flag(&flag, "ARKodeSetMaxNonlinIters", 1)) { return 1; }
+  flag = ARKodeSetNonlinConvCoef(arkode_mem,
+                                 SUN_RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
+  if (check_flag(&flag, "ARKodeSetNonlinConvCoef", 1)) { return 1; }
+  flag = ARKodeSetMaxNumSteps(arkode_mem, 100000); /* Increase max num steps */
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
+  flag = ARKodeSetPredictorMethod(arkode_mem, 1); /* Specify maximum-order predictor */
+  if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) { return 1; }
+  flag = ARKodeSVtolerances(arkode_mem, reltol, atols); /* Specify tolerances */
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   /* Specify the root-finding function, having 2 equations */
-  flag = ARKStepRootInit(arkode_mem, 2, g);
-  if (check_flag(&flag, "ARKStepRootInit", 1)) { return 1; }
+  flag = ARKodeRootInit(arkode_mem, 2, g);
+  if (check_flag(&flag, "ARKodeRootInit", 1)) { return 1; }
 
   /* Initialize dense matrix data structure and solver */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
@@ -156,11 +155,11 @@ int main(void)
   if (check_flag((void*)LS, "SUNLinSol_Dense", 0)) { return 1; }
 
   /* Linear solver interface */
-  flag = ARKStepSetLinearSolver(arkode_mem, LS,
-                                A); /* Attach matrix and linear solver */
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
-  flag = ARKStepSetJacFn(arkode_mem, Jac); /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKStepSetJacFn", 1)) { return 1; }
+  flag = ARKodeSetLinearSolver(arkode_mem, LS,
+                               A); /* Attach matrix and linear solver */
+  if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
+  flag = ARKodeSetJacFn(arkode_mem, Jac); /* Set the Jacobian routine */
+  if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
@@ -170,7 +169,7 @@ int main(void)
   fprintf(UFID, " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM "\n", T0,
           NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2));
 
-  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
+  /* Main time-stepping loop: calls ARKodeEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t = T0;
   printf("        t             u             v             w\n");
@@ -181,8 +180,8 @@ int main(void)
   iout = 0;
   while (1)
   {
-    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
-    if (check_flag(&flag, "ARKStepEvolve", 1)) { break; }
+    flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
     printf("  %12.5" ESYM "  %12.5" ESYM "  %12.5" ESYM "  %12.5" ESYM
            "\n", /* access/print solution */
            t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2));
@@ -190,8 +189,8 @@ int main(void)
             NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2));
     if (flag == ARK_ROOT_RETURN)
     { /* check if a root was found */
-      rtflag = ARKStepGetRootInfo(arkode_mem, rootsfound);
-      if (check_flag(&rtflag, "ARKStepGetRootInfo", 1)) { return 1; }
+      rtflag = ARKodeGetRootInfo(arkode_mem, rootsfound);
+      if (check_flag(&rtflag, "ARKodeGetRootInfo", 1)) { return 1; }
       printf("      rootsfound[] = %3d %3d\n", rootsfound[0], rootsfound[1]);
     }
     if (flag >= 0)
@@ -210,28 +209,28 @@ int main(void)
   fclose(UFID);
 
   /* Print some final statistics */
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKStepGetNumSteps", 1);
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKodeGetNumSteps", 1);
+  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
-  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
-  flag = ARKStepGetNumStepSolveFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKStepGetNumStepSolveFails", 1);
-  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &nnf);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
-  flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
-  check_flag(&flag, "ARKStepGetNumJacEvals", 1);
-  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
-  check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1);
-  flag = ARKStepGetNumGEvals(arkode_mem, &nge);
-  check_flag(&flag, "ARKStepGetNumGEvals", 1);
+  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
+  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
+  flag = ARKodeGetNumStepSolveFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKodeGetNumStepSolveFails", 1);
+  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
+  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &nnf);
+  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
+  flag = ARKodeGetNumJacEvals(arkode_mem, &nje);
+  check_flag(&flag, "ARKodeGetNumJacEvals", 1);
+  flag = ARKodeGetNumLinRhsEvals(arkode_mem, &nfeLS);
+  check_flag(&flag, "ARKodeGetNumLinRhsEvals", 1);
+  flag = ARKodeGetNumGEvals(arkode_mem, &nge);
+  check_flag(&flag, "ARKodeGetNumGEvals", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
@@ -248,7 +247,7 @@ int main(void)
   /* Clean up and return with successful completion */
   N_VDestroy(y);            /* Free y vector */
   N_VDestroy(atols);        /* Free atols vector */
-  ARKStepFree(&arkode_mem); /* Free integrator memory */
+  ARKodeFree(&arkode_mem);  /* Free integrator memory */
   SUNLinSolFree(LS);        /* Free linear solver */
   SUNMatDestroy(A);         /* Free A matrix */
   SUNContext_Free(&ctx);    /* Free context */

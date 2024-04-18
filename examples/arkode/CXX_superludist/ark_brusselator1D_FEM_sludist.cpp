@@ -342,22 +342,22 @@ int main(int argc, char* argv[])
   /* Set routines */
 
   /* Pass udata to user functions */
-  retval = ARKStepSetUserData(arkode_mem, (void*)udata);
-  if (check_retval(&retval, "ARKStepSetUserData", 1))
+  retval = ARKodeSetUserData(arkode_mem, (void*)udata);
+  if (check_retval(&retval, "ARKodeSetUserData", 1))
   {
     MPI_Abort(grid.comm, 1);
   }
 
   /* Specify tolerances */
-  retval = ARKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_retval(&retval, "ARKStepSStolerances", 1))
+  retval = ARKodeSStolerances(arkode_mem, reltol, abstol);
+  if (check_retval(&retval, "ARKodeSStolerances", 1))
   {
     MPI_Abort(grid.comm, 1);
   }
 
   /* Specify residual tolerance */
-  retval = ARKStepResStolerance(arkode_mem, abstol);
-  if (check_retval(&retval, "ARKStepResStolerance", 1))
+  retval = ARKodeResStolerance(arkode_mem, abstol);
+  if (check_retval(&retval, "ARKodeResStolerance", 1))
   {
     MPI_Abort(grid.comm, 1);
   }
@@ -481,28 +481,28 @@ int main(int argc, char* argv[])
     MPI_Abort(grid.comm, 1);
   }
 
-  /* Attach the matrix, linear solver, and Jacobian construction routine to ARKStep */
-  retval = ARKStepSetLinearSolver(arkode_mem, LS, A);
-  if (check_retval(&retval, "ARKStepSetLinearSolver", 1))
+  /* Attach the matrix, linear solver, and Jacobian construction routine to ARKode */
+  retval = ARKodeSetLinearSolver(arkode_mem, LS, A);
+  if (check_retval(&retval, "ARKodeSetLinearSolver", 1))
   {
     MPI_Abort(grid.comm, 1);
   }
 
   /* Supply Jac routine */
-  retval = ARKStepSetJacFn(arkode_mem, Jac);
-  if (check_retval(&retval, "ARKStepSetJacFn", 1)) { MPI_Abort(grid.comm, 1); }
+  retval = ARKodeSetJacFn(arkode_mem, Jac);
+  if (check_retval(&retval, "ARKodeSetJacFn", 1)) { MPI_Abort(grid.comm, 1); }
 
-  /* Attach the mass matrix, linear solver and construction routines to ARKStep;
-     notify ARKStep that the mass matrix is not time-dependent */
-  retval = ARKStepSetMassLinearSolver(arkode_mem, MLS, M, SUNFALSE);
-  if (check_retval(&retval, "ARKStepSetMassLinearSolver", 1))
+  /* Attach the mass matrix, linear solver and construction routines to ARKode;
+     notify ARKode that the mass matrix is not time-dependent */
+  retval = ARKodeSetMassLinearSolver(arkode_mem, MLS, M, SUNFALSE);
+  if (check_retval(&retval, "ARKodeSetMassLinearSolver", 1))
   {
     MPI_Abort(grid.comm, 1);
   }
 
   /* Supply M routine */
-  retval = ARKStepSetMassFn(arkode_mem, MassMatrix);
-  if (check_retval(&retval, "ARKStepSetMassFn", 1)) { MPI_Abort(grid.comm, 1); }
+  retval = ARKodeSetMassFn(arkode_mem, MassMatrix);
+  if (check_retval(&retval, "ARKodeSetMassFn", 1)) { MPI_Abort(grid.comm, 1); }
 
   /* output mesh to disk */
   FID = fopen("bruss_FEM_mesh.txt", "w");
@@ -527,7 +527,7 @@ int main(int argc, char* argv[])
   fprintf(VFID, "\n");
   fprintf(WFID, "\n");
 
-  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
+  /* Main time-stepping loop: calls ARKodeEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t     = T0;
   dTout = Tf / Nt;
@@ -536,9 +536,9 @@ int main(int argc, char* argv[])
   printf("   ----------------------------------------------\n");
   for (iout = 0; iout < Nt; iout++)
   {
-    retval = ARKStepEvolve(arkode_mem, tout, y, &t,
-                           ARK_NORMAL); /* call integrator */
-    if (check_retval(&retval, "ARKStepEvolve", 1)) { break; }
+    retval = ARKodeEvolve(arkode_mem, tout, y, &t,
+                          ARK_NORMAL); /* call integrator */
+    if (check_retval(&retval, "ARKodeEvolve", 1)) { break; }
     u = N_VWL2Norm(y, umask); /* access/print solution statistics */
     u = sqrt(u * u / N);
     v = N_VWL2Norm(y, vmask);
@@ -572,28 +572,28 @@ int main(int argc, char* argv[])
   fclose(WFID);
 
   /* Print some final statistics */
-  retval = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_retval(&retval, "ARKStepGetNumSteps", 1);
-  retval = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_retval(&retval, "ARKStepGetNumStepAttempts", 1);
+  retval = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_retval(&retval, "ARKodeGetNumSteps", 1);
+  retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  check_retval(&retval, "ARKodeGetNumStepAttempts", 1);
   retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
-  retval = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_retval(&retval, "ARKStepGetNumLinSolvSetups", 1);
-  retval = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_retval(&retval, "ARKStepGetNumErrTestFails", 1);
-  retval = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_retval(&retval, "ARKStepGetNumNonlinSolvIters", 1);
-  retval = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_retval(&retval, "ARKStepGetNumNonlinSolvConvFails", 1);
-  retval = ARKStepGetNumMassSetups(arkode_mem, &nmset);
-  check_retval(&retval, "ARKStepGetNumMassSetups", 1);
-  retval = ARKStepGetNumMassSolves(arkode_mem, &nms);
-  check_retval(&retval, "ARKStepGetNumMassSolves", 1);
-  retval = ARKStepGetNumMassMult(arkode_mem, &nMv);
-  check_retval(&retval, "ARKStepGetNumMassMult", 1);
-  retval = ARKStepGetNumJacEvals(arkode_mem, &nje);
-  check_retval(&retval, "ARKStepGetNumJacEvals", 1);
+  retval = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_retval(&retval, "ARKodeGetNumLinSolvSetups", 1);
+  retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  check_retval(&retval, "ARKodeGetNumErrTestFails", 1);
+  retval = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_retval(&retval, "ARKodeGetNumNonlinSolvIters", 1);
+  retval = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_retval(&retval, "ARKodeGetNumNonlinSolvConvFails", 1);
+  retval = ARKodeGetNumMassSetups(arkode_mem, &nmset);
+  check_retval(&retval, "ARKodeGetNumMassSetups", 1);
+  retval = ARKodeGetNumMassSolves(arkode_mem, &nms);
+  check_retval(&retval, "ARKodeGetNumMassSolves", 1);
+  retval = ARKodeGetNumMassMult(arkode_mem, &nMv);
+  check_retval(&retval, "ARKodeGetNumMassMult", 1);
+  retval = ARKodeGetNumJacEvals(arkode_mem, &nje);
+  check_retval(&retval, "ARKodeGetNumJacEvals", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
@@ -613,7 +613,7 @@ int main(int argc, char* argv[])
   N_VDestroy(umask);
   N_VDestroy(vmask);
   N_VDestroy(wmask);
-  ARKStepFree(&arkode_mem); /* Free integrator memory */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
   SUNLinSolFree(LS);        /* Free linear solvers */
   SUNLinSolFree(MLS);
   SUNMatDestroy(A); /* Free matrices */
