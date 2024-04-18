@@ -103,7 +103,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   /* Allocate vectors in stepper mem */
   if (!arkAllocVec(ark_mem, y0, &(step_mem->sdata)))
   {
-    SPRKStepFree((void**)&ark_mem);
+    ARKodeFree((void**)&ark_mem);
     return (NULL);
   }
 
@@ -111,23 +111,29 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   {
     if (!arkAllocVec(ark_mem, y0, &(step_mem->yerr)))
     {
-      SPRKStepFree((void**)&ark_mem);
+      ARKodeFree((void**)&ark_mem);
       return (NULL);
     }
   }
   else { step_mem->yerr = NULL; }
-  ark_mem->step_init    = sprkStep_Init;
+  ark_mem->step_init = sprkStep_Init;
   ark_mem->step_fullrhs = sprkStep_FullRHS;
-  ark_mem->step         = sprkStep_TakeStep;
-  ark_mem->step_mem     = (void*)step_mem;
+  ark_mem->step = sprkStep_TakeStep;
+  ark_mem->step_printallstats = sprkStep_PrintAllStats;
+  ark_mem->step_writeparameters = sprkStep_WriteParameters;
+  ark_mem->step_resize = sprkStep_Resize;
+  ark_mem->step_free = sprkStep_Free;
+  ark_mem->step_setdefaults = sprkStep_SetDefaults;
+  ark_mem->step_setorder = sprkStep_SetOrder;
+  ark_mem->step_mem = (void*)step_mem;
 
-  /* Set default values for SPRKStep optional inputs */
-  retval = SPRKStepSetDefaults((void*)ark_mem);
+  /* Set default values for optional inputs */
+  retval = sprkStep_SetDefaults((void*)ark_mem);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Error setting default solver options");
-    SPRKStepFree((void**)&ark_mem);
+    ARKodeFree((void**)&ark_mem);
     return (NULL);
   }
 
@@ -145,7 +151,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
 
   /* SPRKStep uses Lagrange interpolation by default, since Hermite is
      less compatible with these methods. */
-  arkSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
+  ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
@@ -153,11 +159,59 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to initialize main ARKODE infrastructure");
-    SPRKStepFree((void**)&ark_mem);
+    ARKodeFree((void**)&ark_mem);
     return (NULL);
   }
 
   return ((void*)ark_mem);
+}
+
+/*---------------------------------------------------------------
+  sprkStep_Resize:
+
+  This routine resizes the memory within the SPRKStep module.
+  ---------------------------------------------------------------*/
+int sprkStep_Resize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
+                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
+{
+  ARKodeMem ark_mem          = NULL;
+  ARKodeSPRKStepMem step_mem = NULL;
+  sunindextype lrw1, liw1, lrw_diff, liw_diff;
+  int retval;
+
+  /* access ARKodeSPRKStepMem structure */
+  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* Determine change in vector sizes */
+  lrw1 = liw1 = 0;
+  if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
+  lrw_diff      = lrw1 - ark_mem->lrw1;
+  liw_diff      = liw1 - ark_mem->liw1;
+  ark_mem->lrw1 = lrw1;
+  ark_mem->liw1 = liw1;
+
+  /* Resize the local vectors */
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                      &step_mem->sdata))
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "Unable to resize vector");
+    return (ARK_MEM_FAIL);
+  }
+
+  if (step_mem->yerr)
+  {
+    if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                      &step_mem->yerr))
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "Unable to resize vector");
+      return (ARK_MEM_FAIL);
+    }
+  }
+
+  return (ARK_SUCCESS);
 }
 
 /*---------------------------------------------------------------
@@ -231,13 +285,13 @@ int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0,
 }
 
 /*---------------------------------------------------------------
-  SPRKStepReset:
+  sprkStep_Reset:
 
   This routine resets the SPRKStep module state to solve the same
   problem from the given time with the input state (all counter
   values are retained).
   ---------------------------------------------------------------*/
-int SPRKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
+int sprkStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
@@ -247,76 +301,14 @@ int SPRKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
   retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* Initialize main ARKODE infrastructure */
-  retval = arkInit(ark_mem, tR, yR, RESET_INIT);
-
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Unable to initialize main ARKODE infrastructure");
-    return (retval);
-  }
-
   N_VConst(SUN_RCONST(0.0), step_mem->yerr);
-
   return (ARK_SUCCESS);
 }
 
 /*---------------------------------------------------------------
-  SPRKStepEvolve:
-
-  This is the main time-integration driver (wrappers for general
-  ARKODE utility routine)
+  sprkStep_Free frees all SPRKStep memory.
   ---------------------------------------------------------------*/
-int SPRKStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
-                   sunrealtype* tret, int itask)
-{
-  /* unpack ark_mem, call arkEvolve, and return */
-  ARKodeMem ark_mem = NULL;
-  int retval        = 0;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-  SUNDIALS_MARK_FUNCTION_BEGIN(ARK_PROFILER);
-  retval = arkEvolve(ark_mem, tout, yout, tret, itask);
-  SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
-  return (retval);
-}
-
-/*---------------------------------------------------------------
-  SPRKStepGetDky:
-
-  This returns interpolated output of the solution or its
-  derivatives over the most-recently-computed step (wrapper for
-  generic ARKODE utility routine)
-  ---------------------------------------------------------------*/
-int SPRKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
-{
-  /* unpack ark_mem, call arkGetDky, and return */
-  ARKodeMem ark_mem = NULL;
-  int retval        = 0;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-  SUNDIALS_MARK_FUNCTION_BEGIN(ARK_PROFILER);
-  retval = arkGetDky(ark_mem, t, k, dky);
-  SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
-  return (retval);
-}
-
-/*---------------------------------------------------------------
-  SPRKStepFree frees all SPRKStep memory, and then calls an ARKODE
-  utility routine to free the ARKODE infrastructure memory.
-  ---------------------------------------------------------------*/
-void SPRKStepFree(void** arkode_mem)
+void sprkStep_Free(void** arkode_mem)
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
@@ -347,9 +339,6 @@ void SPRKStepFree(void** arkode_mem)
     free(ark_mem->step_mem);
     ark_mem->step_mem = NULL;
   }
-
-  /* free memory for overall ARKODE infrastructure */
-  arkFree(arkode_mem);
 }
 
 /*===============================================================
@@ -456,20 +445,6 @@ int sprkStep_Init(void* arkode_mem, int init_type)
   }
 
   return (ARK_SUCCESS);
-}
-
-int SPRKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
-{
-  /* unpack ark_mem, call arkRootInit, and return */
-  ARKodeMem ark_mem = NULL;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-  return (arkRootInit(ark_mem, nrtfn, g));
 }
 
 /* Utility to call f1 and increment the counter */

@@ -37,7 +37,7 @@ ARKodeHAdaptMem arkAdaptInit(void)
   hadapt_mem = (ARKodeHAdaptMem)malloc(sizeof(struct ARKodeHAdaptMemRec));
   if (hadapt_mem == NULL) { return (NULL); }
 
-  /* initialize values (default parameters are set in arkSetDefaults) */
+  /* initialize values (default parameters are set in ARKodeSetDefaults) */
   memset(hadapt_mem, 0, sizeof(struct ARKodeHAdaptMemRec));
   hadapt_mem->nst_acc = 0;
   hadapt_mem->nst_exp = 0;

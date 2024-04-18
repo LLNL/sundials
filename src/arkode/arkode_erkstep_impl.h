@@ -72,6 +72,16 @@ int erkStep_Init(void* arkode_mem, int init_type);
 int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
 int erkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int erkStep_SetUserData(void* arkode_mem, void* user_data);
+int erkStep_SetDefaults(void* arkode_mem);
+int erkStep_SetOrder(void* arkode_mem, int ord);
+int erkStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
+int erkStep_WriteParameters(void* arkode_mem, FILE* fp);
+int erkStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR);
+int erkStep_Resize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
+                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
+void erkStep_Free(void** arkode_mem);
+void erkStep_PrintMem(void* arkode_mem, FILE* outfile);
 
 /* Internal utility routines */
 int erkStep_AccessStepMem(void* arkode_mem, const char* fname,
@@ -82,6 +92,7 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem);
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsm);
 
 /* private functions for relaxation */
+int erkStep_SetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
 int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         long int* relax_jac_fn_evals, sunrealtype* delta_e_out);
 int erkStep_GetOrder(ARKodeMem ark_mem);

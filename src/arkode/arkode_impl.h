@@ -189,6 +189,43 @@ typedef int (*ARKTimestepGetGammasFn)(void* arkode_mem, sunrealtype* gamma,
 typedef int (*ARKTimestepFullRHSFn)(void* arkode_mem, sunrealtype t, N_Vector y,
                                     N_Vector f, int mode);
 typedef int (*ARKTimestepStepFn)(void* arkode_mem, sunrealtype* dsm, int* nflag);
+typedef int (*ARKTimetepSetUserDataFn)(void* arkode_mem, void* user_data);
+typedef int (*ARKTimestepPrintAllStats)(void* arkode_mem, FILE* outfile,
+                                        SUNOutputFormat fmt);
+typedef int (*ARKTimestepWriteParameters)(void* arkode_mem, FILE* fp);
+typedef int (*ARKTimestepResize)(void* arkode_mem, N_Vector ynew,
+                                 sunrealtype hscale, sunrealtype t0,
+                                 ARKVecResizeFn resize, void* resize_data);
+typedef int (*ARKTimestepReset)(void* arkode_mem, sunrealtype tR, N_Vector yR);
+typedef void (*ARKTimestepFree)(void** arkode_mem);
+typedef void (*ARKTimestepPrintMem)(void* arkode_mem, FILE* outfile);
+typedef int (*ARKTimestepSetDefaults)(void* arkode_mem);
+typedef int (*ARKTimestepComputeState)(void* arkode_mem, N_Vector zcor, N_Vector z);
+typedef int (*ARKTimestepSetRelaxFn)(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
+typedef int (*ARKTimestepSetOrder)(void* arkode_mem, int maxord);
+typedef int (*ARKTimestepSetNonlinearSolver)(void* arkode_mem, SUNNonlinearSolver NLS);
+typedef int (*ARKTimestepSetLinear)(void* arkode_mem, int timedepend);
+typedef int (*ARKTimestepSetNonlinear)(void* arkode_mem);
+typedef int (*ARKTimestepSetNlsRhsFn)(void* arkode_mem, ARKRhsFn nls_fi);
+typedef int (*ARKTimestepSetDeduceImplicitRhs)(void* arkode_mem, sunbooleantype deduce);
+typedef int (*ARKTimestepSetNonlinCRDown)(void* arkode_mem, sunrealtype crdown);
+typedef int (*ARKTimestepSetNonlinRDiv)(void* arkode_mem, sunrealtype rdiv);
+typedef int (*ARKTimestepSetDeltaGammaMax)(void* arkode_mem, sunrealtype dgmax);
+typedef int (*ARKTimestepSetLSetupFrequency)(void* arkode_mem, int msbp);
+typedef int (*ARKTimestepSetPredictorMethod)(void* arkode_mem, int method);
+typedef int (*ARKTimestepSetMaxNonlinIters)(void* arkode_mem, int maxcor);
+typedef int (*ARKTimestepSetNonlinConvCoef)(void* arkode_mem, sunrealtype nlscoef);
+typedef int (*ARKTimestepSetStagePredictFn)(void* arkode_mem, ARKStagePredictFn PredictStage);
+typedef int (*ARKTimestepGetNumLinSolvSetups)(void* arkode_mem, long int* nlinsetups);
+typedef int (*ARKTimestepGetCurrentGamma)(void* arkode_mem, sunrealtype* gamma);
+typedef int (*ARKTimestepGetNonlinearSystemData)(void* arkode_mem, sunrealtype* tcur,
+                                                 N_Vector* zpred, N_Vector* z,
+                                                 N_Vector* Fi, sunrealtype* gamma,
+                                                 N_Vector* sdata, void** user_data);
+typedef int (*ARKTimestepGetNumNonlinSolvIters)(void* arkode_mem, long int* nniters);
+typedef int (*ARKTimestepGetNumNonlinSolvConvFails)(void* arkode_mem, long int* nnfails);
+typedef int (*ARKTimestepGetNonlinSolvStats)(void* arkode_mem, long int* nniters,
+                                             long int* nnfails);
 
 /*===============================================================
   ARKODE interpolation module definition
@@ -308,6 +345,40 @@ struct ARKodeMemRec
   ARKTimestepInitFn step_init;
   ARKTimestepFullRHSFn step_fullrhs;
   ARKTimestepStepFn step;
+  ARKTimetepSetUserDataFn step_setuserdata;
+  ARKTimestepPrintAllStats step_printallstats;
+  ARKTimestepWriteParameters step_writeparameters;
+  ARKTimestepResize step_resize;
+  ARKTimestepReset step_reset;
+  ARKTimestepFree step_free;
+  ARKTimestepPrintMem step_printmem;
+  ARKTimestepSetDefaults step_setdefaults;
+  ARKTimestepComputeState step_computestate;
+  ARKTimestepSetRelaxFn step_setrelaxfn;
+  ARKTimestepSetOrder step_setorder;
+  ARKTimestepSetNonlinearSolver step_setnonlinearsolver;
+  ARKTimestepSetLinear step_setlinear;
+  ARKTimestepSetNonlinear step_setnonlinear;
+  ARKTimestepSetNlsRhsFn step_setnlsrhsfn;
+  ARKTimestepSetDeduceImplicitRhs step_setdeduceimplicitrhs;
+  ARKTimestepSetNonlinCRDown step_setnonlincrdown;
+  ARKTimestepSetNonlinRDiv step_setnonlinrdiv;
+  ARKTimestepSetDeltaGammaMax step_setdeltagammamax;
+  ARKTimestepSetLSetupFrequency step_setlsetupfrequency;
+  ARKTimestepSetPredictorMethod step_setpredictormethod;
+  ARKTimestepSetMaxNonlinIters step_setmaxnonliniters;
+  ARKTimestepSetNonlinConvCoef step_setnonlinconvcoef;
+  ARKTimestepSetStagePredictFn step_setstagepredictfn;
+  ARKTimestepGetNumLinSolvSetups step_getnumlinsolvsetups;
+  ARKTimestepGetCurrentGamma step_getcurrentgamma;
+  ARKTimestepGetNonlinearSystemData step_getnonlinearsystemdata;
+  ARKTimestepGetNumNonlinSolvIters step_getnumnonlinsolviters;
+  ARKTimestepGetNumNonlinSolvConvFails step_getnumnonlinsolvconvfails;
+  ARKTimestepGetNonlinSolvStats step_getnonlinsolvstats;
+  sunbooleantype step_supports_adaptive;
+  sunbooleantype step_supports_algebraic;
+  sunbooleantype step_supports_massmatrix;
+  sunbooleantype step_supports_relaxation;
   void* step_mem;
 
   /* N_Vector storage */
@@ -887,7 +958,6 @@ sunbooleantype arkResizeVecArray(ARKVecResizeFn resize, void* resize_data,
                                  int count, N_Vector tmpl, N_Vector** v,
                                  sunindextype lrw_diff, long int* lrw,
                                  sunindextype liw_diff, long int* liw);
-void arkPrintMem(ARKodeMem ark_mem, FILE* outfile);
 sunbooleantype arkCheckTimestepper(ARKodeMem ark_mem);
 sunbooleantype arkCheckNvector(N_Vector tmpl);
 sunbooleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl);
@@ -913,21 +983,7 @@ int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My, N_Vector weight);
 int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My, N_Vector weight);
 
 ARKodeMem arkCreate(SUNContext sunctx);
-int arkResize(ARKodeMem ark_mem, N_Vector ynew, sunrealtype hscale,
-              sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
-int arkSStolerances(ARKodeMem ark_mem, sunrealtype reltol, sunrealtype abstol);
-int arkSVtolerances(ARKodeMem ark_mem, sunrealtype reltol, N_Vector abstol);
-int arkWFtolerances(ARKodeMem ark_mem, ARKEwtFn efun);
-int arkResStolerance(ARKodeMem ark_mem, sunrealtype rabstol);
-int arkResVtolerance(ARKodeMem ark_mem, N_Vector rabstol);
-int arkResFtolerance(ARKodeMem ark_mem, ARKRwtFn rfun);
-int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g);
-int arkEvolve(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
-              sunrealtype* tret, int itask);
-int arkGetDky(ARKodeMem ark_mem, sunrealtype t, int k, N_Vector dky);
-void arkFree(void** arkode_mem);
 
-int arkWriteParameters(ARKodeMem ark_mem, FILE* fp);
 int arkPredict_MaximumOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess);
 int arkPredict_VariableOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess);
 int arkPredict_CutoffOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess);
@@ -941,68 +997,9 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
 int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
                        ARKodeHAdaptMem* hadapt_mem);
 
-int arkSetAdaptController(void* arkode_mem, SUNAdaptController C);
-int arkSetDefaults(void* arkode_mem);
-int arkSetDenseOrder(void* arkode_mem, int dord);
-int arkSetInterpolantType(void* arkode_mem, int itype);
-int arkSetInterpolantDegree(void* arkode_mem, int degree);
-int arkSetUserData(void* arkode_mem, void* user_data);
-int arkSetMaxNumSteps(void* arkode_mem, long int mxsteps);
-int arkSetMaxHnilWarns(void* arkode_mem, int mxhnil);
-int arkSetInitStep(void* arkode_mem, sunrealtype hin);
-int arkSetMinStep(void* arkode_mem, sunrealtype hmin);
-int arkSetMaxStep(void* arkode_mem, sunrealtype hmax);
-int arkSetStopTime(void* arkode_mem, sunrealtype tstop);
-int arkSetInterpolateStopTime(void* arkode_mem, sunbooleantype interp);
-int arkClearStopTime(void* arkode_mem);
-int arkSetFixedStep(void* arkode_mem, sunrealtype hfixed);
-int arkSetRootDirection(void* arkode_mem, int* rootdir);
-int arkSetNoInactiveRootWarn(void* arkode_mem);
-int arkSetPostprocessStepFn(void* arkode_mem, ARKPostProcessFn ProcessStep);
-int arkSetPostprocessStageFn(void* arkode_mem, ARKPostProcessFn ProcessStage);
-int arkSetConstraints(void* arkode_mem, N_Vector constraints);
-int arkSetMaxNumConstrFails(void* arkode_mem, int maxfails);
-int arkSetAdaptivityAdjustment(void* arkode_mem, int adjust);
-int arkSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac);
-int arkSetSafetyFactor(void* arkode_mem, sunrealtype safety);
-int arkSetErrorBias(void* arkode_mem, sunrealtype bias);
-int arkSetMaxGrowth(void* arkode_mem, sunrealtype mx_growth);
-int arkSetMinReduction(void* arkode_mem, sunrealtype eta_min);
-int arkSetFixedStepBounds(void* arkode_mem, sunrealtype lb, sunrealtype ub);
 int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
                            sunrealtype adapt_params[3]);
 int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data);
-int arkSetMaxFirstGrowth(void* arkode_mem, sunrealtype etamx1);
-int arkSetMaxEFailGrowth(void* arkode_mem, sunrealtype etamxf);
-int arkSetSmallNumEFails(void* arkode_mem, int small_nef);
-int arkSetMaxCFailGrowth(void* arkode_mem, sunrealtype etacf);
-int arkSetStabilityFn(void* arkode_mem, ARKExpStabFn EStab, void* estab_data);
-int arkSetMaxErrTestFails(void* arkode_mem, int maxnef);
-int arkSetMaxConvFails(void* arkode_mem, int maxncf);
-int arkSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff);
-int arkGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
-int arkGetNumStepAttempts(void* arkode_mem, long int* nstep_attempts);
-int arkGetNumSteps(void* arkode_mem, long int* nsteps);
-int arkGetActualInitStep(void* arkode_mem, sunrealtype* hinused);
-int arkGetLastStep(void* arkode_mem, sunrealtype* hlast);
-int arkGetCurrentStep(void* arkode_mem, sunrealtype* hcur);
-int arkGetCurrentState(void* arkode_mem, N_Vector* ycur);
-int arkGetCurrentTime(void* arkode_mem, sunrealtype* tcur);
-int arkGetTolScaleFactor(void* arkode_mem, sunrealtype* tolsfac);
-int arkGetErrWeights(void* arkode_mem, N_Vector eweight);
-int arkGetResWeights(void* arkode_mem, N_Vector rweight);
-int arkGetNumGEvals(void* arkode_mem, long int* ngevals);
-int arkGetRootInfo(void* arkode_mem, int* rootsfound);
-int arkGetNumConstrFails(void* arkode_mem, long int* nconstrfails);
-int arkGetNumExpSteps(void* arkode_mem, long int* nsteps);
-int arkGetNumAccSteps(void* arkode_mem, long int* nsteps);
-int arkGetNumErrTestFails(void* arkode_mem, long int* netfails);
-int arkGetNumStepSolveFails(void* arkode_mem, long int* nncfails);
-int arkGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused,
-                    sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur);
-int arkGetUserData(void* arkode_mem, void** user_data);
-int arkPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
-char* arkGetReturnFlagName(long int flag);
 
 ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char* imethod);
 ARKODE_ERKTableID arkButcherTableERKNameToID(const char* emethod);

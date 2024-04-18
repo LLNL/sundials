@@ -415,7 +415,31 @@ int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
  * Set functions
  * ---------------------------------------------------------------------------*/
 
-int arkRelaxSetEtaFail(void* arkode_mem, sunrealtype eta_fail)
+int ARKodeSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Call stepper-specific routine (if it exists) */
+  if (ark_mem->step_setrelaxfn)
+  {
+    return ark_mem->step_setrelaxfn(arkode_mem, rfn, rjac);
+  }
+  else
+  {
+    arkProcessError(NULL, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
+}
+
+int ARKodeSetRelaxEtaFail(void* arkode_mem, sunrealtype eta_fail)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -423,6 +447,14 @@ int arkRelaxSetEtaFail(void* arkode_mem, sunrealtype eta_fail)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   if (eta_fail > ZERO && eta_fail < ONE) { relax_mem->eta_fail = eta_fail; }
   else { relax_mem->eta_fail = ARK_RELAX_DEFAULT_ETA_FAIL; }
@@ -430,7 +462,7 @@ int arkRelaxSetEtaFail(void* arkode_mem, sunrealtype eta_fail)
   return ARK_SUCCESS;
 }
 
-int arkRelaxSetLowerBound(void* arkode_mem, sunrealtype lower)
+int ARKodeSetRelaxLowerBound(void* arkode_mem, sunrealtype lower)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -438,6 +470,14 @@ int arkRelaxSetLowerBound(void* arkode_mem, sunrealtype lower)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   if (lower > ZERO && lower < ONE) { relax_mem->lower_bound = lower; }
   else { relax_mem->lower_bound = ARK_RELAX_DEFAULT_LOWER_BOUND; }
@@ -445,7 +485,7 @@ int arkRelaxSetLowerBound(void* arkode_mem, sunrealtype lower)
   return ARK_SUCCESS;
 }
 
-int arkRelaxSetMaxFails(void* arkode_mem, int max_fails)
+int ARKodeSetRelaxMaxFails(void* arkode_mem, int max_fails)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -453,6 +493,14 @@ int arkRelaxSetMaxFails(void* arkode_mem, int max_fails)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   if (max_fails > 0) { relax_mem->max_fails = max_fails; }
   else { relax_mem->max_fails = ARK_RELAX_DEFAULT_MAX_FAILS; }
@@ -460,7 +508,7 @@ int arkRelaxSetMaxFails(void* arkode_mem, int max_fails)
   return ARK_SUCCESS;
 }
 
-int arkRelaxSetMaxIters(void* arkode_mem, int max_iters)
+int ARKodeSetRelaxMaxIters(void* arkode_mem, int max_iters)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -468,6 +516,14 @@ int arkRelaxSetMaxIters(void* arkode_mem, int max_iters)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   if (max_iters > 0) { relax_mem->max_iters = max_iters; }
   else { relax_mem->max_iters = ARK_RELAX_DEFAULT_MAX_ITERS; }
@@ -475,7 +531,7 @@ int arkRelaxSetMaxIters(void* arkode_mem, int max_iters)
   return ARK_SUCCESS;
 }
 
-int arkRelaxSetSolver(void* arkode_mem, ARKRelaxSolver solver)
+int ARKodeSetRelaxSolver(void* arkode_mem, ARKRelaxSolver solver)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -483,6 +539,14 @@ int arkRelaxSetSolver(void* arkode_mem, ARKRelaxSolver solver)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   if (solver != ARK_RELAX_BRENT && solver != ARK_RELAX_NEWTON)
   {
@@ -496,7 +560,7 @@ int arkRelaxSetSolver(void* arkode_mem, ARKRelaxSolver solver)
   return ARK_SUCCESS;
 }
 
-int arkRelaxSetResTol(void* arkode_mem, sunrealtype res_tol)
+int ARKodeSetRelaxResTol(void* arkode_mem, sunrealtype res_tol)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -504,6 +568,14 @@ int arkRelaxSetResTol(void* arkode_mem, sunrealtype res_tol)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   if (res_tol > ZERO) { relax_mem->res_tol = res_tol; }
   else { relax_mem->res_tol = ARK_RELAX_DEFAULT_RES_TOL; }
@@ -511,7 +583,7 @@ int arkRelaxSetResTol(void* arkode_mem, sunrealtype res_tol)
   return ARK_SUCCESS;
 }
 
-int arkRelaxSetTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol)
+int ARKodeSetRelaxTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -519,6 +591,14 @@ int arkRelaxSetTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   if (rel_tol > ZERO) { relax_mem->rel_tol = rel_tol; }
   else { relax_mem->rel_tol = ARK_RELAX_DEFAULT_REL_TOL; }
@@ -529,7 +609,7 @@ int arkRelaxSetTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol)
   return ARK_SUCCESS;
 }
 
-int arkRelaxSetUpperBound(void* arkode_mem, sunrealtype upper)
+int ARKodeSetRelaxUpperBound(void* arkode_mem, sunrealtype upper)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -537,6 +617,14 @@ int arkRelaxSetUpperBound(void* arkode_mem, sunrealtype upper)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   if (upper > ONE) { relax_mem->upper_bound = upper; }
   else { relax_mem->upper_bound = ARK_RELAX_DEFAULT_UPPER_BOUND; }
@@ -548,7 +636,7 @@ int arkRelaxSetUpperBound(void* arkode_mem, sunrealtype upper)
  * Get functions
  * ---------------------------------------------------------------------------*/
 
-int arkRelaxGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals)
+int ARKodeGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -556,13 +644,21 @@ int arkRelaxGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   *r_evals = relax_mem->num_relax_fn_evals;
 
   return ARK_SUCCESS;
 }
 
-int arkRelaxGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals)
+int ARKodeGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -570,13 +666,21 @@ int arkRelaxGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   *J_evals = relax_mem->num_relax_jac_evals;
 
   return ARK_SUCCESS;
 }
 
-int arkRelaxGetNumRelaxFails(void* arkode_mem, long int* relax_fails)
+int ARKodeGetNumRelaxFails(void* arkode_mem, long int* relax_fails)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -584,13 +688,21 @@ int arkRelaxGetNumRelaxFails(void* arkode_mem, long int* relax_fails)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   *relax_fails = relax_mem->num_fails;
 
   return ARK_SUCCESS;
 }
 
-int arkRelaxGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
+int ARKodeGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -598,13 +710,21 @@ int arkRelaxGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   *fails = relax_mem->nls_fails;
 
   return ARK_SUCCESS;
 }
 
-int arkRelaxGetNumRelaxBoundFails(void* arkode_mem, long int* fails)
+int ARKodeGetNumRelaxBoundFails(void* arkode_mem, long int* fails)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -612,13 +732,21 @@ int arkRelaxGetNumRelaxBoundFails(void* arkode_mem, long int* fails)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   *fails = relax_mem->bound_fails;
 
   return ARK_SUCCESS;
 }
 
-int arkRelaxGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
+int ARKodeGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
 {
   int retval;
   ARKodeMem ark_mem;
@@ -626,6 +754,14 @@ int arkRelaxGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
 
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
+
+  /* Guard against use for time steppers that do not allow relaxation */
+  if (!ark_mem->step_supports_relaxation)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support relaxation");
+    return (ARK_ILL_INPUT);
+  }
 
   *iters = relax_mem->nls_iters;
 

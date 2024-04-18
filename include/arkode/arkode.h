@@ -137,6 +137,8 @@ extern "C" {
 
 #define ARK_CONTROLLER_ERR -47
 
+#define ARK_STEPPER_UNSUPPORTED -48
+
 #define ARK_UNRECOGNIZED_ERROR -99
 
 /* ------------------------------
@@ -209,15 +211,10 @@ SUNDIALS_EXPORT int ARKodeResStolerance(void* arkode_mem, sunrealtype rabstol);
 SUNDIALS_EXPORT int ARKodeResVtolerance(void* arkode_mem, N_Vector rabstol);
 SUNDIALS_EXPORT int ARKodeResFtolerance(void* arkode_mem, ARKRwtFn rfun);
 
-/* Linear solver set functions */
-SUNDIALS_EXPORT int ARKodeSetLinearSolver(void* arkode_mem, SUNLinearSolver LS,
-                                          SUNMatrix A);
-SUNDIALS_EXPORT int ARKodeSetMassLinearSolver(void* arkode_mem,
-                                              SUNLinearSolver LS, SUNMatrix M,
-                                              sunbooleantype time_dep);
-
-/* Rootfinding initialization */
+/* Rootfinding */
 SUNDIALS_EXPORT int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g);
+SUNDIALS_EXPORT int ARKodeSetRootDirection(void* arkode_mem, int* rootdir);
+SUNDIALS_EXPORT int ARKodeSetNoInactiveRootWarn(void* arkode_mem);
 
 /* Optional input functions */
 SUNDIALS_EXPORT int ARKodeSetDefaults(void* arkode_mem);
@@ -227,15 +224,16 @@ SUNDIALS_EXPORT int ARKodeSetInterpolantDegree(void* arkode_mem, int degree);
 SUNDIALS_EXPORT int ARKodeSetDenseOrder(void* arkode_mem, int dord);
 SUNDIALS_EXPORT int ARKodeSetNonlinearSolver(void* arkode_mem,
                                              SUNNonlinearSolver NLS);
-SUNDIALS_EXPORT int ARKodeSetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fi);
 SUNDIALS_EXPORT int ARKodeSetLinear(void* arkode_mem, int timedepend);
 SUNDIALS_EXPORT int ARKodeSetNonlinear(void* arkode_mem);
+SUNDIALS_EXPORT int ARKodeSetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fi);
 SUNDIALS_EXPORT int ARKodeSetDeduceImplicitRhs(void* arkode_mem,
                                                sunbooleantype deduce);
 SUNDIALS_EXPORT int ARKodeSetAdaptController(void* arkode_mem,
                                              SUNAdaptController C);
 SUNDIALS_EXPORT int ARKodeSetAdaptivityAdjustment(void* arkode_mem, int adjust);
 SUNDIALS_EXPORT int ARKodeSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac);
+SUNDIALS_EXPORT int ARKodeSetErrorBias(void* arkode_mem, sunrealtype bias);
 SUNDIALS_EXPORT int ARKodeSetSafetyFactor(void* arkode_mem, sunrealtype safety);
 SUNDIALS_EXPORT int ARKodeSetMaxGrowth(void* arkode_mem, sunrealtype mx_growth);
 SUNDIALS_EXPORT int ARKodeSetMinReduction(void* arkode_mem, sunrealtype eta_min);
@@ -271,9 +269,7 @@ SUNDIALS_EXPORT int ARKodeSetStopTime(void* arkode_mem, sunrealtype tstop);
 SUNDIALS_EXPORT int ARKodeClearStopTime(void* arkode_mem);
 SUNDIALS_EXPORT int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed);
 SUNDIALS_EXPORT int ARKodeSetMaxNumConstrFails(void* arkode_mem, int maxfails);
-
-SUNDIALS_EXPORT int ARKodeSetRootDirection(void* arkode_mem, int* rootdir);
-SUNDIALS_EXPORT int ARKodeSetNoInactiveRootWarn(void* arkode_mem);
+SUNDIALS_EXPORT int ARKodeSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff);
 
 SUNDIALS_EXPORT int ARKodeSetUserData(void* arkode_mem, void* user_data);
 
@@ -283,35 +279,6 @@ SUNDIALS_EXPORT int ARKodeSetPostprocessStageFn(void* arkode_mem,
                                                 ARKPostProcessFn ProcessStage);
 SUNDIALS_EXPORT int ARKodeSetStagePredictFn(void* arkode_mem,
                                             ARKStagePredictFn PredictStage);
-
-/* Linear solver interface optional input functions -- must be called
-   AFTER ARKodeSetLinearSolver and/or ARKodeSetMassLinearSolver */
-SUNDIALS_EXPORT int ARKodeSetJacFn(void* arkode_mem, ARKLsJacFn jac);
-SUNDIALS_EXPORT int ARKodeSetMassFn(void* arkode_mem, ARKLsMassFn mass);
-SUNDIALS_EXPORT int ARKodeSetJacEvalFrequency(void* arkode_mem, long int msbj);
-SUNDIALS_EXPORT int ARKodeSetLinearSolutionScaling(void* arkode_mem,
-                                                   sunbooleantype onoff);
-SUNDIALS_EXPORT int ARKodeSetEpsLin(void* arkode_mem, sunrealtype eplifac);
-SUNDIALS_EXPORT int ARKodeSetMassEpsLin(void* arkode_mem, sunrealtype eplifac);
-SUNDIALS_EXPORT int ARKodeSetLSNormFactor(void* arkode_mem, sunrealtype nrmfac);
-SUNDIALS_EXPORT int ARKodeSetMassLSNormFactor(void* arkode_mem,
-                                              sunrealtype nrmfac);
-SUNDIALS_EXPORT int ARKodeSetPreconditioner(void* arkode_mem,
-                                            ARKLsPrecSetupFn psetup,
-                                            ARKLsPrecSolveFn psolve);
-SUNDIALS_EXPORT int ARKodeSetMassPreconditioner(void* arkode_mem,
-                                                ARKLsMassPrecSetupFn psetup,
-                                                ARKLsMassPrecSolveFn psolve);
-SUNDIALS_EXPORT int ARKodeSetJacTimes(void* arkode_mem,
-                                      ARKLsJacTimesSetupFn jtsetup,
-                                      ARKLsJacTimesVecFn jtimes);
-SUNDIALS_EXPORT int ARKodeSetJacTimesRhsFn(void* arkode_mem,
-                                           ARKRhsFn jtimesRhsFn);
-SUNDIALS_EXPORT int ARKodeSetMassTimes(void* arkode_mem,
-                                       ARKLsMassTimesSetupFn msetup,
-                                       ARKLsMassTimesVecFn mtimes,
-                                       void* mtimes_data);
-SUNDIALS_EXPORT int ARKodeSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys);
 
 /* Integrate the ODE over an interval in t */
 SUNDIALS_EXPORT int ARKodeEvolve(void* arkode_mem, sunrealtype tout,

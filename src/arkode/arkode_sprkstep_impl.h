@@ -72,6 +72,16 @@ int sprkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
 int sprkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr);
 int sprkStep_TakeStep_Compensated(void* arkode_mem, sunrealtype* dsmPtr,
                                   int* nflagPtr);
+int sprkStep_SetUserData(void* arkode_mem, void* user_data);
+int sprkStep_SetDefaults(void* arkode_mem);
+int sprkStep_SetOrder(void* arkode_mem, int ord);
+int sprkStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
+int sprkStep_WriteParameters(void* arkode_mem, FILE* fp);
+int sprkStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR);
+int sprkStep_Resize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
+                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
+void sprkStep_Free(void** arkode_mem);
+void sprkStep_PrintMem(void* arkode_mem, FILE* outfile);
 
 /* Internal utility routines */
 int sprkStep_AccessStepMem(void* arkode_mem, const char* fname,

@@ -28,12 +28,12 @@
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  MRIStepSetNonlinearSolver:
+  mriStep_SetNonlinearSolver:
 
   This routine attaches a SUNNonlinearSolver object to the MRIStep
   module.
   ---------------------------------------------------------------*/
-int MRIStepSetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS)
+int mriStep_SetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -129,13 +129,13 @@ int MRIStepSetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS)
 }
 
 /*---------------------------------------------------------------
-  MRIStepSetNlsRhsFn:
+  mriStep_SetNlsRhsFn:
 
   This routine sets an alternative user-supplied slow ODE
   right-hand side function to use in the evaluation of nonlinear
   system functions.
   ---------------------------------------------------------------*/
-int MRIStepSetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fsi)
+int mriStep_SetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fsi)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -152,15 +152,15 @@ int MRIStepSetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fsi)
 }
 
 /*---------------------------------------------------------------
-  MRIStepGetNonlinearSystemData:
+  mriStep_GetNonlinearSystemData:
 
   This routine provides access to the relevant data needed to
   compute the nonlinear system function.
   ---------------------------------------------------------------*/
-int MRIStepGetNonlinearSystemData(void* arkode_mem, sunrealtype* tcur,
-                                  N_Vector* zpred, N_Vector* z, N_Vector* F,
-                                  sunrealtype* gamma, N_Vector* sdata,
-                                  void** user_data)
+int mriStep_GetNonlinearSystemData(void* arkode_mem, sunrealtype* tcur,
+                                   N_Vector* zpred, N_Vector* z, N_Vector* F,
+                                   sunrealtype* gamma, N_Vector* sdata,
+                                   void** user_data)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;

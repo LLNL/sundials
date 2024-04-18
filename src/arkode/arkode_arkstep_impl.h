@@ -186,6 +186,40 @@ int arkStep_GetGammas(void* arkode_mem, sunrealtype* gamma, sunrealtype* gamrat,
 int arkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
 int arkStep_TakeStep_Z(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int arkStep_SetUserData(void* arkode_mem, void* user_data);
+int arkStep_SetDefaults(void* arkode_mem);
+int arkStep_SetOrder(void* arkode_mem, int ord);
+int arkStep_SetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS);
+int arkStep_SetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fi);
+int arkStep_SetLinear(void* arkode_mem, int timedepend);
+int arkStep_SetNonlinear(void* arkode_mem);
+int arkStep_SetNonlinCRDown(void* arkode_mem, sunrealtype crdown);
+int arkStep_SetNonlinRDiv(void* arkode_mem, sunrealtype rdiv);
+int arkStep_SetDeltaGammaMax(void* arkode_mem, sunrealtype dgmax);
+int arkStep_SetLSetupFrequency(void* arkode_mem, int msbp);
+int arkStep_SetPredictorMethod(void* arkode_mem, int pred_method);
+int arkStep_SetMaxNonlinIters(void* arkode_mem, int maxcor);
+int arkStep_SetNonlinConvCoef(void* arkode_mem, sunrealtype nlscoef);
+int arkStep_SetStagePredictFn(void* arkode_mem, ARKStagePredictFn PredictStage);
+int arkStep_SetDeduceImplicitRhs(void* arkode_mem, sunbooleantype deduce);
+int arkStep_GetCurrentGamma(void* arkode_mem, sunrealtype* gamma);
+int arkStep_GetNonlinearSystemData(void* arkode_mem, sunrealtype* tcur,
+                                   N_Vector* zpred, N_Vector* z, N_Vector* Fi,
+                                   sunrealtype* gamma, N_Vector* sdata,
+                                   void** user_data);
+int arkStep_GetNumLinSolvSetups(void* arkode_mem, long int* nlinsetups);
+int arkStep_GetNumNonlinSolvIters(void* arkode_mem, long int* nniters);
+int arkStep_GetNumNonlinSolvConvFails(void* arkode_mem, long int* nnfails);
+int arkStep_GetNonlinSolvStats(void* arkode_mem, long int* nniters,
+                               long int* nnfails);
+int arkStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
+int arkStep_WriteParameters(void* arkode_mem, FILE* fp);
+int arkStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR);
+int arkStep_Resize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
+                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
+int arkStep_ComputeState(void* arkode_mem, N_Vector zcor, N_Vector z);
+void arkStep_Free(void** arkode_mem);
+void arkStep_PrintMem(void* arkode_mem, FILE* outfile);
 
 /* Internal utility routines */
 int arkStep_AccessStepMem(void* arkode_mem, const char* fname,
@@ -226,6 +260,7 @@ int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
                               N_Vector yR);
 
 /* private functions for relaxation */
+int arkStep_SetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
 int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         long int* relax_jac_fn_evals, sunrealtype* delta_e_out);
 int arkStep_GetOrder(ARKodeMem ark_mem);

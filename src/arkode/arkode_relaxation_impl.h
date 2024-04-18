@@ -107,22 +107,6 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout,
              int* nflag_out);
 
 /* User Functions */
-int arkRelaxSetEtaFail(void* arkode_mem, sunrealtype eta_fail);
-int arkRelaxSetLowerBound(void* arkode_mem, sunrealtype lower);
-int arkRelaxSetMaxFails(void* arkode_mem, int max_fails);
-int arkRelaxSetMaxIters(void* arkode_mem, int max_iters);
-int arkRelaxSetSolver(void* arkode_mem, ARKRelaxSolver solver);
-int arkRelaxSetResTol(void* arkode_mem, sunrealtype res_tol);
-int arkRelaxSetTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol);
-int arkRelaxSetUpperBound(void* arkode_mem, sunrealtype upper);
-
-int arkRelaxGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals);
-int arkRelaxGetNumRelaxJacEvals(void* arkode_mem, long int* j_evals);
-int arkRelaxGetNumRelaxFails(void* arkode_mem, long int* relax_fails);
-int arkRelaxGetNumRelaxBoundFails(void* arkode_mem, long int* fails);
-int arkRelaxGetNumRelaxSolveFails(void* arkode_mem, long int* fails);
-int arkRelaxGetNumRelaxSolveIters(void* arkode_mem, long int* iters);
-
 int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
 
 /* -----------------------------------------------------------------------------

@@ -199,6 +199,40 @@ int mriStep_GetGammas(void* arkode_mem, sunrealtype* gamma, sunrealtype* gamrat,
 int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
 int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int mriStep_SetUserData(void* arkode_mem, void* user_data);
+int mriStep_SetDefaults(void* arkode_mem);
+int mriStep_SetOrder(void* arkode_mem, int ord);
+int mriStep_SetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS);
+int mriStep_SetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fi);
+int mriStep_SetLinear(void* arkode_mem, int timedepend);
+int mriStep_SetNonlinear(void* arkode_mem);
+int mriStep_SetNonlinCRDown(void* arkode_mem, sunrealtype crdown);
+int mriStep_SetNonlinRDiv(void* arkode_mem, sunrealtype rdiv);
+int mriStep_SetDeltaGammaMax(void* arkode_mem, sunrealtype dgmax);
+int mriStep_SetLSetupFrequency(void* arkode_mem, int msbp);
+int mriStep_SetPredictorMethod(void* arkode_mem, int pred_method);
+int mriStep_SetMaxNonlinIters(void* arkode_mem, int maxcor);
+int mriStep_SetNonlinConvCoef(void* arkode_mem, sunrealtype nlscoef);
+int mriStep_SetStagePredictFn(void* arkode_mem, ARKStagePredictFn PredictStage);
+int mriStep_SetDeduceImplicitRhs(void* arkode_mem, sunbooleantype deduce);
+int mriStep_GetCurrentGamma(void* arkode_mem, sunrealtype* gamma);
+int mriStep_GetNonlinearSystemData(void* arkode_mem, sunrealtype* tcur,
+                                   N_Vector* zpred, N_Vector* z, N_Vector* Fi,
+                                   sunrealtype* gamma, N_Vector* sdata,
+                                   void** user_data);
+int mriStep_GetNumLinSolvSetups(void* arkode_mem, long int* nlinsetups);
+int mriStep_GetNumNonlinSolvIters(void* arkode_mem, long int* nniters);
+int mriStep_GetNumNonlinSolvConvFails(void* arkode_mem, long int* nnfails);
+int mriStep_GetNonlinSolvStats(void* arkode_mem, long int* nniters,
+                               long int* nnfails);
+int mriStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
+int mriStep_WriteParameters(void* arkode_mem, FILE* fp);
+int mriStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR);
+int mriStep_Resize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
+                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
+int mriStep_ComputeState(void* arkode_mem, N_Vector zcor, N_Vector z);
+void mriStep_Free(void** arkode_mem);
+void mriStep_PrintMem(void* arkode_mem, FILE* outfile);
 
 /* Internal utility routines */
 int mriStep_AccessStepMem(void* arkode_mem, const char* fname,

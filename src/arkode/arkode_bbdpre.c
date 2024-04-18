@@ -282,7 +282,7 @@ int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq,
   arkls_mem->pfree = ARKBBDPrecFree;
 
   /* Attach preconditioner solve and setup functions */
-  retval = arkLSSetPreconditioner(arkode_mem, ARKBBDPrecSetup, ARKBBDPrecSolve);
+  retval = ARKodeSetPreconditioner(arkode_mem, ARKBBDPrecSetup, ARKBBDPrecSolve);
 
   return (retval);
 }

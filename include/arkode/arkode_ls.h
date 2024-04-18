@@ -87,6 +87,43 @@ typedef int (*ARKLsMassPrecSetupFn)(sunrealtype t, void* user_data);
 typedef int (*ARKLsMassPrecSolveFn)(sunrealtype t, N_Vector r, N_Vector z,
                                     sunrealtype delta, int lr, void* user_data);
 
+/* Linear solver set functions */
+SUNDIALS_EXPORT int ARKodeSetLinearSolver(void* arkode_mem, SUNLinearSolver LS,
+                                          SUNMatrix A);
+SUNDIALS_EXPORT int ARKodeSetMassLinearSolver(void* arkode_mem,
+                                              SUNLinearSolver LS, SUNMatrix M,
+                                              sunbooleantype time_dep);
+
+/* Linear solver interface optional input functions -- must be called
+   AFTER ARKodeSetLinearSolver and/or ARKodeSetMassLinearSolver */
+SUNDIALS_EXPORT int ARKodeSetJacFn(void* arkode_mem, ARKLsJacFn jac);
+SUNDIALS_EXPORT int ARKodeSetMassFn(void* arkode_mem, ARKLsMassFn mass);
+SUNDIALS_EXPORT int ARKodeSetJacEvalFrequency(void* arkode_mem, long int msbj);
+SUNDIALS_EXPORT int ARKodeSetLinearSolutionScaling(void* arkode_mem,
+                                                   sunbooleantype onoff);
+SUNDIALS_EXPORT int ARKodeSetEpsLin(void* arkode_mem, sunrealtype eplifac);
+SUNDIALS_EXPORT int ARKodeSetMassEpsLin(void* arkode_mem, sunrealtype eplifac);
+SUNDIALS_EXPORT int ARKodeSetLSNormFactor(void* arkode_mem, sunrealtype nrmfac);
+SUNDIALS_EXPORT int ARKodeSetMassLSNormFactor(void* arkode_mem,
+                                              sunrealtype nrmfac);
+SUNDIALS_EXPORT int ARKodeSetPreconditioner(void* arkode_mem,
+                                            ARKLsPrecSetupFn psetup,
+                                            ARKLsPrecSolveFn psolve);
+SUNDIALS_EXPORT int ARKodeSetMassPreconditioner(void* arkode_mem,
+                                                ARKLsMassPrecSetupFn psetup,
+                                                ARKLsMassPrecSolveFn psolve);
+SUNDIALS_EXPORT int ARKodeSetJacTimes(void* arkode_mem,
+                                      ARKLsJacTimesSetupFn jtsetup,
+                                      ARKLsJacTimesVecFn jtimes);
+SUNDIALS_EXPORT int ARKodeSetJacTimesRhsFn(void* arkode_mem,
+                                           ARKRhsFn jtimesRhsFn);
+SUNDIALS_EXPORT int ARKodeSetMassTimes(void* arkode_mem,
+                                       ARKLsMassTimesSetupFn msetup,
+                                       ARKLsMassTimesVecFn mtimes,
+                                       void* mtimes_data);
+SUNDIALS_EXPORT int ARKodeSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys);
+
+
 #ifdef __cplusplus
 }
 #endif
