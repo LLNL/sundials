@@ -18,22 +18,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sundials/sundials_math.h"
-#include "nvector/nvector_serial.h"
-#include "sunmatrix/sunmatrix_dense.h"
-#include "sunlinsol/sunlinsol_dense.h"
-#include "sunnonlinsol/sunnonlinsol_newton.h"
 #include "arkode/arkode_arkstep.h"
+#include "nvector/nvector_serial.h"
+#include "sundials/sundials_math.h"
+#include "sunlinsol/sunlinsol_dense.h"
+#include "sunmatrix/sunmatrix_dense.h"
+#include "sunnonlinsol/sunnonlinsol_newton.h"
 
 /* A simple nonlinear RHS function */
-static int f_explicit(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f_explicit(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   N_VProd(y, y, ydot);
   return 0;
 }
 
 /* A simple nonlinear RHS function */
-static int f_implicit(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f_implicit(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   N_VInv(y, ydot);
   return 0;
@@ -41,10 +41,10 @@ static int f_implicit(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 /* A simple mass matrix which can be fixed or time-dependent based on user
  * data */
-static int mass(sunrealtype t, SUNMatrix mass, void *user_data,
-                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int mass(sunrealtype t, SUNMatrix mass, void* user_data, N_Vector tmp1,
+                N_Vector tmp2, N_Vector tmp3)
 {
-  sunbooleantype time_dep = *(sunbooleantype*) user_data;
+  sunbooleantype time_dep  = *(sunbooleantype*)user_data;
   SM_ELEMENT_D(mass, 0, 0) = time_dep ? SUNRexp(t) : 2.0;
   return 0;
 }
@@ -57,48 +57,55 @@ static int mass(sunrealtype t, SUNMatrix mass, void *user_data,
     opt == 2 means function allocates memory so check if returned
              NULL pointer
 */
-static int check_retval(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void* flagvalue, const char* funcname, int opt)
 {
-  int *errflag;
+  int* errflag;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && flagvalue == NULL)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return 1; }
+    return 1;
+  }
 
   /* Check if flag < 0 */
-  else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+  else if (opt == 1)
+  {
+    errflag = (int*)flagvalue;
+    if (*errflag < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *errflag);
-      return 1; }}
+      return 1;
+    }
+  }
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && flagvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return 1; }
+    return 1;
+  }
 
   return 0;
 }
 
-int solve(const char *im, const char *ex, int steps,
-          sunbooleantype time_dep, sunbooleantype deduce_implicit_rhs,
-          long int expected_mass_solves)
+int solve(const char* im, const char* ex, int steps, sunbooleantype time_dep,
+          sunbooleantype deduce_implicit_rhs, long int expected_mass_solves)
 {
   int retval = 0;
   int s;
-  sunrealtype t = 1.0;
-  SUNContext sunctx = NULL;
-  N_Vector y = NULL;
-  SUNMatrix jacobian_mat = NULL;
-  SUNMatrix mass_mat = NULL;
+  sunrealtype t               = 1.0;
+  SUNContext sunctx           = NULL;
+  N_Vector y                  = NULL;
+  SUNMatrix jacobian_mat      = NULL;
+  SUNMatrix mass_mat          = NULL;
   SUNLinearSolver jacobian_ls = NULL;
-  SUNLinearSolver mass_ls = NULL;
-  SUNNonlinearSolver nls = NULL;
-  void *arkode_mem = NULL;
+  SUNLinearSolver mass_ls     = NULL;
+  SUNNonlinearSolver nls      = NULL;
+  void* arkode_mem            = NULL;
   long int actual_mass_solves;
 
   /* Create the SUNDIALS context object for this simulation. */
@@ -187,57 +194,54 @@ int solve(const char *im, const char *ex, int steps,
 
   retval = actual_mass_solves != expected_mass_solves;
   printf("%6s | %-29s| %-30s| %-6d| %-9s| %-14s| %-7ld| %-9ld\n",
-         retval ? "Fail" : "Pass",
-         im,
-         ex,
-         steps,
-         time_dep ? "Yes" : "No ",
-         deduce_implicit_rhs ? "Yes" : "No ",
-         actual_mass_solves,
+         retval ? "Fail" : "Pass", im, ex, steps, time_dep ? "Yes" : "No ",
+         deduce_implicit_rhs ? "Yes" : "No ", actual_mass_solves,
          expected_mass_solves);
-  return retval;  
+  return retval;
 }
 
 /* Main program */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   int retval = 0;
 
   printf("Mass Matrix Solve Count Test\n\n");
-  printf("Result | Implicit Method              | Explicit Method               | Steps | Time-Dep | Deduce Im RHS | Actual | Expected\n");
-  printf("-------+------------------------------+-------------------------------+-------+----------+---------------+--------+---------\n");
+  printf("Result | Implicit Method              | Explicit Method              "
+         " | Steps | Time-Dep | Deduce Im RHS | Actual | Expected\n");
+  printf("-------+------------------------------+------------------------------"
+         "-+-------+----------+---------------+--------+---------\n");
 
   /* Tests taking 1 timestep */
-  
+
   /* SDIRK */
   /* 1 for primary and 1 for embedded solution. Optimally, could be 0 solves */
-  retval += solve("ARKODE_SDIRK_2_1_2", "ARKODE_ERK_NONE",
-                  1, SUNFALSE, SUNFALSE, 2);
+  retval += solve("ARKODE_SDIRK_2_1_2", "ARKODE_ERK_NONE", 1, SUNFALSE,
+                  SUNFALSE, 2);
   /* 1 for primary and 1 for embedded solution. Optimally, could be 0 solves */
-  retval += solve("ARKODE_SDIRK_2_1_2", "ARKODE_ERK_NONE",
-                  1, SUNFALSE, SUNTRUE, 2);
+  retval += solve("ARKODE_SDIRK_2_1_2", "ARKODE_ERK_NONE", 1, SUNFALSE, SUNTRUE,
+                  2);
   /* 1 per stage */
-  retval += solve("ARKODE_SDIRK_2_1_2", "ARKODE_ERK_NONE",
-                  1, SUNTRUE, SUNFALSE, 2);
+  retval += solve("ARKODE_SDIRK_2_1_2", "ARKODE_ERK_NONE", 1, SUNTRUE, SUNFALSE,
+                  2);
   /* Optimal */
-  retval += solve("ARKODE_SDIRK_2_1_2", "ARKODE_ERK_NONE",
-                  1, SUNTRUE, SUNTRUE, 0);
+  retval += solve("ARKODE_SDIRK_2_1_2", "ARKODE_ERK_NONE", 1, SUNTRUE, SUNTRUE,
+                  0);
 
   /* Stiffly-accurate SDIRK */
   /* 1 for embedded solution. 0 needed for primary due to stiff accuracy
    * property. Optimally, could be 0 solves */
-  retval += solve("ARKODE_SDIRK_5_3_4", "ARKODE_ERK_NONE",
-                  1, SUNFALSE, SUNFALSE, 1);
+  retval += solve("ARKODE_SDIRK_5_3_4", "ARKODE_ERK_NONE", 1, SUNFALSE,
+                  SUNFALSE, 1);
   /* 1 for embedded solution. 0 needed for primary due to stiff accuracy
    * property. Optimally, could be 0 solves */
-  retval += solve("ARKODE_SDIRK_5_3_4", "ARKODE_ERK_NONE",
-                  1, SUNFALSE, SUNTRUE, 1);
+  retval += solve("ARKODE_SDIRK_5_3_4", "ARKODE_ERK_NONE", 1, SUNFALSE, SUNTRUE,
+                  1);
   /* 1 per stage */
-  retval += solve("ARKODE_SDIRK_5_3_4", "ARKODE_ERK_NONE",
-                  1, SUNTRUE, SUNFALSE, 5);
+  retval += solve("ARKODE_SDIRK_5_3_4", "ARKODE_ERK_NONE", 1, SUNTRUE, SUNFALSE,
+                  5);
   /* Optimal */
-  retval += solve("ARKODE_SDIRK_5_3_4", "ARKODE_ERK_NONE",
-                  1, SUNTRUE, SUNTRUE, 0);
+  retval += solve("ARKODE_SDIRK_5_3_4", "ARKODE_ERK_NONE", 1, SUNTRUE, SUNTRUE,
+                  0);
 
   /* FSAL ESDIRK */
   /* 1 for embedded solution. 0 needed for primary due to FSAL property. The
@@ -247,66 +251,66 @@ int main(int argc, char *argv[])
    * combination of Y_i. This requires d to be in the rowspace of A. Since this
    * method has the FSAL property this small optimization would only save 1
    * solve on the first step. */
-  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
-                  1, SUNFALSE, SUNFALSE, 2);
+  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE", 1, SUNFALSE,
+                  SUNFALSE, 2);
   /* Same comment as previous */
-  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
-                  1, SUNFALSE, SUNTRUE, 2);
+  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE", 1, SUNFALSE,
+                  SUNTRUE, 2);
   /* 1 per stage */
-  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
-                  1, SUNTRUE, SUNFALSE, 4);
+  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE", 1, SUNTRUE,
+                  SUNFALSE, 4);
   /* Optimal */
-  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
-                  1, SUNTRUE, SUNTRUE, 1);
+  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE", 1, SUNTRUE,
+                  SUNTRUE, 1);
 
   /* ERK */
   /* 1 per stage, 1 for primary solution, and 1 for embedded solution.
    * Optimally, could be 3 solves */
-  retval += solve("ARKODE_DIRK_NONE", "ARKODE_SHU_OSHER_3_2_3",
-                  1, SUNFALSE, SUNFALSE, 5);
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_SHU_OSHER_3_2_3", 1, SUNFALSE,
+                  SUNFALSE, 5);
   /* 1 per stage, 1 for primary solution, and 1 for embedded solution.
    * Optimally, could be 3 solves */
-  retval += solve("ARKODE_DIRK_NONE", "ARKODE_SHU_OSHER_3_2_3",
-                  1, SUNFALSE, SUNTRUE, 5);
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_SHU_OSHER_3_2_3", 1, SUNFALSE,
+                  SUNTRUE, 5);
   /* 1 per stage. Optimal */
-  retval += solve("ARKODE_DIRK_NONE", "ARKODE_SHU_OSHER_3_2_3",
-                  1, SUNTRUE, SUNFALSE, 3);
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_SHU_OSHER_3_2_3", 1, SUNTRUE,
+                  SUNFALSE, 3);
   /* 1 per stage. Optimal */
-  retval += solve("ARKODE_DIRK_NONE", "ARKODE_SHU_OSHER_3_2_3",
-                  1, SUNTRUE, SUNTRUE, 3);
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_SHU_OSHER_3_2_3", 1, SUNTRUE,
+                  SUNTRUE, 3);
 
   /* FSAL ERK */
   /* 1 per stage and 1 for embedded solution. 0 needed for primary due to FSAL
    * property. Optimally, could be 4 solves */
-  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
-                  1, SUNFALSE, SUNFALSE, 5);
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3", 1,
+                  SUNFALSE, SUNFALSE, 5);
   /* 1 per stage and 1 for embedded solution. 0 needed for primary due to FSAL
    * property. Optimally, could be 4 solves */
-  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
-                  1, SUNFALSE, SUNTRUE, 5);
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3", 1,
+                  SUNFALSE, SUNTRUE, 5);
   /* 1 per stage. Optimal */
-  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
-                  1, SUNTRUE, SUNFALSE, 4);
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3", 1,
+                  SUNTRUE, SUNFALSE, 4);
   /* 1 per stage. Optimal */
-  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
-                  1, SUNTRUE, SUNTRUE, 4);
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3", 1,
+                  SUNTRUE, SUNTRUE, 4);
 
   /* IMEX 1 */
   /* 1 for primary solution and 1 for embedded solution. The first step is
    * computing y'_0 = M^{-1} f(y_0), which is needed for Hermite interpolation,
    * but not Lagrange. Optimally, could be 2 solves */
-  retval += solve("ARKODE_ARK2_DIRK_3_1_2", "ARKODE_ARK2_ERK_3_1_2",
-                  1, SUNFALSE, SUNFALSE, 3);
+  retval += solve("ARKODE_ARK2_DIRK_3_1_2", "ARKODE_ARK2_ERK_3_1_2", 1,
+                  SUNFALSE, SUNFALSE, 3);
   /* Same comment as previous */
-  retval += solve("ARKODE_ARK2_DIRK_3_1_2", "ARKODE_ARK2_ERK_3_1_2",
-                  1, SUNFALSE, SUNTRUE, 3);
+  retval += solve("ARKODE_ARK2_DIRK_3_1_2", "ARKODE_ARK2_ERK_3_1_2", 1,
+                  SUNFALSE, SUNTRUE, 3);
   /* 1 per implicit and explicit stage */
-  retval += solve("ARKODE_ARK2_DIRK_3_1_2", "ARKODE_ARK2_ERK_3_1_2",
-                  1, SUNTRUE, SUNFALSE, 6);
+  retval += solve("ARKODE_ARK2_DIRK_3_1_2", "ARKODE_ARK2_ERK_3_1_2", 1, SUNTRUE,
+                  SUNFALSE, 6);
   /* 1 per explicit stage and 1 for the first stage of implicit method.
    * Optimal */
-  retval += solve("ARKODE_ARK2_DIRK_3_1_2", "ARKODE_ARK2_ERK_3_1_2",
-                  1, SUNTRUE, SUNTRUE, 4);
+  retval += solve("ARKODE_ARK2_DIRK_3_1_2", "ARKODE_ARK2_ERK_3_1_2", 1, SUNTRUE,
+                  SUNTRUE, 4);
 
   /* IMEX 2 */
   /* 1 for primary solution and 1 for embedded solution. The first step is
@@ -325,41 +329,40 @@ int main(int argc, char *argv[])
   retval += solve("ARKODE_ARK548L2SA_DIRK_8_4_5", "ARKODE_ARK548L2SA_ERK_8_4_5",
                   1, SUNTRUE, SUNTRUE, 9);
 
-
   /* 2 timestep tests to check FSAL optimizations. This assumes there are no
    * rejected steps */
 
   /* FSAL ESDIRK */
   /* 2 per step. The fixed mass matrix implementation cannot benefit from the
    * FSAL property */
-  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
-                  2, SUNFALSE, SUNFALSE, 4);
+  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE", 2, SUNFALSE,
+                  SUNFALSE, 4);
   /* 2 per step. The fixed mass matrix implementation cannot benefit from the
    * FSAL property */
-  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
-                  2, SUNFALSE, SUNTRUE, 4);
+  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE", 2, SUNFALSE,
+                  SUNTRUE, 4);
   /* 1 per stage except the first stage of step 2 due to FSAL optimization */
-  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
-                  2, SUNTRUE, SUNFALSE, 7);
+  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE", 2, SUNTRUE,
+                  SUNFALSE, 7);
   /* Optimal */
-  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE",
-                  2, SUNTRUE, SUNTRUE, 1);
+  retval += solve("ARKODE_ESDIRK324L2SA_4_2_3", "ARKODE_ERK_NONE", 2, SUNTRUE,
+                  SUNTRUE, 1);
 
   /* FSAL ERK */
   /* 1 per stage and 1 for embedded solution. 0 needed for primary due to FSAL
    * property. Optimally, could be 7 solves */
-  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
-                  2, SUNFALSE, SUNFALSE, 10);
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3", 2,
+                  SUNFALSE, SUNFALSE, 10);
   /* 1 per stage and 1 for embedded solution. 0 needed for primary due to FSAL
    * property. Optimally, could be 7 solves */
-  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
-                  2, SUNFALSE, SUNTRUE, 10);
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3", 2,
+                  SUNFALSE, SUNTRUE, 10);
   /* Optimal */
-  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
-                  2, SUNTRUE, SUNFALSE, 7);
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3", 2,
+                  SUNTRUE, SUNFALSE, 7);
   /* Optimal */
-  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3",
-                  2, SUNTRUE, SUNTRUE, 7);
+  retval += solve("ARKODE_DIRK_NONE", "ARKODE_BOGACKI_SHAMPINE_4_2_3", 2,
+                  SUNTRUE, SUNTRUE, 7);
 
   /* IMEX */
   /* While the implicit part has the FSAL property, the overall IMEX method does
