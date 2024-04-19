@@ -12,9 +12,9 @@
 
 .. _SUNDIALS:
 
-**************
-Using SUNDIALS
-**************
+***************
+Getting Started
+***************
 
 The packages that make up SUNDIALS are built upon shared classes for vectors,
 matrices, and algebraic solvers. In addition, the packages all leverage some

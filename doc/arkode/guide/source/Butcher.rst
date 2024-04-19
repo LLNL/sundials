@@ -14,9 +14,9 @@
 
 .. _Butcher:
 
-=========================
-Appendix: Butcher tables
-=========================
+==============
+Butcher Tables
+==============
 
 Here we catalog the full set of Butcher tables included in ARKODE. We group
 these into four categories: *explicit*, *implicit*, *additive* and
