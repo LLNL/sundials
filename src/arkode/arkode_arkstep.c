@@ -476,7 +476,7 @@ int arkStep_ComputeState(void* arkode_mem, N_Vector zcor, N_Vector z)
 /*---------------------------------------------------------------
   arkStep_Free frees all ARKStep memory.
   ---------------------------------------------------------------*/
-void arkStep_Free(void** arkode_mem)
+void arkStep_Free(void* arkode_mem)
 {
   int j;
   sunindextype Bliw, Blrw;
@@ -484,10 +484,10 @@ void arkStep_Free(void** arkode_mem)
   ARKodeARKStepMem step_mem;
 
   /* nothing to do if arkode_mem is already NULL */
-  if (*arkode_mem == NULL) { return; }
+  if (arkode_mem == NULL) { return; }
 
   /* conditional frees on non-NULL ARKStep module */
-  ark_mem = (ARKodeMem)(*arkode_mem);
+  ark_mem = (ARKodeMem)arkode_mem;
   if (ark_mem->step_mem != NULL)
   {
     step_mem = (ARKodeARKStepMem)ark_mem->step_mem;

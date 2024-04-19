@@ -521,17 +521,17 @@ int mriStep_ComputeState(void* arkode_mem, N_Vector zcor, N_Vector z)
 /*---------------------------------------------------------------
   mriStep_Free frees all MRIStep memory.
   ---------------------------------------------------------------*/
-void mriStep_Free(void** arkode_mem)
+void mriStep_Free(void* arkode_mem)
 {
   sunindextype Cliw, Clrw;
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
 
   /* nothing to do if arkode_mem is already NULL */
-  if (*arkode_mem == NULL) { return; }
+  if (arkode_mem == NULL) { return; }
 
   /* conditional frees on non-NULL MRIStep module */
-  ark_mem = (ARKodeMem)(*arkode_mem);
+  ark_mem = (ARKodeMem)arkode_mem;
   if (ark_mem->step_mem != NULL)
   {
     step_mem = (ARKodeMRIStepMem)ark_mem->step_mem;

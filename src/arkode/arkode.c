@@ -233,7 +233,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   all time-stepping heuristics prior to calling ARKodeResize
   remain valid after the call.  If instead the dynamics should be
   re-calibrated, the ARKODE memory structure should be deleted
-  with a call to *StepFree, and re-created with a call to
+  with a call to ARKodeFree, and re-created with a call to
   *StepCreate.
 
   To aid in the vector-resize operation, the user can supply a
@@ -1361,7 +1361,7 @@ void ARKodeFree(void** arkode_mem)
   /* free the time-stepper module memory (if provided) */
   if (ark_mem->step_free)
   {
-    ark_mem->step_free(arkode_mem);
+    ark_mem->step_free(*arkode_mem);
   }
 
   /* free vector storage */

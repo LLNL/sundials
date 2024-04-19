@@ -80,7 +80,7 @@ int erkStep_WriteParameters(void* arkode_mem, FILE* fp);
 int erkStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR);
 int erkStep_Resize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
-void erkStep_Free(void** arkode_mem);
+void erkStep_Free(void* arkode_mem);
 void erkStep_PrintMem(void* arkode_mem, FILE* outfile);
 
 /* Internal utility routines */

@@ -197,7 +197,7 @@ typedef int (*ARKTimestepResize)(void* arkode_mem, N_Vector ynew,
                                  sunrealtype hscale, sunrealtype t0,
                                  ARKVecResizeFn resize, void* resize_data);
 typedef int (*ARKTimestepReset)(void* arkode_mem, sunrealtype tR, N_Vector yR);
-typedef void (*ARKTimestepFree)(void** arkode_mem);
+typedef void (*ARKTimestepFree)(void* arkode_mem);
 typedef void (*ARKTimestepPrintMem)(void* arkode_mem, FILE* outfile);
 typedef int (*ARKTimestepSetDefaults)(void* arkode_mem);
 typedef int (*ARKTimestepComputeState)(void* arkode_mem, N_Vector zcor, N_Vector z);

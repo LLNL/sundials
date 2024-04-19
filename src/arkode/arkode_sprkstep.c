@@ -308,16 +308,16 @@ int sprkStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 /*---------------------------------------------------------------
   sprkStep_Free frees all SPRKStep memory.
   ---------------------------------------------------------------*/
-void sprkStep_Free(void** arkode_mem)
+void sprkStep_Free(void* arkode_mem)
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
 
   /* nothing to do if arkode_mem is already NULL */
-  if (*arkode_mem == NULL) { return; }
+  if (arkode_mem == NULL) { return; }
 
   /* conditional frees on non-NULL SPRKStep module */
-  ark_mem = (ARKodeMem)(*arkode_mem);
+  ark_mem = (ARKodeMem)(arkode_mem);
   if (ark_mem->step_mem != NULL)
   {
     step_mem = (ARKodeSPRKStepMem)ark_mem->step_mem;

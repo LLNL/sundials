@@ -249,7 +249,7 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0, N_Vector y0)
 /*---------------------------------------------------------------
   erkStep_Free frees all ERKStep memory.
   ---------------------------------------------------------------*/
-void erkStep_Free(void** arkode_mem)
+void erkStep_Free(void* arkode_mem)
 {
   int j;
   sunindextype Bliw, Blrw;
@@ -257,10 +257,10 @@ void erkStep_Free(void** arkode_mem)
   ARKodeERKStepMem step_mem;
 
   /* nothing to do if arkode_mem is already NULL */
-  if (*arkode_mem == NULL) { return; }
+  if (arkode_mem == NULL) { return; }
 
   /* conditional frees on non-NULL ERKStep module */
-  ark_mem = (ARKodeMem)(*arkode_mem);
+  ark_mem = (ARKodeMem)arkode_mem;
   if (ark_mem->step_mem != NULL)
   {
     step_mem = (ARKodeERKStepMem)ark_mem->step_mem;

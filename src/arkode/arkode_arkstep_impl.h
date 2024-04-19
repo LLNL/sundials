@@ -218,7 +218,7 @@ int arkStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR);
 int arkStep_Resize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
 int arkStep_ComputeState(void* arkode_mem, N_Vector zcor, N_Vector z);
-void arkStep_Free(void** arkode_mem);
+void arkStep_Free(void* arkode_mem);
 void arkStep_PrintMem(void* arkode_mem, FILE* outfile);
 
 /* Internal utility routines */

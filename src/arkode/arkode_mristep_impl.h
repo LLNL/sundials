@@ -231,7 +231,7 @@ int mriStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR);
 int mriStep_Resize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
 int mriStep_ComputeState(void* arkode_mem, N_Vector zcor, N_Vector z);
-void mriStep_Free(void** arkode_mem);
+void mriStep_Free(void* arkode_mem);
 void mriStep_PrintMem(void* arkode_mem, FILE* outfile);
 
 /* Internal utility routines */

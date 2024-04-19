@@ -80,7 +80,7 @@ int sprkStep_WriteParameters(void* arkode_mem, FILE* fp);
 int sprkStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR);
 int sprkStep_Resize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
                     sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
-void sprkStep_Free(void** arkode_mem);
+void sprkStep_Free(void* arkode_mem);
 void sprkStep_PrintMem(void* arkode_mem, FILE* outfile);
 
 /* Internal utility routines */
