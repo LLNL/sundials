@@ -325,7 +325,7 @@ macro(sundials_add_library target)
 
       # set the correct output name
       if(sundials_add_library_OUTPUT_NAME)
-        if(WIN32 AND ${_libtype} MATCHES "STATIC")
+        if((MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC")) AND ${_libtype} MATCHES "STATIC")
           set_target_properties(${_actual_target_name} PROPERTIES
             OUTPUT_NAME "${sundials_add_library_OUTPUT_NAME}_static"
             CLEAN_DIRECT_OUTPUT 1
