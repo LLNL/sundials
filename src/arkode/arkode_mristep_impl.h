@@ -138,7 +138,7 @@ typedef struct ARKodeMRIStepMemRec
   sunrealtype* cvals;
   N_Vector* Xvecs;
 
-} * ARKodeMRIStepMem;
+}* ARKodeMRIStepMem;
 
 /*===============================================================
   MRI innter time stepper data structure

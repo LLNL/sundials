@@ -303,7 +303,7 @@ typedef struct ARKodeMassMemRec
   int msolve_type; /* mass matrix interface type:
                                   0=iterative; 1=direct; 2=custom */
 
-} * ARKodeMassMem;
+}* ARKodeMassMem;
 
 /*---------------------------------------------------------------
   Types : struct ARKodeMemRec, ARKodeMem

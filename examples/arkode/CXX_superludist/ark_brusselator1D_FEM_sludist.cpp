@@ -124,7 +124,7 @@ typedef struct
   sunrealtype ep; /* stiffness parameter     */
   N_Vector tmp;   /* temporary vector        */
   SUNMatrix R;    /* temporary storage       */
-} * UserData;
+}* UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);

@@ -57,7 +57,7 @@ typedef struct ARKBBDPrecDataRec
   /* pointer to arkode_mem */
   void* arkode_mem;
 
-} * ARKBBDPrecData;
+}* ARKBBDPrecData;
 
 /*---------------------------------------------------------------
  ARKBBDPRE error messages

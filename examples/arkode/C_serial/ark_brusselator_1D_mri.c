@@ -89,7 +89,7 @@ typedef struct
   sunrealtype b;  /* steady-state value of w  */
   sunrealtype c;  /* advection coefficient    */
   sunrealtype ep; /* stiffness parameter      */
-} * UserData;
+}* UserData;
 
 /* user-provided functions called by the integrator */
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);

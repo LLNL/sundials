@@ -279,9 +279,9 @@ int main(int argc, char* argv[])
 static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype b      = rdata[1];                /* access data entries */
-  sunrealtype ep     = rdata[2];
-  sunrealtype w      = NV_Ith_S(y, 2); /* access solution values */
+  sunrealtype b  = rdata[1];                    /* access data entries */
+  sunrealtype ep = rdata[2];
+  sunrealtype w  = NV_Ith_S(y, 2); /* access solution values */
 
   /* fill in the RHS function */
   NV_Ith_S(ydot, 0) = 0.0;
@@ -295,10 +295,10 @@ static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype a      = rdata[0];                /* access data entries */
-  sunrealtype u      = NV_Ith_S(y, 0);          /* access solution values */
-  sunrealtype v      = NV_Ith_S(y, 1);
-  sunrealtype w      = NV_Ith_S(y, 2);
+  sunrealtype a = rdata[0];                     /* access data entries */
+  sunrealtype u = NV_Ith_S(y, 0);               /* access solution values */
+  sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype w = NV_Ith_S(y, 2);
 
   /* fill in the RHS function */
   NV_Ith_S(ydot, 0) = a - (w + 1.0) * u + v * u * u;

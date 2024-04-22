@@ -61,7 +61,7 @@ typedef struct ARKodeERKStepMemRec
   sunrealtype* cvals;
   N_Vector* Xvecs;
 
-} * ARKodeERKStepMem;
+}* ARKodeERKStepMem;
 
 /*===============================================================
   ERK time step module private function prototypes

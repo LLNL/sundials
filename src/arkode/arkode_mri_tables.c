@@ -37,8 +37,7 @@ MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID method)
   switch (method)
   {
 #define ARK_MRI_TABLE(name, coeff) \
-  case name:                       \
-    coeff break;
+  case name: coeff break;
 #include "arkode_mri_tables.def"
 #undef ARK_MRI_TABLE
 

@@ -66,7 +66,7 @@ typedef struct
   sunrealtype dx; /* mesh spacing          */
   sunrealtype k;  /* diffusion coefficient */
   sunrealtype lam;
-} * UserData;
+}* UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);

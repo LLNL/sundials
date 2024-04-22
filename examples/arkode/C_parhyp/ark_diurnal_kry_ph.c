@@ -133,7 +133,7 @@ typedef struct
   sunrealtype **P[MXSUB][MYSUB], **Jbd[MXSUB][MYSUB];
   sunindextype* pivot[MXSUB][MYSUB];
 
-} * UserData;
+}* UserData;
 
 /* Private Helper Functions */
 static void InitUserData(int my_pe, MPI_Comm comm, UserData data);

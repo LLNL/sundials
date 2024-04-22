@@ -86,7 +86,7 @@ typedef struct
   sunrealtype dv; /* diffusion coeff for v   */
   sunrealtype dw; /* diffusion coeff for w   */
   sunrealtype ep; /* stiffness parameter     */
-} * UserData;
+}* UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);

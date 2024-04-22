@@ -33,8 +33,7 @@ ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod)
   switch (imethod)
   {
 #define ARK_BUTCHER_TABLE(name, coeff) \
-  case name:                           \
-    coeff break;
+  case name: coeff break;
 #include "arkode_butcher_dirk.def"
 #undef ARK_BUTCHER_TABLE
 

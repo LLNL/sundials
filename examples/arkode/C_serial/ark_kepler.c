@@ -82,7 +82,7 @@
 typedef struct
 {
   sunrealtype ecc;
-} * UserData;
+}* UserData;
 
 typedef struct
 {

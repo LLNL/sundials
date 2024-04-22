@@ -48,7 +48,7 @@ typedef struct ARKBandPrecDataRec
   /* Pointer to arkode_mem */
   void* arkode_mem;
 
-} * ARKBandPrecData;
+}* ARKBandPrecData;
 
 /*---------------------------------------------------------------
  ARKBANDPRE error messages
