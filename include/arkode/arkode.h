@@ -195,8 +195,8 @@ typedef enum
 
 /* Resize and Reset functions */
 SUNDIALS_EXPORT int ARKodeResize(void* arkode_mem, N_Vector ynew,
-                                  sunrealtype hscale, sunrealtype t0,
-                                  ARKVecResizeFn resize, void* resize_data);
+                                 sunrealtype hscale, sunrealtype t0,
+                                 ARKVecResizeFn resize, void* resize_data);
 SUNDIALS_EXPORT int ARKodeReset(void* arkode_mem, sunrealtype tR, N_Vector yR);
 
 /* Tolerance input functions */
@@ -239,10 +239,8 @@ SUNDIALS_EXPORT int ARKodeSetMaxGrowth(void* arkode_mem, sunrealtype mx_growth);
 SUNDIALS_EXPORT int ARKodeSetMinReduction(void* arkode_mem, sunrealtype eta_min);
 SUNDIALS_EXPORT int ARKodeSetFixedStepBounds(void* arkode_mem, sunrealtype lb,
                                              sunrealtype ub);
-SUNDIALS_EXPORT int ARKodeSetMaxFirstGrowth(void* arkode_mem,
-                                            sunrealtype etamx1);
-SUNDIALS_EXPORT int ARKodeSetMaxEFailGrowth(void* arkode_mem,
-                                            sunrealtype etamxf);
+SUNDIALS_EXPORT int ARKodeSetMaxFirstGrowth(void* arkode_mem, sunrealtype etamx1);
+SUNDIALS_EXPORT int ARKodeSetMaxEFailGrowth(void* arkode_mem, sunrealtype etamxf);
 SUNDIALS_EXPORT int ARKodeSetSmallNumEFails(void* arkode_mem, int small_nef);
 SUNDIALS_EXPORT int ARKodeSetMaxCFailGrowth(void* arkode_mem, sunrealtype etacf);
 SUNDIALS_EXPORT int ARKodeSetNonlinCRDown(void* arkode_mem, sunrealtype crdown);
@@ -269,7 +267,8 @@ SUNDIALS_EXPORT int ARKodeSetStopTime(void* arkode_mem, sunrealtype tstop);
 SUNDIALS_EXPORT int ARKodeClearStopTime(void* arkode_mem);
 SUNDIALS_EXPORT int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed);
 SUNDIALS_EXPORT int ARKodeSetMaxNumConstrFails(void* arkode_mem, int maxfails);
-SUNDIALS_EXPORT int ARKodeSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff);
+SUNDIALS_EXPORT int ARKodeSetUseCompensatedSums(void* arkode_mem,
+                                                sunbooleantype onoff);
 
 SUNDIALS_EXPORT int ARKodeSetUserData(void* arkode_mem, void* user_data);
 
@@ -361,8 +360,7 @@ SUNDIALS_EXPORT int ARKodeGetNumLinConvFails(void* arkode_mem,
                                              long int* nlcfails);
 SUNDIALS_EXPORT int ARKodeGetNumJTSetupEvals(void* arkode_mem,
                                              long int* njtsetups);
-SUNDIALS_EXPORT int ARKodeGetNumJtimesEvals(void* arkode_mem,
-                                            long int* njvevals);
+SUNDIALS_EXPORT int ARKodeGetNumJtimesEvals(void* arkode_mem, long int* njvevals);
 SUNDIALS_EXPORT int ARKodeGetNumLinRhsEvals(void* arkode_mem,
                                             long int* nfevalsLS);
 SUNDIALS_EXPORT int ARKodeGetLastLinFlag(void* arkode_mem, long int* flag);
@@ -396,19 +394,15 @@ SUNDIALS_EXPORT void ARKodePrintMem(void* arkode_mem, FILE* outfile);
 SUNDIALS_EXPORT int ARKodeSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn,
                                      ARKRelaxJacFn rjac);
 SUNDIALS_EXPORT int ARKodeSetRelaxEtaFail(void* arkode_mem, sunrealtype eta_rf);
-SUNDIALS_EXPORT int ARKodeSetRelaxLowerBound(void* arkode_mem,
-                                             sunrealtype lower);
+SUNDIALS_EXPORT int ARKodeSetRelaxLowerBound(void* arkode_mem, sunrealtype lower);
 SUNDIALS_EXPORT int ARKodeSetRelaxMaxFails(void* arkode_mem, int max_fails);
 SUNDIALS_EXPORT int ARKodeSetRelaxMaxIters(void* arkode_mem, int max_iters);
-SUNDIALS_EXPORT int ARKodeSetRelaxSolver(void* arkode_mem,
-                                         ARKRelaxSolver solver);
+SUNDIALS_EXPORT int ARKodeSetRelaxSolver(void* arkode_mem, ARKRelaxSolver solver);
 SUNDIALS_EXPORT int ARKodeSetRelaxResTol(void* arkode_mem, sunrealtype res_tol);
 SUNDIALS_EXPORT int ARKodeSetRelaxTol(void* arkode_mem, sunrealtype rel_tol,
                                       sunrealtype abs_tol);
-SUNDIALS_EXPORT int ARKodeSetRelaxUpperBound(void* arkode_mem,
-                                             sunrealtype upper);
-SUNDIALS_EXPORT int ARKodeGetNumRelaxFnEvals(void* arkode_mem,
-                                             long int* r_evals);
+SUNDIALS_EXPORT int ARKodeSetRelaxUpperBound(void* arkode_mem, sunrealtype upper);
+SUNDIALS_EXPORT int ARKodeGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals);
 SUNDIALS_EXPORT int ARKodeGetNumRelaxJacEvals(void* arkode_mem,
                                               long int* J_evals);
 SUNDIALS_EXPORT int ARKodeGetNumRelaxFails(void* arkode_mem,
@@ -419,7 +413,6 @@ SUNDIALS_EXPORT int ARKodeGetNumRelaxSolveFails(void* arkode_mem,
                                                 long int* fails);
 SUNDIALS_EXPORT int ARKodeGetNumRelaxSolveIters(void* arkode_mem,
                                                 long int* iters);
-
 
 #ifdef __cplusplus
 }

@@ -60,7 +60,7 @@ typedef struct
   sunindextype N; /* number of intervals   */
   sunrealtype dx; /* mesh spacing          */
   sunrealtype k;  /* diffusion coefficient */
-}* UserData;
+} * UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
@@ -230,11 +230,11 @@ int main(void)
   printf("   Total number of error test failures = %li\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy(y);            /* Free vectors */
-  free(udata);              /* Free user data */
-  ARKodeFree(&arkode_mem);  /* Free integrator memory */
-  SUNLinSolFree(LS);        /* Free linear solver */
-  SUNContext_Free(&ctx);    /* Free context */
+  N_VDestroy(y);           /* Free vectors */
+  free(udata);             /* Free user data */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  SUNLinSolFree(LS);       /* Free linear solver */
+  SUNContext_Free(&ctx);   /* Free context */
 
   return 0;
 }

@@ -67,7 +67,7 @@ typedef struct ARKodeRootMemRec
   int mxgnull;             /* num. warning messages about possible g==0    */
   void* root_data;         /* pointer to user_data                         */
 
-}* ARKodeRootMem;
+} * ARKodeRootMem;
 
 /*===============================================================
   ARKODE Root-finding Routines

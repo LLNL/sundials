@@ -83,7 +83,8 @@ int SPRKStepSetUserData(void* arkode_mem, void* user_data);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetPostprocessStepFn instead")
 int SPRKStepSetPostprocessStepFn(void* arkode_mem, ARKPostProcessFn ProcessStep);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetPostprocessStageFn instead")
-int SPRKStepSetPostprocessStageFn(void* arkode_mem, ARKPostProcessFn ProcessStage);
+int SPRKStepSetPostprocessStageFn(void* arkode_mem,
+                                  ARKPostProcessFn ProcessStage);
 
 /* Integrate the ODE over an interval in t */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeEvolve instead")

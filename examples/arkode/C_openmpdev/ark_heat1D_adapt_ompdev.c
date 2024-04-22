@@ -84,7 +84,7 @@ typedef struct
   sunrealtype* x_dev;     /* current mesh on device */
   sunrealtype k;          /* diffusion coefficient */
   sunrealtype refine_tol; /* adaptivity tolerance */
-}* UserData;
+} * UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
@@ -554,8 +554,8 @@ static int project(sunindextype Nold, sunrealtype* xold, N_Vector yold,
   /* loop over new mesh, finding corresponding interval within old mesh,
      and perform piecewise linear interpolation from yold to ynew */
   iv = 0;
-#pragma omp target map(to : iv) is_device_ptr(Yold, Ynew, xnew, xold) \
-  device(dev)
+#pragma omp target map(to \
+                       : iv) is_device_ptr(Yold, Ynew, xnew, xold) device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   {
     for (i = 0; i < Nnew; i++)

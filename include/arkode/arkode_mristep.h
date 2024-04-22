@@ -305,10 +305,10 @@ SUNDIALS_EXPORT int MRIStepWriteCoupling(void* arkode_mem, FILE* fp);
 
 /* Nonlinear solver optional output functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNonlinearSystemData instead")
-int MRIStepGetNonlinearSystemData( void* arkode_mem, sunrealtype* tcur,
-                                   N_Vector* zpred, N_Vector* z,
-                                   N_Vector* F, sunrealtype* gamma,
-                                   N_Vector* sdata, void** user_data);
+int MRIStepGetNonlinearSystemData(void* arkode_mem, sunrealtype* tcur,
+                                  N_Vector* zpred, N_Vector* z, N_Vector* F,
+                                  sunrealtype* gamma, N_Vector* sdata,
+                                  void** user_data);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumNonlinSolvIters instead")
 int MRIStepGetNumNonlinSolvIters(void* arkode_mem, long int* nniters);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumNonlinSolvConvFails instead")
@@ -327,7 +327,8 @@ int MRIStepGetJacTime(void* arkode_mem, sunrealtype* t_J);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepGetJacARKodes instead")
 int MRIStepGetJacNumSteps(void* arkode_mem, long* nst_J);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLinWorkSpace instead")
-int MRIStepGetLinWorkSpace(void* arkode_mem, long int* lenrwLS, long int* leniwLS);
+int MRIStepGetLinWorkSpace(void* arkode_mem, long int* lenrwLS,
+                           long int* leniwLS);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumJacEvals instead")
 int MRIStepGetNumJacEvals(void* arkode_mem, long int* njevals);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumPrecEvals instead")

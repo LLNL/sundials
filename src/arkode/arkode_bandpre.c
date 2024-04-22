@@ -187,7 +187,8 @@ int ARKBandPrecInit(void* arkode_mem, sunindextype N, sunindextype mu,
   arkls_mem->pfree = ARKBandPrecFree;
 
   /* Attach preconditioner solve and setup functions */
-  retval = ARKodeSetPreconditioner(arkode_mem, ARKBandPrecSetup, ARKBandPrecSolve);
+  retval = ARKodeSetPreconditioner(arkode_mem, ARKBandPrecSetup,
+                                   ARKBandPrecSolve);
   return (retval);
 }
 

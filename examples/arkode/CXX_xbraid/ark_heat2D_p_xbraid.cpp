@@ -648,10 +648,10 @@ int main(int argc, char* argv[])
   // Clean up and return
   // --------------------
 
-  ARKodeFree(&arkode_mem);  // Free integrator memory
-  SUNLinSolFree(LS);        // Free linear solver
-  N_VDestroy(u);            // Free vectors
-  FreeUserData(udata);      // Free user data
+  ARKodeFree(&arkode_mem); // Free integrator memory
+  SUNLinSolFree(LS);       // Free linear solver
+  N_VDestroy(u);           // Free vectors
+  FreeUserData(udata);     // Free user data
   delete udata;
   braid_Destroy(core);                 // Free braid memory
   ARKBraid_Free(&app);                 // Free interface memory

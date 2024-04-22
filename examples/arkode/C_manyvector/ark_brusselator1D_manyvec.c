@@ -86,7 +86,7 @@ typedef struct
   sunrealtype dv; /* diffusion coeff for v   */
   sunrealtype dw; /* diffusion coeff for w   */
   sunrealtype ep; /* stiffness parameter     */
-}* UserData;
+} * UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
@@ -329,10 +329,10 @@ int main(void)
   N_VDestroy(u);
   N_VDestroy(v);
   N_VDestroy(w);
-  free(userdata);           /* Free user data */
-  ARKodeFree(&arkode_mem);  /* Free integrator memory */
-  SUNLinSolFree(LS);        /* Free linear solver */
-  SUNContext_Free(&ctx);    /* Free context */
+  free(userdata);          /* Free user data */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  SUNLinSolFree(LS);       /* Free linear solver */
+  SUNContext_Free(&ctx);   /* Free context */
 
   return 0;
 }

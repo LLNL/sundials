@@ -31,7 +31,7 @@ typedef struct
   long int ncnf;
   MPI_Comm comm;
   SUNNonlinearSolver local_nls;
-}* TaskLocalNewton_Content;
+} * TaskLocalNewton_Content;
 
 /* Content accessor macors */
 #define GET_NLS_CONTENT(NLS) ((TaskLocalNewton_Content)(NLS->content))
@@ -76,17 +76,11 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
 
   /* Attach user data */
   retval = ARKodeSetUserData(arkode_mem, (void*)udata);
-  if (check_retval(&retval, "ARKodeSetUserData*", 1, udata->myid))
-  {
-    return 1;
-  }
+  if (check_retval(&retval, "ARKodeSetUserData*", 1, udata->myid)) { return 1; }
 
   /* Specify tolerances */
   retval = ARKodeSStolerances(arkode_mem, uopt->rtol, uopt->atol);
-  if (check_retval(&retval, "ARKodeSStolerances", 1, udata->myid))
-  {
-    return 1;
-  }
+  if (check_retval(&retval, "ARKodeSStolerances", 1, udata->myid)) { return 1; }
 
   /* Increase the max number of steps allowed between outputs */
   retval = ARKodeSetMaxNumSteps(arkode_mem, 100000);
@@ -270,17 +264,11 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
 
   /* Attach user data */
   retval = ARKodeSetUserData(arkode_mem, (void*)udata);
-  if (check_retval(&retval, "ARKodeSetUserData*", 1, udata->myid))
-  {
-    return 1;
-  }
+  if (check_retval(&retval, "ARKodeSetUserData*", 1, udata->myid)) { return 1; }
 
   /* Specify tolerances */
   retval = ARKodeSStolerances(arkode_mem, uopt->rtol, uopt->atol);
-  if (check_retval(&retval, "ARKodeSStolerances", 1, udata->myid))
-  {
-    return 1;
-  }
+  if (check_retval(&retval, "ARKodeSStolerances", 1, udata->myid)) { return 1; }
 
   /* Increase the max number of steps allowed between outputs */
   retval = ARKodeSetMaxNumSteps(arkode_mem, 100000);
@@ -479,10 +467,7 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
 
   /* Specify tolerances */
   retval = ARKodeSStolerances(arkode_mem, uopt->rtol, uopt->atol);
-  if (check_retval(&retval, "ARKodeSStolerances", 1, udata->myid))
-  {
-    return 1;
-  }
+  if (check_retval(&retval, "ARKodeSStolerances", 1, udata->myid)) { return 1; }
 
   /* Increase the max number of steps allowed between outputs */
   retval = ARKodeSetMaxNumSteps(arkode_mem, 1000000);
@@ -493,10 +478,7 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
 
   /* Set fixed step size */
   retval = ARKodeSetFixedStep(arkode_mem, 1e-5);
-  if (check_retval(&retval, "ARKodeSetFixedStep", 1, udata->myid))
-  {
-    return 1;
-  }
+  if (check_retval(&retval, "ARKodeSetFixedStep", 1, udata->myid)) { return 1; }
 
   /* Output initial condition */
   if (uopt->nout > 0)

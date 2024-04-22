@@ -200,30 +200,38 @@ typedef int (*ARKTimestepReset)(void* arkode_mem, sunrealtype tR, N_Vector yR);
 typedef void (*ARKTimestepFree)(void* arkode_mem);
 typedef void (*ARKTimestepPrintMem)(void* arkode_mem, FILE* outfile);
 typedef int (*ARKTimestepSetDefaults)(void* arkode_mem);
-typedef int (*ARKTimestepComputeState)(void* arkode_mem, N_Vector zcor, N_Vector z);
-typedef int (*ARKTimestepSetRelaxFn)(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
+typedef int (*ARKTimestepComputeState)(void* arkode_mem, N_Vector zcor,
+                                       N_Vector z);
+typedef int (*ARKTimestepSetRelaxFn)(void* arkode_mem, ARKRelaxFn rfn,
+                                     ARKRelaxJacFn rjac);
 typedef int (*ARKTimestepSetOrder)(void* arkode_mem, int maxord);
-typedef int (*ARKTimestepSetNonlinearSolver)(void* arkode_mem, SUNNonlinearSolver NLS);
+typedef int (*ARKTimestepSetNonlinearSolver)(void* arkode_mem,
+                                             SUNNonlinearSolver NLS);
 typedef int (*ARKTimestepSetLinear)(void* arkode_mem, int timedepend);
 typedef int (*ARKTimestepSetNonlinear)(void* arkode_mem);
 typedef int (*ARKTimestepSetNlsRhsFn)(void* arkode_mem, ARKRhsFn nls_fi);
-typedef int (*ARKTimestepSetDeduceImplicitRhs)(void* arkode_mem, sunbooleantype deduce);
+typedef int (*ARKTimestepSetDeduceImplicitRhs)(void* arkode_mem,
+                                               sunbooleantype deduce);
 typedef int (*ARKTimestepSetNonlinCRDown)(void* arkode_mem, sunrealtype crdown);
 typedef int (*ARKTimestepSetNonlinRDiv)(void* arkode_mem, sunrealtype rdiv);
 typedef int (*ARKTimestepSetDeltaGammaMax)(void* arkode_mem, sunrealtype dgmax);
 typedef int (*ARKTimestepSetLSetupFrequency)(void* arkode_mem, int msbp);
 typedef int (*ARKTimestepSetPredictorMethod)(void* arkode_mem, int method);
 typedef int (*ARKTimestepSetMaxNonlinIters)(void* arkode_mem, int maxcor);
-typedef int (*ARKTimestepSetNonlinConvCoef)(void* arkode_mem, sunrealtype nlscoef);
-typedef int (*ARKTimestepSetStagePredictFn)(void* arkode_mem, ARKStagePredictFn PredictStage);
-typedef int (*ARKTimestepGetNumLinSolvSetups)(void* arkode_mem, long int* nlinsetups);
+typedef int (*ARKTimestepSetNonlinConvCoef)(void* arkode_mem,
+                                            sunrealtype nlscoef);
+typedef int (*ARKTimestepSetStagePredictFn)(void* arkode_mem,
+                                            ARKStagePredictFn PredictStage);
+typedef int (*ARKTimestepGetNumLinSolvSetups)(void* arkode_mem,
+                                              long int* nlinsetups);
 typedef int (*ARKTimestepGetCurrentGamma)(void* arkode_mem, sunrealtype* gamma);
-typedef int (*ARKTimestepGetNonlinearSystemData)(void* arkode_mem, sunrealtype* tcur,
-                                                 N_Vector* zpred, N_Vector* z,
-                                                 N_Vector* Fi, sunrealtype* gamma,
-                                                 N_Vector* sdata, void** user_data);
-typedef int (*ARKTimestepGetNumNonlinSolvIters)(void* arkode_mem, long int* nniters);
-typedef int (*ARKTimestepGetNumNonlinSolvConvFails)(void* arkode_mem, long int* nnfails);
+typedef int (*ARKTimestepGetNonlinearSystemData)(
+  void* arkode_mem, sunrealtype* tcur, N_Vector* zpred, N_Vector* z,
+  N_Vector* Fi, sunrealtype* gamma, N_Vector* sdata, void** user_data);
+typedef int (*ARKTimestepGetNumNonlinSolvIters)(void* arkode_mem,
+                                                long int* nniters);
+typedef int (*ARKTimestepGetNumNonlinSolvConvFails)(void* arkode_mem,
+                                                    long int* nnfails);
 typedef int (*ARKTimestepGetNonlinSolvStats)(void* arkode_mem, long int* nniters,
                                              long int* nnfails);
 
@@ -295,7 +303,7 @@ typedef struct ARKodeMassMemRec
   int msolve_type; /* mass matrix interface type:
                                   0=iterative; 1=direct; 2=custom */
 
-}* ARKodeMassMem;
+} * ARKodeMassMem;
 
 /*---------------------------------------------------------------
   Types : struct ARKodeMemRec, ARKodeMem

@@ -176,8 +176,7 @@ int main(void)
   flag = ARKodeSetInterpolantType(arkode_mem,
                                   ARK_INTERP_LAGRANGE); /* Specify stiff interpolant */
   if (check_flag(&flag, "ARKodeSetInterpolantType", 1)) { return 1; }
-  flag = ARKodeSetDeduceImplicitRhs(arkode_mem,
-                                    1); /* Avoid eval of f after stage */
+  flag = ARKodeSetDeduceImplicitRhs(arkode_mem, 1); /* Avoid eval of f after stage */
   if (check_flag(&flag, "ARKodeSetDeduceImplicitRhs", 1)) { return 1; }
 
   /* Initialize dense matrix data structure and solver */
@@ -267,11 +266,11 @@ int main(void)
   printf("   Total number of failed steps from solver failure = %li\n", ncfn);
 
   /* Clean up and return with successful completion */
-  N_VDestroy(y);            /* Free y vector */
-  ARKodeFree(&arkode_mem);  /* Free integrator memory */
-  SUNLinSolFree(LS);        /* Free linear solver */
-  SUNMatDestroy(A);         /* Free A matrix */
-  SUNContext_Free(&ctx);    /* Free context */
+  N_VDestroy(y);           /* Free y vector */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  SUNLinSolFree(LS);       /* Free linear solver */
+  SUNMatDestroy(A);        /* Free A matrix */
+  SUNContext_Free(&ctx);   /* Free context */
 
   return 0;
 }
@@ -284,12 +283,12 @@ int main(void)
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype a  = rdata[0];                    /* access data entries */
-  sunrealtype b  = rdata[1];
-  sunrealtype ep = rdata[2];
-  sunrealtype u  = NV_Ith_S(y, 0); /* access solution values */
-  sunrealtype v  = NV_Ith_S(y, 1);
-  sunrealtype w  = NV_Ith_S(y, 2);
+  sunrealtype a      = rdata[0];                /* access data entries */
+  sunrealtype b      = rdata[1];
+  sunrealtype ep     = rdata[2];
+  sunrealtype u      = NV_Ith_S(y, 0); /* access solution values */
+  sunrealtype v      = NV_Ith_S(y, 1);
+  sunrealtype w      = NV_Ith_S(y, 2);
 
   /* fill in the RHS function */
   NV_Ith_S(ydot, 0) = a - (w + 1.0) * u + v * u * u;
@@ -304,10 +303,10 @@ static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype ep = rdata[2];                    /* access data entries */
-  sunrealtype u  = NV_Ith_S(y, 0);              /* access solution values */
-  sunrealtype v  = NV_Ith_S(y, 1);
-  sunrealtype w  = NV_Ith_S(y, 2);
+  sunrealtype ep     = rdata[2];                /* access data entries */
+  sunrealtype u      = NV_Ith_S(y, 0);          /* access solution values */
+  sunrealtype v      = NV_Ith_S(y, 1);
+  sunrealtype w      = NV_Ith_S(y, 2);
 
   /* fill in the Jacobian via SUNDenseMatrix macro, SM_ELEMENT_D (see sunmatrix_dense.h) */
   SM_ELEMENT_D(J, 0, 0) = -(w + 1.0) + 2.0 * u * v;

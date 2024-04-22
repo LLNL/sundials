@@ -181,7 +181,7 @@ int main()
 
   // Linear solver interface
   flag = ARKodeSetLinearSolver(arkode_mem, LS,
-                                A); // Attach matrix and linear solver
+                               A); // Attach matrix and linear solver
   if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
   flag = ARKodeSetJacFn(arkode_mem, Jac); // Set Jacobian routine
   if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
@@ -262,10 +262,10 @@ int main()
   cout << "   Total number of error test failures = " << netf << "\n\n";
 
   // Clean up and return with successful completion
-  ARKodeFree(&arkode_mem);  // Free integrator memory
-  SUNLinSolFree(LS);        // Free linear solver
-  SUNMatDestroy(A);         // Free A matrix
-  N_VDestroy(y);            // Free y vector
+  ARKodeFree(&arkode_mem); // Free integrator memory
+  SUNLinSolFree(LS);       // Free linear solver
+  SUNMatDestroy(A);        // Free A matrix
+  N_VDestroy(y);           // Free y vector
   if (logger)
   {
     SUNLogger_Destroy(&logger); // Free logger

@@ -365,10 +365,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
       if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
 
       flag = ARKodeGetNumNonlinSolvConvFails(mristep_mem, &mri_ncfn);
-      if (check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1))
-      {
-        return 1;
-      }
+      if (check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1)) { return 1; }
 
       flag = ARKodeGetNumLinSolvSetups(mristep_mem, &mri_nsetups);
       if (check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1)) { return 1; }

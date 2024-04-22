@@ -131,8 +131,7 @@ int main(void)
   printf("   ---------------------\n");
   while (Tf - t > 1.0e-15)
   {
-    retval = ARKodeEvolve(arkode_mem, tout, y, &t,
-                          ARK_NORMAL); /* call integrator */
+    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
     if (check_retval(&retval, "ARKodeEvolve", 1)) { break; }
     printf("  %10.6" FSYM "  %10.6" FSYM "\n", t,
            NV_Ith_S(y, 0)); /* access/print solution */
@@ -183,10 +182,10 @@ int main(void)
   retval = check_ans(y, t, reltol, abstol);
 
   /* Clean up and return */
-  N_VDestroy(y);            /* Free y vector */
-  ARKodeFree(&arkode_mem);  /* Free integrator memory */
-  SUNLinSolFree(LS);        /* Free linear solver */
-  SUNContext_Free(&ctx);    /* Free the SUNContext */
+  N_VDestroy(y);           /* Free y vector */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  SUNLinSolFree(LS);       /* Free linear solver */
+  SUNContext_Free(&ctx);   /* Free the SUNContext */
 
   return retval;
 }

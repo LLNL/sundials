@@ -1007,8 +1007,7 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   if (check_flag((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   // Specify tolerances
-  flag = ARKodeSStolerances(inner_arkode_mem, udata->rtol_fast,
-                            udata->atol_fast);
+  flag = ARKodeSStolerances(inner_arkode_mem, udata->rtol_fast, udata->atol_fast);
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   // Attach user data

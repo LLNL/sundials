@@ -334,13 +334,13 @@ int main(int argc, char* argv[])
   }
 
   // Clean up and return
-  ARKodeFree(&arkode_mem);  // Free integrator memory
-  SUNLinSolFree(LS);        // free system linear solver
-  SUNLinSolFree(MLS);       // free mass linear solver
-  SUNNonlinSolFree(NLS);    // free nonlinear solver
-  SUNMatDestroy(A);         // free system matrix
-  SUNMatDestroy(M);         // free mass matrix
-  N_VDestroy(y);            // Free y vector
+  ARKodeFree(&arkode_mem); // Free integrator memory
+  SUNLinSolFree(LS);       // free system linear solver
+  SUNLinSolFree(MLS);      // free mass linear solver
+  SUNNonlinSolFree(NLS);   // free nonlinear solver
+  SUNMatDestroy(A);        // free system matrix
+  SUNMatDestroy(M);        // free mass matrix
+  N_VDestroy(y);           // Free y vector
   return 0;
 }
 

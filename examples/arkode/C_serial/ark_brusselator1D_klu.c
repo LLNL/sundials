@@ -87,7 +87,7 @@ typedef struct
   sunrealtype dw; /* diffusion coeff for w   */
   sunrealtype ep; /* stiffness parameter     */
   SUNMatrix R;    /* temporary storage       */
-}* UserData;
+} * UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
@@ -272,12 +272,12 @@ int main(void)
   for (iout = 0; iout < Nt; iout++)
   {
     flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
-    u = N_VWL2Norm(y, umask);
-    u = SUNRsqrt(u * u / N);
-    v = N_VWL2Norm(y, vmask);
-    v = SUNRsqrt(v * v / N);
-    w = N_VWL2Norm(y, wmask);
-    w = SUNRsqrt(w * w / N);
+    u    = N_VWL2Norm(y, umask);
+    u    = SUNRsqrt(u * u / N);
+    v    = N_VWL2Norm(y, vmask);
+    v    = SUNRsqrt(v * v / N);
+    w    = N_VWL2Norm(y, wmask);
+    w    = SUNRsqrt(w * w / N);
     printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "\n", t,
            u, v, w);
     if (flag >= 0)
@@ -337,12 +337,12 @@ int main(void)
   N_VDestroy(umask);
   N_VDestroy(vmask);
   N_VDestroy(wmask);
-  SUNMatDestroy(udata->R);  /* Free user data */
+  SUNMatDestroy(udata->R); /* Free user data */
   free(udata);
-  ARKodeFree(&arkode_mem);  /* Free integrator memory */
-  SUNLinSolFree(LS);        /* Free linear solver */
-  SUNMatDestroy(A);         /* Free A matrix */
-  SUNContext_Free(&ctx);    /* Free context */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  SUNLinSolFree(LS);       /* Free linear solver */
+  SUNMatDestroy(A);        /* Free A matrix */
+  SUNContext_Free(&ctx);   /* Free context */
 
   return 0;
 }

@@ -60,7 +60,7 @@ typedef struct ARKodeSPRKStepMemRec
   long int nf2; /* number of calls to f2        */
   int istage;
 
-}* ARKodeSPRKStepMem;
+} * ARKodeSPRKStepMem;
 
 /*===============================================================
   SPRK time step module private function prototypes

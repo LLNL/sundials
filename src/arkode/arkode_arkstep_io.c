@@ -58,10 +58,7 @@ int ARKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
   return (ARKodeGetDky(arkode_mem, t, k, dky));
 }
 
-void ARKStepFree(void** arkode_mem)
-{
-  ARKodeFree(arkode_mem);
-}
+void ARKStepFree(void** arkode_mem) { ARKodeFree(arkode_mem); }
 
 void ARKStepPrintMem(void* arkode_mem, FILE* outfile)
 {
@@ -532,8 +529,8 @@ int ARKStepGetNonlinearSystemData(void* arkode_mem, sunrealtype* tcur,
                                   sunrealtype* gamma, N_Vector* sdata,
                                   void** user_data)
 {
-  return (ARKodeGetNonlinearSystemData(arkode_mem, tcur, zpred, z, Fi,
-                                       gamma, sdata, user_data));
+  return (ARKodeGetNonlinearSystemData(arkode_mem, tcur, zpred, z, Fi, gamma,
+                                       sdata, user_data));
 }
 
 int ARKStepGetNumStepSolveFails(void* arkode_mem, long int* nncfails)
@@ -581,7 +578,6 @@ int ARKStepGetNonlinSolvStats(void* arkode_mem, long int* nniters,
 {
   return (ARKodeGetNonlinSolvStats(arkode_mem, nniters, nnfails));
 }
-
 
 /*---------------------------------------------------------------
   These wrappers for ARKLs module 'get' routines all are
@@ -814,7 +810,6 @@ int ARKStepWriteParameters(void* arkode_mem, FILE* fp)
   return (ARKodeWriteParameters(arkode_mem, fp));
 }
 
-
 /*===============================================================
   DEPRECATED ARKStep optional input/output functions
   ===============================================================*/
@@ -877,7 +872,6 @@ int arkStep_SetUserData(void* arkode_mem, void* user_data)
 
   return (ARK_SUCCESS);
 }
-
 
 /*---------------------------------------------------------------
   arkStep_SetDefaults:

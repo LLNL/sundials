@@ -66,8 +66,8 @@ int ARKodeSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -328,8 +328,8 @@ int ARKodeSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix M,
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -556,11 +556,11 @@ int ARKodeSetJacFn(void* arkode_mem, ARKLsJacFn jac)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
-  
+
   /* return with failure if jac cannot be used */
   if ((jac != NULL) && (arkls_mem->A == NULL))
   {
@@ -607,8 +607,8 @@ int ARKodeSetMassFn(void* arkode_mem, ARKLsMassFn mass)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -650,8 +650,8 @@ int ARKodeSetEpsLin(void* arkode_mem, sunrealtype eplifac)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -679,8 +679,8 @@ int ARKodeSetLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -722,8 +722,8 @@ int ARKodeSetJacEvalFrequency(void* arkode_mem, long int msbj)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -750,8 +750,8 @@ int ARKodeSetLinearSolutionScaling(void* arkode_mem, sunbooleantype onoff)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -784,8 +784,8 @@ int ARKodeSetPreconditioner(void* arkode_mem, ARKLsPrecSetupFn psetup,
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -835,8 +835,8 @@ int ARKodeSetJacTimes(void* arkode_mem, ARKLsJacTimesSetupFn jtsetup,
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -894,8 +894,8 @@ int ARKodeSetJacTimesRhsFn(void* arkode_mem, ARKRhsFn jtimesRhsFn)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -938,8 +938,8 @@ int ARKodeSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1011,8 +1011,8 @@ int ARKodeGetJac(void* arkode_mem, SUNMatrix* J)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1034,8 +1034,8 @@ int ARKodeGetJacTime(void* arkode_mem, sunrealtype* t_J)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1057,8 +1057,8 @@ int ARKodeGetJacNumSteps(void* arkode_mem, long int* nst_J)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1086,8 +1086,8 @@ int ARKodeGetLinWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1147,8 +1147,8 @@ int ARKodeGetNumJacEvals(void* arkode_mem, long int* njevals)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1175,8 +1175,8 @@ int ARKodeGetNumLinRhsEvals(void* arkode_mem, long int* nfevalsLS)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1202,8 +1202,8 @@ int ARKodeGetNumPrecEvals(void* arkode_mem, long int* npevals)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1229,8 +1229,8 @@ int ARKodeGetNumPrecSolves(void* arkode_mem, long int* npsolves)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1256,8 +1256,8 @@ int ARKodeGetNumLinIters(void* arkode_mem, long int* nliters)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1283,8 +1283,8 @@ int ARKodeGetNumLinConvFails(void* arkode_mem, long int* nlcfails)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1310,8 +1310,8 @@ int ARKodeGetNumJTSetupEvals(void* arkode_mem, long int* njtsetups)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1337,8 +1337,8 @@ int ARKodeGetNumJtimesEvals(void* arkode_mem, long int* njvevals)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1364,8 +1364,8 @@ int ARKodeGetNumMassMultSetups(void* arkode_mem, long int* nmvsetups)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1391,8 +1391,8 @@ int ARKodeGetLastLinFlag(void* arkode_mem, long int* flag)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_ILL_INPUT);
   }
 
@@ -1447,8 +1447,8 @@ int ARKodeSetMassEpsLin(void* arkode_mem, sunrealtype eplifac)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1476,8 +1476,8 @@ int ARKodeSetMassLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1522,8 +1522,8 @@ int ARKodeSetMassPreconditioner(void* arkode_mem, ARKLsMassPrecSetupFn psetup,
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1573,8 +1573,8 @@ int ARKodeSetMassTimes(void* arkode_mem, ARKLsMassTimesSetupFn mtsetup,
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1652,8 +1652,8 @@ int ARKodeGetMassWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1714,8 +1714,8 @@ int ARKodeGetNumMassSetups(void* arkode_mem, long int* nmsetups)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1737,12 +1737,12 @@ int ARKodeGetNumMassMult(void* arkode_mem, long int* nmvevals)
   /* access ARKLsMassMem structure */
   retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
-  
+
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1768,8 +1768,8 @@ int ARKodeGetNumMassSolves(void* arkode_mem, long int* nmsolves)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1795,8 +1795,8 @@ int ARKodeGetNumMassPrecEvals(void* arkode_mem, long int* npevals)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1822,8 +1822,8 @@ int ARKodeGetNumMassPrecSolves(void* arkode_mem, long int* npsolves)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1849,8 +1849,8 @@ int ARKodeGetNumMassIters(void* arkode_mem, long int* nmiters)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1876,8 +1876,8 @@ int ARKodeGetNumMassConvFails(void* arkode_mem, long int* nmcfails)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1902,8 +1902,8 @@ int ARKodeGetCurrentMassMatrix(void* arkode_mem, SUNMatrix* M)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1929,8 +1929,8 @@ int ARKodeGetNumMTSetups(void* arkode_mem, long int* nmtsetups)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1956,8 +1956,8 @@ int ARKodeGetLastMassFlag(void* arkode_mem, long int* flag)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 

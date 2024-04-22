@@ -912,7 +912,7 @@ int TaskLocalNlsResidual(N_Vector ycor, N_Vector F, void* arkode_mem)
   void* user_data;
 
   retval = ARKodeGetNonlinearSystemData(arkode_mem, &tcur, &zpred, &z, &Fi,
-                                         &gamma, &sdata, &user_data);
+                                        &gamma, &sdata, &user_data);
   if (check_retval((void*)&retval, "ARKodeGetNonlinearSystemData", 1))
   {
     return (-1);

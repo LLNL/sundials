@@ -139,7 +139,8 @@ int main(void)
   if (check_flag(&flag, "ARKodeSetNonlinConvCoef", 1)) { return 1; }
   flag = ARKodeSetMaxNumSteps(arkode_mem, 100000); /* Increase max num steps */
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
-  flag = ARKodeSetPredictorMethod(arkode_mem, 1); /* Specify maximum-order predictor */
+  flag = ARKodeSetPredictorMethod(arkode_mem,
+                                  1); /* Specify maximum-order predictor */
   if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) { return 1; }
   flag = ARKodeSVtolerances(arkode_mem, reltol, atols); /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
@@ -245,12 +246,12 @@ int main(void)
   printf("   Total number of failed steps from solver failure = %li\n", ncfn);
 
   /* Clean up and return with successful completion */
-  N_VDestroy(y);            /* Free y vector */
-  N_VDestroy(atols);        /* Free atols vector */
-  ARKodeFree(&arkode_mem);  /* Free integrator memory */
-  SUNLinSolFree(LS);        /* Free linear solver */
-  SUNMatDestroy(A);         /* Free A matrix */
-  SUNContext_Free(&ctx);    /* Free context */
+  N_VDestroy(y);           /* Free y vector */
+  N_VDestroy(atols);       /* Free atols vector */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  SUNLinSolFree(LS);       /* Free linear solver */
+  SUNMatDestroy(A);        /* Free A matrix */
+  SUNContext_Free(&ctx);   /* Free context */
 
   return 0;
 }

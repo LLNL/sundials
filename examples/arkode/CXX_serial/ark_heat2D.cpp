@@ -465,10 +465,10 @@ int main(int argc, char* argv[])
   // Clean up and return
   // --------------------
 
-  ARKodeFree(&arkode_mem);  // Free integrator memory
-  SUNLinSolFree(LS);        // Free linear solver
-  N_VDestroy(u);            // Free vectors
-  FreeUserData(udata);      // Free user data
+  ARKodeFree(&arkode_mem); // Free integrator memory
+  SUNLinSolFree(LS);       // Free linear solver
+  N_VDestroy(u);           // Free vectors
+  FreeUserData(udata);     // Free user data
   delete udata;
   (void)SUNAdaptController_Destroy(C); // Free time adaptivity controller
   SUNContext_Free(&ctx);               // Free context

@@ -413,7 +413,7 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
                                        Bview(i, j, k, 1) * (A0 * A8 - scratch_9) +
                                        A5 * scratch_8 - A8 * scratch_10);
       Xview(i, j, k,
-            2) = (-Bview(i, j, k, 2) + scratch_11 * scratch_8 +
+            2)          = (-Bview(i, j, k, 2) + scratch_11 * scratch_8 +
                   scratch_13 * (Bview(i, j, k, 1) - scratch_10 * scratch_11)) /
                  (-A8 + scratch_11 * scratch_9 +
                   scratch_13 * (A5 - scratch_11 * scratch_7));
@@ -505,7 +505,7 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
                                        Bview(i, j, k, 1) * (A0 * A8 - scratch_9) +
                                        A5 * scratch_8 - A8 * scratch_10);
       Xview(i, j, k,
-            2) = (-Bview(i, j, k, 2) + scratch_11 * scratch_8 +
+            2)          = (-Bview(i, j, k, 2) + scratch_11 * scratch_8 +
                   scratch_13 * (Bview(i, j, k, 1) - scratch_10 * scratch_11)) /
                  (-A8 + scratch_11 * scratch_9 +
                   scratch_13 * (A5 - scratch_11 * scratch_7));

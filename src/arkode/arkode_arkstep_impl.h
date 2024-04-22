@@ -159,7 +159,7 @@ typedef struct ARKodeARKStepMemRec
   sunrealtype* stage_times;  /* workspace for applying forcing */
   sunrealtype* stage_coefs;  /* workspace for applying forcing */
 
-}* ARKodeARKStepMem;
+} * ARKodeARKStepMem;
 
 /*===============================================================
   ARK time step module private function prototypes

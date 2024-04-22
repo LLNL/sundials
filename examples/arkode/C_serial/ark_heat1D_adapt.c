@@ -75,7 +75,7 @@ typedef struct
   sunrealtype* x;         /* current mesh */
   sunrealtype k;          /* diffusion coefficient */
   sunrealtype refine_tol; /* adaptivity tolerance */
-}* UserData;
+} * UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
@@ -290,9 +290,9 @@ int main(void)
   N_VDestroy(y);  /* Free vectors */
   free(udata->x); /* Free user data */
   free(udata);
-  ARKodeFree(&arkode_mem);  /* Free integrator memory */
-  SUNLinSolFree(LS);        /* Free linear solver */
-  SUNContext_Free(&ctx);    /* Free context */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  SUNLinSolFree(LS);       /* Free linear solver */
+  SUNContext_Free(&ctx);   /* Free context */
 
   return 0;
 }

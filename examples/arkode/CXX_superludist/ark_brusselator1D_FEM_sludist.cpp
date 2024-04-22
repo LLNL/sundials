@@ -124,7 +124,7 @@ typedef struct
   sunrealtype ep; /* stiffness parameter     */
   N_Vector tmp;   /* temporary vector        */
   SUNMatrix R;    /* temporary storage       */
-}* UserData;
+} * UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
@@ -536,8 +536,7 @@ int main(int argc, char* argv[])
   printf("   ----------------------------------------------\n");
   for (iout = 0; iout < Nt; iout++)
   {
-    retval = ARKodeEvolve(arkode_mem, tout, y, &t,
-                          ARK_NORMAL); /* call integrator */
+    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
     if (check_retval(&retval, "ARKodeEvolve", 1)) { break; }
     u = N_VWL2Norm(y, umask); /* access/print solution statistics */
     u = sqrt(u * u / N);
@@ -614,7 +613,7 @@ int main(int argc, char* argv[])
   N_VDestroy(vmask);
   N_VDestroy(wmask);
   ARKodeFree(&arkode_mem); /* Free integrator memory */
-  SUNLinSolFree(LS);        /* Free linear solvers */
+  SUNLinSolFree(LS);       /* Free linear solvers */
   SUNLinSolFree(MLS);
   SUNMatDestroy(A); /* Free matrices */
   SUNMatDestroy(M);

@@ -107,7 +107,7 @@ typedef struct
   sunrealtype av; /* advection coeff for v   */
   sunrealtype aw; /* advection coeff for w   */
   sunrealtype ep; /* stiffness parameter     */
-}* UserData;
+} * UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);

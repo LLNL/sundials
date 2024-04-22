@@ -57,10 +57,7 @@ int ERKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
   return (ARKodeGetDky(arkode_mem, t, k, dky));
 }
 
-void ERKStepFree(void** arkode_mem)
-{
-  ARKodeFree(arkode_mem);
-}
+void ERKStepFree(void** arkode_mem) { ARKodeFree(arkode_mem); }
 
 void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
 {
@@ -247,7 +244,6 @@ int ERKStepSetOrder(void* arkode_mem, int ord)
 {
   return (ARKodeSetOrder(arkode_mem, ord));
 }
-
 
 /*===============================================================
   ERKStep Optional output functions (wrappers for generic ARKODE
@@ -446,7 +442,6 @@ int ERKStepWriteParameters(void* arkode_mem, FILE* fp)
   return (ARKodeWriteParameters(arkode_mem, fp));
 }
 
-
 /*===============================================================
   DEPRECATED ERKStep optional input/output functions
   ===============================================================*/
@@ -539,10 +534,10 @@ int erkStep_SetDefaults(void* arkode_mem)
 
   /* Set default values for integrator optional inputs
      (overwrite some adaptivity params for ERKStep use) */
-  step_mem->q      = Q_DEFAULT;                  /* method order */
-  step_mem->p      = 0;                          /* embedding order */
-  step_mem->stages = 0;                          /* no stages */
-  step_mem->B      = NULL;                       /* no Butcher table */
+  step_mem->q                 = Q_DEFAULT;       /* method order */
+  step_mem->p                 = 0;               /* embedding order */
+  step_mem->stages            = 0;               /* no stages */
+  step_mem->B                 = NULL;            /* no Butcher table */
   ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
   ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
   ark_mem->hadapt_mem->growth = SUN_RCONST(25.0); /* step adaptivity growth factor */

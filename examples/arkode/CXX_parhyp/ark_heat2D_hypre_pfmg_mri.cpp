@@ -613,7 +613,7 @@ int main(int argc, char* argv[])
     SUNLinSolFree(LSf);                       // Free linear solver
     N_VDestroy(u);                            // Free vectors
     FreeUserData(&udata);                     // Free user data
-    (void)SUNAdaptController_Destroy(Ctrl);   // Free timestep adaptivity controller
+    (void)SUNAdaptController_Destroy(Ctrl); // Free timestep adaptivity controller
   }
 
   // Finalize MPI

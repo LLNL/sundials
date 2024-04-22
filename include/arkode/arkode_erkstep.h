@@ -61,11 +61,9 @@ int ERKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR);
 
 /* Tolerance input functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSStolerances instead")
-int ERKStepSStolerances(void* arkode_mem, sunrealtype reltol,
-                        sunrealtype abstol);
+int ERKStepSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSVtolerances instead")
-int ERKStepSVtolerances(void* arkode_mem, sunrealtype reltol,
-                        N_Vector abstol);
+int ERKStepSVtolerances(void* arkode_mem, sunrealtype reltol, N_Vector abstol);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeWFtolerances instead")
 int ERKStepWFtolerances(void* arkode_mem, ARKEwtFn efun);
 
@@ -103,8 +101,7 @@ int ERKStepSetMaxGrowth(void* arkode_mem, sunrealtype mx_growth);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetMinReduction instead")
 int ERKStepSetMinReduction(void* arkode_mem, sunrealtype eta_min);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ERKStepSetFiARKodeBounds instead")
-int ERKStepSetFixedStepBounds(void* arkode_mem, sunrealtype lb,
-                              sunrealtype ub);
+int ERKStepSetFixedStepBounds(void* arkode_mem, sunrealtype lb, sunrealtype ub);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use SUNAdaptController instead")
 int ERKStepSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault,
                                int pq, sunrealtype adapt_params[3]);
@@ -117,8 +114,7 @@ int ERKStepSetMaxEFailGrowth(void* arkode_mem, sunrealtype etamxf);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetSmallNumEFails instead")
 int ERKStepSetSmallNumEFails(void* arkode_mem, int small_nef);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetStabilityFn instead")
-int ERKStepSetStabilityFn(void* arkode_mem, ARKExpStabFn EStab,
-                          void* estab_data);
+int ERKStepSetStabilityFn(void* arkode_mem, ARKExpStabFn EStab, void* estab_data);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetMaxErrTestFails instead")
 int ERKStepSetMaxErrTestFails(void* arkode_mem, int maxnef);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetConstraints instead")
@@ -219,9 +215,8 @@ SUNDIALS_EXPORT int ERKStepGetTimestepperStats(
   void* arkode_mem, long int* expsteps, long int* accsteps,
   long int* step_attempts, long int* nfevals, long int* netfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ERKStepARKodeStats instead")
-int ERKStepGetStepStats(void* arkode_mem, long int* nsteps,
-                        sunrealtype* hinused, sunrealtype* hlast,
-                        sunrealtype* hcur, sunrealtype* tcur);
+int ERKStepGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused,
+                        sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur);
 
 /* Free function */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeFree instead")

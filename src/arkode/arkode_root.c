@@ -47,7 +47,7 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem)arkode_mem;
-  nrt = (nrtfn < 0) ? 0 : nrtfn;
+  nrt     = (nrtfn < 0) ? 0 : nrtfn;
 
   /* Ensure that stepper provides fullrhs function */
   if (nrt > 0)

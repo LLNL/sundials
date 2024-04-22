@@ -200,11 +200,11 @@ int main(void)
   flag = check_ans(y, t, reltol, abstol);
 
   /* Clean up and return with successful completion */
-  N_VDestroy(y);            /* Free y vector */
-  ARKodeFree(&arkode_mem);  /* Free integrator memory */
-  SUNLinSolFree(LS);        /* Free linear solver */
-  SUNMatDestroy(A);         /* Free A matrix */
-  SUNContext_Free(&ctx);    /* Free context */
+  N_VDestroy(y);           /* Free y vector */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  SUNLinSolFree(LS);       /* Free linear solver */
+  SUNMatDestroy(A);        /* Free A matrix */
+  SUNContext_Free(&ctx);   /* Free context */
 
   return flag;
 }

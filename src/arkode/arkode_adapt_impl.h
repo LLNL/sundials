@@ -100,7 +100,7 @@ typedef struct ARKodeHAdaptMemRec
   long int nst_acc; /* num accuracy-limited internal steps        */
   long int nst_exp; /* num stability-limited internal steps       */
 
-}* ARKodeHAdaptMem;
+} * ARKodeHAdaptMem;
 
 /*===============================================================
   ARKODE Time Step Adaptivity Routines

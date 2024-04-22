@@ -68,7 +68,7 @@ typedef struct
   sunindextype N; /* number of intervals   */
   sunrealtype dx; /* mesh spacing          */
   sunrealtype k;  /* diffusion coefficient */
-}* UserData;
+} * UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
@@ -138,7 +138,7 @@ int main(void)
   flag = ARKodeSetMaxNumSteps(arkode_mem, 10000); /* Increase max num steps  */
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
   flag = ARKodeSetPredictorMethod(arkode_mem,
-                                   1); /* Specify maximum-order predictor */
+                                  1); /* Specify maximum-order predictor */
   if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) { return 1; }
   flag = ARKodeSStolerances(arkode_mem, rtol, atol); /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
@@ -241,11 +241,11 @@ int main(void)
   printf("   Total number of error test failures = %li\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy(y);            /* Free vectors */
-  free(udata);              /* Free user data */
-  ARKodeFree(&arkode_mem);  /* Free integrator memory */
-  SUNLinSolFree(LS);        /* Free linear solver */
-  SUNContext_Free(&ctx);    /* Free context */
+  N_VDestroy(y);           /* Free vectors */
+  free(udata);             /* Free user data */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  SUNLinSolFree(LS);       /* Free linear solver */
+  SUNContext_Free(&ctx);   /* Free context */
 
   return 0;
 }
@@ -285,7 +285,8 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   c2      = -SUN_RCONST(2.0) * k / dx / dx;
   isource = N / 2;
 
-#pragma omp target map(to : c1, c2, isource, N, dx) is_device_ptr(Ydot, Y) \
+#pragma omp target map(to                                               \
+                       : c1, c2, isource, N, dx) is_device_ptr(Ydot, Y) \
   device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
   for (i = 1; i < N - 1; i++)

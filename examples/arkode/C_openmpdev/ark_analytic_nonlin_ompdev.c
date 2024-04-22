@@ -151,9 +151,9 @@ int main(void)
   printf("   Total number of error test failures = %li\n\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy(y);            /* Free y vector */
-  ARKodeFree(&arkode_mem);  /* Free integrator memory */
-  SUNContext_Free(&ctx);    /* Free context */
+  N_VDestroy(y);           /* Free y vector */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  SUNContext_Free(&ctx);   /* Free context */
 
   return 0;
 }

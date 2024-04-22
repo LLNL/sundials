@@ -123,7 +123,6 @@ SUNDIALS_EXPORT int ARKodeSetMassTimes(void* arkode_mem,
                                        void* mtimes_data);
 SUNDIALS_EXPORT int ARKodeSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys);
 
-
 #ifdef __cplusplus
 }
 #endif

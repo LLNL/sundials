@@ -54,10 +54,7 @@ int MRIStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
   return (ARKodeGetDky(arkode_mem, t, k, dky));
 }
 
-void MRIStepFree(void** arkode_mem)
-{
-  ARKodeFree(arkode_mem);
-}
+void MRIStepFree(void** arkode_mem) { ARKodeFree(arkode_mem); }
 
 void MRIStepPrintMem(void* arkode_mem, FILE* outfile)
 {
@@ -340,8 +337,8 @@ int MRIStepGetNonlinearSystemData(void* arkode_mem, sunrealtype* tcur,
                                   sunrealtype* gamma, N_Vector* sdata,
                                   void** user_data)
 {
-  return (ARKodeGetNonlinearSystemData(arkode_mem, tcur, zpred, z, Fi,
-                                       gamma, sdata, user_data));
+  return (ARKodeGetNonlinearSystemData(arkode_mem, tcur, zpred, z, Fi, gamma,
+                                       sdata, user_data));
 }
 
 int MRIStepGetNumStepSolveFails(void* arkode_mem, long int* nncfails)
@@ -1268,7 +1265,10 @@ int mriStep_WriteParameters(void* arkode_mem, FILE* fp)
   {
     fprintf(fp, "  ImEx slow time scale\n");
   }
-  else if (step_mem->implicit_rhs) { fprintf(fp, "  Implicit slow time scale\n"); }
+  else if (step_mem->implicit_rhs)
+  {
+    fprintf(fp, "  Implicit slow time scale\n");
+  }
   else { fprintf(fp, "  Explicit slow time scale\n"); }
 
   if (step_mem->implicit_rhs)

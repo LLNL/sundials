@@ -107,7 +107,7 @@ typedef struct
   FILE* VFID;
   FILE* WFID;
   char* outputdir;
-}* UserOptions;
+} * UserOptions;
 
 /*
  * User data structure
@@ -160,7 +160,7 @@ typedef struct
 
   /* integrator options */
   UserOptions uopt;
-}* UserData;
+} * UserData;
 
 /*
  * Definitions for a custom task local SUNNonlinearSolver
@@ -173,7 +173,7 @@ typedef struct
   long int ncnf;
   MPI_Comm comm;
   SUNNonlinearSolver local_nls;
-}* TaskLocalNewton_Content;
+} * TaskLocalNewton_Content;
 
 /* Content accessor macors */
 #define GET_NLS_CONTENT(NLS) ((TaskLocalNewton_Content)(NLS->content))

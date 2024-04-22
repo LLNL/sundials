@@ -197,7 +197,7 @@ typedef struct
   N_Vector tmp;
   N_Vector rewt;
   void* arkode_mem;
-}* WebData;
+} * WebData;
 
 /* Private Helper Functions */
 

@@ -54,10 +54,7 @@ int SPRKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
   return (ARKodeGetDky(arkode_mem, t, k, dky));
 }
 
-void SPRKStepFree(void** arkode_mem)
-{
-  ARKodeFree(arkode_mem);
-}
+void SPRKStepFree(void** arkode_mem) { ARKodeFree(arkode_mem); }
 
 void SPRKStepPrintMem(void* arkode_mem, FILE* outfile)
 {
@@ -252,7 +249,7 @@ int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
 
   if (onoff)
   {
-    retval = ARKodeSetUseCompensatedSums(arkode_mem, SUNTRUE);
+    retval        = ARKodeSetUseCompensatedSums(arkode_mem, SUNTRUE);
     ark_mem->step = sprkStep_TakeStep_Compensated;
     if (!step_mem->yerr)
     {
@@ -264,7 +261,7 @@ int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
   }
   else
   {
-    retval = ARKodeSetUseCompensatedSums(arkode_mem, SUNFALSE);
+    retval        = ARKodeSetUseCompensatedSums(arkode_mem, SUNFALSE);
     ark_mem->step = sprkStep_TakeStep;
   }
 

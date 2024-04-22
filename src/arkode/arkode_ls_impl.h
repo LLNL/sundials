@@ -124,7 +124,7 @@ typedef struct ARKLsMemRec
 
   int last_flag; /* last error flag returned by any function */
 
-}* ARKLsMem;
+} * ARKLsMem;
 
 /*---------------------------------------------------------------
   Types: ARKLsMassMemRec, ARKLsMassMem
@@ -184,7 +184,7 @@ typedef struct ARKLsMassMemRec
 
   int last_flag; /* last error flag returned by any function    */
 
-}* ARKLsMassMem;
+} * ARKLsMassMem;
 
 /*---------------------------------------------------------------
   Prototypes of internal functions
@@ -262,7 +262,6 @@ int arkLSSetUserData(void* arkode_mem, void* user_data);
 int arkLSSetMassUserData(void* arkode_mem, void* user_data);
 
 int arkLSGetCurrentMassMatrix(void* arkode_mem, SUNMatrix* M);
-
 
 /*---------------------------------------------------------------
   Error Messages

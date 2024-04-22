@@ -83,7 +83,7 @@ typedef struct
   sunrealtype dv; /* diffusion coeff for v    */
   sunrealtype dw; /* diffusion coeff for w    */
   sunrealtype ep; /* stiffness parameter      */
-}* UserData;
+} * UserData;
 
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 
   /* general problem variables */
   int flag;              /* reusable error-checking flag */
-  N_Vector y = NULL;     /* empty vector for storing solution */
+  N_Vector y     = NULL; /* empty vector for storing solution */
   N_Vector umask = NULL; /* empty mask vectors for viewing solution components */
   N_Vector vmask     = NULL;
   N_Vector wmask     = NULL;
@@ -344,11 +344,11 @@ int main(int argc, char* argv[])
   printf("   Total number of error test failures = %li\n\n", netf);
 
   /* Clean up and return with successful completion */
-  free(udata);              /* Free user data */
-  ARKodeFree(&arkode_mem);  /* Free integrator memory */
-  SUNLinSolFree(LS);        /* Free linear solver */
-  SUNMatDestroy(A);         /* Free matrix */
-  N_VDestroy(y);            /* Free vectors */
+  free(udata);             /* Free user data */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  SUNLinSolFree(LS);       /* Free linear solver */
+  SUNMatDestroy(A);        /* Free matrix */
+  N_VDestroy(y);           /* Free vectors */
   N_VDestroy(umask);
   N_VDestroy(vmask);
   N_VDestroy(wmask);
@@ -391,7 +391,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   vconst = dv / dx / dx;
   wconst = dw / dx / dx;
 #pragma omp parallel for default(shared) private(i, u, ul, ur, v, vl, vr, w, \
-                                                   wl, wr) schedule(static)  \
+                                                 wl, wr) schedule(static)    \
   num_threads(udata->nthreads)
   for (i = 1; i < N - 1; i++)
   {

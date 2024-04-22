@@ -91,20 +91,20 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
   memset(step_mem, 0, sizeof(struct ARKodeERKStepMemRec));
 
   /* Attach step_mem structure and function pointers to ark_mem */
-  ark_mem->step_init = erkStep_Init;
-  ark_mem->step_fullrhs = erkStep_FullRHS;
-  ark_mem->step = erkStep_TakeStep;
-  ark_mem->step_printallstats = erkStep_PrintAllStats;
-  ark_mem->step_writeparameters = erkStep_WriteParameters;
-  ark_mem->step_resize = erkStep_Resize;
-  ark_mem->step_free = erkStep_Free;
-  ark_mem->step_printmem = erkStep_PrintMem;
-  ark_mem->step_setdefaults = erkStep_SetDefaults;
-  ark_mem->step_setrelaxfn = erkStep_SetRelaxFn;
-  ark_mem->step_setorder = erkStep_SetOrder;
-  ark_mem->step_supports_adaptive = SUNTRUE;
+  ark_mem->step_init                = erkStep_Init;
+  ark_mem->step_fullrhs             = erkStep_FullRHS;
+  ark_mem->step                     = erkStep_TakeStep;
+  ark_mem->step_printallstats       = erkStep_PrintAllStats;
+  ark_mem->step_writeparameters     = erkStep_WriteParameters;
+  ark_mem->step_resize              = erkStep_Resize;
+  ark_mem->step_free                = erkStep_Free;
+  ark_mem->step_printmem            = erkStep_PrintMem;
+  ark_mem->step_setdefaults         = erkStep_SetDefaults;
+  ark_mem->step_setrelaxfn          = erkStep_SetRelaxFn;
+  ark_mem->step_setorder            = erkStep_SetOrder;
+  ark_mem->step_supports_adaptive   = SUNTRUE;
   ark_mem->step_supports_relaxation = SUNTRUE;
-  ark_mem->step_mem = (void*)step_mem;
+  ark_mem->step_mem                 = (void*)step_mem;
 
   /* Set default values for optional inputs */
   retval = erkStep_SetDefaults((void*)ark_mem);

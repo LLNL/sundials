@@ -402,10 +402,7 @@ int ARKodeReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
   }
 
   /* Call stepper routine to perform remaining reset operations (if provided) */
-  if (ark_mem->step_reset)
-  {
-    return (ark_mem->step_reset(arkode_mem, tR, yR));
-  }
+  if (ark_mem->step_reset) { return (ark_mem->step_reset(arkode_mem, tR, yR)); }
 
   return (ARK_SUCCESS);
 }
@@ -614,8 +611,8 @@ int ARKodeResStolerance(void* arkode_mem, sunrealtype rabstol)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -679,8 +676,8 @@ int ARKodeResVtolerance(void* arkode_mem, N_Vector rabstol)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -764,8 +761,8 @@ int ARKodeResFtolerance(void* arkode_mem, ARKRwtFn rfun)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }
 
@@ -1359,10 +1356,7 @@ void ARKodeFree(void** arkode_mem)
   ark_mem = (ARKodeMem)(*arkode_mem);
 
   /* free the time-stepper module memory (if provided) */
-  if (ark_mem->step_free)
-  {
-    ark_mem->step_free(*arkode_mem);
-  }
+  if (ark_mem->step_free) { ark_mem->step_free(*arkode_mem); }
 
   /* free vector storage */
   arkFreeVectors(ark_mem);
@@ -1741,10 +1735,7 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
 #endif
 
   /* Call stepper PrintMem function (if provided) */
-  if (ark_mem->step_printmem)
-  {
-    ark_mem->step_printmem(arkode_mem, outfile);
-  }
+  if (ark_mem->step_printmem) { ark_mem->step_printmem(arkode_mem, outfile); }
 }
 
 /*---------------------------------------------------------------
