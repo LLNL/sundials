@@ -210,7 +210,7 @@ SUNErrCode SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
           Kokkos::subview(y_data,
                           Kokkos::pair<size_type, size_type>(idx * rows,
                                                              (idx + 1) * rows));
-        KokkosBatched::TeamVectorGemv<
+        KokkosBlas::TeamVectorGemv<
           member_type, KokkosBatched::Trans::NoTranspose,
           KokkosBatched::Algo::Gemv::Unblocked>::invoke(team_member,
                                                         SUN_RCONST(1.0),
