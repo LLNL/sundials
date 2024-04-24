@@ -22,3 +22,5 @@ with the Cray Fortran compiler.
 
 Fixed a bug where :c:func:`MRIStepEvolve` would not handle a recoverable error
 produced from evolving the inner stepper.
+
+Added support for Kokkos Kernels v4.

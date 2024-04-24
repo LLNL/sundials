@@ -24,6 +24,8 @@ Added CMake infrastructure that enables externally maintained addons/plugins
 to be *optionally* built with SUNDIALS. See the [Contributing Guide](./CONTRIBUTING.md)
 for more details.
 
+Added support for Kokkos Kernels v4.
+
 ## Changes to SUNDIALS in release v7.0.0
 
 ### Major Feature
