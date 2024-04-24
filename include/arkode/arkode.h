@@ -221,7 +221,6 @@ SUNDIALS_EXPORT int ARKodeSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int ARKodeSetOrder(void* arkode_mem, int maxord);
 SUNDIALS_EXPORT int ARKodeSetInterpolantType(void* arkode_mem, int itype);
 SUNDIALS_EXPORT int ARKodeSetInterpolantDegree(void* arkode_mem, int degree);
-SUNDIALS_EXPORT int ARKodeSetDenseOrder(void* arkode_mem, int dord);
 SUNDIALS_EXPORT int ARKodeSetNonlinearSolver(void* arkode_mem,
                                              SUNNonlinearSolver NLS);
 SUNDIALS_EXPORT int ARKodeSetLinear(void* arkode_mem, int timedepend);

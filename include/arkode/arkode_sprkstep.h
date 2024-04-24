@@ -60,8 +60,8 @@ int SPRKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g);
 /* Optional input functions -- must be called AFTER SPRKStepCreate */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetDefaults instead")
 int SPRKStepSetDefaults(void* arkode_mem);
-SUNDIALS_EXPORT int SPRKStepSetUseCompensatedSums(void* arkode_mem,
-                                                  sunbooleantype onoff);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetUseCompensatedSums instead")
+int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff);
 SUNDIALS_EXPORT int SPRKStepSetMethod(void* arkode_mem,
                                       ARKodeSPRKTable sprk_storage);
 SUNDIALS_EXPORT int SPRKStepSetMethodName(void* arkode_mem, const char* method);

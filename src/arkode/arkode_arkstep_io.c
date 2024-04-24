@@ -97,7 +97,7 @@ int ARKStepResFtolerance(void* arkode_mem, ARKRwtFn rfun)
 
 int ARKStepSetDenseOrder(void* arkode_mem, int dord)
 {
-  return (ARKodeSetDenseOrder(arkode_mem, dord));
+  return (ARKodeSetInterpolantDegree(arkode_mem, dord));
 }
 
 int ARKStepSetInterpolantDegree(void* arkode_mem, int degree)

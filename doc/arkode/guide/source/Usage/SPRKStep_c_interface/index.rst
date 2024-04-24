@@ -16,30 +16,20 @@
 Using the SPRKStep time-stepping module
 ==========================================
 
-This chapter is concerned with the use of the SPRKStep time-stepping module for
-the solution of initial value problems (IVPs) of the form
-:eq:`ARKODE_IVP_SPRK` in a C or C++ language setting. The following sections
-discuss the header files and the layout of the user's main program, and provide
-descriptions of the SPRKStep user-callable functions and user-supplied functions.
+This section is concerned with the use of the SPRKStep time-stepping
+module for the solution of initial value problems (IVPs) in a C or C++
+language setting.  Usage of SPRKStep follows that of the rest of ARKODE,
+and so in this section we primarily focus on those usage aspects that
+are specific to SPRKStep.
 
-The example programs located in the source code ``examples/arkode`` folder, may
-be helpful as templates for new codes. In particular,
+We note that of the ARKODE example programs located in the source code
+``examples/arkode`` folder, the following demonstrate ``SPRKStep`` usage:
 
 * ``examples/arkode/C_serial/ark_harmonic_symplectic.c``
 * ``examples/arkode/C_serial/ark_damped_harmonic_symplectic.c``, and
 * ``examples/arkode/C_serial/ark_kepler.c``
 
-demonstrate ``SPRKStep`` usage.
-
-SPRKStep uses the input and output constants from the shared ARKODE infrastructure.
-These are defined as needed in this chapter, but for convenience the full list is
-provided separately in :numref:`ARKODE.Constants`.
-
-The relevant information on using SPRKStep's C and C++ interfaces is
-detailed in the following subsections.
-
 .. toctree::
    :maxdepth: 1
 
-   Skeleton
    User_callable

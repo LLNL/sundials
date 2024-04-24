@@ -116,7 +116,6 @@ module farkode_mod
  public :: FARKodeSetOrder
  public :: FARKodeSetInterpolantType
  public :: FARKodeSetInterpolantDegree
- public :: FARKodeSetDenseOrder
  public :: FARKodeSetNonlinearSolver
  public :: FARKodeSetLinear
  public :: FARKodeSetNonlinear
@@ -583,15 +582,6 @@ end function
 
 function swigc_FARKodeSetInterpolantDegree(farg1, farg2) &
 bind(C, name="_wrap_FARKodeSetInterpolantDegree") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetDenseOrder(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetDenseOrder") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2606,22 +2596,6 @@ integer(C_INT) :: farg2
 farg1 = arkode_mem
 farg2 = degree
 fresult = swigc_FARKodeSetInterpolantDegree(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetDenseOrder(arkode_mem, dord) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: dord
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = dord
-fresult = swigc_FARKodeSetDenseOrder(farg1, farg2)
 swig_result = fresult
 end function
 

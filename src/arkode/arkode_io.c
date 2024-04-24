@@ -259,25 +259,6 @@ int ARKodeSetInterpolantDegree(void* arkode_mem, int degree)
 }
 
 /*---------------------------------------------------------------
-  ARKodeSetDenseOrder:
-
-  Specifies the polynomial degree for the dense output
-  interpolation module.
-
-  Return values:
-     ARK_SUCCESS on success.
-     ARK_MEM_NULL on NULL-valued arkode_mem input or nonexistent
-       interpolation module.
-     ARK_INTERP_FAIL if the interpolation module is already
-       initialized.
-     ARK_ILL_INPUT if the degree is illegal.
-  ---------------------------------------------------------------*/
-int ARKodeSetDenseOrder(void* arkode_mem, int degree)
-{
-  return (ARKodeSetInterpolantDegree(arkode_mem, degree));
-}
-
-/*---------------------------------------------------------------
   ARKodeSetNonlinearSolver:
 
   This routine attaches a SUNNonlinearSolver object to the

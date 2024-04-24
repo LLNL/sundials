@@ -15,22 +15,13 @@
 SPRKStep User-callable functions
 ==================================
 
-This section describes the functions that are called by the
-user to setup and then solve an IVP using the SPRKStep time-stepping
-module. Some of these are required; however, starting with
-:numref:`ARKODE.Usage.SPRKStep.OptionalInputs`, the functions listed involve
-optional inputs/outputs or restarting, and those paragraphs may be
-skipped for a casual use of ARKODE's SPRKStep module. In any case,
-refer to the preceding section, :numref:`ARKODE.Usage.SPRKStep.Skeleton`,
-for the correct order of these calls.
-
-On an error, each user-callable function returns a negative value  (or
-``NULL`` if the function returns a pointer) and sends an error message
-to the error handler routine, which prints the message to ``stderr``
-by default. However, the user can set a file as error output or can
-provide their own error handler function (see
-:numref:`ARKODE.Usage.SPRKStep.OptionalInputs` for details).
-
+This section describes the SPRKStep-specific functions that may be called
+by the user to setup and then solve an IVP using the SPRKStep time-stepping
+module. The large majority of these routines merely wrap :ref:`underlying
+ARKODE functions <ARKODE.Usage.UserCallable>`, and will be deprecated in an
+upcoming release -- each of these are clearly marked below.  However, some
+of these user-callable functions are specific to SPRKStep, and are explained
+below.
 
 
 .. _ARKODE.Usage.SPRKStep.Initialization:
@@ -72,25 +63,15 @@ SPRKStep initialization and deallocation functions
 
    :param arkode_mem: pointer to the SPRKStep memory block.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeFree` instead.
+
 
 .. _ARKODE.Usage.SPRKStep.RootFinding:
 
 Rootfinding initialization function
 --------------------------------------
-
-As described in :numref:`ARKODE.Mathematics.Rootfinding`, while
-solving the IVP, ARKODE's time-stepping modules have the capability to
-find the roots of a set of user-defined functions.  To activate the
-root-finding algorithm, call the following function.  This is normally
-called only once, prior to the first call to
-:c:func:`SPRKStepEvolve()`, but if the rootfinding problem is to be
-changed during the solution, :c:func:`SPRKStepRootInit()` can also be
-called prior to a continuation call to :c:func:`SPRKStepEvolve()`.
-
-.. note::
-
-   The solution is interpolated to the times at which roots are found.
-
 
 .. c:function:: int SPRKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
 
@@ -116,19 +97,15 @@ called prior to a continuation call to :c:func:`SPRKStepEvolve()`.
    :retval ARK_MEM_FAIL: if there was a memory allocation failure
    :retval ARK_ILL_INPUT: if *nrtfn* is greater than zero but *g* = ``NULL``.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeRootInit` instead.
+
 
 .. _ARKODE.Usage.SPRKStep.Integration:
 
 SPRKStep solver function
 -------------------------
-
-This is the central step in the solution process -- the call to perform
-the integration of the IVP.  One of the input arguments (*itask*)
-specifies one of two modes as to where SPRKStep is to return a
-solution.  These modes are modified if the user has set a stop time
-(with a call to the optional input function :c:func:`SPRKStepSetStopTime()`) or
-has requested rootfinding.
-
 
 
 .. c:function:: int SPRKStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout, sunrealtype *tret, int itask)
@@ -215,6 +192,10 @@ has requested rootfinding.
       On all other error returns, *tret* and *yout* are left unchanged
       from those provided to the routine.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeEvolve` instead.
+
 
 
 
@@ -222,34 +203,6 @@ has requested rootfinding.
 
 Optional input functions
 -------------------------
-
-There are numerous optional input parameters that control the behavior
-of SPRKStep, each of which may be modified from its default value through
-calling an appropriate input function.  The following tables list all
-optional input functions, grouped by which aspect of SPRKStep they control.
-Detailed information on the calling syntax and arguments for each
-function are then provided following each table.
-
-The optional inputs are grouped into the following categories:
-
-* General SPRKStep options (:numref:`ARKODE.Usage.SPRKStep.SPRKStepInputTable`),
-
-* IVP method solver options (:numref:`ARKODE.Usage.SPRKStep.SPRKStepMethodInputTable`),
-
-* Rootfinding options (:numref:`ARKODE.Usage.SPRKStep.SPRKStepRootfindingInputTable`).
-
-For the most casual use of SPRKStep, relying on the default set of
-solver parameters, the reader can skip to section on user-supplied
-functions, :numref:`ARKODE.Usage.UserSupplied`.
-
-We note that, on an error return, all of the optional input functions send an
-error message to the error handler function. All error return values are
-negative, so a test on the return arguments for negative values will catch all
-errors. Finally, a call to a ``SPRKStepSet***`` function can generally be made
-from the user's calling program at any time and, if successful, takes effect
-immediately. For ``SPRKStepSet***`` functions that cannot be called at any time,
-this is explicitly noted in the function documentation.
-
 
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepInput:
@@ -259,26 +212,6 @@ Optional inputs for SPRKStep
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepInputTable:
 .. table:: Optional inputs for SPRKStep
-
-  +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Optional input                                      | Function name                            | Default                |
-  +=====================================================+==========================================+========================+
-  | Return SPRKStep solver parameters to their defaults | :c:func:`SPRKStepSetDefaults()`          | internal               |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Set dense output interpolation type                 | :c:func:`SPRKStepSetInterpolantType()`   | ``ARK_INTERP_LAGRANGE``|
-  +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Set dense output polynomial degree                  | :c:func:`SPRKStepSetInterpolantDegree()` | 5                      |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Set fixed step size (required user input)           | :c:func:`SPRKStepSetFixedStep()`         | user defined           |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Maximum no. of internal steps before *tout*         | :c:func:`SPRKStepSetMaxNumSteps()`       | 500                    |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Set a value for :math:`t_{stop}`                    | :c:func:`SPRKStepSetStopTime()`          | undefined              |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Disable the stop time                               | :c:func:`SPRKStepClearStopTime`          | N/A                    |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
-  | Supply a pointer for user data                      | :c:func:`SPRKStepSetUserData()`          | ``NULL``               |
-  +-----------------------------------------------------+------------------------------------------+------------------------+
 
 
 .. c:function:: int SPRKStepSetDefaults(void* arkode_mem)
@@ -299,6 +232,10 @@ Optional inputs for SPRKStep
 
       Also leaves alone any data structures or options related to
       root-finding (those can be reset using :c:func:`SPRKStepRootInit()`).
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetDefaults` instead.
 
 
 .. c:function:: int SPRKStepSetInterpolantType(void* arkode_mem, int itype)
@@ -336,6 +273,9 @@ Optional inputs for SPRKStep
       has shown that Lagrange interpolation typically performs well in this
       regard, while Hermite interpolation does not.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetInterpolantType` instead.
 
 
 .. c:function:: int SPRKStepSetInterpolantDegree(void* arkode_mem, int degree)
@@ -372,6 +312,10 @@ Optional inputs for SPRKStep
       When `q = 1`, a linear interpolant is the default to ensure values
       obtained by the integrator are returned at the ends of the time interval.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetInterpolantDegree` instead.
+
 
 .. c:function:: int SPRKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed)
 
@@ -383,6 +327,10 @@ Optional inputs for SPRKStep
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetFixedStep` instead.
 
 
 .. c:function:: int SPRKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps)
@@ -402,6 +350,10 @@ Optional inputs for SPRKStep
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetMaxNumSteps` instead.
 
 
 .. c:function:: int SPRKStepSetStopTime(void* arkode_mem, sunrealtype tstop)
@@ -426,6 +378,10 @@ Optional inputs for SPRKStep
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetStopTime` instead.
+
 
 .. c:function:: int SPRKStepClearStopTime(void* arkode_mem)
 
@@ -438,6 +394,10 @@ Optional inputs for SPRKStep
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeClearStopTime` instead.
 
 
 .. c:function:: int SPRKStepSetUserData(void* arkode_mem, void* user_data)
@@ -455,6 +415,10 @@ Optional inputs for SPRKStep
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetUserData` instead.
 
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepMethodInput:
@@ -501,6 +465,10 @@ Optional inputs for IVP method selection
       This overrides any previously set method so it should not be used with
       :c:func:`SPRKStepSetMethod` or :c:func:`SPRKStepSetMethodName`.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetOrder` instead.
+
 
 .. c:function:: int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKTable sprk_table)
 
@@ -518,6 +486,10 @@ Optional inputs for IVP method selection
       No error checking is performed on the coefficients contained in the
       table to ensure its declared order of accuracy.
 
+   .. warning::
+
+      This should not be used with :c:func:`ARKodeSetOrder`.
+
 
 .. c:function:: int SPRKStepSetMethodName(void* arkode_mem, const char* method)
 
@@ -529,6 +501,10 @@ Optional inputs for IVP method selection
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
+
+   .. warning::
+
+      This should not be used with :c:func:`ARKodeSetOrder`.
 
 
 .. c:function:: int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
@@ -548,29 +524,16 @@ Optional inputs for IVP method selection
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetUseCompensatedSums` instead.
+
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepRootfindingInput:
 
 
 Rootfinding optional input functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The following functions can be called to set optional inputs to
-control the rootfinding algorithm, the mathematics of which are
-described in :numref:`ARKODE.Mathematics.Rootfinding`.
-
-
-.. _ARKODE.Usage.SPRKStep.SPRKStepRootfindingInputTable:
-.. table:: Rootfinding optional input functions
-
-   +-----------------------------------------+-------------------------------------------+----------+
-   | Optional input                          | Function name                             | Default  |
-   +=========================================+===========================================+==========+
-   | Direction of zero-crossings to monitor  | :c:func:`SPRKStepSetRootDirection()`      | both     |
-   +-----------------------------------------+-------------------------------------------+----------+
-   | Disable inactive root warnings          | :c:func:`SPRKStepSetNoInactiveRootWarn()` | enabled  |
-   +-----------------------------------------+-------------------------------------------+----------+
-
 
 
 .. c:function:: int SPRKStepSetRootDirection(void* arkode_mem, int* rootdir)
@@ -592,6 +555,10 @@ described in :numref:`ARKODE.Mathematics.Rootfinding`.
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetRootDirection` instead.
+
 
 .. c:function:: int SPRKStepSetNoInactiveRootWarn(void* arkode_mem)
 
@@ -610,21 +577,15 @@ described in :numref:`ARKODE.Mathematics.Rootfinding`.
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetNoInactiveRootWarn` instead.
+
 
 .. _ARKODE.Usage.SPRKStep.InterpolatedOutput:
 
 Interpolated output function
 --------------------------------
-
-An optional function :c:func:`SPRKStepGetDky()` is available to obtain
-additional values of solution-related quantities.  This function
-should only be called after a successful return from
-:c:func:`SPRKStepEvolve()`, as it provides interpolated values either of
-:math:`y` or of its derivatives.
-interpolated to any value of :math:`t` in the last internal step taken
-by :c:func:`SPRKStepEvolve()`.
-
-
 
 .. c:function:: int SPRKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
 
@@ -666,83 +627,21 @@ by :c:func:`SPRKStepEvolve()`.
       It is only legal to call this function after a successful
       return from :c:func:`SPRKStepEvolve()`.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetDky` instead.
+
 
 .. _ARKODE.Usage.SPRKStep.OptionalOutputs:
 
 Optional output functions
 ------------------------------
 
-SPRKStep provides an extensive set of functions that can be used to
-obtain solver performance information.  We organize these into groups:
-
-#. General SPRKStep output routines are in
-   :numref:`ARKODE.Usage.SPRKStep.SPRKStepMainOutputs`,
-
-#. Output routines regarding root-finding results are in
-   :numref:`ARKODE.Usage.SPRKStep.SPRKStepRootOutputs`,
-
-#. General usability routines (e.g. to print the current SPRKStep
-   parameters, or output the current Butcher tables) are in
-   :numref:`ARKODE.Usage.SPRKStep.SPRKStepExtraOutputs`.
-
-Following each table, we elaborate on each function.
-
-Some of the optional outputs, especially the various counters, can be
-very useful in determining the efficiency of various methods inside
-SPRKStep.  For example:
-
-* The counters *nsteps* and *nf_evals* provide a rough measure of the
-  overall cost of a given run, and can be compared between runs with
-  different solver options to suggest which set of options is the most
-  efficient.
-
-.. * The ratio *nsteps/step_attempts* can measure the quality of the
-..   time step adaptivity algorithm, since a poor algorithm will result
-..   in more failed steps, and hence a lower ratio.
-
-It is therefore recommended that users retrieve and output these
-statistics following each run, and take some time to investigate
-alternate solver options that will be more optimal for their
-particular problem of interest.
-
-
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepMainOutputs:
 
 Main solver optional output functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. _ARKODE.Usage.SPRKStep.SPRKStepMainOutputsTable:
-.. table:: Main solver optional output functions
-
-  +-----------------------------------------------------+--------------------------------------------+
-  | Optional output                                     | Function name                              |
-  +=====================================================+============================================+
-  | Cumulative number of internal steps                 | :c:func:`SPRKStepGetNumSteps`              |
-  +-----------------------------------------------------+--------------------------------------------+
-  | Step size used for the last successful step         | :c:func:`SPRKStepGetLastStep`              |
-  +-----------------------------------------------------+--------------------------------------------+
-  | Step size to be attempted on the next step          | :c:func:`SPRKStepGetCurrentStep`           |
-  +-----------------------------------------------------+--------------------------------------------+
-  | Current internal time reached by the solver         | :c:func:`SPRKStepGetCurrentTime`           |
-  +-----------------------------------------------------+--------------------------------------------+
-  | Current internal state reached by the solver        | :c:func:`SPRKStepGetCurrentState`          |
-  +-----------------------------------------------------+--------------------------------------------+
-  | Single accessor to many statistics at once          | :c:func:`SPRKStepGetStepStats`             |
-  +-----------------------------------------------------+--------------------------------------------+
-  | Print all statistics                                | :c:func:`SPRKStepPrintAllStats`            |
-  +-----------------------------------------------------+--------------------------------------------+
-  | Name of constant associated with a return flag      | :c:func:`SPRKStepGetReturnFlagName`        |
-  +-----------------------------------------------------+--------------------------------------------+
-  | No. of attempted steps                              | :c:func:`SPRKStepGetNumStepAttempts`       |
-  +-----------------------------------------------------+--------------------------------------------+
-  | No. of calls to right-hand side functions           | :c:func:`SPRKStepGetNumRhsEvals`           |
-  +-----------------------------------------------------+--------------------------------------------+
-  | Current method table                                | :c:func:`SPRKStepGetCurrentMethod`         |
-  +-----------------------------------------------------+--------------------------------------------+
-  | Retrieve a pointer for user data                    | :c:func:`SPRKStepGetUserData`              |
-  +-----------------------------------------------------+--------------------------------------------+
-
 
 
 .. c:function:: int SPRKStepGetNumSteps(void* arkode_mem, long int* nsteps)
@@ -756,6 +655,10 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumSteps` instead.
+
 
 .. c:function:: int SPRKStepGetLastStep(void* arkode_mem, sunrealtype* hlast)
 
@@ -768,6 +671,10 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetLastStep` instead.
+
 
 .. c:function:: int SPRKStepGetCurrentStep(void* arkode_mem, sunrealtype* hcur)
 
@@ -779,6 +686,10 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetCurrentStep` instead.
+
 
 .. c:function:: int SPRKStepGetCurrentTime(void* arkode_mem, sunrealtype* tcur)
 
@@ -789,6 +700,10 @@ Main solver optional output functions
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetCurrentTime` instead.
 
 
 .. c:function:: int SPRKStepGetCurrentState(void *arkode_mem, N_Vector *ycur)
@@ -807,6 +722,10 @@ Main solver optional output functions
       as altering values of *ycur* may lead to undesirable behavior, depending
       on the particular use case and on when this routine is called.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetCurrentState` instead.
+
 
 .. c:function:: int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused, sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur)
 
@@ -821,6 +740,10 @@ Main solver optional output functions
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetStepStats` instead.
 
 
 .. c:function:: int SPRKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
@@ -845,6 +768,9 @@ Main solver optional output functions
       read and output the data from a SUNDIALS CSV output file using the key
       and value pair format.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodePrintAllStats` instead.
 
 
 .. c:function:: char *SPRKStepGetReturnFlagName(long int flag)
@@ -857,6 +783,10 @@ Main solver optional output functions
    :returns: The return value is a string containing the name of the
              corresponding constant.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetReturnFlagName` instead.
+
 
 .. c:function:: int SPRKStepGetNumStepAttempts(void* arkode_mem, long int* step_attempts)
 
@@ -867,6 +797,10 @@ Main solver optional output functions
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumStepAttempts` instead.
 
 
 .. c:function:: int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
@@ -905,25 +839,15 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the ARKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetUserData` instead.
+
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepRootOutputs:
 
 Rootfinding optional output functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-.. _ARKODE.Usage.SPRKStep.SPRKStepRootOutputsTable:
-.. table:: Rootfinding optional output functions
-
-   +--------------------------------------------------+---------------------------------+
-   | Optional output                                  | Function name                   |
-   +==================================================+=================================+
-   | Array showing roots found                        | :c:func:`SPRKStepGetRootInfo()` |
-   +--------------------------------------------------+---------------------------------+
-   | No. of calls to user root function               | :c:func:`SPRKStepGetNumGEvals()`|
-   +--------------------------------------------------+---------------------------------+
-
-
 
 .. c:function:: int SPRKStepGetRootInfo(void* arkode_mem, int* rootsfound)
 
@@ -947,6 +871,10 @@ Rootfinding optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetRootInfo` instead.
+
 
 .. c:function:: int SPRKStepGetNumGEvals(void* arkode_mem, long int* ngevals)
 
@@ -959,27 +887,15 @@ Rootfinding optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumGEvals` instead.
+
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepExtraOutputs:
 
 General usability functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The following optional routine may be called by a user to inquire
-about existing solver parameters.  While it would not typically be called
-during the course of solving an initial value problem, it may be useful
-for users wishing to better understand SPRKStep.
-
-
-.. _ARKODE.Usage.SPRKStep.SPRKStepExtraOutputsTable:
-.. table:: General usability functions
-
-   +----------------------------------------+--------------------------------------+
-   | Optional routine                       | Function name                        |
-   +----------------------------------------+--------------------------------------+
-   | Output all SPRKStep solver parameters  | :c:func:`SPRKStepWriteParameters()`  |
-   +----------------------------------------+--------------------------------------+
-
 
 .. c:function:: int SPRKStepWriteParameters(void* arkode_mem, FILE *fp)
 
@@ -996,6 +912,10 @@ for users wishing to better understand SPRKStep.
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeWriteParameters` instead.
 
 
 .. _ARKODE.Usage.SPRKStep.Reinitialization:
@@ -1061,22 +981,6 @@ the RHS function should not incorporate the discontinuity.
 SPRKStep reset function
 -----------------------
 
-To reset the SPRKStep module to a particular state :math:`(t_R,y(t_R))` for the
-continued solution of a problem, where a prior
-call to :c:func:`SPRKStepCreate` has been made, the user must call the function
-:c:func:`SPRKStepReset()`.  Like :c:func:`SPRKStepReInit()` this routine retains
-the current settings for all SPRKStep module options and performs no memory
-allocations but, unlike :c:func:`SPRKStepReInit()`, this routine performs only a
-*subset* of the input checking and initializations that are done in
-:c:func:`SPRKStepCreate`. In particular this routine retains all internal
-counter values. Like :c:func:`SPRKStepReInit()`, a call to
-:c:func:`SPRKStepReset()` will delete any previously-set *tstop* value specified
-via a call to :c:func:`SPRKStepSetStopTime()`.  Following a successful call to
-:c:func:`SPRKStepReset()`, call :c:func:`SPRKStepEvolve()` again to continue
-solving the problem. By default the next call to :c:func:`SPRKStepEvolve()` will
-use the step size computed by SPRKStep prior to calling :c:func:`SPRKStepReset()`.
-
-
 .. c:function:: int SPRKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 
    Resets the current SPRKStep time-stepper module state to the provided
@@ -1101,3 +1005,7 @@ use the step size computed by SPRKStep prior to calling :c:func:`SPRKStepReset()
 
       By default the next call to :c:func:`SPRKStepEvolve()` will use the step
       size computed by SPRKStep prior to calling :c:func:`SPRKStepReset()`.
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeReset` instead.
