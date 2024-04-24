@@ -21,10 +21,19 @@ This section describes the ARKStep-specific functions that may be called
 by the user to setup and then solve an IVP using the ARKStep time-stepping
 module.  The large majority of these routines merely wrap :ref:`underlying
 ARKODE functions <ARKODE.Usage.UserCallable>`, and will be deprecated in an
-upcoming release -- each of these are clearly marked below.  However, some
-of these user-callable functions are specific to ARKStep, and are explained
+upcoming release -- each of these are clearly marked.  However, some
+of these user-callable functions are specific to ARKStep, as explained
 below.
 
+As discussed in the main :ref:`ARKODE user-callable function introduction
+<ARKODE.Usage.UserCallable>`, each of ARKODE's time-stepping modules
+clarifies the categories of user-callable functions that it supports.
+ARKStep supports *all categories*:
+
+* temporal adaptivity
+* implicit nonlinear and/or linear solvers
+* non-identity mass matrices
+* relaxation Runge--Kutta methods
 
 
 .. _ARKODE.Usage.ARKStep.Initialization:

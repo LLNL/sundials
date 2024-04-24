@@ -19,9 +19,16 @@ This section describes the SPRKStep-specific functions that may be called
 by the user to setup and then solve an IVP using the SPRKStep time-stepping
 module. The large majority of these routines merely wrap :ref:`underlying
 ARKODE functions <ARKODE.Usage.UserCallable>`, and will be deprecated in an
-upcoming release -- each of these are clearly marked below.  However, some
-of these user-callable functions are specific to SPRKStep, and are explained
+upcoming release -- each of these are clearly marked.  However, some
+of these user-callable functions are specific to ERKStep, as explained
 below.
+
+As discussed in the main :ref:`ARKODE user-callable function introduction
+<ARKODE.Usage.UserCallable>`, each of ARKODE's time-stepping modules
+clarifies the categories of user-callable functions that it supports.
+SPRKStep supports only the basic set of user-callable functions, and
+does not support any of the restricted groups (time adaptivity, implicit
+solvers, etc.).
 
 
 .. _ARKODE.Usage.SPRKStep.Initialization:

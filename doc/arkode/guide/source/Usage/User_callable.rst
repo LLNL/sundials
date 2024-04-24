@@ -31,6 +31,22 @@ to the error handler, which prints the message to ``stderr`` by default.
 However, the user can set a file as error output or can
 provide their own error handler (see :numref:`SUNDIALS.Errors` for details).
 
+We note that depending on the choice of time-stepping module, only a
+subset of ARKODE's user-callable functions will be applicable/supported.
+We thus categorize the functions below into five groups:
+
+A. functions that apply for all time-stepping modules,
+
+B. functions that apply for time-stepping modules that allow temporal adaptivity,
+
+C. functions that apply for time-stepping modules that utilize implicit solvers (nonlinear or linear),
+
+D. functions that apply for time-stepping modules that support non-identity mass matrices, and
+
+E. functions that apply for time-stepping modules that support relaxation Runge--Kutta methods.
+
+In the function descriptions below, we identify those that have any of the restrictions B-E above.  Then in the introduction for each of the stepper-specific documentation sections (:numref:`ARKODE.Usage.ARKStep.UserCallable`, :numref:`ARKODE.Usage.ERKStep.UserCallable`, :numref:`ARKODE.Usage.MRIStep.UserCallable`, and :numref:`ARKODE.Usage.SPRKStep.UserCallable`) we clarify the categories of these functions that are supported.
+
 
 
 .. _ARKODE.Usage.Tolerances:
@@ -417,6 +433,8 @@ pertinent to their choice of linear solver.
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       If *LS* is a matrix-free linear solver, then the *J*
       argument should be ``NULL``.
 
@@ -526,6 +544,8 @@ Newton and mass matrix systems, these must have the same type:
 
    .. note::
 
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
+
       If *LS* is a matrix-free linear solver, then the *M*
       argument should be ``NULL``.
 
@@ -596,6 +616,8 @@ function attaches the nonlinear solver to the main ARKODE integrator.
                                     the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       ARKODE will use the Newton ``SUNNonlinearSolver`` module by
       default; a call to this routine replaces that module with the
@@ -877,6 +899,7 @@ Use compensated summation                         :c:func:`ARKodeSetUseCompensat
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
    :retval ARK_ILL_INPUT: an argument had an illegal value.
+   :retval ARK_STEPPER_UNSUPPORTED: this option is not supported by the time-stepping module.
 
    .. note::
 
@@ -979,7 +1002,8 @@ Use compensated summation                         :c:func:`ARKodeSetUseCompensat
 
    .. note::
 
-      Pass 0.0 to return ARKODE to the default (adaptive-step) mode.
+      Pass 0.0 to return ARKODE to the default (adaptive-step) mode -- this is only
+      allowed when using a time-stepping module that supports temporal adaptivity.
 
       Use of this function is not generally recommended, since it gives no
       assurance of the validity of the computed solutions.  It is
@@ -1035,7 +1059,8 @@ Use compensated summation                         :c:func:`ARKodeSetUseCompensat
 
    .. note::
 
-      Pass 0.0 to use the default value.
+      Pass 0.0 to use the default value -- this is only
+      allowed when using a time-stepping module that supports temporal adaptivity.
 
       By default, ARKODE estimates the initial step size to be
       :math:`h = \sqrt{\dfrac{2}{\left\| \ddot{y}\right\|}}`, where
@@ -1064,6 +1089,8 @@ Use compensated summation                         :c:func:`ARKodeSetUseCompensat
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
 
       The default value is 10; set *mxhnil* to zero to specify
       this default.
@@ -1112,6 +1139,8 @@ Use compensated summation                         :c:func:`ARKodeSetUseCompensat
 
    .. note::
 
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
       Pass *hmax* :math:`\le 0.0` to set the default value of :math:`\infty`.
 
    .. versionadded:: x.y.z
@@ -1131,6 +1160,8 @@ Use compensated summation                         :c:func:`ARKodeSetUseCompensat
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
 
       Pass *hmin* :math:`\le 0.0` to set the default value of 0.
 
@@ -1237,6 +1268,8 @@ Use compensated summation                         :c:func:`ARKodeSetUseCompensat
 
    .. note::
 
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
       The default value is 7; set *maxnef* :math:`\le 0`
       to specify this default.
 
@@ -1269,6 +1302,8 @@ Use compensated summation                         :c:func:`ARKodeSetUseCompensat
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
 
       The presence of a non-``NULL`` constraints vector that is not 0.0
       in all components will cause constraint checking to be performed. However, a
@@ -1303,6 +1338,8 @@ Use compensated summation                         :c:func:`ARKodeSetUseCompensat
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
 
       Passing *maxfails* <= 0 results in ARKODE using the
       default value (10).
@@ -1377,7 +1414,11 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
    :retval ARK_STEPPER_UNSUPPORTED: adaptive step sizes are not supported
                                     by the current time-stepping module.
 
-   .. versionadded:: x.y.z
+   .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
+  .. versionadded:: x.y.z
 
 
 .. c:function:: int ARKodeSetAdaptivityAdjustment(void* arkode_mem, int adjust)
@@ -1397,6 +1438,8 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
 
       This should be called prior to calling :c:func:`ARKodeEvolve`, and can only be
       reset following a call to ``*StepReInit``.
@@ -1418,6 +1461,8 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
 
       Any non-positive parameter will imply a reset to the default
       value.
@@ -1441,6 +1486,8 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
 
       Any value below 1.0 will imply a reset to the default value.
 
@@ -1467,6 +1514,8 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
 
    .. note::
 
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
       Any interval *not* containing 1.0 will imply a reset to the default values.
 
    .. versionadded:: x.y.z
@@ -1490,6 +1539,8 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
 
    .. note::
 
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
 
    .. versionadded:: x.y.z
@@ -1510,6 +1561,8 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
 
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
 
@@ -1533,6 +1586,8 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
 
    .. note::
 
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
       Any value :math:`\le 1.0` will imply a reset to the default value.
 
    .. versionadded:: x.y.z
@@ -1553,6 +1608,8 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
 
       Any value :math:`\le 1.0` will imply a reset to the default
       value.
@@ -1578,6 +1635,8 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
 
    .. note::
 
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
       Any value outside the interval :math:`(0,1)` will imply a reset to
       the default value.
 
@@ -1599,6 +1658,8 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
 
       Any value :math:`\le 0` will imply a reset to the default
       value.
@@ -1623,6 +1684,8 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
 
    .. note::
 
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
       Any value :math:`\le 0` will imply a reset to the default value.
 
    .. versionadded:: x.y.z
@@ -1645,6 +1708,8 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
 
       This function should return an estimate of the absolute
       value of the maximum stable time step for the explicit portion of
@@ -1705,6 +1770,8 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       Tightens the linear solver tolerances and takes only a
       single Newton iteration.  Calls :c:func:`ARKodeSetDeltaGammaMax`
       to enforce Jacobian recomputation when the step size ratio changes
@@ -1734,6 +1801,8 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
                                     current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       This is the default behavior of ARKODE, so the function
       is primarily useful to undo a previous call to
@@ -1771,6 +1840,8 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       The default value is 0.  If *method* is set to an
       undefined value, this default predictor will be used.
 
@@ -1792,6 +1863,8 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
                                     current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       See :numref:`ARKODE.Usage.StagePredictFn` for more information on
       this user-supplied routine.
@@ -1815,6 +1888,8 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
                                     current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       The default is to use the implicit right-hand side function
       provided to :c:func:`ARKodeCreate` in nonlinear system functions. If the
@@ -1843,6 +1918,8 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       The default value is 3; set *maxcor* :math:`\le 0`
       to specify this default.
 
@@ -1865,6 +1942,8 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       The default value is 0.1; set *nlscoef* :math:`\le 0`
       to specify this default.
 
@@ -1885,6 +1964,8 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
                                     current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       Any non-positive parameter will imply a reset to the default value.
 
@@ -1907,6 +1988,8 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
                                     current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       Any non-positive parameter will imply a reset to the default value.
 
@@ -1931,6 +2014,8 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
                                     current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       The default value is 10; set *maxncf* :math:`\le 0`
       to specify this default.
@@ -1958,6 +2043,10 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
    :retval ARK_STEPPER_UNSUPPORTED: implicit solvers are not supported by the
                                     current time-stepping module.
+
+   .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
    .. versionadded:: x.y.z
 
@@ -2062,6 +2151,8 @@ is recomputed using the current :math:`\gamma` value.
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       Any non-positive parameter will imply a reset to the default value.
 
    .. versionadded:: x.y.z
@@ -2083,6 +2174,8 @@ is recomputed using the current :math:`\gamma` value.
                                     current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       Positive values of **msbp** specify the linear solver setup frequency. For
       example, an input of 1 means the setup function will be called every time
@@ -2112,6 +2205,8 @@ is recomputed using the current :math:`\gamma` value.
                                     current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       If ``nstlj`` is the step number at which the Jacobian information was
       lasted updated and ``nst`` is the current step number,
@@ -2212,6 +2307,8 @@ data in the program. The user data pointer may be specified through
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       This routine must be called after the ARKLS linear
       solver interface has been initialized through a call to
       :c:func:`ARKodeSetLinearSolver`.
@@ -2244,6 +2341,8 @@ data in the program. The user data pointer may be specified through
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       This routine must be called after the ARKLS linear
       solver interface has been initialized through a call to
       :c:func:`ARKodeSetLinearSolver`.
@@ -2275,6 +2374,8 @@ data in the program. The user data pointer may be specified through
 
    .. note::
 
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
+
       This routine must be called after the ARKLS mass matrix
       solver interface has been initialized through a call to
       :c:func:`ARKodeSetMassLinearSolver`.
@@ -2305,6 +2406,8 @@ data in the program. The user data pointer may be specified through
                                     current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       Linear solution scaling is enabled by default when a matrix-based
       linear solver is attached.
@@ -2374,6 +2477,8 @@ time they are called.
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       The default is to use an internal finite difference
       quotient for *jtimes* and to leave out *jtsetup*.  If ``NULL`` is
       passed to *jtimes*, these defaults are used.  A user may
@@ -2422,6 +2527,8 @@ this through calls to *both* :c:func:`ARKodeSetJacTimesRhsFn` and
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       The default is to use the implicit right-hand side function
       provided to ``*StepCreate`` in the internal difference quotient. If
       the input implicit right-hand side function is ``NULL``, the default is used.
@@ -2469,6 +2576,8 @@ function of type :c:type:`ARKLsMassTimesSetupFn` (see
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
 
       There is no default finite difference quotient for
       *mtimes*, so if using the ARKLS mass matrix solver interface with
@@ -2560,6 +2669,8 @@ the user through the :c:func:`ARKodeSetEpsLin` function.
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       The default is ``NULL`` for both arguments (i.e., no
       preconditioning).
 
@@ -2595,6 +2706,8 @@ the user through the :c:func:`ARKodeSetEpsLin` function.
 
    .. note::
 
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
+
       This function must be called *after* the ARKLS mass
       matrix solver interface has been initialized through a call to
       :c:func:`ARKodeSetMassLinearSolver`.
@@ -2627,6 +2740,8 @@ the user through the :c:func:`ARKodeSetEpsLin` function.
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       Passing a value *eplifac* :math:`\le 0` indicates to use the
       default value of 0.05.
 
@@ -2654,6 +2769,8 @@ the user through the :c:func:`ARKodeSetEpsLin` function.
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
 
       This function must be called *after* the ARKLS mass
       matrix solver interface has been initialized through a call to
@@ -2705,6 +2822,8 @@ allow for additional user control over these conversion factors.
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       This function must be called *after* the ARKLS system solver interface has
       been initialized through a call to :c:func:`ARKodeSetLinearSolver`.
 
@@ -2735,6 +2854,8 @@ allow for additional user control over these conversion factors.
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
 
       This function must be called *after* the ARKLS mass matrix solver interface
       has been initialized through a call to :c:func:`ARKodeSetMassLinearSolver`.
@@ -3094,6 +3215,10 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_STEPPER_UNSUPPORTED: implicit solvers are not supported
                                     by the current time-stepping module.
 
+   .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
    .. versionadded:: x.y.z
 
 
@@ -3143,6 +3268,8 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
 
       The user must allocate space for *rweight*, that will be
       filled in by this function.
@@ -3220,6 +3347,10 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_STEPPER_UNSUPPORTED: adaptive step sizes are not supported
                                     by the current time-stepping module.
 
+   .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
    .. versionadded:: x.y.z
 
 
@@ -3235,6 +3366,10 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
    :retval ARK_STEPPER_UNSUPPORTED: adaptive step sizes are not supported
                                     by the current time-stepping module.
+
+   .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
 
    .. versionadded:: x.y.z
 
@@ -3263,6 +3398,10 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
+   .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
    .. versionadded:: x.y.z
 
 
@@ -3277,6 +3416,10 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
    :retval ARK_STEPPER_UNSUPPORTED: implicit solvers are not supported
                                     by the current time-stepping module.
+
+   .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
    .. versionadded:: x.y.z
 
@@ -3324,6 +3467,10 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_STEPPER_UNSUPPORTED: adaptive step sizes are not supported
                                     by the current time-stepping module.
 
+   .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
    .. versionadded:: x.y.z
 
 
@@ -3351,7 +3498,10 @@ Implicit solver optional output functions
 ===================================================  ============================================
 Optional output                                      Function name
 ===================================================  ============================================
+Computes state given a correction                    :c:func:`ARKodeComputeState`
+Access data to compute the nonlin. sys. function     :c:func:`ARKodeGetNonlinearSystemData`
 No. of calls to linear solver setup function         :c:func:`ARKodeGetNumLinSolvSetups`
+No. of nonlinear solver iterations                   :c:func:`ARKodeGetNumNonlinSolvIters`
 No. of nonlinear solver iterations                   :c:func:`ARKodeGetNumNonlinSolvIters`
 No. of nonlinear solver convergence failures         :c:func:`ARKodeGetNumNonlinSolvConvFails`
 Single accessor to all nonlinear solver statistics   :c:func:`ARKodeGetNonlinSolvStats`
@@ -3374,6 +3524,8 @@ Single accessor to all nonlinear solver statistics   :c:func:`ARKodeGetNonlinSol
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       This is only accumulated for the "life" of the nonlinear
       solver object; the counter is reset whenever a new nonlinear solver
@@ -3398,6 +3550,8 @@ Single accessor to all nonlinear solver statistics   :c:func:`ARKodeGetNonlinSol
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       This is only accumulated for the "life" of the nonlinear
       solver object; the counter is reset whenever a new nonlinear solver
       module is "attached" to ARKODE, or when ARKODE is resized.
@@ -3419,6 +3573,8 @@ Single accessor to all nonlinear solver statistics   :c:func:`ARKodeGetNonlinSol
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       This is only accumulated for the "life" of the nonlinear
       solver object; the counter is reset whenever a new nonlinear solver
@@ -3442,6 +3598,8 @@ Single accessor to all nonlinear solver statistics   :c:func:`ARKodeGetNonlinSol
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       This is only accumulated for the "life" of the nonlinear
       solver object; the counters are reset whenever a new nonlinear solver
@@ -3570,6 +3728,10 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
    :retval ARK_STEPPER_UNSUPPORTED: linear solvers are not supported
                                     by the current time-stepping module.
 
+   .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
    .. warning::
 
       This function is provided for debugging purposes and the values in the
@@ -3592,6 +3754,11 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
    :retval ARK_STEPPER_UNSUPPORTED: linear solvers are not supported
                                     by the current time-stepping module.
 
+   .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
+
 .. c:function:: int ARKodeGetJacNumSteps(void* arkode_mem, long int* nst_J)
 
    Returns the value of the internal step counter at which the internally stored copy of the
@@ -3605,6 +3772,10 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
    :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized.
    :retval ARK_STEPPER_UNSUPPORTED: linear solvers are not supported
                                     by the current time-stepping module.
+
+   .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
    .. versionadded:: x.y.z
 
@@ -3624,6 +3795,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       The workspace requirements reported by this routine
       correspond only to memory allocated within this interface and to
@@ -3652,6 +3825,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new linear solver
       module is "attached" to ARKODE, or when ARKODE is resized.
@@ -3676,6 +3851,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new linear solver
       module is "attached" to ARKODE, or when ARKODE is resized.
@@ -3699,6 +3876,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new linear solver
       module is "attached" to ARKODE, or when ARKODE is resized.
@@ -3721,6 +3900,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new linear solver
       module is "attached" to ARKODE, or when ARKODE is resized.
@@ -3742,6 +3923,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new linear solver
@@ -3766,6 +3949,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new linear solver
       module is "attached" to ARKODE, or when ARKODE is resized.
@@ -3788,6 +3973,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new linear solver
@@ -3814,6 +4001,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. note::
 
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
       The value *nfevalsLS* is incremented only if the default
       internal difference quotient function is used.
 
@@ -3839,6 +4028,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       If the ARKLS setup function failed when using the
       ``SUNLINSOL_DENSE`` or ``SUNLINSOL_BAND`` modules, then the value
@@ -3889,6 +4080,11 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
              ``SUNLINSOL_BAND`` modules, then if  1 :math:`\le` `lsflag`
              :math:`\le n` (LU factorization failed), this routine returns "NONE".
 
+   .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
+
    .. versionadded:: x.y.z
 
 
@@ -3907,6 +4103,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
 
       The workspace requirements reported by this routine
       correspond only to memory allocated within this interface and to
@@ -3937,6 +4135,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. note::
 
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
+
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new mass-matrix
       linear solver module is "attached" to ARKODE, or when ARKODE is
@@ -3960,6 +4160,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
 
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new mass-matrix
@@ -3986,6 +4188,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. note::
 
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
+
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new mass-matrix
       linear solver module is "attached" to ARKODE, or when ARKODE is
@@ -4008,6 +4212,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
 
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new mass-matrix
@@ -4033,6 +4239,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. note::
 
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
+
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new mass-matrix
       linear solver module is "attached" to ARKODE, or when ARKODE is
@@ -4057,6 +4265,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. note::
 
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
+
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new mass-matrix
       linear solver module is "attached" to ARKODE, or when ARKODE is
@@ -4080,6 +4290,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. note::
 
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
+
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new mass-matrix
       linear solver module is "attached" to ARKODE, or when ARKODE is
@@ -4102,6 +4314,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
 
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new mass-matrix
@@ -4127,6 +4341,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. note::
 
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
+
       This is only accumulated for the "life" of the linear
       solver object; the counter is reset whenever a new mass-matrix
       linear solver module is "attached" to ARKODE, or when ARKODE is
@@ -4150,6 +4366,8 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
                                     by the current time-stepping module.
 
    .. note::
+
+      This is only compatible with time-stepping modules that support non-identity mass matrices.
 
       The values of *msflag* for each of the various solvers
       will match those described above for the function
