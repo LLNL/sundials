@@ -268,6 +268,16 @@ if(SUNDIALS_DEBUG_PRINTVEC AND SUNDIALS_LOGGING_LEVEL LESS 5)
 endif()
 
 # ---------------------------------------------------------------
+# Options for SUNDIALS external
+# ---------------------------------------------------------------
+
+sundials_option(SUNDIALS_ENABLE_EXTERNAL_ADDONS BOOL
+  "Enables including EXTERNALLY MAINTAINED addons in the SUNDIALS build." OFF)
+if(SUNDIALS_ENABLE_EXTERNAL_ADDONS)
+  message(WARNING "SUNDIALS_ENABLE_EXTERNAL_ADDONS=TRUE. External addons are not maintained by the SUNDIALS team. Use at your own risk.")
+endif()
+
+# ---------------------------------------------------------------
 # Options for SUNDIALS testing
 # ---------------------------------------------------------------
 

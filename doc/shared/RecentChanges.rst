@@ -1,5 +1,8 @@
 **New Features**
 
+Added CMake infrastructure that enables externally maintained addons/plugins
+to be *optionally* built with SUNDIALS. See :ref:`Contributing` for details.
+
 **Bug Fixes**
 
 Updated the CMake variable ``HIP_PLATFORM`` default to ``amd`` as the previous
@@ -18,3 +21,8 @@ to a function pointer instead of ``c_null_funptr``. This caused compilation issu
 with the Cray Fortran compiler.
 
 Enabled the Fortran interfaces to build with 32-bit ``sunindextype``.
+
+Fixed a bug where :c:func:`MRIStepEvolve` would not handle a recoverable error
+produced from evolving the inner stepper.
+
+Added support for Kokkos Kernels v4.

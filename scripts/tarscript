@@ -260,6 +260,8 @@ cp -r $sundialsdir/src/sunadaptcontroller $tmpdir/src/
 cp    $sundialsdir/test/testRunner $tmpdir/test/
 cp -r $sundialsdir/test/unit_tests $tmpdir/test/
 
+cp -r $sundialsdir/external $tmpdir/
+
 # Clean up tmpdir
 rm -rf $tmpdir/doc/shared/__pycache__
 find $tmpdir -name "*~" -delete

@@ -19,6 +19,15 @@ with the Cray Fortran compiler.
 
 Enabled the Fortran interfaces to build with 32-bit `sunindextype`.
 
+Fixed a bug where `MRIStepEvolve` would not handle a recoverable error produced
+from evolving the inner stepper.
+
+Added CMake infrastructure that enables externally maintained addons/plugins
+to be *optionally* built with SUNDIALS. See the [Contributing Guide](./CONTRIBUTING.md)
+for more details.
+
+Added support for Kokkos Kernels v4.
+
 ## Changes to SUNDIALS in release v7.0.0
 
 ### Major Feature

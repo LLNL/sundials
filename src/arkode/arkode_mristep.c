@@ -2139,7 +2139,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is)
   /* advance inner method in time */
   retval = mriStepInnerStepper_Evolve(step_mem->stepper, t0, ark_mem->tcur,
                                       ark_mem->ycur);
-  if (retval < 0) { return (ARK_INNERSTEP_FAIL); }
+  if (retval != 0) { return (ARK_INNERSTEP_FAIL); }
 
   /* post inner evolve function (if supplied) */
   if (step_mem->post_inner_evolve)
