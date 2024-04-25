@@ -160,15 +160,15 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   use test_utilities
   implicit none
 
-  real(C_DOUBLE)          :: ans
-  type(N_Vector)          :: X
-  integer(C_LONG)         :: local_length, i
-  real(C_DOUBLE), pointer :: Xdata(:)
+  real(C_DOUBLE)            :: ans
+  type(N_Vector)            :: X
+  integer(kind=myindextype) :: local_length, i
+  real(C_DOUBLE), pointer   :: Xdata(:)
 
   failure = 0
 
   Xdata => FN_VGetArrayPointer(X)
-  do i = 1, local_length
+   do i = 1, local_length
     if (FNEQ(Xdata(i), ans) > 0) then
       failure = failure + 1
     end if
