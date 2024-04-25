@@ -402,13 +402,14 @@ SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
 
   if (!map) { return SUN_ERR_ARG_CORRUPT; }
 
-  *values = (void**)malloc(map->size * value_size);
+  *values = (void**)malloc(SUNHashMap_Capacity(map) * value_size);
   if (!values) { return SUN_ERR_MALLOC_FAIL; }
 
   /* Copy the values into a new array */
-  for (i = 0; i < map->max_size; i++)
+  for (i = 0; i < SUNHashMap_Capacity(map); i++)
   {
-    if (map->buckets[i]) { (*values)[count++] = map->buckets[i]->value; }
+    void* value = SUNArrayList_SUNHashMapKeyValue_At(map->buckets, i);
+    if (value) { (*values)[count++] = value; }
   }
 
   return SUN_SUCCESS;
