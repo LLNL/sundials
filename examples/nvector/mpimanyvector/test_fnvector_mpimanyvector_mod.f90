@@ -25,13 +25,23 @@ module test_nvector_mpimanyvector
   implicit none
   include "mpif.h"
 
-  integer(c_int), parameter  :: nsubvecs = 2
-  integer(c_long), parameter :: N1       = 100        ! individual vector length
-  integer(c_long), parameter :: N2       = 200        ! individual vector length
-  integer(c_int),  parameter :: nv       = 3          ! length of vector arrays
-  integer(c_long), parameter :: N        = N1 + N2    ! overall manyvector length
-  integer(c_int), target     :: comm = MPI_COMM_WORLD ! default MPI communicator
-  integer(c_int)             :: nprocs                ! number of MPI processes
+  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
+  ! we set the integer kind used for indices in this example based
+  ! on the the index size SUNDIALS was compiled with so that it works
+  ! in both configurations. This is not a requirement for user codes.
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: myindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: myindextype = selected_int_kind(16)
+#endif
+
+  integer(kind=myindextype), parameter :: nsubvecs = 2
+  integer(kind=myindextype), parameter :: N1 = 100      ! individual vector length
+  integer(kind=myindextype), parameter :: N2 = 200      ! individual vector length
+  integer(kind=myindextype), parameter :: nv = 3        ! length of vector arrays
+  integer(kind=myindextype), parameter :: N = N1 + N2   ! overall manyvector length
+  integer(c_int), target :: comm = MPI_COMM_WORLD       ! default MPI communicator
+  integer(c_int) :: nprocs                              ! number of MPI processes
 
 contains
 
@@ -51,11 +61,11 @@ contains
     !===== Setup ====
     subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
     tmp  => FN_VMake_Serial(N1, x1data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 0_myindextype, tmp)
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 1_myindextype, tmp)
 
-    x => FN_VMake_MPIManyVector(comm, int(nsubvecs,8), subvecs, sunctx)
+    x => FN_VMake_MPIManyVector(comm, nsubvecs, subvecs, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_MPIManyVector(x)
     call FN_VConst(ONE, y)
@@ -96,16 +106,16 @@ contains
     rval = FN_VMinQuotientLocal_MPIManyVector(x, y)
 
     ! test fused vector operations
-    ival = FN_VLinearCombination_MPIManyVector(nv, nvarr, xvecs, x)
-    ival = FN_VScaleAddMulti_MPIManyVector(nv, nvarr, x, xvecs, zvecs)
-    ival = FN_VDotProdMulti_MPIManyVector(nv, x, xvecs, nvarr)
+    ival = FN_VLinearCombination_MPIManyVector(int(nv, 4), nvarr, xvecs, x)
+    ival = FN_VScaleAddMulti_MPIManyVector(int(nv, 4), nvarr, x, xvecs, zvecs)
+    ival = FN_VDotProdMulti_MPIManyVector(int(nv, 4), x, xvecs, nvarr)
 
     ! test vector array operations
-    ival = FN_VLinearSumVectorArray_MPIManyVector(nv, ONE, xvecs, ONE, xvecs, zvecs)
-    ival = FN_VScaleVectorArray_MPIManyVector(nv, nvarr, xvecs, zvecs)
-    ival = FN_VConstVectorArray_MPIManyVector(nv, ONE, xvecs)
-    ival = FN_VWrmsNormVectorArray_MPIManyVector(nv, xvecs, xvecs, nvarr)
-    ival = FN_VWrmsNormMaskVectorArray_MPIManyVector(nv, xvecs, xvecs, x, nvarr)
+    ival = FN_VLinearSumVectorArray_MPIManyVector(int(nv, 4), ONE, xvecs, ONE, xvecs, zvecs)
+    ival = FN_VScaleVectorArray_MPIManyVector(int(nv, 4), nvarr, xvecs, zvecs)
+    ival = FN_VConstVectorArray_MPIManyVector(int(nv, 4), ONE, xvecs)
+    ival = FN_VWrmsNormVectorArray_MPIManyVector(int(nv, 4), xvecs, xvecs, nvarr)
+    ival = FN_VWrmsNormMaskVectorArray_MPIManyVector(int(nv, 4), xvecs, xvecs, x, nvarr)
 
     ! test the MPIManyVector specific operations
     ival = FN_VGetNumSubvectors_MPIManyVector(x)
@@ -115,9 +125,9 @@ contains
     tmp  => FN_VGetSubvector_MPIManyVector(x, ival-1)
 
     !==== Cleanup =====
-    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 0)
+    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 0_myindextype)
     call FN_VDestroy(tmp)
-    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 1)
+    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 1_myindextype)
     call FN_VDestroy(tmp)
     call FN_VDestroy_MPIManyVector(x)
     call FN_VDestroy_MPIManyVector(y)
@@ -150,11 +160,11 @@ contains
 
     subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
     tmp  => FN_VMake_Serial(N1, x1data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 0_myindextype, tmp)
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 1_myindextype, tmp)
 
-    x => FN_VMake_MPIManyVector(comm, int(nsubvecs,8), subvecs, sunctx)
+    x => FN_VMake_MPIManyVector(comm, nsubvecs, subvecs, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
@@ -163,9 +173,9 @@ contains
     fails = Test_FN_VLinearCombination(x, N, myid)
 
     !=== cleanup ====
-    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 0)
+    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 0_myindextype)
     call FN_VDestroy(tmp)
-    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 1)
+    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 1_myindextype)
     call FN_VDestroy(tmp)
     call FN_VDestroy_MPIManyVector(x)
 

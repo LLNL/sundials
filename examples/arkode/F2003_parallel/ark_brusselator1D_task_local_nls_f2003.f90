@@ -69,6 +69,16 @@ module ode_mod
   implicit none
   save
 
+  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
+  ! we set the integer kind used for indices in this example based
+  ! on the the index size SUNDIALS was compiled with so that it works
+  ! in both configurations. This is not a requirement for user codes.
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: myindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: myindextype = selected_int_kind(16)
+#endif
+
   type(c_ptr) :: sunctx ! SUNDIALS simulation context
   type(c_ptr) :: logger ! SUNDIALS logger
 
@@ -548,7 +558,7 @@ contains
     use farkode_arkstep_mod
 
 
-    use ode_mod, only : Neq, Reaction
+    use ode_mod, only : Neq, Reaction, myindextype
 
     !======= Declarations =========
     implicit none
@@ -593,10 +603,10 @@ contains
     end if
 
     ! get vectors from pointers
-    sunvec_zpred => FN_VGetVecAtIndexVectorArray(zpred_ptr, 0)
-    sunvec_z     => FN_VGetVecAtIndexVectorArray(z_ptr, 0)
-    sunvec_Fi    => FN_VGetVecAtIndexVectorArray(Fi_ptr, 0)
-    sunvec_sdata => FN_VGetVecAtIndexVectorArray(sdata_ptr, 0)
+    sunvec_zpred => FN_VGetVecAtIndexVectorArray(zpred_ptr, 0_myindextype)
+    sunvec_z     => FN_VGetVecAtIndexVectorArray(z_ptr, 0_myindextype)
+    sunvec_Fi    => FN_VGetVecAtIndexVectorArray(Fi_ptr, 0_myindextype)
+    sunvec_sdata => FN_VGetVecAtIndexVectorArray(sdata_ptr, 0_myindextype)
 
     ! get vector data arrays
     ycor_data  => FN_VGetArrayPointer(sunvec_zcor)
@@ -640,12 +650,8 @@ contains
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
     use farkode_arkstep_mod
-
-
     use fsunmatrix_dense_mod
-
-
-    use ode_mod, only : Nvar, Npts, k2, k3, k4, k6
+    use ode_mod, only : Nvar, Npts, k2, k3, k4, k6, myindextype
 
     !======= Declarations =========
     implicit none
@@ -682,7 +688,7 @@ contains
     end if
 
     ! get vectors from pointers
-    sunvec_z => FN_VGetVecAtIndexVectorArray(z_ptr, 0)
+    sunvec_z => FN_VGetVecAtIndexVectorArray(z_ptr, 0_myindextype)
 
     ! get data arrays
     b_data => FN_VGetArrayPointer(sunvec_delta)
@@ -985,7 +991,7 @@ contains
     use fsunlinsol_dense_mod
     use fsunmatrix_dense_mod
 
-    use ode_mod, only : sunctx, Nvar, comm
+    use ode_mod
 
     !======= Declarations =========
     implicit none
@@ -1027,10 +1033,10 @@ contains
     sunnls_LOC => FSUNNonlinSol_Newton(sunvec_y, sunctx)
 
     ! Create vector pointers to receive residual data
-    zpred_ptr = FN_VNewVectorArray(1, sunctx)
-    z_ptr     = FN_VNewVectorArray(1, sunctx)
-    Fi_ptr    = FN_VNewVectorArray(1, sunctx)
-    sdata_ptr = FN_VNewVectorArray(1, sunctx)
+    zpred_ptr = FN_VNewVectorArray(1_myindextype, sunctx)
+    z_ptr     = FN_VNewVectorArray(1_myindextype, sunctx)
+    Fi_ptr    = FN_VNewVectorArray(1_myindextype, sunctx)
+    sdata_ptr = FN_VNewVectorArray(1_myindextype, sunctx)
 
     sunvec_bnode => FN_VNew_Serial(int(Nvar, c_long), sunctx)
     sunmat_Jnode => FSUNDenseMatrix(int(Nvar, c_long), int(Nvar, c_long), sunctx)

@@ -28,8 +28,7 @@ module DiagkryData
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_nvector_mod
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -65,7 +64,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+    use fsundials_core_mod
 
     !======= Declarations =========
     implicit none
@@ -115,7 +114,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+    use fsundials_core_mod
 
     !======= Declarations =========
     implicit none
@@ -173,15 +172,10 @@ program driver
 
   ! inclusions
   use, intrinsic :: iso_c_binding
-  use fsundials_futils_mod       ! Fortran utilities
   use fcvode_mod                 ! Access CVode
-  use fsundials_types_mod        ! sundials defined types
-  use fsundials_matrix_mod       ! Fortran interface to generic SUNMatrix
-  use fsundials_nvector_mod      ! Access generic N_Vector
+  use fsundials_core_mod
   use fnvector_parallel_mod      ! Access parallel N_Vector
-  use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
   use fsunlinsol_spgmr_mod       ! Fortran interface to spgmr SUNLinearSolver
-  use fsundials_context_mod      ! Access sundials context
   use DiagkryData
 
   !======= Declarations =========

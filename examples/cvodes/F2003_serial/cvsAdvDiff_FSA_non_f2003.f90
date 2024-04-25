@@ -56,6 +56,17 @@ module ode_problem
   use fsundials_core_mod
   implicit none
 
+
+  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
+  ! we set the integer kind used for indices in this example based
+  ! on the the index size SUNDIALS was compiled with so that it works
+  ! in both configurations. This is not a requirement for user codes.
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: myindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: myindextype = selected_int_kind(16)
+#endif
+
   ! SUNDIALS simulation context
   type(c_ptr) :: ctx
 
@@ -199,7 +210,8 @@ program main
   type(SUNNonlinearSolver), pointer :: NLSsens => null()
   integer(c_int)                    :: iout, retval
   real(c_double)                    :: reltol, abstol, tout, t(1)
-  integer(c_int64_t)                :: is, plist(0:NS-1)
+  integer(c_int)                    :: plist(0:NS-1)
+  integer(kind=myindextype)         :: is
   real(c_double)                    :: pbar(0:NS-1)
 
   ! Command line arguments

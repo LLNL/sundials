@@ -23,9 +23,19 @@ module test_nvector_parallel
   implicit none
   include "mpif.h"
 
-  integer(c_long), parameter :: local_length = 100    ! vector local length
-  integer(c_int),  parameter :: nv = 3                ! length of vector arrays
-  integer(c_int),  parameter :: ns = 2                ! number of vector arrays
+  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
+  ! we set the integer kind used for indices in this example based
+  ! on the the index size SUNDIALS was compiled with so that it works
+  ! in both configurations. This is not a requirement for user codes.
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: myindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: myindextype = selected_int_kind(16)
+#endif
+
+  integer(kind=myindextype), parameter :: local_length = 100    ! vector local length
+  integer(kind=myindextype), parameter :: nv = 3               ! length of vector arrays
+  integer(c_int), parameter :: ns = 2                ! number of vector arrays
 
   integer(c_int), target  :: comm = MPI_COMM_WORLD ! default MPI communicator
   integer(c_long)         :: global_length ! vector global_length
@@ -98,16 +108,16 @@ module test_nvector_parallel
     rval = FN_VMinQuotient_Parallel(x, y)
 
     ! test fused vector operations
-    ival = FN_VLinearCombination_Parallel(nv, nvarr, xvecs, x)
-    ival = FN_VScaleAddMulti_Parallel(nv, nvarr, x, xvecs, zvecs)
-    ival = FN_VDotProdMulti_Parallel(nv, x, xvecs, nvarr)
+    ival = FN_VLinearCombination_Parallel(int(nv, 4), nvarr, xvecs, x)
+    ival = FN_VScaleAddMulti_Parallel(int(nv, 4), nvarr, x, xvecs, zvecs)
+    ival = FN_VDotProdMulti_Parallel(int(nv, 4), x, xvecs, nvarr)
 
     ! test vector array operations
-    ival = FN_VLinearSumVectorArray_Parallel(nv, ONE, xvecs, ONE, xvecs, zvecs)
-    ival = FN_VScaleVectorArray_Parallel(nv, nvarr, xvecs, zvecs)
-    ival = FN_VConstVectorArray_Parallel(nv, ONE, xvecs)
-    ival = FN_VWrmsNormVectorArray_Parallel(nv, xvecs, xvecs, nvarr)
-    ival = FN_VWrmsNormMaskVectorArray_Parallel(nv, xvecs, xvecs, x, nvarr)
+    ival = FN_VLinearSumVectorArray_Parallel(int(nv, 4), ONE, xvecs, ONE, xvecs, zvecs)
+    ival = FN_VScaleVectorArray_Parallel(int(nv, 4), nvarr, xvecs, zvecs)
+    ival = FN_VConstVectorArray_Parallel(int(nv, 4), ONE, xvecs)
+    ival = FN_VWrmsNormVectorArray_Parallel(int(nv, 4), xvecs, xvecs, nvarr)
+    ival = FN_VWrmsNormMaskVectorArray_Parallel(int(nv, 4), xvecs, xvecs, x, nvarr)
 
     !==== Cleanup =====
     call FN_VDestroy_Parallel(x)

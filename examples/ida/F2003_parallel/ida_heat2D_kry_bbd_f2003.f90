@@ -54,8 +54,7 @@ module Heat2DKryBBD_mod
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_nvector_mod
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -259,7 +258,7 @@ contains
     real(c_double), pointer, dimension(nxl,nyl) :: y(:,:), ydot(:,:), id(:,:), res(:,:), cstr(:,:)
     real(c_double) :: xreal, yreal
     integer(c_int) :: retval
-    type(c_ptr), value :: user_data
+    type(c_ptr) :: user_data
     integer :: i, j
     ! Create solution vector, point at its data, and set initial condition
     N = nxl*nyl
@@ -312,7 +311,7 @@ contains
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
     use fida_mod
-    use fsundials_futils_mod
+    use fsundials_core_mod
 
     !======= Declarations =========
     implicit none
@@ -393,7 +392,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+    use fsundials_core_mod
 
     !======= Declarations =========
     implicit none
@@ -434,7 +433,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+    use fsundials_core_mod
 
     !======= Declarations =========
     implicit none
@@ -639,7 +638,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+    use fsundials_core_mod
 
     !======= Declarations =========
     implicit none
@@ -734,16 +733,10 @@ program driver
 
   ! inclusions
   use, intrinsic :: iso_c_binding
-  use fsundials_futils_mod       ! Fortran utilities
+  use fsundials_core_mod
   use fida_mod                   ! Access IDA
-  use fsundials_types_mod        ! sundials defined types
-  use fsundials_nvector_mod      ! Access generic N_Vector
   use fnvector_parallel_mod      ! Access parallel N_Vector
-  use fsundials_context_mod      ! Access sundials context
-  use fsundials_matrix_mod       ! Access generic SUNMatrix
-  use fsundials_linearsolver_mod ! Access generic SUNLinearSolver
   use fsunlinsol_spgmr_mod       ! Access GMRES SUNLinearSolver
-
   use Heat2DKryBBD_mod
 
   !======= Declarations =========

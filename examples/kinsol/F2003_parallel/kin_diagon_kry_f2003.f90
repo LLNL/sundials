@@ -62,7 +62,7 @@ contains
   subroutine init(sunvec_u, sunvec_s, sunvec_c)
 
     !======= Inclusions ===========
-    use fsundials_nvector_mod
+    use fsundials_core_mod
 
     !======= Declarations =========
     implicit none
@@ -104,7 +104,7 @@ contains
        result(ierr) bind(C)
 
     !======= Inclusions ===========
-    use fsundials_nvector_mod
+    use fsundials_core_mod
 
     !======= Declarations =========
     implicit none
@@ -155,7 +155,7 @@ contains
        sunvec_fs, user_data) result(ierr) bind(C)
 
     !======= Inclusions ===========
-    use fsundials_nvector_mod
+    use fsundials_core_mod
 
     !======= Declarations =========
     implicit none
@@ -202,7 +202,7 @@ contains
        sunvec_fs, sunvec_v, user_data) result(ierr) bind(C)
 
     !======= Inclusions ===========
-    use fsundials_nvector_mod
+    use fsundials_core_mod
 
     !======= Declarations =========
     implicit none
@@ -247,13 +247,10 @@ end module kinDiagonKry_mod
 program main
 
   !======= Inclusions ===========
-  use fsundials_context_mod
+  use fsundials_core_mod
   use fkinsol_mod                ! Fortran interface to KINSOL
-  use fsundials_nvector_mod      ! Fortran interface to generic N_Vector
   use fnvector_parallel_mod      ! Fortran interface to serial N_Vector
   use fsunlinsol_spgmr_mod       ! Fortran interface to SPGMR SUNLinearSolver
-  use fsundials_matrix_mod       ! Fortran interface to generic SUNmatrix
-  use fsundials_linearsolver_mod ! Fortran interface to generic SUNLinearSolver
   use kinDiagonKry_mod           ! problem-defining functions
 
   !======= Declarations =========
