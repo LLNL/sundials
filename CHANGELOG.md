@@ -26,6 +26,8 @@ for more details.
 
 Added support for Kokkos Kernels v4.
 
+Fixed a bug that caused error messages to be cut off in some cases. Ref. #461.
+
 ## Changes to SUNDIALS in release v7.0.0
 
 ### Major Feature
