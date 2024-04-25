@@ -180,11 +180,11 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   use test_utilities 
   implicit none
 
-  real(C_DOUBLE)          :: ans
-  type(N_Vector)          :: X
-  type(N_Vector), pointer :: X0, X1
-  integer(C_LONG)         :: local_length, i, x0len, x1len
-  real(C_DOUBLE), pointer :: x0data(:), x1data(:)
+  real(C_DOUBLE)            :: ans
+  type(N_Vector)            :: X
+  type(N_Vector), pointer   :: X0, X1
+  integer(kind=myindextype) :: local_length, i, x0len, x1len
+  real(C_DOUBLE), pointer   :: x0data(:), x1data(:)
 
   failure = 0
 
