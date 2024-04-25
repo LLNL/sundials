@@ -4824,7 +4824,7 @@ static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
                     const char* file, const char* msgfmt, ...)
 {
-  /* We initialize the argument pointer variable before each time before calling vsnprintf to avoid undefined behavior
+  /* We initialize the argument pointer variable before each vsnprintf call to avoid undefined behavior
      (msgfmt is the last required argument to cvProcessError) */
   va_list ap;
 

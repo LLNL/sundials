@@ -3325,7 +3325,7 @@ int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
 void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
                      const char* func, const char* file, const char* msgfmt, ...)
 {
-  /* We initialize the argument pointer variable before each time before calling vsnprintf to avoid undefined behavior
+  /* We initialize the argument pointer variable before each vsnprintf call to avoid undefined behavior
      (msgfmt is the last required argument to arkProcessError) */
   va_list ap;
 
@@ -3366,7 +3366,6 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
   }
   while (0);
 
-  /* Finalize argument processing */
   free(msg);
 
   return;

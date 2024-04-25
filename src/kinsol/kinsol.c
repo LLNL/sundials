@@ -2563,7 +2563,7 @@ void KINPrintInfo(KINMem kin_mem, int info_code, const char* module,
 void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
                      const char* file, const char* msgfmt, ...)
 {
-  /* We initialize the argument pointer variable before each time before calling vsnprintf to avoid undefined behavior
+  /* We initialize the argument pointer variable before each vsnprintf call to avoid undefined behavior
      (msgfmt is the last required argument to KINProcessError) */
   va_list ap;
 

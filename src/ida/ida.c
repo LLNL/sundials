@@ -3992,7 +3992,7 @@ static int IDARootfind(IDAMem IDA_mem)
 void IDAProcessError(IDAMem IDA_mem, int error_code, int line, const char* func,
                      const char* file, const char* msgfmt, ...)
 {
-  /* We initialize the argument pointer variable before each time before calling vsnprintf to avoid undefined behavior
+  /* We initialize the argument pointer variable before each vsnprintf call to avoid undefined behavior
      (msgfmt is the last required argument to IDAProcessError) */
   va_list ap;
 
