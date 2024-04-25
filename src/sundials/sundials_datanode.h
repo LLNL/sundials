@@ -9,8 +9,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * SUNDIALS data store class. The data store manages a collection
- * of checkpoints saved to some storage device.
+ * SUNDataNode class definition. A SUNDataNode is a hirearchical
+ * object that can hold arbitrary data in arbitrary storage locations.
+ * The data may be held directly (a leaf node) or indirectly by
+ * holding references to child nodes (list or object nodes). A 
+ * SUNDataNode maps well to a JSON node.
  * ----------------------------------------------------------------*/
 
 #ifndef _SUNDIALS_DATANODE_H
