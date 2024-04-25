@@ -20,7 +20,7 @@ module test_fsunlinsol_klu
   use test_utilities
   implicit none
 
-  integer(C_LONG), private, parameter :: N = 300
+  integer(kind=myindextype), private, parameter :: N = 300
 
 contains
 
