@@ -20,11 +20,7 @@ module test_fsunlinsol_lapackdense
   use test_utilities
   implicit none
 
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
+
 
   integer(kind=myindextype), private, parameter :: N = 100
 

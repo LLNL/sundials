@@ -24,7 +24,7 @@ module test_nvector_mpiplusx
   implicit none
   include "mpif.h"
 
-  integer(c_long), parameter :: N    = 100            ! overall manyvector length
+  integer(kind=myindextype), parameter :: N = 100     ! overall manyvector length
   integer(c_int), target     :: comm = MPI_COMM_WORLD ! default MPI communicator
   integer(c_int)             :: nprocs                ! number of MPI processes
 

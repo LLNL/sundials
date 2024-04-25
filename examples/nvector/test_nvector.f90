@@ -18,19 +18,12 @@
 ! to an NVECTOR module implementation. It does not test every
 ! function. It tests the N_VMake constructor, one standard vector
 ! operation (N_VConst), N_VGetArrayPointer, and one fused operation.
-! -----------------------------------------------------------------
+! -----------------------------------------------------------------c
 
 module test_fnvector
   use, intrinsic :: iso_c_binding
-
   use test_utilities
   implicit none
-
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
 
   integer(C_INT), external :: check_ans
   logical, external        :: has_data

@@ -23,12 +23,6 @@ module test_nvector_manyvector
   use test_utilities
   implicit none
 
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
-
   integer(kind=myindextype), parameter  :: nsubvecs = 2
   integer(kind=myindextype), parameter  :: N1       = 100     ! individual vector length
   integer(kind=myindextype), parameter  :: N2       = 200     ! individual vector length
@@ -168,12 +162,6 @@ function check_ans(ans, X, local_length) result(failure)
   use fnvector_manyvector_mod
   use test_utilities
   implicit none
-
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
 
   real(C_DOUBLE)             :: ans
   type(N_Vector)             :: X

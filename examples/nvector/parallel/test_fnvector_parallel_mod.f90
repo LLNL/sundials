@@ -23,36 +23,26 @@ module test_nvector_parallel
   implicit none
   include "mpif.h"
 
-  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
-  ! we set the integer kind used for indices in this example based
-  ! on the the index size SUNDIALS was compiled with so that it works
-  ! in both configurations. This is not a requirement for user codes.
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
-
   integer(kind=myindextype), parameter :: local_length = 100    ! vector local length
-  integer(kind=myindextype), parameter :: nv = 3               ! length of vector arrays
-  integer(c_int), parameter :: ns = 2                ! number of vector arrays
+  integer(kind=myindextype), parameter :: nv = 3                ! length of vector arrays
+  integer(c_int), parameter :: ns = 2                           ! number of vector arrays
 
-  integer(c_int), target  :: comm = MPI_COMM_WORLD ! default MPI communicator
-  integer(c_long)         :: global_length ! vector global_length
-  integer(c_int)          :: nprocs        ! number of MPI processes
+  integer(c_int), target :: comm = MPI_COMM_WORLD ! default MPI communicator
+  integer(kind=myindextype) :: global_length      ! vector global_length
+  integer(c_int) :: nprocs                        ! number of MPI processes
   contains
 
   integer function smoke_tests() result(ret)
     implicit none
 
-    integer(c_long)         :: lenrw(1), leniw(1)  ! real and int work space size
-    integer(c_long)         :: ival                ! integer work value
-    real(c_double)          :: rval                ! real work value
-    real(c_double)          :: xdata(local_length) ! vector data array
-    real(c_double), pointer :: xptr(:)             ! pointer to vector data array
-    real(c_double)          :: nvarr(nv)           ! array of nv constants to go with vector array
-    type(N_Vector), pointer :: x, y, z, tmp        ! N_Vectors
-    type(c_ptr)             :: xvecs, zvecs        ! C pointer to array of C pointers to N_Vectors
+    integer(kind=myindextype) :: lenrw(1), leniw(1)  ! real and int work space size
+    integer(c_long)           :: ival                ! integer work value
+    real(c_double)            :: rval                ! real work value
+    real(c_double)            :: xdata(local_length) ! vector data array
+    real(c_double), pointer   :: xptr(:)             ! pointer to vector data array
+    real(c_double)            :: nvarr(nv)           ! array of nv constants to go with vector array
+    type(N_Vector), pointer   :: x, y, z, tmp        ! N_Vectors
+    type(c_ptr)               :: xvecs, zvecs        ! C pointer to array of C pointers to N_Vectors
 
     !===== Setup ====
     x => FN_VMake_Parallel(comm, local_length, global_length, xdata, sunctx)

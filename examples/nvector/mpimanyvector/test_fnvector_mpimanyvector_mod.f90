@@ -25,16 +25,6 @@ module test_nvector_mpimanyvector
   implicit none
   include "mpif.h"
 
-  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
-  ! we set the integer kind used for indices in this example based
-  ! on the the index size SUNDIALS was compiled with so that it works
-  ! in both configurations. This is not a requirement for user codes.
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
-
   integer(kind=myindextype), parameter :: nsubvecs = 2
   integer(kind=myindextype), parameter :: N1 = 100      ! individual vector length
   integer(kind=myindextype), parameter :: N2 = 200      ! individual vector length
@@ -48,15 +38,15 @@ contains
   integer function smoke_tests() result(ret)
     implicit none
 
-    integer(c_long)         :: lenrw(1), leniw(1)     ! real and int work space size
-    integer(c_long)         :: ival                   ! integer work value
-    real(c_double)          :: rval                   ! real work value
-    real(c_double)          :: x1data(N1), x2data(N2) ! vector data array
-    real(c_double), pointer :: xptr(:)                ! pointer to vector data array
-    real(c_double)          :: nvarr(nv)              ! array of nv constants to go with vector array
-    type(N_Vector), pointer :: x, y, z, tmp           ! N_Vectors
-    type(c_ptr)             :: subvecs                ! MPIManyVector subvectors
-    type(c_ptr)             :: xvecs, zvecs           ! C pointer to array of MPIManyVectors
+    integer(kind=myindextype) :: lenrw(1), leniw(1)     ! real and int work space size
+    integer(kind=myindextype) :: ival                   ! integer work value
+    real(c_double)            :: rval                   ! real work value
+    real(c_double)            :: x1data(N1), x2data(N2) ! vector data array
+    real(c_double), pointer   :: xptr(:)                ! pointer to vector data array
+    real(c_double)            :: nvarr(nv)              ! array of nv constants to go with vector array
+    type(N_Vector), pointer   :: x, y, z, tmp           ! N_Vectors
+    type(c_ptr)               :: subvecs                ! MPIManyVector subvectors
+    type(c_ptr)               :: xvecs, zvecs           ! C pointer to array of MPIManyVectors
 
     !===== Setup ====
     subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
@@ -187,8 +177,7 @@ end module
 integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   use, intrinsic :: iso_c_binding
   use fnvector_mpimanyvector_mod
-
-  use test_utilities
+  use test_utilities 
   implicit none
 
   real(C_DOUBLE)          :: ans
@@ -199,8 +188,8 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
 
   failure = 0
 
-  X0 => FN_VGetSubvector_MPIManyVector(X, 0_8)
-  X1 => FN_VGetSubvector_MPIManyVector(X, 1_8)
+  X0 => FN_VGetSubvector_MPIManyVector(X, 0_myindextype)
+  X1 => FN_VGetSubvector_MPIManyVector(X, 1_myindextype)
   x0len = FN_VGetLength(X0)
   x1len = FN_VGetLength(X1)
   x0data => FN_VGetArrayPointer(X0)

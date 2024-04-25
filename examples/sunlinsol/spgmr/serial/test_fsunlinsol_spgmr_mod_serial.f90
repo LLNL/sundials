@@ -24,11 +24,7 @@ module test_fsunlinsol_spgmr_serial
   use test_utilities
   implicit none
 
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
+
 
   integer(kind=myindextype), private, parameter :: N = 100
   integer(C_INT),  private, parameter :: pretype = 1     ! Preconditioning type (1 or 2)

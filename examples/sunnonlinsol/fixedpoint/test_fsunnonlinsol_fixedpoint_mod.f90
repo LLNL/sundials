@@ -21,12 +21,6 @@ module test_fsunnonlinsol_fixedpoint
 
   implicit none
 
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
-
   integer(kind=myindextype), parameter :: NEQ = 3 ! number of equations
   integer(C_INT),  parameter :: MAXIT = 10     ! max nonlinear iters.
   real(C_DOUBLE),  parameter :: TOL   = 1.0e-4 ! nonlinear solver tolerance

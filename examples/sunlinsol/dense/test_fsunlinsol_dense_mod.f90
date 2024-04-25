@@ -20,11 +20,7 @@ module test_fsunlinsol_dense
   use test_utilities
   implicit none
 
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
+
 
   integer(kind=myindextype), private, parameter :: N = 100
 
@@ -126,11 +122,7 @@ integer(C_INT) function check_vector(X, Y, tol) result(failure)
   use test_utilities
   implicit none
 
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
+
 
   type(N_Vector)             :: x, y
   real(C_DOUBLE)             :: tol, maxerr

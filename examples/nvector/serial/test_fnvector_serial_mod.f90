@@ -22,12 +22,6 @@ module test_nvector_serial
   use test_utilities
   implicit none
 
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
-
   integer(kind=myindextype), parameter :: N = 100 ! vector length
   integer(c_int), parameter :: nv = 3 ! length of vector arrays
 
@@ -150,12 +144,6 @@ function check_ans(ans, X, local_length) result(failure)
   use, intrinsic :: iso_c_binding
   use test_utilities
   implicit none
-
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
 
   integer(kind=myindextype) :: failure
   real(C_DOUBLE)             :: ans

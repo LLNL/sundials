@@ -365,7 +365,6 @@ contains
     use, intrinsic :: iso_c_binding
     use fsunmatrix_dense_mod
     use fsunlinsol_dense_mod
-
     use ode_mod, only : Nvar, Npts, Neq, k2, k3, k4, k6
 
     !======= Declarations =========
@@ -472,7 +471,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
     use fnvector_mpiplusx_mod
 
     !======= Declarations =========
@@ -556,8 +554,6 @@ contains
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
     use farkode_arkstep_mod
-
-
     use ode_mod, only : Neq, Reaction, myindextype
 
     !======= Declarations =========
@@ -825,10 +821,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
-
     use fnvector_mpiplusx_mod
-
     use ode_mod, only : comm
 
     !======= Declarations =========
@@ -887,10 +880,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
-
-
-
 
     !======= Declarations =========
     implicit none

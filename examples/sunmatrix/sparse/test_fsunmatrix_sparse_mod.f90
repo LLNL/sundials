@@ -20,12 +20,6 @@ module test_fsunmatrix_sparse
   use test_utilities
   implicit none
 
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
-
   integer(kind=myindextype), parameter :: N = 5
 
 contains
@@ -212,11 +206,6 @@ integer(C_INT) function check_matrix(A, B, tol) result(fails)
 
   implicit none
 
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
 
   type(SUNMatrix)                     :: A, B
   real(C_DOUBLE)                      :: tol
@@ -303,12 +292,6 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
   use test_utilities
 
   implicit none
-
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
 
   type(SUNMatrix)                     :: A
   real(C_DOUBLE)                      :: c, tol
