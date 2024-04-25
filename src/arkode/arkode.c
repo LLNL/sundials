@@ -3334,7 +3334,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
   size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
   va_end(ap);
 
-  char* msg     = (char*)malloc(msglen);
+  char* msg = (char*)malloc(msglen);
 
   va_start(ap, msgfmt);
   vsnprintf(msg, msglen, msgfmt, ap);
