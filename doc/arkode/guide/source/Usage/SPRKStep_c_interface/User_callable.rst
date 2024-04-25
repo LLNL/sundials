@@ -531,9 +531,6 @@ Optional inputs for IVP method selection
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeSetUseCompensatedSums` instead.
 
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepRootfindingInput:

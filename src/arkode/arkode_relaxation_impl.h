@@ -99,7 +99,7 @@ struct ARKodeRelaxMemRec
  * ---------------------------------------------------------------------------*/
 
 /* Driver and Stepper Functions */
-int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
+int arkRelaxCreate(ARKodeMem ark_mem, ARKRelaxFn relax_fn,
                    ARKRelaxJacFn relax_jac_fn, ARKRelaxDeltaEFn delta_e_fn,
                    ARKRelaxGetOrderFn get_order_fn);
 int arkRelaxDestroy(ARKodeRelaxMem relax_mem);

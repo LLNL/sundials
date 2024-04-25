@@ -719,10 +719,10 @@ char* ARKStepGetLinReturnFlagName(long int flag)
  * ---------------------------------------------------------------------------*/
 
 /* ARKStep-specific utility routine */
-int arkStep_SetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
+int arkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
 {
-  return (arkRelaxCreate(arkode_mem, rfn, rjac, arkStep_RelaxDeltaE,
-                         arkStep_GetOrder));
+  return (
+    arkRelaxCreate(ark_mem, rfn, rjac, arkStep_RelaxDeltaE, arkStep_GetOrder));
 }
 
 int ARKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
@@ -846,27 +846,26 @@ int ARKStepSetErrorBias(void* arkode_mem, sunrealtype bias)
   ARKStep optional input functions -- stepper-specific
   ===============================================================*/
 
-int arkStep_SetUserData(void* arkode_mem, void* user_data)
+int arkStep_SetUserData(ARKodeMem ark_mem, void* user_data)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set user data in ARKODE LS mem */
   if (step_mem->lmem != NULL)
   {
-    retval = arkLSSetUserData(arkode_mem, user_data);
+    retval = arkLSSetUserData(ark_mem, user_data);
     if (retval != ARKLS_SUCCESS) { return (retval); }
   }
 
   /* set user data in ARKODE LSMass mem */
   if (step_mem->mass_mem != NULL)
   {
-    retval = arkLSSetMassUserData(arkode_mem, user_data);
+    retval = arkLSSetMassUserData(ark_mem, user_data);
     if (retval != ARKLS_SUCCESS) { return (retval); }
   }
 
@@ -882,14 +881,13 @@ int arkStep_SetUserData(void* arkode_mem, void* user_data)
   structures/options related to the ARKODE infrastructure itself
   (e.g., root-finding and post-process step).
   ---------------------------------------------------------------*/
-int arkStep_SetDefaults(void* arkode_mem)
+int arkStep_SetDefaults(ARKodeMem ark_mem)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Set default values for integrator optional inputs */
@@ -936,8 +934,8 @@ int ARKStepSetOptimalParams(void* arkode_mem)
   int retval;
   long int lenrw, leniw;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* access ARKodeHAdaptMem structure */
@@ -1212,15 +1210,14 @@ int ARKStepSetOptimalParams(void* arkode_mem)
 
   Specifies the method order
   ---------------------------------------------------------------*/
-int arkStep_SetOrder(void* arkode_mem, int ord)
+int arkStep_SetOrder(ARKodeMem ark_mem, int ord)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   sunindextype Blrw, Bliw;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set user-provided value, or default, depending on argument */
@@ -1263,14 +1260,13 @@ int arkStep_SetOrder(void* arkode_mem, int ord)
   using an iterative linear solver this flag denotes time
   dependence of the preconditioner.
   ---------------------------------------------------------------*/
-int arkStep_SetLinear(void* arkode_mem, int timedepend)
+int arkStep_SetLinear(ARKodeMem ark_mem, int timedepend)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set parameters */
@@ -1288,14 +1284,13 @@ int arkStep_SetLinear(void* arkode_mem, int timedepend)
   Used to undo a previous call to arkStep_SetLinear.  Automatically
   loosens DeltaGammaMax back to default value.
   ---------------------------------------------------------------*/
-int arkStep_SetNonlinear(void* arkode_mem)
+int arkStep_SetNonlinear(ARKodeMem ark_mem)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set parameters */
@@ -1318,8 +1313,8 @@ int ARKStepSetExplicit(void* arkode_mem)
   ARKodeARKStepMem step_mem;
   int retval;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* ensure that fe is defined */
@@ -1349,8 +1344,8 @@ int ARKStepSetImplicit(void* arkode_mem)
   ARKodeARKStepMem step_mem;
   int retval;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* ensure that fi is defined */
@@ -1394,8 +1389,8 @@ int ARKStepSetImEx(void* arkode_mem)
   ARKodeARKStepMem step_mem;
   int retval;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* ensure that fe and fi are defined */
@@ -1452,8 +1447,8 @@ int ARKStepSetTables(void* arkode_mem, int q, int p, ARKodeButcherTable Bi,
   ARKodeARKStepMem step_mem;
   sunindextype Blrw, Bliw;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* check for illegal inputs */
@@ -1621,8 +1616,8 @@ int ARKStepSetTableNum(void* arkode_mem, ARKODE_DIRKTableID itable,
   ARKodeARKStepMem step_mem;
   sunindextype Blrw, Bliw;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* clear any existing parameters and Butcher tables */
@@ -1797,14 +1792,13 @@ int ARKStepSetTableName(void* arkode_mem, const char* itable, const char* etable
   crdown.  Legal values are strictly positive; illegal values
   imply a reset to the default.
   ---------------------------------------------------------------*/
-int arkStep_SetNonlinCRDown(void* arkode_mem, sunrealtype crdown)
+int arkStep_SetNonlinCRDown(ARKodeMem ark_mem, sunrealtype crdown)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* if argument legal set it, otherwise set default */
@@ -1821,14 +1815,13 @@ int arkStep_SetNonlinCRDown(void* arkode_mem, sunrealtype crdown)
   rdiv.  Legal values are strictly positive; illegal values
   imply a reset to the default.
   ---------------------------------------------------------------*/
-int arkStep_SetNonlinRDiv(void* arkode_mem, sunrealtype rdiv)
+int arkStep_SetNonlinRDiv(ARKodeMem ark_mem, sunrealtype rdiv)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* if argument legal set it, otherwise set default */
@@ -1845,14 +1838,13 @@ int arkStep_SetNonlinRDiv(void* arkode_mem, sunrealtype rdiv)
   dgmax.  Legal values are strictly positive; illegal values imply
   a reset to the default.
   ---------------------------------------------------------------*/
-int arkStep_SetDeltaGammaMax(void* arkode_mem, sunrealtype dgmax)
+int arkStep_SetDeltaGammaMax(ARKodeMem ark_mem, sunrealtype dgmax)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* if argument legal set it, otherwise set default */
@@ -1870,14 +1862,13 @@ int arkStep_SetDeltaGammaMax(void* arkode_mem, sunrealtype dgmax)
   negative values imply recomputation of lsetup at each nonlinear
   solve; a zero value implies a reset to the default.
   ---------------------------------------------------------------*/
-int arkStep_SetLSetupFrequency(void* arkode_mem, int msbp)
+int arkStep_SetLSetupFrequency(ARKodeMem ark_mem, int msbp)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* if argument legal set it, otherwise set default */
@@ -1894,14 +1885,13 @@ int arkStep_SetLSetupFrequency(void* arkode_mem, int msbp)
   Non-default choices are {1,2,3,4}, all others will use default
   (trivial) predictor.
   ---------------------------------------------------------------*/
-int arkStep_SetPredictorMethod(void* arkode_mem, int pred_method)
+int arkStep_SetPredictorMethod(ARKodeMem ark_mem, int pred_method)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set parameter */
@@ -1917,14 +1907,13 @@ int arkStep_SetPredictorMethod(void* arkode_mem, int pred_method)
   one solve.  A non-positive input implies a reset to the
   default value.
   ---------------------------------------------------------------*/
-int arkStep_SetMaxNonlinIters(void* arkode_mem, int maxcor)
+int arkStep_SetMaxNonlinIters(ARKodeMem ark_mem, int maxcor)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   SUNFunctionBegin(ark_mem->sunctx);
@@ -1959,14 +1948,13 @@ int arkStep_SetMaxNonlinIters(void* arkode_mem, int maxcor)
   Specifies the coefficient in the nonlinear solver convergence
   test.  A non-positive input implies a reset to the default value.
   ---------------------------------------------------------------*/
-int arkStep_SetNonlinConvCoef(void* arkode_mem, sunrealtype nlscoef)
+int arkStep_SetNonlinConvCoef(ARKodeMem ark_mem, sunrealtype nlscoef)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* argument <= 0 sets default, otherwise set input */
@@ -1981,14 +1969,13 @@ int arkStep_SetNonlinConvCoef(void* arkode_mem, sunrealtype nlscoef)
   predictor function having type ARKStagePredictFn.  A
   NULL input function disables calls to this routine.
   ---------------------------------------------------------------*/
-int arkStep_SetStagePredictFn(void* arkode_mem, ARKStagePredictFn PredictStage)
+int arkStep_SetStagePredictFn(ARKodeMem ark_mem, ARKStagePredictFn PredictStage)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure and set function pointer */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   step_mem->stage_predict = PredictStage;
@@ -2007,14 +1994,13 @@ int arkStep_SetStagePredictFn(void* arkode_mem, ARKStagePredictFn PredictStage)
   fi(z_i), and SUNFALSE indicates that fi(z_i) is computed with
   an additional evaluation of fi.
   ---------------------------------------------------------------*/
-int arkStep_SetDeduceImplicitRhs(void* arkode_mem, sunbooleantype deduce)
+int arkStep_SetDeduceImplicitRhs(ARKodeMem ark_mem, sunbooleantype deduce)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure and set function pointer */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   step_mem->deduce_rhs = deduce;
@@ -2028,12 +2014,11 @@ int arkStep_SetDeduceImplicitRhs(void* arkode_mem, sunbooleantype deduce)
 /*---------------------------------------------------------------
   arkStep_GetCurrentGamma: Returns the current value of gamma
   ---------------------------------------------------------------*/
-int arkStep_GetCurrentGamma(void* arkode_mem, sunrealtype* gamma)
+int arkStep_GetCurrentGamma(ARKodeMem ark_mem, sunrealtype* gamma)
 {
   int retval;
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   *gamma = step_mem->gamma;
   return (retval);
@@ -2050,8 +2035,8 @@ int ARKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_eva
   ARKodeARKStepMem step_mem;
   int retval;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
@@ -2066,14 +2051,13 @@ int ARKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_eva
 
   Returns the current number of calls to the lsetup routine
   ---------------------------------------------------------------*/
-int arkStep_GetNumLinSolvSetups(void* arkode_mem, long int* nlinsetups)
+int arkStep_GetNumLinSolvSetups(ARKodeMem ark_mem, long int* nlinsetups)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get value from step_mem */
@@ -2095,8 +2079,8 @@ int ARKStepGetCurrentButcherTables(void* arkode_mem, ARKodeButcherTable* Bi,
   ARKodeARKStepMem step_mem;
   int retval;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get tables from step_mem */
@@ -2119,8 +2103,8 @@ int ARKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
   ARKodeARKStepMem step_mem;
   int retval;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set expsteps and accsteps from adaptivity structure */
@@ -2142,14 +2126,13 @@ int ARKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
 
   Returns the current number of nonlinear solver iterations
   ---------------------------------------------------------------*/
-int arkStep_GetNumNonlinSolvIters(void* arkode_mem, long int* nniters)
+int arkStep_GetNumNonlinSolvIters(ARKodeMem ark_mem, long int* nniters)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   *nniters = step_mem->nls_iters;
@@ -2162,14 +2145,13 @@ int arkStep_GetNumNonlinSolvIters(void* arkode_mem, long int* nniters)
 
   Returns the current number of nonlinear solver convergence fails
   ---------------------------------------------------------------*/
-int arkStep_GetNumNonlinSolvConvFails(void* arkode_mem, long int* nnfails)
+int arkStep_GetNumNonlinSolvConvFails(ARKodeMem ark_mem, long int* nnfails)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set output from step_mem */
@@ -2183,15 +2165,14 @@ int arkStep_GetNumNonlinSolvConvFails(void* arkode_mem, long int* nnfails)
 
   Returns nonlinear solver statistics
   ---------------------------------------------------------------*/
-int arkStep_GetNonlinSolvStats(void* arkode_mem, long int* nniters,
+int arkStep_GetNonlinSolvStats(ARKodeMem ark_mem, long int* nniters,
                                long int* nnfails)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   *nniters = step_mem->nls_iters;
@@ -2205,16 +2186,15 @@ int arkStep_GetNonlinSolvStats(void* arkode_mem, long int* nniters,
 
   Prints integrator statistics
   ---------------------------------------------------------------*/
-int arkStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
+int arkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKLsMem arkls_mem;
   ARKLsMassMem arklsm_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   switch (fmt)
@@ -2235,9 +2215,9 @@ int arkStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
 
     /* linear solver stats */
     fprintf(outfile, "LS setups                    = %ld\n", step_mem->nsetups);
-    if (ark_mem->step_getlinmem(arkode_mem))
+    if (ark_mem->step_getlinmem(ark_mem))
     {
-      arkls_mem = (ARKLsMem)(ark_mem->step_getlinmem(arkode_mem));
+      arkls_mem = (ARKLsMem)(ark_mem->step_getlinmem(ark_mem));
       fprintf(outfile, "Jac fn evals                 = %ld\n", arkls_mem->nje);
       fprintf(outfile, "LS RHS fn evals              = %ld\n", arkls_mem->nfeDQ);
       fprintf(outfile, "Prec setup evals             = %ld\n", arkls_mem->npe);
@@ -2260,9 +2240,9 @@ int arkStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
     }
 
     /* mass solve stats */
-    if (ark_mem->step_getmassmem(arkode_mem))
+    if (ark_mem->step_getmassmem(ark_mem))
     {
-      arklsm_mem = (ARKLsMassMem)(ark_mem->step_getmassmem(arkode_mem));
+      arklsm_mem = (ARKLsMassMem)(ark_mem->step_getmassmem(ark_mem));
       fprintf(outfile, "Mass setups                  = %ld\n",
               arklsm_mem->nmsetups);
       fprintf(outfile, "Mass solves                  = %ld\n",
@@ -2295,9 +2275,9 @@ int arkStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
 
     /* linear solver stats */
     fprintf(outfile, ",LS setups,%ld", step_mem->nsetups);
-    if (ark_mem->step_getlinmem(arkode_mem))
+    if (ark_mem->step_getlinmem(ark_mem))
     {
-      arkls_mem = (ARKLsMem)(ark_mem->step_getlinmem(arkode_mem));
+      arkls_mem = (ARKLsMem)(ark_mem->step_getlinmem(ark_mem));
       fprintf(outfile, ",Jac fn evals,%ld", arkls_mem->nje);
       fprintf(outfile, ",LS RHS fn evals,%ld", arkls_mem->nfeDQ);
       fprintf(outfile, ",Prec setup evals,%ld", arkls_mem->npe);
@@ -2324,9 +2304,9 @@ int arkStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
     }
 
     /* mass solve stats */
-    if (ark_mem->step_getmassmem(arkode_mem))
+    if (ark_mem->step_getmassmem(ark_mem))
     {
-      arklsm_mem = (ARKLsMassMem)(ark_mem->step_getmassmem(arkode_mem));
+      arklsm_mem = (ARKLsMassMem)(ark_mem->step_getmassmem(ark_mem));
       fprintf(outfile, ",Mass setups,%ld", arklsm_mem->nmsetups);
       fprintf(outfile, ",Mass solves,%ld", arklsm_mem->nmsolves);
       fprintf(outfile, ",Mass Prec setup evals,%ld", arklsm_mem->npe);
@@ -2357,14 +2337,13 @@ int arkStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
 
   Outputs all solver parameters to the provided file pointer.
   ---------------------------------------------------------------*/
-int arkStep_WriteParameters(void* arkode_mem, FILE* fp)
+int arkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* print integrator parameters to file */
@@ -2415,8 +2394,8 @@ int ARKStepWriteButcher(void* arkode_mem, FILE* fp)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* check that Butcher table is non-NULL (otherwise report error) */

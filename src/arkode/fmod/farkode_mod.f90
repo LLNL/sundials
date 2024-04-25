@@ -154,7 +154,6 @@ module farkode_mod
  public :: FARKodeClearStopTime
  public :: FARKodeSetFixedStep
  public :: FARKodeSetMaxNumConstrFails
- public :: FARKodeSetUseCompensatedSums
  public :: FARKodeSetUserData
  public :: FARKodeSetPostprocessStepFn
  public :: FARKodeSetPostprocessStageFn
@@ -924,15 +923,6 @@ end function
 
 function swigc_FARKodeSetMaxNumConstrFails(farg1, farg2) &
 bind(C, name="_wrap_FARKodeSetMaxNumConstrFails") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetUseCompensatedSums(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetUseCompensatedSums") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -3204,22 +3194,6 @@ integer(C_INT) :: farg2
 farg1 = arkode_mem
 farg2 = maxfails
 fresult = swigc_FARKodeSetMaxNumConstrFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetUseCompensatedSums(arkode_mem, onoff) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: onoff
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = onoff
-fresult = swigc_FARKodeSetUseCompensatedSums(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -66,26 +66,28 @@ typedef struct ARKodeSPRKStepMemRec
   SPRK time step module private function prototypes
   ===============================================================*/
 
-int sprkStep_Init(void* arkode_mem, int init_type);
-int sprkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
+int sprkStep_Init(ARKodeMem ark_mem, int init_type);
+int sprkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                      int mode);
-int sprkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr);
-int sprkStep_TakeStep_Compensated(void* arkode_mem, sunrealtype* dsmPtr,
+int sprkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                                   int* nflagPtr);
-int sprkStep_SetUserData(void* arkode_mem, void* user_data);
-int sprkStep_SetDefaults(void* arkode_mem);
-int sprkStep_SetOrder(void* arkode_mem, int ord);
-int sprkStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
-int sprkStep_WriteParameters(void* arkode_mem, FILE* fp);
-int sprkStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR);
-int sprkStep_Resize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
+int sprkStep_SetUserData(ARKodeMem ark_mem, void* user_data);
+int sprkStep_SetDefaults(ARKodeMem ark_mem);
+int sprkStep_SetOrder(ARKodeMem ark_mem, int ord);
+int sprkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
+int sprkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp);
+int sprkStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR);
+int sprkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                     sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
-void sprkStep_Free(void* arkode_mem);
-void sprkStep_PrintMem(void* arkode_mem, FILE* outfile);
+void sprkStep_Free(ARKodeMem ark_mem);
+void sprkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
 
 /* Internal utility routines */
-int sprkStep_AccessStepMem(void* arkode_mem, const char* fname,
-                           ARKodeMem* ark_mem, ARKodeSPRKStepMem* step_mem);
+int sprkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
+                                 ARKodeMem* ark_mem, ARKodeSPRKStepMem* step_mem);
+int sprkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
+                           ARKodeSPRKStepMem* step_mem);
 sunbooleantype sprkStep_CheckNVector(N_Vector tmpl);
 /* f1 = p' (Force evaluation) */
 int sprkStep_f1(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,

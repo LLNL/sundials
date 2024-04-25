@@ -68,31 +68,33 @@ typedef struct ARKodeERKStepMemRec
   ===============================================================*/
 
 /* Interface routines supplied to ARKODE */
-int erkStep_Init(void* arkode_mem, int init_type);
-int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
+int erkStep_Init(ARKodeMem ark_mem, int init_type);
+int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
-int erkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr);
-int erkStep_SetUserData(void* arkode_mem, void* user_data);
-int erkStep_SetDefaults(void* arkode_mem);
-int erkStep_SetOrder(void* arkode_mem, int ord);
-int erkStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
-int erkStep_WriteParameters(void* arkode_mem, FILE* fp);
-int erkStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR);
-int erkStep_Resize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
+int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int erkStep_SetUserData(ARKodeMem ark_mem, void* user_data);
+int erkStep_SetDefaults(ARKodeMem ark_mem);
+int erkStep_SetOrder(ARKodeMem ark_mem, int ord);
+int erkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
+int erkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp);
+int erkStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR);
+int erkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
-void erkStep_Free(void* arkode_mem);
-void erkStep_PrintMem(void* arkode_mem, FILE* outfile);
+void erkStep_Free(ARKodeMem ark_mem);
+void erkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
 
 /* Internal utility routines */
-int erkStep_AccessStepMem(void* arkode_mem, const char* fname,
-                          ARKodeMem* ark_mem, ARKodeERKStepMem* step_mem);
+int erkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
+                                ARKodeMem* ark_mem, ARKodeERKStepMem* step_mem);
+int erkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
+                          ARKodeERKStepMem* step_mem);
 sunbooleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsm);
 
 /* private functions for relaxation */
-int erkStep_SetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
+int erkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
 int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         long int* relax_jac_fn_evals, sunrealtype* delta_e_out);
 int erkStep_GetOrder(ARKodeMem ark_mem);

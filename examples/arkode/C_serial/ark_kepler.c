@@ -168,8 +168,8 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
     retval = SPRKStepSetMethodName(arkode_mem, method_name);
     if (check_retval(&retval, "SPRKStepSetMethodName", 1)) { return 1; }
 
-    retval = ARKodeSetUseCompensatedSums(arkode_mem, use_compsums);
-    if (check_retval(&retval, "ARKodeSetUseCompensatedSums", 1)) { return 1; }
+    retval = SPRKStepSetUseCompensatedSums(arkode_mem, use_compsums);
+    if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) { return 1; }
 
     if (step_mode == 0)
     {

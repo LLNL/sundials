@@ -131,7 +131,8 @@ int ARKodeSetOrder(void* arkode_mem, int ord)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -278,8 +279,8 @@ int ARKodeSetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -290,7 +291,8 @@ int ARKodeSetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -325,8 +327,8 @@ int ARKodeSetLinear(void* arkode_mem, int timedepend)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -337,7 +339,8 @@ int ARKodeSetLinear(void* arkode_mem, int timedepend)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -363,8 +366,8 @@ int ARKodeSetNonlinear(void* arkode_mem)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -375,7 +378,8 @@ int ARKodeSetNonlinear(void* arkode_mem)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -402,8 +406,8 @@ int ARKodeSetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fi)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -414,7 +418,8 @@ int ARKodeSetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fi)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -446,8 +451,8 @@ int ARKodeSetDeduceImplicitRhs(void* arkode_mem, sunbooleantype deduce)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -458,7 +463,8 @@ int ARKodeSetDeduceImplicitRhs(void* arkode_mem, sunbooleantype deduce)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -485,8 +491,8 @@ int ARKodeSetNonlinCRDown(void* arkode_mem, sunrealtype crdown)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -497,7 +503,8 @@ int ARKodeSetNonlinCRDown(void* arkode_mem, sunrealtype crdown)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -524,8 +531,8 @@ int ARKodeSetNonlinRDiv(void* arkode_mem, sunrealtype rdiv)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -536,7 +543,8 @@ int ARKodeSetNonlinRDiv(void* arkode_mem, sunrealtype rdiv)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -563,8 +571,8 @@ int ARKodeSetDeltaGammaMax(void* arkode_mem, sunrealtype dgmax)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -575,7 +583,8 @@ int ARKodeSetDeltaGammaMax(void* arkode_mem, sunrealtype dgmax)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -603,8 +612,8 @@ int ARKodeSetLSetupFrequency(void* arkode_mem, int msbp)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -615,7 +624,8 @@ int ARKodeSetLSetupFrequency(void* arkode_mem, int msbp)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -640,8 +650,8 @@ int ARKodeSetPredictorMethod(void* arkode_mem, int pred_method)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -652,7 +662,8 @@ int ARKodeSetPredictorMethod(void* arkode_mem, int pred_method)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -679,8 +690,8 @@ int ARKodeSetMaxNonlinIters(void* arkode_mem, int maxcor)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -691,7 +702,8 @@ int ARKodeSetMaxNonlinIters(void* arkode_mem, int maxcor)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -717,8 +729,8 @@ int ARKodeSetNonlinConvCoef(void* arkode_mem, sunrealtype nlscoef)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -729,7 +741,8 @@ int ARKodeSetNonlinConvCoef(void* arkode_mem, sunrealtype nlscoef)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -754,8 +767,8 @@ int ARKodeSetStagePredictFn(void* arkode_mem, ARKStagePredictFn PredictStage)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -766,7 +779,8 @@ int ARKodeSetStagePredictFn(void* arkode_mem, ARKStagePredictFn PredictStage)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -833,8 +847,8 @@ int ARKodeSetAdaptController(void* arkode_mem, SUNAdaptController C)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -928,8 +942,8 @@ int ARKodeSetMaxHnilWarns(void* arkode_mem, int mxhnil)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -960,8 +974,8 @@ int ARKodeSetInitStep(void* arkode_mem, sunrealtype hin)
   /* Guard against hin==0 for non-adaptive time stepper modules */
   if ((!ark_mem->step_supports_adaptive) && (hin == ZERO))
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -998,8 +1012,8 @@ int ARKodeSetMinStep(void* arkode_mem, sunrealtype hmin)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1044,8 +1058,8 @@ int ARKodeSetMaxStep(void* arkode_mem, sunrealtype hmax)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1362,8 +1376,8 @@ int ARKodeSetConstraints(void* arkode_mem, N_Vector constraints)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive && (constraints != NULL))
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1428,8 +1442,8 @@ int ARKodeSetMaxNumConstrFails(void* arkode_mem, int maxfails)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1753,8 +1767,8 @@ int ARKodeSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1793,8 +1807,8 @@ int ARKodeSetAdaptivityAdjustment(void* arkode_mem, int adjust)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1822,8 +1836,8 @@ int ARKodeSetSafetyFactor(void* arkode_mem, sunrealtype safety)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1860,8 +1874,8 @@ int ARKodeSetErrorBias(void* arkode_mem, sunrealtype bias)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1902,8 +1916,8 @@ int ARKodeSetMaxGrowth(void* arkode_mem, sunrealtype mx_growth)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1933,8 +1947,8 @@ int ARKodeSetMinReduction(void* arkode_mem, sunrealtype eta_min)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1963,8 +1977,8 @@ int ARKodeSetFixedStepBounds(void* arkode_mem, sunrealtype lb, sunrealtype ub)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -2001,8 +2015,8 @@ int ARKodeSetMaxFirstGrowth(void* arkode_mem, sunrealtype etamx1)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -2031,8 +2045,8 @@ int ARKodeSetMaxEFailGrowth(void* arkode_mem, sunrealtype etamxf)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -2061,8 +2075,8 @@ int ARKodeSetSmallNumEFails(void* arkode_mem, int small_nef)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -2091,8 +2105,8 @@ int ARKodeSetMaxCFailGrowth(void* arkode_mem, sunrealtype etacf)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -2121,8 +2135,8 @@ int ARKodeSetStabilityFn(void* arkode_mem, ARKExpStabFn EStab, void* estab_data)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -2162,8 +2176,8 @@ int ARKodeSetMaxErrTestFails(void* arkode_mem, int maxnef)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -2194,37 +2208,14 @@ int ARKodeSetMaxConvFails(void* arkode_mem, int maxncf)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
   /* argument <= 0 sets default, otherwise set input */
   if (maxncf <= 0) { ark_mem->maxncf = MAXNCF; }
   else { ark_mem->maxncf = maxncf; }
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  ARKodeSetUseCompensatedSums:
-
-  Specifies that ARKODE should use compensated (Kahan) summation
-  where relevant to mitigate roundoff error.
-  ---------------------------------------------------------------*/
-int ARKodeSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-
-  if (onoff) { ark_mem->use_compensated_sums = SUNTRUE; }
-  else { ark_mem->use_compensated_sums = SUNFALSE; }
-
   return (ARK_SUCCESS);
 }
 
@@ -2411,19 +2402,20 @@ int ARKodeGetCurrentGamma(void* arkode_mem, sunrealtype* gamma)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
   /* Call stepper routine to compute the state (if provided) */
   if (ark_mem->step_getcurrentgamma)
   {
-    return (ark_mem->step_getcurrentgamma(arkode_mem, gamma));
+    return (ark_mem->step_getcurrentgamma(ark_mem, gamma));
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -2488,8 +2480,8 @@ int ARKodeGetResWeights(void* arkode_mem, N_Vector rweight)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support non-identity mass matrices");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -2620,8 +2612,8 @@ int ARKodeGetNumConstrFails(void* arkode_mem, long int* nconstrfails)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -2648,8 +2640,8 @@ int ARKodeGetNumExpSteps(void* arkode_mem, long int* nsteps)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -2676,8 +2668,8 @@ int ARKodeGetNumAccSteps(void* arkode_mem, long int* nsteps)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -2704,8 +2696,8 @@ int ARKodeGetNumErrTestFails(void* arkode_mem, long int* netfails)
   /* Guard against use for non-adaptive time stepper modules */
   if (!ark_mem->step_supports_adaptive)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not support temporal adaptivity");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -2733,7 +2725,8 @@ int ARKodeComputeState(void* arkode_mem, N_Vector zcor, N_Vector z)
   /* Guard against use for incompatible time stepper modules */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support algebraic solvers");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -2741,11 +2734,12 @@ int ARKodeComputeState(void* arkode_mem, N_Vector zcor, N_Vector z)
   /* Call stepper routine to compute the state (if provided) */
   if (ark_mem->step_computestate)
   {
-    return (ark_mem->step_computestate(arkode_mem, zcor, z));
+    return (ark_mem->step_computestate(ark_mem, zcor, z));
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -2774,7 +2768,8 @@ int ARKodeGetNonlinearSystemData(void* arkode_mem, sunrealtype* tcur,
   /* Guard against use for incompatible time stepper modules */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support algebraic solvers");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -2782,12 +2777,13 @@ int ARKodeGetNonlinearSystemData(void* arkode_mem, sunrealtype* tcur,
   /* Call stepper routine to compute the state (if provided) */
   if (ark_mem->step_getnonlinearsystemdata)
   {
-    return (ark_mem->step_getnonlinearsystemdata(arkode_mem, tcur, zpred, z, Fi,
+    return (ark_mem->step_getnonlinearsystemdata(ark_mem, tcur, zpred, z, Fi,
                                                  gamma, sdata, user_data));
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -2812,7 +2808,8 @@ int ARKodeGetNumNonlinSolvIters(void* arkode_mem, long int* nniters)
   /* Guard against use for incompatible time stepper modules */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support algebraic solvers");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -2820,11 +2817,12 @@ int ARKodeGetNumNonlinSolvIters(void* arkode_mem, long int* nniters)
   /* Call stepper routine to compute the state (if provided) */
   if (ark_mem->step_getnumnonlinsolviters)
   {
-    return (ark_mem->step_getnumnonlinsolviters(arkode_mem, nniters));
+    return (ark_mem->step_getnumnonlinsolviters(ark_mem, nniters));
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -2849,19 +2847,20 @@ int ARKodeGetNumNonlinSolvConvFails(void* arkode_mem, long int* nnfails)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
   /* Call stepper routine to compute the state (if provided) */
   if (ark_mem->step_getnumnonlinsolvconvfails)
   {
-    return (ark_mem->step_getnumnonlinsolvconvfails(arkode_mem, nnfails));
+    return (ark_mem->step_getnumnonlinsolvconvfails(ark_mem, nnfails));
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -2887,19 +2886,20 @@ int ARKodeGetNonlinSolvStats(void* arkode_mem, long int* nniters,
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
   /* Call stepper routine to compute the state (if provided) */
   if (ark_mem->step_getnonlinsolvstats)
   {
-    return (ark_mem->step_getnonlinsolvstats(arkode_mem, nniters, nnfails));
+    return (ark_mem->step_getnonlinsolvstats(ark_mem, nniters, nnfails));
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -2925,8 +2925,8 @@ int ARKodeGetNumStepSolveFails(void* arkode_mem, long int* nncfails)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -2953,19 +2953,20 @@ int ARKodeGetNumLinSolvSetups(void* arkode_mem, long int* nlinsetups)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
   /* Call stepper routine to compute the state (if provided) */
   if (ark_mem->step_getnumlinsolvsetups)
   {
-    return (ark_mem->step_getnumlinsolvsetups(arkode_mem, nlinsetups));
+    return (ark_mem->step_getnumlinsolvsetups(ark_mem, nlinsetups));
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
                     "time-stepping module does not support this function");
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -3065,14 +3066,14 @@ int ARKodePrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
   /* Print relaxation stats */
   if (ark_mem->relax_enabled)
   {
-    retval = arkRelaxPrintAllStats(arkode_mem, outfile, fmt);
+    retval = arkRelaxPrintAllStats(ark_mem, outfile, fmt);
     if (retval != ARK_SUCCESS) { return (retval); }
   }
 
   /* Print stepper stats (if provided) */
   if (ark_mem->step_printallstats)
   {
-    return (ark_mem->step_printallstats(arkode_mem, outfile, fmt));
+    return (ark_mem->step_printallstats(ark_mem, outfile, fmt));
   }
 
   return (ARK_SUCCESS);

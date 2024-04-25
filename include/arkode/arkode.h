@@ -266,8 +266,6 @@ SUNDIALS_EXPORT int ARKodeSetStopTime(void* arkode_mem, sunrealtype tstop);
 SUNDIALS_EXPORT int ARKodeClearStopTime(void* arkode_mem);
 SUNDIALS_EXPORT int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed);
 SUNDIALS_EXPORT int ARKodeSetMaxNumConstrFails(void* arkode_mem, int maxfails);
-SUNDIALS_EXPORT int ARKodeSetUseCompensatedSums(void* arkode_mem,
-                                                sunbooleantype onoff);
 
 SUNDIALS_EXPORT int ARKodeSetUserData(void* arkode_mem, void* user_data);
 

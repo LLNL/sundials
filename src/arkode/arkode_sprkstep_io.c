@@ -216,20 +216,10 @@ int SPRKStepWriteParameters(void* arkode_mem, FILE* fp)
   structures/options related to the ARKODE infrastructure itself
   (e.g., root-finding and post-process step).
   ---------------------------------------------------------------*/
-int sprkStep_SetDefaults(void* arkode_mem)
+int sprkStep_SetDefaults(ARKodeMem ark_mem)
 {
-  ARKodeMem ark_mem          = NULL;
-  ARKodeSPRKStepMem step_mem = NULL;
-  int retval                 = 0;
-
-  /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
   /* use the default method order */
-  sprkStep_SetOrder(arkode_mem, 0);
-
-  return (ARK_SUCCESS);
+  return (sprkStep_SetOrder(ark_mem, 0));
 }
 
 /*---------------------------------------------------------------
@@ -243,14 +233,15 @@ int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
   ARKodeSPRKStepMem step_mem = NULL;
   int retval                 = 0;
 
-  /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeSPRKStepMem structures */
+  retval = sprkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   if (onoff)
   {
-    retval        = ARKodeSetUseCompensatedSums(arkode_mem, SUNTRUE);
-    ark_mem->step = sprkStep_TakeStep_Compensated;
+    ark_mem->use_compensated_sums = SUNTRUE;
+    ark_mem->step                 = sprkStep_TakeStep_Compensated;
     if (!step_mem->yerr)
     {
       if (!arkAllocVec(ark_mem, ark_mem->yn, &(step_mem->yerr)))
@@ -261,8 +252,8 @@ int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
   }
   else
   {
-    retval        = ARKodeSetUseCompensatedSums(arkode_mem, SUNFALSE);
-    ark_mem->step = sprkStep_TakeStep;
+    ark_mem->use_compensated_sums = SUNFALSE;
+    ark_mem->step                 = sprkStep_TakeStep;
   }
 
   return (retval);
@@ -282,8 +273,9 @@ int SPRKStepSetMethod(void* arkode_mem, ARKodeSPRKTable sprk_storage)
   ARKodeSPRKStepMem step_mem = NULL;
   int retval                 = 0;
 
-  /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeSPRKStepMem structures */
+  retval = sprkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   if (step_mem->method)
@@ -308,8 +300,9 @@ int SPRKStepSetMethodName(void* arkode_mem, const char* method)
   ARKodeSPRKStepMem step_mem = NULL;
   int retval                 = 0;
 
-  /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeSPRKStepMem structures */
+  retval = sprkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   if (step_mem->method)
@@ -328,14 +321,13 @@ int SPRKStepSetMethodName(void* arkode_mem, const char* method)
 
   Specifies the method order
   ---------------------------------------------------------------*/
-int sprkStep_SetOrder(void* arkode_mem, int ord)
+int sprkStep_SetOrder(ARKodeMem ark_mem, int ord)
 {
-  ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
   int retval                 = 0;
 
   /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = sprkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Invalid orders result in the default order being used. */
@@ -369,8 +361,9 @@ int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
   ARKodeSPRKStepMem step_mem = NULL;
   int retval                 = 0;
 
-  /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeSPRKStepMem structures */
+  retval = sprkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   *nf1 = step_mem->nf1;
@@ -390,8 +383,9 @@ int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKTable* sprk_storage)
   ARKodeSPRKStepMem step_mem = NULL;
   int retval                 = 0;
 
-  /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeSPRKStepMem structures */
+  retval = sprkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   *sprk_storage = step_mem->method;
@@ -404,14 +398,13 @@ int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKTable* sprk_storage)
 
   Prints integrator statistics
   ---------------------------------------------------------------*/
-int sprkStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
+int sprkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
 {
-  ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
   int retval                 = 0;
 
   /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = sprkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   switch (fmt)
@@ -444,14 +437,13 @@ int sprkStep_PrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
 
   Outputs all solver parameters to the provided file pointer.
   ---------------------------------------------------------------*/
-int sprkStep_WriteParameters(void* arkode_mem, FILE* fp)
+int sprkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 {
-  ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
   int retval                 = 0;
 
   /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = sprkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* print integrator parameters to file */

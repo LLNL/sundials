@@ -147,92 +147,92 @@ extern "C" {
    located at the end of this file */
 
 /* linear solver interface functions */
-typedef int (*ARKLinsolInitFn)(void* arkode_mem);
-typedef int (*ARKLinsolSetupFn)(void* arkode_mem, int convfail,
+typedef int (*ARKLinsolInitFn)(ARKodeMem ark_mem);
+typedef int (*ARKLinsolSetupFn)(ARKodeMem ark_mem, int convfail,
                                 sunrealtype tpred, N_Vector ypred, N_Vector fpred,
                                 sunbooleantype* jcurPtr, N_Vector vtemp1,
                                 N_Vector vtemp2, N_Vector vtemp3);
-typedef int (*ARKLinsolSolveFn)(void* arkode_mem, N_Vector b, sunrealtype tcur,
+typedef int (*ARKLinsolSolveFn)(ARKodeMem ark_mem, N_Vector b, sunrealtype tcur,
                                 N_Vector ycur, N_Vector fcur,
                                 sunrealtype client_tol, int mnewt);
-typedef int (*ARKLinsolFreeFn)(void* arkode_mem);
+typedef int (*ARKLinsolFreeFn)(ARKodeMem ark_mem);
 
 /* mass-matrix solver interface functions */
-typedef int (*ARKMassInitFn)(void* arkode_mem);
-typedef int (*ARKMassSetupFn)(void* arkode_mem, sunrealtype t, N_Vector vtemp1,
+typedef int (*ARKMassInitFn)(ARKodeMem ark_mem);
+typedef int (*ARKMassSetupFn)(ARKodeMem ark_mem, sunrealtype t, N_Vector vtemp1,
                               N_Vector vtemp2, N_Vector vtemp3);
 typedef int (*ARKMassMultFn)(void* arkode_mem, N_Vector v, N_Vector Mv);
-typedef int (*ARKMassSolveFn)(void* arkode_mem, N_Vector b,
+typedef int (*ARKMassSolveFn)(ARKodeMem ark_mem, N_Vector b,
                               sunrealtype client_tol);
-typedef int (*ARKMassFreeFn)(void* arkode_mem);
+typedef int (*ARKMassFreeFn)(ARKodeMem ark_mem);
 
 /* time stepper interface functions */
-typedef int (*ARKTimestepInitFn)(void* arkode_mem, int init_type);
-typedef int (*ARKTimestepAttachLinsolFn)(void* arkode_mem, ARKLinsolInitFn linit,
+typedef int (*ARKTimestepInitFn)(ARKodeMem ark_mem, int init_type);
+typedef int (*ARKTimestepAttachLinsolFn)(ARKodeMem ark_mem, ARKLinsolInitFn linit,
                                          ARKLinsolSetupFn lsetup,
                                          ARKLinsolSolveFn lsolve,
                                          ARKLinsolFreeFn lfree,
                                          SUNLinearSolver_Type lsolve_type,
                                          void* lmem);
 typedef int (*ARKTimestepAttachMasssolFn)(
-  void* arkode_mem, ARKMassInitFn minit, ARKMassSetupFn msetup,
+  ARKodeMem ark_mem, ARKMassInitFn minit, ARKMassSetupFn msetup,
   ARKMassMultFn mmult, ARKMassSolveFn msolve, ARKMassFreeFn mfree,
   sunbooleantype time_dep, SUNLinearSolver_Type msolve_type, void* mass_mem);
-typedef void (*ARKTimestepDisableLSetup)(void* arkode_mem);
-typedef void (*ARKTimestepDisableMSetup)(void* arkode_mem);
-typedef void* (*ARKTimestepGetLinMemFn)(void* arkode_mem);
-typedef void* (*ARKTimestepGetMassMemFn)(void* arkode_mem);
-typedef ARKRhsFn (*ARKTimestepGetImplicitRHSFn)(void* arkode_mem);
-typedef int (*ARKTimestepGetGammasFn)(void* arkode_mem, sunrealtype* gamma,
+typedef void (*ARKTimestepDisableLSetup)(ARKodeMem ark_mem);
+typedef void (*ARKTimestepDisableMSetup)(ARKodeMem ark_mem);
+typedef void* (*ARKTimestepGetLinMemFn)(ARKodeMem ark_mem);
+typedef void* (*ARKTimestepGetMassMemFn)(ARKodeMem ark_mem);
+typedef ARKRhsFn (*ARKTimestepGetImplicitRHSFn)(ARKodeMem ark_mem);
+typedef int (*ARKTimestepGetGammasFn)(ARKodeMem ark_mem, sunrealtype* gamma,
                                       sunrealtype* gamrat, sunbooleantype** jcur,
                                       sunbooleantype* dgamma_fail);
-typedef int (*ARKTimestepFullRHSFn)(void* arkode_mem, sunrealtype t, N_Vector y,
-                                    N_Vector f, int mode);
-typedef int (*ARKTimestepStepFn)(void* arkode_mem, sunrealtype* dsm, int* nflag);
-typedef int (*ARKTimetepSetUserDataFn)(void* arkode_mem, void* user_data);
-typedef int (*ARKTimestepPrintAllStats)(void* arkode_mem, FILE* outfile,
+typedef int (*ARKTimestepFullRHSFn)(ARKodeMem ark_mem, sunrealtype t,
+                                    N_Vector y, N_Vector f, int mode);
+typedef int (*ARKTimestepStepFn)(ARKodeMem ark_mem, sunrealtype* dsm, int* nflag);
+typedef int (*ARKTimetepSetUserDataFn)(ARKodeMem ark_mem, void* user_data);
+typedef int (*ARKTimestepPrintAllStats)(ARKodeMem ark_mem, FILE* outfile,
                                         SUNOutputFormat fmt);
-typedef int (*ARKTimestepWriteParameters)(void* arkode_mem, FILE* fp);
-typedef int (*ARKTimestepResize)(void* arkode_mem, N_Vector ynew,
+typedef int (*ARKTimestepWriteParameters)(ARKodeMem ark_mem, FILE* fp);
+typedef int (*ARKTimestepResize)(ARKodeMem ark_mem, N_Vector ynew,
                                  sunrealtype hscale, sunrealtype t0,
                                  ARKVecResizeFn resize, void* resize_data);
-typedef int (*ARKTimestepReset)(void* arkode_mem, sunrealtype tR, N_Vector yR);
-typedef void (*ARKTimestepFree)(void* arkode_mem);
-typedef void (*ARKTimestepPrintMem)(void* arkode_mem, FILE* outfile);
-typedef int (*ARKTimestepSetDefaults)(void* arkode_mem);
-typedef int (*ARKTimestepComputeState)(void* arkode_mem, N_Vector zcor,
+typedef int (*ARKTimestepReset)(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR);
+typedef void (*ARKTimestepFree)(ARKodeMem ark_mem);
+typedef void (*ARKTimestepPrintMem)(ARKodeMem ark_mem, FILE* outfile);
+typedef int (*ARKTimestepSetDefaults)(ARKodeMem ark_mem);
+typedef int (*ARKTimestepComputeState)(ARKodeMem ark_mem, N_Vector zcor,
                                        N_Vector z);
-typedef int (*ARKTimestepSetRelaxFn)(void* arkode_mem, ARKRelaxFn rfn,
+typedef int (*ARKTimestepSetRelaxFn)(ARKodeMem ark_mem, ARKRelaxFn rfn,
                                      ARKRelaxJacFn rjac);
-typedef int (*ARKTimestepSetOrder)(void* arkode_mem, int maxord);
-typedef int (*ARKTimestepSetNonlinearSolver)(void* arkode_mem,
+typedef int (*ARKTimestepSetOrder)(ARKodeMem ark_mem, int maxord);
+typedef int (*ARKTimestepSetNonlinearSolver)(ARKodeMem ark_mem,
                                              SUNNonlinearSolver NLS);
-typedef int (*ARKTimestepSetLinear)(void* arkode_mem, int timedepend);
-typedef int (*ARKTimestepSetNonlinear)(void* arkode_mem);
-typedef int (*ARKTimestepSetNlsRhsFn)(void* arkode_mem, ARKRhsFn nls_fi);
-typedef int (*ARKTimestepSetDeduceImplicitRhs)(void* arkode_mem,
+typedef int (*ARKTimestepSetLinear)(ARKodeMem ark_mem, int timedepend);
+typedef int (*ARKTimestepSetNonlinear)(ARKodeMem ark_mem);
+typedef int (*ARKTimestepSetNlsRhsFn)(ARKodeMem ark_mem, ARKRhsFn nls_fi);
+typedef int (*ARKTimestepSetDeduceImplicitRhs)(ARKodeMem ark_mem,
                                                sunbooleantype deduce);
-typedef int (*ARKTimestepSetNonlinCRDown)(void* arkode_mem, sunrealtype crdown);
-typedef int (*ARKTimestepSetNonlinRDiv)(void* arkode_mem, sunrealtype rdiv);
-typedef int (*ARKTimestepSetDeltaGammaMax)(void* arkode_mem, sunrealtype dgmax);
-typedef int (*ARKTimestepSetLSetupFrequency)(void* arkode_mem, int msbp);
-typedef int (*ARKTimestepSetPredictorMethod)(void* arkode_mem, int method);
-typedef int (*ARKTimestepSetMaxNonlinIters)(void* arkode_mem, int maxcor);
-typedef int (*ARKTimestepSetNonlinConvCoef)(void* arkode_mem,
+typedef int (*ARKTimestepSetNonlinCRDown)(ARKodeMem ark_mem, sunrealtype crdown);
+typedef int (*ARKTimestepSetNonlinRDiv)(ARKodeMem ark_mem, sunrealtype rdiv);
+typedef int (*ARKTimestepSetDeltaGammaMax)(ARKodeMem ark_mem, sunrealtype dgmax);
+typedef int (*ARKTimestepSetLSetupFrequency)(ARKodeMem ark_mem, int msbp);
+typedef int (*ARKTimestepSetPredictorMethod)(ARKodeMem ark_mem, int method);
+typedef int (*ARKTimestepSetMaxNonlinIters)(ARKodeMem ark_mem, int maxcor);
+typedef int (*ARKTimestepSetNonlinConvCoef)(ARKodeMem ark_mem,
                                             sunrealtype nlscoef);
-typedef int (*ARKTimestepSetStagePredictFn)(void* arkode_mem,
+typedef int (*ARKTimestepSetStagePredictFn)(ARKodeMem ark_mem,
                                             ARKStagePredictFn PredictStage);
-typedef int (*ARKTimestepGetNumLinSolvSetups)(void* arkode_mem,
+typedef int (*ARKTimestepGetNumLinSolvSetups)(ARKodeMem ark_mem,
                                               long int* nlinsetups);
-typedef int (*ARKTimestepGetCurrentGamma)(void* arkode_mem, sunrealtype* gamma);
+typedef int (*ARKTimestepGetCurrentGamma)(ARKodeMem ark_mem, sunrealtype* gamma);
 typedef int (*ARKTimestepGetNonlinearSystemData)(
-  void* arkode_mem, sunrealtype* tcur, N_Vector* zpred, N_Vector* z,
+  ARKodeMem ark_mem, sunrealtype* tcur, N_Vector* zpred, N_Vector* z,
   N_Vector* Fi, sunrealtype* gamma, N_Vector* sdata, void** user_data);
-typedef int (*ARKTimestepGetNumNonlinSolvIters)(void* arkode_mem,
+typedef int (*ARKTimestepGetNumNonlinSolvIters)(ARKodeMem ark_mem,
                                                 long int* nniters);
-typedef int (*ARKTimestepGetNumNonlinSolvConvFails)(void* arkode_mem,
+typedef int (*ARKTimestepGetNumNonlinSolvConvFails)(ARKodeMem ark_mem,
                                                     long int* nnfails);
-typedef int (*ARKTimestepGetNonlinSolvStats)(void* arkode_mem, long int* nniters,
+typedef int (*ARKTimestepGetNonlinSolvStats)(ARKodeMem ark_mem, long int* nniters,
                                              long int* nnfails);
 
 /*===============================================================
@@ -248,15 +248,15 @@ typedef struct _generic_ARKInterp* ARKInterp;
 /* Structure containing function pointers to interpolation operations  */
 struct _generic_ARKInterpOps
 {
-  int (*resize)(void* arkode_mem, ARKInterp interp, ARKVecResizeFn resize,
+  int (*resize)(ARKodeMem ark_mem, ARKInterp interp, ARKVecResizeFn resize,
                 void* resize_data, sunindextype lrw_diff, sunindextype liw_diff,
                 N_Vector tmpl);
-  void (*free)(void* arkode_mem, ARKInterp interp);
+  void (*free)(ARKodeMem ark_mem, ARKInterp interp);
   void (*print)(ARKInterp interp, FILE* outfile);
-  int (*setdegree)(void* arkode_mem, ARKInterp interp, int degree);
-  int (*init)(void* arkode_mem, ARKInterp interp, sunrealtype tnew);
-  int (*update)(void* arkode_mem, ARKInterp interp, sunrealtype tnew);
-  int (*evaluate)(void* arkode_mem, ARKInterp interp, sunrealtype tau, int d,
+  int (*setdegree)(ARKodeMem ark_mem, ARKInterp interp, int degree);
+  int (*init)(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew);
+  int (*update)(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew);
+  int (*evaluate)(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tau, int d,
                   int order, N_Vector yout);
 };
 
@@ -269,15 +269,15 @@ struct _generic_ARKInterp
 };
 
 /* ARKInterp module functions */
-int arkInterpResize(void* arkode_mem, ARKInterp interp, ARKVecResizeFn resize,
+int arkInterpResize(ARKodeMem ark_mem, ARKInterp interp, ARKVecResizeFn resize,
                     void* resize_data, sunindextype lrw_diff,
                     sunindextype liw_diff, N_Vector tmpl);
-void arkInterpFree(void* arkode_mem, ARKInterp interp);
+void arkInterpFree(ARKodeMem ark_mem, ARKInterp interp);
 void arkInterpPrintMem(ARKInterp interp, FILE* outfile);
-int arkInterpSetDegree(void* arkode_mem, ARKInterp interp, int degree);
-int arkInterpInit(void* arkode_mem, ARKInterp interp, sunrealtype tnew);
-int arkInterpUpdate(void* arkode_mem, ARKInterp interp, sunrealtype tnew);
-int arkInterpEvaluate(void* arkode_mem, ARKInterp interp, sunrealtype tau,
+int arkInterpSetDegree(ARKodeMem ark_mem, ARKInterp interp, int degree);
+int arkInterpInit(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew);
+int arkInterpUpdate(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew);
+int arkInterpEvaluate(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tau,
                       int d, int order, N_Vector yout);
 
 /*===============================================================

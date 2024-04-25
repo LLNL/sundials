@@ -148,16 +148,15 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
 
   This routine resizes the memory within the ERKStep module.
   ---------------------------------------------------------------*/
-int erkStep_Resize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
+int erkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
 {
-  ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
   int i, retval;
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Determine change in vector sizes */
@@ -201,7 +200,7 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0, N_Vector y0)
   int retval;
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Check if ark_mem was allocated */
@@ -249,18 +248,16 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0, N_Vector y0)
 /*---------------------------------------------------------------
   erkStep_Free frees all ERKStep memory.
   ---------------------------------------------------------------*/
-void erkStep_Free(void* arkode_mem)
+void erkStep_Free(ARKodeMem ark_mem)
 {
   int j;
   sunindextype Bliw, Blrw;
-  ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
 
-  /* nothing to do if arkode_mem is already NULL */
-  if (arkode_mem == NULL) { return; }
+  /* nothing to do if ark_mem is already NULL */
+  if (ark_mem == NULL) { return; }
 
   /* conditional frees on non-NULL ERKStep module */
-  ark_mem = (ARKodeMem)arkode_mem;
   if (ark_mem->step_mem != NULL)
   {
     step_mem = (ARKodeERKStepMem)ark_mem->step_mem;
@@ -313,9 +310,8 @@ void erkStep_Free(void* arkode_mem)
   This routine outputs the memory from the ERKStep structure to
   a specified file pointer (useful when debugging).
   ---------------------------------------------------------------*/
-void erkStep_PrintMem(void* arkode_mem, FILE* outfile)
+void erkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 {
-  ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   int retval;
 
@@ -324,7 +320,7 @@ void erkStep_PrintMem(void* arkode_mem, FILE* outfile)
 #endif
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return; }
 
   /* output integer quantities */
@@ -372,14 +368,13 @@ void erkStep_PrintMem(void* arkode_mem, FILE* outfile)
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
-int erkStep_Init(void* arkode_mem, int init_type)
+int erkStep_Init(ARKodeMem ark_mem, int init_type)
 {
-  ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   int retval, j;
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* immediately return if resize or reset */
@@ -516,16 +511,15 @@ int erkStep_Init(void* arkode_mem, int init_type)
   when estimating the initial time step size, so we strive to store the
   intermediate parts so that they do not interfere with the other two modes.
   ----------------------------------------------------------------------------*/
-int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
+int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
 {
   int retval;
-  ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   sunbooleantype recomputeRHS;
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* perform RHS functions contingent on 'mode' argument */
@@ -626,19 +620,18 @@ int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                  reduce step and retry (if possible)
            <0 => step encountered unrecoverable failure
   ---------------------------------------------------------------*/
-int erkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
+int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval, is, js, nvec, mode;
   sunrealtype* cvals;
   N_Vector* Xvecs;
-  ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
 
   /* initialize algebraic solver convergence flag to success */
   *nflagPtr = ARK_SUCCESS;
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* local shortcuts for fused vector operations */
@@ -753,13 +746,13 @@ int erkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
   ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
-  erkStep_AccessStepMem:
+  erkStep_AccessARKODEStepMem:
 
-  Shortcut routine to unpack ark_mem and step_mem structures from
-  void* pointer.  If either is missing it returns ARK_MEM_NULL.
+  Shortcut routine to unpack both ark_mem and step_mem structures
+  from void* pointer.  If either is missing it returns ARK_MEM_NULL.
   ---------------------------------------------------------------*/
-int erkStep_AccessStepMem(void* arkode_mem, const char* fname,
-                          ARKodeMem* ark_mem, ARKodeERKStepMem* step_mem)
+int erkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
+                                ARKodeMem* ark_mem, ARKodeERKStepMem* step_mem)
 {
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)
@@ -769,6 +762,8 @@ int erkStep_AccessStepMem(void* arkode_mem, const char* fname,
     return (ARK_MEM_NULL);
   }
   *ark_mem = (ARKodeMem)arkode_mem;
+
+  /* access ARKodeERKStepMem structure */
   if ((*ark_mem)->step_mem == NULL)
   {
     arkProcessError(*ark_mem, ARK_MEM_NULL, __LINE__, fname, __FILE__,
@@ -776,6 +771,26 @@ int erkStep_AccessStepMem(void* arkode_mem, const char* fname,
     return (ARK_MEM_NULL);
   }
   *step_mem = (ARKodeERKStepMem)(*ark_mem)->step_mem;
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  erkStep_AccessStepMem:
+
+  Shortcut routine to unpack the step_mem structure from
+  ark_mem.  If missing it returns ARK_MEM_NULL.
+  ---------------------------------------------------------------*/
+int erkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
+                          ARKodeERKStepMem* step_mem)
+{
+  /* access ARKodeERKStepMem structure */
+  if (ark_mem->step_mem == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, fname, __FILE__,
+                    MSG_ERKSTEP_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  *step_mem = (ARKodeERKStepMem)ark_mem->step_mem;
   return (ARK_SUCCESS);
 }
 

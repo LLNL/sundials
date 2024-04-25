@@ -861,7 +861,6 @@ Supply a pointer for user data                    :c:func:`ARKodeSetUserData`   
 Maximum no. of ARKODE error test failures         :c:func:`ARKodeSetMaxErrTestFails`       7
 Set inequality constraints on solution            :c:func:`ARKodeSetConstraints`           ``NULL``
 Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstrFails`     10
-Use compensated summation                         :c:func:`ARKodeSetUseCompensatedSums`    off
 ================================================  =======================================  =======================
 
 
@@ -1345,26 +1344,6 @@ Use compensated summation                         :c:func:`ARKodeSetUseCompensat
       default value (10).
 
    .. versionadded:: x.y.z
-
-
-.. c:function:: int ARKodeSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
-
-   Specifies if :ref:`compensated summation (and the incremental form) <ARKODE.Mathematics.SPRKStep.Compensated>`
-   should be used where applicable.  This is currently only supported when using
-   the SPRKStep time-stepping module, but may be incorporated more thoroughly into
-   ARKODE in a future release.
-
-   This increases the computational cost by 2 extra vector operations per stage
-   and an additional 5 per time step. It also requires one extra vector to be
-   stored. However, it is signficantly more robust to roundoff error
-   accumulation.
-
-   :param arkode_mem: pointer to the ARKODE memory block.
-   :param onoff: should compensated summation be used (1) or not (0).
-
-   :retval ARK_SUCCESS: the function exited successfully.
-   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
-   :retval ARK_ILL_INPUT: an argument had an illegal value.
 
 
 

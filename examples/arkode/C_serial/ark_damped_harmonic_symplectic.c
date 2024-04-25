@@ -109,8 +109,8 @@ int main(int argc, char* argv[])
   retval = ARKodeSetOrder(arkode_mem, order);
   if (check_retval(&retval, "ARKodeSetOrder", 1)) { return 1; }
 
-  retval = ARKodeSetUseCompensatedSums(arkode_mem, use_compsums);
-  if (check_retval(&retval, "ARKodeSetUseCompensatedSums", 1)) { return 1; }
+  retval = SPRKStepSetUseCompensatedSums(arkode_mem, use_compsums);
+  if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) { return 1; }
 
   retval = ARKodeSetFixedStep(arkode_mem, dt);
   if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }

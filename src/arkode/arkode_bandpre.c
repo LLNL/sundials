@@ -62,8 +62,8 @@ int ARKBandPrecInit(void* arkode_mem, sunindextype N, sunindextype mu,
   sunindextype mup, mlp, storagemu;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Test compatibility of NVECTOR package with the BAND preconditioner */
@@ -201,8 +201,8 @@ int ARKBandPrecGetWorkSpace(void* arkode_mem, long int* lenrwBP, long int* leniw
   long int lrw, liw;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately if ARKBandPrecData is NULL */
@@ -261,8 +261,8 @@ int ARKBandPrecGetNumRhsEvals(void* arkode_mem, long int* nfevalsBP)
   ARKBandPrecData pdata;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately if ARKBandPrecData is NULL */

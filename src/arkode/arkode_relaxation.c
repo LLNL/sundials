@@ -815,21 +815,10 @@ int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
  * ===========================================================================*/
 
 /* Constructor called by stepper */
-int arkRelaxCreate(void* arkode_mem, ARKRelaxFn relax_fn,
+int arkRelaxCreate(ARKodeMem ark_mem, ARKRelaxFn relax_fn,
                    ARKRelaxJacFn relax_jac_fn, ARKRelaxDeltaEFn delta_e_fn,
                    ARKRelaxGetOrderFn get_order_fn)
 {
-  ARKodeMem ark_mem;
-
-  /* Check inputs */
-  if (!arkode_mem)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return ARK_MEM_NULL;
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-
   /* Disable relaxation if both user inputs are NULL */
   if (!relax_fn && !relax_jac_fn)
   {

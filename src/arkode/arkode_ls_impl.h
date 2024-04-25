@@ -217,51 +217,56 @@ int arkLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
                    N_Vector tmp1, N_Vector tmp2);
 
 /* Generic linit/lsetup/lsolve/lfree interface routines for ARKODE to call */
-int arkLsInitialize(void* arkode_mem);
+int arkLsInitialize(ARKodeMem ark_mem);
 
-int arkLsSetup(void* arkode_mem, int convfail, sunrealtype tpred,
+int arkLsSetup(ARKodeMem ark_mem, int convfail, sunrealtype tpred,
                N_Vector ypred, N_Vector fpred, sunbooleantype* jcurPtr,
                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
-int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tcur, N_Vector ycur,
+int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tcur, N_Vector ycur,
                N_Vector fcur, sunrealtype eRnrm, int mnewt);
 
-int arkLsFree(void* arkode_mem);
+int arkLsFree(ARKodeMem ark_mem);
 
 /* Generic minit/msetup/mmult/msolve/mfree routines for ARKODE to call */
-int arkLsMassInitialize(void* arkode_mem);
+int arkLsMassInitialize(ARKodeMem ark_mem);
 
-int arkLsMassSetup(void* arkode_mem, sunrealtype t, N_Vector vtemp1,
+int arkLsMassSetup(ARKodeMem ark_mem, sunrealtype t, N_Vector vtemp1,
                    N_Vector vtemp2, N_Vector vtemp3);
 
 int arkLsMassMult(void* arkode_mem, N_Vector v, N_Vector Mv);
 
-int arkLsMassSolve(void* arkode_mem, N_Vector b, sunrealtype nlscoef);
+int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef);
 
-int arkLsMassFree(void* arkode_mem);
+int arkLsMassFree(ARKodeMem ark_mem);
 
 /* Auxilliary functions */
 int arkLsInitializeCounters(ARKLsMem arkls_mem);
 
 int arkLsInitializeMassCounters(ARKLsMassMem arkls_mem);
 
-int arkLs_AccessLMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
-                     ARKLsMem* arkls_mem);
+int arkLs_AccessARKODELMem(void* arkode_mem, const char* fname,
+                           ARKodeMem* ark_mem, ARKLsMem* arkls_mem);
 
-int arkLs_AccessMassMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
+int arkLs_AccessLMem(ARKodeMem ark_mem, const char* fname, ARKLsMem* arkls_mem);
+
+int arkLs_AccessARKODEMassMem(void* arkode_mem, const char* fname,
+                              ARKodeMem* ark_mem, ARKLsMassMem* arkls_mem);
+
+int arkLs_AccessMassMem(ARKodeMem ark_mem, const char* fname,
                         ARKLsMassMem* arkls_mem);
 
 /* Set/get routines called by time-stepper module */
-int arkLSSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A);
+int arkLSSetLinearSolver(ARKodeMem ark_mem, SUNLinearSolver LS, SUNMatrix A);
 
-int arkLSSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix M,
+int arkLSSetMassLinearSolver(ARKodeMem ark_mem, SUNLinearSolver LS, SUNMatrix M,
                              sunbooleantype time_dep);
 
-int arkLSSetUserData(void* arkode_mem, void* user_data);
+int arkLSSetUserData(ARKodeMem ark_mem, void* user_data);
 
-int arkLSSetMassUserData(void* arkode_mem, void* user_data);
+int arkLSSetMassUserData(ARKodeMem ark_mem, void* user_data);
 
-int arkLSGetCurrentMassMatrix(void* arkode_mem, SUNMatrix* M);
+int arkLSGetCurrentMassMatrix(ARKodeMem ark_mem, SUNMatrix* M);
 
 /*---------------------------------------------------------------
   Error Messages

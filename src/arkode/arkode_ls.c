@@ -35,7 +35,7 @@
 /* Prototypes for internal functions */
 static int arkLsLinSys(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
                        SUNMatrix M, sunbooleantype jok, sunbooleantype* jcur,
-                       sunrealtype gamma, void* user_data, N_Vector tmp1,
+                       sunrealtype gamma, void* arkode_mem, N_Vector tmp1,
                        N_Vector tmp2, N_Vector tmp3);
 
 /*===============================================================
@@ -66,8 +66,8 @@ int ARKodeSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A)
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -189,7 +189,7 @@ int ARKodeSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A)
   arkls_mem->jtsetup  = NULL;
   arkls_mem->jtimes   = arkLsDQJtimes;
   arkls_mem->Jt_data  = ark_mem;
-  arkls_mem->Jt_f     = ark_mem->step_getimplicitrhs(arkode_mem);
+  arkls_mem->Jt_f     = ark_mem->step_getimplicitrhs(ark_mem);
 
   if (arkls_mem->Jt_f == NULL)
   {
@@ -285,7 +285,7 @@ int ARKodeSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A)
   else { arkls_mem->scalesol = SUNFALSE; }
 
   /* Attach ARKLs interface to time stepper module */
-  retval = ark_mem->step_attachlinsol(arkode_mem, arkLsInitialize, arkLsSetup,
+  retval = ark_mem->step_attachlinsol(ark_mem, arkLsInitialize, arkLsSetup,
                                       arkLsSolve, arkLsFree, LSType, arkls_mem);
   if (retval != ARK_SUCCESS)
   {
@@ -518,7 +518,7 @@ int ARKodeSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix M,
   if (iterative) { arkls_mem->nrmfac = SUNRsqrt(N_VGetLength(arkls_mem->x)); }
 
   /* Attach ARKLs interface to time stepper module */
-  retval = ark_mem->step_attachmasssol(arkode_mem, arkLsMassInitialize,
+  retval = ark_mem->step_attachmasssol(ark_mem, arkLsMassInitialize,
                                        arkLsMassSetup, arkLsMTimes,
                                        arkLsMassSolve, arkLsMassFree, time_dep,
                                        LSType, arkls_mem);
@@ -549,15 +549,15 @@ int ARKodeSetJacFn(void* arkode_mem, ARKLsJacFn jac)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -600,8 +600,8 @@ int ARKodeSetMassFn(void* arkode_mem, ARKLsMassFn mass)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -643,15 +643,15 @@ int ARKodeSetEpsLin(void* arkode_mem, sunrealtype eplifac)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -672,15 +672,15 @@ int ARKodeSetLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -715,15 +715,15 @@ int ARKodeSetJacEvalFrequency(void* arkode_mem, long int msbj)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -743,15 +743,15 @@ int ARKodeSetLinearSolutionScaling(void* arkode_mem, sunbooleantype onoff)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -777,15 +777,15 @@ int ARKodeSetPreconditioner(void* arkode_mem, ARKLsPrecSetupFn psetup,
   SUNPSolveFn arkls_psolve;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -828,15 +828,15 @@ int ARKodeSetJacTimes(void* arkode_mem, ARKLsJacTimesSetupFn jtsetup,
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -863,7 +863,7 @@ int ARKodeSetJacTimes(void* arkode_mem, ARKLsJacTimesSetupFn jtsetup,
     arkls_mem->jtsetup  = NULL;
     arkls_mem->jtimes   = arkLsDQJtimes;
     arkls_mem->Jt_data  = ark_mem;
-    arkls_mem->Jt_f     = ark_mem->step_getimplicitrhs(arkode_mem);
+    arkls_mem->Jt_f     = ark_mem->step_getimplicitrhs(ark_mem);
 
     if (arkls_mem->Jt_f == NULL)
     {
@@ -887,15 +887,15 @@ int ARKodeSetJacTimesRhsFn(void* arkode_mem, ARKRhsFn jtimesRhsFn)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -911,7 +911,7 @@ int ARKodeSetJacTimesRhsFn(void* arkode_mem, ARKRhsFn jtimesRhsFn)
   if (jtimesRhsFn != NULL) { arkls_mem->Jt_f = jtimesRhsFn; }
   else
   {
-    arkls_mem->Jt_f = ark_mem->step_getimplicitrhs(arkode_mem);
+    arkls_mem->Jt_f = ark_mem->step_getimplicitrhs(ark_mem);
 
     if (arkls_mem->Jt_f == NULL)
     {
@@ -931,15 +931,15 @@ int ARKodeSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -969,14 +969,13 @@ int ARKodeSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys)
 }
 
 /* arkLSSetUserData sets user_data pointers in arkLS */
-int arkLSSetUserData(void* arkode_mem, void* user_data)
+int arkLSSetUserData(ARKodeMem ark_mem, void* user_data)
 {
-  ARKodeMem ark_mem;
   ARKLsMem arkls_mem;
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(ark_mem, __func__, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return (retval); }
 
   /* Set data for Jacobian */
@@ -1004,15 +1003,15 @@ int ARKodeGetJac(void* arkode_mem, SUNMatrix* J)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return retval; }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1027,15 +1026,15 @@ int ARKodeGetJacTime(void* arkode_mem, sunrealtype* t_J)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return retval; }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1050,15 +1049,15 @@ int ARKodeGetJacNumSteps(void* arkode_mem, long int* nst_J)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return retval; }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1079,15 +1078,15 @@ int ARKodeGetLinWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
   long int lrw, liw;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1140,15 +1139,15 @@ int ARKodeGetNumJacEvals(void* arkode_mem, long int* njevals)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1168,15 +1167,15 @@ int ARKodeGetNumLinRhsEvals(void* arkode_mem, long int* nfevalsLS)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1195,15 +1194,15 @@ int ARKodeGetNumPrecEvals(void* arkode_mem, long int* npevals)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1222,15 +1221,15 @@ int ARKodeGetNumPrecSolves(void* arkode_mem, long int* npsolves)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1249,15 +1248,15 @@ int ARKodeGetNumLinIters(void* arkode_mem, long int* nliters)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1276,15 +1275,15 @@ int ARKodeGetNumLinConvFails(void* arkode_mem, long int* nlcfails)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1303,15 +1302,15 @@ int ARKodeGetNumJTSetupEvals(void* arkode_mem, long int* njtsetups)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1330,15 +1329,15 @@ int ARKodeGetNumJtimesEvals(void* arkode_mem, long int* njvevals)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1357,8 +1356,8 @@ int ARKodeGetNumMassMultSetups(void* arkode_mem, long int* nmvsetups)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1384,15 +1383,15 @@ int ARKodeGetLastLinFlag(void* arkode_mem, long int* flag)
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
   if (!ark_mem->step_supports_algebraic)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
-                    "time-stepping module does not require an algebraic solver");
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
@@ -1440,8 +1439,8 @@ int ARKodeSetMassEpsLin(void* arkode_mem, sunrealtype eplifac)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1469,8 +1468,8 @@ int ARKodeSetMassLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1515,8 +1514,8 @@ int ARKodeSetMassPreconditioner(void* arkode_mem, ARKLsMassPrecSetupFn psetup,
   SUNPSolveFn arkls_mpsolve;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1566,8 +1565,8 @@ int ARKodeSetMassTimes(void* arkode_mem, ARKLsMassTimesSetupFn mtsetup,
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1613,14 +1612,13 @@ int ARKodeSetMassTimes(void* arkode_mem, ARKLsMassTimesSetupFn mtsetup,
 }
 
 /* arkLSMassSetUserData sets user_data pointers in arkLSMass */
-int arkLSSetMassUserData(void* arkode_mem, void* user_data)
+int arkLSSetMassUserData(ARKodeMem ark_mem, void* user_data)
 {
-  ARKodeMem ark_mem;
   ARKLsMassMem arkls_mem;
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  retval = arkLs_AccessMassMem(ark_mem, __func__, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return (retval); }
 
   /* Set data for mass matrix */
@@ -1645,8 +1643,8 @@ int ARKodeGetMassWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
   long int lrw, liw;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1707,8 +1705,8 @@ int ARKodeGetNumMassSetups(void* arkode_mem, long int* nmsetups)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1734,8 +1732,8 @@ int ARKodeGetNumMassMult(void* arkode_mem, long int* nmvevals)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1761,8 +1759,8 @@ int ARKodeGetNumMassSolves(void* arkode_mem, long int* nmsolves)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1788,8 +1786,8 @@ int ARKodeGetNumMassPrecEvals(void* arkode_mem, long int* npevals)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1815,8 +1813,8 @@ int ARKodeGetNumMassPrecSolves(void* arkode_mem, long int* npsolves)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1842,8 +1840,8 @@ int ARKodeGetNumMassIters(void* arkode_mem, long int* nmiters)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1869,8 +1867,8 @@ int ARKodeGetNumMassConvFails(void* arkode_mem, long int* nmcfails)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1895,8 +1893,8 @@ int ARKodeGetCurrentMassMatrix(void* arkode_mem, SUNMatrix* M)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1922,8 +1920,8 @@ int ARKodeGetNumMTSetups(void* arkode_mem, long int* nmtsetups)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure; set output value and return */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1949,8 +1947,8 @@ int ARKodeGetLastMassFlag(void* arkode_mem, long int* flag)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not support mass matrices */
@@ -1990,8 +1988,8 @@ int arkLsATimes(void* arkode_mem, N_Vector v, N_Vector z)
   sunrealtype gamma, gamrat;
   sunbooleantype dgamma_fail, *jcur;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Access mass matrix solver (if it exists) */
@@ -2049,8 +2047,8 @@ int arkLsPSetup(void* arkode_mem)
   sunbooleantype dgamma_fail, *jcur;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get gamma values from time step module */
@@ -2090,8 +2088,8 @@ int arkLsPSolve(void* arkode_mem, N_Vector r, N_Vector z, sunrealtype tol, int l
   sunbooleantype dgamma_fail, *jcur;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get gamma values from time step module */
@@ -2125,8 +2123,8 @@ int arkLsMTimes(void* arkode_mem, N_Vector v, N_Vector z)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* perform multiply by either calling the user-supplied routine
@@ -2181,8 +2179,8 @@ int arkLsMPSetup(void* arkode_mem)
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* only proceed if the mass matrix is time-independent or if
@@ -2212,8 +2210,8 @@ int arkLsMPSolve(void* arkode_mem, N_Vector r, N_Vector z, sunrealtype tol, int 
   ARKLsMassMem arkls_mem;
   int retval;
 
-  /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMassMem structures */
+  retval = arkLs_AccessARKODEMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* call the user-supplied psolve routine, and accumulate count */
@@ -2237,8 +2235,8 @@ int arkLsDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   ARKRhsFn fi;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* verify that Jac is non-NULL */
@@ -2511,8 +2509,8 @@ int arkLsDQJtimes(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
   sunrealtype sig, siginv;
   int iter, retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Initialize perturbation to 1/||v|| */
@@ -2557,8 +2555,8 @@ static int arkLsLinSys(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
   ARKLsMem arkls_mem;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARKLS_SUCCESS) { return (retval); }
 
   /* Check if Jacobian needs to be updated */
@@ -2642,25 +2640,23 @@ static int arkLsLinSys(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
   arkLsInitialize performs remaining initializations specific
   to the linear solver interface (and solver itself)
   ---------------------------------------------------------------*/
-int arkLsInitialize(void* arkode_mem)
+int arkLsInitialize(ARKodeMem ark_mem)
 {
-  ARKodeMem ark_mem;
   ARKLsMem arkls_mem;
   ARKLsMassMem arkls_massmem;
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(ark_mem, __func__, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* access ARKLsMassMem (if applicable) */
   arkls_massmem = NULL;
   if (ark_mem->step_getmassmem != NULL)
   {
-    if (ark_mem->step_getmassmem(arkode_mem) != NULL)
+    if (ark_mem->step_getmassmem(ark_mem) != NULL)
     {
-      retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem,
-                                   &arkls_massmem);
+      retval = arkLs_AccessMassMem(ark_mem, __func__, &arkls_massmem);
       if (retval != ARK_SUCCESS) { return (retval); }
     }
   }
@@ -2801,13 +2797,13 @@ int arkLsInitialize(void* arkode_mem)
   if ((arkls_mem->A == NULL) && (arkls_mem->pset == NULL) &&
       (ark_mem->step_disablelsetup != NULL))
   {
-    ark_mem->step_disablelsetup(arkode_mem);
+    ark_mem->step_disablelsetup(ark_mem);
   }
 
   /* When using a matrix-embedded linear solver, disable lsetup call and solution scaling */
   if (SUNLinSolGetType(arkls_mem->LS) == SUNLINEARSOLVER_MATRIX_EMBEDDED)
   {
-    ark_mem->step_disablelsetup(arkode_mem);
+    ark_mem->step_disablelsetup(ark_mem);
     arkls_mem->scalesol = SUNFALSE;
   }
 
@@ -2829,11 +2825,10 @@ int arkLsInitialize(void* arkode_mem)
 
   This routine then calls the LS 'setup' routine with A.
   ---------------------------------------------------------------*/
-int arkLsSetup(void* arkode_mem, int convfail, sunrealtype tpred,
+int arkLsSetup(ARKodeMem ark_mem, int convfail, sunrealtype tpred,
                N_Vector ypred, N_Vector fpred, sunbooleantype* jcurPtr,
                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
-  ARKodeMem ark_mem      = NULL;
   ARKLsMem arkls_mem     = NULL;
   void* ark_step_massmem = NULL;
   SUNMatrix M            = NULL;
@@ -2842,7 +2837,7 @@ int arkLsSetup(void* arkode_mem, int convfail, sunrealtype tpred,
   int retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(ark_mem, __func__, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Immediately return when using matrix-embedded linear solver */
@@ -2859,7 +2854,7 @@ int arkLsSetup(void* arkode_mem, int convfail, sunrealtype tpred,
   arkls_mem->fcur = fpred;
 
   /* get gamma values from time step module */
-  arkls_mem->last_flag = ark_mem->step_getgammas(arkode_mem, &gamma, &gamrat,
+  arkls_mem->last_flag = ark_mem->step_getgammas(ark_mem, &gamma, &gamrat,
                                                  &jcur, &dgamma_fail);
   if (arkls_mem->last_flag)
   {
@@ -2880,7 +2875,7 @@ int arkLsSetup(void* arkode_mem, int convfail, sunrealtype tpred,
   /* Check for mass matrix module and setup mass matrix */
   if (ark_mem->step_getmassmem)
   {
-    ark_step_massmem = ark_mem->step_getmassmem(arkode_mem);
+    ark_step_massmem = ark_mem->step_getmassmem(ark_mem);
   }
 
   if (ark_step_massmem)
@@ -2889,8 +2884,7 @@ int arkLsSetup(void* arkode_mem, int convfail, sunrealtype tpred,
     M = ((ARKLsMassMem)ark_step_massmem)->M;
 
     /* Setup mass matrix linear solver (including recomputation of mass matrix) */
-    arkls_mem->last_flag = arkLsMassSetup(arkode_mem, tpred, vtemp1, vtemp2,
-                                          vtemp3);
+    arkls_mem->last_flag = arkLsMassSetup(ark_mem, tpred, vtemp1, vtemp2, vtemp3);
     if (arkls_mem->last_flag)
     {
       arkProcessError(ark_mem, ARKLS_SUNMAT_FAIL, __LINE__, __func__, __FILE__,
@@ -2973,11 +2967,10 @@ int arkLsSetup(void* arkode_mem, int convfail, sunrealtype tpred,
   When using a non-NULL SUNMatrix, this will additionally scale
   the solution appropriately when gamrat != 1.
   ---------------------------------------------------------------*/
-int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
+int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
                N_Vector fnow, sunrealtype eRNrm, int mnewt)
 {
   sunrealtype bnorm, resnorm;
-  ARKodeMem ark_mem;
   ARKLsMem arkls_mem;
   sunrealtype gamma, gamrat, delta, deltar, rwt_mean;
   sunbooleantype dgamma_fail, *jcur;
@@ -2985,7 +2978,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
   int nli_inc, retval;
 
   /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  retval = arkLs_AccessLMem(ark_mem, __func__, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Set scalar tcur and vectors ycur and fcur for use by the
@@ -3079,7 +3072,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
      account for change in gamma (this is only beneficial if M==I) */
   if (arkls_mem->scalesol)
   {
-    arkls_mem->last_flag = ark_mem->step_getgammas(arkode_mem, &gamma, &gamrat,
+    arkls_mem->last_flag = ark_mem->step_getgammas(ark_mem, &gamma, &gamrat,
                                                    &jcur, &dgamma_fail);
     if (arkls_mem->last_flag != ARK_SUCCESS)
     {
@@ -3169,16 +3162,14 @@ int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
   arkLsFree frees memory associates with the ARKLs system
   solver interface.
   ---------------------------------------------------------------*/
-int arkLsFree(void* arkode_mem)
+int arkLsFree(ARKodeMem ark_mem)
 {
-  ARKodeMem ark_mem;
   ARKLsMem arkls_mem;
   void* ark_step_lmem;
 
   /* Return immediately if ARKodeMem, ARKLsMem are NULL */
-  if (arkode_mem == NULL) { return (ARKLS_SUCCESS); }
-  ark_mem       = (ARKodeMem)arkode_mem;
-  ark_step_lmem = ark_mem->step_getlinmem(arkode_mem);
+  if (ark_mem == NULL) { return (ARKLS_SUCCESS); }
+  ark_step_lmem = ark_mem->step_getlinmem(ark_mem);
   if (ark_step_lmem == NULL) { return (ARKLS_SUCCESS); }
   arkls_mem = (ARKLsMem)ark_step_lmem;
 
@@ -3221,14 +3212,13 @@ int arkLsFree(void* arkode_mem)
   arkLsMassInitialize performs remaining initializations specific
   to the mass matrix solver interface (and solver itself)
   ---------------------------------------------------------------*/
-int arkLsMassInitialize(void* arkode_mem)
+int arkLsMassInitialize(ARKodeMem ark_mem)
 {
-  ARKodeMem ark_mem;
   ARKLsMassMem arkls_mem;
   int retval;
 
   /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  retval = arkLs_AccessMassMem(ark_mem, __func__, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* reset counters */
@@ -3280,13 +3270,13 @@ int arkLsMassInitialize(void* arkode_mem)
   if ((arkls_mem->M == NULL) && (arkls_mem->pset == NULL) &&
       (arkls_mem->mtsetup == NULL) && (ark_mem->step_disablemsetup != NULL))
   {
-    ark_mem->step_disablemsetup(arkode_mem);
+    ark_mem->step_disablemsetup(ark_mem);
   }
 
   /* When using a matrix-embedded linear solver, disable lsetup call */
   if (SUNLinSolGetType(arkls_mem->LS) == SUNLINEARSOLVER_MATRIX_EMBEDDED)
   {
-    ark_mem->step_disablemsetup(arkode_mem);
+    ark_mem->step_disablemsetup(ark_mem);
   }
 
   /* Call LS initialize routine */
@@ -3297,16 +3287,15 @@ int arkLsMassInitialize(void* arkode_mem)
 /*---------------------------------------------------------------
   arkLsMassSetup calls the LS 'setup' routine.
   ---------------------------------------------------------------*/
-int arkLsMassSetup(void* arkode_mem, sunrealtype t, N_Vector vtemp1,
+int arkLsMassSetup(ARKodeMem ark_mem, sunrealtype t, N_Vector vtemp1,
                    N_Vector vtemp2, N_Vector vtemp3)
 {
-  ARKodeMem ark_mem;
   ARKLsMassMem arkls_mem;
   sunbooleantype call_mtsetup, call_mvsetup, call_lssetup;
   int retval;
 
   /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  retval = arkLs_AccessMassMem(ark_mem, __func__, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Immediately return when using matrix-embedded linear solver */
@@ -3451,16 +3440,15 @@ int arkLsMassSetup(void* arkode_mem, sunrealtype t, N_Vector vtemp1,
   and scaling vectors, calling the solver, and accumulating
   statistics from the solve for use/reporting by ARKODE.
   ---------------------------------------------------------------*/
-int arkLsMassSolve(void* arkode_mem, N_Vector b, sunrealtype nlscoef)
+int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
 {
   sunrealtype resnorm, delta, rwt_mean;
-  ARKodeMem ark_mem;
   ARKLsMassMem arkls_mem;
   long int nps_inc;
   int nli_inc, retval;
 
   /* access ARKLsMassMem structure */
-  retval = arkLs_AccessMassMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  retval = arkLs_AccessMassMem(ark_mem, __func__, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Set input tolerance for iterative solvers (in 2-norm) */
@@ -3596,16 +3584,14 @@ int arkLsMassSolve(void* arkode_mem, N_Vector b, sunrealtype nlscoef)
   arkLsMassFree frees memory associates with the ARKLs mass
   matrix solver interface.
   ---------------------------------------------------------------*/
-int arkLsMassFree(void* arkode_mem)
+int arkLsMassFree(ARKodeMem ark_mem)
 {
-  ARKodeMem ark_mem;
   ARKLsMassMem arkls_mem;
   void* ark_step_massmem;
 
   /* Return immediately if ARKodeMem, ARKLsMassMem are NULL */
-  if (arkode_mem == NULL) { return (ARKLS_SUCCESS); }
-  ark_mem          = (ARKodeMem)arkode_mem;
-  ark_step_massmem = ark_mem->step_getmassmem(arkode_mem);
+  if (ark_mem == NULL) { return (ARKLS_SUCCESS); }
+  ark_step_massmem = ark_mem->step_getmassmem(ark_mem);
   if (ark_step_massmem == NULL) { return (ARKLS_SUCCESS); }
   arkls_mem = (ARKLsMassMem)ark_step_massmem;
 
@@ -3691,14 +3677,16 @@ int arkLsInitializeMassCounters(ARKLsMassMem arkls_mem)
 }
 
 /*---------------------------------------------------------------
-  arkLs_AccessLMem and arkLs_AccessMassMem:
+  arkLs_AccessARKODELMem, arkLs_AccessLMem,
+  arkLs_AccessARKODEMassMem and arkLs_AccessMassMem:
 
   Shortcut routines to unpack ark_mem, ls_mem and mass_mem
-  structures from void* pointer.  If any is missing it returns
-  ARKLS_MEM_NULL, ARKLS_LMEM_NULL or ARKLS_MASSMEM_NULL.
+  structures from void* pointer and ark_mem structure.  If any
+  is missing it returns ARKLS_MEM_NULL, ARKLS_LMEM_NULL or
+  ARKLS_MASSMEM_NULL.
   ---------------------------------------------------------------*/
-int arkLs_AccessLMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
-                     ARKLsMem* arkls_mem)
+int arkLs_AccessARKODELMem(void* arkode_mem, const char* fname,
+                           ARKodeMem* ark_mem, ARKLsMem* arkls_mem)
 {
   void* ark_step_lmem;
   if (arkode_mem == NULL)
@@ -3708,7 +3696,7 @@ int arkLs_AccessLMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
     return (ARKLS_MEM_NULL);
   }
   *ark_mem      = (ARKodeMem)arkode_mem;
-  ark_step_lmem = (*ark_mem)->step_getlinmem(arkode_mem);
+  ark_step_lmem = (*ark_mem)->step_getlinmem(*ark_mem);
   if (ark_step_lmem == NULL)
   {
     arkProcessError(*ark_mem, ARKLS_LMEM_NULL, __LINE__, fname, __FILE__,
@@ -3719,8 +3707,22 @@ int arkLs_AccessLMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
   return (ARKLS_SUCCESS);
 }
 
-int arkLs_AccessMassMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
-                        ARKLsMassMem* arkls_mem)
+int arkLs_AccessLMem(ARKodeMem ark_mem, const char* fname, ARKLsMem* arkls_mem)
+{
+  void* ark_step_lmem;
+  ark_step_lmem = ark_mem->step_getlinmem(ark_mem);
+  if (ark_step_lmem == NULL)
+  {
+    arkProcessError(ark_mem, ARKLS_LMEM_NULL, __LINE__, fname, __FILE__,
+                    MSG_LS_LMEM_NULL);
+    return (ARKLS_LMEM_NULL);
+  }
+  *arkls_mem = (ARKLsMem)ark_step_lmem;
+  return (ARKLS_SUCCESS);
+}
+
+int arkLs_AccessARKODEMassMem(void* arkode_mem, const char* fname,
+                              ARKodeMem* ark_mem, ARKLsMassMem* arkls_mem)
 {
   void* ark_step_massmem;
   if (arkode_mem == NULL)
@@ -3730,10 +3732,25 @@ int arkLs_AccessMassMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
     return (ARKLS_MEM_NULL);
   }
   *ark_mem         = (ARKodeMem)arkode_mem;
-  ark_step_massmem = (*ark_mem)->step_getmassmem(arkode_mem);
+  ark_step_massmem = (*ark_mem)->step_getmassmem(*ark_mem);
   if (ark_step_massmem == NULL)
   {
     arkProcessError(*ark_mem, ARKLS_MASSMEM_NULL, __LINE__, fname, __FILE__,
+                    MSG_LS_MASSMEM_NULL);
+    return (ARKLS_MASSMEM_NULL);
+  }
+  *arkls_mem = (ARKLsMassMem)ark_step_massmem;
+  return (ARKLS_SUCCESS);
+}
+
+int arkLs_AccessMassMem(ARKodeMem ark_mem, const char* fname,
+                        ARKLsMassMem* arkls_mem)
+{
+  void* ark_step_massmem;
+  ark_step_massmem = ark_mem->step_getmassmem(ark_mem);
+  if (ark_step_massmem == NULL)
+  {
+    arkProcessError(ark_mem, ARKLS_MASSMEM_NULL, __LINE__, fname, __FILE__,
                     MSG_LS_MASSMEM_NULL);
     return (ARKLS_MASSMEM_NULL);
   }

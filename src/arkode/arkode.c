@@ -366,7 +366,7 @@ int ARKodeResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
   /* Call the stepper-specific resize (if provided) */
   if (ark_mem->step_resize)
   {
-    return (ark_mem->step_resize(arkode_mem, y0, hscale, t0, resize, resize_data));
+    return (ark_mem->step_resize(ark_mem, y0, hscale, t0, resize, resize_data));
   }
 
   /* Problem has been successfully re-sized */
@@ -402,7 +402,7 @@ int ARKodeReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
   }
 
   /* Call stepper routine to perform remaining reset operations (if provided) */
-  if (ark_mem->step_reset) { return (ark_mem->step_reset(arkode_mem, tR, yR)); }
+  if (ark_mem->step_reset) { return (ark_mem->step_reset(ark_mem, tR, yR)); }
 
   return (ARK_SUCCESS);
 }
@@ -1356,7 +1356,7 @@ void ARKodeFree(void** arkode_mem)
   ark_mem = (ARKodeMem)(*arkode_mem);
 
   /* free the time-stepper module memory (if provided) */
-  if (ark_mem->step_free) { ark_mem->step_free(*arkode_mem); }
+  if (ark_mem->step_free) { ark_mem->step_free(ark_mem); }
 
   /* free vector storage */
   arkFreeVectors(ark_mem);
@@ -1384,7 +1384,7 @@ void ARKodeFree(void** arkode_mem)
   /* free the root-finding module */
   if (ark_mem->root_mem != NULL)
   {
-    (void)arkRootFree(*arkode_mem);
+    (void)arkRootFree(ark_mem);
     ark_mem->root_mem = NULL;
   }
 
@@ -1735,7 +1735,7 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
 #endif
 
   /* Call stepper PrintMem function (if provided) */
-  if (ark_mem->step_printmem) { ark_mem->step_printmem(arkode_mem, outfile); }
+  if (ark_mem->step_printmem) { ark_mem->step_printmem(ark_mem, outfile); }
 }
 
 /*---------------------------------------------------------------
@@ -3410,8 +3410,8 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
      larger/smaller than current step, depending on dsm) */
   ttmp   = (dsm <= ONE) ? ark_mem->tn + ark_mem->h : ark_mem->tn;
   nsttmp = (dsm <= ONE) ? ark_mem->nst + 1 : ark_mem->nst;
-  retval = arkAdapt((void*)ark_mem, hadapt_mem, ark_mem->ycur, ttmp, ark_mem->h,
-                    dsm, nsttmp);
+  retval = arkAdapt(ark_mem, hadapt_mem, ark_mem->ycur, ttmp, ark_mem->h, dsm,
+                    nsttmp);
   if (retval != ARK_SUCCESS) { return (ARK_ERR_FAILURE); }
 
   /* if we've made it here then no nonrecoverable failures occurred; someone above

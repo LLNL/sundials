@@ -22,6 +22,8 @@
 #include <stdarg.h>
 #include <sundials/sundials_adaptcontroller.h>
 
+#include "arkode_types_impl.h"
+
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
@@ -108,7 +110,7 @@ typedef struct ARKodeHAdaptMemRec
 
 ARKodeHAdaptMem arkAdaptInit(void);
 void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE* outfile);
-int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
+int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
              sunrealtype tcur, sunrealtype hcur, sunrealtype dsm, long int nst);
 
 #ifdef __cplusplus

@@ -252,17 +252,16 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
 
   This routine resizes the memory within the MRIStep module.
   ---------------------------------------------------------------*/
-int mriStep_Resize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
+int mriStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
 {
-  ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   SUNNonlinearSolver NLS;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Determine change in vector sizes */
@@ -395,8 +394,8 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
   SUNNonlinearSolver NLS;
   int retval;
 
-  /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeMRIStepMem structures */
+  retval = mriStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Check if ark_mem was allocated */
@@ -481,14 +480,13 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
   values are retained).  It is called after the main ARKODE
   infrastructure is reset.
   ---------------------------------------------------------------*/
-int mriStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR)
+int mriStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR)
 {
-  ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Reset the inner integrator with this same state */
@@ -503,14 +501,13 @@ int mriStep_Reset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 
   Computes y based on the current prediction and given correction.
   ---------------------------------------------------------------*/
-int mriStep_ComputeState(void* arkode_mem, N_Vector zcor, N_Vector z)
+int mriStep_ComputeState(ARKodeMem ark_mem, N_Vector zcor, N_Vector z)
 {
   int retval;
-  ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, z);
@@ -521,17 +518,15 @@ int mriStep_ComputeState(void* arkode_mem, N_Vector zcor, N_Vector z)
 /*---------------------------------------------------------------
   mriStep_Free frees all MRIStep memory.
   ---------------------------------------------------------------*/
-void mriStep_Free(void* arkode_mem)
+void mriStep_Free(ARKodeMem ark_mem)
 {
   sunindextype Cliw, Clrw;
-  ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
 
-  /* nothing to do if arkode_mem is already NULL */
-  if (arkode_mem == NULL) { return; }
+  /* nothing to do if ark_mem is already NULL */
+  if (ark_mem == NULL) { return; }
 
   /* conditional frees on non-NULL MRIStep module */
-  ark_mem = (ARKodeMem)arkode_mem;
   if (ark_mem->step_mem != NULL)
   {
     step_mem = (ARKodeMRIStepMem)ark_mem->step_mem;
@@ -644,14 +639,13 @@ void mriStep_Free(void* arkode_mem)
   This routine outputs the memory from the MRIStep structure to
   a specified file pointer (useful when debugging).
   ---------------------------------------------------------------*/
-void mriStep_PrintMem(void* arkode_mem, FILE* outfile)
+void mriStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 {
-  ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int i, retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return; }
 
   /* output integer quantities */
@@ -755,21 +749,20 @@ void mriStep_PrintMem(void* arkode_mem, FILE* outfile)
   interface routines, data structure, and solver type to the
   MRIStep module.
   ---------------------------------------------------------------*/
-int mriStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
+int mriStep_AttachLinsol(ARKodeMem ark_mem, ARKLinsolInitFn linit,
                          ARKLinsolSetupFn lsetup, ARKLinsolSolveFn lsolve,
                          ARKLinsolFreeFn lfree,
                          SUNLinearSolver_Type lsolve_type, void* lmem)
 {
-  ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* free any existing system solver */
-  if (step_mem->lfree != NULL) { step_mem->lfree(arkode_mem); }
+  if (step_mem->lfree != NULL) { step_mem->lfree(ark_mem); }
 
   /* Attach the provided routines, data structure and solve type */
   step_mem->linit  = linit;
@@ -791,14 +784,13 @@ int mriStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
   This routine NULLifies the lsetup function pointer in the
   MRIStep module.
   ---------------------------------------------------------------*/
-void mriStep_DisableLSetup(void* arkode_mem)
+void mriStep_DisableLSetup(ARKodeMem ark_mem)
 {
-  ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return; }
 
   /* nullify the lsetup function pointer */
@@ -811,14 +803,13 @@ void mriStep_DisableLSetup(void* arkode_mem)
   This routine returns the system linear solver interface memory
   structure, lmem.
   ---------------------------------------------------------------*/
-void* mriStep_GetLmem(void* arkode_mem)
+void* mriStep_GetLmem(ARKodeMem ark_mem)
 {
-  ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
 
   /* access ARKodeMRIStepMem structure, and return lmem */
-  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (NULL); }
   return (step_mem->lmem);
 }
@@ -828,14 +819,13 @@ void* mriStep_GetLmem(void* arkode_mem)
 
   This routine returns the implicit RHS function pointer, fi.
   ---------------------------------------------------------------*/
-ARKRhsFn mriStep_GetImplicitRHS(void* arkode_mem)
+ARKRhsFn mriStep_GetImplicitRHS(ARKodeMem ark_mem)
 {
-  ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
 
   /* access ARKodeMRIStepMem structure, and return fi */
-  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (NULL); }
   if (step_mem->implicit_rhs) { return (step_mem->fsi); }
   else { return (NULL); }
@@ -847,15 +837,14 @@ ARKRhsFn mriStep_GetImplicitRHS(void* arkode_mem)
   This routine fills the current value of gamma, and states
   whether the gamma ratio fails the dgmax criteria.
   ---------------------------------------------------------------*/
-int mriStep_GetGammas(void* arkode_mem, sunrealtype* gamma, sunrealtype* gamrat,
+int mriStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat,
                       sunbooleantype** jcur, sunbooleantype* dgamma_fail)
 {
-  ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set outputs */
@@ -881,15 +870,14 @@ int mriStep_GetGammas(void* arkode_mem, sunrealtype* gamma, sunrealtype* gamrat,
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
-int mriStep_Init(void* arkode_mem, int init_type)
+int mriStep_Init(ARKodeMem ark_mem, int init_type)
 {
-  ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval, j;
   sunbooleantype reset_efun;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* immediately return if reset */
@@ -1181,15 +1169,14 @@ int mriStep_Init(void* arkode_mem, int init_type)
 
   Presently ff(t,y) is always called with ARK_FULLRHS_OTHER mode.
   ----------------------------------------------------------------------------*/
-int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
+int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
 {
-  ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* ensure that inner stepper provides fullrhs function */
@@ -1420,9 +1407,8 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                  reduce step and retry (if possible)
            <0 => step encountered unrecoverable failure
   ---------------------------------------------------------------*/
-int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
+int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
-  ARKodeMem ark_mem;         /* outer ARKODE memory        */
   ARKodeMRIStepMem step_mem; /* outer stepper memory       */
   int is;                    /* current stage index        */
   int retval;                /* reusable return flag       */
@@ -1433,7 +1419,7 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
   *dsmPtr   = ZERO;
 
   /* access the MRIStep mem structure */
-  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* call nonlinear solver setup if it exists */
@@ -1639,13 +1625,13 @@ int mriStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
   ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
-  mriStep_AccessStepMem:
+  mriStep_AccessARKODEStepMem:
 
   Shortcut routine to unpack ark_mem and step_mem structures from
   void* pointer.  If either is missing it returns ARK_MEM_NULL.
   ---------------------------------------------------------------*/
-int mriStep_AccessStepMem(void* arkode_mem, const char* fname,
-                          ARKodeMem* ark_mem, ARKodeMRIStepMem* step_mem)
+int mriStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
+                                ARKodeMem* ark_mem, ARKodeMRIStepMem* step_mem)
 {
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)
@@ -1655,6 +1641,8 @@ int mriStep_AccessStepMem(void* arkode_mem, const char* fname,
     return (ARK_MEM_NULL);
   }
   *ark_mem = (ARKodeMem)arkode_mem;
+
+  /* access ARKodeMRIStepMem structure */
   if ((*ark_mem)->step_mem == NULL)
   {
     arkProcessError(*ark_mem, ARK_MEM_NULL, __LINE__, fname, __FILE__,
@@ -1662,6 +1650,26 @@ int mriStep_AccessStepMem(void* arkode_mem, const char* fname,
     return (ARK_MEM_NULL);
   }
   *step_mem = (ARKodeMRIStepMem)(*ark_mem)->step_mem;
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  mriStep_AccessStepMem:
+
+  Shortcut routine to unpack step_mem structure from ark_mem.
+  If missing it returns ARK_MEM_NULL.
+  ---------------------------------------------------------------*/
+int mriStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
+                          ARKodeMRIStepMem* step_mem)
+{
+  /* access ARKodeMRIStepMem structure */
+  if (ark_mem->step_mem == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, fname, __FILE__,
+                    MSG_MRISTEP_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  *step_mem = (ARKodeMRIStepMem)ark_mem->step_mem;
   return (ARK_SUCCESS);
 }
 
