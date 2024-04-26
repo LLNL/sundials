@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
   arkode_mem = ARKStepCreate(fe, fi, T0, y, ctx);
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
-  /* Initialize fixed-point nonlinear solver and attach to ARKode */
+  /* Initialize fixed-point nonlinear solver and attach to ARKODE */
   NLS = SUNNonlinSol_FixedPoint(y, fp_m, ctx);
   if (check_flag((void*)NLS, "SUNNonlinSol_FixedPoint", 0)) { return 1; }
 

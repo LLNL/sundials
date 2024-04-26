@@ -448,7 +448,7 @@ int main(int argc, char* argv[])
   }
 
   // --------------
-  // Setup ARKode
+  // Setup ARKODE
   // --------------
 
   // Create integrator

@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
   // Setup the integrator
   // --------------------
 
-  // ARKode memory structure
+  // ARKODE memory structure
   void* arkode_mem = nullptr;
 
   // Matrix and linear solver for DIRK, IMEX, or MRI slow integrators

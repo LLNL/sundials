@@ -116,7 +116,7 @@ int main(void)
   while (Tf - t > 1.0e-15)
   {
     flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
-    if (check_flag(&flag, "ARKode", 1)) { break; }
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
     N_VCopyFromDevice_OpenMPDEV(y);
     printf("  %10.6" FSYM "  %10.6" FSYM "\n", t,
            y_data[0]); /* access/print solution */

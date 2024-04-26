@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
   // general problem variables
   int retval;                    // reusable error-checking flag
   N_Vector y             = NULL; // empty vector for the computed solution
-  void* arkode_mem       = NULL; // empty ARKode memory structure
+  void* arkode_mem       = NULL; // empty ARKODE memory structure
   SUNMatrix A            = NULL; // empty system matrix
   SUNMatrix M            = NULL; // empty mass matrix
   SUNLinearSolver LS     = NULL; // empty system linear solver object
@@ -667,7 +667,7 @@ static int check_order(void* arkode_mem, N_Vector y, sunrealtype T0,
   cout << " -----------------------------------------------------\n";
   for (size_t ih = 0; ih < hvals.size(); ih++)
   {
-    // Reset ARKode for this run
+    // Reset ARKODE for this run
     retval = Ytrue(T0, y);
     if (check_retval(&retval, "Ytrue", 1)) { return 1; }
     retval = ARKodeReset(arkode_mem, T0, y);

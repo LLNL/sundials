@@ -370,7 +370,7 @@ int main(int argc, char* argv[])
    * Clean up *
    * -------- */
 
-  // Free ARKode integrator and SUNDIALS objects
+  // Free ARKODE integrator and SUNDIALS objects
   ARKodeFree(&arkode_mem);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);

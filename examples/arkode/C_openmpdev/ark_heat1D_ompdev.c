@@ -97,7 +97,7 @@ int main(void)
   int flag;                  /* reusable error-checking flag */
   N_Vector y         = NULL; /* empty vector for storing solution */
   SUNLinearSolver LS = NULL; /* empty linear solver object */
-  void* arkode_mem   = NULL; /* empty ARKode memory structure */
+  void* arkode_mem   = NULL; /* empty ARKODE memory structure */
   FILE *FID, *UFID;
   sunrealtype t, dTout, tout;
   int iout;

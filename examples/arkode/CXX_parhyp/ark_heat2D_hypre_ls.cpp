@@ -41,7 +41,7 @@
  * problem is advanced in time with a diagonally implicit Runge-Kutta method
  * using an inexact Newton method paired with the hypre's PCG or GMRES linear
  * solver and PFMG preconditioner. Several command line options are available
- * to change the problem parameters and ARKode settings. Use the flag --help
+ * to change the problem parameters and ARKODE settings. Use the flag --help
  * for more information.
  * ---------------------------------------------------------------------------*/
 
@@ -439,7 +439,7 @@ int main(int argc, char* argv[])
   if (check_flag((void*)LS, "HypreLS", 0)) { return 1; }
 
   // --------------
-  // Setup ARKode
+  // Setup ARKODE
   // --------------
 
   // Create integrator

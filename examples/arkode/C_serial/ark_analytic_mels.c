@@ -46,7 +46,7 @@
 #define FSYM "f"
 #endif
 
-/* User-supplied functions called by ARKode */
+/* User-supplied functions called by ARKODE */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 /* Custom linear solver data structure, accessor macros, and routines */
@@ -249,7 +249,7 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
   sunrealtype* rdata;
   sunrealtype lamda;
 
-  /* retrieve implicit system data from ARKode */
+  /* retrieve implicit system data from ARKODE */
   retval = ARKodeGetNonlinearSystemData(LS->content, &tcur, &zpred, &z, &Fi,
                                         &gamma, &sdata, &user_data);
   if (check_retval((void*)&retval, "ARKodeGetNonlinearSystemData", 1))

@@ -236,7 +236,7 @@ int main(void)
   LS = SUNLinSol_KLU(y, A, ctx);
   if (check_flag((void*)LS, "SUNLinSol_KLU", 0)) { return 1; }
 
-  /* Attach the matrix, linear solver, and Jacobian construction routine to ARKode */
+  /* Attach the matrix, linear solver, and Jacobian construction routine to ARKODE */
   flag = ARKodeSetLinearSolver(arkode_mem, LS, A); /* Attach matrix and LS */
   if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
   flag = ARKodeSetJacFn(arkode_mem, Jac); /* Supply Jac routine */

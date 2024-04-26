@@ -213,7 +213,7 @@ int main(void)
 
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
   flag = ARKodeSetLinearSolver(arkode_mem, LS,
-                               NULL); /* Attach linear solver to ARKode */
+                               NULL); /* Attach linear solver to ARKODE */
   if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
   flag = ARKodeSetJacTimes(arkode_mem, NULL, Jac); /* Set the Jacobian routine */
   if (check_flag(&flag, "ARKodeSetJacTimes", 1)) { return 1; }
@@ -311,7 +311,7 @@ int main(void)
     flag = ARKodeResize(arkode_mem, y, hscale, t, NULL, NULL);
     if (check_flag(&flag, "ARKodeResize", 1)) { return 1; }
 
-    /* destroy and re-allocate linear solver memory; reattach to ARKode interface */
+    /* destroy and re-allocate linear solver memory; reattach to ARKODE interface */
     SUNLinSolFree(LS);
     LS = SUNLinSol_PCG(y, 0, (int)N, ctx);
     if (check_flag((void*)LS, "SUNLinSol_PCG", 0)) { return 1; }

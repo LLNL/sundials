@@ -481,7 +481,7 @@ int main(int argc, char* argv[])
     MPI_Abort(grid.comm, 1);
   }
 
-  /* Attach the matrix, linear solver, and Jacobian construction routine to ARKode */
+  /* Attach the matrix, linear solver, and Jacobian construction routine to ARKODE */
   retval = ARKodeSetLinearSolver(arkode_mem, LS, A);
   if (check_retval(&retval, "ARKodeSetLinearSolver", 1))
   {
@@ -492,7 +492,7 @@ int main(int argc, char* argv[])
   retval = ARKodeSetJacFn(arkode_mem, Jac);
   if (check_retval(&retval, "ARKodeSetJacFn", 1)) { MPI_Abort(grid.comm, 1); }
 
-  /* Attach the mass matrix, linear solver and construction routines to ARKode;
+  /* Attach the mass matrix, linear solver and construction routines to ARKODE;
      notify ARKode that the mass matrix is not time-dependent */
   retval = ARKodeSetMassLinearSolver(arkode_mem, MLS, M, SUNFALSE);
   if (check_retval(&retval, "ARKodeSetMassLinearSolver", 1))

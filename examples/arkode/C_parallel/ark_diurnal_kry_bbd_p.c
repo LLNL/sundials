@@ -241,7 +241,7 @@ int main(int argc, char* argv[])
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKodeSStolerances", 1, my_pe)) { return (1); }
 
-  /* Attach SPGMR solver structure to ARKode interface */
+  /* Attach SPGMR solver structure to ARKODE interface */
   flag = ARKodeSetLinearSolver(arkode_mem, LS, NULL);
   if (check_flag(&flag, "ARKodeSetLinearSolver", 1, my_pe))
   {

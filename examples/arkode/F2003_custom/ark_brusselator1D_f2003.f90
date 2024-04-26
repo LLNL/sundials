@@ -334,7 +334,7 @@ program main
     stop 1
   end if
 
-  ! initialize custom matrix data structure and solver; attach to ARKode
+  ! initialize custom matrix data structure and solver; attach to ARKODE
   sunmat_A => FSUNMatNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sunmat_A)) then
      print *,'ERROR: sunmat = NULL'

@@ -311,7 +311,7 @@ int main(int argc, char* argv[])
   MLS = SUNLinSol_SuperLUMT(y, M, num_threads, ctx);
   if (check_retval((void*)MLS, "SUNLinSol_SuperLUMT", 0)) { return (1); }
 
-  /* Attach the matrix, linear solver, and Jacobian construction routine to ARKode */
+  /* Attach the matrix, linear solver, and Jacobian construction routine to ARKODE */
 
   /* Attach matrix and LS */
   retval = ARKodeSetLinearSolver(arkode_mem, LS, A);

@@ -41,7 +41,7 @@
  * problem is advanced in time with a diagonally implicit Runge-Kutta method
  * using an inexact Newton method paired with the PCG or SPGMR linear solver.
  * Several command line options are available to change the problem parameters
- * and ARKode settings. Use the flag --help for more information.
+ * and ARKODE settings. Use the flag --help for more information.
  * ---------------------------------------------------------------------------*/
 
 #include <chrono>
@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
   }
 
   // --------------
-  // Setup ARKode
+  // Setup ARKODE
   // --------------
 
   // Create integrator

@@ -41,7 +41,7 @@
  * If the requested accuracy is 5th order, the problem is treated implicitly.
  * This option is included for computing a reference solution.
  * Several command line options are available to
- * change the problem parameters and ARKode settings. Use the flag --help for
+ * change the problem parameters and ARKODE settings. Use the flag --help for
  * more information.
  * ---------------------------------------------------------------------------*/
 
@@ -391,7 +391,7 @@ int main(int argc, char* argv[])
     }
 
     // ----------------------------------------------
-    // Setup ARKode integrator and set options
+    // Setup ARKODE integrator and set options
     // ----------------------------------------------
 
     // Create integrator

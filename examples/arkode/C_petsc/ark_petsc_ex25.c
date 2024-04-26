@@ -60,7 +60,7 @@ static PetscErrorCode FormIFunction(PetscReal, Vec, Vec, Vec, void*);
 static PetscErrorCode FormIJacobian(SNES, Vec, Mat, Mat, void*);
 static PetscErrorCode FormInitialSolution(Vec, void*);
 
-/* User-supplied Functions called by ARKode */
+/* User-supplied Functions called by ARKODE */
 static int f_I(PetscReal, N_Vector, N_Vector, void*);
 static int f_E(PetscReal, N_Vector, N_Vector, void*);
 
@@ -188,7 +188,7 @@ int main(int argc, char** argv)
   dt = 0.4 * PetscSqr(hx) / user.alpha; /* Diffusive stability limit */
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-     Create ARKode time stepper
+     Create ARKODE time stepper
    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
@@ -225,7 +225,7 @@ int main(int argc, char** argv)
   CHKERRQ(ierr);
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-     Set ARKode options
+     Set ARKODE options
    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   ierr = ARKodeSStolerances(arkode_mem, rtol, atol);
@@ -305,7 +305,7 @@ int main(int argc, char** argv)
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  User provided functions in ARKode format
+  User provided functions in ARKODE format
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 /* Implicit component of RHS */

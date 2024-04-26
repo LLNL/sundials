@@ -39,7 +39,7 @@
  * an inexact Newton method paired with the PCG linear solver using hypre's PFMG
  * preconditioner for the slow-implicit nonlinear solve and inexact Newton with
  * GMRES for the fast nonlinear solve.  Several command line options are
- * available to change the problem parameters and ARKode settings. Use the flag
+ * available to change the problem parameters and ARKODE settings. Use the flag
  * --help for more information.
  * ---------------------------------------------------------------------------*/
 

@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
   int flag;                  /* reusable error-checking flag */
   N_Vector y         = NULL; /* empty vector for storing solution */
   SUNLinearSolver LS = NULL; /* empty linear solver object */
-  void* arkode_mem   = NULL; /* empty ARKode memory structure */
+  void* arkode_mem   = NULL; /* empty ARKODE memory structure */
   FILE *FID, *UFID;
   sunrealtype t, dTout, tout;
   int iout, num_threads;
@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
 
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
   flag = ARKodeSetLinearSolver(arkode_mem, LS,
-                               NULL); /* Attach linear solver to ARKode */
+                               NULL); /* Attach linear solver to ARKODE */
   if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
   flag = ARKodeSetJacTimes(arkode_mem, NULL, Jac); /* Set the Jacobian routine */
   if (check_flag(&flag, "ARKodeSetJacTimes", 1)) { return 1; }
