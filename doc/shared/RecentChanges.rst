@@ -24,3 +24,5 @@ Fixed a bug where :c:func:`MRIStepEvolve` would not handle a recoverable error
 produced from evolving the inner stepper.
 
 Added support for Kokkos Kernels v4.
+
+Fixed a bug that caused error messages to be cut off in some cases. Fixes `GitHub Issue #461 <https://github.com/LLNL/sundials/issues/461>`_.
