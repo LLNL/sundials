@@ -1191,7 +1191,7 @@ int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed)
   /* ensure that when hfixed=0, the time step module supports adaptivity */
   if ((hfixed == ZERO) && (!ark_mem->step_supports_adaptive))
   {
-    arkProcessError(NULL, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "temporal adaptivity is not supported by this time step module");
     return (ARK_STEPPER_UNSUPPORTED);
   }
