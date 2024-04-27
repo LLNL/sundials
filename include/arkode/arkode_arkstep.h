@@ -331,7 +331,8 @@ char* ARKStepGetReturnFlagName(long int flag);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeWriteParameters instead")
 int ARKStepWriteParameters(void* arkode_mem, FILE* fp);
 
-SUNDIALS_EXPORT int ARKStepWriteButcher(void* arkode_mem, FILE* fp);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKStepGetCurrentButcherTables and ARKodeButcherTable_Write instead")
+int ARKStepWriteButcher(void* arkode_mem, FILE* fp);
 
 /* Grouped optional output functions */
 SUNDIALS_EXPORT int ARKStepGetTimestepperStats(

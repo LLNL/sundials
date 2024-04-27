@@ -4030,8 +4030,10 @@ General usability functions
       for this pointer, since tables for all processes would be
       identical.
 
+   .. deprecated:: x.y.z
 
-
+      Use :c:func:`ARKStepGetCurrentButcherTables` and :c:func:`ARKodeButcherTable_Write`
+      instead.
 
 
 
