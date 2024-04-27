@@ -612,9 +612,9 @@ int ARKodeResStolerance(void* arkode_mem, sunrealtype rabstol)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "time-stepping module does not support non-identity mass matrices");
-    return (ARK_ILL_INPUT);
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__, __FILE__,
+                    "time-stepping module does not support non-identity mass matrices");
+    return (ARK_STEPPER_UNSUPPORTED);
   }
 
   /* Check inputs */
@@ -677,9 +677,9 @@ int ARKodeResVtolerance(void* arkode_mem, N_Vector rabstol)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not support non-identity mass matrices");
-    return (ARK_ILL_INPUT);
+    return (ARK_STEPPER_UNSUPPORTED);
   }
 
   /* Check inputs */
@@ -762,9 +762,9 @@ int ARKodeResFtolerance(void* arkode_mem, ARKRwtFn rfun)
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not support non-identity mass matrices");
-    return (ARK_ILL_INPUT);
+    return (ARK_STEPPER_UNSUPPORTED);
   }
 
   if (ark_mem->MallocDone == SUNFALSE)
