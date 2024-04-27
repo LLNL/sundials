@@ -78,7 +78,6 @@ int SPRKStepSetOrder(void* arkode_mem, int ord)
 
 int SPRKStepSetInterpolantDegree(void* arkode_mem, int degree)
 {
-  if (degree < 0) { degree = ARK_INTERP_MAX_DEGREE; }
   return (ARKodeSetInterpolantDegree(arkode_mem, degree));
 }
 

@@ -173,7 +173,6 @@ int MRIStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
 
 int MRIStepSetInterpolantDegree(void* arkode_mem, int degree)
 {
-  if (degree < 0) { degree = ARK_INTERP_MAX_DEGREE; }
   return (ARKodeSetInterpolantDegree(arkode_mem, degree));
 }
 

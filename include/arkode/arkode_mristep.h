@@ -170,7 +170,7 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetInterpolantType instead")
 int MRIStepSetInterpolantType(void* arkode_mem, int itype);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetInterpolantDegree instead")
 int MRIStepSetInterpolantDegree(void* arkode_mem, int degree);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetDenseOrder instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetInterpolantDegree instead")
 int MRIStepSetDenseOrder(void* arkode_mem, int dord);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNonlinearSolver instead")
 int MRIStepSetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS);

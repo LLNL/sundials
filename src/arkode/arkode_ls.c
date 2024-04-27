@@ -1521,7 +1521,7 @@ int ARKodeSetMassPreconditioner(void* arkode_mem, ARKLsMassPrecSetupFn psetup,
   /* Guard against use for time steppers that do not support mass matrices */
   if (!ark_mem->step_supports_massmatrix)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
                     __FILE__, "time-stepping module does not support non-identity mass matrices");
     return (ARK_ILL_INPUT);
   }

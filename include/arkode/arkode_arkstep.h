@@ -115,7 +115,7 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetInterpolantType instead")
 int ARKStepSetInterpolantType(void* arkode_mem, int itype);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetInterpolantDegree instead")
 int ARKStepSetInterpolantDegree(void* arkode_mem, int degree);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetDenseOrder instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetInterpolantDegree instead")
 int ARKStepSetDenseOrder(void* arkode_mem, int dord);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNonlinearSolver instead")
 int ARKStepSetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS);
