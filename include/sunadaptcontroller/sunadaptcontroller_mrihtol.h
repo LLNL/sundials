@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <sundials/sundials_adaptcontroller.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -28,7 +28,8 @@ extern "C" {
  * MRI H+tolerance implementation of SUNAdaptController
  * -------------------------------------------- */
 
-struct _SUNAdaptControllerContent_MRIHTol {
+struct _SUNAdaptControllerContent_MRIHTol
+{
   SUNAdaptController HControl;
   SUNAdaptController TolControl;
 };
@@ -44,17 +45,17 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNContext sunctx,
                                               SUNAdaptController HControl,
                                               SUNAdaptController TolControl);
 SUNDIALS_EXPORT
-SUNAdaptController SUNAdaptController_GetSlowController_MRIHTol(SUNAdaptController C);
+SUNAdaptController SUNAdaptController_GetSlowController_MRIHTol(
+  SUNAdaptController C);
 SUNDIALS_EXPORT
-SUNAdaptController SUNAdaptController_GetFastController_MRIHTol(SUNAdaptController C);
+SUNAdaptController SUNAdaptController_GetFastController_MRIHTol(
+  SUNAdaptController C);
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_MRIHTol(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateStepTol_MRIHTol(SUNAdaptController C, sunrealtype H,
-                                               sunrealtype tolfac, int P,
-                                               sunrealtype DSM, sunrealtype dsm,
-                                               sunrealtype* Hnew,
-                                               sunrealtype* tolfacnew);
+int SUNAdaptController_EstimateStepTol_MRIHTol(
+  SUNAdaptController C, sunrealtype H, sunrealtype tolfac, int P,
+  sunrealtype DSM, sunrealtype dsm, sunrealtype* Hnew, sunrealtype* tolfacnew);
 SUNDIALS_EXPORT
 int SUNAdaptController_Reset_MRIHTol(SUNAdaptController C);
 SUNDIALS_EXPORT
@@ -62,7 +63,8 @@ int SUNAdaptController_SetDefaults_MRIHTol(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_Write_MRIHTol(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptController_SetErrorBias_MRIHTol(SUNAdaptController C, sunrealtype bias);
+int SUNAdaptController_SetErrorBias_MRIHTol(SUNAdaptController C,
+                                            sunrealtype bias);
 SUNDIALS_EXPORT
 int SUNAdaptController_UpdateMRITol_MRIHTol(SUNAdaptController C, sunrealtype H,
                                             sunrealtype tolfac, sunrealtype DSM,
@@ -75,4 +77,4 @@ int SUNAdaptController_Space_MRIHTol(SUNAdaptController C, long int* lenrw,
 }
 #endif
 
-#endif  /* _SUNADAPTCONTROLLER_MRIHTOL_H */
+#endif /* _SUNADAPTCONTROLLER_MRIHTOL_H */

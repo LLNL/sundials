@@ -23,23 +23,22 @@
 #include "sundials/priv/sundials_errors_impl.h"
 #include "sundials/sundials_errors.h"
 
-
 /* ---------------
  * Macro accessors
  * --------------- */
 
-#define MRILL_CONTENT(C)   ( (SUNAdaptControllerContent_MRILL)(C->content) )
-#define MRILL_K11(C)       ( MRILL_CONTENT(C)->k11 )
-#define MRILL_K12(C)       ( MRILL_CONTENT(C)->k12 )
-#define MRILL_K21(C)       ( MRILL_CONTENT(C)->k21 )
-#define MRILL_K22(C)       ( MRILL_CONTENT(C)->k22 )
-#define MRILL_BIAS(C)      ( MRILL_CONTENT(C)->bias )
-#define MRILL_ESP(C)       ( MRILL_CONTENT(C)->esp )
-#define MRILL_EFP(C)       ( MRILL_CONTENT(C)->efp )
-#define MRILL_HSP(C)       ( MRILL_CONTENT(C)->hsp )
-#define MRILL_HFP(C)       ( MRILL_CONTENT(C)->hfp )
-#define MRILL_PFAST(C)     ( MRILL_CONTENT(C)->p )
-#define MRILL_FIRSTSTEP(C) ( MRILL_CONTENT(C)->firststep )
+#define MRILL_CONTENT(C)   ((SUNAdaptControllerContent_MRILL)(C->content))
+#define MRILL_K11(C)       (MRILL_CONTENT(C)->k11)
+#define MRILL_K12(C)       (MRILL_CONTENT(C)->k12)
+#define MRILL_K21(C)       (MRILL_CONTENT(C)->k21)
+#define MRILL_K22(C)       (MRILL_CONTENT(C)->k22)
+#define MRILL_BIAS(C)      (MRILL_CONTENT(C)->bias)
+#define MRILL_ESP(C)       (MRILL_CONTENT(C)->esp)
+#define MRILL_EFP(C)       (MRILL_CONTENT(C)->efp)
+#define MRILL_HSP(C)       (MRILL_CONTENT(C)->hsp)
+#define MRILL_HFP(C)       (MRILL_CONTENT(C)->hfp)
+#define MRILL_PFAST(C)     (MRILL_CONTENT(C)->p)
+#define MRILL_FIRSTSTEP(C) (MRILL_CONTENT(C)->firststep)
 
 /* ------------------
  * Default parameters
@@ -51,7 +50,6 @@
 #define DEFAULT_K22  SUN_RCONST(0.9)
 #define DEFAULT_BIAS SUN_RCONST(1.5)
 #define TINY         SUN_RCONST(1.0e-10)
-
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -117,8 +115,6 @@ SUNErrCode SUNAdaptController_SetParams_MRILL(SUNAdaptController C,
   return SUN_SUCCESS;
 }
 
-
-
 /* -----------------------------------------------------------------
  * implementation of controller operations
  * ----------------------------------------------------------------- */
@@ -128,19 +124,16 @@ SUNAdaptController_Type SUNAdaptController_GetType_MRILL(SUNAdaptController C)
   return SUN_ADAPTCONTROLLER_MRI_H;
 }
 
-SUNErrCode SUNAdaptController_EstimateMRISteps_MRILL(SUNAdaptController C,
-                                                     sunrealtype H, sunrealtype h,
-                                                     int P, sunrealtype DSM,
-                                                     sunrealtype dsm,
-                                                     sunrealtype* Hnew,
-                                                     sunrealtype* hnew)
+SUNErrCode SUNAdaptController_EstimateMRISteps_MRILL(
+  SUNAdaptController C, sunrealtype H, sunrealtype h, int P, sunrealtype DSM,
+  sunrealtype dsm, sunrealtype* Hnew, sunrealtype* hnew)
 {
   SUNFunctionBegin(C->sunctx);
   SUNAssert(Hnew, SUN_ERR_ARG_CORRUPT);
   SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
 
   /* set usable time-step adaptivity parameters */
-  const int p = MRILL_PFAST(C);
+  const int p           = MRILL_PFAST(C);
   const sunrealtype k11 = MRILL_K11(C);
   const sunrealtype k12 = MRILL_K12(C);
   const sunrealtype k21 = MRILL_K21(C);
@@ -155,7 +148,7 @@ SUNErrCode SUNAdaptController_EstimateMRISteps_MRILL(SUNAdaptController C,
   const sunrealtype es2 = MRILL_ESP(C);
   const sunrealtype ef1 = SUNMAX(MRILL_BIAS(C) * dsm, TINY);
   const sunrealtype ef2 = MRILL_EFP(C);
-  const sunrealtype M   = SUNRceil(H/h);
+  const sunrealtype M   = SUNRceil(H / h);
 
   /* handle first vs successive steps */
   sunrealtype Hfac, Mfac;
@@ -166,16 +159,16 @@ SUNErrCode SUNAdaptController_EstimateMRISteps_MRILL(SUNAdaptController C,
   }
   else
   {
-    const sunrealtype Mp = SUNRceil(MRILL_HSP(C)/MRILL_HFP(C));
-    Hfac = H / MRILL_HSP(C);
-    Mfac = M / Mp;
+    const sunrealtype Mp = SUNRceil(MRILL_HSP(C) / MRILL_HFP(C));
+    Hfac                 = H / MRILL_HSP(C);
+    Mfac                 = M / Mp;
   }
 
   /* compute estimated optimal time step size */
-  *Hnew = H * Hfac * SUNRpowerR(es1,a1) * SUNRpowerR(es2,a2);
-  const sunrealtype Mnew = M * Mfac * SUNRpowerR(es1,b11) *
-                           SUNRpowerR(es2,b12) * SUNRpowerR(ef1,b21) *
-                           SUNRpowerR(ef2,b22);
+  *Hnew                  = H * Hfac * SUNRpowerR(es1, a1) * SUNRpowerR(es2, a2);
+  const sunrealtype Mnew = M * Mfac * SUNRpowerR(es1, b11) *
+                           SUNRpowerR(es2, b12) * SUNRpowerR(ef1, b21) *
+                           SUNRpowerR(ef2, b22);
   *hnew = (*Hnew) / Mnew;
 
   /* return with success */
@@ -185,10 +178,10 @@ SUNErrCode SUNAdaptController_EstimateMRISteps_MRILL(SUNAdaptController C,
 SUNErrCode SUNAdaptController_Reset_MRILL(SUNAdaptController C)
 {
   SUNFunctionBegin(C->sunctx);
-  MRILL_ESP(C) = SUN_RCONST(1.0);
-  MRILL_EFP(C) = SUN_RCONST(1.0);
-  MRILL_HSP(C) = SUN_RCONST(1.0);
-  MRILL_HFP(C) = SUN_RCONST(1.0);
+  MRILL_ESP(C)       = SUN_RCONST(1.0);
+  MRILL_EFP(C)       = SUN_RCONST(1.0);
+  MRILL_HSP(C)       = SUN_RCONST(1.0);
+  MRILL_HFP(C)       = SUN_RCONST(1.0);
   MRILL_FIRSTSTEP(C) = SUNTRUE;
   return SUN_SUCCESS;
 }
@@ -204,7 +197,7 @@ SUNErrCode SUNAdaptController_SetDefaults_MRILL(SUNAdaptController C)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_Write_MRILL(SUNAdaptController C, FILE *fptr)
+SUNErrCode SUNAdaptController_Write_MRILL(SUNAdaptController C, FILE* fptr)
 {
   SUNFunctionBegin(C->sunctx);
   SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
@@ -234,7 +227,8 @@ SUNErrCode SUNAdaptController_Write_MRILL(SUNAdaptController C, FILE *fptr)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_SetErrorBias_MRILL(SUNAdaptController C, sunrealtype bias)
+SUNErrCode SUNAdaptController_SetErrorBias_MRILL(SUNAdaptController C,
+                                                 sunrealtype bias)
 {
   SUNFunctionBegin(C->sunctx);
 
@@ -245,19 +239,21 @@ SUNErrCode SUNAdaptController_SetErrorBias_MRILL(SUNAdaptController C, sunrealty
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_UpdateMRIH_MRILL(SUNAdaptController C, sunrealtype H, sunrealtype h,
-                                sunrealtype DSM, sunrealtype dsm)
+SUNErrCode SUNAdaptController_UpdateMRIH_MRILL(SUNAdaptController C,
+                                               sunrealtype H, sunrealtype h,
+                                               sunrealtype DSM, sunrealtype dsm)
 {
   SUNFunctionBegin(C->sunctx);
-  MRILL_ESP(C) = SUNMAX(MRILL_BIAS(C) * DSM, TINY);
-  MRILL_EFP(C) = SUNMAX(MRILL_BIAS(C) * dsm, TINY);
-  MRILL_HSP(C) = H;
-  MRILL_HFP(C) = h;
+  MRILL_ESP(C)       = SUNMAX(MRILL_BIAS(C) * DSM, TINY);
+  MRILL_EFP(C)       = SUNMAX(MRILL_BIAS(C) * dsm, TINY);
+  MRILL_HSP(C)       = H;
+  MRILL_HFP(C)       = h;
   MRILL_FIRSTSTEP(C) = SUNFALSE;
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_Space_MRILL(SUNAdaptController C, long int* lenrw, long int* leniw)
+SUNErrCode SUNAdaptController_Space_MRILL(SUNAdaptController C, long int* lenrw,
+                                          long int* leniw)
 {
   SUNFunctionBegin(C->sunctx);
   SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);

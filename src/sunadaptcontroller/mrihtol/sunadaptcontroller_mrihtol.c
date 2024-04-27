@@ -23,15 +23,13 @@
 #include "sundials/priv/sundials_errors_impl.h"
 #include "sundials/sundials_errors.h"
 
-
 /* ---------------
  * Macro accessors
  * --------------- */
 
-#define MRIHTOL_CONTENT(C) ( (SUNAdaptControllerContent_MRIHTol)(C->content) )
-#define MRIHTOL_CSLOW(C)   ( MRIHTOL_CONTENT(C)->HControl )
-#define MRIHTOL_CFAST(C)   ( MRIHTOL_CONTENT(C)->TolControl )
-
+#define MRIHTOL_CONTENT(C) ((SUNAdaptControllerContent_MRIHTol)(C->content))
+#define MRIHTOL_CSLOW(C)   (MRIHTOL_CONTENT(C)->HControl)
+#define MRIHTOL_CFAST(C)   (MRIHTOL_CONTENT(C)->TolControl)
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -77,7 +75,7 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNContext sunctx,
   SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach input controllers */
-  content->HControl = HControl;
+  content->HControl   = HControl;
   content->TolControl = TolControl;
 
   /* Attach content */
@@ -102,8 +100,6 @@ SUNAdaptController SUNAdaptController_GetFastController_MRIHTol(SUNAdaptControll
   return MRIHTOL_CFAST(C);
 }
 
-
-
 /* -----------------------------------------------------------------
  * implementation of controller operations
  * ----------------------------------------------------------------- */
@@ -113,12 +109,9 @@ SUNAdaptController_Type SUNAdaptController_GetType_MRIHTol(SUNAdaptController C)
   return SUN_ADAPTCONTROLLER_MRI_TOL;
 }
 
-SUNErrCode SUNAdaptController_EstimateStepTol_MRIHTol(SUNAdaptController C,
-                                                      sunrealtype H, sunrealtype tolfac,
-                                                      int P, sunrealtype DSM,
-                                                      sunrealtype dsm,
-                                                      sunrealtype* Hnew,
-                                                      sunrealtype* tolfacnew)
+SUNErrCode SUNAdaptController_EstimateStepTol_MRIHTol(
+  SUNAdaptController C, sunrealtype H, sunrealtype tolfac, int P,
+  sunrealtype DSM, sunrealtype dsm, sunrealtype* Hnew, sunrealtype* tolfacnew)
 {
   SUNFunctionBegin(C->sunctx);
   SUNAssert(Hnew, SUN_ERR_ARG_CORRUPT);
@@ -129,7 +122,8 @@ SUNErrCode SUNAdaptController_EstimateStepTol_MRIHTol(SUNAdaptController C,
 
   /* Call fast time sacle sub-controller with order=1: no matter the integrator
      order, we expect its error to be proportional to the tolerance factor */
-  SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CFAST(C), tolfac, 1, dsm, tolfacnew));
+  SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CFAST(C), tolfac, 1, dsm,
+                                               tolfacnew));
 
   return SUN_SUCCESS;
 }
@@ -150,7 +144,7 @@ SUNErrCode SUNAdaptController_SetDefaults_MRIHTol(SUNAdaptController C)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_Write_MRIHTol(SUNAdaptController C, FILE *fptr)
+SUNErrCode SUNAdaptController_Write_MRIHTol(SUNAdaptController C, FILE* fptr)
 {
   SUNFunctionBegin(C->sunctx);
   SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
@@ -162,7 +156,8 @@ SUNErrCode SUNAdaptController_Write_MRIHTol(SUNAdaptController C, FILE *fptr)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_SetErrorBias_MRIHTol(SUNAdaptController C, sunrealtype bias)
+SUNErrCode SUNAdaptController_SetErrorBias_MRIHTol(SUNAdaptController C,
+                                                   sunrealtype bias)
 {
   SUNFunctionBegin(C->sunctx);
   SUNCheckCall(SUNAdaptController_SetErrorBias(MRIHTOL_CSLOW(C), bias));
@@ -170,8 +165,10 @@ SUNErrCode SUNAdaptController_SetErrorBias_MRIHTol(SUNAdaptController C, sunreal
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_UpdateMRITol_MRIHTol(SUNAdaptController C, sunrealtype H,
-                                                   sunrealtype tolfac, sunrealtype DSM,
+SUNErrCode SUNAdaptController_UpdateMRITol_MRIHTol(SUNAdaptController C,
+                                                   sunrealtype H,
+                                                   sunrealtype tolfac,
+                                                   sunrealtype DSM,
                                                    sunrealtype dsm)
 {
   SUNFunctionBegin(C->sunctx);
@@ -180,7 +177,8 @@ SUNErrCode SUNAdaptController_UpdateMRITol_MRIHTol(SUNAdaptController C, sunreal
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_Space_MRIHTol(SUNAdaptController C, long int* lenrw, long int* leniw)
+SUNErrCode SUNAdaptController_Space_MRIHTol(SUNAdaptController C,
+                                            long int* lenrw, long int* leniw)
 {
   SUNFunctionBegin(C->sunctx);
   SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);

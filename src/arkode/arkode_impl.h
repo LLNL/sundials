@@ -377,15 +377,15 @@ struct ARKodeMemRec
   long int liw;      /* no. of integer words in ARKODE work vectors  */
 
   /* Saved Values */
-  sunrealtype h0u;   /* actual initial stepsize                     */
-  sunrealtype tn;    /* time of last successful step                */
-  sunrealtype terr;  /* error in tn for compensated sums            */
-  sunrealtype hold;  /* last successful h value used                */
-  sunrealtype tolsf; /* tolerance scale factor (suggestion to user) */
-  int AccumErrorType;       /* accumulated error estimation type:
+  sunrealtype h0u;         /* actual initial stepsize                     */
+  sunrealtype tn;          /* time of last successful step                */
+  sunrealtype terr;        /* error in tn for compensated sums            */
+  sunrealtype hold;        /* last successful h value used                */
+  sunrealtype tolsf;       /* tolerance scale factor (suggestion to user) */
+  int AccumErrorType;      /* accumulated error estimation type:
                                none (-1), scalar-max (0), scalar-sum (1)   */
-  long int AccumErrorStep;  /* time step of last accumulated error reset   */
-  sunrealtype AccumError;   /* accumulated error estimate                  */
+  long int AccumErrorStep; /* time step of last accumulated error reset   */
+  sunrealtype AccumError;  /* accumulated error estimate                  */
   sunbooleantype VabstolMallocDone;
   sunbooleantype VRabstolMallocDone;
   sunbooleantype MallocDone;
@@ -904,17 +904,14 @@ void arkFreeVectors(ARKodeMem ark_mem);
 int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout);
 int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
                  sunrealtype* tret, int itask, int* ier);
-int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
-           N_Vector ycur, N_Vector fcur, N_Vector ytmp,
-           N_Vector temp1, N_Vector temp2,
+int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout, N_Vector ycur,
+           N_Vector fcur, N_Vector ytmp, N_Vector temp1, N_Vector temp2,
            ARKTimestepFullRHSFn rhs, sunrealtype* h);
-sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist,
-                            N_Vector y, N_Vector f, N_Vector temp1,
-                            N_Vector temp2);
-int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype t,
-               N_Vector y, N_Vector f, N_Vector ycur,
-               N_Vector temp1, ARKTimestepFullRHSFn rhs,
-               sunrealtype *yddnrm);
+sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist, N_Vector y,
+                            N_Vector f, N_Vector temp1, N_Vector temp2);
+int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype t, N_Vector y,
+               N_Vector f, N_Vector ycur, N_Vector temp1,
+               ARKTimestepFullRHSFn rhs, sunrealtype* yddnrm);
 
 int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm);
 int arkHandleFailure(ARKodeMem ark_mem, int flag);
@@ -954,7 +951,6 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
 int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
                        ARKodeHAdaptMem* hadapt_mem);
 
-
 int arkSetAdaptController(void* arkode_mem, SUNAdaptController C);
 int arkSetDefaults(void* arkode_mem);
 int arkSetDenseOrder(void* arkode_mem, int dord);
@@ -993,9 +989,9 @@ int arkSetMaxCFailGrowth(void* arkode_mem, sunrealtype etacf);
 int arkSetStabilityFn(void* arkode_mem, ARKExpStabFn EStab, void* estab_data);
 int arkSetMaxErrTestFails(void* arkode_mem, int maxnef);
 int arkSetMaxConvFails(void* arkode_mem, int maxncf);
-int arkSetAccumulatedErrorType(void *arkode_mem, int accum_type);
-int arkResetAccumulatedError(void *arkode_mem);
-int arkGetAccumulatedError(void *arkode_mem, sunrealtype* accum_error);
+int arkSetAccumulatedErrorType(void* arkode_mem, int accum_type);
+int arkResetAccumulatedError(void* arkode_mem);
+int arkGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error);
 int arkSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff);
 int arkGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
 int arkGetNumStepAttempts(void* arkode_mem, long int* nstep_attempts);
@@ -1008,7 +1004,7 @@ int arkGetCurrentTime(void* arkode_mem, sunrealtype* tcur);
 int arkGetTolScaleFactor(void* arkode_mem, sunrealtype* tolsfac);
 int arkGetErrWeights(void* arkode_mem, N_Vector eweight);
 int arkGetResWeights(void* arkode_mem, N_Vector rweight);
-int arkGetEstLocalErrors(void *arkode_mem, N_Vector ele);
+int arkGetEstLocalErrors(void* arkode_mem, N_Vector ele);
 int arkGetNumGEvals(void* arkode_mem, long int* ngevals);
 int arkGetRootInfo(void* arkode_mem, int* rootsfound);
 int arkGetNumConstrFails(void* arkode_mem, long int* nconstrfails);

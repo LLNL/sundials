@@ -879,7 +879,7 @@ int MRIStepSetDeduceImplicitRhs(void* arkode_mem, sunbooleantype deduce)
   Arguments of hfactor < 0 or hfactor == 1 are illegal.
   All other positive hfactor values will *attempt* to be used.
   ---------------------------------------------------------------*/
-int MRIStepSetFastErrorStepFactor(void *arkode_mem, sunrealtype hfactor)
+int MRIStepSetFastErrorStepFactor(void* arkode_mem, sunrealtype hfactor)
 {
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
@@ -890,7 +890,8 @@ int MRIStepSetFastErrorStepFactor(void *arkode_mem, sunrealtype hfactor)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* return with error on illegal input */
-  if ((hfactor < ZERO) || (hfactor == ONE)) {
+  if ((hfactor < ZERO) || (hfactor == ONE))
+  {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Illegal input; must be >0 and not identically 1");
     return (ARK_ILL_INPUT);
@@ -900,7 +901,6 @@ int MRIStepSetFastErrorStepFactor(void *arkode_mem, sunrealtype hfactor)
   step_mem->inner_hfactor = hfactor;
   return (ARK_SUCCESS);
 }
-
 
 /*---------------------------------------------------------------
   MRIStepSetAdaptController:
@@ -912,14 +912,15 @@ int MRIStepSetFastErrorStepFactor(void *arkode_mem, sunrealtype hfactor)
   "SUNAdaptController_MRIStep" wrapper, which will properly
   interact with the fast integration module.
   ---------------------------------------------------------------*/
-int MRIStepSetAdaptController(void *arkode_mem, SUNAdaptController C) {
-
+int MRIStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
+{
   /* Retrieve the controller type */
   SUNAdaptController_Type ctype = SUNAdaptController_GetType(C);
 
   /* If this does not have MRI type, then just pass to ARKODE */
   if ((ctype != SUN_ADAPTCONTROLLER_MRI_H) &&
-      (ctype != SUN_ADAPTCONTROLLER_MRI_TOL)) {
+      (ctype != SUN_ADAPTCONTROLLER_MRI_TOL))
+  {
     return (arkSetAdaptController(arkode_mem, C));
   }
 

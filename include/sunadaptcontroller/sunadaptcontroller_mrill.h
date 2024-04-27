@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <sundials/sundials_adaptcontroller.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -28,17 +28,18 @@ extern "C" {
  * MRI linear-linear implementation of SUNAdaptController
  * ---------------------------------------------- */
 
-struct _SUNAdaptControllerContent_MRILL {
-  sunrealtype k11;    /* internal controller parameters */
+struct _SUNAdaptControllerContent_MRILL
+{
+  sunrealtype k11; /* internal controller parameters */
   sunrealtype k12;
   sunrealtype k21;
   sunrealtype k22;
-  sunrealtype bias;   /* error bias factor */
-  sunrealtype esp;    /* slow error from previous step */
-  sunrealtype efp;    /* fast error from previous step */
-  sunrealtype hsp;    /* slow previous step size */
-  sunrealtype hfp;    /* fast previous step size */
-  int p;              /* fast order of accuracy to use */
+  sunrealtype bias;         /* error bias factor */
+  sunrealtype esp;          /* slow error from previous step */
+  sunrealtype efp;          /* fast error from previous step */
+  sunrealtype hsp;          /* slow previous step size */
+  sunrealtype hfp;          /* fast previous step size */
+  int p;                    /* fast order of accuracy to use */
   sunbooleantype firststep; /* flag indicating first step */
 };
 
@@ -57,8 +58,9 @@ int SUNAdaptController_SetParams_MRILL(SUNAdaptController C, sunrealtype k11,
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_MRILL(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateMRISteps_MRILL(SUNAdaptController C, sunrealtype H,
-                                              sunrealtype h, int P, sunrealtype DSM,
+int SUNAdaptController_EstimateMRISteps_MRILL(SUNAdaptController C,
+                                              sunrealtype H, sunrealtype h,
+                                              int P, sunrealtype DSM,
                                               sunrealtype dsm, sunrealtype* Hnew,
                                               sunrealtype* hnew);
 SUNDIALS_EXPORT
@@ -81,4 +83,4 @@ int SUNAdaptController_Space_MRILL(SUNAdaptController C, long int* lenrw,
 }
 #endif
 
-#endif  /* _SUNADAPTCONTROLLER_MRILL_H */
+#endif /* _SUNADAPTCONTROLLER_MRILL_H */

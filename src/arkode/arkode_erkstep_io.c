@@ -189,19 +189,19 @@ int ERKStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
 /*---------------------------------------------------------------
   Wrapper functions for accumulated temporal error estimation.
   ---------------------------------------------------------------*/
-int ERKStepSetAccumulatedErrorType(void *arkode_mem, int accum_type) 
+int ERKStepSetAccumulatedErrorType(void* arkode_mem, int accum_type)
 {
-  return (arkSetAccumulatedErrorType(arkode_mem, accum_type)); 
+  return (arkSetAccumulatedErrorType(arkode_mem, accum_type));
 }
 
-int ERKStepResetAccumulatedError(void *arkode_mem) 
+int ERKStepResetAccumulatedError(void* arkode_mem)
 {
-  return (arkResetAccumulatedError(arkode_mem)); 
+  return (arkResetAccumulatedError(arkode_mem));
 }
 
-int ERKStepGetAccumulatedError(void *arkode_mem, sunrealtype* accum_error) 
+int ERKStepGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
 {
-  return (arkGetAccumulatedError(arkode_mem, accum_error)); 
+  return (arkGetAccumulatedError(arkode_mem, accum_error));
 }
 
 /*===============================================================
@@ -249,9 +249,9 @@ int ERKStepGetErrWeights(void* arkode_mem, N_Vector eweight)
   return (arkGetErrWeights(arkode_mem, eweight));
 }
 
-int ERKStepGetEstLocalErrors(void *arkode_mem, N_Vector ele) 
+int ERKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele)
 {
-  return (arkGetEstLocalErrors(arkode_mem, ele)); 
+  return (arkGetEstLocalErrors(arkode_mem, ele));
 }
 
 int ERKStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
@@ -708,8 +708,6 @@ int ERKStepGetCurrentButcherTable(void* arkode_mem, ARKodeButcherTable* B)
   *B = step_mem->B;
   return (ARK_SUCCESS);
 }
-
-
 
 /*---------------------------------------------------------------
   ERKStepGetTimestepperStats:

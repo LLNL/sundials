@@ -34,7 +34,8 @@ extern "C" {
   ===============================================================*/
 
 #define MAXCOR 3 /* max number of nonlinear iterations */
-#define CRDOWN SUN_RCONST(0.3)   /* constant to estimate the convergence
+#define CRDOWN \
+  SUN_RCONST(0.3)             /* constant to estimate the convergence
                                     rate for the nonlinear equation */
 #define DGMAX SUN_RCONST(0.2) /* if |gamma/gammap-1| > DGMAX then call lsetup */
 #define RDIV  SUN_RCONST(2.3) /* declare divergence if ratio del/delp > RDIV */

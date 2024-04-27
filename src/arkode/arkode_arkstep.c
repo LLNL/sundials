@@ -1209,8 +1209,8 @@ int arkStep_Init(void* arkode_mem, int init_type)
     if ((!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0)) &&
         (step_mem->p == 0))
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "Temporal error estimation cannot be performed without embedding coefficients");
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                      __FILE__, "Temporal error estimation cannot be performed without embedding coefficients");
       return (ARK_ILL_INPUT);
     }
 
@@ -3240,8 +3240,7 @@ int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
 
-  retval = arkStep_AccessStepMem(inner_arkode_mem, __func__,
-                                 &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(inner_arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -3263,22 +3262,23 @@ int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
-  if (retval != ARK_SUCCESS) { return(retval); }
+  if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = MRIStepInnerStepper_SetAccumulatedErrorGetFn(*stepper,
-                               arkStep_MRIStepInnerGetAccumulatedError);
-  if (retval != ARK_SUCCESS) { return(retval); }
+  retval =
+    MRIStepInnerStepper_SetAccumulatedErrorGetFn(*stepper,
+                                                 arkStep_MRIStepInnerGetAccumulatedError);
+  if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = MRIStepInnerStepper_SetAccumulatedErrorResetFn(*stepper,
-                               arkStep_MRIStepInnerResetAccumulatedError);
-  if (retval != ARK_SUCCESS) { return(retval); }
+  retval =
+    MRIStepInnerStepper_SetAccumulatedErrorResetFn(*stepper,
+                                                   arkStep_MRIStepInnerResetAccumulatedError);
+  if (retval != ARK_SUCCESS) { return (retval); }
 
   retval = MRIStepInnerStepper_SetFixedStepFn(*stepper,
-                               arkStep_MRIStepInnerSetFixedStep);
-  if (retval != ARK_SUCCESS) { return(retval); }
+                                              arkStep_MRIStepInnerSetFixedStep);
+  if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = MRIStepInnerStepper_SetRTolFn(*stepper,
-                               arkStep_MRIStepInnerSetRTol);
+  retval = MRIStepInnerStepper_SetRTolFn(*stepper, arkStep_MRIStepInnerSetRTol);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   return (ARK_SUCCESS);
@@ -3380,15 +3380,14 @@ int arkStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
                                             sunrealtype* accum_error)
 {
   void* arkode_mem;
-  int   retval;
+  int retval;
 
   /* extract the ARKODE memory struct */
   retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return(retval); }
+  if (retval != ARK_SUCCESS) { return (retval); }
 
-  return(ARKStepGetAccumulatedError(arkode_mem, accum_error));
+  return (ARKStepGetAccumulatedError(arkode_mem, accum_error));
 }
-
 
 /*------------------------------------------------------------------------------
   arkStep_MRIStepInnerResetAccumulatedError
@@ -3400,15 +3399,14 @@ int arkStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
 int arkStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper)
 {
   void* arkode_mem;
-  int   retval;
+  int retval;
 
   /* extract the ARKODE memory struct */
   retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return(retval); }
+  if (retval != ARK_SUCCESS) { return (retval); }
 
-  return(ARKStepResetAccumulatedError(arkode_mem));
+  return (ARKStepResetAccumulatedError(arkode_mem));
 }
-
 
 /*------------------------------------------------------------------------------
   arkStep_MRIStepInnerSetFixedStep
@@ -3420,15 +3418,14 @@ int arkStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper)
 int arkStep_MRIStepInnerSetFixedStep(MRIStepInnerStepper stepper, sunrealtype h)
 {
   void* arkode_mem;
-  int   retval;
+  int retval;
 
   /* extract the ARKODE memory struct */
   retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return(retval); }
+  if (retval != ARK_SUCCESS) { return (retval); }
 
-  return(ARKStepSetFixedStep(arkode_mem, h));
+  return (ARKStepSetFixedStep(arkode_mem, h));
 }
-
 
 /*------------------------------------------------------------------------------
   arkStep_MRIStepInnerSetRTol
@@ -3441,26 +3438,27 @@ int arkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol)
 {
   void* arkode_mem;
   ARKodeMem ark_mem;
-  int   retval;
+  int retval;
 
   /* extract the ARKODE memory struct */
   retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) return(retval);
-  if (arkode_mem==NULL)
+  if (retval != ARK_SUCCESS) return (retval);
+  if (arkode_mem == NULL)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
+    return (ARK_MEM_NULL);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
+  ark_mem = (ARKodeMem)arkode_mem;
 
   if (rtol > ZERO)
   {
     ark_mem->reltol = rtol;
-    return(ARK_SUCCESS);
+    return (ARK_SUCCESS);
   }
-  else { return(ARK_ILL_INPUT); }
+  else { return (ARK_ILL_INPUT); }
 }
+
 /*------------------------------------------------------------------------------
   arkStep_ApplyForcing
 

@@ -23,16 +23,15 @@
 #include "sundials/priv/sundials_errors_impl.h"
 #include "sundials/sundials_errors.h"
 
-
 /* ---------------
  * Macro accessors
  * --------------- */
 
-#define MRICC_CONTENT(C) ( (SUNAdaptControllerContent_MRICC)(C->content) )
-#define MRICC_K1(C)      ( MRICC_CONTENT(C)->k1 )
-#define MRICC_K2(C)      ( MRICC_CONTENT(C)->k2 )
-#define MRICC_BIAS(C)    ( MRICC_CONTENT(C)->bias )
-#define MRICC_PFAST(C)   ( MRICC_CONTENT(C)->p )
+#define MRICC_CONTENT(C) ((SUNAdaptControllerContent_MRICC)(C->content))
+#define MRICC_K1(C)      (MRICC_CONTENT(C)->k1)
+#define MRICC_K2(C)      (MRICC_CONTENT(C)->k2)
+#define MRICC_BIAS(C)    (MRICC_CONTENT(C)->bias)
+#define MRICC_PFAST(C)   (MRICC_CONTENT(C)->p)
 
 /* ------------------
  * Default parameters
@@ -42,7 +41,6 @@
 #define DEFAULT_K2   SUN_RCONST(0.44)
 #define DEFAULT_BIAS SUN_RCONST(1.5)
 #define TINY         SUN_RCONST(1.0e-10)
-
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -102,8 +100,6 @@ SUNErrCode SUNAdaptController_SetParams_MRICC(SUNAdaptController C,
   return SUN_SUCCESS;
 }
 
-
-
 /* -----------------------------------------------------------------
  * implementation of controller operations
  * ----------------------------------------------------------------- */
@@ -113,19 +109,16 @@ SUNAdaptController_Type SUNAdaptController_GetType_MRICC(SUNAdaptController C)
   return SUN_ADAPTCONTROLLER_MRI_H;
 }
 
-SUNErrCode SUNAdaptController_EstimateMRISteps_MRICC(SUNAdaptController C,
-                                                     sunrealtype H, sunrealtype h,
-                                                     int P, sunrealtype DSM,
-                                                     sunrealtype dsm,
-                                                     sunrealtype* Hnew,
-                                                     sunrealtype* hnew)
+SUNErrCode SUNAdaptController_EstimateMRISteps_MRICC(
+  SUNAdaptController C, sunrealtype H, sunrealtype h, int P, sunrealtype DSM,
+  sunrealtype dsm, sunrealtype* Hnew, sunrealtype* hnew)
 {
   SUNFunctionBegin(C->sunctx);
   SUNAssert(Hnew, SUN_ERR_ARG_CORRUPT);
   SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
 
   /* set usable time-step adaptivity parameters */
-  const int p = MRICC_PFAST(C);
+  const int p          = MRICC_PFAST(C);
   const sunrealtype k1 = MRICC_K1(C);
   const sunrealtype k2 = MRICC_K2(C);
   const sunrealtype al = k1 / P;
@@ -133,12 +126,12 @@ SUNErrCode SUNAdaptController_EstimateMRISteps_MRICC(SUNAdaptController C,
   const sunrealtype b2 = -k2 / p;
   const sunrealtype es = SUNMAX(MRICC_BIAS(C) * DSM, TINY);
   const sunrealtype ef = SUNMAX(MRICC_BIAS(C) * dsm, TINY);
-  const sunrealtype M = SUNRceil(H/h);
+  const sunrealtype M  = SUNRceil(H / h);
 
   /* compute estimated optimal time step size */
-  *Hnew = H * SUNRpowerR(es,al);
-  const sunrealtype Mnew = M * SUNRpowerR(es,b1) * SUNRpowerR(ef,b2);
-  *hnew = (*Hnew) / Mnew;
+  *Hnew                  = H * SUNRpowerR(es, al);
+  const sunrealtype Mnew = M * SUNRpowerR(es, b1) * SUNRpowerR(ef, b2);
+  *hnew                  = (*Hnew) / Mnew;
 
   /* return with success */
   return SUN_SUCCESS;
@@ -153,7 +146,7 @@ SUNErrCode SUNAdaptController_SetDefaults_MRICC(SUNAdaptController C)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_Write_MRICC(SUNAdaptController C, FILE *fptr)
+SUNErrCode SUNAdaptController_Write_MRICC(SUNAdaptController C, FILE* fptr)
 {
   SUNFunctionBegin(C->sunctx);
   SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
@@ -171,7 +164,8 @@ SUNErrCode SUNAdaptController_Write_MRICC(SUNAdaptController C, FILE *fptr)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_SetErrorBias_MRICC(SUNAdaptController C, sunrealtype bias)
+SUNErrCode SUNAdaptController_SetErrorBias_MRICC(SUNAdaptController C,
+                                                 sunrealtype bias)
 {
   SUNFunctionBegin(C->sunctx);
 
@@ -182,7 +176,8 @@ SUNErrCode SUNAdaptController_SetErrorBias_MRICC(SUNAdaptController C, sunrealty
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_Space_MRICC(SUNAdaptController C, long int* lenrw, long int* leniw)
+SUNErrCode SUNAdaptController_Space_MRICC(SUNAdaptController C, long int* lenrw,
+                                          long int* leniw)
 {
   SUNFunctionBegin(C->sunctx);
   SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);

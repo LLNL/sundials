@@ -23,24 +23,23 @@
 #include "sundials/priv/sundials_errors_impl.h"
 #include "sundials/sundials_errors.h"
 
-
 /* ---------------
  * Macro accessors
  * --------------- */
 
-#define MRIPID_CONTENT(C) ( (SUNAdaptControllerContent_MRIPID)(C->content) )
-#define MRIPID_K11(C)     ( MRIPID_CONTENT(C)->k11 )
-#define MRIPID_K12(C)     ( MRIPID_CONTENT(C)->k12 )
-#define MRIPID_K13(C)     ( MRIPID_CONTENT(C)->k13 )
-#define MRIPID_K21(C)     ( MRIPID_CONTENT(C)->k21 )
-#define MRIPID_K22(C)     ( MRIPID_CONTENT(C)->k22 )
-#define MRIPID_K23(C)     ( MRIPID_CONTENT(C)->k23 )
-#define MRIPID_BIAS(C)    ( MRIPID_CONTENT(C)->bias )
-#define MRIPID_ESP(C)     ( MRIPID_CONTENT(C)->esp )
-#define MRIPID_EFP(C)     ( MRIPID_CONTENT(C)->efp )
-#define MRIPID_ESPP(C)    ( MRIPID_CONTENT(C)->espp )
-#define MRIPID_EFPP(C)    ( MRIPID_CONTENT(C)->efpp )
-#define MRIPID_PFAST(C)   ( MRIPID_CONTENT(C)->p )
+#define MRIPID_CONTENT(C) ((SUNAdaptControllerContent_MRIPID)(C->content))
+#define MRIPID_K11(C)     (MRIPID_CONTENT(C)->k11)
+#define MRIPID_K12(C)     (MRIPID_CONTENT(C)->k12)
+#define MRIPID_K13(C)     (MRIPID_CONTENT(C)->k13)
+#define MRIPID_K21(C)     (MRIPID_CONTENT(C)->k21)
+#define MRIPID_K22(C)     (MRIPID_CONTENT(C)->k22)
+#define MRIPID_K23(C)     (MRIPID_CONTENT(C)->k23)
+#define MRIPID_BIAS(C)    (MRIPID_CONTENT(C)->bias)
+#define MRIPID_ESP(C)     (MRIPID_CONTENT(C)->esp)
+#define MRIPID_EFP(C)     (MRIPID_CONTENT(C)->efp)
+#define MRIPID_ESPP(C)    (MRIPID_CONTENT(C)->espp)
+#define MRIPID_EFPP(C)    (MRIPID_CONTENT(C)->efpp)
+#define MRIPID_PFAST(C)   (MRIPID_CONTENT(C)->p)
 
 /* ------------------
  * Default parameters
@@ -54,7 +53,6 @@
 #define DEFAULT_K23  SUN_RCONST(0.74)
 #define DEFAULT_BIAS SUN_RCONST(1.5)
 #define TINY         SUN_RCONST(1.0e-10)
-
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -123,8 +121,6 @@ SUNErrCode SUNAdaptController_SetParams_MRIPID(SUNAdaptController C,
   return SUN_SUCCESS;
 }
 
-
-
 /* -----------------------------------------------------------------
  * implementation of controller operations
  * ----------------------------------------------------------------- */
@@ -134,28 +130,25 @@ SUNAdaptController_Type SUNAdaptController_GetType_MRIPID(SUNAdaptController C)
   return SUN_ADAPTCONTROLLER_MRI_H;
 }
 
-SUNErrCode SUNAdaptController_EstimateMRISteps_MRIPID(SUNAdaptController C,
-                                                      sunrealtype H, sunrealtype h,
-                                                      int P, sunrealtype DSM,
-                                                      sunrealtype dsm,
-                                                      sunrealtype* Hnew,
-                                                      sunrealtype* hnew)
+SUNErrCode SUNAdaptController_EstimateMRISteps_MRIPID(
+  SUNAdaptController C, sunrealtype H, sunrealtype h, int P, sunrealtype DSM,
+  sunrealtype dsm, sunrealtype* Hnew, sunrealtype* hnew)
 {
   SUNFunctionBegin(C->sunctx);
   SUNAssert(Hnew, SUN_ERR_ARG_CORRUPT);
   SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
 
   /* set usable time-step adaptivity parameters */
-  const int p = MRIPID_PFAST(C);
+  const int p           = MRIPID_PFAST(C);
   const sunrealtype k11 = MRIPID_K11(C);
   const sunrealtype k12 = MRIPID_K12(C);
   const sunrealtype k13 = MRIPID_K13(C);
   const sunrealtype k21 = MRIPID_K21(C);
   const sunrealtype k22 = MRIPID_K22(C);
   const sunrealtype k23 = MRIPID_K23(C);
-  const sunrealtype a1 = (k11 + k12 + k13) / (3 * P);
-  const sunrealtype a2 = -(k11 + k12) / (3 * P);
-  const sunrealtype a3 = k11 / (3 * P);
+  const sunrealtype a1  = (k11 + k12 + k13) / (3 * P);
+  const sunrealtype a2  = -(k11 + k12) / (3 * P);
+  const sunrealtype a3  = k11 / (3 * P);
   const sunrealtype b11 = (p + 1) * (k11 + k12 + k13) / (3 * P * p);
   const sunrealtype b12 = -(p + 1) * (k11 + k12) / (3 * P * p);
   const sunrealtype b13 = (p + 1) * k11 / (3 * P * p);
@@ -168,13 +161,13 @@ SUNErrCode SUNAdaptController_EstimateMRISteps_MRIPID(SUNAdaptController C,
   const sunrealtype ef1 = SUNMAX(MRIPID_BIAS(C) * dsm, TINY);
   const sunrealtype ef2 = MRIPID_EFP(C);
   const sunrealtype ef3 = MRIPID_EFPP(C);
-  const sunrealtype M = SUNRceil(H/h);
+  const sunrealtype M   = SUNRceil(H / h);
 
   /* compute estimated optimal time step size */
-  *Hnew = H * SUNRpowerR(es1,a1) * SUNRpowerR(es2,a2) * SUNRpowerR(es3,a3);
-  const sunrealtype Mnew = M * SUNRpowerR(es1,b11) * SUNRpowerR(es2,b12) *
-                           SUNRpowerR(es3,b13) * SUNRpowerR(ef1,b21) *
-                           SUNRpowerR(ef2,b22) * SUNRpowerR(ef3,b23);
+  *Hnew = H * SUNRpowerR(es1, a1) * SUNRpowerR(es2, a2) * SUNRpowerR(es3, a3);
+  const sunrealtype Mnew = M * SUNRpowerR(es1, b11) * SUNRpowerR(es2, b12) *
+                           SUNRpowerR(es3, b13) * SUNRpowerR(ef1, b21) *
+                           SUNRpowerR(ef2, b22) * SUNRpowerR(ef3, b23);
   *hnew = (*Hnew) / Mnew;
 
   /* return with success */
@@ -204,7 +197,7 @@ SUNErrCode SUNAdaptController_SetDefaults_MRIPID(SUNAdaptController C)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_Write_MRIPID(SUNAdaptController C, FILE *fptr)
+SUNErrCode SUNAdaptController_Write_MRIPID(SUNAdaptController C, FILE* fptr)
 {
   SUNFunctionBegin(C->sunctx);
   SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
@@ -217,10 +210,10 @@ SUNErrCode SUNAdaptController_Write_MRIPID(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  k22 = %32Lg\n", MRIPID_K22(C));
   fprintf(fptr, "  k23 = %32Lg\n", MRIPID_K23(C));
   fprintf(fptr, "  bias factor = %32Lg\n", MRIPID_BIAS(C));
-  fprintf(fptr, "  previous slow errors = %32Lg  %32Lg\n",
-          MRIPID_ESP(C), MRIPID_ESPP(C));
-  fprintf(fptr, "  previous fast errors = %32Lg  %32Lg\n",
-          MRIPID_EFP(C), MRIPID_EFPP(C));
+  fprintf(fptr, "  previous slow errors = %32Lg  %32Lg\n", MRIPID_ESP(C),
+          MRIPID_ESPP(C));
+  fprintf(fptr, "  previous fast errors = %32Lg  %32Lg\n", MRIPID_EFP(C),
+          MRIPID_EFPP(C));
 #else
   fprintf(fptr, "  k11 = %16g\n", MRIPID_K11(C));
   fprintf(fptr, "  k12 = %16g\n", MRIPID_K12(C));
@@ -229,16 +222,17 @@ SUNErrCode SUNAdaptController_Write_MRIPID(SUNAdaptController C, FILE *fptr)
   fprintf(fptr, "  k22 = %16g\n", MRIPID_K22(C));
   fprintf(fptr, "  k23 = %16g\n", MRIPID_K23(C));
   fprintf(fptr, "  bias factor = %16g\n", MRIPID_BIAS(C));
-  fprintf(fptr, "  previous slow errors = %16g  %16g\n",
-          MRIPID_ESP(C), MRIPID_ESPP(C));
-  fprintf(fptr, "  previous fast errors = %16g  %16g\n",
-          MRIPID_EFP(C), MRIPID_EFPP(C));
+  fprintf(fptr, "  previous slow errors = %16g  %16g\n", MRIPID_ESP(C),
+          MRIPID_ESPP(C));
+  fprintf(fptr, "  previous fast errors = %16g  %16g\n", MRIPID_EFP(C),
+          MRIPID_EFPP(C));
 #endif
   fprintf(fptr, "  p = %i (fast method order)\n", MRIPID_PFAST(C));
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_SetErrorBias_MRIPID(SUNAdaptController C, sunrealtype bias)
+SUNErrCode SUNAdaptController_SetErrorBias_MRIPID(SUNAdaptController C,
+                                                  sunrealtype bias)
 {
   SUNFunctionBegin(C->sunctx);
 
@@ -249,8 +243,9 @@ SUNErrCode SUNAdaptController_SetErrorBias_MRIPID(SUNAdaptController C, sunrealt
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_UpdateMRIH_MRIPID(SUNAdaptController C, sunrealtype H, sunrealtype h,
-                                sunrealtype DSM, sunrealtype dsm)
+SUNErrCode SUNAdaptController_UpdateMRIH_MRIPID(SUNAdaptController C,
+                                                sunrealtype H, sunrealtype h,
+                                                sunrealtype DSM, sunrealtype dsm)
 {
   SUNFunctionBegin(C->sunctx);
   MRIPID_ESPP(C) = MRIPID_ESP(C);
@@ -260,7 +255,8 @@ SUNErrCode SUNAdaptController_UpdateMRIH_MRIPID(SUNAdaptController C, sunrealtyp
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_Space_MRIPID(SUNAdaptController C, long int* lenrw, long int* leniw)
+SUNErrCode SUNAdaptController_Space_MRIPID(SUNAdaptController C,
+                                           long int* lenrw, long int* leniw)
 {
   SUNFunctionBegin(C->sunctx);
   SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);

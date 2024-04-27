@@ -178,7 +178,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
 
   /* Accumulated error estimation strategy */
   ark_mem->AccumErrorType = -1;
-  ark_mem->AccumError = ZERO;
+  ark_mem->AccumError     = ZERO;
 
   /* Set default values for integrator optional inputs */
   iret = arkSetDefaults(ark_mem);
@@ -2092,7 +2092,6 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
                       MSG_ARK_MEM_FAIL);
       return (ARK_MEM_FAIL);
     }
-
   }
 
   /* initialization complete */
@@ -2113,7 +2112,6 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     /* Estimate initial h if not set */
     if (ark_mem->h == ZERO)
     {
-
       /* If necessary, temporarily set h as it is used to compute the tolerance
          in a potential mass matrix solve when computing the full rhs */
       ark_mem->h = SUNRabs(tout - ark_mem->tcur);
@@ -2122,7 +2120,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
       /* Call fullrhs */
       retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
                                      ark_mem->fn, ARK_FULLRHS_START);
-      if (retval != 0) return(ARK_RHSFUNC_FAIL);
+      if (retval != 0) return (ARK_RHSFUNC_FAIL);
 
       /* Estimate the first step size */
       tout_hin = tout;
@@ -2131,9 +2129,8 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
       {
         tout_hin = ark_mem->tstop;
       }
-      hflag = arkHin(ark_mem, ark_mem->tcur, tout_hin,
-                     ark_mem->yn, ark_mem->fn, ark_mem->ycur,
-                     ark_mem->tempv1, ark_mem->tempv2,
+      hflag = arkHin(ark_mem, ark_mem->tcur, tout_hin, ark_mem->yn, ark_mem->fn,
+                     ark_mem->ycur, ark_mem->tempv1, ark_mem->tempv2,
                      ark_mem->step_fullrhs, &ark_mem->h);
       if (hflag != ARK_SUCCESS)
       {
@@ -2426,9 +2423,8 @@ int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
   Finally, we apply a bias (0.5) and verify that h0 is within
   bounds.
   ---------------------------------------------------------------*/
-int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
-           N_Vector ycur, N_Vector fcur, N_Vector ytmp,
-           N_Vector temp1, N_Vector temp2,
+int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout, N_Vector ycur,
+           N_Vector fcur, N_Vector ytmp, N_Vector temp1, N_Vector temp2,
            ARKTimestepFullRHSFn rhs, sunrealtype* h)
 {
   int retval, sign, count1, count2;
@@ -2437,7 +2433,7 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
   sunbooleantype hgOK;
 
   /* If tout is too close to tn, give up */
-  if ((tdiff = tout - tcur) == ZERO) { return(ARK_TOO_CLOSE); }
+  if ((tdiff = tout - tcur) == ZERO) { return (ARK_TOO_CLOSE); }
 
   sign   = (tdiff > ZERO) ? 1 : -1;
   tdist  = SUNRabs(tdiff);
@@ -2470,8 +2466,8 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
     for (count2 = 1; count2 <= H0_ITERS; count2++)
     {
       hgs    = hg * sign;
-      retval = arkYddNorm(ark_mem, hgs, tcur, ycur, fcur, ytmp,
-                          temp1, rhs, &yddnrm);
+      retval = arkYddNorm(ark_mem, hgs, tcur, ycur, fcur, ytmp, temp1, rhs,
+                          &yddnrm);
       /* If f() failed unrecoverably, give up */
       if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
       /* If successful, we can use ydd */
@@ -2540,9 +2536,8 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
   It is assumed that the input f equals y', and that
   temp1 and temp2 may be modified as desired.
   ---------------------------------------------------------------*/
-sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist,
-                            N_Vector y, N_Vector f,
-                            N_Vector temp1, N_Vector temp2)
+sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist, N_Vector y,
+                            N_Vector f, N_Vector temp1, N_Vector temp2)
 {
   sunrealtype hub_inv, hub;
 
@@ -2579,10 +2574,9 @@ sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist,
   be modified as desired, but upon return to equal y, and that
   temp1 may be modified as desired.
   ---------------------------------------------------------------*/
-int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype t,
-               N_Vector y, N_Vector f, N_Vector ycur,
-               N_Vector temp1, ARKTimestepFullRHSFn rhs,
-               sunrealtype *yddnrm)
+int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype t, N_Vector y,
+               N_Vector f, N_Vector ycur, N_Vector temp1,
+               ARKTimestepFullRHSFn rhs, sunrealtype* yddnrm)
 {
   int retval;
 
@@ -2591,10 +2585,10 @@ int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype t,
 
   /* compute y', via the ODE RHS routine */
   retval = rhs(ark_mem, t + hg, ycur, temp1, ARK_FULLRHS_OTHER);
-  if (retval != 0) return(ARK_RHSFUNC_FAIL);
+  if (retval != 0) return (ARK_RHSFUNC_FAIL);
 
   /* difference new f and original f to estimate y'' */
-  N_VLinearSum(ONE/hg, temp1, -ONE/hg, f, temp1);
+  N_VLinearSum(ONE / hg, temp1, -ONE / hg, f, temp1);
 
   /* reset ycur to equal yn (unnecessary?) */
   N_VScale(ONE, y, ycur);
@@ -2657,10 +2651,7 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
   {
     ark_mem->AccumError = SUNMAX(dsm, ark_mem->AccumError);
   }
-  else if (ark_mem->AccumErrorType == 1)
-  {
-    ark_mem->AccumError += dsm;
-  }
+  else if (ark_mem->AccumErrorType == 1) { ark_mem->AccumError += dsm; }
 
   /* apply user-supplied step postprocessing function (if supplied) */
   if (ark_mem->ProcessStep != NULL)
@@ -2682,7 +2673,7 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
     mode = (ark_mem->ProcessStep != NULL) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->ycur,
                                    ark_mem->fn, mode);
-    if (retval != 0) return(ARK_RHSFUNC_FAIL);
+    if (retval != 0) return (ARK_RHSFUNC_FAIL);
   }
 
   /* update yn to current solution */

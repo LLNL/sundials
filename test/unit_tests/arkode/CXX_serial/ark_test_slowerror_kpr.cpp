@@ -63,18 +63,18 @@
  * ----------------------------------------------------------------*/
 
 // Header files
-#include <stdio.h>
-#include <iostream>
 #include <algorithm>
-#include <string.h>
-#include <cmath>
-#include <vector>
-#include <sundials/sundials_core.hpp>
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_mristep.h>
+#include <cmath>
+#include <iostream>
 #include <nvector/nvector_serial.h>
-#include <sunmatrix/sunmatrix_dense.h>
+#include <stdio.h>
+#include <string.h>
+#include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_dense.h>
+#include <sunmatrix/sunmatrix_dense.h>
+#include <vector>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -102,45 +102,44 @@ struct UserData
 };
 
 // User-supplied functions called by the solver
-static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void *user_data,
-              N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Private utility functions
 static sunrealtype p(sunrealtype t);
-static sunrealtype q(sunrealtype t, UserData &udata);
+static sunrealtype q(sunrealtype t, UserData& udata);
 static sunrealtype pdot(sunrealtype t);
-static sunrealtype qdot(sunrealtype t, UserData &udata);
+static sunrealtype qdot(sunrealtype t, UserData& udata);
 static sunrealtype utrue(sunrealtype t);
-static sunrealtype vtrue(sunrealtype t, UserData &udata);
-static int Ytrue(sunrealtype t, N_Vector y, UserData &udata);
-static int computeErrorWeights(N_Vector ycur, N_Vector weight,
-                               sunrealtype rtol, sunrealtype atol,
-                               N_Vector vtemp);
-static int check_retval(void *returnvalue, const char *funcname, int opt);
-static int run_test(void *mristep_mem, N_Vector y, sunrealtype T0, sunrealtype Tf,
-                    vector<sunrealtype> Hvals, char *method, sunrealtype reltol,
-                    sunrealtype abstol, UserData &udata);
+static sunrealtype vtrue(sunrealtype t, UserData& udata);
+static int Ytrue(sunrealtype t, N_Vector y, UserData& udata);
+static int computeErrorWeights(N_Vector ycur, N_Vector weight, sunrealtype rtol,
+                               sunrealtype atol, N_Vector vtemp);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
+static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
+                    sunrealtype Tf, vector<sunrealtype> Hvals, char* method,
+                    sunrealtype reltol, sunrealtype abstol, UserData& udata);
 
 // Main Program
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   // general problem parameters
-  sunrealtype T0 = SUN_RCONST(0.0);   // initial time
-  sunrealtype Tf = SUN_RCONST(5.0);   // final time
-  sunindextype NEQ = 2;               // number of dependent vars.
-  char *method;                       // MRI method name
-  sunrealtype reltol = SUN_RCONST(1.e-10);  // fast solver tolerances
+  sunrealtype T0   = SUN_RCONST(0.0);      // initial time
+  sunrealtype Tf   = SUN_RCONST(5.0);      // final time
+  sunindextype NEQ = 2;                    // number of dependent vars.
+  char* method;                            // MRI method name
+  sunrealtype reltol = SUN_RCONST(1.e-10); // fast solver tolerances
   sunrealtype abstol = SUN_RCONST(1.e-12);
 
   // general problem variables
-  int retval;                    // reusable error-checking flag
-  UserData udata;                // user-data structure
-  udata.G = SUN_RCONST(-10.0);   // stiffness parameter
-  udata.e = SUN_RCONST(0.1);     // coupling strength
-  udata.omega = SUN_RCONST(5.0); // time scale ratio
-  udata.Npart = 20;              // partition size
+  int retval;                      // reusable error-checking flag
+  UserData udata;                  // user-data structure
+  udata.G     = SUN_RCONST(-10.0); // stiffness parameter
+  udata.e     = SUN_RCONST(0.1);   // coupling strength
+  udata.omega = SUN_RCONST(5.0);   // time scale ratio
+  udata.Npart = 20;                // partition size
 
   //
   // Initialization
@@ -149,33 +148,38 @@ int main(int argc, char *argv[])
   // Retrieve the command-line options:  method Npart G e omega
   if (argc > 1) { method = argv[1]; }
   else { method = "ARKODE_MRI_GARK_ERK33a"; }
-  if (argc > 2)  udata.Npart = (int) atoi(argv[2]);
-  if (argc > 3)  udata.G = (sunrealtype) atof(argv[3]);
-  if (argc > 4)  udata.e = (sunrealtype) atof(argv[4]);
-  if (argc > 5)  udata.omega = (sunrealtype) atof(argv[5]);
+  if (argc > 2) udata.Npart = (int)atoi(argv[2]);
+  if (argc > 3) udata.G = (sunrealtype)atof(argv[3]);
+  if (argc > 4) udata.e = (sunrealtype)atof(argv[4]);
+  if (argc > 5) udata.omega = (sunrealtype)atof(argv[5]);
 
   // Check arguments for validity
   //   G < 0.0
   //   omega > 0.0
   //   Npart > 0
-  if (udata.G >= ZERO) {
+  if (udata.G >= ZERO)
+  {
     cerr << "ERROR: G must be a negative real number\n";
-    return(-1);
+    return (-1);
   }
-  if (udata.omega <= ZERO) {
+  if (udata.omega <= ZERO)
+  {
     cerr << "ERROR: omega must be a positive real number\n";
-    return(-1);
+    return (-1);
   }
-  if (udata.Npart < 1) {
+  if (udata.Npart < 1)
+  {
     cerr << "ERROR: Npart must be a positive integer\n";
-    return(-1);
+    return (-1);
   }
 
   // Initial problem output (and set implicit solver tolerances as needed)
-  cout << "\nSlow error estimation test (Nonlinear Kvaerno-Prothero-Robinson problem):\n";
+  cout << "\nSlow error estimation test (Nonlinear Kvaerno-Prothero-Robinson "
+          "problem):\n";
   cout << "    time domain:  (" << T0 << "," << Tf << "]\n";
   cout << "    partition size = " << udata.Npart << endl;
-  cout << "    problem parameters:  G = " << udata.G << ",  e = " << udata.e << ",  omega = " << udata.omega << endl;
+  cout << "    problem parameters:  G = " << udata.G << ",  e = " << udata.e
+       << ",  omega = " << udata.omega << endl;
   cout << "    MRI method: " << method << endl;
 
   //
@@ -187,49 +191,52 @@ int main(int argc, char *argv[])
 
   // Create and initialize serial vector for the solution
   N_Vector y = N_VNew_Serial(NEQ, ctx);
-  if (check_retval((void *)y, "N_VNew_Serial", 0)) return 1;
+  if (check_retval((void*)y, "N_VNew_Serial", 0)) return 1;
   retval = Ytrue(T0, y, udata);
   if (check_retval(&retval, "Ytrue", 1)) return 1;
 
   // Set up fast ARKStep integrator as fifth-order adaptive ERK
-  void *inner_arkode_mem = ARKStepCreate(f0, NULL, T0, y, ctx);
-  if (check_retval((void *)inner_arkode_mem, "ARKStepCreate", 0)) return 1;
+  void* inner_arkode_mem = ARKStepCreate(f0, NULL, T0, y, ctx);
+  if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) return 1;
   retval = ARKStepSetOrder(inner_arkode_mem, 5);
   if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
   retval = ARKStepSStolerances(inner_arkode_mem, reltol, abstol);
   if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
   retval = ARKStepSetMaxNumSteps(inner_arkode_mem, 1000000);
-  if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return(1);
+  if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return (1);
 
   // Create inner stepper wrapper
   MRIStepInnerStepper inner_stepper = NULL; // inner stepper
-  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem,
-                                            &inner_stepper);
+  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
   if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
 
   // Set up slow MRIStep integrator
-  sunbooleantype implicit=SUNFALSE;
-  if ((strcmp(method,"ARKODE_MRI_GARK_IRK21a")==0) ||
-      (strcmp(method,"ARKODE_MRI_GARK_ESDIRK34a")==0) ||
-      (strcmp(method,"ARKODE_MRI_GARK_ESDIRK46a")==0)) { implicit = SUNTRUE; }
-  void* mristep_mem = NULL;
-  if (implicit) {
-    mristep_mem = MRIStepCreate(NULL, fn, T0, y, inner_stepper, ctx);
-  } else {
-    mristep_mem = MRIStepCreate(fn, NULL, T0, y, inner_stepper, ctx);
+  sunbooleantype implicit = SUNFALSE;
+  if ((strcmp(method, "ARKODE_MRI_GARK_IRK21a") == 0) ||
+      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK34a") == 0) ||
+      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK46a") == 0))
+  {
+    implicit = SUNTRUE;
   }
-  if (check_retval((void*) mristep_mem, "MRIStepCreate", 0)) return 1;
+  void* mristep_mem = NULL;
+  if (implicit)
+  {
+    mristep_mem = MRIStepCreate(NULL, fn, T0, y, inner_stepper, ctx);
+  }
+  else { mristep_mem = MRIStepCreate(fn, NULL, T0, y, inner_stepper, ctx); }
+  if (check_retval((void*)mristep_mem, "MRIStepCreate", 0)) return 1;
   MRIStepCoupling C = MRIStepCoupling_LoadTableByName(method);
-  if (check_retval((void*) C, "MRIStepCoupling_LoadTableByName", 0)) return 1;
+  if (check_retval((void*)C, "MRIStepCoupling_LoadTableByName", 0)) return 1;
   retval = MRIStepSetCoupling(mristep_mem, C);
   if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
-  SUNMatrix A = NULL;                      // matrix for slow solver
-  SUNLinearSolver LS = NULL;               // slow linear solver object
-  if (implicit) {
+  SUNMatrix A        = NULL; // matrix for slow solver
+  SUNLinearSolver LS = NULL; // slow linear solver object
+  if (implicit)
+  {
     A = SUNDenseMatrix(NEQ, NEQ, ctx);
-    if (check_retval((void*) A, "SUNDenseMatrix", 0)) return 1;
+    if (check_retval((void*)A, "SUNDenseMatrix", 0)) return 1;
     LS = SUNLinSol_Dense(y, A, ctx);
-    if (check_retval((void*) LS, "SUNLinSol_Dense", 0)) return 1;
+    if (check_retval((void*)LS, "SUNLinSol_Dense", 0)) return 1;
     retval = MRIStepSetLinearSolver(mristep_mem, LS, A);
     if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) return 1;
     retval = MRIStepSetJacFn(mristep_mem, Jn);
@@ -243,25 +250,25 @@ int main(int argc, char *argv[])
   }
   retval = MRIStepSStolerances(mristep_mem, reltol, abstol);
   if (check_retval(&retval, "MRIStepSStolerances", 1)) return 1;
-  retval = MRIStepSetUserData(mristep_mem, (void *) &udata);
+  retval = MRIStepSetUserData(mristep_mem, (void*)&udata);
   if (check_retval(&retval, "MRIStepSetUserData", 1)) return 1;
   retval = MRIStepSetAccumulatedErrorType(mristep_mem, 0);
   if (check_retval(&retval, "MRIStepSetAccumulatedErrorType", 1)) return 1;
 
   // Run test for various H values
-  sunrealtype hmax = (Tf-T0)/20/udata.Npart;
-  vector<sunrealtype> Hvals = {hmax, hmax/4.0, hmax/16.0, hmax/64.0, hmax/256.0};
-  retval = run_test(mristep_mem, y, T0, Tf, Hvals, method, reltol,
-                    abstol, udata);
+  sunrealtype hmax          = (Tf - T0) / 20 / udata.Npart;
+  vector<sunrealtype> Hvals = {hmax, hmax / 4.0, hmax / 16.0, hmax / 64.0,
+                               hmax / 256.0};
+  retval = run_test(mristep_mem, y, T0, Tf, Hvals, method, reltol, abstol, udata);
   if (check_retval(&retval, "run_test", 1)) return 1;
 
   // Clean up and return
   ARKStepFree(&inner_arkode_mem);
   MRIStepInnerStepper_Free(&inner_stepper);
   MRIStepFree(&mristep_mem);
-  if (LS) { SUNLinSolFree(LS); }  // free system linear solver
-  if (A) { SUNMatDestroy(A); }    // free system matrix
-  N_VDestroy(y);                  // Free y vector
+  if (LS) { SUNLinSolFree(LS); } // free system linear solver
+  if (A) { SUNMatDestroy(A); }   // free system matrix
+  N_VDestroy(y);                 // Free y vector
   return 0;
 }
 
@@ -269,84 +276,84 @@ int main(int argc, char *argv[])
 // Functions called by the solver
 //------------------------------
 
-static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   // fill in the RHS function with zeros and return with success
   N_VConst(ZERO, ydot);
   return 0;
 }
 
-static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
+static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  UserData *udata = (UserData *) user_data;
-  const sunrealtype u = NV_Ith_S(y,0);
-  const sunrealtype v = NV_Ith_S(y,1);
+  UserData* udata     = (UserData*)user_data;
+  const sunrealtype u = NV_Ith_S(y, 0);
+  const sunrealtype v = NV_Ith_S(y, 1);
   sunrealtype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [G  e]*[(-2+u^2-p(t))/(2*u)] + [pdot(t)/(2u)]
   //   [e -1] [(-2+v^2-s(t))/(2*v)]   [qdot(t)/(2v)]
-  tmp1 = (-TWO+u*u-p(t))/(TWO*u);
-  tmp2 = (-TWO+v*v-q(t,*udata))/(TWO*v);
-  NV_Ith_S(ydot,0) = udata->G*tmp1 + udata->e*tmp2 + pdot(t)/(TWO*u);
-  NV_Ith_S(ydot,1) = udata->e*tmp1 - tmp2 + qdot(t,*udata)/(TWO*v);
+  tmp1              = (-TWO + u * u - p(t)) / (TWO * u);
+  tmp2              = (-TWO + v * v - q(t, *udata)) / (TWO * v);
+  NV_Ith_S(ydot, 0) = udata->G * tmp1 + udata->e * tmp2 + pdot(t) / (TWO * u);
+  NV_Ith_S(ydot, 1) = udata->e * tmp1 - tmp2 + qdot(t, *udata) / (TWO * v);
 
   // Return with success
   return 0;
 }
 
 static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-              void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  UserData *udata = (UserData *) user_data;
-  const sunrealtype u = NV_Ith_S(y,0);
-  const sunrealtype v = NV_Ith_S(y,1);
+  UserData* udata     = (UserData*)user_data;
+  const sunrealtype u = NV_Ith_S(y, 0);
+  const sunrealtype v = NV_Ith_S(y, 1);
   sunrealtype t11, t22;
 
   // fill in the Jacobian:
   //   [G  e]*[1-(u^2-p(t)-2)/(2*u^2),  0] + [-r'(t)/(2*u^2),  0]
   //   [e -1] [0,  1-(v^2-s(t)-2)/(2*v^2)]   [0,  -s'(t)/(2*v^2)]
-  t11 = ONE-(u*u-p(t)-TWO)/(TWO*u*u);
-  t22 = ONE-(v*v-q(t,*udata)-TWO)/(TWO*v*v);
-  SM_ELEMENT_D(J,0,0) = udata->G*t11 - pdot(t)/(TWO*u*u);
-  SM_ELEMENT_D(J,0,1) = udata->e*t22;
-  SM_ELEMENT_D(J,1,0) = udata->e*t11;
-  SM_ELEMENT_D(J,1,1) = -t22 - qdot(t,*udata)/(TWO*v*v);
+  t11                   = ONE - (u * u - p(t) - TWO) / (TWO * u * u);
+  t22                   = ONE - (v * v - q(t, *udata) - TWO) / (TWO * v * v);
+  SM_ELEMENT_D(J, 0, 0) = udata->G * t11 - pdot(t) / (TWO * u * u);
+  SM_ELEMENT_D(J, 0, 1) = udata->e * t22;
+  SM_ELEMENT_D(J, 1, 0) = udata->e * t11;
+  SM_ELEMENT_D(J, 1, 1) = -t22 - qdot(t, *udata) / (TWO * v * v);
 
   // Return with success
   return 0;
 }
 
-
-
 //------------------------------
 // Private helper functions
 //------------------------------
 
-static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0, sunrealtype Tf,
-                    vector<sunrealtype> Hvals, char* method, sunrealtype reltol,
-                    sunrealtype abstol, UserData &udata)
+static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
+                    sunrealtype Tf, vector<sunrealtype> Hvals, char* method,
+                    sunrealtype reltol, sunrealtype abstol, UserData& udata)
 {
   // Reused variables
   int retval;
-  sunrealtype hpart = (Tf-T0)/udata.Npart;
+  sunrealtype hpart = (Tf - T0) / udata.Npart;
   sunrealtype t;
-  N_Vector ele = N_VClone(y);
-  N_Vector ewt = N_VClone(y);
+  N_Vector ele   = N_VClone(y);
+  N_Vector ewt   = N_VClone(y);
   N_Vector vtemp = N_VClone(y);
 
   // Set storage for errors
-  vector<vector<sunrealtype>> dsm(Hvals.size(), vector<sunrealtype> (udata.Npart, ZERO)) ;
-  vector<vector<sunrealtype>> dsm_est(Hvals.size(), vector<sunrealtype> (udata.Npart, ZERO)) ;
+  vector<vector<sunrealtype>> dsm(Hvals.size(),
+                                  vector<sunrealtype>(udata.Npart, ZERO));
+  vector<vector<sunrealtype>> dsm_est(Hvals.size(),
+                                      vector<sunrealtype>(udata.Npart, ZERO));
 
   // Loop over step sizes
-  for (size_t iH=0; iH<Hvals.size(); iH++) {
-
+  for (size_t iH = 0; iH < Hvals.size(); iH++)
+  {
     // Loop over partition
-    for (size_t ipart=0; ipart<udata.Npart; ipart++) {
-
+    for (size_t ipart = 0; ipart < udata.Npart; ipart++)
+    {
       // Reset integrator for this run
-      t = T0 + ipart*hpart;
+      t      = T0 + ipart * hpart;
       retval = Ytrue(t, y, udata);
       if (check_retval(&retval, "Ytrue", 1)) return 1;
       retval = MRIStepReset(mristep_mem, t, y);
@@ -357,7 +364,7 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0, sunrealtype T
       if (check_retval(&retval, "MRIStepResetAccumulatedError", 1)) return 1;
 
       // Run MRIStep to compute one step
-      retval = MRIStepEvolve(mristep_mem, t+Hvals[iH], y, &t, ARK_ONE_STEP);
+      retval = MRIStepEvolve(mristep_mem, t + Hvals[iH], y, &t, ARK_ONE_STEP);
       if (check_retval(&retval, "MRIStepEvolve", 1)) return 1;
       retval = MRIStepGetEstLocalErrors(mristep_mem, ele);
       if (check_retval(&retval, "MRIStepGetEstLocalErrors", 1)) return 1;
@@ -366,72 +373,69 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0, sunrealtype T
       dsm_est[iH][ipart] = N_VWrmsNorm(ewt, ele);
 
       // Compute/print solution error
-      sunrealtype udsm = abs(NV_Ith_S(y,0)-utrue(t))/(abstol + reltol*abs(utrue(t)));
-      sunrealtype vdsm = abs(NV_Ith_S(y,1)-vtrue(t,udata))/(abstol + reltol*abs(vtrue(t,udata)));
-      dsm[iH][ipart] = sqrt(0.5*(udsm*udsm + vdsm*vdsm));
-      cout << "  H " << Hvals[iH]
-           << "  method " << method
-           << "  t " << t
-           << "  dsm " << dsm[iH][ipart]
-           << "  dsm_est " << dsm_est[iH][ipart]
+      sunrealtype udsm = abs(NV_Ith_S(y, 0) - utrue(t)) /
+                         (abstol + reltol * abs(utrue(t)));
+      sunrealtype vdsm = abs(NV_Ith_S(y, 1) - vtrue(t, udata)) /
+                         (abstol + reltol * abs(vtrue(t, udata)));
+      dsm[iH][ipart] = sqrt(0.5 * (udsm * udsm + vdsm * vdsm));
+      cout << "  H " << Hvals[iH] << "  method " << method << "  t " << t
+           << "  dsm " << dsm[iH][ipart] << "  dsm_est " << dsm_est[iH][ipart]
            << endl;
     }
   }
 
   cout << endl << method << " summary:" << endl;
-  for (size_t iH=0; iH<Hvals.size(); iH++) {
-    cout << "  Stepsize " << Hvals[iH]
-         << "  \tmaxdsm " << *max_element(dsm[iH].begin(), dsm[iH].end())
-         << "  \tmaxdsmest " << *max_element(dsm_est[iH].begin(), dsm_est[iH].end())
-         << endl;
+  for (size_t iH = 0; iH < Hvals.size(); iH++)
+  {
+    cout << "  Stepsize " << Hvals[iH] << "  \tmaxdsm "
+         << *max_element(dsm[iH].begin(), dsm[iH].end()) << "  \tmaxdsmest "
+         << *max_element(dsm_est[iH].begin(), dsm_est[iH].end()) << endl;
   }
 
   N_VDestroy(ele);
   N_VDestroy(ewt);
   N_VDestroy(vtemp);
-  return(0);
+  return (0);
 }
 
-static sunrealtype p(sunrealtype t)
+static sunrealtype p(sunrealtype t) { return (cos(t)); }
+
+static sunrealtype q(sunrealtype t, UserData& udata)
 {
-  return( cos(t) );
+  return (cos(udata.omega * t * (ONE + exp(-(t - 2) * (t - 2)))));
 }
-static sunrealtype q(sunrealtype t, UserData &udata)
+
+static sunrealtype pdot(sunrealtype t) { return (-sin(t)); }
+
+static sunrealtype qdot(sunrealtype t, UserData& udata)
 {
-  return( cos(udata.omega*t*(ONE+exp(-(t-2)*(t-2)))) );
+  return (-sin(udata.omega * t * (ONE + exp(-(t - 2) * (t - 2)))) * udata.omega *
+          (ONE + exp(-(t - 2) * (t - 2)) -
+           t * 2 * (t - 2) * (exp(-(t - 2) * (t - 2)))));
 }
-static sunrealtype pdot(sunrealtype t)
+
+static sunrealtype utrue(sunrealtype t) { return (SUNRsqrt(TWO + p(t))); }
+
+static sunrealtype vtrue(sunrealtype t, UserData& udata)
 {
-  return( -sin(t) );
+  return (SUNRsqrt(TWO + q(t, udata)));
 }
-static sunrealtype qdot(sunrealtype t, UserData &udata)
+
+static int Ytrue(sunrealtype t, N_Vector y, UserData& udata)
 {
-  return( -sin(udata.omega*t*(ONE+exp(-(t-2)*(t-2)))) *
-          udata.omega*(ONE+exp(-(t-2)*(t-2)) - t*2*(t-2)*(exp(-(t-2)*(t-2)))) );
+  NV_Ith_S(y, 0) = utrue(t);
+  NV_Ith_S(y, 1) = vtrue(t, udata);
+  return (0);
 }
-static sunrealtype utrue(sunrealtype t)
-{
-  return( SUNRsqrt(TWO+p(t)) );
-}
-static sunrealtype vtrue(sunrealtype t, UserData &udata)
-{
-  return( SUNRsqrt(TWO+q(t, udata)) );
-}
-static int Ytrue(sunrealtype t, N_Vector y, UserData &udata)
-{
-  NV_Ith_S(y,0) = utrue(t);
-  NV_Ith_S(y,1) = vtrue(t, udata);
-  return(0);
-}
-static int computeErrorWeights(N_Vector ycur, N_Vector weight,
-                               sunrealtype rtol, sunrealtype atol,
-                               N_Vector vtemp)
+
+static int computeErrorWeights(N_Vector ycur, N_Vector weight, sunrealtype rtol,
+                               sunrealtype atol, N_Vector vtemp)
 {
   N_VAbs(ycur, vtemp);
   N_VScale(rtol, vtemp, vtemp);
   N_VAddConst(vtemp, atol, vtemp);
   N_VInv(vtemp, weight);
-  return(0);
+  return (0);
 }
 
 /* Check function return value...
@@ -442,32 +446,39 @@ static int computeErrorWeights(N_Vector ycur, N_Vector weight,
     opt == 2 means function allocates memory so check if returned
              NULL pointer
 */
-static int check_retval(void *returnvalue, const char *funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
-  int *retval;
+  int* retval;
 
   // Check if SUNDIALS function returned NULL pointer - no memory allocated
-  if (opt == 0 && returnvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return 1; }
+    return 1;
+  }
 
   // Check if retval < 0
-  else if (opt == 1) {
-    retval = (int *) returnvalue;
-    if (*retval < 0) {
+  else if (opt == 1)
+  {
+    retval = (int*)returnvalue;
+    if (*retval < 0)
+    {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return 1; }}
+      return 1;
+    }
+  }
 
   // Check if function returned NULL pointer - no memory allocated
-  else if (opt == 2 && returnvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL)
+  {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return 1; }
+    return 1;
+  }
 
   return 0;
 }
-
 
 //---- end of file ----

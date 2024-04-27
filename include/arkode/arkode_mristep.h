@@ -67,18 +67,18 @@ typedef enum
 
 /* Default MRI coupling tables for each order and type */
 
-static const int MRISTEP_DEFAULT_3         = ARKODE_MIS_KW3;
-static const int MRISTEP_DEFAULT_EXPL_3    = ARKODE_MIS_KW3;
-static const int MRISTEP_DEFAULT_EXPL_4    = ARKODE_MRI_GARK_ERK45a;
-static const int MRISTEP_DEFAULT_IMPL_SD_2 = ARKODE_MRI_GARK_IRK21a;
-static const int MRISTEP_DEFAULT_IMPL_SD_3 = ARKODE_MRI_GARK_ESDIRK34a;
-static const int MRISTEP_DEFAULT_IMPL_SD_4 = ARKODE_MRI_GARK_ESDIRK46a;
-static const int MRISTEP_DEFAULT_IMEX_SD_3 = ARKODE_IMEX_MRI_GARK3b;
-static const int MRISTEP_DEFAULT_IMEX_SD_4 = ARKODE_IMEX_MRI_GARK4;
-static const int MRISTEP_DEFAULT_EXPL_2_AD = ARKODE_MRI_GARK_ERK22a;
-static const int MRISTEP_DEFAULT_EXPL_3_AD = ARKODE_MRI_GARK_ERK33a;
-static const int MRISTEP_DEFAULT_EXPL_4_AD = ARKODE_MRI_GARK_ERK45a;
-static const int MRISTEP_DEFAULT_EXPL_5_AD = ARKODE_MERK54;
+static const int MRISTEP_DEFAULT_3            = ARKODE_MIS_KW3;
+static const int MRISTEP_DEFAULT_EXPL_3       = ARKODE_MIS_KW3;
+static const int MRISTEP_DEFAULT_EXPL_4       = ARKODE_MRI_GARK_ERK45a;
+static const int MRISTEP_DEFAULT_IMPL_SD_2    = ARKODE_MRI_GARK_IRK21a;
+static const int MRISTEP_DEFAULT_IMPL_SD_3    = ARKODE_MRI_GARK_ESDIRK34a;
+static const int MRISTEP_DEFAULT_IMPL_SD_4    = ARKODE_MRI_GARK_ESDIRK46a;
+static const int MRISTEP_DEFAULT_IMEX_SD_3    = ARKODE_IMEX_MRI_GARK3b;
+static const int MRISTEP_DEFAULT_IMEX_SD_4    = ARKODE_IMEX_MRI_GARK4;
+static const int MRISTEP_DEFAULT_EXPL_2_AD    = ARKODE_MRI_GARK_ERK22a;
+static const int MRISTEP_DEFAULT_EXPL_3_AD    = ARKODE_MRI_GARK_ERK33a;
+static const int MRISTEP_DEFAULT_EXPL_4_AD    = ARKODE_MRI_GARK_ERK45a;
+static const int MRISTEP_DEFAULT_EXPL_5_AD    = ARKODE_MERK54;
 static const int MRISTEP_DEFAULT_IMEX_SD_2_AD = ARKODE_IMEX_MRI_SR21;
 static const int MRISTEP_DEFAULT_IMEX_SD_3_AD = ARKODE_IMEX_MRI_SR32;
 static const int MRISTEP_DEFAULT_IMEX_SD_4_AD = ARKODE_IMEX_MRI_SR43;
@@ -111,13 +111,13 @@ typedef int (*MRIStepInnerSetRTol)(MRIStepInnerStepper stepper, sunrealtype rtol
   ---------------------------------------------------------------*/
 struct MRIStepCouplingMem
 {
-  int nmat;           /* number of MRI coupling matrices                     */
-  int stages;         /* size of coupling matrices ((stages+1) * stages)     */
-  int q;              /* method order of accuracy                            */
-  int p;              /* embedding order of accuracy                         */
-  sunrealtype *c;     /* stage abscissae                                     */
-  sunrealtype ***W;   /* explicit coupling matrices [nmat][stages+1][stages] */
-  sunrealtype ***G;   /* implicit coupling matrices [nmat][stages+1][stages] */
+  int nmat;         /* number of MRI coupling matrices                     */
+  int stages;       /* size of coupling matrices ((stages+1) * stages)     */
+  int q;            /* method order of accuracy                            */
+  int p;            /* embedding order of accuracy                         */
+  sunrealtype* c;   /* stage abscissae                                     */
+  sunrealtype*** W; /* explicit coupling matrices [nmat][stages+1][stages] */
+  sunrealtype*** G; /* implicit coupling matrices [nmat][stages+1][stages] */
 };
 
 typedef _SUNDIALS_STRUCT_ MRIStepCouplingMem* MRIStepCoupling;
@@ -196,7 +196,8 @@ SUNDIALS_EXPORT int MRIStepSetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fs);
 SUNDIALS_EXPORT int MRIStepSetLinear(void* arkode_mem, int timedepend);
 SUNDIALS_EXPORT int MRIStepSetNonlinear(void* arkode_mem);
 SUNDIALS_EXPORT int MRIStepSetCoupling(void* arkode_mem, MRIStepCoupling MRIC);
-SUNDIALS_EXPORT int MRIStepSetAdaptController(void *arkode_mem, SUNAdaptController C);
+SUNDIALS_EXPORT int MRIStepSetAdaptController(void* arkode_mem,
+                                              SUNAdaptController C);
 SUNDIALS_EXPORT int MRIStepSetMaxNumSteps(void* arkode_mem, long int mxsteps);
 SUNDIALS_EXPORT int MRIStepSetNonlinCRDown(void* arkode_mem, sunrealtype crdown);
 SUNDIALS_EXPORT int MRIStepSetNonlinRDiv(void* arkode_mem, sunrealtype rdiv);
@@ -215,11 +216,11 @@ SUNDIALS_EXPORT int MRIStepSetFixedStep(void* arkode_mem, sunrealtype hsfixed);
 SUNDIALS_EXPORT int MRIStepSetRootDirection(void* arkode_mem, int* rootdir);
 SUNDIALS_EXPORT int MRIStepSetNoInactiveRootWarn(void* arkode_mem);
 SUNDIALS_EXPORT int MRIStepSetUserData(void* arkode_mem, void* user_data);
-SUNDIALS_EXPORT int MRIStepSetMaxErrTestFails(void *arkode_mem, int maxnef);
-SUNDIALS_EXPORT int MRIStepSetMaxConvFails(void *arkode_mem, int maxncf);
-SUNDIALS_EXPORT int MRIStepSetConstraints(void *arkode_mem, N_Vector constraints);
-SUNDIALS_EXPORT int MRIStepSetMaxNumConstrFails(void *arkode_mem, int maxfails);
-SUNDIALS_EXPORT int MRIStepSetInitStep(void *arkode_mem, sunrealtype hin);
+SUNDIALS_EXPORT int MRIStepSetMaxErrTestFails(void* arkode_mem, int maxnef);
+SUNDIALS_EXPORT int MRIStepSetMaxConvFails(void* arkode_mem, int maxncf);
+SUNDIALS_EXPORT int MRIStepSetConstraints(void* arkode_mem, N_Vector constraints);
+SUNDIALS_EXPORT int MRIStepSetMaxNumConstrFails(void* arkode_mem, int maxfails);
+SUNDIALS_EXPORT int MRIStepSetInitStep(void* arkode_mem, sunrealtype hin);
 SUNDIALS_EXPORT int MRIStepSetPostprocessStepFn(void* arkode_mem,
                                                 ARKPostProcessFn ProcessStep);
 SUNDIALS_EXPORT int MRIStepSetPostprocessStageFn(void* arkode_mem,
@@ -232,7 +233,7 @@ SUNDIALS_EXPORT int MRIStepSetStagePredictFn(void* arkode_mem,
                                              ARKStagePredictFn PredictStage);
 SUNDIALS_EXPORT int MRIStepSetDeduceImplicitRhs(void* arkode_mem,
                                                 sunbooleantype deduce);
-SUNDIALS_EXPORT int MRIStepSetFastErrorStepFactor(void *arkode_mem,
+SUNDIALS_EXPORT int MRIStepSetFastErrorStepFactor(void* arkode_mem,
                                                   sunrealtype hfactor);
 
 /* Linear solver interface optional input functions -- must be called
@@ -266,35 +267,40 @@ SUNDIALS_EXPORT int MRIStepComputeState(void* arkode_mem, N_Vector zcor,
                                         N_Vector z);
 
 /* Utility functions to reset/get accumulated temporal error estimate */
-SUNDIALS_EXPORT int MRIStepSetAccumulatedErrorType(void *arkode_mem,
+SUNDIALS_EXPORT int MRIStepSetAccumulatedErrorType(void* arkode_mem,
                                                    int accum_type);
-SUNDIALS_EXPORT int MRIStepResetAccumulatedError(void *arkode_mem);
-SUNDIALS_EXPORT int MRIStepGetAccumulatedError(void *arkode_mem,
+SUNDIALS_EXPORT int MRIStepResetAccumulatedError(void* arkode_mem);
+SUNDIALS_EXPORT int MRIStepGetAccumulatedError(void* arkode_mem,
                                                sunrealtype* accum_error);
 
 /* Utility functions to reset/get accumulated temporal error estimate */
-SUNDIALS_EXPORT int MRIStepSetAccumulatedErrorType(void *arkode_mem, int accum_type);
-SUNDIALS_EXPORT int MRIStepResetAccumulatedError(void *arkode_mem);
-SUNDIALS_EXPORT int MRIStepGetAccumulatedError(void *arkode_mem, sunrealtype* accum_error);
+SUNDIALS_EXPORT int MRIStepSetAccumulatedErrorType(void* arkode_mem,
+                                                   int accum_type);
+SUNDIALS_EXPORT int MRIStepResetAccumulatedError(void* arkode_mem);
+SUNDIALS_EXPORT int MRIStepGetAccumulatedError(void* arkode_mem,
+                                               sunrealtype* accum_error);
 
 /* Optional output functions */
-SUNDIALS_EXPORT int MRIStepGetNumExpSteps(void *arkode_mem, long int *expsteps);
-SUNDIALS_EXPORT int MRIStepGetNumAccSteps(void *arkode_mem, long int *accsteps);
-SUNDIALS_EXPORT int MRIStepGetNumStepAttempts(void *arkode_mem, long int *step_attempts);
+SUNDIALS_EXPORT int MRIStepGetNumExpSteps(void* arkode_mem, long int* expsteps);
+SUNDIALS_EXPORT int MRIStepGetNumAccSteps(void* arkode_mem, long int* accsteps);
+SUNDIALS_EXPORT int MRIStepGetNumStepAttempts(void* arkode_mem,
+                                              long int* step_attempts);
 SUNDIALS_EXPORT int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals,
                                           long int* nfsi_evals);
 SUNDIALS_EXPORT int MRIStepGetNumLinSolvSetups(void* arkode_mem,
                                                long int* nlinsetups);
-SUNDIALS_EXPORT int MRIStepGetNumErrTestFails(void *arkode_mem, long int *netfails);
+SUNDIALS_EXPORT int MRIStepGetNumErrTestFails(void* arkode_mem,
+                                              long int* netfails);
 SUNDIALS_EXPORT int MRIStepGetCurrentCoupling(void* arkode_mem,
                                               MRIStepCoupling* MRIC);
-SUNDIALS_EXPORT int MRIStepGetEstLocalErrors(void *arkode_mem, N_Vector ele);
+SUNDIALS_EXPORT int MRIStepGetEstLocalErrors(void* arkode_mem, N_Vector ele);
 SUNDIALS_EXPORT int MRIStepGetWorkSpace(void* arkode_mem, long int* lenrw,
                                         long int* leniw);
 SUNDIALS_EXPORT int MRIStepGetNumSteps(void* arkode_mem, long int* nssteps);
-SUNDIALS_EXPORT int MRIStepGetActualInitStep(void *arkode_mem, sunrealtype *hinused);
+SUNDIALS_EXPORT int MRIStepGetActualInitStep(void* arkode_mem,
+                                             sunrealtype* hinused);
 SUNDIALS_EXPORT int MRIStepGetLastStep(void* arkode_mem, sunrealtype* hlast);
-SUNDIALS_EXPORT int MRIStepGetCurrentStep(void *arkode_mem, sunrealtype *hcur);
+SUNDIALS_EXPORT int MRIStepGetCurrentStep(void* arkode_mem, sunrealtype* hcur);
 SUNDIALS_EXPORT int MRIStepGetCurrentTime(void* arkode_mem, sunrealtype* tcur);
 SUNDIALS_EXPORT int MRIStepGetCurrentState(void* arkode_mem, N_Vector* state);
 SUNDIALS_EXPORT int MRIStepGetCurrentGamma(void* arkode_mem, sunrealtype* gamma);
@@ -303,7 +309,8 @@ SUNDIALS_EXPORT int MRIStepGetTolScaleFactor(void* arkode_mem,
 SUNDIALS_EXPORT int MRIStepGetErrWeights(void* arkode_mem, N_Vector eweight);
 SUNDIALS_EXPORT int MRIStepGetNumGEvals(void* arkode_mem, long int* ngevals);
 SUNDIALS_EXPORT int MRIStepGetRootInfo(void* arkode_mem, int* rootsfound);
-SUNDIALS_EXPORT int MRIStepGetNumConstrFails(void *arkode_mem, long int *nconstrfails);
+SUNDIALS_EXPORT int MRIStepGetNumConstrFails(void* arkode_mem,
+                                             long int* nconstrfails);
 SUNDIALS_EXPORT int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag);
 SUNDIALS_EXPORT int MRIStepGetUserData(void* arkode_mem, void** user_data);
 SUNDIALS_EXPORT int MRIStepPrintAllStats(void* arkode_mem, FILE* outfile,
@@ -376,14 +383,14 @@ SUNDIALS_EXPORT int MRIStepInnerStepper_SetFullRhsFn(MRIStepInnerStepper stepper
 SUNDIALS_EXPORT int MRIStepInnerStepper_SetResetFn(MRIStepInnerStepper stepper,
                                                    MRIStepInnerResetFn fn);
 
-SUNDIALS_EXPORT int MRIStepInnerStepper_SetAccumulatedErrorGetFn(MRIStepInnerStepper stepper,
-                                                                 MRIStepInnerGetAccumulatedError fn);
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetAccumulatedErrorGetFn(
+  MRIStepInnerStepper stepper, MRIStepInnerGetAccumulatedError fn);
 
-SUNDIALS_EXPORT int MRIStepInnerStepper_SetAccumulatedErrorResetFn(MRIStepInnerStepper stepper,
-                                                                   MRIStepInnerResetAccumulatedError fn);
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetAccumulatedErrorResetFn(
+  MRIStepInnerStepper stepper, MRIStepInnerResetAccumulatedError fn);
 
-SUNDIALS_EXPORT int MRIStepInnerStepper_SetFixedStepFn(MRIStepInnerStepper stepper,
-                                                       MRIStepInnerSetFixedStep fn);
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetFixedStepFn(
+  MRIStepInnerStepper stepper, MRIStepInnerSetFixedStep fn);
 
 SUNDIALS_EXPORT int MRIStepInnerStepper_SetRTolFn(MRIStepInnerStepper stepper,
                                                   MRIStepInnerSetRTol fn);

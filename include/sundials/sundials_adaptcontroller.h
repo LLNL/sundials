@@ -75,7 +75,7 @@ struct _generic_SUNAdaptController_Ops
   /* REQUIRED for controllers of SUN_ADAPTCONTROLLER_MRI_TOL type. */
   SUNErrCode (*estimatesteptol)(SUNAdaptController C, sunrealtype H,
                                 sunrealtype tolfac, int P, sunrealtype DSM,
-                                sunrealtype dsm, sunrealtype *Hnew,
+                                sunrealtype dsm, sunrealtype* Hnew,
                                 sunrealtype* tolfacnew);
 
   /* OPTIONAL for all SUNAdaptController implementations. */
@@ -142,8 +142,9 @@ SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
    have 'DSM' and 'dsm' values JUST BELOW 1 with minimal computational
    effort. */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_EstimateMRISteps(SUNAdaptController C, sunrealtype H,
-                                               sunrealtype h, int P, sunrealtype DSM,
+SUNErrCode SUNAdaptController_EstimateMRISteps(SUNAdaptController C,
+                                               sunrealtype H, sunrealtype h,
+                                               int P, sunrealtype DSM,
                                                sunrealtype dsm, sunrealtype* Hnew,
                                                sunrealtype* hnew);
 
@@ -155,10 +156,11 @@ SUNErrCode SUNAdaptController_EstimateMRISteps(SUNAdaptController C, sunrealtype
    'tolfacnew', so that the ensuing step will have 'DSM' and 'dsm'
    values JUST BELOW 1 with minimal computational effort. */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_EstimateStepTol(SUNAdaptController C, sunrealtype H,
-                                              sunrealtype tolfac, int P,
-                                              sunrealtype DSM, sunrealtype dsm,
-                                              sunrealtype *Hnew, sunrealtype* tolfacnew);
+SUNErrCode SUNAdaptController_EstimateStepTol(SUNAdaptController C,
+                                              sunrealtype H, sunrealtype tolfac,
+                                              int P, sunrealtype DSM,
+                                              sunrealtype dsm, sunrealtype* Hnew,
+                                              sunrealtype* tolfacnew);
 
 /* Function to reset the controller to its initial state, e.g., if
    it stores a small number of previous dsm or step size values. */

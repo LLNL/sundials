@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <sundials/sundials_adaptcontroller.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -28,19 +28,20 @@ extern "C" {
  * MRI PI implementation of SUNAdaptController
  * ----------------------------------- */
 
-struct _SUNAdaptControllerContent_MRIPID {
-  sunrealtype k11;    /* internal controller parameters */
+struct _SUNAdaptControllerContent_MRIPID
+{
+  sunrealtype k11; /* internal controller parameters */
   sunrealtype k12;
   sunrealtype k13;
   sunrealtype k21;
   sunrealtype k22;
   sunrealtype k23;
-  sunrealtype bias;   /* error bias factor */
-  sunrealtype esp;    /* slow error from previous step */
-  sunrealtype efp;    /* fast error from previous step */
-  sunrealtype espp;   /* slow error from two previous steps ago */
-  sunrealtype efpp;   /* fast error from two previous steps ago */
-  int p;              /* fast order of accuracy to use */
+  sunrealtype bias; /* error bias factor */
+  sunrealtype esp;  /* slow error from previous step */
+  sunrealtype efp;  /* fast error from previous step */
+  sunrealtype espp; /* slow error from two previous steps ago */
+  sunrealtype efpp; /* fast error from two previous steps ago */
+  int p;            /* fast order of accuracy to use */
 };
 
 typedef struct _SUNAdaptControllerContent_MRIPID* SUNAdaptControllerContent_MRIPID;
@@ -59,8 +60,9 @@ int SUNAdaptController_SetParams_MRIPID(SUNAdaptController C, sunrealtype k11,
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_MRIPID(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateMRISteps_MRIPID(SUNAdaptController C, sunrealtype H,
-                                               sunrealtype h, int P, sunrealtype DSM,
+int SUNAdaptController_EstimateMRISteps_MRIPID(SUNAdaptController C,
+                                               sunrealtype H, sunrealtype h,
+                                               int P, sunrealtype DSM,
                                                sunrealtype dsm, sunrealtype* Hnew,
                                                sunrealtype* hnew);
 SUNDIALS_EXPORT
@@ -70,7 +72,8 @@ int SUNAdaptController_SetDefaults_MRIPID(SUNAdaptController C);
 SUNDIALS_EXPORT
 int SUNAdaptController_Write_MRIPID(SUNAdaptController C, FILE* fptr);
 SUNDIALS_EXPORT
-int SUNAdaptController_SetErrorBias_MRIPID(SUNAdaptController C, sunrealtype bias);
+int SUNAdaptController_SetErrorBias_MRIPID(SUNAdaptController C,
+                                           sunrealtype bias);
 SUNDIALS_EXPORT
 int SUNAdaptController_UpdateMRIH_MRIPID(SUNAdaptController C, sunrealtype H,
                                          sunrealtype h, sunrealtype DSM,
@@ -83,4 +86,4 @@ int SUNAdaptController_Space_MRIPID(SUNAdaptController C, long int* lenrw,
 }
 #endif
 
-#endif  /* _SUNADAPTCONTROLLER_MRIPID_H */
+#endif /* _SUNADAPTCONTROLLER_MRIPID_H */

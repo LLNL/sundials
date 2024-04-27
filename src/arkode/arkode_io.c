@@ -1493,6 +1493,7 @@ int arkSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
 
   return (ARK_SUCCESS);
 }
+
 /*---------------------------------------------------------------
   arkSetAccumulatedErrorType:
 
@@ -1502,7 +1503,7 @@ int arkSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
      1 => scalar 'mean' accumulation
     -1 => no accumulation
   ---------------------------------------------------------------*/
-int arkSetAccumulatedErrorType(void *arkode_mem, int accum_type)
+int arkSetAccumulatedErrorType(void* arkode_mem, int accum_type)
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
@@ -1519,17 +1520,16 @@ int arkSetAccumulatedErrorType(void *arkode_mem, int accum_type)
   /* Store type, reset accumulated error value and counter, and return */
   ark_mem->AccumErrorType = accum_type;
   ark_mem->AccumErrorStep = ark_mem->nst;
-  ark_mem->AccumError = ZERO;
+  ark_mem->AccumError     = ZERO;
   return (ARK_SUCCESS);
 }
-
 
 /*---------------------------------------------------------------
   arkResetAccumulatedError:
 
   This routine resets the accumulated temporal error estimate.
   ---------------------------------------------------------------*/
-int arkResetAccumulatedError(void *arkode_mem)
+int arkResetAccumulatedError(void* arkode_mem)
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
@@ -1542,7 +1542,7 @@ int arkResetAccumulatedError(void *arkode_mem)
 
   /* Reset value and counter, and return */
   ark_mem->AccumErrorStep = ark_mem->nst;
-  ark_mem->AccumError = ZERO;
+  ark_mem->AccumError     = ZERO;
   return (ARK_SUCCESS);
 }
 
@@ -1555,7 +1555,7 @@ int arkResetAccumulatedError(void *arkode_mem)
 
   This routine returns the accumulated temporal error estimate.
   ---------------------------------------------------------------*/
-int arkGetAccumulatedError(void *arkode_mem, sunrealtype *accum_error)
+int arkGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
@@ -1579,10 +1579,7 @@ int arkGetAccumulatedError(void *arkode_mem, sunrealtype *accum_error)
   {
     *accum_error = ark_mem->AccumError * ark_mem->reltol / steps;
   }
-  else
-  {
-    *accum_error = ZERO;
-  }
+  else { *accum_error = ZERO; }
 
   return (ARK_SUCCESS);
 }
@@ -1793,7 +1790,7 @@ int arkGetResWeights(void* arkode_mem, N_Vector rweight)
 
   This routine returns the current local temporal error estimate.
   ---------------------------------------------------------------*/
-int arkGetEstLocalErrors(void *arkode_mem, N_Vector ele)
+int arkGetEstLocalErrors(void* arkode_mem, N_Vector ele)
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)

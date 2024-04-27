@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <sundials/sundials_adaptcontroller.h>
 
-#ifdef __cplusplus  /* wrapper to enable C++ usage */
+#ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
@@ -28,15 +28,16 @@ extern "C" {
  * MRI PI implementation of SUNAdaptController
  * ----------------------------------- */
 
-struct _SUNAdaptControllerContent_MRIPI {
-  sunrealtype k11;    /* internal controller parameters */
+struct _SUNAdaptControllerContent_MRIPI
+{
+  sunrealtype k11; /* internal controller parameters */
   sunrealtype k12;
   sunrealtype k21;
   sunrealtype k22;
-  sunrealtype bias;   /* error bias factor */
-  sunrealtype esp;    /* slow error from previous step */
-  sunrealtype efp;    /* fast error from previous step */
-  int p;              /* fast order of accuracy to use */
+  sunrealtype bias; /* error bias factor */
+  sunrealtype esp;  /* slow error from previous step */
+  sunrealtype efp;  /* fast error from previous step */
+  int p;            /* fast order of accuracy to use */
 };
 
 typedef struct _SUNAdaptControllerContent_MRIPI* SUNAdaptControllerContent_MRIPI;
@@ -54,8 +55,9 @@ int SUNAdaptController_SetParams_MRIPI(SUNAdaptController C, sunrealtype k11,
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_MRIPI(SUNAdaptController C);
 SUNDIALS_EXPORT
-int SUNAdaptController_EstimateMRISteps_MRIPI(SUNAdaptController C, sunrealtype H,
-                                              sunrealtype h, int P, sunrealtype DSM,
+int SUNAdaptController_EstimateMRISteps_MRIPI(SUNAdaptController C,
+                                              sunrealtype H, sunrealtype h,
+                                              int P, sunrealtype DSM,
                                               sunrealtype dsm, sunrealtype* Hnew,
                                               sunrealtype* hnew);
 SUNDIALS_EXPORT
@@ -78,4 +80,4 @@ int SUNAdaptController_Space_MRIPI(SUNAdaptController C, long int* lenrw,
 }
 #endif
 
-#endif  /* _SUNADAPTCONTROLLER_MRIPI_H */
+#endif /* _SUNADAPTCONTROLLER_MRIPI_H */
