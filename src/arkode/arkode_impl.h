@@ -384,7 +384,7 @@ struct ARKodeMemRec
   ARKTimestepGetNumNonlinSolvConvFails step_getnumnonlinsolvconvfails;
   ARKTimestepGetNonlinSolvStats step_getnonlinsolvstats;
   sunbooleantype step_supports_adaptive;
-  sunbooleantype step_supports_algebraic;
+  sunbooleantype step_supports_implicit;
   sunbooleantype step_supports_massmatrix;
   sunbooleantype step_supports_relaxation;
   void* step_mem;

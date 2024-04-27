@@ -64,7 +64,7 @@ int ARKodeSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A)
   ark_mem = (ARKodeMem)arkode_mem;
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -554,7 +554,7 @@ int ARKodeSetJacFn(void* arkode_mem, ARKLsJacFn jac)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -648,7 +648,7 @@ int ARKodeSetEpsLin(void* arkode_mem, sunrealtype eplifac)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -677,7 +677,7 @@ int ARKodeSetLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -720,7 +720,7 @@ int ARKodeSetJacEvalFrequency(void* arkode_mem, long int msbj)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -748,7 +748,7 @@ int ARKodeSetLinearSolutionScaling(void* arkode_mem, sunbooleantype onoff)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -782,7 +782,7 @@ int ARKodeSetPreconditioner(void* arkode_mem, ARKLsPrecSetupFn psetup,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -833,7 +833,7 @@ int ARKodeSetJacTimes(void* arkode_mem, ARKLsJacTimesSetupFn jtsetup,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -892,7 +892,7 @@ int ARKodeSetJacTimesRhsFn(void* arkode_mem, ARKRhsFn jtimesRhsFn)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -936,7 +936,7 @@ int ARKodeSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys)
   if (retval != ARKLS_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -1008,7 +1008,7 @@ int ARKodeGetJac(void* arkode_mem, SUNMatrix* J)
   if (retval != ARKLS_SUCCESS) { return retval; }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -1031,7 +1031,7 @@ int ARKodeGetJacTime(void* arkode_mem, sunrealtype* t_J)
   if (retval != ARKLS_SUCCESS) { return retval; }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -1054,7 +1054,7 @@ int ARKodeGetJacNumSteps(void* arkode_mem, long int* nst_J)
   if (retval != ARKLS_SUCCESS) { return retval; }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -1083,7 +1083,7 @@ int ARKodeGetLinWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -1144,7 +1144,7 @@ int ARKodeGetNumJacEvals(void* arkode_mem, long int* njevals)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -1172,7 +1172,7 @@ int ARKodeGetNumLinRhsEvals(void* arkode_mem, long int* nfevalsLS)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -1199,7 +1199,7 @@ int ARKodeGetNumPrecEvals(void* arkode_mem, long int* npevals)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -1226,7 +1226,7 @@ int ARKodeGetNumPrecSolves(void* arkode_mem, long int* npsolves)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -1253,7 +1253,7 @@ int ARKodeGetNumLinIters(void* arkode_mem, long int* nliters)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -1280,7 +1280,7 @@ int ARKodeGetNumLinConvFails(void* arkode_mem, long int* nlcfails)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -1307,7 +1307,7 @@ int ARKodeGetNumJTSetupEvals(void* arkode_mem, long int* njtsetups)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -1334,7 +1334,7 @@ int ARKodeGetNumJtimesEvals(void* arkode_mem, long int* njvevals)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
@@ -1388,7 +1388,7 @@ int ARKodeGetLastLinFlag(void* arkode_mem, long int* flag)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Guard against use for time steppers that do not need an algebraic solver */
-  if (!ark_mem->step_supports_algebraic)
+  if (!ark_mem->step_supports_implicit)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");

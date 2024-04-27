@@ -137,7 +137,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ark_mem->step_getnumnonlinsolvconvfails = arkStep_GetNumNonlinSolvConvFails;
   ark_mem->step_getnonlinsolvstats        = arkStep_GetNonlinSolvStats;
   ark_mem->step_supports_adaptive         = SUNTRUE;
-  ark_mem->step_supports_algebraic        = SUNTRUE;
+  ark_mem->step_supports_implicit         = SUNTRUE;
   ark_mem->step_supports_massmatrix       = SUNTRUE;
   ark_mem->step_supports_relaxation       = SUNTRUE;
   ark_mem->step_mem                       = (void*)step_mem;

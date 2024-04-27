@@ -127,7 +127,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->step_getnonlinsolvstats        = NULL;
   ark_mem->step_mem                       = NULL;
   ark_mem->step_supports_adaptive         = SUNFALSE;
-  ark_mem->step_supports_algebraic        = SUNFALSE;
+  ark_mem->step_supports_implicit         = SUNFALSE;
   ark_mem->step_supports_massmatrix       = SUNFALSE;
   ark_mem->step_supports_relaxation       = SUNFALSE;
 

@@ -142,7 +142,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   ark_mem->step_getnumnonlinsolviters     = mriStep_GetNumNonlinSolvIters;
   ark_mem->step_getnumnonlinsolvconvfails = mriStep_GetNumNonlinSolvConvFails;
   ark_mem->step_getnonlinsolvstats        = mriStep_GetNonlinSolvStats;
-  ark_mem->step_supports_algebraic        = SUNTRUE;
+  ark_mem->step_supports_implicit         = SUNTRUE;
   ark_mem->step_mem                       = (void*)step_mem;
 
   /* Set default values for optional inputs */
