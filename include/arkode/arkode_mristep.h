@@ -223,8 +223,8 @@ SUNDIALS_EXPORT int MRIStepSetPostInnerFn(void* arkode_mem,
                                           MRIStepPostInnerFn postfn);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetStagePredictFn instead")
 int MRIStepSetStagePredictFn(void* arkode_mem, ARKStagePredictFn PredictStage);
-SUNDIALS_EXPORT int MRIStepSetDeduceImplicitRhs(void* arkode_mem,
-                                                sunbooleantype deduce);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetDeduceImplicitRhs instead")
+int MRIStepSetDeduceImplicitRhs(void* arkode_mem, sunbooleantype deduce);
 
 /* Linear solver interface optional input functions -- must be called
    AFTER MRIStepSetLinearSolver */
