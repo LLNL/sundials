@@ -192,7 +192,7 @@ relaxation.
    Sets the nonlinear solver residual tolerance to use when solving
    :eq:`ARKODE_RELAX_NLS`.
 
-   If the residual or solution tolerance (see :c:func:`ERKStepSetRelaxMaxIter`)
+   If the residual or solution tolerance (see :c:func:`ERKStepSetRelaxMaxIters`)
    is not reached within the maximum number of  iterations (determined by
    :c:func:`ERKStepSetRelaxMaxIters`), the step will be repeated with a smaller
    step size (determined by :c:func:`ERKStepSetRelaxEtaFail`).
@@ -278,7 +278,8 @@ about the performance of the relaxation method.
 
    The counter includes the sum of the number of nonlinear solver failures
    (see :c:func:`ERKStepGetNumRelaxSolveFails`) and the number of failures due
-   an unacceptable relaxation value (see :c:func:`ERKStepSetRelaxBoundFactor`).
+   an unacceptable relaxation value (see :c:func:`ERKStepSetRelaxLowerBound` and
+   :c:func:`ERKStepSetRelaxUpperBound`).
 
    :param arkode_mem: the ERKStep memory structure
    :param fails: the total number of failed relaxation attempts

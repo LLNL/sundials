@@ -24,13 +24,6 @@ sundials_option(USE_XSDK_DEFAULTS BOOL "Enable default xSDK settings" OFF)
 
 if(USE_XSDK_DEFAULTS)
   message(STATUS "Enabling xSDK defaults:")
-
-  # set the CMake build type, SUNDIALS does not set a build type by default
-  if(NOT CMAKE_BUILD_TYPE)
-    message(STATUS "  Setting build type to Debug")
-    set(DOCSTR "Choose the type of build: None Debug Release RelWithDebInfo MinSizeRel")
-    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "${DOCSTR}" FORCE)
-  endif()
 endif()
 
 # ---------------------------------------------------------------
@@ -277,6 +270,16 @@ if(SUNDIALS_DEBUG_PRINTVEC AND SUNDIALS_LOGGING_LEVEL LESS 5)
   set(DOCSTR "SUNDIALS_DEBUG_PRINTVEC=ON forced the logging level to 5")
   message(STATUS "${DOCSTR}")
   set(SUNDIALS_LOGGING_LEVEL "5" CACHE STRING "${DOCSTR}" FORCE)
+endif()
+
+# ---------------------------------------------------------------
+# Options for SUNDIALS external
+# ---------------------------------------------------------------
+
+sundials_option(SUNDIALS_ENABLE_EXTERNAL_ADDONS BOOL
+  "Enables including EXTERNALLY MAINTAINED addons in the SUNDIALS build." OFF)
+if(SUNDIALS_ENABLE_EXTERNAL_ADDONS)
+  message(WARNING "SUNDIALS_ENABLE_EXTERNAL_ADDONS=TRUE. External addons are not maintained by the SUNDIALS team. Use at your own risk.")
 endif()
 
 # ---------------------------------------------------------------

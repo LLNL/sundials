@@ -621,7 +621,7 @@ IDAS integrator. We note that at present, the ``SUNNonlinearSolver`` object
 
 .. c:function:: int IDASetNonlinearSolver(void* ida_mem, SUNNonlinearSolver NLS)
 
-   The function :c:func:`IDASetNonLinearSolver` attaches a ``SUNNonlinearSolver``  object (``NLS``) to IDAS.
+   The function :c:func:`IDASetNonlinearSolver` attaches a ``SUNNonlinearSolver``  object (``NLS``) to IDAS.
 
    **Arguments:**
       * ``ida_mem`` -- pointer to the IDAS solver object.
@@ -3516,7 +3516,7 @@ Jacobian-related data be preprocessed or evaluated, then this needs to be done
 in a user-supplied function of type :c:type:`IDALsJacTimesSetupFn`, defined as
 follows:
 
-.. c:type:: int (*IDALsJacTimesSetupFn)(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr, ealtype cj, void *user_data);
+.. c:type:: int (*IDALsJacTimesSetupFn)(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr, sunrealtype cj, void *user_data);
 
    This function setups any data needed by :math:`Jv` product function (see
    :c:type:`IDALsJacTimesVecFn`).

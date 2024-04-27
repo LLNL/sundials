@@ -2057,7 +2057,7 @@ int CVodeSensReInit(void* cvode_mem, int ism, N_Vector* yS0)
  * CVodeSensSVtolerances specifies scalar relative tolerance and a vector
  *   absolute tolerance for each sensitivity vector (a potentially different
  *   absolute tolerance for each vector component).
- * CVodeEEtolerances specifies that tolerances for sensitivity variables
+ * CVodeSensEEtolerances specifies that tolerances for sensitivity variables
  *   should be estimated from those provided for the state variables.
  */
 
@@ -9908,15 +9908,20 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, sunrealtype t,
 void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
                     const char* file, const char* msgfmt, ...)
 {
-  /* Initialize the argument pointer variable
+  /* We initialize the argument pointer variable before each vsnprintf call to avoid undefined behavior
      (msgfmt is the last required argument to cvProcessError) */
   va_list ap;
-  va_start(ap, msgfmt);
 
   /* Compose the message */
+  va_start(ap, msgfmt);
   size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
-  char* msg     = (char*)malloc(msglen);
+  va_end(ap);
+
+  char* msg = (char*)malloc(msglen);
+
+  va_start(ap, msgfmt);
   vsnprintf(msg, msglen, msgfmt, ap);
+  va_end(ap);
 
   do {
     if (cv_mem == NULL)
@@ -9944,8 +9949,6 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
   }
   while (0);
 
-  /* Finalize argument processing */
-  va_end(ap);
   free(msg);
 
   return;

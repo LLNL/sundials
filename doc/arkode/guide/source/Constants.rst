@@ -14,9 +14,9 @@
 
 .. _ARKODE.Constants:
 
-===========================
-Appendix: ARKODE Constants
-===========================
+================
+ARKODE Constants
+================
 
 Below we list all input and output constants used by the main solver,
 timestepper, and linear solver modules, together with a short

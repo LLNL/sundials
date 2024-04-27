@@ -16,16 +16,6 @@
 Code Organization
 *****************
 
-.. ifconfig:: package_name != 'super'
-
-   .. include:: ../../../shared/SundialsOrganization.rst
-
-
-.. _KINSOL.Organization.KINSOL:
-
-KINSOL organization
-===================
-
 The KINSOL package is written in ANSI C. The following summarizes the basic
 structure of the package, although knowledge of this structure is not necessary
 for its use.

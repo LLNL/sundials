@@ -26,7 +26,9 @@ if(EXAMPLES_ENABLE_C)
   endif()
   if(ENABLE_MPI AND MPI_C_FOUND)
     add_subdirectory(parallel)
-    add_subdirectory(C_mpimanyvector)
+    if(BUILD_NVECTOR_MPIMANYVECTOR)
+      add_subdirectory(C_mpimanyvector)
+    endif()
   endif()
   if(ENABLE_HYPRE AND HYPRE_FOUND)
     add_subdirectory(parhyp)
@@ -77,6 +79,7 @@ endif()
 # Fortran examples
 if(BUILD_FORTRAN_MODULE_INTERFACE AND EXAMPLES_ENABLE_F2003)
   add_subdirectory(F2003_serial)
+  add_subdirectory(F2003_parallel)
 endif()
 
 # CUDA examples

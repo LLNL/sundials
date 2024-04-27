@@ -2844,7 +2844,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is)
   /* advance inner method in time */
   retval = mriStepInnerStepper_Evolve(step_mem->stepper, t0, ark_mem->tcur,
                                       ark_mem->ycur);
-  if (retval < 0) { return (ARK_INNERSTEP_FAIL); }
+  if (retval != 0) { return (ARK_INNERSTEP_FAIL); }
 
   /* for normal stages with MRI adaptivity enabled, get an
      estimate for the fast time scale error */

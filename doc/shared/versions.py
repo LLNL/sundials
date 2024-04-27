@@ -9,11 +9,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ----------------------------------------------------------------
-sundials_version = 'v7.0.0-rc.1'
-arkode_version = 'v6.0.0-rc.1'
-cvode_version = 'v7.0.0-rc.1'
-cvodes_version = 'v7.0.0-rc.1'
-ida_version = 'v7.0.0-rc.1'
-idas_version = 'v6.0.0-rc.1'
-kinsol_version = 'v7.0.0-rc.1'
+doc_version = 'develop'
+sundials_version = 'v7.0.0'
+arkode_version = 'v6.0.0'
+cvode_version = 'v7.0.0'
+cvodes_version = 'v7.0.0'
+ida_version = 'v7.0.0'
+idas_version = 'v6.0.0'
+kinsol_version = 'v7.0.0'
 year = '2024'

@@ -133,6 +133,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   {
     arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Allocation of step adaptivity structure failed");
+    arkFree((void**)&ark_mem);
     return (NULL);
   }
   ark_mem->lrw += ARK_ADAPT_LRW;
@@ -144,6 +145,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   {
     arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Allocation of step controller object failed");
+    arkFree((void**)&ark_mem);
     return (NULL);
   }
   ark_mem->hadapt_mem->owncontroller = SUNTRUE;
@@ -184,6 +186,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   {
     arkProcessError(NULL, 0, __LINE__, __func__, __FILE__,
                     "Error setting default solver options");
+    arkFree((void**)&ark_mem);
     return (NULL);
   }
 
@@ -3348,15 +3351,20 @@ int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
 void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
                      const char* func, const char* file, const char* msgfmt, ...)
 {
-  /* Initialize the argument pointer variable
+  /* We initialize the argument pointer variable before each vsnprintf call to avoid undefined behavior
      (msgfmt is the last required argument to arkProcessError) */
   va_list ap;
-  va_start(ap, msgfmt);
 
   /* Compose the message */
+  va_start(ap, msgfmt);
   size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
-  char* msg     = (char*)malloc(msglen);
+  va_end(ap);
+
+  char* msg = (char*)malloc(msglen);
+
+  va_start(ap, msgfmt);
   vsnprintf(msg, msglen, msgfmt, ap);
+  va_end(ap);
 
   do {
     if (ark_mem == NULL)
@@ -3384,8 +3392,6 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
   }
   while (0);
 
-  /* Finalize argument processing */
-  va_end(ap);
   free(msg);
 
   return;

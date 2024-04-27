@@ -15,6 +15,9 @@
  * unmanaged memory only and synchronous copies.
  * -----------------------------------------------------------------*/
 
+#ifndef _CUSTOM_MEMORY_HELPER_SYCL_H
+#define _CUSTOM_MEMORY_HELPER_SYCL_H
+
 #include <cstdlib>
 #include <sundials/sundials_memory.h>
 #include <sycl/sycl.hpp>
@@ -116,3 +119,5 @@ SUNMemoryHelper MyMemoryHelper(SUNContext sunctx)
 
   return helper;
 }
+
+#endif

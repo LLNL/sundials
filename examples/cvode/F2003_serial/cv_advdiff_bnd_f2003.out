@@ -1,0 +1,30 @@
+    
+ Band example problem:
+ Advection-diffusion, NEQ = 50
+    
+ Finished initialization, starting time steps
+    
+     t       max.norm(u) | lnst
+  ------------------------------
+    0.00    8.954716E+01      0
+    0.10    4.132887E+00     83
+    0.20    1.039298E+00    113
+    0.30    2.980039E-01    142
+    0.40    8.771443E-02    172
+    0.50    2.623286E-02    201
+    0.60    7.797329E-03    231
+    0.70    2.306253E-03    261
+    0.80    6.869357E-04    292
+    0.90    2.170255E-04    332
+    1.00    7.858554E-05    372
+  ------------------------------
+  
+  General Solver Stats:
+    Total internal steps taken      =      372
+    Total rhs function call         =      452
+    Num error test failures         =        3
+    Num nonlinear solver iters      =      449
+    Num linear solver iters         =        0
+    Num nonlinear solver fails      =        0
+    Num linear solver fails         =        0
+  

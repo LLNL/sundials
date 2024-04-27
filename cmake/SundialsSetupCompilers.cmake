@@ -240,70 +240,75 @@ endif()
 # ------------------------------------------------------------------------------
 
 # The case to use in the name-mangling scheme
-sundials_option(SUNDIALS_F77_FUNC_CASE STRING
-                "case of Fortran function names (lower/upper)"
+sundials_option(SUNDIALS_LAPACK_CASE STRING
+                "case of LAPACK function names (lower/upper)"
                 ""
                 ADVANCED)
 
 # The number of underscores of appended in the name-mangling scheme
-sundials_option(SUNDIALS_F77_FUNC_UNDERSCORES STRING
-                "number of underscores appended to Fortran function names (none/one/two)"
+sundials_option(SUNDIALS_LAPACK_UNDERSCORES STRING
+                "number of underscores appended to LAPACK function names (none/one/two)"
                 ""
                 ADVANCED)
 
 # If used, both case and underscores must be set
-if((NOT SUNDIALS_F77_FUNC_CASE) AND SUNDIALS_F77_FUNC_UNDERSCORES)
-  print_error("If SUNDIALS_F77_FUNC_UNDERSCORES is set, "
-                      "SUNDIALS_F77_FUNC_CASE must also be set.")
+if((NOT SUNDIALS_LAPACK_CASE) AND SUNDIALS_LAPACK_UNDERSCORES)
+  print_error("If SUNDIALS_LAPACK_UNDERSCORES is set, "
+                      "SUNDIALS_LAPACK_CASE must also be set.")
 endif()
-if(SUNDIALS_F77_FUNC_CASE AND (NOT SUNDIALS_F77_FUNC_UNDERSCORES))
-  print_error("If SUNDIALS_F77_FUNC_CASE is set, "
-                      "SUNDIALS_F77_FUNC_UNDERSCORES must also be set.")
+if(SUNDIALS_LAPACK_CASE AND (NOT SUNDIALS_LAPACK_UNDERSCORES))
+  print_error("If SUNDIALS_LAPACK_CASE is set, "
+                      "SUNDIALS_LAPACK_UNDERSCORES must also be set.")
 endif()
 
 # Did the user provide a name-mangling scheme?
-if(SUNDIALS_F77_FUNC_CASE AND SUNDIALS_F77_FUNC_UNDERSCORES)
+if(SUNDIALS_LAPACK_CASE AND SUNDIALS_LAPACK_UNDERSCORES)
 
-  string(TOUPPER ${SUNDIALS_F77_FUNC_CASE} SUNDIALS_F77_FUNC_CASE)
-  string(TOUPPER ${SUNDIALS_F77_FUNC_UNDERSCORES} SUNDIALS_F77_FUNC_UNDERSCORES)
+  string(TOUPPER ${SUNDIALS_LAPACK_CASE} SUNDIALS_LAPACK_CASE)
+  string(TOUPPER ${SUNDIALS_LAPACK_UNDERSCORES} SUNDIALS_LAPACK_UNDERSCORES)
 
   # Based on the given case and number of underscores, set the C preprocessor
   # macro definitions. Since SUNDIALS never uses symbols names containing
   # underscores we set the name-mangling schemes to be the same. In general,
   # names of symbols with and without underscore may be mangled differently
   # (e.g. g77 mangles mysub to mysub_ and my_sub to my_sub__)
-  if(SUNDIALS_F77_FUNC_CASE MATCHES "LOWER")
-    if(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "NONE")
-      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name")
-      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name")
-    elseif(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "ONE")
-      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name ## _")
-      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name ## _")
-    elseif(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "TWO")
-      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name ## __")
-      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name ## __")
+  if(SUNDIALS_LAPACK_CASE MATCHES "LOWER")
+    if(SUNDIALS_LAPACK_UNDERSCORES MATCHES "NONE")
+      set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) name")
+      set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) name")
+    elseif(SUNDIALS_LAPACK_UNDERSCORES MATCHES "ONE")
+      set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) name ## _")
+      set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) name ## _")
+    elseif(SUNDIALS_LAPACK_UNDERSCORES MATCHES "TWO")
+      set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) name ## __")
+      set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) name ## __")
     else()
-      print_error("Invalid SUNDIALS_F77_FUNC_UNDERSCORES option.")
+      print_error("Invalid SUNDIALS_LAPACK_UNDERSCORES option.")
     endif()
-  elseif(SUNDIALS_F77_FUNC_CASE MATCHES "UPPER")
-    if(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "NONE")
-      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME")
-      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME")
-    elseif(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "ONE")
-      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## _")
-      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## _")
-    elseif(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "TWO")
-      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## __")
-      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## __")
+  elseif(SUNDIALS_LAPACK_CASE MATCHES "UPPER")
+    if(SUNDIALS_LAPACK_UNDERSCORES MATCHES "NONE")
+      set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) NAME")
+      set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) NAME")
+    elseif(SUNDIALS_LAPACK_UNDERSCORES MATCHES "ONE")
+      set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) NAME ## _")
+      set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) NAME ## _")
+    elseif(SUNDIALS_LAPACK_UNDERSCORES MATCHES "TWO")
+      set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) NAME ## __")
+      set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) NAME ## __")
     else()
-      print_error("Invalid SUNDIALS_F77_FUNC_UNDERSCORES option.")
+      print_error("Invalid SUNDIALS_LAPACK_UNDERSCORES option.")
     endif()
   else()
-    print_error("Invalid SUNDIALS_F77_FUNC_CASE option.")
+    print_error("Invalid SUNDIALS_LAPACK_CASE option.")
   endif()
 
   # name-mangling scheme has been manually set
   set(NEED_FORTRAN_NAME_MANGLING FALSE)
+
+  configure_file(
+    ${PROJECT_SOURCE_DIR}/src/sundials/sundials_lapack_defs.h.in
+    ${PROJECT_BINARY_DIR}/src/sundials/sundials_lapack_defs.h
+  )
 
 endif()
 

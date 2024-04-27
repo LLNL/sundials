@@ -22,6 +22,7 @@
 
 #include <sundials/sundials_errors.h>
 
+#include "sundials/sundials_config.h"
 #include "sundials/sundials_context.h"
 #include "sundials/sundials_export.h"
 #include "sundials/sundials_logger.h"
@@ -29,6 +30,54 @@
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
+#endif
+
+/* ----------------------------------------------------------------------------
+ * Macros used in error handling
+ * ---------------------------------------------------------------------------*/
+
+/* ------------------------------------------------------------------
+ * SUNDIALS __builtin_expect related macros.
+ * These macros provide hints to the compiler that the condition
+ * is typically false (or true) which may allow the compiler to
+ * optimize.
+ * -----------------------------------------------------------------*/
+
+/* Hint to the compiler that the branch is unlikely to be taken */
+#ifdef SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT
+#define SUNHintFalse(cond) __builtin_expect((cond), 0)
+#else
+#define SUNHintFalse(cond) (cond)
+#endif
+
+/* Hint to the compiler that the branch is likely to be taken */
+#ifdef SUNDIALS_C_COMPILER_HAS_BUILTIN_EXPECT
+#define SUNHintTrue(cond) __builtin_expect((cond), 1)
+#else
+#define SUNHintTrue(cond) (cond)
+#endif
+
+/* ------------------------------------------------------------------
+ * SUNAssume
+ *
+ * This macro tells the compiler that the condition should be assumed
+ * to be true. The consequence is that what happens if the assumption
+ * is violated is undefined. If there is not compiler support for
+ * assumptions, then we dont do anything as there is no reliable
+ * way to avoid the condition being executed in all cases (such as
+ * the condition being an opaque function call, which we have a lot of).
+ * -----------------------------------------------------------------*/
+
+#if __cplusplus >= 202302L
+#define SUNAssume(...) [[assume(__VA_ARGS__)]]
+#elif defined(SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME)
+#define SUNAssume(...) __attribute__((assume(__VA_ARGS__)))
+#elif defined(SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME)
+#define SUNAssume(...) __builtin_assume(__VA_ARGS__)
+#elif defined(SUNDIALS_C_COMPILER_HAS_ASSUME)
+#define SUNAssume(...) __assume(__VA_ARGS__)
+#else
+#define SUNAssume(...)
 #endif
 
 /* ----------------------------------------------------------------------------
@@ -455,7 +504,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNAssert(expr, code) SUNCheck(expr, code)
 #else
-#define SUNAssert(expr, code) SUNAssume(expr)
+#define SUNAssert(expr, code)
 #endif
 
 /*
@@ -470,7 +519,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNAssertNoRet(expr, code) SUNCheckNoRet(expr, code)
 #else
-#define SUNAssertNoRet(expr, code) SUNAssume(expr)
+#define SUNAssertNoRet(expr, code)
 #endif
 
 /*
@@ -484,7 +533,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNAssertNull(expr, code) SUNCheckNull(expr, code)
 #else
-#define SUNAssertNull(expr, code) SUNAssume(expr)
+#define SUNAssertNull(expr, code)
 #endif
 
 /*
@@ -498,7 +547,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNAssertVoid(expr, code) SUNCheckVoid(expr, code)
 #else
-#define SUNAssertVoid(expr, code) SUNAssume(expr)
+#define SUNAssertVoid(expr, code)
 #endif
 
 #ifdef __cplusplus

@@ -18,16 +18,6 @@
 Code Organization
 *****************
 
-.. ifconfig:: package_name != 'super'
-
-   .. include:: ../../../shared/SundialsOrganization.rst
-
-
-.. _ARKODE.Organization.ARKODE:
-
-ARKODE organization
-===================
-
 The ARKODE package is written in the ANSI C language.  The
 following summarizes the basic structure of the package, although
 knowledge of this structure is not necessary for its use.

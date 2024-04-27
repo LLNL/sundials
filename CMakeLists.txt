@@ -21,6 +21,11 @@
 
 cmake_minimum_required(VERSION 3.18)
 
+# Address DOWNLOAD_EXTRACT_TIMESTAMP warning with CMake 3.24+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24")
+  cmake_policy(SET CMP0135 NEW)
+endif()
+
 # Project SUNDIALS (initially only C supported)
 # sets PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR variables.
 project(SUNDIALS C)
@@ -43,7 +48,7 @@ include(FindPackageHandleStandardArgs)
 # Set some variables with info on the SUNDIALS project
 set(PACKAGE_BUGREPORT "sundials-users@llnl.gov")
 set(PACKAGE_NAME "SUNDIALS")
-set(PACKAGE_STRING "SUNDIALS 7.0.0-rc.1")
+set(PACKAGE_STRING "SUNDIALS 7.0.0")
 set(PACKAGE_TARNAME "sundials")
 
 # Set SUNDIALS version numbers
@@ -54,7 +59,7 @@ message(STATUS "SUNDIALS_GIT_VERSION: ${SUNDIALS_GIT_VERSION}")
 set(PACKAGE_VERSION_MAJOR "7")
 set(PACKAGE_VERSION_MINOR "0")
 set(PACKAGE_VERSION_PATCH "0")
-set(PACKAGE_VERSION_LABEL "rc.1")
+set(PACKAGE_VERSION_LABEL "")
 
 if(PACKAGE_VERSION_LABEL)
   set(PACKAGE_VERSION
@@ -68,37 +73,37 @@ endif()
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-set(arkodelib_VERSION "6.0.0-rc.1")
+set(arkodelib_VERSION "6.0.0")
 set(arkodelib_SOVERSION "6")
 
-set(cvodelib_VERSION "7.0.0-rc.1")
+set(cvodelib_VERSION "7.0.0")
 set(cvodelib_SOVERSION "7")
 
-set(cvodeslib_VERSION "7.0.0-rc.1")
+set(cvodeslib_VERSION "7.0.0")
 set(cvodeslib_SOVERSION "7")
 
-set(idalib_VERSION "7.0.0-rc.1")
+set(idalib_VERSION "7.0.0")
 set(idalib_SOVERSION "7")
 
-set(idaslib_VERSION "6.0.0-rc.1")
+set(idaslib_VERSION "6.0.0")
 set(idaslib_SOVERSION "6")
 
-set(kinsollib_VERSION "7.0.0-rc.1")
+set(kinsollib_VERSION "7.0.0")
 set(kinsollib_SOVERSION "7")
 
 set(cpodeslib_VERSION "0.0.0")
 set(cpodeslib_SOVERSION "0")
 
-set(nveclib_VERSION "7.0.0-rc.1")
+set(nveclib_VERSION "7.0.0")
 set(nveclib_SOVERSION "7")
 
-set(sunmatrixlib_VERSION "5.0.0-rc.1")
+set(sunmatrixlib_VERSION "5.0.0")
 set(sunmatrixlib_SOVERSION "5")
 
-set(sunlinsollib_VERSION "5.0.0-rc.1")
+set(sunlinsollib_VERSION "5.0.0")
 set(sunlinsollib_SOVERSION "5")
 
-set(sunnonlinsollib_VERSION "4.0.0-rc.1")
+set(sunnonlinsollib_VERSION "4.0.0")
 set(sunnonlinsollib_SOVERSION "4")
 
 set(sundialslib_VERSION
@@ -138,6 +143,16 @@ set(_SHARED_LIB_SUFFIX
 # A list of all the alias targets created.
 set(_SUNDIALS_ALIAS_TARGETS ""
     CACHE INTERNAL "" FORCE)
+
+# We default to release builds
+set(_DEFAULT_CMAKE_BUILD_TYPE RelWithDebInfo)
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Building SUNDIALS in '${_DEFAULT_CMAKE_BUILD_TYPE}' mode as CMAKE_BUILD_TYPE was not specified.")
+  set(CMAKE_BUILD_TYPE "${_DEFAULT_CMAKE_BUILD_TYPE}" CACHE STRING "Choose the type of build." FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+else()
+  message(STATUS "Building SUNDIALS in '${CMAKE_BUILD_TYPE}' mode.")
+endif()
 
 # ===============================================================
 # Build options to be processed first
@@ -206,6 +221,10 @@ if(SUNDIALS_TEST_UNITTESTS)
   add_subdirectory(test/unit_tests)
 endif()
 
+if(SUNDIALS_ENABLE_EXTERNAL_ADDONS)
+  add_subdirectory(external)
+endif()
+
 # ===============================================================
 # Install configuration header files and license file.
 # ===============================================================
@@ -249,7 +268,7 @@ include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
   SUNDIALSConfigVersion.cmake
   VERSION ${PACKAGE_VERSION}
-  COMPATIBILITY SameMajorVersion
+  COMPATIBILITY AnyNewerVersion
 )
 
 # install targets
