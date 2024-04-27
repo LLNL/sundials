@@ -111,6 +111,7 @@ typedef int (*MRIStepInnerSetRTol)(MRIStepInnerStepper stepper, sunrealtype rtol
   ---------------------------------------------------------------*/
 struct MRIStepCouplingMem
 {
+  MRISTEP_METHOD_TYPE type;  /* flag to encode the MRI method type         */
   int nmat;         /* number of MRI coupling matrices                     */
   int stages;       /* size of coupling matrices ((stages+1) * stages)     */
   int q;            /* method order of accuracy                            */

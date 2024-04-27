@@ -85,6 +85,7 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
   MRIC = (MRIStepCoupling)malloc(sizeof(struct MRIStepCouplingMem));
   if (!MRIC) { return (NULL); }
 
+  MRIC->type   = type;
   MRIC->nmat   = nmat;
   MRIC->stages = stages;
   MRIC->q      = 0;
@@ -440,11 +441,8 @@ MRIStepCoupling MRIStepCoupling_Copy(MRIStepCoupling MRIC)
   /* Check for legal input */
   if (!MRIC) { return (NULL); }
 
-  /* Check for method coefficients and set method type */
-  if (MRIC->W && MRIC->G) { type = MRISTEP_IMEX; }
-  else if (MRIC->W && !(MRIC->G)) { type = MRISTEP_EXPLICIT; }
-  else if (!(MRIC->W) && MRIC->G) { type = MRISTEP_IMPLICIT; }
-  else { return (NULL); }
+  /* Copy method type */
+  type = MRIC->type;
 
   /* Check for stage times */
   if (!(MRIC->c)) { return (NULL); }
@@ -610,6 +608,20 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile)
     }
   }
 
+  switch (MRIC->type)
+  {
+  case MRISTEP_EXPLICIT:
+    fprintf(outfile, "  type = explicit MRI\n");
+    break;
+  case MRISTEP_IMPLICIT:
+    fprintf(outfile, "  type = implicit MRI\n");
+    break;
+  case MRISTEP_IMEX:
+    fprintf(outfile, "  type = ImEx MRI\n");
+    break;
+  default:
+    fprintf(outfile, "  type = unknown\n");
+  }
   fprintf(outfile, "  nmat = %i\n", MRIC->nmat);
   fprintf(outfile, "  stages = %i\n", MRIC->stages);
   fprintf(outfile, "  method order (q) = %i\n", MRIC->q);
