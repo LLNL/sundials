@@ -558,7 +558,7 @@ int ARKodeWFtolerances(void* arkode_mem, ARKEwtFn efun)
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem)arkode_mem;
-  
+
   if (ark_mem->MallocDone == SUNFALSE)
   {
     arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
