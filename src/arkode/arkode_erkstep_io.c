@@ -720,8 +720,8 @@ int ERKStepSetTableName(void* arkode_mem, const char* etable)
 int erkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
 {
   int retval;
-  ARKodeARKStepMem step_mem;
-  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  ARKodeERKStepMem step_mem;
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* return an error if local truncation error is not computed */
