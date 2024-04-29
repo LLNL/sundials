@@ -224,6 +224,7 @@ typedef int (*ARKTimestepSetStagePredictFn)(ARKodeMem ark_mem,
                                             ARKStagePredictFn PredictStage);
 typedef int (*ARKTimestepGetNumLinSolvSetups)(ARKodeMem ark_mem,
                                               long int* nlinsetups);
+typedef int (*ARKTimestepGetEstLocalErrors)(ARKodeMem ark_mem, N_Vector ele);
 typedef int (*ARKTimestepGetCurrentGamma)(ARKodeMem ark_mem, sunrealtype* gamma);
 typedef int (*ARKTimestepGetNonlinearSystemData)(
   ARKodeMem ark_mem, sunrealtype* tcur, N_Vector* zpred, N_Vector* z,
@@ -377,6 +378,7 @@ struct ARKodeMemRec
   ARKTimestepSetMaxNonlinIters step_setmaxnonliniters;
   ARKTimestepSetNonlinConvCoef step_setnonlinconvcoef;
   ARKTimestepSetStagePredictFn step_setstagepredictfn;
+  ARKTimestepGetEstLocalErrors step_getestlocalerrors;
   ARKTimestepGetNumLinSolvSetups step_getnumlinsolvsetups;
   ARKTimestepGetCurrentGamma step_getcurrentgamma;
   ARKTimestepGetNonlinearSystemData step_getnonlinearsystemdata;

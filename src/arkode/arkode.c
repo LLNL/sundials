@@ -120,6 +120,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->step_setnonlinconvcoef         = NULL;
   ark_mem->step_setstagepredictfn         = NULL;
   ark_mem->step_getnumlinsolvsetups       = NULL;
+  ark_mem->step_getestlocalerrors         = NULL;
   ark_mem->step_getcurrentgamma           = NULL;
   ark_mem->step_getnonlinearsystemdata    = NULL;
   ark_mem->step_getnumnonlinsolviters     = NULL;

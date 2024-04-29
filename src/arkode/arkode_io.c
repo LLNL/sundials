@@ -2360,9 +2360,17 @@ int ARKodeGetEstLocalErrors(void* arkode_mem, N_Vector ele)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  /* copy vector to output */
-  N_VScale(ONE, ark_mem->tempv1, ele);
-  return (ARK_SUCCESS);
+  /* Call stepper-specific routine (if provided); otherwise return an error */
+  if (ark_mem->step_getestlocalerrors)
+  {
+    return (ark_mem->step_getestlocalerrors(ark_mem, ele));
+  }
+  else
+  {
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does provide a temporal error estimate");
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
 }
 
 /*---------------------------------------------------------------

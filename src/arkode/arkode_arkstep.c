@@ -132,6 +132,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ark_mem->step_setstagepredictfn         = arkStep_SetStagePredictFn;
   ark_mem->step_getnumlinsolvsetups       = arkStep_GetNumLinSolvSetups;
   ark_mem->step_getcurrentgamma           = arkStep_GetCurrentGamma;
+  ark_mem->step_getestlocalerrors         = arkStep_GetEstLocalErrors;
   ark_mem->step_getnonlinearsystemdata    = arkStep_GetNonlinearSystemData;
   ark_mem->step_getnumnonlinsolviters     = arkStep_GetNumNonlinSolvIters;
   ark_mem->step_getnumnonlinsolvconvfails = arkStep_GetNumNonlinSolvConvFails;
