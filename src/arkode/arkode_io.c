@@ -2474,6 +2474,15 @@ int ARKodeGetErrWeights(void* arkode_mem, N_Vector eweight)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
+  /* Guard against use for time steppers that do not use tolerances
+     (i.e., neither supports adaptivity nor needs an algebraic solver) */
+  if ((!ark_mem->step_supports_implicit) && (!ark_mem->step_supports_adaptive))
+  {
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not use tolerances");
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
+
   N_VScale(ONE, ark_mem->ewt, eweight);
   return (ARK_SUCCESS);
 }
