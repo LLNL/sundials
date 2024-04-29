@@ -753,8 +753,8 @@ ARK_MRI_TABLE(ARKODE_MERK32, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 4
     C->W[1][2][1] =  SUN_RCONST(4.0)/SUN_RCONST(9.0)/c2;
     C->W[1][3][0] = -SUN_RCONST(1.5);
     C->W[1][3][2] =  SUN_RCONST(1.5);
-    C->W[1][4][1] =  SUN_RCONST(3.0)/(SUN_RCONST(3.0)*c2-SUN_RCONST(2.0));
-    C->W[1][4][2] = -SUN_RCONST(3.0)/(SUN_RCONST(3.0)*c2-SUN_RCONST(2.0));
+    C->W[1][4][0] = -ONE/c2;
+    C->W[1][4][1] =  ONE/c2;
     return C;
   })
 
