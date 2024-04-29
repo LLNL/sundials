@@ -3523,6 +3523,90 @@ int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
   return (ARK_SUCCESS);
 }
 
+/* Allocate MRI forcing and fused op workspace vectors if necessary */
+int arkAllocSUNStepperForcing(SUNStepper stepper, int count, N_Vector tmpl)
+{
+  sunindextype lrw1, liw1;
+
+  if (stepper == NULL) { return ARK_ILL_INPUT; }
+
+  /* Set space requirements for one N_Vector */
+  if (tmpl->ops->nvspace) { N_VSpace(tmpl, &lrw1, &liw1); }
+  else
+  {
+    lrw1 = 0;
+    liw1 = 0;
+  }
+  stepper->lrw1 = lrw1;
+  stepper->liw1 = liw1;
+
+  /* Set the number of forcing vectors and allocate vectors */
+  stepper->nforcing = count;
+
+  if (stepper->nforcing_allocated < stepper->nforcing)
+  {
+    if (stepper->nforcing_allocated)
+    {
+      arkFreeVecArray(stepper->nforcing_allocated, &(stepper->forcing),
+                      stepper->lrw1, &(stepper->lrw), stepper->liw1,
+                      &(stepper->liw));
+    }
+    if (!arkAllocVecArray(stepper->nforcing, tmpl, &(stepper->forcing),
+                          stepper->lrw1, &(stepper->lrw), stepper->liw1,
+                          &(stepper->liw)))
+    {
+      arkFreeSUNStepperForcing(stepper);
+      return (ARK_MEM_FAIL);
+    }
+    stepper->nforcing_allocated = stepper->nforcing;
+  }
+
+  /* Allocate fused operation workspace arrays */
+  if (stepper->vecs == NULL)
+  {
+    stepper->vecs = (N_Vector*)calloc(count + 1, sizeof(N_Vector));
+    if (stepper->vecs == NULL)
+    {
+      arkFreeSUNStepperForcing(stepper);
+      return (ARK_MEM_FAIL);
+    }
+  }
+
+  if (stepper->vals == NULL)
+  {
+    stepper->vals = (sunrealtype*)calloc(count + 1, sizeof(sunrealtype));
+    if (stepper->vals == NULL)
+    {
+      arkFreeSUNStepperForcing(stepper);
+      return (ARK_MEM_FAIL);
+    }
+  }
+
+  return (ARK_SUCCESS);
+}
+
+int arkFreeSUNStepperForcing(MRIStepInnerStepper stepper)
+{
+  if (stepper == NULL) { return ARK_ILL_INPUT; }
+
+  arkFreeVecArray(stepper->nforcing_allocated, &(stepper->forcing),
+                  stepper->lrw1, &(stepper->lrw), stepper->liw1, &(stepper->liw));
+
+  if (stepper->vecs != NULL)
+  {
+    free(stepper->vecs);
+    stepper->vecs = NULL;
+  }
+
+  if (stepper->vals != NULL)
+  {
+    free(stepper->vals);
+    stepper->vals = NULL;
+  }
+
+  return (ARK_SUCCESS);
+}
+
 /*---------------------------------------------------------------
   arkProcessError is a high level error handling function that
   calls the appropriate SUNDIALS error handler

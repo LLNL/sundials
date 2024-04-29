@@ -25,6 +25,7 @@
 #include "arkode_impl.h"
 #include "arkode_ls_impl.h"
 #include "arkode_mri_tables_impl.h"
+#include "sundials_stepper_impl.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -145,45 +146,10 @@ typedef struct ARKodeMRIStepMemRec
 }* ARKodeMRIStepMem;
 
 /*===============================================================
-  MRI innter time stepper data structure
+  MRI inner time stepper data structure
   ===============================================================*/
 
-typedef struct _MRIStepInnerStepper_Ops* MRIStepInnerStepper_Ops;
-
-struct _MRIStepInnerStepper_Ops
-{
-  MRIStepInnerEvolveFn evolve;
-  MRIStepInnerFullRhsFn fullrhs;
-  MRIStepInnerResetFn reset;
-};
-
-struct _MRIStepInnerStepper
-{
-  /* stepper specific content and operations */
-  void* content;
-  MRIStepInnerStepper_Ops ops;
-
-  /* stepper context */
-  SUNContext sunctx;
-
-  /* base class data */
-  N_Vector* forcing;      /* array of forcing vectors            */
-  int nforcing;           /* number of forcing vectors active    */
-  int nforcing_allocated; /* number of forcing vectors allocated */
-  int last_flag;          /* last stepper return flag            */
-  sunrealtype tshift;     /* time normalization shift            */
-  sunrealtype tscale;     /* time normalization scaling          */
-
-  /* fused op workspace */
-  sunrealtype* vals;
-  N_Vector* vecs;
-
-  /* Space requirements */
-  sunindextype lrw1; /* no. of sunrealtype words in 1 N_Vector          */
-  sunindextype liw1; /* no. of integer words in 1 N_Vector           */
-  long int lrw;      /* no. of sunrealtype words in ARKODE work vectors */
-  long int liw;      /* no. of integer words in ARKODE work vectors  */
-};
+typedef struct SUNStepper_Ops_s* MRIStepInnerStepper_Ops;
 
 /*===============================================================
   MRI time step module private function prototypes
@@ -266,6 +232,14 @@ int mriStep_NlsLSolve(N_Vector delta, void* arkode_mem);
 int mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         sunrealtype tol, N_Vector ewt, void* arkode_mem);
 
+/* Compute forcing for inner stepper */
+int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
+                                int stage, sunrealtype cdiff);
+
+/* Return effective RK coefficients (nofast stage) */
+int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int* stage_map,
+                     sunrealtype* Ae_row, sunrealtype* Ai_row);
+
 /* Inner stepper functions */
 int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper);
 int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
@@ -287,16 +261,7 @@ int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
 int mriStepInnerStepper_Resize(MRIStepInnerStepper stepper, ARKVecResizeFn resize,
                                void* resize_data, sunindextype lrw_diff,
                                sunindextype liw_diff, N_Vector tmpl);
-int mriStepInnerStepper_FreeVecs(MRIStepInnerStepper stepper);
 void mriStepInnerStepper_PrintMem(MRIStepInnerStepper stepper, FILE* outfile);
-
-/* Compute forcing for inner stepper */
-int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
-                                int stage, sunrealtype cdiff);
-
-/* Return effective RK coefficients (nofast stage) */
-int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int* stage_map,
-                     sunrealtype* Ae_row, sunrealtype* Ai_row);
 
 /*===============================================================
   Reusable MRIStep Error Messages

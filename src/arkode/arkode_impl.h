@@ -638,7 +638,38 @@ int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
 
 int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
                            sunrealtype adapt_params[3]);
-
+int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data);
+int arkSetMaxFirstGrowth(void* arkode_mem, sunrealtype etamx1);
+int arkSetMaxEFailGrowth(void* arkode_mem, sunrealtype etamxf);
+int arkSetSmallNumEFails(void* arkode_mem, int small_nef);
+int arkSetMaxCFailGrowth(void* arkode_mem, sunrealtype etacf);
+int arkSetStabilityFn(void* arkode_mem, ARKExpStabFn EStab, void* estab_data);
+int arkSetMaxErrTestFails(void* arkode_mem, int maxnef);
+int arkSetMaxConvFails(void* arkode_mem, int maxncf);
+int arkSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff);
+int arkGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
+int arkGetNumStepAttempts(void* arkode_mem, long int* nstep_attempts);
+int arkGetNumSteps(void* arkode_mem, long int* nsteps);
+int arkGetActualInitStep(void* arkode_mem, sunrealtype* hinused);
+int arkGetLastStep(void* arkode_mem, sunrealtype* hlast);
+int arkGetCurrentStep(void* arkode_mem, sunrealtype* hcur);
+int arkGetCurrentState(void* arkode_mem, N_Vector* ycur);
+int arkGetCurrentTime(void* arkode_mem, sunrealtype* tcur);
+int arkGetTolScaleFactor(void* arkode_mem, sunrealtype* tolsfac);
+int arkGetErrWeights(void* arkode_mem, N_Vector eweight);
+int arkGetResWeights(void* arkode_mem, N_Vector rweight);
+int arkGetNumGEvals(void* arkode_mem, long int* ngevals);
+int arkGetRootInfo(void* arkode_mem, int* rootsfound);
+int arkGetNumConstrFails(void* arkode_mem, long int* nconstrfails);
+int arkGetNumExpSteps(void* arkode_mem, long int* nsteps);
+int arkGetNumAccSteps(void* arkode_mem, long int* nsteps);
+int arkGetNumErrTestFails(void* arkode_mem, long int* netfails);
+int arkGetNumStepSolveFails(void* arkode_mem, long int* nncfails);
+int arkGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused,
+                    sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur);
+int arkGetUserData(void* arkode_mem, void** user_data);
+int arkPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
+char* arkGetReturnFlagName(long int flag);
 int arkAllocSUNStepperForcing(SUNStepper stepper, int count, N_Vector tmpl);
 int arkFreeSUNStepperForcing(SUNStepper stepper);
 

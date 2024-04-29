@@ -14,19 +14,19 @@ SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
   SUNFunctionBegin(sunctx);
 
   SUNStepper stepper = NULL;
-  stepper = malloc(sizeof(*stepper));
+  stepper            = malloc(sizeof(*stepper));
   SUNAssert(stepper, SUN_ERR_MALLOC_FAIL);
 
-  stepper->content = NULL;
-  stepper->sunctx = sunctx;
-  stepper->last_flag = SUN_SUCCESS;
-  stepper->forcing = NULL;
-  stepper->nforcing = 0;
+  stepper->content            = NULL;
+  stepper->sunctx             = sunctx;
+  stepper->last_flag          = SUN_SUCCESS;
+  stepper->forcing            = NULL;
+  stepper->nforcing           = 0;
   stepper->nforcing_allocated = 0;
-  stepper->tshift = SUN_RCONST(0.0);
-  stepper->tscale = SUN_RCONST(0.0);
-  stepper->fused_scalars = NULL;
-  stepper->fused_vectors = NULL;
+  stepper->tshift             = SUN_RCONST(0.0);
+  stepper->tscale             = SUN_RCONST(0.0);
+  stepper->fused_scalars      = NULL;
+  stepper->fused_vectors      = NULL;
 
   stepper->ops = malloc(sizeof(*(stepper->ops)));
   SUNAssert(stepper->ops, SUN_ERR_MALLOC_FAIL);
