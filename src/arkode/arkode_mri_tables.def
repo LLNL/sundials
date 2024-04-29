@@ -533,7 +533,7 @@ ARK_MRI_TABLE(ARKODE_IMEX_MRI_GARK4, { /* R. Chinomona & D. Reynolds SINUM 43(5)
   })
 
 ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR21, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 */
-    MRIStepCoupling C = MRIStepCoupling_Alloc(1, 4, MRISTEP_IMEX);
+    MRIStepCoupling C = MRIStepCoupling_Alloc(1, 4, MRISTEP_MRISR);
 
     C->q = 2;
     C->p = 1;
@@ -568,7 +568,7 @@ ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR21, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts,
   })
 
 ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR32, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 */
-    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 5, MRISTEP_IMEX);
+    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 5, MRISTEP_MRISR);
 
     C->q = 3;
     C->p = 2;
@@ -629,7 +629,7 @@ ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR32, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts,
   })
 
 ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR43, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, arXiv:2301.00865, 2023 */
-    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 7, MRISTEP_IMEX);
+    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 7, MRISTEP_MRISR);
 
     C->q = 4;
     C->p = 3;
@@ -715,7 +715,7 @@ ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR43, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts,
   })
 
 ARK_MRI_TABLE(ARKODE_MERK21, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 (embedding unpublished) */
-    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 3, MRISTEP_EXPLICIT);
+    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 3, MRISTEP_MERK);
     sunrealtype c2 = SUN_RCONST(0.5);
 
     C->q = 2;
@@ -734,7 +734,7 @@ ARK_MRI_TABLE(ARKODE_MERK21, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 4
   })
 
 ARK_MRI_TABLE(ARKODE_MERK32, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 (embedding unpublished) */
-    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 4, MRISTEP_EXPLICIT);
+    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 4, MRISTEP_MERK);
     sunrealtype c2 = SUN_RCONST(0.5);
 
     C->q = 3;
@@ -759,7 +759,7 @@ ARK_MRI_TABLE(ARKODE_MERK32, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 4
   })
 
 ARK_MRI_TABLE(ARKODE_MERK43, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 (embedding unpublished) */
-    MRIStepCoupling C = MRIStepCoupling_Alloc(3, 7, MRISTEP_EXPLICIT);
+    MRIStepCoupling C = MRIStepCoupling_Alloc(3, 7, MRISTEP_MERK);
     sunrealtype c2 = SUN_RCONST(0.5);
     sunrealtype c3 = SUN_RCONST(0.5);
     sunrealtype c4 = ONE/SUN_RCONST(3.0);
@@ -818,7 +818,7 @@ ARK_MRI_TABLE(ARKODE_MERK43, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 4
   })
 
 ARK_MRI_TABLE(ARKODE_MERK54, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 (embedding unpublished) */
-    MRIStepCoupling C = MRIStepCoupling_Alloc(4, 11, MRISTEP_IMEX);
+    MRIStepCoupling C = MRIStepCoupling_Alloc(4, 11, MRISTEP_MERK);
     sunrealtype c2 = SUN_RCONST(0.5);
     sunrealtype c3 = SUN_RCONST(0.5);
     sunrealtype c4 = ONE/SUN_RCONST(3.0);

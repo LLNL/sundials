@@ -73,6 +73,7 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
                                       MRISTEP_METHOD_TYPE type)
 {
   int i, j;
+  sunbooleantype hasOmegas, hasGammas;
   MRIStepCoupling MRIC = NULL;
 
   /* Check for legal input values */
@@ -95,6 +96,18 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
   MRIC->G      = NULL;
 
   /* --------------------------------------------
+   * Determine general storage format
+   * -------------------------------------------- */
+
+  hasOmegas = hasGammas = SUNFALSE;
+  if ((type == MRISTEP_EXPLICIT) || (type == MRISTEP_IMEX) ||
+      (type == MRISTEP_MERK) || (type == MRISTEP_MRISR))
+  { hasOmegas = SUNTRUE; }
+  if ((type == MRISTEP_IMPLICIT) || (type == MRISTEP_IMEX) || (type == MRISTEP_MRISR))
+  { hasGammas = SUNTRUE; }
+
+
+  /* --------------------------------------------
    * Allocate abscissae and coupling coefficients
    * -------------------------------------------- */
 
@@ -105,7 +118,7 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
     return (NULL);
   }
 
-  if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
+  if (hasOmegas)
   {
     /* allocate W matrices */
     MRIC->W = (sunrealtype***)calloc(nmat, sizeof(sunrealtype**));
@@ -143,7 +156,7 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
     }
   }
 
-  if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
+  if (hasGammas)
   {
     /* allocate G matrices */
     MRIC->G = (sunrealtype***)calloc(nmat, sizeof(sunrealtype**));
@@ -369,7 +382,10 @@ MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
   {
     for (j = i; j < B->stages; j++)
     {
-      if (SUNRabs(B->A[i][j]) > tol) { type = MRISTEP_IMPLICIT; }
+      if (SUNRabs(B->A[i][j]) > tol)
+      {
+        type = MRISTEP_IMPLICIT;
+      }
     }
   }
 
@@ -390,7 +406,10 @@ MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
   if (padding) { MRIC->c[stages - 1] = ONE; }
 
   /* Construct the coupling table */
-  if (type == MRISTEP_EXPLICIT) { C = MRIC->W; }
+  if (type == MRISTEP_EXPLICIT)
+  {
+    C = MRIC->W;
+  }
   else { C = MRIC->G; }
 
   /* First row is identically zero */
@@ -618,6 +637,12 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile)
     break;
   case MRISTEP_IMEX:
     fprintf(outfile, "  type = ImEx MRI\n");
+    break;
+  case MRISTEP_MERK:
+    fprintf(outfile, "  type = MERK\n");
+    break;
+  case MRISTEP_MRISR:
+    fprintf(outfile, "  type = MRISR\n");
     break;
   default:
     fprintf(outfile, "  type = unknown\n");
