@@ -10,8 +10,6 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * SUNAdjointCheckpointScheme class definition.
- * SUNAdjointCheckpointScheme implementations provide checkpointing
- * algorithms for adjoint computations.
  * ----------------------------------------------------------------*/
 
 #ifndef _SUNADJOINT_CHECKPOINTSCHEME_H
@@ -68,7 +66,7 @@ struct SUNAdjointCheckpointScheme_s
   SUNContext sunctx;
 };
 
-typedef SUNAdjointCheckpointScheme SUNAdjointCheckpointScheme_s*;
+typedef SUNAdjointCheckpointScheme_s* SUNAdjointCheckpointScheme;
 
 SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(SUNContext);
 
