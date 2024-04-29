@@ -26,6 +26,9 @@ typedef struct SUNStepper_PrivOps_s* SUNStepper_PrivOps;
 struct SUNStepper_Ops_s
 {
   SUNStepperEvolveFn evolve;
+  SUNStepperAdvanceFn advance;
+  SUNStepperOneStepFn onestep;
+  SUNStepperTryStepFn trystep;
   SUNStepperFullRhsFn fullrhs;
   SUNStepperResetFn reset;
 };

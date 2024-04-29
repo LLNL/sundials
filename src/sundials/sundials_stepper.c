@@ -75,6 +75,27 @@ SUNErrCode SUNStepper_SetEvolveFn(SUNStepper stepper, SUNStepperEvolveFn fn)
   return SUN_SUCCESS;
 }
 
+SUNErrCode SUNStepper_SetAdvanceFn(SUNStepper stepper, SUNStepperAdvanceFn fn)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  stepper->ops->advance = fn;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNStepper_SetOneStepFn(SUNStepper stepper, SUNStepperOneStepFn fn)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  stepper->ops->onestep = fn;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNStepper_SetTryStepFn(SUNStepper stepper, SUNStepperTryStepFn fn)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  stepper->ops->trystep = fn;
+  return SUN_SUCCESS;
+}
+
 SUNErrCode SUNStepper_SetFullRhsFn(SUNStepper stepper, SUNStepperFullRhsFn fn)
 {
   SUNFunctionBegin(stepper->sunctx);
