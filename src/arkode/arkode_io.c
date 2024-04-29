@@ -2445,6 +2445,15 @@ int ARKodeGetTolScaleFactor(void* arkode_mem, sunrealtype* tolsfact)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
+  /* Guard against use for time steppers that do not use tolerances
+     (i.e., neither supports adaptivity nor needs an algebraic solver) */
+  if ((!ark_mem->step_supports_implicit) && (!ark_mem->step_supports_adaptive))
+  {
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not use tolerances");
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
+
   *tolsfact = ark_mem->tolsf;
   return (ARK_SUCCESS);
 }
