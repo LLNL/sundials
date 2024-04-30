@@ -997,6 +997,148 @@ Optional inputs for ARKStep
       all problems are different, so these values may not be optimal for
       all users.
 
+   .. deprecated:: x.y.z
+
+      Adjust solver parameters individually instead.  For reference, this routine
+      sets the following non-default parameters:
+
+      * Explicit methods:
+
+        * :c:func:`SUNAdaptController_PI` with :c:func:`SUNAdaptController_SetErrorBias` of 1.2 and :c:func:`SUNAdaptController_SetParams_PI` of :math:`k_1=0.8` and :math:`k_2=-0.31`
+
+        * :c:func:`ARKodeSetSafetyFactor` of 0.99
+
+        * :c:func:`ARKodeSetMaxGrowth` of 25.0
+
+        * :c:func:`ARKodeSetMaxEFailGrowth` of 0.3
+
+      * Implicit methods:
+
+        * Order 3:
+
+          * :c:func:`SUNAdaptController_I` with :c:func:`SUNAdaptController_SetErrorBias` of 1.9
+
+          * :c:func:`ARKodeSetSafetyFactor` of 0.957
+
+          * :c:func:`ARKodeSetMaxGrowth` of 17.6
+
+          * :c:func:`ARKodeSetMaxEFailGrowth` of 0.45
+
+          * :c:func:`ARKodeSetNonlinConvCoef` of 0.22
+
+          * :c:func:`ARKodeSetNonlinCRDown` of 0.17
+
+          * :c:func:`ARKodeSetNonlinRDiv` of 2.3
+
+          * :c:func:`ARKodeSetDeltaGammaMax` of 0.19
+
+        * Order 4:
+
+          * :c:func:`SUNAdaptController_PID` with :c:func:`SUNAdaptController_SetErrorBias` of 1.2 and :c:func:`SUNAdaptController_SetParams_PID` of :math:`k_1=0.535`, :math:`k_2=-0.209`, and :math:`k_3=0.148`
+
+          * :c:func:`ARKodeSetSafetyFactor` of 0.988
+
+          * :c:func:`ARKodeSetMaxGrowth` of 31.5
+
+          * :c:func:`ARKodeSetMaxEFailGrowth` of 0.33
+
+          * :c:func:`ARKodeSetNonlinConvCoef` of 0.24
+
+          * :c:func:`ARKodeSetNonlinCRDown` of 0.26
+
+          * :c:func:`ARKodeSetNonlinRDiv` of 2.3
+
+          * :c:func:`ARKodeSetDeltaGammaMax` of 0.16
+
+          * :c:func:`ARKodeSetLSetupFrequency` of 31
+
+        * Order 5:
+
+          * :c:func:`SUNAdaptController_PID` with :c:func:`SUNAdaptController_SetErrorBias` of 3.3 and :c:func:`SUNAdaptController_SetParams_PID` of :math:`k_1=0.56`, :math:`k_2=-0.338`, and :math:`k_3=0.14`
+
+          * :c:func:`ARKodeSetSafetyFactor` of 0.937
+
+          * :c:func:`ARKodeSetMaxGrowth` of 22.0
+
+          * :c:func:`ARKodeSetMaxEFailGrowth` of 0.44
+
+          * :c:func:`ARKodeSetNonlinConvCoef` of 0.25
+
+          * :c:func:`ARKodeSetNonlinCRDown` of 0.4
+
+          * :c:func:`ARKodeSetNonlinRDiv` of 2.3
+
+          * :c:func:`ARKodeSetDeltaGammaMax` of 0.32
+
+          * :c:func:`ARKodeSetLSetupFrequency` of 31
+
+      * ImEx methods:
+
+        * Order 2:
+
+          * :c:func:`ARKodeSetNonlinConvCoef` of 0.001
+
+          * :c:func:`ARKodeSetMaxNonlinIters` of 5
+
+        * Order 3:
+
+          * :c:func:`SUNAdaptController_PID` with :c:func:`SUNAdaptController_SetErrorBias` of 1.42 and :c:func:`SUNAdaptController_SetParams_PID` of :math:`k_1=0.54`, :math:`k_2=-0.36`, and :math:`k_3=0.14`
+
+          * :c:func:`ARKodeSetSafetyFactor` of 0.965
+
+          * :c:func:`ARKodeSetMaxGrowth` of 28.7
+
+          * :c:func:`ARKodeSetMaxEFailGrowth` of 0.46
+
+          * :c:func:`ARKodeSetNonlinConvCoef` of 0.22
+
+          * :c:func:`ARKodeSetNonlinCRDown` of 0.17
+
+          * :c:func:`ARKodeSetNonlinRDiv` of 2.3
+
+          * :c:func:`ARKodeSetDeltaGammaMax` of 0.19
+
+          * :c:func:`ARKodeSetLSetupFrequency` of 60
+
+        * Order 4:
+
+          * :c:func:`SUNAdaptController_PID` with :c:func:`SUNAdaptController_SetErrorBias` of 1.35 and :c:func:`SUNAdaptController_SetParams_PID` of :math:`k_1=0.543`, :math:`k_2=-0.297`, and :math:`k_3=0.14`
+
+          * :c:func:`ARKodeSetSafetyFactor` of 0.97
+
+          * :c:func:`ARKodeSetMaxGrowth` of 25.0
+
+          * :c:func:`ARKodeSetMaxEFailGrowth` of 0.47
+
+          * :c:func:`ARKodeSetNonlinConvCoef` of 0.24
+
+          * :c:func:`ARKodeSetNonlinCRDown` of 0.26
+
+          * :c:func:`ARKodeSetNonlinRDiv` of 2.3
+
+          * :c:func:`ARKodeSetDeltaGammaMax` of 0.16
+
+          * :c:func:`ARKodeSetLSetupFrequency` of 31
+
+        * Order 5:
+
+          * :c:func:`SUNAdaptController_PI` with :c:func:`SUNAdaptController_SetErrorBias` of 1.15 and :c:func:`SUNAdaptController_SetParams_PI` of :math:`k_1=0.8` and :math:`k_2=-0.35`
+
+          * :c:func:`ARKodeSetSafetyFactor` of 0.993
+
+          * :c:func:`ARKodeSetMaxGrowth` of 28.5
+
+          * :c:func:`ARKodeSetMaxEFailGrowth` of 0.3
+
+          * :c:func:`ARKodeSetNonlinConvCoef` of 0.25
+
+          * :c:func:`ARKodeSetNonlinCRDown` of 0.4
+
+          * :c:func:`ARKodeSetNonlinRDiv` of 2.3
+
+          * :c:func:`ARKodeSetDeltaGammaMax` of 0.32
+
+          * :c:func:`ARKodeSetLSetupFrequency` of 31
 
 
 .. c:function:: int ARKStepSetConstraints(void* arkode_mem, N_Vector constraints)

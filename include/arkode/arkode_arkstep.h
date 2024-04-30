@@ -108,7 +108,8 @@ int ARKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g);
 /* Optional input functions -- must be called AFTER ARKStepCreate */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetDefaults instead")
 int ARKStepSetDefaults(void* arkode_mem);
-SUNDIALS_EXPORT int ARKStepSetOptimalParams(void* arkode_mem);
+SUNDIALS_DEPRECATED_EXPORT_MSG("adjust parameters individually instead")
+int ARKStepSetOptimalParams(void* arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetOrder instead")
 int ARKStepSetOrder(void* arkode_mem, int maxord);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetInterpolantType instead")
