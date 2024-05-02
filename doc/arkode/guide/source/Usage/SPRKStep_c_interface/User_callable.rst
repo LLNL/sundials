@@ -217,9 +217,6 @@ Optional input functions
 Optional inputs for SPRKStep
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. _ARKODE.Usage.SPRKStep.SPRKStepInputTable:
-.. table:: Optional inputs for SPRKStep
-
 
 .. c:function:: int SPRKStepSetDefaults(void* arkode_mem)
 
