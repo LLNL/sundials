@@ -94,6 +94,8 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
   MRIC->c      = NULL;
   MRIC->W      = NULL;
   MRIC->G      = NULL;
+  MRIC->ngroup = 0;
+  MRIC->group  = NULL;
 
   /* --------------------------------------------
    * Determine general storage format
@@ -102,10 +104,14 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
   hasOmegas = hasGammas = SUNFALSE;
   if ((type == MRISTEP_EXPLICIT) || (type == MRISTEP_IMEX) ||
       (type == MRISTEP_MERK) || (type == MRISTEP_MRISR))
-  { hasOmegas = SUNTRUE; }
-  if ((type == MRISTEP_IMPLICIT) || (type == MRISTEP_IMEX) || (type == MRISTEP_MRISR))
-  { hasGammas = SUNTRUE; }
-
+  {
+    hasOmegas = SUNTRUE;
+  }
+  if ((type == MRISTEP_IMPLICIT) || (type == MRISTEP_IMEX) ||
+      (type == MRISTEP_MRISR))
+  {
+    hasGammas = SUNTRUE;
+  }
 
   /* --------------------------------------------
    * Allocate abscissae and coupling coefficients
@@ -194,11 +200,38 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
     }
   }
 
+  /* for MERK methods, allocate maximum possible number/sizes of stage groups */
+  if (type == MRISTEP_MERK)
+  {
+    MRIC->ngroup = stages;
+    MRIC->group = (int**)malloc(stages*sizeof(int*));
+    if (!(MRIC->group))
+    {
+      MRIStepCoupling_Free(MRIC);
+      return (NULL);
+    }
+    for (i = 0; i < stages; i++)
+    {
+      MRIC->group[i] = NULL;
+      MRIC->group[i] = (int*)malloc(stages*sizeof(int));
+      if (!(MRIC->group[i]))
+      {
+        MRIStepCoupling_Free(MRIC);
+        return (NULL);
+      }
+      for (j = 0; j < stages; j++)
+      {
+        MRIC->group[i][j] = -1;
+      }
+    }
+  }
+
   return (MRIC);
 }
 
 /*---------------------------------------------------------------
-  Routine to allocate and fill a MRIStepCoupling structure
+  Routine to allocate and fill an explicit, implicit, or ImEx 
+  MRIGARK MRIStepCoupling structure.
   ---------------------------------------------------------------*/
 MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages, int q, int p,
                                        sunrealtype* W, sunrealtype* G,
@@ -302,8 +335,8 @@ MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages, int q, int p,
 }
 
 /*---------------------------------------------------------------
-  Construct the MRI coupling matrix for an MIS method based on
-  a given 'slow' Butcher table.
+  Construct the MRIGARK coupling matrix for an MIS method based
+  on a given "slow" Butcher table.
   ---------------------------------------------------------------*/
 MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
 {
@@ -382,10 +415,7 @@ MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
   {
     for (j = i; j < B->stages; j++)
     {
-      if (SUNRabs(B->A[i][j]) > tol)
-      {
-        type = MRISTEP_IMPLICIT;
-      }
+      if (SUNRabs(B->A[i][j]) > tol) { type = MRISTEP_IMPLICIT; }
     }
   }
 
@@ -406,10 +436,7 @@ MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
   if (padding) { MRIC->c[stages - 1] = ONE; }
 
   /* Construct the coupling table */
-  if (type == MRISTEP_EXPLICIT)
-  {
-    C = MRIC->W;
-  }
+  if (type == MRISTEP_EXPLICIT) { C = MRIC->W; }
   else { C = MRIC->G; }
 
   /* First row is identically zero */
@@ -511,6 +538,19 @@ MRIStepCoupling MRIStepCoupling_Copy(MRIStepCoupling MRIC)
     }
   }
 
+  /* Copy MERK stage groups */
+  if (MRIC->group)
+  {
+    MRICcopy->ngroup = MRIC->ngroup;
+    for (i = 0; i < stages; i++)
+    {
+      for (j = 0; j < stages; j++)
+      {
+        MRICcopy->group[i][j] = MRIC->group[i][j];
+      }
+    }
+  }
+
   return (MRICcopy);
 }
 
@@ -526,10 +566,11 @@ void MRIStepCoupling_Space(MRIStepCoupling MRIC, sunindextype* liw,
   if (!MRIC) { return; }
 
   /* fill outputs based on MRIC */
-  *liw = 4;
+  *liw = 5;
   if (MRIC->c) { *lrw += MRIC->stages; }
   if (MRIC->W) { *lrw += MRIC->nmat * (MRIC->stages + 1) * MRIC->stages; }
   if (MRIC->G) { *lrw += MRIC->nmat * (MRIC->stages + 1) * MRIC->stages; }
+  if (MRIC->group) { *liw += MRIC->stages * MRIC->stages; }
 }
 
 /*---------------------------------------------------------------
@@ -587,6 +628,19 @@ void MRIStepCoupling_Free(MRIStepCoupling MRIC)
       free(MRIC->G);
     }
 
+    if (MRIC->group)
+    {
+      for (i = 0; i < MRIC->stages; i++)
+      {
+        if (MRIC->group[i])
+        {
+          free(MRIC->group[i]);
+          MRIC->group[i] = NULL;
+        }
+      }
+      free(MRIC->group);
+    }
+
     free(MRIC);
   }
 }
@@ -627,25 +681,22 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile)
     }
   }
 
+  if (MRIC->group)
+  {
+    for (i = 0; i < MRIC->stages; i++)
+    {
+      if (!(MRIC->group[i])) { return; }
+    }
+  }
+
   switch (MRIC->type)
   {
-  case MRISTEP_EXPLICIT:
-    fprintf(outfile, "  type = explicit MRI\n");
-    break;
-  case MRISTEP_IMPLICIT:
-    fprintf(outfile, "  type = implicit MRI\n");
-    break;
-  case MRISTEP_IMEX:
-    fprintf(outfile, "  type = ImEx MRI\n");
-    break;
-  case MRISTEP_MERK:
-    fprintf(outfile, "  type = MERK\n");
-    break;
-  case MRISTEP_MRISR:
-    fprintf(outfile, "  type = MRISR\n");
-    break;
-  default:
-    fprintf(outfile, "  type = unknown\n");
+  case MRISTEP_EXPLICIT: fprintf(outfile, "  type = explicit MRI\n"); break;
+  case MRISTEP_IMPLICIT: fprintf(outfile, "  type = implicit MRI\n"); break;
+  case MRISTEP_IMEX: fprintf(outfile, "  type = ImEx MRI\n"); break;
+  case MRISTEP_MERK: fprintf(outfile, "  type = MERK\n"); break;
+  case MRISTEP_MRISR: fprintf(outfile, "  type = MRISR\n"); break;
+  default: fprintf(outfile, "  type = unknown\n");
   }
   fprintf(outfile, "  nmat = %i\n", MRIC->nmat);
   fprintf(outfile, "  stages = %i\n", MRIC->stages);
@@ -689,6 +740,23 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile)
           fprintf(outfile, "%" RSYMW "  ", MRIC->G[k][i][j]);
         }
         fprintf(outfile, "\n");
+      }
+      fprintf(outfile, "\n");
+    }
+  }
+
+  if (MRIC->group)
+  {
+    fprintf(outfile, "  ngroup = %i\n", MRIC->ngroup);
+    for (i = 0; i < MRIC->ngroup; i++)
+    {
+      fprintf(outfile, "  group[%i] = ", i);
+      for (j = 0; j < MRIC->stages; j++)
+      {
+        if (MRIC->group[i][j] >= 0)
+        {
+          fprintf(outfile, "%i ", MRIC->group[i][j]);
+        }
       }
       fprintf(outfile, "\n");
     }
@@ -775,6 +843,8 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
  * first stage of the pair generally corresponds to a column of zeros and so
  * does not need to be computed and stored. The stage_map indicates if the RHS
  * needs to be computed and where to store it i.e., stage_map[i] > -1.
+ *
+ * Note: this routine works for both MRI-GARK and MERK methods.
  * ---------------------------------------------------------------------------*/
 
 int mriStepCoupling_GetStageMap(MRIStepCoupling MRIC, int* stage_map,

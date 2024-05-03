@@ -219,7 +219,11 @@ int mriStep_AccessStepMem(void* arkode_mem, const char* fname,
 sunbooleantype mriStep_CheckNVector(N_Vector tmpl);
 int mriStep_SetCoupling(ARKodeMem ark_mem);
 int mriStep_CheckCoupling(ARKodeMem ark_mem);
-int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is);
+int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
+                         int is, sunrealtype t0, sunrealtype tf,
+                         N_Vector ycur, N_Vector ytemp,
+                         sunbooleantype force_reset,
+                         sunbooleantype get_inner_dsm);
 int mriStep_StageERKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is);
 int mriStep_StageDIRKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
                           int* nflagPtr);
@@ -273,7 +277,7 @@ void mriStepInnerStepper_PrintMem(MRIStepInnerStepper stepper, FILE* outfile);
 
 /* Compute forcing for inner stepper */
 int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
-                                int stage, sunrealtype cdiff);
+                                int stage, sunrealtype t0, sunrealtype tf);
 
 /* Return effective RK coefficients (nofast stage) */
 int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int* stage_map,

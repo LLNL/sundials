@@ -123,6 +123,9 @@ int main(int argc, char* argv[])
   numfails += run_tests(MRISTEP_IMEX, t0, nsteps, hs, hf, reltol, abstol,
                         &udata, sunctx);
 
+  numfails += run_tests(MRISTEP_MERK, t0, nsteps, hs, hf, reltol, abstol,
+                        &udata, sunctx);
+
   if (numfails) { cout << "\n\nFailed " << numfails << " tests!\n"; }
   else { cout << "\n\nAll tests passed!\n"; }
 
@@ -196,7 +199,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
   // Create slow integrator based on MRI type
   void* mristep_mem = nullptr;
 
-  if (type == MRISTEP_EXPLICIT)
+  if ((type == MRISTEP_EXPLICIT) || (type == MRISTEP_MERK))
   {
     mristep_mem = MRIStepCreate(fe, nullptr, t0, y, inner_stepper, sunctx);
   }
@@ -259,6 +262,21 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     methods[0] = ARKODE_MIS_KW3;
     methods[1] = ARKODE_MRI_GARK_ERK33a;
     methods[2] = ARKODE_MRI_GARK_ERK45a;
+  }
+  else if (type == MRISTEP_MERK)
+  {
+    cout << "\n=================\n";
+    cout << "Test MERK methods\n";
+    cout << "=================\n";
+
+    num_methods = 4;
+    //num_methods = 3;
+    methods     = new ARKODE_MRITableID[num_methods];
+
+    methods[0] = ARKODE_MERK21;
+    methods[1] = ARKODE_MERK32;
+    methods[2] = ARKODE_MERK43;
+    methods[3] = ARKODE_MERK54;
   }
   else if (type == MRISTEP_IMPLICIT)
   {
@@ -381,7 +399,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     }
 
     sunrealtype pow = udata->lambda_f;
-    if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
+    if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX || type == MRISTEP_MERK)
     {
       pow += udata->lambda_e;
     }
@@ -419,7 +437,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "\nComparing Solver Statistics:\n";
 
     long int fe_evals = 0;
-    if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
+    if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX || type == MRISTEP_MERK)
     {
       fe_evals = mri_nst * nstages_stored;
     }
@@ -470,7 +488,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     if (check_flag(&flag, "ARKStepReInit", 1)) { return 1; }
 
     // Re-initialize slow integrator based on MRI type
-    if (type == MRISTEP_EXPLICIT)
+    if ((type == MRISTEP_EXPLICIT) || (type == MRISTEP_MERK))
     {
       flag = MRIStepReInit(mristep_mem, fe, nullptr, t0, y);
     }

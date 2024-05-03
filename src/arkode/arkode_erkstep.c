@@ -540,6 +540,7 @@ int erkStep_Init(void* arkode_mem, int init_type)
      an internal error weight function, and not performing accumulated
      temporal error estimation */
   reset_efun = SUNTRUE;
+  if (!ark_mem->fixedstep) { reset_efun = SUNFALSE; }
   if (ark_mem->user_efun) { reset_efun = SUNFALSE; }
   if (ark_mem->AccumErrorType >= 0) { reset_efun = SUNFALSE; }
   if (reset_efun)
