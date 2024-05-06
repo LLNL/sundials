@@ -20,8 +20,8 @@ ARKStep User-callable functions
 This section describes the ARKStep-specific functions that may be called
 by the user to setup and then solve an IVP using the ARKStep time-stepping
 module.  The large majority of these routines merely wrap :ref:`underlying
-ARKODE functions <ARKODE.Usage.UserCallable>`, and will be deprecated in an
-upcoming release -- each of these are clearly marked.  However, some
+ARKODE functions <ARKODE.Usage.UserCallable>`, and are now deprecated
+-- each of these are clearly marked.  However, some
 of these user-callable functions are specific to ARKStep, as explained
 below.
 
