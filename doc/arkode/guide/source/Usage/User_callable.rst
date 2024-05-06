@@ -849,7 +849,8 @@ Optional input                                    Function name                 
 ================================================  =======================================  =======================
 Return ARKODE parameters to their defaults        :c:func:`ARKodeSetDefaults`              internal
 Set integrator method order                       :c:func:`ARKodeSetOrder`                 4
-Set dense output interpolation type               :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_HERMITE``
+Set dense output interpolation type (SPRKStep)    :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_LAGRANGE``
+Set dense output interpolation type (others)      :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_HERMITE``
 Set dense output polynomial degree                :c:func:`ARKodeSetInterpolantDegree`     5
 Supply a pointer to a diagnostics output file     :c:func:`ARKodeSetDiagnostics`           ``NULL``
 Disable time step adaptivity (fixed-step mode)    :c:func:`ARKodeSetFixedStep`             disabled
@@ -2771,7 +2772,7 @@ measured in the WRMS norm :eq:`ARKODE_WRMS_NORM`, the ARKLS interface internally
 converts between these quantities when interfacing with linear solvers,
 
 .. math::
-   \text{tol}_{L2} = \text{\em nrmfac}\; \text{tol}_{WRMS}.
+   \text{tol}_{L2} = \textit{nrmfac}\ \ \text{tol}_{WRMS}.
    :label: ARKODE_NRMFAC
 
 Prior to the introduction of :c:func:`N_VGetLength` in SUNDIALS v5.0.0 the
