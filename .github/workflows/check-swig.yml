@@ -14,9 +14,9 @@ jobs:
           git clone https://github.com/sundials-codes/swig
           cd swig
           ./autogen.sh
-          ./configure --prefix=/usr/bin
+          ./configure --prefix=/usr/
           make 
-          make install
+          sudo make install
           swig --version
 
       - name: Check out repository code
