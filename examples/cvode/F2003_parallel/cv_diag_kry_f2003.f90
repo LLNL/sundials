@@ -135,7 +135,7 @@ contains
     real(c_double), pointer, dimension(nlocal) :: r(:)
 
     ! local data
-    integer(c_long) :: i, ibase, istart
+    integer(kind=myindextype) :: i, ibase, istart
     real(c_double)  :: psubi, pj
 
     !======= Internals ============

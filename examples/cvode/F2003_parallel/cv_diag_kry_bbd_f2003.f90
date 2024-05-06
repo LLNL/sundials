@@ -172,7 +172,6 @@ module DiagkrybbdData
     type(N_Vector), pointer :: sunvec_y        ! solution N_Vector
     real(c_double), pointer :: y(:)            ! vector data
     type(c_ptr)     :: cvode_mem              ! CVODE memory
-    integer(c_long) :: N, Ntot
     integer(c_int) :: retval
     integer :: ierr
     logical :: outproc
