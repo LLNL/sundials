@@ -20,7 +20,12 @@
 A skeleton of the user's main program
 ============================================
 
-While MRIStep usage generally follows the same pattern as the rest of ARKODE, since it involves the solution of both MRIStep for the slow time scale and another time integrator for the fast time scale, we summarize the differences in using MRIStep here.  Steps that are unchanged from the skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
+While MRIStep usage generally follows the same pattern as the rest of
+ARKODE, since it involves the solution of both MRIStep for the slow
+time scale and another time integrator for the fast time scale, we
+summarize the differences in using MRIStep here.  Steps that are
+unchanged from the skeleton program presented in
+:numref:`ARKODE.Usage.Skeleton` are *italicized*.
 
 .. index:: MRIStep user main program
 
@@ -37,7 +42,7 @@ While MRIStep usage generally follows the same pattern as the rest of ARKODE, si
    * If using ARKStep as the fast (inner) integrator, create the ARKStep object
      with :c:func:`ARKStepCreate` and configure the integrator as desired for
      evolving the fast time scale. See sections :numref:`ARKODE.Usage.Skeleton`,
-     :numref:`ARKODE.Usage.OptionalInputs`, and 
+     :numref:`ARKODE.Usage.OptionalInputs`, and
      :numref:`ARKODE.Usage.ARKStep.OptionalInputs` for details on configuring
      ARKStep.
 
@@ -85,7 +90,7 @@ While MRIStep usage generally follows the same pattern as the rest of ARKODE, si
 
 #. Set the slow step size
 
-   Call :c:func:`ARKodeSetFixedStep()` on the MRIStep object to specify the 
+   Call :c:func:`ARKodeSetFixedStep()` on the MRIStep object to specify the
    slow time step size.
 
 #. Create and configure implicit solvers (*as appropriate*)
@@ -129,7 +134,7 @@ While MRIStep usage generally follows the same pattern as the rest of ARKODE, si
      content and call :c:func:`MRIStepInnerStepper_Free` to free the
      ``MRIStepInnerStepper`` object.
 
-   * Call :c:func:`ARKodeFree` to free the memory allocated for the MRIStep 
+   * Call :c:func:`ARKodeFree` to free the memory allocated for the MRIStep
      slow integration object.
 
 #. *Free linear solver and matrix memory (as appropriate)*

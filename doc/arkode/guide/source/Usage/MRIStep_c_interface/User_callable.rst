@@ -2661,6 +2661,10 @@ General usability functions
    for this pointer, since tables for all processes would be
    identical.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`MRIStepGetCurrentCoupling` and :c:func:`MRIStepCoupling_Write`
+      instead.
 
 
 .. _ARKODE.Usage.MRIStep.Reinitialization:

@@ -166,13 +166,11 @@ example usage of the function.
             return codes  defined in ``sundials/sundials_xbraid.h`` and listed in
             :numref:`ARKODE.Usage.ARKStep.SUNBraidReturnCodes.Table`.
 
-   .. admonition:: Usage
+   .. code-block:: C
 
-      .. code-block:: C
-
-         /* Get template vector */
-         flag = SUNBraidApp_GetVecTmpl(app, y_ptr);
-         if (flag != SUNBRAID_SUCCESS) return flag;
+      /* Get template vector */
+      flag = SUNBraidApp_GetVecTmpl(app, y_ptr);
+      if (flag != SUNBRAID_SUCCESS) return flag;
 
 
 
@@ -195,13 +193,11 @@ instance.
    :retval SUNBRAID_SUCCESS: if successful.
    :retval SUNBRAID_ALLOCFAIL: if a memory allocation failed.
 
-   .. admonition:: Usage
+   .. code-block:: C
 
-     .. code-block:: C
-
-        /* Create empty XBraid interface object */
-        flag = SUNBraidApp_NewEmpty(app_ptr);
-        if (flag != SUNBRAID_SUCCESS) return flag;
+      /* Create empty XBraid interface object */
+      flag = SUNBraidApp_NewEmpty(app_ptr);
+      if (flag != SUNBRAID_SUCCESS) return flag;
 
 
 
@@ -213,12 +209,10 @@ instance.
 
    :retval SUNBRAID_SUCCESS: if successful.
 
-   .. admonition:: Usage
+   .. code-block:: C
 
-     .. code-block:: C
-
-        /* Free empty XBraid interface object */
-        flag = SUNBraidApp_FreeEmpty(app_ptr);
+      /* Free empty XBraid interface object */
+      flag = SUNBraidApp_FreeEmpty(app_ptr);
 
 
    .. warning::
@@ -264,13 +258,11 @@ utility functions are provided.
    :retval SUNBRAID_ILLINPUT: if *y* is ``NULL``.
    :retval SUNBRAID_ALLOCFAIL: if a memory allocation fails.
 
-   .. admonition:: Usage
+   .. code-block:: C
 
-     .. code-block:: C
-
-        /* Create new vector wrapper */
-        flag = SUNBraidVector_New(y, u_ptr);
-        if (flag != SUNBRAID_SUCCESS) return flag;
+      /* Create new vector wrapper */
+      flag = SUNBraidVector_New(y, u_ptr);
+      if (flag != SUNBRAID_SUCCESS) return flag;
 
    .. warning::
 
@@ -291,13 +283,11 @@ utility functions are provided.
    :retval SUNBRAID_ILLINPUT: if *u* is ``NULL``.
    :retval SUNBRAID_MEMFAIL: if *y* is ``NULL``.
 
-   .. admonition:: Usage
+   .. code-block:: C
 
-     .. code-block:: C
-
-        /* Create new vector wrapper */
-        flag = SUNBraidVector_GetNVector(u, y_ptr);
-        if (flag != SUNBRAID_SUCCESS) return flag;
+      /* Create new vector wrapper */
+      flag = SUNBraidVector_GetNVector(u, y_ptr);
+      if (flag != SUNBRAID_SUCCESS) return flag;
 
 
 

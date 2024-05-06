@@ -88,13 +88,13 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are
 
 #. Initialize the ARKBANDPRE preconditioner module
 
-    Specify the upper and lower half-bandwidths (``mu`` and ``ml``,
-    respectively) and call
+   Specify the upper and lower half-bandwidths (``mu`` and ``ml``,
+   respectively) and call
 
-    ``ier = ARKBandPrecInit(arkode_mem, N, mu, ml);``
+   ``ier = ARKBandPrecInit(arkode_mem, N, mu, ml);``
 
-    to allocate memory and initialize the internal preconditioner
-    data.
+   to allocate memory and initialize the internal preconditioner
+   data.
 
 #. *Create nonlinear solver object*
 

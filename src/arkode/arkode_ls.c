@@ -1133,11 +1133,12 @@ int ARKodeGetJacTime(void* arkode_mem, sunrealtype* t_J)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  /* Return 0 for incompatible steppers */
+  /* Return an error for incompatible steppers */
   if (!ark_mem->step_supports_implicit)
   {
-    *t_J = ZERO;
-    return (ARK_SUCCESS);
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not require an algebraic solver");
+    return (ARK_STEPPER_UNSUPPORTED);
   }
 
   /* access ARKLsMem structure */

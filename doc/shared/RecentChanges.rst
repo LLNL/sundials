@@ -8,7 +8,7 @@ release.
 
 Added "Resize" capability to ARKODE's SPRKStep time-stepping module.
 
-Deprecated `ARKStepSetOptimalParams` function; added instructions to user guide
+Deprecated ``ARKStepSetOptimalParams`` function; added instructions to user guide
 for users who wish to retain the current functionality.
 
 Added CMake infrastructure that enables externally maintained addons/plugins
