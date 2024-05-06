@@ -25,7 +25,6 @@
 #include "arkode_arkstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
-#include "sundials_stepper_impl.h"
 
 #define FIXED_LIN_TOL
 
@@ -3182,26 +3181,24 @@ int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
   if (retval)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "The ARKStep memory` pointer is NULL");
+                    "The ARKStep memory pointer is NULL");
     return ARK_ILL_INPUT;
   }
 
-  retval = SUNStepper_Create(ark_mem->sunctx, stepper);
+  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  (*stepper)->priv_ops->allocForcing = arkAllocSUNStepperForcing;
-  (*stepper)->priv_ops->freeForcing  = arkFreeSUNStepperForcing;
-
-  retval = SUNStepper_SetContent(*stepper, inner_arkode_mem);
+  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = SUNStepper_SetEvolveFn(*stepper, arkStep_MRIStepInnerEvolve);
+  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, arkStep_MRIStepInnerEvolve);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = SUNStepper_SetFullRhsFn(*stepper, arkStep_MRIStepInnerFullRhs);
+  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
+                                            arkStep_MRIStepInnerFullRhs);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = SUNStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
+  retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   return (ARK_SUCCESS);
@@ -3226,12 +3223,12 @@ int arkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
   int retval;                 /* return value              */
 
   /* extract the ARKODE memory struct */
-  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get the forcing data */
-  retval = SUNStepper_GetForcingData(stepper, &tshift, &tscale, &forcing,
-                                     &nforcing);
+  retval = MRIStepInnerStepper_GetForcingData(stepper, &tshift, &tscale,
+                                              &forcing, &nforcing);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set the inner forcing data */
@@ -3267,7 +3264,7 @@ int arkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
   int retval;
 
   /* extract the ARKODE memory struct */
-  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   return (arkStep_FullRHS(arkode_mem, t, y, f, mode));
@@ -3287,7 +3284,7 @@ int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
   int retval;
 
   /* extract the ARKODE memory struct */
-  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   return (ARKodeReset(arkode_mem, tR, yR));
