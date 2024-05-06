@@ -21,7 +21,6 @@ extern "C" {
 #endif
 
 typedef struct SUNStepper_Ops_s* SUNStepper_Ops;
-typedef struct SUNStepper_PrivOps_s* SUNStepper_PrivOps;
 
 struct SUNStepper_Ops_s
 {
@@ -52,12 +51,6 @@ struct SUNStepper_s
   /* fused op workspace */
   sunrealtype* fused_scalars;
   N_Vector* fused_vectors;
-
-  /* Space requirements */
-  sunindextype lrw1; /* no. of sunrealtype words in 1 N_Vector          */
-  sunindextype liw1; /* no. of integer words in 1 N_Vector           */
-  long int lrw;      /* no. of sunrealtype words in work vectors */
-  long int liw;      /* no. of integer words in work vectors  */
 };
 
 #ifdef __cplusplus
