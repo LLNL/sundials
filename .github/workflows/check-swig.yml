@@ -17,7 +17,7 @@ jobs:
           ./configure --prefix=/usr/
           make 
           sudo make install
-          swig --version
+          swig -version
 
       - name: Check out repository code
         uses: actions/checkout@v4
