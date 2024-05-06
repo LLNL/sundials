@@ -2024,7 +2024,7 @@ General usability functions
 
    .. deprecated:: x.y.z
 
-      Use :c:func:`ARKStepGetCurrentButcherTables` and :c:func:`ARKodeButcherTable_Write`
+      Use :c:func:`ERKStepGetCurrentButcherTable` and :c:func:`ARKodeButcherTable_Write`
       instead.
 
 
