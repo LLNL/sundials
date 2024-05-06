@@ -86,9 +86,14 @@ static const int MRISTEP_DEFAULT_IMEX_SD_4 = ARKODE_IMEX_MRI_GARK4;
  * MRIStep Inner Stepper Function Types
  * ------------------------------------ */
 
-typedef SUNStepperEvolveFn MRIStepInnerEvolveFn;
-typedef SUNStepperFullRhsFn MRIStepInnerFullRhsFn;
-typedef SUNStepperResetFn MRIStepInnerResetFn;
+typedef int (*MRIStepInnerEvolveFn)(MRIStepInnerStepper stepper, sunrealtype t0,
+                                    sunrealtype tout, N_Vector y);
+
+typedef int (*MRIStepInnerFullRhsFn)(MRIStepInnerStepper stepper, sunrealtype t,
+                                     N_Vector y, N_Vector f, int mode);
+
+typedef int (*MRIStepInnerResetFn)(MRIStepInnerStepper stepper, sunrealtype tR,
+                                   N_Vector yR);
 
 /*---------------------------------------------------------------
   MRI coupling data structure and associated utility routines
@@ -163,7 +168,8 @@ SUNDIALS_EXPORT int MRIStepGetCurrentCoupling(void* arkode_mem,
 SUNDIALS_EXPORT int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag);
 
 /* Custom inner stepper functions */
-SUNDIALS_DEPRECATED_MSG("use SUNStepper_Create instead")
+SUNDIALS_EXPORT int MRIStepInnerStepper_Create(SUNContext sunctx,
+                                               MRIStepInnerStepper* stepper);
 
 SUNDIALS_EXPORT int MRIStepInnerStepper_CreateFromSUNStepper(
   SUNStepper sunstepper, MRIStepInnerStepper* stepper);

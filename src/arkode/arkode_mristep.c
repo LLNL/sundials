@@ -1112,8 +1112,8 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     }
 
     /* Allocate inner stepper data */
-    retval = arkAllocSUNStepperForcing(step_mem->stepper, step_mem->MRIC->nmat,
-                                       ark_mem->ewt);
+    retval = mriStepInnerStepper_AllocVecs(step_mem->stepper,
+                                           step_mem->MRIC->nmat, ark_mem->ewt);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -2984,6 +2984,29 @@ int mriStepInnerStepper_Resize(MRIStepInnerStepper stepper, ARKVecResizeFn resiz
                              tmpl, &(stepper->forcing), lrw_diff,
                              &(stepper->lrw), liw_diff, &(stepper->liw));
   if (retval != ARK_SUCCESS) { return (ARK_MEM_FAIL); }
+
+  return (ARK_SUCCESS);
+}
+
+/* Free MRI forcing and fused op workspace vectors if necessary */
+int mriStepInnerStepper_FreeVecs(MRIStepInnerStepper stepper)
+{
+  if (stepper == NULL) { return ARK_ILL_INPUT; }
+
+  arkFreeVecArray(stepper->nforcing_allocated, &(stepper->forcing),
+                  stepper->lrw1, &(stepper->lrw), stepper->liw1, &(stepper->liw));
+
+  if (stepper->vecs != NULL)
+  {
+    free(stepper->vecs);
+    stepper->vecs = NULL;
+  }
+
+  if (stepper->vals != NULL)
+  {
+    free(stepper->vals);
+    stepper->vals = NULL;
+  }
 
   return (ARK_SUCCESS);
 }
