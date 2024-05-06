@@ -278,7 +278,7 @@ program main
   if (sensi /= 0) then
 
     do is=0, NS-1
-      plist(is) = is
+      plist(is) = int(is, 4)
       pbar(is)  = p(plist(is))
     end do
 
