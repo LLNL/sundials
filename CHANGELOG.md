@@ -35,6 +35,12 @@ Added CMake infrastructure that enables externally maintained addons/plugins
 to be *optionally* built with SUNDIALS. See the [Contributing Guide](./CONTRIBUTING.md)
 for more details.
 
+Added support for Kokkos Kernels v4.
+
+Fixed a bug that caused error messages to be cut off in some cases. Fixes [GitHub Issue #461](https://github.com/LLNL/sundials/issues/461).
+
+Fixed a memory leak when an error handler was added to a `SUNContext`. Fixes [GitHub Issue #466](https://github.com/LLNL/sundials/issues/466).
+
 ## Changes to SUNDIALS in release v7.0.0
 
 ### Major Feature

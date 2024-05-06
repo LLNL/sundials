@@ -285,7 +285,7 @@ SUNErrCode SUNContext_Free(SUNContext* sunctx)
     SUNLogger_Destroy(&(*sunctx)->logger);
   }
 
-  SUNErrHandler_Destroy(&(*sunctx)->err_handler);
+  SUNContext_ClearErrHandlers(*sunctx);
 
   free(*sunctx);
   *sunctx = NULL;
