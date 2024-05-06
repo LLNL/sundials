@@ -17,31 +17,39 @@
 
 #include <sunadjoint/sunadjoint_checkpointscheme.h>
 #include <sundials/sundials_core.h>
+#include <sundials/sundials_stepper.h>
 
 struct SUNAdjointSolver_s
 {
   SUNStepper stepper;
   SUNJacFn Jac;
   SUNJacFn JacP;
-  SUNVecTimesJacFn Jvp;
-  SUNVecTimesJacFn vJp;
-  SUNVecTimesJacFn vJPp;
+  SUNJacTimesFn Jvp;
+  SUNJacTimesFn vJp;
+  SUNJacTimesFn vJPp;
+  SUNAdjointCheckpointScheme checkpoint_scheme;
 };
 
 typedef SUNAdjointSolver_s* SUNAdjointSolver;
 
 #ifdef __cplusplus
 extern "C" {
+#endif
 
+// IDEA: In lieu of Stepper_ID each package that supports adjoint can have a function that creates the adjoint solver.
+// E.g., SUNAdjointSolver ARKStepCreateAdjointSolver();
 SUNDIALS_EXPORT
-SUNAdjointSolver_Create(void* integrator_mem, SUNStepper_ID stepper_id,
-                        sunindextype num_cost_fns, N_Vector sf,
-                        SUNCheckpointScheme chkpt_scheme, SUNContext sunctx,
-                        SUNAdjointSolver* adj_solver);
+SUNAdjointSolver_Create(SUNStepper stepper, sunindextype num_cost_fns,
+                        N_Vector sf, SUNAdjointCheckpointScheme checkpoint_scheme,
+                        SUNContext sunctx, SUNAdjointSolver* adj_solver);
 
 SUNDIALS_EXPORT
 SUNAdjointSolver_Solve(SUNAdjointSolver, sunrealtype t0, N_Vector sens,
-                       sunrealtype* tret, int mode);
+                       sunrealtype* tret);
+
+SUNDIALS_EXPORT
+SUNAdjointSolver_OneStep(SUNAdjointSolver, sunrealtype t0, N_Vector sens,
+                         sunrealtype* tret);
 
 SUNDIALS_EXPORT
 SUNAdjointSolver_SetJacFn(SUNAdjointSolver, SUNJacFn Jac, SUNJacFn JacP);
