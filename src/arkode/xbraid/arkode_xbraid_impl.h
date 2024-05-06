@@ -43,15 +43,6 @@ extern "C" {
   }                                           \
   while (0)
 
-/* --------------------------
- * SUNBraid private constants
- * -------------------------- */
-
-/* TakeSetup step result flags */
-#define STEP_FAILED  -1
-#define STEP_SUCCESS 0
-#define STEP_ADAPT   1
-
 /* ------------------------------
  * ARKBraid app structure content
  * ------------------------------ */

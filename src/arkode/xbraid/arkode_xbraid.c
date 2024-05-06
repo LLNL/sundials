@@ -450,51 +450,5 @@ int ARKBraid_Access(braid_App app, braid_Vector u, braid_AccessStatus astatus)
 int ARKBraid_TakeStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
                       N_Vector y, int* ark_flag)
 {
-  int flag;         /* generic return flag      */
-  int tmp_flag;     /* evolve return flag       */
-  sunrealtype tret; /* return time              */
-
-  /* Check inputs */
-  if (arkode_mem == NULL) { return ARK_MEM_NULL; }
-  if (y == NULL) { return ARK_ILL_INPUT; }
-
-  /* Reset ARKODE state */
-  flag = ARKodeReset(arkode_mem, tstart, y);
-  if (flag != ARK_SUCCESS) { return flag; }
-
-  /* Set the time step size */
-  flag = ARKodeSetInitStep(arkode_mem, tstop - tstart);
-  if (flag != ARK_SUCCESS) { return flag; }
-
-  /* Ignore temporal error test result and force step to pass */
-  flag = arkSetForcePass(arkode_mem, SUNTRUE);
-  if (flag != ARK_SUCCESS) { return flag; }
-
-  /* Take step, check flag below */
-  tmp_flag = ARKodeEvolve(arkode_mem, tstop, y, &tret, ARK_ONE_STEP);
-
-  /* Re-enable temporal error test check */
-  flag = arkSetForcePass(arkode_mem, SUNFALSE);
-  if (flag != ARK_SUCCESS) { return flag; }
-
-  /* Check if evolve call failed */
-  if (tmp_flag < 0)
-  {
-    *ark_flag = STEP_FAILED;
-    return ARK_SUCCESS;
-  }
-
-  /* Check if temporal error test failed */
-  flag = arkGetLastKFlag(arkode_mem, &tmp_flag);
-  if (flag != ARK_SUCCESS) { return flag; }
-
-  if (tmp_flag > 0)
-  {
-    *ark_flag = STEP_ADAPT;
-    return ARK_SUCCESS;
-  }
-
-  /* Step was successful and passed the error test */
-  *ark_flag = STEP_SUCCESS;
-  return ARK_SUCCESS;
+  return arkStep_TryStep(arkode_mem, tstart, tstop, y, ark_flag);
 }

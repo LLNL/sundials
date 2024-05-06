@@ -21,9 +21,6 @@ extern "C" {
 
 typedef _SUNDIALS_STRUCT_ SUNStepper_s* SUNStepper;
 
-typedef int (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype t0,
-                                  sunrealtype tout, N_Vector y);
-
 typedef int (*SUNStepperAdvanceFn)(SUNStepper stepper, sunrealtype t0,
                                    sunrealtype tout, N_Vector y);
 
@@ -31,7 +28,7 @@ typedef int (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype t0,
                                    sunrealtype tout, N_Vector y);
 
 typedef int (*SUNStepperTryStepFn)(SUNStepper stepper, sunrealtype t0,
-                                   sunrealtype tout, N_Vector y);
+                                   sunrealtype tout, N_Vector y, int* ark_flag);
 
 typedef int (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t,
                                    N_Vector y, N_Vector f, int mode);
@@ -49,9 +46,6 @@ SUNErrCode SUNStepper_SetContent(SUNStepper stepper, void* content);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_GetContent(SUNStepper stepper, void** content);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_SetEvolveFn(SUNStepper stepper, SUNStepperEvolveFn fn);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetAdvanceFn(SUNStepper stepper, SUNStepperAdvanceFn fn);

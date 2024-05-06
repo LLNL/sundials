@@ -25,7 +25,6 @@ typedef struct SUNStepper_PrivOps_s* SUNStepper_PrivOps;
 
 struct SUNStepper_Ops_s
 {
-  SUNStepperEvolveFn evolve;
   SUNStepperAdvanceFn advance;
   SUNStepperOneStepFn onestep;
   SUNStepperTryStepFn trystep;
@@ -33,19 +32,11 @@ struct SUNStepper_Ops_s
   SUNStepperResetFn reset;
 };
 
-struct SUNStepper_PrivOps_s
-{
-  SUNErrCode (*allocForcing)(SUNStepper stepper, int count, N_Vector tmpl);
-  SUNErrCode (*freeForcing)(SUNStepper stepper);
-};
-
 struct SUNStepper_s
-
 {
   /* stepper specific content and operations */
   void* content;
   SUNStepper_Ops ops;
-  SUNStepper_PrivOps priv_ops;
 
   /* stepper context */
   SUNContext sunctx;
@@ -59,8 +50,8 @@ struct SUNStepper_s
   sunrealtype tscale;     /* time normalization scaling          */
 
   /* fused op workspace */
-  sunrealtype* vals;
-  N_Vector* vecs;
+  sunrealtype* fused_scalars;
+  N_Vector* fused_vectors;
 
   /* Space requirements */
   sunindextype lrw1; /* no. of sunrealtype words in 1 N_Vector          */
@@ -68,9 +59,6 @@ struct SUNStepper_s
   long int lrw;      /* no. of sunrealtype words in work vectors */
   long int liw;      /* no. of integer words in work vectors  */
 };
-
-SUNErrCode sunStepper_allocForcing(SUNStepper, int count, N_Vector tmpl);
-SUNErrCode sunStepper_freeForcing(SUNStepper);
 
 #ifdef __cplusplus
 }
