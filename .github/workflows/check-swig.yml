@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  clang_format_check:
+  swig:
     runs-on: ubuntu-latest
     # container:
       # image: ghcr.io/llnl/sundials_spack_cache:llvm-17.0.4-h4lflucc3v2vage45opbo2didtcuigsn.spack
