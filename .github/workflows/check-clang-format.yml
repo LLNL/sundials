@@ -1,7 +1,6 @@
 name: Checks - clang-format
 
 on:
-  push:
   pull_request:
   workflow_dispatch:
 
