@@ -765,7 +765,7 @@ constructors this function will ease the introduction of any new optional linear
 solver operations to the ``SUNLinearSolver`` API by ensuring that only required
 operations need to be set.
 
-.. c:function:: SUNLinearSolver SUNLinSolNewEmpty()
+.. c:function:: SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx)
 
    This function allocates a new generic ``SUNLinearSolver`` object and
    initializes its content pointer and the function pointers in the operations
