@@ -40,3 +40,4 @@ Fixed a bug that caused error messages to be cut off in some cases. Fixes `GitHu
 
 Fixed a memory leak when an error handler was added to a :c:type:`SUNContext`. Fixes `GitHub Issue #466 <https://github.com/LLNL/sundials/issues/466>`_.
 
+Fixed a CMake bug that caused an MPI linking error for our C++ examples in some instances. Fixes `GitHub Issue #464 <https://github.com/LLNL/sundials/issues/464>`_.
