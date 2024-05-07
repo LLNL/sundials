@@ -268,9 +268,9 @@ program driver
 
   ! Attach the linear solver (with NULL SUNMatrix object)
   sunmat_A => null()
-  retval = FARKStepSetLinearSolver(arkode_mem, sunls, sunmat_A)
+  retval = FARKodeSetLinearSolver(arkode_mem, sunls, sunmat_A)
   if (retval /= 0) then
-     print *, 'Error in FARKStepSetLinearSolver, retval = ', retval
+     print *, 'Error in FARKodeSetLinearSolver, retval = ', retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -281,9 +281,9 @@ program driver
   end if
 
   ! Specify tolerances
-  retval = FARKStepSStolerances(arkode_mem, rtol, atol)
+  retval = FARKodeSStolerances(arkode_mem, rtol, atol)
   if (retval /= 0) then
-     print *, "Error: FARKStepSStolerances returned ",retval
+     print *, "Error: FARKodeSStolerances returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -330,7 +330,7 @@ program driver
 
      if (iPretype == 1 .and. outproc) write(6,*) "   Preconditioning on left:"
 
-     ! Main time-stepping loop: calls FARKStepEvolve to perform the integration,
+     ! Main time-stepping loop: calls FARKodeEvolve to perform the integration,
      ! then prints results.  Stops when the final time has been reached
      t(1) = T0
      dTout = 0.1d0
@@ -342,22 +342,22 @@ program driver
      do ioutput=1,Nt
 
         ! Integrate to output time
-        retval = FARKStepEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
+        retval = FARKodeEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
         if (retval /= 0) then
-           print *, "Error: FARKStepEvolve returned ",retval
+           print *, "Error: FARKodeEvolve returned ",retval
            call MPI_Abort(comm, 1, ierr)
         end if
 
         ! Retrieve solver statistics
-        retval = FARKStepGetNumSteps(arkode_mem, nst)
+        retval = FARKodeGetNumSteps(arkode_mem, nst)
         if (retval /= 0) then
-           print *, "Error: FARKStepGetNumSteps returned ",retval
+           print *, "Error: FARKodeGetNumSteps returned ",retval
            call MPI_Abort(comm, 1, ierr)
         end if
 
-        retval = FARKStepGetNumStepAttempts(arkode_mem, nst_a)
+        retval = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
         if (retval /= 0) then
-           print *, "Error: FARKStepGetNumStepAttempts returned ",retval
+           print *, "Error: FARKodeGetNumStepAttempts returned ",retval
            call MPI_Abort(comm, 1, ierr)
         end if
 
@@ -395,15 +395,15 @@ program driver
      if (outproc) print '(a,es10.2)', "Max. absolute error is ", gerrmax
 
      ! Get final statistics
-     retval = FARKStepGetNumSteps(arkode_mem, nst)
+     retval = FARKodeGetNumSteps(arkode_mem, nst)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumSteps returned ",retval
+        print *, "Error: FARKodeGetNumSteps returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FARKStepGetNumStepAttempts(arkode_mem, nst_a)
+     retval = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumStepAttempts returned ", retval
+        print *, "Error: FARKodeGetNumStepAttempts returned ", retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -413,59 +413,59 @@ program driver
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FARKStepGetNumPrecEvals(arkode_mem, npre)
+     retval = FARKodeGetNumPrecEvals(arkode_mem, npre)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumPrecEvals returned ", retval
+        print *, "Error: FARKodeGetNumPrecEvals returned ", retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FARKStepGetNumPrecSolves(arkode_mem, npsol)
+     retval = FARKodeGetNumPrecSolves(arkode_mem, npsol)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumPrecSolves returned ", retval
+        print *, "Error: FARKodeGetNumPrecSolves returned ", retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FARKStepGetNumNonlinSolvIters(arkode_mem, nni)
+     retval = FARKodeGetNumNonlinSolvIters(arkode_mem, nni)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumNonlinSolvIters returned ", retval
+        print *, "Error: FARKodeGetNumNonlinSolvIters returned ", retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FARKStepGetNumLinIters(arkode_mem, nli)
+     retval = FARKodeGetNumLinIters(arkode_mem, nli)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumLinIters returned ", retval
+        print *, "Error: FARKodeGetNumLinIters returned ", retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
      avdim = dble(nli) / dble(nni)
 
-     retval = FARKStepGetNumNonlinSolvConvFails(arkode_mem, ncfn)
+     retval = FARKodeGetNumNonlinSolvConvFails(arkode_mem, ncfn)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumNonlinSolvConvFails returned ", retval
+        print *, "Error: FARKodeGetNumNonlinSolvConvFails returned ", retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FARKStepGetNumLinConvFails(arkode_mem, ncfl)
+     retval = FARKodeGetNumLinConvFails(arkode_mem, ncfl)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumLinSolvConvFails returned ", retval
+        print *, "Error: FARKodeGetNumLinSolvConvFails returned ", retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FARKStepGetNumErrTestFails(arkode_mem, netf)
+     retval = FARKodeGetNumErrTestFails(arkode_mem, netf)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumErrTestFails returned ",retval
+        print *, "Error: FARKodeGetNumErrTestFails returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FARKStepGetWorkSpace(arkode_mem, lenrw, leniw)
+     retval = FARKodeGetWorkSpace(arkode_mem, lenrw, leniw)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetWorkSpace returned ", retval
+        print *, "Error: FARKodeGetWorkSpace returned ", retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FARKStepGetLinWorkSpace(arkode_mem, lenrwls, leniwls)
+     retval = FARKodeGetLinWorkSpace(arkode_mem, lenrwls, leniwls)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetLinWorkSpace returned ", retval
+        print *, "Error: FARKodeGetLinWorkSpace returned ", retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -508,7 +508,7 @@ program driver
   end do
 
   ! Clean up and return with successful completion
-  call FARKStepFree(arkode_mem)       ! free integrator memory
+  call FARKodeFree(arkode_mem)        ! free integrator memory
   call FN_VDestroy(sunvec_y)          ! free vector memory
   call MPI_Barrier(comm, ierr)
   call MPI_Finalize(ierr)             ! Finalize MPI

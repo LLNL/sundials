@@ -202,20 +202,20 @@ int main(int argc, char* argv[])
   if (check_ptr(arkode_mem, "ERKStepCreate")) { return 1; }
 
   /* Specify tolerances */
-  flag = ERKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(flag, "ERKStepSStolerances")) { return 1; }
+  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
+  if (check_flag(flag, "ARKodeSStolerances")) { return 1; }
 
   if (relax)
   {
     /* Enable relaxation methods */
-    flag = ERKStepSetRelaxFn(arkode_mem, Ent, JacEnt);
-    if (check_flag(flag, "ERKStepSetRelaxFn")) { return 1; }
+    flag = ARKodeSetRelaxFn(arkode_mem, Ent, JacEnt);
+    if (check_flag(flag, "ARKodeSetRelaxFn")) { return 1; }
   }
 
   if (fixed_h > SUN_RCONST(0.0))
   {
-    flag = ERKStepSetFixedStep(arkode_mem, fixed_h);
-    if (check_flag(flag, "ERKStepSetFixedStep")) { return 1; }
+    flag = ARKodeSetFixedStep(arkode_mem, fixed_h);
+    if (check_flag(flag, "ARKodeSetFixedStep")) { return 1; }
   }
 
   /* Open output stream for results, output comment line */
@@ -250,8 +250,8 @@ int main(int argc, char* argv[])
   while (t < tf)
   {
     /* Evolve in time */
-    flag = ERKStepEvolve(arkode_mem, tf, y, &t, ARK_ONE_STEP);
-    if (check_flag(flag, "ERKStepEvolve")) { break; }
+    flag = ARKodeEvolve(arkode_mem, tf, y, &t, ARK_ONE_STEP);
+    if (check_flag(flag, "ARKodeEvolve")) { break; }
 
     /* Output solution and errors */
     flag = Ent(y, &ent, NULL);
@@ -265,8 +265,8 @@ int main(int argc, char* argv[])
     v_err   = ydata[1] - ytdata[1];
 
     /* Output to the screen periodically */
-    flag = ERKStepGetNumSteps(arkode_mem, &nst);
-    check_flag(flag, "ERKStepGetNumSteps");
+    flag = ARKodeGetNumSteps(arkode_mem, &nst);
+    check_flag(flag, "ARKodeGetNumSteps");
 
     if (nst % 40 == 0)
     {
@@ -291,14 +291,14 @@ int main(int argc, char* argv[])
    * ------------ */
 
   /* Get final statistics on how the solve progressed */
-  flag = ERKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(flag, "ERKStepGetNumSteps");
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_flag(flag, "ARKodeGetNumSteps");
 
-  flag = ERKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(flag, "ERKStepGetNumStepAttempts");
+  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(flag, "ARKodeGetNumStepAttempts");
 
-  flag = ERKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(flag, "ERKStepGetNumErrTestFails");
+  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(flag, "ARKodeGetNumErrTestFails");
 
   flag = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
   check_flag(flag, "ERKStepGetNumRhsEvals");
@@ -310,23 +310,23 @@ int main(int argc, char* argv[])
 
   if (relax)
   {
-    flag = ERKStepGetNumRelaxFnEvals(arkode_mem, &nre);
-    check_flag(flag, "ERKStepGetNumRelaxFnEvals");
+    flag = ARKodeGetNumRelaxFnEvals(arkode_mem, &nre);
+    check_flag(flag, "ARKodeGetNumRelaxFnEvals");
 
-    flag = ERKStepGetNumRelaxJacEvals(arkode_mem, &nrje);
-    check_flag(flag, "ERKStepGetNumRelaxJacEvals");
+    flag = ARKodeGetNumRelaxJacEvals(arkode_mem, &nrje);
+    check_flag(flag, "ARKodeGetNumRelaxJacEvals");
 
-    flag = ERKStepGetNumRelaxFails(arkode_mem, &nrf);
-    check_flag(flag, "ERKStepGetNumRelaxFails");
+    flag = ARKodeGetNumRelaxFails(arkode_mem, &nrf);
+    check_flag(flag, "ARKodeGetNumRelaxFails");
 
-    flag = ERKStepGetNumRelaxBoundFails(arkode_mem, &nrbf);
-    check_flag(flag, "ERKStepGetNumRelaxBoundFails");
+    flag = ARKodeGetNumRelaxBoundFails(arkode_mem, &nrbf);
+    check_flag(flag, "ARKodeGetNumRelaxBoundFails");
 
-    flag = ERKStepGetNumRelaxSolveFails(arkode_mem, &nrnlsf);
-    check_flag(flag, "ERKStepGetNumRelaxSolveFails");
+    flag = ARKodeGetNumRelaxSolveFails(arkode_mem, &nrnlsf);
+    check_flag(flag, "ARKodeGetNumRelaxSolveFails");
 
-    flag = ERKStepGetNumRelaxSolveIters(arkode_mem, &nrnlsi);
-    check_flag(flag, "ERKStepGetNumRelaxSolveIters");
+    flag = ARKodeGetNumRelaxSolveIters(arkode_mem, &nrnlsi);
+    check_flag(flag, "ARKodeGetNumRelaxSolveIters");
 
     printf("   Total Relaxation Fn evals    = %li\n", nre);
     printf("   Total Relaxation Jac evals   = %li\n", nrje);
@@ -341,8 +341,8 @@ int main(int argc, char* argv[])
    * Clean up *
    * -------- */
 
-  /* Free ERKStep integrator and SUNDIALS objects */
-  ERKStepFree(&arkode_mem);
+  /* Free ARKode integrator and SUNDIALS objects */
+  ARKodeFree(&arkode_mem);
   N_VDestroy(y);
   N_VDestroy(ytrue);
   SUNContext_Free(&ctx);

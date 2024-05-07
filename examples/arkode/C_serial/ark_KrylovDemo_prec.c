@@ -68,7 +68,7 @@
  * preconditoner is applied on the left and on the right. In each
  * case, both the modified and classical Gram-Schmidt options are
  * tested. In the series of runs, ARKStepCreate, SUNLinSol_SPGMR and
- * ARKStepSetLinearSolver are called only for the first run, whereas
+ * ARKodeSetLinearSolver are called only for the first run, whereas
  * ARKStepReInit, SUNLinSol_SPGMRSetPrecType, and
  * SUNLinSol_SPGMRSetGSType are called for each of the remaining
  * three runs.
@@ -294,32 +294,32 @@ int main(int argc, char* argv[])
 
         wdata->arkode_mem = arkode_mem;
 
-        flag = ARKStepSetUserData(arkode_mem, wdata);
-        if (check_flag(&flag, "ARKStepSetUserData", 1)) { return (1); }
+        flag = ARKodeSetUserData(arkode_mem, wdata);
+        if (check_flag(&flag, "ARKodeSetUserData", 1)) { return (1); }
 
-        flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
-        if (check_flag(&flag, "ARKStepSStolerances", 1)) { return (1); }
+        flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
+        if (check_flag(&flag, "ARKodeSStolerances", 1)) { return (1); }
 
-        flag = ARKStepSetMaxNumSteps(arkode_mem, 1000);
-        if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return (1); }
+        flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
+        if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return (1); }
 
-        flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-3);
-        if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) { return (1); }
+        flag = ARKodeSetNonlinConvCoef(arkode_mem, 1.e-3);
+        if (check_flag(&flag, "ARKodeSetNonlinConvCoef", 1)) { return (1); }
 
         LS = SUNLinSol_SPGMR(c, jpre, MAXL, ctx);
         if (check_flag((void*)LS, "SUNLinSol_SPGMR", 0)) { return (1); }
 
-        flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
-        if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
+        flag = ARKodeSetLinearSolver(arkode_mem, LS, NULL);
+        if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
         flag = SUNLinSol_SPGMRSetGSType(LS, gstype);
         if (check_flag(&flag, "SUNLinSol_SPGMRSetGSType", 1)) { return (1); }
 
-        flag = ARKStepSetEpsLin(arkode_mem, DELT);
-        if (check_flag(&flag, "ARKStepSetEpsLin", 1)) { return (1); }
+        flag = ARKodeSetEpsLin(arkode_mem, DELT);
+        if (check_flag(&flag, "ARKodeSetEpsLin", 1)) { return (1); }
 
-        flag = ARKStepSetPreconditioner(arkode_mem, Precond, PSolve);
-        if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) { return (1); }
+        flag = ARKodeSetPreconditioner(arkode_mem, Precond, PSolve);
+        if (check_flag(&flag, "ARKodeSetPreconditioner", 1)) { return (1); }
 
         /* Set the linear solver tolerance conversion factor */
         switch (nrmfactor)
@@ -338,8 +338,8 @@ int main(int argc, char* argv[])
           break;
         }
 
-        flag = ARKStepSetLSNormFactor(arkode_mem, nrmfac);
-        if (check_flag(&flag, "ARKStepSetLSNormFactor", 1)) { return (1); }
+        flag = ARKodeSetLSNormFactor(arkode_mem, nrmfac);
+        if (check_flag(&flag, "ARKodeSetLSNormFactor", 1)) { return (1); }
       }
       else
       {
@@ -356,14 +356,14 @@ int main(int argc, char* argv[])
       /* Print initial values */
       if (firstrun) { PrintAllSpecies(c, ns, mxns, T0); }
 
-      /* Loop over output points, call ARKStepEvolve, print sample solution values. */
+      /* Loop over output points, call ARKodeEvolve, print sample solution values. */
       tout = T1;
       for (iout = 1; iout <= NOUT; iout++)
       {
-        flag = ARKStepEvolve(arkode_mem, tout, c, &t, ARK_NORMAL);
+        flag = ARKodeEvolve(arkode_mem, tout, c, &t, ARK_NORMAL);
         PrintOutput(arkode_mem, t);
         if (firstrun && (iout % 3 == 0)) { PrintAllSpecies(c, ns, mxns, t); }
-        if (check_flag(&flag, "ARKStepEvolve", 1)) { break; }
+        if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
         if (tout > SUN_RCONST(0.9)) { tout += DTOUT; }
         else { tout *= TOUT_MULT; }
       }
@@ -374,7 +374,7 @@ int main(int argc, char* argv[])
   }
 
   /* Free all memory */
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   N_VDestroy(c);
   SUNLinSolFree(LS);
   FreeUserData(wdata);
@@ -624,14 +624,14 @@ static void PrintOutput(void* arkode_mem, sunrealtype t)
   int flag;
   sunrealtype hu;
 
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKStepGetNumSteps", 1);
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
-  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
-  flag = ARKStepGetLastStep(arkode_mem, &hu);
-  check_flag(&flag, "ARKStepGetLastStep", 1);
+  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
+  flag = ARKodeGetLastStep(arkode_mem, &hu);
+  check_flag(&flag, "ARKodeGetLastStep", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("t = %10.2Le  nst = %ld  nfe = %ld  nfi = %ld  nni = %ld", t, nst, nfe,
@@ -657,33 +657,33 @@ static void PrintFinalStats(void* arkode_mem)
   int flag;
   sunrealtype avdim;
 
-  flag = ARKStepGetWorkSpace(arkode_mem, &lenrw, &leniw);
-  check_flag(&flag, "ARKStepGetWorkSpace", 1);
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKStepGetNumSteps", 1);
+  flag = ARKodeGetWorkSpace(arkode_mem, &lenrw, &leniw);
+  check_flag(&flag, "ARKodeGetWorkSpace", 1);
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
-  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
-  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
+  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
+  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
+  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
+  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
 
-  flag = ARKStepGetLinWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "ARKStepGetLinWorkSpace", 1);
-  flag = ARKStepGetNumLinIters(arkode_mem, &nli);
-  check_flag(&flag, "ARKStepGetNumLinIters", 1);
-  flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
-  check_flag(&flag, "ARKStepGetNumPrecEvals", 1);
-  flag = ARKStepGetNumPrecSolves(arkode_mem, &nps);
-  check_flag(&flag, "ARKStepGetNumPrecSolves", 1);
-  flag = ARKStepGetNumLinConvFails(arkode_mem, &ncfl);
-  check_flag(&flag, "ARKStepGetNumLinConvFails", 1);
-  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
-  check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1);
+  flag = ARKodeGetLinWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
+  check_flag(&flag, "ARKodeGetLinWorkSpace", 1);
+  flag = ARKodeGetNumLinIters(arkode_mem, &nli);
+  check_flag(&flag, "ARKodeGetNumLinIters", 1);
+  flag = ARKodeGetNumPrecEvals(arkode_mem, &npe);
+  check_flag(&flag, "ARKodeGetNumPrecEvals", 1);
+  flag = ARKodeGetNumPrecSolves(arkode_mem, &nps);
+  check_flag(&flag, "ARKodeGetNumPrecSolves", 1);
+  flag = ARKodeGetNumLinConvFails(arkode_mem, &ncfl);
+  check_flag(&flag, "ARKodeGetNumLinConvFails", 1);
+  flag = ARKodeGetNumLinRhsEvals(arkode_mem, &nfeLS);
+  check_flag(&flag, "ARKodeGetNumLinRhsEvals", 1);
 
   printf("\n\n Final statistics for this run:\n\n");
   printf(" ARKStep real workspace length         = %4ld \n", lenrw);
@@ -846,8 +846,8 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
   arkode_mem = wdata->arkode_mem;
   cdata      = N_VGetArrayPointer(c);
   rewt       = wdata->rewt;
-  flag       = ARKStepGetErrWeights(arkode_mem, rewt);
-  if (check_flag(&flag, "ARKStepGetErrWeights", 1)) { return (1); }
+  flag       = ARKodeGetErrWeights(arkode_mem, rewt);
+  if (check_flag(&flag, "ARKodeGetErrWeights", 1)) { return (1); }
   rewtdata = N_VGetArrayPointer(rewt);
 
   uround = SUN_UNIT_ROUNDOFF;

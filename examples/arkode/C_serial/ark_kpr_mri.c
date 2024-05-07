@@ -378,12 +378,12 @@ int main(int argc, char* argv[])
     if (check_retval((void*)Af, "SUNDenseMatrix", 0)) { return 1; }
     LSf = SUNLinSol_Dense(y, Af, ctx);
     if (check_retval((void*)LSf, "SUNLinSol_Dense", 0)) { return 1; }
-    retval = ARKStepSetLinearSolver(inner_arkode_mem, LSf, Af);
-    if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) { return 1; }
-    retval = ARKStepSetJacFn(inner_arkode_mem, Jn);
-    if (check_retval(&retval, "ARKStepSetJacFn", 1)) { return 1; }
-    retval = ARKStepSStolerances(inner_arkode_mem, reltol, abstol);
-    if (check_retval(&retval, "ARKStepSStolerances", 1)) { return 1; }
+    retval = ARKodeSetLinearSolver(inner_arkode_mem, LSf, Af);
+    if (check_retval(&retval, "ARKodeSetLinearSolver", 1)) { return 1; }
+    retval = ARKodeSetJacFn(inner_arkode_mem, Jn);
+    if (check_retval(&retval, "ARKodeSetJacFn", 1)) { return 1; }
+    retval = ARKodeSStolerances(inner_arkode_mem, reltol, abstol);
+    if (check_retval(&retval, "ARKodeSStolerances", 1)) { return 1; }
     ARKodeButcherTable_Free(B);
     break;
   case (3): /* no fast dynamics ('evolve' explicitly w/ erk-3-3) */
@@ -409,12 +409,12 @@ int main(int argc, char* argv[])
   }
 
   /* Set the user data pointer */
-  retval = ARKStepSetUserData(inner_arkode_mem, (void*)rpar);
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) { return 1; }
+  retval = ARKodeSetUserData(inner_arkode_mem, (void*)rpar);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
 
   /* Set the fast step size */
-  retval = ARKStepSetFixedStep(inner_arkode_mem, hf);
-  if (check_retval(&retval, "ARKStepSetFixedStep", 1)) { return 1; }
+  retval = ARKodeSetFixedStep(inner_arkode_mem, hf);
+  if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
 
   /* Create inner stepper */
   retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
@@ -485,12 +485,12 @@ int main(int argc, char* argv[])
     if (check_retval((void*)As, "SUNDenseMatrix", 0)) { return 1; }
     LSs = SUNLinSol_Dense(y, As, ctx);
     if (check_retval((void*)LSs, "SUNLinSol_Dense", 0)) { return 1; }
-    retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
-    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) { return 1; }
-    retval = MRIStepSetJacFn(arkode_mem, Jn);
-    if (check_retval(&retval, "MRIStepSetJacFn", 1)) { return 1; }
-    retval = MRIStepSStolerances(arkode_mem, reltol, abstol);
-    if (check_retval(&retval, "MRIStepSStolerances", 1)) { return 1; }
+    retval = ARKodeSetLinearSolver(arkode_mem, LSs, As);
+    if (check_retval(&retval, "ARKodeSetLinearSolver", 1)) { return 1; }
+    retval = ARKodeSetJacFn(arkode_mem, Jn);
+    if (check_retval(&retval, "ARKodeSetJacFn", 1)) { return 1; }
+    retval = ARKodeSStolerances(arkode_mem, reltol, abstol);
+    if (check_retval(&retval, "ARKodeSStolerances", 1)) { return 1; }
     break;
   case (7): /* MRI-GARK-ESDIRK34a, solve-decoupled slow solver */
     arkode_mem = MRIStepCreate(NULL, fs, T0, y, inner_stepper, ctx);
@@ -503,12 +503,12 @@ int main(int argc, char* argv[])
     if (check_retval((void*)As, "SUNDenseMatrix", 0)) { return 1; }
     LSs = SUNLinSol_Dense(y, As, ctx);
     if (check_retval((void*)LSs, "SUNLinSol_Dense", 0)) { return 1; }
-    retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
-    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) { return 1; }
-    retval = MRIStepSetJacFn(arkode_mem, Js);
-    if (check_retval(&retval, "MRIStepSetJacFn", 1)) { return 1; }
-    retval = MRIStepSStolerances(arkode_mem, reltol, abstol);
-    if (check_retval(&retval, "MRIStepSStolerances", 1)) { return 1; }
+    retval = ARKodeSetLinearSolver(arkode_mem, LSs, As);
+    if (check_retval(&retval, "ARKodeSetLinearSolver", 1)) { return 1; }
+    retval = ARKodeSetJacFn(arkode_mem, Js);
+    if (check_retval(&retval, "ARKodeSetJacFn", 1)) { return 1; }
+    retval = ARKodeSStolerances(arkode_mem, reltol, abstol);
+    if (check_retval(&retval, "ARKodeSStolerances", 1)) { return 1; }
     break;
   case (8): /* IMEX-MRI-GARK3b, solve-decoupled slow solver */
     arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper, ctx);
@@ -521,12 +521,12 @@ int main(int argc, char* argv[])
     if (check_retval((void*)As, "SUNDenseMatrix", 0)) { return 1; }
     LSs = SUNLinSol_Dense(y, As, ctx);
     if (check_retval((void*)LSs, "SUNLinSol_Dense", 0)) { return 1; }
-    retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
-    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) { return 1; }
-    retval = MRIStepSetJacFn(arkode_mem, Jsi);
-    if (check_retval(&retval, "MRIStepSetJacFn", 1)) { return 1; }
-    retval = MRIStepSStolerances(arkode_mem, reltol, abstol);
-    if (check_retval(&retval, "MRIStepSStolerances", 1)) { return 1; }
+    retval = ARKodeSetLinearSolver(arkode_mem, LSs, As);
+    if (check_retval(&retval, "ARKodeSetLinearSolver", 1)) { return 1; }
+    retval = ARKodeSetJacFn(arkode_mem, Jsi);
+    if (check_retval(&retval, "ARKodeSetJacFn", 1)) { return 1; }
+    retval = ARKodeSStolerances(arkode_mem, reltol, abstol);
+    if (check_retval(&retval, "ARKodeSStolerances", 1)) { return 1; }
     break;
   case (9): /* IMEX-MRI-GARK4, solve-decoupled slow solver */
     arkode_mem = MRIStepCreate(fse, fsi, T0, y, inner_stepper, ctx);
@@ -539,25 +539,25 @@ int main(int argc, char* argv[])
     if (check_retval((void*)As, "SUNDenseMatrix", 0)) { return 1; }
     LSs = SUNLinSol_Dense(y, As, ctx);
     if (check_retval((void*)LSs, "SUNLinSol_Dense", 0)) { return 1; }
-    retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
-    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) { return 1; }
-    retval = MRIStepSetJacFn(arkode_mem, Jsi);
-    if (check_retval(&retval, "MRIStepSetJacFn", 1)) { return 1; }
-    retval = MRIStepSStolerances(arkode_mem, reltol, abstol);
-    if (check_retval(&retval, "MRIStepSStolerances", 1)) { return 1; }
+    retval = ARKodeSetLinearSolver(arkode_mem, LSs, As);
+    if (check_retval(&retval, "ARKodeSetLinearSolver", 1)) { return 1; }
+    retval = ARKodeSetJacFn(arkode_mem, Jsi);
+    if (check_retval(&retval, "ARKodeSetJacFn", 1)) { return 1; }
+    retval = ARKodeSStolerances(arkode_mem, reltol, abstol);
+    if (check_retval(&retval, "ARKodeSStolerances", 1)) { return 1; }
     break;
   }
 
   /* Set the user data pointer */
-  retval = MRIStepSetUserData(arkode_mem, (void*)rpar);
-  if (check_retval(&retval, "MRIStepSetUserData", 1)) { return 1; }
+  retval = ARKodeSetUserData(arkode_mem, (void*)rpar);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
 
-  retval = MRIStepSetDeduceImplicitRhs(arkode_mem, deduce);
-  if (check_retval(&retval, "MRIStepSetDeduceImplicitRhs", 1)) { return 1; }
+  retval = ARKodeSetDeduceImplicitRhs(arkode_mem, deduce);
+  if (check_retval(&retval, "ARKodeSetDeduceImplicitRhs", 1)) { return 1; }
 
   /* Set the slow step size */
-  retval = MRIStepSetFixedStep(arkode_mem, hs);
-  if (check_retval(&retval, "MRIStepSetFixedStep", 1)) { return 1; }
+  retval = ARKodeSetFixedStep(arkode_mem, hs);
+  if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
 
   /*
    * Integrate ODE
@@ -574,7 +574,7 @@ int main(int argc, char* argv[])
           SUNRabs(NV_Ith_S(y, 0) - utrue(T0, rpar)),
           SUNRabs(NV_Ith_S(y, 1) - vtrue(T0, rpar)));
 
-  /* Main time-stepping loop: calls MRIStepEvolve to perform the
+  /* Main time-stepping loop: calls ARKodeEvolve to perform the
      integration, then prints results. Stops when the final time
      has been reached */
   t       = T0;
@@ -593,8 +593,8 @@ int main(int argc, char* argv[])
   for (iout = 0; iout < Nt; iout++)
   {
     /* call integrator */
-    retval = MRIStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_retval(&retval, "MRIStepEvolve", 1)) { break; }
+    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
+    if (check_retval(&retval, "ARKodeEvolve", 1)) { break; }
 
     /* access/print solution and error */
     uerr = SUNRabs(NV_Ith_S(y, 0) - utrue(t, rpar));
@@ -624,14 +624,14 @@ int main(int argc, char* argv[])
    */
 
   /* Get some slow integrator statistics */
-  retval = MRIStepGetNumSteps(arkode_mem, &nsts);
-  check_retval(&retval, "MRIStepGetNumSteps", 1);
+  retval = ARKodeGetNumSteps(arkode_mem, &nsts);
+  check_retval(&retval, "ARKodeGetNumSteps", 1);
   retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
   check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
-  retval = ARKStepGetNumSteps(inner_arkode_mem, &nstf);
-  check_retval(&retval, "ARKStepGetNumSteps", 1);
+  retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
+  check_retval(&retval, "ARKodeGetNumSteps", 1);
   retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nff, &tmp);
   check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
 
@@ -656,10 +656,10 @@ int main(int argc, char* argv[])
   if ((solve_type == 4) || (solve_type == 7) || (solve_type == 8) ||
       (solve_type == 9))
   {
-    retval = MRIStepGetNonlinSolvStats(arkode_mem, &nnis, &nncs);
-    check_retval(&retval, "MRIStepGetNonlinSolvStats", 1);
-    retval = MRIStepGetNumJacEvals(arkode_mem, &njes);
-    check_retval(&retval, "MRIStepGetNumJacEvals", 1);
+    retval = ARKodeGetNonlinSolvStats(arkode_mem, &nnis, &nncs);
+    check_retval(&retval, "ARKodeGetNonlinSolvStats", 1);
+    retval = ARKodeGetNumJacEvals(arkode_mem, &njes);
+    check_retval(&retval, "ARKodeGetNumJacEvals", 1);
     printf("   Slow Newton iters = %li\n", nnis);
     printf("   Slow Newton conv fails = %li\n", nncs);
     printf("   Slow Jacobian evals = %li\n", njes);
@@ -668,10 +668,10 @@ int main(int argc, char* argv[])
   /* Get/print fast integrator implicit solver statistics */
   if (solve_type == 2)
   {
-    retval = ARKStepGetNonlinSolvStats(inner_arkode_mem, &nnif, &nncf);
-    check_retval(&retval, "ARKStepGetNonlinSolvStats", 1);
-    retval = ARKStepGetNumJacEvals(inner_arkode_mem, &njef);
-    check_retval(&retval, "ARKStepGetNumJacEvals", 1);
+    retval = ARKodeGetNonlinSolvStats(inner_arkode_mem, &nnif, &nncf);
+    check_retval(&retval, "ARKodeGetNonlinSolvStats", 1);
+    retval = ARKodeGetNumJacEvals(inner_arkode_mem, &njef);
+    check_retval(&retval, "ARKodeGetNumJacEvals", 1);
     printf("   Fast Newton iters = %li\n", nnif);
     printf("   Fast Newton conv fails = %li\n", nncf);
     printf("   Fast Jacobian evals = %li\n", njef);
@@ -684,9 +684,9 @@ int main(int argc, char* argv[])
   SUNLinSolFree(LSf);                       /* free fast linear solver */
   SUNMatDestroy(As);                        /* free fast matrix */
   SUNLinSolFree(LSs);                       /* free fast linear solver */
-  ARKStepFree(&inner_arkode_mem);           /* Free fast integrator memory */
+  ARKodeFree(&inner_arkode_mem);            /* Free fast integrator memory */
   MRIStepInnerStepper_Free(&inner_stepper); /* Free inner stepper */
-  MRIStepFree(&arkode_mem);                 /* Free slow integrator memory */
+  ARKodeFree(&arkode_mem);                  /* Free slow integrator memory */
   SUNContext_Free(&ctx);                    /* Free context */
 
   return 0;

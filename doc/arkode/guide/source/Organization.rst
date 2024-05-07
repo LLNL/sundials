@@ -25,29 +25,29 @@ knowledge of this structure is not necessary for its use.
 The overall organization of the ARKODE package is shown in
 :numref:`ARKODE.Organization.ARKODE.Figure`.  The central integration modules,
 implemented in the files ``arkode.h``, ``arkode_impl.h``, ``arkode_butcher.h``,
-``arkode.c``, ``arkode_arkstep.c`` , ``arkode_erkstep.c``, ``arkode_mristep.h``,
-and ``arkode_butcher.c``, deal with the evaluation of integration stages, the
-nonlinear solvers, estimation of the local truncation error, selection of step
-size, and interpolation to user output points, among other issues.  ARKODE
-supports SUNNonlinearSolver modules in either root-finding or fixed-point form
-(see section :numref:`SUNNonlinSol`) for any nonlinearly implicit problems that
-arise in computing each internal stage. When using Newton-based nonlinear
-solvers, or when using a non-identity mass matrix :math:`M\ne I`, ARKODE has
-flexibility in the choice of method used to solve the linear sub-systems that
-arise.  Therefore, for any user problem invoking the Newton solvers, or any user
-problem with :math:`M\ne I`, one (or more) of the linear system solver modules
-should be specified by the user; this/these are then invoked as needed during
-the integration process.
+``arkode.c``, ``arkode_arkstep.c`` , ``arkode_erkstep.c``, ``arkode_mristep.c``,
+``arkode_sprkstep.c``, and ``arkode_butcher.c``, deal with the evaluation of
+integration stages, the nonlinear solvers, estimation of the local truncation
+error, selection of step size, and interpolation to user output points, among
+other issues.  ARKODE supports SUNNonlinearSolver modules in either root-finding
+or fixed-point form (see section :numref:`SUNNonlinSol`) for any nonlinearly
+implicit problems that arise in computing each internal stage. When using
+Newton-based nonlinear solvers, or when using a non-identity mass matrix
+:math:`M\ne I`, ARKODE has flexibility in the choice of method used to solve the
+linear sub-systems that arise.  Therefore, for any user problem invoking the
+Newton solvers, or any user problem with :math:`M\ne I`, one (or more) of the
+linear system solver modules should be specified by the user; this/these are
+then invoked as needed during the integration process.
 
 .. _ARKODE.Organization.ARKODE.Figure:
 .. figure:: /figs/arkode/arkorg.png
    :align: center
 
    *ARKODE organization*: Overall structure of the ARKODE package.
-   Modules specific to ARKODE are the timesteppers (ARKODE), linear solver
-   interfaces (ARKLS), nonlinear solver interfaces (ARKNLS), and preconditioners
-   (ARKBANDPRE and ARKBBDPRE); all other items correspond to generic SUNDIALS
-   vector, matrix, and solver modules.
+   Modules specific to ARKODE are the core infrastructure and timesteppers
+   (ARKODE), linear solver interfaces (ARKLS), nonlinear solver interfaces
+   (ARKNLS), and preconditioners (ARKBANDPRE and ARKBBDPRE); all other items
+   correspond to generic SUNDIALS vector, matrix, and solver modules.
 
 For solving these linear systems, ARKODE's linear solver interface
 supports both direct and iterative linear solvers adhering to the

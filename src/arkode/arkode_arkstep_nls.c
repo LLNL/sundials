@@ -24,23 +24,22 @@
 #include "arkode_impl.h"
 
 /*===============================================================
-  Exported functions
+  Utility routines
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  ARKStepSetNonlinearSolver:
+  arkStep_SetNonlinearSolver:
 
   This routine attaches a SUNNonlinearSolver object to the ARKStep
   module.
   ---------------------------------------------------------------*/
-int ARKStepSetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS)
+int arkStep_SetNonlinearSolver(ARKodeMem ark_mem, SUNNonlinearSolver NLS)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately if NLS input is NULL */
@@ -100,63 +99,6 @@ int ARKStepSetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS)
 
   return (ARK_SUCCESS);
 }
-
-/*---------------------------------------------------------------
-  ARKStepSetNlsRhsFn:
-
-  This routine sets an alternative user-supplied implicit ODE
-  right-hand side function to use in the evaluation of nonlinear
-  system functions.
-  ---------------------------------------------------------------*/
-int ARKStepSetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fi)
-{
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  if (nls_fi) { step_mem->nls_fi = nls_fi; }
-  else { step_mem->nls_fi = step_mem->fi; }
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  ARKStepGetNonlinearSystemData:
-
-  This routine provides access to the relevant data needed to
-  compute the nonlinear system function.
-  ---------------------------------------------------------------*/
-int ARKStepGetNonlinearSystemData(void* arkode_mem, sunrealtype* tcur,
-                                  N_Vector* zpred, N_Vector* z, N_Vector* Fi,
-                                  sunrealtype* gamma, N_Vector* sdata,
-                                  void** user_data)
-{
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  *tcur      = ark_mem->tcur;
-  *zpred     = step_mem->zpred;
-  *z         = ark_mem->ycur;
-  *Fi        = step_mem->Fi[step_mem->istage];
-  *gamma     = step_mem->gamma;
-  *sdata     = step_mem->sdata;
-  *user_data = ark_mem->user_data;
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  Utility routines called by ARKStep
-  ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
   arkStep_NlsInit:
@@ -389,6 +331,57 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
 }
 
 /*---------------------------------------------------------------
+  arkStep_SetNlsRhsFn:
+
+  This routine sets an alternative user-supplied implicit ODE
+  right-hand side function to use in the evaluation of nonlinear
+  system functions.
+  ---------------------------------------------------------------*/
+int arkStep_SetNlsRhsFn(ARKodeMem ark_mem, ARKRhsFn nls_fi)
+{
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  if (nls_fi) { step_mem->nls_fi = nls_fi; }
+  else { step_mem->nls_fi = step_mem->fi; }
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  arkStep_GetNonlinearSystemData:
+
+  This routine provides access to the relevant data needed to
+  compute the nonlinear system function.
+  ---------------------------------------------------------------*/
+int arkStep_GetNonlinearSystemData(ARKodeMem ark_mem, sunrealtype* tcur,
+                                   N_Vector* zpred, N_Vector* z, N_Vector* Fi,
+                                   sunrealtype* gamma, N_Vector* sdata,
+                                   void** user_data)
+{
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  *tcur      = ark_mem->tcur;
+  *zpred     = step_mem->zpred;
+  *z         = ark_mem->ycur;
+  *Fi        = step_mem->Fi[step_mem->istage];
+  *gamma     = step_mem->gamma;
+  *sdata     = step_mem->sdata;
+  *user_data = ark_mem->user_data;
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
   Interface routines supplied to the SUNNonlinearSolver module
   ---------------------------------------------------------------*/
 
@@ -404,8 +397,8 @@ int arkStep_NlsLSetup(sunbooleantype jbad, sunbooleantype* jcur, void* arkode_me
   ARKodeARKStepMem step_mem;
   int retval;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* update convfail based on jbad flag */
@@ -446,8 +439,8 @@ int arkStep_NlsLSolve(N_Vector b, void* arkode_mem)
   ARKodeARKStepMem step_mem;
   int retval, nonlin_iter;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* retrieve nonlinear solver iteration from module */
@@ -501,8 +494,8 @@ int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem)
   sunrealtype c[3];
   N_Vector X[3];
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* update 'ycur' value as stored predictor + current corrector */
@@ -563,8 +556,8 @@ int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
   sunrealtype c[3];
   N_Vector X[3];
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* update 'ycur' value as stored predictor + current corrector */
@@ -631,8 +624,8 @@ int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem)
   ARKodeARKStepMem step_mem;
   int retval;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* update 'ycur' value as stored predictor + current corrector */
@@ -696,8 +689,8 @@ int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem)
   ARKodeARKStepMem step_mem;
   int retval;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* update 'ycur' value as stored predictor + current corrector */
@@ -759,8 +752,8 @@ int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem)
   ARKodeARKStepMem step_mem;
   int retval;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* update 'ycur' value as stored predictor + current corrector */
@@ -828,8 +821,8 @@ int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem)
   ARKodeARKStepMem step_mem;
   int retval;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* update 'ycur' value as stored predictor + current corrector */
@@ -884,8 +877,8 @@ int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
   sunrealtype delnrm, dcon;
   int m, retval;
 
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* if the problem is linearly implicit, just return success */
