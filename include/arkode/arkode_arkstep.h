@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the ARKode ARKStep module.
+ * This is the header file for the ARKODE ARKStep module.
  * -----------------------------------------------------------------*/
 
 #ifndef _ARKSTEP_H
@@ -64,48 +64,63 @@ static const int ARKSTEP_DEFAULT_ARK_ITABLE_5 = ARKODE_ARK548L2SA_DIRK_8_4_5;
  * Exported Functions
  * ------------------- */
 
-/* Create, Resize, and Reinitialization functions */
+/* Creation and Reinitialization functions */
 SUNDIALS_EXPORT void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
                                     N_Vector y0, SUNContext sunctx);
+SUNDIALS_EXPORT int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
+                                  sunrealtype t0, N_Vector y0);
+
+/* Optional input functions -- must be called AFTER ARKStepCreate */
+SUNDIALS_EXPORT int ARKStepSetExplicit(void* arkode_mem);
+SUNDIALS_EXPORT int ARKStepSetImplicit(void* arkode_mem);
+SUNDIALS_EXPORT int ARKStepSetImEx(void* arkode_mem);
+SUNDIALS_EXPORT int ARKStepSetTables(void* arkode_mem, int q, int p,
+                                     ARKodeButcherTable Bi,
+                                     ARKodeButcherTable Be);
+SUNDIALS_EXPORT int ARKStepSetTableNum(void* arkode_mem,
+                                       ARKODE_DIRKTableID itable,
+                                       ARKODE_ERKTableID etable);
+SUNDIALS_EXPORT int ARKStepSetTableName(void* arkode_mem, const char* itable,
+                                        const char* etable);
+
+/* Grouped optional output functions */
+SUNDIALS_EXPORT int ARKStepGetTimestepperStats(
+  void* arkode_mem, long int* expsteps, long int* accsteps,
+  long int* step_attempts, long int* nfe_evals, long int* nfi_evals,
+  long int* nlinsetups, long int* netfails);
+
+/* MRIStep interface functions */
+SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void* arkode_mem,
+                                                     MRIStepInnerStepper* stepper);
+
+/* --------------------------------------------------------------------------
+ * Deprecated Functions -- all are superseded by shared ARKODE-level routines
+ * -------------------------------------------------------------------------- */
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeResize instead")
 int ARKStepResize(void* arkode_mem, N_Vector ynew, sunrealtype hscale,
                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
-
-SUNDIALS_EXPORT int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
-                                  sunrealtype t0, N_Vector y0);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeReset instead")
 int ARKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR);
-
-/* Tolerance input functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSStolerances instead")
 int ARKStepSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSVtolerances instead")
 int ARKStepSVtolerances(void* arkode_mem, sunrealtype reltol, N_Vector abstol);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeWFtolerances instead")
 int ARKStepWFtolerances(void* arkode_mem, ARKEwtFn efun);
-
-/* Residual tolerance input functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeResStolerance instead")
 int ARKStepResStolerance(void* arkode_mem, sunrealtype rabstol);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeResVtolerance instead")
 int ARKStepResVtolerance(void* arkode_mem, N_Vector rabstol);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeResFtolerance instead")
 int ARKStepResFtolerance(void* arkode_mem, ARKRwtFn rfun);
-
-/* Linear solver set functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetLinearSolver instead")
 int ARKStepSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetMassLinearSolver instead")
 int ARKStepSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS,
                                SUNMatrix M, sunbooleantype time_dep);
-
-/* Rootfinding initialization */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeRootInit instead")
 int ARKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g);
-
-/* Optional input functions -- must be called AFTER ARKStepCreate */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetDefaults instead")
 int ARKStepSetDefaults(void* arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("adjust parameters individually instead")
@@ -126,19 +141,8 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetLinear instead")
 int ARKStepSetLinear(void* arkode_mem, int timedepend);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNonlinear instead")
 int ARKStepSetNonlinear(void* arkode_mem);
-SUNDIALS_EXPORT int ARKStepSetExplicit(void* arkode_mem);
-SUNDIALS_EXPORT int ARKStepSetImplicit(void* arkode_mem);
-SUNDIALS_EXPORT int ARKStepSetImEx(void* arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetDeduceImplicitRhs instead")
 int ARKStepSetDeduceImplicitRhs(void* arkode_mem, sunbooleantype deduce);
-SUNDIALS_EXPORT int ARKStepSetTables(void* arkode_mem, int q, int p,
-                                     ARKodeButcherTable Bi,
-                                     ARKodeButcherTable Be);
-SUNDIALS_EXPORT int ARKStepSetTableNum(void* arkode_mem,
-                                       ARKODE_DIRKTableID itable,
-                                       ARKODE_ERKTableID etable);
-SUNDIALS_EXPORT int ARKStepSetTableName(void* arkode_mem, const char* itable,
-                                        const char* etable);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetAdaptController instead")
 int ARKStepSetAdaptController(void* arkode_mem, SUNAdaptController C);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetAdaptivityAdjustment instead")
@@ -210,24 +214,18 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetFixedStep instead")
 int ARKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetMaxNumConstrFails instead")
 int ARKStepSetMaxNumConstrFails(void* arkode_mem, int maxfails);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRootDirection instead")
 int ARKStepSetRootDirection(void* arkode_mem, int* rootdir);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNoInactiveRootWarn instead")
 int ARKStepSetNoInactiveRootWarn(void* arkode_mem);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetUserData instead")
 int ARKStepSetUserData(void* arkode_mem, void* user_data);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetPostprocessStepFn instead")
 int ARKStepSetPostprocessStepFn(void* arkode_mem, ARKPostProcessFn ProcessStep);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetPostprocessStageFn instead")
 int ARKStepSetPostprocessStageFn(void* arkode_mem, ARKPostProcessFn ProcessStage);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetStagePredictFn instead")
 int ARKStepSetStagePredictFn(void* arkode_mem, ARKStagePredictFn PredictStage);
-
-/* Linear solver interface optional input functions -- must be called
-   AFTER ARKStepSetLinearSolver and/or ARKStepSetMassLinearSolver */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetJacFn instead")
 int ARKStepSetJacFn(void* arkode_mem, ARKLsJacFn jac);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetMassFn instead")
@@ -260,21 +258,13 @@ int ARKStepSetMassTimes(void* arkode_mem, ARKLsMassTimesSetupFn msetup,
                         ARKLsMassTimesVecFn mtimes, void* mtimes_data);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetLinSysFn instead")
 int ARKStepSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys);
-
-/* Integrate the ODE over an interval in t */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeEvolve instead")
 int ARKStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
                   sunrealtype* tret, int itask);
-
-/* Computes the kth derivative of the y function at time t */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetDky instead")
 int ARKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky);
-
-/* Utility function to update/compute y based on zcor */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeComputeState instead")
 int ARKStepComputeState(void* arkode_mem, N_Vector zcor, N_Vector z);
-
-/* Optional output functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumExpSteps instead")
 int ARKStepGetNumExpSteps(void* arkode_mem, long int* expsteps);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumAccSteps instead")
@@ -328,30 +318,19 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodePrintAllStats instead")
 int ARKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetReturnFlagName instead")
 char* ARKStepGetReturnFlagName(long int flag);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeWriteParameters instead")
 int ARKStepWriteParameters(void* arkode_mem, FILE* fp);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "use ARKStepGetCurrentButcherTables and ARKodeButcherTable_Write instead")
 int ARKStepWriteButcher(void* arkode_mem, FILE* fp);
-
-/* Grouped optional output functions */
-SUNDIALS_EXPORT int ARKStepGetTimestepperStats(
-  void* arkode_mem, long int* expsteps, long int* accsteps,
-  long int* step_attempts, long int* nfe_evals, long int* nfi_evals,
-  long int* nlinsetups, long int* netfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetStepStats instead")
 int ARKStepGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused,
                         sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur);
-
-/* Nonlinear solver optional output functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNonlinearSystemData instead")
 int ARKStepGetNonlinearSystemData(void* arkode_mem, sunrealtype* tcur,
                                   N_Vector* zpred, N_Vector* z, N_Vector* Fi,
                                   sunrealtype* gamma, N_Vector* sdata,
                                   void** user_data);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumNonlinSolvIters instead")
 int ARKStepGetNumNonlinSolvIters(void* arkode_mem, long int* nniters);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumNonlinSolvConvFails instead")
@@ -361,8 +340,6 @@ int ARKStepGetNonlinSolvStats(void* arkode_mem, long int* nniters,
                               long int* nnfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumStepSolveFails instead")
 int ARKStepGetNumStepSolveFails(void* arkode_mem, long int* nncfails);
-
-/* Linear solver optional output functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJac instead")
 int ARKStepGetJac(void* arkode_mem, SUNMatrix* J);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJacTime instead")
@@ -414,23 +391,12 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumMTSetups instead")
 int ARKStepGetNumMTSetups(void* arkode_mem, long int* nmtsetups);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLastMassFlag instead")
 int ARKStepGetLastMassFlag(void* arkode_mem, long int* flag);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLinReturnFlagName instead")
 char* ARKStepGetLinReturnFlagName(long int flag);
-
-/* Free function */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeFree instead")
 void ARKStepFree(void** arkode_mem);
-
-/* Output the ARKStep memory structure (useful when debugging) */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodePrintMem instead")
 void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
-
-/* MRIStep interface functions */
-SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void* arkode_mem,
-                                                     MRIStepInnerStepper* stepper);
-
-/* Relaxation functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRelaxFn instead")
 int ARKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRelaxEtaFail instead")
@@ -462,6 +428,7 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRelaxSolveFails instead")
 int ARKStepGetNumRelaxSolveFails(void* arkode_mem, long int* fails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRelaxSolveIters instead")
 int ARKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters);
+
 
 #ifdef __cplusplus
 }
