@@ -35,8 +35,18 @@ module farkode_erkstep_mod
  integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_8 = ARKODE_FEHLBERG_13_7_8
  integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_9 = ARKODE_VERNER_16_8_9
  public :: FERKStepCreate
- public :: FERKStepResize
  public :: FERKStepReInit
+ public :: FERKStepSetTable
+ public :: FERKStepSetTableNum
+ type, bind(C) :: SwigArrayWrapper
+  type(C_PTR), public :: data = C_NULL_PTR
+  integer(C_SIZE_T), public :: size = 0
+ end type
+ public :: FERKStepSetTableName
+ public :: FERKStepGetNumRhsEvals
+ public :: FERKStepGetCurrentButcherTable
+ public :: FERKStepGetTimestepperStats
+ public :: FERKStepResize
  public :: FERKStepReset
  public :: FERKStepSStolerances
  public :: FERKStepSVtolerances
@@ -47,13 +57,6 @@ module farkode_erkstep_mod
  public :: FERKStepSetInterpolantType
  public :: FERKStepSetInterpolantDegree
  public :: FERKStepSetDenseOrder
- public :: FERKStepSetTable
- public :: FERKStepSetTableNum
- type, bind(C) :: SwigArrayWrapper
-  type(C_PTR), public :: data = C_NULL_PTR
-  integer(C_SIZE_T), public :: size = 0
- end type
- public :: FERKStepSetTableName
  public :: FERKStepSetAdaptController
  public :: FERKStepSetAdaptivityAdjustment
  public :: FERKStepSetCFLFraction
@@ -91,8 +94,6 @@ module farkode_erkstep_mod
  public :: FERKStepGetNumAccSteps
  public :: FERKStepGetNumStepAttempts
  public :: FERKStepGetNumErrTestFails
- public :: FERKStepGetNumRhsEvals
- public :: FERKStepGetCurrentButcherTable
  public :: FERKStepGetEstLocalErrors
  public :: FERKStepGetWorkSpace
  public :: FERKStepGetNumSteps
@@ -110,7 +111,6 @@ module farkode_erkstep_mod
  public :: FERKStepGetReturnFlagName
  public :: FERKStepWriteParameters
  public :: FERKStepWriteButcher
- public :: FERKStepGetTimestepperStats
  public :: FERKStepGetStepStats
  public :: FERKStepFree
  public :: FERKStepPrintMem
@@ -143,6 +143,76 @@ type(C_PTR), value :: farg4
 type(C_PTR) :: fresult
 end function
 
+function swigc_FERKStepReInit(farg1, farg2, farg3, farg4) &
+bind(C, name="_wrap_FERKStepReInit") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+type(C_PTR), value :: farg4
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetTable(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetTable") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetTableNum(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetTableNum") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepSetTableName(farg1, farg2) &
+bind(C, name="_wrap_FERKStepSetTableName") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+type(C_PTR), value :: farg1
+type(SwigArrayWrapper) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepGetNumRhsEvals(farg1, farg2) &
+bind(C, name="_wrap_FERKStepGetNumRhsEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepGetCurrentButcherTable(farg1, farg2) &
+bind(C, name="_wrap_FERKStepGetCurrentButcherTable") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepGetTimestepperStats(farg1, farg2, farg3, farg4, farg5, farg6) &
+bind(C, name="_wrap_FERKStepGetTimestepperStats") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+type(C_PTR), value :: farg5
+type(C_PTR), value :: farg6
+integer(C_INT) :: fresult
+end function
+
 function swigc_FERKStepResize(farg1, farg2, farg3, farg4, farg5, farg6) &
 bind(C, name="_wrap_FERKStepResize") &
 result(fresult)
@@ -153,17 +223,6 @@ real(C_DOUBLE), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 type(C_FUNPTR), value :: farg5
 type(C_PTR), value :: farg6
-integer(C_INT) :: fresult
-end function
-
-function swigc_FERKStepReInit(farg1, farg2, farg3, farg4) &
-bind(C, name="_wrap_FERKStepReInit") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-real(C_DOUBLE), intent(in) :: farg3
-type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
 
@@ -257,34 +316,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FERKStepSetTable(farg1, farg2) &
-bind(C, name="_wrap_FERKStepSetTable") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FERKStepSetTableNum(farg1, farg2) &
-bind(C, name="_wrap_FERKStepSetTableNum") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FERKStepSetTableName(farg1, farg2) &
-bind(C, name="_wrap_FERKStepSetTableName") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-type(C_PTR), value :: farg1
-type(SwigArrayWrapper) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -630,24 +661,6 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FERKStepGetNumRhsEvals(farg1, farg2) &
-bind(C, name="_wrap_FERKStepGetNumRhsEvals") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FERKStepGetCurrentButcherTable(farg1, farg2) &
-bind(C, name="_wrap_FERKStepGetCurrentButcherTable") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FERKStepGetEstLocalErrors(farg1, farg2) &
 bind(C, name="_wrap_FERKStepGetEstLocalErrors") &
 result(fresult)
@@ -805,19 +818,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FERKStepGetTimestepperStats(farg1, farg2, farg3, farg4, farg5, farg6) &
-bind(C, name="_wrap_FERKStepGetTimestepperStats") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-type(C_PTR), value :: farg3
-type(C_PTR), value :: farg4
-type(C_PTR), value :: farg5
-type(C_PTR), value :: farg6
 integer(C_INT) :: fresult
 end function
 
@@ -1011,6 +1011,155 @@ fresult = swigc_FERKStepCreate(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
+function FERKStepReInit(arkode_mem, f, t0, y0) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: f
+real(C_DOUBLE), intent(in) :: t0
+type(N_Vector), target, intent(inout) :: y0
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+real(C_DOUBLE) :: farg3 
+type(C_PTR) :: farg4 
+
+farg1 = arkode_mem
+farg2 = f
+farg3 = t0
+farg4 = c_loc(y0)
+fresult = swigc_FERKStepReInit(farg1, farg2, farg3, farg4)
+swig_result = fresult
+end function
+
+function FERKStepSetTable(arkode_mem, b) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR) :: b
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = b
+fresult = swigc_FERKStepSetTable(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepSetTableNum(arkode_mem, etable) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(ARKODE_ERKTableID), intent(in) :: etable
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = etable
+fresult = swigc_FERKStepSetTableNum(farg1, farg2)
+swig_result = fresult
+end function
+
+
+subroutine SWIG_string_to_chararray(string, chars, wrap)
+  use, intrinsic :: ISO_C_BINDING
+  character(kind=C_CHAR, len=*), intent(IN) :: string
+  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
+  type(SwigArrayWrapper), intent(OUT) :: wrap
+  integer :: i
+
+  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
+  do i=1,len(string)
+    chars(i) = string(i:i)
+  end do
+  i = len(string) + 1
+  chars(i) = C_NULL_CHAR ! C string compatibility
+  wrap%data = c_loc(chars)
+  wrap%size = len(string)
+end subroutine
+
+function FERKStepSetTableName(arkode_mem, etable) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+character(kind=C_CHAR, len=*), target :: etable
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+
+farg1 = arkode_mem
+call SWIG_string_to_chararray(etable, farg2_chars, farg2)
+fresult = swigc_FERKStepSetTableName(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepGetNumRhsEvals(arkode_mem, nfevals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nfevals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(nfevals(1))
+fresult = swigc_FERKStepGetNumRhsEvals(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepGetCurrentButcherTable(arkode_mem, b) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: b
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(b)
+fresult = swigc_FERKStepGetCurrentButcherTable(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepGetTimestepperStats(arkode_mem, expsteps, accsteps, step_attempts, nfevals, netfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: expsteps
+integer(C_LONG), dimension(*), target, intent(inout) :: accsteps
+integer(C_LONG), dimension(*), target, intent(inout) :: step_attempts
+integer(C_LONG), dimension(*), target, intent(inout) :: nfevals
+integer(C_LONG), dimension(*), target, intent(inout) :: netfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
+type(C_PTR) :: farg6 
+
+farg1 = arkode_mem
+farg2 = c_loc(expsteps(1))
+farg3 = c_loc(accsteps(1))
+farg4 = c_loc(step_attempts(1))
+farg5 = c_loc(nfevals(1))
+farg6 = c_loc(netfails(1))
+fresult = swigc_FERKStepGetTimestepperStats(farg1, farg2, farg3, farg4, farg5, farg6)
+swig_result = fresult
+end function
+
 function FERKStepResize(arkode_mem, ynew, hscale, t0, resize, resize_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -1036,28 +1185,6 @@ farg4 = t0
 farg5 = resize
 farg6 = resize_data
 fresult = swigc_FERKStepResize(farg1, farg2, farg3, farg4, farg5, farg6)
-swig_result = fresult
-end function
-
-function FERKStepReInit(arkode_mem, f, t0, y0) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_FUNPTR), intent(in), value :: f
-real(C_DOUBLE), intent(in) :: t0
-type(N_Vector), target, intent(inout) :: y0
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-real(C_DOUBLE) :: farg3 
-type(C_PTR) :: farg4 
-
-farg1 = arkode_mem
-farg2 = f
-farg3 = t0
-farg4 = c_loc(y0)
-fresult = swigc_FERKStepReInit(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
@@ -1227,73 +1354,6 @@ integer(C_INT) :: farg2
 farg1 = arkode_mem
 farg2 = dord
 fresult = swigc_FERKStepSetDenseOrder(farg1, farg2)
-swig_result = fresult
-end function
-
-function FERKStepSetTable(arkode_mem, b) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR) :: b
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = b
-fresult = swigc_FERKStepSetTable(farg1, farg2)
-swig_result = fresult
-end function
-
-function FERKStepSetTableNum(arkode_mem, etable) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(ARKODE_ERKTableID), intent(in) :: etable
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = etable
-fresult = swigc_FERKStepSetTableNum(farg1, farg2)
-swig_result = fresult
-end function
-
-
-subroutine SWIG_string_to_chararray(string, chars, wrap)
-  use, intrinsic :: ISO_C_BINDING
-  character(kind=C_CHAR, len=*), intent(IN) :: string
-  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
-  type(SwigArrayWrapper), intent(OUT) :: wrap
-  integer :: i
-
-  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
-  do i=1,len(string)
-    chars(i) = string(i:i)
-  end do
-  i = len(string) + 1
-  chars(i) = C_NULL_CHAR ! C string compatibility
-  wrap%data = c_loc(chars)
-  wrap%size = len(string)
-end subroutine
-
-function FERKStepSetTableName(arkode_mem, etable) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-character(kind=C_CHAR, len=*), target :: etable
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(SwigArrayWrapper) :: farg2 
-
-farg1 = arkode_mem
-call SWIG_string_to_chararray(etable, farg2_chars, farg2)
-fresult = swigc_FERKStepSetTableName(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -1916,38 +1976,6 @@ fresult = swigc_FERKStepGetNumErrTestFails(farg1, farg2)
 swig_result = fresult
 end function
 
-function FERKStepGetNumRhsEvals(arkode_mem, nfevals) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nfevals
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(nfevals(1))
-fresult = swigc_FERKStepGetNumRhsEvals(farg1, farg2)
-swig_result = fresult
-end function
-
-function FERKStepGetCurrentButcherTable(arkode_mem, b) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR), target, intent(inout) :: b
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(b)
-fresult = swigc_FERKStepGetCurrentButcherTable(farg1, farg2)
-swig_result = fresult
-end function
-
 function FERKStepGetEstLocalErrors(arkode_mem, ele) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2235,34 +2263,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = fp
 fresult = swigc_FERKStepWriteButcher(farg1, farg2)
-swig_result = fresult
-end function
-
-function FERKStepGetTimestepperStats(arkode_mem, expsteps, accsteps, step_attempts, nfevals, netfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: expsteps
-integer(C_LONG), dimension(*), target, intent(inout) :: accsteps
-integer(C_LONG), dimension(*), target, intent(inout) :: step_attempts
-integer(C_LONG), dimension(*), target, intent(inout) :: nfevals
-integer(C_LONG), dimension(*), target, intent(inout) :: netfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-type(C_PTR) :: farg4 
-type(C_PTR) :: farg5 
-type(C_PTR) :: farg6 
-
-farg1 = arkode_mem
-farg2 = c_loc(expsteps(1))
-farg3 = c_loc(accsteps(1))
-farg4 = c_loc(step_attempts(1))
-farg5 = c_loc(nfevals(1))
-farg6 = c_loc(netfails(1))
-fresult = swigc_FERKStepGetTimestepperStats(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result = fresult
 end function
 
