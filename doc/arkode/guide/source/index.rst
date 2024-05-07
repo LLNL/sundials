@@ -19,7 +19,7 @@ ARKODE Documentation
 This is the documentation for ARKODE, an adaptive step time
 integration package for stiff, nonstiff and mixed stiff/nonstiff
 systems of ordinary differential equations (ODEs) using Runge--Kutta
-(i.e. one-step, multi-stage) methods.  The ARKODE solver is a
+(i.e., one-step, multi-stage) methods.  The ARKODE solver is a
 component of the `SUNDIALS
 <https://computing.llnl.gov/projects/sundials>`_ suite of
 nonlinear and differential/algebraic equation solvers. It is designed

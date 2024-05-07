@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   arkode_mem = ARKStepCreate(NULL, ode_rhs, ZERO, y, sunctx);
   if (!arkode_mem) { return 1; }
 
-  flag = ARKStepSStolerances(arkode_mem, SUN_RCONST(1.0e-4), SUN_RCONST(1.0e-8));
+  flag = ARKodeSStolerances(arkode_mem, SUN_RCONST(1.0e-4), SUN_RCONST(1.0e-8));
   if (flag) { return 1; }
 
   A = SUNDenseMatrix(1, 1, sunctx);
@@ -101,16 +101,16 @@ int main(int argc, char* argv[])
   LS = SUNLinSol_Dense(y, A, sunctx);
   if (!LS) { return 1; }
 
-  flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
+  flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
   if (flag) { return 1; }
 
-  flag = ARKStepSetJacFn(arkode_mem, ode_jac);
+  flag = ARKodeSetJacFn(arkode_mem, ode_jac);
   if (flag) { return 1; }
 
-  flag = ARKStepSetOrder(arkode_mem, 2);
+  flag = ARKodeSetOrder(arkode_mem, 2);
   if (flag) { return 1; }
 
-  flag = ARKStepSetStopTime(arkode_mem, tstop);
+  flag = ARKodeSetStopTime(arkode_mem, tstop);
   if (flag) { return 1; }
 
   /* ---------------
@@ -123,14 +123,14 @@ int main(int argc, char* argv[])
 
   for (i = 1; i <= 6; i++)
   {
-    arkode_flag = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+    arkode_flag = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
     if (arkode_flag < 0)
     {
       flag = 1;
       break;
     }
 
-    flag = ARKStepGetCurrentTime(arkode_mem, &tcur);
+    flag = ARKodeGetCurrentTime(arkode_mem, &tcur);
     if (flag) { break; }
 
     printf("%i: tout = %" GSYM ", tstop = %" GSYM ", tret = %" GSYM
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
 
       /* Update stop time */
       tstop += dt_tstop;
-      flag = ARKStepSetStopTime(arkode_mem, tstop);
+      flag = ARKodeSetStopTime(arkode_mem, tstop);
       if (flag) { break; }
     }
 
@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 
       /* Update stop time */
       tstop += dt_tstop;
-      flag = ARKStepSetStopTime(arkode_mem, tstop);
+      flag = ARKodeSetStopTime(arkode_mem, tstop);
       if (flag) { break; }
     }
 
@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
    * Clean up
    * -------- */
 
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   N_VDestroy(y);
   SUNMatDestroy(A);
   SUNLinSolFree(LS);

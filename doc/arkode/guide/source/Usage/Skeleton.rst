@@ -12,13 +12,13 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _ARKODE.Usage.ARKStep.Skeleton:
+.. _ARKODE.Usage.Skeleton:
 
 A skeleton of the user's main program
 ============================================
 
 The following is a skeleton of the user's main program (or calling
-program) for the integration of an ODE IVP using the ARKStep module.
+program) for the integration of an ODE IVP using ARKODE.
 Most of the steps are independent of the NVECTOR, SUNMATRIX, SUNLINSOL
 and SUNNONLINSOL implementations used.  For the steps that are not,
 refer to :numref:`NVectors`, :numref:`SUNMatrix`,
@@ -77,30 +77,32 @@ the function to be called or macro to be referenced.
    For details on each of SUNDIALS' provided vector implementations, see
    the corresponding sections in :numref:`NVectors` for details.
 
-#. Create ARKStep object
+#. Create ARKODE object
 
-   Call ``arkode_mem = ARKStepCreate(...)`` to create the
-   ARKStep memory block. :c:func:`ARKStepCreate` returns a ``void*`` pointer to
-   this memory structure. See :numref:`ARKODE.Usage.ARKStep.Initialization` for
-   details.
+   Call a stepper-specific constructor, ``arkode_mem = *StepCreate(...)``, to
+   create the ARKODE memory block. These routines return a ``void*`` pointer to
+   this memory structure. See :numref:`ARKODE.Usage.ARKStep.Initialization`,
+   :numref:`ARKODE.Usage.ERKStep.Initialization`,
+   :numref:`ARKODE.Usage.MRIStep.Initialization`, or
+   :numref:`ARKODE.Usage.SPRKStep.Initialization` for details.
 
 #. Specify integration tolerances
 
-   Call :c:func:`ARKStepSStolerances()` or
-   :c:func:`ARKStepSVtolerances()` to specify either a scalar relative
+   Call :c:func:`ARKodeSStolerances()` or
+   :c:func:`ARKodeSVtolerances()` to specify either a scalar relative
    tolerance and scalar absolute tolerance, or a scalar relative
    tolerance and a vector of absolute tolerances,
-   respectively.  Alternatively, call :c:func:`ARKStepWFtolerances()`
+   respectively.  Alternatively, call :c:func:`ARKodeWFtolerances()`
    to specify a function which sets directly the weights used in
    evaluating WRMS vector norms. See
-   :numref:`ARKODE.Usage.ARKStep.Tolerances` for details.
+   :numref:`ARKODE.Usage.Tolerances` for details.
 
    If a problem with non-identity mass matrix is used, and the
    solution units differ considerably from the equation units,
    absolute tolerances for the equation residuals (nonlinear and
    linear) may be specified separately through calls to
-   :c:func:`ARKStepResStolerance()`, :c:func:`ARKStepResVtolerance()`, or
-   :c:func:`ARKStepResFtolerance()`.
+   :c:func:`ARKodeResStolerance()`, :c:func:`ARKodeResVtolerance()`, or
+   :c:func:`ARKodeResFtolerance()`.
 
 #. Create matrix object
 
@@ -156,27 +158,27 @@ the function to be called or macro to be referenced.
    If a linear solver was created above for implicit stage solves,
    initialize the ARKLS linear solver interface by attaching the
    linear solver object (and Jacobian matrix object, if applicable)
-   with the call (for details see :numref:`ARKODE.Usage.ARKStep.LinearSolvers`):
+   with the call (for details see :numref:`ARKODE.Usage.LinearSolvers`):
 
    .. code-block:: c
 
-      ier = ARKStepSetLinearSolver(...);
+      ier = ARKodeSetLinearSolver(...);
 
    Similarly, if the problem involves a non-identity mass matrix,
    initialize the ARKLS mass matrix linear solver interface by
    attaching the mass linear solver object (and mass matrix object,
    if applicable) with the call (for details see
-   :numref:`ARKODE.Usage.ARKStep.LinearSolvers`):
+   :numref:`ARKODE.Usage.LinearSolvers`):
 
    .. code-block:: c
 
-      ier = ARKStepSetMassLinearSolver(...);
+      ier = ARKodeSetMassLinearSolver(...);
 
 #. Create nonlinear solver object
 
    If the problem involves an implicit component, and if a non-default
    nonlinear solver object will be used for implicit stage solves
-   (see :numref:`ARKODE.Usage.ARKStep.NonlinearSolvers`),
+   (see :numref:`ARKODE.Usage.NonlinearSolvers`),
    then the desired nonlinear solver object must be created by using
    the appropriate functions defined by the particular SUNNONLINSOL
    implementation (e.g., ``NLS = SUNNonlinSol_***(...);`` where
@@ -196,34 +198,41 @@ the function to be called or macro to be referenced.
 #. Attach nonlinear solver module
 
    If a nonlinear solver object was created above, then it must be
-   attached to ARKStep using the call (for details see
-   :numref:`ARKODE.Usage.ARKStep.NonlinearSolvers`):
+   attached to ARKODE using the call (for details see
+   :numref:`ARKODE.Usage.NonlinearSolvers`):
 
    .. code-block:: c
 
-      ier = ARKStepSetNonlinearSolver(...);
+      ier = ARKodeSetNonlinearSolver(...);
 
 #. Set nonlinear solver optional inputs
 
    Call the appropriate set functions for the selected nonlinear
    solver module to change optional inputs specific to that nonlinear
    solver.  These *must* be called after attaching the nonlinear
-   solver to ARKStep, otherwise the optional inputs will be
-   overridden by ARKStep defaults.  See
+   solver to ARKODE, otherwise the optional inputs will be
+   overridden by ARKODE defaults.  See
    :numref:`SUNNonlinSol` for more information on optional inputs.
 
 #. Set optional inputs
 
-   Call ``ARKStepSet*`` functions to change any optional inputs that
-   control the behavior of ARKStep from their default values. See
-   :numref:`ARKODE.Usage.ARKStep.OptionalInputs` for details.
+   Call ``ARKodeSet*`` functions to change any optional inputs that
+   control the behavior of ARKODE from their default values. See
+   :numref:`ARKODE.Usage.OptionalInputs` for details.
+
+   Additionally, call ``*StepSet*`` routines to change any
+   stepper-specific optional inputs from their default values.  See
+   :numref:`ARKODE.Usage.ARKStep.OptionalInputs`,
+   :numref:`ARKODE.Usage.ERKStep.OptionalInputs`,
+   :numref:`ARKODE.Usage.MRIStep.OptionalInputs`, or
+   :numref:`ARKODE.Usage.SPRKStep.OptionalInputs` for details.
 
 #. Specify rootfinding problem
 
-   Optionally, call :c:func:`ARKStepRootInit()` to initialize a rootfinding
+   Optionally, call :c:func:`ARKodeRootInit()` to initialize a rootfinding
    problem to be solved during the integration of the ODE system. See
-   :numref:`ARKODE.Usage.ARKStep.RootFinding` for general details, and
-   :numref:`ARKODE.Usage.ARKStep.OptionalInputs` for relevant optional
+   :numref:`ARKODE.Usage.RootFinding` for general details, and
+   :numref:`ARKODE.Usage.OptionalInputs` for relevant optional
    input calls.
 
 #. Advance solution in time
@@ -232,17 +241,24 @@ the function to be called or macro to be referenced.
 
    .. code-block:: c
 
-      ier = ARKStepEvolve(arkode_mem, tout, yout, &tret, itask);
+      ier = ARKodeEvolve(arkode_mem, tout, yout, &tret, itask);
 
    Here, ``itask`` specifies the return mode. The vector ``yout``
    (which can be the same as the vector ``y0`` above) will contain
    :math:`y(t_\text{out})`. See
-   :numref:`ARKODE.Usage.ARKStep.Integration` for details.
+   :numref:`ARKODE.Usage.Integration` for details.
 
 #. Get optional outputs
 
-   Call ``ARKStepGet*`` functions to obtain optional output. See
-   :numref:`ARKODE.Usage.ARKStep.OptionalOutputs` for details.
+   Call ``ARKodeGet*`` functions to obtain optional output. See
+   :numref:`ARKODE.Usage.OptionalOutputs` for details.
+
+   Additionally, call ``*StepGet*`` routines to retrieve any
+   stepper-specific optional outputs.  See
+   :numref:`ARKODE.Usage.ARKStep.OptionalOutputs`,
+   :numref:`ARKODE.Usage.ERKStep.OptionalOutputs`,
+   :numref:`ARKODE.Usage.MRIStep.OptionalOutputs`, or
+   :numref:`ARKODE.Usage.SPRKStep.OptionalOutputs` for details.
 
 #. Deallocate memory for solution vector
 
@@ -255,8 +271,8 @@ the function to be called or macro to be referenced.
 
 #. Free solver memory
 
-   Call :c:func:`ARKStepFree()` to free the memory allocated for
-   the ARKStep module (and any nonlinear solver module).
+   Call :c:func:`ARKodeFree()` to free the memory allocated for
+   the ARKODE module (and any nonlinear solver module).
 
 #. Free linear solver and matrix memory
 
@@ -266,9 +282,13 @@ the function to be called or macro to be referenced.
 
 #. Free nonlinear solver memory
 
-   If a user-supplied ``SUNNonlinearSolver`` was provided to ARKStep,
+   If a user-supplied ``SUNNonlinearSolver`` was provided to ARKODE,
    then call :c:func:`SUNNonlinSolFree()` to free any memory allocated
    for the nonlinear solver object created above.
+
+#. Free the SUNContext object
+
+   Call :c:func:`SUNContext_Free` to free the memory allocated for the ``SUNContext`` object.
 
 #. Finalize MPI, if used
 

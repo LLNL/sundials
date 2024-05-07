@@ -2,6 +2,17 @@
 
 ## Changes to SUNDIALS in release X.Y.Z
 
+Created shared user interface for ARKODE user-callable routines, to allow more
+uniform control over time-stepping algorithms, improved extensibility, and
+simplified code maintenance.  Marked the corresponding stepper-specific
+user-callable routines as deprecated; these will be removed in a future major
+release.
+
+Added "Resize" capability to ARKODE's SPRKStep time-stepping module.
+
+Deprecated `ARKStepSetOptimalParams` function; added instructions to user guide
+for users who wish to retain the current functionality.
+
 Updated the CMake variable `HIP_PLATFORM` default to `amd` as the previous
 default, `hcc`, is no longer recognized in ROCm 5.7.0 or newer. The new default
 is also valid in older version of ROCm (at least back to version 4.3.1).

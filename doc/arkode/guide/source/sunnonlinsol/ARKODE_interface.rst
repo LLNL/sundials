@@ -74,8 +74,128 @@ access to the internal integrator data required to evaluate
 :eq:`ARKODE_Residual_corrector` or :eq:`ARKODE_FixedPt_corrector`.
 
 
-ARKStep advanced output functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ARKODE advanced output functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Two notable functions were already listed in :numref:`ARKODE.Usage.ARKodeMainOutputs`:
+
+* :c:func:`ARKodeGetCurrentState` -- returns the current state vector.
+  When called within the computation of a step (i.e., during a nonlinear solve)
+  this is the current stage state vector :math:`z_i = z_{pred} + z_{cor}`.
+  Otherwise this is the current internal solution state vector :math:`y(t)`. In
+  either case the corresponding stage or solution time can be obtained from
+  :c:func:`ARKodeGetCurrentTime`.
+
+* :c:func:`ARKodeGetCurrentGamma` -- returns the current value of the scalar :math:`\gamma`.
+
+
+Additional advanced output functions that are provided to aid in the construction
+of user-supplied SUNNonlinSol modules are as follows.
+
+.. c:function:: int ARKodeGetCurrentMassMatrix(void* arkode_mem, SUNMatrix* M)
+
+   Returns the current mass matrix. For a time dependent mass matrix the
+   corresponding time can be obtained from :c:func:`ARKodeGetCurrentTime`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKODE memory block.
+      * *M* -- SUNMatrix pointer that will get set to the current mass matrix
+        :math:`M(t)`. If a matrix-free method is used the output is ``NULL``.
+
+   **Return value:**
+      * ``ARK_SUCCESS`` if successful.
+      * ``ARK_MEM_NULL`` if the ARKStep memory was ``NULL``.
+
+   .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
+
+.. c:function:: int ARKodeGetNonlinearSystemData(void* arkode_mem, sunrealtype *tcur, N_Vector *zpred, N_Vector *z, N_Vector *Fi, sunrealtype *gamma, N_Vector *sdata, void **user_data)
+
+   Returns all internal data required to construct the current nonlinear
+   implicit system :eq:`ARKODE_Residual_corrector` or :eq:`ARKODE_FixedPt_corrector`:
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKODE memory block.
+      * *tcur* -- value of the independent variable corresponding to implicit
+        stage, :math:`t^I_{n,i}`.
+      * *zpred* -- the predicted stage vector :math:`z_{pred}` at
+        :math:`t^I_{n,i}`. This vector must not be changed.
+      * *z* -- the stage vector :math:`z_{i}` above. This vector may be not
+        current and may need to be filled (see the note below).
+      * *Fi* -- the implicit function evaluated at the current time and state,
+        :math:`f^I(t^I_{n,i}, z_{i})`. This vector may be not current and may
+        need to be filled (see the note below).
+      * *gamma* -- current :math:`\gamma` for implicit stage calculation.
+      * *sdata* -- accumulated data from previous solution and stages,
+        :math:`\tilde{a}_i`. This vector must not be changed.
+      * *user_data* -- pointer to the user-defined data structure (as specified
+        through :c:func:`ARKodeSetUserData`, or ``NULL`` otherwise)
+
+   **Return value:**
+      * ``ARK_SUCCESS`` if successful.
+      * ``ARK_MEM_NULL`` if the ARKODE memory was ``NULL``.
+
+   .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
+      This routine is intended for users who whish to attach a custom
+      :c:type:`SUNNonlinSolSysFn` to an existing ``SUNNonlinearSolver`` object
+      (through a call to :c:func:`SUNNonlinSolSetSysFn`) or who need access to
+      nonlinear system data to compute the nonlinear system function as part of
+      a custom ``SUNNonlinearSolver`` object.
+
+      When supplying a custom :c:type:`SUNNonlinSolSysFn` to an existing
+      ``SUNNonlinearSolver`` object, the user should call
+      :c:func:`ARKodeGetNonlinearSystemData()` **inside** the nonlinear system
+      function to access the requisite data for evaluting the nonlinear systen
+      function of their choosing. Additionlly, if the ``SUNNonlinearSolver`` object
+      (existing or custom) leverages the :c:type:`SUNNonlinSolLSetupFn` and/or
+      :c:type:`SUNNonlinSolLSolveFn` functions supplied by ARKODE (through
+      calls to :c:func:`SUNNonlinSolSetLSetupFn()` and
+      :c:func:`SUNNonlinSolSetLSolveFn()` respectively) the vectors *z* and *Fi*
+      **must be filled** in by the user's :c:type:`SUNNonlinSolSysFn` with the
+      current state and corresponding evaluation of the right-hand side function
+      respectively i.e.,
+
+      .. math::
+         z  &= z_{pred} + z_{cor}, \\
+         Fi &= f^I\left(t^I_{n,i}, z_i\right),
+
+      where :math:`z_{cor}` was the first argument supplied to the
+      :c:type:`SUNNonlinSolSysFn`.
+
+      If this function is called as part of a custom linear solver (i.e., the
+      default :c:type:`SUNNonlinSolSysFn` is used) then the vectors *z* and
+      *Fi* are only current when :c:func:`ARKodeGetNonlinearSystemData()` is
+      called after an evaluation of the nonlinear system function.
+
+
+.. c:function:: int ARKodeComputeState(void* arkode_mem, N_Vector zcor, N_Vector z)
+
+   Computes the current stage state vector using the stored prediction and the
+   supplied correction from the nonlinear solver i.e.,
+   :math:`z_i(t) = z_{pred} + z_{cor}`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKODE memory block.
+      * *zcor* -- the correction from the nonlinear solver.
+      * *z* -- on output, the current stage state vector :math:`z_i`.
+
+   **Return value:**
+      * ``ARK_SUCCESS`` if successful.
+      * ``ARK_MEM_NULL`` if the ARKODE memory was ``NULL``.
+
+   .. note::
+
+      This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
+
+
+ARKStep advanced output functions (deprecated)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Two notable functions were already listed in :numref:`ARKODE.Usage.ARKStep.ARKStepMainOutputs`:
 
@@ -105,6 +225,10 @@ of user-supplied SUNNonlinSol modules are as follows.
    **Return value:**
       * ``ARK_SUCCESS`` if successful.
       * ``ARK_MEM_NULL`` if the ARKStep memory was ``NULL``.
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetCurrentMassMatrix` instead.
 
 
 .. c:function:: int ARKStepGetNonlinearSystemData(void* arkode_mem, sunrealtype *tcur, N_Vector *zpred, N_Vector *z, N_Vector *Fi, sunrealtype *gamma, N_Vector *sdata, void **user_data)
@@ -166,6 +290,10 @@ of user-supplied SUNNonlinSol modules are as follows.
       *Fi* are only current when :c:func:`ARKStepGetNonlinearSystemData()` is
       called after an evaluation of the nonlinear system function.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNonlinearSystemData` instead.
+
 
 .. c:function:: int ARKStepComputeState(void* arkode_mem, N_Vector zcor, N_Vector z)
 
@@ -182,10 +310,13 @@ of user-supplied SUNNonlinSol modules are as follows.
       * ``ARK_SUCCESS`` if successful.
       * ``ARK_MEM_NULL`` if the ARKStep memory was ``NULL``.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeComputeState` instead.
 
 
-MRIStep advanced output functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+MRIStep advanced output functions (deprecated)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Two notable functions were already listed in :numref:`ARKODE.Usage.MRIStep.MRIStepMainOutputs`:
 
@@ -262,6 +393,10 @@ of user-supplied SUNNonlinSol modules are as follows.
       *Fi* are only current when :c:func:`MRIStepGetNonlinearSystemData()` is
       called after an evaluation of the nonlinear system function.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNonlinearSystemData` instead.
+
 
 .. c:function:: int MRIStepComputeState(void* arkode_mem, N_Vector zcor, N_Vector z)
 
@@ -277,3 +412,7 @@ of user-supplied SUNNonlinSol modules are as follows.
    **Return value:**
       * ``ARK_SUCCESS`` if successful.
       * ``ARK_MEM_NULL`` if the MRIStep memory was ``NULL``.
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeComputeState` instead.

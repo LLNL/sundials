@@ -1,5 +1,16 @@
 **New Features**
 
+Created shared user interface for ARKODE user-callable routines, to allow more
+uniform control over time-stepping algorithms, improved extensibility, and
+simplified code maintenance.  Marked the corresponding stepper-specific
+user-callable routines as deprecated; these will be removed in a future major
+release.
+
+Added "Resize" capability to ARKODE's SPRKStep time-stepping module.
+
+Deprecated ``ARKStepSetOptimalParams`` function; added instructions to user guide
+for users who wish to retain the current functionality.
+
 Added CMake infrastructure that enables externally maintained addons/plugins
 to be *optionally* built with SUNDIALS. See :ref:`Contributing` for details.
 

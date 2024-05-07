@@ -275,18 +275,18 @@ program main
   arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(fcnirob), t0, sunvec_y, sunctx)
   if (.not. c_associated(arkode_mem)) print *, 'ERROR: arkode_mem = NULL'
 
-  ! Call FARKStepSVtolerances to set tolerances
-  retval = FARKStepSVtolerances(arkode_mem, rtol, sunvec_av)
+  ! Call FARKodeSVtolerances to set tolerances
+  retval = FARKodeSVtolerances(arkode_mem, rtol, sunvec_av)
   if (retval /= 0) then
-     print *, 'Error in FARKStepSVtolerances, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeSVtolerances, retval = ', retval, '; halting'
      stop 1
   end if
 
-  ! Call FARKStepRootInit to specify the root function grob with 2 components
+  ! Call FARKodeRootInit to specify the root function grob with 2 components
   nrtfn = 2
-  retval = FARKStepRootInit(arkode_mem, nrtfn, c_funloc(grob))
+  retval = FARKodeRootInit(arkode_mem, nrtfn, c_funloc(grob))
   if (retval /= 0) then
-     print *, 'Error in FARKStepRootInit, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeRootInit, retval = ', retval, '; halting'
      stop 1
   end if
 
@@ -305,59 +305,59 @@ program main
   end if
 
   ! Attach the matrix and linear solver
-  retval = FARKStepSetLinearSolver(arkode_mem, sunlinsol_LS, sunmat_A);
+  retval = FARKodeSetLinearSolver(arkode_mem, sunlinsol_LS, sunmat_A);
   if (retval /= 0) then
-     print *, 'Error in FARKStepSetLinearSolver, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeSetLinearSolver, retval = ', retval, '; halting'
      stop 1
   end if
 
   ! Set the user-supplied Jacobian routine
-  retval = FARKStepSetJacFn(arkode_mem, c_funloc(jacrob))
+  retval = FARKodeSetJacFn(arkode_mem, c_funloc(jacrob))
   if (retval /= 0) then
-     print *, 'Error in FARKStepSetJacFn, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeSetJacFn, retval = ', retval, '; halting'
      stop 1
   end if
 
   ! Set additional method parameters
   mxsteps = 10000
-  retval = FARKStepSetMaxNumSteps(arkode_mem, mxsteps)
+  retval = FARKodeSetMaxNumSteps(arkode_mem, mxsteps)
   if (retval /= 0) then
-     print *, 'Error in FARKStepSetMaxNumSteps'
+     print *, 'Error in FARKodeSetMaxNumSteps'
      stop 1
   end if
 
   initsize = 1.d-4 * rtol
-  retval = FARKStepSetInitStep(arkode_mem, initsize)
+  retval = FARKodeSetInitStep(arkode_mem, initsize)
   if (retval /= 0) then
-     print *, 'Error in FARKStepSetInitStep'
+     print *, 'Error in FARKodeSetInitStep'
      stop 1
   end if
 
   nlscoef = 1.d-7
-  retval = FARKStepSetNonlinConvCoef(arkode_mem, nlscoef)
+  retval = FARKodeSetNonlinConvCoef(arkode_mem, nlscoef)
   if (retval /= 0) then
-     print *, 'Error in FARKStepSetNonlinConvCoef'
+     print *, 'Error in FARKodeSetNonlinConvCoef'
      stop 1
   end if
 
   nliters = 8
-  retval = FARKStepSetMaxNonlinIters(arkode_mem, nliters)
+  retval = FARKodeSetMaxNonlinIters(arkode_mem, nliters)
   if (retval /= 0) then
-     print *, 'Error in FARKStepSetMaxNonlinIters'
+     print *, 'Error in FARKodeSetMaxNonlinIters'
      stop 1
   end if
 
   pmethod = 1
-  retval = FARKStepSetPredictorMethod(arkode_mem, pmethod)
+  retval = FARKodeSetPredictorMethod(arkode_mem, pmethod)
   if (retval /= 0) then
-     print *, 'Error in FARKStepSetPredictorMethod'
+     print *, 'Error in FARKodeSetPredictorMethod'
      stop 1
   end if
 
   maxetf = 20
-  retval = FARKStepSetMaxErrTestFails(arkode_mem, maxetf)
+  retval = FARKodeSetMaxErrTestFails(arkode_mem, maxetf)
   if (retval /= 0) then
-     print *, 'Error in FARKStepSetMaxErrTestFails'
+     print *, 'Error in FARKodeSetMaxErrTestFails'
      stop 1
   end if
 
@@ -372,29 +372,29 @@ program main
   end if
 
   ! Attach the nonlinear solver
-  retval = FARKStepSetNonlinearSolver(arkode_mem, sunnonlin_NLS)
+  retval = FARKodeSetNonlinearSolver(arkode_mem, sunnonlin_NLS)
   if (retval /= 0) then
-     print *, 'Error in FARKStepSetNonlinearSolver, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeSetNonlinearSolver, retval = ', retval, '; halting'
      stop 1
   end if
 
-  ! In loop, call ARKStepEvolve, print results, and test for error.
+  ! In loop, call ARKodeEvolve, print results, and test for error.
   iout = 0
   tout = tout1
   do while(iout < nout)
 
-     retval = FARKStepEvolve(arkode_mem, tout, sunvec_y, tret(1), ARK_NORMAL)
+     retval = FARKodeEvolve(arkode_mem, tout, sunvec_y, tret(1), ARK_NORMAL)
      if (retval < 0) then
-        print *, 'Error in FARKStepEvolve, retval = ', retval, '; halting'
+        print *, 'Error in FARKodeEvolve, retval = ', retval, '; halting'
         stop 1
      endif
 
      call PrintOutput(arkode_mem, tret(1), yval)
 
      if (retval .eq. ARK_ROOT_RETURN) then
-        retvalr = FARKStepGetRootInfo(arkode_mem, rootsfound)
+        retvalr = FARKodeGetRootInfo(arkode_mem, rootsfound)
         if (retvalr < 0) then
-           print *, 'Error in FARKStepGetRootInfo, retval = ', retval, '; halting'
+           print *, 'Error in FARKodeGetRootInfo, retval = ', retval, '; halting'
            stop 1
         endif
         print '(a,2(i2,2x))', "    rootsfound[] = ", rootsfound(1), rootsfound(2)
@@ -413,9 +413,9 @@ program main
      stop 1
   end if
 
-  retval = FARKStepGetDky(arkode_mem, tret(1), 1, sunvec_dky)
+  retval = FARKodeGetDky(arkode_mem, tret(1), 1, sunvec_dky)
   if (retval /= 0) then
-     print *, 'Error in ARKStepGetDky'
+     print *, 'Error in ARKodeGetDky'
      stop 1
   end if
   print *, " "
@@ -428,7 +428,7 @@ program main
   call PrintFinalStats(arkode_mem)
 
   ! free memory
-  call FARKStepFree(arkode_mem)
+  call FARKodeFree(arkode_mem)
   retval = FSUNNonlinSolFree(sunnonlin_NLS)
   retval = FSUNLinSolFree(sunlinsol_LS)
   call FSUNMatDestroy(sunmat_A)
@@ -503,15 +503,15 @@ subroutine PrintOutput(arkode_mem, t, y)
 
   !======= Internals ============
 
-  retval = FARKStepGetNumSteps(arkode_mem, nst)
+  retval = FARKodeGetNumSteps(arkode_mem, nst)
   if (retval /= 0) then
-     print *, 'Error in FARKStepGetNumSteps, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeGetNumSteps, retval = ', retval, '; halting'
      stop 1
   end if
 
-  retval = FARKStepGetLastStep(arkode_mem, hused)
+  retval = FARKodeGetLastStep(arkode_mem, hused)
   if (retval /= 0) then
-     print *, 'Error in FARKStepGetLastStep, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeGetLastStep, retval = ', retval, '; halting'
      stop 1
   end if
 
@@ -559,15 +559,15 @@ subroutine PrintFinalStats(arkode_mem)
 
   !======= Internals ============
 
-  retval = FARKStepGetNumSteps(arkode_mem, nsteps)
+  retval = FARKodeGetNumSteps(arkode_mem, nsteps)
   if (retval /= 0) then
-     print *, 'Error in FARKStepGetNumSteps, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeGetNumSteps, retval = ', retval, '; halting'
      stop 1
   end if
 
-  retval = FARKStepGetNumStepAttempts(arkode_mem, nst_a)
+  retval = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
   if (retval /= 0) then
-     print *, 'Error in FARKStepGetNumStepAttempts, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeGetNumStepAttempts, retval = ', retval, '; halting'
      stop 1
   end if
 
@@ -577,57 +577,57 @@ subroutine PrintFinalStats(arkode_mem)
      stop 1
   end if
 
-  retval = FARKStepGetActualInitStep(arkode_mem, hinused)
+  retval = FARKodeGetActualInitStep(arkode_mem, hinused)
   if (retval /= 0) then
-     print *, 'Error in FARKStepGetActualInitStep, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeGetActualInitStep, retval = ', retval, '; halting'
      stop 1
   end if
 
-  retval = FARKStepGetLastStep(arkode_mem, hlast)
+  retval = FARKodeGetLastStep(arkode_mem, hlast)
   if (retval /= 0) then
-     print *, 'Error in FARKStepGetLastStep, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeGetLastStep, retval = ', retval, '; halting'
      stop 1
   end if
 
-  retval = FARKStepGetCurrentStep(arkode_mem, hcur)
+  retval = FARKodeGetCurrentStep(arkode_mem, hcur)
   if (retval /= 0) then
-     print *, 'Error in FARKStepGetCurrentStep, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeGetCurrentStep, retval = ', retval, '; halting'
      stop 1
   end if
 
-  retval = FARKStepGetCurrentTime(arkode_mem, tcur)
+  retval = FARKodeGetCurrentTime(arkode_mem, tcur)
   if (retval /= 0) then
-     print *, 'Error in FARKStepGetCurrentTime, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeGetCurrentTime, retval = ', retval, '; halting'
      stop 1
   end if
 
-  retval = FARKStepGetNumLinSolvSetups(arkode_mem, nlinsetups)
+  retval = FARKodeGetNumLinSolvSetups(arkode_mem, nlinsetups)
   if (retval /= 0) then
-     print *, 'Error in FARKStepGetNumLinSolvSetups, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeGetNumLinSolvSetups, retval = ', retval, '; halting'
      stop 1
   end if
 
-  retval = FARKStepGetNumErrTestFails(arkode_mem, netfails)
+  retval = FARKodeGetNumErrTestFails(arkode_mem, netfails)
   if (retval /= 0) then
-     print *, 'Error in FARKStepGetNumErrTestFails, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeGetNumErrTestFails, retval = ', retval, '; halting'
      stop 1
   end if
 
-  retval = FARKStepGetNumNonlinSolvIters(arkode_mem, nniters)
+  retval = FARKodeGetNumNonlinSolvIters(arkode_mem, nniters)
   if (retval /= 0) then
-     print *, 'Error in FARKStepGetNumNonlinSolvIters, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeGetNumNonlinSolvIters, retval = ', retval, '; halting'
      stop 1
   end if
 
-  retval = FARKStepGetNumNonlinSolvConvFails(arkode_mem, nncfails)
+  retval = FARKodeGetNumNonlinSolvConvFails(arkode_mem, nncfails)
   if (retval /= 0) then
-     print *, 'Error in FARKStepGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
      stop 1
   end if
 
-  retval = FARKStepGetNumJacEvals(arkode_mem, njacevals)
+  retval = FARKodeGetNumJacEvals(arkode_mem, njacevals)
   if (retval /= 0) then
-     print *, 'Error in FARKStepGetNumJacEvals, retval = ', retval, '; halting'
+     print *, 'Error in FARKodeGetNumJacEvals, retval = ', retval, '; halting'
      stop 1
   end if
 

@@ -45,7 +45,7 @@ protected:
   ~ARKodeErrConditionTest()
   {
     N_VDestroy(v);
-    ARKStepFree(&arkode_mem);
+    ARKodeFree(&arkode_mem);
   }
 
   void* arkode_mem;
@@ -70,7 +70,7 @@ TEST_F(ARKodeErrConditionTest, ErrorIsPrinted)
 {
   SUNLogger_SetErrorFilename(logger, errfile.c_str());
   // negative reltol is illegal
-  ARKStepSStolerances(arkode_mem, /* reltol= */ -1e-4, /* abstol= */ 1e-4);
+  ARKodeSStolerances(arkode_mem, /* reltol= */ -1e-4, /* abstol= */ 1e-4);
   std::string output = dumpstderr(sunctx, errfile);
   EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[ERROR]"),
                                      testing::HasSubstr("[rank 0]"),
