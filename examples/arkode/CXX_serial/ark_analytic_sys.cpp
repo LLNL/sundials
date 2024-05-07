@@ -173,22 +173,22 @@ int main()
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   // Set routines
-  flag = ARKStepSetUserData(arkode_mem,
-                            (void*)&lamda); // Pass lamda to user functions
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) { return 1; }
-  flag = ARKStepSStolerances(arkode_mem, reltol, abstol); // Specify tolerances
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSetUserData(arkode_mem,
+                           (void*)&lamda); // Pass lamda to user functions
+  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
+  flag = ARKodeSStolerances(arkode_mem, reltol, abstol); // Specify tolerances
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   // Linear solver interface
-  flag = ARKStepSetLinearSolver(arkode_mem, LS,
-                                A); // Attach matrix and linear solver
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
-  flag = ARKStepSetJacFn(arkode_mem, Jac); // Set Jacobian routine
-  if (check_flag(&flag, "ARKStepSetJacFn", 1)) { return 1; }
+  flag = ARKodeSetLinearSolver(arkode_mem, LS,
+                               A); // Attach matrix and linear solver
+  if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
+  flag = ARKodeSetJacFn(arkode_mem, Jac); // Set Jacobian routine
+  if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
 
   // Specify linearly implicit RHS, with non-time-dependent Jacobian
-  flag = ARKStepSetLinear(arkode_mem, 0);
-  if (check_flag(&flag, "ARKStepSetLinear", 1)) { return 1; }
+  flag = ARKodeSetLinear(arkode_mem, 0);
+  if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
 
   // Open output stream for results, output comment line
   FILE* UFID = fopen("solution.txt", "w");
@@ -198,7 +198,7 @@ int main()
   fprintf(UFID, " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM "\n", T0,
           NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2));
 
-  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
+  /* Main time-stepping loop: calls ARKodeEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   sunrealtype t    = T0;
   sunrealtype tout = T0 + dTout;
@@ -206,8 +206,8 @@ int main()
   cout << "   --------------------------------------\n";
   while (Tf - t > 1.0e-15)
   {
-    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); // call integrator
-    if (check_flag(&flag, "ARKStepEvolve", 1)) { break; }
+    flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); // call integrator
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
     printf("  %8.4" FSYM "  %8.5" FSYM "  %8.5" FSYM "  %8.5" FSYM
            "\n", // access/print solution
            t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2));
@@ -229,24 +229,24 @@ int main()
 
   // Print some final statistics
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKStepGetNumSteps", 1);
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKodeGetNumSteps", 1);
+  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
-  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
-  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
-  flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
-  check_flag(&flag, "ARKStepGetNumJacEvals", 1);
-  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
-  check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1);
+  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
+  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
+  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
+  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
+  flag = ARKodeGetNumJacEvals(arkode_mem, &nje);
+  check_flag(&flag, "ARKodeGetNumJacEvals", 1);
+  flag = ARKodeGetNumLinRhsEvals(arkode_mem, &nfeLS);
+  check_flag(&flag, "ARKodeGetNumLinRhsEvals", 1);
 
   cout << "\nFinal Solver Statistics:\n";
   cout << "   Internal solver steps = " << nst << " (attempted = " << nst_a
@@ -262,10 +262,10 @@ int main()
   cout << "   Total number of error test failures = " << netf << "\n\n";
 
   // Clean up and return with successful completion
-  ARKStepFree(&arkode_mem); // Free integrator memory
-  SUNLinSolFree(LS);        // Free linear solver
-  SUNMatDestroy(A);         // Free A matrix
-  N_VDestroy(y);            // Free y vector
+  ARKodeFree(&arkode_mem); // Free integrator memory
+  SUNLinSolFree(LS);       // Free linear solver
+  SUNMatDestroy(A);        // Free A matrix
+  N_VDestroy(y);           // Free y vector
   if (logger)
   {
     SUNLogger_Destroy(&logger); // Free logger

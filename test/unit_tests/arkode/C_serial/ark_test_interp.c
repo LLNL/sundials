@@ -206,46 +206,46 @@ int main(int argc, char* argv[])
       if (check_flag(arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
       /* pass lambda to RHS routine */
-      flag = ARKStepSetUserData(arkode_mem, &lambda);
-      if (check_flag(&flag, "ARKStepSetUserData", 1)) { return 1; }
+      flag = ARKodeSetUserData(arkode_mem, &lambda);
+      if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
       /* select Hermite interpolation module */
-      flag = ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_HERMITE);
-      if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) { return 1; }
+      flag = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_HERMITE);
+      if (check_flag(&flag, "ARKodeSetInterpolantType", 1)) { return 1; }
 
       /* set dense output polynomial degree */
-      flag = ARKStepSetInterpolantDegree(arkode_mem, ideg);
-      if (check_flag(&flag, "ARKStepSetInterpolantDegree", 1)) { return 1; }
+      flag = ARKodeSetInterpolantDegree(arkode_mem, ideg);
+      if (check_flag(&flag, "ARKodeSetInterpolantDegree", 1)) { return 1; }
 
       /* set fixed time-stepping with desired time step size */
-      flag = ARKStepSetFixedStep(arkode_mem, hvals[ih]);
-      if (check_flag(&flag, "ARKStepSetFixedStep", 1)) { return 1; }
+      flag = ARKodeSetFixedStep(arkode_mem, hvals[ih]);
+      if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
       /* set solver tolerances */
-      flag = ARKStepSStolerances(arkode_mem, rtol, atol);
-      if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+      flag = ARKodeSStolerances(arkode_mem, rtol, atol);
+      if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
       /* indicate linearity of problem */
-      flag = ARKStepSetLinear(arkode_mem, 0);
-      if (check_flag(&flag, "ARKStepSetLinear", 1)) { return 1; }
+      flag = ARKodeSetLinear(arkode_mem, 0);
+      if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
 
       /* attach linear solver */
-      flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
-      if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
+      flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
+      if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
       /* increase maximum number of time steps */
-      flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);
-      if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return 1; }
+      flag = ARKodeSetMaxNumSteps(arkode_mem, 100000);
+      if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
       /* set RK order to highest available value */
-      flag = ARKStepSetOrder(arkode_mem, 5);
-      if (check_flag(&flag, "ARKStepSetOrder", 1)) { return 1; }
+      flag = ARKodeSetOrder(arkode_mem, 5);
+      if (check_flag(&flag, "ARKodeSetOrder", 1)) { return 1; }
 
       /* evolve to Tf to prepare interpolation structure */
-      flag = ARKStepSetStopTime(arkode_mem, Tf);
-      if (check_flag(&flag, "ARKStepSetStopTime", 1)) { return 1; }
-      flag = ARKStepEvolve(arkode_mem, Tf, y, &t, ARK_NORMAL);
-      if (check_flag(&flag, "ARKStepEvolve", 1)) { return 1; }
+      flag = ARKodeSetStopTime(arkode_mem, Tf);
+      if (check_flag(&flag, "ARKodeSetStopTime", 1)) { return 1; }
+      flag = ARKodeEvolve(arkode_mem, Tf, y, &t, ARK_NORMAL);
+      if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
 
       /* loop over 100 evenly-spaced values within interior of preceding
          step to accumulate errors */
@@ -254,19 +254,19 @@ int main(int argc, char* argv[])
         /* set test time */
         t_test = t - hvals[ih] + (itest + 1) * hvals[ih] / (nttest + 2);
 
-        /* call ARKStepGetDky to evaluate solution and derivatives at t_test */
-        flag = ARKStepGetDky(arkode_mem, t_test, 0, ytest);
-        if (check_flag(&flag, "ARKStepGetDky", 1)) { return 1; }
-        flag = ARKStepGetDky(arkode_mem, t_test, 1, dytest);
-        if (check_flag(&flag, "ARKStepGetDky", 1)) { return 1; }
-        flag = ARKStepGetDky(arkode_mem, t_test, 2, d2ytest);
-        if (check_flag(&flag, "ARKStepGetDky", 1)) { return 1; }
-        flag = ARKStepGetDky(arkode_mem, t_test, 3, d3ytest);
-        if (check_flag(&flag, "ARKStepGetDky", 1)) { return 1; }
-        flag = ARKStepGetDky(arkode_mem, t_test, 4, d4ytest);
-        if (check_flag(&flag, "ARKStepGetDky", 1)) { return 1; }
-        flag = ARKStepGetDky(arkode_mem, t_test, 5, d5ytest);
-        if (check_flag(&flag, "ARKStepGetDky", 1)) { return 1; }
+        /* call ARKodeGetDky to evaluate solution and derivatives at t_test */
+        flag = ARKodeGetDky(arkode_mem, t_test, 0, ytest);
+        if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
+        flag = ARKodeGetDky(arkode_mem, t_test, 1, dytest);
+        if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
+        flag = ARKodeGetDky(arkode_mem, t_test, 2, d2ytest);
+        if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
+        flag = ARKodeGetDky(arkode_mem, t_test, 3, d3ytest);
+        if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
+        flag = ARKodeGetDky(arkode_mem, t_test, 4, d4ytest);
+        if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
+        flag = ARKodeGetDky(arkode_mem, t_test, 5, d5ytest);
+        if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
 
         /* set error values */
         /*   y */
@@ -318,8 +318,8 @@ int main(int argc, char* argv[])
 
       } /* end itest loop */
 
-      /* free ARKStep memory (to prepare for next call) */
-      ARKStepFree(&arkode_mem);
+      /* free ARKode memory (to prepare for next call) */
+      ARKodeFree(&arkode_mem);
       arkode_mem = NULL;
 
     } /* end ih loop */
@@ -444,46 +444,46 @@ int main(int argc, char* argv[])
       if (check_flag(arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
       /* pass lambda to RHS routine */
-      flag = ARKStepSetUserData(arkode_mem, &lambda);
-      if (check_flag(&flag, "ARKStepSetUserData", 1)) { return 1; }
+      flag = ARKodeSetUserData(arkode_mem, &lambda);
+      if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
       /* select Lagrange interpolation module */
-      flag = ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
-      if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) { return 1; }
+      flag = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
+      if (check_flag(&flag, "ARKodeSetInterpolantType", 1)) { return 1; }
 
       /* set dense output polynomial degree */
-      flag = ARKStepSetInterpolantDegree(arkode_mem, ideg);
-      if (check_flag(&flag, "ARKStepSetInterpolantDegree", 1)) { return 1; }
+      flag = ARKodeSetInterpolantDegree(arkode_mem, ideg);
+      if (check_flag(&flag, "ARKodeSetInterpolantDegree", 1)) { return 1; }
 
       /* set fixed time-stepping with desired time step size */
-      flag = ARKStepSetFixedStep(arkode_mem, hvals[ih]);
-      if (check_flag(&flag, "ARKStepSetFixedStep", 1)) { return 1; }
+      flag = ARKodeSetFixedStep(arkode_mem, hvals[ih]);
+      if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
       /* set solver tolerances */
-      flag = ARKStepSStolerances(arkode_mem, rtol, atol);
-      if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+      flag = ARKodeSStolerances(arkode_mem, rtol, atol);
+      if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
       /* indicate linearity of problem */
-      flag = ARKStepSetLinear(arkode_mem, 0);
-      if (check_flag(&flag, "ARKStepSetLinear", 1)) { return 1; }
+      flag = ARKodeSetLinear(arkode_mem, 0);
+      if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
 
       /* attach linear solver */
-      flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
-      if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
+      flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
+      if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
       /* increase maximum number of time steps */
-      flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);
-      if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return 1; }
+      flag = ARKodeSetMaxNumSteps(arkode_mem, 100000);
+      if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
       /* set RK order to highest available value */
-      flag = ARKStepSetOrder(arkode_mem, 5);
-      if (check_flag(&flag, "ARKStepSetOrder", 1)) { return 1; }
+      flag = ARKodeSetOrder(arkode_mem, 5);
+      if (check_flag(&flag, "ARKodeSetOrder", 1)) { return 1; }
 
       /* evolve to Tf to prepare interpolation structure */
-      flag = ARKStepSetStopTime(arkode_mem, Tf);
-      if (check_flag(&flag, "ARKStepSetStopTime", 1)) { return 1; }
-      flag = ARKStepEvolve(arkode_mem, Tf, y, &t, ARK_NORMAL);
-      if (check_flag(&flag, "ARKStepEvolve", 1)) { return 1; }
+      flag = ARKodeSetStopTime(arkode_mem, Tf);
+      if (check_flag(&flag, "ARKodeSetStopTime", 1)) { return 1; }
+      flag = ARKodeEvolve(arkode_mem, Tf, y, &t, ARK_NORMAL);
+      if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
 
       /* loop over 100 evenly-spaced values within interior of this step to accumulate errors */
       for (itest = 0; itest < nttest; itest++)
@@ -491,13 +491,13 @@ int main(int argc, char* argv[])
         /* set test time */
         t_test = t - hvals[ih] + (itest + 1) * hvals[ih] / (nttest + 2);
 
-        /* call ARKStepGetDky to evaluate solution and derivatives at t_test */
-        flag = ARKStepGetDky(arkode_mem, t_test, 0, ytest);
-        if (check_flag(&flag, "ARKStepGetDky", 1)) { return 1; }
-        flag = ARKStepGetDky(arkode_mem, t_test, 1, dytest);
-        if (check_flag(&flag, "ARKStepGetDky", 1)) { return 1; }
-        flag = ARKStepGetDky(arkode_mem, t_test, 2, d2ytest);
-        if (check_flag(&flag, "ARKStepGetDky", 1)) { return 1; }
+        /* call ARKodeGetDky to evaluate solution and derivatives at t_test */
+        flag = ARKodeGetDky(arkode_mem, t_test, 0, ytest);
+        if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
+        flag = ARKodeGetDky(arkode_mem, t_test, 1, dytest);
+        if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
+        flag = ARKodeGetDky(arkode_mem, t_test, 2, d2ytest);
+        if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
 
         /* set error values */
         /*   y */
@@ -525,8 +525,8 @@ int main(int argc, char* argv[])
 
       } /* end itest loop */
 
-      /* free ARKStep memory (to prepare for next call) */
-      ARKStepFree(&arkode_mem);
+      /* free ARKode memory (to prepare for next call) */
+      ARKodeFree(&arkode_mem);
       arkode_mem = NULL;
 
     } /* end ih loop */

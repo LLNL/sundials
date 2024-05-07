@@ -17,7 +17,7 @@
 Opening a Pull Request
 ======================
 
-When a branch is ready to be reviewed for integration into the ``master`` or
+When a branch is ready to be reviewed for integration into the ``main`` or
 ``develop`` branches follow the steps below to open a pull request:
 
 #. Browse to `https://github.com/LLNL/sundials <https://github.com/LLNL/sundials>`_
@@ -43,3 +43,10 @@ merged, delete the local copy the branch:
 
    $ git checkout PARENT
    $ git branch -D <branch-name>
+
+
+.. warning::
+
+   Almost all pull requests should be issued against the ``develop`` branch.
+   Generally, the only branches we merge to ``main`` are special PRs to synchronize
+   ``develop`` and ``main``.

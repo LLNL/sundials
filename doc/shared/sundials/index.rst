@@ -12,9 +12,9 @@
 
 .. _SUNDIALS:
 
-==============
-Using SUNDIALS
-==============
+===============
+Getting Started
+===============
 
 As discussed in :numref:`Organization`, the six solver packages
 (CVODE(S), IDA(S), ARKODE, KINSOL) that make up SUNDIALS are built upon common

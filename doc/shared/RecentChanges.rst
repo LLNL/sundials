@@ -1,5 +1,19 @@
 **New Features**
 
+Created shared user interface for ARKODE user-callable routines, to allow more
+uniform control over time-stepping algorithms, improved extensibility, and
+simplified code maintenance.  Marked the corresponding stepper-specific
+user-callable routines as deprecated; these will be removed in a future major
+release.
+
+Added "Resize" capability to ARKODE's SPRKStep time-stepping module.
+
+Deprecated ``ARKStepSetOptimalParams`` function; added instructions to user guide
+for users who wish to retain the current functionality.
+
+Added CMake infrastructure that enables externally maintained addons/plugins
+to be *optionally* built with SUNDIALS. See :ref:`Contributing` for details.
+
 Added the following Runge-Kutta Butcher tables
 
 * ``ARKODE_FORWARD_EULER_1_1``
@@ -36,3 +50,14 @@ instead of ``SameMajorVersion``. This fixes the issue seen
 Fixed a bug in some Fortran examples where ``c_null_ptr`` was passed as an argument
 to a function pointer instead of ``c_null_funptr``. This caused compilation issues
 with the Cray Fortran compiler.
+
+Fixed a bug where :c:func:`MRIStepEvolve` would not handle a recoverable error
+produced from evolving the inner stepper.
+
+Added support for Kokkos Kernels v4.
+
+Fixed a bug that caused error messages to be cut off in some cases. Fixes `GitHub Issue #461 <https://github.com/LLNL/sundials/issues/461>`_.
+
+Fixed a memory leak when an error handler was added to a :c:type:`SUNContext`. Fixes `GitHub Issue #466 <https://github.com/LLNL/sundials/issues/466>`_.
+
+Fixed a CMake bug that caused an MPI linking error for our C++ examples in some instances. Fixes `GitHub Issue #464 <https://github.com/LLNL/sundials/issues/464>`_.

@@ -202,13 +202,13 @@ program driver
   end if
 
   ! Specify tolerances
-  retval = FERKStepSStolerances(arkode_mem, rtol, atol)
+  retval = FARKodeSStolerances(arkode_mem, rtol, atol)
   if (retval /= 0) then
-     print *, "Error: FERKStepSStolerances returned ",retval
+     print *, "Error: FARKodeSStolerances returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  ! Main time-stepping loop: calls FERKStepEvolve to perform the
+  ! Main time-stepping loop: calls FARKodeEvolve to perform the
   ! integration, then prints results.  Stops when the final time
   ! has been reached.
   t(1) = T0
@@ -221,21 +221,21 @@ program driver
   do ioutput=1,Nt
 
      ! Integrate to output time
-     retval = FERKStepEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
+     retval = FARKodeEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
      if (retval /= 0) then
-        print *, "Error: FERKStepEvolve returned ",retval
+        print *, "Error: FARKodeEvolve returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FERKStepGetNumSteps(arkode_mem, nst)
+     retval = FARKodeGetNumSteps(arkode_mem, nst)
      if (retval /= 0) then
-        print *, "Error: FERKStepGetNumSteps returned ",retval
+        print *, "Error: FARKodeGetNumSteps returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FERKStepGetNumStepAttempts(arkode_mem, nst_a)
+     retval = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
      if (retval /= 0) then
-        print *, "Error: FERKStepGetNumStepAttempts returned ",retval
+        print *, "Error: FARKodeGetNumStepAttempts returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -273,15 +273,15 @@ program driver
   if (outproc) print '(a,es10.2)', "Max. absolute error is ", gerrmax
 
   ! Get final statistics
-  retval = FERKStepGetNumSteps(arkode_mem, nst)
+  retval = FARKodeGetNumSteps(arkode_mem, nst)
   if (retval /= 0) then
-     print *, "Error: FERKStepGetNumSteps returned ",retval
+     print *, "Error: FARKodeGetNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FERKStepGetNumStepAttempts(arkode_mem, nst_a)
+  retval = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
   if (retval /= 0) then
-     print *, "Error: FERKStepGetNumStepAttempts returned ",retval
+     print *, "Error: FARKodeGetNumStepAttempts returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -291,9 +291,9 @@ program driver
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FERKStepGetNumErrTestFails(arkode_mem, netf)
+  retval = FARKodeGetNumErrTestFails(arkode_mem, netf)
   if (retval /= 0) then
-     print *, "Error: FERKStepGetNumErrTestFails returned ",retval
+     print *, "Error: FARKodeGetNumErrTestFails returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -308,7 +308,7 @@ program driver
   endif
 
   ! Clean up and return with successful completion
-  call FERKStepFree(arkode_mem)       ! free integrator memory
+  call FARKodeFree(arkode_mem)        ! free integrator memory
   call FN_VDestroy(sunvec_y)          ! free vector memory
   call MPI_Barrier(comm, ierr)
   call MPI_Finalize(ierr)             ! Finalize MPI

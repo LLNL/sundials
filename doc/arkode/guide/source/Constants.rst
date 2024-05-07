@@ -14,9 +14,9 @@
 
 .. _ARKODE.Constants:
 
-===========================
-Appendix: ARKODE Constants
-===========================
+================
+ARKODE Constants
+================
 
 Below we list all input and output constants used by the main solver,
 timestepper, and linear solver modules, together with a short
@@ -504,6 +504,9 @@ contains the ARKODE output constants.
    |                                     |      | error                                                      |
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_CONTROLLER_ERR`         | -47  | An error with a SUNAdaptController object was encountered. |
+   +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_STEPPER_UNSUPPORTED`    | -48  | An operation was not supported by the current              |
+   |                                     |      | time-stepping module.                                      |
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+

@@ -174,16 +174,16 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
   if (check_flag((void*)arkstep_mem, "ARKStepCreate", 0)) { return 1; }
 
   // Set user data
-  flag = ARKStepSetUserData(arkstep_mem, udata);
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) { return 1; }
+  flag = ARKodeSetUserData(arkstep_mem, udata);
+  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   // Specify tolerances
-  flag = ARKStepSStolerances(arkstep_mem, reltol, abstol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(arkstep_mem, reltol, abstol);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   // Specify fixed time step size
-  flag = ARKStepSetFixedStep(arkstep_mem, hf);
-  if (check_flag(&flag, "ARKStepSetFixedStep", 1)) { return 1; }
+  flag = ARKodeSetFixedStep(arkstep_mem, hf);
+  if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
   // Wrap ARKStep integrator as fast integrator object
   MRIStepInnerStepper inner_stepper = nullptr;
@@ -213,30 +213,30 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
   if (check_flag((void*)mristep_mem, "MRIStepCreate", 0)) { return 1; }
 
   // Set user data
-  flag = MRIStepSetUserData(mristep_mem, udata);
-  if (check_flag(&flag, "MRIStepSetUserData", 1)) { return 1; }
+  flag = ARKodeSetUserData(mristep_mem, udata);
+  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   // Specify tolerances
-  flag = MRIStepSStolerances(mristep_mem, reltol, abstol);
-  if (check_flag(&flag, "MRIStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(mristep_mem, reltol, abstol);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   // Specify fixed time step sizes
-  flag = MRIStepSetFixedStep(mristep_mem, hs);
-  if (check_flag(&flag, "MRIStepSetFixedStep", 1)) { return 1; }
+  flag = ARKodeSetFixedStep(mristep_mem, hs);
+  if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
   if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
   {
     // Attach linear solver
-    flag = MRIStepSetLinearSolver(mristep_mem, LS, A);
-    if (check_flag(&flag, "MRIStepSetLinearSolver", 1)) { return 1; }
+    flag = ARKodeSetLinearSolver(mristep_mem, LS, A);
+    if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
     // Set Jacobian function
-    flag = MRIStepSetJacFn(mristep_mem, Ji);
-    if (check_flag(&flag, "MRIStepSetJacFn", 1)) { return 1; }
+    flag = ARKodeSetJacFn(mristep_mem, Ji);
+    if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
 
     // Specify linearly implicit RHS, with non-time-dependent Jacobian
-    flag = MRIStepSetLinear(mristep_mem, 0);
-    if (check_flag(&flag, "MRIStepSetLinear", 1)) { return 1; }
+    flag = ARKodeSetLinear(mristep_mem, 0);
+    if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
   }
 
   // ------------------------------------
@@ -328,8 +328,8 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     for (int i = 0; i < nsteps; i++)
     {
       // Advance in time
-      flag = MRIStepEvolve(mristep_mem, tf, y, &t, ARK_ONE_STEP);
-      if (check_flag(&flag, "MRIStepEvolve", 1)) { return 1; }
+      flag = ARKodeEvolve(mristep_mem, tf, y, &t, ARK_ONE_STEP);
+      if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
 
       // Update output time
       tf += hs;
@@ -343,31 +343,28 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     long int mri_nni, mri_ncfn;               // nonlinear solver
     long int mri_nsetups, mri_nje, mri_nfeLS; // linear solver
 
-    flag = MRIStepGetNumSteps(mristep_mem, &mri_nst);
-    if (check_flag(&flag, "MRIStepGetNumSteps", 1)) { return 1; }
+    flag = ARKodeGetNumSteps(mristep_mem, &mri_nst);
+    if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
 
     flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfse, &mri_nfsi);
     if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return 1; }
 
     if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
     {
-      flag = MRIStepGetNumNonlinSolvIters(mristep_mem, &mri_nni);
-      if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) { return 1; }
+      flag = ARKodeGetNumNonlinSolvIters(mristep_mem, &mri_nni);
+      if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
 
-      flag = MRIStepGetNumNonlinSolvConvFails(mristep_mem, &mri_ncfn);
-      if (check_flag(&flag, "MRIStepGetNumNonlinSolvConvFails", 1))
-      {
-        return 1;
-      }
+      flag = ARKodeGetNumNonlinSolvConvFails(mristep_mem, &mri_ncfn);
+      if (check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1)) { return 1; }
 
-      flag = MRIStepGetNumLinSolvSetups(mristep_mem, &mri_nsetups);
-      if (check_flag(&flag, "MRIStepGetNumLinSolvSetups", 1)) { return 1; }
+      flag = ARKodeGetNumLinSolvSetups(mristep_mem, &mri_nsetups);
+      if (check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1)) { return 1; }
 
-      flag = MRIStepGetNumJacEvals(mristep_mem, &mri_nje);
-      if (check_flag(&flag, "MRIStepGetNumJacEvals", 1)) { return 1; }
+      flag = ARKodeGetNumJacEvals(mristep_mem, &mri_nje);
+      if (check_flag(&flag, "ARKodeGetNumJacEvals", 1)) { return 1; }
 
-      flag = MRIStepGetNumLinRhsEvals(mristep_mem, &mri_nfeLS);
-      check_flag(&flag, "MRIStepGetNumLinRhsEvals", 1);
+      flag = ARKodeGetNumLinRhsEvals(mristep_mem, &mri_nfeLS);
+      check_flag(&flag, "ARKodeGetNumLinRhsEvals", 1);
     }
 
     sunrealtype pow = udata->lambda_f;
@@ -470,8 +467,8 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
   // Clean up
   MRIStepInnerStepper_Free(&inner_stepper);
-  MRIStepFree(&mristep_mem);
-  ARKStepFree(&arkstep_mem);
+  ARKodeFree(&mristep_mem);
+  ARKodeFree(&arkstep_mem);
   if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
   {
     SUNLinSolFree(LS);
