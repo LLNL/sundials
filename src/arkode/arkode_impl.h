@@ -66,23 +66,29 @@ extern "C" {
   ===============================================================*/
 
 /* Basic ARKODE defaults */
-#define Q_DEFAULT      4   /* method order                       */
-#define MXSTEP_DEFAULT 500 /* max steps between returns          */
-#define MAXNEF         7   /* max number of error failures       */
-#define MAXNCF         10  /* max number of convergence failures */
-#define MAXCONSTRFAILS 10  /* max number of constraint failures  */
-#define MXHNIL         10  /* max number of t+h==h warnings      */
+/*   method order */
+#define Q_DEFAULT 4
+/*   max steps between returns */
+#define MXSTEP_DEFAULT 500
+/*   max number of error failures */
+#define MAXNEF 7
+/*   max number of convergence failures */
+#define MAXNCF 10
+/*   max number of constraint failures */
+#define MAXCONSTRFAILS 10
+/*   max number of t+h==h warnings */
+#define MXHNIL 10
 
 /* Numeric constants */
-#define ZERO  SUN_RCONST(0.0)     /* real 0.0     */
-#define TINY  SUN_RCONST(1.0e-10) /* small number */
-#define TENTH SUN_RCONST(0.1)     /* real 0.1     */
-#define HALF  SUN_RCONST(0.5)     /* real 0.5     */
-#define ONE   SUN_RCONST(1.0)     /* real 1.0     */
-#define TWO   SUN_RCONST(2.0)     /* real 2.0     */
-#define THREE SUN_RCONST(3.0)     /* real 3.0     */
-#define FOUR  SUN_RCONST(4.0)     /* real 4.0     */
-#define FIVE  SUN_RCONST(5.0)     /* real 5.0     */
+#define ZERO  SUN_RCONST(0.0)
+#define TINY  SUN_RCONST(1.0e-10)
+#define TENTH SUN_RCONST(0.1)
+#define HALF  SUN_RCONST(0.5)
+#define ONE   SUN_RCONST(1.0)
+#define TWO   SUN_RCONST(2.0)
+#define THREE SUN_RCONST(3.0)
+#define FOUR  SUN_RCONST(4.0)
+#define FIVE  SUN_RCONST(5.0)
 
 /* Control constants for tolerances */
 #define ARK_SS 0
@@ -139,12 +145,45 @@ extern "C" {
 #define ONEPSM SUN_RCONST(1.000001)
 #define ONEMSM SUN_RCONST(0.999999)
 
+/*---------------------------------------------------------------
+  Input flag to linear solver setup routine:  CONVFAIL
+
+     ARK_NO_FAILURES : Either this is the first lsetup call for
+                       this step, or the local error test failed
+                       on the previous attempt at this step (but
+                       the Newton iteration converged).
+
+     ARK_FAIL_BAD_J  : This value is passed to lsetup if
+
+                       (a) The previous Newton corrector
+                           iteration did not converge and the
+                           linear solver's setup routine
+                           indicated that its Jacobian-related
+                           data is not current
+                       or
+
+                       (b) During the previous Newton corrector
+                           iteration, the linear solver's solve
+                           routine failed in a recoverable manner
+                           and the linear solver's setup routine
+                           indicated that its Jacobian-related
+                           data is not current.
+
+     ARK_FAIL_OTHER  : During the current internal step try, the
+                       previous Newton iteration failed to
+                       converge even though the linear solver was
+                       using current Jacobian-related data.
+  --------------------------------------------------------------*/
+#define ARK_NO_FAILURES 0
+#define ARK_FAIL_BAD_J  1
+#define ARK_FAIL_OTHER  2
+
 /*===============================================================
   ARKODE Interface function definitions
   ===============================================================*/
 
-/* NOTE: documentation for the purpose of these functions is
-   located at the end of this file */
+/* NOTE: documentation for the purpose of these internal interface
+   functions is located at the end of this file */
 
 /* linear solver interface functions */
 typedef int (*ARKLinsolInitFn)(ARKodeMem ark_mem);
@@ -157,7 +196,7 @@ typedef int (*ARKLinsolSolveFn)(ARKodeMem ark_mem, N_Vector b, sunrealtype tcur,
                                 sunrealtype client_tol, int mnewt);
 typedef int (*ARKLinsolFreeFn)(ARKodeMem ark_mem);
 
-/* mass-matrix solver interface functions */
+/* mass matrix solver interface functions */
 typedef int (*ARKMassInitFn)(ARKodeMem ark_mem);
 typedef int (*ARKMassSetupFn)(ARKodeMem ark_mem, sunrealtype t, N_Vector vtemp1,
                               N_Vector vtemp2, N_Vector vtemp3);
@@ -166,26 +205,8 @@ typedef int (*ARKMassSolveFn)(ARKodeMem ark_mem, N_Vector b,
                               sunrealtype client_tol);
 typedef int (*ARKMassFreeFn)(ARKodeMem ark_mem);
 
-/* time stepper interface functions */
+/* time stepper interface functions -- general */
 typedef int (*ARKTimestepInitFn)(ARKodeMem ark_mem, int init_type);
-typedef int (*ARKTimestepAttachLinsolFn)(ARKodeMem ark_mem, ARKLinsolInitFn linit,
-                                         ARKLinsolSetupFn lsetup,
-                                         ARKLinsolSolveFn lsolve,
-                                         ARKLinsolFreeFn lfree,
-                                         SUNLinearSolver_Type lsolve_type,
-                                         void* lmem);
-typedef int (*ARKTimestepAttachMasssolFn)(
-  ARKodeMem ark_mem, ARKMassInitFn minit, ARKMassSetupFn msetup,
-  ARKMassMultFn mmult, ARKMassSolveFn msolve, ARKMassFreeFn mfree,
-  sunbooleantype time_dep, SUNLinearSolver_Type msolve_type, void* mass_mem);
-typedef void (*ARKTimestepDisableLSetup)(ARKodeMem ark_mem);
-typedef void (*ARKTimestepDisableMSetup)(ARKodeMem ark_mem);
-typedef void* (*ARKTimestepGetLinMemFn)(ARKodeMem ark_mem);
-typedef void* (*ARKTimestepGetMassMemFn)(ARKodeMem ark_mem);
-typedef ARKRhsFn (*ARKTimestepGetImplicitRHSFn)(ARKodeMem ark_mem);
-typedef int (*ARKTimestepGetGammasFn)(ARKodeMem ark_mem, sunrealtype* gamma,
-                                      sunrealtype* gamrat, sunbooleantype** jcur,
-                                      sunbooleantype* dgamma_fail);
 typedef int (*ARKTimestepFullRHSFn)(ARKodeMem ark_mem, sunrealtype t,
                                     N_Vector y, N_Vector f, int mode);
 typedef int (*ARKTimestepStepFn)(ARKodeMem ark_mem, sunrealtype* dsm, int* nflag);
@@ -200,11 +221,30 @@ typedef int (*ARKTimestepReset)(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR);
 typedef void (*ARKTimestepFree)(ARKodeMem ark_mem);
 typedef void (*ARKTimestepPrintMem)(ARKodeMem ark_mem, FILE* outfile);
 typedef int (*ARKTimestepSetDefaults)(ARKodeMem ark_mem);
-typedef int (*ARKTimestepComputeState)(ARKodeMem ark_mem, N_Vector zcor,
-                                       N_Vector z);
+typedef int (*ARKTimestepSetOrder)(ARKodeMem ark_mem, int maxord);
+
+/* time stepper interface functions -- temporal adaptivity */
+typedef int (*ARKTimestepGetEstLocalErrors)(ARKodeMem ark_mem, N_Vector ele);
+
+/* time stepper interface functions -- relaxation */
 typedef int (*ARKTimestepSetRelaxFn)(ARKodeMem ark_mem, ARKRelaxFn rfn,
                                      ARKRelaxJacFn rjac);
-typedef int (*ARKTimestepSetOrder)(ARKodeMem ark_mem, int maxord);
+
+/* time stepper interface functions -- implicit solvers */
+typedef int (*ARKTimestepAttachLinsolFn)(ARKodeMem ark_mem, ARKLinsolInitFn linit,
+                                         ARKLinsolSetupFn lsetup,
+                                         ARKLinsolSolveFn lsolve,
+                                         ARKLinsolFreeFn lfree,
+                                         SUNLinearSolver_Type lsolve_type,
+                                         void* lmem);
+typedef void (*ARKTimestepDisableLSetup)(ARKodeMem ark_mem);
+typedef void* (*ARKTimestepGetLinMemFn)(ARKodeMem ark_mem);
+typedef ARKRhsFn (*ARKTimestepGetImplicitRHSFn)(ARKodeMem ark_mem);
+typedef int (*ARKTimestepGetGammasFn)(ARKodeMem ark_mem, sunrealtype* gamma,
+                                      sunrealtype* gamrat, sunbooleantype** jcur,
+                                      sunbooleantype* dgamma_fail);
+typedef int (*ARKTimestepComputeState)(ARKodeMem ark_mem, N_Vector zcor,
+                                       N_Vector z);
 typedef int (*ARKTimestepSetNonlinearSolver)(ARKodeMem ark_mem,
                                              SUNNonlinearSolver NLS);
 typedef int (*ARKTimestepSetLinear)(ARKodeMem ark_mem, int timedepend);
@@ -224,7 +264,6 @@ typedef int (*ARKTimestepSetStagePredictFn)(ARKodeMem ark_mem,
                                             ARKStagePredictFn PredictStage);
 typedef int (*ARKTimestepGetNumLinSolvSetups)(ARKodeMem ark_mem,
                                               long int* nlinsetups);
-typedef int (*ARKTimestepGetEstLocalErrors)(ARKodeMem ark_mem, N_Vector ele);
 typedef int (*ARKTimestepGetCurrentGamma)(ARKodeMem ark_mem, sunrealtype* gamma);
 typedef int (*ARKTimestepGetNonlinearSystemData)(
   ARKodeMem ark_mem, sunrealtype* tcur, N_Vector* zpred, N_Vector* z,
@@ -235,6 +274,15 @@ typedef int (*ARKTimestepGetNumNonlinSolvConvFails)(ARKodeMem ark_mem,
                                                     long int* nnfails);
 typedef int (*ARKTimestepGetNonlinSolvStats)(ARKodeMem ark_mem, long int* nniters,
                                              long int* nnfails);
+
+/* time stepper interface functions -- non-identity mass matrices */
+typedef int (*ARKTimestepAttachMasssolFn)(
+  ARKodeMem ark_mem, ARKMassInitFn minit, ARKMassSetupFn msetup,
+  ARKMassMultFn mmult, ARKMassSolveFn msolve, ARKMassFreeFn mfree,
+  sunbooleantype time_dep, SUNLinearSolver_Type msolve_type, void* mass_mem);
+typedef void (*ARKTimestepDisableMSetup)(ARKodeMem ark_mem);
+typedef void* (*ARKTimestepGetMassMemFn)(ARKodeMem ark_mem);
+
 
 /*===============================================================
   ARKODE interpolation module definition
@@ -341,16 +389,8 @@ struct ARKodeMemRec
   void* r_data;                  /* user pointer passed to rfun           */
   sunbooleantype constraintsSet; /* check inequality constraints          */
 
-  /* Time stepper module */
-  ARKTimestepAttachLinsolFn step_attachlinsol;
-  ARKTimestepAttachMasssolFn step_attachmasssol;
-  ARKTimestepDisableLSetup step_disablelsetup;
-  ARKTimestepDisableMSetup step_disablemsetup;
-  ARKTimestepGetLinMemFn step_getlinmem;
-  ARKTimestepGetMassMemFn step_getmassmem;
-  ARKTimestepGetImplicitRHSFn step_getimplicitrhs;
-  ARKMassMultFn step_mmult;
-  ARKTimestepGetGammasFn step_getgammas;
+  /* Time stepper module -- general */
+  void* step_mem;
   ARKTimestepInitFn step_init;
   ARKTimestepFullRHSFn step_fullrhs;
   ARKTimestepStepFn step;
@@ -362,9 +402,24 @@ struct ARKodeMemRec
   ARKTimestepFree step_free;
   ARKTimestepPrintMem step_printmem;
   ARKTimestepSetDefaults step_setdefaults;
-  ARKTimestepComputeState step_computestate;
-  ARKTimestepSetRelaxFn step_setrelaxfn;
   ARKTimestepSetOrder step_setorder;
+
+  /* Time stepper module -- temporal adaptivity */
+  sunbooleantype step_supports_adaptive;
+  ARKTimestepGetEstLocalErrors step_getestlocalerrors;
+
+  /* Time stepper module -- relaxation */
+  sunbooleantype step_supports_relaxation;
+  ARKTimestepSetRelaxFn step_setrelaxfn;
+
+  /* Time stepper module -- implcit solvers */
+  sunbooleantype step_supports_implicit;
+  ARKTimestepAttachLinsolFn step_attachlinsol;
+  ARKTimestepDisableLSetup step_disablelsetup;
+  ARKTimestepGetLinMemFn step_getlinmem;
+  ARKTimestepGetImplicitRHSFn step_getimplicitrhs;
+  ARKTimestepGetGammasFn step_getgammas;
+  ARKTimestepComputeState step_computestate;
   ARKTimestepSetNonlinearSolver step_setnonlinearsolver;
   ARKTimestepSetLinear step_setlinear;
   ARKTimestepSetNonlinear step_setnonlinear;
@@ -378,18 +433,19 @@ struct ARKodeMemRec
   ARKTimestepSetMaxNonlinIters step_setmaxnonliniters;
   ARKTimestepSetNonlinConvCoef step_setnonlinconvcoef;
   ARKTimestepSetStagePredictFn step_setstagepredictfn;
-  ARKTimestepGetEstLocalErrors step_getestlocalerrors;
   ARKTimestepGetNumLinSolvSetups step_getnumlinsolvsetups;
   ARKTimestepGetCurrentGamma step_getcurrentgamma;
   ARKTimestepGetNonlinearSystemData step_getnonlinearsystemdata;
   ARKTimestepGetNumNonlinSolvIters step_getnumnonlinsolviters;
   ARKTimestepGetNumNonlinSolvConvFails step_getnumnonlinsolvconvfails;
   ARKTimestepGetNonlinSolvStats step_getnonlinsolvstats;
-  sunbooleantype step_supports_adaptive;
-  sunbooleantype step_supports_implicit;
+
+  /* Time stepper module -- non-identity mass matrices */
   sunbooleantype step_supports_massmatrix;
-  sunbooleantype step_supports_relaxation;
-  void* step_mem;
+  ARKTimestepAttachMasssolFn step_attachmasssol;
+  ARKTimestepDisableMSetup step_disablemsetup;
+  ARKTimestepGetMassMemFn step_getmassmem;
+  ARKMassMultFn step_mmult;
 
   /* N_Vector storage */
   N_Vector ewt;                 /* error weight vector                        */
@@ -500,432 +556,6 @@ struct ARKodeMemRec
                               failed the time step error test.  */
 };
 
-/*===============================================================
-  Interface To Linear Solvers
-  ===============================================================*/
-
-/*---------------------------------------------------------------
-  Communication between ARKODE and a ARKODE Linear Solver
-  -----------------------------------------------------------------
-  convfail (input to lsetup)
-
-  ARK_NO_FAILURES : Either this is the first lsetup call for
-                    this step, or the local error test failed on
-                    the previous attempt at this step (but the
-                    Newton iteration converged).
-
-  ARK_FAIL_BAD_J  : This value is passed to lsetup if
-
-                   (a) The previous Newton corrector iteration
-                       did not converge and the linear solver's
-                       setup routine indicated that its Jacobian-
-                       related data is not current
-                or
-                   (b) During the previous Newton corrector
-                       iteration, the linear solver's solve
-                       routine failed in a recoverable manner
-                       and the linear solver's setup routine
-                       indicated that its Jacobian-related data
-                       is not current.
-
-  ARK_FAIL_OTHER  : During the current internal step try, the
-                    previous Newton iteration failed to converge
-                    even though the linear solver was using
-                    current Jacobian-related data.
-  --------------------------------------------------------------*/
-
-/* Constants for convfail (input to lsetup) */
-#define ARK_NO_FAILURES 0
-#define ARK_FAIL_BAD_J  1
-#define ARK_FAIL_OTHER  2
-
-/*---------------------------------------------------------------
-  ARKLinsolInitFn
-  ---------------------------------------------------------------
-  This function should complete initializations for a specific
-  ARKODE linear solver interface, such as counters and statistics.
-  This should return 0 if it has successfully initialized the
-  ARKODE linear solver interface and a negative value otherwise.
-  If an error does occur, an appropriate message should be sent
-  to the error handler function.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKLinsolSetupFn
-  ---------------------------------------------------------------
-  This function should prepare the linear solver interface for
-  subsequent calls to the ARKLinsolSolveFn routine. It may
-  recompute Jacobian-related data is it deems necessary. Its
-  parameters are as follows:
-
-  arkode_mem - void* problem memory pointer of type ARKodeMem. See
-           the typedef earlier in this file.
-
-  convfail - a flag to indicate any problem that occurred during
-             the solution of the nonlinear equation on the
-             current time step for which the linear solver is
-             being used. This flag can be used to help decide
-             whether the Jacobian data kept by a ARKODE linear
-             solver needs to be updated or not.
-             Its possible values have been documented above.
-
-  tpred - the time for the current ARKODE internal step.
-
-  ypred - the predicted y vector for the current ARKODE internal
-          step.
-
-  fpred - f(tpred, ypred).
-
-  jcurPtr - a pointer to a boolean to be filled in by lsetup.
-            The function should set *jcurPtr=SUNTRUE if its Jacobian
-            data is current after the call and should set
-            *jcurPtr=SUNFALSE if its Jacobian data is not current.
-            Note: If lsetup calls for re-evaluation of
-            Jacobian data (based on convfail and ARKODE state
-            data), it should return *jcurPtr=SUNTRUE always;
-            otherwise an infinite loop can result.
-
-  vtemp1 - temporary N_Vector provided for use by lsetup.
-
-  vtemp3 - temporary N_Vector provided for use by lsetup.
-
-  vtemp3 - temporary N_Vector provided for use by lsetup.
-
-  This routine should return 0 if successful, a positive value
-  for a recoverable error, and a negative value for an
-  unrecoverable error.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKLinsolSolveFn
-  ---------------------------------------------------------------
-  This routine must solve the linear equation P x = b, where
-  P is some approximation to (M - gamma J), M is the system mass
-  matrix, J = (df/dy)(tcur,ycur), and the RHS vector b is input. The
-  N-vector ycur contains the solver's current approximation to
-  y(tcur) and the vector fcur contains the N_Vector f(tcur,ycur).
-  The input client_tol contains the desired accuracy (in the wrms
-  norm) of the routine calling the solver; the ARKDLS solver
-  ignores this value and the ARKSPILS solver tightens it by the
-  factor eplifac.  The input mnewt is the current nonlinear
-  iteration index (ignored by ARKDLS, used by ARKSPILS).
-
-  Additional vectors that are set within the ARKODE memory
-  structure, and that may be of use within an iterative linear
-  solver, include:
-
-  ewt - the error weight vector (scaling for solution vector)
-
-  rwt - the residual weight vector (scaling for rhs vector)
-
-  The solution is to be returned in the vector b.  This should
-  return a positive value for a recoverable error and a
-  negative value for an unrecoverable error. Success is
-  indicated by a 0 return value.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKLinsolFreeFn
-  ---------------------------------------------------------------
-  This should free up any memory allocated by the linear solver
-  interface. This routine is called once a problem has been
-  completed and the linear solver is no longer needed.  It should
-  return 0 upon success, or a nonzero on failure.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKMassInitFn
-  ---------------------------------------------------------------
-  This function should complete initializations for a specific
-  mass matrix linear solver interface, such as counters and
-  statistics. A function of this type should return 0 if it
-  has successfully initialized the mass matrix linear solver and
-  a negative value otherwise.  If an error does occur, an
-  appropriate message should be sent to the error handler function.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKMassSetupFn
-  ---------------------------------------------------------------
-  This should prepare the mass matrix solver interface for
-  subsequent calls to the ARKMassMultFn and ARKMassSolveFn
-  routines. It may recompute mass matrix related data is it deems
-  necessary. Its parameters are as follows:
-
-  arkode_mem - void* problem memory pointer of type ARKodeMem. See
-           the typedef earlier in this file.
-  t - the 'time' at which to setup the mass matrix
-  vtemp1, vtemp2, vtemp3 - temporary N_Vectors
-
-  This routine should return 0 if successful, and a negative
-  value for an unrecoverable error.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKMassMultFn
-  ---------------------------------------------------------------
-  This must compute the matrix-vector product, z = M*v, where M is
-  the system mass matrix the vector v is input, and the vector z
-  is output. The mmult routine returns a positive value for a
-  recoverable error and a negative value for an unrecoverable
-  error. Success is indicated by a 0 return value.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKMassSolveFn
-  ---------------------------------------------------------------
-  This must solve the linear equation M x = b, where M is the
-  system mass matrix, and the RHS vector b is input. The
-  sunrealtype client_tol contains the desired accuracy (in the wrms
-  norm) of the routine calling the solver; the ARKDLS solver
-  ignore this value and the ARKSPILS solver tightens it by the
-  factor eplifac.  The solution is to be returned in the vector b.
-
-  Additional vectors that are set within the ARKODE memory
-  structure, and that may be of use within an iterative linear
-  solver, include:
-
-  ewt - the error weight vector (scaling for solution vector)
-
-  rwt - the residual weight vector (scaling for rhs vector)
-
-  This routine should return a positive value for a recoverable
-  error and a negative value for an unrecoverable error. Success
-  is indicated by a 0 return value.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKMassFreeFn
-  ---------------------------------------------------------------
-  This should free up any memory allocated by the mass matrix
-  solver interface. This routine is called once a problem has been
-  completed and the solver is no longer needed.  It should return
-  0 upon success, or a nonzero on failure.
-  ---------------------------------------------------------------*/
-
-/*===============================================================
-  Interface to Time Steppers
-  ===============================================================*/
-
-/*---------------------------------------------------------------
-  ARKTimestepAttachLinsolFn
-  ---------------------------------------------------------------
-  This routine should attach the various set of system linear
-  solver interface routines, linear solver interface data
-  structure, and system linear solver type to the ARKODE time
-  stepping module pointed to in ark_mem->step_mem.  This will
-  be called by the ARKODE linear solver interface.
-
-  This routine should return 0 if it has successfully attached
-  these items and a negative value otherwise.  If an error does
-  occur, an appropriate message should be sent to the ARKODE
-  error handler function.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKTimestepAttachMasssolFn
-  ---------------------------------------------------------------
-  This routine should attach the various set of mass matrix
-  linear solver interface routines, data structure, mass matrix
-  type, and solver type to the ARKODE time stepping module
-  pointed to in ark_mem->step_mem.  This will be called by the
-  ARKODE linear solver interface.
-
-  This routine should return 0 if it has successfully attached
-  these items, and a negative value otherwise.  If an error does
-  occur, an appropriate message should be sent to the ARKODE
-  error handler function.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKTimestepDisableLSetup
-  ---------------------------------------------------------------
-  This routine should NULLify any ARKLinsolSetupFn function
-  pointer stored in the ARKODE time stepping module (initially set
-  in a call to ARKTimestepAttachLinsolFn).
-
-  This routine has no return value.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKTimestepDisableMSetup
-  ---------------------------------------------------------------
-  This routine should NULLify any ARKMassSetupFn function pointer
-  stored in the ARKODE time stepping module (initially set in a
-  call to ARKTimestepAttachMasssolFn).
-
-  This routine has no return value.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKTimestepGetLinMemFn
-  ---------------------------------------------------------------
-  This routine should return the linear solver memory structure
-  used by the ARKODE time stepping module pointed to in
-  ark_mem->step_mem.  This will be called by the ARKODE linear
-  solver interface.
-
-  This routine should return NULL if no linear solver memory
-  structure is attached.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKTimestepGetMassMemFn
-  ---------------------------------------------------------------
-  This routine should return the mass matrix linear solver memory
-  structure used by the ARKODE time stepping module pointed to in
-  ark_mem->step_mem.  This will be called the ARKODE mass matrix
-  solver interface.
-
-  This routine should return NULL if no mass matrix solver memory
-  structure is attached.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKTimestepGetImplicitRHSFn
-  ---------------------------------------------------------------
-  This routine should return the implicit RHS function pointer for
-  the current nonlinear solve (if there are multiple); it is used
-  inside the linear solver interfaces for approximation of
-  Jacobian matrix elements and/or matrix-vector products.
-
-  This routine should return NULL if no implicit RHS function is
-  active.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKTimestepGetGammasFn
-  ---------------------------------------------------------------
-  This routine should fill the current value of gamma, the ratio
-  of the current gamma value to the gamma value when the
-  Jacobian/preconditioner was last updated, a pointer to the
-  time step module internal sunbooleantype variable indicating
-  whether the preconditioner is current, and a logic value
-  indicating whether the gamma value is sufficiently stale
-  to cause recomputation of Jacobian/preconditioner data.  Here,
-  gamma is the coefficient preceding the RHS Jacobian
-  matrix, J, in the full nonlinear system Jacobian,
-  A = M - gamma*J.
-
-  The time step module must contain a sunbooleantype variable to
-  provide for the boolentype pointer (jcur).  This is only used
-  by iterative linear solvers, so could be NULL for time step
-  modules that only work with direct linear solvers.  Optionally,
-  the value of this parameter could be set to SUNFALSE prior to
-  return from the ARKTimestepGetGammasFn to force recalculation
-  of preconditioner information.
-
-  The value of the logic flag is used as follows:  if a previous
-  Newton iteration failed due to a bad Jacobian/preconditioner,
-  and this flag is SUNFALSE, this will trigger recalculation of
-  the Jacobian/preconditioner.
-
-  This routine should return 0 if it has successfully attached
-  these items, and a negative value otherwise.  If an error does
-  occur, an appropriate message should be sent to the ARKODE
-  error handler function.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKTimestepInitFn
-  ---------------------------------------------------------------
-  This routine is called just prior to performing internal time
-  steps (after all user "set" routines have been called) from
-  within arkInitialSetup. It should complete initializations for
-  a specific ARKODE time stepping module, such as verifying
-  compatibility of user-specified linear and nonlinear solver
-  objects. The input init_type flag indicates if the call is
-  for (re-)initializing, resizing, or resetting the problem.
-
-  This routine should return 0 if it has successfully initialized
-  the ARKODE time stepper module and a negative value otherwise.
-  If an error does occur, an appropriate message should be sent
-  to the error handler function.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKTimestepFullRHSFn
-  ---------------------------------------------------------------
-  This routine must compute the full ODE right-hand side function
-  at the inputs (t,y), and store the result in the N_Vector f.
-  Depending on the type of stepper, this may be just the single
-  ODE RHS function supplied (e.g. ERK, DIRK, IRK), or it may be
-  the sum of many ODE RHS functions (e.g. ARK, MRI).  The 'mode'
-  indicates where this routine is called:
-
-     ARK_FULLRHS_START -> called at the beginning of a simulation
-                          i.e., at (tn, yn) = (t0, y0) or (tR, yR)
-
-     ARK_FULLRHS_END   -> called at the end of a successful step i.e,
-                          at (tcur, ycur) or the start of the subsequent
-                          step i.e., at (tn, yn) = (tcur, ycur) from
-                          the end of the last step
-
-     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
-
-  It is recommended that the stepper use the mode information to
-  maximize reuse between calls to this function and RHS
-  evaluations inside the stepper itself.
-
-  This routine is only required to be supplied to ARKODE if:
-  * ARKODE's initial time step selection algorithm is used,
-  * the user requests temporal root-finding,
-  * the Hermite interpolation module is used, or
-  * the user requests the "bootstrap" implicit predictor.
-  Note that any stepper can itself require that this routine
-  exist for its own internal business (e.g., ERKStep).
-
-  This routine should return 0 if successful, and a negative value
-  otherwise.  If an error does occur, an appropriate message
-  should be sent to the error handler function.
-  ---------------------------------------------------------------*/
-
-/*---------------------------------------------------------------
-  ARKTimestepStepFn
-  ---------------------------------------------------------------
-  This routine serves the primary purpose of any ARKODE
-  time-stepping module: it performs a single time step of the
-  method (with embedding, if possible).
-
-  It is assumed that this routine uses/modifies general problem
-  data directly out of the main ARKodeMem structure, but that all
-  method-specific data be stored in the step-module-specific data
-  structure.  Relevant items in the ARKodeMem structure for this
-  purpose include:
-  - tcur -- the current "t" value
-  - ycur -- the current "y" value on input; should hold the
-    time-evolved solution on output
-  - h -- the suggested/maximum "h" value to use; if the step
-    eventually completes with a smaller "h" value, then that
-    should be stored here
-  - tn -- "t" value at end of the last successful step
-  - nst -- the counter for overall successful steps
-  - user_data -- the (void *) pointer returned to user for
-    RHS calls
-  - report / diagfp -- if any diagnostic information is
-    to be saved to disk, the report flag indicates whether
-    this is enabled, and diagfp provides the file pointer
-    where this information should be written
-
-  The output variable dsmPtr should contain estimate of the
-  weighted local error if an embedding is present; otherwise it
-  should be 0.
-
-  The input/output variable nflagPtr is used to gauge convergence
-  of any algebraic solvers within the step.  At the start of a new
-  time step, this will initially have the value FIRST_CALL.  On
-  return from this function, nflagPtr should have a value:
-            0 => algebraic solve completed successfully
-           >0 => solve did not converge at this step size
-                 (but may with a smaller stepsize)
-           <0 => solve encountered an unrecoverable failure
-
-  The return value from this routine is:
-            0 => step completed successfully
-           >0 => step encountered recoverable failure;
-                 reduce step and retry (if possible)
-           <0 => step encountered unrecoverable failure
-  ---------------------------------------------------------------*/
 
 /*===============================================================
   ARKODE PROTOTYPE FUNCTIONS (MAY BE REPLACED BY USER)
@@ -953,14 +583,16 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
 #define SUNDIALS_UNUSED
 #endif
 
+ARKodeMem arkCreate(SUNContext sunctx);
 int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type);
 sunbooleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector* v);
 sunbooleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector** v,
                                 sunindextype lrw1, long int* lrw,
                                 sunindextype liw1, long int* liw);
-void arkFreeVec(ARKodeMem ark_mem, N_Vector* v);
-void arkFreeVecArray(int count, N_Vector** v, sunindextype lrw1, long int* lrw,
-                     sunindextype liw1, long int* liw);
+sunbooleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl);
+sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
+                                void* resize_data, sunindextype lrw_diff,
+                                sunindextype liw_diff, N_Vector tmpl);
 sunbooleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
                             void* resize_data, sunindextype lrw_diff,
                             sunindextype liw_diff, N_Vector tmpl, N_Vector* v);
@@ -968,13 +600,12 @@ sunbooleantype arkResizeVecArray(ARKVecResizeFn resize, void* resize_data,
                                  int count, N_Vector tmpl, N_Vector** v,
                                  sunindextype lrw_diff, long int* lrw,
                                  sunindextype liw_diff, long int* liw);
+void arkFreeVec(ARKodeMem ark_mem, N_Vector* v);
+void arkFreeVecArray(int count, N_Vector** v, sunindextype lrw1, long int* lrw,
+                     sunindextype liw1, long int* liw);
+void arkFreeVectors(ARKodeMem ark_mem);
 sunbooleantype arkCheckTimestepper(ARKodeMem ark_mem);
 sunbooleantype arkCheckNvector(N_Vector tmpl);
-sunbooleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl);
-sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
-                                void* resize_data, sunindextype lrw_diff,
-                                sunindextype liw_diff, N_Vector tmpl);
-void arkFreeVectors(ARKodeMem ark_mem);
 
 int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout);
 int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
@@ -991,8 +622,6 @@ int arkEwtSetSV(N_Vector ycur, N_Vector weight, void* arkode_mem);
 int arkEwtSetSmallReal(N_Vector ycur, N_Vector weight, void* arkode_mem);
 int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My, N_Vector weight);
 int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My, N_Vector weight);
-
-ARKodeMem arkCreate(SUNContext sunctx);
 
 int arkPredict_MaximumOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess);
 int arkPredict_VariableOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess);
@@ -1156,6 +785,671 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   "solver configuration)."
 #define MSG_ARK_INTERPOLATION_FAIL \
   "At " MSG_TIME ", interpolating the solution failed."
+
+/*===============================================================
+
+  Documentation for internal ARKODE interfaces
+
+  ===============================================================
+
+  Interfaces To Implicit Solvers
+
+  ---------------------------------------------------------------
+
+  ARKLinsolInitFn
+
+  This function should complete initializations for a specific
+  ARKODE linear solver interface, such as counters and statistics.
+  This should return 0 if it has successfully initialized the
+  ARKODE linear solver interface and a negative value otherwise.
+  If an error does occur, an appropriate message should be sent
+  to the error handler function.
+
+  ---------------------------------------------------------------
+
+  ARKLinsolSetupFn
+
+  This function should prepare the linear solver interface for
+  subsequent calls to the ARKLinsolSolveFn routine. It may
+  recompute Jacobian-related data is it deems necessary. Its
+  parameters are as follows:
+
+  arkode_mem - void* problem memory pointer of type ARKodeMem. See
+           the typedef earlier in this file.
+
+  convfail - a flag to indicate any problem that occurred during
+             the solution of the nonlinear equation on the
+             current time step for which the linear solver is
+             being used. This flag can be used to help decide
+             whether the Jacobian data kept by a ARKODE linear
+             solver needs to be updated or not.
+             Its possible values have been documented above.
+
+  tpred - the time for the current ARKODE internal step.
+
+  ypred - the predicted y vector for the current ARKODE internal
+          step.
+
+  fpred - f(tpred, ypred).
+
+  jcurPtr - a pointer to a boolean to be filled in by lsetup.
+            The function should set *jcurPtr=SUNTRUE if its Jacobian
+            data is current after the call and should set
+            *jcurPtr=SUNFALSE if its Jacobian data is not current.
+            Note: If lsetup calls for re-evaluation of
+            Jacobian data (based on convfail and ARKODE state
+            data), it should return *jcurPtr=SUNTRUE always;
+            otherwise an infinite loop can result.
+
+  vtemp1 - temporary N_Vector provided for use by lsetup.
+
+  vtemp3 - temporary N_Vector provided for use by lsetup.
+
+  vtemp3 - temporary N_Vector provided for use by lsetup.
+
+  This routine should return 0 if successful, a positive value
+  for a recoverable error, and a negative value for an
+  unrecoverable error.
+
+  ---------------------------------------------------------------
+
+  ARKLinsolSolveFn
+
+  This routine must solve the linear equation P x = b, where
+  P is some approximation to (M - gamma J), M is the system mass
+  matrix, J = (df/dy)(tcur,ycur), and the RHS vector b is input. The
+  N-vector ycur contains the solver's current approximation to
+  y(tcur) and the vector fcur contains the N_Vector f(tcur,ycur).
+  The input client_tol contains the desired accuracy (in the wrms
+  norm) of the routine calling the solver; the ARKDLS solver
+  ignores this value and the ARKSPILS solver tightens it by the
+  factor eplifac.  The input mnewt is the current nonlinear
+  iteration index (ignored by ARKDLS, used by ARKSPILS).
+
+  Additional vectors that are set within the ARKODE memory
+  structure, and that may be of use within an iterative linear
+  solver, include:
+
+  ewt - the error weight vector (scaling for solution vector)
+
+  rwt - the residual weight vector (scaling for rhs vector)
+
+  The solution is to be returned in the vector b.  This should
+  return a positive value for a recoverable error and a
+  negative value for an unrecoverable error. Success is
+  indicated by a 0 return value.
+
+  ---------------------------------------------------------------
+
+  ARKLinsolFreeFn
+
+  This should free up any memory allocated by the linear solver
+  interface. This routine is called once a problem has been
+  completed and the linear solver is no longer needed.  It should
+  return 0 upon success, or a nonzero on failure.
+
+  ===============================================================
+
+  Interfaces For Non-Identity Mass Matrix Support
+
+  ---------------------------------------------------------------
+
+  ARKMassInitFn
+
+  This function should complete initializations for a specific
+  mass matrix linear solver interface, such as counters and
+  statistics. A function of this type should return 0 if it
+  has successfully initialized the mass matrix linear solver and
+  a negative value otherwise.  If an error does occur, an
+  appropriate message should be sent to the error handler function.
+
+  ---------------------------------------------------------------
+
+  ARKMassSetupFn
+
+  This should prepare the mass matrix solver interface for
+  subsequent calls to the ARKMassMultFn and ARKMassSolveFn
+  routines. It may recompute mass matrix related data is it deems
+  necessary. Its parameters are as follows:
+
+  arkode_mem - void* problem memory pointer of type ARKodeMem. See
+           the typedef earlier in this file.
+  t - the 'time' at which to setup the mass matrix
+  vtemp1, vtemp2, vtemp3 - temporary N_Vectors
+
+  This routine should return 0 if successful, and a negative
+  value for an unrecoverable error.
+
+  ---------------------------------------------------------------
+
+  ARKMassMultFn
+
+  This must compute the matrix-vector product, z = M*v, where M is
+  the system mass matrix the vector v is input, and the vector z
+  is output. The mmult routine returns a positive value for a
+  recoverable error and a negative value for an unrecoverable
+  error. Success is indicated by a 0 return value.
+
+  ---------------------------------------------------------------
+
+  ARKMassSolveFn
+
+  This must solve the linear equation M x = b, where M is the
+  system mass matrix, and the RHS vector b is input. The
+  sunrealtype client_tol contains the desired accuracy (in the wrms
+  norm) of the routine calling the solver; the ARKDLS solver
+  ignore this value and the ARKSPILS solver tightens it by the
+  factor eplifac.  The solution is to be returned in the vector b.
+
+  Additional vectors that are set within the ARKODE memory
+  structure, and that may be of use within an iterative linear
+  solver, include:
+
+  ewt - the error weight vector (scaling for solution vector)
+
+  rwt - the residual weight vector (scaling for rhs vector)
+
+  This routine should return a positive value for a recoverable
+  error and a negative value for an unrecoverable error. Success
+  is indicated by a 0 return value.
+
+  ---------------------------------------------------------------
+
+  ARKMassFreeFn
+
+  This should free up any memory allocated by the mass matrix
+  solver interface. This routine is called once a problem has been
+  completed and the solver is no longer needed.  It should return
+  0 upon success, or a nonzero on failure.
+
+  ===============================================================
+
+  Internal Interface to Time Steppers -- General
+
+  ---------------------------------------------------------------
+
+  ARKTimestepInitFn
+
+  This routine is called just prior to performing internal time
+  steps (after all user "set" routines have been called) from
+  within arkInitialSetup. It should complete initializations for
+  a specific ARKODE time stepping module, such as verifying
+  compatibility of user-specified linear and nonlinear solver
+  objects. The input init_type flag indicates if the call is
+  for (re-)initializing, resizing, or resetting the problem.
+
+  This routine should return 0 if it has successfully initialized
+  the ARKODE time stepper module and a negative value otherwise.
+  If an error does occur, an appropriate message should be sent
+  to the error handler function.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepFullRHSFn
+
+  This routine must compute the full ODE right-hand side function
+  at the inputs (t,y), and store the result in the N_Vector f.
+  Depending on the type of stepper, this may be just the single
+  ODE RHS function supplied (e.g. ERK, DIRK, IRK), or it may be
+  the sum of many ODE RHS functions (e.g. ARK, MRI).  The 'mode'
+  indicates where this routine is called:
+
+     ARK_FULLRHS_START -> called at the beginning of a simulation
+                          i.e., at (tn, yn) = (t0, y0) or (tR, yR)
+
+     ARK_FULLRHS_END   -> called at the end of a successful step i.e,
+                          at (tcur, ycur) or the start of the subsequent
+                          step i.e., at (tn, yn) = (tcur, ycur) from
+                          the end of the last step
+
+     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
+
+  It is recommended that the stepper use the mode information to
+  maximize reuse between calls to this function and RHS
+  evaluations inside the stepper itself.
+
+  This routine is only required to be supplied to ARKODE if:
+  * ARKODE's initial time step selection algorithm is used,
+  * the user requests temporal root-finding,
+  * the Hermite interpolation module is used, or
+  * the user requests the "bootstrap" implicit predictor.
+  Note that any stepper can itself require that this routine
+  exist for its own internal business (e.g., ERKStep).
+
+  This routine should return 0 if successful, and a negative value
+  otherwise.  If an error does occur, an appropriate message
+  should be sent to the error handler function.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepStepFn
+
+  This routine serves the primary purpose of any ARKODE
+  time-stepping module: it performs a single time step of the
+  method (with embedding, if possible).
+
+  It is assumed that this routine uses/modifies general problem
+  data directly out of the main ARKodeMem structure, but that all
+  method-specific data be stored in the step-module-specific data
+  structure.  Relevant items in the ARKodeMem structure for this
+  purpose include:
+  - tcur -- the current "t" value
+  - ycur -- the current "y" value on input; should hold the
+    time-evolved solution on output
+  - h -- the suggested/maximum "h" value to use; if the step
+    eventually completes with a smaller "h" value, then that
+    should be stored here
+  - tn -- "t" value at end of the last successful step
+  - nst -- the counter for overall successful steps
+  - user_data -- the (void *) pointer returned to user for
+    RHS calls
+  - report / diagfp -- if any diagnostic information is
+    to be saved to disk, the report flag indicates whether
+    this is enabled, and diagfp provides the file pointer
+    where this information should be written
+
+  The output variable dsmPtr should contain estimate of the
+  weighted local error if an embedding is present; otherwise it
+  should be 0.
+
+  The input/output variable nflagPtr is used to gauge convergence
+  of any algebraic solvers within the step.  At the start of a new
+  time step, this will initially have the value FIRST_CALL.  On
+  return from this function, nflagPtr should have a value:
+            0 => algebraic solve completed successfully
+           >0 => solve did not converge at this step size
+                 (but may with a smaller stepsize)
+           <0 => solve encountered an unrecoverable failure
+
+  The return value from this routine is:
+            0 => step completed successfully
+           >0 => step encountered recoverable failure;
+                 reduce step and retry (if possible)
+           <0 => step encountered unrecoverable failure
+
+  ---------------------------------------------------------------
+
+  ARKTimetepSetUserDataFn
+
+  This optional routine provides the input from ARKodeSetUserData
+  to the stepper.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepPrintAllStats
+
+  This optional routine allows the stepper to optionally print
+  out any internally-stored solver statistics when
+  ARKodePrintAllStats is called.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepWriteParameters
+
+  This optional routine allows the stepper to optionally print
+  out any solver parameters when ARKodeWriteParameters is called.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepResize
+
+  This optional routine allows the stepper to optionally resize
+  any internal vector storage when ARKodeResize is called.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepReset
+
+  This optional routine allows the stepper to reset any internal
+  data when ARKodeReset is called.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepFree
+
+  This optional routine allows the stepper the free any
+  interally-stored memory when ARKodeFree is called.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepPrintMem
+
+  This optional routine allows the stepper to output any internal
+  memory typically for debugging purposes) when ARKodePrintMem is
+  called.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetDefaults
+
+  This optional routine allows the stepper to reset any internal
+  solver parameters to their default values, and is called by
+  ARKodeSetDefaults.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetOrder
+
+  This optional routine allows the stepper to accept any user-
+  requested method order parameter that was passed to
+  ARKodeSetOrder.
+
+  ===============================================================
+
+  Internal Interface to Time Steppers -- Temporal Adaptivity
+
+  These should only be provided if the stepper supports temporal
+  adaptivity, and should be indicated by setting the flag
+  "step_supports_adaptive" to SUNTRUE.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepGetEstLocalErrors
+
+  This routine requests the stepper to copy its internal
+  estimate of the local trunction error to the output (called by
+  ARKodeGetEstLocalErrors).
+
+  ===============================================================
+
+  Internal Interface to Time Steppers -- Relaxation
+
+  These should only be provided if the stepper supports
+  "relaxation Runge--Kutta methods" (or similar), and should be
+  indicated by setting the flag "step_supports_relaxation" to SUNTRUE.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetRelaxFn
+
+  This routine is called by ARKodeSetRelaxFn, and expects the
+  stepper to call ARKODE's "arkRelaxCreate" routine with the
+  appropriate stepper-specific function pointers.
+
+  ===============================================================
+
+  Internal Interface to Time Steppers -- Implicit Solvers
+
+  These should only be provided if the stepper uses implicit
+  linear/nonlinear solvers, and should be indicated by setting
+  the flag "step_supports_implicit" to SUNTRUE.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepAttachLinsolFn
+
+  This routine should attach the various set of system linear
+  solver interface routines, linear solver interface data
+  structure, and system linear solver type to the ARKODE time
+  stepping module pointed to in ark_mem->step_mem.  This will
+  be called by the ARKODE linear solver interface.
+
+  This routine should return 0 if it has successfully attached
+  these items and a negative value otherwise.  If an error does
+  occur, an appropriate message should be sent to the ARKODE
+  error handler function.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepDisableLSetup
+
+  This routine should NULLify any ARKLinsolSetupFn function
+  pointer stored in the ARKODE time stepping module (initially set
+  in a call to ARKTimestepAttachLinsolFn).
+
+  This routine has no return value.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepGetLinMemFn
+
+  This routine should return the linear solver memory structure
+  used by the ARKODE time stepping module pointed to in
+  ark_mem->step_mem.  This will be called by the ARKODE linear
+  solver interface.
+
+  This routine should return NULL if no linear solver memory
+  structure is attached.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepGetImplicitRHSFn
+
+  This routine should return the implicit RHS function pointer for
+  the current nonlinear solve (if there are multiple); it is used
+  inside the linear solver interfaces for approximation of
+  Jacobian matrix elements and/or matrix-vector products.
+
+  This routine should return NULL if no implicit RHS function is
+  active.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepGetGammasFn
+
+  This routine should fill the current value of gamma, the ratio
+  of the current gamma value to the gamma value when the
+  Jacobian/preconditioner was last updated, a pointer to the
+  time step module internal sunbooleantype variable indicating
+  whether the preconditioner is current, and a logic value
+  indicating whether the gamma value is sufficiently stale
+  to cause recomputation of Jacobian/preconditioner data.  Here,
+  gamma is the coefficient preceding the RHS Jacobian
+  matrix, J, in the full nonlinear system Jacobian,
+  A = M - gamma*J.
+
+  The time step module must contain a sunbooleantype variable to
+  provide for the boolentype pointer (jcur).  This is only used
+  by iterative linear solvers, so could be NULL for time step
+  modules that only work with direct linear solvers.  Optionally,
+  the value of this parameter could be set to SUNFALSE prior to
+  return from the ARKTimestepGetGammasFn to force recalculation
+  of preconditioner information.
+
+  The value of the logic flag is used as follows:  if a previous
+  Newton iteration failed due to a bad Jacobian/preconditioner,
+  and this flag is SUNFALSE, this will trigger recalculation of
+  the Jacobian/preconditioner.
+
+  This routine should return 0 if it has successfully attached
+  these items, and a negative value otherwise.  If an error does
+  occur, an appropriate message should be sent to the ARKODE
+  error handler function.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepComputeState
+
+  This routine should combine any stepper-stored prediction with
+  the input correction to fill the current state vector within
+  an implicit solve (called by ARKodeComputeState).
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetNonlinearSolver
+
+  This routine is called by ARKodeSetNonlinearSolver, and allows
+  the stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetLinear
+
+  This routine is called by ARKodeSetLinear, and allows the
+  stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetNonlinear
+
+  This routine is called by ARKodeSetNonlinear, and allows the
+  stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetNlsRhsFn
+
+  This routine is called by ARKodeSetNlsRhsFn, and allows the
+  stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetDeduceImplicitRhs
+
+  This routine is called by ARKodeSetDeduceImplicitRhs, and
+  allows the stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetNonlinCRDown
+
+  This routine is called by ARKodeSetNonlinCRDown, and allows
+  the stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetNonlinRDiv
+
+  This routine is called by ARKodeSetNonlinRDiv, and allows
+  the stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetDeltaGammaMax
+
+  This routine is called by ARKodeSetDeltaGammaMax, and allows
+  the stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetLSetupFrequency
+
+  This routine is called by ARKodeSetLSetupFrequency, and allows
+  the stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetPredictorMethod
+
+  This routine is called by ARKodeSetPredictorMethod, and allows
+  the stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetMaxNonlinIters
+
+  This routine is called by ARKodeSetMaxNonlinIters, and allows
+  the stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetNonlinConvCoef
+
+  This routine is called by ARKodeSetNonlinConvCoef, and allows
+  the stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetStagePredictFn
+
+  This routine is called by ARKodeSetStagePredictFn, and allows
+  the stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepGetNumLinSolvSetups
+
+  This routine is called by ARKodeGetNumLinSolvSetups, and
+  requests that the stepper return the corresponding output
+  value.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepGetCurrentGamma
+
+  This routine is called by ARKodeGetCurrentGamma, and
+  requests that the stepper return the corresponding output
+  value.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepGetNonlinearSystemData
+
+  This routine is called by ARKodeGetNonlinearSystemData, and
+  requests that the stepper return the corresponding output
+  values.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepGetNumNonlinSolvIters
+
+  This routine is called by ARKodeGetNumNonlinSolvIters, and
+  requests that the stepper return the corresponding output
+  value.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepGetNumNonlinSolvConvFails
+
+  This routine is called by ARKodeGetNumNonlinSolvConvFails, and
+  requests that the stepper return the corresponding output
+  value.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepGetNonlinSolvStats
+
+  This routine is called by ARKodeGetNonlinSolvStats, and
+  requests that the stepper return the corresponding output
+  values.
+
+  ===============================================================
+
+  Internal Interface to Time Steppers -- Non-identity Mass
+  Matrices
+
+  These should only be provided if the stepper supports problems
+  with non-identity mass matrices, and should be indicated by
+  setting the flag "step_supports_massmatrix" to SUNTRUE.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepAttachMasssolFn
+
+  This routine should attach the various set of mass matrix
+  linear solver interface routines, data structure, mass matrix
+  type, and solver type to the ARKODE time stepping module
+  pointed to in ark_mem->step_mem.  This will be called by the
+  ARKODE linear solver interface.
+
+  This routine should return 0 if it has successfully attached
+  these items, and a negative value otherwise.  If an error does
+  occur, an appropriate message should be sent to the ARKODE
+  error handler function.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepDisableMSetup
+
+  This routine should NULLify any ARKMassSetupFn function pointer
+  stored in the ARKODE time stepping module (initially set in a
+  call to ARKTimestepAttachMasssolFn).
+
+  This routine has no return value.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepGetMassMemFn
+
+  This routine should return the mass matrix linear solver memory
+  structure used by the ARKODE time stepping module pointed to in
+  ark_mem->step_mem.  This will be called the ARKODE mass matrix
+  solver interface.
+
+  This routine should return NULL if no mass matrix solver memory
+  structure is attached.
+
+  ===============================================================*/
 
 #ifdef __cplusplus
 }
