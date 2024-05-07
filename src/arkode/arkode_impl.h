@@ -283,7 +283,6 @@ typedef int (*ARKTimestepAttachMasssolFn)(
 typedef void (*ARKTimestepDisableMSetup)(ARKodeMem ark_mem);
 typedef void* (*ARKTimestepGetMassMemFn)(ARKodeMem ark_mem);
 
-
 /*===============================================================
   ARKODE interpolation module definition
   ===============================================================*/
@@ -555,7 +554,6 @@ struct ARKodeMemRec
                               interface to determine if a time step passed or
                               failed the time step error test.  */
 };
-
 
 /*===============================================================
   ARKODE PROTOTYPE FUNCTIONS (MAY BE REPLACED BY USER)

@@ -207,7 +207,6 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0, N_Vector y0)
   return (ARK_SUCCESS);
 }
 
-
 /*===============================================================
   Interface routines supplied to ARKODE
   ===============================================================*/
@@ -739,7 +738,6 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   return (ARK_SUCCESS);
 }
 
-
 /*===============================================================
   Internal utility routines
   ===============================================================*/
@@ -1058,7 +1056,6 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
 
   return (ARK_SUCCESS);
 }
-
 
 /*===============================================================
   Internal utility routines for relaxation

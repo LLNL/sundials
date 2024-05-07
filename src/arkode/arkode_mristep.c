@@ -340,7 +340,6 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
   return (ARK_SUCCESS);
 }
 
-
 /*===============================================================
   Interface routines supplied to ARKODE
   ===============================================================*/
@@ -2762,7 +2761,6 @@ int MRIStepInnerStepper_GetForcingData(MRIStepInnerStepper stepper,
 
   return ARK_SUCCESS;
 }
-
 
 /*===============================================================
   Private inner integrator functions

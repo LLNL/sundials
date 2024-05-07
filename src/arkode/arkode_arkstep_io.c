@@ -514,7 +514,6 @@ int ARKStepSetTableName(void* arkode_mem, const char* itable, const char* etable
                              arkButcherTableERKNameToID(etable)));
 }
 
-
 /*===============================================================
   Exported optional output functions.
   ===============================================================*/
@@ -595,7 +594,6 @@ int ARKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
 
   return (ARK_SUCCESS);
 }
-
 
 /*===============================================================
   Private functions attached to ARKODE
@@ -1314,7 +1312,6 @@ int arkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 
   return (ARK_SUCCESS);
 }
-
 
 /*===============================================================
   Exported-but-deprecated user-callable functions.

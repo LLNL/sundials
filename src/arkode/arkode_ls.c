@@ -306,8 +306,8 @@ int ARKodeSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A)
   linear solver and user-supplied routine to perform the
   mass-matrix-vector product.
   ---------------------------------------------------------------*/
-int ARKodeSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS,
-                              SUNMatrix M, sunbooleantype time_dep)
+int ARKodeSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix M,
+                              sunbooleantype time_dep)
 {
   ARKodeMem ark_mem;
   ARKLsMassMem arkls_mem;
@@ -2236,7 +2236,6 @@ int ARKodeGetLastMassFlag(void* arkode_mem, long int* flag)
   *flag = arkls_mem->last_flag;
   return (ARKLS_SUCCESS);
 }
-
 
 /*===============================================================
   ARKLS Private functions

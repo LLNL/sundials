@@ -237,7 +237,6 @@ int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0,
   return (ARK_SUCCESS);
 }
 
-
 /*===============================================================
   Interface routines supplied to ARKODE
   ===============================================================*/
@@ -705,7 +704,6 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 
   return 0;
 }
-
 
 /*===============================================================
   Internal utility routines

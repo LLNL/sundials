@@ -126,7 +126,6 @@ int SPRKStepSetMethodName(void* arkode_mem, const char* method)
   return step_mem->method ? ARK_SUCCESS : ARK_ILL_INPUT;
 }
 
-
 /*===============================================================
   Exported optional output functions.
   ===============================================================*/
@@ -173,7 +172,6 @@ int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
 
   return (ARK_SUCCESS);
 }
-
 
 /*===============================================================
   Private functions attached to ARKODE
@@ -280,7 +278,6 @@ int sprkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 
   return (ARK_SUCCESS);
 }
-
 
 /*===============================================================
   Exported-but-deprecated user-callable functions.

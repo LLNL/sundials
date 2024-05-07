@@ -306,7 +306,7 @@ char* MRIStepGetReturnFlagName(long int flag);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeWriteParameters instead")
 int MRIStepWriteParameters(void* arkode_mem, FILE* fp);
 SUNDIALS_DEPRECATED_EXPORT_MSG(
-   "use MRIStepGetCurrentCoupling and MRIStepCoupling_Write instead")
+  "use MRIStepGetCurrentCoupling and MRIStepCoupling_Write instead")
 int MRIStepWriteCoupling(void* arkode_mem, FILE* fp);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNonlinearSystemData instead")
 int MRIStepGetNonlinearSystemData(void* arkode_mem, sunrealtype* tcur,

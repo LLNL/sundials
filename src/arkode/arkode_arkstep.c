@@ -378,7 +378,6 @@ int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
   return (ARK_SUCCESS);
 }
 
-
 /*===============================================================
   Interface routines supplied to ARKODE
   ===============================================================*/
@@ -2024,7 +2023,6 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   return (ARK_SUCCESS);
 }
 
-
 /*===============================================================
   Internal utility routines
   ===============================================================*/
@@ -3081,7 +3079,6 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   return (ARK_SUCCESS);
 }
 
-
 /*===============================================================
   Internal utility routines for interacting with MRIStep
   ===============================================================*/
@@ -3328,7 +3325,6 @@ int arkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
 
   return (0);
 }
-
 
 /*===============================================================
   Internal utility routines for relaxation

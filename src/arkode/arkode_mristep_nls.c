@@ -353,7 +353,6 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   return (retval);
 }
 
-
 /*===============================================================
   Interface routines supplied to the SUNNonlinearSolver module
   ===============================================================*/

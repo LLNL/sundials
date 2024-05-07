@@ -1335,7 +1335,6 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   if (ark_mem->step_printmem) { ark_mem->step_printmem(ark_mem, outfile); }
 }
 
-
 /*===============================================================
   Private internal functions
   ===============================================================*/

@@ -39,9 +39,9 @@ extern "C" {
 /* if |gamma/gammap-1| > DGMAX then call lsetup */
 #define DGMAX SUN_RCONST(0.2)
 /* declare divergence if ratio del/delp > RDIV */
-#define RDIV  SUN_RCONST(2.3)
+#define RDIV SUN_RCONST(2.3)
 /* max no. of steps between lsetup calls */
-#define MSBP  20
+#define MSBP 20
 
 /* Default solver tolerance factor */
 /* #define NLSCOEF   SUN_RCONST(0.003) */ /* Hairer & Wanner constant */

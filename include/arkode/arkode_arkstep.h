@@ -429,7 +429,6 @@ int ARKStepGetNumRelaxSolveFails(void* arkode_mem, long int* fails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRelaxSolveIters instead")
 int ARKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters);
 
-
 #ifdef __cplusplus
 }
 #endif

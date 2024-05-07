@@ -124,7 +124,6 @@ int MRIStepSetPostInnerFn(void* arkode_mem, MRIStepPostInnerFn postfn)
   return (ARK_SUCCESS);
 }
 
-
 /*===============================================================
   Exported optional output functions.
   ===============================================================*/
@@ -193,7 +192,6 @@ int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag)
 
   return (ARK_SUCCESS);
 }
-
 
 /*===============================================================
   Private functions attached to ARKODE
@@ -831,7 +829,6 @@ int mriStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 
   return (ARK_SUCCESS);
 }
-
 
 /*===============================================================
   Exported-but-deprecated user-callable functions.

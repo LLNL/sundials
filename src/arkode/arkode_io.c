@@ -1925,7 +1925,6 @@ int ARKodeSetMaxConvFails(void* arkode_mem, int maxncf)
   return (ARK_SUCCESS);
 }
 
-
 /*===============================================================
   ARKODE optional output utility functions
   ===============================================================*/
@@ -2805,7 +2804,6 @@ char* ARKodeGetReturnFlagName(long int flag)
   return (name);
 }
 
-
 /*===============================================================
   ARKODE parameter output utility routine
   ===============================================================*/
@@ -2908,7 +2906,6 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   return (ARK_SUCCESS);
 }
 
-
 /*===============================================================
   ARKODE + XBraid interface utility functions
   ===============================================================*/
@@ -2955,7 +2952,6 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag)
 
   return (ARK_SUCCESS);
 }
-
 
 /*===============================================================
   Deprecated functions
