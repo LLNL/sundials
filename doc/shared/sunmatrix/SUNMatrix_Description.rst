@@ -118,7 +118,7 @@ routines these functions will ease the introduction of any new optional matrix
 operations to the SUNMATRIX API by ensuring only required operations need to be
 set and all operations are copied when cloning a matrix.
 
-.. c:function:: SUNMatrix SUNMatNewEmpty()
+.. c:function:: SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
 
   This function allocates a new generic ``SUNMatrix`` object and initializes its
   content pointer and the function pointers in the operations structure to ``NULL``.
