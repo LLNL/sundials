@@ -83,7 +83,12 @@ SUNDIALS_EXPORT int ARKStepSetTableNum(void* arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetTableName(void* arkode_mem, const char* itable,
                                         const char* etable);
 
-/* Grouped optional output functions */
+/* Optional output functions */
+SUNDIALS_EXPORT int ARKStepGetNumRhsEvals(void* arkode_mem, long int* nfe_evals,
+                                          long int* nfi_evals);
+SUNDIALS_EXPORT int ARKStepGetCurrentButcherTables(void* arkode_mem,
+                                                   ARKodeButcherTable* Bi,
+                                                   ARKodeButcherTable* Be);
 SUNDIALS_EXPORT int ARKStepGetTimestepperStats(
   void* arkode_mem, long int* expsteps, long int* accsteps,
   long int* step_attempts, long int* nfe_evals, long int* nfi_evals,
@@ -271,15 +276,10 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumAccSteps instead")
 int ARKStepGetNumAccSteps(void* arkode_mem, long int* accsteps);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumStepAttempts instead")
 int ARKStepGetNumStepAttempts(void* arkode_mem, long int* step_attempts);
-SUNDIALS_EXPORT int ARKStepGetNumRhsEvals(void* arkode_mem, long int* nfe_evals,
-                                          long int* nfi_evals);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumLinSolvSetups instead")
 int ARKStepGetNumLinSolvSetups(void* arkode_mem, long int* nlinsetups);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumErrTestFails instead")
 int ARKStepGetNumErrTestFails(void* arkode_mem, long int* netfails);
-SUNDIALS_EXPORT int ARKStepGetCurrentButcherTables(void* arkode_mem,
-                                                   ARKodeButcherTable* Bi,
-                                                   ARKodeButcherTable* Be);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetEstLocalErrors instead")
 int ARKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetWorkSpace instead")

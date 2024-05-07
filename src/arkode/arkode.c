@@ -17,9 +17,6 @@
  * use.
  *--------------------------------------------------------------*/
 
-/*===============================================================
-  Import Header Files
-  ===============================================================*/
 #include "arkode/arkode.h"
 
 #include <stdarg.h>
@@ -39,191 +36,8 @@
 #include "sundials_utils.h"
 
 /*===============================================================
-  EXPORTED FUNCTIONS
+  Exported functions
   ===============================================================*/
-
-/*---------------------------------------------------------------
-  arkCreate:
-
-  arkCreate creates an internal memory block for a problem to
-  be solved by a time step module built on ARKODE.  If successful,
-  arkCreate returns a pointer to the problem memory. If an
-  initialization error occurs, arkCreate prints an error message
-  to standard err and returns NULL.
-  ---------------------------------------------------------------*/
-ARKodeMem arkCreate(SUNContext sunctx)
-{
-  int iret;
-  long int lenrw, leniw;
-  ARKodeMem ark_mem;
-
-  if (!sunctx)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_SUNCTX);
-    return (NULL);
-  }
-
-  ark_mem = NULL;
-  ark_mem = (ARKodeMem)malloc(sizeof(struct ARKodeMemRec));
-  if (ark_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_ARKMEM_FAIL);
-    return (NULL);
-  }
-
-  /* Zero out ark_mem */
-  memset(ark_mem, 0, sizeof(struct ARKodeMemRec));
-
-  /* Set the context */
-  ark_mem->sunctx = sunctx;
-
-  /* Set uround */
-  ark_mem->uround = SUN_UNIT_ROUNDOFF;
-
-  /* Initialize time step module to NULL */
-  ark_mem->step_attachlinsol              = NULL;
-  ark_mem->step_attachmasssol             = NULL;
-  ark_mem->step_disablelsetup             = NULL;
-  ark_mem->step_disablemsetup             = NULL;
-  ark_mem->step_getlinmem                 = NULL;
-  ark_mem->step_getmassmem                = NULL;
-  ark_mem->step_getimplicitrhs            = NULL;
-  ark_mem->step_mmult                     = NULL;
-  ark_mem->step_getgammas                 = NULL;
-  ark_mem->step_init                      = NULL;
-  ark_mem->step_fullrhs                   = NULL;
-  ark_mem->step                           = NULL;
-  ark_mem->step_setuserdata               = NULL;
-  ark_mem->step_printallstats             = NULL;
-  ark_mem->step_writeparameters           = NULL;
-  ark_mem->step_resize                    = NULL;
-  ark_mem->step_reset                     = NULL;
-  ark_mem->step_free                      = NULL;
-  ark_mem->step_printmem                  = NULL;
-  ark_mem->step_setdefaults               = NULL;
-  ark_mem->step_computestate              = NULL;
-  ark_mem->step_setrelaxfn                = NULL;
-  ark_mem->step_setorder                  = NULL;
-  ark_mem->step_setnonlinearsolver        = NULL;
-  ark_mem->step_setlinear                 = NULL;
-  ark_mem->step_setnonlinear              = NULL;
-  ark_mem->step_setnlsrhsfn               = NULL;
-  ark_mem->step_setdeduceimplicitrhs      = NULL;
-  ark_mem->step_setnonlincrdown           = NULL;
-  ark_mem->step_setnonlinrdiv             = NULL;
-  ark_mem->step_setdeltagammamax          = NULL;
-  ark_mem->step_setlsetupfrequency        = NULL;
-  ark_mem->step_setpredictormethod        = NULL;
-  ark_mem->step_setmaxnonliniters         = NULL;
-  ark_mem->step_setnonlinconvcoef         = NULL;
-  ark_mem->step_setstagepredictfn         = NULL;
-  ark_mem->step_getnumlinsolvsetups       = NULL;
-  ark_mem->step_getestlocalerrors         = NULL;
-  ark_mem->step_getcurrentgamma           = NULL;
-  ark_mem->step_getnonlinearsystemdata    = NULL;
-  ark_mem->step_getnumnonlinsolviters     = NULL;
-  ark_mem->step_getnumnonlinsolvconvfails = NULL;
-  ark_mem->step_getnonlinsolvstats        = NULL;
-  ark_mem->step_mem                       = NULL;
-  ark_mem->step_supports_adaptive         = SUNFALSE;
-  ark_mem->step_supports_implicit         = SUNFALSE;
-  ark_mem->step_supports_massmatrix       = SUNFALSE;
-  ark_mem->step_supports_relaxation       = SUNFALSE;
-
-  /* Initialize root finding variables */
-  ark_mem->root_mem = NULL;
-
-  /* Initialize inequality constraints variables */
-  ark_mem->constraintsSet = SUNFALSE;
-  ark_mem->constraints    = NULL;
-
-  /* Initialize relaxation variables */
-  ark_mem->relax_enabled = SUNFALSE;
-  ark_mem->relax_mem     = NULL;
-
-  /* Initialize lrw and liw */
-  ark_mem->lrw = 18;
-  ark_mem->liw = 53; /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
-
-  /* No mallocs have been done yet */
-  ark_mem->VabstolMallocDone  = SUNFALSE;
-  ark_mem->VRabstolMallocDone = SUNFALSE;
-  ark_mem->MallocDone         = SUNFALSE;
-
-  /* No user-supplied step postprocessing function yet */
-  ark_mem->ProcessStep = NULL;
-  ark_mem->ps_data     = NULL;
-
-  /* No user-supplied stage postprocessing function yet */
-  ark_mem->ProcessStage = NULL;
-
-  /* No user_data pointer yet */
-  ark_mem->user_data = NULL;
-
-  /* Allocate step adaptivity structure and note storage */
-  ark_mem->hadapt_mem = arkAdaptInit();
-  if (ark_mem->hadapt_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "Allocation of step adaptivity structure failed");
-    ARKodeFree((void**)&ark_mem);
-    return (NULL);
-  }
-  ark_mem->lrw += ARK_ADAPT_LRW;
-  ark_mem->liw += ARK_ADAPT_LIW;
-
-  /* Allocate default step controller (PID) and note storage */
-  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PID(sunctx);
-  if (ark_mem->hadapt_mem->hcontroller == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "Allocation of step controller object failed");
-    ARKodeFree((void**)&ark_mem);
-    return (NULL);
-  }
-  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
-  (void)SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                 &leniw);
-  ark_mem->lrw += lenrw;
-  ark_mem->liw += leniw;
-
-  /* Initialize the interpolation structure to NULL */
-  ark_mem->interp      = NULL;
-  ark_mem->interp_type = -1;
-
-  /* Initially, rwt should point to ewt */
-  ark_mem->rwt_is_ewt = SUNTRUE;
-
-  /* Indicate that calling the full RHS function is not required, this flag is
-     updated to SUNTRUE by the interpolation module initialization function
-     and/or the stepper initialization function in arkInitialSetup */
-  ark_mem->call_fullrhs = SUNFALSE;
-
-  /* Indicate that the problem needs to be initialized */
-  ark_mem->initsetup   = SUNTRUE;
-  ark_mem->init_type   = FIRST_INIT;
-  ark_mem->firststage  = SUNTRUE;
-  ark_mem->initialized = SUNFALSE;
-
-  /* Initial step size has not been determined yet */
-  ark_mem->h   = ZERO;
-  ark_mem->h0u = ZERO;
-
-  /* Set default values for integrator optional inputs */
-  iret = ARKodeSetDefaults(ark_mem);
-  if (iret != ARK_SUCCESS)
-  {
-    arkProcessError(NULL, 0, __LINE__, __func__, __FILE__,
-                    "Error setting default solver options");
-    ARKodeFree((void**)&ark_mem);
-    return (NULL);
-  }
-
-  /* Return pointer to ARKODE memory block */
-  return (ark_mem);
-}
 
 /*---------------------------------------------------------------
   ARKodeResize:
@@ -1401,9 +1215,313 @@ void ARKodeFree(void** arkode_mem)
   *arkode_mem = NULL;
 }
 
+/*---------------------------------------------------------------
+  ARKodePrintMem:
+
+  This routine outputs the ark_mem structure to a specified file
+  pointer.
+  ---------------------------------------------------------------*/
+void ARKodePrintMem(void* arkode_mem, FILE* outfile)
+{
+  ARKodeMem ark_mem;
+
+  /* Check if ark_mem exists */
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return;
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* if outfile==NULL, set it to stdout */
+  if (outfile == NULL) { outfile = stdout; }
+
+  /* output general values */
+  fprintf(outfile, "itol = %i\n", ark_mem->itol);
+  fprintf(outfile, "ritol = %i\n", ark_mem->ritol);
+  fprintf(outfile, "mxhnil = %i\n", ark_mem->mxhnil);
+  fprintf(outfile, "mxstep = %li\n", ark_mem->mxstep);
+  fprintf(outfile, "lrw1 = %li\n", (long int)ark_mem->lrw1);
+  fprintf(outfile, "liw1 = %li\n", (long int)ark_mem->liw1);
+  fprintf(outfile, "lrw = %li\n", (long int)ark_mem->lrw);
+  fprintf(outfile, "liw = %li\n", (long int)ark_mem->liw);
+  fprintf(outfile, "user_efun = %i\n", ark_mem->user_efun);
+  fprintf(outfile, "tstopset = %i\n", ark_mem->tstopset);
+  fprintf(outfile, "tstopinterp = %i\n", ark_mem->tstopinterp);
+  fprintf(outfile, "tstop = %" RSYM "\n", ark_mem->tstop);
+  fprintf(outfile, "VabstolMallocDone = %i\n", ark_mem->VabstolMallocDone);
+  fprintf(outfile, "MallocDone = %i\n", ark_mem->MallocDone);
+  fprintf(outfile, "initsetup = %i\n", ark_mem->initsetup);
+  fprintf(outfile, "init_type = %i\n", ark_mem->init_type);
+  fprintf(outfile, "firststage = %i\n", ark_mem->firststage);
+  fprintf(outfile, "uround = %" RSYM "\n", ark_mem->uround);
+  fprintf(outfile, "reltol = %" RSYM "\n", ark_mem->reltol);
+  fprintf(outfile, "Sabstol = %" RSYM "\n", ark_mem->Sabstol);
+  fprintf(outfile, "fixedstep = %i\n", ark_mem->fixedstep);
+  fprintf(outfile, "tolsf = %" RSYM "\n", ark_mem->tolsf);
+  fprintf(outfile, "call_fullrhs = %i\n", ark_mem->call_fullrhs);
+
+  /* output counters */
+  fprintf(outfile, "nhnil = %i\n", ark_mem->nhnil);
+  fprintf(outfile, "nst_attempts = %li\n", ark_mem->nst_attempts);
+  fprintf(outfile, "nst = %li\n", ark_mem->nst);
+  fprintf(outfile, "ncfn = %li\n", ark_mem->ncfn);
+  fprintf(outfile, "netf = %li\n", ark_mem->netf);
+
+  /* output time-stepping values */
+  fprintf(outfile, "hin = %" RSYM "\n", ark_mem->hin);
+  fprintf(outfile, "h = %" RSYM "\n", ark_mem->h);
+  fprintf(outfile, "hprime = %" RSYM "\n", ark_mem->hprime);
+  fprintf(outfile, "next_h = %" RSYM "\n", ark_mem->next_h);
+  fprintf(outfile, "eta = %" RSYM "\n", ark_mem->eta);
+  fprintf(outfile, "tcur = %" RSYM "\n", ark_mem->tcur);
+  fprintf(outfile, "tretlast = %" RSYM "\n", ark_mem->tretlast);
+  fprintf(outfile, "hmin = %" RSYM "\n", ark_mem->hmin);
+  fprintf(outfile, "hmax_inv = %" RSYM "\n", ark_mem->hmax_inv);
+  fprintf(outfile, "h0u = %" RSYM "\n", ark_mem->h0u);
+  fprintf(outfile, "tn = %" RSYM "\n", ark_mem->tn);
+  fprintf(outfile, "hold = %" RSYM "\n", ark_mem->hold);
+  fprintf(outfile, "maxnef = %i\n", ark_mem->maxnef);
+  fprintf(outfile, "maxncf = %i\n", ark_mem->maxncf);
+
+  /* output time-stepping adaptivity structure */
+  fprintf(outfile, "timestep adaptivity structure:\n");
+  arkPrintAdaptMem(ark_mem->hadapt_mem, outfile);
+
+  /* output inequality constraints quantities */
+  fprintf(outfile, "constraintsSet = %i\n", ark_mem->constraintsSet);
+  fprintf(outfile, "maxconstrfails = %i\n", ark_mem->maxconstrfails);
+
+  /* output root-finding quantities */
+  if (ark_mem->root_mem != NULL)
+  {
+    (void)arkPrintRootMem((void*)ark_mem, outfile);
+  }
+
+  /* output interpolation quantities */
+  arkInterpPrintMem(ark_mem->interp, outfile);
+
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  /* output vector quantities */
+  fprintf(outfile, "Vapbsol:\n");
+  N_VPrintFile(ark_mem->Vabstol, outfile);
+  fprintf(outfile, "ewt:\n");
+  N_VPrintFile(ark_mem->ewt, outfile);
+  if (!ark_mem->rwt_is_ewt)
+  {
+    fprintf(outfile, "rwt:\n");
+    N_VPrintFile(ark_mem->rwt, outfile);
+  }
+  fprintf(outfile, "ycur:\n");
+  N_VPrintFile(ark_mem->ycur, outfile);
+  fprintf(outfile, "yn:\n");
+  N_VPrintFile(ark_mem->yn, outfile);
+  fprintf(outfile, "fn:\n");
+  N_VPrintFile(ark_mem->fn, outfile);
+  fprintf(outfile, "tempv1:\n");
+  N_VPrintFile(ark_mem->tempv1, outfile);
+  fprintf(outfile, "tempv2:\n");
+  N_VPrintFile(ark_mem->tempv2, outfile);
+  fprintf(outfile, "tempv3:\n");
+  N_VPrintFile(ark_mem->tempv3, outfile);
+  fprintf(outfile, "tempv4:\n");
+  N_VPrintFile(ark_mem->tempv4, outfile);
+  fprintf(outfile, "constraints:\n");
+  N_VPrintFile(ark_mem->constraints, outfile);
+#endif
+
+  /* Call stepper PrintMem function (if provided) */
+  if (ark_mem->step_printmem) { ark_mem->step_printmem(ark_mem, outfile); }
+}
+
+
 /*===============================================================
-  Internal functions that may be replaced by the user
+  Private internal functions
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  arkCreate:
+
+  arkCreate creates an internal memory block for a problem to
+  be solved by a time step module built on ARKODE.  If successful,
+  arkCreate returns a pointer to the problem memory. If an
+  initialization error occurs, arkCreate prints an error message
+  to standard err and returns NULL.
+  ---------------------------------------------------------------*/
+ARKodeMem arkCreate(SUNContext sunctx)
+{
+  int iret;
+  long int lenrw, leniw;
+  ARKodeMem ark_mem;
+
+  if (!sunctx)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_SUNCTX);
+    return (NULL);
+  }
+
+  ark_mem = NULL;
+  ark_mem = (ARKodeMem)malloc(sizeof(struct ARKodeMemRec));
+  if (ark_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_ARKMEM_FAIL);
+    return (NULL);
+  }
+
+  /* Zero out ark_mem */
+  memset(ark_mem, 0, sizeof(struct ARKodeMemRec));
+
+  /* Set the context */
+  ark_mem->sunctx = sunctx;
+
+  /* Set uround */
+  ark_mem->uround = SUN_UNIT_ROUNDOFF;
+
+  /* Initialize time step module to NULL */
+  ark_mem->step_attachlinsol              = NULL;
+  ark_mem->step_attachmasssol             = NULL;
+  ark_mem->step_disablelsetup             = NULL;
+  ark_mem->step_disablemsetup             = NULL;
+  ark_mem->step_getlinmem                 = NULL;
+  ark_mem->step_getmassmem                = NULL;
+  ark_mem->step_getimplicitrhs            = NULL;
+  ark_mem->step_mmult                     = NULL;
+  ark_mem->step_getgammas                 = NULL;
+  ark_mem->step_init                      = NULL;
+  ark_mem->step_fullrhs                   = NULL;
+  ark_mem->step                           = NULL;
+  ark_mem->step_setuserdata               = NULL;
+  ark_mem->step_printallstats             = NULL;
+  ark_mem->step_writeparameters           = NULL;
+  ark_mem->step_resize                    = NULL;
+  ark_mem->step_reset                     = NULL;
+  ark_mem->step_free                      = NULL;
+  ark_mem->step_printmem                  = NULL;
+  ark_mem->step_setdefaults               = NULL;
+  ark_mem->step_computestate              = NULL;
+  ark_mem->step_setrelaxfn                = NULL;
+  ark_mem->step_setorder                  = NULL;
+  ark_mem->step_setnonlinearsolver        = NULL;
+  ark_mem->step_setlinear                 = NULL;
+  ark_mem->step_setnonlinear              = NULL;
+  ark_mem->step_setnlsrhsfn               = NULL;
+  ark_mem->step_setdeduceimplicitrhs      = NULL;
+  ark_mem->step_setnonlincrdown           = NULL;
+  ark_mem->step_setnonlinrdiv             = NULL;
+  ark_mem->step_setdeltagammamax          = NULL;
+  ark_mem->step_setlsetupfrequency        = NULL;
+  ark_mem->step_setpredictormethod        = NULL;
+  ark_mem->step_setmaxnonliniters         = NULL;
+  ark_mem->step_setnonlinconvcoef         = NULL;
+  ark_mem->step_setstagepredictfn         = NULL;
+  ark_mem->step_getnumlinsolvsetups       = NULL;
+  ark_mem->step_getestlocalerrors         = NULL;
+  ark_mem->step_getcurrentgamma           = NULL;
+  ark_mem->step_getnonlinearsystemdata    = NULL;
+  ark_mem->step_getnumnonlinsolviters     = NULL;
+  ark_mem->step_getnumnonlinsolvconvfails = NULL;
+  ark_mem->step_getnonlinsolvstats        = NULL;
+  ark_mem->step_mem                       = NULL;
+  ark_mem->step_supports_adaptive         = SUNFALSE;
+  ark_mem->step_supports_implicit         = SUNFALSE;
+  ark_mem->step_supports_massmatrix       = SUNFALSE;
+  ark_mem->step_supports_relaxation       = SUNFALSE;
+
+  /* Initialize root finding variables */
+  ark_mem->root_mem = NULL;
+
+  /* Initialize inequality constraints variables */
+  ark_mem->constraintsSet = SUNFALSE;
+  ark_mem->constraints    = NULL;
+
+  /* Initialize relaxation variables */
+  ark_mem->relax_enabled = SUNFALSE;
+  ark_mem->relax_mem     = NULL;
+
+  /* Initialize lrw and liw */
+  ark_mem->lrw = 18;
+  ark_mem->liw = 53; /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
+
+  /* No mallocs have been done yet */
+  ark_mem->VabstolMallocDone  = SUNFALSE;
+  ark_mem->VRabstolMallocDone = SUNFALSE;
+  ark_mem->MallocDone         = SUNFALSE;
+
+  /* No user-supplied step postprocessing function yet */
+  ark_mem->ProcessStep = NULL;
+  ark_mem->ps_data     = NULL;
+
+  /* No user-supplied stage postprocessing function yet */
+  ark_mem->ProcessStage = NULL;
+
+  /* No user_data pointer yet */
+  ark_mem->user_data = NULL;
+
+  /* Allocate step adaptivity structure and note storage */
+  ark_mem->hadapt_mem = arkAdaptInit();
+  if (ark_mem->hadapt_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "Allocation of step adaptivity structure failed");
+    ARKodeFree((void**)&ark_mem);
+    return (NULL);
+  }
+  ark_mem->lrw += ARK_ADAPT_LRW;
+  ark_mem->liw += ARK_ADAPT_LIW;
+
+  /* Allocate default step controller (PID) and note storage */
+  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PID(sunctx);
+  if (ark_mem->hadapt_mem->hcontroller == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "Allocation of step controller object failed");
+    ARKodeFree((void**)&ark_mem);
+    return (NULL);
+  }
+  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
+  (void)SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                 &leniw);
+  ark_mem->lrw += lenrw;
+  ark_mem->liw += leniw;
+
+  /* Initialize the interpolation structure to NULL */
+  ark_mem->interp      = NULL;
+  ark_mem->interp_type = -1;
+
+  /* Initially, rwt should point to ewt */
+  ark_mem->rwt_is_ewt = SUNTRUE;
+
+  /* Indicate that calling the full RHS function is not required, this flag is
+     updated to SUNTRUE by the interpolation module initialization function
+     and/or the stepper initialization function in arkInitialSetup */
+  ark_mem->call_fullrhs = SUNFALSE;
+
+  /* Indicate that the problem needs to be initialized */
+  ark_mem->initsetup   = SUNTRUE;
+  ark_mem->init_type   = FIRST_INIT;
+  ark_mem->firststage  = SUNTRUE;
+  ark_mem->initialized = SUNFALSE;
+
+  /* Initial step size has not been determined yet */
+  ark_mem->h   = ZERO;
+  ark_mem->h0u = ZERO;
+
+  /* Set default values for integrator optional inputs */
+  iret = ARKodeSetDefaults(ark_mem);
+  if (iret != ARK_SUCCESS)
+  {
+    arkProcessError(NULL, 0, __LINE__, __func__, __FILE__,
+                    "Error setting default solver options");
+    ARKodeFree((void**)&ark_mem);
+    return (NULL);
+  }
+
+  /* Return pointer to ARKODE memory block */
+  return (ark_mem);
+}
 
 /*---------------------------------------------------------------
   arkRwtSet
@@ -1456,10 +1574,6 @@ int arkRwtSet(N_Vector y, N_Vector weight, void* data)
 
   return (flag);
 }
-
-/*===============================================================
-  Private Helper Functions
-  ===============================================================*/
 
 /*---------------------------------------------------------------
   arkInit:
@@ -1621,126 +1735,6 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
 }
 
 /*---------------------------------------------------------------
-  ARKodePrintMem:
-
-  This routine outputs the ark_mem structure to a specified file
-  pointer.
-  ---------------------------------------------------------------*/
-void ARKodePrintMem(void* arkode_mem, FILE* outfile)
-{
-  ARKodeMem ark_mem;
-
-  /* Check if ark_mem exists */
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return;
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-
-  /* if outfile==NULL, set it to stdout */
-  if (outfile == NULL) { outfile = stdout; }
-
-  /* output general values */
-  fprintf(outfile, "itol = %i\n", ark_mem->itol);
-  fprintf(outfile, "ritol = %i\n", ark_mem->ritol);
-  fprintf(outfile, "mxhnil = %i\n", ark_mem->mxhnil);
-  fprintf(outfile, "mxstep = %li\n", ark_mem->mxstep);
-  fprintf(outfile, "lrw1 = %li\n", (long int)ark_mem->lrw1);
-  fprintf(outfile, "liw1 = %li\n", (long int)ark_mem->liw1);
-  fprintf(outfile, "lrw = %li\n", (long int)ark_mem->lrw);
-  fprintf(outfile, "liw = %li\n", (long int)ark_mem->liw);
-  fprintf(outfile, "user_efun = %i\n", ark_mem->user_efun);
-  fprintf(outfile, "tstopset = %i\n", ark_mem->tstopset);
-  fprintf(outfile, "tstopinterp = %i\n", ark_mem->tstopinterp);
-  fprintf(outfile, "tstop = %" RSYM "\n", ark_mem->tstop);
-  fprintf(outfile, "VabstolMallocDone = %i\n", ark_mem->VabstolMallocDone);
-  fprintf(outfile, "MallocDone = %i\n", ark_mem->MallocDone);
-  fprintf(outfile, "initsetup = %i\n", ark_mem->initsetup);
-  fprintf(outfile, "init_type = %i\n", ark_mem->init_type);
-  fprintf(outfile, "firststage = %i\n", ark_mem->firststage);
-  fprintf(outfile, "uround = %" RSYM "\n", ark_mem->uround);
-  fprintf(outfile, "reltol = %" RSYM "\n", ark_mem->reltol);
-  fprintf(outfile, "Sabstol = %" RSYM "\n", ark_mem->Sabstol);
-  fprintf(outfile, "fixedstep = %i\n", ark_mem->fixedstep);
-  fprintf(outfile, "tolsf = %" RSYM "\n", ark_mem->tolsf);
-  fprintf(outfile, "call_fullrhs = %i\n", ark_mem->call_fullrhs);
-
-  /* output counters */
-  fprintf(outfile, "nhnil = %i\n", ark_mem->nhnil);
-  fprintf(outfile, "nst_attempts = %li\n", ark_mem->nst_attempts);
-  fprintf(outfile, "nst = %li\n", ark_mem->nst);
-  fprintf(outfile, "ncfn = %li\n", ark_mem->ncfn);
-  fprintf(outfile, "netf = %li\n", ark_mem->netf);
-
-  /* output time-stepping values */
-  fprintf(outfile, "hin = %" RSYM "\n", ark_mem->hin);
-  fprintf(outfile, "h = %" RSYM "\n", ark_mem->h);
-  fprintf(outfile, "hprime = %" RSYM "\n", ark_mem->hprime);
-  fprintf(outfile, "next_h = %" RSYM "\n", ark_mem->next_h);
-  fprintf(outfile, "eta = %" RSYM "\n", ark_mem->eta);
-  fprintf(outfile, "tcur = %" RSYM "\n", ark_mem->tcur);
-  fprintf(outfile, "tretlast = %" RSYM "\n", ark_mem->tretlast);
-  fprintf(outfile, "hmin = %" RSYM "\n", ark_mem->hmin);
-  fprintf(outfile, "hmax_inv = %" RSYM "\n", ark_mem->hmax_inv);
-  fprintf(outfile, "h0u = %" RSYM "\n", ark_mem->h0u);
-  fprintf(outfile, "tn = %" RSYM "\n", ark_mem->tn);
-  fprintf(outfile, "hold = %" RSYM "\n", ark_mem->hold);
-  fprintf(outfile, "maxnef = %i\n", ark_mem->maxnef);
-  fprintf(outfile, "maxncf = %i\n", ark_mem->maxncf);
-
-  /* output time-stepping adaptivity structure */
-  fprintf(outfile, "timestep adaptivity structure:\n");
-  arkPrintAdaptMem(ark_mem->hadapt_mem, outfile);
-
-  /* output inequality constraints quantities */
-  fprintf(outfile, "constraintsSet = %i\n", ark_mem->constraintsSet);
-  fprintf(outfile, "maxconstrfails = %i\n", ark_mem->maxconstrfails);
-
-  /* output root-finding quantities */
-  if (ark_mem->root_mem != NULL)
-  {
-    (void)arkPrintRootMem((void*)ark_mem, outfile);
-  }
-
-  /* output interpolation quantities */
-  arkInterpPrintMem(ark_mem->interp, outfile);
-
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-  /* output vector quantities */
-  fprintf(outfile, "Vapbsol:\n");
-  N_VPrintFile(ark_mem->Vabstol, outfile);
-  fprintf(outfile, "ewt:\n");
-  N_VPrintFile(ark_mem->ewt, outfile);
-  if (!ark_mem->rwt_is_ewt)
-  {
-    fprintf(outfile, "rwt:\n");
-    N_VPrintFile(ark_mem->rwt, outfile);
-  }
-  fprintf(outfile, "ycur:\n");
-  N_VPrintFile(ark_mem->ycur, outfile);
-  fprintf(outfile, "yn:\n");
-  N_VPrintFile(ark_mem->yn, outfile);
-  fprintf(outfile, "fn:\n");
-  N_VPrintFile(ark_mem->fn, outfile);
-  fprintf(outfile, "tempv1:\n");
-  N_VPrintFile(ark_mem->tempv1, outfile);
-  fprintf(outfile, "tempv2:\n");
-  N_VPrintFile(ark_mem->tempv2, outfile);
-  fprintf(outfile, "tempv3:\n");
-  N_VPrintFile(ark_mem->tempv3, outfile);
-  fprintf(outfile, "tempv4:\n");
-  N_VPrintFile(ark_mem->tempv4, outfile);
-  fprintf(outfile, "constraints:\n");
-  N_VPrintFile(ark_mem->constraints, outfile);
-#endif
-
-  /* Call stepper PrintMem function (if provided) */
-  if (ark_mem->step_printmem) { ark_mem->step_printmem(ark_mem, outfile); }
-}
-
-/*---------------------------------------------------------------
   arkCheckTimestepper:
 
   This routine checks if all required time stepper function
@@ -1775,326 +1769,6 @@ sunbooleantype arkCheckNvector(N_Vector tmpl) /* to be updated?? */
     return (SUNFALSE);
   }
   else { return (SUNTRUE); }
-}
-
-/*---------------------------------------------------------------
-  arkAllocVec and arkAllocVecArray:
-
-  These routines allocate (respectively) single vector or a vector
-  array based on a template vector.  If the target vector or vector
-  array already exists it is left alone; otherwise it is allocated
-  by cloning the input vector.
-
-  This routine also updates the optional outputs lrw and liw, which
-  are (respectively) the lengths of the overall ARKODE real and
-  integer work spaces.
-
-  SUNTRUE is returned if the allocation is successful (or if the
-  target vector or vector array already exists) otherwise SUNFALSE
-  is retured.
-  ---------------------------------------------------------------*/
-sunbooleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector* v)
-{
-  /* allocate the new vector if necessary */
-  if (*v == NULL)
-  {
-    *v = N_VClone(tmpl);
-    if (*v == NULL)
-    {
-      arkFreeVectors(ark_mem);
-      return (SUNFALSE);
-    }
-    else
-    {
-      ark_mem->lrw += ark_mem->lrw1;
-      ark_mem->liw += ark_mem->liw1;
-    }
-  }
-  return (SUNTRUE);
-}
-
-sunbooleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector** v,
-                                sunindextype lrw1, long int* lrw,
-                                sunindextype liw1, long int* liw)
-{
-  /* allocate the new vector array if necessary */
-  if (*v == NULL)
-  {
-    *v = N_VCloneVectorArray(count, tmpl);
-    if (*v == NULL) { return (SUNFALSE); }
-    *lrw += count * lrw1;
-    *liw += count * liw1;
-  }
-  return (SUNTRUE);
-}
-
-/*---------------------------------------------------------------
-  arkFreeVec and arkFreeVecArray:
-
-  These routines (respectively) free a single vector or a vector
-  array. If the target vector or vector array is already NULL it
-  is left alone; otherwise it is freed and the optional outputs
-  lrw and liw are updated accordingly.
-  ---------------------------------------------------------------*/
-void arkFreeVec(ARKodeMem ark_mem, N_Vector* v)
-{
-  if (*v != NULL)
-  {
-    N_VDestroy(*v);
-    *v = NULL;
-    ark_mem->lrw -= ark_mem->lrw1;
-    ark_mem->liw -= ark_mem->liw1;
-  }
-}
-
-void arkFreeVecArray(int count, N_Vector** v, sunindextype lrw1, long int* lrw,
-                     sunindextype liw1, long int* liw)
-{
-  if (*v != NULL)
-  {
-    N_VDestroyVectorArray(*v, count);
-    *v = NULL;
-    *lrw -= count * lrw1;
-    *liw -= count * liw1;
-  }
-}
-
-/*---------------------------------------------------------------
-  arkResizeVec and arkResizeVecArray:
-
-  This routines (respectively) resize a single vector or a vector
-  array based on a template vector. If the ARKVecResizeFn function
-  is non-NULL, then it calls that routine to perform the resize;
-  otherwise it deallocates and reallocates the target vector or
-  vector array based on the template vector. These routines also
-  updates the optional outputs lrw and liw, which are
-  (respectively) the lengths of the overall ARKODE real and
-  integer work spaces.
-
-  SUNTRUE is returned if the resize is successful otherwise
-  SUNFALSE is retured.
-  ---------------------------------------------------------------*/
-sunbooleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
-                            void* resize_data, sunindextype lrw_diff,
-                            sunindextype liw_diff, N_Vector tmpl, N_Vector* v)
-{
-  if (*v != NULL)
-  {
-    if (resize == NULL)
-    {
-      N_VDestroy(*v);
-      *v = NULL;
-      *v = N_VClone(tmpl);
-      if (*v == NULL)
-      {
-        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                        "Unable to clone vector");
-        return (SUNFALSE);
-      }
-    }
-    else
-    {
-      if (resize(*v, tmpl, resize_data))
-      {
-        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_RESIZE_FAIL);
-        return (SUNFALSE);
-      }
-    }
-    ark_mem->lrw += lrw_diff;
-    ark_mem->liw += liw_diff;
-  }
-  return (SUNTRUE);
-}
-
-sunbooleantype arkResizeVecArray(ARKVecResizeFn resize, void* resize_data,
-                                 int count, N_Vector tmpl, N_Vector** v,
-                                 sunindextype lrw_diff, long int* lrw,
-                                 sunindextype liw_diff, long int* liw)
-{
-  int i;
-
-  if (*v != NULL)
-  {
-    if (resize == NULL)
-    {
-      N_VDestroyVectorArray(*v, count);
-      *v = NULL;
-      *v = N_VCloneVectorArray(count, tmpl);
-      if (*v == NULL) { return (SUNFALSE); }
-    }
-    else
-    {
-      for (i = 0; i < count; i++)
-      {
-        if (resize((*v)[i], tmpl, resize_data)) { return (SUNFALSE); }
-      }
-    }
-    *lrw += count * lrw_diff;
-    *liw += count * liw_diff;
-  }
-  return (SUNTRUE);
-}
-
-/*---------------------------------------------------------------
-  arkAllocVectors:
-
-  This routine allocates the ARKODE vectors ewt, yn, tempv* and
-  ftemp. If any of these vectors already exist, they are left
-  alone. Otherwise, it will allocate each vector by cloning the
-  input vector. This routine also updates the optional outputs
-  lrw and liw, which are (respectively) the lengths of the real
-  and integer work spaces.
-
-  If all memory allocations are successful, arkAllocVectors
-  returns SUNTRUE, otherwise it returns SUNFALSE.
-  ---------------------------------------------------------------*/
-sunbooleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
-{
-  /* Allocate ewt if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->ewt)) { return (SUNFALSE); }
-
-  /* Set rwt to point at ewt */
-  if (ark_mem->rwt_is_ewt) { ark_mem->rwt = ark_mem->ewt; }
-
-  /* Allocate yn if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->yn)) { return (SUNFALSE); }
-
-  /* Allocate tempv1 if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv1)) { return (SUNFALSE); }
-
-  /* Allocate tempv2 if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv2)) { return (SUNFALSE); }
-
-  /* Allocate tempv3 if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv3)) { return (SUNFALSE); }
-
-  /* Allocate tempv4 if needed */
-  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv4)) { return (SUNFALSE); }
-
-  return (SUNTRUE);
-}
-
-/*---------------------------------------------------------------
-  arkResizeVectors:
-
-  This routine resizes all ARKODE vectors if they exist,
-  otherwise they are left alone. If a resize function is provided
-  it is called to resize the vectors otherwise the vector is
-  freed and a new vector is created by cloning in input vector.
-  This routine also updates the optional outputs lrw and liw,
-  which are (respectively) the lengths of the real and integer
-  work spaces.
-
-  If all memory allocations are successful, arkResizeVectors
-  returns SUNTRUE, otherwise it returns SUNFALSE.
-  ---------------------------------------------------------------*/
-sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
-                                void* resize_data, sunindextype lrw_diff,
-                                sunindextype liw_diff, N_Vector tmpl)
-{
-  /* Vabstol */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
-                    &ark_mem->Vabstol))
-  {
-    return (SUNFALSE);
-  }
-
-  /* VRabstol */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
-                    &ark_mem->VRabstol))
-  {
-    return (SUNFALSE);
-  }
-
-  /* ewt */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
-                    &ark_mem->ewt))
-  {
-    return (SUNFALSE);
-  }
-
-  /* rwt  */
-  if (ark_mem->rwt_is_ewt)
-  { /* update pointer to ewt */
-    ark_mem->rwt = ark_mem->ewt;
-  }
-  else
-  { /* resize if distinct from ewt */
-    if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
-                      &ark_mem->rwt))
-    {
-      return (SUNFALSE);
-    }
-  }
-
-  /* yn */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
-                    &ark_mem->yn))
-  {
-    return (SUNFALSE);
-  }
-
-  /* fn */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
-                    &ark_mem->fn))
-  {
-    return (SUNFALSE);
-  }
-
-  /* tempv* */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
-                    &ark_mem->tempv1))
-  {
-    return (SUNFALSE);
-  }
-
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
-                    &ark_mem->tempv2))
-  {
-    return (SUNFALSE);
-  }
-
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
-                    &ark_mem->tempv3))
-  {
-    return (SUNFALSE);
-  }
-
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
-                    &ark_mem->tempv4))
-  {
-    return (SUNFALSE);
-  }
-
-  /* constraints */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
-                    &ark_mem->constraints))
-  {
-    return (SUNFALSE);
-  }
-
-  return (SUNTRUE);
-}
-
-/*---------------------------------------------------------------
-  arkFreeVectors
-
-  This routine frees the ARKODE vectors allocated in both
-  arkAllocVectors and arkAllocRKVectors.
-  ---------------------------------------------------------------*/
-void arkFreeVectors(ARKodeMem ark_mem)
-{
-  arkFreeVec(ark_mem, &ark_mem->ewt);
-  if (!ark_mem->rwt_is_ewt) { arkFreeVec(ark_mem, &ark_mem->rwt); }
-  arkFreeVec(ark_mem, &ark_mem->tempv1);
-  arkFreeVec(ark_mem, &ark_mem->tempv2);
-  arkFreeVec(ark_mem, &ark_mem->tempv3);
-  arkFreeVec(ark_mem, &ark_mem->tempv4);
-  arkFreeVec(ark_mem, &ark_mem->yn);
-  arkFreeVec(ark_mem, &ark_mem->fn);
-  arkFreeVec(ark_mem, &ark_mem->Vabstol);
-  arkFreeVec(ark_mem, &ark_mem->constraints);
 }
 
 /*---------------------------------------------------------------
@@ -3451,6 +3125,326 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
     SUNMAX(ONE, SUNRabs(ark_mem->h) * ark_mem->hmax_inv * ark_mem->eta);
 
   return (TRY_AGAIN);
+}
+
+/*---------------------------------------------------------------
+  arkAllocVec and arkAllocVecArray:
+
+  These routines allocate (respectively) single vector or a vector
+  array based on a template vector.  If the target vector or vector
+  array already exists it is left alone; otherwise it is allocated
+  by cloning the input vector.
+
+  This routine also updates the optional outputs lrw and liw, which
+  are (respectively) the lengths of the overall ARKODE real and
+  integer work spaces.
+
+  SUNTRUE is returned if the allocation is successful (or if the
+  target vector or vector array already exists) otherwise SUNFALSE
+  is retured.
+  ---------------------------------------------------------------*/
+sunbooleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector* v)
+{
+  /* allocate the new vector if necessary */
+  if (*v == NULL)
+  {
+    *v = N_VClone(tmpl);
+    if (*v == NULL)
+    {
+      arkFreeVectors(ark_mem);
+      return (SUNFALSE);
+    }
+    else
+    {
+      ark_mem->lrw += ark_mem->lrw1;
+      ark_mem->liw += ark_mem->liw1;
+    }
+  }
+  return (SUNTRUE);
+}
+
+sunbooleantype arkAllocVecArray(int count, N_Vector tmpl, N_Vector** v,
+                                sunindextype lrw1, long int* lrw,
+                                sunindextype liw1, long int* liw)
+{
+  /* allocate the new vector array if necessary */
+  if (*v == NULL)
+  {
+    *v = N_VCloneVectorArray(count, tmpl);
+    if (*v == NULL) { return (SUNFALSE); }
+    *lrw += count * lrw1;
+    *liw += count * liw1;
+  }
+  return (SUNTRUE);
+}
+
+/*---------------------------------------------------------------
+  arkFreeVec and arkFreeVecArray:
+
+  These routines (respectively) free a single vector or a vector
+  array. If the target vector or vector array is already NULL it
+  is left alone; otherwise it is freed and the optional outputs
+  lrw and liw are updated accordingly.
+  ---------------------------------------------------------------*/
+void arkFreeVec(ARKodeMem ark_mem, N_Vector* v)
+{
+  if (*v != NULL)
+  {
+    N_VDestroy(*v);
+    *v = NULL;
+    ark_mem->lrw -= ark_mem->lrw1;
+    ark_mem->liw -= ark_mem->liw1;
+  }
+}
+
+void arkFreeVecArray(int count, N_Vector** v, sunindextype lrw1, long int* lrw,
+                     sunindextype liw1, long int* liw)
+{
+  if (*v != NULL)
+  {
+    N_VDestroyVectorArray(*v, count);
+    *v = NULL;
+    *lrw -= count * lrw1;
+    *liw -= count * liw1;
+  }
+}
+
+/*---------------------------------------------------------------
+  arkResizeVec and arkResizeVecArray:
+
+  This routines (respectively) resize a single vector or a vector
+  array based on a template vector. If the ARKVecResizeFn function
+  is non-NULL, then it calls that routine to perform the resize;
+  otherwise it deallocates and reallocates the target vector or
+  vector array based on the template vector. These routines also
+  updates the optional outputs lrw and liw, which are
+  (respectively) the lengths of the overall ARKODE real and
+  integer work spaces.
+
+  SUNTRUE is returned if the resize is successful otherwise
+  SUNFALSE is retured.
+  ---------------------------------------------------------------*/
+sunbooleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
+                            void* resize_data, sunindextype lrw_diff,
+                            sunindextype liw_diff, N_Vector tmpl, N_Vector* v)
+{
+  if (*v != NULL)
+  {
+    if (resize == NULL)
+    {
+      N_VDestroy(*v);
+      *v = NULL;
+      *v = N_VClone(tmpl);
+      if (*v == NULL)
+      {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                        "Unable to clone vector");
+        return (SUNFALSE);
+      }
+    }
+    else
+    {
+      if (resize(*v, tmpl, resize_data))
+      {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_RESIZE_FAIL);
+        return (SUNFALSE);
+      }
+    }
+    ark_mem->lrw += lrw_diff;
+    ark_mem->liw += liw_diff;
+  }
+  return (SUNTRUE);
+}
+
+sunbooleantype arkResizeVecArray(ARKVecResizeFn resize, void* resize_data,
+                                 int count, N_Vector tmpl, N_Vector** v,
+                                 sunindextype lrw_diff, long int* lrw,
+                                 sunindextype liw_diff, long int* liw)
+{
+  int i;
+
+  if (*v != NULL)
+  {
+    if (resize == NULL)
+    {
+      N_VDestroyVectorArray(*v, count);
+      *v = NULL;
+      *v = N_VCloneVectorArray(count, tmpl);
+      if (*v == NULL) { return (SUNFALSE); }
+    }
+    else
+    {
+      for (i = 0; i < count; i++)
+      {
+        if (resize((*v)[i], tmpl, resize_data)) { return (SUNFALSE); }
+      }
+    }
+    *lrw += count * lrw_diff;
+    *liw += count * liw_diff;
+  }
+  return (SUNTRUE);
+}
+
+/*---------------------------------------------------------------
+  arkAllocVectors:
+
+  This routine allocates the ARKODE vectors ewt, yn, tempv* and
+  ftemp. If any of these vectors already exist, they are left
+  alone. Otherwise, it will allocate each vector by cloning the
+  input vector. This routine also updates the optional outputs
+  lrw and liw, which are (respectively) the lengths of the real
+  and integer work spaces.
+
+  If all memory allocations are successful, arkAllocVectors
+  returns SUNTRUE, otherwise it returns SUNFALSE.
+  ---------------------------------------------------------------*/
+sunbooleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
+{
+  /* Allocate ewt if needed */
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->ewt)) { return (SUNFALSE); }
+
+  /* Set rwt to point at ewt */
+  if (ark_mem->rwt_is_ewt) { ark_mem->rwt = ark_mem->ewt; }
+
+  /* Allocate yn if needed */
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->yn)) { return (SUNFALSE); }
+
+  /* Allocate tempv1 if needed */
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv1)) { return (SUNFALSE); }
+
+  /* Allocate tempv2 if needed */
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv2)) { return (SUNFALSE); }
+
+  /* Allocate tempv3 if needed */
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv3)) { return (SUNFALSE); }
+
+  /* Allocate tempv4 if needed */
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv4)) { return (SUNFALSE); }
+
+  return (SUNTRUE);
+}
+
+/*---------------------------------------------------------------
+  arkResizeVectors:
+
+  This routine resizes all ARKODE vectors if they exist,
+  otherwise they are left alone. If a resize function is provided
+  it is called to resize the vectors otherwise the vector is
+  freed and a new vector is created by cloning in input vector.
+  This routine also updates the optional outputs lrw and liw,
+  which are (respectively) the lengths of the real and integer
+  work spaces.
+
+  If all memory allocations are successful, arkResizeVectors
+  returns SUNTRUE, otherwise it returns SUNFALSE.
+  ---------------------------------------------------------------*/
+sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
+                                void* resize_data, sunindextype lrw_diff,
+                                sunindextype liw_diff, N_Vector tmpl)
+{
+  /* Vabstol */
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->Vabstol))
+  {
+    return (SUNFALSE);
+  }
+
+  /* VRabstol */
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->VRabstol))
+  {
+    return (SUNFALSE);
+  }
+
+  /* ewt */
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->ewt))
+  {
+    return (SUNFALSE);
+  }
+
+  /* rwt  */
+  if (ark_mem->rwt_is_ewt)
+  { /* update pointer to ewt */
+    ark_mem->rwt = ark_mem->ewt;
+  }
+  else
+  { /* resize if distinct from ewt */
+    if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                      &ark_mem->rwt))
+    {
+      return (SUNFALSE);
+    }
+  }
+
+  /* yn */
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->yn))
+  {
+    return (SUNFALSE);
+  }
+
+  /* fn */
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->fn))
+  {
+    return (SUNFALSE);
+  }
+
+  /* tempv* */
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->tempv1))
+  {
+    return (SUNFALSE);
+  }
+
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->tempv2))
+  {
+    return (SUNFALSE);
+  }
+
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->tempv3))
+  {
+    return (SUNFALSE);
+  }
+
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->tempv4))
+  {
+    return (SUNFALSE);
+  }
+
+  /* constraints */
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->constraints))
+  {
+    return (SUNFALSE);
+  }
+
+  return (SUNTRUE);
+}
+
+/*---------------------------------------------------------------
+  arkFreeVectors
+
+  This routine frees the ARKODE vectors allocated in both
+  arkAllocVectors and arkAllocRKVectors.
+  ---------------------------------------------------------------*/
+void arkFreeVectors(ARKodeMem ark_mem)
+{
+  arkFreeVec(ark_mem, &ark_mem->ewt);
+  if (!ark_mem->rwt_is_ewt) { arkFreeVec(ark_mem, &ark_mem->rwt); }
+  arkFreeVec(ark_mem, &ark_mem->tempv1);
+  arkFreeVec(ark_mem, &ark_mem->tempv2);
+  arkFreeVec(ark_mem, &ark_mem->tempv3);
+  arkFreeVec(ark_mem, &ark_mem->tempv4);
+  arkFreeVec(ark_mem, &ark_mem->yn);
+  arkFreeVec(ark_mem, &ark_mem->fn);
+  arkFreeVec(ark_mem, &ark_mem->Vabstol);
+  arkFreeVec(ark_mem, &ark_mem->constraints);
 }
 
 /*---------------------------------------------------------------

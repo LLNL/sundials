@@ -149,6 +149,7 @@ SUNDIALS_EXPORT int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals
                                           long int* nfsi_evals);
 SUNDIALS_EXPORT int MRIStepGetCurrentCoupling(void* arkode_mem,
                                               MRIStepCoupling* MRIC);
+SUNDIALS_EXPORT int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag);
 
 /* Custom inner stepper functions */
 SUNDIALS_EXPORT int MRIStepInnerStepper_Create(SUNContext sunctx,
@@ -225,10 +226,10 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNonlinConvCoef instead")
 int MRIStepSetNonlinConvCoef(void* arkode_mem, sunrealtype nlscoef);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetMaxHnilWarns instead")
 int MRIStepSetMaxHnilWarns(void* arkode_mem, int mxhnil);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetStopTime instead")
-int MRIStepSetStopTime(void* arkode_mem, sunrealtype tstop);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetInterpolateStopTime instead")
 int MRIStepSetInterpolateStopTime(void* arkode_mem, sunbooleantype interp);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetStopTime instead")
+int MRIStepSetStopTime(void* arkode_mem, sunrealtype tstop);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeClearStopTime instead")
 int MRIStepClearStopTime(void* arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepSetFiARKode instead")
@@ -296,8 +297,6 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumGEvals instead")
 int MRIStepGetNumGEvals(void* arkode_mem, long int* ngevals);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetRootInfo instead")
 int MRIStepGetRootInfo(void* arkode_mem, int* rootsfound);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepGetLastInARKodeFlag instead")
-int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetUserData instead")
 int MRIStepGetUserData(void* arkode_mem, void** user_data);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodePrintAllStats instead")

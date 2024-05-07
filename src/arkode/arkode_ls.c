@@ -39,7 +39,7 @@ static int arkLsLinSys(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix A,
                        N_Vector tmp2, N_Vector tmp3);
 
 /*===============================================================
-  ARKLS utility routines (called by time-stepper modules)
+  Exported routines
   ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -302,12 +302,12 @@ int ARKodeSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A)
 }
 
 /*---------------------------------------------------------------
-  arkLSSetMassLinearSolver specifies the iterative mass-matrix
+  ARKodeSetMassLinearSolver specifies the iterative mass-matrix
   linear solver and user-supplied routine to perform the
   mass-matrix-vector product.
   ---------------------------------------------------------------*/
-int ARKodeSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix M,
-                              sunbooleantype time_dep)
+int ARKodeSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS,
+                              SUNMatrix M, sunbooleantype time_dep)
 {
   ARKodeMem ark_mem;
   ARKLsMassMem arkls_mem;
@@ -535,10 +535,6 @@ int ARKodeSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix M,
 
   return (ARKLS_SUCCESS);
 }
-
-/*===============================================================
-  Optional Set functions (called by time-stepper modules)
-  ===============================================================*/
 
 /*---------------------------------------------------------------
   ARKodeSetJacFn specifies the Jacobian function.
@@ -1057,35 +1053,6 @@ int ARKodeSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys)
 
   return (ARKLS_SUCCESS);
 }
-
-/* arkLSSetUserData sets user_data pointers in arkLS */
-int arkLSSetUserData(ARKodeMem ark_mem, void* user_data)
-{
-  ARKLsMem arkls_mem;
-  int retval;
-
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(ark_mem, __func__, &arkls_mem);
-  if (retval != ARKLS_SUCCESS) { return (retval); }
-
-  /* Set data for Jacobian */
-  if (!arkls_mem->jacDQ) { arkls_mem->J_data = user_data; }
-
-  /* Set data for Jtimes */
-  if (!arkls_mem->jtimesDQ) { arkls_mem->Jt_data = user_data; }
-
-  /* Set data for LinSys */
-  if (arkls_mem->user_linsys) { arkls_mem->A_data = user_data; }
-
-  /* Set data for Preconditioner */
-  arkls_mem->P_data = user_data;
-
-  return (ARKLS_SUCCESS);
-}
-
-/*===============================================================
-  Optional Get functions
-  ===============================================================*/
 
 int ARKodeGetJac(void* arkode_mem, SUNMatrix* J)
 {
@@ -1850,27 +1817,6 @@ int ARKodeSetMassTimes(void* arkode_mem, ARKLsMassTimesSetupFn mtsetup,
   return (ARKLS_SUCCESS);
 }
 
-/* arkLSMassSetUserData sets user_data pointers in arkLSMass */
-int arkLSSetMassUserData(ARKodeMem ark_mem, void* user_data)
-{
-  ARKLsMassMem arkls_mem;
-  int retval;
-
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessMassMem(ark_mem, __func__, &arkls_mem);
-  if (retval != ARKLS_SUCCESS) { return (retval); }
-
-  /* Set data for mass matrix */
-  if (arkls_mem->mass != NULL) { arkls_mem->M_data = user_data; }
-
-  /* Data for Mtimes is set in arkLSSetMassTimes */
-
-  /* Set data for Preconditioner */
-  arkls_mem->P_data = user_data;
-
-  return (ARKLS_SUCCESS);
-}
-
 /*---------------------------------------------------------------
   ARKodeGetMassWorkSpace
   ---------------------------------------------------------------*/
@@ -2291,9 +2237,56 @@ int ARKodeGetLastMassFlag(void* arkode_mem, long int* flag)
   return (ARKLS_SUCCESS);
 }
 
+
 /*===============================================================
   ARKLS Private functions
   ===============================================================*/
+
+/* arkLSSetUserData sets user_data pointers in arkLS */
+int arkLSSetUserData(ARKodeMem ark_mem, void* user_data)
+{
+  ARKLsMem arkls_mem;
+  int retval;
+
+  /* access ARKLsMem structure */
+  retval = arkLs_AccessLMem(ark_mem, __func__, &arkls_mem);
+  if (retval != ARKLS_SUCCESS) { return (retval); }
+
+  /* Set data for Jacobian */
+  if (!arkls_mem->jacDQ) { arkls_mem->J_data = user_data; }
+
+  /* Set data for Jtimes */
+  if (!arkls_mem->jtimesDQ) { arkls_mem->Jt_data = user_data; }
+
+  /* Set data for LinSys */
+  if (arkls_mem->user_linsys) { arkls_mem->A_data = user_data; }
+
+  /* Set data for Preconditioner */
+  arkls_mem->P_data = user_data;
+
+  return (ARKLS_SUCCESS);
+}
+
+/* arkLSMassSetUserData sets user_data pointers in arkLSMass */
+int arkLSSetMassUserData(ARKodeMem ark_mem, void* user_data)
+{
+  ARKLsMassMem arkls_mem;
+  int retval;
+
+  /* access ARKLsMem structure */
+  retval = arkLs_AccessMassMem(ark_mem, __func__, &arkls_mem);
+  if (retval != ARKLS_SUCCESS) { return (retval); }
+
+  /* Set data for mass matrix */
+  if (arkls_mem->mass != NULL) { arkls_mem->M_data = user_data; }
+
+  /* Data for Mtimes is set in arkLSSetMassTimes */
+
+  /* Set data for Preconditioner */
+  arkls_mem->P_data = user_data;
+
+  return (ARKLS_SUCCESS);
+}
 
 /*---------------------------------------------------------------
   arkLsATimes:
@@ -4085,6 +4078,6 @@ int arkLs_AccessMassMem(ARKodeMem ark_mem, const char* fname,
   return (ARKLS_SUCCESS);
 }
 
-/*---------------------------------------------------------------
+/*===============================================================
   EOF
-  ---------------------------------------------------------------*/
+  ===============================================================*/
