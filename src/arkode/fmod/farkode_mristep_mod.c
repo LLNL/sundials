@@ -743,6 +743,20 @@ SWIGEXPORT int _wrap_FMRIStepGetCurrentCoupling(void *farg1, void *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepGetLastInnerStepFlag(void *farg1, int *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int *arg2 = (int *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int *)(farg2);
+  result = (int)MRIStepGetLastInnerStepFlag(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FMRIStepInnerStepper_Create(void *farg1, void *farg2) {
   int fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
@@ -1237,20 +1251,6 @@ SWIGEXPORT int _wrap_FMRIStepSetMaxHnilWarns(void *farg1, int const *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FMRIStepSetStopTime(void *farg1, double const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  sunrealtype arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (sunrealtype)(*farg2);
-  result = (int)MRIStepSetStopTime(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FMRIStepSetInterpolateStopTime(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1260,6 +1260,20 @@ SWIGEXPORT int _wrap_FMRIStepSetInterpolateStopTime(void *farg1, int const *farg
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)MRIStepSetInterpolateStopTime(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepSetStopTime(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  result = (int)MRIStepSetStopTime(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -1722,20 +1736,6 @@ SWIGEXPORT int _wrap_FMRIStepGetRootInfo(void *farg1, int *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
   result = (int)MRIStepGetRootInfo(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FMRIStepGetLastInnerStepFlag(void *farg1, int *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int *arg2 = (int *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int *)(farg2);
-  result = (int)MRIStepGetLastInnerStepFlag(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

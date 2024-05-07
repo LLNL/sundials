@@ -47,6 +47,8 @@ module farkode_sprkstep_mod
  public :: FSPRKStepGetNumRhsEvals
  public :: FSPRKStepReset
  public :: FSPRKStepRootInit
+ public :: FSPRKStepSetRootDirection
+ public :: FSPRKStepSetNoInactiveRootWarn
  public :: FSPRKStepSetDefaults
  public :: FSPRKStepSetOrder
  public :: FSPRKStepSetInterpolantType
@@ -163,6 +165,23 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 type(C_FUNPTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSPRKStepSetRootDirection(farg1, farg2) &
+bind(C, name="_wrap_FSPRKStepSetRootDirection") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSPRKStepSetNoInactiveRootWarn(farg1) &
+bind(C, name="_wrap_FSPRKStepSetNoInactiveRootWarn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -594,6 +613,35 @@ farg1 = arkode_mem
 farg2 = nrtfn
 farg3 = g
 fresult = swigc_FSPRKStepRootInit(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSPRKStepSetRootDirection(arkode_mem, rootdir) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), dimension(*), target, intent(inout) :: rootdir
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(rootdir(1))
+fresult = swigc_FSPRKStepSetRootDirection(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSPRKStepSetNoInactiveRootWarn(arkode_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = arkode_mem
+fresult = swigc_FSPRKStepSetNoInactiveRootWarn(farg1)
 swig_result = fresult
 end function
 

@@ -377,6 +377,32 @@ SWIGEXPORT int _wrap_FSPRKStepRootInit(void *farg1, int const *farg2, ARKRootFn 
 }
 
 
+SWIGEXPORT int _wrap_FSPRKStepSetRootDirection(void *farg1, int *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int *arg2 = (int *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int *)(farg2);
+  result = (int)SPRKStepSetRootDirection(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSPRKStepSetNoInactiveRootWarn(void *farg1) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  result = (int)SPRKStepSetNoInactiveRootWarn(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSPRKStepSetDefaults(void *farg1) {
   int fresult ;
   void *arg1 = (void *) 0 ;

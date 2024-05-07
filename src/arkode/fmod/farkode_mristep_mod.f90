@@ -114,6 +114,7 @@ module farkode_mristep_mod
  public :: FMRIStepSetPostInnerFn
  public :: FMRIStepGetNumRhsEvals
  public :: FMRIStepGetCurrentCoupling
+ public :: FMRIStepGetLastInnerStepFlag
  public :: FMRIStepInnerStepper_Create
  public :: FMRIStepInnerStepper_Free
  public :: FMRIStepInnerStepper_SetContent
@@ -148,8 +149,8 @@ module farkode_mristep_mod
  public :: FMRIStepSetMaxNonlinIters
  public :: FMRIStepSetNonlinConvCoef
  public :: FMRIStepSetMaxHnilWarns
- public :: FMRIStepSetStopTime
  public :: FMRIStepSetInterpolateStopTime
+ public :: FMRIStepSetStopTime
  public :: FMRIStepClearStopTime
  public :: FMRIStepSetFixedStep
  public :: FMRIStepSetRootDirection
@@ -182,7 +183,6 @@ module farkode_mristep_mod
  public :: FMRIStepGetErrWeights
  public :: FMRIStepGetNumGEvals
  public :: FMRIStepGetRootInfo
- public :: FMRIStepGetLastInnerStepFlag
  public :: FMRIStepGetUserData
  public :: FMRIStepPrintAllStats
  public :: FMRIStepGetReturnFlagName
@@ -505,6 +505,15 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FMRIStepGetLastInnerStepFlag(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepGetLastInnerStepFlag") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FMRIStepInnerStepper_Create(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepInnerStepper_Create") &
 result(fresult)
@@ -820,21 +829,21 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FMRIStepSetStopTime(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetStopTime") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FMRIStepSetInterpolateStopTime(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepSetInterpolateStopTime") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepSetStopTime(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetStopTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1126,15 +1135,6 @@ end function
 
 function swigc_FMRIStepGetRootInfo(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepGetRootInfo") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepGetLastInnerStepFlag(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepGetLastInnerStepFlag") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1901,6 +1901,22 @@ fresult = swigc_FMRIStepGetCurrentCoupling(farg1, farg2)
 swig_result = fresult
 end function
 
+function FMRIStepGetLastInnerStepFlag(arkode_mem, flag) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), dimension(*), target, intent(inout) :: flag
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(flag(1))
+fresult = swigc_FMRIStepGetLastInnerStepFlag(farg1, farg2)
+swig_result = fresult
+end function
+
 function FMRIStepInnerStepper_Create(sunctx, stepper) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2472,22 +2488,6 @@ fresult = swigc_FMRIStepSetMaxHnilWarns(farg1, farg2)
 swig_result = fresult
 end function
 
-function FMRIStepSetStopTime(arkode_mem, tstop) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: tstop
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = arkode_mem
-farg2 = tstop
-fresult = swigc_FMRIStepSetStopTime(farg1, farg2)
-swig_result = fresult
-end function
-
 function FMRIStepSetInterpolateStopTime(arkode_mem, interp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2501,6 +2501,22 @@ integer(C_INT) :: farg2
 farg1 = arkode_mem
 farg2 = interp
 fresult = swigc_FMRIStepSetInterpolateStopTime(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepSetStopTime(arkode_mem, tstop) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: tstop
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = tstop
+fresult = swigc_FMRIStepSetStopTime(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3034,22 +3050,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(rootsfound(1))
 fresult = swigc_FMRIStepGetRootInfo(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepGetLastInnerStepFlag(arkode_mem, flag) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), dimension(*), target, intent(inout) :: flag
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(flag(1))
-fresult = swigc_FMRIStepGetLastInnerStepFlag(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -69,9 +69,9 @@ int SPRKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeRootInit instead")
 int SPRKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRootDirection instead")
-int SPRKStepSetRootDirection(void* arkode_mem, int nrtfn, ARKRootFn g);
+int SPRKStepSetRootDirection(void* arkode_mem, int* rootdir);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNoInactiveRootWarn instead")
-int SPRKStepSetNoInactiveRootWarn(void* arkode_mem, int nrtfn, ARKRootFn g);
+int SPRKStepSetNoInactiveRootWarn(void* arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetDefaults instead")
 int SPRKStepSetDefaults(void* arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetOrder instead")

@@ -361,6 +361,38 @@ SWIGEXPORT int _wrap_FARKStepSetTableName(void *farg1, SwigArrayWrapper *farg2, 
 }
 
 
+SWIGEXPORT int _wrap_FARKStepGetNumRhsEvals(void *farg1, long *farg2, long *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  long *arg3 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  arg3 = (long *)(farg3);
+  result = (int)ARKStepGetNumRhsEvals(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepGetCurrentButcherTables(void *farg1, void *farg2, void *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKodeButcherTable *arg2 = (ARKodeButcherTable *) 0 ;
+  ARKodeButcherTable *arg3 = (ARKodeButcherTable *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKodeButcherTable *)(farg2);
+  arg3 = (ARKodeButcherTable *)(farg3);
+  result = (int)ARKStepGetCurrentButcherTables(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepGetTimestepperStats(void *farg1, long *farg2, long *farg3, long *farg4, long *farg5, long *farg6, long *farg7, long *farg8) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1609,22 +1641,6 @@ SWIGEXPORT int _wrap_FARKStepGetNumStepAttempts(void *farg1, long *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FARKStepGetNumRhsEvals(void *farg1, long *farg2, long *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  long *arg2 = (long *) 0 ;
-  long *arg3 = (long *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (long *)(farg2);
-  arg3 = (long *)(farg3);
-  result = (int)ARKStepGetNumRhsEvals(arg1,arg2,arg3);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FARKStepGetNumLinSolvSetups(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1648,22 +1664,6 @@ SWIGEXPORT int _wrap_FARKStepGetNumErrTestFails(void *farg1, long *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)ARKStepGetNumErrTestFails(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FARKStepGetCurrentButcherTables(void *farg1, void *farg2, void *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKodeButcherTable *arg2 = (ARKodeButcherTable *) 0 ;
-  ARKodeButcherTable *arg3 = (ARKodeButcherTable *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (ARKodeButcherTable *)(farg2);
-  arg3 = (ARKodeButcherTable *)(farg3);
-  result = (int)ARKStepGetCurrentButcherTables(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }
