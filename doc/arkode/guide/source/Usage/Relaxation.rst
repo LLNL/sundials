@@ -12,22 +12,25 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _ARKODE.Usage.ARKStep.Relaxation:
+.. _ARKODE.Usage.Relaxation:
 
 Relaxation Methods
 ==================
 
-This section describes ARKStep-specific user-callable functions for applying
-relaxation methods with ARKStep.  All of these routines have been deprecated in
-favor of :ref:`shared ARKODE-level routines <ARKODE.Usage.Relaxation>`, but
-this documentation will be retained for as long as these functions are present
-in the library.
+This section describes user-callable functions for applying relaxation methods
+with ARKODE. For more information on relaxation Runge--Kutta methods see
+:numref:`ARKODE.Mathematics.Relaxation`.
 
+.. warning::
+
+   Relaxation support as not been evaluated with non-identity mass matrices.
+   While this usage mode is supported, feedback from users who explore this
+   combination would be appreciated.
 
 Enabling or Disabling Relaxation
 --------------------------------
 
-.. c:function:: int ARKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
+.. c:function:: int ARKodeSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
 
    Attaches the user supplied functions for evaluating the relaxation function
    (``rfn``) and its Jacobian (``rjac``).
@@ -40,7 +43,7 @@ Enabling or Disabling Relaxation
    applying relaxation requires allocating :math:`s` additional state vectors
    (where :math:`s` is the number of stages in the method).
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param rfn: the user-defined function to compute the relaxation function
                :math:`\xi(y)`
    :param rjac: the user-defined function to compute the relaxation Jacobian
@@ -56,23 +59,18 @@ Enabling or Disabling Relaxation
 
       Applying relaxation requires using a method of at least second order with
       :math:`b^E_i \geq 0` and :math:`b^I_i \geq 0`. If these conditions are not
-      satisfied, :c:func:`ARKStepEvolve` will return with an error during
+      satisfied, :c:func:`ARKodeEvolve` will return with an error during
       initialization.
 
    .. note::
 
-      When combined with fixed time step sizes, ARKStep will attempt each step
+      When combined with fixed time step sizes, ARKODE will attempt each step
       using the specified step size. If the step is successful, relaxation will
       be applied, effectively modifying the step size for the current step. If
-      the step fails or applying relaxation fails, :c:func:`ARKStepEvolve` will
+      the step fails or applying relaxation fails, :c:func:`ARKodeEvolve` will
       return with an error.
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeSetRelaxFn` instead.
-
+   .. versionadded:: x.y.z
 
 Optional Input Functions
 ------------------------
@@ -80,7 +78,7 @@ Optional Input Functions
 This section describes optional input functions used to control applying
 relaxation.
 
-.. c:function:: int ARKStepSetRelaxEtaFail(void* arkode_mem, sunrealtype eta_rf)
+.. c:function:: int ARKodeSetRelaxEtaFail(void* arkode_mem, sunrealtype eta_rf)
 
    Sets the step size reduction factor applied after a failed relaxation
    application.
@@ -88,7 +86,7 @@ relaxation.
    The default value is 0.25. Input values :math:`\leq 0` or :math:`\geq 1` will
    result in the default value being used.
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param eta_rf: the step size reduction factor
 
    :retval ARK_SUCCESS: the value was successfully set
@@ -96,25 +94,21 @@ relaxation.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeSetRelaxEtaFail` instead.
+   .. versionadded:: x.y.z
 
 
-.. c:function:: int ARKStepSetRelaxLowerBound(void* arkode_mem, sunrealtype lower)
+.. c:function:: int ARKodeSetRelaxLowerBound(void* arkode_mem, sunrealtype lower)
 
    Sets the smallest acceptable value for the relaxation parameter.
 
    Values smaller than the lower bound will result in a failed relaxation
    application and the step will be repeated with a smaller step size
-   (determined by :c:func:`ARKStepSetRelaxEtaFail`).
+   (determined by :c:func:`ARKodeSetRelaxEtaFail`).
 
    The default value is 0.8. Input values :math:`\leq 0` or :math:`\geq 1` will
    result in the default value being used.
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param lower: the relaxation parameter lower bound
 
    :retval ARK_SUCCESS: the value was successfully set
@@ -122,25 +116,21 @@ relaxation.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeSetRelaxLowerBound` instead.
+   .. versionadded:: x.y.z
 
 
-.. c:function:: int ARKStepSetRelaxUpperBound(void* arkode_mem, sunrealtype upper)
+.. c:function:: int ARKodeSetRelaxUpperBound(void* arkode_mem, sunrealtype upper)
 
    Sets the largest acceptable value for the relaxation parameter.
 
    Values larger than the upper bound will result in a failed relaxation
    application and the step will be repeated with a smaller step size
-   (determined by :c:func:`ARKStepSetRelaxEtaFail`).
+   (determined by :c:func:`ARKodeSetRelaxEtaFail`).
 
    The default value is 1.2. Input values :math:`\leq 1` will result in the
    default value being used.
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param upper: the relaxation parameter upper bound
 
    :retval ARK_SUCCESS: the value was successfully set
@@ -148,14 +138,10 @@ relaxation.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeSetRelaxUpperBound` instead.
+   .. versionadded:: x.y.z
 
 
-.. c:function:: int ARKStepSetRelaxMaxFails(void* arkode_mem, int max_fails)
+.. c:function:: int ARKodeSetRelaxMaxFails(void* arkode_mem, int max_fails)
 
    Sets the maximum number of times applying relaxation can fail within a step
    attempt before the integration is halted with an error.
@@ -163,7 +149,7 @@ relaxation.
    The default value is 10. Input values :math:`\leq 0` will result in the
    default value being used.
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param max_fails: the maximum number of failed relaxation applications
                      allowed in a step
 
@@ -172,27 +158,23 @@ relaxation.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeSetRelaxMaxFails` instead.
+   .. versionadded:: x.y.z
 
 
-.. c:function:: int ARKStepSetRelaxMaxIters(void* arkode_mem, int max_iters)
+.. c:function:: int ARKodeSetRelaxMaxIters(void* arkode_mem, int max_iters)
 
    Sets the maximum number of nonlinear iterations allowed when solving for the
    relaxation parameter.
 
    If the maximum number of iterations is reached before meeting the solve
-   tolerance (determined by :c:func:`ARKStepSetRelaxResTol` and
-   :c:func:`ARKStepSetRelaxTol`), the step will be repeated with a smaller
-   step size (determined by :c:func:`ARKStepSetRelaxEtaFail`).
+   tolerance (determined by :c:func:`ARKodeSetRelaxResTol` and
+   :c:func:`ARKodeSetRelaxTol`), the step will be repeated with a smaller
+   step size (determined by :c:func:`ARKodeSetRelaxEtaFail`).
 
    The default value is 10. Input values :math:`\leq 0` will result in the
    default value being used.
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param max_iters: the maximum number of solver iterations allowed
 
    :retval ARK_SUCCESS: the value was successfully set
@@ -200,20 +182,16 @@ relaxation.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeSetRelaxMaxIters` instead.
+   .. versionadded:: x.y.z
 
 
-.. c:function:: int ARKStepSetRelaxSolver(void* arkode_mem, ARKRelaxSolver solver)
+.. c:function:: int ARKodeSetRelaxSolver(void* arkode_mem, ARKRelaxSolver solver)
 
    Sets the nonlinear solver method used to compute the relaxation parameter.
 
    The default value is ``ARK_RELAX_NEWTON``.
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param solver: the nonlinear solver to use: ``ARK_RELAX_BRENT`` or
                   ``ARK_RELAX_NEWTON``
 
@@ -223,29 +201,25 @@ relaxation.
                                ``NULL``
    :retval ARK_ILL_INPUT: an invalid solver option was provided
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeSetRelaxSolver` instead.
+   .. versionadded:: x.y.z
 
 
-.. c:function:: int ARKStepSetRelaxResTol(void* arkode_mem, sunrealtype res_tol)
+.. c:function:: int ARKodeSetRelaxResTol(void* arkode_mem, sunrealtype res_tol)
 
    Sets the nonlinear solver residual tolerance to use when solving
    :eq:`ARKODE_RELAX_NLS`.
 
    If the residual or iteration update tolerance (see
-   :c:func:`ARKStepSetRelaxMaxIters`) is not reached within the maximum number of
-   iterations (determined by :c:func:`ARKStepSetRelaxMaxIters`), the step will
+   :c:func:`ARKodeSetRelaxMaxIters`) is not reached within the maximum number of
+   iterations (determined by :c:func:`ARKodeSetRelaxMaxIters`), the step will
    be repeated with a smaller step size (determined by
-   :c:func:`ARKStepSetRelaxEtaFail`).
+   :c:func:`ARKodeSetRelaxEtaFail`).
 
    The default value is :math:`4 \epsilon` where :math:`\epsilon` is
    floating-point precision. Input values :math:`\leq 0` will result in the
    default value being used.
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param res_tol: the nonlinear solver residual tolerance to use
 
    :retval ARK_SUCCESS: the value was successfully set
@@ -253,29 +227,25 @@ relaxation.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeSetRelaxResTol` instead.
+   .. versionadded:: x.y.z
 
 
-.. c:function:: int ARKStepSetRelaxTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol)
+.. c:function:: int ARKodeSetRelaxTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol)
 
    Sets the nonlinear solver relative and absolute tolerance on changes in
    :math:`r` iterates when solving :eq:`ARKODE_RELAX_NLS`.
 
-   If the residual (see :c:func:`ARKStepSetRelaxResTol`) or iterate update
+   If the residual (see :c:func:`ARKodeSetRelaxResTol`) or iterate update
    tolerance is not reached within the maximum number of iterations (determined
-   by :c:func:`ARKStepSetRelaxMaxIters`), the step will be repeated with a
-   smaller step size (determined by :c:func:`ARKStepSetRelaxEtaFail`).
+   by :c:func:`ARKodeSetRelaxMaxIters`), the step will be repeated with a
+   smaller step size (determined by :c:func:`ARKodeSetRelaxEtaFail`).
 
    The default relative and absolute tolerances are :math:`4 \epsilon` and
    :math:`10^{-14}`, respectively, where :math:`\epsilon` is floating-point
    precision. Input values :math:`\leq 0` will result in the default value being
    used.
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param rel_tol: the nonlinear solver relative solution tolerance to use
    :param abs_tol: the nonlinear solver absolute solution tolerance to use
 
@@ -284,11 +254,7 @@ relaxation.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeSetRelaxTol` instead.
+   .. versionadded:: x.y.z
 
 
 Optional Output Functions
@@ -297,11 +263,11 @@ Optional Output Functions
 This section describes optional output functions used to retrieve information
 about the performance of the relaxation method.
 
-.. c:function:: int ARKStepGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals)
+.. c:function:: int ARKodeGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals)
 
    Get the number of times the user's relaxation function was evaluated.
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param r_evals: the number of relaxation function evaluations
 
    :retval ARK_SUCCESS: the value was successfully set
@@ -309,18 +275,14 @@ about the performance of the relaxation method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeGetNumRelaxFnEvals` instead.
+   .. versionadded:: x.y.z
 
 
-.. c:function:: int ARKStepGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals)
+.. c:function:: int ARKodeGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals)
 
    Get the number of times the user's relaxation Jacobian was evaluated.
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param J_evals: the number of relaxation Jacobian evaluations
 
    :retval ARK_SUCCESS: the value was successfully set
@@ -328,23 +290,19 @@ about the performance of the relaxation method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeGetNumRelaxJacEvals` instead.
+   .. versionadded:: x.y.z
 
 
-.. c:function:: int ARKStepGetNumRelaxFails(void* arkode_mem, long int* fails)
+.. c:function:: int ARKodeGetNumRelaxFails(void* arkode_mem, long int* fails)
 
    Get the total number of times applying relaxation failed.
 
    The counter includes the sum of the number of nonlinear solver failures
-   (see :c:func:`ARKStepGetNumRelaxSolveFails`) and the number of failures due
-   an unacceptable relaxation value (see :c:func:`ARKStepSetRelaxLowerBound` and
-   :c:func:`ARKStepSetRelaxUpperBound`).
+   (see :c:func:`ARKodeGetNumRelaxSolveFails`) and the number of failures due
+   an unacceptable relaxation value (see :c:func:`ARKodeSetRelaxLowerBound` and
+   :c:func:`ARKodeSetRelaxUpperBound`).
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param fails: the total number of failed relaxation attempts
 
    :retval ARK_SUCCESS: the value was successfully set
@@ -352,18 +310,14 @@ about the performance of the relaxation method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeGetNumRelaxFails` instead.
+   .. versionadded:: x.y.z
 
 
-.. c:function:: int ARKStepGetNumRelaxBoundFails(void* arkode_mem, long int* fails)
+.. c:function:: int ARKodeGetNumRelaxBoundFails(void* arkode_mem, long int* fails)
 
    Get the number of times the relaxation parameter was deemed unacceptable.
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param fails: the number of failures due to an unacceptable relaxation
                  parameter value
 
@@ -372,18 +326,14 @@ about the performance of the relaxation method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeGetNumRelaxBoundFails` instead.
+   .. versionadded:: x.y.z
 
 
-.. c:function:: int ARKStepGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
+.. c:function:: int ARKodeGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
 
    Get the number of times the relaxation parameter nonlinear solver failed.
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param fails: the number of relaxation nonlinear solver failures
 
    :retval ARK_SUCCESS: the value was successfully set
@@ -391,18 +341,14 @@ about the performance of the relaxation method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeGetNumRelaxSolveFails` instead.
+   .. versionadded:: x.y.z
 
 
-.. c:function:: int ARKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
+.. c:function:: int ARKodeGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
 
    Get the number of relaxation parameter nonlinear solver iterations.
 
-   :param arkode_mem: the ARKStep memory structure
+   :param arkode_mem: the ARKODE memory structure
    :param iters: the number of relaxation nonlinear solver iterations
 
    :retval ARK_SUCCESS: the value was successfully set
@@ -410,8 +356,4 @@ about the performance of the relaxation method.
    :retval ARK_RELAX_MEM_NULL: the internal relaxation memory structure was
                                ``NULL``
 
-   .. versionadded:: 5.6.0
-
-   .. deprecated:: x.y.z
-
-      Use :c:func:`ARKodeGetNumRelaxSolveIters` instead.
+   .. versionadded:: x.y.z

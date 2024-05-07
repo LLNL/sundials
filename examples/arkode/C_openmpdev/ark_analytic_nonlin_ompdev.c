@@ -96,8 +96,8 @@ int main(void)
   if (check_flag((void*)arkode_mem, "ERKStepCreate", 0)) { return 1; }
 
   /* Specify tolerances */
-  flag = ERKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ERKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
@@ -107,7 +107,7 @@ int main(void)
   N_VCopyFromDevice_OpenMPDEV(y);
   fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", T0, y_data[0]);
 
-  /* Main time-stepping loop: calls ERKStep to perform the integration, then
+  /* Main time-stepping loop: calls ARKodeEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t    = T0;
   tout = T0 + dTout;
@@ -115,8 +115,8 @@ int main(void)
   printf("   ---------------------\n");
   while (Tf - t > 1.0e-15)
   {
-    flag = ERKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
-    if (check_flag(&flag, "ERKStep", 1)) { break; }
+    flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
     N_VCopyFromDevice_OpenMPDEV(y);
     printf("  %10.6" FSYM "  %10.6" FSYM "\n", t,
            y_data[0]); /* access/print solution */
@@ -136,14 +136,14 @@ int main(void)
   fclose(UFID);
 
   /* Print some final statistics */
-  flag = ERKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ERKStepGetNumSteps", 1);
-  flag = ERKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ERKStepGetNumStepAttempts", 1);
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKodeGetNumSteps", 1);
+  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
   flag = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
   check_flag(&flag, "ERKStepGetNumRhsEvals", 1);
-  flag = ERKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ERKStepGetNumErrTestFails", 1);
+  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
@@ -151,9 +151,9 @@ int main(void)
   printf("   Total number of error test failures = %li\n\n", netf);
 
   /* Clean up and return with successful completion */
-  N_VDestroy(y);            /* Free y vector */
-  ERKStepFree(&arkode_mem); /* Free integrator memory */
-  SUNContext_Free(&ctx);    /* Free context */
+  N_VDestroy(y);           /* Free y vector */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  SUNContext_Free(&ctx);   /* Free context */
 
   return 0;
 }

@@ -11,8 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Routine to test that ARKStepReset, ERKStepReset and
- * MRIStepReset function correctly.
+ * Routine to test that ARKodeReset functions correctly.
  *
  * This runs the same test problem as in
  * examples/arkode/C_serial/ark_analytic.c:
@@ -107,196 +106,199 @@ int main(void)
   if (check_retval((void*)LS, "SUNLinSol_Dense", 0)) { return 1; }
 
   /******* Part I: ERKStep *******/
+  printf("Testing ERKStep:\n");
 
   /* Set initial condition, and construct stepper */
   t = T0;
   N_VConst(ytrue(t), y);
   arkode_mem = ERKStepCreate(f, t, y, ctx);
   if (check_retval((void*)arkode_mem, "ERKStepCreate", 0)) { return 1; }
-  retval = ERKStepSetUserData(arkode_mem, (void*)&lambda);
-  if (check_retval(&retval, "ERKStepSetUserData", 1)) { return 1; }
-  retval = ERKStepSStolerances(arkode_mem, rtol, atol);
-  if (check_retval(&retval, "ERKStepSStolerances", 1)) { return 1; }
-  retval = ERKStepSetMaxNumSteps(arkode_mem, 1000);
-  check_retval(&retval, "ERKStepSetMaxNumSteps", 1);
+  retval = ARKodeSetUserData(arkode_mem, (void*)&lambda);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
+  retval = ARKodeSStolerances(arkode_mem, rtol, atol);
+  if (check_retval(&retval, "ARKodeSStolerances", 1)) { return 1; }
+  retval = ARKodeSetMaxNumSteps(arkode_mem, 1000);
+  check_retval(&retval, "ARKodeSetMaxNumSteps", 1);
 
   /* Initially evolve to dTout, and check result */
-  retval = ERKStepSetStopTime(arkode_mem, t + dTout);
-  check_retval(&retval, "ERKStepSetStopTime", 1);
-  retval = ERKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
-  if (check_retval(&retval, "ERKStepEvolve", 1)) { return 1; }
+  retval = ARKodeSetStopTime(arkode_mem, t + dTout);
+  check_retval(&retval, "ARKodeSetStopTime", 1);
+  retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
+  if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
   {
-    printf("  Initial ERKStepEvolve had insufficient accuracy\n");
+    printf("  Initial ARKodeEvolve had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
   }
-  else { printf("  Initial ERKStepEvolve call successful\n"); }
+  else { printf("  Initial ARKodeEvolve call successful\n"); }
 
   /* Reset state to analytical solution at dTout, evolve to 2*dTout and check result */
   t = T0 + dTout;
   N_VConst(ytrue(t), y);
-  retval = ERKStepReset(arkode_mem, t, y);
-  check_retval(&retval, "ERKStepReset", 1);
-  retval = ERKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
-  if (check_retval(&retval, "ERKStepEvolve", 1)) { return 1; }
+  retval = ARKodeReset(arkode_mem, t, y);
+  check_retval(&retval, "ARKodeReset", 1);
+  retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
+  if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
   {
-    printf("  Second ERKStepEvolve call had insufficient accuracy\n");
+    printf("  Second ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
   }
-  else { printf("  Second ERKStepEvolve call successful\n"); }
+  else { printf("  Second ARKodeEvolve call successful\n"); }
 
   /* Reset state to analytical solution at 3*dTout, evolve to 4*dTout and check result */
   t = T0 + SUN_RCONST(3.0) * dTout;
   N_VConst(ytrue(t), y);
-  retval = ERKStepReset(arkode_mem, t, y);
-  check_retval(&retval, "ERKStepReset", 1);
-  retval = ERKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
-  if (check_retval(&retval, "ERKStepEvolve", 1)) { return 1; }
+  retval = ARKodeReset(arkode_mem, t, y);
+  check_retval(&retval, "ARKodeReset", 1);
+  retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
+  if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
   {
-    printf("  Third ERKStepEvolve call had insufficient accuracy\n");
+    printf("  Third ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
   }
-  else { printf("  Third ERKStepEvolve call successful\n"); }
+  else { printf("  Third ARKodeEvolve call successful\n"); }
 
   /* Reset state to analytical solution at dTout, evolve to 2*dTout and check result */
   t = T0 + dTout;
   N_VConst(ytrue(t), y);
-  retval = ERKStepReset(arkode_mem, t, y);
-  check_retval(&retval, "ERKStepReset", 1);
-  retval = ERKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
-  if (check_retval(&retval, "ERKStepEvolve", 1)) { return 1; }
+  retval = ARKodeReset(arkode_mem, t, y);
+  check_retval(&retval, "ARKodeReset", 1);
+  retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
+  if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
   {
-    printf("  Fourth ERKStepEvolve call had insufficient accuracy\n");
+    printf("  Fourth ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
   }
-  else { printf("  Fourth ERKStepEvolve call successful\n"); }
+  else { printf("  Fourth ARKodeEvolve call successful\n"); }
 
   /* Free ERKStep memory structure */
-  ERKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   arkode_mem = NULL;
 
   /******* Part II: ARKStep *******/
+  printf("Testing ARKStep:\n");
 
   /* Set initial condition, and construct stepper */
   t = T0;
   N_VConst(ytrue(t), y);
   arkode_mem = ARKStepCreate(NULL, f, t, y, ctx);
   if (check_retval((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
-  retval = ARKStepSetUserData(arkode_mem, (void*)&lambda);
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) { return 1; }
-  retval = ARKStepSStolerances(arkode_mem, rtol, atol);
-  if (check_retval(&retval, "ARKStepSStolerances", 1)) { return 1; }
-  retval = ARKStepSetLinearSolver(arkode_mem, LS, A);
-  if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) { return 1; }
-  retval = ARKStepSetJacFn(arkode_mem, Jac);
-  if (check_retval(&retval, "ARKStepSetJacFn", 1)) { return 1; }
-  retval = ARKStepSetLinear(arkode_mem, 0);
-  if (check_retval(&retval, "ARKStepSetLinear", 1)) { return 1; }
-  retval = ARKStepSetMaxNumSteps(arkode_mem, 100);
-  check_retval(&retval, "ARKStepSetMaxNumSteps", 1);
+  retval = ARKodeSetUserData(arkode_mem, (void*)&lambda);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
+  retval = ARKodeSStolerances(arkode_mem, rtol, atol);
+  if (check_retval(&retval, "ARKodeSStolerances", 1)) { return 1; }
+  retval = ARKodeSetLinearSolver(arkode_mem, LS, A);
+  if (check_retval(&retval, "ARKodeSetLinearSolver", 1)) { return 1; }
+  retval = ARKodeSetJacFn(arkode_mem, Jac);
+  if (check_retval(&retval, "ARKodeSetJacFn", 1)) { return 1; }
+  retval = ARKodeSetLinear(arkode_mem, 0);
+  if (check_retval(&retval, "ARKodeSetLinear", 1)) { return 1; }
+  retval = ARKodeSetMaxNumSteps(arkode_mem, 100);
+  check_retval(&retval, "ARKodeSetMaxNumSteps", 1);
 
   /* Initially evolve to dTout, and check result */
-  retval = ARKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
-  if (check_retval(&retval, "ARKStepEvolve", 1)) { return 1; }
+  retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
+  if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
   {
-    printf("  Initial ARKStepEvolve had insufficient accuracy\n");
+    printf("  Initial ARKodeEvolve had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
   }
-  else { printf("  Initial ARKStepEvolve call successful\n"); }
+  else { printf("  Initial ARKodeEvolve call successful\n"); }
 
   /* Reset state to analytical solution at dTout, evolve to 2*dTout and check result */
   t = T0 + dTout;
   N_VConst(ytrue(t), y);
-  retval = ARKStepReset(arkode_mem, t, y);
-  check_retval(&retval, "ARKStepReset", 1);
-  retval = ARKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
-  if (check_retval(&retval, "ARKStepEvolve", 1)) { return 1; }
+  retval = ARKodeReset(arkode_mem, t, y);
+  check_retval(&retval, "ARKodeReset", 1);
+  retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
+  if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
   {
-    printf("  Second ARKStepEvolve call had insufficient accuracy\n");
+    printf("  Second ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
   }
-  else { printf("  Second ARKStepEvolve call successful\n"); }
+  else { printf("  Second ARKodeEvolve call successful\n"); }
 
   /* Reset state to analytical solution at 3*dTout, evolve to 4*dTout and check result */
   t = T0 + SUN_RCONST(3.0) * dTout;
   N_VConst(ytrue(t), y);
-  retval = ARKStepReset(arkode_mem, t, y);
-  check_retval(&retval, "ARKStepReset", 1);
-  retval = ARKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
-  if (check_retval(&retval, "ARKStepEvolve", 1)) { return 1; }
+  retval = ARKodeReset(arkode_mem, t, y);
+  check_retval(&retval, "ARKodeReset", 1);
+  retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
+  if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
   {
-    printf("  Third ARKStepEvolve call had insufficient accuracy\n");
+    printf("  Third ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
   }
-  else { printf("  Third ARKStepEvolve call successful\n"); }
+  else { printf("  Third ARKodeEvolve call successful\n"); }
 
   /* Reset state to analytical solution at dTout, evolve to 2*dTout and check result */
   t = T0 + dTout;
   N_VConst(ytrue(t), y);
-  retval = ARKStepReset(arkode_mem, t, y);
-  check_retval(&retval, "ARKStepReset", 1);
-  retval = ARKStepEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
-  if (check_retval(&retval, "ARKStepEvolve", 1)) { return 1; }
+  retval = ARKodeReset(arkode_mem, t, y);
+  check_retval(&retval, "ARKodeReset", 1);
+  retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
+  if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
   {
-    printf("  Fourth ARKStepEvolve call had insufficient accuracy\n");
+    printf("  Fourth ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
   }
-  else { printf("  Fourth ARKStepEvolve call successful\n"); }
+  else { printf("  Fourth ARKodeEvolve call successful\n"); }
 
   /* Free ARKStep memory structure */
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   arkode_mem = NULL;
 
   /******* Part III: MRIStep *******/
+  printf("Testing MRIStep:\n");
 
   /* Set initial condition, and construct stepper */
   t = T0;
   N_VConst(ytrue(t), y);
   arkode_mem = ARKStepCreate(f0, NULL, t, y, ctx);
   if (check_retval((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
-  retval = ARKStepSStolerances(arkode_mem, rtol, atol);
-  if (check_retval(&retval, "ARKStepSStolerances", 1)) { return 1; }
-  retval = ARKStepSetMaxNumSteps(arkode_mem, 100);
-  check_retval(&retval, "ARKStepSetMaxNumSteps", 1);
+  retval = ARKodeSStolerances(arkode_mem, rtol, atol);
+  if (check_retval(&retval, "ARKodeSStolerances", 1)) { return 1; }
+  retval = ARKodeSetMaxNumSteps(arkode_mem, 100);
+  check_retval(&retval, "ARKodeSetMaxNumSteps", 1);
   retval = ARKStepCreateMRIStepInnerStepper(arkode_mem, &inner_stepper);
   if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1))
   {
@@ -304,91 +306,91 @@ int main(void)
   }
   mristep_mem = MRIStepCreate(NULL, f, t, y, inner_stepper, ctx);
   if (check_retval((void*)mristep_mem, "MRIStepCreate", 0)) { return 1; }
-  retval = MRIStepSetUserData(mristep_mem, (void*)&lambda);
-  if (check_retval(&retval, "MRIStepSetUserData", 1)) { return 1; }
-  retval = MRIStepSetLinearSolver(mristep_mem, LS, A);
-  if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) { return 1; }
-  retval = MRIStepSetJacFn(mristep_mem, Jac);
-  if (check_retval(&retval, "MRIStepSetJacFn", 1)) { return 1; }
-  retval = MRIStepSetLinear(mristep_mem, 0);
-  if (check_retval(&retval, "MRIStepSetLinear", 1)) { return 1; }
-  retval = MRIStepSetMaxNumSteps(mristep_mem, 100);
-  check_retval(&retval, "MRIStepSetMaxNumSteps", 1);
-  retval = MRIStepSetFixedStep(mristep_mem, dTout * SUN_RCONST(0.105));
-  check_retval(&retval, "MRIStepSetFixedStep", 1);
+  retval = ARKodeSetUserData(mristep_mem, (void*)&lambda);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
+  retval = ARKodeSetLinearSolver(mristep_mem, LS, A);
+  if (check_retval(&retval, "ARKodeSetLinearSolver", 1)) { return 1; }
+  retval = ARKodeSetJacFn(mristep_mem, Jac);
+  if (check_retval(&retval, "ARKodeSetJacFn", 1)) { return 1; }
+  retval = ARKodeSetLinear(mristep_mem, 0);
+  if (check_retval(&retval, "ARKodeSetLinear", 1)) { return 1; }
+  retval = ARKodeSetMaxNumSteps(mristep_mem, 100);
+  check_retval(&retval, "ARKodeSetMaxNumSteps", 1);
+  retval = ARKodeSetFixedStep(mristep_mem, dTout * SUN_RCONST(0.105));
+  check_retval(&retval, "ARKodeSetFixedStep", 1);
 
   /* Initially evolve to dTout, and check result */
-  retval = MRIStepEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
-  if (check_retval(&retval, "MRIStepEvolve", 1)) { return 1; }
+  retval = ARKodeEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
+  if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
   {
-    printf("  Initial MRIStepEvolve had insufficient accuracy\n");
+    printf("  Initial ARKodeEvolve had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
   }
-  else { printf("  Initial MRIStepEvolve call successful\n"); }
+  else { printf("  Initial ARKodeEvolve call successful\n"); }
 
   /* Reset state to analytical solution at dTout, evolve to 2*dTout and check result */
   t = T0 + dTout;
   N_VConst(ytrue(t), y);
-  retval = MRIStepReset(mristep_mem, t, y);
-  check_retval(&retval, "MRIStepReset", 1);
-  retval = MRIStepEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
-  if (check_retval(&retval, "MRIStepEvolve", 1)) { return 1; }
+  retval = ARKodeReset(mristep_mem, t, y);
+  check_retval(&retval, "ARKodeReset", 1);
+  retval = ARKodeEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
+  if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
   {
-    printf("  Second MRIStepEvolve call had insufficient accuracy\n");
+    printf("  Second ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
   }
-  else { printf("  Second MRIStepEvolve call successful\n"); }
+  else { printf("  Second ARKodeEvolve call successful\n"); }
 
   /* Reset state to analytical solution at 3*dTout, evolve to 4*dTout and check result */
   t = T0 + SUN_RCONST(3.0) * dTout;
   N_VConst(ytrue(t), y);
-  retval = MRIStepReset(mristep_mem, t, y);
-  check_retval(&retval, "MRIStepReset", 1);
-  retval = MRIStepEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
-  if (check_retval(&retval, "MRIStepEvolve", 1)) { return 1; }
+  retval = ARKodeReset(mristep_mem, t, y);
+  check_retval(&retval, "ARKodeReset", 1);
+  retval = ARKodeEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
+  if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
   {
-    printf("  Third MRIStepEvolve call had insufficient accuracy\n");
+    printf("  Third ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
   }
-  else { printf("  Third MRIStepEvolve call successful\n"); }
+  else { printf("  Third ARKodeEvolve call successful\n"); }
 
   /* Reset state to analytical solution at dTout, evolve to 2*dTout and check result */
   t = T0 + dTout;
   N_VConst(ytrue(t), y);
-  retval = MRIStepReset(mristep_mem, t, y);
-  check_retval(&retval, "MRIStepReset", 1);
-  retval = MRIStepEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
-  if (check_retval(&retval, "MRIStepEvolve", 1)) { return 1; }
+  retval = ARKodeReset(mristep_mem, t, y);
+  check_retval(&retval, "ARKodeReset", 1);
+  retval = ARKodeEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
+  if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
   {
-    printf("  Fourth MRIStepEvolve call had insufficient accuracy\n");
+    printf("  Fourth ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
     printf("    y = %" GSYM "\n", NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNRabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
   }
-  else { printf("  Fourth MRIStepEvolve call successful\n"); }
+  else { printf("  Fourth ARKodeEvolve call successful\n"); }
 
   /* Free MRIStep and ARKStep memory structures */
-  MRIStepFree(&mristep_mem);
+  ARKodeFree(&mristep_mem);
   MRIStepInnerStepper_Free(&inner_stepper);
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   arkode_mem = NULL;
 
   /* Clean up and return with success */
