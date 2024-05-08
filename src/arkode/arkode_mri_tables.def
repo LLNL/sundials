@@ -847,7 +847,7 @@ ARK_MRI_TABLE(ARKODE_MERK54, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 4
     sunrealtype c10 = SUN_RCONST(2.0)/SUN_RCONST(3.0);
     sunrealtype a2  = ONE/c2;
     sunrealtype a3  = c4/c3/(c4-c3);
-    sunrealtype a4  = c4/c3/(c3-c4);
+    sunrealtype a4  = c3/c4/(c3-c4);
     sunrealtype a5  = c6*c7/c5/(c5-c6)/(c5-c7);
     sunrealtype a6  = c5*c7/c6/(c6-c5)/(c6-c7);
     sunrealtype a7  = c5*c6/c7/(c7-c5)/(c7-c6);
