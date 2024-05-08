@@ -6,8 +6,9 @@ Multirate nonlinear Kvaerno-Prothero-Robinson test problem:
     G = -100
     w = 100
     e = 0.5
-    solver: dirk-2/none (dirk slow, no fast)
-    reltol = 4.00e-06,  abstol = 1.00e-11
+    slow solver: ARKODE_MRI_GARK_IRK21a
+      reltol = 4.00e-06,  abstol = 1.00e-11
+    fast solver: none
         t           u           v       uerr      verr
    ------------------------------------------------------
     0.000000    1.224745    1.732051  0.00e+00  0.00e+00
@@ -66,7 +67,7 @@ Multirate nonlinear Kvaerno-Prothero-Robinson test problem:
 Final Solver Statistics:
    Steps: nsts = 2501, nstf = 250100
    u error = 3.482e-06, v error = 9.535e-04, total error = 6.742e-04
-   Total RHS evals:  Fs = 7143,  Ff = 750350
+   Total RHS evals:  Fs = 9644,  Ff = 750350
    Slow Newton iters = 4641
    Slow Newton conv fails = 0
    Slow Jacobian evals = 126

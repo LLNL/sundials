@@ -6,8 +6,9 @@ Multirate nonlinear Kvaerno-Prothero-Robinson test problem:
     G = -100
     w = 100
     e = 0.5
-    solver: imexark4/exp-4 (IMEX-MRI4 / ERK-4-4) -- solve decoupled
-    reltol = 1.00e-12,  abstol = 1.00e-14
+    slow solver: ARKODE_IMEX_MRI_GARK4
+      reltol = 1.00e-12,  abstol = 1.00e-14
+    fast solver: erk-4-4
         t           u           v       uerr      verr
    ------------------------------------------------------
     0.000000    1.224745    1.732051  0.00e+00  0.00e+00

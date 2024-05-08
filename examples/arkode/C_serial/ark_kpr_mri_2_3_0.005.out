@@ -6,8 +6,8 @@ Multirate nonlinear Kvaerno-Prothero-Robinson test problem:
     G = -100
     w = 100
     e = 0.5
-    solver: exp-4/exp-3 (MRI-GARK-ERK45a / ERK-3-3)
-
+    slow solver: ARKODE_MRI_GARK_ERK45a
+    fast solver: erk-3-3
         t           u           v       uerr      verr
    ------------------------------------------------------
     0.000000    1.224745    1.732051  0.00e+00  0.00e+00

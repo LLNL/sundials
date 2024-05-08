@@ -1231,7 +1231,7 @@ int mriStep_Init(void* arkode_mem, int init_type)
       if (step_mem->cvals) { free(step_mem->cvals); }
       if (step_mem->Xvecs) { free(step_mem->Xvecs); }
       step_mem->cvals = NULL;
-      step_mem->Xvecs = NULL;      
+      step_mem->Xvecs = NULL;
     }
 
     /* Allocate reusable arrays for fused vector interface */
@@ -2182,7 +2182,7 @@ int mriStep_TakeStepMERK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
   ytemp = ark_mem->tempv2;
 
   /* copy previous time-step solution into y0 */
-  N_VScale(ONE, ark_mem->ycur, y0);
+  N_VScale(ONE, ark_mem->yn, y0);
   t0 = ark_mem->tn;
 
   /* if MRI adaptivity is enabled: reset fast accumulated error,
@@ -2267,7 +2267,7 @@ int mriStep_TakeStepMERK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Set up fast RHS for this stage group */
     retval = mriStep_ComputeInnerForcing(ark_mem, step_mem,
                                          step_mem->MRIC->group[ig][0],
-                                         ZERO, ark_mem->h);
+                                         ark_mem->tn, ark_mem->tn+ark_mem->h);
     if (retval != ARK_SUCCESS) { return (retval); }
 
     /* Set initial condition for this stage group */
@@ -3125,9 +3125,9 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
                ( W[k][i][0] * fse_0 + ... + W[k][i][i-1] * fse_{i-1} +
                ( G[k][i][0] * fsi_0 + ... + G[k][i][i-1] * fsi_{i-1} )
 
-  We may use an identical formula for MERK methods, so long as we set t0=0,
-  tf=h, stage_map[j]=j (identity map), and implicit_rhs=SUNFALSE.
-  With this configuration: tf-t0=h, theta = t/h, and cdiff=1.  MERK methods
+  We may use an identical formula for MERK methods, so long as we set t0=tn,
+  tf=tn+h, stage_map[j]=j (identity map), and implicit_rhs=SUNFALSE.
+  With this configuration: tf-t0=h, theta = (t-tn)/h, and cdiff=1.  MERK methods
   define the forcing polynomial for each outer stage i > 0 as:
 
   p_i(theta) = w_i,0(theta) * fse_0 + ... + w_i,{i-1}(theta) * fse_{i-1}
