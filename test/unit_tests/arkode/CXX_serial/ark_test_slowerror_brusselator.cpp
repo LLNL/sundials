@@ -327,6 +327,7 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "run_test", 1)) return 1;
 
   // Clean up and return
+  MRIStepCoupling_Free(C);
   ARKStepFree(&arkode_ref);
   ARKStepFree(&inner_arkode_mem);
   MRIStepInnerStepper_Free(&inner_stepper);
