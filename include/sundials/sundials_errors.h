@@ -50,8 +50,7 @@
                                                                                \
   ENTRY(SUN_ERR_DATANODE_MAXCHILDREN,                                          \
         "the data node has reached its max number of children")                \
-  ENTRY(SUN_ERR_DATANODE_NODENOTFOUND,                                         \
-        "the data node could not be found")                                    \
+  ENTRY(SUN_ERR_DATANODE_NODENOTFOUND, "the data node could not be found")     \
                                                                                \
   ENTRY(SUN_ERR_PROFILER_MAPFULL,                                              \
         "the number of profiler entries exceeded SUNPROFILER_MAX_ENTRIES")     \
@@ -60,6 +59,10 @@
         "unknown error inserting SUNProfiler timer")                           \
   ENTRY(SUN_ERR_PROFILER_MAPKEYNOTFOUND, "timer was not found in SUNProfiler") \
   ENTRY(SUN_ERR_PROFILER_MAPSORT, "error sorting SUNProfiler map")             \
+                                                                               \
+  ENTRY(SUN_ERR_ADJOINT_STEPPERFAILED,                                         \
+        "SUNStepper stopped without successfully reaching the requested "      \
+        "output time")                                                         \
                                                                                \
   ENTRY(SUN_ERR_SUNCTX_CORRUPT, "SUNContext is NULL or corrupt")               \
                                                                                \

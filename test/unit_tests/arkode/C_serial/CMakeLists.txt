@@ -33,6 +33,7 @@ set(ARKODE_unit_tests
   "ark_test_mass\;"
   "ark_test_reset\;"
   "ark_test_tstop\;"
+  "ark_test_sunadjoint\;"
   )
 
 # Add the build and install targets for each test
@@ -69,6 +70,7 @@ foreach(test_tuple ${ARKODE_unit_tests})
       sundials_sunnonlinsolnewton_obj
       sundials_sunadaptcontrollerimexgus_obj
       sundials_sunadaptcontrollersoderlind_obj
+      sundials_adjoint_obj
       ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick

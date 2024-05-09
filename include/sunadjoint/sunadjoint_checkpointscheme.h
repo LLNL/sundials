@@ -22,7 +22,10 @@
 extern "C" {
 #endif
 
-struct SUNAdjointCheckpointScheme_s
+typedef struct SUNAdjointCheckpointScheme_Ops_* SUNAdjointCheckpointScheme_Ops;
+typedef struct SUNAdjointCheckpointScheme_* SUNAdjointCheckpointScheme;
+
+struct SUNAdjointCheckpointScheme_Ops_
 {
   // This function lets the caller know if they should checkpoint the state
   // at (step_num, stage_num).
@@ -55,20 +58,21 @@ struct SUNAdjointCheckpointScheme_s
   // Passing in 0 for stage_num will return the step vector,
   // but data for the stages could be fetched too depending on the implementation.
   SUNErrCode (*load)(SUNAdjointCheckpointScheme, sunindextype step_num,
-                     sunindextype stage_num, N_vector* out);
+                     sunindextype stage_num, N_Vector* out);
 
   SUNErrCode (*destroy)(SUNAdjointCheckpointScheme*);
+};
 
+struct SUNAdjointCheckpointScheme_
+{
+  SUNAdjointCheckpointScheme_Ops ops;
   SUNDataNode root_data_node;
-
   void* impl;
-
   SUNContext sunctx;
 };
 
-typedef SUNAdjointCheckpointScheme_s* SUNAdjointCheckpointScheme;
-
-SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(SUNContext);
+SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(SUNContext sunctx,
+                                               SUNAdjointCheckpointScheme*);
 
 #ifdef __cplusplus
 }

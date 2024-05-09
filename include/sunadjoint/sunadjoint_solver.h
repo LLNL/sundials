@@ -19,7 +19,9 @@
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_stepper.h>
 
-struct SUNAdjointSolver_s
+#include "sundials/sundials_types.h"
+
+struct SUNAdjointSolver_
 {
   SUNStepper stepper;
   SUNJacFn Jac;
@@ -28,9 +30,10 @@ struct SUNAdjointSolver_s
   SUNJacTimesFn vJp;
   SUNJacTimesFn vJPp;
   SUNAdjointCheckpointScheme checkpoint_scheme;
+  SUNContext sunctx;
 };
 
-typedef SUNAdjointSolver_s* SUNAdjointSolver;
+typedef struct SUNAdjointSolver_* SUNAdjointSolver;
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,31 +42,48 @@ extern "C" {
 // IDEA: In lieu of Stepper_ID each package that supports adjoint can have a function that creates the adjoint solver.
 // E.g., SUNAdjointSolver ARKStepCreateAdjointSolver();
 SUNDIALS_EXPORT
-SUNAdjointSolver_Create(SUNStepper stepper, sunindextype num_cost_fns,
-                        N_Vector sf, SUNAdjointCheckpointScheme checkpoint_scheme,
-                        SUNContext sunctx, SUNAdjointSolver* adj_solver);
+SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper,
+                                   sunindextype num_cost_fns, N_Vector sf,
+                                   SUNAdjointCheckpointScheme checkpoint_scheme,
+                                   SUNContext sunctx,
+                                   SUNAdjointSolver* adj_solver);
+
+/*
+  Solves the adjoint system.
+
+  :param adj_solver: The adjoint solver object.
+  :param tf: The final output time from the forward integration. 
+             This is the "starting" time for adjoint solver's backwards integration.
+  :param tout: The time at which the adjoint solution is desired.
+  :param sens: The vector of sensitivity solutions dg/dy0 and dg/dp.
+  :param tret: On return, the time reached by the adjoint solver.
+  :param stop_reason: On return, an integer code that indicates why the adjoint solver stopped.
+
+  :returns: A SUNErrCode indicating failure or success.
+ */
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver, sunrealtype tf,
+                                  sunrealtype tout, N_Vector sens,
+                                  sunrealtype* tret, int* stop_reason);
 
 SUNDIALS_EXPORT
-SUNAdjointSolver_Solve(SUNAdjointSolver, sunrealtype t0, N_Vector sens,
-                       sunrealtype* tret);
+SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver, sunrealtype t0, N_Vector sens,
+                                 sunrealtype* tret, int* stop_reason);
 
 SUNDIALS_EXPORT
-SUNAdjointSolver_OneStep(SUNAdjointSolver, sunrealtype t0, N_Vector sens,
-                         sunrealtype* tret);
+SUNErrCode SUNAdjointSolver_SetJacFn(SUNAdjointSolver, SUNJacFn Jac,
+                                     SUNJacFn JacP);
 
 SUNDIALS_EXPORT
-SUNAdjointSolver_SetJacFn(SUNAdjointSolver, SUNJacFn Jac, SUNJacFn JacP);
+SUNErrCode SUNAdjointSolver_SetJacTimesVecFn(SUNAdjointSolver, SUNJacTimesFn Jvp,
+                                             SUNJacTimesFn JPvp);
 
 SUNDIALS_EXPORT
-SUNAdjointSolver_SetJacTimesVecFn(SUNAdjointSolver, SUNVecTimesJacFn Jvp,
-                                  SUNVecTimesJacFn JPvp);
+SUNErrCode SUNAdjointSolver_SetVecTimesJacFn(SUNAdjointSolver, SUNJacTimesFn vJp,
+                                             SUNJacTimesFn vJPp);
 
 SUNDIALS_EXPORT
-SUNAdjointSolver_SetVecTimesJacFn(SUNAdjointSolver, SUNVecTimesJacFn vJp,
-                                  SUNVecTimesJacFn vJPp);
-
-SUNDIALS_EXPORT
-SUNAdjointSolver_Destroy(SUNAdjointSolver*);
+SUNErrCode SUNAdjointSolver_Destroy(SUNAdjointSolver*);
 
 #ifdef __cplusplus
 }
