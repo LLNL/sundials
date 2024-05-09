@@ -135,7 +135,7 @@ contains
     real(c_double), pointer, dimension(nlocal) :: r(:)
 
     ! local data
-    integer(kind=myindextype) :: i, ibase, istart
+    integer(c_int64_t) :: i, ibase, istart
     real(c_double)  :: psubi, pj
 
     !======= Internals ============
@@ -149,7 +149,7 @@ contains
 
     ! Calculate Jacobian here
     ibase = myid * nlocal
-    istart = max(1, 4 - ibase)
+    istart = max(1_8, 4 - ibase)
     do i = istart,nlocal
        pj = dble(ibase + i)
        psubi = 1.d0 + gamma * alpha * pj
@@ -195,7 +195,6 @@ program driver
   type(N_Vector), pointer :: sunvec_y                ! solution N_Vector
   real(c_double), pointer, dimension(nlocal) :: y(:) ! vector data
   type(c_ptr)     :: cvode_mem                       ! CVODE memory
-  integer(c_long) :: N, Ntot
   integer(c_int) :: retval
   integer :: ierr
   logical :: outproc

@@ -257,7 +257,7 @@ program main
   implicit none
 
   ! local variables
-  real(c_double)  :: ftol, fnorm(1)
+  real(c_double)  :: ftol
 
   type(c_ptr)                    :: sunctx        ! sundials context
   type(N_Vector),        pointer :: sunvec_u      ! sundials vectors

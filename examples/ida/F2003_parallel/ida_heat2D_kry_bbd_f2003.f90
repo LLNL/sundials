@@ -260,6 +260,9 @@ contains
     integer(c_int) :: retval
     type(c_ptr) :: user_data
     integer :: i, j
+
+    user_data = c_null_ptr
+
     ! Create solution vector, point at its data, and set initial condition
     N = nxl*nyl
     Ntot = nx*ny
@@ -761,16 +764,15 @@ program driver
   type(N_Vector), pointer :: sunvec_res      ! derivative N_Vector
   type(N_Vector), pointer :: sunvec_c        ! constraint N_Vector
   real(c_double), pointer, dimension(nxl,nyl) :: y(:,:)  ! vector data
-  real(c_double), pointer, dimension(nxl,nyl) :: f(:,:)  ! vector data
   type(SUNLinearSolver), pointer :: sun_LS   ! linear solver
   type(SUNMatrix),       pointer :: sunmat_A ! sundials matrix
   type(c_ptr)     :: ida_mem                 ! IDA memory
   integer(c_int) :: retval
   integer :: ierr, case
   logical :: outproc
-  real(c_double) :: t(1), dTout, tout, ymax
+  real(c_double) :: t(1), tout, ymax
   integer :: i, j, ioutput
-  character*100 :: outname
+  character(100) :: outname
 
   ! initialize MPI
   call MPI_Init(ierr)

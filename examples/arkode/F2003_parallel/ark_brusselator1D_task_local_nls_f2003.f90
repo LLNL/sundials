@@ -1227,6 +1227,10 @@ subroutine EvolveProblemIMEX(sunvec_y)
 
   !======= Internals ============
 
+  sun_NLS => null()
+  sun_LS => null()
+  sunmat_A => null()
+
   ! Create the ARK timestepper module
   arkode_mem = FARKStepCreate(c_funloc(Advection), c_funloc(Reaction), &
        t0, sunvec_y, sunctx)
