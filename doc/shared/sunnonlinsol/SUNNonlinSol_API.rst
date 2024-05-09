@@ -588,7 +588,7 @@ introduction of any new optional nonlinear solver operations to the
 ``SUNNonlinearSolver`` API by ensuring that only required operations need to
 be set.
 
-.. c:function:: SUNNonlinearSolver SUNNonlinSolNewEmpty()
+.. c:function:: SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx)
 
   This function allocates a new generic ``SUNNonlinearSolver`` object and
   initializes its content pointer and the function pointers in the operations

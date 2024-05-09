@@ -329,7 +329,7 @@ routines these functions will ease the introduction of any new optional vector
 operations to the NVECTOR API by ensuring that only required operations need
 to be set, and that all operations are copied when cloning a vector.
 
-.. c:function:: N_Vector N_VNewEmpty()
+.. c:function:: N_Vector N_VNewEmpty(SUNContext sunctx)
 
    This allocates a new generic ``N_Vector`` object and initializes its content
    pointer and the function pointers in the operations structure to ``NULL``.
