@@ -2278,16 +2278,15 @@ int mriStep_TakeStepMERK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
     for (is = 0; is < step_mem->stages; is++)
     {
 
-      /* Get stage index from group */
+      /* Get stage index from group; skip to the next group if 
+         we've reached the end of this one */
       stage = step_mem->MRIC->group[ig][is];
+      if (stage < 0) { break; }
       nextstage = -1;
       if (stage < step_mem->stages)
       {
         nextstage = step_mem->MRIC->group[ig][is+1];
       }
-
-      /* Skip to next group if we've reached the end of this one */
-      if (stage < 0) { break; }
 
       /* Determine if this is an "embedding" or "solution" stage */
       embedding = solution = SUNFALSE;
