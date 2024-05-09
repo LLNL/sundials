@@ -106,6 +106,8 @@ foreach(example ${examples})
   # libraries to link against
   target_link_libraries(${example} ${LIBRARIES})
 
+  target_compile_definitions(${example} PRIVATE SUNDIALS_INT@SUNDIALS_INDEX_SIZE@_T)
+
   # add the example to ctest
   add_test(NAME ${example} COMMAND ${example})
 
