@@ -20,6 +20,7 @@
 #include "arkode_arkstep_impl.h"
 #include "arkode_xbraid_impl.h"
 #include "sundials/sundials_math.h"
+#include "sundials/sundials_types.h"
 
 #define ONE SUN_RCONST(1.0)
 
@@ -450,5 +451,6 @@ int ARKBraid_Access(braid_App app, braid_Vector u, braid_AccessStatus astatus)
 int ARKBraid_TakeStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
                       N_Vector y, int* ark_flag)
 {
-  return arkStep_TryStep(arkode_mem, tstart, tstop, y, ark_flag);
+  sunrealtype tret;
+  return arkStep_TryStep(arkode_mem, tstart, tstop, y, &tret, ark_flag);
 }

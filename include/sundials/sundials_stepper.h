@@ -22,13 +22,16 @@ extern "C" {
 typedef _SUNDIALS_STRUCT_ SUNStepper_s* SUNStepper;
 
 typedef int (*SUNStepperAdvanceFn)(SUNStepper stepper, sunrealtype t0,
-                                   sunrealtype tout, N_Vector y);
+                                   sunrealtype tout, N_Vector y,
+                                   sunrealtype* tret, int* stop_reason);
 
 typedef int (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype t0,
-                                   sunrealtype tout, N_Vector y);
+                                   sunrealtype tout, N_Vector y,
+                                   sunrealtype* tret, int* stop_reason);
 
 typedef int (*SUNStepperTryStepFn)(SUNStepper stepper, sunrealtype t0,
-                                   sunrealtype tout, N_Vector y, int* ark_flag);
+                                   sunrealtype tout, N_Vector y,
+                                   sunrealtype* tret, int* stop_reason);
 
 typedef int (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t,
                                    N_Vector y, N_Vector f, int mode);
@@ -39,7 +42,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_Free(SUNStepper* stepper);
+SUNErrCode SUNStepper_Destroy(SUNStepper* stepper);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetContent(SUNStepper stepper, void* content);
@@ -69,6 +72,20 @@ SUNDIALS_EXPORT
 SUNErrCode SUNStepper_GetForcingData(SUNStepper stepper, sunrealtype* tshift,
                                      sunrealtype* tscale, N_Vector** forcing,
                                      int* nforcing);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_Advance(SUNStepper stepper, sunrealtype t0,
+                              sunrealtype tout, N_Vector y, sunrealtype* tret,
+                              int* stop_reason);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_Step(SUNStepper stepper, sunrealtype t0, sunrealtype tout,
+                           N_Vector y, sunrealtype* tret, int* stop_reason);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0,
+                              sunrealtype tout, N_Vector y, sunrealtype* tret,
+                              int* stop_reason);
 
 #ifdef __cplusplus
 }

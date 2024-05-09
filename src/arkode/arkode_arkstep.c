@@ -26,6 +26,7 @@
 #include "arkode_arkstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials/sundials_types.h"
 
 #define FIXED_LIN_TOL
 
@@ -3209,10 +3210,10 @@ int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
   ----------------------------------------------------------------------------*/
 
 int arkStep_SUNStepperAdvance(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y)
+                              sunrealtype tout, N_Vector y, sunrealtype* tret,
+                              int* stop_reason)
 {
   void* arkode_mem;           /* arkode memory             */
-  sunrealtype tret;           /* return time               */
   sunrealtype tshift, tscale; /* time normalization values */
   N_Vector* forcing;          /* forcing vectors           */
   int nforcing;               /* number of forcing vectors */
@@ -3236,8 +3237,8 @@ int arkStep_SUNStepperAdvance(SUNStepper stepper, sunrealtype t0,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* evolve inner ODE */
-  retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
-  if (retval < 0) { return (retval); }
+  *stop_reason = ARKStepEvolve(arkode_mem, tout, y, tret, ARK_NORMAL);
+  if (*stop_reason < 0) { return (*stop_reason); }
 
   /* disable inner forcing */
   retval = arkStep_SetInnerForcing(arkode_mem, ZERO, ONE, NULL, 0);
@@ -3247,10 +3248,10 @@ int arkStep_SUNStepperAdvance(SUNStepper stepper, sunrealtype t0,
 }
 
 int arkStep_SUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y)
+                              sunrealtype tout, N_Vector y, sunrealtype* tret,
+                              int* stop_reason)
 {
   void* arkode_mem;           /* arkode memory             */
-  sunrealtype tret;           /* return time               */
   sunrealtype tshift, tscale; /* time normalization values */
   N_Vector* forcing;          /* forcing vectors           */
   int nforcing;               /* number of forcing vectors */
@@ -3274,8 +3275,8 @@ int arkStep_SUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* evolve inner ODE */
-  retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
-  if (retval < 0) { return (retval); }
+  *stop_reason = ARKStepEvolve(arkode_mem, tout, y, tret, ARK_ONE_STEP);
+  if (*stop_reason < 0) { return (*stop_reason); }
 
   /* disable inner forcing */
   retval = arkStep_SetInnerForcing(arkode_mem, ZERO, ONE, NULL, 0);
@@ -3285,10 +3286,10 @@ int arkStep_SUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
 }
 
 int arkStep_SUNStepperTryStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, int* ark_flag)
+                              sunrealtype tout, N_Vector y, sunrealtype* tret,
+                              int* stop_reason)
 {
   void* arkode_mem;           /* arkode memory             */
-  sunrealtype tret;           /* return time               */
   sunrealtype tshift, tscale; /* time normalization values */
   N_Vector* forcing;          /* forcing vectors           */
   int nforcing;               /* number of forcing vectors */
@@ -3312,7 +3313,7 @@ int arkStep_SUNStepperTryStep(SUNStepper stepper, sunrealtype t0,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* try to evolve inner ODE */
-  retval = arkStep_TryStep(arkode_mem, t0, tout, y, ark_flag);
+  retval = arkStep_TryStep(arkode_mem, t0, tout, y, tret, stop_reason);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* disable inner forcing */
@@ -3806,11 +3807,10 @@ int arkStep_GetOrder(ARKodeMem ark_mem)
  * ---------------------------------------------------------------------------*/
 
 int arkStep_TryStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
-                    N_Vector y, int* ark_flag)
+                    N_Vector y, sunrealtype* tret, int* ark_flag)
 {
-  int flag;         /* generic return flag      */
-  int tmp_flag;     /* evolve return flag       */
-  sunrealtype tret; /* return time              */
+  int flag;     /* generic return flag      */
+  int tmp_flag; /* evolve return flag       */
 
   /* Check inputs */
   if (arkode_mem == NULL) { return ARK_MEM_NULL; }
@@ -3829,7 +3829,7 @@ int arkStep_TryStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
   if (flag != ARK_SUCCESS) { return flag; }
 
   /* Take step, check flag below */
-  tmp_flag = ARKStepEvolve(arkode_mem, tstop, y, &tret, ARK_ONE_STEP);
+  tmp_flag = ARKStepEvolve(arkode_mem, tstop, y, tret, ARK_ONE_STEP);
 
   /* Re-enable temporal error test check */
   flag = arkSetForcePass(arkode_mem, SUNFALSE);
