@@ -3171,11 +3171,11 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype* dsmPtr)
 int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
 {
   int retval;
-  ARKodeMem ark_mem;
+  ARKodeMem ark_mem = (ARKodeMem)inner_arkode_mem;
   ARKodeARKStepMem step_mem;
 
   retval = arkStep_AccessStepMem(inner_arkode_mem, "ARKStepCreateSUNStepper",
-                                 &ark_mem, &step_mem);
+                                 &step_mem);
   if (retval)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -3232,11 +3232,11 @@ int arkStep_SUNStepperAdvance(SUNStepper stepper, sunrealtype t0,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set the stop time */
-  retval = ARKStepSetStopTime(arkode_mem, tout);
+  retval = ARKodeSetStopTime(arkode_mem, tout);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* evolve inner ODE */
-  *stop_reason = ARKStepEvolve(arkode_mem, tout, y, tret, ARK_NORMAL);
+  *stop_reason = ARKodeEvolve(arkode_mem, tout, y, tret, ARK_NORMAL);
   if (*stop_reason < 0) { return (*stop_reason); }
 
   /* disable inner forcing */
@@ -3270,11 +3270,11 @@ int arkStep_SUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set the stop time */
-  retval = ARKStepSetStopTime(arkode_mem, tout);
+  retval = ARKodeSetStopTime(arkode_mem, tout);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* evolve inner ODE */
-  *stop_reason = ARKStepEvolve(arkode_mem, tout, y, tret, ARK_ONE_STEP);
+  *stop_reason = ARKodeEvolve(arkode_mem, tout, y, tret, ARK_ONE_STEP);
   if (*stop_reason < 0) { return (*stop_reason); }
 
   /* disable inner forcing */
@@ -3308,7 +3308,7 @@ int arkStep_SUNStepperTryStep(SUNStepper stepper, sunrealtype t0,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set the stop time */
-  retval = ARKStepSetStopTime(arkode_mem, tout);
+  retval = ARKodeSetStopTime(arkode_mem, tout);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* try to evolve inner ODE */
@@ -3358,7 +3358,7 @@ int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
   retval = SUNStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  return (ARKStepReset(arkode_mem, tR, yR));
+  return (ARKodeReset(arkode_mem, tR, yR));
 }
 
 /*---------------------------------------------------------------
