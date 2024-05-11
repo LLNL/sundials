@@ -227,7 +227,7 @@ Accessible via the constant ``ARKODE_RALSTON_EULER_2_1_2`` to
 :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_RALSTON_EULER_2_1_2"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadERKByName`.
+:c:func:`ARKodeButcherTable_LoadERKByName`
 (primary method from :cite:p:`Ralston:62`).
 
 .. math::
@@ -261,7 +261,7 @@ Accessible via the constant ``ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2`` to
 :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadERKByName`.
+:c:func:`ARKodeButcherTable_LoadERKByName`
 (primary method from :cite:p:`Runge:95`).
 
 .. math::
