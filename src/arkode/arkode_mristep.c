@@ -1701,8 +1701,9 @@ int mriStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
   This routine serves the primary purpose of the MRIStep module:
   it performs a single MRI step (with embedding, if possible).
 
-  The vector ark_mem->ycur holds the previous time-step solution
-  on input, and should hold the result of this step on output.
+  The vector ark_mem->yn holds the previous time-step solution
+  on input, and the vector ark_mem->ycur should hold the result
+  of this step on output.
 
   If timestep adaptivity is enabled, this routine also computes
   the error estimate y-ytilde, where ytilde is the
@@ -1751,7 +1752,8 @@ int mriStep_TakeStepMRIGARK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr
   *nflagPtr = ARK_SUCCESS;
   *dsmPtr   = ZERO;
 
-  /* initial time for step */
+  /* initial time and state for step */
+  N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
   t0 = ark_mem->tn;
 
   /* if MRI adaptivity is enabled: reset fast accumulated error,
@@ -1782,7 +1784,7 @@ int mriStep_TakeStepMRIGARK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr
      to the beginning of this step (in case of recomputation) */
   if (!ark_mem->fixedstep)
   {
-    retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->ycur);
+    retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->yn);
     if (retval != ARK_SUCCESS) { return (ARK_INNERSTEP_FAIL); }
   }
 
@@ -1833,7 +1835,7 @@ int mriStep_TakeStepMRIGARK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStep_TakeStepMRIGARK", "slow stage",
                      "z[0] =", "");
-  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+  N_VPrintFile(ark_mem->yn, ARK_LOGGER->debug_fp);
 
   if (step_mem->explicit_rhs)
   {
@@ -2078,8 +2080,9 @@ int mriStep_TakeStepMRIGARK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   This routine performs a single MRISR step.
 
-  The vector ark_mem->ycur holds the previous time-step solution
-  on input, and should hold the result of this step on output.
+  The vector ark_mem->yn holds the previous time-step solution
+  on input, and the vector ark_mem->ycur should hold the result
+  of this step on output.
 
   If timestep adaptivity is enabled, this routine also computes
   the error estimate y-ytilde, where ytilde is the
@@ -2111,6 +2114,279 @@ int mriStep_TakeStepMRIGARK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr
   ---------------------------------------------------------------*/
 int mriStep_TakeStepMRISR(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
+  ARKodeMem ark_mem;                  /* outer ARKODE memory        */
+  ARKodeMRIStepMem step_mem;          /* outer stepper memory       */
+  int ig;                             /* current stage group index  */
+  int is;                             /* stage index in group       */
+  int stage, nextstage;               /* current/next stages        */
+  int retval;                         /* reusable return flag       */
+  N_Vector ytilde;                    /* embedded solution          */
+  N_Vector ytemp;                     /* temporary vector           */
+  SUNAdaptController_Type adapt_type; /* timestep adaptivity type   */
+  sunrealtype t0, tf;                 /* start/end of each stage    */
+  sunbooleantype embedding;           /* flag indicating embedding  */
+  sunbooleantype solution;            /*   or solution stages       */
+  sunbooleantype impl_corr;           /* is slow correct. implicit? */
+  sunrealtype cstage;                 /* current stage abscissa     */
+  const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
+
+  /* access the MRIStep mem structure */
+  retval = mriStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* initialize algebraic solver convergence flag to success;
+     error estimate to zero */
+  *nflagPtr = ARK_SUCCESS;
+  *dsmPtr   = ZERO;
+
+  /* set N_Vector shortcuts */
+  ytilde = ark_mem->tempv4;
+  ytemp = ark_mem->tempv2;
+
+  /* initial time for step */
+  t0 = ark_mem->tn;
+
+  /* if MRI adaptivity is enabled: reset fast accumulated error,
+     and send appropriate control parameter to the fast integrator */
+  adapt_type = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
+  if ((adapt_type == SUN_ADAPTCONTROLLER_MRI_H) ||
+      (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL))
+  {
+    step_mem->inner_dsm = ZERO;
+    retval              = mriStepInnerStepper_ResetError(step_mem->stepper);
+    if (retval != ARK_SUCCESS) { return (ARK_INNERSTEP_FAIL); }
+  }
+  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H)
+  {
+    retval = mriStepInnerStepper_SetFixedStep(step_mem->stepper,
+                                              step_mem->inner_control);
+    if (retval != ARK_SUCCESS) { return (ARK_INNERSTEP_FAIL); }
+  }
+  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
+  {
+    retval =
+      mriStepInnerStepper_SetRTol(step_mem->stepper,
+                                  step_mem->inner_control * ark_mem->reltol);
+    if (retval != ARK_SUCCESS) { return (ARK_INNERSTEP_FAIL); }
+  }
+
+  /* if any temporal adaptivity is enabled: reset the inner integrator
+     to the beginning of this step (in case of recomputation) */
+  if (!ark_mem->fixedstep)
+  {
+    retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->yn);
+    if (retval != ARK_SUCCESS) { return (ARK_INNERSTEP_FAIL); }
+  }
+
+  /* Evaluate the slow RHS functions if needed. NOTE: We do not use the full RHS
+     function here (unlike ERKStep and ARKStep) since it does not need to check
+     for FSAL or SA methods and thus avoids potentially unnecessary evaluations
+     of the inner (fast) RHS function */
+  if (!(ark_mem->fn_is_current))
+  {
+    /* compute the explicit component */
+    if (step_mem->explicit_rhs)
+    {
+      retval = step_mem->fse(t0, ark_mem->yn, step_mem->Fse[0], ark_mem->user_data);
+      step_mem->nfse++;
+      if (retval) { return ARK_RHSFUNC_FAIL; }
+    }
+
+    /* compute the implicit component */
+    if (step_mem->implicit_rhs)
+    {
+      retval = step_mem->fsi(t0, ark_mem->yn, step_mem->Fsi[0], ark_mem->user_data);
+      step_mem->nfsi++;
+      if (retval) { return ARK_RHSFUNC_FAIL; }
+    }
+
+    ark_mem->fn_is_current = SUNTRUE;
+  }
+
+#ifdef SUNDIALS_DEBUG
+  printf("    MRIStep step %li,  stage 0,  h = %" RSYM ",  t_n = %" RSYM "\n",
+         ark_mem->nst, ark_mem->h, t0);
+#endif
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::mriStep_TakeStepMRISR", "slow stage",
+                     "z[0] =", "");
+  N_VPrintFile(ark_mem->yn, ARK_LOGGER->debug_fp);
+
+  if (step_mem->explicit_rhs)
+  {
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::mriStep_TakeStepMRISR", "slow explicit RHS",
+                       "Fse[0] =", "");
+    N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp);
+  }
+#endif
+
+  /* The first stage is the previous time-step solution, so its RHS
+     is the [already-computed] slow RHS from the start of the step */
+
+  /* Loop over stages */
+  for (stage = 0; stage <= step_mem->stages; stage++)
+  {
+
+    /* Solver diagnostics reporting */
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::mriStep_TakeStepMRISR", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM,
+                       ark_mem->nst, stage, ark_mem->h);
+#endif
+
+    /* Set up fast RHS for this stage group */
+    retval = mriStep_ComputeInnerForcing(ark_mem, step_mem, stage,
+                                         ark_mem->tn, ark_mem->tn+ark_mem->h);
+    if (retval != ARK_SUCCESS) { return (retval); }
+
+    /* Set initial condition for this stage */
+    N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
+    t0 = ark_mem->tn;
+
+    /* Determine if this is an "embedding" or "solution" stage */
+    solution = (stage == step_mem->stages-1);
+    embedding = (stage == step_mem->stages);
+
+    /* Skip the embedding if we're using fixed time-stepping and
+       temporal error estimation is disabled */
+    if (ark_mem->fixedstep && embedding && (ark_mem->AccumErrorType < 0))
+    { break; }
+
+    /* Set current stage abscissa */
+    cstage = (embedding) ? ONE : step_mem->MRIC->c[stage];
+
+    /* Set desired output time for subinterval */
+    tf = ark_mem->tn + cstage*ark_mem->h;
+
+    /* TO-DO: compute forcing function for inner solver */
+    /* retval = mriStep_ComputeInnerForcing(ark_mem, step_mem, stage, t0, tf); */
+    /* if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; break; } */
+
+    /* Evolve fast IVP for this stage:
+         force reset due to "stage-restart" structure
+         get inner dsm on all non-embedding stages */
+    retval = mriStep_StageERKFast(ark_mem, step_mem, stage, t0, tf,
+                                  ark_mem->ycur, ytemp, SUNTRUE,
+                                  !embedding);
+    if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
+
+    /* set current stage time for implicit correction, postprocessing
+       and RHS calls */
+    ark_mem->tcur = tf;
+
+    /* TO-DO: add in MRISR slow correction */
+    impl_corr = (SUNRabs(step_mem->MRIC->G[0][stage][stage]) > tol);
+    if (impl_corr)
+    {             /* implicit correction */
+      /* retval = mriStep_StageDIRKNoFast(ark_mem, step_mem, stage, nflagPtr); */
+    }
+    else
+    {             /* explicit correction */
+      /* retval = mriStep_StageERKNoFast(ark_mem, step_mem, stage); */
+    }
+    if (retval != ARK_SUCCESS) { return (retval); }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::mriStep_TakeStepMRISR", "slow stage",
+                       "z[%i] =", stage);
+    N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+#endif
+
+    /* apply user-supplied stage postprocessing function (if supplied),
+       and reset the inner integrator with the modified stage solution */
+    if (ark_mem->ProcessStage != NULL)
+    {
+      retval = ark_mem->ProcessStage(ark_mem->tcur, ark_mem->ycur,
+                                     ark_mem->user_data);
+      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+      retval = mriStepInnerStepper_Reset(step_mem->stepper, ark_mem->tcur,
+                                         ark_mem->ycur);
+      if (retval != ARK_SUCCESS) { return (ARK_INNERSTEP_FAIL); }
+    }
+
+    /* Compute updated slow RHS (except for final solution or embedding) */
+    if ((!solution) && (!embedding))
+    {
+
+      /* store explicit slow rhs */
+      if (step_mem->explicit_rhs)
+      {
+        retval = step_mem->fse(tf, ark_mem->ycur, step_mem->Fse[stage],
+                               ark_mem->user_data);
+        step_mem->nfse++;
+        if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
+        if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                           "ARKODE::mriStep_TakeStepMRISR",
+                           "slow explicit RHS", "Fse[%i] =", stage);
+        N_VPrintFile(step_mem->Fse[stage], ARK_LOGGER->debug_fp);
+#endif
+      }
+
+      /* store implicit slow rhs  */
+      if (step_mem->implicit_rhs)
+      {
+        if (!step_mem->deduce_rhs || !impl_corr)
+        {
+          retval = step_mem->fsi(tf, ark_mem->ycur, step_mem->Fsi[stage],
+                                 ark_mem->user_data);
+          step_mem->nfsi++;
+        }
+        else
+        {
+          N_VLinearSum(ONE / step_mem->gamma, step_mem->zcor,
+                       -ONE / step_mem->gamma, step_mem->sdata,
+                       step_mem->Fsi[stage]);
+        }
+
+        if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
+        if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                           "ARKODE::mriStep_TakeStepMRISR",
+                           "slow implicit RHS", "Fsi[%i] =", stage);
+        N_VPrintFile(step_mem->Fsi[stage], ARK_LOGGER->debug_fp);
+#endif
+    }
+
+    /* If this is the solution stage, archive for error estimation */
+    if (solution) { N_VScale(ONE, ark_mem->ycur, ytilde); }
+
+  }  /* loop over stages */
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::mriStep_TakeStepMRISR", "updated solution",
+                     "ycur =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+#endif
+
+  /* if temporal error estimation is enabled: compute estimate via difference between
+     step solution and embedding, store in ark_mem->tempv1, store norm in dsmPtr, and
+     copy solution back to ycur */
+  if (!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0))
+  {
+    N_VLinearSum(ONE, ytilde, -ONE, ark_mem->ycur, ark_mem->tempv1);
+    *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
+    N_VScale(ONE, ytilde, ark_mem->ycur);
+  }
+
+  /* Solver diagnostics reporting */
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::mriStep_TakeStepMRISR", "error-test",
+                     "step = %li, h = %" RSYM ", dsm = %" RSYM, ark_mem->nst,
+                     ark_mem->h, *dsmPtr);
+#endif
+
   return (ARK_SUCCESS);
 }
 
@@ -2119,8 +2395,9 @@ int mriStep_TakeStepMRISR(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   This routine performs a single MERK step.
 
-  The vector ark_mem->ycur holds the previous time-step solution
-  on input, and should hold the result of this step on output.
+  The vector ark_mem->yn holds the previous time-step solution
+  on input, and the vector ark_mem->ycur should hold the result
+  of this step on output.
 
   If timestep adaptivity is enabled, this routine also computes
   the error estimate y-ytilde, where ytilde is the
@@ -2158,7 +2435,6 @@ int mriStep_TakeStepMERK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
   int is;                             /* stage index in group       */
   int stage, nextstage;               /* current/next stages        */
   int retval;                         /* reusable return flag       */
-  N_Vector y0;                        /* step initial condition     */
   N_Vector ytilde;                    /* embedded solution          */
   N_Vector ytemp;                     /* temporary vector           */
   SUNAdaptController_Type adapt_type; /* timestep adaptivity type   */
@@ -2177,12 +2453,10 @@ int mriStep_TakeStepMERK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
   *dsmPtr   = ZERO;
 
   /* set N_Vector shortcuts */
-  y0 = ark_mem->tempv3;
   ytilde = ark_mem->tempv4;
   ytemp = ark_mem->tempv2;
 
-  /* copy previous time-step solution into y0 */
-  N_VScale(ONE, ark_mem->yn, y0);
+  /* initial time for step */
   t0 = ark_mem->tn;
 
   /* if MRI adaptivity is enabled: reset fast accumulated error,
@@ -2213,7 +2487,7 @@ int mriStep_TakeStepMERK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
      to the beginning of this step (in case of recomputation) */
   if (!ark_mem->fixedstep)
   {
-    retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->ycur);
+    retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->yn);
     if (retval != ARK_SUCCESS) { return (ARK_INNERSTEP_FAIL); }
   }
 
@@ -2238,7 +2512,7 @@ int mriStep_TakeStepMERK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStep_TakeStepMERK", "slow stage",
                      "z[0] =", "");
-  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+  N_VPrintFile(ark_mem->yn, ARK_LOGGER->debug_fp);
 
   if (step_mem->explicit_rhs)
   {
@@ -2271,14 +2545,14 @@ int mriStep_TakeStepMERK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != ARK_SUCCESS) { return (retval); }
 
     /* Set initial condition for this stage group */
-    N_VScale(ONE, y0, ark_mem->ycur);
+    N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
     t0 = ark_mem->tn;
 
     /* Evolve fast IVP over each subinterval in stage group */
     for (is = 0; is < step_mem->stages; is++)
     {
 
-      /* Get stage index from group; skip to the next group if 
+      /* Get stage index from group; skip to the next group if
          we've reached the end of this one */
       stage = step_mem->MRIC->group[ig][is];
       if (stage < 0) { break; }
@@ -2327,7 +2601,7 @@ int mriStep_TakeStepMERK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                          "ARKODE::mriStep_TakeStepMERK", "slow stage",
-                         "z[%i] =", is);
+                         "z[%i] =", stage);
       N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
@@ -2363,7 +2637,7 @@ int mriStep_TakeStepMERK(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
       }
 
       /* If this is the embedding stage, archive solution for error estimation */
-      if (embedding) { N_VScale(ONE, ark_mem->ycur, ark_mem->tempv4); }
+      if (embedding) { N_VScale(ONE, ark_mem->ycur, ytilde); }
 
     }  /* loop over stages */
 
