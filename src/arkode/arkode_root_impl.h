@@ -30,10 +30,10 @@ extern "C" {
   ===============================================================*/
 
 #define ARK_ROOT_LRW 5
-#define ARK_ROOT_LIW 12 /* int, ptr, etc */
+#define ARK_ROOT_LIW 12
 
 /* Numeric constants */
-#define HUND SUN_RCONST(100.0) /* real 100.0   */
+#define HUND SUN_RCONST(100.0)
 
 /*===============================================================
   ARKODE Root-finding Data Structure

@@ -116,11 +116,28 @@ module farkode_mod
  public :: FARKodeSetOrder
  public :: FARKodeSetInterpolantType
  public :: FARKodeSetInterpolantDegree
+ public :: FARKodeSetMaxNumSteps
+ public :: FARKodeSetInterpolateStopTime
+ public :: FARKodeSetStopTime
+ public :: FARKodeClearStopTime
+ public :: FARKodeSetFixedStep
+ public :: FARKodeSetUserData
+ public :: FARKodeSetPostprocessStepFn
+ public :: FARKodeSetPostprocessStageFn
  public :: FARKodeSetNonlinearSolver
  public :: FARKodeSetLinear
  public :: FARKodeSetNonlinear
  public :: FARKodeSetNlsRhsFn
  public :: FARKodeSetDeduceImplicitRhs
+ public :: FARKodeSetNonlinCRDown
+ public :: FARKodeSetNonlinRDiv
+ public :: FARKodeSetDeltaGammaMax
+ public :: FARKodeSetLSetupFrequency
+ public :: FARKodeSetPredictorMethod
+ public :: FARKodeSetMaxNonlinIters
+ public :: FARKodeSetMaxConvFails
+ public :: FARKodeSetNonlinConvCoef
+ public :: FARKodeSetStagePredictFn
  public :: FARKodeSetAdaptController
  public :: FARKodeSetAdaptivityAdjustment
  public :: FARKodeSetCFLFraction
@@ -133,55 +150,25 @@ module farkode_mod
  public :: FARKodeSetMaxEFailGrowth
  public :: FARKodeSetSmallNumEFails
  public :: FARKodeSetMaxCFailGrowth
- public :: FARKodeSetNonlinCRDown
- public :: FARKodeSetNonlinRDiv
- public :: FARKodeSetDeltaGammaMax
- public :: FARKodeSetLSetupFrequency
- public :: FARKodeSetPredictorMethod
  public :: FARKodeSetStabilityFn
  public :: FARKodeSetMaxErrTestFails
- public :: FARKodeSetMaxNonlinIters
- public :: FARKodeSetMaxConvFails
- public :: FARKodeSetNonlinConvCoef
  public :: FARKodeSetConstraints
- public :: FARKodeSetMaxNumSteps
  public :: FARKodeSetMaxHnilWarns
  public :: FARKodeSetInitStep
  public :: FARKodeSetMinStep
  public :: FARKodeSetMaxStep
- public :: FARKodeSetInterpolateStopTime
- public :: FARKodeSetStopTime
- public :: FARKodeClearStopTime
- public :: FARKodeSetFixedStep
  public :: FARKodeSetMaxNumConstrFails
- public :: FARKodeSetUserData
- public :: FARKodeSetPostprocessStepFn
- public :: FARKodeSetPostprocessStageFn
- public :: FARKodeSetStagePredictFn
  public :: FARKodeEvolve
  public :: FARKodeGetDky
  public :: FARKodeComputeState
- public :: FARKodeGetNumExpSteps
- public :: FARKodeGetNumAccSteps
  public :: FARKodeGetNumStepAttempts
- public :: FARKodeGetNumLinSolvSetups
- public :: FARKodeGetNumErrTestFails
- public :: FARKodeGetEstLocalErrors
  public :: FARKodeGetWorkSpace
  public :: FARKodeGetNumSteps
- public :: FARKodeGetActualInitStep
  public :: FARKodeGetLastStep
  public :: FARKodeGetCurrentStep
- public :: FARKodeGetCurrentTime
- public :: FARKodeGetCurrentState
- public :: FARKodeGetCurrentGamma
- public :: FARKodeGetCurrentMassMatrix
- public :: FARKodeGetTolScaleFactor
  public :: FARKodeGetErrWeights
- public :: FARKodeGetResWeights
  public :: FARKodeGetNumGEvals
  public :: FARKodeGetRootInfo
- public :: FARKodeGetNumConstrFails
  public :: FARKodeGetUserData
  public :: FARKodePrintAllStats
  type, bind(C) :: SwigArrayWrapper
@@ -190,7 +177,18 @@ module farkode_mod
  end type
  public :: FARKodeGetReturnFlagName
  public :: FARKodeWriteParameters
+ public :: FARKodeGetNumExpSteps
+ public :: FARKodeGetNumAccSteps
+ public :: FARKodeGetNumErrTestFails
+ public :: FARKodeGetEstLocalErrors
+ public :: FARKodeGetActualInitStep
+ public :: FARKodeGetTolScaleFactor
+ public :: FARKodeGetNumConstrFails
  public :: FARKodeGetStepStats
+ public :: FARKodeGetNumLinSolvSetups
+ public :: FARKodeGetCurrentTime
+ public :: FARKodeGetCurrentState
+ public :: FARKodeGetCurrentGamma
  public :: FARKodeGetNonlinearSystemData
  public :: FARKodeGetNumNonlinSolvIters
  public :: FARKodeGetNumNonlinSolvConvFails
@@ -209,6 +207,9 @@ module farkode_mod
  public :: FARKodeGetNumJtimesEvals
  public :: FARKodeGetNumLinRhsEvals
  public :: FARKodeGetLastLinFlag
+ public :: FARKodeGetLinReturnFlagName
+ public :: FARKodeGetCurrentMassMatrix
+ public :: FARKodeGetResWeights
  public :: FARKodeGetMassWorkSpace
  public :: FARKodeGetNumMassSetups
  public :: FARKodeGetNumMassMultSetups
@@ -220,7 +221,6 @@ module farkode_mod
  public :: FARKodeGetNumMassConvFails
  public :: FARKodeGetNumMTSetups
  public :: FARKodeGetLastMassFlag
- public :: FARKodeGetLinReturnFlagName
  public :: FARKodeFree
  public :: FARKodePrintMem
  public :: FARKodeSetRelaxFn
@@ -595,6 +595,77 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FARKodeSetMaxNumSteps(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetMaxNumSteps") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetInterpolateStopTime(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetInterpolateStopTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetStopTime(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetStopTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeClearStopTime(farg1) &
+bind(C, name="_wrap_FARKodeClearStopTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetFixedStep(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetFixedStep") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetUserData(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetUserData") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetPostprocessStepFn(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetPostprocessStepFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetPostprocessStageFn(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetPostprocessStageFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FARKodeSetNonlinearSolver(farg1, farg2) &
 bind(C, name="_wrap_FARKodeSetNonlinearSolver") &
 result(fresult)
@@ -636,6 +707,87 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetNonlinCRDown(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetNonlinCRDown") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetNonlinRDiv(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetNonlinRDiv") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetDeltaGammaMax(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetDeltaGammaMax") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetLSetupFrequency(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetLSetupFrequency") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetPredictorMethod(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetPredictorMethod") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetMaxNonlinIters(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetMaxNonlinIters") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetMaxConvFails(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetMaxConvFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetNonlinConvCoef(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetNonlinConvCoef") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetStagePredictFn(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetStagePredictFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -748,51 +900,6 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FARKodeSetNonlinCRDown(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetNonlinCRDown") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetNonlinRDiv(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetNonlinRDiv") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetDeltaGammaMax(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetDeltaGammaMax") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetLSetupFrequency(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetLSetupFrequency") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetPredictorMethod(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetPredictorMethod") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FARKodeSetStabilityFn(farg1, farg2, farg3) &
 bind(C, name="_wrap_FARKodeSetStabilityFn") &
 result(fresult)
@@ -812,48 +919,12 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FARKodeSetMaxNonlinIters(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetMaxNonlinIters") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetMaxConvFails(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetMaxConvFails") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetNonlinConvCoef(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetNonlinConvCoef") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FARKodeSetConstraints(farg1, farg2) &
 bind(C, name="_wrap_FARKodeSetConstraints") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetMaxNumSteps(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetMaxNumSteps") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_LONG), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -893,83 +964,12 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FARKodeSetInterpolateStopTime(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetInterpolateStopTime") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetStopTime(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetStopTime") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeClearStopTime(farg1) &
-bind(C, name="_wrap_FARKodeClearStopTime") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetFixedStep(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetFixedStep") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FARKodeSetMaxNumConstrFails(farg1, farg2) &
 bind(C, name="_wrap_FARKodeSetMaxNumConstrFails") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetUserData(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetUserData") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetPostprocessStepFn(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetPostprocessStepFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetPostprocessStageFn(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetPostprocessStageFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetStagePredictFn(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetStagePredictFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1006,53 +1006,8 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
-function swigc_FARKodeGetNumExpSteps(farg1, farg2) &
-bind(C, name="_wrap_FARKodeGetNumExpSteps") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeGetNumAccSteps(farg1, farg2) &
-bind(C, name="_wrap_FARKodeGetNumAccSteps") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FARKodeGetNumStepAttempts(farg1, farg2) &
 bind(C, name="_wrap_FARKodeGetNumStepAttempts") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeGetNumLinSolvSetups(farg1, farg2) &
-bind(C, name="_wrap_FARKodeGetNumLinSolvSetups") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeGetNumErrTestFails(farg1, farg2) &
-bind(C, name="_wrap_FARKodeGetNumErrTestFails") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeGetEstLocalErrors(farg1, farg2) &
-bind(C, name="_wrap_FARKodeGetEstLocalErrors") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1079,15 +1034,6 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FARKodeGetActualInitStep(farg1, farg2) &
-bind(C, name="_wrap_FARKodeGetActualInitStep") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FARKodeGetLastStep(farg1, farg2) &
 bind(C, name="_wrap_FARKodeGetLastStep") &
 result(fresult)
@@ -1106,62 +1052,8 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FARKodeGetCurrentTime(farg1, farg2) &
-bind(C, name="_wrap_FARKodeGetCurrentTime") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeGetCurrentState(farg1, farg2) &
-bind(C, name="_wrap_FARKodeGetCurrentState") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeGetCurrentGamma(farg1, farg2) &
-bind(C, name="_wrap_FARKodeGetCurrentGamma") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeGetCurrentMassMatrix(farg1, farg2) &
-bind(C, name="_wrap_FARKodeGetCurrentMassMatrix") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeGetTolScaleFactor(farg1, farg2) &
-bind(C, name="_wrap_FARKodeGetTolScaleFactor") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FARKodeGetErrWeights(farg1, farg2) &
 bind(C, name="_wrap_FARKodeGetErrWeights") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeGetResWeights(farg1, farg2) &
-bind(C, name="_wrap_FARKodeGetResWeights") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1180,15 +1072,6 @@ end function
 
 function swigc_FARKodeGetRootInfo(farg1, farg2) &
 bind(C, name="_wrap_FARKodeGetRootInfo") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeGetNumConstrFails(farg1, farg2) &
-bind(C, name="_wrap_FARKodeGetNumConstrFails") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1238,6 +1121,69 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FARKodeGetNumExpSteps(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetNumExpSteps") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetNumAccSteps(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetNumAccSteps") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetNumErrTestFails(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetNumErrTestFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetEstLocalErrors(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetEstLocalErrors") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetActualInitStep(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetActualInitStep") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetTolScaleFactor(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetTolScaleFactor") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetNumConstrFails(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetNumConstrFails") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FARKodeGetStepStats(farg1, farg2, farg3, farg4, farg5, farg6) &
 bind(C, name="_wrap_FARKodeGetStepStats") &
 result(fresult)
@@ -1248,6 +1194,42 @@ type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
 type(C_PTR), value :: farg6
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetNumLinSolvSetups(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetNumLinSolvSetups") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetCurrentTime(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetCurrentTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetCurrentState(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetCurrentState") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetCurrentGamma(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetCurrentGamma") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1421,6 +1403,33 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FARKodeGetLinReturnFlagName(farg1) &
+bind(C, name="_wrap_FARKodeGetLinReturnFlagName") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+integer(C_LONG), intent(in) :: farg1
+type(SwigArrayWrapper) :: fresult
+end function
+
+function swigc_FARKodeGetCurrentMassMatrix(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetCurrentMassMatrix") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetResWeights(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetResWeights") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FARKodeGetMassWorkSpace(farg1, farg2, farg3) &
 bind(C, name="_wrap_FARKodeGetMassWorkSpace") &
 result(fresult)
@@ -1519,15 +1528,6 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeGetLinReturnFlagName(farg1) &
-bind(C, name="_wrap_FARKodeGetLinReturnFlagName") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-integer(C_LONG), intent(in) :: farg1
-type(SwigArrayWrapper) :: fresult
 end function
 
 subroutine swigc_FARKodeFree(farg1) &
@@ -2596,6 +2596,131 @@ fresult = swigc_FARKodeSetInterpolantDegree(farg1, farg2)
 swig_result = fresult
 end function
 
+function FARKodeSetMaxNumSteps(arkode_mem, mxsteps) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), intent(in) :: mxsteps
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = arkode_mem
+farg2 = mxsteps
+fresult = swigc_FARKodeSetMaxNumSteps(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetInterpolateStopTime(arkode_mem, interp) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: interp
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = interp
+fresult = swigc_FARKodeSetInterpolateStopTime(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetStopTime(arkode_mem, tstop) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: tstop
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = tstop
+fresult = swigc_FARKodeSetStopTime(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeClearStopTime(arkode_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = arkode_mem
+fresult = swigc_FARKodeClearStopTime(farg1)
+swig_result = fresult
+end function
+
+function FARKodeSetFixedStep(arkode_mem, hfixed) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: hfixed
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = hfixed
+fresult = swigc_FARKodeSetFixedStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetUserData(arkode_mem, user_data) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR) :: user_data
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = user_data
+fresult = swigc_FARKodeSetUserData(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetPostprocessStepFn(arkode_mem, processstep) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: processstep
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = processstep
+fresult = swigc_FARKodeSetPostprocessStepFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetPostprocessStageFn(arkode_mem, processstage) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: processstage
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = processstage
+fresult = swigc_FARKodeSetPostprocessStageFn(farg1, farg2)
+swig_result = fresult
+end function
+
 function FARKodeSetNonlinearSolver(arkode_mem, nls) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2670,6 +2795,150 @@ integer(C_INT) :: farg2
 farg1 = arkode_mem
 farg2 = deduce
 fresult = swigc_FARKodeSetDeduceImplicitRhs(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetNonlinCRDown(arkode_mem, crdown) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: crdown
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = crdown
+fresult = swigc_FARKodeSetNonlinCRDown(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetNonlinRDiv(arkode_mem, rdiv) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: rdiv
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = rdiv
+fresult = swigc_FARKodeSetNonlinRDiv(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetDeltaGammaMax(arkode_mem, dgmax) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: dgmax
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = dgmax
+fresult = swigc_FARKodeSetDeltaGammaMax(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetLSetupFrequency(arkode_mem, msbp) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: msbp
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = msbp
+fresult = swigc_FARKodeSetLSetupFrequency(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetPredictorMethod(arkode_mem, method) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: method
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = method
+fresult = swigc_FARKodeSetPredictorMethod(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetMaxNonlinIters(arkode_mem, maxcor) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: maxcor
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = maxcor
+fresult = swigc_FARKodeSetMaxNonlinIters(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetMaxConvFails(arkode_mem, maxncf) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: maxncf
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = maxncf
+fresult = swigc_FARKodeSetMaxConvFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetNonlinConvCoef(arkode_mem, nlscoef) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: nlscoef
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = nlscoef
+fresult = swigc_FARKodeSetNonlinConvCoef(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetStagePredictFn(arkode_mem, predictstage) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: predictstage
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = predictstage
+fresult = swigc_FARKodeSetStagePredictFn(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -2868,86 +3137,6 @@ fresult = swigc_FARKodeSetMaxCFailGrowth(farg1, farg2)
 swig_result = fresult
 end function
 
-function FARKodeSetNonlinCRDown(arkode_mem, crdown) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: crdown
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = arkode_mem
-farg2 = crdown
-fresult = swigc_FARKodeSetNonlinCRDown(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetNonlinRDiv(arkode_mem, rdiv) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: rdiv
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = arkode_mem
-farg2 = rdiv
-fresult = swigc_FARKodeSetNonlinRDiv(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetDeltaGammaMax(arkode_mem, dgmax) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: dgmax
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = arkode_mem
-farg2 = dgmax
-fresult = swigc_FARKodeSetDeltaGammaMax(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetLSetupFrequency(arkode_mem, msbp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: msbp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = msbp
-fresult = swigc_FARKodeSetLSetupFrequency(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetPredictorMethod(arkode_mem, method) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: method
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = method
-fresult = swigc_FARKodeSetPredictorMethod(farg1, farg2)
-swig_result = fresult
-end function
-
 function FARKodeSetStabilityFn(arkode_mem, estab, estab_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2983,54 +3172,6 @@ fresult = swigc_FARKodeSetMaxErrTestFails(farg1, farg2)
 swig_result = fresult
 end function
 
-function FARKodeSetMaxNonlinIters(arkode_mem, maxcor) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: maxcor
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = maxcor
-fresult = swigc_FARKodeSetMaxNonlinIters(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetMaxConvFails(arkode_mem, maxncf) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: maxncf
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = maxncf
-fresult = swigc_FARKodeSetMaxConvFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetNonlinConvCoef(arkode_mem, nlscoef) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: nlscoef
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = arkode_mem
-farg2 = nlscoef
-fresult = swigc_FARKodeSetNonlinConvCoef(farg1, farg2)
-swig_result = fresult
-end function
-
 function FARKodeSetConstraints(arkode_mem, constraints) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3044,22 +3185,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(constraints)
 fresult = swigc_FARKodeSetConstraints(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetMaxNumSteps(arkode_mem, mxsteps) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), intent(in) :: mxsteps
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_LONG) :: farg2 
-
-farg1 = arkode_mem
-farg2 = mxsteps
-fresult = swigc_FARKodeSetMaxNumSteps(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3127,67 +3252,6 @@ fresult = swigc_FARKodeSetMaxStep(farg1, farg2)
 swig_result = fresult
 end function
 
-function FARKodeSetInterpolateStopTime(arkode_mem, interp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: interp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = interp
-fresult = swigc_FARKodeSetInterpolateStopTime(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetStopTime(arkode_mem, tstop) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: tstop
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = arkode_mem
-farg2 = tstop
-fresult = swigc_FARKodeSetStopTime(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeClearStopTime(arkode_mem) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-
-farg1 = arkode_mem
-fresult = swigc_FARKodeClearStopTime(farg1)
-swig_result = fresult
-end function
-
-function FARKodeSetFixedStep(arkode_mem, hfixed) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: hfixed
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = arkode_mem
-farg2 = hfixed
-fresult = swigc_FARKodeSetFixedStep(farg1, farg2)
-swig_result = fresult
-end function
-
 function FARKodeSetMaxNumConstrFails(arkode_mem, maxfails) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3201,70 +3265,6 @@ integer(C_INT) :: farg2
 farg1 = arkode_mem
 farg2 = maxfails
 fresult = swigc_FARKodeSetMaxNumConstrFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetUserData(arkode_mem, user_data) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR) :: user_data
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = user_data
-fresult = swigc_FARKodeSetUserData(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetPostprocessStepFn(arkode_mem, processstep) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_FUNPTR), intent(in), value :: processstep
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = processstep
-fresult = swigc_FARKodeSetPostprocessStepFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetPostprocessStageFn(arkode_mem, processstage) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_FUNPTR), intent(in), value :: processstage
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = processstage
-fresult = swigc_FARKodeSetPostprocessStageFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetStagePredictFn(arkode_mem, predictstage) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_FUNPTR), intent(in), value :: predictstage
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = predictstage
-fresult = swigc_FARKodeSetStagePredictFn(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3334,38 +3334,6 @@ fresult = swigc_FARKodeComputeState(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FARKodeGetNumExpSteps(arkode_mem, expsteps) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: expsteps
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(expsteps(1))
-fresult = swigc_FARKodeGetNumExpSteps(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeGetNumAccSteps(arkode_mem, accsteps) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: accsteps
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(accsteps(1))
-fresult = swigc_FARKodeGetNumAccSteps(farg1, farg2)
-swig_result = fresult
-end function
-
 function FARKodeGetNumStepAttempts(arkode_mem, step_attempts) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3379,54 +3347,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(step_attempts(1))
 fresult = swigc_FARKodeGetNumStepAttempts(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeGetNumLinSolvSetups(arkode_mem, nlinsetups) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nlinsetups
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(nlinsetups(1))
-fresult = swigc_FARKodeGetNumLinSolvSetups(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeGetNumErrTestFails(arkode_mem, netfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: netfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(netfails(1))
-fresult = swigc_FARKodeGetNumErrTestFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeGetEstLocalErrors(arkode_mem, ele) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(N_Vector), target, intent(inout) :: ele
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(ele)
-fresult = swigc_FARKodeGetEstLocalErrors(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3465,22 +3385,6 @@ fresult = swigc_FARKodeGetNumSteps(farg1, farg2)
 swig_result = fresult
 end function
 
-function FARKodeGetActualInitStep(arkode_mem, hinused) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), dimension(*), target, intent(inout) :: hinused
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(hinused(1))
-fresult = swigc_FARKodeGetActualInitStep(farg1, farg2)
-swig_result = fresult
-end function
-
 function FARKodeGetLastStep(arkode_mem, hlast) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3513,86 +3417,6 @@ fresult = swigc_FARKodeGetCurrentStep(farg1, farg2)
 swig_result = fresult
 end function
 
-function FARKodeGetCurrentTime(arkode_mem, tcur) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), dimension(*), target, intent(inout) :: tcur
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(tcur(1))
-fresult = swigc_FARKodeGetCurrentTime(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeGetCurrentState(arkode_mem, state) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR) :: state
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = state
-fresult = swigc_FARKodeGetCurrentState(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeGetCurrentGamma(arkode_mem, gamma) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), dimension(*), target, intent(inout) :: gamma
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(gamma(1))
-fresult = swigc_FARKodeGetCurrentGamma(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeGetCurrentMassMatrix(arkode_mem, m) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR), target, intent(inout) :: m
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(m)
-fresult = swigc_FARKodeGetCurrentMassMatrix(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeGetTolScaleFactor(arkode_mem, tolsfac) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), dimension(*), target, intent(inout) :: tolsfac
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(tolsfac(1))
-fresult = swigc_FARKodeGetTolScaleFactor(farg1, farg2)
-swig_result = fresult
-end function
-
 function FARKodeGetErrWeights(arkode_mem, eweight) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3606,22 +3430,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(eweight)
 fresult = swigc_FARKodeGetErrWeights(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeGetResWeights(arkode_mem, rweight) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(N_Vector), target, intent(inout) :: rweight
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(rweight)
-fresult = swigc_FARKodeGetResWeights(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3654,22 +3462,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(rootsfound(1))
 fresult = swigc_FARKodeGetRootInfo(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeGetNumConstrFails(arkode_mem, nconstrfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nconstrfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(nconstrfails(1))
-fresult = swigc_FARKodeGetNumConstrFails(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3752,6 +3544,118 @@ fresult = swigc_FARKodeWriteParameters(farg1, farg2)
 swig_result = fresult
 end function
 
+function FARKodeGetNumExpSteps(arkode_mem, expsteps) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: expsteps
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(expsteps(1))
+fresult = swigc_FARKodeGetNumExpSteps(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeGetNumAccSteps(arkode_mem, accsteps) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: accsteps
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(accsteps(1))
+fresult = swigc_FARKodeGetNumAccSteps(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeGetNumErrTestFails(arkode_mem, netfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: netfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(netfails(1))
+fresult = swigc_FARKodeGetNumErrTestFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeGetEstLocalErrors(arkode_mem, ele) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(N_Vector), target, intent(inout) :: ele
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(ele)
+fresult = swigc_FARKodeGetEstLocalErrors(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeGetActualInitStep(arkode_mem, hinused) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: hinused
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(hinused(1))
+fresult = swigc_FARKodeGetActualInitStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeGetTolScaleFactor(arkode_mem, tolsfac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: tolsfac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(tolsfac(1))
+fresult = swigc_FARKodeGetTolScaleFactor(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeGetNumConstrFails(arkode_mem, nconstrfails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nconstrfails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(nconstrfails(1))
+fresult = swigc_FARKodeGetNumConstrFails(farg1, farg2)
+swig_result = fresult
+end function
+
 function FARKodeGetStepStats(arkode_mem, nsteps, hinused, hlast, hcur, tcur) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3777,6 +3681,70 @@ farg4 = c_loc(hlast(1))
 farg5 = c_loc(hcur(1))
 farg6 = c_loc(tcur(1))
 fresult = swigc_FARKodeGetStepStats(farg1, farg2, farg3, farg4, farg5, farg6)
+swig_result = fresult
+end function
+
+function FARKodeGetNumLinSolvSetups(arkode_mem, nlinsetups) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nlinsetups
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(nlinsetups(1))
+fresult = swigc_FARKodeGetNumLinSolvSetups(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeGetCurrentTime(arkode_mem, tcur) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: tcur
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(tcur(1))
+fresult = swigc_FARKodeGetCurrentTime(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeGetCurrentState(arkode_mem, state) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR) :: state
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = state
+fresult = swigc_FARKodeGetCurrentState(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeGetCurrentGamma(arkode_mem, gamma) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: gamma
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(gamma(1))
+fresult = swigc_FARKodeGetCurrentGamma(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -4092,6 +4060,52 @@ fresult = swigc_FARKodeGetLastLinFlag(farg1, farg2)
 swig_result = fresult
 end function
 
+function FARKodeGetLinReturnFlagName(flag) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+character(kind=C_CHAR, len=:), allocatable :: swig_result
+integer(C_LONG), intent(in) :: flag
+type(SwigArrayWrapper) :: fresult 
+integer(C_LONG) :: farg1 
+
+farg1 = flag
+fresult = swigc_FARKodeGetLinReturnFlagName(farg1)
+call SWIG_chararray_to_string(fresult, swig_result)
+if (.false.) call SWIG_free(fresult%data)
+end function
+
+function FARKodeGetCurrentMassMatrix(arkode_mem, m) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: m
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(m)
+fresult = swigc_FARKodeGetCurrentMassMatrix(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeGetResWeights(arkode_mem, rweight) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(N_Vector), target, intent(inout) :: rweight
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(rweight)
+fresult = swigc_FARKodeGetResWeights(farg1, farg2)
+swig_result = fresult
+end function
+
 function FARKodeGetMassWorkSpace(arkode_mem, lenrwmls, leniwmls) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -4269,20 +4283,6 @@ farg1 = arkode_mem
 farg2 = c_loc(flag(1))
 fresult = swigc_FARKodeGetLastMassFlag(farg1, farg2)
 swig_result = fresult
-end function
-
-function FARKodeGetLinReturnFlagName(flag) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-character(kind=C_CHAR, len=:), allocatable :: swig_result
-integer(C_LONG), intent(in) :: flag
-type(SwigArrayWrapper) :: fresult 
-integer(C_LONG) :: farg1 
-
-farg1 = flag
-fresult = swigc_FARKodeGetLinReturnFlagName(farg1)
-call SWIG_chararray_to_string(fresult, swig_result)
-if (.false.) call SWIG_free(fresult%data)
 end function
 
 subroutine FARKodeFree(arkode_mem)

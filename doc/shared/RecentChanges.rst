@@ -6,7 +6,8 @@ simplified code maintenance.  Marked the corresponding stepper-specific
 user-callable routines as deprecated; these will be removed in a future major
 release.
 
-Added "Resize" capability to ARKODE's SPRKStep time-stepping module.
+Added "Resize" capability, as well as missing ``SetRootDirection`` and
+``SetNoInactiveRootWarn`` functions, to ARKODE's SPRKStep time-stepping module.
 
 Deprecated ``ARKStepSetOptimalParams`` function; added instructions to user guide
 for users who wish to retain the current functionality.

@@ -29,7 +29,7 @@
 #define FIXED_LIN_TOL
 
 /*===============================================================
-  ARKStep Exported functions -- Required
+  Exported functions
   ===============================================================*/
 
 void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
@@ -263,6 +263,126 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
 }
 
 /*---------------------------------------------------------------
+  ARKStepReInit:
+
+  This routine re-initializes the ARKStep module to solve a new
+  problem of the same size as was previously solved. This routine
+  should also be called when the problem dynamics or desired solvers
+  have changed dramatically, so that the problem integration should
+  resume as if started from scratch.
+
+  Note all internal counters are set to 0 on re-initialization.
+  ---------------------------------------------------------------*/
+int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
+                  N_Vector y0)
+{
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* Check if ark_mem was allocated */
+  if (ark_mem->MallocDone == SUNFALSE)
+  {
+    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MALLOC);
+    return (ARK_NO_MALLOC);
+  }
+
+  /* Check that at least one of fe, fi is supplied and is to be used */
+  if (fe == NULL && fi == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_F);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Check that y0 is supplied */
+  if (y0 == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_Y0);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Set implicit/explicit problem based on function pointers */
+  step_mem->explicit = (fe == NULL) ? SUNFALSE : SUNTRUE;
+  step_mem->implicit = (fi == NULL) ? SUNFALSE : SUNTRUE;
+
+  /* Copy the input parameters into ARKODE state */
+  step_mem->fe = fe;
+  step_mem->fi = fi;
+
+  /* Initialize initial error norm  */
+  step_mem->eRNrm = ONE;
+
+  /* Initialize main ARKODE infrastructure */
+  retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Unable to reinitialize main ARKODE infrastructure");
+    return (retval);
+  }
+
+  /* Initialize all the counters */
+  step_mem->nfe     = 0;
+  step_mem->nfi     = 0;
+  step_mem->nsetups = 0;
+  step_mem->nstlp   = 0;
+
+  return (ARK_SUCCESS);
+}
+
+/*------------------------------------------------------------------------------
+  ARKStepCreateMRIStepInnerStepper
+
+  Wraps an ARKStep memory structure as an MRIStep inner stepper.
+  ----------------------------------------------------------------------------*/
+int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
+                                     MRIStepInnerStepper* stepper)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+
+  retval = arkStep_AccessARKODEStepMem(inner_arkode_mem,
+                                       "ARKStepCreateMRIStepInnerStepper",
+                                       &ark_mem, &step_mem);
+  if (retval)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "The ARKStep memory pointer is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, arkStep_MRIStepInnerEvolve);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
+                                            arkStep_MRIStepInnerFullRhs);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARK_SUCCESS);
+}
+
+/*===============================================================
+  Interface routines supplied to ARKODE
+  ===============================================================*/
+
+/*---------------------------------------------------------------
   arkStep_Resize:
 
   This routine resizes the memory within the ARKStep module.
@@ -374,81 +494,6 @@ int arkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
 
   /* reset nonlinear solver counters */
   if (step_mem->NLS != NULL) { step_mem->nsetups = 0; }
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  ARKStepReInit:
-
-  This routine re-initializes the ARKStep module to solve a new
-  problem of the same size as was previously solved. This routine
-  should also be called when the problem dynamics or desired solvers
-  have changed dramatically, so that the problem integration should
-  resume as if started from scratch.
-
-  Note all internal counters are set to 0 on re-initialization.
-  ---------------------------------------------------------------*/
-int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
-                  N_Vector y0)
-{
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* Check if ark_mem was allocated */
-  if (ark_mem->MallocDone == SUNFALSE)
-  {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MALLOC);
-    return (ARK_NO_MALLOC);
-  }
-
-  /* Check that at least one of fe, fi is supplied and is to be used */
-  if (fe == NULL && fi == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_F);
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Check that y0 is supplied */
-  if (y0 == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_Y0);
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Set implicit/explicit problem based on function pointers */
-  step_mem->explicit = (fe == NULL) ? SUNFALSE : SUNTRUE;
-  step_mem->implicit = (fi == NULL) ? SUNFALSE : SUNTRUE;
-
-  /* Copy the input parameters into ARKODE state */
-  step_mem->fe = fe;
-  step_mem->fi = fi;
-
-  /* Initialize initial error norm  */
-  step_mem->eRNrm = ONE;
-
-  /* Initialize main ARKODE infrastructure */
-  retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Unable to reinitialize main ARKODE infrastructure");
-    return (retval);
-  }
-
-  /* Initialize all the counters */
-  step_mem->nfe     = 0;
-  step_mem->nfi     = 0;
-  step_mem->nsetups = 0;
-  step_mem->nstlp   = 0;
 
   return (ARK_SUCCESS);
 }
@@ -704,14 +749,6 @@ void arkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
     }
 #endif
 }
-
-/*===============================================================
-  ARKStep Private functions
-  ===============================================================*/
-
-/*---------------------------------------------------------------
-  Interface routines supplied to ARKODE
-  ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
   arkStep_AttachLinsol:
@@ -1986,9 +2023,9 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   return (ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
+/*===============================================================
   Internal utility routines
-  ---------------------------------------------------------------*/
+  ===============================================================*/
 
 /*---------------------------------------------------------------
   arkStep_AccessARKODEStepMem:
@@ -3042,51 +3079,9 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   return (ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
-  Utility routines for interfacing with MRIStep
-  ---------------------------------------------------------------*/
-
-/*------------------------------------------------------------------------------
-  ARKStepCreateMRIStepInnerStepper
-
-  Wraps an ARKStep memory structure as an MRIStep inner stepper.
-  ----------------------------------------------------------------------------*/
-
-int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
-                                     MRIStepInnerStepper* stepper)
-{
-  int retval;
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-
-  retval = arkStep_AccessARKODEStepMem(inner_arkode_mem,
-                                       "ARKStepCreateMRIStepInnerStepper",
-                                       &ark_mem, &step_mem);
-  if (retval)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "The ARKStep memory pointer is NULL");
-    return ARK_ILL_INPUT;
-  }
-
-  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, arkStep_MRIStepInnerEvolve);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
-                                            arkStep_MRIStepInnerFullRhs);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (ARK_SUCCESS);
-}
+/*===============================================================
+  Internal utility routines for interacting with MRIStep
+  ===============================================================*/
 
 /*------------------------------------------------------------------------------
   arkStep_MRIStepInnerEvolve
@@ -3331,6 +3326,10 @@ int arkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
   return (0);
 }
 
+/*===============================================================
+  Internal utility routines for relaxation
+  ===============================================================*/
+
 /* -----------------------------------------------------------------------------
  * arkStep_RelaxDeltaE
  *
@@ -3349,7 +3348,6 @@ int arkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
  * be necessary to compute the delta_e estimate along the way with explicit
  * methods to avoid storing additional RHS or stage values.
  * ---------------------------------------------------------------------------*/
-
 int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         long int* num_relax_jac_evals, sunrealtype* delta_e_out)
 {
@@ -3470,7 +3468,6 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
  *
  * Returns the method order
  * ---------------------------------------------------------------------------*/
-
 int arkStep_GetOrder(ARKodeMem ark_mem)
 {
   ARKodeARKStepMem step_mem = (ARKodeARKStepMem)(ark_mem->step_mem);

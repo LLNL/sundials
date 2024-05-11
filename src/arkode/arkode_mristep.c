@@ -27,12 +27,9 @@
 #include "arkode_mristep_impl.h"
 
 /*===============================================================
-  MRIStep Exported functions -- Required
+  Exported functions
   ===============================================================*/
 
-/*---------------------------------------------------------------
-  Create MRIStep integrator memory struct
-  ---------------------------------------------------------------*/
 void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
                     MRIStepInnerStepper stepper, SUNContext sunctx)
 {
@@ -246,6 +243,106 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
 }
 
 /*---------------------------------------------------------------
+  MRIStepReInit:
+
+  This routine re-initializes the MRIStep module to solve a new
+  problem of the same size as was previously solved (all counter
+  values are set to 0).
+
+  NOTE: the inner stepper needs to be reinitialized before
+  calling this function.
+  ---------------------------------------------------------------*/
+int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
+                  N_Vector y0)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  SUNNonlinearSolver NLS;
+  int retval;
+
+  /* access ARKodeMem and ARKodeMRIStepMem structures */
+  retval = mriStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* Check if ark_mem was allocated */
+  if (ark_mem->MallocDone == SUNFALSE)
+  {
+    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MALLOC);
+    return (ARK_NO_MALLOC);
+  }
+
+  /* Check that at least one of fse, fsi is supplied and is to be used */
+  if (fse == NULL && fsi == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_F);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Check that y0 is supplied */
+  if (y0 == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_Y0);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Set implicit/explicit problem based on function pointers */
+  step_mem->explicit_rhs = (fse == NULL) ? SUNFALSE : SUNTRUE;
+  step_mem->implicit_rhs = (fsi == NULL) ? SUNFALSE : SUNTRUE;
+
+  /* Create a default Newton NLS object (just in case; will be deleted if
+     the user attaches a nonlinear solver) */
+  if (step_mem->implicit_rhs && !(step_mem->NLS))
+  {
+    NLS = SUNNonlinSol_Newton(y0, ark_mem->sunctx);
+    if (!NLS)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "Error creating default Newton solver");
+      ARKodeFree((void**)&ark_mem);
+      return (ARK_MEM_FAIL);
+    }
+    retval = ARKodeSetNonlinearSolver(ark_mem, NLS);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "Error attaching default Newton solver");
+      ARKodeFree((void**)&ark_mem);
+      return (ARK_MEM_FAIL);
+    }
+    step_mem->ownNLS = SUNTRUE;
+  }
+
+  /* ReInitialize main ARKODE infrastructure */
+  retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Unable to reinitialize main ARKODE infrastructure");
+    return (retval);
+  }
+
+  /* Copy the input parameters into ARKODE state */
+  step_mem->fse = fse;
+  step_mem->fsi = fsi;
+
+  /* Initialize all the counters */
+  step_mem->nfse      = 0;
+  step_mem->nfsi      = 0;
+  step_mem->nsetups   = 0;
+  step_mem->nstlp     = 0;
+  step_mem->nls_iters = 0;
+
+  return (ARK_SUCCESS);
+}
+
+/*===============================================================
+  Interface routines supplied to ARKODE
+  ===============================================================*/
+
+/*---------------------------------------------------------------
   mriStep_Resize:
 
   This routine resizes the memory within the MRIStep module.
@@ -370,102 +467,6 @@ int mriStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
 
   /* reset nonlinear solver counters */
   if (step_mem->NLS != NULL) { step_mem->nsetups = 0; }
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  MRIStepReInit:
-
-  This routine re-initializes the MRIStep module to solve a new
-  problem of the same size as was previously solved (all counter
-  values are set to 0).
-
-  NOTE: the inner stepper needs to be reinitialized before
-  calling this function.
-  ---------------------------------------------------------------*/
-int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
-                  N_Vector y0)
-{
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  SUNNonlinearSolver NLS;
-  int retval;
-
-  /* access ARKodeMem and ARKodeMRIStepMem structures */
-  retval = mriStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* Check if ark_mem was allocated */
-  if (ark_mem->MallocDone == SUNFALSE)
-  {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MALLOC);
-    return (ARK_NO_MALLOC);
-  }
-
-  /* Check that at least one of fse, fsi is supplied and is to be used */
-  if (fse == NULL && fsi == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_F);
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Check that y0 is supplied */
-  if (y0 == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_Y0);
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Set implicit/explicit problem based on function pointers */
-  step_mem->explicit_rhs = (fse == NULL) ? SUNFALSE : SUNTRUE;
-  step_mem->implicit_rhs = (fsi == NULL) ? SUNFALSE : SUNTRUE;
-
-  /* Create a default Newton NLS object (just in case; will be deleted if
-     the user attaches a nonlinear solver) */
-  if (step_mem->implicit_rhs && !(step_mem->NLS))
-  {
-    NLS = SUNNonlinSol_Newton(y0, ark_mem->sunctx);
-    if (!NLS)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "Error creating default Newton solver");
-      ARKodeFree((void**)&ark_mem);
-      return (ARK_MEM_FAIL);
-    }
-    retval = ARKodeSetNonlinearSolver(ark_mem, NLS);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "Error attaching default Newton solver");
-      ARKodeFree((void**)&ark_mem);
-      return (ARK_MEM_FAIL);
-    }
-    step_mem->ownNLS = SUNTRUE;
-  }
-
-  /* ReInitialize main ARKODE infrastructure */
-  retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Unable to reinitialize main ARKODE infrastructure");
-    return (retval);
-  }
-
-  /* Copy the input parameters into ARKODE state */
-  step_mem->fse = fse;
-  step_mem->fsi = fsi;
-
-  /* Initialize all the counters */
-  step_mem->nfse      = 0;
-  step_mem->nfsi      = 0;
-  step_mem->nsetups   = 0;
-  step_mem->nstlp     = 0;
-  step_mem->nls_iters = 0;
 
   return (ARK_SUCCESS);
 }
@@ -731,14 +732,6 @@ void mriStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   mriStepInnerStepper_PrintMem(step_mem->stepper, outfile);
   return;
 }
-
-/*===============================================================
-  MRIStep Private functions
-  ===============================================================*/
-
-/*---------------------------------------------------------------
-  Interface routines supplied to ARKODE
-  ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
   mriStep_AttachLinsol:
@@ -1654,9 +1647,9 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   return (ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
+/*===============================================================
   Internal utility routines
-  ---------------------------------------------------------------*/
+  ===============================================================*/
 
 /*---------------------------------------------------------------
   mriStep_AccessARKODEStepMem:
@@ -2594,9 +2587,9 @@ int mriStep_StageSetup(ARKodeMem ark_mem)
   return (ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
+/*===============================================================
   User-callable functions for a custom inner integrator
-  ---------------------------------------------------------------*/
+  ===============================================================*/
 
 int MRIStepInnerStepper_Create(SUNContext sunctx, MRIStepInnerStepper* stepper)
 {
@@ -2790,9 +2783,9 @@ int MRIStepInnerStepper_GetForcingData(MRIStepInnerStepper stepper,
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
-  Internal inner integrator functions
-  ---------------------------------------------------------------*/
+/*===============================================================
+  Private inner integrator functions
+  ===============================================================*/
 
 /* Check for required operations */
 int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper)

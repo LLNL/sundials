@@ -27,7 +27,7 @@
 #include "arkode_interp_impl.h"
 
 /*===============================================================
-  ERKStep Exported functions -- Required
+  Exported functions
   ===============================================================*/
 
 void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
@@ -145,45 +145,6 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
 }
 
 /*---------------------------------------------------------------
-  erkStep_Resize:
-
-  This routine resizes the memory within the ERKStep module.
-  ---------------------------------------------------------------*/
-int erkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
-                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
-{
-  ARKodeERKStepMem step_mem;
-  sunindextype lrw1, liw1, lrw_diff, liw_diff;
-  int i, retval;
-
-  /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* Determine change in vector sizes */
-  lrw1 = liw1 = 0;
-  if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
-  lrw_diff      = lrw1 - ark_mem->lrw1;
-  liw_diff      = liw1 - ark_mem->liw1;
-  ark_mem->lrw1 = lrw1;
-  ark_mem->liw1 = liw1;
-
-  /* Resize the RHS vectors */
-  for (i = 0; i < step_mem->stages; i++)
-  {
-    if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                      &step_mem->F[i]))
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "Unable to resize vector");
-      return (ARK_MEM_FAIL);
-    }
-  }
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
   ERKStepReInit:
 
   This routine re-initializes the ERKStep module to solve a new
@@ -242,6 +203,49 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0, N_Vector y0)
 
   /* Initialize all the counters */
   step_mem->nfe = 0;
+
+  return (ARK_SUCCESS);
+}
+
+/*===============================================================
+  Interface routines supplied to ARKODE
+  ===============================================================*/
+
+/*---------------------------------------------------------------
+  erkStep_Resize:
+
+  This routine resizes the memory within the ERKStep module.
+  ---------------------------------------------------------------*/
+int erkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
+                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
+{
+  ARKodeERKStepMem step_mem;
+  sunindextype lrw1, liw1, lrw_diff, liw_diff;
+  int i, retval;
+
+  /* access ARKodeERKStepMem structure */
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* Determine change in vector sizes */
+  lrw1 = liw1 = 0;
+  if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
+  lrw_diff      = lrw1 - ark_mem->lrw1;
+  liw_diff      = liw1 - ark_mem->liw1;
+  ark_mem->lrw1 = lrw1;
+  ark_mem->liw1 = liw1;
+
+  /* Resize the RHS vectors */
+  for (i = 0; i < step_mem->stages; i++)
+  {
+    if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                      &step_mem->F[i]))
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "Unable to resize vector");
+      return (ARK_MEM_FAIL);
+    }
+  }
 
   return (ARK_SUCCESS);
 }
@@ -345,14 +349,6 @@ void erkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   }
 #endif
 }
-
-/*===============================================================
-  ERKStep Private functions
-  ===============================================================*/
-
-/*---------------------------------------------------------------
-  Interface routines supplied to ARKODE
-  ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
   erkStep_Init:
@@ -742,9 +738,9 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   return (ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
+/*===============================================================
   Internal utility routines
-  ---------------------------------------------------------------*/
+  ===============================================================*/
 
 /*---------------------------------------------------------------
   erkStep_AccessARKODEStepMem:
@@ -1061,13 +1057,16 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   return (ARK_SUCCESS);
 }
 
+/*===============================================================
+  Internal utility routines for relaxation
+  ===============================================================*/
+
 /* -----------------------------------------------------------------------------
  * erkStep_RelaxDeltaE
  *
  * Computes the change in the relaxation functions for use in relaxation methods
  * delta_e = h * sum_i b_i * <rjac(z_i), f_i>
  * ---------------------------------------------------------------------------*/
-
 int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         long int* num_relax_jac_evals, sunrealtype* delta_e_out)
 {
@@ -1147,7 +1146,6 @@ int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
  *
  * Returns the method order
  * ---------------------------------------------------------------------------*/
-
 int erkStep_GetOrder(ARKodeMem ark_mem)
 {
   ARKodeERKStepMem step_mem = (ARKodeERKStepMem)(ark_mem->step_mem);
