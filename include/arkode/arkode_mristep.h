@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the ARKode MRIStep module.
+ * This is the header file for the ARKODE MRIStep module.
  * -----------------------------------------------------------------*/
 
 #ifndef _MRISTEP_H
@@ -130,38 +130,66 @@ typedef int (*MRIStepPostInnerFn)(sunrealtype t, N_Vector y, void* user_data);
  * Exported Functions
  * ------------------- */
 
-/* Create, Resize, and Reinitialization functions */
+/* Creation and Reinitialization functions */
 SUNDIALS_EXPORT void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
                                     N_Vector y0, MRIStepInnerStepper stepper,
                                     SUNContext sunctx);
+SUNDIALS_EXPORT int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi,
+                                  sunrealtype t0, N_Vector y0);
+
+/* Optional input functions -- must be called AFTER MRIStepCreate */
+SUNDIALS_EXPORT int MRIStepSetCoupling(void* arkode_mem, MRIStepCoupling MRIC);
+SUNDIALS_EXPORT int MRIStepSetPreInnerFn(void* arkode_mem,
+                                         MRIStepPreInnerFn prefn);
+SUNDIALS_EXPORT int MRIStepSetPostInnerFn(void* arkode_mem,
+                                          MRIStepPostInnerFn postfn);
+
+/* Optional output functions */
+SUNDIALS_EXPORT int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals,
+                                          long int* nfsi_evals);
+SUNDIALS_EXPORT int MRIStepGetCurrentCoupling(void* arkode_mem,
+                                              MRIStepCoupling* MRIC);
+SUNDIALS_EXPORT int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag);
+
+/* Custom inner stepper functions */
+SUNDIALS_EXPORT int MRIStepInnerStepper_Create(SUNContext sunctx,
+                                               MRIStepInnerStepper* stepper);
+SUNDIALS_EXPORT int MRIStepInnerStepper_Free(MRIStepInnerStepper* stepper);
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetContent(MRIStepInnerStepper stepper,
+                                                   void* content);
+SUNDIALS_EXPORT int MRIStepInnerStepper_GetContent(MRIStepInnerStepper stepper,
+                                                   void** content);
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetEvolveFn(MRIStepInnerStepper stepper,
+                                                    MRIStepInnerEvolveFn fn);
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetFullRhsFn(MRIStepInnerStepper stepper,
+                                                     MRIStepInnerFullRhsFn fn);
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetResetFn(MRIStepInnerStepper stepper,
+                                                   MRIStepInnerResetFn fn);
+SUNDIALS_EXPORT int MRIStepInnerStepper_AddForcing(MRIStepInnerStepper stepper,
+                                                   sunrealtype t, N_Vector f);
+SUNDIALS_EXPORT int MRIStepInnerStepper_GetForcingData(
+  MRIStepInnerStepper stepper, sunrealtype* tshift, sunrealtype* tscale,
+  N_Vector** forcing, int* nforcing);
+
+/* --------------------------------------------------------------------------
+ * Deprecated Functions -- all are superseded by shared ARKODE-level routines
+ * -------------------------------------------------------------------------- */
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeResize instead")
 int MRIStepResize(void* arkode_mem, N_Vector ynew, sunrealtype t0,
                   ARKVecResizeFn resize, void* resize_data);
-
-SUNDIALS_EXPORT int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi,
-                                  sunrealtype t0, N_Vector y0);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeReset instead")
 int MRIStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR);
-
-/* Tolerance input functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSStolerances instead")
 int MRIStepSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSVtolerances instead")
 int MRIStepSVtolerances(void* arkode_mem, sunrealtype reltol, N_Vector abstol);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeWFtolerances instead")
 int MRIStepWFtolerances(void* arkode_mem, ARKEwtFn efun);
-
-/* Linear solver set function */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetLinearSolver instead")
 int MRIStepSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A);
-
-/* Rootfinding initialization */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeRootInit instead")
 int MRIStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g);
-
-/* Optional input functions -- must be called AFTER MRIStepCreate */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetDefaults instead")
 int MRIStepSetDefaults(void* arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetOrder instead")
@@ -180,7 +208,6 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetLinear instead")
 int MRIStepSetLinear(void* arkode_mem, int timedepend);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNonlinear instead")
 int MRIStepSetNonlinear(void* arkode_mem);
-SUNDIALS_EXPORT int MRIStepSetCoupling(void* arkode_mem, MRIStepCoupling MRIC);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepSetMaxARKodes instead")
 int MRIStepSetMaxNumSteps(void* arkode_mem, long int mxsteps);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNonlinCRDown instead")
@@ -199,10 +226,10 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNonlinConvCoef instead")
 int MRIStepSetNonlinConvCoef(void* arkode_mem, sunrealtype nlscoef);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetMaxHnilWarns instead")
 int MRIStepSetMaxHnilWarns(void* arkode_mem, int mxhnil);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetStopTime instead")
-int MRIStepSetStopTime(void* arkode_mem, sunrealtype tstop);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetInterpolateStopTime instead")
 int MRIStepSetInterpolateStopTime(void* arkode_mem, sunbooleantype interp);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetStopTime instead")
+int MRIStepSetStopTime(void* arkode_mem, sunrealtype tstop);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeClearStopTime instead")
 int MRIStepClearStopTime(void* arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepSetFiARKode instead")
@@ -217,17 +244,10 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepSetPostprocARKodeFn instead")
 int MRIStepSetPostprocessStepFn(void* arkode_mem, ARKPostProcessFn ProcessStep);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetPostprocessStageFn instead")
 int MRIStepSetPostprocessStageFn(void* arkode_mem, ARKPostProcessFn ProcessStage);
-SUNDIALS_EXPORT int MRIStepSetPreInnerFn(void* arkode_mem,
-                                         MRIStepPreInnerFn prefn);
-SUNDIALS_EXPORT int MRIStepSetPostInnerFn(void* arkode_mem,
-                                          MRIStepPostInnerFn postfn);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetStagePredictFn instead")
 int MRIStepSetStagePredictFn(void* arkode_mem, ARKStagePredictFn PredictStage);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetDeduceImplicitRhs instead")
 int MRIStepSetDeduceImplicitRhs(void* arkode_mem, sunbooleantype deduce);
-
-/* Linear solver interface optional input functions -- must be called
-   AFTER MRIStepSetLinearSolver */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetJacFn instead")
 int MRIStepSetJacFn(void* arkode_mem, ARKLsJacFn jac);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetJacEvalFrequency instead")
@@ -248,27 +268,15 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetJacTimesRhsFn instead")
 int MRIStepSetJacTimesRhsFn(void* arkode_mem, ARKRhsFn jtimesRhsFn);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetLinSysFn instead")
 int MRIStepSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys);
-
-/* Integrate the ODE over an interval in t */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeEvolve instead")
 int MRIStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
                   sunrealtype* tret, int itask);
-
-/* Computes the kth derivative of the y function at time t */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetDky instead")
 int MRIStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky);
-
-/* Utility function to update/compute y based on zcor */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeComputeState instead")
 int MRIStepComputeState(void* arkode_mem, N_Vector zcor, N_Vector z);
-
-/* Optional output functions */
-SUNDIALS_EXPORT int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals,
-                                          long int* nfsi_evals);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumLinSolvSetups instead")
 int MRIStepGetNumLinSolvSetups(void* arkode_mem, long int* nlinsetups);
-SUNDIALS_EXPORT int MRIStepGetCurrentCoupling(void* arkode_mem,
-                                              MRIStepCoupling* MRIC);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetWorkSpace instead")
 int MRIStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepGetARKodes instead")
@@ -289,21 +297,17 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumGEvals instead")
 int MRIStepGetNumGEvals(void* arkode_mem, long int* ngevals);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetRootInfo instead")
 int MRIStepGetRootInfo(void* arkode_mem, int* rootsfound);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepGetLastInARKodeFlag instead")
-int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetUserData instead")
 int MRIStepGetUserData(void* arkode_mem, void** user_data);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodePrintAllStats instead")
 int MRIStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetReturnFlagName instead")
 char* MRIStepGetReturnFlagName(long int flag);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeWriteParameters instead")
 int MRIStepWriteParameters(void* arkode_mem, FILE* fp);
-
-SUNDIALS_EXPORT int MRIStepWriteCoupling(void* arkode_mem, FILE* fp);
-
-/* Nonlinear solver optional output functions */
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "use MRIStepGetCurrentCoupling and MRIStepCoupling_Write instead")
+int MRIStepWriteCoupling(void* arkode_mem, FILE* fp);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNonlinearSystemData instead")
 int MRIStepGetNonlinearSystemData(void* arkode_mem, sunrealtype* tcur,
                                   N_Vector* zpred, N_Vector* z, N_Vector* F,
@@ -318,8 +322,6 @@ int MRIStepGetNonlinSolvStats(void* arkode_mem, long int* nniters,
                               long int* nnfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepGetARKodeSolveFails instead")
 int MRIStepGetNumStepSolveFails(void* arkode_mem, long int* nncfails);
-
-/* Linear solver optional output functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJac instead")
 int MRIStepGetJac(void* arkode_mem, SUNMatrix* J);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJacTime instead")
@@ -347,45 +349,12 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumLinRhsEvals instead")
 int MRIStepGetNumLinRhsEvals(void* arkode_mem, long int* nfevalsLS);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLastLinFlag instead")
 int MRIStepGetLastLinFlag(void* arkode_mem, long int* flag);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLinReturnFlagName instead")
 char* MRIStepGetLinReturnFlagName(long int flag);
-
-/* Free function */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeFree instead")
 void MRIStepFree(void** arkode_mem);
-
-/* Output the MRIStep memory structure (useful when debugging) */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodePrintMem instead")
 void MRIStepPrintMem(void* arkode_mem, FILE* outfile);
-
-/* Custom inner stepper functions */
-SUNDIALS_EXPORT int MRIStepInnerStepper_Create(SUNContext sunctx,
-                                               MRIStepInnerStepper* stepper);
-
-SUNDIALS_EXPORT int MRIStepInnerStepper_Free(MRIStepInnerStepper* stepper);
-
-SUNDIALS_EXPORT int MRIStepInnerStepper_SetContent(MRIStepInnerStepper stepper,
-                                                   void* content);
-
-SUNDIALS_EXPORT int MRIStepInnerStepper_GetContent(MRIStepInnerStepper stepper,
-                                                   void** content);
-
-SUNDIALS_EXPORT int MRIStepInnerStepper_SetEvolveFn(MRIStepInnerStepper stepper,
-                                                    MRIStepInnerEvolveFn fn);
-
-SUNDIALS_EXPORT int MRIStepInnerStepper_SetFullRhsFn(MRIStepInnerStepper stepper,
-                                                     MRIStepInnerFullRhsFn fn);
-
-SUNDIALS_EXPORT int MRIStepInnerStepper_SetResetFn(MRIStepInnerStepper stepper,
-                                                   MRIStepInnerResetFn fn);
-
-SUNDIALS_EXPORT int MRIStepInnerStepper_AddForcing(MRIStepInnerStepper stepper,
-                                                   sunrealtype t, N_Vector f);
-
-SUNDIALS_EXPORT int MRIStepInnerStepper_GetForcingData(
-  MRIStepInnerStepper stepper, sunrealtype* tshift, sunrealtype* tscale,
-  N_Vector** forcing, int* nforcing);
 
 #ifdef __cplusplus
 }

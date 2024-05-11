@@ -66,6 +66,7 @@ typedef struct ARKodeSPRKStepMemRec
   SPRK time step module private function prototypes
   ===============================================================*/
 
+/* Interface routines supplied to ARKODE */
 int sprkStep_Init(ARKodeMem ark_mem, int init_type);
 int sprkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                      int mode);
@@ -89,9 +90,11 @@ int sprkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
 int sprkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                            ARKodeSPRKStepMem* step_mem);
 sunbooleantype sprkStep_CheckNVector(N_Vector tmpl);
+
 /* f1 = p' (Force evaluation) */
 int sprkStep_f1(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
                 N_Vector f1, void* user_data);
+
 /* f2 = q' (Velocity evaluation) */
 int sprkStep_f2(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,
                 N_Vector f2, void* user_data);

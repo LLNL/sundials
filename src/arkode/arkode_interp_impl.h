@@ -72,7 +72,6 @@ typedef struct _ARKInterpContent_Hermite* ARKInterpContent_Hermite;
 /* Hermite structure operations */
 
 ARKInterp arkInterpCreate_Hermite(ARKodeMem ark_mem, int degree);
-
 int arkInterpResize_Hermite(ARKodeMem ark_mem, ARKInterp interp,
                             ARKVecResizeFn resize, void* resize_data,
                             sunindextype lrw_diff, sunindextype liw_diff,
@@ -119,7 +118,6 @@ typedef struct _ARKInterpContent_Lagrange* ARKInterpContent_Lagrange;
 /* Lagrange structure operations */
 
 ARKInterp arkInterpCreate_Lagrange(ARKodeMem ark_mem, int degree);
-
 int arkInterpResize_Lagrange(ARKodeMem ark_mem, ARKInterp interp,
                              ARKVecResizeFn resize, void* resize_data,
                              sunindextype lrw_diff, sunindextype liw_diff,
