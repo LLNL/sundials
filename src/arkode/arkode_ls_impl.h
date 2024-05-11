@@ -11,7 +11,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKODE's linear solver interface.
+ * Implementation header file for ARKODE's linear solver
+ * interface.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKLS_IMPL_H
@@ -218,54 +219,38 @@ int arkLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
 
 /* Generic linit/lsetup/lsolve/lfree interface routines for ARKODE to call */
 int arkLsInitialize(ARKodeMem ark_mem);
-
 int arkLsSetup(ARKodeMem ark_mem, int convfail, sunrealtype tpred,
                N_Vector ypred, N_Vector fpred, sunbooleantype* jcurPtr,
                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
-
 int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tcur, N_Vector ycur,
                N_Vector fcur, sunrealtype eRnrm, int mnewt);
-
 int arkLsFree(ARKodeMem ark_mem);
 
 /* Generic minit/msetup/mmult/msolve/mfree routines for ARKODE to call */
 int arkLsMassInitialize(ARKodeMem ark_mem);
-
 int arkLsMassSetup(ARKodeMem ark_mem, sunrealtype t, N_Vector vtemp1,
                    N_Vector vtemp2, N_Vector vtemp3);
-
 int arkLsMassMult(void* arkode_mem, N_Vector v, N_Vector Mv);
-
 int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef);
-
 int arkLsMassFree(ARKodeMem ark_mem);
 
 /* Auxilliary functions */
 int arkLsInitializeCounters(ARKLsMem arkls_mem);
-
 int arkLsInitializeMassCounters(ARKLsMassMem arkls_mem);
-
 int arkLs_AccessARKODELMem(void* arkode_mem, const char* fname,
                            ARKodeMem* ark_mem, ARKLsMem* arkls_mem);
-
 int arkLs_AccessLMem(ARKodeMem ark_mem, const char* fname, ARKLsMem* arkls_mem);
-
 int arkLs_AccessARKODEMassMem(void* arkode_mem, const char* fname,
                               ARKodeMem* ark_mem, ARKLsMassMem* arkls_mem);
-
 int arkLs_AccessMassMem(ARKodeMem ark_mem, const char* fname,
                         ARKLsMassMem* arkls_mem);
 
 /* Set/get routines called by time-stepper module */
 int arkLSSetLinearSolver(ARKodeMem ark_mem, SUNLinearSolver LS, SUNMatrix A);
-
 int arkLSSetMassLinearSolver(ARKodeMem ark_mem, SUNLinearSolver LS, SUNMatrix M,
                              sunbooleantype time_dep);
-
 int arkLSSetUserData(ARKodeMem ark_mem, void* user_data);
-
 int arkLSSetMassUserData(ARKodeMem ark_mem, void* user_data);
-
 int arkLSGetCurrentMassMatrix(ARKodeMem ark_mem, SUNMatrix* M);
 
 /*---------------------------------------------------------------

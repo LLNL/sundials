@@ -37,13 +37,17 @@ extern "C" {
 #define MRISTAGE_DIRK_FAST   3
 
 /* Implicit solver constants (duplicate from arkode_arkstep_impl.h) */
-#define MAXCOR 3 /* max number of nonlinear iterations */
-#define CRDOWN \
-  SUN_RCONST(0.3)               /* constant to estimate the convergence
-                                    rate for the nonlinear equation */
-#define DGMAX   SUN_RCONST(0.2) /* if |gamma/gammap-1| > DGMAX then call lsetup */
-#define RDIV    SUN_RCONST(2.3) /* declare divergence if ratio del/delp > RDIV */
-#define MSBP    20              /* max no. of steps between lsetup calls */
+/*   max number of nonlinear iterations */
+#define MAXCOR 3
+/*   constant to estimate the convergence rate for the nonlinear equation */
+#define CRDOWN SUN_RCONST(0.3)
+/*   if |gamma/gammap-1| > DGMAX then call lsetup */
+#define DGMAX SUN_RCONST(0.2)
+/*   declare divergence if ratio del/delp > RDIV */
+#define RDIV SUN_RCONST(2.3)
+/*   max no. of steps between lsetup calls */
+#define MSBP 20
+/*   default solver tolerance factor */
 #define NLSCOEF SUN_RCONST(0.1)
 
 /*===============================================================

@@ -24,7 +24,7 @@
 #include "arkode_impl.h"
 
 /*===============================================================
-  Utility routines
+  Interface routines supplied to ARKODE
   ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -99,6 +99,61 @@ int arkStep_SetNonlinearSolver(ARKodeMem ark_mem, SUNNonlinearSolver NLS)
 
   return (ARK_SUCCESS);
 }
+
+/*---------------------------------------------------------------
+  arkStep_SetNlsRhsFn:
+
+  This routine sets an alternative user-supplied implicit ODE
+  right-hand side function to use in the evaluation of nonlinear
+  system functions.
+  ---------------------------------------------------------------*/
+int arkStep_SetNlsRhsFn(ARKodeMem ark_mem, ARKRhsFn nls_fi)
+{
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  if (nls_fi) { step_mem->nls_fi = nls_fi; }
+  else { step_mem->nls_fi = step_mem->fi; }
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  arkStep_GetNonlinearSystemData:
+
+  This routine provides access to the relevant data needed to
+  compute the nonlinear system function.
+  ---------------------------------------------------------------*/
+int arkStep_GetNonlinearSystemData(ARKodeMem ark_mem, sunrealtype* tcur,
+                                   N_Vector* zpred, N_Vector* z, N_Vector* Fi,
+                                   sunrealtype* gamma, N_Vector* sdata,
+                                   void** user_data)
+{
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  *tcur      = ark_mem->tcur;
+  *zpred     = step_mem->zpred;
+  *z         = ark_mem->ycur;
+  *Fi        = step_mem->Fi[step_mem->istage];
+  *gamma     = step_mem->gamma;
+  *sdata     = step_mem->sdata;
+  *user_data = ark_mem->user_data;
+
+  return (ARK_SUCCESS);
+}
+
+/*===============================================================
+  Utility routines called by ARKStep
+  ===============================================================*/
 
 /*---------------------------------------------------------------
   arkStep_NlsInit:
@@ -330,60 +385,9 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
   return (retval);
 }
 
-/*---------------------------------------------------------------
-  arkStep_SetNlsRhsFn:
-
-  This routine sets an alternative user-supplied implicit ODE
-  right-hand side function to use in the evaluation of nonlinear
-  system functions.
-  ---------------------------------------------------------------*/
-int arkStep_SetNlsRhsFn(ARKodeMem ark_mem, ARKRhsFn nls_fi)
-{
-  ARKodeARKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  if (nls_fi) { step_mem->nls_fi = nls_fi; }
-  else { step_mem->nls_fi = step_mem->fi; }
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  arkStep_GetNonlinearSystemData:
-
-  This routine provides access to the relevant data needed to
-  compute the nonlinear system function.
-  ---------------------------------------------------------------*/
-int arkStep_GetNonlinearSystemData(ARKodeMem ark_mem, sunrealtype* tcur,
-                                   N_Vector* zpred, N_Vector* z, N_Vector* Fi,
-                                   sunrealtype* gamma, N_Vector* sdata,
-                                   void** user_data)
-{
-  ARKodeARKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  *tcur      = ark_mem->tcur;
-  *zpred     = step_mem->zpred;
-  *z         = ark_mem->ycur;
-  *Fi        = step_mem->Fi[step_mem->istage];
-  *gamma     = step_mem->gamma;
-  *sdata     = step_mem->sdata;
-  *user_data = ark_mem->user_data;
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
+/*===============================================================
   Interface routines supplied to the SUNNonlinearSolver module
-  ---------------------------------------------------------------*/
+  ===============================================================*/
 
 /*---------------------------------------------------------------
   arkStep_NlsLSetup:

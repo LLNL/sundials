@@ -30,7 +30,7 @@
 #include "arkode_sprkstep_impl.h"
 
 /*===============================================================
-  SPRKStep Exported functions -- Required
+  Exported functions
   ===============================================================*/
 
 void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
@@ -167,53 +167,6 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
 }
 
 /*---------------------------------------------------------------
-  sprkStep_Resize:
-
-  This routine resizes the memory within the SPRKStep module.
-  ---------------------------------------------------------------*/
-int sprkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
-                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
-{
-  ARKodeSPRKStepMem step_mem = NULL;
-  sunindextype lrw1, liw1, lrw_diff, liw_diff;
-  int retval;
-
-  /* access ARKodeSPRKStepMem structure */
-  retval = sprkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* Determine change in vector sizes */
-  lrw1 = liw1 = 0;
-  if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
-  lrw_diff      = lrw1 - ark_mem->lrw1;
-  liw_diff      = liw1 - ark_mem->liw1;
-  ark_mem->lrw1 = lrw1;
-  ark_mem->liw1 = liw1;
-
-  /* Resize the local vectors */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                    &step_mem->sdata))
-  {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "Unable to resize vector");
-    return (ARK_MEM_FAIL);
-  }
-
-  if (step_mem->yerr)
-  {
-    if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                      &step_mem->yerr))
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "Unable to resize vector");
-      return (ARK_MEM_FAIL);
-    }
-  }
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
   SPRKStepReInit:
 
   This routine re-initializes the SPRKStep module to solve a new
@@ -284,6 +237,57 @@ int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0,
   return (ARK_SUCCESS);
 }
 
+/*===============================================================
+  Interface routines supplied to ARKODE
+  ===============================================================*/
+
+/*---------------------------------------------------------------
+  sprkStep_Resize:
+
+  This routine resizes the memory within the SPRKStep module.
+  ---------------------------------------------------------------*/
+int sprkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
+                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
+{
+  ARKodeSPRKStepMem step_mem = NULL;
+  sunindextype lrw1, liw1, lrw_diff, liw_diff;
+  int retval;
+
+  /* access ARKodeSPRKStepMem structure */
+  retval = sprkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* Determine change in vector sizes */
+  lrw1 = liw1 = 0;
+  if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
+  lrw_diff      = lrw1 - ark_mem->lrw1;
+  liw_diff      = liw1 - ark_mem->liw1;
+  ark_mem->lrw1 = lrw1;
+  ark_mem->liw1 = liw1;
+
+  /* Resize the local vectors */
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                    &step_mem->sdata))
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "Unable to resize vector");
+    return (ARK_MEM_FAIL);
+  }
+
+  if (step_mem->yerr)
+  {
+    if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                      &step_mem->yerr))
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "Unable to resize vector");
+      return (ARK_MEM_FAIL);
+    }
+  }
+
+  return (ARK_SUCCESS);
+}
+
 /*---------------------------------------------------------------
   sprkStep_Reset:
 
@@ -337,14 +341,6 @@ void sprkStep_Free(ARKodeMem ark_mem)
     ark_mem->step_mem = NULL;
   }
 }
-
-/*===============================================================
-  SPRKStep Private functions
-  ===============================================================*/
-
-/*---------------------------------------------------------------
-  Interface routines supplied to ARKODE
-  ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
   sprkStep_Init:
@@ -709,9 +705,9 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   return 0;
 }
 
-/*---------------------------------------------------------------
+/*===============================================================
   Internal utility routines
-  ---------------------------------------------------------------*/
+  ===============================================================*/
 
 /*---------------------------------------------------------------
   sprkStep_AccessARKODEStepMem:
@@ -778,3 +774,7 @@ sunbooleantype sprkStep_CheckNVector(N_Vector tmpl)
   }
   return (SUNTRUE);
 }
+
+/*===============================================================
+  EOF
+  ===============================================================*/
