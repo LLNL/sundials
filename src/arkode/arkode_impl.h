@@ -575,11 +575,6 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
 /*===============================================================
   ARKODE PRIVATE FUNCTION PROTOTYPES
   ===============================================================*/
-#ifdef __GNUC__
-#define SUNDIALS_UNUSED __attribute__((unused))
-#else
-#define SUNDIALS_UNUSED
-#endif
 
 ARKodeMem arkCreate(SUNContext sunctx);
 int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type);
@@ -813,7 +808,7 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   parameters are as follows:
 
   arkode_mem - void* problem memory pointer of type ARKodeMem. See
-           the typedef earlier in this file.
+               the typedef earlier in this file.
 
   convfail - a flag to indicate any problem that occurred during
              the solution of the nonlinear equation on the
@@ -859,10 +854,11 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   N-vector ycur contains the solver's current approximation to
   y(tcur) and the vector fcur contains the N_Vector f(tcur,ycur).
   The input client_tol contains the desired accuracy (in the wrms
-  norm) of the routine calling the solver; the ARKDLS solver
-  ignores this value and the ARKSPILS solver tightens it by the
+  norm) of the routine calling the solver; the direct solvers
+  ignore this value and iterative solvers tighten it by the
   factor eplifac.  The input mnewt is the current nonlinear
-  iteration index (ignored by ARKDLS, used by ARKSPILS).
+  iteration index (ignored by direct solvers, used by iterative
+  solvers).
 
   Additional vectors that are set within the ARKODE memory
   structure, and that may be of use within an iterative linear
@@ -1113,7 +1109,7 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   ARKTimestepPrintMem
 
   This optional routine allows the stepper to output any internal
-  memory typically for debugging purposes) when ARKodePrintMem is
+  memory (typically for debugging purposes) when ARKodePrintMem is
   called.
 
   ---------------------------------------------------------------
