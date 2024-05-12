@@ -579,7 +579,7 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype* J_data   = SUNDenseMatrix_Data(J);
+  sunrealtype* J_data    = SUNDenseMatrix_Data(J);
   ProblemData* prob_data = static_cast<ProblemData*>(user_data);
 
   J_data[0] = prob_data->lambda_i;
