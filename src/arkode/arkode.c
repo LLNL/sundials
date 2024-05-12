@@ -1062,18 +1062,15 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
           break;
         }
         ark_mem->tretlast = *tret = tout;
-        ark_mem->next_h           = ark_mem->hprime;
-        istate                    = ARK_SUCCESS;
-        break;
       }
       else
       {
         N_VScale(ONE, ark_mem->yn, yout);
         ark_mem->tretlast = *tret = ark_mem->tcur;
-        ark_mem->next_h           = ark_mem->hprime;
-        istate                    = ARK_SUCCESS;
-        break;
       }
+      ark_mem->next_h = ark_mem->hprime;
+      istate          = ARK_SUCCESS;
+      break;
     }
 
     /* In ONE_STEP mode, copy y and exit loop */
