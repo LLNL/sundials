@@ -83,13 +83,17 @@ from evolving the inner stepper.
 Added missing `SetRootDirection` and `SetNoInactiveRootWarn` functions to
 ARKODE's SPRKStep time-stepping module.
 
+Fixed a bug in `ARKodeSPRKTable_Create` where the coefficient arrays were not
+allocated.
+
 ### Deprecation Notices
 
 Numerous ARKODE stepper-specific functions are now deprecated in favor of
 ARKODE-wide functions.
 
-Deprecated `ARKStepSetOptimalParams` function; added instructions to user guide
-for users who wish to retain the current functionality.
+Deprecated ``ARKStepSetOptimalParams`` function. This functions does not have an
+ARKODE-wide equivalent, instructions have been added to the user guide for how
+to retain the current functionality using other user-callable functions.
 
 ## Changes to SUNDIALS in release v7.0.0
 
