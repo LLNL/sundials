@@ -62,6 +62,9 @@ Fixed a memory leak when an error handler was added to a `SUNContext`. Fixes [Gi
 
 Fixed a CMake bug that caused an MPI linking error for our C++ examples in some instances. Fixes [GitHub Issue #464](https://github.com/LLNL/sundials/issues/464).
 
+Fixed a bug in `ARKodeSPRKTable_Create` where the coefficient arrays where not
+allocated.
+
 ## Changes to SUNDIALS in release v7.0.0
 
 ### Major Feature
