@@ -91,7 +91,7 @@ allocated.
 Numerous ARKODE stepper-specific functions are now deprecated in favor of
 ARKODE-wide functions.
 
-Deprecated ``ARKStepSetOptimalParams`` function. This functions does not have an
+Deprecated `ARKStepSetOptimalParams` function. This functions does not have an
 ARKODE-wide equivalent, instructions have been added to the user guide for how
 to retain the current functionality using other user-callable functions.
 
