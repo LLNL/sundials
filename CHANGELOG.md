@@ -36,8 +36,8 @@ Added the following MRI coupling tables
 * `ARKODE_IMEX_MRI_GARK_MIDPOINT`
 
 Users may now disable interpolated output in ARKODE by passing `ARK_INTERP_NONE`
-to the `ARKodeSetInterpolantType`. When interpolation is disabled, rootfinding
-is not supported, implicit methods must use the trivial predictor (the default
+to `ARKodeSetInterpolantType`. When interpolation is disabled, rootfinding is
+not supported, implicit methods must use the trivial predictor (the default
 option), and interpolation at stop times cannot be used (interpolating at stop
 times is disabled by default). With interpolation disabled, calling
 `ARKodeEvolve` in `ARK_NORMAL` mode will return at or past the requested output
