@@ -25,6 +25,7 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
+#include "arkode/arkode.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
 #include "arkode_user_controller.h"
@@ -165,7 +166,8 @@ int ARKodeSetInterpolantType(void* arkode_mem, int itype)
   ark_mem = (ARKodeMem)arkode_mem;
 
   /* check for legal itype input */
-  if ((itype != ARK_INTERP_HERMITE) && (itype != ARK_INTERP_LAGRANGE))
+  if ((itype != ARK_INTERP_HERMITE) && (itype != ARK_INTERP_LAGRANGE) &&
+      (itype != ARK_INTERP_NONE))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Illegal interpolation type input.");
@@ -191,24 +193,30 @@ int ARKodeSetInterpolantType(void* arkode_mem, int itype)
      the maximum possible interpolant degree. */
   if (itype == ARK_INTERP_HERMITE)
   {
-    ark_mem->interp = arkInterpCreate_Hermite(arkode_mem, ARK_INTERP_MAX_DEGREE);
+    ark_mem->interp = arkInterpCreate_Hermite(arkode_mem, ark_mem->interp_degree);
+    if (ark_mem->interp == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "Unable to allocate interpolation structure");
+      return ARK_MEM_FAIL;
+    }
     ark_mem->interp_type = ARK_INTERP_HERMITE;
   }
   else if (itype == ARK_INTERP_LAGRANGE)
   {
-    ark_mem->interp = arkInterpCreate_Lagrange(arkode_mem, ARK_INTERP_MAX_DEGREE);
+    ark_mem->interp = arkInterpCreate_Lagrange(arkode_mem,
+                                               ark_mem->interp_degree);
+    if (ark_mem->interp == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "Unable to allocate interpolation structure");
+    }
     ark_mem->interp_type = ARK_INTERP_LAGRANGE;
   }
   else
   {
     ark_mem->interp      = NULL;
-    ark_mem->interp_type = -1;
-  }
-  if (ark_mem->interp == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "Unable to allocate interpolation structure");
-    return (ARK_MEM_FAIL);
+    ark_mem->interp_type = ARK_INTERP_NONE;
   }
 
   return (ARK_SUCCESS);
@@ -239,13 +247,6 @@ int ARKodeSetInterpolantDegree(void* arkode_mem, int degree)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  if (ark_mem->interp == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    "Interpolation module is not yet allocated");
-    return (ARK_MEM_NULL);
-  }
-
   /* do not change degree once the module has been initialized */
   if (ark_mem->initialized)
   {
@@ -254,9 +255,23 @@ int ARKodeSetInterpolantDegree(void* arkode_mem, int degree)
     return (ARK_ILL_INPUT);
   }
 
-  /* pass 'degree' to interpolation module, returning its value */
-  if (degree < 0) { degree = ARK_INTERP_MAX_DEGREE; }
-  return (arkInterpSetDegree(ark_mem, ark_mem->interp, degree));
+  if (degree > ARK_INTERP_MAX_DEGREE)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Illegal degree specified.");
+    return ARK_ILL_INPUT;
+  }
+  else if (degree < 0) { ark_mem->interp_degree = ARK_INTERP_MAX_DEGREE; }
+  else { ark_mem->interp_degree = degree; }
+
+  /* Set the degree now if possible otherwise it will be used when creating the
+     interpolation module */
+  if (ark_mem->interp)
+  {
+    return arkInterpSetDegree(ark_mem, ark_mem->interp, ark_mem->interp_degree);
+  }
+
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -653,6 +668,14 @@ int ARKodeSetPredictorMethod(void* arkode_mem, int pred_method)
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not require an algebraic solver");
     return (ARK_STEPPER_UNSUPPORTED);
+  }
+
+  /* Higher-order predictors require interpolation */
+  if (ark_mem->interp_type == ARK_INTERP_NONE && pred_method != 0)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Non-trival predictors require an interpolation module");
+    return ARK_ILL_INPUT;
   }
 
   /* Call stepper routine (if provided) */
