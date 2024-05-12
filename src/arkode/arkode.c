@@ -1498,7 +1498,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
 
   /* Initialize the interpolation structure to NULL */
   ark_mem->interp        = NULL;
-  ark_mem->interp_type   = ARK_INTERP_NONE;
+  ark_mem->interp_type   = ARK_INTERP_HERMITE;
   ark_mem->interp_degree = ARK_INTERP_MAX_DEGREE;
 
   /* Initially, rwt should point to ewt */
