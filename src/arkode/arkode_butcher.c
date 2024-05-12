@@ -4149,7 +4149,7 @@ static sunbooleantype arkode_butcher_order6s(sunrealtype* b, sunrealtype** A1,
     free(tmp2);
     return (SUNFALSE);
   }
-  if (arkode_butcher_mv(A2, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A3, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
