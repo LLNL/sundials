@@ -1070,6 +1070,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       {
         N_VScale(ONE, ark_mem->yn, yout);
         ark_mem->tretlast = *tret = ark_mem->tcur;
+        ark_mem->next_h           = ark_mem->hprime;
         istate                    = ARK_SUCCESS;
         break;
       }
@@ -2213,14 +2214,22 @@ int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
   /* In ARK_NORMAL mode, test if tout was reached */
   if ((itask == ARK_NORMAL) && ((ark_mem->tcur - tout) * ark_mem->h >= ZERO))
   {
-    ark_mem->tretlast = *tret = tout;
-    *ier                      = ARKodeGetDky(ark_mem, tout, 0, yout);
-    if (*ier != ARK_SUCCESS)
+    if (ark_mem->interp)
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      MSG_ARK_BAD_TOUT, tout);
-      *ier = ARK_ILL_INPUT;
-      return (1);
+      *ier = ARKodeGetDky(ark_mem, tout, 0, yout);
+      if (*ier != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        MSG_ARK_BAD_TOUT, tout);
+        *ier = ARK_ILL_INPUT;
+        return (1);
+      }
+      ark_mem->tretlast = *tret = tout;
+    }
+    else
+    {
+      N_VScale(ONE, ark_mem->yn, yout);
+      ark_mem->tretlast = *tret = ark_mem->tcur;
     }
     *ier = ARK_SUCCESS;
     return (1);
