@@ -51,6 +51,9 @@ struct _SUNNonlinearSolverContent_Newton
   long int nconvfails; /* total number of convergence failures across all solves
                         */
   void* ctest_data; /* data to pass to convergence test function              */
+
+  SUNNonlinSolAccessDeltaFn access_delta_fn;
+  void* access_delta_data;
 };
 
 typedef struct _SUNNonlinearSolverContent_Newton* SUNNonlinearSolverContent_Newton;
@@ -102,6 +105,12 @@ SUNErrCode SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolSetMaxIters_Newton(SUNNonlinearSolver NLS, int maxiters);
+
+/* Callback to access delta */
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolSetAccessDeltaFn_Newton(SUNNonlinearSolver NLS,
+                                               SUNNonlinSolAccessDeltaFn access_fn,
+                                               void* access_data);
 
 /* get functions */
 SUNDIALS_EXPORT

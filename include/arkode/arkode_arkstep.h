@@ -23,10 +23,15 @@
 #include <arkode/arkode_ls.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include "sundials/sundials_export.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+
+/* Callback to access delta */
+typedef int (*ARKStepAccessDeltaFn)(long int step, int stage, int iter,
+                                    N_Vector delta, void* user_data);
 
 /* -----------------
  * ARKStep Constants
@@ -99,6 +104,9 @@ SUNDIALS_EXPORT int ARKStepGetTimestepperStats(
 /* MRIStep interface functions */
 SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void* arkode_mem,
                                                      MRIStepInnerStepper* stepper);
+
+SUNDIALS_EXPORT
+int ARKStepSetAccessDeltaFn(void* arkode_mem, ARKStepAccessDeltaFn access_fn);
 
 /* --------------------------------------------------------------------------
  * Deprecated Functions -- all are superseded by shared ARKODE-level routines

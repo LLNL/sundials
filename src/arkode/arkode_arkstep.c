@@ -249,6 +249,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   step_mem->impforcing = SUNFALSE;
   step_mem->forcing    = NULL;
   step_mem->nforcing   = 0;
+  step_mem->access_fn = NULL;
 
   /* Initialize saved fi alias */
   step_mem->fn_implicit = NULL;

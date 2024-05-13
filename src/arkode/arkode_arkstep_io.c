@@ -2477,3 +2477,18 @@ int ARKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
 /*===============================================================
   EOF
   ===============================================================*/
+
+int ARKStepSetAccessDeltaFn(void* arkode_mem, ARKStepAccessDeltaFn access_fn)
+{
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeARKStepMem structures */
+  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  step_mem->access_fn = access_fn;
+
+  return ARK_SUCCESS;
+}

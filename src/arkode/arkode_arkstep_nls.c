@@ -22,6 +22,22 @@
 
 #include "arkode_arkstep_impl.h"
 #include "arkode_impl.h"
+#include "sunnonlinsol/sunnonlinsol_newton.h"
+
+int arkAccessDeltaFn(int iter, N_Vector delta, void* arkode_mem)
+{
+  ARKodeMem ark_mem = (ARKodeMem)arkode_mem;
+
+  ARKodeARKStepMem step_mem;
+  int retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  retval = step_mem->access_fn(ark_mem->nst, step_mem->istage, iter, delta,
+                               ark_mem->user_data);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  return ARK_SUCCESS;
+}
 
 /*===============================================================
   Interface routines supplied to ARKODE
@@ -330,6 +346,17 @@ int arkStep_NlsInit(ARKodeMem ark_mem)
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Setting nonlinear system function failed");
     return (ARK_ILL_INPUT);
+  }
+
+  if (step_mem->access_fn)
+  {
+    retval = SUNNonlinSolSetAccessDeltaFn_Newton(step_mem->NLS, arkAccessDeltaFn, ark_mem);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Setting the nonlinear solver access function failed");
+      return (ARK_ILL_INPUT);
+    }
   }
 
   /* initialize nonlinear solver */

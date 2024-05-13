@@ -89,6 +89,8 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx)
   content->niters     = 0;
   content->nconvfails = 0;
   content->ctest_data = NULL;
+  content->access_delta_fn = NULL;
+  content->access_delta_data = NULL;
 
   /* Fill allocatable content */
   content->delta = N_VClone(y);
@@ -246,6 +248,13 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       /* solve the linear system to get Newton update delta */
       retval = NEWTON_CONTENT(NLS)->LSolve(delta, mem);
       if (retval != SUN_SUCCESS) { break; }
+
+      if (NEWTON_CONTENT(NLS)->access_delta_fn)
+      {
+        NEWTON_CONTENT(NLS)->access_delta_fn(NEWTON_CONTENT(NLS)->curiter,
+                                             NEWTON_CONTENT(NLS)->delta,
+                                             NEWTON_CONTENT(NLS)->access_delta_data);
+      }
 
       /* update the Newton iterate */
       N_VLinearSum(ONE, ycor, ONE, delta, ycor);
@@ -417,6 +426,16 @@ SUNErrCode SUNNonlinSolSetMaxIters_Newton(SUNNonlinearSolver NLS, int maxiters)
   SUNFunctionBegin(NLS->sunctx);
   SUNAssert(maxiters >= 1, SUN_ERR_ARG_OUTOFRANGE);
   NEWTON_CONTENT(NLS)->maxiters = maxiters;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNNonlinSolSetAccessDeltaFn_Newton(SUNNonlinearSolver NLS,
+                                               SUNNonlinSolAccessDeltaFn access_fn,
+                                               void* access_data)
+{
+  SUNFunctionBegin(NLS->sunctx);
+  NEWTON_CONTENT(NLS)->access_delta_fn = access_fn;
+  NEWTON_CONTENT(NLS)->access_delta_data = access_data;
   return SUN_SUCCESS;
 }
 

@@ -82,6 +82,9 @@ typedef int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector y,
                                       N_Vector del, sunrealtype tol,
                                       N_Vector ewt, void* mem);
 
+/* Callback to access delta */
+typedef int (*SUNNonlinSolAccessDeltaFn)(int iter, N_Vector delta, void* data);
+
 /* -----------------------------------------------------------------------------
  * SUNNonlinearSolver types
  * ---------------------------------------------------------------------------*/
