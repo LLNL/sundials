@@ -36,9 +36,6 @@ module farkode_sprkstep_mod
  integer(C_INT), parameter, public :: SPRKSTEP_DEFAULT_10 = ARKODE_SPRK_SOFRONIOU_10_36
  public :: FSPRKStepCreate
  public :: FSPRKStepReInit
- public :: FSPRKStepReset
- public :: FSPRKStepRootInit
- public :: FSPRKStepSetDefaults
  public :: FSPRKStepSetUseCompensatedSums
  public :: FSPRKStepSetMethod
  type, bind(C) :: SwigArrayWrapper
@@ -46,6 +43,13 @@ module farkode_sprkstep_mod
   integer(C_SIZE_T), public :: size = 0
  end type
  public :: FSPRKStepSetMethodName
+ public :: FSPRKStepGetCurrentMethod
+ public :: FSPRKStepGetNumRhsEvals
+ public :: FSPRKStepReset
+ public :: FSPRKStepRootInit
+ public :: FSPRKStepSetRootDirection
+ public :: FSPRKStepSetNoInactiveRootWarn
+ public :: FSPRKStepSetDefaults
  public :: FSPRKStepSetOrder
  public :: FSPRKStepSetInterpolantType
  public :: FSPRKStepSetInterpolantDegree
@@ -58,12 +62,10 @@ module farkode_sprkstep_mod
  public :: FSPRKStepEvolve
  public :: FSPRKStepGetDky
  public :: FSPRKStepGetReturnFlagName
- public :: FSPRKStepGetCurrentMethod
  public :: FSPRKStepGetCurrentState
  public :: FSPRKStepGetCurrentStep
  public :: FSPRKStepGetCurrentTime
  public :: FSPRKStepGetLastStep
- public :: FSPRKStepGetNumRhsEvals
  public :: FSPRKStepGetNumStepAttempts
  public :: FSPRKStepGetNumSteps
  public :: FSPRKStepGetRootInfo
@@ -99,34 +101,6 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSPRKStepReset(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSPRKStepReset") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-type(C_PTR), value :: farg3
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSPRKStepRootInit(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSPRKStepRootInit") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-type(C_FUNPTR), value :: farg3
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSPRKStepSetDefaults(farg1) &
-bind(C, name="_wrap_FSPRKStepSetDefaults") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT) :: fresult
-end function
-
 function swigc_FSPRKStepSetUseCompensatedSums(farg1, farg2) &
 bind(C, name="_wrap_FSPRKStepSetUseCompensatedSums") &
 result(fresult)
@@ -152,6 +126,70 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 type(C_PTR), value :: farg1
 type(SwigArrayWrapper) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSPRKStepGetCurrentMethod(farg1, farg2) &
+bind(C, name="_wrap_FSPRKStepGetCurrentMethod") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSPRKStepGetNumRhsEvals(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSPRKStepGetNumRhsEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSPRKStepReset(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSPRKStepReset") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSPRKStepRootInit(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSPRKStepRootInit") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+type(C_FUNPTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSPRKStepSetRootDirection(farg1, farg2) &
+bind(C, name="_wrap_FSPRKStepSetRootDirection") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSPRKStepSetNoInactiveRootWarn(farg1) &
+bind(C, name="_wrap_FSPRKStepSetNoInactiveRootWarn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSPRKStepSetDefaults(farg1) &
+bind(C, name="_wrap_FSPRKStepSetDefaults") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -273,15 +311,6 @@ integer(C_LONG), intent(in) :: farg1
 type(SwigArrayWrapper) :: fresult
 end function
 
-function swigc_FSPRKStepGetCurrentMethod(farg1, farg2) &
-bind(C, name="_wrap_FSPRKStepGetCurrentMethod") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FSPRKStepGetCurrentState(farg1, farg2) &
 bind(C, name="_wrap_FSPRKStepGetCurrentState") &
 result(fresult)
@@ -315,16 +344,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSPRKStepGetNumRhsEvals(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSPRKStepGetNumRhsEvals") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -457,57 +476,6 @@ fresult = swigc_FSPRKStepReInit(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FSPRKStepReset(arkode_mem, tr, yr) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: tr
-type(N_Vector), target, intent(inout) :: yr
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = arkode_mem
-farg2 = tr
-farg3 = c_loc(yr)
-fresult = swigc_FSPRKStepReset(farg1, farg2, farg3)
-swig_result = fresult
-end function
-
-function FSPRKStepRootInit(arkode_mem, nrtfn, g) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: nrtfn
-type(C_FUNPTR), intent(in), value :: g
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-type(C_FUNPTR) :: farg3 
-
-farg1 = arkode_mem
-farg2 = nrtfn
-farg3 = g
-fresult = swigc_FSPRKStepRootInit(farg1, farg2, farg3)
-swig_result = fresult
-end function
-
-function FSPRKStepSetDefaults(arkode_mem) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-
-farg1 = arkode_mem
-fresult = swigc_FSPRKStepSetDefaults(farg1)
-swig_result = fresult
-end function
-
 function FSPRKStepSetUseCompensatedSums(arkode_mem, onoff) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -572,6 +540,121 @@ type(SwigArrayWrapper) :: farg2
 farg1 = arkode_mem
 call SWIG_string_to_chararray(method, farg2_chars, farg2)
 fresult = swigc_FSPRKStepSetMethodName(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSPRKStepGetCurrentMethod(arkode_mem, sprk_storage) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: sprk_storage
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(sprk_storage)
+fresult = swigc_FSPRKStepGetCurrentMethod(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSPRKStepGetNumRhsEvals(arkode_mem, nf1, nf2) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nf1
+integer(C_LONG), dimension(*), target, intent(inout) :: nf2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = c_loc(nf1(1))
+farg3 = c_loc(nf2(1))
+fresult = swigc_FSPRKStepGetNumRhsEvals(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSPRKStepReset(arkode_mem, tr, yr) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: tr
+type(N_Vector), target, intent(inout) :: yr
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = tr
+farg3 = c_loc(yr)
+fresult = swigc_FSPRKStepReset(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSPRKStepRootInit(arkode_mem, nrtfn, g) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: nrtfn
+type(C_FUNPTR), intent(in), value :: g
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+type(C_FUNPTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = nrtfn
+farg3 = g
+fresult = swigc_FSPRKStepRootInit(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSPRKStepSetRootDirection(arkode_mem, rootdir) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), dimension(*), target, intent(inout) :: rootdir
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(rootdir(1))
+fresult = swigc_FSPRKStepSetRootDirection(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSPRKStepSetNoInactiveRootWarn(arkode_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = arkode_mem
+fresult = swigc_FSPRKStepSetNoInactiveRootWarn(farg1)
+swig_result = fresult
+end function
+
+function FSPRKStepSetDefaults(arkode_mem) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = arkode_mem
+fresult = swigc_FSPRKStepSetDefaults(farg1)
 swig_result = fresult
 end function
 
@@ -794,22 +877,6 @@ call SWIG_chararray_to_string(fresult, swig_result)
 if (.false.) call SWIG_free(fresult%data)
 end function
 
-function FSPRKStepGetCurrentMethod(arkode_mem, sprk_storage) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR), target, intent(inout) :: sprk_storage
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(sprk_storage)
-fresult = swigc_FSPRKStepGetCurrentMethod(farg1, farg2)
-swig_result = fresult
-end function
-
 function FSPRKStepGetCurrentState(arkode_mem, state) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -871,25 +938,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(hlast(1))
 fresult = swigc_FSPRKStepGetLastStep(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSPRKStepGetNumRhsEvals(arkode_mem, nf1, nf2) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nf1
-integer(C_LONG), dimension(*), target, intent(inout) :: nf2
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = arkode_mem
-farg2 = c_loc(nf1(1))
-farg3 = c_loc(nf2(1))
-fresult = swigc_FSPRKStepGetNumRhsEvals(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

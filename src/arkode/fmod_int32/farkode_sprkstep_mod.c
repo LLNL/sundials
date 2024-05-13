@@ -273,50 +273,6 @@ SWIGEXPORT int _wrap_FSPRKStepReInit(void *farg1, ARKRhsFn farg2, ARKRhsFn farg3
 }
 
 
-SWIGEXPORT int _wrap_FSPRKStepReset(void *farg1, double const *farg2, N_Vector farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  sunrealtype arg2 ;
-  N_Vector arg3 = (N_Vector) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (sunrealtype)(*farg2);
-  arg3 = (N_Vector)(farg3);
-  result = (int)SPRKStepReset(arg1,arg2,arg3);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSPRKStepRootInit(void *farg1, int const *farg2, ARKRootFn farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  ARKRootFn arg3 = (ARKRootFn) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  arg3 = (ARKRootFn)(farg3);
-  result = (int)SPRKStepRootInit(arg1,arg2,arg3);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSPRKStepSetDefaults(void *farg1) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  result = (int)SPRKStepSetDefaults(arg1);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FSPRKStepSetUseCompensatedSums(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -354,6 +310,106 @@ SWIGEXPORT int _wrap_FSPRKStepSetMethodName(void *farg1, SwigArrayWrapper *farg2
   arg1 = (void *)(farg1);
   arg2 = (char *)(farg2->data);
   result = (int)SPRKStepSetMethodName(arg1,(char const *)arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSPRKStepGetCurrentMethod(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKodeSPRKTable *arg2 = (ARKodeSPRKTable *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKodeSPRKTable *)(farg2);
+  result = (int)SPRKStepGetCurrentMethod(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSPRKStepGetNumRhsEvals(void *farg1, long *farg2, long *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  long *arg3 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  arg3 = (long *)(farg3);
+  result = (int)SPRKStepGetNumRhsEvals(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSPRKStepReset(void *farg1, double const *farg2, N_Vector farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype arg2 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (N_Vector)(farg3);
+  result = (int)SPRKStepReset(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSPRKStepRootInit(void *farg1, int const *farg2, ARKRootFn farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  ARKRootFn arg3 = (ARKRootFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  arg3 = (ARKRootFn)(farg3);
+  result = (int)SPRKStepRootInit(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSPRKStepSetRootDirection(void *farg1, int *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int *arg2 = (int *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int *)(farg2);
+  result = (int)SPRKStepSetRootDirection(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSPRKStepSetNoInactiveRootWarn(void *farg1) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  result = (int)SPRKStepSetNoInactiveRootWarn(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSPRKStepSetDefaults(void *farg1) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  result = (int)SPRKStepSetDefaults(arg1);
   fresult = (int)(result);
   return fresult;
 }
@@ -536,20 +592,6 @@ SWIGEXPORT SwigArrayWrapper _wrap_FSPRKStepGetReturnFlagName(long const *farg1) 
 }
 
 
-SWIGEXPORT int _wrap_FSPRKStepGetCurrentMethod(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKodeSPRKTable *arg2 = (ARKodeSPRKTable *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (ARKodeSPRKTable *)(farg2);
-  result = (int)SPRKStepGetCurrentMethod(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FSPRKStepGetCurrentState(void *farg1, void *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -601,22 +643,6 @@ SWIGEXPORT int _wrap_FSPRKStepGetLastStep(void *farg1, double *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)SPRKStepGetLastStep(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSPRKStepGetNumRhsEvals(void *farg1, long *farg2, long *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  long *arg2 = (long *) 0 ;
-  long *arg3 = (long *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (long *)(farg2);
-  arg3 = (long *)(farg3);
-  result = (int)SPRKStepGetNumRhsEvals(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }
