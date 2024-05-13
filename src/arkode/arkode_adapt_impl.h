@@ -43,26 +43,24 @@ extern "C" {
 #define HFIXED_LB SUN_RCONST(1.0)  /* CVODE uses 1.0  */
 #define HFIXED_UB SUN_RCONST(1.5)  /* CVODE uses 1.5  */
 
-#define ETAMX1 SUN_RCONST(10000.0) /* maximum step size change on first step */
-#define ETAMXF \
-  SUN_RCONST(0.3) /* step size reduction factor on multiple error
-                                      test failures (multiple implies >= SMALL_NEF) */
-#define ETAMIN \
-  SUN_RCONST(0.1) /* smallest allowable step size reduction factor
-                                      on an error test failure */
-#define ETACF \
-  SUN_RCONST(0.25) /* step size reduction factor on nonlinear
-                                      convergence failure */
-#define SMALL_NEF \
-  2 /* if an error failure occurs and SMALL_NEF <= nef,
-                                      then reset  eta = MIN(eta, ETAMXF) */
-#define PQ \
-  0 /* order to use for controller: 0=embedding,
-                                      1=method, otherwise min(method,embedding)
-                                      REMOVE AT SAME TIME AS ARKStepSetAdaptivityMethod */
-#define ADJUST \
-  -1 /* adjustment to apply within controller to method
-                                      order of accuracy */
+/* maximum step size change on first step */
+#define ETAMX1 SUN_RCONST(10000.0)
+/* step size reduction factor on multiple error test failures (multiple implies >= SMALL_NEF) */
+#define ETAMXF SUN_RCONST(0.3)
+/* smallest allowable step size reduction factor on an error test failure */
+#define ETAMIN SUN_RCONST(0.1)
+/* step size reduction factor on nonlinear convergence failure */
+#define ETACF SUN_RCONST(0.25)
+/* if an error failure occurs and SMALL_NEF <= nef, then reset eta = MIN(eta, ETAMXF) */
+#define SMALL_NEF 2
+/* order to use for controller:
+     0=embedding,
+     1=method,
+     otherwise min(method,embedding)
+   DEPRECATED, REMOVE AT SAME TIME AS ARKStepSetAdaptivityMethod */
+#define PQ 0
+/* adjustment to apply within controller to method order of accuracy */
+#define ADJUST -1
 
 /*===============================================================
   ARKODE Time Step Adaptivity Data Structure

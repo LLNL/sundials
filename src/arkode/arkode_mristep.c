@@ -27,12 +27,9 @@
 #include "arkode_mristep_impl.h"
 
 /*===============================================================
-  MRIStep Exported functions -- Required
+  Exported functions
   ===============================================================*/
 
-/*---------------------------------------------------------------
-  Create MRIStep integrator memory struct
-  ---------------------------------------------------------------*/
 void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
                     MRIStepInnerStepper stepper, SUNContext sunctx)
 {
@@ -93,8 +90,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   }
 
   /* Allocate ARKodeMRIStepMem structure, and initialize to zero */
-  step_mem = NULL;
-  step_mem = (ARKodeMRIStepMem)malloc(sizeof(struct ARKodeMRIStepMemRec));
+  step_mem = (ARKodeMRIStepMem)calloc(1, sizeof(*step_mem));
   if (step_mem == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -102,7 +98,6 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
     ARKodeFree((void**)&ark_mem);
     return (NULL);
   }
-  memset(step_mem, 0, sizeof(struct ARKodeMRIStepMemRec));
 
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_attachlinsol              = mriStep_AttachLinsol;
@@ -248,6 +243,106 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
 }
 
 /*---------------------------------------------------------------
+  MRIStepReInit:
+
+  This routine re-initializes the MRIStep module to solve a new
+  problem of the same size as was previously solved (all counter
+  values are set to 0).
+
+  NOTE: the inner stepper needs to be reinitialized before
+  calling this function.
+  ---------------------------------------------------------------*/
+int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
+                  N_Vector y0)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  SUNNonlinearSolver NLS;
+  int retval;
+
+  /* access ARKodeMem and ARKodeMRIStepMem structures */
+  retval = mriStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* Check if ark_mem was allocated */
+  if (ark_mem->MallocDone == SUNFALSE)
+  {
+    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MALLOC);
+    return (ARK_NO_MALLOC);
+  }
+
+  /* Check that at least one of fse, fsi is supplied and is to be used */
+  if (fse == NULL && fsi == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_F);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Check that y0 is supplied */
+  if (y0 == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_Y0);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Set implicit/explicit problem based on function pointers */
+  step_mem->explicit_rhs = (fse == NULL) ? SUNFALSE : SUNTRUE;
+  step_mem->implicit_rhs = (fsi == NULL) ? SUNFALSE : SUNTRUE;
+
+  /* Create a default Newton NLS object (just in case; will be deleted if
+     the user attaches a nonlinear solver) */
+  if (step_mem->implicit_rhs && !(step_mem->NLS))
+  {
+    NLS = SUNNonlinSol_Newton(y0, ark_mem->sunctx);
+    if (!NLS)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "Error creating default Newton solver");
+      ARKodeFree((void**)&ark_mem);
+      return (ARK_MEM_FAIL);
+    }
+    retval = ARKodeSetNonlinearSolver(ark_mem, NLS);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "Error attaching default Newton solver");
+      ARKodeFree((void**)&ark_mem);
+      return (ARK_MEM_FAIL);
+    }
+    step_mem->ownNLS = SUNTRUE;
+  }
+
+  /* ReInitialize main ARKODE infrastructure */
+  retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Unable to reinitialize main ARKODE infrastructure");
+    return (retval);
+  }
+
+  /* Copy the input parameters into ARKODE state */
+  step_mem->fse = fse;
+  step_mem->fsi = fsi;
+
+  /* Initialize all the counters */
+  step_mem->nfse      = 0;
+  step_mem->nfsi      = 0;
+  step_mem->nsetups   = 0;
+  step_mem->nstlp     = 0;
+  step_mem->nls_iters = 0;
+
+  return (ARK_SUCCESS);
+}
+
+/*===============================================================
+  Interface routines supplied to ARKODE
+  ===============================================================*/
+
+/*---------------------------------------------------------------
   mriStep_Resize:
 
   This routine resizes the memory within the MRIStep module.
@@ -372,102 +467,6 @@ int mriStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
 
   /* reset nonlinear solver counters */
   if (step_mem->NLS != NULL) { step_mem->nsetups = 0; }
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  MRIStepReInit:
-
-  This routine re-initializes the MRIStep module to solve a new
-  problem of the same size as was previously solved (all counter
-  values are set to 0).
-
-  NOTE: the inner stepper needs to be reinitialized before
-  calling this function.
-  ---------------------------------------------------------------*/
-int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
-                  N_Vector y0)
-{
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  SUNNonlinearSolver NLS;
-  int retval;
-
-  /* access ARKodeMem and ARKodeMRIStepMem structures */
-  retval = mriStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* Check if ark_mem was allocated */
-  if (ark_mem->MallocDone == SUNFALSE)
-  {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MALLOC);
-    return (ARK_NO_MALLOC);
-  }
-
-  /* Check that at least one of fse, fsi is supplied and is to be used */
-  if (fse == NULL && fsi == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_F);
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Check that y0 is supplied */
-  if (y0 == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_Y0);
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Set implicit/explicit problem based on function pointers */
-  step_mem->explicit_rhs = (fse == NULL) ? SUNFALSE : SUNTRUE;
-  step_mem->implicit_rhs = (fsi == NULL) ? SUNFALSE : SUNTRUE;
-
-  /* Create a default Newton NLS object (just in case; will be deleted if
-     the user attaches a nonlinear solver) */
-  if (step_mem->implicit_rhs && !(step_mem->NLS))
-  {
-    NLS = SUNNonlinSol_Newton(y0, ark_mem->sunctx);
-    if (!NLS)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "Error creating default Newton solver");
-      ARKodeFree((void**)&ark_mem);
-      return (ARK_MEM_FAIL);
-    }
-    retval = ARKodeSetNonlinearSolver(ark_mem, NLS);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "Error attaching default Newton solver");
-      ARKodeFree((void**)&ark_mem);
-      return (ARK_MEM_FAIL);
-    }
-    step_mem->ownNLS = SUNTRUE;
-  }
-
-  /* ReInitialize main ARKODE infrastructure */
-  retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Unable to reinitialize main ARKODE infrastructure");
-    return (retval);
-  }
-
-  /* Copy the input parameters into ARKODE state */
-  step_mem->fse = fse;
-  step_mem->fsi = fsi;
-
-  /* Initialize all the counters */
-  step_mem->nfse      = 0;
-  step_mem->nfsi      = 0;
-  step_mem->nsetups   = 0;
-  step_mem->nstlp     = 0;
-  step_mem->nls_iters = 0;
 
   return (ARK_SUCCESS);
 }
@@ -734,14 +733,6 @@ void mriStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   return;
 }
 
-/*===============================================================
-  MRIStep Private functions
-  ===============================================================*/
-
-/*---------------------------------------------------------------
-  Interface routines supplied to ARKODE
-  ---------------------------------------------------------------*/
-
 /*---------------------------------------------------------------
   mriStep_AttachLinsol:
 
@@ -924,23 +915,23 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
       return (ARK_ILL_INPUT);
     }
 
-    /* Retrieve/store method and embedding orders now that tables are finalized */
-    step_mem->stages = step_mem->MRIC->stages;
-    step_mem->q      = step_mem->MRIC->q;
-    step_mem->p      = step_mem->MRIC->p;
-
     /* allocate/fill derived quantities from MRIC structure */
 
     /* stage map */
     if (step_mem->stage_map)
     {
       free(step_mem->stage_map);
-      step_mem->stage_map = NULL;
       ark_mem->liw -= step_mem->stages;
     }
-    step_mem->stage_map = (int*)calloc(step_mem->stages, sizeof(int));
-    ark_mem->liw += step_mem->stages;
-
+    step_mem->stage_map = (int*)calloc(step_mem->MRIC->stages,
+                                       sizeof(*step_mem->stage_map));
+    if (step_mem->stage_map == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return (ARK_MEM_FAIL);
+    }
+    ark_mem->liw += step_mem->MRIC->stages;
     retval = mriStepCoupling_GetStageMap(step_mem->MRIC, step_mem->stage_map,
                                          &(step_mem->nstages_active));
     if (retval != ARK_SUCCESS)
@@ -954,12 +945,18 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     if (step_mem->stagetypes)
     {
       free(step_mem->stagetypes);
-      step_mem->stagetypes = NULL;
       ark_mem->liw -= step_mem->stages;
     }
-    step_mem->stagetypes = (int*)calloc(step_mem->stages, sizeof(int));
-    ark_mem->liw += step_mem->stages;
-    for (j = 0; j < step_mem->stages; j++)
+    step_mem->stagetypes = (int*)calloc(step_mem->MRIC->stages,
+                                        sizeof(*step_mem->stagetypes));
+    if (step_mem->stagetypes == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return (ARK_MEM_FAIL);
+    }
+    ark_mem->liw += step_mem->MRIC->stages;
+    for (j = 0; j < step_mem->MRIC->stages; j++)
     {
       step_mem->stagetypes[j] = mriStepCoupling_GetStageType(step_mem->MRIC, j);
     }
@@ -968,23 +965,70 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     if (step_mem->Ae_row)
     {
       free(step_mem->Ae_row);
-      step_mem->Ae_row = NULL;
       ark_mem->lrw -= step_mem->stages;
     }
-    step_mem->Ae_row = (sunrealtype*)calloc(step_mem->stages,
-                                            sizeof(sunrealtype));
-    ark_mem->lrw += step_mem->stages;
+    step_mem->Ae_row = (sunrealtype*)calloc(step_mem->MRIC->stages,
+                                            sizeof(*step_mem->Ae_row));
+    if (step_mem->Ae_row == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return (ARK_MEM_FAIL);
+    }
+    ark_mem->lrw += step_mem->MRIC->stages;
 
     /* implicit RK coefficient row */
     if (step_mem->Ai_row)
     {
       free(step_mem->Ai_row);
-      step_mem->Ai_row = NULL;
       ark_mem->lrw -= step_mem->stages;
     }
-    step_mem->Ai_row = (sunrealtype*)calloc(step_mem->stages,
-                                            sizeof(sunrealtype));
-    ark_mem->lrw += step_mem->stages;
+    step_mem->Ai_row = (sunrealtype*)calloc(step_mem->MRIC->stages,
+                                            sizeof(*step_mem->Ai_row));
+    if (step_mem->Ai_row == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return (ARK_MEM_FAIL);
+    }
+    ark_mem->lrw += step_mem->MRIC->stages;
+
+    /* Allocate reusable arrays for fused vector interface */
+    if (step_mem->cvals)
+    {
+      free(step_mem->cvals);
+      ark_mem->lrw -= step_mem->nfusedopvecs;
+    }
+    if (step_mem->Xvecs)
+    {
+      free(step_mem->Xvecs);
+      ark_mem->liw -= step_mem->nfusedopvecs;
+    }
+    step_mem->nfusedopvecs = 2 * step_mem->MRIC->stages + 2;
+    step_mem->cvals        = (sunrealtype*)calloc(step_mem->nfusedopvecs,
+                                                  sizeof(*step_mem->cvals));
+    if (step_mem->cvals == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return (ARK_MEM_FAIL);
+    }
+    ark_mem->lrw += step_mem->nfusedopvecs;
+
+    step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
+                                        sizeof(*step_mem->Xvecs));
+    if (step_mem->Xvecs == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return (ARK_MEM_FAIL);
+    }
+    ark_mem->liw += step_mem->nfusedopvecs;
+
+    /* Retrieve/store method and embedding orders now that tables are finalized */
+    step_mem->stages = step_mem->MRIC->stages;
+    step_mem->q      = step_mem->MRIC->q;
+    step_mem->p      = step_mem->MRIC->p;
 
     /* Allocate MRI RHS vector memory, update storage requirements */
     /*   Allocate Fse[0] ... Fse[nstages_active - 1] and           */
@@ -1059,23 +1103,6 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
       step_mem->lsolve = NULL;
       step_mem->lfree  = NULL;
       step_mem->lmem   = NULL;
-    }
-
-    /* Allocate reusable arrays for fused vector interface */
-    step_mem->nfusedopvecs = 2 * step_mem->stages + 2;
-    if (step_mem->cvals == NULL)
-    {
-      step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
-                                             sizeof(sunrealtype));
-      if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
-      ark_mem->lrw += (step_mem->nfusedopvecs);
-    }
-    if (step_mem->Xvecs == NULL)
-    {
-      step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
-                                          sizeof(N_Vector));
-      if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
-      ark_mem->liw += (step_mem->nfusedopvecs); /* pointers */
     }
 
     /* Allocate inner stepper data */
@@ -1620,9 +1647,9 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   return (ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
+/*===============================================================
   Internal utility routines
-  ---------------------------------------------------------------*/
+  ===============================================================*/
 
 /*---------------------------------------------------------------
   mriStep_AccessARKODEStepMem:
@@ -1700,6 +1727,8 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
 {
   ARKodeMRIStepMem step_mem;
   sunindextype Cliw, Clrw;
+  int q_actual;
+  ARKODE_MRITableID table_id;
 
   /* access ARKodeMRIStepMem structure */
   if (ark_mem->step_mem == NULL)
@@ -1709,72 +1738,57 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
     return (ARK_MEM_NULL);
   }
   step_mem = (ARKodeMRIStepMem)ark_mem->step_mem;
+  q_actual = step_mem->q;
 
   /* if coupling has already been specified, just return */
   if (step_mem->MRIC != NULL) { return (ARK_SUCCESS); }
+
+  if (q_actual < 1 || q_actual > 4)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "No MRI method at requested order, using q=3.");
+    q_actual = 3;
+  }
 
   /* select method based on order and type */
 
   /**** ImEx methods ****/
   if (step_mem->implicit_rhs && step_mem->explicit_rhs)
   {
-    switch (step_mem->q)
+    switch (q_actual)
     {
-    case 3:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_3);
-      break;
-    case 4:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_4);
-      break;
-    default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "No MRI method at requested order, using q=3.");
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMEX_SD_3);
-      break;
+    case 1: table_id = MRISTEP_DEFAULT_IMEX_SD_1; break;
+    case 2: table_id = MRISTEP_DEFAULT_IMEX_SD_2; break;
+    case 3: table_id = MRISTEP_DEFAULT_IMEX_SD_2; break;
+    case 4: table_id = MRISTEP_DEFAULT_IMEX_SD_2; break;
     }
 
     /**** implicit methods ****/
   }
   else if (step_mem->implicit_rhs)
   {
-    switch (step_mem->q)
+    switch (q_actual)
     {
-    case 2:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_3);
-      break;
-    case 3:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_3);
-      break;
-    case 4:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_4);
-      break;
-    default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "No MRI method at requested order, using q=3.");
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_IMPL_SD_3);
-      break;
+    case 1: table_id = MRISTEP_DEFAULT_IMPL_SD_1; break;
+    case 2: table_id = MRISTEP_DEFAULT_IMPL_SD_2; break;
+    case 3: table_id = MRISTEP_DEFAULT_IMPL_SD_3; break;
+    case 4: table_id = MRISTEP_DEFAULT_IMPL_SD_4; break;
     }
 
     /**** explicit methods ****/
   }
   else
   {
-    switch (step_mem->q)
+    switch (q_actual)
     {
-    case 3:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_3);
-      break;
-    case 4:
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_4);
-      break;
-    default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "No MRI method at requested order, using q=3.");
-      step_mem->MRIC = MRIStepCoupling_LoadTable(MRISTEP_DEFAULT_EXPL_3);
-      break;
+    case 1: table_id = MRISTEP_DEFAULT_EXPL_1; break;
+    case 2: table_id = MRISTEP_DEFAULT_EXPL_2; break;
+    case 3: table_id = MRISTEP_DEFAULT_EXPL_3; break;
+    case 4: table_id = MRISTEP_DEFAULT_EXPL_4; break;
     }
   }
 
+  step_mem->MRIC = MRIStepCoupling_LoadTable(table_id);
   if (step_mem->MRIC == NULL)
   {
     arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
@@ -2573,9 +2587,9 @@ int mriStep_StageSetup(ARKodeMem ark_mem)
   return (ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
+/*===============================================================
   User-callable functions for a custom inner integrator
-  ---------------------------------------------------------------*/
+  ===============================================================*/
 
 int MRIStepInnerStepper_Create(SUNContext sunctx, MRIStepInnerStepper* stepper)
 {
@@ -2769,9 +2783,9 @@ int MRIStepInnerStepper_GetForcingData(MRIStepInnerStepper stepper,
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
-  Internal inner integrator functions
-  ---------------------------------------------------------------*/
+/*===============================================================
+  Private inner integrator functions
+  ===============================================================*/
 
 /* Check for required operations */
 int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper)
@@ -2889,7 +2903,7 @@ int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
   /* Allocate fused operation workspace arrays */
   if (stepper->vecs == NULL)
   {
-    stepper->vecs = (N_Vector*)calloc(count + 1, sizeof(N_Vector));
+    stepper->vecs = (N_Vector*)calloc(count + 1, sizeof(*stepper->vecs));
     if (stepper->vecs == NULL)
     {
       mriStepInnerStepper_FreeVecs(stepper);
@@ -2899,7 +2913,7 @@ int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
 
   if (stepper->vals == NULL)
   {
-    stepper->vals = (sunrealtype*)calloc(count + 1, sizeof(sunrealtype));
+    stepper->vals = (sunrealtype*)calloc(count + 1, sizeof(*stepper->vals));
     if (stepper->vals == NULL)
     {
       mriStepInnerStepper_FreeVecs(stepper);

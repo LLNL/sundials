@@ -8,10 +8,29 @@ simplified code maintenance.  Marked the corresponding stepper-specific
 user-callable routines as deprecated; these will be removed in a future major
 release.
 
-Added "Resize" capability to ARKODE's SPRKStep time-stepping module.
+Added "Resize" capability, as well as missing `SetRootDirection` and
+`SetNoInactiveRootWarn` functions, to ARKODE's SPRKStep time-stepping module.
 
 Deprecated `ARKStepSetOptimalParams` function; added instructions to user guide
 for users who wish to retain the current functionality.
+
+Added the following Runge-Kutta Butcher tables
+* `ARKODE_FORWARD_EULER_1_1`
+* `ARKODE_RALSTON_EULER_2_1_2`
+* `ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2`
+* `ARKODE_BACKWARD_EULER_1_1`
+* `ARKODE_IMPLICIT_MIDPOINT_1_2`
+* `ARKODE_IMPLICIT_TRAPEZOIDAL_2_2`
+
+Added the following MRI coupling tables
+* `ARKODE_MRI_GARK_FORWARD_EULER`
+* `ARKODE_MRI_GARK_RALSTON2`
+* `ARKODE_MRI_GARK_RALSTON3`
+* `ARKODE_MRI_GARK_BACKWARD_EULER`
+* `ARKODE_MRI_GARK_IMPLICIT_MIDPOINT`
+* `ARKODE_IMEX_MRI_GARK_EULER`
+* `ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL`
+* `ARKODE_IMEX_MRI_GARK_MIDPOINT`
 
 Updated the CMake variable `HIP_PLATFORM` default to `amd` as the previous
 default, `hcc`, is no longer recognized in ROCm 5.7.0 or newer. The new default
@@ -44,6 +63,9 @@ Fixed a bug that caused error messages to be cut off in some cases. Fixes [GitHu
 Fixed a memory leak when an error handler was added to a `SUNContext`. Fixes [GitHub Issue #466](https://github.com/LLNL/sundials/issues/466).
 
 Fixed a CMake bug that caused an MPI linking error for our C++ examples in some instances. Fixes [GitHub Issue #464](https://github.com/LLNL/sundials/issues/464).
+
+Fixed a bug in `ARKodeSPRKTable_Create` where the coefficient arrays where not
+allocated.
 
 ## Changes to SUNDIALS in release v7.0.0
 

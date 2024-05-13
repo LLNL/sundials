@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the ARKode ERKStep module.
+ * This is the header file for the ARKODE ERKStep module.
  * -----------------------------------------------------------------*/
 
 #ifndef _ERKSTEP_H
@@ -32,6 +32,7 @@ extern "C" {
 
 /* Default Butcher tables for each order */
 
+static const int ERKSTEP_DEFAULT_1 = ARKODE_FORWARD_EULER_1_1;
 static const int ERKSTEP_DEFAULT_2 = ARKODE_HEUN_EULER_2_1_2;
 static const int ERKSTEP_DEFAULT_3 = ARKODE_BOGACKI_SHAMPINE_4_2_3;
 static const int ERKSTEP_DEFAULT_4 = ARKODE_ZONNEVELD_5_3_4;
@@ -45,33 +46,45 @@ static const int ERKSTEP_DEFAULT_9 = ARKODE_VERNER_16_8_9;
  * Exported Functions
  * ------------------- */
 
-/* Create, Resize, and Reinitialization functions */
+/* Creation and Reinitialization functions */
 SUNDIALS_EXPORT void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0,
                                     SUNContext sunctx);
+SUNDIALS_EXPORT int ERKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0,
+                                  N_Vector y0);
+
+/* Optional input functions -- must be called AFTER ERKStepCreate */
+SUNDIALS_EXPORT int ERKStepSetTable(void* arkode_mem, ARKodeButcherTable B);
+SUNDIALS_EXPORT int ERKStepSetTableNum(void* arkode_mem,
+                                       ARKODE_ERKTableID etable);
+SUNDIALS_EXPORT int ERKStepSetTableName(void* arkode_mem, const char* etable);
+
+/* Optional output functions */
+SUNDIALS_EXPORT int ERKStepGetNumRhsEvals(void* arkode_mem, long int* nfevals);
+SUNDIALS_EXPORT int ERKStepGetCurrentButcherTable(void* arkode_mem,
+                                                  ARKodeButcherTable* B);
+
+/* Grouped optional output functions */
+SUNDIALS_EXPORT int ERKStepGetTimestepperStats(
+  void* arkode_mem, long int* expsteps, long int* accsteps,
+  long int* step_attempts, long int* nfevals, long int* netfails);
+
+/* --------------------------------------------------------------------------
+ * Deprecated Functions -- all are superseded by shared ARKODE-level routines
+ * -------------------------------------------------------------------------- */
 
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeResize instead")
 int ERKStepResize(void* arkode_mem, N_Vector ynew, sunrealtype hscale,
                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
-
-SUNDIALS_EXPORT int ERKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0,
-                                  N_Vector y0);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeReset instead")
 int ERKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR);
-
-/* Tolerance input functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSStolerances instead")
 int ERKStepSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSVtolerances instead")
 int ERKStepSVtolerances(void* arkode_mem, sunrealtype reltol, N_Vector abstol);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeWFtolerances instead")
 int ERKStepWFtolerances(void* arkode_mem, ARKEwtFn efun);
-
-/* Rootfinding initialization */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeRootInit instead")
 int ERKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g);
-
-/* Optional input functions -- must be called AFTER ERKStepCreate */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetDefaults instead")
 int ERKStepSetDefaults(void* arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetOrder instead")
@@ -82,10 +95,6 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetInterpolantDegree instead")
 int ERKStepSetInterpolantDegree(void* arkode_mem, int degree);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetInterpolantDegree instead")
 int ERKStepSetDenseOrder(void* arkode_mem, int dord);
-SUNDIALS_EXPORT int ERKStepSetTable(void* arkode_mem, ARKodeButcherTable B);
-SUNDIALS_EXPORT int ERKStepSetTableNum(void* arkode_mem,
-                                       ARKODE_ERKTableID etable);
-SUNDIALS_EXPORT int ERKStepSetTableName(void* arkode_mem, const char* etable);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetAdaptController instead")
 int ERKStepSetAdaptController(void* arkode_mem, SUNAdaptController C);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetAdaptivityAdjustment instead")
@@ -139,30 +148,21 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ERKStepSetFiARKode instead")
 int ERKStepSetFixedStep(void* arkode_mem, sunrealtype hfixed);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetMaxNumConstrFails instead")
 int ERKStepSetMaxNumConstrFails(void* arkode_mem, int maxfails);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRootDirection instead")
 int ERKStepSetRootDirection(void* arkode_mem, int* rootdir);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNoInactiveRootWarn instead")
 int ERKStepSetNoInactiveRootWarn(void* arkode_mem);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetUserData instead")
 int ERKStepSetUserData(void* arkode_mem, void* user_data);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ERKStepSetPostprocARKodeFn instead")
 int ERKStepSetPostprocessStepFn(void* arkode_mem, ARKPostProcessFn ProcessStep);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetPostprocessStageFn instead")
 int ERKStepSetPostprocessStageFn(void* arkode_mem, ARKPostProcessFn ProcessStage);
-
-/* Integrate the ODE over an interval in t */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeEvolve instead")
 int ERKStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
                   sunrealtype* tret, int itask);
-
-/* Computes the kth derivative of the y function at time t */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetDky instead")
 int ERKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky);
-
-/* Optional output functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ERKStepGetNumARKodes instead")
 int ERKStepGetNumExpSteps(void* arkode_mem, long int* expsteps);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ERKStepGetNumARKodes instead")
@@ -171,9 +171,6 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ERKStepGetARKodeAttempts instead")
 int ERKStepGetNumStepAttempts(void* arkode_mem, long int* step_attempts);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumErrTestFails instead")
 int ERKStepGetNumErrTestFails(void* arkode_mem, long int* netfails);
-SUNDIALS_EXPORT int ERKStepGetNumRhsEvals(void* arkode_mem, long int* nfevals);
-SUNDIALS_EXPORT int ERKStepGetCurrentButcherTable(void* arkode_mem,
-                                                  ARKodeButcherTable* B);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetEstLocalErrors instead")
 int ERKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetWorkSpace instead")
@@ -204,29 +201,18 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodePrintAllStats instead")
 int ERKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetReturnFlagName instead")
 char* ERKStepGetReturnFlagName(long int flag);
-
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeWriteParameters instead")
 int ERKStepWriteParameters(void* arkode_mem, FILE* fp);
-
-SUNDIALS_EXPORT int ERKStepWriteButcher(void* arkode_mem, FILE* fp);
-
-/* Grouped optional output functions */
-SUNDIALS_EXPORT int ERKStepGetTimestepperStats(
-  void* arkode_mem, long int* expsteps, long int* accsteps,
-  long int* step_attempts, long int* nfevals, long int* netfails);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "use ERKStepGetCurrentButcherTable and ARKodeButcherTable_Write instead")
+int ERKStepWriteButcher(void* arkode_mem, FILE* fp);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ERKStepARKodeStats instead")
 int ERKStepGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused,
                         sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur);
-
-/* Free function */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeFree instead")
 void ERKStepFree(void** arkode_mem);
-
-/* Output the ERKStep memory structure (useful when debugging) */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodePrintMem instead")
 void ERKStepPrintMem(void* arkode_mem, FILE* outfile);
-
-/* Relaxation functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRelaxFn instead")
 int ERKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRelaxEtaFail instead")

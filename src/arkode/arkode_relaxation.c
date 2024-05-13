@@ -768,48 +768,6 @@ int ARKodeGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
   return ARK_SUCCESS;
 }
 
-int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
-{
-  int retval;
-  ARKodeMem ark_mem;
-  ARKodeRelaxMem relax_mem;
-
-  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
-  if (retval) { return retval; }
-
-  switch (fmt)
-  {
-  case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "Relax fn evals               = %ld\n",
-            relax_mem->num_relax_fn_evals);
-    fprintf(outfile, "Relax Jac evals              = %ld\n",
-            relax_mem->num_relax_jac_evals);
-    fprintf(outfile, "Relax fails                  = %ld\n",
-            relax_mem->num_fails);
-    fprintf(outfile, "Relax bound fails            = %ld\n",
-            relax_mem->bound_fails);
-    fprintf(outfile, "Relax NLS iters              = %ld\n",
-            relax_mem->nls_iters);
-    fprintf(outfile, "Relax NLS fails              = %ld\n",
-            relax_mem->nls_fails);
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, ",Relax fn evals,%ld", relax_mem->num_relax_fn_evals);
-    fprintf(outfile, ",Relax Jac evals,%ld", relax_mem->num_relax_jac_evals);
-    fprintf(outfile, ",Relax fails,%ld", relax_mem->num_fails);
-    fprintf(outfile, ",Relax bound fails,%ld", relax_mem->bound_fails);
-    fprintf(outfile, ",Relax NLS iters,%ld", relax_mem->nls_iters);
-    fprintf(outfile, ",Relax NLS fails,%ld", relax_mem->nls_fails);
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return ARK_ILL_INPUT;
-  }
-
-  return ARK_SUCCESS;
-}
-
 /* =============================================================================
  * Driver and Stepper Functions
  * ===========================================================================*/
@@ -962,6 +920,49 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout,
                      ", relaxed error = %" RSYM,
                      relax_val, ark_mem->h, *dsm_inout);
 #endif
+
+  return ARK_SUCCESS;
+}
+
+/* Print relaxation solver statistics, called by ARKODE */
+int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeRelaxMem relax_mem;
+
+  retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
+  if (retval) { return retval; }
+
+  switch (fmt)
+  {
+  case SUN_OUTPUTFORMAT_TABLE:
+    fprintf(outfile, "Relax fn evals               = %ld\n",
+            relax_mem->num_relax_fn_evals);
+    fprintf(outfile, "Relax Jac evals              = %ld\n",
+            relax_mem->num_relax_jac_evals);
+    fprintf(outfile, "Relax fails                  = %ld\n",
+            relax_mem->num_fails);
+    fprintf(outfile, "Relax bound fails            = %ld\n",
+            relax_mem->bound_fails);
+    fprintf(outfile, "Relax NLS iters              = %ld\n",
+            relax_mem->nls_iters);
+    fprintf(outfile, "Relax NLS fails              = %ld\n",
+            relax_mem->nls_fails);
+    break;
+  case SUN_OUTPUTFORMAT_CSV:
+    fprintf(outfile, ",Relax fn evals,%ld", relax_mem->num_relax_fn_evals);
+    fprintf(outfile, ",Relax Jac evals,%ld", relax_mem->num_relax_jac_evals);
+    fprintf(outfile, ",Relax fails,%ld", relax_mem->num_fails);
+    fprintf(outfile, ",Relax bound fails,%ld", relax_mem->bound_fails);
+    fprintf(outfile, ",Relax NLS iters,%ld", relax_mem->nls_iters);
+    fprintf(outfile, ",Relax NLS fails,%ld", relax_mem->nls_fails);
+    break;
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid formatting option.");
+    return ARK_ILL_INPUT;
+  }
 
   return ARK_SUCCESS;
 }
