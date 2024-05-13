@@ -81,5 +81,5 @@ system, etc. developers should adhere to the following checklist.
    This is done by navigating to the `swig/` directory and running `make all32 all64`.
    If you do not have `swig` installed on your system, you can obtain a git patch file
    from the Swig GitHub action that we run on all pull requests. The patch can be found
-   under the job artifacts (if there was infact changes that required updates
+   under the job artifacts (if there were in fact changes that required updates
    to the Fortran).
