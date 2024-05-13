@@ -24,6 +24,9 @@ set(CMAKE_Fortran_FLAGS
   "@CMAKE_Fortran_FLAGS@"
   CACHE STRING "Fortran compiler flags")
 
+# Fortran preprocessor must be enabled
+set(CMAKE_Fortran_PREPROCESS ON)
+
 # Set cache variables for C compilers and flags
 set(CMAKE_C_COMPILER
   "@CMAKE_C_COMPILER@"
