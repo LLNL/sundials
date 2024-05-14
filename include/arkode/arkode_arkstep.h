@@ -35,6 +35,7 @@ extern "C" {
 /* Default Butcher tables for each method/order */
 
 /*    explicit */
+static const int ARKSTEP_DEFAULT_ERK_1 = ARKODE_FORWARD_EULER_1_1;
 static const int ARKSTEP_DEFAULT_ERK_2 = ARKODE_HEUN_EULER_2_1_2;
 static const int ARKSTEP_DEFAULT_ERK_3 = ARKODE_BOGACKI_SHAMPINE_4_2_3;
 static const int ARKSTEP_DEFAULT_ERK_4 = ARKODE_ZONNEVELD_5_3_4;
@@ -45,6 +46,7 @@ static const int ARKSTEP_DEFAULT_ERK_8 = ARKODE_FEHLBERG_13_7_8;
 static const int ARKSTEP_DEFAULT_ERK_9 = ARKODE_VERNER_16_8_9;
 
 /*    implicit */
+static const int ARKSTEP_DEFAULT_DIRK_1 = ARKODE_BACKWARD_EULER_1_1;
 static const int ARKSTEP_DEFAULT_DIRK_2 = ARKODE_SDIRK_2_1_2;
 static const int ARKSTEP_DEFAULT_DIRK_3 = ARKODE_ARK324L2SA_DIRK_4_2_3;
 static const int ARKSTEP_DEFAULT_DIRK_4 = ARKODE_SDIRK_5_3_4;

@@ -402,7 +402,7 @@ int mriStep_SetOrder(ARKodeMem ark_mem, int ord)
   if (retval) { return (retval); }
 
   /* check for illegal inputs */
-  if (ord < 3 || ord > 4) { step_mem->q = 3; }
+  if (ord <= 0) { step_mem->q = 3; }
   else { step_mem->q = ord; }
 
   /* Clear tables, the user is requesting a change in method or a reset to

@@ -900,6 +900,7 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
   /* select method based on order */
   switch (step_mem->q)
   {
+  case (1): etable = ERKSTEP_DEFAULT_1; break;
   case (2): etable = ERKSTEP_DEFAULT_2; break;
   case (3): etable = ERKSTEP_DEFAULT_3; break;
   case (4): etable = ERKSTEP_DEFAULT_4; break;

@@ -150,6 +150,37 @@ specified via a unique ID and name:
 with values specified for each method below (e.g., ``ARKODE_HEUN_EULER_2_1_2``).
 
 
+.. _Butcher.Forward_Euler:
+
+Forward-Euler-1-1
+^^^^^^^^^^^^^^^^^
+
+.. index:: Forward-Euler-1-1 ERK method
+
+Accessible via the constant ``ARKODE_FORWARD_EULER_1_1`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_FORWARD_EULER_1_1"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+This is the default 1st order explicit method (from :cite:p:`Euler:68`).
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|c}
+     0 & 0 \\
+     \hline
+     1 & 1
+   \end{array}
+
+.. figure:: /figs/arkode/forward_euler_erk_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the forward Euler method.
+
+
 .. _Butcher.Heun_Euler:
 
 Heun-Euler-2-1-2
@@ -181,6 +212,74 @@ This is the default 2nd order explicit method.
    :align: center
 
    Linear stability region for the Heun-Euler method.  The method's
+   region is outlined in blue; the embedding's region is in red.
+
+
+.. _Butcher.Ralston_Euler:
+
+Ralston-Euler-2-1-2
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Ralston-Euler-2-1-2 ERK method
+
+Accessible via the constant ``ARKODE_RALSTON_EULER_2_1_2`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_RALSTON_EULER_2_1_2"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`
+(primary method from :cite:p:`Ralston:62`).
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cc}
+     0 & 0 & 0 \\
+     \frac{2}{3} & \frac{2}{3} & 0 \\
+     \hline
+     2 & \frac{1}{4} & \frac{3}{4} \\
+     1 & 1 & 0
+   \end{array}
+
+.. figure:: /figs/arkode/ralston_euler_erk_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the Ralston-Euler method.  The method's
+   region is outlined in blue; the embedding's region is in red.
+
+
+.. _Butcher.Explicit_Midpoint_Euler:
+
+Explicit-Midpoint-Euler-2-1-2
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Explicit-Midpoint-Euler-2-1-2 ERK method
+
+Accessible via the constant ``ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`
+(primary method from :cite:p:`Runge:95`).
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cc}
+     0 & 0 & 0 \\
+     \frac{1}{2} & \frac{1}{2} & 0 \\
+     \hline
+     2 & 0 & 1 \\
+     1 & 1 & 0
+   \end{array}
+
+.. figure:: /figs/arkode/explicit_midpoint_euler_erk_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the Explicit-Midpoint-Euler method.  The method's
    region is outlined in blue; the embedding's region is in red.
 
 
@@ -1123,6 +1222,37 @@ specified via a unique ID and name:
 with values specified for each method below (e.g., ``ARKODE_SDIRK_2_1_2``).
 
 
+.. _Butcher.Backward-Euler:
+
+Backward-Euler-1-1
+^^^^^^^^^^^^^^^^^^
+
+.. index:: Backward-Euler-1-1 method
+
+Accessible via the constant ``ARKODE_BACKWARD_EULER_1_1`` to
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_BACKWARD_EULER_1_1"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the default 1st order implicit method.  The method is A-, L-, and B-stable.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|c}
+     1 & 1 \\
+     \hline
+     1 & 1
+   \end{array}
+
+.. figure:: /figs/arkode/backward_euler_dirk_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the backward Euler method.
+
+
 .. _Butcher.SDIRK-2-1:
 
 SDIRK-2-1-2
@@ -1192,6 +1322,69 @@ implicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
 
    Linear stability region for the ARK2-DIRK method. The method's
    region is outlined in blue; the embedding's region is in red.
+
+
+.. _Butcher.Implicit_Midpoint:
+
+Implicit-Midpoint-1-2
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Implicit-Midpoint-1-2 method
+
+Accessible via the constant ``ARKODE_IMPLICIT_MIDPOINT_1_2`` to
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_IMPLICIT_MIDPOINT_1_2"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+The method is A- and B-stable.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|c}
+     \frac{1}{2} & \frac{1}{2} \\
+     \hline
+     2 & 1
+   \end{array}
+
+.. figure:: /figs/arkode/implicit_midpoint_dirk_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the implicit midpoint method.
+
+
+.. _Butcher.Implicit_Trapezoidal:
+
+Implicit-Trapezoidal-2-2
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Implicit-Trapezoidal-2-2 method
+
+Accessible via the constant ``ARKODE_IMPLICIT_TRAPEZOIDAL_2_2`` to
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_IMPLICIT_TRAPEZOIDAL_2_2"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+The method is A-stable.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cc}
+     0 & 0 & 0 \\
+     1 & \frac{1}{2} & \frac{1}{2} \\
+     \hline
+     2 & \frac{1}{2} & \frac{1}{2}
+   \end{array}
+
+.. figure:: /figs/arkode/implicit_trapezoidal_dirk_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the implicit trapezoidal method.
 
 
 .. _Butcher.Billington:
