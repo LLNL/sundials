@@ -20,7 +20,7 @@
 #include "sundials/sundials_types.h"
 
 SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper,
-                                   sunindextype num_cost_fns, N_Vector sf,
+                                   sunindextype num_cost_fns, N_Vector sf, sunrealtype tf,
                                    SUNAdjointCheckpointScheme checkpoint_scheme,
                                    SUNContext sunctx,
                                    SUNAdjointSolver* adj_solver_ptr)
@@ -37,6 +37,7 @@ SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper,
   adj_solver->vJp               = NULL;
   adj_solver->vJPp              = NULL;
   adj_solver->checkpoint_scheme = checkpoint_scheme;
+  adj_solver->tf                = tf;
   adj_solver->sunctx            = sunctx;
 
   *adj_solver_ptr = adj_solver;
@@ -44,37 +45,65 @@ SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver, sunrealtype tf,
+SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver,
                                   sunrealtype tout, N_Vector sens,
                                   sunrealtype* tret, int* stop_reason)
 
 {
   SUNFunctionBegin(adj_solver->sunctx);
   SUNStepper stepper                = adj_solver->stepper;
-  SUNAdjointCheckpointScheme scheme = adj_solver->checkpoint_scheme;
 
   SUNErrCode retcode = SUN_SUCCESS;
-  sunrealtype t      = tf;
+  sunrealtype t      = adj_solver->tf;
   *stop_reason       = 0;
   while (t > tout)
   {
-    SUNCheckCall(SUNStepper_Advance(stepper, tf, tout, sens, &t, stop_reason));
+    SUNCheckCall(SUNStepper_Advance(stepper, adj_solver->tf, tout, sens, &t, stop_reason));
+    // SUNCheckCall(SUNStepper_Step(stepper, adj_solver->tf, tout, sens, &t, stop_reason));
     if (*stop_reason < 0)
     {
       retcode = SUN_ERR_ADJOINT_STEPPERFAILED;
       break;
     }
-    else if (*stop_reason > 0)
+    else if (*stop_reason > 1)
     {
       // TODO(CJB): what reasons could this happen, and are they valid?
-      // (1) TSTOP_RETURN
-      // (2) ROOT_RETURN
+      // 1==TSTOP_RETURN
+      // 2==ROOT_RETURN
       fprintf(stderr, ">>>> HERE, stop_reason = %d\n", *stop_reason);
     }
     else { break; }
   }
 
-  *tret = tf;
+  *tret = t;
+  return retcode;
+}
+
+SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver adj_solver,
+                                 sunrealtype tout, N_Vector sens,
+                                 sunrealtype* tret, int* stop_reason)
+
+{
+  SUNFunctionBegin(adj_solver->sunctx);
+  SUNStepper stepper                = adj_solver->stepper;
+
+  SUNErrCode retcode = SUN_SUCCESS;
+  sunrealtype t      = adj_solver->tf;
+  *stop_reason       = 0;
+  SUNCheckCall(SUNStepper_Step(stepper, adj_solver->tf, tout, sens, &t, stop_reason));
+  if (*stop_reason < 0)
+  {
+    retcode = SUN_ERR_ADJOINT_STEPPERFAILED;
+  }
+  else if (*stop_reason > 1)
+  {
+    // TODO(CJB): what reasons could this happen, and are they valid?
+    // 1==TSTOP_RETURN
+    // 2==ROOT_RETURN
+    fprintf(stderr, ">>>> HERE, stop_reason = %d\n", *stop_reason);
+  }
+  *tret = t;
+
   return retcode;
 }
 
@@ -85,5 +114,47 @@ SUNErrCode SUNAdjointSolver_Destroy(SUNAdjointSolver* adj_solver_ptr)
   SUNStepper_Destroy(&adj_solver->stepper);
   free(adj_solver);
   *adj_solver_ptr = NULL;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNAdjointSolver_SetJacFn(SUNAdjointSolver adj_solver, SUNJacFn JacFn, SUNMatrix Jac)
+{
+  SUNFunctionBegin(adj_solver->sunctx);
+
+  adj_solver->JacFn = JacFn;
+  adj_solver->Jac = Jac;
+
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNAdjointSolver_SetJacPFn(SUNAdjointSolver adj_solver, SUNJacFn JacPFn, SUNMatrix JacP)
+{
+  SUNFunctionBegin(adj_solver->sunctx);
+
+  adj_solver->JacPFn = JacPFn;
+  adj_solver->JacP = JacP;
+
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNAdjointSolver_SetJacTimesVecFn(SUNAdjointSolver adj_solver, SUNJacTimesFn Jvp,
+                                             SUNJacTimesFn JPvp)
+{
+  SUNFunctionBegin(adj_solver->sunctx);
+
+  adj_solver->Jvp = Jvp;
+  adj_solver->JPvp = JPvp;
+
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNAdjointSolver_SetVecTimesJacFn(SUNAdjointSolver adj_solver, SUNJacTimesFn vJp,
+                                             SUNJacTimesFn vJPp)
+{
+  SUNFunctionBegin(adj_solver->sunctx);
+
+  adj_solver->vJp = vJp;
+  adj_solver->vJPp = vJPp;
+
   return SUN_SUCCESS;
 }

@@ -24,12 +24,11 @@
 struct SUNAdjointSolver_
 {
   SUNStepper stepper;
-  SUNJacFn Jac;
-  SUNJacFn JacP;
-  SUNJacTimesFn Jvp;
-  SUNJacTimesFn vJp;
-  SUNJacTimesFn vJPp;
+  SUNJacFn JacFn, JacPFn;
+  SUNMatrix Jac, JacP;
+  SUNJacTimesFn Jvp, JPvp, vJp, vJPp;
   SUNAdjointCheckpointScheme checkpoint_scheme;
+  sunrealtype tf;
   SUNContext sunctx;
 };
 
@@ -43,7 +42,7 @@ extern "C" {
 // within the package CreateAdjointSolver routines.
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper,
-                                   sunindextype num_cost_fns, N_Vector sf,
+                                   sunindextype num_cost_fns, N_Vector sf, sunrealtype tf,
                                    SUNAdjointCheckpointScheme checkpoint_scheme,
                                    SUNContext sunctx,
                                    SUNAdjointSolver* adj_solver);
@@ -52,8 +51,6 @@ SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper,
   Solves the adjoint system.
 
   :param adj_solver: The adjoint solver object.
-  :param tf: The final output time from the forward integration.
-             This is the "starting" time for adjoint solver's backwards integration.
   :param tout: The time at which the adjoint solution is desired.
   :param sens: The vector of sensitivity solutions dg/dy0 and dg/dp.
   :param tret: On return, the time reached by the adjoint solver.
@@ -62,17 +59,32 @@ SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper,
   :returns: A SUNErrCode indicating failure or success.
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver, sunrealtype tf,
+SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver,
                                   sunrealtype tout, N_Vector sens,
                                   sunrealtype* tret, int* stop_reason);
 
+
+/*
+  Evolves the adjoint system backwards one step.
+
+  :param adj_solver: The adjoint solver object.
+  :param tout: The time at which the adjoint solution is desired.
+  :param sens: The vector of sensitivity solutions dg/dy0 and dg/dp.
+  :param tret: On return, the time reached by the adjoint solver.
+  :param stop_reason: On return, an integer code that indicates why the adjoint solver stopped.
+
+  :returns: A SUNErrCode indicating failure or success.
+ */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver, sunrealtype t0, N_Vector sens,
+SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver adj_solver,
+                                 sunrealtype tout, N_Vector sens,
                                  sunrealtype* tret, int* stop_reason);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointSolver_SetJacFn(SUNAdjointSolver, SUNJacFn Jac,
-                                     SUNJacFn JacP);
+SUNErrCode SUNAdjointSolver_SetJacFn(SUNAdjointSolver, SUNJacFn JacFn, SUNMatrix Jac);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointSolver_SetJacPFn(SUNAdjointSolver, SUNJacFn JacPFn, SUNMatrix JacP);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointSolver_SetJacTimesVecFn(SUNAdjointSolver, SUNJacTimesFn Jvp,

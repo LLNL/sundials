@@ -47,23 +47,29 @@ int jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec, SUNMatrix Jac,
   sunrealtype* J    = SUNDenseMatrix_Data(Jac);
 
   J[0] = p[0] - p[1] * u[1];
-  J[1] = p[2] * u[1];
+  J[1] = p[3] * u[1];
   J[2] = -p[1] * u[0];
-  J[3] = p[2] * u[0] - p[3];
+  J[3] = -p[2] * p[3] * u[0];
 
   return 0;
 }
 
-int lotka_volterra_adjoint(sunrealtype t, N_Vector lvec, N_Vector ldotvec,
-                           void* user_data)
+int parameter_jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec, SUNMatrix Jac,
+                       void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype* p      = (sunrealtype*)user_data;
-  sunrealtype* lambda = N_VGetArrayPointer(lvec);
-  sunrealtype* ldot   = N_VGetArrayPointer(ldotvec);
+  sunrealtype* p    = (sunrealtype*)user_data;
+  sunrealtype* u    = N_VGetArrayPointer(uvec);
+  sunrealtype* udot = N_VGetArrayPointer(udotvec);
+  sunrealtype* J    = SUNDenseMatrix_Data(Jac);
 
-  // TODO(CJB): implement
-  // jacobian(t, lvec, ldotvec, J, user_data, NULL, NULL, NULL);
-  // ldot[0] = lvec[0] *
+  J[0] = u[0];
+  J[1] = 0.0;
+  J[2] = -u[0]*u[1];
+  J[3] = 0.0;
+  J[4] = 0.0;
+  J[5] = -u[1];
+  J[6] = 0.0;
+  J[7] = u[0]*u[1];
 
   return 0;
 }
@@ -98,7 +104,7 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
                      SUNAdjointCheckpointScheme checkpoint_scheme,
                      sunrealtype tf, sunrealtype tout, N_Vector u)
 {
-  // TODO(CJB): should we use ManyVector to separate IC sensitivities and param sensitivities?
+  // TODO(CJB): should we require ManyVector with separate vectors for IC and params to make things cleaner?
   sunindextype neq        = N_VGetLength(u);
   sunindextype num_cost   = 1;
   sunindextype num_params = 4;
@@ -109,18 +115,22 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
 
   SUNAdjointSolver adj_solver;
   ARKStepCreateAdjointSolver(arkode_mem, num_cost, sf, &adj_solver);
-  // lotka_volterra_adjoint is J*lambda - user will provide J, we internally will create RHS that is J*lambda
-  // SUNAdjointSolver_SetJacFn(adj_solver, );
-  // SUNAdjointSolver_SetJacPFn(adj_solver, );
 
-  int flag      = 0;
+  SUNMatrix J = SUNDenseMatrix(neq, neq, sunctx);
+  SUNMatrix Jp = SUNDenseMatrix(num_params, num_params, sunctx);
+  SUNAdjointSolver_SetJacFn(adj_solver, jacobian, J);
+  SUNAdjointSolver_SetJacPFn(adj_solver, parameter_jacobian, Jp);
+
+  int stop_reason = 0;
   sunrealtype t = tf;
-  SUNAdjointSolver_Solve(adj_solver, tf, tout, sf, &t, &flag);
+  SUNAdjointSolver_Solve(adj_solver, tout, sf, &t, &stop_reason);
 
   fprintf(stdout, "Adjoint Solution:\n");
   N_VPrint(sf);
 
   N_VDestroy(sf);
+  SUNMatDestroy(J);
+  SUNMatDestroy(Jp);
   SUNAdjointSolver_Destroy(&adj_solver);
 
   return 0;

@@ -1832,10 +1832,10 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   if (is_start == 1)
   {
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::arkStep_TakeStep_Z", "start-stage",
                        "step = %li, stage = %i, implicit = %i, h = %" RSYM
                        ", tcur = %" RSYM,
@@ -2096,8 +2096,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkStep_TakeStep_Z", "end-step",
                      "step = %li, h = %" RSYM ", dsm = %" RSYM ", nflag = %d",
                      ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
@@ -3400,7 +3400,7 @@ int ARKStepCreateAdjointSolver(void* arkode_mem, sunindextype num_cost,
   // SUNAdjointSolver will own the SUNStepper and destroy it
   SUNStepper stepper;
   ARKStepCreateSUNStepper(arkode_mem, &stepper);
-  SUNAdjointSolver_Create(stepper, num_cost, sf, ark_mem->checkpoint_scheme,
+  SUNAdjointSolver_Create(stepper, num_cost, sf, ark_mem->tretlast, ark_mem->checkpoint_scheme,
                           ark_mem->sunctx, adj_solver_ptr);
 
   return ARK_SUCCESS;
