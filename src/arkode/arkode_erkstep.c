@@ -27,7 +27,7 @@
 #include "arkode_interp_impl.h"
 
 /*===============================================================
-  ERKStep Exported functions -- Required
+  Exported functions
   ===============================================================*/
 
 void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
@@ -85,24 +85,35 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_ARK_ARKMEM_FAIL);
-    ERKStepFree((void**)&ark_mem);
+    ARKodeFree((void**)&ark_mem);
     return (NULL);
   }
   memset(step_mem, 0, sizeof(struct ARKodeERKStepMemRec));
 
   /* Attach step_mem structure and function pointers to ark_mem */
-  ark_mem->step_init    = erkStep_Init;
-  ark_mem->step_fullrhs = erkStep_FullRHS;
-  ark_mem->step         = erkStep_TakeStep;
-  ark_mem->step_mem     = (void*)step_mem;
+  ark_mem->step_init                = erkStep_Init;
+  ark_mem->step_fullrhs             = erkStep_FullRHS;
+  ark_mem->step                     = erkStep_TakeStep;
+  ark_mem->step_printallstats       = erkStep_PrintAllStats;
+  ark_mem->step_writeparameters     = erkStep_WriteParameters;
+  ark_mem->step_resize              = erkStep_Resize;
+  ark_mem->step_free                = erkStep_Free;
+  ark_mem->step_printmem            = erkStep_PrintMem;
+  ark_mem->step_setdefaults         = erkStep_SetDefaults;
+  ark_mem->step_setrelaxfn          = erkStep_SetRelaxFn;
+  ark_mem->step_setorder            = erkStep_SetOrder;
+  ark_mem->step_getestlocalerrors   = erkStep_GetEstLocalErrors;
+  ark_mem->step_supports_adaptive   = SUNTRUE;
+  ark_mem->step_supports_relaxation = SUNTRUE;
+  ark_mem->step_mem                 = (void*)step_mem;
 
-  /* Set default values for ERKStep optional inputs */
-  retval = ERKStepSetDefaults((void*)ark_mem);
+  /* Set default values for optional inputs */
+  retval = erkStep_SetDefaults((void*)ark_mem);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Error setting default solver options");
-    ERKStepFree((void**)&ark_mem);
+    ARKodeFree((void**)&ark_mem);
     return (NULL);
   }
 
@@ -119,6 +130,7 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
 
   /* Initialize all the counters */
   step_mem->nfe = 0;
+
   /* Initialize fused op work space */
   step_mem->cvals        = NULL;
   step_mem->Xvecs        = NULL;
@@ -134,62 +146,11 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to initialize main ARKODE infrastructure");
-    ERKStepFree((void**)&ark_mem);
+    ARKodeFree((void**)&ark_mem);
     return (NULL);
   }
 
   return ((void*)ark_mem);
-}
-
-/*---------------------------------------------------------------
-  ERKStepResize:
-
-  This routine resizes the memory within the ERKStep module.
-  It first resizes the main ARKODE infrastructure memory, and
-  then resizes its own data.
-  ---------------------------------------------------------------*/
-int ERKStepResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
-                  sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
-{
-  ARKodeMem ark_mem;
-  ARKodeERKStepMem step_mem;
-  sunindextype lrw1, liw1, lrw_diff, liw_diff;
-  int i, retval;
-
-  /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* Determing change in vector sizes */
-  lrw1 = liw1 = 0;
-  if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
-  lrw_diff      = lrw1 - ark_mem->lrw1;
-  liw_diff      = liw1 - ark_mem->liw1;
-  ark_mem->lrw1 = lrw1;
-  ark_mem->liw1 = liw1;
-
-  /* resize ARKODE infrastructure memory */
-  retval = arkResize(ark_mem, y0, hscale, t0, resize, resize_data);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Unable to resize main ARKODE infrastructure");
-    return (retval);
-  }
-
-  /* Resize the RHS vectors */
-  for (i = 0; i < step_mem->stages; i++)
-  {
-    if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                      &step_mem->F[i]))
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "Unable to resize vector");
-      return (ARK_MEM_FAIL);
-    }
-  }
-
-  return (ARK_SUCCESS);
 }
 
 /*---------------------------------------------------------------
@@ -210,7 +171,7 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0, N_Vector y0)
   int retval;
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Check if ark_mem was allocated */
@@ -255,151 +216,62 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0, N_Vector y0)
   return (ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
-  ERKStepReset:
+/*===============================================================
+  Interface routines supplied to ARKODE
+  ===============================================================*/
 
-  This routine resets the ERKStep module state to solve the same
-  problem from the given time with the input state (all counter
-  values are retained).
+/*---------------------------------------------------------------
+  erkStep_Resize:
+
+  This routine resizes the memory within the ERKStep module.
   ---------------------------------------------------------------*/
-int ERKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
+int erkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
+                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
 {
-  ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  int retval;
+  sunindextype lrw1, liw1, lrw_diff, liw_diff;
+  int i, retval;
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* Initialize main ARKODE infrastructure */
-  retval = arkInit(ark_mem, tR, yR, RESET_INIT);
+  /* Determine change in vector sizes */
+  lrw1 = liw1 = 0;
+  if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
+  lrw_diff      = lrw1 - ark_mem->lrw1;
+  liw_diff      = liw1 - ark_mem->liw1;
+  ark_mem->lrw1 = lrw1;
+  ark_mem->liw1 = liw1;
 
-  if (retval != ARK_SUCCESS)
+  /* Resize the RHS vectors */
+  for (i = 0; i < step_mem->stages; i++)
   {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Unable to initialize main ARKODE infrastructure");
-    return (retval);
+    if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                      &step_mem->F[i]))
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "Unable to resize vector");
+      return (ARK_MEM_FAIL);
+    }
   }
 
   return (ARK_SUCCESS);
 }
 
 /*---------------------------------------------------------------
-  ERKStepSStolerances, ERKStepSVtolerances, ERKStepWFtolerances:
-
-  These routines set integration tolerances (wrappers for general
-  ARKODE utility routines)
+  erkStep_Free frees all ERKStep memory.
   ---------------------------------------------------------------*/
-int ERKStepSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol)
-{
-  /* unpack ark_mem, call arkSStolerances, and return */
-  ARKodeMem ark_mem;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-  return (arkSStolerances(ark_mem, reltol, abstol));
-}
-
-int ERKStepSVtolerances(void* arkode_mem, sunrealtype reltol, N_Vector abstol)
-{
-  /* unpack ark_mem, call arkSVtolerances, and return */
-  ARKodeMem ark_mem;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-  return (arkSVtolerances(ark_mem, reltol, abstol));
-}
-
-int ERKStepWFtolerances(void* arkode_mem, ARKEwtFn efun)
-{
-  /* unpack ark_mem, call arkWFtolerances, and return */
-  ARKodeMem ark_mem;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-  return (arkWFtolerances(ark_mem, efun));
-}
-
-int ERKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
-{
-  /* unpack ark_mem, call arkRootInit, and return */
-  ARKodeMem ark_mem;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-  return (arkRootInit(ark_mem, nrtfn, g));
-}
-
-int ERKStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
-                  sunrealtype* tret, int itask)
-{
-  /* unpack ark_mem, call arkEvolve, and return */
-  int retval;
-  ARKodeMem ark_mem;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-  SUNDIALS_MARK_FUNCTION_BEGIN(ARK_PROFILER);
-  retval = arkEvolve(ark_mem, tout, yout, tret, itask);
-  SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
-  return (retval);
-}
-
-int ERKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
-{
-  /* unpack ark_mem, call arkGetDky, and return */
-  int retval;
-  ARKodeMem ark_mem;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-  SUNDIALS_MARK_FUNCTION_BEGIN(ARK_PROFILER);
-  retval = arkGetDky(ark_mem, t, k, dky);
-  SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
-  return (retval);
-}
-
-/*---------------------------------------------------------------
-  ERKStepFree frees all ERKStep memory, and then calls an ARKODE
-  utility routine to free the ARKODE infrastructure memory.
-  ---------------------------------------------------------------*/
-void ERKStepFree(void** arkode_mem)
+void erkStep_Free(ARKodeMem ark_mem)
 {
   int j;
   sunindextype Bliw, Blrw;
-  ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
 
-  /* nothing to do if arkode_mem is already NULL */
-  if (*arkode_mem == NULL) { return; }
+  /* nothing to do if ark_mem is already NULL */
+  if (ark_mem == NULL) { return; }
 
   /* conditional frees on non-NULL ERKStep module */
-  ark_mem = (ARKodeMem)(*arkode_mem);
   if (ark_mem->step_mem != NULL)
   {
     step_mem = (ARKodeERKStepMem)ark_mem->step_mem;
@@ -445,21 +317,16 @@ void ERKStepFree(void** arkode_mem)
     free(ark_mem->step_mem);
     ark_mem->step_mem = NULL;
   }
-
-  /* free memory for overall ARKODE infrastructure */
-  arkFree(arkode_mem);
 }
 
 /*---------------------------------------------------------------
-  ERKStepPrintMem:
+  erkStep_PrintMem:
 
-  This routine outputs the memory from the ERKStep structure and
-  the main ARKODE infrastructure to a specified file pointer
-  (useful when debugging).
+  This routine outputs the memory from the ERKStep structure to
+  a specified file pointer (useful when debugging).
   ---------------------------------------------------------------*/
-void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
+void erkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 {
-  ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   int retval;
 
@@ -468,11 +335,8 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
 #endif
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return; }
-
-  /* output data from main ARKODE infrastructure */
-  arkPrintMem(ark_mem, outfile);
 
   /* output integer quantities */
   fprintf(outfile, "ERKStep: q = %i\n", step_mem->q);
@@ -496,14 +360,6 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
 #endif
 }
 
-/*===============================================================
-  ERKStep Private functions
-  ===============================================================*/
-
-/*---------------------------------------------------------------
-  Interface routines supplied to ARKODE
-  ---------------------------------------------------------------*/
-
 /*---------------------------------------------------------------
   erkStep_Init:
 
@@ -519,15 +375,14 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
-int erkStep_Init(void* arkode_mem, int init_type)
+int erkStep_Init(ARKodeMem ark_mem, int init_type)
 {
-  ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   sunbooleantype reset_efun;
   int retval, j;
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* immediately return if resize or reset */
@@ -672,18 +527,17 @@ int erkStep_Init(void* arkode_mem, int init_type)
   when estimating the initial time step size, so we strive to store the
   intermediate parts so that they do not interfere with the other two modes.
   ----------------------------------------------------------------------------*/
-int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
+int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
 {
   int nvec, retval;
-  ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   sunbooleantype recomputeRHS;
   sunrealtype* cvals;
   N_Vector* Xvecs;
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
   /* local shortcuts for use with fused vector operations */
   cvals = step_mem->cvals;
@@ -815,19 +669,18 @@ int erkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
                  reduce step and retry (if possible)
            <0 => step encountered unrecoverable failure
   ---------------------------------------------------------------*/
-int erkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
+int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval, is, js, nvec, mode;
   sunrealtype* cvals;
   N_Vector* Xvecs;
-  ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
 
   /* initialize algebraic solver convergence flag to success */
   *nflagPtr = ARK_SUCCESS;
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* local shortcuts for fused vector operations */
@@ -909,6 +762,7 @@ int erkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->nfe++;
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
+
     /* apply external polynomial forcing */
     if (step_mem->nforcing > 0)
     {
@@ -946,18 +800,18 @@ int erkStep_TakeStep(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr)
   return (ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
+/*===============================================================
   Internal utility routines
-  ---------------------------------------------------------------*/
+  ===============================================================*/
 
 /*---------------------------------------------------------------
-  erkStep_AccessStepMem:
+  erkStep_AccessARKODEStepMem:
 
-  Shortcut routine to unpack ark_mem and step_mem structures from
-  void* pointer.  If either is missing it returns ARK_MEM_NULL.
+  Shortcut routine to unpack both ark_mem and step_mem structures
+  from void* pointer.  If either is missing it returns ARK_MEM_NULL.
   ---------------------------------------------------------------*/
-int erkStep_AccessStepMem(void* arkode_mem, const char* fname,
-                          ARKodeMem* ark_mem, ARKodeERKStepMem* step_mem)
+int erkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
+                                ARKodeMem* ark_mem, ARKodeERKStepMem* step_mem)
 {
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)
@@ -967,6 +821,8 @@ int erkStep_AccessStepMem(void* arkode_mem, const char* fname,
     return (ARK_MEM_NULL);
   }
   *ark_mem = (ARKodeMem)arkode_mem;
+
+  /* access ARKodeERKStepMem structure */
   if ((*ark_mem)->step_mem == NULL)
   {
     arkProcessError(*ark_mem, ARK_MEM_NULL, __LINE__, fname, __FILE__,
@@ -974,6 +830,26 @@ int erkStep_AccessStepMem(void* arkode_mem, const char* fname,
     return (ARK_MEM_NULL);
   }
   *step_mem = (ARKodeERKStepMem)(*ark_mem)->step_mem;
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  erkStep_AccessStepMem:
+
+  Shortcut routine to unpack the step_mem structure from
+  ark_mem.  If missing it returns ARK_MEM_NULL.
+  ---------------------------------------------------------------*/
+int erkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
+                          ARKodeERKStepMem* step_mem)
+{
+  /* access ARKodeERKStepMem structure */
+  if (ark_mem->step_mem == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, fname, __FILE__,
+                    MSG_ERKSTEP_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  *step_mem = (ARKodeERKStepMem)ark_mem->step_mem;
   return (ARK_SUCCESS);
 }
 
@@ -1243,13 +1119,16 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   return (ARK_SUCCESS);
 }
 
+/*===============================================================
+  Internal utility routines for relaxation
+  ===============================================================*/
+
 /* -----------------------------------------------------------------------------
  * erkStep_RelaxDeltaE
  *
  * Computes the change in the relaxation functions for use in relaxation methods
  * delta_e = h * sum_i b_i * <rjac(z_i), f_i>
  * ---------------------------------------------------------------------------*/
-
 int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         long int* num_relax_jac_evals, sunrealtype* delta_e_out)
 {
@@ -1329,7 +1208,6 @@ int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
  *
  * Returns the method order
  * ---------------------------------------------------------------------------*/
-
 int erkStep_GetOrder(ARKodeMem ark_mem)
 {
   ARKodeERKStepMem step_mem = (ARKodeERKStepMem)(ark_mem->step_mem);
@@ -1353,7 +1231,8 @@ int ERKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
 
-  retval = erkStep_AccessStepMem(inner_arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessARKODEStepMem(inner_arkode_mem, __func__, &ark_mem,
+                                       &step_mem);
   if (retval)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -1428,11 +1307,11 @@ int erkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set the stop time */
-  retval = ERKStepSetStopTime(arkode_mem, tout);
+  retval = ARKodeSetStopTime(arkode_mem, tout);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* evolve inner ODE */
-  retval = ERKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+  retval = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
   if (retval < 0) { return (retval); }
 
   /* disable inner forcing */
@@ -1479,7 +1358,7 @@ int erkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
   retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  return (ERKStepReset(arkode_mem, tR, yR));
+  return (ARKodeReset(arkode_mem, tR, yR));
 }
 
 /*------------------------------------------------------------------------------
@@ -1499,7 +1378,7 @@ int erkStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
   retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  return (ERKStepGetAccumulatedError(arkode_mem, accum_error));
+  return (ARKodeGetAccumulatedError(arkode_mem, accum_error));
 }
 
 /*------------------------------------------------------------------------------
@@ -1518,7 +1397,7 @@ int erkStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper)
   retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  return (ERKStepResetAccumulatedError(arkode_mem));
+  return (ARKodeResetAccumulatedError(arkode_mem));
 }
 
 /*------------------------------------------------------------------------------
@@ -1537,7 +1416,7 @@ int erkStep_MRIStepInnerSetFixedStep(MRIStepInnerStepper stepper, sunrealtype h)
   retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  return (ERKStepSetFixedStep(arkode_mem, h));
+  return (ARKodeSetFixedStep(arkode_mem, h));
 }
 
 /*------------------------------------------------------------------------------
@@ -1558,7 +1437,7 @@ int erkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol)
   if (retval != ARK_SUCCESS) { return (retval); }
   if (arkode_mem == NULL)
   {
-    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ERKSTEP_NO_MEM);
     return ARK_MEM_NULL;
   }
@@ -1629,8 +1508,8 @@ int erkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
   int retval;
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, "erkStep_SetInnerForcing",
-                                 &ark_mem, &step_mem);
+  retval = erkStep_AccessARKODEStepMem(arkode_mem, "erkStep_SetInnerForcing",
+                                       &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   if (nvecs > 0)

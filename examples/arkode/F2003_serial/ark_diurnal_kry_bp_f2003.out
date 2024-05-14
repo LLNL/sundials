@@ -1,6 +1,6 @@
-    
+
  Finished initialization, starting time steps
-    
+
        t          c1  (bottom left      middle       top right)  | lnst  lnst_att  lh
        t          c2  (bottom left      middle       top right)  | lnst  lnst_att  lh
   ----------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@
     8.640000E+04    8.946777E-06    2.191861E-15    1.700622E-10   5704 5708  6.277419E+02
                     5.090704E+11    5.755864E+11    5.984224E+11
   ----------------------------------------------------------------------------------------
-  
+
   General Solver Stats:
     Total internal steps taken      =     5704
     Total internal steps attempts   =     5708
@@ -43,8 +43,7 @@
     Avg Krylov subspace dim         =  1.946096E+00
     Num nonlinear solver fails      =        0
     Num linear solver fails         =        0
-    main solver real/int workspace sizes   =     3702         133
+    main solver real/int workspace sizes   =     3702         145
     linear solver real/int workspace sizes =     2455          42
     ARKBandPre real/int workspace sizes    =     2800         622
     ARKBandPre number of f evaluations     =      480
-  

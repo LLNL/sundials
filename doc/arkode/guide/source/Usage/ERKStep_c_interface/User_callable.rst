@@ -17,21 +17,21 @@
 ERKStep User-callable functions
 ==================================
 
-This section describes the functions that are called by the
-user to setup and then solve an IVP using the ERKStep time-stepping
-module. Some of these are required; however, starting with
-:numref:`ARKODE.Usage.ERKStep.OptionalInputs`, the functions listed involve
-optional inputs/outputs or restarting, and those paragraphs may be
-skipped for a casual use of ARKODE's ERKStep module. In any case,
-refer to the preceding section, :numref:`ARKODE.Usage.ERKStep.Skeleton`,
-for the correct order of these calls.
+This section describes the ERKStep-specific functions that may be called
+by the user to setup and then solve an IVP using the ERKStep time-stepping
+module.  The large majority of these routines merely wrap :ref:`underlying
+ARKODE functions <ARKODE.Usage.UserCallable>`, and are now deprecated
+-- each of these are clearly marked.  However, some
+of these user-callable functions are specific to ERKStep, as explained
+below.
 
-On an error, each user-callable function returns a negative value  (or
-``NULL`` if the function returns a pointer) and sends an error message
-to the error handler routine, which prints the message to ``stderr``
-by default. However, the user can set a file as error output or can
-provide their own error handler function (see
-:numref:`ARKODE.Usage.ERKStep.OptionalInputs` for details).
+As discussed in the main :ref:`ARKODE user-callable function introduction
+<ARKODE.Usage.UserCallable>`, each of ARKODE's time-stepping modules
+clarifies the categories of user-callable functions that it supports.
+ERKStep supports the following categories:
+
+* temporal adaptivity
+* relaxation Runge--Kutta methods
 
 
 
@@ -71,46 +71,16 @@ ERKStep initialization and deallocation functions
 
    **Return value:**  None
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeFree` instead.
+
 
 
 .. _ARKODE.Usage.ERKStep.Tolerances:
 
 ERKStep tolerance specification functions
 ------------------------------------------------------
-
-These functions specify the integration tolerances. One of them
-**should** be called before the first call to
-:c:func:`ERKStepEvolve()`; otherwise default values of ``reltol =
-1e-4`` and ``abstol = 1e-9`` will be used, which may be entirely
-incorrect for a specific problem.
-
-The integration tolerances ``reltol`` and ``abstol`` define a vector
-of error weights, ``ewt``.  In the case of
-:c:func:`ERKStepSStolerances()`, this vector has components
-
-.. code-block:: c
-
-   ewt[i] = 1.0/(reltol*abs(y[i]) + abstol);
-
-whereas in the case of :c:func:`ERKStepSVtolerances()` the vector components
-are given by
-
-.. code-block:: c
-
-   ewt[i] = 1.0/(reltol*abs(y[i]) + abstol[i]);
-
-This vector is used in all error tests, which use a weighted RMS norm
-on all error-like vectors v:
-
-.. math::
-    \|v\|_{WRMS} = \left( \frac{1}{N} \sum_{i=1}^N (v_i\; ewt_i)^2 \right)^{1/2},
-
-where :math:`N` is the problem dimension.
-
-Alternatively, the user may supply a custom function to supply the
-``ewt`` vector, through a call to :c:func:`ERKStepWFtolerances()`.
-
-
 
 .. c:function:: int ERKStepSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol)
 
@@ -126,6 +96,10 @@ Alternatively, the user may supply a custom function to supply the
       * *ARK_MEM_NULL*  if the ERKStep memory was ``NULL``
       * *ARK_NO_MALLOC*  if the ERKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSStolerances` instead.
 
 
 
@@ -147,6 +121,10 @@ Alternatively, the user may supply a custom function to supply the
       * *ARK_NO_MALLOC*  if the ERKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSVtolerances` instead.
+
 
 
 .. c:function:: int ERKStepWFtolerances(void* arkode_mem, ARKEwtFn efun)
@@ -164,108 +142,9 @@ Alternatively, the user may supply a custom function to supply the
       * *ARK_MEM_NULL*  if the ERKStep memory was ``NULL``
       * *ARK_NO_MALLOC*  if the ERKStep memory was not allocated by the time-stepping module
 
+   .. deprecated:: x.y.z
 
-
-
-General advice on the choice of tolerances
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-For many users, the appropriate choices for tolerance values in
-``reltol`` and ``abstol`` are a concern. The following pieces
-of advice are relevant.
-
-(1) The scalar relative tolerance ``reltol`` is to be set to control
-    relative errors. So a value of :math:`10^{-4}` means that errors
-    are controlled to .01%. We do not recommend using ``reltol`` larger
-    than :math:`10^{-3}`. On the other hand, ``reltol`` should not be so
-    small that it is comparable to the unit roundoff of the machine
-    arithmetic (generally around :math:`10^{-15}` for double-precision).
-
-(2) The absolute tolerances ``abstol`` (whether scalar or vector) need
-    to be set to control absolute errors when any components of the
-    solution vector :math:`y` may be so small that pure relative error
-    control is meaningless.  For example, if :math:`y_i` starts at some
-    nonzero value, but in time decays to zero, then pure relative
-    error control on :math:`y_i` makes no sense (and is overly costly)
-    after :math:`y_i` is below some noise level. Then ``abstol`` (if
-    scalar) or ``abstol[i]`` (if a vector) needs to be set to that
-    noise level. If the different components have different noise
-    levels, then ``abstol`` should be a vector.  For example, see the
-    example problem ``ark_robertson.c``, and the discussion
-    of it in the ARKODE Examples Documentation :cite:p:`arkode_ex`.  In that
-    problem, the three components vary between 0 and 1, and have
-    different noise levels; hence the ``atols`` vector therein. It is
-    impossible to give any general advice on ``abstol`` values,
-    because the appropriate noise levels are completely
-    problem-dependent. The user or modeler hopefully has some idea as
-    to what those noise levels are.
-
-(3) Finally, it is important to pick all the tolerance values
-    conservatively, because they control the error committed on each
-    individual step. The final (global) errors are an accumulation of
-    those per-step errors, where that accumulation factor is
-    problem-dependent.  A general rule of thumb is to reduce the
-    tolerances by a factor of 10 from the actual desired limits on
-    errors.  So if you want .01% relative accuracy (globally), a good
-    choice for ``reltol`` is :math:`10^{-5}`.  In any case, it is
-    a good idea to do a few experiments with the tolerances to see how
-    the computed solution values vary as tolerances are reduced.
-
-
-
-Advice on controlling nonphysical negative values
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In many applications, some components in the true solution are always
-positive or non-negative, though at times very small.  In the
-numerical solution, however, small negative (nonphysical) values
-can then occur. In most cases, these values are harmless, and simply
-need to be controlled, not eliminated, but in other cases any value
-that violates a constraint may cause a simulation to halt. For both of
-these scenarios the following pieces of advice are relevant.
-
-(1) The best way to control the size of unwanted negative computed
-    values is with tighter absolute tolerances.  Again this requires
-    some knowledge of the noise level of these components, which may
-    or may not be different for different components. Some
-    experimentation may be needed.
-
-(2) If output plots or tables are being generated, and it is important
-    to avoid having negative numbers appear there (for the sake of
-    avoiding a long explanation of them, if nothing else), then
-    eliminate them, but only in the context of the output medium. Then
-    the internal values carried by the solver are unaffected. Remember
-    that a small negative value in :math:`y` returned by ERKStep, with
-    magnitude comparable to ``abstol`` or less, is equivalent to zero
-    as far as the computation is concerned.
-
-(3) The user's right-hand side routine :math:`f`
-    should never change a negative value in the solution vector :math:`y`
-    to a non-negative value in attempt to "fix" this problem,
-    since this can lead to numerical instability.  If the :math:`f`
-    routine cannot tolerate a zero or negative value (e.g. because
-    there is a square root or log), then the offending value should be
-    changed to zero or a tiny positive number in a temporary variable
-    (not in the input :math:`y` vector) for the purposes of computing
-    :math:`f(t, y)`.
-
-(4) ERKStep supports component-wise constraints on solution components,
-    :math:`y_i < 0`, :math:`y_i \le 0`, , :math:`y_i > 0`, or
-    :math:`y_i \ge 0`, through the user-callable function
-    :c:func:`ERKStepSetConstraints`.  At each internal time step, if any
-    constraint is violated then ERKStep will attempt a smaller time step
-    that should not violate this constraint.  This reduced step size is
-    chosen such that the step size is the largest possible but where the
-    solution component satisfies the constraint.
-
-(5) Positivity and non-negativity constraints on components can be
-    enforced by use of the recoverable error return feature in the
-    user-supplied right-hand side function, :math:`f`. When a
-    recoverable error is encountered, ERKStep will retry the step with
-    a smaller step size, which typically alleviates the problem.
-    However, because this option involves some additional overhead
-    cost, it should only be exercised if the use of absolute
-    tolerances to control the computed values is unsuccessful.
+      Use :c:func:`ARKodeWFtolerances` instead.
 
 
 
@@ -273,16 +152,6 @@ these scenarios the following pieces of advice are relevant.
 
 Rootfinding initialization function
 --------------------------------------
-
-As described in :numref:`ARKODE.Mathematics.Rootfinding`, while
-solving the IVP, ARKODE's time-stepping modules have the capability to
-find the roots of a set of user-defined functions.  To activate the
-root-finding algorithm, call the following function.  This is normally
-called only once, prior to the first call to
-:c:func:`ERKStepEvolve()`, but if the rootfinding problem is to be
-changed during the solution, :c:func:`ERKStepRootInit()` can also be
-called prior to a continuation call to :c:func:`ERKStepEvolve()`.
-
 
 .. c:function:: int ERKStepRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
 
@@ -312,6 +181,10 @@ called prior to a continuation call to :c:func:`ERKStepEvolve()`.
       problem but the prior one did, then call *ERKStepRootInit* with
       *nrtfn = 0*.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeRootInit` instead.
+
 
 
 
@@ -319,15 +192,6 @@ called prior to a continuation call to :c:func:`ERKStepEvolve()`.
 
 ERKStep solver function
 -------------------------
-
-This is the central step in the solution process -- the call to perform
-the integration of the IVP.  One of the input arguments (*itask*)
-specifies one of two modes as to where ERKStep is to return a
-solution.  These modes are modified if the user has set a stop time
-(with a call to the optional input function :c:func:`ERKStepSetStopTime()`) or
-has requested rootfinding.
-
-
 
 .. c:function:: int ERKStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout, sunrealtype *tret, int itask)
 
@@ -419,6 +283,10 @@ has requested rootfinding.
       On all other error returns, *tret* and *yout* are left unchanged
       from those provided to the routine.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeEvolve` instead.
+
 
 
 
@@ -427,84 +295,11 @@ has requested rootfinding.
 Optional input functions
 -------------------------
 
-There are numerous optional input parameters that control the behavior
-of ERKStep, each of which may be modified from its default value through
-calling an appropriate input function.  The following tables list all
-optional input functions, grouped by which aspect of ERKStep they control.
-Detailed information on the calling syntax and arguments for each
-function are then provided following each table.
-
-The optional inputs are grouped into the following categories:
-
-* General ERKStep options (:numref:`ARKODE.Usage.ERKStep.ERKStepInputTable`),
-
-* IVP method solver options (:numref:`ARKODE.Usage.ERKStep.ERKStepMethodInputTable`),
-
-* Step adaptivity solver options (:numref:`ARKODE.Usage.ERKStep.ERKStepAdaptivityInputTable`), and
-
-* Rootfinding options (:numref:`ARKODE.Usage.ERKStep.ERKStepRootfindingInputTable`).
-
-For the most casual use of ERKStep, relying on the default set of
-solver parameters, the reader can skip to section on user-supplied
-functions, :numref:`ARKODE.Usage.UserSupplied`.
-
-We note that, on an error return, all of the optional input functions send an
-error message to the error handler function. All error return values are
-negative, so a test on the return arguments for negative values will catch all
-errors. Finally, a call to an ``ERKStepSet***`` function can generally be made
-from the user's calling program at any time and, if successful, takes effect
-immediately. ``ERKStepSet***`` functions that cannot be called at any time note
-this in the "**Notes**:" section of the function documentation.
-
-
 
 .. _ARKODE.Usage.ERKStep.ERKStepInput:
 
 Optional inputs for ERKStep
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. _ARKODE.Usage.ERKStep.ERKStepInputTable:
-.. table:: Optional inputs for ERKStep
-
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Optional input                                     | Function name                             |  Default               |
-   +====================================================+===========================================+========================+
-   | Return ERKStep solver parameters to their defaults | :c:func:`ERKStepSetDefaults()`            |  internal              |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Set dense output interpolation type                | :c:func:`ERKStepSetInterpolantType()`     | ``ARK_INTERP_HERMITE`` |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Set dense output polynomial degree                 | :c:func:`ERKStepSetInterpolantDegree()`   |  5                     |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Supply a pointer to a diagnostics output file      | :c:func:`ERKStepSetDiagnostics()`         | ``NULL``               |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Disable time step adaptivity (fixed-step mode)     | :c:func:`ERKStepSetFixedStep()`           |  disabled              |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Supply an initial step size to attempt             | :c:func:`ERKStepSetInitStep()`            |  estimated             |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Maximum no. of warnings for :math:`t_n+h = t_n`    | :c:func:`ERKStepSetMaxHnilWarns()`        |  10                    |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Maximum no. of internal steps before *tout*        | :c:func:`ERKStepSetMaxNumSteps()`         |  500                   |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Maximum absolute step size                         | :c:func:`ERKStepSetMaxStep()`             | :math:`\infty`         |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Minimum absolute step size                         | :c:func:`ERKStepSetMinStep()`             |  0.0                   |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Set a value for :math:`t_{stop}`                   | :c:func:`ERKStepSetStopTime()`            | undefined              |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Interpolate at :math:`t_{stop}`                    | :c:func:`ERKStepSetInterpolateStopTime()` | ``SUNFALSE``           |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Disable the stop time                              | :c:func:`ERKStepClearStopTime`            | N/A                    |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Supply a pointer for user data                     | :c:func:`ERKStepSetUserData()`            | ``NULL``               |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Maximum no. of ERKStep error test failures         | :c:func:`ERKStepSetMaxErrTestFails()`     |  7                     |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Set inequality constraints on solution             | :c:func:`ERKStepSetConstraints()`         | ``NULL``               |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-   | Set max number of constraint failures              | :c:func:`ERKStepSetMaxNumConstrFails()`   |  10                    |
-   +----------------------------------------------------+-------------------------------------------+------------------------+
-
-
 
 .. c:function:: int ERKStepSetDefaults(void* arkode_mem)
 
@@ -525,6 +320,10 @@ Optional inputs for ERKStep
 
       Also leaves alone any data structures or options related to
       root-finding (those can be reset using :c:func:`ERKStepRootInit()`).
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetDefaults` instead.
 
 
 
@@ -559,6 +358,10 @@ Optional inputs for ERKStep
       not be changed without first calling :c:func:`ERKStepReInit()`.
 
       If this routine is not called, the Hermite interpolation module will be used.
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetInterpolantType` instead.
 
 
 
@@ -602,13 +405,17 @@ Optional inputs for ERKStep
          obtained by the integrator are returned at the ends of the time
          interval.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetInterpolantDegree` instead.
+
 
 
 .. c:function:: int ERKStepSetDenseOrder(void* arkode_mem, int dord)
 
-   *This function is deprecated, and will be removed in a future release.
-   Users should transition to calling* :c:func:`ERKStepSetInterpolantDegree()`
-   *instead.*
+   .. deprecated:: 5.2.0
+
+      Use :c:func:`ARKodeSetInterpolantDegree` instead.
 
 
 
@@ -695,6 +502,9 @@ Optional inputs for ERKStep
       routines will provide no useful information to the solver, and at
       worst they may interfere with the desired fixed step size.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetFixedStep` instead.
 
 
 
@@ -722,6 +532,10 @@ Optional inputs for ERKStep
 
       This routine will also reset the step size and error history.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetInitStep` instead.
+
 
 
 .. c:function:: int ERKStepSetMaxHnilWarns(void* arkode_mem, int mxhnil)
@@ -745,6 +559,9 @@ Optional inputs for ERKStep
 
       A negative value indicates that no warning messages should be issued.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetMaxHnilWarns` instead.
 
 
 
@@ -769,6 +586,10 @@ Optional inputs for ERKStep
 
       Passing *mxsteps* < 0 disables the test (not recommended).
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetMaxNumSteps` instead.
+
 
 
 .. c:function:: int ERKStepSetMaxStep(void* arkode_mem, sunrealtype hmax)
@@ -787,6 +608,10 @@ Optional inputs for ERKStep
    **Notes:**
       Pass *hmax* :math:`\le 0.0` to set the default value of :math:`\infty`.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetMaxStep` instead.
+
 
 
 .. c:function:: int ERKStepSetMinStep(void* arkode_mem, sunrealtype hmin)
@@ -804,6 +629,10 @@ Optional inputs for ERKStep
 
    **Notes:**
       Pass *hmin* :math:`\le 0.0` to set the default value of 0.
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetMinStep` instead.
 
 
 
@@ -832,6 +661,11 @@ Optional inputs for ERKStep
       :c:func:`ERKStepReset` will remain active but can be disabled by calling
       :c:func:`ERKStepClearStopTime`.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetStopTime` instead.
+
+
 
 .. c:function:: int ERKStepSetInterpolateStopTime(void* arkode_mem, sunbooleantype interp)
 
@@ -848,6 +682,11 @@ Optional inputs for ERKStep
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
 
    .. versionadded:: 5.6.0
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetInterpolateStopTime` instead.
+
 
 
 .. c:function:: int ERKStepClearStopTime(void* arkode_mem)
@@ -866,6 +705,11 @@ Optional inputs for ERKStep
       :c:func:`ERKStepSetStopTime`.
 
    .. versionadded:: 5.5.1
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeClearStopTime` instead.
+
 
 
 .. c:function:: int ERKStepSetUserData(void* arkode_mem, void* user_data)
@@ -887,6 +731,9 @@ Optional inputs for ERKStep
       user-supplied functions for which it is an argument; otherwise
       ``NULL`` is passed.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetUserData` instead.
 
 
 
@@ -907,6 +754,10 @@ Optional inputs for ERKStep
    **Notes:**
       The default value is 7; set *maxnef* :math:`\le 0`
       to specify this default.
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetMaxErrTestFails` instead.
 
 
 
@@ -952,6 +803,11 @@ Optional inputs for ERKStep
       and :c:func:`ERKStepSetFixedStep()` are incompatible, and should not be used
       simultaneously.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetConstraints` instead.
+
+
 
 .. c:function:: int ERKStepSetMaxNumConstrFails(void* arkode_mem, int maxfails)
 
@@ -969,6 +825,10 @@ Optional inputs for ERKStep
    **Notes:**
       Passing *maxfails* <= 0 results in ERKStep using the
       default value (10).
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetMaxNumConstrFails` instead.
 
 
 
@@ -1015,6 +875,10 @@ Optional inputs for IVP method selection
       ERKStep memory block, it cannot be changed after the first call to
       :c:func:`ERKStepEvolve()`, unless :c:func:`ERKStepReInit()` is called.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetOrder` instead.
+
 
 
 .. c:function:: int ERKStepSetTable(void* arkode_mem, ARKodeButcherTable B)
@@ -1046,6 +910,8 @@ Optional inputs for IVP method selection
       :c:func:`ERKStepSetFixedStep()` to enable fixed-step mode and set the desired
       time step size.
 
+   **Warning:**
+      This should not be used with :c:func:`ARKodeSetOrder`.
 
 
 .. c:function:: int ERKStepSetTableNum(void* arkode_mem, ARKODE_ERKTableID etable)
@@ -1065,6 +931,9 @@ Optional inputs for IVP method selection
       *etable* should match an existing explicit method from
       :numref:`Butcher.explicit`.  Error-checking is performed
       to ensure that the table exists, and is not implicit.
+
+   **Warning:**
+      This should not be used with :c:func:`ARKodeSetOrder`.
 
 
 
@@ -1087,6 +956,8 @@ Optional inputs for IVP method selection
       to ensure that the table exists, and is not implicit.
       This function is case sensitive.
 
+   **Warning:**
+      This should not be used with :c:func:`ARKodeSetOrder`.
 
 
 
@@ -1099,43 +970,6 @@ Optional inputs for time step adaptivity
 The mathematical explanation of ARKODE's time step adaptivity
 algorithm, including how each of the parameters below is used within
 the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
-
-
-.. _ARKODE.Usage.ERKStep.ERKStepAdaptivityInputTable:
-.. table:: Optional inputs for time step adaptivity
-
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Optional input                                            | Function name                              | Default   |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Provide a :c:type:`SUNAdaptController` for ERKStep to use | :c:func:`ERKStepSetAdaptController()`      | PI        |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Set a custom time step adaptivity function                | :c:func:`ERKStepSetAdaptivityFn()`         | internal  |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Choose an existing time step adaptivity method            | :c:func:`ERKStepSetAdaptivityMethod()`     | 0         |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Adjust the method order used in the controller            | :c:func:`ERKStepSetAdaptivityAdjustment()` | -1        |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Explicit stability safety factor                          | :c:func:`ERKStepSetCFLFraction()`          | 0.5       |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Time step error bias factor                               | :c:func:`ERKStepSetErrorBias()`            | 1.5       |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Bounds determining no change in step size                 | :c:func:`ERKStepSetFixedStepBounds()`      | 1.0  1.5  |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Maximum step growth factor on error test fail             | :c:func:`ERKStepSetMaxEFailGrowth()`       | 0.3       |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Maximum first step growth factor                          | :c:func:`ERKStepSetMaxFirstGrowth()`       | 10000.0   |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Maximum allowed general step growth factor                | :c:func:`ERKStepSetMaxGrowth()`            | 20.0      |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Minimum allowed step reduction factor on error test fail  | :c:func:`ERKStepSetMinReduction()`         | 0.1       |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Time step safety factor                                   | :c:func:`ERKStepSetSafetyFactor()`         | 0.96      |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Error fails before MaxEFailGrowth takes effect            | :c:func:`ERKStepSetSmallNumEFails()`       | 2         |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-   | Explicit stability function                               | :c:func:`ERKStepSetStabilityFn()`          | none      |
-   +-----------------------------------------------------------+--------------------------------------------+-----------+
-
 
 
 .. c:function:: int ERKStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
@@ -1157,6 +991,11 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       specifically create the PI controller *C* and attach it here, or call :c:func:`ERKStepSetDefaults()`.
 
    .. versionadded:: 5.7.0
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetAdaptController` instead.
+
 
 
 .. c:function:: int ERKStepSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
@@ -1249,6 +1088,12 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    .. versionadded:: 5.7.0
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetAdaptivityAdjustment` instead.
+
+
+
 .. c:function:: int ERKStepSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac)
 
    Specifies the fraction of the estimated explicitly stable step to use.
@@ -1265,6 +1110,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any non-positive parameter will imply a reset to the default
       value.
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetCFLFraction` instead.
 
 
 
@@ -1313,6 +1162,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any interval *not* containing 1.0 will imply a reset to the default values.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetFixedStepBounds` instead.
+
 
 
 .. c:function:: int ERKStepSetMaxEFailGrowth(void* arkode_mem, sunrealtype etamxf)
@@ -1331,6 +1184,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    **Notes:**
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetMaxEFailGrowth` instead.
 
 
 
@@ -1352,6 +1209,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value :math:`\le 1.0` will imply a reset to the default value.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetMaxFirstGrowth` instead.
+
 
 
 .. c:function:: int ERKStepSetMaxGrowth(void* arkode_mem, sunrealtype mx_growth)
@@ -1371,6 +1232,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value :math:`\le 1.0` will imply a reset to the default
       value.
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetMaxGrowth` instead.
 
 
 
@@ -1394,6 +1259,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any value :math:`\ge 1.0` or :math:`\le 0.0` will imply a reset to
       the default value.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetMinReduction` instead.
+
 
 
 .. c:function:: int ERKStepSetSafetyFactor(void* arkode_mem, sunrealtype safety)
@@ -1414,6 +1283,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any non-positive parameter will imply a reset to the default
       value.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetSafetyFactor` instead.
+
 
 
 .. c:function:: int ERKStepSetSmallNumEFails(void* arkode_mem, int small_nef)
@@ -1433,6 +1306,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    **Notes:**
       Any non-positive parameter will imply a reset to the default value.
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetSmallNumEFails` instead.
 
 
 
@@ -1460,6 +1337,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       where the right-hand side function :math:`f(t,y)` contains stiff
       terms.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetStabilityFn` instead.
+
 
 
 
@@ -1468,24 +1349,6 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
 Rootfinding optional input functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The following functions can be called to set optional inputs to
-control the rootfinding algorithm, the mathematics of which are
-described in :numref:`ARKODE.Mathematics.Rootfinding`.
-
-
-.. _ARKODE.Usage.ERKStep.ERKStepRootfindingInputTable:
-.. table:: Rootfinding optional input functions
-
-   +-----------------------------------------+------------------------------------------+----------+
-   | Optional input                          | Function name                            | Default  |
-   +-----------------------------------------+------------------------------------------+----------+
-   | Direction of zero-crossings to monitor  | :c:func:`ERKStepSetRootDirection()`      | both     |
-   +-----------------------------------------+------------------------------------------+----------+
-   | Disable inactive root warnings          | :c:func:`ERKStepSetNoInactiveRootWarn()` | enabled  |
-   +-----------------------------------------+------------------------------------------+----------+
-
-
 
 .. c:function:: int ERKStepSetRootDirection(void* arkode_mem, int* rootdir)
 
@@ -1508,6 +1371,10 @@ described in :numref:`ARKODE.Mathematics.Rootfinding`.
 
    **Notes:**
       The default behavior is to monitor for both zero-crossing directions.
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetRootDirection` instead.
 
 
 
@@ -1532,6 +1399,9 @@ described in :numref:`ARKODE.Mathematics.Rootfinding`.
       first step), ERKStep will issue a warning which can be disabled with
       this optional input function.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetNoInactiveRootWarn` instead.
 
 
 
@@ -1540,20 +1410,6 @@ described in :numref:`ARKODE.Mathematics.Rootfinding`.
 
 Interpolated output function
 --------------------------------
-
-An optional function :c:func:`ERKStepGetDky()` is available to obtain
-additional values of solution-related quantities.  This function
-should only be called after a successful return from
-:c:func:`ERKStepEvolve()`, as it provides interpolated values either of
-:math:`y` or of its derivatives (up to the 5th derivative)
-interpolated to any value of :math:`t` in the last internal step taken
-by :c:func:`ERKStepEvolve()`.  Internally, this "dense output" or
-"continuous extension" algorithm is identical to the algorithm used for
-the maximum order implicit predictors, described in
-:numref:`ARKODE.Mathematics.Predictors.Max`, except that
-derivatives of the polynomial model may be evaluated upon request.
-
-
 
 .. c:function:: int ERKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky)
 
@@ -1592,6 +1448,9 @@ derivatives of the polynomial model may be evaluated upon request.
       functions :c:func:`ERKStepGetCurrentTime()` and
       :c:func:`ERKStepGetLastStep()`, respectively.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetDky` instead.
 
 
 
@@ -1600,101 +1459,11 @@ derivatives of the polynomial model may be evaluated upon request.
 Optional output functions
 ------------------------------
 
-ERKStep provides an extensive set of functions that can be used to
-obtain solver performance information.  We organize these into groups:
-
-#. General ERKStep output routines are in
-   :numref:`ARKODE.Usage.ERKStep.ERKStepMainOutputs`,
-
-#. Output routines regarding root-finding results are in
-   :numref:`ARKODE.Usage.ERKStep.ERKStepRootOutputs`,
-
-#. General usability routines (e.g. to print the current ERKStep
-   parameters, or output the current Butcher table) are in
-   :numref:`ARKODE.Usage.ERKStep.ERKStepExtraOutputs`.
-
-Following each table, we elaborate on each function.
-
-Some of the optional outputs, especially the various counters, can be
-very useful in determining the efficiency of various methods inside
-ERKStep.  For example:
-
-* The counters *nsteps* and *nf_evals* provide a rough measure of the
-  overall cost of a given run, and can be compared between runs with
-  different solver options to suggest which set of options is the most
-  efficient.
-
-* The ratio *nsteps/step_attempts* can measure the quality of the
-  time step adaptivity algorithm, since a poor algorithm will result
-  in more failed steps, and hence a lower ratio.
-
-It is therefore recommended that users retrieve and output these
-statistics following each run, and take some time to investigate
-alternate solver options that will be more optimal for their
-particular problem of interest.
-
-
 
 .. _ARKODE.Usage.ERKStep.ERKStepMainOutputs:
 
 Main solver optional output functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. _ARKODE.Usage.ERKStep.ERKStepMainOutputsTable:
-.. table:: Main solver optional output functions
-
-   +------------------------------------------------------+--------------------------------------------+
-   | Optional output                                      | Function name                              |
-   +------------------------------------------------------+--------------------------------------------+
-   | Size of ERKStep real and integer workspaces          | :c:func:`ERKStepGetWorkSpace()`            |
-   +------------------------------------------------------+--------------------------------------------+
-   | Cumulative number of internal steps                  | :c:func:`ERKStepGetNumSteps()`             |
-   +------------------------------------------------------+--------------------------------------------+
-   | Actual initial time step size used                   | :c:func:`ERKStepGetActualInitStep()`       |
-   +------------------------------------------------------+--------------------------------------------+
-   | Step size used for the last successful step          | :c:func:`ERKStepGetLastStep()`             |
-   +------------------------------------------------------+--------------------------------------------+
-   | Step size to be attempted on the next step           | :c:func:`ERKStepGetCurrentStep()`          |
-   +------------------------------------------------------+--------------------------------------------+
-   | Current internal time reached by the solver          | :c:func:`ERKStepGetCurrentTime()`          |
-   +------------------------------------------------------+--------------------------------------------+
-   | Suggested factor for tolerance scaling               | :c:func:`ERKStepGetTolScaleFactor()`       |
-   +------------------------------------------------------+--------------------------------------------+
-   | Error weight vector for state variables              | :c:func:`ERKStepGetErrWeights()`           |
-   +------------------------------------------------------+--------------------------------------------+
-   | Single accessor to many statistics at once           | :c:func:`ERKStepGetStepStats()`            |
-   +------------------------------------------------------+--------------------------------------------+
-   | Print all statistics                                 | :c:func:`ERKStepPrintAllStats()`           |
-   +------------------------------------------------------+--------------------------------------------+
-   | Name of constant associated with a return flag       | :c:func:`ERKStepGetReturnFlagName()`       |
-   +------------------------------------------------------+--------------------------------------------+
-   | No. of explicit stability-limited steps              | :c:func:`ERKStepGetNumExpSteps()`          |
-   +------------------------------------------------------+--------------------------------------------+
-   | No. of accuracy-limited steps                        | :c:func:`ERKStepGetNumAccSteps()`          |
-   +------------------------------------------------------+--------------------------------------------+
-   | No. of attempted steps                               | :c:func:`ERKStepGetNumStepAttempts()`      |
-   +------------------------------------------------------+--------------------------------------------+
-   | No. of calls to *f* function                         | :c:func:`ERKStepGetNumRhsEvals()`          |
-   +------------------------------------------------------+--------------------------------------------+
-   | No. of local error test failures that have occurred  | :c:func:`ERKStepGetNumErrTestFails()`      |
-   +------------------------------------------------------+--------------------------------------------+
-   | Current ERK Butcher table                            | :c:func:`ERKStepGetCurrentButcherTable()`  |
-   +------------------------------------------------------+--------------------------------------------+
-   | Estimated local truncation error vector              | :c:func:`ERKStepGetEstLocalErrors()`       |
-   +------------------------------------------------------+--------------------------------------------+
-   | Accumulated temporal error estimation strategy       | :c:func:`ERKStepSetAccumulatedErrorType()` |
-   +------------------------------------------------------+--------------------------------------------+
-   | Reset acumulated temporal error estimate             | :c:func:`ERKStepResetAccumulatedError()`   |
-   +------------------------------------------------------+--------------------------------------------+
-   | Get accumulated temporal error estimate              | :c:func:`ERKStepGetAccumulatedError()`     |
-   +------------------------------------------------------+--------------------------------------------+
-   | Single accessor to many statistics at once           | :c:func:`ERKStepGetTimestepperStats()`     |
-   +------------------------------------------------------+--------------------------------------------+
-   | Number of constraint test failures                   | :c:func:`ERKStepGetNumConstrFails()`       |
-   +------------------------------------------------------+--------------------------------------------+
-   | Retrieve a pointer for user data                     | :c:func:`ERKStepGetUserData`               |
-   +------------------------------------------------------+--------------------------------------------+
-
 
 
 .. c:function:: int ERKStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
@@ -1710,6 +1479,10 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetWorkSpace` instead.
+
 
 
 .. c:function:: int ERKStepGetNumSteps(void* arkode_mem, long int* nsteps)
@@ -1724,6 +1497,10 @@ Main solver optional output functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumSteps` instead.
 
 
 
@@ -1747,6 +1524,10 @@ Main solver optional output functions
       bounds :math:`(h_{min} \le h_0 \le h_{max})`, or to satisfy the
       local error test condition.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetActualInitStep` instead.
+
 
 
 .. c:function:: int ERKStepGetLastStep(void* arkode_mem, sunrealtype* hlast)
@@ -1762,6 +1543,10 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetLastStep` instead.
+
 
 
 .. c:function:: int ERKStepGetCurrentStep(void* arkode_mem, sunrealtype* hcur)
@@ -1776,6 +1561,10 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetCurrentStep` instead.
+
 
 
 .. c:function:: int ERKStepGetCurrentTime(void* arkode_mem, sunrealtype* tcur)
@@ -1789,6 +1578,10 @@ Main solver optional output functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetCurrentTime` instead.
 
 
 
@@ -1805,6 +1598,10 @@ Main solver optional output functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetTolScaleFactor` instead.
 
 
 
@@ -1824,6 +1621,10 @@ Main solver optional output functions
       The user must allocate space for *eweight*, that will be
       filled in by this function.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetErrWeights` instead.
+
 
 
 .. c:function:: int ERKStepGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused, sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur)
@@ -1841,6 +1642,11 @@ Main solver optional output functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetStepStats` instead.
+
 
 
 .. c:function:: int ERKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
@@ -1869,9 +1675,13 @@ Main solver optional output functions
 
    .. versionadded:: 5.2.0
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodePrintAllStats` instead.
 
 
-.. c:function:: char *ERKStepGetReturnFlagName(long int flag)
+
+.. c:function:: char* ERKStepGetReturnFlagName(long int flag)
 
    Returns the name of the ERKStep constant corresponding to *flag*.
    See :ref:`ARKODE.Constants`.
@@ -1882,6 +1692,10 @@ Main solver optional output functions
    **Return value:**
       The return value is a string containing the name of
       the corresponding constant.
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetReturnFlagName` instead.
 
 
 
@@ -1898,6 +1712,10 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumExpSteps` instead.
+
 
 
 .. c:function:: int ERKStepGetNumAccSteps(void* arkode_mem, long int* accsteps)
@@ -1913,6 +1731,10 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumAccSteps` instead.
+
 
 
 .. c:function:: int ERKStepGetNumStepAttempts(void* arkode_mem, long int* step_attempts)
@@ -1926,6 +1748,10 @@ Main solver optional output functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumStepAttempts` instead.
 
 
 
@@ -1956,6 +1782,10 @@ Main solver optional output functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumErrTestFails` instead.
 
 
 
@@ -2020,80 +1850,9 @@ Main solver optional output functions
       failures, the components causing the failures are those with largest
       values for the products, denoted loosely as ``eweight[i]*ele[i]``.
 
+   .. deprecated:: x.y.z
 
-.. c:function:: int ERKStepSetAccumulatedErrorType(void* arkode_mem, int accum_type)
-
-   Sets the strategy to use for accumulating a temporal error estimate
-   over multiple time steps.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *accum_type* -- accumulation strategy:
-
-        * ``-1`` -- no accumulation (default).
-        * ``0`` -- maximum accumulation.
-        * ``1`` -- additive accumulation.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
-
-   **Notes:**
-      At each internal step, ERKStep computes both a solution and embedding,
-      (if coefficients are available), :math:`y_n` and :math:`\tilde{y}_n`,
-      resulting in a vector-valued local temporal error estimate, :math:`y_n - \tilde{y}_n`.
-      By default, ERKStep will not accumulate these local error estimates, but
-      accumulation can be triggered by setting one of two options:
-
-      * ``0`` computes :math:`\text{reltol} \max_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`
-
-      * ``1`` computes :math:`\frac{\text{reltol}}{N} \sum_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`,
-
-      In both cases, the sum or maximum is taken over all steps :math:`n\in N` since the most
-      recent call to either :c:func:`ERKStepSetAccumulatedErrorType` or
-      :c:func:`ERKStepResetAccumulatedError`.  The norm is taken using the tolerance-informed
-      error-weight vector (see :c:func:`ERKStepGetErrWeights`), and ``reltol`` is the
-      user-specified relative solution tolerance.
-
-      Error accumulation can be disabled by calling :c:func:`ERKStepSetAccumulatedErrorType`
-      with the argument ``-1``.
-
-   .. versionadded:: v.v.v
-
-
-.. c:function:: int ERKStepResetAccumulatedError(void* arkode_mem)
-
-   Resets the accumulated temporal error estimate.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ERKStep memory block.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
-
-   .. versionadded:: v.v.v
-
-
-.. c:function:: int ERKStepGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
-
-   Gets the accumulated temporal error estimate.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *accum_error* -- pointer to accumulated error estimate.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
-
-   **Notes:**
-      This routine is only useful if a Runge--Kutta method with an embedding is used
-      by ERKStep.  If a non-embedded method is used then this routine will always return
-      ``*accum_error = 0.0``.
-
-   .. versionadded:: v.v.v
-
+      Use :c:func:`ARKodeGetEstLocalErrors` instead.
 
 
 .. c:function:: int ERKStepGetTimestepperStats(void* arkode_mem, long int* expsteps, long int* accsteps, long int* step_attempts, long int* nf_evals, long int* netfails)
@@ -2126,6 +1885,10 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumConstrFails` instead.
+
 
 
 .. c:function:: int ERKStepGetUserData(void* arkode_mem, void** user_data)
@@ -2143,25 +1906,16 @@ Main solver optional output functions
 
    .. versionadded:: 5.3.0
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetUserData` instead.
+
+
 
 .. _ARKODE.Usage.ERKStep.ERKStepRootOutputs:
 
 Rootfinding optional output functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-.. _ARKODE.Usage.ERKStep.ERKStepRootOutputsTable:
-.. table:: Rootfinding optional output functions
-
-   +--------------------------------------------------+---------------------------------+
-   | Optional output                                  | Function name                   |
-   +--------------------------------------------------+---------------------------------+
-   | Array showing roots found                        | :c:func:`ERKStepGetRootInfo()`  |
-   +--------------------------------------------------+---------------------------------+
-   | No. of calls to user root function               | :c:func:`ERKStepGetNumGEvals()` |
-   +--------------------------------------------------+---------------------------------+
-
-
 
 .. c:function:: int ERKStepGetRootInfo(void* arkode_mem, int* rootsfound)
 
@@ -2190,6 +1944,10 @@ Rootfinding optional output functions
       zero-crossing.  A value of +1 indicates that :math:`g_i` is
       increasing, while a value of -1 indicates a decreasing :math:`g_i`.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetRootInfo` instead.
+
 
 
 .. c:function:: int ERKStepGetNumGEvals(void* arkode_mem, long int* ngevals)
@@ -2205,6 +1963,9 @@ Rootfinding optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumGEvals` instead.
 
 
 
@@ -2212,28 +1973,6 @@ Rootfinding optional output functions
 
 General usability functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The following optional routines may be called by a user to inquire
-about existing solver parameters, to retrieve stored Butcher tables,
-write the current Butcher table, or even to test a provided Butcher
-table to determine its analytical order of accuracy.  While none of
-these would typically be called during the course of solving an
-initial value problem, these may be useful for users wishing to better
-understand ERKStep and/or specific Runge--Kutta methods.
-
-
-.. _ARKODE.Usage.ERKStep.ERKStepExtraOutputsTable:
-.. table:: General usability functions
-
-   +----------------------------------------+------------------------------------+
-   | Optional routine                       | Function name                      |
-   +----------------------------------------+------------------------------------+
-   | Output all ERKStep solver parameters   | :c:func:`ERKStepWriteParameters()` |
-   +----------------------------------------+------------------------------------+
-   | Output the current Butcher table       | :c:func:`ERKStepWriteButcher()`    |
-   +----------------------------------------+------------------------------------+
-
-
 
 
 .. c:function:: int ERKStepWriteParameters(void* arkode_mem, FILE *fp)
@@ -2256,6 +1995,11 @@ understand ERKStep and/or specific Runge--Kutta methods.
       for this pointer, since parameters for all processes would be
       identical.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeWriteParameters` instead.
+
+
 
 .. c:function:: int ERKStepWriteButcher(void* arkode_mem, FILE *fp)
 
@@ -2277,6 +2021,10 @@ understand ERKStep and/or specific Runge--Kutta methods.
       for this pointer, since tables for all processes would be
       identical.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ERKStepGetCurrentButcherTable` and :c:func:`ARKodeButcherTable_Write`
+      instead.
 
 
 
@@ -2359,40 +2107,6 @@ vector.
 ERKStep reset function
 ----------------------
 
-To reset the ERKStep module to a particular state :math:`(t_R,y(t_R))` for the
-continued solution of a problem, where a prior
-call to :c:func:`ERKStepCreate` has been made, the user must call the function
-:c:func:`ERKStepReset()`.  Like :c:func:`ERKStepReInit()` this routine retains
-the current settings for all ERKStep module options and performs no memory
-allocations but, unlike :c:func:`ERKStepReInit()`, this routine performs only a
-*subset* of the input checking and initializations that are done in
-:c:func:`ERKStepCreate`. In particular this routine retains all internal
-counter values and the step size/error history. Like :c:func:`ERKStepReInit()`, a call to
-:c:func:`ERKStepReset()` will delete any previously-set *tstop* value specified
-via a call to :c:func:`ERKStepSetStopTime()`.  Following a successful call to
-:c:func:`ERKStepReset()`, call :c:func:`ERKStepEvolve()` again to continue
-solving the problem. By default the next call to :c:func:`ERKStepEvolve()` will
-use the step size computed by ERKStep prior to calling :c:func:`ERKStepReset()`.
-To set a different step size or have ERKStep estimate a new step size use
-:c:func:`ERKStepSetInitStep()`.
-
-One important use of the :c:func:`ERKStepReset()` function is in the
-treating of jump discontinuities in the RHS functions.  Except in cases
-of fairly small jumps, it is usually more efficient to stop at each
-point of discontinuity and restart the integrator with a readjusted
-ODE model, using a call to :c:func:`ERKStepReset()`.  To stop when
-the location of the discontinuity is known, simply make that location
-a value of ``tout``.  To stop when the location of the discontinuity
-is determined by the solution, use the rootfinding feature.  In either
-case, it is critical that the RHS functions *not* incorporate the
-discontinuity, but rather have a smooth extension over the
-discontinuity, so that the step across it (and subsequent rootfinding,
-if used) can be done efficiently.  Then use a switch within the RHS
-functions (communicated through ``user_data``) that can be flipped
-between the stopping of the integration and the restart, so that the
-restarted problem uses the new values (which have jumped).  Similar
-comments apply if there is to be a jump in the dependent variable
-vector.
 
 .. c:function:: int ERKStepReset(void* arkode_mem, sunrealtype tR, N_Vector yR)
 
@@ -2422,6 +2136,10 @@ vector.
       If an error occurred, :c:func:`ERKStepReset()` also sends an error message to
       the error handler function.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeReset` instead.
+
 
 
 
@@ -2429,35 +2147,6 @@ vector.
 
 ERKStep system resize function
 -------------------------------------
-
-For simulations involving changes to the number of equations and
-unknowns in the ODE system (e.g. when using spatially-adaptive
-PDE simulations under a method-of-lines approach), the ERKStep
-integrator may be "resized" between integration steps, through calls
-to the :c:func:`ERKStepResize()` function. This function modifies
-ERKStep's internal memory structures to use the new problem size,
-without destruction of the temporal adaptivity heuristics.  It is
-assumed that the dynamical time scales before and after the vector
-resize will be comparable, so that all time-stepping heuristics prior
-to calling :c:func:`ERKStepResize()` remain valid after the call.  If
-instead the dynamics should be recomputed from scratch, the ERKStep
-memory structure should be deleted with a call to
-:c:func:`ERKStepFree()`, and recreated with a call to
-:c:func:`ERKStepCreate`.
-
-To aid in the vector resize operation, the user can supply a vector
-resize function that will take as input a vector with the previous
-size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type :c:func:`ARKVecResizeFn()`)
-is not supplied (i.e., is set to ``NULL``), then all existing vectors
-internal to ERKStep will be destroyed and re-cloned from the new input
-vector.
-
-In the case that the dynamical time scale should be modified slightly
-from the previous time scale, an input *hscale* is allowed, that will
-rescale the upcoming time step by the specified factor.  If a value
-*hscale* :math:`\le 0` is specified, the default of 1.0 will be used.
-
 
 
 .. c:function:: int ERKStepResize(void* arkode_mem, N_Vector yR, sunrealtype hscale, sunrealtype tR, ARKVecResizeFn resize, void* resize_data)
@@ -2493,22 +2182,6 @@ rescale the upcoming time step by the specified factor.  If a value
       to :c:func:`ERKStepSetConstraints()` is required to re-enable constraint
       checking.
 
+   .. deprecated:: x.y.z
 
-Resizing the absolute tolerance array
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-If using array-valued absolute tolerances, the absolute tolerance
-vector will be invalid after the call to :c:func:`ERKStepResize()`, so
-the new absolute tolerance vector should be re-set **following** each
-call to :c:func:`ERKStepResize()` through a new call to
-:c:func:`ERKStepSVtolerances()`.
-
-If scalar-valued tolerances or a tolerance function was specified
-through either :c:func:`ERKStepSStolerances()` or
-:c:func:`ERKStepWFtolerances()`, then these will remain valid and no
-further action is necessary.
-
-
-.. note:: For an example showing usage of the similar
-          :c:func:`ARKStepResize()` routine, see the supplied serial C
-          example problem, ``ark_heat1D_adapt.c``.
+      Use :c:func:`ARKodeResize` instead.

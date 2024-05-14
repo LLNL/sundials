@@ -161,8 +161,8 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
     /* Optional: enable temporal root-finding */
     if (count_orbits)
     {
-      SPRKStepRootInit(arkode_mem, 1, rootfn);
-      if (check_retval(&retval, "SPRKStepRootInit", 1)) { return 1; }
+      ARKodeRootInit(arkode_mem, 1, rootfn);
+      if (check_retval(&retval, "ARKodeRootInit", 1)) { return 1; }
     }
 
     retval = SPRKStepSetMethodName(arkode_mem, method_name);
@@ -173,11 +173,11 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
 
     if (step_mode == 0)
     {
-      retval = SPRKStepSetFixedStep(arkode_mem, dt);
-      if (check_retval(&retval, "SPRKStepSetFixedStep", 1)) { return 1; }
+      retval = ARKodeSetFixedStep(arkode_mem, dt);
+      if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
 
-      retval = SPRKStepSetMaxNumSteps(arkode_mem, ((long int)ceil(Tf / dt)) + 1);
-      if (check_retval(&retval, "SPRKStepSetMaxNumSteps", 1)) { return 1; }
+      retval = ARKodeSetMaxNumSteps(arkode_mem, ((long int)ceil(Tf / dt)) + 1);
+      if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) { return 1; }
     }
     else
     {
@@ -186,8 +186,8 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
       return 1;
     }
 
-    retval = SPRKStepSetUserData(arkode_mem, (void*)udata);
-    if (check_retval(&retval, "SPRKStepSetUserData", 1)) { return 1; }
+    retval = ARKodeSetUserData(arkode_mem, (void*)udata);
+    if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
   }
   else if (stepper == 1)
   {
@@ -198,21 +198,21 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
 
     if (count_orbits)
     {
-      ARKStepRootInit(arkode_mem, 1, rootfn);
-      if (check_retval(&retval, "ARKStepRootInit", 1)) { return 1; }
+      ARKodeRootInit(arkode_mem, 1, rootfn);
+      if (check_retval(&retval, "ARKodeRootInit", 1)) { return 1; }
     }
 
-    retval = ARKStepSetUserData(arkode_mem, (void*)udata);
-    if (check_retval(&retval, "ARKStepSetUserData", 1)) { return 1; }
+    retval = ARKodeSetUserData(arkode_mem, (void*)udata);
+    if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
 
-    retval = ARKStepSetMaxNumSteps(arkode_mem, ((long int)ceil(Tf / dt)) + 1);
-    if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) { return 1; }
+    retval = ARKodeSetMaxNumSteps(arkode_mem, ((long int)ceil(Tf / dt)) + 1);
+    if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
-    if (step_mode == 0) { retval = ARKStepSetFixedStep(arkode_mem, dt); }
+    if (step_mode == 0) { retval = ARKodeSetFixedStep(arkode_mem, dt); }
     else
     {
-      retval = ARKStepSStolerances(arkode_mem, dt, dt);
-      if (check_retval(&retval, "ARKStepSStolerances", 1)) { return 1; }
+      retval = ARKodeSStolerances(arkode_mem, dt, dt);
+      if (check_retval(&retval, "ARKodeSStolerances", 1)) { return 1; }
     }
   }
 
@@ -264,15 +264,15 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
          exact requested output time will not be hit (even with a fixed
          time-step due to roundoff error accumulation) and interpolation will be
          used to get the solution at the output time. */
-      if (args->use_tstop) { SPRKStepSetStopTime(arkode_mem, tout); }
-      retval = SPRKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+      if (args->use_tstop) { ARKodeSetStopTime(arkode_mem, tout); }
+      retval = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
       if (retval == ARK_ROOT_RETURN)
       {
         num_orbits += SUN_RCONST(0.5);
 
         fprintf(stdout, "ROOT RETURN:\t");
-        SPRKStepGetRootInfo(arkode_mem, &rootsfound);
+        ARKodeGetRootInfo(arkode_mem, &rootsfound);
         fprintf(stdout, "  g[0] = %3d, y[0] = %3Lg, y[1] = %3Lg, num. orbits is now %.2Lf\n",
                 rootsfound, (long double)ydata[0], (long double)ydata[1],
                 (long double)num_orbits);
@@ -311,15 +311,15 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
          exact requested output time will not be hit (even with a fixed
          time-step due to roundoff error accumulation) and interpolation will be
          used to get the solution at the output time. */
-      if (args->use_tstop) { ARKStepSetStopTime(arkode_mem, tout); }
-      retval = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+      if (args->use_tstop) { ARKodeSetStopTime(arkode_mem, tout); }
+      retval = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
       if (retval == ARK_ROOT_RETURN)
       {
         num_orbits += SUN_RCONST(0.5);
 
         fprintf(stdout, "ROOT RETURN:\t");
-        ARKStepGetRootInfo(arkode_mem, &rootsfound);
+        ARKodeGetRootInfo(arkode_mem, &rootsfound);
         fprintf(stdout, "  g[0] = %3d, y[0] = %3Lg, y[1] = %3Lg, num. orbits is now %.2Lf\n",
                 rootsfound, (long double)ydata[0], (long double)ydata[1],
                 (long double)num_orbits);
@@ -361,17 +361,8 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   fclose(solution_fp);
   if (NLS) { SUNNonlinSolFree(NLS); }
   N_VDestroy(y);
-  if (stepper == 0)
-  {
-    SPRKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-    SPRKStepFree(&arkode_mem);
-  }
-  else
-  {
-    ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-    ARKStepFree(&arkode_mem);
-  }
-
+  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  ARKodeFree(&arkode_mem);
   return 0;
 }
 

@@ -131,57 +131,57 @@ int solve(const char* im, const char* ex, int steps, sunbooleantype time_dep,
   retval = ARKStepSetTableName(arkode_mem, im, ex);
   if (check_retval(&retval, "ARKStepSetTableNum", 1)) return 1;
 
-  retval = ARKStepSetUserData(arkode_mem, &time_dep);
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
+  retval = ARKodeSetUserData(arkode_mem, &time_dep);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) return 1;
 
   /* Specify a time step so no extra mass evaluations occur from initial step
    * size procedure */
-  retval = ARKStepSetInitStep(arkode_mem, 0.01);
-  if (check_retval(&retval, "ARKStepSetInitStep", 1)) return 1;
+  retval = ARKodeSetInitStep(arkode_mem, 0.01);
+  if (check_retval(&retval, "ARKodeSetInitStep", 1)) return 1;
 
   /* Use Lagrange interpolation because Hermite may need addition mass matrix
    * solves to compute the interpolant */
-  retval = ARKStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
-  if (check_retval(&retval, "ARKStepSetInterpolantType", 1)) return 1;
+  retval = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
+  if (check_retval(&retval, "ARKodeSetInterpolantType", 1)) return 1;
 
   /* Configure the solvers */
   jacobian_ls = SUNLinSol_Dense(y, jacobian_mat, sunctx);
   if (check_retval(jacobian_ls, "SUNLinSol_Dense", 0)) return 1;
 
-  retval = ARKStepSetLinearSolver(arkode_mem, jacobian_ls, jacobian_mat);
-  if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) return 1;
+  retval = ARKodeSetLinearSolver(arkode_mem, jacobian_ls, jacobian_mat);
+  if (check_retval(&retval, "ARKodeSetLinearSolver", 1)) return 1;
 
   mass_ls = SUNLinSol_Dense(y, mass_mat, sunctx);
   if (check_retval(mass_ls, "SUNLinSol_Dense", 0)) return 1;
 
-  retval = ARKStepSetMassLinearSolver(arkode_mem, mass_ls, mass_mat, time_dep);
-  if (check_retval(&retval, "ARKStepSetMassLinearSolver", 0)) return 1;
+  retval = ARKodeSetMassLinearSolver(arkode_mem, mass_ls, mass_mat, time_dep);
+  if (check_retval(&retval, "ARKodeSetMassLinearSolver", 0)) return 1;
 
   nls = SUNNonlinSol_Newton(y, sunctx);
   if (check_retval(nls, "SUNNonlinSol_Newton", 0)) return 1;
 
-  retval = ARKStepSetDeduceImplicitRhs(arkode_mem, deduce_implicit_rhs);
-  if (check_retval(&retval, "ARKStepSetDeduceImplicitRhs", 1)) return 1;
+  retval = ARKodeSetDeduceImplicitRhs(arkode_mem, deduce_implicit_rhs);
+  if (check_retval(&retval, "ARKodeSetDeduceImplicitRhs", 1)) return 1;
 
   /* Let ARKODE estimate the Jacobian with finite differences */
-  retval = ARKStepSetJacFn(arkode_mem, NULL);
-  if (check_retval(&retval, "ARKStepSetJacFn", 1)) return 1;
+  retval = ARKodeSetJacFn(arkode_mem, NULL);
+  if (check_retval(&retval, "ARKodeSetJacFn", 1)) return 1;
 
-  retval = ARKStepSetMassFn(arkode_mem, mass);
-  if (check_retval(&retval, "ARKStepSetMassFn", 1)) return 1;
+  retval = ARKodeSetMassFn(arkode_mem, mass);
+  if (check_retval(&retval, "ARKodeSetMassFn", 1)) return 1;
 
   /* Take time step(s) */
   for (s = 0; s < steps; s++)
   {
-    retval = ARKStepEvolve(arkode_mem, t, y, &t, ARK_ONE_STEP);
-    if (check_retval(&retval, "ARKStepEvolve", 1)) return 1;
+    retval = ARKodeEvolve(arkode_mem, t, y, &t, ARK_ONE_STEP);
+    if (check_retval(&retval, "ARKodeEvolve", 1)) return 1;
   }
 
-  retval = ARKStepGetNumMassSolves(arkode_mem, &actual_mass_solves);
-  if (check_retval(&retval, "ARKStepGetNumMassSolves", 1)) return 1;
+  retval = ARKodeGetNumMassSolves(arkode_mem, &actual_mass_solves);
+  if (check_retval(&retval, "ARKodeGetNumMassSolves", 1)) return 1;
 
   /* Free integrator memory */
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
 
   /* Clean up */
   N_VDestroy(y);

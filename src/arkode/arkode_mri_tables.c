@@ -204,7 +204,7 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
   if (type == MRISTEP_MERK)
   {
     MRIC->ngroup = stages;
-    MRIC->group = (int**)malloc(stages*sizeof(int*));
+    MRIC->group  = (int**)malloc(stages * sizeof(int*));
     if (!(MRIC->group))
     {
       MRIStepCoupling_Free(MRIC);
@@ -213,16 +213,13 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
     for (i = 0; i < stages; i++)
     {
       MRIC->group[i] = NULL;
-      MRIC->group[i] = (int*)malloc(stages*sizeof(int));
+      MRIC->group[i] = (int*)malloc(stages * sizeof(int));
       if (!(MRIC->group[i]))
       {
         MRIStepCoupling_Free(MRIC);
         return (NULL);
       }
-      for (j = 0; j < stages; j++)
-      {
-        MRIC->group[i][j] = -1;
-      }
+      for (j = 0; j < stages; j++) { MRIC->group[i][j] = -1; }
     }
   }
 

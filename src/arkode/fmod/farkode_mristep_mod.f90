@@ -31,9 +31,11 @@ module farkode_mristep_mod
   enumerator :: MRISTEP_EXPLICIT
   enumerator :: MRISTEP_IMPLICIT
   enumerator :: MRISTEP_IMEX
+  enumerator :: MRISTEP_MERK
+  enumerator :: MRISTEP_MRISR
  end enum
  integer, parameter, public :: MRISTEP_METHOD_TYPE = kind(MRISTEP_EXPLICIT)
- public :: MRISTEP_EXPLICIT, MRISTEP_IMPLICIT, MRISTEP_IMEX
+ public :: MRISTEP_EXPLICIT, MRISTEP_IMPLICIT, MRISTEP_IMEX, MRISTEP_MERK, MRISTEP_MRISR
  ! typedef enum ARKODE_MRITableID
  enum, bind(c)
   enumerator :: ARKODE_MRI_NONE = -1
@@ -49,23 +51,35 @@ module farkode_mristep_mod
   enumerator :: ARKODE_IMEX_MRI_GARK4
   enumerator :: ARKODE_MRI_GARK_ERK22a
   enumerator :: ARKODE_MRI_GARK_ERK22b
-  enumerator :: ARKODE_MAX_MRI_NUM = ARKODE_MRI_GARK_ERK22b
+  enumerator :: ARKODE_MERK21
+  enumerator :: ARKODE_MERK32
+  enumerator :: ARKODE_MERK43
+  enumerator :: ARKODE_MERK54
+  enumerator :: ARKODE_IMEX_MRI_SR21
+  enumerator :: ARKODE_IMEX_MRI_SR32
+  enumerator :: ARKODE_IMEX_MRI_SR43
+  enumerator :: ARKODE_MAX_MRI_NUM = ARKODE_IMEX_MRI_SR43
  end enum
  integer, parameter, public :: ARKODE_MRITableID = kind(ARKODE_MRI_NONE)
  public :: ARKODE_MRI_NONE, ARKODE_MIN_MRI_NUM, ARKODE_MIS_KW3, ARKODE_MRI_GARK_ERK33a, ARKODE_MRI_GARK_ERK45a, &
     ARKODE_MRI_GARK_IRK21a, ARKODE_MRI_GARK_ESDIRK34a, ARKODE_MRI_GARK_ESDIRK46a, ARKODE_IMEX_MRI_GARK3a, &
-    ARKODE_IMEX_MRI_GARK3b, ARKODE_IMEX_MRI_GARK4, ARKODE_MRI_GARK_ERK22a, ARKODE_MRI_GARK_ERK22b, ARKODE_MAX_MRI_NUM
+    ARKODE_IMEX_MRI_GARK3b, ARKODE_IMEX_MRI_GARK4, ARKODE_MRI_GARK_ERK22a, ARKODE_MRI_GARK_ERK22b, ARKODE_MERK21, ARKODE_MERK32, &
+    ARKODE_MERK43, ARKODE_MERK54, ARKODE_IMEX_MRI_SR21, ARKODE_IMEX_MRI_SR32, ARKODE_IMEX_MRI_SR43, ARKODE_MAX_MRI_NUM
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_3 = ARKODE_MIS_KW3
- integer(C_INT), parameter, public :: MRISTEP_DEFAULT_3_AD = ARKODE_MRI_GARK_ERK33a
- integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_2 = ARKODE_MRI_GARK_ERK22a
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_3 = ARKODE_MIS_KW3
- integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_3_AD = ARKODE_MRI_GARK_ERK33a
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_4 = ARKODE_MRI_GARK_ERK45a
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMPL_SD_2 = ARKODE_MRI_GARK_IRK21a
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMPL_SD_3 = ARKODE_MRI_GARK_ESDIRK34a
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMPL_SD_4 = ARKODE_MRI_GARK_ESDIRK46a
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMEX_SD_3 = ARKODE_IMEX_MRI_GARK3b
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMEX_SD_4 = ARKODE_IMEX_MRI_GARK4
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_2_AD = ARKODE_MRI_GARK_ERK22a
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_3_AD = ARKODE_MRI_GARK_ERK33a
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_4_AD = ARKODE_MRI_GARK_ERK45a
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_5_AD = ARKODE_MERK54
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMEX_SD_2_AD = ARKODE_IMEX_MRI_SR21
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMEX_SD_3_AD = ARKODE_IMEX_MRI_SR32
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMEX_SD_4_AD = ARKODE_IMEX_MRI_SR43
 
  integer, parameter :: swig_cmem_own_bit = 0
  integer, parameter :: swig_cmem_rvalue_bit = 1
@@ -78,6 +92,8 @@ module farkode_mristep_mod
  type, public :: MRIStepCouplingMem
   type(SwigClassWrapper), public :: swigdata
  contains
+  procedure :: set_type => swigf_MRIStepCouplingMem_type_set
+  procedure :: get_type => swigf_MRIStepCouplingMem_type_get
   procedure :: set_nmat => swigf_MRIStepCouplingMem_nmat_set
   procedure :: get_nmat => swigf_MRIStepCouplingMem_nmat_get
   procedure :: set_stages => swigf_MRIStepCouplingMem_stages_set
@@ -92,6 +108,10 @@ module farkode_mristep_mod
   procedure :: get_W => swigf_MRIStepCouplingMem_W_get
   procedure :: set_G => swigf_MRIStepCouplingMem_G_set
   procedure :: get_G => swigf_MRIStepCouplingMem_G_get
+  procedure :: set_ngroup => swigf_MRIStepCouplingMem_ngroup_set
+  procedure :: get_ngroup => swigf_MRIStepCouplingMem_ngroup_get
+  procedure :: set_group => swigf_MRIStepCouplingMem_group_set
+  procedure :: get_group => swigf_MRIStepCouplingMem_group_get
   procedure :: release => swigf_release_MRIStepCouplingMem
   procedure, private :: swigf_MRIStepCouplingMem_op_assign__
   generic :: assignment(=) => swigf_MRIStepCouplingMem_op_assign__
@@ -113,8 +133,29 @@ module farkode_mristep_mod
  public :: FMRIStepCoupling_Free
  public :: FMRIStepCoupling_Write
  public :: FMRIStepCreate
- public :: FMRIStepResize
  public :: FMRIStepReInit
+ public :: FMRIStepSetCoupling
+ public :: FMRIStepSetPreInnerFn
+ public :: FMRIStepSetPostInnerFn
+ public :: FMRIStepSetFastErrorStepFactor
+ public :: FMRIStepSetAdaptController
+ public :: FMRIStepGetNumRhsEvals
+ public :: FMRIStepGetCurrentCoupling
+ public :: FMRIStepGetLastInnerStepFlag
+ public :: FMRIStepInnerStepper_Create
+ public :: FMRIStepInnerStepper_Free
+ public :: FMRIStepInnerStepper_SetContent
+ public :: FMRIStepInnerStepper_GetContent
+ public :: FMRIStepInnerStepper_SetEvolveFn
+ public :: FMRIStepInnerStepper_SetFullRhsFn
+ public :: FMRIStepInnerStepper_SetResetFn
+ public :: FMRIStepInnerStepper_SetAccumulatedErrorGetFn
+ public :: FMRIStepInnerStepper_SetAccumulatedErrorResetFn
+ public :: FMRIStepInnerStepper_SetFixedStepFn
+ public :: FMRIStepInnerStepper_SetRTolFn
+ public :: FMRIStepInnerStepper_AddForcing
+ public :: FMRIStepInnerStepper_GetForcingData
+ public :: FMRIStepResize
  public :: FMRIStepReset
  public :: FMRIStepSStolerances
  public :: FMRIStepSVtolerances
@@ -130,8 +171,6 @@ module farkode_mristep_mod
  public :: FMRIStepSetNlsRhsFn
  public :: FMRIStepSetLinear
  public :: FMRIStepSetNonlinear
- public :: FMRIStepSetCoupling
- public :: FMRIStepSetAdaptController
  public :: FMRIStepSetMaxNumSteps
  public :: FMRIStepSetNonlinCRDown
  public :: FMRIStepSetNonlinRDiv
@@ -141,25 +180,17 @@ module farkode_mristep_mod
  public :: FMRIStepSetMaxNonlinIters
  public :: FMRIStepSetNonlinConvCoef
  public :: FMRIStepSetMaxHnilWarns
- public :: FMRIStepSetStopTime
  public :: FMRIStepSetInterpolateStopTime
+ public :: FMRIStepSetStopTime
  public :: FMRIStepClearStopTime
  public :: FMRIStepSetFixedStep
  public :: FMRIStepSetRootDirection
  public :: FMRIStepSetNoInactiveRootWarn
  public :: FMRIStepSetUserData
- public :: FMRIStepSetMaxErrTestFails
- public :: FMRIStepSetMaxConvFails
- public :: FMRIStepSetConstraints
- public :: FMRIStepSetMaxNumConstrFails
- public :: FMRIStepSetInitStep
  public :: FMRIStepSetPostprocessStepFn
  public :: FMRIStepSetPostprocessStageFn
- public :: FMRIStepSetPreInnerFn
- public :: FMRIStepSetPostInnerFn
  public :: FMRIStepSetStagePredictFn
  public :: FMRIStepSetDeduceImplicitRhs
- public :: FMRIStepSetFastErrorStepFactor
  public :: FMRIStepSetJacFn
  public :: FMRIStepSetJacEvalFrequency
  public :: FMRIStepSetLinearSolutionScaling
@@ -172,22 +203,10 @@ module farkode_mristep_mod
  public :: FMRIStepEvolve
  public :: FMRIStepGetDky
  public :: FMRIStepComputeState
- public :: FMRIStepSetAccumulatedErrorType
- public :: FMRIStepResetAccumulatedError
- public :: FMRIStepGetAccumulatedError
- public :: FMRIStepGetNumExpSteps
- public :: FMRIStepGetNumAccSteps
- public :: FMRIStepGetNumStepAttempts
- public :: FMRIStepGetNumRhsEvals
  public :: FMRIStepGetNumLinSolvSetups
- public :: FMRIStepGetNumErrTestFails
- public :: FMRIStepGetCurrentCoupling
- public :: FMRIStepGetEstLocalErrors
  public :: FMRIStepGetWorkSpace
  public :: FMRIStepGetNumSteps
- public :: FMRIStepGetActualInitStep
  public :: FMRIStepGetLastStep
- public :: FMRIStepGetCurrentStep
  public :: FMRIStepGetCurrentTime
  public :: FMRIStepGetCurrentState
  public :: FMRIStepGetCurrentGamma
@@ -195,8 +214,6 @@ module farkode_mristep_mod
  public :: FMRIStepGetErrWeights
  public :: FMRIStepGetNumGEvals
  public :: FMRIStepGetRootInfo
- public :: FMRIStepGetNumConstrFails
- public :: FMRIStepGetLastInnerStepFlag
  public :: FMRIStepGetUserData
  public :: FMRIStepPrintAllStats
  public :: FMRIStepGetReturnFlagName
@@ -223,22 +240,26 @@ module farkode_mristep_mod
  public :: FMRIStepGetLinReturnFlagName
  public :: FMRIStepFree
  public :: FMRIStepPrintMem
- public :: FMRIStepInnerStepper_Create
- public :: FMRIStepInnerStepper_Free
- public :: FMRIStepInnerStepper_SetContent
- public :: FMRIStepInnerStepper_GetContent
- public :: FMRIStepInnerStepper_SetEvolveFn
- public :: FMRIStepInnerStepper_SetFullRhsFn
- public :: FMRIStepInnerStepper_SetResetFn
- public :: FMRIStepInnerStepper_SetAccumulatedErrorGetFn
- public :: FMRIStepInnerStepper_SetAccumulatedErrorResetFn
- public :: FMRIStepInnerStepper_SetFixedStepFn
- public :: FMRIStepInnerStepper_SetRTolFn
- public :: FMRIStepInnerStepper_AddForcing
- public :: FMRIStepInnerStepper_GetForcingData
 
 ! WRAPPER DECLARATIONS
 interface
+subroutine swigc_MRIStepCouplingMem_type_set(farg1, farg2) &
+bind(C, name="_wrap_MRIStepCouplingMem_type_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT), intent(in) :: farg2
+end subroutine
+
+function swigc_MRIStepCouplingMem_type_get(farg1) &
+bind(C, name="_wrap_MRIStepCouplingMem_type_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT) :: fresult
+end function
+
 subroutine swigc_MRIStepCouplingMem_nmat_set(farg1, farg2) &
 bind(C, name="_wrap_MRIStepCouplingMem_nmat_set")
 use, intrinsic :: ISO_C_BINDING
@@ -351,6 +372,40 @@ end subroutine
 
 function swigc_MRIStepCouplingMem_G_get(farg1) &
 bind(C, name="_wrap_MRIStepCouplingMem_G_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_MRIStepCouplingMem_ngroup_set(farg1, farg2) &
+bind(C, name="_wrap_MRIStepCouplingMem_ngroup_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT), intent(in) :: farg2
+end subroutine
+
+function swigc_MRIStepCouplingMem_ngroup_get(farg1) &
+bind(C, name="_wrap_MRIStepCouplingMem_ngroup_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT) :: fresult
+end function
+
+subroutine swigc_MRIStepCouplingMem_group_set(farg1, farg2) &
+bind(C, name="_wrap_MRIStepCouplingMem_group_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg2
+end subroutine
+
+function swigc_MRIStepCouplingMem_group_get(farg1) &
+bind(C, name="_wrap_MRIStepCouplingMem_group_get") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
@@ -474,18 +529,6 @@ type(C_PTR), value :: farg6
 type(C_PTR) :: fresult
 end function
 
-function swigc_FMRIStepResize(farg1, farg2, farg3, farg4, farg5) &
-bind(C, name="_wrap_FMRIStepResize") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-real(C_DOUBLE), intent(in) :: farg3
-type(C_FUNPTR), value :: farg4
-type(C_PTR), value :: farg5
-integer(C_INT) :: fresult
-end function
-
 function swigc_FMRIStepReInit(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FMRIStepReInit") &
 result(fresult)
@@ -494,6 +537,211 @@ type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
 type(C_FUNPTR), value :: farg3
 real(C_DOUBLE), intent(in) :: farg4
+type(C_PTR), value :: farg5
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepSetCoupling(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetCoupling") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepSetPreInnerFn(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetPreInnerFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepSetPostInnerFn(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetPostInnerFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepSetFastErrorStepFactor(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetFastErrorStepFactor") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepSetAdaptController(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetAdaptController") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepGetNumRhsEvals(farg1, farg2, farg3) &
+bind(C, name="_wrap_FMRIStepGetNumRhsEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepGetCurrentCoupling(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepGetCurrentCoupling") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepGetLastInnerStepFlag(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepGetLastInnerStepFlag") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_Create(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepInnerStepper_Create") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_Free(farg1) &
+bind(C, name="_wrap_FMRIStepInnerStepper_Free") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_SetContent(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepInnerStepper_SetContent") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_GetContent(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepInnerStepper_GetContent") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_SetEvolveFn(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepInnerStepper_SetEvolveFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_SetFullRhsFn(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepInnerStepper_SetFullRhsFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_SetResetFn(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepInnerStepper_SetResetFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_SetAccumulatedErrorGetFn(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepInnerStepper_SetAccumulatedErrorGetFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_SetAccumulatedErrorResetFn(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepInnerStepper_SetAccumulatedErrorResetFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_SetFixedStepFn(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepInnerStepper_SetFixedStepFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_SetRTolFn(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepInnerStepper_SetRTolFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_AddForcing(farg1, farg2, farg3) &
+bind(C, name="_wrap_FMRIStepInnerStepper_AddForcing") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_GetForcingData(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FMRIStepInnerStepper_GetForcingData") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
+type(C_PTR), value :: farg5
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepResize(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FMRIStepResize") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+type(C_FUNPTR), value :: farg4
 type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
@@ -636,24 +884,6 @@ type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
-function swigc_FMRIStepSetCoupling(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetCoupling") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepSetAdaptController(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetAdaptController") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FMRIStepSetMaxNumSteps(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepSetMaxNumSteps") &
 result(fresult)
@@ -735,21 +965,21 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FMRIStepSetStopTime(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetStopTime") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FMRIStepSetInterpolateStopTime(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepSetInterpolateStopTime") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepSetStopTime(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepSetStopTime") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -796,51 +1026,6 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FMRIStepSetMaxErrTestFails(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetMaxErrTestFails") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepSetMaxConvFails(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetMaxConvFails") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepSetConstraints(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetConstraints") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepSetMaxNumConstrFails(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetMaxNumConstrFails") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepSetInitStep(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetInitStep") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FMRIStepSetPostprocessStepFn(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepSetPostprocessStepFn") &
 result(fresult)
@@ -852,24 +1037,6 @@ end function
 
 function swigc_FMRIStepSetPostprocessStageFn(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepSetPostprocessStageFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepSetPreInnerFn(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetPreInnerFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepSetPostInnerFn(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetPostInnerFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -892,15 +1059,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepSetFastErrorStepFactor(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetFastErrorStepFactor") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -1020,98 +1178,8 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
-function swigc_FMRIStepSetAccumulatedErrorType(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetAccumulatedErrorType") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepResetAccumulatedError(farg1) &
-bind(C, name="_wrap_FMRIStepResetAccumulatedError") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepGetAccumulatedError(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepGetAccumulatedError") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepGetNumExpSteps(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepGetNumExpSteps") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepGetNumAccSteps(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepGetNumAccSteps") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepGetNumStepAttempts(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepGetNumStepAttempts") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepGetNumRhsEvals(farg1, farg2, farg3) &
-bind(C, name="_wrap_FMRIStepGetNumRhsEvals") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-type(C_PTR), value :: farg3
-integer(C_INT) :: fresult
-end function
-
 function swigc_FMRIStepGetNumLinSolvSetups(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepGetNumLinSolvSetups") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepGetNumErrTestFails(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepGetNumErrTestFails") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepGetCurrentCoupling(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepGetCurrentCoupling") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepGetEstLocalErrors(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepGetEstLocalErrors") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1138,26 +1206,8 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FMRIStepGetActualInitStep(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepGetActualInitStep") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FMRIStepGetLastStep(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepGetLastStep") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepGetCurrentStep(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepGetCurrentStep") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1221,24 +1271,6 @@ end function
 
 function swigc_FMRIStepGetRootInfo(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepGetRootInfo") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepGetNumConstrFails(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepGetNumConstrFails") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepGetLastInnerStepFlag(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepGetLastInnerStepFlag") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1489,131 +1521,36 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
 
-function swigc_FMRIStepInnerStepper_Create(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepInnerStepper_Create") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepInnerStepper_Free(farg1) &
-bind(C, name="_wrap_FMRIStepInnerStepper_Free") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepInnerStepper_SetContent(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepInnerStepper_SetContent") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepInnerStepper_GetContent(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepInnerStepper_GetContent") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepInnerStepper_SetEvolveFn(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepInnerStepper_SetEvolveFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepInnerStepper_SetFullRhsFn(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepInnerStepper_SetFullRhsFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepInnerStepper_SetResetFn(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepInnerStepper_SetResetFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepInnerStepper_SetAccumulatedErrorGetFn(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepInnerStepper_SetAccumulatedErrorGetFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepInnerStepper_SetAccumulatedErrorResetFn(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepInnerStepper_SetAccumulatedErrorResetFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepInnerStepper_SetFixedStepFn(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepInnerStepper_SetFixedStepFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepInnerStepper_SetRTolFn(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepInnerStepper_SetRTolFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepInnerStepper_AddForcing(farg1, farg2, farg3) &
-bind(C, name="_wrap_FMRIStepInnerStepper_AddForcing") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-type(C_PTR), value :: farg3
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepInnerStepper_GetForcingData(farg1, farg2, farg3, farg4, farg5) &
-bind(C, name="_wrap_FMRIStepInnerStepper_GetForcingData") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-type(C_PTR), value :: farg3
-type(C_PTR), value :: farg4
-type(C_PTR), value :: farg5
-integer(C_INT) :: fresult
-end function
-
 end interface
 
 
 contains
  ! MODULE SUBPROGRAMS
+subroutine swigf_MRIStepCouplingMem_type_set(self, type)
+use, intrinsic :: ISO_C_BINDING
+class(MRIStepCouplingMem), intent(in) :: self
+integer(MRISTEP_METHOD_TYPE), intent(in) :: type
+type(SwigClassWrapper) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = self%swigdata
+farg2 = type
+call swigc_MRIStepCouplingMem_type_set(farg1, farg2)
+end subroutine
+
+function swigf_MRIStepCouplingMem_type_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(MRISTEP_METHOD_TYPE) :: swig_result
+class(MRIStepCouplingMem), intent(in) :: self
+integer(C_INT) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_MRIStepCouplingMem_type_get(farg1)
+swig_result = fresult
+end function
+
 subroutine swigf_MRIStepCouplingMem_nmat_set(self, nmat)
 use, intrinsic :: ISO_C_BINDING
 class(MRIStepCouplingMem), intent(in) :: self
@@ -1786,6 +1723,56 @@ type(SwigClassWrapper) :: farg1
 
 farg1 = self%swigdata
 fresult = swigc_MRIStepCouplingMem_G_get(farg1)
+call c_f_pointer(fresult, swig_result)
+end function
+
+subroutine swigf_MRIStepCouplingMem_ngroup_set(self, ngroup)
+use, intrinsic :: ISO_C_BINDING
+class(MRIStepCouplingMem), intent(in) :: self
+integer(C_INT), intent(in) :: ngroup
+type(SwigClassWrapper) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = self%swigdata
+farg2 = ngroup
+call swigc_MRIStepCouplingMem_ngroup_set(farg1, farg2)
+end subroutine
+
+function swigf_MRIStepCouplingMem_ngroup_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+class(MRIStepCouplingMem), intent(in) :: self
+integer(C_INT) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_MRIStepCouplingMem_ngroup_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_MRIStepCouplingMem_group_set(self, group)
+use, intrinsic :: ISO_C_BINDING
+class(MRIStepCouplingMem), intent(in) :: self
+type(C_PTR), target, intent(inout) :: group
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = c_loc(group)
+call swigc_MRIStepCouplingMem_group_set(farg1, farg2)
+end subroutine
+
+function swigf_MRIStepCouplingMem_group_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), pointer :: swig_result
+class(MRIStepCouplingMem), intent(in) :: self
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_MRIStepCouplingMem_group_get(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 
@@ -2017,31 +2004,6 @@ fresult = swigc_FMRIStepCreate(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result = fresult
 end function
 
-function FMRIStepResize(arkode_mem, ynew, t0, resize, resize_data) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(N_Vector), target, intent(inout) :: ynew
-real(C_DOUBLE), intent(in) :: t0
-type(C_FUNPTR), intent(in), value :: resize
-type(C_PTR) :: resize_data
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-real(C_DOUBLE) :: farg3 
-type(C_FUNPTR) :: farg4 
-type(C_PTR) :: farg5 
-
-farg1 = arkode_mem
-farg2 = c_loc(ynew)
-farg3 = t0
-farg4 = resize
-farg5 = resize_data
-fresult = swigc_FMRIStepResize(farg1, farg2, farg3, farg4, farg5)
-swig_result = fresult
-end function
-
 function FMRIStepReInit(arkode_mem, fse, fsi, t0, y0) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2064,6 +2026,379 @@ farg3 = fsi
 farg4 = t0
 farg5 = c_loc(y0)
 fresult = swigc_FMRIStepReInit(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
+function FMRIStepSetCoupling(arkode_mem, mric) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR) :: mric
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = mric
+fresult = swigc_FMRIStepSetCoupling(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepSetPreInnerFn(arkode_mem, prefn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: prefn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = prefn
+fresult = swigc_FMRIStepSetPreInnerFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepSetPostInnerFn(arkode_mem, postfn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: postfn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = postfn
+fresult = swigc_FMRIStepSetPostInnerFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepSetFastErrorStepFactor(arkode_mem, hfactor) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: hfactor
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = hfactor
+fresult = swigc_FMRIStepSetFastErrorStepFactor(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepSetAdaptController(arkode_mem, c) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(SUNAdaptController), target, intent(inout) :: c
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(c)
+fresult = swigc_FMRIStepSetAdaptController(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepGetNumRhsEvals(arkode_mem, nfse_evals, nfsi_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nfse_evals
+integer(C_LONG), dimension(*), target, intent(inout) :: nfsi_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = c_loc(nfse_evals(1))
+farg3 = c_loc(nfsi_evals(1))
+fresult = swigc_FMRIStepGetNumRhsEvals(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FMRIStepGetCurrentCoupling(arkode_mem, mric) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: mric
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(mric)
+fresult = swigc_FMRIStepGetCurrentCoupling(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepGetLastInnerStepFlag(arkode_mem, flag) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), dimension(*), target, intent(inout) :: flag
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(flag(1))
+fresult = swigc_FMRIStepGetLastInnerStepFlag(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_Create(sunctx, stepper) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: sunctx
+type(C_PTR), target, intent(inout) :: stepper
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = sunctx
+farg2 = c_loc(stepper)
+fresult = swigc_FMRIStepInnerStepper_Create(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_Free(stepper) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: stepper
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(stepper)
+fresult = swigc_FMRIStepInnerStepper_Free(farg1)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_SetContent(stepper, content) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+type(C_PTR) :: content
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = stepper
+farg2 = content
+fresult = swigc_FMRIStepInnerStepper_SetContent(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_GetContent(stepper, content) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+type(C_PTR), target, intent(inout) :: content
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = stepper
+farg2 = c_loc(content)
+fresult = swigc_FMRIStepInnerStepper_GetContent(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_SetEvolveFn(stepper, fn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+type(C_FUNPTR), intent(in), value :: fn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = stepper
+farg2 = fn
+fresult = swigc_FMRIStepInnerStepper_SetEvolveFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_SetFullRhsFn(stepper, fn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+type(C_FUNPTR), intent(in), value :: fn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = stepper
+farg2 = fn
+fresult = swigc_FMRIStepInnerStepper_SetFullRhsFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_SetResetFn(stepper, fn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+type(C_FUNPTR), intent(in), value :: fn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = stepper
+farg2 = fn
+fresult = swigc_FMRIStepInnerStepper_SetResetFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_SetAccumulatedErrorGetFn(stepper, fn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+type(C_FUNPTR), intent(in), value :: fn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = stepper
+farg2 = fn
+fresult = swigc_FMRIStepInnerStepper_SetAccumulatedErrorGetFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_SetAccumulatedErrorResetFn(stepper, fn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+type(C_FUNPTR), intent(in), value :: fn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = stepper
+farg2 = fn
+fresult = swigc_FMRIStepInnerStepper_SetAccumulatedErrorResetFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_SetFixedStepFn(stepper, fn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+type(C_FUNPTR), intent(in), value :: fn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = stepper
+farg2 = fn
+fresult = swigc_FMRIStepInnerStepper_SetFixedStepFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_SetRTolFn(stepper, fn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+type(C_FUNPTR), intent(in), value :: fn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = stepper
+farg2 = fn
+fresult = swigc_FMRIStepInnerStepper_SetRTolFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_AddForcing(stepper, t, f) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+real(C_DOUBLE), intent(in) :: t
+type(N_Vector), target, intent(inout) :: f
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = stepper
+farg2 = t
+farg3 = c_loc(f)
+fresult = swigc_FMRIStepInnerStepper_AddForcing(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_GetForcingData(stepper, tshift, tscale, forcing, nforcing) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+real(C_DOUBLE), dimension(*), target, intent(inout) :: tshift
+real(C_DOUBLE), dimension(*), target, intent(inout) :: tscale
+type(C_PTR), target, intent(inout) :: forcing
+integer(C_INT), dimension(*), target, intent(inout) :: nforcing
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
+
+farg1 = stepper
+farg2 = c_loc(tshift(1))
+farg3 = c_loc(tscale(1))
+farg4 = c_loc(forcing)
+farg5 = c_loc(nforcing(1))
+fresult = swigc_FMRIStepInnerStepper_GetForcingData(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
+function FMRIStepResize(arkode_mem, ynew, t0, resize, resize_data) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(N_Vector), target, intent(inout) :: ynew
+real(C_DOUBLE), intent(in) :: t0
+type(C_FUNPTR), intent(in), value :: resize
+type(C_PTR) :: resize_data
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+real(C_DOUBLE) :: farg3 
+type(C_FUNPTR) :: farg4 
+type(C_PTR) :: farg5 
+
+farg1 = arkode_mem
+farg2 = c_loc(ynew)
+farg3 = t0
+farg4 = resize
+farg5 = resize_data
+fresult = swigc_FMRIStepResize(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
@@ -2316,38 +2651,6 @@ fresult = swigc_FMRIStepSetNonlinear(farg1)
 swig_result = fresult
 end function
 
-function FMRIStepSetCoupling(arkode_mem, mric) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR) :: mric
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = mric
-fresult = swigc_FMRIStepSetCoupling(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepSetAdaptController(arkode_mem, c) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(SUNAdaptController), target, intent(inout) :: c
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(c)
-fresult = swigc_FMRIStepSetAdaptController(farg1, farg2)
-swig_result = fresult
-end function
-
 function FMRIStepSetMaxNumSteps(arkode_mem, mxsteps) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2492,22 +2795,6 @@ fresult = swigc_FMRIStepSetMaxHnilWarns(farg1, farg2)
 swig_result = fresult
 end function
 
-function FMRIStepSetStopTime(arkode_mem, tstop) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: tstop
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = arkode_mem
-farg2 = tstop
-fresult = swigc_FMRIStepSetStopTime(farg1, farg2)
-swig_result = fresult
-end function
-
 function FMRIStepSetInterpolateStopTime(arkode_mem, interp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2521,6 +2808,22 @@ integer(C_INT) :: farg2
 farg1 = arkode_mem
 farg2 = interp
 fresult = swigc_FMRIStepSetInterpolateStopTime(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepSetStopTime(arkode_mem, tstop) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: tstop
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = tstop
+fresult = swigc_FMRIStepSetStopTime(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -2598,86 +2901,6 @@ fresult = swigc_FMRIStepSetUserData(farg1, farg2)
 swig_result = fresult
 end function
 
-function FMRIStepSetMaxErrTestFails(arkode_mem, maxnef) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: maxnef
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = maxnef
-fresult = swigc_FMRIStepSetMaxErrTestFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepSetMaxConvFails(arkode_mem, maxncf) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: maxncf
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = maxncf
-fresult = swigc_FMRIStepSetMaxConvFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepSetConstraints(arkode_mem, constraints) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(N_Vector), target, intent(inout) :: constraints
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(constraints)
-fresult = swigc_FMRIStepSetConstraints(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepSetMaxNumConstrFails(arkode_mem, maxfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: maxfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = maxfails
-fresult = swigc_FMRIStepSetMaxNumConstrFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepSetInitStep(arkode_mem, hin) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: hin
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = arkode_mem
-farg2 = hin
-fresult = swigc_FMRIStepSetInitStep(farg1, farg2)
-swig_result = fresult
-end function
-
 function FMRIStepSetPostprocessStepFn(arkode_mem, processstep) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2710,38 +2933,6 @@ fresult = swigc_FMRIStepSetPostprocessStageFn(farg1, farg2)
 swig_result = fresult
 end function
 
-function FMRIStepSetPreInnerFn(arkode_mem, prefn) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_FUNPTR), intent(in), value :: prefn
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = prefn
-fresult = swigc_FMRIStepSetPreInnerFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepSetPostInnerFn(arkode_mem, postfn) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_FUNPTR), intent(in), value :: postfn
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = postfn
-fresult = swigc_FMRIStepSetPostInnerFn(farg1, farg2)
-swig_result = fresult
-end function
-
 function FMRIStepSetStagePredictFn(arkode_mem, predictstage) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2771,22 +2962,6 @@ integer(C_INT) :: farg2
 farg1 = arkode_mem
 farg2 = deduce
 fresult = swigc_FMRIStepSetDeduceImplicitRhs(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepSetFastErrorStepFactor(arkode_mem, hfactor) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: hfactor
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = arkode_mem
-farg2 = hfactor
-fresult = swigc_FMRIStepSetFastErrorStepFactor(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3006,118 +3181,6 @@ fresult = swigc_FMRIStepComputeState(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FMRIStepSetAccumulatedErrorType(arkode_mem, accum_type) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: accum_type
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = accum_type
-fresult = swigc_FMRIStepSetAccumulatedErrorType(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepResetAccumulatedError(arkode_mem) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-
-farg1 = arkode_mem
-fresult = swigc_FMRIStepResetAccumulatedError(farg1)
-swig_result = fresult
-end function
-
-function FMRIStepGetAccumulatedError(arkode_mem, accum_error) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), dimension(*), target, intent(inout) :: accum_error
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(accum_error(1))
-fresult = swigc_FMRIStepGetAccumulatedError(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepGetNumExpSteps(arkode_mem, expsteps) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: expsteps
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(expsteps(1))
-fresult = swigc_FMRIStepGetNumExpSteps(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepGetNumAccSteps(arkode_mem, accsteps) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: accsteps
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(accsteps(1))
-fresult = swigc_FMRIStepGetNumAccSteps(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepGetNumStepAttempts(arkode_mem, step_attempts) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: step_attempts
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(step_attempts(1))
-fresult = swigc_FMRIStepGetNumStepAttempts(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepGetNumRhsEvals(arkode_mem, nfse_evals, nfsi_evals) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nfse_evals
-integer(C_LONG), dimension(*), target, intent(inout) :: nfsi_evals
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = arkode_mem
-farg2 = c_loc(nfse_evals(1))
-farg3 = c_loc(nfsi_evals(1))
-fresult = swigc_FMRIStepGetNumRhsEvals(farg1, farg2, farg3)
-swig_result = fresult
-end function
-
 function FMRIStepGetNumLinSolvSetups(arkode_mem, nlinsetups) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3131,54 +3194,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(nlinsetups(1))
 fresult = swigc_FMRIStepGetNumLinSolvSetups(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepGetNumErrTestFails(arkode_mem, netfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: netfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(netfails(1))
-fresult = swigc_FMRIStepGetNumErrTestFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepGetCurrentCoupling(arkode_mem, mric) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_PTR), target, intent(inout) :: mric
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(mric)
-fresult = swigc_FMRIStepGetCurrentCoupling(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepGetEstLocalErrors(arkode_mem, ele) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(N_Vector), target, intent(inout) :: ele
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(ele)
-fresult = swigc_FMRIStepGetEstLocalErrors(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3217,22 +3232,6 @@ fresult = swigc_FMRIStepGetNumSteps(farg1, farg2)
 swig_result = fresult
 end function
 
-function FMRIStepGetActualInitStep(arkode_mem, hinused) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), dimension(*), target, intent(inout) :: hinused
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(hinused(1))
-fresult = swigc_FMRIStepGetActualInitStep(farg1, farg2)
-swig_result = fresult
-end function
-
 function FMRIStepGetLastStep(arkode_mem, hlast) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3246,22 +3245,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(hlast(1))
 fresult = swigc_FMRIStepGetLastStep(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepGetCurrentStep(arkode_mem, hcur) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), dimension(*), target, intent(inout) :: hcur
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(hcur(1))
-fresult = swigc_FMRIStepGetCurrentStep(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3374,38 +3357,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(rootsfound(1))
 fresult = swigc_FMRIStepGetRootInfo(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepGetNumConstrFails(arkode_mem, nconstrfails) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nconstrfails
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(nconstrfails(1))
-fresult = swigc_FMRIStepGetNumConstrFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepGetLastInnerStepFlag(arkode_mem, flag) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), dimension(*), target, intent(inout) :: flag
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(flag(1))
-fresult = swigc_FMRIStepGetLastInnerStepFlag(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3850,223 +3801,6 @@ farg1 = arkode_mem
 farg2 = outfile
 call swigc_FMRIStepPrintMem(farg1, farg2)
 end subroutine
-
-function FMRIStepInnerStepper_Create(sunctx, stepper) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: sunctx
-type(C_PTR), target, intent(inout) :: stepper
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = sunctx
-farg2 = c_loc(stepper)
-fresult = swigc_FMRIStepInnerStepper_Create(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepInnerStepper_Free(stepper) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR), target, intent(inout) :: stepper
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-
-farg1 = c_loc(stepper)
-fresult = swigc_FMRIStepInnerStepper_Free(farg1)
-swig_result = fresult
-end function
-
-function FMRIStepInnerStepper_SetContent(stepper, content) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-type(C_PTR) :: content
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = stepper
-farg2 = content
-fresult = swigc_FMRIStepInnerStepper_SetContent(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepInnerStepper_GetContent(stepper, content) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-type(C_PTR), target, intent(inout) :: content
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = stepper
-farg2 = c_loc(content)
-fresult = swigc_FMRIStepInnerStepper_GetContent(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepInnerStepper_SetEvolveFn(stepper, fn) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = stepper
-farg2 = fn
-fresult = swigc_FMRIStepInnerStepper_SetEvolveFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepInnerStepper_SetFullRhsFn(stepper, fn) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = stepper
-farg2 = fn
-fresult = swigc_FMRIStepInnerStepper_SetFullRhsFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepInnerStepper_SetResetFn(stepper, fn) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = stepper
-farg2 = fn
-fresult = swigc_FMRIStepInnerStepper_SetResetFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepInnerStepper_SetAccumulatedErrorGetFn(stepper, fn) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = stepper
-farg2 = fn
-fresult = swigc_FMRIStepInnerStepper_SetAccumulatedErrorGetFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepInnerStepper_SetAccumulatedErrorResetFn(stepper, fn) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = stepper
-farg2 = fn
-fresult = swigc_FMRIStepInnerStepper_SetAccumulatedErrorResetFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepInnerStepper_SetFixedStepFn(stepper, fn) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = stepper
-farg2 = fn
-fresult = swigc_FMRIStepInnerStepper_SetFixedStepFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepInnerStepper_SetRTolFn(stepper, fn) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = stepper
-farg2 = fn
-fresult = swigc_FMRIStepInnerStepper_SetRTolFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepInnerStepper_AddForcing(stepper, t, f) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-real(C_DOUBLE), intent(in) :: t
-type(N_Vector), target, intent(inout) :: f
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = stepper
-farg2 = t
-farg3 = c_loc(f)
-fresult = swigc_FMRIStepInnerStepper_AddForcing(farg1, farg2, farg3)
-swig_result = fresult
-end function
-
-function FMRIStepInnerStepper_GetForcingData(stepper, tshift, tscale, forcing, nforcing) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-real(C_DOUBLE), dimension(*), target, intent(inout) :: tshift
-real(C_DOUBLE), dimension(*), target, intent(inout) :: tscale
-type(C_PTR), target, intent(inout) :: forcing
-integer(C_INT), dimension(*), target, intent(inout) :: nforcing
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-type(C_PTR) :: farg4 
-type(C_PTR) :: farg5 
-
-farg1 = stepper
-farg2 = c_loc(tshift(1))
-farg3 = c_loc(tscale(1))
-farg4 = c_loc(forcing)
-farg5 = c_loc(nforcing(1))
-fresult = swigc_FMRIStepInnerStepper_GetForcingData(farg1, farg2, farg3, farg4, farg5)
-swig_result = fresult
-end function
 
 
 end module

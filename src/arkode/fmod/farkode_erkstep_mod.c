@@ -251,6 +251,116 @@ SWIGEXPORT void * _wrap_FERKStepCreate(ARKRhsFn farg1, double const *farg2, N_Ve
 }
 
 
+SWIGEXPORT int _wrap_FERKStepReInit(void *farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKRhsFn arg2 = (ARKRhsFn) 0 ;
+  sunrealtype arg3 ;
+  N_Vector arg4 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKRhsFn)(farg2);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (N_Vector)(farg4);
+  result = (int)ERKStepReInit(arg1,arg2,arg3,arg4);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FERKStepSetTable(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKodeButcherTable arg2 = (ARKodeButcherTable) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKodeButcherTable)(farg2);
+  result = (int)ERKStepSetTable(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FERKStepSetTableNum(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKODE_ERKTableID arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKODE_ERKTableID)(*farg2);
+  result = (int)ERKStepSetTableNum(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FERKStepSetTableName(void *farg1, SwigArrayWrapper *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (char *)(farg2->data);
+  result = (int)ERKStepSetTableName(arg1,(char const *)arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FERKStepGetNumRhsEvals(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)ERKStepGetNumRhsEvals(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FERKStepGetCurrentButcherTable(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKodeButcherTable *arg2 = (ARKodeButcherTable *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKodeButcherTable *)(farg2);
+  result = (int)ERKStepGetCurrentButcherTable(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FERKStepGetTimestepperStats(void *farg1, long *farg2, long *farg3, long *farg4, long *farg5, long *farg6) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  long *arg3 = (long *) 0 ;
+  long *arg4 = (long *) 0 ;
+  long *arg5 = (long *) 0 ;
+  long *arg6 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  arg3 = (long *)(farg3);
+  arg4 = (long *)(farg4);
+  arg5 = (long *)(farg5);
+  arg6 = (long *)(farg6);
+  result = (int)ERKStepGetTimestepperStats(arg1,arg2,arg3,arg4,arg5,arg6);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FERKStepResize(void *farg1, N_Vector farg2, double const *farg3, double const *farg4, ARKVecResizeFn farg5, void *farg6) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -268,24 +378,6 @@ SWIGEXPORT int _wrap_FERKStepResize(void *farg1, N_Vector farg2, double const *f
   arg5 = (ARKVecResizeFn)(farg5);
   arg6 = (void *)(farg6);
   result = (int)ERKStepResize(arg1,arg2,arg3,arg4,arg5,arg6);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FERKStepReInit(void *farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKRhsFn arg2 = (ARKRhsFn) 0 ;
-  sunrealtype arg3 ;
-  N_Vector arg4 = (N_Vector) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (ARKRhsFn)(farg2);
-  arg3 = (sunrealtype)(*farg3);
-  arg4 = (N_Vector)(farg4);
-  result = (int)ERKStepReInit(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
 }
@@ -432,48 +524,6 @@ SWIGEXPORT int _wrap_FERKStepSetDenseOrder(void *farg1, int const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)ERKStepSetDenseOrder(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FERKStepSetTable(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKodeButcherTable arg2 = (ARKodeButcherTable) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (ARKodeButcherTable)(farg2);
-  result = (int)ERKStepSetTable(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FERKStepSetTableNum(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKODE_ERKTableID arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (ARKODE_ERKTableID)(*farg2);
-  result = (int)ERKStepSetTableNum(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FERKStepSetTableName(void *farg1, SwigArrayWrapper *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  char *arg2 = (char *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (char *)(farg2->data);
-  result = (int)ERKStepSetTableName(arg1,(char const *)arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -959,46 +1009,6 @@ SWIGEXPORT int _wrap_FERKStepGetDky(void *farg1, double const *farg2, int const 
 }
 
 
-SWIGEXPORT int _wrap_FERKStepSetAccumulatedErrorType(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)ERKStepSetAccumulatedErrorType(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FERKStepResetAccumulatedError(void *farg1) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  result = (int)ERKStepResetAccumulatedError(arg1);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FERKStepGetAccumulatedError(void *farg1, double *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  sunrealtype *arg2 = (sunrealtype *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (sunrealtype *)(farg2);
-  result = (int)ERKStepGetAccumulatedError(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FERKStepGetNumExpSteps(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1041,20 +1051,6 @@ SWIGEXPORT int _wrap_FERKStepGetNumStepAttempts(void *farg1, long *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FERKStepGetNumRhsEvals(void *farg1, long *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  long *arg2 = (long *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (long *)(farg2);
-  result = (int)ERKStepGetNumRhsEvals(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FERKStepGetNumErrTestFails(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1064,20 +1060,6 @@ SWIGEXPORT int _wrap_FERKStepGetNumErrTestFails(void *farg1, long *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)ERKStepGetNumErrTestFails(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FERKStepGetCurrentButcherTable(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKodeButcherTable *arg2 = (ARKodeButcherTable *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (ARKodeButcherTable *)(farg2);
-  result = (int)ERKStepGetCurrentButcherTable(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -1324,28 +1306,6 @@ SWIGEXPORT int _wrap_FERKStepWriteButcher(void *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FERKStepGetTimestepperStats(void *farg1, long *farg2, long *farg3, long *farg4, long *farg5, long *farg6) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  long *arg2 = (long *) 0 ;
-  long *arg3 = (long *) 0 ;
-  long *arg4 = (long *) 0 ;
-  long *arg5 = (long *) 0 ;
-  long *arg6 = (long *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (long *)(farg2);
-  arg3 = (long *)(farg3);
-  arg4 = (long *)(farg4);
-  arg5 = (long *)(farg5);
-  arg6 = (long *)(farg6);
-  result = (int)ERKStepGetTimestepperStats(arg1,arg2,arg3,arg4,arg5,arg6);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FERKStepGetStepStats(void *farg1, long *farg2, double *farg3, double *farg4, double *farg5, double *farg6) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1383,20 +1343,6 @@ SWIGEXPORT void _wrap_FERKStepPrintMem(void *farg1, void *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (FILE *)(farg2);
   ERKStepPrintMem(arg1,arg2);
-}
-
-
-SWIGEXPORT int _wrap_FERKStepCreateMRIStepInnerStepper(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  MRIStepInnerStepper *arg2 = (MRIStepInnerStepper *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (MRIStepInnerStepper *)(farg2);
-  result = (int)ERKStepCreateMRIStepInnerStepper(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
 }
 
 

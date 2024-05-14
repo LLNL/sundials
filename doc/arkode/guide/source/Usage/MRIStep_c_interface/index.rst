@@ -19,23 +19,11 @@
 Using the MRIStep time-stepping module
 ==========================================
 
-This chapter is concerned with the use of the MRIStep time-stepping module for
-the solution of multirate initial value problems (IVPs) of the form
-:eq:`ARKODE_IVP_two_rate` in a C or C++ language setting. The following sections
-discuss the header files and the layout of the user's main program, and provide
-descriptions of the MRIStep user-callable functions and user-supplied functions.
-
-The example programs located in the source code ``examples/arkode``
-folder, including those described in the companion document :cite:p:`arkode_ex`,
-may be helpful as templates for new codes.
-
-MRIStep uses the input and output constants from the shared ARKODE
-infrastructure. These are defined as needed in this chapter, but for
-convenience the full list is provided separately in
-:numref:`ARKODE.Constants`.
-
-The relevant information on using MRIStep's C and C++ interfaces is
-detailed in the following subsections.
+This section is concerned with the use of the MRIStep time-stepping
+module for the solution of initial value problems (IVPs) in a C or C++
+language setting.  Usage of MRIStep follows that of the rest of ARKODE,
+and so in this section we primarily focus on those usage aspects that
+are specific to MRIStep.
 
 .. toctree::
    :maxdepth: 1

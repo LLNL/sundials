@@ -70,8 +70,8 @@ discussion of our choice of norms for measuring errors within various components
 of the solver.
 
 We then discuss the nonlinear and linear solver strategies used by
-ARKODE's time-stepping modules for solving implicit algebraic systems
-that arise in computing each stage and/or step:
+ARKODE for solving implicit algebraic systems that arise in computing each
+stage and/or step:
 :ref:`nonlinear solvers <ARKODE.Mathematics.Nonlinear>`,
 :ref:`linear solvers <ARKODE.Mathematics.Linear>`,
 :ref:`preconditioners <ARKODE.Mathematics.Preconditioning>`,
@@ -109,7 +109,7 @@ The choice of step size :math:`h_n` is determined by the time-stepping
 method (based on user-provided inputs, typically accuracy requirements).
 However, users may place minimum/maximum bounds on :math:`h_n` if desired.
 
-ARKODE's time stepping modules may be run in a variety of "modes":
+ARKODE may be run in a variety of "modes":
 
 * **NORMAL** -- The solver will take internal steps until it has just
   overtaken a user-specified output time, :math:`t_\text{out}`, in the
@@ -151,7 +151,7 @@ may be used.
 Interpolation
 ===============
 
-As mentioned above, the time-stepping modules in ARKODE support
+As mentioned above, the ARKODE supports
 interpolation of solutions :math:`y(t_\text{out})` and derivatives
 :math:`y^{(d)}(t_\text{out})`, where :math:`t_\text{out}` occurs
 within a completed time step from :math:`t_{n-1} \to t_n`.
@@ -162,13 +162,12 @@ ARKODE currently supports construction of polynomial interpolants
 :math:`p_q(t)` of polynomial degree up to :math:`q=5`, although
 users may select interpolants of lower degree.
 
-ARKODE provides two complementary interpolation approaches,
-both of which are accessible from any of the
-time-stepping modules: "Hermite" and "Lagrange".  The former approach
+ARKODE provides two complementary interpolation approaches:
+"Hermite" and "Lagrange".  The former approach
 has been included with ARKODE since its inception, and is more
-suitable for non-stiff problems; the latter is a new approach that is
-designed to provide increased accuracy when integrating stiff problems.
-Both are described in detail below.
+suitable for non-stiff problems; the latter is a more recent approach
+that is designed to provide increased accuracy when integrating stiff
+problems. Both are described in detail below.
 
 
 .. _ARKODE.Mathematics.Interpolation.Hermite:
@@ -565,7 +564,8 @@ form is used to compute a time step:
 #. Using compensated summation, set :math:`p_n = p_{n-1} + \Delta p_n, q_n = q_{n-1} + \Delta q_n`
 
 Since temporal error based adaptive time-stepping is known to ruin the
-conservation property :cite:p:`HaWa:06`,  SPRKStep employs a fixed time-step size.
+conservation property :cite:p:`HaWa:06`,  SPRKStep requires that ARKODE be run
+using a fixed time-step size.
 
 .. However, it is possible for a user to provide a
 .. problem-specific adaptivity controller such as the one described in :cite:p:`HaSo:05`.
@@ -1014,11 +1014,8 @@ information.  In this mode, all internal time step adaptivity is disabled:
    Fixed-step mode is currently required for the slow time scale in the MRIStep module.
 
 
-Additional information on this mode is provided in the sections
-:ref:`ARKStep Optional Inputs <ARKODE.Usage.ARKStep.OptionalInputs>`,
-:ref:`ERKStep Optional Inputs <ARKODE.Usage.ERKStep.OptionalInputs>`,
-:ref:`SPRKStep Optional Inputs <ARKODE.Usage.SPRKStep.OptionalInputs>`, and
-:ref:`MRIStep Optional Inputs <ARKODE.Usage.MRIStep.OptionalInputs>`.
+Additional information on this mode is provided in the section
+:ref:`ARKODE Optional Inputs <ARKODE.Usage.OptionalInputs>`.
 
 
 .. _ARKODE.Mathematics.AlgebraicSolvers:
@@ -1140,8 +1137,7 @@ Consider, for example, :eq:`ARKODE_Residual_MeqI` which implies
      :label: ARKODE_Implicit_Stage_Eval
 
 when :math:`z_i` is the exact root, and similar relations hold for non-identity
-mass matrices.  This optimization can be enabled by
-:c:func:`ARKStepSetDeduceImplicitRhs` and :c:func:`MRIStepSetDeduceImplicitRhs`
+mass matrices.  This optimization can be enabled by :c:func:`ARKodeSetDeduceImplicitRhs`
 with the second argument in either function set to SUNTRUE. Another factor to
 consider when using this option is the amplification of errors from the
 nonlinear solver to the stages. In :eq:`ARKODE_Implicit_Stage_Eval`, nonlinear
@@ -1948,10 +1944,9 @@ step (but zero linear solves with the system Jacobian).
 Rootfinding
 ===============
 
-All of the time-stepping modules in ARKODE also support a rootfinding
-feature.  This means that, while integrating the IVP :eq:`ARKODE_IVP`, these
-can also find the roots of a set of user-defined functions
-:math:`g_i(t,y)` that depend on :math:`t` and the solution vector
+ARKODE also supports a rootfinding feature, in that while integrating the
+IVP :eq:`ARKODE_IVP`, these can also find the roots of a set of user-defined
+functions :math:`g_i(t,y)` that depend on :math:`t` and the solution vector
 :math:`y = y(t)`. The number of these root functions is arbitrary, and
 if more than one :math:`g_i` is found to have a root in any given
 interval, the various root locations are found and reported in the
@@ -2065,8 +2060,8 @@ factor of 0.9 to cover the strict inequality case). If a step fails to satisfy
 the constraints 10 times (a value which may be modified by the user) within a
 step attempt, or fails with the minimum step size, then the integration is halted
 and an error is returned. In this case the user may need to employ other
-strategies as discussed in :numref:`ARKODE.Usage.ARKStep.Tolerances` and
-:numref:`ARKODE.Usage.ERKStep.Tolerances` to satisfy the inequality constraints.
+strategies as discussed in :numref:`ARKODE.Usage.Tolerances` to satisfy the
+inequality constraints.
 
 .. _ARKODE.Mathematics.Relaxation:
 
@@ -2130,5 +2125,4 @@ relaxation application and the step will is repeated with the step size reduced
 by :math:`\eta_\text{rf}`.
 
 For more information on utilizing relaxation Runge--Kutta methods, see
-:numref:`ARKODE.Usage.ERKStep.Relaxation` and
-:numref:`ARKODE.Usage.ARKStep.Relaxation`.
+:numref:`ARKODE.Usage.Relaxation`.

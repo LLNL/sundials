@@ -253,6 +253,186 @@ SWIGEXPORT void * _wrap_FARKStepCreate(ARKRhsFn farg1, ARKRhsFn farg2, double co
 }
 
 
+SWIGEXPORT int _wrap_FARKStepReInit(void *farg1, ARKRhsFn farg2, ARKRhsFn farg3, double const *farg4, N_Vector farg5) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKRhsFn arg2 = (ARKRhsFn) 0 ;
+  ARKRhsFn arg3 = (ARKRhsFn) 0 ;
+  sunrealtype arg4 ;
+  N_Vector arg5 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKRhsFn)(farg2);
+  arg3 = (ARKRhsFn)(farg3);
+  arg4 = (sunrealtype)(*farg4);
+  arg5 = (N_Vector)(farg5);
+  result = (int)ARKStepReInit(arg1,arg2,arg3,arg4,arg5);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepSetExplicit(void *farg1) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  result = (int)ARKStepSetExplicit(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepSetImplicit(void *farg1) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  result = (int)ARKStepSetImplicit(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepSetImEx(void *farg1) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  result = (int)ARKStepSetImEx(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepSetTables(void *farg1, int const *farg2, int const *farg3, void *farg4, void *farg5) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  ARKodeButcherTable arg4 = (ARKodeButcherTable) 0 ;
+  ARKodeButcherTable arg5 = (ARKodeButcherTable) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  arg3 = (int)(*farg3);
+  arg4 = (ARKodeButcherTable)(farg4);
+  arg5 = (ARKodeButcherTable)(farg5);
+  result = (int)ARKStepSetTables(arg1,arg2,arg3,arg4,arg5);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepSetTableNum(void *farg1, int const *farg2, int const *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKODE_DIRKTableID arg2 ;
+  ARKODE_ERKTableID arg3 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKODE_DIRKTableID)(*farg2);
+  arg3 = (ARKODE_ERKTableID)(*farg3);
+  result = (int)ARKStepSetTableNum(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepSetTableName(void *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (char *)(farg2->data);
+  arg3 = (char *)(farg3->data);
+  result = (int)ARKStepSetTableName(arg1,(char const *)arg2,(char const *)arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepGetNumRhsEvals(void *farg1, long *farg2, long *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  long *arg3 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  arg3 = (long *)(farg3);
+  result = (int)ARKStepGetNumRhsEvals(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepGetCurrentButcherTables(void *farg1, void *farg2, void *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKodeButcherTable *arg2 = (ARKodeButcherTable *) 0 ;
+  ARKodeButcherTable *arg3 = (ARKodeButcherTable *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKodeButcherTable *)(farg2);
+  arg3 = (ARKodeButcherTable *)(farg3);
+  result = (int)ARKStepGetCurrentButcherTables(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepGetTimestepperStats(void *farg1, long *farg2, long *farg3, long *farg4, long *farg5, long *farg6, long *farg7, long *farg8) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  long *arg3 = (long *) 0 ;
+  long *arg4 = (long *) 0 ;
+  long *arg5 = (long *) 0 ;
+  long *arg6 = (long *) 0 ;
+  long *arg7 = (long *) 0 ;
+  long *arg8 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  arg3 = (long *)(farg3);
+  arg4 = (long *)(farg4);
+  arg5 = (long *)(farg5);
+  arg6 = (long *)(farg6);
+  arg7 = (long *)(farg7);
+  arg8 = (long *)(farg8);
+  result = (int)ARKStepGetTimestepperStats(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepCreateMRIStepInnerStepper(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  MRIStepInnerStepper *arg2 = (MRIStepInnerStepper *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (MRIStepInnerStepper *)(farg2);
+  result = (int)ARKStepCreateMRIStepInnerStepper(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepResize(void *farg1, N_Vector farg2, double const *farg3, double const *farg4, ARKVecResizeFn farg5, void *farg6) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -270,26 +450,6 @@ SWIGEXPORT int _wrap_FARKStepResize(void *farg1, N_Vector farg2, double const *f
   arg5 = (ARKVecResizeFn)(farg5);
   arg6 = (void *)(farg6);
   result = (int)ARKStepResize(arg1,arg2,arg3,arg4,arg5,arg6);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FARKStepReInit(void *farg1, ARKRhsFn farg2, ARKRhsFn farg3, double const *farg4, N_Vector farg5) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKRhsFn arg2 = (ARKRhsFn) 0 ;
-  ARKRhsFn arg3 = (ARKRhsFn) 0 ;
-  sunrealtype arg4 ;
-  N_Vector arg5 = (N_Vector) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (ARKRhsFn)(farg2);
-  arg3 = (ARKRhsFn)(farg3);
-  arg4 = (sunrealtype)(*farg4);
-  arg5 = (N_Vector)(farg5);
-  result = (int)ARKStepReInit(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
   return fresult;
 }
@@ -583,42 +743,6 @@ SWIGEXPORT int _wrap_FARKStepSetNonlinear(void *farg1) {
 }
 
 
-SWIGEXPORT int _wrap_FARKStepSetExplicit(void *farg1) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  result = (int)ARKStepSetExplicit(arg1);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FARKStepSetImplicit(void *farg1) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  result = (int)ARKStepSetImplicit(arg1);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FARKStepSetImEx(void *farg1) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  result = (int)ARKStepSetImEx(arg1);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FARKStepSetDeduceImplicitRhs(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -628,58 +752,6 @@ SWIGEXPORT int _wrap_FARKStepSetDeduceImplicitRhs(void *farg1, int const *farg2)
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   result = (int)ARKStepSetDeduceImplicitRhs(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FARKStepSetTables(void *farg1, int const *farg2, int const *farg3, void *farg4, void *farg5) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int arg3 ;
-  ARKodeButcherTable arg4 = (ARKodeButcherTable) 0 ;
-  ARKodeButcherTable arg5 = (ARKodeButcherTable) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  arg3 = (int)(*farg3);
-  arg4 = (ARKodeButcherTable)(farg4);
-  arg5 = (ARKodeButcherTable)(farg5);
-  result = (int)ARKStepSetTables(arg1,arg2,arg3,arg4,arg5);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FARKStepSetTableNum(void *farg1, int const *farg2, int const *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKODE_DIRKTableID arg2 ;
-  ARKODE_ERKTableID arg3 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (ARKODE_DIRKTableID)(*farg2);
-  arg3 = (ARKODE_ERKTableID)(*farg3);
-  result = (int)ARKStepSetTableNum(arg1,arg2,arg3);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FARKStepSetTableName(void *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (char *)(farg2->data);
-  arg3 = (char *)(farg3->data);
-  result = (int)ARKStepSetTableName(arg1,(char const *)arg2,(char const *)arg3);
   fresult = (int)(result);
   return fresult;
 }
@@ -1527,46 +1599,6 @@ SWIGEXPORT int _wrap_FARKStepComputeState(void *farg1, N_Vector farg2, N_Vector 
 }
 
 
-SWIGEXPORT int _wrap_FARKStepSetAccumulatedErrorType(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)ARKStepSetAccumulatedErrorType(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FARKStepResetAccumulatedError(void *farg1) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  result = (int)ARKStepResetAccumulatedError(arg1);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FARKStepGetAccumulatedError(void *farg1, double *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  sunrealtype *arg2 = (sunrealtype *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (sunrealtype *)(farg2);
-  result = (int)ARKStepGetAccumulatedError(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FARKStepGetNumExpSteps(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1609,22 +1641,6 @@ SWIGEXPORT int _wrap_FARKStepGetNumStepAttempts(void *farg1, long *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FARKStepGetNumRhsEvals(void *farg1, long *farg2, long *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  long *arg2 = (long *) 0 ;
-  long *arg3 = (long *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (long *)(farg2);
-  arg3 = (long *)(farg3);
-  result = (int)ARKStepGetNumRhsEvals(arg1,arg2,arg3);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FARKStepGetNumLinSolvSetups(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1648,22 +1664,6 @@ SWIGEXPORT int _wrap_FARKStepGetNumErrTestFails(void *farg1, long *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)ARKStepGetNumErrTestFails(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FARKStepGetCurrentButcherTables(void *farg1, void *farg2, void *farg3) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKodeButcherTable *arg2 = (ARKodeButcherTable *) 0 ;
-  ARKodeButcherTable *arg3 = (ARKodeButcherTable *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (ARKodeButcherTable *)(farg2);
-  arg3 = (ARKodeButcherTable *)(farg3);
-  result = (int)ARKStepGetCurrentButcherTables(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }
@@ -1961,32 +1961,6 @@ SWIGEXPORT int _wrap_FARKStepWriteButcher(void *farg1, void *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (FILE *)(farg2);
   result = (int)ARKStepWriteButcher(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FARKStepGetTimestepperStats(void *farg1, long *farg2, long *farg3, long *farg4, long *farg5, long *farg6, long *farg7, long *farg8) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  long *arg2 = (long *) 0 ;
-  long *arg3 = (long *) 0 ;
-  long *arg4 = (long *) 0 ;
-  long *arg5 = (long *) 0 ;
-  long *arg6 = (long *) 0 ;
-  long *arg7 = (long *) 0 ;
-  long *arg8 = (long *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (long *)(farg2);
-  arg3 = (long *)(farg3);
-  arg4 = (long *)(farg4);
-  arg5 = (long *)(farg5);
-  arg6 = (long *)(farg6);
-  arg7 = (long *)(farg7);
-  arg8 = (long *)(farg8);
-  result = (int)ARKStepGetTimestepperStats(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   fresult = (int)(result);
   return fresult;
 }
@@ -2466,20 +2440,6 @@ SWIGEXPORT void _wrap_FARKStepPrintMem(void *farg1, void *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (FILE *)(farg2);
   ARKStepPrintMem(arg1,arg2);
-}
-
-
-SWIGEXPORT int _wrap_FARKStepCreateMRIStepInnerStepper(void *farg1, void *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  MRIStepInnerStepper *arg2 = (MRIStepInnerStepper *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (MRIStepInnerStepper *)(farg2);
-  result = (int)ARKStepCreateMRIStepInnerStepper(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
 }
 
 

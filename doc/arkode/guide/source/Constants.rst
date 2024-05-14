@@ -480,6 +480,9 @@ contains the ARKODE output constants.
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_CONTROLLER_ERR`         | -47  | An error with a SUNAdaptController object was encountered. |
    +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_STEPPER_UNSUPPORTED`    | -48  | An operation was not supported by the current              |
+   |                                     |      | time-stepping module.                                      |
+   +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+
    |                                                                                                         |

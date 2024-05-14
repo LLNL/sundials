@@ -141,12 +141,12 @@ int main(int argc, char* argv[])
   // Set up fast ARKStep integrator as fifth-order adaptive ERK
   void* inner_arkode_mem = ARKStepCreate(f0, NULL, T0, y, ctx);
   if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) return 1;
-  retval = ARKStepSetOrder(inner_arkode_mem, 5);
-  if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
-  retval = ARKStepSStolerances(inner_arkode_mem, reltol, abstol);
-  if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
-  retval = ARKStepSetMaxNumSteps(inner_arkode_mem, 1000000);
-  if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return (1);
+  retval = ARKodeSetOrder(inner_arkode_mem, 5);
+  if (check_retval(&retval, "ARKodeSetOrder", 1)) return 1;
+  retval = ARKodeSStolerances(inner_arkode_mem, reltol, abstol);
+  if (check_retval(&retval, "ARKodeSStolerances", 1)) return 1;
+  retval = ARKodeSetMaxNumSteps(inner_arkode_mem, 1000000);
+  if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) return (1);
 
   // Create inner stepper wrapper
   MRIStepInnerStepper inner_stepper = NULL; // inner stepper
@@ -180,23 +180,23 @@ int main(int argc, char* argv[])
     if (check_retval((void*)A, "SUNDenseMatrix", 0)) return 1;
     LS = SUNLinSol_Dense(y, A, ctx);
     if (check_retval((void*)LS, "SUNLinSol_Dense", 0)) return 1;
-    retval = MRIStepSetLinearSolver(mristep_mem, LS, A);
-    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) return 1;
-    retval = MRIStepSetJacFn(mristep_mem, Jn);
-    if (check_retval(&retval, "MRIStepSetJacFn", 1)) return 1;
-    retval = MRIStepSetJacEvalFrequency(mristep_mem, 1);
-    if (check_retval(&retval, "MRIStepSetJacEvalFrequency", 1)) return 1;
-    retval = MRIStepSetLSetupFrequency(mristep_mem, 1);
-    if (check_retval(&retval, "MRIStepSetLSetupFrequency", 1)) return 1;
-    retval = MRIStepSetMaxNonlinIters(mristep_mem, 20);
-    if (check_retval(&retval, "MRIStepSetMaxNonlinIters", 1)) return 1;
+    retval = ARKodeSetLinearSolver(mristep_mem, LS, A);
+    if (check_retval(&retval, "ARKodeSetLinearSolver", 1)) return 1;
+    retval = ARKodeSetJacFn(mristep_mem, Jn);
+    if (check_retval(&retval, "ARKodeSetJacFn", 1)) return 1;
+    retval = ARKodeSetJacEvalFrequency(mristep_mem, 1);
+    if (check_retval(&retval, "ARKodeSetJacEvalFrequency", 1)) return 1;
+    retval = ARKodeSetLSetupFrequency(mristep_mem, 1);
+    if (check_retval(&retval, "ARKodeSetLSetupFrequency", 1)) return 1;
+    retval = ARKodeSetMaxNonlinIters(mristep_mem, 20);
+    if (check_retval(&retval, "ARKodeSetMaxNonlinIters", 1)) return 1;
   }
-  retval = MRIStepSStolerances(mristep_mem, reltol, abstol);
-  if (check_retval(&retval, "MRIStepSStolerances", 1)) return 1;
-  retval = MRIStepSetUserData(mristep_mem, (void*)&udata);
-  if (check_retval(&retval, "MRIStepSetUserData", 1)) return 1;
-  retval = MRIStepSetAccumulatedErrorType(mristep_mem, 0);
-  if (check_retval(&retval, "MRIStepSetAccumulatedErrorType", 1)) return 1;
+  retval = ARKodeSStolerances(mristep_mem, reltol, abstol);
+  if (check_retval(&retval, "ARKodeSStolerances", 1)) return 1;
+  retval = ARKodeSetUserData(mristep_mem, (void*)&udata);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) return 1;
+  retval = ARKodeSetAccumulatedErrorType(mristep_mem, 0);
+  if (check_retval(&retval, "ARKodeSetAccumulatedErrorType", 1)) return 1;
 
   // Run test for various H values
   //  vector<sunrealtype> Hvals = {ONE, ONE/2.0, ONE/4.0, ONE/8.0, ONE/16.0};
@@ -207,9 +207,9 @@ int main(int argc, char* argv[])
 
   // Clean up and return
   MRIStepCoupling_Free(C);
-  ARKStepFree(&inner_arkode_mem);
+  ARKodeFree(&inner_arkode_mem);
   MRIStepInnerStepper_Free(&inner_stepper);
-  MRIStepFree(&mristep_mem);
+  ARKodeFree(&mristep_mem);
   if (LS) { SUNLinSolFree(LS); } // free system linear solver
   if (A) { SUNMatDestroy(A); }   // free system matrix
   N_VDestroy(y);                 // Free y and yref vectors
@@ -263,24 +263,24 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
   vector<sunrealtype> dsm_est(Hvals.size(), ZERO);
 
   // Loop over step sizes
-  for (size_t iH = 0; iH < Hvals.size(); iH++)
+  for (int iH = 0; iH < Hvals.size(); iH++)
   {
     // Reset integrator for this run
     t      = T0;
     retval = Ytrue(t, y, udata);
     if (check_retval(&retval, "Ytrue", 1)) return 1;
-    retval = MRIStepReset(mristep_mem, t, y);
-    if (check_retval(&retval, "MRIStepReset", 1)) return 1;
-    retval = MRIStepSetFixedStep(mristep_mem, Hvals[iH]);
-    if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
-    retval = MRIStepResetAccumulatedError(mristep_mem);
-    if (check_retval(&retval, "MRIStepResetAccumulatedError", 1)) return 1;
+    retval = ARKodeReset(mristep_mem, t, y);
+    if (check_retval(&retval, "ARKodeReset", 1)) return 1;
+    retval = ARKodeSetFixedStep(mristep_mem, Hvals[iH]);
+    if (check_retval(&retval, "ARKodeSetFixedStep", 1)) return 1;
+    retval = ARKodeResetAccumulatedError(mristep_mem);
+    if (check_retval(&retval, "ARKodeResetAccumulatedError", 1)) return 1;
 
-    // Run MRIStep to compute one step
-    retval = MRIStepEvolve(mristep_mem, t + Hvals[iH], y, &t, ARK_ONE_STEP);
-    if (check_retval(&retval, "MRIStepEvolve", 1)) return 1;
-    retval = MRIStepGetEstLocalErrors(mristep_mem, ele);
-    if (check_retval(&retval, "MRIStepGetEstLocalErrors", 1)) return 1;
+    // Run ARKodeEvolve to compute one step
+    retval = ARKodeEvolve(mristep_mem, t + Hvals[iH], y, &t, ARK_ONE_STEP);
+    if (check_retval(&retval, "ARKodeEvolve", 1)) return 1;
+    retval = ARKodeGetEstLocalErrors(mristep_mem, ele);
+    if (check_retval(&retval, "ARKodeGetEstLocalErrors", 1)) return 1;
     retval = computeErrorWeights(y, ewt, reltol, abstol, vtemp);
     if (check_retval(&retval, "computeErrorWeights", 1)) return 1;
     dsm_est[iH] = N_VWrmsNorm(ewt, ele);

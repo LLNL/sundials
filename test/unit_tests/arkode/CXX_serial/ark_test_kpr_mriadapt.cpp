@@ -228,36 +228,6 @@ int main(int argc, char* argv[])
     std::cout << "    explicit Knoth-Wolke MIS\n";
     PrintSlowAdaptivity(opts);
     break;
-  case (9):
-    f_se         = (opts.fast_type == 0) ? fs : fse;
-    f_si         = (opts.fast_type == 0) ? ff : fsi;
-    J_s          = (opts.fast_type == 0) ? Jf : Jsi;
-    P            = 3;
-    slowimplicit = SUNTRUE;
-    mri_table    = ARKODE_IMEX_MRI_GARK3a;
-    std::cout << "    ImEx 3a MRI-GARK\n";
-    PrintSlowAdaptivity(opts);
-    break;
-  case (10):
-    f_se         = (opts.fast_type == 0) ? fs : fse;
-    f_si         = (opts.fast_type == 0) ? ff : fsi;
-    J_s          = (opts.fast_type == 0) ? Jf : Jsi;
-    P            = 3;
-    slowimplicit = SUNTRUE;
-    mri_table    = ARKODE_IMEX_MRI_GARK3b;
-    std::cout << "    ImEx 3b MRI-GARK\n";
-    PrintSlowAdaptivity(opts);
-    break;
-  case (11):
-    f_se         = (opts.fast_type == 0) ? fs : fse;
-    f_si         = (opts.fast_type == 0) ? ff : fsi;
-    J_s          = (opts.fast_type == 0) ? Jf : Jsi;
-    P            = 4;
-    slowimplicit = SUNTRUE;
-    mri_table    = ARKODE_IMEX_MRI_GARK4;
-    std::cout << "    ImEx 4 MRI-GARK\n";
-    PrintSlowAdaptivity(opts);
-    break;
   case (1):
     f_se      = (opts.fast_type == 0) ? fn : fs;
     P         = 2;
@@ -311,6 +281,36 @@ int main(int argc, char* argv[])
     slowimplicit = SUNTRUE;
     mri_table    = ARKODE_MRI_GARK_ESDIRK46a;
     std::cout << "    implicit ESDIRK46a MRI-GARK\n";
+    PrintSlowAdaptivity(opts);
+    break;
+  case (9):
+    f_se         = (opts.fast_type == 0) ? fs : fse;
+    f_si         = (opts.fast_type == 0) ? ff : fsi;
+    J_s          = (opts.fast_type == 0) ? Jf : Jsi;
+    P            = 3;
+    slowimplicit = SUNTRUE;
+    mri_table    = ARKODE_IMEX_MRI_GARK3a;
+    std::cout << "    ImEx 3a MRI-GARK\n";
+    PrintSlowAdaptivity(opts);
+    break;
+  case (10):
+    f_se         = (opts.fast_type == 0) ? fs : fse;
+    f_si         = (opts.fast_type == 0) ? ff : fsi;
+    J_s          = (opts.fast_type == 0) ? Jf : Jsi;
+    P            = 3;
+    slowimplicit = SUNTRUE;
+    mri_table    = ARKODE_IMEX_MRI_GARK3b;
+    std::cout << "    ImEx 3b MRI-GARK\n";
+    PrintSlowAdaptivity(opts);
+    break;
+  case (11):
+    f_se         = (opts.fast_type == 0) ? fs : fse;
+    f_si         = (opts.fast_type == 0) ? ff : fsi;
+    J_s          = (opts.fast_type == 0) ? Jf : Jsi;
+    P            = 4;
+    slowimplicit = SUNTRUE;
+    mri_table    = ARKODE_IMEX_MRI_GARK4;
+    std::cout << "    ImEx 4 MRI-GARK\n";
     PrintSlowAdaptivity(opts);
     break;
   }
@@ -409,8 +409,8 @@ int main(int argc, char* argv[])
   void* inner_arkode_mem = NULL; // ARKode memory structure
   inner_arkode_mem       = ARKStepCreate(f_fe, f_fi, T0, y, sunctx);
   if (check_ptr((void*)inner_arkode_mem, "ARKStepCreate")) return 1;
-  retval = ARKStepSetOrder(inner_arkode_mem, p);
-  if (check_flag(retval, "ARKStepSetOrder")) return 1;
+  retval = ARKodeSetOrder(inner_arkode_mem, p);
+  if (check_flag(retval, "ARKodeSetOrder")) return 1;
   SUNMatrix Af        = NULL; // matrix for fast solver
   SUNLinearSolver LSf = NULL; // fast linear solver object
   if (fastimplicit)
@@ -419,37 +419,37 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)Af, "SUNDenseMatrix")) return 1;
     LSf = SUNLinSol_Dense(y, Af, sunctx);
     if (check_ptr((void*)LSf, "SUNLinSol_Dense")) return 1;
-    retval = ARKStepSetLinearSolver(inner_arkode_mem, LSf, Af);
-    if (check_flag(retval, "ARKStepSetLinearSolver")) return 1;
-    retval = ARKStepSetJacFn(inner_arkode_mem, J_f);
-    if (check_flag(retval, "ARKStepSetJacFn")) return 1;
+    retval = ARKodeSetLinearSolver(inner_arkode_mem, LSf, Af);
+    if (check_flag(retval, "ARKodeSetLinearSolver")) return 1;
+    retval = ARKodeSetJacFn(inner_arkode_mem, J_f);
+    if (check_flag(retval, "ARKodeSetJacFn")) return 1;
   }
-  retval = ARKStepSStolerances(inner_arkode_mem, opts.rtol, opts.atol);
-  if (check_flag(retval, "ARKStepSStolerances")) return 1;
+  retval = ARKodeSStolerances(inner_arkode_mem, opts.rtol, opts.atol);
+  if (check_flag(retval, "ARKodeSStolerances")) return 1;
   if (opts.fcontrol != 0)
   {
-    retval = ARKStepSetAdaptController(inner_arkode_mem, fcontrol);
-    if (check_flag(retval, "ARKStepSetAdaptController")) return 1;
+    retval = ARKodeSetAdaptController(inner_arkode_mem, fcontrol);
+    if (check_flag(retval, "ARKodeSetAdaptController")) return 1;
     if (opts.set_h0 != 0)
     {
-      retval = ARKStepSetInitStep(inner_arkode_mem, opts.hf);
-      if (check_flag(retval, "ARKStepSetInitStep")) return 1;
+      retval = ARKodeSetInitStep(inner_arkode_mem, opts.hf);
+      if (check_flag(retval, "ARKodeSetInitStep")) return 1;
     }
     if (opts.fast_pq == 1)
     {
-      retval = ARKStepSetAdaptivityAdjustment(inner_arkode_mem, 0);
-      if (check_flag(retval, "ARKStepSetAdaptivityAdjustment")) return 1;
+      retval = ARKodeSetAdaptivityAdjustment(inner_arkode_mem, 0);
+      if (check_flag(retval, "ARKodeSetAdaptivityAdjustment")) return 1;
     }
   }
   else
   {
-    retval = ARKStepSetFixedStep(inner_arkode_mem, opts.hf);
-    if (check_flag(retval, "ARKStepSetFixedStep")) return 1;
+    retval = ARKodeSetFixedStep(inner_arkode_mem, opts.hf);
+    if (check_flag(retval, "ARKodeSetFixedStep")) return 1;
   }
-  retval = ARKStepSetMaxNumSteps(inner_arkode_mem, 10000);
-  if (check_flag(retval, "ARKStepSetMaxNumSteps")) return 1;
-  retval = ARKStepSetUserData(inner_arkode_mem, (void*)&opts);
-  if (check_flag(retval, "ARKStepSetUserData")) return 1;
+  retval = ARKodeSetMaxNumSteps(inner_arkode_mem, 10000);
+  if (check_flag(retval, "ARKodeSetMaxNumSteps")) return 1;
+  retval = ARKodeSetUserData(inner_arkode_mem, (void*)&opts);
+  if (check_flag(retval, "ARKodeSetUserData")) return 1;
 
   // Create inner stepper
   MRIStepInnerStepper inner_stepper = NULL; // inner stepper
@@ -565,36 +565,36 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)As, "SUNDenseMatrix")) return 1;
     LSs = SUNLinSol_Dense(y, As, sunctx);
     if (check_ptr((void*)LSs, "SUNLinSol_Dense")) return 1;
-    retval = MRIStepSetLinearSolver(arkode_mem, LSs, As);
-    if (check_flag(retval, "MRIStepSetLinearSolver")) return 1;
-    retval = MRIStepSetJacFn(arkode_mem, J_s);
-    if (check_flag(retval, "MRIStepSetJacFn")) return 1;
+    retval = ARKodeSetLinearSolver(arkode_mem, LSs, As);
+    if (check_flag(retval, "ARKodeSetLinearSolver")) return 1;
+    retval = ARKodeSetJacFn(arkode_mem, J_s);
+    if (check_flag(retval, "ARKodeSetJacFn")) return 1;
   }
-  retval = MRIStepSStolerances(arkode_mem, opts.rtol, opts.atol);
-  if (check_flag(retval, "MRIStepSStolerances")) return 1;
-  retval = MRIStepSetMaxNumSteps(arkode_mem, 10000);
-  if (check_flag(retval, "MRIStepSetMaxNumSteps")) return 1;
-  retval = MRIStepSetUserData(arkode_mem, (void*)&opts);
-  if (check_flag(retval, "MRIStepSetUserData")) return 1;
+  retval = ARKodeSStolerances(arkode_mem, opts.rtol, opts.atol);
+  if (check_flag(retval, "ARKodeSStolerances")) return 1;
+  retval = ARKodeSetMaxNumSteps(arkode_mem, 10000);
+  if (check_flag(retval, "ARKodeSetMaxNumSteps")) return 1;
+  retval = ARKodeSetUserData(arkode_mem, (void*)&opts);
+  if (check_flag(retval, "ARKodeSetUserData")) return 1;
   if (opts.scontrol != 0)
   {
     retval = MRIStepSetAdaptController(arkode_mem, scontrol);
-    if (check_flag(retval, "MRIStepSetController")) return 1;
+    if (check_flag(retval, "MRIStepSetAdaptController")) return 1;
     if (opts.set_h0 != 0)
     {
-      retval = MRIStepSetInitStep(arkode_mem, opts.hs);
-      if (check_flag(retval, "MRIStepSetInitStep")) return 1;
+      retval = ARKodeSetInitStep(arkode_mem, opts.hs);
+      if (check_flag(retval, "ARKodeSetInitStep")) return 1;
     }
     if (opts.slow_pq == 1)
     {
-      retval = ARKStepSetAdaptivityAdjustment(arkode_mem, 0);
-      if (check_flag(retval, "ARKStepSetAdaptivityAdjustment")) return 1;
+      retval = ARKodeSetAdaptivityAdjustment(arkode_mem, 0);
+      if (check_flag(retval, "ARKodeSetAdaptivityAdjustment")) return 1;
     }
   }
   else
   {
-    retval = MRIStepSetFixedStep(arkode_mem, opts.hs);
-    if (check_flag(retval, "MRIStepSetFixedStep")) return 1;
+    retval = ARKodeSetFixedStep(arkode_mem, opts.hs);
+    if (check_flag(retval, "ARKodeSetFixedStep")) return 1;
   }
 
   //
@@ -613,7 +613,7 @@ int main(int argc, char* argv[])
           SUNRabs(NV_Ith_S(y, 0) - utrue(T0, &opts)),
           SUNRabs(NV_Ith_S(y, 1) - vtrue(T0, &opts)));
 
-  // Main time-stepping loop: calls MRIStepEvolve to perform the
+  // Main time-stepping loop: calls ARKodeEvolve to perform the
   // integration, then prints results. Stops when the final time
   // has been reached
   sunrealtype t, tout;
@@ -634,8 +634,8 @@ int main(int argc, char* argv[])
   for (int iout = 0; iout < Nt; iout++)
   {
     // call integrator
-    retval = MRIStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_flag(retval, "MRIStepEvolve")) break;
+    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
+    if (check_flag(retval, "ARKodeEvolve")) break;
 
     // access/print solution and error
     uerr = SUNRabs(NV_Ith_S(y, 0) - utrue(t, &opts));
@@ -666,23 +666,23 @@ int main(int argc, char* argv[])
 
   // Get some slow integrator statistics
   long int nsts, natts, netfs, nfse, nfsi;
-  retval = MRIStepGetNumSteps(arkode_mem, &nsts);
-  check_flag(retval, "MRIStepGetNumSteps");
-  retval = MRIStepGetNumStepAttempts(arkode_mem, &natts);
-  check_flag(retval, "MRIStepGetNumStepAttempts");
-  retval = MRIStepGetNumErrTestFails(arkode_mem, &netfs);
-  check_flag(retval, "MRIStepGetNumErrTestFails");
+  retval = ARKodeGetNumSteps(arkode_mem, &nsts);
+  check_flag(retval, "ARKodeGetNumSteps");
+  retval = ARKodeGetNumStepAttempts(arkode_mem, &natts);
+  check_flag(retval, "ARKodeGetNumStepAttempts");
+  retval = ARKodeGetNumErrTestFails(arkode_mem, &netfs);
+  check_flag(retval, "ARKodeGetNumErrTestFails");
   retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
   check_flag(retval, "MRIStepGetNumRhsEvals");
 
   // Get some fast integrator statistics
   long int nstf, nattf, netff, nffe, nffi;
-  retval = ARKStepGetNumSteps(inner_arkode_mem, &nstf);
-  check_flag(retval, "ARKStepGetNumSteps");
-  retval = ARKStepGetNumStepAttempts(inner_arkode_mem, &nattf);
-  check_flag(retval, "ARKStepGetNumStepAttempts");
-  retval = ARKStepGetNumErrTestFails(inner_arkode_mem, &netff);
-  check_flag(retval, "ARKStepGetNumErrTestFails");
+  retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
+  check_flag(retval, "ARKodeGetNumSteps");
+  retval = ARKodeGetNumStepAttempts(inner_arkode_mem, &nattf);
+  check_flag(retval, "ARKodeGetNumStepAttempts");
+  retval = ARKodeGetNumErrTestFails(inner_arkode_mem, &netff);
+  check_flag(retval, "ARKodeGetNumErrTestFails");
   retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nffe, &nffi);
   check_flag(retval, "ARKStepGetNumRhsEvals");
 
@@ -701,10 +701,10 @@ int main(int argc, char* argv[])
   if (slowimplicit)
   {
     long int nnis, nncs, njes;
-    retval = MRIStepGetNonlinSolvStats(arkode_mem, &nnis, &nncs);
-    check_flag(retval, "MRIStepGetNonlinSolvStats");
-    retval = MRIStepGetNumJacEvals(arkode_mem, &njes);
-    check_flag(retval, "MRIStepGetNumJacEvals");
+    retval = ARKodeGetNonlinSolvStats(arkode_mem, &nnis, &nncs);
+    check_flag(retval, "ARKodeGetNonlinSolvStats");
+    retval = ARKodeGetNumJacEvals(arkode_mem, &njes);
+    check_flag(retval, "ARKodeGetNumJacEvals");
     std::cout << "   Slow Newton iters = " << nnis << std::endl;
     std::cout << "   Slow Newton conv fails = " << nncs << std::endl;
     std::cout << "   Slow Jacobian evals = " << njes << std::endl;
@@ -714,10 +714,10 @@ int main(int argc, char* argv[])
   if (fastimplicit)
   {
     long int nnif, nncf, njef;
-    retval = ARKStepGetNonlinSolvStats(inner_arkode_mem, &nnif, &nncf);
-    check_flag(retval, "ARKStepGetNonlinSolvStats");
-    retval = ARKStepGetNumJacEvals(inner_arkode_mem, &njef);
-    check_flag(retval, "ARKStepGetNumJacEvals");
+    retval = ARKodeGetNonlinSolvStats(inner_arkode_mem, &nnif, &nncf);
+    check_flag(retval, "ARKodeGetNonlinSolvStats");
+    retval = ARKodeGetNumJacEvals(inner_arkode_mem, &njef);
+    check_flag(retval, "ARKodeGetNumJacEvals");
     std::cout << "   Fast Newton iters = " << nnif << std::endl;
     std::cout << "   Fast Newton conv fails = " << nncf << std::endl;
     std::cout << "   Fast Jacobian evals = " << njef << std::endl;
@@ -745,9 +745,9 @@ int main(int argc, char* argv[])
   // if (opts.fcontrol != 0) {
   //   SUNAdaptControllerDestroy(fcontrol);             // free slow controller
   // }
-  ARKStepFree(&inner_arkode_mem);           // Free fast integrator memory
-  MRIStepInnerStepper_Free(&inner_stepper); // Free inner stepper
-  MRIStepFree(&arkode_mem);                 // Free slow integrator memory
+  ARKodeFree(&inner_arkode_mem);            // Free fast integrator memory
+  MRIStepInnerStepper_Free(&inner_stepper); // Free inner stepper structure
+  ARKodeFree(&arkode_mem);                  // Free slow integrator memory
 
   return 0;
 }

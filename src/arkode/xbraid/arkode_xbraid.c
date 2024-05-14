@@ -216,6 +216,11 @@ int ARKBraid_GetVecTmpl(braid_App app, N_Vector* tmpl)
 
 int ARKBraid_GetARKStepMem(braid_App app, void** arkode_mem)
 {
+  return (ARKBraid_GetARKodeMem(app, arkode_mem));
+}
+
+int ARKBraid_GetARKodeMem(braid_App app, void** arkode_mem)
+{
   ARKBraidContent content;
   if (app == NULL) { return SUNBRAID_ILLINPUT; }
   if (app->content == NULL) { return SUNBRAID_MEMFAIL; }
@@ -247,6 +252,11 @@ int ARKBraid_GetLastBraidFlag(braid_App app, int* last_flag)
 }
 
 int ARKBraid_GetLastARKStepFlag(braid_App app, int* last_flag)
+{
+  return (ARKBraid_GetLastARKodeFlag(app, last_flag));
+}
+
+int ARKBraid_GetLastARKodeFlag(braid_App app, int* last_flag)
 {
   ARKBraidContent content;
   if (app == NULL) { return SUNBRAID_ILLINPUT; }
@@ -321,7 +331,7 @@ int ARKBraid_Step(braid_App app, braid_Vector ustop, braid_Vector fstop,
     {
       /* Get the suggested step size. The rfac value is given by ETACF on a
          solver failure and limited by ETAMIN on an error test failure */
-      flag = ARKStepGetCurrentStep((void*)(content->ark_mem), &hacc);
+      flag = ARKodeGetCurrentStep((void*)(content->ark_mem), &hacc);
       CHECK_ARKODE_RETURN(content->last_flag_arkode, flag);
 
       /* Set the refinement factor */
@@ -446,12 +456,12 @@ int ARKBraid_TakeStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
   if (arkode_mem == NULL) { return ARK_MEM_NULL; }
   if (y == NULL) { return ARK_ILL_INPUT; }
 
-  /* Reset ARKStep state */
-  flag = ARKStepReset(arkode_mem, tstart, y);
+  /* Reset ARKODE state */
+  flag = ARKodeReset(arkode_mem, tstart, y);
   if (flag != ARK_SUCCESS) { return flag; }
 
   /* Set the time step size */
-  flag = ARKStepSetInitStep(arkode_mem, tstop - tstart);
+  flag = ARKodeSetInitStep(arkode_mem, tstop - tstart);
   if (flag != ARK_SUCCESS) { return flag; }
 
   /* Ignore temporal error test result and force step to pass */
@@ -459,7 +469,7 @@ int ARKBraid_TakeStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
   if (flag != ARK_SUCCESS) { return flag; }
 
   /* Take step, check flag below */
-  tmp_flag = ARKStepEvolve(arkode_mem, tstop, y, &tret, ARK_ONE_STEP);
+  tmp_flag = ARKodeEvolve(arkode_mem, tstop, y, &tret, ARK_ONE_STEP);
 
   /* Re-enable temporal error test check */
   flag = arkSetForcePass(arkode_mem, SUNFALSE);

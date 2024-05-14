@@ -11,6 +11,18 @@ estimate over multiple time steps.  See the routines `ARKStepSetAccumulatedError
 `ERKStepSetAccumulatedErrorType`, `ERKStepResetAccumulatedError`,
 and `ERKStepGetAccumulatedError` for details.
 
+Created shared user interface for ARKODE user-callable routines, to allow more
+uniform control over time-stepping algorithms, improved extensibility, and
+simplified code maintenance.  Marked the corresponding stepper-specific
+user-callable routines as deprecated; these will be removed in a future major
+release.
+
+Added "Resize" capability, as well as missing `SetRootDirection` and
+`SetNoInactiveRootWarn` functions, to ARKODE's SPRKStep time-stepping module.
+
+Deprecated `ARKStepSetOptimalParams` function; added instructions to user guide
+for users who wish to retain the current functionality.
+
 Updated the CMake variable `HIP_PLATFORM` default to `amd` as the previous
 default, `hcc`, is no longer recognized in ROCm 5.7.0 or newer. The new default
 is also valid in older version of ROCm (at least back to version 4.3.1).
@@ -36,6 +48,10 @@ for more details.
 Added support for Kokkos Kernels v4.
 
 Fixed a bug that caused error messages to be cut off in some cases. Fixes [GitHub Issue #461](https://github.com/LLNL/sundials/issues/461).
+
+Fixed a memory leak when an error handler was added to a `SUNContext`. Fixes [GitHub Issue #466](https://github.com/LLNL/sundials/issues/466).
+
+Fixed a CMake bug that caused an MPI linking error for our C++ examples in some instances. Fixes [GitHub Issue #464](https://github.com/LLNL/sundials/issues/464).
 
 ## Changes to SUNDIALS in release v7.0.0
 

@@ -263,27 +263,26 @@ int main(int argc, char* argv[])
   NV_Ith_S(y, 2) = w0;
   arkode_ref     = ARKStepCreate(fn, NULL, T0, y, ctx);
   if (check_retval((void*)arkode_ref, "ARKStepCreate", 0)) return 1;
-  retval = ARKStepSetUserData(arkode_ref, (void*)&udata);
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
-  retval = ARKStepSetOrder(arkode_ref, 5);
-  if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
-  retval = ARKStepSStolerances(arkode_ref, SUN_RCONST(1.e-10),
-                               SUN_RCONST(1.e-12));
-  if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
-  retval = ARKStepSetMaxNumSteps(arkode_ref, 1000000);
-  if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return (1);
+  retval = ARKodeSetUserData(arkode_ref, (void*)&udata);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) return 1;
+  retval = ARKodeSetOrder(arkode_ref, 5);
+  if (check_retval(&retval, "ARKodeSetOrder", 1)) return 1;
+  retval = ARKodeSStolerances(arkode_ref, SUN_RCONST(1.e-10), SUN_RCONST(1.e-12));
+  if (check_retval(&retval, "ARKodeSStolerances", 1)) return 1;
+  retval = ARKodeSetMaxNumSteps(arkode_ref, 1000000);
+  if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) return (1);
   N_VScale(ONE, y, yref[0]);
   sunrealtype hpart = (Tf - T0) / udata.Npart;
-  for (size_t ipart = 0; ipart < udata.Npart; ipart++)
+  for (int ipart = 0; ipart < udata.Npart; ipart++)
   {
     sunrealtype t = T0 + ipart * hpart;
-    retval        = ARKStepSetStopTime(arkode_ref, t + hpart);
-    if (check_retval(&retval, "ARKStepSetStopTime", 1)) return 1;
-    retval = ARKStepEvolve(arkode_ref, t + hpart, y, &t, ARK_NORMAL);
-    if (check_retval(&retval, "ARKStepEvolve", 1)) return 1;
+    retval        = ARKodeSetStopTime(arkode_ref, t + hpart);
+    if (check_retval(&retval, "ARKodeSetStopTime", 1)) return 1;
+    retval = ARKodeEvolve(arkode_ref, t + hpart, y, &t, ARK_NORMAL);
+    if (check_retval(&retval, "ARKodeEvolve", 1)) return 1;
     N_VScale(ONE, y, yref[ipart + 1]);
   }
-  ARKStepFree(&arkode_ref);
+  ARKodeFree(&arkode_ref);
 
   // Set up ARKStep integrator
   NV_Ith_S(y, 0) = u0;
@@ -298,27 +297,27 @@ int main(int argc, char* argv[])
     arkode_mem = ARKStepCreate(fn, NULL, T0, y, ctx);
   }
   if (check_retval((void*)arkode_mem, "ARKStepCreate", 0)) return 1;
-  retval = ARKStepSetUserData(arkode_mem, (void*)&udata);
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
-  retval = ARKStepSetOrder(arkode_mem, order);
-  if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
-  retval = ARKStepSStolerances(arkode_mem, SUN_RCONST(1.e-4), SUN_RCONST(1.e-9));
-  if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
+  retval = ARKodeSetUserData(arkode_mem, (void*)&udata);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) return 1;
+  retval = ARKodeSetOrder(arkode_mem, order);
+  if (check_retval(&retval, "ARKodeSetOrder", 1)) return 1;
+  retval = ARKodeSStolerances(arkode_mem, SUN_RCONST(1.e-4), SUN_RCONST(1.e-9));
+  if (check_retval(&retval, "ARKodeSStolerances", 1)) return 1;
   if (rk_type == 0)
   { // DIRK method
     A = SUNDenseMatrix(NEQ, NEQ, ctx);
     if (check_retval((void*)A, "SUNDenseMatrix", 0)) return 1;
     LS = SUNLinSol_Dense(y, A, ctx);
     if (check_retval((void*)LS, "SUNLinSol_Dense", 0)) return 1;
-    retval = ARKStepSetLinearSolver(arkode_mem, LS, A);
-    if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) return 1;
-    retval = ARKStepSetJacFn(arkode_mem, Jac);
-    if (check_retval(&retval, "ARKStepSetJacFn", 1)) return 1;
+    retval = ARKodeSetLinearSolver(arkode_mem, LS, A);
+    if (check_retval(&retval, "ARKodeSetLinearSolver", 1)) return 1;
+    retval = ARKodeSetJacFn(arkode_mem, Jac);
+    if (check_retval(&retval, "ARKodeSetJacFn", 1)) return 1;
   }
   else
   { // ERK method
-    retval = ARKStepSetMaxNumSteps(arkode_mem, 1000000);
-    if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return (1);
+    retval = ARKodeSetMaxNumSteps(arkode_mem, 1000000);
+    if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) return (1);
   }
 
   // Integrate ODE, based on run type
@@ -334,7 +333,7 @@ int main(int argc, char* argv[])
   }
 
   // Clean up and return
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   if (LS) { SUNLinSolFree(LS); } // free system linear solver
   if (A) { SUNMatDestroy(A); }   // free system matrix
   N_VDestroy(y);                 // Free y and yref vectors
@@ -413,13 +412,13 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
 
   // Loop over tolerances
   cout << "\nAdaptive-step runs:\n";
-  for (size_t irtol = 0; irtol < rtols.size(); irtol++)
+  for (int irtol = 0; irtol < rtols.size(); irtol++)
   {
     // Loop over accumulation types
-    for (size_t iaccum = 0; iaccum < accum_types.size(); iaccum++)
+    for (int iaccum = 0; iaccum < accum_types.size(); iaccum++)
     {
       // Loop over partition
-      for (size_t ipart = 0; ipart < udata.Npart; ipart++)
+      for (int ipart = 0; ipart < udata.Npart; ipart++)
       {
         // Reset integrator for this run, and evolve over partition interval
         t = T0 + ipart * hpart;
@@ -433,23 +432,22 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
           retval = ARKStepReInit(arkode_mem, fn, NULL, t, y);
         }
         if (check_retval(&retval, "ARKStepReInit", 1)) return 1;
-        retval = ARKStepSetAccumulatedErrorType(arkode_mem, accum_types[iaccum]);
-        if (check_retval(&retval, "ARKStepSetAccumulatedErrorType", 1))
-          return 1;
-        retval = ARKStepResetAccumulatedError(arkode_mem);
-        if (check_retval(&retval, "ARKStepResetAccumulatedError", 1)) return 1;
-        retval = ARKStepSStolerances(arkode_mem, rtols[irtol], abstol);
-        if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
-        retval = ARKStepSetStopTime(arkode_mem, t + hpart);
-        if (check_retval(&retval, "ARKStepSetStopTime", 1)) return 1;
-        retval = ARKStepSetMaxNumSteps(arkode_mem, 1000000);
-        if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return (1);
-        retval = ARKStepEvolve(arkode_mem, t + hpart, y, &t, ARK_NORMAL);
-        if (check_retval(&retval, "ARKStepEvolve", 1)) break;
-        retval = ARKStepGetAccumulatedError(arkode_mem, &(dsm_est[ipart]));
-        if (check_retval(&retval, "ARKStepGetAccumulatedError", 1)) break;
-        retval = ARKStepGetNumSteps(arkode_mem, &(Nsteps[ipart]));
-        if (check_retval(&retval, "ARKStepGetNumSteps", 1)) break;
+        retval = ARKodeSetAccumulatedErrorType(arkode_mem, accum_types[iaccum]);
+        if (check_retval(&retval, "ARKodeSetAccumulatedErrorType", 1)) return 1;
+        retval = ARKodeResetAccumulatedError(arkode_mem);
+        if (check_retval(&retval, "ARKodeResetAccumulatedError", 1)) return 1;
+        retval = ARKodeSStolerances(arkode_mem, rtols[irtol], abstol);
+        if (check_retval(&retval, "ARKodeSStolerances", 1)) return 1;
+        retval = ARKodeSetStopTime(arkode_mem, t + hpart);
+        if (check_retval(&retval, "ARKodeSetStopTime", 1)) return 1;
+        retval = ARKodeSetMaxNumSteps(arkode_mem, 1000000);
+        if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) return (1);
+        retval = ARKodeEvolve(arkode_mem, t + hpart, y, &t, ARK_NORMAL);
+        if (check_retval(&retval, "ARKodeEvolve", 1)) break;
+        retval = ARKodeGetAccumulatedError(arkode_mem, &(dsm_est[ipart]));
+        if (check_retval(&retval, "ARKodeGetAccumulatedError", 1)) break;
+        retval = ARKodeGetNumSteps(arkode_mem, &(Nsteps[ipart]));
+        if (check_retval(&retval, "ARKodeGetNumSteps", 1)) break;
 
         // Compute/print solution error
         sunrealtype uref = NV_Ith_S(yref[ipart + 1], 0);
@@ -501,13 +499,13 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
 
   // Loop over step sizes
   cout << "\nFixed-step runs:\n";
-  for (size_t ih = 0; ih < hvals.size(); ih++)
+  for (int ih = 0; ih < hvals.size(); ih++)
   {
     // Loop over built-in accumulation types
-    for (size_t iaccum = 0; iaccum < accum_types.size(); iaccum++)
+    for (int iaccum = 0; iaccum < accum_types.size(); iaccum++)
     {
       // Loop over partition
-      for (size_t ipart = 0; ipart < udata.Npart; ipart++)
+      for (int ipart = 0; ipart < udata.Npart; ipart++)
       {
         // Reset integrator for this run, and evolve to Tf
         t = T0 + ipart * hpart;
@@ -521,34 +519,33 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
           retval = ARKStepReInit(arkode_mem, fn, NULL, t, y);
         }
         if (check_retval(&retval, "ARKStepReInit", 1)) return 1;
-        retval = ARKStepSetAccumulatedErrorType(arkode_mem, accum_types[iaccum]);
-        if (check_retval(&retval, "ARKStepSetAccumulatedErrorType", 1))
-          return 1;
-        retval = ARKStepResetAccumulatedError(arkode_mem);
-        if (check_retval(&retval, "ARKStepResetAccumulatedError", 1)) return 1;
-        retval = ARKStepSetFixedStep(arkode_mem, hvals[ih]);
-        if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
-        retval = ARKStepSetMaxNumSteps(arkode_mem, 1000000);
-        if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return (1);
-        retval = ARKStepSetStopTime(arkode_mem, t + hpart);
-        if (check_retval(&retval, "ARKStepSetStopTime", 1)) return 1;
-        retval = ARKStepSStolerances(arkode_mem, reltol, abstol);
-        if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
+        retval = ARKodeSetAccumulatedErrorType(arkode_mem, accum_types[iaccum]);
+        if (check_retval(&retval, "ARKodeSetAccumulatedErrorType", 1)) return 1;
+        retval = ARKodeResetAccumulatedError(arkode_mem);
+        if (check_retval(&retval, "ARKodeResetAccumulatedError", 1)) return 1;
+        retval = ARKodeSetFixedStep(arkode_mem, hvals[ih]);
+        if (check_retval(&retval, "ARKodeSetFixedStep", 1)) return 1;
+        retval = ARKodeSetMaxNumSteps(arkode_mem, 1000000);
+        if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) return (1);
+        retval = ARKodeSetStopTime(arkode_mem, t + hpart);
+        if (check_retval(&retval, "ARKodeSetStopTime", 1)) return 1;
+        retval = ARKodeSStolerances(arkode_mem, reltol, abstol);
+        if (check_retval(&retval, "ARKodeSStolerances", 1)) return 1;
         if (rk_type == 0)
         {
-          retval = ARKStepSetJacEvalFrequency(arkode_mem, 1);
-          if (check_retval(&retval, "ARKStepSetJacEvalFrequency", 1)) return 1;
-          retval = ARKStepSetLSetupFrequency(arkode_mem, 1);
-          if (check_retval(&retval, "ARKStepSetLSetupFrequency", 1)) return 1;
-          retval = ARKStepSetMaxNonlinIters(arkode_mem, 20);
-          if (check_retval(&retval, "ARKStepSetMaxNonlinIters", 1)) return 1;
+          retval = ARKodeSetJacEvalFrequency(arkode_mem, 1);
+          if (check_retval(&retval, "ARKodeSetJacEvalFrequency", 1)) return 1;
+          retval = ARKodeSetLSetupFrequency(arkode_mem, 1);
+          if (check_retval(&retval, "ARKodeSetLSetupFrequency", 1)) return 1;
+          retval = ARKodeSetMaxNonlinIters(arkode_mem, 20);
+          if (check_retval(&retval, "ARKodeSetMaxNonlinIters", 1)) return 1;
         }
-        retval = ARKStepEvolve(arkode_mem, t + hpart, y, &t, ARK_NORMAL);
-        if (check_retval(&retval, "ARKStepEvolve", 1)) break;
-        retval = ARKStepGetAccumulatedError(arkode_mem, &(dsm_est[ipart]));
-        if (check_retval(&retval, "ARKStepGetAccumulatedError", 1)) break;
-        retval = ARKStepGetNumSteps(arkode_mem, &(Nsteps[ipart]));
-        if (check_retval(&retval, "ARKStepGetNumSteps", 1)) break;
+        retval = ARKodeEvolve(arkode_mem, t + hpart, y, &t, ARK_NORMAL);
+        if (check_retval(&retval, "ARKodeEvolve", 1)) break;
+        retval = ARKodeGetAccumulatedError(arkode_mem, &(dsm_est[ipart]));
+        if (check_retval(&retval, "ARKodeGetAccumulatedError", 1)) break;
+        retval = ARKodeGetNumSteps(arkode_mem, &(Nsteps[ipart]));
+        if (check_retval(&retval, "ARKodeGetNumSteps", 1)) break;
 
         // Compute/print solution error
         sunrealtype udsm = abs(NV_Ith_S(y, 0) - NV_Ith_S(yref[ipart + 1], 0)) /
@@ -569,7 +566,7 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
     // Test double-step error estimator
 
     // Loop over partition
-    for (size_t ipart = 0; ipart < udata.Npart; ipart++)
+    for (int ipart = 0; ipart < udata.Npart; ipart++)
     {
       // Reset integrator for this run, and evolve over partition interval
       t = t2 = T0 + ipart * hpart;
@@ -584,29 +581,29 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
         retval = ARKStepReInit(arkode_mem, fn, NULL, t, y);
       }
       if (check_retval(&retval, "ARKStepReInit", 1)) return 1;
-      retval = ARKStepSetAccumulatedErrorType(arkode_mem, -1);
-      if (check_retval(&retval, "ARKStepSetAccumulatedErrorType", 1)) return 1;
-      retval = ARKStepSetFixedStep(arkode_mem, hvals[ih]);
-      if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
-      retval = ARKStepSetMaxNumSteps(arkode_mem, 1000000);
-      if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return (1);
-      retval = ARKStepSetStopTime(arkode_mem, t + hpart);
-      if (check_retval(&retval, "ARKStepSetStopTime", 1)) return 1;
-      retval = ARKStepSStolerances(arkode_mem, reltol, abstol);
-      if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
+      retval = ARKodeSetAccumulatedErrorType(arkode_mem, -1);
+      if (check_retval(&retval, "ARKodeSetAccumulatedErrorType", 1)) return 1;
+      retval = ARKodeSetFixedStep(arkode_mem, hvals[ih]);
+      if (check_retval(&retval, "ARKodeSetFixedStep", 1)) return 1;
+      retval = ARKodeSetMaxNumSteps(arkode_mem, 1000000);
+      if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) return (1);
+      retval = ARKodeSetStopTime(arkode_mem, t + hpart);
+      if (check_retval(&retval, "ARKodeSetStopTime", 1)) return 1;
+      retval = ARKodeSStolerances(arkode_mem, reltol, abstol);
+      if (check_retval(&retval, "ARKodeSStolerances", 1)) return 1;
       if (rk_type == 0)
       {
-        retval = ARKStepSetJacEvalFrequency(arkode_mem, 1);
-        if (check_retval(&retval, "ARKStepSetJacEvalFrequency", 1)) return 1;
-        retval = ARKStepSetLSetupFrequency(arkode_mem, 1);
-        if (check_retval(&retval, "ARKStepSetLSetupFrequency", 1)) return 1;
-        retval = ARKStepSetMaxNonlinIters(arkode_mem, 20);
-        if (check_retval(&retval, "ARKStepSetMaxNonlinIters", 1)) return 1;
+        retval = ARKodeSetJacEvalFrequency(arkode_mem, 1);
+        if (check_retval(&retval, "ARKodeSetJacEvalFrequency", 1)) return 1;
+        retval = ARKodeSetLSetupFrequency(arkode_mem, 1);
+        if (check_retval(&retval, "ARKodeSetLSetupFrequency", 1)) return 1;
+        retval = ARKodeSetMaxNonlinIters(arkode_mem, 20);
+        if (check_retval(&retval, "ARKodeSetMaxNonlinIters", 1)) return 1;
       }
-      retval = ARKStepEvolve(arkode_mem, t + hpart, y, &t, ARK_NORMAL);
-      if (check_retval(&retval, "ARKStepEvolve", 1)) break;
-      retval = ARKStepGetNumSteps(arkode_mem, &(Nsteps[ipart]));
-      if (check_retval(&retval, "ARKStepGetNumSteps", 1)) break;
+      retval = ARKodeEvolve(arkode_mem, t + hpart, y, &t, ARK_NORMAL);
+      if (check_retval(&retval, "ARKodeEvolve", 1)) break;
+      retval = ARKodeGetNumSteps(arkode_mem, &(Nsteps[ipart]));
+      if (check_retval(&retval, "ARKodeGetNumSteps", 1)) break;
 
       if (rk_type == 0)
       { // DIRK
@@ -617,14 +614,14 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
         retval = ARKStepReInit(arkode_mem, fn, NULL, t2, y2);
       }
       if (check_retval(&retval, "ARKStepReInit", 1)) return 1;
-      retval = ARKStepSetFixedStep(arkode_mem, 2.0 * hvals[ih]);
-      if (check_retval(&retval, "ARKStepSetFixedStep", 1)) return 1;
-      retval = ARKStepSetStopTime(arkode_mem, t2 + hpart);
-      if (check_retval(&retval, "ARKStepSetStopTime", 1)) return 1;
-      retval = ARKStepEvolve(arkode_mem, t2 + hpart, y2, &t2, ARK_NORMAL);
-      if (check_retval(&retval, "ARKStepEvolve", 1)) break;
-      retval = ARKStepGetNumSteps(arkode_mem, &nsteps2);
-      if (check_retval(&retval, "ARKStepGetNumSteps", 1)) break;
+      retval = ARKodeSetFixedStep(arkode_mem, 2.0 * hvals[ih]);
+      if (check_retval(&retval, "ARKodeSetFixedStep", 1)) return 1;
+      retval = ARKodeSetStopTime(arkode_mem, t2 + hpart);
+      if (check_retval(&retval, "ARKodeSetStopTime", 1)) return 1;
+      retval = ARKodeEvolve(arkode_mem, t2 + hpart, y2, &t2, ARK_NORMAL);
+      if (check_retval(&retval, "ARKodeEvolve", 1)) break;
+      retval = ARKodeGetNumSteps(arkode_mem, &nsteps2);
+      if (check_retval(&retval, "ARKodeGetNumSteps", 1)) break;
 
       retval = computeErrorWeights(y2, ewt, reltol, abstol, vtemp);
       if (check_retval(&retval, "computeErrorWeights", 1)) break;

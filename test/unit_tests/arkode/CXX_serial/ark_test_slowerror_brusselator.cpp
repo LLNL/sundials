@@ -235,23 +235,23 @@ int main(int argc, char* argv[])
   NV_Ith_S(y, 2)   = w0;
   void* arkode_ref = ARKStepCreate(fn, NULL, T0, y, ctx);
   if (check_retval((void*)arkode_ref, "ARKStepCreate", 0)) return 1;
-  retval = ARKStepSetUserData(arkode_ref, (void*)&udata);
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) return 1;
-  retval = ARKStepSetOrder(arkode_ref, 5);
-  if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
-  retval = ARKStepSStolerances(arkode_ref, reltol, abstol);
-  if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
-  retval = ARKStepSetMaxNumSteps(arkode_ref, 1000000);
-  if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return (1);
+  retval = ARKodeSetUserData(arkode_ref, (void*)&udata);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) return 1;
+  retval = ARKodeSetOrder(arkode_ref, 5);
+  if (check_retval(&retval, "ARKodeSetOrder", 1)) return 1;
+  retval = ARKodeSStolerances(arkode_ref, reltol, abstol);
+  if (check_retval(&retval, "ARKodeSStolerances", 1)) return 1;
+  retval = ARKodeSetMaxNumSteps(arkode_ref, 1000000);
+  if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) return (1);
   N_VScale(ONE, y, yref[0]);
   sunrealtype hpart = (Tf - T0) / udata.Npart;
-  for (size_t ipart = 0; ipart < udata.Npart; ipart++)
+  for (int ipart = 0; ipart < udata.Npart; ipart++)
   {
     sunrealtype t = T0 + ipart * hpart;
-    retval        = ARKStepSetStopTime(arkode_ref, t + hpart);
-    if (check_retval(&retval, "ARKStepSetStopTime", 1)) return 1;
-    retval = ARKStepEvolve(arkode_ref, t + hpart, y, &t, ARK_NORMAL);
-    if (check_retval(&retval, "ARKStepEvolve", 1)) return 1;
+    retval        = ARKodeSetStopTime(arkode_ref, t + hpart);
+    if (check_retval(&retval, "ARKodeSetStopTime", 1)) return 1;
+    retval = ARKodeEvolve(arkode_ref, t + hpart, y, &t, ARK_NORMAL);
+    if (check_retval(&retval, "ARKodeEvolve", 1)) return 1;
     N_VScale(ONE, y, yref[ipart + 1]);
   }
 
@@ -261,12 +261,12 @@ int main(int argc, char* argv[])
   NV_Ith_S(y, 2)         = w0;
   void* inner_arkode_mem = ARKStepCreate(f0, NULL, T0, y, ctx);
   if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) return 1;
-  retval = ARKStepSetOrder(inner_arkode_mem, 5);
-  if (check_retval(&retval, "ARKStepSetOrder", 1)) return 1;
-  retval = ARKStepSStolerances(inner_arkode_mem, reltol, abstol);
-  if (check_retval(&retval, "ARKStepSStolerances", 1)) return 1;
-  retval = ARKStepSetMaxNumSteps(inner_arkode_mem, 1000000);
-  if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1)) return (1);
+  retval = ARKodeSetOrder(inner_arkode_mem, 5);
+  if (check_retval(&retval, "ARKodeSetOrder", 1)) return 1;
+  retval = ARKodeSStolerances(inner_arkode_mem, reltol, abstol);
+  if (check_retval(&retval, "ARKodeSStolerances", 1)) return 1;
+  retval = ARKodeSetMaxNumSteps(inner_arkode_mem, 1000000);
+  if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) return (1);
 
   // Create inner stepper wrapper
   MRIStepInnerStepper inner_stepper = NULL; // inner stepper
@@ -300,23 +300,23 @@ int main(int argc, char* argv[])
     if (check_retval((void*)A, "SUNDenseMatrix", 0)) return 1;
     LS = SUNLinSol_Dense(y, A, ctx);
     if (check_retval((void*)LS, "SUNLinSol_Dense", 0)) return 1;
-    retval = MRIStepSetLinearSolver(mristep_mem, LS, A);
-    if (check_retval(&retval, "MRIStepSetLinearSolver", 1)) return 1;
-    retval = MRIStepSetJacFn(mristep_mem, Jn);
-    if (check_retval(&retval, "MRIStepSetJacFn", 1)) return 1;
-    retval = MRIStepSetJacEvalFrequency(mristep_mem, 1);
-    if (check_retval(&retval, "MRIStepSetJacEvalFrequency", 1)) return 1;
-    retval = MRIStepSetLSetupFrequency(mristep_mem, 1);
-    if (check_retval(&retval, "MRIStepSetLSetupFrequency", 1)) return 1;
-    retval = MRIStepSetMaxNonlinIters(mristep_mem, 50);
-    if (check_retval(&retval, "MRIStepSetMaxNonlinIters", 1)) return 1;
+    retval = ARKodeSetLinearSolver(mristep_mem, LS, A);
+    if (check_retval(&retval, "ARKodeSetLinearSolver", 1)) return 1;
+    retval = ARKodeSetJacFn(mristep_mem, Jn);
+    if (check_retval(&retval, "ARKodeSetJacFn", 1)) return 1;
+    retval = ARKodeSetJacEvalFrequency(mristep_mem, 1);
+    if (check_retval(&retval, "ARKodeSetJacEvalFrequency", 1)) return 1;
+    retval = ARKodeSetLSetupFrequency(mristep_mem, 1);
+    if (check_retval(&retval, "ARKodeSetLSetupFrequency", 1)) return 1;
+    retval = ARKodeSetMaxNonlinIters(mristep_mem, 50);
+    if (check_retval(&retval, "ARKodeSetMaxNonlinIters", 1)) return 1;
   }
-  retval = MRIStepSStolerances(mristep_mem, reltol, abstol);
-  if (check_retval(&retval, "MRIStepSStolerances", 1)) return 1;
-  retval = MRIStepSetUserData(mristep_mem, (void*)&udata);
-  if (check_retval(&retval, "MRIStepSetUserData", 1)) return 1;
-  retval = MRIStepSetAccumulatedErrorType(mristep_mem, 0);
-  if (check_retval(&retval, "MRIStepSetAccumulatedErrorType", 1)) return 1;
+  retval = ARKodeSStolerances(mristep_mem, reltol, abstol);
+  if (check_retval(&retval, "ARKodeSStolerances", 1)) return 1;
+  retval = ARKodeSetUserData(mristep_mem, (void*)&udata);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) return 1;
+  retval = ARKodeSetAccumulatedErrorType(mristep_mem, 0);
+  if (check_retval(&retval, "ARKodeSetAccumulatedErrorType", 1)) return 1;
 
   // Run test for various H values
   sunrealtype hmax          = (Tf - T0) / 20.0 / udata.Npart;
@@ -328,10 +328,10 @@ int main(int argc, char* argv[])
 
   // Clean up and return
   MRIStepCoupling_Free(C);
-  ARKStepFree(&arkode_ref);
-  ARKStepFree(&inner_arkode_mem);
+  ARKodeFree(&arkode_ref);
+  ARKodeFree(&inner_arkode_mem);
   MRIStepInnerStepper_Free(&inner_stepper);
-  MRIStepFree(&mristep_mem);
+  ARKodeFree(&mristep_mem);
   if (LS) { SUNLinSolFree(LS); } // free system linear solver
   if (A) { SUNMatDestroy(A); }   // free system matrix
   N_VDestroy(y);                 // Free y and yref vectors
@@ -416,33 +416,33 @@ static int run_test(void* mristep_mem, void* arkode_ref, N_Vector y,
                                       vector<sunrealtype>(udata.Npart, ZERO));
 
   // Loop over step sizes
-  for (size_t iH = 0; iH < Hvals.size(); iH++)
+  for (int iH = 0; iH < Hvals.size(); iH++)
   {
     // Loop over partition
-    for (size_t ipart = 0; ipart < udata.Npart; ipart++)
+    for (int ipart = 0; ipart < udata.Npart; ipart++)
     {
       // Reset integrators for this run
       t = t2 = T0 + ipart * hpart;
       N_VScale(ONE, yref[ipart], y);
-      retval = MRIStepReset(mristep_mem, t, y);
-      if (check_retval(&retval, "MRIStepReset", 1)) return 1;
-      retval = MRIStepSetFixedStep(mristep_mem, Hvals[iH]);
-      if (check_retval(&retval, "MRIStepSetFixedStep", 1)) return 1;
-      retval = MRIStepResetAccumulatedError(mristep_mem);
-      if (check_retval(&retval, "MRIStepResetAccumulatedError", 1)) return 1;
+      retval = ARKodeReset(mristep_mem, t, y);
+      if (check_retval(&retval, "ARKodeReset", 1)) return 1;
+      retval = ARKodeSetFixedStep(mristep_mem, Hvals[iH]);
+      if (check_retval(&retval, "ARKodeSetFixedStep", 1)) return 1;
+      retval = ARKodeResetAccumulatedError(mristep_mem);
+      if (check_retval(&retval, "ARKodeResetAccumulatedError", 1)) return 1;
       N_VScale(ONE, yref[ipart], y2);
-      retval = ARKStepReset(arkode_ref, t2, y2);
-      if (check_retval(&retval, "ARKStepReset", 1)) return 1;
-      retval = ARKStepSetStopTime(arkode_ref, t2 + Hvals[iH]);
-      if (check_retval(&retval, "ARKStepSetStopTime", 1)) return 1;
+      retval = ARKodeReset(arkode_ref, t2, y2);
+      if (check_retval(&retval, "ARKodeReset", 1)) return 1;
+      retval = ARKodeSetStopTime(arkode_ref, t2 + Hvals[iH]);
+      if (check_retval(&retval, "ARKodeSetStopTime", 1)) return 1;
 
       // Run ARKStep to compute reference solution, and MRIStep to compute one step
-      retval = ARKStepEvolve(arkode_ref, t2 + Hvals[iH], y2, &t2, ARK_NORMAL);
-      if (check_retval(&retval, "ARKStepEvolve", 1)) return 1;
-      retval = MRIStepEvolve(mristep_mem, t + Hvals[iH], y, &t, ARK_ONE_STEP);
-      if (check_retval(&retval, "MRIStepEvolve", 1)) return 1;
-      retval = MRIStepGetEstLocalErrors(mristep_mem, ele);
-      if (check_retval(&retval, "MRIStepGetEstLocalErrors", 1)) return 1;
+      retval = ARKodeEvolve(arkode_ref, t2 + Hvals[iH], y2, &t2, ARK_NORMAL);
+      if (check_retval(&retval, "ARKodeEvolve", 1)) return 1;
+      retval = ARKodeEvolve(mristep_mem, t + Hvals[iH], y, &t, ARK_ONE_STEP);
+      if (check_retval(&retval, "ARKodeEvolve", 1)) return 1;
+      retval = ARKodeGetEstLocalErrors(mristep_mem, ele);
+      if (check_retval(&retval, "ARKodeGetEstLocalErrors", 1)) return 1;
       retval = computeErrorWeights(y, ewt, reltol, abstol, vtemp);
       if (check_retval(&retval, "computeErrorWeights", 1)) return 1;
       dsm_est[iH][ipart] = N_VWrmsNorm(ewt, ele);
@@ -463,7 +463,7 @@ static int run_test(void* mristep_mem, void* arkode_ref, N_Vector y,
   }
 
   cout << endl << method << " summary:" << endl;
-  for (size_t iH = 0; iH < Hvals.size(); iH++)
+  for (int iH = 0; iH < Hvals.size(); iH++)
   {
     cout << "  Stepsize " << Hvals[iH] << "  \tmaxdsm "
          << *max_element(dsm[iH].begin(), dsm[iH].end()) << "  \tmaxdsmest "
