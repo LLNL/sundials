@@ -355,7 +355,7 @@ macro(sundials_add_library target)
       endif()
 
       # install phase
-      install(TARGETS ${_actual_target_name} DESTINATION ${CMAKE_INSTALL_LIBDIR} EXPORT sundials-targets)
+      install(TARGETS ${_actual_target_name} EXPORT sundials-targets)
 
     endif()
 
