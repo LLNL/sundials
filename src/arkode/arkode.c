@@ -2503,13 +2503,13 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
   }
 
   /* call fullrhs if needed */
-  if (ark_mem->call_fullrhs)
+/*  if (ark_mem->call_fullrhs && !(ark_mem->fn_is_current))
   {
     mode = (ark_mem->ProcessStep != NULL) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->ycur,
                                    ark_mem->fn, mode);
     if (retval != 0) return (ARK_RHSFUNC_FAIL);
-  }
+  } */
 
   /* update yn to current solution */
   N_VScale(ONE, ark_mem->ycur, ark_mem->yn);
