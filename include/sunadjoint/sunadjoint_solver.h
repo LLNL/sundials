@@ -39,8 +39,8 @@ typedef struct SUNAdjointSolver_* SUNAdjointSolver;
 extern "C" {
 #endif
 
-// IDEA: In lieu of Stepper_ID each package that supports adjoint can have a function that creates the adjoint solver.
-// E.g., SUNAdjointSolver ARKStepCreateAdjointSolver();
+// TODO(CJB): I think this should be a private function that is only used
+// within the package CreateAdjointSolver routines.
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper,
                                    sunindextype num_cost_fns, N_Vector sf,
@@ -52,7 +52,7 @@ SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper,
   Solves the adjoint system.
 
   :param adj_solver: The adjoint solver object.
-  :param tf: The final output time from the forward integration. 
+  :param tf: The final output time from the forward integration.
              This is the "starting" time for adjoint solver's backwards integration.
   :param tout: The time at which the adjoint solution is desired.
   :param sens: The vector of sensitivity solutions dg/dy0 and dg/dp.

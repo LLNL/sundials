@@ -1981,6 +1981,22 @@ int ARKodeSetMaxConvFails(void* arkode_mem, int maxncf)
   return (ARK_SUCCESS);
 }
 
+int ARKodeSetCheckpointScheme(void* arkode_mem, SUNAdjointCheckpointScheme checkpoint_scheme)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  ark_mem->checkpoint_scheme = checkpoint_scheme;
+
+  return (ARK_SUCCESS);
+}
+
 /*===============================================================
   ARKODE optional output utility functions
   ===============================================================*/

@@ -28,6 +28,8 @@
 #include <sundials/sundials_adaptcontroller.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
+#include <sunadjoint/sunadjoint_checkpointscheme.h>
+#include <sunadjoint/sunadjoint_solver.h>
 
 #include "arkode_adapt_impl.h"
 #include "arkode_relaxation_impl.h"
@@ -548,6 +550,9 @@ struct ARKodeMemRec
   ARKPostProcessFn ProcessStage;
 
   sunbooleantype use_compensated_sums;
+
+  /* Adjoint solver data */
+  SUNAdjointCheckpointScheme checkpoint_scheme;
 
   /* XBraid interface variables */
   sunbooleantype force_pass; /* when true the step attempt loop will ignore the

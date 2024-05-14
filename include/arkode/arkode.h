@@ -30,6 +30,7 @@
 
 #include <arkode/arkode_butcher.h>
 #include <stdio.h>
+#include <sunadjoint/sunadjoint_solver.h>
 #include <sundials/sundials_core.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
@@ -280,6 +281,9 @@ SUNDIALS_EXPORT int ARKodeSetInitStep(void* arkode_mem, sunrealtype hin);
 SUNDIALS_EXPORT int ARKodeSetMinStep(void* arkode_mem, sunrealtype hmin);
 SUNDIALS_EXPORT int ARKodeSetMaxStep(void* arkode_mem, sunrealtype hmax);
 SUNDIALS_EXPORT int ARKodeSetMaxNumConstrFails(void* arkode_mem, int maxfails);
+SUNDIALS_EXPORT
+int ARKodeSetCheckpointScheme(void* arkode_mem,
+                              SUNAdjointCheckpointScheme checkpoint_scheme);
 
 /* Integrate the ODE over an interval in t */
 SUNDIALS_EXPORT int ARKodeEvolve(void* arkode_mem, sunrealtype tout,

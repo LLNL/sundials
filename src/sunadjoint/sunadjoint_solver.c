@@ -82,6 +82,7 @@ SUNErrCode SUNAdjointSolver_Destroy(SUNAdjointSolver* adj_solver_ptr)
 {
   SUNAdjointSolver adj_solver = *adj_solver_ptr;
   // SUNAdjointCheckpointScheme_Destroy(adj_solver->checkpoint_scheme);
+  SUNStepper_Destroy(&adj_solver->stepper);
   free(adj_solver);
   *adj_solver_ptr = NULL;
   return SUN_SUCCESS;

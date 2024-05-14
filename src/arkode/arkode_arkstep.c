@@ -3361,9 +3361,96 @@ int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
   return (ARKodeReset(arkode_mem, tR, yR));
 }
 
-/*===============================================================
-  Internal utility routines for interacting with MRIStep
-  ===============================================================*/
+/*---------------------------------------------------------------
+  Utility routines for interfacing with SUNAdjointSolver
+  ---------------------------------------------------------------*/
+
+int arkStep_fe_Adj(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
+{
+  return 0;
+}
+
+int arkStep_fi_Adj(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
+{
+  return 0;
+}
+
+int ARKStepCreateAdjointSolver(void* arkode_mem, sunindextype num_cost,
+                               N_Vector sf, SUNAdjointSolver* adj_solver_ptr)
+{
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval = arkStep_AccessARKODEStepMem(arkode_mem,
+                                           "ARKStepCreateAdjointSolver",
+                                           &ark_mem, &step_mem);
+  if (retval)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "The ARKStep memory pointer is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  // TODO(CJB): should we reinit to tretlast or tcur? tcur could be past the time the
+  // user asked for in the forward integration if they do not use tstop mode.
+  ARKodeResize(arkode_mem, sf, -ONE, ark_mem->tretlast, NULL, NULL);
+  ARKRhsFn fe_adj = step_mem->fe ? arkStep_fe_Adj : NULL;
+  ARKRhsFn fi_adj = step_mem->fi ? arkStep_fi_Adj : NULL;
+  ARKStepReInit(arkode_mem, fe_adj, fi_adj, ark_mem->tretlast, sf);
+
+  // SUNAdjointSolver will own the SUNStepper and destroy it
+  SUNStepper stepper;
+  ARKStepCreateSUNStepper(arkode_mem, &stepper);
+  SUNAdjointSolver_Create(stepper, num_cost, sf, ark_mem->checkpoint_scheme,
+                          ark_mem->sunctx, adj_solver_ptr);
+
+  return ARK_SUCCESS;
+}
+
+/*---------------------------------------------------------------
+  Utility routines for interfacing with MRIStep
+  ---------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------------
+  ARKStepCreateMRIStepInnerStepper
+
+  Wraps an ARKStep memory structure as an MRIStep inner stepper.
+  ----------------------------------------------------------------------------*/
+
+int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
+                                     MRIStepInnerStepper* stepper)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+
+  retval = arkStep_AccessARKODEStepMem(inner_arkode_mem,
+                                       "ARKStepCreateMRIStepInnerStepper",
+                                       &ark_mem, &step_mem);
+  if (retval)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "The ARKStep memory pointer is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, arkStep_MRIStepInnerEvolve);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
+                                            arkStep_MRIStepInnerFullRhs);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARK_SUCCESS);
+}
 
 /*------------------------------------------------------------------------------
   arkStep_MRIStepInnerEvolve

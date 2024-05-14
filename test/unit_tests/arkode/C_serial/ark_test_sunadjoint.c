@@ -107,15 +107,9 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   // TODO(CJB): Load sf with the sensitivity terminal conditions
   N_VConst(0.0, sf);
 
-  // TODO(CJB): this block of code needs to be less complicated, should wrap it up in something like ARKStepCreateAdjointSolver()
+  SUNAdjointSolver adj_solver;
+  ARKStepCreateAdjointSolver(arkode_mem, num_cost, sf, &adj_solver);
   // lotka_volterra_adjoint is J*lambda - user will provide J, we internally will create RHS that is J*lambda
-  ARKodeResize(arkode_mem, sf, 1.0, tf, NULL, NULL);
-  ARKStepReInit(arkode_mem, lotka_volterra_adjoint, NULL, tf, sf);
-  SUNStepper stepper = NULL;
-  ARKStepCreateSUNStepper(arkode_mem, &stepper);
-  SUNAdjointSolver adj_solver = NULL;
-  SUNAdjointSolver_Create(stepper, num_cost, sf, checkpoint_scheme, sunctx,
-                          &adj_solver);
   // SUNAdjointSolver_SetJacFn(adj_solver, );
   // SUNAdjointSolver_SetJacPFn(adj_solver, );
 
@@ -127,8 +121,9 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   N_VPrint(sf);
 
   N_VDestroy(sf);
-  SUNStepper_Destroy(&stepper);
   SUNAdjointSolver_Destroy(&adj_solver);
+
+  return 0;
 }
 
 int main(int argc, char* argv[])
@@ -154,8 +149,7 @@ int main(int argc, char* argv[])
 
   // Enable checkpointing during the forward solution
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
-  // SUNAdjointCheckpointScheme_NewEmpty(sunctx, &checkpoint_scheme);
-  // ARKodeSetCheckpointScheme(arkode_mem, checkpoint_scheme);
+  ARKodeSetCheckpointScheme(arkode_mem, checkpoint_scheme);
 
   //
   // Compute the forward solution
