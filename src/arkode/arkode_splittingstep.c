@@ -16,6 +16,7 @@
 
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_splittingstep.h>
+
 #include <sundials/sundials_nvector.h>
 
 #include "arkode_impl.h"
@@ -29,7 +30,35 @@ static int splittingStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y,
   return 0;
 }
 
-static int splittignStep_TakeStep(void* arkode_mem, sunrealtype* dsm, int* nflag) {
+static int splittingStep_TakeStepSerial(int i, N_Vector y, void *user_data)
+{
+  ARKodeMem ark_mem;
+  ARKodeSplittingStepMem step_mem;
+  int retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  ARKodeSplittingCoeffs coeffs = step_mem->coeffs;
+
+  ark_mem->tcur = ark_mem->tn;
+
+  for (int j = 0; j < coeffs->stages; j++) {
+    const sunrealtype tout = ark_mem->tcur + coeffs->
+    for (int k = 0; k < coeffs->partitions; k++) {
+      if (coeffs->beta[i][j][k] != 0) {
+        SUNStepper stepper = step_mem->steppers[k];
+        retval = stepper->evolve(stepper, ark_mem->tcur, tout, y);
+      }
+    }
+    ark_mem->tcur = tout;
+  }
+}
+
+static int splittingStep_TakeStep(void* arkode_mem, sunrealtype* dsm, int* nflag) {
+  ARKodeMem ark_mem;
+  ARKodeSplittingStepMem step_mem;
+  int retval = arkStep_AccessStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+
+
   return 0;
 }
 
@@ -105,7 +134,7 @@ void* ARKStepCreateSplitting(SUNStepper* steppers, const int partitions,
   ark_mem->step_getgammas      = NULL;
   ark_mem->step_init           = splittingStep_Init;
   ark_mem->step_fullrhs        = splittingStep_FullRHS;
-  ark_mem->step                = splittignStep_TakeStep;
+  ark_mem->step                = splittingStep_TakeStep;
   ark_mem->step_mem            = (void*)step_mem;
 
   /* Set default values for ARKStep optional inputs */

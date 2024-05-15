@@ -76,6 +76,23 @@ SUNDIALS_EXPORT void ARKodeSplittingCoeffs_Write(ARKodeSplittingCoeffs B,
                                                  FILE* outfile);
 SUNDIALS_EXPORT sunbooleantype ARKodeSplittingCoeffs_(ARKodeSplittingCoeffs B);
 
+/* Parallelization Policy */
+typedef int (*ARKParallelExecuteFn)(int i, N_Vector y, void *user_data);
+
+struct ARKodeSplittingExecutionPolicyMem
+{
+  int (*setup)();
+
+  int (*exectute)();
+
+  int (*free)();
+
+  void *data;
+};
+
+typedef _SUNDIALS_STRUCT_ ARKodeSplittingExecutionPolicyMem* ARKodeSplittingExecutionPolicy;
+
+
 /* ARKODE functions */
 void* ARKStepCreateSplitting(SUNStepper *steppers, int partitions, sunrealtype t0, N_Vector y0, SUNContext sunctx);
 
