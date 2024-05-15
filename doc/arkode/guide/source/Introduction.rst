@@ -149,16 +149,16 @@ The structure of this document is as follows:
   underlying :ref:`mathematical algorithms <ARKODE.Mathematics>` used within
   the ARKODE family of solvers.
 
-* We follow this with an overview of how the source code for both
-  SUNDIALS and ARKODE are :ref:`organized <ARKODE.Organization>`.
+* We follow this with an overview of how the source code for
+  ARKODE is :ref:`organized <ARKODE.Organization>`.
 
 * The largest section follows, providing a full account of how to use
-  ARKODE's time-stepping modules, :ref:`ARKStep <ARKODE.Usage.ARKStep>`,
-  :ref:`ERKStep <ARKODE.Usage.ERKStep>`, and :ref:`MRIStep <ARKODE.Usage.MRIStep>`,
-  within C and C++ applications.  This section then includes additional
-  information on how to use ARKODE from applications written in
-  :ref:`Fortran <SUNDIALS.Fortran>`, as well as information on how to
-  leverage :ref:`GPU accelerators within ARKODE <SUNDIALS.GPU>`.
+  ARKODE within C and C++ applications, including any instructions that are
+  specific to a given time-stepping modules, :ref:`ARKStep <ARKODE.Usage.ARKStep>`,
+  :ref:`ERKStep <ARKODE.Usage.ERKStep>`, or :ref:`MRIStep <ARKODE.Usage.MRIStep>`.
+  This section then includes additional information on how to use ARKODE from
+  applications written in :ref:`Fortran <SUNDIALS.Fortran>`, as well as information
+  on how to leverage :ref:`GPU accelerators within ARKODE <SUNDIALS.GPU>`.
 
 * A much smaller section follows, describing ARKODE's
   :ref:`Butcher table structure <ARKodeButcherTable>`, that is used by

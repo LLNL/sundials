@@ -639,6 +639,17 @@ illustration only.
       Error checks will impact performance, but can be helpful for debugging.
 
 
+.. cmakeoption:: SUNDIALS_ENABLE_EXTERNAL_ADDONS
+
+   Build SUNDIALS with any external addons that you have put in ``sundials/external``.
+
+   Default: ``OFF``
+
+   .. warning::
+
+      Addons are not maintained by the SUNDIALS team. Use at your own risk.
+
+
 .. cmakeoption:: ENABLE_GINKGO
 
    Enable interfaces to the Ginkgo linear algebra library.
@@ -1729,7 +1740,7 @@ Using SUNDIALS as a Third Party Library in other CMake Projects
 ---------------------------------------------------------------
 
 The ``make install`` command will also install a `CMake package configuration file
-<https://cmake.org/cmake/help/v3.12/manual/cmake-packages.7.html\#package-configuration-file>`_
+<https://cmake.org/cmake/help/v3.18/manual/cmake-packages.7.html>`_
 that other CMake projects can load to get all the information needed to build
 against SUNDIALS. In the consuming project's CMake code, the ``find_package``
 command may be used to search for the configuration file, which will be
@@ -1751,7 +1762,14 @@ configuration file to build against SUNDIALS in their own CMake project.
   # When using the cmake CLI command, this can be done like so:
   #   cmake -D SUNDIALS_DIR=/path/to/sundials/installation
 
+  # Find any SUNDIALS version...
   find_package(SUNDIALS REQUIRED)
+
+  # ... or find any version newer than some minimum...
+  find_package(SUNDIALS 7.1.0 REQUIRED)
+
+  # ... or find a version in a range
+  find_package(SUNDIALS 7.0.0...7.1.0 REQUIRED)
 
   add_executable(myexec main.c)
 
@@ -1759,6 +1777,17 @@ configuration file to build against SUNDIALS in their own CMake project.
   # This is just an example, users should link to the targets appropriate
   # for their use case.
   target_link_libraries(myexec PUBLIC SUNDIALS::cvode SUNDIALS::nvecpetsc)
+
+
+.. note::
+
+   .. versionchanged:: x.y.z
+
+      A single version provided to ``find_package`` denotes the minimum version
+      of SUNDIALS to look for, and any version equal or newer than what is
+      specified will match. In prior versions ``SUNDIALSConfig.cmake`` required
+      the version found to have the same major version number as the single
+      version provided to ``find_package``.
 
 
 Table of SUNDIALS libraries and header files
@@ -2094,3 +2123,91 @@ Table of SUNDIALS libraries and header files
    |                              |              +----------------------------------------------+
    |                              |              | ``kinsol/kinsol_ls.h``                       |
    +------------------------------+--------------+----------------------------------------------+
+
+
+Installing SUNDIALS on HPC Clusters
+-----------------------------------
+
+.. _Installation.HPC:
+
+This section is a guide for installing SUNDIALS on specific HPC clusters.
+In general, the procedure is the same as described previously for Linux machines.
+The main differences are in the modules and environment variables that are specific
+to different HPC clusters. We aim to keep this section as up to date as possible,
+but it may lag the latest software updates to each cluster.
+
+Frontier
+^^^^^^^^
+
+`Frontier <https://www.olcf.ornl.gov/frontier/>`_ is an Exascale supercomputer at the Oak Ridge
+Leadership Computing Facility. If you are new to this system, then we recommend that you review the
+`Frontier user guide <https://docs.olcf.ornl.gov/systems/frontier_user_guide.html>`_.
+
+**A Standard Installation**
+
+Clone SUNDIALS:
+
+.. code-block:: bash
+
+   git clone https://github.com/LLNL/sundials.git && cd sundials
+
+Next we load the modules and set the environment variables needed to build SUNDIALS.
+This configuration enables both MPI and HIP support for distributed and GPU parallelism.
+It uses the HIP compiler for C and C++ and the Cray Fortran compiler. Other configurations
+are possible.
+
+.. code-block:: bash
+
+   # required dependencies
+   module load PrgEnv-cray-amd/8.5.0
+   module load craype-accel-amd-gfx90a
+   module load rocm/5.3.0
+   module load cmake/3.23.2
+
+   # GPU-aware MPI
+   export MPICH_GPU_SUPPORT_ENABLED=1
+
+   # compiler environment hints
+   export CC=$(which hipcc)
+   export CXX=$(which hipcc)
+   export FC=$(which ftn)
+   export CFLAGS="-I${ROCM_PATH}/include"
+   export CXXFLAGS="-I${ROCM_PATH}/include -Wno-pass-failed"
+   export LDFLAGS="-L${ROCM_PATH}/lib -lamdhip64 ${PE_MPICH_GTL_DIR_amd_gfx90a} -lmpi_gtl_hsa"
+
+Now we can build SUNDIALS. In general, this is the same procedure described in the previous sections.
+The following command builds and installs SUNDIALS with MPI, HIP, and the Fortran interface enabled, where `<install path>` is your desired installation location, and `<account>` is your allocation account on Frontier:
+
+.. code-block:: bash
+
+   cmake -S . -B builddir -DCMAKE_INSTALL_PREFIX=<install path> -DAMDGPU_TARGETS=gfx90a \
+   -DENABLE_HIP=ON -DENABLE_MPI=ON -DBUILD_FORTRAN_MODULE_INTERFACE=ON
+   cd builddir
+   make -j8 install
+   # Need an allocation to run the tests:
+   salloc -A <account> -t 10 -N 1 -p batch
+   make test
+   make test_install_all
+
+
+Building with SUNDIALS Addons
+-----------------------------
+
+SUNDIALS "addons" are community developed code additions for SUNDIALS that can be subsumed by the
+SUNDIALS build system so that they have full access to all internal SUNDIALS symbols. The intent is
+for SUNDIALS addons to function as if they are part of the SUNDIALS library, while allowing them to
+potentially have different licenses (although we encourage BSD-3-Clause still), code style (although
+we encourage them to follow the SUNDIALS style outlined :ref:`here <Style>`).
+
+.. warning::
+
+   SUNDIALS addons are not maintained by the SUNDIALS team and may come with different
+   licenses. Use them at your own risk.
+
+To build with SUNDIALS addons,
+
+1. Clone/copy the addon(s) into ``<sundials root>/external/``
+2. Copy the ``sundials-addon-example`` block in the ``<sundials root>/external/CMakeLists.txt``,
+   paste it below the example block, and modify the path listed for your own external addon(s).
+3. When building SUNDIALS, set the CMake option :cmakeop:`SUNDIALS_ENABLE_EXTERNAL_ADDONS` to `ON`
+4. Build SUNDIALS as usual.

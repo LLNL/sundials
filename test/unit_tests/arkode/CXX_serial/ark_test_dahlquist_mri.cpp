@@ -24,6 +24,7 @@
 #include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <nvector/nvector_serial.h>
 #include <string>
 #include <sundials/sundials_core.hpp>
@@ -173,16 +174,16 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
   if (check_flag((void*)arkstep_mem, "ARKStepCreate", 0)) { return 1; }
 
   // Set user data
-  flag = ARKStepSetUserData(arkstep_mem, udata);
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) { return 1; }
+  flag = ARKodeSetUserData(arkstep_mem, udata);
+  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   // Specify tolerances
-  flag = ARKStepSStolerances(arkstep_mem, reltol, abstol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(arkstep_mem, reltol, abstol);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   // Specify fixed time step size
-  flag = ARKStepSetFixedStep(arkstep_mem, hf);
-  if (check_flag(&flag, "ARKStepSetFixedStep", 1)) { return 1; }
+  flag = ARKodeSetFixedStep(arkstep_mem, hf);
+  if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
   // Wrap ARKStep integrator as fast integrator object
   MRIStepInnerStepper inner_stepper = nullptr;
@@ -212,40 +213,38 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
   if (check_flag((void*)mristep_mem, "MRIStepCreate", 0)) { return 1; }
 
   // Set user data
-  flag = MRIStepSetUserData(mristep_mem, udata);
-  if (check_flag(&flag, "MRIStepSetUserData", 1)) { return 1; }
+  flag = ARKodeSetUserData(mristep_mem, udata);
+  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   // Specify tolerances
-  flag = MRIStepSStolerances(mristep_mem, reltol, abstol);
-  if (check_flag(&flag, "MRIStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(mristep_mem, reltol, abstol);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   // Specify fixed time step sizes
-  flag = MRIStepSetFixedStep(mristep_mem, hs);
-  if (check_flag(&flag, "MRIStepSetFixedStep", 1)) { return 1; }
+  flag = ARKodeSetFixedStep(mristep_mem, hs);
+  if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
   if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
   {
     // Attach linear solver
-    flag = MRIStepSetLinearSolver(mristep_mem, LS, A);
-    if (check_flag(&flag, "MRIStepSetLinearSolver", 1)) { return 1; }
+    flag = ARKodeSetLinearSolver(mristep_mem, LS, A);
+    if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
     // Set Jacobian function
-    flag = MRIStepSetJacFn(mristep_mem, Ji);
-    if (check_flag(&flag, "MRIStepSetJacFn", 1)) { return 1; }
+    flag = ARKodeSetJacFn(mristep_mem, Ji);
+    if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
 
     // Specify linearly implicit RHS, with non-time-dependent Jacobian
-    flag = MRIStepSetLinear(mristep_mem, 0);
-    if (check_flag(&flag, "MRIStepSetLinear", 1)) { return 1; }
+    flag = ARKodeSetLinear(mristep_mem, 0);
+    if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
   }
 
   // ------------------------------------
   // Evolve with various IMEX MRI methods
   // ------------------------------------
 
-  // Methods to test (order most stages to least since reinit does not realloc)
-  int num_methods;
-  ARKODE_MRITableID* methods = nullptr;
-  bool* stiffly_accurate     = nullptr;
+  // Methods to test paired with whether they are stiffly accurate
+  std::map<std::string, bool> methods;
 
   if (type == MRISTEP_EXPLICIT)
   {
@@ -253,12 +252,14 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "Test explicit MRI methods\n";
     cout << "=========================\n";
 
-    num_methods = 3;
-    methods     = new ARKODE_MRITableID[num_methods];
-
-    methods[0] = ARKODE_MIS_KW3;
-    methods[1] = ARKODE_MRI_GARK_ERK33a;
-    methods[2] = ARKODE_MRI_GARK_ERK45a;
+    methods.insert({{"ARKODE_MRI_GARK_FORWARD_EULER", false},
+                    {"ARKODE_MRI_GARK_ERK22a", false},
+                    {"ARKODE_MRI_GARK_ERK22b", false},
+                    {"ARKODE_MRI_GARK_RALSTON2", false},
+                    {"ARKODE_MIS_KW3", false},
+                    {"ARKODE_MRI_GARK_ERK33a", false},
+                    {"ARKODE_MRI_GARK_RALSTON3", false},
+                    {"ARKODE_MRI_GARK_ERK45a", false}});
   }
   else if (type == MRISTEP_IMPLICIT)
   {
@@ -266,18 +267,11 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "Test implicit MRI methods\n";
     cout << "=========================\n";
 
-    num_methods      = 3;
-    methods          = new ARKODE_MRITableID[num_methods];
-    stiffly_accurate = new bool[num_methods];
-
-    methods[0]          = ARKODE_MRI_GARK_IRK21a;
-    stiffly_accurate[0] = true;
-
-    methods[1]          = ARKODE_MRI_GARK_ESDIRK34a;
-    stiffly_accurate[1] = true;
-
-    methods[2]          = ARKODE_MRI_GARK_ESDIRK46a;
-    stiffly_accurate[2] = true;
+    methods.insert({{"ARKODE_MRI_GARK_BACKWARD_EULER", true},
+                    {"ARKODE_MRI_GARK_IRK21a", true},
+                    {"ARKODE_MRI_GARK_IMPLICIT_MIDPOINT", false},
+                    {"ARKODE_MRI_GARK_ESDIRK34a", true},
+                    {"ARKODE_MRI_GARK_ESDIRK46a", true}});
   }
   else if (type == MRISTEP_IMEX)
   {
@@ -285,31 +279,27 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "Test IMEX MRI methods\n";
     cout << "=====================\n";
 
-    num_methods      = 3;
-    methods          = new ARKODE_MRITableID[num_methods];
-    stiffly_accurate = new bool[num_methods];
-
-    methods[0]          = ARKODE_IMEX_MRI_GARK3a;
-    stiffly_accurate[0] = false;
-
-    methods[1]          = ARKODE_IMEX_MRI_GARK3b;
-    stiffly_accurate[1] = false;
-
-    methods[2]          = ARKODE_IMEX_MRI_GARK4;
-    stiffly_accurate[2] = false;
+    methods.insert({{"ARKODE_IMEX_MRI_GARK_EULER", true},
+                    {"ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL", false},
+                    {"ARKODE_IMEX_MRI_GARK_MIDPOINT", false},
+                    {"ARKODE_IMEX_MRI_GARK3a", false},
+                    {"ARKODE_IMEX_MRI_GARK3b", false},
+                    {"ARKODE_IMEX_MRI_GARK4", false}});
   }
   else { return 1; }
 
-  for (int i = 0; i < num_methods; i++)
+  for (const auto& pair : methods)
   {
-    cout << "\nTesting method " << i << "\n";
+    std::string id        = pair.first;
+    bool stiffly_accurate = pair.second;
+    cout << "\nTesting method " << id << "\n";
 
     // -------------
     // Select method
     // -------------
 
     // Load method table
-    MRIStepCoupling C = MRIStepCoupling_LoadTable(methods[i]);
+    MRIStepCoupling C = MRIStepCoupling_LoadTableByName(id.c_str());
     if (check_flag((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
 
     MRIStepCoupling_Write(C, stdout);
@@ -338,8 +328,8 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     for (int i = 0; i < nsteps; i++)
     {
       // Advance in time
-      flag = MRIStepEvolve(mristep_mem, tf, y, &t, ARK_ONE_STEP);
-      if (check_flag(&flag, "MRIStepEvolve", 1)) { return 1; }
+      flag = ARKodeEvolve(mristep_mem, tf, y, &t, ARK_ONE_STEP);
+      if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
 
       // Update output time
       tf += hs;
@@ -353,31 +343,28 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     long int mri_nni, mri_ncfn;               // nonlinear solver
     long int mri_nsetups, mri_nje, mri_nfeLS; // linear solver
 
-    flag = MRIStepGetNumSteps(mristep_mem, &mri_nst);
-    if (check_flag(&flag, "MRIStepGetNumSteps", 1)) { return 1; }
+    flag = ARKodeGetNumSteps(mristep_mem, &mri_nst);
+    if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
 
     flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfse, &mri_nfsi);
     if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return 1; }
 
     if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
     {
-      flag = MRIStepGetNumNonlinSolvIters(mristep_mem, &mri_nni);
-      if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) { return 1; }
+      flag = ARKodeGetNumNonlinSolvIters(mristep_mem, &mri_nni);
+      if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
 
-      flag = MRIStepGetNumNonlinSolvConvFails(mristep_mem, &mri_ncfn);
-      if (check_flag(&flag, "MRIStepGetNumNonlinSolvConvFails", 1))
-      {
-        return 1;
-      }
+      flag = ARKodeGetNumNonlinSolvConvFails(mristep_mem, &mri_ncfn);
+      if (check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1)) { return 1; }
 
-      flag = MRIStepGetNumLinSolvSetups(mristep_mem, &mri_nsetups);
-      if (check_flag(&flag, "MRIStepGetNumLinSolvSetups", 1)) { return 1; }
+      flag = ARKodeGetNumLinSolvSetups(mristep_mem, &mri_nsetups);
+      if (check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1)) { return 1; }
 
-      flag = MRIStepGetNumJacEvals(mristep_mem, &mri_nje);
-      if (check_flag(&flag, "MRIStepGetNumJacEvals", 1)) { return 1; }
+      flag = ARKodeGetNumJacEvals(mristep_mem, &mri_nje);
+      if (check_flag(&flag, "ARKodeGetNumJacEvals", 1)) { return 1; }
 
-      flag = MRIStepGetNumLinRhsEvals(mristep_mem, &mri_nfeLS);
-      check_flag(&flag, "MRIStepGetNumLinRhsEvals", 1);
+      flag = ARKodeGetNumLinRhsEvals(mristep_mem, &mri_nfeLS);
+      check_flag(&flag, "ARKodeGetNumLinRhsEvals", 1);
     }
 
     sunrealtype pow = udata->lambda_f;
@@ -418,10 +405,12 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
     cout << "\nComparing Solver Statistics:\n";
 
+    int nstages_evaluated = nstages_stored;
+    if (stiffly_accurate) nstages_evaluated--;
     long int fe_evals = 0;
     if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
     {
-      fe_evals = mri_nst * nstages_stored;
+      fe_evals = mri_nst * nstages_evaluated;
     }
 
     if (mri_nfse != fe_evals)
@@ -433,17 +422,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     long int fi_evals = 0;
     if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
     {
-      if (stiffly_accurate[i])
-      {
-        // The last stage is implicit so it does not correspond to a column of
-        // zeros in the coupling matrix and is counted in "nstages_stored"
-        // however we do not evaluate the RHS functions after the solve since
-        // the methods is "FSAL" (the index map value and allocated space is
-        // used in the nonlinear for this stage). The RHS functions will be
-        // evaluated and stored at the start of the next step.
-        fi_evals = mri_nst * (nstages_stored - 1) + mri_nni;
-      }
-      else { fi_evals = mri_nst * nstages_stored + mri_nni; }
+      fi_evals = mri_nst * nstages_evaluated + mri_nni;
     }
 
     if (mri_nfsi != fi_evals)
@@ -488,16 +467,14 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
   // Clean up
   MRIStepInnerStepper_Free(&inner_stepper);
-  MRIStepFree(&mristep_mem);
-  ARKStepFree(&arkstep_mem);
+  ARKodeFree(&mristep_mem);
+  ARKodeFree(&arkstep_mem);
   if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
   {
     SUNLinSolFree(LS);
     SUNMatDestroy(A);
   }
   N_VDestroy(y);
-  delete[] methods;
-  delete[] stiffly_accurate;
 
   return numfails;
 }

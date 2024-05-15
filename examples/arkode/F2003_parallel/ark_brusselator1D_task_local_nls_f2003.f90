@@ -545,8 +545,8 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
+    use farkode_mod
     use farkode_arkstep_mod
-
 
     use ode_mod, only : Neq, Reaction
 
@@ -585,10 +585,10 @@ contains
     !======= Internals ============
 
     ! get nonlinear residual data
-    ierr = FARKStepGetNonlinearSystemData(arkmem, tcur, zpred_ptr, z_ptr, &
+    ierr = FARKodeGetNonlinearSystemData(arkmem, tcur, zpred_ptr, z_ptr, &
          Fi_ptr, gam, sdata_ptr, user_data)
     if (ierr /= 0) then
-       print *, "Error: FARKStepGetNonlinearSystemData returned ",ierr
+       print *, "Error: FARKodeGetNonlinearSystemData returned ",ierr
        return
     end if
 
@@ -639,11 +639,9 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
+    use farkode_mod
     use farkode_arkstep_mod
-
-
     use fsunmatrix_dense_mod
-
 
     use ode_mod, only : Nvar, Npts, k2, k3, k4, k6
 
@@ -674,10 +672,10 @@ contains
     !======= Internals ============
 
     ! get nonlinear residual data
-    ierr = FARKStepGetNonlinearSystemData(arkmem, tcur, zpred_ptr, z_ptr, &
+    ierr = FARKodeGetNonlinearSystemData(arkmem, tcur, zpred_ptr, z_ptr, &
          Fi_ptr, gam, sdata_ptr, user_data)
     if (ierr /= 0) then
-       print *, "Error: FARKStepGetNonlinearSystemData returned ",ierr
+       print *, "Error: FARKodeGetNonlinearSystemData returned ",ierr
        return
     end if
 
@@ -1239,23 +1237,23 @@ subroutine EvolveProblemIMEX(sunvec_y)
   end if
 
   ! Select the method order
-  retval = FARKStepSetOrder(arkode_mem, order)
+  retval = FARKodeSetOrder(arkode_mem, order)
   if (retval /= 0) then
-     print *, "Error: FARKStepSetOrder returned ",retval
+     print *, "Error: FARKodeSetOrder returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Specify tolerances
-  retval = FARKStepSStolerances(arkode_mem, rtol, atol)
+  retval = FARKodeSStolerances(arkode_mem, rtol, atol)
   if (retval /= 0) then
-     print *, "Error: FARKStepSStolerances returned ",retval
+     print *, "Error: FARKodeSStolerances returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Increase the max number of steps allowed between outputs
-  retval = FARKStepSetMaxNumSteps(arkode_mem, int(100000, c_long))
+  retval = FARKodeSetMaxNumSteps(arkode_mem, int(100000, c_long))
   if (retval /= 0) then
-     print *, "Error: FARKStepMaxNumSteps returned ",retval
+     print *, "Error: FARKodeMaxNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -1270,9 +1268,9 @@ subroutine EvolveProblemIMEX(sunvec_y)
      end if
 
      ! Attach nonlinear solver
-     retval = FARKStepSetNonlinearSolver(arkode_mem, sun_NLS)
+     retval = FARKodeSetNonlinearSolver(arkode_mem, sun_NLS)
      if (retval /= 0) then
-        print *, "Error: FARKStepSetNonlinearSolver returned ",retval
+        print *, "Error: FARKodeSetNonlinearSolver returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -1285,17 +1283,17 @@ subroutine EvolveProblemIMEX(sunvec_y)
 
      ! Attach linear solver
      sunmat_A => null()
-     retval = FARKStepSetLinearSolver(arkode_mem, sun_LS, sunmat_A)
+     retval = FARKodeSetLinearSolver(arkode_mem, sun_LS, sunmat_A)
      if (retval /= 0) then
-        print *, "Error: FARKStepSetLinearSolver returned ",retval
+        print *, "Error: FARKodeSetLinearSolver returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
      ! Attach preconditioner
-     retval = FARKStepSetPreconditioner(arkode_mem, c_funloc(PSetup), &
+     retval = FARKodeSetPreconditioner(arkode_mem, c_funloc(PSetup), &
           c_funloc(PSolve))
      if (retval /= 0) then
-        print *, "Error: FARKStepSetPreconditioner returned ",retval
+        print *, "Error: FARKodeSetPreconditioner returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -1314,9 +1312,9 @@ subroutine EvolveProblemIMEX(sunvec_y)
      end if
 
      ! Attach nonlinear solver
-     retval = FARKStepSetNonlinearSolver(arkode_mem, sun_NLS)
+     retval = FARKodeSetNonlinearSolver(arkode_mem, sun_NLS)
      if (retval /= 0) then
-        print *, "Error: FARKStepSetNonlinearSolver returned ",retval
+        print *, "Error: FARKodeSetNonlinearSolver returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -1343,9 +1341,9 @@ subroutine EvolveProblemIMEX(sunvec_y)
   do while (iout < max(nout,1))
 
      ! Integrate to output time
-     retval = FARKStepEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
+     retval = FARKodeEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
      if (retval /= 0) then
-        print *, "Error: FARKStepEvolve returned ",retval
+        print *, "Error: FARKodeEvolve returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -1369,15 +1367,15 @@ subroutine EvolveProblemIMEX(sunvec_y)
   end if
 
   ! Get final statistics
-  retval = FARKStepGetNumSteps(arkode_mem, nst)
+  retval = FARKodeGetNumSteps(arkode_mem, nst)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumSteps returned ",retval
+     print *, "Error: FARKodeGetNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumStepAttempts(arkode_mem, nst_a)
+  retval = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumStepAttempts returned ",retval
+     print *, "Error: FARKodeGetNumStepAttempts returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -1387,41 +1385,41 @@ subroutine EvolveProblemIMEX(sunvec_y)
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumErrTestFails(arkode_mem, netf)
+  retval = FARKodeGetNumErrTestFails(arkode_mem, netf)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumErrTestFails returned ",retval
+     print *, "Error: FARKodeGetNumErrTestFails returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumNonlinSolvIters(arkode_mem, nni)
+  retval = FARKodeGetNumNonlinSolvIters(arkode_mem, nni)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumNonlinSolvIters returned ",retval
+     print *, "Error: FARKodeGetNumNonlinSolvIters returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumNonlinSolvConvFails(arkode_mem, ncfn)
+  retval = FARKodeGetNumNonlinSolvConvFails(arkode_mem, ncfn)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumNonlinSolvConvFails returned ",retval
+     print *, "Error: FARKodeGetNumNonlinSolvConvFails returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   if (global) then
 
-     retval = FARKStepGetNumLinIters(arkode_mem, nli)
+     retval = FARKodeGetNumLinIters(arkode_mem, nli)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumLinIters returned ",retval
+        print *, "Error: FARKodeGetNumLinIters returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FARKStepGetNumPrecEvals(arkode_mem, npre)
+     retval = FARKodeGetNumPrecEvals(arkode_mem, npre)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumPrecEvals returned ",retval
+        print *, "Error: FARKodeGetNumPrecEvals returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FARKStepGetNumPrecSolves(arkode_mem, npsol)
+     retval = FARKodeGetNumPrecSolves(arkode_mem, npsol)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumPrecSolves returned ",retval
+        print *, "Error: FARKodeGetNumPrecSolves returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -1455,7 +1453,7 @@ subroutine EvolveProblemIMEX(sunvec_y)
   end if
 
   ! Clean up
-  call FARKStepFree(arkode_mem)
+  call FARKodeFree(arkode_mem)
 
   ! Free nonlinear solver
   retval = FSUNNonlinSolFree(sun_NLS)
@@ -1527,23 +1525,23 @@ subroutine EvolveProblemExplicit(sunvec_y)
   end if
 
   ! Select the method order
-  retval = FERKStepSetOrder(arkode_mem, order)
+  retval = FARKodeSetOrder(arkode_mem, order)
   if (retval /= 0) then
-     print *, "Error: FERKStepSetOrder returned ",retval
+     print *, "Error: FARKodeSetOrder returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Specify tolerances
-  retval = FERKStepSStolerances(arkode_mem, rtol, atol)
+  retval = FARKodeSStolerances(arkode_mem, rtol, atol)
   if (retval /= 0) then
-     print *, "Error: FERKStepSStolerances returned ",retval
+     print *, "Error: FARKodeSStolerances returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Increase the max number of steps allowed between outputs
-  retval = FERKStepSetMaxNumSteps(arkode_mem, int(100000, c_long))
+  retval = FARKodeSetMaxNumSteps(arkode_mem, int(100000, c_long))
   if (retval /= 0) then
-     print *, "Error: FERKStepMaxNumSteps returned ",retval
+     print *, "Error: FARKodeMaxNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -1568,9 +1566,9 @@ subroutine EvolveProblemExplicit(sunvec_y)
   do while (iout < nout)
 
      ! Integrate to output time
-     retval = FERKStepEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
+     retval = FARKodeEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
      if (retval /= 0) then
-        print *, "Error: FERKStepEvolve returned ",retval
+        print *, "Error: FARKodeEvolve returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -1594,15 +1592,15 @@ subroutine EvolveProblemExplicit(sunvec_y)
   end if
 
   ! Get final statistics
-  retval = FERKStepGetNumSteps(arkode_mem, nst)
+  retval = FARKodeGetNumSteps(arkode_mem, nst)
   if (retval /= 0) then
-     print *, "Error: FERKStepGetNumSteps returned ",retval
+     print *, "Error: FARKodeGetNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FERKStepGetNumStepAttempts(arkode_mem, nst_a)
+  retval = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
   if (retval /= 0) then
-     print *, "Error: FERKStepGetNumStepAttempts returned ",retval
+     print *, "Error: FARKodeGetNumStepAttempts returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -1612,9 +1610,9 @@ subroutine EvolveProblemExplicit(sunvec_y)
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FERKStepGetNumErrTestFails(arkode_mem, netf)
+  retval = FARKodeGetNumErrTestFails(arkode_mem, netf)
   if (retval /= 0) then
-     print *, "Error: FERKStepGetNumErrTestFails returned ",retval
+     print *, "Error: FARKodeGetNumErrTestFails returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -1628,7 +1626,7 @@ subroutine EvolveProblemExplicit(sunvec_y)
   end if
 
   ! Clean up
-  call FERKStepFree(arkode_mem)
+  call FARKodeFree(arkode_mem)
 
 end subroutine EvolveProblemExplicit
 
@@ -1640,8 +1638,6 @@ subroutine WriteOutput(t, sunvec_y)
   use, intrinsic :: iso_c_binding
   use fsundials_core_mod
   use farkode_mod           ! Access ARKode
-  use farkode_erkstep_mod   ! Access ERKStep
-
 
   use ode_mod, only : Nvar, nprocs, myid, Erecv, Nx, Npts, monitor,  nout, &
        umask, vmask, wmask

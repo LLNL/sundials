@@ -12,56 +12,39 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-######################
-SUNDIALS Documentation
-######################
+########
+SUNDIALS
+########
 
-This is the documentation for the `SUNDIALS
-<https://computing.llnl.gov/projects/sundials>`_ suite of
-nonlinear and differential/algebraic equation solvers.
+The `SUNDIALS <https://computing.llnl.gov/projects/sundials>`_ library of time
+integrators and nonlinear solvers provides robust and efficient numerical
+methods for ordinary differential equations (ODEs), differential-algebraic
+equations (DAEs), and nonlinear algebraic systems. SUNDIALS is freely available
+and developed on `GitHub <https://github.com/LLNL/sundials>`_.
 
-SUNDIALS is developed on `GitHub <https://github.com/LLNL/sundials>`_.
+SUNDIALS is comprised of following packages:
 
-.. toctree::
-   :maxdepth: 1
-   :numbered:
-   :hidden:
+* :ref:`ARKODE <ARKODE>`, a solver with one-step methods for stiff, nonstiff,
+  mixed stiff-nonstiff, and multirate ODE systems.
 
-   Organization_link.rst
-   sundials/index.rst
-   arkode/index.rst
-   cvode/index.rst
-   cvodes/index.rst
-   ida/index.rst
-   idas/index.rst
-   kinsol/index.rst
-   nvectors/index.rst
-   sunmatrix/index.rst
-   sunlinsol/index.rst
-   sunnonlinsol/index.rst
-   sunadaptcontroller/index.rst
-   sunmemory/index.rst
-   History_link.rst
-   Changelog_link.rst
-   developers/index.rst
-   References
+* :ref:`CVODE <CVODE>`, a solver with Adams and BDF methods for stiff and
+  nonstiff ODE systems.
 
+* :ref:`CVODES <CVODES>`, an extension of CVODE with forward and adjoint
+  sensitivity analysis capabilities for stiff and nonstiff ODE systems.
 
-Contributors
-============
+* :ref:`IDA <IDA>`, a solver with BDF methods for DAE systems.
 
-The SUNDIALS library has been developed over many years by a number of
-contributors. The current SUNDIALS team consists of Cody J.  Balos,
-David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, and Carol S.
-Woodward. We thank Radu Serban for significant and critical past contributions.
+* :ref:`IDAS <IDAS>`, an extension of IDA with forward and adjoint sensitivity
+  analysis capabilities for DAE systems.
 
-Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
-Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
-Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
-Yu Pan, Slaven Peles, Cosmin Petra, Steven B. Roberts, H. Hunter Schwartz,
-Jean M. Sexton, Dan Shumaker, Steve G. Smith, Shahbaj Sohal, Allan G. Taylor,
-Hilari C. Tiedeman, Chris White, Ting Yan, and Ulrike M. Yang.
+* :ref:`KINSOL <KINSOL>`, a solver for nonlinear algebraic systems.
 
+The SUNDIALS packages share many components and are organized as a family built
+on a common infrastructure including abstract interfaces for vectors, matrices,
+and algebraic solvers. Several implementations of these interfaces are provided
+with SUNDIALS supporting a range of parallel computing paradigms including
+shared-memory, distributed memory, and GPU computing.
 
 Citing
 ======
@@ -152,8 +135,60 @@ they are using rather than the combined SUNDIALS online guide:
       howpublished = {\url{https://sundials.readthedocs.io/en/latest/kinsol}}
    }
 
+Contributors
+============
+
+The SUNDIALS library has been developed over many years by a number of
+contributors. The current SUNDIALS team consists of Cody J.  Balos,
+David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, and Carol S.
+Woodward. We thank Radu Serban for significant and critical past contributions.
+
+Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
+Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
+Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
+Yu Pan, Slaven Peles, Cosmin Petra, Steven B. Roberts, H. Hunter Schwartz,
+Jean M. Sexton, Dan Shumaker, Steve G. Smith, Shahbaj Sohal, Allan G. Taylor,
+Hilari C. Tiedeman, Chris White, Ting Yan, and Ulrike M. Yang.
 
 SUNDIALS License and Notices
 ============================
 
 .. include:: ../../shared/LicenseReleaseNumbers.rst
+
+
+.. toctree::
+   :caption: USAGE
+   :maxdepth: 1
+   :numbered:
+   :hidden:
+
+   sundials/index.rst
+   arkode/index.rst
+   cvode/index.rst
+   cvodes/index.rst
+   ida/index.rst
+   idas/index.rst
+   kinsol/index.rst
+   nvectors/index.rst
+   sunmatrix/index.rst
+   sunlinsol/index.rst
+   sunnonlinsol/index.rst
+   sunadaptcontroller/index.rst
+   sunmemory/index.rst
+   History_link.rst
+   Changelog_link.rst
+
+.. toctree::
+   :caption: DEVELOPMENT
+   :maxdepth: 1
+   :hidden:
+
+   developers/index.rst
+   contributing/index.rst
+
+.. toctree::
+   :caption: REFERENCES
+   :maxdepth: 1
+   :hidden:
+
+   References

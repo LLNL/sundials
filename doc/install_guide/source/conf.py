@@ -29,7 +29,10 @@ needs_sphinx = '4.0'
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx_rtd_theme', 'sphinx.ext.ifconfig', 'sphinx.ext.mathjax',
               'sphinxfortran.fortran_domain', 'sphinxcontrib.bibtex',
-              'sphinx_copybutton', 'sphinx_sundials']
+              'sphinx_copybutton', 'sphinx_sundials', 'sphinx.ext.intersphinx']
+
+intersphinx_mapping = {'sundials': (f'https://sundials.readthedocs.io/en/{doc_version}',
+                                    ('../../superbuild/build/html/objects.inv', None))}
 
 # References
 bibtex_bibfiles = ['../../shared/sundials.bib']

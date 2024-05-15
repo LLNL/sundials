@@ -304,36 +304,46 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
 .. table:: Explicit MRI-GARK coupling tables. The default method for each order
            is marked with an asterisk (:math:`^*`).
 
-   ==========================  ===========  =====================
-   Table name                  Order        Reference
-   ==========================  ===========  =====================
-   ``ARKODE_MIS_KW3``          :math:`3^*`  :cite:p:`Schlegel:09`
-   ``ARKODE_MRI_GARK_ERK33a``  3            :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_ERK45a``  :math:`4^*`  :cite:p:`Sandu:19`
-   ==========================  ===========  =====================
+   =================================  ===========  =====================
+   Table name                         Order        Reference
+   =================================  ===========  =====================
+   ``ARKODE_MRI_GARK_FORWARD_EULER``  :math:`1^*`
+   ``ARKODE_MRI_GARK_ERK22b``         :math:`2^*`  :cite:p:`Sandu:19`
+   ``ARKODE_MRI_GARK_ERK22a``         2            :cite:p:`Sandu:19`
+   ``ARKODE_MRI_GARK_RALSTON2``       2            :cite:p:`Roberts:22`
+   ``ARKODE_MIS_KW3``                 :math:`3^*`  :cite:p:`Schlegel:09`
+   ``ARKODE_MRI_GARK_ERK33a``         3            :cite:p:`Sandu:19`
+   ``ARKODE_MRI_GARK_RALSTON3``       3            :cite:p:`Roberts:22`
+   ``ARKODE_MRI_GARK_ERK45a``         :math:`4^*`  :cite:p:`Sandu:19`
+   =================================  ===========  =====================
 
 
 .. table:: Diagonally-implicit, solve-decoupled MRI-GARK coupling tables. The
            default method for each order is marked with an asterisk
            (:math:`^*`).
 
-   =============================  ===========  ===============  ==================
-   Table name                     Order        Implicit Solves  Reference
-   =============================  ===========  ===============  ==================
-   ``ARKODE_MRI_GARK_IRK21a``     :math:`2^*`  1                :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_ESDIRK34a``  :math:`3^*`  3                :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_ESDIRK46a``  :math:`4^*`  5                :cite:p:`Sandu:19`
-   =============================  ===========  ===============  ==================
+   =====================================  ===========  ===============  ==================
+   Table name                             Order        Implicit Solves  Reference
+   =====================================  ===========  ===============  ==================
+   ``ARKODE_MRI_GARK_BACKWARD_EULER``     :math:`1^*`  1
+   ``ARKODE_MRI_GARK_IRK21a``             :math:`2^*`  1                :cite:p:`Sandu:19`
+   ``ARKODE_MRI_GARK_IMPLICIT_MIDPOINT``  2            2
+   ``ARKODE_MRI_GARK_ESDIRK34a``          :math:`3^*`  3                :cite:p:`Sandu:19`
+   ``ARKODE_MRI_GARK_ESDIRK46a``          :math:`4^*`  5                :cite:p:`Sandu:19`
+   =====================================  ===========  ===============  ==================
 
 
 .. table:: Diagonally-implicit, solve-decoupled IMEX-MRI-GARK coupling tables.
            The default method for each order is marked with an asterisk
            (:math:`^*`).
 
-   ===========================  ===========  ===============  ===================
-   Table name                   Order        Implicit Solves  Reference
-   ===========================  ===========  ===============  ===================
-   ``ARKODE_IMEX_MRI_GARK3a``   :math:`3^*`  2                :cite:p:`ChiRen:21`
-   ``ARKODE_IMEX_MRI_GARK3b``   3            2                :cite:p:`ChiRen:21`
-   ``ARKODE_IMEX_MRI_GARK4``    :math:`4^*`  5                :cite:p:`ChiRen:21`
-   ===========================  ===========  ===============  ===================
+   ====================================  ===========  ===============  ===================
+   Table name                            Order        Implicit Solves  Reference
+   ====================================  ===========  ===============  ===================
+   ``ARKODE_IMEX_MRI_GARK_EULER``        :math:`1^*`  1
+   ``ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL``  :math:`2^*`  1
+   ``ARKODE_IMEX_MRI_GARK_MIDPOINT``     2            2
+   ``ARKODE_IMEX_MRI_GARK3a``            :math:`3^*`  2                :cite:p:`ChiRen:21`
+   ``ARKODE_IMEX_MRI_GARK3b``            3            2                :cite:p:`ChiRen:21`
+   ``ARKODE_IMEX_MRI_GARK4``             :math:`4^*`  5                :cite:p:`ChiRen:21`
+   ====================================  ===========  ===============  ===================

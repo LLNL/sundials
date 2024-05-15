@@ -117,23 +117,23 @@ int main(void)
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   /* Set routines */
-  flag = ARKStepSetInitStep(arkode_mem, h0); /* Set custom initial step */
-  if (check_flag(&flag, "ARKStepSetInitStep", 1)) { return 1; }
-  flag = ARKStepSetMaxErrTestFails(arkode_mem,
-                                   20); /* Increase max error test fails */
-  if (check_flag(&flag, "ARKStepSetMaxErrTestFails", 1)) { return 1; }
-  flag = ARKStepSetMaxNonlinIters(arkode_mem, 8); /* Increase max nonlin iters  */
-  if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) { return 1; }
-  flag = ARKStepSetNonlinConvCoef(arkode_mem,
-                                  SUN_RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
-  if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) { return 1; }
-  flag = ARKStepSetMaxNumSteps(arkode_mem, 100000); /* Increase max num steps */
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return 1; }
-  flag = ARKStepSetPredictorMethod(arkode_mem,
-                                   1); /* Specify maximum-order predictor */
-  if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) { return 1; }
-  flag = ARKStepSStolerances(arkode_mem, reltol, abstol); /* Specify tolerances */
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSetInitStep(arkode_mem, h0); /* Set custom initial step */
+  if (check_flag(&flag, "ARKodeSetInitStep", 1)) { return 1; }
+  flag = ARKodeSetMaxErrTestFails(arkode_mem,
+                                  20); /* Increase max error test fails */
+  if (check_flag(&flag, "ARKodeSetMaxErrTestFails", 1)) { return 1; }
+  flag = ARKodeSetMaxNonlinIters(arkode_mem, 8); /* Increase max nonlin iters  */
+  if (check_flag(&flag, "ARKodeSetMaxNonlinIters", 1)) { return 1; }
+  flag = ARKodeSetNonlinConvCoef(arkode_mem,
+                                 SUN_RCONST(1.e-7)); /* Set nonlinear convergence coeff. */
+  if (check_flag(&flag, "ARKodeSetNonlinConvCoef", 1)) { return 1; }
+  flag = ARKodeSetMaxNumSteps(arkode_mem, 100000); /* Increase max num steps */
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
+  flag = ARKodeSetPredictorMethod(arkode_mem,
+                                  1); /* Specify maximum-order predictor */
+  if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) { return 1; }
+  flag = ARKodeSStolerances(arkode_mem, reltol, abstol); /* Specify tolerances */
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   /* Initialize dense matrix data structure and solver */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
@@ -142,11 +142,11 @@ int main(void)
   if (check_flag((void*)LS, "SUNLinSol_Dense", 0)) { return 1; }
 
   /* Linear solver interface */
-  flag = ARKStepSetLinearSolver(arkode_mem, LS,
-                                A); /* Attach matrix and linear solver */
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
-  flag = ARKStepSetJacFn(arkode_mem, Jac); /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKStepSetJacFn", 1)) { return 1; }
+  flag = ARKodeSetLinearSolver(arkode_mem, LS,
+                               A); /* Attach matrix and linear solver */
+  if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
+  flag = ARKodeSetJacFn(arkode_mem, Jac); /* Set the Jacobian routine */
+  if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
@@ -156,7 +156,7 @@ int main(void)
   fprintf(UFID, " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM "\n", T0,
           NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2));
 
-  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
+  /* Main time-stepping loop: calls ARKodeEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t    = T0;
   tout = T0 + dTout;
@@ -166,8 +166,8 @@ int main(void)
          NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2));
   for (iout = 0; iout < Nt; iout++)
   {
-    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
-    if (check_flag(&flag, "ARKStepEvolve", 1)) { break; }
+    flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
     printf("  %10.3" ESYM "  %12.5" ESYM "  %12.5" ESYM "  %12.5" ESYM
            "\n", /* access/print solution */
            t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2));
@@ -189,22 +189,22 @@ int main(void)
 
   /* Print final statistics to the screen */
   printf("\nFinal Statistics:\n");
-  flag = ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  flag = ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   /* Print final statistics to a file in CSV format */
   FID  = fopen("ark_robertson_stats.csv", "w");
-  flag = ARKStepPrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  flag = ARKodePrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
   fclose(FID);
 
   /* check the solution error */
   flag = check_ans(y, t, reltol, abstol);
 
   /* Clean up and return with successful completion */
-  N_VDestroy(y);            /* Free y vector */
-  ARKStepFree(&arkode_mem); /* Free integrator memory */
-  SUNLinSolFree(LS);        /* Free linear solver */
-  SUNMatDestroy(A);         /* Free A matrix */
-  SUNContext_Free(&ctx);    /* Free context */
+  N_VDestroy(y);           /* Free y vector */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  SUNLinSolFree(LS);       /* Free linear solver */
+  SUNMatDestroy(A);        /* Free A matrix */
+  SUNContext_Free(&ctx);   /* Free context */
 
   return flag;
 }

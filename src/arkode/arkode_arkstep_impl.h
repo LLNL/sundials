@@ -19,7 +19,6 @@
 #define _ARKODE_ARKSTEP_IMPL_H
 
 #include <arkode/arkode_arkstep.h>
-/* access to MRIStepInnerStepper_Create */
 #include <arkode/arkode_mristep.h>
 
 #include "arkode_impl.h"
@@ -33,13 +32,16 @@ extern "C" {
   ARK time step module constants
   ===============================================================*/
 
-#define MAXCOR 3 /* max number of nonlinear iterations */
-#define CRDOWN \
-  SUN_RCONST(0.3)             /* constant to estimate the convergence
-                                    rate for the nonlinear equation */
-#define DGMAX SUN_RCONST(0.2) /* if |gamma/gammap-1| > DGMAX then call lsetup */
-#define RDIV  SUN_RCONST(2.3) /* declare divergence if ratio del/delp > RDIV */
-#define MSBP  20              /* max no. of steps between lsetup calls */
+/* max number of nonlinear iterations */
+#define MAXCOR 3
+/* constant to estimate the convergence rate for the nonlinear equation */
+#define CRDOWN SUN_RCONST(0.3)
+/* if |gamma/gammap-1| > DGMAX then call lsetup */
+#define DGMAX SUN_RCONST(0.2)
+/* declare divergence if ratio del/delp > RDIV */
+#define RDIV SUN_RCONST(2.3)
+/* max no. of steps between lsetup calls */
+#define MSBP 20
 
 /* Default solver tolerance factor */
 /* #define NLSCOEF   SUN_RCONST(0.003) */ /* Hairer & Wanner constant */
@@ -166,30 +168,67 @@ typedef struct ARKodeARKStepMemRec
   ===============================================================*/
 
 /* Interface routines supplied to ARKODE */
-int arkStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
+int arkStep_AttachLinsol(ARKodeMem ark_mem, ARKLinsolInitFn linit,
                          ARKLinsolSetupFn lsetup, ARKLinsolSolveFn lsolve,
                          ARKLinsolFreeFn lfree,
                          SUNLinearSolver_Type lsolve_type, void* lmem);
-int arkStep_AttachMasssol(void* arkode_mem, ARKMassInitFn minit,
+int arkStep_AttachMasssol(ARKodeMem ark_mem, ARKMassInitFn minit,
                           ARKMassSetupFn msetup, ARKMassMultFn mmult,
                           ARKMassSolveFn msolve, ARKMassFreeFn lfree,
                           sunbooleantype time_dep,
                           SUNLinearSolver_Type msolve_type, void* mass_mem);
-void arkStep_DisableLSetup(void* arkode_mem);
-void arkStep_DisableMSetup(void* arkode_mem);
-int arkStep_Init(void* arkode_mem, int init_type);
-void* arkStep_GetLmem(void* arkode_mem);
-void* arkStep_GetMassMem(void* arkode_mem);
-ARKRhsFn arkStep_GetImplicitRHS(void* arkode_mem);
-int arkStep_GetGammas(void* arkode_mem, sunrealtype* gamma, sunrealtype* gamrat,
+void arkStep_DisableLSetup(ARKodeMem ark_mem);
+void arkStep_DisableMSetup(ARKodeMem ark_mem);
+int arkStep_Init(ARKodeMem ark_mem, int init_type);
+void* arkStep_GetLmem(ARKodeMem ark_mem);
+void* arkStep_GetMassMem(ARKodeMem ark_mem);
+ARKRhsFn arkStep_GetImplicitRHS(ARKodeMem ark_mem);
+int arkStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat,
                       sunbooleantype** jcur, sunbooleantype* dgamma_fail);
-int arkStep_FullRHS(void* arkode_mem, sunrealtype t, N_Vector y, N_Vector f,
+int arkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
-int arkStep_TakeStep_Z(void* arkode_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int arkStep_SetUserData(ARKodeMem ark_mem, void* user_data);
+int arkStep_SetDefaults(ARKodeMem ark_mem);
+int arkStep_SetOrder(ARKodeMem ark_mem, int ord);
+int arkStep_SetNonlinearSolver(ARKodeMem ark_mem, SUNNonlinearSolver NLS);
+int arkStep_SetNlsRhsFn(ARKodeMem ark_mem, ARKRhsFn nls_fi);
+int arkStep_SetLinear(ARKodeMem ark_mem, int timedepend);
+int arkStep_SetNonlinear(ARKodeMem ark_mem);
+int arkStep_SetNonlinCRDown(ARKodeMem ark_mem, sunrealtype crdown);
+int arkStep_SetNonlinRDiv(ARKodeMem ark_mem, sunrealtype rdiv);
+int arkStep_SetDeltaGammaMax(ARKodeMem ark_mem, sunrealtype dgmax);
+int arkStep_SetLSetupFrequency(ARKodeMem ark_mem, int msbp);
+int arkStep_SetPredictorMethod(ARKodeMem ark_mem, int pred_method);
+int arkStep_SetMaxNonlinIters(ARKodeMem ark_mem, int maxcor);
+int arkStep_SetNonlinConvCoef(ARKodeMem ark_mem, sunrealtype nlscoef);
+int arkStep_SetStagePredictFn(ARKodeMem ark_mem, ARKStagePredictFn PredictStage);
+int arkStep_SetDeduceImplicitRhs(ARKodeMem ark_mem, sunbooleantype deduce);
+int arkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele);
+int arkStep_GetCurrentGamma(ARKodeMem ark_mem, sunrealtype* gamma);
+int arkStep_GetNonlinearSystemData(ARKodeMem ark_mem, sunrealtype* tcur,
+                                   N_Vector* zpred, N_Vector* z, N_Vector* Fi,
+                                   sunrealtype* gamma, N_Vector* sdata,
+                                   void** user_data);
+int arkStep_GetNumLinSolvSetups(ARKodeMem ark_mem, long int* nlinsetups);
+int arkStep_GetNumNonlinSolvIters(ARKodeMem ark_mem, long int* nniters);
+int arkStep_GetNumNonlinSolvConvFails(ARKodeMem ark_mem, long int* nnfails);
+int arkStep_GetNonlinSolvStats(ARKodeMem ark_mem, long int* nniters,
+                               long int* nnfails);
+int arkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
+int arkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp);
+int arkStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR);
+int arkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
+                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
+int arkStep_ComputeState(ARKodeMem ark_mem, N_Vector zcor, N_Vector z);
+void arkStep_Free(ARKodeMem ark_mem);
+void arkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
 
 /* Internal utility routines */
-int arkStep_AccessStepMem(void* arkode_mem, const char* fname,
-                          ARKodeMem* ark_mem, ARKodeARKStepMem* step_mem);
+int arkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
+                                ARKodeMem* ark_mem, ARKodeARKStepMem* step_mem);
+int arkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
+                          ARKodeARKStepMem* step_mem);
 sunbooleantype arkStep_CheckNVector(N_Vector tmpl);
 int arkStep_SetButcherTables(ARKodeMem ark_mem);
 int arkStep_CheckButcherTables(ARKodeMem ark_mem);
@@ -226,6 +265,7 @@ int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
                               N_Vector yR);
 
 /* private functions for relaxation */
+int arkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
 int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         long int* relax_jac_fn_evals, sunrealtype* delta_e_out);
 int arkStep_GetOrder(ARKodeMem ark_mem);

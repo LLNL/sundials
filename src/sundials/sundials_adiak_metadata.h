@@ -12,6 +12,9 @@
  * SUNDIALS Copyright End
  * ----------------------------------------------------------------*/
 
+#ifndef _SUNDIALS_ADIAK_METADATA_H
+#define _SUNDIALS_ADIAK_METADATA_H
+
 #ifdef SUNDIALS_ADIAK_ENABLED
 #include <adiak.h>
 
@@ -141,4 +144,6 @@ static void sunAdiakCollectMetadata()
   adiak_namevalue("amdgpu_targets", 2, NULL, "%s", SUN_AMDGPU_TARGETS);
 #endif
 }
+#endif
+
 #endif

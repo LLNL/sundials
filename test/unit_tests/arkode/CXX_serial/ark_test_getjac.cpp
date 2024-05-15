@@ -214,8 +214,8 @@ int main(int argc, char* argv[])
   void* arkode_mem = ARKStepCreate(nullptr, f, ZERO, y, sunctx);
   if (check_ptr(arkode_mem, "ARKStepCreate")) { return 1; }
 
-  flag = ARKStepSStolerances(arkode_mem, rtol, atol);
-  if (check_flag(flag, "ARKStepSStolerances")) { return 1; }
+  flag = ARKodeSStolerances(arkode_mem, rtol, atol);
+  if (check_flag(flag, "ARKodeSStolerances")) { return 1; }
 
   SUNMatrix A = SUNDenseMatrix(2, 2, sunctx);
   if (check_ptr(A, "SUNDenseMatrix")) { return 1; }
@@ -223,35 +223,35 @@ int main(int argc, char* argv[])
   SUNLinearSolver LS = SUNLinSol_Dense(y, A, sunctx);
   if (check_ptr(LS, "SUNLinSol_Dense")) { return 1; }
 
-  flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
-  if (check_flag(flag, "ARKStepSetLinearSolver")) { return 1; }
+  flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
+  if (check_flag(flag, "ARKodeSetLinearSolver")) { return 1; }
 
   sunrealtype udata[4] = {-TWO, HALF, HALF, -ONE};
 
-  flag = ARKStepSetUserData(arkode_mem, udata);
-  if (check_flag(flag, "ARKStepSetUserData")) { return 1; }
+  flag = ARKodeSetUserData(arkode_mem, udata);
+  if (check_flag(flag, "ARKodeSetUserData")) { return 1; }
 
   // Initial time and fist output time
   sunrealtype tret = ZERO;
   sunrealtype tout = tret + SUN_RCONST(0.1);
 
   // Advance one step in time
-  flag = ARKStepEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
-  if (check_flag(flag, "ARKStep")) { return 1; }
+  flag = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
+  if (check_flag(flag, "ARKode")) { return 1; }
 
   // Get the internal finite difference approximation to J
   SUNMatrix Jdq;
-  flag = ARKStepGetJac(arkode_mem, &Jdq);
-  if (check_flag(flag, "ARKStepGetJac")) { return 1; }
+  flag = ARKodeGetJac(arkode_mem, &Jdq);
+  if (check_flag(flag, "ARKodeGetJac")) { return 1; }
 
   // Get the step and time at which the approximation was computed
   long int nst_Jdq;
-  flag = ARKStepGetJacNumSteps(arkode_mem, &nst_Jdq);
-  if (check_flag(flag, "ARKStepGetJacNumSteps")) { return 1; }
+  flag = ARKodeGetJacNumSteps(arkode_mem, &nst_Jdq);
+  if (check_flag(flag, "ARKodeGetJacNumSteps")) { return 1; }
 
   sunrealtype t_Jdq;
-  flag = ARKStepGetJacTime(arkode_mem, &t_Jdq);
-  if (check_flag(flag, "ARKStepGetJacTime")) { return 1; }
+  flag = ARKodeGetJacTime(arkode_mem, &t_Jdq);
+  if (check_flag(flag, "ARKodeGetJacTime")) { return 1; }
 
   // Compute the true Jacobian
   SUNMatrix Jtrue = SUNDenseMatrix(2, 2, sunctx);
@@ -302,7 +302,7 @@ int main(int argc, char* argv[])
   SUNMatDestroy(A);
   SUNMatDestroy(Jtrue);
   SUNLinSolFree(LS);
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
 
   return result;
 }

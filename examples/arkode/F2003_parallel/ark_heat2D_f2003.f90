@@ -751,7 +751,7 @@ program driver
   y = 0.d0
 
   ! Create the ARKStep timestepper module
-  arkode_mem = FARKStepCreate(c_null_ptr, c_funloc(frhs), t0, sunvec_y, sunctx)
+  arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(frhs), t0, sunvec_y, sunctx)
   if (.not. c_associated(arkode_mem)) then
      print *, "Error: FARKStepCreate returned NULL"
      call MPI_Abort(comm, 1, ierr)
@@ -766,45 +766,45 @@ program driver
 
   ! Attach linear solver
   sunmat_A => null()
-  retval = FARKStepSetLinearSolver(arkode_mem, sun_LS, sunmat_A)
+  retval = FARKodeSetLinearSolver(arkode_mem, sun_LS, sunmat_A)
   if (retval /= 0) then
-     print *, "Error: FARKStepSetLinearSolver returned ",retval
+     print *, "Error: FARKodeSetLinearSolver returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Attach preconditioner
-  retval = FARKStepSetPreconditioner(arkode_mem, c_funloc(PSetup), &
+  retval = FARKodeSetPreconditioner(arkode_mem, c_funloc(PSetup), &
        c_funloc(PSolve))
   if (retval /= 0) then
-     print *, "Error: FARKStepSetPreconditioner returned ",retval
+     print *, "Error: FARKodeSetPreconditioner returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Specify tolerances
-  retval = FARKStepSStolerances(arkode_mem, rtol, atol)
+  retval = FARKodeSStolerances(arkode_mem, rtol, atol)
   if (retval /= 0) then
-     print *, "Error: FARKStepSStolerances returned ",retval
+     print *, "Error: FARKodeSStolerances returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Specify nonlinear solver convergence coefficient
-  retval = FARKStepSetNonlinConvCoef(arkode_mem, nlscoef)
+  retval = FARKodeSetNonlinConvCoef(arkode_mem, nlscoef)
   if (retval /= 0) then
-     print *, "Error: FARKStepSetNonlinConvCoef returned ",retval
+     print *, "Error: FARKodeSetNonlinConvCoef returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Specify nonlinear solver predictor method
-  retval = FARKStepSetPredictorMethod(arkode_mem, int(1, c_int))
+  retval = FARKodeSetPredictorMethod(arkode_mem, int(1, c_int))
   if (retval /= 0) then
-     print *, "Error: FARKStepSetNonlinConvCoef returned ",retval
+     print *, "Error: FARKodeSetNonlinConvCoef returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Specify that problem is linearly implicit
-  retval = FARKStepSetLinear(arkode_mem, int(0, c_int))
+  retval = FARKodeSetLinear(arkode_mem, int(0, c_int))
   if (retval /= 0) then
-     print *, "Error: FARKStepSetNonlinConvCoef returned ",retval
+     print *, "Error: FARKodeSetNonlinConvCoef returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -852,9 +852,9 @@ program driver
   do ioutput=1,Nt
 
      ! Integrate to output time
-     retval = FARKStepEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
+     retval = FARKodeEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
      if (retval /= 0) then
-        print *, "Error: FARKStepEvolve returned ",retval
+        print *, "Error: FARKodeEvolve returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -878,15 +878,15 @@ program driver
   close(101)
 
   ! Get final statistics
-  retval = FARKStepGetNumSteps(arkode_mem, nst)
+  retval = FARKodeGetNumSteps(arkode_mem, nst)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumSteps returned ",retval
+     print *, "Error: FARKodeGetNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumStepAttempts(arkode_mem, nst_a)
+  retval = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumStepAttempts returned ",retval
+     print *, "Error: FARKodeGetNumStepAttempts returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -896,39 +896,39 @@ program driver
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumErrTestFails(arkode_mem, netf)
+  retval = FARKodeGetNumErrTestFails(arkode_mem, netf)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumErrTestFails returned ",retval
+     print *, "Error: FARKodeGetNumErrTestFails returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumNonlinSolvIters(arkode_mem, nni)
+  retval = FARKodeGetNumNonlinSolvIters(arkode_mem, nni)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumNonlinSolvIters returned ",retval
+     print *, "Error: FARKodeGetNumNonlinSolvIters returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumLinConvFails(arkode_mem, ncfn)
+  retval = FARKodeGetNumLinConvFails(arkode_mem, ncfn)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumLinConvFails returned ",retval
+     print *, "Error: FARKodeGetNumLinConvFails returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumLinIters(arkode_mem, nli)
+  retval = FARKodeGetNumLinIters(arkode_mem, nli)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumLinIters returned ",retval
+     print *, "Error: FARKodeGetNumLinIters returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumPrecEvals(arkode_mem, npre)
+  retval = FARKodeGetNumPrecEvals(arkode_mem, npre)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumPrecEvals returned ",retval
+     print *, "Error: FARKodeGetNumPrecEvals returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumPrecSolves(arkode_mem, npsol)
+  retval = FARKodeGetNumPrecSolves(arkode_mem, npsol)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumPrecSolves returned ",retval
+     print *, "Error: FARKodeGetNumPrecSolves returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -949,7 +949,7 @@ program driver
   endif
 
   ! Clean up and return with successful completion
-  call FARKStepFree(arkode_mem)       ! free integrator memory
+  call FARKodeFree(arkode_mem)        ! free integrator memory
   call FN_VDestroy(sunvec_y)          ! free vector memory
   call FN_VDestroy(sunvec_ones)
   retval = FSUNLinSolFree(sun_LS)     ! free linear solver

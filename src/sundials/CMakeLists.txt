@@ -88,6 +88,7 @@ set(sundials_SOURCES
   sundials_dense.c
   sundials_direct.c
   sundials_errors.c
+  sundials_hashmap.c
   sundials_iterative.c
   sundials_linearsolver.c
   sundials_logger.c
@@ -113,8 +114,11 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
 
 if(ENABLE_MPI)
-  set(_link_mpi_if_needed PUBLIC MPI::MPI_C)
+  set(_link_mpi_if_needed PUBLIC 
+    MPI::MPI_C
+    $<$<LINK_LANGUAGE:CXX>:MPI::MPI_CXX>)
 endif()
+
 
 if(SUNDIALS_BUILD_WITH_PROFILING)
   if(ENABLE_CALIPER)

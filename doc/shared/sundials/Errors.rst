@@ -96,7 +96,7 @@ Specific error handlers can be enabled by pushing them onto the error handler st
 with the function :c:func:`SUNContext_PushErrHandler`. They may disabled by calling :c:func:`SUNContext_PopErrHandler` or :c:func:`SUNContext_ClearErrHandlers`.
 A SUNDIALS error handler function has the type
 
-.. c:type:: int (*SUNErrHandlerFn)(int line, const char* func, const char* file, \
+.. c:type:: void (*SUNErrHandlerFn)(int line, const char* func, const char* file, \
                                            const char* msg, SUNErrCode err_code, \
                                            void* err_user_data, SUNContext sunctx)
 

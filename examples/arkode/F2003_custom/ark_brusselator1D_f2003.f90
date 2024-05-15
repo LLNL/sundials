@@ -328,13 +328,13 @@ program main
   end if
 
   ! set routines
-  ierr = FARKStepSStolerances(arkode_mem, reltol, abstol)
+  ierr = FARKodeSStolerances(arkode_mem, reltol, abstol)
   if (ierr /= 0) then
-    write(*,*) 'Error in FARKStepSStolerances'
+    write(*,*) 'Error in FARKodeSStolerances'
     stop 1
   end if
 
-  ! initialize custom matrix data structure and solver; attach to ARKStep
+  ! initialize custom matrix data structure and solver; attach to ARKODE
   sunmat_A => FSUNMatNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sunmat_A)) then
      print *,'ERROR: sunmat = NULL'
@@ -348,19 +348,19 @@ program main
   end if
 
   ! Attach matrix, linear solver, and Jacobian routine to linear solver interface
-  ierr = FARKStepSetLinearSolver(arkode_mem, sunls, sunmat_A)
+  ierr = FARKodeSetLinearSolver(arkode_mem, sunls, sunmat_A)
   if (ierr /= 0) then
-    write(*,*) 'Error in FARKStepSetLinearSolver'
+    write(*,*) 'Error in FARKodeSetLinearSolver'
     stop 1
   end if
 
-  ierr = FARKStepSetJacFn(arkode_mem, c_funloc(JacFn))
+  ierr = FARKodeSetJacFn(arkode_mem, c_funloc(JacFn))
   if (ierr /= 0) then
-    write(*,*) 'Error in FARKStepSetJacFn'
+    write(*,*) 'Error in FARKodeSetJacFn'
     stop 1
   end if
 
-  ! main time-stepping loop: calls FARKStepEvolve to perform the integration, then
+  ! main time-stepping loop: calls FARKodeEvolve to perform the integration, then
   ! prints results.  Stops when the final time has been reached
   tcur(1) = T0
   dTout = (Tf-T0)/Nt
@@ -370,9 +370,9 @@ program main
   do iout = 1,Nt
 
      ! call integrator
-     ierr = FARKStepEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
+     ierr = FARKodeEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
      if (ierr /= 0) then
-        write(*,*) 'Error in FARKStepEvolve, ierr = ', ierr, '; halting'
+        write(*,*) 'Error in FARKodeEvolve, ierr = ', ierr, '; halting'
         stop 1
      endif
 
@@ -390,7 +390,7 @@ program main
   call ARKStepStats(arkode_mem)
 
   ! clean up
-  call FARKStepFree(arkode_mem)
+  call FARKodeFree(arkode_mem)
   call FN_VDestroy(sunvec_y)
   call FSUNMatDestroy(sunmat_A)
   ierr = FSUNLinSolFree(sunls)
@@ -432,16 +432,16 @@ subroutine ARKStepStats(arkode_mem)
 
   !======= Internals ============
 
-  ierr = FARKStepGetNumSteps(arkode_mem, nsteps)
-  ierr = FARKStepGetNumStepAttempts(arkode_mem, nst_a)
+  ierr = FARKodeGetNumSteps(arkode_mem, nsteps)
+  ierr = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
   ierr = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
-  ierr = FARKStepGetNumLinRhsEvals(arkode_mem, nfeLS)
-  ierr = FARKStepGetNumLinSolvSetups(arkode_mem, nlinsetups)
-  ierr = FARKStepGetNumJacEvals(arkode_mem, nje)
-  ierr = FARKStepGetNumErrTestFails(arkode_mem, netfails)
-  ierr = FARKStepGetNumNonlinSolvIters(arkode_mem, nniters)
-  ierr = FARKStepGetNumNonlinSolvConvFails(arkode_mem, nncfails)
-  ierr = FARKStepGetNumJacEvals(arkode_mem, njacevals)
+  ierr = FARKodeGetNumLinRhsEvals(arkode_mem, nfeLS)
+  ierr = FARKodeGetNumLinSolvSetups(arkode_mem, nlinsetups)
+  ierr = FARKodeGetNumJacEvals(arkode_mem, nje)
+  ierr = FARKodeGetNumErrTestFails(arkode_mem, netfails)
+  ierr = FARKodeGetNumNonlinSolvIters(arkode_mem, nniters)
+  ierr = FARKodeGetNumNonlinSolvConvFails(arkode_mem, nncfails)
+  ierr = FARKodeGetNumJacEvals(arkode_mem, njacevals)
 
   print *, ' '
   print *, 'Final Solver Statistics:'

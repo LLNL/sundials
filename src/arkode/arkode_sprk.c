@@ -403,16 +403,15 @@ ARKodeSPRKTable ARKodeSymplecticSofroniou10(void)
 ARKodeSPRKTable ARKodeSPRKTable_Create(int s, int q, const sunrealtype* a,
                                        const sunrealtype* ahat)
 {
-  int i                      = 0;
-  ARKodeSPRKTable sprk_table = NULL;
+  if (s < 1 || !a || !ahat) { return NULL; }
 
-  sprk_table = (ARKodeSPRKTable)malloc(sizeof(struct ARKodeSPRKTableMem));
+  ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(s);
   if (!sprk_table) { return NULL; }
 
   sprk_table->stages = s;
   sprk_table->q      = q;
 
-  for (i = 0; i < s; i++)
+  for (int i = 0; i < s; i++)
   {
     sprk_table->a[i]    = a[i];
     sprk_table->ahat[i] = ahat[i];

@@ -221,6 +221,10 @@ if(SUNDIALS_TEST_UNITTESTS)
   add_subdirectory(test/unit_tests)
 endif()
 
+if(SUNDIALS_ENABLE_EXTERNAL_ADDONS)
+  add_subdirectory(external)
+endif()
+
 # ===============================================================
 # Install configuration header files and license file.
 # ===============================================================
@@ -264,7 +268,7 @@ include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
   SUNDIALSConfigVersion.cmake
   VERSION ${PACKAGE_VERSION}
-  COMPATIBILITY SameMajorVersion
+  COMPATIBILITY AnyNewerVersion
 )
 
 # install targets
