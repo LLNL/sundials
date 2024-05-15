@@ -389,10 +389,11 @@ int mriStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                       "Unable to resize vector");
       return (ARK_MEM_FAIL);
     }
+    if (step_mem->unify_Fs) { step_mem->Fsi = step_mem->Fse; }
   }
 
   /* Resize Fsi */
-  if (step_mem->Fsi)
+  if (step_mem->Fsi && !step_mem->unify_Fs)
   {
     if (!arkResizeVecArray(resize, resize_data, step_mem->nstages_allocated, y0,
                            &(step_mem->Fsi), lrw_diff, &(ark_mem->lrw),
@@ -613,6 +614,7 @@ void mriStep_Free(ARKodeMem ark_mem)
       arkFreeVecArray(step_mem->nstages_allocated, &(step_mem->Fse),
                       ark_mem->lrw1, &(ark_mem->lrw), ark_mem->liw1,
                       &(ark_mem->liw));
+      if (step_mem->unify_Fs) { step_mem->Fsi = NULL; }
     }
 
     if (step_mem->Fsi)
@@ -731,7 +733,7 @@ void mriStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
       fprintf(outfile, "MRIStep: Fse[%i]:\n", i);
       N_VPrintFile(step_mem->Fse[i], outfile);
     }
-  if (step_mem->Fsi)
+  if (step_mem->Fsi && !step_mem->unify_Fs)
     for (i = 0; i < step_mem->nstages_active; i++)
     {
       fprintf(outfile, "MRIStep: Fsi[%i]:\n", i);
@@ -1063,6 +1065,16 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     step_mem->q      = step_mem->MRIC->q;
     step_mem->p      = step_mem->MRIC->p;
 
+    /* If an MRISR method is applied to a non-ImEx problem, we "unify"
+       the Fse and Fsi vectors to point at the same memory */
+    step_mem->unify_Fs = SUNFALSE;
+    if ((step_mem->MRIC->type == MRISTEP_MRISR) &&
+        ((step_mem->explicit_rhs && !step_mem->implicit_rhs) ||
+         (!step_mem->explicit_rhs && step_mem->implicit_rhs)))
+    {
+      step_mem->unify_Fs = SUNTRUE;
+    }
+
     /* Allocate MRI RHS vector memory, update storage requirements */
     /*   Allocate Fse[0] ... Fse[nstages_active - 1] and           */
     /*   Fsi[0] ... Fsi[nstages_active - 1] if needed              */
@@ -1075,15 +1087,17 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
           arkFreeVecArray(step_mem->nstages_allocated, &(step_mem->Fse),
                           ark_mem->lrw1, &(ark_mem->lrw), ark_mem->liw1,
                           &(ark_mem->liw));
+          if (step_mem->unify_Fs) { step_mem->Fsi = NULL; }
         }
         if (step_mem->implicit_rhs)
         {
           arkFreeVecArray(step_mem->nstages_allocated, &(step_mem->Fsi),
                           ark_mem->lrw1, &(ark_mem->lrw), ark_mem->liw1,
                           &(ark_mem->liw));
+          if (step_mem->unify_Fs) { step_mem->Fse = NULL; }
         }
       }
-      if (step_mem->explicit_rhs)
+      if (step_mem->explicit_rhs && !step_mem->unify_Fs)
       {
         if (!arkAllocVecArray(step_mem->nstages_active, ark_mem->ewt,
                               &(step_mem->Fse), ark_mem->lrw1, &(ark_mem->lrw),
@@ -1092,7 +1106,7 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
           return (ARK_MEM_FAIL);
         }
       }
-      if (step_mem->implicit_rhs)
+      if (step_mem->implicit_rhs && !step_mem->unify_Fs)
       {
         if (!arkAllocVecArray(step_mem->nstages_active, ark_mem->ewt,
                               &(step_mem->Fsi), ark_mem->lrw1, &(ark_mem->lrw),
@@ -1101,6 +1115,17 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
           return (ARK_MEM_FAIL);
         }
       }
+      if (step_mem->unify_Fs)
+      {
+        if (!arkAllocVecArray(step_mem->nstages_active, ark_mem->ewt,
+                              &(step_mem->Fse), ark_mem->lrw1, &(ark_mem->lrw),
+                              ark_mem->liw1, &(ark_mem->liw)))
+        {
+          return (ARK_MEM_FAIL);
+        }
+        step_mem->Fsi = step_mem->Fse;
+      }
+
       step_mem->nstages_allocated = step_mem->nstages_active;
     }
 
@@ -2045,6 +2070,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype embedding;           /* flag indicating embedding  */
   sunbooleantype solution;            /*   or solution stages       */
   sunbooleantype impl_corr;           /* is slow correct. implicit? */
+  sunbooleantype store_imprhs;        /* temporary storage          */
   sunrealtype cstage;                 /* current stage abscissa     */
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
@@ -2143,6 +2169,14 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                        "Fse[0] =", "");
     N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp);
   }
+
+  if (step_mem->implicit_rhs)
+  {
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::mriStep_TakeStepMRISR", "slow implicit RHS",
+                       "Fsi[0] =", "");
+    N_VPrintFile(step_mem->Fsi[0], ARK_LOGGER->debug_fp);
+  }
 #endif
 
   /* The first stage is the previous time-step solution, so its RHS
@@ -2176,10 +2210,15 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Set current stage abscissa */
     cstage = (embedding) ? ONE : step_mem->MRIC->c[stage];
 
-    /* Compute forcing function for inner solver */
+    /* Compute forcing function for inner solver: temporarily
+       disable implicit_rhs flag since MRISR methods ignore the G
+       coefficients in the forcing function. */
+    store_imprhs = step_mem->implicit_rhs;
+    step_mem->implicit_rhs = SUNFALSE;
     retval = mriStep_ComputeInnerForcing(ark_mem, step_mem, stage, ark_mem->tn,
                                          ark_mem->tn + cstage * ark_mem->h);
     if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; break; }
+    step_mem->implicit_rhs = store_imprhs;
 
     /* Evolve fast IVP for this stage:
          force reset due to "stage-restart" structure

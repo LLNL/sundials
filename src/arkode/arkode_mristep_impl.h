@@ -77,6 +77,7 @@ typedef struct ARKodeMRIStepMemRec
   /* Outer RK method storage and parameters */
   N_Vector* Fse;         /* explicit RHS at each stage               */
   N_Vector* Fsi;         /* implicit RHS at each stage               */
+  sunbooleantype unify_Fs; /* Fse and Fsi point at the same memory   */
   MRIStepCoupling MRIC;  /* slow->fast coupling table                */
   int q;                 /* method order                             */
   int p;                 /* embedding order                          */
