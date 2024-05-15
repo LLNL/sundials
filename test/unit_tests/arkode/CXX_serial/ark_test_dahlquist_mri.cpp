@@ -304,6 +304,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
   for (const auto& pair : methods)
   {
+    int methodfails = 0;
     std::string id        = pair.first;
     bool stiffly_accurate = pair.second;
     cout << "\nTesting method " << id << "\n";
@@ -429,7 +430,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
     if (mri_nfse != fe_evals)
     {
-      numfails++;
+      methodfails++;
       cout << "Fe RHS evals: " << mri_nfse << " vs " << fe_evals << "\n";
     }
 
@@ -441,12 +442,13 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
     if (mri_nfsi != fi_evals)
     {
-      numfails++;
+      methodfails++;
       cout << "Fi RHS evals: " << mri_nfsi << " vs " << fi_evals << "\n";
     }
 
-    if (numfails) { cout << "Failed " << numfails << " tests\n"; }
+    if (methodfails) { cout << "Failed " << methodfails << " tests\n"; }
     else { cout << "All checks passed\n"; }
+    numfails += methodfails;
 
     // -------------------
     // Setup for next test

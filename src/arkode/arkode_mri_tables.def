@@ -71,35 +71,35 @@ ARK_MRI_TABLE(ARKODE_MRI_NONE, {
 
 ARK_MRI_TABLE(ARKODE_MRI_GARK_FORWARD_EULER, {
     ARKodeButcherTable B = ARKodeButcherTable_LoadERK(ARKODE_FORWARD_EULER_1_1);
-    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, 1, 0);
+    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, B->q, B->p);
     ARKodeButcherTable_Free(B);
     return C;
   })
 
 ARK_MRI_TABLE(ARKODE_MRI_GARK_RALSTON2, { /* Roberts et al., SISC 44:A1405 - A1427, 2022 */
     ARKodeButcherTable B = ARKodeButcherTable_LoadERK(ARKODE_RALSTON_EULER_2_1_2);
-    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, 2, 0);
+    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, B->q, B->p);
     ARKodeButcherTable_Free(B);
     return C;
   })
 
 ARK_MRI_TABLE(ARKODE_MIS_KW3, { /* Schlegel et al., JCAM 226:345-357, 2009 */
     ARKodeButcherTable B = ARKodeButcherTable_LoadERK(ARKODE_KNOTH_WOLKE_3_3);
-    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, 3, 0);
+    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, B->q, B->p);
     ARKodeButcherTable_Free(B);
     return C;
   })
 
 ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK22a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     ARKodeButcherTable B = ARKodeButcherTable_LoadERK(ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2);
-    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, 2, 0);
+    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, B->q, B->p);
     ARKodeButcherTable_Free(B);
     return C;
   })
 
 ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK22b, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     ARKodeButcherTable B = ARKodeButcherTable_LoadERK(ARKODE_HEUN_EULER_2_1_2);
-    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, 2, 0);
+    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, B->q, B->p);
     ARKodeButcherTable_Free(B);
     return C;
   })
@@ -240,7 +240,7 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_IRK21a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
 
     B->d[2] = SUN_RCONST(1.0);
 
-    C = MRIStepCoupling_MIStoMRI(B, 2, 1);
+    C = MRIStepCoupling_MIStoMRI(B, B->q, B->p);
     ARKodeButcherTable_Free(B);
     return C;
   })
