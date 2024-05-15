@@ -16,6 +16,7 @@
  * the SUNLINSOL package.
  * -----------------------------------------------------------------*/
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
@@ -49,7 +50,7 @@
  */
 
 #if defined(SUNDIALS_INT64_T)
-#define KLU_INDEXTYPE long int
+#define KLU_INDEXTYPE int64_t
 #else
 #define KLU_INDEXTYPE int
 #endif
