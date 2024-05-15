@@ -1,5 +1,5 @@
 ---
-name: 🐞 Bug
+name: Bug
 about: File a bug report
 title: '[BUG] <title>'
 labels: bug, triage
@@ -21,9 +21,9 @@ Note: Please search to see if an issue already exists for the bug you encountere
 <!--
 Example: steps to reproduce the behavior:
 1. In this environment...
-1. With this config...
-1. Run '...'
-1. See error...
+2. With this config...
+3. Run '...'
+4. See error...
 -->
 
 ### Environment:
