@@ -84,6 +84,9 @@ ARKODE's SPRKStep time-stepping module.
 Fixed a bug in :c:func:`ARKodeSPRKTable_Create` where the coefficient arrays
 were not allocated.
 
+Fix bug on LLP64 platforms (like Windows 64-bit) where ``KLU_INDEXTYPE`` could be
+32 bits wide even if ``SUNDIALS_INT64_T`` is defined.
+
 **Deprecation Notices**
 
 Numerous ARKODE stepper-specific functions are now deprecated in favor of
