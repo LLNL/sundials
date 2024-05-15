@@ -95,7 +95,7 @@ endif ()
 if (NOT SUITESPARSECONFIG_LIBRARY)
     set(SUITESPARSECONFIG_LIBRARY_NAME suitesparseconfig)
     # NOTE: no prefix for this library on windows
-    if(WIN32 AND NOT MSYS)
+    if(MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC"))
         set(CMAKE_FIND_LIBRARY_PREFIXES "")
     endif()
     find_library( SUITESPARSECONFIG_LIBRARY ${SUITESPARSECONFIG_LIBRARY_NAME} ${KLU_LIBRARY_DIR} NO_DEFAULT_PATH)
