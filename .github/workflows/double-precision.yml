@@ -3,6 +3,10 @@ name: Build and Test - Ubuntu/gcc double precision (TPLs, no GPUs)
 
 on:
   push:
+    branches:
+      - main
+      - develop
+      - 'releases/**'
   pull_request:
   merge_group:
   workflow_dispatch:

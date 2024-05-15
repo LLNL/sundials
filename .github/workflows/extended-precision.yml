@@ -2,6 +2,11 @@
 name: Build and Test - Ubuntu/gcc extended precision (TPLs, no GPUs)
 
 on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'releases/**'
   pull_request:
   merge_group:
   workflow_dispatch:
