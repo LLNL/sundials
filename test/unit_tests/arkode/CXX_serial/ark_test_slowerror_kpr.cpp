@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
   }
 
   sunbooleantype implicit = SUNFALSE;
-  sunbooleantype imex = SUNFALSE;
+  sunbooleantype imex     = SUNFALSE;
   if ((strcmp(method, "ARKODE_MRI_GARK_IRK21a") == 0) ||
       (strcmp(method, "ARKODE_MRI_GARK_ESDIRK34a") == 0) ||
       (strcmp(method, "ARKODE_MRI_GARK_ESDIRK46a") == 0))
@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
       (strcmp(method, "ARKODE_IMEX_MRI_SR32") == 0) ||
       (strcmp(method, "ARKODE_IMEX_MRI_SR43") == 0))
   {
-    imex = SUNTRUE;
+    imex     = SUNTRUE;
     implicit = SUNTRUE;
   }
 
@@ -237,10 +237,7 @@ int main(int argc, char* argv[])
 
   // Set up slow MRIStep integrator
   void* mristep_mem = NULL;
-  if (imex)
-  {
-    mristep_mem = MRIStepCreate(fe, fi, T0, y, inner_stepper, ctx);
-  }
+  if (imex) { mristep_mem = MRIStepCreate(fe, fi, T0, y, inner_stepper, ctx); }
   else if (implicit)
   {
     mristep_mem = MRIStepCreate(NULL, fn, T0, y, inner_stepper, ctx);

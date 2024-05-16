@@ -304,7 +304,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
 
   for (const auto& pair : methods)
   {
-    int methodfails = 0;
+    int methodfails       = 0;
     std::string id        = pair.first;
     bool stiffly_accurate = pair.second;
     cout << "\nTesting method " << id << "\n";

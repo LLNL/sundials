@@ -91,8 +91,8 @@ static int computeErrorWeights(N_Vector ycur, N_Vector weight, sunrealtype rtol,
                                sunrealtype atol, N_Vector vtemp);
 static int check_retval(void* returnvalue, const char* funcname, int opt);
 static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
-                    vector<sunrealtype>& Hvals, char* method, sunrealtype reltol,
-                    sunrealtype abstol, UserData& udata);
+                    vector<sunrealtype>& Hvals, char* method,
+                    sunrealtype reltol, sunrealtype abstol, UserData& udata);
 
 // Main Program
 int main(int argc, char* argv[])
@@ -257,8 +257,8 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 //------------------------------
 
 static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
-                    vector<sunrealtype>& Hvals, char* method, sunrealtype reltol,
-                    sunrealtype abstol, UserData& udata)
+                    vector<sunrealtype>& Hvals, char* method,
+                    sunrealtype reltol, sunrealtype abstol, UserData& udata)
 {
   // Reused variables
   int retval;
@@ -329,7 +329,8 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
              Hvals[iH] * Hvals[iH] * Hvals[iH] * abs(udata.a * 3137.0 / 50370.0) /
                (abstol + reltol * abs(NV_Ith_S(vtemp, 0))),
              Hvals[iH] * Hvals[iH] *
-               abs(udata.a * Hvals[iH] * 20191.0 / 755550.0 - udata.b * 19.0 / 30.0) /
+               abs(udata.a * Hvals[iH] * 20191.0 / 755550.0 -
+                   udata.b * 19.0 / 30.0) /
                (abstol + reltol * abs(NV_Ith_S(vtemp, 0))));
     }
     else

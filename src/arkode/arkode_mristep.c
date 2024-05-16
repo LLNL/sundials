@@ -2072,7 +2072,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype impl_corr;           /* is slow correct. implicit? */
   sunbooleantype store_imprhs;        /* temporary storage          */
   sunbooleantype store_exprhs;
-  sunrealtype cstage;                 /* current stage abscissa     */
+  sunrealtype cstage; /* current stage abscissa     */
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
   /* access the MRIStep mem structure */
@@ -2116,7 +2116,8 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      to the beginning of this step (in case of recomputation) */
   if (!ark_mem->fixedstep)
   {
-    retval = mriStepInnerStepper_Reset(step_mem->stepper, ark_mem->tn, ark_mem->yn);
+    retval = mriStepInnerStepper_Reset(step_mem->stepper, ark_mem->tn,
+                                       ark_mem->yn);
     if (retval != ARK_SUCCESS) { return (ARK_INNERSTEP_FAIL); }
   }
 
@@ -2147,7 +2148,8 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* combine both RHS into Fse for ImEx problems */
     if (step_mem->implicit_rhs && step_mem->explicit_rhs)
     {
-      N_VLinearSum(ONE, step_mem->Fse[0], ONE, step_mem->Fsi[0], step_mem->Fse[0]);
+      N_VLinearSum(ONE, step_mem->Fse[0], ONE, step_mem->Fsi[0],
+                   step_mem->Fse[0]);
     }
 
     ark_mem->fn_is_current = SUNTRUE;
@@ -2214,13 +2216,17 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Compute forcing function for inner solver: temporarily
        force explicit_rhs and disable implicit_rhs flag since MRISR 
        methods ignore the G coefficients in the forcing function. */
-    store_imprhs = step_mem->implicit_rhs;
-    store_exprhs = step_mem->explicit_rhs;
+    store_imprhs           = step_mem->implicit_rhs;
+    store_exprhs           = step_mem->explicit_rhs;
     step_mem->implicit_rhs = SUNFALSE;
     step_mem->explicit_rhs = SUNTRUE;
     retval = mriStep_ComputeInnerForcing(ark_mem, step_mem, stage, ark_mem->tn,
                                          ark_mem->tn + cstage * ark_mem->h);
-    if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; break; }
+    if (retval != ARK_SUCCESS)
+    {
+      *nflagPtr = CONV_FAIL;
+      break;
+    }
     step_mem->implicit_rhs = store_imprhs;
     step_mem->explicit_rhs = store_exprhs;
 
@@ -2245,10 +2251,11 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       step_mem->Xvecs[0] = ark_mem->ycur;
       for (j = 0; j < stage; j++)
       {
-        step_mem->cvals[j+1] = ark_mem->h * step_mem->MRIC->G[0][stage][j];
-        step_mem->Xvecs[j+1] = step_mem->Fsi[j];
+        step_mem->cvals[j + 1] = ark_mem->h * step_mem->MRIC->G[0][stage][j];
+        step_mem->Xvecs[j + 1] = step_mem->Fsi[j];
       }
-      retval = N_VLinearCombination(stage+1, step_mem->cvals, step_mem->Xvecs, step_mem->sdata);
+      retval = N_VLinearCombination(stage + 1, step_mem->cvals, step_mem->Xvecs,
+                                    step_mem->sdata);
       if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
@@ -2262,7 +2269,6 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       impl_corr = SUNRabs(step_mem->MRIC->G[0][stage][stage]) > tol;
       if (impl_corr)
       {
-
         /* store current stage index (for an "embedded" stage, subtract 1) */
         step_mem->istage = (stage == step_mem->stages) ? stage - 1 : stage;
 
@@ -2291,14 +2297,13 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         /* Update gamma (if the method contains an implicit component) */
         step_mem->gamma = ark_mem->h * step_mem->MRIC->G[0][stage][stage];
         if (ark_mem->firststage) { step_mem->gammap = step_mem->gamma; }
-        step_mem->gamrat = (ark_mem->firststage) ? ONE
-          : step_mem->gamma / step_mem->gammap;
+        step_mem->gamrat =
+          (ark_mem->firststage) ? ONE : step_mem->gamma / step_mem->gammap;
 
         /* perform implicit solve (result is stored in ark_mem->ycur); return
            with positive value on anything but success */
         *nflagPtr = mriStep_Nls(ark_mem, *nflagPtr);
         if (*nflagPtr != ARK_SUCCESS) { return (TRY_AGAIN); }
-
       }
     }
 
@@ -2371,7 +2376,8 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       /* combine both RHS into Fse for ImEx problems */
       if (step_mem->implicit_rhs && step_mem->explicit_rhs)
       {
-        N_VLinearSum(ONE, step_mem->Fse[stage], ONE, step_mem->Fsi[stage], step_mem->Fse[stage]);
+        N_VLinearSum(ONE, step_mem->Fse[stage], ONE, step_mem->Fsi[stage],
+                     step_mem->Fse[stage]);
       }
     }
 
@@ -2804,7 +2810,7 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
     case 3: table_id = MRISTEP_DEFAULT_IMEX_SD_3; break;
     case 4: table_id = MRISTEP_DEFAULT_IMEX_SD_4; break;
     }
-  /**** implicit methods ****/
+    /**** implicit methods ****/
   }
   else if (step_mem->implicit_rhs)
   {
@@ -2816,7 +2822,7 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
     case 4: table_id = MRISTEP_DEFAULT_IMPL_SD_4; break;
     }
 
-  /**** explicit methods ****/
+    /**** explicit methods ****/
   }
   else
   {

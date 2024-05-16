@@ -2503,7 +2503,7 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
   }
 
   /* call fullrhs if needed */
-/*  if (ark_mem->call_fullrhs && !(ark_mem->fn_is_current))
+  /*  if (ark_mem->call_fullrhs && !(ark_mem->fn_is_current))
   {
     mode = (ark_mem->ProcessStep != NULL) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->ycur,

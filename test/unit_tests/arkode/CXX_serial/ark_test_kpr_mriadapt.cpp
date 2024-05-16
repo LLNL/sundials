@@ -890,8 +890,8 @@ static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   //   [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
   //   [                 0                             0           ]
   SM_ELEMENT_D(J, 0, 0) = opts->G / TWO +
-                          (opts->G * (ONE + r(t, opts)) - rdot(t, opts))
-                          / (TWO * u * u);
+                          (opts->G * (ONE + r(t, opts)) - rdot(t, opts)) /
+                            (TWO * u * u);
   SM_ELEMENT_D(J, 0, 1) = opts->e / TWO +
                           opts->e * (TWO + s(t, opts)) / (TWO * v * v);
   SM_ELEMENT_D(J, 1, 0) = ZERO;
