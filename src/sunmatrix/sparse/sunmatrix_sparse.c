@@ -1298,7 +1298,7 @@ SUNErrCode format_convert(const SUNMatrix A, SUNMatrix B)
     sunindextype jj;
     for (jj = Ap[row]; jj < Ap[row + 1]; jj++)
     {
-      sunindextype col  = Aj[jj];
+      col               = Aj[jj];
       sunindextype dest = Bp[col];
 
       Bi[dest] = row;

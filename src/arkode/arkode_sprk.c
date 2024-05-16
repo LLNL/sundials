@@ -136,8 +136,8 @@ ARKodeSPRKTable ARKodeSymplecticMcLachlan2(void)
   if (!sprk_table) { return NULL; }
   sprk_table->q      = 2;
   sprk_table->stages = 2;
-  sprk_table->a[1]   = SUN_RCONST(1.0) -
-                     (SUN_RCONST(1.0) / SUN_RCONST(2.0)) * SUNRsqrt(SUN_RCONST(2.0));
+  sprk_table->a[1]   = SUN_RCONST(1.0) - (SUN_RCONST(1.0) / SUN_RCONST(2.0)) *
+                                         SUNRsqrt(SUN_RCONST(2.0));
   sprk_table->a[0]    = SUN_RCONST(1.0) - sprk_table->a[1];
   sprk_table->ahat[1] = SUN_RCONST(1.0) /
                         (SUN_RCONST(2.0) * (SUN_RCONST(1.0) - sprk_table->a[1]));
@@ -157,7 +157,8 @@ ARKodeSPRKTable ARKodeSymplecticMcLachlan3(void)
   sprk_table->stages = 3;
 
   z = -SUNRpowerR((SUN_RCONST(2.0) / SUN_RCONST(27.0)) -
-                    SUN_RCONST(1.0) / (SUN_RCONST(9.0) * SUNRsqrt(SUN_RCONST(3.0))),
+                    SUN_RCONST(1.0) /
+                      (SUN_RCONST(9.0) * SUNRsqrt(SUN_RCONST(3.0))),
                   SUN_RCONST(1.0) / SUN_RCONST(3.0));
   w = -SUN_RCONST(2.0) / SUN_RCONST(3.0) +
       SUN_RCONST(1.0) / (SUN_RCONST(9.0) * z) + z;
