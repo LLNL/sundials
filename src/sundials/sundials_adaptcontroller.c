@@ -65,6 +65,23 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
 }
 
 /* -----------------------------------------------------------------
+ * Free a generic SUNAdaptController (assumes content is already empty)
+ * ----------------------------------------------------------------- */
+
+void SUNAdaptController_DestroyEmpty(SUNAdaptController C)
+{
+  if (C == NULL) { return; }
+
+  /* free non-NULL ops structure */
+  if (C->ops) { free(C->ops); }
+  C->ops = NULL;
+
+  /* free overall SUNAdaptController object and return */
+  free(C);
+  return;
+}
+
+/* -----------------------------------------------------------------
  * Required functions in the 'ops' structure for non-NULL controller
  * ----------------------------------------------------------------- */
 

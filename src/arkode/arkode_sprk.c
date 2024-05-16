@@ -23,7 +23,7 @@
 #include "arkode/arkode_butcher.h"
 #include "arkode_impl.h"
 
-static ARKodeSPRKTable ARKodeSymplecticEuler(void)
+static ARKodeSPRKTable arkodeSymplecticEuler(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(1);
   if (!sprk_table) { return NULL; }
@@ -43,7 +43,7 @@ static ARKodeSPRKTable ARKodeSymplecticEuler(void)
   https://doi.org/10.1016/0021-9991(91)90299-Z.
  */
 
-static ARKodeSPRKTable ARKodeSymplecticLeapfrog2(void)
+static ARKodeSPRKTable arkodeSymplecticLeapfrog2(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(2);
   if (!sprk_table) { return NULL; }
@@ -56,7 +56,7 @@ static ARKodeSPRKTable ARKodeSymplecticLeapfrog2(void)
   return sprk_table;
 }
 
-static ARKodeSPRKTable ARKodeSymplecticPseudoLeapfrog2(void)
+static ARKodeSPRKTable arkodeSymplecticPseudoLeapfrog2(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(2);
   if (!sprk_table) { return NULL; }
@@ -69,7 +69,7 @@ static ARKodeSPRKTable ARKodeSymplecticPseudoLeapfrog2(void)
   return sprk_table;
 }
 
-static ARKodeSPRKTable ARKodeSymplecticCandyRozmus4(void)
+static ARKodeSPRKTable arkodeSymplecticCandyRozmus4(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(4);
   if (!sprk_table) { return NULL; }
@@ -108,7 +108,7 @@ static ARKodeSPRKTable ARKodeSymplecticCandyRozmus4(void)
   https://accelconf.web.cern.ch/p83/PDF/PAC1983_2669.PDF
  */
 
-static ARKodeSPRKTable ARKodeSymplecticRuth3(void)
+static ARKodeSPRKTable arkodeSymplecticRuth3(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(3);
   if (!sprk_table) { return NULL; }
@@ -130,7 +130,7 @@ static ARKodeSPRKTable ARKodeSymplecticRuth3(void)
   Nonlinearity. 5, 541–562 (1992). https://doi.org/10.1088/0951-7715/5/2/011
  */
 
-static ARKodeSPRKTable ARKodeSymplecticMcLachlan2(void)
+static ARKodeSPRKTable arkodeSymplecticMcLachlan2(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(2);
   if (!sprk_table) { return NULL; }
@@ -145,7 +145,7 @@ static ARKodeSPRKTable ARKodeSymplecticMcLachlan2(void)
   return sprk_table;
 }
 
-static ARKodeSPRKTable ARKodeSymplecticMcLachlan3(void)
+static ARKodeSPRKTable arkodeSymplecticMcLachlan3(void)
 {
   sunrealtype w              = 0.0;
   sunrealtype y              = 0.0;
@@ -174,7 +174,7 @@ static ARKodeSPRKTable ARKodeSymplecticMcLachlan3(void)
   return sprk_table;
 }
 
-static ARKodeSPRKTable ARKodeSymplecticMcLachlan4(void)
+static ARKodeSPRKTable arkodeSymplecticMcLachlan4(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(4);
   if (!sprk_table) { return NULL; }
@@ -191,7 +191,7 @@ static ARKodeSPRKTable ARKodeSymplecticMcLachlan4(void)
   return sprk_table;
 }
 
-static ARKodeSPRKTable ARKodeSymplecticMcLachlan5(void)
+static ARKodeSPRKTable arkodeSymplecticMcLachlan5(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(6);
   if (!sprk_table) { return NULL; }
@@ -221,7 +221,7 @@ static ARKodeSPRKTable ARKodeSymplecticMcLachlan5(void)
 
  */
 
-static ARKodeSPRKTable ARKodeSymplecticYoshida6(void)
+static ARKodeSPRKTable arkodeSymplecticYoshida6(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(8);
   if (!sprk_table) { return NULL; }
@@ -260,7 +260,7 @@ static ARKodeSPRKTable ARKodeSymplecticYoshida6(void)
 
  */
 
-static ARKodeSPRKTable ARKodeSymplecticSuzukiUmeno816(void)
+static ARKodeSPRKTable arkodeSymplecticSuzukiUmeno816(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(16);
   if (!sprk_table) { return NULL; }
@@ -310,7 +310,7 @@ static ARKodeSPRKTable ARKodeSymplecticSuzukiUmeno816(void)
 
  */
 
-static ARKodeSPRKTable ARKodeSymplecticSofroniou10(void)
+static ARKodeSPRKTable arkodeSymplecticSofroniou10(void)
 {
   ARKodeSPRKTable sprk_table = ARKodeSPRKTable_Alloc(36);
   if (!sprk_table) { return NULL; }
@@ -452,19 +452,19 @@ ARKodeSPRKTable ARKodeSPRKTable_Load(ARKODE_SPRKMethodID id)
 {
   switch (id)
   {
-  case ARKODE_SPRK_EULER_1_1: return ARKodeSymplecticEuler();
-  case ARKODE_SPRK_LEAPFROG_2_2: return ARKodeSymplecticLeapfrog2();
+  case ARKODE_SPRK_EULER_1_1: return arkodeSymplecticEuler();
+  case ARKODE_SPRK_LEAPFROG_2_2: return arkodeSymplecticLeapfrog2();
   case ARKODE_SPRK_PSEUDO_LEAPFROG_2_2:
-    return ARKodeSymplecticPseudoLeapfrog2();
-  case ARKODE_SPRK_RUTH_3_3: return ARKodeSymplecticRuth3();
-  case ARKODE_SPRK_MCLACHLAN_2_2: return ARKodeSymplecticMcLachlan2();
-  case ARKODE_SPRK_MCLACHLAN_3_3: return ARKodeSymplecticMcLachlan3();
-  case ARKODE_SPRK_MCLACHLAN_4_4: return ARKodeSymplecticMcLachlan4();
-  case ARKODE_SPRK_CANDY_ROZMUS_4_4: return ARKodeSymplecticCandyRozmus4();
-  case ARKODE_SPRK_MCLACHLAN_5_6: return ARKodeSymplecticMcLachlan5();
-  case ARKODE_SPRK_YOSHIDA_6_8: return ARKodeSymplecticYoshida6();
-  case ARKODE_SPRK_SUZUKI_UMENO_8_16: return ARKodeSymplecticSuzukiUmeno816();
-  case ARKODE_SPRK_SOFRONIOU_10_36: return ARKodeSymplecticSofroniou10();
+    return arkodeSymplecticPseudoLeapfrog2();
+  case ARKODE_SPRK_RUTH_3_3: return arkodeSymplecticRuth3();
+  case ARKODE_SPRK_MCLACHLAN_2_2: return arkodeSymplecticMcLachlan2();
+  case ARKODE_SPRK_MCLACHLAN_3_3: return arkodeSymplecticMcLachlan3();
+  case ARKODE_SPRK_MCLACHLAN_4_4: return arkodeSymplecticMcLachlan4();
+  case ARKODE_SPRK_CANDY_ROZMUS_4_4: return arkodeSymplecticCandyRozmus4();
+  case ARKODE_SPRK_MCLACHLAN_5_6: return arkodeSymplecticMcLachlan5();
+  case ARKODE_SPRK_YOSHIDA_6_8: return arkodeSymplecticYoshida6();
+  case ARKODE_SPRK_SUZUKI_UMENO_8_16: return arkodeSymplecticSuzukiUmeno816();
+  case ARKODE_SPRK_SOFRONIOU_10_36: return arkodeSymplecticSofroniou10();
   default: return NULL;
   }
 }
@@ -473,51 +473,51 @@ ARKodeSPRKTable ARKodeSPRKTable_LoadByName(const char* method)
 {
   if (!strcmp(method, "ARKODE_SPRK_EULER_1_1"))
   {
-    return ARKodeSymplecticEuler();
+    return arkodeSymplecticEuler();
   }
   if (!strcmp(method, "ARKODE_SPRK_LEAPFROG_2_2"))
   {
-    return ARKodeSymplecticLeapfrog2();
+    return arkodeSymplecticLeapfrog2();
   }
   if (!strcmp(method, "ARKODE_SPRK_PSEUDO_LEAPFROG_2_2"))
   {
-    return ARKodeSymplecticPseudoLeapfrog2();
+    return arkodeSymplecticPseudoLeapfrog2();
   }
   if (!strcmp(method, "ARKODE_SPRK_RUTH_3_3"))
   {
-    return ARKodeSymplecticRuth3();
+    return arkodeSymplecticRuth3();
   }
   if (!strcmp(method, "ARKODE_SPRK_MCLACHLAN_2_2"))
   {
-    return ARKodeSymplecticMcLachlan2();
+    return arkodeSymplecticMcLachlan2();
   }
   if (!strcmp(method, "ARKODE_SPRK_MCLACHLAN_3_3"))
   {
-    return ARKodeSymplecticMcLachlan3();
+    return arkodeSymplecticMcLachlan3();
   }
   if (!strcmp(method, "ARKODE_SPRK_MCLACHLAN_4_4"))
   {
-    return ARKodeSymplecticMcLachlan4();
+    return arkodeSymplecticMcLachlan4();
   }
   if (!strcmp(method, "ARKODE_SPRK_CANDY_ROZMUS_4_4"))
   {
-    return ARKodeSymplecticCandyRozmus4();
+    return arkodeSymplecticCandyRozmus4();
   }
   if (!strcmp(method, "ARKODE_SPRK_MCLACHLAN_5_6"))
   {
-    return ARKodeSymplecticMcLachlan5();
+    return arkodeSymplecticMcLachlan5();
   }
   if (!strcmp(method, "ARKODE_SPRK_YOSHIDA_6_8"))
   {
-    return ARKodeSymplecticYoshida6();
+    return arkodeSymplecticYoshida6();
   }
   if (!strcmp(method, "ARKODE_SPRK_SUZUKI_UMENO_8_16"))
   {
-    return ARKodeSymplecticSuzukiUmeno816();
+    return arkodeSymplecticSuzukiUmeno816();
   }
   if (!strcmp(method, "ARKODE_SPRK_SOFRONIOU_10_36"))
   {
-    return ARKodeSymplecticSofroniou10();
+    return arkodeSymplecticSofroniou10();
   }
   return NULL;
 }
