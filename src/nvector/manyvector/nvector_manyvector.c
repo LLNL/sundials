@@ -597,7 +597,8 @@ MPI_Comm N_VGetCommunicator_MPIManyVector(N_Vector v)
 }
 #else
 /* This function retrieves the MPI Communicator from a ManyVector object. */
-SUNComm N_VGetCommunicator_ManyVector(N_Vector v) { return SUN_COMM_NULL; }
+//TODO: is this needed?
+//SUNComm N_VGetCommunicator_ManyVector(N_Vector v) { return SUN_COMM_NULL; }
 #endif
 
 /* This function retrieves the global length of a ManyVector object. */

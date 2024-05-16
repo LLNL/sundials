@@ -23,11 +23,6 @@
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 
-SUNDlsMat NewDenseMat(sunindextype M, sunindextype N)
-{
-  return (SUNDlsMat_NewDenseMat(M, N));
-}
-
 SUNDlsMat SUNDlsMat_NewDenseMat(sunindextype M, sunindextype N)
 {
   SUNDlsMat A;
@@ -68,11 +63,6 @@ SUNDlsMat SUNDlsMat_NewDenseMat(sunindextype M, sunindextype N)
   return (A);
 }
 
-sunrealtype** newDenseMat(sunindextype m, sunindextype n)
-{
-  return (SUNDlsMat_newDenseMat(m, n));
-}
-
 sunrealtype** SUNDlsMat_newDenseMat(sunindextype m, sunindextype n)
 {
   sunindextype j;
@@ -96,12 +86,6 @@ sunrealtype** SUNDlsMat_newDenseMat(sunindextype m, sunindextype n)
   for (j = 1; j < n; j++) { a[j] = a[0] + j * m; }
 
   return (a);
-}
-
-SUNDlsMat NewBandMat(sunindextype N, sunindextype mu, sunindextype ml,
-                     sunindextype smu)
-{
-  return (SUNDlsMat_NewBandMat(N, mu, ml, smu));
 }
 
 SUNDlsMat SUNDlsMat_NewBandMat(sunindextype N, sunindextype mu, sunindextype ml,
@@ -151,11 +135,6 @@ SUNDlsMat SUNDlsMat_NewBandMat(sunindextype N, sunindextype mu, sunindextype ml,
   return (A);
 }
 
-sunrealtype** newBandMat(sunindextype n, sunindextype smu, sunindextype ml)
-{
-  return (SUNDlsMat_newBandMat(n, smu, ml));
-}
-
 sunrealtype** SUNDlsMat_newBandMat(sunindextype n, sunindextype smu,
                                    sunindextype ml)
 {
@@ -183,8 +162,6 @@ sunrealtype** SUNDlsMat_newBandMat(sunindextype n, sunindextype smu,
   return (a);
 }
 
-void DestroyMat(SUNDlsMat A) { SUNDlsMat_DestroyMat(A); }
-
 void SUNDlsMat_DestroyMat(SUNDlsMat A)
 {
   free(A->data);
@@ -194,8 +171,6 @@ void SUNDlsMat_DestroyMat(SUNDlsMat A)
   A = NULL;
 }
 
-void destroyMat(sunrealtype** a) { SUNDlsMat_destroyMat(a); }
-
 void SUNDlsMat_destroyMat(sunrealtype** a)
 {
   free(a[0]);
@@ -203,8 +178,6 @@ void SUNDlsMat_destroyMat(sunrealtype** a)
   free(a);
   a = NULL;
 }
-
-int* NewIntArray(int N) { return (SUNDlsMat_NewIntArray(N)); }
 
 int* SUNDlsMat_NewIntArray(int N)
 {
@@ -218,8 +191,6 @@ int* SUNDlsMat_NewIntArray(int N)
   return (vec);
 }
 
-int* newIntArray(int N) { return (SUNDlsMat_newIntArray(N)); }
-
 int* SUNDlsMat_newIntArray(int n)
 {
   int* v;
@@ -230,11 +201,6 @@ int* SUNDlsMat_newIntArray(int n)
   v = (int*)malloc(n * sizeof(int));
 
   return (v);
-}
-
-sunindextype* NewIndexArray(sunindextype N)
-{
-  return (SUNDlsMat_NewIndexArray(N));
 }
 
 sunindextype* SUNDlsMat_NewIndexArray(sunindextype N)
@@ -249,11 +215,6 @@ sunindextype* SUNDlsMat_NewIndexArray(sunindextype N)
   return (vec);
 }
 
-sunindextype* newIndexArray(sunindextype n)
-{
-  return (SUNDlsMat_newIndexArray(n));
-}
-
 sunindextype* SUNDlsMat_newIndexArray(sunindextype n)
 {
   sunindextype* v;
@@ -264,11 +225,6 @@ sunindextype* SUNDlsMat_newIndexArray(sunindextype n)
   v = (sunindextype*)malloc(n * sizeof(sunindextype));
 
   return (v);
-}
-
-sunrealtype* NewRealArray(sunindextype N)
-{
-  return (SUNDlsMat_NewRealArray(N));
 }
 
 sunrealtype* SUNDlsMat_NewRealArray(sunindextype N)
@@ -283,11 +239,6 @@ sunrealtype* SUNDlsMat_NewRealArray(sunindextype N)
   return (vec);
 }
 
-sunrealtype* newRealArray(sunindextype N)
-{
-  return (SUNDlsMat_newRealArray(N));
-}
-
 sunrealtype* SUNDlsMat_newRealArray(sunindextype m)
 {
   sunrealtype* v;
@@ -300,23 +251,17 @@ sunrealtype* SUNDlsMat_newRealArray(sunindextype m)
   return (v);
 }
 
-void DestroyArray(void* p) { SUNDlsMat_DestroyArray(p); }
-
 void SUNDlsMat_DestroyArray(void* V)
 {
   free(V);
   V = NULL;
 }
 
-void destroyArray(void* p) { SUNDlsMat_destroyArray(p); }
-
 void SUNDlsMat_destroyArray(void* v)
 {
   free(v);
   v = NULL;
 }
-
-void AddIdentity(SUNDlsMat A) { SUNDlsMat_AddIdentity(A); }
 
 void SUNDlsMat_AddIdentity(SUNDlsMat A)
 {
@@ -333,8 +278,6 @@ void SUNDlsMat_AddIdentity(SUNDlsMat A)
     break;
   }
 }
-
-void SetToZero(SUNDlsMat A) { SUNDlsMat_SetToZero(A); }
 
 void SUNDlsMat_SetToZero(SUNDlsMat A)
 {
@@ -365,8 +308,6 @@ void SUNDlsMat_SetToZero(SUNDlsMat A)
     break;
   }
 }
-
-void PrintMat(SUNDlsMat A, FILE* outfile) { SUNDlsMat_PrintMat(A, outfile); }
 
 void SUNDlsMat_PrintMat(SUNDlsMat A, FILE* outfile)
 {

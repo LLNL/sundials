@@ -58,13 +58,6 @@
  */
 
 extern int IDAInitialSetup(IDAMem IDA_mem);
-extern sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
-                               sunbooleantype mask);
-extern sunrealtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector* xS, N_Vector* wS,
-                                   sunbooleantype mask);
-extern sunrealtype IDASensWrmsNormUpdate(IDAMem IDA_mem, sunrealtype old_nrm,
-                                         N_Vector* xS, N_Vector* wS,
-                                         sunbooleantype mask);
 
 extern int IDASensEwtSet(IDAMem IDA_mem, N_Vector* yScur, N_Vector* weightS);
 

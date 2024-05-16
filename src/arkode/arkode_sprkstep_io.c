@@ -414,16 +414,6 @@ int SPRKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
   return (ARKodePrintAllStats(arkode_mem, outfile, fmt));
 }
 
-void SPRKStepPrintMem(void* arkode_mem, FILE* outfile)
-{
-  ARKodePrintMem(arkode_mem, outfile);
-}
-
-int SPRKStepSetMaxNumConstrFails(void* arkode_mem, int maxfails)
-{
-  return (ARKodeSetMaxNumConstrFails(arkode_mem, maxfails));
-}
-
 int SPRKStepWriteParameters(void* arkode_mem, FILE* fp)
 {
   return (ARKodeWriteParameters(arkode_mem, fp));
@@ -434,11 +424,6 @@ int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps,
                          sunrealtype* hcur, sunrealtype* tcur)
 {
   return (ARKodeGetStepStats(arkode_mem, nsteps, hinused, hlast, hcur, tcur));
-}
-
-int SPRKStepGetNumConstrFails(void* arkode_mem, long int* nconstrfails)
-{
-  return (ARKodeGetNumConstrFails(arkode_mem, nconstrfails));
 }
 
 void SPRKStepFree(void** arkode_mem) { ARKodeFree(arkode_mem); }
