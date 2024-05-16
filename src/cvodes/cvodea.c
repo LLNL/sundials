@@ -1793,7 +1793,7 @@ static CVckpntMem CVAckpntInit(CVodeMem cv_mem)
   ck_mem->ck_t0  = cv_mem->cv_tn;
   ck_mem->ck_nst = 0;
   ck_mem->ck_q   = 1;
-  ck_mem->ck_h   = 0.0;
+  ck_mem->ck_h   = ZERO;
 
   /* Do we need to carry quadratures */
   ck_mem->ck_quadr = cv_mem->cv_quadr && cv_mem->cv_errconQ;

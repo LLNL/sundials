@@ -1559,10 +1559,8 @@ int arkRwtSet(N_Vector y, N_Vector weight, void* data)
     flag = ark_mem->step_mmult((void*)ark_mem, y, My);
     if (flag != ARK_SUCCESS) { return (ARK_MASSMULT_FAIL); }
   }
-  else
-  { /* this condition should not apply, but just in case */
-    N_VScale(ONE, y, My);
-  }
+  else { /* this condition should not apply, but just in case */
+         N_VScale(ONE, y, My); }
 
   /* call appropriate routine to fill rwt */
   switch (ark_mem->ritol)
@@ -1871,10 +1869,8 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
   }
 
   /* Load initial residual weights */
-  if (ark_mem->rwt_is_ewt)
-  { /* update pointer to ewt */
-    ark_mem->rwt = ark_mem->ewt;
-  }
+  if (ark_mem->rwt_is_ewt) { /* update pointer to ewt */
+                             ark_mem->rwt = ark_mem->ewt; }
   else
   {
     retval = ark_mem->rfun(ark_mem->yn, ark_mem->rwt, ark_mem->r_data);
@@ -2816,8 +2812,8 @@ int arkPredict_MaximumOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess)
 int arkPredict_VariableOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess)
 {
   int ord;
-  sunrealtype tau_tol  = 0.5;
-  sunrealtype tau_tol2 = 0.75;
+  sunrealtype tau_tol  = HALF;
+  sunrealtype tau_tol2 = SUN_RCONST(0.75);
 
   /* verify that ark_mem and interpolation structure are provided */
   if (ark_mem == NULL)
@@ -2854,7 +2850,7 @@ int arkPredict_VariableOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess
 int arkPredict_CutoffOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess)
 {
   int ord;
-  sunrealtype tau_tol = 0.5;
+  sunrealtype tau_tol = HALF;
 
   /* verify that ark_mem and interpolation structure are provided */
   if (ark_mem == NULL)
@@ -3364,10 +3360,8 @@ sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
   }
 
   /* rwt  */
-  if (ark_mem->rwt_is_ewt)
-  { /* update pointer to ewt */
-    ark_mem->rwt = ark_mem->ewt;
-  }
+  if (ark_mem->rwt_is_ewt) { /* update pointer to ewt */
+                             ark_mem->rwt = ark_mem->ewt; }
   else
   { /* resize if distinct from ewt */
     if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,

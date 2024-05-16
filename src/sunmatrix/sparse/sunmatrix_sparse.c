@@ -1187,7 +1187,7 @@ SUNErrCode Matvec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y)
   SUNCheckLastErr();
 
   /* initialize result */
-  for (i = 0; i < SM_ROWS_S(A); i++) { yd[i] = 0.0; }
+  for (i = 0; i < SM_ROWS_S(A); i++) { yd[i] = ZERO; }
 
   /* iterate through matrix columns */
   for (j = 0; j < SM_COLUMNS_S(A); j++)
@@ -1230,7 +1230,7 @@ SUNErrCode Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y)
   SUNAssert(yd, SUN_ERR_ARG_CORRUPT);
   SUNAssert(xd != yd, SUN_ERR_ARG_CORRUPT);
   /* initialize result */
-  for (i = 0; i < SM_ROWS_S(A); i++) { yd[i] = 0.0; }
+  for (i = 0; i < SM_ROWS_S(A); i++) { yd[i] = ZERO; }
 
   /* iterate through matrix rows */
   for (i = 0; i < SM_ROWS_S(A); i++)
