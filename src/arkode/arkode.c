@@ -2816,8 +2816,8 @@ int arkPredict_MaximumOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess)
 int arkPredict_VariableOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess)
 {
   int ord;
-  sunrealtype tau_tol  = 0.5;
-  sunrealtype tau_tol2 = 0.75;
+  sunrealtype tau_tol  = HALF;
+  sunrealtype tau_tol2 = SUN_RCONST(0.75);
 
   /* verify that ark_mem and interpolation structure are provided */
   if (ark_mem == NULL)
@@ -2854,7 +2854,7 @@ int arkPredict_VariableOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess
 int arkPredict_CutoffOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess)
 {
   int ord;
-  sunrealtype tau_tol = 0.5;
+  sunrealtype tau_tol = HALF;
 
   /* verify that ark_mem and interpolation structure are provided */
   if (ark_mem == NULL)
