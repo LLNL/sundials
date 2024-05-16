@@ -200,7 +200,7 @@ macro(sundials_add_library target)
 
     # add compile definitions to object library for SUNDIALS_EXPORT
     if(${_libtype} MATCHES "STATIC")
-      target_compile_definitions(${obj_target} PRIVATE SUNDIALS_STATIC_DEFINE)
+      target_compile_definitions(${obj_target} PUBLIC SUNDIALS_STATIC_DEFINE)
     else()
       target_compile_definitions(${obj_target} PRIVATE sundials_core_EXPORTS)
     endif()
@@ -296,7 +296,7 @@ macro(sundials_add_library target)
 
       # add compile definitions for SUNDIALS_EXPORT
       if(${_libtype} MATCHES "STATIC")
-        target_compile_definitions(${_actual_target_name} PRIVATE SUNDIALS_STATIC_DEFINE)
+        target_compile_definitions(${_actual_target_name} PUBLIC SUNDIALS_STATIC_DEFINE)
       else()
         target_compile_definitions(${obj_target} PRIVATE sundials_core_EXPORTS)
       endif()
