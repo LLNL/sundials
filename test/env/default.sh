@@ -144,9 +144,6 @@ if [ "$compilername" == "gcc" ]; then
         export CFLAGS="${CFLAGS} -Wconversion -Wno-sign-conversion"
         export CXXFLAGS="${CXXFLAGS} -Wconversion -Wno-sign-conversion"
     fi
-    # TODO(CJB): add this back after we upgrade the GNU compiler stack on the Jenkins box
-    # Currently this causes the compiler to segfault on many of the Fortran example codes.
-    # export FFLAGS="${FFLAGS} -fbounds-check"
 
 else
 
