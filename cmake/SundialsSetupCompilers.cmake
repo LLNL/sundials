@@ -76,8 +76,18 @@ endif()
 if(ENABLE_ALL_WARNINGS)
   message(STATUS "Enabling all compiler warnings")
 
-  set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wmissing-declarations -Wcast-qual -Wdouble-promotion -Wno-unused-parameter -Wno-unused-function ${CMAKE_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wmissing-declarations -Wcast-qual -Wdouble-promotion -Wno-unused-parameter -Wno-unused-function ${CMAKE_CXX_FLAGS}")
+  if(SUNDIALS_PRECISION MATCHES "EXTENDED")
+    set(CMAKE_C_FLAGS "-Wdouble-promotion ${CMAKE_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-Wdouble-promotion ${CMAKE_CXX_FLAGS}")
+  endif()
+
+  if((SUNDIALS_PRECISION MATCHES "DOUBLE") AND (SUNDIALS_INDEX_SIZE MATCHES "32"))
+    set(CMAKE_C_FLAGS "-Wconversion -Wno-sign-conversion ${CMAKE_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-Wconversion -Wno-sign-conversion ${CMAKE_CXX_FLAGS}")
+  endif()
+
+  set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wmissing-declarations -Wcast-qual -Wno-unused-parameter -Wno-unused-function ${CMAKE_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wmissing-declarations -Wcast-qual -Wno-unused-parameter -Wno-unused-function ${CMAKE_CXX_FLAGS}")
   set(CMAKE_Fortran_FLAGS "-Wall -Wpedantic -Wno-unused-dummy-argument -Wno-c-binding-type -ffpe-summary=none ${CMAKE_Fortran_FLAGS}")
 endif()
 
