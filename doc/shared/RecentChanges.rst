@@ -37,6 +37,10 @@ Added the following MRI coupling tables
 
 **Bug Fixes**
 
+Fixed conflicting ``.lib`` files between shared and static libs when using ``MSVC`` on Windows
+
+Fixed invalid ``SUNDIALS_EXPORT`` generated macro when building both shared and static libs
+
 Updated the CMake variable ``HIP_PLATFORM`` default to ``amd`` as the previous
 default, ``hcc``, is no longer recognized in ROCm 5.7.0 or newer. The new
 default is also valid in older version of ROCm (at least back to version 4.3.1).
