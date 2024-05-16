@@ -6,6 +6,10 @@ Fixed the runtime library installation path for windows systems. This fix change
 default library installation path from `CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR` to
 `CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_BINDIR`.
 
+Fixed conflicting `.lib` files between shared and static libs when using `MSVC` on Windows.
+
+Fixed invalid `SUNDIALS_EXPORT` generated macro when building both shared and static libs.
+
 Created shared user interface for ARKODE user-callable routines, to allow more
 uniform control over time-stepping algorithms, improved extensibility, and
 simplified code maintenance.  Marked the corresponding stepper-specific

@@ -200,7 +200,7 @@ macro(sundials_add_library target)
 
     # add compile definitions to object library for SUNDIALS_EXPORT
     if(${_libtype} MATCHES "STATIC")
-      target_compile_definitions(${obj_target} PRIVATE SUNDIALS_STATIC_DEFINE)
+      target_compile_definitions(${obj_target} PUBLIC SUNDIALS_STATIC_DEFINE)
     else()
       target_compile_definitions(${obj_target} PRIVATE sundials_core_EXPORTS)
     endif()
@@ -296,7 +296,7 @@ macro(sundials_add_library target)
 
       # add compile definitions for SUNDIALS_EXPORT
       if(${_libtype} MATCHES "STATIC")
-        target_compile_definitions(${_actual_target_name} PRIVATE SUNDIALS_STATIC_DEFINE)
+        target_compile_definitions(${_actual_target_name} PUBLIC SUNDIALS_STATIC_DEFINE)
       else()
         target_compile_definitions(${obj_target} PRIVATE sundials_core_EXPORTS)
       endif()
@@ -325,10 +325,17 @@ macro(sundials_add_library target)
 
       # set the correct output name
       if(sundials_add_library_OUTPUT_NAME)
-        set_target_properties(${_actual_target_name} PROPERTIES
-          OUTPUT_NAME ${sundials_add_library_OUTPUT_NAME}
-          CLEAN_DIRECT_OUTPUT 1
-        )
+        if((MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC")) AND ${_libtype} MATCHES "STATIC")
+          set_target_properties(${_actual_target_name} PROPERTIES
+            OUTPUT_NAME "${sundials_add_library_OUTPUT_NAME}_static"
+            CLEAN_DIRECT_OUTPUT 1
+          )
+        else()
+          set_target_properties(${_actual_target_name} PROPERTIES
+            OUTPUT_NAME ${sundials_add_library_OUTPUT_NAME}
+            CLEAN_DIRECT_OUTPUT 1
+          )
+        endif()
       else()
         set_target_properties(${_actual_target_name} PROPERTIES
           OUTPUT_NAME ${target}
