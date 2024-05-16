@@ -74,6 +74,9 @@ Fixed a CMake bug that caused an MPI linking error for our C++ examples in some 
 Fixed a bug in `ARKodeSPRKTable_Create` where the coefficient arrays where not
 allocated.
 
+Fix bug on LLP64 platforms (like Windows 64-bit) where `KLU_INDEXTYPE` could be
+32 bits wide even if `SUNDIALS_INT64_T` is defined.
+
 ## Changes to SUNDIALS in release v7.0.0
 
 ### Major Feature
