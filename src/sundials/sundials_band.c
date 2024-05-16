@@ -322,7 +322,7 @@ void SUNDlsMat_bandMatvec(sunrealtype** a, sunrealtype* x, sunrealtype* y,
   sunindextype i, j, is, ie;
   sunrealtype* col_j;
 
-  for (i = 0; i < n; i++) { y[i] = 0.0; }
+  for (i = 0; i < n; i++) { y[i] = ZERO; }
 
   for (j = 0; j < n; j++)
   {
