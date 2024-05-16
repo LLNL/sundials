@@ -227,7 +227,7 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
 }
 
 /*---------------------------------------------------------------
-  Routine to allocate and fill an explicit, implicit, or ImEx 
+  Routine to allocate and fill an explicit, implicit, or ImEx
   MRIGARK MRIStepCoupling structure.
   ---------------------------------------------------------------*/
 MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages, int q, int p,
@@ -780,6 +780,9 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile)
  * (a) Sum |MRIC->G[:][is][is]| (nonzero => DIRK)
  * (b) MRIC->c[is] - MRIC->c[is-1]  (nonzero => fast)
  * Similar tests are used for embedding stages.
+ *
+ * Note that MERK and MRI-SR methods do not use the stage-type identifiers,
+ * so if those tables are input we just return MRISTAGE_ERK_FAST.
  * ---------------------------------------------------------------------------*/
 
 int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
@@ -789,6 +792,12 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
   if ((is < 1) || (is > MRIC->stages)) { return ARK_INVALID_TABLE; }
+
+  /* report MRISTAGE_ERK_FAST for MERK and MRI-SR methods */
+  if ((MRIC->type == MRISTEP_MRISR) || (MRIC->type == MRISTEP_MERK))
+  {
+    return (MRISTAGE_ERK_FAST);
+  }
 
   /* separately handle an embedding "stage" from normal stages */
   if (is < MRIC->stages)
@@ -841,7 +850,8 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
  * does not need to be computed and stored. The stage_map indicates if the RHS
  * needs to be computed and where to store it i.e., stage_map[i] > -1.
  *
- * Note: this routine works for both MRI-GARK and MERK methods.
+ * Note: for MERK and MRI-SR methods, this should be an "identity" map, and all
+ * stage vectors should be allocated.
  * ---------------------------------------------------------------------------*/
 
 int mriStepCoupling_GetStageMap(MRIStepCoupling MRIC, int* stage_map,
@@ -859,9 +869,24 @@ int mriStepCoupling_GetStageMap(MRIStepCoupling MRIC, int* stage_map,
   if (!(MRIC->W) && !(MRIC->G)) { return (ARK_ILL_INPUT); }
   if (!stage_map || !nstages_active) { return (ARK_ILL_INPUT); }
 
-  /* -------------------
-   * Compute storage map
-   * ------------------- */
+  /* -------------------------------------------
+   * MERK and MRI-SR have "identity" storage map
+   * ------------------------------------------- */
+
+  if ((MRIC->type == MRISTEP_MERK) || (MRIC->type == MRISTEP_MRISR))
+  {
+    /* Number of stage RHS vectors active */
+    *nstages_active = MRIC->stages;
+
+    /* Check if a stage corresponds to a column of zeros for all coupling
+     * matrices by computing the column sums */
+    for (j = 0; j < MRIC->stages; j++) { stage_map[j] = j; }
+    return (ARK_SUCCESS);
+  }
+
+  /* ----------------------------------------
+   * Compute storage map for MRI-GARK methods
+   * ---------------------------------------- */
 
   /* Number of stage RHS vectors active */
   *nstages_active = 0;

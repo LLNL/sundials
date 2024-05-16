@@ -2071,6 +2071,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype solution;            /*   or solution stages       */
   sunbooleantype impl_corr;           /* is slow correct. implicit? */
   sunbooleantype store_imprhs;        /* temporary storage          */
+  sunbooleantype store_exprhs;
   sunrealtype cstage;                 /* current stage abscissa     */
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
@@ -2183,7 +2184,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      is the [already-computed] slow RHS from the start of the step */
 
   /* Loop over stages */
-  for (stage = 0; stage <= step_mem->stages; stage++)
+  for (stage = 1; stage <= step_mem->stages; stage++)
   {
     /* Solver diagnostics reporting */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -2211,14 +2212,17 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     cstage = (embedding) ? ONE : step_mem->MRIC->c[stage];
 
     /* Compute forcing function for inner solver: temporarily
-       disable implicit_rhs flag since MRISR methods ignore the G
-       coefficients in the forcing function. */
+       force explicit_rhs and disable implicit_rhs flag since MRISR 
+       methods ignore the G coefficients in the forcing function. */
     store_imprhs = step_mem->implicit_rhs;
+    store_exprhs = step_mem->explicit_rhs;
     step_mem->implicit_rhs = SUNFALSE;
+    step_mem->explicit_rhs = SUNTRUE;
     retval = mriStep_ComputeInnerForcing(ark_mem, step_mem, stage, ark_mem->tn,
                                          ark_mem->tn + cstage * ark_mem->h);
     if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; break; }
     step_mem->implicit_rhs = store_imprhs;
+    step_mem->explicit_rhs = store_exprhs;
 
     /* Evolve fast IVP for this stage:
          force reset due to "stage-restart" structure

@@ -36,7 +36,7 @@
      imeth                             order   order      type    QP
     ----------------------------------------------------------------
      ARKODE_MRI_GARK_FORWARD_EULER     1       0          E       Y
-     ARKODE_MRI_GARK_RALSTON2          2       0          E       Y
+     ARKODE_MRI_GARK_RALSTON2          2       1          E       Y
      ARKODE_MIS_KW3                    3       0          E       Y
      ARKODE_MRI_GARK_ERK22a            2       1          E       Y
      ARKODE_MRI_GARK_ERK22b            2       1          E       Y

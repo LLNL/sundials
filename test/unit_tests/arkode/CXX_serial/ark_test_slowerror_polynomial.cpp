@@ -23,6 +23,9 @@
  * use ARKODE's default fifth-order ERK method, with relative and
  * absolute tolerances set to 1e-10 and 1e-12, respectively.
  *
+ * When using an IMEX method (e.g., IMEX-MRI-SR), the entire slow
+ * partition is treated implicitly.
+ *
  * We select the slow integrator based on a command-line argument,
  * with the default being ARKODE_MRI_GARK_ERK22a.
  *
@@ -88,7 +91,7 @@ static int computeErrorWeights(N_Vector ycur, N_Vector weight, sunrealtype rtol,
                                sunrealtype atol, N_Vector vtemp);
 static int check_retval(void* returnvalue, const char* funcname, int opt);
 static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
-                    vector<sunrealtype> Hvals, char* method, sunrealtype reltol,
+                    vector<sunrealtype>& Hvals, char* method, sunrealtype reltol,
                     sunrealtype abstol, UserData& udata);
 
 // Main Program
@@ -119,11 +122,24 @@ int main(int argc, char* argv[])
   if (argc > 4) { udata.c = (sunrealtype)atof(argv[4]); }
   else { udata.c = ONE; }
 
+  sunbooleantype implicit = SUNFALSE;
+  if ((strcmp(method, "ARKODE_MRI_GARK_IRK21a") == 0) ||
+      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK34a") == 0) ||
+      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK46a") == 0) ||
+      (strcmp(method, "ARKODE_IMEX_MRI_SR21") == 0) ||
+      (strcmp(method, "ARKODE_IMEX_MRI_SR32") == 0) ||
+      (strcmp(method, "ARKODE_IMEX_MRI_SR43") == 0))
+  {
+    implicit = SUNTRUE;
+  }
+
   // Initial problem output (and set implicit solver tolerances as needed)
   cout << "\nSlow error estimation test (polynomial ODE problem):\n";
   cout << "    problem parameters:  a = " << udata.a << ",  b = " << udata.b
        << ",  c = " << udata.c << endl;
-  cout << "    MRI method: " << method << endl;
+  cout << "    MRI method: " << method;
+  if (implicit) { cout << " (implicit)" << endl; }
+  else { cout << " (explicit)" << endl; }
 
   //
   // Problem Setup
@@ -154,13 +170,6 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
 
   // Set up slow MRIStep integrator
-  sunbooleantype implicit = SUNFALSE;
-  if ((strcmp(method, "ARKODE_MRI_GARK_IRK21a") == 0) ||
-      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK34a") == 0) ||
-      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK46a") == 0))
-  {
-    implicit = SUNTRUE;
-  }
   void* mristep_mem = NULL;
   if (implicit)
   {
@@ -248,7 +257,7 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 //------------------------------
 
 static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
-                    vector<sunrealtype> Hvals, char* method, sunrealtype reltol,
+                    vector<sunrealtype>& Hvals, char* method, sunrealtype reltol,
                     sunrealtype abstol, UserData& udata)
 {
   // Reused variables
@@ -310,6 +319,17 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
                (abstol + reltol * abs(NV_Ith_S(vtemp, 0))),
              Hvals[iH] * Hvals[iH] *
                abs(udata.a * Hvals[iH] / 2.0 + udata.b / 2.0) /
+               (abstol + reltol * abs(NV_Ith_S(vtemp, 0))));
+    }
+    else if (strcmp(method, "ARKODE_IMEX_MRI_SR21") == 0)
+    {
+      printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e    dsm_anal  %.2e   "
+             " dsm_est_anal  %.2e\n",
+             Hvals[iH], dsm[iH], dsm_est[iH],
+             Hvals[iH] * Hvals[iH] * Hvals[iH] * abs(udata.a * 3137.0 / 50370.0) /
+               (abstol + reltol * abs(NV_Ith_S(vtemp, 0))),
+             Hvals[iH] * Hvals[iH] *
+               abs(udata.a * Hvals[iH] * 20191.0 / 755550.0 - udata.b * 19.0 / 30.0) /
                (abstol + reltol * abs(NV_Ith_S(vtemp, 0))));
     }
     else

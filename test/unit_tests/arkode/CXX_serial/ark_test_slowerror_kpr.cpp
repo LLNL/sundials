@@ -39,8 +39,10 @@
  * H = {hmax, hmax/4, hmax/16, hmax/64, hmax/256} with
  * hmax=(t_f-t_0)/20/Npart.
  *
- * We place the entire ODE in the "slow" RHS partition.  All tests
- * use ARKODE's default fifth-order ERK method, with relative and
+ * We place the entire ODE in the "slow" RHS partition.  For IMEX
+ * methods, thw first row is treated implicitly, and the second is
+ * treated explicitly.  For the fast time scale, all tests use
+ * ARKODE's default fifth-order ERK method, with relative and
  * absolute tolerances set to 1e-10 and 1e-12, respectively.
  *
  * We select the slow integrator based on a command-line argument,
@@ -104,7 +106,11 @@ struct UserData
 // User-supplied functions called by the solver
 static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Private utility functions
@@ -173,6 +179,22 @@ int main(int argc, char* argv[])
     return (-1);
   }
 
+  sunbooleantype implicit = SUNFALSE;
+  sunbooleantype imex = SUNFALSE;
+  if ((strcmp(method, "ARKODE_MRI_GARK_IRK21a") == 0) ||
+      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK34a") == 0) ||
+      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK46a") == 0))
+  {
+    implicit = SUNTRUE;
+  }
+  if ((strcmp(method, "ARKODE_IMEX_MRI_SR21") == 0) ||
+      (strcmp(method, "ARKODE_IMEX_MRI_SR32") == 0) ||
+      (strcmp(method, "ARKODE_IMEX_MRI_SR43") == 0))
+  {
+    imex = SUNTRUE;
+    implicit = SUNTRUE;
+  }
+
   // Initial problem output (and set implicit solver tolerances as needed)
   cout << "\nSlow error estimation test (Nonlinear Kvaerno-Prothero-Robinson "
           "problem):\n";
@@ -180,7 +202,10 @@ int main(int argc, char* argv[])
   cout << "    partition size = " << udata.Npart << endl;
   cout << "    problem parameters:  G = " << udata.G << ",  e = " << udata.e
        << ",  omega = " << udata.omega << endl;
-  cout << "    MRI method: " << method << endl;
+  cout << "    MRI method: " << method;
+  if (imex) { cout << " (ImEx)" << endl; }
+  else if (implicit) { cout << " (implicit)" << endl; }
+  else { cout << " (explicit)" << endl; }
 
   //
   // Problem Setup
@@ -211,15 +236,12 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
 
   // Set up slow MRIStep integrator
-  sunbooleantype implicit = SUNFALSE;
-  if ((strcmp(method, "ARKODE_MRI_GARK_IRK21a") == 0) ||
-      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK34a") == 0) ||
-      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK46a") == 0))
-  {
-    implicit = SUNTRUE;
-  }
   void* mristep_mem = NULL;
-  if (implicit)
+  if (imex)
+  {
+    mristep_mem = MRIStepCreate(fe, fi, T0, y, inner_stepper, ctx);
+  }
+  else if (implicit)
   {
     mristep_mem = MRIStepCreate(NULL, fn, T0, y, inner_stepper, ctx);
   }
@@ -239,7 +261,8 @@ int main(int argc, char* argv[])
     if (check_retval((void*)LS, "SUNLinSol_Dense", 0)) return 1;
     retval = ARKodeSetLinearSolver(mristep_mem, LS, A);
     if (check_retval(&retval, "ARKodeSetLinearSolver", 1)) return 1;
-    retval = ARKodeSetJacFn(mristep_mem, Jn);
+    if (imex) { retval = ARKodeSetJacFn(mristep_mem, Ji); }
+    else { retval = ARKodeSetJacFn(mristep_mem, Jn); }
     if (check_retval(&retval, "ARKodeSetJacFn", 1)) return 1;
     retval = ARKodeSetJacEvalFrequency(mristep_mem, 1);
     if (check_retval(&retval, "ARKodeSetJacEvalFrequency", 1)) return 1;
@@ -303,6 +326,44 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   return 0;
 }
 
+static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
+{
+  UserData* udata     = (UserData*)user_data;
+  const sunrealtype u = NV_Ith_S(y, 0);
+  const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype tmp1, tmp2;
+
+  // fill in the RHS function:
+  //   [G  e]*[(-2+u^2-p(t))/(2*u)] + [pdot(t)/(2u)]
+  //   [0  0] [(-2+v^2-s(t))/(2*v)]   [     0      ]
+  tmp1              = (-TWO + u * u - p(t)) / (TWO * u);
+  tmp2              = (-TWO + v * v - q(t, *udata)) / (TWO * v);
+  NV_Ith_S(ydot, 0) = udata->G * tmp1 + udata->e * tmp2 + pdot(t) / (TWO * u);
+  NV_Ith_S(ydot, 1) = ZERO;
+
+  // Return with success
+  return 0;
+}
+
+static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
+{
+  UserData* udata     = (UserData*)user_data;
+  const sunrealtype u = NV_Ith_S(y, 0);
+  const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype tmp1, tmp2;
+
+  // fill in the RHS function:
+  //   [0  0]*[(-2+u^2-p(t))/(2*u)] + [     0      ]
+  //   [e -1] [(-2+v^2-s(t))/(2*v)]   [qdot(t)/(2v)]
+  tmp1              = (-TWO + u * u - p(t)) / (TWO * u);
+  tmp2              = (-TWO + v * v - q(t, *udata)) / (TWO * v);
+  NV_Ith_S(ydot, 0) = ZERO;
+  NV_Ith_S(ydot, 1) = udata->e * tmp1 - tmp2 + qdot(t, *udata) / (TWO * v);
+
+  // Return with success
+  return 0;
+}
+
 static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
@@ -320,6 +381,27 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   SM_ELEMENT_D(J, 0, 1) = udata->e * t22;
   SM_ELEMENT_D(J, 1, 0) = udata->e * t11;
   SM_ELEMENT_D(J, 1, 1) = -t22 - qdot(t, *udata) / (TWO * v * v);
+
+  // Return with success
+  return 0;
+}
+
+static int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  UserData* udata     = (UserData*)user_data;
+  const sunrealtype u = NV_Ith_S(y, 0);
+  const sunrealtype v = NV_Ith_S(y, 1);
+
+  // fill in the Jacobian:
+  //   [G/2 + (G*(1+p(t))-pdot(t))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
+  //   [                 0                             0           ]
+  SM_ELEMENT_D(J, 0, 0) = udata->G / TWO +
+                          (udata->G * (ONE + p(t)) - pdot(t)) / (TWO * u * u);
+  SM_ELEMENT_D(J, 0, 1) = udata->e / TWO +
+                          udata->e * (TWO + q(t, *udata)) / (TWO * v * v);
+  SM_ELEMENT_D(J, 1, 0) = ZERO;
+  SM_ELEMENT_D(J, 1, 1) = ZERO;
 
   // Return with success
   return 0;
