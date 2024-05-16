@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - develop
+      - ci/combine-actions
   pull_request:
   merge_group:
   workflow_dispatch:
