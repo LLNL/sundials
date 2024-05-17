@@ -481,7 +481,14 @@ int main(int argc, char* argv[])
       gko_matdata.remove_zeros();
       gko_matrix->read(gko_matdata);
     }
-    else { fill_matrix(gko_matrix); }
+    else
+    {
+#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
+      fill_matrix(gko::lend(gko_matrix));
+#else
+      fill_matrix(gko_matrix);
+#endif
+    }
     A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(
                                                                     gko_matrix),
                                                                   sunctx);
@@ -502,7 +509,11 @@ int main(int argc, char* argv[])
     else
     {
       gko_matrix->fill(0.0);
+#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
+      fill_matrix(gko::lend(gko_matrix));
+#else
       fill_matrix(gko_matrix);
+#endif
     }
     A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(
                                                                     gko_matrix),
