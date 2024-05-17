@@ -2565,15 +2565,20 @@ void KINPrintInfo(SUNDIALS_MAYBE_UNUSED KINMem kin_mem, int info_code,
 void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
                      const char* file, const char* msgfmt, ...)
 {
-  /* Initialize the argument pointer variable
+  /* We initialize the argument pointer variable before each vsnprintf call to avoid undefined behavior
      (msgfmt is the last required argument to KINProcessError) */
   va_list ap;
-  va_start(ap, msgfmt);
 
   /* Compose the message */
+  va_start(ap, msgfmt);
   size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
-  char* msg     = (char*)malloc(msglen);
+  va_end(ap);
+
+  char* msg = (char*)malloc(msglen);
+
+  va_start(ap, msgfmt);
   vsnprintf(msg, msglen, msgfmt, ap);
+  va_end(ap);
 
   do {
     if (kin_mem == NULL)
@@ -2601,8 +2606,6 @@ void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
   }
   while (0);
 
-  /* Finalize argument processing */
-  va_end(ap);
   free(msg);
 
   return;

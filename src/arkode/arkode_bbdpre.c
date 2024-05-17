@@ -60,8 +60,8 @@ int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq,
   long int lrw, liw;
   int retval;
 
-  /* access ARKMilsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structure */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
@@ -282,7 +282,7 @@ int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq,
   arkls_mem->pfree = ARKBBDPrecFree;
 
   /* Attach preconditioner solve and setup functions */
-  retval = arkLSSetPreconditioner(arkode_mem, ARKBBDPrecSetup, ARKBBDPrecSolve);
+  retval = ARKodeSetPreconditioner(arkode_mem, ARKBBDPrecSetup, ARKBBDPrecSolve);
 
   return (retval);
 }
@@ -297,8 +297,8 @@ int ARKBBDPrecReInit(void* arkode_mem, sunindextype mudq, sunindextype mldq,
   sunindextype Nlocal;
   int retval;
 
-  /* access ARKMilsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structure */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately ARKBBDPrecData is NULL */
@@ -333,8 +333,8 @@ int ARKBBDPrecGetWorkSpace(void* arkode_mem, long int* lenrwBBDP,
   ARKBBDPrecData pdata;
   int retval;
 
-  /* access ARKMilsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structure */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately ARKBBDPrecData is NULL */
@@ -361,8 +361,8 @@ int ARKBBDPrecGetNumGfnEvals(void* arkode_mem, long int* ngevalsBBDP)
   ARKBBDPrecData pdata;
   int retval;
 
-  /* access ARKMilsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structure */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately if ARKBBDPrecData is NULL */

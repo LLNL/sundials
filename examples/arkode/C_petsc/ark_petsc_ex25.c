@@ -60,7 +60,7 @@ static PetscErrorCode FormIFunction(PetscReal, Vec, Vec, Vec, void*);
 static PetscErrorCode FormIJacobian(SNES, Vec, Mat, Mat, void*);
 static PetscErrorCode FormInitialSolution(Vec, void*);
 
-/* User-supplied Functions called by ARKStep */
+/* User-supplied Functions called by ARKODE */
 static int f_I(PetscReal, N_Vector, N_Vector, void*);
 static int f_E(PetscReal, N_Vector, N_Vector, void*);
 
@@ -188,7 +188,7 @@ int main(int argc, char** argv)
   dt = 0.4 * PetscSqr(hx) / user.alpha; /* Diffusive stability limit */
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-     Create ARKStep time stepper
+     Create ARKODE time stepper
    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
@@ -225,28 +225,28 @@ int main(int argc, char** argv)
   CHKERRQ(ierr);
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-     Set ARKStep options
+     Set ARKODE options
    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-  ierr = ARKStepSStolerances(arkode_mem, rtol, atol);
-  if (check_retval(&ierr, "ARKStepSStolerances", 1)) { return 1; }
+  ierr = ARKodeSStolerances(arkode_mem, rtol, atol);
+  if (check_retval(&ierr, "ARKodeSStolerances", 1)) { return 1; }
 
-  ierr = ARKStepSetOrder(arkode_mem, 3);
-  if (check_retval(&ierr, "ARKStepSetOrder", 1)) { return 1; }
+  ierr = ARKodeSetOrder(arkode_mem, 3);
+  if (check_retval(&ierr, "ARKodeSetOrder", 1)) { return 1; }
 
-  ierr = ARKStepSetUserData(arkode_mem, (void*)&user);
-  if (check_retval(&ierr, "ARKStepSetUserData", 1)) { return 1; }
+  ierr = ARKodeSetUserData(arkode_mem, (void*)&user);
+  if (check_retval(&ierr, "ARKodeSetUserData", 1)) { return 1; }
 
-  ierr = ARKStepSetNonlinearSolver(arkode_mem, NLS);
-  if (check_retval(&ierr, "ARKStepSetNonlinearSolver", 1)) { return 1; }
+  ierr = ARKodeSetNonlinearSolver(arkode_mem, NLS);
+  if (check_retval(&ierr, "ARKodeSetNonlinearSolver", 1)) { return 1; }
 
   C = SUNAdaptController_I(ctx);
   if (check_retval((void*)C, "SUNAdaptController_I", 0)) { return 1; }
-  ierr = ARKStepSetAdaptController(arkode_mem, C);
-  if (check_retval(&ierr, "ARKStepSetAdaptController", 1)) { return 1; }
+  ierr = ARKodeSetAdaptController(arkode_mem, C);
+  if (check_retval(&ierr, "ARKodeSetAdaptController", 1)) { return 1; }
 
-  ierr = ARKStepSetInitStep(arkode_mem, dt);
-  if (check_retval(&ierr, "ARKStepSetInitStep", 1)) { return 1; }
+  ierr = ARKodeSetInitStep(arkode_mem, dt);
+  if (check_retval(&ierr, "ARKodeSetInitStep", 1)) { return 1; }
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Perform the integration
@@ -265,18 +265,18 @@ int main(int argc, char** argv)
 
     /* Advance time */
     tstop += dtout;
-    ierr = ARKStepSetStopTime(arkode_mem, tstop);
-    if (check_retval(&ierr, "ARKStepSetStopTime", 1)) { return 1; }
+    ierr = ARKodeSetStopTime(arkode_mem, tstop);
+    if (check_retval(&ierr, "ARKodeSetStopTime", 1)) { return 1; }
 
     /* Evolve solution in time */
-    ierr = ARKStepEvolve(arkode_mem, ftime, nvecx, &t, ARK_NORMAL);
-    if (check_retval(&ierr, "ARKStepEvolve", 1)) { return 1; }
+    ierr = ARKodeEvolve(arkode_mem, ftime, nvecx, &t, ARK_NORMAL);
+    if (check_retval(&ierr, "ARKodeEvolve", 1)) { return 1; }
 
     /* Get statistics */
-    ierr = ARKStepGetCurrentStep(arkode_mem, &dt);
-    if (check_retval(&ierr, "ARKStepGetCurrntStep", 1)) { return 1; }
-    ierr = ARKStepGetNumSteps(arkode_mem, &steps);
-    if (check_retval(&ierr, "ARKStepGetNumSteps", 1)) { return 1; }
+    ierr = ARKodeGetCurrentStep(arkode_mem, &dt);
+    if (check_retval(&ierr, "ARKodeGetCurrntStep", 1)) { return 1; }
+    ierr = ARKodeGetNumSteps(arkode_mem, &steps);
+    if (check_retval(&ierr, "ARKodeGetNumSteps", 1)) { return 1; }
   }
 
   printf("Converged at time %g after %ld steps.\n", t, steps);
@@ -288,7 +288,7 @@ int main(int argc, char** argv)
   /* Free SUNDIALS data structures */
   N_VDestroy(nvecx);                   /* Free x nvector         */
   SUNNonlinSolFree(NLS);               /* Free nonlinear solver  */
-  ARKStepFree(&arkode_mem);            /* Free integrator memory */
+  ARKodeFree(&arkode_mem);             /* Free integrator memory */
   (void)SUNAdaptController_Destroy(C); /* Free time adaptivity controller */
 
   /* Free petsc data structures */
@@ -305,7 +305,7 @@ int main(int argc, char** argv)
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  User provided functions in ARKStep format
+  User provided functions in ARKODE format
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 /* Implicit component of RHS */
@@ -459,7 +459,7 @@ PetscErrorCode FormIJacobian(SNES snes, Vec X, Mat J, Mat Jpre, void* ptr)
   hx = 1.0 / (PetscReal)(info.mx - 1);
 
   /* Get current gamma value from ARKode */
-  ierr = ARKStepGetCurrentGamma(user->arkode_mem, &gamma);
+  ierr = ARKodeGetCurrentGamma(user->arkode_mem, &gamma);
 
   /* Get pointers to vector data */
   ierr = DMDAVecGetArrayRead(user->da, X, &x);

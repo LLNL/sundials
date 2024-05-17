@@ -25,102 +25,137 @@
 #define TOL (SUNRsqrt(SUN_UNIT_ROUNDOFF))
 
 /* Private utility functions for checking method order */
-static int __mv(sunrealtype** A, sunrealtype* x, int s, sunrealtype* b);
-static int __vv(sunrealtype* x, sunrealtype* y, int s, sunrealtype* z);
-static int __vp(sunrealtype* x, int l, int s, sunrealtype* z);
-static int __dot(sunrealtype* x, sunrealtype* y, int s, sunrealtype* d);
-static sunbooleantype __rowsum(sunrealtype** A, sunrealtype* c, int s);
-static sunbooleantype __order1(sunrealtype* b, int s);
-static sunbooleantype __order2(sunrealtype* b, sunrealtype* c, int s);
-static sunbooleantype __order3a(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype* c2, int s);
-static sunbooleantype __order3b(sunrealtype* b, sunrealtype** A, sunrealtype* c,
-                                int s);
-static sunbooleantype __order4a(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype* c3, int s);
-static sunbooleantype __order4b(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype** A, sunrealtype* c2, int s);
-static sunbooleantype __order4c(sunrealtype* b, sunrealtype** A,
-                                sunrealtype* c1, sunrealtype* c2, int s);
-static sunbooleantype __order4d(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c, int s);
-static sunbooleantype __order5a(sunrealtype* b, sunrealtype* c1, sunrealtype* c2,
-                                sunrealtype* c3, sunrealtype* c4, int s);
-static sunbooleantype __order5b(sunrealtype* b, sunrealtype* c1, sunrealtype* c2,
-                                sunrealtype** A, sunrealtype* c3, int s);
-static sunbooleantype __order5c(sunrealtype* b, sunrealtype** A1, sunrealtype* c1,
-                                sunrealtype** A2, sunrealtype* c2, int s);
-static sunbooleantype __order5d(sunrealtype* b, sunrealtype* c1, sunrealtype** A,
-                                sunrealtype* c2, sunrealtype* c3, int s);
-static sunbooleantype __order5e(sunrealtype* b, sunrealtype** A, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype* c3, int s);
-static sunbooleantype __order5f(sunrealtype* b, sunrealtype* c1, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c2, int s);
-static sunbooleantype __order5g(sunrealtype* b, sunrealtype** A1, sunrealtype* c1,
-                                sunrealtype** A2, sunrealtype* c2, int s);
-static sunbooleantype __order5h(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c1,
-                                sunrealtype* c2, int s);
-static sunbooleantype __order5i(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype** A3,
-                                sunrealtype* c, int s);
-static sunbooleantype __order6a(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype* c3,
-                                sunrealtype* c4, sunrealtype* c5, int s);
-static sunbooleantype __order6b(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype* c3,
-                                sunrealtype** A, sunrealtype* c4, int s);
-static sunbooleantype __order6c(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype** A1, sunrealtype* c2,
-                                sunrealtype** A2, sunrealtype* c3, int s);
-static sunbooleantype __order6d(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype** A,
-                                sunrealtype* c3, sunrealtype* c4, int s);
-static sunbooleantype __order6e(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c3, int s);
-static sunbooleantype __order6f(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c1,
-                                sunrealtype** A3, sunrealtype* c2, int s);
-static sunbooleantype __order6g(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype** A, sunrealtype* c2,
-                                sunrealtype* c3, sunrealtype* c4, int s);
-static sunbooleantype __order6h(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype** A1, sunrealtype* c2,
-                                sunrealtype** A2, sunrealtype* c3, int s);
-static sunbooleantype __order6i(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype** A1, sunrealtype** A2,
-                                sunrealtype* c2, sunrealtype* c3, int s);
-static sunbooleantype __order6j(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype** A1, sunrealtype** A2,
-                                sunrealtype** A3, sunrealtype* c2, int s);
-static sunbooleantype __order6k(sunrealtype* b, sunrealtype** A,
-                                sunrealtype* c1, sunrealtype* c2,
-                                sunrealtype* c3, sunrealtype* c4, int s);
-static sunbooleantype __order6l(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype* c1, sunrealtype* c2,
-                                sunrealtype** A2, sunrealtype* c3, int s);
-static sunbooleantype __order6m(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c1,
-                                sunrealtype** A3, sunrealtype* c2, int s);
-static sunbooleantype __order6n(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype* c1, sunrealtype** A2,
-                                sunrealtype* c2, sunrealtype* c3, int s);
-static sunbooleantype __order6o(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype* c1, sunrealtype** A2,
-                                sunrealtype** A3, sunrealtype* c2, int s);
-static sunbooleantype __order6p(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype* c3, int s);
-static sunbooleantype __order6q(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c1,
-                                sunrealtype** A3, sunrealtype* c2, int s);
-static sunbooleantype __order6r(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype** A3,
-                                sunrealtype* c1, sunrealtype* c2, int s);
-static sunbooleantype __order6s(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype** A3,
-                                sunrealtype** A4, sunrealtype* c, int s);
+static int arkode_butcher_mv(sunrealtype** A, sunrealtype* x, int s,
+                             sunrealtype* b);
+static int arkode_butcher_vv(sunrealtype* x, sunrealtype* y, int s,
+                             sunrealtype* z);
+static int arkode_butcher_vp(sunrealtype* x, int l, int s, sunrealtype* z);
+static int arkode_butcher_dot(sunrealtype* x, sunrealtype* y, int s,
+                              sunrealtype* d);
+static sunbooleantype arkode_butcher_rowsum(sunrealtype** A, sunrealtype* c,
+                                            int s);
+static sunbooleantype arkode_butcher_order1(sunrealtype* b, int s);
+static sunbooleantype arkode_butcher_order2(sunrealtype* b, sunrealtype* c,
+                                            int s);
+static sunbooleantype arkode_butcher_order3a(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, int s);
+static sunbooleantype arkode_butcher_order3b(sunrealtype* b, sunrealtype** A,
+                                             sunrealtype* c, int s);
+static sunbooleantype arkode_butcher_order4a(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             int s);
+static sunbooleantype arkode_butcher_order4b(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A, sunrealtype* c2,
+                                             int s);
+static sunbooleantype arkode_butcher_order4c(sunrealtype* b, sunrealtype** A,
+                                             sunrealtype* c1, sunrealtype* c2,
+                                             int s);
+static sunbooleantype arkode_butcher_order4d(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c,
+                                             int s);
+static sunbooleantype arkode_butcher_order5a(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             sunrealtype* c4, int s);
+static sunbooleantype arkode_butcher_order5b(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype** A,
+                                             sunrealtype* c3, int s);
+static sunbooleantype arkode_butcher_order5c(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype* c1, sunrealtype** A2,
+                                             sunrealtype* c2, int s);
+static sunbooleantype arkode_butcher_order5d(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A, sunrealtype* c2,
+                                             sunrealtype* c3, int s);
+static sunbooleantype arkode_butcher_order5e(sunrealtype* b, sunrealtype** A,
+                                             sunrealtype* c1, sunrealtype* c2,
+                                             sunrealtype* c3, int s);
+static sunbooleantype arkode_butcher_order5f(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A1, sunrealtype** A2,
+                                             sunrealtype* c2, int s);
+static sunbooleantype arkode_butcher_order5g(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype* c1, sunrealtype** A2,
+                                             sunrealtype* c2, int s);
+static sunbooleantype arkode_butcher_order5h(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c1,
+                                             sunrealtype* c2, int s);
+static sunbooleantype arkode_butcher_order5i(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype** A3,
+                                             sunrealtype* c, int s);
+static sunbooleantype arkode_butcher_order6a(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             sunrealtype* c4, sunrealtype* c5,
+                                             int s);
+static sunbooleantype arkode_butcher_order6b(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             sunrealtype** A, sunrealtype* c4,
+                                             int s);
+static sunbooleantype arkode_butcher_order6c(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A1, sunrealtype* c2,
+                                             sunrealtype** A2, sunrealtype* c3,
+                                             int s);
+static sunbooleantype arkode_butcher_order6d(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype** A,
+                                             sunrealtype* c3, sunrealtype* c4,
+                                             int s);
+static sunbooleantype arkode_butcher_order6e(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c3,
+                                             int s);
+static sunbooleantype arkode_butcher_order6f(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c1,
+                                             sunrealtype** A3, sunrealtype* c2,
+                                             int s);
+static sunbooleantype arkode_butcher_order6g(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A, sunrealtype* c2,
+                                             sunrealtype* c3, sunrealtype* c4,
+                                             int s);
+static sunbooleantype arkode_butcher_order6h(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A1, sunrealtype* c2,
+                                             sunrealtype** A2, sunrealtype* c3,
+                                             int s);
+static sunbooleantype arkode_butcher_order6i(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A1, sunrealtype** A2,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             int s);
+static sunbooleantype arkode_butcher_order6j(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A1, sunrealtype** A2,
+                                             sunrealtype** A3, sunrealtype* c2,
+                                             int s);
+static sunbooleantype arkode_butcher_order6k(sunrealtype* b, sunrealtype** A,
+                                             sunrealtype* c1, sunrealtype* c2,
+                                             sunrealtype* c3, sunrealtype* c4,
+                                             int s);
+static sunbooleantype arkode_butcher_order6l(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype* c1, sunrealtype* c2,
+                                             sunrealtype** A2, sunrealtype* c3,
+                                             int s);
+static sunbooleantype arkode_butcher_order6m(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c1,
+                                             sunrealtype** A3, sunrealtype* c2,
+                                             int s);
+static sunbooleantype arkode_butcher_order6n(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype* c1, sunrealtype** A2,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             int s);
+static sunbooleantype arkode_butcher_order6o(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype* c1, sunrealtype** A2,
+                                             sunrealtype** A3, sunrealtype* c2,
+                                             int s);
+static sunbooleantype arkode_butcher_order6p(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             int s);
+static sunbooleantype arkode_butcher_order6q(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c1,
+                                             sunrealtype** A3, sunrealtype* c2,
+                                             int s);
+static sunbooleantype arkode_butcher_order6r(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype** A3,
+                                             sunrealtype* c1, sunrealtype* c2,
+                                             int s);
+static sunbooleantype arkode_butcher_order6s(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype** A3,
+                                             sunrealtype** A4, sunrealtype* c,
+                                             int s);
 static int __ButcherSimplifyingAssumptions(sunrealtype** A, sunrealtype* b,
                                            sunrealtype* c, int s);
 
@@ -453,7 +488,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
   if (outfile) { fprintf(outfile, "ARKodeButcherTable_CheckOrder:\n"); }
 
   /*    row sum condition */
-  if (__rowsum(A, c, s)) { (*q) = 0; }
+  if (arkode_butcher_rowsum(A, c, s)) { (*q) = 0; }
   else
   {
     (*q) = -1;
@@ -462,7 +497,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
   /*    order 1 condition */
   if ((*q) == 0)
   {
-    if (__order1(b, s)) { (*q) = 1; }
+    if (arkode_butcher_order1(b, s)) { (*q) = 1; }
     else
     {
       if (outfile) { fprintf(outfile, "  method fails order 1 condition\n"); }
@@ -471,7 +506,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
   /*    order 2 condition */
   if ((*q) == 1)
   {
-    if (__order2(b, c, s)) { (*q) = 2; }
+    if (arkode_butcher_order2(b, c, s)) { (*q) = 2; }
     else
     {
       if (outfile) { fprintf(outfile, "  method fails order 2 condition\n"); }
@@ -481,12 +516,12 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
   if ((*q) == 2)
   {
     alltrue = SUNTRUE;
-    if (!__order3a(b, c, c, s))
+    if (!arkode_butcher_order3a(b, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 3 condition A\n"); }
     }
-    if (!__order3b(b, A, c, s))
+    if (!arkode_butcher_order3b(b, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 3 condition B\n"); }
@@ -497,22 +532,22 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
   if ((*q) == 3)
   {
     alltrue = SUNTRUE;
-    if (!__order4a(b, c, c, c, s))
+    if (!arkode_butcher_order4a(b, c, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 4 condition A\n"); }
     }
-    if (!__order4b(b, c, A, c, s))
+    if (!arkode_butcher_order4b(b, c, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 4 condition B\n"); }
     }
-    if (!__order4c(b, A, c, c, s))
+    if (!arkode_butcher_order4c(b, A, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 4 condition C\n"); }
     }
-    if (!__order4d(b, A, A, c, s))
+    if (!arkode_butcher_order4d(b, A, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 4 condition D\n"); }
@@ -523,47 +558,47 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
   if ((*q) == 4)
   {
     alltrue = SUNTRUE;
-    if (!__order5a(b, c, c, c, c, s))
+    if (!arkode_butcher_order5a(b, c, c, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 5 condition A\n"); }
     }
-    if (!__order5b(b, c, c, A, c, s))
+    if (!arkode_butcher_order5b(b, c, c, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 5 condition B\n"); }
     }
-    if (!__order5c(b, A, c, A, c, s))
+    if (!arkode_butcher_order5c(b, A, c, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 5 condition C\n"); }
     }
-    if (!__order5d(b, c, A, c, c, s))
+    if (!arkode_butcher_order5d(b, c, A, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 5 condition D\n"); }
     }
-    if (!__order5e(b, A, c, c, c, s))
+    if (!arkode_butcher_order5e(b, A, c, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 5 condition E\n"); }
     }
-    if (!__order5f(b, c, A, A, c, s))
+    if (!arkode_butcher_order5f(b, c, A, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 5 condition F\n"); }
     }
-    if (!__order5g(b, A, c, A, c, s))
+    if (!arkode_butcher_order5g(b, A, c, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 5 condition G\n"); }
     }
-    if (!__order5h(b, A, A, c, c, s))
+    if (!arkode_butcher_order5h(b, A, A, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 5 condition H\n"); }
     }
-    if (!__order5i(b, A, A, A, c, s))
+    if (!arkode_butcher_order5i(b, A, A, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 5 condition I\n"); }
@@ -574,97 +609,97 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
   if ((*q) == 5)
   {
     alltrue = SUNTRUE;
-    if (!__order6a(b, c, c, c, c, c, s))
+    if (!arkode_butcher_order6a(b, c, c, c, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition A\n"); }
     }
-    if (!__order6b(b, c, c, c, A, c, s))
+    if (!arkode_butcher_order6b(b, c, c, c, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition B\n"); }
     }
-    if (!__order6c(b, c, A, c, A, c, s))
+    if (!arkode_butcher_order6c(b, c, A, c, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition C\n"); }
     }
-    if (!__order6d(b, c, c, A, c, c, s))
+    if (!arkode_butcher_order6d(b, c, c, A, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition D\n"); }
     }
-    if (!__order6e(b, c, c, A, A, c, s))
+    if (!arkode_butcher_order6e(b, c, c, A, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition E\n"); }
     }
-    if (!__order6f(b, A, A, c, A, c, s))
+    if (!arkode_butcher_order6f(b, A, A, c, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition F\n"); }
     }
-    if (!__order6g(b, c, A, c, c, c, s))
+    if (!arkode_butcher_order6g(b, c, A, c, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition G\n"); }
     }
-    if (!__order6h(b, c, A, c, A, c, s))
+    if (!arkode_butcher_order6h(b, c, A, c, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition H\n"); }
     }
-    if (!__order6i(b, c, A, A, c, c, s))
+    if (!arkode_butcher_order6i(b, c, A, A, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition I\n"); }
     }
-    if (!__order6j(b, c, A, A, A, c, s))
+    if (!arkode_butcher_order6j(b, c, A, A, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition J\n"); }
     }
-    if (!__order6k(b, A, c, c, c, c, s))
+    if (!arkode_butcher_order6k(b, A, c, c, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition K\n"); }
     }
-    if (!__order6l(b, A, c, c, A, c, s))
+    if (!arkode_butcher_order6l(b, A, c, c, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition L\n"); }
     }
-    if (!__order6m(b, A, A, c, A, c, s))
+    if (!arkode_butcher_order6m(b, A, A, c, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition M\n"); }
     }
-    if (!__order6n(b, A, c, A, c, c, s))
+    if (!arkode_butcher_order6n(b, A, c, A, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition N\n"); }
     }
-    if (!__order6o(b, A, c, A, A, c, s))
+    if (!arkode_butcher_order6o(b, A, c, A, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition O\n"); }
     }
-    if (!__order6p(b, A, A, c, c, c, s))
+    if (!arkode_butcher_order6p(b, A, A, c, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition P\n"); }
     }
-    if (!__order6q(b, A, A, c, A, c, s))
+    if (!arkode_butcher_order6q(b, A, A, c, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition Q\n"); }
     }
-    if (!__order6r(b, A, A, A, c, c, s))
+    if (!arkode_butcher_order6r(b, A, A, A, c, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition R\n"); }
     }
-    if (!__order6s(b, A, A, A, A, c, s))
+    if (!arkode_butcher_order6s(b, A, A, A, A, c, s))
     {
       alltrue = SUNFALSE;
       if (outfile) { fprintf(outfile, "  method fails order 6 condition S\n"); }
@@ -691,7 +726,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
     b = d;
 
     /*    row sum condition */
-    if (__rowsum(A, c, s)) { (*p) = 0; }
+    if (arkode_butcher_rowsum(A, c, s)) { (*p) = 0; }
     else
     {
       (*p) = -1;
@@ -703,7 +738,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
     /*    order 1 condition */
     if ((*p) == 0)
     {
-      if (__order1(b, s)) { (*p) = 1; }
+      if (arkode_butcher_order1(b, s)) { (*p) = 1; }
       else
       {
         if (outfile)
@@ -715,7 +750,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
     /*    order 2 condition */
     if ((*p) == 1)
     {
-      if (__order2(b, c, s)) { (*p) = 2; }
+      if (arkode_butcher_order2(b, c, s)) { (*p) = 2; }
       else
       {
         if (outfile)
@@ -728,7 +763,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
     if ((*p) == 2)
     {
       alltrue = SUNTRUE;
-      if (!__order3a(b, c, c, s))
+      if (!arkode_butcher_order3a(b, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -736,7 +771,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 3 condition A\n");
         }
       }
-      if (!__order3b(b, A, c, s))
+      if (!arkode_butcher_order3b(b, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -750,7 +785,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
     if ((*p) == 3)
     {
       alltrue = SUNTRUE;
-      if (!__order4a(b, c, c, c, s))
+      if (!arkode_butcher_order4a(b, c, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -758,7 +793,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 4 condition A\n");
         }
       }
-      if (!__order4b(b, c, A, c, s))
+      if (!arkode_butcher_order4b(b, c, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -766,7 +801,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 4 condition B\n");
         }
       }
-      if (!__order4c(b, A, c, c, s))
+      if (!arkode_butcher_order4c(b, A, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -774,7 +809,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 4 condition C\n");
         }
       }
-      if (!__order4d(b, A, A, c, s))
+      if (!arkode_butcher_order4d(b, A, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -788,7 +823,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
     if ((*p) == 4)
     {
       alltrue = SUNTRUE;
-      if (!__order5a(b, c, c, c, c, s))
+      if (!arkode_butcher_order5a(b, c, c, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -796,7 +831,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 5 condition A\n");
         }
       }
-      if (!__order5b(b, c, c, A, c, s))
+      if (!arkode_butcher_order5b(b, c, c, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -804,7 +839,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 5 condition B\n");
         }
       }
-      if (!__order5c(b, A, c, A, c, s))
+      if (!arkode_butcher_order5c(b, A, c, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -812,7 +847,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 5 condition C\n");
         }
       }
-      if (!__order5d(b, c, A, c, c, s))
+      if (!arkode_butcher_order5d(b, c, A, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -820,7 +855,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 5 condition D\n");
         }
       }
-      if (!__order5e(b, A, c, c, c, s))
+      if (!arkode_butcher_order5e(b, A, c, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -828,7 +863,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 5 condition E\n");
         }
       }
-      if (!__order5f(b, c, A, A, c, s))
+      if (!arkode_butcher_order5f(b, c, A, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -836,7 +871,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 5 condition F\n");
         }
       }
-      if (!__order5g(b, A, c, A, c, s))
+      if (!arkode_butcher_order5g(b, A, c, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -844,7 +879,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 5 condition G\n");
         }
       }
-      if (!__order5h(b, A, A, c, c, s))
+      if (!arkode_butcher_order5h(b, A, A, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -852,7 +887,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 5 condition H\n");
         }
       }
-      if (!__order5i(b, A, A, A, c, s))
+      if (!arkode_butcher_order5i(b, A, A, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -866,7 +901,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
     if ((*p) == 5)
     {
       alltrue = SUNTRUE;
-      if (!__order6a(b, c, c, c, c, c, s))
+      if (!arkode_butcher_order6a(b, c, c, c, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -874,7 +909,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition A\n");
         }
       }
-      if (!__order6b(b, c, c, c, A, c, s))
+      if (!arkode_butcher_order6b(b, c, c, c, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -882,7 +917,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition B\n");
         }
       }
-      if (!__order6c(b, c, A, c, A, c, s))
+      if (!arkode_butcher_order6c(b, c, A, c, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -890,7 +925,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition C\n");
         }
       }
-      if (!__order6d(b, c, c, A, c, c, s))
+      if (!arkode_butcher_order6d(b, c, c, A, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -898,7 +933,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition D\n");
         }
       }
-      if (!__order6e(b, c, c, A, A, c, s))
+      if (!arkode_butcher_order6e(b, c, c, A, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -906,7 +941,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition E\n");
         }
       }
-      if (!__order6f(b, A, A, c, A, c, s))
+      if (!arkode_butcher_order6f(b, A, A, c, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -914,7 +949,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition F\n");
         }
       }
-      if (!__order6g(b, c, A, c, c, c, s))
+      if (!arkode_butcher_order6g(b, c, A, c, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -922,7 +957,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition G\n");
         }
       }
-      if (!__order6h(b, c, A, c, A, c, s))
+      if (!arkode_butcher_order6h(b, c, A, c, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -930,7 +965,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition H\n");
         }
       }
-      if (!__order6i(b, c, A, A, c, c, s))
+      if (!arkode_butcher_order6i(b, c, A, A, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -938,7 +973,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition I\n");
         }
       }
-      if (!__order6j(b, c, A, A, A, c, s))
+      if (!arkode_butcher_order6j(b, c, A, A, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -946,7 +981,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition J\n");
         }
       }
-      if (!__order6k(b, A, c, c, c, c, s))
+      if (!arkode_butcher_order6k(b, A, c, c, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -954,7 +989,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition K\n");
         }
       }
-      if (!__order6l(b, A, c, c, A, c, s))
+      if (!arkode_butcher_order6l(b, A, c, c, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -962,7 +997,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition L\n");
         }
       }
-      if (!__order6m(b, A, A, c, A, c, s))
+      if (!arkode_butcher_order6m(b, A, A, c, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -970,7 +1005,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition M\n");
         }
       }
-      if (!__order6n(b, A, c, A, c, c, s))
+      if (!arkode_butcher_order6n(b, A, c, A, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -978,7 +1013,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition N\n");
         }
       }
-      if (!__order6o(b, A, c, A, A, c, s))
+      if (!arkode_butcher_order6o(b, A, c, A, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -986,7 +1021,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition O\n");
         }
       }
-      if (!__order6p(b, A, A, c, c, c, s))
+      if (!arkode_butcher_order6p(b, A, A, c, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -994,7 +1029,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition P\n");
         }
       }
-      if (!__order6q(b, A, A, c, A, c, s))
+      if (!arkode_butcher_order6q(b, A, A, c, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -1002,7 +1037,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition Q\n");
         }
       }
-      if (!__order6r(b, A, A, A, c, c, s))
+      if (!arkode_butcher_order6r(b, A, A, A, c, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -1010,7 +1045,7 @@ int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int* q, int* p,
           fprintf(outfile, "  embedding fails order 6 condition R\n");
         }
       }
-      if (!__order6s(b, A, A, A, A, c, s))
+      if (!arkode_butcher_order6s(b, A, A, A, A, c, s))
       {
         alltrue = SUNFALSE;
         if (outfile)
@@ -1128,7 +1163,10 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
   if (outfile) { fprintf(outfile, "ARKodeButcherTable_CheckARKOrder:\n"); }
 
   /*    row sum conditions */
-  if (__rowsum(A[0], c[0], s) && __rowsum(A[1], c[1], s)) { (*q) = 0; }
+  if (arkode_butcher_rowsum(A[0], c[0], s) && arkode_butcher_rowsum(A[1], c[1], s))
+  {
+    (*q) = 0;
+  }
   else
   {
     (*q) = -1;
@@ -1137,7 +1175,10 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
   /*    order 1 conditions */
   if ((*q) == 0)
   {
-    if (__order1(b[0], s) && __order1(b[1], s)) { (*q) = 1; }
+    if (arkode_butcher_order1(b[0], s) && arkode_butcher_order1(b[1], s))
+    {
+      (*q) = 1;
+    }
     else
     {
       if (outfile) { fprintf(outfile, "  method fails order 1 conditions\n"); }
@@ -1151,7 +1192,7 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
     {
       for (j = 0; j < 2; j++)
       {
-        alltrue = (alltrue && __order2(b[i], c[j], s));
+        alltrue = (alltrue && arkode_butcher_order2(b[i], c[j], s));
       }
     }
     if (alltrue) { (*q) = 2; }
@@ -1170,7 +1211,7 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
       {
         for (k = 0; k < 2; k++)
         {
-          alltrue = (alltrue && __order3a(b[i], c[j], c[k], s));
+          alltrue = (alltrue && arkode_butcher_order3a(b[i], c[j], c[k], s));
         }
       }
     }
@@ -1184,7 +1225,7 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
       {
         for (k = 0; k < 2; k++)
         {
-          alltrue = (alltrue && __order3b(b[i], A[j], c[k], s));
+          alltrue = (alltrue && arkode_butcher_order3b(b[i], A[j], c[k], s));
         }
       }
     }
@@ -1206,7 +1247,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
         {
           for (l = 0; l < 2; l++)
           {
-            alltrue = (alltrue && __order4a(b[i], c[j], c[k], c[l], s));
+            alltrue = (alltrue &&
+                       arkode_butcher_order4a(b[i], c[j], c[k], c[l], s));
           }
         }
       }
@@ -1223,7 +1265,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
         {
           for (l = 0; l < 2; l++)
           {
-            alltrue = (alltrue && __order4b(b[i], c[j], A[k], c[l], s));
+            alltrue = (alltrue &&
+                       arkode_butcher_order4b(b[i], c[j], A[k], c[l], s));
           }
         }
       }
@@ -1240,7 +1283,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
         {
           for (l = 0; l < 2; l++)
           {
-            alltrue = (alltrue && __order4c(b[i], A[j], c[k], c[l], s));
+            alltrue = (alltrue &&
+                       arkode_butcher_order4c(b[i], A[j], c[k], c[l], s));
           }
         }
       }
@@ -1257,7 +1301,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
         {
           for (l = 0; l < 2; l++)
           {
-            alltrue = (alltrue && __order4d(b[i], A[j], A[k], c[l], s));
+            alltrue = (alltrue &&
+                       arkode_butcher_order4d(b[i], A[j], A[k], c[l], s));
           }
         }
       }
@@ -1282,7 +1327,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
           {
             for (m = 0; m < 2; m++)
             {
-              alltrue = (alltrue && __order5a(b[i], c[j], c[k], c[l], c[m], s));
+              alltrue = (alltrue && arkode_butcher_order5a(b[i], c[j], c[k],
+                                                           c[l], c[m], s));
             }
           }
         }
@@ -1302,7 +1348,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
           {
             for (m = 0; m < 2; m++)
             {
-              alltrue = (alltrue && __order5b(b[i], c[j], c[k], A[l], c[m], s));
+              alltrue = (alltrue && arkode_butcher_order5b(b[i], c[j], c[k],
+                                                           A[l], c[m], s));
             }
           }
         }
@@ -1322,7 +1369,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
           {
             for (m = 0; m < 2; m++)
             {
-              alltrue = (alltrue && __order5c(b[i], A[j], c[k], A[l], c[m], s));
+              alltrue = (alltrue && arkode_butcher_order5c(b[i], A[j], c[k],
+                                                           A[l], c[m], s));
             }
           }
         }
@@ -1342,7 +1390,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
           {
             for (m = 0; m < 2; m++)
             {
-              alltrue = (alltrue && __order5d(b[i], c[j], A[k], c[l], c[m], s));
+              alltrue = (alltrue && arkode_butcher_order5d(b[i], c[j], A[k],
+                                                           c[l], c[m], s));
             }
           }
         }
@@ -1362,7 +1411,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
           {
             for (m = 0; m < 2; m++)
             {
-              alltrue = (alltrue && __order5e(b[i], A[j], c[k], c[l], c[m], s));
+              alltrue = (alltrue && arkode_butcher_order5e(b[i], A[j], c[k],
+                                                           c[l], c[m], s));
             }
           }
         }
@@ -1382,7 +1432,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
           {
             for (m = 0; m < 2; m++)
             {
-              alltrue = (alltrue && __order5f(b[i], c[j], A[k], A[l], c[m], s));
+              alltrue = (alltrue && arkode_butcher_order5f(b[i], c[j], A[k],
+                                                           A[l], c[m], s));
             }
           }
         }
@@ -1402,7 +1453,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
           {
             for (m = 0; m < 2; m++)
             {
-              alltrue = (alltrue && __order5g(b[i], A[j], c[k], A[l], c[m], s));
+              alltrue = (alltrue && arkode_butcher_order5g(b[i], A[j], c[k],
+                                                           A[l], c[m], s));
             }
           }
         }
@@ -1422,7 +1474,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
           {
             for (m = 0; m < 2; m++)
             {
-              alltrue = (alltrue && __order5h(b[i], A[j], A[k], c[l], c[m], s));
+              alltrue = (alltrue && arkode_butcher_order5h(b[i], A[j], A[k],
+                                                           c[l], c[m], s));
             }
           }
         }
@@ -1442,7 +1495,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
           {
             for (m = 0; m < 2; m++)
             {
-              alltrue = (alltrue && __order5i(b[i], A[j], A[k], A[l], c[m], s));
+              alltrue = (alltrue && arkode_butcher_order5i(b[i], A[j], A[k],
+                                                           A[l], c[m], s));
             }
           }
         }
@@ -1470,8 +1524,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6a(b[i], c[j], c[k], c[l], c[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6a(b[i], c[j], c[k],
+                                                             c[l], c[m], c[n], s));
               }
             }
           }
@@ -1494,8 +1548,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6b(b[i], c[j], c[k], c[l], A[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6b(b[i], c[j], c[k],
+                                                             c[l], A[m], c[n], s));
               }
             }
           }
@@ -1518,8 +1572,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6c(b[i], c[j], A[k], c[l], A[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6c(b[i], c[j], A[k],
+                                                             c[l], A[m], c[n], s));
               }
             }
           }
@@ -1542,8 +1596,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6d(b[i], c[j], c[k], A[l], c[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6d(b[i], c[j], c[k],
+                                                             A[l], c[m], c[n], s));
               }
             }
           }
@@ -1566,8 +1620,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6e(b[i], c[j], c[k], A[l], A[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6e(b[i], c[j], c[k],
+                                                             A[l], A[m], c[n], s));
               }
             }
           }
@@ -1590,8 +1644,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6f(b[i], A[j], A[k], c[l], A[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6f(b[i], A[j], A[k],
+                                                             c[l], A[m], c[n], s));
               }
             }
           }
@@ -1614,8 +1668,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6g(b[i], c[j], A[k], c[l], c[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6g(b[i], c[j], A[k],
+                                                             c[l], c[m], c[n], s));
               }
             }
           }
@@ -1638,8 +1692,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6h(b[i], c[j], A[k], c[l], A[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6h(b[i], c[j], A[k],
+                                                             c[l], A[m], c[n], s));
               }
             }
           }
@@ -1662,8 +1716,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6i(b[i], c[j], A[k], A[l], c[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6i(b[i], c[j], A[k],
+                                                             A[l], c[m], c[n], s));
               }
             }
           }
@@ -1686,8 +1740,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6j(b[i], c[j], A[k], A[l], A[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6j(b[i], c[j], A[k],
+                                                             A[l], A[m], c[n], s));
               }
             }
           }
@@ -1710,8 +1764,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6k(b[i], A[j], c[k], c[l], c[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6k(b[i], A[j], c[k],
+                                                             c[l], c[m], c[n], s));
               }
             }
           }
@@ -1734,8 +1788,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6l(b[i], A[j], c[k], c[l], A[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6l(b[i], A[j], c[k],
+                                                             c[l], A[m], c[n], s));
               }
             }
           }
@@ -1758,8 +1812,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6m(b[i], A[j], A[k], c[l], A[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6m(b[i], A[j], A[k],
+                                                             c[l], A[m], c[n], s));
               }
             }
           }
@@ -1782,8 +1836,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6n(b[i], A[j], c[k], A[l], c[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6n(b[i], A[j], c[k],
+                                                             A[l], c[m], c[n], s));
               }
             }
           }
@@ -1806,8 +1860,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6o(b[i], A[j], c[k], A[l], A[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6o(b[i], A[j], c[k],
+                                                             A[l], A[m], c[n], s));
               }
             }
           }
@@ -1830,8 +1884,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6p(b[i], A[j], A[k], c[l], c[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6p(b[i], A[j], A[k],
+                                                             c[l], c[m], c[n], s));
               }
             }
           }
@@ -1854,8 +1908,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6q(b[i], A[j], A[k], c[l], A[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6q(b[i], A[j], A[k],
+                                                             c[l], A[m], c[n], s));
               }
             }
           }
@@ -1878,8 +1932,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6r(b[i], A[j], A[k], A[l], c[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6r(b[i], A[j], A[k],
+                                                             A[l], c[m], c[n], s));
               }
             }
           }
@@ -1902,8 +1956,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (n = 0; n < 2; n++)
               {
-                alltrue = (alltrue &&
-                           __order6s(b[i], A[j], A[k], A[l], A[m], c[n], s));
+                alltrue = (alltrue && arkode_butcher_order6s(b[i], A[j], A[k],
+                                                             A[l], A[m], c[n], s));
               }
             }
           }
@@ -1923,7 +1977,11 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
     if (outfile) { fprintf(outfile, "\n"); }
 
     /*    row sum conditions */
-    if (__rowsum(A[0], c[0], s) && __rowsum(A[1], c[1], s)) { (*p) = 0; }
+    if (arkode_butcher_rowsum(A[0], c[0], s) &&
+        arkode_butcher_rowsum(A[1], c[1], s))
+    {
+      (*p) = 0;
+    }
     else
     {
       (*p) = -1;
@@ -1935,7 +1993,10 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
     /*    order 1 conditions */
     if ((*p) == 0)
     {
-      if (__order1(d[0], s) && __order1(d[1], s)) { (*p) = 1; }
+      if (arkode_butcher_order1(d[0], s) && arkode_butcher_order1(d[1], s))
+      {
+        (*p) = 1;
+      }
       else
       {
         if (outfile)
@@ -1952,7 +2013,7 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
       {
         for (j = 0; j < 2; j++)
         {
-          alltrue = (alltrue && __order2(d[i], c[j], s));
+          alltrue = (alltrue && arkode_butcher_order2(d[i], c[j], s));
         }
       }
       if (alltrue) { (*p) = 2; }
@@ -1974,7 +2035,7 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
         {
           for (k = 0; k < 2; k++)
           {
-            alltrue = (alltrue && __order3a(d[i], c[j], c[k], s));
+            alltrue = (alltrue && arkode_butcher_order3a(d[i], c[j], c[k], s));
           }
         }
       }
@@ -1988,7 +2049,7 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
         {
           for (k = 0; k < 2; k++)
           {
-            alltrue = (alltrue && __order3b(d[i], A[j], c[k], s));
+            alltrue = (alltrue && arkode_butcher_order3b(d[i], A[j], c[k], s));
           }
         }
       }
@@ -2010,7 +2071,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
           {
             for (l = 0; l < 2; l++)
             {
-              alltrue = (alltrue && __order4a(d[i], c[j], c[k], c[l], s));
+              alltrue = (alltrue &&
+                         arkode_butcher_order4a(d[i], c[j], c[k], c[l], s));
             }
           }
         }
@@ -2027,7 +2089,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
           {
             for (l = 0; l < 2; l++)
             {
-              alltrue = (alltrue && __order4b(d[i], c[j], A[k], c[l], s));
+              alltrue = (alltrue &&
+                         arkode_butcher_order4b(d[i], c[j], A[k], c[l], s));
             }
           }
         }
@@ -2044,7 +2107,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
           {
             for (l = 0; l < 2; l++)
             {
-              alltrue = (alltrue && __order4c(d[i], A[j], c[k], c[l], s));
+              alltrue = (alltrue &&
+                         arkode_butcher_order4c(d[i], A[j], c[k], c[l], s));
             }
           }
         }
@@ -2061,7 +2125,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
           {
             for (l = 0; l < 2; l++)
             {
-              alltrue = (alltrue && __order4d(d[i], A[j], A[k], c[l], s));
+              alltrue = (alltrue &&
+                         arkode_butcher_order4d(d[i], A[j], A[k], c[l], s));
             }
           }
         }
@@ -2086,7 +2151,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (m = 0; m < 2; m++)
               {
-                alltrue = (alltrue && __order5a(d[i], c[j], c[k], c[l], c[m], s));
+                alltrue = (alltrue && arkode_butcher_order5a(d[i], c[j], c[k],
+                                                             c[l], c[m], s));
               }
             }
           }
@@ -2106,7 +2172,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (m = 0; m < 2; m++)
               {
-                alltrue = (alltrue && __order5b(d[i], c[j], c[k], A[l], c[m], s));
+                alltrue = (alltrue && arkode_butcher_order5b(d[i], c[j], c[k],
+                                                             A[l], c[m], s));
               }
             }
           }
@@ -2126,7 +2193,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (m = 0; m < 2; m++)
               {
-                alltrue = (alltrue && __order5c(d[i], A[j], c[k], A[l], c[m], s));
+                alltrue = (alltrue && arkode_butcher_order5c(d[i], A[j], c[k],
+                                                             A[l], c[m], s));
               }
             }
           }
@@ -2146,7 +2214,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (m = 0; m < 2; m++)
               {
-                alltrue = (alltrue && __order5d(d[i], c[j], A[k], c[l], c[m], s));
+                alltrue = (alltrue && arkode_butcher_order5d(d[i], c[j], A[k],
+                                                             c[l], c[m], s));
               }
             }
           }
@@ -2166,7 +2235,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (m = 0; m < 2; m++)
               {
-                alltrue = (alltrue && __order5e(d[i], A[j], c[k], c[l], c[m], s));
+                alltrue = (alltrue && arkode_butcher_order5e(d[i], A[j], c[k],
+                                                             c[l], c[m], s));
               }
             }
           }
@@ -2186,7 +2256,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (m = 0; m < 2; m++)
               {
-                alltrue = (alltrue && __order5f(d[i], c[j], A[k], A[l], c[m], s));
+                alltrue = (alltrue && arkode_butcher_order5f(d[i], c[j], A[k],
+                                                             A[l], c[m], s));
               }
             }
           }
@@ -2206,7 +2277,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (m = 0; m < 2; m++)
               {
-                alltrue = (alltrue && __order5g(d[i], A[j], c[k], A[l], c[m], s));
+                alltrue = (alltrue && arkode_butcher_order5g(d[i], A[j], c[k],
+                                                             A[l], c[m], s));
               }
             }
           }
@@ -2226,7 +2298,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (m = 0; m < 2; m++)
               {
-                alltrue = (alltrue && __order5h(d[i], A[j], A[k], c[l], c[m], s));
+                alltrue = (alltrue && arkode_butcher_order5h(d[i], A[j], A[k],
+                                                             c[l], c[m], s));
               }
             }
           }
@@ -2246,7 +2319,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
             {
               for (m = 0; m < 2; m++)
               {
-                alltrue = (alltrue && __order5i(d[i], A[j], A[k], A[l], c[m], s));
+                alltrue = (alltrue && arkode_butcher_order5i(d[i], A[j], A[k],
+                                                             A[l], c[m], s));
               }
             }
           }
@@ -2275,7 +2349,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6a(d[i], c[j], c[k], c[l], c[m], c[n], s));
+                             arkode_butcher_order6a(d[i], c[j], c[k], c[l],
+                                                    c[m], c[n], s));
                 }
               }
             }
@@ -2299,7 +2374,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6b(d[i], c[j], c[k], c[l], A[m], c[n], s));
+                             arkode_butcher_order6b(d[i], c[j], c[k], c[l],
+                                                    A[m], c[n], s));
                 }
               }
             }
@@ -2323,7 +2399,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6c(d[i], c[j], A[k], c[l], A[m], c[n], s));
+                             arkode_butcher_order6c(d[i], c[j], A[k], c[l],
+                                                    A[m], c[n], s));
                 }
               }
             }
@@ -2347,7 +2424,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6d(d[i], c[j], c[k], A[l], c[m], c[n], s));
+                             arkode_butcher_order6d(d[i], c[j], c[k], A[l],
+                                                    c[m], c[n], s));
                 }
               }
             }
@@ -2371,7 +2449,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6e(d[i], c[j], c[k], A[l], A[m], c[n], s));
+                             arkode_butcher_order6e(d[i], c[j], c[k], A[l],
+                                                    A[m], c[n], s));
                 }
               }
             }
@@ -2395,7 +2474,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6f(d[i], A[j], A[k], c[l], A[m], c[n], s));
+                             arkode_butcher_order6f(d[i], A[j], A[k], c[l],
+                                                    A[m], c[n], s));
                 }
               }
             }
@@ -2419,7 +2499,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6g(d[i], c[j], A[k], c[l], c[m], c[n], s));
+                             arkode_butcher_order6g(d[i], c[j], A[k], c[l],
+                                                    c[m], c[n], s));
                 }
               }
             }
@@ -2443,7 +2524,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6h(d[i], c[j], A[k], c[l], A[m], c[n], s));
+                             arkode_butcher_order6h(d[i], c[j], A[k], c[l],
+                                                    A[m], c[n], s));
                 }
               }
             }
@@ -2467,7 +2549,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6i(d[i], c[j], A[k], A[l], c[m], c[n], s));
+                             arkode_butcher_order6i(d[i], c[j], A[k], A[l],
+                                                    c[m], c[n], s));
                 }
               }
             }
@@ -2491,7 +2574,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6j(d[i], c[j], A[k], A[l], A[m], c[n], s));
+                             arkode_butcher_order6j(d[i], c[j], A[k], A[l],
+                                                    A[m], c[n], s));
                 }
               }
             }
@@ -2515,7 +2599,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6k(d[i], A[j], c[k], c[l], c[m], c[n], s));
+                             arkode_butcher_order6k(d[i], A[j], c[k], c[l],
+                                                    c[m], c[n], s));
                 }
               }
             }
@@ -2539,7 +2624,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6l(d[i], A[j], c[k], c[l], A[m], c[n], s));
+                             arkode_butcher_order6l(d[i], A[j], c[k], c[l],
+                                                    A[m], c[n], s));
                 }
               }
             }
@@ -2563,7 +2649,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6m(d[i], A[j], A[k], c[l], A[m], c[n], s));
+                             arkode_butcher_order6m(d[i], A[j], A[k], c[l],
+                                                    A[m], c[n], s));
                 }
               }
             }
@@ -2587,7 +2674,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6n(d[i], A[j], c[k], A[l], c[m], c[n], s));
+                             arkode_butcher_order6n(d[i], A[j], c[k], A[l],
+                                                    c[m], c[n], s));
                 }
               }
             }
@@ -2611,7 +2699,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6o(d[i], A[j], c[k], A[l], A[m], c[n], s));
+                             arkode_butcher_order6o(d[i], A[j], c[k], A[l],
+                                                    A[m], c[n], s));
                 }
               }
             }
@@ -2635,7 +2724,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6p(d[i], A[j], A[k], c[l], c[m], c[n], s));
+                             arkode_butcher_order6p(d[i], A[j], A[k], c[l],
+                                                    c[m], c[n], s));
                 }
               }
             }
@@ -2659,7 +2749,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6q(d[i], A[j], A[k], c[l], A[m], c[n], s));
+                             arkode_butcher_order6q(d[i], A[j], A[k], c[l],
+                                                    A[m], c[n], s));
                 }
               }
             }
@@ -2683,7 +2774,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6r(d[i], A[j], A[k], A[l], c[m], c[n], s));
+                             arkode_butcher_order6r(d[i], A[j], A[k], A[l],
+                                                    c[m], c[n], s));
                 }
               }
             }
@@ -2707,7 +2799,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
                 for (n = 0; n < 2; n++)
                 {
                   alltrue = (alltrue &&
-                             __order6s(d[i], A[j], A[k], A[l], A[m], c[n], s));
+                             arkode_butcher_order6s(d[i], A[j], A[k], A[l],
+                                                    A[m], c[n], s));
                 }
               }
             }
@@ -2754,7 +2847,8 @@ int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1, ARKodeButcherTable B
   Here A is (s x s), x and b are (s x 1).  Returns 0 on success,
   nonzero on failure.
   ---------------------------------------------------------------*/
-static int __mv(sunrealtype** A, sunrealtype* x, int s, sunrealtype* b)
+static int arkode_butcher_mv(sunrealtype** A, sunrealtype* x, int s,
+                             sunrealtype* b)
 {
   int i, j;
   if ((A == NULL) || (x == NULL) || (b == NULL) || (s < 1)) { return (1); }
@@ -2772,7 +2866,7 @@ static int __mv(sunrealtype** A, sunrealtype* x, int s, sunrealtype* b)
   Here all vectors are (s x 1).   Returns 0 on success,
   nonzero on failure.
   ---------------------------------------------------------------*/
-static int __vv(sunrealtype* x, sunrealtype* y, int s, sunrealtype* z)
+static int arkode_butcher_vv(sunrealtype* x, sunrealtype* y, int s, sunrealtype* z)
 {
   int i;
   if ((x == NULL) || (y == NULL) || (z == NULL) || (s < 1)) { return (1); }
@@ -2786,7 +2880,7 @@ static int __vv(sunrealtype* x, sunrealtype* y, int s, sunrealtype* z)
   Here all vectors are (s x 1).   Returns 0 on success,
   nonzero on failure.
   ---------------------------------------------------------------*/
-static int __vp(sunrealtype* x, int l, int s, sunrealtype* z)
+static int arkode_butcher_vp(sunrealtype* x, int l, int s, sunrealtype* z)
 {
   int i;
   if ((x == NULL) || (z == NULL) || (s < 1) || (s < 0)) { return (1); }
@@ -2800,7 +2894,8 @@ static int __vp(sunrealtype* x, int l, int s, sunrealtype* z)
   Here x and y are (s x 1), and d is scalar.   Returns 0 on success,
   nonzero on failure.
   ---------------------------------------------------------------*/
-static int __dot(sunrealtype* x, sunrealtype* y, int s, sunrealtype* d)
+static int arkode_butcher_dot(sunrealtype* x, sunrealtype* y, int s,
+                              sunrealtype* d)
 {
   int i;
   if ((x == NULL) || (y == NULL) || (d == NULL) || (s < 1)) { return (1); }
@@ -2812,17 +2907,17 @@ static int __dot(sunrealtype* x, sunrealtype* y, int s, sunrealtype* d)
 /*---------------------------------------------------------------
   Utility routines to check specific order conditions.  Each
   returns SUNTRUE on success, SUNFALSE on failure.
-     Order 0:  __rowsum
-     Order 1:  __order1
-     Order 2:  __order2
-     Order 3:  __order3a and __order3b
-     Order 4:  __order4a through __order4d
-     Order 5:  __order5a through __order5i
-     Order 6:  __order6a through __order6s
+     Order 0:  arkode_butcher_rowsum
+     Order 1:  arkode_butcher_order1
+     Order 2:  arkode_butcher_order2
+     Order 3:  arkode_butcher_order3a and arkode_butcher_order3b
+     Order 4:  arkode_butcher_order4a through arkode_butcher_order4d
+     Order 5:  arkode_butcher_order5a through arkode_butcher_order5i
+     Order 6:  arkode_butcher_order6a through arkode_butcher_order6s
   ---------------------------------------------------------------*/
 
 /* c(i) = sum(A(i,:)) */
-static sunbooleantype __rowsum(sunrealtype** A, sunrealtype* c, int s)
+static sunbooleantype arkode_butcher_rowsum(sunrealtype** A, sunrealtype* c, int s)
 {
   int i, j;
   sunrealtype rsum;
@@ -2836,7 +2931,7 @@ static sunbooleantype __rowsum(sunrealtype** A, sunrealtype* c, int s)
 }
 
 /* b'*e = 1 */
-static sunbooleantype __order1(sunrealtype* b, int s)
+static sunbooleantype arkode_butcher_order1(sunrealtype* b, int s)
 {
   int i;
   sunrealtype err = SUN_RCONST(1.0);
@@ -2845,117 +2940,120 @@ static sunbooleantype __order1(sunrealtype* b, int s)
 }
 
 /* b'*c = 1/2 */
-static sunbooleantype __order2(sunrealtype* b, sunrealtype* c, int s)
+static sunbooleantype arkode_butcher_order2(sunrealtype* b, sunrealtype* c, int s)
 {
   sunrealtype bc;
-  if (__dot(b, c, s, &bc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, c, s, &bc)) { return (SUNFALSE); }
   return (SUNRabs(bc - SUN_RCONST(0.5)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*(c1.*c2) = 1/3 */
-static sunbooleantype __order3a(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype* c2, int s)
+static sunbooleantype arkode_butcher_order3a(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, int s)
 {
   sunrealtype bcc;
   sunrealtype* tmp = calloc(s, sizeof(sunrealtype));
-  if (__vv(c1, c2, s, tmp))
+  if (arkode_butcher_vv(c1, c2, s, tmp))
   {
     free(tmp);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp, s, &bcc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp, s, &bcc)) { return (SUNFALSE); }
   free(tmp);
   return (SUNRabs(bcc - SUN_RCONST(1.0) / SUN_RCONST(3.0)) > TOL) ? SUNFALSE
                                                                   : SUNTRUE;
 }
 
 /* b'*(A*c) = 1/6 */
-static sunbooleantype __order3b(sunrealtype* b, sunrealtype** A, sunrealtype* c,
-                                int s)
+static sunbooleantype arkode_butcher_order3b(sunrealtype* b, sunrealtype** A,
+                                             sunrealtype* c, int s)
 {
   sunrealtype bAc;
   sunrealtype* tmp = calloc(s, sizeof(sunrealtype));
-  if (__mv(A, c, s, tmp))
+  if (arkode_butcher_mv(A, c, s, tmp))
   {
     free(tmp);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp, s, &bAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp, s, &bAc)) { return (SUNFALSE); }
   free(tmp);
   return (SUNRabs(bAc - SUN_RCONST(1.0) / SUN_RCONST(6.0)) > TOL) ? SUNFALSE
                                                                   : SUNTRUE;
 }
 
 /* b'*(c1.*c2.*c3) = 1/4 */
-static sunbooleantype __order4a(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype* c3, int s)
+static sunbooleantype arkode_butcher_order4a(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             int s)
 {
   sunrealtype bccc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c1, c2, s, tmp1))
+  if (arkode_butcher_vv(c1, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c3, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c3, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bccc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bccc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bccc - SUN_RCONST(0.25)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1)'*(A*c2) = 1/8 */
-static sunbooleantype __order4b(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype** A, sunrealtype* c2, int s)
+static sunbooleantype arkode_butcher_order4b(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A, sunrealtype* c2,
+                                             int s)
 {
   sunrealtype bcAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(b, c1, s, tmp1))
+  if (arkode_butcher_vv(b, c1, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A, c2, s, tmp2))
+  if (arkode_butcher_mv(A, c2, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(tmp1, tmp2, s, &bcAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(tmp1, tmp2, s, &bcAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bcAc - SUN_RCONST(0.125)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*A*(c1.*c2) = 1/12 */
-static sunbooleantype __order4c(sunrealtype* b, sunrealtype** A,
-                                sunrealtype* c1, sunrealtype* c2, int s)
+static sunbooleantype arkode_butcher_order4c(sunrealtype* b, sunrealtype** A,
+                                             sunrealtype* c1, sunrealtype* c2,
+                                             int s)
 {
   sunrealtype bAcc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c1, c2, s, tmp1))
+  if (arkode_butcher_vv(c1, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bAcc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bAcc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAcc - SUN_RCONST(1.0) / SUN_RCONST(12.0)) > TOL) ? SUNFALSE
@@ -2963,25 +3061,26 @@ static sunbooleantype __order4c(sunrealtype* b, sunrealtype** A,
 }
 
 /* b'*A1*A2*c = 1/24 */
-static sunbooleantype __order4d(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c, int s)
+static sunbooleantype arkode_butcher_order4d(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c,
+                                             int s)
 {
   sunrealtype bAAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A2, c, s, tmp1))
+  if (arkode_butcher_mv(A2, c, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bAAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bAAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAAc - SUN_RCONST(1.0) / SUN_RCONST(24.0)) > TOL) ? SUNFALSE
@@ -2989,97 +3088,100 @@ static sunbooleantype __order4d(sunrealtype* b, sunrealtype** A1,
 }
 
 /* b'*(c1.*c2.*c3.*c4) = 1/5 */
-static sunbooleantype __order5a(sunrealtype* b, sunrealtype* c1, sunrealtype* c2,
-                                sunrealtype* c3, sunrealtype* c4, int s)
+static sunbooleantype arkode_butcher_order5a(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             sunrealtype* c4, int s)
 {
   sunrealtype bcccc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c1, c2, s, tmp1))
+  if (arkode_butcher_vv(c1, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c3, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c3, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c4, tmp2, s, tmp1))
+  if (arkode_butcher_vv(c4, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp1, s, &bcccc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp1, s, &bcccc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bcccc - SUN_RCONST(0.2)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1.*c2)'*(A*c3) = 1/10 */
-static sunbooleantype __order5b(sunrealtype* b, sunrealtype* c1, sunrealtype* c2,
-                                sunrealtype** A, sunrealtype* c3, int s)
+static sunbooleantype arkode_butcher_order5b(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype** A,
+                                             sunrealtype* c3, int s)
 {
   sunrealtype bccAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c1, c2, s, tmp1))
+  if (arkode_butcher_vv(c1, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(b, tmp1, s, tmp2))
+  if (arkode_butcher_vv(b, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A, c3, s, tmp1))
+  if (arkode_butcher_mv(A, c3, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(tmp1, tmp2, s, &bccAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(tmp1, tmp2, s, &bccAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bccAc - SUN_RCONST(0.1)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* b'*((A1*c1).*(A2*c2)) = 1/20 */
-static sunbooleantype __order5c(sunrealtype* b, sunrealtype** A1, sunrealtype* c1,
-                                sunrealtype** A2, sunrealtype* c2, int s)
+static sunbooleantype arkode_butcher_order5c(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype* c1, sunrealtype** A2,
+                                             sunrealtype* c2, int s)
 {
   sunrealtype bAcAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp3 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A1, c1, s, tmp1))
+  if (arkode_butcher_mv(A1, c1, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__mv(A2, c2, s, tmp2))
+  if (arkode_butcher_mv(A2, c2, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__vv(tmp1, tmp2, s, tmp3))
+  if (arkode_butcher_vv(tmp1, tmp2, s, tmp3))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp3, s, &bAcAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp3, s, &bAcAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   free(tmp3);
@@ -3087,31 +3189,32 @@ static sunbooleantype __order5c(sunrealtype* b, sunrealtype** A1, sunrealtype* c
 }
 
 /* (b.*c1)'*A*(c2.*c3) = 1/15 */
-static sunbooleantype __order5d(sunrealtype* b, sunrealtype* c1, sunrealtype** A,
-                                sunrealtype* c2, sunrealtype* c3, int s)
+static sunbooleantype arkode_butcher_order5d(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A, sunrealtype* c2,
+                                             sunrealtype* c3, int s)
 {
   sunrealtype bcAcc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c2, c3, s, tmp1))
+  if (arkode_butcher_vv(c2, c3, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(b, c1, s, tmp1))
+  if (arkode_butcher_vv(b, c1, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(tmp1, tmp2, s, &bcAcc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(tmp1, tmp2, s, &bcAcc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bcAcc - SUN_RCONST(1.0) / SUN_RCONST(15.0)) > TOL) ? SUNFALSE
@@ -3119,62 +3222,64 @@ static sunbooleantype __order5d(sunrealtype* b, sunrealtype* c1, sunrealtype** A
 }
 
 /* b'*A*(c1.*c2.*c3) = 1/20 */
-static sunbooleantype __order5e(sunrealtype* b, sunrealtype** A, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype* c3, int s)
+static sunbooleantype arkode_butcher_order5e(sunrealtype* b, sunrealtype** A,
+                                             sunrealtype* c1, sunrealtype* c2,
+                                             sunrealtype* c3, int s)
 {
   sunrealtype bAccc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c1, c2, s, tmp1))
+  if (arkode_butcher_vv(c1, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c3, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c3, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A, tmp2, s, tmp1))
+  if (arkode_butcher_mv(A, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp1, s, &bAccc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp1, s, &bAccc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAccc - SUN_RCONST(0.05)) > TOL) ? SUNFALSE : SUNTRUE;
 }
 
 /* (b.*c1)'*A1*A2*c2 = 1/30 */
-static sunbooleantype __order5f(sunrealtype* b, sunrealtype* c1, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c2, int s)
+static sunbooleantype arkode_butcher_order5f(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A1, sunrealtype** A2,
+                                             sunrealtype* c2, int s)
 {
   sunrealtype bcAAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A2, c2, s, tmp1))
+  if (arkode_butcher_mv(A2, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(b, c1, s, tmp1))
+  if (arkode_butcher_vv(b, c1, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(tmp1, tmp2, s, &bcAAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(tmp1, tmp2, s, &bcAAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bcAAc - SUN_RCONST(1.0) / SUN_RCONST(30.0)) > TOL) ? SUNFALSE
@@ -3182,31 +3287,32 @@ static sunbooleantype __order5f(sunrealtype* b, sunrealtype* c1, sunrealtype** A
 }
 
 /* b'*A1*(c1.*(A2*c2)) = 1/40 */
-static sunbooleantype __order5g(sunrealtype* b, sunrealtype** A1, sunrealtype* c1,
-                                sunrealtype** A2, sunrealtype* c2, int s)
+static sunbooleantype arkode_butcher_order5g(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype* c1, sunrealtype** A2,
+                                             sunrealtype* c2, int s)
 {
   sunrealtype bAcAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A2, c2, s, tmp1))
+  if (arkode_butcher_mv(A2, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c1, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp2, s, tmp1))
+  if (arkode_butcher_mv(A1, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp1, s, &bAcAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp1, s, &bAcAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAcAc - SUN_RCONST(1.0) / SUN_RCONST(40.0)) > TOL) ? SUNFALSE
@@ -3214,32 +3320,32 @@ static sunbooleantype __order5g(sunrealtype* b, sunrealtype** A1, sunrealtype* c
 }
 
 /* b'*A1*A2*(c1.*c2) = 1/60 */
-static sunbooleantype __order5h(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c1,
-                                sunrealtype* c2, int s)
+static sunbooleantype arkode_butcher_order5h(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c1,
+                                             sunrealtype* c2, int s)
 {
   sunrealtype bAAcc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c1, c2, s, tmp1))
+  if (arkode_butcher_vv(c1, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A2, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A2, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp2, s, tmp1))
+  if (arkode_butcher_mv(A1, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp1, s, &bAAcc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp1, s, &bAAcc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAAcc - SUN_RCONST(1.0) / SUN_RCONST(60.0)) > TOL) ? SUNFALSE
@@ -3247,32 +3353,32 @@ static sunbooleantype __order5h(sunrealtype* b, sunrealtype** A1,
 }
 
 /* b'*A1*A2*A3*c = 1/120 */
-static sunbooleantype __order5i(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype** A3,
-                                sunrealtype* c, int s)
+static sunbooleantype arkode_butcher_order5i(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype** A3,
+                                             sunrealtype* c, int s)
 {
   sunrealtype bAAAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A3, c, s, tmp1))
+  if (arkode_butcher_mv(A3, c, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A2, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A2, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp2, s, tmp1))
+  if (arkode_butcher_mv(A1, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp1, s, &bAAAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp1, s, &bAAAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAAAc - SUN_RCONST(1.0) / SUN_RCONST(120.0)) > TOL) ? SUNFALSE
@@ -3280,38 +3386,39 @@ static sunbooleantype __order5i(sunrealtype* b, sunrealtype** A1,
 }
 
 /* b'*(c1.*c2.*c3.*c4.*c5) = 1/6 */
-static sunbooleantype __order6a(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype* c3,
-                                sunrealtype* c4, sunrealtype* c5, int s)
+static sunbooleantype arkode_butcher_order6a(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             sunrealtype* c4, sunrealtype* c5,
+                                             int s)
 {
   sunrealtype bccccc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c1, c2, s, tmp1))
+  if (arkode_butcher_vv(c1, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c3, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c3, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c4, tmp2, s, tmp1))
+  if (arkode_butcher_vv(c4, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c5, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c5, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bccccc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bccccc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bccccc - SUN_RCONST(1.0) / SUN_RCONST(6.0)) > TOL) ? SUNFALSE
@@ -3319,38 +3426,39 @@ static sunbooleantype __order6a(sunrealtype* b, sunrealtype* c1,
 }
 
 /* (b.*c1.*c2.*c3)'*(A*c4) = 1/12 */
-static sunbooleantype __order6b(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype* c3,
-                                sunrealtype** A, sunrealtype* c4, int s)
+static sunbooleantype arkode_butcher_order6b(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             sunrealtype** A, sunrealtype* c4,
+                                             int s)
 {
   sunrealtype bcccAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(b, c1, s, tmp1))
+  if (arkode_butcher_vv(b, c1, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c2, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c2, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c3, tmp2, s, tmp1))
+  if (arkode_butcher_vv(c3, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A, c4, s, tmp2))
+  if (arkode_butcher_mv(A, c4, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(tmp1, tmp2, s, &bcccAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(tmp1, tmp2, s, &bcccAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bcccAc - SUN_RCONST(1.0) / SUN_RCONST(12.0)) > TOL) ? SUNFALSE
@@ -3358,43 +3466,44 @@ static sunbooleantype __order6b(sunrealtype* b, sunrealtype* c1,
 }
 
 /* b'*(c1.*(A1*c2).*(A2*c3)) = 1/24 */
-static sunbooleantype __order6c(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype** A1, sunrealtype* c2,
-                                sunrealtype** A2, sunrealtype* c3, int s)
+static sunbooleantype arkode_butcher_order6c(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A1, sunrealtype* c2,
+                                             sunrealtype** A2, sunrealtype* c3,
+                                             int s)
 {
   sunrealtype bcAc2;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp3 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A2, c3, s, tmp1))
+  if (arkode_butcher_mv(A2, c3, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__mv(A1, c2, s, tmp2))
+  if (arkode_butcher_mv(A1, c2, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__vv(tmp1, tmp2, s, tmp3))
+  if (arkode_butcher_vv(tmp1, tmp2, s, tmp3))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__vv(c1, tmp3, s, tmp1))
+  if (arkode_butcher_vv(c1, tmp3, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp1, s, &bcAc2)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp1, s, &bcAc2)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   free(tmp3);
@@ -3403,43 +3512,44 @@ static sunbooleantype __order6c(sunrealtype* b, sunrealtype* c1,
 }
 
 /* (b.*c1.*c2)'*A*(c3.*c4) = 1/18 */
-static sunbooleantype __order6d(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype** A,
-                                sunrealtype* c3, sunrealtype* c4, int s)
+static sunbooleantype arkode_butcher_order6d(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype** A,
+                                             sunrealtype* c3, sunrealtype* c4,
+                                             int s)
 {
   sunrealtype bccAcc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp3 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c3, c4, s, tmp1))
+  if (arkode_butcher_vv(c3, c4, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__mv(A, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__vv(c1, c2, s, tmp1))
+  if (arkode_butcher_vv(c1, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__vv(b, tmp1, s, tmp3))
+  if (arkode_butcher_vv(b, tmp1, s, tmp3))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__dot(tmp2, tmp3, s, &bccAcc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(tmp2, tmp3, s, &bccAcc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   free(tmp3);
@@ -3448,43 +3558,44 @@ static sunbooleantype __order6d(sunrealtype* b, sunrealtype* c1,
 }
 
 /* (b.*(c1.*c2))'*A1*A2*c3 = 1/36 */
-static sunbooleantype __order6e(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c3, int s)
+static sunbooleantype arkode_butcher_order6e(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c3,
+                                             int s)
 {
   sunrealtype bccAAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp3 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c1, c2, s, tmp1))
+  if (arkode_butcher_vv(c1, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__vv(b, tmp1, s, tmp2))
+  if (arkode_butcher_vv(b, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__mv(A2, c3, s, tmp1))
+  if (arkode_butcher_mv(A2, c3, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp1, s, tmp3))
+  if (arkode_butcher_mv(A1, tmp1, s, tmp3))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__dot(tmp2, tmp3, s, &bccAAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(tmp2, tmp3, s, &bccAAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   free(tmp3);
@@ -3493,43 +3604,44 @@ static sunbooleantype __order6e(sunrealtype* b, sunrealtype* c1,
 }
 
 /* b'*((A1*A2*c1).*(A3*c2)) = 1/72 */
-static sunbooleantype __order6f(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c1,
-                                sunrealtype** A3, sunrealtype* c2, int s)
+static sunbooleantype arkode_butcher_order6f(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c1,
+                                             sunrealtype** A3, sunrealtype* c2,
+                                             int s)
 {
   sunrealtype bAAcAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp3 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A2, c1, s, tmp1))
+  if (arkode_butcher_mv(A2, c1, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__mv(A3, c2, s, tmp1))
+  if (arkode_butcher_mv(A3, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__vv(tmp1, tmp2, s, tmp3))
+  if (arkode_butcher_vv(tmp1, tmp2, s, tmp3))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp3, s, &bAAcAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp3, s, &bAAcAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   free(tmp3);
@@ -3538,38 +3650,39 @@ static sunbooleantype __order6f(sunrealtype* b, sunrealtype** A1,
 }
 
 /* b'*(c1.*(A*(c2.*c3.*c4))) = 1/24 */
-static sunbooleantype __order6g(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype** A, sunrealtype* c2,
-                                sunrealtype* c3, sunrealtype* c4, int s)
+static sunbooleantype arkode_butcher_order6g(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A, sunrealtype* c2,
+                                             sunrealtype* c3, sunrealtype* c4,
+                                             int s)
 {
   sunrealtype bcAccc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c2, c3, s, tmp1))
+  if (arkode_butcher_vv(c2, c3, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c4, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c4, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A, tmp2, s, tmp1))
+  if (arkode_butcher_mv(A, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c1, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bcAccc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bcAccc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bcAccc - SUN_RCONST(1.0) / SUN_RCONST(24.0)) > TOL) ? SUNFALSE
@@ -3577,38 +3690,39 @@ static sunbooleantype __order6g(sunrealtype* b, sunrealtype* c1,
 }
 
 /* b'*(c1.*(A1*(c2.*(A2*c3)))) = 1/48 */
-static sunbooleantype __order6h(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype** A1, sunrealtype* c2,
-                                sunrealtype** A2, sunrealtype* c3, int s)
+static sunbooleantype arkode_butcher_order6h(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A1, sunrealtype* c2,
+                                             sunrealtype** A2, sunrealtype* c3,
+                                             int s)
 {
   sunrealtype bcAcAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A2, c3, s, tmp1))
+  if (arkode_butcher_mv(A2, c3, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c2, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c2, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp2, s, tmp1))
+  if (arkode_butcher_mv(A1, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c1, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bcAcAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bcAcAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bcAcAc - SUN_RCONST(1.0) / SUN_RCONST(48.0)) > TOL) ? SUNFALSE
@@ -3616,38 +3730,39 @@ static sunbooleantype __order6h(sunrealtype* b, sunrealtype* c1,
 }
 
 /* b'*(c1.*(A1*A2*(c2.*c3))) = 1/72 */
-static sunbooleantype __order6i(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype** A1, sunrealtype** A2,
-                                sunrealtype* c2, sunrealtype* c3, int s)
+static sunbooleantype arkode_butcher_order6i(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A1, sunrealtype** A2,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             int s)
 {
   sunrealtype bcAAcc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c2, c3, s, tmp1))
+  if (arkode_butcher_vv(c2, c3, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A2, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A2, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp2, s, tmp1))
+  if (arkode_butcher_mv(A1, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c1, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bcAAcc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bcAAcc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bcAAcc - SUN_RCONST(1.0) / SUN_RCONST(72.0)) > TOL) ? SUNFALSE
@@ -3655,38 +3770,39 @@ static sunbooleantype __order6i(sunrealtype* b, sunrealtype* c1,
 }
 
 /* b'*(c1.*(A1*A2*A3*c2)) = 1/144 */
-static sunbooleantype __order6j(sunrealtype* b, sunrealtype* c1,
-                                sunrealtype** A1, sunrealtype** A2,
-                                sunrealtype** A3, sunrealtype* c2, int s)
+static sunbooleantype arkode_butcher_order6j(sunrealtype* b, sunrealtype* c1,
+                                             sunrealtype** A1, sunrealtype** A2,
+                                             sunrealtype** A3, sunrealtype* c2,
+                                             int s)
 {
   sunrealtype bcAAAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A3, c2, s, tmp1))
+  if (arkode_butcher_mv(A3, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A2, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A2, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp2, s, tmp1))
+  if (arkode_butcher_mv(A1, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c1, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bcAAAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bcAAAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bcAAAc - SUN_RCONST(1.0) / SUN_RCONST(144.0)) > TOL) ? SUNFALSE
@@ -3694,38 +3810,39 @@ static sunbooleantype __order6j(sunrealtype* b, sunrealtype* c1,
 }
 
 /* b'*A*(c1.*c2.*c3.*c4) = 1/30 */
-static sunbooleantype __order6k(sunrealtype* b, sunrealtype** A,
-                                sunrealtype* c1, sunrealtype* c2,
-                                sunrealtype* c3, sunrealtype* c4, int s)
+static sunbooleantype arkode_butcher_order6k(sunrealtype* b, sunrealtype** A,
+                                             sunrealtype* c1, sunrealtype* c2,
+                                             sunrealtype* c3, sunrealtype* c4,
+                                             int s)
 {
   sunrealtype bAcccc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c1, c2, s, tmp1))
+  if (arkode_butcher_vv(c1, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c3, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c3, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c4, tmp2, s, tmp1))
+  if (arkode_butcher_vv(c4, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bAcccc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bAcccc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAcccc - SUN_RCONST(1.0) / SUN_RCONST(30.0)) > TOL) ? SUNFALSE
@@ -3733,38 +3850,39 @@ static sunbooleantype __order6k(sunrealtype* b, sunrealtype** A,
 }
 
 /* b'*A1*(c1.*c2.*(A2*c3)) = 1/60 */
-static sunbooleantype __order6l(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype* c1, sunrealtype* c2,
-                                sunrealtype** A2, sunrealtype* c3, int s)
+static sunbooleantype arkode_butcher_order6l(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype* c1, sunrealtype* c2,
+                                             sunrealtype** A2, sunrealtype* c3,
+                                             int s)
 {
   sunrealtype bAccAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A2, c3, s, tmp1))
+  if (arkode_butcher_mv(A2, c3, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c2, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c2, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c1, tmp2, s, tmp1))
+  if (arkode_butcher_vv(c1, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bAccAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bAccAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAccAc - SUN_RCONST(1.0) / SUN_RCONST(60.0)) > TOL) ? SUNFALSE
@@ -3772,42 +3890,43 @@ static sunbooleantype __order6l(sunrealtype* b, sunrealtype** A1,
 }
 
 /* b'*A1*((A2*c1).*(A3*c2)) = 1/120 */
-static sunbooleantype __order6m(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c1,
-                                sunrealtype** A3, sunrealtype* c2, int s)
+static sunbooleantype arkode_butcher_order6m(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c1,
+                                             sunrealtype** A3, sunrealtype* c2,
+                                             int s)
 {
   sunrealtype bAAcAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp3 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A3, c2, s, tmp1))
+  if (arkode_butcher_mv(A3, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__mv(A2, c1, s, tmp2))
+  if (arkode_butcher_mv(A2, c1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__vv(tmp1, tmp2, s, tmp3))
+  if (arkode_butcher_vv(tmp1, tmp2, s, tmp3))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp3, s, tmp1))
+  if (arkode_butcher_mv(A1, tmp3, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     free(tmp3);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp1, s, &bAAcAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp1, s, &bAAcAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   free(tmp3);
@@ -3816,38 +3935,39 @@ static sunbooleantype __order6m(sunrealtype* b, sunrealtype** A1,
 }
 
 /* b'*A1*(c1.*(A2*(c2.*c3))) = 1/90 */
-static sunbooleantype __order6n(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype* c1, sunrealtype** A2,
-                                sunrealtype* c2, sunrealtype* c3, int s)
+static sunbooleantype arkode_butcher_order6n(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype* c1, sunrealtype** A2,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             int s)
 {
   sunrealtype bAcAcc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c2, c3, s, tmp1))
+  if (arkode_butcher_vv(c2, c3, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A2, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A2, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c1, tmp2, s, tmp1))
+  if (arkode_butcher_vv(c1, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bAcAcc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bAcAcc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAcAcc - SUN_RCONST(1.0) / SUN_RCONST(90.0)) > TOL) ? SUNFALSE
@@ -3855,38 +3975,39 @@ static sunbooleantype __order6n(sunrealtype* b, sunrealtype** A1,
 }
 
 /* b'*A1*(c1.*(A2*A3*c2)) = 1/180 */
-static sunbooleantype __order6o(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype* c1, sunrealtype** A2,
-                                sunrealtype** A3, sunrealtype* c2, int s)
+static sunbooleantype arkode_butcher_order6o(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype* c1, sunrealtype** A2,
+                                             sunrealtype** A3, sunrealtype* c2,
+                                             int s)
 {
   sunrealtype bAcAAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A3, c2, s, tmp1))
+  if (arkode_butcher_mv(A3, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A2, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A2, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c1, tmp2, s, tmp1))
+  if (arkode_butcher_vv(c1, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bAcAAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bAcAAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAcAAc - SUN_RCONST(1.0) / SUN_RCONST(180.0)) > TOL) ? SUNFALSE
@@ -3894,38 +4015,39 @@ static sunbooleantype __order6o(sunrealtype* b, sunrealtype** A1,
 }
 
 /* b'*A1*A2*(c1.*c2.*c3) = 1/120 */
-static sunbooleantype __order6p(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c1,
-                                sunrealtype* c2, sunrealtype* c3, int s)
+static sunbooleantype arkode_butcher_order6p(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c1,
+                                             sunrealtype* c2, sunrealtype* c3,
+                                             int s)
 {
   sunrealtype bAAccc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c1, c2, s, tmp1))
+  if (arkode_butcher_vv(c1, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c3, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c3, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A2, tmp2, s, tmp1))
+  if (arkode_butcher_mv(A2, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bAAccc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bAAccc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAAccc - SUN_RCONST(1.0) / SUN_RCONST(120.0)) > TOL) ? SUNFALSE
@@ -3933,38 +4055,39 @@ static sunbooleantype __order6p(sunrealtype* b, sunrealtype** A1,
 }
 
 /* b'*A1*A2*(c1.*(A3*c2)) = 1/240 */
-static sunbooleantype __order6q(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype* c1,
-                                sunrealtype** A3, sunrealtype* c2, int s)
+static sunbooleantype arkode_butcher_order6q(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype* c1,
+                                             sunrealtype** A3, sunrealtype* c2,
+                                             int s)
 {
   sunrealtype bAAcAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A3, c2, s, tmp1))
+  if (arkode_butcher_mv(A3, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__vv(c1, tmp1, s, tmp2))
+  if (arkode_butcher_vv(c1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A2, tmp2, s, tmp1))
+  if (arkode_butcher_mv(A2, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bAAcAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bAAcAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAAcAc - SUN_RCONST(1.0) / SUN_RCONST(240.0)) > TOL) ? SUNFALSE
@@ -3972,38 +4095,39 @@ static sunbooleantype __order6q(sunrealtype* b, sunrealtype** A1,
 }
 
 /* b'*A1*A2*A3*(c1.*c2) = 1/360 */
-static sunbooleantype __order6r(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype** A3,
-                                sunrealtype* c1, sunrealtype* c2, int s)
+static sunbooleantype arkode_butcher_order6r(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype** A3,
+                                             sunrealtype* c1, sunrealtype* c2,
+                                             int s)
 {
   sunrealtype bAAAcc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__vv(c1, c2, s, tmp1))
+  if (arkode_butcher_vv(c1, c2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A3, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A3, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A2, tmp2, s, tmp1))
+  if (arkode_butcher_mv(A2, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bAAAcc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bAAAcc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAAAcc - SUN_RCONST(1.0) / SUN_RCONST(360.0)) > TOL) ? SUNFALSE
@@ -4011,38 +4135,39 @@ static sunbooleantype __order6r(sunrealtype* b, sunrealtype** A1,
 }
 
 /* b'*A1*A2*A3*A4*c = 1/720 */
-static sunbooleantype __order6s(sunrealtype* b, sunrealtype** A1,
-                                sunrealtype** A2, sunrealtype** A3,
-                                sunrealtype** A4, sunrealtype* c, int s)
+static sunbooleantype arkode_butcher_order6s(sunrealtype* b, sunrealtype** A1,
+                                             sunrealtype** A2, sunrealtype** A3,
+                                             sunrealtype** A4, sunrealtype* c,
+                                             int s)
 {
   sunrealtype bAAAAc;
   sunrealtype* tmp1 = calloc(s, sizeof(sunrealtype));
   sunrealtype* tmp2 = calloc(s, sizeof(sunrealtype));
-  if (__mv(A4, c, s, tmp1))
+  if (arkode_butcher_mv(A4, c, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A3, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A3, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A2, tmp2, s, tmp1))
+  if (arkode_butcher_mv(A2, tmp2, s, tmp1))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__mv(A1, tmp1, s, tmp2))
+  if (arkode_butcher_mv(A1, tmp1, s, tmp2))
   {
     free(tmp1);
     free(tmp2);
     return (SUNFALSE);
   }
-  if (__dot(b, tmp2, s, &bAAAAc)) { return (SUNFALSE); }
+  if (arkode_butcher_dot(b, tmp2, s, &bAAAAc)) { return (SUNFALSE); }
   free(tmp1);
   free(tmp2);
   return (SUNRabs(bAAAAc - SUN_RCONST(1.0) / SUN_RCONST(720.0)) > TOL) ? SUNFALSE
@@ -4065,12 +4190,12 @@ static int __ButcherSimplifyingAssumptions(sunrealtype** A, sunrealtype* b,
   P = 0;
   for (i = 1; i < 1000; i++)
   {
-    if (__vp(c, i - 1, s, tmp))
+    if (arkode_butcher_vp(c, i - 1, s, tmp))
     {
       free(tmp);
       return (0);
     }
-    if (__dot(b, tmp, s, &LHS))
+    if (arkode_butcher_dot(b, tmp, s, &LHS))
     {
       free(tmp);
       return (0);
@@ -4087,12 +4212,12 @@ static int __ButcherSimplifyingAssumptions(sunrealtype** A, sunrealtype* b,
     alltrue = SUNTRUE;
     for (i = 0; i < s; i++)
     {
-      if (__vp(c, k - 1, s, tmp))
+      if (arkode_butcher_vp(c, k - 1, s, tmp))
       {
         free(tmp);
         return (0);
       }
-      if (__dot(A[i], tmp, s, &LHS))
+      if (arkode_butcher_dot(A[i], tmp, s, &LHS))
       {
         free(tmp);
         return (0);

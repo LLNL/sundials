@@ -39,7 +39,7 @@
 
 /* -----------------------------------------------------------------
  * Function to create a new ARKUserControl controller
- */
+ * ----------------------------------------------------------------- */
 
 SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
                                   ARKAdaptFn hadapt, void* hadapt_data)

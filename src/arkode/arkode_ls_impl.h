@@ -11,7 +11,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKODE's linear solver interface.
+ * Implementation header file for ARKODE's linear solver
+ * interface.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKLS_IMPL_H
@@ -217,97 +218,40 @@ int arkLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
                    N_Vector tmp1, N_Vector tmp2);
 
 /* Generic linit/lsetup/lsolve/lfree interface routines for ARKODE to call */
-int arkLsInitialize(void* arkode_mem);
-
-int arkLsSetup(void* arkode_mem, int convfail, sunrealtype tpred,
+int arkLsInitialize(ARKodeMem ark_mem);
+int arkLsSetup(ARKodeMem ark_mem, int convfail, sunrealtype tpred,
                N_Vector ypred, N_Vector fpred, sunbooleantype* jcurPtr,
                N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
-
-int arkLsSolve(void* arkode_mem, N_Vector b, sunrealtype tcur, N_Vector ycur,
+int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tcur, N_Vector ycur,
                N_Vector fcur, sunrealtype eRnrm, int mnewt);
-
-int arkLsFree(void* arkode_mem);
+int arkLsFree(ARKodeMem ark_mem);
 
 /* Generic minit/msetup/mmult/msolve/mfree routines for ARKODE to call */
-int arkLsMassInitialize(void* arkode_mem);
-
-int arkLsMassSetup(void* arkode_mem, sunrealtype t, N_Vector vtemp1,
+int arkLsMassInitialize(ARKodeMem ark_mem);
+int arkLsMassSetup(ARKodeMem ark_mem, sunrealtype t, N_Vector vtemp1,
                    N_Vector vtemp2, N_Vector vtemp3);
-
 int arkLsMassMult(void* arkode_mem, N_Vector v, N_Vector Mv);
-
-int arkLsMassSolve(void* arkode_mem, N_Vector b, sunrealtype nlscoef);
-
-int arkLsMassFree(void* arkode_mem);
+int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef);
+int arkLsMassFree(ARKodeMem ark_mem);
 
 /* Auxilliary functions */
 int arkLsInitializeCounters(ARKLsMem arkls_mem);
-
 int arkLsInitializeMassCounters(ARKLsMassMem arkls_mem);
-
-int arkLs_AccessLMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
-                     ARKLsMem* arkls_mem);
-
-int arkLs_AccessMassMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
+int arkLs_AccessARKODELMem(void* arkode_mem, const char* fname,
+                           ARKodeMem* ark_mem, ARKLsMem* arkls_mem);
+int arkLs_AccessLMem(ARKodeMem ark_mem, const char* fname, ARKLsMem* arkls_mem);
+int arkLs_AccessARKODEMassMem(void* arkode_mem, const char* fname,
+                              ARKodeMem* ark_mem, ARKLsMassMem* arkls_mem);
+int arkLs_AccessMassMem(ARKodeMem ark_mem, const char* fname,
                         ARKLsMassMem* arkls_mem);
 
 /* Set/get routines called by time-stepper module */
-int arkLSSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A);
-
-int arkLSSetMassLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix M,
+int arkLSSetLinearSolver(ARKodeMem ark_mem, SUNLinearSolver LS, SUNMatrix A);
+int arkLSSetMassLinearSolver(ARKodeMem ark_mem, SUNLinearSolver LS, SUNMatrix M,
                              sunbooleantype time_dep);
-
-int arkLSSetJacFn(void* arkode_mem, ARKLsJacFn jac);
-int arkLSSetMassFn(void* arkode_mem, ARKLsMassFn mass);
-int arkLSSetEpsLin(void* arkode_mem, sunrealtype eplifac);
-int arkLSSetMassEpsLin(void* arkode_mem, sunrealtype eplifac);
-int arkLSSetNormFactor(void* arkode_mem, sunrealtype nrmfac);
-int arkLSSetMassNormFactor(void* arkode_mem, sunrealtype nrmfac);
-int arkLSSetJacEvalFrequency(void* arkode_mem, long int msbj);
-int arkLSSetLinearSolutionScaling(void* arkode_mem, sunbooleantype onoff);
-int arkLSSetPreconditioner(void* arkode_mem, ARKLsPrecSetupFn psetup,
-                           ARKLsPrecSolveFn psolve);
-int arkLSSetMassPreconditioner(void* arkode_mem, ARKLsMassPrecSetupFn psetup,
-                               ARKLsMassPrecSolveFn psolve);
-int arkLSSetJacTimes(void* arkode_mem, ARKLsJacTimesSetupFn jtsetup,
-                     ARKLsJacTimesVecFn jtimes);
-int arkLSSetJacTimesRhsFn(void* arkode_mem, ARKRhsFn jtimesRhsFn);
-int arkLSSetMassTimes(void* arkode_mem, ARKLsMassTimesSetupFn msetup,
-                      ARKLsMassTimesVecFn mtimes, void* mtimes_data);
-int arkLSSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys);
-
-int arkLSSetUserData(void* arkode_mem, void* user_data);
-int arkLSSetMassUserData(void* arkode_mem, void* user_data);
-
-int arkLSGetJac(void* arkode_mem, SUNMatrix* J);
-int arkLSGetJacTime(void* arkode_mem, sunrealtype* t_J);
-int arkLSGetJacNumSteps(void* arkode_mem, long int* nst_J);
-int arkLSGetWorkSpace(void* arkode_mem, long int* lenrwLS, long int* leniwLS);
-int arkLSGetNumJacEvals(void* arkode_mem, long int* njevals);
-int arkLSGetNumPrecEvals(void* arkode_mem, long int* npevals);
-int arkLSGetNumPrecSolves(void* arkode_mem, long int* npsolves);
-int arkLSGetNumLinIters(void* arkode_mem, long int* nliters);
-int arkLSGetNumConvFails(void* arkode_mem, long int* nlcfails);
-int arkLSGetNumJTSetupEvals(void* arkode_mem, long int* njtsetups);
-int arkLSGetNumJtimesEvals(void* arkode_mem, long int* njvevals);
-int arkLSGetNumRhsEvals(void* arkode_mem, long int* nfevalsLS);
-int arkLSGetLastFlag(void* arkode_mem, long int* flag);
-
-int arkLSGetMassWorkSpace(void* arkode_mem, long int* lenrwMLS,
-                          long int* leniwMLS);
-int arkLSGetNumMassSetups(void* arkode_mem, long int* nmsetups);
-int arkLSGetNumMassMult(void* arkode_mem, long int* nmvevals);
-int arkLSGetNumMassMatvecSetups(void* arkode_mem, long int* nmvsetups);
-int arkLSGetNumMassSolves(void* arkode_mem, long int* nmsolves);
-int arkLSGetNumMassPrecEvals(void* arkode_mem, long int* nmpevals);
-int arkLSGetNumMassPrecSolves(void* arkode_mem, long int* nmpsolves);
-int arkLSGetNumMassIters(void* arkode_mem, long int* nmiters);
-int arkLSGetNumMassConvFails(void* arkode_mem, long int* nmcfails);
-int arkLSGetNumMTSetups(void* arkode_mem, long int* nmtsetups);
-int arkLSGetCurrentMassMatrix(void* arkode_mem, SUNMatrix* M);
-int arkLSGetLastMassFlag(void* arkode_mem, long int* flag);
-
-char* arkLSGetReturnFlagName(long int flag);
+int arkLSSetUserData(ARKodeMem ark_mem, void* user_data);
+int arkLSSetMassUserData(ARKodeMem ark_mem, void* user_data);
+int arkLSGetCurrentMassMatrix(ARKodeMem ark_mem, SUNMatrix* M);
 
 /*---------------------------------------------------------------
   Error Messages

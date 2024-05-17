@@ -17,15 +17,12 @@
 Relaxation Methods
 ==================
 
-This section describes user-callable functions for applying relaxation methods
-with ARKStep. For more information on relaxation Runge--Kutta methods see
-:numref:`ARKODE.Mathematics.Relaxation`.
+This section describes ARKStep-specific user-callable functions for applying
+relaxation methods with ARKStep.  All of these routines have been deprecated in
+favor of :ref:`shared ARKODE-level routines <ARKODE.Usage.Relaxation>`, but
+this documentation will be retained for as long as these functions are present
+in the library.
 
-.. note::
-
-   Relaxation support as not been evaluated with non-identity mass matrices.
-   While this usage mode is supported, feedback from users who explore this
-   combination would be appreciated.
 
 Enabling or Disabling Relaxation
 --------------------------------
@@ -72,6 +69,11 @@ Enabling or Disabling Relaxation
 
    .. versionadded:: 5.6.0
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetRelaxFn` instead.
+
+
 Optional Input Functions
 ------------------------
 
@@ -96,6 +98,11 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetRelaxEtaFail` instead.
+
+
 .. c:function:: int ARKStepSetRelaxLowerBound(void* arkode_mem, sunrealtype lower)
 
    Sets the smallest acceptable value for the relaxation parameter.
@@ -116,6 +123,11 @@ relaxation.
                                ``NULL``
 
    .. versionadded:: 5.6.0
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetRelaxLowerBound` instead.
+
 
 .. c:function:: int ARKStepSetRelaxUpperBound(void* arkode_mem, sunrealtype upper)
 
@@ -138,6 +150,11 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetRelaxUpperBound` instead.
+
+
 .. c:function:: int ARKStepSetRelaxMaxFails(void* arkode_mem, int max_fails)
 
    Sets the maximum number of times applying relaxation can fail within a step
@@ -156,6 +173,11 @@ relaxation.
                                ``NULL``
 
    .. versionadded:: 5.6.0
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetRelaxMaxFails` instead.
+
 
 .. c:function:: int ARKStepSetRelaxMaxIters(void* arkode_mem, int max_iters)
 
@@ -180,6 +202,11 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetRelaxMaxIters` instead.
+
+
 .. c:function:: int ARKStepSetRelaxSolver(void* arkode_mem, ARKRelaxSolver solver)
 
    Sets the nonlinear solver method used to compute the relaxation parameter.
@@ -197,6 +224,11 @@ relaxation.
    :retval ARK_ILL_INPUT: an invalid solver option was provided
 
    .. versionadded:: 5.6.0
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetRelaxSolver` instead.
+
 
 .. c:function:: int ARKStepSetRelaxResTol(void* arkode_mem, sunrealtype res_tol)
 
@@ -222,6 +254,11 @@ relaxation.
                                ``NULL``
 
    .. versionadded:: 5.6.0
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetRelaxResTol` instead.
+
 
 .. c:function:: int ARKStepSetRelaxTol(void* arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol)
 
@@ -249,6 +286,11 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeSetRelaxTol` instead.
+
+
 Optional Output Functions
 -------------------------
 
@@ -269,6 +311,11 @@ about the performance of the relaxation method.
 
    .. versionadded:: 5.6.0
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumRelaxFnEvals` instead.
+
+
 .. c:function:: int ARKStepGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals)
 
    Get the number of times the user's relaxation Jacobian was evaluated.
@@ -282,6 +329,11 @@ about the performance of the relaxation method.
                                ``NULL``
 
    .. versionadded:: 5.6.0
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumRelaxJacEvals` instead.
+
 
 .. c:function:: int ARKStepGetNumRelaxFails(void* arkode_mem, long int* fails)
 
@@ -302,6 +354,10 @@ about the performance of the relaxation method.
 
    .. versionadded:: 5.6.0
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumRelaxFails` instead.
+
 
 .. c:function:: int ARKStepGetNumRelaxBoundFails(void* arkode_mem, long int* fails)
 
@@ -318,6 +374,11 @@ about the performance of the relaxation method.
 
    .. versionadded:: 5.6.0
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumRelaxBoundFails` instead.
+
+
 .. c:function:: int ARKStepGetNumRelaxSolveFails(void* arkode_mem, long int* fails)
 
    Get the number of times the relaxation parameter nonlinear solver failed.
@@ -332,6 +393,11 @@ about the performance of the relaxation method.
 
    .. versionadded:: 5.6.0
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumRelaxSolveFails` instead.
+
+
 .. c:function:: int ARKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
 
    Get the number of relaxation parameter nonlinear solver iterations.
@@ -345,3 +411,7 @@ about the performance of the relaxation method.
                                ``NULL``
 
    .. versionadded:: 5.6.0
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumRelaxSolveIters` instead.

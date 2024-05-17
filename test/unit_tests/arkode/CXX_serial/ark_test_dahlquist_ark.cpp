@@ -468,16 +468,16 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
   if (check_flag((void*)arkstep_mem, "ARKStepCreate", 0)) { return 1; }
 
   // Set user data
-  flag = ARKStepSetUserData(arkstep_mem, &prob_data);
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) { return 1; }
+  flag = ARKodeSetUserData(arkstep_mem, &prob_data);
+  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   // Specify tolerances
-  flag = ARKStepSStolerances(arkstep_mem, prob_opts.reltol, prob_opts.abstol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(arkstep_mem, prob_opts.reltol, prob_opts.abstol);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   // Specify fixed time step size
-  flag = ARKStepSetFixedStep(arkstep_mem, prob_opts.h);
-  if (check_flag(&flag, "ARKStepSetFixedStep", 1)) { return 1; }
+  flag = ARKodeSetFixedStep(arkstep_mem, prob_opts.h);
+  if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
   // Attach Butcher tables (ignore actual method order)
   flag = ARKStepSetTables(arkstep_mem, 1, 0, Bi, Be);
@@ -486,8 +486,8 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
   // Lagrange interpolant (removes additional RHS evaluation with DIRK methods)
   if (prob_opts.i_type == interp_type::lagrange)
   {
-    flag = ARKStepSetInterpolantType(arkstep_mem, ARK_INTERP_LAGRANGE);
-    if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) { return 1; }
+    flag = ARKodeSetInterpolantType(arkstep_mem, ARK_INTERP_LAGRANGE);
+    if (check_flag(&flag, "ARKodeSetInterpolantType", 1)) { return 1; }
   }
 
   // Create matrix and linear solver (if necessary)
@@ -504,20 +504,20 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     if (check_flag((void*)LS, "SUNLinSol_Dense", 0)) { return 1; }
 
     // Attach linear solver
-    flag = ARKStepSetLinearSolver(arkstep_mem, LS, A);
-    if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
+    flag = ARKodeSetLinearSolver(arkstep_mem, LS, A);
+    if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
     // Set Jacobian function
-    flag = ARKStepSetJacFn(arkstep_mem, Ji);
-    if (check_flag(&flag, "ARKStepSetJacFn", 1)) { return 1; }
+    flag = ARKodeSetJacFn(arkstep_mem, Ji);
+    if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
 
     // Specify linearly implicit RHS, with non-time-dependent Jacobian
-    flag = ARKStepSetLinear(arkstep_mem, 0);
-    if (check_flag(&flag, "ARKStepSetLinear", 1)) { return 1; }
+    flag = ARKodeSetLinear(arkstep_mem, 0);
+    if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
 
     // Specify implicit predictor method
-    flag = ARKStepSetPredictorMethod(arkstep_mem, prob_opts.p_type);
-    if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) { return 1; }
+    flag = ARKodeSetPredictorMethod(arkstep_mem, prob_opts.p_type);
+    if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) { return 1; }
   }
 
   // Create mass matrix and linear solver (if necessary)
@@ -536,11 +536,11 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     int time_dep = 0;
     if (prob_data.m_type == mass_matrix_type::time_dependent) { time_dep = 1; }
 
-    flag = ARKStepSetMassLinearSolver(arkstep_mem, MLS, M, time_dep);
-    if (check_flag(&flag, "ARKStepSetMassLinearSolver", 1)) { return 1; }
+    flag = ARKodeSetMassLinearSolver(arkstep_mem, MLS, M, time_dep);
+    if (check_flag(&flag, "ARKodeSetMassLinearSolver", 1)) { return 1; }
 
-    flag = ARKStepSetMassFn(arkstep_mem, MassMatrix);
-    if (check_flag(&flag, "ARKStepSetMassFn", 1)) { return 1; }
+    flag = ARKodeSetMassFn(arkstep_mem, MassMatrix);
+    if (check_flag(&flag, "ARKodeSetMassFn", 1)) { return 1; }
   }
 
   // --------------
@@ -557,8 +557,8 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     std::cout << "--------------------" << std::endl;
 
     // Advance in time
-    flag = ARKStepEvolve(arkstep_mem, t_out, y, &t_ret, ARK_ONE_STEP);
-    if (check_flag(&flag, "ARKStepEvolve", 1)) { return 1; }
+    flag = ARKodeEvolve(arkstep_mem, t_out, y, &t_ret, ARK_ONE_STEP);
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
 
     // Update output time
     t_out += prob_opts.h;
@@ -592,11 +592,11 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     std::cout << "Dense Output" << std::endl;
 
     sunrealtype h_last;
-    flag = ARKStepGetLastStep(arkstep_mem, &h_last);
-    if (check_flag(&flag, "ARKStepGetLastStep", 1)) { return 1; }
+    flag = ARKodeGetLastStep(arkstep_mem, &h_last);
+    if (check_flag(&flag, "ARKodeGetLastStep", 1)) { return 1; }
 
-    flag = ARKStepGetDky(arkstep_mem, t_ret - h_last / TWO, 0, y);
-    if (check_flag(&flag, "ARKStepGetDky", 1)) { return 1; }
+    flag = ARKodeGetDky(arkstep_mem, t_ret - h_last / TWO, 0, y);
+    if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
 
     // Stiffly accurate (and FSAL) methods do not require an additional RHS
     // evaluation to get the new RHS value at the end of a step for dense
@@ -652,8 +652,8 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
   if (numfails == 0)
   {
     // Advance in time
-    flag = ARKStepEvolve(arkstep_mem, t_out, y, &t_ret, ARK_ONE_STEP);
-    if (check_flag(&flag, "ARKStepEvolve", 1)) { return 1; }
+    flag = ARKodeEvolve(arkstep_mem, t_out, y, &t_ret, ARK_ONE_STEP);
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
 
     // Update output time
     t_out += prob_opts.h;
@@ -675,7 +675,7 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
   // Clean up
   // --------
 
-  ARKStepFree(&arkstep_mem);
+  ARKodeFree(&arkstep_mem);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   SUNLinSolFree(MLS);
@@ -746,8 +746,8 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
   // Get number of steps and nonlinear solver iterations
   long int nst = 0;
 
-  flag = ARKStepGetNumSteps(arkstep_mem, &nst);
-  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) { return 1; }
+  flag = ARKodeGetNumSteps(arkstep_mem, &nst);
+  if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
 
   long int nni            = 0;
   long int extra_fe_evals = 0;
@@ -755,8 +755,8 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
 
   if (prob_opts.r_type == rk_type::impl || prob_opts.r_type == rk_type::imex)
   {
-    flag = ARKStepGetNumNonlinSolvIters(arkstep_mem, &nni);
-    if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) { return 1; }
+    flag = ARKodeGetNumNonlinSolvIters(arkstep_mem, &nni);
+    if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
   }
 
   // Expected number of explicit functions evaluations
@@ -829,8 +829,8 @@ int check_rhs_evals(rk_type r_type, void* arkstep_mem, long int nfe_expected,
   int flag = 0;
 
   long int nst;
-  flag = ARKStepGetNumSteps(arkstep_mem, &nst);
-  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) { return 1; }
+  flag = ARKodeGetNumSteps(arkstep_mem, &nst);
+  if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
 
   long int nfe, nfi;
   flag = ARKStepGetNumRhsEvals(arkstep_mem, &nfe, &nfi);

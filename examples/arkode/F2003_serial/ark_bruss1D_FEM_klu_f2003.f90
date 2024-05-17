@@ -1166,15 +1166,15 @@ program main
      stop 1
   end if
 
-  ierr = FARKStepSetLinearSolver(arkode_mem, sunls_A, sunmat_A)
+  ierr = FARKodeSetLinearSolver(arkode_mem, sunls_A, sunmat_A)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepSetLinearSolver'
+     print *, 'Error in FARKodeSetLinearSolver'
      stop 1
   end if
 
-  ierr = FARKStepSetJacFn(arkode_mem, c_funloc(Jac))
+  ierr = FARKodeSetJacFn(arkode_mem, c_funloc(Jac))
   if (ierr /= 0) then
-     print *, 'Error in FARKStepSetJacFn'
+     print *, 'Error in FARKodeSetJacFn'
      stop 1
   end if
 
@@ -1185,15 +1185,15 @@ program main
   end if
 
   time_dep = 0
-  ierr = FARKStepSetMassLinearSolver(arkode_mem, sunls_M, sunmat_M, time_dep)
+  ierr = FARKodeSetMassLinearSolver(arkode_mem, sunls_M, sunmat_M, time_dep)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepSetMassLinearSolver'
+     print *, 'Error in FARKodeSetMassLinearSolver'
      stop 1
   end if
 
-  ierr = FARKStepSetMassFn(arkode_mem, c_funloc(Mass))
+  ierr = FARKodeSetMassFn(arkode_mem, c_funloc(Mass))
   if (ierr /= 0) then
-     print *, 'Error in FARKStepSetMassFn'
+     print *, 'Error in FARKodeSetMassFn'
      stop 1
   end if
 
@@ -1201,24 +1201,24 @@ program main
   rtol = 1.0d-6
   atol = 1.0d-11
 
-  ierr = FARKStepSStolerances(arkode_mem, rtol, atol)
+  ierr = FARKodeSStolerances(arkode_mem, rtol, atol)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepSStolerances, ierr = ', ierr, '; halting'
+     print *, 'Error in FARKodeSStolerances, ierr = ', ierr, '; halting'
      stop 1
   end if
 
   ! set residual tolerance with the same atol as above
-  ierr = FARKStepResStolerance(arkode_mem, atol)
+  ierr = FARKodeResStolerance(arkode_mem, atol)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepResStolerance, ierr = ', ierr, '; halting'
+     print *, 'Error in FARKodeResStolerance, ierr = ', ierr, '; halting'
      stop 1
   end if
 
   ! Set maximum number of internal time steps
   mxsteps = 1000
-  ierr = FARKStepSetMaxNumSteps(arkode_mem, mxsteps)
+  ierr = FARKodeSetMaxNumSteps(arkode_mem, mxsteps)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepSetNonlinConvCoef'
+     print *, 'Error in FARKodeSetNonlinConvCoef'
      stop 1
   end if
 
@@ -1238,9 +1238,9 @@ program main
      print *, 'Error in FSUNDIALSFileOpen'
      stop 1
   end if
-  ierr = FARKStepWriteParameters(arkode_mem, outstr)
+  ierr = FARKodeWriteParameters(arkode_mem, outstr)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepWriteParameters'
+     print *, 'Error in FARKodeWriteParameters'
      stop 1
   end if
   ierr = FSUNDIALSFileClose(outstr)
@@ -1262,16 +1262,16 @@ program main
      ! set the next output time
      tout = min(tout + dtout, tend)
 
-     ierr = FARKStepSetStopTime(arkode_mem, tout)
+     ierr = FARKodeSetStopTime(arkode_mem, tout)
      if (ierr /= 0) then
-        print *, 'Error in FARKStepSetStopTime, ierr = ', ierr, '; halting'
+        print *, 'Error in FARKodeSetStopTime, ierr = ', ierr, '; halting'
         stop 1
      end if
 
-     ! call ARKStep
-     ierr = FARKStepEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
+     ! call ARKodeEvolve
+     ierr = FARKodeEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
      if (ierr < 0) then
-        print *, 'Error in FARKStepEvolve, ierr = ', ierr, '; halting'
+        print *, 'Error in FARKodeEvolve, ierr = ', ierr, '; halting'
         stop 1
      end if
 
@@ -1292,7 +1292,7 @@ program main
   call ARKStepStats(arkode_mem)
 
   ! clean up
-  call FARKStepFree(arkode_mem)
+  call FARKodeFree(arkode_mem)
   call FN_VDestroy(sunvec_y)
   call FN_VDestroy(sunvec_u)
   call FN_VDestroy(sunvec_v)
@@ -1344,15 +1344,15 @@ subroutine ARKStepStats(arkode_mem)
 
   !======= Internals ============
 
-  ierr = FARKStepGetNumSteps(arkode_mem, nsteps)
+  ierr = FARKodeGetNumSteps(arkode_mem, nsteps)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepGetNumSteps, retval = ', ierr, '; halting'
+     print *, 'Error in FARKodeGetNumSteps, retval = ', ierr, '; halting'
      stop 1
   end if
 
-  ierr = FARKStepGetNumStepAttempts(arkode_mem, nst_a)
+  ierr = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepGetNumStepAttempts, retval = ', ierr, '; halting'
+     print *, 'Error in FARKodeGetNumStepAttempts, retval = ', ierr, '; halting'
      stop 1
   end if
 
@@ -1362,57 +1362,57 @@ subroutine ARKStepStats(arkode_mem)
      stop 1
   end if
 
-  ierr = FARKStepGetLastStep(arkode_mem, hlast)
+  ierr = FARKodeGetLastStep(arkode_mem, hlast)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepGetLastStep, retval = ', ierr, '; halting'
+     print *, 'Error in FARKodeGetLastStep, retval = ', ierr, '; halting'
      stop 1
   end if
 
-  ierr = FARKStepGetCurrentStep(arkode_mem, hcur)
+  ierr = FARKodeGetCurrentStep(arkode_mem, hcur)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepGetCurrentStep, retval = ', ierr, '; halting'
+     print *, 'Error in FARKodeGetCurrentStep, retval = ', ierr, '; halting'
      stop 1
   end if
 
-  ierr = FARKStepGetCurrentTime(arkode_mem, tcur)
+  ierr = FARKodeGetCurrentTime(arkode_mem, tcur)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepGetCurrentTime, retval = ', ierr, '; halting'
+     print *, 'Error in FARKodeGetCurrentTime, retval = ', ierr, '; halting'
      stop 1
   end if
 
-  ierr = FARKStepGetNumLinSolvSetups(arkode_mem, nlinsetups)
+  ierr = FARKodeGetNumLinSolvSetups(arkode_mem, nlinsetups)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepGetNumLinSolvSetups, retval = ', ierr, '; halting'
+     print *, 'Error in FARKodeGetNumLinSolvSetups, retval = ', ierr, '; halting'
      stop 1
   end if
 
-  ierr = FARKStepGetNumErrTestFails(arkode_mem, netfails)
+  ierr = FARKodeGetNumErrTestFails(arkode_mem, netfails)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepGetNumErrTestFails, retval = ', ierr, '; halting'
+     print *, 'Error in FARKodeGetNumErrTestFails, retval = ', ierr, '; halting'
      stop 1
   end if
 
-  ierr = FARKStepGetNumNonlinSolvIters(arkode_mem, nniters)
+  ierr = FARKodeGetNumNonlinSolvIters(arkode_mem, nniters)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepGetNumNonlinSolvIters, retval = ', ierr, '; halting'
+     print *, 'Error in FARKodeGetNumNonlinSolvIters, retval = ', ierr, '; halting'
      stop 1
   end if
 
-  ierr = FARKStepGetNumNonlinSolvConvFails(arkode_mem, nncfails)
+  ierr = FARKodeGetNumNonlinSolvConvFails(arkode_mem, nncfails)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepGetNumNonlinSolvConvFails, retval = ', ierr, '; halting'
+     print *, 'Error in FARKodeGetNumNonlinSolvConvFails, retval = ', ierr, '; halting'
      stop 1
   end if
 
-  ierr = FARKStepGetNumJacEvals(arkode_mem, njacevals)
+  ierr = FARKodeGetNumJacEvals(arkode_mem, njacevals)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepGetNumJacEvals, retval = ', ierr, '; halting'
+     print *, 'Error in FARKodeGetNumJacEvals, retval = ', ierr, '; halting'
      stop 1
   end if
 
-  ierr = FARKStepGetNumMassSetups(arkode_mem, nmassevals)
+  ierr = FARKodeGetNumMassSetups(arkode_mem, nmassevals)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepGetNumMassSetups, retval = ', ierr, '; halting'
+     print *, 'Error in FARKodeGetNumMassSetups, retval = ', ierr, '; halting'
      stop 1
   end if
 

@@ -543,8 +543,8 @@ int sunCompareTimes(const void* l, const void* r)
   double left_max;
   double right_max;
 
-  const SUNHashMapKeyValue left  = *((SUNHashMapKeyValue*)l);
-  const SUNHashMapKeyValue right = *((SUNHashMapKeyValue*)r);
+  const SUNHashMapKeyValue left  = *((const SUNHashMapKeyValue*)l);
+  const SUNHashMapKeyValue right = *((const SUNHashMapKeyValue*)r);
 
   if (left == NULL && right == NULL) { return 0; }
   if (left == NULL) { return 1; }

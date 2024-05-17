@@ -221,6 +221,10 @@ if(SUNDIALS_TEST_UNITTESTS)
   add_subdirectory(test/unit_tests)
 endif()
 
+if(SUNDIALS_ENABLE_EXTERNAL_ADDONS)
+  add_subdirectory(external)
+endif()
+
 # ===============================================================
 # Install configuration header files and license file.
 # ===============================================================

@@ -20,13 +20,18 @@ Naming
 All exported symbols that will be publically available must be namespaced
 appropriately!
 
-- ``SUN_`` or ``SUNDIALS_`` for macros
-- ``sun`` for typedef's to native types (e.g., ``sunindextype``)
-- ``SUN`` for public functions that are not class functions (see
-  :numref:`Style.Classes` for class/struct naming conventions)
-- ``sun`` for private functions that are non-native.
-- ``sundials::`` for C++ code (nesting under `sundials::` is OK)
-- ``sundials::<somename>::impl`` for C++ code that is private (implementation
+* ``SUN_`` or ``SUNDIALS_`` for macros
+
+* ``sun`` for typedef's to native types (e.g., ``sunindextype``)
+
+* ``SUN`` for public functions that are not class functions (see
+  below for class/struct naming conventions)
+
+* ``sun`` for private functions that are non-native.
+
+* ``sundials::`` for C++ code (nesting under `sundials::` is OK)
+
+* ``sundials::<somename>::impl`` for C++ code that is private (implementation
   only)
 
 Generally Pascal case (e.g. ``DoSomething``) is used for public names and
@@ -184,8 +189,9 @@ Coding Conventions and Rules
 
 #. Comments should use proper spelling and grammar.
 
-#. Following the Google Style Guide [GoogleStyle]_, TODO comments are used to note
-   code that is "temporary, a short-term solution, or good-enough but not perfect."
+#. Following the `Google Style Guide <https://google.github.io/styleguide/cppguide.html>`_,
+   TODO comments are used to note code that is "temporary, a short-term solution,
+   or good-enough but not perfect."
 
    A consistent TODO comment format provides an easy to search for keyword with
    details on how to get more information. TODO comments should start with ``TODO``
@@ -369,7 +375,7 @@ Clang-format might produce something like:
 
    MyObject::callAFunctionOfSorts().doSomething().doAnotherThing()
          .doSomethingElse();
-```
+
 
 unless you add the `//`.
 
@@ -402,30 +408,3 @@ There are other scenarios (e.g., a function call with a lot of parameters) where
 ..   };
 
 .. See the clang-tidy documentation for more details.
-
-Indentation
-^^^^^^^^^^^
-
-Spaces not tabs
-
-Comments
---------
-
-TODO Comments
-^^^^^^^^^^^^^
-
-Following the `Google Style Guide <https://google.github.io/styleguide/>`_ , TODO comments are used
-to note code that is "temporary, a short-term solution, or good-enough but not perfect."
-
-A consistent TODO comment format provides an easy to search for keyword with details on how to get
-more information. TODO comments should start with ``TODO`` followed by a unique identifier, enclosed
-in parentheses, for the person most knowledgeable about the issue and a brief description of the
-TODO item. Generally, these comments should be used sparingly and are not a substitute for creating
-an issue or bug report. When applicable, the comment should include the relevant issue or bug report
-number.
-
-Examples:
-
-.. code-block:: c
-
-   /* TODO(DJG): Update to new API in the next major release (Issue #256) */
