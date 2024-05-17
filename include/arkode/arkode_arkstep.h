@@ -30,8 +30,9 @@ extern "C" {
 #endif
 
 /* Callback to access delta */
-typedef int (*ARKStepAccessDeltaFn)(long int step, int stage, int iter,
-                                    N_Vector delta, void* user_data);
+typedef int (*ARKStepAccessFn)(long int step, int stage, int iter,
+                               N_Vector delta, N_Vector ls_res,
+                               N_Vector ls_res2, void* user_data);
 
 /* -----------------
  * ARKStep Constants
@@ -106,7 +107,7 @@ SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void* arkode_mem,
                                                      MRIStepInnerStepper* stepper);
 
 SUNDIALS_EXPORT
-int ARKStepSetAccessDeltaFn(void* arkode_mem, ARKStepAccessDeltaFn access_fn);
+int ARKStepSetAccessFn(void* arkode_mem, ARKStepAccessFn access_fn);
 
 /* --------------------------------------------------------------------------
  * Deprecated Functions -- all are superseded by shared ARKODE-level routines
