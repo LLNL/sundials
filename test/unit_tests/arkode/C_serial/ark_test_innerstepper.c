@@ -32,8 +32,7 @@
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 
-static int ode_slow_rhs(sunrealtype t, N_Vector y, N_Vector ydot,
-                        void* user_data)
+static int ode_slow_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* y_data    = N_VGetArrayPointer(ydot);
   sunrealtype* ydot_data = N_VGetArrayPointer(ydot);

@@ -1933,7 +1933,7 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
 {
   int flag;
   sunrealtype max = ZERO;
-  bool outproc = (udata->myid_c == 0);
+  bool outproc    = (udata->myid_c == 0);
 
   if (udata->output > 0)
   {

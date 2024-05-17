@@ -399,8 +399,7 @@ static int check_matrix_entry_csr(SUNMatrix A, sunrealtype val, sunrealtype tol)
   return failure > 0;
 }
 
-static int check_matrix_entry_dense(SUNMatrix A, sunrealtype val,
-                                    sunrealtype tol)
+static int check_matrix_entry_dense(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   int failure{0};
   auto Amat{
