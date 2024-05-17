@@ -21,9 +21,9 @@
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_math.h>
 
-#include "arkode_lsrkstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "arkode_lsrkstep_impl.h"
 
 /*===============================================================
   Exported functions
@@ -90,16 +90,16 @@ void* LSRKStepCreate(ARKRhsFn fe, sunrealtype t0, N_Vector y0, SUNContext sunctx
   memset(step_mem, 0, sizeof(struct ARKodeLSRKStepMemRec));
 
   /* Attach step_mem structure and function pointers to ark_mem */
-  ark_mem->step_init                = lsrkStep_Init;
-  ark_mem->step_fullrhs             = lsrkStep_FullRHS;
-  ark_mem->step                     = lsrkStep_TakeStep;
-  ark_mem->step_printallstats       = lsrkStep_PrintAllStats;
-  ark_mem->step_writeparameters     = lsrkStep_WriteParameters;
-  ark_mem->step_resize              = lsrkStep_Resize;
-  ark_mem->step_free                = lsrkStep_Free;
-  ark_mem->step_printmem            = lsrkStep_PrintMem;
-  ark_mem->step_setdefaults         = lsrkStep_SetDefaults;
-  ark_mem->step_mem                 = (void*)step_mem;
+  ark_mem->step_init            = lsrkStep_Init;
+  ark_mem->step_fullrhs         = lsrkStep_FullRHS;
+  ark_mem->step                 = lsrkStep_TakeStep;
+  ark_mem->step_printallstats   = lsrkStep_PrintAllStats;
+  ark_mem->step_writeparameters = lsrkStep_WriteParameters;
+  ark_mem->step_resize          = lsrkStep_Resize;
+  ark_mem->step_free            = lsrkStep_Free;
+  ark_mem->step_printmem        = lsrkStep_PrintMem;
+  ark_mem->step_setdefaults     = lsrkStep_SetDefaults;
+  ark_mem->step_mem             = (void*)step_mem;
 
   /* Set default values for optional inputs */
   retval = lsrkStep_SetDefaults((void*)ark_mem);
@@ -156,7 +156,8 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, sunrealtype t0, N_Vector y0)
   int retval;
 
   /* access ARKodeLSRKStepMem structure */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Check if ark_mem was allocated */
@@ -182,7 +183,7 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, sunrealtype t0, N_Vector y0)
   This routine resizes the memory within the LSRKStep module.
   ---------------------------------------------------------------*/
 int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
-                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
+                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
 {
   ARKodeLSRKStepMem step_mem;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
@@ -294,7 +295,6 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
 
   /* Allocate reusable arrays for fused vector interface */
 
-
   return (ARK_SUCCESS);
 }
 
@@ -328,7 +328,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   intermediate parts so that they do not interfere with the other two modes.
   ----------------------------------------------------------------------------*/
 int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
-                    int mode)
+                     int mode)
 {
   int retval;
   ARKodeLSRKStepMem step_mem;
@@ -446,7 +446,7 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* initialize algebraic solver convergence flag to success,
      temporal error estimate to zero */
   *nflagPtr = ARK_SUCCESS;
-  *dsmPtr = ZERO;
+  *dsmPtr   = ZERO;
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -456,7 +456,6 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   return (ARK_SUCCESS);
 }
-
 
 /*===============================================================
   Internal utility routines
@@ -469,7 +468,7 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   from void* pointer.  If either is missing it returns ARK_MEM_NULL.
   ---------------------------------------------------------------*/
 int lsrkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
-                                ARKodeMem* ark_mem, ARKodeLSRKStepMem* step_mem)
+                                 ARKodeMem* ark_mem, ARKodeLSRKStepMem* step_mem)
 {
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)
@@ -498,7 +497,7 @@ int lsrkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
   ark_mem.  If missing it returns ARK_MEM_NULL.
   ---------------------------------------------------------------*/
 int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
-                          ARKodeLSRKStepMem* step_mem)
+                           ARKodeLSRKStepMem* step_mem)
 {
   /* access ARKodeLSRKStepMem structure */
   if (ark_mem->step_mem == NULL)

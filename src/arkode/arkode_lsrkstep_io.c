@@ -57,7 +57,8 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fevals)
   int retval;
 
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
@@ -65,7 +66,6 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fevals)
 
   return (ARK_SUCCESS);
 }
-
 
 /*===============================================================
   Private functions attached to ARKODE
