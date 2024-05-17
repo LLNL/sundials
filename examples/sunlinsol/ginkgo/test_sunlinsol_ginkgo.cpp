@@ -480,7 +480,7 @@ int main(int argc, char* argv[])
       gko_matdata.remove_zeros();
       gko_matrix->read(gko_matdata);
     }
-    else { fill_matrix(gko::lend(gko_matrix)); }
+    else { fill_matrix(gko_matrix); }
     A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(
                                                                     gko_matrix),
                                                                   sunctx);
@@ -501,7 +501,7 @@ int main(int argc, char* argv[])
     else
     {
       gko_matrix->fill(0.0);
-      fill_matrix(gko::lend(gko_matrix));
+      fill_matrix(gko_matrix);
     }
     A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(
                                                                     gko_matrix),
