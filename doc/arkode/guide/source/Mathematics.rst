@@ -61,13 +61,15 @@ for interpolated solution output.  We then discuss the current suite
 of time-stepping modules supplied with ARKODE, including the ARKStep
 module for :ref:`additive Runge--Kutta methods <ARKODE.Mathematics.ARK>`,
 the ERKStep module that is optimized for :ref:`explicit Runge--Kutta
-methods <ARKODE.Mathematics.ERK>`, and the MRIStep module for :ref:`multirate
-infinitesimal step (MIS), multirate infinitesimal GARK (MRI-GARK), and
-implicit-explicit MRI-GARK (IMEX-MRI-GARK) methods <ARKODE.Mathematics.MRIStep>`.
-We then discuss the :ref:`adaptive temporal error controllers
-<ARKODE.Mathematics.Adaptivity>` shared by the time-stepping modules, including
-discussion of our choice of norms for measuring errors within various components
-of the solver.
+methods <ARKODE.Mathematics.ERK>`, the SPRKStep module that provides
+:ref:`symplectic partitioned Runge--Kutta methods <ARKODE.Mathematics.SPRKStep>`
+for Hamiltonian dynamics, the MRIStep module that provides a variety of
+:ref:`multirate infinitesimal methods <ARKODE.Mathematics.MRIStep>`, and the
+LSRKStep module that supports :ref:`low-storage Runge--Kutta methods
+<ARKODE.Mathematics.LSRK>`.  We then discuss the :ref:`adaptive temporal
+error controllers <ARKODE.Mathematics.Adaptivity>` shared by the time-stepping
+modules, including discussion of our choice of norms for measuring errors
+within various components of the solver.
 
 We then discuss the nonlinear and linear solver strategies used by
 ARKODE for solving implicit algebraic systems that arise in computing each
@@ -727,6 +729,20 @@ order IMEX-MRI-GARK methods. For a complete list of the methods available in
 MRIStep see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling.Tables`. Additionally, users
 may supply their own method by defining and attaching a coupling table, see
 :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling` for more information.
+
+
+.. _ARKODE.Mathematics.LSRK:
+
+LSRKStep -- Low-Storage Runge--Kutta methods
+============================================
+
+The LSRKStep time-stepping module in ARKODE supports a variety of so-called
+"low-storage" Runge--Kutta methods, including traditional explicit low-storage
+RK methods, adaptive and mixed implicit-explicit low-storage RK methods, and a
+variety of "super-time-stepping" methods.
+
+(To-Do: add discussion regarding the mathematics of these methods and citations
+of relevant papers).
 
 
 .. _ARKODE.Mathematics.Error.Norm:

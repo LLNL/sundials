@@ -37,8 +37,8 @@ ARKODE's time stepping modules, including "relaxation" methods and
 preconitioners.  Following our discussion of these commonalities, we
 separately discuss the usage details that that are specific to each of ARKODE's
 time stepping modules: :ref:`ARKStep <ARKODE.Usage.ARKStep>`,
-:ref:`ERKStep <ARKODE.Usage.ERKStep>`, :ref:`SPRKStep <ARKODE.Usage.SPRKStep>`
-and :ref:`MRIStep <ARKODE.Usage.MRIStep>`.
+:ref:`ERKStep <ARKODE.Usage.ERKStep>`, :ref:`SPRKStep <ARKODE.Usage.SPRKStep>`,
+:ref:`MRIStep <ARKODE.Usage.MRIStep>`, and :ref:`LSRKStep <ARKODE.Usage.LSRKStep>`.
 
 ARKODE also uses various input and output constants; these are defined as
 needed throughout this chapter, but for convenience the full list is provided
@@ -75,7 +75,8 @@ ARKBBDPRE can only be used with NVECTOR_PARALLEL.
    User_supplied
    Relaxation
    Preconditioners
-   ARKStep_c_interface/index.rst
-   ERKStep_c_interface/index.rst
-   SPRKStep_c_interface/index.rst
-   MRIStep_c_interface/index.rst
+   ARKStep/index.rst
+   ERKStep/index.rst
+   SPRKStep/index.rst
+   MRIStep/index.rst
+   LSRKStep/index.rst
