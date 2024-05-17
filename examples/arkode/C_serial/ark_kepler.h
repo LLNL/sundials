@@ -37,11 +37,12 @@ typedef struct
   const char* method_name;
 } ProgramArgs;
 
-int ComputeConvergence(int num_dt, sunrealtype* orders,
-                       sunrealtype expected_order, sunrealtype a11,
-                       sunrealtype a12, sunrealtype a21, sunrealtype a22,
-                       sunrealtype b1, sunrealtype b2, sunrealtype* ord_avg,
-                       sunrealtype* ord_max, sunrealtype* ord_est)
+static int ComputeConvergence(int num_dt, sunrealtype* orders,
+                              sunrealtype expected_order, sunrealtype a11,
+                              sunrealtype a12, sunrealtype a21, sunrealtype a22,
+                              sunrealtype b1, sunrealtype b2,
+                              sunrealtype* ord_avg, sunrealtype* ord_max,
+                              sunrealtype* ord_est)
 {
   /* Compute/print overall estimated convergence rate */
   int i           = 0;
