@@ -27,7 +27,6 @@ extern "C" {
  * LSRKStep Constants
  * ------------------ */
 
-
 /* -------------------
  * Exported Functions
  * ------------------- */
@@ -43,11 +42,9 @@ extern "C" {
 
 /* SUNDIALS_EXPORT int LSRKStepSetTableName(void* arkode_mem, const char* etable); */
 
-
 /* Optional output functions */
 
 /* SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* nfevals); */
-
 
 #ifdef __cplusplus
 }
