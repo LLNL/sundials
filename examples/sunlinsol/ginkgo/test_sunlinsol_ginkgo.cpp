@@ -145,8 +145,8 @@ __global__ void fill_kernel(sunindextype mat_rows, sunindextype mat_cols,
 
 void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
 {
-  sunindextype mat_rows  = matrix->get_size()[0];
-  sunindextype mat_cols  = matrix->get_size()[1];
+  sunindextype mat_rows  = static_cast<sunindextype>(matrix->get_size()[0]);
+  sunindextype mat_cols  = static_cast<sunindextype>(matrix->get_size()[1]);
   sunindextype* row_ptrs = matrix->get_row_ptrs();
   sunindextype* col_idxs = matrix->get_col_idxs();
   sunrealtype* mat_data  = matrix->get_values();
@@ -231,8 +231,8 @@ void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
 
 void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
 {
-  sunindextype mat_rows = matrix->get_size()[0];
-  sunindextype mat_cols = matrix->get_size()[1];
+  sunindextype mat_rows = static_cast<sunindextype>(matrix->get_size()[0]);
+  sunindextype mat_cols = static_cast<sunindextype>(matrix->get_size()[1]);
   sunrealtype* mat_data = matrix->get_values();
 
 #if defined(USE_CUDA) || defined(USE_HIP)
@@ -471,7 +471,7 @@ int main(int argc, char* argv[])
     auto gko_matrix =
       gko::share(GkoMatrixType::create(gko_exec, matrix_dim, matrix_nnz));
 
-    if (matcond)
+    if (matcond > 0)
     {
       auto gko_matdata{gko::matrix_data<
         sunrealtype, sunindextype>::cond(matrows,
@@ -489,7 +489,7 @@ int main(int argc, char* argv[])
   {
     using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
     auto gko_matrix = gko::share(GkoMatrixType::create(gko_exec, matrix_dim));
-    if (matcond)
+    if (matcond > 0)
     {
       auto gko_matdata{gko::matrix_data<
         sunrealtype, sunindextype>::cond(matrows,
