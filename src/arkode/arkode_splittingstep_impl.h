@@ -22,21 +22,11 @@
 typedef struct ARKodeSplittingStepMemRec
 {
   SUNStepper *steppers;
-
   ARKodeSplittingCoeffs coeffs;
-
-  /* Counters */
-  long int nfe;       /* num fe calls               */
-  long int nfi;       /* num fi calls               */
-  long int nsetups;   /* num setup calls            */
-  long int nls_iters; /* num nonlinear solver iters */
-  long int nls_fails; /* num nonlinear solver fails */
-
-  /* Reusable arrays for fused vector operations */
-  sunrealtype* cvals; /* scalar array for fused ops       */
-  N_Vector* Xvecs;    /* array of vectors for fused ops   */
-  int nfusedopvecs;   /* length of cvals and Xvecs arrays */
-
+  ARKodeSplittingExecutionPolicy policy;
+  int partitions;
+  int order;
+  sunbooleantype own_policy;
 }* ARKodeSplittingStepMem;
 
 #endif
