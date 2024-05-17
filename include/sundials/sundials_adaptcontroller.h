@@ -91,6 +91,10 @@ struct _generic_SUNAdaptController
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx);
 
+/* Function to free a generic SUNAdaptController (assumes content is already empty) */
+SUNDIALS_EXPORT
+void SUNAdaptController_DestroyEmpty(SUNAdaptController C);
+
 /* Function to report the type of a SUNAdaptController object. */
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType(SUNAdaptController C);
