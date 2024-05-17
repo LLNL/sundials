@@ -1,5 +1,9 @@
 **New Features**
 
+Fixed the runtime library installation path for windows systems. This fix changes the
+default library installation path from ``CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR`` to
+``CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_BINDIR``.
+
 Created shared user interface for ARKODE user-callable routines, to allow more
 uniform control over time-stepping algorithms, improved extensibility, and
 simplified code maintenance.  Marked the corresponding stepper-specific
