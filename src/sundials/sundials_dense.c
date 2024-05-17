@@ -402,7 +402,7 @@ void SUNDlsMat_denseMatvec(sunrealtype** a, sunrealtype* x, sunrealtype* y,
   sunindextype i, j;
   sunrealtype* col_j;
 
-  for (i = 0; i < m; i++) { y[i] = 0.0; }
+  for (i = 0; i < m; i++) { y[i] = ZERO; }
 
   for (j = 0; j < n; j++)
   {

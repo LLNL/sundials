@@ -2,6 +2,10 @@
 
 ## Changes to SUNDIALS in release X.Y.Z
 
+Fixed conflicting `.lib` files between shared and static libs when using `MSVC` on Windows
+
+Fixed invalid `SUNDIALS_EXPORT` generated macro when building both shared and static libs
+
 Created shared user interface for ARKODE user-callable routines, to allow more
 uniform control over time-stepping algorithms, improved extensibility, and
 simplified code maintenance.  Marked the corresponding stepper-specific
