@@ -123,6 +123,23 @@ implementation, however some may be required based on the implementation's
 :c:type:`SUNAdaptController_Type` (see Section :numref:`SUNAdaptController.Description.controllerTypes`). We
 note these requirements below. Additionally, we note the behavior of the base SUNAdaptController methods when they perform an action other than only a successful return.
 
+.. c:function:: void SUNAdaptController_DestroyEmpty(SUNAdaptController C)
+
+  This routine frees the generic ``SUNAdaptController`` object, under the
+  assumption that any implementation-specific data that was allocated within the
+  underlying content structure has already been freed. It will additionally test
+  whether the ops pointer is ``NULL``, and, if it is not, it will free it as
+  well.
+
+  :param C: the :c:type:`SUNAdaptController` object.
+  :return: :c:type:`SUNErrCode` indicating success or failure.
+
+  Usage:
+
+  .. code-block:: c
+
+    retval = SUNAdaptController_DestroyEmpty(C);
+
 .. c:function:: SUNAdaptController_Type SUNAdaptController_GetType(SUNAdaptController C)
 
    Returns the type identifier for the controller *C*. Returned values
