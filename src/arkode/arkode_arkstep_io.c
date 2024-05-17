@@ -2478,7 +2478,7 @@ int ARKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters)
   EOF
   ===============================================================*/
 
-int ARKStepSetAccessDeltaFn(void* arkode_mem, ARKStepAccessDeltaFn access_fn)
+int ARKStepSetAccessFn(void* arkode_mem, ARKStepAccessFn access_fn)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;

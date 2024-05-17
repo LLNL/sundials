@@ -54,15 +54,21 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
-/* >>> Function to access delta <<< */
-int Access(long int step, int stage, int iter, N_Vector delta, void* user_data)
+/* >>> Function to access delta and linear residuals <<< */
+int Access(long int step, int stage, int iter, N_Vector delta,
+           N_Vector ls_res, N_Vector ls_res_r, void* user_data)
 {
   printf("Step %li = \n", step);
   printf("Stage %i = \n", stage);
   printf("Iter %i = \n", iter);
   printf("Delta:\n");
   N_VPrintFile(delta, stdout);
+  printf("LS Res:\n");
+  N_VPrintFile(ls_res, stdout);
+  printf("LS Res Relaxed:\n");
+  N_VPrintFile(ls_res_r, stdout);
   printf("\n");
+  return 0;
 }
 
 /* Private function to check function return values */
@@ -142,7 +148,7 @@ int main(void)
   if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
 
   /* >>> Attach function to access delta <<< */
-  flag = ARKStepSetAccessDeltaFn(arkode_mem, Access);
+  flag = ARKStepSetAccessFn(arkode_mem, Access);
   if (check_flag(&flag, "ARKStepSetAccessDeltaFn", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */

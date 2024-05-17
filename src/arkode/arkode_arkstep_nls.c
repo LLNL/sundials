@@ -26,13 +26,19 @@
 
 int arkAccessDeltaFn(int iter, N_Vector delta, void* arkode_mem)
 {
+  int retval = 0;
   ARKodeMem ark_mem = (ARKodeMem)arkode_mem;
 
   ARKodeARKStepMem step_mem;
-  int retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
+  ARKLsMem arkls_mem;
+  retval = arkLs_AccessLMem(ark_mem, __func__, &arkls_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
   retval = step_mem->access_fn(ark_mem->nst, step_mem->istage, iter, delta,
+                               arkls_mem->ytemp, arkls_mem->ytemp2,
                                ark_mem->user_data);
   if (retval != ARK_SUCCESS) { return retval; }
 

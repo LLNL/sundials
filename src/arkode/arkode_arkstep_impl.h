@@ -163,7 +163,7 @@ typedef struct ARKodeARKStepMemRec
   sunrealtype* stage_times;  /* workspace for applying forcing */
   sunrealtype* stage_coefs;  /* workspace for applying forcing */
 
-  ARKStepAccessDeltaFn access_fn;
+  ARKStepAccessFn access_fn;
 
 }* ARKodeARKStepMem;
 

@@ -68,6 +68,7 @@ typedef struct ARKLsMemRec
   SUNMatrix A;        /* A = M - gamma * df/dy                         */
   SUNMatrix savedJ;   /* savedJ = old Jacobian                         */
   N_Vector ytemp;     /* temp vector passed to jtimes and psolve       */
+  N_Vector ytemp2;
   N_Vector x;         /* solution vector used by SUNLinearSolver       */
   N_Vector ycur;      /* ptr to current y vector in ARKLs solve        */
   N_Vector fcur;      /* ptr to current fcur = fI(tcur, ycur)          */

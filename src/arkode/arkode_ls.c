@@ -24,6 +24,8 @@
 
 #include "arkode_impl.h"
 #include "arkode_ls_impl.h"
+#include "sundials/sundials_matrix.h"
+#include "sundials/sundials_nvector.h"
 
 /* constants */
 #define MIN_INC_MULT SUN_RCONST(1000.0)
@@ -256,6 +258,15 @@ int ARKodeSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A)
 
   /* Allocate memory for ytemp and x */
   if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(arkls_mem->ytemp)))
+  {
+    arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_LS_MEM_FAIL);
+    free(arkls_mem);
+    arkls_mem = NULL;
+    return (ARKLS_MEM_FAIL);
+  }
+
+  if (!arkAllocVec(ark_mem, ark_mem->tempv1, &(arkls_mem->ytemp2)))
   {
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_LS_MEM_FAIL);
@@ -3384,9 +3395,12 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
     }
   }
 
-  /* Call solver, and copy x to b */
+  /* Call solver */
   retval = SUNLinSolSolve(arkls_mem->LS, arkls_mem->A, arkls_mem->x, b, delta);
-  N_VScale(ONE, arkls_mem->x, b);
+
+  /* compute the residual r = Ax - b */
+  SUNMatMatvec(arkls_mem->savedJ, arkls_mem->x, arkls_mem->ytemp);
+  N_VLinearSum(ONE, arkls_mem->ytemp, -ONE, b, arkls_mem->ytemp);
 
   /* If using a direct or matrix-iterative solver, scale the correction to
      account for change in gamma (this is only beneficial if M==I) */
@@ -3400,8 +3414,15 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
                       __FILE__, "An error occurred in ark_step_getgammas");
       return (arkls_mem->last_flag);
     }
-    if (gamrat != ONE) { N_VScale(TWO / (ONE + gamrat), b, b); }
+    if (gamrat != ONE) { N_VScale(TWO / (ONE + gamrat), arkls_mem->x, arkls_mem->x); }
   }
+
+  /* compute the relaxed residual r = Ax - b */
+  SUNMatMatvec(arkls_mem->savedJ, arkls_mem->x, arkls_mem->ytemp2);
+  N_VLinearSum(ONE, arkls_mem->ytemp2, -ONE, b, arkls_mem->ytemp2);
+
+  /* copy x to b */
+  N_VScale(ONE, arkls_mem->x, b);
 
   /* Retrieve statistics from iterative linear solvers */
   resnorm = ZERO;
@@ -3498,6 +3519,11 @@ int arkLsFree(ARKodeMem ark_mem)
   {
     N_VDestroy(arkls_mem->ytemp);
     arkls_mem->ytemp = NULL;
+  }
+  if (arkls_mem->ytemp2)
+  {
+    N_VDestroy(arkls_mem->ytemp2);
+    arkls_mem->ytemp2 = NULL;
   }
   if (arkls_mem->x)
   {
