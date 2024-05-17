@@ -216,8 +216,10 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0, N_Vector y0)
 
   This routine resizes the memory within the ERKStep module.
   ---------------------------------------------------------------*/
-int erkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
-                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
+int erkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
+                   SUNDIALS_MAYBE_UNUSED sunrealtype hscale,
+                   SUNDIALS_MAYBE_UNUSED sunrealtype t0, ARKVecResizeFn resize,
+                   void* resize_data)
 {
   ARKodeERKStepMem step_mem;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;

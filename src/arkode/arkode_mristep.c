@@ -347,8 +347,10 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
 
   This routine resizes the memory within the MRIStep module.
   ---------------------------------------------------------------*/
-int mriStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
-                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
+int mriStep_Resize(ARKodeMem ark_mem, N_Vector y0,
+                   SUNDIALS_MAYBE_UNUSED sunrealtype hscale,
+                   SUNDIALS_MAYBE_UNUSED sunrealtype t0, ARKVecResizeFn resize,
+                   void* resize_data)
 {
   ARKodeMRIStepMem step_mem;
   SUNNonlinearSolver NLS;
