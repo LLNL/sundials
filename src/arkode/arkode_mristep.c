@@ -2214,7 +2214,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     cstage = (embedding) ? ONE : step_mem->MRIC->c[stage];
 
     /* Compute forcing function for inner solver: temporarily
-       force explicit_rhs and disable implicit_rhs flag since MRISR 
+       force explicit_rhs and disable implicit_rhs flag since MRISR
        methods ignore the G coefficients in the forcing function. */
     store_imprhs           = step_mem->implicit_rhs;
     store_exprhs           = step_mem->explicit_rhs;
@@ -2246,27 +2246,10 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     impl_corr = SUNFALSE;
     if (step_mem->implicit_rhs)
     {
-      /* fill sdata with explicit contributions to correction */
-      step_mem->cvals[0] = ONE;
-      step_mem->Xvecs[0] = ark_mem->ycur;
-      for (j = 0; j < stage; j++)
-      {
-        step_mem->cvals[j + 1] = ark_mem->h * step_mem->MRIC->G[0][stage][j];
-        step_mem->Xvecs[j + 1] = step_mem->Fsi[j];
-      }
-      retval = N_VLinearCombination(stage + 1, step_mem->cvals, step_mem->Xvecs,
-                                    step_mem->sdata);
-      if (retval != 0) { return (ARK_VECTOROP_ERR); }
-
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                         "ARKODE::mriStep_TakeStepMRISR", "explicit correction",
-                         "sdata =", "");
-      N_VPrintFile(step_mem->sdata, ARK_LOGGER->debug_fp);
-#endif
-
-      /* implicit correction */
+      /* determine whether implicit RHS correction will require an implicit solve */
       impl_corr = SUNRabs(step_mem->MRIC->G[0][stage][stage]) > tol;
+
+      /* perform implicit solve for correction */
       if (impl_corr)
       {
         /* store current stage index (for an "embedded" stage, subtract 1) */
@@ -2294,7 +2277,28 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         N_VPrintFile(step_mem->zpred, ARK_LOGGER->debug_fp);
 #endif
 
-        /* Update gamma (if the method contains an implicit component) */
+        /* fill sdata with explicit contributions to correction */
+        step_mem->cvals[0] = ONE;
+        step_mem->Xvecs[0] = ark_mem->ycur;
+        step_mem->cvals[1] = -ONE;
+        step_mem->Xvecs[1] = step_mem->zpred;
+        for (j = 0; j < stage; j++)
+        {
+          step_mem->cvals[j + 2] = ark_mem->h * step_mem->MRIC->G[0][stage][j];
+          step_mem->Xvecs[j + 2] = step_mem->Fsi[j];
+        }
+        retval = N_VLinearCombination(stage + 2, step_mem->cvals, step_mem->Xvecs,
+                                      step_mem->sdata);
+        if (retval != 0) { return (ARK_VECTOROP_ERR); }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                           "ARKODE::mriStep_TakeStepMRISR", "rhs data",
+                           "sdata =", "");
+        N_VPrintFile(step_mem->sdata, ARK_LOGGER->debug_fp);
+#endif
+
+       /* Update gamma for implicit solver */
         step_mem->gamma = ark_mem->h * step_mem->MRIC->G[0][stage][stage];
         if (ark_mem->firststage) { step_mem->gammap = step_mem->gamma; }
         step_mem->gamrat =
@@ -2304,7 +2308,23 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
            with positive value on anything but success */
         *nflagPtr = mriStep_Nls(ark_mem, *nflagPtr);
         if (*nflagPtr != ARK_SUCCESS) { return (TRY_AGAIN); }
+
       }
+      /* perform explicit update for correction */
+      else
+      {
+        step_mem->cvals[0] = ONE;
+        step_mem->Xvecs[0] = ark_mem->ycur;
+        for (j = 0; j < stage; j++)
+        {
+          step_mem->cvals[j + 1] = ark_mem->h * step_mem->MRIC->G[0][stage][j];
+          step_mem->Xvecs[j + 1] = step_mem->Fsi[j];
+        }
+        retval = N_VLinearCombination(stage + 1, step_mem->cvals, step_mem->Xvecs,
+                                      ark_mem->ycur);
+        if (retval != 0) { return (ARK_VECTOROP_ERR); }
+      }
+
     }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
