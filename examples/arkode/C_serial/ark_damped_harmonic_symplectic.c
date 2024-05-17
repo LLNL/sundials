@@ -157,9 +157,9 @@ int main(int argc, char* argv[])
   return 0;
 }
 
-sunrealtype omega(sunrealtype t) { return cos(t / SUN_RCONST(2.0)); }
+static sunrealtype omega(sunrealtype t) { return cos(t / SUN_RCONST(2.0)); }
 
-sunrealtype F(sunrealtype t) { return SUN_RCONST(0.018) * sin(t / PI); }
+static sunrealtype F(sunrealtype t) { return SUN_RCONST(0.018) * sin(t / PI); }
 
 sunrealtype Hamiltonian(N_Vector yvec, sunrealtype t)
 {
