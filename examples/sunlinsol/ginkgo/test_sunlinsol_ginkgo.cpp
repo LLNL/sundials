@@ -143,8 +143,12 @@ __global__ void fill_kernel(sunindextype mat_rows, sunindextype mat_cols,
 }
 #endif
 
+#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
+static void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
+#else
 static void fill_matrix(
   std::shared_ptr<gko::matrix::Csr<sunrealtype, sunindextype>> matrix)
+#endif
 {
   sunindextype mat_rows  = static_cast<sunindextype>(matrix->get_size()[0]);
   sunindextype mat_cols  = static_cast<sunindextype>(matrix->get_size()[1]);
@@ -230,7 +234,11 @@ static void fill_matrix(
 #endif
 }
 
+#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
+static void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
+#else
 static void fill_matrix(std::shared_ptr<gko::matrix::Dense<sunrealtype>> matrix)
+#endif
 {
   sunindextype mat_rows = static_cast<sunindextype>(matrix->get_size()[0]);
   sunindextype mat_cols = static_cast<sunindextype>(matrix->get_size()[1]);
