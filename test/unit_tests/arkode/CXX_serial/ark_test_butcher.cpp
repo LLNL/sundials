@@ -23,6 +23,7 @@
 #include <ostream>
 #include <sundials/sundials_types.h>
 #include <vector>
+#include "arkode/arkode_impl.h"
 
 struct ARK_Table
 {
@@ -51,13 +52,14 @@ int main()
 
   // loop over individual ERK tables
   std::cout << "\nTesting individual ERK methods:\n\n";
-  for (int table = ARKODE_MIN_ERK_NUM; table <= ARKODE_MAX_ERK_NUM; table++)
+  for (int i = ARKODE_MIN_ERK_NUM; i <= ARKODE_MAX_ERK_NUM; i++)
   {
-    std::cout << "Testing method " << table << ":";
+    ARKODE_ERKTableID id = static_cast<ARKODE_ERKTableID>(i);
+    std::cout << "Testing method " << ARKodeButcherTable_ERKIDToName(id) << ":";
 
     // load Butcher table
     ARKodeButcherTable B =
-      ARKodeButcherTable_LoadERK(static_cast<ARKODE_ERKTableID>(table));
+      ARKodeButcherTable_LoadERK(id);
     if (B == NULL)
     {
       std::cout << "  error retrieving table, aborting\n";
@@ -90,13 +92,13 @@ int main()
 
   // loop over individual DIRK tables
   std::cout << "\nTesting individual DIRK methods:\n\n";
-  for (int table = ARKODE_MIN_DIRK_NUM; table <= ARKODE_MAX_DIRK_NUM; table++)
+  for (int i = ARKODE_MIN_DIRK_NUM; i <= ARKODE_MAX_DIRK_NUM; i++)
   {
-    std::cout << "Testing method " << table << ":";
+    ARKODE_DIRKTableID id = static_cast<ARKODE_DIRKTableID>(i);
+    std::cout << "Testing method " << ARKodeButcherTable_DIRKIDToName(id) << ":";
 
     // load Butcher table
-    ARKodeButcherTable B =
-      ARKodeButcherTable_LoadDIRK(static_cast<ARKODE_DIRKTableID>(table));
+    ARKodeButcherTable B = ARKodeButcherTable_LoadDIRK(id);
     if (B == NULL)
     {
       std::cout << "  error retrieving table, aborting\n";

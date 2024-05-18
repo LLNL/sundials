@@ -62,6 +62,9 @@ ARKodeButcherTable_LoadERK(ARKODE_ERKTableID emethod);
 SUNDIALS_EXPORT ARKodeButcherTable
 ARKodeButcherTable_LoadERKByName(const char* emethod);
 
+SUNDIALS_EXPORT const char*
+ARKodeButcherTable_ERKIDToName(ARKODE_ERKTableID emethod);
+
 #ifdef __cplusplus
 }
 #endif
