@@ -776,7 +776,7 @@ int UserOutput::write(sunrealtype t, N_Vector u, UserData* udata)
 {
   int flag;
   sunrealtype max = ZERO;
-  bool outproc = (udata->myid_c == 0);
+  bool outproc    = (udata->myid_c == 0);
 
   if (output > 0)
   {
