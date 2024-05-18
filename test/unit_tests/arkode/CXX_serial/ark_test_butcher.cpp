@@ -23,6 +23,7 @@
 #include <ostream>
 #include <sundials/sundials_types.h>
 #include <vector>
+
 #include "arkode/arkode_impl.h"
 
 struct ARK_Table
@@ -58,8 +59,7 @@ int main()
     std::cout << "Testing method " << ARKodeButcherTable_ERKIDToName(id) << ":";
 
     // load Butcher table
-    ARKodeButcherTable B =
-      ARKodeButcherTable_LoadERK(id);
+    ARKodeButcherTable B = ARKodeButcherTable_LoadERK(id);
     if (B == NULL)
     {
       std::cout << "  error retrieving table, aborting\n";

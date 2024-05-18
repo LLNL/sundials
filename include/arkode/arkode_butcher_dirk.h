@@ -65,8 +65,8 @@ ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod);
 SUNDIALS_EXPORT ARKodeButcherTable
 ARKodeButcherTable_LoadDIRKByName(const char* imethod);
 
-SUNDIALS_EXPORT const char*
-ARKodeButcherTable_DIRKIDToName(ARKODE_DIRKTableID imethod);
+SUNDIALS_EXPORT const char* ARKodeButcherTable_DIRKIDToName(
+  ARKODE_DIRKTableID imethod);
 
 #ifdef __cplusplus
 }
