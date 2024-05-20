@@ -144,22 +144,26 @@ int arkStep_SetNlsSysFn(ARKodeMem ark_mem)
     {
       if (step_mem->predictor == 0)
       {
-        retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual_MassIdent_TrivialPred);
+        retval = SUNNonlinSolSetSysFn(step_mem->NLS,
+                                      arkStep_NlsResidual_MassIdent_TrivialPred);
       }
       else
       {
-        retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual_MassIdent);
+        retval = SUNNonlinSolSetSysFn(step_mem->NLS,
+                                      arkStep_NlsResidual_MassIdent);
       }
     }
     else if (step_mem->mass_type == MASS_FIXED)
     {
       if (step_mem->predictor == 0)
       {
-        retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual_MassFixed_TrivialPred);
+        retval = SUNNonlinSolSetSysFn(step_mem->NLS,
+                                      arkStep_NlsResidual_MassFixed_TrivialPred);
       }
       else
       {
-        retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual_MassFixed);
+        retval = SUNNonlinSolSetSysFn(step_mem->NLS,
+                                      arkStep_NlsResidual_MassFixed);
       }
     }
     else if (step_mem->mass_type == MASS_TIMEDEP)
@@ -1034,7 +1038,6 @@ int arkStep_NlsFPFunction_MassFixed_TrivialPred(N_Vector zcor, N_Vector g,
 
   return (ARK_SUCCESS);
 }
-
 
 /*---------------------------------------------------------------
   arkStep_NlsFPFunction_MassTDep:
