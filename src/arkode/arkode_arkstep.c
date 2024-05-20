@@ -1664,6 +1664,9 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype deduce_stage;
   sunbooleantype save_stages;
   sunbooleantype stiffly_accurate;
+  sunbooleantype save_fn_for_interp;
+  sunbooleantype imex_method;
+  sunbooleantype save_fn_for_residual;
   ARKodeARKStepMem step_mem;
   N_Vector zcor0;
 
