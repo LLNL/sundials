@@ -297,8 +297,7 @@ int sprkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
   problem from the given time with the input state (all counter
   values are retained).
   ---------------------------------------------------------------*/
-int sprkStep_Reset(ARKodeMem ark_mem,
-                   SUNDIALS_MAYBE_UNUSED sunrealtype tR,
+int sprkStep_Reset(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tR,
                    SUNDIALS_MAYBE_UNUSED N_Vector yR)
 {
   ARKodeSPRKStepMem step_mem = NULL;
