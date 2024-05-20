@@ -1611,7 +1611,7 @@ int ARKodeSetErrorBias(void* arkode_mem, sunrealtype bias)
   /* set allowed value, otherwise set default */
   if (bias < ONE)
   {
-    retval = SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, -1.0);
+    retval = SUNAdaptController_SetErrorBias(hadapt_mem->hcontroller, -ONE);
   }
   else
   {

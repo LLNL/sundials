@@ -61,6 +61,17 @@ Fixed a CMake bug that caused an MPI linking error for our C++ examples in some
 instances. Fixes `GitHub Issue #464
 <https://github.com/LLNL/sundials/issues/464>`_.
 
+Fixed the runtime library installation path for windows systems. This fix
+changes the default library installation path from
+``CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR`` to
+``CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_BINDIR``.
+
+Fixed conflicting ``.lib`` files between shared and static libs when using
+``MSVC`` on Windows
+
+Fixed invalid ``SUNDIALS_EXPORT`` generated macro when building both shared and
+static libs.
+
 Fixed a bug in some Fortran examples where ``c_null_ptr`` was passed as an
 argument to a function pointer instead of ``c_null_funptr``. This caused
 compilation issues with the Cray Fortran compiler.
