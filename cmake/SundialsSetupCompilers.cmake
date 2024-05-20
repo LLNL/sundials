@@ -76,6 +76,7 @@ endif()
 if(ENABLE_ALL_WARNINGS)
   message(STATUS "Enabling all compiler warnings")
 
+  # Avoid numerous warnings from printf that can't be avoided
   if(SUNDIALS_PRECISION MATCHES "EXTENDED")
     set(CMAKE_C_FLAGS "-Wdouble-promotion ${CMAKE_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "-Wdouble-promotion ${CMAKE_CXX_FLAGS}")
