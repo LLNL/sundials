@@ -1770,19 +1770,10 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* Set alias to implicit RHS evaluation for reuse with trivial predictor */
   if (ark_mem->fn_is_current && save_fn_for_residual)
   {
-    if (imex_method)
-    {
-      step_mem->fn_implicit = step_mem->Fi[0];
-    }
-    else
-    {
-      step_mem->fn_implicit = ark_mem->fn;
-    }
+    if (imex_method) { step_mem->fn_implicit = step_mem->Fi[0]; }
+    else { step_mem->fn_implicit = ark_mem->fn; }
   }
-  else
-  {
-    step_mem->fn_implicit = NULL;
-  }
+  else { step_mem->fn_implicit = NULL; }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   if (is_start == 1)

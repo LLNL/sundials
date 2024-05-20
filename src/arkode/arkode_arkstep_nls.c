@@ -516,11 +516,10 @@ int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem)
   else
   {
     retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
-                              step_mem->Fi[step_mem->istage],
-                              ark_mem->user_data);
+                              step_mem->Fi[step_mem->istage], ark_mem->user_data);
     step_mem->nfi++;
-    if (retval < 0) { return(ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return(RHSFUNC_RECVR); }
+    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
+    if (retval > 0) { return (RHSFUNC_RECVR); }
   }
 
   /* compute residual via linear combination */
@@ -589,11 +588,10 @@ int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
   else
   {
     retval = step_mem->nls_fi(ark_mem->tcur, ark_mem->ycur,
-                              step_mem->Fi[step_mem->istage],
-                              ark_mem->user_data);
+                              step_mem->Fi[step_mem->istage], ark_mem->user_data);
     step_mem->nfi++;
-    if (retval < 0) { return(ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return(RHSFUNC_RECVR); }
+    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
+    if (retval > 0) { return (RHSFUNC_RECVR); }
   }
 
   /* put M*zcor in r */
