@@ -138,16 +138,6 @@ static void cvFreeVectors(CVodeMem cv_mem);
 static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 
-#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
-extern int cvEwtSetSS_fused(const sunbooleantype atolmin0,
-                            const sunrealtype reltol, const sunrealtype Sabstol,
-                            const N_Vector ycur, N_Vector tempv, N_Vector weight);
-
-extern int cvEwtSetSV_fused(const sunbooleantype atolmin0,
-                            const sunrealtype reltol, const N_Vector Vabstol,
-                            const N_Vector ycur, N_Vector tempv, N_Vector weight);
-#endif
-
 /* Initial stepsize calculation */
 
 static int cvHin(CVodeMem cv_mem, sunrealtype tout);
@@ -183,11 +173,6 @@ static void cvSetTqBDF(CVodeMem cv_mem, sunrealtype hsum, sunrealtype alpha0,
 static int cvNls(CVodeMem cv_mem, int nflag);
 
 static int cvCheckConstraints(CVodeMem cv_mem);
-#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
-extern int cvCheckConstraints_fused(const N_Vector c, const N_Vector ewt,
-                                    const N_Vector y, const N_Vector mm,
-                                    N_Vector tempv);
-#endif
 
 static int cvHandleNFlag(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
                          int* ncfPtr);

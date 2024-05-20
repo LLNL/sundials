@@ -207,8 +207,8 @@ int laplacian(sunrealtype t, N_Vector u, N_Vector f, UserData* udata)
 //   j -- local y index
 //   x -- x processor coordinate
 //   y -- y processor coordinate
-sunindextype global_index(sunindextype i, sunindextype j, int x, int y,
-                          UserData* udata)
+static sunindextype global_index(sunindextype i, sunindextype j, int x, int y,
+                                 UserData* udata)
 {
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
@@ -253,12 +253,13 @@ sunindextype global_index(sunindextype i, sunindextype j, int x, int y,
 //   x -- x processor coordinate
 //   y -- y processor coordinate
 #if defined(BENCHMARK_ODE)
-int matrix_row(sunindextype i, sunindextype j, int x, int y, UserData* udata,
-               sunrealtype* vals, sunindextype* col_idx, sunindextype* row_nnz)
+static int matrix_row(sunindextype i, sunindextype j, int x, int y,
+                      UserData* udata, sunrealtype* vals, sunindextype* col_idx,
+                      sunindextype* row_nnz)
 #else
-int matrix_row(sunindextype i, sunindextype j, int x, int y, UserData* udata,
-               sunrealtype cj, sunrealtype* vals, sunindextype* col_idx,
-               sunindextype* row_nnz)
+static int matrix_row(sunindextype i, sunindextype j, int x, int y,
+                      UserData* udata, sunrealtype cj, sunrealtype* vals,
+                      sunindextype* col_idx, sunindextype* row_nnz)
 #endif
 {
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);

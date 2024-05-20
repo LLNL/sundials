@@ -14,8 +14,8 @@
 #include <sundials/sundials_core.hpp>
 #include <sunmemory/sunmemory_system.h>
 
-int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
-                  bool print_test_status)
+static int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
+                         bool print_test_status)
 {
   // Try and allocate some memory
   int N                 = 8;

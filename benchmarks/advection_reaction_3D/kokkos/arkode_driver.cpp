@@ -58,7 +58,6 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   long int nfe, nfi;          /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npsol;        /* linear solver stats          */
-  char fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
   udata->add_reactions = true;
@@ -246,7 +245,6 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   long int nfe, nfi;          /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npsol;        /* linear solver stats          */
-  char fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
   udata->add_reactions = false;
@@ -445,7 +443,6 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
   int iout;                   /* output counter                */
   long int nst, nst_a, netf;  /* step stats                    */
   long int nfe;               /* RHS stats                     */
-  char fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
   udata->add_reactions = true;
@@ -544,7 +541,7 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
  * (Non)linear system functions
  * --------------------------------------------------------------*/
 
-int TaskLocalNlsResidual(N_Vector ycor, N_Vector F, void* arkode_mem)
+static int TaskLocalNlsResidual(N_Vector ycor, N_Vector F, void* arkode_mem)
 {
   /* temporary variables */
   UserData* udata;
@@ -586,7 +583,7 @@ int TaskLocalNlsResidual(N_Vector ycor, N_Vector F, void* arkode_mem)
   return (0);
 }
 
-int TaskLocalLSolve(N_Vector delta, void* arkode_mem)
+static int TaskLocalLSolve(N_Vector delta, void* arkode_mem)
 {
   /* local variables */
   UserData* udata = NULL;
@@ -609,12 +606,12 @@ int TaskLocalLSolve(N_Vector delta, void* arkode_mem)
   return (retval);
 }
 
-SUNNonlinearSolver_Type TaskLocalNewton_GetType(SUNNonlinearSolver NLS)
+static SUNNonlinearSolver_Type TaskLocalNewton_GetType(SUNNonlinearSolver NLS)
 {
   return SUNNONLINEARSOLVER_ROOTFIND;
 }
 
-int TaskLocalNewton_Initialize(SUNNonlinearSolver NLS)
+static int TaskLocalNewton_Initialize(SUNNonlinearSolver NLS)
 {
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
@@ -626,9 +623,9 @@ int TaskLocalNewton_Initialize(SUNNonlinearSolver NLS)
   return (SUNNonlinSolInitialize(LOCAL_NLS(NLS)));
 }
 
-int TaskLocalNewton_Solve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
-                          N_Vector w, sunrealtype tol,
-                          sunbooleantype callLSetup, void* mem)
+static int TaskLocalNewton_Solve(SUNNonlinearSolver NLS, N_Vector y0,
+                                 N_Vector ycor, N_Vector w, sunrealtype tol,
+                                 sunbooleantype callLSetup, void* mem)
 {
   /* local variables */
   MPI_Comm comm;
@@ -662,7 +659,7 @@ int TaskLocalNewton_Solve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
   return recover;
 }
 
-int TaskLocalNewton_Free(SUNNonlinearSolver NLS)
+static int TaskLocalNewton_Free(SUNNonlinearSolver NLS)
 {
   /* return if NLS is already free */
   if (NLS == NULL) { return SUN_SUCCESS; }
@@ -688,7 +685,8 @@ int TaskLocalNewton_Free(SUNNonlinearSolver NLS)
   return SUN_SUCCESS;
 }
 
-int TaskLocalNewton_SetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
+static int TaskLocalNewton_SetSysFn(SUNNonlinearSolver NLS,
+                                    SUNNonlinSolSysFn SysFn)
 {
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
@@ -696,9 +694,9 @@ int TaskLocalNewton_SetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
   return (SUNNonlinSolSetSysFn(LOCAL_NLS(NLS), SysFn));
 }
 
-int TaskLocalNewton_SetConvTestFn(SUNNonlinearSolver NLS,
-                                  SUNNonlinSolConvTestFn CTestFn,
-                                  void* ctest_data)
+static int TaskLocalNewton_SetConvTestFn(SUNNonlinearSolver NLS,
+                                         SUNNonlinSolConvTestFn CTestFn,
+                                         void* ctest_data)
 {
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
@@ -706,7 +704,8 @@ int TaskLocalNewton_SetConvTestFn(SUNNonlinearSolver NLS,
   return (SUNNonlinSolSetConvTestFn(LOCAL_NLS(NLS), CTestFn, ctest_data));
 }
 
-int TaskLocalNewton_GetNumConvFails(SUNNonlinearSolver NLS, long int* nconvfails)
+static int TaskLocalNewton_GetNumConvFails(SUNNonlinearSolver NLS,
+                                           long int* nconvfails)
 {
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
