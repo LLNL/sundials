@@ -105,7 +105,8 @@ static int yptrue(sunrealtype t, N_Vector yp)
  *   [a  b] * [ (-1 + u^2 - r(t)) ] + [ r'(t) ] - [ 2 u u'] = 0
  *   [c  d]   [ (-2 + v^2 - s(t)) ]   [ s'(t) ] - [ 2 v v'] = 0
  * ---------------------------------------------------------------------------*/
-int res(sunrealtype t, N_Vector y, N_Vector yp, N_Vector res, void* user_data)
+static int res(sunrealtype t, N_Vector y, N_Vector yp, N_Vector res,
+               void* user_data)
 {
   sunrealtype* udata  = (sunrealtype*)user_data;
   const sunrealtype a = udata[0];
@@ -137,8 +138,9 @@ int res(sunrealtype t, N_Vector y, N_Vector yp, N_Vector res, void* user_data)
  *   [2 a u - 2 u' - 2 cj u   2 b v                 ]
  *   [2 c u                   2 d v - 2 v' - 2 cj v ]
  * ---------------------------------------------------------------------------*/
-int J(sunrealtype t, sunrealtype cj, N_Vector y, N_Vector yp, N_Vector res,
-      SUNMatrix J, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int J(sunrealtype t, sunrealtype cj, N_Vector y, N_Vector yp,
+             N_Vector res, SUNMatrix J, void* user_data, N_Vector tmp1,
+             N_Vector tmp2, N_Vector tmp3)
 {
   sunrealtype* udata  = (sunrealtype*)user_data;
   const sunrealtype a = udata[0];
@@ -167,8 +169,8 @@ int J(sunrealtype t, sunrealtype cj, N_Vector y, N_Vector yp, N_Vector res,
 // Custom linear solver solve function
 // -----------------------------------------------------------------------------
 
-int DenseSetupAndSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
-                       sunrealtype tol)
+static int DenseSetupAndSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                              N_Vector b, sunrealtype tol)
 {
   // Create a copy of the matrix for factorization
   SUNMatrix Acpy = SUNMatClone(A);
@@ -196,7 +198,7 @@ int DenseSetupAndSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
 // -----------------------------------------------------------------------------
 
 // Check function return flag
-int check_flag(int flag, const std::string funcname)
+static int check_flag(int flag, const std::string funcname)
 {
   if (!flag) { return 0; }
   if (flag < 0) { std::cerr << "ERROR: "; }
@@ -206,7 +208,7 @@ int check_flag(int flag, const std::string funcname)
 }
 
 // Check if a function returned a NULL pointer
-int check_ptr(void* ptr, const std::string funcname)
+static int check_ptr(void* ptr, const std::string funcname)
 {
   if (ptr) { return 0; }
   std::cerr << "ERROR: " << funcname << " returned NULL" << std::endl;
