@@ -237,6 +237,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess);
 int arkStep_StageSetup(ARKodeMem ark_mem, sunbooleantype implicit);
 int arkStep_NlsInit(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
+int arkStep_NlsSetSysFn(ARKodeMem ark_mem);
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsm);
 int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype* dsm);
 void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, sunrealtype* stage_times,
@@ -244,10 +245,18 @@ void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, sunrealtype* stage_times,
 
 /* private functions passed to nonlinear solver */
 int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem);
+int arkStep_NlsResidual_MassIdent_TrivialPred(N_Vector zcor, N_Vector r,
+                                              void* arkode_mem);
 int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem);
+int arkStep_NlsResidual_MassFixed_TrivialPred(N_Vector zcor, N_Vector r,
+                                              void* arkode_mem);
 int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem);
 int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem);
+int arkStep_NlsFPFunction_MassIdent_TrivialPred(N_Vector zcor, N_Vector g,
+                                                void* arkode_mem);
 int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem);
+int arkStep_NlsFPFunction_MassFixed_TrivialPred(N_Vector zcor, N_Vector g,
+                                                void* arkode_mem);
 int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem);
 int arkStep_NlsLSetup(sunbooleantype jbad, sunbooleantype* jcur,
                       void* arkode_mem);
