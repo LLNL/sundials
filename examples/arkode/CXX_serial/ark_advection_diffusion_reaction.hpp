@@ -266,7 +266,7 @@ int SetIC(N_Vector y, UserData& udata);
 // -----------------------------------------------------------------------------
 
 // Check function return flag
-int check_flag(int flag, const string funcname)
+static int check_flag(int flag, const string funcname)
 {
   if (flag < 0)
   {
@@ -277,7 +277,7 @@ int check_flag(int flag, const string funcname)
 }
 
 // Check if a function returned a NULL pointer
-int check_ptr(void* ptr, const string funcname)
+static int check_ptr(void* ptr, const string funcname)
 {
   if (ptr) { return 0; }
   cerr << "ERROR: " << funcname << " returned NULL" << endl;
@@ -285,7 +285,7 @@ int check_ptr(void* ptr, const string funcname)
 }
 
 // Print ERK integrator statistics
-int OutputStatsERK(void* arkode_mem, UserData& udata)
+static int OutputStatsERK(void* arkode_mem, UserData& udata)
 {
   int flag;
 
@@ -309,7 +309,7 @@ int OutputStatsERK(void* arkode_mem, UserData& udata)
 }
 
 // Print ARK integrator statistics
-int OutputStatsARK(void* arkode_mem, UserData& udata)
+static int OutputStatsARK(void* arkode_mem, UserData& udata)
 {
   int flag;
 
@@ -362,8 +362,8 @@ int OutputStatsARK(void* arkode_mem, UserData& udata)
 }
 
 // Print MRI integrator statistics
-int OutputStatsMRIARK(void* arkode_mem, MRIStepInnerStepper fast_mem,
-                      UserData& udata)
+static int OutputStatsMRIARK(void* arkode_mem, MRIStepInnerStepper fast_mem,
+                             UserData& udata)
 {
   int flag;
 
@@ -461,7 +461,7 @@ int OutputStatsMRIARK(void* arkode_mem, MRIStepInnerStepper fast_mem,
 }
 
 // Save current stats
-int UpdateCVodeStats(CVodeInnerStepperContent* content)
+static int UpdateCVodeStats(CVodeInnerStepperContent* content)
 {
   int flag;
   long int nst, netf, nfe, nni, nncf, nsetups, nje;
@@ -498,8 +498,8 @@ int UpdateCVodeStats(CVodeInnerStepperContent* content)
 }
 
 // Print MRI integrator statistics
-int OutputStatsMRICVODE(void* arkode_mem, MRIStepInnerStepper fast_mem,
-                        UserData& udata)
+static int OutputStatsMRICVODE(void* arkode_mem, MRIStepInnerStepper fast_mem,
+                               UserData& udata)
 {
   int flag;
 
@@ -570,7 +570,7 @@ int OutputStatsMRICVODE(void* arkode_mem, MRIStepInnerStepper fast_mem,
 }
 
 // Print command line options
-void InputHelp()
+static void InputHelp()
 {
   cout << endl;
   cout << "Command line options:" << endl;
@@ -662,8 +662,8 @@ inline void find_arg(vector<string>& args, const string key, bool& dest,
   }
 }
 
-int ReadInputs(vector<string>& args, UserData& udata, UserOptions& uopts,
-               SUNContext ctx)
+static int ReadInputs(vector<string>& args, UserData& udata, UserOptions& uopts,
+                      SUNContext ctx)
 {
   if (find(args.begin(), args.end(), "--help") != args.end())
   {
@@ -785,7 +785,7 @@ int ReadInputs(vector<string>& args, UserData& udata, UserOptions& uopts,
 }
 
 // Print user data
-int PrintSetup(UserData& udata, UserOptions& uopts)
+static int PrintSetup(UserData& udata, UserOptions& uopts)
 {
   cout << endl;
   cout << "Problem parameters and options:" << endl;
@@ -1147,7 +1147,7 @@ int PrintSetup(UserData& udata, UserOptions& uopts)
 }
 
 // Initialize output
-int OpenOutput(UserData& udata, UserOptions& uopts)
+static int OpenOutput(UserData& udata, UserOptions& uopts)
 {
   // Header for status output
   if (uopts.output)
@@ -1183,7 +1183,8 @@ int OpenOutput(UserData& udata, UserOptions& uopts)
 }
 
 // Write output
-int WriteOutput(sunrealtype t, N_Vector y, UserData& udata, UserOptions& uopts)
+static int WriteOutput(sunrealtype t, N_Vector y, UserData& udata,
+                       UserOptions& uopts)
 {
   if (uopts.output)
   {
@@ -1212,7 +1213,7 @@ int WriteOutput(sunrealtype t, N_Vector y, UserData& udata, UserOptions& uopts)
 }
 
 // Finalize output
-int CloseOutput(UserOptions& uopts)
+static int CloseOutput(UserOptions& uopts)
 {
   // Footer for status output
   if (uopts.output)

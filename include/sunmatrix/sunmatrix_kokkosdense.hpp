@@ -46,7 +46,7 @@ inline MatrixType* GetDenseMat(SUNMatrix A)
 
 namespace impl {
 
-SUNMatrix_ID SUNMatGetID_KokkosDense(SUNMatrix A)
+static SUNMatrix_ID SUNMatGetID_KokkosDense(SUNMatrix A)
 {
   return SUNMATRIX_KOKKOSDENSE;
 }

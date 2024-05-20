@@ -26,6 +26,7 @@ module farkode_erkstep_mod
  private
 
  ! DECLARATION CONSTRUCTS
+ integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_1 = ARKODE_FORWARD_EULER_1_1
  integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_2 = ARKODE_HEUN_EULER_2_1_2
  integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_3 = ARKODE_BOGACKI_SHAMPINE_4_2_3
  integer(C_INT), parameter, public :: ERKSTEP_DEFAULT_4 = ARKODE_ZONNEVELD_5_3_4

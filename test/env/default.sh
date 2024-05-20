@@ -139,11 +139,6 @@ if [ "$compilername" == "gcc" ]; then
         export CUDAFLAGS="-g -O3"
     fi
 
-    # append additional warning flags
-    if [[ "$SUNDIALS_PRECISION" == "double" && "$SUNDIALS_INDEX_SIZE" == "32" ]]; then
-        export CFLAGS="${CFLAGS} -Wconversion -Wno-sign-conversion"
-        export CXXFLAGS="${CXXFLAGS} -Wconversion -Wno-sign-conversion"
-    fi
     # TODO(CJB): add this back after we upgrade the GNU compiler stack on the Jenkins box
     # Currently this causes the compiler to segfault on many of the Fortran example codes.
     # export FFLAGS="${FFLAGS} -fbounds-check"

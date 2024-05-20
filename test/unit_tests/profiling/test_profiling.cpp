@@ -23,7 +23,7 @@
 #include "sundials/sundials_profiler.h"
 #include "sundials/sundials_types.h"
 
-int sleep(SUNProfiler prof, int sec, double* chrono)
+static int sleep(SUNProfiler prof, int sec, double* chrono)
 {
   auto begin = std::chrono::steady_clock::now();
 
@@ -43,7 +43,7 @@ int sleep(SUNProfiler prof, int sec, double* chrono)
   return 0;
 }
 
-int print_timings(SUNProfiler prof)
+static int print_timings(SUNProfiler prof)
 {
   // Output timing in default (table) format
   int flag = SUNProfiler_Print(prof, stdout);
