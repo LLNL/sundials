@@ -384,10 +384,10 @@ MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
 
   padding = SUNFALSE;
 
-  /* Last stage time should equal 1 */
+  /* Pad if last stage does not equal 1 */
   if (SUNRabs(B->c[B->stages - 1] - ONE) > tol) { padding = SUNTRUE; }
 
-  /* Last row of A should equal b */
+  /* Pad if last row of A does not equal b */
   for (j = 0; j < B->stages; j++)
   {
     if (SUNRabs(B->A[B->stages - 1][j] - B->b[j]) > tol) { padding = SUNTRUE; }
@@ -771,6 +771,7 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile)
  * MRISTAGE_ERK_NOFAST  -- standard ERK stage
  * MRISTAGE_DIRK_NOFAST -- standard DIRK stage
  * MRISTAGE_DIRK_FAST   -- coupled DIRK + MIS-like stage
+ * MRISTAGE_STIFF_ACC   -- "extra" stiffly-accurate stage
  *
  * for each nontrivial stage, or embedding stage, in an MRI-like method.
  * Otherwise (i.e., stage is not in [1,MRIC->stages]), returns
@@ -787,8 +788,8 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile)
 
 int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
 {
-  int i;
-  sunrealtype Gabs, cdiff;
+  int i, j;
+  sunrealtype Gabs, cdiff, Gabsrow, Wabsrow;
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
   if ((is < 1) || (is > MRIC->stages)) { return ARK_INVALID_TABLE; }
@@ -803,10 +804,27 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
   if (is < MRIC->stages)
   { /* normal */
     /* sum of stage diagonal entries across implicit tables */
-    Gabs = ZERO;
+    Gabs = Gabsrow = Wabsrow = ZERO;
     if (MRIC->G)
     {
-      for (i = 0; i < MRIC->nmat; i++) { Gabs += SUNRabs(MRIC->G[i][is][is]); }
+      for (i = 0; i < MRIC->nmat; i++)
+      {
+        Gabs += SUNRabs(MRIC->G[i][is][is]);
+        for (j = 0; j < MRIC->stages; j++)
+        {
+          Gabsrow += SUNRabs(MRIC->G[i][is][j]);
+        }
+      }
+    }
+    if (MRIC->W)
+    {
+      for (i = 0; i < MRIC->nmat; i++)
+      {
+        for (j = 0; j < MRIC->stages; j++)
+        {
+          Wabsrow += SUNRabs(MRIC->W[i][is][j]);
+        }
+      }
     }
 
     /* abscissae difference */
@@ -814,18 +832,36 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
   }
   else
   { /* embedding */
-    Gabs = ZERO;
+    Gabs = Gabsrow = Wabsrow = ZERO;
     if (MRIC->G)
     {
       for (i = 0; i < MRIC->nmat; i++)
       {
         Gabs += SUNRabs(MRIC->G[i][is][is - 1]);
+        for (j = 0; j < MRIC->stages; j++)
+        {
+          Gabsrow += SUNRabs(MRIC->G[i][is][j]);
+        }
+      }
+    }
+    if (MRIC->W)
+    {
+      for (i = 0; i < MRIC->nmat; i++)
+      {
+        for (j = 0; j < MRIC->stages; j++)
+        {
+          Wabsrow += SUNRabs(MRIC->W[i][is][j]);
+        }
       }
     }
     cdiff = MRIC->c[is - 1] - MRIC->c[is - 2];
   }
 
   /* make determination */
+  if ((Gabs <= tol) && (Gabsrow <= tol) && (Wabsrow <= tol) && (cdiff <= tol))
+  { /* stiffly-accurate stage */
+    return (MRISTAGE_STIFF_ACC);
+  }
   if (Gabs > tol)
   { /* DIRK */
     if (cdiff > tol)

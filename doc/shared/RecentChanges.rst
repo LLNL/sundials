@@ -9,6 +9,10 @@ estimate over multiple time steps.  See the routines :c:func:`ARKStepSetAccumula
 :c:func:`ERKStepSetAccumulatedErrorType`, :c:func:`ERKStepResetAccumulatedError`,
 and :c:func:`ERKStepGetAccumulatedError` for details.
 
+Fixed the runtime library installation path for windows systems. This fix changes the
+default library installation path from ``CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR`` to
+``CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_BINDIR``.
+
 Created shared user interface for ARKODE user-callable routines, to allow more
 uniform control over time-stepping algorithms, improved extensibility, and
 simplified code maintenance.  Marked the corresponding stepper-specific
@@ -45,6 +49,10 @@ Added the following MRI coupling tables
 * ``ARKODE_IMEX_MRI_GARK_MIDPOINT``
 
 **Bug Fixes**
+
+Fixed conflicting ``.lib`` files between shared and static libs when using ``MSVC`` on Windows
+
+Fixed invalid ``SUNDIALS_EXPORT`` generated macro when building both shared and static libs
 
 Updated the CMake variable ``HIP_PLATFORM`` default to ``amd`` as the previous
 default, ``hcc``, is no longer recognized in ROCm 5.7.0 or newer. The new

@@ -674,7 +674,6 @@ void mriStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   {
     fprintf(outfile, " %i", step_mem->stagetypes[i]);
   }
-  fprintf(outfile, "\n");
 
   /* output long integer quantities */
   fprintf(outfile, "MRIStep: nfse = %li\n", step_mem->nfse);
@@ -1423,7 +1422,7 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
 {
   ARKodeMRIStepMem step_mem;
-  int retval;
+  int i, sa_stage, retval;
 
   /* access ARKodeMRIStepMem structure */
   retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -1507,29 +1506,56 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     /* compute the full RHS */
     if (!(ark_mem->fn_is_current))
     {
-      /* compute the explicit component */
-      if (step_mem->explicit_rhs)
+      /* if the method had a stiffly-accurate internal stage, use the
+         already-computed RHS vectors */
+      sa_stage = -1;
+      for (i = 1; i < step_mem->stages; i++)
       {
-        retval = step_mem->fse(t, y, step_mem->Fse[0], ark_mem->user_data);
-        step_mem->nfse++;
-        if (retval != 0)
+        if (step_mem->stagetypes[i] == MRISTAGE_STIFF_ACC)
         {
-          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
-                          __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
-          return (ARK_RHSFUNC_FAIL);
+          sa_stage = step_mem->stage_map[i-1];
         }
       }
-
-      /* compute the implicit component */
-      if (step_mem->implicit_rhs)
+      if (sa_stage > -1)
       {
-        retval = step_mem->fsi(t, y, step_mem->Fsi[0], ark_mem->user_data);
-        step_mem->nfsi++;
-        if (retval != 0)
+        /* copy the explicit component */
+        if (step_mem->explicit_rhs)
         {
-          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
-                          __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
-          return (ARK_RHSFUNC_FAIL);
+          N_VScale(ONE, step_mem->Fse[sa_stage], step_mem->Fse[0]);
+        }
+
+        /* copy the implicit component */
+        if (step_mem->implicit_rhs)
+        {
+          N_VScale(ONE, step_mem->Fsi[sa_stage], step_mem->Fsi[0]);
+        }
+      }
+      else
+      {
+        /* compute the explicit component */
+        if (step_mem->explicit_rhs)
+        {
+          retval = step_mem->fse(t, y, step_mem->Fse[0], ark_mem->user_data);
+          step_mem->nfse++;
+          if (retval != 0)
+          {
+            arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
+                            __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
+            return (ARK_RHSFUNC_FAIL);
+          }
+        }
+
+        /* compute the implicit component */
+        if (step_mem->implicit_rhs)
+        {
+          retval = step_mem->fsi(t, y, step_mem->Fsi[0], ark_mem->user_data);
+          step_mem->nfsi++;
+          if (retval != 0)
+          {
+            arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
+                            __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
+            return (ARK_RHSFUNC_FAIL);
+          }
         }
       }
 
@@ -1678,6 +1704,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   N_Vector tmp;                       /* N_Vector pointer           */
   SUNAdaptController_Type adapt_type; /* timestep adaptivity type   */
   sunrealtype t0, tf;                 /* start/end of each stage    */
+  sunbooleantype calc_fslow;
 
   /* access the MRIStep mem structure */
   retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -1836,6 +1863,9 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     case (MRISTAGE_DIRK_FAST):
       retval = mriStep_StageDIRKFast(ark_mem, step_mem, is, nflagPtr);
       break;
+    case (MRISTAGE_STIFF_ACC):
+      retval = ARK_SUCCESS;
+      break;
     }
     if (retval != ARK_SUCCESS) { return (retval); }
 
@@ -1847,23 +1877,40 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 #endif
 
     /* apply user-supplied stage postprocessing function (if supplied) */
-    if (ark_mem->ProcessStage != NULL)
+    if ((ark_mem->ProcessStage != NULL) &&
+        (step_mem->stagetypes[is] != MRISTAGE_STIFF_ACC))
     {
       retval = ark_mem->ProcessStage(tf, ark_mem->ycur, ark_mem->user_data);
       if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
     }
 
     /* conditionally reset the inner integrator with the modified stage solution */
-    if ((step_mem->stagetypes[is] != MRISTAGE_ERK_FAST) ||
-        (ark_mem->ProcessStage != NULL))
+    if (step_mem->stagetypes[is] != MRISTAGE_STIFF_ACC)
     {
-      retval = mriStepInnerStepper_Reset(step_mem->stepper, tf, ark_mem->ycur);
-      if (retval != ARK_SUCCESS) { return (ARK_INNERSTEP_FAIL); }
+      if ((step_mem->stagetypes[is] != MRISTAGE_ERK_FAST) ||
+          (ark_mem->ProcessStage != NULL))
+      {
+        retval = mriStepInnerStepper_Reset(step_mem->stepper, tf, ark_mem->ycur);
+        if (retval != ARK_SUCCESS) { return (ARK_INNERSTEP_FAIL); }
+      }
     }
 
-    /* Compute updated slow RHS except at last stage which is the new solution.
-     * The new solution RHS evaluation happens in arkCompleteStep */
-    if (is < step_mem->stages - 1 && step_mem->stage_map[is] > -1)
+    /* Compute updated slow RHS, except:
+       1. at last stage which is the new solution, since that RHS occurs in arkCompleteStep.
+       2. if the stage is excluded from stage_map
+       3. if the next stage has "STIFF_ACC" type, and temporal estimation is disabled */
+    calc_fslow = SUNTRUE;
+    if (is == step_mem->stages - 1) { calc_fslow = SUNFALSE; }
+    if (step_mem->stage_map[is] == -1) { calc_fslow = SUNFALSE; }
+    if (is < step_mem->stages - 1)
+    {
+      if (ark_mem->fixedstep && (ark_mem->AccumErrorType < 0) &&
+          (step_mem->stagetypes[is+1] == MRISTAGE_STIFF_ACC))
+      {
+        calc_fslow = SUNFALSE;
+      }
+    }
+    if (calc_fslow)
     {
       /* store explicit slow rhs */
       if (step_mem->explicit_rhs)

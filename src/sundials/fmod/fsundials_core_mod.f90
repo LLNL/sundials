@@ -542,6 +542,7 @@ module fsundials_core_mod
   type(C_PTR), public :: sunctx
  end type SUNAdaptController
  public :: FSUNAdaptController_NewEmpty
+ public :: FSUNAdaptController_DestroyEmpty
  public :: FSUNAdaptController_GetType
  public :: FSUNAdaptController_Destroy
  public :: FSUNAdaptController_EstimateStep
@@ -1964,6 +1965,12 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
 end function
+
+subroutine swigc_FSUNAdaptController_DestroyEmpty(farg1) &
+bind(C, name="_wrap_FSUNAdaptController_DestroyEmpty")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+end subroutine
 
 function swigc_FSUNAdaptController_GetType(farg1) &
 bind(C, name="_wrap_FSUNAdaptController_GetType") &
@@ -4685,6 +4692,15 @@ farg1 = sunctx
 fresult = swigc_FSUNAdaptController_NewEmpty(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
+
+subroutine FSUNAdaptController_DestroyEmpty(c)
+use, intrinsic :: ISO_C_BINDING
+type(SUNAdaptController), target, intent(inout) :: c
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(c)
+call swigc_FSUNAdaptController_DestroyEmpty(farg1)
+end subroutine
 
 function FSUNAdaptController_GetType(c) &
 result(swig_result)

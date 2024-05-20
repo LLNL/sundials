@@ -31,6 +31,7 @@ extern "C" {
 #endif
 
 /* Stage type identifiers */
+#define MRISTAGE_STIFF_ACC  -1
 #define MRISTAGE_ERK_FAST    0
 #define MRISTAGE_ERK_NOFAST  1
 #define MRISTAGE_DIRK_NOFAST 2

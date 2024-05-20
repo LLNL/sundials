@@ -270,10 +270,10 @@ int run_tests(MRISTEP_METHOD_TYPE type, sunrealtype t0, int nsteps,
     cout << "Test MERK methods\n";
     cout << "=================\n";
 
-    methods.insert({{"ARKODE_MERK21", false},
-                    {"ARKODE_MERK32", false},
-                    {"ARKODE_MERK43", false},
-                    {"ARKODE_MERK54", false}});
+    methods.insert({{"ARKODE_MERK21", true},
+                    {"ARKODE_MERK32", true},
+                    {"ARKODE_MERK43", true},
+                    {"ARKODE_MERK54", true}});
   }
   else if (type == MRISTEP_IMPLICIT)
   {
