@@ -76,7 +76,7 @@ endif()
 if(ENABLE_ALL_WARNINGS)
   message(STATUS "Enabling all compiler warnings")
 
-  # Avoid numerous warnings from printf that can't be avoided
+  # Avoid numerous warnings from printf
   if(SUNDIALS_PRECISION MATCHES "EXTENDED")
     set(CMAKE_C_FLAGS "-Wdouble-promotion ${CMAKE_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "-Wdouble-promotion ${CMAKE_CXX_FLAGS}")
@@ -87,15 +87,14 @@ if(ENABLE_ALL_WARNINGS)
     set(CMAKE_CXX_FLAGS "-Wconversion -Wno-sign-conversion ${CMAKE_CXX_FLAGS}")
   endif()
 
-  # SWIG _wrap_* functions generate numerous missing declaration warnings so
-  # skip this warning flag for now
+  # Avoid numerous warnings from SWIG generated functions
   if(NOT BUILD_FORTRAN_MODULE_INTERFACE)
-    set(CMAKE_C_FLAGS "-Wmissing-declarations ${CMAKE_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "-Wmissing-declarations ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_C_FLAGS "-Wmissing-declarations -Wcast-qual ${CMAKE_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-Wmissing-declarations -Wcast-qual ${CMAKE_CXX_FLAGS}")
   endif()
 
-  set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wshadow  -Wcast-qual -Wno-unused-parameter -Wno-unused-function ${CMAKE_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wmissing-declarations -Wcast-qual -Wno-unused-parameter -Wno-unused-function ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function ${CMAKE_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function ${CMAKE_CXX_FLAGS}")
   set(CMAKE_Fortran_FLAGS "-Wall -Wpedantic -Wno-unused-dummy-argument -Wno-c-binding-type -ffpe-summary=none ${CMAKE_Fortran_FLAGS}")
 endif()
 
