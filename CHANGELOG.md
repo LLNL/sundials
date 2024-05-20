@@ -2,6 +2,8 @@
 
 ## Changes to SUNDIALS in release X.Y.Z
 
+### Major Features
+
 Created shared user interface functions for ARKODE to allow more uniform control
 over time-stepping algorithms, improved extensibility, and simplified code
 maintenance. The corresponding stepper-specific user-callable functions are now
