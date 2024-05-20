@@ -75,7 +75,7 @@ ARKBBDPRE can only be used with NVECTOR_PARALLEL.
    User_supplied
    Relaxation
    Preconditioners
-   ARKStep_c_interface/index.rst
-   ERKStep_c_interface/index.rst
-   SPRKStep_c_interface/index.rst
-   MRIStep_c_interface/index.rst
+   ARKStep/index.rst
+   ERKStep/index.rst
+   SPRKStep/index.rst
+   MRIStep/index.rst
