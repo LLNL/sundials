@@ -120,6 +120,8 @@
  * </pre>
  */
 
+#include "dreadrb.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_types.h>
