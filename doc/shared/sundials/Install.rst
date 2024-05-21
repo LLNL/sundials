@@ -665,7 +665,7 @@ illustration only.
 .. cmakeoption:: SUNDIALS_GINKGO_BACKENDS
 
    Semi-colon separated list of Ginkgo target architecutres/executors to build for.
-   Options currenty supported are REF (the Ginkgo reference executor), OMP, CUDA, HIP, and DPC++.
+   Options currenty supported are REF (the Ginkgo reference executor), OMP, CUDA, HIP, and SYCL.
 
    Default: "REF;OMP"
 
@@ -1480,13 +1480,13 @@ SUNDIALS has been tested with MAGMA version v2.6.1 and v2.6.2.
 
 .. _Installation.CMake.ExternalLibraries.OneMKL:
 
-Building with oneMKL
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Building with oneMKL for SYCL
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Intel `oneAPI Math Kernel Library (oneMKL)
 <https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onemkl.html>`_
-includes CPU and DPC++ interfaces for LAPACK dense linear algebra routines. The
-SUNDIALS oneMKL interface targets the DPC++ routines, to utilize the CPU routine
+includes CPU and SYCL/DPC++ interfaces for LAPACK dense linear algebra routines. The
+SUNDIALS oneMKL interface targets the SYCL/DPC++ routines, to utilize the CPU routine
 see :numref:`Installation.CMake.ExternalLibraries.LAPACK`.
 
 To enable the SUNDIALS oneMKL interface set ``ENABLE_ONEMKL`` to ``ON`` and

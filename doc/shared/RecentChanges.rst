@@ -79,3 +79,5 @@ Fix bug on LLP64 platforms (like Windows 64-bit) where ``KLU_INDEXTYPE`` could b
 
 Check if size of ``SuiteSparse_long`` is 8 if the size of ``sunindextype`` is 8
 when using KLU.
+
+Renamed the DPCPP value for the :cmakeop:`SUNDIALS_GINKGO_BACKENDS` CMake option to `SYCL` to match Ginkgo's updated naming convention.
