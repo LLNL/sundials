@@ -1755,7 +1755,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   imex_method = (step_mem->implicit && step_mem->explicit);
 
-  save_fn_for_residual = (step_mem->predictor == 0 &&
+  save_fn_for_residual = (step_mem->predictor == 0 && step_mem->autonomous &&
                           (step_mem->mass_type == MASS_FIXED ||
                            step_mem->mass_type == MASS_IDENTITY) &&
                           ((step_mem->implicit && !(step_mem->explicit)) ||
