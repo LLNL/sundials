@@ -57,6 +57,22 @@ message(STATUS "KLU_INCLUDE_DIR: ${KLU_INCLUDE_DIR}")
 if(KLU_FOUND AND (NOT KLU_WORKS))
   # Do any checks which don't require compilation first.
 
+  if(SUNDIALS_INDEX_SIZE MATCHES "64")
+    # Check size of SuiteSparse_long
+    include(CheckTypeSize)
+    set(save_CMAKE_EXTRA_INCLUDE_FILES ${CMAKE_EXTRA_INCLUDE_FILES})
+    list(APPEND CMAKE_EXTRA_INCLUDE_FILES "klu.h")
+    set(save_CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES})
+    list(APPEND CMAKE_REQUIRED_INCLUDES ${KLU_INCLUDE_DIR})
+    check_type_size("SuiteSparse_long" SIZEOF_SUITESPARSE_LONG)
+    set(CMAKE_EXTRA_INCLUDE_FILES ${save_CMAKE_EXTRA_INCLUDE_FILES})
+    set(CMAKE_REQUIRED_INCLUDES ${save_CMAKE_REQUIRED_INCLUDES})
+    message(STATUS "Size of SuiteSparse_long is ${SIZEOF_SUITESPARSE_LONG}")
+    if(NOT SIZEOF_SUITESPARSE_LONG EQUAL "8")
+      print_error("Size of 'sunindextype' is 8 but size of 'SuiteSparse_long' is ${SIZEOF_SUITESPARSE_LONG}. KLU cannot be used.")
+    endif()
+  endif()
+
   # Create the KLU_TEST directory
   set(KLU_TEST_DIR ${PROJECT_BINARY_DIR}/KLU_TEST)
   file(MAKE_DIRECTORY ${KLU_TEST_DIR})

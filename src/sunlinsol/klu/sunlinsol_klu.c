@@ -47,18 +47,6 @@
 
 /*
  * -----------------------------------------------------------------
- * typedef to handle pointer casts from sunindextype to KLU type
- * -----------------------------------------------------------------
- */
-
-#if defined(SUNDIALS_INT64_T)
-#define KLU_INDEXTYPE int64_t
-#else
-#define KLU_INDEXTYPE int
-#endif
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -268,10 +256,9 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
   {
     /* Perform symbolic analysis of sparsity structure */
     if (SYMBOLIC(S)) { sun_klu_free_symbolic(&SYMBOLIC(S), &COMMON(S)); }
-    SYMBOLIC(S) =
-      sun_klu_analyze(SUNSparseMatrix_NP(A),
-                      (KLU_INDEXTYPE*)SUNSparseMatrix_IndexPointers(A),
-                      (KLU_INDEXTYPE*)SUNSparseMatrix_IndexValues(A), &COMMON(S));
+    SYMBOLIC(S) = sun_klu_analyze(SUNSparseMatrix_NP(A),
+                                  SUNSparseMatrix_IndexPointers(A),
+                                  SUNSparseMatrix_IndexValues(A), &COMMON(S));
     if (SYMBOLIC(S) == NULL)
     {
       LASTFLAG(S) = SUN_ERR_EXT_FAIL;
@@ -282,8 +269,8 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
        Compute the LU factorization of the matrix
        ------------------------------------------------------------*/
     if (NUMERIC(S)) { sun_klu_free_numeric(&NUMERIC(S), &COMMON(S)); }
-    NUMERIC(S) = sun_klu_factor((KLU_INDEXTYPE*)SUNSparseMatrix_IndexPointers(A),
-                                (KLU_INDEXTYPE*)SUNSparseMatrix_IndexValues(A),
+    NUMERIC(S) = sun_klu_factor(SUNSparseMatrix_IndexPointers(A),
+                                SUNSparseMatrix_IndexValues(A),
                                 SUNSparseMatrix_Data(A), SYMBOLIC(S), &COMMON(S));
     if (NUMERIC(S) == NULL)
     {
@@ -296,8 +283,8 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
   else
   { /* not the first decomposition, so just refactor */
 
-    retval = sun_klu_refactor((KLU_INDEXTYPE*)SUNSparseMatrix_IndexPointers(A),
-                              (KLU_INDEXTYPE*)SUNSparseMatrix_IndexValues(A),
+    retval = sun_klu_refactor(SUNSparseMatrix_IndexPointers(A),
+                              SUNSparseMatrix_IndexValues(A),
                               SUNSparseMatrix_Data(A), SYMBOLIC(S), NUMERIC(S),
                               &COMMON(S));
     if (retval == 0)
@@ -323,7 +310,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
     {
       /* Condition number may be getting large.
 	 Compute more accurate estimate */
-      retval = sun_klu_condest((KLU_INDEXTYPE*)SUNSparseMatrix_IndexPointers(A),
+      retval = sun_klu_condest(SUNSparseMatrix_IndexPointers(A),
                                SUNSparseMatrix_Data(A), SYMBOLIC(S), NUMERIC(S),
                                &COMMON(S));
       if (retval == 0)
@@ -335,12 +322,12 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
       if (COMMON(S).condest > (ONE / uround_twothirds))
       {
         /* More accurate estimate also says condition number is
-	   large, so recompute the numeric factorization */
+           large, so recompute the numeric factorization */
         sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
-        NUMERIC(S) =
-          sun_klu_factor((KLU_INDEXTYPE*)SUNSparseMatrix_IndexPointers(A),
-                         (KLU_INDEXTYPE*)SUNSparseMatrix_IndexValues(A),
-                         SUNSparseMatrix_Data(A), SYMBOLIC(S), &COMMON(S));
+        NUMERIC(S) = sun_klu_factor(SUNSparseMatrix_IndexPointers(A),
+                                    SUNSparseMatrix_IndexValues(A),
+                                    SUNSparseMatrix_Data(A), SYMBOLIC(S),
+                                    &COMMON(S));
         if (NUMERIC(S) == NULL)
         {
           LASTFLAG(S) = SUN_ERR_EXT_FAIL;
