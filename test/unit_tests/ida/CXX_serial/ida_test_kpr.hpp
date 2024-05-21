@@ -123,7 +123,7 @@ static int true_sol_p(sunrealtype t, sunrealtype* up, sunrealtype* vp)
 // -----------------------------------------------------------------------------
 
 // Check function return flag
-int check_flag(int flag, const string funcname)
+static int check_flag(int flag, const string funcname)
 {
   if (!flag) { return 0; }
   if (flag < 0) { cerr << "ERROR: "; }
@@ -132,7 +132,7 @@ int check_flag(int flag, const string funcname)
 }
 
 // Check if a function returned a NULL pointer
-int check_ptr(void* ptr, const string funcname)
+static int check_ptr(void* ptr, const string funcname)
 {
   if (ptr) { return 0; }
   cerr << "ERROR: " << funcname << " returned NULL" << endl;
@@ -187,7 +187,7 @@ inline void find_arg(vector<string>& args, const string key, bool& dest,
 }
 
 // Print command line options
-void InputHelp()
+static void InputHelp()
 {
   cout << endl;
   cout << "Command line options:" << endl;
@@ -205,7 +205,7 @@ void InputHelp()
   cout << "  --nout        : number of outputs\n";
 }
 
-int ReadInputs(vector<string>& args, TestOptions& opts, SUNContext ctx)
+static int ReadInputs(vector<string>& args, TestOptions& opts, SUNContext ctx)
 {
   if (find(args.begin(), args.end(), "--help") != args.end())
   {

@@ -21,7 +21,7 @@
 #include <vector>
 
 // Check for an unrecoverable (negative) return value from a SUNDIALS function
-int check_flag(const int flag, const std::string funcname)
+static int check_flag(const int flag, const std::string funcname)
 {
   if (flag < 0)
   {
@@ -32,7 +32,7 @@ int check_flag(const int flag, const std::string funcname)
 }
 
 // Check if a function returned a NULL pointer
-int check_ptr(const void* ptr, const std::string funcname)
+static int check_ptr(const void* ptr, const std::string funcname)
 {
   if (ptr) { return 0; }
   std::cerr << "ERROR: " << funcname << " returned NULL" << std::endl;
