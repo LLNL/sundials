@@ -100,6 +100,9 @@ allocated.
 Fix bug on LLP64 platforms (like Windows 64-bit) where `KLU_INDEXTYPE` could be
 32 bits wide even if `SUNDIALS_INT64_T` is defined.
 
+Check if size of `SuiteSparse_long` is 8 if the size of `sunindextype` is 8
+when using KLU.
+
 ### Deprecation Notices
 
 Numerous ARKODE stepper-specific functions are now deprecated in favor of
