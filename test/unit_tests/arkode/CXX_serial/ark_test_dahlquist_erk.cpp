@@ -144,30 +144,6 @@ int main(int argc, char* argv[])
             << "Test explicit RK methods\n"
             << "========================\n";
 
-  Be          = ARKodeButcherTable_Alloc(1, SUNFALSE);
-  Be->A[0][0] = ZERO;
-  Be->b[0]    = ONE;
-  Be->c[0]    = ZERO;
-  Be->q       = 1;
-
-  flag = get_method_properties(Be, stages, order, explicit_first_stage,
-                               stiffly_accurate, fsal);
-  if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
-
-  std::cout << "\n========================" << std::endl;
-  std::cout << "Explicit Euler" << std::endl;
-  std::cout << "  stages:             " << stages << std::endl;
-  std::cout << "  order:              " << order << std::endl;
-  std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
-  std::cout << "  stiffly accurate:   " << stiffly_accurate << std::endl;
-  std::cout << "  first same as last: " << fsal << std::endl;
-  std::cout << "========================" << std::endl;
-
-  numfails += run_tests(Be, prob_data, prob_opts, sunctx);
-
-  ARKodeButcherTable_Free(Be);
-  Be = nullptr;
-
   for (int i = ARKODE_MIN_ERK_NUM; i <= ARKODE_MAX_ERK_NUM; i++)
   {
     Be   = ARKodeButcherTable_LoadERK(static_cast<ARKODE_ERKTableID>(i));
