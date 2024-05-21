@@ -463,6 +463,7 @@ struct ARKodeMemRec
   N_Vector tempv2;              /* and by time-stepping modules)              */
   N_Vector tempv3;
   N_Vector tempv4;
+  N_Vector tempv5;
 
   N_Vector constraints; /* vector of inequality constraint options         */
 

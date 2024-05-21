@@ -407,14 +407,14 @@ int ARKodeSetAutonomous(void* arkode_mem, sunbooleantype autonomous)
   /* Call stepper routine (if provided) */
   if (ark_mem->step_setautonomous)
   {
-    return (ark_mem->step_setautonomous(arkode_mem, autonomous));
+    return ark_mem->step_setautonomous(arkode_mem, autonomous);
   }
   else
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__,
                     "time-stepping module does not support this function");
-    return (ARK_STEPPER_UNSUPPORTED);
+    return ARK_STEPPER_UNSUPPORTED;
   }
 }
 

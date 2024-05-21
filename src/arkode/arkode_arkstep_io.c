@@ -794,11 +794,23 @@ int arkStep_SetAutonomous(ARKodeMem ark_mem, sunbooleantype autonomous)
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   step_mem->autonomous = autonomous;
 
   if (autonomous && step_mem->linear) { step_mem->linear_timedep = SUNFALSE; }
+
+  /* This will be better handled when the temp vector stack is added */
+  if (autonomous)
+  {
+    /* Allocate tempv5 if needed */
+    if (!arkAllocVec(ark_mem, ark_mem->yn, &ark_mem->tempv5))
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return ARK_MEM_FAIL;
+    }
+  }
 
   return ARK_SUCCESS;
 }

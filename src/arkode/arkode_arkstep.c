@@ -1703,7 +1703,10 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     save_stages = SUNTRUE;
   }
 
-  /* check for implicit method with explicit first stage */
+  /* check for an ImEx method */
+  imex_method = step_mem->implicit && step_mem->explicit;
+
+  /* check for implicit method with an explicit first stage */
   implicit_stage = SUNFALSE;
   is_start       = 1;
   if (step_mem->implicit)
@@ -1739,43 +1742,74 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
+  /* For a stiffly accurate implicit or ImEx method with an implicit first
+     stage, save f(tn, yn) if using Hermite interpolation as Fi[0] will be
+     overwritten during the implicit solve */
+  save_fn_for_interp = implicit_stage && stiffly_accurate &&
+                       ark_mem->interp_type == ARK_INTERP_HERMITE;
+
+  /* For an implicit or ImEx method using the trivial predictor with an
+     autonomous problem with an identity or fixed mass matrix, save fi(tn, yn)
+     for reuse in the first residual evaluation of each stage solve */
+  save_fn_for_residual = step_mem->implicit && step_mem->predictor == 0 &&
+                         step_mem->autonomous &&
+                         step_mem->mass_type != MASS_TIMEDEP;
+
   /* Call the full RHS if needed. If this is the first step, then we evaluate or
      copy the RHS values from an earlier evaluation (e.g., to compute h0). For
      subsequent steps treat this call as an evaluation at the end of the just
      completed step (tn, yn) and potentially reuse the evaluation (FSAL method)
-     or save the value for later use (implicit methods using the trivial
-     predictor or stiffly accurate methods with an implicit first stage using
-     Hermite interpolation).
-
-     Note, saving Fi for reuse with the trivial predictor is only supported for
-     implicit methods and ImEx methods with an explicit first stage, currently.
-  */
-  save_fn_for_interp = (stiffly_accurate &&
-                        ark_mem->interp_type == ARK_INTERP_HERMITE);
-
-  imex_method = (step_mem->implicit && step_mem->explicit);
-
-  save_fn_for_residual = (step_mem->predictor == 0 && step_mem->autonomous &&
-                          (step_mem->mass_type == MASS_FIXED ||
-                           step_mem->mass_type == MASS_IDENTITY) &&
-                          ((step_mem->implicit && !(step_mem->explicit)) ||
-                           (imex_method && !implicit_stage)));
-
-  if (!(ark_mem->fn_is_current) &&
-      (!implicit_stage || save_fn_for_interp || save_fn_for_residual))
+     or save the value for later use. */
+  if (!(ark_mem->fn_is_current))
   {
-    mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
-    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
-                                   ark_mem->fn, mode);
-    if (retval) { return ARK_RHSFUNC_FAIL; }
-    ark_mem->fn_is_current = SUNTRUE;
+    /* If saving for reuse in the residual, call the full RHS for an implicit
+       method or for an ImEx method with an explicit first stage. ImEx methods
+       with an implicit first stage may not need to evaluate fe depending on the
+       interpolation type. */
+    sunbooleantype res_full_rhs = save_fn_for_residual && implicit_stage &&
+                                  !imex_method;
+
+    if (!implicit_stage || save_fn_for_interp || res_full_rhs)
+    {
+      /* need full RHS evaluation */
+      mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+      retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                     ark_mem->fn, mode);
+      if (retval) { return ARK_RHSFUNC_FAIL; }
+      ark_mem->fn_is_current = SUNTRUE;
+    }
+    else
+    {
+      /* For an ImEx method with implicit first stage and interpolation method
+         that does not need fn, only evaluate fi for reuse in the residual */
+      retval = step_mem->fi(ark_mem->tn, ark_mem->yn, step_mem->Fi[0],
+                            ark_mem->user_data);
+      step_mem->nfi++;
+      if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+      if (retval > 0) { return ARK_UNREC_RHSFUNC_ERR; }
+    }
   }
 
-  /* Set alias to implicit RHS evaluation for reuse with trivial predictor */
-  if (ark_mem->fn_is_current && save_fn_for_residual)
+  /* Set alias to implicit RHS evaluation for reuse in residual */
+  if (save_fn_for_residual)
   {
-    if (imex_method) { step_mem->fn_implicit = step_mem->Fi[0]; }
-    else { step_mem->fn_implicit = ark_mem->fn; }
+    if (!implicit_stage)
+    {
+      /* Implicit or ImEx method with explicit first stage */
+      step_mem->fn_implicit = step_mem->Fi[0];
+    }
+    else if (imex_method)
+    {
+      /* ImEx method with an implicit first stage -- copy value as it will be
+         overwritten in the first stage solve */
+      N_VScale(ONE, step_mem->Fi[0], ark_mem->tempv5);
+      step_mem->fn_implicit = ark_mem->tempv5;
+    }
+    else
+    {
+      /* Implicit method with implicit first stage */
+      step_mem->fn_implicit = ark_mem->fn;
+    }
   }
   else { step_mem->fn_implicit = NULL; }
 

@@ -758,12 +758,10 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
   long int extra_fe_evals = 0;
   long int extra_fi_evals = 0;
 
-  bool save_fn_for_residual =
-    ((prob_opts.p_type == 0) &&
-     (prob_opts.m_type == mass_matrix_type::fixed ||
-      prob_opts.m_type == mass_matrix_type::identity) &&
-     ((prob_opts.r_type == rk_type::impl) ||
-      (prob_opts.r_type == rk_type::imex && explicit_first_stage)));
+  bool save_fn_for_residual = prob_opts.p_type == 0 &&
+                              prob_opts.m_type !=
+                                mass_matrix_type::time_dependent &&
+                              prob_opts.r_type != rk_type::expl;
 
   if (prob_opts.r_type == rk_type::impl || prob_opts.r_type == rk_type::imex)
   {
