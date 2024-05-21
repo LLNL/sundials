@@ -238,6 +238,8 @@ SUNDIALS_EXPORT int ARKodeSetNonlinearSolver(void* arkode_mem,
                                              SUNNonlinearSolver NLS);
 SUNDIALS_EXPORT int ARKodeSetLinear(void* arkode_mem, int timedepend);
 SUNDIALS_EXPORT int ARKodeSetNonlinear(void* arkode_mem);
+SUNDIALS_EXPORT int ARKodeSetAutonomous(void* arkode_mem,
+                                        sunbooleantype autonomous);
 SUNDIALS_EXPORT int ARKodeSetNlsRhsFn(void* arkode_mem, ARKRhsFn nls_fi);
 SUNDIALS_EXPORT int ARKodeSetDeduceImplicitRhs(void* arkode_mem,
                                                sunbooleantype deduce);

@@ -120,6 +120,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ark_mem->step_setnonlinearsolver        = arkStep_SetNonlinearSolver;
   ark_mem->step_setlinear                 = arkStep_SetLinear;
   ark_mem->step_setnonlinear              = arkStep_SetNonlinear;
+  ark_mem->step_setautonomous             = arkStep_SetAutonomous;
   ark_mem->step_setnlsrhsfn               = arkStep_SetNlsRhsFn;
   ark_mem->step_setdeduceimplicitrhs      = arkStep_SetDeduceImplicitRhs;
   ark_mem->step_setnonlincrdown           = arkStep_SetNonlinCRDown;

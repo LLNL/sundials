@@ -249,6 +249,8 @@ typedef int (*ARKTimestepSetNonlinearSolver)(ARKodeMem ark_mem,
                                              SUNNonlinearSolver NLS);
 typedef int (*ARKTimestepSetLinear)(ARKodeMem ark_mem, int timedepend);
 typedef int (*ARKTimestepSetNonlinear)(ARKodeMem ark_mem);
+typedef int (*ARKTimestepSetAutonomous)(ARKodeMem ark_mem,
+                                        sunbooleantype autonomous);
 typedef int (*ARKTimestepSetNlsRhsFn)(ARKodeMem ark_mem, ARKRhsFn nls_fi);
 typedef int (*ARKTimestepSetDeduceImplicitRhs)(ARKodeMem ark_mem,
                                                sunbooleantype deduce);
@@ -421,6 +423,7 @@ struct ARKodeMemRec
   ARKTimestepComputeState step_computestate;
   ARKTimestepSetNonlinearSolver step_setnonlinearsolver;
   ARKTimestepSetLinear step_setlinear;
+  ARKTimestepSetAutonomous step_setautonomous;
   ARKTimestepSetNonlinear step_setnonlinear;
   ARKTimestepSetNlsRhsFn step_setnlsrhsfn;
   ARKTimestepSetDeduceImplicitRhs step_setdeduceimplicitrhs;
@@ -1270,6 +1273,13 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   ARKTimestepSetLinear
 
   This routine is called by ARKodeSetLinear, and allows the
+  stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetAutonomous
+
+  This routine is called by ARKodeSetAutonomous, and allows the
   stepper to store the corresponding user input.
 
   ---------------------------------------------------------------

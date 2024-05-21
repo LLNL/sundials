@@ -30,6 +30,7 @@
 #include <sunlinsol/sunlinsol_dense.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
+#include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -514,6 +515,10 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     // Specify linearly implicit RHS, with non-time-dependent Jacobian
     flag = ARKodeSetLinear(arkstep_mem, 0);
     if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
+
+    // Specify an autonomous RHS
+    flag = ARKodeSetAutonomous(arkstep_mem, SUNTRUE);
+    if (check_flag(&flag, "ARKodeSetAutonomous", 1)) { return 1; }
 
     // Specify implicit predictor method
     flag = ARKodeSetPredictorMethod(arkstep_mem, prob_opts.p_type);

@@ -67,14 +67,15 @@ extern "C" {
 typedef struct ARKodeARKStepMemRec
 {
   /* ARK problem specification */
-  ARKRhsFn fe; /* My' = fe(t,y) + fi(t,y)        */
+  ARKRhsFn fe; /* My' = fe(t,y) + fi(t,y) */
   ARKRhsFn fi;
+  sunbooleantype autonomous;     /* SUNTRUE if fi depends on t     */
   sunbooleantype linear;         /* SUNTRUE if fi is linear        */
   sunbooleantype linear_timedep; /* SUNTRUE if dfi/dy depends on t */
   sunbooleantype explicit;       /* SUNTRUE if fe is enabled       */
   sunbooleantype implicit;       /* SUNTRUE if fi is enabled       */
   sunbooleantype deduce_rhs;     /* SUNTRUE if fi is deduced after
-                                   a nonlinear solve              */
+                                   a nonlinear solve               */
 
   /* ARK method storage and parameters */
   N_Vector* Fe;          /* explicit RHS at each stage */
@@ -196,6 +197,7 @@ int arkStep_SetNonlinearSolver(ARKodeMem ark_mem, SUNNonlinearSolver NLS);
 int arkStep_SetNlsRhsFn(ARKodeMem ark_mem, ARKRhsFn nls_fi);
 int arkStep_SetLinear(ARKodeMem ark_mem, int timedepend);
 int arkStep_SetNonlinear(ARKodeMem ark_mem);
+int arkStep_SetAutonomous(ARKodeMem ark_mem, sunbooleantype autonomous);
 int arkStep_SetNonlinCRDown(ARKodeMem ark_mem, sunrealtype crdown);
 int arkStep_SetNonlinRDiv(ARKodeMem ark_mem, sunrealtype rdiv);
 int arkStep_SetDeltaGammaMax(ARKodeMem ark_mem, sunrealtype dgmax);
@@ -237,7 +239,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess);
 int arkStep_StageSetup(ARKodeMem ark_mem, sunbooleantype implicit);
 int arkStep_NlsInit(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
-int arkStep_NlsSetSysFn(ARKodeMem ark_mem);
+int arkStep_SetNlsSysFn(ARKodeMem ark_mem);
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsm);
 int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype* dsm);
 void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, sunrealtype* stage_times,
@@ -245,18 +247,20 @@ void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, sunrealtype* stage_times,
 
 /* private functions passed to nonlinear solver */
 int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem);
-int arkStep_NlsResidual_MassIdent_TrivialPred(N_Vector zcor, N_Vector r,
-                                              void* arkode_mem);
+int arkStep_NlsResidual_MassIdent_TrivialPredAutonomous(N_Vector zcor, N_Vector r,
+                                                        void* arkode_mem);
 int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem);
-int arkStep_NlsResidual_MassFixed_TrivialPred(N_Vector zcor, N_Vector r,
-                                              void* arkode_mem);
+int arkStep_NlsResidual_MassFixed_TrivialPredAutonomous(N_Vector zcor, N_Vector r,
+                                                        void* arkode_mem);
 int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem);
 int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem);
-int arkStep_NlsFPFunction_MassIdent_TrivialPred(N_Vector zcor, N_Vector g,
-                                                void* arkode_mem);
+int arkStep_NlsFPFunction_MassIdent_TrivialPredAutonomous(N_Vector zcor,
+                                                          N_Vector g,
+                                                          void* arkode_mem);
 int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem);
-int arkStep_NlsFPFunction_MassFixed_TrivialPred(N_Vector zcor, N_Vector g,
-                                                void* arkode_mem);
+int arkStep_NlsFPFunction_MassFixed_TrivialPredAutonomous(N_Vector zcor,
+                                                          N_Vector g,
+                                                          void* arkode_mem);
 int arkStep_NlsFPFunction_MassTDep(N_Vector zcor, N_Vector g, void* arkode_mem);
 int arkStep_NlsLSetup(sunbooleantype jbad, sunbooleantype* jcur,
                       void* arkode_mem);

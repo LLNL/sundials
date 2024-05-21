@@ -1406,6 +1406,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->step_setnonlinearsolver        = NULL;
   ark_mem->step_setlinear                 = NULL;
   ark_mem->step_setnonlinear              = NULL;
+  ark_mem->step_setautonomous             = NULL;
   ark_mem->step_setnlsrhsfn               = NULL;
   ark_mem->step_setdeduceimplicitrhs      = NULL;
   ark_mem->step_setnonlincrdown           = NULL;

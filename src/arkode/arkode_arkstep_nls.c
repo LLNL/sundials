@@ -142,10 +142,10 @@ int arkStep_SetNlsSysFn(ARKodeMem ark_mem)
   {
     if (step_mem->mass_type == MASS_IDENTITY)
     {
-      if (step_mem->predictor == 0)
+      if (step_mem->predictor == 0 && step_mem->autonomous)
       {
         retval = SUNNonlinSolSetSysFn(step_mem->NLS,
-                                      arkStep_NlsResidual_MassIdent_TrivialPred);
+                                      arkStep_NlsResidual_MassIdent_TrivialPredAutonomous);
       }
       else
       {
@@ -155,10 +155,10 @@ int arkStep_SetNlsSysFn(ARKodeMem ark_mem)
     }
     else if (step_mem->mass_type == MASS_FIXED)
     {
-      if (step_mem->predictor == 0)
+      if (step_mem->predictor == 0 && step_mem->autonomous)
       {
         retval = SUNNonlinSolSetSysFn(step_mem->NLS,
-                                      arkStep_NlsResidual_MassFixed_TrivialPred);
+                                      arkStep_NlsResidual_MassFixed_TrivialPredAutonomous);
       }
       else
       {
@@ -181,10 +181,10 @@ int arkStep_SetNlsSysFn(ARKodeMem ark_mem)
   {
     if (step_mem->mass_type == MASS_IDENTITY)
     {
-      if (step_mem->predictor == 0)
+      if (step_mem->predictor == 0 && step_mem->autonomous)
       {
         retval = SUNNonlinSolSetSysFn(step_mem->NLS,
-                                      arkStep_NlsFPFunction_MassIdent_TrivialPred);
+                                      arkStep_NlsFPFunction_MassIdent_TrivialPredAutonomous);
       }
       else
       {
@@ -194,10 +194,10 @@ int arkStep_SetNlsSysFn(ARKodeMem ark_mem)
     }
     else if (step_mem->mass_type == MASS_FIXED)
     {
-      if (step_mem->predictor == 0)
+      if (step_mem->predictor == 0 && step_mem->autonomous)
       {
         retval = SUNNonlinSolSetSysFn(step_mem->NLS,
-                                      arkStep_NlsFPFunction_MassFixed_TrivialPred);
+                                      arkStep_NlsFPFunction_MassFixed_TrivialPredAutonomous);
       }
       else
       {
@@ -525,7 +525,7 @@ int arkStep_NlsLSolve(N_Vector b, void* arkode_mem)
 
 /*---------------------------------------------------------------
   arkStep_NlsResidual_MassIdent
-  arkStep_NlsResidual_MassIdent_TrivialPred
+  arkStep_NlsResidual_MassIdent_TrivialPredAutonomous
 
   This routine evaluates the nonlinear residual for the additive
   Runge-Kutta method.  It assumes that any data from previous
@@ -551,8 +551,9 @@ int arkStep_NlsLSolve(N_Vector b, void* arkode_mem)
      Fi(z) (stored step_mem->Fi[step_mem->istage])
      r = zc - gamma*Fi(z) - step_mem->sdata
 
-  The "TrivialPred" version reuses the implicit RHS evaluation at
-  the beginning of the step in the initial residual evaluation.
+  The "TrivialPredAutonomous" version reuses the implicit RHS
+  evaluation at the beginning of the step in the initial residual
+  evaluation.
   ---------------------------------------------------------------*/
 int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem)
 {
@@ -585,11 +586,12 @@ int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem)
   X[2]   = step_mem->Fi[step_mem->istage];
   retval = N_VLinearCombination(3, c, X, r);
   if (retval != 0) { return (ARK_VECTOROP_ERR); }
+
   return (ARK_SUCCESS);
 }
 
-int arkStep_NlsResidual_MassIdent_TrivialPred(N_Vector zcor, N_Vector r,
-                                              void* arkode_mem)
+int arkStep_NlsResidual_MassIdent_TrivialPredAutonomous(N_Vector zcor, N_Vector r,
+                                                        void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -636,7 +638,7 @@ int arkStep_NlsResidual_MassIdent_TrivialPred(N_Vector zcor, N_Vector r,
 
 /*---------------------------------------------------------------
   arkStep_NlsResidual_MassFixed
-  arkStep_NlsResidual_MassFixed_TrivialPred
+  arkStep_NlsResidual_MassFixed_TrivialPredAutonomous
 
   This routine evaluates the nonlinear residual for the additive
   Runge-Kutta method.  It assumes that any data from previous
@@ -662,8 +664,9 @@ int arkStep_NlsResidual_MassIdent_TrivialPred(N_Vector zcor, N_Vector r,
      Fi(z) (stored step_mem->Fi[step_mem->istage])
      r = M*zc - gamma*Fi(z) - step_mem->sdata
 
-  The "TrivialPred" version reuses the implicit RHS evaluation at
-  the beginning of the step in the initial residual evaluation.
+  The "TrivialPredAutonomous" version reuses the implicit RHS
+  evaluation at the beginning of the step in the initial residual
+  evaluation.
   ---------------------------------------------------------------*/
 int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
 {
@@ -704,8 +707,8 @@ int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
   return (ARK_SUCCESS);
 }
 
-int arkStep_NlsResidual_MassFixed_TrivialPred(N_Vector zcor, N_Vector r,
-                                              void* arkode_mem)
+int arkStep_NlsResidual_MassFixed_TrivialPredAutonomous(N_Vector zcor, N_Vector r,
+                                                        void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -818,7 +821,7 @@ int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem)
 
 /*---------------------------------------------------------------
   arkStep_NlsFPFunction_MassIdent
-  arkStep_NlsFPFunction_MassIdent_TrivialPred
+  arkStep_NlsFPFunction_MassIdent_TrivialPredAutonomous
 
   This routine evaluates the fixed point iteration function for
   the additive Runge-Kutta method.  It assumes that any data from
@@ -851,8 +854,9 @@ int arkStep_NlsResidual_MassTDep(N_Vector zcor, N_Vector r, void* arkode_mem)
      Fi(z) (store in step_mem->Fi[step_mem->istage])
      g = gamma*Fi(z) + step_mem->sdata
 
-  The "TrivialPred" version reuses the implicit RHS evaluation at
-  the beginning of the step in the initial FP function evaluation.
+  The "TrivialPredAutonomous" version reuses the implicit RHS
+  evaluation at the beginning of the step in the initial FP
+  function evaluation.
   ---------------------------------------------------------------*/
 int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem)
 {
@@ -882,8 +886,9 @@ int arkStep_NlsFPFunction_MassIdent(N_Vector zcor, N_Vector g, void* arkode_mem)
   return (ARK_SUCCESS);
 }
 
-int arkStep_NlsFPFunction_MassIdent_TrivialPred(N_Vector zcor, N_Vector g,
-                                                void* arkode_mem)
+int arkStep_NlsFPFunction_MassIdent_TrivialPredAutonomous(N_Vector zcor,
+                                                          N_Vector g,
+                                                          void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
@@ -924,7 +929,7 @@ int arkStep_NlsFPFunction_MassIdent_TrivialPred(N_Vector zcor, N_Vector g,
 
 /*---------------------------------------------------------------
   arkStep_NlsFPFunction_MassFixed
-  arkStep_NlsFPFunction_MassFixed_TrivialPred
+  arkStep_NlsFPFunction_MassFixed_TrivialPredAutonomous
 
   This routine evaluates the fixed point iteration function for
   the additive Runge-Kutta method.  It assumes that any data from
@@ -958,8 +963,9 @@ int arkStep_NlsFPFunction_MassIdent_TrivialPred(N_Vector zcor, N_Vector g,
      g = gamma*Fi(z) + step_mem->sdata
      g = M^{-1}*g
 
-  The "TrivialPred" version reuses the implicit RHS evaluation at
-  the beginning of the step in the initial FP function evaluation.
+  The "TrivialPredAutonomous" version reuses the implicit RHS
+  evaluation at the beginning of the step in the initial FP
+  function evaluation.
   ---------------------------------------------------------------*/
 int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem)
 {
@@ -994,8 +1000,9 @@ int arkStep_NlsFPFunction_MassFixed(N_Vector zcor, N_Vector g, void* arkode_mem)
   return (ARK_SUCCESS);
 }
 
-int arkStep_NlsFPFunction_MassFixed_TrivialPred(N_Vector zcor, N_Vector g,
-                                                void* arkode_mem)
+int arkStep_NlsFPFunction_MassFixed_TrivialPredAutonomous(N_Vector zcor,
+                                                          N_Vector g,
+                                                          void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;

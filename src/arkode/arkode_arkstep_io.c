@@ -782,6 +782,28 @@ int arkStep_SetNonlinear(ARKodeMem ark_mem)
 }
 
 /*---------------------------------------------------------------
+  arkStep_SetAutonomous:
+
+  Indicates if the problem is autonomous (True) or non-autonomous
+  (False).
+  ---------------------------------------------------------------*/
+int arkStep_SetAutonomous(ARKodeMem ark_mem, sunbooleantype autonomous)
+{
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  step_mem->autonomous = autonomous;
+
+  if (autonomous && step_mem->linear) { step_mem->linear_timedep = SUNFALSE; }
+
+  return ARK_SUCCESS;
+}
+
+/*---------------------------------------------------------------
   arkStep_SetNonlinCRDown:
 
   Specifies the user-provided nonlinear convergence constant
