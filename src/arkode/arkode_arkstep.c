@@ -1668,6 +1668,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype save_fn_for_interp;
   sunbooleantype imex_method;
   sunbooleantype save_fn_for_residual;
+  sunbooleantype eval_rhs;
   ARKodeARKStepMem step_mem;
   N_Vector zcor0;
 
@@ -1760,12 +1761,14 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      subsequent steps treat this call as an evaluation at the end of the just
      completed step (tn, yn) and potentially reuse the evaluation (FSAL method)
      or save the value for later use. */
-  if (!(ark_mem->fn_is_current))
+  eval_rhs = !implicit_stage || save_fn_for_interp || save_fn_for_residual;
+
+  if (!(ark_mem->fn_is_current) && eval_rhs)
   {
-    /* If saving for reuse in the residual, call the full RHS for an implicit
-       method or for an ImEx method with an explicit first stage. ImEx methods
-       with an implicit first stage may not need to evaluate fe depending on the
-       interpolation type. */
+    /* If saving the RHS evaluation for reuse in the residual, call the full RHS
+       for implicit methods or ImEx methods with an explicit first stage. ImEx
+       methods with an implicit first stage may not need to evaluate fe
+       depending on the interpolation type. */
     sunbooleantype res_full_rhs = save_fn_for_residual && implicit_stage &&
                                   !imex_method;
 
