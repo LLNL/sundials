@@ -493,7 +493,7 @@ int PsolveHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr,
 static int SetInitialProfile(UserData* data, N_Vector uu, N_Vector up,
                              N_Vector res)
 {
-  sunindextype mm, mm1, i, j;
+  sunindextype mm, mm1;
   sunrealtype xfact, yfact;
 
   mm = data->mm;
@@ -513,10 +513,10 @@ static int SetInitialProfile(UserData* data, N_Vector uu, N_Vector up,
 #endif
 
   /* Initialize uu on all grid points. */
-  for (j = 0; j < mm; j++)
+  for (sunindextype j = 0; j < mm; j++)
   {
     yfact = data->dx * j;
-    for (i = 0; i < mm; i++)
+    for (sunindextype i = 0; i < mm; i++)
     {
       xfact            = data->dx * i;
       u_1d(mm * j + i) = SUN_RCONST(16.0) * xfact * (ONE - xfact) * yfact *

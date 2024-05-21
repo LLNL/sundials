@@ -168,7 +168,7 @@ struct UserData
   // Inverse of Jacobian diagonal for preconditioner
   N_Vector diag = NULL;
 
-  UserData(SUNProfiler prof) : prof(prof) {}
+  UserData(SUNProfiler prof_) : prof(prof_) {}
 
   ~UserData();
 
@@ -280,6 +280,6 @@ int SolutionDerivative(sunrealtype t, N_Vector up, UserData* udata);
 int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData* udata);
 
 // Check function return values
-int check_flag(void* flagvalue, const string funcname, int opt);
+int check_flag(const void* flagvalue, const string funcname, int opt);
 
 #endif

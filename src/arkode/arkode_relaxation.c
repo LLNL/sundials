@@ -336,8 +336,8 @@ static int arkRelaxBrentSolve(ARKodeMem ark_mem)
 }
 
 /* Compute and apply relaxation parameter */
-int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
-                  sunrealtype* relax_val_out)
+static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
+                         sunrealtype* relax_val_out)
 {
   int retval;
 

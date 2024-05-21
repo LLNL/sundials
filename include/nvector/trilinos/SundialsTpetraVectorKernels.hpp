@@ -54,8 +54,8 @@ static constexpr scalar_type one    = 1.0;
 static constexpr scalar_type onept5 = 1.5;
 
 /*----------------------------------------------------------------
-     *  Streaming vector kernels
-     *---------------------------------------------------------------*/
+ *  Streaming vector kernels
+ *---------------------------------------------------------------*/
 
 /// Divide: z(i) = x(i)/y(i) forall i
 inline void elementWiseDivide(const vector_type& x, const vector_type& y,
@@ -339,8 +339,6 @@ inline bool invTest(const vector_type& x, vector_type& z)
   Kokkos::parallel_reduce(
     "invTest", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, scalar_type& local_min) {
-      static constexpr scalar_type zero = 0;
-      static constexpr scalar_type one  = 1.0;
       if (x_1d(i) == zero) { min_reducer.join(local_min, zero); }
       else { z_1d(i) = one / x_1d(i); }
     },
@@ -665,8 +663,6 @@ inline bool invTestLocal(const vector_type& x, vector_type& z)
   Kokkos::parallel_reduce(
     "invTestLocal", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, scalar_type& local_min) {
-      static constexpr scalar_type zero = 0;
-      static constexpr scalar_type one  = 1.0;
       if (x_1d(i) == zero) { min_reducer.join(local_min, zero); }
       else { z_1d(i) = one / x_1d(i); }
     },

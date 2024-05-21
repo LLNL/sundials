@@ -1620,7 +1620,7 @@ static int OpenOutput(UserData* udata)
 static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
 {
   int flag;
-  sunrealtype max = SUN_RCONST(0.0);
+  sunrealtype max = ZERO;
   bool outproc    = (udata->myid_c == 0);
 
   if (udata->output > 0)

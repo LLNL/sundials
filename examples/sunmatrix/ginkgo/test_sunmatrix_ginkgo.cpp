@@ -300,7 +300,7 @@ int main(int argc, char* argv[])
 /* ----------------------------------------------------------------------
  * Check matrix
  * --------------------------------------------------------------------*/
-int check_matrix_csr(SUNMatrix A, SUNMatrix B, sunrealtype tol)
+static int check_matrix_csr(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
   int failure{0};
   auto Amat{
@@ -333,7 +333,7 @@ int check_matrix_csr(SUNMatrix A, SUNMatrix B, sunrealtype tol)
   return failure > 0;
 }
 
-int check_matrix_dense(SUNMatrix A, SUNMatrix B, sunrealtype tol)
+static int check_matrix_dense(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 {
   int failure{0};
   auto Amat{
@@ -371,7 +371,7 @@ extern "C" int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
   else { return 1; }
 }
 
-int check_matrix_entry_csr(SUNMatrix A, sunrealtype val, sunrealtype tol)
+static int check_matrix_entry_csr(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   int failure{0};
   auto Amat{
@@ -399,7 +399,7 @@ int check_matrix_entry_csr(SUNMatrix A, sunrealtype val, sunrealtype tol)
   return failure > 0;
 }
 
-int check_matrix_entry_dense(SUNMatrix A, sunrealtype val, sunrealtype tol)
+static int check_matrix_entry_dense(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   int failure{0};
   auto Amat{
