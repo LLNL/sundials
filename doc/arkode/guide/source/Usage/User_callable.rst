@@ -926,8 +926,8 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 .. c:function:: int ARKodeSetInterpolantType(void* arkode_mem, int itype)
 
    Specifies the interpolation type used for dense output (interpolation of
-   solution output values) and implicit method predictors. By default, the
-   Hermite interpolation is used expect with SPRK method where Lagrange
+   solution output values) and implicit method predictors. By default,
+   Hermite interpolation is used except with SPRK methods where Lagrange
    interpolation is the default.
 
    This routine must be called *after* the calling a stepper constructor. After
