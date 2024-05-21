@@ -22,20 +22,29 @@ jobs:
         # Use MSYS2 as default shell
         shell: msys2 {0}
 
+    strategy:
+      matrix:
+        msystem: [MINGW64, MINGW32]
+        include:
+          - msystem: MINGW64
+            target-prefix: mingw-w64-x86_64
+          - msystem: MINGW32
+            target-prefix: mingw-w64-i686
+
     steps:
     - uses: actions/checkout@v3
 
     - uses: msys2/setup-msys2@v2
       with:
-        msystem: mingw64
+        msystem: ${{ matrix.msystem }}
         update: true
         release: false
         install: >-
             base-devel
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-cc
-            mingw-w64-x86_64-openblas
-            mingw-w64-x86_64-suitesparse
+            ${{ matrix.target-prefix }}-cmake
+            ${{ matrix.target-prefix }}-cc
+            ${{ matrix.target-prefix }}-openblas
+            ${{ matrix.target-prefix }}-suitesparse
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory
@@ -50,7 +59,7 @@ jobs:
           -DENABLE_KLU=ON
 
     - name: Build
-      # Build your program
+      # Build program
       run: cmake --build ${GITHUB_WORKSPACE}/build
 
     - name: Test
