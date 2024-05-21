@@ -17,6 +17,7 @@
 #include <string.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_errors.h>
+#include <sundials/sundials_futils.h>
 
 /* Create a file pointer with the given file name and mode. */
 SUNErrCode SUNDIALSFileOpen(const char* filename, const char* mode, FILE** fp_out)

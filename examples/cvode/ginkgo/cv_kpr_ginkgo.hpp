@@ -83,7 +83,7 @@ inline int true_sol(sunrealtype t, sunrealtype* u, sunrealtype* v)
 // -----------------------------------------------------------------------------
 
 // Print command line options
-void InputHelp()
+static void InputHelp()
 {
   std::cout << std::endl;
   std::cout << "Command line options:" << std::endl;
@@ -94,7 +94,7 @@ void InputHelp()
   std::cout << "  --nout         : number of outputs\n";
 }
 
-int ReadInputs(std::vector<std::string>& args, Options& opts)
+static int ReadInputs(std::vector<std::string>& args, Options& opts)
 {
   if (find(args.begin(), args.end(), "--help") != args.end())
   {

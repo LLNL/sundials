@@ -59,7 +59,7 @@ struct UserOptions
   int fused;         /* use fused vector ops          */
   int nout;          /* number of outputs             */
   int save;          /* save solution to disk         */
-  char* outputdir;
+  string outputdir;
 };
 
 /*
@@ -113,16 +113,16 @@ struct UserData
   UserOptions* uopt;
 
   /* Constructor that takes the context */
-  UserData(SUNContext ctx)
-    : ctx(ctx),
-      umask(nullptr),
-      vmask(nullptr),
-      wmask(nullptr),
-      uopt(nullptr),
+  UserData(SUNContext ctx_)
+    : ctx(ctx_),
       TFID(nullptr),
       UFID(nullptr),
       VFID(nullptr),
-      WFID(nullptr)
+      WFID(nullptr),
+      umask(nullptr),
+      vmask(nullptr),
+      wmask(nullptr),
+      uopt(nullptr)
   {
     SUNContext_GetProfiler(ctx, &prof);
   }

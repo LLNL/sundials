@@ -396,7 +396,7 @@ PetscErrorCode MyCVodeMonitor(long int step, PetscReal ptime, Vec v, void* ctx)
   PetscFunctionBeginUser;
   ierr = VecNorm(v, NORM_2, &norm);
   CHKERRQ(ierr);
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "timestep %D time %g norm %g\n", step,
+  ierr = PetscPrintf(PETSC_COMM_WORLD, "timestep %ld time %g norm %g\n", step,
                      (double)ptime, (double)norm);
   CHKERRQ(ierr);
   PetscFunctionReturn(0);
