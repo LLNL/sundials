@@ -178,9 +178,6 @@ else # single
     export SUNDIALS_TEST_INTEGER_PRECISION=10
 fi
 
-# FindMPI fails with this ON
-export SUNDIALS_ENABLE_WARNINGS_AS_ERRORS=OFF
-
 # ------------------------------------------------------------------------------
 # Third party libraries
 # ------------------------------------------------------------------------------

@@ -33,8 +33,8 @@
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 
-int dae_res(sunrealtype t, N_Vector y, N_Vector ydot, N_Vector res,
-            void* user_data)
+static int dae_res(sunrealtype t, N_Vector y, N_Vector ydot, N_Vector res,
+                   void* user_data)
 {
   sunrealtype* ydot_data = N_VGetArrayPointer(ydot);
   sunrealtype* res_data  = N_VGetArrayPointer(res);
@@ -42,9 +42,9 @@ int dae_res(sunrealtype t, N_Vector y, N_Vector ydot, N_Vector res,
   return 0;
 }
 
-int dae_jac(sunrealtype t, sunrealtype cj, N_Vector y, N_Vector yp, N_Vector rr,
-            SUNMatrix J, void* user_data, N_Vector tempv1, N_Vector tempv2,
-            N_Vector tempv3)
+static int dae_jac(sunrealtype t, sunrealtype cj, N_Vector y, N_Vector yp,
+                   N_Vector rr, SUNMatrix J, void* user_data, N_Vector tempv1,
+                   N_Vector tempv2, N_Vector tempv3)
 {
   sunrealtype* J_data = SUNDenseMatrix_Data(J);
   J_data[0]           = ONE;
