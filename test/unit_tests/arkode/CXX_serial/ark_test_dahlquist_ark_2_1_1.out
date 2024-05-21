@@ -7,7 +7,7 @@ Dahlquist ODE test problem:
   relative tol = 0.0001
   absolute tol = 1e-06
   interp type  = Lagrange
-  pred type    = Trivial (0)
+  pred type    = Max order (1)
 
 ========================
 Test explicit RK methods

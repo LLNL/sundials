@@ -1,13 +1,13 @@
 
 Dahlquist ODE test problem:
-  problem type = Time-dependent mass matrix
+  problem type = Fixed mass matrix
   lambda expl  = -1
   lambda impl  = -1
   step size    = 0.01
   relative tol = 0.0001
   absolute tol = 1e-06
   interp type  = Lagrange
-  pred type    = Trivial (0)
+  pred type    = Max order (1)
 
 ========================
 Test explicit RK methods
