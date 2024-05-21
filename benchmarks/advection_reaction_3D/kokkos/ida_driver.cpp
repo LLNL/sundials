@@ -20,7 +20,7 @@
 #include "sunnonlinsol/sunnonlinsol_newton.h"
 
 /* Initial condition function */
-int SetICDot(N_Vector y, N_Vector yp, UserData* udata)
+static int SetICDot(N_Vector y, N_Vector yp, UserData* udata)
 {
   int retval;
 

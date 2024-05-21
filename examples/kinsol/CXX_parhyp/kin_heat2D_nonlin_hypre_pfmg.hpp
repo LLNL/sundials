@@ -293,62 +293,68 @@ static int check_retval(void* flagvalue, const string funcname, int opt);
 // -----------------------------------------------------------------------------
 
 // c(u) = u
-sunrealtype c1(sunrealtype u_val) { return u_val; }
+static sunrealtype c1(sunrealtype u_val) { return u_val; }
 
 // c(u) = u^3 - u
-sunrealtype c2(sunrealtype u_val) { return u_val * u_val * u_val - u_val; }
+static sunrealtype c2(sunrealtype u_val)
+{
+  return u_val * u_val * u_val - u_val;
+}
 
 // c(u) = u - u^2
-sunrealtype c3(sunrealtype u_val) { return u_val - u_val * u_val; }
+static sunrealtype c3(sunrealtype u_val) { return u_val - u_val * u_val; }
 
 // c(u) = e^u
-sunrealtype c4(sunrealtype u_val) { return exp(u_val); }
+static sunrealtype c4(sunrealtype u_val) { return exp(u_val); }
 
 // c(u) = u^4
-sunrealtype c5(sunrealtype u_val) { return u_val * u_val * u_val * u_val; }
+static sunrealtype c5(sunrealtype u_val)
+{
+  return u_val * u_val * u_val * u_val;
+}
 
 // c(u) = cos^2(u) - sin^2(u)
-sunrealtype c6(sunrealtype u_val)
+static sunrealtype c6(sunrealtype u_val)
 {
   return (cos(u_val) * cos(u_val)) - (sin(u_val) * sin(u_val));
 }
 
 // c(u) = cos^2(u) - sin^2(u) - e^u
-sunrealtype c7(sunrealtype u_val)
+static sunrealtype c7(sunrealtype u_val)
 {
   return (cos(u_val) * cos(u_val)) - (sin(u_val) * sin(u_val)) - exp(u_val);
 }
 
 // c(u) = e^u * u^4 - u * e^{cos(u)}
-sunrealtype c8(sunrealtype u_val)
+static sunrealtype c8(sunrealtype u_val)
 {
   sunrealtype u2 = u_val * u_val;
   return exp(u_val) * u2 * u2 - u_val * exp(cos(u_val));
 }
 
 // c(u) = e^(cos^2(u))
-sunrealtype c9(sunrealtype u_val)
+static sunrealtype c9(sunrealtype u_val)
 {
   sunrealtype cos2u = cos(u_val) * cos(u_val);
   return exp(cos2u);
 }
 
 // c(u) = 10(u - u^2)
-sunrealtype c10(sunrealtype u_val)
+static sunrealtype c10(sunrealtype u_val)
 {
   sunrealtype u2 = u_val * u_val;
   return 10.0 * (u_val - u2);
 }
 
 // c(u) = -13 + u + ((5-u)u - 2)u
-sunrealtype c11(sunrealtype u_val)
+static sunrealtype c11(sunrealtype u_val)
 {
   sunrealtype temp = ((5.0 - u_val) * u_val) - 2.0;
   return -13.0 + u_val + temp * u_val;
 }
 
 // c(u) = sqrt(5) * (u - u^2)
-sunrealtype c12(sunrealtype u_val)
+static sunrealtype c12(sunrealtype u_val)
 {
   sunrealtype temp = sqrt(5);
   sunrealtype u2   = u_val * u_val;
@@ -356,7 +362,7 @@ sunrealtype c12(sunrealtype u_val)
 }
 
 // c(u) = (u - e^u)^2 + (u + u * sin(u) - cos(u))^2
-sunrealtype c13(sunrealtype u_val)
+static sunrealtype c13(sunrealtype u_val)
 {
   sunrealtype eu   = u_val - exp(u_val);
   sunrealtype usin = u_val * sin(u_val);
@@ -365,7 +371,7 @@ sunrealtype c13(sunrealtype u_val)
 }
 
 // c(u) = u + ue^u + ue^{-u}
-sunrealtype c14(sunrealtype u_val)
+static sunrealtype c14(sunrealtype u_val)
 {
   sunrealtype ueu  = u_val * exp(u_val);
   sunrealtype ue_u = u_val * exp(-u_val);
@@ -373,7 +379,7 @@ sunrealtype c14(sunrealtype u_val)
 }
 
 // c(u) = u + ue^u + ue^{-u} + (u - e^u)^2
-sunrealtype c15(sunrealtype u_val)
+static sunrealtype c15(sunrealtype u_val)
 {
   sunrealtype ueu  = u_val * exp(u_val);
   sunrealtype ue_u = u_val * exp(-u_val);
@@ -382,7 +388,7 @@ sunrealtype c15(sunrealtype u_val)
 }
 
 // c(u) = u + ue^u + ue^{-u} + (u - e^u)^2 + (u + usin(u) - cos(u))^2
-sunrealtype c16(sunrealtype u_val)
+static sunrealtype c16(sunrealtype u_val)
 {
   sunrealtype ueu   = u_val * exp(u_val);
   sunrealtype ue_u  = u_val * exp(-u_val);
@@ -392,7 +398,7 @@ sunrealtype c16(sunrealtype u_val)
 }
 
 // c(u) = u + ue^{-u} + e^u*(u + sin(u) - cos(u))^3
-sunrealtype c17(sunrealtype u_val)
+static sunrealtype c17(sunrealtype u_val)
 {
   sunrealtype ue_u = u_val * exp(-u_val);
   sunrealtype eu   = exp(u_val);

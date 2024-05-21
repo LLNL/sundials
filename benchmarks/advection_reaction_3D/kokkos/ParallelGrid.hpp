@@ -82,9 +82,9 @@ public:
   // [in] npxyz - the number of processors in each dimension; defaults to 0 which means MPI will choose
   // [in] reorder - should MPI_Cart_create do process reordering to optimize or not; defaults to false (some MPI implementations ignore this)
   ParallelGrid(MPI_Comm* comm, const sunrealtype a[], const sunrealtype b[],
-               const GLOBALINT npts[], int dof, BoundaryType bc, StencilType st,
-               const sunrealtype c, const int npxyz[] = nullptr,
-               bool reorder = false)
+               const GLOBALINT npts[], int dof_, BoundaryType bc_,
+               StencilType st_, const sunrealtype c,
+               const int npxyz[] = nullptr, bool reorder = false)
     : nx(1),
       ny(1),
       nz(1),
@@ -103,12 +103,12 @@ public:
       bx(0.0),
       by(0.0),
       bz(0.0),
-      dof(dof),
+      dof(dof_),
+      upwindRight(true),
       dims{0, 0, 0},
       coords{0, 0, 0},
-      bc(bc),
-      st(st),
-      upwindRight(true)
+      bc(bc_),
+      st(st_)
   {
     assert(st == StencilType::UPWIND);
 
@@ -121,6 +121,10 @@ public:
     }
 
     int retval, nprocs;
+#ifdef NDEBUG
+    // Suppress unused variable warning
+    ((void)retval);
+#endif
     MPI_Comm_size(*comm, &nprocs);
     retval = MPI_Dims_create(nprocs, 3, dims);
     assert(retval == MPI_SUCCESS);
@@ -181,6 +185,12 @@ public:
   // For all faces: allocate upwind exchange buffers.
   void AllocateBuffersUpwind()
   {
+    int retval;
+#ifdef NDEBUG
+    // Suppress unused variable warning
+    ((void)retval);
+#endif
+
     /* Allocate send/receive buffers and determine ID for communication West */
     if (upwindRight)
     {
@@ -196,7 +206,7 @@ public:
     if ((coords[0] > 0) || (bc == BoundaryType::PERIODIC))
     {
       int nbcoords[] = {coords[0] - 1, coords[1], coords[2]};
-      int retval     = MPI_Cart_rank(cart_comm, nbcoords, &ipW);
+      retval         = MPI_Cart_rank(cart_comm, nbcoords, &ipW);
       assert(retval == MPI_SUCCESS);
     }
 
@@ -215,7 +225,7 @@ public:
     if ((coords[0] < dims[0] - 1) || (bc == BoundaryType::PERIODIC))
     {
       int nbcoords[] = {coords[0] + 1, coords[1], coords[2]};
-      int retval     = MPI_Cart_rank(cart_comm, nbcoords, &ipE);
+      retval         = MPI_Cart_rank(cart_comm, nbcoords, &ipE);
       assert(retval == MPI_SUCCESS);
     }
 
@@ -234,7 +244,7 @@ public:
     if ((coords[1] > 0) || (bc == BoundaryType::PERIODIC))
     {
       int nbcoords[] = {coords[0], coords[1] - 1, coords[2]};
-      int retval     = MPI_Cart_rank(cart_comm, nbcoords, &ipS);
+      retval         = MPI_Cart_rank(cart_comm, nbcoords, &ipS);
       assert(retval == MPI_SUCCESS);
     }
 
@@ -253,7 +263,7 @@ public:
     if ((coords[1] < dims[1] - 1) || (bc == BoundaryType::PERIODIC))
     {
       int nbcoords[] = {coords[0], coords[1] + 1, coords[2]};
-      int retval     = MPI_Cart_rank(cart_comm, nbcoords, &ipN);
+      retval         = MPI_Cart_rank(cart_comm, nbcoords, &ipN);
       assert(retval == MPI_SUCCESS);
     }
 
@@ -272,7 +282,7 @@ public:
     if ((coords[2] > 0) || (bc == BoundaryType::PERIODIC))
     {
       int nbcoords[] = {coords[0], coords[1], coords[2] - 1};
-      int retval     = MPI_Cart_rank(cart_comm, nbcoords, &ipB);
+      retval         = MPI_Cart_rank(cart_comm, nbcoords, &ipB);
       assert(retval == MPI_SUCCESS);
     }
 
@@ -291,7 +301,7 @@ public:
     if ((coords[2] < dims[2] - 1) || (bc == BoundaryType::PERIODIC))
     {
       int nbcoords[] = {coords[0], coords[1], coords[2] + 1};
-      int retval     = MPI_Cart_rank(cart_comm, nbcoords, &ipF);
+      retval         = MPI_Cart_rank(cart_comm, nbcoords, &ipF);
       assert(retval == MPI_SUCCESS);
     }
   }

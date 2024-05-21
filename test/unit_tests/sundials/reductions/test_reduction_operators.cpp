@@ -22,7 +22,7 @@
 using namespace sundials::reductions;
 using namespace sundials::reductions::impl;
 
-int testPlusWithInts()
+static int testPlusWithInts()
 {
   const std::string testStr = "Running testPlusWithInts";
 
@@ -41,7 +41,7 @@ int testPlusWithInts()
   return !pass;
 }
 
-int testPlusWithDoubles()
+static int testPlusWithDoubles()
 {
   const std::string testStr = "Running testPlusWithDoubles";
 
@@ -60,7 +60,7 @@ int testPlusWithDoubles()
   return !pass;
 }
 
-int testMaximumWithInts()
+static int testMaximumWithInts()
 {
   const std::string testStr = "Running testMaximumWithInts";
 
@@ -83,7 +83,7 @@ int testMaximumWithInts()
   return !pass;
 }
 
-int testMaximumWithDoubles()
+static int testMaximumWithDoubles()
 {
   const std::string testStr = "Running testMaximumWithDoubles";
 
@@ -106,7 +106,7 @@ int testMaximumWithDoubles()
   return !pass;
 }
 
-int testMinimumWithInts()
+static int testMinimumWithInts()
 {
   const std::string testStr = "Running testMinimumWithInts";
 
@@ -129,7 +129,7 @@ int testMinimumWithInts()
   return !pass;
 }
 
-int testMinimumWithDoubles()
+static int testMinimumWithDoubles()
 {
   const std::string testStr = "Running testMinimumWithDoubles";
 

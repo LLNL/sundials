@@ -1,5 +1,9 @@
 **New Features**
 
+Fixed the runtime library installation path for windows systems. This fix changes the
+default library installation path from ``CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR`` to
+``CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_BINDIR``.
+
 Created shared user interface for ARKODE user-callable routines, to allow more
 uniform control over time-stepping algorithms, improved extensibility, and
 simplified code maintenance.  Marked the corresponding stepper-specific
@@ -37,6 +41,10 @@ Added the following MRI coupling tables
 
 **Bug Fixes**
 
+Fixed conflicting ``.lib`` files between shared and static libs when using ``MSVC`` on Windows
+
+Fixed invalid ``SUNDIALS_EXPORT`` generated macro when building both shared and static libs
+
 Updated the CMake variable ``HIP_PLATFORM`` default to ``amd`` as the previous
 default, ``hcc``, is no longer recognized in ROCm 5.7.0 or newer. The new
 default is also valid in older version of ROCm (at least back to version 4.3.1).
@@ -65,3 +73,9 @@ Fixed a CMake bug that caused an MPI linking error for our C++ examples in some 
 
 Fixed a bug in :c:func:`ARKodeSPRKTable_Create` where the coefficient arrays
 where not allocated.
+
+Fix bug on LLP64 platforms (like Windows 64-bit) where ``KLU_INDEXTYPE`` could be
+32 bits wide even if ``SUNDIALS_INT64_T`` is defined.
+
+Check if size of ``SuiteSparse_long`` is 8 if the size of ``sunindextype`` is 8
+when using KLU.

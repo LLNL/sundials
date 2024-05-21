@@ -2,6 +2,14 @@
 
 ## Changes to SUNDIALS in release X.Y.Z
 
+Fixed the runtime library installation path for windows systems. This fix changes the
+default library installation path from `CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR` to
+`CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_BINDIR`.
+
+Fixed conflicting `.lib` files between shared and static libs when using `MSVC` on Windows.
+
+Fixed invalid `SUNDIALS_EXPORT` generated macro when building both shared and static libs.
+
 Created shared user interface for ARKODE user-callable routines, to allow more
 uniform control over time-stepping algorithms, improved extensibility, and
 simplified code maintenance.  Marked the corresponding stepper-specific
@@ -64,6 +72,12 @@ Fixed a CMake bug that caused an MPI linking error for our C++ examples in some 
 
 Fixed a bug in `ARKodeSPRKTable_Create` where the coefficient arrays where not
 allocated.
+
+Fix bug on LLP64 platforms (like Windows 64-bit) where `KLU_INDEXTYPE` could be
+32 bits wide even if `SUNDIALS_INT64_T` is defined.
+
+Check if size of `SuiteSparse_long` is 8 if the size of `sunindextype` is 8
+when using KLU.
 
 ## Changes to SUNDIALS in release v7.0.0
 

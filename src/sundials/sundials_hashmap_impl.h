@@ -43,7 +43,8 @@ struct SUNHashMap_
 SUNErrCode SUNHashMap_New(int max_size, SUNHashMap* map);
 SUNErrCode SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr));
 int SUNHashMap_Iterate(SUNHashMap map, int start,
-                       int (*yieldfn)(int, SUNHashMapKeyValue, void*), void* ctx);
+                       int (*yieldfn)(int, SUNHashMapKeyValue, const void*),
+                       const void* ctx);
 int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value);
 int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value);
 SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
