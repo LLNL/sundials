@@ -470,31 +470,9 @@ int main(int argc, char* argv[])
   flag = ARKodeSetEpsLin(arkode_mem, udata->epslin);
   if (check_flag(&flag, "ARKodeSetEpsLin", 1)) { return 1; }
 
-  // Select method order
-  if (udata->order > 1)
-  {
-    // Use an ARKode provided table
-    flag = ARKodeSetOrder(arkode_mem, udata->order);
-    if (check_flag(&flag, "ARKodeSetOrder", 1)) { return 1; }
-  }
-  else
-  {
-    // Use implicit Euler (requires fixed step size)
-    sunrealtype c[1], A[1], b[1];
-    ARKodeButcherTable B = NULL;
-
-    // Create implicit Euler Butcher table
-    c[0] = A[0] = b[0] = ONE;
-    B                  = ARKodeButcherTable_Create(1, 1, 0, c, A, b, NULL);
-    if (check_flag((void*)B, "ARKodeButcherTable_Create", 0)) { return 1; }
-
-    // Attach the Butcher table
-    flag = ARKStepSetTables(arkode_mem, 1, 0, B, NULL);
-    if (check_flag(&flag, "ARKStepSetTables", 1)) { return 1; }
-
-    // Free the Butcher table
-    ARKodeButcherTable_Free(B);
-  }
+  // Use an ARKode provided table
+  flag = ARKodeSetOrder(arkode_mem, udata->order);
+  if (check_flag(&flag, "ARKodeSetOrder", 1)) { return 1; }
 
   // Set fixed step size or adaptivity method
   if (udata->hfixed > ZERO)
@@ -2020,8 +1998,8 @@ static int OpenOutput(UserData* udata)
 static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
 {
   int flag;
-  sunrealtype max;
-  bool outproc = (udata->myid_c == 0);
+  sunrealtype max = ZERO;
+  bool outproc    = (udata->myid_c == 0);
 
   if (udata->output > 0)
   {

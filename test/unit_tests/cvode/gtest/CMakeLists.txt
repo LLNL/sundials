@@ -20,12 +20,17 @@ target_include_directories(test_cvode_error_handling
   ${CMAKE_SOURCE_DIR}/src
 )
 
+if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+  set(_fused_link_lib sundials_cvode_fused_stubs_obj)
+endif()
+
 # We explicitly choose which object libraries to link to and link in the
 # cvode objects so that we have access to private functions w/o changing
 # their visibility in the installed libraries.
 target_link_libraries(test_cvode_error_handling
   PRIVATE
   $<TARGET_OBJECTS:sundials_cvode_obj>
+  ${_fused_link_lib}
   sundials_sunmemsys_obj
   sundials_nvecserial_obj
   sundials_sunlinsolband_obj

@@ -742,7 +742,7 @@ RK methods, adaptive and mixed implicit-explicit low-storage RK methods, and a
 variety of "super-time-stepping" methods.
 
 (To-Do: add discussion regarding the mathematics of these methods and citations
-of relevant papers).
+of relevant papers, copying some content from our Overleaf document).
 
 
 .. _ARKODE.Mathematics.Error.Norm:

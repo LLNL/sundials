@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
  * ---------------------------------------------------------------------------*/
 
 KOKKOS_FUNCTION
-int CompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
+static int CompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
 {
   if (a == b) { return 0; }
   if (std::isnan(a) || std::isnan(b)) { return 1; }

@@ -83,7 +83,7 @@
  * x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0
  * exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0
  * ---------------------------------------------------------------------------*/
-int res(N_Vector uu, N_Vector fuu, void* user_data)
+static int res(N_Vector uu, N_Vector fuu, void* user_data)
 {
   /* Get vector data arrays */
   sunrealtype* udata = N_VGetArrayPointer(uu);
@@ -108,8 +108,8 @@ int res(N_Vector uu, N_Vector fuu, void* user_data)
  *  [ exp(-x(y-1))(1-y)   -exp(-x(y-1))x  20              ]
  * ---------------------------------------------------------------------------*/
 
-int J(N_Vector uu, N_Vector fuu, SUNMatrix J, void* user_data, N_Vector tmp1,
-      N_Vector tmp2)
+static int J(N_Vector uu, N_Vector fuu, SUNMatrix J, void* user_data,
+             N_Vector tmp1, N_Vector tmp2)
 {
   sunrealtype* udata = N_VGetArrayPointer(uu);
   sunrealtype* Jdata = SUNDenseMatrix_Data(J);
@@ -140,8 +140,8 @@ int J(N_Vector uu, N_Vector fuu, SUNMatrix J, void* user_data, N_Vector tmp1,
 // Custom linear solver solve function
 // -----------------------------------------------------------------------------
 
-int DenseSetupAndSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
-                       sunrealtype tol)
+static int DenseSetupAndSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,
+                              N_Vector b, sunrealtype tol)
 {
   // Create a copy of the matrix for factorization
   SUNMatrix Acpy = SUNMatClone(A);
@@ -169,7 +169,7 @@ int DenseSetupAndSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
 // -----------------------------------------------------------------------------
 
 // Check function return flag
-int check_flag(int flag, const std::string funcname)
+static int check_flag(int flag, const std::string funcname)
 {
   if (!flag) { return 0; }
   if (flag < 0) { std::cerr << "ERROR: "; }
@@ -179,7 +179,7 @@ int check_flag(int flag, const std::string funcname)
 }
 
 // Check if a function returned a NULL pointer
-int check_ptr(void* ptr, const std::string funcname)
+static int check_ptr(void* ptr, const std::string funcname)
 {
   if (ptr) { return 0; }
   std::cerr << "ERROR: " << funcname << " returned NULL" << std::endl;

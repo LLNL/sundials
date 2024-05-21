@@ -89,7 +89,7 @@ static int ytrue(sunrealtype t, N_Vector y)
  *   [a  b] * [ (-1 + u^2 - r(t)) / (2*u) ] + [ r'(t) / (2u) ]
  *   [c  d]   [ (-2 + v^2 - s(t)) / (2*v) ]   [ s'(t) / (2v) ]
  * ---------------------------------------------------------------------------*/
-int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
+static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* udata  = (sunrealtype*)user_data;
   const sunrealtype a = udata[0];
@@ -117,8 +117,8 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
  *   [a/2 + (a(1+r(t))-rdot(t))/(2u^2)     b/2 + b*(2+s(t))/(2*v^2)         ]
  *   [c/2 + c(1+r(t))/(2u^2)               d/2 + (d(2+s(t))-sdot(t))/(2u^2) ]
  * ---------------------------------------------------------------------------*/
-int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
-      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+             void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   sunrealtype* udata  = (sunrealtype*)user_data;
   const sunrealtype a = udata[0];
@@ -145,7 +145,7 @@ int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
 // -----------------------------------------------------------------------------
 
 // Check function return flag
-int check_flag(int flag, const std::string funcname)
+static int check_flag(int flag, const std::string funcname)
 {
   if (!flag) { return 0; }
   if (flag < 0) { std::cerr << "ERROR: "; }
@@ -155,7 +155,7 @@ int check_flag(int flag, const std::string funcname)
 }
 
 // Check if a function returned a NULL pointer
-int check_ptr(void* ptr, const std::string funcname)
+static int check_ptr(void* ptr, const std::string funcname)
 {
   if (ptr) { return 0; }
   std::cerr << "ERROR: " << funcname << " returned NULL" << std::endl;

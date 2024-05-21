@@ -2826,23 +2826,23 @@ static double get_time(void)
 /* ----------------------------------------------------------------------
  * compute average, standard deviation, max, and min
  * --------------------------------------------------------------------*/
-static void time_stats(N_Vector X, double* times, int nwarmups, int ntests,
+static void time_stats(N_Vector X, double* times, int num_warmups, int ntests,
                        double* avg, double* sdev, double* min, double* max)
 {
   int i, ntotal;
 
   /* total number of times collected */
-  ntotal = nwarmups + ntests;
+  ntotal = num_warmups + ntests;
 
   /* if running in parallel collect data from all processes */
   collect_times(X, times, ntotal);
 
   /* compute timing stats */
   *avg = 0.0;
-  *min = times[nwarmups];
-  *max = times[nwarmups];
+  *min = times[num_warmups];
+  *max = times[num_warmups];
 
-  for (i = nwarmups; i < ntotal; i++)
+  for (i = num_warmups; i < ntotal; i++)
   {
     *avg += times[i];
     if (times[i] < *min) { *min = times[i]; }
@@ -2853,7 +2853,7 @@ static void time_stats(N_Vector X, double* times, int nwarmups, int ntests,
   *sdev = 0.0;
   if (ntests > 1)
   {
-    for (i = nwarmups; i < ntotal; i++)
+    for (i = num_warmups; i < ntotal; i++)
     {
       *sdev += (times[i] - *avg) * (times[i] - *avg);
     }
