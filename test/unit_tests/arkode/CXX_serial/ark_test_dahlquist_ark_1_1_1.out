@@ -939,10 +939,32 @@ Implicit Euler
 Steps: 1
 NLS iters: 1
 Fi RHS evals:
-  actual:   3
+  actual:   2
   expected: 2
->>> Check failed <<<
-Failed 1 checks
+--------------------
+Steps: 2
+NLS iters: 2
+Fi RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+Steps: 3
+NLS iters: 3
+Fi RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 4
+NLS iters: 4
+Fi RHS evals:
+  actual:   8
+  expected: 8
+--------------------
 
 ========================
 DIRK Table ID 100
@@ -956,10 +978,32 @@ DIRK Table ID 100
 Steps: 1
 NLS iters: 2
 Fi RHS evals:
-  actual:   5
+  actual:   4
   expected: 4
->>> Check failed <<<
-Failed 1 checks
+--------------------
+Steps: 2
+NLS iters: 4
+Fi RHS evals:
+  actual:   8
+  expected: 8
+--------------------
+Steps: 3
+NLS iters: 6
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Steps: 4
+NLS iters: 8
+Fi RHS evals:
+  actual:   16
+  expected: 16
+--------------------
 
 ========================
 DIRK Table ID 101
@@ -973,10 +1017,32 @@ DIRK Table ID 101
 Steps: 1
 NLS iters: 3
 Fi RHS evals:
-  actual:   7
+  actual:   6
   expected: 6
->>> Check failed <<<
-Failed 1 checks
+--------------------
+Steps: 2
+NLS iters: 6
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Steps: 3
+NLS iters: 9
+Fi RHS evals:
+  actual:   18
+  expected: 18
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   18
+  expected: 18
+--------------------
+Steps: 4
+NLS iters: 12
+Fi RHS evals:
+  actual:   24
+  expected: 24
+--------------------
 
 ========================
 DIRK Table ID 102
@@ -1107,10 +1173,32 @@ DIRK Table ID 105
 Steps: 1
 NLS iters: 5
 Fi RHS evals:
-  actual:   11
+  actual:   10
   expected: 10
->>> Check failed <<<
-Failed 1 checks
+--------------------
+Steps: 2
+NLS iters: 10
+Fi RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+Steps: 3
+NLS iters: 15
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Steps: 4
+NLS iters: 20
+Fi RHS evals:
+  actual:   40
+  expected: 40
+--------------------
 
 ========================
 DIRK Table ID 106
@@ -1124,10 +1212,32 @@ DIRK Table ID 106
 Steps: 1
 NLS iters: 5
 Fi RHS evals:
-  actual:   11
+  actual:   10
   expected: 10
->>> Check failed <<<
-Failed 1 checks
+--------------------
+Steps: 2
+NLS iters: 10
+Fi RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+Steps: 3
+NLS iters: 15
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Steps: 4
+NLS iters: 20
+Fi RHS evals:
+  actual:   40
+  expected: 40
+--------------------
 
 ========================
 DIRK Table ID 107
@@ -1141,10 +1251,32 @@ DIRK Table ID 107
 Steps: 1
 NLS iters: 5
 Fi RHS evals:
-  actual:   11
+  actual:   10
   expected: 10
->>> Check failed <<<
-Failed 1 checks
+--------------------
+Steps: 2
+NLS iters: 10
+Fi RHS evals:
+  actual:   20
+  expected: 20
+--------------------
+Steps: 3
+NLS iters: 15
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   30
+  expected: 30
+--------------------
+Steps: 4
+NLS iters: 20
+Fi RHS evals:
+  actual:   40
+  expected: 40
+--------------------
 
 ========================
 DIRK Table ID 108
@@ -1782,10 +1914,32 @@ DIRK Table ID 124
 Steps: 1
 NLS iters: 1
 Fi RHS evals:
-  actual:   3
+  actual:   2
   expected: 2
->>> Check failed <<<
-Failed 1 checks
+--------------------
+Steps: 2
+NLS iters: 2
+Fi RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+Steps: 3
+NLS iters: 3
+Fi RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 4
+NLS iters: 4
+Fi RHS evals:
+  actual:   8
+  expected: 8
+--------------------
 
 ========================
 DIRK Table ID 125
@@ -1799,10 +1953,32 @@ DIRK Table ID 125
 Steps: 1
 NLS iters: 1
 Fi RHS evals:
-  actual:   3
+  actual:   2
   expected: 2
->>> Check failed <<<
-Failed 1 checks
+--------------------
+Steps: 2
+NLS iters: 2
+Fi RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+Steps: 3
+NLS iters: 3
+Fi RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 4
+NLS iters: 4
+Fi RHS evals:
+  actual:   8
+  expected: 8
+--------------------
 
 ========================
 DIRK Table ID 126
@@ -2226,4 +2402,4 @@ Fi RHS evals:
 --------------------
 
 
-Failed 8 tests!
+All tests passed!
