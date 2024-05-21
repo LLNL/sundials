@@ -940,7 +940,7 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
    :numref:`ARKODE.Mathematics.Interpolation.Lagrange`. ``ARK_INTERP_NONE`` will
    disable interpolation.
 
-   When interpolation is disabled using, rootfinding is not supported, implicit
+   When interpolation is disabled, using rootfinding is not supported, implicit
    methods must use the trivial predictor (the default option), and
    interpolation at stop times cannot be used (interpolating at stop times is
    disabled by default). With interpolation disabled, calling
