@@ -144,8 +144,9 @@ int arkStep_SetNlsSysFn(ARKodeMem ark_mem)
     {
       if (step_mem->predictor == 0 && step_mem->autonomous)
       {
-        retval = SUNNonlinSolSetSysFn(step_mem->NLS,
-                                      arkStep_NlsResidual_MassIdent_TrivialPredAutonomous);
+        retval =
+          SUNNonlinSolSetSysFn(step_mem->NLS,
+                               arkStep_NlsResidual_MassIdent_TrivialPredAutonomous);
       }
       else
       {
@@ -157,8 +158,9 @@ int arkStep_SetNlsSysFn(ARKodeMem ark_mem)
     {
       if (step_mem->predictor == 0 && step_mem->autonomous)
       {
-        retval = SUNNonlinSolSetSysFn(step_mem->NLS,
-                                      arkStep_NlsResidual_MassFixed_TrivialPredAutonomous);
+        retval =
+          SUNNonlinSolSetSysFn(step_mem->NLS,
+                               arkStep_NlsResidual_MassFixed_TrivialPredAutonomous);
       }
       else
       {
@@ -183,8 +185,9 @@ int arkStep_SetNlsSysFn(ARKodeMem ark_mem)
     {
       if (step_mem->predictor == 0 && step_mem->autonomous)
       {
-        retval = SUNNonlinSolSetSysFn(step_mem->NLS,
-                                      arkStep_NlsFPFunction_MassIdent_TrivialPredAutonomous);
+        retval =
+          SUNNonlinSolSetSysFn(step_mem->NLS,
+                               arkStep_NlsFPFunction_MassIdent_TrivialPredAutonomous);
       }
       else
       {
@@ -196,8 +199,9 @@ int arkStep_SetNlsSysFn(ARKodeMem ark_mem)
     {
       if (step_mem->predictor == 0 && step_mem->autonomous)
       {
-        retval = SUNNonlinSolSetSysFn(step_mem->NLS,
-                                      arkStep_NlsFPFunction_MassFixed_TrivialPredAutonomous);
+        retval =
+          SUNNonlinSolSetSysFn(step_mem->NLS,
+                               arkStep_NlsFPFunction_MassFixed_TrivialPredAutonomous);
       }
       else
       {
