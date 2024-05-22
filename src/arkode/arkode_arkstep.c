@@ -154,9 +154,6 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
     return (NULL);
   }
 
-  /* Testing hack -- treat all problems as autonomous */
-  step_mem->autonomous = SUNTRUE;
-
   /* Set implicit/explicit problem based on function pointers */
   step_mem->explicit = (fe == NULL) ? SUNFALSE : SUNTRUE;
   step_mem->implicit = (fi == NULL) ? SUNFALSE : SUNTRUE;
