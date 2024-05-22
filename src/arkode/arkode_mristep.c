@@ -2243,9 +2243,6 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                        stage, ark_mem->h);
 #endif
 
-    /* Set initial condition for this stage */
-    N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
-
     /* Determine if this is an "embedding" or "solution" stage */
     solution  = (stage == step_mem->stages - 1);
     embedding = (stage == step_mem->stages);
@@ -2256,6 +2253,9 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     {
       break;
     }
+
+    /* Set initial condition for this stage */
+    N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
 
     /* Set current stage abscissa */
     cstage = (embedding) ? ONE : step_mem->MRIC->c[stage];
