@@ -50,6 +50,7 @@
 #include <sunlinsol/sunlinsol_dense.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
+#include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
 #include "sundials/sundials_types.h"
 
@@ -212,6 +213,9 @@ int main(int argc, char* argv[])
 
   flag = ARKodeSetNonlinConvCoef(arkode_mem, SUN_RCONST(0.01));
   if (check_flag(flag, "ARKodeSetNonlinConvCoef")) { return 1; }
+
+  flag = ARKodeSetAutonomous(arkode_mem, SUNTRUE);
+  if (check_flag(flag, "ARKodeSetAutonomous")) { return 1; }
 
   /* --------------- *
    * Advance in Time *

@@ -103,6 +103,7 @@
 #include <sundials/sundials_dense.h> /* use generic DENSE solver in preconditioning */
 #include <sundials/sundials_types.h> /* definition of sunrealtype                      */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver             */
+#include "arkode/arkode.h"
 
 /* helpful macros */
 
@@ -320,6 +321,9 @@ int main(int argc, char* argv[])
 
         flag = ARKodeSetPreconditioner(arkode_mem, Precond, PSolve);
         if (check_flag(&flag, "ARKodeSetPreconditioner", 1)) { return (1); }
+
+        flag = ARKodeSetAutonomous(arkode_mem, SUNTRUE);
+        if (check_flag(&flag, "ARKodeSetAutonomous", 1)) { return (1); }
 
         /* Set the linear solver tolerance conversion factor */
         switch (nrmfactor)

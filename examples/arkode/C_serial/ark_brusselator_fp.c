@@ -60,6 +60,7 @@
 #include <sundials/sundials_logger.h>
 #include <sundials/sundials_types.h> /* def. of type 'sunrealtype'              */
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h> /* access to FP nonlinear solver        */
+#include "arkode/arkode.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -196,11 +197,16 @@ int main(int argc, char* argv[])
   flag = ARKodeSetUserData(arkode_mem,
                            (void*)rdata); /* Pass rdata to user functions */
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
+
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol); /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
+
   flag = ARKodeSetMaxNonlinIters(arkode_mem,
                                  maxcor); /* Increase default iterations */
   if (check_flag(&flag, "ARKodeSetMaxNonlinIters", 1)) { return 1; }
+
+  flag = ARKodeSetAutonomous(arkode_mem, SUNTRUE);
+  if (check_flag(&flag, "ARKodeSetAutonomous", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
