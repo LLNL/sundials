@@ -1811,7 +1811,12 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     else
     {
       /* Implicit method with implicit first stage */
-      step_mem->fn_implicit = ark_mem->fn;
+      if (step_mem->mass_type == MASS_FIXED)
+      {
+        N_VScale(ONE, step_mem->Fi[0], ark_mem->tempv5);
+        step_mem->fn_implicit = ark_mem->tempv5;
+      }
+      else { step_mem->fn_implicit = ark_mem->fn; }
     }
   }
   else { step_mem->fn_implicit = NULL; }
