@@ -752,8 +752,9 @@ int arkStep_SetLinear(ARKodeMem ark_mem, int timedepend)
 
   if (timedepend && step_mem->autonomous)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "Incompatible settings, the problem is autonomous but the Jacobian is time dependent");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Incompatible settings, the problem is autonomous but the "
+                    "Jacobian is time dependent");
     return ARK_ILL_INPUT;
   }
 
