@@ -370,8 +370,8 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   sunrealtype t11, t22;
 
   // fill in the Jacobian:
-  //   [G  e]*[1-(u^2-p(t)-2)/(2*u^2),  0] + [-r'(t)/(2*u^2),  0]
-  //   [e -1] [0,  1-(v^2-s(t)-2)/(2*v^2)]   [0,  -s'(t)/(2*v^2)]
+  //   [G  e]*[1-(u^2-p(t)-2)/(2*u^2),  0] + [-p'(t)/(2*u^2),  0]
+  //   [e -1] [0,  1-(v^2-q(t)-2)/(2*v^2)]   [0,  -q'(t)/(2*v^2)]
   t11                   = ONE - (u * u - p(t) - TWO) / (TWO * u * u);
   t22                   = ONE - (v * v - q(t, *udata) - TWO) / (TWO * v * v);
   SM_ELEMENT_D(J, 0, 0) = udata->G * t11 - pdot(t) / (TWO * u * u);

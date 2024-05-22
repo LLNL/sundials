@@ -14,54 +14,44 @@
  * ----------------------------------------------------------------
  * Multirate nonlinear Kvaerno-Prothero-Robinson ODE test problem:
  *
- *    [u]' = [ G  e ] [(-1+u^2-r)/(2u)] + [      r'(t)/(2u)        ]
- *    [v]    [ e -1 ] [(-2+v^2-s)/(2v)]   [ s'(t)/(2*sqrt(2+s(t))) ]
+ *    [u]' = [ G  e ] [(u^2-r-1)/(2u)] +  [ r'(t)/(2u) ]
+ *    [v]    [ e -1 ] [(v^2-s-2)/(2v)]    [ s'(t)/(2v) ]
  *         = [ fs(t,u,v) ]
  *           [ ff(t,u,v) ]
  *
- * where r(t) = 0.5*cos(t),  s(t) = cos(w*t),  0 < t < 5.
+ * where r(t) = cos(t), and s(t) = cos(w*t*(1+exp(-(t-2)^2))).
  *
  * This problem has analytical solution given by
- *    u(t) = sqrt(1+r(t)),  v(t) = sqrt(2+s(t)).
+ *    u(t) = sqrt(2+r(t)),  v(t) = sqrt(2+s(t)).
  *
  * This program allows a number of parameters:
- *   e:    fast/slow coupling strength [default = 0.5]
- *   G:    stiffness at slow time scale [default = -1e2]
- *   w:    time-scale separation factor [default = 100]
+ *   e: fast/slow coupling strength [default = 0.5]
+ *   G: stiffness at slow time scale [default = -1e2]
+ *   w: time-scale separation factor [default = 100]
  *
  * The stiffness of the slow time scale is essentially determined
  * by G, for |G| > 50 it is 'stiff' and ideally suited to a
  * multirate method that is implicit at the slow time scale.
  *
+ * Coupling between the two components is determined by e, with
+ * coupling strength proportional to |e|.
+ *
+ * The "fast" variable, v, oscillates at a frequency "w" times
+ * faster than u.
+ *
  * Additional input options may be used to select between various
  * solver options:
- * - slow step size:  hs [default = 0.01]
- * - fast step size:  hf [default = 0.0001]
+ * - slow fixed/initial step size:  hs [default = 0.01]
+ * - fast fixed/initial step size:  hf [default = 0.0001]
  * - set initial adaptive step size as hs/hf above:  set_h0 [default 0]
  * - relative solution tolerance:  rtol [default = 1e-4]
  * - absolute solution tolerance:  atol [default = 1e-11]
  * - use p (0) vs q (1) for slow adaptivity:  slow_pq [default = 0]
  * - use p (0) vs q (1) for fast adaptivity:  fast_pq [default = 0]
- * - "slow" MRI method:  mri_type [default = 4]
- *      0:  explicit Knoth-Wolke MIS [ARKODE_MIS_KW3]
- *      1:  explicit ERK22a MRI-GARK [ARKODE_MRI_GARK_ERK22a]
- *      2:  explicit ERK22b MRI-GARK [ARKODE_MRI_GARK_ERK22b]
- *      3:  explicit ERK33a MRI-GARK [ARKODE_MRI_GARK_ERK33a]
- *      4:  explicit ERK45a MRI-GARK [ARKODE_MRI_GARK_ERK45a]
- *      5:  implicit IRK21a MRI-GARK [ARKODE_MRI_GARK_IRK21a]
- *      6:  implicit ESDIRK34a MRI-GARK [ARKODE_MRI_GARK_ESDIRK34a]
- *      8.  implicit ESDIRK46a MRI-GARK [ARKODE_MRI_GARK_ESDIRK46a]
- *      9.  ImEx 3a MRI-GARK [ARKODE_IMEX_MRI_GARK3a]
- *      10. ImEx 3b MRI-GARK [ARKODE_IMEX_MRI_GARK3b]
- *      11. ImEx 4 MRI-GARK [ARKODE_IMEX_MRI_GARK4]
- * - "fast" ARKStep method: fast_type [default = 1]
- *      0:  none [all physics operators treated at fast scale
- *      1:  default 2nd-order ERK
- *      2:  default 3rd-order ERK
- *      3:  default 4th-order ERK
- *      4:  default 2nd-order DIRK
- *      5:  default 3rd-order DIRK
- *      6:  default 4th-order DIRK
+ * - "slow" MRI method:  mri_method [default = ARKODE_MRI_GARK_ERK45a]
+ * - "fast" ERKStep method order: fast_order [default 
+ *      To put all physics at the slow scale, use "0", otherwise
+ *      specify a valid explicit method order.
  * - "slow" MRI temporal adaptivity controller: scontrol [default = 6]
  *      0:  no controller [fixed time steps]
  *      1:  MRI-CC controller
@@ -91,11 +81,11 @@
  *      6:  ImExGus controller
  *
  * Outputs and solution error values are printed at equal intervals
- * of 0.1 and run statistics are printed at the end.
+ * of 0.5 and run statistics are printed at the end.
  * ----------------------------------------------------------------*/
 
 // Header files
-#include <arkode/arkode_arkstep.h> // prototypes for ARKStep fcts., consts
+#include <arkode/arkode_erkstep.h> // prototypes for ERKStep fcts., consts
 #include <arkode/arkode_mristep.h> // prototypes for MRIStep fcts., consts
 #include <cmath>
 #include <cstdio>
@@ -143,12 +133,12 @@ struct Options
   sunrealtype atol = SUN_RCONST(1.0e-11);
 
   // Method selection
-  int mri_type  = 3;
-  int fast_type = 2;
-  int scontrol  = 6;
-  int fcontrol  = 1;
-  int slow_pq   = 0;
-  int fast_pq   = 0;
+  std::string mri_method = "ARKODE_MRI_GARK_ERK45a";
+  int fast_order = 4;
+  int scontrol   = 6;
+  int fcontrol   = 1;
+  int slow_pq    = 0;
+  int fast_pq    = 0;
 };
 
 // User-supplied functions called by the solver
@@ -158,8 +148,6 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
-static int Jf(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
@@ -204,169 +192,47 @@ int main(int argc, char* argv[])
 
   // Initial problem output
   //    While traversing these, set various function pointers, table constants, and method orders.
-  ARKRhsFn f_fe, f_fi, f_se, f_si;
-  ARKLsJacFn J_s, J_f;
-  int retval, P, p;
-  ARKODE_MRITableID mri_table;
-  sunbooleantype slowimplicit, fastimplicit;
-  slowimplicit = fastimplicit = SUNFALSE;
-  f_fe = f_fi = f_se = f_si = NULL;
-  J_s = J_f = NULL;
+  ARKRhsFn f_f, f_se, f_si;
+  ARKLsJacFn J_s;
+  int retval;
+  sunbooleantype slowimplicit, slowimex;
+  slowimplicit = slowimex = SUNFALSE;
+  f_si = NULL;
+  J_s = NULL;
+  f_f = (opts.fast_order == 0) ? f0 : ff;
+  f_se = (opts.fast_order == 0) ? fn : fs;
+  if ((opts.mri_method == "ARKODE_MRI_GARK_IRK21a") ||
+      (opts.mri_method == "ARKODE_MRI_GARK_ESDIRK34a") ||
+      (opts.mri_method == "ARKODE_MRI_GARK_ESDIRK46a"))
+  {
+    slowimplicit = SUNTRUE;
+    f_se = (opts.fast_order == 0) ? fn : fs;
+    J_s  = (opts.fast_order == 0) ? Jn : Js;
+  }
+  if ((opts.mri_method == "ARKODE_IMEX_MRI_SR21") ||
+      (opts.mri_method == "ARKODE_IMEX_MRI_SR32") ||
+      (opts.mri_method == "ARKODE_IMEX_MRI_SR43"))
+  {
+    slowimex     = SUNTRUE;
+    slowimplicit = SUNTRUE;
+    f_se = (opts.fast_order == 0) ? f0 : fse;
+    f_si = (opts.fast_order == 0) ? fn : fsi;
+    J_s  = (opts.fast_order == 0) ? Jn : Jsi;
+  }
   std::cout << "\nAdaptive multirate nonlinear Kvaerno-Prothero-Robinson test "
                "problem:\n";
   std::cout << "    time domain:  (" << T0 << "," << Tf << "]\n";
   std::cout << "    G = " << opts.G << std::endl;
   std::cout << "    w = " << opts.w << std::endl;
   std::cout << "    e = " << opts.e << std::endl;
-  std::cout << "\n  Slow integrator:\n";
-  switch (opts.mri_type)
-  {
-  case (0):
-    f_se      = (opts.fast_type == 0) ? fn : fs;
-    P         = 3;
-    mri_table = ARKODE_MIS_KW3;
-    std::cout << "    explicit Knoth-Wolke MIS\n";
-    PrintSlowAdaptivity(opts);
-    break;
-  case (1):
-    f_se      = (opts.fast_type == 0) ? fn : fs;
-    P         = 2;
-    mri_table = ARKODE_MRI_GARK_ERK22a;
-    std::cout << "    explicit ERK22a MRI-GARK\n";
-    PrintSlowAdaptivity(opts);
-    break;
-  case (2):
-    f_se      = (opts.fast_type == 0) ? fn : fs;
-    P         = 2;
-    mri_table = ARKODE_MRI_GARK_ERK22b;
-    std::cout << "    explicit ERK22b MRI-GARK\n";
-    PrintSlowAdaptivity(opts);
-    break;
-  case (3):
-    f_se      = (opts.fast_type == 0) ? fn : fs;
-    P         = 3;
-    mri_table = ARKODE_MRI_GARK_ERK33a;
-    std::cout << "    explicit ERK33a MRI-GARK\n";
-    PrintSlowAdaptivity(opts);
-    break;
-  case (4):
-    f_se      = (opts.fast_type == 0) ? fn : fs;
-    P         = 4;
-    mri_table = ARKODE_MRI_GARK_ERK45a;
-    std::cout << "    explicit ERK45a MRI-GARK\n";
-    PrintSlowAdaptivity(opts);
-    break;
-  case (5):
-    f_si         = (opts.fast_type == 0) ? fn : fs;
-    J_s          = (opts.fast_type == 0) ? Jn : Js;
-    P            = 2;
-    slowimplicit = SUNTRUE;
-    mri_table    = ARKODE_MRI_GARK_IRK21a;
-    std::cout << "    implicit IRK21a MRI-GARK\n";
-    PrintSlowAdaptivity(opts);
-    break;
-  case (6):
-    f_si         = (opts.fast_type == 0) ? fn : fs;
-    J_s          = (opts.fast_type == 0) ? Jn : Js;
-    P            = 3;
-    slowimplicit = SUNTRUE;
-    mri_table    = ARKODE_MRI_GARK_ESDIRK34a;
-    std::cout << "    implicit ESDIRK34a MRI-GARK\n";
-    PrintSlowAdaptivity(opts);
-    break;
-  case (8):
-    f_si         = (opts.fast_type == 0) ? fn : fs;
-    J_s          = (opts.fast_type == 0) ? Jn : Js;
-    P            = 4;
-    slowimplicit = SUNTRUE;
-    mri_table    = ARKODE_MRI_GARK_ESDIRK46a;
-    std::cout << "    implicit ESDIRK46a MRI-GARK\n";
-    PrintSlowAdaptivity(opts);
-    break;
-  case (9):
-    f_se         = (opts.fast_type == 0) ? fs : fse;
-    f_si         = (opts.fast_type == 0) ? ff : fsi;
-    J_s          = (opts.fast_type == 0) ? Jf : Jsi;
-    P            = 3;
-    slowimplicit = SUNTRUE;
-    mri_table    = ARKODE_IMEX_MRI_GARK3a;
-    std::cout << "    ImEx 3a MRI-GARK\n";
-    PrintSlowAdaptivity(opts);
-    break;
-  case (10):
-    f_se         = (opts.fast_type == 0) ? fs : fse;
-    f_si         = (opts.fast_type == 0) ? ff : fsi;
-    J_s          = (opts.fast_type == 0) ? Jf : Jsi;
-    P            = 3;
-    slowimplicit = SUNTRUE;
-    mri_table    = ARKODE_IMEX_MRI_GARK3b;
-    std::cout << "    ImEx 3b MRI-GARK\n";
-    PrintSlowAdaptivity(opts);
-    break;
-  case (11):
-    f_se         = (opts.fast_type == 0) ? fs : fse;
-    f_si         = (opts.fast_type == 0) ? ff : fsi;
-    J_s          = (opts.fast_type == 0) ? Jf : Jsi;
-    P            = 4;
-    slowimplicit = SUNTRUE;
-    mri_table    = ARKODE_IMEX_MRI_GARK4;
-    std::cout << "    ImEx 4 MRI-GARK\n";
-    PrintSlowAdaptivity(opts);
-    break;
-  }
-  std::cout << "\n  Fast integrator:\n";
-  switch (opts.fast_type)
-  {
-  case (0):
-    f_fe = f0;
-    p    = 2;
-    std::cout
-      << "    zero-valued operator, integrated with default 2nd-order ERK\n";
-    PrintFastAdaptivity(opts);
-    break;
-  case (1):
-    f_fe = ff;
-    p    = 2;
-    std::cout << "    Default 2nd-order ERK\n";
-    PrintFastAdaptivity(opts);
-    break;
-  case (2):
-    f_fe = ff;
-    p    = 3;
-    std::cout << "    Default 3rd-order ERK\n";
-    PrintFastAdaptivity(opts);
-    break;
-  case (3):
-    f_fe = ff;
-    p    = 4;
-    std::cout << "    Default 4th-order ERK\n";
-    PrintFastAdaptivity(opts);
-    break;
-  case (4):
-    f_fi         = ff;
-    J_f          = Jf;
-    p            = 2;
-    fastimplicit = SUNTRUE;
-    std::cout << "    Default 2nd-order DIRK\n";
-    PrintFastAdaptivity(opts);
-    break;
-  case (5):
-    f_fi         = ff;
-    J_f          = Jf;
-    p            = 3;
-    fastimplicit = SUNTRUE;
-    std::cout << "    Default 3rd-order DIRK\n";
-    PrintFastAdaptivity(opts);
-    break;
-  case (6):
-    f_fi         = ff;
-    J_f          = Jf;
-    p            = 4;
-    fastimplicit = SUNTRUE;
-    std::cout << "    Default 4th-order DIRK\n";
-    PrintFastAdaptivity(opts);
-    break;
-  }
+  std::cout << "\n  Slow integrator: " << opts.mri_method;
+  if (slowimex) { std::cout << " (ImEx)" << std::endl; }
+  else if (slowimplicit) { std::cout << " (implicit)" << std::endl; }
+  else { std::cout << " (explicit)" << std::endl; }
+  PrintSlowAdaptivity(opts);
+  if (opts.fast_order == 0) { std::cout << "\n  Fast integrator disabled"; }
+  else { std::cout << "\n  Fast order " << opts.fast_order << std::endl; }
+  PrintFastAdaptivity(opts);
 
   // Create and initialize serial vector for the solution
   N_Vector y = NULL;
@@ -405,25 +271,12 @@ int main(int argc, char* argv[])
     break;
   }
 
-  // Create ARKStep (fast) integrator, storing desired adaptivity order in p
+  // Create ARKStep (fast) integrator
   void* inner_arkode_mem = NULL; // ARKode memory structure
-  inner_arkode_mem       = ARKStepCreate(f_fe, f_fi, T0, y, sunctx);
-  if (check_ptr((void*)inner_arkode_mem, "ARKStepCreate")) return 1;
-  retval = ARKodeSetOrder(inner_arkode_mem, p);
+  inner_arkode_mem       = ERKStepCreate(f_f, T0, y, sunctx);
+  if (check_ptr((void*)inner_arkode_mem, "ERKStepCreate")) return 1;
+  retval = ARKodeSetOrder(inner_arkode_mem, opts.fast_order);
   if (check_flag(retval, "ARKodeSetOrder")) return 1;
-  SUNMatrix Af        = NULL; // matrix for fast solver
-  SUNLinearSolver LSf = NULL; // fast linear solver object
-  if (fastimplicit)
-  {
-    Af = SUNDenseMatrix(NEQ, NEQ, sunctx);
-    if (check_ptr((void*)Af, "SUNDenseMatrix")) return 1;
-    LSf = SUNLinSol_Dense(y, Af, sunctx);
-    if (check_ptr((void*)LSf, "SUNLinSol_Dense")) return 1;
-    retval = ARKodeSetLinearSolver(inner_arkode_mem, LSf, Af);
-    if (check_flag(retval, "ARKodeSetLinearSolver")) return 1;
-    retval = ARKodeSetJacFn(inner_arkode_mem, J_f);
-    if (check_flag(retval, "ARKodeSetJacFn")) return 1;
-  }
   retval = ARKodeSStolerances(inner_arkode_mem, opts.rtol, opts.atol);
   if (check_flag(retval, "ARKodeSStolerances")) return 1;
   if (opts.fcontrol != 0)
@@ -453,8 +306,8 @@ int main(int argc, char* argv[])
 
   // Create inner stepper
   MRIStepInnerStepper inner_stepper = NULL; // inner stepper
-  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
-  if (check_flag(retval, "ARKStepCreateMRIStepInnerStepper")) return 1;
+  retval = ERKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+  if (check_flag(retval, "ERKStepCreateMRIStepInnerStepper")) return 1;
 
   // Create slow controller object, and select orders of accuracy as relevant
   SUNAdaptController scontrol       = NULL;
@@ -462,19 +315,19 @@ int main(int argc, char* argv[])
   switch (opts.scontrol)
   {
   case (1):
-    scontrol = SUNAdaptController_MRICC(sunctx, p);
+    scontrol = SUNAdaptController_MRICC(sunctx, opts.fast_order);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRICC")) return 1;
     break;
   case (2):
-    scontrol = SUNAdaptController_MRILL(sunctx, p);
+    scontrol = SUNAdaptController_MRILL(sunctx, opts.fast_order);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRILL")) return 1;
     break;
   case (3):
-    scontrol = SUNAdaptController_MRIPI(sunctx, p);
+    scontrol = SUNAdaptController_MRIPI(sunctx, opts.fast_order);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIPI")) return 1;
     break;
   case (4):
-    scontrol = SUNAdaptController_MRIPID(sunctx, p);
+    scontrol = SUNAdaptController_MRIPID(sunctx, opts.fast_order);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIPID")) return 1;
     break;
   case (5):
@@ -548,13 +401,12 @@ int main(int argc, char* argv[])
     break;
   }
 
-  // Create MRI (slow) integrator, storing desired adaptivity order in P
+  // Create MRI (slow) integrator
   void* arkode_mem = NULL; // ARKode memory structure
   arkode_mem       = MRIStepCreate(f_se, f_si, T0, y, inner_stepper, sunctx);
   if (check_ptr((void*)arkode_mem, "MRIStepCreate")) return 1;
-  MRIStepCoupling C = NULL; // slow coupling coefficients
-  C                 = MRIStepCoupling_LoadTable(mri_table);
-  if (check_ptr((void*)C, "MRIStepCoupling_LoadTable")) return 1;
+  MRIStepCoupling C = MRIStepCoupling_LoadTableByName((opts.mri_method).c_str());
+  if (check_ptr((void*)C, "MRIStepCoupling_LoadTableByName")) return 1;
   retval = MRIStepSetCoupling(arkode_mem, C);
   if (check_flag(retval, "MRIStepSetCoupling")) return 1;
   SUNMatrix As        = NULL; // matrix for slow solver
@@ -676,15 +528,15 @@ int main(int argc, char* argv[])
   check_flag(retval, "MRIStepGetNumRhsEvals");
 
   // Get some fast integrator statistics
-  long int nstf, nattf, netff, nffe, nffi;
+  long int nstf, nattf, netff, nff;
   retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
   check_flag(retval, "ARKodeGetNumSteps");
   retval = ARKodeGetNumStepAttempts(inner_arkode_mem, &nattf);
   check_flag(retval, "ARKodeGetNumStepAttempts");
   retval = ARKodeGetNumErrTestFails(inner_arkode_mem, &netff);
   check_flag(retval, "ARKodeGetNumErrTestFails");
-  retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nffe, &nffi);
-  check_flag(retval, "ARKStepGetNumRhsEvals");
+  retval = ERKStepGetNumRhsEvals(inner_arkode_mem, &nff);
+  check_flag(retval, "ERKStepGetNumRhsEvals");
 
   // Print some final statistics
   std::cout << "\nFinal Solver Statistics:\n";
@@ -695,7 +547,7 @@ int main(int argc, char* argv[])
   std::cout << "   u error = " << uerrtot << ", v error = " << verrtot
             << ", total error = " << errtot << std::endl;
   std::cout << "   Total RHS evals:  Fse = " << nfse << ", Fsi = " << nfsi
-            << ", Ffe = " << nffe << ", Ffi = " << nffi << std::endl;
+            << ", Ff = " << nff << std::endl;
 
   // Get/print slow integrator decoupled implicit solver statistics
   if (slowimplicit)
@@ -710,41 +562,14 @@ int main(int argc, char* argv[])
     std::cout << "   Slow Jacobian evals = " << njes << std::endl;
   }
 
-  // Get/print fast integrator implicit solver statistics
-  if (fastimplicit)
-  {
-    long int nnif, nncf, njef;
-    retval = ARKodeGetNonlinSolvStats(inner_arkode_mem, &nnif, &nncf);
-    check_flag(retval, "ARKodeGetNonlinSolvStats");
-    retval = ARKodeGetNumJacEvals(inner_arkode_mem, &njef);
-    check_flag(retval, "ARKodeGetNumJacEvals");
-    std::cout << "   Fast Newton iters = " << nnif << std::endl;
-    std::cout << "   Fast Newton conv fails = " << nncf << std::endl;
-    std::cout << "   Fast Jacobian evals = " << njef << std::endl;
-  }
-
   // Clean up and return
-  N_VDestroy(y);           // Free y vector
-  MRIStepCoupling_Free(C); // free coupling coefficients
-  if (fastimplicit)
-  {
-    SUNMatDestroy(Af);  // free fast matrix
-    SUNLinSolFree(LSf); // free fast linear solver
-  }
-  if (slowimplicit)
-  {
-    SUNMatDestroy(As);  // free slow matrix
-    SUNLinSolFree(LSs); // free slow linear solver
-  }
-  // if (opts.scontrol != 0) {
-  //   SUNAdaptControllerDestroy(scontrol);             // free slow controller(s)
-  //   if (opts.scontrol > 4) {
-  //     SUNAdaptControllerDestroy(scontrol_inner);
-  //   }
-  // }
-  // if (opts.fcontrol != 0) {
-  //   SUNAdaptControllerDestroy(fcontrol);             // free slow controller
-  // }
+  N_VDestroy(y);
+  MRIStepCoupling_Free(C);
+  if (As) { SUNMatDestroy(As); }
+  if (LSs) { SUNLinSolFree(LSs); }
+  if (scontrol) { SUNAdaptController_Destroy(scontrol); }
+  if (scontrol_inner) { SUNAdaptController_Destroy(scontrol_inner); }
+  if (fcontrol) { SUNAdaptController_Destroy(fcontrol); }
   ARKodeFree(&inner_arkode_mem);            // Free fast integrator memory
   MRIStepInnerStepper_Free(&inner_stepper); // Free inner stepper structure
   ARKodeFree(&arkode_mem);                  // Free slow integrator memory
@@ -765,13 +590,12 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   sunrealtype tmp1, tmp2;
 
   // fill in the RHS function:
-  //   [0  0]*[(-1+u^2-r(t))/(2*u)] + [         0          ]
-  //   [e -1] [(-2+v^2-s(t))/(2*v)]   [sdot(t)/(2*vtrue(t))]
-  tmp1              = (-ONE + u * u - r(t, opts)) / (TWO * u);
-  tmp2              = (-TWO + v * v - s(t, opts)) / (TWO * v);
+  //   [0  0]*[(-2+u^2-r(t))/(2*u)] + [      0      ]
+  //   [e -1] [(-2+v^2-s(t))/(2*v)]   [sdot(t)/(2*v)]
+  tmp1 = (-TWO + u * u - r(t, opts)) / (TWO * u);
+  tmp2 = (-TWO + v * v - s(t, opts)) / (TWO * v);
   NV_Ith_S(ydot, 0) = ZERO;
-  NV_Ith_S(ydot, 1) = opts->e * tmp1 - tmp2 +
-                      sdot(t, opts) / (TWO * vtrue(t, opts));
+  NV_Ith_S(ydot, 1) = opts->e * tmp1 - tmp2 + sdot(t, opts) / (TWO * v);
 
   // Return with success
   return 0;
@@ -786,9 +610,9 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   sunrealtype tmp1, tmp2;
 
   // fill in the RHS function:
-  //   [G e]*[(-1+u^2-r(t))/(2*u))] + [rdot(t)/(2*u)]
+  //   [G e]*[(-2+u^2-r(t))/(2*u))] + [rdot(t)/(2*u)]
   //   [0 0] [(-2+v^2-s(t))/(2*v)]    [      0      ]
-  tmp1 = (-ONE + u * u - r(t, opts)) / (TWO * u);
+  tmp1 = (-TWO + u * u - r(t, opts)) / (TWO * u);
   tmp2 = (-TWO + v * v - s(t, opts)) / (TWO * v);
   NV_Ith_S(ydot, 0) = opts->G * tmp1 + opts->e * tmp2 + rdot(t, opts) / (TWO * u);
   NV_Ith_S(ydot, 1) = ZERO;
@@ -822,9 +646,9 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   sunrealtype tmp1, tmp2;
 
   // fill in the slow implicit RHS function:
-  //   [G e]*[(-1+u^2-r(t))/(2*u))]
+  //   [G e]*[(-2+u^2-r(t))/(2*u)]
   //   [0 0] [(-2+v^2-s(t))/(2*v)]
-  tmp1              = (-ONE + u * u - r(t, opts)) / (TWO * u);
+  tmp1              = (-TWO + u * u - r(t, opts)) / (TWO * u);
   tmp2              = (-TWO + v * v - s(t, opts)) / (TWO * v);
   NV_Ith_S(ydot, 0) = opts->G * tmp1 + opts->e * tmp2;
   NV_Ith_S(ydot, 1) = ZERO;
@@ -841,13 +665,12 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   sunrealtype tmp1, tmp2;
 
   // fill in the RHS function:
-  //   [G e]*[(-1+u^2-r(t))/(2*u))] + [rdot(t)/(2*u)]
-  //   [e -1] [(-2+v^2-s(t))/(2*v)]   [sdot(t)/(2*vtrue(t))]
-  tmp1 = (-ONE + u * u - r(t, opts)) / (TWO * u);
+  //   [G  e]*[(-2+u^2-p(t))/(2*u)] + [pdot(t)/(2u)]
+  //   [e -1] [(-2+v^2-s(t))/(2*v)]   [qdot(t)/(2v)]
+  tmp1 = (-TWO + u * u - r(t, opts)) / (TWO * u);
   tmp2 = (-TWO + v * v - s(t, opts)) / (TWO * v);
   NV_Ith_S(ydot, 0) = opts->G * tmp1 + opts->e * tmp2 + rdot(t, opts) / (TWO * u);
-  NV_Ith_S(ydot, 1) = opts->e * tmp1 - tmp2 +
-                      sdot(t, opts) / (TWO * vtrue(t, opts));
+  NV_Ith_S(ydot, 1) = opts->e * tmp1 - tmp2 + sdot(t, opts) / (TWO * v);
 
   // Return with success
   return 0;
@@ -859,41 +682,21 @@ static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   return (0);
 }
 
-static int Jf(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
-
-  // fill in the Jacobian:
-  //   [         0                            0         ]
-  //   [e/2+e*(1+r(t))/(2*u^2)   -1/2 - (2+s(t))/(2*v^2)]
-  SM_ELEMENT_D(J, 0, 0) = ZERO;
-  SM_ELEMENT_D(J, 0, 1) = ZERO;
-  SM_ELEMENT_D(J, 1, 0) = opts->e / TWO +
-                          opts->e * (ONE + r(t, opts)) / (TWO * u * u);
-  SM_ELEMENT_D(J, 1, 1) = -ONE / TWO - (TWO + s(t, opts)) / (TWO * v * v);
-
-  // Return with success
-  return 0;
-}
-
 static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   Options* opts       = (Options*)user_data;
   const sunrealtype u = NV_Ith_S(y, 0);
   const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype t11, t22;
 
   // fill in the Jacobian:
-  //   [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
-  //   [                 0                             0           ]
-  SM_ELEMENT_D(J, 0, 0) = opts->G / TWO +
-                          (opts->G * (ONE + r(t, opts)) - rdot(t, opts)) /
-                            (TWO * u * u);
-  SM_ELEMENT_D(J, 0, 1) = opts->e / TWO +
-                          opts->e * (TWO + s(t, opts)) / (TWO * v * v);
+  //   [G e]*[1-(u^2-r(t)-2)/(2*u^2),  0] + [-r'(t)/(2*u^2),  0]
+  //   [0 0] [0,  1-(v^2-s(t)-2)/(2*v^2)]
+  t11 = ONE - (u * u - r(t, opts) - TWO) / (TWO * u * u);
+  t22 = ONE - (v * v - s(t, opts) - TWO) / (TWO * v * v);
+  SM_ELEMENT_D(J, 0, 0) = opts->G * t11 - rdot(t, opts) / (TWO * u * u);
+  SM_ELEMENT_D(J, 0, 1) = opts->e * t22;
   SM_ELEMENT_D(J, 1, 0) = ZERO;
   SM_ELEMENT_D(J, 1, 1) = ZERO;
 
@@ -907,14 +710,14 @@ static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   Options* opts       = (Options*)user_data;
   const sunrealtype u = NV_Ith_S(y, 0);
   const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype t11, t22;
 
-  // fill in the Jacobian:
-  //   [G/2 + (G*(1+r(t)))/(2*u^2)   e/2 + e*(2+s(t))/(2*v^2)]
-  //   [                 0                       0           ]
-  SM_ELEMENT_D(J, 0, 0) = opts->G / TWO +
-                          (opts->G * (ONE + r(t, opts))) / (2 * u * u);
-  SM_ELEMENT_D(J, 0, 1) = opts->e / TWO +
-                          opts->e * (TWO + s(t, opts)) / (TWO * v * v);
+  //   [G e]*[1-(u^2-r(t)-2)/(2*u^2),  0]
+  //   [0 0] [0,  1-(v^2-s(t)-2)/(2*v^2)]
+  t11 = ONE - (u * u - r(t, opts) - TWO) / (TWO * u * u);
+  t22 = ONE - (v * v - s(t, opts) - TWO) / (TWO * v * v);
+  SM_ELEMENT_D(J, 0, 0) = opts->G * t11;
+  SM_ELEMENT_D(J, 0, 1) = opts->e * t22;
   SM_ELEMENT_D(J, 1, 0) = ZERO;
   SM_ELEMENT_D(J, 1, 1) = ZERO;
 
@@ -928,17 +731,17 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   Options* opts       = (Options*)user_data;
   const sunrealtype u = NV_Ith_S(y, 0);
   const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype t11, t22;
 
   // fill in the Jacobian:
-  //   [G/2 + (G*(1+r(t))-rdot(t))/(2*u^2)     e/2 + e*(2+s(t))/(2*v^2)]
-  //   [e/2+e*(1+r(t))/(2*u^2)                -1/2 - (2+s(t))/(2*v^2)  ]
-  SM_ELEMENT_D(J, 0, 0) =
-    opts->G / TWO + (opts->G * (ONE + r(t, opts)) - rdot(t, opts)) / (2 * u * u);
-  SM_ELEMENT_D(J, 0, 1) = opts->e / TWO +
-                          opts->e * (TWO + s(t, opts)) / (TWO * v * v);
-  SM_ELEMENT_D(J, 1, 0) = opts->e / TWO +
-                          opts->e * (ONE + r(t, opts)) / (TWO * u * u);
-  SM_ELEMENT_D(J, 1, 1) = -ONE / TWO - (TWO + s(t, opts)) / (TWO * v * v);
+  //   [G  e]*[1-(u^2-p(t)-2)/(2*u^2),  0] + [-p'(t)/(2*u^2),  0]
+  //   [e -1] [0,  1-(v^2-q(t)-2)/(2*v^2)]   [0,  -q'(t)/(2*v^2)]
+  t11 = ONE - (u * u - r(t, opts) - TWO) / (TWO * u * u);
+  t22 = ONE - (v * v - s(t, opts) - TWO) / (TWO * v * v);
+  SM_ELEMENT_D(J, 0, 0) = opts->G * t11 - rdot(t, opts) / (TWO * u * u);
+  SM_ELEMENT_D(J, 0, 1) = opts->e * t22;
+  SM_ELEMENT_D(J, 1, 0) = opts->e * t11;
+  SM_ELEMENT_D(J, 1, 1) = -t22 - sdot(t, opts) / (TWO * v * v);
 
   // Return with success
   return 0;
@@ -950,27 +753,29 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
 static sunrealtype r(sunrealtype t, Options* opts)
 {
-  return (SUN_RCONST(0.5) * cos(t));
+  return (cos(t));
 }
 
 static sunrealtype s(sunrealtype t, Options* opts)
 {
-  return (cos(opts->w * t));
+  return (cos(opts->w * t * (ONE + exp(-(t - TWO) * (t - TWO)))));
 }
 
 static sunrealtype rdot(sunrealtype t, Options* opts)
 {
-  return (-SUN_RCONST(0.5) * sin(t));
+  return (-sin(t));
 }
 
 static sunrealtype sdot(sunrealtype t, Options* opts)
 {
-  return (-opts->w * sin(opts->w * t));
+  return (-sin(opts->w * t * (ONE + exp(-(t - TWO) * (t - TWO)))) * opts->w *
+          (ONE + exp(-(t - TWO) * (t - TWO)) -
+           t * TWO * (t - TWO) * (exp(-(t - TWO) * (t - TWO)))));
 }
 
 static sunrealtype utrue(sunrealtype t, Options* opts)
 {
-  return (SUNRsqrt(ONE + r(t, opts)));
+  return (SUNRsqrt(TWO + r(t, opts)));
 }
 
 static sunrealtype vtrue(sunrealtype t, Options* opts)
@@ -1004,9 +809,8 @@ void InputHelp()
     << "  --set_h0       : use hs/hf above to set the initial step size\n";
   std::cout << "  --rtol         : relative solution tolerance\n";
   std::cout << "  --atol         : absolute solution tolerance\n";
-  std::cout << "  --mri_type     : MRI method, int in [0,11] (see source for "
-               "explanation)\n";
-  std::cout << "  --fast_type    : fast RK method, int in [0,5] (see source)\n";
+  std::cout << "  --mri_method   : MRI method name (valid ARKODE_MRITableID)\n";
+  std::cout << "  --fast_order   : fast RK method order\n";
   std::cout << "  --scontrol     : slow time step controller, int in [0,16] "
                "(see source)\n";
   std::cout << "  --fcontrol     : fast time step controller, int in [0,6] "
@@ -1033,8 +837,8 @@ int ReadInputs(std::vector<std::string>& args, Options& opts, SUNContext ctx)
   find_arg(args, "--set_h0", opts.set_h0);
   find_arg(args, "--rtol", opts.rtol);
   find_arg(args, "--atol", opts.atol);
-  find_arg(args, "--mri_type", opts.mri_type);
-  find_arg(args, "--fast_type", opts.fast_type);
+  find_arg(args, "--mri_method", opts.mri_method);
+  find_arg(args, "--fast_order", opts.fast_order);
   find_arg(args, "--scontrol", opts.scontrol);
   find_arg(args, "--fcontrol", opts.fcontrol);
   find_arg(args, "--slow_pq", opts.slow_pq);
@@ -1064,28 +868,6 @@ int ReadInputs(std::vector<std::string>& args, Options& opts, SUNContext ctx)
   if ((opts.fast_pq < 0) || (opts.fast_pq > 1))
   {
     std::cerr << "ERROR: fast_pq must be in {0,1}, (" << opts.fast_pq
-              << " input)\n";
-    return -1;
-  }
-  //   mri_type in [0,11]
-  if ((opts.mri_type < 0) || (opts.mri_type > 11))
-  {
-    std::cerr << "ERROR: mri_type must be in [0,11], (" << opts.mri_type
-              << " input)\n";
-    return -1;
-  }
-  //   scontrol = 0 if mri_type in {0,9,10,11}
-  if ((opts.scontrol != 0) && ((opts.mri_type == 0) || (opts.mri_type == 9) ||
-                               (opts.mri_type == 10) || (opts.mri_type == 11)))
-  {
-    std::cerr << "ERROR: scontrol must be 0 for mri_type " << opts.mri_type
-              << ", (" << opts.scontrol << " input)\n";
-    return -1;
-  }
-  //   fast_type in [0,6]
-  if ((opts.fast_type < 0) || (opts.fast_type > 6))
-  {
-    std::cerr << "ERROR: fast_type must be in [0,6], (" << opts.fast_type
               << " input)\n";
     return -1;
   }
@@ -1122,15 +904,6 @@ int ReadInputs(std::vector<std::string>& args, Options& opts, SUNContext ctx)
   {
     std::cerr << "ERROR: G must be a negative real number, (" << opts.G
               << " input)\n";
-    return -1;
-  }
-  //   hs <= 1/|G| if scontrol == 0 and mri_type in [0,4]
-  if ((opts.hs > ONE / SUNRabs(opts.G)) && (opts.scontrol == 0) &&
-      (opts.mri_type >= 0) && (opts.mri_type < 5))
-  {
-    std::cerr
-      << "ERROR: hs must be in (0, 1/|G|) for fixed-step explicit MRI, ("
-      << opts.hs << " input)\n";
     return -1;
   }
   //   w >= 1.0

@@ -62,11 +62,13 @@ SUNDIALS_EXPORT int ERKStepSetTableName(void* arkode_mem, const char* etable);
 SUNDIALS_EXPORT int ERKStepGetNumRhsEvals(void* arkode_mem, long int* nfevals);
 SUNDIALS_EXPORT int ERKStepGetCurrentButcherTable(void* arkode_mem,
                                                   ARKodeButcherTable* B);
-
-/* Grouped optional output functions */
 SUNDIALS_EXPORT int ERKStepGetTimestepperStats(
   void* arkode_mem, long int* expsteps, long int* accsteps,
   long int* step_attempts, long int* nfevals, long int* netfails);
+
+/* Utility to wrap ERKStep as an MRIStepInnerStepper */
+SUNDIALS_EXPORT int ERKStepCreateMRIStepInnerStepper(void* arkode_mem,
+                                                     MRIStepInnerStepper* stepper);
 
 /* --------------------------------------------------------------------------
  * Deprecated Functions -- all are superseded by shared ARKODE-level routines

@@ -95,3 +95,14 @@ inline void find_arg(std::vector<std::string>& args, const std::string key,
     args.erase(it);
   }
 }
+
+inline void find_arg(std::vector<std::string>& args, const std::string key,
+                     std::string& dest)
+{
+  auto it = std::find(args.begin(), args.end(), key);
+  if (it != args.end())
+  {
+    dest = *(it + 1);
+    args.erase(it, it + 2);
+  }
+}

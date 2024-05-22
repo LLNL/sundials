@@ -20,6 +20,7 @@
  *    [v]     [ e -1 ] [(v^2-q-2)/(2v)]    [ q'(t)/(2v) ]
  *
  * where p(t) = cos(t), and q(t) = cos(omega*t*(1+exp(-(t-2)^2))).
+ *
  * This problem has analytical solution given by
  *    u(t) = sqrt(2+p(t)),  v(t) = sqrt(2+q(t)).
  * We use the parameters: e = 0.1 and G = -10 [default]
