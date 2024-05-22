@@ -48,6 +48,9 @@
  *      8 - ARKODE_MRI_GARK_ESDIRK34a
  *      9 - ARKODE_IMEX_MRI_GARK3b
  *     10 - ARKODE_IMEX_MRI_GARK4
+ *     11 - ARKODE_IMEX_MRI_SR21
+ *     12 - ARKODE_IMEX_MRI_SR32
+ *     13 - ARKODE_IMEX_MRI_SR43
  *
  *   fast_type:
  *      0 - none (full problem at slow scale)
@@ -195,13 +198,13 @@ int main(int argc, char* argv[])
   if (argc > 7) { deduce = (sunbooleantype)atoi(argv[7]); }
 
   /* Check arguments for validity */
-  /*   0 <= slow_type <= 10      */
+  /*   0 <= slow_type <= 13      */
   /*   0 <= fast_type <= 5       */
   /*   G < 0.0                   */
   /*   h > 0                     */
   /*   h < 1/|G| (explicit slow) */
   /*   w >= 1.0                  */
-  if ((slow_type < 0) || (slow_type > 10))
+  if ((slow_type < 0) || (slow_type > 13))
   {
     printf("ERROR: slow_type be an integer in [0,6] \n");
     return (-1);
@@ -265,16 +268,32 @@ int main(int argc, char* argv[])
     printf("    slow solver: ARKODE_MIS_KW3\n");
     explicit_slow = SUNTRUE;
     break;
+  case (2):
+    printf("    slow solver: ARKODE_MRI_GARK_ERK45a\n");
+    explicit_slow = SUNTRUE;
+    break;
+  case (3):
+    printf("    slow solver: ARKODE_MERK21\n");
+    explicit_slow = SUNTRUE;
+    break;
+  case (4):
+    printf("    slow solver: ARKODE_MERK32\n");
+    explicit_slow = SUNTRUE;
+    break;
+  case (5):
+    printf("    slow solver: ARKODE_MERK43\n");
+    explicit_slow = SUNTRUE;
+    break;
+  case (6):
+    printf("    slow solver: ARKODE_MERK54\n");
+    explicit_slow = SUNTRUE;
+    break;    
   case (7):
     printf("    slow solver: ARKODE_MRI_GARK_IRK21a\n");
     implicit_slow = SUNTRUE;
     reltol        = SUNMAX(hs * hs, 1e-10);
     abstol        = 1e-11;
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
-    break;
-  case (2):
-    printf("    slow solver: ARKODE_MRI_GARK_ERK45a\n");
-    explicit_slow = SUNTRUE;
     break;
   case (8):
     printf("    slow solver: ARKODE_MRI_GARK_ESDIRK34a\n");
@@ -297,21 +316,26 @@ int main(int argc, char* argv[])
     abstol    = 1e-14;
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
-  case (3):
-    printf("    slow solver: ARKODE_MERK21\n");
-    explicit_slow = SUNTRUE;
+  case (11):
+    printf("    slow solver: ARKODE_IMEX_MRI_SR21\n");
+    imex_slow = SUNTRUE;
+    reltol    = SUNMAX(hs * hs, 1e-10);
+    abstol    = 1e-11;
+    printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
-  case (4):
-    printf("    slow solver: ARKODE_MERK32\n");
-    explicit_slow = SUNTRUE;
+  case (12):
+    printf("    slow solver: ARKODE_IMEX_MRI_SR32\n");
+    imex_slow = SUNTRUE;
+    reltol    = SUNMAX(hs * hs * hs, 1e-10);
+    abstol    = 1e-11;
+    printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
-  case (5):
-    printf("    slow solver: ARKODE_MERK43\n");
-    explicit_slow = SUNTRUE;
-    break;
-  case (6):
-    printf("    slow solver: ARKODE_MERK54\n");
-    explicit_slow = SUNTRUE;
+  case (13):
+    printf("    slow solver: ARKODE_IMEX_MRI_SR43\n");
+    imex_slow = SUNTRUE;
+    reltol    = SUNMAX(hs * hs * hs * hs, 1e-14);
+    abstol    = 1e-14;
+    printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   }
   switch (fast_type)
@@ -567,71 +591,63 @@ int main(int argc, char* argv[])
     B->q       = 2;
     C          = MRIStepCoupling_MIStoMRI(B, 2, 0);
     if (check_retval((void*)C, "MRIStepCoupling_MIStoMRI", 0)) { return 1; }
-    retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     ARKodeButcherTable_Free(B);
     break;
   case (1):
     C = MRIStepCoupling_LoadTable(ARKODE_MIS_KW3);
     if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
-    retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
-    break;
-  case (7):
-    C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_IRK21a);
-    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) { return 1; }
-    retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     break;
   case (2):
     C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ERK45a);
     if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) { return 1; }
-    retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
-    break;
-  case (8):
-    C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ESDIRK34a);
-    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) { return 1; }
-    retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
-    break;
-  case (9):
-    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_GARK3b);
-    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
-    retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
-    break;
-  case (10):
-    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_GARK4);
-    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
-    retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     break;
   case (3):
     C = MRIStepCoupling_LoadTable(ARKODE_MERK21);
     if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) { return 1; }
-    retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     break;
   case (4):
     C = MRIStepCoupling_LoadTable(ARKODE_MERK32);
     if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) { return 1; }
-    retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     break;
   case (5):
     C = MRIStepCoupling_LoadTable(ARKODE_MERK43);
     if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) { return 1; }
-    retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
     break;
   case (6):
     C = MRIStepCoupling_LoadTable(ARKODE_MERK54);
     if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) { return 1; }
-    retval = MRIStepSetCoupling(arkode_mem, C);
-    if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
+    break;
+  case (7):
+    C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_IRK21a);
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) { return 1; }
+    break;
+  case (8):
+    C = MRIStepCoupling_LoadTable(ARKODE_MRI_GARK_ESDIRK34a);
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 1)) { return 1; }
+    break;
+  case (9):
+    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_GARK3b);
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
+    break;
+  case (10):
+    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_GARK4);
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
+    break;
+  case (11):
+    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_SR21);
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
+    break;
+  case (12):
+    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_SR32);
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
+    break;
+  case (13):
+    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_SR43);
+    if (check_retval((void*)C, "MRIStepCoupling_LoadTable", 0)) { return 1; }
     break;
   }
+  retval = MRIStepSetCoupling(arkode_mem, C);
+  if (check_retval(&retval, "MRIStepSetCoupling", 1)) { return 1; }
   MRIStepCoupling_Free(C); /* free coupling coefficients */
 
   /* Set the tolerances */
