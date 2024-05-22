@@ -1784,12 +1784,20 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     else
     {
       /* For an ImEx method with implicit first stage and interpolation method
-         that does not need fn, only evaluate fi for reuse in the residual */
-      retval = step_mem->fi(ark_mem->tn, ark_mem->yn, step_mem->Fi[0],
-                            ark_mem->user_data);
-      step_mem->nfi++;
-      if (retval < 0) { return ARK_RHSFUNC_FAIL; }
-      if (retval > 0) { return ARK_UNREC_RHSFUNC_ERR; }
+         that does not need fn, only evaluate fi (if necessary) for reuse in the
+         residual */
+      if (stiffly_accurate)
+      {
+        N_VScale(ONE, step_mem->Fi[step_mem->stages - 1], step_mem->Fi[0]);
+      }
+      else
+      {
+        retval = step_mem->fi(ark_mem->tn, ark_mem->yn, step_mem->Fi[0],
+                              ark_mem->user_data);
+        step_mem->nfi++;
+        if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+        if (retval > 0) { return ARK_UNREC_RHSFUNC_ERR; }
+      }
     }
   }
 
