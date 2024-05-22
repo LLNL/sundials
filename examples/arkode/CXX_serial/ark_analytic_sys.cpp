@@ -52,6 +52,7 @@
 #include <sundials/sundials_types.h>   // def. of type 'sunrealtype'
 #include <sunlinsol/sunlinsol_dense.h> // access to dense SUNLinearSolver
 #include <sunmatrix/sunmatrix_dense.h> // access to dense SUNMatrix
+
 #include "arkode/arkode.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)

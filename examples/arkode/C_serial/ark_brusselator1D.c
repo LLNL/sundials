@@ -51,6 +51,7 @@
 #include <sundials/sundials_types.h> /* defs. of sunrealtype, sunindextype, etc */
 #include <sunlinsol/sunlinsol_band.h> /* access to band SUNLinearSolver       */
 #include <sunmatrix/sunmatrix_band.h> /* access to band SUNMatrix             */
+
 #include "arkode/arkode.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)

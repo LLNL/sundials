@@ -53,6 +53,7 @@
 #include <sundials/sundials_types.h>  /* def. of type 'sunrealtype' */
 #include <sunlinsol/sunlinsol_band.h> /* access to band SUNLinearSolver */
 #include <sunmatrix/sunmatrix_band.h> /* access to band SUNMatrix */
+
 #include "arkode/arkode.h"
 
 #ifdef _OPENMP
