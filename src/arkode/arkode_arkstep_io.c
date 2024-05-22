@@ -750,6 +750,13 @@ int arkStep_SetLinear(ARKodeMem ark_mem, int timedepend)
   retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  if (timedepend && step_mem->autonomous)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "Incompatible settings, the problem is autonomous but the Jacobian is time dependent");
+    return ARK_ILL_INPUT;
+  }
+
   /* set parameters */
   step_mem->linear         = SUNTRUE;
   step_mem->linear_timedep = (timedepend == 1);
