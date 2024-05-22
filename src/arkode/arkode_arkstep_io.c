@@ -800,6 +800,17 @@ int arkStep_SetAutonomous(ARKodeMem ark_mem, sunbooleantype autonomous)
 
   if (autonomous && step_mem->linear) { step_mem->linear_timedep = SUNFALSE; }
 
+  /* Reattach the nonlinear system function e.g., switching to/from an
+     autonomous problem with the trivial predictor requires swapping the
+     nonlinear system function provided to the nonlinear solver */
+  retval = arkStep_SetNlsSysFn(ark_mem);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Setting nonlinear system function failed");
+    return ARK_ILL_INPUT;
+  }
+
   /* This will be better handled when the temp vector stack is added */
   if (autonomous)
   {
@@ -926,6 +937,17 @@ int arkStep_SetPredictorMethod(ARKodeMem ark_mem, int pred_method)
 
   /* set parameter */
   step_mem->predictor = pred_method;
+
+  /* Reattach the nonlinear system function e.g., switching to/from the trivial
+     predictor with an autonomous problem requires swapping the nonlinear system
+     function provided to the nonlinear solver */
+  retval = arkStep_SetNlsSysFn(ark_mem);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Setting nonlinear system function failed");
+    return ARK_ILL_INPUT;
+  }
 
   return (ARK_SUCCESS);
 }
