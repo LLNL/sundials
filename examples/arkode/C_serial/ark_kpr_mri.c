@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
   /*   w >= 1.0                  */
   if ((slow_type < 0) || (slow_type > 13))
   {
-    printf("ERROR: slow_type be an integer in [0,6] \n");
+    printf("ERROR: slow_type be an integer in [0,13] \n");
     return (-1);
   }
   if ((fast_type < 0) || (fast_type > 5))
