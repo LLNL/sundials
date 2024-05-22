@@ -203,6 +203,16 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
        Preform Newton iteraion */
   for (;;)
   {
+    /* initialize current iteration counter for this solve attempt */
+    NEWTON_CONTENT(NLS)->curiter = 0;
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
+                       "SUNNonlinSolSolve_Newton", "begin-iteration",
+                       "iter = %ld, nni = %ld", (long int)0,
+                       NEWTON_CONTENT(NLS)->niters);
+#endif
+
     /* compute the nonlinear residual, store in delta */
     retval = NEWTON_CONTENT(NLS)->Sys(ycor, delta, mem);
     if (retval != SUN_SUCCESS) { break; }
@@ -214,16 +224,6 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
                                            mem);
       if (retval != SUN_SUCCESS) { break; }
     }
-
-    /* initialize current iteration counter for this solve attempt */
-    NEWTON_CONTENT(NLS)->curiter = 0;
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
-                       "SUNNonlinSolSolve_Newton", "begin-iteration",
-                       "iter = %ld, nni = %ld", (long int)0,
-                       NEWTON_CONTENT(NLS)->niters);
-#endif
 
     /* looping point for Newton iteration. Break out on any error. */
     for (;;)
