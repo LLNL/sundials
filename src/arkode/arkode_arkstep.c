@@ -94,9 +94,6 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   }
   memset(step_mem, 0, sizeof(struct ARKodeARKStepMemRec));
 
-  /* Testing hack -- treat all problems as autonomous */
-  step_mem->autonomous = SUNTRUE;
-
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_attachlinsol              = arkStep_AttachLinsol;
   ark_mem->step_attachmasssol             = arkStep_AttachMasssol;
@@ -156,6 +153,9 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
     ARKodeFree((void**)&ark_mem);
     return (NULL);
   }
+
+  /* Testing hack -- treat all problems as autonomous */
+  step_mem->autonomous = SUNTRUE;
 
   /* Set implicit/explicit problem based on function pointers */
   step_mem->explicit = (fe == NULL) ? SUNFALSE : SUNTRUE;
