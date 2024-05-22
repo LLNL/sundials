@@ -665,6 +665,7 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->predictor      = 0;         /* trivial predictor */
   step_mem->linear         = SUNFALSE;  /* nonlinear problem */
   step_mem->linear_timedep = SUNTRUE;   /* dfi/dy depends on t */
+  step_mem->autonomous     = SUNFALSE;  /* non-autonomous problem */
   step_mem->explicit       = SUNTRUE;   /* fe(t,y) will be used */
   step_mem->implicit       = SUNTRUE;   /* fi(t,y) will be used */
   step_mem->deduce_rhs     = SUNFALSE;  /* deduce fi on result of NLS */
