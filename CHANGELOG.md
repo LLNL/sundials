@@ -79,6 +79,12 @@ Fix bug on LLP64 platforms (like Windows 64-bit) where `KLU_INDEXTYPE` could be
 Check if size of `SuiteSparse_long` is 8 if the size of `sunindextype` is 8
 when using KLU.
 
+Added the function ``ARKodeSetAutonomous`` in ARKODE to indicate that the
+implicit right-hand side function does not explicitly depend on time. When using
+the trivial predictor, an autonomous problem may reuse implicit function
+evaluations across stage solves reducing the total number of function
+evaluations.
+
 ## Changes to SUNDIALS in release v7.0.0
 
 ### Major Feature

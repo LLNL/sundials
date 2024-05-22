@@ -1723,6 +1723,7 @@ Optional input                                                  Function name   
 ==============================================================  ======================================  ============
 Specify that the implicit RHS is linear                         :c:func:`ARKodeSetLinear`               ``SUNFALSE``
 Specify that the implicit RHS nonlinear                         :c:func:`ARKodeSetNonlinear`            ``SUNTRUE``
+Specify that the implicit RHS is autonomous                     :c:func:`ARKodeSetAutonomous`           ``SUNFALSE``
 Implicit predictor method                                       :c:func:`ARKodeSetPredictorMethod`      0
 User-provided implicit stage predictor                          :c:func:`ARKodeSetStagePredictFn`       ``NULL``
 RHS function for nonlinear system evaluations                   :c:func:`ARKodeSetNlsRhsFn`             ``NULL``
@@ -1793,6 +1794,29 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       :c:func:`ARKodeSetLinear`.  Calls
       :c:func:`ARKodeSetDeltaGammaMax` to reset the step size ratio
       threshold to the default value.
+
+   .. versionadded:: x.y.z
+
+
+.. c:function:: int ARKodeSetAutonomous(void* arkode_mem, sunbooleantype autonomous)
+
+   Specifies that the implicit portion of the problem is autonomous i.e., does
+   not explicitly depend on time.
+
+   When using the trivial predictor, an autonomous problem may reuse implicit
+   RHS evaluations across stage solves reducing the total number of function
+   evaluations.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param autonomous: flag denoting if the implicit RHS function,
+                      :math:`f^I(t,y)`, is autonomous (``SUNTRUE``) or
+                      non-autonomous (``SUNFALSE``).
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+   :retval ARK_ILL_INPUT: an argument had an illegal value.
+   :retval ARK_STEPPER_UNSUPPORTED: implicit solvers are not supported by the
+                                    current time-stepping module.
 
    .. versionadded:: x.y.z
 
