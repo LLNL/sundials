@@ -207,9 +207,13 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
     NEWTON_CONTENT(NLS)->curiter = 0;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
-                       "SUNNonlinSolSolve_Newton", "begin-iteration",
-                       "iter = %ld, nni = %ld", (long int)0,
+    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
+                       "begin-attempt", "iter = %ld, nni = %ld",
+                       (long int)NEWTON_CONTENT(NLS)->curiter,
+                       NEWTON_CONTENT(NLS)->niters);
+    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
+                       "start-iterate", "iter = %ld, nni = %ld",
+                       (long int)NEWTON_CONTENT(NLS)->curiter,
                        NEWTON_CONTENT(NLS)->niters);
 #endif
 
@@ -248,16 +252,24 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
                                           NEWTON_CONTENT(NLS)->ctest_data);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
-                         "SUNNonlinSolSolve_Newton", "end-of-iterate",
-                         "iter = %ld, nni = %ld, wrmsnorm = %.16g",
+      SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
+                         "end-iterate", "iter = %ld, nni = %ld, wrmsnorm = %.16g",
                          NEWTON_CONTENT(NLS)->curiter,
-                         NEWTON_CONTENT(NLS)->niters, N_VWrmsNorm(delta, w));
+                         NEWTON_CONTENT(NLS)->niters - 1, N_VWrmsNorm(delta, w));
 #endif
+
+      /* Update here so begin/end logging iterations match */
+      NEWTON_CONTENT(NLS)->curiter++;
 
       /* if successful update Jacobian status and return */
       if (retval == SUN_SUCCESS)
       {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+        SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
+                           "end-attempt", "success, iter = %ld, nni = %ld",
+                           (long int)NEWTON_CONTENT(NLS)->curiter,
+                           NEWTON_CONTENT(NLS)->niters);
+#endif
         NEWTON_CONTENT(NLS)->jcur = SUNFALSE;
         return SUN_SUCCESS;
       }
@@ -265,13 +277,20 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
       /* check if the iteration should continue; otherwise exit Newton loop */
       if (retval != SUN_NLS_CONTINUE) { break; }
 
-      /* not yet converged. Increment curiter and test for max allowed. */
-      NEWTON_CONTENT(NLS)->curiter++;
+      /* not yet converged, test for max allowed iterations. */
       if (NEWTON_CONTENT(NLS)->curiter >= NEWTON_CONTENT(NLS)->maxiters)
       {
         retval = SUN_NLS_CONV_RECVR;
         break;
       }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+      SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
+                         __func__, "start-iterate",
+                         "iter = %ld, nni = %ld",
+                         (long int)NEWTON_CONTENT(NLS)->curiter,
+                         NEWTON_CONTENT(NLS)->niters);
+#endif
 
       /* compute the nonlinear residual, store in delta */
       retval = NEWTON_CONTENT(NLS)->Sys(ycor, delta, mem);
@@ -280,6 +299,13 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
     } /* end of Newton iteration loop */
 
     /* all errors go here */
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
+                       "end-attempt", "failure, iter = %ld, nni = %ld",
+                       (long int)NEWTON_CONTENT(NLS)->curiter,
+                       NEWTON_CONTENT(NLS)->niters);
+#endif
 
     /* If there is a recoverable convergence failure and the Jacobian-related
        data appears not to be current, increment the convergence failure count,
