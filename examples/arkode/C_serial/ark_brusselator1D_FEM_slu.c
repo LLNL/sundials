@@ -296,6 +296,10 @@ int main(int argc, char* argv[])
   retval = ARKodeResStolerance(arkode_mem, abstol);
   if (check_retval(&retval, "ARKodeResStolerance", 1)) { return (1); }
 
+  /* Specify an autonomous problem */
+  retval = ARKodeSetAutonomous(arkode_mem, SUNTRUE);
+  if (check_retval(&retval, "ARKodeSetAutonomous", 1)) { return (1); }
+
   /* Initialize sparse matrix data structure and linear solvers (system and mass) */
   NNZ = 15 * NEQ;
 
