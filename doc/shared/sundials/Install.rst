@@ -669,6 +669,10 @@ illustration only.
 
    Default: "REF;OMP"
 
+   .. versionchanged: x.y.z 
+
+      The ``DPCPP`` option was changed to ``SYCL`` to align with Ginkgo's naming convention.
+
 .. cmakeoption:: ENABLE_KOKKOS
 
    Enable the Kokkos based vector.
