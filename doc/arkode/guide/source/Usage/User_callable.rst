@@ -1803,9 +1803,10 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
    Specifies that the implicit portion of the problem is autonomous i.e., does
    not explicitly depend on time.
 
-   When using the trivial predictor, an autonomous problem may reuse implicit
-   RHS evaluations across stage solves reducing the total number of function
-   evaluations.
+   When using an implicit or ImEx method with the trivial predictor, this option
+   enables reusing the implicit right-hand side evaluation at the predicted
+   state across stage solves within a step. This reuse reduces the total number
+   of implicit RHS function evaluations.
 
    :param arkode_mem: pointer to the ARKODE memory block.
    :param autonomous: flag denoting if the implicit RHS function,
