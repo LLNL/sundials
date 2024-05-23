@@ -2,6 +2,9 @@
 
 ## Changes to SUNDIALS in release X.Y.Z
 
+Added `ARKodeButcherTable_ERKIDToName` and `ARKodeButcherTable_DIRKIDToName` to
+convert a Butcher table ID to a string representation.
+
 Fixed the runtime library installation path for windows systems. This fix changes the
 default library installation path from `CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR` to
 `CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_BINDIR`.
