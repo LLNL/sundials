@@ -1819,6 +1819,25 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
    :retval ARK_STEPPER_UNSUPPORTED: implicit solvers are not supported by the
                                     current time-stepping module.
 
+   .. warning::
+
+      Results may differ when combining :c:func:`ARKodeSetAutonomous` with
+      :c:func:`ARKodeSetDeduceImplicitRhs` and using a stiffly accurate method
+      with the trivial predictor as the deduced implicit right-hand side (RHS)
+      value will be reused in the initial residual computation rather than
+      evaluating the implicit RHS function e.g.,
+      ``examples/arkode/C_serial/ark_brusselator.c``.
+
+      Similarly programs that save computations within the RHS function for
+      reuse elsewhere will need to be updated to account for the RHS function
+      reuse with :c:func:`ARKodeSetAutonomous`. For example,
+      ``examples/arkode/C_serial/ark_KrylovDemo_prec.c`` reuses rates computed
+      in the RHS function in the preconditioner setup. If
+      :c:func:`ARKodeSetAutonomous` was enabled in this example, the rates saved
+      initially would be from the RHS function evaluations used to determine the
+      initial step size rather than the RHS evaluation in the nonlinear residual
+      with the predictor.
+
    .. versionadded:: x.y.z
 
 
