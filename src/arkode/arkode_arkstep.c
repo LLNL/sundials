@@ -1802,32 +1802,30 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
   /* Set alias to implicit RHS evaluation for reuse in residual */
+  step_mem->fn_implicit = NULL;
   if (save_fn_for_residual)
   {
     if (!implicit_stage)
     {
-      /* Implicit or ImEx method with explicit first stage */
+      /* Explicit first stage -- Fi[0] will be retained */
       step_mem->fn_implicit = step_mem->Fi[0];
-    }
-    else if (imex_method)
-    {
-      /* ImEx method with an implicit first stage -- copy value as it will be
-         overwritten in the first stage solve */
-      N_VScale(ONE, step_mem->Fi[0], ark_mem->tempv5);
-      step_mem->fn_implicit = ark_mem->tempv5;
     }
     else
     {
-      /* Implicit method with implicit first stage */
-      if (step_mem->mass_type == MASS_FIXED)
+      /* Implicit first stage -- Fi[0] will be overwritten */
+      if (imex_method || step_mem->mass_type == MASS_FIXED)
       {
+        /* Copy from Fi[0] as fn includes fe or M^{-1} */
         N_VScale(ONE, step_mem->Fi[0], ark_mem->tempv5);
         step_mem->fn_implicit = ark_mem->tempv5;
       }
-      else { step_mem->fn_implicit = ark_mem->fn; }
+      else
+      {
+        /* fn is the same as Fi[0] but will not be overwritten */
+        step_mem->fn_implicit = ark_mem->fn;
+      }
     }
   }
-  else { step_mem->fn_implicit = NULL; }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   if (is_start == 1)
