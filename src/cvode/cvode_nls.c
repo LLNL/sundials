@@ -40,12 +40,6 @@ static int cvNlsLSolve(N_Vector delta, void* cvode_mem);
 static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
                          sunrealtype tol, N_Vector ewt, void* cvode_mem);
 
-#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
-int cvNlsResid_fused(const sunrealtype rl1, const sunrealtype ngamma,
-                     const N_Vector zn1, const N_Vector ycor,
-                     const N_Vector ftemp, N_Vector res);
-#endif
-
 /* -----------------------------------------------------------------------------
  * Exported functions
  * ---------------------------------------------------------------------------*/

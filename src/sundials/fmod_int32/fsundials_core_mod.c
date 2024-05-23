@@ -2512,6 +2512,14 @@ SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_NewEmpty(void *farg1) {
 }
 
 
+SWIGEXPORT void _wrap_FSUNAdaptController_DestroyEmpty(SUNAdaptController farg1) {
+  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
+  
+  arg1 = (SUNAdaptController)(farg1);
+  SUNAdaptController_DestroyEmpty(arg1);
+}
+
+
 SWIGEXPORT int _wrap_FSUNAdaptController_GetType(SUNAdaptController farg1) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;

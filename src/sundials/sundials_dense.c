@@ -38,17 +38,7 @@ sunindextype SUNDlsMat_DenseGETRF(SUNDlsMat A, sunindextype* p)
   return (SUNDlsMat_denseGETRF(A->cols, A->M, A->N, p));
 }
 
-sunindextype DenseGETRF(SUNDlsMat A, sunindextype* p)
-{
-  return (SUNDlsMat_denseGETRF(A->cols, A->M, A->N, p));
-}
-
 void SUNDlsMat_DenseGETRS(SUNDlsMat A, sunindextype* p, sunrealtype* b)
-{
-  SUNDlsMat_denseGETRS(A->cols, A->N, p, b);
-}
-
-void DenseGETRS(SUNDlsMat A, sunindextype* p, sunrealtype* b)
 {
   SUNDlsMat_denseGETRS(A->cols, A->N, p, b);
 }
@@ -58,27 +48,12 @@ sunindextype SUNDlsMat_DensePOTRF(SUNDlsMat A)
   return (SUNDlsMat_densePOTRF(A->cols, A->M));
 }
 
-sunindextype DensePOTRF(SUNDlsMat A)
-{
-  return (SUNDlsMat_densePOTRF(A->cols, A->M));
-}
-
 void SUNDlsMat_DensePOTRS(SUNDlsMat A, sunrealtype* b)
 {
   SUNDlsMat_densePOTRS(A->cols, A->M, b);
 }
 
-void DensePOTRS(SUNDlsMat A, sunrealtype* b)
-{
-  SUNDlsMat_densePOTRS(A->cols, A->M, b);
-}
-
 int SUNDlsMat_DenseGEQRF(SUNDlsMat A, sunrealtype* beta, sunrealtype* wrk)
-{
-  return (SUNDlsMat_denseGEQRF(A->cols, A->M, A->N, beta, wrk));
-}
-
-int DenseGEQRF(SUNDlsMat A, sunrealtype* beta, sunrealtype* wrk)
 {
   return (SUNDlsMat_denseGEQRF(A->cols, A->M, A->N, beta, wrk));
 }
@@ -89,18 +64,7 @@ int SUNDlsMat_DenseORMQR(SUNDlsMat A, sunrealtype* beta, sunrealtype* vn,
   return (SUNDlsMat_denseORMQR(A->cols, A->M, A->N, beta, vn, vm, wrk));
 }
 
-int DenseORMQR(SUNDlsMat A, sunrealtype* beta, sunrealtype* vn, sunrealtype* vm,
-               sunrealtype* wrk)
-{
-  return (SUNDlsMat_denseORMQR(A->cols, A->M, A->N, beta, vn, vm, wrk));
-}
-
 void SUNDlsMat_DenseCopy(SUNDlsMat A, SUNDlsMat B)
-{
-  SUNDlsMat_denseCopy(A->cols, B->cols, A->M, A->N);
-}
-
-void DenseCopy(SUNDlsMat A, SUNDlsMat B)
 {
   SUNDlsMat_denseCopy(A->cols, B->cols, A->M, A->N);
 }
@@ -110,25 +74,9 @@ void SUNDlsMat_DenseScale(sunrealtype c, SUNDlsMat A)
   SUNDlsMat_denseScale(c, A->cols, A->M, A->N);
 }
 
-void DenseScale(sunrealtype c, SUNDlsMat A)
-{
-  SUNDlsMat_denseScale(c, A->cols, A->M, A->N);
-}
-
 void SUNDlsMat_DenseMatvec(SUNDlsMat A, sunrealtype* x, sunrealtype* y)
 {
   SUNDlsMat_denseMatvec(A->cols, x, y, A->M, A->N);
-}
-
-void DenseMatvec(SUNDlsMat A, sunrealtype* x, sunrealtype* y)
-{
-  SUNDlsMat_denseMatvec(A->cols, x, y, A->M, A->N);
-}
-
-sunindextype denseGETRF(sunrealtype** a, sunindextype m, sunindextype n,
-                        sunindextype* p)
-{
-  return (SUNDlsMat_denseGETRF(a, m, n, p));
 }
 
 sunindextype SUNDlsMat_denseGETRF(sunrealtype** a, sunindextype m,
@@ -199,11 +147,6 @@ sunindextype SUNDlsMat_denseGETRF(sunrealtype** a, sunindextype m,
   return (0);
 }
 
-void denseGETRS(sunrealtype** a, sunindextype n, sunindextype* p, sunrealtype* b)
-{
-  SUNDlsMat_denseGETRS(a, n, p, b);
-}
-
 void SUNDlsMat_denseGETRS(sunrealtype** a, sunindextype n, sunindextype* p,
                           sunrealtype* b)
 {
@@ -246,11 +189,6 @@ void SUNDlsMat_denseGETRS(sunrealtype** a, sunindextype n, sunindextype* p,
  * the lower triangle of C.
  */
 
-sunindextype densePOTRF(sunrealtype** a, sunindextype m)
-{
-  return (SUNDlsMat_densePOTRF(a, m));
-}
-
 sunindextype SUNDlsMat_densePOTRF(sunrealtype** a, sunindextype m)
 {
   sunrealtype *a_col_j, *a_col_k;
@@ -288,11 +226,6 @@ sunindextype SUNDlsMat_densePOTRF(sunrealtype** a, sunindextype m)
  * obtained with denPOTRF.; A = C*C^T, C lower triangular
  *
  */
-
-void densePOTRS(sunrealtype** a, sunindextype m, sunrealtype* b)
-{
-  SUNDlsMat_densePOTRS(a, m, b);
-}
 
 void SUNDlsMat_densePOTRS(sunrealtype** a, sunindextype m, sunrealtype* b)
 {
@@ -333,12 +266,6 @@ void SUNDlsMat_densePOTRS(sunrealtype** a, sunindextype m, sunrealtype* b)
  * v (of length m) must be provided as workspace.
  *
  */
-
-int denseGEQRF(sunrealtype** a, sunindextype m, sunindextype n,
-               sunrealtype* beta, sunrealtype* v)
-{
-  return (SUNDlsMat_denseGEQRF(a, m, n, beta, v));
-}
 
 int SUNDlsMat_denseGEQRF(sunrealtype** a, sunindextype m, sunindextype n,
                          sunrealtype* beta, sunrealtype* v)
@@ -404,12 +331,6 @@ int SUNDlsMat_denseGEQRF(sunrealtype** a, sunindextype m, sunindextype n,
  * v (of length m) must be provided as workspace.
  */
 
-int denseORMQR(sunrealtype** a, sunindextype m, sunindextype n, sunrealtype* beta,
-               sunrealtype* vn, sunrealtype* vm, sunrealtype* v)
-{
-  return (SUNDlsMat_denseORMQR(a, m, n, beta, vn, vm, v));
-}
-
 int SUNDlsMat_denseORMQR(sunrealtype** a, sunindextype m, sunindextype n,
                          sunrealtype* beta, sunrealtype* vn, sunrealtype* vm,
                          sunrealtype* v)
@@ -441,11 +362,6 @@ int SUNDlsMat_denseORMQR(sunrealtype** a, sunindextype m, sunindextype n,
   return (0);
 }
 
-void denseCopy(sunrealtype** a, sunrealtype** b, sunindextype m, sunindextype n)
-{
-  SUNDlsMat_denseCopy(a, b, m, n);
-}
-
 void SUNDlsMat_denseCopy(sunrealtype** a, sunrealtype** b, sunindextype m,
                          sunindextype n)
 {
@@ -458,11 +374,6 @@ void SUNDlsMat_denseCopy(sunrealtype** a, sunrealtype** b, sunindextype m,
     b_col_j = b[j];
     for (i = 0; i < m; i++) { b_col_j[i] = a_col_j[i]; }
   }
-}
-
-void denseScale(sunrealtype c, sunrealtype** a, sunindextype m, sunindextype n)
-{
-  SUNDlsMat_denseScale(c, a, m, n);
 }
 
 void SUNDlsMat_denseScale(sunrealtype c, sunrealtype** a, sunindextype m,
@@ -478,22 +389,11 @@ void SUNDlsMat_denseScale(sunrealtype c, sunrealtype** a, sunindextype m,
   }
 }
 
-void denseAddIdentity(sunrealtype** a, sunindextype n)
-{
-  SUNDlsMat_denseAddIdentity(a, n);
-}
-
 void SUNDlsMat_denseAddIdentity(sunrealtype** a, sunindextype n)
 {
   sunindextype i;
 
   for (i = 0; i < n; i++) { a[i][i] += ONE; }
-}
-
-void denseMatvec(sunrealtype** a, sunrealtype* x, sunrealtype* y,
-                 sunindextype m, sunindextype n)
-{
-  SUNDlsMat_denseMatvec(a, x, y, m, n);
 }
 
 void SUNDlsMat_denseMatvec(sunrealtype** a, sunrealtype* x, sunrealtype* y,
@@ -502,7 +402,7 @@ void SUNDlsMat_denseMatvec(sunrealtype** a, sunrealtype* x, sunrealtype* y,
   sunindextype i, j;
   sunrealtype* col_j;
 
-  for (i = 0; i < m; i++) { y[i] = 0.0; }
+  for (i = 0; i < m; i++) { y[i] = ZERO; }
 
   for (j = 0; j < n; j++)
   {

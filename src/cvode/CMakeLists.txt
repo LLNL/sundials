@@ -89,7 +89,7 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
     SOURCES
       cvode_fused_stubs.c
     LINK_LIBRARIES
-        PUBLIC sundials_core
+      PUBLIC sundials_core
     OUTPUT_NAME
       sundials_cvode_fused_stubs
     VERSION
