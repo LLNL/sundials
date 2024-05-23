@@ -1,0 +1,34 @@
+
+Adaptive multirate nonlinear Kvaerno-Prothero-Robinson test problem:
+    time domain:  (0,5]
+    G = -100
+    w = 100
+    e = 0.5
+
+  Slow integrator: ARKODE_MRI_GARK_ERK45a (explicit)
+    fixed steps, hs = 0.002
+    rtol = 4e-06, atol = 1e-11
+
+  Fast order 4
+    I controller for fast time scale, based on order of RK embedding
+    rtol = 4e-06, atol = 1e-11
+        t           u           v       uerr      verr
+   ------------------------------------------------------
+    0.000000    1.732051    1.732051  0.00e+00  0.00e+00
+    0.500000    1.696344    1.512598  2.34e-10  1.45e-09
+    1.000000    1.593833    1.458873  1.33e-10  1.72e-08
+    1.500000    1.439006    1.011474  3.46e-10  4.30e-08
+    2.000000    1.258512    1.214374  9.23e-10  1.75e-07
+    2.500000    1.094923    1.471085  7.05e-10  9.23e-08
+    3.000000    1.004991    1.274175  7.91e-10  6.51e-08
+    3.500000    1.031282    1.053648  6.20e-10  4.81e-08
+    4.000000    1.160326    1.571824  2.90e-10  1.98e-08
+    4.500000    1.337611    1.431830  6.69e-11  1.37e-08
+    5.000000    1.511179    1.070831  8.20e-11  1.15e-08
+   ------------------------------------------------------
+
+Final Solver Statistics:
+   Slow steps = 2501  (attempts = 2501,  fails = 0)
+   Fast steps = 12717  (attempts = 12837,  fails = 120)
+   u error = 5.14578e-10, v error = 6.96663e-08, total error = 4.92629e-08
+   Total RHS evals:  Fse = 12506, Fsi = 0, Ff = 64078
