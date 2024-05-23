@@ -65,6 +65,7 @@ enum class rk_type
 
 enum class interp_type
 {
+  none = -1,
   hermite,
   lagrange
 };
@@ -93,8 +94,9 @@ struct ProblemOptions
   sunrealtype h = SUN_RCONST(0.01);
 
   // Interpolant type
-  // 0 = Hermite
-  // 1 = Lagrange
+  // -1 = None
+  // 0  = Hermite
+  // 1  = Lagrange
   interp_type i_type = interp_type::hermite;
 
   // Predictor type
@@ -166,8 +168,20 @@ int main(int argc, char* argv[])
 
   if (argc > 2)
   {
-    if (std::stoi(argv[2]) == 1) { prob_opts.i_type = interp_type::lagrange; }
-    else { prob_opts.i_type = interp_type::hermite; }
+    if (std::stoi(argv[2]) == -1) { prob_opts.i_type = interp_type::none; }
+    else if (std::stoi(argv[2]) == 0)
+    {
+      prob_opts.i_type = interp_type::hermite;
+    }
+    else if (std::stoi(argv[2]) == 1)
+    {
+      prob_opts.i_type = interp_type::lagrange;
+    }
+    else
+    {
+      std::cerr << "ERROR: Invalid interpolation type option" << std::endl;
+      return 1;
+    }
   }
 
   if (argc > 3)
@@ -201,7 +215,11 @@ int main(int argc, char* argv[])
   {
     std::cout << "  interp type  = Hermite\n";
   }
-  else { std::cout << "  interp type  = Lagrange\n"; }
+  else if (prob_opts.i_type == interp_type::lagrange)
+  {
+    std::cout << "  interp type  = Lagrange\n";
+  }
+  else { std::cout << "  interp type  = None\n"; }
   if (prob_opts.p_type == 0) { std::cout << "  pred type    = Trivial (0)\n"; }
   else { std::cout << "  pred type    = Max order (1)\n"; }
 
@@ -489,6 +507,11 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     flag = ARKodeSetInterpolantType(arkstep_mem, ARK_INTERP_LAGRANGE);
     if (check_flag(&flag, "ARKodeSetInterpolantType", 1)) { return 1; }
   }
+  else if (prob_opts.i_type == interp_type::none)
+  {
+    flag = ARKodeSetInterpolantType(arkstep_mem, ARK_INTERP_NONE);
+    if (check_flag(&flag, "ARKodeSetInterpolantType", 1)) { return 1; }
+  }
 
   // Create matrix and linear solver (if necessary)
   SUNMatrix A        = nullptr;
@@ -595,8 +618,11 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     flag = ARKodeGetLastStep(arkstep_mem, &h_last);
     if (check_flag(&flag, "ARKodeGetLastStep", 1)) { return 1; }
 
-    flag = ARKodeGetDky(arkstep_mem, t_ret - h_last / TWO, 0, y);
-    if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
+    if (prob_opts.i_type != interp_type::none)
+    {
+      flag = ARKodeGetDky(arkstep_mem, t_ret - h_last / TWO, 0, y);
+      if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
+    }
 
     // Stiffly accurate (and FSAL) methods do not require an additional RHS
     // evaluation to get the new RHS value at the end of a step for dense

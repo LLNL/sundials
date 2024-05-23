@@ -462,44 +462,10 @@ Optional inputs for MRIStep
 
 .. c:function:: int MRIStepSetInterpolantType(void* arkode_mem, int itype)
 
-   Specifies use of the Lagrange or Hermite interpolation modules (used for
-   dense output -- interpolation of solution output values and implicit
-   method predictors).
-
-   **Arguments:**
-
-   * *arkode_mem* -- pointer to the MRIStep memory block.
-
-   * *itype* -- requested interpolant type (``ARK_INTERP_HERMITE`` or ``ARK_INTERP_LAGRANGE``)
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-
-   * *ARK_MEM_FAIL* if the interpolation module cannot be allocated
-
-   * *ARK_ILL_INPUT* if the *itype* argument is not recognized or the
-     interpolation module has already been initialized
-
-   **Notes:** The Hermite interpolation module is described in
-   :numref:`ARKODE.Mathematics.Interpolation.Hermite`, and the Lagrange interpolation module
-   is described in :numref:`ARKODE.Mathematics.Interpolation.Lagrange`.
-
-   This routine frees any previously-allocated interpolation module, and re-creates
-   one according to the specified argument.  Thus any previous calls to
-   :c:func:`MRIStepSetInterpolantDegree()` will be nullified.
-
-   This routine must be called *after* the call to :c:func:`MRIStepCreate()`.
-   After the first call to :c:func:`MRIStepEvolve()` the interpolation type may
-   not be changed without first calling :c:func:`MRIStepReInit()`.
-
-   If this routine is not called, the Hermite interpolation module will be used.
-
    .. deprecated:: x.y.z
 
-      Use :c:func:`ARKodeSetInterpolantType` instead.
+      This function is now a wrapper to :c:func:`ARKodeSetInterpolantType`, see
+      the documentation for that function instead.
 
 
 
