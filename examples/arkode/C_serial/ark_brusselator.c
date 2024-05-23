@@ -171,17 +171,21 @@ int main(void)
   flag = ARKodeSetUserData(arkode_mem,
                            (void*)rdata); /* Pass rdata to user functions */
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
+
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol); /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
+
   flag = ARKodeSetInterpolantType(arkode_mem,
                                   ARK_INTERP_LAGRANGE); /* Specify stiff interpolant */
   if (check_flag(&flag, "ARKodeSetInterpolantType", 1)) { return 1; }
+
   flag = ARKodeSetDeduceImplicitRhs(arkode_mem, 1); /* Avoid eval of f after stage */
   if (check_flag(&flag, "ARKodeSetDeduceImplicitRhs", 1)) { return 1; }
 
   /* Initialize dense matrix data structure and solver */
   A = SUNDenseMatrix(NEQ, NEQ, ctx);
   if (check_flag((void*)A, "SUNDenseMatrix", 0)) { return 1; }
+
   LS = SUNLinSol_Dense(y, A, ctx);
   if (check_flag((void*)LS, "SUNLinSol_Dense", 0)) { return 1; }
 
@@ -189,8 +193,12 @@ int main(void)
   flag = ARKodeSetLinearSolver(arkode_mem, LS,
                                A); /* Attach matrix and linear solver */
   if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
+
   flag = ARKodeSetJacFn(arkode_mem, Jac); /* Set Jacobian routine */
   if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
+
+  flag = ARKodeSetAutonomous(arkode_mem, SUNTRUE);
+  if (check_flag(&flag, "ARKodeSetAutonomous", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
