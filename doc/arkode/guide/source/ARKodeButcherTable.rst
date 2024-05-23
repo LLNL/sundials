@@ -156,6 +156,8 @@ ARKodeButcherTable functions
    **Return value:**
       * The name associated with *emethod*.
       * ``NULL`` pointer if *emethod* was invalid.
+   
+   .. versionadded:: x.y.z
 
 .. c:function:: ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod)
 
@@ -205,6 +207,8 @@ ARKodeButcherTable functions
    **Return value:**
       * The name associated with *imethod*.
       * ``NULL`` pointer if *imethod* was invalid.
+   
+   .. versionadded:: x.y.z
 
 
 .. c:function:: ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, sunbooleantype embedded)
