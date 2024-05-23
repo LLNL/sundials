@@ -23,6 +23,7 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
+#include "arkode/arkode.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
 
@@ -290,18 +291,8 @@ void arkInterpPrintMem_Hermite(ARKInterp interp, FILE* outfile)
 /*---------------------------------------------------------------
   arkInterpSetDegree_Hermite
 
-  This routine sets a supplied interpolation degree.  If the
-  argument is positive, then we require that
-      0 <= degree <= ARK_INTERP_MAX_DEGREE
-  and use this value as the user-specified (or default) degree.
-
-  If the argument is negative, then we assume that this has been
-  called by a time-step module to limit the interpolant degree
-  based on the temporal method order. In this case we set the
-  Hermite polynomial degree to be the minimum of (-degree),
-  ARK_INTERP_MAX_DEGREE, and the previously-set value [i.e., in
-  case the user has already specified use of a lower-degree
-  polynomial].
+  This routine sets a supplied interpolation degree which must be
+  in the range 0 <= degree <= ARK_INTERP_MAX_DEGREE.
 
   Return values:
     ARK_ILL_INPUT -- if the input is outside of allowable bounds
@@ -311,29 +302,16 @@ void arkInterpPrintMem_Hermite(ARKInterp interp, FILE* outfile)
   ---------------------------------------------------------------*/
 int arkInterpSetDegree_Hermite(ARKodeMem ark_mem, ARKInterp interp, int degree)
 {
-  /* if this degree is already stored, just return */
-  if (abs(degree) == HINT_DEGREE(interp)) { return (ARK_SUCCESS); }
-
-  /* on positive degree, check for allowable value and overwrite stored degree */
-  if (degree >= 0)
+  if (degree > ARK_INTERP_MAX_DEGREE || degree < 0)
   {
-    if (degree > ARK_INTERP_MAX_DEGREE)
-    {
-      arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
-                      "Illegal degree specified.");
-      return (ARK_ILL_INPUT);
-    }
-
-    HINT_DEGREE(interp) = degree;
-    return (ARK_SUCCESS);
+    arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
+                    "Illegal degree specified.");
+    return ARK_ILL_INPUT;
   }
 
-  /* on negative degree, check for allowable value and update stored degree */
-  degree = -degree;
-  if (degree > ARK_INTERP_MAX_DEGREE) { degree = ARK_INTERP_MAX_DEGREE; }
-  HINT_DEGREE(interp) = SUNMIN(HINT_DEGREE(interp), degree);
+  HINT_DEGREE(interp) = degree;
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -1015,18 +993,8 @@ void arkInterpPrintMem_Lagrange(ARKInterp I, FILE* outfile)
 /*---------------------------------------------------------------
   arkInterpSetDegree_Lagrange
 
-  This routine sets a supplied interpolation degree.  If the
-  argument is positive, then we require that
-      0 <= degree <= ARK_INTERP_MAX_DEGREE
-  and use this value as the user-specified (or default) degree.
-
-  If the argument is negative, then we assume that this has been
-  called by a time-step module to limit the interpolant degree
-  based on the temporal method order. In this case we set the
-  Lagrange polynomial degree to be the minimum of (-degree),
-  ARK_INTERP_MAX_DEGREE, and the previously-set value [i.e., in
-  case the user has already specified use of a lower-degree
-  polynomial].
+  This routine sets a supplied interpolation degree which must be
+  in the range 0 <= degree <= ARK_INTERP_MAX_DEGREE.
 
   Return values:
     ARK_ILL_INPUT -- if the input is outside of allowable bounds
@@ -1036,29 +1004,16 @@ void arkInterpPrintMem_Lagrange(ARKInterp I, FILE* outfile)
   ---------------------------------------------------------------*/
 int arkInterpSetDegree_Lagrange(ARKodeMem ark_mem, ARKInterp I, int degree)
 {
-  /* if this degree is already stored, just return */
-  if (abs(degree) + 1 == LINT_NMAX(I)) { return (ARK_SUCCESS); }
-
-  /* on positive degree, check for allowable value and overwrite stored degree */
-  if (degree >= 0)
+  if (degree > ARK_INTERP_MAX_DEGREE || degree < 0)
   {
-    if (degree > ARK_INTERP_MAX_DEGREE)
-    {
-      arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
-                      "Illegal degree specified.");
-      return (ARK_ILL_INPUT);
-    }
-
-    LINT_NMAX(I) = degree + 1;
-    return (ARK_SUCCESS);
+    arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
+                    "Illegal degree specified.");
+    return ARK_ILL_INPUT;
   }
 
-  /* on negative degree, check for allowable value and update stored degree */
-  degree = -degree;
-  if (degree > ARK_INTERP_MAX_DEGREE) { degree = ARK_INTERP_MAX_DEGREE; }
-  LINT_NMAX(I) = SUNMIN(LINT_NMAX(I), degree + 1);
+  LINT_NMAX(I) = degree + 1;
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
