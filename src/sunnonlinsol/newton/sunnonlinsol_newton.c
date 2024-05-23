@@ -285,9 +285,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
       }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
-                         __func__, "start-iterate",
-                         "iter = %ld, nni = %ld",
+      SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
+                         "start-iterate", "iter = %ld, nni = %ld",
                          (long int)NEWTON_CONTENT(NLS)->curiter,
                          NEWTON_CONTENT(NLS)->niters);
 #endif
