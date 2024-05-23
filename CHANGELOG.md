@@ -2,25 +2,20 @@
 
 ## Changes to SUNDIALS in release X.Y.Z
 
-Fixed the runtime library installation path for windows systems. This fix changes the
-default library installation path from `CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR` to
-`CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_BINDIR`.
+### Major Features
 
-Fixed conflicting `.lib` files between shared and static libs when using `MSVC` on Windows.
+Created shared user interface functions for ARKODE to allow more uniform control
+over time-stepping algorithms, improved extensibility, and simplified code
+maintenance. The corresponding stepper-specific user-callable functions are now
+deprecated and will be removed in a future major release.
 
-Fixed invalid `SUNDIALS_EXPORT` generated macro when building both shared and static libs.
+Added CMake infrastructure that enables externally maintained addons/plugins to
+be *optionally* built with SUNDIALS. See the [Contributing
+Guide](./CONTRIBUTING.md) for more details.
 
-Created shared user interface for ARKODE user-callable routines, to allow more
-uniform control over time-stepping algorithms, improved extensibility, and
-simplified code maintenance.  Marked the corresponding stepper-specific
-user-callable routines as deprecated; these will be removed in a future major
-release.
+### New Features and Enhancements
 
-Added "Resize" capability, as well as missing `SetRootDirection` and
-`SetNoInactiveRootWarn` functions, to ARKODE's SPRKStep time-stepping module.
-
-Deprecated `ARKStepSetOptimalParams` function; added instructions to user guide
-for users who wish to retain the current functionality.
+Added support for Kokkos Kernels v4.
 
 Added the following Runge-Kutta Butcher tables
 * `ARKODE_FORWARD_EULER_1_1`
@@ -40,37 +35,69 @@ Added the following MRI coupling tables
 * `ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL`
 * `ARKODE_IMEX_MRI_GARK_MIDPOINT`
 
+Users may now disable interpolated output in ARKODE by passing `ARK_INTERP_NONE`
+to `ARKodeSetInterpolantType`. When interpolation is disabled, rootfinding is
+not supported, implicit methods must use the trivial predictor (the default
+option), and interpolation at stop times cannot be used (interpolating at stop
+times is disabled by default). With interpolation disabled, calling
+`ARKodeEvolve` in `ARK_NORMAL` mode will return at or past the requested output
+time (setting a stop time may still be used to halt the integrator at a specific
+time). Disabling interpolation will reduce the memory footprint of an integrator
+by two or more state vectors (depending on the interpolant type and degree)
+which can be beneficial when interpolation is not needed e.g., when integrating
+to a final time without output in between or using an explicit fast time scale
+integrator with an MRI method.
+
+Added "Resize" capability to ARKODE's SPRKStep time-stepping module.
+
+### Bug Fixes
+
 Updated the CMake variable `HIP_PLATFORM` default to `amd` as the previous
 default, `hcc`, is no longer recognized in ROCm 5.7.0 or newer. The new default
 is also valid in older version of ROCm (at least back to version 4.3.1).
 
-Fixed a bug in the HIP execution policies where `WARP_SIZE` would not be set
-with ROCm 6.0.0 or newer.
+Renamed the DPCPP value for the `SUNDIALS_GINKGO_BACKENDS` CMake option to `SYCL`
+to match Ginkgo's updated naming convention.
 
 Changed the CMake version compatibility mode for SUNDIALS to `AnyNewerVersion`
 instead of `SameMajorVersion`. This fixes the issue seen
 [here](https://github.com/AMReX-Codes/amrex/pull/3835).
 
-Fixed a bug in some Fortran examples where `c_null_ptr` was passed as an argument
-to a function pointer instead of `c_null_funptr`. This caused compilation issues
-with the Cray Fortran compiler.
+Fixed a CMake bug that caused an MPI linking error for our C++ examples in some
+instances. Fixes [GitHub Issue
+#464](https://github.com/LLNL/sundials/issues/464).
+
+Fixed the runtime library installation path for windows systems. This fix
+changes the default library installation path from
+`CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR` to
+`CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_BINDIR`.
+
+Fixed conflicting `.lib` files between shared and static libs when using `MSVC`
+on Windows.
+
+Fixed invalid `SUNDIALS_EXPORT` generated macro when building both shared and
+static libs.
+
+Fixed a bug in some Fortran examples where `c_null_ptr` was passed as an
+argument to a function pointer instead of `c_null_funptr`. This caused
+compilation issues with the Cray Fortran compiler.
+
+Fixed a bug in the HIP execution policies where `WARP_SIZE` would not be set
+with ROCm 6.0.0 or newer.
+
+Fixed a bug that caused error messages to be cut off in some cases. Fixes
+[GitHub Issue #461](https://github.com/LLNL/sundials/issues/461).
+
+Fixed a memory leak when an error handler was added to a `SUNContext`. Fixes
+[GitHub Issue #466](https://github.com/LLNL/sundials/issues/466).
 
 Fixed a bug where `MRIStepEvolve` would not handle a recoverable error produced
 from evolving the inner stepper.
 
-Added CMake infrastructure that enables externally maintained addons/plugins
-to be *optionally* built with SUNDIALS. See the [Contributing Guide](./CONTRIBUTING.md)
-for more details.
+Added missing `SetRootDirection` and `SetNoInactiveRootWarn` functions to
+ARKODE's SPRKStep time-stepping module.
 
-Added support for Kokkos Kernels v4.
-
-Fixed a bug that caused error messages to be cut off in some cases. Fixes [GitHub Issue #461](https://github.com/LLNL/sundials/issues/461).
-
-Fixed a memory leak when an error handler was added to a `SUNContext`. Fixes [GitHub Issue #466](https://github.com/LLNL/sundials/issues/466).
-
-Fixed a CMake bug that caused an MPI linking error for our C++ examples in some instances. Fixes [GitHub Issue #464](https://github.com/LLNL/sundials/issues/464).
-
-Fixed a bug in `ARKodeSPRKTable_Create` where the coefficient arrays where not
+Fixed a bug in `ARKodeSPRKTable_Create` where the coefficient arrays were not
 allocated.
 
 Fix bug on LLP64 platforms (like Windows 64-bit) where `KLU_INDEXTYPE` could be
@@ -79,7 +106,14 @@ Fix bug on LLP64 platforms (like Windows 64-bit) where `KLU_INDEXTYPE` could be
 Check if size of `SuiteSparse_long` is 8 if the size of `sunindextype` is 8
 when using KLU.
 
-Renamed the DPCPP value for the `SUNDIALS_GINKGO_BACKENDS` CMake option to `SYCL` to match Ginkgo's updated naming convention.
+### Deprecation Notices
+
+Numerous ARKODE stepper-specific functions are now deprecated in favor of
+ARKODE-wide functions.
+
+Deprecated the `ARKStepSetOptimalParams` function. Since this function does not have an
+ARKODE-wide equivalent, instructions have been added to the user guide for how
+to retain the current functionality using other user-callable functions.
 
 ## Changes to SUNDIALS in release v7.0.0
 
