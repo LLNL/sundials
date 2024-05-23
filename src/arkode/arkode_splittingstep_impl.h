@@ -22,8 +22,10 @@
 typedef struct ARKodeSplittingStepMemRec
 {
   SUNStepper *steppers;
-  ARKodeSplittingCoeffs coeffs;
+  ARKodeSplittingCoefficients coefficients;
   ARKodeSplittingExecutionPolicy policy;
+  long int n_stepper_evolves;
+
   int partitions;
   int order;
   sunbooleantype own_policy;
