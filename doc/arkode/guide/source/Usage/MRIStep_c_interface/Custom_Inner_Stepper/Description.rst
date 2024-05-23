@@ -29,7 +29,7 @@ The actual definitions of the ``_MRIStepInnerStepper`` structure and the
 corresponding operations structure are kept private to allow for the object
 internals to change without impacting user code. The following sections describe
 the base (:numref:`ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods`)
-and virtual methods (:numref:`ARKODE.Usage.MRIStep.CustomInnerStepper.Description.ImplMethods`) 
+and virtual methods (:numref:`ARKODE.Usage.MRIStep.CustomInnerStepper.Description.ImplMethods`)
 that a must be provided by a derived class.
 
 .. _ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods:
@@ -153,7 +153,6 @@ Attaching and Accessing the Content Pointer
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
-
 
 .. _ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.AttachFunctions:
 

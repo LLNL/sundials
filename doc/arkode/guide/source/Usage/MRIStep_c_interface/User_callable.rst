@@ -449,6 +449,36 @@ Optional inputs for MRIStep
   .. versionadded:: x.y.z
 
 
+.. c:function:: int MRIStepSetFastErrorStepFactor(void* arkode_mem, sunrealtype hfactor)
+
+   Specifies a fast stepsize factor for MRIStep to use within a "brute force" fast
+   time scale error estimation strategy.  If this value is nonzero and MRI temporal
+   adaptivity is enabled, then the fast integrator is run twice over each fast time
+   interval, once using the inner step size ``h``, and again using ``hfactor*h``
+   (typically ``hfactor`` will be either :math:`k` or :math:`1/k` for an integer
+   :math:`k>1`).  This is only needed when the results from the fast-integrator-provided
+   :c:type:`MRIStepInnerGetAccumulatedError` cannot be trusted.  In testing, we found
+   this to be the case when the inner integrator uses fixed step sizes.
+
+   An argument of 0 disables this fast error estimation strategy.
+   Arguments less than zero or exactly equal to one are illegal.
+   All other positive ``hfactor`` values will *attempt* to be used.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param hfactor: user-supplied fast stepsize factor.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+   :retval ARK_ILL_INPUT: the value of ``hfactor`` was illegal.
+
+   .. note::
+
+      This routine should only be called directly when using a "multirate"
+      :c:type:`SUNAdaptController` of type ``SUN_ADAPTCONTROLLER_MRI_H``.
+
+  .. versionadded:: x.y.z
+
+
 
 
 .. c:function:: int MRIStepSetDefaults(void* arkode_mem)

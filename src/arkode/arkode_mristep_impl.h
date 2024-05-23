@@ -332,6 +332,14 @@ int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int* stage_map,
   MRIStep SUNAdaptController wrapper module -- this is used to
   insert MRIStep in-between ARKODE at the "slow" time scale, and
   the inner-steppers that comprise the MRI time-step evolution.
+  Since ARKODE itself only calls single-scale controller
+  functions (e.g., EstimateStep and UpdateH), then this serves to
+  translate those single-rate controller functions to the multi-
+  rate context, leveraging MRIStep-specific knowledge of the
+  slow+fast time scale relationship to CALL multi-rate controller
+  functions (e.g., EstimateMRISteps, EstimateStepTol, UpdateMRIH,
+  and UpdateMRITol) provided by the underlying multi-rate
+  controller.
   ===============================================================*/
 
 typedef struct _mriStepControlContent

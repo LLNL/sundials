@@ -3541,12 +3541,8 @@ Retrieve the accumulated temporal error estimate       :c:func:`ARKodeGetAccumul
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
    :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
-                                    by the current time-stepping module.
-
-   .. note::
-
-      If a stepper can support temporal error estimation but is currently configured to
-      use a non-embedded method, then this routine will return ``*accum_error = 0.0``.
+                                    by the current time-stepping module, or accumulated
+                                    error estimation is currently disabled in the stepper.
 
    .. versionadded:: x.y.z
 

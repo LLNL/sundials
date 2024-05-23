@@ -33,6 +33,7 @@ set(arkode_SOURCES
   arkode_io.c
   arkode_ls.c
   arkode_mri_tables.c
+  arkode_mristep_controller.c
   arkode_mristep_io.c
   arkode_mristep_nls.c
   arkode_mristep.c

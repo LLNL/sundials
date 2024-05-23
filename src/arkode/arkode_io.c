@@ -2422,7 +2422,12 @@ int ARKodeGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
   {
     *accum_error = ark_mem->AccumError * ark_mem->reltol / steps;
   }
-  else { *accum_error = ZERO; }
+  else
+  {
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support accumulated error estimation");
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
 
   return (ARK_SUCCESS);
 }

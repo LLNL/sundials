@@ -49,7 +49,7 @@
  * - use p (0) vs q (1) for slow adaptivity:  slow_pq [default = 0]
  * - use p (0) vs q (1) for fast adaptivity:  fast_pq [default = 0]
  * - "slow" MRI method:  mri_method [default = ARKODE_MRI_GARK_ERK45a]
- * - "fast" ERKStep method order: fast_order [default 
+ * - "fast" ERKStep method order: fast_order [default 4]
  *      To put all physics at the slow scale, use "0", otherwise
  *      specify a valid explicit method order.
  * - "slow" MRI temporal adaptivity controller: scontrol [default = 6]
@@ -70,7 +70,7 @@
  *      14: ImpGus controller (alone)
  *      15: ImExGus controller (as part of MRI-HTOL)
  *      16: ImExGus controller (alone)
- * - "fast" ARKStep temporal adaptivity controller: fcontrol [default = 1]
+ * - "fast" ERKStep temporal adaptivity controller: fcontrol [default = 1]
  *   Note that this will only be used for 5 <= scontrol <= 16.
  *      0:  no controller [fixed time steps]
  *      1:  I controller
@@ -79,6 +79,11 @@
  *      4:  ExpGus controller
  *      5:  ImpGus controller
  *      6:  ImExGus controller
+ * - "fast" ERKStep accumulated error type: faccum [default = 0]
+ *   Note that this will only be used for multirate scontrol options
+ *     -1:  no accumulation
+ *      0:  maximum accumulation
+ *      1:  additive accumulation
  *
  * Outputs and solution error values are printed at equal intervals
  * of 0.5 and run statistics are printed at the end.
@@ -137,6 +142,7 @@ struct Options
   int fast_order = 4;
   int scontrol   = 6;
   int fcontrol   = 1;
+  int faccum     = 0;
   int slow_pq    = 0;
   int fast_pq    = 0;
 };
@@ -206,7 +212,8 @@ int main(int argc, char* argv[])
       (opts.mri_method == "ARKODE_MRI_GARK_ESDIRK46a"))
   {
     slowimplicit = SUNTRUE;
-    f_se = (opts.fast_order == 0) ? fn : fs;
+    f_se = NULL;
+    f_si = (opts.fast_order == 0) ? fn : fs;
     J_s  = (opts.fast_order == 0) ? Jn : Js;
   }
   if ((opts.mri_method == "ARKODE_IMEX_MRI_SR21") ||
@@ -271,7 +278,7 @@ int main(int argc, char* argv[])
     break;
   }
 
-  // Create ARKStep (fast) integrator
+  // Create ERKStep (fast) integrator
   void* inner_arkode_mem = NULL; // ARKode memory structure
   inner_arkode_mem       = ERKStepCreate(f_f, T0, y, sunctx);
   if (check_ptr((void*)inner_arkode_mem, "ERKStepCreate")) return 1;
@@ -299,7 +306,9 @@ int main(int argc, char* argv[])
     retval = ARKodeSetFixedStep(inner_arkode_mem, opts.hf);
     if (check_flag(retval, "ARKodeSetFixedStep")) return 1;
   }
-  retval = ARKodeSetMaxNumSteps(inner_arkode_mem, 10000);
+  retval = ARKodeSetAccumulatedErrorType(inner_arkode_mem, opts.faccum);
+  if (check_flag(retval, "ARKodeSetAccumulatedErrorType")) return 1;
+  retval = ARKodeSetMaxNumSteps(inner_arkode_mem, 100000);
   if (check_flag(retval, "ARKodeSetMaxNumSteps")) return 1;
   retval = ARKodeSetUserData(inner_arkode_mem, (void*)&opts);
   if (check_flag(retval, "ARKodeSetUserData")) return 1;
@@ -815,6 +824,7 @@ void InputHelp()
                "(see source)\n";
   std::cout << "  --fcontrol     : fast time step controller, int in [0,6] "
                "(see source)\n";
+  std::cout << "  --faccum       : fast error accumulation type {-1,0,1}\n";
   std::cout << "  --slow_pq      : use p (0) vs q (1) for slow adaptivity\n";
   std::cout << "  --fast_pq      : use p (0) vs q (1) for fast adaptivity\n";
 }
@@ -841,6 +851,7 @@ int ReadInputs(std::vector<std::string>& args, Options& opts, SUNContext ctx)
   find_arg(args, "--fast_order", opts.fast_order);
   find_arg(args, "--scontrol", opts.scontrol);
   find_arg(args, "--fcontrol", opts.fcontrol);
+  find_arg(args, "--faccum", opts.faccum);
   find_arg(args, "--slow_pq", opts.slow_pq);
   find_arg(args, "--fast_pq", opts.fast_pq);
 
@@ -928,27 +939,32 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    MRI-CC controller based on order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
   case (2):
     std::cout << "    MRI-LL controller based on order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
   case (3):
     std::cout << "    MRI-PI controller based on order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
   case (4):
     std::cout << "    MRI-PID controller based on order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
   case (5):
     std::cout
       << "    MRI-HTOL controller (using I for H) based on order of MRI "
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
   case (6):
     std::cout << "    Decoupled I controller for slow time scale, based on "
@@ -961,6 +977,7 @@ static void PrintSlowAdaptivity(Options opts)
       << "    MRI-HTOL controller (using PI for H) based on order of MRI "
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
   case (8):
     std::cout << "    Decoupled PI controller for slow time scale, based on "
@@ -973,6 +990,7 @@ static void PrintSlowAdaptivity(Options opts)
       << "    MRI-HTOL controller (using PID for H) based on order of MRI "
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
   case (10):
     std::cout << "    Decoupled PID controller for slow time scale, based on "
@@ -985,6 +1003,7 @@ static void PrintSlowAdaptivity(Options opts)
       << "    MRI-HTOL controller (using ExpGus for H) based on order of MRI "
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
   case (12):
     std::cout << "    Decoupled ExpGus controller for slow time scale, based "
@@ -997,6 +1016,7 @@ static void PrintSlowAdaptivity(Options opts)
       << "    MRI-HTOL controller (using ImpGus for H) based on order of MRI "
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
   case (14):
     std::cout << "    Decoupled ImpGus controller for slow time scale, based "
@@ -1009,6 +1029,7 @@ static void PrintSlowAdaptivity(Options opts)
       << "    MRI-HTOL controller (using ImExGus for H) based on order of MRI "
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
   case (16):
     std::cout << "    Decoupled ImExGus controller for slow time scale, based "
