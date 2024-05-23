@@ -25,7 +25,7 @@
 /*---------------------------------------------------------------
   Returns Butcher table structure for pre-set Runge Kutta methods.
 
-  Input:  emthod -- integer key for the desired method
+  Input:  emethod -- integer key for the desired method
   ---------------------------------------------------------------*/
 ARKodeButcherTable ARKodeButcherTable_LoadERK(ARKODE_ERKTableID emethod)
 {
@@ -52,6 +52,28 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(ARKODE_ERKTableID emethod)
 ARKodeButcherTable ARKodeButcherTable_LoadERKByName(const char* emethod)
 {
   return ARKodeButcherTable_LoadERK(arkButcherTableERKNameToID(emethod));
+}
+
+/*---------------------------------------------------------------
+  Returns the string name for a pre-set Runge Kutta method by its ID.
+
+  Input:  emethod -- integer key for the desired method
+  ---------------------------------------------------------------*/
+const char* ARKodeButcherTable_ERKIDToName(ARKODE_ERKTableID emethod)
+{
+  /* Use X-macro to test each method name */
+  switch (emethod)
+  {
+#define ARK_BUTCHER_TABLE(name, coeff) \
+  case name: return #name;
+#include "arkode_butcher_erk.def"
+#undef ARK_BUTCHER_TABLE
+
+  default:
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Unknown Butcher table");
+    return NULL;
+  }
 }
 
 /*---------------------------------------------------------------
