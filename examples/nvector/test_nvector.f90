@@ -18,7 +18,7 @@
 ! to an NVECTOR module implementation. It does not test every
 ! function. It tests the N_VMake constructor, one standard vector
 ! operation (N_VConst), N_VGetArrayPointer, and one fused operation.
-! -----------------------------------------------------------------c
+! -----------------------------------------------------------------
 
 module test_fnvector
   use, intrinsic :: iso_c_binding

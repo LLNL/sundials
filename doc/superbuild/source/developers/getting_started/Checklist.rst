@@ -29,7 +29,9 @@ system, etc. developers should adhere to the following checklist.
 
 #. It can be helpful to configure SUNDIALS using the C flags ``-Wall -Werror``.
    When building, modify your file to remove any error/warning messages output
-   during compilation of your code.
+   during compilation of your code. This can be done automatically with the
+   advanced CMake options ``ENABLE_ALL_WARNINGS`` and
+   ``ENABLE_WARNINGS_AS_ERRORS``.
 
 #. Configure your build with a minimal set of configuration options enabled
    (serial). Run ``make``, ``make test``, ``make install``, and
@@ -80,6 +82,6 @@ system, etc. developers should adhere to the following checklist.
 #. If you changed any header files, re-run SWIG to generate updated fortran interfaces.
    This is done by navigating to the `swig/` directory and running `make all32 all64`.
    If you do not have `swig` installed on your system, you can obtain a git patch file
-   from the Swig GitHub action that we run on all pull requests. The patch can be found
+   from the SWIG GitHub action that we run on all pull requests. The patch can be found
    under the job artifacts (if there were in fact changes that required updates
    to the Fortran).
