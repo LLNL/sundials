@@ -25,10 +25,10 @@ module test_nvector_mpimanyvector
   implicit none
   include "mpif.h"
 
-  integer(kind=myindextype), parameter :: nsubvecs = 2
+  integer(c_int), parameter :: nsubvecs = 2
+  integer(c_int), parameter :: nv = 3 ! length of vector arrays
   integer(kind=myindextype), parameter :: N1 = 100      ! individual vector length
   integer(kind=myindextype), parameter :: N2 = 200      ! individual vector length
-  integer(kind=myindextype), parameter :: nv = 3        ! length of vector arrays
   integer(kind=myindextype), parameter :: N = N1 + N2   ! overall manyvector length
   integer(c_int), target :: comm = MPI_COMM_WORLD       ! default MPI communicator
   integer(c_int) :: nprocs                              ! number of MPI processes
@@ -51,11 +51,11 @@ contains
     !===== Setup ====
     subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
     tmp  => FN_VMake_Serial(N1, x1data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 0_myindextype, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 1_myindextype, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VMake_MPIManyVector(comm, nsubvecs, subvecs, sunctx)
+    x => FN_VMake_MPIManyVector(comm, int(nsubvecs, myindextype), subvecs, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_MPIManyVector(x)
     call FN_VConst(ONE, y)
@@ -115,9 +115,9 @@ contains
     tmp  => FN_VGetSubvector_MPIManyVector(x, ival-1)
 
     !==== Cleanup =====
-    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 0_myindextype)
+    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 0)
     call FN_VDestroy(tmp)
-    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 1_myindextype)
+    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 1)
     call FN_VDestroy(tmp)
     call FN_VDestroy_MPIManyVector(x)
     call FN_VDestroy_MPIManyVector(y)
@@ -150,11 +150,11 @@ contains
 
     subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
     tmp  => FN_VMake_Serial(N1, x1data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 0_myindextype, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 1_myindextype, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VMake_MPIManyVector(comm, nsubvecs, subvecs, sunctx)
+    x => FN_VMake_MPIManyVector(comm, int(nsubvecs, myindextype), subvecs, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
@@ -163,9 +163,9 @@ contains
     fails = Test_FN_VLinearCombination(x, N, myid)
 
     !=== cleanup ====
-    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 0_myindextype)
+    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 0)
     call FN_VDestroy(tmp)
-    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 1_myindextype)
+    tmp => FN_VGetVecAtIndexVectorArray(subvecs, 1)
     call FN_VDestroy(tmp)
     call FN_VDestroy_MPIManyVector(x)
 

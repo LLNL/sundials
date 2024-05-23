@@ -1351,7 +1351,7 @@ function swigc_FN_VNewVectorArray(farg1, farg2) &
 bind(C, name="_wrap_FN_VNewVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-integer(C_INT64_T), intent(in) :: farg1
+integer(C_INT), intent(in) :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR) :: fresult
 end function
@@ -1360,7 +1360,7 @@ function swigc_FN_VCloneEmptyVectorArray(farg1, farg2) &
 bind(C, name="_wrap_FN_VCloneEmptyVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-integer(C_INT64_T), intent(in) :: farg1
+integer(C_INT), intent(in) :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR) :: fresult
 end function
@@ -1369,7 +1369,7 @@ function swigc_FN_VCloneVectorArray(farg1, farg2) &
 bind(C, name="_wrap_FN_VCloneVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-integer(C_INT64_T), intent(in) :: farg1
+integer(C_INT), intent(in) :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR) :: fresult
 end function
@@ -1378,7 +1378,7 @@ subroutine swigc_FN_VDestroyVectorArray(farg1, farg2) &
 bind(C, name="_wrap_FN_VDestroyVectorArray")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT), intent(in) :: farg2
 end subroutine
 
 function swigc_FN_VGetVecAtIndexVectorArray(farg1, farg2) &
@@ -1386,7 +1386,7 @@ bind(C, name="_wrap_FN_VGetVecAtIndexVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT), intent(in) :: farg2
 type(C_PTR) :: fresult
 end function
 
@@ -1394,7 +1394,7 @@ subroutine swigc_FN_VSetVecAtIndexVectorArray(farg1, farg2, farg3) &
 bind(C, name="_wrap_FN_VSetVecAtIndexVectorArray")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT), intent(in) :: farg2
 type(C_PTR), value :: farg3
 end subroutine
 
@@ -3514,10 +3514,10 @@ function FN_VNewVectorArray(count, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
-integer(C_INT64_T), intent(in) :: count
+integer(C_INT), intent(in) :: count
 type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
-integer(C_INT64_T) :: farg1 
+integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = count
@@ -3530,10 +3530,10 @@ function FN_VCloneEmptyVectorArray(count, w) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
-integer(C_INT64_T), intent(in) :: count
+integer(C_INT), intent(in) :: count
 type(N_Vector), target, intent(inout) :: w
 type(C_PTR) :: fresult 
-integer(C_INT64_T) :: farg1 
+integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = count
@@ -3546,10 +3546,10 @@ function FN_VCloneVectorArray(count, w) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
-integer(C_INT64_T), intent(in) :: count
+integer(C_INT), intent(in) :: count
 type(N_Vector), target, intent(inout) :: w
 type(C_PTR) :: fresult 
-integer(C_INT64_T) :: farg1 
+integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = count
@@ -3561,9 +3561,9 @@ end function
 subroutine FN_VDestroyVectorArray(vs, count)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: vs
-integer(C_INT64_T), intent(in) :: count
+integer(C_INT), intent(in) :: count
 type(C_PTR) :: farg1 
-integer(C_INT64_T) :: farg2 
+integer(C_INT) :: farg2 
 
 farg1 = vs
 farg2 = count
@@ -3575,10 +3575,10 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 type(C_PTR) :: vs
-integer(C_INT64_T), intent(in) :: index
+integer(C_INT), intent(in) :: index
 type(C_PTR) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT64_T) :: farg2 
+integer(C_INT) :: farg2 
 
 farg1 = vs
 farg2 = index
@@ -3589,10 +3589,10 @@ end function
 subroutine FN_VSetVecAtIndexVectorArray(vs, index, w)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: vs
-integer(C_INT64_T), intent(in) :: index
+integer(C_INT), intent(in) :: index
 type(N_Vector), target, intent(inout) :: w
 type(C_PTR) :: farg1 
-integer(C_INT64_T) :: farg2 
+integer(C_INT) :: farg2 
 type(C_PTR) :: farg3 
 
 farg1 = vs

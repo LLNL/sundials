@@ -23,10 +23,10 @@ module test_nvector_manyvector
   use test_utilities
   implicit none
 
-  integer(kind=myindextype), parameter  :: nsubvecs = 2
+  integer(c_int), parameter  :: nsubvecs = 2
+  integer(c_int), parameter  :: nv       = 3       ! length of vector arrays
   integer(kind=myindextype), parameter  :: N1       = 100     ! individual vector length
   integer(kind=myindextype), parameter  :: N2       = 200     ! individual vector length
-  integer(c_int), parameter              :: nv       = 3       ! length of vector arrays
   integer(kind=myindextype), parameter  :: N        = N1 + N2 ! overall manyvector length
 
 contains
@@ -47,19 +47,19 @@ contains
     !===== Setup ====
     subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
     tmp  => FN_VMake_Serial(N1, x1data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 0_myindextype, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 1_myindextype, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VNew_ManyVector(nsubvecs, subvecs, sunctx)
+    x => FN_VNew_ManyVector(int(nsubvecs, myindextype), subvecs, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_ManyVector(x)
     call FN_VConst(ONE, y)
     z => FN_VClone_ManyVector(x)
     call FN_VConst(ONE, z)
 
-    xvecs = FN_VCloneVectorArray(int(nv,myindextype), x)
-    zvecs = FN_VCloneVectorArray(int(nv,myindextype), z)
+    xvecs = FN_VCloneVectorArray(nv, x)
+    zvecs = FN_VCloneVectorArray(nv, z)
     nvarr = (/ ONE, ONE, ONE /)
 
     !===== Test =====
@@ -115,8 +115,8 @@ contains
     call FN_VDestroy_ManyVector(x)
     call FN_VDestroy_ManyVector(y)
     call FN_VDestroy_ManyVector(z)
-    call FN_VDestroyVectorArray(xvecs, int(nv,myindextype))
-    call FN_VDestroyVectorArray(zvecs, int(nv,myindextype))
+    call FN_VDestroyVectorArray(xvecs, nv)
+    call FN_VDestroyVectorArray(zvecs, nv)
 
     ret = 0
 
@@ -136,11 +136,11 @@ contains
 
     subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
     tmp  => FN_VMake_Serial(N1, x1data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 0_myindextype, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
-    call FN_VSetVecAtIndexVectorArray(subvecs, 1_myindextype, tmp)
+    call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VNew_ManyVector(nsubvecs, subvecs, sunctx)
+    x => FN_VNew_ManyVector(int(nsubvecs, myindextype), subvecs, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====

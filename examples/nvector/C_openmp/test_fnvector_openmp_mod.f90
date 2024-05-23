@@ -23,8 +23,8 @@ module test_nvector_openmp
   implicit none
 
   integer(kind=myindextype), parameter :: N = 100 ! vector length
-  integer(kind=myindextype), parameter :: nv = 3  ! length of vector arrays
   integer(kind=myindextype), parameter :: ns = 2  ! number of vector arrays
+  integer(c_int), parameter :: nv = 3  ! length of vector arrays
 
   contains
 

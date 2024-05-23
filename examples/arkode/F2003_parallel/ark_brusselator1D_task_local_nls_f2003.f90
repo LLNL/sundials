@@ -600,10 +600,10 @@ contains
     end if
 
     ! get vectors from pointers
-    sunvec_zpred => FN_VGetVecAtIndexVectorArray(zpred_ptr, 0_myindextype)
-    sunvec_z     => FN_VGetVecAtIndexVectorArray(z_ptr, 0_myindextype)
-    sunvec_Fi    => FN_VGetVecAtIndexVectorArray(Fi_ptr, 0_myindextype)
-    sunvec_sdata => FN_VGetVecAtIndexVectorArray(sdata_ptr, 0_myindextype)
+    sunvec_zpred => FN_VGetVecAtIndexVectorArray(zpred_ptr, 0)
+    sunvec_z     => FN_VGetVecAtIndexVectorArray(z_ptr, 0)
+    sunvec_Fi    => FN_VGetVecAtIndexVectorArray(Fi_ptr, 0)
+    sunvec_sdata => FN_VGetVecAtIndexVectorArray(sdata_ptr, 0)
 
     ! get vector data arrays
     ycor_data  => FN_VGetArrayPointer(sunvec_zcor)
@@ -686,7 +686,7 @@ contains
     end if
 
     ! get vectors from pointers
-    sunvec_z => FN_VGetVecAtIndexVectorArray(z_ptr, 0_myindextype)
+    sunvec_z => FN_VGetVecAtIndexVectorArray(z_ptr, 0)
 
     ! get data arrays
     b_data => FN_VGetArrayPointer(sunvec_delta)
@@ -1024,10 +1024,10 @@ contains
     sunnls_LOC => FSUNNonlinSol_Newton(sunvec_y, sunctx)
 
     ! Create vector pointers to receive residual data
-    zpred_ptr = FN_VNewVectorArray(1_myindextype, sunctx)
-    z_ptr     = FN_VNewVectorArray(1_myindextype, sunctx)
-    Fi_ptr    = FN_VNewVectorArray(1_myindextype, sunctx)
-    sdata_ptr = FN_VNewVectorArray(1_myindextype, sunctx)
+    zpred_ptr = FN_VNewVectorArray(1, sunctx)
+    z_ptr     = FN_VNewVectorArray(1, sunctx)
+    Fi_ptr    = FN_VNewVectorArray(1, sunctx)
+    sdata_ptr = FN_VNewVectorArray(1, sunctx)
 
     sunvec_bnode => FN_VNew_Serial(int(Nvar, c_long), sunctx)
     sunmat_Jnode => FSUNDenseMatrix(int(Nvar, c_long), int(Nvar, c_long), sunctx)

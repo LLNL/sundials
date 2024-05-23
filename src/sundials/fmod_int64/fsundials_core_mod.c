@@ -1564,13 +1564,13 @@ SWIGEXPORT int _wrap_FN_VBufUnpack(N_Vector farg1, void *farg2) {
 }
 
 
-SWIGEXPORT void * _wrap_FN_VNewVectorArray(int64_t const *farg1, void *farg2) {
+SWIGEXPORT void * _wrap_FN_VNewVectorArray(int const *farg1, void *farg2) {
   void * fresult ;
-  sunindextype arg1 ;
+  int arg1 ;
   SUNContext arg2 = (SUNContext) 0 ;
   N_Vector *result = 0 ;
   
-  arg1 = (sunindextype)(*farg1);
+  arg1 = (int)(*farg1);
   arg2 = (SUNContext)(farg2);
   result = (N_Vector *)N_VNewVectorArray(arg1,arg2);
   fresult = result;
@@ -1578,13 +1578,13 @@ SWIGEXPORT void * _wrap_FN_VNewVectorArray(int64_t const *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT void * _wrap_FN_VCloneEmptyVectorArray(int64_t const *farg1, N_Vector farg2) {
+SWIGEXPORT void * _wrap_FN_VCloneEmptyVectorArray(int const *farg1, N_Vector farg2) {
   void * fresult ;
-  sunindextype arg1 ;
+  int arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector *result = 0 ;
   
-  arg1 = (sunindextype)(*farg1);
+  arg1 = (int)(*farg1);
   arg2 = (N_Vector)(farg2);
   result = (N_Vector *)N_VCloneEmptyVectorArray(arg1,arg2);
   fresult = result;
@@ -1592,13 +1592,13 @@ SWIGEXPORT void * _wrap_FN_VCloneEmptyVectorArray(int64_t const *farg1, N_Vector
 }
 
 
-SWIGEXPORT void * _wrap_FN_VCloneVectorArray(int64_t const *farg1, N_Vector farg2) {
+SWIGEXPORT void * _wrap_FN_VCloneVectorArray(int const *farg1, N_Vector farg2) {
   void * fresult ;
-  sunindextype arg1 ;
+  int arg1 ;
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector *result = 0 ;
   
-  arg1 = (sunindextype)(*farg1);
+  arg1 = (int)(*farg1);
   arg2 = (N_Vector)(farg2);
   result = (N_Vector *)N_VCloneVectorArray(arg1,arg2);
   fresult = result;
@@ -1606,37 +1606,37 @@ SWIGEXPORT void * _wrap_FN_VCloneVectorArray(int64_t const *farg1, N_Vector farg
 }
 
 
-SWIGEXPORT void _wrap_FN_VDestroyVectorArray(void *farg1, int64_t const *farg2) {
+SWIGEXPORT void _wrap_FN_VDestroyVectorArray(void *farg1, int const *farg2) {
   N_Vector *arg1 = (N_Vector *) 0 ;
-  sunindextype arg2 ;
+  int arg2 ;
   
   arg1 = (N_Vector *)(farg1);
-  arg2 = (sunindextype)(*farg2);
+  arg2 = (int)(*farg2);
   N_VDestroyVectorArray(arg1,arg2);
 }
 
 
-SWIGEXPORT N_Vector _wrap_FN_VGetVecAtIndexVectorArray(void *farg1, int64_t const *farg2) {
+SWIGEXPORT N_Vector _wrap_FN_VGetVecAtIndexVectorArray(void *farg1, int const *farg2) {
   N_Vector fresult ;
   N_Vector *arg1 = (N_Vector *) 0 ;
-  sunindextype arg2 ;
+  int arg2 ;
   N_Vector result;
   
   arg1 = (N_Vector *)(farg1);
-  arg2 = (sunindextype)(*farg2);
+  arg2 = (int)(*farg2);
   result = (N_Vector)N_VGetVecAtIndexVectorArray(arg1,arg2);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT void _wrap_FN_VSetVecAtIndexVectorArray(void *farg1, int64_t const *farg2, N_Vector farg3) {
+SWIGEXPORT void _wrap_FN_VSetVecAtIndexVectorArray(void *farg1, int const *farg2, N_Vector farg3) {
   N_Vector *arg1 = (N_Vector *) 0 ;
-  sunindextype arg2 ;
+  int arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   
   arg1 = (N_Vector *)(farg1);
-  arg2 = (sunindextype)(*farg2);
+  arg2 = (int)(*farg2);
   arg3 = (N_Vector)(farg3);
   N_VSetVecAtIndexVectorArray(arg1,arg2,arg3);
 }

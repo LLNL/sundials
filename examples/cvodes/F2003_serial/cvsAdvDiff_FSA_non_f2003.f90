@@ -78,7 +78,7 @@ module ode_problem
   real(c_double),  parameter :: ATOL  = 1e-5
   integer(c_int),  parameter :: NOUT  = 10
   integer(c_int),  parameter :: NP    = 2
-  integer(c_int64_t), parameter :: NS = 2
+  integer(c_int),  parameter :: NS = 2
   integer(c_long), parameter :: MX    = 10
   integer(c_long), parameter :: NEQ   = MX
 
@@ -211,7 +211,7 @@ program main
   integer(c_int)                    :: iout, retval
   real(c_double)                    :: reltol, abstol, tout, t(1)
   integer(c_int)                    :: plist(0:NS-1)
-  integer(kind=myindextype)         :: is
+  integer(c_int)                    :: is
   real(c_double)                    :: pbar(0:NS-1)
 
   ! Command line arguments
@@ -510,10 +510,10 @@ subroutine PrintOutputS(uS)
   type(N_Vector), pointer :: uiS
   real(c_double)          :: norm
 
-  uiS => FN_VGetVecAtIndexVectorArray(uS, 0_8)
+  uiS => FN_VGetVecAtIndexVectorArray(uS, 0)
   norm = FN_VMaxNorm(uiS)
   write(*,'(1x,A,es12.4)') "                                Sensitivity 1   ", norm
-  uiS => FN_VGetVecAtIndexVectorArray(uS, 1_8)
+  uiS => FN_VGetVecAtIndexVectorArray(uS, 1)
   norm = FN_VMaxNorm(uiS)
   write(*,'(1x,A,es12.4)') "                                Sensitivity 2   ", norm
 

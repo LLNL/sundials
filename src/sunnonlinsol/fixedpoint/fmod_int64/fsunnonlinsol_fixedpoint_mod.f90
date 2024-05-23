@@ -56,7 +56,7 @@ function swigc_FSUNNonlinSol_FixedPointSens(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNNonlinSol_FixedPointSens") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-integer(C_INT64_T), intent(in) :: farg1
+integer(C_INT), intent(in) :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT), intent(in) :: farg3
 type(C_PTR), value :: farg4
@@ -202,12 +202,12 @@ function FSUNNonlinSol_FixedPointSens(count, y, m, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNNonlinearSolver), pointer :: swig_result
-integer(C_INT64_T), intent(in) :: count
+integer(C_INT), intent(in) :: count
 type(N_Vector), target, intent(inout) :: y
 integer(C_INT), intent(in) :: m
 type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
-integer(C_INT64_T) :: farg1 
+integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
 integer(C_INT) :: farg3 
 type(C_PTR) :: farg4 

@@ -24,8 +24,8 @@ module test_nvector_parallel
   include "mpif.h"
 
   integer(kind=myindextype), parameter :: local_length = 100    ! vector local length
-  integer(kind=myindextype), parameter :: nv = 3                ! length of vector arrays
-  integer(c_int), parameter :: ns = 2                           ! number of vector arrays
+  integer(c_int), parameter :: nv = 3      ! length of vector arrays
+  integer(c_int), parameter :: ns = 2      ! number of vector arrays
 
   integer(c_int), target :: comm = MPI_COMM_WORLD ! default MPI communicator
   integer(kind=myindextype) :: global_length      ! vector global_length
