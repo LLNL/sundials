@@ -104,8 +104,6 @@
 #include <sundials/sundials_types.h> /* definition of sunrealtype                      */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver             */
 
-#include "arkode/arkode.h"
-
 /* helpful macros */
 
 #ifndef MAX

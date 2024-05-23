@@ -61,8 +61,6 @@
 #include <sundials/sundials_types.h> /* def. of type 'sunrealtype'              */
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h> /* access to FP nonlinear solver        */
 
-#include "arkode/arkode.h"
-
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #define ESYM "Le"

@@ -58,8 +58,6 @@
 #include <sunlinsol/sunlinsol_klu.h> /* access to KLU SUNLinearSolver        */
 #include <sunmatrix/sunmatrix_sparse.h> /* access to sparse SUNMatrix           */
 
-#include "arkode/arkode.h"
-
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #define ESYM "Le"

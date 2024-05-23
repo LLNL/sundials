@@ -50,7 +50,6 @@
 #include <sunlinsol/sunlinsol_dense.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
-#include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
 #include "sundials/sundials_types.h"
 

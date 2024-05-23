@@ -54,8 +54,6 @@
 #include <sunlinsol/sunlinsol_band.h> /* access to band SUNLinearSolver */
 #include <sunmatrix/sunmatrix_band.h> /* access to band SUNMatrix */
 
-#include "arkode/arkode.h"
-
 #ifdef _OPENMP
 #include <omp.h> /* OpenMP functions */
 #endif

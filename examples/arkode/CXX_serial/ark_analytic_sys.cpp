@@ -53,8 +53,6 @@
 #include <sunlinsol/sunlinsol_dense.h> // access to dense SUNLinearSolver
 #include <sunmatrix/sunmatrix_dense.h> // access to dense SUNMatrix
 
-#include "arkode/arkode.h"
-
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #define ESYM "Le"
