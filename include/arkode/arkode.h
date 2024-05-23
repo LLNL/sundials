@@ -64,6 +64,7 @@ extern "C" {
 #define ARK_INTERP_MAX_DEGREE 5
 
 /*    interpolation module types */
+#define ARK_INTERP_NONE     -1
 #define ARK_INTERP_HERMITE  0
 #define ARK_INTERP_LAGRANGE 1
 

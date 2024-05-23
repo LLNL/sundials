@@ -1154,28 +1154,25 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
       }
     }
 
-    /* Limit max interpolant degree (negative input only overwrites the current
-       interpolant degree if it is greater than abs(input). */
-    if (ark_mem->interp != NULL)
+    /* Override the interpolant degree (if needed), used in arkInitialSetup */
+    if (step_mem->q > 1 && ark_mem->interp_degree > (step_mem->q - 1))
     {
-      if (step_mem->q > 1)
-      {
-        /* Limit max degree to at most one less than the method global order */
-        retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q - 1));
-      }
-      else
-      {
-        /* Allow for linear interpolant with first order methods to ensure
-           solution values are returned at the time interval end points */
-        retval = arkInterpSetDegree(ark_mem, ark_mem->interp, -(step_mem->q));
-      }
+      /* Limit max degree to at most one less than the method global order */
+      ark_mem->interp_degree = step_mem->q - 1;
+    }
+    else if (step_mem->q == 1 && ark_mem->interp_degree > 1)
+    {
+      /* Allow for linear interpolant with first order methods to ensure
+         solution values are returned at the time interval end points */
+      ark_mem->interp_degree = 1;
+    }
 
-      if (retval != ARK_SUCCESS)
-      {
-        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                        "Unable to update interpolation polynomial degree");
-        return (ARK_ILL_INPUT);
-      }
+    /* Higher-order predictors require interpolation */
+    if (ark_mem->interp_type == ARK_INTERP_NONE && step_mem->predictor != 0)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Non-trival predictors require an interpolation module");
+      return ARK_ILL_INPUT;
     }
   }
 
