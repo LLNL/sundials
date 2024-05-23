@@ -2336,16 +2336,6 @@ int arkLsATimes(void* arkode_mem, N_Vector v, N_Vector z)
   arkls_mem->njtimes++;
   if (retval != 0) { return (retval); }
 
-  printf("JTimes\n");
-  printf("v\n");
-  N_VPrint(v);
-  printf("z\n");
-  N_VPrint(z);
-  printf("ycur\n");
-  N_VPrint(arkls_mem->ycur);
-  printf("fcur\n");
-  N_VPrint(arkls_mem->fcur);
-
   /* Compute mass matrix vector product and add to result */
   if (ark_step_massmem != NULL)
   {
@@ -2394,17 +2384,6 @@ int arkLsPSetup(void* arkode_mem)
      reset jcur (pass !jbad as update suggestion) */
   retval = arkls_mem->pset(arkls_mem->tcur, arkls_mem->ycur, arkls_mem->fcur,
                            !(arkls_mem->jbad), jcur, gamma, arkls_mem->P_data);
-
-  printf("PSetup\n");
-  printf("tcur  = %g\n", arkls_mem->tcur);
-  printf("ycur\n");
-  N_VPrint(arkls_mem->ycur);
-  printf("fcur\n");
-  N_VPrint(arkls_mem->fcur);
-  printf("jbad  = %i\n", arkls_mem->jbad);
-  printf("jcur  = %i\n", *jcur);
-  printf("gamma = %g\n", gamma);
-
   return (retval);
 }
 
@@ -2446,22 +2425,6 @@ int arkLsPSolve(void* arkode_mem, N_Vector r, N_Vector z, sunrealtype tol, int l
   retval = arkls_mem->psolve(arkls_mem->tcur, arkls_mem->ycur, arkls_mem->fcur,
                              r, z, gamma, tol, lr, arkls_mem->P_data);
   arkls_mem->nps++;
-
-
-  printf("PSolve\n");
-  printf("tcur  = %g\n", arkls_mem->tcur);
-  printf("r\n");
-  N_VPrint(r);
-  printf("z\n");
-  N_VPrint(z);
-  printf("ycur\n");
-  N_VPrint(arkls_mem->ycur);
-  printf("fcur\n");
-  N_VPrint(arkls_mem->fcur);
-  printf("gamma = %g\n", gamma);
-  printf("tol   = %g\n", tol);
-  printf("lr    = %i\n", lr);
-
   return (retval);
 }
 
@@ -3419,12 +3382,6 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
       return (arkls_mem->last_flag);
     }
   }
-
-  printf("LSolve\n");
-  printf("x\n");
-  N_VPrint(arkls_mem->x);
-  printf("b\n");
-  N_VPrint(b);
 
   /* Call solver, and copy x to b */
   retval = SUNLinSolSolve(arkls_mem->LS, arkls_mem->A, arkls_mem->x, b, delta);

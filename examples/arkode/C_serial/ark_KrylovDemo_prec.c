@@ -177,7 +177,7 @@
 #define T1        SUN_RCONST(1.0e-8)
 #define TOUT_MULT SUN_RCONST(10.0)
 #define DTOUT     ONE
-#define NOUT      1
+#define NOUT      18
 
 /* Note: The value for species i at mesh point (j,k) is stored in */
 /* component number (i-1) + j*NS + k*NS*MX of an N_Vector,        */
@@ -278,9 +278,9 @@ int main(int argc, char* argv[])
   PrintIntro();
 
   /* Loop over jpre and gstype (four cases) */
-  for (jpre = SUN_PREC_RIGHT; jpre <= SUN_PREC_RIGHT; jpre++)
+  for (jpre = SUN_PREC_LEFT; jpre <= SUN_PREC_RIGHT; jpre++)
   {
-    for (gstype = SUN_MODIFIED_GS; gstype <= SUN_MODIFIED_GS; gstype++)
+    for (gstype = SUN_MODIFIED_GS; gstype <= SUN_CLASSICAL_GS; gstype++)
     {
       /* Initialize c and print heading */
       CInit(c, wdata);
@@ -288,8 +288,7 @@ int main(int argc, char* argv[])
 
       /* Call ARKStepCreate or ARKStepReInit, then SPGMR to set up problem */
 
-      //firstrun = (jpre == SUN_PREC_LEFT) && (gstype == SUN_MODIFIED_GS);
-      firstrun = SUNTRUE;
+      firstrun = (jpre == SUN_PREC_LEFT) && (gstype == SUN_MODIFIED_GS);
       if (firstrun)
       {
         arkode_mem = ARKStepCreate(NULL, f, T0, c, ctx);
@@ -956,16 +955,11 @@ static int PSolve(sunrealtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector 
 
   wdata = (WebData)user_data;
 
-  printf("PSolve\n");
-
   N_VScale(ONE, r, z);
 
   /* call GSIter for Gauss-Seidel iterations */
 
   GSIter(gamma, z, wdata->tmp, wdata);
-
-  printf("z after GSIter\n");
-  N_VPrint(z);
 
   /* Do backsolves for inverse of block-diagonal preconditioner factor */
 
@@ -977,41 +971,6 @@ static int PSolve(sunrealtype tn, N_Vector c, N_Vector fc, N_Vector r, N_Vector 
   mp    = wdata->mp;
   jigx  = wdata->jigx;
   jigy  = wdata->jigy;
-
-  for (int k = 0; k < NGRP; k++)
-  {
-    for (int i = 0; i < NS; i++)
-    {
-      for (int j = 0; i < NS; i++)
-      {
-        printf("P[%i][%i][%i] = %g\n",k,i,j,P[k][i][j]);
-      }
-    }
-  }
-
-  for (int k = 0; k < NGRP; k++)
-  {
-    for (int i = 0; i < NS; i++)
-    {
-      printf("pivot[%i][%i] = %i\n",k,i,pivot[k][i]);
-    }
-  }
-
-  printf("mx  = %i\n", mx);
-  printf("my  = %i\n", my);
-  printf("ngx = %i\n", ngx);
-  printf("mp  = %i\n", mp);
-
-  for (int k = 0; k < MX; k++)
-  {
-    printf("jigx[%i] = %i\n", k, jigx[k]);
-
-  }
-
-  for (int k = 0; k < MY; k++)
-  {
-    printf("jigy[%i] = %i\n", k, jigy[k]);
-  }
 
   iv = 0;
   for (jy = 0; jy < my; jy++)

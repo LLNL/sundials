@@ -628,16 +628,6 @@ int arkStep_NlsResidual_MassIdent_TrivialPredAutonomous(N_Vector zcor, N_Vector 
     if (retval > 0) { return (RHSFUNC_RECVR); }
   }
 
-  printf("Residual\n");
-  printf("zpred\n");
-  N_VPrint(step_mem->zpred);
-  printf("zcor\n");
-  N_VPrint(zcor);
-  printf("y\n");
-  N_VPrint(ark_mem->ycur);
-  printf("f(y)\n");
-  N_VPrint(step_mem->Fi[step_mem->istage]);
-
   /* compute residual via linear combination */
   c[0]   = ONE;
   X[0]   = zcor;
