@@ -38,6 +38,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_FULLRHS_END = 1_C_INT
  integer(C_INT), parameter, public :: ARK_FULLRHS_OTHER = 2_C_INT
  integer(C_INT), parameter, public :: ARK_INTERP_MAX_DEGREE = 5_C_INT
+ integer(C_INT), parameter, public :: ARK_INTERP_NONE = -1_C_INT
  integer(C_INT), parameter, public :: ARK_INTERP_HERMITE = 0_C_INT
  integer(C_INT), parameter, public :: ARK_INTERP_LAGRANGE = 1_C_INT
  integer(C_INT), parameter, public :: ARK_SUCCESS = 0_C_INT
@@ -330,6 +331,7 @@ module farkode_mod
     ARKODE_BACKWARD_EULER_1_1, ARKODE_IMPLICIT_MIDPOINT_1_2, ARKODE_IMPLICIT_TRAPEZOIDAL_2_2, ARKODE_MAX_DIRK_NUM
  public :: FARKodeButcherTable_LoadDIRK
  public :: FARKodeButcherTable_LoadDIRKByName
+ public :: FARKodeButcherTable_DIRKIDToName
  ! typedef enum ARKODE_ERKTableID
  enum, bind(c)
   enumerator :: ARKODE_ERK_NONE = -1
@@ -371,6 +373,7 @@ module farkode_mod
     ARKODE_RALSTON_EULER_2_1_2, ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2, ARKODE_MAX_ERK_NUM
  public :: FARKodeButcherTable_LoadERK
  public :: FARKodeButcherTable_LoadERKByName
+ public :: FARKodeButcherTable_ERKIDToName
  ! typedef enum ARKODE_SPRKMethodID
  enum, bind(c)
   enumerator :: ARKODE_SPRK_NONE = -1
@@ -1998,6 +2001,15 @@ type(SwigArrayWrapper) :: farg1
 type(C_PTR) :: fresult
 end function
 
+function swigc_FARKodeButcherTable_DIRKIDToName(farg1) &
+bind(C, name="_wrap_FARKodeButcherTable_DIRKIDToName") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+integer(C_INT), intent(in) :: farg1
+type(SwigArrayWrapper) :: fresult
+end function
+
 function swigc_FARKodeButcherTable_LoadERK(farg1) &
 bind(C, name="_wrap_FARKodeButcherTable_LoadERK") &
 result(fresult)
@@ -2013,6 +2025,15 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 type(SwigArrayWrapper) :: farg1
 type(C_PTR) :: fresult
+end function
+
+function swigc_FARKodeButcherTable_ERKIDToName(farg1) &
+bind(C, name="_wrap_FARKodeButcherTable_ERKIDToName") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+integer(C_INT), intent(in) :: farg1
+type(SwigArrayWrapper) :: fresult
 end function
 
 subroutine swigc_ARKodeSPRKTableMem_q_set(farg1, farg2) &
@@ -5116,6 +5137,20 @@ fresult = swigc_FARKodeButcherTable_LoadDIRKByName(farg1)
 swig_result = fresult
 end function
 
+function FARKodeButcherTable_DIRKIDToName(imethod) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+character(kind=C_CHAR, len=:), allocatable :: swig_result
+integer(ARKODE_DIRKTableID), intent(in) :: imethod
+type(SwigArrayWrapper) :: fresult 
+integer(C_INT) :: farg1 
+
+farg1 = imethod
+fresult = swigc_FARKodeButcherTable_DIRKIDToName(farg1)
+call SWIG_chararray_to_string(fresult, swig_result)
+if (.false.) call SWIG_free(fresult%data)
+end function
+
 function FARKodeButcherTable_LoadERK(emethod) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -5141,6 +5176,20 @@ type(SwigArrayWrapper) :: farg1
 call SWIG_string_to_chararray(emethod, farg1_chars, farg1)
 fresult = swigc_FARKodeButcherTable_LoadERKByName(farg1)
 swig_result = fresult
+end function
+
+function FARKodeButcherTable_ERKIDToName(emethod) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+character(kind=C_CHAR, len=:), allocatable :: swig_result
+integer(ARKODE_ERKTableID), intent(in) :: emethod
+type(SwigArrayWrapper) :: fresult 
+integer(C_INT) :: farg1 
+
+farg1 = emethod
+fresult = swigc_FARKodeButcherTable_ERKIDToName(farg1)
+call SWIG_chararray_to_string(fresult, swig_result)
+if (.false.) call SWIG_free(fresult%data)
 end function
 
 subroutine swigf_ARKodeSPRKTableMem_q_set(self, q)
