@@ -18,6 +18,8 @@
  * in sundials_matrix.h
  * -----------------------------------------------------------------*/
 
+#include "sundials/sundials_matrix.h"
+
 #include <stdlib.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
@@ -52,16 +54,18 @@ SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
   SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
-  ops->getid       = NULL;
-  ops->clone       = NULL;
-  ops->destroy     = NULL;
-  ops->zero        = NULL;
-  ops->copy        = NULL;
-  ops->scaleadd    = NULL;
-  ops->scaleaddi   = NULL;
-  ops->matvecsetup = NULL;
-  ops->matvec      = NULL;
-  ops->space       = NULL;
+  ops->getid           = NULL;
+  ops->clone           = NULL;
+  ops->destroy         = NULL;
+  ops->zero            = NULL;
+  ops->copy            = NULL;
+  ops->scaleadd        = NULL;
+  ops->scaleaddi       = NULL;
+  ops->matvecsetup     = NULL;
+  ops->matvec          = NULL;
+  ops->matvectranspose = NULL;
+  ops->transpose       = NULL;
+  ops->space           = NULL;
 
   /* attach ops and initialize content to NULL */
   A->ops     = ops;
@@ -217,6 +221,32 @@ SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
   ier = A->ops->matvec(A, x, y);
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
+  return (ier);
+}
+
+SUNErrCode SUNMatMatvecTranspose(SUNMatrix A, N_Vector x, N_Vector y)
+{
+  SUNErrCode ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
+  if (A->ops->matvectranspose) { ier = A->ops->matvectranspose(A, x, y); }
+  else if (A->ops->transpose)
+  {
+    ier = A->ops->transpose(A);
+    if (ier) { return ier; }
+    ier = A->ops->matvec(A, x, y);
+  }
+  else { ier = SUN_ERR_NOT_IMPLEMENTED; }
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
+  return (ier);
+}
+
+SUNErrCode SUNMatTranspose(SUNMatrix A)
+{
+  SUNErrCode ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
+  if (A->ops->transpose) { ier = A->ops->transpose(A); }
+  else { ier = SUN_ERR_NOT_IMPLEMENTED; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
   return (ier);
 }
