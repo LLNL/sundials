@@ -66,8 +66,8 @@ if(Ginkgo_FOUND AND (NOT GINKGO_WORKS))
     print_error("SUNDIALS_GINKGO_BACKENDS includes HIP but HIP is not enabled. Set ENABLE_HIP=ON or change the backend.")
   endif()
 
-  if(SUNDIALS_GINKGO_BACKENDS MATCHES "DPCPP" AND NOT ENABLE_SYCL)
-    print_error("SUNDIALS_GINKGO_BACKENDS includes DPC++ but SYCL/DPC++ is not enabled. Set ENABLE_SYCL=ON or change the backend.")
+  if(SUNDIALS_GINKGO_BACKENDS MATCHES "SYCL" AND NOT ENABLE_SYCL) 
+    print_error("SUNDIALS_GINKGO_BACKENDS includes SYCL but SYCL is not enabled. Set ENABLE_SYCL=ON or change the backend.")
   endif()
 
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "OMP" AND NOT ENABLE_OPENMP)
