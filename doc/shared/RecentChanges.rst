@@ -39,7 +39,7 @@ string representation.
 Added the function :c:func:`ARKodeSetAutonomous` in ARKODE to indicate that the
 implicit right-hand side function does not explicitly depend on time. When using
 the trivial predictor, an autonomous problem may reuse implicit function
-evaluations across stage solves reducing the total number of function
+evaluations across stage solves to reduce the total number of function
 evaluations.
 
 Users may now disable interpolated output in ARKODE by passing
