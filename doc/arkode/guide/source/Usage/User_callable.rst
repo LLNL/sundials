@@ -1853,7 +1853,7 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       method and using the trivial predictor. The differences are due to reusing
       the deduced implicit right-hand side (RHS) value in the initial nonlinear
       residual computation rather than evaluating the implicit RHS function. The
-      significance of the difference well depend on how well the deduced RHS
+      significance of the difference will depend on how well the deduced RHS
       approximates the RHS evaluated at the trivial predictor. This behavior can
       be observed in ``examples/arkode/C_serial/ark_brusselator.c`` by comparing
       the outputs with :c:func:`ARKodeSetAutonomous` enabled/disabled.
