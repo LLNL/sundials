@@ -35,6 +35,9 @@ Added the following MRI coupling tables
 * `ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL`
 * `ARKODE_IMEX_MRI_GARK_MIDPOINT`
 
+Added `ARKodeButcherTable_ERKIDToName` and `ARKodeButcherTable_DIRKIDToName` to
+convert a Butcher table ID to a string representation.
+
 Added the function ``ARKodeSetAutonomous`` in ARKODE to indicate that the
 implicit right-hand side function does not explicitly depend on time. When using
 the trivial predictor, an autonomous problem may reuse implicit function
