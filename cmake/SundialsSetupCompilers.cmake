@@ -95,7 +95,10 @@ if(ENABLE_ALL_WARNINGS)
 
   set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function ${CMAKE_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function ${CMAKE_CXX_FLAGS}")
-  set(CMAKE_Fortran_FLAGS "-Wall -Wpedantic -fcheck=all -Wno-unused-dummy-argument -Wno-c-binding-type -ffpe-summary=none ${CMAKE_Fortran_FLAGS}")
+
+  # Exclude run-time pointer checks (no-pointer) because passing null objects
+  # (e.g., sunmat => null()) causes a runtime error in Fortran
+  set(CMAKE_Fortran_FLAGS "-Wall -Wpedantic -fcheck=all,no-pointer -Wno-unused-dummy-argument -Wno-c-binding-type -ffpe-summary=none ${CMAKE_Fortran_FLAGS}")
 endif()
 
 if(ENABLE_WARNINGS_AS_ERRORS)
