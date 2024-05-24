@@ -21,8 +21,9 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        # 2 is what all other builds use (its the default), so skip it here
-        logging_level: [0, 1, 3, 4, 5]
+        # Level 2 is also used in other builds (its the default) but include it
+        # here to ensure it's tested with all warning flags
+        logging_level: [0, 1, 2, 3, 4, 5]
 
     steps:
     - name: Install LLVM and Clang
