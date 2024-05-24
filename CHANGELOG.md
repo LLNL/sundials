@@ -35,6 +35,9 @@ Added the following MRI coupling tables
 * `ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL`
 * `ARKODE_IMEX_MRI_GARK_MIDPOINT`
 
+Added `ARKodeButcherTable_ERKIDToName` and `ARKodeButcherTable_DIRKIDToName` to
+convert a Butcher table ID to a string representation.
+
 Users may now disable interpolated output in ARKODE by passing `ARK_INTERP_NONE`
 to `ARKodeSetInterpolantType`. When interpolation is disabled, rootfinding is
 not supported, implicit methods must use the trivial predictor (the default
