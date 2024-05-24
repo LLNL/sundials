@@ -642,9 +642,12 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
   sunrealtype troundoff, nrm;
   sunbooleantype inactive_roots;
   sunrealtype dsm;
-  int nflag, attempts, ncf, nef, constrfails;
+  int nflag, ncf, nef, constrfails;
   int relax_fails;
   ARKodeMem ark_mem;
+
+  /* used only with debugging logging */
+  SUNDIALS_MAYBE_UNUSED int attempts;
 
   /* Check and process inputs */
 

@@ -2542,7 +2542,7 @@ void KINPrintInfo(SUNDIALS_MAYBE_UNUSED KINMem kin_mem, int info_code,
   {
     /* Compose the message */
 
-    vsprintf(msg, msgfmt, ap);
+    vsnprintf(msg, sizeof msg, msgfmt, ap);
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
