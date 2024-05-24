@@ -61,7 +61,7 @@ constexpr auto N_VNew = N_VNew_Cuda;
 #include <nvector/nvector_hip.h>
 #define HIP_OR_CUDA_OR_SYCL(a, b, c) a
 constexpr auto N_VNew = N_VNew_Hip;
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
 #include <nvector/nvector_sycl.h>
 #define HIP_OR_CUDA_OR_SYCL(a, b, c) c
 constexpr auto N_VNew = N_VNew_Sycl;
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
 #elif defined(USE_HIP)
   auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create(), false,
                                          gko::allocation_mode::device)};
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
   auto gko_exec{gko::DpcppExecutor::create(0, gko::ReferenceExecutor::create())};
 #elif defined(USE_OMP)
   auto gko_exec{gko::OmpExecutor::create()};
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
   // ---------------
 
   // Create solution vector
-#if defined(USE_DPCPP)
+#if defined(USE_SYCL)
   N_Vector u = N_VNew(udata.nodes, gko_exec->get_queue(), sunctx);
 #else
   N_Vector u = N_VNew(udata.nodes, sunctx);
@@ -372,7 +372,7 @@ int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
 
   HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(), );
 
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
   // Access device data arrays
   sunrealtype* uarray = N_VGetDeviceArrayPointer(u);
   if (check_ptr(uarray, "N_VGetDeviceArrayPointer")) return -1;
@@ -612,7 +612,7 @@ int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
                                                   col_idxs, mat_data);
 
   HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(), );
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
   auto queue =
     std::dynamic_pointer_cast<const gko::DpcppExecutor>(udata->exec)->get_queue();
   // J_sn_kernel

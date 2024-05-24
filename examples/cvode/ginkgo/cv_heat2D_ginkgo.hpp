@@ -32,7 +32,7 @@
 #include <nvector/nvector_cuda.h>
 #elif defined(USE_HIP)
 #include <nvector/nvector_hip.h>
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
 #include <nvector/nvector_sycl.h>
 #endif
 
@@ -152,7 +152,7 @@ static int Solution(sunrealtype t, N_Vector u, UserData& udata)
 
   solution_kernel<<<num_blocks, threads_per_block>>>(nx, ny, dx, dy, cos_sqr_t,
                                                      uarray);
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
   sunrealtype* uarray = N_VGetDeviceArrayPointer(u);
   if (check_ptr(uarray, "N_VGetDeviceArrayPointer")) return -1;
   std::dynamic_pointer_cast<const gko::DpcppExecutor>(udata.exec)
@@ -366,7 +366,7 @@ static int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData& udata)
 #elif defined(USE_HIP)
     N_VCopyFromDevice_Hip(u);
     N_VCopyFromDevice_Hip(e);
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
     N_VCopyFromDevice_Sycl(u);
     N_VCopyFromDevice_Sycl(e);
 #endif

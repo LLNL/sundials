@@ -32,7 +32,7 @@ include_directories(..)
 
 sundials_add_examples_ginkgo(examples
   TARGETS test_sunlinsol_obj
-  BACKENDS REF OMP CUDA HIP DPCPP
+  BACKENDS REF OMP CUDA HIP SYCL
   UNIT_TEST)
 
 # Install the targets
@@ -44,7 +44,7 @@ if(EXAMPLES_INSTALL)
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP")
     list(APPEND vectors nvechip)
   endif()
-  if(SUNDIALS_GINKGO_BACKENDS MATCHES "DPCPP")
+  if(SUNDIALS_GINKGO_BACKENDS MATCHES "SYCL")
     list(APPEND vectors nvecsycl)
   endif()
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "OMP")

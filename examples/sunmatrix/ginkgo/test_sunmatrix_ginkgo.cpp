@@ -28,7 +28,7 @@
 #define REF_OR_OMP_OR_HIP_OR_CUDA_OR_SYCL(a, b, c, d, e) c
 #elif defined(USE_CUDA)
 #define REF_OR_OMP_OR_HIP_OR_CUDA_OR_SYCL(a, b, c, d, e) d
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
 #define REF_OR_OMP_OR_HIP_OR_CUDA_OR_SYCL(a, b, c, d, e) e
 #elif defined(USE_OMP)
 #define REF_OR_OMP_OR_HIP_OR_CUDA_OR_SYCL(a, b, c, d, e) b
@@ -42,7 +42,7 @@
 #include <nvector/nvector_hip.h>
 #elif defined(USE_OMP)
 #include <nvector/nvector_openmp.h>
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
 #include <nvector/nvector_sycl.h>
 #else
 #include <nvector/nvector_serial.h>
