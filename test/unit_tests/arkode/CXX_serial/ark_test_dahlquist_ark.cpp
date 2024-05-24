@@ -802,7 +802,7 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
       }
     }
 
-    if (prob_opts.i_type == interp_type::lagrange && save_fn_for_residual &&
+    if (prob_opts.i_type != interp_type::hermite && save_fn_for_residual &&
         !explicit_first_stage)
     {
       if (stiffly_accurate) { nfe_expected++; }
@@ -836,7 +836,7 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
       }
     }
 
-    if (prob_opts.i_type == interp_type::lagrange && save_fn_for_residual &&
+    if (prob_opts.i_type != interp_type::hermite && save_fn_for_residual &&
         !explicit_first_stage)
     {
       if (stiffly_accurate) { nfi_expected++; }
