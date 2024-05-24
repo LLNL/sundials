@@ -1243,6 +1243,9 @@ subroutine EvolveProblemIMEX(sunvec_y)
   end if
 
   ! Create the (non)linear solver
+  sun_NLS => null()
+  sun_LS => null()
+
   if (global) then
 
      ! Create nonlinear solver
