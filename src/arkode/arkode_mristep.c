@@ -502,7 +502,8 @@ int mriStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR)
 
   /* Reset the inner integrator with this same state */
   retval = mriStepInnerStepper_Reset(step_mem->stepper, tR, yR);
-  if (retval != ARK_SUCCESS) {
+  if (retval != ARK_SUCCESS)
+  {
     arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
                     "Unable to reset the inner stepper");
     return (ARK_INNERSTEP_FAIL);
@@ -1518,7 +1519,7 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
       {
         if (step_mem->stagetypes[i] == MRISTAGE_STIFF_ACC)
         {
-          sa_stage = step_mem->stage_map[i-1];
+          sa_stage = step_mem->stage_map[i - 1];
         }
       }
       if (sa_stage > -1)
@@ -1752,8 +1753,9 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   }
   if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
   {
-    retval = mriStepInnerStepper_SetRTol(step_mem->stepper,
-                                         step_mem->inner_control * ark_mem->reltol);
+    retval =
+      mriStepInnerStepper_SetRTol(step_mem->stepper,
+                                  step_mem->inner_control * ark_mem->reltol);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
@@ -1887,9 +1889,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     case (MRISTAGE_DIRK_FAST):
       retval = mriStep_StageDIRKFast(ark_mem, step_mem, is, nflagPtr);
       break;
-    case (MRISTAGE_STIFF_ACC):
-      retval = ARK_SUCCESS;
-      break;
+    case (MRISTAGE_STIFF_ACC): retval = ARK_SUCCESS; break;
     }
     if (retval != ARK_SUCCESS) { return (retval); }
 
@@ -1917,8 +1917,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
         retval = mriStepInnerStepper_Reset(step_mem->stepper, tf, ark_mem->ycur);
         if (retval != ARK_SUCCESS)
         {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                          "Unable to reset the inner stepper");
+          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
+                          __FILE__, "Unable to reset the inner stepper");
           return (ARK_INNERSTEP_FAIL);
         }
       }
@@ -1934,7 +1934,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     if (is < step_mem->stages - 1)
     {
       if (ark_mem->fixedstep && (ark_mem->AccumErrorType < 0) &&
-          (step_mem->stagetypes[is+1] == MRISTAGE_STIFF_ACC))
+          (step_mem->stagetypes[is + 1] == MRISTAGE_STIFF_ACC))
       {
         calc_fslow = SUNFALSE;
       }
@@ -2192,8 +2192,9 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
   if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
   {
-    retval = mriStepInnerStepper_SetRTol(step_mem->stepper,
-                                         step_mem->inner_control * ark_mem->reltol);
+    retval =
+      mriStepInnerStepper_SetRTol(step_mem->stepper,
+                                  step_mem->inner_control * ark_mem->reltol);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
@@ -2382,8 +2383,8 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
           step_mem->cvals[j + 2] = ark_mem->h * step_mem->MRIC->G[0][stage][j];
           step_mem->Xvecs[j + 2] = step_mem->Fsi[j];
         }
-        retval = N_VLinearCombination(stage + 2, step_mem->cvals, step_mem->Xvecs,
-                                      step_mem->sdata);
+        retval = N_VLinearCombination(stage + 2, step_mem->cvals,
+                                      step_mem->Xvecs, step_mem->sdata);
         if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
@@ -2393,7 +2394,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         N_VPrintFile(step_mem->sdata, ARK_LOGGER->debug_fp);
 #endif
 
-       /* Update gamma for implicit solver */
+        /* Update gamma for implicit solver */
         step_mem->gamma = ark_mem->h * step_mem->MRIC->G[0][stage][stage];
         if (ark_mem->firststage) { step_mem->gammap = step_mem->gamma; }
         step_mem->gamrat =
@@ -2403,7 +2404,6 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
            with positive value on anything but success */
         *nflagPtr = mriStep_Nls(ark_mem, *nflagPtr);
         if (*nflagPtr != ARK_SUCCESS) { return (TRY_AGAIN); }
-
       }
       /* perform explicit update for correction */
       else
@@ -2415,11 +2415,10 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
           step_mem->cvals[j + 1] = ark_mem->h * step_mem->MRIC->G[0][stage][j];
           step_mem->Xvecs[j + 1] = step_mem->Fsi[j];
         }
-        retval = N_VLinearCombination(stage + 1, step_mem->cvals, step_mem->Xvecs,
-                                      ark_mem->ycur);
+        retval = N_VLinearCombination(stage + 1, step_mem->cvals,
+                                      step_mem->Xvecs, ark_mem->ycur);
         if (retval != 0) { return (ARK_VECTOROP_ERR); }
       }
-
     }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
@@ -2440,8 +2439,8 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                                          ark_mem->ycur);
       if (retval != ARK_SUCCESS)
       {
-        arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                        "Unable to reset the inner stepper");
+        arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
+                        __FILE__, "Unable to reset the inner stepper");
         return (ARK_INNERSTEP_FAIL);
       }
     }
@@ -2630,8 +2629,9 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
   if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
   {
-    retval = mriStepInnerStepper_SetRTol(step_mem->stepper,
-                                         step_mem->inner_control * ark_mem->reltol);
+    retval =
+      mriStepInnerStepper_SetRTol(step_mem->stepper,
+                                  step_mem->inner_control * ark_mem->reltol);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
@@ -2776,8 +2776,8 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                                            ark_mem->ycur);
         if (retval != ARK_SUCCESS)
         {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                          "Unable to reset the inner stepper");
+          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
+                          __FILE__, "Unable to reset the inner stepper");
           return (ARK_INNERSTEP_FAIL);
         }
       }
@@ -3308,8 +3308,8 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
                                             &(step_mem->inner_dsm));
       if (retval != ARK_SUCCESS)
       {
-        arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                        "Unable to get accumulated error from the inner stepper");
+        arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
+                        __FILE__, "Unable to get accumulated error from the inner stepper");
         return (ARK_INNERSTEP_FAIL);
       }
     }
@@ -3324,31 +3324,30 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
                                               &(step_mem->inner_dsm));
         if (retval != ARK_SUCCESS)
         {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                          "Unable to get accumulated error from the inner stepper");
+          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
+                          __FILE__, "Unable to get accumulated error from the inner stepper");
           return (ARK_INNERSTEP_FAIL);
         }
       }
-      else   /* manually accumulate fast error estimate */
+      else /* manually accumulate fast error estimate */
       {
-
         /* reset fast integrator for time interval */
         retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ytemp);
         if (retval != ARK_SUCCESS)
         {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                          "Unable to reset the inner stepper");
+          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
+                          __FILE__, "Unable to reset the inner stepper");
           return (ARK_INNERSTEP_FAIL);
         }
 
         /* update fixed-step size for fast integrator */
         retval = mriStepInnerStepper_SetFixedStep(step_mem->stepper,
                                                   step_mem->inner_control *
-                                                  step_mem->inner_hfactor);
+                                                    step_mem->inner_hfactor);
         if (retval != ARK_SUCCESS)
         {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                          "Unable to set a fixed stepsize in the inner stepper");
+          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
+                          __FILE__, "Unable to set a fixed stepsize in the inner stepper");
           return (ARK_INNERSTEP_FAIL);
         }
 
@@ -3356,8 +3355,8 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
         retval = mriStepInnerStepper_Evolve(step_mem->stepper, t0, tf, ytemp);
         if (retval != ARK_SUCCESS)
         {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                          "Failure when evolving the inner stepper");
+          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
+                          __FILE__, "Failure when evolving the inner stepper");
           return (ARK_INNERSTEP_FAIL);
         }
 
@@ -3373,21 +3372,21 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
         retval = mriStepInnerStepper_Reset(step_mem->stepper, tf, ycur);
         if (retval != ARK_SUCCESS)
         {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                          "Unable to reset the inner stepper");
+          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
+                          __FILE__, "Unable to reset the inner stepper");
           return (ARK_INNERSTEP_FAIL);
         }
         retval = mriStepInnerStepper_SetFixedStep(step_mem->stepper,
                                                   step_mem->inner_control);
         if (retval != ARK_SUCCESS)
         {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                          "Unable to set a fixed stepsize in the inner stepper");
+          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
+                          __FILE__, "Unable to set a fixed stepsize in the inner stepper");
           return (ARK_INNERSTEP_FAIL);
         }
       } /* if (step_mem->inner_hfactor == ZERO) */
-    } /* if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H) */
-  } /* if (get_inner_dsm) */
+    }   /* if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H) */
+  }     /* if (get_inner_dsm) */
 
   /* post inner evolve function (if supplied) */
   if (step_mem->post_inner_evolve)

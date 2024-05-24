@@ -287,7 +287,7 @@ int main(int argc, char* argv[])
   case (6):
     printf("    slow solver: ARKODE_MERK54\n");
     explicit_slow = SUNTRUE;
-    break;    
+    break;
   case (7):
     printf("    slow solver: ARKODE_MRI_GARK_IRK21a\n");
     implicit_slow = SUNTRUE;

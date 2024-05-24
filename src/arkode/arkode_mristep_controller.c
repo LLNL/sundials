@@ -24,22 +24,19 @@
 #include "arkode_impl.h"
 #include "arkode_mristep_impl.h"
 
-
 /* SUNAdaptController_MRIStep heuristic constants */
 /*   minimum estimated temporal error for inner solver */
-#define INNER_MIN_DSM     SUNRsqrt(SUN_UNIT_ROUNDOFF)
+#define INNER_MIN_DSM SUNRsqrt(SUN_UNIT_ROUNDOFF)
 /*   maximum relative change for inner step size or tolerance */
-#define INNER_MAX_RELCH   SUN_RCONST(20.0)
+#define INNER_MAX_RELCH SUN_RCONST(20.0)
 /*   minimum tolerance sent to inner solver */
-#define INNER_MIN_RTOL    (SUN_RCONST(100.0)*SUN_UNIT_ROUNDOFF)
+#define INNER_MIN_RTOL (SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF)
 /*   maximum tolerance sent to inner solver */
-#define INNER_MAX_RTOL    (SUN_RCONST(0.1))
+#define INNER_MAX_RTOL (SUN_RCONST(0.1))
 /*   minimum step size for inner solver */
-#define INNER_MIN_H       (SUN_RCONST(10.0)*SUN_UNIT_ROUNDOFF)
+#define INNER_MIN_H (SUN_RCONST(10.0) * SUN_UNIT_ROUNDOFF)
 /*   maximum step size for inner solver, as fraction of MRIStep H */
-#define INNER_MAX_H       SUN_RCONST(0.5)
-
-
+#define INNER_MAX_H SUN_RCONST(0.5)
 
 /*--------------------------------------------
   MRIStep SUNAdaptController wrapper functions
@@ -121,8 +118,10 @@ int SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C, sunrealtype H,
                                                  step_mem->p, DSM,
                                                  step_mem->inner_dsm, Hnew,
                                                  &(step_mem->inner_control_new));
-    step_mem->inner_control_new = SUNMAX(step_mem->inner_control_new, INNER_MIN_H);
-    step_mem->inner_control_new = SUNMIN(step_mem->inner_control_new, INNER_MAX_H);
+    step_mem->inner_control_new = SUNMAX(step_mem->inner_control_new,
+                                         INNER_MIN_H);
+    step_mem->inner_control_new = SUNMIN(step_mem->inner_control_new,
+                                         INNER_MAX_H);
   }
   else /* SUN_ADAPTCONTROLLER_MRI_TOL */
   {
@@ -132,14 +131,14 @@ int SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C, sunrealtype H,
                                                 step_mem->inner_dsm, Hnew,
                                                 &(step_mem->inner_control_new));
     step_mem->inner_control_new = SUNMAX(step_mem->inner_control_new,
-                                         INNER_MIN_RTOL/ark_mem->reltol);
+                                         INNER_MIN_RTOL / ark_mem->reltol);
     step_mem->inner_control_new = SUNMIN(step_mem->inner_control_new,
-                                         INNER_MAX_RTOL/ark_mem->reltol);
+                                         INNER_MAX_RTOL / ark_mem->reltol);
   }
   step_mem->inner_control_new = SUNMAX(step_mem->inner_control_new,
-                                       step_mem->inner_control/INNER_MAX_RELCH);
+                                       step_mem->inner_control / INNER_MAX_RELCH);
   step_mem->inner_control_new = SUNMIN(step_mem->inner_control_new,
-                                       step_mem->inner_control*INNER_MAX_RELCH);
+                                       step_mem->inner_control * INNER_MAX_RELCH);
   return retval;
 }
 

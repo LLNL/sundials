@@ -132,21 +132,21 @@ struct Options
   sunrealtype w = SUN_RCONST(100.0);
 
   // Step sizes and tolerances
-  int set_h0       = 0;
-  sunrealtype hs   = SUN_RCONST(1.0e-2);
-  sunrealtype hf   = SUN_RCONST(1.0e-4);
-  sunrealtype rtol = SUN_RCONST(1.0e-4);
-  sunrealtype atol = SUN_RCONST(1.0e-11);
+  int set_h0            = 0;
+  sunrealtype hs        = SUN_RCONST(1.0e-2);
+  sunrealtype hf        = SUN_RCONST(1.0e-4);
+  sunrealtype rtol      = SUN_RCONST(1.0e-4);
+  sunrealtype atol      = SUN_RCONST(1.0e-11);
   sunrealtype fast_rtol = SUN_RCONST(1.0e-4);
 
   // Method selection
   std::string mri_method = "ARKODE_MRI_GARK_ERK45a";
-  int fast_order = 4;
-  int scontrol   = 6;
-  int fcontrol   = 1;
-  int faccum     = 0;
-  int slow_pq    = 0;
-  int fast_pq    = 0;
+  int fast_order         = 4;
+  int scontrol           = 6;
+  int fcontrol           = 1;
+  int faccum             = 0;
+  int slow_pq            = 0;
+  int fast_pq            = 0;
 };
 
 // User-supplied functions called by the solver
@@ -205,18 +205,18 @@ int main(int argc, char* argv[])
   int retval;
   sunbooleantype slowimplicit, slowimex;
   slowimplicit = slowimex = SUNFALSE;
-  f_si = NULL;
-  J_s = NULL;
-  f_f = (opts.fast_order == 0) ? f0 : ff;
-  f_se = (opts.fast_order == 0) ? fn : fs;
+  f_si                    = NULL;
+  J_s                     = NULL;
+  f_f                     = (opts.fast_order == 0) ? f0 : ff;
+  f_se                    = (opts.fast_order == 0) ? fn : fs;
   if ((opts.mri_method == "ARKODE_MRI_GARK_IRK21a") ||
       (opts.mri_method == "ARKODE_MRI_GARK_ESDIRK34a") ||
       (opts.mri_method == "ARKODE_MRI_GARK_ESDIRK46a"))
   {
     slowimplicit = SUNTRUE;
-    f_se = NULL;
-    f_si = (opts.fast_order == 0) ? fn : fs;
-    J_s  = (opts.fast_order == 0) ? Jn : Js;
+    f_se         = NULL;
+    f_si         = (opts.fast_order == 0) ? fn : fs;
+    J_s          = (opts.fast_order == 0) ? Jn : Js;
   }
   if ((opts.mri_method == "ARKODE_IMEX_MRI_SR21") ||
       (opts.mri_method == "ARKODE_IMEX_MRI_SR32") ||
@@ -224,9 +224,9 @@ int main(int argc, char* argv[])
   {
     slowimex     = SUNTRUE;
     slowimplicit = SUNTRUE;
-    f_se = (opts.fast_order == 0) ? f0 : fse;
-    f_si = (opts.fast_order == 0) ? fn : fsi;
-    J_s  = (opts.fast_order == 0) ? Jn : Jsi;
+    f_se         = (opts.fast_order == 0) ? f0 : fse;
+    f_si         = (opts.fast_order == 0) ? fn : fsi;
+    J_s          = (opts.fast_order == 0) ? Jn : Jsi;
   }
   std::cout << "\nAdaptive multirate nonlinear Kvaerno-Prothero-Robinson test "
                "problem:\n";
@@ -603,8 +603,8 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   // fill in the RHS function:
   //   [0  0]*[(-2+u^2-r(t))/(2*u)] + [     0      ]
   //   [e -1] [(-2+v^2-s(t))/(2*v)]   [sdot(t)/(2v)]
-  tmp1 = (-TWO + u * u - r(t, opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - s(t, opts)) / (TWO * v);
+  tmp1              = (-TWO + u * u - r(t, opts)) / (TWO * u);
+  tmp2              = (-TWO + v * v - s(t, opts)) / (TWO * v);
   NV_Ith_S(ydot, 0) = ZERO;
   NV_Ith_S(ydot, 1) = opts->e * tmp1 - tmp2 + sdot(t, opts) / (TWO * v);
 
@@ -659,8 +659,8 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   // fill in the slow implicit RHS function:
   //   [G  e]*[(-2+u^2-r(t))/(2*u)]
   //   [0  0] [(-2+v^2-s(t))/(2*v)]
-  tmp1 = (-TWO + u * u - r(t, opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - s(t, opts)) / (TWO * v);
+  tmp1              = (-TWO + u * u - r(t, opts)) / (TWO * u);
+  tmp2              = (-TWO + v * v - s(t, opts)) / (TWO * v);
   NV_Ith_S(ydot, 0) = opts->G * tmp1 + opts->e * tmp2;
   NV_Ith_S(ydot, 1) = ZERO;
 
@@ -704,8 +704,8 @@ static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   // fill in the Jacobian:
   //   [G  e]*[1-(u^2-r(t)-2)/(2*u^2),  0] + [-r'(t)/(2*u^2),  0]
   //   [0  0] [0,  1-(v^2-s(t)-2)/(2*v^2)]   [0,               0]
-  t11 = ONE - (u * u - r(t, opts) - TWO) / (TWO * u * u);
-  t22 = ONE - (v * v - s(t, opts) - TWO) / (TWO * v * v);
+  t11                   = ONE - (u * u - r(t, opts) - TWO) / (TWO * u * u);
+  t22                   = ONE - (v * v - s(t, opts) - TWO) / (TWO * v * v);
   SM_ELEMENT_D(J, 0, 0) = opts->G * t11 - rdot(t, opts) / (TWO * u * u);
   SM_ELEMENT_D(J, 0, 1) = opts->e * t22;
   SM_ELEMENT_D(J, 1, 0) = ZERO;
@@ -726,8 +726,8 @@ static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   // fill in the Jacobian:
   //   [G  e]*[1-(u^2-r(t)-2)/(2*u^2),  0]
   //   [0  0] [0,  1-(v^2-s(t)-2)/(2*v^2)]
-  t11 = ONE - (u * u - r(t, opts) - TWO) / (TWO * u * u);
-  t22 = ONE - (v * v - s(t, opts) - TWO) / (TWO * v * v);
+  t11                   = ONE - (u * u - r(t, opts) - TWO) / (TWO * u * u);
+  t22                   = ONE - (v * v - s(t, opts) - TWO) / (TWO * v * v);
   SM_ELEMENT_D(J, 0, 0) = opts->G * t11;
   SM_ELEMENT_D(J, 0, 1) = opts->e * t22;
   SM_ELEMENT_D(J, 1, 0) = ZERO;
@@ -748,8 +748,8 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   // fill in the Jacobian:
   //   [G  e]*[1-(u^2-r(t)-2)/(2*u^2),  0] + [-r'(t)/(2*u^2),  0]
   //   [e -1] [0,  1-(v^2-s(t)-2)/(2*v^2)]   [0,  -s'(t)/(2*v^2)]
-  t11 = ONE - (u * u - r(t, opts) - TWO) / (TWO * u * u);
-  t22 = ONE - (v * v - s(t, opts) - TWO) / (TWO * v * v);
+  t11                   = ONE - (u * u - r(t, opts) - TWO) / (TWO * u * u);
+  t22                   = ONE - (v * v - s(t, opts) - TWO) / (TWO * v * v);
   SM_ELEMENT_D(J, 0, 0) = opts->G * t11 - rdot(t, opts) / (TWO * u * u);
   SM_ELEMENT_D(J, 0, 1) = opts->e * t22;
   SM_ELEMENT_D(J, 1, 0) = opts->e * t11;
@@ -763,25 +763,19 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 // Private helper functions
 // -----------------------------
 
-static sunrealtype r(sunrealtype t, Options* opts)
-{
-  return (cos(t));
-}
+static sunrealtype r(sunrealtype t, Options* opts) { return (cos(t)); }
 
 static sunrealtype s(sunrealtype t, Options* opts)
 {
   return (cos(opts->w * t * (ONE + exp(-(t - TWO) * (t - TWO)))));
 }
 
-static sunrealtype rdot(sunrealtype t, Options* opts)
-{
-  return (-sin(t));
-}
+static sunrealtype rdot(sunrealtype t, Options* opts) { return (-sin(t)); }
 
 static sunrealtype sdot(sunrealtype t, Options* opts)
 {
-  const sunrealtype tTwo = t-TWO;
-  const sunrealtype eterm = exp(-tTwo*tTwo);
+  const sunrealtype tTwo  = t - TWO;
+  const sunrealtype eterm = exp(-tTwo * tTwo);
   return (-sin(opts->w * t * (ONE + eterm)) * opts->w *
           (ONE + eterm * (ONE - TWO * t * tTwo)));
 }
@@ -822,7 +816,8 @@ void InputHelp()
     << "  --set_h0       : use hs/hf above to set the initial step size\n";
   std::cout << "  --rtol         : relative solution tolerance\n";
   std::cout << "  --atol         : absolute solution tolerance\n";
-  std::cout << "  --fast_rtol    : relative solution tolerance for fast method\n";
+  std::cout
+    << "  --fast_rtol    : relative solution tolerance for fast method\n";
   std::cout << "  --mri_method   : MRI method name (valid ARKODE_MRITableID)\n";
   std::cout << "  --fast_order   : fast RK method order\n";
   std::cout << "  --scontrol     : slow time step controller, int in [0,16] "
@@ -877,7 +872,8 @@ int ReadInputs(std::vector<std::string>& args, Options& opts, SUNContext ctx)
   //   0 < fast_rtol < 1
   if ((opts.fast_rtol < ZERO) || (opts.fast_rtol > ONE))
   {
-    std::cerr << "ERROR: fast_rtol must be in (0,1), (" << opts.fast_rtol << " input)\n";
+    std::cerr << "ERROR: fast_rtol must be in (0,1), (" << opts.fast_rtol
+              << " input)\n";
     return -1;
   }
   //   slow_pq in {0,1}
@@ -1058,40 +1054,47 @@ static void PrintFastAdaptivity(Options opts)
   {
   case (0):
     std::cout << "    fixed steps, hf = " << opts.hf << std::endl;
-    std::cout << "    fast_rtol = " << opts.fast_rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast_rtol = " << opts.fast_rtol
+              << ", atol = " << opts.atol << "\n";
     break;
   case (1):
     std::cout << "    I controller for fast time scale, based on order of RK "
               << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
-    std::cout << "    fast_rtol = " << opts.fast_rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast_rtol = " << opts.fast_rtol
+              << ", atol = " << opts.atol << "\n";
     break;
   case (2):
     std::cout << "    PI controller for fast time scale, based on order of RK "
               << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
-    std::cout << "    fast_rtol = " << opts.fast_rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast_rtol = " << opts.fast_rtol
+              << ", atol = " << opts.atol << "\n";
     break;
   case (3):
     std::cout << "    PID controller for fast time scale, based on order of RK "
               << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
-    std::cout << "    fast_rtol = " << opts.fast_rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast_rtol = " << opts.fast_rtol
+              << ", atol = " << opts.atol << "\n";
     break;
   case (4):
     std::cout
       << "    ExpGus controller for fast time scale, based on order of RK "
       << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
-    std::cout << "    fast_rtol = " << opts.fast_rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast_rtol = " << opts.fast_rtol
+              << ", atol = " << opts.atol << "\n";
     break;
   case (5):
     std::cout
       << "    ImpGus controller for fast time scale, based on order of RK "
       << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
-    std::cout << "    fast_rtol = " << opts.fast_rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast_rtol = " << opts.fast_rtol
+              << ", atol = " << opts.atol << "\n";
     break;
   case (6):
     std::cout
       << "    ImExGus controller for fast time scale, based on order of RK "
       << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
-    std::cout << "    fast_rtol = " << opts.fast_rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast_rtol = " << opts.fast_rtol
+              << ", atol = " << opts.atol << "\n";
     break;
   }
 }
