@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        # Level 2 is also used in other builds (its the default) but include it
+        # Level 2 is also used in other builds (it's the default) but include it
         # here to ensure it's tested with all warning flags
         logging_level: [0, 1, 2, 3, 4, 5]
 
