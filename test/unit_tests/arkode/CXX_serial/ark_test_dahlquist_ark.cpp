@@ -252,7 +252,8 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
 
     std::cout << "\n========================" << std::endl;
-    std::cout << "ERK Table ID " << i << std::endl;
+    std::cout << ARKodeButcherTable_ERKIDToName(static_cast<ARKODE_ERKTableID>(i))
+              << std::endl;
     std::cout << "  stages:             " << stages << std::endl;
     std::cout << "  order:              " << order << std::endl;
     std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
@@ -282,7 +283,9 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
 
     std::cout << "\n========================" << std::endl;
-    std::cout << "DIRK Table ID " << i << std::endl;
+    std::cout << ARKodeButcherTable_DIRKIDToName(
+                   static_cast<ARKODE_DIRKTableID>(i))
+              << std::endl;
     std::cout << "  stages:             " << stages << std::endl;
     std::cout << "  order:              " << order << std::endl;
     std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
@@ -360,7 +363,8 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
 
     std::cout << "\n========================" << std::endl;
-    std::cout << "IMEX Table ID " << i << std::endl;
+    std::cout << ark_methods_dirk[i] << std::endl;
+    std::cout << ark_methods_erk[i] << std::endl;
     std::cout << "  stages:             " << stages << std::endl;
     std::cout << "  order:              " << order << std::endl;
     std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
