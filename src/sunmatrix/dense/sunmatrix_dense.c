@@ -69,6 +69,7 @@ SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N, SUNContext sunctx)
   A->ops->scaleadd  = SUNMatScaleAdd_Dense;
   A->ops->scaleaddi = SUNMatScaleAddI_Dense;
   A->ops->matvec    = SUNMatMatvec_Dense;
+  A->ops->transpose = SUNMatTranspose_Dense;
   A->ops->space     = SUNMatSpace_Dense;
 
   /* Create content */
@@ -331,6 +332,60 @@ SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
     col_j = SM_COLUMN_D(A, j);
     for (i = 0; i < SM_ROWS_D(A); i++) { yd[i] += col_j[i] * xd[j]; }
   }
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNMatMatvecTranspose_Dense(SUNMatrix A, N_Vector x, N_Vector y)
+{
+  SUNFunctionBegin(A->sunctx);
+
+  SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNCheck(compatibleMatrixAndVectors(A, x, y), SUN_ERR_ARG_DIMSMISMATCH);
+
+  /* access vector data (return if NULL data pointers) */
+  sunrealtype *xd, *yd;
+  xd = N_VGetArrayPointer(x);
+  SUNCheckLastErr();
+  yd = N_VGetArrayPointer(y);
+  SUNCheckLastErr();
+
+  SUNAssert(xd, SUN_ERR_MEM_FAIL);
+  SUNAssert(yd, SUN_ERR_MEM_FAIL);
+  SUNAssert(xd != yd, SUN_ERR_MEM_FAIL);
+
+  /* Perform operation y = A^T x */
+  for (sunindextype i = 0; i < SM_ROWS_D(A); i++) { yd[i] = ZERO; }
+  for (sunindextype j = 0; j < SM_COLUMNS_D(A); j++)
+  {
+    sunrealtype* col_j = SM_COLUMN_D(A, j);
+    for (sunindextype i = 0; i < SM_ROWS_D(A); i++)
+    {
+      sunrealtype* col_i = SM_COLUMN_D(A, i);
+      yd[i] += col_i[j] * xd[j];
+    }
+  }
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNMatTranspose_Dense(SUNMatrix A)
+{
+  SUNFunctionBegin(A->sunctx);
+
+  SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
+
+  for (sunindextype j = 0; j < SM_COLUMNS_D(A); j++)
+  {
+    sunrealtype* col_j = SM_COLUMN_D(A, j);
+
+    for (sunindextype i = 0; i < SM_ROWS_D(A); i++)
+    {
+      sunrealtype* col_i = SM_COLUMN_D(A, i);
+      sunrealtype tmp    = col_j[i];
+      col_j[i]           = col_i[j];
+      col_i[j]           = tmp;
+    }
+  }
+
   return SUN_SUCCESS;
 }
 
