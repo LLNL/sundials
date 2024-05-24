@@ -37,7 +37,7 @@ constexpr auto N_VNew = N_VNew_Hip;
 #include <nvector/nvector_cuda.h>
 #define HIP_OR_CUDA_OR_SYCL(a, b, c) b
 constexpr auto N_VNew = N_VNew_Cuda;
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
 #include <nvector/nvector_sycl.h>
 #define HIP_OR_CUDA_OR_SYCL(a, b, c) c
 constexpr auto N_VNew = N_VNew_Sycl;
@@ -163,7 +163,7 @@ static void fill_matrix(
   fill_kernel<<<num_blocks, threads_per_block>>>(mat_rows, mat_cols, row_ptrs,
                                                  col_idxs, mat_data);
   HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(), );
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
   std::dynamic_pointer_cast<const gko::DpcppExecutor>(matrix->get_executor())
     ->get_queue()
     ->submit(
@@ -250,7 +250,7 @@ static void fill_matrix(std::shared_ptr<gko::matrix::Dense<sunrealtype>> matrix)
 
   fill_kernel<<<num_blocks, threads_per_block>>>(mat_rows, mat_cols, mat_data);
   HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(), );
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
   std::dynamic_pointer_cast<const gko::DpcppExecutor>(matrix->get_executor())
     ->get_queue()
     ->submit(
@@ -355,7 +355,7 @@ int main(int argc, char* argv[])
 #elif defined(USE_CUDA)
   auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create(), false,
                                           gko::allocation_mode::device)};
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
   auto gko_exec{gko::DpcppExecutor::create(0, gko::ReferenceExecutor::create())};
 #elif defined(USE_OMP)
   auto gko_exec{gko::OmpExecutor::create()};
@@ -443,7 +443,7 @@ int main(int argc, char* argv[])
    * Create solution and RHS vectors *
    * ------------------------------- */
 
-#if defined(USE_DPCPP)
+#if defined(USE_SYCL)
   N_Vector x{N_VNew(matcols, gko_exec->get_queue(), sunctx)};
 #else
   N_Vector x{N_VNew(matcols, sunctx)};
