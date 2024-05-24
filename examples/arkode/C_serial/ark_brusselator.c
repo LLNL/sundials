@@ -197,6 +197,11 @@ int main(void)
   flag = ARKodeSetJacFn(arkode_mem, Jac); /* Set Jacobian routine */
   if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
 
+  /* Signal that this problem does not explicitly depend on time. In this case
+     enabling/disabling this option will lead to slightly different results when
+     combined with ARKodeSetDeduceImplicitRhs because the implicit method is
+     stiffly accurate. The differences are due to reuse of the deduced implicit
+     RHS evaluation in the nonlinear residual. */
   flag = ARKodeSetAutonomous(arkode_mem, SUNTRUE);
   if (check_flag(&flag, "ARKodeSetAutonomous", 1)) { return 1; }
 

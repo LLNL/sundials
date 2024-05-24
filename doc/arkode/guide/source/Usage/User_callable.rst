@@ -1848,22 +1848,31 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
 
    .. warning::
 
-      Results may differ when combining :c:func:`ARKodeSetAutonomous` with
-      :c:func:`ARKodeSetDeduceImplicitRhs` and using a stiffly accurate method
-      with the trivial predictor as the deduced implicit right-hand side (RHS)
-      value will be reused in the initial residual computation rather than
-      evaluating the implicit RHS function e.g.,
-      ``examples/arkode/C_serial/ark_brusselator.c``.
+      Results may differ when enabling both :c:func:`ARKodeSetAutonomous` and
+      :c:func:`ARKodeSetDeduceImplicitRhs` with a stiffly accurate implicit
+      method and using the trivial predictor. The differences are due to reusing
+      the deduced implicit right-hand side (RHS) value in the initial nonlinear
+      residual computation rather than evaluating the implicit RHS function. The
+      significance of the difference well depend on how well the deduced RHS
+      approximates the RHS evaluated at the trivial predictor. This behavior can
+      be observed in ``examples/arkode/C_serial/ark_brusselator.c`` by comparing
+      the outputs with :c:func:`ARKodeSetAutonomous` enabled/disabled.
 
-      Similarly programs that save computations within the RHS function for
-      reuse elsewhere will need to be updated to account for the RHS function
-      reuse with :c:func:`ARKodeSetAutonomous`. For example,
-      ``examples/arkode/C_serial/ark_KrylovDemo_prec.c`` reuses rates computed
-      in the RHS function in the preconditioner setup. If
-      :c:func:`ARKodeSetAutonomous` was enabled in this example, the rates saved
-      initially would be from the RHS function evaluations used to determine the
-      initial step size rather than the RHS evaluation in the nonlinear residual
-      with the predictor.
+      Similarly programs that assume the nonlinear residual will always call the
+      implicit RHS function will need to be updated to account for the RHS value
+      reuse when using :c:func:`ARKodeSetAutonomous`. For example,
+      ``examples/arkode/C_serial/ark_KrylovDemo_prec.c`` assumes that the
+      nonlinear residual will be called and will evaluate the implicit RHS
+      function before calling the preconditioner setup function. Based on this
+      assumption, this example code saves some computations in the RHS
+      evaluation for reuse in the preconditioner setup. However, when
+      :c:func:`ARKodeSetAutonomous` is enabled, the call to the nonlinear
+      residual before the preconditioner setup reuses a saved RHS evaluation and
+      the saved data is actually from an earlier RHS evaluation that is not
+      consistent with the state and RHS values passed to the preconditioner
+      setup function. For this example, the code should not save data in the RHS
+      evaluation but instead evaluate the necessary quantities within the
+      preconditioner setup function using the input values.
 
    .. versionadded:: x.y.z
 
