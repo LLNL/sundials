@@ -831,6 +831,11 @@ int arkStep_SetAutonomous(ARKodeMem ark_mem, sunbooleantype autonomous)
       return ARK_MEM_FAIL;
     }
   }
+  else
+  {
+    /* Free tempv5 if necessary */
+    arkFreeVec(ark_mem, &ark_mem->tempv5);
+  }
 
   return ARK_SUCCESS;
 }
