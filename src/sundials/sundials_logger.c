@@ -66,6 +66,7 @@ void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
   free(formatted_txt);
 }
 
+#if SUNDIALS_LOGGING_LEVEL > 0
 static FILE* sunOpenLogFile(const char* fname, const char* mode)
 {
   FILE* fp = NULL;
@@ -79,6 +80,7 @@ static FILE* sunOpenLogFile(const char* fname, const char* mode)
 
   return fp;
 }
+#endif
 
 static void sunCloseLogFile(void* fp)
 {
@@ -373,6 +375,13 @@ SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl,
 
     va_end(args);
   }
+#else
+  /* silence warnings when all logging is disabled */
+  ((void)logger);
+  ((void)lvl);
+  ((void)scope);
+  ((void)label);
+  ((void)msg_txt);
 #endif
 
   return retval;
@@ -419,6 +428,9 @@ SUNErrCode SUNLogger_Flush(SUNLogger logger, SUNLogLevel lvl)
       }
     }
   }
+#else
+  /* silence warnings when all logging is disabled */
+  ((void)lvl);
 #endif
 
   return retval;
