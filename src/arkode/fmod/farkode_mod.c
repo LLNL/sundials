@@ -687,6 +687,20 @@ SWIGEXPORT int _wrap_FARKodeSetNonlinear(void *farg1) {
 }
 
 
+SWIGEXPORT int _wrap_FARKodeSetAutonomous(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)ARKodeSetAutonomous(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKodeSetNlsRhsFn(void *farg1, ARKRhsFn farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -2700,6 +2714,19 @@ SWIGEXPORT void * _wrap_FARKodeButcherTable_LoadDIRKByName(SwigArrayWrapper *far
 }
 
 
+SWIGEXPORT SwigArrayWrapper _wrap_FARKodeButcherTable_DIRKIDToName(int const *farg1) {
+  SwigArrayWrapper fresult ;
+  ARKODE_DIRKTableID arg1 ;
+  char *result = 0 ;
+  
+  arg1 = (ARKODE_DIRKTableID)(*farg1);
+  result = (char *)ARKodeButcherTable_DIRKIDToName(arg1);
+  fresult.size = strlen((const char*)(result));
+  fresult.data = (char *)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void * _wrap_FARKodeButcherTable_LoadERK(int const *farg1) {
   void * fresult ;
   ARKODE_ERKTableID arg1 ;
@@ -2720,6 +2747,19 @@ SWIGEXPORT void * _wrap_FARKodeButcherTable_LoadERKByName(SwigArrayWrapper *farg
   arg1 = (char *)(farg1->data);
   result = (ARKodeButcherTable)ARKodeButcherTable_LoadERKByName((char const *)arg1);
   fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT SwigArrayWrapper _wrap_FARKodeButcherTable_ERKIDToName(int const *farg1) {
+  SwigArrayWrapper fresult ;
+  ARKODE_ERKTableID arg1 ;
+  char *result = 0 ;
+  
+  arg1 = (ARKODE_ERKTableID)(*farg1);
+  result = (char *)ARKodeButcherTable_ERKIDToName(arg1);
+  fresult.size = strlen((const char*)(result));
+  fresult.data = (char *)(result);
   return fresult;
 }
 
