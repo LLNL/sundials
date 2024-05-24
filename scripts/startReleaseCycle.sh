@@ -46,9 +46,13 @@ cat > tmp.txt <<HEREDOC
 
 ## Changes to SUNDIALS in release X.Y.Z
 
-### New Features
+### Major Features
+
+### New Features and Enhancements
 
 ### Bug Fixes
+
+### Deprecation Notices
 HEREDOC
 
 sedi -e '/SUNDIALS Changelog/ {' \
@@ -74,9 +78,13 @@ sedi -e '/RecentChanges_link.rst/ {' \
 
 # Clear recent changes file
 cat > ../doc/shared/RecentChanges.rst <<HEREDOC
-**New Features**
+**Major Features**
+
+**New Features and Enhancements**
 
 **Bug Fixes**
+
+**Deprecation Notices**
 HEREDOC
 
 # Add new entry to changelog

@@ -413,30 +413,18 @@ int sprkStep_Init(ARKodeMem ark_mem, int init_type)
     }
   }
 
-  /* Limit max interpolant degree (negative input only overwrites the current
-     interpolant degree if it is greater than abs(input). */
-  if (ark_mem->interp != NULL)
+  /* Override the interpolant degree (if needed), used in arkInitialSetup */
+  if (step_mem->method->q > 1 &&
+      ark_mem->interp_degree > (step_mem->method->q - 1))
   {
-    if (step_mem->method->q > 1)
-    {
-      /* Limit max degree to at most one less than the method global order */
-      retval = arkInterpSetDegree(ark_mem, ark_mem->interp,
-                                  -(step_mem->method->q - 1));
-    }
-    else
-    {
-      /* Allow for linear interpolant with first order methods to ensure
-         solution values are returned at the time interval end points */
-      retval = arkInterpSetDegree(ark_mem, ark_mem->interp,
-                                  -(step_mem->method->q));
-    }
-
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "Unable to update interpolation polynomial degree");
-      return (ARK_ILL_INPUT);
-    }
+    /* Limit max degree to at most one less than the method global order */
+    ark_mem->interp_degree = step_mem->method->q - 1;
+  }
+  else if (step_mem->method->q == 1 && ark_mem->interp_degree > 1)
+  {
+    /* Allow for linear interpolant with first order methods to ensure
+       solution values are returned at the time interval end points */
+    ark_mem->interp_degree = 1;
   }
 
   return (ARK_SUCCESS);
