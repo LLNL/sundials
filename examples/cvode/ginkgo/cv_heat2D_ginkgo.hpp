@@ -32,7 +32,7 @@
 #include <nvector/nvector_cuda.h>
 #elif defined(USE_HIP)
 #include <nvector/nvector_hip.h>
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
 #include <nvector/nvector_sycl.h>
 #endif
 
@@ -124,7 +124,7 @@ __global__ void solution_kernel(const sunindextype nx, const sunindextype ny,
 #endif
 
 // Compute the exact solution
-int Solution(sunrealtype t, N_Vector u, UserData& udata)
+static int Solution(sunrealtype t, N_Vector u, UserData& udata)
 {
   // Access problem data and set shortcuts
   const auto nx = udata.nx;
@@ -152,7 +152,7 @@ int Solution(sunrealtype t, N_Vector u, UserData& udata)
 
   solution_kernel<<<num_blocks, threads_per_block>>>(nx, ny, dx, dy, cos_sqr_t,
                                                      uarray);
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
   sunrealtype* uarray = N_VGetDeviceArrayPointer(u);
   if (check_ptr(uarray, "N_VGetDeviceArrayPointer")) return -1;
   std::dynamic_pointer_cast<const gko::DpcppExecutor>(udata.exec)
@@ -206,7 +206,7 @@ int Solution(sunrealtype t, N_Vector u, UserData& udata)
 }
 
 // Compute the solution error
-int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData& udata)
+static int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData& udata)
 {
   // Compute true solution
   int flag = Solution(t, e, udata);
@@ -220,7 +220,7 @@ int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData& udata)
 }
 
 // Print command line options
-void InputHelp()
+static void InputHelp()
 {
   std::cout << std::endl
             << "Command line options:\n"
@@ -243,7 +243,7 @@ void InputHelp()
 }
 
 // Read command line inputs
-int ReadInputs(std::vector<std::string>& args, UserData& udata)
+static int ReadInputs(std::vector<std::string>& args, UserData& udata)
 {
   if (find(args.begin(), args.end(), "--help") != args.end())
   {
@@ -276,7 +276,7 @@ int ReadInputs(std::vector<std::string>& args, UserData& udata)
 }
 
 // Print user data
-void PrintUserData(UserData& udata)
+static void PrintUserData(UserData& udata)
 {
   std::cout << std::endl
             << "2D Heat problem:\n"
@@ -303,7 +303,7 @@ void PrintUserData(UserData& udata)
 }
 
 // Initialize output
-int OpenOutput(UserData& udata)
+static int OpenOutput(UserData& udata)
 {
   // Header for status output
   std::cout << std::scientific
@@ -340,7 +340,7 @@ int OpenOutput(UserData& udata)
 }
 
 // Write output
-int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData& udata)
+static int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData& udata)
 {
   // Compute the error
   int flag = SolutionError(t, u, e, udata);
@@ -366,7 +366,7 @@ int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData& udata)
 #elif defined(USE_HIP)
     N_VCopyFromDevice_Hip(u);
     N_VCopyFromDevice_Hip(e);
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
     N_VCopyFromDevice_Sycl(u);
     N_VCopyFromDevice_Sycl(e);
 #endif
@@ -398,7 +398,7 @@ int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData& udata)
 }
 
 // Finalize output
-int CloseOutput(UserData& udata)
+static int CloseOutput(UserData& udata)
 {
   // Footer for status output
   std::cout << " ----------------------------------------------"

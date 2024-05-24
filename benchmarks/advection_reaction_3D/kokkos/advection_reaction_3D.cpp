@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
     if (udata.myid == 0 && uopt.nout > 0)
     {
       char fname[MXSTR];
-      snprintf(fname, MXSTR, "%s/mesh.txt", uopt.outputdir);
+      snprintf(fname, MXSTR, "%s/mesh.txt", uopt.outputdir.c_str());
       udata.grid->MeshToFile(fname);
     }
 
@@ -259,7 +259,7 @@ int FillSendBuffers(N_Vector y, UserData* udata)
  * --------------------------------------------------------------*/
 
 /* Parses the CLI arguments */
-int ParseArgs(int argc, char* argv[], UserData* udata, UserOptions* uopt)
+static int ParseArgs(int argc, char* argv[], UserData* udata, UserOptions* uopt)
 {
   /* check for input args */
   if (argc > 1)
@@ -449,7 +449,7 @@ int SetupProblem(int argc, char* argv[], UserData* udata, UserOptions* uopt,
   uopt->fused     = 0;  /* use fused vector ops     */
   uopt->save      = 1;  /* save solution to disk    */
   uopt->nout      = 10; /* number of output times   */
-  uopt->outputdir = (char*)"."; /* output directory         */
+  uopt->outputdir = "."; /* output directory         */
 
   /* Parse CLI args and set udata/uopt appropriately */
   int retval = ParseArgs(argc, argv, udata, uopt);
@@ -493,17 +493,17 @@ int SetupProblem(int argc, char* argv[], UserData* udata, UserOptions* uopt,
     char fname[MXSTR];
     if (udata->myid == 0)
     {
-      sprintf(fname, "%s/t.%06d.txt", uopt->outputdir, udata->myid);
+      sprintf(fname, "%s/t.%06d.txt", uopt->outputdir.c_str(), udata->myid);
       udata->TFID = fopen(fname, "w");
     }
 
-    sprintf(fname, "%s/u.%06d.txt", uopt->outputdir, udata->myid);
+    sprintf(fname, "%s/u.%06d.txt", uopt->outputdir.c_str(), udata->myid);
     udata->UFID = fopen(fname, "w");
 
-    sprintf(fname, "%s/v.%06d.txt", uopt->outputdir, udata->myid);
+    sprintf(fname, "%s/v.%06d.txt", uopt->outputdir.c_str(), udata->myid);
     udata->VFID = fopen(fname, "w");
 
-    sprintf(fname, "%s/w.%06d.txt", uopt->outputdir, udata->myid);
+    sprintf(fname, "%s/w.%06d.txt", uopt->outputdir.c_str(), udata->myid);
     udata->WFID = fopen(fname, "w");
   }
 
@@ -540,7 +540,7 @@ int SetupProblem(int argc, char* argv[], UserData* udata, UserOptions* uopt,
     printf("  reltol           = %.1e\n", uopt->rtol);
     printf("  abstol           = %.1e\n", uopt->atol);
     printf("  nout             = %d\n", uopt->nout);
-    printf("Output directory: %s\n", uopt->outputdir);
+    printf("Output directory: %s\n", uopt->outputdir.c_str());
   }
 
   /* return success */
@@ -549,7 +549,8 @@ int SetupProblem(int argc, char* argv[], UserData* udata, UserOptions* uopt,
 
 /* Compute the 3D Gaussian function. */
 KOKKOS_FUNCTION
-void Gaussian3D(sunrealtype& x, sunrealtype& y, sunrealtype& z, sunrealtype xmax)
+static void Gaussian3D(sunrealtype& x, sunrealtype& y, sunrealtype& z,
+                       sunrealtype xmax)
 {
   /* Gaussian distribution defaults */
   const sunrealtype alpha   = 0.1;
@@ -567,7 +568,7 @@ void Gaussian3D(sunrealtype& x, sunrealtype& y, sunrealtype& z, sunrealtype xmax
 }
 
 /* Initial condition function */
-int SetIC(N_Vector y, UserData* udata)
+int SetIC(N_Vector yvec, UserData* udata)
 {
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
 
@@ -596,8 +597,8 @@ int SetIC(N_Vector y, UserData* udata)
   const sunrealtype ws = 3.0;
 
   /* Create 4D view of y */
-  Vec4D yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl,
-              nzl, dof);
+  Vec4D yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(yvec)), nxl,
+              nyl, nzl, dof);
 
   /* Gaussian perturbation of the steady state solution */
   Kokkos::parallel_for(

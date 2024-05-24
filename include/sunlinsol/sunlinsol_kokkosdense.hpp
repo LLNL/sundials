@@ -40,12 +40,12 @@ class DenseLinearSolver;
 
 namespace impl {
 
-SUNLinearSolver_Type SUNLinSolGetType_KokkosDense(SUNLinearSolver S)
+static SUNLinearSolver_Type SUNLinSolGetType_KokkosDense(SUNLinearSolver S)
 {
   return SUNLINEARSOLVER_DIRECT;
 }
 
-SUNLinearSolver_ID SUNLinSolGetID_KokkosDense(SUNLinearSolver S)
+static SUNLinearSolver_ID SUNLinSolGetID_KokkosDense(SUNLinearSolver S)
 {
   return SUNLINEARSOLVER_KOKKOSDENSE;
 }

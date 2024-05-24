@@ -139,12 +139,6 @@ if [ "$compilername" == "gcc" ]; then
         export CUDAFLAGS="-g -O3"
     fi
 
-    # append additional warning flags
-    if [[ "$SUNDIALS_PRECISION" == "double" && "$SUNDIALS_INDEX_SIZE" == "32" ]]; then
-        export CFLAGS="${CFLAGS} -Wconversion -Wno-sign-conversion"
-        export CXXFLAGS="${CXXFLAGS} -Wconversion -Wno-sign-conversion"
-    fi
-
 else
 
     COMPILER_ROOT="$(spack location -i "llvm@$compilerversion")"

@@ -83,9 +83,13 @@ ARKodeButcherTable functions
    +--------------------------------------------------+------------------------------------------------------------+
    | :c:func:`ARKodeButcherTable_LoadERKByName()`     | Retrieve a given explicit Butcher table by its unique name |
    +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_ERKIDToName()`       | Convert an explicit Butcher table ID to its name           |
+   +--------------------------------------------------+------------------------------------------------------------+
    | :c:func:`ARKodeButcherTable_LoadDIRK()`          | Retrieve a given implicit Butcher table by its unique ID   |
    +--------------------------------------------------+------------------------------------------------------------+
    | :c:func:`ARKodeButcherTable_LoadDIRKByName()`    | Retrieve a given implicit Butcher table by its unique name |
+   +--------------------------------------------------+------------------------------------------------------------+
+   | :c:func:`ARKodeButcherTable_DIRKIDToName()`      | Convert an implicit Butcher table ID to its name           |
    +--------------------------------------------------+------------------------------------------------------------+
    | :c:func:`ARKodeButcherTable_Alloc()`             | Allocate an empty Butcher table                            |
    +--------------------------------------------------+------------------------------------------------------------+
@@ -138,6 +142,23 @@ ARKodeButcherTable functions
    **Notes:**
       This function is case sensitive.
 
+.. c:function:: const char* ARKodeButcherTable_ERKIDToName(ARKODE_ERKTableID emethod)
+
+   Converts a specified explicit Butcher table ID to a string of the same name.
+   The prototype for this function, as well as the integer names for each
+   provided method, are defined in the header file
+   ``arkode/arkode_butcher_erk.h``.  For further information on these tables and
+   their corresponding identifiers, see :numref:`Butcher`.
+
+   **Arguments:**
+      * *emethod* -- integer input specifying the given Butcher table.
+
+   **Return value:**
+      * The name associated with *emethod*.
+      * ``NULL`` pointer if *emethod* was invalid.
+   
+   .. versionadded:: x.y.z
+
 .. c:function:: ARKodeButcherTable ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod)
 
    Retrieves a specified diagonally-implicit Butcher table. The prototype for
@@ -170,6 +191,24 @@ ARKodeButcherTable functions
 
    **Notes:**
       This function is case sensitive.
+
+
+.. c:function:: const char* ARKodeButcherTable_DIRKIDToName(ARKODE_DIRKTableID imethod)
+
+   Converts a specified diagonally-implicit Butcher table ID to a string of the
+   same name. The prototype for this function, as well as the integer names for
+   each provided method, are defined in the header file
+   ``arkode/arkode_butcher_dirk.h``.  For further information on these tables
+   and their corresponding identifiers, see :numref:`Butcher`.
+
+   **Arguments:**
+      * *imethod* -- integer input specifying the given Butcher table.
+
+   **Return value:**
+      * The name associated with *imethod*.
+      * ``NULL`` pointer if *imethod* was invalid.
+   
+   .. versionadded:: x.y.z
 
 
 .. c:function:: ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, sunbooleantype embedded)

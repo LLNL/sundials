@@ -92,8 +92,9 @@ static int check_retval(void* flagvalue, const char* funcname, int opt)
   return 0;
 }
 
-int solve(const char* im, const char* ex, int steps, sunbooleantype time_dep,
-          sunbooleantype deduce_implicit_rhs, long int expected_mass_solves)
+static int solve(const char* im, const char* ex, int steps,
+                 sunbooleantype time_dep, sunbooleantype deduce_implicit_rhs,
+                 long int expected_mass_solves)
 {
   int retval = 0;
   int s;

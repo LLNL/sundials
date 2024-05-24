@@ -34,7 +34,7 @@ typedef struct
   sunrealtype dt;
 } ProgramArgs;
 
-void PrintHelp(void)
+static void PrintHelp(void)
 {
   fprintf(stderr, "ark_harmonic_symplectic: an ARKODE example demonstrating "
                   "the SPRKStep time-stepping module solving a simple harmonic "
@@ -48,7 +48,7 @@ void PrintHelp(void)
   /* clang-format on */
 }
 
-int ParseArgs(int argc, char* argv[], ProgramArgs* args)
+static int ParseArgs(int argc, char* argv[], ProgramArgs* args)
 {
   int argi = 0;
 
@@ -110,7 +110,7 @@ int ParseArgs(int argc, char* argv[], ProgramArgs* args)
     opt == 2 means function allocates memory so check if returned
              NULL pointer
 */
-int check_retval(void* returnvalue, const char* funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
   int* retval;
 
