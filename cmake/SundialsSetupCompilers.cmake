@@ -97,8 +97,12 @@ if(ENABLE_ALL_WARNINGS)
   set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function ${CMAKE_CXX_FLAGS}")
 
   # Exclude run-time pointer checks (no-pointer) because passing null objects
-  # (e.g., sunmat => null()) causes a runtime error in Fortran
-  set(CMAKE_Fortran_FLAGS "-Wall -Wpedantic -fcheck=all,no-pointer -Wno-unused-dummy-argument -Wno-c-binding-type -ffpe-summary=none ${CMAKE_Fortran_FLAGS}")
+  # to SUNDIALS functions (e.g., sunmat => null()) causes a runtime error
+  #
+  # Exclude checks for subroutines and functions not marked as recursive e.g.,
+  # ark_brusselator1D_task_local_nls_f2003 calls SUNNonlinsolFree from within a
+  # custom nonlinear solver implementation of SUNNonlinsolFree
+  set(CMAKE_Fortran_FLAGS "-Wall -Wpedantic -fcheck=all,no-pointer,no-recursion -Wno-unused-dummy-argument -Wno-c-binding-type -ffpe-summary=none ${CMAKE_Fortran_FLAGS}")
 endif()
 
 if(ENABLE_WARNINGS_AS_ERRORS)
