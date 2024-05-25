@@ -1214,8 +1214,8 @@ int cvLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   a simple for loop to set each of the elements of a column in
   succession.
   -----------------------------------------------------------------*/
-int cvLsBandDQJac(SUNDIALS_MAYBE_UNUSED sunrealtype t, N_Vector y, N_Vector fy,
-                  SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1, N_Vector tmp2)
+int cvLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
+                  CVodeMem cv_mem, N_Vector tmp1, N_Vector tmp2)
 {
   N_Vector ftemp, ytemp;
   sunrealtype fnorm, minInc, inc, inc_inv, srur, conj;
@@ -1292,7 +1292,7 @@ int cvLsBandDQJac(SUNDIALS_MAYBE_UNUSED sunrealtype t, N_Vector y, N_Vector fy,
     }
 
     /* Evaluate f with incremented y */
-    retval = cv_mem->cv_f(cv_mem->cv_tn, ytemp, ftemp, cv_mem->cv_user_data);
+    retval = cv_mem->cv_f(t, ytemp, ftemp, cv_mem->cv_user_data);
     cvls_mem->nfeDQ++;
     if (retval != 0) { break; }
 

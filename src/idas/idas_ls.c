@@ -1098,9 +1098,9 @@ int idaLsDenseDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy, N_Vector yp,
   The return value is either IDABAND_SUCCESS = 0, or the nonzero
   value returned by the res routine, if any.
   ---------------------------------------------------------------*/
-int idaLsBandDQJac(sunrealtype tt, SUNDIALS_MAYBE_UNUSED sunrealtype c_j,
-                   N_Vector yy, N_Vector yp, N_Vector rr, SUNMatrix Jac,
-                   IDAMem IDA_mem, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+int idaLsBandDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy, N_Vector yp,
+                   N_Vector rr, SUNMatrix Jac, IDAMem IDA_mem, N_Vector tmp1,
+                   N_Vector tmp2, N_Vector tmp3)
 {
   sunrealtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
   sunrealtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
@@ -1180,7 +1180,7 @@ int idaLsBandDQJac(sunrealtype tt, SUNDIALS_MAYBE_UNUSED sunrealtype c_j,
 
       /* Increment yj and ypj. */
       ytemp_data[j] += inc;
-      yptemp_data[j] += IDA_mem->ida_cj * inc;
+      yptemp_data[j] += c_j * inc;
     }
 
     /* Call res routine with incremented arguments. */

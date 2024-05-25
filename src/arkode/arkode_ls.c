@@ -2705,9 +2705,9 @@ int arkLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   write a simple for loop to set each of the elements of a column
   in succession.
   ---------------------------------------------------------------*/
-int arkLsBandDQJac(SUNDIALS_MAYBE_UNUSED sunrealtype t, N_Vector y, N_Vector fy,
-                   SUNMatrix Jac, ARKodeMem ark_mem, ARKLsMem arkls_mem,
-                   ARKRhsFn fi, N_Vector tmp1, N_Vector tmp2)
+int arkLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
+                   ARKodeMem ark_mem, ARKLsMem arkls_mem, ARKRhsFn fi,
+                   N_Vector tmp1, N_Vector tmp2)
 {
   N_Vector ftemp, ytemp;
   sunrealtype fnorm, minInc, inc, inc_inv, srur, conj;
@@ -2775,7 +2775,7 @@ int arkLsBandDQJac(SUNDIALS_MAYBE_UNUSED sunrealtype t, N_Vector y, N_Vector fy,
     }
 
     /* Evaluate f with incremented y */
-    retval = fi(ark_mem->tcur, ytemp, ftemp, ark_mem->user_data);
+    retval = fi(t, ytemp, ftemp, ark_mem->user_data);
     arkls_mem->nfeDQ++;
     if (retval != 0) { break; }
 
