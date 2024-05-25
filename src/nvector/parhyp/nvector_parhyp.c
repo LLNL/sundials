@@ -166,8 +166,6 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length,
   v->ops->nvcloneempty      = N_VCloneEmpty_ParHyp;
   v->ops->nvdestroy         = N_VDestroy_ParHyp;
   v->ops->nvspace           = N_VSpace_ParHyp;
-  v->ops->nvgetarraypointer = N_VGetArrayPointer_ParHyp;
-  v->ops->nvsetarraypointer = N_VSetArrayPointer_ParHyp;
   v->ops->nvgetcommunicator = N_VGetCommunicator_ParHyp;
   v->ops->nvgetlength       = N_VGetLength_ParHyp;
 

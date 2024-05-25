@@ -144,8 +144,6 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm, sunindextype local_length,
   v->ops->nvcloneempty      = N_VCloneEmpty_Petsc;
   v->ops->nvdestroy         = N_VDestroy_Petsc;
   v->ops->nvspace           = N_VSpace_Petsc;
-  v->ops->nvgetarraypointer = N_VGetArrayPointer_Petsc;
-  v->ops->nvsetarraypointer = N_VSetArrayPointer_Petsc;
   v->ops->nvgetcommunicator = N_VGetCommunicator_Petsc;
   v->ops->nvgetlength       = N_VGetLength_Petsc;
 
