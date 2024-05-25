@@ -98,6 +98,7 @@ if(ENABLE_ALL_WARNINGS)
 
   # TODO(DJG): Add -fcheck=all,no-pointer,no-recursion once Jenkins is updated
   # to use gfortran > 5.5 which segfaults with -fcheck=array-temps,bounds,do,mem
+  # no- options were added in gfortran 6
   #
   # Exclude run-time pointer checks (no-pointer) because passing null objects
   # to SUNDIALS functions (e.g., sunmat => null() to SetLinearSolver) causes a
