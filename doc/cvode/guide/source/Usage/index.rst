@@ -3551,7 +3551,7 @@ side function (or an approximation of it). ``CVLsJacFn`` is defined as follows:
       SUNMATRIX_SPARSE type and accessor macros are documented in
       :numref:`SUNMatrix.Sparse`.
 
-      The previous function type :c:type:`CVDlsJacFn` is identical to
+      The previous function type ``CVDlsJacFn`` is identical to
       :c:type:`CVLsJacFn`, and may still be used for backward-compatibility.
       However, this will be deprecated in future releases, so we recommend
       that users transition to the new function type name soon.
