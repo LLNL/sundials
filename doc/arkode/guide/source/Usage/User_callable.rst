@@ -52,6 +52,29 @@ Then in the introduction for each of the stepper-specific documentation sections
 we clarify the categories of these functions that are supported.
 
 
+.. _ARKODE.Usage.Initialization:
+
+ARKODE initialization and deallocation functions
+------------------------------------------------------
+
+For functions to create an ARKODE stepper instance see :c:func:`ARKStepCreate`,
+:c:func:`ERKStepCreate`, :c:func:`MRIStepCreate`, or :c:func:`SPRKStepCreate`.
+
+.. c:function:: void ARKodeFree(void** arkode_mem)
+
+   This function frees the problem memory *arkode_mem* created a stepper
+   constructor.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+
+   **Return value:**  None
+
+   .. versionadded:: x.y.z
+
+      This function replaces stepper specific versions in ARKStep, ERKStep,
+      MRIStep, and SPRKStep.
+
 
 .. _ARKODE.Usage.Tolerances:
 
@@ -855,7 +878,6 @@ Set integrator method order                       :c:func:`ARKodeSetOrder`      
 Set dense output interpolation type (SPRKStep)    :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_LAGRANGE``
 Set dense output interpolation type (others)      :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_HERMITE``
 Set dense output polynomial degree                :c:func:`ARKodeSetInterpolantDegree`     5
-Supply a pointer to a diagnostics output file     :c:func:`ARKodeSetDiagnostics`           ``NULL``
 Disable time step adaptivity (fixed-step mode)    :c:func:`ARKodeSetFixedStep`             disabled
 Supply an initial step size to attempt            :c:func:`ARKodeSetInitStep`              estimated
 Maximum no. of warnings for :math:`t_n+h = t_n`   :c:func:`ARKodeSetMaxHnilWarns`          10
@@ -1502,7 +1524,7 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
 
       Any value below 1.0 will imply a reset to the default value.
 
-      If both this and one of :c:func:`ARKodeSetAdaptivityMethod` or
+      If both this and one of the stepper ``SetAdaptivityMethod`` functions or
       :c:func:`ARKodeSetAdaptController` will be called, then this routine must be called
       *second*.
 
@@ -1903,7 +1925,7 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       The default is to use the implicit right-hand side function
-      provided to :c:func:`ARKodeCreate` in nonlinear system functions. If the
+      provided to the stepper constructor in nonlinear system functions. If the
       input implicit right-hand side function is ``NULL``, the default is used.
 
       When using a non-default nonlinear solver, this function must be called

@@ -288,6 +288,7 @@ options as the vector they are cloned from while vectors created with
 The ``SUNCudaExecPolicy`` Class
 --------------------------------
 
+.. cpp:namespace-push:: sundials::cuda
 
 In order to provide maximum flexibility to users, the CUDA kernel execution parameters used
 by kernels within SUNDIALS are defined by objects of the ``sundials::cuda::ExecPolicy``
@@ -300,27 +301,23 @@ Thus, users may provide custom execution policies that fit the needs of their pr
 where the ``sundials::cuda::ExecPolicy`` class is defined in the header file
 ``sundials_cuda_policies.hpp``, as follows:
 
-.. code-block:: c++
+.. cpp:class:: sundials::cuda::ExecPolicy
 
-   class ExecPolicy
-   {
-   public:
-      ExecPolicy(cudaStream_t stream = 0) : stream_(stream) { }
-      virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
-      virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
-      virtual const cudaStream_t* stream() const { return (&stream_); }
-      virtual ExecPolicy* clone() const = 0;
-      ExecPolicy* clone_new_stream(cudaStream_t stream) const {
-         ExecPolicy* ex = clone();
-         ex->stream_ = stream;
-         return ex;
-      }
-      virtual bool atomic() const { return false; }
-      virtual ~ExecPolicy() {}
-   protected:
-      cudaStream_t stream_;
-   };
+   .. cpp:function:: ExecPolicy(cudaStream_t stream = 0)
 
+   .. cpp:function:: virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0)
+
+   .. cpp:function:: virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0)
+
+   .. cpp:function:: virtual const cudaStream_t* stream() const
+
+   .. cpp:function:: virtual ExecPolicy* clone() const
+
+   .. cpp:function:: ExecPolicy* clone_new_stream(cudaStream_t stream) const
+
+   .. cpp:function:: virtual bool atomic() const
+
+   .. cpp:function:: virtual ~ExecPolicy()
 
 To define a custom execution policy, a user simply needs to create a class that
 inherits from the abstract class and implements the methods. The SUNDIALS
@@ -410,3 +407,5 @@ created like so:
 These default policy objects can be reused for multiple SUNDIALS data structures
 (e.g. a :c:type:`SUNMatrix` and an :c:type:`N_Vector`) since they do not hold any
 modifiable state information.
+
+.. cpp:namespace-pop::

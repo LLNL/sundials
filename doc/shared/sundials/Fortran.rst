@@ -437,9 +437,9 @@ Arrays of :c:type:`N_Vector` objects are interfaced to Fortran 2003 as an opaque
 ``type(c_ptr)``.  As such, it is not possible to directly index an array of
 :c:type:`N_Vector` objects returned by the ``N_Vector`` "VectorArray" operations, or
 packages with sensitivity capabilities (CVODES and IDAS).  Instead, SUNDIALS
-provides a utility function :f:func:`FN_VGetVecAtIndexVectorArray` that can be
-called for accessing a vector in a vector array. The example below demonstrates
-this:
+provides a utility function ``FN_VGetVecAtIndexVectorArray`` wrapping
+:c:func:`N_VGetVecAtIndexVectorArray`. The example below demonstrates accessing
+a vector in a vector array.
 
 C code:
 

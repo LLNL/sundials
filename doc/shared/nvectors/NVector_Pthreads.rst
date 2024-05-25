@@ -272,7 +272,7 @@ options as the vector they are cloned from while vectors created with
   is to use ``NV_Ith_S(v,i)`` within the loop.
 
 * :c:func:`N_VNewEmpty_Pthreads` and :c:func:`N_VMake_Pthreads` set the field
-  *own_data* to ``SUNFALSE``.  The function :c:func:`N_VDestroy_Pthreads()` will
+  *own_data* to ``SUNFALSE``.  The implementation of :c:func:`N_VDestroy` will
   not attempt to free the pointer data for any ``N_Vector`` with *own_data* set
   to ``SUNFALSE``. In such a case, it is the user's responsibility to deallocate
   the data pointer.

@@ -581,41 +581,41 @@ defined as
 
 and the generic structure is defined as
 
-.. code-block:: c
+.. c:struct:: _generic_SUNLinearSolver
 
-   struct _generic_SUNLinearSolver {
-     void *content;
-     struct _generic_SUNLinearSolver_Ops *ops;
-   };
+   .. c:member:: void *content
 
-where the ``_generic_SUNLinearSolver_Ops`` structure is a list of
-pointers to the various actual linear solver operations provided by a
-specific implementation.  The ``_generic_SUNLinearSolver_Ops``
-structure is defined as
+      Implementation-dependent data containing the description and actual data
+      of the linear solver.
 
-.. code-block:: c
+   .. c:member:: struct _generic_SUNLinearSolver_Ops *ops
 
-   struct _generic_SUNLinearSolver_Ops {
-     SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
-     SUNLinearSolver_ID   (*getid)(SUNLinearSolver);
-     SUNErrCode           (*setatimes)(SUNLinearSolver, void*, SUNATimesFn);
-     SUNErrCode           (*setpreconditioner)(SUNLinearSolver, void*,
-                                               SUNPSetupFn, SUNPSolveFn);
-     SUNErrCode           (*setscalingvectors)(SUNLinearSolver,
-                                               N_Vector, N_Vector);
-     SUNErrCode           (*setzeroguess)(SUNLinearSolver, sunbooleantype);
-     SUNErrCode           (*initialize)(SUNLinearSolver);
-     int                  (*setup)(SUNLinearSolver, SUNMatrix);
-     int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector,
-                                   N_Vector, sunrealtype);
-     int                  (*numiters)(SUNLinearSolver);
-     sunrealtype          (*resnorm)(SUNLinearSolver);
-     sunindextype         (*lastflag)(SUNLinearSolver);
-     SUNErrCode           (*space)(SUNLinearSolver, long int*, long int*);
-     N_Vector             (*resid)(SUNLinearSolver);
-     SUNErrCode           (*free)(SUNLinearSolver);
-   };
+      A virtual table of linear solver operations provided by a specific
+      implementation.
 
+   .. c:member:: SUNContext sunctx
+
+      The SUNDIALS simulation context
+
+The ``_generic_SUNLinearSolver_Ops`` structure is defined as
+
+.. c:struct:: _generic_SUNLinearSolver_Ops
+
+   .. c:member:: SUNLinearSolver_Type (*gettype)(SUNLinearSolver)
+   .. c:member:: SUNLinearSolver_ID   (*getid)(SUNLinearSolver)
+   .. c:member:: SUNErrCode           (*setatimes)(SUNLinearSolver, void*, SUNATimesFn)
+   .. c:member:: SUNErrCode           (*setpreconditioner)(SUNLinearSolver, void*, SUNPSetupFn, SUNPSolveFn)
+   .. c:member:: SUNErrCode           (*setscalingvectors)(SUNLinearSolver, N_Vector, N_Vector)
+   .. c:member:: SUNErrCode           (*setzeroguess)(SUNLinearSolver, sunbooleantype)
+   .. c:member:: SUNErrCode           (*initialize)(SUNLinearSolver)
+   .. c:member:: int                  (*setup)(SUNLinearSolver, SUNMatrix)
+   .. c:member:: int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, sunrealtype)
+   .. c:member:: int                  (*numiters)(SUNLinearSolver)
+   .. c:member:: sunrealtype          (*resnorm)(SUNLinearSolver)
+   .. c:member:: sunindextype         (*lastflag)(SUNLinearSolver)
+   .. c:member:: SUNErrCode           (*space)(SUNLinearSolver, long int*, long int*)
+   .. c:member:: N_Vector             (*resid)(SUNLinearSolver)
+   .. c:member:: SUNErrCode           (*free)(SUNLinearSolver)
 
 The generic SUNLinSol class defines and implements the linear solver
 operations defined in :numref:`SUNLinSol.CoreFn` -- :numref:`SUNLinSol.GetFn`.

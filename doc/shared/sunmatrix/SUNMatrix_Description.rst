@@ -40,32 +40,38 @@ The type ``SUNMatrix`` is defined as:
 
 and the generic structure is defined as
 
-.. code-block:: c
+.. c:struct:: _generic_SUNMatrix
 
-   struct _generic_SUNMatrix {
-       void *content;
-       struct _generic_SUNMatrix_Ops *ops;
-   };
+   .. c:member:: void *content
+
+      Implementation-dependent data containing the description and actual data
+      of the linear solver.
+
+   .. c:member:: struct _generic_SUNMatrix_Ops *ops
+
+      A virtual table of linear solver operations provided by a specific
+      implementation.
+
+   .. c:member:: SUNContext sunctx
+
+      The SUNDIALS simulation context
 
 Here, the ``_generic_SUNMatrix_Ops`` structure is essentially a list of
 function pointers to the various actual matrix operations, and is
 defined as
 
-.. code-block:: c
+.. c:struct:: _generic_SUNMatrix_Ops
 
-   struct _generic_SUNMatrix_Ops {
-     SUNMatrix_ID (*getid)(SUNMatrix);
-     SUNMatrix    (*clone)(SUNMatrix);
-     void         (*destroy)(SUNMatrix);
-     SUNErrCode   (*zero)(SUNMatrix);
-     SUNErrCode   (*copy)(SUNMatrix, SUNMatrix);
-     SUNErrCode   (*scaleadd)(sunrealtype, SUNMatrix, SUNMatrix);
-     SUNErrCode   (*scaleaddi)(sunrealtype, SUNMatrix);
-     SUNErrCode   (*matvecsetup)(SUNMatrix);
-     SUNErrCode   (*matvec)(SUNMatrix, N_Vector, N_Vector);
-     SUNErrCode   (*space)(SUNMatrix, long int*, long int*);
-   };
-
+   .. c:member:: SUNMatrix_ID (*getid)(SUNMatrix)
+   .. c:member:: SUNMatrix    (*clone)(SUNMatrix)
+   .. c:member:: void         (*destroy)(SUNMatrix)
+   .. c:member:: SUNErrCode   (*zero)(SUNMatrix)
+   .. c:member:: SUNErrCode   (*copy)(SUNMatrix, SUNMatrix)
+   .. c:member:: SUNErrCode   (*scaleadd)(sunrealtype, SUNMatrix, SUNMatrix)
+   .. c:member:: SUNErrCode   (*scaleaddi)(sunrealtype, SUNMatrix)
+   .. c:member:: SUNErrCode   (*matvecsetup)(SUNMatrix)
+   .. c:member:: SUNErrCode   (*matvec)(SUNMatrix, N_Vector, N_Vector)
+   .. c:member:: SUNErrCode   (*space)(SUNMatrix, long int*, long int*)
 
 The generic SUNMATRIX module defines and implements the matrix
 operations acting on a ``SUNMatrix``. These routines are nothing but
@@ -150,11 +156,13 @@ set and all operations are copied when cloning a matrix.
       * *A* -- the SUNMatrix object to free
 
 
-Each SUNMATRIX implementation included in SUNDIALS has a unique
-identifier specified in enumeration and shown in
-:numref:`SUNMatrix.Description.matrixIDs`. It is recommended that a
-user-supplied SUNMATRIX implementation use the ``SUNMATRIX_CUSTOM``
-identifier.
+.. c:type:: SUNMatrix_ID
+
+   Each SUNMATRIX implementation included in SUNDIALS has a unique identifier
+   specified in enumeration and shown in
+   :numref:`SUNMatrix.Description.matrixIDs`. It is recommended that a
+   user-supplied SUNMATRIX implementation use the ``SUNMATRIX_CUSTOM``
+   identifier.
 
 
 .. _SUNMatrix.Description.matrixIDs:

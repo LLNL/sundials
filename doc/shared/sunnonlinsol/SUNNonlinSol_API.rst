@@ -516,16 +516,15 @@ field. The type ``SUNNonlinearSolver`` is defined as follows:
 
    .. c:member:: void* content
 
-      Pointer to the solver-specific member data.
+      Implementation-dependent data containing the description and actual data
+      of the nonlinear solver.
 
-   .. c:member:: SUNNonlinearSolver_Ops ops
+   .. c:member:: struct _generic_SUNNonlinearSolver_Ops* ops
 
-      Structure of function pointers (vtable) to an implementations of the
-      nonlinear solver operations.
+      A virtual table of nonlinear solver operations provided by a specific
+      implementation.
 
-.. c:type:: struct _generic_SUNNonlinearSolver_Ops *SUNNonlinearSolver_Ops
-
-   A pointer to a :c:struct:`_generic_SUNNonlinearSolver_Ops` structure.
+The ``_generic_SUNNonlinearSolver_Ops`` structure is defined as
 
 .. c:struct:: _generic_SUNNonlinearSolver_Ops
 

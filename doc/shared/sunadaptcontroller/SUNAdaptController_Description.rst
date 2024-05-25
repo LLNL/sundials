@@ -44,30 +44,35 @@ as:
 
 and the base class structure is defined as
 
-.. code-block:: C
+.. c:struct:: _generic_SUNAdaptController
 
-   struct _generic_SUNAdaptController {
-        void* content;
-        generic_SUNAdaptController_Ops* ops;
-        SUNContext sunctx;
-    };
+   .. c:member:: void* content
+
+      Pointer to the controller-specific member data
+
+   .. c:member:: _generic_SUNAdaptController_Ops* ops;
+
+      Pointer to a structure of function pointers implementing the vector
+      operations.
+
+   .. c:member:: SUNContext sunctx
+
+      The SUNDIALS simulation context
 
 Here, ``_generic_SUNAdaptController_Ops`` is the pointer to a structure containing
 function pointers to the various controller operations, and is defined as
 
-.. code-block:: c
+.. c:struct:: _generic_SUNAdaptController_Ops
 
-    struct _generic_SUNAdaptController_Ops {
-        SUNAdaptController_Type (*getid)(SUNAdaptController C);
-        SUNErrCode (*destroy)(SUNAdaptController C);
-        SUNErrCode (*estimatestep)(SUNAdaptController C, sunrealtype h, int p, sunrealtype dsm, sunrealtype* hnew);
-        SUNErrCode (*reset)(SUNAdaptController C);
-        SUNErrCode (*setdefaults)(SUNAdaptController C);
-        SUNErrCode (*write)(SUNAdaptController C, FILE* fptr);
-        SUNErrCode (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
-        SUNErrCode (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
-        SUNErrCode (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
-    };
+   .. c:member:: SUNAdaptController_Type (*getid)(SUNAdaptController C);
+   .. c:member:: SUNErrCode (*destroy)(SUNAdaptController C);
+   .. c:member:: SUNErrCode (*estimatestep)(SUNAdaptController C, sunrealtype h, int p, sunrealtype dsm, sunrealtype* hnew);
+   .. c:member:: SUNErrCode (*reset)(SUNAdaptController C);
+   .. c:member:: SUNErrCode (*setdefaults)(SUNAdaptController C);
+   .. c:member:: SUNErrCode (*write)(SUNAdaptController C, FILE* fptr);
+   .. c:member:: SUNErrCode (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
+   .. c:member:: SUNErrCode (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
+   .. c:member:: SUNErrCode (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
 
 
 .. _SUNAdaptController.Description.controllerTypes:
