@@ -2879,14 +2879,13 @@ int cvLs_AccessLMemB(void* cvode_mem, int which, const char* fname,
    cvlsB_mem structures from the void* cvode_mem pointer.
    If any are missing it returns CVLS_MEM_NULL, CVLS_NO_ADJ,
    or CVLS_LMEMB_NULL. */
-int cvLs_AccessLMemBCur(void* cvode_mem, SUNDIALS_MAYBE_UNUSED const char* fname,
-                        CVodeMem* cv_mem, CVadjMem* ca_mem, CVodeBMem* cvB_mem,
-                        CVLsMemB* cvlsB_mem)
+int cvLs_AccessLMemBCur(void* cvode_mem, const char* fname, CVodeMem* cv_mem,
+                        CVadjMem* ca_mem, CVodeBMem* cvB_mem, CVLsMemB* cvlsB_mem)
 {
   /* access CVodeMem structure */
   if (cvode_mem == NULL)
   {
-    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__,
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, fname, __FILE__,
                    MSG_LS_CVMEM_NULL);
     return (CVLS_MEM_NULL);
   }
@@ -2895,7 +2894,7 @@ int cvLs_AccessLMemBCur(void* cvode_mem, SUNDIALS_MAYBE_UNUSED const char* fname
   /* access CVadjMem structure */
   if ((*cv_mem)->cv_adjMallocDone == SUNFALSE)
   {
-    cvProcessError(*cv_mem, CVLS_NO_ADJ, __LINE__, __func__, __FILE__,
+    cvProcessError(*cv_mem, CVLS_NO_ADJ, __LINE__, fname, __FILE__,
                    MSG_LS_NO_ADJ);
     return (CVLS_NO_ADJ);
   }
@@ -2904,7 +2903,7 @@ int cvLs_AccessLMemBCur(void* cvode_mem, SUNDIALS_MAYBE_UNUSED const char* fname
   /* get current backward problem */
   if ((*ca_mem)->ca_bckpbCrt == NULL)
   {
-    cvProcessError(*cv_mem, CVLS_LMEMB_NULL, __LINE__, __func__, __FILE__,
+    cvProcessError(*cv_mem, CVLS_LMEMB_NULL, __LINE__, fname, __FILE__,
                    MSG_LS_LMEMB_NULL);
     return (CVLS_LMEMB_NULL);
   }
@@ -2913,7 +2912,7 @@ int cvLs_AccessLMemBCur(void* cvode_mem, SUNDIALS_MAYBE_UNUSED const char* fname
   /* access CVLsMemB structure */
   if ((*cvB_mem)->cv_lmem == NULL)
   {
-    cvProcessError(*cv_mem, CVLS_LMEMB_NULL, __LINE__, __func__, __FILE__,
+    cvProcessError(*cv_mem, CVLS_LMEMB_NULL, __LINE__, fname, __FILE__,
                    MSG_LS_LMEMB_NULL);
     return (CVLS_LMEMB_NULL);
   }
