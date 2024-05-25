@@ -110,7 +110,7 @@ if [ "$compilername" == "gcc" ]; then
     fi
 
     # additional Fortran flags not currently added by ENABLE_ALL_WARNINGS
-    export FFLAGS="{FFLAGS} -fcheck=all,no-pointer,no-recursion"
+    export FFLAGS="${FFLAGS} -fcheck=all,no-pointer,no-recursion"
 fi
 
 # ------------------------------------------------------------------------------
