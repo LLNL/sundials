@@ -57,7 +57,7 @@ typedef struct _sunTimespec
 #if SUNDIALS_MPI_ENABLED
 static SUNErrCode sunCollectTimers(SUNProfiler p);
 #endif
-static void sunPrintTimers(int idx, SUNHashMapKeyValue kv, FILE* fp, void* pvoid);
+static void sunPrintTimer(SUNHashMapKeyValue kv, FILE* fp, void* pvoid);
 static int sunCompareTimes(const void* l, const void* r);
 static int sunclock_gettime_monotonic(sunTimespec* tp);
 
@@ -419,7 +419,7 @@ SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
     /* Print all the other timers out */
     for (i = 0; i < p->map->size; i++)
     {
-      if (sorted[i]) { sunPrintTimers(i, sorted[i], fp, (void*)p); }
+      if (sorted[i]) { sunPrintTimer(sorted[i], fp, (void*)p); }
     }
     free(sorted);
   }
@@ -522,8 +522,7 @@ SUNErrCode sunCollectTimers(SUNProfiler p)
 
 /* Print out the: timer name, percentage of exec time (based on the max),
    max across ranks, average across ranks, and the timer counter. */
-void sunPrintTimers(SUNDIALS_MAYBE_UNUSED int idx, SUNHashMapKeyValue kv,
-                    FILE* fp, void* pvoid)
+void sunPrintTimer(SUNHashMapKeyValue kv, FILE* fp, void* pvoid)
 {
   SUNProfiler p      = (SUNProfiler)pvoid;
   sunTimerStruct* ts = (sunTimerStruct*)kv->value;
