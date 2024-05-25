@@ -3112,7 +3112,6 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
 {
   int retval;
   sunrealtype ttmp;
-  long int nsttmp;
   ARKodeHAdaptMem hadapt_mem;
 
   /* Access hadapt_mem structure */
@@ -3127,9 +3126,7 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
   /* consider change of step size for next step attempt (may be
      larger/smaller than current step, depending on dsm) */
   ttmp   = (dsm <= ONE) ? ark_mem->tn + ark_mem->h : ark_mem->tn;
-  nsttmp = (dsm <= ONE) ? ark_mem->nst + 1 : ark_mem->nst;
-  retval = arkAdapt(ark_mem, hadapt_mem, ark_mem->ycur, ttmp, ark_mem->h, dsm,
-                    nsttmp);
+  retval = arkAdapt(ark_mem, hadapt_mem, ark_mem->ycur, ttmp, ark_mem->h, dsm);
   if (retval != ARK_SUCCESS) { return (ARK_ERR_FAILURE); }
 
   /* if we've made it here then no nonrecoverable failures occurred; someone above
