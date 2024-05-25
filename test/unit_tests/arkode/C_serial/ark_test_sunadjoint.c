@@ -26,6 +26,8 @@
 #include "sundials/sundials_types.h"
 #include "sunmatrix/sunmatrix_dense.h"
 
+static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
+
 int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_data)
 {
   sunrealtype* p    = (sunrealtype*)user_data;
@@ -41,10 +43,9 @@ int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_da
 int jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec, SUNMatrix Jac,
              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype* p    = (sunrealtype*)user_data;
-  sunrealtype* u    = N_VGetArrayPointer(uvec);
-  sunrealtype* udot = N_VGetArrayPointer(udotvec);
-  sunrealtype* J    = SUNDenseMatrix_Data(Jac);
+  sunrealtype* p = (sunrealtype*)user_data;
+  sunrealtype* u = N_VGetArrayPointer(uvec);
+  sunrealtype* J = SUNDenseMatrix_Data(Jac);
 
   J[0] = p[0] - p[1] * u[1];
   J[1] = p[3] * u[1];
@@ -54,22 +55,24 @@ int jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec, SUNMatrix Jac,
   return 0;
 }
 
-int parameter_jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec, SUNMatrix Jac,
-                       void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+int parameter_jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec,
+                       SUNMatrix Jac, void* user_data, N_Vector tmp1,
+                       N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype* p    = (sunrealtype*)user_data;
-  sunrealtype* u    = N_VGetArrayPointer(uvec);
-  sunrealtype* udot = N_VGetArrayPointer(udotvec);
-  sunrealtype* J    = SUNDenseMatrix_Data(Jac);
+  assert(user_data == params);
+
+  sunrealtype* p = (sunrealtype*)user_data;
+  sunrealtype* u = N_VGetArrayPointer(uvec);
+  sunrealtype* J = SUNDenseMatrix_Data(Jac);
 
   J[0] = u[0];
   J[1] = 0.0;
-  J[2] = -u[0]*u[1];
+  J[2] = -u[0] * u[1];
   J[3] = 0.0;
   J[4] = 0.0;
   J[5] = -u[1];
   J[6] = 0.0;
-  J[7] = u[0]*u[1];
+  J[7] = u[0] * u[1];
 
   return 0;
 }
@@ -78,10 +81,10 @@ int forward_solution(SUNContext sunctx, void* arkode_mem,
                      SUNAdjointCheckpointScheme checkpoint_scheme,
                      sunrealtype t0, sunrealtype tf, N_Vector u)
 {
-  sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
   ARKodeSetUserData(arkode_mem, (void*)params);
-
-  ARKodeSStolerances(arkode_mem, 1e-4, 1e-10);
+  // ARKodeSStolerances(arkode_mem, 1e-4, 1e-10);
+  ARKodeSetFixedStep(arkode_mem, 1e-2);
+  ARKodeSetMaxNumSteps(arkode_mem, 100000);
 
   sunrealtype t = t0;
   while (t < tf)
@@ -116,13 +119,14 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   SUNAdjointSolver adj_solver;
   ARKStepCreateAdjointSolver(arkode_mem, num_cost, sf, &adj_solver);
 
-  SUNMatrix J = SUNDenseMatrix(neq, neq, sunctx);
+  SUNMatrix J  = SUNDenseMatrix(neq, neq, sunctx);
   SUNMatrix Jp = SUNDenseMatrix(num_params, num_params, sunctx);
+
   SUNAdjointSolver_SetJacFn(adj_solver, jacobian, J);
   SUNAdjointSolver_SetJacPFn(adj_solver, parameter_jacobian, Jp);
 
   int stop_reason = 0;
-  sunrealtype t = tf;
+  sunrealtype t   = tf;
   SUNAdjointSolver_Solve(adj_solver, tout, sf, &t, &stop_reason);
 
   fprintf(stdout, "Adjoint Solution:\n");

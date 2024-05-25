@@ -29,6 +29,7 @@ struct SUNAdjointSolver_
   SUNJacTimesFn Jvp, JPvp, vJp, vJPp;
   SUNAdjointCheckpointScheme checkpoint_scheme;
   sunrealtype tf;
+  void* user_data;
   SUNContext sunctx;
 };
 
@@ -41,8 +42,8 @@ extern "C" {
 // TODO(CJB): I think this should be a private function that is only used
 // within the package CreateAdjointSolver routines.
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper,
-                                   sunindextype num_cost_fns, N_Vector sf, sunrealtype tf,
+SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper, sunindextype num_cost_fns,
+                                   N_Vector sf, sunrealtype tf,
                                    SUNAdjointCheckpointScheme checkpoint_scheme,
                                    SUNContext sunctx,
                                    SUNAdjointSolver* adj_solver);
@@ -59,10 +60,9 @@ SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper,
   :returns: A SUNErrCode indicating failure or success.
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver,
-                                  sunrealtype tout, N_Vector sens,
-                                  sunrealtype* tret, int* stop_reason);
-
+SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver, sunrealtype tout,
+                                  N_Vector sens, sunrealtype* tret,
+                                  int* stop_reason);
 
 /*
   Evolves the adjoint system backwards one step.
@@ -76,15 +76,17 @@ SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver,
   :returns: A SUNErrCode indicating failure or success.
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver adj_solver,
-                                 sunrealtype tout, N_Vector sens,
-                                 sunrealtype* tret, int* stop_reason);
+SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver adj_solver, sunrealtype tout,
+                                 N_Vector sens, sunrealtype* tret,
+                                 int* stop_reason);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointSolver_SetJacFn(SUNAdjointSolver, SUNJacFn JacFn, SUNMatrix Jac);
+SUNErrCode SUNAdjointSolver_SetJacFn(SUNAdjointSolver, SUNJacFn JacFn,
+                                     SUNMatrix Jac);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointSolver_SetJacPFn(SUNAdjointSolver, SUNJacFn JacPFn, SUNMatrix JacP);
+SUNErrCode SUNAdjointSolver_SetJacPFn(SUNAdjointSolver, SUNJacFn JacPFn,
+                                      SUNMatrix JacP);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointSolver_SetJacTimesVecFn(SUNAdjointSolver, SUNJacTimesFn Jvp,
@@ -93,6 +95,9 @@ SUNErrCode SUNAdjointSolver_SetJacTimesVecFn(SUNAdjointSolver, SUNJacTimesFn Jvp
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointSolver_SetVecTimesJacFn(SUNAdjointSolver, SUNJacTimesFn vJp,
                                              SUNJacTimesFn vJPp);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointSolver_SetUserData(SUNAdjointSolver, void* user_data);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointSolver_Destroy(SUNAdjointSolver*);

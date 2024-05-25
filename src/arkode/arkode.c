@@ -1753,6 +1753,8 @@ ARKodeMem arkCreate(SUNContext sunctx)
     return (NULL);
   }
 
+  ark_mem->do_adjoint = SUNFALSE;
+
   /* Return pointer to ARKODE memory block */
   return (ark_mem);
 }
@@ -1919,6 +1921,7 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
 
     /* Initial, old, and next step sizes */
     ark_mem->h0u    = ZERO;
+    ark_mem->h      = ZERO;
     ark_mem->hold   = ZERO;
     ark_mem->next_h = ZERO;
 

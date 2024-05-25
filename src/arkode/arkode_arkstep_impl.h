@@ -189,6 +189,8 @@ int arkStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat
                       sunbooleantype** jcur, sunbooleantype* dgamma_fail);
 int arkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
+int arkStep_TakeStep_Z_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
+                               int* nflagPtr);
 int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
 int arkStep_SetUserData(ARKodeMem ark_mem, void* user_data);
 int arkStep_SetDefaults(ARKodeMem ark_mem);

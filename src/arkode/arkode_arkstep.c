@@ -26,6 +26,7 @@
 #include "arkode_arkstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "sunadjoint/sunadjoint_solver.h"
 
 #define FIXED_LIN_TOL
 
@@ -1185,8 +1186,8 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
   }
 
   /* set appropriate TakeStep routine based on problem configuration */
-  /*    (only one choice for now) */
-  ark_mem->step = arkStep_TakeStep_Z;
+  if (ark_mem->do_adjoint) { ark_mem->step = arkStep_TakeStep_Z_Adjoint; }
+  else { ark_mem->step = arkStep_TakeStep_Z; }
 
   /* Check for consistency between mass system and system linear system modules
      (e.g., if lsolve is direct, msolve needs to match) */
@@ -2103,6 +2104,19 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                      ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
 #endif
 
+  return (ARK_SUCCESS);
+}
+
+int arkStep_TakeStep_Z_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
+                               int* nflagPtr)
+{
+  *dsmPtr = ZERO;
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::arkStep_TakeStep_Z_Adjoint", "end-step",
+                     "step = %li, h = %" RSYM ", dsm = %" RSYM ", nflag = %d",
+                     ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
+#endif
   return (ARK_SUCCESS);
 }
 
@@ -3365,13 +3379,56 @@ int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
   Utility routines for interfacing with SUNAdjointSolver
   ---------------------------------------------------------------*/
 
-int arkStep_fe_Adj(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
+int arkStep_fe_Adj(sunrealtype t, N_Vector lambda, N_Vector Ldot, void* content)
 {
-  return 0;
-}
+  SUNErrCode errcode = SUN_SUCCESS;
 
-int arkStep_fi_Adj(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
-{
+  SUNAdjointSolver adj_solver = (SUNAdjointSolver)content;
+  void* user_data             = adj_solver->user_data;
+
+  N_Vector fake_checkpoint = N_VClone(lambda);
+  N_VConst(ONE, fake_checkpoint);
+
+  if (adj_solver->JacFn)
+  {
+    adj_solver->JacFn(t, fake_checkpoint, NULL, adj_solver->JacP,
+                      adj_solver->user_data, NULL, NULL, NULL);
+    if (SUNMatMatvecTranspose(adj_solver->Jac, fake_checkpoint, Ldot))
+    {
+      return -1;
+    };
+  }
+  else if (adj_solver->Jvp)
+  {
+    adj_solver->Jvp(fake_checkpoint, Ldot, t, NULL, NULL, adj_solver->user_data,
+                    NULL);
+  }
+  else if (adj_solver->vJp)
+  {
+    adj_solver->vJp(fake_checkpoint, Ldot, t, NULL, NULL, adj_solver->user_data,
+                    NULL);
+  }
+
+  if (adj_solver->JacPFn)
+  {
+    adj_solver->JacPFn(t, fake_checkpoint, NULL, adj_solver->JacP,
+                       adj_solver->user_data, NULL, NULL, NULL);
+    if (SUNMatMatvecTranspose(adj_solver->JacP, fake_checkpoint, Ldot))
+    {
+      return -1;
+    }
+  }
+  else if (adj_solver->JPvp)
+  {
+    adj_solver->JPvp(fake_checkpoint, Ldot, t, NULL, NULL,
+                     adj_solver->user_data, NULL);
+  }
+  else if (adj_solver->vJPp)
+  {
+    adj_solver->vJPp(fake_checkpoint, Ldot, t, NULL, NULL,
+                     adj_solver->user_data, NULL);
+  }
+
   return 0;
 }
 
@@ -3390,18 +3447,50 @@ int ARKStepCreateAdjointSolver(void* arkode_mem, sunindextype num_cost,
     return ARK_ILL_INPUT;
   }
 
+  if (!ark_mem->fixedstep)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "ARKStep must be using a fixed step to work with SUNAdjointSolver");
+    return ARK_ILL_INPUT;
+  }
+
+  // TODO(CJB): should we reinit or should we creater a new instance of ARKStep altogether?
+  // I think we probably do otherwise a user wont be able to reuse the original ARKStep for
+  // another forward integration easily.
+
+  ARKodeResize(arkode_mem, sf, -ONE, ark_mem->tretlast, NULL, NULL);
+  if (step_mem->fi)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "ARKStep does not support SUNAdjointSolver when fi is defined");
+    return ARK_ILL_INPUT;
+  }
+  if (!step_mem->fe)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "fe must have been provided to ARKStepCreate to create a SUNAdjointSolver");
+    return ARK_ILL_INPUT;
+  }
+
+  // ark_mem->do_adjoint = SUNTRUE;
+  ARKodeSetFixedStep(arkode_mem, -ark_mem->h);
+
   // TODO(CJB): should we reinit to tretlast or tcur? tcur could be past the time the
   // user asked for in the forward integration if they do not use tstop mode.
-  ARKodeResize(arkode_mem, sf, -ONE, ark_mem->tretlast, NULL, NULL);
-  ARKRhsFn fe_adj = step_mem->fe ? arkStep_fe_Adj : NULL;
-  ARKRhsFn fi_adj = step_mem->fi ? arkStep_fi_Adj : NULL;
-  ARKStepReInit(arkode_mem, fe_adj, fi_adj, ark_mem->tretlast, sf);
+  ARKStepReInit(arkode_mem, arkStep_fe_Adj, NULL, ark_mem->tretlast, sf);
 
   // SUNAdjointSolver will own the SUNStepper and destroy it
   SUNStepper stepper;
   ARKStepCreateSUNStepper(arkode_mem, &stepper);
-  SUNAdjointSolver_Create(stepper, num_cost, sf, ark_mem->tretlast, ark_mem->checkpoint_scheme,
-                          ark_mem->sunctx, adj_solver_ptr);
+  SUNAdjointSolver_Create(stepper, num_cost, sf, ark_mem->tretlast,
+                          ark_mem->checkpoint_scheme, ark_mem->sunctx,
+                          adj_solver_ptr);
+
+  SUNAdjointSolver_SetUserData(*adj_solver_ptr, ark_mem->user_data);
+
+  // We need access to the adjoint solver to access the parameter Jacobian inside of ARKStep's
+  // backwards integration of the the adjoint problem.
+  ARKodeSetUserData(arkode_mem, *adj_solver_ptr);
 
   return ARK_SUCCESS;
 }

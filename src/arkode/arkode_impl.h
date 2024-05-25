@@ -23,18 +23,20 @@
 #include <arkode/arkode_butcher.h>
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
+#include <stdarg.h>
+#include <sunadjoint/sunadjoint_checkpointscheme.h>
+#include <sunadjoint/sunadjoint_solver.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
-#include <sunadjoint/sunadjoint_checkpointscheme.h>
-#include <sunadjoint/sunadjoint_solver.h>
 
 #include "arkode_adapt_impl.h"
 #include "arkode_relaxation_impl.h"
 #include "arkode_root_impl.h"
 #include "arkode_types_impl.h"
+#include "sundials/sundials_types.h"
 #include "sundials_logger_impl.h"
 #include "sundials_stepper_impl.h"
 
@@ -553,6 +555,7 @@ struct ARKodeMemRec
 
   /* Adjoint solver data */
   SUNAdjointCheckpointScheme checkpoint_scheme;
+  sunbooleantype do_adjoint;
 
   /* XBraid interface variables */
   sunbooleantype force_pass; /* when true the step attempt loop will ignore the
