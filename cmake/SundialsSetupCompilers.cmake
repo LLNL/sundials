@@ -102,7 +102,10 @@ if(ENABLE_ALL_WARNINGS)
   # Exclude checks for subroutines and functions not marked as recursive e.g.,
   # ark_brusselator1D_task_local_nls_f2003 calls SUNNonlinsolFree from within a
   # custom nonlinear solver implementation of SUNNonlinsolFree
-  set(CMAKE_Fortran_FLAGS "-Wall -Wpedantic -fcheck=all,no-pointer,no-recursion -Wno-unused-dummy-argument -Wno-c-binding-type -ffpe-summary=none ${CMAKE_Fortran_FLAGS}")
+  #
+  # no- prefixes were added in gfortran 6 so we instead of using
+  # -fcheck=all,no-pointer,no-recursion we list the check to inlcude
+  set(CMAKE_Fortran_FLAGS "-Wall -Wpedantic -fcheck=array-temps,bounds,do,mem -Wno-unused-dummy-argument -Wno-c-binding-type -ffpe-summary=none ${CMAKE_Fortran_FLAGS}")
 endif()
 
 if(ENABLE_WARNINGS_AS_ERRORS)
