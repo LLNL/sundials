@@ -97,14 +97,16 @@ if(ENABLE_ALL_WARNINGS)
   set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function ${CMAKE_CXX_FLAGS}")
 
   # Exclude run-time pointer checks (no-pointer) because passing null objects
-  # to SUNDIALS functions (e.g., sunmat => null()) causes a runtime error
+  # to SUNDIALS functions (e.g., sunmat => null() to SetLinearSolver) causes a
+  # run-time error with this check
   #
-  # Exclude checks for subroutines and functions not marked as recursive e.g.,
-  # ark_brusselator1D_task_local_nls_f2003 calls SUNNonlinsolFree from within a
-  # custom nonlinear solver implementation of SUNNonlinsolFree
+  # Exclude checks for subroutines and functions not marked as recursive
+  # (no-recursion) e.g., ark_brusselator1D_task_local_nls_f2003 calls
+  # SUNNonlinsolFree from within a custom nonlinear solver implementation of
+  # SUNNonlinsolFree which causes a run-time error with this check
   #
   # no- prefixes were added in gfortran 6 so we instead of using
-  # -fcheck=all,no-pointer,no-recursion we list the check to inlcude
+  # -fcheck=all,no-pointer,no-recursion we list the checks to include
   set(CMAKE_Fortran_FLAGS "-Wall -Wpedantic -fcheck=array-temps,bounds,do,mem -Wno-unused-dummy-argument -Wno-c-binding-type -ffpe-summary=none ${CMAKE_Fortran_FLAGS}")
 endif()
 
