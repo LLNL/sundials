@@ -88,7 +88,7 @@ int CVodeSetUserData(void* cvode_mem, void* user_data)
  * the solution and/or integrator statistics.
  */
 
-int CVodeSetMonitorFn(void* cvode_mem, SUNDIALS_MAYBE_UNUSED CVMonitorFn fn)
+int CVodeSetMonitorFn(void* cvode_mem, CVMonitorFn fn)
 {
   CVodeMem cv_mem;
 
@@ -104,6 +104,8 @@ int CVodeSetMonitorFn(void* cvode_mem, SUNDIALS_MAYBE_UNUSED CVMonitorFn fn)
   cv_mem->cv_monitorfun = fn;
   return (CV_SUCCESS);
 #else
+  /* silence warnings when monitoring is disabled */
+  ((void)fn);
   cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
                  "SUNDIALS was not built with monitoring enabled.");
   return (CV_ILL_INPUT);
@@ -996,8 +998,7 @@ int CVodeSetConstraints(void* cvode_mem, N_Vector constraints)
  * Enable or disable integrator specific fused kernels
  */
 
-int CVodeSetUseIntegratorFusedKernels(void* cvode_mem,
-                                      SUNDIALS_MAYBE_UNUSED sunbooleantype onoff)
+int CVodeSetUseIntegratorFusedKernels(void* cvode_mem, sunbooleantype onoff)
 {
   CVodeMem cv_mem;
 #ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
@@ -1024,6 +1025,8 @@ int CVodeSetUseIntegratorFusedKernels(void* cvode_mem,
   cv_mem->cv_usefused = onoff;
   return (CV_SUCCESS);
 #else
+  /* silence warnings when fused kernels are disabled */
+  ((void)onoff);
   cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
                  "CVODE was not built with fused integrator kernels enabled");
   return (CV_ILL_INPUT);
