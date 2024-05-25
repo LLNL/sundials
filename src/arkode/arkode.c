@@ -900,7 +900,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
            - on fatal error, returns negative error flag */
       if (ark_mem->relax_enabled && (kflag == ARK_SUCCESS))
       {
-        kflag = arkRelax(ark_mem, &relax_fails, &dsm, &nflag);
+        kflag = arkRelax(ark_mem, &relax_fails, &dsm);
         if (kflag < 0) { break; }
       }
 

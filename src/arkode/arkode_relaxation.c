@@ -857,8 +857,7 @@ int arkRelaxDestroy(ARKodeRelaxMem relax_mem)
 }
 
 /* Compute and apply relaxation, called by driver */
-int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout,
-             SUNDIALS_MAYBE_UNUSED int* nflag_out)
+int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout)
 {
   int retval;
   sunrealtype relax_val;
