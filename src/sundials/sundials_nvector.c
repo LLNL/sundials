@@ -339,10 +339,7 @@ sunrealtype* N_VGetArrayPointer(N_Vector v)
   {
     return (sunrealtype*)v->ops->nvgetarraypointer(v);
   }
-  else
-  {
-    return NULL;
-  }
+  else { return NULL; }
 }
 
 sunrealtype* N_VGetDeviceArrayPointer(N_Vector v)
@@ -356,10 +353,7 @@ sunrealtype* N_VGetDeviceArrayPointer(N_Vector v)
 
 void N_VSetArrayPointer(sunrealtype* v_data, N_Vector v)
 {
-  if (v->ops->nvsetarraypointer)
-  {
-    v->ops->nvsetarraypointer(v_data, v);
-  }
+  if (v->ops->nvsetarraypointer) { v->ops->nvsetarraypointer(v_data, v); }
   return;
 }
 
