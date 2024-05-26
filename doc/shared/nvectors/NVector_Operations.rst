@@ -1038,11 +1038,11 @@ usage.
 
 .. _NVectors.Ops.Print:
 
-Exchange operations
--------------------
+Output operations
+-----------------
 
 The following optional vector operations are for writing vector data either to
-``stdout` or to a given file.
+``stdout`` or to a given file.
 
 .. c:function:: void N_VPrint(N_Vector x)
 
