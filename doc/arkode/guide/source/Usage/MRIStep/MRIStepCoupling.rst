@@ -22,11 +22,11 @@ MRIStep supplies several built-in MIS, MRI-GARK, and IMEX-MRI-GARK methods, see
 coupling tables and their corresponding identifiers. Additionally, a user may
 supply a custom set of slow-to-fast time scale coupling coefficients by
 constructing a coupling table and attaching it with
-:c:func:`MRIStepSetCoupling()`.
+:c:func:`MRIStepSetCoupling`. The MRI coupling tables are stored in an
+:c:func:`MRIStepCoupling` object which is a pointer to a
+:c:struct:`MRIStepCouplingMem` strucutre:
 
 .. c:type:: MRIStepCouplingMem *MRIStepCoupling
-
-   A pointer to a :c:type:`MRIStepCouplingMem` structure
 
 .. c:struct::  MRIStepCouplingMem
 

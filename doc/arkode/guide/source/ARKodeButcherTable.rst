@@ -18,35 +18,38 @@
 Butcher Table Data Structure
 ==============================
 
-To store the Butcher table defining a Runge--Kutta method ARKODE provides the
-:c:type:`ARKodeButcherTable` type and several related utility routines.
+To store a Butcher table, :math:`B`, defining a Runge--Kutta method ARKODE
+provides the :c:type:`ARKodeButcherTable` type and several related utility
+routines. We use the following notation
+
+.. math::
+
+   B \; \equiv \;
+   \begin{array}{r|c}
+     c & A \\
+     \hline
+     q & b \\
+     p & \tilde{b}
+   \end{array}
+   \; = \;
+   \begin{array}{c|cccc}
+   c_1    & a_{1,1} & \cdots & a_{1,s-1} & a_{1,s} \\
+   c_2    & a_{2,1} & \cdots & a_{2,s-1} & a_{2,s} \\
+   \vdots & \vdots  & \vdots & \vdots    & \vdots  \\
+   c_s    & a_{s,1} & \cdots & a_{s,s-1} & a_{s,s} \\
+   \hline
+   q      & b_1         & \cdots & b_{s-1}         & b_s \\
+   p      & \tilde{b}_1 & \cdots & \tilde{b}_{s-1} & \tilde{b}_s
+   \end{array}.
+
+An :c:type:`ARKodeButcherTable` is a pointer to the
+:c:struct:`ARKodeButcherTableMem` structure:
 
 .. c:type:: ARKodeButcherTableMem* ARKodeButcherTable
 
-   A pointer to an :c:struct:`ARKodeButcherTableMem` structure
-
 .. c:struct:: ARKodeButcherTableMem
 
-   Structure storing a Runge--Kutta Butcher table using the notation (shown for
-   a 3-stage method):
-
-   .. math::
-
-      \begin{array}{r|c}
-        c & A \\
-        \hline
-        q & b \\
-        p & \tilde{b}
-      \end{array}
-      \quad = \quad
-      \begin{array}{r|ccc}
-        c_1 & a_{1,1} & a_{1,2} & a_{1,3} \\
-        c_2 & a_{2,1} & a_{2,2} & a_{2,3} \\
-        c_3 & a_{3,1} & a_{3,2} & a_{3,3} \\
-        \hline
-        q & b_1 & b_2 & b_3 \\
-        p & \tilde{b}_1 & \tilde{b}_2 & \tilde{b}_3
-      \end{array}
+   Structure for storing a Butcher table
 
    .. c:member:: int q
 

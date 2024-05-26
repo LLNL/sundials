@@ -62,13 +62,10 @@ For functions to create an ARKODE stepper instance see :c:func:`ARKStepCreate`,
 
 .. c:function:: void ARKodeFree(void** arkode_mem)
 
-   This function frees the problem memory *arkode_mem* created a stepper
-   constructor.
+   This function frees the problem memory created a stepper constructor.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ARKStep memory block.
-
-   **Return value:**  None
+   :param arkode_mem: pointer to the ARKODE stepper memory block.
+   :return: none
 
    .. versionadded:: x.y.z
 

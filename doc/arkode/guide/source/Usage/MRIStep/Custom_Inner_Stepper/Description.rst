@@ -24,14 +24,12 @@ implementations of the virtual methods.
 
 .. c:type:: MRIStepInnerStepper
 
-   Pointer to an ``_MRIStepInnerStepper`` structure
+   An object for solving the fast (inner) ODE in an MRI method.
 
-The actual definitions of the ``_MRIStepInnerStepper`` structure and the
-corresponding operations structure are kept private to allow for the object
-internals to change without impacting user code. The following sections describe
-the :numref:`ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods` and the virtual
-:numref:`ARKODE.Usage.MRIStep.CustomInnerStepper.Description.ImplMethods` that a must be
-provided by a derived class.
+   The actual definition of the ``MRIStepInnerStepper`` structure is kept
+   private to allow for the object internals to change without impacting user
+   code. The following sections describe the base class methods and the virtual
+   methods that a must be provided by a derived class.
 
 .. _ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods:
 
