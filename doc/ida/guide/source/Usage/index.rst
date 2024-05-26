@@ -3460,7 +3460,7 @@ follows:
 
    .. versionadded:: 4.0.0
 
-      Replaces the deprecated function ``IDASpilsJacTimesSetupFn``.
+      Replaces the deprecated type ``IDASpilsJacTimesSetupFn``.
 
 
 

@@ -2832,7 +2832,7 @@ The following optional outputs are available from the IDALS modules:
 
    .. versionadded:: 3.0.0
 
-      Replaces the deprecated function` ``IDADlsGetWorkspace`` and
+      Replaces the deprecated functions ``IDADlsGetWorkspace`` and
       ``IDASpilsGetWorkspace``.
 
 .. c:function:: int IDAGetNumJacEvals(void * ida_mem, long int * njevals)
