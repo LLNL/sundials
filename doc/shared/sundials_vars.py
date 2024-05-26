@@ -19,11 +19,10 @@ idas_version = 'v6.0.0'
 kinsol_version = 'v7.0.0'
 year = '2024'
 
-# Warn about all references where the target cannot be found.
+# Warn about all references where the target cannot be found
 nitpicky = True
 
-# List of (type, target) tuples that should be ignored when generating warnings
-# in "nitpicky mode"
+# List of tuples (type, target) to ignore when generating "nitpicky" warnings
 nitpick_ignore = [
     # C/C++ types Sphinx does not seem to know about
     ('c:identifier', 'FILE'),

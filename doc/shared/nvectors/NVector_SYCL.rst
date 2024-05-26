@@ -309,8 +309,6 @@ for the NVECTOR_SYCL module.
 The ``SUNSyclExecPolicy`` Class
 --------------------------------
 
-.. cpp:namespace-push:: sundials::sycl
-
 In order to provide maximum flexibility to users, the SYCL kernel execution
 parameters used by kernels within SUNDIALS are defined by objects of the
 ``sundials::sycl::ExecPolicy`` abstract class type (this class can be accessed in
@@ -430,5 +428,3 @@ so:
 These default policy objects can be reused for multiple SUNDIALS data structures
 (e.g. a :c:type:`SUNMatrix` and an :c:type:`N_Vector`) since they do not hold any modifiable
 state information.
-
-.. cpp:namespace-push:: sundials::sycl

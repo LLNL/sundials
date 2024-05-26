@@ -159,8 +159,8 @@ The module NVECTOR_CUDA also provides the following user-callable routines:
 
    This function sets the execution policies which control the kernel parameters
    utilized when launching the streaming and reduction CUDA kernels. By default
-   the vector is setup to use the :cpp:func:`SUNCudaThreadDirectExecPolicy` and
-   :cpp:func:`SUNCudaBlockReduceAtomicExecPolicy`. Any custom execution policy
+   the vector is setup to use the ``SUNCudaThreadDirectExecPolicy`` and
+   ``SUNCudaBlockReduceAtomicExecPolicy``. Any custom execution policy
    for reductions must ensure that the grid dimensions (number of thread blocks)
    is a multiple of the CUDA warp size (32). See
    :numref:`NVectors.CUDA.SUNCudaExecPolicy` below for more information about
@@ -288,8 +288,6 @@ options as the vector they are cloned from while vectors created with
 The ``SUNCudaExecPolicy`` Class
 --------------------------------
 
-.. cpp:namespace-push:: sundials::cuda
-
 In order to provide maximum flexibility to users, the CUDA kernel execution parameters used
 by kernels within SUNDIALS are defined by objects of the ``sundials::cuda::ExecPolicy``
 abstract class type (this class can be accessed in the global namespace as ``SUNCudaExecPolicy``).
@@ -407,5 +405,3 @@ created like so:
 These default policy objects can be reused for multiple SUNDIALS data structures
 (e.g. a :c:type:`SUNMatrix` and an :c:type:`N_Vector`) since they do not hold any
 modifiable state information.
-
-.. cpp:namespace-pop::

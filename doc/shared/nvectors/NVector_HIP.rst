@@ -271,8 +271,6 @@ options as the vector they are cloned from while vectors created with
 The ``SUNHipExecPolicy`` Class
 --------------------------------
 
-.. cpp:namespace-push:: sundials::hip
-
 In order to provide maximum flexibility to users, the HIP kernel execution parameters used
 by kernels within SUNDIALS are defined by objects of the ``sundials::hip::ExecPolicy``
 abstract class type (this class can be accessed in the global namespace as ``SUNHipExecPolicy``).
@@ -391,5 +389,3 @@ created like so:
 These default policy objects can be reused for multiple SUNDIALS data structures
 (e.g. a :c:type:`SUNMatrix` and an :c:type:`N_Vector`) since they do not hold any
 modifiable state information.
-
-.. cpp:namespace-pop::

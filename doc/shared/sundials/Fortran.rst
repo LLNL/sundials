@@ -81,24 +81,11 @@ differences are discussed in :numref:`SUNDIALS.Fortran.Differences`. A
 discussion on the topic of equivalent data types in C and Fortran 2003 is
 presented in :numref:`SUNDIALS.Fortran.DataTypes`.
 
-.. ifconfig:: package_name == 'kinsol'
-
-   Further information on the Fortran 2003 interfaces specific to the
-   :c:type:`N_Vector`, :c:type:`SUNMatrix`, and :c:type:`SUNLinearSolver`
-   classes is given alongside the C documentation (:numref:`NVectors`,
-   :numref:`SUNMatrix`, and :numref:`SUNLinSol`, respectively). For details on
-   where the Fortran 2003 module (``.mod``) files and libraries are installed
-   see :numref:`Installation`.
-
-.. ifconfig:: package_name != 'kinsol'
-
-   Further information on the Fortran 2003 interfaces specific to the
-   :c:type:`N_Vector`, :c:type:`SUNMatrix`, :c:type:`SUNLinearSolver`, and
-   :c:type:`SUNNonlinearSolver` classes is given alongside the C documentation
-   (:numref:`NVectors`, :numref:`SUNMatrix`, :numref:`SUNLinSol`, and
-   :numref:`SUNNonlinSol` respectively). For details on where the Fortran 2003
-   module (``.mod``) files and libraries are installed see
-   :numref:`Installation`.
+Further information on the Fortran 2003 interfaces specific to the
+:c:type:`N_Vector`, :c:type:`SUNMatrix`, :c:type:`SUNLinearSolver`, and
+:c:type:`SUNNonlinearSolver` classes is given alongside the C documentation. For
+details on where the Fortran 2003 module (``.mod``) files and libraries are
+installed see :numref:`Installation`.
 
 The Fortran 2003 interface modules were generated with SWIG Fortran
 :cite:p:`Swig-Fortran`, a fork of SWIG. Users who are interested in the SWIG

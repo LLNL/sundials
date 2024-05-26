@@ -34,6 +34,11 @@ extensions = ['sphinx_rtd_theme', 'sphinx.ext.ifconfig',
 intersphinx_mapping = {'sundials': (f'https://sundials.readthedocs.io/en/{doc_version}',
                                     ('../../../superbuild/build/html/objects.inv', None))}
 
+# Ignore warnings from nonlinear solver references in change log
+nitpick_ignore.extend([('c:func', 'SUNNonlinSolSysFn'),
+                       ('c:func', 'SUNNonlinSolLSetupFn'),
+                       ('c:func', 'SUNNonlinSolLSolveFn')])
+
 # References
 bibtex_bibfiles = ['../../../shared/sundials.bib']
 
