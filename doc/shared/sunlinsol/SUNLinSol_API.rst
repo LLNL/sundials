@@ -571,51 +571,96 @@ provide additional information to the user in case of a linear solver failure.
 The generic SUNLinearSolver module
 -----------------------------------------
 
-SUNDIALS packages interact with specific SUNLinSol implementations
-through the generic SUNLinearSolver abstract base class.  The
-``SUNLinearSolver`` type is a pointer to a structure containing an
-implementation-dependent *content* field, and an *ops* field, and is
-defined as
+SUNDIALS packages interact with linear solver implementations through the
+:c:type:`SUNLinearSolver` class. A :c:type:`SUNLinearSolver` is a pointer to the
+:c:struct:`_generic_SUNLinearSolver` structure:
 
 .. c:type:: struct _generic_SUNLinearSolver *SUNLinearSolver
 
-and the generic structure is defined as
-
 .. c:struct:: _generic_SUNLinearSolver
+
+   The structure defining the SUNDIALS linear solver class.
 
    .. c:member:: void *content
 
-      Implementation-dependent data containing the description and actual data
-      of the linear solver.
+      Pointer to the linear solver-specific member data
 
-   .. c:member:: struct _generic_SUNLinearSolver_Ops *ops
+   .. c:member:: SUNLinearSolver_Ops ops
 
       A virtual table of linear solver operations provided by a specific
-      implementation.
+      implementation
 
    .. c:member:: SUNContext sunctx
 
       The SUNDIALS simulation context
 
-The ``_generic_SUNLinearSolver_Ops`` structure is defined as
+The virtual table structure is defined as
+
+.. c:type:: struct _generic_SUNLinearSolver_Ops *SUNLinearSolver_Ops
 
 .. c:struct:: _generic_SUNLinearSolver_Ops
 
+   The structure defining :c:type:`SUNLinearSolver` operations.
+
    .. c:member:: SUNLinearSolver_Type (*gettype)(SUNLinearSolver)
-   .. c:member:: SUNLinearSolver_ID   (*getid)(SUNLinearSolver)
-   .. c:member:: SUNErrCode           (*setatimes)(SUNLinearSolver, void*, SUNATimesFn)
-   .. c:member:: SUNErrCode           (*setpreconditioner)(SUNLinearSolver, void*, SUNPSetupFn, SUNPSolveFn)
-   .. c:member:: SUNErrCode           (*setscalingvectors)(SUNLinearSolver, N_Vector, N_Vector)
-   .. c:member:: SUNErrCode           (*setzeroguess)(SUNLinearSolver, sunbooleantype)
-   .. c:member:: SUNErrCode           (*initialize)(SUNLinearSolver)
-   .. c:member:: int                  (*setup)(SUNLinearSolver, SUNMatrix)
-   .. c:member:: int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, sunrealtype)
-   .. c:member:: int                  (*numiters)(SUNLinearSolver)
-   .. c:member:: sunrealtype          (*resnorm)(SUNLinearSolver)
-   .. c:member:: sunindextype         (*lastflag)(SUNLinearSolver)
-   .. c:member:: SUNErrCode           (*space)(SUNLinearSolver, long int*, long int*)
-   .. c:member:: N_Vector             (*resid)(SUNLinearSolver)
-   .. c:member:: SUNErrCode           (*free)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolGetType`
+
+   .. c:member:: SUNLinearSolver_ID (*getid)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolGetID`
+
+   .. c:member:: SUNErrCode (*setatimes)(SUNLinearSolver, void*, SUNATimesFn)
+
+      The function implementing :c:func:`SUNLinSolSetATimes`
+
+   .. c:member:: SUNErrCode (*setpreconditioner)(SUNLinearSolver, void*, SUNPSetupFn, SUNPSolveFn)
+
+      The function implementing :c:func:`SUNLinSolSetPreconditioner`
+
+   .. c:member:: SUNErrCode (*setscalingvectors)(SUNLinearSolver, N_Vector, N_Vector)
+
+      The function implementing :c:func:`SUNLinSolSetScalingVectors`
+
+   .. c:member:: SUNErrCode (*setzeroguess)(SUNLinearSolver, sunbooleantype)
+
+      The function implementing :c:func:`SUNLinSolSetZeroGuess`
+
+   .. c:member:: SUNErrCode (*initialize)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolInitialize`
+
+   .. c:member:: int (*setup)(SUNLinearSolver, SUNMatrix)
+
+      The function implementing :c:func:`SUNLinSolSetup`
+
+   .. c:member:: int (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, sunrealtype)
+
+      The function implementing :c:func:`SUNLinSolSolve`
+
+   .. c:member:: int (*numiters)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolNumIters`
+
+   .. c:member:: sunrealtype (*resnorm)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolResNorm`
+
+   .. c:member:: sunindextype (*lastflag)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolLastFlag`
+
+   .. c:member:: SUNErrCode (*space)(SUNLinearSolver, long int*, long int*)
+
+      The function implementing :c:func:`SUNLinSolSpace`
+
+   .. c:member:: N_Vector (*resid)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolResid`
+
+   .. c:member:: SUNErrCode (*free)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolFree`
 
 The generic SUNLinSol class defines and implements the linear solver
 operations defined in :numref:`SUNLinSol.CoreFn` -- :numref:`SUNLinSol.GetFn`.
