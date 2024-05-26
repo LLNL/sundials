@@ -128,7 +128,7 @@ user-callable routines:
 
       * ``klu_symbolic`` when SUNDIALS is compiled with 32-bit indices
 
-      * ``klu_l_symbolic`` when SUNDIALS compiled with 64-bit indices
+      * ``klu_l_symbolic`` when SUNDIALS is compiled with 64-bit indices
 
 
 .. c:function:: sun_klu_numeric* SUNLinSol_KLUGetNumeric(SUNLinearSolver S)
@@ -144,7 +144,7 @@ user-callable routines:
 
       * ``klu_numeric`` when SUNDIALS is compiled with 32-bit indices
 
-      * ``klu_l_numeric``  when SUNDIALS compiled with 64-bit indices
+      * ``klu_l_numeric``  when SUNDIALS is compiled with 64-bit indices
 
 
 .. c:function:: sun_klu_common* SUNLinSol_KLUGetCommon(SUNLinearSolver S)
@@ -160,7 +160,7 @@ user-callable routines:
 
       * ``klu_common`` when SUNDIALS is compiled with 32-bit indices
 
-      * ``klu_l_common``  when SUNDIALS compiled with 64-bit indices
+      * ``klu_l_common``  when SUNDIALS is compiled with 64-bit indices
 
 
 .. _SUNLinSol.KLU.Description:
