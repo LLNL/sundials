@@ -109,12 +109,32 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
    .. c:struct:: SUNMemoryHelper_Ops_
 
       .. c:member:: SUNErrCode (*alloc)(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size, SUNMemoryType mem_type, void* queue)
+
+         The function implementing :c:func:`SUNMemoryHelper_Alloc`
+
       .. c:member:: SUNErrCode (*dealloc)(SUNMemoryHelper, SUNMemory mem, void* queue)
+
+         The function implementing :c:func:`SUNMemoryHelper_Dealloc`
+
       .. c:member:: SUNErrCode (*copy)(SUNMemoryHelper, SUNMemory dst, SUNMemory src, size_t mem_size, void* queue)
+
+         The function implementing :c:func:`SUNMemoryHelper_Copy`
+
       .. c:member:: SUNErrCode (*copyasync)(SUNMemoryHelper, SUNMemory dst, SUNMemory src, size_t mem_size, void* queue)
+
+         The function implementing :c:func:`SUNMemoryHelper_CopyAsync`
+
       .. c:member:: SUNErrCode (*getallocstats)(SUNMemoryHelper, SUNMemoryType mem_type, unsigned long* num_allocations, unsigned long* num_deallocations, size_t* bytes_allocated, size_t* bytes_high_watermark)
+
+         The function implementing :c:func:`SUNMemoryHelper_GetAllocStats`
+
       .. c:member:: SUNMemoryHelper (*clone)(SUNMemoryHelper)
+
+         The function implementing :c:func:`SUNMemoryHelper_Clone`
+
       .. c:member:: SUNErrCode (*destroy)(SUNMemoryHelper)
+
+         The function implementing :c:func:`SUNMemoryHelper_Destroy`
 
 
 .. _SUNMemory.Description.Required:
