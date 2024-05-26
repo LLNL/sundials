@@ -34,44 +34,75 @@ Specifically, a generic ``SUNMatrix`` is a pointer to a structure
 that has an implementation-dependent *content* field containing
 the description and actual data of the matrix, and an *ops* field
 pointing to a structure with generic matrix operations.
-The type ``SUNMatrix`` is defined as:
+
+A :c:type:`SUNMatrix` is a pointer to the :c:struct:`_generic_SUNMatrix`
+structure:
 
 .. c:type:: struct _generic_SUNMatrix *SUNMatrix
 
-and the generic structure is defined as
-
 .. c:struct:: _generic_SUNMatrix
+
+   The structure defining the SUNDIALS matrix class.
 
    .. c:member:: void *content
 
-      Implementation-dependent data containing the description and actual data
-      of the linear solver.
+      Pointer to matrix-specific member data
 
    .. c:member:: struct _generic_SUNMatrix_Ops *ops
 
-      A virtual table of linear solver operations provided by a specific
-      implementation.
+      A virtual table of matrix operations provided by a specific
+      implementation
 
    .. c:member:: SUNContext sunctx
 
       The SUNDIALS simulation context
 
-Here, the ``_generic_SUNMatrix_Ops`` structure is essentially a list of
-function pointers to the various actual matrix operations, and is
-defined as
+The virtual table structure is defined as
 
 .. c:struct:: _generic_SUNMatrix_Ops
 
+   The structure defining :c:type:`SUNMatrix` operations.
+
    .. c:member:: SUNMatrix_ID (*getid)(SUNMatrix)
-   .. c:member:: SUNMatrix    (*clone)(SUNMatrix)
-   .. c:member:: void         (*destroy)(SUNMatrix)
-   .. c:member:: SUNErrCode   (*zero)(SUNMatrix)
-   .. c:member:: SUNErrCode   (*copy)(SUNMatrix, SUNMatrix)
-   .. c:member:: SUNErrCode   (*scaleadd)(sunrealtype, SUNMatrix, SUNMatrix)
-   .. c:member:: SUNErrCode   (*scaleaddi)(sunrealtype, SUNMatrix)
-   .. c:member:: SUNErrCode   (*matvecsetup)(SUNMatrix)
-   .. c:member:: SUNErrCode   (*matvec)(SUNMatrix, N_Vector, N_Vector)
-   .. c:member:: SUNErrCode   (*space)(SUNMatrix, long int*, long int*)
+
+      The function implementing :c:func:`SUNMatGetID`
+
+   .. c:member:: SUNMatrix (*clone)(SUNMatrix)
+
+      The function implementing :c:func:`SUNMatClone`
+
+   .. c:member:: void (*destroy)(SUNMatrix)
+
+      The function implementing :c:func:`SUNMatDestroy`
+
+   .. c:member:: SUNErrCode (*zero)(SUNMatrix)
+
+      The function implementing :c:func:`SUNMatZero`
+
+   .. c:member:: SUNErrCode (*copy)(SUNMatrix, SUNMatrix)
+
+      The function implementing :c:func:`SUNMatCopy`
+
+   .. c:member:: SUNErrCode (*scaleadd)(sunrealtype, SUNMatrix, SUNMatrix)
+
+      The function implementing :c:func:`SUNMatScaleAdd`
+
+   .. c:member:: SUNErrCode (*scaleaddi)(sunrealtype, SUNMatrix)
+
+      The function implementing :c:func:`SUNMatScaleAddI`
+
+   .. c:member:: SUNErrCode (*matvecsetup)(SUNMatrix)
+
+      The function implementing :c:func:`SUNMatMatvecSetup`
+
+   .. c:member:: SUNErrCode (*matvec)(SUNMatrix, N_Vector, N_Vector)
+
+      The function implementing :c:func:`SUNMatMatvec`
+
+   .. c:member:: SUNErrCode (*space)(SUNMatrix, long int*, long int*)
+
+      The function implementing :c:func:`SUNMatSpace`
+
 
 The generic SUNMATRIX module defines and implements the matrix
 operations acting on a ``SUNMatrix``. These routines are nothing but
