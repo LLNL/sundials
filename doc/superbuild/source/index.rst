@@ -183,8 +183,8 @@ SUNDIALS License and Notices
    :maxdepth: 1
    :hidden:
 
-   developers/index.rst
    contributing/index.rst
+   developers/index.rst
 
 .. toctree::
    :caption: REFERENCES
