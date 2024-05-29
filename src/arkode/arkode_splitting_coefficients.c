@@ -20,12 +20,14 @@
 
 #include "arkode_impl.h"
 
+// TODO: error checking on # of partitions
+
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(const int sequential_methods,
                                                   const int stages,
                                                   const int partitions,
                                                   const int order)
 {
-  if (sequential_methods < 1 || stages < 1 || partitions <= 1) { return NULL; }
+  if (sequential_methods < 1 || stages < 1 || partitions < 1) { return NULL; }
 
   const ARKodeSplittingCoefficients coefficients =
     (ARKodeSplittingCoefficients)malloc(sizeof(*coefficients));

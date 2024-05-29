@@ -40,6 +40,7 @@ set(arkode_SOURCES
   arkode_root.c
   arkode_splittingstep.c
   arkode_splitting_coefficients.c
+  arkode_splittingstep_exectionpolicy.c
   arkode_sprkstep_io.c
   arkode_sprkstep.c
   arkode_sprk.c

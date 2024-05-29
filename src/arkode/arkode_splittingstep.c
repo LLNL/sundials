@@ -39,13 +39,13 @@ static int splittingStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
     return (ARK_MEM_NULL);
   }
   *step_mem = (ARKodeSplittingStepMem)ark_mem->step_mem;
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 static sunbooleantype splittingStep_CheckNVector(N_Vector y) // TODO: check all ops are correct
 {
-  return y->ops->nvclone == NULL || y->ops->nvdestroy == NULL ||
-         y->ops->nvlinearsum == NULL;
+  return y->ops->nvclone != NULL || y->ops->nvdestroy != NULL ||
+         y->ops->nvlinearsum != NULL;
 }
 
 static int splittingStep_Init(ARKodeMem ark_mem, int init_type)
@@ -55,28 +55,41 @@ static int splittingStep_Init(ARKodeMem ark_mem, int init_type)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* immediately return if reset */
-  if (init_type == RESET_INIT) { return (ARK_SUCCESS); }
+  if (init_type == RESET_INIT) { return ARK_SUCCESS; }
 
   /* initializations/checks for (re-)initialization call */
-  if (init_type == FIRST_INIT && step_mem->coefficients == NULL)
+  if (init_type == FIRST_INIT)
   {
-    if (step_mem->order <= 1)
+    if (step_mem->coefficients == NULL)
     {
-      step_mem->coefficients = ARKodeSplittingCoefficients_LieTrotter(step_mem->partitions);
+      if (step_mem->order <= 1)
+      {
+        step_mem->coefficients =
+          ARKodeSplittingCoefficients_LieTrotter(step_mem->partitions);
+        // TODO: check if non-NULL?
+      }
+      else
+      {
+        // TODO consider extrapolation for odd orders
+        const int next_even_order = step_mem->order + (step_mem->order % 2);
+        step_mem->coefficients =
+          ARKodeSplittingCoefficients_TripleJump(step_mem->partitions,
+                                                 next_even_order);
+        // TODO: check if non-NULL?
+      }
     }
-    else
+
+    if (step_mem->policy == NULL)
     {
-      // TODO consider extrapolation for odd orders
-      const int next_even_order = (step_mem->order + 1) / 2;
-      step_mem->coefficients = ARKodeSplittingCoefficients_TripleJump(step_mem->partitions,
-                                                          next_even_order);
+      step_mem->policy     = SplittingStepExecutionPolicy_Serial();
+      step_mem->own_policy = SUNTRUE;
     }
   }
 
   // TODO: set Lagrange interpolation and order
   // TODO: initialize policy if NULL
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 static int splittingStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y,
@@ -108,8 +121,10 @@ static int splittingStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y,
     N_VLinearSum(ONE, f, ONE, ark_mem->tempv1, f);
   }
 
-  return 0;
+  return ARK_SUCCESS;
 }
+
+static int splittingStep_Stage() { return ARK_SUCCESS; }
 
 static int splittingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                                   int* nflagPtr)
@@ -122,7 +137,13 @@ static int splittingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   *dsmPtr   = ZERO;
 
   ARKodeSplittingCoefficients coefficients = step_mem->coefficients;
-  ark_mem->tcur                = ark_mem->tn;
+  ark_mem->tcur                            = ark_mem->tn;
+
+  return step_mem->policy->exectute(step_mem->policy, splittingStep_Stage,
+                                    ark_mem->yn, ark_mem->ycur, ark_mem->tempv1,
+                                    coefficients->alpha,
+                                    coefficients->sequential_methods,
+                                    ark_mem->user_data);
 
   // for (int j = 0; j < coefficients->stages; j++)
   // {
@@ -138,8 +159,6 @@ static int splittingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   //   }
   //   // ark_mem->tcur = tout;
   // }
-
-  return 0;
 }
 
 int splittingStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
@@ -163,7 +182,7 @@ int splittingStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
     return (ARK_ILL_INPUT);
   }
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 int splittingStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
@@ -175,7 +194,7 @@ int splittingStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   fprintf(fp, "SplittingStep time step module parameters:\n  Method order %i\n\n",
           step_mem->order);
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 static int splittingStep_Resize(ARKodeMem ark_mem, N_Vector ynew,
@@ -183,7 +202,7 @@ static int splittingStep_Resize(ARKodeMem ark_mem, N_Vector ynew,
                                 ARKVecResizeFn resize, void* resize_data)
 {
   // TODO: update lrw, liw?
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 static void splittingStep_Free(ARKodeMem ark_mem)
@@ -199,6 +218,8 @@ static void splittingStep_Free(ARKodeMem ark_mem)
   }
 
   ARKodeSplittingCoefficients_Free(step_mem->coefficients);
+  free(step_mem);
+  ark_mem->step_mem = NULL;
 }
 
 void splittingStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
@@ -230,9 +251,9 @@ int splittingStep_SetDefaults(ARKodeMem ark_mem)
 
   /* Set default values for integrator optional inputs
      (overwrite some adaptivity params for LSRKStep use) */
-  step_mem->order  = DEFAULT_ORDER; /* method order */
+  step_mem->order        = DEFAULT_ORDER; /* method order */
   step_mem->coefficients = NULL;          /* no Butcher table */
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 static int splittingStep_SetOrder(ARKodeMem ark_mem, const int order)
@@ -251,7 +272,7 @@ static int splittingStep_SetOrder(ARKodeMem ark_mem, const int order)
     step_mem->coefficients = NULL;
   }
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 void* SplittingStepCreate(SUNStepper* steppers, const int partitions,
@@ -316,7 +337,7 @@ void* SplittingStepCreate(SUNStepper* steppers, const int partitions,
   }
 
   step_mem->steppers          = steppers;
-  step_mem->coefficients            = NULL;
+  step_mem->coefficients      = NULL;
   step_mem->policy            = NULL; // TODO: when to initialize?
   step_mem->n_stepper_evolves = 0;
   step_mem->partitions        = partitions;
@@ -362,13 +383,16 @@ void* SplittingStepCreate(SUNStepper* steppers, const int partitions,
   return ark_mem;
 }
 
-int SplittingStep_SetCoefficients(void *arkode_mem, ARKodeSplittingCoefficients coefficients) {
+int SplittingStep_SetCoefficients(void* arkode_mem,
+                                  ARKodeSplittingCoefficients coefficients)
+{
   int retval;
   ARKodeMem ark_mem;
   ARKodeSplittingStepMem step_mem;
   // TODO set memory
 
-  if (step_mem->partitions != coefficients->partitions) {
+  if (step_mem->partitions != coefficients->partitions)
+  {
     // TODO error
   }
 
@@ -378,7 +402,9 @@ int SplittingStep_SetCoefficients(void *arkode_mem, ARKodeSplittingCoefficients 
   return ARK_SUCCESS;
 }
 
-int SplittingStep_SetExecutionPolicy(void* arkode_mem, ARKodeSplittingExecutionPolicy policy) {
+int SplittingStep_SetExecutionPolicy(void* arkode_mem,
+                                     ARKodeSplittingExecutionPolicy policy)
+{
   int retval;
   ARKodeMem ark_mem;
   ARKodeSplittingStepMem step_mem;
