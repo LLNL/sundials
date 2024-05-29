@@ -20,8 +20,6 @@
 
 #include "arkode_impl.h"
 
-// TODO: error checking on # of partitions
-
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(const int sequential_methods,
                                                   const int stages,
                                                   const int partitions,
@@ -188,6 +186,7 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficientsByName(c
 
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LieTrotter(const int partitions)
 {
+  if (partitions < 1) { return NULL; }
   const ARKodeSplittingCoefficients coefficients = ARKodeSplittingCoefficients_Alloc(1, 1,
                                                                    partitions, 1);
   if (coefficients == NULL) { return NULL; }
@@ -208,6 +207,8 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Strang(const int partiti
 
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Parallel(const int partitions)
 {
+  if (partitions < 1) { return NULL; }
+
   const ARKodeSplittingCoefficients coefficients =
     ARKodeSplittingCoefficients_Alloc(partitions + 1, 1, partitions, 1);
   if (coefficients == NULL) { return NULL; }
@@ -225,6 +226,8 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Parallel(const int parti
 
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_SymmetricParallel(const int partitions)
 {
+  if (partitions < 1) { return NULL; }
+
   const ARKodeSplittingCoefficients coefficients =
     ARKodeSplittingCoefficients_Alloc(2, partitions, partitions, 2);
   if (coefficients == NULL) { return NULL; }
@@ -279,7 +282,7 @@ static sunrealtype** arkodeSplittingCoefficients_TripleJump(const int partitions
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_TripleJump(const int partitions,
                                                        const int order)
 {
-  if (order < 2 || order % 2 != 0)
+  if (partitions < 1 || order < 2 || order % 2 != 0)
   {
     // Only even orders allowed
     return NULL;
