@@ -32,14 +32,6 @@
 extern "C" {
 #endif
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM  ".32Lg"
-#define RSYMW "19.32Lg"
-#else
-#define RSYM  ".16g"
-#define RSYMW "23.16g"
-#endif
-
 /*===============================================================
   SHORTCUTS
   ===============================================================*/
