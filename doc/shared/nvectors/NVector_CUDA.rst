@@ -159,8 +159,8 @@ The module NVECTOR_CUDA also provides the following user-callable routines:
 
    This function sets the execution policies which control the kernel parameters
    utilized when launching the streaming and reduction CUDA kernels. By default
-   the vector is setup to use the :cpp:func:`SUNCudaThreadDirectExecPolicy` and
-   :cpp:func:`SUNCudaBlockReduceAtomicExecPolicy`. Any custom execution policy
+   the vector is setup to use the ``SUNCudaThreadDirectExecPolicy`` and
+   ``SUNCudaBlockReduceAtomicExecPolicy``. Any custom execution policy
    for reductions must ensure that the grid dimensions (number of thread blocks)
    is a multiple of the CUDA warp size (32). See
    :numref:`NVectors.CUDA.SUNCudaExecPolicy` below for more information about
@@ -288,7 +288,6 @@ options as the vector they are cloned from while vectors created with
 The ``SUNCudaExecPolicy`` Class
 --------------------------------
 
-
 In order to provide maximum flexibility to users, the CUDA kernel execution parameters used
 by kernels within SUNDIALS are defined by objects of the ``sundials::cuda::ExecPolicy``
 abstract class type (this class can be accessed in the global namespace as ``SUNCudaExecPolicy``).
@@ -300,27 +299,23 @@ Thus, users may provide custom execution policies that fit the needs of their pr
 where the ``sundials::cuda::ExecPolicy`` class is defined in the header file
 ``sundials_cuda_policies.hpp``, as follows:
 
-.. code-block:: c++
+.. cpp:class:: sundials::cuda::ExecPolicy
 
-   class ExecPolicy
-   {
-   public:
-      ExecPolicy(cudaStream_t stream = 0) : stream_(stream) { }
-      virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
-      virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
-      virtual const cudaStream_t* stream() const { return (&stream_); }
-      virtual ExecPolicy* clone() const = 0;
-      ExecPolicy* clone_new_stream(cudaStream_t stream) const {
-         ExecPolicy* ex = clone();
-         ex->stream_ = stream;
-         return ex;
-      }
-      virtual bool atomic() const { return false; }
-      virtual ~ExecPolicy() {}
-   protected:
-      cudaStream_t stream_;
-   };
+   .. cpp:function:: ExecPolicy(cudaStream_t stream = 0)
 
+   .. cpp:function:: virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0)
+
+   .. cpp:function:: virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0)
+
+   .. cpp:function:: virtual const cudaStream_t* stream() const
+
+   .. cpp:function:: virtual ExecPolicy* clone() const
+
+   .. cpp:function:: ExecPolicy* clone_new_stream(cudaStream_t stream) const
+
+   .. cpp:function:: virtual bool atomic() const
+
+   .. cpp:function:: virtual ~ExecPolicy()
 
 To define a custom execution policy, a user simply needs to create a class that
 inherits from the abstract class and implements the methods. The SUNDIALS

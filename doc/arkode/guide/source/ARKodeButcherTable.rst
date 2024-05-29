@@ -18,55 +18,66 @@
 Butcher Table Data Structure
 ==============================
 
-To store the Butcher table defining a Runge--Kutta method ARKODE provides the
-:c:type:`ARKodeButcherTable` type and several related utility routines. We use
-the following Butcher table notation (shown for a 3-stage method):
+To store a Butcher table, :math:`B`, defining a Runge--Kutta method ARKODE
+provides the :c:type:`ARKodeButcherTable` type and several related utility
+routines. We use the following notation
 
 .. math::
 
+   B \; \equiv \;
    \begin{array}{r|c}
      c & A \\
      \hline
      q & b \\
      p & \tilde{b}
    \end{array}
-   \quad = \quad
-   \begin{array}{r|ccc}
-     c_1 & a_{1,1} & a_{1,2} & a_{1,3} \\
-     c_2 & a_{2,1} & a_{2,2} & a_{2,3} \\
-     c_3 & a_{3,1} & a_{3,2} & a_{3,3} \\
-     \hline
-     q & b_1 & b_2 & b_3 \\
-     p & \tilde{b}_1 & \tilde{b}_2 & \tilde{b}_3
-   \end{array}
+   \; = \;
+   \begin{array}{c|cccc}
+   c_1    & a_{1,1} & \cdots & a_{1,s-1} & a_{1,s} \\
+   c_2    & a_{2,1} & \cdots & a_{2,s-1} & a_{2,s} \\
+   \vdots & \vdots  & \vdots & \vdots    & \vdots  \\
+   c_s    & a_{s,1} & \cdots & a_{s,s-1} & a_{s,s} \\
+   \hline
+   q      & b_1         & \cdots & b_{s-1}         & b_s \\
+   p      & \tilde{b}_1 & \cdots & \tilde{b}_{s-1} & \tilde{b}_s
+   \end{array}.
 
-where the method and embedding share stage :math:`A` and abscissa :math:`c`
-values, but use their stages :math:`z_i` differently through the coefficients
-:math:`b` and :math:`\tilde{b}` to generate methods of orders :math:`q` (the
-main method) and :math:`p` (the embedding, typically :math:`q = p+1`, though
-sometimes this is reversed). :c:type:`ARKodeButcherTable` is defined as
+An :c:type:`ARKodeButcherTable` is a pointer to the
+:c:struct:`ARKodeButcherTableMem` structure:
 
 .. c:type:: ARKodeButcherTableMem* ARKodeButcherTable
 
-where ``ARKodeButcherTableMem`` is the structure
+.. c:struct:: ARKodeButcherTableMem
 
-.. code-block:: c
+   Structure for storing a Butcher table
 
-   typedef struct ARKodeButcherTableMem {
+   .. c:member:: int q
 
-     int q;
-     int p;
-     int stages;
-     sunrealtype **A;
-     sunrealtype *c;
-     sunrealtype *b;
-     sunrealtype *d;
+      The method order of accuracy
 
-   };
+   .. c:member:: int p
 
-where ``stages`` is the number of stages in the RK method, the variables ``q``,
-``p``, ``A``, ``c``, and ``b`` have the same meaning as in the Butcher table
-above, and ``d`` is used to store :math:`\tilde{b}`.
+      The embedding order of accuracy, typically :math:`q = p + 1`
+
+   .. c:member:: int stages
+
+      The number of stages in the method, :math:`s`
+
+   .. c:member:: sunrealtype **A
+
+      The method coefficients :math:`A \in \mathbb{R}^s`
+
+   .. c:member:: sunrealtype *c
+
+      The method abscissa :math:`c \in \mathbb{R}^s`
+
+   .. c:member:: sunrealtype *b
+
+      The method coefficients :math:`b \in \mathbb{R}^s`
+
+   .. c:member:: sunrealtype *d
+
+      The method embedding coefficients :math:`\tilde{b} \in \mathbb{R}^s`
 
 .. _ARKodeButcherTable.Functions:
 

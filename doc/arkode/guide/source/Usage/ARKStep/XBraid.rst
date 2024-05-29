@@ -234,15 +234,15 @@ to store a snapshot of solution data at a single point in time and this
 structure simply contains an N_Vector. Specifically, the structure is defined
 as follows:
 
-.. code-block:: C
+.. c:type:: struct _braid_Vector_struct *SUNBraidVector;
 
-   struct _braid_Vector_struct
-   {
-     N_Vector y;
-   };
+   Pointer to vector wrapper (same as braid_Vector)
 
-   /* Poiner to vector wrapper (same as braid_Vector) */
-   typedef struct _braid_Vector_struct *SUNBraidVector;
+.. c:struct:: _braid_Vector_struct
+
+   .. c:member:: N_Vector y
+
+      SUNDIALS N_Vector wrapped by the ``braid_Vector``
 
 To assist in creating creating and destroying this structure the following
 utility functions are provided.

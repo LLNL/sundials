@@ -406,7 +406,7 @@ Optional inputs for IVP method selection
    +=============================+===========================================+=====================================+
    | Set integrator method order | :c:func:`SPRKStepSetOrder()`              | 4                                   |
    +-----------------------------+-------------------------------------------+-------------------------------------+
-   | Set SPRK method             | :c:func:`SPRKStepSetMethod()`             | :c:type:`ARKODE_SPRK_MCLACHLAN_4_4` |
+   | Set SPRK method             | :c:func:`SPRKStepSetMethod()`             | ``ARKODE_SPRK_MCLACHLAN_4_4``       |
    +-----------------------------+-------------------------------------------+-------------------------------------+
    | Set SPRK method by name     | :c:func:`SPRKStepSetMethodName()`         | "ARKODE_SPRK_MCLACHLAN_4_4"         |
    +-----------------------------+-------------------------------------------+-------------------------------------+

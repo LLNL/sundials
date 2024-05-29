@@ -22,20 +22,25 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
 .. c:type:: struct SUNMemory_ *SUNMemory
 
-   The ``SUNMemory`` type is a pointer a structure containing a pointer to
-   actual data (``ptr``), the data memory type, and a flag indicating ownership
-   of that data pointer. This structure is defined as
+   The ``SUNMemory`` type is a pointer the structure
 
-   .. code-block:: c
+   .. c:struct:: SUNMemory_
 
-      struct SUNMemory_
-      {
-        void*         ptr;
-        SUNMemoryType type;
-        sunbooleantype   own;
-        size_t        bytes;
-      };
+      .. c:member:: void* ptr;
 
+         The  actual data.
+
+      .. c:member:: SUNMemoryType type;
+
+         The data memory type.
+
+      .. c:member:: sunbooleantype own;
+
+         A flag indicating ownership.
+
+      .. c:member:: size_t bytes;
+
+         The size of the data allocated.
 
 .. c:function:: SUNMemory SUNMemoryNewEmpty(SUNContext sunctx)
 
@@ -48,7 +53,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
    **Returns:**
 
    * an uninitialized ``SUNMemory`` object
-   
+
    .. versionchanged:: 7.0.0
 
       The function signature was updated to add the ``SUNContext`` argument.
@@ -59,31 +64,40 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
    The ``SUNMemoryType`` type is an enumeration that defines the supported
    memory types:
 
-   .. code-block:: c
+   .. c:enumerator:: SUNMEMTYPE_HOST
 
-      typedef enum
-      {
-        SUNMEMTYPE_HOST,      /* pageable memory accessible on the host     */
-        SUNMEMTYPE_PINNED,    /* page-locked memory accesible on the host   */
-        SUNMEMTYPE_DEVICE,    /* memory accessible from the device          */
-        SUNMEMTYPE_UVM        /* memory accessible from the host or device  */
-      } SUNMemoryType;
+      Pageable memory accessible on the host
+
+   .. c:enumerator:: SUNMEMTYPE_PINNED
+
+      Page-locked memory accesible on the host
+
+   .. c:enumerator:: SUNMEMTYPE_DEVICE
+
+      Memory accessible from the device
+
+   .. c:enumerator:: SUNMEMTYPE_UVM
+
+      Memory accessible from the host or device
 
 
 .. c:type:: struct SUNMemoryHelper_ *SUNMemoryHelper
 
-   The ``SUNMemoryHelper`` type is a pointer to a structure containing a pointer
-   to the implementation-specific member data (``content``) and a virtual method
-   table of member functions (``ops``). This strucutre is defined as
+   The ``SUNMemoryHelper`` type is a pointer to the structure
 
-   .. code-block:: c
+   .. c:struct:: SUNMemoryHelper_
 
-      struct SUNMemoryHelper_
-      {
-        void*               content;
-        SUNMemoryHelper_Ops ops;
-        SUNContext          sunctx;
-      };
+      .. c:member:: void* content;
+
+         Pointer to the implementation-specific member data
+
+      .. c:member:: SUNMemoryHelper_Ops ops;
+
+         A virtual method table of member functions
+
+      .. c:member:: SUNContext sunctx;
+
+         The SUNDIALS simulation context
 
 
 .. c:type:: struct SUNMemoryHelper_Ops_ *SUNMemoryHelper_Ops
@@ -92,26 +106,35 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
    containing the function pointers to the member function implementations. This
    structure is define as
 
-   .. code-block:: c
+   .. c:struct:: SUNMemoryHelper_Ops_
 
-      struct SUNMemoryHelper_Ops_
-      {
-        /* operations that implementations are required to provide */
-        SUNErrCode (*alloc)(SUNMemoryHelper, SUNMemory* memptr size_t mem_size,
-                     SUNMemoryType mem_type, void* queue);
-        SUNErrCode (*dealloc)(SUNMemoryHelper, SUNMemory mem, void* queue);
-        SUNErrCode (*copy)(SUNMemoryHelper, SUNMemory dst, SUNMemory src,
-                    size_t mem_size, void* queue);
+      .. c:member:: SUNErrCode (*alloc)(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size, SUNMemoryType mem_type, void* queue)
 
-        /* operations that provide default implementations */
-        SUNErrCode (*copyasync)(SUNMemoryHelper, SUNMemory dst,
-                                SUNMemory src, size_t mem_size, void* queue);
-        SUNErrCode (*getallocstats)(SUNMemoryHelper, SUNMemoryType mem_type, unsigned long* num_allocations,
-                                    unsigned long* num_deallocations, size_t* bytes_allocated,
-                                    size_t* bytes_high_watermark);
-        SUNMemoryHelper (*clone)(SUNMemoryHelper);
-        SUNErrCode      (*destroy)(SUNMemoryHelper);
-      };
+         The function implementing :c:func:`SUNMemoryHelper_Alloc`
+
+      .. c:member:: SUNErrCode (*dealloc)(SUNMemoryHelper, SUNMemory mem, void* queue)
+
+         The function implementing :c:func:`SUNMemoryHelper_Dealloc`
+
+      .. c:member:: SUNErrCode (*copy)(SUNMemoryHelper, SUNMemory dst, SUNMemory src, size_t mem_size, void* queue)
+
+         The function implementing :c:func:`SUNMemoryHelper_Copy`
+
+      .. c:member:: SUNErrCode (*copyasync)(SUNMemoryHelper, SUNMemory dst, SUNMemory src, size_t mem_size, void* queue)
+
+         The function implementing :c:func:`SUNMemoryHelper_CopyAsync`
+
+      .. c:member:: SUNErrCode (*getallocstats)(SUNMemoryHelper, SUNMemoryType mem_type, unsigned long* num_allocations, unsigned long* num_deallocations, size_t* bytes_allocated, size_t* bytes_high_watermark)
+
+         The function implementing :c:func:`SUNMemoryHelper_GetAllocStats`
+
+      .. c:member:: SUNMemoryHelper (*clone)(SUNMemoryHelper)
+
+         The function implementing :c:func:`SUNMemoryHelper_Clone`
+
+      .. c:member:: SUNErrCode (*destroy)(SUNMemoryHelper)
+
+         The function implementing :c:func:`SUNMemoryHelper_Destroy`
 
 
 .. _SUNMemory.Description.Required:

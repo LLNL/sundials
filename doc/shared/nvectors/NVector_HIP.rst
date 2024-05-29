@@ -92,7 +92,7 @@ operations defined in :numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`,
 The names of vector operations are obtained from those in
 :numref:`NVectors.Ops`, :numref:`NVectors.Ops.Fused`, :numref:`NVectors.Ops.Array`, and
 :numref:`NVectors.Ops.Local` by appending the suffix ``_Hip``
-(e.g. :c:func:`N_VDestroy_Hip`).  The module NVECTOR_HIP provides the
+(e.g. ``N_VDestroy_Hip``).  The module NVECTOR_HIP provides the
 following additional user-callable routines:
 
 
@@ -271,7 +271,6 @@ options as the vector they are cloned from while vectors created with
 The ``SUNHipExecPolicy`` Class
 --------------------------------
 
-
 In order to provide maximum flexibility to users, the HIP kernel execution parameters used
 by kernels within SUNDIALS are defined by objects of the ``sundials::hip::ExecPolicy``
 abstract class type (this class can be accessed in the global namespace as ``SUNHipExecPolicy``).
@@ -283,28 +282,23 @@ Thus, users may provide custom execution policies that fit the needs of their pr
 where the ``sundials::hip::ExecPolicy`` class is defined in the header file
 ``sundials_hip_policies.hpp``, as follows:
 
-.. code-block:: c++
+.. cpp:class:: sundials::hip::ExecPolicy
 
-   class ExecPolicy
-   {
-   public:
-      ExecPolicy(hipStream_t stream = 0) : stream_(stream) { }
-      virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
-      virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
-      virtual const hipStream_t* stream() const { return (&stream_); }
-      virtual ExecPolicy* clone() const = 0;
-      ExecPolicy* clone_new_stream(hipStream_t stream) const {
-         ExecPolicy* ex = clone();
-         ex->stream_ = stream;
-         return ex;
-      }
-      virtual bool atomic() const { return false; }
-      virtual ~ExecPolicy() {}
-   protected:
-      hipStream_t stream_;
-   };
+   .. cpp:function:: ExecPolicy(hipStream_t stream = 0)
 
+   .. cpp:function:: virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0)
 
+   .. cpp:function:: virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0)
+
+   .. cpp:function:: virtual const hipStream_t* stream() const
+
+   .. cpp:function:: virtual ExecPolicy* clone() const
+
+   .. cpp:function:: ExecPolicy* clone_new_stream(hipStream_t stream) const
+
+   .. cpp:function:: virtual bool atomic() const
+
+   .. cpp:function:: virtual ~ExecPolicy()
 
 To define a custom execution policy, a user simply needs to create a class that inherits from
 the abstract class and implements the methods. The SUNDIALS provided
