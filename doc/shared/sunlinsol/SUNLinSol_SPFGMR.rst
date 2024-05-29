@@ -296,7 +296,7 @@ The SUNLinSol_SPFGMR module defines implementations of all
 
 * ``SUNLinSolSetZeroGuess_SPFGMR`` -- note the solver assumes a non-zero guess
   by default and the zero guess flag is reset to ``SUNFALSE`` after each call to
-  :c:func:`SUNLinSolSolve_SPFGMR`.
+  ``SUNLinSolSolve_SPFGMR``.
 
 * ``SUNLinSolSetup_SPFGMR``
 

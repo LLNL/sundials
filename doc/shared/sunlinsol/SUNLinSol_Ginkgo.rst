@@ -44,7 +44,7 @@ Using SUNLINEARSOLVER_GINKGO
 
 After choosing a compatible ``N_Vector`` (see :numref:`SUNMatrix.Ginkgo.CompatibleNVectors`) and creating a Ginkgo-enabled ``SUNMatrix`` (see
 :numref:`SUNMatrix.Ginkgo`) to use the SUNLINEARSOLVER_GINKGO module, we first create a Ginkgo
-stopping criteria object. Importantly, the :cpp:type:`sundials::ginkgo::DefaultStop` class provided
+stopping criteria object. Importantly, the ``sundials::ginkgo::DefaultStop`` class provided
 by SUNDIALS implements a stopping critierion that matches the default SUNDIALS stopping critierion.
 Namely, it checks if the max iterations (5 by default) were reached or if the absolute residual
 norm was below a speicified tolerance. The critierion can be created just like any other
@@ -95,7 +95,7 @@ expecting a ``SUNLinearSolver`` object through the implicit conversion operator 
 .. warning::
 
   :c:func:`SUNLinSolFree` should never be called on a ``SUNLinearSolver`` that was created via conversion
-  from a ``sundials::ginkgo::LinearSolver``. Doing so may result in a double free.
+  from a :cpp:type:`sundials::ginkgo::LinearSolver`. Doing so may result in a double free.
 
 
 .. _SUNLinSol.Ginkgo.API:
@@ -106,7 +106,7 @@ SUNLINEARSOLVER_GINKGO API
 In this section we list the public API of the :cpp:type:`sundials::ginkgo::LinearSolver` class.
 
 .. cpp:class:: template<class GkoSolverType, class GkoMatrixType> \
-               LinearSolver : public ConvertibleTo<SUNLinearSolver>
+               sundials::ginkgo::LinearSolver : public sundials::ConvertibleTo<SUNLinearSolver>
 
    .. cpp:function:: LinearSolver() = default;
 

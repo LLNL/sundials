@@ -126,9 +126,9 @@ local vector.
 **Notes**
 
 * :c:func:`N_VMake_MPIPlusX` sets the field ``own_data = SUNFALSE`` and
-  :c:func:`N_VDestroy_MPIPlusX()` will not call :c:func:`N_VDestroy()` on the
-  local vector. In this a case, it is the user's responsibility to deallocate
-  the local vector.
+  the MPIPlusX implementation of :c:func:`N_VDestroy` will not call
+  :c:func:`N_VDestroy` on the local vector. In this a case, it is the user's
+  responsibility to deallocate the local vector.
 
 * To maximize efficiency, arithmetic vector operations in the
   NVECTOR_MPIPLUSX implementation that have more than one

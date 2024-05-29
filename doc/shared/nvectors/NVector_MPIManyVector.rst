@@ -302,12 +302,11 @@ them to the MPIManyVector in :c:func:`N_VNew_MPIManyVector` or
 **Notes**
 
 * :c:func:`N_VNew_MPIManyVector` and :c:func:`N_VMake_MPIManyVector` set
-  the field ``own_data = SUNFALSE``.
-  :c:func:`N_VDestroy_MPIManyVector()` will not attempt to call
-  :c:func:`N_VDestroy()` on any subvectors contained in the
-  subvector array for any ``N_Vector`` with ``own_data`` set to
-  ``SUNFALSE``. In such a case, it is the user's responsibility to
-  deallocate the subvectors.
+  the field ``own_data = SUNFALSE``. The MPIManyVector implementation of
+  :c:func:`N_VDestroy` will not attempt to call :c:func:`N_VDestroy` on any
+  subvectors contained in the subvector array for any ``N_Vector`` with
+  ``own_data`` set to ``SUNFALSE``. In such a case, it is the user's
+  responsibility to deallocate the subvectors.
 
 * To maximize efficiency, arithmetic vector operations in the
   NVECTOR_MPIMANYVECTOR implementation that have more than one
