@@ -274,7 +274,7 @@ options as the vector they are cloned from, while vectors created with
   than it is to use ``NV_Ith_P(v,i)`` within the loop.
 
 * :c:func:`N_VNewEmpty_Parallel` and :c:func:`N_VMake_Parallel` set the field
-  *own_data* to ``SUNFALSE``. The routine :c:func:`N_VDestroy_Parallel()` will
+  *own_data* to ``SUNFALSE``. The implementation of :c:func:`N_VDestroy` will
   not attempt to free the pointer data for any ``N_Vector`` with *own_data* set
   to ``SUNFALSE``. In such a case, it is the user's responsibility to deallocate
   the data pointer.

@@ -21,10 +21,10 @@ All of the SUNDIALS objects (vectors, linear and nonlinear solvers, matrices,
 etc.) that collectively form a SUNDIALS simulation, hold a reference to a common
 simulation context object defined by the :c:type:`SUNContext` class.
 
-The :c:type:`SUNContext` class/type is defined in the header file
-``sundials/sundials_context.h`` as
+.. c:type:: SUNContext
 
-.. c:type:: struct _SUNContext *SUNContext
+   An opaque pointer used by SUNDIALS objects for error handling, logging,
+   profiling, etc.
 
 Users should create a :c:type:`SUNContext` object prior to any other calls to
 SUNDIALS library functions by calling:

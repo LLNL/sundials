@@ -280,7 +280,7 @@ The SUNLinSol_PCG module defines implementations of all
 
 * ``SUNLinSolSetZeroGuess_PCG`` -- note the solver assumes a non-zero guess by
   default and the zero guess flag is reset to ``SUNFALSE`` after each call to
-  :c:func:`SUNLinSolSolve_PCG`.
+  ``SUNLinSolSolve_PCG``.
 
 * ``SUNLinSolSetup_PCG``
 

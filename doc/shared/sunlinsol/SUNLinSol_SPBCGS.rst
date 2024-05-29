@@ -232,7 +232,7 @@ The SUNLinSol_SPBCGS module defines implementations of all
 
 * ``SUNLinSolSetZeroGuess_SPBCGS`` -- note the solver assumes a non-zero guess
   by default and the zero guess flag is reset to ``SUNFALSE`` after each call to
-  :c:func:`SUNLinSolSolve_SPBCGS`.
+  ``SUNLinSolSolve_SPBCGS``.
 
 * ``SUNLinSolSetup_SPBCGS``
 
