@@ -82,7 +82,9 @@ Logger API
 
 The central piece of the Logger API is the :c:type:`SUNLogger` type:
 
-.. c:type:: struct SUNLogger_* SUNLogger
+.. c:type:: SUNLogger
+
+   An opaque pointer containing logging information.
 
 When SUNDIALS is built with logging enabled, a default logging object is stored
 in the :c:type:`SUNContext` object and can be accessed with a call to

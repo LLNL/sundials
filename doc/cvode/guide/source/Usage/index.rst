@@ -578,7 +578,9 @@ returned by :c:func:`CVodeCreate`.
 
       When using sparse linear solvers, it is typically much more  efficient to supply ``J`` so that it includes the full sparsity  pattern of the Newton system matrices :math:`M=I-\gamma J`, even if ``J``  itself has zeros in nonzero locations of I.  The reasoning for  this is that M is constructed in-place, on top of the  user-specified values of ``J``, so if the sparsity pattern in  ``J`` is insufficient to store M then it will need to be resized  internally by CVODE.
 
-      The previous routines ``CVDlsSetLinearSolver`` and  ``CVSpilsSetLinearSolver`` are now wrappers for this routine, and may  still be used for backward-compatibility.  However, these will be  deprecated in future releases, so we recommend that users transition  to the new routine name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated functions ``CVDlsSetLinearSolver`` and  ``CVSpilsSetLinearSolver``.
 
 .. c:function:: int CVDiag(void* cvode_mem)
 
@@ -1370,7 +1372,9 @@ through :c:func:`CVodeSetUserData`.
 
       The function type :c:type:`CVLsJacFn` is described in :numref:`CVODE.Usage.CC.user_fct_sim.jacFn`.
 
-      The previous routine ``CVDlsSetJacFn`` is now a wrapper for this  routine, and may still be used for backward-compatibility.  However, this will be deprecated in future releases, so we recommend that  users transition to the new routine name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVDlsSetJacFn``.
 
 
 To specify a user-supplied linear system function ``linsys``, CVLS provides
@@ -1475,7 +1479,9 @@ without using global data in the program.
 
       This function must be called after the CVLS linear solver  interface has been initialized through a call to  :c:func:`CVodeSetLinearSolver`.
 
-      The previous routine ``CVSpilsSetJacTimes`` is now a wrapper for this routine, and may still be used for backward-compatibility.  However, this will be deprecated in future releases, so we recommend that users transition to the new routine name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVSpilsSetJacTimes``.
 
 
 When using the internal difference quotient the user may optionally supply an
@@ -1558,7 +1564,9 @@ the :c:func:`CVodeSetEpsLin` function.
 
       The function type :c:type:`CVLsPrecSetupFn` is described in :numref:`CVODE.Usage.CC.user_fct_sim.precondFn`
 
-      The previous routine ``CVSpilsSetPreconditioner`` is now a wrapper  for this routine, and may still be used for backward-compatibility.  However, this will be deprecated in future releases, so we recommend  that users transition to the new routine name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVSpilsSetPreconditioner``.
 
 
 .. c:function:: int CVodeSetEpsLin(void* cvode_mem, sunrealtype eplifac)
@@ -1582,7 +1590,9 @@ the :c:func:`CVodeSetEpsLin` function.
 
       If ``eplifac`` = 0.0 is passed, the default value is used.
 
-      The previous routine ``CVSpilsSetEpsLin`` is now a wrapper for this  routine, and may still be used for backward-compatibility.  However,  this will be deprecated in future releases, so we recommend that  users transition to the new routine name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVSpilsSetEpsLin``.
 
 
 .. c:function:: int CVodeSetLSNormFactor(void* cvode_mem, sunrealtype nrmfac)
@@ -2907,7 +2917,10 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
    **Notes:**
       The workspace requirements reported by this routine correspond only  to memory allocated within this interface and to memory allocated by  the ``SUNLinearSolver`` object attached to it.  The template Jacobian  matrix allocated by the user outside of CVLS is not included in  this report.
 
-      The previous routines ``CVDlsGetWorkspace`` and  ``CVSpilsGetWorkspace`` are now wrappers for this routine, and may  still be used for backward-compatibility.  However, these will be  deprecated in future releases, so we recommend that users transition  to the new routine name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated functions ``CVDlsGetWorkspace`` and
+      ``CVSpilsGetWorkspace``.
 
 
 .. c:function:: int CVodeGetNumJacEvals(void* cvode_mem, long int *njevals)
@@ -2923,8 +2936,9 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
      * ``CVLS_MEM_NULL`` --  The ``cvode_mem`` pointer is ``NULL``.
      * ``CVLS_LMEM_NULL`` -- The CVLS linear solver has not been initialized.
 
-   **Notes:**
-      The previous routine ``CVDlsGetNumJacEvals`` is now a wrapper for  this routine, and may still be used for backward-compatibility.  However, this will be deprecated in future releases, so we recommend  that users transition to the new routine name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVDlsGetNumJacEvals``.
 
 
 .. c:function:: int CVodeGetNumLinRhsEvals(void* cvode_mem, long int *nfevalsLS)
@@ -2943,7 +2957,10 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
    **Notes:**
       The value ``nfevalsLS`` is incremented only if one of the default  internal difference quotient functions is used.
 
-      The previous routines ``CVDlsGetNumRhsEvals`` and  ``CVSpilsGetNumRhsEvals`` are now wrappers for this routine, and may  still be used for backward-compatibility.  However, these will be  deprecated in future releases, so we recommend that users transition  to the new routine name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated functions ``CVDlsGetNumRhsEvals`` and
+      ``CVSpilsGetNumRhsEvals``.
 
 
 .. c:function:: int CVodeGetNumLinIters(void* cvode_mem, long int *nliters)
@@ -2959,8 +2976,9 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
      * ``CVLS_MEM_NULL`` --  The ``cvode_mem`` pointer is ``NULL``.
      * ``CVLS_LMEM_NULL`` -- The CVLS linear solver has not been initialized.
 
-   **Notes:**
-      The previous routine ``CVSpilsGetNumLinIters`` is now a wrapper for  this routine, and may still be used for backward-compatibility.  However, this will be deprecated in future releases, so we recommend  that users transition to the new routine name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVSpilsGetNumLinIters``.
 
 
 .. c:function:: int CVodeGetNumLinConvFails(void* cvode_mem, long int *nlcfails)
@@ -2976,8 +2994,9 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
      * ``CVLS_MEM_NULL`` --  The ``cvode_mem`` pointer is ``NULL``.
      * ``CVLS_LMEM_NULL`` -- The CVLS linear solver has not been initialized.
 
-   **Notes:**
-      The previous routine ``CVSpilsGetNumConvFails`` is now a wrapper for  this routine, and may still be used for backward-compatibility.  However, this will be deprecated in future releases, so we recommend  that users transition to the new routine name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVSpilsGetNumConvFails``.
 
 
 .. c:function:: int CVodeGetNumPrecEvals(void* cvode_mem, long int *npevals)
@@ -2993,8 +3012,9 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
      * ``CVLS_MEM_NULL`` --  The ``cvode_mem`` pointer is ``NULL``.
      * ``CVLS_LMEM_NULL`` -- The CVLS linear solver has not been initialized.
 
-   **Notes:**
-      The previous routine ``CVSpilsGetNumPrecEvals`` is now a wrapper for  this routine, and may still be used for backward-compatibility.  However, this will be deprecated in future releases, so we recommend  that users transition to the new routine name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVSpilsGetNumPrecEvals``.
 
 
 .. c:function:: int CVodeGetNumPrecSolves(void* cvode_mem, long int *npsolves)
@@ -3080,7 +3100,10 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
 
       If the CVLS solve function failed (i.e., :c:func:`CVode` returned  ``CV_LSOLVE_FAIL``), then ``lsflag`` contains the error return  flag from the ``SUNLinearSolver`` object, which will be one of: ``SUN_ERR_ARG_CORRUPTRRUPT``, indicating that the ``SUNLinearSolver`` memory is ``NULL``;   ``SUNLS_ATIMES_FAIL_UNREC``, indicating an unrecoverable failure in the  Jv function; ``SUNLS_PSOLVE_FAIL_UNREC``, indicating that the preconditioner solve  function ``psolve`` failed unrecoverably;  ``SUNLS_GS_FAIL``, indicating a failure in the Gram-Schmidt  procedure (SPGMR and SPFGMR only);  ``SUNLS_QRSOL_FAIL``, indicating that the matrix R was found to be  singular during the QR solve phase (SPGMR and SPFGMR only); or  ``SUN_ERR_EXT_FAIL``, indicating an unrecoverable  failure in an external iterative linear solver package.
 
-      The previous routines ``CVDlsGetLastFlag`` and  ``CVSpilsGetLastFlag`` are now wrappers for this routine, and may  still be used for backward-compatibility.  However, these will be  deprecated in future releases, so we recommend that users transition  to the new routine name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated functions ``CVDlsGetLastFlag`` and
+      ``CVSpilsGetLastFlag``.
 
 
 .. c:function:: int CVodeGetLinReturnFlagName(long int lsflag)
@@ -3093,8 +3116,10 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
    **Return value:**
      * The return value is a string containing the name of the corresponding constant. If :math:`1 \leq \text{lsflag} \leq N` (LU factorization failed), this routine returns "NONE".
 
-   **Notes:**
-      The previous routines ``CVDlsGetReturnFlagName`` and  ``CVSpilsGetReturnFlagName`` are now wrappers for this routine, and may  still be used for backward-compatibility.  However, these will be  deprecated in future releases, so we recommend that users transition  to the new routine name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated functions ``CVDlsGetReturnFlagName`` and
+      ``CVSpilsGetReturnFlagName``.
 
 
 .. _CVODE.Usage.CC.optional_output.optout_diag:
@@ -3551,10 +3576,9 @@ side function (or an approximation of it). ``CVLsJacFn`` is defined as follows:
       SUNMATRIX_SPARSE type and accessor macros are documented in
       :numref:`SUNMatrix.Sparse`.
 
-      The previous function type :c:type:`CVDlsJacFn` is identical to
-      :c:type:`CVLsJacFn`, and may still be used for backward-compatibility.
-      However, this will be deprecated in future releases, so we recommend
-      that users transition to the new function type name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVDlsJacFn``.
 
 
 .. _CVODE.Usage.CC.user_fct_sim.linsysFn:
@@ -3626,10 +3650,9 @@ the default is a difference quotient approximation to these products.
       :numref:`CVODE.Usage.CC.optional_output.optout_main`. The unit roundoff can be accessed as
       ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
-      The previous function type ``CVSpilsJacTimesVecFn`` is identical to
-      :c:func:`CVLsJacTimesVecFn`, and may still be used for backward-compatibility.
-      However, this will be deprecated in future releases, so we recommend
-      that users transition to the new function type name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVSpilsJacTimesVecFn``.
 
 
   .. _CVODE.Usage.CC.user_fct_sim.jtsetupFn:
@@ -3671,11 +3694,9 @@ be done in a user-supplied function of type :c:type:`CVLsJacTimesSetupFn`, defin
       :numref:`CVODE.Usage.CC.optional_output.optout_main`. The unit roundoff can be accessed as
       ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
-      The previous function type ``CVSpilsJacTimesSetupFn`` is identical
-      to :c:type:`CVLsJacTimesSetupFn`, and may still be used for
-      backward-compatibility.  However, this will be deprecated in future
-      releases, so we recommend that users transition to the new function
-      type name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVSpilsJacTimesSetupFn``.
 
 
 .. _CVODE.Usage.CC.user_fct_sim.psolveFn:
@@ -3713,11 +3734,9 @@ sides, the product of the two preconditioner matrices should approximate
       positive for a recoverable error (in which case the step will be retried), or
       negative for an unrecoverable error (in which case the integration is halted).
 
-   **Notes:**
-      The previous function type ``CVSpilsPrecSolveFn`` is identical to
-      :c:type:`CVLsPrecSolveFn`, and may still be used for backward-compatibility.
-      However, this will be deprecated in future releases, so we recommend
-      that users transition to the new function type name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVSpilsPrecSolveFn``.
 
 
 .. _CVODE.Usage.CC.user_fct_sim.precondFn:
@@ -3774,10 +3793,9 @@ function of type , defined as follows:
       :numref:`CVODE.Usage.CC.optional_output`. The unit roundoff can be accessed as
       ``SUN_UNIT_ROUNDOFF`` defined in ``sundials_types.h``.
 
-      The previous function type ``CVSpilsPrecSetupFn`` is identical to
-      :c:type:`CVLsPrecSetupFn`, and may still be used for backward-compatibility.
-      However, this will be deprecated in future releases, so we recommend
-      that users transition to the new function type name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVSpilsPrecSetupFn``.
 
 
 .. _CVODE.Usage.CC.precond:
