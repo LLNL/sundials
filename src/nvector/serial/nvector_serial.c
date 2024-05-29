@@ -260,15 +260,8 @@ void N_VPrintFile_Serial(N_Vector x, FILE* outfile)
 
   for (i = 0; i < N; i++)
   {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%35.32Le\n", xd[i]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%19.16e\n", xd[i]);
-#else
-    fprintf(outfile, "%11.8e\n", xd[i]);
-#endif
+    fprintf(outfile, "%" SUN_FMT_e "\n", xd[i]);
   }
-  fprintf(outfile, "\n");
 
   return;
 }

@@ -1617,6 +1617,31 @@ int CVodeGetNumStepSolveFails(void* cvode_mem, long int* nncfails)
  *
  * Print all integrator statistics
  */
+#define SUN_TABLE_WIDTH "20"
+
+static void sun_print_real(FILE* fp, SUNOutputFormat fmt, const char* name, sunrealtype value)
+{
+  if (fmt == SUN_OUTPUTFORMAT_TABLE)
+  {
+    fprintf(fp, "%-" SUN_TABLE_WIDTH "s = %" SUN_FMT_e "\n", name, value);
+  }
+  else
+  {
+    fprintf(fp, "%s,%" SUN_FMT_e, name, value);
+  }
+}
+
+static void sun_print_long_int(FILE* fp, SUNOutputFormat fmt, const char* name, long int value)
+{
+  if (fmt == SUN_OUTPUTFORMAT_TABLE)
+  {
+    fprintf(fp, "%-" SUN_TABLE_WIDTH "s = %" SUN_FMT_ld "\n", name, value);
+  }
+  else
+  {
+    fprintf(fp, "%s,%" SUN_FMT_ld, name, value);
+  }
+}
 
 int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
 {
@@ -1632,82 +1657,83 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
 
   cv_mem = (CVodeMem)cvode_mem;
 
+  sun_print_real(outfile, fmt, "Current time", cv_mem->cv_tn);
+  sun_print_long_int(outfile, fmt, "Steps", cv_mem->cv_nst);
+
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
     /* step and method stats */
-    fprintf(outfile, "Current time                 = %" RSYM "\n", cv_mem->cv_tn);
-    fprintf(outfile, "Steps                        = %ld\n", cv_mem->cv_nst);
-    fprintf(outfile, "Error test fails             = %ld\n", cv_mem->cv_netf);
-    fprintf(outfile, "NLS step fails               = %ld\n", cv_mem->cv_ncfn);
-    fprintf(outfile, "Initial step size            = %" RSYM "\n",
+    fprintf(outfile, "Error test fails             = %" SUN_FMT_ld "\n", cv_mem->cv_netf);
+    fprintf(outfile, "NLS step fails               = %" SUN_FMT_ld "\n", cv_mem->cv_ncfn);
+    fprintf(outfile, "Initial step size            = %" SUN_FMT_e "\n",
             cv_mem->cv_h0u);
-    fprintf(outfile, "Last step size               = %" RSYM "\n", cv_mem->cv_hu);
-    fprintf(outfile, "Current step size            = %" RSYM "\n",
+    fprintf(outfile, "Last step size               = %" SUN_FMT_e "\n", cv_mem->cv_hu);
+    fprintf(outfile, "Current step size            = %" SUN_FMT_e "\n",
             cv_mem->cv_next_h);
-    fprintf(outfile, "Last method order            = %d\n", cv_mem->cv_qu);
-    fprintf(outfile, "Current method order         = %d\n", cv_mem->cv_next_q);
-    fprintf(outfile, "Stab. lim. order reductions  = %ld\n", cv_mem->cv_nor);
+    fprintf(outfile, "Last method order            = %" SUN_FMT_d "\n", cv_mem->cv_qu);
+    fprintf(outfile, "Current method order         = %" SUN_FMT_d "\n", cv_mem->cv_next_q);
+    fprintf(outfile, "Stab. lim. order reductions  = %" SUN_FMT_ld "\n", cv_mem->cv_nor);
 
     /* function evaluations */
-    fprintf(outfile, "RHS fn evals                 = %ld\n", cv_mem->cv_nfe);
+    fprintf(outfile, "RHS fn evals                 = %" SUN_FMT_ld "\n", cv_mem->cv_nfe);
 
     /* nonlinear solver stats */
-    fprintf(outfile, "NLS iters                    = %ld\n", cv_mem->cv_nni);
-    fprintf(outfile, "NLS fails                    = %ld\n", cv_mem->cv_nnf);
+    fprintf(outfile, "NLS iters                    = %" SUN_FMT_ld "\n", cv_mem->cv_nni);
+    fprintf(outfile, "NLS fails                    = %" SUN_FMT_ld "\n", cv_mem->cv_nnf);
     if (cv_mem->cv_nst > 0)
     {
-      fprintf(outfile, "NLS iters per step           = %" RSYM "\n",
+      fprintf(outfile, "NLS iters per step           = %" SUN_FMT_e "\n",
               (sunrealtype)cv_mem->cv_nni / (sunrealtype)cv_mem->cv_nst);
     }
 
     /* linear solver stats */
-    fprintf(outfile, "LS setups                    = %ld\n", cv_mem->cv_nsetups);
+    fprintf(outfile, "LS setups                    = %" SUN_FMT_ld "\n", cv_mem->cv_nsetups);
     if (cv_mem->cv_lmem)
     {
       cvls_mem = (CVLsMem)(cv_mem->cv_lmem);
-      fprintf(outfile, "Jac fn evals                 = %ld\n", cvls_mem->nje);
-      fprintf(outfile, "LS RHS fn evals              = %ld\n", cvls_mem->nfeDQ);
-      fprintf(outfile, "Prec setup evals             = %ld\n", cvls_mem->npe);
-      fprintf(outfile, "Prec solves                  = %ld\n", cvls_mem->nps);
-      fprintf(outfile, "LS iters                     = %ld\n", cvls_mem->nli);
-      fprintf(outfile, "LS fails                     = %ld\n", cvls_mem->ncfl);
-      fprintf(outfile, "Jac-times setups             = %ld\n",
+      fprintf(outfile, "Jac fn evals                 = %" SUN_FMT_ld "\n", cvls_mem->nje);
+      fprintf(outfile, "LS RHS fn evals              = %" SUN_FMT_ld "\n", cvls_mem->nfeDQ);
+      fprintf(outfile, "Prec setup evals             = %" SUN_FMT_ld "\n", cvls_mem->npe);
+      fprintf(outfile, "Prec solves                  = %" SUN_FMT_ld "\n", cvls_mem->nps);
+      fprintf(outfile, "LS iters                     = %" SUN_FMT_ld "\n", cvls_mem->nli);
+      fprintf(outfile, "LS fails                     = %" SUN_FMT_ld "\n", cvls_mem->ncfl);
+      fprintf(outfile, "Jac-times setups             = %" SUN_FMT_ld "\n",
               cvls_mem->njtsetup);
-      fprintf(outfile, "Jac-times evals              = %ld\n", cvls_mem->njtimes);
+      fprintf(outfile, "Jac-times evals              = %" SUN_FMT_ld "\n", cvls_mem->njtimes);
       if (cv_mem->cv_nni > 0)
       {
-        fprintf(outfile, "LS iters per NLS iter        = %" RSYM "\n",
+        fprintf(outfile, "LS iters per NLS iter        = %" SUN_FMT_e "\n",
                 (sunrealtype)cvls_mem->nli / (sunrealtype)cv_mem->cv_nni);
-        fprintf(outfile, "Jac evals per NLS iter       = %" RSYM "\n",
+        fprintf(outfile, "Jac evals per NLS iter       = %" SUN_FMT_e "\n",
                 (sunrealtype)cvls_mem->nje / (sunrealtype)cv_mem->cv_nni);
-        fprintf(outfile, "Prec evals per NLS iter      = %" RSYM "\n",
+        fprintf(outfile, "Prec evals per NLS iter      = %" SUN_FMT_e "\n",
                 (sunrealtype)cvls_mem->npe / (sunrealtype)cv_mem->cv_nni);
       }
     }
 
     /* rootfinding stats */
-    fprintf(outfile, "Root fn evals                = %ld\n", cv_mem->cv_nge);
+    fprintf(outfile, "Root fn evals                = %" SUN_FMT_ld "\n", cv_mem->cv_nge);
 
     /* projection stats */
     if (cv_mem->proj_mem)
     {
       cvproj_mem = (CVodeProjMem)(cv_mem->proj_mem);
-      fprintf(outfile, "Projection fn evals          = %ld\n", cvproj_mem->nproj);
-      fprintf(outfile, "Projection fails             = %ld\n",
+      fprintf(outfile, "Projection fn evals          = %" SUN_FMT_ld "\n", cvproj_mem->nproj);
+      fprintf(outfile, "Projection fails             = %" SUN_FMT_ld "\n",
               cvproj_mem->npfails);
     }
     break;
 
   case SUN_OUTPUTFORMAT_CSV:
     /* step and method stats */
-    fprintf(outfile, "Time,%" RSYM, cv_mem->cv_tn);
+    fprintf(outfile, "Time,%" SUN_FMT_e, cv_mem->cv_tn);
     fprintf(outfile, ",Steps,%ld", cv_mem->cv_nst);
     fprintf(outfile, ",Error test fails,%ld", cv_mem->cv_netf);
     fprintf(outfile, ",NLS step fails,%ld", cv_mem->cv_ncfn);
-    fprintf(outfile, ",Initial step size,%" RSYM, cv_mem->cv_h0u);
-    fprintf(outfile, ",Last step size,%" RSYM, cv_mem->cv_hu);
-    fprintf(outfile, ",Current step size,%" RSYM, cv_mem->cv_next_h);
+    fprintf(outfile, ",Initial step size,%" SUN_FMT_e, cv_mem->cv_h0u);
+    fprintf(outfile, ",Last step size,%" SUN_FMT_e, cv_mem->cv_hu);
+    fprintf(outfile, ",Current step size,%" SUN_FMT_e, cv_mem->cv_next_h);
     fprintf(outfile, ",Last method order,%d", cv_mem->cv_qu);
     fprintf(outfile, ",Current method order,%d", cv_mem->cv_next_q);
     fprintf(outfile, ",Stab. lim. order reductions,%ld", cv_mem->cv_nor);
@@ -1720,7 +1746,7 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
     fprintf(outfile, ",NLS fails,%ld", cv_mem->cv_nnf);
     if (cv_mem->cv_nst > 0)
     {
-      fprintf(outfile, ",NLS iters per step,%" RSYM,
+      fprintf(outfile, ",NLS iters per step,%" SUN_FMT_e,
               (sunrealtype)cv_mem->cv_nni / (sunrealtype)cv_mem->cv_nst);
     }
     else { fprintf(outfile, ",NLS iters per step,0"); }
@@ -1740,11 +1766,11 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
       fprintf(outfile, ",Jac-times evals,%ld", cvls_mem->njtimes);
       if (cv_mem->cv_nni > 0)
       {
-        fprintf(outfile, ",LS iters per NLS iter,%" RSYM,
+        fprintf(outfile, ",LS iters per NLS iter,%" SUN_FMT_e,
                 (sunrealtype)cvls_mem->nli / (sunrealtype)cv_mem->cv_nni);
-        fprintf(outfile, ",Jac evals per NLS iter,%" RSYM,
+        fprintf(outfile, ",Jac evals per NLS iter,%" SUN_FMT_e,
                 (sunrealtype)cvls_mem->nje / (sunrealtype)cv_mem->cv_nni);
-        fprintf(outfile, ",Prec evals per NLS iter,%" RSYM,
+        fprintf(outfile, ",Prec evals per NLS iter,%" SUN_FMT_e,
                 (sunrealtype)cvls_mem->npe / (sunrealtype)cv_mem->cv_nni);
       }
       else

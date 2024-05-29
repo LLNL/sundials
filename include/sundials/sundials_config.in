@@ -71,6 +71,10 @@
  */
 @PRECISION_LEVEL@
 
+#define SUN_FMT_e "@SUNDIALS_REAL_TYPE_FORMAT@"
+#define SUN_FMT_d "@SUNDIALS_INT_FORMAT@"
+#define SUN_FMT_ld "@SUNDIALS_LONG_INT_FORMAT@"
+
 /* Define type of vector indices in SUNDIALS 'sunindextype'.
  * Depending on user choice of index type, one of the following
  * two macros will be defined:

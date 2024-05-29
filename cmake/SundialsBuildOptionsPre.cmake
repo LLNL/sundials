@@ -333,3 +333,24 @@ sundials_option(SUNDIALS_CALIPER_OUTPUT_DIR PATH "Location to write caliper outp
 sundials_option(SUNDIALS_BENCHMARK_NUM_CPUS STRING "Number of CPU cores to run benchmarks with" "40" ADVANCED)
 
 sundials_option(SUNDIALS_BENCHMARK_NUM_GPUS STRING "Number of GPUs to run benchmarks with" "4" ADVANCED)
+
+# ---------------------------------------------------------------
+# Options for output formatting
+# ---------------------------------------------------------------
+
+if(SUNDIALS_PRECISION MATCHES "SINGLE")
+  set(_default_real_type_format "13.6e")
+elseif(SUNDIALS_PRECISION MATCHES "DOUBLE")
+  set(_default_real_type_format "22.15e")
+else()
+  set(_default_real_type_format "25.18Le")
+endif()
+
+sundials_option(SUNDIALS_REAL_TYPE_FORMAT STRING "Format specifier for sunrealtype"
+  "${_default_real_type_format}" ADVANCED)
+
+sundials_option(SUNDIALS_INT_FORMAT STRING "Format specifier for int"
+  "d" ADVANCED)
+
+sundials_option(SUNDIALS_LONG_INT_FORMAT STRING "Format specifier for long int"
+  "ld" ADVANCED)
