@@ -46,6 +46,7 @@
 
 enum class interp_type
 {
+  none = -1,
   hermite,
   lagrange
 };
@@ -71,8 +72,9 @@ struct ProblemOptions
   sunrealtype h = SUN_RCONST(0.01);
 
   // Interpolant type
-  // 0 = Hermite
-  // 1 = Lagrange
+  // -1 = None
+  // 0  = Hermite
+  // 1  = Lagrange
   interp_type i_type = interp_type::hermite;
 };
 
@@ -109,8 +111,20 @@ int main(int argc, char* argv[])
   // Check for inputs
   if (argc > 1)
   {
-    if (std::stoi(argv[1]) == 0) { prob_opts.i_type = interp_type::hermite; }
-    else { prob_opts.i_type = interp_type::lagrange; }
+    if (std::stoi(argv[1]) == -1) { prob_opts.i_type = interp_type::none; }
+    else if (std::stoi(argv[1]) == 0)
+    {
+      prob_opts.i_type = interp_type::hermite;
+    }
+    else if (std::stoi(argv[1]) == 1)
+    {
+      prob_opts.i_type = interp_type::lagrange;
+    }
+    else
+    {
+      std::cerr << "ERROR: Invalid interpolation type option" << std::endl;
+      return 1;
+    }
   }
 
   // Output problem setup
@@ -123,7 +137,11 @@ int main(int argc, char* argv[])
   {
     std::cout << "  interp type  = Hermite\n";
   }
-  else { std::cout << "  interp type  = Lagrange\n"; }
+  else if (prob_opts.i_type == interp_type::lagrange)
+  {
+    std::cout << "  interp type  = Lagrange\n";
+  }
+  else { std::cout << "  interp type  = None\n"; }
 
   // Create SUNDIALS context
   sundials::Context sunctx;
@@ -251,6 +269,11 @@ int run_tests(ARKodeButcherTable Be, ProblemData& prob_data,
     flag = ARKodeSetInterpolantType(erkstep_mem, ARK_INTERP_LAGRANGE);
     if (check_flag(&flag, "ARKodeSetInterpolantType", 1)) { return 1; }
   }
+  else if (prob_opts.i_type == interp_type::none)
+  {
+    flag = ARKodeSetInterpolantType(erkstep_mem, ARK_INTERP_NONE);
+    if (check_flag(&flag, "ERKodeSetInterpolantType", 1)) { return 1; }
+  }
 
   // Attach Butcher tables
   flag = ERKStepSetTable(erkstep_mem, Be);
@@ -305,8 +328,11 @@ int run_tests(ARKodeButcherTable Be, ProblemData& prob_data,
     flag = ARKodeGetLastStep(erkstep_mem, &h_last);
     if (check_flag(&flag, "ARKodeGetLastStep", 1)) { return 1; }
 
-    flag = ARKodeGetDky(erkstep_mem, t_ret - h_last / TWO, 0, y);
-    if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
+    if (prob_opts.i_type != interp_type::none)
+    {
+      flag = ARKodeGetDky(erkstep_mem, t_ret - h_last / TWO, 0, y);
+      if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
+    }
 
     // Stiffly accurate (and FSAL) methods do not require an additional RHS
     // evaluation to get the new RHS value at the end of a step for dense

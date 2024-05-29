@@ -175,10 +175,10 @@ options as the vector they are cloned from while vectors created with
   appropriate HYPRE functions.
 
 * :c:func:`N_VNewEmpty_ParHyp`, and :c:func:`N_VMake_ParHyp` set the field
-   *own_parvector* to ``SUNFALSE``.  The function :c:func:`N_VDestroy_ParHyp()`
+   *own_parvector* to ``SUNFALSE``.  The implementation of :c:func:`N_VDestroy`
    will not attempt to delete an underlying HYPRE vector for any ``N_Vector``
-   with *own_parvector* set to ``SUNFALSE``.  In such a case, it is the
-   user's responsibility to delete the underlying vector.
+   with *own_parvector* set to ``SUNFALSE``.  In such a case, it is the user's
+   responsibility to delete the underlying vector.
 
 * To maximize efficiency, vector operations in the NVECTOR_PARHYP
   implementation that have more than one ``N_Vector`` argument do not

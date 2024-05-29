@@ -240,13 +240,11 @@ them to the ManyVector in :c:func:`N_VNew_ManyVector`.
 
 **Notes**
 
-* :c:func:`N_VNew_ManyVector` sets
-  the field ``own_data = SUNFALSE``.
-  :c:func:`N_VDestroy_ManyVector()` will not attempt to call
-  :c:func:`N_VDestroy()` on any subvectors contained in the
-  subvector array for any ``N_Vector`` with ``own_data`` set to
-  ``SUNFALSE``. In such a case, it is the user's responsibility to
-  deallocate the subvectors.
+* :c:func:`N_VNew_ManyVector` sets the field ``own_data = SUNFALSE``. The
+  ManyVector implementation of :c:func:`N_VDestroy` will not attempt to call
+  :c:func:`N_VDestroy` on any subvectors contained in the subvector array for
+  any ``N_Vector`` with ``own_data`` set to ``SUNFALSE``. In such a case, it is
+  the user's responsibility to deallocate the subvectors.
 
 * To maximize efficiency, arithmetic vector operations in the
   NVECTOR_MANYVECTOR implementation that have more than one

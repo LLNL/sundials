@@ -52,6 +52,26 @@ Then in the introduction for each of the stepper-specific documentation sections
 we clarify the categories of these functions that are supported.
 
 
+.. _ARKODE.Usage.Initialization:
+
+ARKODE initialization and deallocation functions
+------------------------------------------------------
+
+For functions to create an ARKODE stepper instance see :c:func:`ARKStepCreate`,
+:c:func:`ERKStepCreate`, :c:func:`MRIStepCreate`, or :c:func:`SPRKStepCreate`.
+
+.. c:function:: void ARKodeFree(void** arkode_mem)
+
+   This function frees the problem memory created a stepper constructor.
+
+   :param arkode_mem: pointer to the ARKODE stepper memory block.
+   :return: none
+
+   .. versionadded:: x.y.z
+
+      This function replaces stepper specific versions in ARKStep, ERKStep,
+      MRIStep, and SPRKStep.
+
 
 .. _ARKODE.Usage.Tolerances:
 
@@ -709,9 +729,12 @@ the user has set a stop time (with a call to the optional input function
                  time, *tout*, in the direction of integration,
                  i.e. :math:`t_{n-1} <` *tout* :math:`\le t_{n}` for forward
                  integration, or :math:`t_{n} \le` *tout* :math:`< t_{n-1}` for
-                 backward integration.  It will then compute an approximation
-                 to the solution :math:`y(tout)` by interpolation (as described
-                 in :numref:`ARKODE.Mathematics.Interpolation`).
+                 backward integration. If interpolation is enabled (on by
+                 default), it will then compute an approximation to the solution
+                 :math:`y(tout)` by interpolation (as described in
+                 :numref:`ARKODE.Mathematics.Interpolation`). Otherwise, the
+                 solution at the time reached by the solver is returned,
+                 :math:`y(tret)`.
 
                  The *ARK_ONE_STEP* option tells the solver to only take a
                  single internal step, :math:`y_{n-1} \to y_{n}`, and return the solution
@@ -852,7 +875,6 @@ Set integrator method order                       :c:func:`ARKodeSetOrder`      
 Set dense output interpolation type (SPRKStep)    :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_LAGRANGE``
 Set dense output interpolation type (others)      :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_HERMITE``
 Set dense output polynomial degree                :c:func:`ARKodeSetInterpolantDegree`     5
-Supply a pointer to a diagnostics output file     :c:func:`ARKodeSetDiagnostics`           ``NULL``
 Disable time step adaptivity (fixed-step mode)    :c:func:`ARKodeSetFixedStep`             disabled
 Supply an initial step size to attempt            :c:func:`ARKodeSetInitStep`              estimated
 Maximum no. of warnings for :math:`t_n+h = t_n`   :c:func:`ARKodeSetMaxHnilWarns`          10
@@ -922,12 +944,41 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
 .. c:function:: int ARKodeSetInterpolantType(void* arkode_mem, int itype)
 
-   Specifies use of the Lagrange or Hermite interpolation modules (used for
-   dense output -- interpolation of solution output values and implicit
-   method predictors).
+   Specifies the interpolation type used for dense output (interpolation of
+   solution output values) and implicit method predictors. By default,
+   Hermite interpolation is used except with SPRK methods where Lagrange
+   interpolation is the default.
+
+   This routine must be called *after* the calling a stepper constructor. After
+   the first call to :c:func:`ARKodeEvolve` the interpolation type may not be
+   changed without first calling a stepper ``ReInit`` function.
+
+   The Hermite interpolation module (``ARK_INTERP_HERMITE``) is described in
+   :numref:`ARKODE.Mathematics.Interpolation.Hermite`, and the Lagrange
+   interpolation module (``ARK_INTERP_LAGRANGE``) is described in
+   :numref:`ARKODE.Mathematics.Interpolation.Lagrange`. ``ARK_INTERP_NONE`` will
+   disable interpolation.
+
+   When interpolation is disabled, using rootfinding is not supported, implicit
+   methods must use the trivial predictor (the default option), and
+   interpolation at stop times cannot be used (interpolating at stop times is
+   disabled by default). With interpolation disabled, calling
+   :c:func:`ARKodeEvolve` in ``ARK_NORMAL`` mode will return at or past the
+   requested output time (setting a stop time may still be used to halt the
+   integrator at a specific time).
+
+   Disabling interpolation will reduce the memory footprint of an integrator by
+   two or more state vectors (depending on the interpolant type and degree)
+   which can be beneficial when interpolation is not needed e.g., when
+   integrating to a final time without output in between or using ARKStep as an
+   explicit fast time scale integrator with MRI methods.
+
+   This routine frees any previously-allocated interpolation module, and
+   re-creates one according to the specified argument.
 
    :param arkode_mem: pointer to the ARKODE memory block.
-   :param itype: requested interpolant type (``ARK_INTERP_HERMITE`` or ``ARK_INTERP_LAGRANGE``).
+   :param itype: requested interpolant type: ``ARK_INTERP_HERMITE``,
+                 ``ARK_INTERP_LAGRANGE``, or ``ARK_INTERP_NONE``
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
@@ -935,22 +986,17 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
    :retval ARK_ILL_INPUT: the *itype* argument is not recognized or the
                           interpolation module has already been initialized.
 
-   .. note::
+   .. versionchanged:: x.y.z
 
-      The Hermite interpolation module is described in
-      :numref:`ARKODE.Mathematics.Interpolation.Hermite`, and the Lagrange interpolation module
-      is described in :numref:`ARKODE.Mathematics.Interpolation.Lagrange`.
+      Added the ``ARK_INTERP_NONE`` option to disable interpolation.
 
-      This routine frees any previously-allocated interpolation module, and re-creates
-      one according to the specified argument.  Thus any previous calls to
-      :c:func:`ARKodeSetInterpolantDegree` will be nullified.
-
-      After the first call to :c:func:`ARKodeEvolve` the interpolation type may
-      not be changed without first calling ``*StepReInit``.
-
-      If this routine is not called, the Hermite interpolation module will be used.
+      Values set by a previous call to :c:func:`ARKStepSetInterpolantDegree` are
+      no longer nullified by a call to :c:func:`ARKStepSetInterpolantType`.
 
    .. versionadded:: x.y.z
+
+      This function replaces stepper specific versions in ARKStep, ERKStep,
+      MRIStep, and SPRKStep.
 
 
 .. c:function:: int ARKodeSetInterpolantDegree(void* arkode_mem, int degree)
@@ -1475,7 +1521,7 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
 
       Any value below 1.0 will imply a reset to the default value.
 
-      If both this and one of :c:func:`ARKodeSetAdaptivityMethod` or
+      If both this and one of the stepper ``SetAdaptivityMethod`` functions or
       :c:func:`ARKodeSetAdaptController` will be called, then this routine must be called
       *second*.
 
@@ -1876,7 +1922,7 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       The default is to use the implicit right-hand side function
-      provided to :c:func:`ARKodeCreate` in nonlinear system functions. If the
+      provided to the stepper constructor in nonlinear system functions. If the
       input implicit right-hand side function is ``NULL``, the default is used.
 
       When using a non-default nonlinear solver, this function must be called

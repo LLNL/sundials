@@ -14,6 +14,7 @@ build:
     - graphviz
 
 # Build documentation in the doc/ directory with Sphinx
+# TODO(DJG): Once multiple references are fixed, add fail_on_warning: true
 sphinx:
    configuration: doc/superbuild/source/conf.py
 

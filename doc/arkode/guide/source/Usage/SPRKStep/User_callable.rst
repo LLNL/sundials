@@ -244,42 +244,10 @@ Optional inputs for SPRKStep
 
 .. c:function:: int SPRKStepSetInterpolantType(void* arkode_mem, int itype)
 
-   Specifies use of the Lagrange or Hermite interpolation modules (used for
-   dense output -- interpolation of solution output values and implicit
-   method predictors).
-
-   :param arkode_mem: pointer to the SPRKStep memory block.
-   :param itype: requested interpolant type (``ARK_INTERP_HERMITE`` or ``ARK_INTERP_LAGRANGE``)
-
-   :retval ARK_SUCCESS: if successful
-   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
-   :retval ARK_MEM_FAIL: if the interpolation module cannot be allocated
-   :retval ARK_ILL_INPUT: if the *itype* argument is not recognized or the
-                          interpolation module has already been initialized
-
-   .. note::
-
-      The Hermite interpolation module is described in
-      :numref:`ARKODE.Mathematics.Interpolation.Hermite`, and the Lagrange interpolation module
-      is described in :numref:`ARKODE.Mathematics.Interpolation.Lagrange`.
-
-      This routine frees any previously-allocated interpolation module, and re-creates
-      one according to the specified argument.  Thus any previous calls to
-      :c:func:`SPRKStepSetInterpolantDegree()` will be nullified.
-
-      This routine must be called *after* the call to :c:func:`SPRKStepCreate`.
-      After the first call to :c:func:`SPRKStepEvolve()` the interpolation type may
-      not be changed without first calling :c:func:`SPRKStepReInit()`.
-
-      If this routine is not called, the Lagrange interpolation module will be used.
-
-      Interpolated outputs may or may not conserve the Hamiltonian. Our testing
-      has shown that Lagrange interpolation typically performs well in this
-      regard, while Hermite interpolation does not.
-
    .. deprecated:: x.y.z
 
-      Use :c:func:`ARKodeSetInterpolantType` instead.
+      This function is now a wrapper to :c:func:`ARKodeSetInterpolantType`, see
+      the documentation for that function instead.
 
 
 .. c:function:: int SPRKStepSetInterpolantDegree(void* arkode_mem, int degree)
@@ -438,7 +406,7 @@ Optional inputs for IVP method selection
    +=============================+===========================================+=====================================+
    | Set integrator method order | :c:func:`SPRKStepSetOrder()`              | 4                                   |
    +-----------------------------+-------------------------------------------+-------------------------------------+
-   | Set SPRK method             | :c:func:`SPRKStepSetMethod()`             | :c:type:`ARKODE_SPRK_MCLACHLAN_4_4` |
+   | Set SPRK method             | :c:func:`SPRKStepSetMethod()`             | ``ARKODE_SPRK_MCLACHLAN_4_4``       |
    +-----------------------------+-------------------------------------------+-------------------------------------+
    | Set SPRK method by name     | :c:func:`SPRKStepSetMethodName()`         | "ARKODE_SPRK_MCLACHLAN_4_4"         |
    +-----------------------------+-------------------------------------------+-------------------------------------+

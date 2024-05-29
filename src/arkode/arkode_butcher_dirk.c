@@ -55,6 +55,28 @@ ARKodeButcherTable ARKodeButcherTable_LoadDIRKByName(const char* imethod)
 }
 
 /*---------------------------------------------------------------
+  Returns the string name for a pre-set DIRK method by its ID.
+
+  Input:  imethod -- integer key for the desired method
+  ---------------------------------------------------------------*/
+const char* ARKodeButcherTable_DIRKIDToName(ARKODE_DIRKTableID imethod)
+{
+  /* Use X-macro to test each method name */
+  switch (imethod)
+  {
+#define ARK_BUTCHER_TABLE(name, coeff) \
+  case name: return #name;
+#include "arkode_butcher_dirk.def"
+#undef ARK_BUTCHER_TABLE
+
+  default:
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Unknown Butcher table");
+    return NULL;
+  }
+}
+
+/*---------------------------------------------------------------
   Returns Butcher table ID for pre-set DIRK methods.
 
   Input:  method -- string key for the desired method
