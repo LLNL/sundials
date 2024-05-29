@@ -707,7 +707,7 @@ parameter in turn through the functions :c:func:`CVodeGetSens1` and
      * ``dkyS`` -- the vector containing the derivative. The space for ``dkyS`` must be allocated by the user.
 
    **Return value:**
-     * ``CV_SUCCESS`` -- :c:func:`CVodeGetQuadDky1` succeeded.
+     * ``CV_SUCCESS`` -- :c:func:`CVodeGetSensDky1` succeeded.
      * ``CV_MEM_NULL`` -- The pointer to ``cvode_mem`` was ``NULL``.
      * ``CV_NO_SENS`` -- Forward sensitivity analysis was not initialized.
      * ``CV_BAD_DKY`` -- ``dkyS`` or one of the vectors ``dkyS[i]`` is ``NULL``.
@@ -1554,7 +1554,7 @@ each parameter in turn through the functions :c:func:`CVodeGetQuadSens1` and
      * ``dkyQS`` -- the vector containing the derivative on output. The space for ``dkyQS`` must be allocated by the user.
 
    **Return value:**
-     * ``CV_SUCCESS`` -- :c:func:`CVodeGetQuadDky1` succeeded.
+     * ``CV_SUCCESS`` -- :c:func:`CVodeGetQuadSensDky1` succeeded.
      * ``CVODE_MEM_NULL`` -- ``cvode_mem`` was ``NULL``.
      * ``CV_NO_SENS`` -- Forward sensitivity analysis was not initialized.
      * ``CV_NO_QUADSENS`` -- Quadratures depending on the sensitivities were not activated.

@@ -309,7 +309,6 @@ for the NVECTOR_SYCL module.
 The ``SUNSyclExecPolicy`` Class
 --------------------------------
 
-
 In order to provide maximum flexibility to users, the SYCL kernel execution
 parameters used by kernels within SUNDIALS are defined by objects of the
 ``sundials::sycl::ExecPolicy`` abstract class type (this class can be accessed in
@@ -322,16 +321,15 @@ class is defined as
 where the ``sundials::sycl::ExecPolicy`` class is defined in the header file
 ``sundials_sycl_policies.hpp``, as follows:
 
-.. code-block:: c++
+.. cpp:class:: sundials::sycl::ExecPolicy
 
-   class ExecPolicy
-   {
-   public:
-      virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const = 0;
-      virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const = 0;
-      virtual ExecPolicy* clone() const = 0;
-      virtual ~ExecPolicy() {}
-   };
+   .. cpp:function:: virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0)
+
+   .. cpp:function:: virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0)
+
+   .. cpp:function:: virtual ExecPolicy* clone() const
+
+   .. cpp:function:: virtual ~ExecPolicy()
 
 For consistency the function names and behavior mirror the execution policies
 for the CUDA and HIP vectors. In the SYCL case the ``blockSize`` is the local

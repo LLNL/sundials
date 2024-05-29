@@ -16,27 +16,13 @@
 Features for GPU Accelerated Computing
 =============================================
 
-.. ifconfig:: package_name == 'kinsol'
-
-   In this section, we introduce the SUNDIALS GPU programming model and
-   highlight SUNDIALS GPU features. The model leverages the fact that all of the
-   SUNDIALS packages interact with simulation data either through the shared
-   vector, matrix, and solver APIs (see Chapters :numref:`NVectors`,
-   :numref:`SUNMatrix`, and :numref:`SUNLinSol`) or through user-supplied
-   callback functions. Thus, under the model, the overall structure of the
-   user’s calling program, and the way users interact with the SUNDIALS packages
-   is similar to using SUNDIALS in CPU-only environments.
-
-.. ifconfig:: package_name != 'kinsol'
-
-   In this section, we introduce the SUNDIALS GPU programming model and
-   highlight SUNDIALS GPU features. The model leverages the fact that all of the
-   SUNDIALS packages interact with simulation data either through the shared
-   vector, matrix, and solver APIs (see Chapters :numref:`NVectors`,
-   :numref:`SUNMatrix`, :numref:`SUNLinSol`, and :numref:`SUNNonlinSol`) or
-   through user-supplied callback functions. Thus, under the model, the overall
-   structure of the user’s calling program, and the way users interact with the
-   SUNDIALS packages is similar to using SUNDIALS in CPU-only environments.
+In this section, we introduce the SUNDIALS GPU programming model and highlight
+SUNDIALS GPU features. The model leverages the fact that all of the SUNDIALS
+packages interact with simulation data either through the shared vector, matrix,
+and solver APIs or through user-supplied callback functions. Thus, under the
+model, the overall structure of the user’s calling program, and the way users
+interact with the SUNDIALS packages is similar to using SUNDIALS in CPU-only
+environments.
 
 
 .. _SUNDIALS.GPU.Model:

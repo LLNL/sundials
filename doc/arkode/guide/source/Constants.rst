@@ -578,8 +578,18 @@ contains the ARKODE output constants.
    |                                     |      | :c:type:`SUNLinearSolver` module.                          |
    +-------------------------------------+------+------------------------------------------------------------+
 
+.. c:enum:: ARKRelaxSolver
 
+   Nonlinear solver identifiers used to specify the method for solving
+   :eq:`ARKODE_RELAX_NLS` when relaxation is enabled.
 
+   .. c:enumerator:: ARK_RELAX_NEWTON
+
+      Newton's method
+
+   .. c:enumerator:: ARK_RELAX_BRENT
+
+      Brent's method
 ..
    Commented-out table rows:
 

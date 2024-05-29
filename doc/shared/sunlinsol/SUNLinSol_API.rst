@@ -44,54 +44,58 @@ set up the linear solver object to utilize an updated matrix :math:`A`
 (:c:func:`SUNLinSolSetup`), and destroy a linear solver object
 (:c:func:`SUNLinSolFree`).
 
+.. c:enum:: SUNLinearSolver_Type
 
-.. c:function:: SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver LS)
-
-   Returns the type identifier for the linear solver *LS*.
-
-   **Return value:**
-
-      * ``SUNLINEARSOLVER_DIRECT (0)`` -- the SUNLinSol module
-        requires a matrix, and computes an "exact" solution to the linear
-        system defined by that matrix.
-
-      * ``SUNLINEARSOLVER_ITERATIVE (1)`` -- the SUNLinSol module does
-        not require a matrix (though one may be provided), and computes
-        an inexact solution to the linear system using a matrix-free
-        iterative algorithm. That is it solves the linear system defined
-        by the package-supplied ``ATimes`` routine (see
-        :c:func:`SUNLinSolSetATimes()` below), even if that linear system
-        differs from the one encoded in the matrix object (if one is
-        provided). As the solver computes the solution only inexactly (or
-        may diverge), the linear solver should check for solution
-        convergence/accuracy as appropriate.
-
-      * ``SUNLINEARSOLVER_MATRIX_ITERATIVE (2)`` -- the SUNLinSol
-        module requires a matrix, and computes an inexact solution to the
-        linear system defined by that matrix using an iterative
-        algorithm. That is it solves the linear system defined by the
-        matrix object even if that linear system differs from that
-        encoded by the package-supplied ``ATimes`` routine. As the solver
-        computes the solution only inexactly (or may diverge), the linear
-        solver should check for solution convergence/accuracy as
-        appropriate.
-
-      * ``SUNLINEARSOLVER_MATRIX_EMBEDDED (3)`` -- the SUNLinSol module sets up
-        and solves the specified linear system at each linear solve call.  Any
-        matrix-related data structures are held internally to the linear solver itself,
-        and are not provided by the SUNDIALS package.
-
-   **Usage:**
-
-      .. code-block:: c
-
-         type = SUNLinSolGetType(LS);
+   An identifier indicating the type of linear solver.
 
    .. note::
 
       See :numref:`SUNLinSol.Intended` for more information on
       intended use cases corresponding to the linear solver type.
 
+   .. c:enumerator:: SUNLINEARSOLVER_DIRECT
+
+      The linear solver requires a matrix, and computes an "exact" solution to
+      the linear system defined by that matrix.
+
+   .. c:enumerator:: SUNLINEARSOLVER_ITERATIVE
+
+      The linear solver does not require a matrix (though one may be provided),
+      and computes an inexact solution to the linear system using a matrix-free
+      iterative algorithm. That is it solves the linear system defined by the
+      package-supplied ``ATimes`` routine (see :c:func:`SUNLinSolSetATimes()`
+      below), even if that linear system differs from the one encoded in the
+      matrix object (if one is provided). As the solver computes the solution
+      only inexactly (or may diverge), the linear solver should check for
+      solution convergence/accuracy as appropriate.
+
+   .. c:enumerator:: SUNLINEARSOLVER_MATRIX_ITERATIVE
+
+      The linear solver module requires a matrix, and computes an inexact
+      solution to the linear system defined by that matrix using an iterative
+      algorithm. That is it solves the linear system defined by the matrix
+      object even if that linear system differs from that encoded by the
+      package-supplied ``ATimes`` routine. As the solver computes the solution
+      only inexactly (or may diverge), the linear solver should check for
+      solution convergence/accuracy as appropriate.
+
+   .. c:enumerator:: SUNLINEARSOLVER_MATRIX_EMBEDDED
+
+      The linear solver sets up and solves the specified linear system at each
+      linear solve call.  Any matrix-related data structures are held internally
+      to the linear solver itself, and are not provided by the SUNDIALS package.
+
+
+.. c:function:: SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver LS)
+
+   Returns the :c:enum:`SUNLinearSolver_Type` type identifier for the linear
+   solver.
+
+   **Usage:**
+
+      .. code-block:: c
+
+         type = SUNLinSolGetType(LS);
 
 .. c:function:: SUNLinearSolver_ID SUNLinSolGetID(SUNLinearSolver LS)
 
@@ -567,51 +571,96 @@ provide additional information to the user in case of a linear solver failure.
 The generic SUNLinearSolver module
 -----------------------------------------
 
-SUNDIALS packages interact with specific SUNLinSol implementations
-through the generic SUNLinearSolver abstract base class.  The
-``SUNLinearSolver`` type is a pointer to a structure containing an
-implementation-dependent *content* field, and an *ops* field, and is
-defined as
+SUNDIALS packages interact with linear solver implementations through the
+:c:type:`SUNLinearSolver` class. A :c:type:`SUNLinearSolver` is a pointer to the
+:c:struct:`_generic_SUNLinearSolver` structure:
 
 .. c:type:: struct _generic_SUNLinearSolver *SUNLinearSolver
 
-and the generic structure is defined as
+.. c:struct:: _generic_SUNLinearSolver
 
-.. code-block:: c
+   The structure defining the SUNDIALS linear solver class.
 
-   struct _generic_SUNLinearSolver {
-     void *content;
-     struct _generic_SUNLinearSolver_Ops *ops;
-   };
+   .. c:member:: void *content
 
-where the ``_generic_SUNLinearSolver_Ops`` structure is a list of
-pointers to the various actual linear solver operations provided by a
-specific implementation.  The ``_generic_SUNLinearSolver_Ops``
-structure is defined as
+      Pointer to the linear solver-specific member data
 
-.. code-block:: c
+   .. c:member:: SUNLinearSolver_Ops ops
 
-   struct _generic_SUNLinearSolver_Ops {
-     SUNLinearSolver_Type (*gettype)(SUNLinearSolver);
-     SUNLinearSolver_ID   (*getid)(SUNLinearSolver);
-     SUNErrCode           (*setatimes)(SUNLinearSolver, void*, SUNATimesFn);
-     SUNErrCode           (*setpreconditioner)(SUNLinearSolver, void*,
-                                               SUNPSetupFn, SUNPSolveFn);
-     SUNErrCode           (*setscalingvectors)(SUNLinearSolver,
-                                               N_Vector, N_Vector);
-     SUNErrCode           (*setzeroguess)(SUNLinearSolver, sunbooleantype);
-     SUNErrCode           (*initialize)(SUNLinearSolver);
-     int                  (*setup)(SUNLinearSolver, SUNMatrix);
-     int                  (*solve)(SUNLinearSolver, SUNMatrix, N_Vector,
-                                   N_Vector, sunrealtype);
-     int                  (*numiters)(SUNLinearSolver);
-     sunrealtype          (*resnorm)(SUNLinearSolver);
-     sunindextype         (*lastflag)(SUNLinearSolver);
-     SUNErrCode           (*space)(SUNLinearSolver, long int*, long int*);
-     N_Vector             (*resid)(SUNLinearSolver);
-     SUNErrCode           (*free)(SUNLinearSolver);
-   };
+      A virtual table of linear solver operations provided by a specific
+      implementation
 
+   .. c:member:: SUNContext sunctx
+
+      The SUNDIALS simulation context
+
+The virtual table structure is defined as
+
+.. c:type:: struct _generic_SUNLinearSolver_Ops *SUNLinearSolver_Ops
+
+.. c:struct:: _generic_SUNLinearSolver_Ops
+
+   The structure defining :c:type:`SUNLinearSolver` operations.
+
+   .. c:member:: SUNLinearSolver_Type (*gettype)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolGetType`
+
+   .. c:member:: SUNLinearSolver_ID (*getid)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolGetID`
+
+   .. c:member:: SUNErrCode (*setatimes)(SUNLinearSolver, void*, SUNATimesFn)
+
+      The function implementing :c:func:`SUNLinSolSetATimes`
+
+   .. c:member:: SUNErrCode (*setpreconditioner)(SUNLinearSolver, void*, SUNPSetupFn, SUNPSolveFn)
+
+      The function implementing :c:func:`SUNLinSolSetPreconditioner`
+
+   .. c:member:: SUNErrCode (*setscalingvectors)(SUNLinearSolver, N_Vector, N_Vector)
+
+      The function implementing :c:func:`SUNLinSolSetScalingVectors`
+
+   .. c:member:: SUNErrCode (*setzeroguess)(SUNLinearSolver, sunbooleantype)
+
+      The function implementing :c:func:`SUNLinSolSetZeroGuess`
+
+   .. c:member:: SUNErrCode (*initialize)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolInitialize`
+
+   .. c:member:: int (*setup)(SUNLinearSolver, SUNMatrix)
+
+      The function implementing :c:func:`SUNLinSolSetup`
+
+   .. c:member:: int (*solve)(SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, sunrealtype)
+
+      The function implementing :c:func:`SUNLinSolSolve`
+
+   .. c:member:: int (*numiters)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolNumIters`
+
+   .. c:member:: sunrealtype (*resnorm)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolResNorm`
+
+   .. c:member:: sunindextype (*lastflag)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolLastFlag`
+
+   .. c:member:: SUNErrCode (*space)(SUNLinearSolver, long int*, long int*)
+
+      The function implementing :c:func:`SUNLinSolSpace`
+
+   .. c:member:: N_Vector (*resid)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolResid`
+
+   .. c:member:: SUNErrCode (*free)(SUNLinearSolver)
+
+      The function implementing :c:func:`SUNLinSolFree`
 
 The generic SUNLinSol class defines and implements the linear solver
 operations defined in :numref:`SUNLinSol.CoreFn` -- :numref:`SUNLinSol.GetFn`.
@@ -803,11 +852,12 @@ Additionally, a ``SUNLinearSolver`` implementation *may* do the following:
 
 
 
-Each SUNLinSol implementation included in SUNDIALS has a unique
-identifier specified in enumeration and shown in
-:numref:`SUNLinSol.API.IDs`. It is recommended that a
-user-supplied SUNLinSol implementation use the
-``SUNLINEARSOLVER_CUSTOM`` identifier.
+.. c:enum:: SUNLinearSolver_ID
+
+   Each SUNLinSol implementation included in SUNDIALS has a unique identifier
+   specified in enumeration and shown in :numref:`SUNLinSol.API.IDs`. It is
+   recommended that a user-supplied SUNLinSol implementation use the
+   ``SUNLINEARSOLVER_CUSTOM`` identifier.
 
 .. _SUNLinSol.API.IDs:
 .. table:: Identifiers associated with :c:type:`SUNLinearSolver`

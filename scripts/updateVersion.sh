@@ -327,7 +327,7 @@ done
 # Update rst documentation
 # ------------------------------------------------------------------------------
 
-fn="../doc/shared/versions.py"
+fn="../doc/shared/sundials_vars.py"
 sedi "s/arkode_version =.*/arkode_version = \'v${ark_ver}\'/" $fn
 sedi "s/cvode_version =.*/cvode_version = \'v${cv_ver}\'/" $fn
 sedi "s/cvodes_version =.*/cvodes_version = \'v${cvs_ver}\'/" $fn
