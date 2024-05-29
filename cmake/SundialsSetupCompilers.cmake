@@ -95,6 +95,19 @@ if(ENABLE_ALL_WARNINGS)
 
   set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function ${CMAKE_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function ${CMAKE_CXX_FLAGS}")
+
+  # TODO(DJG): Add -fcheck=all,no-pointer,no-recursion once Jenkins is updated
+  # to use gfortran > 5.5 which segfaults with -fcheck=array-temps,bounds,do,mem
+  # no- options were added in gfortran 6
+  #
+  # Exclude run-time pointer checks (no-pointer) because passing null objects
+  # to SUNDIALS functions (e.g., sunmat => null() to SetLinearSolver) causes a
+  # run-time error with this check
+  #
+  # Exclude checks for subroutines and functions not marked as recursive
+  # (no-recursion) e.g., ark_brusselator1D_task_local_nls_f2003 calls
+  # SUNNonlinsolFree from within a custom nonlinear solver implementation of
+  # SUNNonlinsolFree which causes a run-time error with this check
   set(CMAKE_Fortran_FLAGS "-Wall -Wpedantic -Wno-unused-dummy-argument -Wno-c-binding-type -ffpe-summary=none ${CMAKE_Fortran_FLAGS}")
 endif()
 

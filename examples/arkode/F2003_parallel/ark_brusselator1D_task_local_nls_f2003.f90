@@ -76,11 +76,11 @@ module ode_mod
   integer, parameter :: Nvar = 3
 
   ! MPI variables
-  integer, target        :: comm   ! communicator
-  integer                :: myid   ! process ID
-  integer                :: nprocs ! total number of processes
-  integer                :: reqS   ! MPI send request handle
-  integer                :: reqR   ! MPI receive request handle
+  integer, target :: comm   ! communicator
+  integer         :: myid   ! process ID
+  integer         :: nprocs ! total number of processes
+  integer         :: reqS   ! MPI send request handle
+  integer         :: reqR   ! MPI receive request handle
 
   ! Excahnge buffers
   real(c_double) :: Wsend(Nvar), Wrecv(Nvar)
@@ -346,7 +346,6 @@ contains
   ! Preconditioner functions
   ! --------------------------------------------------------------
 
-
   ! Sets P = I - gamma * J
   integer(c_int) function PSetup(t, sunvec_y, sunvec_f, jok, jcurPtr, gamma, &
        user_data) result(ierr) bind(C)
@@ -462,7 +461,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
     use fnvector_mpiplusx_mod
 
     !======= Declarations =========
@@ -758,7 +756,6 @@ contains
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
 
-
     !======= Declarations =========
     implicit none
 
@@ -777,7 +774,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
 
     !======= Declarations =========
     implicit none
@@ -817,8 +813,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
-
     use fnvector_mpiplusx_mod
 
     use ode_mod, only : comm
@@ -880,10 +874,6 @@ contains
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
 
-
-
-
-
     !======= Declarations =========
     implicit none
 
@@ -911,7 +901,6 @@ contains
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
 
-
     !======= Declarations =========
     implicit none
 
@@ -931,7 +920,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
 
     !======= Declarations =========
     implicit none
@@ -954,7 +942,6 @@ contains
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
 
-
     !======= Declarations =========
     implicit none
 
@@ -976,9 +963,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
     use fnvector_serial_mod
-
     use fsunnonlinsol_newton_mod
     use fsunlinsol_dense_mod
     use fsunmatrix_dense_mod
@@ -995,7 +980,7 @@ contains
     type(SUNNonlinearSolver),     pointer :: sunnls ! SUNDIALS nonlinear solver
     type(SUNNonlinearSolver_Ops), pointer :: nlsops ! solver operations
 
-    integer        :: ierr   ! MPI error status
+    integer :: ierr   ! MPI error status
 
     !======= Internals ============
 
@@ -1258,6 +1243,9 @@ subroutine EvolveProblemIMEX(sunvec_y)
   end if
 
   ! Create the (non)linear solver
+  sun_NLS => null()
+  sun_LS => null()
+
   if (global) then
 
      ! Create nonlinear solver
@@ -1948,6 +1936,7 @@ subroutine ExchangeAllEnd()
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+
   use ode_mod, only : comm, reqS, reqR, c
 
   !======= Declarations =========
@@ -1983,9 +1972,6 @@ subroutine SetupProblem()
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-
-
   use fnvector_serial_mod
   use fnvector_mpiplusx_mod
   use fnvector_mpimanyvector_mod
@@ -2252,6 +2238,7 @@ subroutine FreeProblem()
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
   use fsundials_core_mod
+
   use ode_mod, only : sunctx, logger, myid, nout, umask_s, umask, vmask, wmask
 
   !======= Declarations =========
