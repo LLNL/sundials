@@ -86,4 +86,30 @@ static inline void sunCompensatedSum(sunrealtype base, sunrealtype inc,
   *sum                      = tmp2;
 }
 
+#define SUN_TABLE_WIDTH "28"
+
+static void sunfprintf_real(FILE* fp, SUNOutputFormat fmt, const char* name, sunrealtype value)
+{
+  if (fmt == SUN_OUTPUTFORMAT_TABLE)
+  {
+    fprintf(fp, "%-" SUN_TABLE_WIDTH "s = %" SUN_FMT_e "\n", name, value);
+  }
+  else
+  {
+    fprintf(fp, "%s,%" SUN_FMT_e, name, value);
+  }
+}
+
+static void sunfprintf_long_int(FILE* fp, SUNOutputFormat fmt, const char* name, long int value)
+{
+  if (fmt == SUN_OUTPUTFORMAT_TABLE)
+  {
+    fprintf(fp, "%-" SUN_TABLE_WIDTH "s = %" SUN_FMT_ld "\n", name, value);
+  }
+  else
+  {
+    fprintf(fp, "%s,%" SUN_FMT_ld, name, value);
+  }
+}
+
 #endif /* _SUNDIALS_UTILS_H */
