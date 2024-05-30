@@ -750,7 +750,7 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
   if (prob_opts.r_type == rk_type::impl || prob_opts.r_type == rk_type::imex)
   {
     flag = ARKodeGetNumNonlinSolvIters(arkstep_mem, &nni);
-    if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return 1;
+    if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
 
     // Remove one evaluation per implicit stage
     int implicit_stages = (explicit_first_stage) ? stages - 1 : stages;
