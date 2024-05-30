@@ -58,25 +58,26 @@ typedef MRIStepInnerStepper SUNStepper;
 SUNDIALS_EXPORT ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(
   int sequential_methods, int stages, int partitions, int order);
 SUNDIALS_EXPORT void ARKodeSplittingCoefficients_Free(ARKodeSplittingCoefficients B);
-SUNDIALS_EXPORT void ARKodeSplittingCoefficients_Space(ARKodeSplittingCoefficients B,
-                                                 sunindextype* liw,
-                                                 sunindextype* lrw);
+SUNDIALS_EXPORT void ARKodeSplittingCoefficients_Space(
+  ARKodeSplittingCoefficients B, sunindextype* liw, sunindextype* lrw);
 SUNDIALS_EXPORT ARKodeSplittingCoefficients
 ARKodeSplittingCoefficients_Copy(ARKodeSplittingCoefficients B);
 
 /* Constructors for splitting coefficients */
 SUNDIALS_EXPORT ARKodeSplittingCoefficients
 ARKodeSplittingCoefficients_LieTrotter(int partitions);
-SUNDIALS_EXPORT ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Strang(int partitions);
+SUNDIALS_EXPORT ARKodeSplittingCoefficients
+ARKodeSplittingCoefficients_Strang(int partitions);
 SUNDIALS_EXPORT ARKodeSplittingCoefficients
 ARKodeSplittingCoefficients_SymmetricParallel(int partitions);
 SUNDIALS_EXPORT ARKodeSplittingCoefficients
 ARKodeSplittingCoefficients_TripleJump(int partitions, int order);
 
 /* Other coefficient functions */
-SUNDIALS_EXPORT void ARKodeSplittingCoefficients_Write(ARKodeSplittingCoefficients B,
-                                                 FILE* outfile);
-SUNDIALS_EXPORT sunbooleantype ARKodeSplittingCoefficients_(ARKodeSplittingCoefficients B);
+SUNDIALS_EXPORT void ARKodeSplittingCoefficients_Write(
+  ARKodeSplittingCoefficients B, FILE* outfile);
+SUNDIALS_EXPORT sunbooleantype
+ARKodeSplittingCoefficients_(ARKodeSplittingCoefficients B);
 
 /* Parallelization Policy */
 typedef int (*ARKParallelExecuteFn)(int i, N_Vector y, void* user_data);
@@ -85,21 +86,24 @@ typedef _SUNDIALS_STRUCT_ ARKodeSplittingExecutionPolicyMem* ARKodeSplittingExec
 
 struct ARKodeSplittingExecutionPolicyMem
 {
-  int (*setup)(ARKodeSplittingExecutionPolicy policy, N_Vector y, const int sequential_methods);
+  int (*setup)(ARKodeSplittingExecutionPolicy policy, N_Vector y,
+               int sequential_methods);
 
-  int (*exectute)(ARKodeSplittingExecutionPolicy policy, ARKParallelExecuteFn fn, N_Vector yn, N_Vector ycur, N_Vector tmp, sunrealtype *alpha, const int sequential_methods, void *user_data);
+  int (*exectute)(ARKodeSplittingExecutionPolicy policy, ARKParallelExecuteFn fn,
+                  N_Vector yn, N_Vector ycur, N_Vector tmp, sunrealtype* alpha,
+                  const int sequential_methods, void* user_data);
 
   int (*free)(ARKodeSplittingExecutionPolicy policy);
 
   void* data;
 };
 
-SUNDIALS_EXPORT ARKodeSplittingExecutionPolicy SplittingStepExecutionPolicy_Serial();
+SUNDIALS_EXPORT ARKodeSplittingExecutionPolicy
+ARKodeSplittingExecutionPolicy_Serial();
 
 /* ARKODE functions */
-SUNDIALS_EXPORT void* SplittingStepCreate(SUNStepper* steppers,
-                                          const int partitions,
-                                          const sunrealtype t0, N_Vector y0,
+SUNDIALS_EXPORT void* SplittingStepCreate(SUNStepper* steppers, int partitions,
+                                          sunrealtype t0, N_Vector y0,
                                           SUNContext sunctx);
 
 SUNDIALS_EXPORT int SplittingStep_SetCoefficients(

@@ -18,17 +18,23 @@
 #include <arkode/arkode_splittingstep.h>
 #include <sundials/sundials_nvector.h>
 
-static int setup_serial(ARKodeSplittingExecutionPolicy policy, N_Vector y, const int sequential_methods) {
+static int setup_serial(ARKodeSplittingExecutionPolicy policy, N_Vector y,
+                        const int sequential_methods)
+{
   // Nothing needed
 }
 
-static int execute_serial(ARKodeSplittingExecutionPolicy policy, ARKParallelExecuteFn fn, N_Vector yn, N_Vector ycur, N_Vector tmp, sunrealtype *alpha, const int sequential_methods, void *user_data)
+static int execute_serial(ARKodeSplittingExecutionPolicy policy,
+                          ARKParallelExecuteFn fn, N_Vector yn, N_Vector ycur,
+                          N_Vector tmp, sunrealtype* alpha,
+                          const int sequential_methods, void* user_data)
 {
   N_VScale(1, yn, ycur);
   fn(0, yn, user_data);
   N_VScale(alpha[0], ycur, ycur);
 
-  for (int i = 1; i < sequential_methods; i++) {
+  for (int i = 1; i < sequential_methods; i++)
+  {
     N_VScale(1, yn, tmp);
     fn(i, tmp, user_data);
     // TODO: error handling of fn
@@ -36,16 +42,18 @@ static int execute_serial(ARKodeSplittingExecutionPolicy policy, ARKParallelExec
   }
 }
 
-static void free_serial(ARKodeSplittingExecutionPolicy policy) {
+static void free_serial(ARKodeSplittingExecutionPolicy policy)
+{
   // Nothing needed
 }
 
-ARKodeSplittingExecutionPolicy SplittingStepExecutionPolicy_Serial() {
+ARKodeSplittingExecutionPolicy ARKodeSplittingExecutionPolicy_Serial()
+{
   ARKodeSplittingExecutionPolicy policy = malloc(sizeof(*policy));
-  policy->setup = setup_serial;
-  policy->exectute = execute_serial;
-  policy->free = free_serial;
-  policy->data = NULL;
+  policy->setup                         = setup_serial;
+  policy->exectute                      = execute_serial;
+  policy->free                          = free_serial;
+  policy->data                          = NULL;
 }
 
 // #include <mpi.h>
@@ -77,7 +85,6 @@ ARKodeSplittingExecutionPolicy SplittingStepExecutionPolicy_Serial() {
 //   N_VScale(1, yn, ycur);
 //   fn(rank, y, user_data);
 //   N_VScale(alpha[rank], ycur, ycur);
-
 
 //   for (int i = 2 * rank; i < sequential_methods; rank++) {
 //     N_VScale(1, yn, tmp);
@@ -122,7 +129,6 @@ ARKodeSplittingExecutionPolicy SplittingStepExecutionPolicy_Serial() {
 // int execute_mpi(ARKParallelExecuteFn fn, N_Vector *y, sunrealtype *alpha, const int sequential_methods, void *user_data)
 // {
 //   MPI_Bcast()
-
 
 //   MPI_Barrier(comm);
 

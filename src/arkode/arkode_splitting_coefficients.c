@@ -20,10 +20,9 @@
 
 #include "arkode_impl.h"
 
-ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(const int sequential_methods,
-                                                  const int stages,
-                                                  const int partitions,
-                                                  const int order)
+ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(
+  const int sequential_methods, const int stages, const int partitions,
+  const int order)
 {
   if (sequential_methods < 1 || stages < 1 || partitions < 1) { return NULL; }
 
@@ -37,7 +36,7 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(const int sequenti
   coefficients->order              = order;
 
   coefficients->alpha = (sunrealtype*)calloc(sequential_methods,
-                                       sizeof(*coefficients->alpha));
+                                             sizeof(*coefficients->alpha));
   if (coefficients->alpha == NULL)
   {
     ARKodeSplittingCoefficients_Free(coefficients);
@@ -105,7 +104,7 @@ void ARKodeSplittingCoefficients_Free(ARKodeSplittingCoefficients coefficients)
 }
 
 void ARKodeSplittingCoefficients_Space(ARKodeSplittingCoefficients coefficients,
-                                 sunindextype* liw, sunindextype* lrw)
+                                       sunindextype* liw, sunindextype* lrw)
 {
   /* initialize outputs and return if coefficients is not allocated */
   *liw = 0;
@@ -130,17 +129,21 @@ void ARKodeSplittingCoefficients_Space(ARKodeSplittingCoefficients coefficients,
   if (coefficients->alpha) { *lrw += coefficients->sequential_methods; }
   if (coefficients->beta[0][0])
   {
-    *lrw += coefficients->sequential_methods * coefficients->stages * coefficients->partitions;
+    *lrw += coefficients->sequential_methods * coefficients->stages *
+            coefficients->partitions;
   }
 }
 
-ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Copy(ARKodeSplittingCoefficients coefficients)
+ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Copy(
+  ARKodeSplittingCoefficients coefficients)
 {
   if (coefficients == NULL) { return NULL; }
 
   ARKodeSplittingCoefficients coefficientsCopy =
-    ARKodeSplittingCoefficients_Alloc(coefficients->sequential_methods, coefficients->stages,
-                                coefficients->partitions, coefficients->order);
+    ARKodeSplittingCoefficients_Alloc(coefficients->sequential_methods,
+                                      coefficients->stages,
+                                      coefficients->partitions,
+                                      coefficients->order);
   if (coefficientsCopy == NULL) { return NULL; }
 
   memcpy(coefficientsCopy->alpha, coefficients->alpha,
@@ -149,13 +152,14 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Copy(ARKodeSplittingCoef
   /* beta[0][0] points to the contiguous memory allocation, so we can copy it
      with a single memcpy */
   memcpy(coefficientsCopy->beta[0][0], coefficients->beta[0][0],
-         coefficients->sequential_methods * coefficients->stages * coefficients->partitions *
-           sizeof(*coefficients->beta));
+         coefficients->sequential_methods * coefficients->stages *
+           coefficients->partitions * sizeof(*coefficients->beta));
 
   return coefficientsCopy;
 }
 
-ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficients(ARKODE_SplittingCoefficientsID method)
+ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficients(
+  ARKODE_SplittingCoefficientsID method)
 {
   switch (method)
   {
@@ -171,7 +175,8 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficients(ARKODE_
   }
 }
 
-ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficientsByName(const char* method)
+ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficientsByName(
+  const char* method)
 {
 #define ARK_SPLITTING_COEFFICIENTS(name, coeff) \
   if (strcmp(#name, method) == 0) coeff
@@ -187,8 +192,8 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficientsByName(c
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LieTrotter(const int partitions)
 {
   if (partitions < 1) { return NULL; }
-  const ARKodeSplittingCoefficients coefficients = ARKodeSplittingCoefficients_Alloc(1, 1,
-                                                                   partitions, 1);
+  const ARKodeSplittingCoefficients coefficients =
+    ARKodeSplittingCoefficients_Alloc(1, 1, partitions, 1);
   if (coefficients == NULL) { return NULL; }
 
   coefficients->alpha[0] = SUN_RCONST(1.0);
@@ -224,7 +229,8 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Parallel(const int parti
   return coefficients;
 }
 
-ARKodeSplittingCoefficients ARKodeSplittingCoefficients_SymmetricParallel(const int partitions)
+ARKodeSplittingCoefficients ARKodeSplittingCoefficients_SymmetricParallel(
+  const int partitions)
 {
   if (partitions < 1) { return NULL; }
 
@@ -244,10 +250,9 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_SymmetricParallel(const 
   return coefficients;
 }
 
-static sunrealtype** arkodeSplittingCoefficients_TripleJump(const int partitions,
-                                                      const int order,
-                                                      sunrealtype** beta,
-                                                      sunrealtype parent_length)
+static sunrealtype** arkodeSplittingCoefficients_TripleJump(
+  const int partitions, const int order, sunrealtype** beta,
+  sunrealtype parent_length)
 {
   // The base case is an order 2 Strang splitting
   if (order == 2)
@@ -279,8 +284,8 @@ static sunrealtype** arkodeSplittingCoefficients_TripleJump(const int partitions
   return beta;
 }
 
-ARKodeSplittingCoefficients ARKodeSplittingCoefficients_TripleJump(const int partitions,
-                                                       const int order)
+ARKodeSplittingCoefficients ARKodeSplittingCoefficients_TripleJump(
+  const int partitions, const int order)
 {
   if (partitions < 1 || order < 2 || order % 2 != 0)
   {
@@ -289,13 +294,13 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_TripleJump(const int par
   }
 
   const int stages = 1 + (partitions - 1) * SUNRpowerI(3, order / 2 - 1);
-  const ARKodeSplittingCoefficients coefficients = ARKodeSplittingCoefficients_Alloc(1, stages,
-                                                                   partitions, order);
+  const ARKodeSplittingCoefficients coefficients =
+    ARKodeSplittingCoefficients_Alloc(1, stages, partitions, order);
   if (coefficients == NULL) { return NULL; }
 
   coefficients->alpha[0] = SUN_RCONST(1.0);
-  arkodeSplittingCoefficients_TripleJump(partitions, order, coefficients->beta[0],
-                                   SUN_RCONST(1.0));
+  arkodeSplittingCoefficients_TripleJump(partitions, order,
+                                         coefficients->beta[0], SUN_RCONST(1.0));
 
   return coefficients;
 }
@@ -303,15 +308,18 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_TripleJump(const int par
 /*---------------------------------------------------------------
   Routine to print a Butcher table structure
   ---------------------------------------------------------------*/
-void ARKodeSplittingCoefficients_Write(ARKodeSplittingCoefficients coefficients, FILE* outfile)
+void ARKodeSplittingCoefficients_Write(ARKodeSplittingCoefficients coefficients,
+                                       FILE* outfile)
 {
-  if (coefficients == NULL || coefficients->alpha == NULL || coefficients->beta == NULL ||
-      coefficients->beta[0] == NULL || coefficients->beta[0][0] == NULL)
+  if (coefficients == NULL || coefficients->alpha == NULL ||
+      coefficients->beta == NULL || coefficients->beta[0] == NULL ||
+      coefficients->beta[0][0] == NULL)
   {
     return;
   }
 
-  fprintf(outfile, "  sequential methods = %i\n", coefficients->sequential_methods);
+  fprintf(outfile, "  sequential methods = %i\n",
+          coefficients->sequential_methods);
   fprintf(outfile, "  stages = %i\n", coefficients->stages);
   fprintf(outfile, "  partitions = %i\n", coefficients->partitions);
   fprintf(outfile, "  order = %i\n", coefficients->order);

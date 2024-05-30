@@ -26,7 +26,6 @@
 // TODO: which function go in arkode_splittingstep_io.c? It seems like static functions in this file makes more sense
 // TODO: check the 2nd argument of arkProcessError is correct
 // TODO: workspace size
-// TODO: use Lagrange interpolation by default to avoid full RHS calls?
 
 static int splittingStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                                        ARKodeSplittingStepMem* step_mem)
@@ -86,8 +85,8 @@ static int splittingStep_Init(ARKodeMem ark_mem, int init_type)
     }
   }
 
-  // TODO: set Lagrange interpolation and order
-  // TODO: initialize policy if NULL
+  ark_mem->interp_degree =
+    SUNMAX(1, SUNMIN(step_mem->order - 1, ark_mem->interp_degree));
 
   return ARK_SUCCESS;
 }
@@ -356,6 +355,7 @@ void* SplittingStepCreate(SUNStepper* steppers, const int partitions,
   ark_mem->step_setdefaults     = splittingStep_SetDefaults;
   ark_mem->step_setorder        = splittingStep_SetOrder;
   ark_mem->step_mem             = (void*)step_mem;
+  ark_mem->interp_type          = ARK_INTERP_LAGRANGE;
 
   /* Set default values for ARKStep optional inputs */
   int retval = splittingStep_SetDefaults(ark_mem);
