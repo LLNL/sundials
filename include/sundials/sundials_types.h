@@ -91,6 +91,7 @@ typedef float sunrealtype;
 #define SUN_BIG_REAL      FLT_MAX
 #define SUN_SMALL_REAL    FLT_MIN
 #define SUN_UNIT_ROUNDOFF FLT_EPSILON
+#define SUN_DIG           FLT_DIG
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
@@ -99,6 +100,7 @@ typedef double sunrealtype;
 #define SUN_BIG_REAL      DBL_MAX
 #define SUN_SMALL_REAL    DBL_MIN
 #define SUN_UNIT_ROUNDOFF DBL_EPSILON
+#define SUN_DIG           DBL_DIG
 
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 
@@ -107,6 +109,7 @@ typedef long double sunrealtype;
 #define SUN_BIG_REAL      LDBL_MAX
 #define SUN_SMALL_REAL    LDBL_MIN
 #define SUN_UNIT_ROUNDOFF LDBL_EPSILON
+#define SUN_DIG           LDBL_DIG
 
 #endif
 

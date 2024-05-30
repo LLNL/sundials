@@ -24,6 +24,9 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
 
+/* width of name field in sunfprintf_<type> for aligning table output */
+#define SUN_TABLE_WIDTH 28
+
 static inline char* sunCombineFileAndLine(int line, const char* file)
 {
   size_t total_str_len = strlen(file) + 6;
@@ -86,17 +89,15 @@ static inline void sunCompensatedSum(sunrealtype base, sunrealtype inc,
   *sum                      = tmp2;
 }
 
-#define SUN_TABLE_WIDTH "28"
-
 static void sunfprintf_real(FILE* fp, SUNOutputFormat fmt, const char* name, sunrealtype value)
 {
   if (fmt == SUN_OUTPUTFORMAT_TABLE)
   {
-    fprintf(fp, "%-" SUN_TABLE_WIDTH "s = %" SUN_FMT_e "\n", name, value);
+    fprintf(fp, "%-*s = %.*e\n", SUN_TABLE_WIDTH, name, SUN_DIG, value);
   }
   else
   {
-    fprintf(fp, "%s,%" SUN_FMT_e, name, value);
+    fprintf(fp, "%s,%.*e", name, SUN_DIG, value);
   }
 }
 
@@ -104,11 +105,11 @@ static void sunfprintf_long_int(FILE* fp, SUNOutputFormat fmt, const char* name,
 {
   if (fmt == SUN_OUTPUTFORMAT_TABLE)
   {
-    fprintf(fp, "%-" SUN_TABLE_WIDTH "s = %" SUN_FMT_ld "\n", name, value);
+    fprintf(fp, "%-*s = %ld\n", SUN_TABLE_WIDTH, name, value);
   }
   else
   {
-    fprintf(fp, "%s,%" SUN_FMT_ld, name, value);
+    fprintf(fp, "%s,%ld", name, value);
   }
 }
 
