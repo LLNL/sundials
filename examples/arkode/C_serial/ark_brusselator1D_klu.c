@@ -233,14 +233,19 @@ int main(void)
   NNZ = 5 * NEQ;
   A   = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT, ctx);
   if (check_flag((void*)A, "SUNSparseMatrix", 0)) { return 1; }
+
   LS = SUNLinSol_KLU(y, A, ctx);
   if (check_flag((void*)LS, "SUNLinSol_KLU", 0)) { return 1; }
 
   /* Attach the matrix, linear solver, and Jacobian construction routine to ARKODE */
   flag = ARKodeSetLinearSolver(arkode_mem, LS, A); /* Attach matrix and LS */
   if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
+
   flag = ARKodeSetJacFn(arkode_mem, Jac); /* Supply Jac routine */
   if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
+
+  flag = ARKodeSetAutonomous(arkode_mem, SUNTRUE);
+  if (check_flag(&flag, "ARKodeSetAutonomous", 1)) { return 1; }
 
   /* output spatial mesh to disk */
   FID = fopen("bruss_mesh.txt", "w");

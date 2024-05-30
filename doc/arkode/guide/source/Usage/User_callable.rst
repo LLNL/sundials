@@ -1769,6 +1769,7 @@ Optional input                                                  Function name   
 ==============================================================  ======================================  ============
 Specify that the implicit RHS is linear                         :c:func:`ARKodeSetLinear`               ``SUNFALSE``
 Specify that the implicit RHS nonlinear                         :c:func:`ARKodeSetNonlinear`            ``SUNTRUE``
+Specify that the implicit RHS is autonomous                     :c:func:`ARKodeSetAutonomous`           ``SUNFALSE``
 Implicit predictor method                                       :c:func:`ARKodeSetPredictorMethod`      0
 User-provided implicit stage predictor                          :c:func:`ARKodeSetStagePredictFn`       ``NULL``
 RHS function for nonlinear system evaluations                   :c:func:`ARKodeSetNlsRhsFn`             ``NULL``
@@ -1839,6 +1840,58 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       :c:func:`ARKodeSetLinear`.  Calls
       :c:func:`ARKodeSetDeltaGammaMax` to reset the step size ratio
       threshold to the default value.
+
+   .. versionadded:: x.y.z
+
+
+.. c:function:: int ARKodeSetAutonomous(void* arkode_mem, sunbooleantype autonomous)
+
+   Specifies that the implicit portion of the problem is autonomous i.e., does
+   not explicitly depend on time.
+
+   When using an implicit or ImEx method with the trivial predictor, this option
+   enables reusing the implicit right-hand side evaluation at the predicted
+   state across stage solves within a step. This reuse reduces the total number
+   of implicit RHS function evaluations.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param autonomous: flag denoting if the implicit RHS function,
+                      :math:`f^I(t,y)`, is autonomous (``SUNTRUE``) or
+                      non-autonomous (``SUNFALSE``).
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+   :retval ARK_ILL_INPUT: an argument had an illegal value.
+   :retval ARK_STEPPER_UNSUPPORTED: implicit solvers are not supported by the
+                                    current time-stepping module.
+
+   .. warning::
+
+      Results may differ when enabling both :c:func:`ARKodeSetAutonomous` and
+      :c:func:`ARKodeSetDeduceImplicitRhs` with a stiffly accurate implicit
+      method and using the trivial predictor. The differences are due to reusing
+      the deduced implicit right-hand side (RHS) value in the initial nonlinear
+      residual computation rather than evaluating the implicit RHS function. The
+      significance of the difference will depend on how well the deduced RHS
+      approximates the RHS evaluated at the trivial predictor. This behavior can
+      be observed in ``examples/arkode/C_serial/ark_brusselator.c`` by comparing
+      the outputs with :c:func:`ARKodeSetAutonomous` enabled/disabled.
+
+      Similarly programs that assume the nonlinear residual will always call the
+      implicit RHS function will need to be updated to account for the RHS value
+      reuse when using :c:func:`ARKodeSetAutonomous`. For example,
+      ``examples/arkode/C_serial/ark_KrylovDemo_prec.c`` assumes that the
+      nonlinear residual will be called and will evaluate the implicit RHS
+      function before calling the preconditioner setup function. Based on this
+      assumption, this example code saves some computations in the RHS
+      evaluation for reuse in the preconditioner setup. However, when
+      :c:func:`ARKodeSetAutonomous` is enabled, the call to the nonlinear
+      residual before the preconditioner setup reuses a saved RHS evaluation and
+      the saved data is actually from an earlier RHS evaluation that is not
+      consistent with the state and RHS values passed to the preconditioner
+      setup function. For this example, the code should not save data in the RHS
+      evaluation but instead evaluate the necessary quantities within the
+      preconditioner setup function using the input values.
 
    .. versionadded:: x.y.z
 

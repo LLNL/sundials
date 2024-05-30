@@ -120,6 +120,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ark_mem->step_setnonlinearsolver        = arkStep_SetNonlinearSolver;
   ark_mem->step_setlinear                 = arkStep_SetLinear;
   ark_mem->step_setnonlinear              = arkStep_SetNonlinear;
+  ark_mem->step_setautonomous             = arkStep_SetAutonomous;
   ark_mem->step_setnlsrhsfn               = arkStep_SetNlsRhsFn;
   ark_mem->step_setdeduceimplicitrhs      = arkStep_SetDeduceImplicitRhs;
   ark_mem->step_setnonlincrdown           = arkStep_SetNonlinCRDown;
@@ -248,6 +249,9 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   step_mem->impforcing = SUNFALSE;
   step_mem->forcing    = NULL;
   step_mem->nforcing   = 0;
+
+  /* Initialize saved fi alias */
+  step_mem->fn_implicit = NULL;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
@@ -1660,6 +1664,10 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype deduce_stage;
   sunbooleantype save_stages;
   sunbooleantype stiffly_accurate;
+  sunbooleantype save_fn_for_interp;
+  sunbooleantype imex_method;
+  sunbooleantype save_fn_for_residual;
+  sunbooleantype eval_rhs;
   ARKodeARKStepMem step_mem;
   N_Vector zcor0;
 
@@ -1695,7 +1703,10 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     save_stages = SUNTRUE;
   }
 
-  /* check for implicit method with explicit first stage */
+  /* check for an ImEx method */
+  imex_method = step_mem->implicit && step_mem->explicit;
+
+  /* check for implicit method with an explicit first stage */
   implicit_stage = SUNFALSE;
   is_start       = 1;
   if (step_mem->implicit)
@@ -1731,23 +1742,88 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  /* Call the full RHS if needed e.g., an explicit first stage. If this is the
-     first step then we may need to evaluate or copy the RHS values from an
-     earlier evaluation (e.g., to compute h0). For subsequent steps treat this
-     RHS evaluation as an evaluation at the end of the just completed step to
-     potentially reuse (FSAL methods) or save (stiffly accurate methods with an
-     implicit first stage using Hermite interpolation) RHS evaluations from the
-     end of the last step. */
+  /* For a stiffly accurate implicit or ImEx method with an implicit first
+     stage, save f(tn, yn) if using Hermite interpolation as Fi[0] will be
+     overwritten during the implicit solve */
+  save_fn_for_interp = implicit_stage && stiffly_accurate &&
+                       ark_mem->interp_type == ARK_INTERP_HERMITE;
 
-  if ((!implicit_stage ||
-       (stiffly_accurate && ark_mem->interp_type == ARK_INTERP_HERMITE)) &&
-      !(ark_mem->fn_is_current))
+  /* For an implicit or ImEx method using the trivial predictor with an
+     autonomous problem with an identity or fixed mass matrix, save fi(tn, yn)
+     for reuse in the first residual evaluation of each stage solve */
+  save_fn_for_residual = step_mem->implicit && step_mem->predictor == 0 &&
+                         step_mem->autonomous &&
+                         step_mem->mass_type != MASS_TIMEDEP;
+
+  /* Call the RHS if needed. */
+  eval_rhs = !implicit_stage || save_fn_for_interp || save_fn_for_residual;
+
+  if (!(ark_mem->fn_is_current) && eval_rhs)
   {
-    mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
-    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
-                                   ark_mem->fn, mode);
-    if (retval) { return ARK_RHSFUNC_FAIL; }
-    ark_mem->fn_is_current = SUNTRUE;
+    /* If saving the RHS evaluation for reuse in the residual, call the full RHS
+       for all implicit methods or for ImEx methods with an explicit first
+       stage. ImEx methods with an implicit first stage may not need to evaluate
+       fe depending on the interpolation type. */
+    sunbooleantype res_full_rhs = save_fn_for_residual && implicit_stage &&
+                                  !imex_method;
+
+    if (!implicit_stage || save_fn_for_interp || res_full_rhs)
+    {
+      /* Need full RHS evaluation. If this is the first step, then we evaluate
+         or copy the RHS values from an earlier evaluation (e.g., to compute
+         h0). For subsequent steps treat this call as an evaluation at the end
+         of the just completed step (tn, yn) and potentially reuse the
+         evaluation (FSAL method) or save the value for later use. */
+      mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+      retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                     ark_mem->fn, mode);
+      if (retval) { return ARK_RHSFUNC_FAIL; }
+      ark_mem->fn_is_current = SUNTRUE;
+    }
+    else
+    {
+      /* For an ImEx method with implicit first stage and an interpolation
+         method that does not need fn (e.g., Lagrange), only evaluate fi (if
+         necessary) for reuse in the residual */
+      if (stiffly_accurate)
+      {
+        N_VScale(ONE, step_mem->Fi[step_mem->stages - 1], step_mem->Fi[0]);
+      }
+      else
+      {
+        retval = step_mem->fi(ark_mem->tn, ark_mem->yn, step_mem->Fi[0],
+                              ark_mem->user_data);
+        step_mem->nfi++;
+        if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+        if (retval > 0) { return ARK_UNREC_RHSFUNC_ERR; }
+      }
+    }
+  }
+
+  /* Set alias to implicit RHS evaluation for reuse in residual */
+  step_mem->fn_implicit = NULL;
+  if (save_fn_for_residual)
+  {
+    if (!implicit_stage)
+    {
+      /* Explicit first stage -- Fi[0] will be retained */
+      step_mem->fn_implicit = step_mem->Fi[0];
+    }
+    else
+    {
+      /* Implicit first stage -- Fi[0] will be overwritten */
+      if (imex_method || step_mem->mass_type == MASS_FIXED)
+      {
+        /* Copy from Fi[0] as fn includes fe or M^{-1} */
+        N_VScale(ONE, step_mem->Fi[0], ark_mem->tempv5);
+        step_mem->fn_implicit = ark_mem->tempv5;
+      }
+      else
+      {
+        /* fn is the same as Fi[0] but will not be overwritten */
+        step_mem->fn_implicit = ark_mem->fn;
+      }
+    }
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
