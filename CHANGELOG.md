@@ -53,6 +53,8 @@ integrator with an MRI method.
 
 Added "Resize" capability to ARKODE's SPRKStep time-stepping module.
 
+Enabled the Fortran interfaces to build with 32-bit `sunindextype`.
+
 ### Bug Fixes
 
 Updated the CMake variable `HIP_PLATFORM` default to `amd` as the previous
@@ -93,8 +95,6 @@ Fixed a bug that caused error messages to be cut off in some cases. Fixes
 
 Fixed a memory leak when an error handler was added to a `SUNContext`. Fixes
 [GitHub Issue #466](https://github.com/LLNL/sundials/issues/466).
-
-Enabled the Fortran interfaces to build with 32-bit `sunindextype`.
 
 Fixed a bug where `MRIStepEvolve` would not handle a recoverable error produced
 from evolving the inner stepper.

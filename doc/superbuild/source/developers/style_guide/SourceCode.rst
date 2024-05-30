@@ -342,7 +342,7 @@ not adhere to all of these rules.
    uses ``return(x);``.
 
 #. Always use ``sunindextype`` for variables that are related to problem dimensions.
-   E.g., use it for the length of a vector, dimensions of a matrix, or for the number of vectors.
+   E.g., use it for the length of a vector, or dimensions of a matrix.
    The only exception is when interfacing with a third party library requires a different
    variable type.
 
@@ -374,7 +374,7 @@ for the tools respectively. To apply clang-format you can run:
    that you use version ``17.0.4``, which can be installed from source or with Spack. Alternatively,
    when you open a pull request on GitHub, an action will run ``clang-format`` on the code. If any
    formatting is required, the action will fail and produce a git patch artifact that you can download
-   (from the job artifacts section) and apply with `git apply`. 
+   (from the job artifacts section) and apply with `git apply`.
 
 
 If clang-format breaks lines in a way that is unreadable, use ``//`` to break the line. For example,
