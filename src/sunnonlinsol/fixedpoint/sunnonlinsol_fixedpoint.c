@@ -18,11 +18,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_nvector_senswrapper.h>
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
 
 #include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 
 /* Internal utility routines */
 static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
@@ -129,7 +131,8 @@ SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m,
   GetType, Initialize, Setup, Solve, and Free operations
   ============================================================================*/
 
-SUNNonlinearSolver_Type SUNNonlinSolGetType_FixedPoint(SUNNonlinearSolver NLS)
+SUNNonlinearSolver_Type SUNNonlinSolGetType_FixedPoint(
+  SUNDIALS_MAYBE_UNUSED SUNNonlinearSolver NLS)
 {
   return (SUNNONLINEARSOLVER_FIXEDPOINT);
 }
@@ -165,9 +168,11 @@ SUNErrCode SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS)
   by the Sys function provided to the nonlinear solver.
   ---------------------------------------------------------------------------*/
 
-int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
+int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
+                                 SUNDIALS_MAYBE_UNUSED N_Vector y0,
                                  N_Vector ycor, N_Vector w, sunrealtype tol,
-                                 sunbooleantype callSetup, void* mem)
+                                 SUNDIALS_MAYBE_UNUSED sunbooleantype callSetup,
+                                 void* mem)
 {
   SUNFunctionBegin(NLS->sunctx);
   /* local variables */

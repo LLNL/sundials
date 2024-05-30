@@ -901,7 +901,8 @@ int idaLsPSetup(void* ida_mem)
   is the only case in which the user's psolve routine is allowed
   to be NULL.
   ---------------------------------------------------------------*/
-int idaLsPSolve(void* ida_mem, N_Vector r, N_Vector z, sunrealtype tol, int lr)
+int idaLsPSolve(void* ida_mem, N_Vector r, N_Vector z, sunrealtype tol,
+                SUNDIALS_MAYBE_UNUSED int lr)
 {
   IDAMem IDA_mem;
   IDALsMem idals_mem;
@@ -1179,7 +1180,7 @@ int idaLsBandDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy, N_Vector yp,
 
       /* Increment yj and ypj. */
       ytemp_data[j] += inc;
-      yptemp_data[j] += IDA_mem->ida_cj * inc;
+      yptemp_data[j] += c_j * inc;
     }
 
     /* Call res routine with incremented arguments. */

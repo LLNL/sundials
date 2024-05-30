@@ -13,16 +13,20 @@
 #include <mpi.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
 #include <sundials/priv/sundials_mpi_errors_impl.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_mpi_types.h>
-#include <unistd.h>
 
+#include "sundials_macros.h"
 #include "sundials_utils.h"
 
 void SUNMPIAbortErrHandlerFn(int line, const char* func, const char* file,
-                             const char* msg, SUNErrCode err_code,
-                             void* err_user_data, SUNContext sunctx)
+                             SUNDIALS_MAYBE_UNUSED const char* msg,
+                             SUNErrCode err_code,
+                             SUNDIALS_MAYBE_UNUSED void* err_user_data,
+                             SUNContext sunctx)
 {
   char* file_and_line = sunCombineFileAndLine(line, file);
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,

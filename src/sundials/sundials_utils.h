@@ -71,7 +71,7 @@ static inline int sunvasnprintf(char** str, const char* fmt, va_list args)
   *str = (char*)malloc(size + 1);
   if (NULL == *str) { return -1; }
 
-  size = vsprintf(*str, fmt, args);
+  size = vsnprintf(*str, size + 1, fmt, args);
 
   return size;
 }

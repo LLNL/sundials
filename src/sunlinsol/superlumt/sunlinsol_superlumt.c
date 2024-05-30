@@ -20,10 +20,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_superlumt.h>
 
-#include "sundials/sundials_errors.h"
+#include "sundials_macros.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -229,12 +231,13 @@ SUNErrCode SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_SuperLUMT(
+  SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return SUNLINEARSOLVER_DIRECT;
 }
 
-SUNLinearSolver_ID SUNLinSolGetID_SuperLUMT(SUNLinearSolver S)
+SUNLinearSolver_ID SUNLinSolGetID_SuperLUMT(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return SUNLINEARSOLVER_SUPERLUMT;
 }
@@ -319,7 +322,7 @@ int SUNLinSolSetup_SuperLUMT(SUNLinearSolver S, SUNMatrix A)
 }
 
 int SUNLinSolSolve_SuperLUMT(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                             N_Vector b, sunrealtype tol)
+                             N_Vector b, SUNDIALS_MAYBE_UNUSED sunrealtype tol)
 {
   int_t retval;
   sunrealtype* xdata;

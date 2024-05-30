@@ -16,14 +16,16 @@
  * of the NVECTOR package.
  * -----------------------------------------------------------------*/
 
-#include <nvector/nvector_parallel.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <nvector/nvector_parallel.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/priv/sundials_mpi_errors_impl.h>
+#include <sundials/sundials_errors.h>
+#include <sundials/sundials_types.h>
 
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
+#include "sundials_macros.h"
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)
@@ -240,6 +242,15 @@ N_Vector N_VMake_Parallel(MPI_Comm comm, sunindextype local_length,
   }
 
   return (v);
+}
+
+/* ----------------------------------------------------------------
+ * Returns vector type ID. Used to identify vector implementation
+ * from abstract N_Vector interface.
+ */
+N_Vector_ID N_VGetVectorID_Parallel(SUNDIALS_MAYBE_UNUSED N_Vector v)
+{
+  return SUNDIALS_NVEC_PARALLEL;
 }
 
 /* ----------------------------------------------------------------

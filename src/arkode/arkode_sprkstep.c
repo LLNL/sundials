@@ -246,8 +246,10 @@ int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0,
 
   This routine resizes the memory within the SPRKStep module.
   ---------------------------------------------------------------*/
-int sprkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
-                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
+int sprkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
+                    SUNDIALS_MAYBE_UNUSED sunrealtype hscale,
+                    SUNDIALS_MAYBE_UNUSED sunrealtype t0, ARKVecResizeFn resize,
+                    void* resize_data)
 {
   ARKodeSPRKStepMem step_mem = NULL;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
@@ -295,7 +297,8 @@ int sprkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
   problem from the given time with the input state (all counter
   values are retained).
   ---------------------------------------------------------------*/
-int sprkStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR)
+int sprkStep_Reset(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tR,
+                   SUNDIALS_MAYBE_UNUSED N_Vector yR)
 {
   ARKodeSPRKStepMem step_mem = NULL;
   int retval                 = 0;

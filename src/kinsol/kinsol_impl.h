@@ -20,12 +20,14 @@
 #ifndef _KINSOL_IMPL_H
 #define _KINSOL_IMPL_H
 
-#include <kinsol/kinsol.h>
 #include <stdarg.h>
+
+#include <kinsol/kinsol.h>
 #include <sundials/priv/sundials_context_impl.h>
 
 #include "sundials_iterative_impl.h"
 #include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

@@ -17,11 +17,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
-#include <sundials/sundials_core.h>
 
-#include "sundials/priv/sundials_errors_impl.h"
-#include "sundials/sundials_errors.h"
+#include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_core.h>
+#include <sundials/sundials_errors.h>
+
+#include "sundials_macros.h"
 
 /* ---------------
  * Macro accessors
@@ -113,7 +115,8 @@ SUNErrCode SUNAdaptController_SetParams_ImExGus(SUNAdaptController C,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNAdaptController_Type SUNAdaptController_GetType_ImExGus(SUNAdaptController C)
+SUNAdaptController_Type SUNAdaptController_GetType_ImExGus(
+  SUNDIALS_MAYBE_UNUSED SUNAdaptController C)
 {
   return SUN_ADAPTCONTROLLER_H;
 }

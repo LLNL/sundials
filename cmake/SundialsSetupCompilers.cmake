@@ -93,8 +93,8 @@ if(ENABLE_ALL_WARNINGS)
     set(CMAKE_CXX_FLAGS "-Wmissing-declarations -Wcast-qual ${CMAKE_CXX_FLAGS}")
   endif()
 
-  set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function ${CMAKE_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wno-unused-parameter -Wno-unused-function ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wshadow ${CMAKE_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wshadow ${CMAKE_CXX_FLAGS}")
 
   # TODO(DJG): Add -fcheck=all,no-pointer,no-recursion once Jenkins is updated
   # to use gfortran > 5.5 which segfaults with -fcheck=array-temps,bounds,do,mem
@@ -217,6 +217,17 @@ if(NOT (SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME OR SUNDIALS_C_COMPILER_HAS_BUIL
     }
   " SUNDIALS_C_COMPILER_HAS_ASSUME)
 endif()
+
+# ---------------------------------------------------------------
+# Check for unused extension
+# ---------------------------------------------------------------
+
+check_c_source_compiles("
+  int main(void) {
+    __attribute__((unused)) double a = 0.0;
+    return 0;
+  }
+" SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_UNUSED)
 
 # ---------------------------------------------------------------
 # Check for POSIX timers

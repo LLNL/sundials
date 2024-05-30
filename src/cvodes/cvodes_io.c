@@ -104,6 +104,8 @@ int CVodeSetMonitorFn(void* cvode_mem, CVMonitorFn fn)
   cv_mem->cv_monitorfun = fn;
   return (CV_SUCCESS);
 #else
+  /* silence warnings when monitoring is disabled */
+  ((void)fn);
   cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
                  "SUNDIALS was not built with monitoring enabled.");
   return (CV_ILL_INPUT);

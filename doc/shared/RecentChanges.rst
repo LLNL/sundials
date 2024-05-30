@@ -122,3 +122,8 @@ ARKODE-wide functions.
 Deprecated the `ARKStepSetOptimalParams` function. Since this function does not have an
 ARKODE-wide equivalent, instructions have been added to the user guide for how
 to retain the current functionality using other user-callable functions.
+
+The unsupported implementations of ``N_VGetArrayPointer`` and
+``N_VSetArrayPointer`` for the *hypre* and PETSc vectors are now deprecated.
+Users should access the underlying wrapped external library vector objects
+instead with ``N_VGetVector_ParHyp`` and ``N_VGetVector_Petsc``, respectively.

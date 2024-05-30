@@ -17,13 +17,15 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_memory.h>
 #include <sunmemory/sunmemory_system.h>
 
-#include "sundials/priv/sundials_errors_impl.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_memory.h"
 #include "sundials_debug.h"
+#include "sundials_macros.h"
 
 struct SUNMemoryHelper_Content_Sys_
 {
@@ -70,7 +72,7 @@ SUNMemoryHelper SUNMemoryHelper_Sys(SUNContext sunctx)
 
 SUNErrCode SUNMemoryHelper_Alloc_Sys(SUNMemoryHelper helper, SUNMemory* memptr,
                                      size_t mem_size, SUNMemoryType mem_type,
-                                     void* queue)
+                                     SUNDIALS_MAYBE_UNUSED void* queue)
 {
   SUNFunctionBegin(helper->sunctx);
 
@@ -100,7 +102,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Sys(SUNMemoryHelper helper, SUNMemory* memptr,
 }
 
 SUNErrCode SUNMemoryHelper_Dealloc_Sys(SUNMemoryHelper helper, SUNMemory mem,
-                                       void* queue)
+                                       SUNDIALS_MAYBE_UNUSED void* queue)
 {
   SUNFunctionBegin(helper->sunctx);
 
@@ -125,7 +127,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Sys(SUNMemoryHelper helper, SUNMemory mem,
 
 SUNErrCode SUNMemoryHelper_Copy_Sys(SUNMemoryHelper helper, SUNMemory dst,
                                     SUNMemory src, size_t memory_size,
-                                    void* queue)
+                                    SUNDIALS_MAYBE_UNUSED void* queue)
 {
   SUNFunctionBegin(helper->sunctx);
   SUNAssert(src->type == SUNMEMTYPE_HOST, SUN_ERR_ARG_INCOMPATIBLE);
@@ -134,12 +136,10 @@ SUNErrCode SUNMemoryHelper_Copy_Sys(SUNMemoryHelper helper, SUNMemory dst,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNMemoryHelper_GetAllocStats_Sys(SUNMemoryHelper helper,
-                                             SUNMemoryType mem_type,
-                                             unsigned long* num_allocations,
-                                             unsigned long* num_deallocations,
-                                             size_t* bytes_allocated,
-                                             size_t* bytes_high_watermark)
+SUNErrCode SUNMemoryHelper_GetAllocStats_Sys(
+  SUNMemoryHelper helper, SUNDIALS_MAYBE_UNUSED SUNMemoryType mem_type,
+  unsigned long* num_allocations, unsigned long* num_deallocations,
+  size_t* bytes_allocated, size_t* bytes_high_watermark)
 {
   SUNFunctionBegin(helper->sunctx);
   SUNAssert(mem_type == SUNMEMTYPE_HOST, SUN_ERR_ARG_INCOMPATIBLE);

@@ -12,12 +12,16 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_config.h>
-
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
+#include <sundials/sundials_errors.h>
+#include <sundials/sundials_math.h>
+#include <sundials/sundials_profiler.h>
+#include <sundials/sundials_types.h>
 
 #if SUNDIALS_MPI_ENABLED
 #include <mpi.h>
@@ -33,14 +37,9 @@
 #error SUNProfiler needs POSIX or Windows timers
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_profiler.h>
-#include <sundials/sundials_types.h>
-
 #include "sundials_debug.h"
 #include "sundials_hashmap_impl.h"
+#include "sundials_macros.h"
 
 #define SUNDIALS_ROOT_TIMER ((const char*)"From profiler epoch")
 
@@ -58,7 +57,7 @@ typedef struct _sunTimespec
 #if SUNDIALS_MPI_ENABLED
 static SUNErrCode sunCollectTimers(SUNProfiler p);
 #endif
-static void sunPrintTimers(int idx, SUNHashMapKeyValue kv, FILE* fp, void* pvoid);
+static void sunPrintTimer(SUNHashMapKeyValue kv, FILE* fp, void* pvoid);
 static int sunCompareTimes(const void* l, const void* r);
 static int sunclock_gettime_monotonic(sunTimespec* tp);
 
@@ -420,7 +419,7 @@ SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
     /* Print all the other timers out */
     for (i = 0; i < p->map->size; i++)
     {
-      if (sorted[i]) { sunPrintTimers(i, sorted[i], fp, (void*)p); }
+      if (sorted[i]) { sunPrintTimer(sorted[i], fp, (void*)p); }
     }
     free(sorted);
   }
@@ -443,7 +442,7 @@ SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
 
 #if SUNDIALS_MPI_ENABLED
 static void sunTimerStructReduceMaxAndSum(void* a, void* b, int* len,
-                                          MPI_Datatype* dType)
+                                          SUNDIALS_MAYBE_UNUSED MPI_Datatype* dType)
 {
   sunTimerStruct* a_ts = (sunTimerStruct*)a;
   sunTimerStruct* b_ts = (sunTimerStruct*)b;
@@ -523,7 +522,7 @@ SUNErrCode sunCollectTimers(SUNProfiler p)
 
 /* Print out the: timer name, percentage of exec time (based on the max),
    max across ranks, average across ranks, and the timer counter. */
-void sunPrintTimers(int idx, SUNHashMapKeyValue kv, FILE* fp, void* pvoid)
+void sunPrintTimer(SUNHashMapKeyValue kv, FILE* fp, void* pvoid)
 {
   SUNProfiler p      = (SUNProfiler)pvoid;
   sunTimerStruct* ts = (sunTimerStruct*)kv->value;

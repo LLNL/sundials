@@ -17,11 +17,12 @@
 #ifndef _ARKODE_IMPL_H
 #define _ARKODE_IMPL_H
 
+#include <stdarg.h>
+
 #include <arkode/arkode.h>
 #include <arkode/arkode_butcher.h>
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
-#include <stdarg.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
@@ -33,6 +34,7 @@
 #include "arkode_root_impl.h"
 #include "arkode_types_impl.h"
 #include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
