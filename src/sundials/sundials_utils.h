@@ -89,7 +89,8 @@ static inline void sunCompensatedSum(sunrealtype base, sunrealtype inc,
   *sum                      = tmp2;
 }
 
-static void sunfprintf_real(FILE* fp, SUNOutputFormat fmt, const char* name, sunrealtype value)
+static void sunfprintf_real(FILE* fp, SUNOutputFormat fmt, sunbooleantype start,
+                            const char* name, sunrealtype value)
 {
   if (fmt == SUN_OUTPUTFORMAT_TABLE)
   {
@@ -97,11 +98,14 @@ static void sunfprintf_real(FILE* fp, SUNOutputFormat fmt, const char* name, sun
   }
   else
   {
+    if (!start) { fprintf(fp, ","); }
     fprintf(fp, "%s,%.*e", name, SUN_DIG, value);
   }
 }
 
-static void sunfprintf_long_int(FILE* fp, SUNOutputFormat fmt, const char* name, long int value)
+static void sunfprintf_long_int(FILE* fp, SUNOutputFormat fmt,
+                                sunbooleantype start, const char* name,
+                                long int value)
 {
   if (fmt == SUN_OUTPUTFORMAT_TABLE)
   {
@@ -109,6 +113,7 @@ static void sunfprintf_long_int(FILE* fp, SUNOutputFormat fmt, const char* name,
   }
   else
   {
+    if (!start) { fprintf(fp, ","); }
     fprintf(fp, "%s,%ld", name, value);
   }
 }
