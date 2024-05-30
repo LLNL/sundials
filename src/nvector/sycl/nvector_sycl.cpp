@@ -709,7 +709,7 @@ void N_VPrintFile_Sycl(N_Vector X, FILE* outfile)
 
   for (i = 0; i < NVEC_SYCL_CONTENT(X)->length; i++)
   {
-    fprintf(outfile, "% .*e\n", SUN_DIG, NVEC_SYCL_HDATAp(X)[i]);
+    fprintf(outfile, "% .*" SUN_FMT_e "\n", SUN_DIG, NVEC_SYCL_HDATAp(X)[i]);
   }
 
   return;
