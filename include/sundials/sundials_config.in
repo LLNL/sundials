@@ -60,6 +60,7 @@
 #cmakedefine SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME
 #cmakedefine SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME
 #cmakedefine SUNDIALS_C_COMPILER_HAS_ASSUME
+#cmakedefine SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_UNUSED
 
 /* Define precision of SUNDIALS data type 'sunrealtype'
  * Depending on the precision level, one of the following

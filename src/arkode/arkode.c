@@ -642,9 +642,12 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
   sunrealtype troundoff, nrm;
   sunbooleantype inactive_roots;
   sunrealtype dsm;
-  int nflag, attempts, ncf, nef, constrfails;
+  int nflag, ncf, nef, constrfails;
   int relax_fails;
   ARKodeMem ark_mem;
+
+  /* used only with debugging logging */
+  SUNDIALS_MAYBE_UNUSED int attempts;
 
   /* Check and process inputs */
 
@@ -897,7 +900,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
            - on fatal error, returns negative error flag */
       if (ark_mem->relax_enabled && (kflag == ARK_SUCCESS))
       {
-        kflag = arkRelax(ark_mem, &relax_fails, &dsm, &nflag);
+        kflag = arkRelax(ark_mem, &relax_fails, &dsm);
         if (kflag < 0) { break; }
       }
 
@@ -2751,7 +2754,8 @@ int arkEwtSetSV(N_Vector ycur, N_Vector weight, void* arkode_mem)
   a fixed step size to avoid a potential too much error return
   to the user.
   ---------------------------------------------------------------*/
-int arkEwtSetSmallReal(N_Vector ycur, N_Vector weight, void* arkode_mem)
+int arkEwtSetSmallReal(SUNDIALS_MAYBE_UNUSED N_Vector ycur, N_Vector weight,
+                       SUNDIALS_MAYBE_UNUSED void* arkode_mem)
 {
   N_VConst(SUN_SMALL_REAL, weight);
   return (ARK_SUCCESS);
@@ -2804,7 +2808,9 @@ int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 /*---------------------------------------------------------------
   arkExpStab is the default explicit stability estimation function
   ---------------------------------------------------------------*/
-int arkExpStab(N_Vector y, sunrealtype t, sunrealtype* hstab, void* data)
+int arkExpStab(SUNDIALS_MAYBE_UNUSED N_Vector y,
+               SUNDIALS_MAYBE_UNUSED sunrealtype t, sunrealtype* hstab,
+               SUNDIALS_MAYBE_UNUSED void* data)
 {
   /* explicit stability not used by default,
      set to zero to disable */
@@ -3106,7 +3112,6 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
 {
   int retval;
   sunrealtype ttmp;
-  long int nsttmp;
   ARKodeHAdaptMem hadapt_mem;
 
   /* Access hadapt_mem structure */
@@ -3121,9 +3126,7 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
   /* consider change of step size for next step attempt (may be
      larger/smaller than current step, depending on dsm) */
   ttmp   = (dsm <= ONE) ? ark_mem->tn + ark_mem->h : ark_mem->tn;
-  nsttmp = (dsm <= ONE) ? ark_mem->nst + 1 : ark_mem->nst;
-  retval = arkAdapt(ark_mem, hadapt_mem, ark_mem->ycur, ttmp, ark_mem->h, dsm,
-                    nsttmp);
+  retval = arkAdapt(ark_mem, hadapt_mem, ark_mem->ycur, ttmp, ark_mem->h, dsm);
   if (retval != ARK_SUCCESS) { return (ARK_ERR_FAILURE); }
 
   /* if we've made it here then no nonrecoverable failures occurred; someone above

@@ -410,9 +410,12 @@ static int ARKBandPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
  The value returned by the ARKBandPrecSolve function is always 0,
  indicating success.
 ---------------------------------------------------------------*/
-static int ARKBandPrecSolve(sunrealtype t, N_Vector y, N_Vector fy, N_Vector r,
-                            N_Vector z, sunrealtype gamma, sunrealtype delta,
-                            int lr, void* bp_data)
+static int ARKBandPrecSolve(SUNDIALS_MAYBE_UNUSED sunrealtype t,
+                            SUNDIALS_MAYBE_UNUSED N_Vector y,
+                            SUNDIALS_MAYBE_UNUSED N_Vector fy, N_Vector r,
+                            N_Vector z, SUNDIALS_MAYBE_UNUSED sunrealtype gamma,
+                            SUNDIALS_MAYBE_UNUSED sunrealtype delta,
+                            SUNDIALS_MAYBE_UNUSED int lr, void* bp_data)
 {
   ARKBandPrecData pdata;
   int retval;

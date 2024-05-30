@@ -347,8 +347,10 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
 
   This routine resizes the memory within the MRIStep module.
   ---------------------------------------------------------------*/
-int mriStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
-                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
+int mriStep_Resize(ARKodeMem ark_mem, N_Vector y0,
+                   SUNDIALS_MAYBE_UNUSED sunrealtype hscale,
+                   SUNDIALS_MAYBE_UNUSED sunrealtype t0, ARKVecResizeFn resize,
+                   void* resize_data)
 {
   ARKodeMRIStepMem step_mem;
   SUNNonlinearSolver NLS;
@@ -743,7 +745,8 @@ void mriStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 int mriStep_AttachLinsol(ARKodeMem ark_mem, ARKLinsolInitFn linit,
                          ARKLinsolSetupFn lsetup, ARKLinsolSolveFn lsolve,
                          ARKLinsolFreeFn lfree,
-                         SUNLinearSolver_Type lsolve_type, void* lmem)
+                         SUNDIALS_MAYBE_UNUSED SUNLinearSolver_Type lsolve_type,
+                         void* lmem)
 {
   ARKodeMRIStepMem step_mem;
   int retval;
@@ -2107,8 +2110,10 @@ int mriStep_StageERKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is)
   and involves evolution of the fast time scale, in a
   fully-coupled fashion.
   ---------------------------------------------------------------*/
-int mriStep_StageDIRKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
-                          int* nflagPtr)
+int mriStep_StageDIRKFast(ARKodeMem ark_mem,
+                          SUNDIALS_MAYBE_UNUSED ARKodeMRIStepMem step_mem,
+                          SUNDIALS_MAYBE_UNUSED int is,
+                          SUNDIALS_MAYBE_UNUSED int* nflagPtr)
 {
 #ifdef SUNDIALS_DEBUG
   printf("    MRIStep DIRK fast stage\n");
@@ -2239,8 +2244,9 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
      ARK_SUCCESS -- successful evaluation
   ---------------------------------------------------------------*/
 
-int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
-                                int stage, sunrealtype cdiff)
+int mriStep_ComputeInnerForcing(SUNDIALS_MAYBE_UNUSED ARKodeMem ark_mem,
+                                ARKodeMRIStepMem step_mem, int stage,
+                                sunrealtype cdiff)
 {
   sunrealtype rcdiff;
   int j, k, nmat, nstore, retval;

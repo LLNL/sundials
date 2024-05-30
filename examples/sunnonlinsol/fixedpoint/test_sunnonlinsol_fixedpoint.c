@@ -123,8 +123,8 @@ int main(int argc, char* argv[])
   sunrealtype* data      = NULL;
   SUNContext sunctx      = NULL;
 
-  /* Check if a acceleration/dampling values were provided */
-  if (argc > 1) { maa = (long int)atoi(argv[1]); }
+  /* Check if a acceleration/damping values were provided */
+  if (argc > 1) { maa = atoi(argv[1]); }
   if (argc > 2) { damping = (sunrealtype)atof(argv[2]); }
 
   /* Print problem description */

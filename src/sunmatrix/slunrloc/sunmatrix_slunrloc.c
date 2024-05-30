@@ -20,10 +20,14 @@
 #include <mpi.h>
 #include <stdarg.h>
 #include <stdlib.h>
+
+#include <superlu_ddefs.h>
+
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_mpi_types.h>
 #include <sunmatrix/sunmatrix_slunrloc.h>
-#include <superlu_ddefs.h>
+
+#include "sundials_macros.h"
 
 /*
  * ----------------------------------------------------------------------------
@@ -171,7 +175,10 @@ sunbooleantype SUNMatrix_SLUNRloc_OwnData(SUNMatrix A)
  * ----------------------------------------------------------------------------
  */
 
-SUNMatrix_ID SUNMatGetID_SLUNRloc(SUNMatrix A) { return (SUNMATRIX_SLUNRLOC); }
+SUNMatrix_ID SUNMatGetID_SLUNRloc(SUNDIALS_MAYBE_UNUSED SUNMatrix A)
+{
+  return (SUNMATRIX_SLUNRLOC);
+}
 
 SUNMatrix SUNMatClone_SLUNRloc(SUNMatrix A)
 {

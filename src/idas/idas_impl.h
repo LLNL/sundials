@@ -19,10 +19,12 @@
 #define _IDAS_IMPL_H
 
 #include <stdarg.h>
+
+#include <idas/idas.h>
 #include <sundials/priv/sundials_context_impl.h>
 
-#include "idas/idas.h"
 #include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

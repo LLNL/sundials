@@ -16,14 +16,16 @@
  * of the NVECTOR package.
  * -----------------------------------------------------------------*/
 
-#include <nvector/nvector_serial.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <nvector/nvector_serial.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
+#include <sundials/sundials_errors.h>
 
-#include "sundials/sundials_errors.h"
+#include "sundials_macros.h"
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)
@@ -215,6 +217,15 @@ N_Vector N_VMake_Serial(sunindextype length, sunrealtype* v_data,
   }
 
   return (v);
+}
+
+/* ----------------------------------------------------------------
+ * Returns vector type ID. Used to identify vector implementation
+ * from abstract N_Vector interface.
+ */
+N_Vector_ID N_VGetVectorID_Serial(SUNDIALS_MAYBE_UNUSED N_Vector v)
+{
+  return SUNDIALS_NVEC_SERIAL;
 }
 
 /* ----------------------------------------------------------------------------

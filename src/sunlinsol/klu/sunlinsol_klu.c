@@ -19,10 +19,12 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_klu.h>
 
-#include "sundials/sundials_errors.h"
+#include "sundials_macros.h"
 
 #define ZERO      SUN_RCONST(0.0)
 #define ONE       SUN_RCONST(1.0)
@@ -216,12 +218,12 @@ sun_klu_common* SUNLinSol_KLUGetCommon(SUNLinearSolver S)
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_KLU(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_KLU(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_DIRECT);
 }
 
-SUNLinearSolver_ID SUNLinSolGetID_KLU(SUNLinearSolver S)
+SUNLinearSolver_ID SUNLinSolGetID_KLU(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_KLU);
 }
@@ -340,7 +342,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
 }
 
 int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
-                       sunrealtype tol)
+                       SUNDIALS_MAYBE_UNUSED sunrealtype tol)
 {
   int flag;
   sunrealtype* xdata;
@@ -377,8 +379,8 @@ int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
 
 sunindextype SUNLinSolLastFlag_KLU(SUNLinearSolver S) { return (LASTFLAG(S)); }
 
-SUNErrCode SUNLinSolSpace_KLU(SUNLinearSolver S, long int* lenrwLS,
-                              long int* leniwLS)
+SUNErrCode SUNLinSolSpace_KLU(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S,
+                              long int* lenrwLS, long int* leniwLS)
 {
   /* since the klu structures are opaque objects, we
      omit those from these results */

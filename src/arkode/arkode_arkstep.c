@@ -387,8 +387,10 @@ int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
 
   This routine resizes the memory within the ARKStep module.
   ---------------------------------------------------------------*/
-int arkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
-                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
+int arkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
+                   SUNDIALS_MAYBE_UNUSED sunrealtype hscale,
+                   SUNDIALS_MAYBE_UNUSED sunrealtype t0, ARKVecResizeFn resize,
+                   void* resize_data)
 {
   ARKodeARKStepMem step_mem;
   SUNNonlinearSolver NLS;
@@ -3089,7 +3091,8 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   ODE IVP.
   ----------------------------------------------------------------------------*/
 
-int arkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
+int arkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
+                               SUNDIALS_MAYBE_UNUSED sunrealtype t0,
                                sunrealtype tout, N_Vector y)
 {
   void* arkode_mem;           /* arkode memory             */

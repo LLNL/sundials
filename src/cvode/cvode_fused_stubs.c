@@ -18,6 +18,7 @@
 
 #include "cvode_diag_impl.h"
 #include "cvode_impl.h"
+#include "sundials_macros.h"
 
 #define ZERO   SUN_RCONST(0.0)
 #define PT1    SUN_RCONST(0.1)
@@ -121,10 +122,11 @@ int cvDiagSetup_formY(const sunrealtype h, const sunrealtype r,
  * -----------------------------------------------------------------
  */
 
-int cvDiagSetup_buildM(const sunrealtype fract, const sunrealtype uround,
-                       const sunrealtype h, const N_Vector ftemp,
-                       const N_Vector fpred, const N_Vector ewt, N_Vector bit,
-                       N_Vector bitcomp, N_Vector y, N_Vector M)
+int cvDiagSetup_buildM(SUNDIALS_MAYBE_UNUSED const sunrealtype fract,
+                       const sunrealtype uround, const sunrealtype h,
+                       const N_Vector ftemp, const N_Vector fpred,
+                       const N_Vector ewt, N_Vector bit, N_Vector bitcomp,
+                       N_Vector y, N_Vector M)
 {
   N_VLinearSum(ONE, M, -ONE, fpred, M);
   N_VLinearSum(FRACT, ftemp, -h, M, M);

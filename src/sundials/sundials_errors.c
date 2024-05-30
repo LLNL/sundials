@@ -10,17 +10,18 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include "sundials/sundials_errors.h"
-
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
+#include <sundials/sundials_errors.h>
+#include <sundials/sundials_logger.h>
+#include <sundials/sundials_types.h>
 
-#include "sundials/sundials_logger.h"
-#include "sundials/sundials_types.h"
 #include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 #include "sundials_utils.h"
 
 SUNErrCode SUNErrHandler_Create(SUNErrHandlerFn eh_fn, void* eh_data,
@@ -62,7 +63,8 @@ const char* SUNGetErrMsg(SUNErrCode code)
 
 void SUNLogErrHandlerFn(int line, const char* func, const char* file,
                         const char* msg, SUNErrCode err_code,
-                        void* err_user_data, SUNContext sunctx)
+                        SUNDIALS_MAYBE_UNUSED void* err_user_data,
+                        SUNContext sunctx)
 {
   char* file_and_line = sunCombineFileAndLine(line, file);
   if (msg == NULL) { msg = SUNGetErrMsg(err_code); }
@@ -72,8 +74,10 @@ void SUNLogErrHandlerFn(int line, const char* func, const char* file,
 }
 
 void SUNAbortErrHandlerFn(int line, const char* func, const char* file,
-                          const char* msg, SUNErrCode err_code,
-                          void* err_user_data, SUNContext sunctx)
+                          SUNDIALS_MAYBE_UNUSED const char* msg,
+                          SUNDIALS_MAYBE_UNUSED SUNErrCode err_code,
+                          SUNDIALS_MAYBE_UNUSED void* err_user_data,
+                          SUNContext sunctx)
 {
   char* file_and_line = sunCombineFileAndLine(line, file);
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
