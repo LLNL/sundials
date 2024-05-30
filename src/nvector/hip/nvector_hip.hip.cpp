@@ -578,7 +578,7 @@ void N_VPrintFile_Hip(N_Vector x, FILE* outfile)
 
   for (i = 0; i < NVEC_HIP_CONTENT(x)->length; i++)
   {
-    fprintf(outfile, "% .*e\n", SUN_DIG, NVEC_HIP_HDATAp(x)[i]);
+    fprintf(outfile, "% .*" SUN_FMT_e "\n", SUN_DIG, NVEC_HIP_HDATAp(x)[i]);
   }
 
   return;

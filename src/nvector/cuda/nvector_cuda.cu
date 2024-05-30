@@ -611,7 +611,7 @@ void N_VPrintFile_Cuda(N_Vector x, FILE* outfile)
 
   for (i = 0; i < NVEC_CUDA_CONTENT(x)->length; i++)
   {
-    fprintf(outfile, "% .*e\n", SUN_DIG, NVEC_CUDA_HDATAp(x)[i]);
+    fprintf(outfile, "% .*" SUN_FMT_e "\n", SUN_DIG, NVEC_CUDA_HDATAp(x)[i]);
   }
 
   return;

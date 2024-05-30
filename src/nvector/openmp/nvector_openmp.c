@@ -267,7 +267,7 @@ void N_VPrintFile_OpenMP(N_Vector x, FILE* outfile)
 
   for (i = 0; i < N; i++)
   {
-    fprintf(outfile, "% .*e\n", SUN_DIG, xd[i]);
+    fprintf(outfile, "% .*" SUN_FMT_e "\n", SUN_DIG, xd[i]);
   }
 
   return;

@@ -94,12 +94,12 @@ static void sunfprintf_real(FILE* fp, SUNOutputFormat fmt, sunbooleantype start,
 {
   if (fmt == SUN_OUTPUTFORMAT_TABLE)
   {
-    fprintf(fp, "%-*s = %.*g\n", SUN_TABLE_WIDTH, name, SUN_DIG, value);
+    fprintf(fp, "%-*s = %.*" SUN_FMT_g  "\n", SUN_TABLE_WIDTH, name, SUN_DIG, value);
   }
   else
   {
     if (!start) { fprintf(fp, ","); }
-    fprintf(fp, "%s,%.*e", name, SUN_DIG, value);
+    fprintf(fp, "%s,%.*" SUN_FMT_e, name, SUN_DIG, value);
   }
 }
 

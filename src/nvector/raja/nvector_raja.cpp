@@ -616,7 +616,7 @@ void N_VPrintFile_Raja(N_Vector X, FILE* outfile)
 
   for (i = 0; i < NVEC_RAJA_CONTENT(X)->length; i++)
   {
-    fprintf(outfile, "% .*e\n", SUN_DIG, NVEC_RAJA_HDATAp(X)[i]);
+    fprintf(outfile, "% .*" SUN_FMT_e "\n", SUN_DIG, NVEC_RAJA_HDATAp(X)[i]);
   }
 
   return;
