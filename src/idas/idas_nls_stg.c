@@ -232,8 +232,8 @@ int idaNlsInitSensStg(IDAMem IDA_mem)
   return (IDA_SUCCESS);
 }
 
-static int idaNlsLSetupSensStg(sunbooleantype jbad, sunbooleantype* jcur,
-                               void* ida_mem)
+static int idaNlsLSetupSensStg(SUNDIALS_MAYBE_UNUSED sunbooleantype jbad,
+                               sunbooleantype* jcur, void* ida_mem)
 {
   IDAMem IDA_mem;
   int retval;
@@ -326,7 +326,8 @@ static int idaNlsResidualSensStg(N_Vector ycorStg, N_Vector resStg, void* ida_me
   return (IDA_SUCCESS);
 }
 
-static int idaNlsConvTestSensStg(SUNNonlinearSolver NLS, N_Vector ycor,
+static int idaNlsConvTestSensStg(SUNNonlinearSolver NLS,
+                                 SUNDIALS_MAYBE_UNUSED N_Vector ycor,
                                  N_Vector del, sunrealtype tol, N_Vector ewt,
                                  void* ida_mem)
 {

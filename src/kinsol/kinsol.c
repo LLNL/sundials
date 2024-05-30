@@ -2491,8 +2491,10 @@ static sunrealtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u)
  * passes it to the info handler function.
  */
 
-void KINPrintInfo(KINMem kin_mem, int info_code, const char* module,
-                  const char* fname, const char* msgfmt, ...)
+void KINPrintInfo(SUNDIALS_MAYBE_UNUSED KINMem kin_mem, int info_code,
+                  SUNDIALS_MAYBE_UNUSED const char* module,
+                  SUNDIALS_MAYBE_UNUSED const char* fname, const char* msgfmt,
+                  ...)
 {
   va_list ap;
   char msg[256], msg1[40];
@@ -2540,7 +2542,7 @@ void KINPrintInfo(KINMem kin_mem, int info_code, const char* module,
   {
     /* Compose the message */
 
-    vsprintf(msg, msgfmt, ap);
+    vsnprintf(msg, sizeof msg, msgfmt, ap);
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO

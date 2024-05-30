@@ -18,12 +18,14 @@
  * of the NVECTOR package.
  * -----------------------------------------------------------------*/
 
-#include <nvector/nvector_petsc.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <nvector/nvector_petsc.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 
-#include "sundials/sundials_errors.h"
+#include "sundials_macros.h"
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)
@@ -101,7 +103,10 @@
  * Returns vector type ID. Used to identify vector implementation
  * from abstract N_Vector interface.
  */
-N_Vector_ID N_VGetVectorID_Petsc(N_Vector v) { return SUNDIALS_NVEC_PETSC; }
+N_Vector_ID N_VGetVectorID_Petsc(SUNDIALS_MAYBE_UNUSED N_Vector v)
+{
+  return SUNDIALS_NVEC_PETSC;
+}
 
 /* ----------------------------------------------------------------
  * Function to create a new N_Vector wrapper with an empty (NULL)
@@ -139,8 +144,6 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm, sunindextype local_length,
   v->ops->nvcloneempty      = N_VCloneEmpty_Petsc;
   v->ops->nvdestroy         = N_VDestroy_Petsc;
   v->ops->nvspace           = N_VSpace_Petsc;
-  v->ops->nvgetarraypointer = N_VGetArrayPointer_Petsc;
-  v->ops->nvsetarraypointer = N_VSetArrayPointer_Petsc;
   v->ops->nvgetcommunicator = N_VGetCommunicator_Petsc;
   v->ops->nvgetlength       = N_VGetLength_Petsc;
 
@@ -397,12 +400,19 @@ void N_VSpace_Petsc(N_Vector v, sunindextype* lrw, sunindextype* liw)
 /*
  * Not implemented for PETSc wrapper.
  */
-sunrealtype* N_VGetArrayPointer_Petsc(N_Vector v) { return NULL; }
+sunrealtype* N_VGetArrayPointer_Petsc(SUNDIALS_MAYBE_UNUSED N_Vector v)
+{
+  return NULL;
+}
 
 /*
  * Not implemented for PETSc wrapper.
  */
-void N_VSetArrayPointer_Petsc(sunrealtype* v_data, N_Vector v) { return; }
+void N_VSetArrayPointer_Petsc(SUNDIALS_MAYBE_UNUSED sunrealtype* v_data,
+                              SUNDIALS_MAYBE_UNUSED N_Vector v)
+{
+  return;
+}
 
 MPI_Comm N_VGetCommunicator_Petsc(N_Vector v) { return (NV_COMM_PTC(v)); }
 

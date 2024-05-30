@@ -977,7 +977,8 @@ int cvLsPSolve(void* cvode_mem, N_Vector r, N_Vector z, sunrealtype tol, int lr)
   approximation routines.
   ---------------------------------------------------------------*/
 int cvLsDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
-              void* cvode_mem, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+              void* cvode_mem, N_Vector tmp1, N_Vector tmp2,
+              SUNDIALS_MAYBE_UNUSED N_Vector tmp3)
 {
   CVodeMem cv_mem;
   int retval;
@@ -1213,7 +1214,7 @@ int cvLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
     }
 
     /* Evaluate f with incremented y */
-    retval = cv_mem->cv_f(cv_mem->cv_tn, ytemp, ftemp, cv_mem->cv_user_data);
+    retval = cv_mem->cv_f(t, ytemp, ftemp, cv_mem->cv_user_data);
     cvls_mem->nfeDQ++;
     if (retval != 0) { break; }
 

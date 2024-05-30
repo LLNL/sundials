@@ -233,7 +233,8 @@ int idaNlsInit(IDAMem IDA_mem)
   return (IDA_SUCCESS);
 }
 
-static int idaNlsLSetup(sunbooleantype jbad, sunbooleantype* jcur, void* ida_mem)
+static int idaNlsLSetup(SUNDIALS_MAYBE_UNUSED sunbooleantype jbad,
+                        sunbooleantype* jcur, void* ida_mem)
 {
   IDAMem IDA_mem;
   int retval;
@@ -321,7 +322,8 @@ static int idaNlsResidual(N_Vector ycor, N_Vector res, void* ida_mem)
   return (IDA_SUCCESS);
 }
 
-static int idaNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
+static int idaNlsConvTest(SUNNonlinearSolver NLS,
+                          SUNDIALS_MAYBE_UNUSED N_Vector ycor, N_Vector del,
                           sunrealtype tol, N_Vector ewt, void* ida_mem)
 {
   IDAMem IDA_mem;

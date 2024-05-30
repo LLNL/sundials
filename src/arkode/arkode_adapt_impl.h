@@ -109,7 +109,7 @@ typedef struct ARKodeHAdaptMemRec
 ARKodeHAdaptMem arkAdaptInit(void);
 void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE* outfile);
 int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
-             sunrealtype tcur, sunrealtype hcur, sunrealtype dsm, long int nst);
+             sunrealtype tcur, sunrealtype hcur, sunrealtype dsm);
 
 #ifdef __cplusplus
 }
