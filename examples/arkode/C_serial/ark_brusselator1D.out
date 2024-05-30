@@ -111,7 +111,7 @@
 
 Final Solver Statistics:
    Internal solver steps = 99 (attempted = 99)
-   Total RHS evals:  Fe = 0,  Fi = 1694
+   Total RHS evals:  Fe = 0,  Fi = 1186
    Total linear solver setups = 35
    Total RHS evals for setting up the linear system = 0
    Total number of Jacobian evaluations = 14

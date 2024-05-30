@@ -1,55 +1,20 @@
 
 Dahlquist ODE test problem:
-  problem type = Identity
+  problem type = Fixed mass matrix
   lambda expl  = -1
   lambda impl  = -1
   step size    = 0.01
   relative tol = 0.0001
   absolute tol = 1e-06
-  interp type  = None
-  pred type    = Trivial (0)
+  interp type  = Lagrange
+  pred type    = Max order (1)
 
 ========================
 Test explicit RK methods
 ========================
 
 ========================
-Explicit Euler
-  stages:             1
-  order:              1
-  explicit 1st stage: 1
-  stiffly accurate:   0
-  first same as last: 0
-========================
---------------------
-Steps: 1
-Fe RHS evals:
-  actual:   1
-  expected: 1
---------------------
-Steps: 2
-Fe RHS evals:
-  actual:   2
-  expected: 2
---------------------
-Steps: 3
-Fe RHS evals:
-  actual:   3
-  expected: 3
---------------------
-Dense Output
-Fe RHS evals:
-  actual:   3
-  expected: 3
---------------------
-Steps: 4
-Fe RHS evals:
-  actual:   4
-  expected: 4
---------------------
-
-========================
-ERK Table ID 0
+ERK: ARKODE_HEUN_EULER_2_1_2
   stages:             2
   order:              2
   explicit 1st stage: 1
@@ -84,7 +49,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 1
+ERK: ARKODE_BOGACKI_SHAMPINE_4_2_3
   stages:             4
   order:              3
   explicit 1st stage: 1
@@ -119,7 +84,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 2
+ERK: ARKODE_ARK324L2SA_ERK_4_2_3
   stages:             4
   order:              3
   explicit 1st stage: 1
@@ -154,7 +119,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 3
+ERK: ARKODE_ZONNEVELD_5_3_4
   stages:             5
   order:              4
   explicit 1st stage: 1
@@ -189,7 +154,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 4
+ERK: ARKODE_ARK436L2SA_ERK_6_3_4
   stages:             6
   order:              4
   explicit 1st stage: 1
@@ -224,7 +189,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 5
+ERK: ARKODE_SAYFY_ABURUB_6_3_4
   stages:             6
   order:              4
   explicit 1st stage: 1
@@ -259,7 +224,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 6
+ERK: ARKODE_CASH_KARP_6_4_5
   stages:             6
   order:              5
   explicit 1st stage: 1
@@ -294,7 +259,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 7
+ERK: ARKODE_FEHLBERG_6_4_5
   stages:             6
   order:              5
   explicit 1st stage: 1
@@ -329,7 +294,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 8
+ERK: ARKODE_DORMAND_PRINCE_7_4_5
   stages:             7
   order:              5
   explicit 1st stage: 1
@@ -364,7 +329,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 9
+ERK: ARKODE_ARK548L2SA_ERK_8_4_5
   stages:             8
   order:              5
   explicit 1st stage: 1
@@ -399,7 +364,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 10
+ERK: ARKODE_VERNER_8_5_6
   stages:             8
   order:              6
   explicit 1st stage: 1
@@ -434,7 +399,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 11
+ERK: ARKODE_FEHLBERG_13_7_8
   stages:             13
   order:              8
   explicit 1st stage: 1
@@ -469,7 +434,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 12
+ERK: ARKODE_KNOTH_WOLKE_3_3
   stages:             3
   order:              3
   explicit 1st stage: 1
@@ -504,7 +469,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 13
+ERK: ARKODE_ARK437L2SA_ERK_7_3_4
   stages:             7
   order:              4
   explicit 1st stage: 1
@@ -539,7 +504,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 14
+ERK: ARKODE_ARK548L2SAb_ERK_8_4_5
   stages:             8
   order:              5
   explicit 1st stage: 1
@@ -574,7 +539,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 15
+ERK: ARKODE_ARK2_ERK_3_1_2
   stages:             3
   order:              2
   explicit 1st stage: 1
@@ -609,7 +574,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 16
+ERK: ARKODE_SOFRONIOU_SPALETTA_5_3_4
   stages:             5
   order:              4
   explicit 1st stage: 1
@@ -644,7 +609,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 17
+ERK: ARKODE_SHU_OSHER_3_2_3
   stages:             3
   order:              3
   explicit 1st stage: 1
@@ -679,7 +644,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 18
+ERK: ARKODE_VERNER_9_5_6
   stages:             9
   order:              6
   explicit 1st stage: 1
@@ -714,7 +679,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 19
+ERK: ARKODE_VERNER_10_6_7
   stages:             10
   order:              7
   explicit 1st stage: 1
@@ -749,7 +714,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 20
+ERK: ARKODE_VERNER_13_7_8
   stages:             13
   order:              8
   explicit 1st stage: 1
@@ -784,7 +749,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 21
+ERK: ARKODE_VERNER_16_8_9
   stages:             16
   order:              9
   explicit 1st stage: 1
@@ -819,7 +784,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 22
+ERK: ARKODE_FORWARD_EULER_1_1
   stages:             1
   order:              1
   explicit 1st stage: 1
@@ -854,7 +819,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 23
+ERK: ARKODE_RALSTON_EULER_2_1_2
   stages:             2
   order:              2
   explicit 1st stage: 1
@@ -889,7 +854,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 24
+ERK: ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2
   stages:             2
   order:              2
   explicit 1st stage: 1
@@ -928,46 +893,7 @@ Test implicit RK methods
 ========================
 
 ========================
-Implicit Euler
-  stages:             1
-  order:              1
-  explicit 1st stage: 0
-  stiffly accurate:   1
-  first same as last: 0
-========================
---------------------
-Steps: 1
-NLS iters: 1
-Fi RHS evals:
-  actual:   2
-  expected: 2
---------------------
-Steps: 2
-NLS iters: 2
-Fi RHS evals:
-  actual:   4
-  expected: 4
---------------------
-Steps: 3
-NLS iters: 3
-Fi RHS evals:
-  actual:   6
-  expected: 6
---------------------
-Dense Output
-Fi RHS evals:
-  actual:   6
-  expected: 6
---------------------
-Steps: 4
-NLS iters: 4
-Fi RHS evals:
-  actual:   8
-  expected: 8
---------------------
-
-========================
-DIRK Table ID 100
+DIRK: ARKODE_SDIRK_2_1_2
   stages:             2
   order:              2
   explicit 1st stage: 0
@@ -1006,7 +932,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 101
+DIRK: ARKODE_BILLINGTON_3_3_2
   stages:             3
   order:              2
   explicit 1st stage: 0
@@ -1045,7 +971,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 102
+DIRK: ARKODE_TRBDF2_3_3_2
   stages:             3
   order:              2
   explicit 1st stage: 1
@@ -1084,7 +1010,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 103
+DIRK: ARKODE_KVAERNO_4_2_3
   stages:             4
   order:              3
   explicit 1st stage: 1
@@ -1123,7 +1049,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 104
+DIRK: ARKODE_ARK324L2SA_DIRK_4_2_3
   stages:             4
   order:              3
   explicit 1st stage: 1
@@ -1162,7 +1088,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 105
+DIRK: ARKODE_CASH_5_2_4
   stages:             5
   order:              4
   explicit 1st stage: 0
@@ -1201,7 +1127,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 106
+DIRK: ARKODE_CASH_5_3_4
   stages:             5
   order:              4
   explicit 1st stage: 0
@@ -1240,7 +1166,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 107
+DIRK: ARKODE_SDIRK_5_3_4
   stages:             5
   order:              4
   explicit 1st stage: 0
@@ -1279,7 +1205,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 108
+DIRK: ARKODE_KVAERNO_5_3_4
   stages:             5
   order:              4
   explicit 1st stage: 1
@@ -1318,7 +1244,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 109
+DIRK: ARKODE_ARK436L2SA_DIRK_6_3_4
   stages:             6
   order:              4
   explicit 1st stage: 1
@@ -1357,7 +1283,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 110
+DIRK: ARKODE_KVAERNO_7_4_5
   stages:             7
   order:              5
   explicit 1st stage: 1
@@ -1396,7 +1322,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 111
+DIRK: ARKODE_ARK548L2SA_DIRK_8_4_5
   stages:             8
   order:              5
   explicit 1st stage: 1
@@ -1435,7 +1361,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 112
+DIRK: ARKODE_ARK437L2SA_DIRK_7_3_4
   stages:             7
   order:              4
   explicit 1st stage: 1
@@ -1474,7 +1400,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 113
+DIRK: ARKODE_ARK548L2SAb_DIRK_8_4_5
   stages:             8
   order:              5
   explicit 1st stage: 1
@@ -1513,7 +1439,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 114
+DIRK: ARKODE_ESDIRK324L2SA_4_2_3
   stages:             4
   order:              3
   explicit 1st stage: 1
@@ -1552,7 +1478,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 115
+DIRK: ARKODE_ESDIRK325L2SA_5_2_3
   stages:             5
   order:              3
   explicit 1st stage: 1
@@ -1591,7 +1517,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 116
+DIRK: ARKODE_ESDIRK32I5L2SA_5_2_3
   stages:             5
   order:              3
   explicit 1st stage: 1
@@ -1630,7 +1556,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 117
+DIRK: ARKODE_ESDIRK436L2SA_6_3_4
   stages:             6
   order:              4
   explicit 1st stage: 1
@@ -1669,7 +1595,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 118
+DIRK: ARKODE_ESDIRK43I6L2SA_6_3_4
   stages:             6
   order:              4
   explicit 1st stage: 1
@@ -1708,7 +1634,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 119
+DIRK: ARKODE_QESDIRK436L2SA_6_3_4
   stages:             6
   order:              4
   explicit 1st stage: 1
@@ -1747,7 +1673,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 120
+DIRK: ARKODE_ESDIRK437L2SA_7_3_4
   stages:             7
   order:              4
   explicit 1st stage: 1
@@ -1786,46 +1712,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 121
-  stages:             7
-  order:              5
-  explicit 1st stage: 1
-  stiffly accurate:   1
-  first same as last: 1
-========================
---------------------
-Steps: 1
-NLS iters: 6
-Fi RHS evals:
-  actual:   13
-  expected: 13
---------------------
-Steps: 2
-NLS iters: 12
-Fi RHS evals:
-  actual:   25
-  expected: 25
---------------------
-Steps: 3
-NLS iters: 18
-Fi RHS evals:
-  actual:   37
-  expected: 37
---------------------
-Dense Output
-Fi RHS evals:
-  actual:   37
-  expected: 37
---------------------
-Steps: 4
-NLS iters: 24
-Fi RHS evals:
-  actual:   49
-  expected: 49
---------------------
-
-========================
-DIRK Table ID 122
+DIRK: ARKODE_ESDIRK547L2SA_7_4_5
   stages:             7
   order:              5
   explicit 1st stage: 1
@@ -1864,7 +1751,46 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 123
+DIRK: ARKODE_ESDIRK547L2SA2_7_4_5
+  stages:             7
+  order:              5
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 6
+Fi RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 2
+NLS iters: 12
+Fi RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+Steps: 3
+NLS iters: 18
+Fi RHS evals:
+  actual:   37
+  expected: 37
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   37
+  expected: 37
+--------------------
+Steps: 4
+NLS iters: 24
+Fi RHS evals:
+  actual:   49
+  expected: 49
+--------------------
+
+========================
+DIRK: ARKODE_ARK2_DIRK_3_1_2
   stages:             3
   order:              2
   explicit 1st stage: 1
@@ -1903,7 +1829,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 124
+DIRK: ARKODE_BACKWARD_EULER_1_1
   stages:             1
   order:              1
   explicit 1st stage: 0
@@ -1942,7 +1868,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 125
+DIRK: ARKODE_IMPLICIT_MIDPOINT_1_2
   stages:             1
   order:              2
   explicit 1st stage: 0
@@ -1981,7 +1907,7 @@ Fi RHS evals:
 --------------------
 
 ========================
-DIRK Table ID 126
+DIRK: ARKODE_IMPLICIT_TRAPEZOIDAL_2_2
   stages:             2
   order:              2
   explicit 1st stage: 1
@@ -2078,7 +2004,8 @@ Fi RHS evals:
 --------------------
 
 ========================
-IMEX Table ID 0
+DIRK: ARKODE_ARK2_DIRK_3_1_2
+ERK: ARKODE_ARK2_ERK_3_1_2
   stages:             3
   order:              2
   explicit 1st stage: 1
@@ -2132,7 +2059,8 @@ Fi RHS evals:
 --------------------
 
 ========================
-IMEX Table ID 1
+DIRK: ARKODE_ARK324L2SA_DIRK_4_2_3
+ERK: ARKODE_ARK324L2SA_ERK_4_2_3
   stages:             4
   order:              3
   explicit 1st stage: 1
@@ -2186,7 +2114,8 @@ Fi RHS evals:
 --------------------
 
 ========================
-IMEX Table ID 2
+DIRK: ARKODE_ARK436L2SA_DIRK_6_3_4
+ERK: ARKODE_ARK436L2SA_ERK_6_3_4
   stages:             6
   order:              4
   explicit 1st stage: 1
@@ -2240,7 +2169,8 @@ Fi RHS evals:
 --------------------
 
 ========================
-IMEX Table ID 3
+DIRK: ARKODE_ARK437L2SA_DIRK_7_3_4
+ERK: ARKODE_ARK437L2SA_ERK_7_3_4
   stages:             7
   order:              4
   explicit 1st stage: 1
@@ -2294,7 +2224,8 @@ Fi RHS evals:
 --------------------
 
 ========================
-IMEX Table ID 4
+DIRK: ARKODE_ARK548L2SA_DIRK_8_4_5
+ERK: ARKODE_ARK548L2SA_ERK_8_4_5
   stages:             8
   order:              5
   explicit 1st stage: 1
@@ -2348,7 +2279,8 @@ Fi RHS evals:
 --------------------
 
 ========================
-IMEX Table ID 5
+DIRK: ARKODE_ARK548L2SAb_DIRK_8_4_5
+ERK: ARKODE_ARK548L2SAb_ERK_8_4_5
   stages:             8
   order:              5
   explicit 1st stage: 1

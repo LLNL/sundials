@@ -8,24 +8,24 @@ Brusselator ODE test problem:
    -------------------------------------------
     0.000000    1.200000    3.100000    3.000000
     1.000000    1.103849    3.013164    3.499981
-    2.000000    0.687998    3.521383    3.499988
-    3.000000    0.409468    4.277886    3.499993
-    4.000000    0.367888    4.942004    3.499994
-    5.000000    0.413854    5.510621    3.499993
-    6.000000    0.589240    5.855669    3.499990
-    7.000000    4.756630    0.735405    3.499917
-    8.000000    1.813466    1.575769    3.499968
-    9.000000    0.527904    2.807358    3.499991
-   10.000000    0.305600    3.657365    3.499995
+    2.000000    0.687997    3.521384    3.499988
+    3.000000    0.409467    4.277888    3.499993
+    4.000000    0.367889    4.942005    3.499994
+    5.000000    0.413860    5.510615    3.499993
+    6.000000    0.589251    5.855655    3.499990
+    7.000000    4.756472    0.735414    3.499917
+    8.000000    1.813403    1.575799    3.499968
+    9.000000    0.527886    2.807385    3.499991
+   10.000000    0.305598    3.657381    3.499995
    -------------------------------------------
 
 Final Solver Statistics:
-   Internal solver steps = 250 (attempted = 262)
-   Total RHS evals:  Fe = 0,  Fi = 3282
-   Total linear solver setups = 118
+   Internal solver steps = 252 (attempted = 262)
+   Total RHS evals:  Fe = 0,  Fi = 1910
+   Total linear solver setups = 111
    Total RHS evals for setting up the linear system = 0
-   Total number of Jacobian evaluations = 72
-   Total number of Newton iterations = 3279
-   Total number of nonlinear solver convergence failures = 71
-   Total number of error test failures = 11
+   Total number of Jacobian evaluations = 71
+   Total number of Newton iterations = 3286
+   Total number of nonlinear solver convergence failures = 70
+   Total number of error test failures = 9
    Total number of failed steps from solver failure = 1

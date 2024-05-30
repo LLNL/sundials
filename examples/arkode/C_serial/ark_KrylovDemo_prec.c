@@ -193,6 +193,13 @@ typedef struct
   int jxr[NGX], jyr[NGY];
   sunrealtype acoef[NS][NS], bcoef[NS], diff[NS];
   sunrealtype cox[NS], coy[NS], dx, dy, srur;
+  /* fsave contains saved rate data from the last RHS evaluation for reuse in
+     the preconditioner setup. This reuse relies on the nonlinear residual
+     evaluating the RHS function before calling the preconditioner setup
+     function. This assumption is incorrect when using ARKodeSetAutonomous which
+     enables reuse of RHS evaluations with the trivial predictor. To use
+     ARKodeSetAutonomous in this example, the saved values would need to be
+     recomputed in the preconditioner setup function using the input state. */
   sunrealtype fsave[NEQ];
   N_Vector tmp;
   N_Vector rewt;

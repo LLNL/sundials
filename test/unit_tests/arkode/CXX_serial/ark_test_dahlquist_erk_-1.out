@@ -11,42 +11,7 @@ Test explicit RK methods
 ========================
 
 ========================
-Explicit Euler
-  stages:             1
-  order:              1
-  explicit 1st stage: 1
-  stiffly accurate:   0
-  first same as last: 0
-========================
---------------------
-Steps: 1
-Fe RHS evals:
-  actual:   1
-  expected: 1
---------------------
-Steps: 2
-Fe RHS evals:
-  actual:   2
-  expected: 2
---------------------
-Steps: 3
-Fe RHS evals:
-  actual:   3
-  expected: 3
---------------------
-Dense Output
-Fe RHS evals:
-  actual:   3
-  expected: 3
---------------------
-Steps: 4
-Fe RHS evals:
-  actual:   4
-  expected: 4
---------------------
-
-========================
-ERK Table ID 0
+ARKODE_HEUN_EULER_2_1_2
   stages:             2
   order:              2
   explicit 1st stage: 1
@@ -81,7 +46,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 1
+ARKODE_BOGACKI_SHAMPINE_4_2_3
   stages:             4
   order:              3
   explicit 1st stage: 1
@@ -116,7 +81,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 2
+ARKODE_ARK324L2SA_ERK_4_2_3
   stages:             4
   order:              3
   explicit 1st stage: 1
@@ -151,7 +116,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 3
+ARKODE_ZONNEVELD_5_3_4
   stages:             5
   order:              4
   explicit 1st stage: 1
@@ -186,7 +151,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 4
+ARKODE_ARK436L2SA_ERK_6_3_4
   stages:             6
   order:              4
   explicit 1st stage: 1
@@ -221,7 +186,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 5
+ARKODE_SAYFY_ABURUB_6_3_4
   stages:             6
   order:              4
   explicit 1st stage: 1
@@ -256,7 +221,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 6
+ARKODE_CASH_KARP_6_4_5
   stages:             6
   order:              5
   explicit 1st stage: 1
@@ -291,7 +256,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 7
+ARKODE_FEHLBERG_6_4_5
   stages:             6
   order:              5
   explicit 1st stage: 1
@@ -326,7 +291,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 8
+ARKODE_DORMAND_PRINCE_7_4_5
   stages:             7
   order:              5
   explicit 1st stage: 1
@@ -361,7 +326,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 9
+ARKODE_ARK548L2SA_ERK_8_4_5
   stages:             8
   order:              5
   explicit 1st stage: 1
@@ -396,7 +361,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 10
+ARKODE_VERNER_8_5_6
   stages:             8
   order:              6
   explicit 1st stage: 1
@@ -431,7 +396,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 11
+ARKODE_FEHLBERG_13_7_8
   stages:             13
   order:              8
   explicit 1st stage: 1
@@ -466,7 +431,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 12
+ARKODE_KNOTH_WOLKE_3_3
   stages:             3
   order:              3
   explicit 1st stage: 1
@@ -501,7 +466,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 13
+ARKODE_ARK437L2SA_ERK_7_3_4
   stages:             7
   order:              4
   explicit 1st stage: 1
@@ -536,7 +501,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 14
+ARKODE_ARK548L2SAb_ERK_8_4_5
   stages:             8
   order:              5
   explicit 1st stage: 1
@@ -571,7 +536,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 15
+ARKODE_ARK2_ERK_3_1_2
   stages:             3
   order:              2
   explicit 1st stage: 1
@@ -606,7 +571,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 16
+ARKODE_SOFRONIOU_SPALETTA_5_3_4
   stages:             5
   order:              4
   explicit 1st stage: 1
@@ -641,7 +606,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 17
+ARKODE_SHU_OSHER_3_2_3
   stages:             3
   order:              3
   explicit 1st stage: 1
@@ -676,7 +641,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 18
+ARKODE_VERNER_9_5_6
   stages:             9
   order:              6
   explicit 1st stage: 1
@@ -711,7 +676,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 19
+ARKODE_VERNER_10_6_7
   stages:             10
   order:              7
   explicit 1st stage: 1
@@ -746,7 +711,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 20
+ARKODE_VERNER_13_7_8
   stages:             13
   order:              8
   explicit 1st stage: 1
@@ -781,7 +746,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 21
+ARKODE_VERNER_16_8_9
   stages:             16
   order:              9
   explicit 1st stage: 1
@@ -816,7 +781,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 22
+ARKODE_FORWARD_EULER_1_1
   stages:             1
   order:              1
   explicit 1st stage: 1
@@ -851,7 +816,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 23
+ARKODE_RALSTON_EULER_2_1_2
   stages:             2
   order:              2
   explicit 1st stage: 1
@@ -886,7 +851,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK Table ID 24
+ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2
   stages:             2
   order:              2
   explicit 1st stage: 1

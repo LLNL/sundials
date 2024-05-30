@@ -38,6 +38,12 @@ Added the following MRI coupling tables
 Added `ARKodeButcherTable_ERKIDToName` and `ARKodeButcherTable_DIRKIDToName` to
 convert a Butcher table ID to a string representation.
 
+Added the function ``ARKodeSetAutonomous`` in ARKODE to indicate that the
+implicit right-hand side function does not explicitly depend on time. When using
+the trivial predictor, an autonomous problem may reuse implicit function
+evaluations across stage solves to reduce the total number of function
+evaluations.
+
 Users may now disable interpolated output in ARKODE by passing `ARK_INTERP_NONE`
 to `ARKodeSetInterpolantType`. When interpolation is disabled, rootfinding is
 not supported, implicit methods must use the trivial predictor (the default

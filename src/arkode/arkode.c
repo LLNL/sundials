@@ -1338,6 +1338,8 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   N_VPrintFile(ark_mem->tempv3, outfile);
   fprintf(outfile, "tempv4:\n");
   N_VPrintFile(ark_mem->tempv4, outfile);
+  fprintf(outfile, "tempv5:\n");
+  N_VPrintFile(ark_mem->tempv5, outfile);
   fprintf(outfile, "constraints:\n");
   N_VPrintFile(ark_mem->constraints, outfile);
 #endif
@@ -1417,6 +1419,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->step_setnonlinearsolver        = NULL;
   ark_mem->step_setlinear                 = NULL;
   ark_mem->step_setnonlinear              = NULL;
+  ark_mem->step_setautonomous             = NULL;
   ark_mem->step_setnlsrhsfn               = NULL;
   ark_mem->step_setdeduceimplicitrhs      = NULL;
   ark_mem->step_setnonlincrdown           = NULL;
@@ -3456,6 +3459,12 @@ sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
     return (SUNFALSE);
   }
 
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
+                    &ark_mem->tempv5))
+  {
+    return (SUNFALSE);
+  }
+
   /* constraints */
   if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
                     &ark_mem->constraints))
@@ -3480,6 +3489,7 @@ void arkFreeVectors(ARKodeMem ark_mem)
   arkFreeVec(ark_mem, &ark_mem->tempv2);
   arkFreeVec(ark_mem, &ark_mem->tempv3);
   arkFreeVec(ark_mem, &ark_mem->tempv4);
+  arkFreeVec(ark_mem, &ark_mem->tempv5);
   arkFreeVec(ark_mem, &ark_mem->yn);
   arkFreeVec(ark_mem, &ark_mem->fn);
   arkFreeVec(ark_mem, &ark_mem->Vabstol);
