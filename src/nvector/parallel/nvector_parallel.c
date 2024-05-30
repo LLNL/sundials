@@ -290,15 +290,8 @@ void N_VPrintFile_Parallel(N_Vector x, FILE* outfile)
 
   for (i = 0; i < N; i++)
   {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%35.32Le\n", xd[i]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%19.16e\n", xd[i]);
-#else
-    fprintf(outfile, "%11.8e\n", xd[i]);
-#endif
+    fprintf(outfile, "% .*e\n", SUN_DIG, xd[i]);
   }
-  fprintf(outfile, "\n");
 
   return;
 }

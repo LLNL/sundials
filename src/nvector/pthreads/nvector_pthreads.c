@@ -341,15 +341,8 @@ void N_VPrintFile_Pthreads(N_Vector x, FILE* outfile)
 
   for (i = 0; i < N; i++)
   {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%11.8Lg\n", xd[i]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%11.8g\n", xd[i]);
-#else
-    fprintf(outfile, "%11.8g\n", xd[i]);
-#endif
+    fprintf(outfile, "% .*e\n", SUN_DIG, xd[i]);
   }
-  fprintf(outfile, "\n");
 
   return;
 }

@@ -93,7 +93,7 @@ static void sunfprintf_real(FILE* fp, SUNOutputFormat fmt, const char* name, sun
 {
   if (fmt == SUN_OUTPUTFORMAT_TABLE)
   {
-    fprintf(fp, "%-*s = %.*e\n", SUN_TABLE_WIDTH, name, SUN_DIG, value);
+    fprintf(fp, "%-*s = %.*g\n", SUN_TABLE_WIDTH, name, SUN_DIG, value);
   }
   else
   {
