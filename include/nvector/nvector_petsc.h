@@ -76,8 +76,6 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
 
 SUNDIALS_EXPORT N_Vector N_VMake_Petsc(Vec v, SUNContext sunctx);
 
-SUNDIALS_EXPORT sunrealtype* N_VGetArrayPointer_Petsc(N_Vector v);
-
 SUNDIALS_EXPORT Vec N_VGetVector_Petsc(N_Vector v);
 
 SUNDIALS_EXPORT void N_VSetVector_Petsc(N_Vector v, Vec p);
@@ -93,7 +91,6 @@ SUNDIALS_EXPORT N_Vector N_VClone_Petsc(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Petsc(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_Petsc(N_Vector v, sunindextype* lrw,
                                     sunindextype* liw);
-SUNDIALS_EXPORT void N_VSetArrayPointer_Petsc(sunrealtype* v_data, N_Vector v);
 SUNDIALS_EXPORT MPI_Comm N_VGetCommunicator_Petsc(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_Petsc(N_Vector v);
 
@@ -207,6 +204,12 @@ SUNErrCode N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v,
 
 SUNDIALS_EXPORT SUNErrCode N_VEnableDotProdMultiLocal_Petsc(N_Vector v,
                                                             sunbooleantype tf);
+
+SUNDIALS_DEPRECATED_EXPORT_MSG("Not supported, use N_VGetVector_Petsc")
+sunrealtype* N_VGetArrayPointer_Petsc(N_Vector v);
+
+SUNDIALS_DEPRECATED_EXPORT_MSG("Not supported, use N_VGetVector_Petsc")
+void N_VSetArrayPointer_Petsc(sunrealtype* v_data, N_Vector v);
 
 #ifdef __cplusplus
 }

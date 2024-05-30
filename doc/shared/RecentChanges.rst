@@ -36,6 +36,12 @@ Added :c:func:`ARKodeButcherTable_ERKIDToName` and
 :c:func:`ARKodeButcherTable_DIRKIDToName` to convert a Butcher table ID to a
 string representation.
 
+Added the function :c:func:`ARKodeSetAutonomous` in ARKODE to indicate that the
+implicit right-hand side function does not explicitly depend on time. When using
+the trivial predictor, an autonomous problem may reuse implicit function
+evaluations across stage solves to reduce the total number of function
+evaluations.
+
 Users may now disable interpolated output in ARKODE by passing
 ``ARK_INTERP_NONE`` to :c:func:`ARKodeSetInterpolantType`. When interpolation is
 disabled, rootfinding is not supported, implicit methods must use the trivial
@@ -118,3 +124,8 @@ ARKODE-wide functions.
 Deprecated the `ARKStepSetOptimalParams` function. Since this function does not have an
 ARKODE-wide equivalent, instructions have been added to the user guide for how
 to retain the current functionality using other user-callable functions.
+
+The unsupported implementations of ``N_VGetArrayPointer`` and
+``N_VSetArrayPointer`` for the *hypre* and PETSc vectors are now deprecated.
+Users should access the underlying wrapped external library vector objects
+instead with ``N_VGetVector_ParHyp`` and ``N_VGetVector_Petsc``, respectively.

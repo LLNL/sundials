@@ -139,10 +139,6 @@ if [ "$compilername" == "gcc" ]; then
         export CUDAFLAGS="-g -O3"
     fi
 
-    # TODO(CJB): add this back after we upgrade the GNU compiler stack on the Jenkins box
-    # Currently this causes the compiler to segfault on many of the Fortran example codes.
-    # export FFLAGS="${FFLAGS} -fbounds-check"
-
 else
 
     COMPILER_ROOT="$(spack location -i "llvm@$compilerversion")"

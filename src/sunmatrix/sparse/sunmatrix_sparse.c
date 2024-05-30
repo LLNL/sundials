@@ -22,13 +22,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
-#include "sundials/sundials_errors.h"
+#include "sundials_macros.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -497,7 +499,10 @@ sunindextype* SUNSparseMatrix_IndexPointers(SUNMatrix A)
  * -----------------------------------------------------------------
  */
 
-SUNMatrix_ID SUNMatGetID_Sparse(SUNMatrix A) { return SUNMATRIX_SPARSE; }
+SUNMatrix_ID SUNMatGetID_Sparse(SUNDIALS_MAYBE_UNUSED SUNMatrix A)
+{
+  return SUNMATRIX_SPARSE;
+}
 
 SUNMatrix SUNMatClone_Sparse(SUNMatrix A)
 {
@@ -1120,6 +1125,7 @@ SUNErrCode SUNMatSpace_Sparse(SUNMatrix A, long int* lenrw, long int* leniw)
  * Function to check compatibility of two sparse SUNMatrix objects
  */
 
+SUNDIALS_MAYBE_UNUSED
 static sunbooleantype compatibleMatrices(SUNMatrix A, SUNMatrix B)
 {
   /* both matrices must have the same shape and sparsity type */
@@ -1138,6 +1144,7 @@ static sunbooleantype compatibleMatrices(SUNMatrix A, SUNMatrix B)
  * N_Vectors (A*x = b)
  */
 
+SUNDIALS_MAYBE_UNUSED
 static sunbooleantype compatibleMatrixAndVectors(SUNMatrix A, N_Vector x,
                                                  N_Vector y)
 {

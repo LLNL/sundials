@@ -238,7 +238,7 @@ The SUNLinSol_SPTFQMR module defines implementations of all
 
 * ``SUNLinSolSetZeroGuess_SPTFQMR`` -- note the solver assumes a non-zero guess
   by default and the zero guess flag is reset to ``SUNFALSE`` after each call to
-  :c:func:`SUNLinSolSolve_SPTFQMR`.
+  ``SUNLinSolSolve_SPTFQMR``.
 
 * ``SUNLinSolSetup_SPTFQMR``
 

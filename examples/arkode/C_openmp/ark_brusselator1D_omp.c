@@ -225,6 +225,7 @@ int main(int argc, char* argv[])
   /* Initialize matrix and linear solver data structures */
   A = SUNBandMatrix(NEQ, 4, 4, ctx);
   if (check_flag((void*)A, "SUNBandMatrix", 0)) { return 1; }
+
   LS = SUNLinSol_Band(y, A, ctx);
   if (check_flag((void*)LS, "SUNLinSol_Band", 0)) { return 1; }
 
@@ -239,6 +240,7 @@ int main(int argc, char* argv[])
   flag = ARKodeSetUserData(arkode_mem,
                            (void*)udata); /* Pass udata to user functions */
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
+
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol); /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
@@ -246,8 +248,12 @@ int main(int argc, char* argv[])
   flag = ARKodeSetLinearSolver(arkode_mem, LS,
                                A); /* Attach matrix and linear solver */
   if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
+
   flag = ARKodeSetJacFn(arkode_mem, Jac); /* Set the Jacobian routine */
   if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
+
+  flag = ARKodeSetAutonomous(arkode_mem, SUNTRUE);
+  if (check_flag(&flag, "ARKodeSetAutonomous", 1)) { return 1; }
 
   /* output spatial mesh to disk */
   FID = fopen("bruss_mesh.txt", "w");

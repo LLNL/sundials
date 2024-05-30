@@ -216,6 +216,7 @@ int main(void)
   /* Initialize band matrix data structure and solver -- A will be factored, so set smu to ml+mu */
   A = SUNBandMatrix(NEQ, 4, 4, ctx);
   if (check_flag((void*)A, "SUNBandMatrix", 0)) { return 1; }
+
   LS = SUNLinSol_Band(y, A, ctx);
   if (check_flag((void*)LS, "SUNLinSol_Band", 0)) { return 1; }
 
@@ -223,8 +224,12 @@ int main(void)
   flag = ARKodeSetLinearSolver(arkode_mem, LS,
                                A); /* Attach matrix and linear solver */
   if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
+
   flag = ARKodeSetJacFn(arkode_mem, Jac); /* Set the Jacobian routine */
   if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
+
+  flag = ARKodeSetAutonomous(arkode_mem, SUNTRUE);
+  if (check_flag(&flag, "ARKodeSetAutonomous", 1)) { return 1; }
 
   /* output spatial mesh to disk */
   FID = fopen("bruss_mesh.txt", "w");

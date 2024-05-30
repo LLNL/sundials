@@ -17,12 +17,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_dense.h>
 
-#include "sundials/sundials_errors.h"
 #include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 
 #define ONE SUN_RCONST(1.0)
 
@@ -46,7 +48,8 @@
  * Function to create a new dense linear solver
  */
 
-SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx)
+SUNLinearSolver SUNLinSol_Dense(SUNDIALS_MAYBE_UNUSED N_Vector y, SUNMatrix A,
+                                SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNLinearSolver S;
@@ -102,12 +105,12 @@ SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A, SUNContext sunctx)
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_Dense(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_Dense(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_DIRECT);
 }
 
-SUNLinearSolver_ID SUNLinSolGetID_Dense(SUNLinearSolver S)
+SUNLinearSolver_ID SUNLinSolGetID_Dense(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_DENSE);
 }
@@ -146,7 +149,7 @@ int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
 }
 
 int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
-                         sunrealtype tol)
+                         SUNDIALS_MAYBE_UNUSED sunrealtype tol)
 {
   SUNFunctionBegin(S->sunctx);
   sunrealtype **A_cols, *xdata;

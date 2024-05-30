@@ -14,9 +14,10 @@
  * This is the implementation file for the SUNDIALS + XBraid interface.
  * -------------------------------------------------------------------------- */
 
-#include "sundials/sundials_xbraid.h"
+#include <sundials/sundials_math.h>
+#include <sundials/sundials_xbraid.h>
 
-#include "sundials/sundials_math.h"
+#include "sundials_macros.h"
 
 #define ONE SUN_RCONST(1.0)
 
@@ -114,7 +115,8 @@ int SUNBraidVector_GetNVector(SUNBraidVector u, N_Vector* y)
 }
 
 /* Create clone of an existing vector */
-int SUNBraidVector_Clone(braid_App app, braid_Vector u, braid_Vector* v_ptr)
+int SUNBraidVector_Clone(SUNDIALS_MAYBE_UNUSED braid_App app, braid_Vector u,
+                         braid_Vector* v_ptr)
 {
   int flag;
   N_Vector vy;
@@ -138,7 +140,7 @@ int SUNBraidVector_Clone(braid_App app, braid_Vector u, braid_Vector* v_ptr)
 }
 
 /* Free vector */
-int SUNBraidVector_Free(braid_App app, braid_Vector u)
+int SUNBraidVector_Free(SUNDIALS_MAYBE_UNUSED braid_App app, braid_Vector u)
 {
   /* Check for valid input */
   if (u == NULL) { return SUNBRAID_SUCCESS; }
@@ -158,8 +160,8 @@ int SUNBraidVector_Free(braid_App app, braid_Vector u)
 }
 
 /* Compute alpha x + beta y -> y */
-int SUNBraidVector_Sum(braid_App app, braid_Real alpha, braid_Vector x,
-                       braid_Real beta, braid_Vector y)
+int SUNBraidVector_Sum(SUNDIALS_MAYBE_UNUSED braid_App app, braid_Real alpha,
+                       braid_Vector x, braid_Real beta, braid_Vector y)
 {
   /* Check for valid wrappers */
   if (x == NULL || y == NULL) { return SUNBRAID_ILLINPUT; }
@@ -171,7 +173,8 @@ int SUNBraidVector_Sum(braid_App app, braid_Real alpha, braid_Vector x,
 }
 
 /* Compute L2 norm */
-int SUNBraidVector_SpatialNorm(braid_App app, braid_Vector u, braid_Real* norm_ptr)
+int SUNBraidVector_SpatialNorm(SUNDIALS_MAYBE_UNUSED braid_App app,
+                               braid_Vector u, braid_Real* norm_ptr)
 {
   /* Check for valid wrapper */
   if (u == NULL) { return SUNBRAID_ILLINPUT; }
@@ -185,7 +188,7 @@ int SUNBraidVector_SpatialNorm(braid_App app, braid_Vector u, braid_Real* norm_p
 
 /* Compute message buffer size */
 int SUNBraidVector_BufSize(braid_App app, braid_Int* size_ptr,
-                           braid_BufferStatus bstatus)
+                           SUNDIALS_MAYBE_UNUSED braid_BufferStatus bstatus)
 {
   int flag;       /* return flag     */
   N_Vector ytmpl; /* template vector */
@@ -202,8 +205,9 @@ int SUNBraidVector_BufSize(braid_App app, braid_Int* size_ptr,
 }
 
 /* Pack message buffer */
-int SUNBraidVector_BufPack(braid_App app, braid_Vector u, void* buffer,
-                           braid_BufferStatus bstatus)
+int SUNBraidVector_BufPack(SUNDIALS_MAYBE_UNUSED braid_App app, braid_Vector u,
+                           void* buffer,
+                           SUNDIALS_MAYBE_UNUSED braid_BufferStatus bstatus)
 {
   int flag; /* return flag */
 
@@ -220,7 +224,7 @@ int SUNBraidVector_BufPack(braid_App app, braid_Vector u, void* buffer,
 
 /* Unpack message buffer */
 int SUNBraidVector_BufUnpack(braid_App app, void* buffer, braid_Vector* u_ptr,
-                             braid_BufferStatus bstatus)
+                             SUNDIALS_MAYBE_UNUSED braid_BufferStatus bstatus)
 {
   int flag;       /* return flag     */
   N_Vector ytmpl; /* template vector */

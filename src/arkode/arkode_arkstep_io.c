@@ -665,6 +665,7 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->predictor      = 0;         /* trivial predictor */
   step_mem->linear         = SUNFALSE;  /* nonlinear problem */
   step_mem->linear_timedep = SUNTRUE;   /* dfi/dy depends on t */
+  step_mem->autonomous     = SUNFALSE;  /* non-autonomous problem */
   step_mem->explicit       = SUNTRUE;   /* fe(t,y) will be used */
   step_mem->implicit       = SUNTRUE;   /* fi(t,y) will be used */
   step_mem->deduce_rhs     = SUNFALSE;  /* deduce fi on result of NLS */
@@ -749,6 +750,14 @@ int arkStep_SetLinear(ARKodeMem ark_mem, int timedepend)
   retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  if (timedepend && step_mem->autonomous)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Incompatible settings, the problem is autonomous but the "
+                    "Jacobian is time dependent");
+    return ARK_ILL_INPUT;
+  }
+
   /* set parameters */
   step_mem->linear         = SUNTRUE;
   step_mem->linear_timedep = (timedepend == 1);
@@ -779,6 +788,56 @@ int arkStep_SetNonlinear(ARKodeMem ark_mem)
   step_mem->dgmax          = DGMAX;
 
   return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  arkStep_SetAutonomous:
+
+  Indicates if the problem is autonomous (True) or non-autonomous
+  (False).
+  ---------------------------------------------------------------*/
+int arkStep_SetAutonomous(ARKodeMem ark_mem, sunbooleantype autonomous)
+{
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  step_mem->autonomous = autonomous;
+
+  if (autonomous && step_mem->linear) { step_mem->linear_timedep = SUNFALSE; }
+
+  /* Reattach the nonlinear system function e.g., switching to/from an
+     autonomous problem with the trivial predictor requires swapping the
+     nonlinear system function provided to the nonlinear solver */
+  retval = arkStep_SetNlsSysFn(ark_mem);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Setting nonlinear system function failed");
+    return ARK_ILL_INPUT;
+  }
+
+  /* This will be better handled when the temp vector stack is added */
+  if (autonomous)
+  {
+    /* Allocate tempv5 if needed */
+    if (!arkAllocVec(ark_mem, ark_mem->yn, &ark_mem->tempv5))
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_MEM_FAIL);
+      return ARK_MEM_FAIL;
+    }
+  }
+  else
+  {
+    /* Free tempv5 if necessary */
+    arkFreeVec(ark_mem, &ark_mem->tempv5);
+  }
+
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -892,6 +951,17 @@ int arkStep_SetPredictorMethod(ARKodeMem ark_mem, int pred_method)
 
   /* set parameter */
   step_mem->predictor = pred_method;
+
+  /* Reattach the nonlinear system function e.g., switching to/from the trivial
+     predictor with an autonomous problem requires swapping the nonlinear system
+     function provided to the nonlinear solver */
+  retval = arkStep_SetNlsSysFn(ark_mem);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Setting nonlinear system function failed");
+    return ARK_ILL_INPUT;
+  }
 
   return (ARK_SUCCESS);
 }

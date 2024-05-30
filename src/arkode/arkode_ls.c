@@ -2547,7 +2547,8 @@ int arkLsMPSolve(void* arkode_mem, N_Vector r, N_Vector z, sunrealtype tol, int 
   approximation routines.
   ---------------------------------------------------------------*/
 int arkLsDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
-               void* arkode_mem, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+               void* arkode_mem, N_Vector tmp1, N_Vector tmp2,
+               SUNDIALS_MAYBE_UNUSED N_Vector tmp3)
 {
   ARKodeMem ark_mem;
   ARKLsMem arkls_mem;
@@ -2774,7 +2775,7 @@ int arkLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
     }
 
     /* Evaluate f with incremented y */
-    retval = fi(ark_mem->tcur, ytemp, ftemp, ark_mem->user_data);
+    retval = fi(t, ytemp, ftemp, ark_mem->user_data);
     arkls_mem->nfeDQ++;
     if (retval != 0) { break; }
 

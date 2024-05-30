@@ -21,9 +21,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
+#include <sundials/sundials_errors.h>
+#include <sundials/sundials_types.h>
+
 #include "sundials_hashmap_impl.h"
+#include "sundials_macros.h"
 
 static const uint64_t HASH_PRIME        = 14695981039346656037U;
 static const uint64_t HASH_OFFSET_BASIS = 1099511628211U;
@@ -33,7 +35,7 @@ static const uint64_t HASH_OFFSET_BASIS = 1099511628211U;
   https://softwareengineering.stackexchange.com/questions/49550/which-hashing-algorithm-is-best-for-uniqueness-and-speed/145633#145633
 
   This is a 64-bit implementation of the 'a' modification of the
-  Fowler–Noll–Vo hash (i.e., FNV1-a).
+  Fowler-Noll-Vo hash (i.e., FNV1-a).
  */
 static uint64_t fnv1a_hash(const char* str)
 {
@@ -161,7 +163,7 @@ int SUNHashMap_Iterate(SUNHashMap map, int start,
 }
 
 static int sunHashMapLinearProbeInsert(int idx, SUNHashMapKeyValue kv,
-                                       const void* ctx)
+                                       SUNDIALS_MAYBE_UNUSED const void* ctx)
 {
   /* find the next open spot */
   if (kv == NULL) { return (idx); /* open spot found at idx */ }

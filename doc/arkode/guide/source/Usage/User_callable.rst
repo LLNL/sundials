@@ -52,6 +52,26 @@ Then in the introduction for each of the stepper-specific documentation sections
 we clarify the categories of these functions that are supported.
 
 
+.. _ARKODE.Usage.Initialization:
+
+ARKODE initialization and deallocation functions
+------------------------------------------------------
+
+For functions to create an ARKODE stepper instance see :c:func:`ARKStepCreate`,
+:c:func:`ERKStepCreate`, :c:func:`MRIStepCreate`, or :c:func:`SPRKStepCreate`.
+
+.. c:function:: void ARKodeFree(void** arkode_mem)
+
+   This function frees the problem memory created a stepper constructor.
+
+   :param arkode_mem: pointer to the ARKODE stepper memory block.
+   :return: none
+
+   .. versionadded:: x.y.z
+
+      This function replaces stepper specific versions in ARKStep, ERKStep,
+      MRIStep, and SPRKStep.
+
 
 .. _ARKODE.Usage.Tolerances:
 
@@ -855,7 +875,6 @@ Set integrator method order                       :c:func:`ARKodeSetOrder`      
 Set dense output interpolation type (SPRKStep)    :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_LAGRANGE``
 Set dense output interpolation type (others)      :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_HERMITE``
 Set dense output polynomial degree                :c:func:`ARKodeSetInterpolantDegree`     5
-Supply a pointer to a diagnostics output file     :c:func:`ARKodeSetDiagnostics`           ``NULL``
 Disable time step adaptivity (fixed-step mode)    :c:func:`ARKodeSetFixedStep`             disabled
 Supply an initial step size to attempt            :c:func:`ARKodeSetInitStep`              estimated
 Maximum no. of warnings for :math:`t_n+h = t_n`   :c:func:`ARKodeSetMaxHnilWarns`          10
@@ -1502,7 +1521,7 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
 
       Any value below 1.0 will imply a reset to the default value.
 
-      If both this and one of :c:func:`ARKodeSetAdaptivityMethod` or
+      If both this and one of the stepper ``SetAdaptivityMethod`` functions or
       :c:func:`ARKodeSetAdaptController` will be called, then this routine must be called
       *second*.
 
@@ -1750,6 +1769,7 @@ Optional input                                                  Function name   
 ==============================================================  ======================================  ============
 Specify that the implicit RHS is linear                         :c:func:`ARKodeSetLinear`               ``SUNFALSE``
 Specify that the implicit RHS nonlinear                         :c:func:`ARKodeSetNonlinear`            ``SUNTRUE``
+Specify that the implicit RHS is autonomous                     :c:func:`ARKodeSetAutonomous`           ``SUNFALSE``
 Implicit predictor method                                       :c:func:`ARKodeSetPredictorMethod`      0
 User-provided implicit stage predictor                          :c:func:`ARKodeSetStagePredictFn`       ``NULL``
 RHS function for nonlinear system evaluations                   :c:func:`ARKodeSetNlsRhsFn`             ``NULL``
@@ -1820,6 +1840,58 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       :c:func:`ARKodeSetLinear`.  Calls
       :c:func:`ARKodeSetDeltaGammaMax` to reset the step size ratio
       threshold to the default value.
+
+   .. versionadded:: x.y.z
+
+
+.. c:function:: int ARKodeSetAutonomous(void* arkode_mem, sunbooleantype autonomous)
+
+   Specifies that the implicit portion of the problem is autonomous i.e., does
+   not explicitly depend on time.
+
+   When using an implicit or ImEx method with the trivial predictor, this option
+   enables reusing the implicit right-hand side evaluation at the predicted
+   state across stage solves within a step. This reuse reduces the total number
+   of implicit RHS function evaluations.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param autonomous: flag denoting if the implicit RHS function,
+                      :math:`f^I(t,y)`, is autonomous (``SUNTRUE``) or
+                      non-autonomous (``SUNFALSE``).
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+   :retval ARK_ILL_INPUT: an argument had an illegal value.
+   :retval ARK_STEPPER_UNSUPPORTED: implicit solvers are not supported by the
+                                    current time-stepping module.
+
+   .. warning::
+
+      Results may differ when enabling both :c:func:`ARKodeSetAutonomous` and
+      :c:func:`ARKodeSetDeduceImplicitRhs` with a stiffly accurate implicit
+      method and using the trivial predictor. The differences are due to reusing
+      the deduced implicit right-hand side (RHS) value in the initial nonlinear
+      residual computation rather than evaluating the implicit RHS function. The
+      significance of the difference will depend on how well the deduced RHS
+      approximates the RHS evaluated at the trivial predictor. This behavior can
+      be observed in ``examples/arkode/C_serial/ark_brusselator.c`` by comparing
+      the outputs with :c:func:`ARKodeSetAutonomous` enabled/disabled.
+
+      Similarly programs that assume the nonlinear residual will always call the
+      implicit RHS function will need to be updated to account for the RHS value
+      reuse when using :c:func:`ARKodeSetAutonomous`. For example,
+      ``examples/arkode/C_serial/ark_KrylovDemo_prec.c`` assumes that the
+      nonlinear residual will be called and will evaluate the implicit RHS
+      function before calling the preconditioner setup function. Based on this
+      assumption, this example code saves some computations in the RHS
+      evaluation for reuse in the preconditioner setup. However, when
+      :c:func:`ARKodeSetAutonomous` is enabled, the call to the nonlinear
+      residual before the preconditioner setup reuses a saved RHS evaluation and
+      the saved data is actually from an earlier RHS evaluation that is not
+      consistent with the state and RHS values passed to the preconditioner
+      setup function. For this example, the code should not save data in the RHS
+      evaluation but instead evaluate the necessary quantities within the
+      preconditioner setup function using the input values.
 
    .. versionadded:: x.y.z
 
@@ -1903,7 +1975,7 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       The default is to use the implicit right-hand side function
-      provided to :c:func:`ARKodeCreate` in nonlinear system functions. If the
+      provided to the stepper constructor in nonlinear system functions. If the
       input implicit right-hand side function is ``NULL``, the default is used.
 
       When using a non-default nonlinear solver, this function must be called

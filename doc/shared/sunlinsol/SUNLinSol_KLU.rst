@@ -120,10 +120,15 @@ user-callable routines:
    This function returns a pointer to the KLU symbolic factorization
    stored in the SUNLinSol_KLU ``content`` structure.
 
-   When SUNDIALS is compiled with 32-bit indices (``SUNDIALS_INDEX_SIZE=32``),
-   ``sun_klu_symbolic`` is mapped to the KLU type ``klu_symbolic``; when
-   SUNDIALS compiled with 64-bit indices (``SUNDIALS_INDEX_SIZE=64``) this is
-   mapped to the KLU type ``klu_l_symbolic``.
+   .. c:type:: sun_klu_symbolic
+
+      This type is an alias that depends on the SUNDIALS index size, see
+      :c:type:`sunindextype` and :cmakeop:`SUNDIALS_INDEX_SIZE`. It is
+      equivalent to:
+
+      * ``klu_symbolic`` when SUNDIALS is compiled with 32-bit indices
+
+      * ``klu_l_symbolic`` when SUNDIALS is compiled with 64-bit indices
 
 
 .. c:function:: sun_klu_numeric* SUNLinSol_KLUGetNumeric(SUNLinearSolver S)
@@ -131,10 +136,15 @@ user-callable routines:
    This function returns a pointer to the KLU numeric factorization
    stored in the SUNLinSol_KLU ``content`` structure.
 
-   When SUNDIALS is compiled with 32-bit indices (``SUNDIALS_INDEX_SIZE=32``),
-   ``sun_klu_numeric`` is mapped to the KLU type ``klu_numeric``; when
-   SUNDIALS is compiled with 64-bit indices (``SUNDIALS_INDEX_SIZE=64``) this is
-   mapped to the KLU type ``klu_l_numeric``.
+   .. c:type:: sun_klu_numeric
+
+      This type is an alias that depends on the SUNDIALS index size, see
+      :c:type:`sunindextype` and :cmakeop:`SUNDIALS_INDEX_SIZE`. It is
+      equivalent to:
+
+      * ``klu_numeric`` when SUNDIALS is compiled with 32-bit indices
+
+      * ``klu_l_numeric``  when SUNDIALS is compiled with 64-bit indices
 
 
 .. c:function:: sun_klu_common* SUNLinSol_KLUGetCommon(SUNLinearSolver S)
@@ -142,10 +152,15 @@ user-callable routines:
    This function returns a pointer to the KLU common structure
    stored in the SUNLinSol_KLU ``content`` structure.
 
-   When SUNDIALS is compiled with 32-bit indices (``SUNDIALS_INDEX_SIZE=32``),
-   ``sun_klu_common`` is mapped to the KLU type ``klu_common``; when
-   SUNDIALS is compiled with 64-bit indices  (``SUNDIALS_INDEX_SIZE=64``) this is
-   mapped to the KLU type ``klu_l_common``.
+   .. c:type:: sun_klu_common
+
+      This type is an alias that depends on the SUNDIALS index size, see
+      :c:type:`sunindextype` and :cmakeop:`SUNDIALS_INDEX_SIZE`. It is
+      equivalent to:
+
+      * ``klu_common`` when SUNDIALS is compiled with 32-bit indices
+
+      * ``klu_l_common``  when SUNDIALS is compiled with 64-bit indices
 
 
 .. _SUNLinSol.KLU.Description:

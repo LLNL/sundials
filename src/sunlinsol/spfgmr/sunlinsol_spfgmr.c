@@ -19,11 +19,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_spfgmr.h>
 
 #include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -190,12 +192,12 @@ SUNErrCode SUNLinSol_SPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
  * -----------------------------------------------------------------
  */
 
-SUNLinearSolver_Type SUNLinSolGetType_SPFGMR(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_SPFGMR(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_ITERATIVE);
 }
 
-SUNLinearSolver_ID SUNLinSolGetID_SPFGMR(SUNLinearSolver S)
+SUNLinearSolver_ID SUNLinSolGetID_SPFGMR(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_SPFGMR);
 }
@@ -330,7 +332,7 @@ SUNErrCode SUNLinSolSetZeroGuess_SPFGMR(SUNLinearSolver S, sunbooleantype onoff)
   return SUN_SUCCESS;
 }
 
-int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A)
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -359,8 +361,8 @@ int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
   return SUN_SUCCESS;
 }
 
-int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                          N_Vector b, sunrealtype delta)
+int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
+                          N_Vector x, N_Vector b, sunrealtype delta)
 {
   SUNFunctionBegin(S->sunctx);
 

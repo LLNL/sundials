@@ -54,7 +54,7 @@ Functions should have a descriptive name that lets a reader know what it does.
 For functions that return a boolean value, prefer the convention
 ``Is<statement>``, e.g. ``IsOutputRank``. Pascal case (with the appropriate
 namespace prefix) should be used for all public function names that are not
-class functions (see :ref:`Style.Classes` for class naming conventions).
+class functions.
 
 C++ function names
 ------------------

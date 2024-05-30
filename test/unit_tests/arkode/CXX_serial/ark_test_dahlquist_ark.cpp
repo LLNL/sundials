@@ -30,6 +30,7 @@
 #include <sunlinsol/sunlinsol_dense.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
+#include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -243,30 +244,6 @@ int main(int argc, char* argv[])
             << "Test explicit RK methods\n"
             << "========================\n";
 
-  Be          = ARKodeButcherTable_Alloc(1, SUNFALSE);
-  Be->A[0][0] = ZERO;
-  Be->b[0]    = ONE;
-  Be->c[0]    = ZERO;
-  Be->q       = 1;
-
-  flag = get_method_properties(Be, Bi, stages, order, explicit_first_stage,
-                               stiffly_accurate, fsal);
-  if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
-
-  std::cout << "\n========================" << std::endl;
-  std::cout << "Explicit Euler" << std::endl;
-  std::cout << "  stages:             " << stages << std::endl;
-  std::cout << "  order:              " << order << std::endl;
-  std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
-  std::cout << "  stiffly accurate:   " << stiffly_accurate << std::endl;
-  std::cout << "  first same as last: " << fsal << std::endl;
-  std::cout << "========================" << std::endl;
-
-  numfails += run_tests(Be, Bi, prob_data, prob_opts, sunctx);
-
-  ARKodeButcherTable_Free(Be);
-  Be = nullptr;
-
   for (int i = ARKODE_MIN_ERK_NUM; i <= ARKODE_MAX_ERK_NUM; i++)
   {
     Be   = ARKodeButcherTable_LoadERK(static_cast<ARKODE_ERKTableID>(i));
@@ -275,7 +252,9 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
 
     std::cout << "\n========================" << std::endl;
-    std::cout << "ERK Table ID " << i << std::endl;
+    std::cout << "ERK: "
+              << ARKodeButcherTable_ERKIDToName(static_cast<ARKODE_ERKTableID>(i))
+              << std::endl;
     std::cout << "  stages:             " << stages << std::endl;
     std::cout << "  order:              " << order << std::endl;
     std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
@@ -297,30 +276,6 @@ int main(int argc, char* argv[])
             << "Test implicit RK methods\n"
             << "========================\n";
 
-  Bi          = ARKodeButcherTable_Alloc(1, SUNFALSE);
-  Bi->A[0][0] = ONE;
-  Bi->b[0]    = ONE;
-  Bi->c[0]    = ONE;
-  Bi->q       = 1;
-
-  flag = get_method_properties(Be, Bi, stages, order, explicit_first_stage,
-                               stiffly_accurate, fsal);
-  if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
-
-  std::cout << "\n========================" << std::endl;
-  std::cout << "Implicit Euler" << std::endl;
-  std::cout << "  stages:             " << stages << std::endl;
-  std::cout << "  order:              " << order << std::endl;
-  std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
-  std::cout << "  stiffly accurate:   " << stiffly_accurate << std::endl;
-  std::cout << "  first same as last: " << fsal << std::endl;
-  std::cout << "========================" << std::endl;
-
-  numfails += run_tests(Be, Bi, prob_data, prob_opts, sunctx);
-
-  ARKodeButcherTable_Free(Bi);
-  Bi = nullptr;
-
   for (int i = ARKODE_MIN_DIRK_NUM; i <= ARKODE_MAX_DIRK_NUM; i++)
   {
     Bi   = ARKodeButcherTable_LoadDIRK(static_cast<ARKODE_DIRKTableID>(i));
@@ -329,7 +284,10 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
 
     std::cout << "\n========================" << std::endl;
-    std::cout << "DIRK Table ID " << i << std::endl;
+    std::cout << "DIRK: "
+              << ARKodeButcherTable_DIRKIDToName(
+                   static_cast<ARKODE_DIRKTableID>(i))
+              << std::endl;
     std::cout << "  stages:             " << stages << std::endl;
     std::cout << "  order:              " << order << std::endl;
     std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
@@ -407,7 +365,8 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
 
     std::cout << "\n========================" << std::endl;
-    std::cout << "IMEX Table ID " << i << std::endl;
+    std::cout << "DIRK: " << ark_methods_dirk[i] << std::endl;
+    std::cout << "ERK: " << ark_methods_erk[i] << std::endl;
     std::cout << "  stages:             " << stages << std::endl;
     std::cout << "  order:              " << order << std::endl;
     std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
@@ -537,6 +496,10 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     // Specify linearly implicit RHS, with non-time-dependent Jacobian
     flag = ARKodeSetLinear(arkstep_mem, 0);
     if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
+
+    // Specify an autonomous RHS
+    flag = ARKodeSetAutonomous(arkstep_mem, SUNTRUE);
+    if (check_flag(&flag, "ARKodeSetAutonomous", 1)) { return 1; }
 
     // Specify implicit predictor method
     flag = ARKodeSetPredictorMethod(arkstep_mem, prob_opts.p_type);
@@ -779,10 +742,40 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
   long int extra_fe_evals = 0;
   long int extra_fi_evals = 0;
 
+  bool save_fn_for_residual = prob_opts.p_type == 0 &&
+                              prob_opts.m_type !=
+                                mass_matrix_type::time_dependent &&
+                              prob_opts.r_type != rk_type::expl;
+
   if (prob_opts.r_type == rk_type::impl || prob_opts.r_type == rk_type::imex)
   {
     flag = ARKodeGetNumNonlinSolvIters(arkstep_mem, &nni);
     if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
+
+    // Remove one evaluation per implicit stage
+    int implicit_stages = (explicit_first_stage) ? stages - 1 : stages;
+
+    if (save_fn_for_residual) { extra_fi_evals -= implicit_stages * nst; }
+
+    // With higher order methods some predictors require additional RHS when
+    // using Hermite interpolation (note default degree is order - 1, except
+    // for first order where the degree is 1.
+    int degree = (order == 1) ? 1 : order - 1;
+
+    if (prob_opts.p_type != 0 && prob_opts.i_type == interp_type::hermite &&
+        degree > 3)
+    {
+      if (prob_opts.r_type == rk_type::expl || prob_opts.r_type == rk_type::imex)
+      {
+        extra_fe_evals = (degree == 4) ? 1 : 4;
+      }
+      if (prob_opts.r_type == rk_type::impl || prob_opts.r_type == rk_type::imex)
+      {
+        extra_fi_evals = (degree == 4) ? 1 : 4;
+      }
+      extra_fe_evals *= implicit_stages * (nst - 1);
+      extra_fi_evals *= implicit_stages * (nst - 1);
+    }
   }
 
   // Expected number of explicit functions evaluations
@@ -810,6 +803,13 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
         nfe_expected += nst;
       }
     }
+
+    if (prob_opts.i_type != interp_type::hermite && save_fn_for_residual &&
+        !explicit_first_stage)
+    {
+      if (stiffly_accurate) { nfe_expected++; }
+      else { nfe_expected += nst; }
+    }
   }
 
   // Expected number of implicit functions evaluations
@@ -836,6 +836,13 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
         // One extra evaluation in each step
         nfi_expected += nst;
       }
+    }
+
+    if (prob_opts.i_type != interp_type::hermite && save_fn_for_residual &&
+        !explicit_first_stage)
+    {
+      if (stiffly_accurate) { nfi_expected++; }
+      else { nfi_expected += nst; }
     }
   }
 

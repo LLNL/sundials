@@ -17,11 +17,12 @@
 #ifndef _ARKODE_IMPL_H
 #define _ARKODE_IMPL_H
 
+#include <stdarg.h>
+
 #include <arkode/arkode.h>
 #include <arkode/arkode_butcher.h>
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
-#include <stdarg.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
@@ -33,6 +34,7 @@
 #include "arkode_root_impl.h"
 #include "arkode_types_impl.h"
 #include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -249,6 +251,8 @@ typedef int (*ARKTimestepSetNonlinearSolver)(ARKodeMem ark_mem,
                                              SUNNonlinearSolver NLS);
 typedef int (*ARKTimestepSetLinear)(ARKodeMem ark_mem, int timedepend);
 typedef int (*ARKTimestepSetNonlinear)(ARKodeMem ark_mem);
+typedef int (*ARKTimestepSetAutonomous)(ARKodeMem ark_mem,
+                                        sunbooleantype autonomous);
 typedef int (*ARKTimestepSetNlsRhsFn)(ARKodeMem ark_mem, ARKRhsFn nls_fi);
 typedef int (*ARKTimestepSetDeduceImplicitRhs)(ARKodeMem ark_mem,
                                                sunbooleantype deduce);
@@ -421,6 +425,7 @@ struct ARKodeMemRec
   ARKTimestepComputeState step_computestate;
   ARKTimestepSetNonlinearSolver step_setnonlinearsolver;
   ARKTimestepSetLinear step_setlinear;
+  ARKTimestepSetAutonomous step_setautonomous;
   ARKTimestepSetNonlinear step_setnonlinear;
   ARKTimestepSetNlsRhsFn step_setnlsrhsfn;
   ARKTimestepSetDeduceImplicitRhs step_setdeduceimplicitrhs;
@@ -460,6 +465,7 @@ struct ARKodeMemRec
   N_Vector tempv2;              /* and by time-stepping modules)              */
   N_Vector tempv3;
   N_Vector tempv4;
+  N_Vector tempv5;
 
   N_Vector constraints; /* vector of inequality constraint options         */
 
@@ -1271,6 +1277,13 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   ARKTimestepSetLinear
 
   This routine is called by ARKodeSetLinear, and allows the
+  stepper to store the corresponding user input.
+
+  ---------------------------------------------------------------
+
+  ARKTimestepSetAutonomous
+
+  This routine is called by ARKodeSetAutonomous, and allows the
   stepper to store the corresponding user input.
 
   ---------------------------------------------------------------
