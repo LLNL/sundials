@@ -338,6 +338,24 @@ Coding Conventions and Rules
    x;`` to ``return(x);``. Note, however, lots of older SUNDIALS source code
    uses ``return(x);``.
 
+#. ``SUNLogger`` statements must be in the format:
+
+   .. code-block:: c
+
+      [log level][rank][scope][label] key1 = value, key2 = value
+
+   or if the payload (the part after the label) is a vector/array:
+
+   .. code-block:: c
+
+      [log level][rank][scope][label] key(:)
+      value1
+      value2
+
+   Note that the ``(:)`` is needed for the ``scripts/sundialsdev/logs.py`` Python
+   utility to understand that the payload is an array.
+
+   .. code-block:: c
 
 .. _Style.Formatting:
 
