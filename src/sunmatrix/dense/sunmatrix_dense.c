@@ -373,16 +373,14 @@ SUNErrCode SUNMatTranspose_Dense(SUNMatrix A)
 
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
 
+  /* Perform operation A_ij = A_ji */
   for (sunindextype j = 0; j < SM_COLUMNS_D(A); j++)
   {
-    sunrealtype* col_j = SM_COLUMN_D(A, j);
-
     for (sunindextype i = 0; i < SM_ROWS_D(A); i++)
     {
-      sunrealtype* col_i = SM_COLUMN_D(A, i);
-      sunrealtype tmp    = col_j[i];
-      col_j[i]           = col_i[j];
-      col_i[j]           = tmp;
+      sunrealtype tmp = SM_ELEMENT_D(A, i, j);
+      SM_ELEMENT_D(A, i, j) = SM_ELEMENT_D(A, j, i);
+      SM_ELEMENT_D(A, j, i) = tmp;
     }
   }
 

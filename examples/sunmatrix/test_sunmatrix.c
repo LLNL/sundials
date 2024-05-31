@@ -228,6 +228,58 @@ int Test_SUNMatCopy(SUNMatrix A, int myid)
 }
 
 /* ----------------------------------------------------------------------
+ * SUNMatTranspose Test
+ * --------------------------------------------------------------------*/
+int Test_SUNMatTranspose(SUNMatrix A, SUNMatrix AT, int myid)
+{
+  int failure;
+  double start_time, stop_time;
+  SUNMatrix B;
+  sunrealtype tol = 10 * SUN_UNIT_ROUNDOFF;
+
+  B = SUNMatClone(A);
+  failure = SUNMatCopy(A, B);
+  if (failure)
+  {
+    TEST_STATUS2(">>> FAILED test -- SUNMatCopy returned %d \n", failure, myid);
+    SUNMatDestroy(B);
+    return (1);
+  }
+
+  /* transpose matrix */
+  start_time = get_time();
+  failure    = SUNMatTranspose(B);
+  sync_device(B);
+  stop_time = get_time();
+
+  if (failure)
+  {
+    TEST_STATUS2(">>> FAILED test -- SUNMatTranspose returned %d \n", failure, myid);
+    SUNMatDestroy(B);
+    return (1);
+  }
+
+  /* check matrix entries */
+  failure = check_matrix(B, AT, tol);
+  if (failure)
+  {
+    TEST_STATUS(">>> FAILED test -- SUNMatTranspose \n", myid);
+    PRINT_TIME("    SUNMatTranspose Time: %22.15e \n \n", stop_time - start_time);
+    SUNMatDestroy(B);
+    return (1);
+  }
+  else { TEST_STATUS("    PASSED test -- SUNMatTranspose \n", myid); }
+
+  if (myid == 0)
+  {
+    PRINT_TIME("    SUNMatTranspose Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  SUNMatDestroy(B);
+  return (0);
+}
+
+/* ----------------------------------------------------------------------
  * SUNMatScaleAdd Test: A = c * A + B
  *
  * NOTE: Sparse matrices will need additional testing for possibly
@@ -568,6 +620,152 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
   if (myid == 0)
   {
     PRINT_TIME("    SUNMatMatvec Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  return (0);
+}
+
+/* ----------------------------------------------------------------------
+ * SUNMatMatvecTranspose Test (y should be correct A^T*x product)
+ * --------------------------------------------------------------------*/
+int Test_SUNMatMatvecTranspose(SUNMatrix A, N_Vector x, N_Vector y, int myid)
+{
+  int failure;
+  double start_time, stop_time;
+  SUNMatrix B, C;
+  N_Vector z, w;
+  sunrealtype tol = 100 * SUN_UNIT_ROUNDOFF;
+
+  if (A->ops->matvec == NULL)
+  {
+    TEST_STATUS("    PASSED test -- SUNMatMatvecTranspose not implemented\n", myid);
+    return (0);
+  }
+
+  /* harder tests for square matrices */
+  if (is_square(A))
+  {
+    /* protect A */
+    B       = SUNMatClone(A);
+    failure = SUNMatCopy(A, B);
+    if (failure)
+    {
+      TEST_STATUS2(">>> FAILED test -- SUNMatCopy returned %d \n", failure, myid);
+      SUNMatDestroy(B);
+      SUNMatDestroy(C);
+      return (1);
+    }
+    C       = SUNMatClone(A);
+    failure = SUNMatCopy(A, C);
+    if (failure)
+    {
+      TEST_STATUS2(">>> FAILED test -- SUNMatCopy returned %d \n", failure, myid);
+      SUNMatDestroy(B);
+      SUNMatDestroy(C);
+      return (1);
+    }
+
+    /* compute matrix vector product */
+    failure = SUNMatScaleAddI(THREE, B);
+    if (failure)
+    {
+      TEST_STATUS2(">>> FAILED test -- SUNMatScaleAddI returned %d \n", failure,
+                   myid);
+      SUNMatDestroy(B);
+      SUNMatDestroy(C);
+      return (1);
+    }
+
+    z = N_VClone(y); /* will be computed with matvec */
+    w = N_VClone(y); /* will be the reference */
+
+    /* Call the Setup function before the Matvec if it exists */
+    if (B->ops->matvecsetup)
+    {
+      failure = SUNMatMatvecSetup(B);
+      if (failure)
+      {
+        TEST_STATUS2(">>> FAILED test -- SUNMatMatvecSetup returned %d \n",
+                     failure, myid);
+        SUNMatDestroy(B);
+        SUNMatDestroy(C);
+        return (1);
+      }
+    }
+
+    start_time = get_time();
+    failure    = SUNMatMatvecTranspose(B, x, z); /* z = (3A+I)x = 3y + x */
+    sync_device(B);
+    stop_time = get_time();
+
+    if (failure)
+    {
+      TEST_STATUS2(">>> FAILED test -- SUNMatMatvecTranspose returned %d \n", failure,
+                   myid);
+      SUNMatDestroy(B);
+      SUNMatDestroy(C);
+      return (1);
+    }
+
+    failure = SUNMatTranspose(C);
+    if (failure)
+    {
+      TEST_STATUS2(">>> FAILED test -- SUNMatTranspose returned %d \n", failure,
+                   myid);
+      SUNMatDestroy(B);
+      SUNMatDestroy(C);
+      return (1);
+    }
+
+    failure = SUNMatMatvec(C, x, w);
+    if (failure)
+    {
+      TEST_STATUS2(">>> FAILED test -- SUNMatMatvec returned %d \n", failure,
+                   myid);
+      SUNMatDestroy(B);
+      SUNMatDestroy(C);
+      return (1);
+    }
+
+    failure = check_vector(w, z, tol);
+
+    SUNMatDestroy(B);
+    SUNMatDestroy(C);
+    N_VDestroy(z);
+    N_VDestroy(w);
+  }
+  else
+  {
+    z = N_VClone(y); /* will be computed with matvec */
+
+    start_time = get_time();
+    failure    = SUNMatMatvecTranspose(A, x, z); /* z = A^Tx */
+    sync_device(A);
+    stop_time = get_time();
+
+    if (failure)
+    {
+      TEST_STATUS2(">>> FAILED test -- SUNMatMatvecTranspose returned %d \n", failure,
+                   myid);
+      return (1);
+    }
+
+    failure = check_vector(y, z, tol);
+
+    N_VDestroy(z);
+  }
+
+  if (failure)
+  {
+    TEST_STATUS(">>> FAILED test -- SUNMatMatvecTranspose check \n", myid);
+    PRINT_TIME("    SUNMatMatvecTranspose Time: %22.15e \n \n", stop_time - start_time);
+    return (1);
+  }
+  else { TEST_STATUS("    PASSED test -- SUNMatMatvecTranspose \n", myid); }
+
+  if (myid == 0)
+  {
+    PRINT_TIME("    SUNMatMatvecTranspose Time: %22.15e \n \n", stop_time - start_time);
   }
 
   return (0);

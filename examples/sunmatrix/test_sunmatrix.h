@@ -70,10 +70,12 @@ int Test_SUNMatGetID(SUNMatrix A, SUNMatrix_ID sunid, int myid);
 int Test_SUNMatClone(SUNMatrix A, int myid);
 int Test_SUNMatZero(SUNMatrix A, int myid);
 int Test_SUNMatCopy(SUNMatrix A, int myid);
+int Test_SUNMatTranspose(SUNMatrix A, SUNMatrix AT, int myid);
 int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid);
 int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid);
 int Test_SUNMatMatvecSetup(SUNMatrix A, int myid);
 int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid);
+int Test_SUNMatMatvecTranspose(SUNMatrix A, N_Vector x, N_Vector y, int myid);
 int Test_SUNMatSpace(SUNMatrix A, int myid);
 
 /* Timing function */
