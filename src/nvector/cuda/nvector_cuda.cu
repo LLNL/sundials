@@ -611,13 +611,7 @@ void N_VPrintFile_Cuda(N_Vector x, FILE* outfile)
 
   for (i = 0; i < NVEC_CUDA_CONTENT(x)->length; i++)
   {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%35.32Le\n", NVEC_CUDA_HDATAp(x)[i]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%19.16e\n", NVEC_CUDA_HDATAp(x)[i]);
-#else
-    fprintf(outfile, "%11.8e\n", NVEC_CUDA_HDATAp(x)[i]);
-#endif
+    fprintf(outfile, SUN_REAL_FORMAT "\n", NVEC_CUDA_HDATAp(x)[i]);
   }
   fprintf(outfile, "\n");
 

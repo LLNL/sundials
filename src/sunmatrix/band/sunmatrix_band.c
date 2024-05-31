@@ -138,13 +138,7 @@ void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile)
     for (j = 0; j < start; j++) { fprintf(outfile, "%12s  ", ""); }
     for (j = start; j <= finish; j++)
     {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-      fprintf(outfile, "%12Lg  ", SM_ELEMENT_B(A, i, j));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-      fprintf(outfile, "%12g  ", SM_ELEMENT_B(A, i, j));
-#else
-      fprintf(outfile, "%12g  ", SM_ELEMENT_B(A, i, j));
-#endif
+      fprintf(outfile, SUN_REAL_FORMAT "  ", SM_ELEMENT_B(A, i, j));
     }
     fprintf(outfile, "\n");
   }
