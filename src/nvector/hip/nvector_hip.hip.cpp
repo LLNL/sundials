@@ -580,7 +580,6 @@ void N_VPrintFile_Hip(N_Vector x, FILE* outfile)
   {
     fprintf(outfile, SUN_REAL_FORMAT_E "\n", NVEC_HIP_HDATAp(x)[i]);
   }
-  fprintf(outfile, "\n");
 
   return;
 }

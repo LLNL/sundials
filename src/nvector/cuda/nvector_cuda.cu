@@ -613,7 +613,6 @@ void N_VPrintFile_Cuda(N_Vector x, FILE* outfile)
   {
     fprintf(outfile, SUN_REAL_FORMAT_E "\n", NVEC_CUDA_HDATAp(x)[i]);
   }
-  fprintf(outfile, "\n");
 
   return;
 }

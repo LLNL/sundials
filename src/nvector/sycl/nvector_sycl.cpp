@@ -711,7 +711,6 @@ void N_VPrintFile_Sycl(N_Vector X, FILE* outfile)
   {
     fprintf(outfile, SUN_REAL_FORMAT_E "\n", NVEC_SYCL_HDATAp(X)[i]);
   }
-  fprintf(outfile, "\n");
 
   return;
 }

@@ -618,7 +618,6 @@ void N_VPrintFile_Raja(N_Vector X, FILE* outfile)
   {
     fprintf(outfile, SUN_REAL_FORMAT_E "\n", NVEC_RAJA_HDATAp(X)[i]);
   }
-  fprintf(outfile, "\n");
 
   return;
 }
