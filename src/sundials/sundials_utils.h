@@ -89,8 +89,9 @@ static inline void sunCompensatedSum(sunrealtype base, sunrealtype inc,
   *sum                      = tmp2;
 }
 
-static void sunfprintf_real(FILE* fp, SUNOutputFormat fmt, sunbooleantype start,
-                            const char* name, sunrealtype value)
+static inline void sunfprintf_real(FILE* fp, SUNOutputFormat fmt,
+                                   sunbooleantype start, const char* name,
+                                   sunrealtype value)
 {
   if (fmt == SUN_OUTPUTFORMAT_TABLE)
   {
@@ -103,9 +104,9 @@ static void sunfprintf_real(FILE* fp, SUNOutputFormat fmt, sunbooleantype start,
   }
 }
 
-static void sunfprintf_long_int(FILE* fp, SUNOutputFormat fmt,
-                                sunbooleantype start, const char* name,
-                                long int value)
+static inline void sunfprintf_long_int(FILE* fp, SUNOutputFormat fmt,
+                                       sunbooleantype start, const char* name,
+                                       long int value)
 {
   if (fmt == SUN_OUTPUTFORMAT_TABLE)
   {
