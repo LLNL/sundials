@@ -508,8 +508,8 @@ static int SetInitialProfile(UserData* data, N_Vector uu, N_Vector up,
   auto u_1d = Kokkos::subview(u_2d, Kokkos::ALL(), 0);
   u->modify<Kokkos::HostSpace>();
 #else
-  auto u_2d  = u->getLocalView<Kokkos::HostSpace>(Tpetra::Access::ReadWrite);
-  auto u_1d  = Kokkos::subview(u_2d, Kokkos::ALL(), 0);
+  auto u_2d = u->getLocalView<Kokkos::HostSpace>(Tpetra::Access::ReadWrite);
+  auto u_1d = Kokkos::subview(u_2d, Kokkos::ALL(), 0);
 #endif
 
   /* Initialize uu on all grid points. */
@@ -543,8 +543,8 @@ static int SetInitialProfile(UserData* data, N_Vector uu, N_Vector up,
   auto p_2d = p->getLocalView<memory_space>();
   auto p_1d = Kokkos::subview(p_2d, Kokkos::ALL(), 0);
 #else
-  auto p_2d  = p->getLocalView<memory_space>(Tpetra::Access::ReadWrite);
-  auto p_1d  = Kokkos::subview(p_2d, Kokkos::ALL(), 0);
+  auto p_2d = p->getLocalView<memory_space>(Tpetra::Access::ReadWrite);
+  auto p_1d = Kokkos::subview(p_2d, Kokkos::ALL(), 0);
 #endif
 
   mm1 = mm - 1;

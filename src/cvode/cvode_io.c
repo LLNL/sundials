@@ -1642,13 +1642,15 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
   /* step and method stats */
   sunfprintf_real(outfile, fmt, SUNTRUE, "Current time", cv_mem->cv_tn);
   sunfprintf_long_int(outfile, fmt, SUNFALSE, "Steps", cv_mem->cv_nst);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Error test fails", cv_mem->cv_netf);
+  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Error test fails",
+                      cv_mem->cv_netf);
   sunfprintf_long_int(outfile, fmt, SUNFALSE, "NLS step fails", cv_mem->cv_ncfn);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Initial step size", cv_mem->cv_h0u);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Last step size", cv_mem->cv_hu);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Current step size", cv_mem->cv_next_h);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Last method order", cv_mem->cv_qu);
-  sunfprintf_real(outfile, fmt, SUNFALSE, "Current method order", cv_mem->cv_next_q);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Current method order",
+                  cv_mem->cv_next_q);
   sunfprintf_long_int(outfile, fmt, SUNFALSE, "Stab. lim. order reductions",
                       cv_mem->cv_nor);
   /* function evaluations */
@@ -1666,13 +1668,17 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
   {
     cvls_mem = (CVLsMem)(cv_mem->cv_lmem);
     sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac fn evals", cvls_mem->nje);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS RHS fn evals", cvls_mem->nfeDQ);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Prec setup evals", cvls_mem->npe);
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS RHS fn evals",
+                        cvls_mem->nfeDQ);
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Prec setup evals",
+                        cvls_mem->npe);
     sunfprintf_long_int(outfile, fmt, SUNFALSE, "Prec solves", cvls_mem->nps);
     sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS iters", cvls_mem->nli);
     sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS fails", cvls_mem->ncfl);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac-times setups", cvls_mem->njtsetup);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac-times evals", cvls_mem->njtimes);
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac-times setups",
+                        cvls_mem->njtsetup);
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac-times evals",
+                        cvls_mem->njtimes);
     if (cv_mem->cv_nni > 0)
     {
       sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter",
@@ -1689,8 +1695,10 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
   if (cv_mem->proj_mem)
   {
     cvproj_mem = (CVodeProjMem)(cv_mem->proj_mem);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Projection fn evals", cvproj_mem->nproj);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Projection fails", cvproj_mem->npfails);
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Projection fn evals",
+                        cvproj_mem->nproj);
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Projection fails",
+                        cvproj_mem->npfails);
   }
 
   return (CV_SUCCESS);
