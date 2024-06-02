@@ -114,7 +114,7 @@ void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile)
   {
     for (j = 0; j < SM_COLUMNS_D(A); j++)
     {
-      fprintf(outfile, SUN_REAL_FORMAT "  ", SM_ELEMENT_D(A, i, j));
+      fprintf(outfile, SUN_REAL_FORMAT_E "  ", SM_ELEMENT_D(A, i, j));
     }
     fprintf(outfile, "\n");
   }

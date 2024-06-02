@@ -289,7 +289,7 @@ void N_VPrintFile_ParHyp(N_Vector x, FILE* outfile)
   N  = NV_LOCLENGTH_PH(x);
   xd = NV_DATA_PH(x);
 
-  for (i = 0; i < N; i++) { fprintf(outfile, SUN_REAL_FORMAT "\n", xd[i]); }
+  for (i = 0; i < N; i++) { fprintf(outfile, SUN_REAL_FORMAT_E "\n", xd[i]); }
   fprintf(outfile, "\n");
 
   return;

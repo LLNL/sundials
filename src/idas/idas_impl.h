@@ -986,13 +986,13 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
  * =================================================================
  */
 
-#define MSG_TIME   "t = " SUN_REAL_FORMAT
-#define MSG_TIME_H "t = " SUN_REAL_FORMAT " and h = " SUN_REAL_FORMAT
-#define MSG_TIME_INT                                                      \
-  "t = " SUN_REAL_FORMAT " is not between tcur - hold = " SUN_REAL_FORMAT \
-  " and tcur = " SUN_REAL_FORMAT
-#define MSG_TIME_TOUT  "tout = " SUN_REAL_FORMAT
-#define MSG_TIME_TSTOP "tstop = " SUN_REAL_FORMAT
+#define MSG_TIME   "t = " SUN_REAL_FORMAT_G
+#define MSG_TIME_H "t = " SUN_REAL_FORMAT_G " and h = " SUN_REAL_FORMAT_G
+#define MSG_TIME_INT                                                          \
+  "t = " SUN_REAL_FORMAT_G " is not between tcur - hold = " SUN_REAL_FORMAT_G \
+  " and tcur = " SUN_REAL_FORMAT_G
+#define MSG_TIME_TOUT  "tout = " SUN_REAL_FORMAT_G
+#define MSG_TIME_TSTOP "tstop = " SUN_REAL_FORMAT_G
 
 /* General errors */
 
