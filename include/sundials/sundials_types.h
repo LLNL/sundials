@@ -85,7 +85,7 @@ extern "C" {
  */
 
 #define SUN_STRING_HELPER(x) #x
-#define SUN_STRING(x)        SUN_PRIV_STRING_HELPER(x)
+#define SUN_STRING(x)        SUN_STRING_HELPER(x)
 
 #if defined(SUNDIALS_SINGLE_PRECISION)
 
