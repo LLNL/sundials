@@ -125,7 +125,8 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::arkRelaxNewtonSolve", "residual",
-                       "iter = %i, relax_param = %" RSYM ", residual = %" RSYM,
+                       "iter = %i, relax_param = " SUN_REAL_FORMAT_G
+                       ", residual = " SUN_REAL_FORMAT_G,
                        i, relax_mem->relax_param, relax_mem->res);
 #endif
 
@@ -349,7 +350,8 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkRelaxSolve",
-                     "compute delta e", "delta_e = %" RSYM, relax_mem->delta_e);
+                     "compute delta e", "delta_e = " SUN_REAL_FORMAT_G,
+                     relax_mem->delta_e);
 #endif
 
   /* Get the change in state (delta_y = tempv2) */
@@ -370,7 +372,8 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkRelaxSolve",
-                     "compute old e", "e_old = %" RSYM, relax_mem->e_old);
+                     "compute old e", "e_old = " SUN_REAL_FORMAT_G,
+                     relax_mem->e_old);
 #endif
 
   /* Initial guess for relaxation parameter */
@@ -915,8 +918,9 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkStep_TakeStep_Z", "relaxation",
-                     "relaxation parameter = %" RSYM ", relaxed h = %" RSYM
-                     ", relaxed error = %" RSYM,
+                     "relaxation parameter = " SUN_REAL_FORMAT_G
+                     ", relaxed h = " SUN_REAL_FORMAT_G
+                     ", relaxed error = " SUN_REAL_FORMAT_G,
                      relax_val, ark_mem->h, *dsm_inout);
 #endif
 

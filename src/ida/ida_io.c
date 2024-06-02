@@ -1418,16 +1418,16 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
     /* step and method stats */
-    fprintf(outfile, "Current time                 = %" RSYM "\n",
+    fprintf(outfile, "Current time                 = " SUN_REAL_FORMAT_G "\n",
             IDA_mem->ida_tn);
     fprintf(outfile, "Steps                        = %ld\n", IDA_mem->ida_nst);
     fprintf(outfile, "Error test fails             = %ld\n", IDA_mem->ida_netf);
     fprintf(outfile, "NLS step fails               = %ld\n", IDA_mem->ida_ncfn);
-    fprintf(outfile, "Initial step size            = %" RSYM "\n",
+    fprintf(outfile, "Initial step size            = " SUN_REAL_FORMAT_G "\n",
             IDA_mem->ida_h0u);
-    fprintf(outfile, "Last step size               = %" RSYM "\n",
+    fprintf(outfile, "Last step size               = " SUN_REAL_FORMAT_G "\n",
             IDA_mem->ida_hused);
-    fprintf(outfile, "Current step size            = %" RSYM "\n",
+    fprintf(outfile, "Current step size            = " SUN_REAL_FORMAT_G "\n",
             IDA_mem->ida_hh);
     fprintf(outfile, "Last method order            = %d\n", IDA_mem->ida_kused);
     fprintf(outfile, "Current method order         = %d\n", IDA_mem->ida_kk);
@@ -1443,7 +1443,7 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
     fprintf(outfile, "NLS fails                    = %ld\n", IDA_mem->ida_nnf);
     if (IDA_mem->ida_nst > 0)
     {
-      fprintf(outfile, "NLS iters per step           = %" RSYM "\n",
+      fprintf(outfile, "NLS iters per step           = " SUN_REAL_FORMAT_G "\n",
               (sunrealtype)IDA_mem->ida_nre / (sunrealtype)IDA_mem->ida_nst);
     }
 
@@ -1465,11 +1465,11 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
               idals_mem->njtimes);
       if (IDA_mem->ida_nni > 0)
       {
-        fprintf(outfile, "LS iters per NLS iter        = %" RSYM "\n",
+        fprintf(outfile, "LS iters per NLS iter        = " SUN_REAL_FORMAT_G "\n",
                 (sunrealtype)idals_mem->nli / (sunrealtype)IDA_mem->ida_nni);
-        fprintf(outfile, "Jac evals per NLS iter       = %" RSYM "\n",
+        fprintf(outfile, "Jac evals per NLS iter       = " SUN_REAL_FORMAT_G "\n",
                 (sunrealtype)idals_mem->nje / (sunrealtype)IDA_mem->ida_nni);
-        fprintf(outfile, "Prec evals per NLS iter      = %" RSYM "\n",
+        fprintf(outfile, "Prec evals per NLS iter      = " SUN_REAL_FORMAT_G "\n",
                 (sunrealtype)idals_mem->npe / (sunrealtype)IDA_mem->ida_nni);
       }
     }
@@ -1480,13 +1480,13 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
 
   case SUN_OUTPUTFORMAT_CSV:
     /* step and method stats */
-    fprintf(outfile, "Time,%" RSYM, IDA_mem->ida_tn);
+    fprintf(outfile, "Time," SUN_REAL_FORMAT_G, IDA_mem->ida_tn);
     fprintf(outfile, ",Steps,%ld", IDA_mem->ida_nst);
     fprintf(outfile, ",Error test fails,%ld", IDA_mem->ida_netf);
     fprintf(outfile, ",NLS step fails,%ld", IDA_mem->ida_ncfn);
-    fprintf(outfile, ",Initial step size,%" RSYM, IDA_mem->ida_h0u);
-    fprintf(outfile, ",Last step size,%" RSYM, IDA_mem->ida_hused);
-    fprintf(outfile, ",Current step size,%" RSYM, IDA_mem->ida_hh);
+    fprintf(outfile, ",Initial step size," SUN_REAL_FORMAT_G, IDA_mem->ida_h0u);
+    fprintf(outfile, ",Last step size," SUN_REAL_FORMAT_G, IDA_mem->ida_hused);
+    fprintf(outfile, ",Current step size," SUN_REAL_FORMAT_G, IDA_mem->ida_hh);
     fprintf(outfile, ",Last method order,%d", IDA_mem->ida_kused);
     fprintf(outfile, ",Current method order,%d", IDA_mem->ida_kk);
 
@@ -1501,7 +1501,7 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
     fprintf(outfile, ",NLS fails,%ld", IDA_mem->ida_nnf);
     if (IDA_mem->ida_nst > 0)
     {
-      fprintf(outfile, ",NLS iters per step,%" RSYM,
+      fprintf(outfile, ",NLS iters per step," SUN_REAL_FORMAT_G,
               (sunrealtype)IDA_mem->ida_nre / (sunrealtype)IDA_mem->ida_nst);
     }
     else { fprintf(outfile, ",NLS iters per step,0"); }
@@ -1521,11 +1521,11 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
       fprintf(outfile, ",Jac-times evals,%ld", idals_mem->njtimes);
       if (IDA_mem->ida_nni > 0)
       {
-        fprintf(outfile, ",LS iters per NLS iter,%" RSYM,
+        fprintf(outfile, ",LS iters per NLS iter," SUN_REAL_FORMAT_G,
                 (sunrealtype)idals_mem->nli / (sunrealtype)IDA_mem->ida_nni);
-        fprintf(outfile, ",Jac evals per NLS iter,%" RSYM,
+        fprintf(outfile, ",Jac evals per NLS iter," SUN_REAL_FORMAT_G,
                 (sunrealtype)idals_mem->nje / (sunrealtype)IDA_mem->ida_nni);
-        fprintf(outfile, ",Prec evals per NLS iter,%" RSYM,
+        fprintf(outfile, ",Prec evals per NLS iter," SUN_REAL_FORMAT_G,
                 (sunrealtype)idals_mem->npe / (sunrealtype)IDA_mem->ida_nni);
       }
       else

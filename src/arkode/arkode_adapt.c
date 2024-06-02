@@ -54,17 +54,27 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE* outfile)
 {
   if (hadapt_mem != NULL)
   {
-    fprintf(outfile, "ark_hadapt: etamax = %" RSYM "\n", hadapt_mem->etamax);
-    fprintf(outfile, "ark_hadapt: etamx1 = %" RSYM "\n", hadapt_mem->etamx1);
-    fprintf(outfile, "ark_hadapt: etamxf = %" RSYM "\n", hadapt_mem->etamxf);
-    fprintf(outfile, "ark_hadapt: etamin = %" RSYM "\n", hadapt_mem->etamin);
+    fprintf(outfile, "ark_hadapt: etamax = " SUN_REAL_FORMAT_G "\n",
+            hadapt_mem->etamax);
+    fprintf(outfile, "ark_hadapt: etamx1 = " SUN_REAL_FORMAT_G "\n",
+            hadapt_mem->etamx1);
+    fprintf(outfile, "ark_hadapt: etamxf = " SUN_REAL_FORMAT_G "\n",
+            hadapt_mem->etamxf);
+    fprintf(outfile, "ark_hadapt: etamin = " SUN_REAL_FORMAT_G "\n",
+            hadapt_mem->etamin);
     fprintf(outfile, "ark_hadapt: small_nef = %i\n", hadapt_mem->small_nef);
-    fprintf(outfile, "ark_hadapt: etacf = %" RSYM "\n", hadapt_mem->etacf);
-    fprintf(outfile, "ark_hadapt: cfl = %" RSYM "\n", hadapt_mem->cfl);
-    fprintf(outfile, "ark_hadapt: safety = %" RSYM "\n", hadapt_mem->safety);
-    fprintf(outfile, "ark_hadapt: growth = %" RSYM "\n", hadapt_mem->growth);
-    fprintf(outfile, "ark_hadapt: lbound = %" RSYM "\n", hadapt_mem->lbound);
-    fprintf(outfile, "ark_hadapt: ubound = %" RSYM "\n", hadapt_mem->ubound);
+    fprintf(outfile, "ark_hadapt: etacf = " SUN_REAL_FORMAT_G "\n",
+            hadapt_mem->etacf);
+    fprintf(outfile, "ark_hadapt: cfl = " SUN_REAL_FORMAT_G "\n",
+            hadapt_mem->cfl);
+    fprintf(outfile, "ark_hadapt: safety = " SUN_REAL_FORMAT_G "\n",
+            hadapt_mem->safety);
+    fprintf(outfile, "ark_hadapt: growth = " SUN_REAL_FORMAT_G "\n",
+            hadapt_mem->growth);
+    fprintf(outfile, "ark_hadapt: lbound = " SUN_REAL_FORMAT_G "\n",
+            hadapt_mem->lbound);
+    fprintf(outfile, "ark_hadapt: ubound = " SUN_REAL_FORMAT_G "\n",
+            hadapt_mem->ubound);
     fprintf(outfile, "ark_hadapt: nst_acc = %li\n", hadapt_mem->nst_acc);
     fprintf(outfile, "ark_hadapt: nst_exp = %li\n", hadapt_mem->nst_exp);
     fprintf(outfile, "ark_hadapt: pq = %i\n", hadapt_mem->pq);
@@ -136,7 +146,9 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, "ARKODE::arkAdapt",
                      "new-step-before-bounds",
-                     "h_acc = %" RSYM ", h_cfl = %" RSYM, h_acc, h_cfl);
+                     "h_acc = " SUN_REAL_FORMAT_G
+                     ", h_cfl = " SUN_REAL_FORMAT_G,
+                     h_acc, h_cfl);
 #endif
 
   /* enforce safety factors */
@@ -152,7 +164,9 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, "ARKODE::arkAdapt",
                      "new-step-after-max-min-bounds",
-                     "h_acc = %" RSYM ", h_cfl = %" RSYM, h_acc, h_cfl);
+                     "h_acc = " SUN_REAL_FORMAT_G
+                     ", h_cfl = " SUN_REAL_FORMAT_G,
+                     h_acc, h_cfl);
 #endif
 
   /* increment the relevant step counter, set desired step */
@@ -181,7 +195,7 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkAdapt",
-                     "new-step-eta", "eta = %" RSYM, ark_mem->eta);
+                     "new-step-eta", "eta = " SUN_REAL_FORMAT_G, ark_mem->eta);
 #endif
 
   return (retval);
