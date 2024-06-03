@@ -75,7 +75,7 @@ def parse_logfile_line(line, line_number, all_lines):
 def log_file_to_list(filename, step_scope_txt):
     """
     This function takes a debug log file from CVODE and creates a list where
-    each list entry is a step attempt.
+    each list element represents an integrator step attempt.
 
     E.g.,
     [
