@@ -1497,19 +1497,19 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
-                     "slow stage", "z[0] =", "");
+                     "slow stage", "z_0(:) =", "");
   N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 
   if (step_mem->explicit_rhs)
   {
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
-                       "slow explicit RHS", "Fse[0] =", "");
+                       "slow explicit RHS", "Fse_0(:) =", "");
     N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp);
   }
   if (step_mem->implicit_rhs)
   {
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
-                       "slow implicit RHS", "Fsi[0] =", "");
+                       "slow implicit RHS", "Fsi_0(:) =", "");
     N_VPrintFile(step_mem->Fsi[0], ARK_LOGGER->debug_fp);
   }
 #endif
@@ -1555,7 +1555,7 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::mriStep_TakeStep", "slow stage", "z[%i] =", is);
+                       "ARKODE::mriStep_TakeStep", "slow stage", "z_%i(:) =", is);
     N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1593,7 +1593,7 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                            "ARKODE::mriStep_TakeStep", "slow explicit RHS",
-                           "Fse[%i] =", is);
+                           "Fse_%i(:) =", is);
         N_VPrintFile(step_mem->Fse[step_mem->stage_map[is]],
                      ARK_LOGGER->debug_fp);
 #endif
@@ -1623,7 +1623,7 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                            "ARKODE::mriStep_TakeStep", "slow implicit RHS",
-                           "Fsi[%i] =", is);
+                           "Fsi_%i(:) =", is);
         N_VPrintFile(step_mem->Fsi[step_mem->stage_map[is]],
                      ARK_LOGGER->debug_fp);
 #endif
@@ -1633,7 +1633,7 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
-                     "updated solution", "ycur =", "");
+                     "updated solution", "ycur(:) =", "");
   N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
@@ -2161,7 +2161,7 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStep_StageDIRKNoFast", "predictor",
-                     "zpred =", "");
+                     "zpred(:) =", "");
   N_VPrintFile(step_mem->zpred, ARK_LOGGER->debug_fp);
 #endif
 
@@ -2177,7 +2177,7 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStep_StageDIRKNoFast", "rhs data",
-                     "sdata =", "");
+                     "sdata(:) =", "");
   N_VPrintFile(step_mem->sdata, ARK_LOGGER->debug_fp);
 #endif
 
@@ -2316,7 +2316,7 @@ int mriStep_ComputeInnerForcing(SUNDIALS_MAYBE_UNUSED ARKodeMem ark_mem,
   {
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::mriStep_ComputeInnerForcing", "forcing",
-                       "forcing[%i] =", k);
+                       "forcing_%i(:) =", k);
     N_VPrintFile(step_mem->stepper->forcing[k], ARK_LOGGER->debug_fp);
   }
 #endif
