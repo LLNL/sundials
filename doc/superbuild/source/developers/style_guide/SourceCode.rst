@@ -348,7 +348,7 @@ Coding Conventions and Rules
 
    .. code-block:: c
 
-      [log level][rank][scope][label] key(:)
+      [log level][rank][scope][label] key(:) =
       value1
       value2
 
