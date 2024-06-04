@@ -15,16 +15,13 @@
 #include <arkode/arkode.h>
 #include <arkode/arkode_arkstep.h>
 #include <nvector/nvector_serial.h>
+#include <nvector/nvector_manyvector.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_core.h>
-
-#include "sunadjoint/sunadjoint_checkpointscheme.h"
-#include "sunadjoint/sunadjoint_solver.h"
-#include "sundials/sundials_nvector.h"
-#include "sundials/sundials_stepper.h"
-#include "sundials/sundials_types.h"
-#include "sunmatrix/sunmatrix_dense.h"
+#include <sunadjoint/sunadjoint_checkpointscheme.h>
+#include <sunadjoint/sunadjoint_solver.h>
+#include <sunmatrix/sunmatrix_dense.h>
 
 static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
 
@@ -81,10 +78,10 @@ int forward_solution(SUNContext sunctx, void* arkode_mem,
                      SUNAdjointCheckpointScheme checkpoint_scheme,
                      sunrealtype t0, sunrealtype tf, N_Vector u)
 {
+  const sunrealtype dt = 1e-2;
   ARKodeSetUserData(arkode_mem, (void*)params);
-  // ARKodeSStolerances(arkode_mem, 1e-4, 1e-10);
-  ARKodeSetFixedStep(arkode_mem, 1e-2);
-  ARKodeSetMaxNumSteps(arkode_mem, 100000);
+  ARKodeSetFixedStep(arkode_mem, dt);
+  ARKodeSetMaxNumSteps(arkode_mem, (tf-t0)/dt+1);
 
   sunrealtype t = t0;
   while (t < tf)
@@ -111,7 +108,10 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   sunindextype neq        = N_VGetLength(u);
   sunindextype num_cost   = 1;
   sunindextype num_params = 4;
-  N_Vector sf             = N_VNew_Serial(neq + num_params, sunctx);
+  N_Vector sensu0         = N_VClone(u);
+  N_Vector sensp          = N_VNew_Serial(num_params, sunctx);
+  N_Vector sens[2]        = {sensu0, sensp};
+  N_Vector sf             = N_VNew_ManyVector(2, sens, sunctx);
 
   // TODO(CJB): Load sf with the sensitivity terminal conditions
   N_VConst(0.0, sf);

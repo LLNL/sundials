@@ -20,6 +20,7 @@
 #include <string.h>
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
+#include <nvector/nvector_manyvector.h>
 
 #include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
@@ -3379,12 +3380,17 @@ int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
   Utility routines for interfacing with SUNAdjointSolver
   ---------------------------------------------------------------*/
 
-int arkStep_fe_Adj(sunrealtype t, N_Vector lambda, N_Vector Ldot, void* content)
+int arkStep_fe_Adj(sunrealtype t, N_Vector sens, N_Vector sensDot, void* content)
 {
   SUNErrCode errcode = SUN_SUCCESS;
 
   SUNAdjointSolver adj_solver = (SUNAdjointSolver)content;
   void* user_data             = adj_solver->user_data;
+
+  N_Vector lambda = N_VGetSubvector_ManyVector(sens, 0);
+  N_Vector mu = N_VGetSubvector_ManyVector(sens, 1);
+  N_Vector lambdaDot = N_VGetSubvector_ManyVector(sensDot, 0);
+  N_Vector muDot = N_VGetSubvector_ManyVector(sensDot, 1);
 
   N_Vector fake_checkpoint = N_VClone(lambda);
   N_VConst(ONE, fake_checkpoint);
@@ -3393,19 +3399,19 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector lambda, N_Vector Ldot, void* content)
   {
     adj_solver->JacFn(t, fake_checkpoint, NULL, adj_solver->JacP,
                       adj_solver->user_data, NULL, NULL, NULL);
-    if (SUNMatMatvecTranspose(adj_solver->Jac, fake_checkpoint, Ldot))
+    if (SUNMatMatvecTranspose(adj_solver->Jac, lambda, lambdaDot))
     {
       return -1;
     };
   }
   else if (adj_solver->Jvp)
   {
-    adj_solver->Jvp(fake_checkpoint, Ldot, t, NULL, NULL, adj_solver->user_data,
+    adj_solver->Jvp(lambda, lambdaDot, t, fake_checkpoint, NULL, adj_solver->user_data,
                     NULL);
   }
   else if (adj_solver->vJp)
   {
-    adj_solver->vJp(fake_checkpoint, Ldot, t, NULL, NULL, adj_solver->user_data,
+    adj_solver->vJp(lambda, lambdaDot, t, fake_checkpoint, NULL, adj_solver->user_data,
                     NULL);
   }
 
@@ -3413,19 +3419,19 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector lambda, N_Vector Ldot, void* content)
   {
     adj_solver->JacPFn(t, fake_checkpoint, NULL, adj_solver->JacP,
                        adj_solver->user_data, NULL, NULL, NULL);
-    if (SUNMatMatvecTranspose(adj_solver->JacP, fake_checkpoint, Ldot))
+    if (SUNMatMatvecTranspose(adj_solver->JacP, mu, muDot))
     {
       return -1;
     }
   }
   else if (adj_solver->JPvp)
   {
-    adj_solver->JPvp(fake_checkpoint, Ldot, t, NULL, NULL,
+    adj_solver->JPvp(mu, muDot, t, fake_checkpoint, NULL,
                      adj_solver->user_data, NULL);
   }
   else if (adj_solver->vJPp)
   {
-    adj_solver->vJPp(fake_checkpoint, Ldot, t, NULL, NULL,
+    adj_solver->vJPp(mu, muDot, t, fake_checkpoint, NULL,
                      adj_solver->user_data, NULL);
   }
 
@@ -3455,8 +3461,8 @@ int ARKStepCreateAdjointSolver(void* arkode_mem, sunindextype num_cost,
   }
 
   // TODO(CJB): should we reinit or should we creater a new instance of ARKStep altogether?
-  // I think we probably do otherwise a user wont be able to reuse the original ARKStep for
-  // another forward integration easily.
+  // If we do not a user wont be able to reuse the original ARKStep for another forward
+  // integration easily.
 
   ARKodeResize(arkode_mem, sf, -ONE, ark_mem->tretlast, NULL, NULL);
   if (step_mem->fi)

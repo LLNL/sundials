@@ -65,6 +65,7 @@ foreach(test_tuple ${ARKODE_unit_tests})
       $<TARGET_OBJECTS:sundials_arkode_obj>
       sundials_sunmemsys_obj
       sundials_nvecserial_obj
+      sundials_nvecmanyvector_obj
       sundials_sunlinsolband_obj
       sundials_sunlinsoldense_obj
       sundials_sunnonlinsolnewton_obj
