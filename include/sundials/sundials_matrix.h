@@ -94,7 +94,6 @@ struct _generic_SUNMatrix_Ops
   SUNErrCode (*matvecsetup)(SUNMatrix);
   SUNErrCode (*matvec)(SUNMatrix, N_Vector, N_Vector);
   SUNErrCode (*matvectranspose)(SUNMatrix, N_Vector, N_Vector);
-  SUNErrCode (*transpose)(SUNMatrix);
   SUNErrCode (*space)(SUNMatrix, long int*, long int*);
 };
 
@@ -150,9 +149,6 @@ SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNMatMatvecTranspose(SUNMatrix A, N_Vector x, N_Vector y);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNMatTranspose(SUNMatrix A);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNMatSpace(SUNMatrix A, long int* lenrw, long int* leniw);

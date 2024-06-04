@@ -99,9 +99,8 @@ SUNDIALS_EXPORT SUNErrCode SUNMatScaleAdd_Dense(sunrealtype c, SUNMatrix A,
 SUNDIALS_EXPORT SUNErrCode SUNMatScaleAddI_Dense(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x,
                                               N_Vector y);
-
-SUNDIALS_EXPORT SUNErrCode SUNMatTranspose_Dense(SUNMatrix A);
-
+SUNDIALS_EXPORT SUNErrCode SUNMatMatvecTranspose_Dense(SUNMatrix A,
+                                                       N_Vector x, N_Vector y);
 SUNDIALS_EXPORT SUNErrCode SUNMatSpace_Dense(SUNMatrix A, long int* lenrw,
                                              long int* leniw);
 
