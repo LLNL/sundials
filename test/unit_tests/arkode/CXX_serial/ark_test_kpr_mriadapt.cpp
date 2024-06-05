@@ -321,8 +321,9 @@ int main(int argc, char* argv[])
   if (check_flag(retval, "ERKStepCreateMRIStepInnerStepper")) return 1;
 
   // Create slow controller object, and select orders of accuracy as relevant
-  SUNAdaptController scontrol       = NULL;
-  SUNAdaptController scontrol_inner = NULL;
+  SUNAdaptController scontrol     = NULL;
+  SUNAdaptController scontrol_H   = NULL;
+  SUNAdaptController scontrol_Tol = NULL;
   switch (opts.scontrol)
   {
   case (1):
@@ -342,10 +343,13 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIPID")) return 1;
     break;
   case (5):
-    scontrol_inner = SUNAdaptController_I(sunctx);
-    if (check_ptr((void*)scontrol_inner, "SUNAdaptController_I (slow)"))
+    scontrol_H = SUNAdaptController_I(sunctx);
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_I (slow H)"))
       return 1;
-    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_inner, fcontrol);
+    scontrol_Tol = SUNAdaptController_I(sunctx);
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_I (slow Tol)"))
+      return 1;
+    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     break;
   case (6):
@@ -353,10 +357,13 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptControllerI (slow)")) return 1;
     break;
   case (7):
-    scontrol_inner = SUNAdaptController_PI(sunctx);
-    if (check_ptr((void*)scontrol_inner, "SUNAdaptController_PI (slow)"))
+    scontrol_H = SUNAdaptController_PI(sunctx);
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_PI (slow H)"))
       return 1;
-    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_inner, fcontrol);
+    scontrol_Tol = SUNAdaptController_PI(sunctx);
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_PI (slow Tol)"))
+      return 1;
+    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     break;
   case (8):
@@ -364,10 +371,13 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_PI (slow)")) return 1;
     break;
   case (9):
-    scontrol_inner = SUNAdaptController_PID(sunctx);
-    if (check_ptr((void*)scontrol_inner, "SUNAdaptController_PID (slow)"))
+    scontrol_H = SUNAdaptController_PID(sunctx);
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_PID (slow H)"))
       return 1;
-    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_inner, fcontrol);
+    scontrol_Tol = SUNAdaptController_PID(sunctx);
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_PID (slow Tol)"))
+      return 1;
+    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     break;
   case (10):
@@ -375,10 +385,13 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_PID (slow)")) return 1;
     break;
   case (11):
-    scontrol_inner = SUNAdaptController_ExpGus(sunctx);
-    if (check_ptr((void*)scontrol_inner, "SUNAdaptController_ExpGus (slow)"))
+    scontrol_H = SUNAdaptController_ExpGus(sunctx);
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_ExpGus (slow H)"))
       return 1;
-    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_inner, fcontrol);
+    scontrol_Tol = SUNAdaptController_ExpGus(sunctx);
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_ExpGus (slow Tol)"))
+      return 1;
+    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     break;
   case (12):
@@ -387,10 +400,13 @@ int main(int argc, char* argv[])
       return 1;
     break;
   case (13):
-    scontrol_inner = SUNAdaptController_ImpGus(sunctx);
-    if (check_ptr((void*)scontrol_inner, "SUNAdaptController_ImpGus (slow)"))
+    scontrol_H = SUNAdaptController_ImpGus(sunctx);
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_ImpGus (slow H)"))
       return 1;
-    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_inner, fcontrol);
+    scontrol_Tol = SUNAdaptController_ImpGus(sunctx);
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_ImpGus (slow Tol)"))
+      return 1;
+    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     break;
   case (14):
@@ -399,10 +415,13 @@ int main(int argc, char* argv[])
       return 1;
     break;
   case (15):
-    scontrol_inner = SUNAdaptController_ImExGus(sunctx);
-    if (check_ptr((void*)scontrol_inner, "SUNAdaptController_ImExGus (slow)"))
+    scontrol_H = SUNAdaptController_ImExGus(sunctx);
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_ImExGus (slow H)"))
       return 1;
-    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_inner, fcontrol);
+    scontrol_Tol = SUNAdaptController_ImExGus(sunctx);
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_ImExGus (slow Tol)"))
+      return 1;
+    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     break;
   case (16):
@@ -587,7 +606,8 @@ int main(int argc, char* argv[])
   if (As) { SUNMatDestroy(As); }
   if (LSs) { SUNLinSolFree(LSs); }
   if (scontrol) { SUNAdaptController_Destroy(scontrol); }
-  if (scontrol_inner) { SUNAdaptController_Destroy(scontrol_inner); }
+  if (scontrol_H) { SUNAdaptController_Destroy(scontrol_H); }
+  if (scontrol_Tol) { SUNAdaptController_Destroy(scontrol_Tol); }
   if (fcontrol) { SUNAdaptController_Destroy(fcontrol); }
   ARKodeFree(&inner_arkode_mem);            // Free fast integrator memory
   MRIStepInnerStepper_Free(&inner_stepper); // Free inner stepper structure
