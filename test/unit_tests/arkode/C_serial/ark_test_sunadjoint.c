@@ -22,6 +22,7 @@
 #include <sunadjoint/sunadjoint_checkpointscheme.h>
 #include <sunadjoint/sunadjoint_solver.h>
 #include <sunmatrix/sunmatrix_dense.h>
+#include <sundials/priv/sundials_errors_impl.h>
 
 static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
 
@@ -104,7 +105,8 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
                      SUNAdjointCheckpointScheme checkpoint_scheme,
                      sunrealtype tf, sunrealtype tout, N_Vector u)
 {
-  // TODO(CJB): should we require ManyVector with separate vectors for IC and params to make things cleaner?
+  int retval = 0;
+
   sunindextype neq        = N_VGetLength(u);
   sunindextype num_cost   = 1;
   sunindextype num_params = 4;
@@ -117,7 +119,8 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   N_VConst(0.0, sf);
 
   SUNAdjointSolver adj_solver;
-  ARKStepCreateAdjointSolver(arkode_mem, num_cost, sf, &adj_solver);
+  retval = ARKStepCreateAdjointSolver(arkode_mem, num_cost, sf, &adj_solver);
+  if (retval) { fprintf(stderr, "ERROR: ARKStepCreateAdjointSolver failed\n"); return -1; }
 
   SUNMatrix J  = SUNDenseMatrix(neq, neq, sunctx);
   SUNMatrix Jp = SUNDenseMatrix(num_params, num_params, sunctx);

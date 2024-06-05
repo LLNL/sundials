@@ -1187,7 +1187,7 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
   }
 
   /* set appropriate TakeStep routine based on problem configuration */
-  if (ark_mem->do_adjoint) { ark_mem->step = arkStep_TakeStep_Z_Adjoint; }
+  if (ark_mem->do_adjoint) { ark_mem->step = arkStep_TakeStep_ERK_Adjoint; }
   else { ark_mem->step = arkStep_TakeStep_Z; }
 
   /* Check for consistency between mass system and system linear system modules
@@ -2108,13 +2108,128 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   return (ARK_SUCCESS);
 }
 
-int arkStep_TakeStep_Z_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
-                               int* nflagPtr)
+
+/*---------------------------------------------------------------
+  arkStep_TakeStep_ERK_Adjoint:
+
+  This routine performs a single backwards step of the discrete
+  adjoint of the ERK method.
+
+  Since we are not doing error control during the adjoint integration,
+  the output variable dsmPtr should should be 0.
+
+  The input/output variable nflagPtr is used to gauge convergence
+  of any algebraic solvers within the step. In this case, it should
+  always be 0 since we do not do any algebraic solves.
+
+  The return value from this routine is:
+            0 => step completed successfully
+           >0 => step encountered recoverable failure;
+                 reduce step and retry (if possible)
+           <0 => step encountered unrecoverable failure
+  ---------------------------------------------------------------*/
+int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
+                                 int* nflagPtr)
 {
+  int retval = ARK_SUCCESS;
+
+  ARKodeARKStepMem step_mem;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* local shortcuts for fused vector operations */
+  sunrealtype* cvals = step_mem->cvals;
+  N_Vector* Xvecs = step_mem->Xvecs;
+
+  /* local shortcuts for readability */
+  N_Vector sens_np1 = ark_mem->yn;
+  N_Vector sens_n = ark_mem->ycur;
+  N_Vector Sens_i = step_mem->sdata;
+  N_Vector lambda_np1 = N_VGetSubvector_ManyVector(sens_np1, 0);
+  N_Vector mu_np1 = N_VGetSubvector_ManyVector(sens_np1, 1);
+  N_Vector Lambda_i = N_VGetSubvector_ManyVector(Sens_i, 0);
+  N_Vector nu_i = N_VGetSubvector_ManyVector(Sens_i, 1);
+  N_Vector lambda_n = N_VGetSubvector_ManyVector(sens_n, 0);
+  N_Vector mu_n = N_VGetSubvector_ManyVector(sens_n, 1);
+  N_Vector* stage_solutions = step_mem->Fe;
+
+  /* Loop over stages */
+  for (int is = step_mem->stages-1; is >= 0; --is)
+  {
+    /* Set current stage time(s) */
+    ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is] * ark_mem->h;
+
+    /*
+     * Compute partial current stage value \Lambda
+     */
+
+    int nvec = 0;
+    for (int js = is; js < step_mem->stages; ++js)
+    {
+      cvals[nvec] = ark_mem->h*step_mem->Be->A[js][is];
+      Xvecs[nvec] = N_VGetSubvector_ManyVector(stage_solutions[js], 0);
+      nvec++;
+    }
+    cvals[nvec] = ark_mem->h*step_mem->Be->b[is];
+    Xvecs[nvec] = lambda_np1;
+    nvec++;
+
+    /* h b_i \lambda_{n+1} + h sum_{j=i}^{s} A_{ji} \Lambda_{j} */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, Lambda_i);
+    if (retval != 0) { return (ARK_VECTOROP_ERR); }
+
+    /*
+     * Compute partial current stage value for \nu
+     */
+
+    nvec = 0;
+    for (int js = is; js < step_mem->stages; ++js)
+    {
+      cvals[nvec] = ark_mem->h*step_mem->Be->A[js][is];
+      Xvecs[nvec] = N_VGetSubvector_ManyVector(stage_solutions[js], 1);
+      nvec++;
+    }
+    cvals[nvec] = ark_mem->h*step_mem->Be->b[is];
+    Xvecs[nvec] = mu_np1;
+    nvec++;
+
+    /* h b_i \mu_{n+1} + h sum_{j=i}^{s} A_{ji} \nu_{j} */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, nu_i);
+    if (retval != 0) { return (ARK_VECTOROP_ERR); }
+
+    /* Compute stage solutions \Lambda_i, \nu_i by applying f_{y,p}^T (which is what fe does in this case)  */
+    retval = step_mem->fe(ark_mem->tcur, Sens_i, stage_solutions[is], ark_mem->user_data);
+    step_mem->nfe++; // TODO(CJB): fe calls the Jacobian functions, so should we track those too? (they will be equal to nfe)
+  }
+
+  /* Now compute the time step solution. We cannot use arkStep_ComputeSolutions because the
+     adjoint calculation for the time step solution is different than the forward case. */
+  // TODO(CJB): consider what would happen with stiffly accurate methods
+
+  int nvec = 0;
+  for (int j = 0; j < step_mem->stages; j++)
+  {
+    cvals[nvec] = ONE;
+    Xvecs[nvec] = stage_solutions[j]; // this needs to be the stage values [Lambda_i, nu_i]
+    nvec++;
+  }
+  cvals[nvec] = ONE;
+  Xvecs[nvec] = sens_np1;
+  nvec++;
+
+  /* \lambda_n = \lambda_{n+1} + \sum_{j=1}^{s} \Lambda_j
+     \mu_n     = \mu_{n+1} + \sum_{j=1}^{s} \nu_j */
+  retval = N_VLinearCombination(nvec, cvals, Xvecs, sens_n);
+  if (retval != 0) { return (ARK_VECTOROP_ERR); }
+
   *dsmPtr = ZERO;
+  *nflagPtr = 0;
+
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkStep_TakeStep_Z_Adjoint", "end-step",
+                     "ARKODE::arkStep_TakeStep_ERK_Adjoint", "end-step",
                      "step = %li, h = %" RSYM ", dsm = %" RSYM ", nflag = %d",
                      ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
 #endif
@@ -3438,6 +3553,46 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens, N_Vector sensDot, void* content
   return 0;
 }
 
+int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem, ARKodeARKStepMem step_mem, int lineno, const char* fname, const char* filename)
+{
+  if (!ark_mem->fixedstep)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname,
+                    filename, "ARKStep must be using a fixed step to work with SUNAdjointSolver");
+    return ARK_ILL_INPUT;
+  }
+
+  if (step_mem->fi)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname,
+                    filename, "SUNAdjointSolver requires fi = NULL (it only supports explicit RK methods)");
+    return ARK_ILL_INPUT;
+  }
+
+  if (!step_mem->fe)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname,
+                    filename, "fe must have been provided to ARKStepCreate to create a SUNAdjointSolver");
+    return ARK_ILL_INPUT;
+  }
+
+  if (ark_mem->relax_enabled)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname,
+                    filename, "SUNAdjointSolver is not compatible with relaxation");
+    return ARK_ILL_INPUT;
+  }
+
+  if (step_mem->mass_type != MASS_IDENTITY)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname,
+                    filename, "SUNAdjointSolver is not compatible with non-identity mass matrices");
+    return ARK_ILL_INPUT;
+  }
+
+  return ARK_SUCCESS;
+}
+
 int ARKStepCreateAdjointSolver(void* arkode_mem, sunindextype num_cost,
                                N_Vector sf, SUNAdjointSolver* adj_solver_ptr)
 {
@@ -3453,10 +3608,8 @@ int ARKStepCreateAdjointSolver(void* arkode_mem, sunindextype num_cost,
     return ARK_ILL_INPUT;
   }
 
-  if (!ark_mem->fixedstep)
+  if (arkStepCompatibleWithAdjointSolver(ark_mem, step_mem, __LINE__, __func__, __FILE__))
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "ARKStep must be using a fixed step to work with SUNAdjointSolver");
     return ARK_ILL_INPUT;
   }
 
@@ -3471,14 +3624,8 @@ int ARKStepCreateAdjointSolver(void* arkode_mem, sunindextype num_cost,
                     __FILE__, "ARKStep does not support SUNAdjointSolver when fi is defined");
     return ARK_ILL_INPUT;
   }
-  if (!step_mem->fe)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "fe must have been provided to ARKStepCreate to create a SUNAdjointSolver");
-    return ARK_ILL_INPUT;
-  }
 
-  // ark_mem->do_adjoint = SUNTRUE;
+  ark_mem->do_adjoint = SUNTRUE;
   ARKodeSetFixedStep(arkode_mem, -ark_mem->h);
 
   // TODO(CJB): should we reinit to tretlast or tcur? tcur could be past the time the
