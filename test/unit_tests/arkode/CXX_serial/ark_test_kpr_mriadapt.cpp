@@ -496,9 +496,17 @@ int main(int argc, char* argv[])
 
   for (int iout = 0; iout < Nt; iout++)
   {
+    // set stop time to ensure that solutions are reported to full accuracy
+    retval = ARKodeSetStopTime(arkode_mem, tout);
+    if (check_flag(retval, "ARKodeSetStopTime")) break;
+
     // call integrator
     retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_flag(retval, "ARKodeEvolve")) break;
+    if (retval < 0)
+    {
+      printf("ARKodeEvolve error (%i)\n", retval);
+      break;
+    }
 
     // access/print solution and error
     uerr = SUNRabs(NV_Ith_S(y, 0) - utrue(t, &opts));
