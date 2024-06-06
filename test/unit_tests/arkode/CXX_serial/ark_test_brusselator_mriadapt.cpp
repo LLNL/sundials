@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
   if (check_flag(retval, "ARKodeSetOrder")) return 1;
   retval = ARKodeSStolerances(arkode_ref, SUN_RCONST(1.e-10), SUN_RCONST(1.e-12));
   if (check_flag(retval, "ARKodeSStolerances")) return 1;
-  retval = ARKodeSetMaxNumSteps(arkode_ref, 1000000);
+  retval = ARKodeSetMaxNumSteps(arkode_ref, 10000000);
   if (check_flag(retval, "ARKodeSetMaxNumSteps")) return (1);
 
   // Create and configure fast controller object
@@ -318,7 +318,7 @@ int main(int argc, char* argv[])
   }
   retval = ARKodeSetAccumulatedErrorType(inner_arkode_mem, opts.faccum);
   if (check_flag(retval, "ARKodeSetAccumulatedErrorType")) return 1;
-  retval = ARKodeSetMaxNumSteps(inner_arkode_mem, 100000);
+  retval = ARKodeSetMaxNumSteps(inner_arkode_mem, 1000000);
   if (check_flag(retval, "ARKodeSetMaxNumSteps")) return 1;
   retval = ARKodeSetUserData(inner_arkode_mem, (void*)&opts);
   if (check_flag(retval, "ARKodeSetUserData")) return 1;
@@ -461,7 +461,7 @@ int main(int argc, char* argv[])
   }
   retval = ARKodeSStolerances(arkode_mem, opts.rtol, opts.atol);
   if (check_flag(retval, "ARKodeSStolerances")) return 1;
-  retval = ARKodeSetMaxNumSteps(arkode_mem, 10000);
+  retval = ARKodeSetMaxNumSteps(arkode_mem, 100000);
   if (check_flag(retval, "ARKodeSetMaxNumSteps")) return 1;
   retval = ARKodeSetUserData(arkode_mem, (void*)&opts);
   if (check_flag(retval, "ARKodeSetUserData")) return 1;

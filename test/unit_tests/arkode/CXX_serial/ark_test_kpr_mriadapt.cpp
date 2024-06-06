@@ -310,7 +310,7 @@ int main(int argc, char* argv[])
   }
   retval = ARKodeSetAccumulatedErrorType(inner_arkode_mem, opts.faccum);
   if (check_flag(retval, "ARKodeSetAccumulatedErrorType")) return 1;
-  retval = ARKodeSetMaxNumSteps(inner_arkode_mem, 100000);
+  retval = ARKodeSetMaxNumSteps(inner_arkode_mem, 1000000);
   if (check_flag(retval, "ARKodeSetMaxNumSteps")) return 1;
   retval = ARKodeSetUserData(inner_arkode_mem, (void*)&opts);
   if (check_flag(retval, "ARKodeSetUserData")) return 1;
@@ -453,7 +453,7 @@ int main(int argc, char* argv[])
   }
   retval = ARKodeSStolerances(arkode_mem, opts.rtol, opts.atol);
   if (check_flag(retval, "ARKodeSStolerances")) return 1;
-  retval = ARKodeSetMaxNumSteps(arkode_mem, 10000);
+  retval = ARKodeSetMaxNumSteps(arkode_mem, 100000);
   if (check_flag(retval, "ARKodeSetMaxNumSteps")) return 1;
   retval = ARKodeSetUserData(arkode_mem, (void*)&opts);
   if (check_flag(retval, "ARKodeSetUserData")) return 1;
