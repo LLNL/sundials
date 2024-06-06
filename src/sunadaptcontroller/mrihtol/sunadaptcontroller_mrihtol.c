@@ -121,15 +121,15 @@ SUNErrCode SUNAdaptController_EstimateStepTol_MRIHTol(
   /* Call slow time scale sub-controller to fill Hnew */
   SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CSLOW(C), H, P, DSM, Hnew));
 
-  /* /\* Call fast time scale sub-controller with order=1: no matter the integrator */
-  /*    order, we expect its error to be proportional to the tolerance factor *\/ */
-  /* SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CFAST(C), tolfac, 1, dsm, */
-  /*                                              tolfacnew)); */
-
   /* Call fast time scale sub-controller with order=1: no matter the integrator
-     order, we expect its error to be proportional to H times the tolerance factor */
-  SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CFAST(C), H * tolfac, 1,
-                                               dsm, &Htolnew));
+     order, we expect its error to be proportional to the tolerance factor */
+  SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CFAST(C), tolfac, 1, dsm,
+                                               tolfacnew));
+
+  /* /\* Call fast time scale sub-controller with order=1: no matter the integrator */
+  /*    order, we expect its error to be proportional to H times the tolerance factor *\/ */
+  /* SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CFAST(C), H * tolfac, 1, */
+  /*                                              dsm, &Htolnew)); */
 
   /* Remove previous slow step size from estimated tolerance factor */
   *tolfacnew = Htolnew / H;
