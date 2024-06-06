@@ -504,14 +504,14 @@ int main(int argc, char* argv[])
   {
     // set stop time to ensure that solutions are reported to full accuracy
     retval = ARKodeSetStopTime(arkode_mem, tout);
-    if (check_flag(retval, "ARKodeSetStopTime")) break;
+    if (check_flag(retval, "ARKodeSetStopTime")) return 1;
 
     // call integrator
     retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
     if (retval < 0)
     {
       printf("ARKodeEvolve error (%i)\n", retval);
-      break;
+      return 1;
     }
 
     // access/print solution and error
