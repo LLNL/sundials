@@ -344,8 +344,7 @@ int main(int argc, char* argv[])
     break;
   case (5):
     scontrol_H = SUNAdaptController_I(sunctx);
-    if (check_ptr((void*)scontrol_H, "SUNAdaptController_I (slow H)"))
-      return 1;
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_I (slow H)")) return 1;
     scontrol_Tol = SUNAdaptController_I(sunctx);
     if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_I (slow Tol)"))
       return 1;

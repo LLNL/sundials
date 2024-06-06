@@ -173,7 +173,6 @@ static int ReadInputs(std::vector<std::string>& args, Options& opts,
 static void PrintSlowAdaptivity(Options opts);
 static void PrintFastAdaptivity(Options opts);
 
-
 // Main Program
 int main(int argc, char* argv[])
 {
@@ -353,8 +352,7 @@ int main(int argc, char* argv[])
     break;
   case (5):
     scontrol_H = SUNAdaptController_I(sunctx);
-    if (check_ptr((void*)scontrol_H, "SUNAdaptController_I (slow H)"))
-      return 1;
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_I (slow H)")) return 1;
     scontrol_Tol = SUNAdaptController_I(sunctx);
     if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_I (slow Tol)"))
       return 1;
@@ -506,10 +504,13 @@ int main(int argc, char* argv[])
   verrtot = ZERO;
   werrtot = ZERO;
   errtot  = ZERO;
-  printf("        t          u          v          w       uerr      verr      werr\n");
-  printf("   -------------------------------------------------------------------------\n");
-  printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM "   %.1" ESYM "   %.1" ESYM "   %.1" ESYM
-         "\n",
+  printf("        t          u          v          w       uerr      verr      "
+         "werr\n");
+  printf("   "
+         "---------------------------------------------------------------------"
+         "----\n");
+  printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM "   %.1" ESYM
+         "   %.1" ESYM "   %.1" ESYM "\n",
          t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2), uerr, verr, werr);
 
   for (int iout = 0; iout < Nt; iout++)
@@ -538,8 +539,8 @@ int main(int argc, char* argv[])
     uerr = SUNRabs(NV_Ith_S(y, 0) - NV_Ith_S(yref, 0));
     verr = SUNRabs(NV_Ith_S(y, 1) - NV_Ith_S(yref, 1));
     werr = SUNRabs(NV_Ith_S(y, 2) - NV_Ith_S(yref, 2));
-    printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM "   %.1" ESYM
-           "   %.1" ESYM "   %.1" ESYM "\n",
+    printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM
+           "   %.1" ESYM "   %.1" ESYM "   %.1" ESYM "\n",
            t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2), uerr, verr, werr);
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
@@ -554,7 +555,9 @@ int main(int argc, char* argv[])
   verrtot = SUNRsqrt(verrtot / Nt);
   werrtot = SUNRsqrt(werrtot / Nt);
   errtot  = SUNRsqrt(errtot / Nt / 3);
-  printf("   -------------------------------------------------------------------------\n");
+  printf("   "
+         "---------------------------------------------------------------------"
+         "----\n");
 
   //
   // Finalize
@@ -588,8 +591,9 @@ int main(int argc, char* argv[])
             << ",  fails = " << netfs << ")\n";
   std::cout << "   Fast steps = " << nstf << "  (attempts = " << nattf
             << ",  fails = " << netff << ")\n";
-  std::cout << "   u error = " << uerrtot << ", v error = " << verrtot << ", w error = " << werrtot
-            << ", total error = " << errtot << std::endl;
+  std::cout << "   u error = " << uerrtot << ", v error = " << verrtot
+            << ", w error = " << werrtot << ", total error = " << errtot
+            << std::endl;
   std::cout << "   Total RHS evals:  Fse = " << nfse << ", Fsi = " << nfsi
             << ", Ff = " << nff << std::endl;
 
@@ -957,9 +961,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
   case (5):
-    std::cout
-      << "    MRI-HTOL controller (using I) based on order of MRI "
-      << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    MRI-HTOL controller (using I) based on order of MRI "
+              << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
@@ -970,9 +973,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     break;
   case (7):
-    std::cout
-      << "    MRI-HTOL controller (using PI) based on order of MRI "
-      << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    MRI-HTOL controller (using PI) based on order of MRI "
+              << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
@@ -983,9 +985,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     break;
   case (9):
-    std::cout
-      << "    MRI-HTOL controller (using PID) based on order of MRI "
-      << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    MRI-HTOL controller (using PID) based on order of MRI "
+              << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
@@ -996,9 +997,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     break;
   case (11):
-    std::cout
-      << "    MRI-HTOL controller (using ExpGus) based on order of MRI "
-      << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    MRI-HTOL controller (using ExpGus) based on order of MRI "
+              << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
@@ -1009,9 +1009,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     break;
   case (13):
-    std::cout
-      << "    MRI-HTOL controller (using ImpGus) based on order of MRI "
-      << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    MRI-HTOL controller (using ImpGus) based on order of MRI "
+              << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;

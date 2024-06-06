@@ -128,11 +128,11 @@ SUNErrCode SUNAdaptController_EstimateStepTol_MRIHTol(
 
   /* Call fast time scale sub-controller with order=1: no matter the integrator
      order, we expect its error to be proportional to H times the tolerance factor */
-  SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CFAST(C), H*tolfac, 1, dsm,
-                                               &Htolnew));
+  SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CFAST(C), H * tolfac, 1,
+                                               dsm, &Htolnew));
 
   /* Remove previous slow step size from estimated tolerance factor */
-  *tolfacnew = Htolnew/H;
+  *tolfacnew = Htolnew / H;
 
   return SUN_SUCCESS;
 }
