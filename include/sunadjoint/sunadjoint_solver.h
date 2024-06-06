@@ -82,11 +82,8 @@ SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver adj_solver, sunrealtype tout,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointSolver_SetJacFn(SUNAdjointSolver, SUNJacFn JacFn,
-                                     SUNMatrix Jac);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointSolver_SetJacPFn(SUNAdjointSolver, SUNJacFn JacPFn,
-                                      SUNMatrix JacP);
+                                     SUNMatrix Jac, SUNJacFn JacPFn,
+                                     SUNMatrix JP);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointSolver_SetJacTimesVecFn(SUNAdjointSolver, SUNJacTimesFn Jvp,

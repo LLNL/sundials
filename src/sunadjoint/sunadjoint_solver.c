@@ -118,21 +118,16 @@ SUNErrCode SUNAdjointSolver_Destroy(SUNAdjointSolver* adj_solver_ptr)
 }
 
 SUNErrCode SUNAdjointSolver_SetJacFn(SUNAdjointSolver adj_solver,
-                                     SUNJacFn JacFn, SUNMatrix Jac)
+                                     SUNJacFn JacFn, SUNMatrix Jac,
+                                     SUNJacFn JacPFn, SUNMatrix JacP)
 {
   SUNFunctionBegin(adj_solver->sunctx);
 
-  adj_solver->JacFn = JacFn;
-  adj_solver->Jac   = Jac;
+  SUNAssert(JacFn && Jac, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(!JacPFn || (JacPFn && JacP), SUN_ERR_ARG_CORRUPT);
 
-  return SUN_SUCCESS;
-}
-
-SUNErrCode SUNAdjointSolver_SetJacPFn(SUNAdjointSolver adj_solver,
-                                      SUNJacFn JacPFn, SUNMatrix JacP)
-{
-  SUNFunctionBegin(adj_solver->sunctx);
-
+  adj_solver->JacFn  = JacFn;
+  adj_solver->Jac    = Jac;
   adj_solver->JacPFn = JacPFn;
   adj_solver->JacP   = JacP;
 
@@ -145,6 +140,9 @@ SUNErrCode SUNAdjointSolver_SetJacTimesVecFn(SUNAdjointSolver adj_solver,
 {
   SUNFunctionBegin(adj_solver->sunctx);
 
+  SUNAssert(Jvp, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(!JPvp || (JPvp && Jvp), SUN_ERR_ARG_CORRUPT);
+
   adj_solver->Jvp  = Jvp;
   adj_solver->JPvp = JPvp;
 
@@ -156,6 +154,9 @@ SUNErrCode SUNAdjointSolver_SetVecTimesJacFn(SUNAdjointSolver adj_solver,
                                              SUNJacTimesFn vJPp)
 {
   SUNFunctionBegin(adj_solver->sunctx);
+
+  SUNAssert(vJp, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(!vJPp || (vJp && vJPp), SUN_ERR_ARG_CORRUPT);
 
   adj_solver->vJp  = vJp;
   adj_solver->vJPp = vJPp;
