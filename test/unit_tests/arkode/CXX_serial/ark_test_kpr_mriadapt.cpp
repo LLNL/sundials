@@ -482,18 +482,6 @@ int main(int argc, char* argv[])
   // Integrate ODE
   //
 
-  // Open output stream for results, output comment line
-  FILE* UFID = NULL;
-  UFID       = fopen("ark_kpr_mri_solution.txt", "w");
-  fprintf(UFID, "# t u v uerr verr\n");
-
-  // output initial condition to disk
-  fprintf(UFID,
-          " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM "\n",
-          T0, NV_Ith_S(y, 0), NV_Ith_S(y, 1),
-          SUNRabs(NV_Ith_S(y, 0) - utrue(T0, &opts)),
-          SUNRabs(NV_Ith_S(y, 1) - vtrue(T0, &opts)));
-
   // Main time-stepping loop: calls ARKodeEvolve to perform the
   // integration, then prints results. Stops when the final time
   // has been reached
@@ -532,9 +520,6 @@ int main(int argc, char* argv[])
     printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %.2" ESYM
            "  %.2" ESYM "\n",
            t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), uerr, verr);
-    fprintf(UFID,
-            " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM "\n",
-            t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), uerr, verr);
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
     errtot += uerr * uerr + verr * verr;
@@ -547,7 +532,6 @@ int main(int argc, char* argv[])
   verrtot = SUNRsqrt(verrtot / Nt);
   errtot  = SUNRsqrt(errtot / Nt / 2);
   printf("   ------------------------------------------------------\n");
-  fclose(UFID);
 
   //
   // Finalize
