@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
   // General problem parameters
   sunrealtype T0    = SUN_RCONST(0.0);       // initial time
   sunrealtype Tf    = SUN_RCONST(5.0);       // final time
-  sunrealtype dTout = SUN_RCONST(0.5);       // time between outputs
+  sunrealtype dTout = SUN_RCONST(0.25);      // time between outputs
   sunindextype NEQ  = 2;                     // number of dependent vars.
   int Nt            = (int)ceil(Tf / dTout); // number of output times
 
@@ -486,7 +486,7 @@ int main(int argc, char* argv[])
   // integration, then prints results. Stops when the final time
   // has been reached
   sunrealtype t, tout;
-  sunrealtype uerr, verr, uerrtot, verrtot, errtot;
+  sunrealtype uerr, verr, uerrtot, verrtot, errtot, accuracy;
   t       = T0;
   tout    = T0 + dTout;
   uerr    = ZERO;
@@ -494,6 +494,7 @@ int main(int argc, char* argv[])
   uerrtot = ZERO;
   verrtot = ZERO;
   errtot  = ZERO;
+  accuracy = ZERO;
   printf("        t           u           v       uerr      verr\n");
   printf("   ------------------------------------------------------\n");
   printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %.2" ESYM "  %.2" ESYM
@@ -523,6 +524,8 @@ int main(int argc, char* argv[])
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
     errtot += uerr * uerr + verr * verr;
+    accuracy = std::max(accuracy, uerr/SUNRabs(opts.atol + opts.rtol*utrue(t, &opts)));
+    accuracy = std::max(accuracy, verr/SUNRabs(opts.atol + opts.rtol*vtrue(t, &opts)));
 
     // successful solve: update time
     tout += dTout;
@@ -567,6 +570,7 @@ int main(int argc, char* argv[])
             << ",  fails = " << netff << ")\n";
   std::cout << "   u error = " << uerrtot << ", v error = " << verrtot
             << ", total error = " << errtot << std::endl;
+  std::cout << "   Relative accuracy = " << accuracy << std::endl;
   std::cout << "   Total RHS evals:  Fse = " << nfse << ", Fsi = " << nfsi
             << ", Ff = " << nff << std::endl;
 

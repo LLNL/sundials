@@ -495,15 +495,17 @@ int main(int argc, char* argv[])
   // has been reached
   sunrealtype t, tout;
   sunrealtype uerr, verr, werr, uerrtot, verrtot, werrtot, errtot;
-  t       = T0;
-  tout    = T0 + dTout;
-  uerr    = ZERO;
-  verr    = ZERO;
-  werr    = ZERO;
-  uerrtot = ZERO;
-  verrtot = ZERO;
-  werrtot = ZERO;
-  errtot  = ZERO;
+  sunrealtype accuracy;
+  t        = T0;
+  tout     = T0 + dTout;
+  uerr     = ZERO;
+  verr     = ZERO;
+  werr     = ZERO;
+  uerrtot  = ZERO;
+  verrtot  = ZERO;
+  werrtot  = ZERO;
+  errtot   = ZERO;
+  accuracy = ZERO;
   printf("        t          u          v          w       uerr      verr      "
          "werr\n");
   printf("   "
@@ -540,12 +542,15 @@ int main(int argc, char* argv[])
     verr = SUNRabs(NV_Ith_S(y, 1) - NV_Ith_S(yref, 1));
     werr = SUNRabs(NV_Ith_S(y, 2) - NV_Ith_S(yref, 2));
     printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM
-           "   %.1" ESYM "   %.1" ESYM "   %.1" ESYM "\n",
+           "   %.1" ESYM "   %.1" ESYM "   %.1" ESYM "   %6.2" FSYM "\n",
            t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2), uerr, verr, werr);
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
     werrtot += werr * werr;
     errtot += uerr * uerr + verr * verr + werr * werr;
+    accuracy = std::max(accuracy, uerr/SUNRabs(opts.atol + opts.rtol*NV_Ith_S(yref,0)));
+    accuracy = std::max(accuracy, verr/SUNRabs(opts.atol + opts.rtol*NV_Ith_S(yref,1)));
+    accuracy = std::max(accuracy, werr/SUNRabs(opts.atol + opts.rtol*NV_Ith_S(yref,2)));
 
     // successful solve: update time
     tout += dTout;
@@ -594,6 +599,7 @@ int main(int argc, char* argv[])
   std::cout << "   u error = " << uerrtot << ", v error = " << verrtot
             << ", w error = " << werrtot << ", total error = " << errtot
             << std::endl;
+  std::cout << "   Relative accuracy = " << accuracy << std::endl;
   std::cout << "   Total RHS evals:  Fse = " << nfse << ", Fsi = " << nfsi
             << ", Ff = " << nff << std::endl;
 
