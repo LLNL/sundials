@@ -80,6 +80,7 @@ void SUNAbortErrHandlerFn(int line, const char* func, const char* file,
                           SUNContext sunctx)
 {
   char* file_and_line = sunCombineFileAndLine(line, file);
+  if (msg == NULL) { msg = SUNGetErrMsg(err_code); }
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
                      msg);
   free(file_and_line);
