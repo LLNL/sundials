@@ -32,6 +32,9 @@ struct _SUNAdaptControllerContent_MRIHTol
 {
   SUNAdaptController HControl;
   SUNAdaptController TolControl;
+  sunrealtype inner_max_relch;
+  sunrealtype inner_min_tolfac;
+  sunrealtype inner_max_tolfac;
 };
 
 typedef struct _SUNAdaptControllerContent_MRIHTol* SUNAdaptControllerContent_MRIHTol;
@@ -44,6 +47,11 @@ SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_MRIHTol(SUNContext sunctx,
                                               SUNAdaptController HControl,
                                               SUNAdaptController TolControl);
+SUNDIALS_EXPORT
+SUNErrCode SUNAdaptController_SetParams_MRIHTol(SUNAdaptController C,
+                                                sunrealtype inner_max_relch,
+                                                sunrealtype inner_min_tolfac,
+                                                sunrealtype inner_max_tolfac);
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_GetSlowController_MRIHTol(
   SUNAdaptController C);

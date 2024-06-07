@@ -23,13 +23,27 @@
 #include "sundials/priv/sundials_errors_impl.h"
 #include "sundials/sundials_errors.h"
 
+/* ------------------
+ * Default parameters
+ * ------------------ */
+
+/*   maximum relative change for inner tolerance factor */
+#define INNER_MAX_RELCH SUN_RCONST(20.0)
+/*   minimum tolerance factor for inner solver */
+#define INNER_MIN_TOLFAC SUN_RCONST(1.e-3)
+/*   maximum tolerance factor for inner solver */
+#define INNER_MAX_TOLFAC SUN_RCONST(1.e3)
+
 /* ---------------
  * Macro accessors
  * --------------- */
 
-#define MRIHTOL_CONTENT(C) ((SUNAdaptControllerContent_MRIHTol)(C->content))
-#define MRIHTOL_CSLOW(C)   (MRIHTOL_CONTENT(C)->HControl)
-#define MRIHTOL_CFAST(C)   (MRIHTOL_CONTENT(C)->TolControl)
+#define MRIHTOL_CONTENT(C)          ((SUNAdaptControllerContent_MRIHTol)(C->content))
+#define MRIHTOL_CSLOW(C)            (MRIHTOL_CONTENT(C)->HControl)
+#define MRIHTOL_CFAST(C)            (MRIHTOL_CONTENT(C)->TolControl)
+#define MRIHTOL_INNER_MAX_RELCH(C)  (MRIHTOL_CONTENT(C)->inner_max_relch)
+#define MRIHTOL_INNER_MIN_TOLFAC(C) (MRIHTOL_CONTENT(C)->inner_min_tolfac)
+#define MRIHTOL_INNER_MAX_TOLFAC(C) (MRIHTOL_CONTENT(C)->inner_max_tolfac)
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -78,10 +92,31 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNContext sunctx,
   content->HControl   = HControl;
   content->TolControl = TolControl;
 
+  /* Set parameters to default values */
+  content->inner_max_relch  = INNER_MAX_RELCH;
+  content->inner_min_tolfac = INNER_MIN_TOLFAC;
+  content->inner_max_tolfac = INNER_MAX_TOLFAC;
+
   /* Attach content */
   C->content = content;
 
   return (C);
+}
+
+/* -----------------------------------------------------------------
+ * Function to set MRIHTol parameters
+ */
+
+SUNErrCode SUNAdaptController_SetParams_MRIHTol(SUNAdaptController C,
+                                                sunrealtype inner_max_relch,
+                                                sunrealtype inner_min_tolfac,
+                                                sunrealtype inner_max_tolfac)
+{
+  SUNFunctionBegin(C->sunctx);
+  if (inner_max_relch != 0)   MRIHTOL_INNER_MAX_RELCH(C)  = inner_max_relch;
+  if (inner_min_tolfac != 0)  MRIHTOL_INNER_MIN_TOLFAC(C) = inner_min_tolfac;
+  if (inner_max_tolfac != 0)  MRIHTOL_INNER_MAX_TOLFAC(C) = inner_max_tolfac;
+  return SUN_SUCCESS;
 }
 
 /* -----------------------------------------------------------------
@@ -116,24 +151,27 @@ SUNErrCode SUNAdaptController_EstimateStepTol_MRIHTol(
   SUNFunctionBegin(C->sunctx);
   SUNAssert(Hnew, SUN_ERR_ARG_CORRUPT);
   SUNAssert(tolfacnew, SUN_ERR_ARG_CORRUPT);
-  sunrealtype Htolnew;
+  sunrealtype tolfacest;
 
-  /* Call slow time scale sub-controller to fill Hnew */
+  /* Call slow time scale sub-controller to fill Hnew -- note that all heuristics
+     bounds on Hnew will be enforced by the time integrator itself */
   SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CSLOW(C), H, P, DSM, Hnew));
 
   /* Call fast time scale sub-controller with order=1: no matter the integrator
      order, we expect its error to be proportional to the tolerance factor */
   SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CFAST(C), tolfac, 1, dsm,
-                                               tolfacnew));
+                                               &tolfacest));
 
-  /* /\* Call fast time scale sub-controller with order=1: no matter the integrator */
-  /*    order, we expect its error to be proportional to H times the tolerance factor *\/ */
-  /* SUNCheckCall(SUNAdaptController_EstimateStep(MRIHTOL_CFAST(C), H * tolfac, 1, */
-  /*                                              dsm, &Htolnew)); */
+  /* Enforce bounds on estimated tolerance factor */
+  /*     keep relative change within bounds */
+  tolfacest = SUNMAX(tolfacest, tolfac / MRIHTOL_INNER_MAX_RELCH(C));
+  tolfacest = SUNMIN(tolfacest, tolfac * MRIHTOL_INNER_MAX_RELCH(C));
+  /*     enforce absolute min/max bounds */
+  tolfacest = SUNMAX(tolfacest, MRIHTOL_INNER_MIN_TOLFAC(C));
+  tolfacest = SUNMIN(tolfacest, MRIHTOL_INNER_MAX_TOLFAC(C));
 
-  /* Remove previous slow step size from estimated tolerance factor */
-  *tolfacnew = Htolnew / H;
-
+  /* Set result and return */
+  *tolfacnew = tolfacest;
   return SUN_SUCCESS;
 }
 
@@ -150,6 +188,9 @@ SUNErrCode SUNAdaptController_SetDefaults_MRIHTol(SUNAdaptController C)
   SUNFunctionBegin(C->sunctx);
   SUNCheckCall(SUNAdaptController_SetDefaults(MRIHTOL_CSLOW(C)));
   SUNCheckCall(SUNAdaptController_SetDefaults(MRIHTOL_CFAST(C)));
+  MRIHTOL_INNER_MAX_RELCH(C)  = INNER_MAX_RELCH;
+  MRIHTOL_INNER_MIN_TOLFAC(C) = INNER_MIN_TOLFAC;
+  MRIHTOL_INNER_MAX_TOLFAC(C) = INNER_MAX_TOLFAC;
   return SUN_SUCCESS;
 }
 
@@ -158,6 +199,15 @@ SUNErrCode SUNAdaptController_Write_MRIHTol(SUNAdaptController C, FILE* fptr)
   SUNFunctionBegin(C->sunctx);
   SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
   fprintf(fptr, "Multirate H-Tol SUNAdaptController module:\n");
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+  fprintf(fptr, "  inner_max_relch  = %32Lg\n", MRIHTOL_INNER_MAX_RELCH(C));
+  fprintf(fptr, "  inner_min_tolfac = %32Lg\n", MRIHTOL_INNER_MIN_TOLFAC(C));
+  fprintf(fptr, "  inner_max_tolfac = %32Lg\n", MRIHTOL_INNER_MAX_TOLFAC(C));
+#else
+  fprintf(fptr, "  inner_max_relch  = %16g\n", MRIHTOL_INNER_MAX_RELCH(C));
+  fprintf(fptr, "  inner_min_tolfac = %16g\n", MRIHTOL_INNER_MIN_TOLFAC(C));
+  fprintf(fptr, "  inner_max_tolfac = %16g\n", MRIHTOL_INNER_MAX_TOLFAC(C));
+#endif
   fprintf(fptr, "\nSlow step controller:\n");
   SUNCheckCall(SUNAdaptController_Write(MRIHTOL_CSLOW(C), fptr));
   fprintf(fptr, "\nFast tolerance controller:\n");
