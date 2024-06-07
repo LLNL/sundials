@@ -542,7 +542,7 @@ int main(int argc, char* argv[])
     verr = SUNRabs(NV_Ith_S(y, 1) - NV_Ith_S(yref, 1));
     werr = SUNRabs(NV_Ith_S(y, 2) - NV_Ith_S(yref, 2));
     printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM
-           "   %.1" ESYM "   %.1" ESYM "   %.1" ESYM "   %6.2" FSYM "\n",
+           "   %.1" ESYM "   %.1" ESYM "   %.1" ESYM "\n",
            t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2), uerr, verr, werr);
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
