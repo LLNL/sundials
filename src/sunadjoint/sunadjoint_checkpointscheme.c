@@ -27,24 +27,27 @@ SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(
   check_scheme                            = malloc(sizeof(*check_scheme));
   SUNAssert(check_scheme, SUN_ERR_MALLOC_FAIL);
 
-  check_scheme->sunctx         = sunctx;
-  check_scheme->content        = NULL;
-  check_scheme->ops            = NULL;
-  check_scheme->root_data_node = NULL;
+  check_scheme->sunctx  = sunctx;
+  check_scheme->content = NULL;
+  check_scheme->ops     = NULL;
 
   SUNAdjointCheckpointScheme_Ops ops = NULL;
   ops                                = malloc(sizeof(*ops));
   SUNAssert(ops, SUN_ERR_MALLOC_FAIL);
 
   ops->shouldWeSave   = NULL;
+  ops->shouldWeDelete = NULL;
   ops->insert         = NULL;
   ops->insertVector   = NULL;
-  ops->shouldWeDelete = NULL;
-  ops->remove         = NULL;
-  ops->removeRange    = NULL;
   ops->load           = NULL;
   ops->loadVector     = NULL;
+  ops->remove         = NULL;
+  ops->removeVector   = NULL;
+  ops->removeRange    = NULL;
   ops->destroy        = NULL;
+
+  check_scheme->ops = ops;
+  *check_scheme_ptr = check_scheme;
 
   return SUN_SUCCESS;
 }
@@ -58,6 +61,19 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave(
   {
     return check_scheme->ops->shouldWeSave(check_scheme, step_num, stage_num, t,
                                            yes_or_no);
+  }
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
+SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete(
+  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
+  sunindextype stage_num, sunbooleantype* yes_or_no)
+{
+  SUNFunctionBegin(check_scheme->sunctx);
+  if (check_scheme->ops->shouldWeDelete)
+  {
+    return check_scheme->ops->shouldWeDelete(check_scheme, step_num, stage_num,
+                                             yes_or_no);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
@@ -87,31 +103,6 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector(
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, sunbooleantype* yes_or_no)
-{
-  SUNFunctionBegin(check_scheme->sunctx);
-  if (check_scheme->ops->shouldWeDelete)
-  {
-    return check_scheme->ops->shouldWeDelete(check_scheme, step_num, stage_num,
-                                             yes_or_no);
-  }
-  return SUN_ERR_NOT_IMPLEMENTED;
-}
-
-SUNErrCode SUNAdjointCheckpointScheme_Remove(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, SUNDataNode* out)
-{
-  SUNFunctionBegin(check_scheme->sunctx);
-  if (check_scheme->ops->remove)
-  {
-    return check_scheme->ops->remove(check_scheme, step_num, stage_num, out);
-  }
-  return SUN_ERR_NOT_IMPLEMENTED;
-}
-
 SUNErrCode SUNAdjointCheckpointScheme_Load(SUNAdjointCheckpointScheme check_scheme,
                                            sunindextype step_num,
                                            sunindextype stage_num,
@@ -133,6 +124,31 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector(
   if (check_scheme->ops->loadVector)
   {
     return check_scheme->ops->loadVector(check_scheme, step_num, stage_num, out);
+  }
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
+SUNErrCode SUNAdjointCheckpointScheme_Remove(
+  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
+  sunindextype stage_num, SUNDataNode* out)
+{
+  SUNFunctionBegin(check_scheme->sunctx);
+  if (check_scheme->ops->remove)
+  {
+    return check_scheme->ops->remove(check_scheme, step_num, stage_num, out);
+  }
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
+SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(
+  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
+  sunindextype stage_num, N_Vector* out)
+{
+  SUNFunctionBegin(check_scheme->sunctx);
+  if (check_scheme->ops->removeVector)
+  {
+    return check_scheme->ops->removeVector(check_scheme, step_num, stage_num,
+                                           out);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }

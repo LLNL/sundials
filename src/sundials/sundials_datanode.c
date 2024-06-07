@@ -11,10 +11,9 @@
  * -----------------------------------------------------------------*/
 
 #include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundatanode_inmem.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_datanode.h>
-
-#include "sundatanode_inmem.h"
 
 SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node_out)
 {

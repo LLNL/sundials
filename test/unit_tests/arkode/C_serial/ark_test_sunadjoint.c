@@ -20,12 +20,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sunadjoint/sunadjoint_checkpointscheme.h>
+#include <sunadjoint/sunadjoint_checkpointscheme_basic.h>
 #include <sunadjoint/sunadjoint_solver.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
 #include "sundials/sundials_context.h"
+#include "sundials/sundials_datanode.h"
 #include "sundials/sundials_nvector.h"
 
 static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
@@ -130,9 +132,8 @@ void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
 
 int forward_solution(SUNContext sunctx, void* arkode_mem,
                      SUNAdjointCheckpointScheme checkpoint_scheme,
-                     sunrealtype t0, sunrealtype tf, N_Vector u)
+                     sunrealtype t0, sunrealtype tf, sunrealtype dt, N_Vector u)
 {
-  const sunrealtype dt = 1e-2;
   ARKodeSetUserData(arkode_mem, (void*)params);
   ARKodeSetFixedStep(arkode_mem, dt);
   ARKodeSetMaxNumSteps(arkode_mem, (tf - t0) / dt + 1);
@@ -290,12 +291,18 @@ int main(int argc, char* argv[])
   // Create the ARKODE stepper that will be used for both the forward solution and adjoint solution.
   //
 
-  sunrealtype t0   = 0.0;
-  sunrealtype tf   = 10.0;
-  void* arkode_mem = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
+  const sunrealtype dt = 1e-1;
+  sunrealtype t0       = 0.0;
+  sunrealtype tf       = 10.0;
+  void* arkode_mem     = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
 
   // Enable checkpointing during the forward solution
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
+
+  SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, 1,
+                                          ((tf - t0) / dt + 1) * 4, SUNTRUE,
+                                          SUNFALSE, sunctx, &checkpoint_scheme);
+
   ARKodeSetCheckpointScheme(arkode_mem, checkpoint_scheme);
 
   //
@@ -303,7 +310,20 @@ int main(int argc, char* argv[])
   //
 
   sunrealtype t = t0;
-  forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, u);
+  // forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
+
+  SUNAdjointCheckpointScheme_InsertVector(checkpoint_scheme, 0, -1, 0, u);
+  // SUNAdjointCheckpointScheme_InsertVector(checkpoint_scheme, 0, 0, 0, u);
+  // SUNAdjointCheckpointScheme_InsertVector(checkpoint_scheme, 0, 1, 0, u);
+  // SUNAdjointCheckpointScheme_InsertVector(checkpoint_scheme, 1, -1, 0, u);
+  // SUNAdjointCheckpointScheme_InsertVector(checkpoint_scheme, 1, 0, 0, u);
+  // SUNAdjointCheckpointScheme_InsertVector(checkpoint_scheme, 1, 1, 0, u);
+
+  N_Vector loaded_vec = NULL;
+  SUNAdjointCheckpointScheme_LoadVector(checkpoint_scheme, 0, -1, &loaded_vec);
+
+  fprintf(stdout, "%p:\n", (void*)loaded_vec);
+  N_VPrint(loaded_vec);
 
   //
   // Now compute the adjoint solution

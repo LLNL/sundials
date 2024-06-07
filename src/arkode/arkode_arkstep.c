@@ -15,18 +15,20 @@
  * module.
  *--------------------------------------------------------------*/
 
+#include <nvector/nvector_manyvector.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
-#include <nvector/nvector_manyvector.h>
 
 #include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
 #include "arkode_arkstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "arkode_types_impl.h"
+#include "sunadjoint/sunadjoint_checkpointscheme.h"
 #include "sunadjoint/sunadjoint_solver.h"
 
 #define FIXED_LIN_TOL
@@ -2092,6 +2094,21 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (*nflagPtr < 0) { return (*nflagPtr); }
   if (*nflagPtr > 0) { return (TRY_AGAIN); }
 
+  if (*nflagPtr == 0)
+  {
+    sunbooleantype do_save;
+    SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
+                                            ark_mem->nst, -1, ark_mem->tcur,
+                                            &do_save);
+    if (do_save)
+    {
+      fprintf(stdout, ">>>> inserting step %d as checkpoint\n", ark_mem->nst);
+      SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
+                                              ark_mem->nst, -1, ark_mem->tcur,
+                                              ark_mem->ycur);
+    }
+  }
+
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkStep_TakeStep_Z",
                      "updated solution", "ycur(:) =", "");
@@ -2107,7 +2124,6 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   return (ARK_SUCCESS);
 }
-
 
 /*---------------------------------------------------------------
   arkStep_TakeStep_ERK_Adjoint:
@@ -2141,22 +2157,22 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 
   /* local shortcuts for fused vector operations */
   sunrealtype* cvals = step_mem->cvals;
-  N_Vector* Xvecs = step_mem->Xvecs;
+  N_Vector* Xvecs    = step_mem->Xvecs;
 
   /* local shortcuts for readability */
-  N_Vector sens_np1 = ark_mem->yn;
-  N_Vector sens_n = ark_mem->ycur;
-  N_Vector Sens_i = step_mem->sdata;
-  N_Vector lambda_np1 = N_VGetSubvector_ManyVector(sens_np1, 0);
-  N_Vector mu_np1 = N_VGetSubvector_ManyVector(sens_np1, 1);
-  N_Vector Lambda_i = N_VGetSubvector_ManyVector(Sens_i, 0);
-  N_Vector nu_i = N_VGetSubvector_ManyVector(Sens_i, 1);
-  N_Vector lambda_n = N_VGetSubvector_ManyVector(sens_n, 0);
-  N_Vector mu_n = N_VGetSubvector_ManyVector(sens_n, 1);
+  N_Vector sens_np1         = ark_mem->yn;
+  N_Vector sens_n           = ark_mem->ycur;
+  N_Vector Sens_i           = step_mem->sdata;
+  N_Vector lambda_np1       = N_VGetSubvector_ManyVector(sens_np1, 0);
+  N_Vector mu_np1           = N_VGetSubvector_ManyVector(sens_np1, 1);
+  N_Vector Lambda_i         = N_VGetSubvector_ManyVector(Sens_i, 0);
+  N_Vector nu_i             = N_VGetSubvector_ManyVector(Sens_i, 1);
+  N_Vector lambda_n         = N_VGetSubvector_ManyVector(sens_n, 0);
+  N_Vector mu_n             = N_VGetSubvector_ManyVector(sens_n, 1);
   N_Vector* stage_solutions = step_mem->Fe;
 
   /* Loop over stages */
-  for (int is = step_mem->stages-1; is >= 0; --is)
+  for (int is = step_mem->stages - 1; is >= 0; --is)
   {
     /* Set current stage time(s) */
     ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is] * ark_mem->h;
@@ -2168,11 +2184,11 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     int nvec = 0;
     for (int js = is; js < step_mem->stages; ++js)
     {
-      cvals[nvec] = ark_mem->h*step_mem->Be->A[js][is];
+      cvals[nvec] = ark_mem->h * step_mem->Be->A[js][is];
       Xvecs[nvec] = N_VGetSubvector_ManyVector(stage_solutions[js], 0);
       nvec++;
     }
-    cvals[nvec] = ark_mem->h*step_mem->Be->b[is];
+    cvals[nvec] = ark_mem->h * step_mem->Be->b[is];
     Xvecs[nvec] = lambda_np1;
     nvec++;
 
@@ -2187,11 +2203,11 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     nvec = 0;
     for (int js = is; js < step_mem->stages; ++js)
     {
-      cvals[nvec] = ark_mem->h*step_mem->Be->A[js][is];
+      cvals[nvec] = ark_mem->h * step_mem->Be->A[js][is];
       Xvecs[nvec] = N_VGetSubvector_ManyVector(stage_solutions[js], 1);
       nvec++;
     }
-    cvals[nvec] = ark_mem->h*step_mem->Be->b[is];
+    cvals[nvec] = ark_mem->h * step_mem->Be->b[is];
     Xvecs[nvec] = mu_np1;
     nvec++;
 
@@ -2200,7 +2216,8 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
     /* Compute stage solutions \Lambda_i, \nu_i by applying f_{y,p}^T (which is what fe does in this case)  */
-    retval = step_mem->fe(ark_mem->tcur, Sens_i, stage_solutions[is], ark_mem->user_data);
+    retval = step_mem->fe(ark_mem->tcur, Sens_i, stage_solutions[is],
+                          ark_mem->user_data);
     step_mem->nfe++; // TODO(CJB): fe calls the Jacobian functions, so should we track those too? (they will be equal to nfe)
   }
 
@@ -2212,7 +2229,8 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   for (int j = 0; j < step_mem->stages; j++)
   {
     cvals[nvec] = ONE;
-    Xvecs[nvec] = stage_solutions[j]; // this needs to be the stage values [Lambda_i, nu_i]
+    Xvecs[nvec] =
+      stage_solutions[j]; // this needs to be the stage values [Lambda_i, nu_i]
     nvec++;
   }
   cvals[nvec] = ONE;
@@ -2224,7 +2242,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   retval = N_VLinearCombination(nvec, cvals, Xvecs, sens_n);
   if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
-  *dsmPtr = ZERO;
+  *dsmPtr   = ZERO;
   *nflagPtr = 0;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -3502,10 +3520,10 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens, N_Vector sensDot, void* content
   SUNAdjointSolver adj_solver = (SUNAdjointSolver)content;
   void* user_data             = adj_solver->user_data;
 
-  N_Vector lambda = N_VGetSubvector_ManyVector(sens, 0);
-  N_Vector mu = N_VGetSubvector_ManyVector(sens, 1);
+  N_Vector lambda    = N_VGetSubvector_ManyVector(sens, 0);
+  N_Vector mu        = N_VGetSubvector_ManyVector(sens, 1);
   N_Vector lambdaDot = N_VGetSubvector_ManyVector(sensDot, 0);
-  N_Vector muDot = N_VGetSubvector_ManyVector(sensDot, 1);
+  N_Vector muDot     = N_VGetSubvector_ManyVector(sensDot, 1);
 
   N_Vector fake_checkpoint = N_VClone(lambda);
   N_VConst(ONE, fake_checkpoint);
@@ -3521,39 +3539,38 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens, N_Vector sensDot, void* content
   }
   else if (adj_solver->Jvp)
   {
-    adj_solver->Jvp(lambda, lambdaDot, t, fake_checkpoint, NULL, adj_solver->user_data,
-                    NULL);
+    adj_solver->Jvp(lambda, lambdaDot, t, fake_checkpoint, NULL,
+                    adj_solver->user_data, NULL);
   }
   else if (adj_solver->vJp)
   {
-    adj_solver->vJp(lambda, lambdaDot, t, fake_checkpoint, NULL, adj_solver->user_data,
-                    NULL);
+    adj_solver->vJp(lambda, lambdaDot, t, fake_checkpoint, NULL,
+                    adj_solver->user_data, NULL);
   }
 
   if (adj_solver->JacPFn)
   {
     adj_solver->JacPFn(t, fake_checkpoint, NULL, adj_solver->JacP,
                        adj_solver->user_data, NULL, NULL, NULL);
-    if (SUNMatMatvecTranspose(adj_solver->JacP, mu, muDot))
-    {
-      return -1;
-    }
+    if (SUNMatMatvecTranspose(adj_solver->JacP, mu, muDot)) { return -1; }
   }
   else if (adj_solver->JPvp)
   {
-    adj_solver->JPvp(mu, muDot, t, fake_checkpoint, NULL,
-                     adj_solver->user_data, NULL);
+    adj_solver->JPvp(mu, muDot, t, fake_checkpoint, NULL, adj_solver->user_data,
+                     NULL);
   }
   else if (adj_solver->vJPp)
   {
-    adj_solver->vJPp(mu, muDot, t, fake_checkpoint, NULL,
-                     adj_solver->user_data, NULL);
+    adj_solver->vJPp(mu, muDot, t, fake_checkpoint, NULL, adj_solver->user_data,
+                     NULL);
   }
 
   return 0;
 }
 
-int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem, ARKodeARKStepMem step_mem, int lineno, const char* fname, const char* filename)
+int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem,
+                                       ARKodeARKStepMem step_mem, int lineno,
+                                       const char* fname, const char* filename)
 {
   if (!ark_mem->fixedstep)
   {
@@ -3578,8 +3595,8 @@ int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem, ARKodeARKStepMem step_
 
   if (ark_mem->relax_enabled)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname,
-                    filename, "SUNAdjointSolver is not compatible with relaxation");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname, filename,
+                    "SUNAdjointSolver is not compatible with relaxation");
     return ARK_ILL_INPUT;
   }
 
@@ -3608,7 +3625,8 @@ int ARKStepCreateAdjointSolver(void* arkode_mem, sunindextype num_cost,
     return ARK_ILL_INPUT;
   }
 
-  if (arkStepCompatibleWithAdjointSolver(ark_mem, step_mem, __LINE__, __func__, __FILE__))
+  if (arkStepCompatibleWithAdjointSolver(ark_mem, step_mem, __LINE__, __func__,
+                                         __FILE__))
   {
     return ARK_ILL_INPUT;
   }

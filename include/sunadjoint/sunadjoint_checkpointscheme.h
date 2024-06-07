@@ -33,6 +33,10 @@ struct SUNAdjointCheckpointScheme_Ops_
                              sunindextype stage_num, sunrealtype t,
                              sunbooleantype* yes_or_no);
 
+  // This function lets the caller know if they should remove the checkpoint state.
+  SUNErrCode (*shouldWeDelete)(SUNAdjointCheckpointScheme, sunindextype step_num,
+                               sunindextype stage_num, sunbooleantype* yes_or_no);
+
   // This function inserts the state (step_num, stage_num) in the checkpoint list.
   SUNErrCode (*insert)(SUNAdjointCheckpointScheme, sunindextype step_num,
                        sunindextype stage_num, sunrealtype t, SUNDataNode state);
@@ -41,9 +45,14 @@ struct SUNAdjointCheckpointScheme_Ops_
                              sunindextype stage_num, sunrealtype t,
                              N_Vector state);
 
-  // This function lets the caller know if they should remove the checkpoint state.
-  SUNErrCode (*shouldWeDelete)(SUNAdjointCheckpointScheme, sunindextype step_num,
-                               sunindextype stage_num, sunbooleantype* yes_or_no);
+  // This function loads the state (step_num, stage_num) into 'out'.
+  // Passing in 0 for stage_num will return the step vector,
+  // but data for the stages could be fetched too depending on the implementation.
+  SUNErrCode (*load)(SUNAdjointCheckpointScheme, sunindextype step_num,
+                     sunindextype stage_num, SUNDataNode* out);
+
+  SUNErrCode (*loadVector)(SUNAdjointCheckpointScheme, sunindextype step_num,
+                           sunindextype stage_num, N_Vector* out);
 
   // This function removes the state (step_num, stage_num) from the list.
   // Optionally, the removed state will be in the SUNDataNode 'out'.
@@ -61,65 +70,77 @@ struct SUNAdjointCheckpointScheme_Ops_
                             sunindextype stage_num_start,
                             sunindextype stage_num_end);
 
-  // This function loads the state (step_num, stage_num) into 'out'.
-  // Passing in 0 for stage_num will return the step vector,
-  // but data for the stages could be fetched too depending on the implementation.
-  SUNErrCode (*load)(SUNAdjointCheckpointScheme, sunindextype step_num,
-                     sunindextype stage_num, SUNDataNode* out);
-
-  SUNErrCode (*loadVector)(SUNAdjointCheckpointScheme, sunindextype step_num,
-                           sunindextype stage_num, N_Vector* out);
-
   SUNErrCode (*destroy)(SUNAdjointCheckpointScheme*);
 };
 
 struct SUNAdjointCheckpointScheme_
 {
   SUNAdjointCheckpointScheme_Ops ops;
-  SUNDataNode root_data_node;
   void* content;
   SUNContext sunctx;
 };
 
+SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(SUNContext sunctx,
                                                SUNAdjointCheckpointScheme*);
 
+SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave(SUNAdjointCheckpointScheme,
                                                    sunindextype step_num,
                                                    sunindextype stage_num,
                                                    sunrealtype t,
                                                    sunbooleantype* yes_or_no);
 
-SUNErrCode SUNAdjointCheckpointScheme_Insert(SUNAdjointCheckpointScheme,
-                                             sunindextype step_num,
-                                             sunindextype stage_num,
-                                             sunrealtype t, SUNDataNode state);
-
-SUNErrCode SUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme,
-                                                   sunindextype step_num,
-                                                   sunindextype stage_num,
-                                                   sunrealtype t, N_Vector state);
-
+SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete(SUNAdjointCheckpointScheme,
                                                      sunindextype step_num,
                                                      sunindextype stage_num,
                                                      sunbooleantype* yes_or_no);
 
-SUNErrCode SUNAdjointCheckpointScheme_Remove(SUNAdjointCheckpointScheme,
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_Insert(SUNAdjointCheckpointScheme,
                                              sunindextype step_num,
                                              sunindextype stage_num,
-                                             SUNDataNode* out);
+                                             sunrealtype t, SUNDataNode state);
 
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme,
+                                                   sunindextype step_num,
+                                                   sunindextype stage_num,
+                                                   sunrealtype t, N_Vector state);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_Load(SUNAdjointCheckpointScheme,
                                            sunindextype step_num,
                                            sunindextype stage_num,
                                            SUNDataNode* out);
 
+SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme,
                                                  sunindextype step_num,
                                                  sunindextype stage_num,
                                                  N_Vector* out);
 
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_Remove(SUNAdjointCheckpointScheme,
+                                             sunindextype step_num,
+                                             sunindextype stage_num,
+                                             SUNDataNode* out);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme,
+                                                   sunindextype step_num,
+                                                   sunindextype stage_num,
+                                                   N_Vector* out);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_RemoveRange(SUNAdjointCheckpointScheme,
+                                                  sunindextype step_num_start,
+                                                  sunindextype step_num_end,
+                                                  sunindextype stage_num_start,
+                                                  sunindextype stage_num_end);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_Destroy(SUNAdjointCheckpointScheme*);
 
 #ifdef __cplusplus

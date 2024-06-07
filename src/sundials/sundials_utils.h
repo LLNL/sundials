@@ -24,6 +24,15 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
 
+static inline char* sunUnsignedToString(uint64_t uint)
+{
+  char* str     = NULL;
+  size_t length = snprintf(NULL, 0, "%d", uint);
+  str           = malloc(sizeof(*str) * (length + 1));
+  snprintf(str, length + 1, "%d", uint);
+  return str;
+}
+
 static inline char* sunCombineFileAndLine(int line, const char* file)
 {
   size_t total_str_len = strlen(file) + 6;
