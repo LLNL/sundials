@@ -393,8 +393,6 @@ SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
   **Returns:**
     * A SUNErrCode indicating success or a failure
  */
-#if SUNDIALS_MPI_ENABLED
-// TODO(CJB): update this function for ArrayList
 SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
 {
   int i;
@@ -408,10 +406,26 @@ SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
   /* Copy the values into a new array */
   for (i = 0; i < SUNHashMap_Capacity(map); i++)
   {
-    void* value = SUNArrayList_SUNHashMapKeyValue_At(map->buckets, i);
-    if (value) { (*values)[count++] = value; }
+    SUNHashMapKeyValue kvp = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, i);
+    if (kvp) { (*values)[count++] = kvp->value; }
   }
 
   return SUN_SUCCESS;
 }
-#endif
+
+SUNErrCode SUNHashMap_PrintKeys(SUNHashMap map, FILE* file)
+{
+  int i;
+  int count = 0;
+
+  if (!map) { return SUN_ERR_ARG_CORRUPT; }
+
+  /* Print keys into a new array */
+  for (i = 0; i < SUNHashMap_Capacity(map); i++)
+  {
+    SUNHashMapKeyValue kvp = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, i);
+    if (kvp) { fprintf(file, "%s\n", kvp->key); }
+  }
+
+  return SUN_SUCCESS;
+}

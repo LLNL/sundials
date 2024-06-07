@@ -27,9 +27,9 @@
 extern "C" {
 #endif
 
-typedef struct SUNHashMapKeyValue_s* SUNHashMapKeyValue;
+typedef struct SUNHashMapKeyValue_* SUNHashMapKeyValue;
 
-struct SUNHashMapKeyValue_s
+struct SUNHashMapKeyValue_
 {
   const char* key;
   void* value;
@@ -38,9 +38,9 @@ struct SUNHashMapKeyValue_s
 #define TTYPE SUNHashMapKeyValue
 #include "sundials_arraylist.h"
 
-typedef struct SUNHashMap_s* SUNHashMap;
+typedef struct SUNHashMap_* SUNHashMap;
 
-struct SUNHashMap_s
+struct SUNHashMap_
 {
   size_t capacity; /* max number of entries */
   SUNArrayList_SUNHashMapKeyValue buckets;
@@ -59,9 +59,8 @@ int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value);
 SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
                            int (*compar)(const void*, const void*));
 
-#if SUNDIALS_MPI_ENABLED
 SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size);
-#endif
+SUNErrCode SUNHashMap_PrintKeys(SUNHashMap map, FILE* file);
 
 #ifdef __cplusplus
 }
