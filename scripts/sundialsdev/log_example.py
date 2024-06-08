@@ -27,8 +27,8 @@ def main():
 
     parser = argparse.ArgumentParser(description='Plots')
 
-    parser.add_argument('logfile', type=str,
-                        help='Log file to plot')
+    parser.add_argument('logfiles', type=str, nargs='+',
+                        help='Log files to plot')
 
     parser.add_argument('--val', type=str, default='h',
                         choices=['h', 'q', 'dsm'],
@@ -43,6 +43,12 @@ def main():
     parser.add_argument('--time-range', type=float, nargs=2,
                         default=None, help='Time range to plot')
 
+    parser.add_argument('--scatter', action='store_true',
+                        help='Create scatter plot')
+
+    parser.add_argument('--labels', type=str, nargs='+',
+                        help='Plot labels')
+
     parser.add_argument('--save', type=str, nargs='?',
                         const='fig.pdf', default=None,
                         help='''Save figure to file''')
@@ -50,32 +56,71 @@ def main():
     # parse command line args
     args = parser.parse_args()
 
-    # parse log file
-    log = sunlog.log_file_to_list(args.logfile)
-
-    # plot log data
-    steps_s, times_s, vals_s = sunlog.get_history(log, args.val, 'success',
-                                                  step_range=args.step_range,
-                                                  time_range=args.time_range)
-
-    steps_f, times_f, vals_f = sunlog.get_history(log, args.val, 'failed',
-                                                  step_range=args.step_range,
-                                                  time_range=args.time_range)
-
-    if args.step_number:
-        x_s = steps_s
-        x_f = steps_f
-    else:
-        x_s = times_s
-        x_f = times_f
-
     fig, ax = plt.subplots()
+    colors = plt.get_cmap("tab10")
 
-    ax.scatter(x_s, vals_s, color='green', marker='o', label='successful',
-               zorder=0.1)
+    for idx, lf in enumerate(args.logfiles):
 
-    ax.scatter(x_f, vals_f, color='red', marker='x', label='failed',
-               zorder=0.2)
+        # parse log file
+        log = sunlog.log_file_to_list(lf)
+
+        # get successful step data
+        steps_s, times_s, vals_s = sunlog.get_history(log, args.val, 'success',
+                                                      step_range=args.step_range,
+                                                      time_range=args.time_range)
+
+        # get data for error test failures
+        steps_etf, times_etf, vals_etf = sunlog.get_history(log, args.val, 'failed error test',
+                                                            step_range=args.step_range,
+                                                            time_range=args.time_range)
+
+        # get data for solver failures
+        steps_sf, times_sf, vals_sf = sunlog.get_history(log, args.val, 'failed solve',
+                                                         step_range=args.step_range,
+                                                         time_range=args.time_range)
+
+        # plot log data
+        if args.step_number:
+            x_s = steps_s
+            x_etf = steps_etf
+            x_sf = steps_sf
+        else:
+            x_s = times_s
+            x_etf = times_etf
+            x_sf = times_sf
+
+        if len(args.logfiles) == 1:
+            s_color = 'green'
+            etf_color = 'red'
+            sf_color = 'darkorange'
+        else:
+            s_color = colors(idx)
+            etf_color = s_color
+            sf_color = s_color
+
+        if args.labels:
+            s_label = f'{args.labels[idx]} successful'
+            etf_label = f'{args.labels[idx]} error test failed'
+            sf_label = f'{args.labels[idx]} solver failed'
+        else:
+            s_label = 'successful'
+            etf_label = 'error test failed'
+            sf_label = 'solver failed'
+
+        # plot successful data
+        if args.scatter:
+            ax.scatter(x_s, vals_s, color=s_color, marker='o', label=s_label,
+                       zorder=0.1)
+        else:
+            ax.plot(x_s, vals_s, color=s_color, marker='.', label=s_label,
+                    zorder=0.1)
+
+        # always add failures as scatter plot
+        ax.scatter(x_etf, vals_etf, color=etf_color, marker='x', label=etf_label,
+                   zorder=0.2)
+
+        ax.scatter(x_sf, vals_sf, color=sf_color, marker='d', label=sf_label,
+                   zorder=0.2)
 
     if args.step_number:
         ax.set_xlabel("step")
