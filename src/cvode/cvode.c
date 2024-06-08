@@ -2353,12 +2353,12 @@ static int cvStep(CVodeMem cv_mem)
 
   for (;;)
   {
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvStep",
-                       "enter-step-attempt-loop",
-                       "step = %li, h = %.16g, q = %d, t_n = %.16g",
-                       cv_mem->cv_nst, cv_mem->cv_next_h, cv_mem->cv_next_q,
-                       cv_mem->cv_tn);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO, __func__,
+                       "begin-step-attempt",
+                       "step = %li, t_n = %.16g, h = %.16g, q = %d",
+                       cv_mem->cv_nst + 1, cv_mem->cv_tn, cv_mem->cv_h,
+                       cv_mem->cv_q);
 #endif
 
     cvPredict(cv_mem);
@@ -2366,6 +2366,15 @@ static int cvStep(CVodeMem cv_mem)
 
     nflag = cvNls(cv_mem, nflag);
     kflag = cvHandleNFlag(cv_mem, &nflag, saved_t, &ncf);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    if (kflag == PREDICT_AGAIN || kflag != DO_ERROR_TEST)
+    {
+      SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO, __func__,
+                         "end-step-attempt",
+                         "status = failed solve, kflag = %i", kflag);
+    }
+#endif
 
     /* Go back in loop if we need to predict again (nflag=PREV_CONV_FAIL) */
     if (kflag == PREDICT_AGAIN) { continue; }
@@ -2381,6 +2390,15 @@ static int cvStep(CVodeMem cv_mem)
       /* Perform projection (nflag=CV_SUCCESS) */
       pflag = cvDoProjection(cv_mem, &nflag, saved_t, &npf);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+      if (pflag != CV_SUCCESS)
+      {
+        SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO, __func__,
+                           "end-step-attempt",
+                           "status = failed projection, pflag = %i", pflag);
+      }
+#endif
+
       /* Go back in loop if we need to predict again (nflag=PREV_PROJ_FAIL) */
       if (pflag == PREDICT_AGAIN) { continue; }
 
@@ -2391,6 +2409,16 @@ static int cvStep(CVodeMem cv_mem)
     /* Perform error test (nflag=CV_SUCCESS) */
     eflag = cvDoErrorTest(cv_mem, &nflag, saved_t, &nef, &dsm);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    if (eflag != CV_SUCCESS)
+    {
+      SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO, __func__,
+                         "end-step-attempt",
+                         "status = failed error-test, dsm = %.16g, eflag = %i",
+                         dsm, eflag);
+    }
+#endif
+
     /* Go back in loop if we need to predict again (nflag=PREV_ERR_FAIL) */
     if (eflag == TRY_AGAIN) { continue; }
 
@@ -2400,6 +2428,11 @@ static int cvStep(CVodeMem cv_mem)
     /* Error test passed (eflag=CV_SUCCESS), break from loop */
     break;
   }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO, __func__",
+                     "end-step-attempt", "status = success, dsm = %.16g", dsm);
+#endif
 
   /* Nonlinear system solve and error test were both successful.
      Update data, and consider change of step and/or order.       */
@@ -2703,7 +2736,7 @@ static void cvPredict(CVodeMem cv_mem)
   }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvPredict",
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
                      "return", "zn_0(:) =", "");
   N_VPrintFile(cv_mem->cv_zn[0], CV_LOGGER->debug_fp);
 #endif
@@ -3293,7 +3326,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
   dsm = cv_mem->cv_acnrm * cv_mem->cv_tq[2];
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvDoErrorTest",
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
                      "error-test", "step = %li, h = %.16g, dsm = %.16g",
                      cv_mem->cv_nst, cv_mem->cv_h, dsm);
 #endif
@@ -3333,7 +3366,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
     cvRescale(cv_mem);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvDoErrorTest",
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
                        "new-step-eta", "eta = %.16g", cv_mem->cv_eta);
 #endif
 
@@ -3351,7 +3384,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
     cv_mem->cv_qwait = cv_mem->cv_L;
     cvRescale(cv_mem);
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvDoErrorTest",
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
                        "new-step-eta-mxnef1", "eta = %.16g", cv_mem->cv_eta);
 #endif
     return (TRY_AGAIN);
@@ -3376,7 +3409,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
   N_VScale(cv_mem->cv_h, cv_mem->cv_tempv, cv_mem->cv_zn[1]);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvDoErrorTest",
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
                      "new-step-eta-mxnef1-q1", "eta = %.16g", cv_mem->cv_eta);
 #endif
 
@@ -3450,7 +3483,7 @@ static void cvCompleteStep(CVodeMem cv_mem)
 #endif
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvCompleteStep",
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
                      "return", "nst = %d, nscon = %d", cv_mem->cv_nst,
                      cv_mem->cv_nscon);
 #endif
@@ -3501,9 +3534,9 @@ static void cvPrepareNextStep(CVodeMem cv_mem, sunrealtype dsm)
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvPrepareNextStep",
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
                      "return",
-                     "eta = %.16g, hprime = %.16g, qprime = %d, qwait = %d\n",
+                     "eta = %.16g, hprime = %.16g, qprime = %d, qwait = %d",
                      cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_qprime,
                      cv_mem->cv_qwait);
 #endif
