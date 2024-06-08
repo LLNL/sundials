@@ -6118,8 +6118,7 @@ static int cvStep(CVodeMem cv_mem)
         if (eflag != CV_SUCCESS)
         {
           SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO, __func__,
-                             "end-step-attempt",
-                             "status = failed quad sens error test, dsmQS = %.16g, eflag = %i",
+                             "end-step-attempt", "status = failed quad sens error test, dsmQS = %.16g, eflag = %i",
                              dsmQS, eflag);
         }
 #endif
@@ -6607,9 +6606,6 @@ void cvRescale(CVodeMem cv_mem)
 
 static void cvPredict(CVodeMem cv_mem)
 {
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  int i;
-#endif
   int j, k;
 
   cv_mem->cv_tn += cv_mem->cv_h;
@@ -6664,10 +6660,10 @@ static void cvPredict(CVodeMem cv_mem)
                                       ONE, cv_mem->cv_znS[j],
                                       cv_mem->cv_znS[j - 1]);
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-        for (i = 0; i < cv_mem->cv_Ns; i++)
+        for (int i = 0; i < cv_mem->cv_Ns; i++)
         {
           SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
-                             "sensi", " i = %d,  znS_i(:) = ", i);
+                             "sensi", "znS_%d(:) = ", i);
           N_VPrintFile(cv_mem->cv_znS[0][i], CV_LOGGER->debug_fp);
         }
 #endif
@@ -6685,10 +6681,10 @@ static void cvPredict(CVodeMem cv_mem)
                                       ONE, cv_mem->cv_znQS[j],
                                       cv_mem->cv_znQS[j - 1]);
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-        for (i = 0; i < cv_mem->cv_Ns; i++)
+        for (int i = 0; i < cv_mem->cv_Ns; i++)
         {
           SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
-                             "quad-sensi", " i = %d,  znQS_i(:) = ", i);
+                             "quad-sensi", "znQS_%d(:) = ", i);
           N_VPrintFile(cv_mem->cv_znQS[0][i], CV_LOGGER->debug_fp);
         }
 #endif
@@ -7881,8 +7877,7 @@ static void cvPrepareNextStep(CVodeMem cv_mem, sunrealtype dsm)
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
-                     "return",
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "return",
                      "eta = %.16g, hprime = %.16g, qprime = %d, qwait = %d",
                      cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_qprime,
                      cv_mem->cv_qwait);

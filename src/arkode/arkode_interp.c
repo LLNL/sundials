@@ -461,8 +461,7 @@ int arkInterpEvaluate_Hermite(ARKodeMem ark_mem, ARKInterp interp,
   q = SUNMIN(q, HINT_DEGREE(interp)); /* respect max possible */
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkInterpEvaluate_Hermite", "interp-eval",
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "interp-eval",
                      "tau = %" RSYM ", d = %i, q = %i", tau, d, q);
 #endif
 
@@ -1204,8 +1203,7 @@ int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tau,
   q = SUNMIN(q, nhist - 1); /* respect max possible */
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkInterpEvaluate_Lagrange", "interp-eval",
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "interp-eval",
                      "tau = %" RSYM ", d = %i, q = %i", tau, deriv, q);
 #endif
 

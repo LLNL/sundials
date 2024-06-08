@@ -3424,8 +3424,7 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
 
   /* Log solver statistics to diagnostics file (if requested) */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkLsSolve",
-                     "ls-stats",
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "ls-stats",
                      "bnorm = %" RSYM ", resnorm = %" RSYM
                      ", ls_iters = %i, prec_solves = %i",
                      bnorm, resnorm, nli_inc, (int)(arkls_mem->nps - nps_inc));
@@ -3852,8 +3851,7 @@ int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
 
   /* Log solver statistics to diagnostics file (if requested) */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkLsMassSolve",
-                     "mass-ls-stats",
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "mass-ls-stats",
                      "resnorm = %" RSYM ", ls_iters = %i, prec_solves = %i",
                      resnorm, nli_inc, (int)(arkls_mem->nps - nps_inc));
 #else
