@@ -2414,7 +2414,7 @@ static int cvStep(CVodeMem cv_mem)
     {
       SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO, __func__,
                          "end-step-attempt",
-                         "status = failed error-test, dsm = %.16g, eflag = %i",
+                         "status = failed error test, dsm = %.16g, eflag = %i",
                          dsm, eflag);
     }
 #endif
