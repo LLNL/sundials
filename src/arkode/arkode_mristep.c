@@ -2037,9 +2037,28 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is)
     if (retval != 0) { return (ARK_OUTERTOINNER_FAIL); }
   }
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, __func__,
+                     "begin-fast-steps", "");
+#endif
+
   /* advance inner method in time */
   retval = mriStepInnerStepper_Evolve(step_mem->stepper, t0, ark_mem->tcur,
                                       ark_mem->ycur);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  if (retval != 0)
+  {
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, __func__,
+                       "end-fast-steps", "status = failed, retval = %i", retval);
+  }
+  else
+  {
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, __func__,
+                       "end-fast-steps", "status = success");
+  }
+#endif
+
   if (retval != 0) { return (ARK_INNERSTEP_FAIL); }
 
   /* post inner evolve function (if supplied) */
