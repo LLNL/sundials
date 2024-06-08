@@ -210,12 +210,12 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
     /* initialize current iteration counter for this solve attempt */
     NEWTON_CONTENT(NLS)->curiter = 0;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_DEBUG, __func__,
                        "begin-attempt", "iter = %ld, nni = %ld",
                        (long int)NEWTON_CONTENT(NLS)->curiter,
                        NEWTON_CONTENT(NLS)->niters);
-    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
+    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_DEBUG, __func__,
                        "start-iterate", "iter = %ld, nni = %ld",
                        (long int)NEWTON_CONTENT(NLS)->curiter,
                        NEWTON_CONTENT(NLS)->niters);
@@ -255,8 +255,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       retval = NEWTON_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
                                           NEWTON_CONTENT(NLS)->ctest_data);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+      SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_DEBUG, __func__,
                          "end-iterate", "iter = %ld, nni = %ld, wrmsnorm = %.16g",
                          NEWTON_CONTENT(NLS)->curiter,
                          NEWTON_CONTENT(NLS)->niters - 1, N_VWrmsNorm(delta, w));
@@ -268,8 +268,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       /* if successful update Jacobian status and return */
       if (retval == SUN_SUCCESS)
       {
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-        SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+        SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_DEBUG, __func__,
                            "end-attempt", "success, iter = %ld, nni = %ld",
                            (long int)NEWTON_CONTENT(NLS)->curiter,
                            NEWTON_CONTENT(NLS)->niters);
@@ -288,8 +288,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
         break;
       }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+      SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_DEBUG, __func__,
                          "start-iterate", "iter = %ld, nni = %ld",
                          (long int)NEWTON_CONTENT(NLS)->curiter,
                          NEWTON_CONTENT(NLS)->niters);
@@ -303,8 +303,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 
     /* all errors go here */
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_DEBUG, __func__,
                        "end-attempt", "failure, iter = %ld, nni = %ld",
                        (long int)NEWTON_CONTENT(NLS)->curiter,
                        NEWTON_CONTENT(NLS)->niters);
