@@ -13,7 +13,7 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
 # Example script demonstrating how to use Python functions to extract and plot
-# logs produced by the SUNLogger for adaptive integrators.
+# logs produced by the SUNLogger with an MRI method.
 # -----------------------------------------------------------------------------
 
 def main():
@@ -29,10 +29,6 @@ def main():
 
     parser.add_argument('logfile', type=str,
                         help='Log file to plot')
-
-    parser.add_argument('--val', type=str, default='h',
-                        choices=['h', 'q', 'dsm'],
-                        help='Value to plot')
 
     parser.add_argument('--step-number', action='store_true',
                         help='Plot value vs step number')
@@ -54,44 +50,25 @@ def main():
     log = sunlog.log_file_to_list(args.logfile)
 
     # plot log data
-    steps_s, times_s, vals_s = sunlog.get_history(log, args.val, 'success',
-                                                  step_range=args.step_range,
-                                                  time_range=args.time_range)
-
-    steps_f, times_f, vals_f = sunlog.get_history(log, args.val, 'failed',
-                                                  step_range=args.step_range,
-                                                  time_range=args.time_range)
+    steps, times, vals = sunlog.get_history(log, 'h',
+                                            step_range=args.step_range,
+                                            time_range=args.time_range)
 
     if args.step_number:
-        x_s = steps_s
-        x_f = steps_f
+        x = steps
     else:
-        x_s = times_s
-        x_f = times_f
+        x = times
 
     fig, ax = plt.subplots()
 
-    ax.scatter(x_s, vals_s, color='green', marker='o', label='successful',
-               zorder=0.1)
-
-    ax.scatter(x_f, vals_f, color='red', marker='x', label='failed',
-               zorder=0.2)
+    ax.scatter(x, vals, color='green', marker='o')
 
     if args.step_number:
         ax.set_xlabel("step")
     else:
         ax.set_xlabel("time")
 
-    if args.val == 'h':
-        ax.set_ylabel("step size")
-    elif args.val == 'q':
-        ax.set_ylabel("order")
-        ax.yaxis.set_major_locator(tik.MaxNLocator(integer=True))
-    elif args.val == 'dsm':
-        ax.set_ylabel("LTE estimate")
-
-    ax.legend(loc='best')
-
+    ax.set_ylabel("step size")
     ax.grid(alpha=0.3, linestyle='--')
 
     if args.save:
