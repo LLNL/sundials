@@ -2917,8 +2917,8 @@ static int KINFP(KINMem kin_mem)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG, "KINSOL::KINFP",
-                       "while-loop-after-compute-new", "u_%ld(:) =",
-                       kin_mem->kin_nni);
+                       "while-loop-after-compute-new",
+                       "u_%ld(:) =", kin_mem->kin_nni);
     N_VPrintFile(kin_mem->kin_unew, KIN_LOGGER->debug_fp);
 #endif
 

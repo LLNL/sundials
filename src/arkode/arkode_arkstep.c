@@ -1919,7 +1919,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::arkStep_TakeStep_Z", "predictor", "zpred(:) =", "");
+                       "ARKODE::arkStep_TakeStep_Z", "predictor",
+                       "zpred(:) =", "");
     N_VPrintFile(step_mem->zpred, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1929,7 +1930,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::arkStep_TakeStep_Z", "rhs data", "sdata(:) =", "");
+                       "ARKODE::arkStep_TakeStep_Z", "rhs data",
+                       "sdata(:) =", "");
     N_VPrintFile(step_mem->sdata, ARK_LOGGER->debug_fp);
 #endif
 
