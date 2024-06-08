@@ -19,7 +19,6 @@
 def main():
 
     import argparse
-    import numpy as np
     import matplotlib.pyplot as plt
     import matplotlib.ticker as tik
 
@@ -32,16 +31,18 @@ def main():
 
     parser.add_argument('--val', type=str, default='h',
                         choices=['h', 'q', 'dsm'],
-                        help='Value to plot')
+                        help='Value to plot (default: %(default)s)')
 
     parser.add_argument('--step-number', action='store_true',
                         help='Plot value vs step number')
 
     parser.add_argument('--step-range', type=int, nargs=2,
-                        default=None, help='Step range to plot')
+                        default=None, metavar=('LOWER_BOUND', 'UPPER_BOUND'),
+                        help='Step range to plot')
 
     parser.add_argument('--time-range', type=float, nargs=2,
-                        default=None, help='Time range to plot')
+                        default=None, metavar=('LOWER_BOUND', 'UPPER_BOUND'),
+                        help='Time range to plot')
 
     parser.add_argument('--scatter', action='store_true',
                         help='Create scatter plot')
@@ -49,8 +50,8 @@ def main():
     parser.add_argument('--labels', type=str, nargs='+',
                         help='Plot labels')
 
-    parser.add_argument('--save', type=str, nargs='?',
-                        const='fig.pdf', default=None,
+    parser.add_argument('--save', type=str, nargs='?', const='fig.pdf',
+                        default=None, metavar='FILE_NAME',
                         help='''Save figure to file''')
 
     # parse command line args
@@ -144,10 +145,8 @@ def main():
     else:
         plt.show()
 
-# -----------------------------------------------------------------------------
-# run the main routine
-# -----------------------------------------------------------------------------
 
+# run the main routine
 if __name__ == '__main__':
     import sys
     sys.exit(main())
