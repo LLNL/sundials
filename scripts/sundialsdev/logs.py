@@ -115,16 +115,32 @@ def log_file_to_list(filename, step_scope_txt):
     return log
 
 
-def get_history(log, key, step_status = "success"):
+def get_history(log, key, step_status = "success", time_range = None,
+                step_range = None):
+    """
+    This function extracts the step/time series of the requested value.
+    """
 
     steps = []
     times = []
     values = []
 
     for l in log:
+
+        step = np.longlong(l["payload"]['step'])
+        time = np.double(l["payload"]['t_n'])
+
+        if (time_range is not None):
+            if (time > time_range[1] or time < time_range[0]):
+                continue
+
+        if (step_range is not None):
+            if (step > step_range[1] or step < step_range[0]):
+                continue
+
         if (step_status in l["payload"]['status']):
-            steps.append(np.longlong(l["payload"]['step']))
-            times.append(np.double(l["payload"]['t_n']))
+            steps.append(step)
+            times.append(time)
             values.append(convert_to_num(l["payload"][key]))
 
     return steps, times, values
