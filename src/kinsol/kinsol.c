@@ -1736,8 +1736,7 @@ static int KINFullNewton(KINMem kin_mem, sunrealtype* fnormp,
       pnorm *= kin_mem->kin_stepmul;
       kin_mem->kin_stepl = pnorm;
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-      KINPrintInfo(kin_mem, PRNT_PNORM, "KINSOL", __func__, INFO_PNORM,
-                   pnorm);
+      KINPrintInfo(kin_mem, PRNT_PNORM, "KINSOL", __func__, INFO_PNORM, pnorm);
 #endif
       if (pnorm <= kin_mem->kin_scsteptol)
       {
@@ -1794,8 +1793,7 @@ static int KINFullNewton(KINMem kin_mem, sunrealtype* fnormp,
   kin_mem->kin_sJpnorm *= ratio;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-  KINPrintInfo(kin_mem, PRNT_FNORM, "KINSOL", __func__, INFO_FNORM,
-               *fnormp);
+  KINPrintInfo(kin_mem, PRNT_FNORM, "KINSOL", __func__, INFO_FNORM, *fnormp);
 #endif
 
   if (pnorm > (POINT99 * kin_mem->kin_mxnewtstep)) { *maxStepTaken = SUNTRUE; }
@@ -1904,8 +1902,7 @@ static int KINLineSearch(KINMem kin_mem, sunrealtype* fnormp,
       rlmax              = ONE;
       kin_mem->kin_stepl = pnorm;
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-      KINPrintInfo(kin_mem, PRNT_PNORM1, "KINSOL", __func__, INFO_PNORM1,
-                   pnorm);
+      KINPrintInfo(kin_mem, PRNT_PNORM1, "KINSOL", __func__, INFO_PNORM1, pnorm);
 #endif
       if (pnorm <= kin_mem->kin_scsteptol)
       {
@@ -1978,8 +1975,8 @@ static int KINLineSearch(KINMem kin_mem, sunrealtype* fnormp,
     alpha_cond = kin_mem->kin_f1norm + (alpha * slpi * rl);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-    KINPrintInfo(kin_mem, PRNT_ALPHA, "KINSOL", __func__, INFO_ALPHA,
-                 *fnormp, *f1normp, alpha_cond, rl);
+    KINPrintInfo(kin_mem, PRNT_ALPHA, "KINSOL", __func__, INFO_ALPHA, *fnormp,
+                 *f1normp, alpha_cond, rl);
 #endif
 
     /* If ALPHA condition is satisfied, break out from loop */
@@ -2841,8 +2838,8 @@ static int KINFP(KINMem kin_mem)
   tolfac = ONE;
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "begin",
-                     "%s", "u_0(:) =");
+  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "begin", "%s",
+                     "u_0(:) =");
   N_VPrintFile(kin_mem->kin_uu, KIN_LOGGER->debug_fp);
 #endif
 
@@ -2917,8 +2914,8 @@ static int KINFP(KINMem kin_mem)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
-                       "while-loop-after-compute-new", "u_%ld(:) =",
-                       kin_mem->kin_nni);
+                       "while-loop-after-compute-new",
+                       "u_%ld(:) =", kin_mem->kin_nni);
     N_VPrintFile(kin_mem->kin_unew, KIN_LOGGER->debug_fp);
 #endif
 

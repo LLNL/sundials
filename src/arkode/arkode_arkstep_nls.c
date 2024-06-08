@@ -424,8 +424,8 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
                              ark_mem);
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
-                     "correction", "zcor(:) =", "");
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "correction",
+                     "zcor(:) =", "");
   N_VPrintFile(step_mem->zcor, ARK_LOGGER->debug_fp);
 #endif
 

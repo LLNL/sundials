@@ -877,8 +877,8 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, __func__,
                          "begin-step-attempt",
-                         "step = %li, t_n = %.16g, h = %.16g",
-                         ark_mem->nst + 1, ark_mem->tn, ark_mem->h);
+                         "step = %li, t_n = %.16g, h = %.16g", ark_mem->nst + 1,
+                         ark_mem->tn, ark_mem->h);
 #endif
 
       /* Call time stepper module to attempt a step:
@@ -970,8 +970,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
         if (kflag != ARK_SUCCESS)
         {
           SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, __func__,
-                             "end-step-attempt",
-                             "status = failed error test, dsm = %.16g, kflag = %i",
+                             "end-step-attempt", "status = failed error test, dsm = %.16g, kflag = %i",
                              dsm, kflag);
         }
 #endif
@@ -996,7 +995,8 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, __func__,
-                           "end-step-attempt", "status = success, dsm = %.16g", dsm);
+                           "end-step-attempt", "status = success, dsm = %.16g",
+                           dsm);
 #endif
         break;
       }

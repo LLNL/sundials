@@ -2430,8 +2430,8 @@ static int cvStep(CVodeMem cv_mem)
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO, __func__,
-                     "end-step-attempt", "status = success, dsm = %.16g", dsm);
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_INFO, __func__, "end-step-attempt",
+                     "status = success, dsm = %.16g", dsm);
 #endif
 
   /* Nonlinear system solve and error test were both successful.
@@ -2736,8 +2736,8 @@ static void cvPredict(CVodeMem cv_mem)
   }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
-                     "return", "zn_0(:) =", "");
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "return",
+                     "zn_0(:) =", "");
   N_VPrintFile(cv_mem->cv_zn[0], CV_LOGGER->debug_fp);
 #endif
 }
@@ -3326,9 +3326,9 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
   dsm = cv_mem->cv_acnrm * cv_mem->cv_tq[2];
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
-                     "error-test", "step = %li, h = %.16g, dsm = %.16g",
-                     cv_mem->cv_nst, cv_mem->cv_h, dsm);
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "error-test",
+                     "step = %li, h = %.16g, dsm = %.16g", cv_mem->cv_nst,
+                     cv_mem->cv_h, dsm);
 #endif
 
   /* If est. local error norm dsm passes test, return CV_SUCCESS */
@@ -3366,8 +3366,8 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
     cvRescale(cv_mem);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
-                       "new-step-eta", "eta = %.16g", cv_mem->cv_eta);
+    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "new-step-eta",
+                       "eta = %.16g", cv_mem->cv_eta);
 #endif
 
     return (TRY_AGAIN);
@@ -3483,9 +3483,8 @@ static void cvCompleteStep(CVodeMem cv_mem)
 #endif
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
-                     "return", "nst = %d, nscon = %d", cv_mem->cv_nst,
-                     cv_mem->cv_nscon);
+  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "return",
+                     "nst = %d, nscon = %d", cv_mem->cv_nst, cv_mem->cv_nscon);
 #endif
 }
 

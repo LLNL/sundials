@@ -2561,8 +2561,7 @@ static int IDAStep(IDAMem IDA_mem)
       if (nflag == ERROR_TEST_FAIL)
       {
         SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, __func__,
-                           "end-step-attempt",
-                           "status = failed error test, dsm = %.16g, kflag = %i",
+                           "end-step-attempt", "status = failed error test, dsm = %.16g, kflag = %i",
                            ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk],
                            kflag);
       }
@@ -2774,7 +2773,7 @@ static int IDANls(IDAMem IDA_mem)
   IDA_mem->ida_nnf += nnf_inc;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_DEBUG,  __func__, "nls-return",
+  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "nls-return",
                      "flag = %i, iters = %li, fails = %li", retval, nni_inc,
                      nnf_inc);
 #endif
@@ -2891,7 +2890,7 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
   terr_k  = (IDA_mem->ida_kk + 1) * (*err_k);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_DEBUG,  __func__,
+  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
                      "estimate-error-order-k",
                      "err_k = %" RSYM ", terr_k = %" RSYM, *err_k, terr_k);
 #endif
@@ -2949,12 +2948,11 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
-                     "new-order", "kk = %i, knew = %i", IDA_mem->ida_kk,
-                     IDA_mem->ida_knew);
+  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "new-order",
+                     "kk = %i, knew = %i", IDA_mem->ida_kk, IDA_mem->ida_knew);
 
-  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
-                     "error-estimate", "ck_enorm_k = %" RSYM, ck * enorm_k);
+  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "error-estimate",
+                     "ck_enorm_k = %" RSYM, ck * enorm_k);
 #endif
 
   /* Perform error test */
@@ -3272,8 +3270,8 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
         else { action = RAISE; }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-        SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_DEBUG,
-                           __func__, "order-selection-raise",
+        SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
+                           "order-selection-raise",
                            "terr_k = %" RSYM ", terr_kp1 = %" RSYM, terr_k,
                            terr_kp1);
 #endif
