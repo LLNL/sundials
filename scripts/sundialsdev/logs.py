@@ -19,6 +19,16 @@
 import re
 import numpy as np
 
+def convert_to_num(s):
+    """Try to convert a string to an int or float"""
+
+    try:
+        return np.longlong(s)
+    except ValueError:
+        try:
+            return np.double(s)
+        except ValueError:
+            return s
 
 def parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)"):
     """
@@ -63,7 +73,7 @@ def parse_logfile_line(line, line_number, all_lines):
     line_dict = {}
     if matches:
         line_dict["loglvl"] = matches[0][0]
-        line_dict["rank"] = matches[0][1]
+        line_dict["rank"] = convert_to_num(matches[0][1].split()[1])
         line_dict["scope"] = matches[0][2]
         line_dict["label"] = matches[0][3]
         line_dict["payload"] = parse_logfile_payload(
@@ -98,19 +108,26 @@ def log_file_to_list(filename, step_scope_txt):
             line_dict = parse_logfile_line(line.rstrip(), line_number, all_lines)
             if not line_dict:
                 continue
-            if (
-                line_dict["scope"] == step_scope_txt
-                and line_dict["label"] == "enter-step-attempt-loop"
-            ):
-                if lines_for_this_step is None:
-                    lines_for_this_step = [line_dict]
-                else:
-                    log.append(lines_for_this_step)
-                    lines_for_this_step = [line_dict]
-            else:
-                lines_for_this_step.append(line_dict)
+            if (line_dict["label"] == "begin-step-attempt"):
+                log.append(line_dict)
+            elif (line_dict["label"] == "end-step-attempt"):
+                log[-1]["payload"].update(line_dict["payload"])
     return log
 
+
+def get_history(log, key, step_status = "success"):
+
+    steps = []
+    times = []
+    values = []
+
+    for l in log:
+        if (step_status in l["payload"]['status']):
+            steps.append(np.longlong(l["payload"]['step']))
+            times.append(np.double(l["payload"]['t_n']))
+            values.append(convert_to_num(l["payload"][key]))
+
+    return steps, times, values
 
 def cvode_debug_file_to_list(filename):
     """
