@@ -2579,12 +2579,6 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
     }
   }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-step",
-                     "step = %li, h = %" RSYM ", tcur = %" RSYM, ark_mem->nst,
-                     ark_mem->h, ark_mem->tcur);
-#endif
-
   /* apply user-supplied step postprocessing function (if supplied) */
   if (ark_mem->ProcessStep != NULL)
   {
