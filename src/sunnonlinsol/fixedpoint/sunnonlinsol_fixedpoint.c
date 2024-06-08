@@ -191,8 +191,8 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
   FP_CONTENT(NLS)->niters     = 0;
   FP_CONTENT(NLS)->nconvfails = 0;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_DEBUG,
                      "SUNNonlinSolSolve_FixedPoint", "begin-iteration",
                      "iter = %ld, nni = %ld", (long int)0,
                      FP_CONTENT(NLS)->niters);
@@ -240,8 +240,8 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
     retval = FP_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
                                     FP_CONTENT(NLS)->ctest_data);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_DEBUG,
                        "SUNNonlinSolSolve_FixedPoint", "end-of-iterate",
                        "iter = %ld, nni = %ld, wrmsnorm = %.16g",
                        (long int)FP_CONTENT(NLS)->curiter,

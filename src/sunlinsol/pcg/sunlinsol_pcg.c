@@ -346,8 +346,8 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
   SUNCheckLastErr();
   *res_norm = r0_norm = rho = SUNRsqrt(rho);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO, "SUNLinSolSolve_PCG",
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_DEBUG, "SUNLinSolSolve_PCG",
                      "initial-residual", "nli = %li, resnorm = %.16g",
                      (long int)0, *res_norm);
 #endif
@@ -437,8 +437,8 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
     SUNCheckLastErr();
     *res_norm = rho = SUNRsqrt(rho);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_DEBUG,
                        "SUNLinSolSolve_PCG", "iterate-residual",
                        "nli = %li, resnorm = %.16g", (long int)0, *res_norm);
 #endif

@@ -425,8 +425,8 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
      to do anything */
   *res_norm = r_init_norm = SUNRsqrt(rho[0]);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_DEBUG,
                      "SUNLinSolSolve_SPFTQMR", "initial-residual",
                      "nli = %li, resnorm = %.16g", (long int)0, *res_norm);
 #endif
@@ -654,8 +654,8 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       /* NOTE: just use approximation to norm of residual, if possible */
       *res_norm = r_curr_norm = tau * SUNRsqrt(m + 1);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFOs
-      SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+      SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_DEBUG,
                          "SUNLinSolSolve_SPTFQMR", "iterate-residual",
                          "nli = %li, resnorm = %.16g", (long int)0, *res_norm);
 #endif
