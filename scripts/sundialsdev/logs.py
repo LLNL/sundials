@@ -168,6 +168,9 @@ def get_history(log, key, step_status = None, time_range = None,
             if step_status not in l["payload"]['status']:
                 continue
 
+        if key not in l["payload"]:
+            continue
+
         steps.append(step)
         times.append(time)
         values.append(convert_to_num(l["payload"][key]))
