@@ -1829,11 +1829,9 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   if (is_start == 1)
   {
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "start-stage",
-                       "step = %li, stage = %i, implicit = %i, h = %" RSYM
-                       ", tcur = %" RSYM,
-                       ark_mem->nst, 0, implicit_stage, ark_mem->h,
-                       ark_mem->tcur);
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "begin-stage",
+                       "stage = %i, implicit = %i, tcur = %" RSYM, 0,
+                       implicit_stage, ark_mem->tcur);
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
                        "explicit stage", "z_%i(:) =", 0);
@@ -1851,6 +1849,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       N_VPrintFile(step_mem->Fe[0], ARK_LOGGER->debug_fp);
     }
 #endif
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage", "");
   }
 #endif
 
@@ -1878,11 +1877,9 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     else { ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is] * ark_mem->h; }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "start-stage",
-                       "step = %li, stage = %i, implicit = %i, h = %" RSYM
-                       ", tcur = %" RSYM,
-                       ark_mem->nst, is, implicit_stage, ark_mem->h,
-                       ark_mem->tcur);
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "begin-stage",
+                       "stage = %i, implicit = %i, tcur = %" RSYM, is,
+                       implicit_stage, ark_mem->tcur);
 #endif
 
     /* setup time-dependent mass matrix */
@@ -1890,7 +1887,14 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     {
       retval = step_mem->msetup((void*)ark_mem, ark_mem->tcur, ark_mem->tempv1,
                                 ark_mem->tempv2, ark_mem->tempv3);
-      if (retval != ARK_SUCCESS) { return (ARK_MASSSETUP_FAIL); }
+      if (retval != ARK_SUCCESS)
+      {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+                           "status = failed mass setup, retval = %i", retval);
+#endif
+        return (ARK_MASSSETUP_FAIL);
+      }
     }
 
     /* if implicit, call built-in and user-supplied predictors
@@ -1907,6 +1911,16 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       {
         retval = step_mem->stage_predict(ark_mem->tcur, step_mem->zpred,
                                          ark_mem->user_data);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+        if (retval != 0)
+        {
+          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
+                             "end-stage",
+                             "status = failed predict, retval = %i", retval);
+        }
+#endif
+
         if (retval < 0) { return (ARK_USER_PREDICT_FAIL); }
         if (retval > 0) { return (TRY_AGAIN); }
       }
@@ -1920,7 +1934,14 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
     /* set up explicit data for evaluation of ARK stage (store in sdata) */
     retval = arkStep_StageSetup(ark_mem, implicit_stage);
-    if (retval != ARK_SUCCESS) { return (retval); }
+    if (retval != ARK_SUCCESS)
+    {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+                         "status = failed stage setup, retval = %i", retval);
+#endif
+      return (retval);
+    }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "rhs data",
@@ -1934,7 +1955,14 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       /* implicit solve result is stored in ark_mem->ycur;
          return with positive value on anything but success */
       *nflagPtr = arkStep_Nls(ark_mem, *nflagPtr);
-      if (*nflagPtr != ARK_SUCCESS) { return (TRY_AGAIN); }
+      if (*nflagPtr != ARK_SUCCESS)
+      {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+                           "status = failed solve, nflag = %i", *nflagPtr);
+#endif
+        return (TRY_AGAIN);
+      }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
@@ -1952,7 +1980,14 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         /* perform solve; return with positive value on anything but success */
         *nflagPtr = step_mem->msolve((void*)ark_mem, step_mem->sdata,
                                      step_mem->nlscoef);
-        if (*nflagPtr != ARK_SUCCESS) { return (TRY_AGAIN); }
+        if (*nflagPtr != ARK_SUCCESS)
+        {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+                             "status = failed mass solve, nflag = %i", *nflagPtr);
+#endif
+          return (TRY_AGAIN);
+        }
       }
 
       /* set y to be yn + sdata (either computed in arkStep_StageSetup,
@@ -1973,7 +2008,14 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     {
       retval = ark_mem->ProcessStage(ark_mem->tcur, ark_mem->ycur,
                                      ark_mem->user_data);
-      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+      if (retval != 0)
+      {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+                           "status = failed postprocess stage, retval = %i", retval);
+#endif
+        return (ARK_POSTPROCESS_STAGE_FAIL);
+      }
     }
 
     /* successful stage solve */
@@ -1989,11 +2031,26 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur, step_mem->Fi[is],
                               ark_mem->user_data);
         step_mem->nfi++;
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+        if (retval != 0)
+        {
+          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+                             "status = failed implicit rhs eval, retval = %i", retval);
+        }
+#endif
       }
       else if (step_mem->mass_type == MASS_FIXED)
       {
         retval = step_mem->mmult((void*)ark_mem, step_mem->zcor, ark_mem->tempv1);
-        if (retval != ARK_SUCCESS) { return (ARK_MASSMULT_FAIL); }
+        if (retval != ARK_SUCCESS)
+        {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+                             "status = failed mass mult, retval = %i", retval);
+#endif
+          return (ARK_MASSMULT_FAIL);
+        }
+
         N_VLinearSum(ONE / step_mem->gamma, ark_mem->tempv1,
                      -ONE / step_mem->gamma, step_mem->sdata, step_mem->Fi[is]);
       }
@@ -2020,6 +2077,14 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                             ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
       step_mem->nfe++;
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+        if (retval != 0)
+        {
+          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+                             "status = failed explicit rhs eval, retval = %i", retval);
+        }
+#endif
+
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
                          "explicit RHS", "Fe_%i(:) =", is);
@@ -2043,7 +2108,14 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                            "M^{-1} implicit RHS", "Fi_%i(:) =", is);
         N_VPrintFile(step_mem->Fi[is], ARK_LOGGER->debug_fp);
 #endif
-        if (*nflagPtr != ARK_SUCCESS) { return (TRY_AGAIN); }
+        if (*nflagPtr != ARK_SUCCESS)
+        {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+                             "status = failed mass solve, nflag = %i", *nflagPtr);
+#endif
+          return (TRY_AGAIN);
+        }
       }
       if (step_mem->explicit)
       {
@@ -2054,9 +2126,21 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                            "M^{-1} explicit RHS", "Fe_%i(:) =", is);
         N_VPrintFile(step_mem->Fe[is], ARK_LOGGER->debug_fp);
 #endif
-        if (*nflagPtr != ARK_SUCCESS) { return (TRY_AGAIN); }
+        if (*nflagPtr != ARK_SUCCESS)
+        {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+                             "status = failed mass solve, nflag = %i", *nflagPtr);
+#endif
+          return (TRY_AGAIN);
+        }
       }
     }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+                       "status = success", "");
+#endif
 
   } /* loop over stages */
 
