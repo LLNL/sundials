@@ -1983,7 +1983,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         if (*nflagPtr != ARK_SUCCESS)
         {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
+                             "end-stage",
                              "status = failed mass solve, nflag = %i", *nflagPtr);
 #endif
           return (TRY_AGAIN);
@@ -2012,7 +2013,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
-                           "status = failed postprocess stage, retval = %i", retval);
+                           "status = failed postprocess stage, retval = %i",
+                           retval);
 #endif
         return (ARK_POSTPROCESS_STAGE_FAIL);
       }
@@ -2034,8 +2036,10 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
         if (retval != 0)
         {
-          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
-                             "status = failed implicit rhs eval, retval = %i", retval);
+          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
+                             "end-stage",
+                             "status = failed implicit rhs eval, retval = %i",
+                             retval);
         }
 #endif
       }
@@ -2045,7 +2049,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         if (retval != ARK_SUCCESS)
         {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
+                             "end-stage",
                              "status = failed mass mult, retval = %i", retval);
 #endif
           return (ARK_MASSMULT_FAIL);
@@ -2078,11 +2083,12 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       step_mem->nfe++;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-        if (retval != 0)
-        {
-          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
-                             "status = failed explicit rhs eval, retval = %i", retval);
-        }
+      if (retval != 0)
+      {
+        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+                           "status = failed explicit rhs eval, retval = %i",
+                           retval);
+      }
 #endif
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
@@ -2111,7 +2117,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         if (*nflagPtr != ARK_SUCCESS)
         {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
+                             "end-stage",
                              "status = failed mass solve, nflag = %i", *nflagPtr);
 #endif
           return (TRY_AGAIN);
@@ -2129,7 +2136,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         if (*nflagPtr != ARK_SUCCESS)
         {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "end-stage",
+          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
+                             "end-stage",
                              "status = failed mass solve, nflag = %i", *nflagPtr);
 #endif
           return (TRY_AGAIN);
