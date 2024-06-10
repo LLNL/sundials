@@ -2704,7 +2704,7 @@ static void cvPredict(CVodeMem cv_mem)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvPredict",
-                     "return", "predictor =", "");
+                     "return", "zn_0(:) =", "");
   N_VPrintFile(cv_mem->cv_zn[0], CV_LOGGER->debug_fp);
 #endif
 }
