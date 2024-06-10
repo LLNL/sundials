@@ -174,6 +174,7 @@ SUNDIALS License and Notices
    sunlinsol/index.rst
    sunnonlinsol/index.rst
    sunadaptcontroller/index.rst
+   sunadjoint/index.rst
    sunmemory/index.rst
    History_link.rst
    Changelog_link.rst
