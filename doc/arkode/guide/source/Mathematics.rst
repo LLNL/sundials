@@ -2126,3 +2126,62 @@ by :math:`\eta_\text{rf}`.
 
 For more information on utilizing relaxation Runge--Kutta methods, see
 :numref:`ARKODE.Usage.Relaxation`.
+
+
+.. _ARKODE.Mathematics.Adjoint:
+
+Adjoint Sensitivity Analysis
+============================
+
+Consider :eq:`ARKODE_IVP_simple_explicit`, but where the ODE also depends on some parameters
+:math:`p` (that is, we have :math:`f(t,y,p)`). Now, let :math:`g(y(t_f),p)` be a cost function for
+which we would like to compute the gradients or :math:`\partial g/\partial y(t_0)` and/or
+:math:`\partial g/\partial p`. The adjoint method is one approach to obtaining the gradients that is
+particularly efficient when there are relatively few cost functionals and a large number of parameters.
+With the adjoint method we solve the adjoint ODEs for :math:`\lambda(t) \in \mathbb{R}^N` and
+:math:`\mu(t) \in \mathbb{R}^{N_s}`:
+
+.. math::
+   \lambda'(t) &= -f_y^T(t, y, p) \lambda,\quad \lambda(t_F) = g_y^T(y(t_f), p) \\
+   \mu'(t) &= -f_p^T(t, y, p) \mu,\quad \mu(t_F) = g_p^T(y(t_f), p), \quad t_f \geq t \geq t_0. \\
+
+(For a detailed derivation see :cite:p:`hager2000runge,sanduDiscrete2006`). Here :math:`f_y \equiv
+\partial f/\partial y` is the Jacobian with respect to the dependent variable and :math:`f_p \equiv
+\partial f/\partial p` is the Jacobian with respect to the parameters.
+The ARKStep module in ARKODE provides adjoint sensitivity analysis based on the discrete formulation. Given a s-stage explicit Runge--Kutta method (as in :eq:`ARKODE_ERK`, but without the embedding), the discrete adjoint works out to be
+
+.. math::
+   \Lambda_i &= h_n f_y^T(t_{n,i}, z_i) \left(b_i \lambda_{n+1} + \sum_{j=i+1}^s a_{j,i}
+   \Lambda_j \right), \quad \quad i = s, \dots, 1,\\
+   \nu_i     &= h_n f_p^T(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i}^{s} a_{ji} \nu_j \right) \\
+   \lambda_n &= \lambda_{n+1} + \sum_{j=1}^{s} \Lambda_j \\
+   \mu_i     &= \mu_{n+1} + \sum_{j=1}^{s} \nu_j.
+   :label: ARKODE_ERK_Adjoint
+
+The result of intergating the adjoint equations with the discrete adjoint of the ARKStep method is
+then
+
+.. math::
+   \frac{\partial g}{\partial y_{(t_0)}} = \lambda_i, \quad
+   \frac{\partial g}{\partial p} = \mu_i + \lambda_i \left(\frac{\partial y(t_0)}{\partial p} \right).
+
+
+Discrete vs. Continuous Adjoint Method
+--------------------------------------
+
+At a high level there are two adjoint method approaches that one can use. In the *continuous*
+approach, we derive the sensitivity equations directly from the model and then we integrate them
+with a time integration method. This is the approach implemented in the SUNDIALS :ref:`CVODES <CVODES.Mathematics.ASA>` and :ref:`IDAS <IDAS.Mathematics.ASA>`
+packages. In the *discrete* approach, the model equations are discretized with the time integration
+method first, and then we derive the adjoints of the discretized equations. It is understood that
+the continuous adjoint method can be problematic in the context of optimization problems because the
+continuous adjoint method provides an approximation to the gradient of a continuous cost function
+while the optimizer is expecting the gradient of the discrete cost function. The discrepancy means
+that the optimizer can fail to converge further once it is near a local minimum
+:cite:p:`giles2000introduction`. One the other hand, the discrete adjoint method provides the exact
+gradient of the discrete cost function allowing the optimizer to fully converge. Consequently, the
+discrete adjoint method is often preferable in optimization despite its own drawbacks -- such as its
+(relatively) increased memory usage and the possible introduction of unphysical computational modes
+:cite:p:`sirkes1997finite`. This is not to say that the discrete adjoint method is always the better
+choice over the continuous adjoint method in optimization. Practical considerations may lead one to
+choose the continuous approach.
