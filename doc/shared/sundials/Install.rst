@@ -1780,7 +1780,7 @@ configuration file to build against SUNDIALS in their own CMake project.
   # Link to SUNDIALS libraries through the exported targets.
   # This is just an example, users should link to the targets appropriate
   # for their use case.
-  target_link_libraries(myexec PUBLIC SUNDIALS::cvode SUNDIALS::nvecpetsc)
+  target_link_libraries(myexec PUBLIC SUNDIALS::core SUNDIALS::cvode SUNDIALS::nvecpetsc)
 
 
 .. note::
