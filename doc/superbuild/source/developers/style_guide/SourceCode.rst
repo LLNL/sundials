@@ -352,6 +352,24 @@ not adhere to all of these rules.
    ``sunindextype`` for it. Instead use the appropriate integer type (e.g., ``uint64_t``) directly.
    Do not use ``sunindextype`` for counters either.
 
+#. ``SUNLogger`` statements must be in the format:
+
+   .. code-block:: c
+
+      [log level][rank][scope][label] key1 = value, key2 = value
+
+   or if the payload (the part after the label) is a vector/array:
+
+   .. code-block:: c
+
+      [log level][rank][scope][label] key(:) =
+      value1
+      value2
+
+   Note that the ``(:)`` is needed for the ``scripts/sundialsdev/logs.py`` Python
+   utility to understand that the payload is an array.
+
+   .. code-block:: c
 
 .. _Style.Formatting:
 

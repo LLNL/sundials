@@ -6531,7 +6531,7 @@ static void cvPredict(CVodeMem cv_mem)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPredict",
-                     "forward", "predictor =", "");
+                     "forward", "zn_0(:) =", "");
   N_VPrintFile(cv_mem->cv_zn[0], CV_LOGGER->debug_fp);
 #endif
 
@@ -6548,7 +6548,7 @@ static void cvPredict(CVodeMem cv_mem)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPredict",
-                       "quad", "predictor =", "");
+                       "quad", "znQ_0(:) =", "");
     N_VPrintFile(cv_mem->cv_znQ[0], CV_LOGGER->debug_fp);
 #endif
   }
@@ -6566,7 +6566,7 @@ static void cvPredict(CVodeMem cv_mem)
         for (i = 0; i < cv_mem->cv_Ns; i++)
         {
           SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPredict",
-                             "sensi", " i = %d,  predictor_i = ", i);
+                             "sensi", " i = %d,  znS_i(:) = ", i);
           N_VPrintFile(cv_mem->cv_znS[0][i], CV_LOGGER->debug_fp);
         }
 #endif
@@ -6587,7 +6587,7 @@ static void cvPredict(CVodeMem cv_mem)
         for (i = 0; i < cv_mem->cv_Ns; i++)
         {
           SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPredict",
-                             "quad-sensi", " i = %d,  predictor_i = ", i);
+                             "quad-sensi", " i = %d,  znQS_i(:) = ", i);
           N_VPrintFile(cv_mem->cv_znQS[0][i], CV_LOGGER->debug_fp);
         }
 #endif
