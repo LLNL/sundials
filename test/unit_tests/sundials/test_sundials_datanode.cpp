@@ -16,10 +16,9 @@
 #include <iostream>
 #include <string>
 #include <sundials/sundials_core.h>
+#include <sundials/sundials_datanode.h>
+#include <sundials/sundatanode_inmem.h>
 #include <nvector/nvector_serial.h>
-
-#include "sundials_datanode.h"
-#include "sundatanode_inmem.h"
 
 #define GET_IMPL(node) ((SUNDataNode_InMemImpl) (node)->impl)
 #define GET_PROP(node, prop) (GET_IMPL(node)->prop)

@@ -28,7 +28,7 @@ static inline char* sunUnsignedToString(uint64_t uint)
 {
   char* str     = NULL;
   size_t length = snprintf(NULL, 0, "%d", uint);
-  str           = malloc(sizeof(*str) * (length + 1));
+  str           = (char*)malloc(sizeof(*str) * (length + 1));
   snprintf(str, length + 1, "%d", uint);
   return str;
 }
