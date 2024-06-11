@@ -61,7 +61,7 @@ static SUNDataNode sunDataNodeMmap_CreateEmpty(SUNContext sunctx)
 
 static void sunDataNodeMmap_DestroyEmpty(SUNDataNode* node)
 {
-  if (!node) { return; }
+  if (!node || !(*node)) { return; }
   if (BASE_PROP(*node, impl)) { free(BASE_PROP(*node, impl)); }
   BASE_PROP(*node, impl) = NULL;
 }
@@ -194,8 +194,6 @@ SUNErrCode SUNDataNode_AddNamedChild_InMem(SUNDataNode node, const char* name,
   IMPL_PROP(child_node, parent) = node;
   IMPL_PROP(node, num_named_children)++;
 
-  SUNHashMap_PrintKeys(IMPL_PROP(node, named_children), stdout);
-
   return SUN_SUCCESS;
 }
 
@@ -222,8 +220,6 @@ SUNErrCode SUNDataNode_GetNamedChild_InMem(const SUNDataNode node,
   SUNFunctionBegin(node->sunctx);
 
   *child_node = NULL;
-
-  SUNHashMap_PrintKeys(IMPL_PROP(node, named_children), stdout);
 
   sunbooleantype has_children;
   SUNCheckCall(SUNDataNode_HasChildren_InMem(node, &has_children));
@@ -326,7 +322,7 @@ SUNErrCode SUNDataNode_Destroy_InMem(SUNDataNode* node)
   {
     free(IMPL_PROP(*node, anon_children));
   }
-  sunDataNodeMmap_DestroyEmpty(node);
+  // sunDataNodeMmap_DestroyEmpty(node);
 
   return SUN_SUCCESS;
 }

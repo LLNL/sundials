@@ -31,7 +31,7 @@ typedef struct SUNHashMapKeyValue_* SUNHashMapKeyValue;
 
 struct SUNHashMapKeyValue_
 {
-  const char* key;
+  char* key;
   void* value;
 };
 

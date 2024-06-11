@@ -62,7 +62,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
   // check_scheme->ops->remove     = SUNAdjointCheckpointScheme_Remove_Basic;
   // check_scheme->ops->removeVector = SUNAdjointCheckpointScheme_RemoveVector_Basic;
   // check_scheme->ops->removeRange = SUNAdjointCheckpointScheme_RemoveRange_Basic;
-  // check_scheme->ops->destroy     = SUNAdjointCheckpointScheme_Destroy_Basic;
+  check_scheme->ops->destroy = SUNAdjointCheckpointScheme_Destroy_Basic;
 
   SUNAdjointCheckpointScheme_Basic_Content content = NULL;
 
@@ -111,6 +111,10 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
 {
   SUNFunctionBegin(cs->sunctx);
 
+  /* Clone the vector and copy its data */
+  N_Vector state_clone = N_VClone(state);
+  N_VScale(SUN_RCONST(1.0), state, state_clone);
+
   /* If this is the step solution, then we need to create a list node first to
      store the step and stage solutions in. We keep a pointer to the list node
      until this step is over for fast access when inserting stages. */
@@ -137,7 +141,7 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
 
   /* Add the solution data as a node in the step list. */
   SUNDataNode solution_node = NULL;
-  SUNCheckCall(SUNDataNode_CreateLeaf(IMPL_PROP(cs, io_mode), state, 1,
+  SUNCheckCall(SUNDataNode_CreateLeaf(IMPL_PROP(cs, io_mode), state_clone, 1,
                                       sizeof(N_Vector), SUNCTX_, &solution_node));
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
@@ -185,6 +189,24 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   SUNAssert(data, SUN_ERR_CORRUPT);
 
   *out = (N_Vector)(data);
+
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNAdjointCheckpointScheme_Destroy_Basic(
+  SUNAdjointCheckpointScheme* check_scheme_ptr)
+{
+  SUNFunctionBegin((*check_scheme_ptr)->sunctx);
+
+  SUNAdjointCheckpointScheme cs = *check_scheme_ptr;
+  SUNAdjointCheckpointScheme_Basic_Content content =
+    (SUNAdjointCheckpointScheme_Basic_Content)cs->content;
+
+  SUNDataNode_Destroy(&content->root_node);
+  free(content);
+  free(cs);
+
+  *check_scheme_ptr = NULL;
 
   return SUN_SUCCESS;
 }

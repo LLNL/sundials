@@ -112,7 +112,11 @@ SUNErrCode SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr))
   {
     SUNHashMapKeyValue bucket = *SUNArrayList_SUNHashMapKeyValue_At(buckets, i);
     if (bucket && bucket->value) { freevalue(bucket); }
-    else if (bucket) { free(bucket); }
+    if (bucket)
+    {
+      free(bucket->key);
+      free(bucket);
+    }
   }
 
   free(buckets);
@@ -149,7 +153,6 @@ size_t SUNHashMap_Iterate(SUNHashMap map, int start,
 {
   if (map == NULL || yieldfn == NULL) { return (-2); }
 
-  // TODO(CJB): this probably should not use Size of the ArrayList, maybe Size of the map?
   for (size_t i = start; i < SUNArrayList_SUNHashMapKeyValue_Size(map->buckets);
        i++)
   {
@@ -179,7 +182,7 @@ static int sunHashMapLinearProbeInsert(int idx, SUNHashMapKeyValue kv,
 
   **Arguments:**
     * ``map`` -- the ``SUNHashMap`` object to operate on
-    * ``key`` -- the key to store
+    * ``key`` -- the key to store (we will make a copy)
     * ``value`` -- the value associated with the key
 
   **Returns:**
@@ -210,6 +213,7 @@ int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
     if (retval < 0) { return (-1); /* error occurred */ }
     if (retval >= SUNHashMap_Capacity(map))
     {
+      /* There are no open spaces, so resize the hashmap and then try to insert again. */
       size_t old_capacity = SUNHashMap_Capacity(map);
       SUNArrayList_SUNHashMapKeyValue_Grow(map->buckets);
       /* Set all of the new possible elements in the ArrayList to NULL
@@ -218,7 +222,7 @@ int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
       {
         SUNArrayList_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
       }
-      return SUNHashMap_Insert(map, key, value); // Try again now
+      return SUNHashMap_Insert(map, key, value);
     }
 
     idx = retval;
@@ -227,7 +231,12 @@ int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   /* Create the key-value pair */
   kvp = (SUNHashMapKeyValue)malloc(sizeof(*kvp));
 
-  kvp->key   = key;
+  /* Copy the original_key so that the hashmap owns it */
+  size_t len     = strlen(key);
+  char* key_copy = malloc(sizeof(*key) * len);
+  strcpy(key_copy, key);
+
+  kvp->key   = key_copy;
   kvp->value = value;
 
   /* Insert the key-value pair */
