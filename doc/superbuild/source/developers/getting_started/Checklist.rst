@@ -27,10 +27,11 @@ system, etc. developers should adhere to the following checklist.
    third party libraries to ensure that these files are only included when
    SUNDIALS is configured to use that library.
 
-#. Configure SUNDIALS using the C flags ``-Wall -ansi -pedantic``, to aid in
-   catching compatibility issues on other platforms (Windows). When building,
-   modify your file to remove any error/warning messages output during
-   compilation of your code.
+#. It can be helpful to configure SUNDIALS using the C flags ``-Wall -Werror``.
+   When building, modify your file to remove any error/warning messages output
+   during compilation of your code. This can be done automatically with the
+   advanced CMake options ``ENABLE_ALL_WARNINGS`` and
+   ``ENABLE_WARNINGS_AS_ERRORS``.
 
 #. Configure your build with a minimal set of configuration options enabled
    (serial). Run ``make``, ``make test``, ``make install``, and
@@ -52,8 +53,7 @@ system, etc. developers should adhere to the following checklist.
 
 #. When adding new solvers or new solver options:
 
-   * Update the documentation to include descriptions of your work. Ensure that
-     the documentation also compiles (``make ug`` in the relevant directory).
+   * Update the documentation to include descriptions of your work.
    * Add a new example problem (or multiple problems) to the ``examples/``
      directory to demonstrate how to use your solver/option, and to include in
      SUNDIALS' automated nightly tests.
@@ -68,20 +68,20 @@ system, etc. developers should adhere to the following checklist.
      directory and ensure that ``make`` succeeds, since the CMake-generated
      Makefile system differs from how the examples are built within SUNDIALS.
    * Ensure that the reference output is included e.g., if a file ``foo.c`` is
-     added, also add ``foo.out``.
+     added, also add ``foo.out``. 
    * Update the example problem documentation for to include a description of
      the new problem.
 
 #. When adding any new files, update the corresponding package script in the
    ``scripts/`` directory to include your file(s) within the distribution.
 
-#. Use the debugging macros defined in ``src/sundials/sundials_debug.h`` where
-   relevant and internal to SUNDIALS. Use the ``SUNDIALS_DEBUG`` macro to
-   ``#ifdef`` out calls the sections of code which are for debugging purposes
-   only. Additionally, the ``SUNDIALS_DEBUG_PRINTVEC`` macro should be used to
-   ``#ifdef`` out calls to the generic vector print functions ``N_VPrint`` and
-   ``N_VPrintFile`` used for debugging purposes.
-
 #. If answer files changed, and it is expected/desired, then update the `.out` files
    that are embedded in the `examples/` directory AND the
    `"answers" repository <https://github.com/sundials-codes/answers>`_. 
+
+#. If you changed any header files, re-run SWIG to generate updated fortran interfaces.
+   This is done by navigating to the `swig/` directory and running `make all32 all64`.
+   If you do not have `swig` installed on your system, you can obtain a git patch file
+   from the SWIG GitHub action that we run on all pull requests. The patch can be found
+   under the job artifacts (if there were in fact changes that required updates
+   to the Fortran).

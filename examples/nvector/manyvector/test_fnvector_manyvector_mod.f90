@@ -24,18 +24,18 @@ module test_nvector_manyvector
   implicit none
 
   integer(c_int), parameter  :: nsubvecs = 2
-  integer(c_long), parameter :: N1       = 100     ! individual vector length
-  integer(c_long), parameter :: N2       = 200     ! individual vector length
-  integer(c_int),  parameter :: nv       = 3       ! length of vector arrays
-  integer(c_long), parameter :: N        = N1 + N2 ! overall manyvector length
+  integer(c_int), parameter  :: nv       = 3       ! length of vector arrays
+  integer(kind=myindextype), parameter  :: N1       = 100     ! individual vector length
+  integer(kind=myindextype), parameter  :: N2       = 200     ! individual vector length
+  integer(kind=myindextype), parameter  :: N        = N1 + N2 ! overall manyvector length
 
 contains
 
   integer function smoke_tests() result(ret)
     implicit none
 
-    integer(c_long)         :: lenrw(1), leniw(1)     ! real and int work space size
-    integer(c_long)         :: ival                   ! integer work value
+    integer(kind=myindextype) :: ival                ! integer work value
+    integer(kind=myindextype) :: lenrw(1), leniw(1)  ! real and int work space size
     real(c_double)          :: rval                   ! real work value
     real(c_double)          :: x1data(N1), x2data(N2) ! vector data array
     real(c_double), pointer :: xptr(:)                ! pointer to vector data array
@@ -51,7 +51,7 @@ contains
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VNew_ManyVector(int(nsubvecs,8), subvecs, sunctx)
+    x => FN_VNew_ManyVector(int(nsubvecs, myindextype), subvecs, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_ManyVector(x)
     call FN_VConst(ONE, y)
@@ -140,7 +140,7 @@ contains
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VNew_ManyVector(int(nsubvecs,8), subvecs, sunctx)
+    x => FN_VNew_ManyVector(int(nsubvecs, myindextype), subvecs, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
@@ -157,23 +157,22 @@ contains
 end module
 
 
-integer(C_INT) function check_ans(ans, X, local_length) result(failure)
+function check_ans(ans, X, local_length) result(failure)
   use, intrinsic :: iso_c_binding
   use fnvector_manyvector_mod
-
   use test_utilities
   implicit none
 
-  real(C_DOUBLE)          :: ans
-  type(N_Vector)          :: X
-  type(N_Vector), pointer :: X0, X1
-  integer(C_LONG)         :: local_length, i, x0len, x1len
-  real(C_DOUBLE), pointer :: x0data(:), x1data(:)
+  real(C_DOUBLE)             :: ans
+  type(N_Vector)             :: X
+  type(N_Vector), pointer    :: X0, X1
+  integer(kind=myindextype) :: failure, local_length, i, x0len, x1len
+  real(C_DOUBLE), pointer    :: x0data(:), x1data(:)
 
   failure = 0
 
-  X0 => FN_VGetSubvector_ManyVector(X, 0_8)
-  X1 => FN_VGetSubvector_ManyVector(X, 1_8)
+  X0 => FN_VGetSubvector_ManyVector(X, 0_myindextype)
+  X1 => FN_VGetSubvector_ManyVector(X, 1_myindextype)
   x0len = FN_VGetLength(X0)
   x1len = FN_VGetLength(X1)
   x0data => FN_VGetArrayPointer(X0)

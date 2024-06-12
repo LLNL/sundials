@@ -18,11 +18,13 @@
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
-# Examples using SUNDIALS linear solvers
-set(FIDA_examples_OMP
-  "idaHeat2D_kry_omp_f2003.f90\;4\;exclude"
-  "idaHeat2D_kry_omp_f2003.f90\;8\;exclude"
-  )
+if(SUNDIALS_INDEX_SIZE MATCHES "64")
+  # Examples using SUNDIALS linear solvers
+  set(FIDA_examples_OMP
+    "idaHeat2D_kry_omp_f2003.f90\;4\;exclude"
+    "idaHeat2D_kry_omp_f2003.f90\;8\;exclude"
+    )
+endif()
 
 # Specify libraries to link against
 set(IDA_LIB sundials_fida_mod)

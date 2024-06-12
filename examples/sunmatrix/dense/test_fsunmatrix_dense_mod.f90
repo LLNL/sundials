@@ -20,7 +20,7 @@ module test_fsunmatrix_dense
   use test_utilities
   implicit none
 
-  integer(C_LONG), parameter :: N = 4
+  integer(kind=myindextype), parameter :: N = 4
 
 contains
 
@@ -190,10 +190,12 @@ integer(C_INT) function check_matrix(A, B, tol) result(fails)
 
   implicit none
 
+
+
   type(SUNMatrix) :: A, B
   real(C_DOUBLE)  :: tol
   real(C_DOUBLE), pointer :: Adata(:), Bdata(:)
-  integer(C_LONG) :: Aldata, Bldata, i
+  integer(kind=myindextype) :: Aldata, Bldata, i
 
   fails = 0
 

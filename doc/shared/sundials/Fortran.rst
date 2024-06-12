@@ -162,8 +162,13 @@ equivalencies with the parameter direction in mind.
 .. warning::
 
    Currently, the Fortran 2003 interfaces are only compatible with SUNDIALS
-   builds where the ``sunrealtype`` is double-precision the ``sunindextype`` size
-   is 64-bits.
+   builds where the ``sunrealtype`` is double-precision.
+
+.. versionchanged:: x.y.z
+
+   The Fortran interfaces can now be built with 32-bit ``sunindextype`` in
+   addition to 64-bit ``sunindextype``.
+
 
 .. _SUNDIALS.Fortran.DataTypes.Table:
 .. table:: C/Fortran-2003 Equivalent Types

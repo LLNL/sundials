@@ -458,6 +458,7 @@ macro(sundials_add_f2003_library target)
       ${sundials_add_f2003_library_INCLUDE_DIRECTORIES}
       ${_includes}
     COMPILE_DEFINITIONS ${sundials_add_f2003_library_COMPILE_DEFINITIONS}
+                        PUBLIC "SUNDIALS_INT${SUNDIALS_INDEX_SIZE}_T"
     COMPILE_OPTIONS ${sundials_add_f2003_library_COMPILE_OPTIONS}
     PROPERTIES ${sundials_add_f2003_library_PROPERTIES} ${_properties}
     OUTPUT_NAME ${sundials_add_f2003_library_OUTPUT_NAME}

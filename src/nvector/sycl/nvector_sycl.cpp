@@ -870,7 +870,7 @@ void N_VDestroy_Sycl(N_Vector v)
   return;
 }
 
-void N_VSpace_Sycl(N_Vector X, sunindextype* lrw, sunindextype* liw)
+void N_VSpace_Sycl(N_Vector X, long int* lrw, long int* liw)
 {
   *lrw = NVEC_SYCL_CONTENT(X)->length;
   *liw = 2;
