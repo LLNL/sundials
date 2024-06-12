@@ -22,6 +22,7 @@
 set(ARKODE_examples
     # tests that are always run
     "ark_analytic\;\;"
+    "ark_analytic_sts\;\;"
     # develop tests
     "ark_analytic_mels\;\;develop"
     "ark_analytic_nonlin\;\;develop"
