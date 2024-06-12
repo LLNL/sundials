@@ -44,6 +44,7 @@ typedef struct ARKodeLSRKStepMemRec
 
   /* LSRK method storage and parameters */
   N_Vector* F; /* RHS vector storage */
+  N_Vector* F2; /* RHS vector storage */
   int q;       /* method order       */
   int p;       /* embedding order    */
   int stages;  /* number of stages   */
