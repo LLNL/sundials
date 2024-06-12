@@ -160,7 +160,7 @@ contains
     real(c_double), pointer :: fdata(:)
 
     ! local variables
-    integer        :: i, j, idx1, idx2 ! loop counters and array indices
+    integer(myindextype) :: i, j, idx1, idx2 ! loop counters and array indices
     real(c_double) :: tmp              ! temporary value
 
     !======= Internals ============
@@ -247,7 +247,7 @@ contains
 
     ! local variables
     real(c_double) :: u, v, w ! chemcial species
-    integer        :: j, idx  ! loop counter and array index
+    integer(kind=myindextype) :: j, idx  ! loop counter and array index
 
     !======= Internals ============
 
@@ -364,7 +364,7 @@ contains
     use, intrinsic :: iso_c_binding
     use fsunmatrix_dense_mod
     use fsunlinsol_dense_mod
-    use ode_mod, only : myindextype, Nvar, Npts, Neq, k2, k3, k4, k6
+    use ode_mod, only : Nvar, Npts, Neq, k2, k3, k4, k6, myindextype
 
     !======= Declarations =========
     implicit none
@@ -586,7 +586,7 @@ contains
     real(c_double), pointer :: Fi_data(:)
     real(c_double), pointer :: sdata_data(:)
 
-    integer :: i ! loop counter
+    integer(kind=myindextype) :: i ! loop counter
 
     !======= Internals ============
 
@@ -672,7 +672,7 @@ contains
     real(c_double), pointer :: bnode_data(:)
 
     real(c_double) :: u, v, w ! chemical species
-    integer        :: i, idx  ! loop counter and array index
+    integer(kind=myindextype) :: i, idx  ! loop counter and array index
 
     !======= Internals ============
 
@@ -1043,7 +1043,8 @@ program main
   use fnvector_mpimanyvector_mod ! Access MPIManyVector N_Vector
   use fnvector_serial_mod        ! Access serial N_Vector
 
-  use ode_mod, only : sunctx, logger, comm, myid, Nx, Neq, dx, fused, explicit, printtime, nout
+  use ode_mod, only : sunctx, logger, comm, myid, Nx, Neq, dx, fused, &
+                      explicit, printtime, nout, myindextype
 
   !======= Declarations =========
   implicit none
@@ -1051,7 +1052,7 @@ program main
   ! With MPI-3 use mpi_f08 is preferred
   include "mpif.h"
 
-  integer          :: i
+  integer(kind=myindextype) :: i
   integer          :: ierr               ! MPI error status
   integer(c_int)   :: retval             ! SUNDIALS error status
   real(c_double)   :: starttime, endtime ! timing variables
@@ -1638,7 +1639,7 @@ subroutine WriteOutput(t, sunvec_y)
   use farkode_mod           ! Access ARKode
 
   use ode_mod, only : Nvar, nprocs, myid, Erecv, Nx, Npts, monitor,  nout, &
-       umask, vmask, wmask
+       umask, vmask, wmask, myindextype
 
   !======= Declarations =========
   implicit none
@@ -1649,7 +1650,7 @@ subroutine WriteOutput(t, sunvec_y)
 
   real(c_double), pointer :: ydata(:) ! vector data
 
-  integer i, idx ! loop counter and array index
+  integer(kind=myindextype) i, idx ! loop counter and array index
 
   real(c_double) :: u, v, w ! RMS norm of chemical species
 
@@ -1717,7 +1718,7 @@ subroutine SetIC(sunvec_y)
   use, intrinsic :: iso_c_binding
   use fsundials_core_mod
 
-  use ode_mod, only : Nvar, myid, Npts, xmax, dx, A, B, k1, k2, k4, k3
+  use ode_mod
 
   !======= Declarations =========
   implicit none
@@ -1731,7 +1732,7 @@ subroutine SetIC(sunvec_y)
   real(c_double) :: x, us, vs, ws       ! position and state
   real(c_double) :: p, mu, sigma, alpha ! perturbation vars
 
-  integer :: j, idx ! loop counter and array index
+  integer(kind=myindextype) :: j, idx ! loop counter and array index
 
   !======= Internals ============
 
@@ -1995,13 +1996,14 @@ subroutine SetupProblem()
   include "mpif.h"
 
   ! local variables
-  real(c_double), pointer :: data(:)               ! array data
-  integer(c_int)          :: retval                ! SUNDIALS error status
-  integer                 :: ierr                  ! MPI error status
-  integer                 :: j                     ! loop counter
-  integer                 :: nargs, length, status ! input parsing vars
-  character(len=32)       :: arg                   ! input arg
-  character(len=100)      :: outname               ! output file name
+  integer                   :: ierr                  ! MPI error status
+  integer(c_int)            :: retval                ! SUNDIALS error status
+  integer                   :: argj
+  integer                   :: nargs, length, status ! input parsing vars
+  character(len=32)         :: arg                   ! input arg
+  character(len=100)        :: outname               ! output file name
+  real(c_double), pointer   :: data(:)               ! array data
+  integer(kind=myindextype) :: j
 
   !======= Internals ============
 
@@ -2053,11 +2055,11 @@ subroutine SetupProblem()
   ! check for input args
   nargs = command_argument_count()
 
-  j = 1
-  do while (j <= nargs)
+  argj= 1
+  do while (argj <= nargs)
 
      ! get input arg
-     call get_command_argument(j, arg, length, status)
+     call get_command_argument(argj, arg, length, status)
 
      ! check if reading the input was successful
      if (status == -1) then
@@ -2074,39 +2076,39 @@ subroutine SetupProblem()
      else if (trim(arg) == "--printtime") then
         printtime = .true.
      else if (trim(arg) == "--nout") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) nout
      else if (trim(arg) == "--nx") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) Nx
      else if (trim(arg) == "--xmax") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) xmax
      else if (trim(arg) == "--A") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) A
      else if (trim(arg) == "--B") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) B
      else if (trim(arg) == "--k") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) k1
         read(arg,*) k2
         read(arg,*) k3
         read(arg,*) k4
      else if (trim(arg) == "--c") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) c
      else if (trim(arg) == "--order") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) order
      else if (trim(arg) == "--explicit") then
         explicit = .true.
@@ -2115,16 +2117,16 @@ subroutine SetupProblem()
      else if (trim(arg) == "--fused") then
         fused = .true.
      else if (trim(arg) == "--tf") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) tf
      else if (trim(arg) == "--rtol") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) rtol
      else if (trim(arg) == "--atol") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) atol
      else if (trim(arg) == "--help") then
         if (myid == 0) call InputHelp()
@@ -2138,11 +2140,11 @@ subroutine SetupProblem()
      end if
 
      ! move to the next input
-     j = j+1
+     argj = argj+1
   end do
 
   ! Setup the parallel decomposition
-  if (MOD(Nx,nprocs) > 0) then
+  if (MOD(Nx,int(nprocs, myindextype)) > 0) then
      print *, "ERROR: The mesh size (nx = ", Nx,") must be divisible by the number of processors (",nprocs,")"
      call MPI_Abort(comm, 1, ierr)
   end if
