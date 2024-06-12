@@ -83,7 +83,7 @@ module ode_mod
   type(c_ptr) :: logger ! SUNDIALS logger
 
   ! Number of chemical species
-  integer, parameter :: Nvar = 3
+  integer(kind=myindextype), parameter :: Nvar = 3
 
   ! MPI variables
   integer, target :: comm   ! communicator
@@ -97,9 +97,9 @@ module ode_mod
   real(c_double) :: Esend(Nvar), Erecv(Nvar)
 
   ! Problem settings
-  integer :: Nx   ! number of intervals (global)
-  integer :: Npts ! number of spatial nodes (local)
-  integer :: Neq  ! number of equations (local)
+  integer(kind=myindextype) :: Nx   ! number of intervals (global)
+  integer(kind=myindextype) :: Npts ! number of spatial nodes (local)
+  integer(kind=myindextype) :: Neq  ! number of equations (local)
 
   real(c_double) :: xmax ! maximum x value
   real(c_double) :: dx   ! mesh spacing
@@ -1021,8 +1021,8 @@ contains
     Fi_ptr    = FN_VNewVectorArray(1, sunctx)
     sdata_ptr = FN_VNewVectorArray(1, sunctx)
 
-    sunvec_bnode => FN_VNew_Serial(int(Nvar, c_long), sunctx)
-    sunmat_Jnode => FSUNDenseMatrix(int(Nvar, c_long), int(Nvar, c_long), sunctx)
+    sunvec_bnode => FN_VNew_Serial(Nvar, sunctx)
+    sunmat_Jnode => FSUNDenseMatrix(Nvar, Nvar, sunctx)
     sunls_Jnode  => FSUNLinSol_Dense(sunvec_bnode, sunmat_Jnode, sunctx)
 
     ! initialize number of nonlinear solver function evals and fails
@@ -1113,7 +1113,7 @@ program main
   call SetupProblem()
 
   ! Create solution vector
-  sunvec_ys => FN_VNew_Serial(int(Neq, c_long), sunctx)
+  sunvec_ys => FN_VNew_Serial(Neq, sunctx)
   sunvec_y  => FN_VMake_MPIPlusX(comm, sunvec_ys, sunctx)
 
   ! Enable fused vector ops in local and MPI+X vectors
@@ -1296,7 +1296,7 @@ subroutine EvolveProblemIMEX(sunvec_y)
      end if
 
      ! Create MPI task-local data structures for preconditioning
-     sunmat_P => FSUNDenseMatrix(int(Neq, c_long), int(Neq, c_long), sunctx)
+     sunmat_P => FSUNDenseMatrix(Neq, Neq, sunctx)
      sunls_P  => FSUNLinSol_Dense(umask_s, sunmat_P, sunctx)
 
   else
@@ -2152,7 +2152,7 @@ subroutine SetupProblem()
   dx   = xmax / Nx   ! Nx is number of intervals
 
   ! Create the solution masks
-  umask_s => FN_VNew_Serial(int(Neq, c_long), sunctx)
+  umask_s => FN_VNew_Serial(Neq, sunctx)
   umask   => FN_VMake_MPIPlusX(comm, umask_s, sunctx)
 
   if (fused) then
