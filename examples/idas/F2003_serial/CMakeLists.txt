@@ -16,12 +16,16 @@
 
 # Example lists are tuples "name\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
-
-# Examples using SUNDIALS linear solvers
 set(FIDAS_examples
-  "idasHeat2D_kry_f2003\;develop"
   "idasAkzoNob_ASAi_dns_f2003\;develop"
   )
+
+if(SUNDIALS_INDEX_SIZE MATCHES "64")
+  # Examples using SUNDIALS linear solvers
+  list(APPEND FIDAS_examples
+    "idasHeat2D_kry_f2003\;develop"
+    )
+endif()
 
 # Specify libraries to link against
 set(IDAS_LIB sundials_fidas_mod)

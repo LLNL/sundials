@@ -33,7 +33,11 @@
 if (NOT (KLU_INCLUDE_DIR OR KLU_LIBRARY_DIR OR KLU_LIBRARY))
   # Prefer the import target from upstream SuiteSparse if it is available
   # and the user didn't point to a specific (different) version.
+  find_package(AMD CONFIG)
+  find_package(BTF CONFIG)
+  find_package(COLAMD CONFIG)
   find_package(KLU CONFIG)
+  find_package(SuiteSparse_config CONFIG)
 
   if(TARGET SuiteSparse::KLU)
     if(NOT TARGET SUNDIALS::KLU)

@@ -25,13 +25,15 @@ module test_fsunlinsol_spbcgs_serial
   use test_utilities
   implicit none
 
-  integer(C_LONG), private, parameter :: N = 100
+
+
+  integer(kind=myindextype), private, parameter :: N = 100
   integer(C_INT),  private, parameter :: pretype = 1     ! Preconditioning type (1 or 2)
   integer(C_INT),  private, parameter :: maxl    = 100   ! maxium Krylov subspace dimension (> 0)
   real(C_DOUBLE),  private, parameter :: tol     = 1e-13 ! solver tolerance
 
   type, private :: UserData
-    integer(C_LONG) :: N
+    integer(kind=myindextype) :: N
     type(N_Vector), pointer  :: d, s1, s2
   end type
 
@@ -54,7 +56,7 @@ contains
     type(UserData),        pointer :: probdata   ! problem data
     real(C_DOUBLE),        pointer :: xdata(:)   ! x vector data
     real(C_DOUBLE)                 :: tmpr       ! temporary real value
-    integer(C_LONG)                :: j
+    integer(kind=myindextype)     :: j
     integer(C_INT)                 :: tmp
 
     ! setup

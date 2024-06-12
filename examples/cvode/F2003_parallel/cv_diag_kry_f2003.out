@@ -13,27 +13,27 @@
     Preconditioning on left:
          t         steps     fe
     --------------------------------
-     0.100000      221      261
-     0.200000      265      307
-     0.300000      290      333
-     0.400000      306      350
-     0.500000      319      364
-     0.600000      329      374
-     0.700000      339      384
-     0.800000      346      392
-     0.900000      351      399
-     1.000000      355      403
+     0.100000      221      400
+     0.200000      265      452
+     0.300000      290      481
+     0.400000      306      500
+     0.500000      319      517
+     0.600000      329      528
+     0.700000      339      538
+     0.800000      346      548
+     0.900000      351      555
+     1.000000      355      563
     --------------------------------
 Max. absolute error is   1.46E-08
    
  Final Solver Statistics:
    Internal solver steps =    355
-   Total RHS evals =    403
-   Total preconditioner setups =      7
+   Total RHS evals =    563
+   Total preconditioner setups =      0
    Total preconditioner solves =    727
-   Total nonlinear iterations  =    400
+   Total nonlinear iterations  =    560
    Total linear iterations     =    367
-   Average Krylov subspace dimension =   0.9175
+   Average Krylov subspace dimension =   0.6554
    Total Convergence Failures - Nonlinear =      0
                               - Linear    =      0
    Total number of error test failures =      5
@@ -45,27 +45,27 @@ Max. absolute error is   1.46E-08
     Preconditioning on right:
          t         steps     fe
     --------------------------------
-     0.100000      221      261
-     0.200000      265      307
-     0.300000      290      333
-     0.400000      306      350
-     0.500000      319      364
-     0.600000      329      374
-     0.700000      339      384
-     0.800000      345      391
-     0.900000      352      398
-     1.000000      358      404
+     0.100000      221      400
+     0.200000      265      452
+     0.300000      290      481
+     0.400000      306      500
+     0.500000      319      517
+     0.600000      329      528
+     0.700000      339      538
+     0.800000      345      547
+     0.900000      352      554
+     1.000000      358      560
     --------------------------------
 Max. absolute error is   2.09E-09
    
  Final Solver Statistics:
    Internal solver steps =    358
-   Total RHS evals =    404
-   Total preconditioner setups =      6
+   Total RHS evals =    560
+   Total preconditioner setups =      0
    Total preconditioner solves =    730
-   Total nonlinear iterations  =    401
+   Total nonlinear iterations  =    557
    Total linear iterations     =    367
-   Average Krylov subspace dimension =   0.9152
+   Average Krylov subspace dimension =   0.6589
    Total Convergence Failures - Nonlinear =      0
                               - Linear    =      0
    Total number of error test failures =      5

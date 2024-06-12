@@ -33,6 +33,9 @@ set(CMAKE_Fortran_FLAGS
 # Specify project name and languages
 project(@SOLVER@_F2003_openmp_examples Fortran)
 
+# Fortran preprocessor must be enabled
+set(CMAKE_Fortran_PREPROCESS ON)
+
 # Enable testing
 include(CTest)
 
@@ -146,6 +149,8 @@ foreach(example ${examples})
 
   # libraries to link against
   target_link_libraries(${example_target} ${SUNDIALS_LIBRARIES})
+
+  target_compile_definitions(${example_target} PRIVATE SUNDIALS_INT@SUNDIALS_INDEX_SIZE@_T)
 
   # add the example to ctest
   add_test(NAME ${example_target} COMMAND ${example_target})

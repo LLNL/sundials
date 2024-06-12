@@ -24,6 +24,9 @@ set(CMAKE_Fortran_FLAGS
   "@CMAKE_Fortran_FLAGS@"
   CACHE STRING "Fortran compiler flags")
 
+# Fortran preprocessor must be enabled
+set(CMAKE_Fortran_PREPROCESS ON)
+
 # Set cache variables for C compilers and flags
 set(CMAKE_C_COMPILER
   "@CMAKE_C_COMPILER@"
@@ -105,6 +108,8 @@ foreach(example ${examples})
 
   # libraries to link against
   target_link_libraries(${example} ${LIBRARIES})
+
+  target_compile_definitions(${example} PRIVATE SUNDIALS_INT@SUNDIALS_INDEX_SIZE@_T)
 
   # add the example to ctest
   add_test(NAME ${example} COMMAND ${example})

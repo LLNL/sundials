@@ -53,8 +53,11 @@
 // Assume sunrealtype* is an array of doubles
 %apply double[] { sunrealtype* };
 
-// Assume sunindextype* is an array of long int
-%apply long int[] { sunindextype* };
+#ifdef GENERATE_INT32
+%apply int[] { sunindextype* };
+#else
+%apply long long[] { sunindextype* };
+#endif
 
 // Assume int* is an array of integers
 %apply int[] { int* };

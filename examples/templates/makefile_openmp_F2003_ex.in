@@ -26,7 +26,7 @@ includedir = ${prefix}/@Fortran_INSTALL_MODDIR@
 libdir     = ${prefix}/@CMAKE_INSTALL_LIBDIR@
 
 F90      = @_EXAMPLES_Fortran_COMPILER@
-F90FLAGS = @CMAKE_Fortran_FLAGS_RELEASE@ @OpenMP_Fortran_FLAGS@
+F90FLAGS = @CMAKE_Fortran_FLAGS_RELEASE@ @OpenMP_Fortran_FLAGS@ -DSUNDIALS_INT@SUNDIALS_INDEX_SIZE@_T @CMAKE_Fortran_COMPILE_OPTIONS_PREPROCESS_ON@
 F90LIBS  = @LIBS@
 
 # -----------------------------------------------------------------------------------------

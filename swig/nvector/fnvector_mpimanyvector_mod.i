@@ -55,7 +55,11 @@ bind(C, name="_wrap_FN_VGetSubvectorArrayPointer_MPIManyVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
+#ifdef SUNDIALS_INT32_T
+integer(C_INT32_T), intent(in) :: farg2
+#else
 integer(C_INT64_T), intent(in) :: farg2
+#endif
 type(C_PTR) :: fresult
 end function
 %}
@@ -66,10 +70,18 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(:), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: v
+#ifdef SUNDIALS_INT32_T
+integer(C_INT32_T), intent(in) :: vec_num
+#else
 integer(C_INT64_T), intent(in) :: vec_num
+#endif
 type(C_PTR) :: fresult
 type(C_PTR) :: farg1
+#ifdef SUNDIALS_INT32_T
+integer(C_INT32_T) :: farg2
+#else
 integer(C_INT64_T) :: farg2
+#endif
 
 farg1 = c_loc(v)
 farg2 = vec_num
