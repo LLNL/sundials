@@ -364,7 +364,7 @@ contains
     use, intrinsic :: iso_c_binding
     use fsunmatrix_dense_mod
     use fsunlinsol_dense_mod
-    use ode_mod, only : Nvar, Npts, Neq, k2, k3, k4, k6
+    use ode_mod, only : myindextype, Nvar, Npts, Neq, k2, k3, k4, k6
 
     !======= Declarations =========
     implicit none
@@ -383,7 +383,7 @@ contains
     real(c_double), pointer :: pdata(:) ! matrix data
 
     real(c_double) :: u, v, w        ! chemical species
-    integer        :: i, idx, offset ! loop counter, array index, col offset
+    integer(kind=myindextype) :: i, idx, offset ! loop counter, array index, col offset
 
     !======= Internals ============
 
