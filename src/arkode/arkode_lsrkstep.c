@@ -144,7 +144,7 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
     return (NULL);
   }
 
-  fprintf("\nLSRKStepCreate is not ready yet!\n");
+  printf("\nLSRKStepCreate is not ready yet!\n");
 
   return ((void*)ark_mem);
 }
@@ -203,7 +203,7 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N
     return (NULL);
   }
 
-  fprintf("\nLSRKStepReInit is not ready yet!\n");
+  printf("\nLSRKStepReInit is not ready yet!\n");
 
   /* To-Do: perform re-initialization */
 
@@ -247,7 +247,7 @@ int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
     return (ARK_MEM_FAIL);
   }
 
-  fprintf("\nlsrkStep_Resize is not ready yet!\n");
+  printf("\nlsrkStep_Resize is not ready yet!\n");
 
   return (ARK_SUCCESS);
 }
@@ -270,7 +270,7 @@ void lsrkStep_Free(ARKodeMem ark_mem)
 
     /* free contents of step_mem */
     
-    fprintf("\nlsrkStep_Free is not ready yet!\n");
+    printf("\nlsrkStep_Free is not ready yet!\n");
 
     /* free the time stepper module itself */
     free(ark_mem->step_mem);
