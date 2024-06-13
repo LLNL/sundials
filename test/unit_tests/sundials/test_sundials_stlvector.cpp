@@ -18,7 +18,7 @@
 #include <gtest/gtest.h>
 
 #define TTYPE int
-#include "stl/sundials_stlvector.h"
+#include "stl/sunstl_vector.h"
 
 class SUNStlVectorPODTest : public testing::Test {
  protected:
@@ -105,7 +105,7 @@ TEST_F(SUNStlVectorPODTest, PopBack) {
 }
 
 #define TTYPE N_Vector
-#include "stl/sundials_stlvector.h"
+#include "stl/sunstl_vector.h"
 
 class SUNStlVectorComplexTest : public testing::Test {
  protected:

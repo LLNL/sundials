@@ -36,7 +36,7 @@ struct SUNHashMapKeyValue_
 };
 
 #define TTYPE SUNHashMapKeyValue
-#include "stl/sundials_stlvector.h"
+#include "stl/sunstl_vector.h"
 
 typedef struct SUNHashMap_* SUNHashMap;
 

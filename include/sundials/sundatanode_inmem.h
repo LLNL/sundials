@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 #define TTYPE SUNDataNode
-#include "stl/sundials_stlvector.h"
+#include "stl/sunstl_vector.h"
 
 typedef struct SUNDataNode_InMemImpl_s* SUNDataNode_InMemImpl;
 
