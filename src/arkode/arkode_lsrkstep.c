@@ -300,8 +300,11 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   /* output integer quantities */
 
   /* output long integer quantities */
+  fprintf(outfile, "LSRKStep: nfe = %li\n", step_mem->nfe);
 
   /* output sunrealtype quantities */
+
+  printf("\nlsrkStep_PrintMem is not ready yet!\n");
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
@@ -342,6 +345,8 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   /* Allocate internal vector storate */
 
   /* Allocate reusable arrays for fused vector interface */
+
+  printf("\nlsrkStep_Init is not ready yet!\n");
 
   return (ARK_SUCCESS);
 }
@@ -461,6 +466,8 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     return (ARK_RHSFUNC_FAIL);
   }
 
+  printf("\nlsrkStep_FullRHS is not ready yet!\n");
+
   return (ARK_SUCCESS);
 }
 
@@ -501,6 +508,8 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* To-Do: fill this in */
+
+  printf("\nlsrkStep_TakeStep is not ready yet!\n");
 
   return (ARK_SUCCESS);
 }
