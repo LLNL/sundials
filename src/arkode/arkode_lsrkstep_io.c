@@ -57,12 +57,42 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fevals)
   int retval;
 
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
   *fevals = step_mem->nfe;
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ERKStepGetTimestepperStats:
+
+  Returns integrator statistics
+  ---------------------------------------------------------------*/
+int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
+                               long int* accsteps, long int* attempts,
+                               long int* fevals, long int* netfails)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeERKStepMem structures */
+  retval = erkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  // /* set expsteps and accsteps from adaptivity structure */
+  // *expsteps = ark_mem->hadapt_mem->nst_exp;
+  // *accsteps = ark_mem->hadapt_mem->nst_acc;
+
+  // /* set remaining outputs */
+  // *attempts = ark_mem->nst_attempts;
+  // *fevals   = step_mem->nfe;
+  // *netfails = ark_mem->netf;
+
+  printf("\nLSRKStepGetTimestepperStats is not ready yet!\n");
 
   return (ARK_SUCCESS);
 }
@@ -137,6 +167,9 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
                                         SUN_RCONST(1.2));
   (void)SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
                                         SUN_RCONST(0.8), -SUN_RCONST(0.31));
+  
+  printf("\nlsrkStep_SetDefaults is not ready yet!\n");
+
   return (ARK_SUCCESS);
 }
 
@@ -169,6 +202,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     return (ARK_ILL_INPUT);
   }
 
+  printf("\nlsrkStep_PrintAllStats is not ready yet!\n");
+
   return (ARK_SUCCESS);
 }
 
@@ -190,6 +225,8 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   fprintf(fp, "LSRKStep time step module parameters:\n");
   fprintf(fp, "  Method order %i\n", step_mem->q);
   fprintf(fp, "\n");
+
+  printf("\nlsrkStep_WriteParameters is not ready yet!\n");
 
   return (ARK_SUCCESS);
 }
