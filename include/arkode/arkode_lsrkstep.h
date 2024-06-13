@@ -33,8 +33,10 @@ extern "C" {
 
 /* Creation and Reinitialization functions */
 
-/* SUNDIALS_EXPORT void* LSRKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, */
-/*                                      SUNContext sunctx); */
+SUNDIALS_EXPORT void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
+                                     SUNContext sunctx);
+
+
 /* SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0, */
 /*                                    N_Vector y0); */
 

@@ -29,7 +29,7 @@
   Exported functions
   ===============================================================*/
 
-void* LSRKStepCreate(ARKRhsFn fe, sunrealtype t0, N_Vector y0, SUNContext sunctx)
+void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNContext sunctx)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -41,6 +41,14 @@ void* LSRKStepCreate(ARKRhsFn fe, sunrealtype t0, N_Vector y0, SUNContext sunctx
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_F);
+    return (NULL);
+  }
+
+    /* Check that fi is NULL until IMEX module is ready */
+  if (fi != NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "NO IMEX-LSRK support yet, set fi = NULL");
     return (NULL);
   }
 
@@ -366,7 +374,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     /* determine if RHS function needs to be recomputed */
     if (!(ark_mem->fn_is_current))
     {
-      recomputeRHS = !ARKodeButcherTable_IsStifflyAccurate(step_mem->B);
+      // recomputeRHS = !ARKodeButcherTable_IsStifflyAccurate(step_mem->B);
 
       /* First Same As Last methods are not FSAL when relaxation is enabled */
       if (ark_mem->relax_enabled) { recomputeRHS = SUNTRUE; }
