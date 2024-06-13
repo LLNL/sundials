@@ -31,13 +31,12 @@
  *-----------------------------------------------------------------*/
 
 /* Header files */
-#include <arkode/arkode_arkstep.h> /* prototypes for ARKStep fcts., consts */
+#include <arkode/arkode_lsrkstep.h> /* prototypes for ARKStep fcts., consts */
 #include <math.h>
 #include <nvector/nvector_serial.h> /* serial N_Vector types, fcts., macros */
 #include <stdio.h>
 #include <sundials/sundials_types.h> /* definition of type sunrealtype          */
-#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -51,8 +50,6 @@
 
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
-static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
 static int check_flag(void* flagvalue, const char* funcname, int opt);
@@ -76,12 +73,10 @@ int main(void)
   /* general problem variables */
   int flag;                  /* reusable error-checking flag */
   N_Vector y         = NULL; /* empty vector for storing solution */
-  SUNMatrix A        = NULL; /* empty matrix for linear solver */
-  SUNLinearSolver LS = NULL; /* empty linear solver object */
   void* arkode_mem   = NULL; /* empty ARKode memory structure */
   FILE* UFID;
   sunrealtype t, tout;
-  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
+  long int nst, nst_a, nfe, nfi, nsetups, nfeLS, nni, ncfn, netf;
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -103,7 +98,7 @@ int main(void)
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
+  arkode_mem = ARKStepCreate(f, NULL, T0, y, ctx);
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   /* Set routines */
@@ -112,23 +107,6 @@ int main(void)
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol); /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
-
-  /* Initialize dense matrix data structure and solver */
-  A = SUNDenseMatrix(NEQ, NEQ, ctx);
-  if (check_flag((void*)A, "SUNDenseMatrix", 0)) { return 1; }
-  LS = SUNLinSol_Dense(y, A, ctx);
-  if (check_flag((void*)LS, "SUNLinSol_Dense", 0)) { return 1; }
-
-  /* Linear solver interface */
-  flag = ARKodeSetLinearSolver(arkode_mem, LS,
-                               A); /* Attach matrix and linear solver */
-  if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
-  flag = ARKodeSetJacFn(arkode_mem, Jac); /* Set Jacobian routine */
-  if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
-
-  /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
-  flag = ARKodeSetLinear(arkode_mem, 0);
-  if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
@@ -171,27 +149,12 @@ int main(void)
   check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
-  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
-  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
-  flag = ARKodeGetNumJacEvals(arkode_mem, &nje);
-  check_flag(&flag, "ARKodeGetNumJacEvals", 1);
-  flag = ARKodeGetNumLinRhsEvals(arkode_mem, &nfeLS);
-  check_flag(&flag, "ARKodeGetNumLinRhsEvals", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
   printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
-  printf("   Total linear solver setups = %li\n", nsetups);
-  printf("   Total RHS evals for setting up the linear system = %li\n", nfeLS);
-  printf("   Total number of Jacobian evaluations = %li\n", nje);
-  printf("   Total number of Newton iterations = %li\n", nni);
-  printf("   Total number of linear solver convergence failures = %li\n", ncfn);
   printf("   Total number of error test failures = %li\n\n", netf);
 
   /* check the solution error */
@@ -200,8 +163,6 @@ int main(void)
   /* Clean up and return */
   N_VDestroy(y);           /* Free y vector */
   ARKodeFree(&arkode_mem); /* Free integrator memory */
-  SUNLinSolFree(LS);       /* Free linear solver */
-  SUNMatDestroy(A);        /* Free A matrix */
   SUNContext_Free(&ctx);   /* Free context */
 
   return flag;
@@ -221,20 +182,6 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
   NV_Ith_S(ydot, 0) = lamda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
                       lamda * atan(t);
-
-  return 0; /* return with success */
-}
-
-/* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype lamda  = rdata[0]; /* set shortcut for stiffness parameter */
-  sunrealtype* Jdata = SUNDenseMatrix_Data(J);
-
-  /* Fill in Jacobian of f: set the first entry of the data array to set the (0,0) entry */
-  Jdata[0] = lamda;
 
   return 0; /* return with success */
 }
