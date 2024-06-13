@@ -111,7 +111,7 @@ SUNErrCode SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr))
   for (size_t i = 0; i < (*map)->capacity; i++)
   {
     SUNHashMapKeyValue bucket = *SUNArrayList_SUNHashMapKeyValue_At(buckets, i);
-    if (bucket && bucket->value) { freevalue(bucket); }
+    if (bucket && bucket->value) { freevalue(bucket->value); }
     if (bucket)
     {
       free(bucket->key);

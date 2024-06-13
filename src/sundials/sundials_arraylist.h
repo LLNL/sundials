@@ -53,92 +53,106 @@ struct SUNArrayListTtype_s
 static inline SUNArrayListTtype MAKE_NAME(SUNArrayListTtype,
                                           New)(size_t init_capacity)
 {
-  SUNArrayListTtype list =
+  SUNArrayListTtype self =
     (SUNArrayListTtype)malloc(sizeof(struct SUNArrayListTtype_s));
-  list->size     = 0;
-  list->capacity = init_capacity > 0 ? init_capacity : 1;
-  list->values   = (TTYPE*)malloc(sizeof(TTYPE) * list->capacity);
-  return list;
+  self->size     = 0;
+  self->capacity = init_capacity > 0 ? init_capacity : 1;
+  self->values   = (TTYPE*)malloc(sizeof(TTYPE) * self->capacity);
+  return self;
 }
 
-static inline void MAKE_NAME(SUNArrayListTtype, Destroy)(SUNArrayListTtype* list)
+static inline void MAKE_NAME(SUNArrayListTtype, Destroy)(SUNArrayListTtype* self)
 {
-  if (!(*list)) return;
-  free((*list)->values);
-  free(*list);
-  *list = NULL;
+  if (!(*self)) return;
+  free((*self)->values);
+  free(*self);
+  *self = NULL;
 }
 
 static inline sunbooleantype MAKE_NAME(SUNArrayListTtype,
-                                       IsEmpty)(SUNArrayListTtype list)
+                                       IsEmpty)(SUNArrayListTtype self)
 {
-  return list->size == 0;
+  return self->size == 0;
 }
 
-static inline void MAKE_NAME(SUNArrayListTtype, Resize)(SUNArrayListTtype list,
+static inline void MAKE_NAME(SUNArrayListTtype, Resize)(SUNArrayListTtype self,
                                                         size_t new_capacity)
 {
-  if (new_capacity <= list->capacity) return;
-  TTYPE* new_values = (TTYPE*)realloc(list->values, sizeof(TTYPE) * new_capacity);
-  list->values   = new_values;
-  list->capacity = new_capacity;
+  if (new_capacity <= self->capacity) return;
+  TTYPE* new_values = (TTYPE*)realloc(self->values, sizeof(TTYPE) * new_capacity);
+  self->values   = new_values;
+  self->capacity = new_capacity;
 }
 
-static inline void MAKE_NAME(SUNArrayListTtype, Grow)(SUNArrayListTtype list)
+static inline void MAKE_NAME(SUNArrayListTtype, Grow)(SUNArrayListTtype self)
 {
-  if (list->size == list->capacity)
+  if (self->size == self->capacity)
   {
-    size_t new_capacity = (size_t)(ceil(list->capacity * GROWTH_FACTOR));
-    MAKE_NAME(SUNArrayListTtype, Resize)(list, new_capacity);
+    size_t new_capacity = (size_t)(ceil(self->capacity * GROWTH_FACTOR));
+    MAKE_NAME(SUNArrayListTtype, Resize)(self, new_capacity);
   }
 }
 
 static inline void MAKE_NAME(SUNArrayListTtype,
-                             PushBack)(SUNArrayListTtype list, TTYPE element)
+                             PushBack)(SUNArrayListTtype self, TTYPE element)
 {
-  if (list->size == list->capacity)
+  if (self->size == self->capacity)
   {
-    MAKE_NAME(SUNArrayListTtype, Grow)(list);
+    MAKE_NAME(SUNArrayListTtype, Grow)(self);
   }
-  list->values[list->size++] = element;
+  self->values[self->size++] = element;
 }
 
-static inline TTYPE* MAKE_NAME(SUNArrayListTtype, At)(SUNArrayListTtype list,
-                                                      int index)
+static inline TTYPE* MAKE_NAME(SUNArrayListTtype, At)(SUNArrayListTtype self,
+                                                      size_t index)
 {
-  if (index < 0 || index >= list->size)
+  if (index < 0 || index >= self->size)
   {
     // Handle index out of bounds
     return NULL;
   }
-  return &(list->values[index]);
+  return &(self->values[index]);
 }
 
-static inline void MAKE_NAME(SUNArrayListTtype, Set)(SUNArrayListTtype list,
-                                                     int index, TTYPE element)
+static inline void MAKE_NAME(SUNArrayListTtype, Set)(SUNArrayListTtype self,
+                                                     size_t index, TTYPE element)
 {
-  if (index < 0 || index >= list->size)
+  if (index < 0 || index >= self->size)
   {
     // Handle index out of bounds
     return;
   }
-  list->values[index] = element;
+  self->values[index] = element;
 }
 
-static inline void MAKE_NAME(SUNArrayListTtype, PopBack)(SUNArrayListTtype list)
+static inline void MAKE_NAME(SUNArrayListTtype, PopBack)(SUNArrayListTtype self)
 {
-  if (list->size == 0) return;
-  list->size--;
+  if (self->size == 0) return;
+  self->size--;
 }
 
-static inline size_t MAKE_NAME(SUNArrayListTtype, Size)(SUNArrayListTtype list)
+static inline void MAKE_NAME(SUNArrayListTtype, Erase)(SUNArrayListTtype self,
+                                                       size_t index)
 {
-  return list->size;
+  static TTYPE nullish;
+  if (self->size == 0) return;
+  MAKE_NAME(SUNArrayListTtype, Set)(self, index, nullish);
+  for (size_t i = index; i < self->size - 1; i++)
+  {
+    self->values[i]     = self->values[i + 1];
+    self->values[i + 1] = nullish;
+  }
+  self->size -= 1;
 }
 
-static inline size_t MAKE_NAME(SUNArrayListTtype, Capacity)(SUNArrayListTtype list)
+static inline size_t MAKE_NAME(SUNArrayListTtype, Size)(SUNArrayListTtype self)
 {
-  return list->capacity;
+  return self->size;
+}
+
+static inline size_t MAKE_NAME(SUNArrayListTtype, Capacity)(SUNArrayListTtype self)
+{
+  return self->capacity;
 }
 
 #undef TTYPE

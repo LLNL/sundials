@@ -37,11 +37,8 @@ SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(
 
   ops->shouldWeSave   = NULL;
   ops->shouldWeDelete = NULL;
-  ops->insert         = NULL;
   ops->insertVector   = NULL;
-  ops->load           = NULL;
   ops->loadVector     = NULL;
-  ops->remove         = NULL;
   ops->removeVector   = NULL;
   ops->removeRange    = NULL;
   ops->destroy        = NULL;
@@ -78,18 +75,6 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete(
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_Insert(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, sunrealtype t, SUNDataNode state)
-{
-  SUNFunctionBegin(check_scheme->sunctx);
-  if (check_scheme->ops->insert)
-  {
-    return check_scheme->ops->insert(check_scheme, step_num, stage_num, t, state);
-  }
-  return SUN_ERR_NOT_IMPLEMENTED;
-}
-
 SUNErrCode SUNAdjointCheckpointScheme_InsertVector(
   SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
   sunindextype stage_num, sunrealtype t, N_Vector state)
@@ -103,19 +88,6 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector(
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_Load(SUNAdjointCheckpointScheme check_scheme,
-                                           sunindextype step_num,
-                                           sunindextype stage_num,
-                                           SUNDataNode* out)
-{
-  SUNFunctionBegin(check_scheme->sunctx);
-  if (check_scheme->ops->load)
-  {
-    return check_scheme->ops->load(check_scheme, step_num, stage_num, out);
-  }
-  return SUN_ERR_NOT_IMPLEMENTED;
-}
-
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector(
   SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
   sunindextype stage_num, N_Vector* out)
@@ -124,18 +96,6 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector(
   if (check_scheme->ops->loadVector)
   {
     return check_scheme->ops->loadVector(check_scheme, step_num, stage_num, out);
-  }
-  return SUN_ERR_NOT_IMPLEMENTED;
-}
-
-SUNErrCode SUNAdjointCheckpointScheme_Remove(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, SUNDataNode* out)
-{
-  SUNFunctionBegin(check_scheme->sunctx);
-  if (check_scheme->ops->remove)
-  {
-    return check_scheme->ops->remove(check_scheme, step_num, stage_num, out);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }

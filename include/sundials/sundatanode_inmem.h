@@ -42,19 +42,16 @@ struct SUNDataNode_InMemImpl_s
   const char* name;
   SUNHashMap named_children;
   sundataindex_t num_named_children;
-  sundataindex_t max_named_children;
 
   // Properties for a List node (nodes that are a collection of anonymous nodes)
-  // SUNArrayList_SUNDataNode anon_children;
-  SUNDataNode* anon_children;
+  SUNArrayList_SUNDataNode anon_children;
   sundataindex_t num_anon_children;
-  sundataindex_t max_anon_children;
 };
 
-SUNErrCode SUNDataNode_CreateList_InMem(sundataindex_t num_elements,
+SUNErrCode SUNDataNode_CreateList_InMem(sundataindex_t init_size,
                                         SUNContext sunctx, SUNDataNode* node_out);
 
-SUNErrCode SUNDataNode_CreateObject_InMem(sundataindex_t num_elements,
+SUNErrCode SUNDataNode_CreateObject_InMem(sundataindex_t init_size,
                                           SUNContext sunctx,
                                           SUNDataNode* node_out);
 
@@ -62,16 +59,16 @@ SUNErrCode SUNDataNode_CreateLeaf_InMem(void* leaf_data, size_t data_stride,
                                         size_t data_bytes, SUNContext sunctx,
                                         SUNDataNode* node_out);
 
-SUNErrCode SUNDataNode_IsLeaf_InMem(const SUNDataNode node,
+SUNErrCode SUNDataNode_IsLeaf_InMem(const SUNDataNode self,
                                     sunbooleantype* yes_or_no);
 
-SUNErrCode SUNDataNode_IsList_InMem(const SUNDataNode node,
+SUNErrCode SUNDataNode_IsList_InMem(const SUNDataNode self,
                                     sunbooleantype* yes_or_no);
 
-SUNErrCode SUNDataNode_IsObject_InMem(const SUNDataNode node,
+SUNErrCode SUNDataNode_IsObject_InMem(const SUNDataNode self,
                                       sunbooleantype* yes_or_no);
 
-SUNErrCode SUNDataNode_HasChildren_InMem(const SUNDataNode node,
+SUNErrCode SUNDataNode_HasChildren_InMem(const SUNDataNode self,
                                          sunbooleantype* yes_or_no);
 
 SUNErrCode SUNDataNode_AddChild_InMem(SUNDataNode parent_node,
@@ -81,23 +78,23 @@ SUNErrCode SUNDataNode_AddNamedChild_InMem(SUNDataNode parent_node,
                                            const char* name,
                                            SUNDataNode child_node);
 
-SUNErrCode SUNDataNode_GetChild_InMem(const SUNDataNode node,
+SUNErrCode SUNDataNode_GetChild_InMem(const SUNDataNode self,
                                       sundataindex_t index,
                                       SUNDataNode* child_node);
 
-SUNErrCode SUNDataNode_GetNamedChild_InMem(const SUNDataNode node,
+SUNErrCode SUNDataNode_GetNamedChild_InMem(const SUNDataNode self,
                                            const char* name,
                                            SUNDataNode* child_node);
 
-SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode node, sundataindex_t index,
+SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode self, sundataindex_t index,
                                          SUNDataNode* child_node);
 
-SUNErrCode SUNDataNode_RemoveNamedChild_InMem(SUNDataNode node, const char* name,
+SUNErrCode SUNDataNode_RemoveNamedChild_InMem(SUNDataNode self, const char* name,
                                               SUNDataNode* child_node);
 
-SUNErrCode SUNDataNode_GetData_InMem(const SUNDataNode node, void** data);
+SUNErrCode SUNDataNode_GetData_InMem(const SUNDataNode self, void** data);
 
-SUNErrCode SUNDataNode_SetData_InMem(SUNDataNode node, void* data,
+SUNErrCode SUNDataNode_SetData_InMem(SUNDataNode self, void* data,
                                      size_t data_stride, size_t data_bytes);
 
 SUNErrCode SUNDataNode_Destroy_InMem(SUNDataNode* node);

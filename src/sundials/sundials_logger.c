@@ -31,8 +31,8 @@
 #include "sundials_macros.h"
 #include "sundials_utils.h"
 
-/* max number of files that can be opened */
-#define SUN_MAX_LOGFILE_HANDLES_ 8
+/* default number of files that we allocate space for */
+#define SUN_DEFAULT_LOGFILE_HANDLES_ 8
 
 void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
                          const char* label, const char* txt, va_list args,
@@ -160,7 +160,7 @@ SUNErrCode SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger_ptr
     /* We store the FILE* in a hash map so that we can ensure
        that we do not open a file twice if the same file is used
        for multiple output levels */
-    SUNHashMap_New(SUN_MAX_LOGFILE_HANDLES_, &logger->filenames);
+    SUNHashMap_New(SUN_DEFAULT_LOGFILE_HANDLES_, &logger->filenames);
   }
 
   return SUN_SUCCESS;

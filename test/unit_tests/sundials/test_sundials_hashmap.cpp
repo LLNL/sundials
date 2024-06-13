@@ -23,7 +23,7 @@ const size_t init_capacity = 2;
 
 // Helper function to free memory for value
 void FreeValue(void* ptr) {
-  free(ptr);
+  // NO-OP: nothing we test with needs to be freed
 }
 
 class SUNHashMapTest : public testing::Test {

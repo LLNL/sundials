@@ -63,6 +63,8 @@
   ENTRY(SUN_ERR_ADJOINT_STEPPERFAILED,                                         \
         "SUNStepper stopped without successfully reaching the requested "      \
         "output time")                                                         \
+  ENTRY(SUN_ERR_CHECKPOINT_NOT_FOUND,                                          \
+        "the requested checkpoint was not found")                              \
                                                                                \
   ENTRY(SUN_ERR_SUNCTX_CORRUPT, "SUNContext is NULL or corrupt")               \
                                                                                \
