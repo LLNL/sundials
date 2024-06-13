@@ -73,7 +73,7 @@ SUNErrCode SUNDataNode_CreateList_InMem(sundataindex_t init_size,
   SUNDataNode node = sunDataNodeMmap_CreateEmpty(sunctx);
 
   BASE_PROP(node, dtype)         = SUNDATANODE_LIST;
-  IMPL_PROP(node, anon_children) = SUNArrayList_SUNDataNode_New(init_size);
+  IMPL_PROP(node, anon_children) = SUNStlVector_SUNDataNode_New(init_size);
 
   *node_out = node;
   return SUN_SUCCESS;
@@ -147,7 +147,7 @@ SUNErrCode SUNDataNode_HasChildren_InMem(const SUNDataNode self,
   if (IMPL_PROP(self, anon_children)) {}
   *yes_or_no =
     (IMPL_PROP(self, anon_children) &&
-     SUNArrayList_SUNDataNode_Size(IMPL_PROP(self, anon_children)) != 0) ||
+     SUNStlVector_SUNDataNode_Size(IMPL_PROP(self, anon_children)) != 0) ||
     IMPL_PROP(self, num_named_children) != 0;
   return SUN_SUCCESS;
 }
@@ -158,7 +158,7 @@ SUNErrCode SUNDataNode_AddChild_InMem(SUNDataNode self, SUNDataNode child_node)
 
   SUNAssert(BASE_PROP(self, dtype) == SUNDATANODE_LIST, SUN_ERR_ARG_WRONGTYPE);
 
-  SUNArrayList_SUNDataNode_PushBack(IMPL_PROP(self, anon_children), child_node);
+  SUNStlVector_SUNDataNode_PushBack(IMPL_PROP(self, anon_children), child_node);
   IMPL_PROP(child_node, parent) = self;
 
   return SUN_SUCCESS;
@@ -188,14 +188,14 @@ SUNErrCode SUNDataNode_GetChild_InMem(const SUNDataNode self,
 {
   SUNFunctionBegin(self->sunctx);
 
-  SUNArrayList_SUNDataNode children = IMPL_PROP(self, anon_children);
+  SUNStlVector_SUNDataNode children = IMPL_PROP(self, anon_children);
   sunbooleantype has_children;
   SUNCheckCall(SUNDataNode_HasChildren_InMem(self, &has_children));
 
   *child_node = NULL;
   if (has_children)
   {
-    *child_node = *SUNArrayList_SUNDataNode_At(children, index);
+    *child_node = *SUNStlVector_SUNDataNode_At(children, index);
   }
 
   return SUN_SUCCESS;
@@ -236,14 +236,14 @@ SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode self, sundataindex_t index,
   if (!has_children) { return SUN_SUCCESS; }
 
   SUNDataNode* child_node_ptr =
-    SUNArrayList_SUNDataNode_At(IMPL_PROP(self, anon_children), index);
+    SUNStlVector_SUNDataNode_At(IMPL_PROP(self, anon_children), index);
   if (child_node_ptr)
   {
     *child_node = *child_node_ptr;
     if (*child_node)
     {
       IMPL_PROP(*child_node, parent) = NULL;
-      SUNArrayList_SUNDataNode_Erase(IMPL_PROP(self, anon_children), index);
+      SUNStlVector_SUNDataNode_Erase(IMPL_PROP(self, anon_children), index);
     }
   }
 

@@ -14,7 +14,7 @@
 set(unit_tests
   "test_sundials_errors\;"
   "test_sundials_datanode\;"
-  "test_sundials_arraylist\;"
+  "test_sundials_stlvector\;"
   "test_sundials_hashmap\;")
 
 # Add the build and install targets for each test

@@ -68,8 +68,8 @@ SUNErrCode SUNHashMap_New(size_t capacity, SUNHashMap* map)
 
   (*map)->capacity = capacity;
 
-  SUNArrayList_SUNHashMapKeyValue buckets =
-    SUNArrayList_SUNHashMapKeyValue_New(capacity);
+  SUNStlVector_SUNHashMapKeyValue buckets =
+    SUNStlVector_SUNHashMapKeyValue_New(capacity);
   if (!buckets)
   {
     free(*map);
@@ -79,7 +79,7 @@ SUNErrCode SUNHashMap_New(size_t capacity, SUNHashMap* map)
   /* Initialize all buckets to NULL */
   for (size_t i = 0; i < capacity; i++)
   {
-    SUNArrayList_SUNHashMapKeyValue_PushBack(buckets, NULL);
+    SUNStlVector_SUNHashMapKeyValue_PushBack(buckets, NULL);
   }
 
   (*map)->buckets = buckets;
@@ -89,7 +89,7 @@ SUNErrCode SUNHashMap_New(size_t capacity, SUNHashMap* map)
 
 size_t SUNHashMap_Capacity(SUNHashMap map)
 {
-  return SUNArrayList_SUNHashMapKeyValue_Capacity(map->buckets);
+  return SUNStlVector_SUNHashMapKeyValue_Capacity(map->buckets);
 }
 
 /*
@@ -107,10 +107,10 @@ SUNErrCode SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr))
 {
   if (map == NULL || freevalue == NULL) { return SUN_SUCCESS; }
 
-  SUNArrayList_SUNHashMapKeyValue buckets = (*map)->buckets;
+  SUNStlVector_SUNHashMapKeyValue buckets = (*map)->buckets;
   for (size_t i = 0; i < (*map)->capacity; i++)
   {
-    SUNHashMapKeyValue bucket = *SUNArrayList_SUNHashMapKeyValue_At(buckets, i);
+    SUNHashMapKeyValue bucket = *SUNStlVector_SUNHashMapKeyValue_At(buckets, i);
     if (bucket && bucket->value) { freevalue(bucket->value); }
     if (bucket)
     {
@@ -153,11 +153,11 @@ size_t SUNHashMap_Iterate(SUNHashMap map, int start,
 {
   if (map == NULL || yieldfn == NULL) { return (-2); }
 
-  for (size_t i = start; i < SUNArrayList_SUNHashMapKeyValue_Size(map->buckets);
+  for (size_t i = start; i < SUNStlVector_SUNHashMapKeyValue_Size(map->buckets);
        i++)
   {
     int retval =
-      yieldfn(i, *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, i), ctx);
+      yieldfn(i, *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, i), ctx);
     if (retval >= 0)
     {
       return (retval); /* yieldfn indicates the loop should break */
@@ -165,7 +165,7 @@ size_t SUNHashMap_Iterate(SUNHashMap map, int start,
     if (retval < -1) { return (retval); /* error occurred */ }
   }
 
-  return SUNArrayList_SUNHashMapKeyValue_Size(map->buckets) + 1;
+  return SUNStlVector_SUNHashMapKeyValue_Size(map->buckets) + 1;
 }
 
 static int sunHashMapLinearProbeInsert(int idx, SUNHashMapKeyValue kv,
@@ -202,7 +202,7 @@ int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   idx = (size_t)(fnv1a_hash(key) % SUNHashMap_Capacity(map));
 
   /* Check if the bucket is already filled (i.e., we might have had a collision) */
-  kvp = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, idx);
+  kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, idx);
   if (kvp != NULL)
   {
     /* Determine if key is actually a duplicate (not allowed) */
@@ -215,12 +215,12 @@ int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
     {
       /* There are no open spaces, so resize the hashmap and then try to insert again. */
       size_t old_capacity = SUNHashMap_Capacity(map);
-      SUNArrayList_SUNHashMapKeyValue_Grow(map->buckets);
-      /* Set all of the new possible elements in the ArrayList to NULL
+      SUNStlVector_SUNHashMapKeyValue_Grow(map->buckets);
+      /* Set all of the new possible elements in the StlVector to NULL
          because we always want to have the list capacity == list size. */
       for (size_t i = old_capacity; i < SUNHashMap_Capacity(map); i++)
       {
-        SUNArrayList_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
+        SUNStlVector_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
       }
       return SUNHashMap_Insert(map, key, value);
     }
@@ -240,7 +240,7 @@ int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   kvp->value = value;
 
   /* Insert the key-value pair */
-  SUNArrayList_SUNHashMapKeyValue_Set(map->buckets, idx, kvp);
+  SUNStlVector_SUNHashMapKeyValue_Set(map->buckets, idx, kvp);
 
   return (0);
 }
@@ -283,7 +283,7 @@ int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
   /* We want the index to be in (0, SUNHashMap_Capacity(map)) */
   idx = (int)(fnv1a_hash(key) % SUNHashMap_Capacity(map));
 
-  SUNHashMapKeyValue kvp = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, idx);
+  SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, idx);
 
   /* Check if the key exists */
   if (kvp == NULL) { return (-2); }
@@ -299,7 +299,7 @@ int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
   }
 
   /* Return a reference to the value only */
-  kvp    = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, idx);
+  kvp    = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, idx);
   *value = kvp->value;
 
   return (0);
@@ -328,7 +328,7 @@ int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
   /* We want the index to be in (0, SUNHashMap_Capacity(map)) */
   idx = (int)(fnv1a_hash(key) % SUNHashMap_Capacity(map));
 
-  SUNHashMapKeyValue kvp = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, idx);
+  SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, idx);
 
   /* Check if the key exists */
   if (kvp == NULL) { return (-2); }
@@ -345,11 +345,11 @@ int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
   }
 
   /* Return a reference to the value only */
-  kvp    = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, idx);
+  kvp    = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, idx);
   *value = kvp->value;
 
   /* Clear the bucket by setting it to NULL */
-  SUNArrayList_SUNHashMapKeyValue_Set(map->buckets, idx, NULL);
+  SUNStlVector_SUNHashMapKeyValue_Set(map->buckets, idx, NULL);
 
   return (0);
 }
@@ -383,7 +383,7 @@ SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
   /* Copy the buckets into a new array */
   for (i = 0; i < SUNHashMap_Capacity(map); i++)
   {
-    (*sorted)[i] = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, i);
+    (*sorted)[i] = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, i);
   }
 
   qsort(*sorted, SUNHashMap_Capacity(map), sizeof(SUNHashMapKeyValue), compar);
@@ -415,7 +415,7 @@ SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
   /* Copy the values into a new array */
   for (i = 0; i < SUNHashMap_Capacity(map); i++)
   {
-    SUNHashMapKeyValue kvp = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, i);
+    SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, i);
     if (kvp) { (*values)[count++] = kvp->value; }
   }
 
@@ -432,7 +432,7 @@ SUNErrCode SUNHashMap_PrintKeys(SUNHashMap map, FILE* file)
   /* Print keys into a new array */
   for (i = 0; i < SUNHashMap_Capacity(map); i++)
   {
-    SUNHashMapKeyValue kvp = *SUNArrayList_SUNHashMapKeyValue_At(map->buckets, i);
+    SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, i);
     if (kvp) { fprintf(file, "%s\n", kvp->key); }
   }
 

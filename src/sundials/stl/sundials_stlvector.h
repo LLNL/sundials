@@ -14,8 +14,8 @@
  * Implementation of a resizable container similar to a std::vector.
  * The values can be anything but data must be contiguous.
  #
- # To use the ArrayList, first define TTYPE with your data type
- # before including this header. If you need ArrayLists that hold
+ # To use the StlVector, first define TTYPE with your data type
+ # before including this header. If you need StlVectors that hold
  # different types in the same file, then define TTYPE for the first,
  # include this header, then repeat.
  * -----------------------------------------------------------------*/
@@ -24,19 +24,19 @@
 #include <sundials/sundials_core.h>
 
 #ifndef TTYPE
-#error "Must define template type for SUNArrayList"
+#error "Must define template type for SUNStlVector"
 #endif
 
 #define CONCAT(a, b)            a##b
 #define PASTE(a, b)             CONCAT(a, b)
 #define MAKE_NAME(prefix, name) PASTE(prefix, PASTE(_, name))
 
-#define SUNArrayListTtype_s MAKE_NAME(SUNArrayList, PASTE(TTYPE, _s))
-#define SUNArrayListTtype   MAKE_NAME(SUNArrayList, TTYPE)
+#define SUNStlVectorTtype_s MAKE_NAME(SUNStlVector, PASTE(TTYPE, _s))
+#define SUNStlVectorTtype   MAKE_NAME(SUNStlVector, TTYPE)
 
-typedef struct SUNArrayListTtype_s* SUNArrayListTtype;
+typedef struct SUNStlVectorTtype_s* SUNStlVectorTtype;
 
-struct SUNArrayListTtype_s
+struct SUNStlVectorTtype_s
 {
   size_t size;
   size_t capacity;
@@ -50,18 +50,18 @@ struct SUNArrayListTtype_s
 // amorirtized constant time complexity.
 #define GROWTH_FACTOR 1.5
 
-static inline SUNArrayListTtype MAKE_NAME(SUNArrayListTtype,
+static inline SUNStlVectorTtype MAKE_NAME(SUNStlVectorTtype,
                                           New)(size_t init_capacity)
 {
-  SUNArrayListTtype self =
-    (SUNArrayListTtype)malloc(sizeof(struct SUNArrayListTtype_s));
+  SUNStlVectorTtype self =
+    (SUNStlVectorTtype)malloc(sizeof(struct SUNStlVectorTtype_s));
   self->size     = 0;
   self->capacity = init_capacity > 0 ? init_capacity : 1;
   self->values   = (TTYPE*)malloc(sizeof(TTYPE) * self->capacity);
   return self;
 }
 
-static inline void MAKE_NAME(SUNArrayListTtype, Destroy)(SUNArrayListTtype* self)
+static inline void MAKE_NAME(SUNStlVectorTtype, Destroy)(SUNStlVectorTtype* self)
 {
   if (!(*self)) return;
   free((*self)->values);
@@ -69,13 +69,13 @@ static inline void MAKE_NAME(SUNArrayListTtype, Destroy)(SUNArrayListTtype* self
   *self = NULL;
 }
 
-static inline sunbooleantype MAKE_NAME(SUNArrayListTtype,
-                                       IsEmpty)(SUNArrayListTtype self)
+static inline sunbooleantype MAKE_NAME(SUNStlVectorTtype,
+                                       IsEmpty)(SUNStlVectorTtype self)
 {
   return self->size == 0;
 }
 
-static inline void MAKE_NAME(SUNArrayListTtype, Resize)(SUNArrayListTtype self,
+static inline void MAKE_NAME(SUNStlVectorTtype, Resize)(SUNStlVectorTtype self,
                                                         size_t new_capacity)
 {
   if (new_capacity <= self->capacity) return;
@@ -84,26 +84,26 @@ static inline void MAKE_NAME(SUNArrayListTtype, Resize)(SUNArrayListTtype self,
   self->capacity = new_capacity;
 }
 
-static inline void MAKE_NAME(SUNArrayListTtype, Grow)(SUNArrayListTtype self)
+static inline void MAKE_NAME(SUNStlVectorTtype, Grow)(SUNStlVectorTtype self)
 {
   if (self->size == self->capacity)
   {
     size_t new_capacity = (size_t)(ceil(self->capacity * GROWTH_FACTOR));
-    MAKE_NAME(SUNArrayListTtype, Resize)(self, new_capacity);
+    MAKE_NAME(SUNStlVectorTtype, Resize)(self, new_capacity);
   }
 }
 
-static inline void MAKE_NAME(SUNArrayListTtype,
-                             PushBack)(SUNArrayListTtype self, TTYPE element)
+static inline void MAKE_NAME(SUNStlVectorTtype,
+                             PushBack)(SUNStlVectorTtype self, TTYPE element)
 {
   if (self->size == self->capacity)
   {
-    MAKE_NAME(SUNArrayListTtype, Grow)(self);
+    MAKE_NAME(SUNStlVectorTtype, Grow)(self);
   }
   self->values[self->size++] = element;
 }
 
-static inline TTYPE* MAKE_NAME(SUNArrayListTtype, At)(SUNArrayListTtype self,
+static inline TTYPE* MAKE_NAME(SUNStlVectorTtype, At)(SUNStlVectorTtype self,
                                                       size_t index)
 {
   if (index < 0 || index >= self->size)
@@ -114,7 +114,7 @@ static inline TTYPE* MAKE_NAME(SUNArrayListTtype, At)(SUNArrayListTtype self,
   return &(self->values[index]);
 }
 
-static inline void MAKE_NAME(SUNArrayListTtype, Set)(SUNArrayListTtype self,
+static inline void MAKE_NAME(SUNStlVectorTtype, Set)(SUNStlVectorTtype self,
                                                      size_t index, TTYPE element)
 {
   if (index < 0 || index >= self->size)
@@ -125,18 +125,18 @@ static inline void MAKE_NAME(SUNArrayListTtype, Set)(SUNArrayListTtype self,
   self->values[index] = element;
 }
 
-static inline void MAKE_NAME(SUNArrayListTtype, PopBack)(SUNArrayListTtype self)
+static inline void MAKE_NAME(SUNStlVectorTtype, PopBack)(SUNStlVectorTtype self)
 {
   if (self->size == 0) return;
   self->size--;
 }
 
-static inline void MAKE_NAME(SUNArrayListTtype, Erase)(SUNArrayListTtype self,
+static inline void MAKE_NAME(SUNStlVectorTtype, Erase)(SUNStlVectorTtype self,
                                                        size_t index)
 {
   static TTYPE nullish;
   if (self->size == 0) return;
-  MAKE_NAME(SUNArrayListTtype, Set)(self, index, nullish);
+  MAKE_NAME(SUNStlVectorTtype, Set)(self, index, nullish);
   for (size_t i = index; i < self->size - 1; i++)
   {
     self->values[i]     = self->values[i + 1];
@@ -145,12 +145,12 @@ static inline void MAKE_NAME(SUNArrayListTtype, Erase)(SUNArrayListTtype self,
   self->size -= 1;
 }
 
-static inline size_t MAKE_NAME(SUNArrayListTtype, Size)(SUNArrayListTtype self)
+static inline size_t MAKE_NAME(SUNStlVectorTtype, Size)(SUNStlVectorTtype self)
 {
   return self->size;
 }
 
-static inline size_t MAKE_NAME(SUNArrayListTtype, Capacity)(SUNArrayListTtype self)
+static inline size_t MAKE_NAME(SUNStlVectorTtype, Capacity)(SUNStlVectorTtype self)
 {
   return self->capacity;
 }

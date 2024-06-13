@@ -36,14 +36,14 @@ struct SUNHashMapKeyValue_
 };
 
 #define TTYPE SUNHashMapKeyValue
-#include "sundials_arraylist.h"
+#include "stl/sundials_stlvector.h"
 
 typedef struct SUNHashMap_* SUNHashMap;
 
 struct SUNHashMap_
 {
   size_t capacity; /* max number of entries */
-  SUNArrayList_SUNHashMapKeyValue buckets;
+  SUNStlVector_SUNHashMapKeyValue buckets;
 };
 
 SUNErrCode SUNHashMap_New(size_t init_capacity, SUNHashMap* map);

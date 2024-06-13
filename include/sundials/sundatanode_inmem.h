@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 #define TTYPE SUNDataNode
-#include "sundials_arraylist.h"
+#include "stl/sundials_stlvector.h"
 
 typedef struct SUNDataNode_InMemImpl_s* SUNDataNode_InMemImpl;
 
@@ -44,7 +44,7 @@ struct SUNDataNode_InMemImpl_s
   sundataindex_t num_named_children;
 
   // Properties for a List node (nodes that are a collection of anonymous nodes)
-  SUNArrayList_SUNDataNode anon_children;
+  SUNStlVector_SUNDataNode anon_children;
   sundataindex_t num_anon_children;
 };
 
