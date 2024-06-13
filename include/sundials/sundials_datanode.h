@@ -39,9 +39,9 @@ typedef enum
   SUNDATAIOMODE_INMEM,
 } SUNDataIOMode;
 
-typedef struct SUNDataNode_s* SUNDataNode;
+typedef struct SUNDataNode_* SUNDataNode;
 
-struct SUNDataNode_s
+struct SUNDataNode_
 {
   SUNErrCode (*hasChildren)(const SUNDataNode, sunbooleantype* yes_or_no);
   SUNErrCode (*isLeaf)(const SUNDataNode, sunbooleantype* yes_or_no);
