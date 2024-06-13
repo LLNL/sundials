@@ -41,6 +41,7 @@ typedef struct ARKodeLSRKStepMemRec
 {
   /* LSRK problem specification */
   ARKRhsFn fe;
+  ARKRhsFn fi;
 
   /* LSRK method storage and parameters */
   N_Vector* F; /* RHS vector storage */

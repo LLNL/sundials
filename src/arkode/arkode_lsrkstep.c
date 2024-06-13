@@ -44,11 +44,11 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
     return (NULL);
   }
 
-    /* Check that fi is NULL until IMEX module is ready */
+  /* Check that fi is NULL until IMEX module is ready */
   if (fi != NULL)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "NO IMEX-LSRK support yet, set fi = NULL");
+                    "\n\nNO IMEX-LSRK support yet, set fi = NULL");
     return (NULL);
   }
 
@@ -125,6 +125,7 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = fe;
+  step_mem->fi = fi;
 
   /* Update the ARKODE workspace requirements -- UPDATE */
   ark_mem->liw += 8; /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
@@ -143,6 +144,8 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
     return (NULL);
   }
 
+  fprintf("\nLSRKStepCreate is not ready yet!\n");
+
   return ((void*)ark_mem);
 }
 
@@ -157,7 +160,7 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
 
   Note all internal counters are set to 0 on re-initialization.
   ---------------------------------------------------------------*/
-int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, sunrealtype t0, N_Vector y0)
+int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -175,6 +178,32 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, sunrealtype t0, N_Vector y0)
                     MSG_ARK_NO_MALLOC);
     return (ARK_NO_MALLOC);
   }
+
+  /* Check that fe is supplied */
+  if (fe == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_F);
+    return (NULL);
+  }
+
+  /* Check that fi is NULL until IMEX module is ready */
+  if (fi != NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "\n\nNO IMEX-LSRK support yet, set fi = NULL");
+    return (NULL);
+  }
+
+  /* Check for legal input parameters */
+  if (y0 == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_Y0);
+    return (NULL);
+  }
+
+  fprintf("\nLSRKStepReInit is not ready yet!\n");
 
   /* To-Do: perform re-initialization */
 
@@ -210,6 +239,15 @@ int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
   ark_mem->liw1 = liw1;
 
   /* Resize the internal vector storage */
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                    &step_mem->F))
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "Unable to resize vector");
+    return (ARK_MEM_FAIL);
+  }
+
+  fprintf("\nlsrkStep_Resize is not ready yet!\n");
 
   return (ARK_SUCCESS);
 }
@@ -231,6 +269,8 @@ void lsrkStep_Free(ARKodeMem ark_mem)
     step_mem = (ARKodeLSRKStepMem)ark_mem->step_mem;
 
     /* free contents of step_mem */
+    
+    fprintf("\nlsrkStep_Free is not ready yet!\n");
 
     /* free the time stepper module itself */
     free(ark_mem->step_mem);

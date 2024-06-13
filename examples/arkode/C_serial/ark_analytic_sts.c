@@ -98,7 +98,7 @@ int main(void)
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  arkode_mem = ARKStepCreate(f, NULL, T0, y, ctx);
+  arkode_mem = LSRKStepCreate(f, NULL, T0, y, ctx);
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   /* Set routines */
@@ -147,8 +147,8 @@ int main(void)
   check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  // flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  // check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
 
@@ -256,3 +256,4 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
 }
 
 /*---- end of file ----*/
+
