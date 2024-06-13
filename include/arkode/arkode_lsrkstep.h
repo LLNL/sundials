@@ -36,9 +36,8 @@ extern "C" {
 SUNDIALS_EXPORT void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
                                      SUNContext sunctx);
 
-
-/* SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn f, sunrealtype t0, */
-/*                                    N_Vector y0); */
+SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
+                                   N_Vector y0);
 
 /* Optional input functions -- must be called AFTER a creation routine above */
 
