@@ -10,7 +10,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include <sundials/sundatanode_inmem.h>
+#include "sundatanode/sundatanode_inmem.h"
 
 #include "sundials/sundials_errors.h"
 #include "sundials_hashmap_impl.h"

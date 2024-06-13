@@ -16,7 +16,7 @@
 #include <iostream>
 #include <nvector/nvector_serial.h>
 #include <string>
-#include <sundials/sundatanode_inmem.h>
+#include "sundatanode/sundatanode_inmem.h"
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_datanode.h>
 

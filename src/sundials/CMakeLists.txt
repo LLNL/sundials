@@ -80,7 +80,7 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 
 set(sundials_SOURCES
-  sundatanode_inmem.c
+  sundatanode/sundatanode_inmem.c
   sundials_adaptcontroller.c
   sundials_band.c
   sundials_context.c
@@ -112,7 +112,7 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
 
 if(ENABLE_MPI)
-  set(_link_mpi_if_needed PUBLIC 
+  set(_link_mpi_if_needed PUBLIC
     MPI::MPI_C
     $<$<LINK_LANGUAGE:CXX>:MPI::MPI_CXX>)
 endif()

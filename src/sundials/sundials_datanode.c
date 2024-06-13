@@ -11,7 +11,7 @@
  * -----------------------------------------------------------------*/
 
 #include <sundials/priv/sundials_errors_impl.h>
-#include <sundials/sundatanode_inmem.h>
+#include "sundatanode/sundatanode_inmem.h"
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_datanode.h>
 

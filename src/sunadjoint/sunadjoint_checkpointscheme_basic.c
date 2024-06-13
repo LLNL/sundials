@@ -13,7 +13,7 @@
  * ----------------------------------------------------------------*/
 
 #include <sunadjoint/sunadjoint_checkpointscheme_basic.h>
-#include <sundials/sundatanode_inmem.h>
+#include "sundatanode/sundatanode_inmem.h"
 #include <sundials/sundials_core.h>
 
 #include "sunadjoint/sunadjoint_checkpointscheme.h"
