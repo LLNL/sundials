@@ -3290,12 +3290,15 @@ int arkLsSetup(ARKodeMem ark_mem, int convfail, sunrealtype tpred,
 int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
                N_Vector fnow, sunrealtype eRNrm, int mnewt)
 {
-  sunrealtype bnorm, resnorm;
+  sunrealtype bnorm;
   ARKLsMem arkls_mem;
   sunrealtype gamma, gamrat, delta, deltar, rwt_mean;
   sunbooleantype dgamma_fail, *jcur;
-  long int nps_inc;
   int nli_inc, retval;
+
+  /* used when logging is enabled */
+  SUNDIALS_MAYBE_UNUSED long int nps_inc;
+  SUNDIALS_MAYBE_UNUSED sunrealtype resnorm;
 
   /* access ARKLsMem structure */
   retval = arkLs_AccessLMem(ark_mem, __func__, &arkls_mem);
@@ -3422,17 +3425,10 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
   arkls_mem->nli += nli_inc;
   if (retval != SUN_SUCCESS) { arkls_mem->ncfl++; }
 
-  /* Log solver statistics to diagnostics file (if requested) */
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "ls-stats",
-                     "bnorm = %" RSYM ", resnorm = %" RSYM
-                     ", ls_iters = %i, prec_solves = %i",
-                     bnorm, resnorm, nli_inc, (int)(arkls_mem->nps - nps_inc));
-#else
-  /* Suppress warning about set but unused variables due to logging ifdef. */
-  (void)nps_inc;
-  (void)resnorm;
-#endif
+  SUNLogDebug(ARK_LOGGER, __func__, "ls-stats",
+              "bnorm = %" RSYM ", resnorm = %" RSYM
+              ", ls_iters = %i, prec_solves = %i",
+              bnorm, resnorm, nli_inc, (int)(arkls_mem->nps - nps_inc));
 
   /* Interpret solver return value  */
   arkls_mem->last_flag = retval;
@@ -3761,10 +3757,13 @@ int arkLsMassSetup(ARKodeMem ark_mem, sunrealtype t, N_Vector vtemp1,
   ---------------------------------------------------------------*/
 int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
 {
-  sunrealtype resnorm, delta, rwt_mean;
+  sunrealtype delta, rwt_mean;
   ARKLsMassMem arkls_mem;
-  long int nps_inc;
   int nli_inc, retval;
+
+  /* used when logging is enabled */
+  SUNDIALS_MAYBE_UNUSED long int nps_inc;
+  SUNDIALS_MAYBE_UNUSED sunrealtype resnorm;
 
   /* access ARKLsMassMem structure */
   retval = arkLs_AccessMassMem(ark_mem, __func__, &arkls_mem);
@@ -3849,16 +3848,9 @@ int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
   arkls_mem->nli += nli_inc;
   if (retval != SUN_SUCCESS) { arkls_mem->ncfl++; }
 
-  /* Log solver statistics to diagnostics file (if requested) */
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "mass-ls-stats",
-                     "resnorm = %" RSYM ", ls_iters = %i, prec_solves = %i",
-                     resnorm, nli_inc, (int)(arkls_mem->nps - nps_inc));
-#else
-  /* Suppress warning about set but unused variables due to logging ifdef. */
-  (void)nps_inc;
-  (void)resnorm;
-#endif
+  SUNLogDebug(ARK_LOGGER, __func__, "mass-ls-stats",
+              "resnorm = %" RSYM ", ls_iters = %i, prec_solves = %i", resnorm,
+              nli_inc, (int)(arkls_mem->nps - nps_inc));
 
   /* Interpret solver return value  */
   arkls_mem->last_flag = retval;
