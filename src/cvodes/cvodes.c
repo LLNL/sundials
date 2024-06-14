@@ -5936,8 +5936,9 @@ static int cvStep(CVodeMem cv_mem)
         eflag = cvDoErrorTest(cv_mem, &nflag, saved_t, cv_mem->cv_acnrmQ, &nefQ,
                               &(cv_mem->cv_netfQ), &dsmQ);
 
-        SUNLogInfoIf(eflag != CV_SUCCESS, CV_LOGGER, __func__,
-                     "end-step-attempt", "status = failed quad error test, dsmQ = %" RSYM ", eflag = %i",
+        SUNLogInfoIf(eflag != CV_SUCCESS, CV_LOGGER, __func__, "end-step-attempt",
+                     "status = failed quad error test, dsmQ = %" RSYM
+                     ", eflag = %i",
                      dsmQ, eflag);
 
         if (eflag == TRY_AGAIN) { continue; }
@@ -6013,8 +6014,9 @@ static int cvStep(CVodeMem cv_mem)
         eflag = cvDoErrorTest(cv_mem, &nflag, saved_t, cv_mem->cv_acnrmS, &nefS,
                               &(cv_mem->cv_netfS), &dsmS);
 
-        SUNLogInfoIf(eflag != CV_SUCCESS, CV_LOGGER, __func__,
-                     "end-step-attempt", "status = failed sens error test, dsmS = %" RSYM ", eflag = %i",
+        SUNLogInfoIf(eflag != CV_SUCCESS, CV_LOGGER, __func__, "end-step-attempt",
+                     "status = failed sens error test, dsmS = %" RSYM
+                     ", eflag = %i",
                      dsmS, eflag);
 
         if (eflag == TRY_AGAIN) { continue; }
@@ -6045,8 +6047,8 @@ static int cvStep(CVodeMem cv_mem)
       nflag = cvQuadSensNls(cv_mem);
       kflag = cvHandleNFlag(cv_mem, &nflag, saved_t, &ncf, &(cv_mem->cv_ncfn));
 
-      SUNLogInfoIf(kflag == PREDICT_AGAIN || kflag != DO_ERROR_TEST, CV_LOGGER, __func__,
-                   "end-step-attempt",
+      SUNLogInfoIf(kflag == PREDICT_AGAIN || kflag != DO_ERROR_TEST, CV_LOGGER,
+                   __func__, "end-step-attempt",
                    "status = failed quad sens solve, kflag = %i", kflag);
 
       if (kflag == PREDICT_AGAIN) { continue; }
@@ -6060,8 +6062,9 @@ static int cvStep(CVodeMem cv_mem)
         eflag = cvDoErrorTest(cv_mem, &nflag, saved_t, cv_mem->cv_acnrmQS,
                               &nefQS, &(cv_mem->cv_netfQS), &dsmQS);
 
-        SUNLogInfoIf(eflag != CV_SUCCESS, CV_LOGGER, __func__,
-                     "end-step-attempt", "status = failed quad sens error test, dsmQS = %" RSYM ", eflag = %i",
+        SUNLogInfoIf(eflag != CV_SUCCESS, CV_LOGGER, __func__, "end-step-attempt",
+                     "status = failed quad sens error test, dsmQS = %" RSYM
+                     ", eflag = %i",
                      dsmQS, eflag);
 
         if (eflag == TRY_AGAIN) { continue; }
@@ -6077,7 +6080,7 @@ static int cvStep(CVodeMem cv_mem)
   }
 
   SUNLogInfo(CV_LOGGER, __func__, "end-step-attempt",
-             "status = success, dsm = %" RSYM , dsm);
+             "status = success, dsm = %" RSYM, dsm);
 
   /* Nonlinear system solve and error test were both successful.
      Update data, and consider change of step and/or order.       */
