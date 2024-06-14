@@ -21,6 +21,8 @@
 
 #include <sundials/sundials_core.h>
 
+#include "sundials/sundials_memory.h"
+
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
@@ -58,9 +60,12 @@ struct SUNDataNode_
                             SUNDataNode* child_node);
   SUNErrCode (*removeNamedChild)(const SUNDataNode, const char* name,
                                  SUNDataNode* child_node);
-  SUNErrCode (*getData)(const SUNDataNode, void** data);
+  SUNErrCode (*getData)(const SUNDataNode, void** data, size_t* data_stride,
+                        size_t* data_bytes);
+  SUNErrCode (*getDataNvector)(const SUNDataNode, N_Vector* v);
   SUNErrCode (*setData)(SUNDataNode, void* data, size_t data_stride,
                         size_t data_bytes);
+  SUNErrCode (*setDataNvector)(SUNDataNode, N_Vector v);
   SUNErrCode (*destroy)(SUNDataNode*);
 
   void* impl;
@@ -72,9 +77,9 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode, void* leaf_data,
-                                  size_t data_stride, size_t data_bytes,
-                                  SUNContext sunctx, SUNDataNode* node_out);
+SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode,
+                                  SUNMemoryHelper mem_helper, SUNContext sunctx,
+                                  SUNDataNode* node_out);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
@@ -120,11 +125,18 @@ SUNErrCode SUNDataNode_RemoveNamedChild(const SUNDataNode self, const char* name
                                         SUNDataNode* child_node);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDataNode_GetData(const SUNDataNode self, void** data);
+SUNErrCode SUNDataNode_GetData(const SUNDataNode self, void** data,
+                               size_t* data_stride, size_t* data_bytes);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDataNode_GetDataNvector(const SUNDataNode self, N_Vector* v);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_SetData(SUNDataNode self, void* data, size_t data_stride,
                                size_t data_bytes);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDataNode_SetDataNvector(SUNDataNode self, N_Vector v);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_Destroy(SUNDataNode* node);

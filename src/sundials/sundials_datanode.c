@@ -11,46 +11,46 @@
  * -----------------------------------------------------------------*/
 
 #include <sundials/priv/sundials_errors_impl.h>
-#include "sundatanode/sundatanode_inmem.h"
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_datanode.h>
+
+#include "sundatanode/sundatanode_inmem.h"
 
 SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNDataNode node;
-  node = (SUNDataNode)malloc(sizeof(*node));
-  SUNAssert(node, SUN_ERR_MEM_FAIL);
+  SUNDataNode self;
+  self = (SUNDataNode)malloc(sizeof(*self));
+  SUNAssert(self, SUN_ERR_MEM_FAIL);
 
-  node->hasChildren = NULL;
-  node->isLeaf      = NULL;
-  node->isList      = NULL;
-  node->isObject    = NULL;
-  node->addChild    = NULL;
-  node->getChild    = NULL;
-  node->removeChild = NULL;
-  node->getData     = NULL;
-  node->setData     = NULL;
-  node->destroy     = NULL;
-  node->impl        = NULL;
-  node->sunctx      = sunctx;
+  self->hasChildren = NULL;
+  self->isLeaf      = NULL;
+  self->isList      = NULL;
+  self->isObject    = NULL;
+  self->addChild    = NULL;
+  self->getChild    = NULL;
+  self->removeChild = NULL;
+  self->getData     = NULL;
+  self->setData     = NULL;
+  self->destroy     = NULL;
+  self->impl        = NULL;
+  self->sunctx      = sunctx;
 
-  *node_out = node;
+  *node_out = self;
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode, void* leaf_data,
-                                  size_t data_stride, size_t data_bytes,
-                                  SUNContext sunctx, SUNDataNode* node_out)
+SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode,
+                                  SUNMemoryHelper mem_helper, SUNContext sunctx,
+                                  SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
 
   switch (io_mode)
   {
   case (SUNDATAIOMODE_INMEM):
-    SUNCheckCall(SUNDataNode_CreateLeaf_InMem(leaf_data, data_stride,
-                                              data_bytes, sunctx, node_out));
+    SUNCheckCall(SUNDataNode_CreateLeaf_InMem(mem_helper, sunctx, node_out));
     break;
   default: return SUN_ERR_ARG_OUTOFRANGE;
   }
@@ -92,120 +92,142 @@ SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_IsLeaf(const SUNDataNode node, sunbooleantype* yes_or_no)
+SUNErrCode SUNDataNode_IsLeaf(const SUNDataNode self, sunbooleantype* yes_or_no)
 {
-  SUNFunctionBegin(node->sunctx);
+  SUNFunctionBegin(self->sunctx);
 
-  if (node->isLeaf) { return node->isLeaf(node, yes_or_no); }
+  if (self->isLeaf) { return self->isLeaf(self, yes_or_no); }
 
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_IsList(const SUNDataNode node, sunbooleantype* yes_or_no)
+SUNErrCode SUNDataNode_IsList(const SUNDataNode self, sunbooleantype* yes_or_no)
 {
-  SUNFunctionBegin(node->sunctx);
+  SUNFunctionBegin(self->sunctx);
 
-  if (node->isList) { return node->isList(node, yes_or_no); }
+  if (self->isList) { return self->isList(self, yes_or_no); }
 
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_HasChildren(const SUNDataNode node,
+SUNErrCode SUNDataNode_HasChildren(const SUNDataNode self,
                                    sunbooleantype* yes_or_no)
 {
-  SUNFunctionBegin(node->sunctx);
+  SUNFunctionBegin(self->sunctx);
 
-  if (node->hasChildren) { return node->hasChildren(node, yes_or_no); }
+  if (self->hasChildren) { return self->hasChildren(self, yes_or_no); }
 
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_AddChild(SUNDataNode node, SUNDataNode child_node)
+SUNErrCode SUNDataNode_AddChild(SUNDataNode self, SUNDataNode child_node)
 {
-  SUNFunctionBegin(node->sunctx);
+  SUNFunctionBegin(self->sunctx);
 
-  if (node->addChild) { return node->addChild(node, child_node); }
+  if (self->addChild) { return self->addChild(self, child_node); }
 
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_AddNamedChild(SUNDataNode node, const char* name,
+SUNErrCode SUNDataNode_AddNamedChild(SUNDataNode self, const char* name,
                                      SUNDataNode child_node)
 {
-  SUNFunctionBegin(node->sunctx);
+  SUNFunctionBegin(self->sunctx);
 
-  if (node->addNamedChild)
+  if (self->addNamedChild)
   {
-    return node->addNamedChild(node, name, child_node);
+    return self->addNamedChild(self, name, child_node);
   }
 
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_GetChild(const SUNDataNode node, sundataindex_t index,
+SUNErrCode SUNDataNode_GetChild(const SUNDataNode self, sundataindex_t index,
                                 SUNDataNode* child_node)
 {
-  SUNFunctionBegin(node->sunctx);
+  SUNFunctionBegin(self->sunctx);
 
-  if (node->getChild) { return node->getChild(node, index, child_node); }
+  if (self->getChild) { return self->getChild(self, index, child_node); }
 
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_GetNamedChild(const SUNDataNode node, const char* name,
+SUNErrCode SUNDataNode_GetNamedChild(const SUNDataNode self, const char* name,
                                      SUNDataNode* child_node)
 {
-  SUNFunctionBegin(node->sunctx);
+  SUNFunctionBegin(self->sunctx);
 
-  if (node->getNamedChild)
+  if (self->getNamedChild)
   {
-    return node->getNamedChild(node, name, child_node);
+    return self->getNamedChild(self, name, child_node);
   }
 
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_RemoveNamedChild(const SUNDataNode node, const char* name,
+SUNErrCode SUNDataNode_RemoveNamedChild(const SUNDataNode self, const char* name,
                                         SUNDataNode* child_node)
 {
-  SUNFunctionBegin(node->sunctx);
+  SUNFunctionBegin(self->sunctx);
 
-  if (node->removeNamedChild)
+  if (self->removeNamedChild)
   {
-    return node->removeNamedChild(node, name, child_node);
+    return self->removeNamedChild(self, name, child_node);
   }
 
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_RemoveChild(SUNDataNode node, sundataindex_t index,
+SUNErrCode SUNDataNode_RemoveChild(SUNDataNode self, sundataindex_t index,
                                    SUNDataNode* child_node)
 {
-  SUNFunctionBegin(node->sunctx);
+  SUNFunctionBegin(self->sunctx);
 
-  if (node->removeChild) { return node->removeChild(node, index, child_node); }
+  if (self->removeChild) { return self->removeChild(self, index, child_node); }
 
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_GetData(const SUNDataNode node, void** data)
+SUNErrCode SUNDataNode_GetData(const SUNDataNode self, void** data,
+                               size_t* data_stride, size_t* data_bytes)
 {
-  SUNFunctionBegin(node->sunctx);
+  SUNFunctionBegin(self->sunctx);
 
-  if (node->getData) { return node->getData(node, data); }
+  if (self->getData)
+  {
+    return self->getData(self, data, data_stride, data_bytes);
+  }
 
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_SetData(SUNDataNode node, void* data, size_t data_stride,
+SUNErrCode SUNDataNode_GetDataNvector(SUNDataNode self, N_Vector* v)
+{
+  SUNFunctionBegin(self->sunctx);
+
+  if (self->getDataNvector) { return self->getDataNvector(self, v); }
+
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
+SUNErrCode SUNDataNode_SetData(SUNDataNode self, void* data, size_t data_stride,
                                size_t data_bytes)
 {
-  SUNFunctionBegin(node->sunctx);
+  SUNFunctionBegin(self->sunctx);
 
-  if (node->setData)
+  if (self->setData)
   {
-    return node->setData(node, data, data_stride, data_bytes);
+    return self->setData(self, data, data_stride, data_bytes);
   }
+
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
+SUNErrCode SUNDataNode_SetDataNvector(SUNDataNode self, N_Vector v)
+{
+  SUNFunctionBegin(self->sunctx);
+
+  if (self->setDataNvector) { return self->setDataNvector(self, v); }
 
   return SUN_ERR_NOT_IMPLEMENTED;
 }

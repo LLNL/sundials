@@ -43,9 +43,9 @@ extern "C" {
  */
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
-  SUNDataIOMode io_mode, uint64_t interval, uint64_t estimate,
-  sunbooleantype save_stages, sunbooleantype keep, SUNContext sunctx,
-  SUNAdjointCheckpointScheme* check_scheme_ptr);
+  SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, uint64_t interval,
+  uint64_t estimate, sunbooleantype save_stages, sunbooleantype keep,
+  SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr);
 
 /**
 
@@ -61,8 +61,8 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
  */
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Basic(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num, sunindextype stage_num,
-  sunrealtype t, sunbooleantype* yes_or_no);
+  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
+  sunindextype stage_num, sunrealtype t, sunbooleantype* yes_or_no);
 
 /**
   This function inserts a checkpoint state (represented as a SUNDataNode).
@@ -76,11 +76,9 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Basic(
   :returns: a :c:type:`SUNErrCode` indicating success or failure
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_Insert_Basic(SUNAdjointCheckpointScheme check_scheme,
-                                                   sunindextype step_num,
-                                                   sunindextype stage_num,
-                                                   sunrealtype t,
-                                                   SUNDataNode state);
+SUNErrCode SUNAdjointCheckpointScheme_Insert_Basic(
+  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
+  sunindextype stage_num, sunrealtype t, SUNDataNode state);
 
 /**
   This function inserts a checkpoint state (represented as a N_Vector).
@@ -95,8 +93,8 @@ SUNErrCode SUNAdjointCheckpointScheme_Insert_Basic(SUNAdjointCheckpointScheme ch
  */
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num, sunindextype stage_num,
-  sunrealtype t, N_Vector state);
+  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
+  sunindextype stage_num, sunrealtype t, N_Vector state);
 
 /**
   This function queries the checkpointing scheme to determine if you should delete a checkpoint at this timestep.
@@ -111,8 +109,8 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
  */
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete_Basic(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num, sunindextype stage_num,
-  sunbooleantype* yes_or_no);
+  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
+  sunindextype stage_num, sunbooleantype* yes_or_no);
 
 /**
   This function removes a checkpoint state (represented as a SUNDataNode).
@@ -126,10 +124,9 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete_Basic(
   :returns: a :c:type:`SUNErrCode` indicating success or failure
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_Remove_Basic(SUNAdjointCheckpointScheme check_scheme,
-                                                   sunindextype step_num,
-                                                   sunindextype stage_num,
-                                                   SUNDataNode* out);
+SUNErrCode SUNAdjointCheckpointScheme_Remove_Basic(
+  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
+  sunindextype stage_num, SUNDataNode* out);
 
 /**
   This function removes a checkpoint state (represented as a N_Vector).
@@ -143,10 +140,9 @@ SUNErrCode SUNAdjointCheckpointScheme_Remove_Basic(SUNAdjointCheckpointScheme ch
   :returns: a :c:type:`SUNErrCode` indicating success or failure
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Basic(SUNAdjointCheckpointScheme check_scheme,
-                                                         sunindextype step_num,
-                                                         sunindextype stage_num,
-                                                         N_Vector* out);
+SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Basic(
+  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
+  sunindextype stage_num, N_Vector* out);
 
 /**
   This function removes multiple checkpoints.
@@ -173,10 +169,9 @@ SUNErrCode SUNAdjointCheckpointScheme_RemoveRange_Basic(
   :returns: a :c:type:`SUNErrCode` indicating success or failure
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_Load_Basic(SUNAdjointCheckpointScheme check_scheme,
-                                                 sunindextype step_num,
-                                                 sunindextype stage_num,
-                                                 SUNDataNode* out);
+SUNErrCode SUNAdjointCheckpointScheme_Load_Basic(
+  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
+  sunindextype stage_num, SUNDataNode* out);
 
 /**
   This function loads a checkpoint state (represented as a N_Vector).
@@ -190,10 +185,9 @@ SUNErrCode SUNAdjointCheckpointScheme_Load_Basic(SUNAdjointCheckpointScheme chec
   :returns: a :c:type:`SUNErrCode` indicating success or failure
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(SUNAdjointCheckpointScheme check_scheme,
-                                                       sunindextype step_num,
-                                                       sunindextype stage_num,
-                                                       N_Vector* out);
+SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
+  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
+  sunindextype stage_num, N_Vector* out);
 
 /**
   This function destroys and frees the memory for the SUNAdjointCheckpointScheme object.
@@ -203,7 +197,8 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(SUNAdjointCheckpointSchem
   :returns: a :c:type:`SUNErrCode` indicating success or failure
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_Destroy_Basic(SUNAdjointCheckpointScheme* check_scheme_ptr);
+SUNErrCode SUNAdjointCheckpointScheme_Destroy_Basic(
+  SUNAdjointCheckpointScheme* check_scheme_ptr);
 
 #ifdef __cplusplus
 }

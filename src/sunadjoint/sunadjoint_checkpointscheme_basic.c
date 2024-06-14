@@ -13,19 +13,21 @@
  * ----------------------------------------------------------------*/
 
 #include <sunadjoint/sunadjoint_checkpointscheme_basic.h>
-#include "sundatanode/sundatanode_inmem.h"
 #include <sundials/sundials_core.h>
 
 #include "sunadjoint/sunadjoint_checkpointscheme.h"
+#include "sundatanode/sundatanode_inmem.h"
 #include "sundials/priv/sundials_errors_impl.h"
 #include "sundials/sundials_datanode.h"
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_logger.h"
+#include "sundials/sundials_memory.h"
 #include "sundials/sundials_types.h"
 #include "sundials_utils.h"
 
 struct SUNAdjointCheckpointScheme_Basic_Content_
 {
+  SUNMemoryHelper mem_helper;
   uint64_t interval;
   sunbooleantype save_stages;
   sunbooleantype keep;
@@ -44,9 +46,9 @@ typedef struct SUNAdjointCheckpointScheme_Basic_Content_*
 #define PROPERTY(S, prop) (GET_CONTENT(S)->prop)
 
 SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
-  SUNDataIOMode io_mode, uint64_t interval, uint64_t estimate,
-  sunbooleantype save_stages, sunbooleantype keep, SUNContext sunctx,
-  SUNAdjointCheckpointScheme* check_scheme_ptr)
+  SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, uint64_t interval,
+  uint64_t estimate, sunbooleantype save_stages, sunbooleantype keep,
+  SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
 {
   SUNFunctionBegin(sunctx);
 
@@ -63,6 +65,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
   content = malloc(sizeof(*content));
   SUNAssert(content, SUN_ERR_MALLOC_FAIL);
 
+  content->mem_helper                = mem_helper;
   content->interval                  = interval;
   content->save_stages               = save_stages;
   content->keep                      = keep;
@@ -105,12 +108,6 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
 {
   SUNFunctionBegin(self->sunctx);
 
-  /* Clone the vector and copy its data */
-  N_Vector state_clone = N_VClone(state);
-  SUNCheckLastErr();
-  N_VScale(SUN_RCONST(1.0), state, state_clone);
-  SUNCheckLastErr();
-
   /* If this is the step solution, then we need to create a list node first to
      store the step and stage solutions in. We keep a pointer to the list node
      until this step is over for fast access when inserting stages. */
@@ -137,8 +134,10 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
 
   /* Add the solution data as a node in the step list. */
   SUNDataNode solution_node = NULL;
-  SUNCheckCall(SUNDataNode_CreateLeaf(PROPERTY(self, io_mode), state_clone, 1,
-                                      sizeof(N_Vector), SUNCTX_, &solution_node));
+  SUNCheckCall(SUNDataNode_CreateLeaf(PROPERTY(self, io_mode),
+                                      PROPERTY(self, mem_helper), SUNCTX_,
+                                      &solution_node));
+  SUNCheckCall(SUNDataNode_SetDataNvector(solution_node, state));
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
@@ -191,19 +190,17 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
 
   if (!solution_node) { return SUN_ERR_CHECKPOINT_NOT_FOUND; }
 
-  void* data = NULL;
-  SUNCheckCall(SUNDataNode_GetData(solution_node, &data));
-  SUNAssert(data, SUN_ERR_CORRUPT);
+  // void* data = NULL;
+  // SUNCheckCall(SUNDataNode_GetData(solution_node, &data));
+  // SUNAssert(data, SUN_ERR_CORRUPT);
 
-  /* Copy the data into the out vector */
-  N_VScale(SUN_RCONST(1.0), (N_Vector)data, *out);
-  SUNCheckLastErr();
+  // /* Copy the data into the out vector */
+  // N_VScale(SUN_RCONST(1.0), (N_Vector)data, *out);
+  // SUNCheckLastErr();
 
   /* Cleanup the checkpoint memory if need be */
   if (!PROPERTY(self, keep))
   {
-    N_VDestroy((N_Vector)data);
-    SUNCheckLastErr();
     SUNCheckCall(SUNDataNode_Destroy(&solution_node));
   }
 
