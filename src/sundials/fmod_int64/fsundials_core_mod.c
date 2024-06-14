@@ -902,14 +902,14 @@ SWIGEXPORT void _wrap_FN_VDestroy(N_Vector farg1) {
 }
 
 
-SWIGEXPORT void _wrap_FN_VSpace(N_Vector farg1, int64_t *farg2, int64_t *farg3) {
+SWIGEXPORT void _wrap_FN_VSpace(N_Vector farg1, long *farg2, long *farg3) {
   N_Vector arg1 = (N_Vector) 0 ;
-  sunindextype *arg2 = (sunindextype *) 0 ;
-  sunindextype *arg3 = (sunindextype *) 0 ;
+  long *arg2 = (long *) 0 ;
+  long *arg3 = (long *) 0 ;
   
   arg1 = (N_Vector)(farg1);
-  arg2 = (sunindextype *)(farg2);
-  arg3 = (sunindextype *)(farg3);
+  arg2 = (long *)(farg2);
+  arg3 = (long *)(farg3);
   N_VSpace(arg1,arg2,arg3);
 }
 
