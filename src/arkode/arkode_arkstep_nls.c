@@ -423,11 +423,8 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
                              ark_mem->ewt, step_mem->nlscoef, callLSetup,
                              ark_mem);
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "correction",
-                     "zcor(:) =", "");
-  N_VPrintFile(step_mem->zcor, ARK_LOGGER->debug_fp);
-#endif
+  SUNLogExtraDebugVec(ARK_LOGGER, __func__, "correction",
+                      "zcor(:) =", step_mem->zcor, "");
 
   /* increment counters */
   (void)SUNNonlinSolGetNumIters(step_mem->NLS, &nls_iters_inc);
