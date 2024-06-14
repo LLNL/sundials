@@ -326,11 +326,8 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
                              ark_mem->ewt, step_mem->nlscoef, callLSetup,
                              ark_mem);
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_Nls",
-                     "correction", "zcor(:) =", "");
-  N_VPrintFile(step_mem->zcor, ARK_LOGGER->debug_fp);
-#endif
+  SUNLogExtraDebug(ARK_LOGGER, "ARKODE::mriStep_Nls",
+                   "correction", "zcor(:) =", step_mem->zcor, "");
 
   /* increment counters */
   (void)SUNNonlinSolGetNumIters(step_mem->NLS, &nls_iters_inc);
