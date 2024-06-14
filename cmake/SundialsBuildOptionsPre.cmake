@@ -115,18 +115,7 @@ set(EXE_EXTRA_LINK_LIBS "${SUNDIALS_MATH_LIBRARY}")
 # ---------------------------------------------------------------
 
 sundials_option(BUILD_STATIC_LIBS BOOL "Build static libraries" ON)
-
-# There are some bugs in our CMake preventing simulatenous static+shared builds
-# from working on Windows. So, on Windows we dont build shared libraries
-# by default.
-if(WIN32)
-  sundials_option(BUILD_SHARED_LIBS BOOL "Build shared libraries" OFF)
-  if(BUILD_STATIC_LIBS AND BUILD_SHARED_LIBS)
-    message(WARNING "Building SUNDIALS static and shared libraries in the same build directory on Windows is not currently supported.")
-  endif()
-else()
-  sundials_option(BUILD_SHARED_LIBS BOOL "Build shared libraries" ON)
-endif()
+sundials_option(BUILD_SHARED_LIBS BOOL "Build shared libraries" ON)
 
 # Make sure we build at least one type of libraries
 if(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
