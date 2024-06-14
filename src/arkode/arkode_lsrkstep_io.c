@@ -158,7 +158,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
      (overwrite some adaptivity params for LSRKStep use) */
   step_mem->q      = Q_DEFAULT;                  /* method order */
   step_mem->p      = 0;                          /* embedding order */
-  step_mem->stages = 0;                          /* no stages */
+  step_mem->reqstages = 0;                          /* no stages */
   // step_mem->B      = NULL;                       /* no Butcher table */
   ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
   ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
