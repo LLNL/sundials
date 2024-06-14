@@ -96,7 +96,7 @@ SUNErrCode SUNDataNode_RemoveNamedChild_InMem(SUNDataNode self, const char* name
 SUNErrCode SUNDataNode_GetData_InMem(const SUNDataNode self, void** data,
                                      size_t* data_stride, size_t* data_bytes);
 
-SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector* v);
+SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector v);
 
 SUNErrCode SUNDataNode_SetData_InMem(SUNDataNode self, void* data,
                                      size_t data_stride, size_t data_bytes);

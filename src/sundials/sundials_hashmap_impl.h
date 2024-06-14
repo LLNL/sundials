@@ -43,23 +43,33 @@ typedef struct SUNHashMap_* SUNHashMap;
 struct SUNHashMap_
 {
   size_t capacity; /* max number of entries */
+  void (*destroyKeyValue)(SUNHashMapKeyValue*);
   SUNStlVector_SUNHashMapKeyValue buckets;
 };
 
-SUNErrCode SUNHashMap_New(size_t init_capacity, SUNHashMap* map);
+SUNErrCode SUNHashMap_New(size_t capacity,
+                          void (*destroyValue)(SUNHashMapKeyValue* value_ptr),
+                          SUNHashMap* map);
+
 size_t SUNHashMap_Capacity(SUNHashMap map);
-SUNErrCode SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr));
+
+SUNErrCode SUNHashMap_Destroy(SUNHashMap* map);
 
 size_t SUNHashMap_Iterate(SUNHashMap map, int start,
-                          int (*yieldfn)(int, SUNHashMapKeyValue, void*),
-                          void* ctx);
+                          int (*yieldfn)(int, SUNHashMapKeyValue, const void*),
+                          const void* ctx);
+
 int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value);
+
 int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value);
+
 int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value);
+
 SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
                            int (*compar)(const void*, const void*));
 
 SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size);
+
 SUNErrCode SUNHashMap_PrintKeys(SUNHashMap map, FILE* file);
 
 #ifdef __cplusplus

@@ -17,6 +17,8 @@
 #include <sundials/sundials_core.h>
 
 #include "sundials/sundials_errors.h"
+#include "sundials/sundials_memory.h"
+#include "sunmemory/sunmemory_system.h"
 
 bool compare_vectors(N_Vector expected, N_Vector actual)
 {
@@ -24,7 +26,14 @@ bool compare_vectors(N_Vector expected, N_Vector actual)
   sunrealtype* edata = N_VGetArrayPointer(expected);
   for (sunindextype i = 0; i < N_VGetLength(expected); ++i)
   {
-    if (edata[i] != adata[i]) return false;
+    if (edata[i] != adata[i])
+    {
+      fprintf(stderr, "compare_vectors\nexpected:\n");
+      N_VPrint(expected);
+      fprintf(stderr, "compare_vectors\nactual:\n");
+      N_VPrint(actual);
+      return false;
+    }
   }
   return true;
 }
@@ -37,16 +46,19 @@ protected:
     SUNContext_Create(SUN_COMM_NULL, &sunctx);
     state        = N_VNew_Serial(10, sunctx);
     loaded_state = N_VClone(state);
+    mem_helper   = SUNMemoryHelper_Sys(sunctx);
   }
 
   ~SUNAdjointCheckpointSchemeBasic()
   {
     N_VDestroy(state);
     N_VDestroy(loaded_state);
+    SUNMemoryHelper_Destroy(mem_helper);
     SUNContext_Free(&sunctx);
   }
 
   SUNContext sunctx;
+  SUNMemoryHelper mem_helper;
   N_Vector state;
   N_Vector loaded_state;
 };
@@ -56,8 +68,9 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, CreateWorks)
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs = NULL;
 
-  err = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, 1, 100,
-                                                SUNTRUE, SUNTRUE, sunctx, &cs);
+  err = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,
+                                                1, 1, SUNTRUE, SUNTRUE, sunctx,
+                                                &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);
@@ -70,8 +83,9 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertSingleStageWorks)
   SUNAdjointCheckpointScheme cs = NULL;
   const sunrealtype t           = 0.0;
 
-  err = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, 1, 100,
-                                                SUNTRUE, SUNTRUE, sunctx, &cs);
+  err = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,
+                                                1, 10, SUNTRUE, SUNTRUE, sunctx,
+                                                &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Insert the step solution
@@ -107,8 +121,9 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertTwoStageWorks)
   SUNAdjointCheckpointScheme cs = NULL;
   const sunrealtype t           = 0.0;
 
-  err = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, 1, 100,
-                                                SUNTRUE, SUNTRUE, sunctx, &cs);
+  err = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,
+                                                1, 100, SUNTRUE, SUNTRUE,
+                                                sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Insert the step solution
@@ -155,8 +170,9 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertTwoStepsWorks)
   SUNAdjointCheckpointScheme cs = NULL;
   const sunrealtype t           = 0.0;
 
-  err = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, 1, 100,
-                                                SUNTRUE, SUNTRUE, sunctx, &cs);
+  err = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,
+                                                1, 100, SUNTRUE, SUNTRUE,
+                                                sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Insert the step solution
@@ -215,8 +231,9 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, AreDeletedWhenNotKeeping)
   SUNAdjointCheckpointScheme cs = NULL;
   const sunrealtype t           = 0.0;
 
-  err = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, 1, 100,
-                                                SUNTRUE, SUNFALSE, sunctx, &cs);
+  err = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,
+                                                1, 100, SUNTRUE, SUNFALSE,
+                                                sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Insert the step solution
@@ -245,8 +262,9 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, CanStillInsertAfterDeleting)
   SUNAdjointCheckpointScheme cs = NULL;
   const sunrealtype t           = 0.0;
 
-  err = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, 1, 100,
-                                                SUNTRUE, SUNFALSE, sunctx, &cs);
+  err = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,
+                                                1, 100, SUNTRUE, SUNFALSE,
+                                                sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Insert the step solution

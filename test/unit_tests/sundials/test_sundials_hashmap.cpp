@@ -10,43 +10,47 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include <iostream>
-#include <string>
-#include <sundials/sundials_core.hpp>
-#include <nvector/nvector_serial.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <iostream>
+#include <nvector/nvector_serial.h>
+#include <string>
+#include <sundials/sundials_core.hpp>
 
 #include "sundials_hashmap_impl.h"
 
 const size_t init_capacity = 2;
 
 // Helper function to free memory for value
-void FreeValue(void* ptr) {
+void freeKeyValue(SUNHashMapKeyValue* ptr)
+{
   // NO-OP: nothing we test with needs to be freed
+  return;
 }
 
-class SUNHashMapTest : public testing::Test {
- protected:
+class SUNHashMapTest : public testing::Test
+{
+protected:
   SUNHashMap map;
 
-  virtual void SetUp() override {
-    SUNHashMap_New(init_capacity, &map);
+  virtual void SetUp() override
+  {
+    SUNHashMap_New(init_capacity, freeKeyValue, &map);
   }
 
-  virtual void TearDown() override {
-    SUNHashMap_Destroy(&map, FreeValue);
-  }
+  virtual void TearDown() override { SUNHashMap_Destroy(&map); }
 };
 
-TEST_F(SUNHashMapTest, CapacityWorks) {
+TEST_F(SUNHashMapTest, CapacityWorks)
+{
   EXPECT_EQ(init_capacity, SUNHashMap_Capacity(map));
 }
 
-TEST_F(SUNHashMapTest, InsertAndGetWorks) {
-  SUNErrCode err = SUN_SUCCESS;
+TEST_F(SUNHashMapTest, InsertAndGetWorks)
+{
+  SUNErrCode err  = SUN_SUCCESS;
   const char* key = "test_key";
-  int value = 42;
+  int value       = 42;
 
   err = SUNHashMap_Insert(map, key, &value);
   ASSERT_EQ(err, SUN_SUCCESS);
@@ -58,12 +62,13 @@ TEST_F(SUNHashMapTest, InsertAndGetWorks) {
   EXPECT_EQ(value, *((int*)retrieved_value));
 }
 
-TEST_F(SUNHashMapTest, InsertAndGetTwiceWorks) {
-  SUNErrCode err = SUN_SUCCESS;
+TEST_F(SUNHashMapTest, InsertAndGetTwiceWorks)
+{
+  SUNErrCode err   = SUN_SUCCESS;
   const char* key1 = "test_key1";
   const char* key2 = "test_key2";
-  int value1 = 42;
-  int value2 = 43;
+  int value1       = 42;
+  int value2       = 43;
 
   err = SUNHashMap_Insert(map, key1, &value1);
   ASSERT_EQ(err, 0);
@@ -84,15 +89,15 @@ TEST_F(SUNHashMapTest, InsertAndGetTwiceWorks) {
   EXPECT_EQ(value2, *((int*)retrieved_value));
 }
 
-
-TEST_F(SUNHashMapTest, InsertRequiringResizeWorks) {
-  SUNErrCode err = SUN_SUCCESS;
+TEST_F(SUNHashMapTest, InsertRequiringResizeWorks)
+{
+  SUNErrCode err   = SUN_SUCCESS;
   const char* key1 = "test_key1";
   const char* key2 = "test_key2";
   const char* key3 = "test_key3";
-  int value1 = 42;
-  int value2 = 43;
-  int value3 = 44;
+  int value1       = 42;
+  int value2       = 43;
+  int value3       = 44;
 
   err = SUNHashMap_Insert(map, key1, &value1);
   ASSERT_EQ(err, 0);
@@ -121,13 +126,14 @@ TEST_F(SUNHashMapTest, InsertRequiringResizeWorks) {
   EXPECT_EQ(value3, *((int*)retrieved_value));
 }
 
-TEST_F(SUNHashMapTest, InsertDuplicateKeyFails) {
+TEST_F(SUNHashMapTest, InsertDuplicateKeyFails)
+{
   int err;
 
   // Insert same key twice (should overwrite)
   const char* key = "test_key";
-  int value1 = 42;
-  int value2 = 100;
+  int value1      = 42;
+  int value2      = 100;
 
   err = SUNHashMap_Insert(map, key, &value1);
   ASSERT_EQ(err, 0);
@@ -135,13 +141,14 @@ TEST_F(SUNHashMapTest, InsertDuplicateKeyFails) {
   ASSERT_EQ(err, -2);
 }
 
-TEST_F(SUNHashMapTest, RemoveWorks) {
+TEST_F(SUNHashMapTest, RemoveWorks)
+{
   int err;
 
   // Insert a key-value pair
   const char* key = "test_key";
-  int value = 42;
-  err = SUNHashMap_Insert(map, key, &value);
+  int value       = 42;
+  err             = SUNHashMap_Insert(map, key, &value);
   ASSERT_EQ(err, 0);
 
   // Remove the key

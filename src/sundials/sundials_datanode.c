@@ -201,7 +201,7 @@ SUNErrCode SUNDataNode_GetData(const SUNDataNode self, void** data,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_GetDataNvector(SUNDataNode self, N_Vector* v)
+SUNErrCode SUNDataNode_GetDataNvector(SUNDataNode self, N_Vector v)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -236,7 +236,7 @@ SUNErrCode SUNDataNode_Destroy(SUNDataNode* node)
 {
   SUNFunctionBegin((*node)->sunctx);
 
-  if ((*node)->destroy) { SUNCheckCall((*node)->destroy(node)); }
+  if ((*node)->destroy) { return (*node)->destroy(node); }
 
   free(*node);
   *node = NULL;

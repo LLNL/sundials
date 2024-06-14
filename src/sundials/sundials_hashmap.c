@@ -57,7 +57,9 @@ static uint64_t fnv1a_hash(const char* str)
   **Returns:**
     * A SUNErrCode indicating success or a failure
  */
-SUNErrCode SUNHashMap_New(size_t capacity, SUNHashMap* map)
+SUNErrCode SUNHashMap_New(size_t capacity,
+                          void (*destroyKeyValue)(SUNHashMapKeyValue* kv_ptr),
+                          SUNHashMap* map)
 {
   if (capacity <= 0) { return SUN_ERR_ARG_OUTOFRANGE; }
 
@@ -66,10 +68,11 @@ SUNErrCode SUNHashMap_New(size_t capacity, SUNHashMap* map)
 
   if (!map) { return SUN_ERR_MALLOC_FAIL; }
 
-  (*map)->capacity = capacity;
+  (*map)->capacity        = capacity;
+  (*map)->destroyKeyValue = destroyKeyValue;
 
   SUNStlVector_SUNHashMapKeyValue buckets =
-    SUNStlVector_SUNHashMapKeyValue_New(capacity);
+    SUNStlVector_SUNHashMapKeyValue_New(capacity, destroyKeyValue);
   if (!buckets)
   {
     free(*map);
@@ -98,28 +101,15 @@ size_t SUNHashMap_Capacity(SUNHashMap map)
   **Arguments:**
     * ``map`` -- on input, a SUNHasMap pointer, on output the SUNHashMap will be
                  deallocated and set to ``NULL``
-    * ``freevalue`` -- callback function that should free the value object
 
   **Returns:**
     * A SUNErrCode indicating success or a failure
  */
-SUNErrCode SUNHashMap_Destroy(SUNHashMap* map, void (*freevalue)(void* ptr))
+SUNErrCode SUNHashMap_Destroy(SUNHashMap* map)
 {
-  if (map == NULL || freevalue == NULL) { return SUN_SUCCESS; }
+  if (map == NULL) { return SUN_SUCCESS; }
 
-  SUNStlVector_SUNHashMapKeyValue buckets = (*map)->buckets;
-  for (size_t i = 0; i < (*map)->capacity; i++)
-  {
-    SUNHashMapKeyValue bucket = *SUNStlVector_SUNHashMapKeyValue_At(buckets, i);
-    if (bucket && bucket->value) { freevalue(bucket->value); }
-    if (bucket)
-    {
-      free(bucket->key);
-      free(bucket);
-    }
-  }
-
-  free(buckets);
+  SUNStlVector_SUNHashMapKeyValue_Destroy(&(*map)->buckets);
   free(*map);
   *map = NULL;
 

@@ -103,6 +103,12 @@ static void sunTimerStructFree(void* TS)
   }
 }
 
+static void sunProfilerDestroyKeyValue(SUNHashMapKeyValue* kv_ptr)
+{
+  if (!kv_ptr || !(*kv_ptr)) { return; }
+  sunTimerStructFree((*kv_ptr)->value);
+}
+
 static void sunStartTiming(sunTimerStruct* entry)
 {
   sunclock_gettime_monotonic(entry->tic);
@@ -182,7 +188,7 @@ SUNErrCode SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
   if (max_entries <= 0) { max_entries = 2560; }
 
   /* Create the hashmap used to store the timers */
-  if (SUNHashMap_New(max_entries, &profiler->map))
+  if (SUNHashMap_New(max_entries, sunProfilerDestroyKeyValue, &profiler->map))
   {
     sunTimerStructFree((void*)profiler->overhead);
     free(profiler);
@@ -225,7 +231,7 @@ SUNErrCode SUNProfiler_Free(SUNProfiler* p)
 
   if (*p)
   {
-    SUNHashMap_Destroy(&(*p)->map, sunTimerStructFree);
+    SUNHashMap_Destroy(&(*p)->map);
     sunTimerStructFree((void*)(*p)->overhead);
 #if SUNDIALS_MPI_ENABLED
     if ((*p)->comm != SUN_COMM_NULL) { MPI_Comm_free(&(*p)->comm); }

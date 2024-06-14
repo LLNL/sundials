@@ -151,7 +151,7 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
 
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   SUNAdjointCheckpointScheme self, sunindextype step_num,
-  sunindextype stage_num, N_Vector* out)
+  sunindextype stage_num, N_Vector* loaded_state)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -190,13 +190,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
 
   if (!solution_node) { return SUN_ERR_CHECKPOINT_NOT_FOUND; }
 
-  // void* data = NULL;
-  // SUNCheckCall(SUNDataNode_GetData(solution_node, &data));
-  // SUNAssert(data, SUN_ERR_CORRUPT);
-
-  // /* Copy the data into the out vector */
-  // N_VScale(SUN_RCONST(1.0), (N_Vector)data, *out);
-  // SUNCheckLastErr();
+  SUNCheckCall(SUNDataNode_GetDataNvector(solution_node, *loaded_state));
 
   /* Cleanup the checkpoint memory if need be */
   if (!PROPERTY(self, keep))

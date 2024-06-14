@@ -2094,7 +2094,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (*nflagPtr < 0) { return (*nflagPtr); }
   if (*nflagPtr > 0) { return (TRY_AGAIN); }
 
-  if (*nflagPtr == 0)
+  if (ark_mem->checkpoint_scheme && (*nflagPtr) == 0)
   {
     sunbooleantype do_save;
     SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,

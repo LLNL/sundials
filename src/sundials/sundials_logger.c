@@ -21,7 +21,10 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_errors.h>
 #include <sundials/sundials_logger.h>
-#include <sundials/sundials_types.h>
+
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
+#include "sundials_hashmap_impl.h"
 
 #if SUNDIALS_MPI_ENABLED
 #include <mpi.h>
@@ -122,6 +125,12 @@ static sunbooleantype sunLoggerIsOutputRank(SUNDIALS_MAYBE_UNUSED SUNLogger logg
   return retval;
 }
 
+static void sunLoggerFreeKeyValue(SUNHashMapKeyValue* kv_ptr)
+{
+  if (!kv_ptr || !(*kv_ptr)) { return; }
+  sunCloseLogFile((*kv_ptr)->value);
+}
+
 SUNErrCode SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger_ptr)
 {
   SUNLogger logger = NULL;
@@ -160,7 +169,8 @@ SUNErrCode SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger_ptr
     /* We store the FILE* in a hash map so that we can ensure
        that we do not open a file twice if the same file is used
        for multiple output levels */
-    SUNHashMap_New(SUN_DEFAULT_LOGFILE_HANDLES_, &logger->filenames);
+    SUNHashMap_New(SUN_DEFAULT_LOGFILE_HANDLES_, sunLoggerFreeKeyValue,
+                   &logger->filenames);
   }
 
   return SUN_SUCCESS;
@@ -462,7 +472,7 @@ SUNErrCode SUNLogger_Destroy(SUNLogger* logger_ptr)
 
     if (sunLoggerIsOutputRank(logger, NULL))
     {
-      SUNHashMap_Destroy(&logger->filenames, sunCloseLogFile);
+      SUNHashMap_Destroy(&logger->filenames);
     }
 
 #if SUNDIALS_MPI_ENABLED

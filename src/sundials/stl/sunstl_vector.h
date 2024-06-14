@@ -41,6 +41,7 @@ struct SUNStlVectorTtype_s
   size_t size;
   size_t capacity;
   TTYPE* values;
+  void (*destroyValue)(TTYPE*);
 };
 
 // This constant controls how much space will be allocated when a resize is needed.
@@ -51,22 +52,16 @@ struct SUNStlVectorTtype_s
 #define GROWTH_FACTOR 1.5
 
 static inline SUNStlVectorTtype MAKE_NAME(SUNStlVectorTtype,
-                                          New)(size_t init_capacity)
+                                          New)(size_t init_capacity,
+                                               void (*destroyValue)(TTYPE*))
 {
   SUNStlVectorTtype self =
     (SUNStlVectorTtype)malloc(sizeof(struct SUNStlVectorTtype_s));
-  self->size     = 0;
-  self->capacity = init_capacity > 0 ? init_capacity : 1;
-  self->values   = (TTYPE*)malloc(sizeof(TTYPE) * self->capacity);
+  self->size         = 0;
+  self->capacity     = init_capacity > 0 ? init_capacity : 1;
+  self->values       = (TTYPE*)malloc(sizeof(TTYPE) * self->capacity);
+  self->destroyValue = destroyValue;
   return self;
-}
-
-static inline void MAKE_NAME(SUNStlVectorTtype, Destroy)(SUNStlVectorTtype* self)
-{
-  if (!(*self)) return;
-  free((*self)->values);
-  free(*self);
-  *self = NULL;
 }
 
 static inline sunbooleantype MAKE_NAME(SUNStlVectorTtype,
@@ -153,6 +148,24 @@ static inline size_t MAKE_NAME(SUNStlVectorTtype, Size)(SUNStlVectorTtype self)
 static inline size_t MAKE_NAME(SUNStlVectorTtype, Capacity)(SUNStlVectorTtype self)
 {
   return self->capacity;
+}
+
+static inline void MAKE_NAME(SUNStlVectorTtype,
+                             Destroy)(SUNStlVectorTtype* self_ptr)
+{
+  static TTYPE nullish;
+
+  if (!self_ptr || !(*self_ptr)) return;
+
+  SUNStlVectorTtype self = *self_ptr;
+
+  for (size_t i = 0; i < MAKE_NAME(SUNStlVectorTtype, Size)(self); i++)
+  {
+    self->destroyValue(&(self->values[i]));
+    self->values[i] = nullish;
+  }
+
+  *self_ptr = NULL;
 }
 
 #undef TTYPE

@@ -22,6 +22,8 @@ sundials_add_library(sundials_adjoint
     ${SUNDIALS_SOURCE_DIR}/include/sunadjoint/sunadjoint_checkpointscheme_basic.h
   LINK_LIBRARIES
     PUBLIC sundials_core
+  OBJECT_LIBRARIES
+    sundials_sunmemsys_obj
   INCLUDE_SUBDIR
     sunadjoint
 )
