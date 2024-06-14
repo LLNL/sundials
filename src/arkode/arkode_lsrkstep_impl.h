@@ -41,16 +41,37 @@ typedef struct ARKodeLSRKStepMemRec
 {
   /* LSRK problem specification */
   ARKRhsFn fe;
+  ARKRhsFn fi;
 
   /* LSRK method storage and parameters */
   N_Vector* Fe; /* RHS vector storage */
   N_Vector* Fi; /* RHS vector storage */
   int q;       /* method order       */
   int p;       /* embedding order    */
-  int stages;  /* number of stages   */
+
+  int reqstages;  /* number of requested stages   */
+  sunrealtype absh; /* prime h value (might have been declared in ARKodeMem)*/
+  sunrealtype err; /* error of the current step*/
+  sunrealtype errold; /* error of the old step*/
 
   /* Counters */
   long int nfe; /* num fe calls       */
+  long int sprnfe; /* num fe calls for spectral radius      */
+  long int stagemax; /* num of max stages taken      */
+  long int stagemaxlimit; /* max allowed num of stages     */
+  long int nreject; /* num of rejected steps (could be declared in ARKodeMem)     */
+  int nstsig; /* num of steps that successfully used spr; indicates spr update when 0;  */
+
+  /* Spectral radius info */  
+  sunrealtype sprad; /* spectral radius*/
+  sunrealtype sprmax; /* max spectral radius*/
+  sunrealtype sprmin; /* min spectral radius*/
+  sunrealtype sprupdatepar; /* indicates spr update after sprupdatepar successful steps*/
+
+  /* Flags */
+  sunbooleantype extspr; /* flag indicating user provided spr */
+  sunbooleantype newspr; /* flag indicating new spr is needed */
+  sunbooleantype jacatt; /* an internal flag*/
 
   /* Reusable fused vector operation arrays */
   sunrealtype* cvals;

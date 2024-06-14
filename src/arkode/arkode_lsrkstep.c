@@ -240,7 +240,7 @@ int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
 
   /* Resize the internal vector storage */
   if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                    &step_mem->F))
+                    &step_mem->Fe))
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Unable to resize vector");
@@ -399,7 +399,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     /* compute the RHS */
     if (!(ark_mem->fn_is_current))
     {
-      retval = step_mem->fe(t, y, step_mem->F[0], ark_mem->user_data);
+      retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
       step_mem->nfe++;
       if (retval != 0)
       {
@@ -410,7 +410,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     }
 
     /* copy RHS vector into output */
-    N_VScale(ONE, step_mem->F[0], f);
+    N_VScale(ONE, step_mem->Fe[0], f);
 
     break;
 
@@ -428,7 +428,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
       if (recomputeRHS)
       {
         /* call f */
-        retval = step_mem->fe(t, y, step_mem->F[0], ark_mem->user_data);
+        retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
         step_mem->nfe++;
         if (retval != 0)
         {
@@ -437,11 +437,11 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
           return (ARK_RHSFUNC_FAIL);
         }
       }
-      else { N_VScale(ONE, step_mem->F[step_mem->stages - 1], step_mem->F[0]); }
+      else { N_VScale(ONE, step_mem->Fe[step_mem->reqstages - 1], step_mem->Fe[0]); }
     }
 
     /* copy RHS vector into output */
-    N_VScale(ONE, step_mem->F[0], f);
+    N_VScale(ONE, step_mem->Fe[0], f);
 
     break;
 
