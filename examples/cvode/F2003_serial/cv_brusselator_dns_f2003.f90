@@ -38,7 +38,7 @@ module ode_mod
   implicit none
 
   ! number of equations
-  integer(c_int64_t), parameter :: neq = 3
+  integer(c_long), parameter :: neq = 3
 
   ! ODE parameters
   double precision, parameter :: a  = 1.2d0

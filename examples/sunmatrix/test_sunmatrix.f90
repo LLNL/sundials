@@ -77,7 +77,7 @@ contains
 
     type(N_Vector)  :: x, y
     real(C_DOUBLE)  :: tol
-    integer(C_INT64_T) :: i, xlen, ylen
+    integer(C_LONG) :: i, xlen, ylen
     real(C_DOUBLE), pointer :: xdata(:), ydata(:)
 
     failure = 0

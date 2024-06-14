@@ -28,10 +28,10 @@ contains
 
     implicit none
     real(c_double), value :: val, tol
-    integer(c_int64_t), value :: Nvar, N
+    integer(c_long), value :: Nvar, N
     Type(N_Vector) :: sunvec_x
     Type(FVec), pointer :: x
-    integer(c_int64_t) :: i, j
+    integer(c_long) :: i, j
 
     x => FN_VGetFVec(sunvec_x)
     failure = 0
@@ -59,9 +59,9 @@ program main
   ! local variables
   type(c_ptr)                 :: sunctx
   integer(c_int)              :: fails
-  integer(c_int64_t)             :: i, j, loc
-  integer(c_int64_t), parameter  :: N = 1000
-  integer(c_int64_t), parameter  :: Nvar = 10
+  integer(c_long)             :: i, j, loc
+  integer(c_long), parameter  :: N = 1000
+  integer(c_long), parameter  :: Nvar = 10
   type(N_Vector), pointer     :: sU, sV, sW, sX, sY, sZ
   type(FVec), pointer         :: U, V, W, X, Y, Z
   real(c_double), allocatable :: Udata(:,:)

@@ -55,7 +55,7 @@ module ode_mod
   implicit none
 
   ! number of equations
-  integer(c_int64_t), parameter :: neq = 3
+  integer(c_long), parameter :: neq = 3
 
   ! ODE parameters
   double precision, parameter :: lamda = -100.0d0
@@ -145,8 +145,8 @@ contains
     type(N_Vector)        :: tmp1, tmp2, tmp3 ! workspace N_Vectors
 
     ! pointer to data in SUNDIALS matrix
-    integer(C_INT64_T), pointer :: Jidxptr(:)
-    integer(C_INT64_T), pointer :: Jidxval(:)
+    integer(c_long), pointer :: Jidxptr(:)
+    integer(c_long), pointer :: Jidxval(:)
     real(c_double),  pointer :: Jmat(:)
 
     !======= Internals ============

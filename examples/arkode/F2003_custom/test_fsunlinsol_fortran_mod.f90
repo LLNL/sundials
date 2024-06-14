@@ -31,10 +31,10 @@ contains
 
     implicit none
     real(c_double), value :: tol
-    integer(c_int64_t), value :: Nvar, N
+    integer(c_long), value :: Nvar, N
     Type(N_Vector) :: sunvec_x, sunvec_y
     Type(FVec), pointer :: x, y
-    integer(c_int64_t) :: i, j
+    integer(c_long) :: i, j
 
     x => FN_VGetFVec(sunvec_x)
     y => FN_VGetFVec(sunvec_y)
@@ -82,8 +82,8 @@ program main
   ! local variables
   type(c_ptr)                      :: sunctx
   integer(c_int)                   :: fails, retval, j, k
-  integer(c_int64_t),       parameter :: N = 1000
-  integer(c_int64_t),       parameter :: Nvar = 50
+  integer(c_long),       parameter :: N = 1000
+  integer(c_long),       parameter :: Nvar = 50
   type(SUNMatrix),       pointer   :: sA
   type(FMat),            pointer   :: A
   type(SUNLinearSolver), pointer   :: LS

@@ -46,7 +46,7 @@ module dae_mod
 
   integer(c_int),  parameter :: nout  = 11
   integer(c_int),  parameter :: mgrid = 10
-  integer(c_int64_t), parameter :: neq   = mgrid*mgrid
+  integer(c_long), parameter :: neq   = mgrid*mgrid
 
   real(c_double) :: dx
   real(c_double) :: coeff
@@ -84,7 +84,7 @@ contains
     real(c_double), pointer :: r(:,:)
 
     ! local variables
-    integer(C_INT64_T) :: i, j
+    integer(c_long) :: i, j
 
     !======= Internals ============
 
@@ -500,7 +500,7 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   real(c_double), pointer :: r(:,:)
 
   ! local variables
-  integer(C_INT64_T) :: i, j
+  integer(c_long) :: i, j
   real(c_double)  :: xfact, yfact
   integer(c_int)  :: retval
 

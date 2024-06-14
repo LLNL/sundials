@@ -51,21 +51,21 @@ module ode_mod
 
   !======= Declarations =========
   implicit none
-  integer(c_int64_t), parameter    :: N = 201         ! number of intervals
-  integer(c_int64_t), parameter    :: Nt = 100        ! total number of output times
-  integer(c_int64_t), parameter    :: Nvar = 3        ! number of solution fields
-  integer(c_int64_t), parameter :: neq = N*Nvar    ! total size of solution vector
-  real(c_double),  parameter    :: dx = 1.d0/(N-1) ! mesh spacing
-  real(c_double),  parameter    :: a = 0.6d0       ! constant forcing on u
-  real(c_double),  parameter    :: b = 2.d0        ! steady-state value of w
-  real(c_double),  parameter    :: du = 0.001d0    ! diffusion coeff for u
-  real(c_double),  parameter    :: dv = 0.001d0    ! diffusion coeff for v
-  real(c_double),  parameter    :: dw = 0.001d0    ! diffusion coeff for w
-  real(c_double),  parameter    :: ep = 1.d-5      ! stiffness parameter
-  real(c_double),  parameter    :: T0 = 0.d0       ! initial time
-  real(c_double),  parameter    :: Tf = 10.d0      ! final time
-  real(c_double),  parameter    :: reltol = 1.d-6  ! solver tolerances
-  real(c_double),  parameter    :: abstol = 1.d-10
+  integer(c_long), parameter :: N = 201         ! number of intervals
+  integer(c_long), parameter :: Nt = 100        ! total number of output times
+  integer(c_long), parameter :: Nvar = 3        ! number of solution fields
+  integer(c_long), parameter :: neq = N*Nvar    ! total size of solution vector
+  real(c_double),  parameter :: dx = 1.d0/(N-1) ! mesh spacing
+  real(c_double),  parameter :: a = 0.6d0       ! constant forcing on u
+  real(c_double),  parameter :: b = 2.d0        ! steady-state value of w
+  real(c_double),  parameter :: du = 0.001d0    ! diffusion coeff for u
+  real(c_double),  parameter :: dv = 0.001d0    ! diffusion coeff for v
+  real(c_double),  parameter :: dw = 0.001d0    ! diffusion coeff for w
+  real(c_double),  parameter :: ep = 1.d-5      ! stiffness parameter
+  real(c_double),  parameter :: T0 = 0.d0       ! initial time
+  real(c_double),  parameter :: Tf = 10.d0      ! final time
+  real(c_double),  parameter :: reltol = 1.d-6  ! solver tolerances
+  real(c_double),  parameter :: abstol = 1.d-10
 
 contains
 
@@ -97,7 +97,7 @@ contains
     ! local variables
     type(FVec), pointer :: y, f  ! ptrs to Fortran vector data
     real(c_double)      :: u, v, w
-    integer(C_INT64_T)     :: i
+    integer(c_long)     :: i
 
     !======= Internals ============
 
@@ -161,7 +161,7 @@ contains
     ! local variables
     type(FVec), pointer :: y, f  ! ptrs to Fortran vector data
     real(c_double)  :: dconst(3)
-    integer(C_INT64_T) :: i, j
+    integer(c_long) :: i, j
 
     !======= Internals ============
 
@@ -221,7 +221,7 @@ contains
     type(FVec), pointer :: y, f  ! ptrs to Fortran vector data
     type(FMat), pointer :: J     ! ptr to Fortran matrix data
     real(c_double)      :: u, v, w
-    integer(C_INT64_T)     :: i
+    integer(c_long)     :: i
 
     !======= Internals ============
 

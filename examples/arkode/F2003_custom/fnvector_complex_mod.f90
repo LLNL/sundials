@@ -24,7 +24,7 @@ module fnvector_complex_mod
   ! ----------------------------------------------------------------
   type, public :: FVec
     logical                            :: own_data
-    integer(C_INT64_T)                    :: len
+    integer(c_long)                    :: len
     complex(c_double_complex), pointer :: data(:)
   end type FVec
   ! ----------------------------------------------------------------
@@ -35,7 +35,7 @@ contains
   function FN_VNew_Complex(n, sunctx) result(sunvec_y)
 
     implicit none
-    integer(C_INT64_T),    value   :: n
+    integer(c_long),    value   :: n
     type(c_ptr),        value   :: sunctx
     type(N_Vector),     pointer :: sunvec_y
     type(N_Vector_Ops), pointer :: ops
@@ -88,7 +88,7 @@ contains
   function FN_VMake_Complex(n, data, sunctx) result(sunvec_y)
 
     implicit none
-    integer(C_INT64_T),           value   :: n
+    integer(c_long),           value   :: n
     type(c_ptr),               value   :: sunctx
     type(N_Vector),            pointer :: sunvec_y
     type(N_Vector_Ops),        pointer :: ops
@@ -191,7 +191,7 @@ contains
   end subroutine FN_VDestroy_Complex
 
   ! ----------------------------------------------------------------
-  integer(C_INT64_T) function FN_VGetLength_Complex(sunvec_y) &
+  integer(c_long) function FN_VGetLength_Complex(sunvec_y) &
       bind(C) result(length)
 
     implicit none
@@ -456,7 +456,7 @@ contains
     type(N_Vector)      :: sunvec_w
     type(N_Vector)      :: sunvec_id
     type(FVec), pointer :: x, w, id
-    integer(C_INT64_T)     :: i
+    integer(c_long)     :: i
 
     ! extract Fortran vector structures to work with
     x => FN_VGetFVec(sunvec_x)
@@ -571,7 +571,7 @@ contains
     type(N_Vector)      :: sunvec_x
     type(N_Vector)      :: sunvec_z
     type(FVec), pointer :: x, z
-    integer(C_INT64_T)     :: i
+    integer(c_long)     :: i
 
     ! extract Fortran vector structures to work with
     x => FN_VGetFVec(sunvec_x)

@@ -56,7 +56,7 @@ contains
 
     type(SUNLinearSolver), pointer :: S
     integer(C_INT)                 :: myid
-    integer(c_int64_t)                :: lastflag
+    integer(C_LONG)                :: lastflag
 
     failure = 0
 
