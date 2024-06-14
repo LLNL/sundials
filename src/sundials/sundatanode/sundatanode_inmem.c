@@ -48,7 +48,7 @@ static SUNDataNode sunDataNodeInMem_CreateEmpty(SUNContext sunctx)
   node->destroy          = SUNDataNode_Destroy_InMem;
 
   SUNDataNode_InMemImpl impl =
-    (SUNDataNode_InMemImpl)malloc(sizeof(struct SUNDataNode_InMemImpl_s));
+    (SUNDataNode_InMemImpl)malloc(sizeof(struct SUNDataNode_InMemImpl_));
   SUNAssertNoRet(impl, SUN_ERR_MEM_FAIL);
 
   impl->parent             = NULL;
@@ -343,7 +343,7 @@ SUNErrCode SUNDataNode_SetDataNvector_InMem(const SUNDataNode self, N_Vector v)
                                              (void*)vclone, SUNMEMTYPE_HOST);
   SUNCheckLastErr();
 
-  IMPL_PROP(self, leaf_data)   = (void*)vclone;
+  IMPL_PROP(self, leaf_data)   = leaf_data;
   IMPL_PROP(self, data_stride) = sizeof(void*);
 
   return SUN_SUCCESS;
@@ -371,8 +371,8 @@ SUNErrCode SUNDataNode_Destroy_InMem(SUNDataNode* node)
   }
   else if (BASE_PROP(*node, dtype) == SUNDATANODE_LEAF)
   {
-    SUNMemoryHelper_Dealloc(IMPL_PROP(*node, mem_helper),
-                            IMPL_PROP(*node, leaf_data), NULL);
+    // SUNMemoryHelper_Dealloc(IMPL_PROP(*node, mem_helper),
+    // IMPL_PROP(*node, leaf_data), NULL);
   }
 
   return SUN_SUCCESS;
