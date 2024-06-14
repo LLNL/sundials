@@ -20,17 +20,14 @@ module test_fsunlinsol_band
   use test_utilities
   implicit none
 
-  integer(c_int64_t), parameter :: N = 10
-  integer(c_int64_t), parameter :: mu = 2
-  integer(c_int64_t), parameter :: ml = 3
+  integer(kind=myindextype), parameter :: N = 10
+  integer(kind=myindextype), parameter :: mu = 2
+  integer(kind=myindextype), parameter :: ml = 3
 
 contains
 
   integer(C_INT) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-
-
-
     use fnvector_serial_mod
     use fsunmatrix_band_mod
     use fsunlinsol_band_mod
@@ -39,13 +36,13 @@ contains
     implicit none
 
     type(SUNLinearSolver), pointer :: LS           ! test linear solver
-    type(SUNMatrix), pointer :: A                  ! test matrices
-    type(N_Vector),  pointer :: x, y, b            ! test vectors
-    real(C_DOUBLE),  pointer :: xdata(:), Adata(:) ! data arrays
-    real(C_DOUBLE)           :: tmpr               ! temporary real value
-    integer(c_int64_t)          :: j, k
-    integer(c_int64_t)          :: smu, kstart, kend, offset
-    integer(C_INT)           :: tmp
+    type(SUNMatrix), pointer   :: A                  ! test matrices
+    type(N_Vector),  pointer   :: x, y, b            ! test vectors
+    real(C_DOUBLE),  pointer   :: xdata(:), Adata(:) ! data arrays
+    real(C_DOUBLE)             :: tmpr               ! temporary real value
+    integer(kind=myindextype) :: j, k
+    integer(kind=myindextype) :: smu, kstart, kend, offset
+    integer(C_INT)             :: tmp
 
     fails = 0
     smu = 0
@@ -121,13 +118,14 @@ end module
 
 integer(C_INT) function check_vector(X, Y, tol) result(failure)
   use, intrinsic :: iso_c_binding
-
   use test_utilities
-
   implicit none
+
+
+
   type(N_Vector)  :: x, y
   real(C_DOUBLE)  :: tol, maxerr
-  integer(c_int64_t) :: i, xlen, ylen
+  integer(kind=myindextype) :: i, xlen, ylen
   real(C_DOUBLE), pointer :: xdata(:), ydata(:)
 
   failure = 0

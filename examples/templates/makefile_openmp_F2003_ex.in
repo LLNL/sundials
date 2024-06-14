@@ -1,0 +1,69 @@
+# -*- mode: makefile -*-
+# -----------------------------------------------------------------
+# Programmer(s): Daniel R. Reynolds @ SMU
+# -----------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# -----------------------------------------------------------------
+# Makefile for @SOLVER@ OpenMP examples
+#
+# This file is generated from a template using variables
+# set at configuration time. It can be used as a template for
+# other user Makefiles.
+# -----------------------------------------------------------------
+
+SHELL = @SHELL@
+
+prefix     = @CMAKE_INSTALL_PREFIX@
+includedir = ${prefix}/@Fortran_INSTALL_MODDIR@
+libdir     = ${prefix}/@CMAKE_INSTALL_LIBDIR@
+
+F90      = @_EXAMPLES_Fortran_COMPILER@
+F90FLAGS = @CMAKE_Fortran_FLAGS_RELEASE@ @OpenMP_Fortran_FLAGS@ -DSUNDIALS_INT@SUNDIALS_INDEX_SIZE@_T @CMAKE_Fortran_COMPILE_OPTIONS_PREPROCESS_ON@
+F90LIBS  = @LIBS@
+
+# -----------------------------------------------------------------------------------------
+
+INCLUDES  = -I${includedir}
+LIBRARIES = -l@SOLVER_FLIB@ -l@SOLVER_LIB@ -lsundials_nvecopenmp \
+            -lsundials_fnvecopenmp_mod ${F90LIBS}
+LINKFLAGS = -Wl,-rpath,@libdir@
+
+# -----------------------------------------------------------------------------------------
+
+EXAMPLES = @EXAMPLES@
+EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@
+
+OBJECTS = ${EXAMPLES:=.o}
+OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
+
+# -----------------------------------------------------------------------------------------
+
+.SUFFIXES : .o .f90
+
+.f90.o :
+	${F90} ${F90FLAGS} ${INCLUDES} -c $<
+
+# -----------------------------------------------------------------------------------------
+
+all: examples
+
+examples: ${OBJECTS_DEPENDENCIES} ${OBJECTS}
+	@for i in ${EXAMPLES} ; do \
+	  echo "${F90} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${F90FLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
+	  ${F90} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${F90FLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS} ; \
+	done
+
+clean:
+	rm -f *.o *.mod
+	rm -f ${OBJECTS}
+	rm -f ${EXAMPLES}
+
+# -----------------------------------------------------------------------------------------

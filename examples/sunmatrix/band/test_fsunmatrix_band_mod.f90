@@ -20,9 +20,11 @@ module test_fsunmatrix_band
   use test_utilities
   implicit none
 
-  integer(C_INT64_T), parameter :: N  = 10
-  integer(C_INT64_T), parameter :: mu = 2
-  integer(C_INT64_T), parameter :: ml = 2
+
+
+  integer(kind=myindextype), parameter :: N  = 10
+  integer(kind=myindextype), parameter :: mu = 2
+  integer(kind=myindextype), parameter :: ml = 2
 
 contains
 
@@ -43,7 +45,7 @@ contains
     type(N_Vector),  pointer :: x, y               ! NVectors
     real(C_DOUBLE),  pointer :: matdat(:)          ! matrix data pointer
     integer(C_LONG)          :: lenrw(1), leniw(1) ! matrix real and int work space size
-    integer(c_int64_t)          :: val
+    integer(C_LONG)          :: val
     type(C_PTR),     pointer :: cptr
 
     fails = 0
@@ -105,15 +107,15 @@ contains
 
     implicit none
 
-    type(SUNMatrix), pointer :: A, I
-    type(N_Vector),  pointer :: x, y
-    real(C_DOUBLE),  pointer :: Adata(:), Idata(:), xdata(:), ydata(:)
-    integer(C_INT64_T)          :: ii, jj, smu, istart, iend, offset
+    type(SUNMatrix), pointer   :: A, I
+    type(N_Vector),  pointer   :: x, y
+    real(C_DOUBLE),  pointer   :: Adata(:), Idata(:), xdata(:), ydata(:)
+    integer(kind=myindextype) :: ii, jj, smu, istart, iend, offset
 
     fails = 0
 
     A => FSUNBandMatrix(N, mu, ml, sunctx)
-    I => FSUNBandMatrix(N, 0_8, 0_8, sunctx)
+    I => FSUNBandMatrix(N, 0_myindextype, 0_myindextype, sunctx)
     x => FN_VNew_Serial(N, sunctx)
     y => FN_VNew_Serial(N, sunctx)
 
@@ -144,7 +146,7 @@ contains
       xdata(jj+1) = jj
       ! y vector
       ydata(jj+1) = ZERO
-      istart    = max(0_c_int64_t, jj-ml)
+      istart    = max(0_myindextype, jj-ml)
       iend      = min(N-1, jj+mu)
       do ii = istart, iend
         ydata(jj+1) = ydata(jj+1) + (ii+ii-jj)*(ii)
@@ -208,7 +210,7 @@ integer(C_INT) function check_matrix(B, A, tol) result(fails)
   type(SUNMatrix) :: A, B
   real(C_DOUBLE)  :: tol
   real(C_DOUBLE), pointer :: Adata(:), Bdata(:)
-  integer(C_INT64_T) :: N, smu, mu, ml, ii, istart, iend, jj, offset
+  integer(C_LONG) :: N, smu, mu, ml, ii, istart, iend, jj, offset
 
   fails = 0
 
@@ -271,7 +273,7 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
   type(SUNMatrix) :: A
   real(C_DOUBLE)  :: c, tol
   real(C_DOUBLE), pointer :: Adata(:)
-  integer(C_INT64_T) :: N, smu, mu, ml, ii, istart, iend, jj, offset
+  integer(C_LONG) :: N, smu, mu, ml, ii, istart, iend, jj, offset
 
   fails = 0
 

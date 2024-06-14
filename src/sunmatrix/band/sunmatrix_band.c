@@ -22,11 +22,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_band.h>
 
-#include "sundials/sundials_errors.h"
+#include "sundials_macros.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -230,7 +232,10 @@ sunrealtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j)
  * -----------------------------------------------------------------
  */
 
-SUNMatrix_ID SUNMatGetID_Band(SUNMatrix A) { return SUNMATRIX_BAND; }
+SUNMatrix_ID SUNMatGetID_Band(SUNDIALS_MAYBE_UNUSED SUNMatrix A)
+{
+  return SUNMATRIX_BAND;
+}
 
 SUNMatrix SUNMatClone_Band(SUNMatrix A)
 {
@@ -428,6 +433,7 @@ SUNErrCode SUNMatSpace_Band(SUNMatrix A, long int* lenrw, long int* leniw)
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_MAYBE_UNUSED
 static sunbooleantype compatibleMatrices(SUNMatrix A, SUNMatrix B)
 {
   /* both matrices must have the same number of columns
@@ -437,6 +443,7 @@ static sunbooleantype compatibleMatrices(SUNMatrix A, SUNMatrix B)
   return SUNTRUE;
 }
 
+SUNDIALS_MAYBE_UNUSED
 static sunbooleantype compatibleMatrixAndVectors(SUNMatrix A, N_Vector x,
                                                  N_Vector y)
 {

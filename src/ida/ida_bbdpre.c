@@ -455,7 +455,8 @@ int IDABBDPrecGetNumGfnEvals(void* ida_mem, long int* ngevalsBBDP)
    < 0    for a nonrecoverable error (step fails).
  ----------------------------------------------------------------*/
 static int IDABBDPrecSetup(sunrealtype tt, N_Vector yy, N_Vector yp,
-                           N_Vector rr, sunrealtype c_j, void* bbd_data)
+                           SUNDIALS_MAYBE_UNUSED N_Vector rr, sunrealtype c_j,
+                           void* bbd_data)
 {
   IBBDPrecData pdata;
   IDAMem IDA_mem;
@@ -502,9 +503,13 @@ static int IDABBDPrecSetup(sunrealtype tt, N_Vector yy, N_Vector yp,
   IDABBDPrecSolve returns the value returned from the linear
   solver object.
   ---------------------------------------------------------------*/
-static int IDABBDPrecSolve(sunrealtype tt, N_Vector yy, N_Vector yp,
-                           N_Vector rr, N_Vector rvec, N_Vector zvec,
-                           sunrealtype c_j, sunrealtype delta, void* bbd_data)
+static int IDABBDPrecSolve(SUNDIALS_MAYBE_UNUSED sunrealtype tt,
+                           SUNDIALS_MAYBE_UNUSED N_Vector yy,
+                           SUNDIALS_MAYBE_UNUSED N_Vector yp,
+                           SUNDIALS_MAYBE_UNUSED N_Vector rr, N_Vector rvec,
+                           N_Vector zvec, SUNDIALS_MAYBE_UNUSED sunrealtype c_j,
+                           SUNDIALS_MAYBE_UNUSED sunrealtype delta,
+                           void* bbd_data)
 {
   IBBDPrecData pdata;
   int retval;

@@ -32,7 +32,7 @@
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 
-int ode_slow_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
+static int ode_slow_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* y_data    = N_VGetArrayPointer(ydot);
   sunrealtype* ydot_data = N_VGetArrayPointer(ydot);
@@ -40,8 +40,8 @@ int ode_slow_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   return 0;
 }
 
-int fast_evolve(MRIStepInnerStepper fast_mem, sunrealtype t0, sunrealtype tf,
-                N_Vector y)
+static int fast_evolve(MRIStepInnerStepper fast_mem, sunrealtype t0,
+                       sunrealtype tf, N_Vector y)
 {
   int i               = 0;
   sunrealtype h_fast  = (t0 - tf) / SUN_RCONST(10.0);
@@ -96,10 +96,10 @@ int main(int argc, char* argv[])
   arkode_mem = MRIStepCreate(ode_slow_rhs, NULL, ZERO, y, fast_mem, sunctx);
   if (!arkode_mem) { return 1; }
 
-  flag = MRIStepSetFixedStep(arkode_mem, SUN_RCONST(0.01));
+  flag = ARKodeSetFixedStep(arkode_mem, SUN_RCONST(0.01));
   if (flag) { return 1; }
 
-  flag = MRIStepSetInterpolantType(arkode_mem, ARK_INTERP_HERMITE);
+  flag = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_HERMITE);
   if (flag) { return 1; }
 
   /* ---------------
@@ -107,8 +107,8 @@ int main(int argc, char* argv[])
    * --------------- */
 
   /* Evolve should return a failure when using Hermite interpolation */
-  arkode_flag = MRIStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
-  printf("MRIStepEvolve returned %i\n", arkode_flag);
+  arkode_flag = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+  printf("ARKodeEvolve returned %i\n", arkode_flag);
   if (arkode_flag != ARK_RHSFUNC_FAIL) { return 1; }
 
   /* -----------------------
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
   flag = MRIStepReInit(arkode_mem, ode_slow_rhs, NULL, ZERO, y);
   if (flag) { return 1; }
 
-  flag = MRIStepSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
+  flag = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
   if (flag) { return 1; }
 
   /* ---------------
@@ -128,8 +128,8 @@ int main(int argc, char* argv[])
    * --------------- */
 
   /* Evolve should succeed when using Lagrange interpolation */
-  arkode_flag = MRIStepEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
-  printf("MRIStepEvolve returned %i\n", arkode_flag);
+  arkode_flag = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+  printf("ARKodeEvolve returned %i\n", arkode_flag);
   if (arkode_flag != ARK_SUCCESS) { return 1; }
 
   /* --------
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
    * -------- */
 
   MRIStepInnerStepper_Free(&fast_mem);
-  MRIStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   N_VDestroy(y);
   SUNContext_Free(&sunctx);
 

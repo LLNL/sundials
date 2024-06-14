@@ -33,8 +33,19 @@ module ode_mod
   !======= Declarations =========
   implicit none
 
+
+  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
+  ! we set the integer kind used for indices in this example based
+  ! on the the index size SUNDIALS was compiled with so that it works
+  ! in both configurations. This is not a requirement for user codes.
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: myindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: myindextype = selected_int_kind(16)
+#endif
+
   ! number of equations
-  integer(c_int64_t), parameter :: neq = 1
+  integer(kind=myindextype), parameter :: neq = 1
 
   ! ODE parameters
   double precision, parameter :: lamda = -100.0d0

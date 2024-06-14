@@ -467,9 +467,10 @@ int CVBBDPrecGetNumGfnEvals(void* cvode_mem, long int* ngevalsBBDP)
     0  if successful,
     1  for a recoverable error (step will be retried).
   -----------------------------------------------------------------*/
-static int CVBBDPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
-                          sunbooleantype jok, sunbooleantype* jcurPtr,
-                          sunrealtype gamma, void* bbd_data)
+static int CVBBDPrecSetup(sunrealtype t, N_Vector y,
+                          SUNDIALS_MAYBE_UNUSED N_Vector fy, sunbooleantype jok,
+                          sunbooleantype* jcurPtr, sunrealtype gamma,
+                          void* bbd_data)
 {
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
@@ -556,9 +557,12 @@ static int CVBBDPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
   The value returned by the CVBBDPrecSolve function is always 0,
   indicating success.
   -----------------------------------------------------------------*/
-static int CVBBDPrecSolve(sunrealtype t, N_Vector y, N_Vector fy, N_Vector r,
-                          N_Vector z, sunrealtype gamma, sunrealtype delta,
-                          int lr, void* bbd_data)
+static int CVBBDPrecSolve(SUNDIALS_MAYBE_UNUSED sunrealtype t,
+                          SUNDIALS_MAYBE_UNUSED N_Vector y,
+                          SUNDIALS_MAYBE_UNUSED N_Vector fy, N_Vector r,
+                          N_Vector z, SUNDIALS_MAYBE_UNUSED sunrealtype gamma,
+                          SUNDIALS_MAYBE_UNUSED sunrealtype delta,
+                          SUNDIALS_MAYBE_UNUSED int lr, void* bbd_data)
 {
   int retval;
   CVBBDPrecData pdata;

@@ -17,11 +17,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
-#include <sundials/sundials_core.h>
 
-#include "sundials/priv/sundials_errors_impl.h"
-#include "sundials/sundials_errors.h"
+#include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_core.h>
+#include <sundials/sundials_errors.h>
+
+#include "sundials_macros.h"
 
 /* ---------------
  * Macro accessors
@@ -297,7 +299,8 @@ SUNErrCode SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNAdaptController_Type SUNAdaptController_GetType_Soderlind(SUNAdaptController C)
+SUNAdaptController_Type SUNAdaptController_GetType_Soderlind(
+  SUNDIALS_MAYBE_UNUSED SUNAdaptController C)
 {
   return SUN_ADAPTCONTROLLER_H;
 }

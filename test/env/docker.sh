@@ -109,12 +109,8 @@ if [ "$compilername" == "gcc" ]; then
         export CUDAFLAGS="-g -O3"
     fi
 
-    # append additional warning flags
-    if [[ "$SUNDIALS_PRECISION" == "double" && "$SUNDIALS_INDEX_SIZE" == "32" ]]; then
-        export CFLAGS="${CFLAGS} -Wconversion -Wno-sign-conversion"
-        export CXXFLAGS="${CXXFLAGS} -Wconversion -Wno-sign-conversion"
-    fi
-
+    # additional Fortran flags not currently added by ENABLE_ALL_WARNINGS
+    export FFLAGS="${FFLAGS} -fcheck=all,no-pointer,no-recursion"
 fi
 
 # ------------------------------------------------------------------------------
@@ -138,7 +134,7 @@ export SUNDIALS_KINSOL=ON
 
 # Fortran interface status
 if [ "$compilername" == "gcc" ]; then
-    if [[ ("$SUNDIALS_PRECISION" == "double") && ("$SUNDIALS_INDEX_SIZE" == "64") ]]; then
+    if [[ ("$SUNDIALS_PRECISION" == "double") ]]; then
         export SUNDIALS_FMOD_INTERFACE=ON
     else
         export SUNDIALS_FMOD_INTERFACE=OFF
@@ -177,9 +173,6 @@ else # single
     export SUNDIALS_TEST_FLOAT_PRECISION=3
     export SUNDIALS_TEST_INTEGER_PRECISION=10
 fi
-
-# FindMPI fails with this ON
-export SUNDIALS_ENABLE_WARNINGS_AS_ERRORS=OFF
 
 # ------------------------------------------------------------------------------
 # Third party libraries

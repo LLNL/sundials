@@ -212,43 +212,43 @@ int main(int argc, char* argv[])
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   /* Specify tolerances */
-  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   /* Set stop time */
-  flag = ARKStepSetStopTime(arkode_mem, Tf);
-  if (check_flag(&flag, "ARKStepSetStopTime", 1)) { return 1; }
+  flag = ARKodeSetStopTime(arkode_mem, Tf);
+  if (check_flag(&flag, "ARKodeSetStopTime", 1)) { return 1; }
 
   /* Set max steps before output */
-  flag = ARKStepSetMaxNumSteps(arkode_mem, mxsteps);
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return 1; }
+  flag = ARKodeSetMaxNumSteps(arkode_mem, mxsteps);
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /* Set forcing */
   flag = arkStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, order + 1);
   if (check_flag(&flag, "arkStep_SetInnerForcing", 1)) { return 1; }
 
   /* Integrate the problem */
-  flag = ARKStepEvolve(arkode_mem, Tf, y, &tret, ARK_NORMAL);
+  flag = ARKodeEvolve(arkode_mem, Tf, y, &tret, ARK_NORMAL);
 
   /* check for errors */
   if (flag < 0)
   {
-    fprintf(stderr, "ARKStep failure, flag = %d\n", flag);
+    fprintf(stderr, "ARKodeEvolve failure, flag = %d\n", flag);
     return 1;
   }
 
   /* get some integrator stats */
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKStepGetNumSteps", 1);
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKodeGetNumSteps", 1);
 
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
+  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
 
   printf("Explicit stats:\n");
   printf("Steps = %li (attempted = %li)\n\n", nst, nst_a);
 
   /* Free integrator memory */
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   arkode_mem = NULL;
 
   /* print solution */
@@ -272,55 +272,55 @@ int main(int argc, char* argv[])
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   /* Specify tolerances */
-  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   /* Set stop time */
-  flag = ARKStepSetStopTime(arkode_mem, Tf);
-  if (check_flag(&flag, "ARKStepSetStopTime", 1)) { return 1; }
+  flag = ARKodeSetStopTime(arkode_mem, Tf);
+  if (check_flag(&flag, "ARKodeSetStopTime", 1)) { return 1; }
 
   /* Set max steps before output */
-  flag = ARKStepSetMaxNumSteps(arkode_mem, mxsteps);
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return 1; }
+  flag = ARKodeSetMaxNumSteps(arkode_mem, mxsteps);
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /* Attach matrix and linear solver */
-  flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
+  flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
+  if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
   /* Set Jacobian routine */
-  flag = ARKStepSetJacFn(arkode_mem, Jac);
-  if (check_flag(&flag, "ARKStepSetJacFn", 1)) { return 1; }
+  flag = ARKodeSetJacFn(arkode_mem, Jac);
+  if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
 
   /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
-  flag = ARKStepSetLinear(arkode_mem, 0);
-  if (check_flag(&flag, "ARKStepSetLinear", 1)) { return 1; }
+  flag = ARKodeSetLinear(arkode_mem, 0);
+  if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
 
   /* Set forcing */
   flag = arkStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, order + 1);
   if (check_flag(&flag, "arkStep_SetInnerForcing", 1)) { return 1; }
 
   /* Integrate the problem */
-  flag = ARKStepEvolve(arkode_mem, Tf, y, &tret, ARK_NORMAL);
+  flag = ARKodeEvolve(arkode_mem, Tf, y, &tret, ARK_NORMAL);
 
   /* check for errors */
   if (flag < 0)
   {
-    fprintf(stderr, "ARKStep failure, flag = %d\n", flag);
+    fprintf(stderr, "ARKodeEvolve failure, flag = %d\n", flag);
     return 1;
   }
 
   /* get some integrator stats */
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKStepGetNumSteps", 1);
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKodeGetNumSteps", 1);
 
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
+  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
 
   printf("Implicit stats:\n");
   printf("Steps = %li (attempted = %li)\n\n", nst, nst_a);
 
   /* Free integrator memory */
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   arkode_mem = NULL;
 
   /* print solution */
@@ -344,55 +344,55 @@ int main(int argc, char* argv[])
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   /* Specify tolerances */
-  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   /* Set stop time */
-  flag = ARKStepSetStopTime(arkode_mem, Tf);
-  if (check_flag(&flag, "ARKStepSetStopTime", 1)) { return 1; }
+  flag = ARKodeSetStopTime(arkode_mem, Tf);
+  if (check_flag(&flag, "ARKodeSetStopTime", 1)) { return 1; }
 
   /* Set max steps before output */
-  flag = ARKStepSetMaxNumSteps(arkode_mem, mxsteps);
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return 1; }
+  flag = ARKodeSetMaxNumSteps(arkode_mem, mxsteps);
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /* Attach matrix and linear solver */
-  flag = ARKStepSetLinearSolver(arkode_mem, LS, A);
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
+  flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
+  if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
   /* Set Jacobian routine */
-  flag = ARKStepSetJacFn(arkode_mem, Jac);
-  if (check_flag(&flag, "ARKStepSetJacFn", 1)) { return 1; }
+  flag = ARKodeSetJacFn(arkode_mem, Jac);
+  if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
 
   /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
-  flag = ARKStepSetLinear(arkode_mem, 0);
-  if (check_flag(&flag, "ARKStepSetLinear", 1)) { return 1; }
+  flag = ARKodeSetLinear(arkode_mem, 0);
+  if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
 
   /* Set forcing */
   flag = arkStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, order + 1);
   if (check_flag(&flag, "arkStep_SetInnerForcing", 1)) { return 1; }
 
   /* Integrate the problem */
-  flag = ARKStepEvolve(arkode_mem, Tf, y, &tret, ARK_NORMAL);
+  flag = ARKodeEvolve(arkode_mem, Tf, y, &tret, ARK_NORMAL);
 
   /* check for errors */
   if (flag < 0)
   {
-    fprintf(stderr, "ARKStep failure, flag = %d\n", flag);
+    fprintf(stderr, "ARKodeEvolve failure, flag = %d\n", flag);
     return 1;
   }
 
   /* get some integrator stats */
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKStepGetNumSteps", 1);
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKodeGetNumSteps", 1);
 
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
+  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
 
   printf("IMEX stats:\n");
   printf("Steps = %li (attempted = %li)\n\n", nst, nst_a);
 
   /* Free integrator memory */
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   arkode_mem = NULL;
 
   /* print solution */

@@ -138,16 +138,6 @@ static void cvFreeVectors(CVodeMem cv_mem);
 static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight);
 
-#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
-extern int cvEwtSetSS_fused(const sunbooleantype atolmin0,
-                            const sunrealtype reltol, const sunrealtype Sabstol,
-                            const N_Vector ycur, N_Vector tempv, N_Vector weight);
-
-extern int cvEwtSetSV_fused(const sunbooleantype atolmin0,
-                            const sunrealtype reltol, const N_Vector Vabstol,
-                            const N_Vector ycur, N_Vector tempv, N_Vector weight);
-#endif
-
 /* Initial stepsize calculation */
 
 static int cvHin(CVodeMem cv_mem, sunrealtype tout);
@@ -183,11 +173,6 @@ static void cvSetTqBDF(CVodeMem cv_mem, sunrealtype hsum, sunrealtype alpha0,
 static int cvNls(CVodeMem cv_mem, int nflag);
 
 static int cvCheckConstraints(CVodeMem cv_mem);
-#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
-extern int cvCheckConstraints_fused(const N_Vector c, const N_Vector ewt,
-                                    const N_Vector y, const N_Vector mm,
-                                    N_Vector tempv);
-#endif
 
 static int cvHandleNFlag(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
                          int* ncfPtr);
@@ -2719,7 +2704,7 @@ static void cvPredict(CVodeMem cv_mem)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvPredict",
-                     "return", "predictor =", "");
+                     "return", "zn_0(:) =", "");
   N_VPrintFile(cv_mem->cv_zn[0], CV_LOGGER->debug_fp);
 #endif
 }
@@ -4824,15 +4809,20 @@ static int cvEwtSetSV(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
                     const char* file, const char* msgfmt, ...)
 {
-  /* Initialize the argument pointer variable
+  /* We initialize the argument pointer variable before each vsnprintf call to avoid undefined behavior
      (msgfmt is the last required argument to cvProcessError) */
   va_list ap;
-  va_start(ap, msgfmt);
 
   /* Compose the message */
+  va_start(ap, msgfmt);
   size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
-  char* msg     = (char*)malloc(msglen);
+  va_end(ap);
+
+  char* msg = (char*)malloc(msglen);
+
+  va_start(ap, msgfmt);
   vsnprintf(msg, msglen, msgfmt, ap);
+  va_end(ap);
 
   do {
     if (cv_mem == NULL)
@@ -4860,8 +4850,6 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
   }
   while (0);
 
-  /* Finalize argument processing */
-  va_end(ap);
   free(msg);
 
   return;

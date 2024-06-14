@@ -21,7 +21,7 @@
 sun_major=${1:-7}
 sun_minor=${2:-0}
 sun_patch=${3:-0}
-sun_label=${4:-"rc.1"}
+sun_label=${4:-""}
 month=${5:-$(date +"%b")}
 year=${6:-$(date +"%Y")}
 
@@ -327,7 +327,7 @@ done
 # Update rst documentation
 # ------------------------------------------------------------------------------
 
-fn="../doc/shared/versions.py"
+fn="../doc/shared/sundials_vars.py"
 sedi "s/arkode_version =.*/arkode_version = \'v${ark_ver}\'/" $fn
 sedi "s/cvode_version =.*/cvode_version = \'v${cv_ver}\'/" $fn
 sedi "s/cvodes_version =.*/cvodes_version = \'v${cvs_ver}\'/" $fn
@@ -335,6 +335,7 @@ sedi "s/ida_version =.*/ida_version = \'v${ida_ver}\'/" $fn
 sedi "s/idas_version =.*/idas_version = \'v${idas_ver}\'/" $fn
 sedi "s/kinsol_version =.*/kinsol_version = \'v${kin_ver}\'/" $fn
 sedi "s/sundials_version =.*/sundials_version = \'v${sun_ver}\'/" $fn
+sedi "s/doc_version =.*/doc_version = \'v${sun_ver}\'/" $fn
 sedi "s/year =.*/year = \'${year}\'/" $fn
 
 # release history table
@@ -352,49 +353,57 @@ sedi '23 a\
 
 # Update CITATIONS.md
 fn="../CITATIONS.md"
-sedi '68s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '69s/.*/\ \ note   = {v'${ark_ver}'}/' $fn
-sedi '77s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '78s/.*/\ \ note   = {v'${cv_ver}'}/' $fn
-sedi '86s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '87s/.*/\ \ note   = {v'${cvs_ver}'}/' $fn
-sedi '95s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '96s/.*/\ \ note   = {v'${ida_ver}'}/' $fn
-sedi '104s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '105s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
-sedi '113s/.*/\ \ year   = {'${year}'},/' $fn
-sedi '114s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
+sedi '71s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '72s/.*/\ \ note   = {v'${ark_ver}'}/' $fn
+sedi '80s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '81s/.*/\ \ note   = {v'${cv_ver}'}/' $fn
+sedi '89s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '90s/.*/\ \ note   = {v'${cvs_ver}'}/' $fn
+sedi '98s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '99s/.*/\ \ note   = {v'${ida_ver}'}/' $fn
+sedi '107s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '108s/.*/\ \ note   = {v'${idas_ver}'}/' $fn
+sedi '116s/.*/\ \ year   = {'${year}'},/' $fn
+sedi '117s/.*/\ \ note   = {v'${kin_ver}'}/' $fn
 
-# Update all occurrences of x.x.x and X.X.X to the current version number
+# Update all occurrences of x.y.z and X.Y.Z to the current version number
 fn="../CHANGELOG.md"
-sedi "s/x.x.x/${sun_ver}/gI" $fn
+sedi "s/x.y.z/${sun_ver}/gI" $fn
 
-for fn in $(grep -Iirl "x.x.x" ../doc/arkode/guide/source/*)
+fn="../doc/shared/Changelog.rst"
+sedi "s/x.y.z/${sun_ver}/gI" $fn
+
+for fn in $(grep -Iirl "x.y.z" ../doc/shared/*)
 do
-    sedi "s/x.x.x/${ark_ver}/gI" $fn
+    sedi "s/x.y.z/${sun_ver}/gI" $fn
 done
 
-for fn in $(grep -Iirl "x.x.x" ../doc/cvode/guide/source/*)
+for fn in $(grep -Iirl "x.y.z" ../doc/arkode/guide/source/*)
 do
-    sedi "s/x.x.x/${cv_ver}/gI" $fn
+    sedi "s/x.y.z/${ark_ver}/gI" $fn
 done
 
-for fn in $(grep -Iirl "x.x.x" ../doc/cvodes/guide/source/*)
+for fn in $(grep -Iirl "x.y.z" ../doc/cvode/guide/source/*)
 do
-    sedi "s/x.x.x/${cvs_ver}/gI" $fn
+    sedi "s/x.y.z/${cv_ver}/gI" $fn
 done
 
-for fn in $(grep -Iirl "x.x.x" ../doc/ida/guide/source/*)
+for fn in $(grep -Iirl "x.y.z" ../doc/cvodes/guide/source/*)
 do
-    sedi "s/x.x.x/${ida_ver}/gI" $fn
+    sedi "s/x.y.z/${cvs_ver}/gI" $fn
 done
 
-for fn in $(grep -Iirl "x.x.x" ../doc/idas/guide/source/*)
+for fn in $(grep -Iirl "x.y.z" ../doc/ida/guide/source/*)
 do
-    sedi "s/x.x.x/${idas_ver}/gI" $fn
+    sedi "s/x.y.z/${ida_ver}/gI" $fn
 done
 
-for fn in $(grep -Iirl "x.x.x" ../doc/kinsol/guide/source/*)
+for fn in $(grep -Iirl "x.y.z" ../doc/idas/guide/source/*)
 do
-    sedi "s/x.x.x/${kin_ver}/gI" $fn
+    sedi "s/x.y.z/${idas_ver}/gI" $fn
+done
+
+for fn in $(grep -Iirl "x.y.z" ../doc/kinsol/guide/source/*)
+do
+    sedi "s/x.y.z/${kin_ver}/gI" $fn
 done

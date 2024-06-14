@@ -585,15 +585,15 @@ call to :c:func:`CVodeInitB` or :c:func:`CVodeInitBS`.
      * ``CV_ILL_INPUT`` -- One of the input tolerances was negative.
 
 
-.. c:function:: int CVodeSVtolerancesB(void * cvode_mem, int which, reltolBabstolB)
+.. c:function:: int CVodeSVtolerancesB(void * cvode_mem, int which, sunrealtype reltolB, N_Vector abstolB)
 
    The function :c:func:`CVodeSVtolerancesB` specifies scalar relative tolerance and  vector absolute tolerances.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block returned by :c:func:`CVodeCreate`.
      * ``which`` -- represents the identifier of the backward problem.
-     * ``reltol`` -- is the scalar relative error tolerance.
-     * ``abstol`` -- is the vector of absolute error tolerances.
+     * ``reltolB`` -- is the scalar relative error tolerance.
+     * ``abstolB`` -- is the vector of absolute error tolerances.
 
    **Return value:**
      * ``CV_SUCCESS`` -- The call to :c:func:`CVodeSVtolerancesB` was successful.
@@ -644,11 +644,12 @@ following functions.
       is required within the ``SUNMatrix`` object  (e.g., for factorization of a
       banded matrix), ensure that the input  object is allocated with sufficient
       size (see the documentation of  the particular ``SUNMatrix`` type in
-      :numref:`SUNMatrix`).  The previous routines ``CVDlsSetLinearSolverB`` and
-      ``CVSpilsSetLinearSolverB`` are now wrappers for this routine, and may
-      still be used for backward-compatibility.  However, these will be
-      deprecated in future releases, so we recommend that users transition  to
-      the new routine name soon.
+      :numref:`SUNMatrix`).
+
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated functions ``CVDlsSetLinearSolverB`` and
+      ``CVSpilsSetLinearSolverB``.
 
 
 .. c:function:: int CVDiagB(void * cvode_mem, int which)
@@ -698,7 +699,7 @@ correctly before any subsequent calls to :c:func:`CVodeB`.
 
 .. c:function:: int CVodeSetNonlinearSolverB(void * cvode_mem, int which, SUNNonlinearSolver NLS)
 
-   The function :c:func:`CVodeSetNonLinearSolverB` attaches a
+   The function :c:func:`CVodeSetNonlinearSolverB` attaches a
    ``SUNNONLINEARSOLVER``  object (``NLS``) to CVODES for the solution of the
    backward problem.
 
@@ -905,8 +906,9 @@ sensitivities.
      * ``CVLS_LMEM_NULL`` -- The linear solver has not been initialized with a call to :c:func:`CVodeSetLinearSolverB`.
      * ``CVLS_ILL_INPUT`` -- The parameter ``which`` represented an invalid identifier.
 
-   **Notes:**
-      The previous routine :c:type:`CVDlsSetJacFnB` is now deprecated.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVDlsSetJacFnB``.
 
 
 .. c:function:: int CVodeSetJacFnBS(void * cvode_mem, int which, CVLsJacFnBS jacBS)
@@ -927,8 +929,9 @@ sensitivities.
      * ``CVLS_LMEM_NULL`` -- The linear solver has not been initialized with a call to :c:func:`CVodeSetLinearSolverB`.
      * ``CVLS_ILL_INPUT`` -- The parameter ``which`` represented an invalid identifier.
 
-   **Notes:**
-      The previous routine :c:type:`CVDlsSetJacFnBS` is now deprecated.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVDlsSetJacFnBS``.
 
 
 .. c:function:: int CVodeSetLinSysFnB(void * cvode_mem, int which, CVLsLinSysFnB linsysB)
@@ -1012,8 +1015,9 @@ disable solution scaling when using a matrix-based linear solver.
      * ``CVLS_NO_ADJ`` -- The function :c:func:`CVodeAdjInit` has not been previously called.
      * ``CVLS_ILL_INPUT`` -- The parameter ``which`` represented an invalid identifier.
 
-   **Notes:**
-      The previous routine ``CVSpilsSetJacTimesB`` is now deprecated.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVSpilsSetJacTimesB``.
 
 
 .. c:function:: int CVodeSetJacTimesBS(void * cvode_mem, int which, CVLsJacTimesVecFnBS jtvBS)
@@ -1035,8 +1039,9 @@ disable solution scaling when using a matrix-based linear solver.
      * ``CVLS_NO_ADJ`` -- The function :c:func:`CVodeAdjInit` has not been previously called.
      * ``CVLS_ILL_INPUT`` -- The parameter ``which`` represented an invalid identifier.
 
-   **Notes:**
-       The previous routine ``CVSpilsSetJacTimesBS`` is now deprecated.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVSpilsSetJacTimesBS``.
 
 
 When using the internal difference quotient the user may optionally supply an
@@ -1053,7 +1058,7 @@ potentially non-differentiable factor.
 
 .. c:function:: int CVodeSetJacTimesRhsFnB(void * cvode_mem, int which, CVRhsFn jtimesRhsFn)
 
-   The function :c:func:`CVodeSetJacTimesRhsFn` specifies an alternative ODE
+   The function :c:func:`CVodeSetJacTimesRhsFnB` specifies an alternative ODE
    right-hand side function for use in the internal Jacobian-vector product
    difference quotient approximation.
 
@@ -1077,9 +1082,9 @@ potentially non-differentiable factor.
       initialized through a call to :c:func:`CVodeSetLinearSolverB`.
 
 
-.. c:function:: int CVodeSetPreconditionerB(void * cvode_mem, int which, CVLPrecSetupFnB psetupB, CVLsPrecSolveFnB psolveB)
+.. c:function:: int CVodeSetPreconditionerB(void * cvode_mem, int which, CVLsPrecSetupFnB psetupB, CVLsPrecSetupFnB psolveB)
 
-   The function :c:func:`CVodeSetPrecSolveFnB` specifies the preconditioner
+   The function :c:func:`CVodeSetPreconditionerB` specifies the preconditioner
    setup and solve functions for the backward integration.
 
    **Arguments:**
@@ -1096,12 +1101,16 @@ potentially non-differentiable factor.
      * ``CVLS_ILL_INPUT`` -- The parameter ``which`` represented an invalid identifier.
 
    **Notes:**
-      The ``psetupB`` argument may be ``NULL`` if no setup operation is involved  in the preconditioner.  The previous routine :c:type:`CVSpilsSetPrecSolveFnB` is now deprecated.
+      The ``psetupB`` argument may be ``NULL`` if no setup operation is involved  in the preconditioner.
+
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVSpilsSetPrecSolveFnB``.
 
 
 .. c:function:: int CVodeSetPreconditionerBS(void * cvode_mem, int which, CVLsPrecSetupFnBS psetupBS, CVLsPrecSolveFnBS psolveBS)
 
-   The function :c:func:`CVodeSetPrecSolveFnBS` specifies the preconditioner
+   The function :c:func:`CVodeSetPreconditionerBS` specifies the preconditioner
    setup and solve functions for the backward integration, in the case  where
    the backward problem depends on the forward sensitivities.
 
@@ -1120,8 +1129,11 @@ potentially non-differentiable factor.
 
    **Notes:**
       The ``psetupBS`` argument may be ``NULL`` if no setup operation is
-      involved  in the preconditioner.  The previous routine
-      :c:type:`CVSpilsSetPrecSolveFnBS` is now deprecated.
+      involved  in the preconditioner.
+
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVSpilsSetPrecSolveFnBS``.
 
 
 .. c:function:: int CVodeSetEpsLinB(void * cvode_mem, int which, sunrealtype eplifacB)
@@ -1146,13 +1158,16 @@ potentially non-differentiable factor.
 
    **Notes:**
       The default value is :math:`0.05`.  Passing a value ``eplifacB = 0.0``
-      also indicates using the default value.  The previous routine
-      ``CVSpilsSetEpsLinB`` is now deprecated.
+      also indicates using the default value.
+
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function ``CVSpilsSetEpsLinB``.
 
 
 .. c:function:: int CVodeSetLSNormFactorB(void * cvode_mem, int which, sunrealtype nrmfac)
 
-   The function :c:func:`CVodeSetLSNormFactor` specifies the factor to use when
+   The function :c:func:`CVodeSetLSNormFactorB` specifies the factor to use when
    converting from the integrator tolerance (WRMS norm) to the linear solver
    tolerance (L2 norm) for Newton linear system solves e.g.,  ``tol_L2 = fac *
    tol_WRMS``.  This routine can be used in both the cases wherethe backward
@@ -1232,7 +1247,9 @@ any case, it must be within the last checkpoint interval used by
 
 .. c:function:: int CVodeGetAdjCheckPointsInfo(void * cvode_mem, CVadjCheckPointRec *ckpnt)
 
-   The function :c:func:`CVodeGetAdjCheckPointsInfo` loads an array of ``ncheck+1``  records of type ``CVadjCheckPointRec``.  The user must allocate space for the array ``ckpnt``.
+   The function :c:func:`CVodeGetAdjCheckPointsInfo` loads an array of
+   ``ncheck + 1`` records of type :c:struct:`CVadjCheckPointRec`. The user must
+   allocate space for the array ``ckpnt``.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block created by :c:func:`CVodeCreate`.
@@ -1241,16 +1258,37 @@ any case, it must be within the last checkpoint interval used by
    **Return value:**
      * ``void``
 
-   **Notes:**
-      The members of each record ``ckpnt[i]`` are:
+   The checkpoint structure is defined as
 
-      * ``ckpnt[i].my_addr`` (``void *``) -- address of current checkpoint in ``cvode_mem->cv_adj_mem``
-      * ``ckpnt[i].next_addr`` (``void *``) -- address of next checkpoint
-      * ``ckpnt[i].t0`` (``sunrealtype``) -- start of checkpoint interval
-      * ``ckpnt[i].t1`` (``sunrealtype``) -- end of checkpoint interval
-      * ``ckpnt[i].nstep`` (``long int``) -- step counter at ckeckpoint ``t0``
-      * ``ckpnt[i].order`` (``int``) -- method order at checkpoint ``t0``
-      * ``ckpnt[i].step`` (``sunrealtype``) -- step size at checkpoint ``t0``
+   .. c:struct:: CVadjCheckPointRec
+
+      .. c:member:: void* my_addr
+
+         The address of current checkpoint in ``cvode_mem->cv_adj_mem``
+
+      .. c:member:: void* next_addr
+
+         The address of next checkpoint.
+
+      .. c:member:: sunrealtype t0
+
+         The start time of the checkpoint interval
+
+      .. c:member:: sunrealtype t1
+
+         The end time of the checkpoint interval
+
+      .. c:member:: long int nstep
+
+         The step counter at ``t0``
+
+      .. c:member:: int order
+
+         The method order at ``t0``
+
+      .. c:member:: sunrealtype step
+
+         The step size at ``t0``
 
 
 Backward integration of quadrature equations
@@ -1442,7 +1480,7 @@ must provide a ``rhsB`` function of type :c:type:`CVRhsFnB` defined as follows:
      * ``y`` -- is the current value of the forward solution vector.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``yBdot`` -- is the output vector containing the right-hand side :math:`f_B` of the backward ODE problem.
-     * ``user_dataB`` -- is a pointer to the same user data passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
 
    **Return value:**
       A :c:type:`CVRhsFnB` should return 0 if successful, a positive value if a recoverable
@@ -1492,7 +1530,7 @@ provide a ``rhsBS`` function of type :c:type:`CVRhsFnBS` defined as follows:
      * ``yS`` -- a pointer to an array of ``Ns`` vectors containing the sensitvities of the forward solution.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``yBdot`` -- is the output vector containing the right-hand side.
-     * ``user_dataB`` -- is a pointer to user data, same as passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to user data, same as passed to ``CVodeSetUserDataB``.
 
    **Return value:**
       A :c:type:`CVRhsFnBS` should return 0 if successful, a positive value if a
@@ -1541,7 +1579,7 @@ by
      * ``y`` -- is the current value of the forward solution vector.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``qBdot`` -- is the output vector containing the right-hand side ``fQB`` of the backward quadrature equations.
-     * ``user_dataB`` -- is a pointer to user data, same as passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to user data, same as passed to ``CVodeSetUserDataB``.
 
    **Return value:**
       A :c:type:`CVQuadRhsFnB` should return 0 if successful, a positive value
@@ -1591,7 +1629,7 @@ defined by
      * ``yS`` -- a pointer to an array of ``Ns`` vectors continaing the sensitvities of the forward solution.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``qBdot`` -- is the output vector containing the right-hand side ``fQBS`` of the backward quadrature equations.
-     * ``user_dataB`` -- is a pointer to user data, same as passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to user data, same as passed to ``CVodeSetUserDataB``.
 
    **Return value:**
       A :c:type:`CVQuadRhsFnBS` should return 0 if successful, a positive value if a recoverable
@@ -1643,7 +1681,7 @@ non-``NULL`` ``SUNMatrix`` object was supplied to
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``fyB`` -- is the current value of the backward right-hand side function :math:`f_B`.
      * ``JacB`` -- is the output approximate Jacobian matrix.
-     * ``user_dataB`` -- is a pointer to the same user data passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
      * ``tmp1B``, ``tmp2B``, ``tmp3B`` -- are pointers to memory allocated for variables of type ``N_Vector`` which can be used by the :c:type:`CVLsJacFnB` function as temporary storage or work space.
 
    **Return value:**
@@ -1669,16 +1707,17 @@ non-``NULL`` ``SUNMatrix`` object was supplied to
       loaded into ``JacB``.
 
    .. warning::
+
       Before calling the user's :c:type:`CVLsJacFnB`, CVODES needs to
-      evaluate  (through interpolation) the values of the states from the
+      evaluate (through interpolation) the values of the states from the
       forward integration.  If an error occurs in the interpolation, CVODES
       triggers an unrecoverable  failure in the Jacobian function which will
       halt the integration  (:c:func:`CVodeB` returns ``CV_LSETUP_FAIL`` and
-      CVLS sets ``last_flag`` to  ``CVLS_JACFUNC_UNRECVR``).  The previous
-      function type :c:type:`CVDlsJacFnB` is identical to
-      :c:type:`CVLsJacFnB`, and may still be used for backward-compatibility.
-      However, this will be deprecated in future releases, so we recommend
-      that users transition to the new function type name soon.
+      CVLS sets ``last_flag`` to  ``CVLS_JACFUNC_UNRECVR``).
+
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVDlsJacFnB``.
 
 
 .. c:type:: int (*CVLsJacFnBS)(sunrealtype t, N_Vector y, N_Vector *yS, N_Vector yB, N_Vector fyB, SUNMatrix JacB, void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
@@ -1694,7 +1733,7 @@ non-``NULL`` ``SUNMatrix`` object was supplied to
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``fyB`` -- is the current value of the backward right-hand side function :math:`f_B`.
      * ``JacB`` -- is the output approximate Jacobian matrix.
-     * ``user_dataB`` -- is a pointer to the same user data passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
      * ``tmp1B``, ``tmp2B``, ``tmp3B`` -- are pointers to memory allocated for variables of type ``N_Vector`` which can be used by the :c:type:`CVLsLinSysFnBS` function as temporary storage or work space.
 
    **Return value:**
@@ -1726,12 +1765,11 @@ non-``NULL`` ``SUNMatrix`` object was supplied to
       forward integration.  If an error occurs in the interpolation, CVODES
       triggers an unrecoverable  failure in the Jacobian function which will
       halt the integration  (:c:func:`CVodeB` returns ``CV_LSETUP_FAIL`` and
-      CVLS sets ``last_flag`` to  ``CVLS_JACFUNC_UNRECVR``).  The previous
-      function type :c:type:`CVDlsJacFnBS` is identical to
-      :c:type:`CVLsJacFnBS`, and may still be used for
-      backward-compatibility.  However, this will be deprecated in future
-      releases, so we recommend  that users transition to the new function
-      type name soon.
+      CVLS sets ``last_flag`` to  ``CVLS_JACFUNC_UNRECVR``).
+
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVDlsJacFnBS``.
 
 
 
@@ -1760,7 +1798,7 @@ J_B` (or an approximation of it) for the backward problem.
      * ``jokB`` -- is an input flag indicating whether Jacobian-related data needs to be recomputed (``jokB = SUNFALSE``) or informtion saved from a previous information can be safely used (``jokB = SUNTRUE``).
      * ``jcurB`` -- is an output flag which must be set to ``SUNTRUE`` if Jacobian-related data was recomputed or ``SUNFALSE`` otherwise.
      * ``gammaB`` -- is the scalar appearing in the matrix :math:`M_B = I - \gamma_B J_B`.
-     * ``user_dataB`` -- is a pointer to the same user data passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
      * ``tmp1B``, ``tmp2B``, ``tmp3B`` -- are pointers to memory allocated for variables of type ``N_Vector`` which can be used by the :c:type:`CVLsLinSysFnB` function as temporary storage or work space.
 
    **Return value:**
@@ -1803,7 +1841,7 @@ J_B` (or an approximation of it) for the backward problem.
      * ``jokB`` -- is an input flag indicating whether Jacobian-related data needs to be recomputed (``jokB = SUNFALSE``) or informtion saved from a previous information can be safely used (``jokB = SUNTRUE``).
      * ``jcurB`` -- is an output flag which must be set to ``SUNTRUE`` if Jacobian-related data was recomputed or ``SUNFALSE`` otherwise.
      * ``gammaB`` -- is the scalar appearing in the matrix
-     * ``user_dataB`` -- is a pointer to the same user data passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
      * ``tmp1B``, ``tmp2B``, ``tmp3B`` -- are pointers to memory allocated for variables of type ``N_Vector`` which can be used by the :c:type:`CVLsLinSysFnBS` function as temporary storage or work space.
 
    **Return value:**
@@ -1856,7 +1894,7 @@ difference quotient approximation to these products.
      * ``y`` -- is the current value of the forward solution vector.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``fyB`` -- is the current value of the backward right-hand side function :math:`f_B`.
-     * ``user_dataB`` -- is a pointer to the same user data passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
      * ``tmpB`` -- is a pointer to memory allocated for a variable of type ``N_Vector`` which can be used by :c:type:`CVLsJacTimesVecFnB` as temporary storage or work space.
 
    **Return value:**
@@ -1873,8 +1911,11 @@ difference quotient approximation to these products.
       equivalent to those passed to a function of type
       :c:type:`CVLsJacTimesVecFn`.  If the backward problem is the adjoint of
       :math:`{\dot y} = f(t, y)`, then this  function is to compute
-      :math:`-({\partial f}/{\partial y_i})^T v_B`.  The previous function type
-      :c:type:`CVSpilsJacTimesVecFnB` is deprecated.
+      :math:`-({\partial f}/{\partial y_i})^T v_B`.
+
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVSpilsJacTimesVecFnB``.
 
 
 .. c:type:: int (*CVLsJacTimesVecFnBS)(N_Vector vB, N_Vector JvB, sunrealtype t, N_Vector y, N_Vector *yS, N_Vector yB, N_Vector fyB, void *user_dataB, N_Vector tmpB);
@@ -1891,7 +1932,7 @@ difference quotient approximation to these products.
      * ``yS`` -- is a pointer to an array containing the forward sensitivity vectors.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``fyB`` -- is the current value of the backward right-hand side function :math:`f_B`.
-     * ``user_dataB`` -- is a pointer to the same user data passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
      * ``tmpB`` -- is a pointer to memory allocated for a variable of type ``N_Vector`` which can be used by :c:type:`CVLsJacTimesVecFnB` as temporary storage or work space.
 
    **Return value:**
@@ -1906,8 +1947,11 @@ difference quotient approximation to these products.
       solution of the original IVP at time ``t`` and  ``yB`` is the solution of
       the backward problem at the same time.  The rest of the arguments are
       equivalent to those passed to a function of type
-      :c:type:`CVLsJacTimesVecFn`.  The previous function type
-      :c:type:`CVSpilsJacTimesVecFnBS` is deprecated.
+      :c:type:`CVLsJacTimesVecFn`.
+
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVSpilsJacTimesVecFnBS``.
 
 
 .. _CVODES.Usage.ADJ.user_supplied.jactimesvecsetup_b:
@@ -1930,7 +1974,7 @@ function of type :c:type:`CVLsJacTimesSetupFnB` or
      * ``y`` -- is the current value of the dependent variable vector, :math:`y(t)`.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``fyB`` -- is the current value of the right-hand-side for the backward problem.
-     * ``user_dataB`` -- is a pointer to user data :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to user data ``CVodeSetUserDataB``.
 
    **Return value:**
       The value returned by the Jacobian-vector setup function
@@ -1950,12 +1994,11 @@ function of type :c:type:`CVLsJacTimesSetupFnB` or
       ``user_dataB`` and then use the ``CVGet*`` functions described in
       :numref:`CVODES.Usage.SIM.optional_output`. The unit
       roundoff can be accessed as  ``SUN_UNIT_ROUNDOFF`` defined in
-      ``sundials_types.h``.  The previous function type
-      :c:type:`CVSpilsJacTimesSetupFnB` is identical  to
-      :c:type:`CVLsJacTimesSetupFnB`, and may still be used for
-      backward-compatibility.  However, this will be deprecated in future
-      releases, so we recommend that users transition to the new function  type
-      name soon.
+      ``sundials_types.h``.
+
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated function type ``CVSpilsJacTimesSetupFnB``.
 
 
 .. c:type:: int (*CVLsJacTimesSetupFnBS)(sunrealtype t, N_Vector y, N_Vector *yS, N_Vector yB, N_Vector fyB, void *user_dataB)
@@ -1970,7 +2013,7 @@ function of type :c:type:`CVLsJacTimesSetupFnB` or
      * ``yS`` -- a pointer to an array of ``Ns`` vectors containing the sensitvities of the forward solution.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``fyB`` -- is the current value of the right-hand-side function for the backward problem.
-     * ``user_dataB`` -- is a pointer to the same user data provided to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data provided to ``CVodeSetUserDataB``.
 
    **Return value:**
       The value returned by the Jacobian-vector setup function
@@ -1990,12 +2033,11 @@ function of type :c:type:`CVLsJacTimesSetupFnB` or
       ``cvode_mem``  to ``user_dataB`` and then use the ``CVGet*`` functions
       described in  :numref:`CVODES.Usage.SIM.optional_output`.
       The unit roundoff can be accessed as  ``SUN_UNIT_ROUNDOFF`` defined in
-      ``sundials_types.h``.  The previous function type
-      :c:type:`CVSpilsJacTimesSetupFnBS` is identical  to
-      :c:type:`CVLsJacTimesSetupFnBS`, and may still be used for
-      backward-compatibility.  However, this will be deprecated in future
-      releases, so we recommend that users transition to the new function  type
-      name soon.
+      ``sundials_types.h``.
+
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVSpilsJacTimesSetupFnBS``.
 
 
 .. _CVODES.Usage.ADJ.user_supplied.psolve_b:
@@ -2026,7 +2068,7 @@ following two types:
      * ``zvecB`` -- is the computed output vector.
      * ``gammaB`` -- is the scalar appearing in the matrix, :math:`M_B = I - \gamma_B J_B`.
      * ``deltaB`` -- is an input tolerance to be used if an iterative method is employed in the solution.
-     * ``user_dataB`` -- is a pointer to the same user data passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
 
    **Return value:**
       The return value of a preconditioner solve function for the backward
@@ -2034,8 +2076,9 @@ following two types:
       which case the step will be retried), or negative for an unrecoverable
       error (in which case the integration is halted).
 
-   **Notes:**
-      The previous function type :c:type:`CVSpilsPrecSolveFnB` is deprecated.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVSpilsPrecSolveFnB``.
 
 
 .. c:type:: int (*CVLsPrecSolveFnBS)(sunrealtype t, N_Vector y, N_Vector *yS, N_Vector yB, N_Vector fyB, N_Vector rvecB, N_Vector zvecB, sunrealtype gammaB, sunrealtype deltaB, void *user_dataB)
@@ -2052,7 +2095,7 @@ following two types:
      * ``zvecB`` -- is the computed output vector.
      * ``gammaB`` -- is the scalar appearing in the matrix, :math:`M_B = I - \gamma_B J_B`.
      * ``deltaB`` -- is an input tolerance to be used if an iterative method is employed in the solution.
-     * ``user_dataB`` -- is a pointer to the same user data passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
 
    **Return value:**
       The return value of a preconditioner solve function for the backward
@@ -2061,8 +2104,9 @@ following two types:
       negative for an unrecoverable error (in which case the integration is halted).
 
 
-   **Notes:**
-      The previous function type :c:type:`CVSpilsPrecSolveFnBS` is identical to  :c:type:`CVLsPrecSolveFnBS`, and may still be used for backward-compatibility.  However, this will be deprecated in future releases, so we recommend  that users transition to the new function type name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVSpilsPrecSolveFnBS``.
 
 
 .. _CVODES.Usage.ADJ.user_supplied.psetup_b:
@@ -2087,7 +2131,7 @@ function of one of the following two types:
      * ``jokB`` -- is an input flag indicating whether Jacobian-related data needs to be recomputed (``jokB = SUNFALSE``) or information saved from a previous invokation can be safely used (``jokB = SUNTRUE``).
      * ``jcurPtr`` -- is an output flag which must be set to ``SUNTRUE`` if Jacobian-related data was recomputed or ``SUNFALSE`` otherwise.
      * ``gammaB`` -- is the scalar appearing in the matrix :math:`M_B = I - \gamma_B J_B`.
-     * ``user_dataB`` -- is a pointer to the same user data passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
 
    **Return value:**
       The return value of a preconditioner setup function for the backward
@@ -2095,12 +2139,9 @@ function of one of the following two types:
       which case the step will be retried), or negative for an unrecoverable
       error (in which case the integration is halted).
 
-   **Notes:**
-      The previous function type :c:type:`CVSpilsPrecSetupFnB` is identical to
-      :c:type:`CVLsPrecSetupFnB`, and may still be used for
-      backward-compatibility.  However, this will be deprecated in future
-      releases, so we recommend  that users transition to the new function type
-      name soon.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVSpilsPrecSetupFnB``.
 
 
 .. c:type:: int (*CVLsPrecSetupFnBS)(sunrealtype t, N_Vector y, N_Vector *yS, N_Vector yB, N_Vector fyB, sunbooleantype jokB, sunbooleantype *jcurPtrB, sunrealtype gammaB, void *user_dataB)
@@ -2118,7 +2159,7 @@ function of one of the following two types:
      * ``jokB`` -- is an input flag indicating whether Jacobian-related data needs to be recomputed (``jokB = SUNFALSE``) or information saved from a previous invokation can be safely used (``jokB = SUNTRUE``).
      * ``jcurPtr`` -- is an output flag which must be set to ``SUNTRUE`` if Jacobian-related data was recomputed or ``SUNFALSE`` otherwise.
      * ``gammaB`` -- is the scalar appearing in the matrix :math:`M_B = I - \gamma_B J_B`.
-     * ``user_dataB`` -- is a pointer to the same user data passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
 
    **Return value:**
       The return value of a preconditioner setup function for the backward
@@ -2126,8 +2167,9 @@ function of one of the following two types:
       which case the step will be retried), or negative for an unrecoverable
       error (in which case the integration is halted).
 
-   **Notes:**
-      The previous function type :c:type:`CVSpilsPrecSetupFnBS` is deprecated.
+   .. versionadded:: 4.0.0
+
+      Replaces the deprecated type ``CVSpilsPrecSetupFnBS``.
 
 
 Using CVODES preconditioner modules for the backward problem
@@ -2172,7 +2214,7 @@ initialization function must be made.
      * ``mlB`` -- lower half-bandwidth of the backward problem Jacobian approximation.
 
    **Return value:**
-     * ``CVLS_SUCCESS`` -- The call to :c:func:`CVodeBandPrecInitB` was successful.
+     * ``CVLS_SUCCESS`` -- The call to :c:func:`CVBandPrecInitB` was successful.
      * ``CVLS_MEM_FAIL`` -- A memory allocation request has failed.
      * ``CVLS_MEM_NULL`` -- The ``cvode_mem`` argument was ``NULL``.
      * ``CVLS_LMEM_NULL`` -- No linear solver has been attached.
@@ -2223,7 +2265,7 @@ iterative ``SUNLinearSolver`` object has been attached to CVODES via a call to
      * ``gcommB`` -- the optional function which performs all interprocess communication required for the computation of :math:`g_B`.
 
    **Return value:**
-     * ``CVLS_SUCCESS`` -- The call to :c:func:`CVodeBBDPrecInitB` was successful.
+     * ``CVLS_SUCCESS`` -- The call to :c:func:`CVBBDPrecInitB` was successful.
      * ``CVLS_MEM_FAIL`` -- A memory allocation request has failed.
      * ``CVLS_MEM_NULL`` -- The ``cvode_mem`` argument was ``NULL``.
      * ``CVLS_LMEM_NULL`` -- No linear solver has been attached.
@@ -2243,10 +2285,10 @@ iterative ``SUNLinearSolver`` object has been attached to CVODES via a call to
      * ``dqrelyB`` -- the relative increment in components of ``yB`` used in the difference quotient approximations.
 
    **Return value:**
-     * ``CVLS_SUCCESS`` -- The call to :c:func:`CVodeBBDPrecReInitB` was successful.
+     * ``CVLS_SUCCESS`` -- The call to :c:func:`CVBBDPrecReInitB` was successful.
      * ``CVLS_MEM_FAIL`` -- A memory allocation request has failed.
      * ``CVLS_MEM_NULL`` -- The ``cvode_mem`` argument was ``NULL``.
-     * ``CVLS_PMEM_NULL`` -- The :c:func:`CVodeBBDPrecInitB` has not been previously called.
+     * ``CVLS_PMEM_NULL`` -- The :c:func:`CVBBDPrecInitB` has not been previously called.
      * ``CVLS_LMEM_NULL`` -- No linear solver has been attached.
      * ``CVLS_ILL_INPUT`` -- An invalid parameter has been passed.
 
@@ -2278,7 +2320,7 @@ prototypes for these two functions are described below.
      * ``y`` -- is the current value of the forward solution vector.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``gB`` -- is the output vector, :math:`g_B(t, y, y_B)`.
-     * ``user_dataB`` -- is a pointer to the same user data passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
 
    **Return value:**
       An :c:type:`CVBBDLocalFnB` should return 0 if successful, a positive value
@@ -2312,7 +2354,7 @@ prototypes for these two functions are described below.
      * ``t`` -- is the value of the independent variable.
      * ``y`` -- is the current value of the forward solution vector.
      * ``yB`` -- is the current value of the backward dependent variable vector.
-     * ``user_dataB`` -- is a pointer to the same user data passed to :c:func:`CVodeSetUserDataB`.
+     * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
 
    **Return value:**
       An :c:type:`CVBBDCommFnB` should return 0 if successful, a positive value

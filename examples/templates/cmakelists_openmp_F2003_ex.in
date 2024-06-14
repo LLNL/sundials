@@ -1,0 +1,158 @@
+# -----------------------------------------------------------------
+# Programmer(s): Daniel R. Reynolds @ SMU
+# -----------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2023, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# -----------------------------------------------------------------
+# CMakeLists.txt for @SOLVER@ Fortran 2003 OpenMP examples.
+#
+# This file is generated from a template using variables
+# set at configuration time. It can be used as a template for
+# other user CMakeLists configuration files.
+# -----------------------------------------------------------------
+
+# Set the minimum required cmake version
+cmake_minimum_required(VERSION @CMAKE_VERSION@)
+
+# Set cache variables for compilers and flags
+set(CMAKE_Fortran_COMPILER
+  @_EXAMPLES_Fortran_COMPILER@
+  CACHE FILEPATH "Fortran compiler")
+
+set(CMAKE_Fortran_FLAGS
+  "@CMAKE_Fortran_FLAGS@"
+  CACHE STRING "Fortran compiler flags")
+
+# Specify project name and languages
+project(@SOLVER@_F2003_openmp_examples Fortran)
+
+# Fortran preprocessor must be enabled
+set(CMAKE_Fortran_PREPROCESS ON)
+
+# Enable testing
+include(CTest)
+
+# ------------------------------------------------------------------------------
+
+# find OpenMP
+find_package(OpenMP REQUIRED)
+
+# Update Fortran compiler and linker flags
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_Fortran_FLAGS}")
+
+# ------------------------------------------------------------------------------
+
+# Set cmake variables from template inputsd
+set(SUNLS_LIB "@SUNLS_LIB@" CACHE STRING "SUNLinearSolver library")
+set(SUNLS_FLIB "@SUNLS_FLIB@" CACHE STRING "SUNLinearSolver library")
+
+# Specify the path to SUNDIALS Fortran modules
+set(SUNDIALS_INCLUDE_DIR
+  @CMAKE_INSTALL_PREFIX@/@Fortran_INSTALL_MODDIR@
+  CACHE PATH "Location of SUNDIALS Fortran module files")
+
+# Specify the path to SUNDIALS libraries
+set(SUNDIALS_LIBRARY_DIR
+  @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@
+  CACHE PATH "Location of SUNDIALS libraries")
+
+find_library(SUNDIALS_CORE_LIB
+  sundials_core ${SUNDIALS_LIBRARY_DIR}
+  DOC "SUNDIALS core library")
+
+find_library(SUNDIALS_FCORE_LIB
+  sundials_fcore_mod ${SUNDIALS_LIBRARY_DIR}
+  DOC "SUNDIALS Fortran core library")
+
+# Find the SUNDIALS libraries
+find_library(SUNDIALS_SOLVER_LIB
+  @SOLVER_LIB@ ${SUNDIALS_LIBRARY_DIR}
+  DOC "@SOLVER@ library")
+
+find_library(SUNDIALS_SOLVER_FLIB
+  @SOLVER_FLIB@ ${SUNDIALS_LIBRARY_DIR}
+  DOC "@SOLVER@ Fortran-C library")
+
+find_library(SUNDIALS_NVEC_LIB
+  sundials_nvecopenmp ${SUNDIALS_LIBRARY_DIR}
+  DOC "NVECTOR_OPENMP library")
+
+find_library(SUNDIALS_NVEC_FLIB
+  sundials_fnvecopenmp_mod ${SUNDIALS_LIBRARY_DIR}
+  DOC "NVECTOR_OPENMP library")
+
+if("${SUNLS_LIB}" STREQUAL "")
+  # No additional SUNLinearSolver library necessary
+else()
+  # Find the additional SUNLinearSolver library
+  find_library(SUNDIALS_SUNLS_LIB
+    @SUNLS_LIB@ ${SUNDIALS_LIBRARY_DIR}
+    DOC "SUNLinearSolver library")
+
+  find_library(SUNDIALS_SUNLS_FLIB
+    @SUNLS_FLIB@ ${SUNDIALS_LIBRARY_DIR}
+    DOC "SUNLinearSolver library")
+endif()
+
+# Set additional libraries
+set(SUNDIALS_EXTRA_LIBS @LIBS@ CACHE STRING "Additional libraries")
+
+# For SUNDIALS module examples the solver library is not needed
+if(NOT SUNDIALS_SOLVER_LIB)
+  set(SUNDIALS_SOLVER_LIB "")
+endif()
+
+# List of SUNDIALS libraries
+set(SUNDIALS_LIBRARIES
+  -L${SUNDIALS_LIBRARY_DIR}
+  ${SUNDIALS_SOLVER_FLIB}
+  ${SUNDIALS_NVEC_FLIB}
+  ${SUNDIALS_SUNLS_FLIB}
+  ${SUNDIALS_SOLVER_LIB}
+  ${SUNDIALS_NVEC_LIB}
+  ${SUNDIALS_SUNLS_LIB}
+  ${SUNDIALS_FCORE_LIB}
+  ${SUNDIALS_CORE_LIB}
+  ${SUNDIALS_EXTRA_LIBS})
+
+# ------------------------------------------------------------------------------
+
+# Set the names of the examples to be built and their dependencies
+set(examples @EXAMPLES@)
+set(examples_dependencies @EXAMPLES_DEPENDENCIES@)
+if(examples)
+  list(REMOVE_DUPLICATES examples)
+endif()
+
+# Create targets for each example
+foreach(example ${examples})
+
+  # extract the file name without extension
+  get_filename_component(example_target ${example} NAME_WE)
+
+  # Keep fortran modules to a unique directory to avoid naming collisions
+  set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example_target}.dir)
+
+  # example source files
+  add_executable(${example_target} ${example} ${examples_dependencies})
+
+  # directories to include
+  target_include_directories(${example_target} PRIVATE ${SUNDIALS_INCLUDE_DIR})
+
+  # libraries to link against
+  target_link_libraries(${example_target} ${SUNDIALS_LIBRARIES})
+
+  target_compile_definitions(${example_target} PRIVATE SUNDIALS_INT@SUNDIALS_INDEX_SIZE@_T)
+
+  # add the example to ctest
+  add_test(NAME ${example_target} COMMAND ${example_target})
+
+endforeach()

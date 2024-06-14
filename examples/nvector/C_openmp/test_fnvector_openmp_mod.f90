@@ -22,17 +22,17 @@ module test_nvector_openmp
   use test_utilities
   implicit none
 
-  integer(c_int64_t), parameter :: N = 100 ! vector length
-  integer(c_int),  parameter :: nv = 3  ! length of vector arrays
-  integer(c_int),  parameter :: ns = 2  ! number of vector arrays
+  integer(kind=myindextype), parameter :: N = 100 ! vector length
+  integer(kind=myindextype), parameter :: ns = 2  ! number of vector arrays
+  integer(c_int), parameter :: nv = 3  ! length of vector arrays
 
   contains
 
   integer function smoke_tests() result(ret)
     implicit none
 
-    integer(c_int64_t)    :: lenrw(1), leniw(1) ! real and int work space size
-    integer(c_int)         :: ival               ! integer work value
+    integer(kind=myindextype) :: lenrw(1), leniw(1) ! real and int work space size
+    integer(c_long)         :: ival               ! integer work value
     real(c_double)          :: rval               ! real work value
     real(c_double)          :: xdata(N)           ! vector data array
     real(c_double), pointer :: xptr(:)            ! pointer to vector data array
@@ -94,16 +94,16 @@ module test_nvector_openmp
     rval = FN_VMinQuotient_OpenMP(x, y)
 
     ! test fused vector operations
-    ival = FN_VLinearCombination_OpenMP(nv, nvarr, xvecs, x)
-    ival = FN_VScaleAddMulti_OpenMP(nv, nvarr, x, xvecs, zvecs)
-    ival = FN_VDotProdMulti_OpenMP(nv, x, xvecs, nvarr)
+    ival = FN_VLinearCombination_OpenMP(int(nv, 4), nvarr, xvecs, x)
+    ival = FN_VScaleAddMulti_OpenMP(int(nv, 4), nvarr, x, xvecs, zvecs)
+    ival = FN_VDotProdMulti_OpenMP(int(nv, 4), x, xvecs, nvarr)
 
     ! test vector array operations
-    ival = FN_VLinearSumVectorArray_OpenMP(nv, ONE, xvecs, ONE, xvecs, zvecs)
-    ival = FN_VScaleVectorArray_OpenMP(nv, nvarr, xvecs, zvecs)
-    ival = FN_VConstVectorArray_OpenMP(nv, ONE, xvecs)
-    ival = FN_VWrmsNormVectorArray_OpenMP(nv, xvecs, xvecs, nvarr)
-    ival = FN_VWrmsNormMaskVectorArray_OpenMP(nv, xvecs, xvecs, x, nvarr)
+    ival = FN_VLinearSumVectorArray_OpenMP(int(nv, 4), ONE, xvecs, ONE, xvecs, zvecs)
+    ival = FN_VScaleVectorArray_OpenMP(int(nv, 4), nvarr, xvecs, zvecs)
+    ival = FN_VConstVectorArray_OpenMP(int(nv, 4), ONE, xvecs)
+    ival = FN_VWrmsNormVectorArray_OpenMP(int(nv, 4), xvecs, xvecs, nvarr)
+    ival = FN_VWrmsNormMaskVectorArray_OpenMP(int(nv, 4), xvecs, xvecs, x, nvarr)
 
     !==== Cleanup =====
     call FN_VDestroy_OpenMP(x)
@@ -148,10 +148,10 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   use test_utilities
   implicit none
 
-  real(C_DOUBLE)          :: ans
-  type(N_Vector)          :: X
-  integer(c_int64_t)         :: local_length, i
-  real(C_DOUBLE), pointer :: Xdata(:)
+  real(C_DOUBLE)            :: ans
+  type(N_Vector)            :: X
+  integer(kind=myindextype) :: local_length, i
+  real(C_DOUBLE), pointer   :: Xdata(:)
 
   failure = 0
 

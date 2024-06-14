@@ -18,9 +18,9 @@
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
+#include <sundials/sundials_errors.h>
 
-#include "sundials/priv/sundials_errors_impl.h"
-#include "sundials/sundials_errors.h"
+#include "sundials_macros.h"
 
 #define MPIPLUSX_LOCAL_VECTOR(v) (N_VGetSubvector_MPIManyVector(v, 0))
 
@@ -49,7 +49,7 @@ N_Vector N_VMake_MPIPlusX(MPI_Comm comm, N_Vector X, SUNContext sunctx)
   return v;
 }
 
-N_Vector_ID N_VGetVectorID_MPIPlusX(N_Vector v)
+N_Vector_ID N_VGetVectorID_MPIPlusX(SUNDIALS_MAYBE_UNUSED N_Vector v)
 {
   return SUNDIALS_NVEC_MPIPLUSX;
 }

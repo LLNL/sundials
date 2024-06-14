@@ -20,16 +20,18 @@
  * of the NVECTOR module.
  * -----------------------------------------------------------------*/
 
-#include <nvector/nvector_openmp.h>
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <nvector/nvector_openmp.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_core.h>
+#include <sundials/sundials_errors.h>
 
-#include "sundials/sundials_context.h"
-#include "sundials/sundials_errors.h"
+#include "sundials_macros.h"
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)
@@ -82,7 +84,10 @@ static void VaxpyVectorArray_OpenMP(int nvec, sunrealtype a, N_Vector* X,
  * Returns vector type ID. Used to identify vector implementation
  * from abstract N_Vector interface.
  */
-N_Vector_ID N_VGetVectorID_OpenMP(N_Vector v) { return SUNDIALS_NVEC_OPENMP; }
+N_Vector_ID N_VGetVectorID_OpenMP(SUNDIALS_MAYBE_UNUSED N_Vector v)
+{
+  return SUNDIALS_NVEC_OPENMP;
+}
 
 /* ----------------------------------------------------------------------------
  * Function to create a new empty vector

@@ -49,7 +49,10 @@ typedef enum
   ARKODE_VERNER_10_6_7,
   ARKODE_VERNER_13_7_8,
   ARKODE_VERNER_16_8_9,
-  ARKODE_MAX_ERK_NUM = ARKODE_VERNER_16_8_9
+  ARKODE_FORWARD_EULER_1_1,
+  ARKODE_RALSTON_EULER_2_1_2,
+  ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2,
+  ARKODE_MAX_ERK_NUM = ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2
 } ARKODE_ERKTableID;
 
 /* Accessor routine to load built-in ERK table */
@@ -58,6 +61,8 @@ ARKodeButcherTable_LoadERK(ARKODE_ERKTableID emethod);
 
 SUNDIALS_EXPORT ARKodeButcherTable
 ARKodeButcherTable_LoadERKByName(const char* emethod);
+
+SUNDIALS_EXPORT const char* ARKodeButcherTable_ERKIDToName(ARKODE_ERKTableID emethod);
 
 #ifdef __cplusplus
 }

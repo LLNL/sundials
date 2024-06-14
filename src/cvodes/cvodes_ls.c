@@ -1055,7 +1055,8 @@ int cvLsPSolve(void* cvode_mem, N_Vector r, N_Vector z, sunrealtype tol, int lr)
   approximation routines.
   ---------------------------------------------------------------*/
 int cvLsDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
-              void* cvode_mem, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+              void* cvode_mem, N_Vector tmp1, N_Vector tmp2,
+              SUNDIALS_MAYBE_UNUSED N_Vector tmp3)
 {
   CVodeMem cv_mem;
   int retval;
@@ -1291,7 +1292,7 @@ int cvLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
     }
 
     /* Evaluate f with incremented y */
-    retval = cv_mem->cv_f(cv_mem->cv_tn, ytemp, ftemp, cv_mem->cv_user_data);
+    retval = cv_mem->cv_f(t, ytemp, ftemp, cv_mem->cv_user_data);
     cvls_mem->nfeDQ++;
     if (retval != 0) { break; }
 
@@ -2884,7 +2885,7 @@ int cvLs_AccessLMemBCur(void* cvode_mem, const char* fname, CVodeMem* cv_mem,
   /* access CVodeMem structure */
   if (cvode_mem == NULL)
   {
-    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, __func__, __FILE__,
+    cvProcessError(NULL, CVLS_MEM_NULL, __LINE__, fname, __FILE__,
                    MSG_LS_CVMEM_NULL);
     return (CVLS_MEM_NULL);
   }
@@ -2893,7 +2894,7 @@ int cvLs_AccessLMemBCur(void* cvode_mem, const char* fname, CVodeMem* cv_mem,
   /* access CVadjMem structure */
   if ((*cv_mem)->cv_adjMallocDone == SUNFALSE)
   {
-    cvProcessError(*cv_mem, CVLS_NO_ADJ, __LINE__, __func__, __FILE__,
+    cvProcessError(*cv_mem, CVLS_NO_ADJ, __LINE__, fname, __FILE__,
                    MSG_LS_NO_ADJ);
     return (CVLS_NO_ADJ);
   }
@@ -2902,7 +2903,7 @@ int cvLs_AccessLMemBCur(void* cvode_mem, const char* fname, CVodeMem* cv_mem,
   /* get current backward problem */
   if ((*ca_mem)->ca_bckpbCrt == NULL)
   {
-    cvProcessError(*cv_mem, CVLS_LMEMB_NULL, __LINE__, __func__, __FILE__,
+    cvProcessError(*cv_mem, CVLS_LMEMB_NULL, __LINE__, fname, __FILE__,
                    MSG_LS_LMEMB_NULL);
     return (CVLS_LMEMB_NULL);
   }
@@ -2911,7 +2912,7 @@ int cvLs_AccessLMemBCur(void* cvode_mem, const char* fname, CVodeMem* cv_mem,
   /* access CVLsMemB structure */
   if ((*cvB_mem)->cv_lmem == NULL)
   {
-    cvProcessError(*cv_mem, CVLS_LMEMB_NULL, __LINE__, __func__, __FILE__,
+    cvProcessError(*cv_mem, CVLS_LMEMB_NULL, __LINE__, fname, __FILE__,
                    MSG_LS_LMEMB_NULL);
     return (CVLS_LMEMB_NULL);
   }

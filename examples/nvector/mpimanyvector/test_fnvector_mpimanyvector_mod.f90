@@ -25,28 +25,28 @@ module test_nvector_mpimanyvector
   implicit none
   include "mpif.h"
 
-  integer(c_int), parameter  :: nsubvecs = 2
-  integer(c_int64_t), parameter :: N1       = 100        ! individual vector length
-  integer(c_int64_t), parameter :: N2       = 200        ! individual vector length
-  integer(c_int),  parameter :: nv       = 3          ! length of vector arrays
-  integer(c_int64_t), parameter :: N        = N1 + N2    ! overall manyvector length
-  integer(c_int), target     :: comm = MPI_COMM_WORLD ! default MPI communicator
-  integer(c_int)             :: nprocs                ! number of MPI processes
+  integer(c_int), parameter :: nsubvecs = 2
+  integer(c_int), parameter :: nv = 3 ! length of vector arrays
+  integer(kind=myindextype), parameter :: N1 = 100      ! individual vector length
+  integer(kind=myindextype), parameter :: N2 = 200      ! individual vector length
+  integer(kind=myindextype), parameter :: N = N1 + N2   ! overall manyvector length
+  integer(c_int), target :: comm = MPI_COMM_WORLD       ! default MPI communicator
+  integer(c_int) :: nprocs                              ! number of MPI processes
 
 contains
 
   integer function smoke_tests() result(ret)
     implicit none
 
-    integer(c_int64_t)    :: lenrw(1), leniw(1)     ! real and int work space size
-    integer(c_int64_t)         :: ival                   ! integer work value
-    real(c_double)          :: rval                   ! real work value
-    real(c_double)          :: x1data(N1), x2data(N2) ! vector data array
-    real(c_double), pointer :: xptr(:)                ! pointer to vector data array
-    real(c_double)          :: nvarr(nv)              ! array of nv constants to go with vector array
-    type(N_Vector), pointer :: x, y, z, tmp           ! N_Vectors
-    type(c_ptr)             :: subvecs                ! MPIManyVector subvectors
-    type(c_ptr)             :: xvecs, zvecs           ! C pointer to array of MPIManyVectors
+    integer(kind=myindextype) :: lenrw(1), leniw(1)     ! real and int work space size
+    integer(kind=myindextype) :: ival                   ! integer work value
+    real(c_double)            :: rval                   ! real work value
+    real(c_double)            :: x1data(N1), x2data(N2) ! vector data array
+    real(c_double), pointer   :: xptr(:)                ! pointer to vector data array
+    real(c_double)            :: nvarr(nv)              ! array of nv constants to go with vector array
+    type(N_Vector), pointer   :: x, y, z, tmp           ! N_Vectors
+    type(c_ptr)               :: subvecs                ! MPIManyVector subvectors
+    type(c_ptr)               :: xvecs, zvecs           ! C pointer to array of MPIManyVectors
 
     !===== Setup ====
     subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
@@ -55,7 +55,7 @@ contains
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VMake_MPIManyVector(comm, int(nsubvecs,8), subvecs, sunctx)
+    x => FN_VMake_MPIManyVector(comm, int(nsubvecs, myindextype), subvecs, sunctx)
     call FN_VConst(ONE, x)
     y => FN_VClone_MPIManyVector(x)
     call FN_VConst(ONE, y)
@@ -96,16 +96,16 @@ contains
     rval = FN_VMinQuotientLocal_MPIManyVector(x, y)
 
     ! test fused vector operations
-    ival = FN_VLinearCombination_MPIManyVector(nv, nvarr, xvecs, x)
-    ival = FN_VScaleAddMulti_MPIManyVector(nv, nvarr, x, xvecs, zvecs)
-    ival = FN_VDotProdMulti_MPIManyVector(nv, x, xvecs, nvarr)
+    ival = FN_VLinearCombination_MPIManyVector(int(nv, 4), nvarr, xvecs, x)
+    ival = FN_VScaleAddMulti_MPIManyVector(int(nv, 4), nvarr, x, xvecs, zvecs)
+    ival = FN_VDotProdMulti_MPIManyVector(int(nv, 4), x, xvecs, nvarr)
 
     ! test vector array operations
-    ival = FN_VLinearSumVectorArray_MPIManyVector(nv, ONE, xvecs, ONE, xvecs, zvecs)
-    ival = FN_VScaleVectorArray_MPIManyVector(nv, nvarr, xvecs, zvecs)
-    ival = FN_VConstVectorArray_MPIManyVector(nv, ONE, xvecs)
-    ival = FN_VWrmsNormVectorArray_MPIManyVector(nv, xvecs, xvecs, nvarr)
-    ival = FN_VWrmsNormMaskVectorArray_MPIManyVector(nv, xvecs, xvecs, x, nvarr)
+    ival = FN_VLinearSumVectorArray_MPIManyVector(int(nv, 4), ONE, xvecs, ONE, xvecs, zvecs)
+    ival = FN_VScaleVectorArray_MPIManyVector(int(nv, 4), nvarr, xvecs, zvecs)
+    ival = FN_VConstVectorArray_MPIManyVector(int(nv, 4), ONE, xvecs)
+    ival = FN_VWrmsNormVectorArray_MPIManyVector(int(nv, 4), xvecs, xvecs, nvarr)
+    ival = FN_VWrmsNormMaskVectorArray_MPIManyVector(int(nv, 4), xvecs, xvecs, x, nvarr)
 
     ! test the MPIManyVector specific operations
     ival = FN_VGetNumSubvectors_MPIManyVector(x)
@@ -154,7 +154,7 @@ contains
     tmp  => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
-    x => FN_VMake_MPIManyVector(comm, int(nsubvecs,8), subvecs, sunctx)
+    x => FN_VMake_MPIManyVector(comm, int(nsubvecs, myindextype), subvecs, sunctx)
     call FN_VConst(ONE, x)
 
     !==== tests ====
@@ -177,20 +177,19 @@ end module
 integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   use, intrinsic :: iso_c_binding
   use fnvector_mpimanyvector_mod
-
-  use test_utilities
+  use test_utilities 
   implicit none
 
-  real(C_DOUBLE)          :: ans
-  type(N_Vector)          :: X
-  type(N_Vector), pointer :: X0, X1
-  integer(c_int64_t)         :: local_length, i, x0len, x1len
-  real(C_DOUBLE), pointer :: x0data(:), x1data(:)
+  real(C_DOUBLE)            :: ans
+  type(N_Vector)            :: X
+  type(N_Vector), pointer   :: X0, X1
+  integer(kind=myindextype) :: local_length, i, x0len, x1len
+  real(C_DOUBLE), pointer   :: x0data(:), x1data(:)
 
   failure = 0
 
-  X0 => FN_VGetSubvector_MPIManyVector(X, 0_8)
-  X1 => FN_VGetSubvector_MPIManyVector(X, 1_8)
+  X0 => FN_VGetSubvector_MPIManyVector(X, 0_myindextype)
+  X1 => FN_VGetSubvector_MPIManyVector(X, 1_myindextype)
   x0len = FN_VGetLength(X0)
   x1len = FN_VGetLength(X1)
   x0data => FN_VGetArrayPointer(X0)

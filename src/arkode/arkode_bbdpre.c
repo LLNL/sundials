@@ -61,8 +61,8 @@ int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq,
   long int lrw, liw;
   int retval;
 
-  /* access ARKMilsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structure */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
@@ -283,7 +283,7 @@ int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq,
   arkls_mem->pfree = ARKBBDPrecFree;
 
   /* Attach preconditioner solve and setup functions */
-  retval = arkLSSetPreconditioner(arkode_mem, ARKBBDPrecSetup, ARKBBDPrecSolve);
+  retval = ARKodeSetPreconditioner(arkode_mem, ARKBBDPrecSetup, ARKBBDPrecSolve);
 
   return (retval);
 }
@@ -298,8 +298,8 @@ int ARKBBDPrecReInit(void* arkode_mem, sunindextype mudq, sunindextype mldq,
   sunindextype Nlocal;
   int retval;
 
-  /* access ARKMilsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structure */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately ARKBBDPrecData is NULL */
@@ -334,8 +334,8 @@ int ARKBBDPrecGetWorkSpace(void* arkode_mem, long int* lenrwBBDP,
   ARKBBDPrecData pdata;
   int retval;
 
-  /* access ARKMilsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structure */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately ARKBBDPrecData is NULL */
@@ -362,8 +362,8 @@ int ARKBBDPrecGetNumGfnEvals(void* arkode_mem, long int* ngevalsBBDP)
   ARKBBDPrecData pdata;
   int retval;
 
-  /* access ARKMilsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structure */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately if ARKBBDPrecData is NULL */
@@ -427,7 +427,8 @@ int ARKBBDPrecGetNumGfnEvals(void* arkode_mem, long int* ngevalsBBDP)
    0  if successful,
    1  for a recoverable error (step will be retried).
 ---------------------------------------------------------------*/
-static int ARKBBDPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
+static int ARKBBDPrecSetup(sunrealtype t, N_Vector y,
+                           SUNDIALS_MAYBE_UNUSED N_Vector fy,
                            sunbooleantype jok, sunbooleantype* jcurPtr,
                            sunrealtype gamma, void* bbd_data)
 {
@@ -518,9 +519,12 @@ static int ARKBBDPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
  The value returned by the ARKBBDPrecSolve function is the same
  as the value returned from the linear solver object.
 ---------------------------------------------------------------*/
-static int ARKBBDPrecSolve(sunrealtype t, N_Vector y, N_Vector fy, N_Vector r,
-                           N_Vector z, sunrealtype gamma, sunrealtype delta,
-                           int lr, void* bbd_data)
+static int ARKBBDPrecSolve(SUNDIALS_MAYBE_UNUSED sunrealtype t,
+                           SUNDIALS_MAYBE_UNUSED N_Vector y,
+                           SUNDIALS_MAYBE_UNUSED N_Vector fy, N_Vector r,
+                           N_Vector z, SUNDIALS_MAYBE_UNUSED sunrealtype gamma,
+                           SUNDIALS_MAYBE_UNUSED sunrealtype delta,
+                           SUNDIALS_MAYBE_UNUSED int lr, void* bbd_data)
 {
   int retval;
   ARKBBDPrecData pdata;

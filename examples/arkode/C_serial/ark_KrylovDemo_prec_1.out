@@ -419,7 +419,7 @@ Species 6
  Final statistics for this run:
 
  ARKStep real workspace length         = 3558 
- ARKStep integer workspace length      =  131 
+ ARKStep integer workspace length      =  143 
  ARKLS real workspace length           = 2647 
  ARKLS integer workspace length        =   42 
  Number of steps                       =  190 
@@ -488,7 +488,7 @@ t =   1.00e+01  nst = 190  nfe = 0  nfi = 3030  nni = 2072  hu =    1.57e+00
  Final statistics for this run:
 
  ARKStep real workspace length         = 3558 
- ARKStep integer workspace length      =  136 
+ ARKStep integer workspace length      =  148 
  ARKLS real workspace length           = 2647 
  ARKLS integer workspace length        =   42 
  Number of steps                       =  190 
@@ -557,7 +557,7 @@ t =   1.00e+01  nst = 349  nfe = 0  nfi = 5589  nni = 3826  hu =    2.80e-01
  Final statistics for this run:
 
  ARKStep real workspace length         = 3558 
- ARKStep integer workspace length      =  141 
+ ARKStep integer workspace length      =  153 
  ARKLS real workspace length           = 2647 
  ARKLS integer workspace length        =   42 
  Number of steps                       =  349 
@@ -626,7 +626,7 @@ t =   1.00e+01  nst = 349  nfe = 0  nfi = 5589  nni = 3826  hu =    2.80e-01
  Final statistics for this run:
 
  ARKStep real workspace length         = 3558 
- ARKStep integer workspace length      =  146 
+ ARKStep integer workspace length      =  158 
  ARKLS real workspace length           = 2647 
  ARKLS integer workspace length        =   42 
  Number of steps                       =  349 

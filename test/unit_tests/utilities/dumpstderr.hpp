@@ -17,7 +17,7 @@
 #include <string>
 #include <sundials/sundials_core.hpp>
 
-std::string dumpstderr(SUNContext sunctx, const std::string& errfile)
+static std::string dumpstderr(SUNContext sunctx, const std::string& errfile)
 {
   SUNLogger logger = NULL;
   SUNContext_GetLogger(sunctx, &logger);

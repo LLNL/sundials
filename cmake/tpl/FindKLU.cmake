@@ -30,8 +30,23 @@
 #   KLU_LIBRARIES   - all of the libraries needed for KLU
 # ---------------------------------------------------------------
 
+if (NOT (KLU_INCLUDE_DIR OR KLU_LIBRARY_DIR OR KLU_LIBRARY))
+  # Prefer the import target from upstream SuiteSparse if it is available
+  # and the user didn't point to a specific (different) version.
+  find_package(KLU CONFIG)
+
+  if(TARGET SuiteSparse::KLU)
+    if(NOT TARGET SUNDIALS::KLU)
+      add_library(SUNDIALS::KLU ALIAS SuiteSparse::KLU)
+      set(KLU_SUITESPARSE_TARGET ON)
+      mark_as_advanced(KLU_SUITESPARSE_TARGET)
+    endif()
+    return()
+  endif()
+endif()
+
 # Set library prefixes for Windows
-if(WIN32)
+if(MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC"))
   set(CMAKE_FIND_LIBRARY_PREFIXES lib ${CMAKE_FIND_LIBRARY_PREFIXES})
   set(CMAKE_FIND_LIBRARY_SUFFIXES d.lib ${CMAKE_FIND_LIBRARY_SUFFIXES})
 elseif(APPLE)
@@ -80,7 +95,7 @@ endif ()
 if (NOT SUITESPARSECONFIG_LIBRARY)
     set(SUITESPARSECONFIG_LIBRARY_NAME suitesparseconfig)
     # NOTE: no prefix for this library on windows
-    if(WIN32 AND NOT MSYS)
+    if(MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC"))
         set(CMAKE_FIND_LIBRARY_PREFIXES "")
     endif()
     find_library( SUITESPARSECONFIG_LIBRARY ${SUITESPARSECONFIG_LIBRARY_NAME} ${KLU_LIBRARY_DIR} NO_DEFAULT_PATH)

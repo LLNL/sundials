@@ -23,6 +23,7 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
+#include "arkode/arkode.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
 
@@ -31,19 +32,19 @@
   interpolation modules
   ---------------------------------------------------------------*/
 
-int arkInterpResize(void* arkode_mem, ARKInterp interp, ARKVecResizeFn resize,
+int arkInterpResize(ARKodeMem ark_mem, ARKInterp interp, ARKVecResizeFn resize,
                     void* resize_data, sunindextype lrw_diff,
                     sunindextype liw_diff, N_Vector tmpl)
 {
   if (interp == NULL) { return (ARK_SUCCESS); }
-  return ((int)interp->ops->resize(arkode_mem, interp, resize, resize_data,
+  return ((int)interp->ops->resize(ark_mem, interp, resize, resize_data,
                                    lrw_diff, liw_diff, tmpl));
 }
 
-void arkInterpFree(void* arkode_mem, ARKInterp interp)
+void arkInterpFree(ARKodeMem ark_mem, ARKInterp interp)
 {
   if (interp == NULL) { return; }
-  interp->ops->free(arkode_mem, interp);
+  interp->ops->free(ark_mem, interp);
   return;
 }
 
@@ -54,29 +55,29 @@ void arkInterpPrintMem(ARKInterp interp, FILE* outfile)
   return;
 }
 
-int arkInterpSetDegree(void* arkode_mem, ARKInterp interp, int degree)
+int arkInterpSetDegree(ARKodeMem ark_mem, ARKInterp interp, int degree)
 {
   if (interp == NULL) { return (ARK_SUCCESS); }
-  return ((int)interp->ops->setdegree(arkode_mem, interp, degree));
+  return ((int)interp->ops->setdegree(ark_mem, interp, degree));
 }
 
-int arkInterpInit(void* arkode_mem, ARKInterp interp, sunrealtype tnew)
+int arkInterpInit(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew)
 {
   if (interp == NULL) { return (ARK_SUCCESS); }
-  return ((int)interp->ops->init(arkode_mem, interp, tnew));
+  return ((int)interp->ops->init(ark_mem, interp, tnew));
 }
 
-int arkInterpUpdate(void* arkode_mem, ARKInterp interp, sunrealtype tnew)
+int arkInterpUpdate(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew)
 {
   if (interp == NULL) { return (ARK_SUCCESS); }
-  return ((int)interp->ops->update(arkode_mem, interp, tnew));
+  return ((int)interp->ops->update(ark_mem, interp, tnew));
 }
 
-int arkInterpEvaluate(void* arkode_mem, ARKInterp interp, sunrealtype tau,
+int arkInterpEvaluate(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tau,
                       int d, int order, N_Vector yout)
 {
   if (interp == NULL) { return (ARK_SUCCESS); }
-  return ((int)interp->ops->evaluate(arkode_mem, interp, tau, d, order, yout));
+  return ((int)interp->ops->evaluate(ark_mem, interp, tau, d, order, yout));
 }
 
 /*---------------------------------------------------------------
@@ -90,16 +91,11 @@ int arkInterpEvaluate(void* arkode_mem, ARKInterp interp, sunrealtype tau,
   cloning an input template N_Vector.  This returns a non-NULL
   structure if no errors occurred, or a NULL value otherwise.
   ---------------------------------------------------------------*/
-ARKInterp arkInterpCreate_Hermite(void* arkode_mem, int degree)
+ARKInterp arkInterpCreate_Hermite(ARKodeMem ark_mem, int degree)
 {
   ARKInterp interp;
   ARKInterpContent_Hermite content;
   ARKInterpOps ops;
-  ARKodeMem ark_mem;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return (NULL); }
-  ark_mem = (ARKodeMem)arkode_mem;
 
   /* check for valid degree */
   if (degree < 0 || degree > ARK_INTERP_MAX_DEGREE) { return (NULL); }
@@ -168,17 +164,11 @@ ARKInterp arkInterpCreate_Hermite(void* arkode_mem, int degree)
 
   This routine resizes the internal vectors.
   ---------------------------------------------------------------*/
-int arkInterpResize_Hermite(void* arkode_mem, ARKInterp interp,
+int arkInterpResize_Hermite(ARKodeMem ark_mem, ARKInterp interp,
                             ARKVecResizeFn resize, void* resize_data,
                             sunindextype lrw_diff, sunindextype liw_diff,
                             N_Vector y0)
 {
-  ARKodeMem ark_mem;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return (ARK_MEM_NULL); }
-  ark_mem = (ARKodeMem)arkode_mem;
-
   /* resize vectors */
   if (interp == NULL) { return (ARK_SUCCESS); }
 
@@ -219,14 +209,8 @@ int arkInterpResize_Hermite(void* arkode_mem, ARKInterp interp,
 
   This routine frees the Hermite ARKInterp structure.
   ---------------------------------------------------------------*/
-void arkInterpFree_Hermite(void* arkode_mem, ARKInterp interp)
+void arkInterpFree_Hermite(ARKodeMem ark_mem, ARKInterp interp)
 {
-  ARKodeMem ark_mem;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return; }
-  ark_mem = (ARKodeMem)arkode_mem;
-
   /* if interpolation structure is NULL, just return */
   if (interp == NULL) { return; }
 
@@ -307,57 +291,27 @@ void arkInterpPrintMem_Hermite(ARKInterp interp, FILE* outfile)
 /*---------------------------------------------------------------
   arkInterpSetDegree_Hermite
 
-  This routine sets a supplied interpolation degree.  If the
-  argument is positive, then we require that
-      0 <= degree <= ARK_INTERP_MAX_DEGREE
-  and use this value as the user-specified (or default) degree.
-
-  If the argument is negative, then we assume that this has been
-  called by a time-step module to limit the interpolant degree
-  based on the temporal method order. In this case we set the
-  Hermite polynomial degree to be the minimum of (-degree),
-  ARK_INTERP_MAX_DEGREE, and the previously-set value [i.e., in
-  case the user has already specified use of a lower-degree
-  polynomial].
+  This routine sets a supplied interpolation degree which must be
+  in the range 0 <= degree <= ARK_INTERP_MAX_DEGREE.
 
   Return values:
-    ARK_MEM_NULL -- if either arkode_mem or interp are NULL
     ARK_ILL_INPUT -- if the input is outside of allowable bounds
     ARK_INTERP_FAIL -- if the interpolation module has already
        been initialized,
     ARK_SUCCESS -- successful completion.
   ---------------------------------------------------------------*/
-int arkInterpSetDegree_Hermite(void* arkode_mem, ARKInterp interp, int degree)
+int arkInterpSetDegree_Hermite(ARKodeMem ark_mem, ARKInterp interp, int degree)
 {
-  ARKodeMem ark_mem;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return (ARK_MEM_NULL); }
-  ark_mem = (ARKodeMem)arkode_mem;
-
-  /* if this degree is already stored, just return */
-  if (abs(degree) == HINT_DEGREE(interp)) { return (ARK_SUCCESS); }
-
-  /* on positive degree, check for allowable value and overwrite stored degree */
-  if (degree >= 0)
+  if (degree > ARK_INTERP_MAX_DEGREE || degree < 0)
   {
-    if (degree > ARK_INTERP_MAX_DEGREE)
-    {
-      arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
-                      "Illegal degree specified.");
-      return (ARK_ILL_INPUT);
-    }
-
-    HINT_DEGREE(interp) = degree;
-    return (ARK_SUCCESS);
+    arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
+                    "Illegal degree specified.");
+    return ARK_ILL_INPUT;
   }
 
-  /* on negative degree, check for allowable value and update stored degree */
-  degree = -degree;
-  if (degree > ARK_INTERP_MAX_DEGREE) { degree = ARK_INTERP_MAX_DEGREE; }
-  HINT_DEGREE(interp) = SUNMIN(HINT_DEGREE(interp), degree);
+  HINT_DEGREE(interp) = degree;
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -370,14 +324,8 @@ int arkInterpSetDegree_Hermite(void* arkode_mem, ARKInterp interp, int degree)
   4. Calls the full RHS routine to fill fnew
   5. Copies fnew into fold
   ---------------------------------------------------------------*/
-int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp, sunrealtype tnew)
+int arkInterpInit_Hermite(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew)
 {
-  ARKodeMem ark_mem;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return (ARK_MEM_NULL); }
-  ark_mem = (ARKodeMem)arkode_mem;
-
   /* initialize time values */
   HINT_TOLD(interp) = tnew;
   HINT_TNEW(interp) = tnew;
@@ -430,14 +378,9 @@ int arkInterpInit_Hermite(void* arkode_mem, ARKInterp interp, sunrealtype tnew)
   This routine copies ynew into yold, and fnew into fold, so that
   yold and fold contain the previous values.
   ---------------------------------------------------------------*/
-int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, sunrealtype tnew)
+int arkInterpUpdate_Hermite(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew)
 {
   int retval;
-  ARKodeMem ark_mem;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return (ARK_MEM_NULL); }
-  ark_mem = (ARKodeMem)arkode_mem;
 
   /* call full RHS if needed -- called just BEFORE the end of a step, so yn has
      NOT been updated to ycur yet */
@@ -491,7 +434,7 @@ int arkInterpUpdate_Hermite(void* arkode_mem, ARKInterp interp, sunrealtype tnew
   where h = tnew-told, i.e. values -1<tau<0 provide interpolation,
   other values result in extrapolation.
   ---------------------------------------------------------------*/
-int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
+int arkInterpEvaluate_Hermite(ARKodeMem ark_mem, ARKInterp interp,
                               sunrealtype tau, int d, int order, N_Vector yout)
 {
   /* local variables */
@@ -500,11 +443,6 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
   sunrealtype h, h2, h3, h4, h5;
   sunrealtype a[6];
   N_Vector X[6];
-  ARKodeMem ark_mem;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return (ARK_MEM_NULL); }
-  ark_mem = (ARKodeMem)arkode_mem;
 
   /* set constants */
   tau2 = tau * tau;
@@ -641,7 +579,7 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
 
     /* first, evaluate cubic interpolant at tau=-1/3 */
     tval   = -ONE / THREE;
-    retval = arkInterpEvaluate(arkode_mem, interp, tval, 0, 3, yout);
+    retval = arkInterpEvaluate(ark_mem, interp, tval, 0, 3, yout);
     if (retval != 0) { return (ARK_RHSFUNC_FAIL); }
 
     /* second, evaluate RHS at tau=-1/3, storing the result in fa */
@@ -711,7 +649,7 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
 
     /* first, evaluate quartic interpolant at tau=-1/3 */
     tval   = -ONE / THREE;
-    retval = arkInterpEvaluate(arkode_mem, interp, tval, 0, 4, yout);
+    retval = arkInterpEvaluate(ark_mem, interp, tval, 0, 4, yout);
     if (retval != 0) { return (ARK_RHSFUNC_FAIL); }
 
     /* second, evaluate RHS at tau=-1/3, storing the result in fa */
@@ -722,7 +660,7 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
 
     /* third, evaluate quartic interpolant at tau=-2/3 */
     tval   = -TWO / THREE;
-    retval = arkInterpEvaluate(arkode_mem, interp, tval, 0, 4, yout);
+    retval = arkInterpEvaluate(ark_mem, interp, tval, 0, 4, yout);
     if (retval != 0) { return (ARK_RHSFUNC_FAIL); }
 
     /* fourth, evaluate RHS at tau=-2/3, storing the result in fb */
@@ -855,16 +793,11 @@ int arkInterpEvaluate_Hermite(void* arkode_mem, ARKInterp interp,
   cloning an input template N_Vector.  This returns a non-NULL
   structure if no errors occurred, or a NULL value otherwise.
   ---------------------------------------------------------------*/
-ARKInterp arkInterpCreate_Lagrange(void* arkode_mem, int degree)
+ARKInterp arkInterpCreate_Lagrange(ARKodeMem ark_mem, int degree)
 {
   ARKInterp interp;
   ARKInterpContent_Lagrange content;
   ARKInterpOps ops;
-  ARKodeMem ark_mem;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return (NULL); }
-  ark_mem = (ARKodeMem)arkode_mem;
 
   /* check for valid degree */
   if (degree < 0 || degree > ARK_INTERP_MAX_DEGREE) { return (NULL); }
@@ -932,16 +865,12 @@ ARKInterp arkInterpCreate_Lagrange(void* arkode_mem, int degree)
 
   This routine resizes the internal vectors.
   ---------------------------------------------------------------*/
-int arkInterpResize_Lagrange(void* arkode_mem, ARKInterp I, ARKVecResizeFn resize,
-                             void* resize_data, sunindextype lrw_diff,
-                             sunindextype liw_diff, N_Vector y0)
+int arkInterpResize_Lagrange(ARKodeMem ark_mem, ARKInterp I,
+                             ARKVecResizeFn resize, void* resize_data,
+                             sunindextype lrw_diff, sunindextype liw_diff,
+                             N_Vector y0)
 {
   int i;
-  ARKodeMem ark_mem;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return (ARK_MEM_NULL); }
-  ark_mem = (ARKodeMem)arkode_mem;
 
   /* resize vectors */
   if (I == NULL) { return (ARK_SUCCESS); }
@@ -968,14 +897,9 @@ int arkInterpResize_Lagrange(void* arkode_mem, ARKInterp I, ARKVecResizeFn resiz
 
   This routine frees the Lagrange ARKInterp structure.
   ---------------------------------------------------------------*/
-void arkInterpFree_Lagrange(void* arkode_mem, ARKInterp I)
+void arkInterpFree_Lagrange(ARKodeMem ark_mem, ARKInterp I)
 {
   int i;
-  ARKodeMem ark_mem;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return; }
-  ark_mem = (ARKodeMem)arkode_mem;
 
   /* if interpolation structure is NULL, just return */
   if (I == NULL) { return; }
@@ -1069,57 +993,27 @@ void arkInterpPrintMem_Lagrange(ARKInterp I, FILE* outfile)
 /*---------------------------------------------------------------
   arkInterpSetDegree_Lagrange
 
-  This routine sets a supplied interpolation degree.  If the
-  argument is positive, then we require that
-      0 <= degree <= ARK_INTERP_MAX_DEGREE
-  and use this value as the user-specified (or default) degree.
-
-  If the argument is negative, then we assume that this has been
-  called by a time-step module to limit the interpolant degree
-  based on the temporal method order. In this case we set the
-  Lagrange polynomial degree to be the minimum of (-degree),
-  ARK_INTERP_MAX_DEGREE, and the previously-set value [i.e., in
-  case the user has already specified use of a lower-degree
-  polynomial].
+  This routine sets a supplied interpolation degree which must be
+  in the range 0 <= degree <= ARK_INTERP_MAX_DEGREE.
 
   Return values:
-    ARK_MEM_NULL -- if either arkode_mem or interp are NULL
     ARK_ILL_INPUT -- if the input is outside of allowable bounds
     ARK_INTERP_FAIL -- if the interpolation module has already
        been initialized,
     ARK_SUCCESS -- successful completion.
   ---------------------------------------------------------------*/
-int arkInterpSetDegree_Lagrange(void* arkode_mem, ARKInterp I, int degree)
+int arkInterpSetDegree_Lagrange(ARKodeMem ark_mem, ARKInterp I, int degree)
 {
-  ARKodeMem ark_mem;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return (ARK_MEM_NULL); }
-  ark_mem = (ARKodeMem)arkode_mem;
-
-  /* if this degree is already stored, just return */
-  if (abs(degree) + 1 == LINT_NMAX(I)) { return (ARK_SUCCESS); }
-
-  /* on positive degree, check for allowable value and overwrite stored degree */
-  if (degree >= 0)
+  if (degree > ARK_INTERP_MAX_DEGREE || degree < 0)
   {
-    if (degree > ARK_INTERP_MAX_DEGREE)
-    {
-      arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
-                      "Illegal degree specified.");
-      return (ARK_ILL_INPUT);
-    }
-
-    LINT_NMAX(I) = degree + 1;
-    return (ARK_SUCCESS);
+    arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
+                    "Illegal degree specified.");
+    return ARK_ILL_INPUT;
   }
 
-  /* on negative degree, check for allowable value and update stored degree */
-  degree = -degree;
-  if (degree > ARK_INTERP_MAX_DEGREE) { degree = ARK_INTERP_MAX_DEGREE; }
-  LINT_NMAX(I) = SUNMIN(LINT_NMAX(I), degree + 1);
+  LINT_NMAX(I) = degree + 1;
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -1131,14 +1025,9 @@ int arkInterpSetDegree_Lagrange(void* arkode_mem, ARKInterp I, int degree)
   3. copies current (t,y) from main ARKODE memory into history
   4. updates the 'active' history counter to 1
   ---------------------------------------------------------------*/
-int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I, sunrealtype tnew)
+int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tnew)
 {
   int i;
-  ARKodeMem ark_mem;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return (ARK_MEM_NULL); }
-  ark_mem = (ARKodeMem)arkode_mem;
 
   /* check if storage has increased since the last init */
   if (LINT_NMAX(I) > LINT_NMAXALLOC(I))
@@ -1224,19 +1113,14 @@ int arkInterpInit_Lagrange(void* arkode_mem, ARKInterp I, sunrealtype tnew)
      into the first history vector
   Otherwise it just returns with success.
   ---------------------------------------------------------------*/
-int arkInterpUpdate_Lagrange(void* arkode_mem, ARKInterp I, sunrealtype tnew)
+int arkInterpUpdate_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tnew)
 {
   int i;
-  ARKodeMem ark_mem;
   sunrealtype tdiff;
   N_Vector ytmp;
   int nhist, nmax;
   sunrealtype* thist;
   N_Vector* yhist;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return (ARK_MEM_NULL); }
-  ark_mem = (ARKodeMem)arkode_mem;
 
   /* set readability shortcuts */
   nhist = LINT_NHIST(I);
@@ -1298,7 +1182,7 @@ int arkInterpUpdate_Lagrange(void* arkode_mem, ARKInterp I, sunrealtype tnew)
   fixed step sizes, otherwise the stated lower bound is only
   approximate).
   ---------------------------------------------------------------*/
-int arkInterpEvaluate_Lagrange(void* arkode_mem, ARKInterp I, sunrealtype tau,
+int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tau,
                                int deriv, int degree, N_Vector yout)
 {
   /* local variables */
@@ -1306,14 +1190,9 @@ int arkInterpEvaluate_Lagrange(void* arkode_mem, ARKInterp I, sunrealtype tau,
   sunrealtype tval;
   sunrealtype a[6];
   N_Vector X[6];
-  ARKodeMem ark_mem;
   int nhist;
   sunrealtype* thist;
   N_Vector* yhist;
-
-  /* access ARKodeMem structure */
-  if (arkode_mem == NULL) { return (ARK_MEM_NULL); }
-  ark_mem = (ARKodeMem)arkode_mem;
 
   /* set readability shortcuts */
   nhist = LINT_NHIST(I);

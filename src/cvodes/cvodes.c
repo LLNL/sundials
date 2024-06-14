@@ -2057,7 +2057,7 @@ int CVodeSensReInit(void* cvode_mem, int ism, N_Vector* yS0)
  * CVodeSensSVtolerances specifies scalar relative tolerance and a vector
  *   absolute tolerance for each sensitivity vector (a potentially different
  *   absolute tolerance for each vector component).
- * CVodeEEtolerances specifies that tolerances for sensitivity variables
+ * CVodeSensEEtolerances specifies that tolerances for sensitivity variables
  *   should be estimated from those provided for the state variables.
  */
 
@@ -6531,7 +6531,7 @@ static void cvPredict(CVodeMem cv_mem)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPredict",
-                     "forward", "predictor =", "");
+                     "forward", "zn_0(:) =", "");
   N_VPrintFile(cv_mem->cv_zn[0], CV_LOGGER->debug_fp);
 #endif
 
@@ -6548,7 +6548,7 @@ static void cvPredict(CVodeMem cv_mem)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPredict",
-                       "quad", "predictor =", "");
+                       "quad", "znQ_0(:) =", "");
     N_VPrintFile(cv_mem->cv_znQ[0], CV_LOGGER->debug_fp);
 #endif
   }
@@ -6566,7 +6566,7 @@ static void cvPredict(CVodeMem cv_mem)
         for (i = 0; i < cv_mem->cv_Ns; i++)
         {
           SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPredict",
-                             "sensi", " i = %d,  predictor_i = ", i);
+                             "sensi", " i = %d,  znS_i(:) = ", i);
           N_VPrintFile(cv_mem->cv_znS[0][i], CV_LOGGER->debug_fp);
         }
 #endif
@@ -6587,7 +6587,7 @@ static void cvPredict(CVodeMem cv_mem)
         for (i = 0; i < cv_mem->cv_Ns; i++)
         {
           SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPredict",
-                             "quad-sensi", " i = %d,  predictor_i = ", i);
+                             "quad-sensi", " i = %d,  znQS_i(:) = ", i);
           N_VPrintFile(cv_mem->cv_znQS[0][i], CV_LOGGER->debug_fp);
         }
 #endif
@@ -9402,8 +9402,8 @@ static int cvQuadSensEwtSetSV(CVodeMem cv_mem, N_Vector* yQScur,
  * Updates the norm old_nrm to account for all quadratures.
  */
 
-static sunrealtype cvQuadUpdateNorm(CVodeMem cv_mem, sunrealtype old_nrm,
-                                    N_Vector xQ, N_Vector wQ)
+static sunrealtype cvQuadUpdateNorm(SUNDIALS_MAYBE_UNUSED CVodeMem cv_mem,
+                                    sunrealtype old_nrm, N_Vector xQ, N_Vector wQ)
 {
   sunrealtype qnrm;
 
@@ -9620,9 +9620,9 @@ int cvSensRhsInternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
  * non-zero return value from f().
  */
 
-int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
-                         int is, N_Vector yS, N_Vector ySdot, void* cvode_mem,
-                         N_Vector ytemp, N_Vector ftemp)
+int cvSensRhs1InternalDQ(SUNDIALS_MAYBE_UNUSED int Ns, sunrealtype t, N_Vector y,
+                         N_Vector ydot, int is, N_Vector yS, N_Vector ySdot,
+                         void* cvode_mem, N_Vector ytemp, N_Vector ftemp)
 {
   CVodeMem cv_mem;
   int retval, method;
@@ -9908,15 +9908,20 @@ static int cvQuadSensRhs1InternalDQ(CVodeMem cv_mem, int is, sunrealtype t,
 void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
                     const char* file, const char* msgfmt, ...)
 {
-  /* Initialize the argument pointer variable
+  /* We initialize the argument pointer variable before each vsnprintf call to avoid undefined behavior
      (msgfmt is the last required argument to cvProcessError) */
   va_list ap;
-  va_start(ap, msgfmt);
 
   /* Compose the message */
+  va_start(ap, msgfmt);
   size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
-  char* msg     = (char*)malloc(msglen);
+  va_end(ap);
+
+  char* msg = (char*)malloc(msglen);
+
+  va_start(ap, msgfmt);
   vsnprintf(msg, msglen, msgfmt, ap);
+  va_end(ap);
 
   do {
     if (cv_mem == NULL)
@@ -9944,8 +9949,6 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
   }
   while (0);
 
-  /* Finalize argument processing */
-  va_end(ap);
   free(msg);
 
   return;

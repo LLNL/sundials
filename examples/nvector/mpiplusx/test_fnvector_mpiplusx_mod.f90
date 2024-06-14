@@ -24,7 +24,7 @@ module test_nvector_mpiplusx
   implicit none
   include "mpif.h"
 
-  integer(c_int64_t), parameter :: N    = 100            ! overall manyvector length
+  integer(kind=myindextype), parameter :: N = 100     ! overall manyvector length
   integer(c_int), target     :: comm = MPI_COMM_WORLD ! default MPI communicator
   integer(c_int)             :: nprocs                ! number of MPI processes
 
@@ -33,7 +33,7 @@ contains
   integer function smoke_tests() result(ret)
     implicit none
 
-    integer(c_int64_t)         :: ival           ! integer work value
+    integer(c_long)         :: ival           ! integer work value
     real(c_double)          :: x1data(N)     ! vector data array
     real(c_double), pointer :: xptr(:)        ! pointer to vector data array
     type(N_Vector), pointer :: x, local       ! N_Vectors
@@ -103,11 +103,11 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   use test_utilities
   implicit none
 
-  real(C_DOUBLE)          :: ans
-  type(N_Vector)          :: X
-  type(N_Vector), pointer :: X0
-  integer(c_int64_t)         :: local_length, i, x0len
-  real(C_DOUBLE), pointer :: x0data(:)
+  real(C_DOUBLE)            :: ans
+  type(N_Vector)            :: X
+  type(N_Vector), pointer   :: X0
+  integer(kind=myindextype) :: local_length, i, x0len
+  real(C_DOUBLE), pointer   :: x0data(:)
 
   failure = 0
 

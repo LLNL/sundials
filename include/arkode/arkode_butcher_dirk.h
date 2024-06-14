@@ -51,7 +51,10 @@ typedef enum
   ARKODE_ESDIRK547L2SA_7_4_5,
   ARKODE_ESDIRK547L2SA2_7_4_5,
   ARKODE_ARK2_DIRK_3_1_2,
-  ARKODE_MAX_DIRK_NUM = ARKODE_ARK2_DIRK_3_1_2
+  ARKODE_BACKWARD_EULER_1_1,
+  ARKODE_IMPLICIT_MIDPOINT_1_2,
+  ARKODE_IMPLICIT_TRAPEZOIDAL_2_2,
+  ARKODE_MAX_DIRK_NUM = ARKODE_IMPLICIT_TRAPEZOIDAL_2_2
 } ARKODE_DIRKTableID;
 
 /* Accessor routine to load built-in DIRK table */
@@ -61,6 +64,9 @@ ARKodeButcherTable_LoadDIRK(ARKODE_DIRKTableID imethod);
 /* Accessor routine to load built-in DIRK table */
 SUNDIALS_EXPORT ARKodeButcherTable
 ARKodeButcherTable_LoadDIRKByName(const char* imethod);
+
+SUNDIALS_EXPORT const char* ARKodeButcherTable_DIRKIDToName(
+  ARKODE_DIRKTableID imethod);
 
 #ifdef __cplusplus
 }

@@ -57,7 +57,7 @@ interested reader.
   :c:func:`N_VMaxNorm`                        x
   :c:func:`N_VWrmsNorm`                       x      x           x         x
   :c:func:`N_VMin`                            x
-  :c:func:`N_MinQuotient`                     x
+  :c:func:`N_VMinQuotient`                    x
   :c:func:`N_VConstrMask`                     x
   :c:func:`N_VCompare`                        x           x
   :c:func:`N_VInvTest`                                    x

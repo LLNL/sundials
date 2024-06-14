@@ -139,15 +139,6 @@ if [ "$compilername" == "gcc" ]; then
         export CUDAFLAGS="-g -O3"
     fi
 
-    # append additional warning flags
-    if [[ "$SUNDIALS_PRECISION" == "double" && "$SUNDIALS_INDEX_SIZE" == "32" ]]; then
-        export CFLAGS="${CFLAGS} -Wconversion -Wno-sign-conversion"
-        export CXXFLAGS="${CXXFLAGS} -Wconversion -Wno-sign-conversion"
-    fi
-    # TODO(CJB): add this back after we upgrade the GNU compiler stack on the Jenkins box
-    # Currently this causes the compiler to segfault on many of the Fortran example codes.
-    # export FFLAGS="${FFLAGS} -fbounds-check"
-
 else
 
     COMPILER_ROOT="$(spack location -i "llvm@$compilerversion")"
@@ -174,6 +165,8 @@ fi
 # Verbose build
 export CMAKE_VERBOSE_MAKEFILE=OFF
 
+export CMAKE_BUILD_TYPE=Debug
+
 # Number of build and test jobs
 export SUNDIALS_BUILD_JOBS=6
 export SUNDIALS_TEST_JOBS=1
@@ -188,7 +181,7 @@ export SUNDIALS_KINSOL=ON
 
 # Fortran interface status
 if [ "$compilername" == "gcc" ]; then
-    if [[ ("$SUNDIALS_PRECISION" == "double") && ("$SUNDIALS_INDEX_SIZE" == "64") ]]; then
+    if [[ ("$SUNDIALS_PRECISION" == "double") ]]; then
         export SUNDIALS_FMOD_INTERFACE=ON
     else
         export SUNDIALS_FMOD_INTERFACE=OFF

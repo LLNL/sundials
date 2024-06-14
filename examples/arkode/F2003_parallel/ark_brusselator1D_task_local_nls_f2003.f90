@@ -69,41 +69,51 @@ module ode_mod
   implicit none
   save
 
+  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
+  ! we set the integer kind used for indices in this example based
+  ! on the the index size SUNDIALS was compiled with so that it works
+  ! in both configurations. This is not a requirement for user codes.
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: myindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: myindextype = selected_int_kind(16)
+#endif
+
   type(c_ptr) :: sunctx ! SUNDIALS simulation context
   type(c_ptr) :: logger ! SUNDIALS logger
 
   ! Number of chemical species
-  integer, parameter :: Nvar = 3
+  integer(kind=myindextype), parameter :: Nvar = 3
 
   ! MPI variables
-  integer, target        :: comm   ! communicator
-  integer                :: myid   ! process ID
-  integer                :: nprocs ! total number of processes
-  integer                :: reqS   ! MPI send request handle
-  integer                :: reqR   ! MPI receive request handle
+  integer, target :: comm   ! communicator
+  integer         :: myid   ! process ID
+  integer         :: nprocs ! total number of processes
+  integer         :: reqS   ! MPI send request handle
+  integer         :: reqR   ! MPI receive request handle
 
   ! Excahnge buffers
   real(c_double) :: Wsend(Nvar), Wrecv(Nvar)
   real(c_double) :: Esend(Nvar), Erecv(Nvar)
 
   ! Problem settings
-  integer :: Nx   ! number of intervals (global)
-  integer :: Npts ! number of spatial nodes (local)
-  integer :: Neq  ! number of equations (local)
+  integer(kind=myindextype) :: Nx   ! number of intervals (global)
+  integer(kind=myindextype) :: Npts ! number of spatial nodes (local)
+  integer(kind=myindextype) :: Neq  ! number of equations (local)
 
-  double precision :: xmax ! maximum x value
-  double precision :: dx   ! mesh spacing
+  real(c_double) :: xmax ! maximum x value
+  real(c_double) :: dx   ! mesh spacing
 
   ! Problem parameters
-  double precision :: c  ! advection speed
-  double precision :: A  ! constant concentrations
-  double precision :: B
-  double precision :: k1 ! reaction rates
-  double precision :: k2
-  double precision :: k3
-  double precision :: k4
-  double precision :: k5
-  double precision :: k6
+  real(c_double) :: c  ! advection speed
+  real(c_double) :: A  ! constant concentrations
+  real(c_double) :: B
+  real(c_double) :: k1 ! reaction rates
+  real(c_double) :: k2
+  real(c_double) :: k3
+  real(c_double) :: k4
+  real(c_double) :: k5
+  real(c_double) :: k6
 
   ! integrator options
   real(c_double) :: t0, tf     ! initial and final time
@@ -143,15 +153,15 @@ contains
     real(c_double), value :: t          ! current time
     type(N_Vector)        :: sunvec_y   ! solution N_Vector
     type(N_Vector)        :: sunvec_f   ! rhs N_Vector
-    type(c_ptr)           :: user_data  ! user-defined data
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer :: ydata(:)
     real(c_double), pointer :: fdata(:)
 
     ! local variables
-    integer          :: i, j, idx1, idx2 ! loop counters and array indices
-    double precision :: tmp              ! temporary value
+    integer(myindextype) :: i, j, idx1, idx2 ! loop counters and array indices
+    real(c_double) :: tmp              ! temporary value
 
     !======= Internals ============
 
@@ -229,15 +239,15 @@ contains
     real(c_double), value :: t          ! current time
     type(N_Vector)        :: sunvec_y   ! solution N_Vector
     type(N_Vector)        :: sunvec_f   ! rhs N_Vector
-    type(c_ptr)           :: user_data  ! user-defined data
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer :: ydata(:)
     real(c_double), pointer :: fdata(:)
 
     ! local variables
-    double precision :: u, v, w ! chemcial species
-    integer          :: j, idx  ! loop counter and array index
+    real(c_double) :: u, v, w ! chemcial species
+    integer(kind=myindextype) :: j, idx  ! loop counter and array index
 
     !======= Internals ============
 
@@ -305,7 +315,7 @@ contains
     real(c_double), value :: t          ! current time
     type(N_Vector)        :: sunvec_y   ! solution N_Vector
     type(N_Vector)        :: sunvec_f   ! rhs N_Vector
-    type(c_ptr)           :: user_data  ! user-defined data
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     !======= Internals ============
 
@@ -346,7 +356,6 @@ contains
   ! Preconditioner functions
   ! --------------------------------------------------------------
 
-
   ! Sets P = I - gamma * J
   integer(c_int) function PSetup(t, sunvec_y, sunvec_f, jok, jcurPtr, gamma, &
        user_data) result(ierr) bind(C)
@@ -355,8 +364,7 @@ contains
     use, intrinsic :: iso_c_binding
     use fsunmatrix_dense_mod
     use fsunlinsol_dense_mod
-
-    use ode_mod, only : Nvar, Npts, Neq, k2, k3, k4, k6
+    use ode_mod, only : Nvar, Npts, Neq, k2, k3, k4, k6, myindextype
 
     !======= Declarations =========
     implicit none
@@ -368,14 +376,14 @@ contains
     integer(c_int), value :: jok        ! flag to signal for Jacobian update
     integer(c_int)        :: jcurPtr    ! flag to singal Jacobian is current
     real(c_double), value :: gamma      ! current gamma value
-    type(c_ptr)           :: user_data  ! user-defined data
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     ! local variables
     real(c_double), pointer :: ydata(:) ! vector data
     real(c_double), pointer :: pdata(:) ! matrix data
 
-    double precision :: u, v, w        ! chemical species
-    integer          :: i, idx, offset ! loop counter, array index, col offset
+    real(c_double) :: u, v, w        ! chemical species
+    integer(kind=myindextype) :: i, idx, offset ! loop counter, array index, col offset
 
     !======= Internals ============
 
@@ -462,7 +470,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
     use fnvector_mpiplusx_mod
 
     !======= Declarations =========
@@ -477,7 +484,7 @@ contains
     real(c_double), value :: gamma      ! current gamma value
     real(c_double), value :: delta      ! current gamma value
     integer(c_int), value :: lr         ! left or right preconditioning
-    type(c_ptr)           :: user_data  ! user-defined data
+    type(c_ptr),    value :: user_data  ! user-defined data
 
     ! shortcuts
     type(N_Vector), pointer :: z_local ! z vector data
@@ -545,10 +552,9 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
+    use farkode_mod
     use farkode_arkstep_mod
-
-
-    use ode_mod, only : Neq, Reaction
+    use ode_mod, only : Neq, Reaction, myindextype
 
     !======= Declarations =========
     implicit none
@@ -580,15 +586,15 @@ contains
     real(c_double), pointer :: Fi_data(:)
     real(c_double), pointer :: sdata_data(:)
 
-    integer :: i ! loop counter
+    integer(kind=myindextype) :: i ! loop counter
 
     !======= Internals ============
 
     ! get nonlinear residual data
-    ierr = FARKStepGetNonlinearSystemData(arkmem, tcur, zpred_ptr, z_ptr, &
+    ierr = FARKodeGetNonlinearSystemData(arkmem, tcur, zpred_ptr, z_ptr, &
          Fi_ptr, gam, sdata_ptr, user_data)
     if (ierr /= 0) then
-       print *, "Error: FARKStepGetNonlinearSystemData returned ",ierr
+       print *, "Error: FARKodeGetNonlinearSystemData returned ",ierr
        return
     end if
 
@@ -639,13 +645,10 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
+    use farkode_mod
     use farkode_arkstep_mod
-
-
     use fsunmatrix_dense_mod
-
-
-    use ode_mod, only : Nvar, Npts, k2, k3, k4, k6
+    use ode_mod, only : Nvar, Npts, k2, k3, k4, k6, myindextype
 
     !======= Declarations =========
     implicit none
@@ -668,16 +671,16 @@ contains
     real(c_double), pointer :: J_data(:)
     real(c_double), pointer :: bnode_data(:)
 
-    double precision :: u, v, w ! chemical species
-    integer          :: i, idx  ! loop counter and array index
+    real(c_double) :: u, v, w ! chemical species
+    integer(kind=myindextype) :: i, idx  ! loop counter and array index
 
     !======= Internals ============
 
     ! get nonlinear residual data
-    ierr = FARKStepGetNonlinearSystemData(arkmem, tcur, zpred_ptr, z_ptr, &
+    ierr = FARKodeGetNonlinearSystemData(arkmem, tcur, zpred_ptr, z_ptr, &
          Fi_ptr, gam, sdata_ptr, user_data)
     if (ierr /= 0) then
-       print *, "Error: FARKStepGetNonlinearSystemData returned ",ierr
+       print *, "Error: FARKodeGetNonlinearSystemData returned ",ierr
        return
     end if
 
@@ -760,7 +763,6 @@ contains
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
 
-
     !======= Declarations =========
     implicit none
 
@@ -779,7 +781,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
 
     !======= Declarations =========
     implicit none
@@ -819,10 +820,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
-
     use fnvector_mpiplusx_mod
-
     use ode_mod, only : comm
 
     !======= Declarations =========
@@ -882,10 +880,6 @@ contains
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
 
-
-
-
-
     !======= Declarations =========
     implicit none
 
@@ -913,7 +907,6 @@ contains
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
 
-
     !======= Declarations =========
     implicit none
 
@@ -933,7 +926,6 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
 
     !======= Declarations =========
     implicit none
@@ -956,7 +948,6 @@ contains
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
 
-
     !======= Declarations =========
     implicit none
 
@@ -978,14 +969,12 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
     use fnvector_serial_mod
-
     use fsunnonlinsol_newton_mod
     use fsunlinsol_dense_mod
     use fsunmatrix_dense_mod
 
-    use ode_mod, only : sunctx, Nvar, comm
+    use ode_mod
 
     !======= Declarations =========
     implicit none
@@ -997,7 +986,7 @@ contains
     type(SUNNonlinearSolver),     pointer :: sunnls ! SUNDIALS nonlinear solver
     type(SUNNonlinearSolver_Ops), pointer :: nlsops ! solver operations
 
-    integer        :: ierr   ! MPI error status
+    integer :: ierr   ! MPI error status
 
     !======= Internals ============
 
@@ -1032,8 +1021,8 @@ contains
     Fi_ptr    = FN_VNewVectorArray(1, sunctx)
     sdata_ptr = FN_VNewVectorArray(1, sunctx)
 
-    sunvec_bnode => FN_VNew_Serial(int(Nvar, c_int64_t), sunctx)
-    sunmat_Jnode => FSUNDenseMatrix(int(Nvar, c_int64_t), int(Nvar, c_int64_t), sunctx)
+    sunvec_bnode => FN_VNew_Serial(Nvar, sunctx)
+    sunmat_Jnode => FSUNDenseMatrix(Nvar, Nvar, sunctx)
     sunls_Jnode  => FSUNLinSol_Dense(sunvec_bnode, sunmat_Jnode, sunctx)
 
     ! initialize number of nonlinear solver function evals and fails
@@ -1054,7 +1043,8 @@ program main
   use fnvector_mpimanyvector_mod ! Access MPIManyVector N_Vector
   use fnvector_serial_mod        ! Access serial N_Vector
 
-  use ode_mod, only : sunctx, logger, comm, myid, Nx, Neq, dx, fused, explicit, printtime, nout
+  use ode_mod, only : sunctx, logger, comm, myid, Nx, Neq, dx, fused, &
+                      explicit, printtime, nout, myindextype
 
   !======= Declarations =========
   implicit none
@@ -1062,10 +1052,10 @@ program main
   ! With MPI-3 use mpi_f08 is preferred
   include "mpif.h"
 
-  integer          :: i
+  integer(kind=myindextype) :: i
   integer          :: ierr               ! MPI error status
   integer(c_int)   :: retval             ! SUNDIALS error status
-  double precision :: starttime, endtime ! timing variables
+  real(c_double)   :: starttime, endtime ! timing variables
 
   type(N_Vector), pointer :: sunvec_ys   ! sundials serial vector
   type(N_Vector), pointer :: sunvec_y    ! sundials MPI+X vector
@@ -1124,7 +1114,7 @@ program main
   call SetupProblem()
 
   ! Create solution vector
-  sunvec_ys => FN_VNew_Serial(int(Neq, c_int64_t), sunctx)
+  sunvec_ys => FN_VNew_Serial(Neq, sunctx)
   sunvec_y  => FN_VMake_MPIPlusX(comm, sunvec_ys, sunctx)
 
   ! Enable fused vector ops in local and MPI+X vectors
@@ -1224,11 +1214,15 @@ subroutine EvolveProblemIMEX(sunvec_y)
   type(SUNLinearSolver),    pointer :: sun_LS   ! linear solver
   type(SUNMatrix),          pointer :: sunmat_A ! sundials matrix
 
-  integer            :: ierr        ! MPI error status
-  integer            :: iout        ! output counter
-  double precision   :: tout, dtout ! output time and update
+  integer        :: ierr        ! MPI error status
+  integer        :: iout        ! output counter
+  real(c_double) :: tout, dtout ! output time and update
 
   !======= Internals ============
+
+  sun_NLS => null()
+  sun_LS => null()
+  sunmat_A => null()
 
   ! Create the ARK timestepper module
   arkode_mem = FARKStepCreate(c_funloc(Advection), c_funloc(Reaction), &
@@ -1239,27 +1233,30 @@ subroutine EvolveProblemIMEX(sunvec_y)
   end if
 
   ! Select the method order
-  retval = FARKStepSetOrder(arkode_mem, order)
+  retval = FARKodeSetOrder(arkode_mem, order)
   if (retval /= 0) then
-     print *, "Error: FARKStepSetOrder returned ",retval
+     print *, "Error: FARKodeSetOrder returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Specify tolerances
-  retval = FARKStepSStolerances(arkode_mem, rtol, atol)
+  retval = FARKodeSStolerances(arkode_mem, rtol, atol)
   if (retval /= 0) then
-     print *, "Error: FARKStepSStolerances returned ",retval
+     print *, "Error: FARKodeSStolerances returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Increase the max number of steps allowed between outputs
-  retval = FARKStepSetMaxNumSteps(arkode_mem, int(100000, c_int64_t))
+  retval = FARKodeSetMaxNumSteps(arkode_mem, int(100000, c_long))
   if (retval /= 0) then
-     print *, "Error: FARKStepMaxNumSteps returned ",retval
+     print *, "Error: FARKodeMaxNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Create the (non)linear solver
+  sun_NLS => null()
+  sun_LS => null()
+
   if (global) then
 
      ! Create nonlinear solver
@@ -1270,37 +1267,37 @@ subroutine EvolveProblemIMEX(sunvec_y)
      end if
 
      ! Attach nonlinear solver
-     retval = FARKStepSetNonlinearSolver(arkode_mem, sun_NLS)
+     retval = FARKodeSetNonlinearSolver(arkode_mem, sun_NLS)
      if (retval /= 0) then
-        print *, "Error: FARKStepSetNonlinearSolver returned ",retval
+        print *, "Error: FARKodeSetNonlinearSolver returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
      ! Create linear solver
      sun_LS => FSUNLinSol_SPGMR(sunvec_y, SUN_PREC_LEFT, 0, sunctx)
-     if (.not. associated(sun_NLS)) then
+     if (.not. associated(sun_LS)) then
         print *, "Error: FSUNLinSol_SPGMR returned NULL"
         call MPI_Abort(comm, 1, ierr)
      end if
 
      ! Attach linear solver
      sunmat_A => null()
-     retval = FARKStepSetLinearSolver(arkode_mem, sun_LS, sunmat_A)
+     retval = FARKodeSetLinearSolver(arkode_mem, sun_LS, sunmat_A)
      if (retval /= 0) then
-        print *, "Error: FARKStepSetLinearSolver returned ",retval
+        print *, "Error: FARKodeSetLinearSolver returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
      ! Attach preconditioner
-     retval = FARKStepSetPreconditioner(arkode_mem, c_funloc(PSetup), &
+     retval = FARKodeSetPreconditioner(arkode_mem, c_funloc(PSetup), &
           c_funloc(PSolve))
      if (retval /= 0) then
-        print *, "Error: FARKStepSetPreconditioner returned ",retval
+        print *, "Error: FARKodeSetPreconditioner returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
      ! Create MPI task-local data structures for preconditioning
-     sunmat_P => FSUNDenseMatrix(int(Neq, c_int64_t), int(Neq, c_int64_t), sunctx)
+     sunmat_P => FSUNDenseMatrix(Neq, Neq, sunctx)
      sunls_P  => FSUNLinSol_Dense(umask_s, sunmat_P, sunctx)
 
   else
@@ -1314,9 +1311,9 @@ subroutine EvolveProblemIMEX(sunvec_y)
      end if
 
      ! Attach nonlinear solver
-     retval = FARKStepSetNonlinearSolver(arkode_mem, sun_NLS)
+     retval = FARKodeSetNonlinearSolver(arkode_mem, sun_NLS)
      if (retval /= 0) then
-        print *, "Error: FARKStepSetNonlinearSolver returned ",retval
+        print *, "Error: FARKodeSetNonlinearSolver returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -1343,9 +1340,9 @@ subroutine EvolveProblemIMEX(sunvec_y)
   do while (iout < max(nout,1))
 
      ! Integrate to output time
-     retval = FARKStepEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
+     retval = FARKodeEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
      if (retval /= 0) then
-        print *, "Error: FARKStepEvolve returned ",retval
+        print *, "Error: FARKodeEvolve returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -1369,15 +1366,15 @@ subroutine EvolveProblemIMEX(sunvec_y)
   end if
 
   ! Get final statistics
-  retval = FARKStepGetNumSteps(arkode_mem, nst)
+  retval = FARKodeGetNumSteps(arkode_mem, nst)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumSteps returned ",retval
+     print *, "Error: FARKodeGetNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumStepAttempts(arkode_mem, nst_a)
+  retval = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumStepAttempts returned ",retval
+     print *, "Error: FARKodeGetNumStepAttempts returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -1387,41 +1384,41 @@ subroutine EvolveProblemIMEX(sunvec_y)
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumErrTestFails(arkode_mem, netf)
+  retval = FARKodeGetNumErrTestFails(arkode_mem, netf)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumErrTestFails returned ",retval
+     print *, "Error: FARKodeGetNumErrTestFails returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumNonlinSolvIters(arkode_mem, nni)
+  retval = FARKodeGetNumNonlinSolvIters(arkode_mem, nni)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumNonlinSolvIters returned ",retval
+     print *, "Error: FARKodeGetNumNonlinSolvIters returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumNonlinSolvConvFails(arkode_mem, ncfn)
+  retval = FARKodeGetNumNonlinSolvConvFails(arkode_mem, ncfn)
   if (retval /= 0) then
-     print *, "Error: FARKStepGetNumNonlinSolvConvFails returned ",retval
+     print *, "Error: FARKodeGetNumNonlinSolvConvFails returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   if (global) then
 
-     retval = FARKStepGetNumLinIters(arkode_mem, nli)
+     retval = FARKodeGetNumLinIters(arkode_mem, nli)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumLinIters returned ",retval
+        print *, "Error: FARKodeGetNumLinIters returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FARKStepGetNumPrecEvals(arkode_mem, npre)
+     retval = FARKodeGetNumPrecEvals(arkode_mem, npre)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumPrecEvals returned ",retval
+        print *, "Error: FARKodeGetNumPrecEvals returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
-     retval = FARKStepGetNumPrecSolves(arkode_mem, npsol)
+     retval = FARKodeGetNumPrecSolves(arkode_mem, npsol)
      if (retval /= 0) then
-        print *, "Error: FARKStepGetNumPrecSolves returned ",retval
+        print *, "Error: FARKodeGetNumPrecSolves returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -1455,7 +1452,7 @@ subroutine EvolveProblemIMEX(sunvec_y)
   end if
 
   ! Clean up
-  call FARKStepFree(arkode_mem)
+  call FARKodeFree(arkode_mem)
 
   ! Free nonlinear solver
   retval = FSUNNonlinSolFree(sun_NLS)
@@ -1513,9 +1510,9 @@ subroutine EvolveProblemExplicit(sunvec_y)
   integer(c_long) :: nfe(1)     ! number of RHS evals
   integer(c_long) :: netf(1)    ! number of error test fails
 
-  integer            :: ierr        ! output counter
-  integer            :: iout        ! output counter
-  double precision   :: tout, dtout ! output time and update
+  integer        :: ierr        ! output counter
+  integer        :: iout        ! output counter
+  real(c_double) :: tout, dtout ! output time and update
 
   !======= Internals ============
 
@@ -1527,23 +1524,23 @@ subroutine EvolveProblemExplicit(sunvec_y)
   end if
 
   ! Select the method order
-  retval = FERKStepSetOrder(arkode_mem, order)
+  retval = FARKodeSetOrder(arkode_mem, order)
   if (retval /= 0) then
-     print *, "Error: FERKStepSetOrder returned ",retval
+     print *, "Error: FARKodeSetOrder returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Specify tolerances
-  retval = FERKStepSStolerances(arkode_mem, rtol, atol)
+  retval = FARKodeSStolerances(arkode_mem, rtol, atol)
   if (retval /= 0) then
-     print *, "Error: FERKStepSStolerances returned ",retval
+     print *, "Error: FARKodeSStolerances returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Increase the max number of steps allowed between outputs
-  retval = FERKStepSetMaxNumSteps(arkode_mem, int(100000, C_INT64_T))
+  retval = FARKodeSetMaxNumSteps(arkode_mem, int(100000, c_long))
   if (retval /= 0) then
-     print *, "Error: FERKStepMaxNumSteps returned ",retval
+     print *, "Error: FARKodeMaxNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -1568,9 +1565,9 @@ subroutine EvolveProblemExplicit(sunvec_y)
   do while (iout < nout)
 
      ! Integrate to output time
-     retval = FERKStepEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
+     retval = FARKodeEvolve(arkode_mem, tout, sunvec_y, t, ARK_NORMAL)
      if (retval /= 0) then
-        print *, "Error: FERKStepEvolve returned ",retval
+        print *, "Error: FARKodeEvolve returned ",retval
         call MPI_Abort(comm, 1, ierr)
      end if
 
@@ -1594,15 +1591,15 @@ subroutine EvolveProblemExplicit(sunvec_y)
   end if
 
   ! Get final statistics
-  retval = FERKStepGetNumSteps(arkode_mem, nst)
+  retval = FARKodeGetNumSteps(arkode_mem, nst)
   if (retval /= 0) then
-     print *, "Error: FERKStepGetNumSteps returned ",retval
+     print *, "Error: FARKodeGetNumSteps returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FERKStepGetNumStepAttempts(arkode_mem, nst_a)
+  retval = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
   if (retval /= 0) then
-     print *, "Error: FERKStepGetNumStepAttempts returned ",retval
+     print *, "Error: FARKodeGetNumStepAttempts returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -1612,9 +1609,9 @@ subroutine EvolveProblemExplicit(sunvec_y)
      call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FERKStepGetNumErrTestFails(arkode_mem, netf)
+  retval = FARKodeGetNumErrTestFails(arkode_mem, netf)
   if (retval /= 0) then
-     print *, "Error: FERKStepGetNumErrTestFails returned ",retval
+     print *, "Error: FARKodeGetNumErrTestFails returned ",retval
      call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -1628,7 +1625,7 @@ subroutine EvolveProblemExplicit(sunvec_y)
   end if
 
   ! Clean up
-  call FERKStepFree(arkode_mem)
+  call FARKodeFree(arkode_mem)
 
 end subroutine EvolveProblemExplicit
 
@@ -1640,11 +1637,9 @@ subroutine WriteOutput(t, sunvec_y)
   use, intrinsic :: iso_c_binding
   use fsundials_core_mod
   use farkode_mod           ! Access ARKode
-  use farkode_erkstep_mod   ! Access ERKStep
-
 
   use ode_mod, only : Nvar, nprocs, myid, Erecv, Nx, Npts, monitor,  nout, &
-       umask, vmask, wmask
+       umask, vmask, wmask, myindextype
 
   !======= Declarations =========
   implicit none
@@ -1655,9 +1650,9 @@ subroutine WriteOutput(t, sunvec_y)
 
   real(c_double), pointer :: ydata(:) ! vector data
 
-  integer i, idx ! loop counter and array index
+  integer(kind=myindextype) i, idx ! loop counter and array index
 
-  double precision :: u, v, w ! RMS norm of chemical species
+  real(c_double) :: u, v, w ! RMS norm of chemical species
 
   !======= Internals ============
 
@@ -1723,7 +1718,7 @@ subroutine SetIC(sunvec_y)
   use, intrinsic :: iso_c_binding
   use fsundials_core_mod
 
-  use ode_mod, only : Nvar, myid, Npts, xmax, dx, A, B, k1, k2, k4, k3
+  use ode_mod
 
   !======= Declarations =========
   implicit none
@@ -1732,12 +1727,12 @@ subroutine SetIC(sunvec_y)
   type(N_Vector) :: sunvec_y ! solution N_Vector
 
   ! local variables
-  real(c_double), pointer :: ydata(:) ! vector data
+  real(c_double), pointer :: ydata(:)   ! vector data
 
-  double precision :: x, us, vs, ws       ! position and state
-  double precision :: p, mu, sigma, alpha ! perturbation vars
+  real(c_double) :: x, us, vs, ws       ! position and state
+  real(c_double) :: p, mu, sigma, alpha ! perturbation vars
 
-  integer :: j, idx ! loop counter and array index
+  integer(kind=myindextype) :: j, idx ! loop counter and array index
 
   !======= Internals ============
 
@@ -1952,6 +1947,7 @@ subroutine ExchangeAllEnd()
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
+
   use ode_mod, only : comm, reqS, reqR, c
 
   !======= Declarations =========
@@ -1987,9 +1983,6 @@ subroutine SetupProblem()
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-
-
   use fnvector_serial_mod
   use fnvector_mpiplusx_mod
   use fnvector_mpimanyvector_mod
@@ -2003,13 +1996,14 @@ subroutine SetupProblem()
   include "mpif.h"
 
   ! local variables
-  real(c_double), pointer :: data(:)               ! array data
-  integer(c_int)          :: retval                ! SUNDIALS error status
-  integer                 :: ierr                  ! MPI error status
-  integer                 :: j                     ! loop counter
-  integer                 :: nargs, length, status ! input parsing vars
-  character(len=32)       :: arg                   ! input arg
-  character(len=100)      :: outname               ! output file name
+  integer                   :: ierr                  ! MPI error status
+  integer(c_int)            :: retval                ! SUNDIALS error status
+  integer                   :: argj
+  integer                   :: nargs, length, status ! input parsing vars
+  character(len=32)         :: arg                   ! input arg
+  character(len=100)        :: outname               ! output file name
+  real(c_double), pointer   :: data(:)               ! array data
+  integer(kind=myindextype) :: j
 
   !======= Internals ============
 
@@ -2061,11 +2055,11 @@ subroutine SetupProblem()
   ! check for input args
   nargs = command_argument_count()
 
-  j = 1
-  do while (j <= nargs)
+  argj= 1
+  do while (argj <= nargs)
 
      ! get input arg
-     call get_command_argument(j, arg, length, status)
+     call get_command_argument(argj, arg, length, status)
 
      ! check if reading the input was successful
      if (status == -1) then
@@ -2082,39 +2076,39 @@ subroutine SetupProblem()
      else if (trim(arg) == "--printtime") then
         printtime = .true.
      else if (trim(arg) == "--nout") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) nout
      else if (trim(arg) == "--nx") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) Nx
      else if (trim(arg) == "--xmax") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) xmax
      else if (trim(arg) == "--A") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) A
      else if (trim(arg) == "--B") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) B
      else if (trim(arg) == "--k") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) k1
         read(arg,*) k2
         read(arg,*) k3
         read(arg,*) k4
      else if (trim(arg) == "--c") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) c
      else if (trim(arg) == "--order") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) order
      else if (trim(arg) == "--explicit") then
         explicit = .true.
@@ -2123,16 +2117,16 @@ subroutine SetupProblem()
      else if (trim(arg) == "--fused") then
         fused = .true.
      else if (trim(arg) == "--tf") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) tf
      else if (trim(arg) == "--rtol") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) rtol
      else if (trim(arg) == "--atol") then
-        j = j + 1
-        call get_command_argument(j, arg)
+        argj = argj + 1
+        call get_command_argument(argj, arg)
         read(arg,*) atol
      else if (trim(arg) == "--help") then
         if (myid == 0) call InputHelp()
@@ -2146,11 +2140,11 @@ subroutine SetupProblem()
      end if
 
      ! move to the next input
-     j = j+1
+     argj = argj+1
   end do
 
   ! Setup the parallel decomposition
-  if (MOD(Nx,nprocs) > 0) then
+  if (MOD(Nx,int(nprocs, myindextype)) > 0) then
      print *, "ERROR: The mesh size (nx = ", Nx,") must be divisible by the number of processors (",nprocs,")"
      call MPI_Abort(comm, 1, ierr)
   end if
@@ -2160,7 +2154,7 @@ subroutine SetupProblem()
   dx   = xmax / Nx   ! Nx is number of intervals
 
   ! Create the solution masks
-  umask_s => FN_VNew_Serial(int(Neq, c_int64_t), sunctx)
+  umask_s => FN_VNew_Serial(Neq, sunctx)
   umask   => FN_VMake_MPIPlusX(comm, umask_s, sunctx)
 
   if (fused) then
@@ -2256,6 +2250,7 @@ subroutine FreeProblem()
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
   use fsundials_core_mod
+
   use ode_mod, only : sunctx, logger, myid, nout, umask_s, umask, vmask, wmask
 
   !======= Declarations =========

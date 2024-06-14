@@ -258,7 +258,8 @@ static int cvNlsLSolveSensStg1(N_Vector delta, void* cvode_mem)
   return (CV_SUCCESS);
 }
 
-static int cvNlsConvTestSensStg1(SUNNonlinearSolver NLS, N_Vector ycor,
+static int cvNlsConvTestSensStg1(SUNNonlinearSolver NLS,
+                                 SUNDIALS_MAYBE_UNUSED N_Vector ycor,
                                  N_Vector delta, sunrealtype tol, N_Vector ewt,
                                  void* cvode_mem)
 {

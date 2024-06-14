@@ -126,6 +126,8 @@ stages:
 
 # This is where jobs are included.
 include:
+  - project: 'lc-templates/id_tokens'
+    file: 'id_tokens.yml'
   - local: .gitlab/quartz-templates.yml
   - local: .gitlab/quartz-jobs.yml
   - local: .gitlab/lassen-templates.yml

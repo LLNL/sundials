@@ -58,7 +58,6 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   long int nfe, nfi;          /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npsol;        /* linear solver stats          */
-  char fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
   udata->add_reactions = true;
@@ -71,26 +70,20 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   }
 
   /* Select the method order */
-  retval = ARKStepSetOrder(arkode_mem, uopt->order);
-  if (check_retval(&retval, "ARKStepSetOrder", 1, udata->myid)) { return 1; }
+  retval = ARKodeSetOrder(arkode_mem, uopt->order);
+  if (check_retval(&retval, "ARKodeSetOrder", 1, udata->myid)) { return 1; }
 
   /* Attach user data */
-  retval = ARKStepSetUserData(arkode_mem, (void*)udata);
-  if (check_retval(&retval, "ARKStepSetUserData*", 1, udata->myid))
-  {
-    return 1;
-  }
+  retval = ARKodeSetUserData(arkode_mem, (void*)udata);
+  if (check_retval(&retval, "ARKodeSetUserData*", 1, udata->myid)) { return 1; }
 
   /* Specify tolerances */
-  retval = ARKStepSStolerances(arkode_mem, uopt->rtol, uopt->atol);
-  if (check_retval(&retval, "ARKStepSStolerances", 1, udata->myid))
-  {
-    return 1;
-  }
+  retval = ARKodeSStolerances(arkode_mem, uopt->rtol, uopt->atol);
+  if (check_retval(&retval, "ARKodeSStolerances", 1, udata->myid)) { return 1; }
 
   /* Increase the max number of steps allowed between outputs */
-  retval = ARKStepSetMaxNumSteps(arkode_mem, 100000);
-  if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1, udata->myid))
+  retval = ARKodeSetMaxNumSteps(arkode_mem, 100000);
+  if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1, udata->myid))
   {
     return 1;
   }
@@ -106,8 +99,8 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
     }
 
     /* Attach nonlinear solver */
-    retval = ARKStepSetNonlinearSolver(arkode_mem, NLS);
-    if (check_retval(&retval, "ARKStepSetNonlinearSolver", 1, udata->myid))
+    retval = ARKodeSetNonlinearSolver(arkode_mem, NLS);
+    if (check_retval(&retval, "ARKodeSetNonlinearSolver", 1, udata->myid))
     {
       return 1;
     }
@@ -121,15 +114,15 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
     }
 
     /* Attach linear solver */
-    retval = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
-    if (check_retval(&retval, "ARKStepSetLinearSolver", 1, udata->myid))
+    retval = ARKodeSetLinearSolver(arkode_mem, LS, NULL);
+    if (check_retval(&retval, "ARKodeSetLinearSolver", 1, udata->myid))
     {
       return 1;
     }
 
     /* Attach preconditioner */
-    retval = ARKStepSetPreconditioner(arkode_mem, NULL, PSolve);
-    if (check_retval(&retval, "ARKStepSetPreconditioner", 1, udata->myid))
+    retval = ARKodeSetPreconditioner(arkode_mem, NULL, PSolve);
+    if (check_retval(&retval, "ARKodeSetPreconditioner", 1, udata->myid))
     {
       return 1;
     }
@@ -144,8 +137,8 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
     }
 
     /* Attach nonlinear solver */
-    retval = ARKStepSetNonlinearSolver(arkode_mem, NLS);
-    if (check_retval(&retval, "ARKStepSetNonlinearSolver", 1, udata->myid))
+    retval = ARKodeSetNonlinearSolver(arkode_mem, NLS);
+    if (check_retval(&retval, "ARKodeSetNonlinearSolver", 1, udata->myid))
     {
       return 1;
     }
@@ -177,8 +170,8 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
 
   do {
     /* Integrate to output time */
-    retval = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_retval(&retval, "ARKStepEvolve", 1, udata->myid)) { break; }
+    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
+    if (check_retval(&retval, "ARKodeEvolve", 1, udata->myid)) { break; }
 
     /* Output state */
     if (uopt->nout > 0) { WriteOutput(t, y, udata, uopt); }
@@ -192,24 +185,24 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   while (iout < uopt->nout);
 
   /* Get final statistics */
-  retval = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_retval(&retval, "ARKStepGetNumSteps", 1, udata->myid);
-  retval = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_retval(&retval, "ARKStepGetNumStepAttempts", 1, udata->myid);
+  retval = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_retval(&retval, "ARKodeGetNumSteps", 1, udata->myid);
+  retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  check_retval(&retval, "ARKodeGetNumStepAttempts", 1, udata->myid);
   retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   check_retval(&retval, "ARKStepGetNumRhsEvals", 1, udata->myid);
-  retval = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_retval(&retval, "ARKStepGetNumErrTestFails", 1, udata->myid);
-  retval = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_retval(&retval, "ARKStepGetNumNonlinSolvIters", 1, udata->myid);
-  retval = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncnf);
-  check_retval(&retval, "ARKStepGetNumNonlinSolvConvFails", 1, udata->myid);
+  retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  check_retval(&retval, "ARKodeGetNumErrTestFails", 1, udata->myid);
+  retval = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_retval(&retval, "ARKodeGetNumNonlinSolvIters", 1, udata->myid);
+  retval = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncnf);
+  check_retval(&retval, "ARKodeGetNumNonlinSolvConvFails", 1, udata->myid);
   if (uopt->nls == "newton")
   {
-    retval = ARKStepGetNumLinIters(arkode_mem, &nli);
-    check_retval(&retval, "ARKStepGetNumLinIters", 1, udata->myid);
-    retval = ARKStepGetNumPrecSolves(arkode_mem, &npsol);
-    check_retval(&retval, "ARKStepGetNumPrecSolves", 1, udata->myid);
+    retval = ARKodeGetNumLinIters(arkode_mem, &nli);
+    check_retval(&retval, "ARKodeGetNumLinIters", 1, udata->myid);
+    retval = ARKodeGetNumPrecSolves(arkode_mem, &npsol);
+    check_retval(&retval, "ARKodeGetNumPrecSolves", 1, udata->myid);
   }
 
   /* Print final statistics */
@@ -230,7 +223,7 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   }
 
   /* Clean up */
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   SUNNonlinSolFree(NLS);
   if (LS) { SUNLinSolFree(LS); }
 
@@ -252,7 +245,6 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   long int nfe, nfi;          /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npsol;        /* linear solver stats          */
-  char fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
   udata->add_reactions = false;
@@ -265,26 +257,20 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   }
 
   /* Select the method order */
-  retval = ARKStepSetOrder(arkode_mem, uopt->order);
-  if (check_retval(&retval, "ARKStepSetOrder", 1, udata->myid)) { return 1; }
+  retval = ARKodeSetOrder(arkode_mem, uopt->order);
+  if (check_retval(&retval, "ARKodeSetOrder", 1, udata->myid)) { return 1; }
 
   /* Attach user data */
-  retval = ARKStepSetUserData(arkode_mem, (void*)udata);
-  if (check_retval(&retval, "ARKStepSetUserData*", 1, udata->myid))
-  {
-    return 1;
-  }
+  retval = ARKodeSetUserData(arkode_mem, (void*)udata);
+  if (check_retval(&retval, "ARKodeSetUserData*", 1, udata->myid)) { return 1; }
 
   /* Specify tolerances */
-  retval = ARKStepSStolerances(arkode_mem, uopt->rtol, uopt->atol);
-  if (check_retval(&retval, "ARKStepSStolerances", 1, udata->myid))
-  {
-    return 1;
-  }
+  retval = ARKodeSStolerances(arkode_mem, uopt->rtol, uopt->atol);
+  if (check_retval(&retval, "ARKodeSStolerances", 1, udata->myid)) { return 1; }
 
   /* Increase the max number of steps allowed between outputs */
-  retval = ARKStepSetMaxNumSteps(arkode_mem, 100000);
-  if (check_retval(&retval, "ARKStepSetMaxNumSteps", 1, udata->myid))
+  retval = ARKodeSetMaxNumSteps(arkode_mem, 100000);
+  if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1, udata->myid))
   {
     return 1;
   }
@@ -300,8 +286,8 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
     }
 
     /* Attach nonlinear solver */
-    retval = ARKStepSetNonlinearSolver(arkode_mem, NLS);
-    if (check_retval(&retval, "ARKStepSetNonlinearSolver", 1, udata->myid))
+    retval = ARKodeSetNonlinearSolver(arkode_mem, NLS);
+    if (check_retval(&retval, "ARKodeSetNonlinearSolver", 1, udata->myid))
     {
       return 1;
     }
@@ -314,15 +300,15 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
     }
 
     /* Attach linear solver */
-    retval = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
-    if (check_retval(&retval, "ARKStepSetLinearSolver", 1, udata->myid))
+    retval = ARKodeSetLinearSolver(arkode_mem, LS, NULL);
+    if (check_retval(&retval, "ARKodeSetLinearSolver", 1, udata->myid))
     {
       return 1;
     }
 
     /* Attach preconditioner */
-    retval = ARKStepSetPreconditioner(arkode_mem, NULL, PSolve);
-    if (check_retval(&retval, "ARKStepSetPreconditioner", 1, udata->myid))
+    retval = ARKodeSetPreconditioner(arkode_mem, NULL, PSolve);
+    if (check_retval(&retval, "ARKodeSetPreconditioner", 1, udata->myid))
     {
       return 1;
     }
@@ -338,8 +324,8 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
     }
 
     /* Attach nonlinear solver */
-    retval = ARKStepSetNonlinearSolver(arkode_mem, NLS);
-    if (check_retval(&retval, "ARKStepSetNonlinearSolver", 1, udata->myid))
+    retval = ARKodeSetNonlinearSolver(arkode_mem, NLS);
+    if (check_retval(&retval, "ARKodeSetNonlinearSolver", 1, udata->myid))
     {
       return 1;
     }
@@ -354,8 +340,8 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
     }
 
     /* Attach nonlinear solver */
-    retval = ARKStepSetNonlinearSolver(arkode_mem, NLS);
-    if (check_retval(&retval, "ARKStepSetNonlinearSolver", 1, udata->myid))
+    retval = ARKodeSetNonlinearSolver(arkode_mem, NLS);
+    if (check_retval(&retval, "ARKodeSetNonlinearSolver", 1, udata->myid))
     {
       return 1;
     }
@@ -387,8 +373,8 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
 
   do {
     /* Integrate to output time */
-    retval = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_retval(&retval, "ARKStepEvolve", 1, udata->myid)) { break; }
+    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
+    if (check_retval(&retval, "ARKodeEvolve", 1, udata->myid)) { break; }
 
     /* Output state */
     if (uopt->nout > 0) { WriteOutput(t, y, udata, uopt); }
@@ -402,24 +388,24 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   while (iout < uopt->nout);
 
   /* Get final statistics */
-  retval = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_retval(&retval, "ARKStepGetNumSteps", 1, udata->myid);
-  retval = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_retval(&retval, "ARKStepGetNumStepAttempts", 1, udata->myid);
+  retval = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_retval(&retval, "ARKodeGetNumSteps", 1, udata->myid);
+  retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  check_retval(&retval, "ARKodeGetNumStepAttempts", 1, udata->myid);
   retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   check_retval(&retval, "ARKStepGetNumRhsEvals", 1, udata->myid);
-  retval = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_retval(&retval, "ARKStepGetNumErrTestFails", 1, udata->myid);
-  retval = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_retval(&retval, "ARKStepGetNumNonlinSolvIters", 1, udata->myid);
-  retval = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncnf);
-  check_retval(&retval, "ARKStepGetNumNonlinSolvConvFails", 1, udata->myid);
+  retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  check_retval(&retval, "ARKodeGetNumErrTestFails", 1, udata->myid);
+  retval = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_retval(&retval, "ARKodeGetNumNonlinSolvIters", 1, udata->myid);
+  retval = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncnf);
+  check_retval(&retval, "ARKodeGetNumNonlinSolvConvFails", 1, udata->myid);
   if (uopt->nls == "newton")
   {
-    retval = ARKStepGetNumLinIters(arkode_mem, &nli);
-    check_retval(&retval, "ARKStepGetNumLinIters", 1, udata->myid);
-    retval = ARKStepGetNumPrecSolves(arkode_mem, &npsol);
-    check_retval(&retval, "ARKStepGetNumPrecSolves", 1, udata->myid);
+    retval = ARKodeGetNumLinIters(arkode_mem, &nli);
+    check_retval(&retval, "ARKodeGetNumLinIters", 1, udata->myid);
+    retval = ARKodeGetNumPrecSolves(arkode_mem, &npsol);
+    check_retval(&retval, "ARKodeGetNumPrecSolves", 1, udata->myid);
   }
 
   /* Print final statistics */
@@ -440,7 +426,7 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   }
 
   /* Clean up */
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   if (NLS) { SUNNonlinSolFree(NLS); }
   if (LS) { SUNLinSolFree(LS); }
 
@@ -457,7 +443,6 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
   int iout;                   /* output counter                */
   long int nst, nst_a, netf;  /* step stats                    */
   long int nfe;               /* RHS stats                     */
-  char fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
   udata->add_reactions = true;
@@ -470,33 +455,27 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
   }
 
   /* Select the method order */
-  retval = ERKStepSetOrder(arkode_mem, uopt->order);
-  if (check_retval(&retval, "ERKStepSetOrder", 1, udata->myid)) { return 1; }
+  retval = ARKodeSetOrder(arkode_mem, uopt->order);
+  if (check_retval(&retval, "ARKodeSetOrder", 1, udata->myid)) { return 1; }
 
   /* Attach user data */
-  retval = ERKStepSetUserData(arkode_mem, (void*)udata);
-  if (check_retval(&retval, "ERKStepSetUserData", 1, udata->myid)) { return 1; }
+  retval = ARKodeSetUserData(arkode_mem, (void*)udata);
+  if (check_retval(&retval, "ARKodeSetUserData", 1, udata->myid)) { return 1; }
 
   /* Specify tolerances */
-  retval = ERKStepSStolerances(arkode_mem, uopt->rtol, uopt->atol);
-  if (check_retval(&retval, "ERKStepSStolerances", 1, udata->myid))
-  {
-    return 1;
-  }
+  retval = ARKodeSStolerances(arkode_mem, uopt->rtol, uopt->atol);
+  if (check_retval(&retval, "ARKodeSStolerances", 1, udata->myid)) { return 1; }
 
   /* Increase the max number of steps allowed between outputs */
-  retval = ERKStepSetMaxNumSteps(arkode_mem, 1000000);
-  if (check_retval(&retval, "ERKStepSetMaxNumSteps", 1, udata->myid))
+  retval = ARKodeSetMaxNumSteps(arkode_mem, 1000000);
+  if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1, udata->myid))
   {
     return 1;
   }
 
   /* Set fixed step size */
-  retval = ERKStepSetFixedStep(arkode_mem, 1e-5);
-  if (check_retval(&retval, "ERKStepSetFixedStep", 1, udata->myid))
-  {
-    return 1;
-  }
+  retval = ARKodeSetFixedStep(arkode_mem, 1e-5);
+  if (check_retval(&retval, "ARKodeSetFixedStep", 1, udata->myid)) { return 1; }
 
   /* Output initial condition */
   if (uopt->nout > 0)
@@ -518,8 +497,8 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
 
   do {
     /* Integrate to output time */
-    retval = ERKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_retval(&retval, "ERKStepEvolve", 1, udata->myid)) { break; }
+    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
+    if (check_retval(&retval, "ARKodeEvolve", 1, udata->myid)) { break; }
 
     /* Output state */
     if (uopt->nout > 0) { WriteOutput(t, y, udata, uopt); }
@@ -533,14 +512,14 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
   while (iout < uopt->nout);
 
   /* Get final statistics */
-  retval = ERKStepGetNumSteps(arkode_mem, &nst);
-  check_retval(&retval, "ERKStepGetNumSteps", 1, udata->myid);
-  retval = ERKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_retval(&retval, "ERKStepGetNumStepAttempts", 1, udata->myid);
+  retval = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_retval(&retval, "ARKodeGetNumSteps", 1, udata->myid);
+  retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  check_retval(&retval, "ARKodeGetNumStepAttempts", 1, udata->myid);
   retval = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
   check_retval(&retval, "ERKStepGetNumRhsEvals", 1, udata->myid);
-  retval = ERKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_retval(&retval, "ERKStepGetNumErrTestFails", 1, udata->myid);
+  retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  check_retval(&retval, "ARKodeGetNumErrTestFails", 1, udata->myid);
 
   /* Print final statistics */
   if (udata->myid == 0)
@@ -552,7 +531,7 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
   }
 
   /* Clean up */
-  ERKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
 
   /* Return success */
   return (0);
@@ -562,7 +541,7 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
  * (Non)linear system functions
  * --------------------------------------------------------------*/
 
-int TaskLocalNlsResidual(N_Vector ycor, N_Vector F, void* arkode_mem)
+static int TaskLocalNlsResidual(N_Vector ycor, N_Vector F, void* arkode_mem)
 {
   /* temporary variables */
   UserData* udata;
@@ -575,8 +554,8 @@ int TaskLocalNlsResidual(N_Vector ycor, N_Vector F, void* arkode_mem)
   sunrealtype tcur, gamma;
   void* user_data;
 
-  ARKStepGetNonlinearSystemData(arkode_mem, &tcur, &zpred, &z, &Fi, &gamma,
-                                &sdata, &user_data);
+  ARKodeGetNonlinearSystemData(arkode_mem, &tcur, &zpred, &z, &Fi, &gamma,
+                               &sdata, &user_data);
   udata = (UserData*)user_data;
 
   /* update 'z' value as stored predictor + current corrector */
@@ -604,7 +583,7 @@ int TaskLocalNlsResidual(N_Vector ycor, N_Vector F, void* arkode_mem)
   return (0);
 }
 
-int TaskLocalLSolve(N_Vector delta, void* arkode_mem)
+static int TaskLocalLSolve(N_Vector delta, void* arkode_mem)
 {
   /* local variables */
   UserData* udata = NULL;
@@ -615,8 +594,8 @@ int TaskLocalLSolve(N_Vector delta, void* arkode_mem)
   sunrealtype tcur, gamma;
   void* user_data = NULL;
 
-  ARKStepGetNonlinearSystemData(arkode_mem, &tcur, &zpred, &z, &Fi, &gamma,
-                                &sdata, &user_data);
+  ARKodeGetNonlinearSystemData(arkode_mem, &tcur, &zpred, &z, &Fi, &gamma,
+                               &sdata, &user_data);
   udata = (UserData*)user_data;
 
   SUNDIALS_CXX_MARK_FUNCTION(udata->prof);
@@ -627,12 +606,12 @@ int TaskLocalLSolve(N_Vector delta, void* arkode_mem)
   return (retval);
 }
 
-SUNNonlinearSolver_Type TaskLocalNewton_GetType(SUNNonlinearSolver NLS)
+static SUNNonlinearSolver_Type TaskLocalNewton_GetType(SUNNonlinearSolver NLS)
 {
   return SUNNONLINEARSOLVER_ROOTFIND;
 }
 
-int TaskLocalNewton_Initialize(SUNNonlinearSolver NLS)
+static int TaskLocalNewton_Initialize(SUNNonlinearSolver NLS)
 {
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
@@ -644,9 +623,9 @@ int TaskLocalNewton_Initialize(SUNNonlinearSolver NLS)
   return (SUNNonlinSolInitialize(LOCAL_NLS(NLS)));
 }
 
-int TaskLocalNewton_Solve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
-                          N_Vector w, sunrealtype tol,
-                          sunbooleantype callLSetup, void* mem)
+static int TaskLocalNewton_Solve(SUNNonlinearSolver NLS, N_Vector y0,
+                                 N_Vector ycor, N_Vector w, sunrealtype tol,
+                                 sunbooleantype callLSetup, void* mem)
 {
   /* local variables */
   MPI_Comm comm;
@@ -680,7 +659,7 @@ int TaskLocalNewton_Solve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector ycor,
   return recover;
 }
 
-int TaskLocalNewton_Free(SUNNonlinearSolver NLS)
+static int TaskLocalNewton_Free(SUNNonlinearSolver NLS)
 {
   /* return if NLS is already free */
   if (NLS == NULL) { return SUN_SUCCESS; }
@@ -706,7 +685,8 @@ int TaskLocalNewton_Free(SUNNonlinearSolver NLS)
   return SUN_SUCCESS;
 }
 
-int TaskLocalNewton_SetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
+static int TaskLocalNewton_SetSysFn(SUNNonlinearSolver NLS,
+                                    SUNNonlinSolSysFn SysFn)
 {
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
@@ -714,9 +694,9 @@ int TaskLocalNewton_SetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
   return (SUNNonlinSolSetSysFn(LOCAL_NLS(NLS), SysFn));
 }
 
-int TaskLocalNewton_SetConvTestFn(SUNNonlinearSolver NLS,
-                                  SUNNonlinSolConvTestFn CTestFn,
-                                  void* ctest_data)
+static int TaskLocalNewton_SetConvTestFn(SUNNonlinearSolver NLS,
+                                         SUNNonlinSolConvTestFn CTestFn,
+                                         void* ctest_data)
 {
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
@@ -724,7 +704,8 @@ int TaskLocalNewton_SetConvTestFn(SUNNonlinearSolver NLS,
   return (SUNNonlinSolSetConvTestFn(LOCAL_NLS(NLS), CTestFn, ctest_data));
 }
 
-int TaskLocalNewton_GetNumConvFails(SUNNonlinearSolver NLS, long int* nconvfails)
+static int TaskLocalNewton_GetNumConvFails(SUNNonlinearSolver NLS,
+                                           long int* nconvfails)
 {
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }

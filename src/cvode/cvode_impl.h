@@ -22,10 +22,11 @@
 #include <cvode/cvode.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_math.h>
 
 #include "cvode_proj_impl.h"
-#include "sundials/sundials_math.h"
 #include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -633,6 +634,34 @@ void cvRestore(CVodeMem cv_mem, sunrealtype saved_t);
 /* Reset h and rescale history array to prepare for a step */
 
 void cvRescale(CVodeMem cv_mem);
+
+#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
+int cvEwtSetSS_fused(const sunbooleantype atolmin0, const sunrealtype reltol,
+                     const sunrealtype Sabstol, const N_Vector ycur,
+                     N_Vector tempv, N_Vector weight);
+
+int cvEwtSetSV_fused(const sunbooleantype atolmin0, const sunrealtype reltol,
+                     const N_Vector Vabstol, const N_Vector ycur,
+                     N_Vector tempv, N_Vector weight);
+
+int cvCheckConstraints_fused(const N_Vector c, const N_Vector ewt,
+                             const N_Vector y, const N_Vector mm, N_Vector tempv);
+
+int cvNlsResid_fused(const sunrealtype rl1, const sunrealtype ngamma,
+                     const N_Vector zn1, const N_Vector ycor,
+                     const N_Vector ftemp, N_Vector res);
+
+int cvDiagSetup_formY(const sunrealtype h, const sunrealtype r,
+                      const N_Vector fpred, const N_Vector zn1,
+                      const N_Vector ypred, N_Vector ftemp, N_Vector y);
+
+int cvDiagSetup_buildM(const sunrealtype fract, const sunrealtype uround,
+                       const sunrealtype h, const N_Vector ftemp,
+                       const N_Vector fpred, const N_Vector ewt, N_Vector bit,
+                       N_Vector bitcomp, N_Vector y, N_Vector M);
+
+int cvDiagSolve_updateM(const sunrealtype r, N_Vector M);
+#endif
 
 /*
  * =================================================================

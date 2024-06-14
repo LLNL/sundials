@@ -167,7 +167,7 @@ program main
      stop 1
   end if
 
-  ! main time-stepping loop: calls FARKStepEvolve to perform the integration, then
+  ! main time-stepping loop: calls FARKodeEvolve to perform the integration, then
   ! prints results.  Stops when the final time has been reached
   tcur(1) = T0
   dTout = (Tf-T0)/Nt
@@ -181,9 +181,9 @@ program main
   do iout = 1,Nt
 
      ! call integrator
-     ierr = FARKStepEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
+     ierr = FARKodeEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
      if (ierr /= 0) then
-        write(*,*) 'Error in FARKStepEvolve, ierr = ', ierr, '; halting'
+        write(*,*) 'Error in FARKodeEvolve, ierr = ', ierr, '; halting'
         stop 1
      endif
 
@@ -208,7 +208,7 @@ program main
   print *, ' '
 
   ! clean up
-  call FARKStepFree(arkode_mem)
+  call FARKodeFree(arkode_mem)
   call FN_VDestroy(sunvec_y)
   ierr = FSUNContext_Free(sunctx)
 
@@ -241,10 +241,10 @@ subroutine ARKStepStats(arkode_mem)
 
   !======= Internals ============
 
-  ierr = FARKStepGetNumSteps(arkode_mem, nsteps)
-  ierr = FARKStepGetNumStepAttempts(arkode_mem, nst_a)
+  ierr = FARKodeGetNumSteps(arkode_mem, nsteps)
+  ierr = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
   ierr = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
-  ierr = FARKStepGetNumErrTestFails(arkode_mem, netfails)
+  ierr = FARKodeGetNumErrTestFails(arkode_mem, netfails)
 
   print *, ' '
   print *, 'Final Solver Statistics:'

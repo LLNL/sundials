@@ -611,16 +611,8 @@ int main(int argc, char* argv[])
     udata.evolve.start();
 
     // Evolve
-    if (udata.integrator)
-    {
-      flag = MRIStepEvolve(arkode_mem, tout, u, &t, stepmode);
-      if (check_flag(&flag, "MRIStepEvolve", 1)) { break; }
-    }
-    else
-    {
-      flag = ARKStepEvolve(arkode_mem, tout, u, &t, stepmode);
-      if (check_flag(&flag, "ARKStepEvolve", 1)) { break; }
-    }
+    flag = ARKodeEvolve(arkode_mem, tout, u, &t, stepmode);
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
 
     // Stop timer
     udata.evolve.stop();
@@ -678,14 +670,14 @@ int main(int argc, char* argv[])
 
   switch (udata.integrator)
   {
-  case (0): ARKStepFree(&arkode_mem); break;
+  case (0): ARKodeFree(&arkode_mem); break;
   case (1):
   {
     void* inner_arkode_mem = NULL;
     MRIStepInnerStepper_GetContent(stepper, &inner_arkode_mem);
-    ARKStepFree(&inner_arkode_mem);
+    ARKodeFree(&inner_arkode_mem);
     MRIStepInnerStepper_Free(&stepper);
-    MRIStepFree(&arkode_mem);
+    ARKodeFree(&arkode_mem);
     break;
   }
   case (2):
@@ -698,7 +690,7 @@ int main(int argc, char* argv[])
     delete content;
     MRIStepInnerStepper_Free(&stepper);
     SUNNonlinSolFree(NLS);
-    MRIStepFree(&arkode_mem);
+    ARKodeFree(&arkode_mem);
     break;
   }
   default: cerr << "Invalid integrator option" << endl; break;
@@ -928,51 +920,51 @@ static int SetupARK(SUNContext ctx, UserData* udata, N_Vector u,
   if (check_flag((void*)*arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   // Specify tolerances
-  flag = ARKStepSStolerances(*arkode_mem, udata->rtol_imex, udata->atol_imex);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(*arkode_mem, udata->rtol_imex, udata->atol_imex);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   // Attach user data
-  flag = ARKStepSetUserData(*arkode_mem, (void*)udata);
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) { return 1; }
+  flag = ARKodeSetUserData(*arkode_mem, (void*)udata);
+  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   if (udata->diffusion)
   {
     // Attach linear solver
-    flag = ARKStepSetLinearSolver(*arkode_mem, LS, NULL);
-    if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
+    flag = ARKodeSetLinearSolver(*arkode_mem, LS, NULL);
+    if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
     if (udata->prec)
     {
       // Attach preconditioner
-      flag = ARKStepSetPreconditioner(*arkode_mem, NULL, PSolve);
-      if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) { return 1; }
+      flag = ARKodeSetPreconditioner(*arkode_mem, NULL, PSolve);
+      if (check_flag(&flag, "ARKodeSetPreconditioner", 1)) { return 1; }
 
       // Set linear solver setup frequency (update preconditioner)
-      flag = ARKStepSetLSetupFrequency(*arkode_mem, udata->msbp);
-      if (check_flag(&flag, "ARKStepSetLSetupFrequency", 1)) { return 1; }
+      flag = ARKodeSetLSetupFrequency(*arkode_mem, udata->msbp);
+      if (check_flag(&flag, "ARKodeSetLSetupFrequency", 1)) { return 1; }
     }
 
     // Set linear solver tolerance factor
-    flag = ARKStepSetEpsLin(*arkode_mem, udata->epslin);
-    if (check_flag(&flag, "ARKStepSetEpsLin", 1)) { return 1; }
+    flag = ARKodeSetEpsLin(*arkode_mem, udata->epslin);
+    if (check_flag(&flag, "ARKodeSetEpsLin", 1)) { return 1; }
 
     // Specify linearly implicit non-time-dependent RHS
     if (udata->linear)
     {
-      flag = ARKStepSetLinear(*arkode_mem, 0);
-      if (check_flag(&flag, "ARKStepSetLinear", 1)) { return 1; }
+      flag = ARKodeSetLinear(*arkode_mem, 0);
+      if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
     }
   }
 
   // Select method order
-  flag = ARKStepSetOrder(*arkode_mem, udata->order_imex);
-  if (check_flag(&flag, "ARKStepSetOrder", 1)) { return 1; }
+  flag = ARKodeSetOrder(*arkode_mem, udata->order_imex);
+  if (check_flag(&flag, "ARKodeSetOrder", 1)) { return 1; }
 
   // Set fixed step size or adaptivity method
   if (udata->h_imex > ZERO)
   {
-    flag = ARKStepSetFixedStep(*arkode_mem, udata->h_imex);
-    if (check_flag(&flag, "ARKStepSetFixedStep", 1)) { return 1; }
+    flag = ARKodeSetFixedStep(*arkode_mem, udata->h_imex);
+    if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
   }
   else
   {
@@ -985,17 +977,17 @@ static int SetupARK(SUNContext ctx, UserData* udata, N_Vector u,
     case (ARK_ADAPT_IMP_GUS): *Ctrl = SUNAdaptController_ImpGus(ctx); break;
     case (ARK_ADAPT_IMEX_GUS): *Ctrl = SUNAdaptController_ImExGus(ctx); break;
     }
-    flag = ARKStepSetAdaptController(*arkode_mem, *Ctrl);
-    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) { return 1; }
+    flag = ARKodeSetAdaptController(*arkode_mem, *Ctrl);
+    if (check_flag(&flag, "ARKodeSetAdaptController", 1)) { return 1; }
   }
 
   // Set max steps between outputs
-  flag = ARKStepSetMaxNumSteps(*arkode_mem, udata->maxsteps);
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return 1; }
+  flag = ARKodeSetMaxNumSteps(*arkode_mem, udata->maxsteps);
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   // Set stopping time
-  flag = ARKStepSetStopTime(*arkode_mem, udata->tf);
-  if (check_flag(&flag, "ARKStepSetStopTime", 1)) { return 1; }
+  flag = ARKodeSetStopTime(*arkode_mem, udata->tf);
+  if (check_flag(&flag, "ARKodeSetStopTime", 1)) { return 1; }
 
   return 0;
 }
@@ -1015,23 +1007,22 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   if (check_flag((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   // Specify tolerances
-  flag = ARKStepSStolerances(inner_arkode_mem, udata->rtol_fast,
-                             udata->atol_fast);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(inner_arkode_mem, udata->rtol_fast, udata->atol_fast);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   // Attach user data
-  flag = ARKStepSetUserData(inner_arkode_mem, (void*)udata);
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) { return 1; }
+  flag = ARKodeSetUserData(inner_arkode_mem, (void*)udata);
+  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   // Select method order
-  flag = ARKStepSetOrder(inner_arkode_mem, udata->order_fast);
-  if (check_flag(&flag, "ARKStepSetOrder", 1)) { return 1; }
+  flag = ARKodeSetOrder(inner_arkode_mem, udata->order_fast);
+  if (check_flag(&flag, "ARKodeSetOrder", 1)) { return 1; }
 
   // Set fixed step size or adaptivity method
   if (udata->h_fast > ZERO)
   {
-    flag = ARKStepSetFixedStep(inner_arkode_mem, udata->h_fast);
-    if (check_flag(&flag, "ARKStepSetFixedStep", 1)) { return 1; }
+    flag = ARKodeSetFixedStep(inner_arkode_mem, udata->h_fast);
+    if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
   }
   else
   {
@@ -1044,13 +1035,13 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
     case (ARK_ADAPT_IMP_GUS): *Ctrl = SUNAdaptController_ImpGus(ctx); break;
     case (ARK_ADAPT_IMEX_GUS): *Ctrl = SUNAdaptController_ImExGus(ctx); break;
     }
-    flag = ARKStepSetAdaptController(inner_arkode_mem, *Ctrl);
-    if (check_flag(&flag, "ARKStepSetAdaptController", 1)) { return 1; }
+    flag = ARKodeSetAdaptController(inner_arkode_mem, *Ctrl);
+    if (check_flag(&flag, "ARKodeSetAdaptController", 1)) { return 1; }
   }
 
   // Set max steps between outputs
-  flag = ARKStepSetMaxNumSteps(inner_arkode_mem, udata->maxsteps);
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) { return 1; }
+  flag = ARKodeSetMaxNumSteps(inner_arkode_mem, udata->maxsteps);
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   // Wrap ARKODE as an MRIStepInnerStepper
   flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, stepper);
@@ -1075,50 +1066,50 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   MRIStepCoupling_Free(C);
 
   // Set the slow step size
-  flag = MRIStepSetFixedStep(*arkode_mem, udata->h_slow);
-  if (check_flag(&flag, "MRIStepSetFixedStep", 1)) { return 1; }
+  flag = ARKodeSetFixedStep(*arkode_mem, udata->h_slow);
+  if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
   // Specify tolerances
-  flag = MRIStepSStolerances(*arkode_mem, udata->rtol_slow, udata->atol_slow);
-  if (check_flag(&flag, "MRIStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(*arkode_mem, udata->rtol_slow, udata->atol_slow);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   // Attach user data
-  flag = MRIStepSetUserData(*arkode_mem, (void*)udata);
-  if (check_flag(&flag, "MRIStepSetUserData", 1)) { return 1; }
+  flag = ARKodeSetUserData(*arkode_mem, (void*)udata);
+  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   // Attach linear solver
-  flag = MRIStepSetLinearSolver(*arkode_mem, LS, NULL);
-  if (check_flag(&flag, "MRIStepSetLinearSolver", 1)) { return 1; }
+  flag = ARKodeSetLinearSolver(*arkode_mem, LS, NULL);
+  if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
   if (udata->prec)
   {
     // Attach preconditioner
-    flag = MRIStepSetPreconditioner(*arkode_mem, NULL, PSolve);
-    if (check_flag(&flag, "MRIStepSetPreconditioner", 1)) { return 1; }
+    flag = ARKodeSetPreconditioner(*arkode_mem, NULL, PSolve);
+    if (check_flag(&flag, "ARKodeSetPreconditioner", 1)) { return 1; }
 
     // Set linear solver setup frequency (update preconditioner)
-    flag = MRIStepSetLSetupFrequency(*arkode_mem, udata->msbp);
-    if (check_flag(&flag, "MRIStepSetLSetupFrequency", 1)) { return 1; }
+    flag = ARKodeSetLSetupFrequency(*arkode_mem, udata->msbp);
+    if (check_flag(&flag, "ARKodeSetLSetupFrequency", 1)) { return 1; }
   }
 
   // Set linear solver tolerance factor
-  flag = MRIStepSetEpsLin(*arkode_mem, udata->epslin);
-  if (check_flag(&flag, "MRIStepSetEpsLin", 1)) { return 1; }
+  flag = ARKodeSetEpsLin(*arkode_mem, udata->epslin);
+  if (check_flag(&flag, "ARKodeSetEpsLin", 1)) { return 1; }
 
   // Specify linearly implicit non-time-dependent RHS
   if (udata->linear)
   {
-    flag = MRIStepSetLinear(*arkode_mem, 0);
-    if (check_flag(&flag, "MRIStepSetLinear", 1)) { return 1; }
+    flag = ARKodeSetLinear(*arkode_mem, 0);
+    if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
   }
 
   // Set max steps between outputs
-  flag = MRIStepSetMaxNumSteps(*arkode_mem, udata->maxsteps);
-  if (check_flag(&flag, "MRIStepSetMaxNumSteps", 1)) { return 1; }
+  flag = ARKodeSetMaxNumSteps(*arkode_mem, udata->maxsteps);
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   // Set stopping time
-  flag = MRIStepSetStopTime(*arkode_mem, udata->tf);
-  if (check_flag(&flag, "MRIStepSetStopTime", 1)) { return 1; }
+  flag = ARKodeSetStopTime(*arkode_mem, udata->tf);
+  if (check_flag(&flag, "ARKodeSetStopTime", 1)) { return 1; }
 
   return 0;
 }
@@ -1219,50 +1210,50 @@ static int SetupMRICVODE(SUNContext ctx, UserData* udata, N_Vector y,
   MRIStepCoupling_Free(C);
 
   // Set the slow step size
-  flag = MRIStepSetFixedStep(*arkode_mem, udata->h_slow);
-  if (check_flag(&flag, "MRIStepSetFixedStep", 1)) { return 1; }
+  flag = ARKodeSetFixedStep(*arkode_mem, udata->h_slow);
+  if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
   // Specify tolerances
-  flag = MRIStepSStolerances(*arkode_mem, udata->rtol_slow, udata->atol_slow);
-  if (check_flag(&flag, "MRIStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(*arkode_mem, udata->rtol_slow, udata->atol_slow);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   // Attach user data
-  flag = MRIStepSetUserData(*arkode_mem, (void*)udata);
-  if (check_flag(&flag, "MRIStepSetUserData", 1)) { return 1; }
+  flag = ARKodeSetUserData(*arkode_mem, (void*)udata);
+  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   // Attach linear solver
-  flag = MRIStepSetLinearSolver(*arkode_mem, LS, NULL);
-  if (check_flag(&flag, "MRIStepSetLinearSolver", 1)) { return 1; }
+  flag = ARKodeSetLinearSolver(*arkode_mem, LS, NULL);
+  if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
   if (udata->prec)
   {
     // Attach preconditioner
-    flag = MRIStepSetPreconditioner(*arkode_mem, NULL, PSolve);
-    if (check_flag(&flag, "MRIStepSetPreconditioner", 1)) { return 1; }
+    flag = ARKodeSetPreconditioner(*arkode_mem, NULL, PSolve);
+    if (check_flag(&flag, "ARKodeSetPreconditioner", 1)) { return 1; }
 
     // Set linear solver setup frequency (update preconditioner)
-    flag = MRIStepSetLSetupFrequency(*arkode_mem, udata->msbp);
-    if (check_flag(&flag, "MRIStepSetLSetupFrequency", 1)) { return 1; }
+    flag = ARKodeSetLSetupFrequency(*arkode_mem, udata->msbp);
+    if (check_flag(&flag, "ARKodeSetLSetupFrequency", 1)) { return 1; }
   }
 
   // Set linear solver tolerance factor
-  flag = MRIStepSetEpsLin(*arkode_mem, udata->epslin);
-  if (check_flag(&flag, "MRIStepSetEpsLin", 1)) { return 1; }
+  flag = ARKodeSetEpsLin(*arkode_mem, udata->epslin);
+  if (check_flag(&flag, "ARKodeSetEpsLin", 1)) { return 1; }
 
   // Specify linearly implicit non-time-dependent RHS
   if (udata->linear)
   {
-    flag = MRIStepSetLinear(*arkode_mem, 0);
-    if (check_flag(&flag, "MRIStepSetLinear", 1)) { return 1; }
+    flag = ARKodeSetLinear(*arkode_mem, 0);
+    if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
   }
 
   // Set max steps between outputs
-  flag = MRIStepSetMaxNumSteps(*arkode_mem, udata->maxsteps);
-  if (check_flag(&flag, "MRIStepSetMaxNumSteps", 1)) { return 1; }
+  flag = ARKodeSetMaxNumSteps(*arkode_mem, udata->maxsteps);
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   // Set stopping time
-  flag = MRIStepSetStopTime(*arkode_mem, udata->tf);
-  if (check_flag(&flag, "MRIStepSetStopTime", 1)) { return 1; }
+  flag = ARKodeSetStopTime(*arkode_mem, udata->tf);
+  if (check_flag(&flag, "ARKodeSetStopTime", 1)) { return 1; }
 
   return 0;
 }
@@ -2603,31 +2594,31 @@ static int OutputStatsIMEX(void* arkode_mem, UserData* udata)
 
   // Get integrator and solver stats
   long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) { return -1; }
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  if (check_flag(&flag, "ARKStepGetNumStepAttempts", 1)) { return -1; }
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  if (check_flag(&flag, "ARKStepGetNumErrTestFails", 1)) { return -1; }
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
+  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
+  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
 
   if (udata->diffusion)
   {
-    flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-    if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) { return -1; }
-    flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-    if (check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1)) { return -1; }
-    flag = ARKStepGetNumLinIters(arkode_mem, &nli);
-    if (check_flag(&flag, "ARKStepGetNumLinIters", 1)) { return -1; }
-    flag = ARKStepGetNumLinConvFails(arkode_mem, &nlcf);
-    if (check_flag(&flag, "ARKStepGetNumLinConvFails", 1)) { return -1; }
-    flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-    if (check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1)) { return -1; }
-    flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfi_ls);
-    if (check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1)) { return -1; }
-    flag = ARKStepGetNumJtimesEvals(arkode_mem, &nJv);
-    if (check_flag(&flag, "ARKStepGetNumJtimesEvals", 1)) { return -1; }
+    flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+    if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
+    flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+    if (check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1)) { return -1; }
+    flag = ARKodeGetNumLinIters(arkode_mem, &nli);
+    if (check_flag(&flag, "ARKodeGetNumLinIters", 1)) { return -1; }
+    flag = ARKodeGetNumLinConvFails(arkode_mem, &nlcf);
+    if (check_flag(&flag, "ARKodeGetNumLinConvFails", 1)) { return -1; }
+    flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
+    if (check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1)) { return -1; }
+    flag = ARKodeGetNumLinRhsEvals(arkode_mem, &nfi_ls);
+    if (check_flag(&flag, "ARKodeGetNumLinRhsEvals", 1)) { return -1; }
+    flag = ARKodeGetNumJtimesEvals(arkode_mem, &nJv);
+    if (check_flag(&flag, "ARKodeGetNumJtimesEvals", 1)) { return -1; }
   }
 
   cout << fixed;
@@ -2663,10 +2654,10 @@ static int OutputStatsIMEX(void* arkode_mem, UserData* udata)
     if (udata->prec)
     {
       long int npe, nps;
-      flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
-      if (check_flag(&flag, "ARKStepGetNumPrecEvals", 1)) { return -1; }
-      flag = ARKStepGetNumPrecSolves(arkode_mem, &nps);
-      if (check_flag(&flag, "ARKStepGetNumPrecSolves", 1)) { return -1; }
+      flag = ARKodeGetNumPrecEvals(arkode_mem, &npe);
+      if (check_flag(&flag, "ARKodeGetNumPrecEvals", 1)) { return -1; }
+      flag = ARKodeGetNumPrecSolves(arkode_mem, &nps);
+      if (check_flag(&flag, "ARKodeGetNumPrecSolves", 1)) { return -1; }
 
       cout << "  Preconditioner setups = " << npe << endl;
       cout << "  Preconditioner solves = " << nps << endl;
@@ -2685,24 +2676,24 @@ static int OutputStatsMRI(void* arkode_mem, MRIStepInnerStepper stepper,
 
   // Get slow integrator and solver stats
   long int nsts, nfse, nfsi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
-  flag = MRIStepGetNumSteps(arkode_mem, &nsts);
-  if (check_flag(&flag, "MRIStepGetNumSteps", 1)) { return -1; }
+  flag = ARKodeGetNumSteps(arkode_mem, &nsts);
+  if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
   flag = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
   if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return -1; }
-  flag = MRIStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) { return -1; }
-  flag = MRIStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  if (check_flag(&flag, "MRIStepGetNumNonlinSolvConvFails", 1)) { return -1; }
-  flag = MRIStepGetNumLinIters(arkode_mem, &nli);
-  if (check_flag(&flag, "MRIStepGetNumLinIters", 1)) { return -1; }
-  flag = MRIStepGetNumLinConvFails(arkode_mem, &nlcf);
-  if (check_flag(&flag, "MRIStepGetNumLinConvFails", 1)) { return -1; }
-  flag = MRIStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  if (check_flag(&flag, "MRIStepGetNumLinSolvSetups", 1)) { return -1; }
-  flag = MRIStepGetNumLinRhsEvals(arkode_mem, &nfi_ls);
-  if (check_flag(&flag, "MRIStepGetNumLinRhsEvals", 1)) { return -1; }
-  flag = MRIStepGetNumJtimesEvals(arkode_mem, &nJv);
-  if (check_flag(&flag, "MRIStepGetNumJtimesEvals", 1)) { return -1; }
+  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+  if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
+  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  if (check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1)) { return -1; }
+  flag = ARKodeGetNumLinIters(arkode_mem, &nli);
+  if (check_flag(&flag, "ARKodeGetNumLinIters", 1)) { return -1; }
+  flag = ARKodeGetNumLinConvFails(arkode_mem, &nlcf);
+  if (check_flag(&flag, "ARKodeGetNumLinConvFails", 1)) { return -1; }
+  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
+  if (check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1)) { return -1; }
+  flag = ARKodeGetNumLinRhsEvals(arkode_mem, &nfi_ls);
+  if (check_flag(&flag, "ARKodeGetNumLinRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumJtimesEvals(arkode_mem, &nJv);
+  if (check_flag(&flag, "ARKodeGetNumJtimesEvals", 1)) { return -1; }
 
   cout << fixed;
   cout << setprecision(6);
@@ -2731,10 +2722,10 @@ static int OutputStatsMRI(void* arkode_mem, MRIStepInnerStepper stepper,
   if (udata->prec)
   {
     long int npe, nps;
-    flag = MRIStepGetNumPrecEvals(arkode_mem, &npe);
-    if (check_flag(&flag, "MRIStepGetNumPrecEvals", 1)) { return -1; }
-    flag = MRIStepGetNumPrecSolves(arkode_mem, &nps);
-    if (check_flag(&flag, "MRIStepGetNumPrecSolves", 1)) { return -1; }
+    flag = ARKodeGetNumPrecEvals(arkode_mem, &npe);
+    if (check_flag(&flag, "ARKodeGetNumPrecEvals", 1)) { return -1; }
+    flag = ARKodeGetNumPrecSolves(arkode_mem, &nps);
+    if (check_flag(&flag, "ARKodeGetNumPrecSolves", 1)) { return -1; }
 
     cout << "  Preconditioner setups = " << npe << endl;
     cout << "  Preconditioner solves = " << nps << endl;
@@ -2747,12 +2738,12 @@ static int OutputStatsMRI(void* arkode_mem, MRIStepInnerStepper stepper,
 
   long int nstf, nstf_a, netff, nffe, nffi;
 
-  flag = ARKStepGetNumSteps(inner_arkode_mem, &nstf);
-  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) { return -1; }
-  flag = ARKStepGetNumStepAttempts(inner_arkode_mem, &nstf_a);
-  if (check_flag(&flag, "ARKStepGetNumStepAttempts", 1)) { return -1; }
-  flag = ARKStepGetNumErrTestFails(inner_arkode_mem, &netff);
-  if (check_flag(&flag, "ARKStepGetNumErrTestFails", 1)) { return -1; }
+  flag = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
+  if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
+  flag = ARKodeGetNumStepAttempts(inner_arkode_mem, &nstf_a);
+  if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
+  flag = ARKodeGetNumErrTestFails(inner_arkode_mem, &netff);
+  if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
   flag = ARKStepGetNumRhsEvals(inner_arkode_mem, &nffe, &nffi);
   if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
 
@@ -2773,24 +2764,24 @@ static int OutputStatsMRICVODE(void* arkode_mem, MRIStepInnerStepper stepper,
 
   // Get slow integrator and solver stats
   long int nsts, nfse, nfsi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
-  flag = MRIStepGetNumSteps(arkode_mem, &nsts);
-  if (check_flag(&flag, "MRIStepGetNumSteps", 1)) { return -1; }
+  flag = ARKodeGetNumSteps(arkode_mem, &nsts);
+  if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
   flag = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
   if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return -1; }
-  flag = MRIStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  if (check_flag(&flag, "MRIStepGetNumNonlinSolvIters", 1)) { return -1; }
-  flag = MRIStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  if (check_flag(&flag, "MRIStepGetNumNonlinSolvConvFails", 1)) { return -1; }
-  flag = MRIStepGetNumLinIters(arkode_mem, &nli);
-  if (check_flag(&flag, "MRIStepGetNumLinIters", 1)) { return -1; }
-  flag = MRIStepGetNumLinConvFails(arkode_mem, &nlcf);
-  if (check_flag(&flag, "MRIStepGetNumLinConvFails", 1)) { return -1; }
-  flag = MRIStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  if (check_flag(&flag, "MRIStepGetNumLinSolvSetups", 1)) { return -1; }
-  flag = MRIStepGetNumLinRhsEvals(arkode_mem, &nfi_ls);
-  if (check_flag(&flag, "MRIStepGetNumLinRhsEvals", 1)) { return -1; }
-  flag = MRIStepGetNumJtimesEvals(arkode_mem, &nJv);
-  if (check_flag(&flag, "MRIStepGetNumJtimesEvals", 1)) { return -1; }
+  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+  if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
+  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  if (check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1)) { return -1; }
+  flag = ARKodeGetNumLinIters(arkode_mem, &nli);
+  if (check_flag(&flag, "ARKodeGetNumLinIters", 1)) { return -1; }
+  flag = ARKodeGetNumLinConvFails(arkode_mem, &nlcf);
+  if (check_flag(&flag, "ARKodeGetNumLinConvFails", 1)) { return -1; }
+  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
+  if (check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1)) { return -1; }
+  flag = ARKodeGetNumLinRhsEvals(arkode_mem, &nfi_ls);
+  if (check_flag(&flag, "ARKodeGetNumLinRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumJtimesEvals(arkode_mem, &nJv);
+  if (check_flag(&flag, "ARKodeGetNumJtimesEvals", 1)) { return -1; }
 
   cout << fixed;
   cout << setprecision(6);
@@ -2819,10 +2810,10 @@ static int OutputStatsMRICVODE(void* arkode_mem, MRIStepInnerStepper stepper,
   if (udata->prec)
   {
     long int npe, nps;
-    flag = MRIStepGetNumPrecEvals(arkode_mem, &npe);
-    if (check_flag(&flag, "MRIStepGetNumPrecEvals", 1)) { return -1; }
-    flag = MRIStepGetNumPrecSolves(arkode_mem, &nps);
-    if (check_flag(&flag, "MRIStepGetNumPrecSolves", 1)) { return -1; }
+    flag = ARKodeGetNumPrecEvals(arkode_mem, &npe);
+    if (check_flag(&flag, "ARKodeGetNumPrecEvals", 1)) { return -1; }
+    flag = ARKodeGetNumPrecSolves(arkode_mem, &nps);
+    if (check_flag(&flag, "ARKodeGetNumPrecSolves", 1)) { return -1; }
 
     cout << "  Preconditioner setups = " << npe << endl;
     cout << "  Preconditioner solves = " << nps << endl;

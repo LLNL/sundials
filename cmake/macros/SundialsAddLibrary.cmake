@@ -190,7 +190,8 @@ macro(sundials_add_library target)
       PUBLIC
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
       $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-      $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
+      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/sundials>
+      $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src/sundials>
     )
     if(sundials_add_library_INCLUDE_DIRECTORIES)
       string(REPLACE "{{libtype}}" "${_libtype}" _includes "${sundials_add_library_INCLUDE_DIRECTORIES}")
@@ -199,7 +200,7 @@ macro(sundials_add_library target)
 
     # add compile definitions to object library for SUNDIALS_EXPORT
     if(${_libtype} MATCHES "STATIC")
-      target_compile_definitions(${obj_target} PRIVATE SUNDIALS_STATIC_DEFINE)
+      target_compile_definitions(${obj_target} PUBLIC SUNDIALS_STATIC_DEFINE)
     else()
       target_compile_definitions(${obj_target} PRIVATE sundials_core_EXPORTS)
     endif()
@@ -283,7 +284,8 @@ macro(sundials_add_library target)
       target_include_directories(${_actual_target_name} PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-        $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/sundials>
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src/sundials>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
       # add all other includes
@@ -294,7 +296,7 @@ macro(sundials_add_library target)
 
       # add compile definitions for SUNDIALS_EXPORT
       if(${_libtype} MATCHES "STATIC")
-        target_compile_definitions(${_actual_target_name} PRIVATE SUNDIALS_STATIC_DEFINE)
+        target_compile_definitions(${_actual_target_name} PUBLIC SUNDIALS_STATIC_DEFINE)
       else()
         target_compile_definitions(${obj_target} PRIVATE sundials_core_EXPORTS)
       endif()
@@ -323,10 +325,17 @@ macro(sundials_add_library target)
 
       # set the correct output name
       if(sundials_add_library_OUTPUT_NAME)
-        set_target_properties(${_actual_target_name} PROPERTIES
-          OUTPUT_NAME ${sundials_add_library_OUTPUT_NAME}
-          CLEAN_DIRECT_OUTPUT 1
-        )
+        if((MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC")) AND ${_libtype} MATCHES "STATIC")
+          set_target_properties(${_actual_target_name} PROPERTIES
+            OUTPUT_NAME "${sundials_add_library_OUTPUT_NAME}_static"
+            CLEAN_DIRECT_OUTPUT 1
+          )
+        else()
+          set_target_properties(${_actual_target_name} PROPERTIES
+            OUTPUT_NAME ${sundials_add_library_OUTPUT_NAME}
+            CLEAN_DIRECT_OUTPUT 1
+          )
+        endif()
       else()
         set_target_properties(${_actual_target_name} PROPERTIES
           OUTPUT_NAME ${target}
@@ -353,7 +362,7 @@ macro(sundials_add_library target)
       endif()
 
       # install phase
-      install(TARGETS ${_actual_target_name} DESTINATION ${CMAKE_INSTALL_LIBDIR} EXPORT sundials-targets)
+      install(TARGETS ${_actual_target_name} EXPORT sundials-targets)
 
     endif()
 
@@ -440,8 +449,9 @@ macro(sundials_add_f2003_library target)
       ${sundials_add_f2003_library_INCLUDE_DIRECTORIES}
       ${_includes}
     COMPILE_DEFINITIONS ${sundials_add_f2003_library_COMPILE_DEFINITIONS}
+                        PUBLIC "SUNDIALS_INT${SUNDIALS_INDEX_SIZE}_T"
     COMPILE_OPTIONS ${sundials_add_f2003_library_COMPILE_OPTIONS}
-    PROPERTIES ${sundials_add_f2003_library_PROPERTIES}
+    PROPERTIES ${sundials_add_f2003_library_PROPERTIES} ${_properties}
     OUTPUT_NAME ${sundials_add_f2003_library_OUTPUT_NAME}
     VERSION ${sundials_add_f2003_library_VERSION}
     SOVERSION ${sundials_add_f2003_library_SOVERSION}

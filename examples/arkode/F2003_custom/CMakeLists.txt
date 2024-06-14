@@ -17,18 +17,22 @@
 # Example lists are tuples "name\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
-# Examples using SUNDIALS linear solvers
-set(FARKODE_examples
-  "ark_brusselator1D_f2003\;develop"
-  "ark_analytic_complex_f2003\;develop"
-  )
+if(SUNDIALS_INDEX_SIZE MATCHES "64")
 
-set(FARKODE_tests
-  "test_fnvector_complex_mod\;develop"
-  "test_fnvector_fortran_mod\;develop"
-  "test_fsunmatrix_fortran_mod\;develop"
-  "test_fsunlinsol_fortran_mod\;develop"
-  )
+  # Examples using SUNDIALS linear solvers
+  set(FARKODE_examples
+    "ark_brusselator1D_f2003\;develop"
+    "ark_analytic_complex_f2003\;develop"
+    )
+
+  set(FARKODE_tests
+    "test_fnvector_complex_mod\;develop"
+    "test_fnvector_fortran_mod\;develop"
+    "test_fsunmatrix_fortran_mod\;develop"
+    "test_fsunlinsol_fortran_mod\;develop"
+    )
+
+endif()
 
 # note the order matters when auto-generating the installed Makefile
 set(FARKODEsources
@@ -112,9 +116,6 @@ endforeach(example_tuple ${FARKODE_tests})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_custom)
 
   # Install the extra files
   foreach(extrafile ${ARKODE_extras})

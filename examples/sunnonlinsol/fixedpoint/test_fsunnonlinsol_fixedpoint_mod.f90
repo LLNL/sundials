@@ -21,7 +21,7 @@ module test_fsunnonlinsol_fixedpoint
 
   implicit none
 
-  integer(c_int64_t), parameter :: neq   = 3      ! number of equations
+  integer(kind=myindextype), parameter :: NEQ = 3 ! number of equations
   integer(C_INT),  parameter :: MAXIT = 10     ! max nonlinear iters.
   real(C_DOUBLE),  parameter :: TOL   = 1.0e-4 ! nonlinear solver tolerance
 

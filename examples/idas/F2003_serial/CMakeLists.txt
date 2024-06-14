@@ -16,12 +16,16 @@
 
 # Example lists are tuples "name\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
-
-# Examples using SUNDIALS linear solvers
 set(FIDAS_examples
-  "idasHeat2D_kry_f2003\;develop"
   "idasAkzoNob_ASAi_dns_f2003\;develop"
   )
+
+if(SUNDIALS_INDEX_SIZE MATCHES "64")
+  # Examples using SUNDIALS linear solvers
+  list(APPEND FIDAS_examples
+    "idasHeat2D_kry_f2003\;develop"
+    )
+endif()
 
 # Specify libraries to link against
 set(IDAS_LIB sundials_fidas_mod)
@@ -61,9 +65,6 @@ endforeach(example_tuple ${FIDAS_examples})
 
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/F2003_serial)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "IDAS")

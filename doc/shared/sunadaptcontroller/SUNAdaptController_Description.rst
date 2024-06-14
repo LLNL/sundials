@@ -16,7 +16,7 @@
 The SUNAdaptController API
 ==========================
 
-.. versionadded:: x.x.x
+.. versionadded:: 6.7.0
 
 The SUNAdaptController base class provides a common API for accuracy-based adaptivity
 controllers to be used by SUNDIALS integrators. These controllers estimate step
@@ -34,40 +34,74 @@ accuracy tolerances (see :eq:`ARKODE_WRMS_NORM`),
 Thus *dsm* values below one represent errors estimated to be more accurate than
 needed, whereas errors above one are considered to be larger than allowable.
 
-The base ``SUNAdaptController`` class is modeled after SUNDIALS' other object-oriented
+The :c:type:`SUNAdaptController` class is modeled after SUNDIALS' other object-oriented
 classes, in that this class contains a pointer to an implementation-specific
 *content*, an *ops* structure with generic controller operations, and a
-:c:type:`SUNContext` object. Specifically, the type ``SUNAdaptController`` is defined
-as:
+:c:type:`SUNContext` object.
+
+A :c:type:`SUNAdaptController` is a pointer to the
+:c:struct:`_generic_SUNAdaptController` structure:
 
 .. c:type:: struct _generic_SUNAdaptController *SUNAdaptController
 
-and the base class structure is defined as
+.. c:struct:: _generic_SUNAdaptController
 
-.. code-block:: C
+   .. c:member:: void* content
 
-   struct _generic_SUNAdaptController {
-        void* content;
-        generic_SUNAdaptController_Ops* ops;
-        SUNContext sunctx;
-    };
+      Pointer to the controller-specific member data
 
-Here, ``_generic_SUNAdaptController_Ops`` is the pointer to a structure containing
-function pointers to the various controller operations, and is defined as
+   .. c:member:: SUNAdaptController_Ops ops;
 
-.. code-block:: c
+      A virtual table of controller operations provided by a specific
+      implementation
 
-    struct _generic_SUNAdaptController_Ops {
-        SUNAdaptController_Type (*getid)(SUNAdaptController C);
-        SUNErrCode (*destroy)(SUNAdaptController C);
-        SUNErrCode (*estimatestep)(SUNAdaptController C, sunrealtype h, int p, sunrealtype dsm, sunrealtype* hnew);
-        SUNErrCode (*reset)(SUNAdaptController C);
-        SUNErrCode (*setdefaults)(SUNAdaptController C);
-        SUNErrCode (*write)(SUNAdaptController C, FILE* fptr);
-        SUNErrCode (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
-        SUNErrCode (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
-        SUNErrCode (*space)(SUNAdaptController C, long int *lenrw, long int *leniw);
-    };
+   .. c:member:: SUNContext sunctx
+
+      The SUNDIALS simulation context
+
+The virtual table structure is defined as
+
+.. c:type:: struct _generic_SUNAdaptController_Ops *SUNAdaptController_Ops
+
+.. c:struct:: _generic_SUNAdaptController_Ops
+
+   The structure defining :c:type:`SUNAdaptController` operations.
+
+   .. c:member:: SUNAdaptController_Type (*gettype)(SUNAdaptController C)
+
+      The function implementing :c:func:`SUNAdaptController_GetType`
+
+   .. c:member:: SUNErrCode (*destroy)(SUNAdaptController C)
+
+      The function implementing :c:func:`SUNAdaptController_Destroy`
+
+   .. c:member:: SUNErrCode (*estimatestep)(SUNAdaptController C, sunrealtype h, int p, sunrealtype dsm, sunrealtype* hnew);
+
+      The function implementing :c:func:`SUNAdaptController_EstimateStep`
+
+   .. c:member:: SUNErrCode (*reset)(SUNAdaptController C)
+
+      The function implementing :c:func:`SUNAdaptController_Reset`
+
+   .. c:member:: SUNErrCode (*setdefaults)(SUNAdaptController C)
+
+      The function implementing :c:func:`SUNAdaptController_SetDefaults`
+
+   .. c:member:: SUNErrCode (*write)(SUNAdaptController C, FILE* fptr)
+
+      The function implementing :c:func:`SUNAdaptController_Write`
+
+   .. c:member:: SUNErrCode (*seterrorbias)(SUNAdaptController C, sunrealtype bias)
+
+      The function implementing :c:func:`SUNAdaptController_SetErrorBias`
+
+   .. c:member:: SUNErrCode (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
+
+      The function implementing :c:func:`SUNAdaptController_UpdateH`
+
+   .. c:member:: SUNErrCode (*space)(SUNAdaptController C, long int *lenrw, long int *leniw)
+
+      The function implementing :c:func:`SUNAdaptController_Space`
 
 
 .. _SUNAdaptController.Description.controllerTypes:
@@ -122,6 +156,23 @@ Each of the following methods are *optional* for any specific SUNAdaptController
 implementation, however some may be required based on the implementation's
 :c:type:`SUNAdaptController_Type` (see Section :numref:`SUNAdaptController.Description.controllerTypes`). We
 note these requirements below. Additionally, we note the behavior of the base SUNAdaptController methods when they perform an action other than only a successful return.
+
+.. c:function:: void SUNAdaptController_DestroyEmpty(SUNAdaptController C)
+
+  This routine frees the generic ``SUNAdaptController`` object, under the
+  assumption that any implementation-specific data that was allocated within the
+  underlying content structure has already been freed. It will additionally test
+  whether the ops pointer is ``NULL``, and, if it is not, it will free it as
+  well.
+
+  :param C: the :c:type:`SUNAdaptController` object.
+  :return: :c:type:`SUNErrCode` indicating success or failure.
+
+  Usage:
+
+  .. code-block:: c
+
+    retval = SUNAdaptController_DestroyEmpty(C);
 
 .. c:function:: SUNAdaptController_Type SUNAdaptController_GetType(SUNAdaptController C)
 

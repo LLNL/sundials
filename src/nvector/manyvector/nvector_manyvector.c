@@ -18,9 +18,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sundials/priv/sundials_errors_impl.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_errors.h>
+#include <sundials/sundials_types.h>
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 #include <nvector/nvector_mpimanyvector.h>
 #include <sundials/priv/sundials_mpi_errors_impl.h>
@@ -30,6 +30,8 @@
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
+
+#include "sundials_macros.h"
 
 /* Macro to handle separate MPI-aware/unaware installations */
 #ifdef MANYVECTOR_BUILD_WITH_MPI
@@ -472,7 +474,7 @@ sunindextype MVAPPEND(N_VGetNumSubvectors)(N_Vector v)
 
 /* Returns vector type ID. Used to identify vector implementation
    from abstract N_Vector interface. */
-N_Vector_ID MVAPPEND(N_VGetVectorID)(N_Vector v)
+N_Vector_ID MVAPPEND(N_VGetVectorID)(SUNDIALS_MAYBE_UNUSED N_Vector v)
 {
 #ifdef MANYVECTOR_BUILD_WITH_MPI
   return (SUNDIALS_NVEC_MPIMANYVECTOR);
@@ -596,9 +598,6 @@ MPI_Comm N_VGetCommunicator_MPIManyVector(N_Vector v)
 {
   return (MANYVECTOR_COMM(v));
 }
-#else
-/* This function retrieves the MPI Communicator from a ManyVector object. */
-SUNComm N_VGetCommunicator_ManyVector(N_Vector v) { return SUN_COMM_NULL; }
 #endif
 
 /* This function retrieves the global length of a ManyVector object. */

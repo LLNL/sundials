@@ -44,10 +44,10 @@ The SUNMATRIX_GINKGO module is defined by the ``sundials::ginkgo::Matrix`` templ
 
 .. _SUNMatrix.Ginkgo.CompatibleNVectors:
 
-Compatible ``N_Vectors``
-------------------------
+Compatible Vectors
+------------------
 
-The  ``N_Vector`` to use with the SUNLINEARSOLVER_GINKGO module depends on the ``gko::Executor``
+The :c:type:`N_Vector` to use with the SUNLINEARSOLVER_GINKGO module depends on the ``gko::Executor``
 utilized. That is, when using the ``gko::CudaExecutor`` you should use a CUDA capable ``N_Vector``
 (e.g., :numref:`NVectors.CUDA`), ``gko::HipExecutor`` goes with a HIP capable ``N_Vector`` (e.g.,
 :numref:`NVectors.HIP`), ``gko::DpcppExecutor`` goes with a DPC++/SYCL capable ``N_Vector`` (e.g.,
@@ -57,7 +57,7 @@ executors is where they store the data. The GPU enabled Ginkgo executors need th
 the GPU, so the ``N_Vector`` must implement :c:func:`N_VGetDeviceArrayPointer` and keep the data in
 GPU memory. The CPU-only enabled Ginkgo executors (e.g, ``gko::OmpExecutor`` and
 ``gko::ReferenceExecutor``) need data to reside on the CPU and will use
-:c:func:`N_VGetArraryPointer` to access the ``N_Vector`` data.
+:c:func:`N_VGetArrayPointer` to access the ``N_Vector`` data.
 
 .. _SUNMatrix.Ginkgo.Usage:
 

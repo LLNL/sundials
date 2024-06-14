@@ -44,7 +44,7 @@ class in the ``sundials::kokkos`` namespace:
 .. code-block:: cpp
 
    template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
-            class MemorySpace = typename ExecSpace::memory_space>
+            class MemorySpace = typename ExecutionSpace::memory_space>
    class DenseMatrix : public sundials::impl::BaseMatrix,
                        public sundials::ConvertibleTo<SUNMatrix>
 
@@ -108,9 +108,17 @@ In this section we list the public API of the ``sundials::kokkos::DenseMatrix``
 class.
 
 .. cpp:class:: template<class ExeccutionSpace = Kokkos::DefaultExecutionSpace, \
-                        class MemorySpace = typename ExecSpace::memory_space> \
+                        class MemorySpace = typename ExecutionSpace::memory_space> \
                DenseMatrix : public sundials::impl::BaseMatrix, \
                              public sundials::ConvertibleTo<SUNMatrix>
+
+   .. cpp:type:: exec_space   = ExecutionSpace;
+   .. cpp:type:: memory_space = MemorySpace;
+   .. cpp:type:: view_type    = Kokkos::View<sunrealtype***, memory_space>;
+   .. cpp:type:: size_type    = typename view_type::size_type;
+   .. cpp:type:: range_policy = Kokkos::MDRangePolicy<exec_space, Kokkos::Rank<3>>;
+   .. cpp:type:: team_policy  = typename Kokkos::TeamPolicy<exec_space>;
+   .. cpp:type:: member_type  = typename Kokkos::TeamPolicy<exec_space>::member_type;
 
    .. cpp:function:: DenseMatrix() = default
 
@@ -134,7 +142,7 @@ class.
 
       :param rows: number of matrix rows
       :param cols: number of matrix columns
-      :param exec_space: a `ExecSpace` instance
+      :param ex: an execuation space
       :param sunctx: the SUNDIALS simulation context object (:c:type:`SUNContext`)
 
    .. cpp:function:: DenseMatrix(size_type blocks, size_type block_rows, \
@@ -158,7 +166,7 @@ class.
       :param blocks: number of matrix blocks
       :param block_rows: number of rows in a block
       :param block_cols: number of columns in a block
-      :param exec_space: a `ExecSpace` instance
+      :param ex: an execuation space
       :param sunctx: the SUNDIALS simulation context object (:c:type:`SUNContext`)
 
    .. cpp:function:: DenseMatrix(DenseMatrix&& that_matrix) noexcept
@@ -233,7 +241,7 @@ class.
       Explicit conversion to a :c:type:`SUNMatrix`.
 
 .. cpp:function:: template<class ExecutionSpace = Kokkos::DefaultExecutionSpace, \
-                           class MemorySpace = typename ExecSpace::memory_space> \
+                           class MemorySpace = typename ExecutionSpace::memory_space> \
                   inline DenseMatrix<MatrixType>* GetDenseMat(SUNMatrix A)
 
    Get the dense matrix wrapped by a SUNMatrix

@@ -2491,8 +2491,10 @@ static sunrealtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u)
  * passes it to the info handler function.
  */
 
-void KINPrintInfo(KINMem kin_mem, int info_code, const char* module,
-                  const char* fname, const char* msgfmt, ...)
+void KINPrintInfo(SUNDIALS_MAYBE_UNUSED KINMem kin_mem, int info_code,
+                  SUNDIALS_MAYBE_UNUSED const char* module,
+                  SUNDIALS_MAYBE_UNUSED const char* fname, const char* msgfmt,
+                  ...)
 {
   va_list ap;
   char msg[256], msg1[40];
@@ -2540,7 +2542,7 @@ void KINPrintInfo(KINMem kin_mem, int info_code, const char* module,
   {
     /* Compose the message */
 
-    vsprintf(msg, msgfmt, ap);
+    vsnprintf(msg, sizeof msg, msgfmt, ap);
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
@@ -2563,15 +2565,20 @@ void KINPrintInfo(KINMem kin_mem, int info_code, const char* module,
 void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
                      const char* file, const char* msgfmt, ...)
 {
-  /* Initialize the argument pointer variable
+  /* We initialize the argument pointer variable before each vsnprintf call to avoid undefined behavior
      (msgfmt is the last required argument to KINProcessError) */
   va_list ap;
-  va_start(ap, msgfmt);
 
   /* Compose the message */
+  va_start(ap, msgfmt);
   size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
-  char* msg     = (char*)malloc(msglen);
+  va_end(ap);
+
+  char* msg = (char*)malloc(msglen);
+
+  va_start(ap, msgfmt);
   vsnprintf(msg, msglen, msgfmt, ap);
+  va_end(ap);
 
   do {
     if (kin_mem == NULL)
@@ -2599,8 +2606,6 @@ void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
   }
   while (0);
 
-  /* Finalize argument processing */
-  va_end(ap);
   free(msg);
 
   return;
@@ -2837,7 +2842,7 @@ static int KINFP(KINMem kin_mem)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG, "KINSOL::KINFP", "begin",
-                     "%s", "u_0:");
+                     "%s", "u_0(:) =");
   N_VPrintFile(kin_mem->kin_uu, KIN_LOGGER->debug_fp);
 #endif
 
@@ -2857,7 +2862,7 @@ static int KINFP(KINMem kin_mem)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG, "KINSOL::KINFP",
                        "while-loop-before-compute-new",
-                       "G_%ld:", kin_mem->kin_nni - 1);
+                       "G_%ld(:) =", kin_mem->kin_nni - 1);
     N_VPrintFile(kin_mem->kin_fval, KIN_LOGGER->debug_fp);
 #endif
 
@@ -2912,8 +2917,8 @@ static int KINFP(KINMem kin_mem)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG, "KINSOL::KINFP",
-                       "while-loop-after-compute-new", "u_%ld:\n",
-                       kin_mem->kin_nni);
+                       "while-loop-after-compute-new",
+                       "u_%ld(:) =", kin_mem->kin_nni);
     N_VPrintFile(kin_mem->kin_unew, KIN_LOGGER->debug_fp);
 #endif
 

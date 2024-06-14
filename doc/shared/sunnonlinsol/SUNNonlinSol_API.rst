@@ -36,10 +36,23 @@ SUNNonlinearSolver core functions
 -----------------------------------------------------
 
 The core nonlinear solver functions consist of two required functions to get the
-nonlinear solver type (:c:func:`SUNNonlinsSolGetType`) and solve the nonlinear system
+nonlinear solver type (:c:func:`SUNNonlinSolGetType`) and solve the nonlinear system
 (:c:func:`SUNNonlinSolSolve`). The remaining three functions for nonlinear solver
-initialization (:c:func:`SUNNonlinSolInitialization`), setup
+initialization (:c:func:`SUNNonlinSolInitialize`), setup
 (:c:func:`SUNNonlinSolSetup`), and destruction (:c:func:`SUNNonlinSolFree`) are optional.
+
+.. c:enum:: SUNNonlinearSolver_Type
+
+   An identifier indicating the form of the nonlinear system expected by the
+   nonlinear solver.
+
+   .. c:enumerator:: SUNNONLINEARSOLVER_ROOTFIND
+
+      The nonlinear solver expects systems in rootfinding form :math:`F(y) = 0`
+
+   .. c:enumerator:: SUNNONLINEARSOLVER_FIXEDPOINT
+
+      The nonlinear solver expects systems in fixed-point form :math:`G(y) = y`.
 
 
 .. c:function:: SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS)
@@ -50,15 +63,8 @@ initialization (:c:func:`SUNNonlinSolInitialization`), setup
       * *NLS* -- a SUNNonlinSol object.
 
    **Return value:**
-      The SUNNonlinSol type identifier (of type ``int``) will be one
-      of the following:
-
-      * ``SUNNONLINEARSOLVER_ROOTFIND`` -- ``0``, the SUNNonlinSol module
-        solves :math:`F(y) = 0`.
-
-      * ``SUNNONLINEARSOLVER_FIXEDPOINT`` -- ``1``, the SUNNonlinSol
-        module solves :math:`G(y) = y`.
-
+      The :c:enum:`SUNNonlinearSolver_Type` type identifier for the nonlinear
+      solver.
 
 
 .. c:function:: SUNErrCode SUNNonlinSolInitialize(SUNNonlinearSolver NLS)
@@ -92,7 +98,7 @@ initialization (:c:func:`SUNNonlinSolInitialization`), setup
       A :c:type:`SUNErrCode`.
 
    **Notes:**
-      SUNDIALS integrators call :c:func:`SUNonlinSolSetup` before
+      SUNDIALS integrators call :c:func:`SUNNonlinSolSetup` before
       each step attempt. SUNNonlinSol implementations that do not
       require setup may set this operation to ``NULL``.
 
@@ -500,43 +506,90 @@ implementations through the generic SUNNonlinSol module on which all
 other SUNNonlinSol implementations are built. The
 ``SUNNonlinearSolver`` type is a pointer to a structure containing an
 implementation-dependent *content* field and an *ops*
-field. The type ``SUNNonlinearSolver`` is defined as follows:
+field.
+
+A :c:type:`SUNNonlinearSolver` is a pointer to the
+:c:struct:`_generic_SUNNonlinearSolver` structure:
 
 .. c:type:: struct _generic_SUNNonlinearSolver *SUNNonlinearSolver
 
-and the generic structure is defined as
+.. c:struct:: _generic_SUNNonlinearSolver
 
-.. code-block:: c
+   The structure defining the SUNDIALS nonlinear solver class.
 
-   struct _generic_SUNNonlinearSolver {
-     void *content;
-     struct _generic_SUNNonlinearSolver_Ops *ops;
-   };
+   .. c:member:: void* content
 
-where the ``_generic_SUNNonlinearSolver_Ops`` structure is a list of
-pointers to the various actual nonlinear solver operations provided by a
-specific implementation. The ``_generic_SUNNonlinearSolver_Ops``
-structure is defined as
+      Pointer to nonlinear solver-specific member data
 
-.. code-block:: c
+   .. c:member:: SUNNonlinearSolver_Ops ops
 
-   struct _generic_SUNNonlinearSolver_Ops {
-     SUNNonlinearSolver_Type (*gettype)(SUNNonlinearSolver);
-     int                     (*initialize)(SUNNonlinearSolver);
-     int                     (*setup)(SUNNonlinearSolver, N_Vector, void*);
-     int                     (*solve)(SUNNonlinearSolver, N_Vector, N_Vector,
-                                      N_Vector, sunrealtype, sunbooleantype, void*);
-     int                     (*free)(SUNNonlinearSolver);
-     int                     (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
-     int                     (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);
-     int                     (*setlsolvefn)(SUNNonlinearSolver, SUNNonlinSolLSolveFn);
-     int                     (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn,
-                                           void*);
-     int                     (*setmaxiters)(SUNNonlinearSolver, int);
-     int                     (*getnumiters)(SUNNonlinearSolver, long int*);
-     int                     (*getcuriter)(SUNNonlinearSolver, int*);
-     int                     (*getnumconvfails)(SUNNonlinearSolver, long int*);
-   };
+      A virtual table of nonlinear solver operations provided by a specific
+      implementation
+
+   .. c:member:: SUNContext sunctx
+
+      The SUNDIALS simulation context
+
+The virtual table structure is defined as
+
+.. c:type:: struct _generic_SUNNonlinearSolver_Ops *SUNNonlinearSolver_Ops
+
+.. c:struct:: _generic_SUNNonlinearSolver_Ops
+
+   The structure defining :c:type:`SUNNonlinearSolver` operations.
+
+   .. c:member:: SUNNonlinearSolver_Type (*gettype)(SUNNonlinearSolver)
+
+      The function implementing :c:func:`SUNNonlinSolGetType`
+
+   .. c:member:: int (*initialize)(SUNNonlinearSolver)
+
+      The function implementing :c:func:`SUNNonlinSolInitialize`
+
+   .. c:member:: int (*setup)(SUNNonlinearSolver, N_Vector, void*)
+
+      The function implementing :c:func:`SUNNonlinSolSetup`
+
+   .. c:member:: int (*solve)(SUNNonlinearSolver, N_Vector, N_Vector, N_Vector, sunrealtype, sunbooleantype, void*)
+
+      The function implementing :c:func:`SUNNonlinSolSolve`
+
+   .. c:member:: int (*free)(SUNNonlinearSolver)
+
+      The function implementing :c:func:`SUNNonlinSolFree`
+
+   .. c:member:: int (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn)
+
+      The function implementing :c:func:`SUNNonlinSolSetSysFn`
+
+   .. c:member:: int (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn)
+
+      The function implementing :c:func:`SUNNonlinSolSetLSetupFn`
+
+   .. c:member:: int (*setlsolvefn)(SUNNonlinearSolver, SUNNonlinSolLSolveFn)
+
+      The function implementing :c:func:`SUNNonlinSolSetLSolveFn`
+
+   .. c:member:: int (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn, void*)
+
+      The function implementing :c:func:`SUNNonlinSolSetConvTestFn`
+
+   .. c:member:: int (*setmaxiters)(SUNNonlinearSolver, int)
+
+      The function implementing :c:func:`SUNNonlinSolSetMaxIters`
+
+   .. c:member:: int (*getnumiters)(SUNNonlinearSolver, long int*)
+
+      The function implementing :c:func:`SUNNonlinSolGetNumIters`
+
+   .. c:member:: int (*getcuriter)(SUNNonlinearSolver, int*)
+
+      The function implementing :c:func:`SUNNonlinSolGetCurIter`
+
+   .. c:member:: int (*getnumconvfails)(SUNNonlinearSolver, long int*)
+
+      The function implementing :c:func:`SUNNonlinSolGetNumConvFails`
+
 
 The generic SUNNonlinSol module defines and implements the nonlinear
 solver operations defined in
@@ -582,13 +635,13 @@ A SUNNonlinSol implementation *must* do the following:
 
 To aid in the creation of custom ``SUNNonlinearSolver`` modules, the generic
 ``SUNNonlinearSolver`` module provides the utility functions
-:c:func:`SUNNonlinSolNewEmpty` and :c:func:`SUNNonlinsolFreeEmpty`. When used
+:c:func:`SUNNonlinSolNewEmpty` and :c:func:`SUNNonlinSolFreeEmpty`. When used
 in custom ``SUNNonlinearSolver`` constructors these functions will ease the
 introduction of any new optional nonlinear solver operations to the
 ``SUNNonlinearSolver`` API by ensuring that only required operations need to
 be set.
 
-.. c:function:: SUNNonlinearSolver SUNNonlinSolNewEmpty()
+.. c:function:: SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx)
 
   This function allocates a new generic ``SUNNonlinearSolver`` object and
   initializes its content pointer and the function pointers in the operations

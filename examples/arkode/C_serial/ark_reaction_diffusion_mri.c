@@ -145,16 +145,16 @@ int main(void)
   if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   /* Attach user data to fast integrator */
-  retval = ARKStepSetUserData(inner_arkode_mem, (void*)udata);
-  if (check_retval(&retval, "ARKStepSetUserData", 1)) { return 1; }
+  retval = ARKodeSetUserData(inner_arkode_mem, (void*)udata);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
 
   /* Set the fast method */
   retval = ARKStepSetTableNum(inner_arkode_mem, -1, ARKODE_KNOTH_WOLKE_3_3);
   if (check_retval(&retval, "ARKStepSetTableNum", 1)) { return 1; }
 
   /* Set the fast step size */
-  retval = ARKStepSetFixedStep(inner_arkode_mem, hf);
-  if (check_retval(&retval, "ARKStepSetFixedStep", 1)) { return 1; }
+  retval = ARKodeSetFixedStep(inner_arkode_mem, hf);
+  if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
 
   /* Create inner stepper */
   retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
@@ -174,16 +174,16 @@ int main(void)
   if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }
 
   /* Pass udata to user functions */
-  retval = MRIStepSetUserData(arkode_mem, (void*)udata);
-  if (check_retval(&retval, "MRIStepSetUserData", 1)) { return 1; }
+  retval = ARKodeSetUserData(arkode_mem, (void*)udata);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
 
   /* Set the slow step size */
-  retval = MRIStepSetFixedStep(arkode_mem, hs);
-  if (check_retval(&retval, "MRIStepSetFixedStep", 1)) { return 1; }
+  retval = ARKodeSetFixedStep(arkode_mem, hs);
+  if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
 
   /* Increase max num steps  */
-  retval = MRIStepSetMaxNumSteps(arkode_mem, 10000);
-  if (check_retval(&retval, "MRIStepSetMaxNumSteps", 1)) { return 1; }
+  retval = ARKodeSetMaxNumSteps(arkode_mem, 10000);
+  if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /*
    * Integrate ODE
@@ -202,7 +202,7 @@ int main(void)
   for (i = 0; i < N; i++) { fprintf(UFID, " %.16" ESYM "", data[i]); }
   fprintf(UFID, "\n");
 
-  /* Main time-stepping loop: calls MRIStepEvolve to perform the integration, then
+  /* Main time-stepping loop: calls ARKodeEvolve to perform the integration, then
      prints results. Stops when the final time has been reached */
   t     = T0;
   dTout = (Tf - T0) / Nt;
@@ -213,8 +213,8 @@ int main(void)
   for (iout = 0; iout < Nt; iout++)
   {
     /* call integrator */
-    retval = MRIStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
-    if (check_retval(&retval, "MRIStepEvolve", 1)) { break; }
+    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
+    if (check_retval(&retval, "ARKodeEvolve", 1)) { break; }
 
     /* print solution stats and output results to disk */
     printf("  %10.6" FSYM "  %10.6f\n", t, sqrt(N_VDotProd(y, y) / N));
@@ -230,23 +230,23 @@ int main(void)
 
   /* Print final statistics to the screen */
   printf("\nFinal Slow Statistics:\n");
-  retval = MRIStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  retval = ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
   printf("\nFinal Fast Statistics:\n");
-  retval = ARKStepPrintAllStats(inner_arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  retval = ARKodePrintAllStats(inner_arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   /* Print final statistics to a file in CSV format */
   FID    = fopen("ark_reaction_diffusion_mri_slow_stats.csv", "w");
-  retval = MRIStepPrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  retval = ARKodePrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
   fclose(FID);
   FID    = fopen("ark_reaction_diffusion_mri_fast_stats.csv", "w");
-  retval = ARKStepPrintAllStats(inner_arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  retval = ARKodePrintAllStats(inner_arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
   fclose(FID);
 
   /* Clean up and return */
   N_VDestroy(y);                            /* Free y vector */
-  ARKStepFree(&inner_arkode_mem);           /* Free integrator memory */
+  ARKodeFree(&inner_arkode_mem);            /* Free integrator memory */
   MRIStepInnerStepper_Free(&inner_stepper); /* Free inner stepper */
-  MRIStepFree(&arkode_mem);                 /* Free integrator memory */
+  ARKodeFree(&arkode_mem);                  /* Free integrator memory */
   free(udata);                              /* Free user data */
   SUNContext_Free(&ctx);                    /* Free context */
 

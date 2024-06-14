@@ -25,13 +25,15 @@ module test_fsunlinsol_pcg_serial
   use test_utilities
   implicit none
 
-  integer(C_INT64_T), private, parameter :: N = 100
+
+
+  integer(kind=myindextype), private, parameter :: N = 100
   integer(C_INT),  private, parameter :: pretype = 1     ! Preconditioning type (1 or 2)
   integer(C_INT),  private, parameter :: maxl    = 500   ! maxium Krylov subspace dimension (> 0)
   real(C_DOUBLE),  private, parameter :: tol     = 1e-13 ! solver tolerance
 
   type, private :: UserData
-    integer(C_INT64_T) :: N
+    integer(kind=myindextype) :: N
     type(N_Vector), pointer  :: d, s
   end type
 
@@ -55,7 +57,7 @@ contains
     type(UserData),        pointer :: probdata   ! problem data
     real(C_DOUBLE),        pointer :: xdata(:)   ! x vector data
     real(C_DOUBLE)                 :: tmpr       ! temporary real value
-    integer(C_INT64_T)                :: j
+    integer(kind=myindextype)     :: j
     integer(C_INT)                 :: tmp
 
     ! setup
@@ -226,7 +228,7 @@ contains
     type(N_Vector) :: vvec, zvec
     type(UserData), pointer :: probdata
     real(C_DOUBLE), pointer :: v(:), z(:), s(:)
-    integer(C_INT64_T) :: i, N
+    integer(C_LONG) :: i, N
 
     call c_f_pointer(udata, probdata)
 
@@ -269,7 +271,7 @@ contains
     integer(C_INT)          :: lr
     type(UserData), pointer :: probdata
     real(C_DOUBLE), pointer :: r(:), z(:), d(:), s(:)
-    integer(C_INT64_T)         :: i, N
+    integer(C_LONG)         :: i, N
 
     call c_f_pointer(udata, probdata)
 
@@ -296,7 +298,7 @@ integer(C_INT) function check_vector(X, Y, tol) result(failure)
   implicit none
   type(N_Vector)  :: x, y
   real(C_DOUBLE)  :: tol, maxerr
-  integer(C_INT64_T) :: i, xlen, ylen
+  integer(C_LONG) :: i, xlen, ylen
   real(C_DOUBLE), pointer :: xdata(:), ydata(:)
 
   failure = 0

@@ -37,7 +37,7 @@ ARKodeHAdaptMem arkAdaptInit(void)
   hadapt_mem = (ARKodeHAdaptMem)malloc(sizeof(struct ARKodeHAdaptMemRec));
   if (hadapt_mem == NULL) { return (NULL); }
 
-  /* initialize values (default parameters are set in arkSetDefaults) */
+  /* initialize values (default parameters are set in ARKodeSetDefaults) */
   memset(hadapt_mem, 0, sizeof(struct ARKodeHAdaptMemRec));
   hadapt_mem->nst_acc = 0;
   hadapt_mem->nst_exp = 0;
@@ -91,20 +91,12 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE* outfile)
   computes and sets the value of ark_eta inside of the ARKodeMem
   data structure.
   ---------------------------------------------------------------*/
-int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
-             sunrealtype tcur, sunrealtype hcur, sunrealtype dsm, long int nst)
+int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
+             sunrealtype tcur, sunrealtype hcur, sunrealtype dsm)
 {
   int retval;
   sunrealtype h_acc, h_cfl, int_dir;
-  ARKodeMem ark_mem;
   int controller_order;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
 
   /* Request error-based step size from adaptivity controller */
   if (hadapt_mem->pq == 0)

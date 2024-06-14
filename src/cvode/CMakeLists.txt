@@ -89,7 +89,7 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
     SOURCES
       cvode_fused_stubs.c
     LINK_LIBRARIES
-        PUBLIC sundials_core
+      PUBLIC sundials_core
     OUTPUT_NAME
       sundials_cvode_fused_stubs
     VERSION
@@ -142,5 +142,5 @@ message(STATUS "Added CVODE module")
 
 # Add F2003 module if the interface is enabled
 if(BUILD_FORTRAN_MODULE_INTERFACE)
-  add_subdirectory(fmod)
+  add_subdirectory("fmod_int${SUNDIALS_INDEX_SIZE}")
 endif()

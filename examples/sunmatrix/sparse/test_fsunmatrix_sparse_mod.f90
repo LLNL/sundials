@@ -20,7 +20,7 @@ module test_fsunmatrix_sparse
   use test_utilities
   implicit none
 
-  integer(c_int64_t), parameter :: N = 5
+  integer(kind=myindextype), parameter :: N = 5
 
 contains
 
@@ -37,14 +37,14 @@ contains
     implicit none
 
     ! local variables
-    type(SUNMatrix), pointer      :: A, B
-    type(N_Vector),  pointer      :: x, y
-    real(C_DOUBLE),  pointer      :: matdat(:)          ! matrix data pointer
-    integer(c_int64_t), pointer :: inddat(:)          ! indices data pointer
-    integer(C_LONG)               :: lenrw(1), leniw(1) ! matrix real and int work space size
+    type(SUNMatrix), pointer            :: A, B               ! SUNMatrix
+    type(N_Vector),  pointer            :: x, y               ! NVectors
+    real(C_DOUBLE),  pointer            :: matdat(:)          ! matrix data pointer
+    integer(kind=myindextype), pointer :: inddat(:)          ! indices pointer
+    integer(C_LONG)                     :: lenrw(1), leniw(1) ! matrix real and int work space size
 
-    integer(c_int64_t) :: tmp1
-    integer(C_INT)  :: tmp2
+    integer(kind=myindextype) :: tmp1
+    integer(C_INT)             :: tmp2
 
     fails = 0
 
@@ -106,7 +106,7 @@ contains
     type(SUNMatrix), pointer :: DA, DI, A, I
     type(N_Vector),  pointer :: x, y
     real(C_DOUBLE),  pointer :: Adata(:), Idata(:), xdata(:), ydata(:)
-    integer(C_INT64_T)          :: ii, jj, tmp1, tmp2
+    integer(C_LONG)          :: ii, jj, tmp1, tmp2
 
     fails = 0
 
@@ -206,12 +206,13 @@ integer(C_INT) function check_matrix(A, B, tol) result(fails)
 
   implicit none
 
-  type(SUNMatrix)               :: A, B
-  real(C_DOUBLE)                :: tol
-  real(C_DOUBLE),  pointer      :: Adata(:), Bdata(:)
-  integer(c_int64_t), pointer :: Aidxvals(:), Bidxvals(:)
-  integer(c_int64_t), pointer :: Aidxptrs(:), Bidxptrs(:)
-  integer(c_int64_t)               :: i, np, Annz, Bnnz
+
+  type(SUNMatrix)                     :: A, B
+  real(C_DOUBLE)                      :: tol
+  real(C_DOUBLE),  pointer            :: Adata(:), Bdata(:)
+  integer(kind=myindextype), pointer :: Aidxvals(:), Bidxvals(:)
+  integer(kind=myindextype), pointer :: Aidxptrs(:), Bidxptrs(:)
+  integer(kind=myindextype)          :: i, np, Annz, Bnnz
 
   fails = 0
 
@@ -292,11 +293,11 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
 
   implicit none
 
-  type(SUNMatrix)               :: A
-  real(C_DOUBLE)                :: c, tol
-  real(C_DOUBLE),  pointer      :: Adata(:)
-  integer(c_int64_t), pointer :: Aidxptrs(:)
-  integer(c_int64_t)               :: i, np
+  type(SUNMatrix)                     :: A
+  real(C_DOUBLE)                      :: c, tol
+  real(C_DOUBLE),  pointer            :: Adata(:)
+  integer(kind=myindextype), pointer :: Aidxptrs(:)
+  integer(kind=myindextype)          :: i, np
 
   fails = 0
 

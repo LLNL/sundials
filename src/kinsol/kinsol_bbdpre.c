@@ -399,8 +399,9 @@ int KINBBDPrecGetNumGfnEvals(void* kinmem, long int* ngevalsBBDP)
     0 if successful,
     > 0 for a recoverable error - step will be retried.
   ------------------------------------------------------------------*/
-static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale, N_Vector fval,
-                           N_Vector fscale, void* bbd_data)
+static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale,
+                           SUNDIALS_MAYBE_UNUSED N_Vector fval,
+                           SUNDIALS_MAYBE_UNUSED N_Vector fscale, void* bbd_data)
 {
   KBBDPrecData pdata;
   KINMem kin_mem;
@@ -463,8 +464,11 @@ static int KINBBDPrecSetup(N_Vector uu, N_Vector uscale, N_Vector fval,
   flag returned from the lienar solver object.
   ------------------------------------------------------------------*/
 
-static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale, N_Vector fval,
-                           N_Vector fscale, N_Vector vv, void* bbd_data)
+static int KINBBDPrecSolve(SUNDIALS_MAYBE_UNUSED N_Vector uu,
+                           SUNDIALS_MAYBE_UNUSED N_Vector uscale,
+                           SUNDIALS_MAYBE_UNUSED N_Vector fval,
+                           SUNDIALS_MAYBE_UNUSED N_Vector fscale, N_Vector vv,
+                           void* bbd_data)
 {
   KBBDPrecData pdata;
   sunrealtype* vd;

@@ -62,8 +62,8 @@ int ARKBandPrecInit(void* arkode_mem, sunindextype N, sunindextype mu,
   sunindextype mup, mlp, storagemu;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Test compatibility of NVECTOR package with the BAND preconditioner */
@@ -187,7 +187,8 @@ int ARKBandPrecInit(void* arkode_mem, sunindextype N, sunindextype mu,
   arkls_mem->pfree = ARKBandPrecFree;
 
   /* Attach preconditioner solve and setup functions */
-  retval = arkLSSetPreconditioner(arkode_mem, ARKBandPrecSetup, ARKBandPrecSolve);
+  retval = ARKodeSetPreconditioner(arkode_mem, ARKBandPrecSetup,
+                                   ARKBandPrecSolve);
   return (retval);
 }
 
@@ -200,8 +201,8 @@ int ARKBandPrecGetWorkSpace(void* arkode_mem, long int* lenrwBP, long int* leniw
   long int lrw, liw;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately if ARKBandPrecData is NULL */
@@ -260,8 +261,8 @@ int ARKBandPrecGetNumRhsEvals(void* arkode_mem, long int* nfevalsBP)
   ARKBandPrecData pdata;
   int retval;
 
-  /* access ARKLsMem structure */
-  retval = arkLs_AccessLMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
+  /* access ARKodeMem and ARKLsMem structures */
+  retval = arkLs_AccessARKODELMem(arkode_mem, __func__, &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Return immediately if ARKBandPrecData is NULL */
@@ -409,9 +410,12 @@ static int ARKBandPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
  The value returned by the ARKBandPrecSolve function is always 0,
  indicating success.
 ---------------------------------------------------------------*/
-static int ARKBandPrecSolve(sunrealtype t, N_Vector y, N_Vector fy, N_Vector r,
-                            N_Vector z, sunrealtype gamma, sunrealtype delta,
-                            int lr, void* bp_data)
+static int ARKBandPrecSolve(SUNDIALS_MAYBE_UNUSED sunrealtype t,
+                            SUNDIALS_MAYBE_UNUSED N_Vector y,
+                            SUNDIALS_MAYBE_UNUSED N_Vector fy, N_Vector r,
+                            N_Vector z, SUNDIALS_MAYBE_UNUSED sunrealtype gamma,
+                            SUNDIALS_MAYBE_UNUSED sunrealtype delta,
+                            SUNDIALS_MAYBE_UNUSED int lr, void* bp_data)
 {
   ARKBandPrecData pdata;
   int retval;

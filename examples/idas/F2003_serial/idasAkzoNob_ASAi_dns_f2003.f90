@@ -33,8 +33,19 @@ module dae_mod
   use fsundials_core_mod
   implicit none
 
+
+  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
+  ! we set the integer kind used for indices in this example based
+  ! on the the index size SUNDIALS was compiled with so that it works
+  ! in both configurations. This is not a requirement for user codes.
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: myindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: myindextype = selected_int_kind(16)
+#endif
+
   ! problem parameters
-  integer(c_int64_t), parameter :: neq   = 6
+  integer(kind=myindextype), parameter :: NEQ = 6
   integer(c_long), parameter :: STEPS = 150
   real(c_double),  parameter :: T0    = 0.0d0
   real(c_double),  parameter :: TF    = 180.d0
@@ -308,7 +319,7 @@ program main
   call FN_VDestroy(nv_rr)
 
   ! Create and initialize q0 for quadratures.
-  nv_q => FN_VNew_Serial(1_8, sunctx)
+  nv_q => FN_VNew_Serial(1_myindextype, sunctx)
   if (.not. associated(nv_q)) then
     write(*,*) 'ERROR: FN_VNew_Serial returned NULL'
     stop 1
@@ -408,7 +419,7 @@ program main
   retval = FIDASStolerancesB(mem, indexB(1), RTOLB, ATOLB)
   call check_retval(retval, "FIDASStolerancesB")
 
-  retval = FIDASetMaxNumStepsB(mem, indexB(1), 1000)
+  retval = FIDASetMaxNumStepsB(mem, indexB(1), 1000_8)
   call check_retval(retval, "FIDASetMaxNumStepsB")
 
   ! Create dense SUNMatrix for use in linear solves

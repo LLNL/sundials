@@ -19,9 +19,15 @@
 
 # Examples using SUNDIALS linear solvers
 set(FIDA_examples
-  "idaHeat2D_kry_f2003\;develop"
   "idaRoberts_dns_f2003\;develop"
+)
+
+if(SUNDIALS_INDEX_SIZE MATCHES "64")
+  # Examples using SUNDIALS linear solvers
+  list(APPEND FIDA_examples
+    "idaHeat2D_kry_f2003\;develop"
   )
+endif()
 
 # Specify libraries to link against
 set(IDA_LIB sundials_fida_mod)
@@ -61,9 +67,6 @@ endforeach(example_tuple ${FIDA_examples})
 
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_serial)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "IDA")

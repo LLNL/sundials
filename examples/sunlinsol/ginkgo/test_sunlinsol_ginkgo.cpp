@@ -37,7 +37,7 @@ constexpr auto N_VNew = N_VNew_Hip;
 #include <nvector/nvector_cuda.h>
 #define HIP_OR_CUDA_OR_SYCL(a, b, c) b
 constexpr auto N_VNew = N_VNew_Cuda;
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
 #include <nvector/nvector_sycl.h>
 #define HIP_OR_CUDA_OR_SYCL(a, b, c) c
 constexpr auto N_VNew = N_VNew_Sycl;
@@ -143,10 +143,15 @@ __global__ void fill_kernel(sunindextype mat_rows, sunindextype mat_cols,
 }
 #endif
 
-void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
+#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
+static void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
+#else
+static void fill_matrix(
+  std::shared_ptr<gko::matrix::Csr<sunrealtype, sunindextype>> matrix)
+#endif
 {
-  sunindextype mat_rows  = matrix->get_size()[0];
-  sunindextype mat_cols  = matrix->get_size()[1];
+  sunindextype mat_rows  = static_cast<sunindextype>(matrix->get_size()[0]);
+  sunindextype mat_cols  = static_cast<sunindextype>(matrix->get_size()[1]);
   sunindextype* row_ptrs = matrix->get_row_ptrs();
   sunindextype* col_idxs = matrix->get_col_idxs();
   sunrealtype* mat_data  = matrix->get_values();
@@ -158,7 +163,7 @@ void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
   fill_kernel<<<num_blocks, threads_per_block>>>(mat_rows, mat_cols, row_ptrs,
                                                  col_idxs, mat_data);
   HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(), );
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
   std::dynamic_pointer_cast<const gko::DpcppExecutor>(matrix->get_executor())
     ->get_queue()
     ->submit(
@@ -229,10 +234,14 @@ void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
 #endif
 }
 
-void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
+#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
+static void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
+#else
+static void fill_matrix(std::shared_ptr<gko::matrix::Dense<sunrealtype>> matrix)
+#endif
 {
-  sunindextype mat_rows = matrix->get_size()[0];
-  sunindextype mat_cols = matrix->get_size()[1];
+  sunindextype mat_rows = static_cast<sunindextype>(matrix->get_size()[0]);
+  sunindextype mat_cols = static_cast<sunindextype>(matrix->get_size()[1]);
   sunrealtype* mat_data = matrix->get_values();
 
 #if defined(USE_CUDA) || defined(USE_HIP)
@@ -241,7 +250,7 @@ void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
 
   fill_kernel<<<num_blocks, threads_per_block>>>(mat_rows, mat_cols, mat_data);
   HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(), );
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
   std::dynamic_pointer_cast<const gko::DpcppExecutor>(matrix->get_executor())
     ->get_queue()
     ->submit(
@@ -346,7 +355,7 @@ int main(int argc, char* argv[])
 #elif defined(USE_CUDA)
   auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create(), false,
                                           gko::allocation_mode::device)};
-#elif defined(USE_DPCPP)
+#elif defined(USE_SYCL)
   auto gko_exec{gko::DpcppExecutor::create(0, gko::ReferenceExecutor::create())};
 #elif defined(USE_OMP)
   auto gko_exec{gko::OmpExecutor::create()};
@@ -434,7 +443,7 @@ int main(int argc, char* argv[])
    * Create solution and RHS vectors *
    * ------------------------------- */
 
-#if defined(USE_DPCPP)
+#if defined(USE_SYCL)
   N_Vector x{N_VNew(matcols, gko_exec->get_queue(), sunctx)};
 #else
   N_Vector x{N_VNew(matcols, sunctx)};
@@ -471,7 +480,7 @@ int main(int argc, char* argv[])
     auto gko_matrix =
       gko::share(GkoMatrixType::create(gko_exec, matrix_dim, matrix_nnz));
 
-    if (matcond)
+    if (matcond > 0)
     {
       auto gko_matdata{gko::matrix_data<
         sunrealtype, sunindextype>::cond(matrows,
@@ -480,7 +489,14 @@ int main(int argc, char* argv[])
       gko_matdata.remove_zeros();
       gko_matrix->read(gko_matdata);
     }
-    else { fill_matrix(gko::lend(gko_matrix)); }
+    else
+    {
+#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
+      fill_matrix(gko::lend(gko_matrix));
+#else
+      fill_matrix(gko_matrix);
+#endif
+    }
     A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(
                                                                     gko_matrix),
                                                                   sunctx);
@@ -489,7 +505,7 @@ int main(int argc, char* argv[])
   {
     using GkoMatrixType = gko::matrix::Dense<sunrealtype>;
     auto gko_matrix = gko::share(GkoMatrixType::create(gko_exec, matrix_dim));
-    if (matcond)
+    if (matcond > 0)
     {
       auto gko_matdata{gko::matrix_data<
         sunrealtype, sunindextype>::cond(matrows,
@@ -501,7 +517,11 @@ int main(int argc, char* argv[])
     else
     {
       gko_matrix->fill(0.0);
+#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
       fill_matrix(gko::lend(gko_matrix));
+#else
+      fill_matrix(gko_matrix);
+#endif
     }
     A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(
                                                                     gko_matrix),

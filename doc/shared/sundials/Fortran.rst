@@ -81,24 +81,11 @@ differences are discussed in :numref:`SUNDIALS.Fortran.Differences`. A
 discussion on the topic of equivalent data types in C and Fortran 2003 is
 presented in :numref:`SUNDIALS.Fortran.DataTypes`.
 
-.. ifconfig:: package_name == 'kinsol'
-
-   Further information on the Fortran 2003 interfaces specific to the
-   :c:type:`N_Vector`, :c:type:`SUNMatrix`, and :c:type:`SUNLinearSolver`
-   classes is given alongside the C documentation (:numref:`NVectors`,
-   :numref:`SUNMatrix`, and :numref:`SUNLinSol`, respectively). For details on
-   where the Fortran 2003 module (``.mod``) files and libraries are installed
-   see :numref:`Installation`.
-
-.. ifconfig:: package_name != 'kinsol'
-
-   Further information on the Fortran 2003 interfaces specific to the
-   :c:type:`N_Vector`, :c:type:`SUNMatrix`, :c:type:`SUNLinearSolver`, and
-   :c:type:`SUNNonlinearSolver` classes is given alongside the C documentation
-   (:numref:`NVectors`, :numref:`SUNMatrix`, :numref:`SUNLinSol`, and
-   :numref:`SUNNonlinSol` respectively). For details on where the Fortran 2003
-   module (``.mod``) files and libraries are installed see
-   :numref:`Installation`.
+Further information on the Fortran 2003 interfaces specific to the
+:c:type:`N_Vector`, :c:type:`SUNMatrix`, :c:type:`SUNLinearSolver`, and
+:c:type:`SUNNonlinearSolver` classes is given alongside the C documentation. For
+details on where the Fortran 2003 module (``.mod``) files and libraries are
+installed see :numref:`Installation`.
 
 The Fortran 2003 interface modules were generated with SWIG Fortran
 :cite:p:`Swig-Fortran`, a fork of SWIG. Users who are interested in the SWIG
@@ -175,8 +162,13 @@ equivalencies with the parameter direction in mind.
 .. warning::
 
    Currently, the Fortran 2003 interfaces are only compatible with SUNDIALS
-   builds where the ``sunrealtype`` is double-precision the ``sunindextype`` size
-   is 64-bits.
+   builds where the ``sunrealtype`` is double-precision.
+
+.. versionchanged:: x.y.z
+
+   The Fortran interfaces can now be built with 32-bit ``sunindextype`` in
+   addition to 64-bit ``sunindextype``.
+
 
 .. _SUNDIALS.Fortran.DataTypes.Table:
 .. table:: C/Fortran-2003 Equivalent Types
@@ -437,9 +429,9 @@ Arrays of :c:type:`N_Vector` objects are interfaced to Fortran 2003 as an opaque
 ``type(c_ptr)``.  As such, it is not possible to directly index an array of
 :c:type:`N_Vector` objects returned by the ``N_Vector`` "VectorArray" operations, or
 packages with sensitivity capabilities (CVODES and IDAS).  Instead, SUNDIALS
-provides a utility function :f:func:`FN_VGetVecAtIndexVectorArray` that can be
-called for accessing a vector in a vector array. The example below demonstrates
-this:
+provides a utility function ``FN_VGetVecAtIndexVectorArray`` wrapping
+:c:func:`N_VGetVecAtIndexVectorArray`. The example below demonstrates accessing
+a vector in a vector array.
 
 C code:
 

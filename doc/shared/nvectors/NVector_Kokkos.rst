@@ -102,6 +102,13 @@ class.
                Vector : public sundials::impl::BaseNVector, \
                         public sundials::ConvertibleTo<N_Vector>
 
+   .. cpp:type:: view_type      = Kokkos::View<sunrealtype*, MemorySpace>;
+   .. cpp:type:: size_type      = typename view_type::size_type;
+   .. cpp:type:: host_view_type = typename view_type::HostMirror;
+   .. cpp:type:: memory_space   = MemorySpace;
+   .. cpp:type:: exec_space     = typename MemorySpace::execution_space;
+   .. cpp:type:: range_policy   = Kokkos::RangePolicy<exec_space>;
+
    .. cpp:function:: Vector() = default
 
       Default constructor -- the vector must be copied or moved to.

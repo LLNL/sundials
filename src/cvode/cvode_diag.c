@@ -23,20 +23,6 @@
 #include "cvode_diag_impl.h"
 #include "cvode_impl.h"
 
-#ifdef SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS
-extern int cvDiagSetup_formY(const sunrealtype h, const sunrealtype r,
-                             const N_Vector fpred, const N_Vector zn1,
-                             const N_Vector ypred, N_Vector ftemp, N_Vector y);
-
-extern int cvDiagSetup_buildM(const sunrealtype fract, const sunrealtype uround,
-                              const sunrealtype h, const N_Vector ftemp,
-                              const N_Vector fpred, const N_Vector ewt,
-                              N_Vector bit, N_Vector bitcomp, N_Vector y,
-                              N_Vector M);
-
-int cvDiagSolve_updateM(const sunrealtype r, N_Vector M);
-#endif
-
 /* Other Constants */
 
 #define FRACT SUN_RCONST(0.1)
@@ -334,9 +320,10 @@ static int CVDiagInit(CVodeMem cv_mem)
  * -----------------------------------------------------------------
  */
 
-static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
-                       N_Vector fpred, sunbooleantype* jcurPtr, N_Vector vtemp1,
-                       N_Vector vtemp2, N_Vector vtemp3)
+static int CVDiagSetup(CVodeMem cv_mem, SUNDIALS_MAYBE_UNUSED int convfail,
+                       N_Vector ypred, N_Vector fpred, sunbooleantype* jcurPtr,
+                       N_Vector vtemp1, N_Vector vtemp2,
+                       SUNDIALS_MAYBE_UNUSED N_Vector vtemp3)
 {
   sunrealtype r;
   N_Vector ftemp, y;
@@ -426,8 +413,10 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
  * -----------------------------------------------------------------
  */
 
-static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
-                       N_Vector ycur, N_Vector fcur)
+static int CVDiagSolve(CVodeMem cv_mem, N_Vector b,
+                       SUNDIALS_MAYBE_UNUSED N_Vector weight,
+                       SUNDIALS_MAYBE_UNUSED N_Vector ycur,
+                       SUNDIALS_MAYBE_UNUSED N_Vector fcur)
 {
   sunbooleantype invOK;
   sunrealtype r;

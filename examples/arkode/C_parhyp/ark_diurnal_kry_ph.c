@@ -251,29 +251,29 @@ int main(int argc, char* argv[])
   }
 
   /* Set the pointer to user-defined data */
-  flag = ARKStepSetUserData(arkode_mem, data);
-  if (check_flag(&flag, "ARKStepSetUserData", 1, my_pe)) { MPI_Abort(comm, 1); }
+  flag = ARKodeSetUserData(arkode_mem, data);
+  if (check_flag(&flag, "ARKodeSetUserData", 1, my_pe)) { MPI_Abort(comm, 1); }
 
-  /* Call ARKStepSetMaxNumSteps to increase default */
-  flag = ARKStepSetMaxNumSteps(arkode_mem, 10000);
-  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1, my_pe)) { return (1); }
+  /* Call ARKodeSetMaxNumSteps to increase default */
+  flag = ARKodeSetMaxNumSteps(arkode_mem, 10000);
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1, my_pe)) { return (1); }
 
-  /* Call ARKStepSStolerances to specify the scalar relative tolerance
+  /* Call ARKodeSStolerances to specify the scalar relative tolerance
      and scalar absolute tolerances */
-  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1, my_pe)) { return (1); }
+  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
+  if (check_flag(&flag, "ARKodeSStolerances", 1, my_pe)) { return (1); }
 
-  /* Attach SPGMR solver structure to ARKStep interface */
-  flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
-  if (check_flag(&flag, "ARKStepSetLinearSolver", 1, my_pe))
+  /* Attach SPGMR solver structure to ARKODE interface */
+  flag = ARKodeSetLinearSolver(arkode_mem, LS, NULL);
+  if (check_flag(&flag, "ARKodeSetLinearSolver", 1, my_pe))
   {
     MPI_Abort(comm, 1);
   }
 
   /* Set preconditioner setup and solve routines Precond and PSolve,
      and the pointer to the user-defined block data */
-  flag = ARKStepSetPreconditioner(arkode_mem, Precond, PSolve);
-  if (check_flag(&flag, "ARKStepSetPreconditioner", 1, my_pe))
+  flag = ARKodeSetPreconditioner(arkode_mem, Precond, PSolve);
+  if (check_flag(&flag, "ARKodeSetPreconditioner", 1, my_pe))
   {
     MPI_Abort(comm, 1);
   }
@@ -284,11 +284,11 @@ int main(int argc, char* argv[])
     printf("\n2-species diurnal advection-diffusion problem\n\n");
   }
 
-  /* In loop over output points, call ARKStepEvolve, print results, test for error */
+  /* In loop over output points, call ARKodeEvolve, print results, test for error */
   for (iout = 1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR)
   {
-    flag = ARKStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
-    if (check_flag(&flag, "ARKStepEvolve", 1, my_pe)) { break; }
+    flag = ARKodeEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
+    if (check_flag(&flag, "ARKodeEvolve", 1, my_pe)) { break; }
     PrintOutput(arkode_mem, my_pe, comm, u, t);
   }
 
@@ -299,7 +299,7 @@ int main(int argc, char* argv[])
   N_VDestroy(u);              /* Free hypre vector wrapper */
   HYPRE_IJVectorDestroy(Uij); /* Free the underlying hypre vector */
   FreeUserData(data);
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   SUNLinSolFree(LS);
   SUNContext_Free(&sunctx); /* Free context */
   MPI_Finalize();
@@ -452,10 +452,10 @@ static void PrintOutput(void* arkode_mem, int my_pe, MPI_Comm comm, N_Vector u,
     {
       MPI_Recv(&tempu[0], 2, MPI_SUNREALTYPE, npelast, 0, comm, &status);
     }
-    flag = ARKStepGetNumSteps(arkode_mem, &nst);
-    check_flag(&flag, "ARKStepGetNumSteps", 1, my_pe);
-    flag = ARKStepGetLastStep(arkode_mem, &hu);
-    check_flag(&flag, "ARKStepGetLastStep", 1, my_pe);
+    flag = ARKodeGetNumSteps(arkode_mem, &nst);
+    check_flag(&flag, "ARKodeGetNumSteps", 1, my_pe);
+    flag = ARKodeGetLastStep(arkode_mem, &hu);
+    check_flag(&flag, "ARKodeGetLastStep", 1, my_pe);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("t = %.2Le   no. steps = %ld   stepsize = %.2Le\n", t, nst, hu);
@@ -482,33 +482,33 @@ static void PrintFinalStats(void* arkode_mem)
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
 
-  flag = ARKStepGetWorkSpace(arkode_mem, &lenrw, &leniw);
-  check_flag(&flag, "ARKStepGetWorkSpace", 1, 0);
-  flag = ARKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKStepGetNumSteps", 1, 0);
+  flag = ARKodeGetWorkSpace(arkode_mem, &lenrw, &leniw);
+  check_flag(&flag, "ARKodeGetWorkSpace", 1, 0);
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKodeGetNumSteps", 1, 0);
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   check_flag(&flag, "ARKStepGetNumRhsEvals", 1, 0);
-  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1, 0);
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKStepGetNumErrTestFails", 1, 0);
-  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1, 0);
-  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1, 0);
+  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1, 0);
+  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKodeGetNumErrTestFails", 1, 0);
+  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1, 0);
+  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1, 0);
 
-  flag = ARKStepGetLinWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "ARKStepGetLinWorkSpace", 1, 0);
-  flag = ARKStepGetNumLinIters(arkode_mem, &nli);
-  check_flag(&flag, "ARKStepGetNumLinIters", 1, 0);
-  flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
-  check_flag(&flag, "ARKStepGetNumPrecEvals", 1, 0);
-  flag = ARKStepGetNumPrecSolves(arkode_mem, &nps);
-  check_flag(&flag, "ARKStepGetNumPrecSolves", 1, 0);
-  flag = ARKStepGetNumLinConvFails(arkode_mem, &ncfl);
-  check_flag(&flag, "ARKStepGetNumLinConvFails", 1, 0);
-  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
-  check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1, 0);
+  flag = ARKodeGetLinWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
+  check_flag(&flag, "ARKodeGetLinWorkSpace", 1, 0);
+  flag = ARKodeGetNumLinIters(arkode_mem, &nli);
+  check_flag(&flag, "ARKodeGetNumLinIters", 1, 0);
+  flag = ARKodeGetNumPrecEvals(arkode_mem, &npe);
+  check_flag(&flag, "ARKodeGetNumPrecEvals", 1, 0);
+  flag = ARKodeGetNumPrecSolves(arkode_mem, &nps);
+  check_flag(&flag, "ARKodeGetNumPrecSolves", 1, 0);
+  flag = ARKodeGetNumLinConvFails(arkode_mem, &ncfl);
+  check_flag(&flag, "ARKodeGetNumLinConvFails", 1, 0);
+  flag = ARKodeGetNumLinRhsEvals(arkode_mem, &nfeLS);
+  check_flag(&flag, "ARKodeGetNumLinRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);

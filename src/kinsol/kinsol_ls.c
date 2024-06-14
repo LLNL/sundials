@@ -678,7 +678,9 @@ int kinLsPSetup(void* kinmem)
   in the case in which preconditioning is not done. This is the only
   case in which the user's psolve routine is allowed to be NULL.
   ------------------------------------------------------------------*/
-int kinLsPSolve(void* kinmem, N_Vector r, N_Vector z, sunrealtype tol, int lr)
+int kinLsPSolve(void* kinmem, N_Vector r, N_Vector z,
+                SUNDIALS_MAYBE_UNUSED sunrealtype tol,
+                SUNDIALS_MAYBE_UNUSED int lr)
 {
   KINMem kin_mem;
   KINLsMem kinls_mem;
@@ -941,8 +943,8 @@ int kinLsBandDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, KINMem kin_mem,
         a recovery may still be possible even if the system function
         fails (recoverably).
   ------------------------------------------------------------------*/
-int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u, sunbooleantype* new_u,
-                  void* kinmem)
+int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
+                  SUNDIALS_MAYBE_UNUSED sunbooleantype* new_u, void* kinmem)
 {
   sunrealtype sigma, sigma_inv, sutsv, sq1norm, sign, vtv;
   KINMem kin_mem;

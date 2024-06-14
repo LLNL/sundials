@@ -20,7 +20,7 @@ module test_fsunlinsol_klu
   use test_utilities
   implicit none
 
-  integer(C_INT64_T), private, parameter :: N = 300
+  integer(kind=myindextype), private, parameter :: N = 300
 
 contains
 
@@ -43,7 +43,7 @@ contains
     real(C_DOUBLE),        pointer :: colj(:)           ! matrix column data
     real(C_DOUBLE),        pointer :: xdata(:)          ! x vector data
     real(C_DOUBLE)                 :: tmpr              ! temporary real value
-    integer(C_INT64_T)                :: j, k, i
+    integer(kind=myindextype)     :: j, k, i
     integer(C_INT)                 :: tmp
 
     fails = 0
@@ -122,7 +122,7 @@ integer(C_INT) function check_vector(X, Y, tol) result(failure)
   implicit none
   type(N_Vector)  :: x, y
   real(C_DOUBLE)  :: tol, maxerr
-  integer(C_INT64_T) :: i, xlen, ylen
+  integer(C_LONG) :: i, xlen, ylen
   real(C_DOUBLE), pointer :: xdata(:), ydata(:)
 
   failure = 0

@@ -18,15 +18,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_context.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_logger.h>
 #include <sundials/sundials_profiler.h>
+#include <sundials/sundials_types.h>
 
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
 #include "sundials_adiak_metadata.h"
+#include "sundials_macros.h"
 
 SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
 {
@@ -209,6 +211,9 @@ SUNErrCode SUNContext_SetProfiler(SUNContext sunctx, SUNProfiler profiler)
   /* set profiler */
   sunctx->profiler     = profiler;
   sunctx->own_profiler = SUNFALSE;
+#else
+  /* silence warnings when profiling is disabled */
+  ((void)profiler);
 #endif
 
   return SUN_SUCCESS;
@@ -285,7 +290,7 @@ SUNErrCode SUNContext_Free(SUNContext* sunctx)
     SUNLogger_Destroy(&(*sunctx)->logger);
   }
 
-  SUNErrHandler_Destroy(&(*sunctx)->err_handler);
+  SUNContext_ClearErrHandlers(*sunctx);
 
   free(*sunctx);
   *sunctx = NULL;

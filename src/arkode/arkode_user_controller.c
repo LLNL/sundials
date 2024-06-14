@@ -39,7 +39,7 @@
 
 /* -----------------------------------------------------------------
  * Function to create a new ARKUserControl controller
- */
+ * ----------------------------------------------------------------- */
 
 SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
                                   ARKAdaptFn hadapt, void* hadapt_data)
@@ -96,15 +96,14 @@ SUNAdaptController ARKUserControl(SUNContext sunctx, void* arkode_mem,
  * ----------------------------------------------------------------- */
 
 SUNAdaptController_Type SUNAdaptController_GetType_ARKUserControl(
-  SUNAdaptController C)
+  SUNDIALS_MAYBE_UNUSED SUNAdaptController C)
 {
   return SUN_ADAPTCONTROLLER_H;
 }
 
-SUNErrCode SUNAdaptController_EstimateStep_ARKUserControl(SUNAdaptController C,
-                                                          sunrealtype h, int p,
-                                                          sunrealtype dsm,
-                                                          sunrealtype* hnew)
+SUNErrCode SUNAdaptController_EstimateStep_ARKUserControl(
+  SUNAdaptController C, sunrealtype h, SUNDIALS_MAYBE_UNUSED int p,
+  sunrealtype dsm, sunrealtype* hnew)
 {
   /* call user-provided function to compute new step */
   sunrealtype ttmp = (dsm <= ONE) ? SC_ARKMEM(C)->tn + SC_ARKMEM(C)->h
@@ -155,9 +154,8 @@ SUNErrCode SUNAdaptController_UpdateH_ARKUserControl(SUNAdaptController C,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_Space_ARKUserControl(SUNAdaptController C,
-                                                   long int* lenrw,
-                                                   long int* leniw)
+SUNErrCode SUNAdaptController_Space_ARKUserControl(
+  SUNDIALS_MAYBE_UNUSED SUNAdaptController C, long int* lenrw, long int* leniw)
 {
   *lenrw = 4;
   *leniw = 2;

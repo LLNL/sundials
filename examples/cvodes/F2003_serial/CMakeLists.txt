@@ -16,13 +16,10 @@
 
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
-
-# Examples using SUNDIALS linear solvers
 set(FCVODES_examples
   "cvs_analytic_fp_f2003\;\;develop"
   "cvsAdvDiff_FSA_non_f2003\;-sensi stg t\;develop"
-  "cvsAdvDiff_FSA_non_f2003\;-sensi sim t\;develop"
-  )
+  "cvsAdvDiff_FSA_non_f2003\;-sensi sim t\;develop")
 
 # Specify libraries to link against
 set(CVODES_LIB sundials_fcvodes_mod)
@@ -76,9 +73,6 @@ endforeach(example_tuple ${FCVODES_examples})
 
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
-  # Install the README file
-  install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/F2003_serial)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "CVODES")

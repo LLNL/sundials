@@ -326,7 +326,7 @@ operations below.
 
 .. c:function:: sunrealtype N_VDotProd(N_Vector x, N_Vector z)
 
-   Returns the value of the dot-product of the ``N_Vectors`` *x* and *y*:
+   Returns the value of the dot-product of the vectors *x* and *y*:
 
    .. math::
       d = \sum_{i=0}^{n-1} x_i y_i.
@@ -399,7 +399,7 @@ operations below.
 
       m = N_VMin(x);
 
-.. c:function:: sunrealtype N_VWl2Norm(N_Vector x, N_Vector w)
+.. c:function:: sunrealtype N_VWL2Norm(N_Vector x, N_Vector w)
 
    Returns the weighted Euclidean :math:`l_2` norm of the ``N_Vector``
    *x* with ``sunrealtype`` weight vector *w*:
@@ -1034,3 +1034,34 @@ usage.
    .. code-block:: c
 
       flag = N_VBufUnpack(x, buf)
+
+
+.. _NVectors.Ops.Print:
+
+Output operations
+-----------------
+
+The following optional vector operations are for writing vector data either to
+``stdout`` or to a given file.
+
+.. c:function:: void N_VPrint(N_Vector x)
+
+   This routine prints vector data to ``stdout``
+
+   Usage:
+
+   .. code-block:: c
+
+      N_VPrint(x);
+
+.. c:function:: void N_VPrintFile(N_Vector x, FILE* file)
+
+   This routine writes vector data to the given file pointer.
+
+   Usage:
+
+   .. code-block:: c
+
+      FILE* fp = fopen("vector_data.txt", "w");
+      N_VPrintFile(x, fp);
+      fclose(fp);

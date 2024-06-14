@@ -30,6 +30,7 @@
 #include <sunlinsol/sunlinsol_dense.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
+#include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -65,6 +66,7 @@ enum class rk_type
 
 enum class interp_type
 {
+  none = -1,
   hermite,
   lagrange
 };
@@ -93,8 +95,9 @@ struct ProblemOptions
   sunrealtype h = SUN_RCONST(0.01);
 
   // Interpolant type
-  // 0 = Hermite
-  // 1 = Lagrange
+  // -1 = None
+  // 0  = Hermite
+  // 1  = Lagrange
   interp_type i_type = interp_type::hermite;
 
   // Predictor type
@@ -166,8 +169,20 @@ int main(int argc, char* argv[])
 
   if (argc > 2)
   {
-    if (std::stoi(argv[2]) == 1) { prob_opts.i_type = interp_type::lagrange; }
-    else { prob_opts.i_type = interp_type::hermite; }
+    if (std::stoi(argv[2]) == -1) { prob_opts.i_type = interp_type::none; }
+    else if (std::stoi(argv[2]) == 0)
+    {
+      prob_opts.i_type = interp_type::hermite;
+    }
+    else if (std::stoi(argv[2]) == 1)
+    {
+      prob_opts.i_type = interp_type::lagrange;
+    }
+    else
+    {
+      std::cerr << "ERROR: Invalid interpolation type option" << std::endl;
+      return 1;
+    }
   }
 
   if (argc > 3)
@@ -201,7 +216,11 @@ int main(int argc, char* argv[])
   {
     std::cout << "  interp type  = Hermite\n";
   }
-  else { std::cout << "  interp type  = Lagrange\n"; }
+  else if (prob_opts.i_type == interp_type::lagrange)
+  {
+    std::cout << "  interp type  = Lagrange\n";
+  }
+  else { std::cout << "  interp type  = None\n"; }
   if (prob_opts.p_type == 0) { std::cout << "  pred type    = Trivial (0)\n"; }
   else { std::cout << "  pred type    = Max order (1)\n"; }
 
@@ -225,30 +244,6 @@ int main(int argc, char* argv[])
             << "Test explicit RK methods\n"
             << "========================\n";
 
-  Be          = ARKodeButcherTable_Alloc(1, SUNFALSE);
-  Be->A[0][0] = ZERO;
-  Be->b[0]    = ONE;
-  Be->c[0]    = ZERO;
-  Be->q       = 1;
-
-  flag = get_method_properties(Be, Bi, stages, order, explicit_first_stage,
-                               stiffly_accurate, fsal);
-  if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
-
-  std::cout << "\n========================" << std::endl;
-  std::cout << "Explicit Euler" << std::endl;
-  std::cout << "  stages:             " << stages << std::endl;
-  std::cout << "  order:              " << order << std::endl;
-  std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
-  std::cout << "  stiffly accurate:   " << stiffly_accurate << std::endl;
-  std::cout << "  first same as last: " << fsal << std::endl;
-  std::cout << "========================" << std::endl;
-
-  numfails += run_tests(Be, Bi, prob_data, prob_opts, sunctx);
-
-  ARKodeButcherTable_Free(Be);
-  Be = nullptr;
-
   for (int i = ARKODE_MIN_ERK_NUM; i <= ARKODE_MAX_ERK_NUM; i++)
   {
     Be   = ARKodeButcherTable_LoadERK(static_cast<ARKODE_ERKTableID>(i));
@@ -257,7 +252,9 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
 
     std::cout << "\n========================" << std::endl;
-    std::cout << "ERK Table ID " << i << std::endl;
+    std::cout << "ERK: "
+              << ARKodeButcherTable_ERKIDToName(static_cast<ARKODE_ERKTableID>(i))
+              << std::endl;
     std::cout << "  stages:             " << stages << std::endl;
     std::cout << "  order:              " << order << std::endl;
     std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
@@ -279,30 +276,6 @@ int main(int argc, char* argv[])
             << "Test implicit RK methods\n"
             << "========================\n";
 
-  Bi          = ARKodeButcherTable_Alloc(1, SUNFALSE);
-  Bi->A[0][0] = ONE;
-  Bi->b[0]    = ONE;
-  Bi->c[0]    = ONE;
-  Bi->q       = 1;
-
-  flag = get_method_properties(Be, Bi, stages, order, explicit_first_stage,
-                               stiffly_accurate, fsal);
-  if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
-
-  std::cout << "\n========================" << std::endl;
-  std::cout << "Implicit Euler" << std::endl;
-  std::cout << "  stages:             " << stages << std::endl;
-  std::cout << "  order:              " << order << std::endl;
-  std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
-  std::cout << "  stiffly accurate:   " << stiffly_accurate << std::endl;
-  std::cout << "  first same as last: " << fsal << std::endl;
-  std::cout << "========================" << std::endl;
-
-  numfails += run_tests(Be, Bi, prob_data, prob_opts, sunctx);
-
-  ARKodeButcherTable_Free(Bi);
-  Bi = nullptr;
-
   for (int i = ARKODE_MIN_DIRK_NUM; i <= ARKODE_MAX_DIRK_NUM; i++)
   {
     Bi   = ARKodeButcherTable_LoadDIRK(static_cast<ARKODE_DIRKTableID>(i));
@@ -311,7 +284,10 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
 
     std::cout << "\n========================" << std::endl;
-    std::cout << "DIRK Table ID " << i << std::endl;
+    std::cout << "DIRK: "
+              << ARKodeButcherTable_DIRKIDToName(
+                   static_cast<ARKODE_DIRKTableID>(i))
+              << std::endl;
     std::cout << "  stages:             " << stages << std::endl;
     std::cout << "  order:              " << order << std::endl;
     std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
@@ -389,7 +365,8 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "get_method_properties", 1)) { return 1; }
 
     std::cout << "\n========================" << std::endl;
-    std::cout << "IMEX Table ID " << i << std::endl;
+    std::cout << "DIRK: " << ark_methods_dirk[i] << std::endl;
+    std::cout << "ERK: " << ark_methods_erk[i] << std::endl;
     std::cout << "  stages:             " << stages << std::endl;
     std::cout << "  order:              " << order << std::endl;
     std::cout << "  explicit 1st stage: " << explicit_first_stage << std::endl;
@@ -468,16 +445,16 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
   if (check_flag((void*)arkstep_mem, "ARKStepCreate", 0)) { return 1; }
 
   // Set user data
-  flag = ARKStepSetUserData(arkstep_mem, &prob_data);
-  if (check_flag(&flag, "ARKStepSetUserData", 1)) { return 1; }
+  flag = ARKodeSetUserData(arkstep_mem, &prob_data);
+  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   // Specify tolerances
-  flag = ARKStepSStolerances(arkstep_mem, prob_opts.reltol, prob_opts.abstol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  flag = ARKodeSStolerances(arkstep_mem, prob_opts.reltol, prob_opts.abstol);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   // Specify fixed time step size
-  flag = ARKStepSetFixedStep(arkstep_mem, prob_opts.h);
-  if (check_flag(&flag, "ARKStepSetFixedStep", 1)) { return 1; }
+  flag = ARKodeSetFixedStep(arkstep_mem, prob_opts.h);
+  if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
   // Attach Butcher tables (ignore actual method order)
   flag = ARKStepSetTables(arkstep_mem, 1, 0, Bi, Be);
@@ -486,8 +463,13 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
   // Lagrange interpolant (removes additional RHS evaluation with DIRK methods)
   if (prob_opts.i_type == interp_type::lagrange)
   {
-    flag = ARKStepSetInterpolantType(arkstep_mem, ARK_INTERP_LAGRANGE);
-    if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) { return 1; }
+    flag = ARKodeSetInterpolantType(arkstep_mem, ARK_INTERP_LAGRANGE);
+    if (check_flag(&flag, "ARKodeSetInterpolantType", 1)) { return 1; }
+  }
+  else if (prob_opts.i_type == interp_type::none)
+  {
+    flag = ARKodeSetInterpolantType(arkstep_mem, ARK_INTERP_NONE);
+    if (check_flag(&flag, "ARKodeSetInterpolantType", 1)) { return 1; }
   }
 
   // Create matrix and linear solver (if necessary)
@@ -504,20 +486,24 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     if (check_flag((void*)LS, "SUNLinSol_Dense", 0)) { return 1; }
 
     // Attach linear solver
-    flag = ARKStepSetLinearSolver(arkstep_mem, LS, A);
-    if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) { return 1; }
+    flag = ARKodeSetLinearSolver(arkstep_mem, LS, A);
+    if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
     // Set Jacobian function
-    flag = ARKStepSetJacFn(arkstep_mem, Ji);
-    if (check_flag(&flag, "ARKStepSetJacFn", 1)) { return 1; }
+    flag = ARKodeSetJacFn(arkstep_mem, Ji);
+    if (check_flag(&flag, "ARKodeSetJacFn", 1)) { return 1; }
 
     // Specify linearly implicit RHS, with non-time-dependent Jacobian
-    flag = ARKStepSetLinear(arkstep_mem, 0);
-    if (check_flag(&flag, "ARKStepSetLinear", 1)) { return 1; }
+    flag = ARKodeSetLinear(arkstep_mem, 0);
+    if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
+
+    // Specify an autonomous RHS
+    flag = ARKodeSetAutonomous(arkstep_mem, SUNTRUE);
+    if (check_flag(&flag, "ARKodeSetAutonomous", 1)) { return 1; }
 
     // Specify implicit predictor method
-    flag = ARKStepSetPredictorMethod(arkstep_mem, prob_opts.p_type);
-    if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) { return 1; }
+    flag = ARKodeSetPredictorMethod(arkstep_mem, prob_opts.p_type);
+    if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) { return 1; }
   }
 
   // Create mass matrix and linear solver (if necessary)
@@ -536,11 +522,11 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     int time_dep = 0;
     if (prob_data.m_type == mass_matrix_type::time_dependent) { time_dep = 1; }
 
-    flag = ARKStepSetMassLinearSolver(arkstep_mem, MLS, M, time_dep);
-    if (check_flag(&flag, "ARKStepSetMassLinearSolver", 1)) { return 1; }
+    flag = ARKodeSetMassLinearSolver(arkstep_mem, MLS, M, time_dep);
+    if (check_flag(&flag, "ARKodeSetMassLinearSolver", 1)) { return 1; }
 
-    flag = ARKStepSetMassFn(arkstep_mem, MassMatrix);
-    if (check_flag(&flag, "ARKStepSetMassFn", 1)) { return 1; }
+    flag = ARKodeSetMassFn(arkstep_mem, MassMatrix);
+    if (check_flag(&flag, "ARKodeSetMassFn", 1)) { return 1; }
   }
 
   // --------------
@@ -557,8 +543,8 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     std::cout << "--------------------" << std::endl;
 
     // Advance in time
-    flag = ARKStepEvolve(arkstep_mem, t_out, y, &t_ret, ARK_ONE_STEP);
-    if (check_flag(&flag, "ARKStepEvolve", 1)) { return 1; }
+    flag = ARKodeEvolve(arkstep_mem, t_out, y, &t_ret, ARK_ONE_STEP);
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
 
     // Update output time
     t_out += prob_opts.h;
@@ -592,11 +578,14 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
     std::cout << "Dense Output" << std::endl;
 
     sunrealtype h_last;
-    flag = ARKStepGetLastStep(arkstep_mem, &h_last);
-    if (check_flag(&flag, "ARKStepGetLastStep", 1)) { return 1; }
+    flag = ARKodeGetLastStep(arkstep_mem, &h_last);
+    if (check_flag(&flag, "ARKodeGetLastStep", 1)) { return 1; }
 
-    flag = ARKStepGetDky(arkstep_mem, t_ret - h_last / TWO, 0, y);
-    if (check_flag(&flag, "ARKStepGetDky", 1)) { return 1; }
+    if (prob_opts.i_type != interp_type::none)
+    {
+      flag = ARKodeGetDky(arkstep_mem, t_ret - h_last / TWO, 0, y);
+      if (check_flag(&flag, "ARKodeGetDky", 1)) { return 1; }
+    }
 
     // Stiffly accurate (and FSAL) methods do not require an additional RHS
     // evaluation to get the new RHS value at the end of a step for dense
@@ -652,8 +641,8 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
   if (numfails == 0)
   {
     // Advance in time
-    flag = ARKStepEvolve(arkstep_mem, t_out, y, &t_ret, ARK_ONE_STEP);
-    if (check_flag(&flag, "ARKStepEvolve", 1)) { return 1; }
+    flag = ARKodeEvolve(arkstep_mem, t_out, y, &t_ret, ARK_ONE_STEP);
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
 
     // Update output time
     t_out += prob_opts.h;
@@ -675,7 +664,7 @@ int run_tests(ARKodeButcherTable Be, ARKodeButcherTable Bi,
   // Clean up
   // --------
 
-  ARKStepFree(&arkstep_mem);
+  ARKodeFree(&arkstep_mem);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   SUNLinSolFree(MLS);
@@ -746,17 +735,47 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
   // Get number of steps and nonlinear solver iterations
   long int nst = 0;
 
-  flag = ARKStepGetNumSteps(arkstep_mem, &nst);
-  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) { return 1; }
+  flag = ARKodeGetNumSteps(arkstep_mem, &nst);
+  if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
 
   long int nni            = 0;
   long int extra_fe_evals = 0;
   long int extra_fi_evals = 0;
 
+  bool save_fn_for_residual = prob_opts.p_type == 0 &&
+                              prob_opts.m_type !=
+                                mass_matrix_type::time_dependent &&
+                              prob_opts.r_type != rk_type::expl;
+
   if (prob_opts.r_type == rk_type::impl || prob_opts.r_type == rk_type::imex)
   {
-    flag = ARKStepGetNumNonlinSolvIters(arkstep_mem, &nni);
-    if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) { return 1; }
+    flag = ARKodeGetNumNonlinSolvIters(arkstep_mem, &nni);
+    if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
+
+    // Remove one evaluation per implicit stage
+    int implicit_stages = (explicit_first_stage) ? stages - 1 : stages;
+
+    if (save_fn_for_residual) { extra_fi_evals -= implicit_stages * nst; }
+
+    // With higher order methods some predictors require additional RHS when
+    // using Hermite interpolation (note default degree is order - 1, except
+    // for first order where the degree is 1.
+    int degree = (order == 1) ? 1 : order - 1;
+
+    if (prob_opts.p_type != 0 && prob_opts.i_type == interp_type::hermite &&
+        degree > 3)
+    {
+      if (prob_opts.r_type == rk_type::expl || prob_opts.r_type == rk_type::imex)
+      {
+        extra_fe_evals = (degree == 4) ? 1 : 4;
+      }
+      if (prob_opts.r_type == rk_type::impl || prob_opts.r_type == rk_type::imex)
+      {
+        extra_fi_evals = (degree == 4) ? 1 : 4;
+      }
+      extra_fe_evals *= implicit_stages * (nst - 1);
+      extra_fi_evals *= implicit_stages * (nst - 1);
+    }
   }
 
   // Expected number of explicit functions evaluations
@@ -783,6 +802,13 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
         // One extra evaluation in each step
         nfe_expected += nst;
       }
+    }
+
+    if (prob_opts.i_type != interp_type::hermite && save_fn_for_residual &&
+        !explicit_first_stage)
+    {
+      if (stiffly_accurate) { nfe_expected++; }
+      else { nfe_expected += nst; }
     }
   }
 
@@ -811,6 +837,13 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
         nfi_expected += nst;
       }
     }
+
+    if (prob_opts.i_type != interp_type::hermite && save_fn_for_residual &&
+        !explicit_first_stage)
+    {
+      if (stiffly_accurate) { nfi_expected++; }
+      else { nfi_expected += nst; }
+    }
   }
 
   std::cout << "Steps: " << nst << std::endl;
@@ -829,8 +862,8 @@ int check_rhs_evals(rk_type r_type, void* arkstep_mem, long int nfe_expected,
   int flag = 0;
 
   long int nst;
-  flag = ARKStepGetNumSteps(arkstep_mem, &nst);
-  if (check_flag(&flag, "ARKStepGetNumSteps", 1)) { return 1; }
+  flag = ARKodeGetNumSteps(arkstep_mem, &nst);
+  if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
 
   long int nfe, nfi;
   flag = ARKStepGetNumRhsEvals(arkstep_mem, &nfe, &nfi);
