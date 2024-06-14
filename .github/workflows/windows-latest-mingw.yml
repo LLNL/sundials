@@ -62,7 +62,7 @@ jobs:
 
     - name: Build
       # Build program
-      run: cmake --build ${GITHUB_WORKSPACE}/build  --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${GITHUB_WORKSPACE}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}/build
