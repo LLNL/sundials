@@ -173,8 +173,7 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
   /* enforce maximum time step size */
   ark_mem->eta /= SUNMAX(ONE, SUNRabs(hcur) * ark_mem->hmax_inv * ark_mem->eta);
 
-  SUNLogDebug(ARK_LOGGER, __func__, "new-step-eta",
-              "eta = %" RSYM, ark_mem->eta);
+  SUNLogDebug(ARK_LOGGER, __func__, "new-step-eta", "eta = %" RSYM, ark_mem->eta);
 
   return (retval);
 }

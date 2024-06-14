@@ -628,8 +628,8 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   SUNLogDebug(ARK_LOGGER, __func__, "begin-stage", "stage = 0, tcur = %" RSYM,
               ark_mem->tcur);
-  SUNLogExtraDebugVec(ARK_LOGGER, __func__, "stage",
-                      "z_0(:) =", ark_mem->ycur, "");
+  SUNLogExtraDebugVec(ARK_LOGGER, __func__, "stage", "z_0(:) =", ark_mem->ycur,
+                      "");
   SUNLogExtraDebugVec(ARK_LOGGER, __func__, "stage RHS",
                       "F_0(:) =", step_mem->F[0], "");
   SUNLogDebug(ARK_LOGGER, __func__, "end-stage", "", "");

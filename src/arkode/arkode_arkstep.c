@@ -2052,8 +2052,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       {
         *nflagPtr = step_mem->msolve((void*)ark_mem, step_mem->Fe[is],
                                      step_mem->nlscoef);
-        SUNLogExtraDebugVec(ARK_LOGGER, __func__,
-                            "M^{-1} explicit RHS", "Fe_%i(:) =", step_mem->Fe[is], is);
+        SUNLogExtraDebugVec(ARK_LOGGER, __func__, "M^{-1} explicit RHS",
+                            "Fe_%i(:) =", step_mem->Fe[is], is);
         if (*nflagPtr != ARK_SUCCESS)
         {
           SUNLogDebug(ARK_LOGGER, __func__, "end-stage",
