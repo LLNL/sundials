@@ -134,11 +134,21 @@
     }                                                                             \
   }                                                                               \
   while (0)
+#define SUNLogExtraDebugVecArray(logger, scope, label, msg_txt, vecs, nvecs)     \
+  do {                                                                           \
+    for (int vi = 0; vi < (nvecs); ++vi)                                         \
+    {                                                                            \
+      SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_DEBUG, scope, label, msg_txt, vi); \
+      N_VPrintFile(vecs[vi], logger->debug_fp);                                  \
+    }                                                                            \
+  }                                                                              \
+  while (0)
 #else
 #define SUNLogExtraDebug(logger, scope, label, msg_txt, ...)
 #define SUNLogExtraDebugIf(condition, logger, scope, label, msg_txt, ...)
 #define SUNLogExtraDebugVec(logger, scope, label, msg_txt, vec, ...)
 #define SUNLogExtraDebugVecIf(condition, logger, scope, label, msg_txt, vec, ...)
+#define SUNLogExtraDebugVecArray(logger, scope, label, msg_txt, vecs, nvecs)
 #endif
 
 struct SUNLogger_
