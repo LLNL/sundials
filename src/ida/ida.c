@@ -2558,6 +2558,7 @@ static int IDAStep(IDAMem IDA_mem)
                    "end-step-attempt",
                    "status = failed error test, dsm = %" RSYM ", kflag = %i",
                    ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
+
       SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS, IDA_LOGGER,
                    __func__, "end-step-attempt",
                    "status = failed solve, kflag = %i", kflag);
