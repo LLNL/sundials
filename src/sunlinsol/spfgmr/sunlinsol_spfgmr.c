@@ -463,11 +463,8 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   SUNCheckLastErr();
   *res_norm = r_norm = beta = SUNRsqrt(r_norm);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_DEBUG, __func__,
-                     "initial-residual", "nli = %li, resnorm = %.16g",
-                     (long int)0, *res_norm);
-#endif
+  SUNLogDebug(S->sunctx->logger, __func__, "initial-residual",
+              "nli = %li, resnorm = %.16g", (long int)0, *res_norm);
 
   if (r_norm <= delta)
   {
@@ -574,11 +571,8 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       rotation_product *= givens[2 * l + 1];
       *res_norm = rho = SUNRabs(rotation_product * r_norm);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-      SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_DEBUG, __func__,
-                         "iterate-residual", "nli = %li, resnorm = %.16g",
-                         (long int)0, *res_norm);
-#endif
+      SUNLogDebug(S->sunctx->logger, __func__, "iterate-residual",
+                  "nli = %li, resnorm = %.16g", (long int)0, *res_norm);
 
       if (rho <= delta)
       {

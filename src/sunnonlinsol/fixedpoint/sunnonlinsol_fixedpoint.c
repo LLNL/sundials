@@ -191,11 +191,8 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
   FP_CONTENT(NLS)->niters     = 0;
   FP_CONTENT(NLS)->nconvfails = 0;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_DEBUG, __func__,
-                     "begin-iteration", "iter = %ld, nni = %ld", (long int)0,
-                     FP_CONTENT(NLS)->niters);
-#endif
+  SUNLogDebug(NLS->sunctx->logger, __func__, "begin-iteration",
+              "iter = %ld, nni = %ld", (long int)0, FP_CONTENT(NLS)->niters);
 
   /* Looping point for attempts at solution of the nonlinear system:
        Evaluate fixed-point function (store in gy).
@@ -239,13 +236,10 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
     retval = FP_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
                                     FP_CONTENT(NLS)->ctest_data);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_DEBUG, __func__,
-                       "end-of-iterate",
-                       "iter = %ld, nni = %ld, wrmsnorm = %.16g",
-                       (long int)FP_CONTENT(NLS)->curiter,
-                       FP_CONTENT(NLS)->niters, N_VWrmsNorm(delta, w));
-#endif
+    SUNLogDebug(NLS->sunctx->logger, __func__, "end-of-iterate",
+                "iter = %ld, nni = %ld, wrmsnorm = %.16g",
+                (long int)FP_CONTENT(NLS)->curiter, FP_CONTENT(NLS)->niters,
+                N_VWrmsNorm(delta, w));
 
     /* return if successful */
     if (retval == 0) { return SUN_SUCCESS; }
