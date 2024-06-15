@@ -5970,6 +5970,7 @@ static int IDAStep(IDAMem IDA_mem)
                    "end-step-attempt",
                    "status = failed error test, dsm = %" RSYM ", kflag = %i",
                    ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
+
       SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS, IDA_LOGGER,
                    __func__, "end-step-attempt",
                    "status = failed solve, kflag = %i", kflag);
@@ -6004,21 +6005,13 @@ static int IDAStep(IDAMem IDA_mem)
                                &(IDA_mem->ida_ncfnQ), &ncf,
                                &(IDA_mem->ida_netfQ), &nef);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-        if (nflag == ERROR_TEST_FAIL)
-        {
-          SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, __func__,
-                             "end-step-attempt", "status = failed quad error test, dsmQ = %.16g, kflag = %i",
-                             ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk],
-                             kflag);
-        }
-        else if (kflag != IDA_SUCCESS)
-        {
-          SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, __func__,
-                             "end-step-attempt",
-                             "status = failed quad solve, kflag = %i", kflag);
-        }
-#endif
+        SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER, __func__,
+                     "end-step-attempt", "status = failed quad error test, dsmQ = %.16g, kflag = %i",
+                     ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
+
+        SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS,
+                     IDA_LOGGER, __func__, "end-step-attempt",
+                     "status = failed quad solve, kflag = %i", kflag);
 
         /* exit on nonrecoverable failure */
         if (kflag != PREDICT_AGAIN) { return (kflag); }
@@ -6041,14 +6034,8 @@ static int IDAStep(IDAMem IDA_mem)
       retval = IDA_mem->ida_res(IDA_mem->ida_tn, IDA_mem->ida_yy, IDA_mem->ida_yp,
                                 IDA_mem->ida_delta, IDA_mem->ida_user_data);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      if (retval != 0)
-      {
-        SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, __func__,
-                           "end-step-attempt",
-                           "status = failed res eval, retval = %i", retval);
-      }
-#endif
+      SUNLogInfoIf(retval != 0, IDA_LOGGER, __func__, "end-step-attempt",
+                   "status = failed res eval, retval = %i", retval);
 
       if (retval < 0) { return (IDA_RES_FAIL); }
       if (retval > 0) { continue; }
@@ -6074,21 +6061,13 @@ static int IDAStep(IDAMem IDA_mem)
                                &(IDA_mem->ida_ncfnQ), &ncf,
                                &(IDA_mem->ida_netfQ), &nef);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-        if (nflag == ERROR_TEST_FAIL)
-        {
-          SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, __func__,
-                             "end-step-attempt", "status = failed sens error test, dsmS = %.16g, kflag = %i",
-                             ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk],
-                             kflag);
-        }
-        else if (kflag != IDA_SUCCESS)
-        {
-          SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, __func__,
-                             "end-step-attempt",
-                             "status = failed sens solve, kflag = %i", kflag);
-        }
-#endif
+        SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER, __func__,
+                     "end-step-attempt", "status = failed sens error test, dsmS = %.16g, kflag = %i",
+                     ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
+
+        SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS,
+                     IDA_LOGGER, __func__, "end-step-attempt",
+                     "status = failed sens solve, kflag = %i", kflag);
 
         /* exit on nonrecoverable failure */
         if (kflag != PREDICT_AGAIN) { return (kflag); }
@@ -6121,22 +6100,13 @@ static int IDAStep(IDAMem IDA_mem)
                                &(IDA_mem->ida_ncfnQ), &ncf,
                                &(IDA_mem->ida_netfQ), &nef);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-        if (nflag == ERROR_TEST_FAIL)
-        {
-          SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, __func__,
-                             "end-step-attempt", "status = failed quad sens error test, dsmQS = %.16g, kflag = %i",
-                             ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk],
-                             kflag);
-        }
-        else if (kflag != IDA_SUCCESS)
-        {
-          SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, __func__,
-                             "end-step-attempt",
-                             "status = failed quad sens solve, kflag = %i",
-                             kflag);
-        }
-#endif
+        SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER, __func__,
+                     "end-step-attempt", "status = failed quad sens error test, dsmQS = %.16g, kflag = %i",
+                     ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
+
+        SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS,
+                     IDA_LOGGER, __func__, "end-step-attempt",
+                     "status = failed quad sens solve, kflag = %i", kflag);
 
         /* exit on nonrecoverable failure */
         if (kflag != PREDICT_AGAIN) { return (kflag); }
