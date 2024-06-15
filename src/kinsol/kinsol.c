@@ -2542,9 +2542,7 @@ void KINPrintInfo(SUNDIALS_MAYBE_UNUSED KINMem kin_mem, int info_code,
     vsnprintf(msg, sizeof msg, msgfmt, ap);
   }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_INFO, "KINSOL", fname, "%s", msg);
-#endif
+  SUNLogInfo(KIN_LOGGER, "KINSOL", fname, "%s", msg);
 
   /* finalize argument processing */
 
@@ -2837,11 +2835,8 @@ static int KINFP(KINMem kin_mem)
   ret    = CONTINUE_ITERATIONS;
   tolfac = ONE;
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG, __func__, "begin", "%s",
-                     "u_0(:) =");
-  N_VPrintFile(kin_mem->kin_uu, KIN_LOGGER->debug_fp);
-#endif
+  SUNLogExtraDebugVec(KIN_LOGGER, __func__, "begin",
+                      "u_0(:) =", kin_mem->kin_uu, "");
 
   /* initialize iteration count */
   kin_mem->kin_nni = 0;
@@ -2856,12 +2851,8 @@ static int KINFP(KINMem kin_mem)
                                kin_mem->kin_user_data);
     kin_mem->kin_nfe++;
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-    SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
-                       "while-loop-before-compute-new",
-                       "G_%ld(:) =", kin_mem->kin_nni - 1);
-    N_VPrintFile(kin_mem->kin_fval, KIN_LOGGER->debug_fp);
-#endif
+    SUNLogExtraDebugVec(KIN_LOGGER, __func__, "while-loop-before-compute-new",
+                        "G_%ld(:) =", kin_mem->kin_fval, kin_mem->kin_nni - 1);
 
     if (retval < 0)
     {
@@ -2912,12 +2903,8 @@ static int KINFP(KINMem kin_mem)
       else { tolfac = ONE; }
     }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-    SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG, __func__,
-                       "while-loop-after-compute-new",
-                       "u_%ld(:) =", kin_mem->kin_nni);
-    N_VPrintFile(kin_mem->kin_unew, KIN_LOGGER->debug_fp);
-#endif
+    SUNLogExtraDebugVec(KIN_LOGGER, __func__, "while-loop-after-compute-new",
+                        "u_%ld(:) =", kin_mem->kin_unew, kin_mem->kin_nni);
 
     /* compute change between iterations */
     N_VLinearSum(ONE, kin_mem->kin_unew, -ONE, kin_mem->kin_uu, delta);
