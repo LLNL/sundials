@@ -33,9 +33,6 @@ def main():
                         choices=['h', 'q', 'dsm'],
                         help='Value to plot (default: %(default)s)')
 
-    parser.add_argument('--step-number', action='store_true',
-                        help='Plot value vs step number')
-
     parser.add_argument('--step-range', type=int, nargs=2,
                         default=None, metavar=('LOWER_BOUND', 'UPPER_BOUND'),
                         help='Step range to plot')
@@ -44,8 +41,17 @@ def main():
                         default=None, metavar=('LOWER_BOUND', 'UPPER_BOUND'),
                         help='Time range to plot')
 
+    parser.add_argument('--step-number', action='store_true',
+                        help='Plot value vs step number')
+
     parser.add_argument('--scatter', action='store_true',
                         help='Create scatter plot')
+
+    parser.add_argument('--logx', action='store_true',
+                        help='Use log scale for x-axis')
+
+    parser.add_argument('--logy', action='store_true',
+                        help='Use log scale for y-axis')
 
     parser.add_argument('--labels', type=str, nargs='+',
                         help='Plot labels')
@@ -122,6 +128,11 @@ def main():
 
         ax.scatter(x_sf, vals_sf, color=sf_color, marker='d', label=sf_label,
                    zorder=0.2)
+
+    if args.logx:
+        ax.set_xscale("log")
+    if args.logy:
+        ax.set_yscale("log")
 
     if args.step_number:
         ax.set_xlabel("step")

@@ -100,15 +100,17 @@ def log_file_to_list(filename):
     """
     with open(filename, "r") as logfile:
 
-        # List of dictionaries one for each step attempt
+        # List of step attempt dictionaries, one entry for each step attempt
         log = []
 
-        # Stack of logs for integrators composed of other integrators e.g., MRI
-        # methods or splitting methods
+        # Stack of logs for adding sublists (stage data, algebraic solver data,
+        # fast integrator data, etc.) to the current log entry
         log_stack = []
+
+        # Make step attempt list the active list
         log_stack.append(log)
 
-        # Level for nested integrators e.g., MRI methods
+        # Time level for nested integrators e.g., MRI methods
         level = 0
 
         all_lines = logfile.readlines()
@@ -117,28 +119,62 @@ def log_file_to_list(filename):
             if not line_dict:
                 continue
 
-            line_dict["level"] = level
+            line_dict["payload"]["level"] = level
+
+            if line_dict["label"] == "begin-step-attempt":
+                # Add new step attempt entry to the active list
+                log_stack[-1].append(line_dict["payload"])
+            elif line_dict["label"] == "end-step-attempt":
+                # Update last step attempt entry
+                log_stack[-1][-1].update(line_dict["payload"])
+
+            if (line_dict["label"] == "begin-stage"):
+                # Add stage sublist to the last entry in the active list
+                if "stages" not in log_stack[-1][-1]:
+                    log_stack[-1][-1]["stages"] = []
+                # Make the stage list the active list
+                log_stack.append(log_stack[-1][-1]["stages"])
+                # Add new stage entry to list
+                log_stack[-1].append(line_dict["payload"])
+                continue
+            elif (line_dict["label"] == "end-stage"):
+                # Update last stage entry
+                log_stack[-1][-1].update(line_dict["payload"])
+                # Deactivate stage list
+                log_stack.pop()
+                continue
 
             if (line_dict["label"] == "begin-fast-steps"):
                 level += 1
-                # Possibly multiple fast integrations per step so check if a
-                # list already exists
                 key = f"time-level-{level}"
+                # Add fast step sublist to the last entry in the active list
                 if key not in log_stack[-1][-1]:
                     log_stack[-1][-1][key] = []
+                # Make the fast step list the active list
                 log_stack.append(log_stack[-1][-1][key])
                 continue
             elif (line_dict["label"] == "end-fast-steps"):
                 level -= 1
+                # Deactivate fast step list
                 log_stack.pop()
                 continue
 
-            if line_dict["label"] == "begin-step-attempt":
-                log_stack[-1].append(line_dict)
-            elif line_dict["label"] == "end-step-attempt":
-                log_stack[-1][-1]["payload"].update(line_dict["payload"])
-
     return log
+
+
+def print_log(log, indent=0):
+    """
+    This function prints the list of entries from a log file.
+    """
+
+    for entry in log:
+        for key in entry:
+            if type(entry[key]) is list:
+                subindent = indent + 2
+                print_log(entry[key], indent=subindent)
+            else:
+                spaces = indent * " "
+                print(f"{spaces}{key} : {entry[key]}")
 
 
 def get_history(log, key, step_status = None, time_range = None,
@@ -151,36 +187,37 @@ def get_history(log, key, step_status = None, time_range = None,
     times = []
     values = []
 
-    for l in log:
+    for entry in log:
 
-        step = np.longlong(l["payload"]['step'])
-        time = np.double(l["payload"]['t_n'])
+        step = np.longlong(entry['step'])
+        time = np.double(entry['t_n'])
 
         if time_range is not None:
-            if time > time_range[1] or time < time_range[0]:
+            if time < time_range[0] or time > time_range[1]:
                 continue
 
         if step_range is not None:
-            if step > step_range[1] or step < step_range[0]:
+            if step < step_range[0] or step > step_range[1]:
                 continue
 
         if step_status is not None:
-            if step_status not in l["payload"]['status']:
+            if step_status not in entry['status']:
                 continue
 
-        if key not in l["payload"]:
+        if key not in entry:
             continue
 
         steps.append(step)
         times.append(time)
-        values.append(convert_to_num(l["payload"][key]))
+        values.append(convert_to_num(entry[key]))
 
-        next_level_key = f'time-level-{l["level"] + 1}'
-
-        if next_level_key in l:
-            sub_steps, sub_times, sub_values = get_history(l[next_level_key], key)
-            steps.extend(sub_steps)
-            times.extend(sub_times)
-            values.extend(sub_values)
+        if "stages" in entry:
+            for s in entry["stages"]:
+                next_level_key = f'time-level-{entry["level"] + 1}'
+                if next_level_key in s:
+                    sub_steps, sub_times, sub_values = get_history(s[next_level_key], key)
+                    steps.extend(sub_steps)
+                    times.extend(sub_times)
+                    values.extend(sub_values)
 
     return steps, times, values
