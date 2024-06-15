@@ -111,8 +111,8 @@ static inline N_Vector_ID N_VGetVectorID_Raja(N_Vector v)
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Raja(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Raja(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Raja(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Raja(N_Vector v, long int* lrw,
-                                   long int* liw);
+SUNDIALS_EXPORT void N_VSpace_Raja(N_Vector v, sunindextype* lrw,
+                                   sunindextype* liw);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Raja(sunrealtype* v_data, N_Vector v);
 
 /* standard vector operations */

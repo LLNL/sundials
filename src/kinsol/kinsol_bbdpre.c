@@ -63,8 +63,8 @@ int KINBBDPrecInit(void* kinmem, sunindextype Nlocal, sunindextype mudq,
   KINMem kin_mem;
   KINLsMem kinls_mem;
   KBBDPrecData pdata;
-  sunindextype muk, mlk, storage_mu;
-  long int lrw, liw, lrw1, liw1;
+  sunindextype muk, mlk, storage_mu, lrw1, liw1;
+  long int lrw, liw;
   int flag;
 
   if (kinmem == NULL)

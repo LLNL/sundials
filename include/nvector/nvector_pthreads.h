@@ -160,7 +160,7 @@ SUNDIALS_EXPORT
 void N_VDestroy_Pthreads(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VSpace_Pthreads(N_Vector v, long int* lrw, long int* liw);
+void N_VSpace_Pthreads(N_Vector v, sunindextype* lrw, sunindextype* liw);
 
 SUNDIALS_EXPORT
 sunrealtype* N_VGetArrayPointer_Pthreads(N_Vector v);

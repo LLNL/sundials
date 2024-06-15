@@ -755,7 +755,7 @@ SUNErrCode SUNLinSolSpace_SPBCGS(SUNLinearSolver S, long int* lenrwLS,
                                  long int* leniwLS)
 {
   SUNFunctionBegin(S->sunctx);
-  long int liw1, lrw1;
+  sunindextype liw1, lrw1;
   if (SPBCGS_CONTENT(S)->vtemp->ops->nvspace)
   {
     N_VSpace(SPBCGS_CONTENT(S)->vtemp, &lrw1, &liw1);

@@ -1749,8 +1749,8 @@ end function
 subroutine FMRIStepCoupling_Space(mric, liw, lrw)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: mric
-integer(C_LONG), dimension(*), target, intent(inout) :: liw
-integer(C_LONG), dimension(*), target, intent(inout) :: lrw
+integer(C_INT64_T), dimension(*), target, intent(inout) :: liw
+integer(C_INT64_T), dimension(*), target, intent(inout) :: lrw
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 

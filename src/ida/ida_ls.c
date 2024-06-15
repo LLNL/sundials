@@ -598,7 +598,8 @@ int IDAGetLinWorkSpace(void* ida_mem, long int* lenrwLS, long int* leniwLS)
 {
   IDAMem IDA_mem;
   IDALsMem idals_mem;
-  long int lrw, liw, lrw1, liw1;
+  sunindextype lrw1, liw1;
+  long int lrw, liw;
   int retval;
 
   /* access IDALsMem structure */

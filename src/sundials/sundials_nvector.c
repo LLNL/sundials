@@ -327,7 +327,7 @@ void N_VDestroy(N_Vector v)
   return;
 }
 
-void N_VSpace(N_Vector v, long int* lrw, long int* liw)
+void N_VSpace(N_Vector v, sunindextype* lrw, sunindextype* liw)
 {
   v->ops->nvspace(v, lrw, liw);
   return;

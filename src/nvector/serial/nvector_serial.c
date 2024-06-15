@@ -366,7 +366,7 @@ void N_VDestroy_Serial(N_Vector v)
   return;
 }
 
-void N_VSpace_Serial(N_Vector v, long int* lrw, long int* liw)
+void N_VSpace_Serial(N_Vector v, sunindextype* lrw, sunindextype* liw)
 {
   SUNFunctionBegin(v->sunctx);
 

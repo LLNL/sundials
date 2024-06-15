@@ -1156,7 +1156,7 @@ int ARKodeGetLinWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
 {
   ARKodeMem ark_mem;
   ARKLsMem arkls_mem;
-  long int lrw1, liw1;
+  sunindextype lrw1, liw1;
   long int lrw, liw;
   int retval;
 
@@ -1824,7 +1824,7 @@ int ARKodeGetMassWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
 {
   ARKodeMem ark_mem;
   ARKLsMassMem arkls_mem;
-  long int lrw1, liw1;
+  sunindextype lrw1, liw1;
   long int lrw, liw;
   int retval;
 

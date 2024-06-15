@@ -643,7 +643,7 @@ int CVodeGetLinWorkSpace(void* cvode_mem, long int* lenrwLS, long int* leniwLS)
 {
   CVodeMem cv_mem;
   CVLsMem cvls_mem;
-  long int lrw1, liw1;
+  sunindextype lrw1, liw1;
   long int lrw, liw;
   int retval;
 

@@ -14,7 +14,7 @@
 # Makefile to generate SUNDIALS fortran interfaces with swig
 # ---------------------------------------------------------------
 
-SWIG=swig
+SWIG=~/.local/bin/swig
 
 ARKODE=farkode_mod farkode_arkstep_mod farkode_erkstep_mod farkode_sprkstep_mod farkode_mristep_mod
 CVODE=fcvode_mod

@@ -197,7 +197,7 @@ int ARKBandPrecGetWorkSpace(void* arkode_mem, long int* lenrwBP, long int* leniw
   ARKodeMem ark_mem;
   ARKLsMem arkls_mem;
   ARKBandPrecData pdata;
-  long int lrw1, liw1;
+  sunindextype lrw1, liw1;
   long int lrw, liw;
   int retval;
 

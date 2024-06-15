@@ -101,7 +101,7 @@ SUNDIALS_EXPORT
 void N_VDestroy_ManyVector(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VSpace_ManyVector(N_Vector v, long int* lrw, long int* liw);
+void N_VSpace_ManyVector(N_Vector v, sunindextype* lrw, sunindextype* liw);
 
 SUNDIALS_EXPORT
 sunindextype N_VGetLength_ManyVector(N_Vector v);

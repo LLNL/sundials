@@ -216,7 +216,7 @@ int CVBandPrecGetWorkSpace(void* cvode_mem, long int* lenrwBP, long int* leniwBP
   CVodeMem cv_mem;
   CVLsMem cvls_mem;
   CVBandPrecData pdata;
-  long int lrw1, liw1;
+  sunindextype lrw1, liw1;
   long int lrw, liw;
   int flag;
 
