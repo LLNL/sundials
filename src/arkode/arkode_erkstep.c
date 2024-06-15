@@ -656,8 +656,8 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Set current stage time(s) */
     ark_mem->tcur = ark_mem->tn + step_mem->B->c[is] * ark_mem->h;
 
-    SUNLogInfo(ARK_LOGGER, __func__, "begin-stage",
-               "stage = %i, tcur = %" RSYM, is, ark_mem->tcur);
+    SUNLogInfo(ARK_LOGGER, __func__, "begin-stage", "stage = %i, tcur = %" RSYM,
+               is, ark_mem->tcur);
 
     /* Set ycur to current stage solution */
     nvec = 0;
