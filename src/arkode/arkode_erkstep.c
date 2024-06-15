@@ -632,7 +632,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                       "");
   SUNLogExtraDebugVec(ARK_LOGGER, __func__, "stage RHS",
                       "F_0(:) =", step_mem->F[0], "");
-  SUNLogDebug(ARK_LOGGER, __func__, "end-stage", "", "");
+  SUNLogDebug(ARK_LOGGER, __func__, "end-stage", "status = success", "");
 
   /* Call the full RHS if needed. If this is the first step then we may need to
      evaluate or copy the RHS values from an  earlier evaluation (e.g., to
@@ -707,8 +707,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     SUNLogExtraDebugVec(ARK_LOGGER, __func__, "stage RHS",
                         "F_%i(:) =", step_mem->F[is], is);
 
-    SUNLogDebugIf(retval != 0, ARK_LOGGER, __func__, "end-stage",
-                  "status = success", "");
+    SUNLogDebug(ARK_LOGGER, __func__, "end-stage", "status = success", "");
 
   } /* loop over stages */
 
