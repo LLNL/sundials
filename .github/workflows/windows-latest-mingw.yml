@@ -53,6 +53,7 @@ jobs:
           -G "MSYS Makefiles" \
           -B ${GITHUB_WORKSPACE}/build \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -DCMAKE_C_FLAGS=-Wno-deprecated-declarations \
           -DBUILD_FORTRAN_MODULE_INTERFACE=ON \
           -DSUNDIALS_BUILD_WITH_PROFILING=ON \
           -DSUNDIALS_LOGGING_LEVEL=2 \
