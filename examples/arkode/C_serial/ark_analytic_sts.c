@@ -58,17 +58,20 @@ static int check_flag(void* flagvalue, const char* funcname, int opt);
 static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol,
                      sunrealtype atol);
 
+/* Private function to compute error */
+static int compute_error(N_Vector y, sunrealtype t);                     
+
 /* Main Program */
 int main(void)
 {
   /* general problem parameters */
   sunrealtype T0     = SUN_RCONST(0.0);    /* initial time */
   sunrealtype Tf     = SUN_RCONST(10.0);   /* final time */
-  sunrealtype dTout  = SUN_RCONST(1.0);    /* time between outputs */
+  sunrealtype dTout  = SUN_RCONST(10.0);    /* time between outputs */
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
-  sunrealtype reltol = SUN_RCONST(1.0e-6); /* tolerances */
-  sunrealtype abstol = SUN_RCONST(1.0e-10);
-  sunrealtype lamda  = SUN_RCONST(-100.0); /* stiffness parameter */
+  sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-8);
+  sunrealtype lamda  = SUN_RCONST(-1.0); /* stiffness parameter */
 
   /* general problem variables */
   int flag;                  /* reusable error-checking flag */
@@ -159,6 +162,7 @@ int main(void)
 
   /* check the solution error */
   flag = check_ans(y, t, reltol, abstol);
+  flag = compute_error(y, t);
 
   /* Clean up and return */
   N_VDestroy(y);           /* Free y vector */
@@ -253,6 +257,19 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
   }
 
   return (passfail);
+}
+
+
+/* check the error */
+static int compute_error(N_Vector y, sunrealtype t)
+{
+  sunrealtype ans, err; /* answer data, error */
+
+  /* compute solution error */
+  ans = atan(t);
+  err = fabs(NV_Ith_S(y, 0) - ans);
+
+  fprintf(stdout, "\nERROR at final time =%" GSYM "\n", err);
 }
 
 /*---- end of file ----*/
