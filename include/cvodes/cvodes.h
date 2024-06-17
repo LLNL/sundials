@@ -579,7 +579,8 @@ SUNDIALS_EXPORT int CVodeGetAdjCheckPointsInfo(void* cvode_mem,
                                                CVadjCheckPointRec* ckpnt);
 
 /* CVLS interface function that depends on CVRhsFn */
-int CVodeSetJacTimesRhsFnB(void* cvode_mem, int which, CVRhsFn jtimesRhsFn);
+SUNDIALS_EXPORT int CVodeSetJacTimesRhsFnB(void* cvode_mem, int which,
+                                           CVRhsFn jtimesRhsFn);
 
 /* Undocumented Optional Output Functions For Backward Problems */
 
