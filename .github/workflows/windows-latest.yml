@@ -27,7 +27,7 @@ jobs:
 
     - name: Test (Shared)
       working-directory: ${{github.workspace}}/build_shared
-      run: ctest -C ${{env.BUILD_TYPE}}
+      run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
 
     - name: Configure CMake (Static)
       run: cmake -G "Visual Studio 17 2022" -B ${{github.workspace}}/build_static -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DSUNDIALS_BUILD_WITH_PROFILING=ON -DSUNDIALS_TEST_UNITTESTS=ON -DEXAMPLES_ENABLE_CXX=ON
@@ -37,5 +37,4 @@ jobs:
 
     - name: Test (Static)
       working-directory: ${{github.workspace}}/build_static
-      run: ctest -C ${{env.BUILD_TYPE}}
-
+      run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure

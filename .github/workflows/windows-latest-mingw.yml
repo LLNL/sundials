@@ -66,4 +66,4 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build
       # Execute tests
-      run: ctest
+      run: ctest --output-on-failure
