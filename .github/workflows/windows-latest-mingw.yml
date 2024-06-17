@@ -42,6 +42,7 @@ jobs:
             base-devel
             ${{ matrix.target-prefix }}-cmake
             ${{ matrix.target-prefix }}-gcc
+            ${{ matrix.target-prefix }}-gcc-fortran
             ${{ matrix.target-prefix }}-openblas
             ${{ matrix.target-prefix }}-suitesparse
 
