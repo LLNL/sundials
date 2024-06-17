@@ -294,8 +294,8 @@ default configuration:
 .. _Installation.CMake.Options:
 
 
-Configuration options (Unix/Linux)
------------------------------------
+Configuration options
+---------------------
 
 A complete list of all available options for a CMake-based SUNDIALS
 configuration is provide below.  Note that the default values shown
@@ -669,7 +669,7 @@ illustration only.
 
    Default: "REF;OMP"
 
-   .. versionchanged: x.y.z 
+   .. versionchanged: x.y.z
 
       The ``DPCPP`` option was changed to ``SYCL`` to align with Ginkgo's naming convention.
 
@@ -1704,7 +1704,7 @@ header files.
    without any notice and relying on them may break your code.
 
 
-Using SUNDIALS in your prpject
+Using SUNDIALS in your project
 ------------------------------
 
 After building and installing SUNDIALS, using SUNDIALS in your application involves
