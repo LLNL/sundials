@@ -50,7 +50,7 @@ jobs:
       # Configure CMake in a 'build' subdirectory
       run: |
         cmake \
-          -G "MinGW Makefiles"
+          -G "MSYS Makefiles"
           -B ${GITHUB_WORKSPACE}/build \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DBUILD_FORTRAN_MODULE_INTERFACE=ON \
@@ -62,7 +62,7 @@ jobs:
 
     - name: Build
       # Build program
-      run: cmake --build ${GITHUB_WORKSPACE}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${GITHUB_WORKSPACE}/build
 
     - name: Test
       working-directory: ${{github.workspace}}/build
