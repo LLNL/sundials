@@ -15,11 +15,11 @@
  *
  * The following is a simple example problem with analytical
  * solution,
- *    dy/dt = lamda*y + 1/(1+t^2) - lamda*atan(t)
+ *    dy/dt = lambda*y + 1/(1+t^2) - lambda*atan(t)
  * for t in the interval [0.0, 10.0], with initial condition: y=0.
  *
  * The stiffness of the problem is directly proportional to the
- * value of "lamda".  The value of lamda should be negative to
+ * value of "lambda".  The value of lambda should be negative to
  * result in a well-posed ODE; for values with magnitude larger
  * than 100 the problem becomes quite stiff.
  *
@@ -51,6 +51,9 @@
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
+/* User-supplied Spectral Radius Called by the Solver */
+static int spr(sunrealtype t, sunrealtype extsprad, void* user_data);
+
 /* Private function to check function return values */
 static int check_flag(void* flagvalue, const char* funcname, int opt);
 
@@ -71,7 +74,7 @@ int main(void)
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
-  sunrealtype lamda  = SUN_RCONST(-1.0); /* stiffness parameter */
+  sunrealtype lambda  = SUN_RCONST(-1.0); /* stiffness parameter */
 
   /* general problem variables */
   int flag;                  /* reusable error-checking flag */
@@ -88,7 +91,7 @@ int main(void)
 
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
-  printf("    lamda = %" GSYM "\n", lamda);
+  printf("    lambda = %" GSYM "\n", lambda);
   printf("   reltol = %.1" ESYM "\n", reltol);
   printf("   abstol = %.1" ESYM "\n\n", abstol);
 
@@ -106,10 +109,14 @@ int main(void)
 
   /* Set routines */
   flag = ARKodeSetUserData(arkode_mem,
-                           (void*)&lamda); /* Pass lamda to user functions */
+                           (void*)&lambda); /* Pass lambda to user functions */
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
+
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol); /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
+
+  flag = LSRKodeSetSprRadFn(arkode_mem, spr); /* Set ext sprad routine */
+  if (check_flag(&flag, "LSRKodeSetSprRadFn", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
@@ -180,12 +187,22 @@ int main(void)
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype lamda = rdata[0];       /* set shortcut for stiffness parameter */
+  sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter */
   sunrealtype u     = NV_Ith_S(y, 0); /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
-  NV_Ith_S(ydot, 0) = lamda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
-                      lamda * atan(t);
+  NV_Ith_S(ydot, 0) = lambda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
+                      lambda * atan(t);
+
+  return 0; /* return with success */
+}
+
+/* spr routine to estimate the spectral radius */
+static int spr(sunrealtype t, sunrealtype extsprad, void* user_data)
+{
+  sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
+  sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter */
+  sunrealtype exsprad = lambda; /* access current solution value */
 
   return 0; /* return with success */
 }
