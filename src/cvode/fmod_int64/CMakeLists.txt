@@ -21,7 +21,7 @@ sundials_add_f2003_library(sundials_fcvode_mod
   SOURCES
     ${cvode_SOURCES}
   LINK_LIBRARIES
-    PUBLIC sundials_cvode sundials_fcore_mod
+    PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
     sundials_fnvecserial_mod_obj
     sundials_fsunmatrixband_mod_obj
