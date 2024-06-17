@@ -112,7 +112,7 @@ foreach(example_tuple ${sunlinsol_lapackdense_fortran_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # set fortran module directory to avoid name collisions
-    set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # libraries to link against
     target_link_libraries(${example}

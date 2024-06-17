@@ -129,7 +129,7 @@ if(BUILD_SUNLINSOL_KLU)
     add_executable(${example} ${example}.f90)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
-    set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # add example to regression tests
     sundials_add_test(${example} ${example}

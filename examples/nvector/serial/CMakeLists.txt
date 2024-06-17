@@ -109,7 +109,7 @@ foreach(example_tuple ${nvector_serial_fortran_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # folder where fortran .mod files are
-    set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
