@@ -150,7 +150,7 @@ macro(sundials_add_library target)
     # --------------------------------------------------------------------------
 
     # create the target for the object library
-    add_library(${obj_target} OBJECT ${sources})
+    add_library(${obj_target} OBJECT ${sources} ${sundials_add_library_UNPARSED_ARGUMENTS})
 
     set_target_properties(${obj_target} PROPERTIES FOLDER "obj")
 
@@ -239,7 +239,7 @@ macro(sundials_add_library target)
       # set target name
       set(_actual_target_name ${target}${_lib_suffix})
 
-      add_library(${_actual_target_name} ${_libtype} $<TARGET_OBJECTS:${obj_target}>)
+      add_library(${_actual_target_name} ${_libtype} $<TARGET_OBJECTS:${obj_target}> ${sundials_add_library_UNPARSED_ARGUMENTS})
 
       set_target_properties(${_actual_target_name} PROPERTIES FOLDER "src")
 
@@ -433,7 +433,8 @@ macro(sundials_add_f2003_library target)
       $<BUILD_INTERFACE:${CMAKE_Fortran_MODULE_DIRECTORY}>
       $<INSTALL_INTERFACE:${Fortran_INSTALL_MODDIR}>
   )
-  set(_properties PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_Fortran_MODULE_DIRECTORY}")
+  set(_properties PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_Fortran_MODULE_DIRECTORY}"
+    WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
   # get the name of the C library which the fortran library interfaces to
   string(REPLACE "sundials_f" "sundials_" _clib_name "${target}")
@@ -457,7 +458,6 @@ macro(sundials_add_f2003_library target)
     SOVERSION ${sundials_add_f2003_library_SOVERSION}
     ${sundials_add_f2003_library_UNPARSED_ARGUMENTS}
   )
-
 endmacro()
 
 
