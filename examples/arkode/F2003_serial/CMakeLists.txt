@@ -73,6 +73,9 @@ foreach(example_tuple ${FARKODE_examples})
   list(GET example_tuple 2 example_type)
 
   if (NOT TARGET ${example})
+    # Install fortran modules to a unique directory to avoid naming collisions
+    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+
     # example source files
     add_executable(${example} ${example}.f90)
 
@@ -81,9 +84,6 @@ foreach(example_tuple ${FARKODE_examples})
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
-
-    # Install fortran modules to a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
   endif()
 
   # check if example args are provided and set the test name
@@ -168,6 +168,9 @@ if(BUILD_SUNLINSOL_LAPACKDENSE)
     # parse the example tuple
     list(GET example_tuple 0 example)
     list(GET example_tuple 1 example_type)
+
+    # build fortran modules into a unique directory to avoid naming collisions
+    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
     add_executable(${example} ${example}.f90)
