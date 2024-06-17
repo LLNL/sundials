@@ -23,6 +23,9 @@
 extern "C" {
 #endif
 
+typedef int (*ARKSprFn)(sunrealtype t, sunrealtype extsprad, 
+                                   void* user_data);
+                                   
 /* ------------------
  * LSRKStep Constants
  * ------------------ */
@@ -35,6 +38,8 @@ extern "C" {
 
 SUNDIALS_EXPORT void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
                                      SUNContext sunctx);
+
+SUNDIALS_EXPORT int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr);
 
 SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
                                    N_Vector y0);

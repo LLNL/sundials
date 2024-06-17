@@ -176,10 +176,10 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->sprad = 1;
   step_mem->sprmax = 0;
   step_mem->sprmin = 0;
+  step_mem->sprsfty = 1.1;
   step_mem->sprupdatepar = 25;
 
   /* Flags */
-  step_mem->extspr = SUNTRUE;
   step_mem->newspr = SUNTRUE;
   step_mem->jacatt = SUNFALSE;
 

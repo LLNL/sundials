@@ -42,6 +42,7 @@ typedef struct ARKodeLSRKStepMemRec
   /* LSRK problem specification */
   ARKRhsFn fe;
   ARKRhsFn fi;
+  ARKSprFn extspr;
 
   /* LSRK method storage and parameters */
   N_Vector* Fe; /* RHS vector storage */
@@ -64,10 +65,11 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype sprad; /* spectral radius*/
   sunrealtype sprmax; /* max spectral radius*/
   sunrealtype sprmin; /* min spectral radius*/
+  sunrealtype sprsfty; /* some safety factor for the user provided spr*/
   sunrealtype sprupdatepar; /* indicates spr update after sprupdatepar successful steps*/
 
   /* Flags */
-  sunbooleantype extspr; /* flag indicating user provided spr */
+  sunbooleantype isextspr; /* flag indicating user provided spr */
   sunbooleantype newspr; /* flag indicating new spr is needed */
   sunbooleantype jacatt; /* an internal flag*/
 
