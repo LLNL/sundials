@@ -50,7 +50,6 @@ jobs:
       # Configure CMake in a 'build' subdirectory
       run: |
         cmake \
-          -G "MSYS Makefiles" \
           -B ${GITHUB_WORKSPACE}/build \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DCMAKE_C_FLAGS=-Wno-deprecated-declarations \
