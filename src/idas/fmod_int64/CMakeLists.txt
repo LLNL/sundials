@@ -20,7 +20,7 @@ sundials_add_f2003_library(sundials_fidas_mod
   SOURCES
     ${idas_SOURCES}
   LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+    PUBLIC sundials_idas sundials_fcore_mod
   OBJECT_LIBRARIES
     sundials_fnvecserial_mod_obj
     sundials_fsunmatrixband_mod_obj
