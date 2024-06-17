@@ -44,14 +44,11 @@ module fsundials_core_mod
  include "mpif.h"
  integer(C_INT), protected, public :: SUN_COMM_NULL = MPI_COMM_NULL
 #else
- integer(C_INT), protected, public, &
-   bind(C, name="_wrap_SUN_COMM_NULL") :: SUN_COMM_NULL
+ integer(C_INT), parameter, public :: SUN_COMM_NULL = 0_C_INT
 #endif
 
- integer(C_INT), protected, public, &
-   bind(C, name="_wrap_SUNFALSE") :: SUNFALSE
- integer(C_INT), protected, public, &
-   bind(C, name="_wrap_SUNTRUE") :: SUNTRUE
+ integer(C_INT), parameter, public :: SUNFALSE = 0_C_INT
+ integer(C_INT), parameter, public :: SUNTRUE = 1_C_INT
  ! typedef enum SUNOutputFormat
  enum, bind(c)
   enumerator :: SUN_OUTPUTFORMAT_TABLE

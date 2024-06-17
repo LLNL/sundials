@@ -15,6 +15,9 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
+// By default, wrap all constants as native fortran PARAMETERs
+%fortranconst;
+
 %include <stdint.i>
 
 #ifdef GENERATE_INT32
@@ -85,17 +88,12 @@
 // (1) SWIG expands SUN_COMM_NULL to its value
 // (2) We need it to be equivalent to MPI_COMM_NULL when MPI is enabled
 
-%insert("wrapper") %{
-SWIGEXPORT SWIGEXTERN int const _wrap_SUN_COMM_NULL = (int)(0);
-%}
-
 %insert("fdecl") %{
 #if SUNDIALS_MPI_ENABLED
  include "mpif.h"
  integer(C_INT), protected, public :: SUN_COMM_NULL = MPI_COMM_NULL
 #else
- integer(C_INT), protected, public, &
-   bind(C, name="_wrap_SUN_COMM_NULL") :: SUN_COMM_NULL
+ integer(C_INT), parameter, public :: SUN_COMM_NULL = 0_C_INT
 #endif
 %}
 
