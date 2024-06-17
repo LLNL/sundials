@@ -20,9 +20,9 @@
 extern "C" {
 #endif
 
-typedef struct SUNStepper_Ops_s* SUNStepper_Ops;
+typedef struct SUNStepper_Ops_* SUNStepper_Ops;
 
-struct SUNStepper_Ops_s
+struct SUNStepper_Ops_
 {
   SUNStepperAdvanceFn advance;
   SUNStepperOneStepFn onestep;
@@ -31,7 +31,7 @@ struct SUNStepper_Ops_s
   SUNStepperResetFn reset;
 };
 
-struct SUNStepper_s
+struct SUNStepper_
 {
   /* stepper specific content and operations */
   void* content;

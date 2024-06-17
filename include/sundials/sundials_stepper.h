@@ -19,7 +19,14 @@
 extern "C" {
 #endif
 
-typedef _SUNDIALS_STRUCT_ SUNStepper_s* SUNStepper;
+typedef int (*SUNJacFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
+                        void* user_data, N_Vector tmp1, N_Vector tmp2,
+                        N_Vector tmp3);
+
+typedef int (*SUNJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
+                             N_Vector fy, void* user_data, N_Vector tmp);
+
+typedef _SUNDIALS_STRUCT_ SUNStepper_* SUNStepper;
 
 typedef int (*SUNStepperAdvanceFn)(SUNStepper stepper, sunrealtype t0,
                                    sunrealtype tout, N_Vector y,
@@ -86,6 +93,9 @@ SUNDIALS_EXPORT
 SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0,
                               sunrealtype tout, N_Vector y, sunrealtype* tret,
                               int* stop_reason);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR);
 
 #ifdef __cplusplus
 }

@@ -9,24 +9,35 @@
 #include "sundials/sundials_nvector.h"
 #include "sundials_stepper_impl.h"
 
-SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper)
+SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
 {
   SUNFunctionBegin(sunctx);
 
-  *stepper = NULL;
-  *stepper = (SUNStepper)malloc(sizeof(**stepper));
+  SUNStepper stepper = NULL;
+  stepper = malloc(sizeof(*stepper));
   SUNAssert(stepper, SUN_ERR_MALLOC_FAIL);
 
-  memset(*stepper, 0, sizeof(**stepper));
+  stepper->content = NULL;
+  stepper->sunctx = sunctx;
+  stepper->last_flag = SUN_SUCCESS;
+  stepper->forcing = NULL;
+  stepper->nforcing = 0;
+  stepper->nforcing_allocated = 0;
+  stepper->tshift = SUN_RCONST(0.0);
+  stepper->tscale = SUN_RCONST(0.0);
+  stepper->fused_scalars = NULL;
+  stepper->fused_vectors = NULL;
 
-  (*stepper)->ops = (SUNStepper_Ops)malloc(sizeof(*((*stepper)->ops)));
-  SUNAssert((*stepper)->ops, SUN_ERR_MALLOC_FAIL);
+  stepper->ops = malloc(sizeof(*(stepper->ops)));
+  SUNAssert(stepper->ops, SUN_ERR_MALLOC_FAIL);
 
-  memset((*stepper)->ops, 0, sizeof(*((*stepper)->ops)));
+  stepper->ops->advance = NULL;
+  stepper->ops->onestep = NULL;
+  stepper->ops->trystep = NULL;
+  stepper->ops->fullrhs = NULL;
+  stepper->ops->reset   = NULL;
 
-  /* initialize stepper data */
-  (*stepper)->last_flag = SUN_SUCCESS;
-  (*stepper)->sunctx    = sunctx;
+  *stepper_ptr = stepper;
 
   return SUN_SUCCESS;
 }
@@ -84,6 +95,13 @@ SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0,
   {
     return stepper->ops->trystep(stepper, t0, tout, y, tret, stop_reason);
   }
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
+SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  if (stepper->ops->advance) { return stepper->ops->reset(stepper, tR, yR); }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
