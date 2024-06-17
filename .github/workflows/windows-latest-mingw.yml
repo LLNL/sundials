@@ -41,7 +41,7 @@ jobs:
         install: >-
             base-devel
             ${{ matrix.target-prefix }}-cmake
-            ${{ matrix.target-prefix }}-cc
+            ${{ matrix.target-prefix }}-gcc
             ${{ matrix.target-prefix }}-openblas
             ${{ matrix.target-prefix }}-suitesparse
 
