@@ -137,36 +137,61 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
       return (ARK_MEM_FAIL);
     }
   }
-  ark_mem->hadapt_mem->hcontroller = NULL;
+
+  printf("\nCheck hcontroller in %s at line: %d\n\n", __func__, __LINE__);
+  // ark_mem->hadapt_mem->hcontroller = NULL;
   // ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
-  if (ark_mem->hadapt_mem->hcontroller == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNAdaptControllerPI allocation failure");
-    return (ARK_MEM_FAIL);
-  }
-  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
-  {
-    ark_mem->liw += leniw;
-    ark_mem->lrw += lenrw;
-  }
+  // if (ark_mem->hadapt_mem->hcontroller == NULL)
+  // {
+  //   arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+  //                   "SUNAdaptControllerPI allocation failure");
+  //   return (ARK_MEM_FAIL);
+  // }
+  // ark_mem->hadapt_mem->owncontroller = SUNTRUE;
+  // retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+  //                                   &leniw);
+  // if (retval == SUN_SUCCESS)
+  // {
+  //   ark_mem->liw += leniw;
+  //   ark_mem->lrw += lenrw;
+  // }
+
 
   /* Set default values for integrator optional inputs
      (overwrite some adaptivity params for LSRKStep use) */
-  step_mem->q      = Q_DEFAULT;                  /* method order */
-  step_mem->p      = 0;                          /* embedding order */
-  step_mem->reqstages = 0;                          /* no stages */
-  // step_mem->B      = NULL;                       /* no Butcher table */
+  step_mem->reqstages = 0;                       /* no stages */
+  step_mem->absh = 1.0/ark_mem->hmax_inv;        /* set absh = hmax */ 
+  step_mem->err = 0;
+  step_mem->errold = 0;
+
+  /* Counters and stats*/
+  step_mem->nfe = 0;
+  step_mem->sprnfe = 0;
+  step_mem->stagemax = 0;
+  step_mem->stagemaxlimit = SUNMAX(2, round(SUNRsqrt(ark_mem->reltol/(10.0*ark_mem->uround))));
+  step_mem->nreject = 0;
+  step_mem->nstsig = 0;
+
+  /* Spectral radius info */  
+  step_mem->sprad = 1;
+  step_mem->sprmax = 0;
+  step_mem->sprmin = 0;
+  step_mem->sprupdatepar = 25;
+
+  /* Flags */
+  step_mem->extspr = SUNTRUE;
+  step_mem->newspr = SUNTRUE;
+  step_mem->jacatt = SUNFALSE;
+
   ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
   ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
   ark_mem->hadapt_mem->growth = SUN_RCONST(25.0); /* step adaptivity growth factor */
-  (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
-                                        SUN_RCONST(1.2));
-  (void)SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
-                                        SUN_RCONST(0.8), -SUN_RCONST(0.31));
+  
+  printf("\nCheck SUNAdaptController_SetErrorBias in %s at line: %d\n\n", __func__, __LINE__);
+  // (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
+  //                                       SUN_RCONST(1.2));
+  // (void)SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
+  //                                       SUN_RCONST(0.8), -SUN_RCONST(0.31));
   
   printf("\nlsrkStep_SetDefaults is not ready yet!\n");
 
@@ -223,7 +248,7 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 
   /* print integrator parameters to file */
   fprintf(fp, "LSRKStep time step module parameters:\n");
-  fprintf(fp, "  Method order %i\n", step_mem->q);
+  fprintf(fp, "  Method order %i\n", NULL);
   fprintf(fp, "\n");
 
   printf("\nlsrkStep_WriteParameters is not ready yet!\n");
