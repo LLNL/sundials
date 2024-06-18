@@ -1082,28 +1082,28 @@ program main
   nout   = ceiling(tend/dtout)
 
   ! create and assign SUNDIALS N_Vectors
-  sunvec_y => FN_VNew_Serial(int(neq,c_long), ctx)
+  sunvec_y => FN_VNew_Serial(neq, ctx)
   if (.not. associated(sunvec_y)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   yvec(1:neqreal,1:N)  => FN_VGetArrayPointer(sunvec_y)
 
-  sunvec_u => FN_VNew_Serial(int(neq,c_long), ctx)
+  sunvec_u => FN_VNew_Serial(neq, ctx)
   if (.not. associated(sunvec_u)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   umask(1:neqreal,1:N) => FN_VGetArrayPointer(sunvec_u)
 
-  sunvec_v => FN_VNew_Serial(int(neq,c_long), ctx)
+  sunvec_v => FN_VNew_Serial(neq, ctx)
   if (.not. associated(sunvec_v)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   vmask(1:neqreal,1:N) => FN_VGetArrayPointer(sunvec_v)
 
-  sunvec_w => FN_VNew_Serial(int(neq,c_long), ctx)
+  sunvec_w => FN_VNew_Serial(neq, ctx)
   if (.not. associated(sunvec_w)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
@@ -1149,13 +1149,13 @@ program main
 
   ! Tell ARKODE to use a sparse linear solver for both Newton and mass matrix systems.
   sparsetype = 1
-  sunmat_A => FSUNSparseMatrix(int(neq,c_long), int(neq,c_long), int(nnz,c_long), sparsetype, ctx)
+  sunmat_A => FSUNSparseMatrix(neq, neq, int(nnz,c_long), sparsetype, ctx)
   if (.not. associated(sunmat_A)) then
      print *, 'ERROR: sunmat_A = NULL'
      stop 1
   end if
 
-  sunmat_M => FSUNSparseMatrix(int(neq,c_long), int(neq,c_long), int(nnz,c_long), sparsetype, ctx)
+  sunmat_M => FSUNSparseMatrix(neq, neq, int(nnz,c_long), sparsetype, ctx)
   if (.not. associated(sunmat_M)) then
      print *, 'ERROR: sunmat_M = NULL'
      stop 1
