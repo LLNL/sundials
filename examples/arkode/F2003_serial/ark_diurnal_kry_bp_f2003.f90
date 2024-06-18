@@ -52,20 +52,10 @@ module DiurnalKryBP_mod
   !======= Declarations =========
   implicit none
 
-  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
-  ! we set the integer kind used for indices in this example based
-  ! on the the index size SUNDIALS was compiled with so that it works
-  ! in both configurations. This is not a requirement for user codes.
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
-
   ! setup and number of equations
   integer(c_int),  parameter :: mx = 10, my = 10
-  integer(kind=myindextype), parameter :: mm = mx*my
-  integer(kind=myindextype), parameter :: neq = 2*mm
+  integer(c_long), parameter :: mm = mx*my
+  integer(c_long), parameter :: neq = 2*mm
 
   ! ODE constant parameters
   real(c_double), parameter :: Kh = 4.0d-6
@@ -240,8 +230,8 @@ program main
   real(c_double)  :: cx, cy     ! initialization variables
   integer(c_int)  :: ierr       ! error flag from C functions
   integer(c_long) :: outstep    ! output step
+  integer(c_long) :: mu, ml     ! band preconditioner constants
   real(c_double)  :: x, y       ! initialization index variables
-  integer(kind=myindextype) :: mu, ml ! band preconditioner constants
 
   type(N_Vector),        pointer :: sunvec_u      ! sundials vector
   type(N_Vector),        pointer :: sunvec_f      ! sundials vector

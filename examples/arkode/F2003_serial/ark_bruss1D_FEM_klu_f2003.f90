@@ -70,30 +70,20 @@ module Bruss1DFEMKLU_UserData
   !======= Declarations =========
   implicit none
 
-  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
-  ! we set the integer kind used for indices in this example based
-  ! on the the index size SUNDIALS was compiled with so that it works
-  ! in both configurations. This is not a requirement for user codes.
-#if defined(SUNDIALS_INT32_T)
-  integer, parameter :: myindextype = selected_int_kind(8)
-#elif defined(SUNDIALS_INT64_T)
-  integer, parameter :: myindextype = selected_int_kind(16)
-#endif
-
   ! number of equations
   integer(c_int), parameter :: neqreal = 3
 
   ! ODE parameters
-  integer(kind=myindextype), parameter :: N = 201          ! number of intervals
-  integer(kind=myindextype), parameter :: neq = neqreal*N  ! set overall problem size
-  integer(kind=myindextype), parameter :: nnz = 15*neq
-  real(c_double), parameter            :: a = 0.6d0        ! constant forcing on u
-  real(c_double), parameter            :: b = 2.d0         ! steady-state value of w
-  real(c_double), parameter            :: du = 2.5d-2      ! diffusion coeff for u
-  real(c_double), parameter            :: dv = 2.5d-2      ! diffusion coeff for v
-  real(c_double), parameter            :: dw = 2.5d-2      ! diffusion coeff for w
-  real(c_double), parameter            :: ep = 1.d-5       ! stiffness parameter
-  real(c_double), dimension(N)         :: x             ! mesh node locations
+  integer(c_int), parameter :: N = 201          ! number of intervals
+  integer(c_int), parameter :: neq = neqreal*N  ! set overall problem size
+  integer(c_int), parameter :: nnz = 15*neq
+  real(c_double), parameter :: a = 0.6d0        ! constant forcing on u
+  real(c_double), parameter :: b = 2.d0         ! steady-state value of w
+  real(c_double), parameter :: du = 2.5d-2      ! diffusion coeff for u
+  real(c_double), parameter :: dv = 2.5d-2      ! diffusion coeff for v
+  real(c_double), parameter :: dw = 2.5d-2      ! diffusion coeff for w
+  real(c_double), parameter :: ep = 1.d-5       ! stiffness parameter
+  real(c_double), dimension(N) :: x             ! mesh node locations
 
 contains
 
@@ -423,7 +413,7 @@ contains
     type(N_Vector)        :: sunvec_t3
 
     ! Local data
-    integer(kind=myindextype) :: ix, nz, Nint
+    integer(c_int) :: ix, nz, Nint
     real(c_double) :: ul, uc, ur, vl, vc, vr, wl, wc, wr, xl, xc, xr
     real(c_double) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
     real(c_double) :: df1, df2, df3, dQdf1, dQdf2, dQdf3
@@ -431,8 +421,8 @@ contains
     real(c_double), dimension(3,-1:1) :: Ju, Jv, Jw
 
     ! pointers to data in SUNDIALS vectors
-    integer(kind=myindextype), pointer, dimension(nnz)   :: Jcolvals(:)
-    integer(kind=myindextype), pointer, dimension(neq+1) :: Jrowptrs(:)
+    integer(c_long), pointer, dimension(nnz)       :: Jcolvals(:)
+    integer(c_long), pointer, dimension(neq+1)     :: Jrowptrs(:)
     real(c_double),  pointer, dimension(nnz)       :: Jdata(:)
     real(c_double),  pointer, dimension(neqreal,N) :: yvec(:,:)
     real(c_double),  pointer, dimension(neqreal,N) :: fvec(:,:)
@@ -878,13 +868,13 @@ contains
     type(N_Vector)        :: sunvec_t3
 
     ! Local data
-    integer(kind=myindextype) :: ix, nz, Nint
+    integer(c_int) :: ix, nz, Nint
     real(c_double) :: xl, xc, xr, Ml, Mc, Mr, ChiL1, ChiL2, ChiL3, ChiR1, ChiR2, ChiR3
     logical        :: left, right
 
     ! pointers to data in SUNDIALS vectors
-    integer(kind=myindextype), pointer, dimension(nnz)   :: Mcolvals(:)
-    integer(kind=myindextype), pointer, dimension(neq+1) :: Mrowptrs(:)
+    integer(c_long), pointer, dimension(nnz)   :: Mcolvals(:)
+    integer(c_long), pointer, dimension(neq+1) :: Mrowptrs(:)
     real(c_double),  pointer, dimension(nnz)   :: Mdata(:)
 
     !======= Internals ============
