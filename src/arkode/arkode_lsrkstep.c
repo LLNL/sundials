@@ -425,63 +425,9 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* perform RHS functions contingent on 'mode' argument */
-  switch (mode)
+  /* compute the RHS */
+  if (!(ark_mem->fn_is_current))
   {
-  case ARK_FULLRHS_START:
-
-    /* compute the RHS */
-    if (!(ark_mem->fn_is_current))
-    {
-      retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
-      step_mem->nfe++;
-      if (retval != 0)
-      {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_RHSFUNC_FAILED, t);
-        return (ARK_RHSFUNC_FAIL);
-      }
-    }
-
-    /* copy RHS vector into output */
-    N_VScale(ONE, step_mem->Fe[0], f);
-
-    break;
-
-  case ARK_FULLRHS_END:
-
-    /* determine if RHS function needs to be recomputed */
-    if (!(ark_mem->fn_is_current))
-    {
-      // recomputeRHS = !ARKodeButcherTable_IsStifflyAccurate(step_mem->B);
-
-      /* First Same As Last methods are not FSAL when relaxation is enabled */
-      if (ark_mem->relax_enabled) { recomputeRHS = SUNTRUE; }
-
-      /* base RHS calls on recomputeRHS argument */
-      if (recomputeRHS)
-      {
-        /* call f */
-        retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
-        step_mem->nfe++;
-        if (retval != 0)
-        {
-          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
-                          __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
-          return (ARK_RHSFUNC_FAIL);
-        }
-      }
-      else { N_VScale(ONE, step_mem->Fe[step_mem->reqstages - 1], step_mem->Fe[0]); }
-    }
-
-    /* copy RHS vector into output */
-    N_VScale(ONE, step_mem->Fe[0], f);
-
-    break;
-
-  case ARK_FULLRHS_OTHER:
-
-    /* call f */
     retval = step_mem->fe(t, y, f, ark_mem->user_data);
     step_mem->nfe++;
     if (retval != 0)
@@ -490,16 +436,14 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                       MSG_ARK_RHSFUNC_FAILED, t);
       return (ARK_RHSFUNC_FAIL);
     }
-
-    break;
-
-  default:
-    /* return with RHS failure if unknown mode is passed */
-    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                    "Unknown full RHS mode");
-    return (ARK_RHSFUNC_FAIL);
+  }
+  else
+  {
+    /* copy RHS vector into output */
+    N_VScale(ONE, ark_mem->fn, f);
   }
 
+  printf("\nCheck fn_is_current in %s at line: %d\n\n", __func__, __LINE__);
   printf("\nlsrkStep_FullRHS is not ready yet!\n");
 
   return (ARK_SUCCESS);
