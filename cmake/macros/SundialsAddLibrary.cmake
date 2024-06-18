@@ -426,15 +426,25 @@ macro(sundials_add_f2003_library target)
   cmake_parse_arguments(sundials_add_f2003_library
     "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  # set target properties and target dependencies so that includes
-  # and links get passed on when this target is used
-  set(_includes
-    PUBLIC
-      $<BUILD_INTERFACE:${CMAKE_Fortran_MODULE_DIRECTORY}>
-      $<INSTALL_INTERFACE:${Fortran_INSTALL_MODDIR}>
-  )
-  set(_properties PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_Fortran_MODULE_DIRECTORY}"
-    WINDOWS_EXPORT_ALL_SYMBOLS ON)
+  if(CMAKE_Fortran_MODULE_DIRECTORY)
+    set(_includes
+      PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_Fortran_MODULE_DIRECTORY}_{{libtype}}>
+        $<INSTALL_INTERFACE:${Fortran_INSTALL_MODDIR}>
+    )
+    set(_properties PROPERTIES
+        Fortran_MODULE_DIRECTORY "${CMAKE_Fortran_MODULE_DIRECTORY}_{{libtype}}"
+        WINDOWS_EXPORT_ALL_SYMBOLS ON)
+  else()
+    set(_includes
+      PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_Fortran_MODULE_DIRECTORY}_{{libtype}}>
+        $<INSTALL_INTERFACE:${Fortran_INSTALL_MODDIR}>
+    )
+    set(_properties PROPERTIES
+        Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir"
+        WINDOWS_EXPORT_ALL_SYMBOLS ON)
+  endif()
 
   # get the name of the C library which the fortran library interfaces to
   string(REPLACE "sundials_f" "sundials_" _clib_name "${target}")
