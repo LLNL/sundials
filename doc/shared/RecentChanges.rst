@@ -129,3 +129,5 @@ The unsupported implementations of ``N_VGetArrayPointer`` and
 ``N_VSetArrayPointer`` for the *hypre* and PETSc vectors are now deprecated.
 Users should access the underlying wrapped external library vector objects
 instead with ``N_VGetVector_ParHyp`` and ``N_VGetVector_Petsc``, respectively.
+
+Fixed several build errors with the Fortran interfaces on Windows systems.
