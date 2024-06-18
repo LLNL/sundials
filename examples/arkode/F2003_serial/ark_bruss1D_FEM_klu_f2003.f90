@@ -71,12 +71,12 @@ module Bruss1DFEMKLU_UserData
   implicit none
 
   ! number of equations
-  integer(c_int), parameter :: neqreal = 3
+  integer(c_int64_t), parameter :: neqreal = 3
 
   ! ODE parameters
-  integer(c_int), parameter :: N = 201          ! number of intervals
-  integer(c_int), parameter :: neq = neqreal*N  ! set overall problem size
-  integer(c_int), parameter :: nnz = 15*neq
+  integer(c_int64_t), parameter :: N = 201          ! number of intervals
+  integer(c_int64_t), parameter :: neq = neqreal*N  ! set overall problem size
+  integer(c_int64_t), parameter :: nnz = 15*neq
   real(c_double), parameter :: a = 0.6d0        ! constant forcing on u
   real(c_double), parameter :: b = 2.d0         ! steady-state value of w
   real(c_double), parameter :: du = 2.5d-2      ! diffusion coeff for u
@@ -210,7 +210,7 @@ contains
     type(c_ptr),    value :: user_data ! user-defined data
 
     ! Local data
-    integer(c_int) :: ix
+    integer(c_int64_t) :: ix
     logical        :: left, right
     real(c_double) :: ul, ur, vl, vr, wl, wr, xl, xr, u, v, w, f1, f2, f3
 
@@ -413,7 +413,7 @@ contains
     type(N_Vector)        :: sunvec_t3
 
     ! Local data
-    integer(c_int) :: ix, nz, Nint
+    integer(c_int64_t) :: ix, nz, Nint
     real(c_double) :: ul, uc, ur, vl, vc, vr, wl, wc, wr, xl, xc, xr
     real(c_double) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
     real(c_double) :: df1, df2, df3, dQdf1, dQdf2, dQdf3
@@ -868,7 +868,7 @@ contains
     type(N_Vector)        :: sunvec_t3
 
     ! Local data
-    integer(c_int) :: ix, nz, Nint
+    integer(c_int64_t) :: ix, nz, Nint
     real(c_double) :: xl, xc, xr, Ml, Mc, Mr, ChiL1, ChiL2, ChiL3, ChiR1, ChiR2, ChiR3
     logical        :: left, right
 
@@ -1050,7 +1050,7 @@ program main
   integer(c_int)  :: outstep     ! output loop counter
   integer(c_int)  :: sparsetype  ! CSR signal, here
   integer(c_long) :: mxsteps     ! max num steps
-  integer         :: i
+  integer(c_int64_t) :: i
 
   type(N_Vector),        pointer :: sunvec_y    ! sundials vector
   type(N_Vector),        pointer :: sunvec_u    ! sundials vector
