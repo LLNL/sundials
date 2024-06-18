@@ -15,6 +15,9 @@ jobs:
           apt update
           apt install -y git
 
+      - name: Install fprettify
+        run: pip install fprettify
+
       - name: Check out repository code
         uses: actions/checkout@v4
         with:

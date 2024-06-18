@@ -185,7 +185,8 @@ not adhere to all of these rules.
    library which requires a newer standard.
 
 #. All new code added to SUNDIALS should be
-   formatted with `clang-format <https://clang.llvm.org/docs/ClangFormat.html>`_.
+   formatted with `clang-format <https://clang.llvm.org/docs/ClangFormat.html>`_,
+   and `fprettify <https://github.com/fortran-lang/fprettify>`_.
    See :ref:`Style.Formatting` for details.
 
 #. Spaces not tabs.
@@ -377,9 +378,11 @@ Formatting
 ----------
 
 All new code added to SUNDIALS should be formatted with `clang-format
-<https://clang.llvm.org/docs/ClangFormat.html>`_. The
-``.clang-format`` files in the root of the project define our configurations
-for the tools respectively. To apply clang-format you can run:
+<https://clang.llvm.org/docs/ClangFormat.html>`_ and
+`fprettify <https://github.com/fortran-lang/fprettify>`_. The
+``.clang-format`` file in the root of the project defines our configuration
+for clang-format. We use the default fprettify settings, except we use
+2-space indentation. To apply ``clang-format`` and ``fprettify`` you can run:
 
 .. code-block:: shell
 
