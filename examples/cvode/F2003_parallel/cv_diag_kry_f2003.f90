@@ -49,8 +49,8 @@ module DiagkryData
   ! Problem parameters
   integer(c_int),  parameter :: iGStype = 1
   integer(c_int),  parameter :: iPretype0 = 1
-  integer(c_long), parameter :: nlocal = 10
-  integer(c_long) :: neq
+  integer(c_int64_t), parameter :: nlocal = 10
+  integer(c_int64_t) :: neq
   integer(c_int) :: iPretype
   real(c_double) :: alpha
 

@@ -25,8 +25,8 @@ module fnvector_fortran_mod
   ! ----------------------------------------------------------------
   type, public :: FVec
     logical                 :: own_data
-    integer(c_long)         :: length1
-    integer(c_long)         :: length2
+    integer(c_int64_t)         :: length1
+    integer(c_int64_t)         :: length2
     real(c_double), pointer :: data(:,:)
   end type FVec
   ! ----------------------------------------------------------------
@@ -36,8 +36,8 @@ contains
   ! ----------------------------------------------------------------
   function FN_VNew_Fortran(n1, n2, sunctx) result(sunvec_y)
     implicit none
-    integer(c_long),    value   :: n1
-    integer(c_long),    value   :: n2
+    integer(c_int64_t),    value   :: n1
+    integer(c_int64_t),    value   :: n2
     type(c_ptr),        value   :: sunctx
     type(N_Vector),     pointer :: sunvec_y
     type(N_Vector_Ops), pointer :: ops
@@ -97,8 +97,8 @@ contains
   ! ----------------------------------------------------------------
   function FN_VMake_Fortran(n1, n2, data, sunctx) result(sunvec_y)
     implicit none
-    integer(c_long),    value   :: n1
-    integer(c_long),    value   :: n2
+    integer(c_int64_t),    value   :: n1
+    integer(c_int64_t),    value   :: n2
     type(c_ptr),        value   :: sunctx
     type(N_Vector),     pointer :: sunvec_y
     type(N_Vector_Ops), pointer :: ops
@@ -206,7 +206,7 @@ contains
   end subroutine FN_VDestroy_Fortran
 
   ! ----------------------------------------------------------------
-  integer(c_long) function FN_VGetLength_Fortran(sunvec_y) &
+  integer(c_int64_t) function FN_VGetLength_Fortran(sunvec_y) &
       bind(C) result(length)
 
     implicit none
@@ -480,7 +480,7 @@ contains
     type(N_Vector)      :: sunvec_w
     type(N_Vector)      :: sunvec_id
     type(FVec), pointer :: x, w, id
-    integer(c_long)     :: i, j
+    integer(c_int64_t)     :: i, j
 
     ! extract Fortran vector structures to work with
     x => FN_VGetFVec(sunvec_x)
@@ -596,7 +596,7 @@ contains
     type(N_Vector)          :: sunvec_x
     type(N_Vector)          :: sunvec_z
     type(FVec),     pointer :: x, z
-    integer(c_long)         :: i, j
+    integer(c_int64_t)         :: i, j
 
     ! extract Fortran vector structures to work with
     x => FN_VGetFVec(sunvec_x)
@@ -624,7 +624,7 @@ contains
     type(N_Vector)      :: sunvec_x
     type(N_Vector)      :: sunvec_z
     type(FVec), pointer :: x, z
-    integer(c_long)     :: i, j
+    integer(c_int64_t)     :: i, j
 
     ! extract Fortran vector structures to work with
     x => FN_VGetFVec(sunvec_x)
@@ -654,7 +654,7 @@ contains
     type(N_Vector)      :: sunvec_x
     type(N_Vector)      :: sunvec_m
     type(FVec), pointer :: c, x, m
-    integer(c_long)     :: i, j
+    integer(c_int64_t)     :: i, j
     logical             :: test
 
     ! extract Fortran vector structures to work with
@@ -692,7 +692,7 @@ contains
     type(N_Vector)      :: sunvec_n
     type(N_Vector)      :: sunvec_d
     type(FVec), pointer :: n, d
-    integer(c_long)     :: i, j
+    integer(c_int64_t)     :: i, j
     logical             :: notEvenOnce
 
     ! extract Fortran vector structures to work with
