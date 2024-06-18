@@ -55,7 +55,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DCMAKE_C_FLAGS=-Wno-deprecated-declarations \
           -DBUILD_FORTRAN_MODULE_INTERFACE=ON \
-          -DBUILD_STATIC_LIBS=OFF \
+          -DBUILD_SHARED_LIBS=OFF \
           -DSUNDIALS_BUILD_WITH_PROFILING=ON \
           -DSUNDIALS_LOGGING_LEVEL=2 \
           -DSUNDIALS_TEST_UNITTESTS=OFF \
