@@ -89,8 +89,8 @@ contains
 
   ! function that maps 2D data into 1D address space
   ! (0-based since CSR matrix will be sent to C solver)
-  integer(kind=myindextype) function idx(ix, ivar)
-    integer(kind=myindextype) :: ivar, ix
+  integer(c_int64_t) function idx(ix, ivar)
+    integer(c_int64_t) :: ivar, ix
     idx = neqreal*(ix - 1) + ivar - 1
   end function idx
 
