@@ -84,7 +84,7 @@ module DiurnalKryBP_mod
   integer(c_int), parameter  :: Jpretype = 1
   integer(c_int), parameter  :: iGStype = 1
   integer(c_int), parameter  :: maxL = 0
-  integer(c_int64_t), parameter :: mxsteps = 10000
+  integer(c_long), parameter :: mxsteps = 10000
 
   ! ODE non-constant parameters
   real(c_double) :: q3
