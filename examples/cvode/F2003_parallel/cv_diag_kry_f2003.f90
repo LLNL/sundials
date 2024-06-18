@@ -149,7 +149,7 @@ contains
 
     ! Calculate Jacobian here
     ibase = myid * nlocal
-    istart = max(1_8, 4 - ibase)
+    istart = max(1_c_int64_t, 4 - ibase)
     do i = istart,nlocal
        pj = dble(ibase + i)
        psubi = 1.d0 + gamma * alpha * pj
