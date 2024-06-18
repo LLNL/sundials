@@ -84,16 +84,26 @@ module kpr_mod
 
   implicit none
 
+  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
+  ! we set the integer kind used for indices in this example based
+  ! on the the index size SUNDIALS was compiled with so that it works
+  ! in both configurations. This is not a requirement for user codes.
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: myindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: myindextype = selected_int_kind(16)
+#endif
+
   ! Constants
   real(c_double) :: ZERO = 0.0d0
   real(c_double) :: ONE  = 1.0d0
   real(c_double) :: TWO  = 2.0d0
 
   ! general problem parameters
+  integer(kind=myindextype), parameter :: NEQ = 2      ! number of dependent vars.
   real(c_double), parameter  :: T0          = 0.0d0    ! initial time
   real(c_double), parameter  :: Tf          = 5.0d0    ! final time
   real(c_double), parameter  :: dTout       = 0.1d0    ! time between outputs
-  integer(c_long), parameter :: NEQ         = 2        ! number of dependent vars.
   integer(c_int), parameter  :: Nt          = ceiling(Tf/dTout) ! number of output times
 
   ! parameters that can be modified via CLI args or are derived
