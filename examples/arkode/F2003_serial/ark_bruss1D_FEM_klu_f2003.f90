@@ -1149,13 +1149,13 @@ program main
 
   ! Tell ARKODE to use a sparse linear solver for both Newton and mass matrix systems.
   sparsetype = 1
-  sunmat_A => FSUNSparseMatrix(neq, neq, int(nnz,c_long), sparsetype, ctx)
+  sunmat_A => FSUNSparseMatrix(neq, neq, nnz, sparsetype, ctx)
   if (.not. associated(sunmat_A)) then
      print *, 'ERROR: sunmat_A = NULL'
      stop 1
   end if
 
-  sunmat_M => FSUNSparseMatrix(neq, neq, int(nnz,c_long), sparsetype, ctx)
+  sunmat_M => FSUNSparseMatrix(neq, neq, nnz, sparsetype, ctx)
   if (.not. associated(sunmat_M)) then
      print *, 'ERROR: sunmat_M = NULL'
      stop 1
