@@ -225,7 +225,7 @@ void N_VDestroy_Trilinos(N_Vector v)
   return;
 }
 
-void N_VSpace_Trilinos(N_Vector x, long int* lrw, long int* liw)
+void N_VSpace_Trilinos(N_Vector x, sunindextype* lrw, sunindextype* liw)
 {
   Teuchos::RCP<const vector_type> xv                 = N_VGetVector_Trilinos(x);
   const Teuchos::RCP<const Teuchos::Comm<int>>& comm = xv->getMap()->getComm();

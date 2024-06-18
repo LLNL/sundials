@@ -748,7 +748,7 @@ void N_VDestroy_Raja(N_Vector v)
   return;
 }
 
-void N_VSpace_Raja(N_Vector X, long int* lrw, long int* liw)
+void N_VSpace_Raja(N_Vector X, sunindextype* lrw, sunindextype* liw)
 {
   *lrw = NVEC_RAJA_CONTENT(X)->length;
   *liw = 2;
