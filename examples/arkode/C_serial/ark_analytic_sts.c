@@ -112,6 +112,9 @@ int main(void)
                            (void*)&lambda); /* Pass lambda to user functions */
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
+  flag = ARKodeSetFixedStep(arkode_mem, (sunrealtype)0.1);
+  if (check_flag(&flag, "ARKSetFixedStep", 1)) { return 1; }
+
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol); /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
@@ -202,7 +205,7 @@ static int spr(sunrealtype t, sunrealtype extsprad, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter */
-  sunrealtype exsprad = lambda; /* access current solution value */
+  extsprad = lambda; /* access current solution value */
 
   return 0; /* return with success */
 }
