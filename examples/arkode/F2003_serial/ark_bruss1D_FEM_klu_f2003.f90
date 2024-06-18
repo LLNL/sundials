@@ -452,9 +452,9 @@ contains
     nz = 0
 
     ! Dirichlet boundary at left
-    Jrowptrs(idx(1,1)+1) = nz
-    Jrowptrs(idx(1,2)+1) = nz
-    Jrowptrs(idx(1,3)+1) = nz
+    Jrowptrs(idx(1_c_int64_t,1)+1) = nz
+    Jrowptrs(idx(1_c_int64_t,2)+1) = nz
+    Jrowptrs(idx(1_c_int64_t,3)+1) = nz
 
     ! iterate through nodes, filling in matrix by rows
     do ix=2,N-1
