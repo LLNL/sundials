@@ -70,3 +70,28 @@ jobs:
       working-directory: ${{github.workspace}}/build
       # Execute tests
       run: ctest --output-on-failure
+
+    - name: Configure CMake (Shared)
+      # Configure CMake in a 'build' subdirectory
+      run: |
+        cmake \
+          -G "MSYS Makefiles" \
+          -B ${GITHUB_WORKSPACE}/build \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -DCMAKE_C_FLAGS=-Wno-deprecated-declarations \
+          -DBUILD_FORTRAN_MODULE_INTERFACE=ON \
+          -DBUILD_STATIC_LIBS=OFF \
+          -DSUNDIALS_BUILD_WITH_PROFILING=ON \
+          -DSUNDIALS_LOGGING_LEVEL=2 \
+          -DSUNDIALS_TEST_UNITTESTS=OFF \
+          -DEXAMPLES_ENABLE_CXX=ON \
+          -DENABLE_KLU=ON
+
+    - name: Build (Shared)
+      # Build program
+      run: cmake --build ${GITHUB_WORKSPACE}/build --verbose
+
+    - name: Test (Shared)
+      working-directory: ${{github.workspace}}/build
+      # Execute tests
+      run: ctest --output-on-failure
