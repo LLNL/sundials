@@ -62,11 +62,11 @@ jobs:
           -DEXAMPLES_ENABLE_CXX=ON \
           -DENABLE_KLU=ON
 
-    - name: Build
+    - name: Build (Static)
       # Build program
-      run: cmake --build ${GITHUB_WORKSPACE}/build
+      run: cmake --build ${GITHUB_WORKSPACE}/build --verbose
 
-    - name: Test
+    - name: Test (Static)
       working-directory: ${{github.workspace}}/build
       # Execute tests
       run: ctest --output-on-failure
