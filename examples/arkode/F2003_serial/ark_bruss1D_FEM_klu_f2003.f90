@@ -421,8 +421,8 @@ contains
     real(c_double), dimension(3,-1:1) :: Ju, Jv, Jw
 
     ! pointers to data in SUNDIALS vectors
-    integer(c_long), pointer, dimension(nnz)       :: Jcolvals(:)
-    integer(c_long), pointer, dimension(neq+1)     :: Jrowptrs(:)
+    integer(c_int64_t), pointer, dimension(nnz)       :: Jcolvals(:)
+    integer(c_int64_t), pointer, dimension(neq+1)     :: Jrowptrs(:)
     real(c_double),  pointer, dimension(nnz)       :: Jdata(:)
     real(c_double),  pointer, dimension(neqreal,N) :: yvec(:,:)
     real(c_double),  pointer, dimension(neqreal,N) :: fvec(:,:)
@@ -873,8 +873,8 @@ contains
     logical        :: left, right
 
     ! pointers to data in SUNDIALS vectors
-    integer(c_long), pointer, dimension(nnz)   :: Mcolvals(:)
-    integer(c_long), pointer, dimension(neq+1) :: Mrowptrs(:)
+    integer(c_int64_t), pointer, dimension(nnz)   :: Mcolvals(:)
+    integer(c_int64_t), pointer, dimension(neq+1) :: Mrowptrs(:)
     real(c_double),  pointer, dimension(nnz)   :: Mdata(:)
 
     !======= Internals ============
