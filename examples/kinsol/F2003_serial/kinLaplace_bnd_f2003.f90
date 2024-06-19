@@ -131,7 +131,7 @@ program main
   ! local variables
   real(c_double)  :: fnormtol, fnorm(1)
   integer(c_int)  :: ierr
-  integer(c_int) :: mset, msubset
+  integer(c_long) :: mset, msubset
 
   type(c_ptr)                    :: sunctx        ! sundials context
   type(N_Vector),        pointer :: sunvec_u      ! sundials vectors
