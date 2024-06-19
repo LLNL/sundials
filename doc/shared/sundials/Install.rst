@@ -590,6 +590,11 @@ illustration only.
 
    Default: ``OFF``
 
+   .. warning:: There is a known issue with MSYS/gfortran and SUNDIALS shared libraries
+      that causes linking the Fortran interfaces to fail when buidling SUNDIALS. For
+      now the work around is to only build with static libraries when using MSYS with
+      gfortran on Windows.
+
 .. cmakeoption:: SUNDIALS_LOGGING_LEVEL
 
    Set the maximum logging level for the SUNLogger runtime API. The higher this is set,
