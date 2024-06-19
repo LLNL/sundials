@@ -112,9 +112,6 @@ int main(void)
                            (void*)&lambda); /* Pass lambda to user functions */
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
-  flag = ARKodeSetFixedStep(arkode_mem, (sunrealtype)0.1);
-  if (check_flag(&flag, "ARKSetFixedStep", 1)) { return 1; }
-
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol); /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
