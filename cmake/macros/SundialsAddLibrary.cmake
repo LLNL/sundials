@@ -173,6 +173,9 @@ macro(sundials_add_library target)
       else()
         set(_all_libs ${sundials_add_library_LINK_LIBRARIES})
       endif()
+      # Due to various issues in CMake, particularly https://gitlab.kitware.com/cmake/cmake/-/issues/25365
+      # we create a fake custom target to enforce a build order. Without this, parallel
+      # builds might fail due with a missing '.mod' error when Fortran is enabled.
       add_custom_target(fake_to_force_build_order_${obj_target})
       set(_stripped_all_libs ${_all_libs})
       list(FILTER _stripped_all_libs EXCLUDE REGEX "PUBLIC|INTERFACE|PRIVATE")
@@ -452,7 +455,7 @@ macro(sundials_add_f2003_library target)
   string(REPLACE "sundials_f" "sundials_" _clib_name "${target}")
   string(REPLACE "_mod" "" _clib_name "${_clib_name}")
   if(TARGET ${_clib_name})
-    set(_clib_target PUBLIC ${_clib_name})
+    set(_clib_target ${_clib_name})
   else()
     set(_clib_target )
   endif()
