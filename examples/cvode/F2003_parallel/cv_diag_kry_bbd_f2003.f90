@@ -49,8 +49,8 @@ module DiagkrybbdData
     ! Problem parameters
     integer(c_int),  parameter :: iGStype = 1
     integer(c_int),  parameter :: iPretype0 = 1
-    integer(c_long), parameter :: nlocal = 10
-    integer(c_long) :: neq, mu, ml, mudq, mldq
+    integer(c_int64_t), parameter :: nlocal = 10
+    integer(c_int64_t) :: neq, mu, ml, mudq, mldq
     integer(c_int) :: iPretype
     real(c_double) :: alpha
 
@@ -118,7 +118,7 @@ module DiagkrybbdData
 
       ! calling variables
       real(c_double), value :: t            ! current time
-      integer(c_long)       :: nnlocal      ! local space
+      integer(c_int64_t)       :: nnlocal      ! local space
       type(N_Vector)        :: sunvec_y     ! solution N_Vector
       type(N_Vector)        :: sunvec_g     ! output g N_Vector
       type(c_ptr)           :: user_data    ! user-defined data

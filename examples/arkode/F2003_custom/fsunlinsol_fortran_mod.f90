@@ -30,9 +30,9 @@ module fsunlinsol_fortran_mod
 
   ! ----------------------------------------------------------------
   type, public :: FLinSol
-     integer(c_long)              :: Nvar
-     integer(c_long)              :: N
-     integer(c_long), allocatable :: pivots(:,:)
+     integer(c_int64_t)              :: Nvar
+     integer(c_int64_t)              :: N
+     integer(c_int64_t), allocatable :: pivots(:,:)
   end type FLinSol
   ! ----------------------------------------------------------------
 
@@ -42,8 +42,8 @@ contains
   function FSUNLinSolNew_Fortran(Nvar, N, sunctx) result(sunls_S)
 
     implicit none
-    integer(c_long),           value   :: Nvar
-    integer(c_long),           value   :: N
+    integer(c_int64_t),           value   :: Nvar
+    integer(c_int64_t),           value   :: N
     type(c_ptr),               value   :: sunctx
     type(SUNLinearSolver),     pointer :: sunls_S
     type(SUNLinearSolver_Ops), pointer :: ops
@@ -135,7 +135,7 @@ contains
     type(SUNMatrix)         :: sunmat_A
     type(FLinSol),  pointer :: S
     type(FMat),     pointer :: AMat
-    integer(c_long)         :: i, j, k, l
+    integer(c_int64_t)         :: i, j, k, l
     real(c_double)          :: temp
     real(c_double), pointer :: A(:,:)
 
@@ -214,7 +214,7 @@ contains
     type(FLinSol),  pointer :: S
     type(FMat),     pointer :: AMat
     type(FVec),     pointer :: xvec, bvec
-    integer(c_long)         :: i, k, pk
+    integer(c_int64_t)         :: i, k, pk
     real(c_double)          :: temp
     real(c_double), pointer :: A(:,:), x(:)
 

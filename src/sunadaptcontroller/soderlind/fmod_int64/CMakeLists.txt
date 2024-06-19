@@ -17,7 +17,6 @@ sundials_add_f2003_library(sundials_fsunadaptcontrollersoderlind_mod
     fsunadaptcontroller_soderlind_mod.f90 fsunadaptcontroller_soderlind_mod.c
   LINK_LIBRARIES
     PUBLIC sundials_fcore_mod
-  OBJECT_LIBRARIES
   OUTPUT_NAME
     sundials_fsunadaptcontrollersoderlind_mod
   OBJECT_LIB_ONLY

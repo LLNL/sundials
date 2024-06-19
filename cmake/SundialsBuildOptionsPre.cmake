@@ -119,7 +119,7 @@ sundials_option(BUILD_SHARED_LIBS BOOL "Build shared libraries" ON)
 
 # Make sure we build at least one type of libraries
 if(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
-  print_error("Both static and shared library generation were disabled.")
+  message(FATAL_ERROR "Both static and shared library generation were disabled.")
 endif()
 
 # ---------------------------------------------------------------
