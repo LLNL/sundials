@@ -176,9 +176,14 @@ macro(sundials_add_library target)
       # Due to various issues in CMake, particularly https://gitlab.kitware.com/cmake/cmake/-/issues/25365,
       # we create a fake custom target to enforce a build order. Without this, parallel builds
       # might fail with an error about a missing '.mod' file when Fortran is enabled (see GitHub #410).
-      add_custom_target(fake_to_force_build_order_${obj_target})
       set(_stripped_all_libs ${_all_libs})
       list(FILTER _stripped_all_libs EXCLUDE REGEX "PUBLIC|INTERFACE|PRIVATE")
+      foreach(_item ${_stripped_all_libs})
+        if(NOT TARGET ${_item})
+          list(REMOVE_ITEM _stripped_all_libs ${_item})
+        endif()
+      endforeach()
+      add_custom_target(fake_to_force_build_order_${obj_target})
       add_dependencies(fake_to_force_build_order_${obj_target} ${_stripped_all_libs})
       add_dependencies(${obj_target} fake_to_force_build_order_${obj_target})
       target_link_libraries(${obj_target} ${_all_libs})
