@@ -33,12 +33,6 @@
 extern "C" {
 #endif
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
 /*
  * =================================================================
  *   M A I N    S O L V E R    M E M O R Y    B L O C K

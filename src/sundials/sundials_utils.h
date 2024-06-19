@@ -119,4 +119,29 @@ static inline void sunfprintf_long_int(FILE* fp, SUNOutputFormat fmt,
   }
 }
 
+static inline void sunfprintf_long_array(FILE* fp, SUNOutputFormat fmt,
+                                       sunbooleantype start, const char* name,
+                                       long* value, size_t count)
+{
+  if (count < 1) {
+    return;
+  }
+
+  if (fmt == SUN_OUTPUTFORMAT_TABLE)
+  {
+    fprintf(fp, "%-*s = %ld\n", SUN_TABLE_WIDTH, name, value[0]);
+    for (size_t i = 1; i < count; i++) {
+      fprintf(fp, ", %ld", value[i]);
+    }
+    fprintf(fp, "\n");
+  }
+  else
+  {
+    if (!start) { fprintf(fp, ","); }
+    for (size_t i = 0; i < count; i++) {
+      fprintf(fp, "%s %zu,%ld", name, i, value[i]);
+    }
+  }
+}
+
 #endif /* _SUNDIALS_UTILS_H */

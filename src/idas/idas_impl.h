@@ -30,12 +30,6 @@
 extern "C" {
 #endif
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
 /*=================================================================*/
 /* Shortcuts                                                       */
 /*=================================================================*/
@@ -1224,7 +1218,7 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
   "The final time tBout is outside the interval over which the forward " \
   "problem was solved."
 #define MSGAM_BACK_ERROR  "Error occured while integrating backward problem # %d"
-#define MSGAM_BAD_TINTERP "Bad t = %g for interpolation."
+#define MSGAM_BAD_TINTERP "Bad t = " SUN_REAL_FORMAT_G " for interpolation."
 #define MSGAM_BAD_T       "Bad t for interpolation."
 #define MSGAM_WRONG_INTERP \
   "This function cannot be called for the specified interp type."

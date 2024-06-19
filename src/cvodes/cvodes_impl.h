@@ -31,12 +31,6 @@
 extern "C" {
 #endif
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM ".32Lg"
-#else
-#define RSYM ".16g"
-#endif
-
 /*=================================================================*/
 /* Shortcuts                                                       */
 /*=================================================================*/
@@ -1427,7 +1421,7 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
   "The final time tBout is outside the interval over which the forward " \
   "problem was solved."
 #define MSGCV_BACK_ERROR  "Error occured while integrating backward problem # %d"
-#define MSGCV_BAD_TINTERP "Bad t = %g for interpolation."
+#define MSGCV_BAD_TINTERP "Bad t = " SUN_REAL_FORMAT_G " for interpolation."
 #define MSGCV_WRONG_INTERP \
   "This function cannot be called for the specified interp type."
 

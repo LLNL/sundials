@@ -2628,8 +2628,8 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_NLS_SETUP_FAIL:
     arkProcessError(ark_mem, ARK_NLS_SETUP_FAIL, __LINE__, __func__,
-                    __FILE__, "At t = %Lg the nonlinear solver setup failed unrecoverably",
-                    (long double)ark_mem->tcur);
+                    __FILE__, "At t = " SUN_REAL_FORMAT_G " the nonlinear solver setup failed unrecoverably",
+                    ark_mem->tcur);
     break;
   case ARK_VECTOROP_ERR:
     arkProcessError(ark_mem, ARK_VECTOROP_ERR, __LINE__, __func__, __FILE__,
@@ -2657,8 +2657,8 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_INTERP_FAIL:
     arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
-                    "At t = %Lg the interpolation module failed unrecoverably",
-                    (long double)ark_mem->tcur);
+                    "At t = " SUN_REAL_FORMAT_G " the interpolation module failed unrecoverably",
+                    ark_mem->tcur);
     break;
   case ARK_INVALID_TABLE:
     arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
@@ -2666,8 +2666,8 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_RELAX_FAIL:
     arkProcessError(ark_mem, ARK_RELAX_FAIL, __LINE__, __func__, __FILE__,
-                    "At t = %Lg the relaxation module failed",
-                    (long double)ark_mem->tcur);
+                    "At t = " SUN_REAL_FORMAT_G " the relaxation module failed",
+                    ark_mem->tcur);
     break;
   case ARK_RELAX_MEM_NULL:
     arkProcessError(ark_mem, ARK_RELAX_MEM_NULL, __LINE__, __func__, __FILE__,

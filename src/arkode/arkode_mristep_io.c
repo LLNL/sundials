@@ -677,100 +677,37 @@ int mriStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
   retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  switch (fmt)
+  /* function evaluations */
+  sunfprintf_long_int(outfile, fmt, SUNTRUE, "Explicit slow RHS fn evals", step_mem->nfse);
+  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Implicit slow RHS fn evals", step_mem->nfsi);
+
+  /* nonlinear solver stats */
+  sunfprintf_long_int(outfile, fmt, SUNFALSE, "NLS iters", step_mem->nls_iters);
+  sunfprintf_long_int(outfile, fmt, SUNFALSE, "NLS fails", step_mem->nls_fails);
+  if (ark_mem->nst > 0)
   {
-  case SUN_OUTPUTFORMAT_TABLE:
-    /* function evaluations */
-    fprintf(outfile, "Explicit slow RHS fn evals   = %ld\n", step_mem->nfse);
-    fprintf(outfile, "Implicit slow RHS fn evals   = %ld\n", step_mem->nfsi);
+    sunfprintf_real(outfile, fmt, SUNFALSE, "NLS iters per step", (sunrealtype)step_mem->nls_iters / (sunrealtype)ark_mem->nst);
+  }
 
-    /* nonlinear solver stats */
-    fprintf(outfile, "NLS iters                    = %ld\n", step_mem->nls_iters);
-    fprintf(outfile, "NLS fails                    = %ld\n", step_mem->nls_fails);
-    if (ark_mem->nst > 0)
+  /* linear solver stats */
+  sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS setups", step_mem->nsetups);
+  if (ark_mem->step_getlinmem(ark_mem))
+  {
+    arkls_mem = (ARKLsMem)(ark_mem->step_getlinmem(ark_mem));
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac fn evals", arkls_mem->nje);
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS RHS fn evals", arkls_mem->nfeDQ);
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Prec setup evals", arkls_mem->npe);
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Prec solves", arkls_mem->nps);
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS iters", arkls_mem->nli);
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS fails", arkls_mem->ncfl);
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac-times setups", arkls_mem->njtsetup);
+    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac-times evals", arkls_mem->njtimes);
+    if (step_mem->nls_iters > 0)
     {
-      fprintf(outfile, "NLS iters per step           = %" RSYM "\n",
-              (sunrealtype)step_mem->nls_iters / (sunrealtype)ark_mem->nst);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter", (sunrealtype)arkls_mem->nli / (sunrealtype)step_mem->nls_iters);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Jac evals per NLS iter", (sunrealtype)arkls_mem->nje / (sunrealtype)step_mem->nls_iters);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Prec evals per NLS iter", (sunrealtype)arkls_mem->npe / (sunrealtype)step_mem->nls_iters);
     }
-
-    /* linear solver stats */
-    fprintf(outfile, "LS setups                    = %ld\n", step_mem->nsetups);
-    if (ark_mem->step_getlinmem(ark_mem))
-    {
-      arkls_mem = (ARKLsMem)(ark_mem->step_getlinmem(ark_mem));
-      fprintf(outfile, "Jac fn evals                 = %ld\n", arkls_mem->nje);
-      fprintf(outfile, "LS RHS fn evals              = %ld\n", arkls_mem->nfeDQ);
-      fprintf(outfile, "Prec setup evals             = %ld\n", arkls_mem->npe);
-      fprintf(outfile, "Prec solves                  = %ld\n", arkls_mem->nps);
-      fprintf(outfile, "LS iters                     = %ld\n", arkls_mem->nli);
-      fprintf(outfile, "LS fails                     = %ld\n", arkls_mem->ncfl);
-      fprintf(outfile, "Jac-times setups             = %ld\n",
-              arkls_mem->njtsetup);
-      fprintf(outfile, "Jac-times evals              = %ld\n",
-              arkls_mem->njtimes);
-      if (step_mem->nls_iters > 0)
-      {
-        fprintf(outfile, "LS iters per NLS iter        = %" RSYM "\n",
-                (sunrealtype)arkls_mem->nli / (sunrealtype)step_mem->nls_iters);
-        fprintf(outfile, "Jac evals per NLS iter       = %" RSYM "\n",
-                (sunrealtype)arkls_mem->nje / (sunrealtype)step_mem->nls_iters);
-        fprintf(outfile, "Prec evals per NLS iter      = %" RSYM "\n",
-                (sunrealtype)arkls_mem->npe / (sunrealtype)step_mem->nls_iters);
-      }
-    }
-    break;
-
-  case SUN_OUTPUTFORMAT_CSV:
-    /* function evaluations */
-    fprintf(outfile, ",Explicit slow RHS fn evals,%ld", step_mem->nfse);
-    fprintf(outfile, ",Implicit slow RHS fn evals,%ld", step_mem->nfsi);
-
-    /* nonlinear solver stats */
-    fprintf(outfile, ",NLS iters,%ld", step_mem->nls_iters);
-    fprintf(outfile, ",NLS fails,%ld", step_mem->nls_fails);
-    if (ark_mem->nst > 0)
-    {
-      fprintf(outfile, ",NLS iters per step,%" RSYM,
-              (sunrealtype)step_mem->nls_iters / (sunrealtype)ark_mem->nst);
-    }
-    else { fprintf(outfile, ",NLS iters per step,0"); }
-
-    /* linear solver stats */
-    fprintf(outfile, ",LS setups,%ld", step_mem->nsetups);
-    if (ark_mem->step_getlinmem(ark_mem))
-    {
-      arkls_mem = (ARKLsMem)(ark_mem->step_getlinmem(ark_mem));
-      fprintf(outfile, ",Jac fn evals,%ld", arkls_mem->nje);
-      fprintf(outfile, ",LS RHS fn evals,%ld", arkls_mem->nfeDQ);
-      fprintf(outfile, ",Prec setup evals,%ld", arkls_mem->npe);
-      fprintf(outfile, ",Prec solves,%ld", arkls_mem->nps);
-      fprintf(outfile, ",LS iters,%ld", arkls_mem->nli);
-      fprintf(outfile, ",LS fails,%ld", arkls_mem->ncfl);
-      fprintf(outfile, ",Jac-times setups,%ld", arkls_mem->njtsetup);
-      fprintf(outfile, ",Jac-times evals,%ld", arkls_mem->njtimes);
-      if (step_mem->nls_iters > 0)
-      {
-        fprintf(outfile, ",LS iters per NLS iter,%" RSYM,
-                (sunrealtype)arkls_mem->nli / (sunrealtype)step_mem->nls_iters);
-        fprintf(outfile, ",Jac evals per NLS iter,%" RSYM,
-                (sunrealtype)arkls_mem->nje / (sunrealtype)step_mem->nls_iters);
-        fprintf(outfile, ",Prec evals per NLS iter,%" RSYM,
-                (sunrealtype)arkls_mem->npe / (sunrealtype)step_mem->nls_iters);
-      }
-      else
-      {
-        fprintf(outfile, ",LS iters per NLS iter,0");
-        fprintf(outfile, ",Jac evals per NLS iter,0");
-        fprintf(outfile, ",Prec evals per NLS iter,0");
-      }
-    }
-    fprintf(outfile, "\n");
-    break;
-
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return (ARK_ILL_INPUT);
   }
 
   return (ARK_SUCCESS);
@@ -815,14 +752,14 @@ int mriStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   if (step_mem->implicit_rhs)
   {
     fprintf(fp, "  Implicit predictor method = %i\n", step_mem->predictor);
-    fprintf(fp, "  Implicit solver tolerance coefficient = %" RSYM "\n",
+    fprintf(fp, "  Implicit solver tolerance coefficient = " SUN_REAL_FORMAT_G "\n",
             step_mem->nlscoef);
     fprintf(fp, "  Maximum number of nonlinear corrections = %i\n",
             step_mem->maxcor);
-    fprintf(fp, "  Nonlinear convergence rate constant = %" RSYM "\n",
+    fprintf(fp, "  Nonlinear convergence rate constant = " SUN_REAL_FORMAT_G "\n",
             step_mem->crdown);
-    fprintf(fp, "  Nonlinear divergence tolerance = %" RSYM "\n", step_mem->rdiv);
-    fprintf(fp, "  Gamma factor LSetup tolerance = %" RSYM "\n", step_mem->dgmax);
+    fprintf(fp, "  Nonlinear divergence tolerance = " SUN_REAL_FORMAT_G "\n", step_mem->rdiv);
+    fprintf(fp, "  Gamma factor LSetup tolerance = " SUN_REAL_FORMAT_G "\n", step_mem->dgmax);
     fprintf(fp, "  Number of steps between LSetup calls = %i\n", step_mem->msbp);
   }
   fprintf(fp, "\n");
