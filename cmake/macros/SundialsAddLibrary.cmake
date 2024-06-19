@@ -173,6 +173,11 @@ macro(sundials_add_library target)
       else()
         set(_all_libs ${sundials_add_library_LINK_LIBRARIES})
       endif()
+      add_custom_target(fake_to_force_build_order_${obj_target})
+      set(_stripped_all_libs ${_all_libs})
+      list(FILTER _stripped_all_libs EXCLUDE REGEX "PUBLIC|INTERFACE|PRIVATE")
+      add_dependencies(fake_to_force_build_order_${obj_target} ${_stripped_all_libs})
+      add_dependencies(${obj_target} fake_to_force_build_order_${obj_target})
       target_link_libraries(${obj_target} ${_all_libs})
     endif()
 
@@ -239,11 +244,7 @@ macro(sundials_add_library target)
       # set target name
       set(_actual_target_name ${target}${_lib_suffix})
 
-      add_library(${_actual_target_name} ${_libtype} $<TARGET_OBJECTS:${obj_target}> ${sundials_add_library_UNPARSED_ARGUMENTS})
-
-      set_target_properties(${_actual_target_name} PROPERTIES FOLDER "src")
-
-      # add any object library dependencies
+      set(_object_sources $<TARGET_OBJECTS:${obj_target}>)
       if(sundials_add_library_OBJECT_LIBRARIES)
         if(${_libtype} MATCHES "STATIC")
           append_static_suffix(sundials_add_library_OBJECT_LIBRARIES _all_objs)
@@ -251,12 +252,13 @@ macro(sundials_add_library target)
           set(_all_objs ${sundials_add_library_OBJECT_LIBRARIES})
         endif()
         foreach(_tmp ${_all_objs})
-          # We use target_sources since target_link_libraries does not work
-          # as expected with CMake 3.12 (see CMake issues 18090 and 18692).
-          # TODO(DJG): Update whenever we require CMake 3.14 or newer
-          target_sources(${_actual_target_name} PRIVATE $<TARGET_OBJECTS:${_tmp}>)
+          list(APPEND _object_sources $<TARGET_OBJECTS:${_tmp}>)
         endforeach()
       endif()
+
+      add_library(${_actual_target_name} ${_libtype} ${_object_sources} ${sundials_add_library_UNPARSED_ARGUMENTS})
+
+      set_target_properties(${_actual_target_name} PROPERTIES FOLDER "src")
 
       # add all link libraries
       if(SUNDIALS_MATH_LIBRARY)
@@ -449,12 +451,17 @@ macro(sundials_add_f2003_library target)
   # get the name of the C library which the fortran library interfaces to
   string(REPLACE "sundials_f" "sundials_" _clib_name "${target}")
   string(REPLACE "_mod" "" _clib_name "${_clib_name}")
+  if(TARGET ${_clib_name})
+    set(_clib_target PUBLIC ${_clib_name})
+  else()
+    set(_clib_target )
+  endif()
 
   sundials_add_library(${target}
     SOURCES ${sundials_add_f2003_library_SOURCES}
     OBJECT_LIBRARIES ${sundials_add_f2003_library_OBJECT_LIBRARIES}
     LINK_LIBRARIES
-      PUBLIC ${_clib_name} # depend on the c library
+      PUBLIC ${_clib_target} # depend on the c library
       ${sundials_add_f2003_library_LINK_LIBRARIES}
     INCLUDE_DIRECTORIES
       ${sundials_add_f2003_library_INCLUDE_DIRECTORIES}
