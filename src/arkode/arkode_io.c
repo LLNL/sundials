@@ -2728,13 +2728,13 @@ int ARKodePrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
   }
 
   sunfprintf_real(outfile, fmt, SUNTRUE, "Current time", ark_mem->tcur);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Steps", ark_mem->nst);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Step attempts", ark_mem->nst_attempts);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Stability limited steps", ark_mem->hadapt_mem->nst_exp);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Accuracy limited steps", ark_mem->hadapt_mem->nst_acc);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Error test fails", ark_mem->netf);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "NLS step fails", ark_mem->ncfn);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Inequality constraint fails", ark_mem->nconstrfails);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Steps", ark_mem->nst);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Step attempts", ark_mem->nst_attempts);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Stability limited steps", ark_mem->hadapt_mem->nst_exp);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Accuracy limited steps", ark_mem->hadapt_mem->nst_acc);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Error test fails", ark_mem->netf);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS step fails", ark_mem->ncfn);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Inequality constraint fails", ark_mem->nconstrfails);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Initial step size", ark_mem->h0u);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Last step size", ark_mem->hold);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Current step size",
@@ -2742,7 +2742,7 @@ int ARKodePrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
   if (ark_mem->root_mem)
   {
     ark_root_mem = (ARKodeRootMem)ark_mem->root_mem;
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Root fn evals", ark_root_mem->nge);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Root fn evals", ark_root_mem->nge);
   }
 
   /* Print relaxation stats */

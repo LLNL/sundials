@@ -2539,24 +2539,24 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
   }
 
   sunfprintf_real(outfile, fmt, SUNTRUE, "Current time", cv_mem->cv_tn);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Steps", cv_mem->cv_nst);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Error test fails", cv_mem->cv_netf);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "NLS step fails", cv_mem->cv_ncfn);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Steps", cv_mem->cv_nst);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Error test fails", cv_mem->cv_netf);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS step fails", cv_mem->cv_ncfn);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Initial step size",
           cv_mem->cv_h0u);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Last step size", cv_mem->cv_hu);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Current step size",
           cv_mem->cv_next_h);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Last method order", cv_mem->cv_qu);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Current method order", cv_mem->cv_next_q);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Stab. lim. order reductions", cv_mem->cv_nor);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Last method order", cv_mem->cv_qu);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Current method order", cv_mem->cv_next_q);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Stab. lim. order reductions", cv_mem->cv_nor);
 
   /* function evaluations */
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "RHS fn evals", cv_mem->cv_nfe);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "RHS fn evals", cv_mem->cv_nfe);
 
   /* nonlinear solver stats */
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "NLS iters", cv_mem->cv_nni);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "NLS fails", cv_mem->cv_nnf);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS iters", cv_mem->cv_nni);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS fails", cv_mem->cv_nnf);
 
   if (cv_mem->cv_nst > 0)
   {
@@ -2564,18 +2564,18 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
   }
 
   /* linear solver stats */
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS setups", cv_mem->cv_nsetups);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "LS setups", cv_mem->cv_nsetups);
   if (cv_mem->cv_lmem)
   {
     cvls_mem = (CVLsMem)(cv_mem->cv_lmem);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac fn evals", cvls_mem->nje);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS RHS fn evals", cvls_mem->nfeDQ);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Prec setup evals", cvls_mem->npe);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Prec solves", cvls_mem->nps);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS iters", cvls_mem->nli);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS fails", cvls_mem->ncfl);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac-times setups", cvls_mem->njtsetup);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac-times evals", cvls_mem->njtimes);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac fn evals", cvls_mem->nje);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS RHS fn evals", cvls_mem->nfeDQ);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Prec setup evals", cvls_mem->npe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Prec solves", cvls_mem->nps);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS iters", cvls_mem->nli);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS fails", cvls_mem->ncfl);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times setups", cvls_mem->njtsetup);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times evals", cvls_mem->njtimes);
     if (cv_mem->cv_nni > 0)
     {
       sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter", (sunrealtype)cvls_mem->nli / (sunrealtype)cv_mem->cv_nni);
@@ -2585,34 +2585,34 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
   }
 
   /* rootfinding stats */
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Root fn evals", cv_mem->cv_nge);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Root fn evals", cv_mem->cv_nge);
 
   /* projection stats */
   if (cv_mem->proj_mem)
   {
     cvproj_mem = (CVodeProjMem)(cv_mem->proj_mem);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Projection fn evals", cvproj_mem->nproj);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Projection fails", cvproj_mem->npfails);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Projection fn evals", cvproj_mem->nproj);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Projection fails", cvproj_mem->npfails);
   }
 
   /* quadrature stats */
   if (cv_mem->cv_quadr)
   {
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Quad fn evals", cv_mem->cv_nfQe);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Quad error test fails", cv_mem->cv_netfQ);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Quad fn evals", cv_mem->cv_nfQe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Quad error test fails", cv_mem->cv_netfQ);
   }
 
   /* sensitivity stats */
   if (cv_mem->cv_sensi)
   {
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Sens fn evals", cv_mem->cv_nfSe);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Sens RHS fn evals", cv_mem->cv_nfeS);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Sens error test fails", cv_mem->cv_netfS);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Sens fn evals", cv_mem->cv_nfSe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Sens RHS fn evals", cv_mem->cv_nfeS);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Sens error test fails", cv_mem->cv_netfS);
     if (cv_mem->cv_ism != CV_SIMULTANEOUS)
     {
-      sunfprintf_long_int(outfile, fmt, SUNFALSE, "Sens NLS iters", cv_mem->cv_nniS);
-      sunfprintf_long_int(outfile, fmt, SUNFALSE, "Sens NLS fails", cv_mem->cv_nnfS);
-      sunfprintf_long_int(outfile, fmt, SUNFALSE, "Sens NLS step fails", cv_mem->cv_ncfnS);
+      sunfprintf_long(outfile, fmt, SUNFALSE, "Sens NLS iters", cv_mem->cv_nniS);
+      sunfprintf_long(outfile, fmt, SUNFALSE, "Sens NLS fails", cv_mem->cv_nnfS);
+      sunfprintf_long(outfile, fmt, SUNFALSE, "Sens NLS step fails", cv_mem->cv_ncfnS);
     }
     if (cv_mem->cv_ism == CV_STAGGERED1)
     {
@@ -2620,15 +2620,15 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
       sunfprintf_long_array(outfile, fmt, SUNFALSE, "Sens stgr1 NLS fails", cv_mem->cv_nnfS1, cv_mem->cv_Ns);
       sunfprintf_long_array(outfile, fmt, SUNFALSE, "Sens stgr1 NLS step fails", cv_mem->cv_ncfnS1, cv_mem->cv_Ns);
     }
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Sens LS setups",
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Sens LS setups",
             cv_mem->cv_nsetupsS);
   }
 
   /* quadrature-sensitivity stats */
   if (cv_mem->cv_quadr_sensi)
   {
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "QuadSens fn evals", cv_mem->cv_nfQSe);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "QuadSens error test fails", cv_mem->cv_netfQS);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "QuadSens fn evals", cv_mem->cv_nfQSe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "QuadSens error test fails", cv_mem->cv_netfQS);
   }
 
   return (CV_SUCCESS);

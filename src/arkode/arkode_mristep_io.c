@@ -678,30 +678,30 @@ int mriStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* function evaluations */
-  sunfprintf_long_int(outfile, fmt, SUNTRUE, "Explicit slow RHS fn evals", step_mem->nfse);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Implicit slow RHS fn evals", step_mem->nfsi);
+  sunfprintf_long(outfile, fmt, SUNTRUE, "Explicit slow RHS fn evals", step_mem->nfse);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Implicit slow RHS fn evals", step_mem->nfsi);
 
   /* nonlinear solver stats */
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "NLS iters", step_mem->nls_iters);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "NLS fails", step_mem->nls_fails);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS iters", step_mem->nls_iters);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS fails", step_mem->nls_fails);
   if (ark_mem->nst > 0)
   {
     sunfprintf_real(outfile, fmt, SUNFALSE, "NLS iters per step", (sunrealtype)step_mem->nls_iters / (sunrealtype)ark_mem->nst);
   }
 
   /* linear solver stats */
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS setups", step_mem->nsetups);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "LS setups", step_mem->nsetups);
   if (ark_mem->step_getlinmem(ark_mem))
   {
     arkls_mem = (ARKLsMem)(ark_mem->step_getlinmem(ark_mem));
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac fn evals", arkls_mem->nje);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS RHS fn evals", arkls_mem->nfeDQ);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Prec setup evals", arkls_mem->npe);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Prec solves", arkls_mem->nps);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS iters", arkls_mem->nli);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS fails", arkls_mem->ncfl);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac-times setups", arkls_mem->njtsetup);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac-times evals", arkls_mem->njtimes);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac fn evals", arkls_mem->nje);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS RHS fn evals", arkls_mem->nfeDQ);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Prec setup evals", arkls_mem->npe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Prec solves", arkls_mem->nps);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS iters", arkls_mem->nli);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS fails", arkls_mem->ncfl);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times setups", arkls_mem->njtsetup);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times evals", arkls_mem->njtimes);
     if (step_mem->nls_iters > 0)
     {
       sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter", (sunrealtype)arkls_mem->nli / (sunrealtype)step_mem->nls_iters);

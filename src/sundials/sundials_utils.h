@@ -104,9 +104,9 @@ static inline void sunfprintf_real(FILE* fp, SUNOutputFormat fmt,
   }
 }
 
-static inline void sunfprintf_long_int(FILE* fp, SUNOutputFormat fmt,
+static inline void sunfprintf_long(FILE* fp, SUNOutputFormat fmt,
                                        sunbooleantype start, const char* name,
-                                       long int value)
+                                       long value)
 {
   if (fmt == SUN_OUTPUTFORMAT_TABLE)
   {

@@ -1202,30 +1202,30 @@ int arkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* function evaluations */
-  sunfprintf_long_int(outfile, fmt, SUNTRUE, "Explicit RHS fn evals", step_mem->nfe);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "Implicit RHS fn evals", step_mem->nfi);
+  sunfprintf_long(outfile, fmt, SUNTRUE, "Explicit RHS fn evals", step_mem->nfe);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Implicit RHS fn evals", step_mem->nfi);
 
   /* nonlinear solver stats */
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "NLS iters", step_mem->nls_iters);
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "NLS fails", step_mem->nls_fails);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS iters", step_mem->nls_iters);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS fails", step_mem->nls_fails);
   if (ark_mem->nst > 0)
   {
     sunfprintf_real(outfile, fmt, SUNFALSE, "NLS iters per step", (sunrealtype)step_mem->nls_iters / (sunrealtype)ark_mem->nst);
   }
 
   /* linear solver stats */
-  sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS setups", step_mem->nsetups);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "LS setups", step_mem->nsetups);
   if (ark_mem->step_getlinmem(ark_mem))
   {
     arkls_mem = (ARKLsMem)(ark_mem->step_getlinmem(ark_mem));
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac fn evals", arkls_mem->nje);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS RHS fn evals", arkls_mem->nfeDQ);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Prec setup evals", arkls_mem->npe);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Prec solves", arkls_mem->nps);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS iters", arkls_mem->nli);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "LS fails", arkls_mem->ncfl);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac-times setups", arkls_mem->njtsetup);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Jac-times evals", arkls_mem->njtimes);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac fn evals", arkls_mem->nje);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS RHS fn evals", arkls_mem->nfeDQ);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Prec setup evals", arkls_mem->npe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Prec solves", arkls_mem->nps);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS iters", arkls_mem->nli);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS fails", arkls_mem->ncfl);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times setups", arkls_mem->njtsetup);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times evals", arkls_mem->njtimes);
     if (step_mem->nls_iters > 0)
     {
       sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter", (sunrealtype)arkls_mem->nli / (sunrealtype)step_mem->nls_iters);
@@ -1238,14 +1238,14 @@ int arkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
   if (ark_mem->step_getmassmem(ark_mem))
   {
     arklsm_mem = (ARKLsMassMem)(ark_mem->step_getmassmem(ark_mem));
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Mass setups", arklsm_mem->nmsetups);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Mass solves", arklsm_mem->nmsolves);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Mass Prec setup evals", arklsm_mem->npe);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Mass Prec solves", arklsm_mem->nps);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Mass LS iters", arklsm_mem->nli);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Mass LS fails", arklsm_mem->ncfl);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Mass-times setups", arklsm_mem->nmtsetup);
-    sunfprintf_long_int(outfile, fmt, SUNFALSE, "Mass-times evals", arklsm_mem->nmtimes);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass setups", arklsm_mem->nmsetups);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass solves", arklsm_mem->nmsolves);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass Prec setup evals", arklsm_mem->npe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass Prec solves", arklsm_mem->nps);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass LS iters", arklsm_mem->nli);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass LS fails", arklsm_mem->ncfl);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass-times setups", arklsm_mem->nmtsetup);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass-times evals", arklsm_mem->nmtimes);
   }
 
   return (ARK_SUCCESS);
