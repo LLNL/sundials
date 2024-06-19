@@ -23,9 +23,7 @@
  * result in a well-posed ODE; for values with magnitude larger
  * than 100 the problem becomes quite stiff.
  *
- * This program solves the problem with the DIRK method,
- * Newton iteration with the dense SUNLinearSolver, and a
- * user-supplied Jacobian routine.
+ * This program solves the problem with the LSRK method.
  * Output is printed every 1.0 units of time (10 total).
  * Run statistics (optional outputs) are printed at the end.
  *-----------------------------------------------------------------*/
@@ -35,8 +33,8 @@
 #include <math.h>
 #include <nvector/nvector_serial.h> /* serial N_Vector types, fcts., macros */
 #include <stdio.h>
+#include <sundials/sundials_math.h>  /* def. of SUNRsqrt, etc. */
 #include <sundials/sundials_types.h> /* definition of type sunrealtype          */
-
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -70,19 +68,18 @@ int main(void)
   /* general problem parameters */
   sunrealtype T0     = SUN_RCONST(0.0);    /* initial time */
   sunrealtype Tf     = SUN_RCONST(10.0);   /* final time */
-  sunrealtype dTout  = SUN_RCONST(10.0);    /* time between outputs */
+  sunrealtype dTout  = SUN_RCONST(1.0);    /* time between outputs */
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
   sunrealtype lambda  = SUN_RCONST(-1.0); /* stiffness parameter */
 
   /* general problem variables */
-  int flag;                  /* reusable error-checking flag */
-  N_Vector y         = NULL; /* empty vector for storing solution */
-  void* arkode_mem   = NULL; /* empty ARKode memory structure */
-  FILE* UFID;
+  int flag;                /* reusable error-checking flag */
+  N_Vector y       = NULL; /* empty vector for storing solution */
+  void* arkode_mem = NULL; /* empty ARKode memory structure */
+  FILE *UFID, *FID;
   sunrealtype t, tout;
-  long int nst, nst_a, nfe, nfi, nsetups, nfeLS, nni, ncfn, netf;
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -98,12 +95,11 @@ int main(void)
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx); /* Create serial vector for solution */
   if (check_flag((void*)y, "N_VNew_Serial", 0)) { return 1; }
-  N_VConst(SUN_RCONST(0.0), y); /* Specify initial condition */
+  NV_Ith_S(y, 0) = SUN_RCONST(0.0); /* Specify initial condition */
 
-  /* Call ARKStepCreate to initialize the ARK timestepper module and
+  /* Call LSRKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
-     T0, and the initial dependent variable vector y.  Note: since this
-     problem is fully implicit, we set f_E to NULL and f_I to f. */
+     T0, and the initial dependent variable vector y. */
   arkode_mem = LSRKStepCreate(f, NULL, T0, y, ctx);
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
@@ -112,10 +108,12 @@ int main(void)
                            (void*)&lambda); /* Pass lambda to user functions */
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
-  flag = ARKodeSStolerances(arkode_mem, reltol, abstol); /* Specify tolerances */
-  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
+  /* Specify tolerances */
+  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
 
-  flag = LSRKodeSetSprRadFn(arkode_mem, spr); /* Set ext sprad routine */
+  /* Specify user provided spectral radius */
+  flag = LSRKodeSetSprRadFn(arkode_mem, spr);
   if (check_flag(&flag, "LSRKodeSetSprRadFn", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
@@ -134,7 +132,7 @@ int main(void)
   while (Tf - t > 1.0e-15)
   {
     flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
-    if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
+    if (check_flag(&flag, "LSRKodeEvolve", 1)) { break; }
     printf("  %10.6" FSYM "  %10.6" FSYM "\n", t,
            NV_Ith_S(y, 0)); /* access/print solution */
     fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", t, NV_Ith_S(y, 0));
@@ -152,20 +150,14 @@ int main(void)
   printf("   ---------------------\n");
   fclose(UFID);
 
-  /* Get/print some final statistics on how the solve progressed */
-  flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  // flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  // check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
+  /* Print final statistics */
+  printf("\nFinal Statistics:\n");
+  flag = ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  printf("\nFinal Solver Statistics:\n");
-  printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
-  printf("   Total number of error test failures = %li\n\n", netf);
+  /* Print final statistics to a file in CSV format */
+  FID  = fopen("ark_analytic_nonlin_stats.csv", "w");
+  flag = ARKStepPrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  fclose(FID);
 
   /* check the solution error */
   flag = check_ans(y, t, reltol, abstol);
@@ -173,7 +165,7 @@ int main(void)
 
   /* Clean up and return */
   N_VDestroy(y);           /* Free y vector */
-  ARKodeFree(&arkode_mem); /* Free integrator memory */
+  ARKStepFree(&arkode_mem); /* Free integrator memory */
   SUNContext_Free(&ctx);   /* Free context */
 
   return flag;
@@ -286,7 +278,7 @@ static int compute_error(N_Vector y, sunrealtype t)
   ans = atan(t);
   err = fabs(NV_Ith_S(y, 0) - ans);
 
-  fprintf(stdout, "\nERROR at final time =%" GSYM "\n", err);
+  fprintf(stdout, "\nACCURACY at the final time =%" GSYM "\n", err);
 }
 
 /*---- end of file ----*/
