@@ -19,6 +19,7 @@ sundials_add_f2003_library(sundials_fsunadaptcontrollersoderlind_mod
     PUBLIC sundials_fcore_mod
   OUTPUT_NAME
     sundials_fsunadaptcontrollersoderlind_mod
+  OBJECT_LIB_ONLY
 )
 
 message(STATUS "Added SUNAdaptController_Soderlind F2003 interface")
