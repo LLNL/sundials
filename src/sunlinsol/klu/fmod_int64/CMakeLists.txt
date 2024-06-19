@@ -18,10 +18,7 @@ sundials_add_f2003_library(sundials_fsunlinsolklu_mod
   SOURCES
     fsunlinsol_klu_mod.f90 fsunlinsol_klu_mod.c
   LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
-  OBJECT_LIBRARIES
-  LINK_LIBRARIES
-    PUBLIC sundials_fsunmatrixsparse_mod
+    PUBLIC sundials_fsunmatrixsparse_mod sundials_fcore_mod
   OUTPUT_NAME
     sundials_fsunlinsolklu_mod
   VERSION

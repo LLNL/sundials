@@ -20,7 +20,6 @@ sundials_add_f2003_library(sundials_fsunnonlinsolfixedpoint_mod
     fsunnonlinsol_fixedpoint_mod.f90 fsunnonlinsol_fixedpoint_mod.c
   LINK_LIBRARIES
     PUBLIC sundials_fcore_mod
-  OBJECT_LIBRARIES
   OUTPUT_NAME
     sundials_fsunnonlinsolfixedpoint_mod
   VERSION

@@ -46,8 +46,18 @@ module bruss_mod
   !======= Declarations =========
   implicit none
 
+  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
+  ! we set the integer kind used for indices in this example based
+  ! on the the index size SUNDIALS was compiled with so that it works
+  ! in both configurations. This is not a requirement for user codes.
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: myindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: myindextype = selected_int_kind(16)
+#endif
+
   ! number of equations
-  integer(c_long), parameter :: neq = 3
+  integer(kind=myindextype), parameter :: neq = 3
 
   ! ODE parameters
   real(c_double), parameter, dimension(neq) :: y0 = (/ 3.9d0, 1.1d0, 2.8d0 /)

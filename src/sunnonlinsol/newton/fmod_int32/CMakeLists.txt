@@ -20,7 +20,6 @@ sundials_add_f2003_library(sundials_fsunnonlinsolnewton_mod
     fsunnonlinsol_newton_mod.f90 fsunnonlinsol_newton_mod.c
   LINK_LIBRARIES
     PUBLIC sundials_fcore_mod
-  OBJECT_LIBRARIES
   OUTPUT_NAME
     sundials_fsunnonlinsolnewton_mod
   VERSION
