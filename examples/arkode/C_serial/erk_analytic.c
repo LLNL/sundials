@@ -23,18 +23,18 @@
  * result in a well-posed ODE; for values with magnitude larger
  * than 100 the problem becomes quite stiff.
  *
- * This program solves the problem with the LSRK method.
+ * This program solves the problem with the ERK method.
  * Output is printed every 1.0 units of time (10 total).
  * Run statistics (optional outputs) are printed at the end.
  *-----------------------------------------------------------------*/
 
 /* Header files */
-#include <arkode/arkode_lsrkstep.h> /* prototypes for ARKStep fcts., consts */
+#include <arkode/arkode_erkstep.h> /* prototypes for ERKStep fcts., consts */
 #include <math.h>
 #include <nvector/nvector_serial.h> /* serial N_Vector types, fcts., macros */
 #include <stdio.h>
 #include <sundials/sundials_math.h>  /* def. of SUNRsqrt, etc. */
-#include <sundials/sundials_types.h> /* definition of type sunrealtype          */
+#include <sundials/sundials_types.h> /* def. of type 'sunrealtype' */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -49,9 +49,6 @@
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
-/* User-supplied Spectral Radius Called by the Solver */
-static int spr(sunrealtype t, sunrealtype extsprad, void* user_data);
-
 /* Private function to check function return values */
 static int check_flag(void* flagvalue, const char* funcname, int opt);
 
@@ -60,7 +57,7 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol,
                      sunrealtype atol);
 
 /* Private function to compute error */
-static int compute_error(N_Vector y, sunrealtype t);                     
+static int compute_error(N_Vector y, sunrealtype t); 
 
 /* Main Program */
 int main(void)
@@ -97,11 +94,11 @@ int main(void)
   if (check_flag((void*)y, "N_VNew_Serial", 0)) { return 1; }
   NV_Ith_S(y, 0) = SUN_RCONST(0.0); /* Specify initial condition */
 
-  /* Call LSRKStepCreate to initialize the ARK timestepper module and
+  /* Call ERKStepCreate to initialize the ERK timestepper module and
      specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y. */
-  arkode_mem = LSRKStepCreate(f, NULL, T0, y, ctx);
-  if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
+  arkode_mem = ERKStepCreate(f, T0, y, ctx);
+  if (check_flag((void*)arkode_mem, "ERKStepCreate", 0)) { return 1; }
 
   /* Set routines */
   flag = ARKodeSetUserData(arkode_mem,
@@ -112,10 +109,6 @@ int main(void)
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
 
-  /* Specify user provided spectral radius */
-  flag = LSRKodeSetSprRadFn(arkode_mem, spr);
-  if (check_flag(&flag, "LSRKodeSetSprRadFn", 1)) { return 1; }
-
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
   fprintf(UFID, "# t u\n");
@@ -123,7 +116,7 @@ int main(void)
   /* output initial condition to disk */
   fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", T0, NV_Ith_S(y, 0));
 
-  /* Main time-stepping loop: calls ARKodeEvolve to perform the integration, then
+  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t    = T0;
   tout = T0 + dTout;
@@ -131,8 +124,8 @@ int main(void)
   printf("   ---------------------\n");
   while (Tf - t > 1.0e-15)
   {
-    flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
-    if (check_flag(&flag, "LSRKodeEvolve", 1)) { break; }
+    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
+    if (check_flag(&flag, "ARKStepEvolve", 1)) { break; }
     printf("  %10.6" FSYM "  %10.6" FSYM "\n", t,
            NV_Ith_S(y, 0)); /* access/print solution */
     fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", t, NV_Ith_S(y, 0));
@@ -163,12 +156,12 @@ int main(void)
   flag = check_ans(y, t, reltol, abstol);
   flag = compute_error(y, t);
 
-  /* Clean up and return */
-  N_VDestroy(y);           /* Free y vector */
+  /* Clean up and return with successful completion */
+  N_VDestroy(y);            /* Free y vector */
   ARKStepFree(&arkode_mem); /* Free integrator memory */
-  SUNContext_Free(&ctx);   /* Free context */
+  SUNContext_Free(&ctx);    /* Free context */
 
-  return flag;
+  return 0;
 }
 
 /*-------------------------------
@@ -185,16 +178,6 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
   NV_Ith_S(ydot, 0) = lambda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
                       lambda * atan(t);
-
-  return 0; /* return with success */
-}
-
-/* spr routine to estimate the spectral radius */
-static int spr(sunrealtype t, sunrealtype extsprad, void* user_data)
-{
-  sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter */
-  extsprad = lambda; /* access current solution value */
 
   return 0; /* return with success */
 }
@@ -282,4 +265,5 @@ static int compute_error(N_Vector y, sunrealtype t)
 }
 
 /*---- end of file ----*/
+
 
