@@ -116,6 +116,8 @@ Fix bug on LLP64 platforms (like Windows 64-bit) where ``KLU_INDEXTYPE`` could b
 Check if size of ``SuiteSparse_long`` is 8 if the size of ``sunindextype`` is 8
 when using KLU.
 
+Fixed several build errors with the Fortran interfaces on Windows systems.
+
 **Deprecation Notices**
 
 Numerous ARKODE stepper-specific functions are now deprecated in favor of
@@ -129,5 +131,3 @@ The unsupported implementations of ``N_VGetArrayPointer`` and
 ``N_VSetArrayPointer`` for the *hypre* and PETSc vectors are now deprecated.
 Users should access the underlying wrapped external library vector objects
 instead with ``N_VGetVector_ParHyp`` and ``N_VGetVector_Petsc``, respectively.
-
-Fixed several build errors with the Fortran interfaces on Windows systems.
