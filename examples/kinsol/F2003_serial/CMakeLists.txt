@@ -16,14 +16,16 @@
 
 # Example lists are tuples "name\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
-
-# Examples using SUNDIALS linear solvers
 set(FKINSOL_examples
-  "kinDiagon_kry_f2003\;\;develop"
-  "kinRoboKin_dns_f2003\;\;develop"
-  "kinLaplace_bnd_f2003\;\;develop"
-  "kinLaplace_picard_kry_f2003\;\;develop"
-  )
+  "kinDiagon_kry_f2003\;\;develop")
+
+if(SUNDIALS_INDEX_SIZE MATCHES "64")
+  list(APPEND FKINSOL_examples
+    "kinRoboKin_dns_f2003\;\;develop"
+    "kinLaplace_bnd_f2003\;\;develop"
+    "kinLaplace_picard_kry_f2003\;\;develop"
+    )
+endif()
 
 # Specify libraries to link against
 set(KINSOL_LIB sundials_fkinsol_mod)

@@ -21,18 +21,19 @@
 
 module test_fsunlinsol_spgmr_serial
   use, intrinsic :: iso_c_binding
-
   use test_utilities
   implicit none
 
-  integer(C_LONG), private, parameter :: N = 100
+
+
+  integer(kind=myindextype), private, parameter :: N = 100
   integer(C_INT),  private, parameter :: pretype = 1     ! Preconditioning type (1 or 2)
   integer(C_INT),  private, parameter :: gstype  = 1     ! Gram-Schmidt orthoognalization type (1 or 2)
   integer(C_INT),  private, parameter :: maxl    = 100   ! maxium Krylov subspace dimension (> 0)
   real(C_DOUBLE),  private, parameter :: tol     = 1e-13 ! solver tolerance
 
   type, private :: UserData
-    integer(C_LONG) :: N
+    integer(kind=myindextype) :: N
     type(N_Vector), pointer  :: d, s1, s2
   end type
 
@@ -40,9 +41,6 @@ contains
 
   integer(C_INT) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-
-
-
     use fnvector_serial_mod
     use fsunlinsol_spgmr_mod
     use test_sunlinsol
@@ -55,7 +53,7 @@ contains
     type(UserData),        pointer :: probdata   ! problem data
     real(C_DOUBLE),        pointer :: xdata(:)   ! x vector data
     real(C_DOUBLE)                 :: tmpr       ! temporary real value
-    integer(C_LONG)                :: j
+    integer(kind=myindextype)     :: j
     integer(C_INT)                 :: tmp
 
     ! setup
@@ -257,13 +255,13 @@ contains
 
     implicit none
 
-    type(C_PTR),    value   :: udata
-    type(N_Vector)          :: rvec, zvec
-    real(C_DOUBLE)          :: tol
-    integer(C_INT)          :: lr
-    type(UserData), pointer :: probdata
-    real(C_DOUBLE), pointer :: r(:), z(:), d(:)
-    integer(C_LONG)         :: i, N
+    type(C_PTR),    value      :: udata
+    type(N_Vector)             :: rvec, zvec
+    real(C_DOUBLE)             :: tol
+    integer(C_INT)             :: lr
+    type(UserData), pointer    :: probdata
+    real(C_DOUBLE), pointer    :: r(:), z(:), d(:)
+    integer(kind=myindextype) :: i, N
 
     call c_f_pointer(udata, probdata)
 
@@ -285,11 +283,11 @@ integer(C_INT) function check_vector(X, Y, tol) result(failure)
   use, intrinsic :: iso_c_binding
   use test_fsunlinsol_spgmr_serial
   use test_utilities
-
   implicit none
+
   type(N_Vector)  :: x, y
   real(C_DOUBLE)  :: tol, maxerr
-  integer(C_LONG) :: i, xlen, ylen
+  integer(kind=myindextype) :: i, xlen, ylen
   real(C_DOUBLE), pointer :: xdata(:), ydata(:)
 
   failure = 0

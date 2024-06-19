@@ -22,8 +22,6 @@
 
 module test_fnvector
   use, intrinsic :: iso_c_binding
-
-
   use test_utilities
   implicit none
 
@@ -38,7 +36,7 @@ integer(C_INT) function Test_FN_VMake(X, local_length, myid) &
   implicit none
 
   type(N_Vector)  :: X
-  integer(C_LONG) :: local_length
+  integer(kind=myindextype) :: local_length
   integer(C_INT)  :: myid
 
   if (.not. has_data(X)) then
@@ -64,7 +62,7 @@ integer(C_INT) function Test_FN_VGetArrayPointer(W, local_length, myid) &
   implicit none
 
   type(N_Vector)  :: W
-  integer(C_LONG) :: local_length
+  integer(kind=myindextype) :: local_length
   integer(C_INT)  :: myid
 
   ! check vector data
@@ -97,13 +95,13 @@ end function Test_FN_VGetArrayPointer
 integer(C_INT) function Test_FN_VLinearCombination(X, local_length, myid) &
     result(failure)
 
-  type(N_Vector)          :: X
-  integer(C_LONG)         :: local_length
-  integer(C_INT)          :: myid, ierr
-  type(N_Vector), pointer :: Y1, Y2, Y3
-  type(c_ptr), target     :: V(3)
-  type(c_ptr)             :: Vptr
-  real(C_DOUBLE)          :: c(3)
+  type(N_Vector)             :: X
+  integer(kind=myindextype) :: local_length
+  integer(C_INT)             :: myid, ierr
+  type(N_Vector), pointer    :: Y1, Y2, Y3
+  type(c_ptr), target        :: V(3)
+  type(c_ptr)                :: Vptr
+  real(C_DOUBLE)             :: c(3)
 
   failure = 0
 

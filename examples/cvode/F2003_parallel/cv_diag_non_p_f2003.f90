@@ -26,8 +26,7 @@ module DiagnonData
 
   !======= Inclusions ===========
   use, intrinsic :: iso_c_binding
-
-  use fsundials_nvector_mod
+  use fsundials_core_mod
 
   !======= Declarations =========
   implicit none
@@ -60,7 +59,7 @@ contains
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-    use fsundials_nvector_mod
+    use fsundials_core_mod
 
     !======= Declarations =========
     implicit none
@@ -76,7 +75,7 @@ contains
     real(c_double), pointer, dimension(nlocal) :: ydot(:)
 
     ! local data
-    integer :: i, ierr
+    integer :: i
 
     !======= Internals ============
 
@@ -109,13 +108,9 @@ program driver
 
   ! inclusions
   use, intrinsic :: iso_c_binding
-  use fsundials_futils_mod          ! Fortran utilities
+  use fsundials_core_mod
   use fcvode_mod                    ! Access CVode
-  use fsundials_types_mod           ! sundials defined types
-  use fsundials_nvector_mod         ! Access generic N_Vector
   use fnvector_parallel_mod         ! Access parallel N_Vector
-  use fsundials_context_mod         ! Access sundials context
-  use fsundials_nonlinearsolver_mod ! Access generic nonlinear SUNDIALS solver
   use fsunnonlinsol_fixedpoint_mod  ! Access fixed-point nonlinear SUNDIALS solver
 
   use DiagnonData
@@ -136,7 +131,6 @@ program driver
   type(N_Vector), pointer :: sunvec_y                 ! solution N_Vector
   real(c_double), pointer, dimension(nlocal) :: y(:)  ! vector data
   type(c_ptr)     :: cvode_mem                        ! CVODE memory
-  integer(c_long) :: N, Ntot
   integer(c_int) :: retval
   integer :: ierr
   logical :: outproc

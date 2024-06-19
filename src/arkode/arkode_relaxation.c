@@ -359,7 +359,7 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkRelaxSolve",
-                     "compute delta y", "delta_y =", "");
+                     "compute delta y", "delta_y(:) =", "");
   N_VPrintFile(ark_mem->tempv2, ARK_LOGGER->debug_fp);
 #endif
 

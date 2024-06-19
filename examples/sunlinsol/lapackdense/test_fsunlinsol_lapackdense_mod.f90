@@ -20,7 +20,9 @@ module test_fsunlinsol_lapackdense
   use test_utilities
   implicit none
 
-  integer(C_LONG), private, parameter :: N = 100
+
+
+  integer(kind=myindextype), private, parameter :: N = 100
 
 contains
 
@@ -42,7 +44,7 @@ contains
     real(C_DOUBLE),        pointer :: colj(:), colIj(:) ! matrix column data
     real(C_DOUBLE),        pointer :: xdata(:)          ! x vector data
     real(C_DOUBLE)                 :: tmpr              ! temporary real value
-    integer(C_LONG)                :: j, k
+    integer(kind=myindextype)     :: j, k
     integer(C_INT)                 :: tmp
 
     fails = 0

@@ -56,6 +56,17 @@ module ode_problem
   use fsundials_core_mod
   implicit none
 
+
+  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
+  ! we set the integer kind used for indices in this example based
+  ! on the the index size SUNDIALS was compiled with so that it works
+  ! in both configurations. This is not a requirement for user codes.
+#if defined(SUNDIALS_INT32_T)
+  integer, parameter :: myindextype = selected_int_kind(8)
+#elif defined(SUNDIALS_INT64_T)
+  integer, parameter :: myindextype = selected_int_kind(16)
+#endif
+
   ! SUNDIALS simulation context
   type(c_ptr) :: ctx
 
@@ -68,8 +79,8 @@ module ode_problem
   integer(c_int),  parameter :: NOUT  = 10
   integer(c_int),  parameter :: NP    = 2
   integer(c_int),  parameter :: NS    = 2
-  integer(c_long), parameter :: MX    = 10
-  integer(c_long), parameter :: NEQ   = MX
+  integer(kind=myindextype), parameter :: MX  = 10
+  integer(kind=myindextype), parameter :: NEQ = MX
 
   ! problem constants
   real(c_double) :: ZERO  = 0.d0
@@ -199,9 +210,9 @@ program main
   type(SUNNonlinearSolver), pointer :: NLSsens => null()
   integer(c_int)                    :: iout, retval
   real(c_double)                    :: reltol, abstol, tout, t(1)
+  integer(c_int)                    :: plist(0:NS-1)
   integer(c_int)                    :: is
   real(c_double)                    :: pbar(0:NS-1)
-  integer(c_int)                    :: plist(0:NS-1)
 
   ! Command line arguments
   integer(c_int) :: sensi, err_con
@@ -267,7 +278,7 @@ program main
   if (sensi /= 0) then
 
     do is=0, NS-1
-      plist(is) = is
+      plist(is) = int(is, 4)
       pbar(is)  = p(plist(is))
     end do
 
@@ -282,7 +293,7 @@ program main
       call FN_VConst(ZERO, uiS)
     end do
 
-    retval = FCVodeSensInit1(cvodes_mem, NS, sensi_meth, c_null_funptr, uS)
+    retval = FCVodeSensInit1(cvodes_mem, int(NS, 4), sensi_meth, c_null_funptr, uS)
     call check_retval(retval, "FCVodeSensInit1")
 
     retval = FCVodeSensEEtolerances(cvodes_mem)

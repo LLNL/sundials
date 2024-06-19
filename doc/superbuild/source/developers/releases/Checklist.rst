@@ -73,6 +73,7 @@ web pages.
    that they are deprecated).
 
 #. Regenerate the Fortran 2003 interfaces. It is possible nothing will be updated.
+   This is done by running ``make all32 all64`` in the ``swig/`` directory.
 
 #. Update the "Changes in ..." sections in all user guides. The changes should be
    sorted so that major new features are above bug fixes.

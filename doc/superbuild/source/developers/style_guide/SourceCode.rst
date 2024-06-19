@@ -176,6 +176,9 @@ C++ private class members should use snake case with a trailing underscore
 Coding Conventions and Rules
 ============================
 
+These rules should be followed for all new code. Unfortunately, old code might
+not adhere to all of these rules.
+
 #. Do not use language features that are not compatible with C99, C++14,
    and MSVC v1900+ (Visual Studio 2015). Examples of such features include
    variable-length arrays. Exceptions are allowed when interfacing with a
@@ -338,6 +341,35 @@ Coding Conventions and Rules
    x;`` to ``return(x);``. Note, however, lots of older SUNDIALS source code
    uses ``return(x);``.
 
+#. Always use ``sunindextype`` for variables that are related to problem dimensions.
+   E.g., use it for the length of a vector, or dimensions of a matrix.
+   The only exception is when interfacing with a third party library requires a different
+   variable type.
+
+#. Conversely, never use ``sunindextype`` for variables that are not specifically related to
+   the dimensions of a vector, matrix, etc.. E.g., if you have a variable that
+   represents the number of integer "words" allocated in a workspace do not use
+   ``sunindextype`` for it. Instead use the appropriate integer type (e.g., ``uint64_t``) directly.
+   Do not use ``sunindextype`` for counters either.
+
+#. ``SUNLogger`` statements must be in the format:
+
+   .. code-block:: c
+
+      [log level][rank][scope][label] key1 = value, key2 = value
+
+   or if the payload (the part after the label) is a vector/array:
+
+   .. code-block:: c
+
+      [log level][rank][scope][label] key(:) =
+      value1
+      value2
+
+   Note that the ``(:)`` is needed for the ``scripts/sundialsdev/logs.py`` Python
+   utility to understand that the payload is an array.
+
+   .. code-block:: c
 
 .. _Style.Formatting:
 
@@ -352,6 +384,16 @@ for the tools respectively. To apply clang-format you can run:
 .. code-block:: shell
 
    ./scripts/format.sh <path to directories to format>
+
+
+.. warning::
+
+   The output of ``clang-format`` is sensitive to the ``clang-format`` version. We recommend
+   that you use version ``17.0.4``, which can be installed from source or with Spack. Alternatively,
+   when you open a pull request on GitHub, an action will run ``clang-format`` on the code. If any
+   formatting is required, the action will fail and produce a git patch artifact that you can download
+   (from the job artifacts section) and apply with `git apply`.
+
 
 If clang-format breaks lines in a way that is unreadable, use ``//`` to break the line. For example,
 sometimes (mostly in C++ code) you may have code like this:
@@ -408,3 +450,4 @@ There are other scenarios (e.g., a function call with a lot of parameters) where
 ..   };
 
 .. See the clang-tidy documentation for more details.
+

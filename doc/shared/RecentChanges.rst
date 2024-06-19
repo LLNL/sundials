@@ -57,6 +57,8 @@ an explicit fast time scale integrator with an MRI method.
 
 Added "Resize" capability to ARKODE's SPRKStep time-stepping module.
 
+Enabled the Fortran interfaces to build with 32-bit ``sunindextype``.
+
 **Bug Fixes**
 
 Updated the CMake variable ``HIP_PLATFORM`` default to ``amd`` as the previous

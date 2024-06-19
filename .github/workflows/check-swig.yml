@@ -1,0 +1,49 @@
+name: Checks - swig
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  swig:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install swig
+        run: |
+          git clone https://github.com/sundials-codes/swig
+          cd swig
+          ./autogen.sh
+          ./configure --prefix=/usr/
+          make 
+          sudo make install
+          swig -version
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Add safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Run swig on code
+        run: |
+          cd swig
+          make all32
+          make all64
+
+      - name: Run git diff to see if anything changed
+        run: /usr/bin/git diff --name-only --exit-code
+
+      - name: Run git diff if we failed
+        if: failure()
+        run:  /usr/bin/git diff > swig.patch
+
+      - name: Archive diff as a patch if we failed
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: swig.patch
+          path: |
+            ${{ github.workspace }}/swig.patch

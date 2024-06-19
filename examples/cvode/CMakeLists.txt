@@ -79,7 +79,9 @@ endif()
 # Fortran examples
 if(BUILD_FORTRAN_MODULE_INTERFACE AND EXAMPLES_ENABLE_F2003)
   add_subdirectory(F2003_serial)
-  add_subdirectory(F2003_parallel)
+  if(ENABLE_MPI)
+    add_subdirectory(F2003_parallel)
+  endif()
 endif()
 
 # CUDA examples

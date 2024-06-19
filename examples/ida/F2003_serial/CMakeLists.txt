@@ -19,9 +19,15 @@
 
 # Examples using SUNDIALS linear solvers
 set(FIDA_examples
-  "idaHeat2D_kry_f2003\;develop"
   "idaRoberts_dns_f2003\;develop"
+)
+
+if(SUNDIALS_INDEX_SIZE MATCHES "64")
+  # Examples using SUNDIALS linear solvers
+  list(APPEND FIDA_examples
+    "idaHeat2D_kry_f2003\;develop"
   )
+endif()
 
 # Specify libraries to link against
 set(IDA_LIB sundials_fida_mod)
