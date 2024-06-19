@@ -49,7 +49,7 @@ module RobertsDnsConstr_mod
   implicit none
 
   integer(c_int), parameter  :: nout = 12
-  integer(c_long), parameter :: neq = 3
+  integer(c_int64_t), parameter :: neq = 3
 
 contains
 

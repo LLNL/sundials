@@ -54,8 +54,8 @@ module DiurnalKryBP_mod
 
   ! setup and number of equations
   integer(c_int),  parameter :: mx = 10, my = 10
-  integer(c_long), parameter :: mm = mx*my
-  integer(c_long), parameter :: neq = 2*mm
+  integer(c_int64_t), parameter :: mm = mx*my
+  integer(c_int64_t), parameter :: neq = 2*mm
 
   ! ODE constant parameters
   real(c_double), parameter :: Kh = 4.0d-6
@@ -230,7 +230,7 @@ program main
   real(c_double)  :: cx, cy     ! initialization variables
   integer(c_int)  :: ierr       ! error flag from C functions
   integer(c_long) :: outstep    ! output step
-  integer(c_long) :: mu, ml     ! band preconditioner constants
+  integer(c_int64_t) :: mu, ml     ! band preconditioner constants
   real(c_double)  :: x, y       ! initialization index variables
 
   type(N_Vector),        pointer :: sunvec_u      ! sundials vector

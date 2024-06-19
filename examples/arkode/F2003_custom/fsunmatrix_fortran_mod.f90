@@ -30,8 +30,8 @@ module fsunmatrix_fortran_mod
   ! ----------------------------------------------------------------
   type, public :: FMat
     logical                 :: own_data
-    integer(c_long)         :: Nvar
-    integer(c_long)         :: N
+    integer(c_int64_t)         :: Nvar
+    integer(c_int64_t)         :: N
     real(c_double), pointer :: data(:,:,:)
   end type FMat
   ! ----------------------------------------------------------------
@@ -42,8 +42,8 @@ contains
   function FSUNMatNew_Fortran(Nvar, N, sunctx) result(sunmat_A)
 
     implicit none
-    integer(c_long),     value   :: Nvar
-    integer(c_long),     value   :: N
+    integer(c_int64_t),     value   :: Nvar
+    integer(c_int64_t),     value   :: N
     type(c_ptr),         value   :: sunctx
     type(SUNMatrix),     pointer :: sunmat_A
     type(SUNMatrix_Ops), pointer :: ops
@@ -236,7 +236,7 @@ contains
     real(c_double), value :: c
     type(SUNMatrix)       :: sunmat_A
     type(FMat), pointer   :: A
-    integer(c_long)       :: i, j, k
+    integer(c_int64_t)       :: i, j, k
 
     ! extract Fortran matrix structure to work with
     A => FSUNMatGetFMat(sunmat_A)
@@ -267,7 +267,7 @@ contains
     type(N_Vector)      :: sunvec_y
     type(FMat), pointer :: A
     type(FVec), pointer :: x, y
-    integer(c_long)     :: i
+    integer(c_int64_t)     :: i
 
     ! extract Fortran matrix and vector structures to work with
     A => FSUNMatGetFMat(sunmat_A)

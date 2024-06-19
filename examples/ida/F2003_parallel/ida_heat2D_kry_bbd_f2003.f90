@@ -76,7 +76,7 @@ module Heat2DKryBBD_mod
   integer :: je
   integer :: nxl           ! local number of x grid points
   integer :: nyl           ! local number of y grid points
-  integer(c_long) :: N, Ntot
+  integer(c_int64_t) :: N, Ntot
   real(c_double)  :: dx    ! x-directional mesh spacing
   real(c_double)  :: dy    ! y-directional mesh spacing
   integer, target :: comm  ! communicator object
@@ -93,7 +93,7 @@ module Heat2DKryBBD_mod
   real(c_double), dimension(:), allocatable :: Ssend
 
   ! Problem parameters
-  integer(c_long)  :: mudq, mldq, mu, ml
+  integer(c_int64_t)  :: mudq, mldq, mu, ml
   integer(c_int)   :: maxl
   real(c_double) :: kx   ! x-directional diffusion coefficient
   real(c_double) :: ky   ! y-directional diffusion coefficient
@@ -442,7 +442,7 @@ contains
     implicit none
 
     ! calling variables
-    integer(c_long), value :: Nloc
+    integer(c_int64_t), value :: Nloc
     real(c_double),  value :: t            ! current time
     type(N_Vector)         :: sunvec_y     ! solution N_Vector
     type(N_Vector)         :: sunvec_ydot  ! rhs N_Vector
@@ -647,7 +647,7 @@ contains
     implicit none
 
     ! calling variables
-    integer(c_long), value :: Nloc
+    integer(c_int64_t), value :: Nloc
     real(c_double),  value :: t            ! current time
     type(N_Vector)         :: sunvec_y     ! solution N_Vector
     type(N_Vector)         :: sunvec_ydot  ! rhs N_Vector

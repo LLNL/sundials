@@ -41,7 +41,7 @@ module dns_mod
   !======= Declarations =========
   implicit none
 
-  integer(c_long), parameter :: neq = 3
+  integer(c_int64_t), parameter :: neq = 3
   integer(c_long), parameter :: nout = 12
 
 contains

@@ -10,7 +10,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
@@ -42,27 +41,59 @@ jobs:
         install: >-
             base-devel
             ${{ matrix.target-prefix }}-cmake
-            ${{ matrix.target-prefix }}-cc
+            ${{ matrix.target-prefix }}-gcc
+            ${{ matrix.target-prefix }}-gcc-fortran
             ${{ matrix.target-prefix }}-openblas
             ${{ matrix.target-prefix }}-suitesparse
 
-    - name: Configure CMake
+    - name: Configure CMake (Static)
       # Configure CMake in a 'build' subdirectory
       run: |
         cmake \
-          -B ${GITHUB_WORKSPACE}/build \
+          -G "MSYS Makefiles" \
+          -B ${GITHUB_WORKSPACE}/build_static \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -DCMAKE_C_FLAGS=-Wno-deprecated-declarations \
+          -DBUILD_FORTRAN_MODULE_INTERFACE=ON \
+          -DBUILD_SHARED_LIBS=OFF \
           -DSUNDIALS_BUILD_WITH_PROFILING=ON \
           -DSUNDIALS_LOGGING_LEVEL=2 \
           -DSUNDIALS_TEST_UNITTESTS=OFF \
           -DEXAMPLES_ENABLE_CXX=ON \
           -DENABLE_KLU=ON
 
-    - name: Build
+    - name: Build (Static)
       # Build program
-      run: cmake --build ${GITHUB_WORKSPACE}/build
+      run: cmake --build ${GITHUB_WORKSPACE}/build_static --verbose
 
-    - name: Test
-      working-directory: ${{github.workspace}}/build
+    - name: Test (Static)
+      working-directory: ${{github.workspace}}/build_static
       # Execute tests
-      run: ctest
+      run: ctest --output-on-failure
+
+    # TODO(CJB): shared libraries with the fortran interfaces turned on
+    # fail to link correctly with this toolchain see https://github.com/LLNL/sundials/issues/507.
+    - name: Configure CMake (Shared)
+      # Configure CMake in a 'build' subdirectory
+      run: |
+        cmake \
+          -G "MSYS Makefiles" \
+          -B ${GITHUB_WORKSPACE}/build_shared \
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -DCMAKE_C_FLAGS=-Wno-deprecated-declarations \
+          -DBUILD_FORTRAN_MODULE_INTERFACE=OFF \
+          -DBUILD_STATIC_LIBS=OFF \
+          -DSUNDIALS_BUILD_WITH_PROFILING=ON \
+          -DSUNDIALS_LOGGING_LEVEL=2 \
+          -DSUNDIALS_TEST_UNITTESTS=OFF \
+          -DEXAMPLES_ENABLE_CXX=ON \
+          -DENABLE_KLU=ON
+
+    - name: Build (Shared)
+      # Build program
+      run: cmake --build ${GITHUB_WORKSPACE}/build_shared --verbose
+
+    - name: Test (Shared)
+      working-directory: ${{github.workspace}}/build_shared
+      # Execute tests
+      run: ctest --output-on-failure

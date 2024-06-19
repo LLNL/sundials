@@ -55,8 +55,8 @@ module diurnal_mod
 
   ! setup and number of equations
   integer(c_int), parameter  :: mx = 10, my = 10
-  integer(c_long), parameter :: mm = mx*my
-  integer(c_long), parameter :: neq = 2*mm
+  integer(c_int64_t), parameter :: mm = mx*my
+  integer(c_int64_t), parameter :: neq = 2*mm
 
   ! ODE constant parameters
   real(c_double), parameter :: Kh = 4.0d-6
@@ -375,11 +375,11 @@ contains
     implicit none
 
     integer(c_int), intent(out) :: ierr
-    integer(c_long), intent(in) :: mmm
+    integer(c_int64_t), intent(in) :: mmm
     real(c_double), intent(inout) :: p(2,2,mmm)
 
     ! local variable
-    integer(c_long) :: i
+    integer(c_int64_t) :: i
     real(c_double)  :: p11, p12, p21, p22, det
 
     ! initialize return value to success
@@ -426,7 +426,7 @@ contains
     real(c_double), dimension(2,mx,my), intent(inout) :: z(:,:,:)
 
     ! local variable
-    integer(c_long) :: i, j
+    integer(c_int64_t) :: i, j
     real(c_double)  :: z1, z2
 
 

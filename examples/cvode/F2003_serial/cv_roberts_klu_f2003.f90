@@ -45,8 +45,8 @@ module roberts_klu_mod
   implicit none
 
   integer(c_int), parameter  :: nout = 12
-  integer(c_long), parameter :: neq = 3
-  integer(c_long), parameter :: nnz = neq * neq
+  integer(c_int64_t), parameter :: neq = 3
+  integer(c_int64_t), parameter :: nnz = neq * neq
 
 contains
 
@@ -164,8 +164,8 @@ contains
     ! pointers to data in SUNDIALS vector and matrix
     real(c_double), pointer, dimension(neq)    :: yval(:)
     real(c_double), pointer, dimension(nnz)    :: Jdata(:)
-    integer(c_long), pointer, dimension(nnz)   :: Jrvals(:)
-    integer(c_long), pointer, dimension(neq+1) :: Jcptrs(:)
+    integer(c_int64_t), pointer, dimension(nnz)   :: Jrvals(:)
+    integer(c_int64_t), pointer, dimension(neq+1) :: Jcptrs(:)
 
     !======= Internals ============
 

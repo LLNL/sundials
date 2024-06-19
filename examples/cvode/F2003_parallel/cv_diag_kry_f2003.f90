@@ -49,8 +49,8 @@ module DiagkryData
   ! Problem parameters
   integer(c_int),  parameter :: iGStype = 1
   integer(c_int),  parameter :: iPretype0 = 1
-  integer(c_long), parameter :: nlocal = 10
-  integer(c_long) :: neq
+  integer(c_int64_t), parameter :: nlocal = 10
+  integer(c_int64_t) :: neq
   integer(c_int) :: iPretype
   real(c_double) :: alpha
 
@@ -149,7 +149,7 @@ contains
 
     ! Calculate Jacobian here
     ibase = myid * nlocal
-    istart = max(1_8, 4 - ibase)
+    istart = max(1_c_int64_t, 4 - ibase)
     do i = istart,nlocal
        pj = dble(ibase + i)
        psubi = 1.d0 + gamma * alpha * pj

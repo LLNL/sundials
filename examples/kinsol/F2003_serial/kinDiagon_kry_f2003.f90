@@ -47,7 +47,7 @@ module kinDiagonKry_mod
   integer(kind=myindextype), parameter :: neq = 128
 
   integer(c_int)  :: ierr, retval
-  integer(c_long) :: i
+  integer(c_int64_t) :: i
   real(c_double), pointer, dimension(neq) :: u(:), scale(:), constr(:)
   real(c_double)             :: p(neq)
   integer(c_int),  parameter :: prectype = 2
