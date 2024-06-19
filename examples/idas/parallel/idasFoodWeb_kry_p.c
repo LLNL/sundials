@@ -159,7 +159,7 @@
    IJ_Vptr(vv,i,j) returns a pointer to the location in vv corresponding to
    species index is = 0, x-index ix = i, and y-index jy = j.                */
 
-#define IJ_Vptr(vv, i, j) (&NV_Ith_P(vv, (i) * NUM_SPECIES + (j) * NSMXSUB))
+#define IJ_Vptr(vv, i, j) (&NV_Ith_P(vv, (i)*NUM_SPECIES + (j)*NSMXSUB))
 
 /* Type: UserData.  Contains problem constants, preconditioner data, etc. */
 

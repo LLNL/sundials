@@ -543,7 +543,7 @@ void N_VCopyToDevice_Raja(N_Vector x)
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
   void* queue = static_cast<void*>(::RAJA::sycl::detail::getQueue());
 #else
-  void* queue = nullptr;
+  void* queue                      = nullptr;
 #endif
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_RAJA_MEMHELP(x),
@@ -1470,7 +1470,7 @@ SUNErrCode N_VBufPack_Raja(N_Vector x, void* buf)
   ::sycl::queue* q = ::RAJA::sycl::detail::getQueue();
   q->wait_and_throw();
 #else
-  cuerr = SUNDIALS_GPU_PREFIX(StreamSynchronize)(0);
+  cuerr       = SUNDIALS_GPU_PREFIX(StreamSynchronize)(0);
 #endif
 
   SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(x), buf_mem, queue);
@@ -1511,7 +1511,7 @@ SUNErrCode N_VBufUnpack_Raja(N_Vector x, void* buf)
   ::sycl::queue* q = ::RAJA::sycl::detail::getQueue();
   q->wait_and_throw();
 #else
-  cuerr = SUNDIALS_GPU_PREFIX(StreamSynchronize)(0);
+  cuerr       = SUNDIALS_GPU_PREFIX(StreamSynchronize)(0);
 #endif
 
   SUNMemoryHelper_Dealloc(NVEC_RAJA_MEMHELP(x), buf_mem, queue);

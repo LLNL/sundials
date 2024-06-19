@@ -379,9 +379,11 @@ SUNErrCode SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE* fptr)
   fprintf(fptr, "  k5 = " SUN_REAL_FORMAT_G "\n", SODERLIND_K5(C));
   fprintf(fptr, "  bias factor = " SUN_REAL_FORMAT_G "\n", SODERLIND_BIAS(C));
   fprintf(fptr, "  previous error = " SUN_REAL_FORMAT_G "\n", SODERLIND_EP(C));
-  fprintf(fptr, "  previous-previous error = " SUN_REAL_FORMAT_G "\n", SODERLIND_EPP(C));
+  fprintf(fptr, "  previous-previous error = " SUN_REAL_FORMAT_G "\n",
+          SODERLIND_EPP(C));
   fprintf(fptr, "  previous step = " SUN_REAL_FORMAT_G "\n", SODERLIND_HP(C));
-  fprintf(fptr, "  previous-previous step = " SUN_REAL_FORMAT_G "\n", SODERLIND_HPP(C));
+  fprintf(fptr, "  previous-previous step = " SUN_REAL_FORMAT_G "\n",
+          SODERLIND_HPP(C));
   fprintf(fptr, "  firststeps = %i\n", SODERLIND_FIRSTSTEPS(C));
   return SUN_SUCCESS;
 }
