@@ -37,6 +37,9 @@ foreach(example_tuple ${FCVODES_examples})
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
+    # Install fortran modules to a unique directory to avoid naming collisions
+    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+
     # example source files
     add_executable(${example} ${example}.f90)
 

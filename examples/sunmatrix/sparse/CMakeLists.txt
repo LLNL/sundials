@@ -102,13 +102,15 @@ foreach(example_tuple ${sunmatrix_sparse_fortran_examples})
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
+    # build fortran modules into a unique directory to avoid naming collisions
+    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+
     add_executable(${example} ${example}.f90
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90
       ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.f90)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
-    set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # libraries to link against
     target_link_libraries(${example}

@@ -46,8 +46,8 @@ module DiagnonData
   integer :: nprocs        ! total number of MPI processes
 
   ! Problem parameters
-  integer(c_long), parameter :: nlocal = 2
-  integer(c_long)  :: neq
+  integer(c_int64_t), parameter :: nlocal = 2
+  integer(c_int64_t)  :: neq
   real(c_double) :: alpha
 
 contains
