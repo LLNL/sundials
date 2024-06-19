@@ -2265,7 +2265,7 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
   sunfprintf_long(outfile, fmt, SUNFALSE, "Residual fn evals", IDA_mem->ida_nre);
 
   /* IC calculation stats */
-  sunfprintf_long(outfile, fmt, SUNFALSE, "IC linesearch backtrack ",
+  sunfprintf_long(outfile, fmt, SUNFALSE, "IC linesearch backtrack ops",
                   IDA_mem->ida_nbacktr);
 
   /* nonlinear solver stats */
