@@ -2627,8 +2627,9 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
                     MSG_ARK_MASSSOLVE_FAIL);
     break;
   case ARK_NLS_SETUP_FAIL:
-    arkProcessError(ark_mem, ARK_NLS_SETUP_FAIL, __LINE__, __func__,
-                    __FILE__, "At t = " SUN_REAL_FORMAT_G " the nonlinear solver setup failed unrecoverably",
+    arkProcessError(ark_mem, ARK_NLS_SETUP_FAIL, __LINE__, __func__, __FILE__,
+                    "At t = " SUN_REAL_FORMAT_G
+                    " the nonlinear solver setup failed unrecoverably",
                     ark_mem->tcur);
     break;
   case ARK_VECTOROP_ERR:
@@ -2657,7 +2658,8 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_INTERP_FAIL:
     arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
-                    "At t = " SUN_REAL_FORMAT_G " the interpolation module failed unrecoverably",
+                    "At t = " SUN_REAL_FORMAT_G
+                    " the interpolation module failed unrecoverably",
                     ark_mem->tcur);
     break;
   case ARK_INVALID_TABLE:

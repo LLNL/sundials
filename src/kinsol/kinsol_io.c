@@ -1092,15 +1092,18 @@ int KINPrintAllStats(void* kinmem, FILE* outfile, SUNOutputFormat fmt)
   if (fmt != SUN_OUTPUTFORMAT_TABLE && fmt != SUN_OUTPUTFORMAT_CSV)
   {
     KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                   "Invalid formatting option.");
+                    "Invalid formatting option.");
     return (KIN_ILL_INPUT);
   }
 
   sunfprintf_long(outfile, fmt, SUNTRUE, "Nonlinear iters", kin_mem->kin_nni);
   sunfprintf_long(outfile, fmt, SUNFALSE, "Nonlinear fn evals", kin_mem->kin_nfe);
-  sunfprintf_long(outfile, fmt, SUNFALSE, "Beta condition fails", kin_mem->kin_nbcf);
-  sunfprintf_long(outfile, fmt, SUNFALSE, "Backtrack operations", kin_mem->kin_nbktrk);
-  sunfprintf_real(outfile, fmt, SUNFALSE, "Nonlinear fn norm", kin_mem->kin_fnorm);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Beta condition fails",
+                  kin_mem->kin_nbcf);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Backtrack operations",
+                  kin_mem->kin_nbktrk);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Nonlinear fn norm",
+                  kin_mem->kin_fnorm);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Step length", kin_mem->kin_stepl);
 
   /* linear solver stats */
@@ -1108,20 +1111,22 @@ int KINPrintAllStats(void* kinmem, FILE* outfile, SUNOutputFormat fmt)
   {
     kinls_mem = (KINLsMem)(kin_mem->kin_lmem);
     sunfprintf_long(outfile, fmt, SUNFALSE, "Jac fn evals", kinls_mem->nje);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "LS Nonlinear fn evals", kinls_mem->nfeDQ);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS Nonlinear fn evals",
+                    kinls_mem->nfeDQ);
     sunfprintf_long(outfile, fmt, SUNFALSE, "Prec setup evals", kinls_mem->npe);
     sunfprintf_long(outfile, fmt, SUNFALSE, "Prec solves", kinls_mem->nps);
     sunfprintf_long(outfile, fmt, SUNFALSE, "LS iters", kinls_mem->nli);
     sunfprintf_long(outfile, fmt, SUNFALSE, "LS fails", kinls_mem->ncfl);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times evals", kinls_mem->njtimes);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times evals",
+                    kinls_mem->njtimes);
     if (kin_mem->kin_nni > 0)
     {
       sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter",
-              (sunrealtype)kinls_mem->nli / (sunrealtype)kin_mem->kin_nni);
+                      (sunrealtype)kinls_mem->nli / (sunrealtype)kin_mem->kin_nni);
       sunfprintf_real(outfile, fmt, SUNFALSE, "Jac evals per NLS iter",
-              (sunrealtype)kinls_mem->nje / (sunrealtype)kin_mem->kin_nni);
+                      (sunrealtype)kinls_mem->nje / (sunrealtype)kin_mem->kin_nni);
       sunfprintf_real(outfile, fmt, SUNFALSE, "Prec evals per NLS iter",
-              (sunrealtype)kinls_mem->npe / (sunrealtype)kin_mem->kin_nni);
+                      (sunrealtype)kinls_mem->npe / (sunrealtype)kin_mem->kin_nni);
     }
   }
 

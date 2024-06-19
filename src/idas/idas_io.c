@@ -2244,7 +2244,7 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
   if (fmt != SUN_OUTPUTFORMAT_TABLE && fmt != SUN_OUTPUTFORMAT_CSV)
   {
     IDAProcessError(ida_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
-                   "Invalid formatting option.");
+                    "Invalid formatting option.");
     return (IDA_ILL_INPUT);
   }
 
@@ -2256,21 +2256,25 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
   sunfprintf_real(outfile, fmt, SUNFALSE, "Initial step size", IDA_mem->ida_h0u);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Last step size", IDA_mem->ida_hused);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Current step size", IDA_mem->ida_hh);
-  sunfprintf_long(outfile, fmt, SUNFALSE, "Last method order", IDA_mem->ida_kused);
-  sunfprintf_long(outfile, fmt, SUNFALSE, "Current method order", IDA_mem->ida_kk);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Last method order",
+                  IDA_mem->ida_kused);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Current method order",
+                  IDA_mem->ida_kk);
 
   /* function evaluations */
   sunfprintf_long(outfile, fmt, SUNFALSE, "Residual fn evals", IDA_mem->ida_nre);
 
   /* IC calculation stats */
-  sunfprintf_long(outfile, fmt, SUNFALSE, "IC linesearch backtrack ", IDA_mem->ida_nbacktr);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "IC linesearch backtrack ",
+                  IDA_mem->ida_nbacktr);
 
   /* nonlinear solver stats */
   sunfprintf_long(outfile, fmt, SUNFALSE, "NLS iters", IDA_mem->ida_nni);
   sunfprintf_long(outfile, fmt, SUNFALSE, "NLS fails", IDA_mem->ida_nnf);
   if (IDA_mem->ida_nst > 0)
   {
-    sunfprintf_real(outfile, fmt, SUNFALSE, "NLS iters per step", (sunrealtype)IDA_mem->ida_nre / (sunrealtype)IDA_mem->ida_nst);
+    sunfprintf_real(outfile, fmt, SUNFALSE, "NLS iters per step",
+                    (sunrealtype)IDA_mem->ida_nre / (sunrealtype)IDA_mem->ida_nst);
   }
 
   /* linear solver stats */
@@ -2279,18 +2283,24 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
   {
     idals_mem = (IDALsMem)(IDA_mem->ida_lmem);
     sunfprintf_long(outfile, fmt, SUNFALSE, "Jac fn evals", idals_mem->nje);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "LS residual fn evals", idals_mem->nreDQ);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS residual fn evals",
+                    idals_mem->nreDQ);
     sunfprintf_long(outfile, fmt, SUNFALSE, "Prec setup evals", idals_mem->npe);
     sunfprintf_long(outfile, fmt, SUNFALSE, "Prec solves", idals_mem->nps);
     sunfprintf_long(outfile, fmt, SUNFALSE, "LS iters", idals_mem->nli);
     sunfprintf_long(outfile, fmt, SUNFALSE, "LS fails", idals_mem->ncfl);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times setups", idals_mem->njtsetup);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times evals", idals_mem->njtimes);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times setups",
+                    idals_mem->njtsetup);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times evals",
+                    idals_mem->njtimes);
     if (IDA_mem->ida_nni > 0)
     {
-      sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter", (sunrealtype)idals_mem->nli / (sunrealtype)IDA_mem->ida_nni);
-      sunfprintf_real(outfile, fmt, SUNFALSE, "Jac evals per NLS iter", (sunrealtype)idals_mem->nje / (sunrealtype)IDA_mem->ida_nni);
-      sunfprintf_real(outfile, fmt, SUNFALSE, "Prec evals per NLS iter", (sunrealtype)idals_mem->npe / (sunrealtype)IDA_mem->ida_nni);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter",
+                      (sunrealtype)idals_mem->nli / (sunrealtype)IDA_mem->ida_nni);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Jac evals per NLS iter",
+                      (sunrealtype)idals_mem->nje / (sunrealtype)IDA_mem->ida_nni);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Prec evals per NLS iter",
+                      (sunrealtype)idals_mem->npe / (sunrealtype)IDA_mem->ida_nni);
     }
   }
 
@@ -2301,29 +2311,38 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
   if (IDA_mem->ida_quadr)
   {
     sunfprintf_long(outfile, fmt, SUNFALSE, "Quad fn evals", IDA_mem->ida_nrQe);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "Quad error test fails", IDA_mem->ida_netfQ);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Quad error test fails",
+                    IDA_mem->ida_netfQ);
   }
 
   /* sensitivity stats */
   if (IDA_mem->ida_sensi)
   {
     sunfprintf_long(outfile, fmt, SUNFALSE, "Sens fn evals", IDA_mem->ida_nrSe);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "Sens residual fn evals", IDA_mem->ida_nreS);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "Sens error test fails", IDA_mem->ida_netfS);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Sens residual fn evals",
+                    IDA_mem->ida_nreS);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Sens error test fails",
+                    IDA_mem->ida_netfS);
     if (IDA_mem->ida_ism == IDA_STAGGERED)
     {
-      sunfprintf_long(outfile, fmt, SUNFALSE, "Sens NLS iters", IDA_mem->ida_nniS);
-      sunfprintf_long(outfile, fmt, SUNFALSE, "Sens NLS fails", IDA_mem->ida_nnfS);
-      sunfprintf_long(outfile, fmt, SUNFALSE, "Sens NLS step fails", IDA_mem->ida_ncfnS);
+      sunfprintf_long(outfile, fmt, SUNFALSE, "Sens NLS iters",
+                      IDA_mem->ida_nniS);
+      sunfprintf_long(outfile, fmt, SUNFALSE, "Sens NLS fails",
+                      IDA_mem->ida_nnfS);
+      sunfprintf_long(outfile, fmt, SUNFALSE, "Sens NLS step fails",
+                      IDA_mem->ida_ncfnS);
     }
-    sunfprintf_long(outfile, fmt, SUNFALSE, "Sens LS setups", IDA_mem->ida_nsetupsS);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Sens LS setups",
+                    IDA_mem->ida_nsetupsS);
   }
 
   /* quadrature-sensitivity stats */
   if (IDA_mem->ida_quadr_sensi)
   {
-    sunfprintf_long(outfile, fmt, SUNFALSE, "QuadSens residual evals", IDA_mem->ida_nrQSe);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "QuadSens error test fails", IDA_mem->ida_netfQS);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "QuadSens residual evals",
+                    IDA_mem->ida_nrQSe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "QuadSens error test fails",
+                    IDA_mem->ida_netfQS);
   }
 
   return (IDA_SUCCESS);

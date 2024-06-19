@@ -1210,7 +1210,8 @@ int arkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
   sunfprintf_long(outfile, fmt, SUNFALSE, "NLS fails", step_mem->nls_fails);
   if (ark_mem->nst > 0)
   {
-    sunfprintf_real(outfile, fmt, SUNFALSE, "NLS iters per step", (sunrealtype)step_mem->nls_iters / (sunrealtype)ark_mem->nst);
+    sunfprintf_real(outfile, fmt, SUNFALSE, "NLS iters per step",
+                    (sunrealtype)step_mem->nls_iters / (sunrealtype)ark_mem->nst);
   }
 
   /* linear solver stats */
@@ -1224,13 +1225,21 @@ int arkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
     sunfprintf_long(outfile, fmt, SUNFALSE, "Prec solves", arkls_mem->nps);
     sunfprintf_long(outfile, fmt, SUNFALSE, "LS iters", arkls_mem->nli);
     sunfprintf_long(outfile, fmt, SUNFALSE, "LS fails", arkls_mem->ncfl);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times setups", arkls_mem->njtsetup);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times evals", arkls_mem->njtimes);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times setups",
+                    arkls_mem->njtsetup);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times evals",
+                    arkls_mem->njtimes);
     if (step_mem->nls_iters > 0)
     {
-      sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter", (sunrealtype)arkls_mem->nli / (sunrealtype)step_mem->nls_iters);
-      sunfprintf_real(outfile, fmt, SUNFALSE, "Jac evals per NLS iter", (sunrealtype)arkls_mem->nje / (sunrealtype)step_mem->nls_iters);
-      sunfprintf_real(outfile, fmt, SUNFALSE, "Prec evals per NLS iter", (sunrealtype)arkls_mem->npe / (sunrealtype)step_mem->nls_iters);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter",
+                      (sunrealtype)arkls_mem->nli /
+                        (sunrealtype)step_mem->nls_iters);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Jac evals per NLS iter",
+                      (sunrealtype)arkls_mem->nje /
+                        (sunrealtype)step_mem->nls_iters);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Prec evals per NLS iter",
+                      (sunrealtype)arkls_mem->npe /
+                        (sunrealtype)step_mem->nls_iters);
     }
   }
 
@@ -1240,12 +1249,15 @@ int arkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
     arklsm_mem = (ARKLsMassMem)(ark_mem->step_getmassmem(ark_mem));
     sunfprintf_long(outfile, fmt, SUNFALSE, "Mass setups", arklsm_mem->nmsetups);
     sunfprintf_long(outfile, fmt, SUNFALSE, "Mass solves", arklsm_mem->nmsolves);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass Prec setup evals", arklsm_mem->npe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass Prec setup evals",
+                    arklsm_mem->npe);
     sunfprintf_long(outfile, fmt, SUNFALSE, "Mass Prec solves", arklsm_mem->nps);
     sunfprintf_long(outfile, fmt, SUNFALSE, "Mass LS iters", arklsm_mem->nli);
     sunfprintf_long(outfile, fmt, SUNFALSE, "Mass LS fails", arklsm_mem->ncfl);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass-times setups", arklsm_mem->nmtsetup);
-    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass-times evals", arklsm_mem->nmtimes);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass-times setups",
+                    arklsm_mem->nmtsetup);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass-times evals",
+                    arklsm_mem->nmtimes);
   }
 
   return (ARK_SUCCESS);
@@ -1287,14 +1299,17 @@ int arkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   if (step_mem->implicit)
   {
     fprintf(fp, "  Implicit predictor method = %i\n", step_mem->predictor);
-    fprintf(fp, "  Implicit solver tolerance coefficient = " SUN_REAL_FORMAT_G "\n",
+    fprintf(fp,
+            "  Implicit solver tolerance coefficient = " SUN_REAL_FORMAT_G "\n",
             step_mem->nlscoef);
     fprintf(fp, "  Maximum number of nonlinear corrections = %i\n",
             step_mem->maxcor);
     fprintf(fp, "  Nonlinear convergence rate constant = " SUN_REAL_FORMAT_G "\n",
             step_mem->crdown);
-    fprintf(fp, "  Nonlinear divergence tolerance = " SUN_REAL_FORMAT_G "\n", step_mem->rdiv);
-    fprintf(fp, "  Gamma factor LSetup tolerance = " SUN_REAL_FORMAT_G "\n", step_mem->dgmax);
+    fprintf(fp, "  Nonlinear divergence tolerance = " SUN_REAL_FORMAT_G "\n",
+            step_mem->rdiv);
+    fprintf(fp, "  Gamma factor LSetup tolerance = " SUN_REAL_FORMAT_G "\n",
+            step_mem->dgmax);
     fprintf(fp, "  Number of steps between LSetup calls = %i\n", step_mem->msbp);
   }
   fprintf(fp, "\n");

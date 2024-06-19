@@ -2723,22 +2723,24 @@ int ARKodePrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
   if (fmt != SUN_OUTPUTFORMAT_TABLE && fmt != SUN_OUTPUTFORMAT_CSV)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                   "Invalid formatting option.");
+                    "Invalid formatting option.");
     return (ARK_ILL_INPUT);
   }
 
   sunfprintf_real(outfile, fmt, SUNTRUE, "Current time", ark_mem->tcur);
   sunfprintf_long(outfile, fmt, SUNFALSE, "Steps", ark_mem->nst);
   sunfprintf_long(outfile, fmt, SUNFALSE, "Step attempts", ark_mem->nst_attempts);
-  sunfprintf_long(outfile, fmt, SUNFALSE, "Stability limited steps", ark_mem->hadapt_mem->nst_exp);
-  sunfprintf_long(outfile, fmt, SUNFALSE, "Accuracy limited steps", ark_mem->hadapt_mem->nst_acc);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Stability limited steps",
+                  ark_mem->hadapt_mem->nst_exp);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Accuracy limited steps",
+                  ark_mem->hadapt_mem->nst_acc);
   sunfprintf_long(outfile, fmt, SUNFALSE, "Error test fails", ark_mem->netf);
   sunfprintf_long(outfile, fmt, SUNFALSE, "NLS step fails", ark_mem->ncfn);
-  sunfprintf_long(outfile, fmt, SUNFALSE, "Inequality constraint fails", ark_mem->nconstrfails);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Inequality constraint fails",
+                  ark_mem->nconstrfails);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Initial step size", ark_mem->h0u);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Last step size", ark_mem->hold);
-  sunfprintf_real(outfile, fmt, SUNFALSE, "Current step size",
-          ark_mem->next_h);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Current step size", ark_mem->next_h);
   if (ark_mem->root_mem)
   {
     ark_root_mem = (ARKodeRootMem)ark_mem->root_mem;
@@ -2863,7 +2865,8 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   }
   if (ark_mem->hmax_inv != ZERO)
   {
-    fprintf(fp, "  Maximum step size = " SUN_REAL_FORMAT_G "\n", ONE / ark_mem->hmax_inv);
+    fprintf(fp, "  Maximum step size = " SUN_REAL_FORMAT_G "\n",
+            ONE / ark_mem->hmax_inv);
   }
   if (ark_mem->fixedstep) { fprintf(fp, "  Fixed time-stepping enabled\n"); }
   if (ark_mem->itol == ARK_WF)
@@ -2872,10 +2875,12 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   }
   else
   {
-    fprintf(fp, "  Solver relative tolerance = " SUN_REAL_FORMAT_G "\n", ark_mem->reltol);
+    fprintf(fp, "  Solver relative tolerance = " SUN_REAL_FORMAT_G "\n",
+            ark_mem->reltol);
     if (ark_mem->itol == ARK_SS)
     {
-      fprintf(fp, "  Solver absolute tolerance = " SUN_REAL_FORMAT_G "\n", ark_mem->Sabstol);
+      fprintf(fp, "  Solver absolute tolerance = " SUN_REAL_FORMAT_G "\n",
+              ark_mem->Sabstol);
     }
     else { fprintf(fp, "  Vector-valued solver absolute tolerance\n"); }
   }
@@ -2902,17 +2907,20 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   fprintf(fp, "\n");
   fprintf(fp, "  Maximum step increase (first step) = " SUN_REAL_FORMAT_G "\n",
           ark_mem->hadapt_mem->etamx1);
-  fprintf(fp, "  Step reduction factor on multiple error fails = " SUN_REAL_FORMAT_G "\n",
+  fprintf(fp,
+          "  Step reduction factor on multiple error fails = " SUN_REAL_FORMAT_G
+          "\n",
           ark_mem->hadapt_mem->etamxf);
   fprintf(fp, "  Minimum error fails before above factor is used = %i\n",
           ark_mem->hadapt_mem->small_nef);
-  fprintf(fp,
-          "  Step reduction factor on nonlinear convergence failure = " SUN_REAL_FORMAT_G
-          "\n",
+  fprintf(fp, "  Step reduction factor on nonlinear convergence failure = " SUN_REAL_FORMAT_G "\n",
           ark_mem->hadapt_mem->etacf);
-  fprintf(fp, "  Explicit safety factor = " SUN_REAL_FORMAT_G "\n", ark_mem->hadapt_mem->cfl);
-  fprintf(fp, "  Safety factor = " SUN_REAL_FORMAT_G "\n", ark_mem->hadapt_mem->safety);
-  fprintf(fp, "  Growth factor = " SUN_REAL_FORMAT_G "\n", ark_mem->hadapt_mem->growth);
+  fprintf(fp, "  Explicit safety factor = " SUN_REAL_FORMAT_G "\n",
+          ark_mem->hadapt_mem->cfl);
+  fprintf(fp, "  Safety factor = " SUN_REAL_FORMAT_G "\n",
+          ark_mem->hadapt_mem->safety);
+  fprintf(fp, "  Growth factor = " SUN_REAL_FORMAT_G "\n",
+          ark_mem->hadapt_mem->growth);
   fprintf(fp, "  Step growth lower bound = " SUN_REAL_FORMAT_G "\n",
           ark_mem->hadapt_mem->lbound);
   fprintf(fp, "  Step growth upper bound = " SUN_REAL_FORMAT_G "\n",
