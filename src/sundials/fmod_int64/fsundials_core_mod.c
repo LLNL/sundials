@@ -228,6 +228,11 @@
 #endif
 
 
+#include "sundials/sundials_context.h"
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_profiler.h"
+
+
 #include <stdlib.h>
 #ifdef _MSC_VER
 # ifndef strtoull
@@ -254,11 +259,6 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 
 #include <string.h>
-
-
-#include "sundials/sundials_context.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_profiler.h"
 
 
 #include "sundials/sundials_profiler.h"

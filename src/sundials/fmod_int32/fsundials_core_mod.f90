@@ -47,6 +47,8 @@ module fsundials_core_mod
  integer(C_INT), parameter, public :: SUN_COMM_NULL = 0_C_INT
 #endif
 
+ type(C_PTR), parameter, public :: SUN_REAL_FORMAT_E = "% .DBL_DIGe"_C_PTR
+ type(C_PTR), parameter, public :: SUN_REAL_FORMAT_G = "% .DBL_DIGg"_C_PTR
  integer(C_INT), parameter, public :: SUNFALSE = 0_C_INT
  integer(C_INT), parameter, public :: SUNTRUE = 1_C_INT
  ! typedef enum SUNOutputFormat
