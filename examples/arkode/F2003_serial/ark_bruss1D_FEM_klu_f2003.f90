@@ -71,12 +71,12 @@ module Bruss1DFEMKLU_UserData
   implicit none
 
   ! number of equations
-  integer(c_int), parameter :: neqreal = 3
+  integer(c_int64_t), parameter :: neqreal = 3
 
   ! ODE parameters
-  integer(c_int), parameter :: N = 201          ! number of intervals
-  integer(c_int), parameter :: neq = neqreal*N  ! set overall problem size
-  integer(c_int), parameter :: nnz = 15*neq
+  integer(c_int64_t), parameter :: N = 201          ! number of intervals
+  integer(c_int64_t), parameter :: neq = neqreal*N  ! set overall problem size
+  integer(c_int64_t), parameter :: nnz = 15*neq
   real(c_double), parameter :: a = 0.6d0        ! constant forcing on u
   real(c_double), parameter :: b = 2.d0         ! steady-state value of w
   real(c_double), parameter :: du = 2.5d-2      ! diffusion coeff for u
@@ -89,8 +89,9 @@ contains
 
   ! function that maps 2D data into 1D address space
   ! (0-based since CSR matrix will be sent to C solver)
-  integer(c_int) function idx(ix, ivar)
-    integer(c_int) :: ivar, ix
+  integer(c_int64_t) function idx(ix, ivar)
+    integer(c_int64_t):: ix
+    integer(c_int) :: ivar
     idx = neqreal*(ix - 1) + ivar - 1
   end function idx
 
@@ -210,7 +211,7 @@ contains
     type(c_ptr),    value :: user_data ! user-defined data
 
     ! Local data
-    integer(c_int) :: ix
+    integer(c_int64_t) :: ix
     logical        :: left, right
     real(c_double) :: ul, ur, vl, vr, wl, wr, xl, xr, u, v, w, f1, f2, f3
 
@@ -413,7 +414,7 @@ contains
     type(N_Vector)        :: sunvec_t3
 
     ! Local data
-    integer(c_int) :: ix, nz, Nint
+    integer(c_int64_t) :: ix, nz, Nint
     real(c_double) :: ul, uc, ur, vl, vc, vr, wl, wc, wr, xl, xc, xr
     real(c_double) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
     real(c_double) :: df1, df2, df3, dQdf1, dQdf2, dQdf3
@@ -421,8 +422,8 @@ contains
     real(c_double), dimension(3,-1:1) :: Ju, Jv, Jw
 
     ! pointers to data in SUNDIALS vectors
-    integer(c_long), pointer, dimension(nnz)       :: Jcolvals(:)
-    integer(c_long), pointer, dimension(neq+1)     :: Jrowptrs(:)
+    integer(c_int64_t), pointer, dimension(nnz)       :: Jcolvals(:)
+    integer(c_int64_t), pointer, dimension(neq+1)     :: Jrowptrs(:)
     real(c_double),  pointer, dimension(nnz)       :: Jdata(:)
     real(c_double),  pointer, dimension(neqreal,N) :: yvec(:,:)
     real(c_double),  pointer, dimension(neqreal,N) :: fvec(:,:)
@@ -451,9 +452,9 @@ contains
     nz = 0
 
     ! Dirichlet boundary at left
-    Jrowptrs(idx(1,1)+1) = nz
-    Jrowptrs(idx(1,2)+1) = nz
-    Jrowptrs(idx(1,3)+1) = nz
+    Jrowptrs(idx(1_c_int64_t,1)+1) = nz
+    Jrowptrs(idx(1_c_int64_t,2)+1) = nz
+    Jrowptrs(idx(1_c_int64_t,3)+1) = nz
 
     ! iterate through nodes, filling in matrix by rows
     do ix=2,N-1
@@ -868,13 +869,13 @@ contains
     type(N_Vector)        :: sunvec_t3
 
     ! Local data
-    integer(c_int) :: ix, nz, Nint
+    integer(c_int64_t) :: ix, nz, Nint
     real(c_double) :: xl, xc, xr, Ml, Mc, Mr, ChiL1, ChiL2, ChiL3, ChiR1, ChiR2, ChiR3
     logical        :: left, right
 
     ! pointers to data in SUNDIALS vectors
-    integer(c_long), pointer, dimension(nnz)   :: Mcolvals(:)
-    integer(c_long), pointer, dimension(neq+1) :: Mrowptrs(:)
+    integer(c_int64_t), pointer, dimension(nnz)   :: Mcolvals(:)
+    integer(c_int64_t), pointer, dimension(neq+1) :: Mrowptrs(:)
     real(c_double),  pointer, dimension(nnz)   :: Mdata(:)
 
     !======= Internals ============
@@ -1050,7 +1051,7 @@ program main
   integer(c_int)  :: outstep     ! output loop counter
   integer(c_int)  :: sparsetype  ! CSR signal, here
   integer(c_long) :: mxsteps     ! max num steps
-  integer         :: i
+  integer(c_int64_t) :: i
 
   type(N_Vector),        pointer :: sunvec_y    ! sundials vector
   type(N_Vector),        pointer :: sunvec_u    ! sundials vector
@@ -1081,28 +1082,28 @@ program main
   nout   = ceiling(tend/dtout)
 
   ! create and assign SUNDIALS N_Vectors
-  sunvec_y => FN_VNew_Serial(int(neq,c_long), ctx)
+  sunvec_y => FN_VNew_Serial(neq, ctx)
   if (.not. associated(sunvec_y)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   yvec(1:neqreal,1:N)  => FN_VGetArrayPointer(sunvec_y)
 
-  sunvec_u => FN_VNew_Serial(int(neq,c_long), ctx)
+  sunvec_u => FN_VNew_Serial(neq, ctx)
   if (.not. associated(sunvec_u)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   umask(1:neqreal,1:N) => FN_VGetArrayPointer(sunvec_u)
 
-  sunvec_v => FN_VNew_Serial(int(neq,c_long), ctx)
+  sunvec_v => FN_VNew_Serial(neq, ctx)
   if (.not. associated(sunvec_v)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
   end if
   vmask(1:neqreal,1:N) => FN_VGetArrayPointer(sunvec_v)
 
-  sunvec_w => FN_VNew_Serial(int(neq,c_long), ctx)
+  sunvec_w => FN_VNew_Serial(neq, ctx)
   if (.not. associated(sunvec_w)) then
      print *, 'ERROR: sunvec = NULL'
      stop 1
@@ -1148,13 +1149,13 @@ program main
 
   ! Tell ARKODE to use a sparse linear solver for both Newton and mass matrix systems.
   sparsetype = 1
-  sunmat_A => FSUNSparseMatrix(int(neq,c_long), int(neq,c_long), int(nnz,c_long), sparsetype, ctx)
+  sunmat_A => FSUNSparseMatrix(neq, neq, nnz, sparsetype, ctx)
   if (.not. associated(sunmat_A)) then
      print *, 'ERROR: sunmat_A = NULL'
      stop 1
   end if
 
-  sunmat_M => FSUNSparseMatrix(int(neq,c_long), int(neq,c_long), int(nnz,c_long), sparsetype, ctx)
+  sunmat_M => FSUNSparseMatrix(neq, neq, nnz, sparsetype, ctx)
   if (.not. associated(sunmat_M)) then
      print *, 'ERROR: sunmat_M = NULL'
      stop 1

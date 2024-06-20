@@ -1647,8 +1647,8 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
   sunfprintf_real(outfile, fmt, SUNFALSE, "Initial step size", cv_mem->cv_h0u);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Last step size", cv_mem->cv_hu);
   sunfprintf_real(outfile, fmt, SUNFALSE, "Current step size", cv_mem->cv_next_h);
-  sunfprintf_real(outfile, fmt, SUNFALSE, "Last method order", cv_mem->cv_qu);
-  sunfprintf_real(outfile, fmt, SUNFALSE, "Current method order",
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Last method order", cv_mem->cv_qu);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Current method order",
                   cv_mem->cv_next_q);
   sunfprintf_long(outfile, fmt, SUNFALSE, "Stab. lim. order reductions",
                   cv_mem->cv_nor);

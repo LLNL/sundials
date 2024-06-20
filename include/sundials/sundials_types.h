@@ -104,8 +104,8 @@ typedef double sunrealtype;
 #define SUN_BIG_REAL      DBL_MAX
 #define SUN_SMALL_REAL    DBL_MIN
 #define SUN_UNIT_ROUNDOFF DBL_EPSILON
-#define SUN_REAL_FORMAT_E "% ." SUN_STRING(DBL_DIG) "e"
-#define SUN_REAL_FORMAT_G "% ." SUN_STRING(DBL_DIG) "g"
+#define SUN_REAL_FORMAT_E "%." SUN_STRING(DBL_DIG) "e"
+#define SUN_REAL_FORMAT_G "%." SUN_STRING(DBL_DIG) "g"
 
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 

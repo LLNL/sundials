@@ -32,6 +32,7 @@ set(sundials_HEADERS
   sundials_dense.h
   sundials_direct.h
   sundials_errors.h
+  sundials_futils.h
   sundials_iterative.h
   sundials_linearsolver.h
   sundials_linearsolver.hpp
@@ -52,10 +53,6 @@ set(sundials_HEADERS
   sundials_types.h
   sundials_version.h
   )
-
-if(BUILD_FORTRAN_MODULE_INTERFACE)
-  list(APPEND sundials_HEADERS sundials_futils.h)
-endif()
 
 if(ENABLE_MPI)
   list(APPEND sundials_HEADERS sundials_mpi_errors.h)
@@ -88,6 +85,7 @@ set(sundials_SOURCES
   sundials_dense.c
   sundials_direct.c
   sundials_errors.c
+  sundials_futils.c
   sundials_hashmap.c
   sundials_iterative.c
   sundials_linearsolver.c
@@ -104,10 +102,6 @@ set(sundials_SOURCES
 
 if(ENABLE_MPI)
   list(APPEND sundials_SOURCES sundials_mpi_errors.c)
-endif()
-
-if(BUILD_FORTRAN_MODULE_INTERFACE)
-  list(APPEND sundials_SOURCES sundials_futils.c)
 endif()
 
 # Add prefix with complete path to the source files

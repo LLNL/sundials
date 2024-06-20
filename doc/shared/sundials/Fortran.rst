@@ -557,8 +557,7 @@ Important notes on portability
 ------------------------------
 
 The SUNDIALS Fortran 2003 interface *should* be compatible with any compiler
-supporting the Fortran 2003 ISO standard. However, it has only been tested and
-confirmed to be working with GNU Fortran 4.9+ and Intel Fortran 18.0.1+.
+supporting the Fortran 2003 ISO standard.
 
 Upon compilation of SUNDIALS, Fortran module (``.mod``) files are generated for
 each Fortran 2003 interface. These files are highly compiler specific, and thus

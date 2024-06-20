@@ -93,7 +93,7 @@ module kpr_mod
   real(c_double), parameter  :: T0          = 0.0d0    ! initial time
   real(c_double), parameter  :: Tf          = 5.0d0    ! final time
   real(c_double), parameter  :: dTout       = 0.1d0    ! time between outputs
-  integer(c_long), parameter :: NEQ         = 2        ! number of dependent vars.
+  integer(c_int64_t), parameter :: NEQ         = 2        ! number of dependent vars.
   integer(c_int), parameter  :: Nt          = ceiling(Tf/dTout) ! number of output times
 
   ! parameters that can be modified via CLI args or are derived

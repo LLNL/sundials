@@ -73,6 +73,9 @@ foreach(example_tuple ${FARKODE_examples})
   list(GET example_tuple 2 example_type)
 
   if (NOT TARGET ${example})
+    # Install fortran modules to a unique directory to avoid naming collisions
+    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+
     # example source files
     add_executable(${example} ${example}.f90)
 
@@ -81,9 +84,6 @@ foreach(example_tuple ${FARKODE_examples})
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
-
-    # Install fortran modules to a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
   endif()
 
   # check if example args are provided and set the test name
@@ -125,11 +125,12 @@ if(BUILD_SUNLINSOL_KLU)
     list(GET example_tuple 0 example)
     list(GET example_tuple 1 example_type)
 
-    # example source files
-    add_executable(${example} ${example}.f90)
+    # build fortran modules into a unique directory to avoid naming collisions
+    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
+    # create the cmake executable target
+    add_executable(${example} ${example}.f90)
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
-    set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # add example to regression tests
     sundials_add_test(${example} ${example}
@@ -140,7 +141,7 @@ if(BUILD_SUNLINSOL_KLU)
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
 
-     # install example source and out files
+    # install example source and out files
     if(EXAMPLES_INSTALL)
       install(FILES ${example}.f90 ${example}.out
         DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial)
@@ -167,6 +168,9 @@ if(BUILD_SUNLINSOL_LAPACKDENSE)
     # parse the example tuple
     list(GET example_tuple 0 example)
     list(GET example_tuple 1 example_type)
+
+    # build fortran modules into a unique directory to avoid naming collisions
+    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
     add_executable(${example} ${example}.f90)

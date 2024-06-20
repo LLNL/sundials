@@ -36,10 +36,10 @@ module kinDiagonKry_mod
   ! With MPI-3 use mpi_f08 is preferred
   include "mpif.h"
 
-  integer(c_long), parameter :: neq = 128
+  integer(c_int64_t), parameter :: neq = 128
 
   integer(c_int)  :: ierr, retval, nprint
-  integer(c_long) :: i, nlocal
+  integer(c_int64_t) :: i, nlocal
   real(c_double), pointer, dimension(neq) :: u(:), scale(:), constr(:)
   real(c_double)             :: p(neq)
   integer(c_int),  parameter :: prectype = 2
@@ -73,7 +73,7 @@ contains
     type(N_Vector)       :: sunvec_c  ! constraint N_Vector
 
     ! local variables
-    integer(c_long) :: ii
+    integer(c_int64_t) :: ii
 
     u(1:nlocal)      => FN_VGetArrayPointer(sunvec_u)
     scale(1:nlocal)  => FN_VGetArrayPointer(sunvec_s)
@@ -118,7 +118,7 @@ contains
     real(c_double), pointer, dimension(nlocal) :: uu(:), ff(:)
 
     ! local variables
-    integer(c_long) :: ii
+    integer(c_int64_t) :: ii
 
     !======= Internals ============
 
@@ -471,7 +471,7 @@ subroutine PrintOutput(uu)
 
   ! calling variable
   real(c_double), dimension(neq) :: uu
-  integer(c_long) :: ii
+  integer(c_int64_t) :: ii
 
   !======= Internals ============
 

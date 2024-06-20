@@ -48,7 +48,7 @@ module idaHeat2DKryOMP_mod
 
   integer(c_int),  parameter :: nout  = 11
   integer(c_int),  parameter :: mgrid = 100
-  integer(c_long), parameter :: neq   = mgrid*mgrid
+  integer(c_int64_t), parameter :: neq   = mgrid*mgrid
 
   real(c_double) :: dx
   real(c_double) :: coeff
@@ -86,7 +86,7 @@ contains
     real(c_double), pointer, dimension(mgrid,mgrid) :: r(:,:)
 
     ! local variables
-    integer(c_long) :: i, j
+    integer(c_int64_t) :: i, j
 
     !======= Internals ============
 
@@ -522,7 +522,7 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   real(c_double), pointer, dimension(mgrid,mgrid) :: r(:,:)
 
   ! local variables
-  integer(c_long) :: i, j
+  integer(c_int64_t) :: i, j
   real(c_double)  :: xfact, yfact
   integer(c_int)  :: retval
 
