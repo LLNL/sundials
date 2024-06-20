@@ -30,4 +30,4 @@ find "${paths[@]}" -iname '*.h' -o -iname '*.hpp' -o \
   -iname '*.c' -o -iname '*.cpp' -o \
   -iname '*.cuh' -o -iname '*.cu' | grep -v fmod | xargs clang-format -i
 
-find "${paths[@]}" -iname '*.f90' | grep -v fmod | xargs fprettify --indent 2
+find "${paths[@]}" -iname '*.f90' | grep -v fmod | xargs fprettify --indent 2 --enable-replacements --c-relations

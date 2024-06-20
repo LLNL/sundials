@@ -32,7 +32,7 @@ module fsunmatrix_fortran_mod
     logical                 :: own_data
     integer(c_int64_t)         :: Nvar
     integer(c_int64_t)         :: N
-    real(c_double), pointer :: data(:,:,:)
+    real(c_double), pointer :: data(:, :, :)
   end type FMat
   ! ----------------------------------------------------------------
 
@@ -42,37 +42,37 @@ contains
   function FSUNMatNew_Fortran(Nvar, N, sunctx) result(sunmat_A)
 
     implicit none
-    integer(c_int64_t),     value   :: Nvar
-    integer(c_int64_t),     value   :: N
-    type(c_ptr),         value   :: sunctx
-    type(SUNMatrix),     pointer :: sunmat_A
+    integer(c_int64_t), value   :: Nvar
+    integer(c_int64_t), value   :: N
+    type(c_ptr), value   :: sunctx
+    type(SUNMatrix), pointer :: sunmat_A
     type(SUNMatrix_Ops), pointer :: ops
-    type(FMat),          pointer :: content
+    type(FMat), pointer :: content
 
     ! allocate output SUNMatrix structure
     sunmat_A => FSUNMatNewEmpty(sunctx)
 
     ! allocate and fill content structure
-    allocate(content)
-    allocate(content%data(Nvar,Nvar,N))
+    allocate (content)
+    allocate (content%data(Nvar, Nvar, N))
     content%own_data = .true.
-    content%Nvar     = NVar
-    content%N        = N
+    content%Nvar = NVar
+    content%N = N
 
     ! attach the content structure to the output SUNMatrix
     sunmat_A%content = c_loc(content)
 
     ! access the SUNMatrix ops structure, and set internal function pointers
     call c_f_pointer(sunmat_A%ops, ops)
-    ops%getid     = c_funloc(FSUNMatGetID_Fortran)
-    ops%clone     = c_funloc(FSUNMatClone_Fortran)
-    ops%destroy   = c_funloc(FSUNMatDestroy_Fortran)
-    ops%zero      = c_funloc(FSUNMatZero_Fortran)
-    ops%copy      = c_funloc(FSUNMatCopy_Fortran)
-    ops%scaleadd  = c_funloc(FSUNMatScaleAdd_Fortran)
+    ops%getid = c_funloc(FSUNMatGetID_Fortran)
+    ops%clone = c_funloc(FSUNMatClone_Fortran)
+    ops%destroy = c_funloc(FSUNMatDestroy_Fortran)
+    ops%zero = c_funloc(FSUNMatZero_Fortran)
+    ops%copy = c_funloc(FSUNMatCopy_Fortran)
+    ops%scaleadd = c_funloc(FSUNMatScaleAdd_Fortran)
     ops%scaleaddi = c_funloc(FSUNMatScaleAddI_Fortran)
-    ops%matvec    = c_funloc(FSUNMatMatvec_Fortran)
-    ops%space     = c_funloc(FSUNMatSpace_Fortran)
+    ops%matvec = c_funloc(FSUNMatMatvec_Fortran)
+    ops%space = c_funloc(FSUNMatSpace_Fortran)
 
   end function FSUNMatNew_Fortran
 
@@ -110,7 +110,7 @@ contains
     type(SUNMatrix), pointer :: sunmat_B
     type(c_ptr)              :: B_ptr
     integer(c_int)           :: retval
-    type(FMat),      pointer :: A, B
+    type(FMat), pointer :: A, B
 
     ! extract Fortran matrix structure to work with
     A => FSUNMatGetFMat(sunmat_A)
@@ -122,8 +122,8 @@ contains
     retval = FSUNMatCopyOps(sunmat_A, sunmat_B)
 
     ! allocate and clone content structure
-    allocate(B)
-    allocate(B%data(A%Nvar,A%Nvar,A%N))
+    allocate (B)
+    allocate (B%data(A%Nvar, A%Nvar, A%N))
     B%own_data = .true.
     B%Nvar = A%Nvar
     B%N = A%N
@@ -142,16 +142,16 @@ contains
 
     implicit none
     type(SUNMatrix), target  :: sunmat_A
-    type(FMat),      pointer :: A
+    type(FMat), pointer :: A
 
     ! access FMat structure
     A => FSUNMatGetFMat(sunmat_A)
 
     ! if matrix owns the data, then deallocate
-    if (A%own_data)  deallocate(A%data)
+    if (A%own_data) deallocate (A%data)
 
     ! deallocate the underlying Fortran object (the content)
-    deallocate(A)
+    deallocate (A)
 
     ! set SUNMatrix structure members to NULL and return
     sunmat_A%content = C_NULL_PTR
@@ -165,7 +165,7 @@ contains
 
   ! ----------------------------------------------------------------
   integer(c_int) function FSUNMatZero_Fortran(sunmat_A) &
-       result(ierr) bind(C)
+    result(ierr) bind(C)
 
     implicit none
     type(SUNMatrix)     :: sunmat_A
@@ -175,7 +175,7 @@ contains
     A => FSUNMatGetFMat(sunmat_A)
 
     ! set all entries to zero (whole array operation)
-    A%data(:,:,:) = 0.d0
+    A%data(:, :, :) = 0.d0
 
     ! return with success
     ierr = 0
@@ -185,7 +185,7 @@ contains
 
   ! ----------------------------------------------------------------
   integer(c_int) function FSUNMatCopy_Fortran(sunmat_A, sunmat_B) &
-       result(ierr) bind(C)
+    result(ierr) bind(C)
 
     implicit none
     type(SUNMatrix)     :: sunmat_A
@@ -197,7 +197,7 @@ contains
     B => FSUNMatGetFMat(sunmat_B)
 
     ! copy all entries from A into B (whole array operation)
-    B%data(:,:,:) = A%data(:,:,:)
+    B%data(:, :, :) = A%data(:, :, :)
 
     ! return with success
     ierr = 0
@@ -207,20 +207,20 @@ contains
 
   ! ----------------------------------------------------------------
   integer(c_int) function FSUNMatScaleAdd_Fortran(c, sunmat_A, sunmat_B) &
-       result(ierr) bind(C)
+    result(ierr) bind(C)
 
     implicit none
     real(c_double), value   :: c
     type(SUNMatrix)         :: sunmat_A
     type(SUNMatrix)         :: sunmat_B
-    type(FMat),     pointer :: A, B
+    type(FMat), pointer :: A, B
 
     ! extract Fortran matrix structures to work with
     A => FSUNMatGetFMat(sunmat_A)
     B => FSUNMatGetFMat(sunmat_B)
 
     ! A = c*A + B (whole array operation)
-    A%data(:,:,:) = c * A%data(:,:,:) + B%data(:,:,:)
+    A%data(:, :, :) = c*A%data(:, :, :) + B%data(:, :, :)
 
     ! return with success
     ierr = 0
@@ -230,7 +230,7 @@ contains
 
   ! ----------------------------------------------------------------
   integer(c_int) function FSUNMatScaleAddI_Fortran(c, sunmat_A) &
-       result(ierr) bind(C)
+    result(ierr) bind(C)
 
     implicit none
     real(c_double), value :: c
@@ -242,13 +242,13 @@ contains
     A => FSUNMatGetFMat(sunmat_A)
 
     ! A = c*A + I
-    do k = 1,A%N
-       do j = 1,A%Nvar
-          do i = 1,A%Nvar
-             A%data(i,j,k) = c * A%data(i,j,k)
-          end do
-          A%data(j,j,k) = A%data(j,j,k) + 1.d0
-       end do
+    do k = 1, A%N
+      do j = 1, A%Nvar
+        do i = 1, A%Nvar
+          A%data(i, j, k) = c*A%data(i, j, k)
+        end do
+        A%data(j, j, k) = A%data(j, j, k) + 1.d0
+      end do
     end do
 
     ! return with success
@@ -259,7 +259,7 @@ contains
 
   ! ----------------------------------------------------------------
   integer(c_int) function FSUNMatMatvec_Fortran(sunmat_A, sunvec_x, sunvec_y) &
-       result(ierr) bind(C)
+    result(ierr) bind(C)
 
     implicit none
     type(SUNMatrix)     :: sunmat_A
@@ -275,8 +275,8 @@ contains
     y => FN_VGetFVec(sunvec_y)
 
     ! y = A*x
-    do i = 1,A%N
-       y%data(:,i) = matmul(A%data(:,:,i), x%data(:,i))
+    do i = 1, A%N
+      y%data(:, i) = matmul(A%data(:, :, i), x%data(:, i))
     end do
 
     ! return with success

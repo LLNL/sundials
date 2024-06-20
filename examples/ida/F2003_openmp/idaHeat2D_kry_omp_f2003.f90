@@ -46,13 +46,13 @@ module idaHeat2DKryOMP_mod
   !======= Declarations =========
   implicit none
 
-  integer(c_int),  parameter :: nout  = 11
-  integer(c_int),  parameter :: mgrid = 100
-  integer(c_int64_t), parameter :: neq   = mgrid*mgrid
+  integer(c_int), parameter :: nout = 11
+  integer(c_int), parameter :: mgrid = 100
+  integer(c_int64_t), parameter :: neq = mgrid*mgrid
 
   real(c_double) :: dx
   real(c_double) :: coeff
-  real(c_double) :: pp(mgrid,mgrid)
+  real(c_double) :: pp(mgrid, mgrid)
 
 contains
 
@@ -65,7 +65,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function resHeat(tres, sunvec_u, sunvec_up, sunvec_r, user_data) &
-       result(ierr) bind(C,name='resHeat')
+    result(ierr) bind(C, name='resHeat')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -78,12 +78,12 @@ contains
     type(N_Vector)        :: sunvec_u  ! solution N_Vector
     type(N_Vector)        :: sunvec_up ! derivative N_Vector
     type(N_Vector)        :: sunvec_r  ! residual N_Vector
-    type(c_ptr),    value :: user_data ! user-defined data
+    type(c_ptr), value :: user_data ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
-    real(c_double), pointer, dimension(mgrid,mgrid) :: u(:,:)
-    real(c_double), pointer, dimension(mgrid,mgrid) :: up(:,:)
-    real(c_double), pointer, dimension(mgrid,mgrid) :: r(:,:)
+    real(c_double), pointer, dimension(mgrid, mgrid) :: u(:, :)
+    real(c_double), pointer, dimension(mgrid, mgrid) :: up(:, :)
+    real(c_double), pointer, dimension(mgrid, mgrid) :: r(:, :)
 
     ! local variables
     integer(c_int64_t) :: i, j
@@ -91,9 +91,9 @@ contains
     !======= Internals ============
 
     ! get data arrays from SUNDIALS vectors
-    u(1:mgrid, 1:mgrid)  => FN_VGetArrayPointer(sunvec_u)
+    u(1:mgrid, 1:mgrid) => FN_VGetArrayPointer(sunvec_u)
     up(1:mgrid, 1:mgrid) => FN_VGetArrayPointer(sunvec_up)
-    r(1:mgrid, 1:mgrid)  => FN_VGetArrayPointer(sunvec_r)
+    r(1:mgrid, 1:mgrid) => FN_VGetArrayPointer(sunvec_r)
 
     ! Initialize r to u, to take care of boundary equations
     !$omp parallel
@@ -103,10 +103,10 @@ contains
 
     ! Loop over interior points; set res = up - (central difference)
     !$omp do collapse(2) private(i,j)
-    do j = 2,mgrid-1
-       do i = 2,mgrid-1
-          r(i,j) = up(i,j) - coeff*( u(i-1,j) + u(i+1,j) + u(i,j-1) + u(i,j+1) - 4.d0*u(i,j))
-       end do
+    do j = 2, mgrid - 1
+      do i = 2, mgrid - 1
+        r(i, j) = up(i, j) - coeff*(u(i - 1, j) + u(i + 1, j) + u(i, j - 1) + u(i, j + 1) - 4.d0*u(i, j))
+      end do
     end do
     !$omp end do
     !$omp end parallel
@@ -127,7 +127,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function PSetupHeat(t, sunvec_u, sunvec_up, sunvec_r, cj, prec_data) &
-       result(ierr) bind(C,name='PSetupHeat')
+    result(ierr) bind(C, name='PSetupHeat')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -141,7 +141,7 @@ contains
     type(N_Vector)        :: sunvec_u  ! solution N_Vector
     type(N_Vector)        :: sunvec_up ! derivative N_Vector
     type(N_Vector)        :: sunvec_r  ! residual N_Vector
-    type(c_ptr),    value :: prec_data ! preconditioner data
+    type(c_ptr), value :: prec_data ! preconditioner data
 
     ! local variables
     real(c_double) :: pelinv
@@ -156,7 +156,7 @@ contains
 
     ! set the interior points to the correct value for preconditioning
     !$omp parallel workshare
-    pp(2:mgrid-1, 2:mgrid-1) = pelinv
+    pp(2:mgrid - 1, 2:mgrid - 1) = pelinv
     !$omp end parallel workshare
 
     ! return success
@@ -175,7 +175,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function PSolveHeat(t, sunvec_u, sunvec_up, sunvec_r, sunvec_rhs, &
-       sunvec_sol, cj, delta, prec_data) result(ierr) bind(C,name='PSolveHeat')
+                                     sunvec_sol, cj, delta, prec_data) result(ierr) bind(C, name='PSolveHeat')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -192,11 +192,11 @@ contains
     type(N_Vector)        :: sunvec_r   ! residual N_Vector
     type(N_Vector)        :: sunvec_rhs ! rhs N_Vector
     type(N_Vector)        :: sunvec_sol ! solution N_Vector
-    type(c_ptr),    value :: prec_data  ! preconditioner data
+    type(c_ptr), value :: prec_data  ! preconditioner data
 
     ! pointers to data in SUNDIALS vectors
-    real(c_double), pointer, dimension(mgrid,mgrid) :: rhs(:,:)
-    real(c_double), pointer, dimension(mgrid,mgrid) :: sol(:,:)
+    real(c_double), pointer, dimension(mgrid, mgrid) :: rhs(:, :)
+    real(c_double), pointer, dimension(mgrid, mgrid) :: sol(:, :)
 
     !======= Internals ============
 
@@ -206,7 +206,7 @@ contains
 
     ! Apply preconditioner to rhs to create sol
     !$omp parallel workshare
-    sol = rhs * pp
+    sol = rhs*pp
     !$omp end parallel workshare
 
     ! return success
@@ -218,7 +218,6 @@ contains
 
 end module idaHeat2DKryOMP_mod
 ! ------------------------------------------------------------------
-
 
 program main
 
@@ -238,11 +237,11 @@ program main
   integer(c_int)  :: retval, iout
   integer(c_long) :: netf(1), ncfn(1), ncfl(1)
 
-  type(N_Vector),        pointer :: sunvec_u     ! sundials solution vector
-  type(N_Vector),        pointer :: sunvec_up    ! sundials derivative vector
-  type(N_Vector),        pointer :: sunvec_c     ! sundials constraints vector
-  type(N_Vector),        pointer :: sunvec_r     ! sundials residual vector
-  type(SUNMatrix),       pointer :: sunmat_A     ! sundials matrix (empty)
+  type(N_Vector), pointer :: sunvec_u     ! sundials solution vector
+  type(N_Vector), pointer :: sunvec_up    ! sundials derivative vector
+  type(N_Vector), pointer :: sunvec_c     ! sundials constraints vector
+  type(N_Vector), pointer :: sunvec_r     ! sundials residual vector
+  type(SUNMatrix), pointer :: sunmat_A     ! sundials matrix (empty)
   type(SUNLinearSolver), pointer :: sunlinsol_LS ! sundials linear solver
   type(c_ptr)                    :: ida_mem      ! IDA memory
   type(c_ptr)                    :: sunctx       ! sundials simulation context
@@ -250,7 +249,7 @@ program main
   character(len=32)              :: arg          ! input arg
 
   ! solution, residual and constraints vectors, mgrid is set in the idaHeat2DKryOMP_mod module
-  real(c_double), dimension(mgrid,mgrid) :: uu, up, res, constraints
+  real(c_double), dimension(mgrid, mgrid) :: uu, up, res, constraints
 
   !======= Internals ============
   retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
@@ -258,40 +257,40 @@ program main
   ! get the number of threads passed in as a command line argument (if applicable)
   nargs = command_argument_count()
   if (nargs > 0) then
-     call get_command_argument(1, arg, length, status)
-     read(arg,*) nthreads
+    call get_command_argument(1, arg, length, status)
+    read (arg, *) nthreads
   else
-     nthreads = 6
-  endif
+    nthreads = 6
+  end if
   call omp_set_num_threads(nthreads)
 
   ! Assign parameters in idaHeat2DKryOMP_mod
-  dx = 1.d0/(mgrid-1)
-  coeff = 1.d0/(dx * dx)
+  dx = 1.d0/(mgrid - 1)
+  coeff = 1.d0/(dx*dx)
 
   ! create N_Vectors
   sunvec_u => FN_VMake_OpenMP(neq, uu, nthreads, sunctx)
   if (.not. associated(sunvec_u)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   sunvec_up => FN_VMake_OpenMP(neq, up, nthreads, sunctx)
   if (.not. associated(sunvec_up)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   sunvec_r => FN_VMake_OpenMP(neq, res, nthreads, sunctx)
   if (.not. associated(sunvec_r)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   sunvec_c => FN_VMake_OpenMP(neq, constraints, nthreads, sunctx)
   if (.not. associated(sunvec_c)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   ! Initialize solution vectors
@@ -301,64 +300,64 @@ program main
   constraints = 1.d0
 
   ! Assign various parameters
-  t0   = 0.d0
-  t1   = 0.01d0
+  t0 = 0.d0
+  t1 = 0.01d0
   rtol = 0.d0
   atol = 1.d-3
 
   ! Call FIDACreate and FIDAInit to initialize solution
   ida_mem = FIDACreate(sunctx)
   if (.not. c_associated(ida_mem)) then
-     print *, 'ERROR: ida_mem = NULL'
-     stop 1
+    print *, 'ERROR: ida_mem = NULL'
+    stop 1
   end if
 
   retval = FIDASetConstraints(ida_mem, sunvec_c)
   if (retval /= 0) then
-     print *, 'Error in FIDASetConstraints, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDASetConstraints, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAInit(ida_mem, c_funloc(resHeat), t0, sunvec_u, sunvec_up)
   if (retval /= 0) then
-     print *, 'Error in FIDAInit, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAInit, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDASStolerances(ida_mem, rtol, atol)
   if (retval /= 0) then
-     print *, 'Error in FIDASStolerances, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDASStolerances, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Create the linear solver SUNLinSol_SPGMR with left preconditioning
   ! and the default Krylov dimension
   sunlinsol_LS => FSUNLinSol_SPGMR(sunvec_u, SUN_PREC_LEFT, 0, sunctx)
   if (.not. associated(sunlinsol_LS)) then
-     print *, 'ERROR: sunlinsol = NULL'
-     stop 1
+    print *, 'ERROR: sunlinsol = NULL'
+    stop 1
   end if
 
   ! IDA recommends allowing up to 5 restarts (default is 0)
   retval = FSUNLinSol_SPGMRSetMaxRestarts(sunlinsol_LS, 5)
   if (retval /= 0) then
-     print *, 'Error in FSUNLinSol_SPGMRSetMaxRestarts, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FSUNLinSol_SPGMRSetMaxRestarts, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Attach the linear solver (will NULL SUNMatrix object)
   sunmat_A => null()
   retval = FIDASetLinearSolver(ida_mem, sunlinsol_LS, sunmat_A)
   if (retval /= 0) then
-     print *, 'Error in FIDASetLinearSolver, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDASetLinearSolver, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Set the preconditioner solve and setup functions */
   retval = FIDASetPreconditioner(ida_mem, c_funloc(PsetupHeat), c_funloc(PsolveHeat))
   if (retval /= 0) then
-     print *, 'Error in FIDASetPreconditioner, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDASetPreconditioner, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Print output heading
@@ -382,33 +381,33 @@ program main
   ! Loop over output times, call IDASolve, and print results
 
   tout = t1
-  do iout = 1,NOUT
-     retval = FIDASolve(ida_mem, tout, tret, sunvec_u, sunvec_up, IDA_NORMAL)
-     if (retval < 0) then
-        print *, 'Error in FIDASolve, retval = ', retval, '; halting'
-        stop 1
-     end if
-     call PrintOutput(ida_mem, tret(1), uu)
-     tout = 2.d0*tout
+  do iout = 1, NOUT
+    retval = FIDASolve(ida_mem, tout, tret, sunvec_u, sunvec_up, IDA_NORMAL)
+    if (retval < 0) then
+      print *, 'Error in FIDASolve, retval = ', retval, '; halting'
+      stop 1
+    end if
+    call PrintOutput(ida_mem, tret(1), uu)
+    tout = 2.d0*tout
   end do
 
   ! Print remaining counters
   retval = FIDAGetNumErrTestFails(ida_mem, netf)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumErrTestFails, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumErrTestFails, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumNonlinSolvConvFails(ida_mem, ncfn)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumLinConvFails(ida_mem, ncfl)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumLinConvFails, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumLinConvFails, retval = ', retval, '; halting'
+    stop 1
   end if
 
   print *, " "
@@ -428,14 +427,14 @@ program main
 
   retval = FIDAReInit(ida_mem, t0, sunvec_u, sunvec_up)
   if (retval /= 0) then
-     print *, 'Error in FIDAReInit, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAReInit, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FSUNLinSol_SPGMRSetGSType(sunlinsol_LS, SUN_CLASSICAL_GS)
   if (retval /= 0) then
-     print *, 'Error in FSUNLinSol_SPGMRSetGSType, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FSUNLinSol_SPGMRSetGSType, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Print case number, output table heading, and initial line of table
@@ -451,34 +450,34 @@ program main
 
   ! Loop over output times, call IDASolve, and print results
   tout = t1
-  do iout = 1,NOUT
-     retval = FIDASolve(ida_mem, tout, tret, sunvec_u, sunvec_up, IDA_NORMAL)
-     if (retval < 0) then
-        print *, 'Error in FIDASolve, retval = ', retval, '; halting'
-        stop 1
-     end if
-     call PrintOutput(ida_mem, tret(1), uu)
-     tout = 2.d0*tout
+  do iout = 1, NOUT
+    retval = FIDASolve(ida_mem, tout, tret, sunvec_u, sunvec_up, IDA_NORMAL)
+    if (retval < 0) then
+      print *, 'Error in FIDASolve, retval = ', retval, '; halting'
+      stop 1
+    end if
+    call PrintOutput(ida_mem, tret(1), uu)
+    tout = 2.d0*tout
   end do
 
   ! Print remaining counters
 
   retval = FIDAGetNumErrTestFails(ida_mem, netf)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumErrTestFails, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumErrTestFails, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumNonlinSolvConvFails(ida_mem, ncfn)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumLinConvFails(ida_mem, ncfl)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumLinConvFails, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumLinConvFails, retval = ', retval, '; halting'
+    stop 1
   end if
 
   print *, " "
@@ -498,7 +497,6 @@ program main
 end program main
 ! ----------------------------------------------------------------
 
-
 ! ----------------------------------------------------------------
 ! SetInitialProfile: routine to initialize u and up vectors.
 ! ----------------------------------------------------------------
@@ -517,9 +515,9 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   type(N_Vector) :: sunvec_r  ! residual N_Vector
 
   ! pointers to data in SUNDIALS vectors
-  real(c_double), pointer, dimension(mgrid,mgrid) :: uu(:,:)
-  real(c_double), pointer, dimension(mgrid,mgrid) :: up(:,:)
-  real(c_double), pointer, dimension(mgrid,mgrid) :: r(:,:)
+  real(c_double), pointer, dimension(mgrid, mgrid) :: uu(:, :)
+  real(c_double), pointer, dimension(mgrid, mgrid) :: up(:, :)
+  real(c_double), pointer, dimension(mgrid, mgrid) :: r(:, :)
 
   ! local variables
   integer(c_int64_t) :: i, j
@@ -531,18 +529,18 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   ! get data arrays from SUNDIALS vectors
   uu(1:mgrid, 1:mgrid) => FN_VGetArrayPointer(sunvec_u)
   up(1:mgrid, 1:mgrid) => FN_VGetArrayPointer(sunvec_up)
-  r(1:mgrid, 1:mgrid)  => FN_VGetArrayPointer(sunvec_r)
+  r(1:mgrid, 1:mgrid) => FN_VGetArrayPointer(sunvec_r)
 
   !======= Internals ============
 
   ! Initialize uu on all grid points
   !$omp parallel do collapse(2) private(yfact,xfact,i,j)
-  do j = 1,mgrid
-     do i = 1,mgrid
-        yfact = dx * (j-1)
-        xfact = dx * (i-1)
-        uu(i,j) = 16.d0 * xfact * (1.d0 - xfact) * yfact * (1.d0 - yfact)
-     end do
+  do j = 1, mgrid
+    do i = 1, mgrid
+      yfact = dx*(j - 1)
+      xfact = dx*(i - 1)
+      uu(i, j) = 16.d0*xfact*(1.d0 - xfact)*yfact*(1.d0 - yfact)
+    end do
   end do
   !$omp end parallel do
 
@@ -550,7 +548,7 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   up = 0.d0
 
   ! resHeat sets res to negative of ODE RHS values at interior points
-  retval = resHeat(0.d0, sunvec_u, sunvec_up, sunvec_r, C_NULL_PTR)
+  retval = resHeat(0.d0, sunvec_u, sunvec_up, sunvec_r, c_null_ptr)
 
   ! Copy -r into up to get correct interior initial up values
   !$omp parallel workshare
@@ -558,15 +556,14 @@ subroutine SetInitialProfile(sunvec_u, sunvec_up, sunvec_r)
   !$omp end parallel workshare
 
   ! Set up at boundary points to zero
-  up(1,:)     = 0.d0
-  up(mgrid,:) = 0.d0
-  up(:,1)     = 0.d0
-  up(:,mgrid) = 0.d0
+  up(1, :) = 0.d0
+  up(mgrid, :) = 0.d0
+  up(:, 1) = 0.d0
+  up(:, mgrid) = 0.d0
 
   return
 end subroutine SetInitialProfile
 ! ----------------------------------------------------------------
-
 
 ! ----------------------------------------------------------------
 ! PrintHeader: prints first lines of output (problem description)
@@ -590,18 +587,17 @@ subroutine PrintHeader(rtol, atol)
   print *, "         Discretized heat equation on 2D unit square."
   print *, "         Zero boundary conditions, polynomial initial conditions."
   print '(2(a,i4),a,i8)', "         Mesh dimensions: ", mgrid, " x ", mgrid, &
-       "        Total system size: ", neq
+    "        Total system size: ", neq
   print *, " "
   print *, " Number of OpenMP threads = ", omp_get_max_threads()
   print *, " "
-  print '(2(a,es8.1))', "Tolerance parameters:  rtol = ", rtol,"   atol = ", atol
+  print '(2(a,es8.1))', "Tolerance parameters:  rtol = ", rtol, "   atol = ", atol
   print *, "Constraints set to force all solution components >= 0."
   print *, "Linear solver: SPGMR, preconditioner using diagonal elements."
 
   return
 end subroutine PrintHeader
 ! ----------------------------------------------------------------
-
 
 ! ----------------------------------------------------------------
 ! PrintOutput
@@ -618,7 +614,7 @@ subroutine PrintOutput(ida_mem, t, uu)
 
   ! calling variable
   type(c_ptr)    :: ida_mem
-  real(c_double) :: t, uu(mgrid,mgrid)
+  real(c_double) :: t, uu(mgrid, mgrid)
 
   ! internal variables
   integer(c_int)  :: retval, kused(1)
@@ -631,67 +627,66 @@ subroutine PrintOutput(ida_mem, t, uu)
 
   retval = FIDAGetLastOrder(ida_mem, kused)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetLastOrder, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetLastOrder, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumSteps(ida_mem, nst)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumSteps, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumSteps, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumNonlinSolvIters(ida_mem, nni)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumNonlinSolvIters, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumNonlinSolvIters, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumResEvals(ida_mem, nre)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumResEvals, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumResEvals, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetLastStep(ida_mem, hused)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetLastStep, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetLastStep, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumJtimesEvals(ida_mem, nje)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumJtimesEvals, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumJtimesEvals, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumLinIters(ida_mem, nli)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumLinIters, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumLinIters, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumLinResEvals(ida_mem, nreLS)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumLinResEvals, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumLinResEvals, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumPrecEvals(ida_mem, npe)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumPrecEvals, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumPrecEvals, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumPrecSolves(ida_mem, nps)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumPrecSolves, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumPrecSolves, retval = ', retval, '; halting'
+    stop 1
   end if
 
-
   print '(f5.2,1x,es13.5,4x,i1,2x,3(i3,2x),2(i4,2x),es9.2,2x,2(i3,1x))', &
-       t, umax, kused, nst, nni, nje, nre, nreLS, hused(1), npe, nps
+    t, umax, kused, nst, nni, nje, nre, nreLS, hused(1), npe, nps
 
 end subroutine PrintOutput
 ! ----------------------------------------------------------------

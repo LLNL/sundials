@@ -26,7 +26,7 @@ module test_fsunlinsol_band
 
 contains
 
-  integer(C_INT) function unit_tests() result(fails)
+  integer(c_int) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
     use fnvector_serial_mod
     use fsunmatrix_band_mod
@@ -37,12 +37,12 @@ contains
 
     type(SUNLinearSolver), pointer :: LS           ! test linear solver
     type(SUNMatrix), pointer   :: A                  ! test matrices
-    type(N_Vector),  pointer   :: x, y, b            ! test vectors
-    real(C_DOUBLE),  pointer   :: xdata(:), Adata(:) ! data arrays
-    real(C_DOUBLE)             :: tmpr               ! temporary real value
+    type(N_Vector), pointer   :: x, y, b            ! test vectors
+    real(c_double), pointer   :: xdata(:), Adata(:) ! data arrays
+    real(c_double)             :: tmpr               ! temporary real value
     integer(kind=myindextype) :: j, k
     integer(kind=myindextype) :: smu, kstart, kend, offset
-    integer(C_INT)             :: tmp
+    integer(c_int)             :: tmp
 
     fails = 0
     smu = 0
@@ -54,25 +54,25 @@ contains
 
     ! fill A matrix with uniform random data in [0, 1/N)
     Adata => FSUNBandMatrix_Data(A)
-    do j=1, N
-      offset = (j-1)*(smu+ml+1) + smu + 1 ! offset to diagonal
-      kstart = merge(-mu, -(j-1), j > mu) ! above diagonal
-      kend = merge(N-j , ml, j > N - ml)  ! below diagonal
-      do k=kstart, kend
+    do j = 1, N
+      offset = (j - 1)*(smu + ml + 1) + smu + 1 ! offset to diagonal
+      kstart = merge(-mu, -(j - 1), j > mu) ! above diagonal
+      kend = merge(N - j, ml, j > N - ml)  ! below diagonal
+      do k = kstart, kend
         call random_number(tmpr)
-        Adata(offset+k) = tmpr / N
+        Adata(offset + k) = tmpr/N
       end do
     end do
 
     ! fill x vector with uniform random data in [1, 2)
     xdata => FN_VGetArrayPointer(x)
-    do j=1, N
+    do j = 1, N
       call random_number(tmpr)
       xdata(j) = ONE + tmpr
     end do
 
     ! scale/shift matrix to ensure diagonal dominance
-    fails = FSUNMatScaleAddI(ONE/(mu+ml+1), A)
+    fails = FSUNMatScaleAddI(ONE/(mu + ml + 1), A)
     if (fails /= 0) then
       print *, 'FAIL:  FSUNMatScaleAddI failure'
       call FSUNMatDestroy(A)
@@ -116,17 +116,15 @@ contains
 
 end module
 
-integer(C_INT) function check_vector(X, Y, tol) result(failure)
+integer(c_int) function check_vector(X, Y, tol) result(failure)
   use, intrinsic :: iso_c_binding
   use test_utilities
   implicit none
 
-
-
   type(N_Vector)  :: x, y
-  real(C_DOUBLE)  :: tol, maxerr
+  real(c_double)  :: tol, maxerr
   integer(kind=myindextype) :: i, xlen, ylen
-  real(C_DOUBLE), pointer :: xdata(:), ydata(:)
+  real(c_double), pointer :: xdata(:), ydata(:)
 
   failure = 0
 
@@ -149,9 +147,9 @@ integer(C_INT) function check_vector(X, Y, tol) result(failure)
   if (failure > 0) then
     maxerr = ZERO
     do i = 1, xlen
-      maxerr = max(abs(xdata(i)-ydata(i))/abs(xdata(i)), maxerr)
+      maxerr = max(abs(xdata(i) - ydata(i))/abs(xdata(i)), maxerr)
     end do
-    write(*,'(A,E14.7,A,E14.7,A)') &
+    write (*, '(A,E14.7,A,E14.7,A)') &
       "FAIL: check_vector failure: maxerr = ", maxerr, "  (tol = ", FIVE*tol, ")"
   end if
 
@@ -164,7 +162,7 @@ program main
 
   !======== Declarations ========
   implicit none
-  integer(C_INT) :: fails = 0
+  integer(c_int) :: fails = 0
 
   !============== Introduction =============
   print *, 'Band SUNLinearSolver Fortran 2003 interface test'
@@ -176,7 +174,7 @@ program main
     print *, 'FAILURE: n unit tests failed'
     stop 1
   else
-    print *,'SUCCESS: all unit tests passed'
+    print *, 'SUCCESS: all unit tests passed'
   end if
 
   call Test_Finalize()

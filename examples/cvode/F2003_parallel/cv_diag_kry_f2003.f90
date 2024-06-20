@@ -47,8 +47,8 @@ module DiagkryData
   integer :: nprocs        ! total number of MPI processes
 
   ! Problem parameters
-  integer(c_int),  parameter :: iGStype = 1
-  integer(c_int),  parameter :: iPretype0 = 1
+  integer(c_int), parameter :: iGStype = 1
+  integer(c_int), parameter :: iPretype0 = 1
   integer(c_int64_t), parameter :: nlocal = 10
   integer(c_int64_t) :: neq
   integer(c_int) :: iPretype
@@ -60,7 +60,7 @@ contains
   ! ODE RHS function f(t,y) (implicit).
   ! ----------------------------------------------------------------
   integer(c_int) function firhs(t, sunvec_y, sunvec_ydot, user_data) &
-       result(retval) bind(C)
+    result(retval) bind(C)
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -73,7 +73,7 @@ contains
     real(c_double), value :: t            ! current time
     type(N_Vector)        :: sunvec_y     ! solution N_Vector
     type(N_Vector)        :: sunvec_ydot  ! rhs N_Vector
-    type(c_ptr),    value :: user_data    ! user-defined data
+    type(c_ptr), value :: user_data    ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer, dimension(nlocal) :: y(:)
@@ -85,15 +85,15 @@ contains
     !======= Internals ============
 
     ! Get data arrays from SUNDIALS vectors
-    y(1:nlocal)    => FN_VGetArrayPointer(sunvec_y)
+    y(1:nlocal) => FN_VGetArrayPointer(sunvec_y)
     ydot(1:nlocal) => FN_VGetArrayPointer(sunvec_ydot)
 
     ! Initialize ydot to zero
     ydot = 0.d0
 
     ! Fill ydot with rhs function
-    do i = 1,nlocal
-       ydot(i) = -alpha * (myid * nlocal + i) * y(i)
+    do i = 1, nlocal
+      ydot(i) = -alpha*(myid*nlocal + i)*y(i)
     end do
 
     retval = 0              ! Return with success
@@ -110,7 +110,7 @@ contains
   ! local vector segment) is applied to the vector z.
   ! ----------------------------------------------------------------
   integer(c_int) function Psolve(t, sunvec_y, sunvec_f, sunvec_r, sunvec_z, &
-       gamma, delta, lr, user_data) result(retval) bind(C)
+                                 gamma, delta, lr, user_data) result(retval) bind(C)
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -128,7 +128,7 @@ contains
     real(c_double), value :: gamma          ! current gamma value
     real(c_double), value :: delta          ! current delta value
     integer(c_int), value :: lr             ! left or right preconditioning
-    type(c_ptr),    value :: user_data      ! user-defined data
+    type(c_ptr), value :: user_data      ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer, dimension(nlocal) :: z(:)
@@ -148,12 +148,12 @@ contains
     z = r
 
     ! Calculate Jacobian here
-    ibase = myid * nlocal
+    ibase = myid*nlocal
     istart = max(1_c_int64_t, 4 - ibase)
-    do i = istart,nlocal
-       pj = dble(ibase + i)
-       psubi = 1.d0 + gamma * alpha * pj
-       z(i) = z(i) / psubi
+    do i = istart, nlocal
+      pj = dble(ibase + i)
+      psubi = 1.d0 + gamma*alpha*pj
+      z(i) = z(i)/psubi
     end do
 
     retval = 0              ! Return with success
@@ -163,7 +163,6 @@ contains
 
 end module DiagkryData
 ! ------------------------------------------------------------------
-
 
 ! ------------------------------------------------------------------
 ! Main driver program
@@ -224,47 +223,47 @@ program driver
   ! initialize MPI
   call MPI_Init(ierr)
   if (ierr /= MPI_SUCCESS) then
-     write(0,*) "Error in MPI_Init = ", ierr
-     stop 1
+    write (0, *) "Error in MPI_Init = ", ierr
+    stop 1
   end if
   call MPI_Comm_size(comm, nprocs, ierr)
   if (ierr /= MPI_SUCCESS) then
-     write(0,*) "Error in MPI_Comm_size = ", ierr
-     call MPI_Abort(comm, 1, ierr)
+    write (0, *) "Error in MPI_Comm_size = ", ierr
+    call MPI_Abort(comm, 1, ierr)
   end if
   call MPI_Comm_rank(comm, myid, ierr)
   if (ierr /= MPI_SUCCESS) then
-     write(0,*) "Error in MPI_Comm_rank = ", ierr
-     call MPI_Abort(comm, 1, ierr)
+    write (0, *) "Error in MPI_Comm_rank = ", ierr
+    call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Set input arguments neq and alpha
-  neq = nprocs * nlocal
+  neq = nprocs*nlocal
   alpha = 10.0d0
 
   ! Create SUNDIALS simulation context, now that comm has been configured
   retval = FSUNContext_Create(comm, sunctx)
   if (retval /= 0) then
-     print *, "Error: FSUNContext_Create returned ", retval
-     call MPI_Abort(comm, 1, ierr)
+    print *, "Error: FSUNContext_Create returned ", retval
+    call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Initial problem output
   outproc = (myid == 0)
   if (outproc) then
-     write(6,*) "  "
-     write(6,*) "Diagonal test problem:";
-     write(6,'(A,i4)') "   neq = " , neq
-     write(6,'(A,i4)') "   nlocal = " , nlocal
-     write(6,'(A,i4)') "   nprocs = " , nprocs
-     write(6,'(A,es9.2)') "   rtol = ", rtol
-     write(6,'(A,es9.2)') "   atol = ", atol
-     write(6,'(A,es9.2)') "   alpha = ", alpha
-     write(6,*) "   ydot_i = -alpha*i * y_i (i = 1,...,neq)"
-     write(6,*) "   Method is BDF/NEWTON/SPGMR"
-     write(6,*) "   Diagonal preconditioner uses approximate Jacobian"
-     write(6,*) "  "
-  endif
+    write (6, *) "  "
+    write (6, *) "Diagonal test problem:"; 
+    write (6, '(A,i4)') "   neq = ", neq
+    write (6, '(A,i4)') "   nlocal = ", nlocal
+    write (6, '(A,i4)') "   nprocs = ", nprocs
+    write (6, '(A,es9.2)') "   rtol = ", rtol
+    write (6, '(A,es9.2)') "   atol = ", atol
+    write (6, '(A,es9.2)') "   alpha = ", alpha
+    write (6, *) "   ydot_i = -alpha*i * y_i (i = 1,...,neq)"
+    write (6, *) "   Method is BDF/NEWTON/SPGMR"
+    write (6, *) "   Diagonal preconditioner uses approximate Jacobian"
+    write (6, *) "  "
+  end if
 
   ! Create solution vector, point at its data, and set initial condition
   sunvec_y => FN_VNew_Parallel(comm, nlocal, neq, sunctx)
@@ -274,220 +273,220 @@ program driver
   ! Create the CVode timestepper module
   cvode_mem = FCVodeCreate(CV_BDF, sunctx)
   if (.not. c_associated(cvode_mem)) then
-     print *, "Error: FCVodeCreate returned NULL"
-     call MPI_Abort(comm, 1, ierr)
+    print *, "Error: FCVodeCreate returned NULL"
+    call MPI_Abort(comm, 1, ierr)
   end if
 
   retval = FCVodeInit(cvode_mem, c_funloc(firhs), t0, sunvec_y)
   if (retval /= 0) then
-     print *, "Error: FCVodeInit returned ", retval
-     call MPI_Abort(comm, 1, ierr)
+    print *, "Error: FCVodeInit returned ", retval
+    call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Tell CVODE to use a SPGMR linear solver.
   sunls => FSUNLinSol_SPGMR(sunvec_y, iPretype0, 0, sunctx)
   if (.not. associated(sunls)) then
-     print *, 'ERROR: sunls = NULL'
-     call MPI_Abort(comm, 1, ierr)
+    print *, 'ERROR: sunls = NULL'
+    call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Attach the linear solver (with NULL SUNMatrix object)
   sunmat_A => null()
   retval = FCVodeSetLinearSolver(cvode_mem, sunls, sunmat_A)
   if (retval /= 0) then
-     print *, 'Error in FCVodeSetLinearSolver, retval = ', retval
-     call MPI_Abort(comm, 1, ierr)
+    print *, 'Error in FCVodeSetLinearSolver, retval = ', retval
+    call MPI_Abort(comm, 1, ierr)
   end if
 
   retval = FSUNLinSol_SPGMRSetGSType(sunls, iGStype)
   if (retval /= 0) then
-     print *, 'Error in FSUNLinSol_SPGMRSetGSType, retval = ', retval
-     call MPI_Abort(comm, 1, ierr)
+    print *, 'Error in FSUNLinSol_SPGMRSetGSType, retval = ', retval
+    call MPI_Abort(comm, 1, ierr)
   end if
 
   ! Specify tolerances
   retval = FCVodeSStolerances(cvode_mem, rtol, atol)
   if (retval /= 0) then
-     print *, "Error: FCVodeSStolerances returned ", retval
-     call MPI_Abort(comm, 1, ierr)
+    print *, "Error: FCVodeSStolerances returned ", retval
+    call MPI_Abort(comm, 1, ierr)
   end if
 
   retval = FCVodeSetPreconditioner(cvode_mem, c_null_funptr, c_funloc(Psolve))
   if (retval /= 0) then
-     print *, "Error: FCVodeSetPreconditioner returned ", retval
-     call MPI_Abort(comm, 1, ierr)
+    print *, "Error: FCVodeSetPreconditioner returned ", retval
+    call MPI_Abort(comm, 1, ierr)
   end if
 
-  do iPretype = 1,2
+  do iPretype = 1, 2
 
-     if (iPretype == 2) then
+    if (iPretype == 2) then
 
-        y = 1.d0
+      y = 1.d0
 
-        retval = FCVodeReInit(cvode_mem, t0, sunvec_y)
-        if (retval /= 0) then
-           print *, "Error in FCVodeReInit, retval = ", retval
-           call MPI_Abort(comm, 1, ierr)
-        end if
-
-        retval = FSUNLinSol_SPGMRSetPrecType(sunls, iPretype)
-        if (retval /= 0) then
-           print *, "Error in FSUNLinSol_SPGMRSetPrecType, retval = ", retval
-           call MPI_Abort(comm, 1, ierr)
-        end if
-
-        if (outproc) write(6,*) "   Preconditioning on right:"
-
-     end if
-
-     if (iPretype == 1 .and. outproc) write(6,*) "   Preconditioning on left:"
-
-     ! Main time-stepping loop: calls CVode to perform the integration, then
-     ! prints results.  Stops when the final time has been reached
-     t(1) = T0
-     dTout = 0.1d0
-     tout = T0+dTout
-     if (outproc) then
-        write(6,*) "        t         steps     fe"
-        write(6,*) "   --------------------------------"
-     end if
-     do ioutput=1,Nt
-
-        ! Integrate to output time
-        retval = FCVode(cvode_mem, tout, sunvec_y, t, CV_NORMAL)
-        if (retval /= 0) then
-           print *, "Error: FCVode returned ", retval
-           call MPI_Abort(comm, 1, ierr)
-        end if
-
-        retval = FCVodeGetNumSteps(cvode_mem, nst)
-        if (retval /= 0) then
-           print *, "Error: FCVodeGetNumSteps returned ", retval
-           call MPI_Abort(comm, 1, ierr)
-        end if
-
-        retval = FCVodeGetNumRhsEvals(cvode_mem, nfe)
-        if (retval /= 0) then
-           print *, "Error: FCVodeGetNumRhsEvals returned ", retval
-           call MPI_Abort(comm, 1, ierr)
-        end if
-
-        ! print solution stats and update internal time
-        if (outproc)   write(6,'(3x,f10.6,3(3x,i6))') t, nst, nfe
-        tout = min(tout + dTout, Tf)
-
-     end do
-     if (outproc) then
-        write(6,*) "   --------------------------------"
-     end if
-
-     ! Get max. absolute error in the local vector.
-     errmax = 0.d0
-     do i = 1,nlocal
-        erri = y(i) - exp(-alpha * (myid * nlocal + i) * t(1))
-        errmax = max(errmax, abs(erri))
-     end do
-
-     ! Get global max. error from MPI_Reduce call.
-     call MPI_Reduce(errmax, gerrmax, 1, MPI_DOUBLE, MPI_MAX, &
-          0, comm, ierr)
-     if (ierr /= MPI_SUCCESS) then
-        print *, "Error in MPI_Reduce = ", ierr
+      retval = FCVodeReInit(cvode_mem, t0, sunvec_y)
+      if (retval /= 0) then
+        print *, "Error in FCVodeReInit, retval = ", retval
         call MPI_Abort(comm, 1, ierr)
-     end if
+      end if
 
-     ! Print global max. error
-     if (outproc) print '(a,es10.2)', "Max. absolute error is ", gerrmax
+      retval = FSUNLinSol_SPGMRSetPrecType(sunls, iPretype)
+      if (retval /= 0) then
+        print *, "Error in FSUNLinSol_SPGMRSetPrecType, retval = ", retval
+        call MPI_Abort(comm, 1, ierr)
+      end if
 
-     ! Get final statistics
-     retval = FCVodeGetNumSteps(cvode_mem, nst)
-     if (retval /= 0) then
+      if (outproc) write (6, *) "   Preconditioning on right:"
+
+    end if
+
+    if (iPretype == 1 .and. outproc) write (6, *) "   Preconditioning on left:"
+
+    ! Main time-stepping loop: calls CVode to perform the integration, then
+    ! prints results.  Stops when the final time has been reached
+    t(1) = T0
+    dTout = 0.1d0
+    tout = T0 + dTout
+    if (outproc) then
+      write (6, *) "        t         steps     fe"
+      write (6, *) "   --------------------------------"
+    end if
+    do ioutput = 1, Nt
+
+      ! Integrate to output time
+      retval = FCVode(cvode_mem, tout, sunvec_y, t, CV_NORMAL)
+      if (retval /= 0) then
+        print *, "Error: FCVode returned ", retval
+        call MPI_Abort(comm, 1, ierr)
+      end if
+
+      retval = FCVodeGetNumSteps(cvode_mem, nst)
+      if (retval /= 0) then
         print *, "Error: FCVodeGetNumSteps returned ", retval
         call MPI_Abort(comm, 1, ierr)
-     end if
+      end if
 
-     retval = FCVodeGetNumRhsEvals(cvode_mem, nfe)
-     if (retval /= 0) then
+      retval = FCVodeGetNumRhsEvals(cvode_mem, nfe)
+      if (retval /= 0) then
         print *, "Error: FCVodeGetNumRhsEvals returned ", retval
         call MPI_Abort(comm, 1, ierr)
-     end if
+      end if
 
-     retval = FCVodeGetNumPrecEvals(cvode_mem, npre)
-     if (retval /= 0) then
-        print *, "Error: FCVodeGetNumPrecEvals returned ", retval
-        call MPI_Abort(comm, 1, ierr)
-     end if
+      ! print solution stats and update internal time
+      if (outproc) write (6, '(3x,f10.6,3(3x,i6))') t, nst, nfe
+      tout = min(tout + dTout, Tf)
 
-     retval = FCVodeGetNumPrecSolves(cvode_mem, npsol)
-     if (retval /= 0) then
-        print *, "Error: FCVodeGetNumPrecSolves returned ", retval
-        call MPI_Abort(comm, 1, ierr)
-     end if
+    end do
+    if (outproc) then
+      write (6, *) "   --------------------------------"
+    end if
 
-     retval = FCVodeGetNumNonlinSolvIters(cvode_mem, nni)
-     if (retval /= 0) then
-        print *, "Error: FCVodeGetNumNonlinSolvIters returned ", retval
-        call MPI_Abort(comm, 1, ierr)
-     end if
+    ! Get max. absolute error in the local vector.
+    errmax = 0.d0
+    do i = 1, nlocal
+      erri = y(i) - exp(-alpha*(myid*nlocal + i)*t(1))
+      errmax = max(errmax, abs(erri))
+    end do
 
-     retval = FCVodeGetNumLinIters(cvode_mem, nli)
-     if (retval /= 0) then
-        print *, "Error: FCVodeGetNumLinIters returned ", retval
-        call MPI_Abort(comm, 1, ierr)
-     end if
+    ! Get global max. error from MPI_Reduce call.
+    call MPI_Reduce(errmax, gerrmax, 1, MPI_DOUBLE, MPI_MAX, &
+                    0, comm, ierr)
+    if (ierr /= MPI_SUCCESS) then
+      print *, "Error in MPI_Reduce = ", ierr
+      call MPI_Abort(comm, 1, ierr)
+    end if
 
-     avdim = dble(nli) / dble(nni)
+    ! Print global max. error
+    if (outproc) print '(a,es10.2)', "Max. absolute error is ", gerrmax
 
-     retval = FCVodeGetNumNonlinSolvConvFails(cvode_mem, ncfn)
-     if (retval /= 0) then
-        print *, "Error: FCVodeGetNumNonlinSolvConvFails returned ", retval
-        call MPI_Abort(comm, 1, ierr)
-     end if
+    ! Get final statistics
+    retval = FCVodeGetNumSteps(cvode_mem, nst)
+    if (retval /= 0) then
+      print *, "Error: FCVodeGetNumSteps returned ", retval
+      call MPI_Abort(comm, 1, ierr)
+    end if
 
-     retval = FCVodeGetNumLinConvFails(cvode_mem, ncfl)
-     if (retval /= 0) then
-        print *, "Error: FCVodeGetNumLinSolvConvFails returned ", retval
-        call MPI_Abort(comm, 1, ierr)
-     end if
+    retval = FCVodeGetNumRhsEvals(cvode_mem, nfe)
+    if (retval /= 0) then
+      print *, "Error: FCVodeGetNumRhsEvals returned ", retval
+      call MPI_Abort(comm, 1, ierr)
+    end if
 
-     retval = FCVodeGetNumErrTestFails(cvode_mem, netf)
-     if (retval /= 0) then
-        print *, "Error: FCVodeGetNumErrTestFails returned ", retval
-        call MPI_Abort(comm, 1, ierr)
-     end if
+    retval = FCVodeGetNumPrecEvals(cvode_mem, npre)
+    if (retval /= 0) then
+      print *, "Error: FCVodeGetNumPrecEvals returned ", retval
+      call MPI_Abort(comm, 1, ierr)
+    end if
 
-     retval = FCVodeGetWorkSpace(cvode_mem, lenrw, leniw)
-     if (retval /= 0) then
-        print *, "Error: FCVodeGetWorkSpace returned ", retval
-        call MPI_Abort(comm, 1, ierr)
-     end if
+    retval = FCVodeGetNumPrecSolves(cvode_mem, npsol)
+    if (retval /= 0) then
+      print *, "Error: FCVodeGetNumPrecSolves returned ", retval
+      call MPI_Abort(comm, 1, ierr)
+    end if
 
-     retval = FCVodeGetLinWorkSpace(cvode_mem, lenrwls, leniwls)
-     if (retval /= 0) then
-        print *, "Error: FCVodeGetLinWorkSpace returned ", retval
-        call MPI_Abort(comm, 1, ierr)
-     end if
+    retval = FCVodeGetNumNonlinSolvIters(cvode_mem, nni)
+    if (retval /= 0) then
+      print *, "Error: FCVodeGetNumNonlinSolvIters returned ", retval
+      call MPI_Abort(comm, 1, ierr)
+    end if
 
-     ! Print some final statistics
-     if (outproc) then
-        write(6,*) "  "
-        write(6,*) "Final Solver Statistics:"
-        write(6,'(A,i6)') "   Internal solver steps = ", nst
-        write(6,'(A,i6)') "   Total RHS evals = ", nfe
-        write(6,'(A,i6)') "   Total preconditioner setups = ", npre
-        write(6,'(A,i6)') "   Total preconditioner solves = ", npsol
-        write(6,'(A,i6)') "   Total nonlinear iterations  = ", nni
-        write(6,'(A,i6)') "   Total linear iterations     = ", nli
-        write(6,'(A,f8.4)') "   Average Krylov subspace dimension = ", avdim
-        write(6,'(A,i6)') "   Total Convergence Failures - Nonlinear = ", ncfn
-        write(6,'(A,i6)') "                              - Linear    = ", ncfl
-        write(6,'(A,i6)') "   Total number of error test failures = ", netf
-        write(6,'(A,2i6)') "   Main solver real/int workspace sizes = ", lenrw, leniw
-        write(6,'(A,2i6)') "   Linear solver real/int workspace sizes = ", lenrwls, leniwls
-        write(6,'(A)') "    "
-        write(6,'(A)') "    "
-        write(6,'(A)') "    "
-     end if
+    retval = FCVodeGetNumLinIters(cvode_mem, nli)
+    if (retval /= 0) then
+      print *, "Error: FCVodeGetNumLinIters returned ", retval
+      call MPI_Abort(comm, 1, ierr)
+    end if
+
+    avdim = dble(nli)/dble(nni)
+
+    retval = FCVodeGetNumNonlinSolvConvFails(cvode_mem, ncfn)
+    if (retval /= 0) then
+      print *, "Error: FCVodeGetNumNonlinSolvConvFails returned ", retval
+      call MPI_Abort(comm, 1, ierr)
+    end if
+
+    retval = FCVodeGetNumLinConvFails(cvode_mem, ncfl)
+    if (retval /= 0) then
+      print *, "Error: FCVodeGetNumLinSolvConvFails returned ", retval
+      call MPI_Abort(comm, 1, ierr)
+    end if
+
+    retval = FCVodeGetNumErrTestFails(cvode_mem, netf)
+    if (retval /= 0) then
+      print *, "Error: FCVodeGetNumErrTestFails returned ", retval
+      call MPI_Abort(comm, 1, ierr)
+    end if
+
+    retval = FCVodeGetWorkSpace(cvode_mem, lenrw, leniw)
+    if (retval /= 0) then
+      print *, "Error: FCVodeGetWorkSpace returned ", retval
+      call MPI_Abort(comm, 1, ierr)
+    end if
+
+    retval = FCVodeGetLinWorkSpace(cvode_mem, lenrwls, leniwls)
+    if (retval /= 0) then
+      print *, "Error: FCVodeGetLinWorkSpace returned ", retval
+      call MPI_Abort(comm, 1, ierr)
+    end if
+
+    ! Print some final statistics
+    if (outproc) then
+      write (6, *) "  "
+      write (6, *) "Final Solver Statistics:"
+      write (6, '(A,i6)') "   Internal solver steps = ", nst
+      write (6, '(A,i6)') "   Total RHS evals = ", nfe
+      write (6, '(A,i6)') "   Total preconditioner setups = ", npre
+      write (6, '(A,i6)') "   Total preconditioner solves = ", npsol
+      write (6, '(A,i6)') "   Total nonlinear iterations  = ", nni
+      write (6, '(A,i6)') "   Total linear iterations     = ", nli
+      write (6, '(A,f8.4)') "   Average Krylov subspace dimension = ", avdim
+      write (6, '(A,i6)') "   Total Convergence Failures - Nonlinear = ", ncfn
+      write (6, '(A,i6)') "                              - Linear    = ", ncfl
+      write (6, '(A,i6)') "   Total number of error test failures = ", netf
+      write (6, '(A,2i6)') "   Main solver real/int workspace sizes = ", lenrw, leniw
+      write (6, '(A,2i6)') "   Linear solver real/int workspace sizes = ", lenrwls, leniwls
+      write (6, '(A)') "    "
+      write (6, '(A)') "    "
+      write (6, '(A)') "    "
+    end if
   end do
 
   ! Clean up and return with successful completion

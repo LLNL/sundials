@@ -24,10 +24,10 @@ module test_nvector_manyvector
   implicit none
 
   integer(c_int), parameter  :: nsubvecs = 2
-  integer(c_int), parameter  :: nv       = 3       ! length of vector arrays
-  integer(kind=myindextype), parameter  :: N1       = 100     ! individual vector length
-  integer(kind=myindextype), parameter  :: N2       = 200     ! individual vector length
-  integer(kind=myindextype), parameter  :: N        = N1 + N2 ! overall manyvector length
+  integer(c_int), parameter  :: nv = 3       ! length of vector arrays
+  integer(kind=myindextype), parameter  :: N1 = 100     ! individual vector length
+  integer(kind=myindextype), parameter  :: N2 = 200     ! individual vector length
+  integer(kind=myindextype), parameter  :: N = N1 + N2 ! overall manyvector length
 
 contains
 
@@ -46,9 +46,9 @@ contains
 
     !===== Setup ====
     subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
-    tmp  => FN_VMake_Serial(N1, x1data, sunctx)
+    tmp => FN_VMake_Serial(N1, x1data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
-    tmp  => FN_VMake_Serial(N2, x2data, sunctx)
+    tmp => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
     x => FN_VNew_ManyVector(int(nsubvecs, myindextype), subvecs, sunctx)
@@ -60,7 +60,7 @@ contains
 
     xvecs = FN_VCloneVectorArray(nv, x)
     zvecs = FN_VCloneVectorArray(nv, z)
-    nvarr = (/ ONE, ONE, ONE /)
+    nvarr = (/ONE, ONE, ONE/)
 
     !===== Test =====
 
@@ -105,10 +105,10 @@ contains
 
     ! test the ManyVector specific operations
     ival = FN_VGetNumSubvectors_ManyVector(x)
-    xptr => FN_VGetSubvectorArrayPointer_ManyVector(x, ival-1)
-    ival = FN_VSetSubvectorArrayPointer_ManyVector(xptr, x, ival-1)
+    xptr => FN_VGetSubvectorArrayPointer_ManyVector(x, ival - 1)
+    ival = FN_VSetSubvectorArrayPointer_ManyVector(xptr, x, ival - 1)
     ival = FN_VGetNumSubvectors_ManyVector(x)
-    tmp  => FN_VGetSubvector_ManyVector(x, ival-1)
+    tmp => FN_VGetSubvector_ManyVector(x, ival - 1)
 
     !==== Cleanup =====
     call FN_VDestroyVectorArray(subvecs, nsubvecs)
@@ -135,9 +135,9 @@ contains
     fails = 0
 
     subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
-    tmp  => FN_VMake_Serial(N1, x1data, sunctx)
+    tmp => FN_VMake_Serial(N1, x1data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
-    tmp  => FN_VMake_Serial(N2, x2data, sunctx)
+    tmp => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
     x => FN_VNew_ManyVector(int(nsubvecs, myindextype), subvecs, sunctx)
@@ -155,7 +155,6 @@ contains
   end function unit_tests
 
 end module
-
 
 function check_ans(ans, X, local_length) result(failure)
   use, intrinsic :: iso_c_binding
@@ -181,13 +180,13 @@ function check_ans(ans, X, local_length) result(failure)
   if (local_length /= (x0len + x1len)) then
     failure = 1
     return
-  endif
+  end if
 
   do i = 1, x0len
     if (FNEQ(x0data(i), ans) > 0) then
       failure = failure + 1
     end if
-  enddo
+  end do
 
   do i = 1, x1len
     if (FNEQ(x1data(i), ans) > 0) then
@@ -195,7 +194,6 @@ function check_ans(ans, X, local_length) result(failure)
     end if
   end do
 end function check_ans
-
 
 logical function has_data(X) result(failure)
   use, intrinsic :: iso_c_binding
@@ -207,7 +205,6 @@ logical function has_data(X) result(failure)
 
   failure = .true.
 end function has_data
-
 
 program main
   !======== Inclusions ==========

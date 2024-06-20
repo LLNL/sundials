@@ -16,42 +16,42 @@
 
 module test_utilities
 
-    use, intrinsic :: iso_c_binding
-    use fsundials_core_mod
-    implicit none
+  use, intrinsic :: iso_c_binding
+  use fsundials_core_mod
+  implicit none
 
-    ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
-    ! we set the integer kind used for indices in this example based
-    ! on the the index size SUNDIALS was compiled with so that it works
-    ! in both configurations. This is not a requirement for user codes.
+  ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
+  ! we set the integer kind used for indices in this example based
+  ! on the the index size SUNDIALS was compiled with so that it works
+  ! in both configurations. This is not a requirement for user codes.
 #if defined(SUNDIALS_INT32_T)
-    integer, parameter :: myindextype = selected_int_kind(8)
+  integer, parameter :: myindextype = selected_int_kind(8)
 #elif defined(SUNDIALS_INT64_T)
-    integer, parameter :: myindextype = selected_int_kind(16)
+  integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
-    real(C_DOUBLE), parameter :: SUN_UNIT_ROUNDOFF = epsilon(1.0d0)
+  real(c_double), parameter :: SUN_UNIT_ROUNDOFF = epsilon(1.0d0)
 
-    real(C_DOUBLE) :: NEG_TWO  = -2.0d0
-    real(C_DOUBLE) :: NEG_ONE  = -1.0d0
-    real(C_DOUBLE) :: NEG_HALF = -0.50d0
-    real(C_DOUBLE) :: ZERO     = 0.0d0
-    real(C_DOUBLE) :: HALF     = 0.5d0
-    real(C_DOUBLE) :: ONE      = 1.0d0
-    real(C_DOUBLE) :: TWO      = 2.0d0
-    real(C_DOUBLE) :: THREE    = 3.0d0
-    real(C_DOUBLE) :: FOUR     = 4.0d0
-    real(C_DOUBLE) :: FIVE     = 5.0d0
-    real(C_DOUBLE) :: SIX      = 6.0d0
+  real(c_double) :: NEG_TWO = -2.0d0
+  real(c_double) :: NEG_ONE = -1.0d0
+  real(c_double) :: NEG_HALF = -0.50d0
+  real(c_double) :: ZERO = 0.0d0
+  real(c_double) :: HALF = 0.5d0
+  real(c_double) :: ONE = 1.0d0
+  real(c_double) :: TWO = 2.0d0
+  real(c_double) :: THREE = 3.0d0
+  real(c_double) :: FOUR = 4.0d0
+  real(c_double) :: FIVE = 5.0d0
+  real(c_double) :: SIX = 6.0d0
 
-    type(C_PTR)    :: sunctx
+  type(c_ptr)    :: sunctx
 
 contains
 
   subroutine Test_Init(comm)
     implicit none
-    integer(C_INT), value :: comm
-    integer(C_INT)        :: retval
+    integer(c_int), value :: comm
+    integer(c_int)        :: retval
 
     retval = FSUNContext_Create(comm, sunctx)
     if (retval /= 0) then
@@ -63,19 +63,19 @@ contains
 
   subroutine Test_Finalize()
     implicit none
-    integer(C_INT) :: retval
+    integer(c_int) :: retval
 
     retval = FSUNContext_Free(sunctx)
 
   end subroutine
 
-  integer(C_INT) function FNEQTOL(a, b, tol) result(nequal)
+  integer(c_int) function FNEQTOL(a, b, tol) result(nequal)
     implicit none
-    real(C_DOUBLE) :: a, b, tol
+    real(c_double) :: a, b, tol
 
     if (a /= a) then
       nequal = 1
-    else if ((abs(a-b)/abs(b)) > tol) then
+    else if ((abs(a - b)/abs(b)) > tol) then
       nequal = 1
     else
       nequal = 0
@@ -83,13 +83,13 @@ contains
 
   end function FNEQTOL
 
-  integer(C_INT) function FNEQ(a, b) result(nequal)
+  integer(c_int) function FNEQ(a, b) result(nequal)
     implicit none
-    real(C_DOUBLE) :: a, b
+    real(c_double) :: a, b
 
     if (a /= a) then
       nequal = 1
-    else if ((abs(a-b)/abs(b)) > (10*SUN_UNIT_ROUNDOFF)) then
+    else if ((abs(a - b)/abs(b)) > (10*SUN_UNIT_ROUNDOFF)) then
       nequal = 1
     else
       nequal = 0

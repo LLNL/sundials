@@ -20,19 +20,16 @@ module test_fsunmatrix_band
   use test_utilities
   implicit none
 
-
-
-  integer(kind=myindextype), parameter :: N  = 10
+  integer(kind=myindextype), parameter :: N = 10
   integer(kind=myindextype), parameter :: mu = 2
   integer(kind=myindextype), parameter :: ml = 2
 
 contains
 
-  integer(C_INT) function smoke_tests() result(fails)
+  integer(c_int) function smoke_tests() result(fails)
 
     !======== Inclusions ==========
     use, intrinsic :: iso_c_binding
-
 
     use fsunmatrix_band_mod
     use fnvector_serial_mod
@@ -42,11 +39,11 @@ contains
 
     ! local variables
     type(SUNMatrix), pointer :: A, B               ! SUNMatrix
-    type(N_Vector),  pointer :: x, y               ! NVectors
-    real(C_DOUBLE),  pointer :: matdat(:)          ! matrix data pointer
-    integer(C_LONG)          :: lenrw(1), leniw(1) ! matrix real and int work space size
-    integer(C_LONG)          :: val
-    type(C_PTR),     pointer :: cptr
+    type(N_Vector), pointer :: x, y               ! NVectors
+    real(c_double), pointer :: matdat(:)          ! matrix data pointer
+    integer(c_long)          :: lenrw(1), leniw(1) ! matrix real and int work space size
+    integer(c_long)          :: val
+    type(c_ptr), pointer :: cptr
 
     fails = 0
     x => FN_VNew_Serial(N, sunctx)
@@ -57,7 +54,7 @@ contains
     ! constructor
     A => FSUNBandMatrix(N, mu, ml, sunctx)
     if (.not. associated(A)) then
-      print *,'>>> FAILED - ERROR in FSUNBandMatrix; halting'
+      print *, '>>> FAILED - ERROR in FSUNBandMatrix; halting'
       fails = 1
       return
     end if
@@ -71,18 +68,18 @@ contains
     val = FSUNBandMatrix_StoredUpperBandwidth(A)
     val = FSUNBandMatrix_LDim(A)
     matdat => FSUNBandMatrix_Data(A)
-    cptr   => FSUNBandMatrix_Cols(A)
+    cptr => FSUNBandMatrix_Cols(A)
     matdat => FSUNBandMatrix_Column(A, N)
 
     ! matrix operations
     B => FSUNMatClone_Band(A)
     if (.not. associated(B)) then
-      print *,'>>> FAILED - ERROR in FSUNMatClone_Band; halting'
+      print *, '>>> FAILED - ERROR in FSUNMatClone_Band; halting'
       fails = 1
       return
     end if
     fails = fails + FSUNMatZero_Band(A)
-    fails = fails + FSUNMatCopy_Band(A,B)
+    fails = fails + FSUNMatCopy_Band(A, B)
     fails = fails + FSUNMatScaleAdd_Band(ONE, A, B)
     fails = fails + FSUNMatScaleAddI_Band(ONE, A)
     fails = fails + FSUNMatMatvec_Band(A, x, y)
@@ -96,9 +93,8 @@ contains
 
   end function smoke_tests
 
-  integer(C_INT) function unit_tests() result(fails)
+  integer(c_int) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-
 
     use fnvector_serial_mod
     use fsunmatrix_band_mod
@@ -108,8 +104,8 @@ contains
     implicit none
 
     type(SUNMatrix), pointer   :: A, I
-    type(N_Vector),  pointer   :: x, y
-    real(C_DOUBLE),  pointer   :: Adata(:), Idata(:), xdata(:), ydata(:)
+    type(N_Vector), pointer   :: x, y
+    real(c_double), pointer   :: Adata(:), Idata(:), xdata(:), ydata(:)
     integer(kind=myindextype) :: ii, jj, smu, istart, iend, offset
 
     fails = 0
@@ -126,14 +122,14 @@ contains
     end do
 
     ! Fill A matrix
-    smu   = FSUNBandMatrix_StoredUpperBandwidth(A)
+    smu = FSUNBandMatrix_StoredUpperBandwidth(A)
     Adata => FSUNBandMatrix_Data(A)
     do jj = 1, N
-      offset = (jj-1)*(smu+ml+1) + smu + 1 ! offset to diagonal
-      istart = merge(-mu, -(jj-1), jj > mu) ! above diagonal
-      iend = merge(N-jj , ml, jj > N - ml)  ! below diagonal
+      offset = (jj - 1)*(smu + ml + 1) + smu + 1 ! offset to diagonal
+      istart = merge(-mu, -(jj - 1), jj > mu) ! above diagonal
+      iend = merge(N - jj, ml, jj > N - ml)  ! below diagonal
       do ii = istart, iend
-        Adata(offset+ii) = (jj-1) - ii
+        Adata(offset + ii) = (jj - 1) - ii
       end do
     end do
 
@@ -141,15 +137,15 @@ contains
     ydata => FN_VGetArrayPointer(y)
 
     ! Fill vectors
-    do jj = 0, N-1
+    do jj = 0, N - 1
       ! x vector
-      xdata(jj+1) = jj
+      xdata(jj + 1) = jj
       ! y vector
-      ydata(jj+1) = ZERO
-      istart    = max(0_myindextype, jj-ml)
-      iend      = min(N-1, jj+mu)
+      ydata(jj + 1) = ZERO
+      istart = max(0_myindextype, jj - ml)
+      iend = min(N - 1, jj + mu)
       do ii = istart, iend
-        ydata(jj+1) = ydata(jj+1) + (ii+ii-jj)*(ii)
+        ydata(jj + 1) = ydata(jj + 1) + (ii + ii - jj)*(ii)
       end do
     end do
 
@@ -179,7 +175,7 @@ program main
 
   !======== Declarations ========
   implicit none
-  integer(C_INT) :: fails = 0
+  integer(c_int) :: fails = 0
 
   !============== Introduction =============
   print *, 'Band SUNMatrix Fortran 2003 interface test'
@@ -199,7 +195,7 @@ program main
 end program main
 
 ! exported functions used by test_sunmatrix
-integer(C_INT) function check_matrix(B, A, tol) result(fails)
+integer(c_int) function check_matrix(B, A, tol) result(fails)
   use, intrinsic :: iso_c_binding
 
   use fsunmatrix_band_mod
@@ -208,16 +204,16 @@ integer(C_INT) function check_matrix(B, A, tol) result(fails)
   implicit none
 
   type(SUNMatrix) :: A, B
-  real(C_DOUBLE)  :: tol
-  real(C_DOUBLE), pointer :: Adata(:), Bdata(:)
-  integer(C_LONG) :: N, smu, mu, ml, ii, istart, iend, jj, offset
+  real(c_double)  :: tol
+  real(c_double), pointer :: Adata(:), Bdata(:)
+  integer(c_long) :: N, smu, mu, ml, ii, istart, iend, jj, offset
 
   fails = 0
 
-  N   = FSUNBandMatrix_Columns(A)
+  N = FSUNBandMatrix_Columns(A)
   smu = FSUNBandMatrix_StoredUpperBandwidth(A)
-  mu  = FSUNBandMatrix_UpperBandwidth(A)
-  ml  = FSUNBandMatrix_LowerBandwidth(A)
+  mu = FSUNBandMatrix_UpperBandwidth(A)
+  ml = FSUNBandMatrix_LowerBandwidth(A)
 
   if (FSUNMatGetID(A) /= FSUNMatGetID(B)) then
     fails = 1
@@ -252,17 +248,17 @@ integer(C_INT) function check_matrix(B, A, tol) result(fails)
   Adata => FSUNBandMatrix_Data(A)
   Bdata => FSUNBandMatrix_Data(B)
   do jj = 1, N
-    offset = (jj-1)*(smu+ml+1) + smu + 1  ! offset to diagonal
-    istart = merge(-mu, -(jj-1), jj > mu) ! above diagonal
-    iend = merge(N-jj , ml, jj > N - ml)  ! below diagonal
+    offset = (jj - 1)*(smu + ml + 1) + smu + 1  ! offset to diagonal
+    istart = merge(-mu, -(jj - 1), jj > mu) ! above diagonal
+    iend = merge(N - jj, ml, jj > N - ml)  ! below diagonal
     do ii = istart, iend
-      fails = fails + FNEQTOL(Adata(offset+ii), Bdata(offset+ii), tol)
+      fails = fails + FNEQTOL(Adata(offset + ii), Bdata(offset + ii), tol)
     end do
   end do
 
 end function check_matrix
 
-integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
+integer(c_int) function check_matrix_entry(A, c, tol) result(fails)
   use, intrinsic :: iso_c_binding
 
   use fsunmatrix_band_mod
@@ -271,27 +267,27 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
   implicit none
 
   type(SUNMatrix) :: A
-  real(C_DOUBLE)  :: c, tol
-  real(C_DOUBLE), pointer :: Adata(:)
-  integer(C_LONG) :: N, smu, mu, ml, ii, istart, iend, jj, offset
+  real(c_double)  :: c, tol
+  real(c_double), pointer :: Adata(:)
+  integer(c_long) :: N, smu, mu, ml, ii, istart, iend, jj, offset
 
   fails = 0
 
-  N   = FSUNBandMatrix_Columns(A)
+  N = FSUNBandMatrix_Columns(A)
   smu = FSUNBandMatrix_StoredUpperBandwidth(A)
-  mu  = FSUNBandMatrix_UpperBandwidth(A)
-  ml  = FSUNBandMatrix_LowerBandwidth(A)
+  mu = FSUNBandMatrix_UpperBandwidth(A)
+  ml = FSUNBandMatrix_LowerBandwidth(A)
   Adata => FSUNBandMatrix_Data(A)
 
   do jj = 1, N
-    offset = (jj-1)*(smu+ml+1) + smu + 1  ! offset to diagonal
-    istart = merge(-mu, -(jj-1), jj > mu) ! above diagonal
-    iend = merge(N-jj , ml, jj > N - ml)  ! below diagonal
+    offset = (jj - 1)*(smu + ml + 1) + smu + 1  ! offset to diagonal
+    istart = merge(-mu, -(jj - 1), jj > mu) ! above diagonal
+    iend = merge(N - jj, ml, jj > N - ml)  ! below diagonal
     do ii = istart, iend
-      if (FNEQTOL(Adata(offset+ii), c, tol) /= 0) then
+      if (FNEQTOL(Adata(offset + ii), c, tol) /= 0) then
         fails = fails + 1
-        write(*,'(A,E10.1,A,E14.7,A,I9,A,E14.7)') "tol = ", tol,  &
-              "   c = ", c, "   data[", offset+ii, "] = ", Adata(offset+ii)
+        write (*, '(A,E10.1,A,E14.7,A,I9,A,E14.7)') "tol = ", tol, &
+          "   c = ", c, "   data[", offset + ii, "] = ", Adata(offset + ii)
       end if
     end do
   end do

@@ -24,11 +24,10 @@ module test_fsunmatrix_sparse
 
 contains
 
-  integer(C_INT) function smoke_tests() result(fails)
+  integer(c_int) function smoke_tests() result(fails)
 
     !======== Inclusions ==========
     use, intrinsic :: iso_c_binding
-
 
     use fsunmatrix_sparse_mod
     use fnvector_serial_mod
@@ -38,13 +37,13 @@ contains
 
     ! local variables
     type(SUNMatrix), pointer            :: A, B               ! SUNMatrix
-    type(N_Vector),  pointer            :: x, y               ! NVectors
-    real(C_DOUBLE),  pointer            :: matdat(:)          ! matrix data pointer
+    type(N_Vector), pointer            :: x, y               ! NVectors
+    real(c_double), pointer            :: matdat(:)          ! matrix data pointer
     integer(kind=myindextype), pointer :: inddat(:)          ! indices pointer
-    integer(C_LONG)                     :: lenrw(1), leniw(1) ! matrix real and int work space size
+    integer(c_long)                     :: lenrw(1), leniw(1) ! matrix real and int work space size
 
     integer(kind=myindextype) :: tmp1
-    integer(C_INT)             :: tmp2
+    integer(c_int)             :: tmp2
 
     fails = 0
 
@@ -56,7 +55,7 @@ contains
     ! constructor
     A => FSUNSparseMatrix(N, N, N*N, CSR_MAT, sunctx)
     if (.not. associated(A)) then
-      print *,'>>> FAILED - ERROR in FSUNSparseMatrix; halting'
+      print *, '>>> FAILED - ERROR in FSUNSparseMatrix; halting'
       stop 1
     end if
 
@@ -74,7 +73,7 @@ contains
     ! matrix operations
     B => FSUNMatClone_Sparse(A)
     if (.not. associated(B)) then
-      print *,'>>> FAILED - ERROR in FSUNMatClone_Sparse; halting'
+      print *, '>>> FAILED - ERROR in FSUNMatClone_Sparse; halting'
       stop 1
     end if
     fails = fails + FSUNMatZero_Sparse(A)
@@ -92,9 +91,8 @@ contains
 
   end function smoke_tests
 
-  integer(C_INT) function unit_tests() result(fails)
+  integer(c_int) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-
 
     use fnvector_serial_mod
     use fsunmatrix_dense_mod
@@ -104,9 +102,9 @@ contains
     implicit none
 
     type(SUNMatrix), pointer :: DA, DI, A, I
-    type(N_Vector),  pointer :: x, y
-    real(C_DOUBLE),  pointer :: Adata(:), Idata(:), xdata(:), ydata(:)
-    integer(C_LONG)          :: ii, jj, tmp1, tmp2
+    type(N_Vector), pointer :: x, y
+    real(c_double), pointer :: Adata(:), Idata(:), xdata(:), ydata(:)
+    integer(c_long)          :: ii, jj, tmp1, tmp2
 
     fails = 0
 
@@ -116,16 +114,16 @@ contains
 
     ! fill A matrix
     Adata => FSUNDenseMatrix_Data(DA)
-    do jj=1, N
-      do ii=1, N
-        Adata((jj-1)*N + ii) = jj*(ii+jj-2)
+    do jj = 1, N
+      do ii = 1, N
+        Adata((jj - 1)*N + ii) = jj*(ii + jj - 2)
       end do
     end do
 
     ! fill identity matrix
     Idata => FSUNDenseMatrix_Data(DI)
-    do jj=1, N
-      Idata((jj-1)*N + jj) = ONE
+    do jj = 1, N
+      Idata((jj - 1)*N + jj) = ONE
     end do
 
     ! create sparse versions of A and I
@@ -138,16 +136,16 @@ contains
 
     ! fill vector x
     xdata => FN_VGetArrayPointer(x)
-    do ii=1, N
-      xdata(ii) = ONE / ii
+    do ii = 1, N
+      xdata(ii) = ONE/ii
     end do
 
     ! fill vector y
     ydata => FN_VGetArrayPointer(y)
-    do ii=1, N
-      tmp1 = ii-1
+    do ii = 1, N
+      tmp1 = ii - 1
       tmp2 = tmp1 + N - 1
-      ydata(ii) = HALF*(tmp2+1-tmp1)*(tmp1+tmp2)
+      ydata(ii) = HALF*(tmp2 + 1 - tmp1)*(tmp1 + tmp2)
     end do
 
     fails = fails + Test_FSUNMatGetID(A, SUNMATRIX_SPARSE, 0)
@@ -178,7 +176,7 @@ program main
 
   !======== Declarations ========
   implicit none
-  integer(C_INT) :: fails = 0
+  integer(c_int) :: fails = 0
 
   !============== Introduction =============
   print *, 'Sparse SUNMatrix Fortran 2003 interface test'
@@ -198,7 +196,7 @@ program main
 end program main
 
 ! exported functions used by test_sunmatrix
-integer(C_INT) function check_matrix(A, B, tol) result(fails)
+integer(c_int) function check_matrix(A, B, tol) result(fails)
   use, intrinsic :: iso_c_binding
 
   use fsunmatrix_sparse_mod
@@ -206,18 +204,17 @@ integer(C_INT) function check_matrix(A, B, tol) result(fails)
 
   implicit none
 
-
   type(SUNMatrix)                     :: A, B
-  real(C_DOUBLE)                      :: tol
-  real(C_DOUBLE),  pointer            :: Adata(:), Bdata(:)
+  real(c_double)                      :: tol
+  real(c_double), pointer            :: Adata(:), Bdata(:)
   integer(kind=myindextype), pointer :: Aidxvals(:), Bidxvals(:)
   integer(kind=myindextype), pointer :: Aidxptrs(:), Bidxptrs(:)
   integer(kind=myindextype)          :: i, np, Annz, Bnnz
 
   fails = 0
 
-  Adata    => FSUNSparseMatrix_Data(A)
-  Bdata    => FSUNSparseMatrix_Data(B)
+  Adata => FSUNSparseMatrix_Data(A)
+  Bdata => FSUNSparseMatrix_Data(B)
   Aidxvals => FSUNSparseMatrix_IndexValues(A)
   Bidxvals => FSUNSparseMatrix_IndexValues(B)
   Aidxptrs => FSUNSparseMatrix_IndexPointers(A)
@@ -225,7 +222,7 @@ integer(C_INT) function check_matrix(A, B, tol) result(fails)
 
   Annz = FSUNSparseMatrix_NNZ(A)
   Bnnz = FSUNSparseMatrix_NNZ(B)
-  np   = FSUNSparseMatrix_NP(A)
+  np = FSUNSparseMatrix_NP(A)
 
   if (FSUNMatGetID(A) /= FSUNMatGetID(B)) then
     fails = 1
@@ -282,10 +279,9 @@ integer(C_INT) function check_matrix(A, B, tol) result(fails)
     return
   end if
 
-
 end function check_matrix
 
-integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
+integer(c_int) function check_matrix_entry(A, c, tol) result(fails)
   use, intrinsic :: iso_c_binding
 
   use fsunmatrix_sparse_mod
@@ -294,27 +290,26 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
   implicit none
 
   type(SUNMatrix)                     :: A
-  real(C_DOUBLE)                      :: c, tol
-  real(C_DOUBLE),  pointer            :: Adata(:)
+  real(c_double)                      :: c, tol
+  real(c_double), pointer            :: Adata(:)
   integer(kind=myindextype), pointer :: Aidxptrs(:)
   integer(kind=myindextype)          :: i, np
 
   fails = 0
 
-  Adata    => FSUNSparseMatrix_Data(A)
+  Adata => FSUNSparseMatrix_Data(A)
   Aidxptrs => FSUNSparseMatrix_IndexPointers(A)
 
   np = FSUNSparseMatrix_NP(A)
 
   ! compare data
-  do i=1, Aidxptrs(np)
+  do i = 1, Aidxptrs(np)
     if (FNEQTOL(Adata(i), c, tol) /= 0) then
       fails = fails + 1
-      write(*,'(A,I0,A,E14.7,A,E14.7)') &
+      write (*, '(A,I0,A,E14.7,A,E14.7)') &
         'Adata(', i, ') = ', Adata(i), '  c = ', c
     end if
   end do
-
 
 end function check_matrix_entry
 

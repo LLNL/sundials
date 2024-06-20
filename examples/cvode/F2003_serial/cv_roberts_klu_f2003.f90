@@ -46,7 +46,7 @@ module roberts_klu_mod
 
   integer(c_int), parameter  :: nout = 12
   integer(c_int64_t), parameter :: neq = 3
-  integer(c_int64_t), parameter :: nnz = neq * neq
+  integer(c_int64_t), parameter :: nnz = neq*neq
 
 contains
 
@@ -59,7 +59,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function fcnrob(t, sunvec_y, sunvec_f, user_data) &
-       result(ierr) bind(C,name='fcnrob')
+    result(ierr) bind(C, name='fcnrob')
 
     !======= Inclusions ===========
 
@@ -70,7 +70,7 @@ contains
     real(c_double), value :: t         ! current time
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     type(N_Vector)        :: sunvec_f  ! function N_Vector
-    type(c_ptr),    value :: user_data ! user-defined data
+    type(c_ptr), value :: user_data ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer, dimension(neq) :: yval(:)
@@ -103,7 +103,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function grob(t, sunvec_y, gout, user_data) &
-       result(ierr) bind(C,name='grob')
+    result(ierr) bind(C, name='grob')
 
     !======= Declarations =========
     implicit none
@@ -112,7 +112,7 @@ contains
     real(c_double), value :: t         ! current time
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     real(c_double)        :: gout(2)   ! root function values
-    type(c_ptr),    value :: user_data ! user-defined data
+    type(c_ptr), value :: user_data ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer, dimension(neq) :: yval(:)
@@ -142,8 +142,8 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function jacrob(t, sunvec_y, sunvec_f, &
-       sunmat_J, user_data, sunvec_t1, sunvec_t2, sunvec_t3) &
-       result(ierr) bind(C,name='jacrob')
+                                 sunmat_J, user_data, sunvec_t1, sunvec_t2, sunvec_t3) &
+    result(ierr) bind(C, name='jacrob')
 
     !======= Inclusions ===========
     use fsunmatrix_sparse_mod
@@ -156,7 +156,7 @@ contains
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     type(N_Vector)        :: sunvec_f  ! unused N_Vector
     type(SUNMatrix)       :: sunmat_J  ! Jacobian SUNMatrix
-    type(c_ptr),    value :: user_data ! user-defined data
+    type(c_ptr), value :: user_data ! user-defined data
     type(N_Vector)        :: sunvec_t1 ! temporary N_Vectors
     type(N_Vector)        :: sunvec_t2
     type(N_Vector)        :: sunvec_t3
@@ -165,13 +165,13 @@ contains
     real(c_double), pointer, dimension(neq)    :: yval(:)
     real(c_double), pointer, dimension(nnz)    :: Jdata(:)
     integer(c_int64_t), pointer, dimension(nnz)   :: Jrvals(:)
-    integer(c_int64_t), pointer, dimension(neq+1) :: Jcptrs(:)
+    integer(c_int64_t), pointer, dimension(neq + 1) :: Jcptrs(:)
 
     !======= Internals ============
 
     ! get data arrays from SUNDIALS vectors
     yval(1:neq) => FN_VGetArrayPointer(sunvec_y)
-    Jcptrs(1:neq+1) => FSUNSparseMatrix_IndexPointers(sunmat_J)
+    Jcptrs(1:neq + 1) => FSUNSparseMatrix_IndexPointers(sunmat_J)
     Jrvals(1:nnz) => FSUNSparseMatrix_IndexValues(sunmat_J)
     Jdata(1:nnz) => FSUNSparseMatrix_Data(sunmat_J)
 
@@ -191,7 +191,6 @@ contains
     Jdata(3) = 0.0d0
     Jrvals(3) = 2
 
-
     Jdata(4) = 1.0d4*yval(3)
     Jrvals(4) = 0
 
@@ -200,7 +199,6 @@ contains
 
     Jdata(6) = 6.0d7*yval(2)
     Jrvals(6) = 2
-
 
     Jdata(7) = 1.0d4*yval(2)
     Jrvals(7) = 0
@@ -221,7 +219,6 @@ contains
 end module roberts_klu_mod
 ! ------------------------------------------------------------------
 
-
 program main
 
   !======= Inclusions ===========
@@ -239,10 +236,10 @@ program main
   real(c_double) :: rtol, t0, tout, tret(1)
   integer(c_int) :: iout, retval, retvalr, nrtfn, rootsfound(2)
 
-  type(N_Vector),        pointer :: sunvec_y      ! sundials solution vector
-  type(N_Vector),        pointer :: sunvec_dky    ! sundials solution vector
-  type(N_Vector),        pointer :: sunvec_av     ! sundials tolerance vector
-  type(SUNMatrix),       pointer :: sunmat_A      ! sundials matrix
+  type(N_Vector), pointer :: sunvec_y      ! sundials solution vector
+  type(N_Vector), pointer :: sunvec_dky    ! sundials solution vector
+  type(N_Vector), pointer :: sunvec_av     ! sundials tolerance vector
+  type(SUNMatrix), pointer :: sunmat_A      ! sundials matrix
   type(SUNLinearSolver), pointer :: sunlinsol_LS  ! sundials linear solver
   type(c_ptr)                    :: cvode_mem     ! CVode memory
   type(c_ptr)                    :: sunctx        ! SUNDIALS simulation context
@@ -270,20 +267,20 @@ program main
   avtol(2) = 1.0d-12
   avtol(3) = 1.0d-4
 
-  initsize = 1.0d-4 * rtol
-  nlscoef  = 1.0d-4
+  initsize = 1.0d-4*rtol
+  nlscoef = 1.0d-4
 
   ! create serial vectors
   sunvec_y => FN_VMake_Serial(neq, yval, sunctx)
   if (.not. associated(sunvec_y)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   sunvec_av => FN_VMake_Serial(neq, avtol, sunctx)
   if (.not. associated(sunvec_av)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   ! set limits
@@ -298,116 +295,116 @@ program main
 
   retval = FCVodeInit(cvode_mem, c_funloc(fcnrob), t0, sunvec_y)
   if (retval /= 0) then
-     print *, 'Error in FCVodeInit, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeInit, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Call FCVodeSVtolerances to set tolerances
   retval = FCVodeSVtolerances(cvode_mem, rtol, sunvec_av)
   if (retval /= 0) then
-     print *, 'Error in FCVodeSVtolerances, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeSVtolerances, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Call FCVodeRootInit to specify the root function grob with 2 components
   nrtfn = 2
   retval = FCVodeRootInit(cvode_mem, nrtfn, c_funloc(grob))
   if (retval /= 0) then
-     print *, 'Error in FCVodeRootInit, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeRootInit, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Create sparse SUNMatrix for use in linear solves
   sunmat_A => FSUNSparseMatrix(neq, neq, nnz, CSC_MAT, sunctx)
   if (.not. associated(sunmat_A)) then
-     print *, 'ERROR: sunmat = NULL'
-     stop 1
+    print *, 'ERROR: sunmat = NULL'
+    stop 1
   end if
 
   ! Create KLU sparse SUNLinearSolver object
   sunlinsol_LS => FSUNLinSol_KLU(sunvec_y, sunmat_A, sunctx)
   if (.not. associated(sunlinsol_LS)) then
-     print *, 'ERROR: sunlinsol = NULL'
-     stop 1
+    print *, 'ERROR: sunlinsol = NULL'
+    stop 1
   end if
 
   retval = FCVodeSetMaxNumSteps(cvode_mem, mxsteps)
   if (retval /= 0) then
-     print *, 'Error in FCVodeSetMaxNumSteps, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeSetMaxNumSteps, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FCVodeSetMaxErrTestFails(cvode_mem, maxetf)
   if (retval /= 0) then
-     print *, 'Error in FCVodeSetMaxErrTestFails, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeSetMaxErrTestFails, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FCVodeSetInitStep(cvode_mem, initsize)
   if (retval /= 0) then
-     print *, 'Error in FCVodeSetInitStep, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeSetInitStep, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FCVodeSetNonlinConvCoef(cvode_mem, nlscoef)
   if (retval /= 0) then
-     print *, 'Error in FCVodeSetNonlinConvCoef, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeSetNonlinConvCoef, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Attach the matrix and linear solver
-  retval = FCVodeSetLinearSolver(cvode_mem, sunlinsol_LS, sunmat_A);
+  retval = FCVodeSetLinearSolver(cvode_mem, sunlinsol_LS, sunmat_A); 
   if (retval /= 0) then
-     print *, 'Error in FCVodeSetLinearSolver, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeSetLinearSolver, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Set the user-supplied Jacobian routine
   retval = FCVodeSetJacFn(cvode_mem, c_funloc(jacrob))
   if (retval /= 0) then
-     print *, 'Error in FCVodeSetJacFn, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeSetJacFn, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! In loop, call FCVode, print results, and test for error.
 
   iout = 0
-  do while(iout < nout)
+  do while (iout < nout)
 
-     retval = FCVode(cvode_mem, tout, sunvec_y, tret(1), CV_NORMAL)
-     if (retval < 0) then
-        print *, 'Error in FCVode, retval = ', retval, '; halting'
+    retval = FCVode(cvode_mem, tout, sunvec_y, tret(1), CV_NORMAL)
+    if (retval < 0) then
+      print *, 'Error in FCVode, retval = ', retval, '; halting'
+      stop 1
+    end if
+
+    call PrintOutput(cvode_mem, tret(1), yval)
+
+    if (retval == CV_ROOT_RETURN) then
+      retvalr = FCVodeGetRootInfo(cvode_mem, rootsfound)
+      if (retvalr < 0) then
+        print *, 'Error in FCVodeGetRootInfo, retval = ', retval, '; halting'
         stop 1
-     end if
+      end if
+      print '(a,2(i2,2x))', "    rootsfound[] = ", rootsfound(1), rootsfound(2)
+    end if
 
-     call PrintOutput(cvode_mem, tret(1), yval)
-
-     if (retval .eq. CV_ROOT_RETURN) then
-        retvalr = FCVodeGetRootInfo(cvode_mem, rootsfound)
-        if (retvalr < 0) then
-           print *, 'Error in FCVodeGetRootInfo, retval = ', retval, '; halting'
-           stop 1
-        end if
-        print '(a,2(i2,2x))', "    rootsfound[] = ", rootsfound(1), rootsfound(2)
-     end if
-
-     if (retval .eq. CV_SUCCESS) then
-        iout = iout + 1
-        tout = tout * 10.0d0
-     end if
+    if (retval == CV_SUCCESS) then
+      iout = iout + 1
+      tout = tout*10.0d0
+    end if
   end do
 
   sunvec_dky => FN_VMake_Serial(neq, dkyval, sunctx)
   if (.not. associated(sunvec_dky)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   ! find and print derivative at tret(1)
   retval = FCVodeGetDky(cvode_mem, tret(1), 1, sunvec_dky)
   if (retval /= 0) then
-     print *, 'Error in CVodeGetDky'
-     stop 1
+    print *, 'Error in CVodeGetDky'
+    stop 1
   end if
   print *, " "
   print *, "---------------------------------------------------"
@@ -428,7 +425,6 @@ program main
 
 end program main
 ! ----------------------------------------------------------------
-
 
 ! ----------------------------------------------------------------
 ! PrintHeader: prints first lines of output (problem description)
@@ -454,8 +450,8 @@ subroutine PrintHeader(rtol, avtol, y)
   print *, "         Three equation chemical kinetics problem."
   print *, " "
   print *, "Linear solver: DENSE, with user-supplied Jacobian."
-  print '(a,f6.4,a,3(es7.0,1x))', "Tolerance parameters:  rtol = ",rtol,"   atol = ", avtol
-  print '(a,3(f5.2,1x),a)', "Initial conditions y0 = (",y,")"
+  print '(a,f6.4,a,3(es7.0,1x))', "Tolerance parameters:  rtol = ", rtol, "   atol = ", avtol
+  print '(a,3(f5.2,1x),a)', "Initial conditions y0 = (", y, ")"
   print *, "Constraints not used."
   print *, " "
   print *, "---------------------------------------------------"
@@ -465,7 +461,6 @@ subroutine PrintHeader(rtol, avtol, y)
   return
 end subroutine PrintHeader
 ! ----------------------------------------------------------------
-
 
 ! ----------------------------------------------------------------
 ! PrintOutput
@@ -489,7 +484,6 @@ subroutine PrintOutput(cvode_mem, t, y)
 
 end subroutine PrintOutput
 ! ----------------------------------------------------------------
-
 
 ! ----------------------------------------------------------------
 ! PrintFinalStats
@@ -522,62 +516,62 @@ subroutine PrintFinalStats(cvode_mem)
 
   retval = FCVodeGetNumSteps(cvode_mem, nsteps)
   if (retval /= 0) then
-     print *, 'Error in FCVodeGetNumSteps, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumSteps, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FCVodeGetNumRhsEvals(cvode_mem, nfe)
   if (retval /= 0) then
-     print *, 'Error in FCVodeGetNumRhsEvals, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumRhsEvals, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FCVodeGetNumLinSolvSetups(cvode_mem, nluevals)
   if (retval /= 0) then
-     print *, 'Error in FCVodeGetNumLinSolvSetups, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumLinSolvSetups, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FCVodeGetNumErrTestFails(cvode_mem, netfails)
   if (retval /= 0) then
-     print *, 'Error in FCVodeGetNumErrTestFails, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumErrTestFails, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FCVodeGetNumNonlinSolvIters(cvode_mem, nniters)
   if (retval /= 0) then
-     print *, 'Error in FCVodeGetNumNonlinSolvIters, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumNonlinSolvIters, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FCVodeGetNumNonlinSolvConvFails(cvode_mem, nncfails)
   if (retval /= 0) then
-     print *, 'Error in FCVodeGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FCVodeGetNumJacEvals(cvode_mem, njacevals)
   if (retval /= 0) then
-     print *, 'Error in FCVodeGetNumJacEvals, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumJacEvals, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FCVodeGetNumGEvals(cvode_mem, ngevals)
   if (retval /= 0) then
-     print *, 'Error in FCVodeGetNumGEvals, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumGEvals, retval = ', retval, '; halting'
+    stop 1
   end if
 
   print *, ' '
   print *, ' General Solver Stats:'
-  print '(4x,A,i9)'    ,'Total internal steps taken    =',nsteps
-  print '(4x,A,i9)'    ,'Total rhs function calls      =',nfe
-  print '(4x,A,i9)'    ,'Total Jacobian function calls =',njacevals
-  print '(4x,A,i9)'    ,'Total root function calls     =',ngevals
-  print '(4x,A,i9)'    ,'Total LU function calls       =',nluevals
-  print '(4x,A,i9)'    ,'Num error test failures       =',netfails
-  print '(4x,A,i9)'    ,'Num nonlinear solver iters    =',nniters
-  print '(4x,A,i9)'    ,'Num nonlinear solver fails    =',nncfails
+  print '(4x,A,i9)', 'Total internal steps taken    =', nsteps
+  print '(4x,A,i9)', 'Total rhs function calls      =', nfe
+  print '(4x,A,i9)', 'Total Jacobian function calls =', njacevals
+  print '(4x,A,i9)', 'Total root function calls     =', ngevals
+  print '(4x,A,i9)', 'Total LU function calls       =', nluevals
+  print '(4x,A,i9)', 'Num error test failures       =', netfails
+  print '(4x,A,i9)', 'Num nonlinear solver iters    =', nniters
+  print '(4x,A,i9)', 'Num nonlinear solver fails    =', nncfails
   print *, ' '
 
   return
