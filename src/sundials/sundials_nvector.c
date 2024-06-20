@@ -284,8 +284,8 @@ N_Vector N_VClone(N_Vector w)
 {
   N_Vector result = NULL;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(w));
-  result         = w->ops->nvclone(w);
-  result->sunctx = w->sunctx;
+  result = w->ops->nvclone(w);
+  if (result) { result->sunctx = w->sunctx; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(w));
   return result;
 }
@@ -294,8 +294,8 @@ N_Vector N_VCloneEmpty(N_Vector w)
 {
   N_Vector result;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(w));
-  result         = w->ops->nvcloneempty(w);
-  result->sunctx = w->sunctx;
+  result = w->ops->nvcloneempty(w);
+  if (result) { result->sunctx = w->sunctx; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(w));
   return result;
 }

@@ -100,6 +100,9 @@ foreach(example_tuple ${nvector_serial_fortran_examples})
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
+    # build fortran modules into a unique directory to avoid naming collisions
+    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+
     # example source files
     add_executable(${example} ${example}.f90
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90
@@ -107,9 +110,6 @@ foreach(example_tuple ${nvector_serial_fortran_examples})
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-    # folder where fortran .mod files are
-    set_target_properties(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})

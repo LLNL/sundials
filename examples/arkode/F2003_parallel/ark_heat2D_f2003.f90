@@ -671,7 +671,7 @@ program driver
   type(SUNLinearSolver), pointer :: sun_LS              ! linear solver
   type(SUNMatrix),       pointer :: sunmat_A            ! sundials matrix
   type(c_ptr)     :: arkode_mem                         ! ARKODE memory
-  integer(c_long) :: N, Ntot
+  integer(c_int64_t) :: N, Ntot
   integer(c_int) :: retval
   integer :: ierr
   logical :: outproc

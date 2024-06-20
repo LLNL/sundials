@@ -34,8 +34,8 @@ module prob_mod
   !======= Declarations =========
   implicit none
 
-  integer(c_long), parameter :: nvar = 8
-  integer(c_long), parameter :: neq = 3*nvar
+  integer(c_int64_t), parameter :: nvar = 8
+  integer(c_int64_t), parameter :: neq = 3*nvar
   real(c_double),  parameter :: ftol = 1.d-5
   real(c_double),  parameter :: stol = 1.d-5
 

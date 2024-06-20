@@ -56,7 +56,7 @@ foreach(example_tuple ${FARKODE_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_type)
 
-  # Install fortran modules to a unique directory to avoid naming collisions
+  # build fortran modules into a unique directory to avoid naming collisions
   set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   # example source files

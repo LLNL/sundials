@@ -19,7 +19,6 @@ sundials_add_f2003_library(sundials_fsunlinsolspbcgs_mod
     fsunlinsol_spbcgs_mod.f90 fsunlinsol_spbcgs_mod.c
   LINK_LIBRARIES
     PUBLIC sundials_fcore_mod
-  OBJECT_LIBRARIES
   OUTPUT_NAME
     sundials_fsunlinsolspbcgs_mod
   VERSION

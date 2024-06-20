@@ -291,13 +291,6 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 #include "sundials/sundials_adaptcontroller.h"
 
-
-SWIGEXPORT SWIGEXTERN int const _wrap_SUN_COMM_NULL = (int)(0);
-
-SWIGEXPORT SWIGEXTERN int const _wrap_SUNFALSE = (int)(0);
-
-SWIGEXPORT SWIGEXTERN int const _wrap_SUNTRUE = (int)(1);
-
 SWIGEXPORT void _wrap_FSUNLogErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, int const *farg5, void *farg6, void *farg7) {
   int arg1 ;
   char *arg2 = (char *) 0 ;
