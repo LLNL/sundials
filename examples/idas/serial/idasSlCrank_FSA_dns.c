@@ -58,7 +58,6 @@
 #define ATOLFD SUN_RCONST(1.0e-08)
 
 #define ZERO    SUN_RCONST(0.00)
-#define QUARTER SUN_RCONST(0.25)
 #define HALF    SUN_RCONST(0.50)
 #define ONE     SUN_RCONST(1.00)
 #define TWO     SUN_RCONST(2.00)

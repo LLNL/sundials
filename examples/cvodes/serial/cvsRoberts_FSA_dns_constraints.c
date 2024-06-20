@@ -96,7 +96,6 @@
 #define TMULT SUN_RCONST(10.0) /* output time factor     */
 #define NOUT  12               /* number of output times */
 
-#define NP 3 /* number of problem parameters */
 #define NS 3 /* number of sensitivities computed */
 
 #define ZERO SUN_RCONST(0.0)

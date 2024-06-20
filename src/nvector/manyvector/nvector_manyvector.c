@@ -41,7 +41,6 @@
 #endif
 
 #define ZERO SUN_RCONST(0.0)
-#define ONE  SUN_RCONST(1.0)
 
 /* -----------------------------------------------------------------
    ManyVector content accessor macros
@@ -1266,7 +1265,7 @@ sunbooleantype N_VInvTest_MPIManyVector(N_Vector x, N_Vector z)
   sunrealtype val, gval;
   sunbooleantype invtest = N_VInvTestLocal_MPIManyVector(x, z);
   SUNCheckLastErrNoRet();
-  val = gval = (invtest) ? ONE : ZERO;
+  val = gval = (invtest) ? SUN_RCONST(1.0) : ZERO;
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
   {
     SUNCheckMPICallNoRet(MPI_Allreduce(&val, &gval, 1, MPI_SUNREALTYPE, MPI_MIN,
@@ -1328,7 +1327,7 @@ sunbooleantype N_VConstrMask_MPIManyVector(N_Vector c, N_Vector x, N_Vector m)
   sunrealtype val, gval;
   sunbooleantype constrmask = N_VConstrMaskLocal_MPIManyVector(c, x, m);
   SUNCheckLastErrNoRet();
-  val = gval = (constrmask) ? ONE : ZERO;
+  val = gval = (constrmask) ? SUN_RCONST(1.0) : ZERO;
   if (MANYVECTOR_COMM(x) != MPI_COMM_NULL)
   {
     SUNCheckMPICallNoRet(MPI_Allreduce(&val, &gval, 1, MPI_SUNREALTYPE, MPI_MIN,

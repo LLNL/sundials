@@ -38,7 +38,6 @@ static double get_time(void);
 int print_time      = 0;
 int print_all_ranks = 0;
 
-#define FMT "%s Time: %22.15e\n\n"
 #define PRINT_TIME(format, time) \
   if (print_time) printf(format, time)
 

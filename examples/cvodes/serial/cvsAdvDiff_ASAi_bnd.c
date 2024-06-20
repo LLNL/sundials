@@ -68,9 +68,6 @@
 #define ATOL  SUN_RCONST(1.e-5)
 #define RTOLB SUN_RCONST(1.e-6)
 #define T0    SUN_RCONST(0.0) /* initial time                  */
-#define T1    SUN_RCONST(0.1) /* first output time             */
-#define DTOUT SUN_RCONST(0.1) /* output time increment         */
-#define NOUT  10              /* number of output times        */
 #define TOUT  SUN_RCONST(1.0) /* final time                    */
 #define NSTEP 50              /* check point saved every NSTEP */
 
