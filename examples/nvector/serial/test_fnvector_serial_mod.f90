@@ -49,7 +49,7 @@ contains
 
     xvecs = FN_VCloneVectorArray(nv, x)
     zvecs = FN_VCloneVectorArray(nv, z)
-    nvarr = (/ ONE, ONE, ONE /)
+    nvarr = (/ONE, ONE, ONE/)
 
     !===== Test =====
 
@@ -160,7 +160,6 @@ function check_ans(ans, X, local_length) result(failure)
     end if
   end do
 end function check_ans
-
 
 logical function has_data(X) result(failure)
   use, intrinsic :: iso_c_binding

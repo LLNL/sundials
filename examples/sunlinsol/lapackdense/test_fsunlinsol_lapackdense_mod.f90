@@ -20,16 +20,12 @@ module test_fsunlinsol_lapackdense
   use test_utilities
   implicit none
 
-
-
   integer(kind=myindextype), private, parameter :: N = 100
 
 contains
 
-  integer(C_INT) function unit_tests() result(fails)
+  integer(c_int) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-
-
 
     use fnvector_serial_mod
     use fsunmatrix_dense_mod
@@ -39,13 +35,13 @@ contains
     implicit none
 
     type(SUNLinearSolver), pointer :: LS                ! test linear solver
-    type(SUNMatrix),       pointer :: A, I              ! test matrices
-    type(N_Vector),        pointer :: x, b              ! test vectors
-    real(C_DOUBLE),        pointer :: colj(:), colIj(:) ! matrix column data
-    real(C_DOUBLE),        pointer :: xdata(:)          ! x vector data
-    real(C_DOUBLE)                 :: tmpr              ! temporary real value
+    type(SUNMatrix), pointer :: A, I              ! test matrices
+    type(N_Vector), pointer :: x, b              ! test vectors
+    real(c_double), pointer :: colj(:), colIj(:) ! matrix column data
+    real(c_double), pointer :: xdata(:)          ! x vector data
+    real(c_double)                 :: tmpr              ! temporary real value
     integer(kind=myindextype)     :: j, k
-    integer(C_INT)                 :: tmp
+    integer(c_int)                 :: tmp
 
     fails = 0
 
@@ -55,34 +51,34 @@ contains
     b => FN_VNew_Serial(N, sunctx)
 
     ! fill A matrix with uniform random data in [0, 1/N)
-    do j=1, N
-      colj => FSUNDenseMatrix_Column(A, j-1)
-      do k=1, N
+    do j = 1, N
+      colj => FSUNDenseMatrix_Column(A, j - 1)
+      do k = 1, N
         call random_number(tmpr)
-        colj(k) = tmpr / N
+        colj(k) = tmpr/N
       end do
     end do
 
     ! create anti-identity matrix
     j = N
-    do k=1, N
-      colj => FSUNDenseMatrix_Column(I, j-1)
+    do k = 1, N
+      colj => FSUNDenseMatrix_Column(I, j - 1)
       colj(k) = ONE
-      j = j-1
+      j = j - 1
     end do
 
     ! add anti-identity to ensure the solver needs to do row-swapping
-    do k=1, N
-      do j=1, N
-        colj => FSUNDenseMatrix_Column(A, j-1)
-        colIj => FSUNDenseMatrix_Column(I, j-1)
+    do k = 1, N
+      do j = 1, N
+        colj => FSUNDenseMatrix_Column(A, j - 1)
+        colIj => FSUNDenseMatrix_Column(I, j - 1)
         colj(k) = colj(k) + colIj(k)
       end do
     end do
 
     ! fill x vector with uniform random data in [0, 1)
     xdata => FN_VGetArrayPointer(x)
-    do j=1, N
+    do j = 1, N
       call random_number(tmpr)
       xdata(j) = tmpr
     end do
@@ -120,15 +116,15 @@ contains
 
 end module
 
-integer(C_INT) function check_vector(X, Y, tol) result(failure)
+integer(c_int) function check_vector(X, Y, tol) result(failure)
   use, intrinsic :: iso_c_binding
   use test_utilities
 
   implicit none
   type(N_Vector)  :: x, y
-  real(C_DOUBLE)  :: tol, maxerr
-  integer(C_LONG) :: i, xlen, ylen
-  real(C_DOUBLE), pointer :: xdata(:), ydata(:)
+  real(c_double)  :: tol, maxerr
+  integer(c_long) :: i, xlen, ylen
+  real(c_double), pointer :: xdata(:), ydata(:)
 
   failure = 0
 
@@ -151,9 +147,9 @@ integer(C_INT) function check_vector(X, Y, tol) result(failure)
   if (failure > 0) then
     maxerr = ZERO
     do i = 1, xlen
-      maxerr = max(abs(xdata(i)-ydata(i))/abs(ydata(i)), maxerr)
+      maxerr = max(abs(xdata(i) - ydata(i))/abs(ydata(i)), maxerr)
     end do
-    write(*,'(A,E14.7,A,E14.7,A)') &
+    write (*, '(A,E14.7,A,E14.7,A)') &
       "FAIL: check_vector failure: maxerr = ", maxerr, "  (tol = ", tol, ")"
   end if
 
@@ -166,7 +162,7 @@ program main
 
   !======== Declarations ========
   implicit none
-  integer(C_INT) :: fails = 0
+  integer(c_int) :: fails = 0
 
   !============== Introduction =============
   print *, 'LAPACK-Dense SUNLinearSolver Fortran 2003 interface test'
@@ -178,7 +174,7 @@ program main
     print *, 'FAILURE: n unit tests failed'
     stop 1
   else
-    print *,'SUCCESS: all unit tests passed'
+    print *, 'SUCCESS: all unit tests passed'
   end if
 
   call Test_Finalize()

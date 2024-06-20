@@ -35,10 +35,10 @@ contains
 
     x => FN_VGetFVec(sunvec_x)
     failure = 0
-    do j = 1,N
-       do i = 1,Nvar
-          if (dabs(x%data(i,j) - val) > tol)  failure = 1
-       end do
+    do j = 1, N
+      do i = 1, Nvar
+        if (dabs(x%data(i, j) - val) > tol) failure = 1
+      end do
     end do
 
   end function check_ans
@@ -64,10 +64,9 @@ program main
   integer(c_int64_t), parameter  :: Nvar = 10
   type(N_Vector), pointer     :: sU, sV, sW, sX, sY, sZ
   type(FVec), pointer         :: U, V, W, X, Y, Z
-  real(c_double), allocatable :: Udata(:,:)
+  real(c_double), allocatable :: Udata(:, :)
   real(c_double)              :: fac
   logical                     :: failure
-
 
   !======= Internals ============
 
@@ -78,77 +77,75 @@ program main
   fails = FSUNContext_Create(SUN_COMM_NULL, sunctx)
 
   ! create new vectors, using New, Make and Clone routines
-  allocate(Udata(Nvar,N))
+  allocate (Udata(Nvar, N))
   sU => FN_VMake_Fortran(Nvar, N, Udata, sunctx)
   if (.not. associated(sU)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
   U => FN_VGetFVec(sU)
 
   sV => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sV)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
   V => FN_VGetFVec(sV)
 
   sW => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sW)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
   W => FN_VGetFVec(sW)
 
   sX => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sX)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
   X => FN_VGetFVec(sX)
 
   sY => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sY)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
   Y => FN_VGetFVec(sY)
 
   call c_f_pointer(FN_VClone_Fortran(sU), sZ)
   if (.not. associated(sZ)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
   Z => FN_VGetFVec(sZ)
 
-
   ! check vector ID
   if (FN_VGetVectorID(sU) /= SUNDIALS_NVEC_CUSTOM) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VGetVectorID'
-     print *, '    Unrecognized vector type', FN_VGetVectorID(sU)
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VGetVectorID'
+    print *, '    Unrecognized vector type', FN_VGetVectorID(sU)
   else
-     print *, 'PASSED test -- FN_VGetVectorID'
+    print *, 'PASSED test -- FN_VGetVectorID'
   end if
-
 
   ! check vector length
   if (FN_VGetLength(sV) /= (N*Nvar)) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VGetLength'
-     print *, '    ', FN_VGetLength(sV), ' /= ', N*Nvar
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VGetLength'
+    print *, '    ', FN_VGetLength(sV), ' /= ', N*Nvar
   else
-     print *, 'PASSED test -- FN_VGetLength'
+    print *, 'PASSED test -- FN_VGetLength'
   end if
 
   ! test FN_VConst
   Udata = 0.d0
   call FN_VConst(1.d0, sU)
   if (check_ans(1.d0, 1.d-14, Nvar, N, sU) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VConst'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VConst'
   else
-     print *, 'PASSED test -- FN_VConst'
+    print *, 'PASSED test -- FN_VConst'
   end if
 
   ! test FN_VLinearSum
@@ -156,60 +153,60 @@ program main
   call FN_VConst(-2.d0, sY)
   call FN_VLinearSum(1.d0, sX, 1.d0, sY, sY)
   if (check_ans(-1.d0, 1.d-14, Nvar, N, sY) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 1a'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 1a'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 1a'
+    print *, 'PASSED test -- FN_VLinearSum Case 1a'
   end if
 
   call FN_VConst(1.d0, sX)
   call FN_VConst(2.d0, sY)
   call FN_VLinearSum(-1.d0, sX, 1.d0, sY, sY)
   if (check_ans(1.d0, 1.d-14, Nvar, N, sY) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 1b'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 1b'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 1b'
+    print *, 'PASSED test -- FN_VLinearSum Case 1b'
   end if
 
   call FN_VConst(2.d0, sX)
   call FN_VConst(-2.d0, sY)
   call FN_VLinearSum(0.5d0, sX, 1.d0, sY, sY)
   if (check_ans(-1.d0, 1.d-14, Nvar, N, sY) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 1c'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 1c'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 1c'
+    print *, 'PASSED test -- FN_VLinearSum Case 1c'
   end if
 
   call FN_VConst(2.d0, sX)
   call FN_VConst(-1.d0, sY)
   call FN_VLinearSum(1.d0, sX, 1.d0, sY, sX)
   if (check_ans(1.d0, 1.d-14, Nvar, N, sX) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 2a'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 2a'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 2a'
+    print *, 'PASSED test -- FN_VLinearSum Case 2a'
   end if
 
   call FN_VConst(1.d0, sX)
   call FN_VConst(2.d0, sY)
   call FN_VLinearSum(1.d0, sX, -1.d0, sY, sX)
   if (check_ans(-1.d0, 1.d-14, Nvar, N, sX) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 2b'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 2b'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 2b'
+    print *, 'PASSED test -- FN_VLinearSum Case 2b'
   end if
 
   call FN_VConst(2.d0, sX)
   call FN_VConst(-0.5d0, sY)
   call FN_VLinearSum(1.d0, sX, 2.d0, sY, sX)
   if (check_ans(1.d0, 1.d-14, Nvar, N, sX) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 2c'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 2c'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 2c'
+    print *, 'PASSED test -- FN_VLinearSum Case 2c'
   end if
 
   call FN_VConst(-2.d0, sX)
@@ -217,10 +214,10 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VLinearSum(1.d0, sX, 1.d0, sY, sZ)
   if (check_ans(-1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 3'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 3'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 3'
+    print *, 'PASSED test -- FN_VLinearSum Case 3'
   end if
 
   call FN_VConst(2.d0, sX)
@@ -228,10 +225,10 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VLinearSum(1.d0, sX, -1.d0, sY, sZ)
   if (check_ans(1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 4a'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 4a'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 4a'
+    print *, 'PASSED test -- FN_VLinearSum Case 4a'
   end if
 
   call FN_VConst(2.d0, sX)
@@ -239,10 +236,10 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VLinearSum(-1.d0, sX, 1.d0, sY, sZ)
   if (check_ans(-1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 4b'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 4b'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 4b'
+    print *, 'PASSED test -- FN_VLinearSum Case 4b'
   end if
 
   call FN_VConst(2.d0, sX)
@@ -250,10 +247,10 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VLinearSum(1.d0, sX, 2.d0, sY, sZ)
   if (check_ans(1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 5a'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 5a'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 5a'
+    print *, 'PASSED test -- FN_VLinearSum Case 5a'
   end if
 
   call FN_VConst(0.5d0, sX)
@@ -261,10 +258,10 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VLinearSum(2.d0, sX, 1.d0, sY, sZ)
   if (check_ans(-1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 5b'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 5b'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 5b'
+    print *, 'PASSED test -- FN_VLinearSum Case 5b'
   end if
 
   call FN_VConst(-2.d0, sX)
@@ -272,10 +269,10 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VLinearSum(-1.d0, sX, 2.d0, sY, sZ)
   if (check_ans(1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 6a'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 6a'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 6a'
+    print *, 'PASSED test -- FN_VLinearSum Case 6a'
   end if
 
   call FN_VConst(0.5d0, sX)
@@ -283,10 +280,10 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VLinearSum(2.d0, sX, -1.d0, sY, sZ)
   if (check_ans(-1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 6b'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 6b'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 6b'
+    print *, 'PASSED test -- FN_VLinearSum Case 6b'
   end if
 
   call FN_VConst(1.d0, sX)
@@ -294,10 +291,10 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VLinearSum(2.d0, sX, 2.d0, sY, sZ)
   if (check_ans(1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 7'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 7'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 7'
+    print *, 'PASSED test -- FN_VLinearSum Case 7'
   end if
 
   call FN_VConst(0.5d0, sX)
@@ -305,10 +302,10 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VLinearSum(2.d0, sX, -2.d0, sY, sZ)
   if (check_ans(-1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 8'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 8'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 8'
+    print *, 'PASSED test -- FN_VLinearSum Case 8'
   end if
 
   call FN_VConst(1.d0, sX)
@@ -316,10 +313,10 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VLinearSum(2.d0, sX, 0.5d0, sY, sZ)
   if (check_ans(1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VLinearSum Case 9'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VLinearSum Case 9'
   else
-     print *, 'PASSED test -- FN_VLinearSum Case 9'
+    print *, 'PASSED test -- FN_VLinearSum Case 9'
   end if
 
   ! test FN_VProd
@@ -328,10 +325,10 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VProd(sX, sY, sZ)
   if (check_ans(-1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VProd'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VProd'
   else
-     print *, 'PASSED test -- FN_VProd'
+    print *, 'PASSED test -- FN_VProd'
   end if
 
   ! test FN_VDiv
@@ -340,50 +337,50 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VDiv(sX, sY, sZ)
   if (check_ans(0.5d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VDiv'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VDiv'
   else
-     print *, 'PASSED test -- FN_VDiv'
+    print *, 'PASSED test -- FN_VDiv'
   end if
 
   ! test FN_VScale
   call FN_VConst(0.5d0, sX)
   call FN_VScale(2.d0, sX, sX)
   if (check_ans(1.d0, 1.d-14, Nvar, N, sX) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VScale Case 1'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VScale Case 1'
   else
-     print *, 'PASSED test -- FN_VScale Case 1'
+    print *, 'PASSED test -- FN_VScale Case 1'
   end if
 
   call FN_VConst(-1.d0, sX)
   call FN_VConst(0.d0, sZ)
   call FN_VScale(1.d0, sX, sZ)
   if (check_ans(-1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VScale Case 2'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VScale Case 2'
   else
-     print *, 'PASSED test -- FN_VScale Case 2'
+    print *, 'PASSED test -- FN_VScale Case 2'
   end if
 
   call FN_VConst(-1.d0, sX)
   call FN_VConst(0.d0, sZ)
   call FN_VScale(-1.d0, sX, sZ)
   if (check_ans(1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VScale Case 3'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VScale Case 3'
   else
-     print *, 'PASSED test -- FN_VScale Case 3'
+    print *, 'PASSED test -- FN_VScale Case 3'
   end if
 
   call FN_VConst(-0.5d0, sX)
   call FN_VConst(0.d0, sZ)
   call FN_VScale(2.d0, sX, sZ)
   if (check_ans(-1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VScale Case 4'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VScale Case 4'
   else
-     print *, 'PASSED test -- FN_VScale Case 4'
+    print *, 'PASSED test -- FN_VScale Case 4'
   end if
 
   ! test FN_VAbs
@@ -391,10 +388,10 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VAbs(sX, sZ)
   if (check_ans(1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VAbs'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VAbs'
   else
-     print *, 'PASSED test -- FN_VAbs'
+    print *, 'PASSED test -- FN_VAbs'
   end if
 
   ! test FN_VInv
@@ -402,10 +399,10 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VInv(sX, sZ)
   if (check_ans(0.5d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VInv'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VInv'
   else
-     print *, 'PASSED test -- FN_VInv'
+    print *, 'PASSED test -- FN_VInv'
   end if
 
   ! test FN_VAddConst
@@ -413,111 +410,111 @@ program main
   call FN_VConst(0.d0, sZ)
   call FN_VAddConst(sX, -2.d0, sZ)
   if (check_ans(-1.d0, 1.d-14, Nvar, N, sZ) /= 0) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VAddConst'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VAddConst'
   else
-     print *, 'PASSED test -- FN_VAddConst'
+    print *, 'PASSED test -- FN_VAddConst'
   end if
 
   ! test FN_VDotProd
   call FN_VConst(2.d0, sX)
   call FN_VConst(0.5d0, sY)
-  if (dabs(FN_VDotProd(sX,sY) - (N*Nvar)) > 1.d-14) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VDotProd (',FN_VDotProd(sX,sY),' /= ',N*Nvar,')'
+  if (dabs(FN_VDotProd(sX, sY) - (N*Nvar)) > 1.d-14) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VDotProd (', FN_VDotProd(sX, sY), ' /= ', N*Nvar, ')'
   else
-     print *, 'PASSED test -- FN_VDotProd'
+    print *, 'PASSED test -- FN_VDotProd'
   end if
 
   ! test FN_VMaxNorm
   call FN_VConst(-0.5d0, sX)
-  X%data(Nvar,N) = -2.d0
+  X%data(Nvar, N) = -2.d0
   if (dabs(FN_VMaxNorm(sX) - 2.d0) > 1.d-14) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VMaxNorm (',FN_VMaxNorm(sX),' /= 2.d0)'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VMaxNorm (', FN_VMaxNorm(sX), ' /= 2.d0)'
   else
-     print *, 'PASSED test -- FN_VMaxNorm'
+    print *, 'PASSED test -- FN_VMaxNorm'
   end if
 
   ! test FN_VWrmsNorm
   call FN_VConst(-0.5d0, sX)
   call FN_VConst(0.5d0, sY)
-  if (dabs(FN_VWrmsNorm(sX,sY) - 0.25d0) > 1.d-14) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VWrmsNorm (',FN_VWrmsNorm(sX,sY),' /= 0.25d0)'
+  if (dabs(FN_VWrmsNorm(sX, sY) - 0.25d0) > 1.d-14) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VWrmsNorm (', FN_VWrmsNorm(sX, sY), ' /= 0.25d0)'
   else
-     print *, 'PASSED test -- FN_VWrmsNorm'
+    print *, 'PASSED test -- FN_VWrmsNorm'
   end if
 
   ! test FN_VWrmsNormMask
   call FN_VConst(-0.5d0, sX)
   call FN_VConst(0.5d0, sY)
   call FN_VConst(1.d0, sZ)
-  Z%data(Nvar,N) = 0.d0
+  Z%data(Nvar, N) = 0.d0
   fac = dsqrt(1.d0*(N*Nvar - 1)/(N*Nvar))*0.25d0
-  if (dabs(FN_VWrmsNormMask(sX,sY,sZ) - fac) > 1.d-14) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VWrmsNormMask (',FN_VWrmsNormMask(sX,sY,sZ),' /= ',fac,')'
+  if (dabs(FN_VWrmsNormMask(sX, sY, sZ) - fac) > 1.d-14) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VWrmsNormMask (', FN_VWrmsNormMask(sX, sY, sZ), ' /= ', fac, ')'
   else
-     print *, 'PASSED test -- FN_VWrmsNormMask'
+    print *, 'PASSED test -- FN_VWrmsNormMask'
   end if
 
   ! test FN_VMin
   call FN_VConst(2.d0, sX)
-  X%data(Nvar,N) = -2.d0
+  X%data(Nvar, N) = -2.d0
   if (dabs(FN_VMin(sX) + 2.d0) > 1.d-14) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VMin (',FN_VMin(sX),' /= -2.d0)'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VMin (', FN_VMin(sX), ' /= -2.d0)'
   else
-     print *, 'PASSED test -- FN_VMin'
+    print *, 'PASSED test -- FN_VMin'
   end if
 
   ! test FN_VWL2Norm
   call FN_VConst(-0.5d0, sX)
   call FN_VConst(0.5d0, sY)
   fac = dsqrt(1.d0*N*Nvar)*0.25d0
-  if (dabs(FN_VWL2Norm(sX,sY) - fac) > 1.d-14) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VWL2Norm (',FN_VWL2Norm(sX,sY),' /= ',fac,')'
+  if (dabs(FN_VWL2Norm(sX, sY) - fac) > 1.d-14) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VWL2Norm (', FN_VWL2Norm(sX, sY), ' /= ', fac, ')'
   else
-     print *, 'PASSED test -- FN_VWL2Norm'
+    print *, 'PASSED test -- FN_VWL2Norm'
   end if
 
   ! test FN_VL1Norm
   call FN_VConst(-1.d0, sX)
   fac = 1.d0*N*Nvar
   if (dabs(FN_VL1Norm(sX) - fac) > 1.d-14) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VL1Norm (',FN_VL1Norm(sX),' /= ',fac,')'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VL1Norm (', FN_VL1Norm(sX), ' /= ', fac, ')'
   else
-     print *, 'PASSED test -- FN_VL1Norm'
+    print *, 'PASSED test -- FN_VL1Norm'
   end if
 
   ! test FN_VCompare
   call FN_VConst(-1.d0, sZ)
-  do j = 1,N
-     do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 3_c_long)
-        if (loc == 0)  X%data(i,j) = 0.d0
-        if (loc == 1)  X%data(i,j) = -1.d0
-        if (loc == 2)  X%data(i,j) = -2.d0
-     end do
+  do j = 1, N
+    do i = 1, Nvar
+      loc = mod((j - 1)*Nvar + i - 1, 3_c_long)
+      if (loc == 0) X%data(i, j) = 0.d0
+      if (loc == 1) X%data(i, j) = -1.d0
+      if (loc == 2) X%data(i, j) = -2.d0
+    end do
   end do
   call FN_VCompare(1.d0, sX, sZ)
   failure = .false.
-  do j = 1,N
-     do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 3_c_long)
-        if ((loc == 0) .and. (Z%data(i,j) /= 0.d0))  failure = .true.
-        if ((loc == 1) .and. (Z%data(i,j) /= 1.d0))  failure = .true.
-        if ((loc == 2) .and. (Z%data(i,j) /= 1.d0))  failure = .true.
-     end do
+  do j = 1, N
+    do i = 1, Nvar
+      loc = mod((j - 1)*Nvar + i - 1, 3_c_long)
+      if ((loc == 0) .and. (Z%data(i, j) /= 0.d0)) failure = .true.
+      if ((loc == 1) .and. (Z%data(i, j) /= 1.d0)) failure = .true.
+      if ((loc == 2) .and. (Z%data(i, j) /= 1.d0)) failure = .true.
+    end do
   end do
   if (failure) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VCompare'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VCompare'
   else
-     print *, 'PASSED test -- FN_VCompare'
+    print *, 'PASSED test -- FN_VCompare'
   end if
 
   ! test FN_VInvTest
@@ -525,174 +522,173 @@ program main
   call FN_VConst(0.d0, sZ)
   failure = (FN_VInvTest(sX, sZ) == 0)
   if ((check_ans(2.d0, 1.d-14, Nvar, N, sZ) /= 0) .or. failure) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VInvTest Case 1'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VInvTest Case 1'
   else
-     print *, 'PASSED test -- FN_VInvTest Case 1'
+    print *, 'PASSED test -- FN_VInvTest Case 1'
   end if
 
   failure = .false.
   call FN_VConst(0.d0, sZ)
-  do j = 1,N
-     do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 2_c_long)
-        if (loc == 0)  X%data(i,j) = 0.d0
-        if (loc == 1)  X%data(i,j) = 0.5d0
-     end do
+  do j = 1, N
+    do i = 1, Nvar
+      loc = mod((j - 1)*Nvar + i - 1, 2_c_long)
+      if (loc == 0) X%data(i, j) = 0.d0
+      if (loc == 1) X%data(i, j) = 0.5d0
+    end do
   end do
-  if (FN_VInvTest(sX, sZ) == 1)  failure = .true.
-  do j = 1,N
-     do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 2_c_long)
-        if ((loc == 0) .and. (Z%data(i,j) /= 0.d0))  failure = .true.
-        if ((loc == 1) .and. (Z%data(i,j) /= 2.d0))  failure = .true.
-     end do
+  if (FN_VInvTest(sX, sZ) == 1) failure = .true.
+  do j = 1, N
+    do i = 1, Nvar
+      loc = mod((j - 1)*Nvar + i - 1, 2_c_long)
+      if ((loc == 0) .and. (Z%data(i, j) /= 0.d0)) failure = .true.
+      if ((loc == 1) .and. (Z%data(i, j) /= 2.d0)) failure = .true.
+    end do
   end do
   if (failure) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VInvTest Case 2'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VInvTest Case 2'
   else
-     print *, 'PASSED test -- FN_VInvTest Case 2'
+    print *, 'PASSED test -- FN_VInvTest Case 2'
   end if
 
   ! test FN_VConstrMask
   call FN_VConst(-1.d0, sZ)
-  do j = 1,N
-     do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 7_c_long)
-        if (loc == 0) then  ! y = -2, test for < 0
-           Y%data(i,j) = -2.d0
-           X%data(i,j) = -2.d0
-        end if
-        if (loc == 1) then ! y = -1, test for <= 0
-           Y%data(i,j) = -1.d0
-           X%data(i,j) = -1.d0
-        end if
-        if (loc == 2) then ! y = -1, test for == 0
-           Y%data(i,j) = -1.d0
-           X%data(i,j) = 0.d0
-        end if
-        if (loc == 3) then ! y = 0, no test
-           Y%data(i,j) = 0.d0
-           X%data(i,j) = 0.5d0
-        end if
-        if (loc == 4) then ! y = 1, test for == 0
-           Y%data(i,j) = 1.d0
-           X%data(i,j) = 0.d0
-        end if
-        if (loc == 5) then ! y = 1, test for >= 0
-           Y%data(i,j) = 1.d0
-           X%data(i,j) = 1.d0
-        end if
-        if (loc == 6) then ! y = 2, test for > 0
-           Y%data(i,j) = 2.d0
-           X%data(i,j) = 2.d0
-        end if
-     end do
+  do j = 1, N
+    do i = 1, Nvar
+      loc = mod((j - 1)*Nvar + i - 1, 7_c_long)
+      if (loc == 0) then  ! y = -2, test for < 0
+        Y%data(i, j) = -2.d0
+        X%data(i, j) = -2.d0
+      end if
+      if (loc == 1) then ! y = -1, test for <= 0
+        Y%data(i, j) = -1.d0
+        X%data(i, j) = -1.d0
+      end if
+      if (loc == 2) then ! y = -1, test for == 0
+        Y%data(i, j) = -1.d0
+        X%data(i, j) = 0.d0
+      end if
+      if (loc == 3) then ! y = 0, no test
+        Y%data(i, j) = 0.d0
+        X%data(i, j) = 0.5d0
+      end if
+      if (loc == 4) then ! y = 1, test for == 0
+        Y%data(i, j) = 1.d0
+        X%data(i, j) = 0.d0
+      end if
+      if (loc == 5) then ! y = 1, test for >= 0
+        Y%data(i, j) = 1.d0
+        X%data(i, j) = 1.d0
+      end if
+      if (loc == 6) then ! y = 2, test for > 0
+        Y%data(i, j) = 2.d0
+        X%data(i, j) = 2.d0
+      end if
+    end do
   end do
   failure = .false.
   if (FN_VConstrMask(sY, sX, sZ) /= 1) then
-     failure = .true.
+    failure = .true.
   end if
   if ((check_ans(0.d0, 1.d-14, Nvar, N, sZ) /= 0) .or. failure) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VConstrMask Case 1'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VConstrMask Case 1'
   else
-     print *, 'PASSED test -- FN_VConstrMask Case 1'
+    print *, 'PASSED test -- FN_VConstrMask Case 1'
   end if
 
   call FN_VConst(-1.d0, sZ)
-  do j = 1,N
-     do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 5_c_long)
-        if (loc == 0) then  ! y = -2, test for < 0
-           Y%data(i,j) = -2.d0
-           X%data(i,j) = 2.d0
-        end if
-        if (loc == 1) then ! y = -1, test for <= 0
-           Y%data(i,j) = -1.d0
-           X%data(i,j) = 1.d0
-        end if
-        if (loc == 2) then ! y = 0, no test
-           Y%data(i,j) = 0.d0
-           X%data(i,j) = 0.5d0
-        end if
-        if (loc == 3) then ! y = 1, test for >= 0
-           Y%data(i,j) = 1.d0
-           X%data(i,j) = -1.d0
-        end if
-        if (loc == 4) then ! y = 2, test for > 0
-           Y%data(i,j) = 2.d0
-           X%data(i,j) = -2.d0
-        end if
-     end do
+  do j = 1, N
+    do i = 1, Nvar
+      loc = mod((j - 1)*Nvar + i - 1, 5_c_long)
+      if (loc == 0) then  ! y = -2, test for < 0
+        Y%data(i, j) = -2.d0
+        X%data(i, j) = 2.d0
+      end if
+      if (loc == 1) then ! y = -1, test for <= 0
+        Y%data(i, j) = -1.d0
+        X%data(i, j) = 1.d0
+      end if
+      if (loc == 2) then ! y = 0, no test
+        Y%data(i, j) = 0.d0
+        X%data(i, j) = 0.5d0
+      end if
+      if (loc == 3) then ! y = 1, test for >= 0
+        Y%data(i, j) = 1.d0
+        X%data(i, j) = -1.d0
+      end if
+      if (loc == 4) then ! y = 2, test for > 0
+        Y%data(i, j) = 2.d0
+        X%data(i, j) = -2.d0
+      end if
+    end do
   end do
   failure = .false.
   if (FN_VConstrMask(sY, sX, sZ) /= 0) then
-     failure = .true.
+    failure = .true.
   end if
-  do j = 1,N
-     do i = 1,Nvar
-        loc = mod((j-1)*Nvar + i - 1, 5_c_long)
-        if (loc == 2) then
-           if (Z%data(i,j) /= 0.d0) failure = .true.
-        else
-           if (Z%data(i,j) /= 1.d0) failure = .true.
-        end if
-     end do
+  do j = 1, N
+    do i = 1, Nvar
+      loc = mod((j - 1)*Nvar + i - 1, 5_c_long)
+      if (loc == 2) then
+        if (Z%data(i, j) /= 0.d0) failure = .true.
+      else
+        if (Z%data(i, j) /= 1.d0) failure = .true.
+      end if
+    end do
   end do
   if (failure) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VConstrMask Case 2'
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VConstrMask Case 2'
   else
-     print *, 'PASSED test -- FN_VConstrMask Case 2'
+    print *, 'PASSED test -- FN_VConstrMask Case 2'
   end if
 
   ! test FN_VMinQuotient
   call FN_VConst(2.d0, sX)
   call FN_VConst(2.d0, sY)
-  X%data(Nvar,N) = 0.5d0
+  X%data(Nvar, N) = 0.5d0
   fac = 0.25d0
-  if (dabs(FN_VMinQuotient(sX,sY) - fac) > 1.d-14) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VMinQuotient Case 1'
+  if (dabs(FN_VMinQuotient(sX, sY) - fac) > 1.d-14) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VMinQuotient Case 1'
   else
-     print *, 'PASSED test -- FN_VMinQuotient Case 1'
+    print *, 'PASSED test -- FN_VMinQuotient Case 1'
   end if
 
   call FN_VConst(2.d0, sX)
   call FN_VConst(0.d0, sY)
   fac = 1.d307
-  if (dabs(FN_VMinQuotient(sX,sY) - fac) > 1.d-14) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VMinQuotient Case 2'
+  if (dabs(FN_VMinQuotient(sX, sY) - fac) > 1.d-14) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VMinQuotient Case 2'
   else
-     print *, 'PASSED test -- FN_VMinQuotient Case 2'
+    print *, 'PASSED test -- FN_VMinQuotient Case 2'
   end if
 
   ! test FN_VWSqrSumLocal
   call FN_VConst(-1.d0, sX)
   call FN_VConst(0.5d0, sY)
   fac = 0.25d0*N*Nvar
-  if (dabs(FN_VWSqrSumLocal(sX,sY) - fac) > 1.d-14) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VWSqrSumLocal (',FN_VWSqrSumLocal(sX,sY),' /= ',fac,')'
+  if (dabs(FN_VWSqrSumLocal(sX, sY) - fac) > 1.d-14) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VWSqrSumLocal (', FN_VWSqrSumLocal(sX, sY), ' /= ', fac, ')'
   else
-     print *, 'PASSED test -- FN_VWSqrSumLocal'
+    print *, 'PASSED test -- FN_VWSqrSumLocal'
   end if
-
 
   ! test FN_VWSqrSumMaskLocal
   call FN_VConst(-1.d0, sX)
   call FN_VConst(0.5d0, sY)
   call FN_VConst(1.d0, sZ)
-  Z%data(Nvar,N) = 0.d0
-  fac = 0.25d0*(N*Nvar-1)
-  if (dabs(FN_VWSqrSumMaskLocal(sX,sY,sZ) - fac) > 1.d-14) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FN_VWSqrSumMaskLocal (',FN_VWSqrSumMaskLocal(sX,sY,sZ),' /= ',fac,')'
+  Z%data(Nvar, N) = 0.d0
+  fac = 0.25d0*(N*Nvar - 1)
+  if (dabs(FN_VWSqrSumMaskLocal(sX, sY, sZ) - fac) > 1.d-14) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FN_VWSqrSumMaskLocal (', FN_VWSqrSumMaskLocal(sX, sY, sZ), ' /= ', fac, ')'
   else
-     print *, 'PASSED test -- FN_VWSqrSumMaskLocal'
+    print *, 'PASSED test -- FN_VWSqrSumMaskLocal'
   end if
 
   ! free vectors
@@ -704,17 +700,17 @@ program main
   call FN_VDestroy(sZ)
 
   ! Free vector data
-  deallocate(Udata)
+  deallocate (Udata)
 
   ! free SUNDIALS context
   fails = FSUNContext_Free(sunctx)
 
   ! print results
   if (fails > 0) then
-     print '(a,i3,a)', 'FAIL: FNVector module failed ',fails,' tests'
-     stop 1
+    print '(a,i3,a)', 'FAIL: FNVector module failed ', fails, ' tests'
+    stop 1
   else
-     print *, 'SUCCESS: FNVector module passed all tests'
+    print *, 'SUCCESS: FNVector module passed all tests'
   end if
   print *, '  '
 

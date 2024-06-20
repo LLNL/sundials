@@ -18,7 +18,6 @@
 module test_nvector_mpimanyvector
   use, intrinsic :: iso_c_binding
 
-
   use fnvector_mpimanyvector_mod
   use fnvector_serial_mod
   use test_utilities
@@ -50,9 +49,9 @@ contains
 
     !===== Setup ====
     subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
-    tmp  => FN_VMake_Serial(N1, x1data, sunctx)
+    tmp => FN_VMake_Serial(N1, x1data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
-    tmp  => FN_VMake_Serial(N2, x2data, sunctx)
+    tmp => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
     x => FN_VMake_MPIManyVector(comm, int(nsubvecs, myindextype), subvecs, sunctx)
@@ -64,7 +63,7 @@ contains
 
     xvecs = FN_VCloneVectorArray(nv, x)
     zvecs = FN_VCloneVectorArray(nv, z)
-    nvarr = (/ ONE, ONE, ONE /)
+    nvarr = (/ONE, ONE, ONE/)
 
     !===== Test =====
 
@@ -109,10 +108,10 @@ contains
 
     ! test the MPIManyVector specific operations
     ival = FN_VGetNumSubvectors_MPIManyVector(x)
-    xptr => FN_VGetSubvectorArrayPointer_MPIManyVector(x, ival-1)
-    ival = FN_VSetSubvectorArrayPointer_MPIManyVector(xptr, x, ival-1)
+    xptr => FN_VGetSubvectorArrayPointer_MPIManyVector(x, ival - 1)
+    ival = FN_VSetSubvectorArrayPointer_MPIManyVector(xptr, x, ival - 1)
     ival = FN_VGetNumSubvectors_MPIManyVector(x)
-    tmp  => FN_VGetSubvector_MPIManyVector(x, ival-1)
+    tmp => FN_VGetSubvector_MPIManyVector(x, ival - 1)
 
     !==== Cleanup =====
     tmp => FN_VGetVecAtIndexVectorArray(subvecs, 0)
@@ -146,12 +145,12 @@ contains
     if (fails /= 0) then
       print *, '   FAILURE - MPI_COMM_RANK returned nonzero'
       stop 1
-    endif
+    end if
 
     subvecs = FN_VNewVectorArray(nsubvecs, sunctx)
-    tmp  => FN_VMake_Serial(N1, x1data, sunctx)
+    tmp => FN_VMake_Serial(N1, x1data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 0, tmp)
-    tmp  => FN_VMake_Serial(N2, x2data, sunctx)
+    tmp => FN_VMake_Serial(N2, x2data, sunctx)
     call FN_VSetVecAtIndexVectorArray(subvecs, 1, tmp)
 
     x => FN_VMake_MPIManyVector(comm, int(nsubvecs, myindextype), subvecs, sunctx)
@@ -173,11 +172,10 @@ contains
 
 end module
 
-
 integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   use, intrinsic :: iso_c_binding
   use fnvector_mpimanyvector_mod
-  use test_utilities 
+  use test_utilities
   implicit none
 
   real(C_DOUBLE)            :: ans
@@ -198,13 +196,13 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   if (local_length /= (x0len + x1len)) then
     failure = 1
     return
-  endif
+  end if
 
   do i = 1, x0len
     if (FNEQ(x0data(i), ans) > 0) then
       failure = failure + 1
     end if
-  enddo
+  end do
 
   do i = 1, x1len
     if (FNEQ(x1data(i), ans) > 0) then
@@ -212,7 +210,6 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
     end if
   end do
 end function check_ans
-
 
 logical function has_data(X) result(failure)
   use, intrinsic :: iso_c_binding
@@ -224,7 +221,6 @@ logical function has_data(X) result(failure)
 
   failure = .true.
 end function has_data
-
 
 program main
   !======== Inclusions ==========
@@ -241,13 +237,13 @@ program main
   if (fails /= 0) then
     print *, 'FAILURE: MPI_INIT returned nonzero'
     stop 1
-  endif
+  end if
 
   call MPI_Comm_rank(comm, myid, fails)
   if (fails /= 0) then
     print *, 'FAILURE: MPI_COMM_RANK returned nonzero, proc', myid
     stop 1
-  endif
+  end if
 
   !============== Introduction =============
   if (myid == 0) print *, 'MPIManyVector N_Vector Fortran 2003 interface test'
@@ -258,7 +254,7 @@ program main
   if (fails /= 0) then
     print *, 'FAILURE: MPI_COMM_SIZE returned nonzero, proc', myid
     stop 1
-  endif
+  end if
 
   fails = smoke_tests()
   if (fails /= 0) then
@@ -272,14 +268,14 @@ program main
   if (fails /= 0) then
     print *, 'FAILURE: MPI_BARRIER returned nonzero, proc', myid
     stop 1
-  endif
+  end if
 
   fails = unit_tests()
   if (fails /= 0) then
     print *, 'FAILURE: n unit tests failed, proc', myid
     stop 1
   else
-    if (myid == 0) print *,'    SUCCESS - all unit tests passed'
+    if (myid == 0) print *, '    SUCCESS - all unit tests passed'
   end if
 
   call Test_Finalize()
@@ -288,5 +284,5 @@ program main
   if (fails /= 0) then
     print *, 'FAILURE: MPI_FINALIZE returned nonzero, proc ', myid
     stop 1
-  endif
+  end if
 end program main

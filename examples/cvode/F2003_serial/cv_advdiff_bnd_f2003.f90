@@ -60,11 +60,11 @@ module advdiff_mod
   ! ODE constant parameters
   real(c_double), parameter :: xmax = 2.0d0, ymax = 1.0d0
   real(c_double), parameter :: dtout = 0.1d0
-  real(c_double), parameter :: dx = xmax / (mx + 1)
-  real(c_double), parameter :: dy = ymax / (my + 1)
-  real(c_double), parameter :: hdcoef = 1.0d0 / (dx * dx)
-  real(c_double), parameter :: hacoef = 0.5d0 / (2.0d0 * dx)
-  real(c_double), parameter :: vdcoef = 1.0d0 / (dy * dy)
+  real(c_double), parameter :: dx = xmax/(mx + 1)
+  real(c_double), parameter :: dy = ymax/(my + 1)
+  real(c_double), parameter :: hdcoef = 1.0d0/(dx*dx)
+  real(c_double), parameter :: hacoef = 0.5d0/(2.0d0*dx)
+  real(c_double), parameter :: vdcoef = 1.0d0/(dy*dy)
 
   ! Solving assistance fixed parameters
   real(c_double), parameter :: rtol = 0.0d0
@@ -87,7 +87,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function RhsFn(tn, sunvec_u, sunvec_f, user_data) &
-       result(ierr) bind(C,name='RhsFn')
+    result(ierr) bind(C, name='RhsFn')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -99,43 +99,43 @@ contains
     real(c_double), value :: tn         ! current time
     type(N_Vector)        :: sunvec_u   ! solution N_Vector
     type(N_Vector)        :: sunvec_f   ! rhs N_Vector
-    type(c_ptr),    value :: user_data  ! user-defined data
+    type(c_ptr), value :: user_data  ! user-defined data
 
     ! local data
     real(c_double) :: uij, udn, uup, ult, urt, hdiff, hadv, vdiff
 
     ! pointers to data in SUNDIALS vectors
-    real(c_double), pointer, dimension(mx,my) :: uvec(:,:)
-    real(c_double), pointer, dimension(mx,my) :: fvec(:,:)
+    real(c_double), pointer, dimension(mx, my) :: uvec(:, :)
+    real(c_double), pointer, dimension(mx, my) :: fvec(:, :)
 
     !======= Internals ============
 
     ! get data arrays from SUNDIALS vectors
-    uvec(1:mx,1:my) => FN_VGetArrayPointer(sunvec_u)
-    fvec(1:mx,1:my) => FN_VGetArrayPointer(sunvec_f)
+    uvec(1:mx, 1:my) => FN_VGetArrayPointer(sunvec_u)
+    fvec(1:mx, 1:my) => FN_VGetArrayPointer(sunvec_f)
 
     ! Loop over all grid points
     do i = 1, mx
-       do j = 1, my
+      do j = 1, my
 
-          ! Extract u at x_i, y_j and four neighboring points.
-          uij = uvec(i,j)
-          udn = 0.0d0
-          if (j .ne. 1)  udn = uvec(i, j-1)
-          uup = 0.0d0
-          if (j .ne. my) uup = uvec(i, j+1)
-          ult = 0.0d0
-          if (i .ne. 1)  ult = uvec(i-1, j)
-          urt = 0.0d0
-          if (i .ne. mx) urt = uvec(i+1, j)
+        ! Extract u at x_i, y_j and four neighboring points.
+        uij = uvec(i, j)
+        udn = 0.0d0
+        if (j /= 1) udn = uvec(i, j - 1)
+        uup = 0.0d0
+        if (j /= my) uup = uvec(i, j + 1)
+        ult = 0.0d0
+        if (i /= 1) ult = uvec(i - 1, j)
+        urt = 0.0d0
+        if (i /= mx) urt = uvec(i + 1, j)
 
-          ! Set diffusion and advection terms and load into fvec.
-          hdiff = hdcoef * (ult - 2.0d0 * uij + urt)
-          hadv = hacoef * (urt - ult)
-          vdiff = vdcoef * (uup - 2.0d0 * uij + udn)
-          fvec(i,j) = hdiff + hadv + vdiff
+        ! Set diffusion and advection terms and load into fvec.
+        hdiff = hdcoef*(ult - 2.0d0*uij + urt)
+        hadv = hacoef*(urt - ult)
+        vdiff = vdcoef*(uup - 2.0d0*uij + udn)
+        fvec(i, j) = hdiff + hadv + vdiff
 
-       end do
+      end do
     end do
 
     ! return success
@@ -155,8 +155,8 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function JacFn(t, sunvec_u, sunvec_f, sunmat_J, &
-       user_data, sunvec_t1, sunvec_t2, sunvec_t3) result(ierr) &
-       bind(C,name='JacFn')
+                                user_data, sunvec_t1, sunvec_t2, sunvec_t3) result(ierr) &
+    bind(C, name='JacFn')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -170,7 +170,7 @@ contains
     type(N_Vector)        :: sunvec_u
     type(N_Vector)        :: sunvec_f
     type(SUNMatrix)       :: sunmat_J
-    type(c_ptr),    value :: user_data
+    type(c_ptr), value :: user_data
     type(N_Vector)        :: sunvec_t1
     type(N_Vector)        :: sunvec_t2
     type(N_Vector)        :: sunvec_t3
@@ -178,31 +178,31 @@ contains
     ! local data
     integer(kind=myindextype) :: mband, k, ioff, mu1, mu2, smu, mdim
     integer(kind=myindextype) :: start
-    real(c_double), pointer, dimension(mdim,neq) :: Jmat(:,:)
+    real(c_double), pointer, dimension(mdim, neq) :: Jmat(:, :)
 
     smu = FSUNBandMatrix_StoredUpperBandwidth(sunmat_J)
     mdim = smu + 1 + ml
-    Jmat(1:mdim,1:neq) => FSUNBandMatrix_Data(sunmat_J)
+    Jmat(1:mdim, 1:neq) => FSUNBandMatrix_Data(sunmat_J)
 
     mu1 = smu + 1
     mu2 = smu + 2
     mband = smu + 1 + ml
-    start = smu-mu+1
+    start = smu - mu + 1
 
     ! Loop over all grid points
     do i = 1, mx
-       ioff = (i - 1) * my
-       do j = 1, my
-          k = j + ioff
+      ioff = (i - 1)*my
+      do j = 1, my
+        k = j + ioff
 
-          ! Set Jacobian elements in column k of J.
-          Jmat(mu1,k) = -2.0d0 * (vdcoef + hdcoef)
-          if (i /= 1)  Jmat(start,k) = hdcoef + hacoef
-          if (i /= mx) Jmat(mband,k) = hdcoef - hacoef
-          if (j /= 1)  Jmat(smu,k) = vdcoef
-          if (j /= my) Jmat(mu2,k) = vdcoef
+        ! Set Jacobian elements in column k of J.
+        Jmat(mu1, k) = -2.0d0*(vdcoef + hdcoef)
+        if (i /= 1) Jmat(start, k) = hdcoef + hacoef
+        if (i /= mx) Jmat(mband, k) = hdcoef - hacoef
+        if (j /= 1) Jmat(smu, k) = vdcoef
+        if (j /= my) Jmat(mu2, k) = vdcoef
 
-       end do
+      end do
     end do
 
     ! return success
@@ -214,7 +214,6 @@ contains
 
 end module advdiff_mod
 ! ------------------------------------------------------------------
-
 
 program main
 
@@ -238,11 +237,11 @@ program main
   integer(c_int)  :: ierr       ! error flag from C functions
   integer(c_long) :: outstep    ! output step
 
-  type(N_Vector),        pointer :: sunvec_u      ! sundials vector
+  type(N_Vector), pointer :: sunvec_u      ! sundials vector
   type(SUNLinearSolver), pointer :: sunls         ! sundials linear solver
-  type(SUNMatrix),       pointer :: sunmat_A      ! sundials matrix (empty)
+  type(SUNMatrix), pointer :: sunmat_A      ! sundials matrix (empty)
   type(c_ptr)                    :: cvode_mem     ! CVODE memory
-  real(c_double), pointer, dimension(mx,my) :: u(:,:) ! underlying vector
+  real(c_double), pointer, dimension(mx, my) :: u(:, :) ! underlying vector
 
   ! output statistic variables
   integer(c_long)  :: lnst(1)
@@ -254,67 +253,67 @@ program main
 
   ! initialize ODE
   tstart = 0.0d0
-  tcur   = tstart
+  tcur = tstart
   mu = my
   ml = my
 
   ! create SUNDIALS N_Vector
   sunvec_u => FN_VNew_Serial(neq, ctx)
   if (.not. associated(sunvec_u)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
-  u(1:mx,1:my) => FN_VGetArrayPointer(sunvec_u)
+  u(1:mx, 1:my) => FN_VGetArrayPointer(sunvec_u)
 
   ! initialize and fill initial condition vector
   do i = 1, mx
-     x = i * dx
-     do j = 1, my
-        y = j * dy
-        u(i,j) = x * (xmax - x) * y * (ymax - y) * exp(5.0d0 * x * y)
-     end do
+    x = i*dx
+    do j = 1, my
+      y = j*dy
+      u(i, j) = x*(xmax - x)*y*(ymax - y)*exp(5.0d0*x*y)
+    end do
   end do
 
   ! create and initialize CVode memory
   cvode_mem = FCVodeCreate(CV_BDF, ctx)
-  if (.not. c_associated(cvode_mem)) print *,'ERROR: cvode_mem = NULL'
+  if (.not. c_associated(cvode_mem)) print *, 'ERROR: cvode_mem = NULL'
 
   ierr = FCVodeInit(cvode_mem, c_funloc(RhsFn), tstart, sunvec_u)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeInit, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeInit, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ! Tell CVODE to use a Band linear solver.
   sunmat_A => FSUNBandMatrix(neq, mu, ml, ctx)
   if (.not. associated(sunmat_A)) then
-     print *, 'ERROR: sunmat = NULL'
-     stop 1
+    print *, 'ERROR: sunmat = NULL'
+    stop 1
   end if
   sunls => FSUNLinSol_Band(sunvec_u, sunmat_A, ctx)
   if (.not. associated(sunls)) then
-     print *, 'ERROR: sunls = NULL'
-     stop 1
+    print *, 'ERROR: sunls = NULL'
+    stop 1
   end if
 
   ! Attach the linear solver (with NULL SUNMatrix object)
   ierr = FCVodeSetLinearSolver(cvode_mem, sunls, sunmat_A)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeSetLinearSolver, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeSetLinearSolver, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FCVodeSStolerances(cvode_mem, rtol, atol)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeSStolerances, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeSStolerances, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FCVodeSetJacFn(cvode_mem, c_funloc(JacFn))
   if (ierr /= 0) then
-     print *, 'Error in FCVodeSetJacFn, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeSetJacFn, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ! Start time stepping
@@ -333,25 +332,25 @@ program main
   tout = dtout
   do outstep = 1, 10
 
-     ! call CVode
-     ierr = FCVode(cvode_mem, tout, sunvec_u, tcur, CV_NORMAL)
-     if (ierr /= 0) then
-        print *, 'Error in FCVodeEvolve, ierr = ', ierr, '; halting'
-        stop 1
-     end if
+    ! call CVode
+    ierr = FCVode(cvode_mem, tout, sunvec_u, tcur, CV_NORMAL)
+    if (ierr /= 0) then
+      print *, 'Error in FCVodeEvolve, ierr = ', ierr, '; halting'
+      stop 1
+    end if
 
-     ierr = FCVodeGetNumSteps(cvode_mem, lnst)
-     if (ierr /= 0) then
-        print *, 'Error in FCVodeGetNumSteps, ierr = ', ierr, '; halting'
-        stop 1
-     end if
+    ierr = FCVodeGetNumSteps(cvode_mem, lnst)
+    if (ierr /= 0) then
+      print *, 'Error in FCVodeGetNumSteps, ierr = ', ierr, '; halting'
+      stop 1
+    end if
 
-     ! print current solution and output statistics
-     unorm = maxval(abs(u))
-     print '(2x,f6.2,2x,es14.6,2x,i5)', tcur, unorm, lnst
+    ! print current solution and output statistics
+    unorm = maxval(abs(u))
+    print '(2x,f6.2,2x,es14.6,2x,i5)', tcur, unorm, lnst
 
-     ! update tout
-     tout = tout + dtout
+    ! update tout
+    tout = tout + dtout
 
   end do
   print *, ' ------------------------------'
@@ -399,55 +398,55 @@ subroutine CVodeStats(cvode_mem)
 
   ierr = FCVodeGetNumSteps(cvode_mem, nsteps)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeGetNumSteps, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumSteps, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FCVodeGetNumRhsEvals(cvode_mem, nfe)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeGetNumRhsEvals, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumRhsEvals, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FCVodeGetNumErrTestFails(cvode_mem, netfails)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeGetNumErrTestFails, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumErrTestFails, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FCVodeGetNumNonlinSolvIters(cvode_mem, nniters)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeGetNumNonlinSolvIters, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumNonlinSolvIters, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FCVodeGetNumLinIters(cvode_mem, nliters)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeGetNumLinIters, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumLinIters, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FCVodeGetNumLinConvFails(cvode_mem, ncfl)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeGetNumLinConvFails, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumLinConvFails, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FCVodeGetNumNonlinSolvConvFails(cvode_mem, ncf)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeGetNumNonlinSolvConvFails, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumNonlinSolvConvFails, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   print *, ' '
   print *, ' General Solver Stats:'
-  print '(4x,A,i9)'       ,'Total internal steps taken      =',nsteps
-  print '(4x,A,i9)'       ,'Total rhs function call         =',nfe
-  print '(4x,A,i9)'       ,'Num error test failures         =',netfails
-  print '(4x,A,i9)'       ,'Num nonlinear solver iters      =',nniters
-  print '(4x,A,i9)'       ,'Num linear solver iters         =',nliters
-  print '(4x,A,i9)'       ,'Num nonlinear solver fails      =',ncf
-  print '(4x,A,i9)'       ,'Num linear solver fails         =',ncfl
+  print '(4x,A,i9)', 'Total internal steps taken      =', nsteps
+  print '(4x,A,i9)', 'Total rhs function call         =', nfe
+  print '(4x,A,i9)', 'Num error test failures         =', netfails
+  print '(4x,A,i9)', 'Num nonlinear solver iters      =', nniters
+  print '(4x,A,i9)', 'Num linear solver iters         =', nliters
+  print '(4x,A,i9)', 'Num nonlinear solver fails      =', ncf
+  print '(4x,A,i9)', 'Num linear solver fails         =', ncfl
   print *, ' '
 
   return

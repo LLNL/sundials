@@ -30,7 +30,7 @@ module test_nvector_parallel
   integer(c_int), target :: comm = MPI_COMM_WORLD ! default MPI communicator
   integer(kind=myindextype) :: global_length      ! vector global_length
   integer(c_int) :: nprocs                        ! number of MPI processes
-  contains
+contains
 
   integer function smoke_tests() result(ret)
     implicit none
@@ -54,7 +54,7 @@ module test_nvector_parallel
 
     xvecs = FN_VCloneVectorArray(nv, x)
     zvecs = FN_VCloneVectorArray(nv, z)
-    nvarr = (/ ONE, ONE, ONE /)
+    nvarr = (/ONE, ONE, ONE/)
 
     !===== Test =====
 
@@ -136,7 +136,7 @@ module test_nvector_parallel
     if (fails /= 0) then
       print *, '   FAILURE - MPI_COMM_RANK returned nonzero'
       stop 1
-    endif
+    end if
 
     x => FN_VMake_Parallel(comm, local_length, global_length, xdata, sunctx)
     call FN_VConst(ONE, x)
@@ -153,7 +153,6 @@ module test_nvector_parallel
 
 end module
 
-
 integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   use, intrinsic :: iso_c_binding
 
@@ -168,13 +167,12 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   failure = 0
 
   Xdata => FN_VGetArrayPointer(X)
-   do i = 1, local_length
+  do i = 1, local_length
     if (FNEQ(Xdata(i), ans) > 0) then
       failure = failure + 1
     end if
   end do
 end function check_ans
-
 
 logical function has_data(X) result(failure)
   use, intrinsic :: iso_c_binding
@@ -188,7 +186,6 @@ logical function has_data(X) result(failure)
   xptr => FN_VGetArrayPointer(x)
   failure = associated(xptr)
 end function has_data
-
 
 program main
   !======== Inclusions ==========
@@ -205,13 +202,13 @@ program main
   if (fails /= 0) then
     print *, 'FAILURE: MPI_INIT returned nonzero'
     stop 1
-  endif
+  end if
 
   call MPI_Comm_rank(comm, myid, fails)
   if (fails /= 0) then
     print *, 'FAILURE: MPI_COMM_RANK returned nonzero, proc', myid
     stop 1
-  endif
+  end if
 
   !============== Introduction =============
   if (myid == 0) print *, 'Parallel N_Vector Fortran 2003 interface test'
@@ -222,7 +219,7 @@ program main
   if (fails /= 0) then
     print *, 'FAILURE: MPI_COMM_SIZE returned nonzero, proc', myid
     stop 1
-  endif
+  end if
   global_length = nprocs*local_length
 
   fails = smoke_tests()
@@ -237,14 +234,14 @@ program main
   if (fails /= 0) then
     print *, 'FAILURE: MPI_BARRIER returned nonzero, proc', myid
     stop 1
-  endif
+  end if
 
   fails = unit_tests()
   if (fails /= 0) then
     print *, 'FAILURE: n unit tests failed, proc', myid
     stop 1
   else
-    if (myid == 0) print *,'    SUCCESS - all unit tests passed'
+    if (myid == 0) print *, '    SUCCESS - all unit tests passed'
   end if
 
   call Test_Finalize()
@@ -253,6 +250,6 @@ program main
   if (fails /= 0) then
     print *, 'FAILURE: MPI_FINALIZE returned nonzero, proc ', myid
     stop 1
-  endif
+  end if
 
 end program main

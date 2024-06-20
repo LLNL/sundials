@@ -26,37 +26,36 @@ module test_sunlinsol
   implicit none
 
   ! check_vector routine is provided by implementation specific tests
-  integer(C_INT), external :: check_vector
+  integer(c_int), external :: check_vector
 
 contains
 
-  integer(C_INT) function Test_FSUNLinSolGetType(S, mysunid, myid) result(failure)
+  integer(c_int) function Test_FSUNLinSolGetType(S, mysunid, myid) result(failure)
     use, intrinsic :: iso_c_binding
     implicit none
 
     type(SUNLinearSolver), pointer :: S
     integer(SUNLinearSolver_Type)  :: mysunid, sunid
-    integer(C_INT)                 :: myid
+    integer(c_int)                 :: myid
 
     failure = 0
 
     sunid = FSUNLinSolGetType(S)
     if (sunid /= mysunid) then
       failure = 1
-      write(*,*) ">>> FAILED test -- FSUNLinSolGetType, Proc", myid
+      write (*, *) ">>> FAILED test -- FSUNLinSolGetType, Proc", myid
     else if (myid == 0) then
-      write(*,*) "    PASSED test -- FSUNLinSolGetType"
+      write (*, *) "    PASSED test -- FSUNLinSolGetType"
     end if
   end function Test_FSUNLinSolGetType
 
-
-  integer(C_INT) function Test_FSUNLinSolLastFlag(S, myid) result(failure)
+  integer(c_int) function Test_FSUNLinSolLastFlag(S, myid) result(failure)
     use, intrinsic :: iso_c_binding
     implicit none
 
     type(SUNLinearSolver), pointer :: S
-    integer(C_INT)                 :: myid
-    integer(C_LONG)                :: lastflag
+    integer(c_int)                 :: myid
+    integer(c_long)                :: lastflag
 
     failure = 0
 
@@ -64,40 +63,38 @@ contains
     ! which will cause a seg-fault
     lastflag = FSUNLinSolLastFlag(S)
     if (myid == 0) then
-      write(*,'(A,I0,A)') "     PASSED test -- FSUNLinSolLastFlag (", lastflag, ")"
+      write (*, '(A,I0,A)') "     PASSED test -- FSUNLinSolLastFlag (", lastflag, ")"
     end if
   end function Test_FSUNLinSolLastFlag
 
-
-  integer(C_INT) function Test_FSUNLinSolSpace(S, myid) result(failure)
+  integer(c_int) function Test_FSUNLinSolSpace(S, myid) result(failure)
     use, intrinsic :: iso_c_binding
     implicit none
 
     type(SUNLinearSolver), pointer :: S
-    integer(C_INT)                 :: myid
-    integer(C_LONG)                :: lenrw(1), leniw(1)
+    integer(c_int)                 :: myid
+    integer(c_long)                :: lenrw(1), leniw(1)
 
     failure = 0
 
     ! call FSUNLinSolSpace (failure based on output flag)
     failure = FSUNLinSolSpace(S, lenrw, leniw)
     if (failure /= 0) then
-      write(*,*) ">>> FAILED test -- FSUNLinSolSpace, Proc ", myid
+      write (*, *) ">>> FAILED test -- FSUNLinSolSpace, Proc ", myid
     else if (myid == 0) then
-      write(*,'(A,I0,A,I0)') "     PASSED test -- FSUNLinSolSpace, lenrw = ", &
-        lenrw, " leniw = ",  leniw
+      write (*, '(A,I0,A,I0)') "     PASSED test -- FSUNLinSolSpace, lenrw = ", &
+        lenrw, " leniw = ", leniw
     end if
 
   end function Test_FSUNLinSolSpace
 
-
-  integer(C_INT) function Test_FSUNLinSolNumIters(S, myid) result(failure)
+  integer(c_int) function Test_FSUNLinSolNumIters(S, myid) result(failure)
     use, intrinsic :: iso_c_binding
     implicit none
 
     type(SUNLinearSolver), pointer :: S
-    integer(C_INT)                 :: myid
-    integer(C_INT)                 :: numiters
+    integer(c_int)                 :: myid
+    integer(c_int)                 :: numiters
 
     failure = 0
 
@@ -105,116 +102,107 @@ contains
     numiters = FSUNLinSolNumIters(S)
 
     if (myid == 0) then
-      write(*,'(A,I0,A)') "     PASSED test -- FSUNLinSolNumIters (", numiters, ")"
+      write (*, '(A,I0,A)') "     PASSED test -- FSUNLinSolNumIters (", numiters, ")"
     end if
 
   end function Test_FSUNLinSolNumIters
 
-
-  integer(C_INT) function Test_FSUNLinSolResNorm(S, myid) result(failure)
+  integer(c_int) function Test_FSUNLinSolResNorm(S, myid) result(failure)
     use, intrinsic :: iso_c_binding
     implicit none
 
     type(SUNLinearSolver), pointer :: S
-    integer(C_INT)                 :: myid
-    real(C_DOUBLE)                 :: resnorm
+    integer(c_int)                 :: myid
+    real(c_double)                 :: resnorm
 
     failure = 0
 
     resnorm = FSUNLinSolResNorm(S)
 
     if (resnorm < ZERO) then
-      write(*,'(A,E14.7,A,I0)') &
+      write (*, '(A,E14.7,A,I0)') &
         ">>> FAILED test -- FSUNLinSolSolve returned ", resnorm, ", Proc ", myid
     else if (myid == 0) then
-      write(*,*) "    PASSED test -- FSUNLinSolResNorm "
+      write (*, *) "    PASSED test -- FSUNLinSolResNorm "
     end if
 
   end function Test_FSUNLinSolResNorm
 
-
-  integer(C_INT) function Test_FSUNLinSolResid(S, myid) result(failure)
+  integer(c_int) function Test_FSUNLinSolResid(S, myid) result(failure)
     use, intrinsic :: iso_c_binding
-
-
 
     implicit none
 
     type(SUNLinearSolver), pointer :: S
-    integer(C_INT)                 :: myid
-    type(N_Vector),        pointer :: resid
+    integer(c_int)                 :: myid
+    type(N_Vector), pointer :: resid
 
     failure = 0
 
     resid => FSUNLinSolResid(S)
 
     if (.not. associated(resid)) then
-      write(*,*) ">>> FAILED test -- FSUNLinSolResid returned NULL N_Vector, Proc ", myid
+      write (*, *) ">>> FAILED test -- FSUNLinSolResid returned NULL N_Vector, Proc ", myid
     else if (myid == 0) then
-      write(*,*) "    PASSED test -- FSUNLinSolResid "
+      write (*, *) "    PASSED test -- FSUNLinSolResid "
     end if
 
   end function Test_FSUNLinSolResid
 
-
-  integer(C_INT) function Test_FSUNLinSolSetATimes(S, ATdata, ATimes, myid) &
+  integer(c_int) function Test_FSUNLinSolSetATimes(S, ATdata, ATimes, myid) &
     result(failure)
     use, intrinsic :: iso_c_binding
     implicit none
 
     type(SUNLinearSolver), pointer :: S
-    type(C_PTR)                    :: ATdata
-    type(C_FUNPTR)                 :: ATimes
-    integer(C_INT)                 :: myid
+    type(c_ptr)                    :: ATdata
+    type(c_funptr)                 :: ATimes
+    integer(c_int)                 :: myid
 
     failure = 0
 
     ! try calling SetATimes routine: should pass/fail based on expected input
-    failure = FSUNLinSolSetATimes(S, ATdata, ATimes);
-
+    failure = FSUNLinSolSetATimes(S, ATdata, ATimes); 
     if (failure /= 0) then
-      write(*,'(A,I0,A,I0)') &
+      write (*, '(A,I0,A,I0)') &
         ">>> FAILED test -- FSUNLinSolSetATimes returned ", failure, ", Proc ", myid
       failure = 1
     else if (myid == 0) then
-      write(*,*) "    PASSED test -- FSUNLinSolSetATimes "
+      write (*, *) "    PASSED test -- FSUNLinSolSetATimes "
     end if
 
   end function Test_FSUNLinSolSetATimes
 
-
-  integer(C_INT) function Test_FSUNLinSolSetPreconditioner(S, Pdata, PSetup, PSolve, myid) &
+  integer(c_int) function Test_FSUNLinSolSetPreconditioner(S, Pdata, PSetup, PSolve, myid) &
     result(failure)
     use, intrinsic :: iso_c_binding
     implicit none
 
     type(SUNLinearSolver), pointer :: S
-    type(C_PTR)                    :: Pdata
-    type(C_FUNPTR)                 :: PSetup, PSolve
-    integer(C_INT)                 :: myid
+    type(c_ptr)                    :: Pdata
+    type(c_funptr)                 :: PSetup, PSolve
+    integer(c_int)                 :: myid
 
     ! try calling SetPreconditioner routine: should pass/fail based on expected input
-    failure = FSUNLinSolSetPreconditioner(S, Pdata, PSetup, PSolve);
-
+    failure = FSUNLinSolSetPreconditioner(S, Pdata, PSetup, PSolve); 
     if (failure /= 0) then
-      write(*,'(A,I0,A,I0)') &
+      write (*, '(A,I0,A,I0)') &
         ">>> FAILED test -- FSUNLinSolSetPreconditioner returned ", failure, ", Proc ", myid
       failure = 1
     else if (myid == 0) then
-      write(*,*) "    PASSED test -- FSUNLinSolSetPreconditioner "
+      write (*, *) "    PASSED test -- FSUNLinSolSetPreconditioner "
     end if
 
   end function Test_FSUNLinSolSetPreconditioner
 
-
-  integer(C_INT) function Test_FSUNLinSolSetScalingVectors(S, s1, s2, myid) &
+  integer(c_int) function Test_FSUNLinSolSetScalingVectors(S, s1, s2, myid) &
     result(failure)
     use, intrinsic :: iso_c_binding
     implicit none
 
     type(SUNLinearSolver) :: S
     type(N_Vector)        :: s1, s2
-    integer(C_INT)        :: myid
+    integer(c_int)        :: myid
 
     failure = 0
 
@@ -222,55 +210,54 @@ contains
     failure = FSUNLinSolSetScalingVectors(S, s1, s2)
 
     if (failure /= 0) then
-      write(*,'(A,I0,A,I0)') &
+      write (*, '(A,I0,A,I0)') &
         ">>> FAILED test -- FSUNLinSolSetScalingVectors returned ", failure, ", Proc ", myid
       failure = 1
     else if (myid == 0) then
-      write(*,*) "    PASSED test -- FSUNLinSolSetScalingVectors "
+      write (*, *) "    PASSED test -- FSUNLinSolSetScalingVectors "
     end if
 
   end function Test_FSUNLinSolSetScalingVectors
 
-
-  integer(C_INT) function Test_FSUNLinSolInitialize(S, myid) result(failure)
+  integer(c_int) function Test_FSUNLinSolInitialize(S, myid) result(failure)
     use, intrinsic :: iso_c_binding
     implicit none
 
     type(SUNLinearSolver) :: S
-    integer(C_INT)        :: myid
+    integer(c_int)        :: myid
 
     failure = 0
 
     failure = FSUNLinSolInitialize(S)
 
     if (failure /= 0) then
-      write(*,'(A,I0,A,I0)') &
+      write (*, '(A,I0,A,I0)') &
         ">>> FAILED test -- FSUNLinSolInitialize returned ", failure, ", Proc ", myid
       failure = 1
     else if (myid == 0) then
-      write(*,*) "    PASSED test -- FSUNLinSolInitialize "
+      write (*, *) "    PASSED test -- FSUNLinSolInitialize "
     end if
 
   end function Test_FSUNLinSolInitialize
 
-  integer(C_INT) function Test_FSUNLinSolSetup(S, A, myid) result(failure)
+  integer(c_int) function Test_FSUNLinSolSetup(S, A, myid) result(failure)
     use, intrinsic :: iso_c_binding
     implicit none
 
     type(SUNLinearSolver) :: S
     type(SUNMatrix)       :: A
-    integer(C_INT)        :: myid
+    integer(c_int)        :: myid
 
     failure = 0
 
     failure = FSUNLinSolSetup(S, A)
 
     if (failure /= 0) then
-      write(*,'(A,I0,A,I0)') &
+      write (*, '(A,I0,A,I0)') &
         ">>> FAILED test -- FSUNLinSolSetup returned ", failure, ", Proc ", myid
       failure = 1
     else if (myid == 0) then
-      write(*,*) "    PASSED test -- FSUNLinSolSetup "
+      write (*, *) "    PASSED test -- FSUNLinSolSetup "
     end if
 
   end function Test_FSUNLinSolSetup
@@ -283,7 +270,7 @@ contains
   ! while the 'A' that is supplied to this function should have been
   ! 'setup' by the Test_FSUNLinSolSetup() function prior to this call.
   ! ----------------------------------------------------------------------
-  integer(C_INT) function Test_FSUNLinSolSolve(S, A, x, b, tol, myid) result(failure)
+  integer(c_int) function Test_FSUNLinSolSolve(S, A, x, b, tol, myid) result(failure)
     use, intrinsic :: iso_c_binding
     implicit none
 
@@ -291,8 +278,8 @@ contains
     type(SUNMatrix)         :: A
     type(N_Vector)          :: x, b
     type(N_Vector), pointer :: y
-    real(C_DOUBLE)          :: tol
-    integer(C_INT)          :: myid
+    real(c_double)          :: tol
+    integer(c_int)          :: myid
 
     failure = 0
 
@@ -303,7 +290,7 @@ contains
     ! perform solve
     failure = FSUNLinSolSolve(S, A, y, b, tol)
     if (failure /= 0) then
-      write(*,'(A,I0,A,I0)') &
+      write (*, '(A,I0,A,I0)') &
         ">>> FAILED test -- FSUNLinSolSolve returned ", failure, ", Proc ", myid
       return
     end if
@@ -313,9 +300,9 @@ contains
     call FN_VScale(ONE, y, x)
 
     if (failure /= 0) then
-      write(*,*) ">>> FAILED test -- FSUNLinSolSolve check, Proc ", myid
+      write (*, *) ">>> FAILED test -- FSUNLinSolSolve check, Proc ", myid
     else if (myid == 0) then
-      write(*,*) "    PASSED test -- FSUNLinSolSolve"
+      write (*, *) "    PASSED test -- FSUNLinSolSolve"
     end if
 
     call FN_VDestroy(y)

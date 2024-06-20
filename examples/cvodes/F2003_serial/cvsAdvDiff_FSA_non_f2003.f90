@@ -56,7 +56,6 @@ module ode_problem
   use fsundials_core_mod
   implicit none
 
-
   ! Since SUNDIALS can be compiled with 32-bit or 64-bit sunindextype
   ! we set the integer kind used for indices in this example based
   ! on the the index size SUNDIALS was compiled with so that it works
@@ -71,22 +70,22 @@ module ode_problem
   type(c_ptr) :: ctx
 
   ! problem parameters
-  real(c_double),  parameter :: XMAX  = 2.0d0
-  real(c_double),  parameter :: T0    = 0.0d0
-  real(c_double),  parameter :: T1    = 0.5d0
-  real(c_double),  parameter :: DTOUT = 0.5d0
-  real(c_double),  parameter :: ATOL  = 1e-5
-  integer(c_int),  parameter :: NOUT  = 10
-  integer(c_int),  parameter :: NP    = 2
-  integer(c_int),  parameter :: NS    = 2
-  integer(kind=myindextype), parameter :: MX  = 10
+  real(c_double), parameter :: XMAX = 2.0d0
+  real(c_double), parameter :: T0 = 0.0d0
+  real(c_double), parameter :: T1 = 0.5d0
+  real(c_double), parameter :: DTOUT = 0.5d0
+  real(c_double), parameter :: ATOL = 1e-5
+  integer(c_int), parameter :: NOUT = 10
+  integer(c_int), parameter :: NP = 2
+  integer(c_int), parameter :: NS = 2
+  integer(kind=myindextype), parameter :: MX = 10
   integer(kind=myindextype), parameter :: NEQ = MX
 
   ! problem constants
-  real(c_double) :: ZERO  = 0.d0
+  real(c_double) :: ZERO = 0.d0
 
   ! problem data
-  real(c_double) :: p(0:NP-1)
+  real(c_double) :: p(0:NP - 1)
   real(c_double) :: dx
 
 contains
@@ -101,7 +100,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function RhsFn(tn, nv_u, nv_udot, user_data) &
-    result(ierr) bind(C,name='RhsFn')
+    result(ierr) bind(C, name='RhsFn')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -114,7 +113,7 @@ contains
     real(c_double), value :: tn         ! current time
     type(N_Vector)        :: nv_u       ! solution N_Vector
     type(N_Vector)        :: nv_udot    ! rhs N_Vector
-    type(c_ptr),    value :: user_data  ! user-defined data
+    type(c_ptr), value :: user_data  ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer :: u(:)
@@ -134,28 +133,28 @@ contains
     !======= Internals ============
 
     ! get data arrays from SUNDIALS vectors
-    u    => FN_VGetArrayPointer(nv_u)
+    u => FN_VGetArrayPointer(nv_u)
     udot => FN_VGetArrayPointer(nv_udot)
 
     ! loop over all grid points
-    do i=1, NEQ
+    do i = 1, NEQ
       ui = u(i)
 
       if (i /= 1) then
-        ult = u(i-1)
+        ult = u(i - 1)
       else
         ult = ZERO
-      endif
+      end if
 
       if (i /= NEQ) then
-        urt = u(i+1)
+        urt = u(i + 1)
       else
         urt = ZERO
-      endif
+      end if
 
       ! set diffusion and avection terms and load into udot
-      hdiff   = hordc*(ult - 2.0d0*ui + urt)
-      hadv    = horac*(urt - ult)
+      hdiff = hordc*(ult - 2.0d0*ui + urt)
+      hadv = horac*(urt - ult)
       udot(i) = hdiff + hadv
     end do
 
@@ -180,7 +179,7 @@ contains
     u => FN_VGetArrayPointer(nv_u)
 
     ! Load initial profile into u vector
-    do i=1, NEQ
+    do i = 1, NEQ
       x = i*dx
       u(i) = x*(XMAX - x)*exp(2.0d0*x)
     end do
@@ -204,15 +203,15 @@ program main
 
   ! Local variables
   type(c_ptr)                       :: cvodes_mem
-  type(N_Vector),           pointer :: u, uiS
+  type(N_Vector), pointer :: u, uiS
   type(c_ptr)                       :: uS
   type(SUNNonlinearSolver), pointer :: NLS
   type(SUNNonlinearSolver), pointer :: NLSsens => null()
   integer(c_int)                    :: iout, retval
   real(c_double)                    :: reltol, abstol, tout, t(1)
-  integer(c_int)                    :: plist(0:NS-1)
+  integer(c_int)                    :: plist(0:NS - 1)
   integer(c_int)                    :: is
-  real(c_double)                    :: pbar(0:NS-1)
+  real(c_double)                    :: pbar(0:NS - 1)
 
   ! Command line arguments
   integer(c_int) :: sensi, err_con
@@ -224,21 +223,21 @@ program main
   ! Create SUNDIALS simulation context
   retval = FSUNContext_Create(SUN_COMM_NULL, ctx)
   if (retval /= 0) then
-     print *, "Error: FSUNContext_Create returned ",retval
-     stop 1
+    print *, "Error: FSUNContext_Create returned ", retval
+    stop 1
   end if
 
   ! Set problem data
-  dx   = XMAX/(MX+1)
+  dx = XMAX/(MX + 1)
   p(0) = 1.0d0
   p(1) = 0.5d0
 
   ! Allocate and set initial states
   u => FN_VNew_Serial(NEQ, ctx)
   if (.not. associated(u)) then
-    write(*,*) 'ERROR: FN_VNew_Serial returned NULL'
+    write (*, *) 'ERROR: FN_VNew_Serial returned NULL'
     stop 1
-  endif
+  end if
   call SetIC(u)
 
   ! Set integration tolerances
@@ -248,9 +247,9 @@ program main
   ! Create CVODES object
   cvodes_mem = FCVodeCreate(CV_ADAMS, ctx)
   if (.not. c_associated(cvodes_mem)) then
-    write(*,*) 'ERROR: cvodes_mem = NULL'
+    write (*, *) 'ERROR: cvodes_mem = NULL'
     stop 1
-  endif
+  end if
 
   ! Initialize CVode
   retval = FCVodeInit(cvodes_mem, c_funloc(RhsFn), T0, u)
@@ -263,32 +262,32 @@ program main
   ! Create fixed point nonlinear solver object
   NLS => FSUNNonlinSol_FixedPoint(u, 0, ctx)
   if (.not. associated(NLS)) then
-    write(*,*) 'ERROR: FSUNNonlinSol_FixedPoint returned NULL'
+    write (*, *) 'ERROR: FSUNNonlinSol_FixedPoint returned NULL'
     stop 1
-  endif
+  end if
 
   ! Attach nonlinear solver object to CVode
   retval = FCVodeSetNonlinearSolver(cvodes_mem, NLS)
   call check_retval(retval, "FCVodeSetNonlinearSolver")
 
-  write(*,*) ""
+  write (*, *) ""
   print '(A,i3)', "1-D advection-diffusion equation, mesh size =", MX
 
   ! Sensitivity-related settings
   if (sensi /= 0) then
 
-    do is=0, NS-1
+    do is = 0, NS - 1
       plist(is) = int(is, 4)
-      pbar(is)  = p(plist(is))
+      pbar(is) = p(plist(is))
     end do
 
     uS = FN_VCloneVectorArray(NS, u)
     if (.not. c_associated(uS)) then
-      write(*,*) 'ERROR: FN_VCloneVectorArray returned NULL'
+      write (*, *) 'ERROR: FN_VCloneVectorArray returned NULL'
       stop 1
-    endif
+    end if
 
-    do is=0, NS-1
+    do is = 0, NS - 1
       uiS => FN_VGetVecAtIndexVectorArray(uS, is)
       call FN_VConst(ZERO, uiS)
     end do
@@ -310,17 +309,17 @@ program main
 
     ! create sensitivity fixed point nonlinear solver object
     if (sensi_meth == CV_SIMULTANEOUS) then
-      NLSsens => FSUNNonlinSol_FixedPointSens(NS+1, u, 0, ctx)
+      NLSsens => FSUNNonlinSol_FixedPointSens(NS + 1, u, 0, ctx)
     else if (sensi_meth == CV_STAGGERED) then
       NLSsens => FSUNNonlinSol_FixedPointSens(NS, u, 0, ctx)
     else
       NLSsens => FSUNNonlinSol_FixedPoint(u, 0, ctx)
-    endif
+    end if
 
     if (.not. associated(NLSsens)) then
-      write(*,*) 'ERROR: FSUNNonlinSol_FixedPointSens returned NULL'
+      write (*, *) 'ERROR: FSUNNonlinSol_FixedPointSens returned NULL'
       stop 1
-    endif
+    end if
 
     ! attach nonlinear solver object to CVode
     if (sensi_meth == CV_SIMULTANEOUS) then
@@ -329,40 +328,40 @@ program main
       retval = FCVodeSetNonlinearSolverSensStg(cvodes_mem, NLSsens)
     else
       retval = FCVodeSetNonlinearSolverSensStg1(cvodes_mem, NLSsens)
-    endif
+    end if
 
     call check_retval(retval, "FCVodeSetNonlinearSolverSens")
 
-    write(*,'(A)',advance="no") "Sensitivity: YES "
+    write (*, '(A)', advance="no") "Sensitivity: YES "
     if (sensi_meth == CV_SIMULTANEOUS) then
-      write(*,'(A)',advance="no") "( SIMULTANEOUS +"
+      write (*, '(A)', advance="no") "( SIMULTANEOUS +"
     else
       if (sensi_meth == CV_STAGGERED) then
-        write(*,'(A)',advance="no") "( STAGGERED +"
+        write (*, '(A)', advance="no") "( STAGGERED +"
       else
-        write(*,'(A)',advance="no") "( STAGGERED1 +"
-      endif
-    endif
+        write (*, '(A)', advance="no") "( STAGGERED1 +"
+      end if
+    end if
 
     if (err_con /= 0) then
-      write(*,'(A)',advance="no") " FULL ERROR CONTROL )"
+      write (*, '(A)', advance="no") " FULL ERROR CONTROL )"
     else
-      write(*,'(A)',advance="no") " PARTIAL ERROR CONTROL )"
-    endif
+      write (*, '(A)', advance="no") " PARTIAL ERROR CONTROL )"
+    end if
 
   else
 
-    write(*,'(A)') "Sensitivity: NO "
+    write (*, '(A)') "Sensitivity: NO "
 
-  endif
+  end if
 
   ! In loop over output points, call CVode, print results, test for error
 
-  write(*,*) ""
-  write(*,*) ""
-  write(*,*) "============================================================"
-  write(*,*) "     T     Q       H      NST                    Max norm   "
-  write(*,*) "============================================================"
+  write (*, *) ""
+  write (*, *) ""
+  write (*, *) "============================================================"
+  write (*, *) "     T     Q       H      NST                    Max norm   "
+  write (*, *) "============================================================"
 
   tout = T1
   do iout = 1, NOUT
@@ -375,9 +374,9 @@ program main
       retval = FCVodeGetSens(cvodes_mem, t, uS)
       call check_retval(retval, "FCVodeGetSens")
       call PrintOutputS(uS)
-    endif
+    end if
 
-    write(*,*) "------------------------------------------------------------"
+    write (*, *) "------------------------------------------------------------"
 
     tout = tout + DTOUT
   end do
@@ -389,13 +388,13 @@ program main
   call FN_VDestroy(u)
   if (sensi /= 0) then
     call FN_VDestroyVectorArray(uS, NS)
-  endif
+  end if
 
   call FCVodeFree(cvodes_mem)
   retval = FSUNNonlinSolFree(NLS)
   if (associated(NLSsens)) then
     retval = FSUNNonlinSolFree(NLSsens)
-  endif
+  end if
 
   retval = FSUNContext_Free(ctx)
 
@@ -411,14 +410,14 @@ subroutine ProcessArgs(sensi, sensi_meth, err_con)
   integer(c_int)    :: argc
   character(len=32) :: arg
 
-  argc       = command_argument_count()
-  sensi      = 0
+  argc = command_argument_count()
+  sensi = 0
   sensi_meth = -1
-  err_con    = 0
+  err_con = 0
 
   if (argc < 1) then
     call WrongArgs()
-  endif
+  end if
 
   call get_command_argument(1, arg)
   if (arg == "-nosensi") then
@@ -427,13 +426,13 @@ subroutine ProcessArgs(sensi, sensi_meth, err_con)
     sensi = 1
   else
     call WrongArgs()
-  endif
+  end if
 
   if (sensi /= 0) then
 
     if (argc /= 3) then
       call WrongArgs()
-    endif
+    end if
 
     call get_command_argument(2, arg)
     if (arg == "sim") then
@@ -444,7 +443,7 @@ subroutine ProcessArgs(sensi, sensi_meth, err_con)
       sensi_meth = CV_STAGGERED1
     else
       call WrongArgs()
-    endif
+    end if
 
     call get_command_argument(3, arg)
     if (arg == "t") then
@@ -453,18 +452,18 @@ subroutine ProcessArgs(sensi, sensi_meth, err_con)
       err_con = 0
     else
       call WrongArgs()
-    endif
+    end if
 
-  endif
+  end if
 end subroutine
 
 ! Print help.
 subroutine WrongArgs()
-  write(*,*) ""
-  write(*,*) "Usage: ./cvsAdvDiff_FSA_non [-nosensi] [-sensi sensi_meth err_con]"
-  write(*,*) "         sensi_meth = sim, stg, or stg1"
-  write(*,*) "         err_con    = t or f"
-  write(*,*) ""
+  write (*, *) ""
+  write (*, *) "Usage: ./cvsAdvDiff_FSA_non [-nosensi] [-sensi sensi_meth err_con]"
+  write (*, *) "         sensi_meth = sim, stg, or stg1"
+  write (*, *) "         err_con    = t or f"
+  write (*, *) ""
   call exit(0)
 end subroutine
 
@@ -492,10 +491,10 @@ subroutine PrintOutput(cvodes_mem, t, u)
   retval = FCVodeGetLastOrder(cvodes_mem, qu)
   retval = FCVodeGetLastStep(cvodes_mem, hu)
 
-  write(*,'(1x,es10.3,1x,i2,2x,es10.3,i5)') t, qu, hu, nst
+  write (*, '(1x,es10.3,1x,i2,2x,es10.3,i5)') t, qu, hu, nst
 
   unorm = FN_VMaxNorm(u)
-  write(*,'(1x,A,es12.4)') "                                Solution        ", unorm
+  write (*, '(1x,A,es12.4)') "                                Solution        ", unorm
 
 end subroutine
 
@@ -512,10 +511,10 @@ subroutine PrintOutputS(uS)
 
   uiS => FN_VGetVecAtIndexVectorArray(uS, 0)
   norm = FN_VMaxNorm(uiS)
-  write(*,'(1x,A,es12.4)') "                                Sensitivity 1   ", norm
+  write (*, '(1x,A,es12.4)') "                                Sensitivity 1   ", norm
   uiS => FN_VGetVecAtIndexVectorArray(uS, 1)
   norm = FN_VMaxNorm(uiS)
-  write(*,'(1x,A,es12.4)') "                                Sensitivity 2   ", norm
+  write (*, '(1x,A,es12.4)') "                                Sensitivity 2   ", norm
 
 end subroutine
 
@@ -550,32 +549,32 @@ subroutine PrintFinalStats(cvodes_mem, sensi, err_con, sensi_meth)
       retval = FCVodeGetSensNumErrTestFails(cvodes_mem, netfS)
     else
       netfS = 0
-    endif
+    end if
 
     if (sensi_meth == CV_STAGGERED .or. sensi_meth == CV_STAGGERED1) then
       retval = FCVodeGetSensNumNonlinSolvIters(cvodes_mem, nniS)
       retval = FCVodeGetSensNumNonlinSolvConvFails(cvodes_mem, ncfnS)
     else
-      nniS  = 0
+      nniS = 0
       ncfnS = 0
-    endif
+    end if
 
-  endif
+  end if
 
-  write(*,*) ""
-  write(*,*) "Final Statistics"
-  write(*,*) ""
-  write(*,'(1x,A,i9)')        "nst     =", nst
-  write(*,'(1x,A,i9)')        "nfe     =", nfe
-  write(*,'(1x,A,i9,A,i9)')   "nst     =", netf,  "    nsetups   =", nsetups
-  write(*,'(1x,A,i9,A,i9)')   "nni     =", nni,   "    ncfn      =", ncfn
+  write (*, *) ""
+  write (*, *) "Final Statistics"
+  write (*, *) ""
+  write (*, '(1x,A,i9)') "nst     =", nst
+  write (*, '(1x,A,i9)') "nfe     =", nfe
+  write (*, '(1x,A,i9,A,i9)') "nst     =", netf, "    nsetups   =", nsetups
+  write (*, '(1x,A,i9,A,i9)') "nni     =", nni, "    ncfn      =", ncfn
 
   if (sensi /= 0) then
-    write(*,*) ""
-    write(*,'(1x,A,i9,A,i9)') "nfSe    =", nfSe,  "    nfeS      =", nfeS
-    write(*,'(1x,A,i9,A,i9)') "netfS   =", netfS, "    nsetupsS  =", nsetupsS
-    write(*,'(1x,A,i9,A,i9)') "nniS    =", nniS,  "    ncfnS     =", ncfnS
-  endif
+    write (*, *) ""
+    write (*, '(1x,A,i9,A,i9)') "nfSe    =", nfSe, "    nfeS      =", nfeS
+    write (*, '(1x,A,i9,A,i9)') "netfS   =", netfS, "    nsetupsS  =", nsetupsS
+    write (*, '(1x,A,i9,A,i9)') "nniS    =", nniS, "    ncfnS     =", ncfnS
+  end if
 
 end subroutine
 
@@ -586,7 +585,7 @@ subroutine check_retval(retval, name)
   integer(c_int)   :: retval
 
   if (retval /= 0) then
-    write(*,'(A,A,A)') 'ERROR: ', name,' returned nonzero'
+    write (*, '(A,A,A)') 'ERROR: ', name, ' returned nonzero'
     stop 1
   end if
 end subroutine
