@@ -101,7 +101,7 @@ generate Unix and Linux Makefiles, as well as KDevelop, Visual Studio, and
 CMake also provides a GUI front end and which allows an interactive build and
 installation process.
 
-The SUNDIALS build process requires CMake version 3.12.0 or higher and a working
+The SUNDIALS build process requires CMake version 3.18.0 or higher and a working
 C compiler.  On Unix-like operating systems, it also requires Make (and
 ``curses``, including its development libraries, for the GUI front end to CMake,
 ``ccmake`` or ``cmake-gui``), while on Windows it requires Visual Studio.  While
