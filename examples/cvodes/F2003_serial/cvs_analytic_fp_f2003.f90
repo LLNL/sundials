@@ -275,10 +275,6 @@ subroutine CVodeStats(cvodes_mem)
      stop 1
   end if
 
-  type(c_ptr) :: fp
-  ierr = FSUNDIALSFileOpen("stdout", "w+", fp)
-  call FCVodePrintAllStats(cvodes_mem, fp, SUN_OUTPUTFORMAT_TABLE)
-
   print *, ' '
   print *, ' General Solver Stats:'
   print '(4x,A,i9)'    ,'Total internal steps taken =',nsteps
