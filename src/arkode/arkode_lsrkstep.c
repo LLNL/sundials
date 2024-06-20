@@ -366,7 +366,7 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
 {
   ARKodeLSRKStepMem step_mem;
-  int retval, j;
+  int retval;
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -377,6 +377,27 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   {
     return (ARK_SUCCESS);
   }
+  /* enforce use of arkEwtSmallReal if using a fixed step size
+     and an internal error weight function */
+  if (ark_mem->fixedstep && !ark_mem->user_efun)
+  {
+    ark_mem->user_efun = SUNFALSE;
+    ark_mem->efun      = arkEwtSetSmallReal;
+    printf("\nCheck internal error function in %s line: %d: !\n\n", __func__, __LINE__);
+    ark_mem->e_data    = ark_mem;
+  }
+
+  /* Allocate ARK RHS vector memory, update storage requirements */
+  /*   Allocate Fe if needed */
+  if (step_mem->Fe == NULL)
+  {
+    step_mem->Fe = (N_Vector*)calloc(1, sizeof(N_Vector));
+  }
+  if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fe[0])))
+  {
+    return (ARK_MEM_FAIL);
+  }
+  ark_mem->liw += 1; /* pointers */
 
   /* Allocate internal vector storate */
 
