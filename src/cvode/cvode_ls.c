@@ -1780,11 +1780,10 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   /* Interpret solver return value  */
   cvls_mem->last_flag = retval;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvLsSolve",
-                     "ls-stats", "bnorm = %.16g, resnorm = %.16g, ls_iters = %i, prec_solves = %i",
-                     bnorm, resnorm, nli_inc, (int)(cvls_mem->nps - nps_inc));
-#endif
+  SUNLogDebug(CV_LOGGER, __func__, "ls-stats",
+              "bnorm = %" RSYM ", resnorm = %" RSYM
+              ", ls_iters = %i, prec_solves = %i",
+              bnorm, resnorm, nli_inc, (int)(cvls_mem->nps - nps_inc));
 
   switch (retval)
   {

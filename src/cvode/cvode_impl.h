@@ -112,6 +112,9 @@ extern "C" {
 #define BIAS2 SUN_RCONST(6.0)
 #define BIAS3 SUN_RCONST(10.0)
 
+#define ALPHAREF SUN_RCONST(0.5)
+#define INIT_STIFR SUN_RCONST(1023.0)
+
 /* Order selection constants
  * -------------------------
  * LONG_WAIT   number of steps to wait before considering an order change when
@@ -271,10 +274,11 @@ typedef struct CVodeMemRec
   int cv_qwait;  /* number of internal steps to wait before
                                   considering a change in q                   */
   int cv_L;      /* L = q + 1                                   */
+  int cv_nslow;  /* number of nonlinear iterations (in current step) with slow convergence */
 
   sunrealtype cv_hin;      /* initial step size                           */
   sunrealtype cv_h;        /* current step size                           */
-  sunrealtype cv_hprime;   /* step size to be used on the next step       */
+  sunrealtype cv_hprime;   /* after a successful step, this is the step size to be used on the next step  */
   sunrealtype cv_next_h;   /* step size to be used on the next step       */
   sunrealtype cv_eta;      /* eta = hprime / h                            */
   sunrealtype cv_hscale;   /* value of h used in zn                       */
@@ -334,8 +338,10 @@ typedef struct CVodeMemRec
   long int cv_ncfn;    /* number of corrector convergence failures        */
   long int cv_nni;     /* number of nonlinear iterations performed        */
   long int cv_nnf;     /* number of nonlinear convergence failures        */
+  long int cv_nns;     /* number of iterations for which the nonlinear convergence was determined to be 'slow' */
   long int cv_netf;    /* number of error test failures                   */
   long int cv_nsetups; /* number of setup calls                           */
+  long int cv_nswitch; /* number of times nonlinear solver switched       */
   int cv_nhnil;        /* number of messages issued to the user that
                               t + h == t for the next iternal step            */
 
@@ -361,6 +367,10 @@ typedef struct CVodeMemRec
     ---------------------*/
 
   SUNNonlinearSolver NLS; /* nonlinear solver object                   */
+  SUNNonlinearSolver NLS_newton;
+  SUNNonlinearSolver NLS_fixedpoint;
+  int NLS_algorithm;
+  int NLS_aavectors;
   sunbooleantype ownNLS;  /* flag indicating NLS ownership             */
   CVRhsFn nls_f;          /* f(t,y(t)) used in the nonlinear solver    */
   int convfail;           /* flag to indicate when a Jacobian update may
@@ -466,6 +476,27 @@ typedef struct CVodeMemRec
   N_Vector cv_Xvecs[L_MAX];    /* array of vectors */
 
   sunbooleantype cv_usefused; /* flag indicating if CVODE specific fused kernels should be used */
+
+  /* -----------------------
+    Nonlinear solver switching
+    ------------------------ */
+  sunbooleantype cv_force_next_step;
+  int cv_lsodkr_strategy;
+  int cv_gustafsoder_strategy;
+  int cv_nst_switchtofixed_met;
+  int cv_nst_switchtonewton_met;
+  int switchtofixed_min_met;
+  int switchtonewton_min_met;
+  int cv_nst_switchtonewton_considered;
+  int cv_nst_switchtofixed_considered;
+  int switchtofixed_delay;
+  int switchtonewton_delay;
+  sunrealtype cv_halpha;   /* step size dictated by nonlinear solver convergence control */
+  sunrealtype cv_stiff;    /* stiffness estimate for nonlinear solver switching
+                              this is ||res||/||del|| (beta_k in Gustafsson & Soderlind paper )*/
+  sunrealtype cv_stifr;
+  sunrealtype cv_alpharef;
+
 
 }* CVodeMem;
 
@@ -619,6 +650,10 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
 /* Nonlinear solver initialization */
 
 int cvNlsInit(CVodeMem cv_mem);
+
+/* Nonlinear solver switching */
+
+int cvNlsSwitch(CVodeMem cv_mem, SUNNonlinearSolver NLS);
 
 /* Projection functions */
 

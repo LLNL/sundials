@@ -922,6 +922,24 @@ int CVodeSetNoInactiveRootWarn(void* cvode_mem)
   return (CV_SUCCESS);
 }
 
+int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int m)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL)
+  {
+    cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__, MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem)cvode_mem;
+
+  cv_mem->NLS_algorithm = algorithm;
+  cv_mem->NLS_aavectors = m;
+
+  return CV_SUCCESS;
+}
+
 /*
  * CVodeSetConstraints
  *
@@ -1632,6 +1650,7 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
 
   cv_mem = (CVodeMem)cvode_mem;
 
+  long int total_rhs_evals = cv_mem->cv_nfe;
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
@@ -1650,7 +1669,7 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
     fprintf(outfile, "Stab. lim. order reductions  = %ld\n", cv_mem->cv_nor);
 
     /* function evaluations */
-    fprintf(outfile, "RHS fn evals                 = %ld\n", cv_mem->cv_nfe);
+    fprintf(outfile, "Integrator RHS fn evals      = %ld\n", cv_mem->cv_nfe);
 
     /* nonlinear solver stats */
     fprintf(outfile, "NLS iters                    = %ld\n", cv_mem->cv_nni);
@@ -1660,6 +1679,8 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
       fprintf(outfile, "NLS iters per step           = %" RSYM "\n",
               (sunrealtype)cv_mem->cv_nni / (sunrealtype)cv_mem->cv_nst);
     }
+    fprintf(outfile, "NLS slow                     = %ld\n", cv_mem->cv_nns);
+    fprintf(outfile, "NLS switch                   = %ld\n", cv_mem->cv_nswitch);
 
     /* linear solver stats */
     fprintf(outfile, "LS setups                    = %ld\n", cv_mem->cv_nsetups);
@@ -1684,6 +1705,7 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
         fprintf(outfile, "Prec evals per NLS iter      = %" RSYM "\n",
                 (sunrealtype)cvls_mem->npe / (sunrealtype)cv_mem->cv_nni);
       }
+      total_rhs_evals += cvls_mem->nfeDQ;
     }
 
     /* rootfinding stats */
@@ -1697,6 +1719,7 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
       fprintf(outfile, "Projection fails             = %ld\n",
               cvproj_mem->npfails);
     }
+    fprintf(outfile, "Total RHS fn evals           = %ld\n", total_rhs_evals);
     break;
 
   case SUN_OUTPUTFORMAT_CSV:

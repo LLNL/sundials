@@ -22,6 +22,7 @@
 set(CVODE_examples
   "cvAdvDiff_bnd\;\;develop"
   "cvAnalytic_mels\;\;develop"
+  "cvBrusselator\;\;develop"
   "cvDirectDemo_ls\;\;develop"
   "cvDisc_dns\;\;develop"
   "cvDiurnal_kry_bp\;\;develop"
