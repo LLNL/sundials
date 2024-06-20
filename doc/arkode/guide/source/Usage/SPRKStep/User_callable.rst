@@ -70,7 +70,7 @@ SPRKStep initialization and deallocation functions
 
    :param arkode_mem: pointer to the SPRKStep memory block.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeFree` instead.
 
@@ -104,7 +104,7 @@ Rootfinding initialization function
    :retval ARK_MEM_FAIL: if there was a memory allocation failure
    :retval ARK_ILL_INPUT: if *nrtfn* is greater than zero but *g* = ``NULL``.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeRootInit` instead.
 
@@ -199,7 +199,7 @@ SPRKStep solver function
       On all other error returns, *tret* and *yout* are left unchanged
       from those provided to the routine.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeEvolve` instead.
 
@@ -237,14 +237,14 @@ Optional inputs for SPRKStep
       Also leaves alone any data structures or options related to
       root-finding (those can be reset using :c:func:`SPRKStepRootInit()`).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetDefaults` instead.
 
 
 .. c:function:: int SPRKStepSetInterpolantType(void* arkode_mem, int itype)
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       This function is now a wrapper to :c:func:`ARKodeSetInterpolantType`, see
       the documentation for that function instead.
@@ -284,7 +284,7 @@ Optional inputs for SPRKStep
       When `q = 1`, a linear interpolant is the default to ensure values
       obtained by the integrator are returned at the ends of the time interval.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetInterpolantDegree` instead.
 
@@ -300,7 +300,7 @@ Optional inputs for SPRKStep
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetFixedStep` instead.
 
@@ -323,7 +323,7 @@ Optional inputs for SPRKStep
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxNumSteps` instead.
 
@@ -350,7 +350,7 @@ Optional inputs for SPRKStep
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetStopTime` instead.
 
@@ -367,7 +367,7 @@ Optional inputs for SPRKStep
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeClearStopTime` instead.
 
@@ -388,7 +388,7 @@ Optional inputs for SPRKStep
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetUserData` instead.
 
@@ -437,7 +437,7 @@ Optional inputs for IVP method selection
       This overrides any previously set method so it should not be used with
       :c:func:`SPRKStepSetMethod` or :c:func:`SPRKStepSetMethodName`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetOrder` instead.
 
@@ -524,7 +524,7 @@ Rootfinding optional input functions
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetRootDirection` instead.
 
@@ -546,7 +546,7 @@ Rootfinding optional input functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetNoInactiveRootWarn` instead.
 
@@ -596,7 +596,7 @@ Interpolated output function
       It is only legal to call this function after a successful
       return from :c:func:`SPRKStepEvolve()`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetDky` instead.
 
@@ -624,7 +624,7 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumSteps` instead.
 
@@ -640,7 +640,7 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetLastStep` instead.
 
@@ -655,7 +655,7 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetCurrentStep` instead.
 
@@ -670,7 +670,7 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetCurrentTime` instead.
 
@@ -691,7 +691,7 @@ Main solver optional output functions
       as altering values of *ycur* may lead to undesirable behavior, depending
       on the particular use case and on when this routine is called.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetCurrentState` instead.
 
@@ -710,7 +710,7 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetStepStats` instead.
 
@@ -737,7 +737,7 @@ Main solver optional output functions
       read and output the data from a SUNDIALS CSV output file using the key
       and value pair format.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodePrintAllStats` instead.
 
@@ -752,7 +752,7 @@ Main solver optional output functions
    :returns: The return value is a string containing the name of the
              corresponding constant.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetReturnFlagName` instead.
 
@@ -767,7 +767,7 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumStepAttempts` instead.
 
@@ -808,7 +808,7 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetUserData` instead.
 
@@ -840,7 +840,7 @@ Rootfinding optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetRootInfo` instead.
 
@@ -856,7 +856,7 @@ Rootfinding optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumGEvals` instead.
 
@@ -882,7 +882,7 @@ General usability functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeWriteParameters` instead.
 
@@ -975,6 +975,6 @@ SPRKStep reset function
       By default the next call to :c:func:`SPRKStepEvolve()` will use the step
       size computed by SPRKStep prior to calling :c:func:`SPRKStepReset()`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeReset` instead.
