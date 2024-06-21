@@ -191,7 +191,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   SUNAssert(!callLSetup || (callLSetup && NEWTON_CONTENT(NLS)->LSetup),
             SUN_ERR_ARG_CORRUPT);
 
-  SUNLogInfo(NLS->sunctx->logger, __func__, "begin-nonlinear-solve", "", "");
+  SUNLogInfo(NLS->sunctx->logger, __func__, "begin-nonlinear-solve",
+             "tol = %.16g", tol);
 
   /* set local shortcut variables */
   delta = NEWTON_CONTENT(NLS)->delta;
@@ -212,8 +213,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
     /* initialize current iteration counter for this solve attempt */
     NEWTON_CONTENT(NLS)->curiter = 0;
 
-    SUNLogInfo(NLS->sunctx->logger, __func__, "begin-iterate",
-               "iter = %ld, nni = %ld", (long int)NEWTON_CONTENT(NLS)->curiter,
+    SUNLogInfo(NLS->sunctx->logger, __func__, "begin-nonlinear-iterate",
+               "cur-iter = %ld, total-iters = %ld", (long int)NEWTON_CONTENT(NLS)->curiter,
                NEWTON_CONTENT(NLS)->niters);
 
     /* compute the nonlinear residual, store in delta */
@@ -250,8 +251,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       retval = NEWTON_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
                                           NEWTON_CONTENT(NLS)->ctest_data);
 
-      SUNLogInfo(NLS->sunctx->logger, __func__, "end-iterate",
-                 "iter = %ld, nni = %ld, wrmsnorm = %.16g",
+      SUNLogInfo(NLS->sunctx->logger, __func__, "end-nonlinear-iterate",
+                 "cur-iter = %ld, total-iters = %ld, update-norm = %.16g",
                  NEWTON_CONTENT(NLS)->curiter, NEWTON_CONTENT(NLS)->niters - 1,
                  N_VWrmsNorm(delta, w));
 
@@ -262,7 +263,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       if (retval == SUN_SUCCESS)
       {
         SUNLogInfo(NLS->sunctx->logger, __func__, "end-nonlinear-solve",
-                   "status = success, nni = %ld", NEWTON_CONTENT(NLS)->niters);
+                   "status = success, iters = %ld", NEWTON_CONTENT(NLS)->niters);
         NEWTON_CONTENT(NLS)->jcur = SUNFALSE;
         return SUN_SUCCESS;
       }
@@ -277,8 +278,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
         break;
       }
 
-      SUNLogInfo(NLS->sunctx->logger, __func__, "begin-iterate",
-                 "iter = %ld, nni = %ld", (long int)NEWTON_CONTENT(NLS)->curiter,
+      SUNLogInfo(NLS->sunctx->logger, __func__, "begin-nonlinear-iterate",
+                 "cur-iter = %ld, total-iters = %ld", (long int)NEWTON_CONTENT(NLS)->curiter,
                  NEWTON_CONTENT(NLS)->niters);
 
       /* compute the nonlinear residual, store in delta */
@@ -311,7 +312,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   NEWTON_CONTENT(NLS)->nconvfails++;
 
   SUNLogInfo(NLS->sunctx->logger, __func__, "end-nonlinear-solve",
-             "status = failure, nni = %ld", NEWTON_CONTENT(NLS)->niters);
+             "status = failure, iters = %ld", NEWTON_CONTENT(NLS)->niters);
 
   /* all error returns exit here */
   return (retval);
