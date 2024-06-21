@@ -80,7 +80,7 @@ int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
   int retval;
 
   /* access ARKodeMem and ARKodeERKStepMem structures */
-  retval = erkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   // /* set expsteps and accsteps from adaptivity structure */
