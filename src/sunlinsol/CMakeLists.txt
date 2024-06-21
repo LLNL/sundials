@@ -42,8 +42,7 @@ if(BUILD_SUNLINSOL_GINKGO)
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
   install(
-    FILES
-      ${PROJECT_SOURCE_DIR}/include/sunlinsol/sunlinsol_ginkgo.hpp
+    FILES ${PROJECT_SOURCE_DIR}/include/sunlinsol/sunlinsol_ginkgo.hpp
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunlinsol"
   )
   set(
@@ -65,10 +64,7 @@ if(BUILD_SUNLINSOL_KOKKOSDENSE)
   add_library(sundials_sunlinsolkokkosdense INTERFACE)
   target_link_libraries(
     sundials_sunlinsolkokkosdense
-    INTERFACE
-      sundials_core
-      Kokkos::kokkos
-      Kokkos::kokkoskernels
+    INTERFACE sundials_core Kokkos::kokkos Kokkos::kokkoskernels
   )
   target_include_directories(
     sundials_sunlinsolkokkosdense
@@ -79,8 +75,7 @@ if(BUILD_SUNLINSOL_KOKKOSDENSE)
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
   install(
-    FILES
-      ${PROJECT_SOURCE_DIR}/include/sunlinsol/sunlinsol_kokkosdense.hpp
+    FILES ${PROJECT_SOURCE_DIR}/include/sunlinsol/sunlinsol_kokkosdense.hpp
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunlinsol"
   )
   set(

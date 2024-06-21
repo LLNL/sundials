@@ -27,14 +27,10 @@ endif()
 # Create the library
 sundials_add_library(
   sundials_nvecparallel
-  SOURCES
-    nvector_parallel.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parallel.h
+  SOURCES nvector_parallel.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parallel.h
   INCLUDE_SUBDIR nvector
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
   OUTPUT_NAME sundials_nvecparallel
   VERSION ${nveclib_VERSION}

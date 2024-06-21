@@ -19,19 +19,12 @@ install(CODE "MESSAGE(\"\nInstall SUNLINSOL_LAPACKBAND\n\")")
 # Add the library
 sundials_add_library(
   sundials_sunlinsollapackband
-  SOURCES
-    sunlinsol_lapackband.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_lapackband.h
+  SOURCES sunlinsol_lapackband.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_lapackband.h
   INCLUDE_SUBDIR sunlinsol
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_sunmatrixband
-    "${LAPACK_LIBRARIES}"
+  LINK_LIBRARIES PUBLIC sundials_sunmatrixband "${LAPACK_LIBRARIES}"
   OUTPUT_NAME sundials_sunlinsollapackband
   VERSION ${sunlinsollib_VERSION}
   SOVERSION ${sunlinsollib_SOVERSION}

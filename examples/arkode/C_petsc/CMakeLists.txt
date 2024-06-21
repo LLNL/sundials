@@ -56,12 +56,7 @@ foreach(example_tuple ${ARKODE_examples})
   # example source files
   add_executable(${example} ${example}.c)
 
-  set_target_properties(
-    ${example}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(
@@ -77,26 +72,17 @@ foreach(example_tuple ${ARKODE_examples})
   target_link_libraries(${example} ${SUNDIALS_LIBS})
 
   if(NOT MPI_C_COMPILER)
-    target_link_libraries(
-      ${example}
-      ${MPI_LIBRARY}
-      ${MPI_EXTRA_LIBRARIES}
-    )
+    target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
   endif()
 
   # install example
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
-        ${example}.out
+      FILES ${example}.c ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_petsc
     )
   endif()
-endforeach(
-  example_tuple
-  ${ARKODE_examples}
-)
+endforeach(example_tuple ${ARKODE_examples})
 
 if(EXAMPLES_INSTALL)
   # Install the README file
@@ -121,8 +107,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/arkode/C_petsc/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_petsc/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_petsc
   )
 
@@ -139,8 +124,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/arkode/C_petsc/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_petsc/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_petsc
       RENAME Makefile
     )

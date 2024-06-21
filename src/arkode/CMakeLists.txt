@@ -69,14 +69,10 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/arkode/ arkode_HEADERS)
 # Create the sundials_arkode library
 sundials_add_library(
   sundials_arkode
-  SOURCES
-    ${arkode_SOURCES}
-  HEADERS
-    ${arkode_HEADERS}
+  SOURCES ${arkode_SOURCES}
+  HEADERS ${arkode_HEADERS}
   INCLUDE_SUBDIR arkode
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj

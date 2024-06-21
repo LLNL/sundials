@@ -44,11 +44,7 @@ set(IDA_LIB sundials_ida)
 set(NVECS_LIB sundials_nvectrilinos)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${IDA_LIB}
-  ${NVECS_LIB}
-)
+set(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB})
 
 # Add the build and install targets for each IDA example
 foreach(example_tuple ${IDA_examples})
@@ -61,12 +57,7 @@ foreach(example_tuple ${IDA_examples})
   # add example source files
   add_executable(${example} ${example}.cpp)
 
-  set_target_properties(
-    ${example}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(
@@ -79,25 +70,16 @@ foreach(example_tuple ${IDA_examples})
   )
 
   # libraries to link against
-  target_link_libraries(
-    ${example}
-    ${SUNDIALS_LIBS}
-    ${EXE_EXTRA_LINK_LIBS}
-  )
+  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXE_EXTRA_LINK_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.cpp
-        ${example}.out
+      FILES ${example}.cpp ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/trilinos
     )
   endif()
-endforeach(
-  example_tuple
-  ${IDA_examples}
-)
+endforeach(example_tuple ${IDA_examples})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -123,8 +105,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/ida/trilinos/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/ida/trilinos/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/trilinos
   )
 
@@ -141,8 +122,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/ida/trilinos/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/trilinos/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/trilinos
       RENAME Makefile
     )

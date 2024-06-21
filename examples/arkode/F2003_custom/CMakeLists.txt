@@ -48,12 +48,7 @@ set(ARKODE_LIB sundials_arkode)
 set(FARKODE_LIB sundials_farkode_mod)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${FARKODE_LIB}
-  ${ARKODE_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${FARKODE_LIB} ${ARKODE_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FARKODE_examples})
@@ -68,18 +63,9 @@ foreach(example_tuple ${FARKODE_examples})
   )
 
   # example source files
-  add_executable(
-    ${example}
-    ${example}.f90
-    ${FARKODEsources}
-  )
+  add_executable(${example} ${example}.f90 ${FARKODEsources})
 
-  set_target_properties(
-    ${example}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(
@@ -96,17 +82,11 @@ foreach(example_tuple ${FARKODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.f90
-        ${example}.out
-        ${FARKODEsources}
+      FILES ${example}.f90 ${example}.out ${FARKODEsources}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_custom
     )
   endif()
-endforeach(
-  example_tuple
-  ${FARKODE_examples}
-)
+endforeach(example_tuple ${FARKODE_examples})
 
 # Add the build and install targets for regression test
 foreach(example_tuple ${FARKODE_tests})
@@ -121,25 +101,15 @@ foreach(example_tuple ${FARKODE_tests})
   )
 
   # example source files
-  add_executable(
-    ${example}
-    ${example}.f90
-    ${FARKODEsources}
-  )
+  add_executable(${example} ${example}.f90 ${FARKODEsources})
 
-  set_target_properties(
-    ${example}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(
     ${example}
     ${example}
-    TEST_ARGS
-      ""
+    TEST_ARGS ""
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
@@ -150,24 +120,18 @@ foreach(example_tuple ${FARKODE_tests})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.f90
-        ${FARKODEsources}
+      FILES ${example}.f90 ${FARKODEsources}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_custom
     )
   endif()
-endforeach(
-  example_tuple
-  ${FARKODE_tests}
-)
+endforeach(example_tuple ${FARKODE_tests})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
   # Install the extra files
   foreach(extrafile ${ARKODE_extras})
     install(
-      FILES
-        ${extrafile}
+      FILES ${extrafile}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_custom
     )
   endforeach()
@@ -197,8 +161,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/arkode/F2003_custom/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/arkode/F2003_custom/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_custom
   )
 
@@ -218,8 +181,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/arkode/F2003_custom/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/arkode/F2003_custom/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_custom
       RENAME Makefile
     )

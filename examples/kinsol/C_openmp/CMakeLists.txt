@@ -25,12 +25,7 @@ set(KINSOL_LIB sundials_kinsol)
 set(NVECOMP_LIB sundials_nvecopenmp)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${KINSOL_LIB}
-  ${NVECOMP_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECOMP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${KINSOL_examples})
@@ -42,20 +37,14 @@ foreach(example_tuple ${KINSOL_examples})
   # example source files
   add_executable(${example} ${example}.c)
 
-  set_target_properties(
-    ${example}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   if(NOT ${example} MATCHES "kinFoodWeb_kry_omp") # No test until TestRunner modified for OpenMP
     # add example to regression tests
     SUNDIALS_ADD_TEST(
       ${example}
       ${example}
-      TEST_ARGS
-        ${example_args}
+      TEST_ARGS ${example_args}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${example}.out
       EXAMPLE_TYPE ${example_type}
@@ -68,16 +57,11 @@ foreach(example_tuple ${KINSOL_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
-        ${example}.out
+      FILES ${example}.c ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/C_openmp
     )
   endif()
-endforeach(
-  example_tuple
-  ${KINSOL_examples_OMP}
-)
+endforeach(example_tuple ${KINSOL_examples_OMP})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -103,8 +87,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/kinsol/C_openmp/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/kinsol/C_openmp/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/C_openmp
   )
 
@@ -121,8 +104,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/kinsol/C_openmp/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/kinsol/C_openmp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/C_openmp
       RENAME Makefile
     )

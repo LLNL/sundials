@@ -38,8 +38,7 @@ if(BUILD_SUNMATRIX_GINKGO)
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
   install(
-    FILES
-      ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgo.hpp
+    FILES ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgo.hpp
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunmatrix"
   )
   set(
@@ -57,10 +56,7 @@ if(BUILD_SUNMATRIX_KOKKOSDENSE)
   add_library(sundials_sunmatrixkokkosdense INTERFACE)
   target_link_libraries(
     sundials_sunmatrixkokkosdense
-    INTERFACE
-      sundials_core
-      Kokkos::kokkos
-      Kokkos::kokkoskernels
+    INTERFACE sundials_core Kokkos::kokkos Kokkos::kokkoskernels
   )
   target_include_directories(
     sundials_sunmatrixkokkosdense
@@ -71,8 +67,7 @@ if(BUILD_SUNMATRIX_KOKKOSDENSE)
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
   install(
-    FILES
-      ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_kokkosdense.hpp
+    FILES ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_kokkosdense.hpp
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunmatrix"
   )
   set(

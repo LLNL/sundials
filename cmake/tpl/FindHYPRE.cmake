@@ -35,13 +35,8 @@
 ### Find include dir
 find_path(
   temp_HYPRE_INCLUDE_DIR
-  NAMES
-    HYPRE.h
-    hypre.h
-  HINTS
-    "${HYPRE_DIR}"
-    "${HYPRE_DIR}/include"
-    "${HYPRE_INCLUDE_DIR}"
+  NAMES HYPRE.h hypre.h
+  HINTS "${HYPRE_DIR}" "${HYPRE_DIR}/include" "${HYPRE_INCLUDE_DIR}"
 )
 if(temp_HYPRE_INCLUDE_DIR)
   set(HYPRE_INCLUDE_DIR "${temp_HYPRE_INCLUDE_DIR}" CACHE PATH "" FORCE)
@@ -56,15 +51,10 @@ if(HYPRE_LIBRARY)
   set(HYPRE_LIBRARY_DIR ${HYPRE_LIBRARY_DIR} CACHE PATH "" FORCE)
 else()
   # find library with user provided directory path
-  set(
-    HYPRE_LIBRARY_NAMES
-    hypre
-    HYPRE
-  )
+  set(HYPRE_LIBRARY_NAMES hypre HYPRE)
   find_library(
     HYPRE_LIBRARY
-    NAMES
-      ${HYPRE_LIBRARY_NAMES}
+    NAMES ${HYPRE_LIBRARY_NAMES}
     HINTS
       "${HYPRE_DIR}"
       "${HYPRE_DIR}/lib"
@@ -99,10 +89,7 @@ ERROR: Could not find HYPRE. Please check the variables:\n\
 # set package variables including HYPRE_FOUND
 find_package_handle_standard_args(
   HYPRE
-  REQUIRED_VARS
-    HYPRE_LIBRARY
-    HYPRE_LIBRARIES
-    HYPRE_INCLUDE_DIR
+  REQUIRED_VARS HYPRE_LIBRARY HYPRE_LIBRARIES HYPRE_INCLUDE_DIR
   FAIL_MESSAGE "${HYPRE_NOT_FOUND_MESSAGE}"
 )
 
@@ -115,11 +102,8 @@ if(HYPRE_FOUND)
   set_target_properties(
     SUNDIALS::HYPRE
     PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES
-        "${HYPRE_INCLUDE_DIR}"
-      INTERFACE_LINK_LIBRARIES
-        "${HYPRE_LIBRARIES}"
-      IMPORTED_LOCATION
-        "${HYPRE_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${HYPRE_INCLUDE_DIR}"
+      INTERFACE_LINK_LIBRARIES "${HYPRE_LIBRARIES}"
+      IMPORTED_LOCATION "${HYPRE_LIBRARY}"
   )
 endif()

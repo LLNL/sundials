@@ -47,12 +47,7 @@ foreach(example_tuple ${examples_list})
       )
 
       # folder for IDEs
-      set_target_properties(
-        ${example_target}
-        PROPERTIES
-          FOLDER
-            "Examples"
-      )
+      set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
       # which backend to use
       target_compile_definitions(${example_target} PRIVATE USE_${backend})
@@ -79,8 +74,7 @@ foreach(example_tuple ${examples_list})
     SUNDIALS_ADD_TEST(
       ${test_name}
       ${example_target}
-      TEST_ARGS
-        ${example_args}
+      TEST_ARGS ${example_args}
       EXAMPLE_TYPE ${example_type}
       NODIFF
     )
@@ -91,21 +85,14 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     sunlinsol_kokkosdense
     examples_list
-    EXAMPLES_DEPENDENCIES
-      test_sunlinsol.c
+    EXAMPLES_DEPENDENCIES test_sunlinsol.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
     CMAKE_TEMPLATE cmakelists_CXX_ex.in
-    SUNDIALS_COMPONENTS
-      nveckokkos
-      sunmatrixkokkosdense
-      sunlinsolkokkosdense
-    SUNDIALS_TARGETS
-      generic
-    OTHER_TARGETS
-      Kokkos::kokkos
-      Kokkos::kokkoskernels
+    SUNDIALS_COMPONENTS nveckokkos sunmatrixkokkosdense sunlinsolkokkosdense
+    SUNDIALS_TARGETS generic
+    OTHER_TARGETS Kokkos::kokkos Kokkos::kokkoskernels
     DESTINATION sunlinsol/kokkos
   )
 endif()

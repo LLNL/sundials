@@ -28,18 +28,12 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Trilinos_INTERFACE_C_COMPILER_FLAGS}")
 # Create the library
 sundials_add_library(
   sundials_nvectrilinos
-  SOURCES
-    nvector_trilinos.cpp
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_trilinos.h
+  SOURCES nvector_trilinos.cpp
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_trilinos.h
   INCLUDE_SUBDIR nvector
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  LINK_LIBRARIES
-    PUBLIC
-    SUNDIALS::TRILINOS
+  LINK_LIBRARIES PUBLIC SUNDIALS::TRILINOS
   OUTPUT_NAME sundials_nvectrilinos
   VERSION ${nveclib_VERSION}
   SOVERSION ${nveclib_SOVERSION}

@@ -37,12 +37,7 @@ foreach(example_tuple ${KINSOL_examples})
   # add example source files
   add_executable(${example_target} ${example})
 
-  set_target_properties(
-    ${example_target}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
   # include directories
   target_include_directories(${example_target} PRIVATE ${MPI_CXX_INCLUDE_DIRS})
@@ -77,14 +72,9 @@ if(EXAMPLES_INSTALL)
     CMAKE_TEMPLATE cmakelists_CUDA_MPI_ex.in
     MAKE_TEMPLATE makefile_parallel_CUDA_ex.in
     SOLVER_LIBRARY sundials_kinsol
-    SUNDIALS_TARGETS
-      kinsol
-      nvecmpiplusx
-      nveccuda
+    SUNDIALS_TARGETS kinsol nvecmpiplusx nveccuda
     DESTINATION kinsol/CUDA_mpi
-    EXTRA_FILES
-      ${KINSOL_headers}
-      README
+    EXTRA_FILES ${KINSOL_headers} README
     TEST_INSTALL CUDA_mpi
   )
 endif()

@@ -28,19 +28,10 @@ foreach(test_tuple ${ARKODE_unit_tests})
     # test source files
     add_executable(${test} ${test}.f90)
 
-    set_target_properties(
-      ${test}
-      PROPERTIES
-        FOLDER
-          "unit_tests"
-    )
+    set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 
     # libraries to link against
-    target_link_libraries(
-      ${test}
-      sundials_farkode_mod
-      ${EXE_EXTRA_LINK_LIBS}
-    )
+    target_link_libraries(${test} sundials_farkode_mod ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if test args are provided and set the test name
@@ -52,11 +43,7 @@ foreach(test_tuple ${ARKODE_unit_tests})
   endif()
 
   # add test to regression tests
-  add_test(
-    NAME ${test_name}
-    COMMAND
-      ${test} ${test_args}
-  )
+  add_test(NAME ${test_name} COMMAND ${test} ${test_args})
 endforeach()
 
 message(STATUS "Added ARKODE F2003 serial unit tests")

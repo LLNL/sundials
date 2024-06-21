@@ -36,11 +36,7 @@ set(
 )
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${CVODE_LIBS}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${CVODE_LIBS} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FCVODE_examples})
@@ -63,18 +59,9 @@ foreach(example_tuple ${FCVODE_examples})
     add_executable(${example} ${example}.f90)
 
     # libraries to link against
-    target_link_libraries(
-      ${example}
-      MPI::MPI_Fortran
-      ${SUNDIALS_LIBS}
-    )
+    target_link_libraries(${example} MPI::MPI_Fortran ${SUNDIALS_LIBS})
 
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
   endif()
 
   # check if example args are provided and set the test name
@@ -88,8 +75,7 @@ foreach(example_tuple ${FCVODE_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
@@ -103,24 +89,18 @@ foreach(example_tuple ${FCVODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.f90
-        ${example_out}
+      FILES ${example}.f90 ${example_out}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_parallel
     )
   endif()
-endforeach(
-  example_tuple
-  ${FCVODE_examples}
-)
+endforeach(example_tuple ${FCVODE_examples})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
   # Install the extra files
   foreach(extrafile ${CVODE_extras})
     install(
-      FILES
-        ${extrafile}
+      FILES ${extrafile}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_parallel
     )
   endforeach()
@@ -134,9 +114,7 @@ if(EXAMPLES_INSTALL)
   # CMakeLists: replace sundials_ prefix and convert to space separted string
   list(
     TRANSFORM CVODE_LIBS
-    REPLACE
-      "sundials_"
-      "SUNDIALS::"
+    REPLACE "sundials_" "SUNDIALS::"
     OUTPUT_VARIABLE EXAMPLES_CMAKE_TARGETS_tmp
   )
   list2string(EXAMPLES_CMAKE_TARGETS_tmp EXAMPLES_CMAKE_TARGETS)
@@ -156,8 +134,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/cvode/F2003_parallel/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/cvode/F2003_parallel/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_parallel
   )
 
@@ -174,8 +151,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/cvode/F2003_parallel/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/cvode/F2003_parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_parallel
       RENAME Makefile
     )

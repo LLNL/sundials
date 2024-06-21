@@ -16,11 +16,7 @@
 
 if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
   include_directories(${caliper_INCLUDE_DIR})
-  set(
-    EXE_EXTRA_LINK_LIBS
-    ${EXE_EXTRA_LINK_LIBS}
-    caliper
-  )
+  set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} caliper)
 endif()
 
 # Always add the Newton and fixed point examples

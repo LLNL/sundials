@@ -27,18 +27,14 @@ set(
 if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
   set_source_files_properties(
     test_sunlinsol_magmadense.cpp
-    PROPERTIES
-      LANGUAGE
-        CUDA
+    PROPERTIES LANGUAGE CUDA
   )
   set(vector nveccuda)
   set(cuda_or_hip CUDA)
 elseif(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
   set_source_files_properties(
     test_sunlinsol_magmadense.cpp
-    PROPERTIES
-      LANGUAGE
-        CXX
+    PROPERTIES LANGUAGE CXX
   )
   set(vector nvechip)
   set(cuda_or_hip HIP)
@@ -67,12 +63,7 @@ foreach(example_tuple ${sunlinsols_magmadense_examples})
     )
 
     # folder for IDEs
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
@@ -95,29 +86,22 @@ foreach(example_tuple ${sunlinsols_magmadense_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
-endforeach(
-  example_tuple
-  ${sunlinsols_magmadense_examples}
-)
+endforeach(example_tuple ${sunlinsols_magmadense_examples})
 
 if(EXAMPLES_INSTALL)
   sundials_install_examples(
     sunlinsol_magma
     sunlinsols_magmadense_examples
-    EXAMPLES_DEPENDENCIES
-      test_sunlinsol.c
+    EXAMPLES_DEPENDENCIES test_sunlinsol.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
     CMAKE_TEMPLATE cmakelists_${cuda_or_hip}_ex.in
-    SUNDIALS_TARGETS
-      ${vector}
-      sunlinsolmagmadense
+    SUNDIALS_TARGETS ${vector} sunlinsolmagmadense
     DESTINATION sunlinsol/magmadense
   )
 endif()

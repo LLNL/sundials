@@ -47,11 +47,7 @@ if(BUILD_CVODE)
 endif()
 
 # Auxiliary files to install
-set(
-  ARKODE_extras
-  plot_heat2D.py
-  plot_sol.py
-)
+set(ARKODE_extras plot_heat2D.py plot_sol.py)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${ARKODE_examples})
@@ -67,18 +63,12 @@ foreach(example_tuple ${ARKODE_examples})
   if(NOT TARGET ${example_target})
     add_executable(${example_target} ${example})
 
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # directories to include
     target_include_directories(
       ${example_target}
-      PRIVATE
-        ${PROJECT_SOURCE_DIR}/examples/utilities
+      PRIVATE ${PROJECT_SOURCE_DIR}/examples/utilities
     )
 
     # libraries to link against
@@ -105,16 +95,12 @@ foreach(example_tuple ${ARKODE_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type}
   )
-endforeach(
-  example_tuple
-  ${ARKODE_examples}
-)
+endforeach(example_tuple ${ARKODE_examples})
 
 if(EXAMPLES_INSTALL)
   if(BUILD_CVODE)
@@ -129,11 +115,7 @@ if(EXAMPLES_INSTALL)
     ARKODE_examples
     CMAKE_TEMPLATE cmakelists_CXX_ex.in
     MAKE_TEMPLATE makefile_serial_CXX_ex.in
-    SUNDIALS_TARGETS
-      nvecserial
-      arkode
-      ${_include_cvode}
-      ${_include_cvode_stubs}
+    SUNDIALS_TARGETS nvecserial arkode ${_include_cvode} ${_include_cvode_stubs}
     DESTINATION arkode/CXX_serial
     EXTRA_FILES
       README

@@ -73,8 +73,7 @@ if(SUPERLUDIST_INCLUDE_DIRS)
   find_file(
     SUPERLUDIST_CONFIG_PATH
     superlu_dist_config.h
-    PATHS
-      "${SUPERLUDIST_INCLUDE_DIRS}"
+    PATHS "${SUPERLUDIST_INCLUDE_DIRS}"
   )
   mark_as_advanced(FORCE SUPERLUDIST_CONFIG_PATH)
   if(SUPERLUDIST_VERSION VERSION_GREATER_EQUAL "8.0.0")
@@ -117,8 +116,7 @@ if(SUPERLUDIST_INCLUDE_DIRS)
     )
     list(GET _strings_with_index_size 0 _index_size_string)
     string(
-      REGEX
-      MATCHALL
+      REGEX MATCHALL
       "[0-9][0-9]"
       SUPERLUDIST_INDEX_SIZE
       "${_index_size_string}"
@@ -160,8 +158,7 @@ if(NOT SUPERLUDIST_VERSION AND SUPERLUDIST_INCLUDE_DIRS)
   find_file(
     SUPERLUDIST_VERSION_PATH
     superlu_defs.h
-    PATHS
-      "${SUPERLUDIST_INCLUDE_DIRS}"
+    PATHS "${SUPERLUDIST_INCLUDE_DIRS}"
   )
 
   file(
@@ -204,12 +201,7 @@ if(SUPERLUDIST_OpenMP)
 endif()
 # add libraries for GPU support
 if(SUPERLUDIST_CUDA)
-  list(
-    APPEND
-    SUPERLUDIST_LINK_LIBRARIES
-    CUDA::cudart
-    CUDA::cublas
-  )
+  list(APPEND SUPERLUDIST_LINK_LIBRARIES CUDA::cudart CUDA::cublas)
 endif()
 if(SUPERLUDIST_ROCM)
   find_package(hipblas REQUIRED)
@@ -244,9 +236,7 @@ if(SUPERLUDIST_FOUND)
   set_target_properties(
     SUNDIALS::SUPERLUDIST
     PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES
-        "${SUPERLUDIST_INCLUDE_DIRS}"
-      INTERFACE_LINK_LIBRARIES
-        "${SUPERLUDIST_LINK_LIBRARIES}"
+      INTERFACE_INCLUDE_DIRECTORIES "${SUPERLUDIST_INCLUDE_DIRS}"
+      INTERFACE_LINK_LIBRARIES "${SUPERLUDIST_LINK_LIBRARIES}"
   )
 endif()

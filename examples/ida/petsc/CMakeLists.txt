@@ -41,13 +41,7 @@ set(NVECP_LIB sundials_nvecpetsc)
 set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${IDA_LIB}
-  ${NVECP_LIB}
-  ${SUNNLS_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${SUNNLS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${IDA_examples})
@@ -63,22 +57,13 @@ foreach(example_tuple ${IDA_examples})
     add_executable(${example} ${example}.c)
 
     # group examples in IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
 
     if(NOT MPI_C_COMPILER)
-      target_link_libraries(
-        ${example}
-        ${MPI_LIBRARY}
-        ${MPI_EXTRA_LIBRARIES}
-      )
+      target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
     endif()
   endif()
 
@@ -93,8 +78,7 @@ foreach(example_tuple ${IDA_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
@@ -107,16 +91,11 @@ foreach(example_tuple ${IDA_examples})
   # install example
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
-        ${example_out}
+      FILES ${example}.c ${example_out}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc
     )
   endif()
-endforeach(
-  example_tuple
-  ${IDA_examples}
-)
+endforeach(example_tuple ${IDA_examples})
 
 if(EXAMPLES_INSTALL)
   # Install the README file
@@ -141,8 +120,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc
   )
 
@@ -159,8 +137,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/ida/petsc/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/petsc/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc
       RENAME Makefile
     )

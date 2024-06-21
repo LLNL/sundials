@@ -71,8 +71,7 @@ function(sundials_git_version)
 
   if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/.git AND ${GIT_FOUND})
     execute_process(
-      COMMAND
-        git describe --abbrev=12 --dirty --always --tags
+      COMMAND git describe --abbrev=12 --dirty --always --tags
       WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
       OUTPUT_VARIABLE _tmp
     )

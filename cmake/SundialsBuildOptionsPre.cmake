@@ -117,8 +117,7 @@ sundials_option(
   STRING
   "${DOCSTR}"
   2
-  OPTIONS
-    "0;1;2;3;4;5"
+  OPTIONS "0;1;2;3;4;5"
 )
 
 if(SUNDIALS_LOGGING_LEVEL GREATER_EQUAL 3)
@@ -322,8 +321,7 @@ sundials_option(
   BOOL
   "Enable assert when debugging"
   OFF
-  DEPENDS_ON
-    SUNDIALS_DEBUG
+  DEPENDS_ON SUNDIALS_DEBUG
   ADVANCED
 )
 
@@ -332,9 +330,7 @@ sundials_option(
   BOOL
   "Enable CUDA last error checks when debugging"
   OFF
-  DEPENDS_ON
-    SUNDIALS_DEBUG
-    ENABLE_CUDA
+  DEPENDS_ON SUNDIALS_DEBUG ENABLE_CUDA
   ADVANCED
 )
 
@@ -343,9 +339,7 @@ sundials_option(
   BOOL
   "Enable HIP last error checks when debugging"
   OFF
-  DEPENDS_ON
-    SUNDIALS_DEBUG
-    ENABLE_HIP
+  DEPENDS_ON SUNDIALS_DEBUG ENABLE_HIP
   ADVANCED
 )
 
@@ -354,8 +348,7 @@ sundials_option(
   BOOL
   "Enable vector printing when debugging"
   OFF
-  DEPENDS_ON
-    SUNDIALS_DEBUG
+  DEPENDS_ON SUNDIALS_DEBUG
   ADVANCED
 )
 

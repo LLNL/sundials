@@ -28,20 +28,13 @@ set(
 set(nvector_examples_dependencies test_nvector)
 
 # Add source directory to include directories
-include_directories(
-  .
-  ..
-)
+include_directories(. ..)
 
 # Specify libraries to link against
 set(NVECS_LIB sundials_nvecopenmpdev)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${NVECS_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 set(CMAKE_EXE_LINKER_FLAGS ${OpenMP_C_FLAGS})
 
@@ -62,12 +55,7 @@ foreach(example_tuple ${nvector_openmpdev_examples})
     target_link_libraries(${example} PRIVATE test_nvector_obj)
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
@@ -84,8 +72,7 @@ foreach(example_tuple ${nvector_openmpdev_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
@@ -93,10 +80,7 @@ foreach(example_tuple ${nvector_openmpdev_examples})
   # install example source files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
-        ../test_nvector.c
-        ../test_nvector.h
+      FILES ${example}.c ../test_nvector.c ../test_nvector.h
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/openmpdev
     )
   endif()
@@ -125,8 +109,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/openmpdev
   )
 
@@ -143,8 +126,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/openmpdev
       RENAME Makefile
     )

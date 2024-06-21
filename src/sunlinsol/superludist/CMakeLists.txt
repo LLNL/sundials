@@ -19,14 +19,10 @@ install(CODE "MESSAGE(\"\nInstall SUNLINSOL_SUPERLUDIST\n\")")
 # Add the library
 sundials_add_library(
   sundials_sunlinsolsuperludist
-  SOURCES
-    sunlinsol_superludist.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_superludist.h
+  SOURCES sunlinsol_superludist.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_superludist.h
   INCLUDE_SUBDIR sunlinsol
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
   LINK_LIBRARIES
     PUBLIC
@@ -34,9 +30,7 @@ sundials_add_library(
     SUNDIALS::SUPERLUDIST
     $<IF:$<BOOL:${SUPERLUDIST_OpenMP}>,OpenMP::OpenMP_C,>
     MPI::MPI_C
-  COMPILE_OPTIONS
-    PRIVATE
-    ${_compile_options}
+  COMPILE_OPTIONS PRIVATE ${_compile_options}
   OUTPUT_NAME sundials_sunlinsolsuperludist
   VERSION ${sunlinsollib_VERSION}
   SOVERSION ${sunlinsollib_SOVERSION}

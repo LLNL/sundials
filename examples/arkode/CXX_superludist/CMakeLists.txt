@@ -36,12 +36,7 @@ foreach(example_tuple ${ARKODE_examples})
   # example source files
   add_executable(${example_target} ${example})
 
-  set_target_properties(
-    ${example_target}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(
@@ -56,15 +51,9 @@ foreach(example_tuple ${ARKODE_examples})
   # libraries to link against
   target_link_libraries(
     ${example_target}
-    PRIVATE
-      MPI::MPI_CXX
-      sundials_arkode
-      sundials_sunlinsolsuperludist
+    PRIVATE MPI::MPI_CXX sundials_arkode sundials_sunlinsolsuperludist
   )
-endforeach(
-  example_tuple
-  ${ARKODE_examples}
-)
+endforeach(example_tuple ${ARKODE_examples})
 
 if(SUPERLUDIST_CUDA)
   set(_ex_lang CUDA)
@@ -79,13 +68,9 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     arkode_superludist
     ARKODE_examples
-    EXTRA_FILES
-      README
-      ${ARKODE_extras}
+    EXTRA_FILES README ${ARKODE_extras}
     CMAKE_TEMPLATE cmakelists_${_ex_lang}_MPI_ex.in
-    SUNDIALS_TARGETS
-      arkode
-      sunlinsolsuperludist
+    SUNDIALS_TARGETS arkode sunlinsolsuperludist
     DESTINATION arkode/CXX_superludist
   )
 

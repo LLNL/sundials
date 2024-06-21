@@ -20,14 +20,10 @@ install(CODE "MESSAGE(\"\nInstall SUNMATRIX_SPARSE\n\")")
 # Add the sunmatrix_sparse library
 sundials_add_library(
   sundials_sunmatrixsparse
-  SOURCES
-    sunmatrix_sparse.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_sparse.h
+  SOURCES sunmatrix_sparse.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_sparse.h
   INCLUDE_SUBDIR sunmatrix
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
   OUTPUT_NAME sundials_sunmatrixsparse
   VERSION ${sunmatrixlib_VERSION}

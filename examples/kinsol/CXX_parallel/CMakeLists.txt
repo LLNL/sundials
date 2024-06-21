@@ -40,12 +40,7 @@ foreach(example_tuple ${KINSOL_examples})
     # add example source files
     add_executable(${example_target} ${example})
 
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
@@ -71,8 +66,7 @@ foreach(example_tuple ${KINSOL_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
@@ -88,14 +82,9 @@ if(EXAMPLES_INSTALL)
     CMAKE_TEMPLATE cmakelists_CXX_MPI_ex.in
     MAKE_TEMPLATE makefile_parallel_CXX_ex.in
     SOLVER_LIBRARY sundials_kinsol
-    SUNDIALS_TARGETS
-      kinsol
-      nvecparallel
-      nvecmpiplusx
-      nvecserial
+    SUNDIALS_TARGETS kinsol nvecparallel nvecmpiplusx nvecserial
     DESTINATION kinsol/CXX_parallel
-    EXTRA_FILES
-      README
+    EXTRA_FILES README
     TEST_INSTALL CXX_parallel
   )
 endif()

@@ -15,13 +15,10 @@
 # Create a library out of the generic sundials modules
 sundials_add_library(
   sundials_sunadaptcontrollerimexgus
-  SOURCES
-    sunadaptcontroller_imexgus.c
+  SOURCES sunadaptcontroller_imexgus.c
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/sunadaptcontroller/sunadaptcontroller_imexgus.h
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   INCLUDE_SUBDIR sunadaptcontroller
   OBJECT_LIB_ONLY
 )

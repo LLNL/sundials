@@ -42,9 +42,7 @@ add_dependencies(test_idas_error_handling sundials_idas_obj)
 
 target_link_libraries(
   test_idas_error_handling
-  PRIVATE
-    GTest::gtest_main
-    GTest::gmock
+  PRIVATE GTest::gtest_main GTest::gmock
 )
 
 gtest_discover_tests(test_idas_error_handling)

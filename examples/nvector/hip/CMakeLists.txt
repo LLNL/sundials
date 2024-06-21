@@ -32,21 +32,13 @@ set(
 )
 
 # Add source directory to include directories
-include_directories(
-  .
-  ..
-  ${PROJECT_SOURCE_DIR}/examples/utilities
-)
+include_directories(. .. ${PROJECT_SOURCE_DIR}/examples/utilities)
 
 # Specify libraries to link against
 set(NVECS_LIB sundials_nvechip)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${NVECS_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_hip_examples})
@@ -70,12 +62,7 @@ foreach(example_tuple ${nvector_hip_examples})
     target_link_libraries(${example_target} PRIVATE test_nvector_obj)
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(${example_target} PRIVATE ${SUNDIALS_LIBS})
@@ -87,8 +74,7 @@ foreach(example_tuple ${nvector_hip_examples})
       set(test_name ${example_target})
     else()
       string(
-        REGEX
-        REPLACE
+        REGEX REPLACE
         " "
         "_"
         test_name
@@ -100,8 +86,7 @@ foreach(example_tuple ${nvector_hip_examples})
       string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
     else()
       string(
-        REGEX
-        REPLACE
+        REGEX REPLACE
         " "
         "_"
         test_name
@@ -114,24 +99,18 @@ foreach(example_tuple ${nvector_hip_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
-endforeach(
-  example_tuple
-  ${nvector_hip_examples}
-)
+endforeach(example_tuple ${nvector_hip_examples})
 
 if(EXAMPLES_INSTALL)
   sundials_install_examples(
     nvector
     nvector_hip_examples
-    SUNDIALS_TARGETS
-      nvechip
-    EXAMPLES_DEPENDENCIES
-      test_nvector.c
+    SUNDIALS_TARGETS nvechip
+    EXAMPLES_DEPENDENCIES test_nvector.c
     EXTRA_FILES
       ../test_nvector.c
       ../test_nvector.h

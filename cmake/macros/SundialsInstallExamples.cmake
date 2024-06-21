@@ -102,8 +102,7 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
   # Install the extra files
   foreach(file ${sundials_install_examples_EXTRA_FILES})
     install(
-      FILES
-        ${file}
+      FILES ${file}
       DESTINATION
         ${EXAMPLES_INSTALL_PATH}/${sundials_install_examples_DESTINATION}
     )
@@ -116,10 +115,7 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
     file(GLOB example_header ${example_noext}.h*)
     file(GLOB example_out ${example_noext}*.out)
     install(
-      FILES
-        ${example}
-        ${example_header}
-        ${example_out}
+      FILES ${example} ${example_header} ${example_out}
       DESTINATION
         ${EXAMPLES_INSTALL_PATH}/${sundials_install_examples_DESTINATION}
     )

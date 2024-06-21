@@ -31,11 +31,7 @@ endif()
 set(IDA_LIB sundials_fida_mod)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${IDA_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${IDA_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FIDA_examples_OMP})
@@ -50,12 +46,7 @@ foreach(example_tuple ${FIDA_examples_OMP})
   if(NOT TARGET ${example})
     add_executable(${example} ${example_file})
 
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
@@ -85,8 +76,7 @@ foreach(example_tuple ${FIDA_examples_OMP})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type}
@@ -95,16 +85,11 @@ foreach(example_tuple ${FIDA_examples_OMP})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.f90
-        ${test_name}.out
+      FILES ${example}.f90 ${test_name}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp
     )
   endif()
-endforeach(
-  example_tuple
-  ${FIDA_examples_OMP}
-)
+endforeach(example_tuple ${FIDA_examples_OMP})
 
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -128,8 +113,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp
   )
 
@@ -146,8 +130,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp
       RENAME Makefile
     )

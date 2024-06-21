@@ -17,21 +17,13 @@ install(CODE "MESSAGE(\"\nInstall SUNLINSOL_ONEMKLDENSE\n\")")
 # Add the sunlinsol_onemkldense library
 sundials_add_library(
   sundials_sunlinsolonemkldense
-  SOURCES
-    sunlinsol_onemkldense.cpp
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_onemkldense.h
+  SOURCES sunlinsol_onemkldense.cpp
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_onemkldense.h
   INCLUDE_SUBDIR sunlinsol
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  COMPILE_FEATURES
-    PUBLIC
-    cxx_std_17
-  INCLUDE_DIRECTORIES
-    PUBLIC
-    ${MKL_INCLUDE_DIR}
+  COMPILE_FEATURES PUBLIC cxx_std_17
+  INCLUDE_DIRECTORIES PUBLIC ${MKL_INCLUDE_DIR}
   LINK_LIBRARIES
     PUBLIC
     MKL::MKL_DPCPP

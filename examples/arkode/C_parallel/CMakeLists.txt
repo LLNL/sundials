@@ -53,19 +53,10 @@ endif()
 
 # Specify libraries to link against
 set(ARKODE_LIB sundials_arkode)
-set(
-  NVECP_LIB
-  sundials_nvecparallel
-  sundials_nvecmpiplusx
-)
+set(NVECP_LIB sundials_nvecparallel sundials_nvecmpiplusx)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${ARKODE_LIB}
-  ${NVECP_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
@@ -85,19 +76,10 @@ foreach(example_tuple ${ARKODE_examples})
     target_link_libraries(${example} ${SUNDIALS_LIBS})
 
     if(NOT MPI_C_COMPILER)
-      target_link_libraries(
-        ${example}
-        ${MPI_LIBRARY}
-        ${MPI_EXTRA_LIBRARIES}
-      )
+      target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
     endif()
 
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
   endif()
 
   # check if example args are provided and set the test name
@@ -111,8 +93,7 @@ foreach(example_tuple ${ARKODE_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
@@ -126,16 +107,11 @@ foreach(example_tuple ${ARKODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
-        ${example_out}
+      FILES ${example}.c ${example_out}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel
     )
   endif()
-endforeach(
-  example_tuple
-  ${ARKODE_examples}
-)
+endforeach(example_tuple ${ARKODE_examples})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -145,14 +121,10 @@ if(EXAMPLES_INSTALL)
   # Install the extra files
   foreach(extrafile ${ARKODE_extras})
     install(
-      FILES
-        ${extrafile}
+      FILES ${extrafile}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel
     )
-  endforeach(
-    extrafile
-    ${ARKODE_extras}
-  )
+  endforeach(extrafile ${ARKODE_extras})
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "ARKODE")
@@ -173,8 +145,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/arkode/C_parallel/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_parallel/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel
   )
 
@@ -191,8 +162,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/arkode/C_parallel/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel
       RENAME Makefile
     )

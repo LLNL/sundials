@@ -27,10 +27,7 @@ set(
 )
 
 # Add source directory to include directories
-include_directories(
-  .
-  ..
-)
+include_directories(. ..)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_onemkldense_examples})
@@ -47,12 +44,7 @@ foreach(example_tuple ${sunmatrix_onemkldense_examples})
     add_executable(${example_target} ${example})
 
     # folder for IDEs
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
@@ -77,8 +69,7 @@ foreach(example_tuple ${sunmatrix_onemkldense_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
@@ -88,17 +79,13 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     sunmatrix_onemkl
     sunmatrix_onemkldense_examples
-    EXAMPLES_DEPENDENCIES
-      test_sunmatrix.c
+    EXAMPLES_DEPENDENCIES test_sunmatrix.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
       ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
     CMAKE_TEMPLATE cmakelists_CXX_ex.in
-    SUNDIALS_TARGETS
-      nvecsycl
-      sunmatrixonemkldense
-    OTHER_TARGETS
-      MKL::MKL_DPCPP
+    SUNDIALS_TARGETS nvecsycl sunmatrixonemkldense
+    OTHER_TARGETS MKL::MKL_DPCPP
     DESTINATION sunmatrix/onemkldense
   )
 endif()

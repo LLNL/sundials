@@ -46,22 +46,12 @@ foreach(example_tuple ${CVODE_examples})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  set_source_files_properties(
-    ${example}
-    PROPERTIES
-      LANGUAGE
-        ${_lang}
-  )
+  set_source_files_properties(${example} PROPERTIES LANGUAGE ${_lang})
 
   # add example source files
   add_executable(${example_target} ${example})
 
-  set_target_properties(
-    ${example_target}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
   # libraries to link against
   target_link_libraries(
@@ -82,10 +72,7 @@ foreach(example_tuple ${CVODE_examples})
     ANSWER_FILE ${example_target}.out
     EXAMPLE_TYPE ${example_type}
   )
-endforeach(
-  example_tuple
-  ${CVODE_examples}
-)
+endforeach(example_tuple ${CVODE_examples})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -95,17 +82,8 @@ if(EXAMPLES_INSTALL)
   endif()
 
   if(
-    (
-      RAJA_BACKENDS
-        MATCHES
-        "TARGET_OPENMP"
-    )
-    OR
-      (
-        RAJA_BACKENDS
-          MATCHES
-          "OPENMP"
-      )
+    (RAJA_BACKENDS MATCHES "TARGET_OPENMP")
+    OR (RAJA_BACKENDS MATCHES "OPENMP")
   )
     set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
     set(_openmp_target OpenMP::OpenMP_CXX)
@@ -124,15 +102,10 @@ if(EXAMPLES_INSTALL)
     CMAKE_TEMPLATE cmakelists_${_lang}_ex.in
     MAKE_TEMPLATE makefile_serial_RAJA_ex.in
     SOLVER_LIBRARY sundials_cvode
-    SUNDIALS_TARGETS
-      cvode
-      nvecraja
-      ${_fused_stubs_target}
-    OTHER_TARGETS
-      ${_openmp_target}
+    SUNDIALS_TARGETS cvode nvecraja ${_fused_stubs_target}
+    OTHER_TARGETS ${_openmp_target}
     DESTINATION cvode/raja
-    EXTRA_FILES
-      README
+    EXTRA_FILES README
     TEST_INSTALL raja
   )
 endif()

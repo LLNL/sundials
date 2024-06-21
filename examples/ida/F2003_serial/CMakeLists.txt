@@ -29,11 +29,7 @@ endif()
 set(IDA_LIB sundials_fida_mod)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${IDA_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${IDA_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FIDA_examples})
@@ -50,12 +46,7 @@ foreach(example_tuple ${FIDA_examples})
   # example source files
   add_executable(${example} ${example}.f90)
 
-  set_target_properties(
-    ${example}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(
@@ -72,16 +63,11 @@ foreach(example_tuple ${FIDA_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.f90
-        ${example}.out
+      FILES ${example}.f90 ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_serial
     )
   endif()
-endforeach(
-  example_tuple
-  ${FIDA_examples}
-)
+endforeach(example_tuple ${FIDA_examples})
 
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -105,8 +91,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/ida/F2003_serial/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/ida/F2003_serial/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_serial
   )
 
@@ -123,8 +108,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/ida/F2003_serial/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/F2003_serial/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_serial
       RENAME Makefile
     )

@@ -78,9 +78,7 @@ if(adiak_FOUND AND (NOT adiak_WORKS))
     ${adiak_TEST_DIR}
     ${adiak_TEST_DIR}/ltest.c
     OUTPUT_VARIABLE COMPILE_OUTPUT
-    LINK_LIBRARIES
-      adiak::adiak
-      ${CMAKE_DL_LIBS}
+    LINK_LIBRARIES adiak::adiak ${CMAKE_DL_LIBS}
   )
 
   # Process test result

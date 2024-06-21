@@ -19,11 +19,7 @@
 set(examples_list "test_nvector_raja.cpp\;1000 0\;")
 
 # Add source directory to include directories
-include_directories(
-  .
-  ..
-  ${SUNDIALS_SOURCE_DIR}/examples/utilities
-)
+include_directories(. .. ${SUNDIALS_SOURCE_DIR}/examples/utilities)
 
 if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
   set(_lang CUDA)
@@ -57,19 +53,9 @@ foreach(example_tuple ${examples_list})
     # add example source files
     add_executable(${example_target} ${example})
 
-    set_source_files_properties(
-      ${example_target}
-      PROPERTIES
-        LANGUAGE
-          ${_lang}
-    )
+    set_source_files_properties(${example_target} PROPERTIES LANGUAGE ${_lang})
 
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
@@ -93,8 +79,7 @@ foreach(example_tuple ${examples_list})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
@@ -102,17 +87,8 @@ endforeach()
 
 if(EXAMPLES_INSTALL)
   if(
-    (
-      RAJA_BACKENDS
-        MATCHES
-        "TARGET_OPENMP"
-    )
-    OR
-      (
-        RAJA_BACKENDS
-          MATCHES
-          "OPENMP"
-      )
+    (RAJA_BACKENDS MATCHES "TARGET_OPENMP")
+    OR (RAJA_BACKENDS MATCHES "OPENMP")
   )
     set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
     set(_openmp_target OpenMP::OpenMP_CXX)
@@ -128,18 +104,14 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     nvec_raja
     examples_list
-    EXAMPLES_DEPENDENCIES
-      test_nvector.c
+    EXAMPLES_DEPENDENCIES test_nvector.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/${_custom_memhelper}
     CMAKE_TEMPLATE cmakelists_${_lang}_ex.in
-    SUNDIALS_TARGETS
-      generic
-      nvecraja
-    OTHER_TARGETS
-      ${_openmp_target}
+    SUNDIALS_TARGETS generic nvecraja
+    OTHER_TARGETS ${_openmp_target}
     DESTINATION nvector/raja
   )
 endif()

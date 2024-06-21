@@ -91,17 +91,8 @@ if(ENABLE_ALL_WARNINGS)
   endif()
 
   if(
-    (
-      SUNDIALS_PRECISION
-        MATCHES
-        "DOUBLE"
-    )
-    AND
-      (
-        SUNDIALS_INDEX_SIZE
-          MATCHES
-          "32"
-      )
+    (SUNDIALS_PRECISION MATCHES "DOUBLE")
+    AND (SUNDIALS_INDEX_SIZE MATCHES "32")
   )
     set(CMAKE_C_FLAGS "-Wconversion -Wno-sign-conversion ${CMAKE_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "-Wconversion -Wno-sign-conversion ${CMAKE_CXX_FLAGS}")
@@ -249,8 +240,7 @@ if(
   NOT
     (
       SUNDIALS_C_COMPILER_HAS_ATTRIBUTE_ASSUME
-      OR
-        SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME
+      OR SUNDIALS_C_COMPILER_HAS_BUILTIN_ASSUME
     )
 )
   check_c_source_compiles(
@@ -458,30 +448,18 @@ endif()
 
 if(
   BUILD_BENCHMARKS
-  OR
-    SUNDIALS_TEST_UNITTESTS
-  OR
-    EXAMPLES_ENABLE_CXX
-  OR
-    ENABLE_CUDA
-  OR
-    ENABLE_HIP
-  OR
-    ENABLE_SYCL
-  OR
-    ENABLE_RAJA
-  OR
-    ENABLE_TRILINOS
-  OR
-    ENABLE_SUPERLUDIST
-  OR
-    ENABLE_MAGMA
-  OR
-    ENABLE_GINKGO
-  OR
-    ENABLE_KOKKOS
-  OR
-    ENABLE_ADIAK
+  OR SUNDIALS_TEST_UNITTESTS
+  OR EXAMPLES_ENABLE_CXX
+  OR ENABLE_CUDA
+  OR ENABLE_HIP
+  OR ENABLE_SYCL
+  OR ENABLE_RAJA
+  OR ENABLE_TRILINOS
+  OR ENABLE_SUPERLUDIST
+  OR ENABLE_MAGMA
+  OR ENABLE_GINKGO
+  OR ENABLE_KOKKOS
+  OR ENABLE_ADIAK
 )
   include(SundialsSetupCXX)
 endif()
@@ -537,11 +515,7 @@ foreach(lang ${_SUNDIALS_ENABLED_LANGS})
     endif()
   endforeach()
   # show the language compiler and flags
-  mark_as_advanced(
-    CLEAR
-    CMAKE_${lang}_COMPILER
-    CMAKE_${lang}_FLAGS
-  )
+  mark_as_advanced(CLEAR CMAKE_${lang}_COMPILER CMAKE_${lang}_FLAGS)
 endforeach()
 
 # ===============================================================
@@ -583,18 +557,8 @@ if(SUNDIALS_DEV_CLANG_TIDY)
 
   make_directory(${SUNDIALS_DEV_CLANG_TIDY_DIR})
   if(SUNDIALS_DEV_CLANG_TIDY_FIX_ERRORS)
-    set(
-      CMAKE_C_CLANG_TIDY
-      ${CLANG_TIDY_PATH}
-      -format-style='file'
-      --fix
-    )
-    set(
-      CMAKE_CXX_CLANG_TIDY
-      ${CLANG_TIDY_PATH}
-      -format-style='file'
-      --fix
-    )
+    set(CMAKE_C_CLANG_TIDY ${CLANG_TIDY_PATH} -format-style='file' --fix)
+    set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_PATH} -format-style='file' --fix)
   else()
     set(
       CMAKE_C_CLANG_TIDY
@@ -612,12 +576,7 @@ if(SUNDIALS_DEV_CLANG_TIDY)
 endif()
 
 if(SUNDIALS_DEV_IWYU)
-  find_program(
-    IWYU_PATH
-    NAMES
-      include-what-you-use
-      iwyu
-  )
+  find_program(IWYU_PATH NAMES include-what-you-use iwyu)
   if(NOT IWYU_PATH)
     message(FATAL_ERROR "Could not find the program include-what-you-use")
   endif()

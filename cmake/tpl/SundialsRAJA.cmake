@@ -56,11 +56,8 @@ endif()
 find_file(
   RAJA_CONFIGHPP_PATH
   config.hpp
-  HINTS
-    "${RAJA_DIR}"
-  PATH_SUFFIXES
-    include
-    include/RAJA
+  HINTS "${RAJA_DIR}"
+  PATH_SUFFIXES include include/RAJA
   NO_DEFAULT_PATH
 )
 mark_as_advanced(FORCE RAJA_CONFIGHPP_PATH)
@@ -69,9 +66,7 @@ mark_as_advanced(FORCE RAJA_CONFIGHPP_PATH)
 find_package(
   RAJA
   CONFIG
-  PATHS
-    "${RAJA_DIR}"
-    "${RAJA_DIR}/share/raja/cmake"
+  PATHS "${RAJA_DIR}" "${RAJA_DIR}/share/raja/cmake"
   NO_DEFAULT_PATH
   REQUIRED
 )

@@ -64,19 +64,10 @@ foreach(example_tuple ${ARKODE_examples})
     add_executable(${example} ${example}.cpp)
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(
-      ${example}
-      ${SUNDIALS_LIBS}
-      MPI::MPI_CXX
-    )
+    target_link_libraries(${example} ${SUNDIALS_LIBS} MPI::MPI_CXX)
   endif()
 
   # check if example args are provided and set the test name
@@ -90,8 +81,7 @@ foreach(example_tuple ${ARKODE_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
@@ -104,16 +94,11 @@ foreach(example_tuple ${ARKODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.cpp
-        ${example_out}
+      FILES ${example}.cpp ${example_out}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid
     )
   endif()
-endforeach(
-  example_tuple
-  ${ARKODE_examples}
-)
+endforeach(example_tuple ${ARKODE_examples})
 
 if(ENABLE_HYPRE AND HYPRE_FOUND)
   # Add the build and install targets for each example
@@ -132,21 +117,12 @@ if(ENABLE_HYPRE AND HYPRE_FOUND)
       add_executable(${example} ${example}.cpp)
 
       # folder to organize targets in an IDE
-      set_target_properties(
-        ${example}
-        PROPERTIES
-          FOLDER
-            "Examples"
-      )
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
       # libraries to link against
       target_link_libraries(
         ${example}
-        PRIVATE
-          MPI::MPI_CXX
-          ${SUNDIALS_LIBS}
-          SUNDIALS::HYPRE
-          SUNDIALS::XBRAID
+        PRIVATE MPI::MPI_CXX ${SUNDIALS_LIBS} SUNDIALS::HYPRE SUNDIALS::XBRAID
       )
     endif()
 
@@ -161,8 +137,7 @@ if(ENABLE_HYPRE AND HYPRE_FOUND)
     SUNDIALS_ADD_TEST(
       ${test_name}
       ${example}
-      TEST_ARGS
-        ${example_args}
+      TEST_ARGS ${example_args}
       MPI_NPROCS ${number_of_tasks}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${test_name}.out
@@ -175,32 +150,25 @@ if(ENABLE_HYPRE AND HYPRE_FOUND)
     # install example source and out files
     if(EXAMPLES_INSTALL)
       install(
-        FILES
-          ${example}.cpp
-          ${example_out}
+        FILES ${example}.cpp ${example_out}
         DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid
       )
     endif()
-  endforeach(
-    example_tuple
-    ${ARKODE_examples}
-  )
+  endforeach(example_tuple ${ARKODE_examples})
 endif()
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
   # Install the README file
   install(
-    FILES
-      README.md
+    FILES README.md
     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid
   )
 
   # Install the extra files
   foreach(extrafile ${ARKODE_extras})
     install(
-      FILES
-        ${extrafile}
+      FILES ${extrafile}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid
     )
   endforeach()
@@ -226,8 +194,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/arkode/CXX_xbraid/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/arkode/CXX_xbraid/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid
   )
 
@@ -245,8 +212,7 @@ if(EXAMPLES_INSTALL)
 
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/arkode/CXX_xbraid/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/arkode/CXX_xbraid/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid
       RENAME Makefile
     )

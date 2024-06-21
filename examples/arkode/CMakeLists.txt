@@ -25,10 +25,8 @@ if(EXAMPLES_ENABLE_C)
   endif()
   if(
     ENABLE_OPENMP_DEVICE
-    AND
-      OPENMP_FOUND
-    AND
-      OPENMP_SUPPORTS_DEVICE_OFFLOADING
+    AND OPENMP_FOUND
+    AND OPENMP_SUPPORTS_DEVICE_OFFLOADING
   )
     add_subdirectory(C_openmpdev)
   endif()

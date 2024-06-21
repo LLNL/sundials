@@ -15,11 +15,7 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-set(
-  unit_tests
-  "cv_test_getuserdata\;"
-  "cv_test_tstop\;"
-)
+set(unit_tests "cv_test_getuserdata\;" "cv_test_tstop\;")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
@@ -33,12 +29,7 @@ foreach(test_tuple ${unit_tests})
     # test source files
     add_executable(${test} ${test}.c)
 
-    set_target_properties(
-      ${test}
-      PROPERTIES
-        FOLDER
-          "unit_tests"
-    )
+    set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 
     # include location of public and private header files
     target_include_directories(
@@ -67,11 +58,7 @@ foreach(test_tuple ${unit_tests})
   endif()
 
   # add test to regression tests
-  add_test(
-    NAME ${test_name}
-    COMMAND
-      ${test} ${test_args}
-  )
+  add_test(NAME ${test_name} COMMAND ${test} ${test_args})
 endforeach()
 
 message(STATUS "Added CVODE C serial units tests")

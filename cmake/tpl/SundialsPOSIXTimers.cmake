@@ -17,11 +17,7 @@
 
 macro(posix_timers_test)
   set(options)
-  set(
-    oneValueArgs
-    POSIX
-    RT_LIB
-  )
+  set(oneValueArgs POSIX RT_LIB)
   set(multiValueArgs)
 
   # parse keyword arguments/options
@@ -117,11 +113,7 @@ if(NOT SUNDIALS_POSIX_TIMERS)
       if(COMPILE_OK)
         message(STATUS "Looking for POSIX timers (linking to rt)... found")
         set(POSIX_TIMERS_NEED_RT_LIBRARY TRUE)
-        set(
-          EXE_EXTRA_LINK_LIBS
-          ${EXE_EXTRA_LINK_LIBS}
-          ${SUNDIALS_RT_LIBRARY}
-        )
+        set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} ${SUNDIALS_RT_LIBRARY})
       endif()
     else()
       message(STATUS "Looking for rt library... FAILED")
@@ -141,11 +133,7 @@ if(NOT SUNDIALS_POSIX_TIMERS)
       )
       set(POSIX_TIMERS_NEED_POSIX_C_SOURCE TRUE)
       set(POSIX_TIMERS_NEED_RT_LIBRARY TRUE)
-      set(
-        EXE_EXTRA_LINK_LIBS
-        ${EXE_EXTRA_LINK_LIBS}
-        ${SUNDIALS_RT_LIBRARY}
-      )
+      set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} ${SUNDIALS_RT_LIBRARY})
     endif()
   endif()
 

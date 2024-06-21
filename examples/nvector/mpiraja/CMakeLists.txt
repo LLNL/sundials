@@ -23,10 +23,7 @@ set(
 )
 
 # Add source directory to include directories
-include_directories(
-  .
-  ..
-)
+include_directories(. ..)
 
 if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
   set(_lang CUDA)
@@ -56,19 +53,9 @@ foreach(example_tuple ${nvector_raja_examples})
     # example source files
     add_executable(${example_target} ${example})
 
-    set_source_files_properties(
-      ${example_target}
-      PROPERTIES
-        LANGUAGE
-          ${_lang}
-    )
+    set_source_files_properties(${example_target} PROPERTIES LANGUAGE ${_lang})
 
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     target_include_directories(${example_target} PUBLIC ${MPI_CXX_INCLUDE_DIRS})
 
@@ -97,8 +84,7 @@ foreach(example_tuple ${nvector_raja_examples})
       string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     else()
       string(
-        REGEX
-        REPLACE
+        REGEX REPLACE
         " "
         "_"
         test_name
@@ -111,8 +97,7 @@ foreach(example_tuple ${nvector_raja_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
     NODIFF
@@ -121,17 +106,8 @@ endforeach()
 
 if(EXAMPLES_INSTALL)
   if(
-    (
-      RAJA_BACKENDS
-        MATCHES
-        "TARGET_OPENMP"
-    )
-    OR
-      (
-        RAJA_BACKENDS
-          MATCHES
-          "OPENMP"
-      )
+    (RAJA_BACKENDS MATCHES "TARGET_OPENMP")
+    OR (RAJA_BACKENDS MATCHES "OPENMP")
   )
     set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
     set(_openmp_target OpenMP::OpenMP_CXX)
@@ -147,21 +123,15 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     nvec_mpiraja
     examples_list
-    EXAMPLES_DEPENDENCIES
-      test_nvector.c
-      test_mpinvector.c
+    EXAMPLES_DEPENDENCIES test_nvector.c test_mpinvector.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_mpinvector.c
     CMAKE_TEMPLATE cmakelists_${_lang}_MPI_ex.in
     SOLVER_LIBRARY sundials_ida
-    SUNDIALS_TARGETS
-      generic
-      nvecmpiplusx
-      nvecraja
-    OTHER_TARGETS
-      ${_openmp_target}
+    SUNDIALS_TARGETS generic nvecmpiplusx nvecraja
+    OTHER_TARGETS ${_openmp_target}
     DESTINATION nvector/mpiraja
   )
 endif()

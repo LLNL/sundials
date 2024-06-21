@@ -48,12 +48,7 @@ foreach(test_tuple ${ARKODE_unit_tests})
     # test source files
     add_executable(${test} ${test}.c)
 
-    set_target_properties(
-      ${test}
-      PROPERTIES
-        FOLDER
-          "unit_tests"
-    )
+    set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 
     # include location of public and private header files
     target_include_directories(
@@ -94,11 +89,7 @@ foreach(test_tuple ${ARKODE_unit_tests})
   endif()
 
   # add test to regression tests
-  add_test(
-    NAME ${test_name}
-    COMMAND
-      ${test} ${test_args}
-  )
+  add_test(NAME ${test_name} COMMAND ${test} ${test_args})
 endforeach()
 
 message(STATUS "Added ARKODE C serial unit tests")

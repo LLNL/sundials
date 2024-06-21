@@ -17,13 +17,8 @@
 if(
   NOT
     (
-      CMAKE_BUILD_TYPE
-        STREQUAL
-        "Release"
-      OR
-        CMAKE_BUILD_TYPE
-          STREQUAL
-          "RelWithDebInfo"
+      CMAKE_BUILD_TYPE STREQUAL "Release"
+      OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"
     )
 )
   message(

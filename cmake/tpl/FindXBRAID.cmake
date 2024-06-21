@@ -139,11 +139,8 @@ else()
   find_path(
     XBRAID_INCLUDE_DIR
     braid.h
-    PATHS
-      ${XBRAID_DIR}
-    PATH_SUFFIXES
-      include
-      braid
+    PATHS ${XBRAID_DIR}
+    PATH_SUFFIXES include braid
     DOC "XBraid include directory"
     NO_DEFAULT_PATH
   )
@@ -163,11 +160,8 @@ else()
   find_library(
     XBRAID_LIBRARY
     braid
-    PATHS
-      ${XBRAID_DIR}
-    PATH_SUFFIXES
-      lib
-      braid
+    PATHS ${XBRAID_DIR}
+    PATH_SUFFIXES lib braid
     DOC "XBraid library"
     NO_DEFAULT_PATH
   )
@@ -187,9 +181,7 @@ endif()
 # set package variables including XBRAID_FOUND
 find_package_handle_standard_args(
   XBRAID
-  REQUIRED_VARS
-    XBRAID_INCLUDE_DIR
-    XBRAID_LIBRARY
+  REQUIRED_VARS XBRAID_INCLUDE_DIR XBRAID_LIBRARY
 )
 
 # XBraid target
@@ -203,12 +195,9 @@ if(XBRAID_FOUND)
   set_target_properties(
     SUNDIALS::XBRAID
     PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES
-        "${XBRAID_INCLUDE_DIR}"
-      INTERFACE_LINK_LIBRARIES
-        "${XBRAID_LIBRARIES}"
-      IMPORTED_LOCATION
-        "${XBRAID_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${XBRAID_INCLUDE_DIR}"
+      INTERFACE_LINK_LIBRARIES "${XBRAID_LIBRARIES}"
+      IMPORTED_LOCATION "${XBRAID_LIBRARY}"
   )
 
   # set variables for output message, compile tests, and

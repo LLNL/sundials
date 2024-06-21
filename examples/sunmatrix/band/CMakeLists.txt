@@ -36,10 +36,7 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
 endif()
 
 # Add source directory to include directories
-include_directories(
-  .
-  ..
-)
+include_directories(. ..)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_band_examples})
@@ -52,19 +49,10 @@ foreach(example_tuple ${sunmatrix_band_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(
-      ${example}
-      ${example}.c
-      ../test_sunmatrix.c
-    )
+    add_executable(${example} ${example}.c ../test_sunmatrix.c)
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
@@ -86,8 +74,7 @@ foreach(example_tuple ${sunmatrix_band_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
@@ -95,17 +82,11 @@ foreach(example_tuple ${sunmatrix_band_examples})
   # install example source files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
-        ../test_sunmatrix.c
-        ../test_sunmatrix.h
+      FILES ${example}.c ../test_sunmatrix.c ../test_sunmatrix.h
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/band
     )
   endif()
-endforeach(
-  example_tuple
-  ${sunmatrix_band_examples}
-)
+endforeach(example_tuple ${sunmatrix_band_examples})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_band_fortran_examples})
@@ -132,12 +113,7 @@ foreach(example_tuple ${sunmatrix_band_fortran_examples})
     )
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
@@ -161,15 +137,11 @@ foreach(example_tuple ${sunmatrix_band_fortran_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
-endforeach(
-  example_tuple
-  ${sunmatrix_band_fortran_examples}
-)
+endforeach(example_tuple ${sunmatrix_band_fortran_examples})
 
 if(EXAMPLES_INSTALL)
   # Install the README file
@@ -194,8 +166,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/sunmatrix/band/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/sunmatrix/band/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/band
   )
 
@@ -212,8 +183,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/sunmatrix/band/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/sunmatrix/band/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/band
       RENAME Makefile
     )

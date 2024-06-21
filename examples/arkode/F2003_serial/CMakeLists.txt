@@ -54,12 +54,7 @@ set(ARKODE_LIB sundials_arkode)
 set(FARKODE_LIB sundials_farkode_mod)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${FARKODE_LIB}
-  ${ARKODE_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${FARKODE_LIB} ${ARKODE_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FARKODE_examples})
@@ -79,12 +74,7 @@ foreach(example_tuple ${FARKODE_examples})
     add_executable(${example} ${example}.f90)
 
     # folder for IDEs
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
@@ -101,8 +91,7 @@ foreach(example_tuple ${FARKODE_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type}
@@ -111,25 +100,16 @@ foreach(example_tuple ${FARKODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.f90
-        ${test_name}.out
+      FILES ${example}.f90 ${test_name}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial
     )
   endif()
-endforeach(
-  example_tuple
-  ${FARKODE_examples}
-)
+endforeach(example_tuple ${FARKODE_examples})
 
 # Add the build and install targets for each KLU example (if needed)
 if(BUILD_SUNLINSOL_KLU)
   # Sundials KLU linear solver module
-  set(
-    SUNLINSOLKLU_LIBS
-    sundials_sunlinsolklu
-    sundials_fsunlinsolklu_mod
-  )
+  set(SUNLINSOLKLU_LIBS sundials_sunlinsolklu sundials_fsunlinsolklu_mod)
 
   # KLU libraries
   list(APPEND SUNLINSOLKLU_LIBS)
@@ -147,12 +127,7 @@ if(BUILD_SUNLINSOL_KLU)
 
     # create the cmake executable target
     add_executable(${example} ${example}.f90)
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # add example to regression tests
     SUNDIALS_ADD_TEST(
@@ -164,25 +139,16 @@ if(BUILD_SUNLINSOL_KLU)
     )
 
     # libraries to link against
-    target_link_libraries(
-      ${example}
-      ${SUNDIALS_LIBS}
-      ${SUNLINSOLKLU_LIBS}
-    )
+    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
 
     # install example source and out files
     if(EXAMPLES_INSTALL)
       install(
-        FILES
-          ${example}.f90
-          ${example}.out
+        FILES ${example}.f90 ${example}.out
         DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial
       )
     endif()
-  endforeach(
-    example_tuple
-    ${FARKODE_examples_KLU}
-  )
+  endforeach(example_tuple ${FARKODE_examples_KLU})
 endif()
 
 # Add the build and install targets for each LAPACK example (if needed)
@@ -211,12 +177,7 @@ if(BUILD_SUNLINSOL_LAPACKDENSE)
     # example source files
     add_executable(${example} ${example}.f90)
 
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # add example to regression tests
     SUNDIALS_ADD_TEST(
@@ -228,25 +189,16 @@ if(BUILD_SUNLINSOL_LAPACKDENSE)
     )
 
     # libraries to link against
-    target_link_libraries(
-      ${example}
-      ${SUNDIALS_LIBS}
-      ${SUNLINSOLLAPACK_LIBS}
-    )
+    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
 
     # install example source and out files
     if(EXAMPLES_INSTALL)
       install(
-        FILES
-          ${example}.f90
-          ${example}.out
+        FILES ${example}.f90 ${example}.out
         DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial
       )
     endif()
-  endforeach(
-    example_tuple
-    ${FARKODE_examples_LAPACK}
-  )
+  endforeach(example_tuple ${FARKODE_examples_LAPACK})
 endif()
 
 # Add the build and install targets for regression test
@@ -264,19 +216,13 @@ foreach(example_tuple ${FARKODE_tests})
   # example source files
   add_executable(${example} ${example}.f90)
 
-  set_target_properties(
-    ${example}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(
     ${example}
     ${example}
-    TEST_ARGS
-      ""
+    TEST_ARGS ""
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
@@ -287,23 +233,18 @@ foreach(example_tuple ${FARKODE_tests})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.f90
+      FILES ${example}.f90
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial
     )
   endif()
-endforeach(
-  example_tuple
-  ${FARKODE_tests}
-)
+endforeach(example_tuple ${FARKODE_tests})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
   # Install the extra files
   foreach(extrafile ${ARKODE_extras})
     install(
-      FILES
-        ${extrafile}
+      FILES ${extrafile}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial
     )
   endforeach()
@@ -330,8 +271,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/arkode/F2003_serial/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/arkode/F2003_serial/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial
   )
 
@@ -348,8 +288,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/arkode/F2003_serial/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/arkode/F2003_serial/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial
       RENAME Makefile
     )

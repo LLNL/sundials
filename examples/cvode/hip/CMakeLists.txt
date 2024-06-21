@@ -27,18 +27,10 @@ set(
 )
 
 # Specify libraries to link against
-set(
-  SUNDIALS_LIBS
-  sundials_cvode
-  sundials_nvechip
-)
+set(SUNDIALS_LIBS sundials_cvode sundials_nvechip)
 
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  set(
-    SUNDIALS_LIBS
-    ${SUNDIALS_LIBS}
-    sundials_cvode_fused_hip
-  )
+  set(SUNDIALS_LIBS ${SUNDIALS_LIBS} sundials_cvode_fused_hip)
 endif()
 
 # Add source directory to include directories
@@ -59,20 +51,12 @@ foreach(example_tuple ${all_examples})
     add_executable(${example_target} ${example})
 
     # folder for IDEs
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
       ${example_target}
-      PRIVATE
-        hip::device
-        ${SUNDIALS_LIBS}
-        ${EXE_EXTRA_LINK_LIBS}
+      PRIVATE hip::device ${SUNDIALS_LIBS} ${EXE_EXTRA_LINK_LIBS}
     )
   endif()
 
@@ -87,16 +71,12 @@ foreach(example_tuple ${all_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type}
   )
-endforeach(
-  example_tuple
-  ${all_examples}
-)
+endforeach(example_tuple ${all_examples})
 
 # Install the targets
 if(EXAMPLES_INSTALL)
@@ -110,10 +90,7 @@ if(EXAMPLES_INSTALL)
     cvode
     all_examples
     CMAKE_TEMPLATE cmakelists_HIP_ex.in
-    SUNDIALS_TARGETS
-      cvode
-      nvechip
-      ${_fused_kernels_if_enabled}
+    SUNDIALS_TARGETS cvode nvechip ${_fused_kernels_if_enabled}
     DESTINATION cvode/hip
   )
 endif()

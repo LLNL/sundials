@@ -52,14 +52,10 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/cvodes/ cvodes_HEADERS)
 # Create the library
 sundials_add_library(
   sundials_cvodes
-  SOURCES
-    ${cvodes_SOURCES}
-  HEADERS
-    ${cvodes_HEADERS}
+  SOURCES ${cvodes_SOURCES}
+  HEADERS ${cvodes_HEADERS}
   INCLUDE_SUBDIR cvodes
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj

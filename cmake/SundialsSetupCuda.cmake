@@ -48,8 +48,7 @@ sundials_option(
   STRING
   "${DOCSTR}"
   "${CMAKE_CXX_STANDARD}"
-  OPTIONS
-    "14;17;20"
+  OPTIONS "14;17;20"
 )
 message(STATUS "CUDA standard set to ${CMAKE_CUDA_STANDARD}")
 
@@ -59,29 +58,12 @@ set(
 )
 
 if(
-  (
-    CMAKE_CXX_COMPILER_ID
-      MATCHES
-      GNU
-  )
-  OR
-    (
-      CMAKE_CXX_COMPILER_ID
-        MATCHES
-        Clang
-    )
-  AND
-    (
-      CMAKE_SYSTEM_PROCESSOR
-        MATCHES
-        ppc64le
-    )
+  (CMAKE_CXX_COMPILER_ID MATCHES GNU)
+  OR (CMAKE_CXX_COMPILER_ID MATCHES Clang)
+  AND (CMAKE_SYSTEM_PROCESSOR MATCHES ppc64le)
 )
   include(CheckCXXCompilerFlag)
-  check_cxx_compiler_flag(
-    -mno-float128
-    _hasflag
-  )
+  check_cxx_compiler_flag(-mno-float128 _hasflag)
   if(_hasflag)
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler=-mno-float128")
   endif()

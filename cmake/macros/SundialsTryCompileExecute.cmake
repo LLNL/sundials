@@ -28,11 +28,7 @@
 
 macro(sundials_trycompile_execute EXECUTABLE CWD COMPILE_OK RUN_OK)
   set(options)
-  set(
-    oneValueArgs
-    COMPILE_OUTPUT
-    RUN_OUTPUT
-  )
+  set(oneValueArgs COMPILE_OUTPUT RUN_OUTPUT)
   set(multiValueArgs)
   set(COMPILE_OK FALSE)
   set(RUN_OK FALSE)
@@ -57,8 +53,7 @@ macro(sundials_trycompile_execute EXECUTABLE CWD COMPILE_OK RUN_OK)
   )
   if(COMPILE_OK)
     execute_process(
-      COMMAND
-        "./${EXECUTABLE}"
+      COMMAND "./${EXECUTABLE}"
       WORKING_DIRECTORY ${CWD}
       RESULT_VARIABLE RUN_OK
       OUTPUT_VARIABLE RUN_OUTPUT

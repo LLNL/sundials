@@ -15,17 +15,8 @@
 
 if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
   if(
-    (
-      RAJA_BACKENDS
-        MATCHES
-        "TARGET_OPENMP"
-    )
-    OR
-      (
-        RAJA_BACKENDS
-          MATCHES
-          "OPENMP"
-      )
+    (RAJA_BACKENDS MATCHES "TARGET_OPENMP")
+    OR (RAJA_BACKENDS MATCHES "OPENMP")
   )
     set(OTHER_LIBS OpenMP::OpenMP_CXX)
   endif()
@@ -58,16 +49,12 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
   # ensure the linker language is reset to CXX
   set_target_properties(
     advection_reaction_3D_raja
-    PROPERTIES
-      LINKER_LANGUAGE
-        CXX
+    PROPERTIES LINKER_LANGUAGE CXX
   )
 
   target_include_directories(
     advection_reaction_3D_raja
-    PRIVATE
-      ${PROJECT_SOURCE_DIR}/utilities
-      ${MPI_CXX_INCLUDE_DIRS}
+    PRIVATE ${PROJECT_SOURCE_DIR}/utilities ${MPI_CXX_INCLUDE_DIRS}
   )
 
   target_link_libraries(
@@ -120,28 +107,11 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
   if(BUILD_NVECTOR_CUDA)
     set_source_files_properties(
       advection_reaction_3D.cpp
-      PROPERTIES
-        LANGUAGE
-          CUDA
+      PROPERTIES LANGUAGE CUDA
     )
-    set_source_files_properties(
-      arkode_driver.cpp
-      PROPERTIES
-        LANGUAGE
-          CUDA
-    )
-    set_source_files_properties(
-      cvode_driver.cpp
-      PROPERTIES
-        LANGUAGE
-          CUDA
-    )
-    set_source_files_properties(
-      ida_driver.cpp
-      PROPERTIES
-        LANGUAGE
-          CUDA
-    )
+    set_source_files_properties(arkode_driver.cpp PROPERTIES LANGUAGE CUDA)
+    set_source_files_properties(cvode_driver.cpp PROPERTIES LANGUAGE CUDA)
+    set_source_files_properties(ida_driver.cpp PROPERTIES LANGUAGE CUDA)
 
     add_executable(
       advection_reaction_3D_raja_mpicuda
@@ -158,16 +128,12 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     # ensure the linker language is reset to CXX
     set_target_properties(
       advection_reaction_3D_raja_mpicuda
-      PROPERTIES
-        LINKER_LANGUAGE
-          CXX
+      PROPERTIES LINKER_LANGUAGE CXX
     )
 
     target_include_directories(
       advection_reaction_3D_raja_mpicuda
-      PRIVATE
-        ${PROJECT_SOURCE_DIR}/utilities
-        ${MPI_CXX_INCLUDE_DIRS}
+      PRIVATE ${PROJECT_SOURCE_DIR}/utilities ${MPI_CXX_INCLUDE_DIRS}
     )
 
     target_link_libraries(
@@ -185,8 +151,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
 
     target_compile_definitions(
       advection_reaction_3D_raja_mpicuda
-      PRIVATE
-        USE_CUDA_NVEC
+      PRIVATE USE_CUDA_NVEC
     )
 
     install(
@@ -232,9 +197,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
 
     target_include_directories(
       advection_reaction_3D_raja_mpihip
-      PRIVATE
-        ${PROJECT_SOURCE_DIR}/utilities
-        ${MPI_CXX_INCLUDE_DIRS}
+      PRIVATE ${PROJECT_SOURCE_DIR}/utilities ${MPI_CXX_INCLUDE_DIRS}
     )
 
     target_link_libraries(
@@ -253,8 +216,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
 
     target_compile_definitions(
       advection_reaction_3D_raja_mpihip
-      PRIVATE
-        USE_HIP_NVEC
+      PRIVATE USE_HIP_NVEC
     )
 
     install(

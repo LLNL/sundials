@@ -18,13 +18,9 @@
 find_path(
   MAGMA_INCLUDE_DIR
   magma_v2.h
-  NAMES
-    magma_v2.h
-  HINTS
-    ${MAGMA_DIR}
-    $ENV{MAGMA_DIR}
-  PATH_SUFFIXES
-    include
+  NAMES magma_v2.h
+  HINTS ${MAGMA_DIR} $ENV{MAGMA_DIR}
+  PATH_SUFFIXES include
   NO_DEFAULT_PATH
   DOC "Directory with MAGMA header"
 )
@@ -32,14 +28,9 @@ find_path(
 # find the main MAGMA library
 find_library(
   MAGMA_LIBRARY
-  NAMES
-    magma
-  HINTS
-    ${MAGMA_DIR}
-    $ENV{MAGMA_DIR}
-  PATH_SUFFIXES
-    lib
-    lib64
+  NAMES magma
+  HINTS ${MAGMA_DIR} $ENV{MAGMA_DIR}
+  PATH_SUFFIXES lib lib64
   NO_DEFAULT_PATH
   DOC "The MAGMA library."
 )
@@ -49,14 +40,9 @@ if("SPARSE" IN_LIST MAGMA_FIND_COMPONENTS)
   set(_sparse_required MAGMA_SPARSE_LIBRARY)
   find_library(
     MAGMA_SPARSE_LIBRARY
-    NAMES
-      magma_sparse
-    HINTS
-      ${MAGMA_DIR}
-      $ENV{MAGMA_DIR}
-    PATH_SUFFIXES
-      lib
-      lib64
+    NAMES magma_sparse
+    HINTS ${MAGMA_DIR} $ENV{MAGMA_DIR}
+    PATH_SUFFIXES lib lib64
     NO_DEFAULT_PATH
     DOC "The MAGMA sparse library."
   )
@@ -111,21 +97,10 @@ if(MAGMA_LIBRARY AND MAGMA_INCLUDE_DIR)
       if(
         NOT
           (
-            lib
-              STREQUAL
-              "-lmagma"
-            OR
-              lib
-                STREQUAL
-                "-lmagma_sparse"
-            OR
-              lib
-                STREQUAL
-                "-L\${libdir}"
-            OR
-              lib
-                STREQUAL
-                ""
+            lib STREQUAL "-lmagma"
+            OR lib STREQUAL "-lmagma_sparse"
+            OR lib STREQUAL "-L\${libdir}"
+            OR lib STREQUAL ""
           )
       )
         # Check if we need to find cusparse or cublas
@@ -168,12 +143,9 @@ if(MAGMA_FOUND)
   set_target_properties(
     SUNDIALS::MAGMA
     PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES
-        "${MAGMA_INCLUDE_DIR}"
-      INTERFACE_LINK_LIBRARIES
-        "${_interface_libraires}"
-      IMPORTED_LOCATION
-        "${MAGMA_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${MAGMA_INCLUDE_DIR}"
+      INTERFACE_LINK_LIBRARIES "${_interface_libraires}"
+      IMPORTED_LOCATION "${MAGMA_LIBRARY}"
   )
 
   if(MAGMA_SPARSE_LIBRARY)
@@ -184,12 +156,9 @@ if(MAGMA_FOUND)
     set_target_properties(
       SUNDIALS::MAGMA_SPARSE
       PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES
-          "${MAGMA_INCLUDE_DIR}"
-        INTERFACE_LINK_LIBRARIES
-          "${MAGMA_LIBRARY};${_interface_libraires}"
-        IMPORTED_LOCATION
-          "${MAGMA_SPARSE_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${MAGMA_INCLUDE_DIR}"
+        INTERFACE_LINK_LIBRARIES "${MAGMA_LIBRARY};${_interface_libraires}"
+        IMPORTED_LOCATION "${MAGMA_SPARSE_LIBRARY}"
     )
   endif()
 endif()

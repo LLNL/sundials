@@ -23,12 +23,7 @@ foreach(backend ${SUNDIALS_RAJA_BACKENDS})
     set(_lang CUDA)
     set(_defines USE_CUDA)
     set(example_target "${example}_cuda")
-    set_source_files_properties(
-      ${example}.cpp
-      PROPERTIES
-        LANGUAGE
-          CUDA
-    )
+    set_source_files_properties(${example}.cpp PROPERTIES LANGUAGE CUDA)
   elseif(backend MATCHES "HIP")
     set(_lang CXX)
     set(_defines USE_HIP)
@@ -43,21 +38,14 @@ foreach(backend ${SUNDIALS_RAJA_BACKENDS})
 
   sundials_add_nvector_benchmark(
     ${example_target}
-    SOURCES
-      test_nvector_performance_raja.cpp
-    SUNDIALS_TARGETS
-      sundials_nvecraja
+    SOURCES test_nvector_performance_raja.cpp
+    SUNDIALS_TARGETS sundials_nvecraja
   )
 
   target_compile_definitions(${example_target} PRIVATE ${_defines})
 
   if(backend MATCHES "CUDA")
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        LINKER_LANGUAGE
-          CXX
-    )
+    set_target_properties(${example_target} PROPERTIES LINKER_LANGUAGE CXX)
   endif()
 
   if(RAJA_BACKENDS MATCHES "OPENMP")

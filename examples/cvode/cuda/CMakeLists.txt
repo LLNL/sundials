@@ -41,19 +41,10 @@ endif()
 list(APPEND all_examples "${CVODE_examples}")
 
 # Specify libraries to link against
-set(
-  SUNDIALS_LIBS
-  ${SUNDIALS_LIBS}
-  sundials_cvode
-  sundials_nveccuda
-)
+set(SUNDIALS_LIBS ${SUNDIALS_LIBS} sundials_cvode sundials_nveccuda)
 
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  set(
-    SUNDIALS_LIBS
-    ${SUNDIALS_LIBS}
-    sundials_cvode_fused_cuda
-  )
+  set(SUNDIALS_LIBS ${SUNDIALS_LIBS} sundials_cvode_fused_cuda)
 endif()
 
 # Add source directory to include directories
@@ -68,9 +59,7 @@ foreach(example_tuple ${all_examples})
 
   set_source_files_properties(
     ${example}.cu
-    PROPERTIES
-      CUDA_SOURCE_PROPERTY_FORMAT
-        OBJ
+    PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ
   )
 
   if(NOT TARGET ${example})
@@ -78,19 +67,12 @@ foreach(example_tuple ${all_examples})
     add_executable(${example} ${example}.cu)
 
     # folder for IDEs
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
       ${example}
-      PRIVATE
-        ${SUNDIALS_LIBS}
-        ${EXE_EXTRA_LINK_LIBS}
+      PRIVATE ${SUNDIALS_LIBS} ${EXE_EXTRA_LINK_LIBS}
     )
   endif()
 
@@ -105,8 +87,7 @@ foreach(example_tuple ${all_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type}
@@ -115,16 +96,11 @@ foreach(example_tuple ${all_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.cu
-        ${test_name}.out
+      FILES ${example}.cu ${test_name}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda
     )
   endif()
-endforeach(
-  example_tuple
-  ${CVODE_examples}
-)
+endforeach(example_tuple ${CVODE_examples})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -160,8 +136,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/cvode/cuda/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/cvode/cuda/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda
   )
 
@@ -178,8 +153,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/cvode/cuda/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/cvode/cuda/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda
       RENAME Makefile
     )

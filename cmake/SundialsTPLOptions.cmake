@@ -61,8 +61,7 @@ sundials_option(
   STRING
   "Target CUDA architecture"
   "70"
-  DEPENDS_ON
-    ENABLE_CUDA
+  DEPENDS_ON ENABLE_CUDA
 )
 
 # -------------------------------------------------------------
@@ -80,8 +79,7 @@ sundials_option(
   BOOL
   "Disable the use of some SYCL 2020 features in SUNDIALS libraries and examples"
   OFF
-  DEPENDS_ON
-    ENABLE_SYCL
+  DEPENDS_ON ENABLE_SYCL
   ADVANCED
 )
 
@@ -95,8 +93,7 @@ sundials_option(
   STRING
   "Lapack and Blas libraries"
   "${LAPACK_LIBRARIES}"
-  DEPENDS_ON
-    ENABLE_LAPACK
+  DEPENDS_ON ENABLE_LAPACK
 )
 
 sundials_option(
@@ -104,8 +101,7 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given LAPACK configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_LAPACK
+  DEPENDS_ON ENABLE_LAPACK
   ADVANCED
 )
 
@@ -119,8 +115,7 @@ sundials_option(
   PATH
   "Path to the root of a Ginkgo installation"
   "${Ginkgo_DIR}"
-  DEPENDS_ON
-    ENABLE_GINKGO
+  DEPENDS_ON ENABLE_GINKGO
 )
 
 sundials_option(
@@ -128,8 +123,7 @@ sundials_option(
   STRING
   "Which Ginkgo backend(s) to build the SUNDIALS Ginkgo interfaces for (REF, OMP, CUDA, HIP, SYCL)"
   "REF;OMP"
-  DEPENDS_ON
-    ENABLE_GINKGO
+  DEPENDS_ON ENABLE_GINKGO
 )
 
 sundials_option(
@@ -137,8 +131,7 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given Ginkgo configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_GINKGO
+  DEPENDS_ON ENABLE_GINKGO
   ADVANCED
 )
 
@@ -152,8 +145,7 @@ sundials_option(
   PATH
   "Path to the root of a MAGMA installation"
   "${MAGMA_DIR}"
-  DEPENDS_ON
-    ENABLE_MAGMA
+  DEPENDS_ON ENABLE_MAGMA
 )
 
 sundials_option(
@@ -161,10 +153,8 @@ sundials_option(
   STRING
   "Which MAGMA backend to use under the SUNDIALS MAGMA interfaces (CUDA, HIP)"
   "CUDA"
-  OPTIONS
-    "CUDA;HIP"
-  DEPENDS_ON
-    ENABLE_MAGMA
+  OPTIONS "CUDA;HIP"
+  DEPENDS_ON ENABLE_MAGMA
 )
 
 sundials_option(
@@ -172,8 +162,7 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given MAGMA configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_MAGMA
+  DEPENDS_ON ENABLE_MAGMA
   ADVANCED
 )
 
@@ -187,8 +176,7 @@ sundials_option(
   PATH
   "Path to the root of the SuperLU_DIST installation"
   "${SUPERLUDIST_DIR}"
-  DEPENDS_ON
-    ENABLE_SUPERLUDIST
+  DEPENDS_ON ENABLE_SUPERLUDIST
 )
 
 sundials_option(
@@ -196,8 +184,7 @@ sundials_option(
   PATH
   "SuperLU_DIST include directories"
   "${SUPERLUDIST_INCLUDE_DIRS}"
-  DEPENDS_ON
-    ENABLE_SUPERLUDIST
+  DEPENDS_ON ENABLE_SUPERLUDIST
   ADVANCED
 )
 
@@ -206,8 +193,7 @@ sundials_option(
   STRING
   "Semi-colon separated list of libraries needed for SuperLU_DIST."
   "${SUPERLUDIST_LIBRARIES}"
-  DEPENDS_ON
-    ENABLE_SUPERLUDIST
+  DEPENDS_ON ENABLE_SUPERLUDIST
   ADVANCED
 )
 
@@ -216,8 +202,7 @@ sundials_option(
   BOOL
   "Enable SUNDIALS support for SuperLU_DIST OpenMP on-node parallelism"
   OFF
-  DEPENDS_ON
-    ENABLE_SUPERLUDIST
+  DEPENDS_ON ENABLE_SUPERLUDIST
 )
 
 sundials_option(
@@ -225,8 +210,7 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given SuperLU_DIST configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_SUPERLUDIST
+  DEPENDS_ON ENABLE_SUPERLUDIST
   ADVANCED
 )
 
@@ -240,8 +224,7 @@ sundials_option(
   PATH
   "SuperLU_MT include directory"
   "${SUPERLUMT_INCLUDE_DIR}"
-  DEPENDS_ON
-    ENABLE_SUPERLUMT
+  DEPENDS_ON ENABLE_SUPERLUMT
 )
 
 sundials_option(
@@ -249,8 +232,7 @@ sundials_option(
   PATH
   "SuperLU_MT library directory"
   "${SUPERLUMT_LIBRARY_DIR}"
-  DEPENDS_ON
-    ENABLE_SUPERLUMT
+  DEPENDS_ON ENABLE_SUPERLUMT
 )
 
 sundials_option(
@@ -258,8 +240,7 @@ sundials_option(
   STRING
   "Semi-colon separated list of additional libraries needed for SuperLU_MT."
   "${SUPERLUMT_LIBRARIES}"
-  DEPENDS_ON
-    ENABLE_SUPERLUMT
+  DEPENDS_ON ENABLE_SUPERLUMT
 )
 
 sundials_option(
@@ -267,8 +248,7 @@ sundials_option(
   STRING
   "SuperLU_MT threading type: OPENMP or PTHREAD"
   "PTHREAD"
-  DEPENDS_ON
-    ENABLE_SUPERLUMT
+  DEPENDS_ON ENABLE_SUPERLUMT
 )
 
 sundials_option(
@@ -276,8 +256,7 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given SUPERLUMT configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_SUPERLUMT
+  DEPENDS_ON ENABLE_SUPERLUMT
   ADVANCED
 )
 
@@ -291,8 +270,7 @@ sundials_option(
   PATH
   "KLU include directory"
   "${KLU_INCLUDE_DIR}"
-  DEPENDS_ON
-    ENABLE_KLU
+  DEPENDS_ON ENABLE_KLU
 )
 
 sundials_option(
@@ -300,8 +278,7 @@ sundials_option(
   PATH
   "KLU library directory"
   "${KLU_LIBRARY_DIR}"
-  DEPENDS_ON
-    ENABLE_KLU
+  DEPENDS_ON ENABLE_KLU
 )
 
 sundials_option(
@@ -309,8 +286,7 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given KLU configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_KLU
+  DEPENDS_ON ENABLE_KLU
   ADVANCED
 )
 
@@ -324,8 +300,7 @@ sundials_option(
   PATH
   "Path to hypre installation"
   "${HYPRE_DIR}"
-  DEPENDS_ON
-    ENABLE_HYPRE
+  DEPENDS_ON ENABLE_HYPRE
 )
 
 sundials_option(
@@ -333,8 +308,7 @@ sundials_option(
   PATH
   "HYPRE include directory"
   "${HYPRE_INCLUDE_DIR}"
-  DEPENDS_ON
-    ENABLE_HYPRE
+  DEPENDS_ON ENABLE_HYPRE
 )
 
 sundials_option(
@@ -342,8 +316,7 @@ sundials_option(
   PATH
   "HYPRE library directory"
   "${HYPRE_LIBRARY_DIR}"
-  DEPENDS_ON
-    ENABLE_HYPRE
+  DEPENDS_ON ENABLE_HYPRE
 )
 
 sundials_option(
@@ -351,8 +324,7 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given hypre configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_HYPRE
+  DEPENDS_ON ENABLE_HYPRE
   ADVANCED
 )
 
@@ -367,8 +339,7 @@ sundials_option(
   PATH
   "Path to the root of a PETSc installation"
   "${PETSC_DIR}"
-  DEPENDS_ON
-    ENABLE_PETSC
+  DEPENDS_ON ENABLE_PETSC
 )
 
 sundials_option(
@@ -376,8 +347,7 @@ sundials_option(
   STRING
   "PETSc architecture (optional)"
   "${PETSC_ARCH}"
-  DEPENDS_ON
-    ENABLE_PETSC
+  DEPENDS_ON ENABLE_PETSC
 )
 
 sundials_option(
@@ -385,8 +355,7 @@ sundials_option(
   STRING
   "Semi-colon separated list of PETSc link libraries"
   "${PETSC_LIBRARIES}"
-  DEPENDS_ON
-    ENABLE_PETSC
+  DEPENDS_ON ENABLE_PETSC
   ADVANCED
 )
 
@@ -395,8 +364,7 @@ sundials_option(
   STRING
   "Semi-colon separated list of PETSc include directories"
   "${PETSC_INCLUDES}"
-  DEPENDS_ON
-    ENABLE_PETSC
+  DEPENDS_ON ENABLE_PETSC
   ADVANCED
 )
 
@@ -405,8 +373,7 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given PETSc configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_PETSC
+  DEPENDS_ON ENABLE_PETSC
   ADVANCED
 )
 
@@ -420,8 +387,7 @@ sundials_option(
   PATH
   "Path to root of RAJA installation"
   "${RAJA_DIR}"
-  DEPENDS_ON
-    ENABLE_RAJA
+  DEPENDS_ON ENABLE_RAJA
 )
 
 sundials_option(
@@ -429,10 +395,8 @@ sundials_option(
   STRING
   "Which RAJA backend under the SUNDIALS RAJA interfaces (CUDA, HIP, SYCL)"
   "CUDA"
-  OPTIONS
-    "CUDA;HIP;SYCL"
-  DEPENDS_ON
-    ENABLE_RAJA
+  OPTIONS "CUDA;HIP;SYCL"
+  DEPENDS_ON ENABLE_RAJA
 )
 
 # ---------------------------------------------------------------
@@ -445,8 +409,7 @@ sundials_option(
   PATH
   "Path to root of Trilinos installation"
   "${Trilinos_DIR}"
-  DEPENDS_ON
-    ENABLE_TRILINOS
+  DEPENDS_ON ENABLE_TRILINOS
 )
 
 sundials_option(
@@ -454,8 +417,7 @@ sundials_option(
   STRING
   "C++ compiler for Trilinos interface"
   "${Trilinos_CXX_COMPILER}"
-  DEPENDS_ON
-    ENABLE_TRILINOS
+  DEPENDS_ON ENABLE_TRILINOS
   ADVANCED
 )
 
@@ -464,8 +426,7 @@ sundials_option(
   STRING
   "C compiler for Trilinos interface"
   "${Trilinos_C_COMPILER}"
-  DEPENDS_ON
-    ENABLE_TRILINOS
+  DEPENDS_ON ENABLE_TRILINOS
   ADVANCED
 )
 
@@ -474,8 +435,7 @@ sundials_option(
   STRING
   "C++ compiler flags for Trilinos interface"
   "${Trilinos_CXX_COMPILER_FLAGS}"
-  DEPENDS_ON
-    ENABLE_TRILINOS
+  DEPENDS_ON ENABLE_TRILINOS
   ADVANCED
 )
 
@@ -484,8 +444,7 @@ sundials_option(
   STRING
   "C compiler flags for Trilinos interface"
   "${Trilinos_C_COMPILER_FLAGS}"
-  DEPENDS_ON
-    ENABLE_TRILINOS
+  DEPENDS_ON ENABLE_TRILINOS
   ADVANCED
 )
 
@@ -494,8 +453,7 @@ sundials_option(
   STRING
   "MPI executable for Trilinos interface"
   "${Trilinos_MPI_EXEC}"
-  DEPENDS_ON
-    ENABLE_TRILINOS
+  DEPENDS_ON ENABLE_TRILINOS
   ADVANCED
 )
 
@@ -504,8 +462,7 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given Trilinos configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_TRILINOS
+  DEPENDS_ON ENABLE_TRILINOS
   ADVANCED
 )
 
@@ -520,8 +477,7 @@ sundials_option(
   PATH
   "Path to the root of an XBraid installation"
   "${XBRAID_DIR}"
-  DEPENDS_ON
-    ENABLE_XBRAID
+  DEPENDS_ON ENABLE_XBRAID
 )
 
 sundials_option(
@@ -529,8 +485,7 @@ sundials_option(
   STRING
   "Semi-colon separated list of XBraid link libraries"
   "${XBRAID_LIBRARIES}"
-  DEPENDS_ON
-    ENABLE_XBRAID
+  DEPENDS_ON ENABLE_XBRAID
   ADVANCED
 )
 
@@ -539,8 +494,7 @@ sundials_option(
   STRING
   "Semi-colon separated list of XBraid include directories"
   "${XBRAID_INCLUDES}"
-  DEPENDS_ON
-    ENABLE_XBRAID
+  DEPENDS_ON ENABLE_XBRAID
   ADVANCED
 )
 
@@ -549,8 +503,7 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given XBraid configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_XBRAID
+  DEPENDS_ON ENABLE_XBRAID
   ADVANCED
 )
 
@@ -565,8 +518,7 @@ sundials_option(
   PATH
   "Path to root of oneMKL installation"
   "${ONEMKL_DIR}"
-  DEPENDS_ON
-    ENABLE_ONEMKL
+  DEPENDS_ON ENABLE_ONEMKL
 )
 
 sundials_option(
@@ -574,8 +526,7 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given oneMKL configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_ONEMKL
+  DEPENDS_ON ENABLE_ONEMKL
   ADVANCED
 )
 
@@ -584,8 +535,7 @@ sundials_option(
   BOOL
   "Replace batched getrf call with loop over getrf"
   OFF
-  DEPENDS_ON
-    ENABLE_ONEMKL
+  DEPENDS_ON ENABLE_ONEMKL
   ADVANCED
 )
 
@@ -594,8 +544,7 @@ sundials_option(
   BOOL
   "Replace batched getrs call with loop over getrs"
   OFF
-  DEPENDS_ON
-    ENABLE_ONEMKL
+  DEPENDS_ON ENABLE_ONEMKL
   ADVANCED
 )
 
@@ -608,8 +557,7 @@ sundials_option(
   BOOL
   "Enable CALIPER support"
   OFF
-  DEPENDS_ON
-    SUNDIALS_BUILD_WITH_PROFILING
+  DEPENDS_ON SUNDIALS_BUILD_WITH_PROFILING
 )
 
 sundials_option(
@@ -617,8 +565,7 @@ sundials_option(
   PATH
   "Path to the root of an CALIPER installation"
   "${CALIPER_DIR}"
-  DEPENDS_ON
-    ENABLE_CALIPER
+  DEPENDS_ON ENABLE_CALIPER
 )
 
 sundials_option(
@@ -626,8 +573,7 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given CALIPER configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_CALIPER
+  DEPENDS_ON ENABLE_CALIPER
   ADVANCED
 )
 
@@ -640,8 +586,7 @@ sundials_option(
   BOOL
   "Enable Adiak support"
   OFF
-  DEPENDS_ON
-    SUNDIALS_BUILD_WITH_PROFILING
+  DEPENDS_ON SUNDIALS_BUILD_WITH_PROFILING
 )
 
 sundials_option(
@@ -649,8 +594,7 @@ sundials_option(
   PATH
   "Path to the root of an Adiak installation"
   "${ADIAK_DIR}"
-  DEPENDS_ON
-    ENABLE_ADIAK
+  DEPENDS_ON ENABLE_ADIAK
 )
 
 # ---------------------------------------------------------------
@@ -671,8 +615,7 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given Kokkos configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_KOKKOS
+  DEPENDS_ON ENABLE_KOKKOS
   ADVANCED
 )
 
@@ -694,8 +637,6 @@ sundials_option(
   BOOL
   "Set to ON to force CMake to accept a given Kokkos configuration"
   OFF
-  DEPENDS_ON
-    ENABLE_KOKKOS
-    ENABLE_KOKKOS_KERNELS
+  DEPENDS_ON ENABLE_KOKKOS ENABLE_KOKKOS_KERNELS
   ADVANCED
 )

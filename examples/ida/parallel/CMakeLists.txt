@@ -39,12 +39,7 @@ set(IDA_LIB sundials_ida)
 set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${IDA_LIB}
-  ${NVECP_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${IDA_examples})
@@ -56,12 +51,7 @@ foreach(example_tuple ${IDA_examples})
   # example source files
   add_executable(${example} ${example}.c)
 
-  set_target_properties(
-    ${example}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(
@@ -77,26 +67,17 @@ foreach(example_tuple ${IDA_examples})
   target_link_libraries(${example} ${SUNDIALS_LIBS})
 
   if(NOT MPI_C_COMPILER)
-    target_link_libraries(
-      ${example}
-      ${MPI_LIBRARY}
-      ${MPI_EXTRA_LIBRARIES}
-    )
+    target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
   endif()
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
-        ${example}.out
+      FILES ${example}.c ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/parallel
     )
   endif()
-endforeach(
-  example_tuple
-  ${IDA_examples}
-)
+endforeach(example_tuple ${IDA_examples})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -122,8 +103,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/ida/parallel/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/ida/parallel/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/parallel
   )
 
@@ -140,8 +120,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/ida/parallel/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/parallel
       RENAME Makefile
     )

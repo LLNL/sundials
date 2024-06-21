@@ -37,12 +37,7 @@ foreach(example_tuple ${examples_list})
       add_executable(${example_target} ${example})
 
       # folder for IDEs
-      set_target_properties(
-        ${example_target}
-        PROPERTIES
-          FOLDER
-            "Examples"
-      )
+      set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
       # which backend to use
       target_compile_definitions(${example_target} PRIVATE USE_${backend})
@@ -50,8 +45,7 @@ foreach(example_tuple ${examples_list})
       # directories to include
       target_include_directories(
         ${example_target}
-        PRIVATE
-          "${PROJECT_SOURCE_DIR}/examples/utilities"
+        PRIVATE "${PROJECT_SOURCE_DIR}/examples/utilities"
       )
 
       # libraries to link against
@@ -68,8 +62,7 @@ foreach(example_tuple ${examples_list})
       if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
         target_link_libraries(
           ${example_target}
-          PRIVATE
-            sundials_cvode_fused_stubs
+          PRIVATE sundials_cvode_fused_stubs
         )
       endif()
     endif()
@@ -85,10 +78,8 @@ foreach(example_tuple ${examples_list})
     SUNDIALS_ADD_TEST(
       ${test_name}
       ${example_target}
-      TEST_ARGS
-        ${example_args}
-      EXTRA_ARGS
-        --kokkos-disable-warnings
+      TEST_ARGS ${example_args}
+      EXTRA_ARGS --kokkos-disable-warnings
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${test_name}.out
       EXAMPLE_TYPE ${example_type}
@@ -106,18 +97,10 @@ if(EXAMPLES_INSTALL)
     cvode
     examples_list
     CMAKE_TEMPLATE cmakelists_CXX_ex.in
-    SUNDIALS_COMPONENTS
-      nveckokkos
-      sunmatrixkokkosdense
-      sunlinsolkokkosdense
-    SUNDIALS_TARGETS
-      cvode
-      ${_fused_stubs}
-    OTHER_TARGETS
-      Kokkos::kokkos
-      Kokkos::kokkoskernels
-    EXTRA_FILES
-      "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
+    SUNDIALS_COMPONENTS nveckokkos sunmatrixkokkosdense sunlinsolkokkosdense
+    SUNDIALS_TARGETS cvode ${_fused_stubs}
+    OTHER_TARGETS Kokkos::kokkos Kokkos::kokkoskernels
+    EXTRA_FILES "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
     DESTINATION cvode/kokkos
   )
 endif()

@@ -39,12 +39,7 @@ foreach(test_tuple ${unit_tests})
     # test source files
     add_executable(${test_target} ${test})
 
-    set_target_properties(
-      ${test_target}
-      PROPERTIES
-        FOLDER
-          "unit_tests"
-    )
+    set_target_properties(${test_target} PROPERTIES FOLDER "unit_tests")
 
     # include location of public and private header files
     target_include_directories(
@@ -82,8 +77,7 @@ foreach(test_tuple ${unit_tests})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${test_target}
-    TEST_ARGS
-      ${test_args}
+    TEST_ARGS ${test_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
     MPI_NPROCS ${number_of_tasks}

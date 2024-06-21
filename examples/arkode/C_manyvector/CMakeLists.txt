@@ -25,19 +25,10 @@ set(ARKODE_extras plot_brusselator1D.py)
 
 # Specify libraries to link against
 set(ARKODE_LIB sundials_arkode)
-set(
-  NVECS_LIB
-  sundials_nvecmanyvector
-  sundials_nvecserial
-)
+set(NVECS_LIB sundials_nvecmanyvector sundials_nvecserial)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${ARKODE_LIB}
-  ${NVECS_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
@@ -48,12 +39,7 @@ foreach(example_tuple ${ARKODE_examples})
   # example source files
   add_executable(${example} ${example}.c)
 
-  set_target_properties(
-    ${example}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(
@@ -70,16 +56,11 @@ foreach(example_tuple ${ARKODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
-        ${example}.out
+      FILES ${example}.c ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_manyvector
     )
   endif()
-endforeach(
-  example_tuple
-  ${ARKODE_examples}
-)
+endforeach(example_tuple ${ARKODE_examples})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -89,14 +70,10 @@ if(EXAMPLES_INSTALL)
   # Install the extra files
   foreach(extrafile ${ARKODE_extras})
     install(
-      FILES
-        ${extrafile}
+      FILES ${extrafile}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_manyvector
     )
-  endforeach(
-    extrafile
-    ${ARKODE_extras}
-  )
+  endforeach(extrafile ${ARKODE_extras})
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "ARKODE")
@@ -117,8 +94,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/arkode/C_manyvector/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_manyvector/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_manyvector
   )
 
@@ -135,8 +111,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/arkode/C_manyvector/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_manyvector/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_manyvector
       RENAME Makefile
     )

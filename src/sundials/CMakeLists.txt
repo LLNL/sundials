@@ -120,32 +120,20 @@ endif()
 
 if(SUNDIALS_BUILD_WITH_PROFILING)
   if(ENABLE_CALIPER)
-    set(
-      _link_caliper_if_needed
-      PUBLIC
-      caliper
-    )
+    set(_link_caliper_if_needed PUBLIC caliper)
   endif()
   if(ENABLE_ADIAK)
-    set(
-      _link_adiak_if_needed
-      PUBLIC
-      adiak::adiak
-      ${CMAKE_DL_LIBS}
-    )
+    set(_link_adiak_if_needed PUBLIC adiak::adiak ${CMAKE_DL_LIBS})
   endif()
 endif()
 
 # Create a library out of the generic sundials modules
 sundials_add_library(
   sundials_core
-  SOURCES
-    ${sundials_SOURCES}
-  HEADERS
-    ${sundials_HEADERS}
+  SOURCES ${sundials_SOURCES}
+  HEADERS ${sundials_HEADERS}
   INCLUDE_SUBDIR sundials
-  LINK_LIBRARIES
-    ${_link_mpi_if_needed}
+  LINK_LIBRARIES ${_link_mpi_if_needed}
   OUTPUT_NAME sundials_core
   VERSION ${sundialslib_VERSION}
   SOVERSION ${sundialslib_SOVERSION}

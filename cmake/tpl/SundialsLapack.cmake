@@ -280,8 +280,7 @@ if(NEED_FORTRAN_NAME_MANGLING)
     # that scheme. Otherwise default to lower case with one underscore.
     if(
       CMAKE_Fortran_SCHEME_NO_UNDERSCORES
-      AND
-        CMAKE_Fortran_SCHEME_WITH_UNDERSCORES
+      AND CMAKE_Fortran_SCHEME_WITH_UNDERSCORES
     )
       message(STATUS "Determining Fortran name-mangling scheme... OK")
     else()

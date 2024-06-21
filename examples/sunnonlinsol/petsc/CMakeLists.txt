@@ -49,12 +49,7 @@ foreach(example_tuple ${examples})
     add_executable(${example} ${example}.c)
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
@@ -71,23 +66,18 @@ foreach(example_tuple ${examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
 
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
+      FILES ${example}.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes
     )
   endif()
-endforeach(
-  example_tuple
-  ${examples}
-)
+endforeach(example_tuple ${examples})
 
 if(EXAMPLES_INSTALL)
   # Install the README file
@@ -117,8 +107,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes
   )
 
@@ -135,8 +124,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes
       RENAME Makefile
     )

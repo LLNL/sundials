@@ -39,12 +39,7 @@ foreach(example_tuple ${examples_list})
       add_executable(${example_target} ${example})
 
       # Organize examples for IDEs
-      set_target_properties(
-        ${example_target}
-        PROPERTIES
-          FOLDER
-            "Examples"
-      )
+      set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
       # which backend to use
       target_compile_definitions(${example_target} PRIVATE USE_${backend})
@@ -52,9 +47,7 @@ foreach(example_tuple ${examples_list})
       # link vector test utilties
       target_link_libraries(
         ${example_target}
-        PRIVATE
-          test_nvector_obj
-          sundials_nveckokkos
+        PRIVATE test_nvector_obj sundials_nveckokkos
       )
     endif()
 
@@ -69,8 +62,7 @@ foreach(example_tuple ${examples_list})
     SUNDIALS_ADD_TEST(
       ${test_name}
       ${example_target}
-      TEST_ARGS
-        ${example_args}
+      TEST_ARGS ${example_args}
       EXAMPLE_TYPE ${example_type}
       NODIFF
     )
@@ -81,18 +73,14 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     nvec_kokkos
     examples_list
-    EXAMPLES_DEPENDENCIES
-      test_nvector.c
+    EXAMPLES_DEPENDENCIES test_nvector.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
     CMAKE_TEMPLATE cmakelists_CXX_ex.in
-    SUNDIALS_COMPONENTS
-      nveckokkos
-    SUNDIALS_TARGETS
-      generic
-    OTHER_TARGETS
-      Kokkos::kokkos
+    SUNDIALS_COMPONENTS nveckokkos
+    SUNDIALS_TARGETS generic
+    OTHER_TARGETS Kokkos::kokkos
     DESTINATION nvector/kokkos
   )
 endif()

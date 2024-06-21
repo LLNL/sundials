@@ -77,9 +77,7 @@ if(BUILD_NVECTOR_KOKKOS)
   if(ENABLE_HIP)
     target_link_libraries(
       sundials_nveckokkos
-      INTERFACE
-        Kokkos::kokkos
-        hip::device
+      INTERFACE Kokkos::kokkos hip::device
     )
   else()
     target_link_libraries(sundials_nveckokkos INTERFACE Kokkos::kokkos)
@@ -93,8 +91,7 @@ if(BUILD_NVECTOR_KOKKOS)
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
   install(
-    FILES
-      ${PROJECT_SOURCE_DIR}/include/nvector/nvector_kokkos.hpp
+    FILES ${PROJECT_SOURCE_DIR}/include/nvector/nvector_kokkos.hpp
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/nvector"
   )
   set(

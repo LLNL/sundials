@@ -37,31 +37,16 @@ foreach(example_tuple ${CVODE_examples})
 
   if(NOT TARGET ${example_target})
     if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
-      set_source_files_properties(
-        ${example}
-        PROPERTIES
-          LANGUAGE
-            CUDA
-      )
+      set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
     elseif(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
-      set_source_files_properties(
-        ${example}
-        PROPERTIES
-          LANGUAGE
-            CXX
-      )
+      set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
     endif()
 
     # example source files
     add_executable(${example_target} ${example})
 
     # folder for IDEs
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
@@ -85,16 +70,12 @@ foreach(example_tuple ${CVODE_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type}
   )
-endforeach(
-  example_tuple
-  ${CVODE_examples}
-)
+endforeach(example_tuple ${CVODE_examples})
 
 # Install the targets
 if(EXAMPLES_INSTALL)
@@ -102,10 +83,7 @@ if(EXAMPLES_INSTALL)
     cvode
     CVODE_examples
     CMAKE_TEMPLATE cmakelists_${cuda_or_hip}_ex.in
-    SUNDIALS_TARGETS
-      cvode
-      ${vector}
-      sunlinsolmagmadense
+    SUNDIALS_TARGETS cvode ${vector} sunlinsolmagmadense
     DESTINATION cvode/magma
   )
 endif()

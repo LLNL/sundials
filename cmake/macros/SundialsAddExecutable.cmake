@@ -17,13 +17,7 @@
 macro(sundials_add_nvector_benchmark NAME)
   set(options)
   set(singleValueArgs)
-  set(
-    multiValueArgs
-    SOURCES
-    SUNDIALS_TARGETS
-    LINK_LIBRARIES
-    INSTALL_SUBDIR
-  )
+  set(multiValueArgs SOURCES SUNDIALS_TARGETS LINK_LIBRARIES INSTALL_SUBDIR)
 
   cmake_parse_arguments(
     arg
@@ -41,21 +35,13 @@ macro(sundials_add_nvector_benchmark NAME)
     ${arg_SOURCES}
   )
 
-  set_target_properties(
-    ${NAME}
-    PROPERTIES
-      FOLDER
-        "Benchmarks"
-  )
+  set_target_properties(${NAME} PROPERTIES FOLDER "Benchmarks")
 
   target_include_directories(${NAME} PRIVATE ${BENCHMARKS_DIR}/nvector)
 
   target_link_libraries(
     ${NAME}
-    PRIVATE
-      ${arg_SUNDIALS_TARGETS}
-      ${arg_LINK_LIBRARIES}
-      -lm
+    PRIVATE ${arg_SUNDIALS_TARGETS} ${arg_LINK_LIBRARIES} -lm
   )
 
   install(

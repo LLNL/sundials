@@ -36,9 +36,7 @@ if(BUILD_ARKODE AND BUILD_CVODE AND BUILD_IDA)
     # directories to include
     target_include_directories(
       ${benchmark_target}
-      PRIVATE
-        ${PROJECT_SOURCE_DIR}/utilities
-        ${MPI_CXX_INCLUDE_DIRS}
+      PRIVATE ${PROJECT_SOURCE_DIR}/utilities ${MPI_CXX_INCLUDE_DIRS}
     )
 
     # libraries to link against

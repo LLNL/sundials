@@ -24,11 +24,7 @@ set(
 )
 
 # Dependencies for nvector examples
-set(
-  nvector_examples_dependencies
-  test_nvector
-  test_mpinvector
-)
+set(nvector_examples_dependencies test_nvector test_mpinvector)
 
 # If building F2003 tests
 if(BUILD_FORTRAN_MODULE_INTERFACE)
@@ -40,33 +36,16 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
 endif()
 
 # Add source directory to include directories
-include_directories(
-  .
-  ..
-)
+include_directories(. ..)
 
 # Specify libraries to link against
-set(
-  NVECS_LIB
-  sundials_nvecmpiplusx
-  sundials_nvecparallel
-  sundials_nvecserial
-)
+set(NVECS_LIB sundials_nvecmpiplusx sundials_nvecparallel sundials_nvecserial)
 if(BUILD_FORTRAN_MODULE_INTERFACE)
-  list(
-    APPEND
-    NVECS_LIB
-    sundials_fnvecmpiplusx_mod
-    sundials_fnvecserial_mod
-  )
+  list(APPEND NVECS_LIB sundials_fnvecmpiplusx_mod sundials_fnvecserial_mod)
 endif()
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${NVECS_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -104,18 +83,11 @@ foreach(example_tuple ${nvector_mpiplusx_examples})
     # link vector test utilties
     target_link_libraries(
       ${example}
-      PRIVATE
-        test_nvector_obj
-        test_nvectormpi_obj
+      PRIVATE test_nvector_obj test_nvectormpi_obj
     )
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
@@ -137,8 +109,7 @@ foreach(example_tuple ${nvector_mpiplusx_examples})
       string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     else()
       string(
-        REGEX
-        REPLACE
+        REGEX REPLACE
         " "
         "_"
         test_name
@@ -151,8 +122,7 @@ foreach(example_tuple ${nvector_mpiplusx_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
     NODIFF
@@ -169,10 +139,7 @@ foreach(example_tuple ${nvector_mpiplusx_examples})
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiplusx
     )
   endif()
-endforeach(
-  example_tuple
-  ${nvector_mpiplusx_examples}
-)
+endforeach(example_tuple ${nvector_mpiplusx_examples})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_mpiplusx_fortran_examples})
@@ -201,12 +168,7 @@ foreach(example_tuple ${nvector_mpiplusx_fortran_examples})
     )
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
@@ -228,8 +190,7 @@ foreach(example_tuple ${nvector_mpiplusx_fortran_examples})
       string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     else()
       string(
-        REGEX
-        REPLACE
+        REGEX REPLACE
         " "
         "_"
         test_name
@@ -242,16 +203,12 @@ foreach(example_tuple ${nvector_mpiplusx_fortran_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
-endforeach(
-  example_tuple
-  ${nvector_mpiplusx_fortran_examples}
-)
+endforeach(example_tuple ${nvector_mpiplusx_fortran_examples})
 
 if(EXAMPLES_INSTALL)
   # Install the README file
@@ -276,8 +233,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/nvector/mpiplusx/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpiplusx/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiplusx
   )
 
@@ -294,8 +250,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/nvector/mpiplusx/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpiplusx/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiplusx
       RENAME Makefile
     )

@@ -15,13 +15,9 @@
 # Create a library out of the generic sundials modules
 sundials_add_library(
   sundials_sunmemsys
-  SOURCES
-    sundials_system_memory.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_system.h
+  SOURCES sundials_system_memory.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_system.h
   INCLUDE_SUBDIR sunmemory
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIB_ONLY
 )

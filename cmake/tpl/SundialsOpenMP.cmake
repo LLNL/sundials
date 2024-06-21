@@ -74,17 +74,8 @@ if(OPENMP_FOUND AND (ENABLE_OPENMP_DEVICE OR SUPERLUDIST_OpenMP))
     message(STATUS "Checking whether OpenMP supports device offloading")
 
     if(
-      (
-        OpenMP_C_VERSION
-          VERSION_EQUAL
-          4.5
-      )
-      OR
-        (
-          OpenMP_C_VERSION
-            VERSION_GREATER
-            4.5
-        )
+      (OpenMP_C_VERSION VERSION_EQUAL 4.5)
+      OR (OpenMP_C_VERSION VERSION_GREATER 4.5)
     )
       message(
         STATUS

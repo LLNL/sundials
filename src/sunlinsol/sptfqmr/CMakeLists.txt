@@ -19,14 +19,10 @@ install(CODE "MESSAGE(\"\nInstall SUNLINSOL_SPTFQMR\n\")")
 # Add the sunlinsol_sptfqmr library
 sundials_add_library(
   sundials_sunlinsolsptfqmr
-  SOURCES
-    sunlinsol_sptfqmr.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_sptfqmr.h
+  SOURCES sunlinsol_sptfqmr.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_sptfqmr.h
   INCLUDE_SUBDIR sunlinsol
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
   OUTPUT_NAME sundials_sunlinsolsptfqmr
   VERSION ${sunlinsollib_VERSION}

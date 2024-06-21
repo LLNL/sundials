@@ -38,10 +38,7 @@ else()
 endif()
 
 # Add source directory to include directories
-include_directories(
-  .
-  ..
-)
+include_directories(. ..)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_superludist_examples})
@@ -58,19 +55,10 @@ foreach(example_tuple ${sunlinsol_superludist_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example_target})
     # example source files
-    add_executable(
-      ${example_target}
-      ${example}
-      ../test_sunlinsol.c
-    )
+    add_executable(${example_target} ${example} ../test_sunlinsol.c)
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
@@ -91,8 +79,7 @@ foreach(example_tuple ${sunlinsol_superludist_examples})
       set(test_name ${example_target})
     else()
       string(
-        REGEX
-        REPLACE
+        REGEX REPLACE
         " "
         "_"
         test_name
@@ -104,8 +91,7 @@ foreach(example_tuple ${sunlinsol_superludist_examples})
       string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
     else()
       string(
-        REGEX
-        REPLACE
+        REGEX REPLACE
         " "
         "_"
         test_name
@@ -118,32 +104,23 @@ foreach(example_tuple ${sunlinsol_superludist_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_nodes}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
-endforeach(
-  example_tuple
-  ${sunlinsol_superludist_examples}
-)
+endforeach(example_tuple ${sunlinsol_superludist_examples})
 
 if(EXAMPLES_INSTALL)
   sundials_install_examples(
     sunlinsol_superludist
     sunlinsol_superludist_examples
-    EXAMPLES_DEPENDENCIES
-      test_sunlinsol.c
+    EXAMPLES_DEPENDENCIES test_sunlinsol.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
     CMAKE_TEMPLATE cmakelists_${_ex_lang}_MPI_ex.in
-    SUNDIALS_TARGETS
-      nvecserial
-      nvecparallel
-      sunlinsoldense
-      sunlinsolsuperludist
+    SUNDIALS_TARGETS nvecserial nvecparallel sunlinsoldense sunlinsolsuperludist
     DESTINATION sunlinsol/superludist
   )
 endif()

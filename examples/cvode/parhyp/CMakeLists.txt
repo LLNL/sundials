@@ -38,12 +38,7 @@ foreach(example_tuple ${CVODE_examples})
   # example source files
   add_executable(${example_target} ${example})
 
-  set_target_properties(
-    ${example_target}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
   # libraries to link against
   target_link_libraries(
@@ -64,10 +59,7 @@ foreach(example_tuple ${CVODE_examples})
     ANSWER_FILE ${example_target}.out
     EXAMPLE_TYPE ${example_type}
   )
-endforeach(
-  example_tuple
-  ${CVODE_examples}
-)
+endforeach(example_tuple ${CVODE_examples})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -82,13 +74,9 @@ if(EXAMPLES_INSTALL)
     CMAKE_TEMPLATE cmakelists_C_MPI_ex.in
     MAKE_TEMPLATE makefile_parhyp_C_ex.in
     SOLVER_LIBRARY sundials_cvode
-    SUNDIALS_TARGETS
-      cvode
-      nvecparhyp
-      ${_fused_stubs_target}
+    SUNDIALS_TARGETS cvode nvecparhyp ${_fused_stubs_target}
     DESTINATION cvode/parhyp
-    EXTRA_FILES
-      README
+    EXTRA_FILES README
     TEST_INSTALL parhyp
   )
 endif()

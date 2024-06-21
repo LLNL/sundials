@@ -47,25 +47,13 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/cvode/ cvode_HEADERS)
 # Build fused kernel libraries
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
   if(BUILD_NVECTOR_CUDA)
-    set_source_files_properties(
-      cvode_fused_gpu.cpp
-      PROPERTIES
-        LANGUAGE
-          CUDA
-    )
+    set_source_files_properties(cvode_fused_gpu.cpp PROPERTIES LANGUAGE CUDA)
 
     sundials_add_library(
       sundials_cvode_fused_cuda
-      SOURCES
-        cvode_fused_gpu.cpp
-      COMPILE_DEFINITIONS
-        PRIVATE
-        USE_CUDA
-      LINK_LIBRARIES
-        PUBLIC
-        sundials_core
-        PRIVATE
-        sundials_nveccuda
+      SOURCES cvode_fused_gpu.cpp
+      COMPILE_DEFINITIONS PRIVATE USE_CUDA
+      LINK_LIBRARIES PUBLIC sundials_core PRIVATE sundials_nveccuda
       OUTPUT_NAME sundials_cvode_fused_cuda
       VERSION ${cvodelib_VERSION}
       SOVERSION ${cvodelib_SOVERSION}
@@ -75,16 +63,9 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
   if(BUILD_NVECTOR_HIP)
     sundials_add_library(
       sundials_cvode_fused_hip
-      SOURCES
-        cvode_fused_gpu.cpp
-      COMPILE_DEFINITIONS
-        PRIVATE
-        USE_HIP
-      LINK_LIBRARIES
-        PUBLIC
-        sundials_core
-        PRIVATE
-        sundials_nvechip
+      SOURCES cvode_fused_gpu.cpp
+      COMPILE_DEFINITIONS PRIVATE USE_HIP
+      LINK_LIBRARIES PUBLIC sundials_core PRIVATE sundials_nvechip
       OUTPUT_NAME sundials_cvode_fused_hip
       VERSION ${cvodelib_VERSION}
       SOVERSION ${cvodelib_SOVERSION}
@@ -93,11 +74,8 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
 
   sundials_add_library(
     sundials_cvode_fused_stubs
-    SOURCES
-      cvode_fused_stubs.c
-    LINK_LIBRARIES
-      PUBLIC
-      sundials_core
+    SOURCES cvode_fused_stubs.c
+    LINK_LIBRARIES PUBLIC sundials_core
     OUTPUT_NAME sundials_cvode_fused_stubs
     VERSION ${cvodelib_VERSION}
     SOVERSION ${cvodelib_SOVERSION}
@@ -109,14 +87,10 @@ endif()
 # Create the library
 sundials_add_library(
   sundials_cvode
-  SOURCES
-    ${cvode_SOURCES}
-  HEADERS
-    ${cvode_HEADERS}
+  SOURCES ${cvode_SOURCES}
+  HEADERS ${cvode_HEADERS}
   INCLUDE_SUBDIR cvode
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj

@@ -24,24 +24,15 @@ sundials_option(EXAMPLES_ENABLE_C BOOL "Build SUNDIALS C examples" ON)
 # these are enabled on the initial configuration pass.
 if(
   ENABLE_TRILINOS
-  OR
-    ENABLE_SUPERLUDIST
-  OR
-    ENABLE_XBRAID
-  OR
-    ENABLE_HIP
-  OR
-    ENABLE_MAGMA
-  OR
-    ENABLE_SYCL
-  OR
-    ENABLE_ONEMKL
-  OR
-    ENABLE_RAJA
-  OR
-    ENABLE_GINKGO
-  OR
-    ENABLE_KOKKOS
+  OR ENABLE_SUPERLUDIST
+  OR ENABLE_XBRAID
+  OR ENABLE_HIP
+  OR ENABLE_MAGMA
+  OR ENABLE_SYCL
+  OR ENABLE_ONEMKL
+  OR ENABLE_RAJA
+  OR ENABLE_GINKGO
+  OR ENABLE_KOKKOS
 )
   sundials_option(EXAMPLES_ENABLE_CXX BOOL "Build SUNDIALS C++ examples" ON)
 else()
@@ -82,8 +73,7 @@ sundials_option(
   BOOL
   "Build SUNDIALS CUDA examples"
   ON
-  DEPENDS_ON
-    ENABLE_CUDA
+  DEPENDS_ON ENABLE_CUDA
 )
 
 # -----------------------------------------------------------------------------
@@ -114,12 +104,9 @@ endif()
 
 if(
   EXAMPLES_ENABLE_C
-  OR
-    EXAMPLES_ENABLE_CXX
-  OR
-    EXAMPLES_ENABLE_CUDA
-  OR
-    EXAMPLES_ENABLE_F2003
+  OR EXAMPLES_ENABLE_CXX
+  OR EXAMPLES_ENABLE_CUDA
+  OR EXAMPLES_ENABLE_F2003
 )
   set(_BUILD_EXAMPLES TRUE CACHE INTERNAL "")
 else()

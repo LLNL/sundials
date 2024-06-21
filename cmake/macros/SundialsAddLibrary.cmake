@@ -108,19 +108,8 @@
 # The option OBJECT_LIB_ONLY will cause the macro to only create the object
 # library targets.
 macro(sundials_add_library target)
-  set(
-    options
-    STATIC_ONLY
-    SHARED_ONLY
-    OBJECT_LIB_ONLY
-  )
-  set(
-    oneValueArgs
-    INCLUDE_SUBDIR
-    OUTPUT_NAME
-    VERSION
-    SOVERSION
-  )
+  set(options STATIC_ONLY SHARED_ONLY OBJECT_LIB_ONLY)
+  set(oneValueArgs INCLUDE_SUBDIR OUTPUT_NAME VERSION SOVERSION)
   set(
     multiValueArgs
     SOURCES
@@ -179,19 +168,13 @@ macro(sundials_add_library target)
       ${sundials_add_library_UNPARSED_ARGUMENTS}
     )
 
-    set_target_properties(
-      ${obj_target}
-      PROPERTIES
-        FOLDER
-          "obj"
-    )
+    set_target_properties(${obj_target} PROPERTIES FOLDER "obj")
 
     # add all object libraries to object library
     if(sundials_add_library_OBJECT_LIBRARIES)
       target_link_libraries(
         ${obj_target}
-        PRIVATE
-          ${sundials_add_library_OBJECT_LIBRARIES}
+        PRIVATE ${sundials_add_library_OBJECT_LIBRARIES}
       )
     endif()
 
@@ -234,9 +217,7 @@ macro(sundials_add_library target)
       if(ENABLE_ADIAK)
         target_link_libraries(
           ${obj_target}
-          PUBLIC
-            adiak::adiak
-            ${CMAKE_DL_LIBS}
+          PUBLIC adiak::adiak ${CMAKE_DL_LIBS}
         )
       endif()
     endif()
@@ -295,9 +276,7 @@ macro(sundials_add_library target)
     # object files going into shared libs need PIC code
     set_target_properties(
       ${obj_target}
-      PROPERTIES
-        POSITION_INDEPENDENT_CODE
-          TRUE
+      PROPERTIES POSITION_INDEPENDENT_CODE TRUE
     )
 
     # set any other properties
@@ -340,26 +319,19 @@ macro(sundials_add_library target)
         ${sundials_add_library_UNPARSED_ARGUMENTS}
       )
 
-      set_target_properties(
-        ${_actual_target_name}
-        PROPERTIES
-          FOLDER
-            "src"
-      )
+      set_target_properties(${_actual_target_name} PROPERTIES FOLDER "src")
 
       # add all link libraries
       if(SUNDIALS_MATH_LIBRARY)
         target_link_libraries(
           ${_actual_target_name}
-          PRIVATE
-            "${SUNDIALS_MATH_LIBRARY}"
+          PRIVATE "${SUNDIALS_MATH_LIBRARY}"
         )
       endif()
       if(SUNDIALS_RT_LIBRARY)
         target_link_libraries(
           ${_actual_target_name}
-          PRIVATE
-            "${SUNDIALS_RT_LIBRARY}"
+          PRIVATE "${SUNDIALS_RT_LIBRARY}"
         )
       endif()
       if(sundials_add_library_LINK_LIBRARIES)
@@ -376,9 +348,7 @@ macro(sundials_add_library target)
         if(ENABLE_ADIAK)
           target_link_libraries(
             ${_actual_target_name}
-            PUBLIC
-              adiak::adiak
-              ${CMAKE_DL_LIBS}
+            PUBLIC adiak::adiak ${CMAKE_DL_LIBS}
           )
         endif()
       endif()
@@ -412,8 +382,7 @@ macro(sundials_add_library target)
       if(${_libtype} MATCHES "STATIC")
         target_compile_definitions(
           ${_actual_target_name}
-          PUBLIC
-            SUNDIALS_STATIC_DEFINE
+          PUBLIC SUNDIALS_STATIC_DEFINE
         )
       else()
         target_compile_definitions(${obj_target} PRIVATE sundials_core_EXPORTS)
@@ -447,9 +416,7 @@ macro(sundials_add_library target)
       string(REPLACE "sundials_" "" _export_name "${_actual_target_name}")
       set_target_properties(
         ${_actual_target_name}
-        PROPERTIES
-          EXPORT_NAME
-            ${_export_name}
+        PROPERTIES EXPORT_NAME ${_export_name}
       )
 
       # create an alias to match the exported target name, this way another projects can use it with either find_package() or add_subdirectory()
@@ -458,46 +425,27 @@ macro(sundials_add_library target)
       # set the correct output name
       if(sundials_add_library_OUTPUT_NAME)
         if(
-          (
-            MSVC
-            OR
-              (
-                "${CMAKE_C_SIMULATE_ID}"
-                  STREQUAL
-                  "MSVC"
-              )
-          )
-          AND
-            ${_libtype}
-              MATCHES
-              "STATIC"
+          (MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC"))
+          AND ${_libtype} MATCHES "STATIC"
         )
           set_target_properties(
             ${_actual_target_name}
             PROPERTIES
-              OUTPUT_NAME
-                "${sundials_add_library_OUTPUT_NAME}_static"
-              CLEAN_DIRECT_OUTPUT
-                1
+              OUTPUT_NAME "${sundials_add_library_OUTPUT_NAME}_static"
+              CLEAN_DIRECT_OUTPUT 1
           )
         else()
           set_target_properties(
             ${_actual_target_name}
             PROPERTIES
-              OUTPUT_NAME
-                ${sundials_add_library_OUTPUT_NAME}
-              CLEAN_DIRECT_OUTPUT
-                1
+              OUTPUT_NAME ${sundials_add_library_OUTPUT_NAME}
+              CLEAN_DIRECT_OUTPUT 1
           )
         endif()
       else()
         set_target_properties(
           ${_actual_target_name}
-          PROPERTIES
-            OUTPUT_NAME
-              ${target}
-            CLEAN_DIRECT_OUTPUT
-              1
+          PROPERTIES OUTPUT_NAME ${target} CLEAN_DIRECT_OUTPUT 1
         )
       endif()
 
@@ -505,17 +453,13 @@ macro(sundials_add_library target)
       if(sundials_add_library_VERSION)
         set_target_properties(
           ${_actual_target_name}
-          PROPERTIES
-            VERSION
-              ${sundials_add_library_VERSION}
+          PROPERTIES VERSION ${sundials_add_library_VERSION}
         )
       endif()
       if(sundials_add_library_SOVERSION)
         set_target_properties(
           ${_actual_target_name}
-          PROPERTIES
-            SOVERSION
-              ${sundials_add_library_SOVERSION}
+          PROPERTIES SOVERSION ${sundials_add_library_SOVERSION}
         )
       endif()
 
@@ -542,8 +486,7 @@ macro(sundials_add_library target)
 
   if(sundials_add_library_HEADERS)
     install(
-      FILES
-        ${sundials_add_library_HEADERS}
+      FILES ${sundials_add_library_HEADERS}
       DESTINATION
         "${CMAKE_INSTALL_INCLUDEDIR}/${sundials_add_library_INCLUDE_SUBDIR}"
     )
@@ -611,12 +554,7 @@ endmacro(sundials_add_library)
 
 macro(sundials_add_f2003_library target)
   set(options)
-  set(
-    oneValueArgs
-    OUTPUT_NAME
-    VERSION
-    SOVERSION
-  )
+  set(oneValueArgs OUTPUT_NAME VERSION SOVERSION)
   set(
     multiValueArgs
     SOURCES
@@ -680,10 +618,8 @@ macro(sundials_add_f2003_library target)
 
   sundials_add_library(
     ${target}
-    SOURCES
-      ${sundials_add_f2003_library_SOURCES}
-    OBJECT_LIBRARIES
-      ${sundials_add_f2003_library_OBJECT_LIBRARIES}
+    SOURCES ${sundials_add_f2003_library_SOURCES}
+    OBJECT_LIBRARIES ${sundials_add_f2003_library_OBJECT_LIBRARIES}
     LINK_LIBRARIES
       PUBLIC
       ${_clib_target} # depend on the c library
@@ -695,11 +631,8 @@ macro(sundials_add_f2003_library target)
       ${sundials_add_f2003_library_COMPILE_DEFINITIONS}
       PUBLIC
       "SUNDIALS_INT${SUNDIALS_INDEX_SIZE}_T"
-    COMPILE_OPTIONS
-      ${sundials_add_f2003_library_COMPILE_OPTIONS}
-    PROPERTIES
-      ${sundials_add_f2003_library_PROPERTIES}
-      ${_properties}
+    COMPILE_OPTIONS ${sundials_add_f2003_library_COMPILE_OPTIONS}
+    PROPERTIES ${sundials_add_f2003_library_PROPERTIES} ${_properties}
     OUTPUT_NAME ${sundials_add_f2003_library_OUTPUT_NAME}
     VERSION ${sundials_add_f2003_library_VERSION}
     SOVERSION ${sundials_add_f2003_library_SOVERSION}

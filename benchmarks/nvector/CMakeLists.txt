@@ -65,7 +65,6 @@ if(BUILD_NVECTOR_KOKKOS)
 endif()
 
 file(
-  COPY
-    ${CMAKE_CURRENT_SOURCE_DIR}/plot_nvector_performance_results.py
+  COPY ${CMAKE_CURRENT_SOURCE_DIR}/plot_nvector_performance_results.py
   DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
 )

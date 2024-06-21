@@ -17,11 +17,7 @@
 
 if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
   include_directories(${caliper_INCLUDE_DIR})
-  set(
-    EXE_EXTRA_LINK_LIBS
-    ${EXE_EXTRA_LINK_LIBS}
-    caliper
-  )
+  set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} caliper)
 endif()
 
 # Always add the nvector serial examples
@@ -31,13 +27,7 @@ add_subdirectory(serial)
 add_library(test_nvector_obj OBJECT test_nvector.c)
 if(BUILD_SHARED_LIBS)
   # need PIC when shared libs are used since the example executables will link to the shared lib
-  set_property(
-    TARGET
-      test_nvector_obj
-    PROPERTY
-      POSITION_INDEPENDENT_CODE
-        TRUE
-  )
+  set_property(TARGET test_nvector_obj PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 endif()
 target_link_libraries(test_nvector_obj PRIVATE sundials_nvecserial)
 
@@ -51,18 +41,13 @@ if(ENABLE_MPI AND MPI_C_FOUND)
   add_library(test_nvectormpi_obj OBJECT test_mpinvector.c)
   if(BUILD_SHARED_LIBS)
     set_property(
-      TARGET
-        test_nvectormpi_obj
-      PROPERTY
-        POSITION_INDEPENDENT_CODE
-          TRUE
+      TARGET test_nvectormpi_obj
+      PROPERTY POSITION_INDEPENDENT_CODE TRUE
     )
   endif()
   target_link_libraries(
     test_nvectormpi_obj
-    PRIVATE
-      MPI::MPI_C
-      sundials_nvecparallel
+    PRIVATE MPI::MPI_C sundials_nvecparallel
   )
 endif()
 if(BUILD_NVECTOR_MANYVECTOR)

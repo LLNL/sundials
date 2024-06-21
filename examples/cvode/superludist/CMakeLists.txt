@@ -37,12 +37,7 @@ foreach(example_tuple ${CVODE_examples})
   # example source files
   add_executable(${example_target} ${example})
 
-  set_target_properties(
-    ${example_target}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
   if(SUNDIALS_INDEX_SIZE STREQUAL "32")
     set(integer_precision "15") # superlu-dist seems to result in more output variability (maybe due to a bug with 32-bit indices?)
@@ -56,8 +51,7 @@ foreach(example_tuple ${CVODE_examples})
   SUNDIALS_ADD_TEST(
     ${example_target}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_nodes}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example_target}_${SUNDIALS_INDEX_SIZE}.out
@@ -77,10 +71,7 @@ foreach(example_tuple ${CVODE_examples})
       ${_fused_lib}
       ${EXE_EXTRA_LINK_LIBS}
   )
-endforeach(
-  example_tuple
-  ${CVODE_examples}
-)
+endforeach(example_tuple ${CVODE_examples})
 
 if(SUPERLUDIST_CUDA)
   set(_ex_lang CUDA)
@@ -95,13 +86,9 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     cvode_superludist
     CVODE_examples
-    EXTRA_FILES
-      README
+    EXTRA_FILES README
     CMAKE_TEMPLATE cmakelists_${_ex_lang}_MPI_ex.in
-    SUNDIALS_TARGETS
-      cvode
-      nvecparallel
-      sunlinsolsuperludist
+    SUNDIALS_TARGETS cvode nvecparallel sunlinsolsuperludist
     DESTINATION cvode/superludist
   )
 

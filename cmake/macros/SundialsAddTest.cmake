@@ -76,11 +76,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
   # macro keyword inputs followed by multiple values
   # TEST_ARGS = command line arguments to pass to the test executable
-  set(
-    multiValueArgs
-    "TEST_ARGS"
-    "EXTRA_ARGS"
-  )
+  set(multiValueArgs "TEST_ARGS" "EXTRA_ARGS")
 
   # parse inputs and create variables SUNDIALS_ADD_TEST_<keyword>
   cmake_parse_arguments(
@@ -94,17 +90,8 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   # check that the test is not excluded
   string(TOLOWER "exclude-${SUNDIALS_PRECISION}" _exclude_precision)
   if(
-    (
-      "${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}"
-        STREQUAL
-        "exclude"
-    )
-    OR
-      (
-        "${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}"
-          STREQUAL
-          _exclude_precision
-      )
+    ("${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "exclude")
+    OR ("${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL _exclude_precision)
   )
     message(
       STATUS
@@ -162,13 +149,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         # set a non-default floating point precision (number of digits, default 4)
         if(
           SUNDIALS_ADD_TEST_FLOAT_PRECISION
-          AND
-            (
-              NOT
-                SUNDIALS_ADD_TEST_FLOAT_PRECISION
-                  MATCHES
-                  "DEFAULT|default"
-            )
+          AND (NOT SUNDIALS_ADD_TEST_FLOAT_PRECISION MATCHES "DEFAULT|default")
         )
           list(
             APPEND
@@ -186,12 +167,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         if(
           SUNDIALS_ADD_TEST_INTEGER_PRECISION
           AND
-            (
-              NOT
-                SUNDIALS_ADD_TEST_INTEGER_PRECISION
-                  MATCHES
-                  "DEFAULT|default"
-            )
+            (NOT SUNDIALS_ADD_TEST_INTEGER_PRECISION MATCHES "DEFAULT|default")
         )
           list(
             APPEND
@@ -209,19 +185,8 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
       # check if this test is run with MPI and set the MPI run command
       if(
-        (
-          SUNDIALS_ADD_TEST_MPI_NPROCS
-        )
-        AND
-          (
-            (
-              MPIEXEC_EXECUTABLE
-            )
-            OR
-              (
-                SUNDIALS_TEST_MPIRUN_COMMAND
-              )
-          )
+        (SUNDIALS_ADD_TEST_MPI_NPROCS)
+        AND ((MPIEXEC_EXECUTABLE) OR (SUNDIALS_TEST_MPIRUN_COMMAND))
       )
         if(SUNDIALS_TEST_MPIRUN_COMMAND)
           set(
@@ -262,8 +227,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       # all tests are added during development and only unlabeled tests when released
       add_test(
         NAME ${NAME}
-        COMMAND
-          ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS}
+        COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS}
       )
     elseif(NOT SUNDIALS_ADD_TEST_EXAMPLE_TYPE)
       # if a test type was not set then it is a standard test that returns pass/fail
@@ -275,19 +239,8 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
       # check if this test is run with MPI and add the test run command
       if(
-        (
-          SUNDIALS_ADD_TEST_MPI_NPROCS
-        )
-        AND
-          (
-            (
-              MPIEXEC_EXECUTABLE
-            )
-            OR
-              (
-                SUNDIALS_TEST_MPIRUN_COMMAND
-              )
-          )
+        (SUNDIALS_ADD_TEST_MPI_NPROCS)
+        AND ((MPIEXEC_EXECUTABLE) OR (SUNDIALS_TEST_MPIRUN_COMMAND))
       )
         if(MPIEXEC_PREFLAGS)
           string(REPLACE " " ";" PREFLAGS "${MPIEXEC_PREFLAGS}")
@@ -317,11 +270,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
           )
         endif()
       else()
-        add_test(
-          NAME ${NAME}
-          COMMAND
-            $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS}
-        )
+        add_test(NAME ${NAME} COMMAND $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
       endif()
     endif()
   endif()

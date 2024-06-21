@@ -126,12 +126,7 @@ foreach(example_tuple ${ARKODE_examples})
     add_executable(${example} ${example}.c)
 
     # folder for IDEs
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
@@ -153,8 +148,7 @@ foreach(example_tuple ${ARKODE_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type}
@@ -163,16 +157,11 @@ foreach(example_tuple ${ARKODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
-        ${test_name}.out
+      FILES ${example}.c ${test_name}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial
     )
   endif()
-endforeach(
-  example_tuple
-  ${ARKODE_examples}
-)
+endforeach(example_tuple ${ARKODE_examples})
 
 # Add the build and install targets for each KLU example (if needed)
 if(BUILD_SUNLINSOL_KLU)
@@ -184,12 +173,7 @@ if(BUILD_SUNLINSOL_KLU)
     # example source files
     add_executable(${example} ${example}.c)
 
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # add example to regression tests
     SUNDIALS_ADD_TEST(
@@ -212,16 +196,11 @@ if(BUILD_SUNLINSOL_KLU)
     # install example source and out files
     if(EXAMPLES_INSTALL)
       install(
-        FILES
-          ${example}.c
-          ${example}.out
+        FILES ${example}.c ${example}.out
         DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial
       )
     endif()
-  endforeach(
-    example_tuple
-    ${ARKODE_examples_KLU}
-  )
+  endforeach(example_tuple ${ARKODE_examples_KLU})
 endif()
 
 # Add the build and install targets for each SuperLU_MT example (if needed)
@@ -234,12 +213,7 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     # example source files
     add_executable(${example} ${example}.c)
 
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # add example to regression tests
     SUNDIALS_ADD_TEST(
@@ -262,16 +236,11 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     # install example source and out files
     if(EXAMPLES_INSTALL)
       install(
-        FILES
-          ${example}.c
-          ${example}.out
+        FILES ${example}.c ${example}.out
         DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial
       )
     endif()
-  endforeach(
-    example_tuple
-    ${ARKODE_examples_SUPERLUMT}
-  )
+  endforeach(example_tuple ${ARKODE_examples_SUPERLUMT})
 endif()
 
 # create Makfile and CMakeLists.txt for examples
@@ -282,14 +251,10 @@ if(EXAMPLES_INSTALL)
   # Install the extra files
   foreach(extrafile ${ARKODE_extras})
     install(
-      FILES
-        ${extrafile}
+      FILES ${extrafile}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial
     )
-  endforeach(
-    extrafile
-    ${ARKODE_extras}
-  )
+  endforeach(extrafile ${ARKODE_extras})
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "ARKODE")
@@ -328,8 +293,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial
   )
 
@@ -346,8 +310,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_serial/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial
       RENAME Makefile
     )

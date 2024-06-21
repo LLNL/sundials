@@ -29,18 +29,14 @@ set(
 if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
   set_source_files_properties(
     test_sunmatrix_magmadense.cpp
-    PROPERTIES
-      LANGUAGE
-        CUDA
+    PROPERTIES LANGUAGE CUDA
   )
   set(vector nveccuda)
   set(cuda_or_hip CUDA)
 elseif(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
   set_source_files_properties(
     test_sunmatrix_magmadense.cpp
-    PROPERTIES
-      LANGUAGE
-        CXX
+    PROPERTIES LANGUAGE CXX
   )
   set(vector nvechip)
   set(cuda_or_hip HIP)
@@ -69,12 +65,7 @@ foreach(example_tuple ${sunmatrix_magmadense_examples})
     )
 
     # folder for IDEs
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
@@ -98,29 +89,22 @@ foreach(example_tuple ${sunmatrix_magmadense_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
-endforeach(
-  example_tuple
-  ${sunmatrix_magmadense_examples}
-)
+endforeach(example_tuple ${sunmatrix_magmadense_examples})
 
 if(EXAMPLES_INSTALL)
   sundials_install_examples(
     sunmatrix_magma
     sunmatrix_magmadense_examples
-    EXAMPLES_DEPENDENCIES
-      test_sunmatrix.c
+    EXAMPLES_DEPENDENCIES test_sunmatrix.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
       ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
     CMAKE_TEMPLATE cmakelists_${cuda_or_hip}_ex.in
-    SUNDIALS_TARGETS
-      ${vector}
-      sunmatrixmagmadense
+    SUNDIALS_TARGETS ${vector} sunmatrixmagmadense
     DESTINATION sunmatrix/magmadense
   )
 endif()

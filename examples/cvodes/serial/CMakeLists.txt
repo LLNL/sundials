@@ -96,12 +96,7 @@ set(CVODES_LIB sundials_cvodes)
 set(NVECS_LIB sundials_nvecserial)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${CVODES_LIB}
-  ${NVECS_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODES_examples})
@@ -117,12 +112,7 @@ foreach(example_tuple ${CVODES_examples})
     add_executable(${example} ${example}.c)
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
@@ -139,8 +129,7 @@ foreach(example_tuple ${CVODES_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type}
@@ -152,16 +141,11 @@ foreach(example_tuple ${CVODES_examples})
   # install example source and .out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
-        ${example_out}
+      FILES ${example}.c ${example_out}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial
     )
   endif()
-endforeach(
-  example_tuple
-  ${CVODES_examples}
-)
+endforeach(example_tuple ${CVODES_examples})
 
 # Add the build and install targets for each LAPACK example (if needed)
 if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
@@ -188,19 +172,10 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
       add_executable(${example} ${example}.c)
 
       # folder to organize targets in an IDE
-      set_target_properties(
-        ${example}
-        PROPERTIES
-          FOLDER
-            "Examples"
-      )
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
       # libraries to link against
-      target_link_libraries(
-        ${example}
-        ${SUNDIALS_LIBS}
-        ${SUNLINSOLLAPACK_LIBS}
-      )
+      target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
     endif()
 
     # check if example args are provided and set the test name
@@ -214,8 +189,7 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     SUNDIALS_ADD_TEST(
       ${test_name}
       ${example}
-      TEST_ARGS
-        ${example_args}
+      TEST_ARGS ${example_args}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${test_name}.out
       EXAMPLE_TYPE ${example_type}
@@ -227,16 +201,11 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     # install example source and .out files
     if(EXAMPLES_INSTALL)
       install(
-        FILES
-          ${example}.c
-          ${example_out}
+        FILES ${example}.c ${example_out}
         DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial
       )
     endif()
-  endforeach(
-    example_tuple
-    ${CVODES_examples_BL}
-  )
+  endforeach(example_tuple ${CVODES_examples_BL})
 endif()
 
 # Add the build and install targets for each KLU example (if needed)
@@ -260,19 +229,10 @@ if(BUILD_SUNLINSOL_KLU)
       add_executable(${example} ${example}.c)
 
       # folder to organize targets in an IDE
-      set_target_properties(
-        ${example}
-        PROPERTIES
-          FOLDER
-            "Examples"
-      )
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
       # libraries to link against
-      target_link_libraries(
-        ${example}
-        ${SUNDIALS_LIBS}
-        ${SUNLINSOLKLU_LIBS}
-      )
+      target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
     endif()
 
     # check if example args are provided and set the test name
@@ -286,8 +246,7 @@ if(BUILD_SUNLINSOL_KLU)
     SUNDIALS_ADD_TEST(
       ${test_name}
       ${example}
-      TEST_ARGS
-        ${example_args}
+      TEST_ARGS ${example_args}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${test_name}.out
       EXAMPLE_TYPE ${example_type}
@@ -299,16 +258,11 @@ if(BUILD_SUNLINSOL_KLU)
     # install example source and .out files
     if(EXAMPLES_INSTALL)
       install(
-        FILES
-          ${example}.c
-          ${example_out}
+        FILES ${example}.c ${example_out}
         DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial
       )
     endif()
-  endforeach(
-    example_tuple
-    ${CVODES_examples_KLU}
-  )
+  endforeach(example_tuple ${CVODES_examples_KLU})
 endif()
 
 # Add the build and install targets for each SuperLU_MT example (if needed)
@@ -332,19 +286,10 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
       add_executable(${example} ${example}.c)
 
       # folder to organize targets in an IDE
-      set_target_properties(
-        ${example}
-        PROPERTIES
-          FOLDER
-            "Examples"
-      )
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
       # libraries to link against
-      target_link_libraries(
-        ${example}
-        ${SUNDIALS_LIBS}
-        ${SUNLINSOLSLUMT_LIBS}
-      )
+      target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
     endif()
 
     # check if example args are provided and set the test name
@@ -363,8 +308,7 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
       SUNDIALS_ADD_TEST(
         ${test_name}
         ${example}
-        TEST_ARGS
-          ${example_args}
+        TEST_ARGS ${example_args}
         ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
         ANSWER_FILE ${test_name}.out
         EXAMPLE_TYPE ${example_type}
@@ -377,16 +321,11 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     # install example source and .out files
     if(EXAMPLES_INSTALL)
       install(
-        FILES
-          ${example}.c
-          ${example_out}
+        FILES ${example}.c ${example_out}
         DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial
       )
     endif()
-  endforeach(
-    example_tuple
-    ${CVODES_examples_SUPERLUMT}
-  )
+  endforeach(example_tuple ${CVODES_examples_SUPERLUMT})
 endif()
 
 # create Makfile and CMakeLists.txt for examples
@@ -397,8 +336,7 @@ if(EXAMPLES_INSTALL)
   # Install the extra files
   foreach(extrafile ${CVODES_extras})
     install(
-      FILES
-        ${extrafile}
+      FILES ${extrafile}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial
     )
   endforeach()
@@ -446,8 +384,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/cvodes/serial/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/cvodes/serial/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial
   )
 
@@ -464,8 +401,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/cvodes/serial/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/cvodes/serial/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial
       RENAME Makefile
     )

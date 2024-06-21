@@ -36,16 +36,8 @@
 
 macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
   # macro options and keyword inputs followed by multiple values
-  set(
-    options
-    DEPENDS_ON_THROW_ERROR
-    ADVANCED
-  )
-  set(
-    multiValueArgs
-    OPTIONS
-    DEPENDS_ON
-  )
+  set(options DEPENDS_ON_THROW_ERROR ADVANCED)
+  set(multiValueArgs OPTIONS DEPENDS_ON)
 
   # parse inputs and create variables sundials_option_<keyword>
   cmake_parse_arguments(
@@ -105,13 +97,7 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
     endforeach()
     get_property(is_in_cache CACHE ${NAME} PROPERTY TYPE)
     if(is_in_cache)
-      set_property(
-        CACHE
-          ${NAME}
-        PROPERTY
-          STRINGS
-            ${sundials_option_OPTIONS}
-      )
+      set_property(CACHE ${NAME} PROPERTY STRINGS ${sundials_option_OPTIONS})
     endif()
     unset(is_in_cache)
   endif()

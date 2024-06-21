@@ -47,11 +47,7 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
 endif()
 
 # Specify libraries to link against
-set(
-  CVODE_LIB
-  sundials_cvode
-  sundials_fcvode_mod
-)
+set(CVODE_LIB sundials_cvode sundials_fcvode_mod)
 
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
   list(APPEND CVODE_LIB sundials_cvode_fused_stubs)
@@ -75,12 +71,7 @@ foreach(example_tuple ${FCVODE_examples})
   # example source files
   add_executable(${example} ${example}.f90)
 
-  set_target_properties(
-    ${example}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(
@@ -92,25 +83,16 @@ foreach(example_tuple ${FCVODE_examples})
   )
 
   # libraries to link against
-  target_link_libraries(
-    ${example}
-    ${SUNDIALS_LIBS}
-    ${EXE_EXTRA_LINK_LIBS}
-  )
+  target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXE_EXTRA_LINK_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.f90
-        ${example}.out
+      FILES ${example}.f90 ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial
     )
   endif()
-endforeach(
-  example_tuple
-  ${FCVODE_examples}
-)
+endforeach(example_tuple ${FCVODE_examples})
 
 # Add the build and install targets for each KLU example (if needed)
 if(BUILD_SUNLINSOL_KLU)
@@ -131,12 +113,7 @@ if(BUILD_SUNLINSOL_KLU)
     # example source files
     add_executable(${example} ${example}.f90)
 
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # add example to regression tests
     SUNDIALS_ADD_TEST(
@@ -148,25 +125,16 @@ if(BUILD_SUNLINSOL_KLU)
     )
 
     # libraries to link against
-    target_link_libraries(
-      ${example}
-      ${SUNDIALS_LIBS}
-      ${SUNLINSOLKLU_LIBS}
-    )
+    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
 
     # install example source and out files
     if(EXAMPLES_INSTALL)
       install(
-        FILES
-          ${example}.f90
-          ${example}.out
+        FILES ${example}.f90 ${example}.out
         DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial
       )
     endif()
-  endforeach(
-    example_tuple
-    ${FCVODE_examples_KLU}
-  )
+  endforeach(example_tuple ${FCVODE_examples_KLU})
 endif()
 
 # Add the build and install targets for each LAPACK example (if needed)
@@ -189,12 +157,7 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     # example source files
     add_executable(${example} ${example}.f90)
 
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # add example to regression tests
     SUNDIALS_ADD_TEST(
@@ -206,25 +169,16 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     )
 
     # libraries to link against
-    target_link_libraries(
-      ${example}
-      ${SUNDIALS_LIBS}
-      ${SUNLINSOLLAPACK_LIBS}
-    )
+    target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
 
     # install example source and out files
     if(EXAMPLES_INSTALL)
       install(
-        FILES
-          ${example}.f90
-          ${example}.out
+        FILES ${example}.f90 ${example}.out
         DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial
       )
     endif()
-  endforeach(
-    example_tuple
-    ${FCVODE_examples_LAPACK}
-  )
+  endforeach(example_tuple ${FCVODE_examples_LAPACK})
 endif()
 
 # create Makefile and CMakeLists.txt for examples
@@ -262,8 +216,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/cvode/F2003_serial/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/cvode/F2003_serial/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial
   )
 
@@ -280,8 +233,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/cvode/F2003_serial/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/cvode/F2003_serial/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial
       RENAME Makefile
     )

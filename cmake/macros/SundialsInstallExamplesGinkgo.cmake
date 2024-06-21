@@ -84,10 +84,7 @@ macro(sundials_install_examples_ginkgo MODULE)
 
       # install files
       install(
-        FILES
-          ${example}
-          ${example_header}
-          ${example_out}
+        FILES ${example} ${example_header} ${example_out}
         DESTINATION ${EXAMPLES_INSTALL_PATH}/${arg_DESTINATION}
       )
     endforeach()
@@ -96,9 +93,7 @@ macro(sundials_install_examples_ginkgo MODULE)
   # Install the extra files and dependencies
   if(arg_EXTRA_FILES OR arg_DEPENDENCIES)
     install(
-      FILES
-        ${arg_EXTRA_FILES}
-        ${arg_DEPENDENCIES}
+      FILES ${arg_EXTRA_FILES} ${arg_DEPENDENCIES}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/${arg_DESTINATION}
     )
   endif()
@@ -140,8 +135,7 @@ macro(sundials_install_examples_ginkgo MODULE)
 
   # Install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/${arg_DESTINATION}/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/${arg_DESTINATION}/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/${arg_DESTINATION}
   )
 

@@ -25,12 +25,7 @@ foreach(test_tuple ${unit_tests})
     # test source files
     add_executable(${test} ${test}.cpp)
 
-    set_target_properties(
-      ${test}
-      PROPERTIES
-        FOLDER
-          "unit_tests"
-    )
+    set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 
     # include location of public and private header files
     target_include_directories(
@@ -61,11 +56,7 @@ foreach(test_tuple ${unit_tests})
   endif()
 
   # add test to regression tests
-  add_test(
-    NAME ${test_name}
-    COMMAND
-      ${test} ${test_args}
-  )
+  add_test(NAME ${test_name} COMMAND ${test} ${test_args})
 endforeach()
 
 message(STATUS "Added SUNMemoryHelper_Hip units tests")

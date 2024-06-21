@@ -44,9 +44,7 @@ add_dependencies(test_arkode_error_handling sundials_arkode_obj)
 
 target_link_libraries(
   test_arkode_error_handling
-  PRIVATE
-    GTest::gtest_main
-    GTest::gmock
+  PRIVATE GTest::gtest_main GTest::gmock
 )
 
 gtest_discover_tests(test_arkode_error_handling)

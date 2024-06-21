@@ -42,8 +42,7 @@ endif()
 find_package(
   KokkosKernels
   REQUIRED
-  HINTS
-    "${KokkosKernels_DIR}"
+  HINTS "${KokkosKernels_DIR}"
   NO_DEFAULT_PATH
 )
 

@@ -26,11 +26,7 @@ set(
 )
 
 # Add source directory to include directories
-include_directories(
-  .
-  ..
-  ${PROJECT_SOURCE_DIR}/examples/utilities
-)
+include_directories(. .. ${PROJECT_SOURCE_DIR}/examples/utilities)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_sycl_examples})
@@ -49,20 +45,12 @@ foreach(example_tuple ${nvector_sycl_examples})
     add_executable(${example_target} ${example})
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
       ${example_target}
-      PRIVATE
-        test_nvector_obj
-        sundials_nvecsycl
-        ${EXE_EXTRA_LINK_LIBS}
+      PRIVATE test_nvector_obj sundials_nvecsycl ${EXE_EXTRA_LINK_LIBS}
     )
   endif()
 
@@ -77,8 +65,7 @@ foreach(example_tuple ${nvector_sycl_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
@@ -88,15 +75,13 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     nvector_sycl
     nvector_sycl_examples
-    EXAMPLES_DEPENDENCIES
-      test_nvector.c
+    EXAMPLES_DEPENDENCIES test_nvector.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_sycl.h
     CMAKE_TEMPLATE cmakelists_CXX_ex.in
-    SUNDIALS_TARGETS
-      nvecsycl
+    SUNDIALS_TARGETS nvecsycl
     DESTINATION nvector/sycl
   )
 endif()

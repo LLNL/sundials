@@ -66,9 +66,7 @@ endif()
 find_package(
   MKL
   CONFIG
-  PATHS
-    "${ONEMKL_DIR}"
-    "${ONEMKL_DIR}/lib/cmake/mkl"
+  PATHS "${ONEMKL_DIR}" "${ONEMKL_DIR}/lib/cmake/mkl"
   NO_DEFAULT_PATH
   REQUIRED
 )

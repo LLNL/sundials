@@ -42,12 +42,7 @@ foreach(example_tuple ${sunlinsols_onemkldense_examples})
     add_executable(${example_target} ${example})
 
     # folder for IDEs
-    set_target_properties(
-      ${example_target}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
@@ -72,8 +67,7 @@ foreach(example_tuple ${sunlinsols_onemkldense_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example_target}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
@@ -83,17 +77,13 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     sunlinsol_onemkl
     sunlinsols_onemkldense_examples
-    EXAMPLES_DEPENDENCIES
-      test_sunlinsol.c
+    EXAMPLES_DEPENDENCIES test_sunlinsol.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
     CMAKE_TEMPLATE cmakelists_CXX_ex.in
-    SUNDIALS_TARGETS
-      nvecsycl
-      sunlinsolonemkldense
-    OTHER_TARGETS
-      MKL::MKL_DPCPP
+    SUNDIALS_TARGETS nvecsycl sunlinsolonemkldense
+    OTHER_TARGETS MKL::MKL_DPCPP
     DESTINATION sunlinsol/onemkldense
   )
 endif()

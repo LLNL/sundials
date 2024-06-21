@@ -51,12 +51,7 @@ foreach(test_tuple ${tests})
 
   add_dependencies(benchmark ${target})
 
-  set_target_properties(
-    ${target}
-    PROPERTIES
-      FOLDER
-        "Benchmarks"
-  )
+  set_target_properties(${target} PROPERTIES FOLDER "Benchmarks")
 
   target_compile_definitions(${target} PRIVATE ${problem_type})
 
@@ -64,27 +59,19 @@ foreach(test_tuple ${tests})
 
   target_link_libraries(
     ${target}
-    PRIVATE
-      sundials_${package}
-      sundials_nvecparallel
-      MPI::MPI_CXX
+    PRIVATE sundials_${package} sundials_nvecparallel MPI::MPI_CXX
   )
 
   if(BUILD_SUNLINSOL_SUPERLUDIST)
     target_compile_definitions(${target} PRIVATE USE_SUPERLU_DIST)
     target_link_libraries(
       ${target}
-      PRIVATE
-        sundials_sunlinsolsuperludist
-        sundials_sunmatrixslunrloc
+      PRIVATE sundials_sunlinsolsuperludist sundials_sunmatrixslunrloc
     )
   endif()
 
   install(
-    TARGETS
-      ${target}
-      DESTINATION
-      "${BENCHMARKS_INSTALL_PATH}/diffusion_2D"
+    TARGETS ${target} DESTINATION "${BENCHMARKS_INSTALL_PATH}/diffusion_2D"
   )
 
   sundials_add_benchmark(

@@ -36,11 +36,7 @@
 macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
   set(options UNIT_TEST)
   set(oneValueArgs)
-  set(
-    multiValueArgs
-    TARGETS
-    BACKENDS
-  )
+  set(multiValueArgs TARGETS BACKENDS)
 
   # Parse keyword arguments and options
   cmake_parse_arguments(
@@ -64,21 +60,11 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
 
       set(float_precision "default")
       if(backend MATCHES "CUDA")
-        set_source_files_properties(
-          ${example}
-          PROPERTIES
-            LANGUAGE
-              CUDA
-        )
+        set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
         set(vector nveccuda)
         set(float_precision "4")
       elseif(backend MATCHES "HIP")
-        set_source_files_properties(
-          ${example}
-          PROPERTIES
-            LANGUAGE
-              CXX
-        )
+        set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
         set(vector nvechip)
       elseif(backend MATCHES "SYCL")
         set(vector nvecsycl)
@@ -97,12 +83,7 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
         add_executable(${example_target} ${example})
 
         # folder for IDEs
-        set_target_properties(
-          ${example_target}
-          PROPERTIES
-            FOLDER
-              "Examples"
-        )
+        set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
         # which backend to use
         target_compile_definitions(${example_target} PRIVATE USE_${backend})
@@ -110,8 +91,7 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
         # directories to include
         target_include_directories(
           ${example_target}
-          PRIVATE
-            "${PROJECT_SOURCE_DIR}/examples/utilities"
+          PRIVATE "${PROJECT_SOURCE_DIR}/examples/utilities"
         )
 
         # libraries to link against
@@ -130,8 +110,7 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
         set(test_name ${example_target})
       else()
         string(
-          REGEX
-          REPLACE
+          REGEX REPLACE
           " "
           "_"
           test_name
@@ -145,8 +124,7 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
           ${test_name}
           ${example_target}
           EXAMPLE_TYPE ${example_type}
-          TEST_ARGS
-            ${example_args}
+          TEST_ARGS ${example_args}
           NODIFF
         )
       else()
@@ -154,8 +132,7 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
           ${test_name}
           ${example_target}
           EXAMPLE_TYPE ${example_type}
-          TEST_ARGS
-            ${example_args}
+          TEST_ARGS ${example_args}
           ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
           ANSWER_FILE ${test_name}.out
           FLOAT_PRECISION ${float_precision}

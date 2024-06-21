@@ -18,12 +18,8 @@
 # First try and find Trilinos using Trilinos_DIR only.
 find_package(
   Trilinos
-  NAMES
-    Trilinos
-    TRILINOS
-  PATHS
-    ${Trilinos_DIR}/lib/cmake/Trilinos
-    ${Trilinos_DIR}
+  NAMES Trilinos TRILINOS
+  PATHS ${Trilinos_DIR}/lib/cmake/Trilinos ${Trilinos_DIR}
   NO_DEFAULT_PATH
   QUIET
 )
@@ -45,9 +41,7 @@ if(Trilinos_FOUND)
   set_target_properties(
     SUNDIALS::TRILINOS
     PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES
-        "${Trilinos_INCLUDE_DIRS}"
-      INTERFACE_LINK_LIBRARIES
-        "${Trilinos_LIBRARIES}"
+      INTERFACE_INCLUDE_DIRECTORIES "${Trilinos_INCLUDE_DIRS}"
+      INTERFACE_LINK_LIBRARIES "${Trilinos_LIBRARIES}"
   )
 endif()

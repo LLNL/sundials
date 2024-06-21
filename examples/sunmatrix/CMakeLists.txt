@@ -17,11 +17,7 @@
 
 if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
   include_directories(${caliper_INCLUDE_DIR})
-  set(
-    EXE_EXTRA_LINK_LIBS
-    ${EXE_EXTRA_LINK_LIBS}
-    caliper
-  )
+  set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} caliper)
 endif()
 
 # Always add the serial sunmatrix dense/band/sparse examples
@@ -30,20 +26,12 @@ add_subdirectory(band)
 add_subdirectory(sparse)
 
 # Build the sunmatrix test utilities
-add_library(
-  test_sunmatrix_obj
-  OBJECT
-  test_sunmatrix.c
-  test_sunmatrix.h
-)
+add_library(test_sunmatrix_obj OBJECT test_sunmatrix.c test_sunmatrix.h)
 if(BUILD_SHARED_LIBS)
   # need PIC when shared libs are used since the example executables will link to the shared lib
   set_property(
-    TARGET
-      test_sunmatrix_obj
-    PROPERTY
-      POSITION_INDEPENDENT_CODE
-        TRUE
+    TARGET test_sunmatrix_obj
+    PROPERTY POSITION_INDEPENDENT_CODE TRUE
   )
 endif()
 target_link_libraries(test_sunmatrix_obj PRIVATE sundials_sunmatrixdense)

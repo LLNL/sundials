@@ -42,21 +42,11 @@ foreach(example_tuple ${IDA_examples})
   get_filename_component(example_target ${example} NAME_WE)
 
   # add example source files
-  set_source_files_properties(
-    ${example}
-    PROPERTIES
-      LANGUAGE
-        ${_lang}
-  )
+  set_source_files_properties(${example} PROPERTIES LANGUAGE ${_lang})
 
   add_executable(${example_target} ${example})
 
-  set_target_properties(
-    ${example_traget}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example_traget} PROPERTIES FOLDER "Examples")
 
   target_include_directories(${example_target} PUBLIC ${MPI_CXX_INCLUDE_DIRS})
 
@@ -81,25 +71,13 @@ foreach(example_tuple ${IDA_examples})
     ANSWER_FILE ${example_target}.out
     EXAMPLE_TYPE ${example_type}
   )
-endforeach(
-  example_tuple
-  ${IDA_examples}
-)
+endforeach(example_tuple ${IDA_examples})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
   if(
-    (
-      RAJA_BACKENDS
-        MATCHES
-        "TARGET_OPENMP"
-    )
-    OR
-      (
-        RAJA_BACKENDS
-          MATCHES
-          "OPENMP"
-      )
+    (RAJA_BACKENDS MATCHES "TARGET_OPENMP")
+    OR (RAJA_BACKENDS MATCHES "OPENMP")
   )
     set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
     set(_openmp_target OpenMP::OpenMP_CXX)
@@ -118,15 +96,10 @@ if(EXAMPLES_INSTALL)
     CMAKE_TEMPLATE cmakelists_${_lang}_MPI_ex.in
     MAKE_TEMPLATE makefile_parallel_RAJA_ex.in
     SOLVER_LIBRARY sundials_ida
-    SUNDIALS_TARGETS
-      ida
-      nvecmpiplusx
-      nvecraja
-    OTHER_TARGETS
-      ${_openmp_target}
+    SUNDIALS_TARGETS ida nvecmpiplusx nvecraja
+    OTHER_TARGETS ${_openmp_target}
     DESTINATION ida/mpiraja
-    EXTRA_FILES
-      README
+    EXTRA_FILES README
     TEST_INSTALL mpiraja
   )
 endif()

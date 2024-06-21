@@ -17,11 +17,7 @@ message(STATUS "Added OpenMPDEV NVECTOR benchmark")
 set(NVECS_LIB sundials_nvecopenmpdev)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${NVECS_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
@@ -36,9 +32,7 @@ add_executable(
 # folder to organize targets in an IDE
 set_target_properties(
   test_nvector_performance_openmp
-  PROPERTIES
-    FOLDER
-      "Benchmarks"
+  PROPERTIES FOLDER "Benchmarks"
 )
 
 target_include_directories(test_nvector_performance_openmpdev PRIVATE ..)

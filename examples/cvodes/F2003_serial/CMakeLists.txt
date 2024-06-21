@@ -27,11 +27,7 @@ set(
 set(CVODES_LIB sundials_fcvodes_mod)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${CVODES_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${CVODES_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FCVODES_examples})
@@ -53,12 +49,7 @@ foreach(example_tuple ${FCVODES_examples})
     add_executable(${example} ${example}.f90)
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
@@ -75,8 +66,7 @@ foreach(example_tuple ${FCVODES_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE ${example_type}
@@ -88,16 +78,11 @@ foreach(example_tuple ${FCVODES_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.f90
-        ${example_out}
+      FILES ${example}.f90 ${example_out}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/F2003_serial
     )
   endif()
-endforeach(
-  example_tuple
-  ${FCVODES_examples}
-)
+endforeach(example_tuple ${FCVODES_examples})
 
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -121,8 +106,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/cvodes/F2003_serial/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/cvodes/F2003_serial/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/F2003_serial
   )
 
@@ -139,8 +123,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/cvodes/F2003_serial/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/cvodes/F2003_serial/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/F2003_serial
       RENAME Makefile
     )

@@ -33,12 +33,7 @@ foreach(example_tuple ${ARKODE_examples})
   # create target
   add_executable(${example_target} ${example})
 
-  set_target_properties(
-    ${example_target}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
   # libraries to link against
   target_link_libraries(
@@ -57,10 +52,7 @@ foreach(example_tuple ${ARKODE_examples})
     ANSWER_FILE ${example_target}.out
     EXAMPLE_TYPE ${example_type}
   )
-endforeach(
-  example_tuple
-  ${ARKODE_examples}
-)
+endforeach(example_tuple ${ARKODE_examples})
 
 if(EXAMPLES_INSTALL)
   sundials_install_examples(
@@ -69,12 +61,9 @@ if(EXAMPLES_INSTALL)
     CMAKE_TEMPLATE cmakelists_C_MPI_ex.in
     MAKE_TEMPLATE makefile_parhyp_C_ex.in
     SOLVER_LIBRARY sundials_arkode
-    SUNDIALS_TARGETS
-      arkode
-      nvecparhyp
+    SUNDIALS_TARGETS arkode nvecparhyp
     DESTINATION arkode/C_parhyp
-    EXTRA_FILES
-      README
+    EXTRA_FILES README
     TEST_INSTALL C_parhyp
   )
 endif()

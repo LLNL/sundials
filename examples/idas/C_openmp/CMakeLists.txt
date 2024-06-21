@@ -29,12 +29,7 @@ set(IDAS_LIB sundials_idas)
 set(NVECOMP_LIB sundials_nvecopenmp)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${IDAS_LIB}
-  ${NVECOMP_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${IDAS_LIB} ${NVECOMP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${IDAS_examples})
@@ -50,12 +45,7 @@ foreach(example_tuple ${IDAS_examples})
     add_executable(${example} ${example}.c)
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
@@ -74,8 +64,7 @@ foreach(example_tuple ${IDAS_examples})
     SUNDIALS_ADD_TEST(
       ${example}
       ${example}
-      TEST_ARGS
-        ${example_args}
+      TEST_ARGS ${example_args}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${example}.out
       EXAMPLE_TYPE ${example_type}
@@ -85,16 +74,11 @@ foreach(example_tuple ${IDAS_examples})
   # install example source and .out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
-        ${example}.out
+      FILES ${example}.c ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp
     )
   endif()
-endforeach(
-  example_tuple
-  ${IDAS_examples}
-)
+endforeach(example_tuple ${IDAS_examples})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -104,8 +88,7 @@ if(EXAMPLES_INSTALL)
   # Install the extra files
   foreach(extrafile ${IDAS_extras})
     install(
-      FILES
-        ${extrafile}
+      FILES ${extrafile}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp
     )
   endforeach()
@@ -129,8 +112,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp
   )
 
@@ -147,8 +129,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp
       RENAME Makefile
     )

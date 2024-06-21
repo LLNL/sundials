@@ -61,12 +61,7 @@ foreach(test_tuple ${tests})
 
   if("${backend}" STREQUAL "USE_CUDA")
     foreach(file ${sources})
-      set_source_files_properties(
-        ${file}
-        PROPERTIES
-          LANGUAGE
-            CUDA
-      )
+      set_source_files_properties(${file} PROPERTIES LANGUAGE CUDA)
     endforeach()
 
     set(target ${package}_diffusion_2D_mpicuda)
@@ -93,12 +88,7 @@ foreach(test_tuple ${tests})
     )
   endif()
 
-  set_target_properties(
-    ${target}
-    PROPERTIES
-      FOLDER
-        "Benchmarks"
-  )
+  set_target_properties(${target} PROPERTIES FOLDER "Benchmarks")
 
   target_compile_definitions(${target} PRIVATE ${problem_type})
 
@@ -109,10 +99,7 @@ foreach(test_tuple ${tests})
 
     target_link_libraries(
       ${target}
-      PRIVATE
-        sundials_${package}
-        sundials_nvecmpiplusx
-        sundials_nveccuda
+      PRIVATE sundials_${package} sundials_nvecmpiplusx sundials_nveccuda
     )
   else()
     target_compile_definitions(${target} PRIVATE USE_HIP)
@@ -134,9 +121,6 @@ foreach(test_tuple ${tests})
   target_link_libraries(${target} PRIVATE ${MPI_CXX_LIBRARIES})
 
   install(
-    TARGETS
-      ${target}
-      DESTINATION
-      "${BENCHMARKS_INSTALL_PATH}/diffusion_2D"
+    TARGETS ${target} DESTINATION "${BENCHMARKS_INSTALL_PATH}/diffusion_2D"
   )
 endforeach()

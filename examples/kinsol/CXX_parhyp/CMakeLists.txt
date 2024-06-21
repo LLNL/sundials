@@ -35,12 +35,7 @@ set(KINSOL_LIB sundials_kinsol)
 set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${KINSOL_LIB}
-  ${NVECP_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build target for each example
 foreach(example_tuple ${KINSOL_examples})
@@ -58,20 +53,12 @@ foreach(example_tuple ${KINSOL_examples})
     add_executable(${example} ${example}.cpp)
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
       ${example}
-      PRIVATE
-        MPI::MPI_CXX
-        ${SUNDIALS_LIBS}
-        SUNDIALS::HYPRE
+      PRIVATE MPI::MPI_CXX ${SUNDIALS_LIBS} SUNDIALS::HYPRE
     )
   endif()
 
@@ -86,8 +73,7 @@ foreach(example_tuple ${KINSOL_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
@@ -100,24 +86,18 @@ foreach(example_tuple ${KINSOL_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.cpp
-        ${example_out}
+      FILES ${example}.cpp ${example_out}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp
     )
   endif()
-endforeach(
-  example_tuple
-  ${KINSOL_examples}
-)
+endforeach(example_tuple ${KINSOL_examples})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
   # Install the header files
   foreach(extrafile ${KINSOL_headers})
     install(
-      FILES
-        ${extrafile}
+      FILES ${extrafile}
       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp
     )
   endforeach()
@@ -144,8 +124,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/kinsol/CXX_parhyp/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/kinsol/CXX_parhyp/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp
   )
 
@@ -162,8 +141,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/kinsol/CXX_parhyp/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/kinsol/CXX_parhyp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp
       RENAME Makefile
     )

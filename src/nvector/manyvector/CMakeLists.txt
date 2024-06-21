@@ -21,14 +21,10 @@ if(BUILD_NVECTOR_MANYVECTOR)
 
   sundials_add_library(
     sundials_nvecmanyvector
-    SOURCES
-      nvector_manyvector.c
-    HEADERS
-      ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_manyvector.h
+    SOURCES nvector_manyvector.c
+    HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_manyvector.h
     INCLUDE_SUBDIR nvector
-    LINK_LIBRARIES
-      PUBLIC
-      sundials_core
+    LINK_LIBRARIES PUBLIC sundials_core
     OUTPUT_NAME sundials_nvecmanyvector
     VERSION ${nveclib_VERSION}
     SOVERSION ${nveclib_SOVERSION}
@@ -52,17 +48,11 @@ if(BUILD_NVECTOR_MPIMANYVECTOR)
   # Create the sundials_nvecmpimanyvector library
   sundials_add_library(
     sundials_nvecmpimanyvector
-    SOURCES
-      nvector_manyvector.c
-    HEADERS
-      ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpimanyvector.h
+    SOURCES nvector_manyvector.c
+    HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpimanyvector.h
     INCLUDE_SUBDIR nvector
-    LINK_LIBRARIES
-      PUBLIC
-      sundials_core
-    COMPILE_DEFINITIONS
-      PRIVATE
-      MANYVECTOR_BUILD_WITH_MPI
+    LINK_LIBRARIES PUBLIC sundials_core
+    COMPILE_DEFINITIONS PRIVATE MANYVECTOR_BUILD_WITH_MPI
     OUTPUT_NAME sundials_nvecmpimanyvector
     VERSION ${nveclib_VERSION}
     SOVERSION ${nveclib_SOVERSION}

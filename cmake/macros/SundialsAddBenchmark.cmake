@@ -20,12 +20,7 @@ macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
   # NUM_CORES         = number of cores (GPU count or CPU count) to run on/number of resource sets
   # BENCHMARK_ARGS    = arguments to pass to the executable
   # IDENTIFIER        = suffix to append to end of benchmark name
-  set(
-    oneValueArgs
-    NUM_CORES
-    BENCHMARK_ARGS
-    IDENTIFIER
-  )
+  set(oneValueArgs NUM_CORES BENCHMARK_ARGS IDENTIFIER)
 
   # TEST_RUNNER_ARGS  = command line arguments to pass to the test executable
   set(multiValueArgs TEST_RUNNER_ARGS)
@@ -97,11 +92,8 @@ macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
   if(SUNDIALS_SCHEDULER_COMMAND STREQUAL "flux run")
     set(SCHEDULER_STRING " -n${sundials_add_benchmark_NUM_CORES}")
   elseif(
-    SUNDIALS_SCHEDULER_COMMAND
-      STREQUAL
-      "jsrun"
-    AND
-      ${sundials_add_benchmark_ENABLE_GPU}
+    SUNDIALS_SCHEDULER_COMMAND STREQUAL "jsrun"
+    AND ${sundials_add_benchmark_ENABLE_GPU}
   )
     set(
       SCHEDULER_STRING
@@ -119,11 +111,7 @@ macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
   string(REPLACE " " ";" SCHEDULER_COMMAND_ARGS "${SUNDIALS_SCHEDULER_COMMAND}")
 
   string(STRIP "${RUN_COMMAND}" RUN_COMMAND)
-  set(
-    RUN_COMMAND
-    ${SCHEDULER_COMMAND_ARGS}
-    ${SCHEDULER_ARGS}
-  )
+  set(RUN_COMMAND ${SCHEDULER_COMMAND_ARGS} ${SCHEDULER_ARGS})
   list(APPEND TEST_RUNNER_ARGS "--runcommand=\"${RUN_COMMAND}\"")
 
   list(
@@ -135,8 +123,7 @@ macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
   add_custom_target(
     ${TARGET_NAME}
     COMMENT "Running ${TARGET_NAME}"
-    COMMAND
-      ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_RUNNER_ARGS}
+    COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_RUNNER_ARGS}
   )
   add_dependencies(benchmark ${TARGET_NAME})
 endmacro()

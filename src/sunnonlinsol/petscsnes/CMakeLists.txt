@@ -26,19 +26,12 @@ endif()
 # Create the library
 sundials_add_library(
   sundials_sunnonlinsolpetscsnes
-  SOURCES
-    sunnonlinsol_petscsnes.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_petscsnes.h
+  SOURCES sunnonlinsol_petscsnes.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_petscsnes.h
   INCLUDE_SUBDIR sunnonlinsol
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_nvecpetsc
-    SUNDIALS::PETSC
+  LINK_LIBRARIES PUBLIC sundials_nvecpetsc SUNDIALS::PETSC
   OUTPUT_NAME sundials_sunnonlinsolpetscsnes
   VERSION ${nveclib_VERSION}
   SOVERSION ${nveclib_SOVERSION}

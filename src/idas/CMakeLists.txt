@@ -33,12 +33,7 @@ set(
 )
 
 # Add variable idas_HEADERS with the exported IDAS header files
-set(
-  idas_HEADERS
-  idas.h
-  idas_bbdpre.h
-  idas_ls.h
-)
+set(idas_HEADERS idas.h idas_bbdpre.h idas_ls.h)
 
 # Add prefix with complete path to the IDAS header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/idas/ idas_HEADERS)
@@ -46,14 +41,10 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/idas/ idas_HEADERS)
 # Create the library
 sundials_add_library(
   sundials_idas
-  SOURCES
-    ${idas_SOURCES}
-  HEADERS
-    ${idas_HEADERS}
+  SOURCES ${idas_SOURCES}
+  HEADERS ${idas_HEADERS}
   INCLUDE_SUBDIR idas
-  LINK_LIBRARIES
-    PUBLIC
-    sundials_core
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj

@@ -124,12 +124,7 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 endif()
 
 # Organize targets into folders when using an IDE
-set_property(
-  GLOBAL
-  PROPERTY
-    USE_FOLDERS
-      ON
-)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Get correct build paths automatically, but expose LIBDIR and
 # INCLUDEDIR as a regular cache variable so that a user can more
@@ -160,14 +155,8 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     FORCE
   )
   set_property(
-    CACHE
-      CMAKE_BUILD_TYPE
-    PROPERTY
-      STRINGS
-        "Debug"
-        "Release"
-        "MinSizeRel"
-        "RelWithDebInfo"
+    CACHE CMAKE_BUILD_TYPE
+    PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo"
   )
 else()
   message(STATUS "Building SUNDIALS in '${CMAKE_BUILD_TYPE}' mode.")
@@ -250,15 +239,13 @@ endif()
 
 # install sundials_export header file
 install(
-  FILES
-    "${PROJECT_BINARY_DIR}/include/sundials/sundials_export.h"
+  FILES "${PROJECT_BINARY_DIR}/include/sundials/sundials_export.h"
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
 )
 
 # install configured header file
 install(
-  FILES
-    "${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h"
+  FILES "${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h"
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
 )
 
@@ -269,14 +256,12 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
   # of the .mod files.
   if(BUILD_STATIC_LIBS)
     install(
-      DIRECTORY
-        ${CMAKE_Fortran_MODULE_DIRECTORY}_STATIC/
+      DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_STATIC/
       DESTINATION ${Fortran_INSTALL_MODDIR}
     )
   else()
     install(
-      DIRECTORY
-        ${CMAKE_Fortran_MODULE_DIRECTORY}_SHARED/
+      DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_SHARED/
       DESTINATION ${Fortran_INSTALL_MODDIR}
     )
   endif()
@@ -284,13 +269,11 @@ endif()
 
 # install license and notice files
 install(
-  FILES
-    "${PROJECT_SOURCE_DIR}/LICENSE"
+  FILES "${PROJECT_SOURCE_DIR}/LICENSE"
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
 )
 install(
-  FILES
-    "${PROJECT_SOURCE_DIR}/NOTICE"
+  FILES "${PROJECT_SOURCE_DIR}/NOTICE"
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
 )
 

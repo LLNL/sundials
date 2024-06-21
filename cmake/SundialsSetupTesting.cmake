@@ -140,8 +140,7 @@ if(SUNDIALS_TEST_DEVTESTS)
       add_custom_target(
         setup_local_ci_${index_size}_${precision_}
         COMMENT "Pulling SUNDIALS CI container ghcr.io/llnl/${container}:${tag}"
-        COMMAND
-          ${SUNDIALS_TEST_CONTAINER_EXE} ${container_exe_args}
+        COMMAND ${SUNDIALS_TEST_CONTAINER_EXE} ${container_exe_args}
       )
       add_dependencies(
         setup_local_ci
@@ -174,8 +173,7 @@ if(SUNDIALS_TEST_DEVTESTS)
         test_local_ci_${index_size}_${precision_}
         COMMENT "Running tests in CI container ${container}:${tag}"
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-        COMMAND
-          ${SUNDIALS_TEST_CONTAINER_EXE} ${container_exe_args}
+        COMMAND ${SUNDIALS_TEST_CONTAINER_EXE} ${container_exe_args}
         VERBATIM
       )
       add_dependencies(test_local_ci test_local_ci_${index_size}_${precision_})

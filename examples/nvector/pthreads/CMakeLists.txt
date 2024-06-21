@@ -37,10 +37,7 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
 endif()
 
 # Add source directory to include directories
-include_directories(
-  .
-  ..
-)
+include_directories(. ..)
 
 # Specify libraries to link against
 set(NVECS_LIB sundials_nvecpthreads)
@@ -49,11 +46,7 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
 endif()
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${NVECS_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_pthreads_examples})
@@ -72,19 +65,12 @@ foreach(example_tuple ${nvector_pthreads_examples})
     target_link_libraries(${example} PRIVATE test_nvector_obj)
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
     target_link_libraries(
       ${example}
-      PRIVATE
-        ${SUNDIALS_LIBS}
-        ${CMAKE_THREAD_LIBS_INIT}
+      PRIVATE ${SUNDIALS_LIBS} ${CMAKE_THREAD_LIBS_INIT}
     )
   endif()
 
@@ -99,8 +85,7 @@ foreach(example_tuple ${nvector_pthreads_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
@@ -108,17 +93,11 @@ foreach(example_tuple ${nvector_pthreads_examples})
   # install example source files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
-        ../test_nvector.c
-        ../test_nvector.h
+      FILES ${example}.c ../test_nvector.c ../test_nvector.h
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads
     )
   endif()
-endforeach(
-  example_tuple
-  ${nvector_pthreads_examples}
-)
+endforeach(example_tuple ${nvector_pthreads_examples})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_pthreads_fortran_examples})
@@ -145,19 +124,10 @@ foreach(example_tuple ${nvector_pthreads_fortran_examples})
     )
 
     # folder to organize targets in an IDE
-    set_target_properties(
-      ${example}
-      PROPERTIES
-        FOLDER
-          "Examples"
-    )
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(
-      ${example}
-      ${SUNDIALS_LIBS}
-      ${CMAKE_THREAD_LIBS_INIT}
-    )
+    target_link_libraries(${example} ${SUNDIALS_LIBS} ${CMAKE_THREAD_LIBS_INIT})
   endif()
 
   # check if example args are provided and set the test name
@@ -171,15 +141,11 @@ foreach(example_tuple ${nvector_pthreads_fortran_examples})
   SUNDIALS_ADD_TEST(
     ${test_name}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF
   )
-endforeach(
-  example_tuple
-  ${nvector_pthreads_fortran_examples}
-)
+endforeach(example_tuple ${nvector_pthreads_fortran_examples})
 
 if(EXAMPLES_INSTALL)
   # Install the README file
@@ -204,8 +170,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads
   )
 
@@ -222,8 +187,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads
       RENAME Makefile
     )

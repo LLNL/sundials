@@ -33,12 +33,7 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
 endif()
 
 # Set-up linker flags and link libraries
-set(
-  SUNDIALS_LIBS
-  ${CVODE_LIB}
-  ${NVECOMP_LIB}
-  ${EXE_EXTRA_LINK_LIBS}
-)
+set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECOMP_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
@@ -50,19 +45,13 @@ foreach(example_tuple ${CVODE_examples})
   # example source files
   add_executable(${example} ${example}.c)
 
-  set_target_properties(
-    ${example}
-    PROPERTIES
-      FOLDER
-        "Examples"
-  )
+  set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add to regression tests
   SUNDIALS_ADD_TEST(
     ${example}
     ${example}
-    TEST_ARGS
-      ${example_args}
+    TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type}
@@ -74,16 +63,11 @@ foreach(example_tuple ${CVODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(
-      FILES
-        ${example}.c
-        ${example}.out
+      FILES ${example}.c ${example}.out
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/C_openmp
     )
   endif()
-endforeach(
-  example_tuple
-  ${CVODE_examples}
-)
+endforeach(example_tuple ${CVODE_examples})
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -112,8 +96,7 @@ if(EXAMPLES_INSTALL)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/examples/cvode/C_openmp/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/examples/cvode/C_openmp/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/C_openmp
   )
 
@@ -130,8 +113,7 @@ if(EXAMPLES_INSTALL)
     )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/examples/cvode/C_openmp/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/examples/cvode/C_openmp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/C_openmp
       RENAME Makefile
     )
