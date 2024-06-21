@@ -18,9 +18,7 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(CVODE_examples
-  "cvAdvDiff_kry_sycl.cpp\;\;develop"
-  )
+set(CVODE_examples "cvAdvDiff_kry_sycl.cpp\;\;develop")
 
 # Add the build and install targets for each CVODE example
 foreach(example_tuple ${CVODE_examples})
@@ -33,7 +31,7 @@ foreach(example_tuple ${CVODE_examples})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  if (NOT TARGET ${example_target})
+  if(NOT TARGET ${example_target})
 
     # example source files
     add_executable(${example_target} ${example})
@@ -42,11 +40,9 @@ foreach(example_tuple ${CVODE_examples})
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example_target} PRIVATE
-      sundials_cvode
-      sundials_nvecsycl
-      ${EXE_EXTRA_LINK_LIBS}
-      )
+    target_link_libraries(
+      ${example_target} PRIVATE sundials_cvode sundials_nvecsycl
+                                ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 
@@ -58,25 +54,32 @@ foreach(example_tuple ${CVODE_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+  sundials_add_test(
+    ${test_name}
+    ${example_target}
+    TEST_ARGS
+    ${example_args}
+    ANSWER_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+    ${test_name}.out
+    EXAMPLE_TYPE
+    ${example_type})
 
 endforeach()
-
 
 # Install the targets
 if(EXAMPLES_INSTALL)
 
-  sundials_install_examples(cvode CVODE_examples
+  sundials_install_examples(
+    cvode
+    CVODE_examples
     CMAKE_TEMPLATE
-      cmakelists_CXX_ex.in
+    cmakelists_CXX_ex.in
     SUNDIALS_TARGETS
-      cvode
-      nvecsycl
+    cvode
+    nvecsycl
     DESTINATION
-      cvode/CXX_sycl)
+    cvode/CXX_sycl)
 
 endif()

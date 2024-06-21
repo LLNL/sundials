@@ -21,16 +21,13 @@
 # Note: threaded tests are excluded because of a potential bug in
 # SuperLU_MT that causes random test failures
 set(sunlinsol_superlumt_examples
-  "test_sunlinsol_superlumt\;300 0 1 0\;"
-  "test_sunlinsol_superlumt\;300 1 1 0\;"
-  "test_sunlinsol_superlumt\;1000 0 3 0\;exclude"
-  "test_sunlinsol_superlumt\;1000 1 3 0\;exclude"
-)
+    "test_sunlinsol_superlumt\;300 0 1 0\;"
+    "test_sunlinsol_superlumt\;300 1 1 0\;"
+    "test_sunlinsol_superlumt\;1000 0 3 0\;exclude"
+    "test_sunlinsol_superlumt\;1000 1 3 0\;exclude")
 
 # Dependencies for nvector examples
-set(sunlinsol_superlumt_dependencies
-  test_sunlinsol
-)
+set(sunlinsol_superlumt_dependencies test_sunlinsol)
 
 # Add source directory to include directories
 include_directories(. ..)
@@ -53,11 +50,9 @@ foreach(example_tuple ${sunlinsol_superlumt_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example}
-      sundials_nvecserial
-      sundials_sunmatrixdense
-      sundials_sunmatrixsparse
-      sundials_sunlinsolsuperlumt
+    target_link_libraries(
+      ${example} sundials_nvecserial sundials_sunmatrixdense
+      sundials_sunmatrixsparse sundials_sunlinsolsuperlumt
       ${EXE_EXTRA_LINK_LIBS})
   endif()
 
@@ -69,20 +64,21 @@ foreach(example_tuple ${sunlinsol_superlumt_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_sunlinsol.h
-      ../test_sunlinsol.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/superlumt)
+    install(FILES ${example}.c ../test_sunlinsol.h ../test_sunlinsol.c
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/superlumt)
   endif()
 
 endforeach(example_tuple ${sunlinsol_superlumt_examples})
-
 
 if(EXAMPLES_INSTALL)
 
@@ -113,15 +109,12 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunlinsol/superlumt/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/sunlinsol/superlumt/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
   install(
     FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/superlumt/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/superlumt
-    )
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/superlumt)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -131,15 +124,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunlinsol/superlumt/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/sunlinsol/superlumt/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/superlumt/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/superlumt
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

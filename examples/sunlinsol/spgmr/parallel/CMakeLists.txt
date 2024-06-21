@@ -19,16 +19,13 @@
 
 # Examples using the SUNDIALS SPGMR linear solver
 set(sunlinsol_spgmr_examples
-  "test_sunlinsol_spgmr_parallel\;100 1 1 50 1e-3 0\;1\;4\;"
-  "test_sunlinsol_spgmr_parallel\;100 1 2 50 1e-3 0\;1\;4\;"
-  "test_sunlinsol_spgmr_parallel\;100 2 1 50 1e-3 0\;1\;4\;"
-  "test_sunlinsol_spgmr_parallel\;100 2 2 50 1e-3 0\;1\;4\;"
-  )
+    "test_sunlinsol_spgmr_parallel\;100 1 1 50 1e-3 0\;1\;4\;"
+    "test_sunlinsol_spgmr_parallel\;100 1 2 50 1e-3 0\;1\;4\;"
+    "test_sunlinsol_spgmr_parallel\;100 2 1 50 1e-3 0\;1\;4\;"
+    "test_sunlinsol_spgmr_parallel\;100 2 2 50 1e-3 0\;1\;4\;")
 
 # Dependencies for nvector examples
-set(sunlinsol_spgmr_dependencies
-  test_sunlinsol
-  )
+set(sunlinsol_spgmr_dependencies test_sunlinsol)
 
 # Add source directory to include directories
 include_directories(. ../..)
@@ -40,7 +37,6 @@ else()
   # add MPI_INCLUDE_PATH to include directories
   include_directories(${MPI_INCLUDE_PATH})
 endif()
-
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_spgmr_examples})
@@ -62,10 +58,8 @@ foreach(example_tuple ${sunlinsol_spgmr_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example}
-      sundials_nvecparallel
-      sundials_sunlinsolspgmr
-      ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(${example} sundials_nvecparallel
+                          sundials_sunlinsolspgmr ${EXE_EXTRA_LINK_LIBS})
 
     if(NOT MPI_C_COMPILER)
       target_link_libraries(${example} ${MPI_LIBRARIES})
@@ -80,22 +74,24 @@ foreach(example_tuple ${sunlinsol_spgmr_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    MPI_NPROCS
+    ${number_of_tasks}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../../test_sunlinsol.h
-      ../../test_sunlinsol.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spgmr/parallel)
+    install(FILES ${example}.c ../../test_sunlinsol.h ../../test_sunlinsol.c
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spgmr/parallel)
   endif()
 
 endforeach(example_tuple ${sunlinsol_spgmr_examples})
-
 
 if(EXAMPLES_INSTALL)
 
@@ -116,14 +112,12 @@ if(EXAMPLES_INSTALL)
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
     ${PROJECT_BINARY_DIR}/examples/sunlinsol/spgmr/parallel/CMakeLists.txt
-    @ONLY
-    )
+    @ONLY)
 
   # install CMakelists.txt
   install(
     FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/spgmr/parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spgmr/parallel
-    )
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spgmr/parallel)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -133,15 +127,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunlinsol/spgmr/parallel/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/sunlinsol/spgmr/parallel/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/spgmr/parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spgmr/parallel
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

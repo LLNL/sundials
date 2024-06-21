@@ -16,33 +16,32 @@
 
 # List of test tuples of the form "name\;args"
 set(unit_tests
-  "ark_test_analytic_sys_mri.cpp\;0"
-  "ark_test_analytic_sys_mri.cpp\;1"
-  "ark_test_dahlquist_ark.cpp\;0 -1 0"
-  "ark_test_dahlquist_ark.cpp\;0 0 0"
-  "ark_test_dahlquist_ark.cpp\;0 0 1"
-  "ark_test_dahlquist_ark.cpp\;0 1 0"
-  "ark_test_dahlquist_ark.cpp\;0 1 1"
-  "ark_test_dahlquist_ark.cpp\;1 -1 0"
-  "ark_test_dahlquist_ark.cpp\;1 0 0"
-  "ark_test_dahlquist_ark.cpp\;1 0 1"
-  "ark_test_dahlquist_ark.cpp\;1 1 0"
-  "ark_test_dahlquist_ark.cpp\;1 1 1"
-  "ark_test_dahlquist_ark.cpp\;2 -1 0"
-  "ark_test_dahlquist_ark.cpp\;2 0 0"
-  "ark_test_dahlquist_ark.cpp\;2 0 1"
-  "ark_test_dahlquist_ark.cpp\;2 1 0"
-  "ark_test_dahlquist_ark.cpp\;2 1 1"
-  "ark_test_dahlquist_erk.cpp\;-1"
-  "ark_test_dahlquist_erk.cpp\;0"
-  "ark_test_dahlquist_erk.cpp\;1"
-  "ark_test_dahlquist_mri.cpp\;-1"
-  "ark_test_dahlquist_mri.cpp\;0"
-  "ark_test_dahlquist_mri.cpp\;1"
-  "ark_test_butcher.cpp\;"
-  "ark_test_getjac.cpp\;"
-  "ark_test_getjac_mri.cpp\;"
-)
+    "ark_test_analytic_sys_mri.cpp\;0"
+    "ark_test_analytic_sys_mri.cpp\;1"
+    "ark_test_dahlquist_ark.cpp\;0 -1 0"
+    "ark_test_dahlquist_ark.cpp\;0 0 0"
+    "ark_test_dahlquist_ark.cpp\;0 0 1"
+    "ark_test_dahlquist_ark.cpp\;0 1 0"
+    "ark_test_dahlquist_ark.cpp\;0 1 1"
+    "ark_test_dahlquist_ark.cpp\;1 -1 0"
+    "ark_test_dahlquist_ark.cpp\;1 0 0"
+    "ark_test_dahlquist_ark.cpp\;1 0 1"
+    "ark_test_dahlquist_ark.cpp\;1 1 0"
+    "ark_test_dahlquist_ark.cpp\;1 1 1"
+    "ark_test_dahlquist_ark.cpp\;2 -1 0"
+    "ark_test_dahlquist_ark.cpp\;2 0 0"
+    "ark_test_dahlquist_ark.cpp\;2 0 1"
+    "ark_test_dahlquist_ark.cpp\;2 1 0"
+    "ark_test_dahlquist_ark.cpp\;2 1 1"
+    "ark_test_dahlquist_erk.cpp\;-1"
+    "ark_test_dahlquist_erk.cpp\;0"
+    "ark_test_dahlquist_erk.cpp\;1"
+    "ark_test_dahlquist_mri.cpp\;-1"
+    "ark_test_dahlquist_mri.cpp\;0"
+    "ark_test_dahlquist_mri.cpp\;1"
+    "ark_test_butcher.cpp\;"
+    "ark_test_getjac.cpp\;"
+    "ark_test_getjac_mri.cpp\;")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
@@ -65,15 +64,16 @@ foreach(test_tuple ${unit_tests})
     set_target_properties(${test_target} PROPERTIES FOLDER "unit_tests")
 
     # Include location of public and private header files
-    target_include_directories(${test_target} PRIVATE
-      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-      ${CMAKE_SOURCE_DIR}/include
-      ${CMAKE_SOURCE_DIR}/src)
+    target_include_directories(
+      ${test_target}
+      PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+              ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
     # We explicitly choose which object libraries to link to and link in the
     # arkode objects so that we have access to private functions w/o changing
     # their visibility in the installed libraries.
-    target_link_libraries(${test_target}
+    target_link_libraries(
+      ${test_target}
       $<TARGET_OBJECTS:sundials_arkode_obj>
       sundials_sunmemsys_obj
       sundials_nvecserial_obj
@@ -105,13 +105,18 @@ foreach(test_tuple ${unit_tests})
   endif()
 
   # add test to regression tests
-  sundials_add_test(${test_name} ${test_target}
-    TEST_ARGS ${test_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE "develop"
-    ${diff_output}
-  )
+  sundials_add_test(
+    ${test_name}
+    ${test_target}
+    TEST_ARGS
+    ${test_args}
+    ANSWER_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+    ${test_name}.out
+    EXAMPLE_TYPE
+    "develop"
+    ${diff_output})
 
 endforeach()
 

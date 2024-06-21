@@ -19,16 +19,13 @@
 
 # Examples using the SuperLU_MT linear solver
 set(sunlinsol_superludist_examples
-  "test_sunlinsol_superludist.cpp\;100 1 1 0\;1\;"
-  "test_sunlinsol_superludist.cpp\;400 1 2 0\;2\;"
-  "test_sunlinsol_superludist.cpp\;900 3 1 0\;3\;"
-  "test_sunlinsol_superludist.cpp\;1000 2 2 0\;4\;"
-)
+    "test_sunlinsol_superludist.cpp\;100 1 1 0\;1\;"
+    "test_sunlinsol_superludist.cpp\;400 1 2 0\;2\;"
+    "test_sunlinsol_superludist.cpp\;900 3 1 0\;3\;"
+    "test_sunlinsol_superludist.cpp\;1000 2 2 0\;4\;")
 
 # Dependencies for nvector examples
-set(sunlinsol_superludist_dependencies
-  test_sunlinsol
-  )
+set(sunlinsol_superludist_dependencies test_sunlinsol)
 
 if(SUPERLUDIST_CUDA)
   set(_ex_lang CUDA)
@@ -58,21 +55,17 @@ foreach(example_tuple ${sunlinsol_superludist_examples})
   if(NOT TARGET ${example_target})
 
     # example source files
-    add_executable(${example_target} ${example}
-      ../test_sunlinsol.c)
+    add_executable(${example_target} ${example} ../test_sunlinsol.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example_target}
-      PRIVATE
-        sundials_sunlinsolsuperludist
-        sundials_sunmatrixslunrloc
-        sundials_sunmatrixdense
-        sundials_nvecparallel
-        sundials_nvecserial
-        MPI::MPI_CXX)
+    target_link_libraries(
+      ${example_target}
+      PRIVATE sundials_sunlinsolsuperludist sundials_sunmatrixslunrloc
+              sundials_sunmatrixdense sundials_nvecparallel sundials_nvecserial
+              MPI::MPI_CXX)
   endif()
 
   # check if example args are provided and set the test name
@@ -80,42 +73,50 @@ foreach(example_tuple ${sunlinsol_superludist_examples})
     if("${number_of_nodes}" STREQUAL "")
       set(test_name ${example_target})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_nodes})
+      string(REGEX REPLACE " " "_" test_name
+                           ${example_target}_${number_of_nodes})
     endif()
   else()
     if("${number_of_nodes}" STREQUAL "")
       string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_nodes}_${example_args})
+      string(REGEX REPLACE " " "_" test_name
+                           ${example_target}_${number_of_nodes}_${example_args})
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_nodes}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example_target}
+    TEST_ARGS
+    ${example_args}
+    MPI_NPROCS
+    ${number_of_nodes}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
 endforeach(example_tuple ${sunlinsol_superludist_examples})
 
 if(EXAMPLES_INSTALL)
 
-  sundials_install_examples(sunlinsol_superludist sunlinsol_superludist_examples
+  sundials_install_examples(
+    sunlinsol_superludist
+    sunlinsol_superludist_examples
     EXAMPLES_DEPENDENCIES
-      test_sunlinsol.c
+    test_sunlinsol.c
     EXTRA_FILES
-      ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
-      ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
+    ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
+    ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
     CMAKE_TEMPLATE
-      cmakelists_${_ex_lang}_MPI_ex.in
+    cmakelists_${_ex_lang}_MPI_ex.in
     SUNDIALS_TARGETS
-      nvecserial
-      nvecparallel
-      sunlinsoldense
-      sunlinsolsuperludist
+    nvecserial
+    nvecparallel
+    sunlinsoldense
+    sunlinsolsuperludist
     DESTINATION
-      sunlinsol/superludist
-  )
+    sunlinsol/superludist)
 
 endif()

@@ -18,15 +18,11 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(CVODE_examples
-  "cv_heat2D_hypre_ls\;--np 2 2\;1\;4\;develop"
-  "cv_heat2D_hypre_pfmg\;--np 2 2\;1\;4\;develop"
-  )
+set(CVODE_examples "cv_heat2D_hypre_ls\;--np 2 2\;1\;4\;develop"
+                   "cv_heat2D_hypre_pfmg\;--np 2 2\;1\;4\;develop")
 
 # Auxiliary files to install
-set(CVODE_extras
-  plot_heat2D_p.py
-  )
+set(CVODE_extras plot_heat2D_p.py)
 
 # Specify libraries to link against
 set(CVODE_LIB sundials_cvode)
@@ -59,8 +55,8 @@ foreach(example_tuple ${CVODE_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE
-      MPI::MPI_CXX ${SUNDIALS_LIBS} SUNDIALS::HYPRE)
+    target_link_libraries(${example} PRIVATE MPI::MPI_CXX ${SUNDIALS_LIBS}
+                                             SUNDIALS::HYPRE)
   endif()
 
   # check if example args are provided and set the test name
@@ -71,12 +67,19 @@ foreach(example_tuple ${CVODE_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    MPI_NPROCS
+    ${number_of_tasks}
+    ANSWER_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+    ${test_name}.out
+    EXAMPLE_TYPE
+    ${example_type})
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
@@ -84,11 +87,10 @@ foreach(example_tuple ${CVODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.cpp ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parhyp)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parhyp)
   endif()
 
 endforeach(example_tuple ${CVODE_examples})
-
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -98,7 +100,8 @@ if(EXAMPLES_INSTALL)
 
   # Install the extra files
   foreach(extrafile ${CVODE_extras})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parhyp)
+    install(FILES ${extrafile}
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parhyp)
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
@@ -117,15 +120,11 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parhyp_CXX_ex.in
-    ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parhyp/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parhyp/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parhyp/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parhyp
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parhyp/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parhyp)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -135,15 +134,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parhyp_CXX_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parhyp/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parhyp/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parhyp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parhyp
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif(UNIX)
 
   # add test_install target

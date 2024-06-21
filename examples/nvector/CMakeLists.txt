@@ -31,7 +31,6 @@ if(BUILD_SHARED_LIBS)
 endif()
 target_link_libraries(test_nvector_obj PRIVATE sundials_nvecserial)
 
-
 if(ENABLE_MPI AND MPI_C_FOUND)
   add_subdirectory(parallel)
   if(BUILD_NVECTOR_MPIMANYVECTOR)
@@ -41,9 +40,11 @@ if(ENABLE_MPI AND MPI_C_FOUND)
   # Build the mpi nvector test utilities
   add_library(test_nvectormpi_obj OBJECT test_mpinvector.c)
   if(BUILD_SHARED_LIBS)
-    set_property(TARGET test_nvectormpi_obj PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+    set_property(TARGET test_nvectormpi_obj PROPERTY POSITION_INDEPENDENT_CODE
+                                                     TRUE)
   endif()
-  target_link_libraries(test_nvectormpi_obj PRIVATE MPI::MPI_C sundials_nvecparallel)
+  target_link_libraries(test_nvectormpi_obj PRIVATE MPI::MPI_C
+                                                    sundials_nvecparallel)
 endif()
 if(BUILD_NVECTOR_MANYVECTOR)
   add_subdirectory(manyvector)

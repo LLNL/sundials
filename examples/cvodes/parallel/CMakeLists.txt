@@ -19,16 +19,15 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
-  "cvsAdvDiff_ASAp_non_p\;\;2\;2\;exclude-single"
-  "cvsAdvDiff_FSA_non_p\;-sensi stg t\;2\;2\;exclude-single"
-  "cvsAdvDiff_FSA_non_p\;-sensi sim t\;2\;2\;exclude-single"
-  "cvsAdvDiff_non_p\;\;2\;2\;exclude-single"
-  "cvsAtmDisp_ASAi_kry_bbd_p\;\;2\;4\;exclude-single"
-  "cvsDiurnal_FSA_kry_p\;-sensi stg t\;2\;4\;exclude-single"
-  "cvsDiurnal_FSA_kry_p\;-sensi sim t\;2\;4\;exclude-single"
-  "cvsDiurnal_kry_bbd_p\;\;2\;4\;exclude-single"
-  "cvsDiurnal_kry_p\;\;2\;4\;exclude-single"
-  )
+    "cvsAdvDiff_ASAp_non_p\;\;2\;2\;exclude-single"
+    "cvsAdvDiff_FSA_non_p\;-sensi stg t\;2\;2\;exclude-single"
+    "cvsAdvDiff_FSA_non_p\;-sensi sim t\;2\;2\;exclude-single"
+    "cvsAdvDiff_non_p\;\;2\;2\;exclude-single"
+    "cvsAtmDisp_ASAi_kry_bbd_p\;\;2\;4\;exclude-single"
+    "cvsDiurnal_FSA_kry_p\;-sensi stg t\;2\;4\;exclude-single"
+    "cvsDiurnal_FSA_kry_p\;-sensi sim t\;2\;4\;exclude-single"
+    "cvsDiurnal_kry_bbd_p\;\;2\;4\;exclude-single"
+    "cvsDiurnal_kry_p\;\;2\;4\;exclude-single")
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -44,7 +43,6 @@ set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${CVODES_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
-
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODES_examples})
@@ -81,12 +79,19 @@ foreach(example_tuple ${CVODES_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    MPI_NPROCS
+    ${number_of_tasks}
+    ANSWER_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+    ${test_name}.out
+    EXAMPLE_TYPE
+    ${example_type})
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
@@ -94,11 +99,10 @@ foreach(example_tuple ${CVODES_examples})
   # install example source and .out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.c ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel)
   endif()
 
 endforeach(example_tuple ${CVODES_examples})
-
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -119,15 +123,11 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/cvodes/parallel/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/cvodes/parallel/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvodes/parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/cvodes/parallel/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -137,15 +137,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvodes/parallel/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/cvodes/parallel/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/cvodes/parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
   # add test_install target

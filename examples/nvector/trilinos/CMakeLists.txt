@@ -20,31 +20,27 @@
 # Examples using SUNDIALS Trilinos nvector wrapper
 if(Trilinos_INTERFACE_MPI_CXX_FOUND)
   set(nvector_trilinos_examples
-    "test_nvector_trilinos\;1000 0\;\;\;"    # run sequentially
-    "test_nvector_trilinos\;1000 0\;1\;4\;"  # run parallel on 4 procs
-    )
+      "test_nvector_trilinos\;1000 0\;\;\;" # run sequentially
+      "test_nvector_trilinos\;1000 0\;1\;4\;" # run parallel on 4 procs
+  )
 else()
   set(nvector_trilinos_examples
-    "test_nvector_trilinos\;1000 0\;\;\;"    # run sequentially
-    )
+      "test_nvector_trilinos\;1000 0\;\;\;" # run sequentially
+  )
 endif()
 
 # Dependencies for nvector examples
 if(Trilinos_MPI)
-  set(nvector_examples_dependencies
-    test_nvector
-    test_mpinvector
-    )
+  set(nvector_examples_dependencies test_nvector test_mpinvector)
 else()
-  set(nvector_examples_dependencies
-    test_nvector
-    )
+  set(nvector_examples_dependencies test_nvector)
 endif()
 
 # Set Trilinos compilers/flags
 set(CMAKE_CXX_COMPILER ${Trilinos_INTERFACE_CXX_COMPILER})
-set(CMAKE_C_COMPILER   ${Trilinos_INTERFACE_C_COMPILER})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Trilinos_INTERFACE_CXX_COMPILER_FLAGS}")
+set(CMAKE_C_COMPILER ${Trilinos_INTERFACE_C_COMPILER})
+set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} ${Trilinos_INTERFACE_CXX_COMPILER_FLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Trilinos_INTERFACE_C_COMPILER_FLAGS}")
 
 # Set Trilinos MPI executable for trilinos tests
@@ -77,7 +73,7 @@ foreach(example_tuple ${nvector_trilinos_examples})
 
     # link vector test utilties
     target_link_libraries(${example} PRIVATE test_nvector_obj)
-    if (Trilinos_MPI)
+    if(Trilinos_MPI)
       target_link_libraries(${example} PRIVATE test_nvectormpi_obj)
     endif()
 
@@ -99,28 +95,31 @@ foreach(example_tuple ${nvector_trilinos_examples})
     if("${number_of_tasks}" STREQUAL "")
       string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+      string(REGEX REPLACE " " "_" test_name
+                           ${example}_${number_of_tasks}_${example_args})
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    MPI_NPROCS
+    ${number_of_tasks}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cpp
-      ../test_nvector.c
-      ../test_mpinvector.c
-      ../test_nvector.h
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/trilinos)
+    install(FILES ${example}.cpp ../test_nvector.c ../test_mpinvector.c
+                  ../test_nvector.h
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/trilinos)
   endif()
 
 endforeach(example_tuple ${nvector_trilinos_examples})
-
 
 if(EXAMPLES_INSTALL)
 
@@ -140,15 +139,11 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_trilinos_CXX_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/trilinos/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/nvector/trilinos/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/trilinos/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/trilinos
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/nvector/trilinos/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/trilinos)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -158,15 +153,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_trilinos_CXX_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/trilinos/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/nvector/trilinos/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/nvector/trilinos/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/trilinos
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

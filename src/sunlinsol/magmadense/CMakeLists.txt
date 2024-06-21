@@ -23,24 +23,27 @@ elseif(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
 endif()
 
 # Add the sunlinsol_magmadense library
-sundials_add_library(sundials_sunlinsolmagmadense
+sundials_add_library(
+  sundials_sunlinsolmagmadense
   SOURCES
-    sunlinsol_magmadense.cpp
+  sunlinsol_magmadense.cpp
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_magmadense.h
+  ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_magmadense.h
   INCLUDE_SUBDIR
-    sunlinsol
+  sunlinsol
   LINK_LIBRARIES
-    PUBLIC sundials_core
+  PUBLIC
+  sundials_core
   OBJECT_LIBRARIES
   LINK_LIBRARIES
-    PUBLIC SUNDIALS::MAGMA ${_libs_needed}
+  PUBLIC
+  SUNDIALS::MAGMA
+  ${_libs_needed}
   OUTPUT_NAME
-    sundials_sunlinsolmagmadense
+  sundials_sunlinsolmagmadense
   VERSION
-    ${sunlinsollib_VERSION}
+  ${sunlinsollib_VERSION}
   SOVERSION
-    ${sunlinsollib_SOVERSION}
-)
+  ${sunlinsollib_SOVERSION})
 
 message(STATUS "Added SUNLINSOL_MAGMADENSE module")

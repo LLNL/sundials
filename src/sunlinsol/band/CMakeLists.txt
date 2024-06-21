@@ -18,25 +18,27 @@
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_BAND\n\")")
 
 # Add the library
-sundials_add_library(sundials_sunlinsolband
+sundials_add_library(
+  sundials_sunlinsolband
   SOURCES
-    sunlinsol_band.c
+  sunlinsol_band.c
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_band.h
+  ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_band.h
   INCLUDE_SUBDIR
-    sunlinsol
+  sunlinsol
   LINK_LIBRARIES
-    PUBLIC sundials_core
+  PUBLIC
+  sundials_core
   OBJECT_LIBRARIES
   LINK_LIBRARIES
-    PUBLIC sundials_sunmatrixband
+  PUBLIC
+  sundials_sunmatrixband
   OUTPUT_NAME
-    sundials_sunlinsolband
+  sundials_sunlinsolband
   VERSION
-    ${sunlinsollib_VERSION}
+  ${sunlinsollib_VERSION}
   SOVERSION
-  ${sunlinsollib_SOVERSION}
-)
+  ${sunlinsollib_SOVERSION})
 
 message(STATUS "Added SUNLINSOL_BAND module")
 

@@ -19,16 +19,13 @@
 
 # Examples using the LAPACK band linear solver
 set(sunlinsol_lapackband_examples
-  "test_sunlinsol_lapackband\;10 2 3 0 0\;"
-  "test_sunlinsol_lapackband\;300 7 4 0 0\;"
-  "test_sunlinsol_lapackband\;1000 8 8 0 0\;"
-  "test_sunlinsol_lapackband\;5000 3 100 0 0\;"
-  )
+    "test_sunlinsol_lapackband\;10 2 3 0 0\;"
+    "test_sunlinsol_lapackband\;300 7 4 0 0\;"
+    "test_sunlinsol_lapackband\;1000 8 8 0 0\;"
+    "test_sunlinsol_lapackband\;5000 3 100 0 0\;")
 
 # Dependencies for nvector examples
-set(sunlinsol_lapackband_dependencies
-  test_sunlinsol
-  )
+set(sunlinsol_lapackband_dependencies test_sunlinsol)
 
 # Add source directory to include directories
 include_directories(. ..)
@@ -51,12 +48,9 @@ foreach(example_tuple ${sunlinsol_lapackband_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example}
-      sundials_nvecserial
-      sundials_sunmatrixband
-      sundials_sunlinsollapackband
-      ${LAPACK_LIBRARIES}
-      ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(
+      ${example} sundials_nvecserial sundials_sunmatrixband
+      sundials_sunlinsollapackband ${LAPACK_LIBRARIES} ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -67,21 +61,22 @@ foreach(example_tuple ${sunlinsol_lapackband_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_sunlinsol.h
-      ../test_sunlinsol.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/lapackband)
+    install(FILES ${example}.c ../test_sunlinsol.h ../test_sunlinsol.c
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/lapackband)
   endif()
 
 endforeach(example_tuple ${sunlinsol_lapackband_examples})
-
 
 if(EXAMPLES_INSTALL)
 
@@ -106,15 +101,12 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunlinsol/lapackband/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/sunlinsol/lapackband/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
   install(
     FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/lapackband/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/lapackband
-    )
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/lapackband)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -124,15 +116,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunlinsol/lapackband/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/sunlinsol/lapackband/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/lapackband/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/lapackband
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

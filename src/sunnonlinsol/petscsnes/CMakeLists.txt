@@ -24,24 +24,27 @@ else()
 endif()
 
 # Create the library
-sundials_add_library(sundials_sunnonlinsolpetscsnes
+sundials_add_library(
+  sundials_sunnonlinsolpetscsnes
   SOURCES
-    sunnonlinsol_petscsnes.c
+  sunnonlinsol_petscsnes.c
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_petscsnes.h
+  ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_petscsnes.h
   INCLUDE_SUBDIR
-    sunnonlinsol
+  sunnonlinsol
   LINK_LIBRARIES
-    PUBLIC sundials_core
+  PUBLIC
+  sundials_core
   OBJECT_LIBRARIES
   LINK_LIBRARIES
-    PUBLIC sundials_nvecpetsc SUNDIALS::PETSC
+  PUBLIC
+  sundials_nvecpetsc
+  SUNDIALS::PETSC
   OUTPUT_NAME
-    sundials_sunnonlinsolpetscsnes
+  sundials_sunnonlinsolpetscsnes
   VERSION
-    ${nveclib_VERSION}
+  ${nveclib_VERSION}
   SOVERSION
-    ${nveclib_SOVERSION}
-)
+  ${nveclib_SOVERSION})
 
 message(STATUS "Added SUNNONLINSOL_PETSCSNES module")

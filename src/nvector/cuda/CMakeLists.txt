@@ -17,23 +17,24 @@
 install(CODE "MESSAGE(\"\nInstall NVECTOR_CUDA\n\")")
 
 # Create the library
-sundials_add_library(sundials_nveccuda
+sundials_add_library(
+  sundials_nveccuda
   SOURCES
-    nvector_cuda.cu
+  nvector_cuda.cu
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_cuda.h
+  ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_cuda.h
   INCLUDE_SUBDIR
-    nvector
+  nvector
   LINK_LIBRARIES
-    PUBLIC sundials_core
+  PUBLIC
+  sundials_core
   OBJECT_LIBRARIES
-    sundials_sunmemcuda_obj
+  sundials_sunmemcuda_obj
   OUTPUT_NAME
-    sundials_nveccuda
+  sundials_nveccuda
   VERSION
-    ${nveclib_VERSION}
+  ${nveclib_VERSION}
   SOVERSION
-    ${nveclib_SOVERSION}
-)
+  ${nveclib_SOVERSION})
 
 message(STATUS "Added NVECTOR_CUDA module")

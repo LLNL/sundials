@@ -19,14 +19,14 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(FCVODE_examples
-  "cv_advdiff_bnd_f2003\;develop"
-  )
+set(FCVODE_examples "cv_advdiff_bnd_f2003\;develop")
 
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
 
   # Examples using SUNDIALS linear solvers
-  list(APPEND FCVODE_examples
+  list(
+    APPEND
+    FCVODE_examples
     "cv_analytic_fp_f2003\;develop"
     "cv_analytic_sys_dns_f2003\;develop"
     "cv_analytic_sys_dns_jac_f2003\;develop"
@@ -34,18 +34,13 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
     "cv_diurnal_kry_f2003\;develop"
     "cv_diurnal_kry_bp_f2003\;develop"
     "cv_roberts_dns_constraints_f2003\;develop"
-    "cv_roberts_dns_f2003\;develop"
-    )
+    "cv_roberts_dns_f2003\;develop")
 
-  set(FCVODE_examples_LAPACK
-      "cv_roberts_dnsL_f2003\;develop"
-      )
+  set(FCVODE_examples_LAPACK "cv_roberts_dnsL_f2003\;develop")
 
   # Examples using KLU linear solver
-  set(FCVODE_examples_KLU
-    "cv_analytic_sys_klu_f2003\;develop"
-    "cv_roberts_klu_f2003\;develop"
-    )
+  set(FCVODE_examples_KLU "cv_analytic_sys_klu_f2003\;develop"
+                          "cv_roberts_klu_f2003\;develop")
 
 endif()
 
@@ -67,7 +62,8 @@ foreach(example_tuple ${FCVODE_examples})
   list(GET example_tuple 1 example_type)
 
   # Install fortran modules to a unique directory to avoid naming collisions
-  set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+  set(CMAKE_Fortran_MODULE_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   # example source files
   add_executable(${example} ${example}.f90)
@@ -75,18 +71,23 @@ foreach(example_tuple ${FCVODE_examples})
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+  sundials_add_test(
+    ${example}
+    ${example}
+    ANSWER_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+    ${example}.out
+    EXAMPLE_TYPE
+    ${example_type})
 
   # libraries to link against
   target_link_libraries(${example} ${SUNDIALS_LIBS} ${EXE_EXTRA_LINK_LIBS})
 
-   # install example source and out files
+  # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.f90 ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial)
   endif()
 endforeach(example_tuple ${FCVODE_examples})
 
@@ -103,7 +104,8 @@ if(BUILD_SUNLINSOL_KLU)
     list(GET example_tuple 1 example_type)
 
     # Install fortran modules to a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+    set(CMAKE_Fortran_MODULE_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
     add_executable(${example} ${example}.f90)
@@ -111,18 +113,23 @@ if(BUILD_SUNLINSOL_KLU)
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # add example to regression tests
-    sundials_add_test(${example} ${example}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${example}.out
-      EXAMPLE_TYPE ${example_type})
+    sundials_add_test(
+      ${example}
+      ${example}
+      ANSWER_DIR
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE
+      ${example}.out
+      EXAMPLE_TYPE
+      ${example_type})
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
 
-     # install example source and out files
+    # install example source and out files
     if(EXAMPLES_INSTALL)
       install(FILES ${example}.f90 ${example}.out
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial)
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial)
     endif()
 
   endforeach(example_tuple ${FCVODE_examples_KLU})
@@ -133,9 +140,8 @@ endif()
 if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
   # Sundials LAPACK linear solver modules
-  set(SUNLINSOLLAPACK_LIBS
-    sundials_sunlinsollapackdense
-    sundials_fsunlinsollapackdense_mod)
+  set(SUNLINSOLLAPACK_LIBS sundials_sunlinsollapackdense
+                           sundials_fsunlinsollapackdense_mod)
 
   # LAPACK libraries
   list(APPEND SUNLINSOLLAPACK_LIBS ${LAPACK_LIBRARIES})
@@ -152,18 +158,23 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # add example to regression tests
-    sundials_add_test(${example} ${example}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${example}.out
-      EXAMPLE_TYPE ${example_type})
+    sundials_add_test(
+      ${example}
+      ${example}
+      ANSWER_DIR
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE
+      ${example}.out
+      EXAMPLE_TYPE
+      ${example_type})
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
 
-     # install example source and out files
+    # install example source and out files
     if(EXAMPLES_INSTALL)
       install(FILES ${example}.f90 ${example}.out
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial)
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial)
     endif()
 
   endforeach(example_tuple ${FCVODE_examples_LAPACK})
@@ -200,15 +211,11 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_F2003_ex.in
-    ${PROJECT_BINARY_DIR}/examples/cvode/F2003_serial/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/cvode/F2003_serial/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvode/F2003_serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/cvode/F2003_serial/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -218,15 +225,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_F2003_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvode/F2003_serial/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/cvode/F2003_serial/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/cvode/F2003_serial/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/F2003_serial
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
   # add test_install target

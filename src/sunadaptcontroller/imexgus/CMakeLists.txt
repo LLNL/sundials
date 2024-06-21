@@ -13,17 +13,18 @@
 # ---------------------------------------------------------------
 
 # Create a library out of the generic sundials modules
-sundials_add_library(sundials_sunadaptcontrollerimexgus
+sundials_add_library(
+  sundials_sunadaptcontrollerimexgus
   SOURCES
-    sunadaptcontroller_imexgus.c
+  sunadaptcontroller_imexgus.c
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunadaptcontroller/sunadaptcontroller_imexgus.h
+  ${SUNDIALS_SOURCE_DIR}/include/sunadaptcontroller/sunadaptcontroller_imexgus.h
   LINK_LIBRARIES
-    PUBLIC sundials_core
+  PUBLIC
+  sundials_core
   INCLUDE_SUBDIR
-    sunadaptcontroller
-  OBJECT_LIB_ONLY
-)
+  sunadaptcontroller
+  OBJECT_LIB_ONLY)
 
 # Add F2003 module if the interface is enabled
 if(BUILD_FORTRAN_MODULE_INTERFACE)

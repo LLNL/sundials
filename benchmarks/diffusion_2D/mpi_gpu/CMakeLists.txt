@@ -13,7 +13,7 @@
 # ------------------------------------------------------------------------------
 
 # list of tests
-set(tests )
+set(tests)
 
 if(BUILD_ARKODE)
   if(BUILD_NVECTOR_CUDA)
@@ -50,13 +50,8 @@ foreach(test_tuple ${tests})
   list(GET test_tuple 1 problem_type)
   list(GET test_tuple 2 backend)
 
-  set(sources
-    ${benchmark_prefix}/main_${package}.cpp
-    ${shared_sources}
-    buffers.cpp
-    diffusion.cpp
-    solution.cpp
-    utils.cpp)
+  set(sources ${benchmark_prefix}/main_${package}.cpp ${shared_sources}
+              buffers.cpp diffusion.cpp solution.cpp utils.cpp)
 
   if("${backend}" STREQUAL "USE_CUDA")
 
@@ -82,10 +77,8 @@ foreach(test_tuple ${tests})
   #endif()
 
   if("${backend}" STREQUAL "USE_HIP")
-    sundials_add_benchmark(${target} ${target} diffusion_2D
-      ENABLE_GPU
-      NUM_CORES ${SUNDIALS_BENCHMARK_NUM_GPUS}
-    )
+    sundials_add_benchmark(${target} ${target} diffusion_2D ENABLE_GPU
+                           NUM_CORES ${SUNDIALS_BENCHMARK_NUM_GPUS})
 
   endif()
 
@@ -99,11 +92,9 @@ foreach(test_tuple ${tests})
 
     target_include_directories(${target} PRIVATE ${benchmark_prefix})
 
-    target_link_libraries(${target}
-      PRIVATE
-      sundials_${package}
-      sundials_nvecmpiplusx
-      sundials_nveccuda)
+    target_link_libraries(
+      ${target} PRIVATE sundials_${package} sundials_nvecmpiplusx
+                        sundials_nveccuda)
 
   else()
 
@@ -111,12 +102,9 @@ foreach(test_tuple ${tests})
 
     target_include_directories(${target} PRIVATE ${benchmark_prefix})
 
-    target_link_libraries(${target}
-      PRIVATE
-      sundials_${package}
-      sundials_nvecmpiplusx
-      sundials_nvechip
-      hip::device)
+    target_link_libraries(
+      ${target} PRIVATE sundials_${package} sundials_nvecmpiplusx
+                        sundials_nvechip hip::device)
 
   endif()
 
@@ -125,6 +113,6 @@ foreach(test_tuple ${tests})
   target_link_libraries(${target} PRIVATE ${MPI_CXX_LIBRARIES})
 
   install(TARGETS ${target}
-    DESTINATION "${BENCHMARKS_INSTALL_PATH}/diffusion_2D")
+          DESTINATION "${BENCHMARKS_INSTALL_PATH}/diffusion_2D")
 
 endforeach()

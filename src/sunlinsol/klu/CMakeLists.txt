@@ -17,25 +17,28 @@
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_KLU\n\")")
 
 # Add the library
-sundials_add_library(sundials_sunlinsolklu
+sundials_add_library(
+  sundials_sunlinsolklu
   SOURCES
-    sunlinsol_klu.c
+  sunlinsol_klu.c
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_klu.h
+  ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_klu.h
   INCLUDE_SUBDIR
-    sunlinsol
+  sunlinsol
   LINK_LIBRARIES
-    PUBLIC sundials_core
+  PUBLIC
+  sundials_core
   OBJECT_LIBRARIES
   LINK_LIBRARIES
-    PUBLIC sundials_sunmatrixsparse SUNDIALS::KLU
+  PUBLIC
+  sundials_sunmatrixsparse
+  SUNDIALS::KLU
   OUTPUT_NAME
-    sundials_sunlinsolklu
+  sundials_sunlinsolklu
   VERSION
-    ${sunlinsollib_VERSION}
+  ${sunlinsollib_VERSION}
   SOVERSION
-  ${sunlinsollib_SOVERSION}
-)
+  ${sunlinsollib_SOVERSION})
 
 message(STATUS "Added SUNLINSOL_KLU module")
 

@@ -19,10 +19,8 @@
 
 # Examples using SUNDIALS sycl nvector
 set(nvector_sycl_examples
-  "test_nvector_sycl.cpp\;7 32 0\;"
-  "test_nvector_sycl.cpp\;500 128 0\;"
-  "test_nvector_sycl.cpp\;1000 0 0\;"
-  )
+    "test_nvector_sycl.cpp\;7 32 0\;" "test_nvector_sycl.cpp\;500 128 0\;"
+    "test_nvector_sycl.cpp\;1000 0 0\;")
 
 # Add source directory to include directories
 include_directories(. .. ${PROJECT_SOURCE_DIR}/examples/utilities)
@@ -49,11 +47,9 @@ foreach(example_tuple ${nvector_sycl_examples})
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example_target}
-      PRIVATE
-      test_nvector_obj
-      sundials_nvecsycl
-      ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(
+      ${example_target} PRIVATE test_nvector_obj sundials_nvecsycl
+                                ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 
@@ -65,29 +61,33 @@ foreach(example_tuple ${nvector_sycl_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
-    TEST_ARGS ${example_args}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example_target}
+    TEST_ARGS
+    ${example_args}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
 endforeach()
 
-
 if(EXAMPLES_INSTALL)
 
-  sundials_install_examples(nvector_sycl nvector_sycl_examples
+  sundials_install_examples(
+    nvector_sycl
+    nvector_sycl_examples
     EXAMPLES_DEPENDENCIES
-      test_nvector.c
+    test_nvector.c
     EXTRA_FILES
-      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
-      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
-      ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_sycl.h
+    ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
+    ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
+    ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_sycl.h
     CMAKE_TEMPLATE
-      cmakelists_CXX_ex.in
+    cmakelists_CXX_ex.in
     SUNDIALS_TARGETS
-      nvecsycl
+    nvecsycl
     DESTINATION
-      nvector/sycl
-    )
+    nvector/sycl)
 
 endif()

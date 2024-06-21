@@ -18,9 +18,7 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Example programs
-set(examples
-  "test_sunnonlinsol_petscsnes\;\;"
-)
+set(examples "test_sunnonlinsol_petscsnes\;\;")
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -66,18 +64,21 @@ foreach(example_tuple ${examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes)
   endif()
 
 endforeach(example_tuple ${examples})
-
 
 if(EXAMPLES_INSTALL)
 
@@ -102,15 +103,12 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_petsc_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
   install(
     FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes
-    )
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -120,15 +118,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_petsc_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

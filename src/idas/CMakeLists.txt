@@ -19,60 +19,56 @@ install(CODE "MESSAGE(\"\nInstall IDAS\n\")")
 
 # Add variable idas_SOURCES with the sources for the IDAS library
 set(idas_SOURCES
-  idas.c
-  idaa.c
-  idas_io.c
-  idas_ic.c
-  idaa_io.c
-  idas_ls.c
-  idas_bbdpre.c
-  idas_nls.c
-  idas_nls_sim.c
-  idas_nls_stg.c
-  )
+    idas.c
+    idaa.c
+    idas_io.c
+    idas_ic.c
+    idaa_io.c
+    idas_ls.c
+    idas_bbdpre.c
+    idas_nls.c
+    idas_nls_sim.c
+    idas_nls_stg.c)
 
 # Add variable idas_HEADERS with the exported IDAS header files
-set(idas_HEADERS
-  idas.h
-  idas_bbdpre.h
-  idas_ls.h
-  )
+set(idas_HEADERS idas.h idas_bbdpre.h idas_ls.h)
 
 # Add prefix with complete path to the IDAS header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/idas/ idas_HEADERS)
 
 # Create the library
-sundials_add_library(sundials_idas
+sundials_add_library(
+  sundials_idas
   SOURCES
-    ${idas_SOURCES}
+  ${idas_SOURCES}
   HEADERS
-    ${idas_HEADERS}
+  ${idas_HEADERS}
   INCLUDE_SUBDIR
-    idas
+  idas
   LINK_LIBRARIES
-    PUBLIC sundials_core
+  PUBLIC
+  sundials_core
   OBJECT_LIBRARIES
-    sundials_sunmemsys_obj
-    sundials_nvecserial_obj
-    sundials_sunmatrixband_obj
-    sundials_sunmatrixdense_obj
-    sundials_sunmatrixsparse_obj
-    sundials_sunlinsolband_obj
-    sundials_sunlinsoldense_obj
-    sundials_sunlinsolspbcgs_obj
-    sundials_sunlinsolspfgmr_obj
-    sundials_sunlinsolspgmr_obj
-    sundials_sunlinsolsptfqmr_obj
-    sundials_sunlinsolpcg_obj
-    sundials_sunnonlinsolnewton_obj
-    sundials_sunnonlinsolfixedpoint_obj
+  sundials_sunmemsys_obj
+  sundials_nvecserial_obj
+  sundials_sunmatrixband_obj
+  sundials_sunmatrixdense_obj
+  sundials_sunmatrixsparse_obj
+  sundials_sunlinsolband_obj
+  sundials_sunlinsoldense_obj
+  sundials_sunlinsolspbcgs_obj
+  sundials_sunlinsolspfgmr_obj
+  sundials_sunlinsolspgmr_obj
+  sundials_sunlinsolsptfqmr_obj
+  sundials_sunlinsolpcg_obj
+  sundials_sunnonlinsolnewton_obj
+  sundials_sunnonlinsolfixedpoint_obj
   OUTPUT_NAME
-    sundials_idas
+  sundials_idas
   VERSION
-    ${idaslib_VERSION}
+  ${idaslib_VERSION}
   SOVERSION
-    ${idaslib_SOVERSION}
-)
+  ${idaslib_SOVERSION})
 
 # Finished IDAS
 message(STATUS "Added IDAS module")

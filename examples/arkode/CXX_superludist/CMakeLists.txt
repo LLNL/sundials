@@ -20,8 +20,7 @@
 list(APPEND ARKODE_examples "ark_brusselator1D_FEM_sludist.cpp\;1\;1\;develop")
 
 # Auxiliary files to install
-set(ARKODE_extras
-  )
+set(ARKODE_extras)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${ARKODE_examples})
@@ -41,17 +40,21 @@ foreach(example_tuple ${ARKODE_examples})
   set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
-  sundials_add_test(${example_target} ${example_target}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example_target}.out
-    EXAMPLE_TYPE ${example_type})
+  sundials_add_test(
+    ${example_target}
+    ${example_target}
+    MPI_NPROCS
+    ${number_of_tasks}
+    ANSWER_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+    ${example_target}.out
+    EXAMPLE_TYPE
+    ${example_type})
 
   # libraries to link against
-  target_link_libraries(${example_target} PRIVATE
-    MPI::MPI_CXX
-    sundials_arkode
-    sundials_sunlinsolsuperludist)
+  target_link_libraries(${example_target} PRIVATE MPI::MPI_CXX sundials_arkode
+                                                  sundials_sunlinsolsuperludist)
 
 endforeach(example_tuple ${ARKODE_examples})
 
@@ -66,18 +69,19 @@ endif()
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  sundials_install_examples(arkode_superludist ARKODE_examples
+  sundials_install_examples(
+    arkode_superludist
+    ARKODE_examples
     EXTRA_FILES
-      README
-      ${ARKODE_extras}
+    README
+    ${ARKODE_extras}
     CMAKE_TEMPLATE
-      cmakelists_${_ex_lang}_MPI_ex.in
+    cmakelists_${_ex_lang}_MPI_ex.in
     SUNDIALS_TARGETS
-      arkode
-      sunlinsolsuperludist
+    arkode
+    sunlinsolsuperludist
     DESTINATION
-      arkode/CXX_superludist
-    )
+    arkode/CXX_superludist)
 
   # add test_install target
   sundials_add_test_install(arkode CXX_superludist)

@@ -19,15 +19,12 @@
 
 # Examples using SUNDIALS MPI+cuda nvector
 set(nvector_cuda_examples
-  "test_nvector_mpicuda\;1000 0\;\;\;"    # run sequentially
-  "test_nvector_mpicuda\;1000 0\;1\;4\;"  # run parallel on 4
-  )
+    "test_nvector_mpicuda\;1000 0\;\;\;" # run sequentially
+    "test_nvector_mpicuda\;1000 0\;1\;4\;" # run parallel on 4
+)
 
 # Dependencies for nvector examples
-set(nvector_examples_dependencies
-  test_nvector
-  test_mpinvector
-  )
+set(nvector_examples_dependencies test_nvector test_mpinvector)
 
 # Add source directory to include directories
 include_directories(. ..)
@@ -55,7 +52,8 @@ foreach(example_tuple ${nvector_cuda_examples})
     add_executable(${example} ${example}.cu)
 
     # link vector test utilties
-    target_link_libraries(${example} PRIVATE test_nvector_obj test_nvectormpi_obj)
+    target_link_libraries(${example} PRIVATE test_nvector_obj
+                                             test_nvectormpi_obj)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -79,28 +77,31 @@ foreach(example_tuple ${nvector_cuda_examples})
     if("${number_of_tasks}" STREQUAL "")
       string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+      string(REGEX REPLACE " " "_" test_name
+                           ${example}_${number_of_tasks}_${example_args})
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    MPI_NPROCS
+    ${number_of_tasks}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cu
-      ../test_nvector.c
-      ../test_mpinvector.c
-      ../test_nvector.h
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpicuda)
+    install(FILES ${example}.cu ../test_nvector.c ../test_mpinvector.c
+                  ../test_nvector.h
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpicuda)
   endif()
 
 endforeach(example_tuple ${nvector_cuda_examples})
-
 
 if(EXAMPLES_INSTALL)
 
@@ -117,15 +118,11 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_CUDA_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpicuda
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpicuda)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -135,15 +132,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_CUDA_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpicuda
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

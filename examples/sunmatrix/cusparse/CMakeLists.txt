@@ -17,11 +17,10 @@
 # Example lists are tuples "name\;args\;type" where the
 # type is develop for examples excluded from 'make test' in releases
 set(examples_list
-  "test_sunmatrix_cusparse.cu\;random 100 100 1 CSR 0\;"
-  "test_sunmatrix_cusparse.cu\;random 101 100 1 CSR 0\;"
-  "test_sunmatrix_cusparse.cu\;random 10 10 50 BCSR 0\;"
-  "test_sunmatrix_cusparse.cu\;random 100 100 5 BCSR 0\;"
-  )
+    "test_sunmatrix_cusparse.cu\;random 100 100 1 CSR 0\;"
+    "test_sunmatrix_cusparse.cu\;random 101 100 1 CSR 0\;"
+    "test_sunmatrix_cusparse.cu\;random 10 10 50 BCSR 0\;"
+    "test_sunmatrix_cusparse.cu\;random 100 100 5 BCSR 0\;")
 
 # Add source directory to include directories
 include_directories(. ..)
@@ -41,20 +40,18 @@ foreach(example_tuple ${examples_list})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example_target})
     # example source files
-    add_executable(${example_target} ${example}
-      ../test_sunmatrix.c ../dreadrb.c)
+    add_executable(${example_target} ${example} ../test_sunmatrix.c
+                                     ../dreadrb.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example_target} PRIVATE
-      sundials_nvecserial
-      sundials_nveccuda
-      sundials_sunmatrixdense
-      sundials_sunmatrixsparse
-      sundials_sunmatrixcusparse
-      ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(
+      ${example_target}
+      PRIVATE sundials_nvecserial sundials_nveccuda sundials_sunmatrixdense
+              sundials_sunmatrixsparse sundials_sunmatrixcusparse
+              ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -65,36 +62,41 @@ foreach(example_tuple ${examples_list})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
-    TEST_ARGS ${example_args}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example_target}
+    TEST_ARGS
+    ${example_args}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
 endforeach()
 
 if(EXAMPLES_INSTALL)
 
-  sundials_install_examples(sunmatrix_cusparse examples_list
+  sundials_install_examples(
+    sunmatrix_cusparse
+    examples_list
     EXAMPLES_DEPENDENCIES
-      test_sunmatrix.c
-      test_sunmatrix.h
-      dreadrb.c
-      dreadrb.h
+    test_sunmatrix.c
+    test_sunmatrix.h
+    dreadrb.c
+    dreadrb.h
     EXTRA_FILES
-      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
-      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
-      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/dreadrb.c
-      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/dreadrb.h
+    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
+    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
+    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/dreadrb.c
+    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/dreadrb.h
     CMAKE_TEMPLATE
-      cmakelists_CUDA_ex.in
+    cmakelists_CUDA_ex.in
     SUNDIALS_TARGETS
-      nveccuda
-      nvecserial
-      sunmatrixdense
-      sunmatrixsparse
-      sunmatrixcusparse
+    nveccuda
+    nvecserial
+    sunmatrixdense
+    sunmatrixsparse
+    sunmatrixcusparse
     DESTINATION
-      sunmatrix/cusparse
-    )
+    sunmatrix/cusparse)
 
 endif()

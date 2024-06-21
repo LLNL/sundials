@@ -13,15 +13,17 @@
 # ---------------------------------------------------------------
 
 # Create a library out of the generic sundials modules
-sundials_add_library(sundials_sunmemhip
+sundials_add_library(
+  sundials_sunmemhip
   SOURCES
-    sundials_hip_memory.hip.cpp
+  sundials_hip_memory.hip.cpp
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_hip.h
+  ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_hip.h
   INCLUDE_SUBDIR
-    sunmemory
+  sunmemory
   LINK_LIBRARIES
-    PUBLIC sundials_core
-    PRIVATE hip::device
-  OBJECT_LIB_ONLY
-)
+  PUBLIC
+  sundials_core
+  PRIVATE
+  hip::device
+  OBJECT_LIB_ONLY)

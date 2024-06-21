@@ -18,28 +18,28 @@
 # Example lists are tuples "name\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
 set(FARKODE_examples
-  "ark_brusselator1D_task_local_nls_f2003\;--monitor\;1\;4\;develop\;2"
-  "ark_brusselator1D_task_local_nls_f2003\;--monitor --global-nls\;1\;4\;develop\;2"
-  "ark_brusselator1D_task_local_nls_f2003\;--monitor --explicit --tf 3\;1\;4\;develop\;2"
+    "ark_brusselator1D_task_local_nls_f2003\;--monitor\;1\;4\;develop\;2"
+    "ark_brusselator1D_task_local_nls_f2003\;--monitor --global-nls\;1\;4\;develop\;2"
+    "ark_brusselator1D_task_local_nls_f2003\;--monitor --explicit --tf 3\;1\;4\;develop\;2"
 )
 
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
-  list(APPEND FARKODE_examples
-      "ark_diag_kry_bbd_f2003\;\;1\;4\;develop\;2"
-      "ark_diag_non_f2003\;\;1\;4\;develop\;2"
-      "ark_heat2D_f2003\;\;1\;4\;develop\;2")
+  list(APPEND FARKODE_examples "ark_diag_kry_bbd_f2003\;\;1\;4\;develop\;2"
+       "ark_diag_non_f2003\;\;1\;4\;develop\;2"
+       "ark_heat2D_f2003\;\;1\;4\;develop\;2")
 endif()
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS sundials_arkode
-  sundials_farkode_mod
-  sundials_nvecparallel
-  sundials_fnvecparallel_mod
-  sundials_nvecmpiplusx
-  sundials_fnvecmpiplusx_mod
-  sundials_nvecmpimanyvector
-  sundials_fnvecmpimanyvector_mod
-  ${EXE_EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS
+    sundials_arkode
+    sundials_farkode_mod
+    sundials_nvecparallel
+    sundials_fnvecparallel_mod
+    sundials_nvecmpiplusx
+    sundials_fnvecmpiplusx_mod
+    sundials_nvecmpimanyvector
+    sundials_fnvecmpimanyvector_mod
+    ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FARKODE_examples})
@@ -54,7 +54,8 @@ foreach(example_tuple ${FARKODE_examples})
 
   if(NOT TARGET ${example})
     # Install fortran modules to a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+    set(CMAKE_Fortran_MODULE_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
     add_executable(${example} ${example}.f90)
@@ -73,13 +74,21 @@ foreach(example_tuple ${FARKODE_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type}
-    FLOAT_PRECISION ${example_precision})
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    MPI_NPROCS
+    ${number_of_tasks}
+    ANSWER_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+    ${test_name}.out
+    EXAMPLE_TYPE
+    ${example_type}
+    FLOAT_PRECISION
+    ${example_precision})
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
@@ -87,11 +96,10 @@ foreach(example_tuple ${FARKODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.f90 ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel)
   endif()
 
 endforeach(example_tuple ${FARKODE_examples})
-
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -99,7 +107,7 @@ if(EXAMPLES_INSTALL)
   # Install the extra files
   foreach(extrafile ${ARKODE_extras})
     install(FILES ${extrafile}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel)
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
@@ -107,22 +115,23 @@ if(EXAMPLES_INSTALL)
 
   # Makefile: convert semi-colon separated target list to space separated string
   set(EXAMPLE_LIBS_LIST
-    sundials_farkode_mod
-    sundials_nvecparallel
-    sundials_fnvecparallel_mod
-    sundials_arkode
-    sundials_fnvecmpiplusx_mod
-    sundials_nvecmpiplusx
-    sundials_fnvecmpimanyvector_mod
-    sundials_nvecmpimanyvector
-    sundials_fcore_mod
-    sundials_core)
+      sundials_farkode_mod
+      sundials_nvecparallel
+      sundials_fnvecparallel_mod
+      sundials_arkode
+      sundials_fnvecmpiplusx_mod
+      sundials_nvecmpiplusx
+      sundials_fnvecmpimanyvector_mod
+      sundials_nvecmpimanyvector
+      sundials_fcore_mod
+      sundials_core)
 
   list2string(EXAMPLE_LIBS_LIST EXAMPLE_LIBS)
 
   # CMakeLists: replace sundials_ prefix and convert to space separted string
-  list(TRANSFORM EXAMPLE_LIBS_LIST REPLACE "sundials_" "SUNDIALS::"
-    OUTPUT_VARIABLE EXAMPLES_CMAKE_TARGETS_tmp)
+  list(TRANSFORM EXAMPLE_LIBS_LIST
+       REPLACE "sundials_" "SUNDIALS::" OUTPUT_VARIABLE
+                                        EXAMPLES_CMAKE_TARGETS_tmp)
   list2string(EXAMPLES_CMAKE_TARGETS_tmp EXAMPLES_CMAKE_TARGETS)
 
   examples2string(FARKODE_examples EXAMPLES)
@@ -134,15 +143,12 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_F2003_ex.in
-    ${PROJECT_BINARY_DIR}/examples/arkode/F2003_parallel/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/arkode/F2003_parallel/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
   install(
     FILES ${PROJECT_BINARY_DIR}/examples/arkode/F2003_parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel
-    )
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -152,15 +158,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_F2003_ex.in
-      ${PROJECT_BINARY_DIR}/examples/arkode/F2003_parallel/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/arkode/F2003_parallel/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/arkode/F2003_parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
   # add test_install target

@@ -20,21 +20,15 @@
 
 # Examples using SUNDIALS dense linear solver
 set(sunlinsol_dense_examples
-  "test_sunlinsol_dense\;10 0\;"
-  "test_sunlinsol_dense\;100 0\;"
-  "test_sunlinsol_dense\;500 0\;"
-  "test_sunlinsol_dense\;1000 0\;"
-)
+    "test_sunlinsol_dense\;10 0\;" "test_sunlinsol_dense\;100 0\;"
+    "test_sunlinsol_dense\;500 0\;" "test_sunlinsol_dense\;1000 0\;")
 
 # Dependencies for nvector examples
-set(sunlinsol_dense_dependencies
-  test_sunlinsol
-  )
+set(sunlinsol_dense_dependencies test_sunlinsol)
 
 # If building F2003 tests
-if (BUILD_FORTRAN_MODULE_INTERFACE)
-  set(sunlinsol_dense_fortran_examples
-    "test_fsunlinsol_dense_mod\;\;")
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  set(sunlinsol_dense_fortran_examples "test_fsunlinsol_dense_mod\;\;")
 endif()
 
 # Add source directory to include directories
@@ -58,10 +52,8 @@ foreach(example_tuple ${sunlinsol_dense_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example}
-      sundials_nvecserial
-      sundials_sunlinsoldense
-      ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(${example} sundials_nvecserial
+                          sundials_sunlinsoldense ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -72,16 +64,18 @@ foreach(example_tuple ${sunlinsol_dense_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_sunlinsol.h
-      ../test_sunlinsol.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/dense)
+    install(FILES ${example}.c ../test_sunlinsol.h ../test_sunlinsol.c
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/dense)
   endif()
 
 endforeach(example_tuple ${sunlinsol_dense_examples})
@@ -98,10 +92,13 @@ foreach(example_tuple ${sunlinsol_dense_fortran_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # build fortran modules into a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+    set(CMAKE_Fortran_MODULE_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-    add_executable(${example} ${example}.f90
+    add_executable(
+      ${example}
+      ${example}.f90
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.f90)
 
@@ -109,11 +106,9 @@ foreach(example_tuple ${sunlinsol_dense_fortran_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example}
-      sundials_nvecserial
-      sundials_fnvecserial_mod
-      sundials_sunlinsoldense
-      sundials_fsunlinsoldense_mod
+    target_link_libraries(
+      ${example} sundials_nvecserial sundials_fnvecserial_mod
+      sundials_sunlinsoldense sundials_fsunlinsoldense_mod
       ${EXE_EXTRA_LINK_LIBS})
 
     # check if example args are provided and set the test name
@@ -124,9 +119,13 @@ foreach(example_tuple ${sunlinsol_dense_fortran_examples})
     endif()
 
     # add example to regression tests
-    sundials_add_test(${test_name} ${example}
-      TEST_ARGS ${example_args}
-      EXAMPLE_TYPE ${example_type}
+    sundials_add_test(
+      ${test_name}
+      ${example}
+      TEST_ARGS
+      ${example_args}
+      EXAMPLE_TYPE
+      ${example_type}
       NODIFF)
   endif()
 
@@ -155,15 +154,11 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunlinsol/dense/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/sunlinsol/dense/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/dense/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/dense
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/dense/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/dense)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -173,15 +168,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunlinsol/dense/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/sunlinsol/dense/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/dense/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/dense
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

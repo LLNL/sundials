@@ -37,13 +37,11 @@ foreach(backend ${SUNDIALS_RAJA_BACKENDS})
     continue()
   endif()
 
-  sundials_add_nvector_benchmark(${example_target}
-    SOURCES test_nvector_performance_raja.cpp
-    SUNDIALS_TARGETS sundials_nvecraja
-    )
+  sundials_add_nvector_benchmark(
+    ${example_target} SOURCES test_nvector_performance_raja.cpp
+    SUNDIALS_TARGETS sundials_nvecraja)
 
-  target_compile_definitions(${example_target}
-    PRIVATE ${_defines})
+  target_compile_definitions(${example_target} PRIVATE ${_defines})
 
   if(backend MATCHES "CUDA")
     set_target_properties(${example_target} PROPERTIES LINKER_LANGUAGE CXX)
@@ -54,6 +52,6 @@ foreach(backend ${SUNDIALS_RAJA_BACKENDS})
   endif()
 
   install(TARGETS ${example_target}
-    DESTINATION "${BENCHMARKS_INSTALL_PATH}/benchmarks/nvector/raja")
+          DESTINATION "${BENCHMARKS_INSTALL_PATH}/benchmarks/nvector/raja")
 
 endforeach()

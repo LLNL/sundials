@@ -20,20 +20,15 @@
 
 # Examples using SUNDIALS dense matrix
 set(sunmatrix_dense_examples
-  "test_sunmatrix_dense\;100 100 0\;"
-  "test_sunmatrix_dense\;200 1000 0\;"
-  "test_sunmatrix_dense\;2000 100 0\;"
-  )
+    "test_sunmatrix_dense\;100 100 0\;" "test_sunmatrix_dense\;200 1000 0\;"
+    "test_sunmatrix_dense\;2000 100 0\;")
 
 # Dependencies for sunmatrix examples
-set(sunmatrix_dense_dependencies
-  test_sunmatrix
-  )
+set(sunmatrix_dense_dependencies test_sunmatrix)
 
 # If building F2003 tests
-if (BUILD_FORTRAN_MODULE_INTERFACE)
-  set(sunmatrix_dense_fortran_examples
-    "test_fsunmatrix_dense_mod\;\;")
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  set(sunmatrix_dense_fortran_examples "test_fsunmatrix_dense_mod\;\;")
 endif()
 
 # Add source directory to include directories
@@ -57,10 +52,8 @@ foreach(example_tuple ${sunmatrix_dense_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example}
-      sundials_nvecserial
-      sundials_sunmatrixdense
-      ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(${example} sundials_nvecserial
+                          sundials_sunmatrixdense ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -71,17 +64,19 @@ foreach(example_tuple ${sunmatrix_dense_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_sunmatrix.c
-      ../test_sunmatrix.h
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/dense)
+    install(FILES ${example}.c ../test_sunmatrix.c ../test_sunmatrix.h
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/dense)
   endif()
 
 endforeach(example_tuple ${sunmatrix_dense_examples})
@@ -98,9 +93,12 @@ foreach(example_tuple ${sunmatrix_dense_fortran_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # build fortran modules into a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+    set(CMAKE_Fortran_MODULE_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
-    add_executable(${example} ${example}.f90
+    add_executable(
+      ${example}
+      ${example}.f90
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90
       ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.f90)
 
@@ -108,11 +106,9 @@ foreach(example_tuple ${sunmatrix_dense_fortran_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example}
-      sundials_nvecserial
-      sundials_fnvecserial_mod
-      sundials_sunmatrixdense
-      sundials_fsunmatrixdense_mod
+    target_link_libraries(
+      ${example} sundials_nvecserial sundials_fnvecserial_mod
+      sundials_sunmatrixdense sundials_fsunmatrixdense_mod
       ${EXE_EXTRA_LINK_LIBS})
   endif()
 
@@ -124,13 +120,16 @@ foreach(example_tuple ${sunmatrix_dense_fortran_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
 endforeach(example_tuple ${sunmatrix_dense_fortran_examples})
-
 
 if(EXAMPLES_INSTALL)
 
@@ -150,15 +149,11 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunmatrix/dense/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/sunmatrix/dense/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/sunmatrix/dense/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/dense
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/sunmatrix/dense/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/dense)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -168,15 +163,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunmatrix/dense/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/sunmatrix/dense/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/sunmatrix/dense/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/dense
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

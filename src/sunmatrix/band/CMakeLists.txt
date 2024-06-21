@@ -17,23 +17,24 @@
 install(CODE "MESSAGE(\"\nInstall SUNMATRIX_BAND\n\")")
 
 # Add the sunmatrix_band library
-sundials_add_library(sundials_sunmatrixband
+sundials_add_library(
+  sundials_sunmatrixband
   SOURCES
-    sunmatrix_band.c
+  sunmatrix_band.c
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_band.h
+  ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_band.h
   INCLUDE_SUBDIR
-    sunmatrix
+  sunmatrix
   LINK_LIBRARIES
-    PUBLIC sundials_core
+  PUBLIC
+  sundials_core
   OBJECT_LIBRARIES
   OUTPUT_NAME
-    sundials_sunmatrixband
+  sundials_sunmatrixband
   VERSION
-    ${sunmatrixlib_VERSION}
+  ${sunmatrixlib_VERSION}
   SOVERSION
-    ${sunmatrixlib_SOVERSION}
-)
+  ${sunmatrixlib_SOVERSION})
 
 message(STATUS "Added SUNMATRIX_BAND module")
 

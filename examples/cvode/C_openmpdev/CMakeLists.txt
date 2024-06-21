@@ -18,9 +18,7 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(CVODE_examples
-  "cvAdvDiff_kry_ompdev\;4\;develop"
-  )
+set(CVODE_examples "cvAdvDiff_kry_ompdev\;4\;develop")
 
 # Specify libraries to link against
 set(CVODE_LIB sundials_cvode)
@@ -47,11 +45,17 @@ foreach(example_tuple ${CVODE_examples})
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add to regression tests
-  sundials_add_test(${example} ${example}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+  sundials_add_test(
+    ${example}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    ANSWER_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+    ${example}.out
+    EXAMPLE_TYPE
+    ${example_type})
 
   # libraries to link against
   target_link_libraries(${example} ${SUNDIALS_LIBS})
@@ -59,11 +63,10 @@ foreach(example_tuple ${CVODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.c ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/C_openmpdev)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/C_openmpdev)
   endif()
 
 endforeach(example_tuple ${CVODE_examples})
-
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -87,15 +90,11 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmpdev_ex.in
-    ${PROJECT_BINARY_DIR}/examples/cvode/C_openmpdev/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/cvode/C_openmpdev/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvode/C_openmpdev/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/C_openmpdev
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/cvode/C_openmpdev/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/C_openmpdev)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -105,15 +104,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_openmpdev_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvode/C_openmpdev/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/cvode/C_openmpdev/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/cvode/C_openmpdev/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/C_openmpdev
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
   # add test_install target

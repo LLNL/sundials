@@ -16,9 +16,7 @@
 
 # Example lists are tuples "name\;args\;type" where the
 # type is develop for examples excluded from 'make test' in releases
-set(examples_list
-  "test_nvector_kokkos.cpp\;1000 0\;"
-)
+set(examples_list "test_nvector_kokkos.cpp\;1000 0\;")
 
 include_directories(..)
 
@@ -48,10 +46,8 @@ foreach(example_tuple ${examples_list})
       target_compile_definitions(${example_target} PRIVATE USE_${backend})
 
       # link vector test utilties
-      target_link_libraries(${example_target} PRIVATE
-        test_nvector_obj
-        sundials_nveckokkos
-      )
+      target_link_libraries(${example_target} PRIVATE test_nvector_obj
+                                                      sundials_nveckokkos)
     endif()
 
     # check if example args are provided and set the test name
@@ -62,9 +58,13 @@ foreach(example_tuple ${examples_list})
     endif()
 
     # add example to regression tests
-    sundials_add_test(${test_name} ${example_target}
-      TEST_ARGS ${example_args}
-      EXAMPLE_TYPE ${example_type}
+    sundials_add_test(
+      ${test_name}
+      ${example_target}
+      TEST_ARGS
+      ${example_args}
+      EXAMPLE_TYPE
+      ${example_type}
       NODIFF)
 
   endforeach()
@@ -72,22 +72,23 @@ endforeach()
 
 if(EXAMPLES_INSTALL)
 
-  sundials_install_examples(nvec_kokkos examples_list
+  sundials_install_examples(
+    nvec_kokkos
+    examples_list
     EXAMPLES_DEPENDENCIES
-      test_nvector.c
+    test_nvector.c
     EXTRA_FILES
-      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
-      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
+    ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
+    ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
     CMAKE_TEMPLATE
-      cmakelists_CXX_ex.in
+    cmakelists_CXX_ex.in
     SUNDIALS_COMPONENTS
-      nveckokkos
+    nveckokkos
     SUNDIALS_TARGETS
-      generic
+    generic
     OTHER_TARGETS
-      Kokkos::kokkos
+    Kokkos::kokkos
     DESTINATION
-      nvector/kokkos
-    )
+    nvector/kokkos)
 
 endif()

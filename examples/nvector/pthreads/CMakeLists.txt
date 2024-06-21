@@ -19,23 +19,16 @@
 
 # Examples using SUNDIALS pthread nvector
 set(nvector_pthreads_examples
-  "test_nvector_pthreads\;1000 1 0\;"
-  "test_nvector_pthreads\;1000 2 0\;"
-  "test_nvector_pthreads\;1000 4 0\;"
-  "test_nvector_pthreads\;10000 1 0\;"
-  "test_nvector_pthreads\;10000 2 0\;"
-  "test_nvector_pthreads\;10000 4 0\;"
-  )
+    "test_nvector_pthreads\;1000 1 0\;" "test_nvector_pthreads\;1000 2 0\;"
+    "test_nvector_pthreads\;1000 4 0\;" "test_nvector_pthreads\;10000 1 0\;"
+    "test_nvector_pthreads\;10000 2 0\;" "test_nvector_pthreads\;10000 4 0\;")
 
 # Dependencies for nvector examples
-set(nvector_examples_dependencies
-  test_nvector
-  )
+set(nvector_examples_dependencies test_nvector)
 
 # If building F2003 tests
-if (BUILD_FORTRAN_MODULE_INTERFACE)
-  set(nvector_pthreads_fortran_examples
-    "test_fnvector_pthreads_mod\;\;")
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  set(nvector_pthreads_fortran_examples "test_fnvector_pthreads_mod\;\;")
 endif()
 
 # Add source directory to include directories
@@ -43,7 +36,7 @@ include_directories(. ..)
 
 # Specify libraries to link against
 set(NVECS_LIB sundials_nvecpthreads)
-if (BUILD_FORTRAN_MODULE_INTERFACE)
+if(BUILD_FORTRAN_MODULE_INTERFACE)
   list(APPEND NVECS_LIB sundials_fnvecpthreads_mod)
 endif()
 
@@ -71,7 +64,8 @@ foreach(example_tuple ${nvector_pthreads_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS}
+                                             ${CMAKE_THREAD_LIBS_INIT})
   endif()
 
   # check if example args are provided and set the test name
@@ -82,17 +76,19 @@ foreach(example_tuple ${nvector_pthreads_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_nvector.c
-      ../test_nvector.h
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads)
+    install(FILES ${example}.c ../test_nvector.c ../test_nvector.h
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads)
   endif()
 
 endforeach(example_tuple ${nvector_pthreads_examples})
@@ -109,10 +105,13 @@ foreach(example_tuple ${nvector_pthreads_fortran_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # build fortran modules into a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+    set(CMAKE_Fortran_MODULE_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-    add_executable(${example} ${example}.f90
+    add_executable(
+      ${example}
+      ${example}.f90
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.f90)
 
@@ -131,9 +130,13 @@ foreach(example_tuple ${nvector_pthreads_fortran_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
 endforeach(example_tuple ${nvector_pthreads_fortran_examples})
@@ -156,15 +159,11 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_pthreads_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -174,15 +173,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_pthreads_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/nvector/pthreads/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/pthreads
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

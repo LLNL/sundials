@@ -18,25 +18,29 @@
 install(CODE "MESSAGE(\"\nInstall ARKODE XBraid interface\n\")")
 
 # Create the sundials_arkode_xbraid library
-sundials_add_library(sundials_arkode_xbraid
+sundials_add_library(
+  sundials_arkode_xbraid
   SOURCES
-    arkode_xbraid.c
-    ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_xbraid.c
+  arkode_xbraid.c
+  ${SUNDIALS_SOURCE_DIR}/src/sundials/sundials_xbraid.c
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/arkode/arkode_xbraid.h
+  ${SUNDIALS_SOURCE_DIR}/include/arkode/arkode_xbraid.h
   INCLUDE_SUBDIR
-    arkode
+  arkode
   LINK_LIBRARIES
-    PUBLIC sundials_arkode SUNDIALS::XBRAID MPI::MPI_C
+  PUBLIC
+  sundials_arkode
+  SUNDIALS::XBRAID
+  MPI::MPI_C
   INCLUDE_DIRECTORIES
-    PRIVATE ../
+  PRIVATE
+  ../
   OUTPUT_NAME
-    sundials_arkode_xbraid
+  sundials_arkode_xbraid
   VERSION
-    ${arkodelib_VERSION}
+  ${arkodelib_VERSION}
   SOVERSION
-    ${arkodelib_SOVERSION}
-)
+  ${arkodelib_SOVERSION})
 
 # Finished
 message(STATUS "Added ARKODE Xbraid interface")

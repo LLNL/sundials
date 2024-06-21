@@ -54,10 +54,11 @@ macro(build_examples examples_to_build lang)
 
       # libraries to link against
       target_include_directories(${example_target}
-        PRIVATE ${MPI_CXX_INCLUDE_DIRS})
+                                 PRIVATE ${MPI_CXX_INCLUDE_DIRS})
 
-      target_link_libraries(${example_target}
-        PRIVATE ${OTHER_LIBS} ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
+      target_link_libraries(
+        ${example_target} PRIVATE ${OTHER_LIBS} ${SUNDIALS_LIBS}
+                                  ${MPI_CXX_LIBRARIES})
 
       # compile definitions
       if(example_defines)
@@ -74,13 +75,21 @@ macro(build_examples examples_to_build lang)
     endif()
 
     # add example to regression tests
-    sundials_add_test(${test_name} ${example_target}
-      TEST_ARGS ${example_args}
-      MPI_NPROCS ${number_of_tasks}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${test_name}.out
-      EXAMPLE_TYPE ${example_type}
-      FLOAT_PRECISION ${example_precision})
+    sundials_add_test(
+      ${test_name}
+      ${example_target}
+      TEST_ARGS
+      ${example_args}
+      MPI_NPROCS
+      ${number_of_tasks}
+      ANSWER_DIR
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE
+      ${test_name}.out
+      EXAMPLE_TYPE
+      ${example_type}
+      FLOAT_PRECISION
+      ${example_precision})
 
     # Not all examples are added to the generated CMake file installed the
     # output and source files here
@@ -91,7 +100,7 @@ macro(build_examples examples_to_build lang)
 
       # Install example source and out files
       install(FILES ${example} ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parallel)
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parallel)
 
     endif()
 
@@ -106,7 +115,7 @@ endmacro()
 # where the type develop is for examples excluded from 'make test' in releases.
 
 # List of headers to install (appended to below)
-set(ARKODE_headers )
+set(ARKODE_headers)
 
 # List of additional files to install (appended to below)
 set(ARKODE_extras)
@@ -118,8 +127,7 @@ set(OTHER_LIBS ${EXE_EXTRA_LINK_LIBS})
 # MPI examples
 # ------------
 
-set(serial_examples
-  "ark_heat2D_p.cpp\;\;--np 2 2\;1\;4\;develop\;default")
+set(serial_examples "ark_heat2D_p.cpp\;\;--np 2 2\;1\;4\;develop\;default")
 set(SUNDIALS_LIBS sundials_arkode sundials_nvecparallel)
 build_examples(serial_examples CXX)
 
@@ -132,11 +140,13 @@ list(APPEND ARKODE_extras plot_heat2D_p.py)
 
 if(BUILD_CVODE)
   set(examples_cvode
-    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --imex\;1\;4\;exclude-single\;default"
-    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-arkstep\;1\;4\;exclude-single\;default"
-    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-global\;1\;4\;exclude-single\;default"
-    "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-local\;1\;4\;exclude-single\;default")
-  set(SUNDIALS_LIBS sundials_arkode sundials_cvode sundials_nvecparallel sundials_nvecmpiplusx)
+      "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --imex\;1\;4\;exclude-single\;default"
+      "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-arkstep\;1\;4\;exclude-single\;default"
+      "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-global\;1\;4\;exclude-single\;default"
+      "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-local\;1\;4\;exclude-single\;default"
+  )
+  set(SUNDIALS_LIBS sundials_arkode sundials_cvode sundials_nvecparallel
+                    sundials_nvecmpiplusx)
   build_examples(examples_cvode CXX)
 endif()
 
@@ -144,8 +154,9 @@ endif()
 # RAJA Examples
 # -------------
 
-if(ENABLE_RAJA AND (SUNDIALS_PRECISION MATCHES "DOUBLE") AND
-    (SUNDIALS_INDEX_SIZE MATCHES "32"))
+if(ENABLE_RAJA
+   AND (SUNDIALS_PRECISION MATCHES "DOUBLE")
+   AND (SUNDIALS_INDEX_SIZE MATCHES "32"))
 
   # Header files to install
   list(APPEND ARKODE_headers ark_brusselator1D.h)
@@ -160,7 +171,8 @@ if(ENABLE_RAJA AND (SUNDIALS_PRECISION MATCHES "DOUBLE") AND
   endif()
 
   # If RAJA has OpenMP enabled, we have to link to OpenMP even if we dont use it
-  if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
+  if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"
+                                                ))
     set(OTHER_LIBS OpenMP::OpenMP_CXX ${OTHER_LIBS})
   endif()
 
@@ -169,9 +181,10 @@ if(ENABLE_RAJA AND (SUNDIALS_PRECISION MATCHES "DOUBLE") AND
   # -------------
 
   set(serial_raja_examples
-    "ark_brusselator1D_task_local_nls.cpp\;\;--monitor\;1\;4\;develop\;2"
-    "ark_brusselator1D_task_local_nls.cpp\;\;--monitor --global-nls\;1\;4\;develop\;2"
-    "ark_brusselator1D_task_local_nls.cpp\;\;--monitor --explicit --tf 1\;1\;4\;develop\;2")
+      "ark_brusselator1D_task_local_nls.cpp\;\;--monitor\;1\;4\;develop\;2"
+      "ark_brusselator1D_task_local_nls.cpp\;\;--monitor --global-nls\;1\;4\;develop\;2"
+      "ark_brusselator1D_task_local_nls.cpp\;\;--monitor --explicit --tf 1\;1\;4\;develop\;2"
+  )
   set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx)
   build_examples(serial_raja_examples CXX)
 
@@ -183,16 +196,18 @@ if(ENABLE_RAJA AND (SUNDIALS_PRECISION MATCHES "DOUBLE") AND
 
     if(BUILD_NVECTOR_CUDA)
       set(cuda_raja_examples
-        "ark_brusselator1D_task_local_nls.cpp\;USE_CUDA_NVEC\;--monitor\;1\;4\;develop\;2"
-        "ark_brusselator1D_task_local_nls.cpp\;USE_CUDAUVM_NVEC\;--monitor\;1\;4\;exclude\;2"
-        "ark_brusselator1D_task_local_nls.cpp\;USE_CUDA_NVEC\;--monitor --global-nls\;1\;4\;develop\;2")
+          "ark_brusselator1D_task_local_nls.cpp\;USE_CUDA_NVEC\;--monitor\;1\;4\;develop\;2"
+          "ark_brusselator1D_task_local_nls.cpp\;USE_CUDAUVM_NVEC\;--monitor\;1\;4\;exclude\;2"
+          "ark_brusselator1D_task_local_nls.cpp\;USE_CUDA_NVEC\;--monitor --global-nls\;1\;4\;develop\;2"
+      )
       set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nveccuda)
       build_examples(cuda_raja_examples CUDA)
     endif()
 
     if(BUILD_NVECTOR_RAJA AND (SUNDIALS_RAJA_BACKENDS MATCHES "CUDA"))
       set(raja_raja_examples
-        "ark_brusselator1D_task_local_nls.cpp\;USE_RAJA_NVEC\;--monitor\;1\;4\;exclude\;2")
+          "ark_brusselator1D_task_local_nls.cpp\;USE_RAJA_NVEC\;--monitor\;1\;4\;exclude\;2"
+      )
       set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvecraja)
       build_examples(raja_raja_examples CUDA)
     endif()
@@ -203,7 +218,8 @@ if(ENABLE_RAJA AND (SUNDIALS_PRECISION MATCHES "DOUBLE") AND
 
     if(BUILD_NVECTOR_HIP AND (RAJA_BACKENDS MATCHES "HIP"))
       set(hip_raja_examples
-        "ark_brusselator1D_task_local_nls.cpp\;USE_HIP_NVEC\;--monitor\;1\;4\;exclude\;2")
+          "ark_brusselator1D_task_local_nls.cpp\;USE_HIP_NVEC\;--monitor\;1\;4\;exclude\;2"
+      )
       set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvechip)
       build_examples(hip_raja_examples CXX)
     endif()
@@ -214,15 +230,17 @@ if(ENABLE_RAJA AND (SUNDIALS_PRECISION MATCHES "DOUBLE") AND
 
     if(BUILD_NVECTOR_OPENMPDEV AND (RAJA_BACKENDS MATCHES "TARGET_OPENMP"))
       set(openmpdev_raja_examples
-        "ark_brusselator1D_task_local_nls.cpp\;USE_OMPDEV_NVEC\;--monitor\;1\;4\;exclude\;2")
-      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
-      set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvecopenmpdev)
+          "ark_brusselator1D_task_local_nls.cpp\;USE_OMPDEV_NVEC\;--monitor\;1\;4\;exclude\;2"
+      )
+      set(CMAKE_EXE_LINKER_FLAGS
+          "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")
+      set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx
+                        sundials_nvecopenmpdev)
       build_examples(openmpdev_raja_examples CXX)
     endif()
 
   endif()
 endif()
-
 
 if(EXAMPLES_INSTALL)
 
@@ -249,21 +267,22 @@ if(EXAMPLES_INSTALL)
   #   endif()
   # endif()
 
-  sundials_install_examples(arkode examples_to_install
+  sundials_install_examples(
+    arkode
+    examples_to_install
     CMAKE_TEMPLATE
-      cmakelists_CXX_MPI_ex.in
+    cmakelists_CXX_MPI_ex.in
     SUNDIALS_TARGETS
-      ${_sundials_targets}
+    ${_sundials_targets}
     OTHER_TARGETS
-      ${EXE_EXTRA_LINK_LIBS}
+    ${EXE_EXTRA_LINK_LIBS}
     DESTINATION
-      arkode/CXX_parallel
+    arkode/CXX_parallel
     EXTRA_FILES
-      ${ARKODE_headers}
-      ${ARKODE_extras}
-      README
+    ${ARKODE_headers}
+    ${ARKODE_extras}
+    README
     TEST_INSTALL
-      CXX_parallel
-  )
+    CXX_parallel)
 
 endif()

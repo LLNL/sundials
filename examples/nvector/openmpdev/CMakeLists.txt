@@ -18,15 +18,11 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS OpenMP DEV nvector
-set(nvector_openmpdev_examples
-  "test_nvector_openmpdev\;1000 0\;"
-  "test_nvector_openmpdev\;10000 0\;"
-  )
+set(nvector_openmpdev_examples "test_nvector_openmpdev\;1000 0\;"
+                               "test_nvector_openmpdev\;10000 0\;")
 
 # Dependencies for nvector examples
-set(nvector_examples_dependencies
-  test_nvector
-  )
+set(nvector_examples_dependencies test_nvector)
 
 # Add source directory to include directories
 include_directories(. ..)
@@ -71,21 +67,22 @@ foreach(example_tuple ${nvector_openmpdev_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    EXAMPLE_TYPE ${example_type}
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    EXAMPLE_TYPE
+    ${example_type}
     NODIFF)
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_nvector.c
-      ../test_nvector.h
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/openmpdev)
+    install(FILES ${example}.c ../test_nvector.c ../test_nvector.h
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/openmpdev)
   endif()
 
 endforeach()
-
 
 if(EXAMPLES_INSTALL)
 
@@ -105,15 +102,11 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmpdev_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/openmpdev
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/openmpdev)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -123,15 +116,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_openmpdev_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/openmpdev
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

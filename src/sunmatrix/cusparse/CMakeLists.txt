@@ -17,25 +17,28 @@
 install(CODE "MESSAGE(\"\nInstall SUNMATRIX_CUSPARSE\n\")")
 
 # Add the library
-sundials_add_library(sundials_sunmatrixcusparse
+sundials_add_library(
+  sundials_sunmatrixcusparse
   SOURCES
-    sunmatrix_cusparse.cu
+  sunmatrix_cusparse.cu
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_cusparse.h
+  ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_cusparse.h
   INCLUDE_SUBDIR
-    sunmatrix
+  sunmatrix
   LINK_LIBRARIES
-    PUBLIC sundials_core
+  PUBLIC
+  sundials_core
   OBJECT_LIBRARIES
-    sundials_sunmemcuda_obj
+  sundials_sunmemcuda_obj
   LINK_LIBRARIES
-    PUBLIC CUDA::cusparse CUDA::cusolver
+  PUBLIC
+  CUDA::cusparse
+  CUDA::cusolver
   OUTPUT_NAME
-    sundials_sunmatrixcusparse
+  sundials_sunmatrixcusparse
   VERSION
-    ${sunmatrixlib_VERSION}
+  ${sunmatrixlib_VERSION}
   SOVERSION
-    ${sunmatrixlib_SOVERSION}
-)
+  ${sunmatrixlib_SOVERSION})
 
 message(STATUS "Added SUNMATRIX_CUSPARSE module")

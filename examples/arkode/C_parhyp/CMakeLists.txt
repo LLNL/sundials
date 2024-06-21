@@ -18,9 +18,7 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(ARKODE_examples
-  "ark_diurnal_kry_ph.c\;1\;4\;develop"
-  )
+set(ARKODE_examples "ark_diurnal_kry_ph.c\;1\;4\;develop")
 
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
@@ -39,39 +37,43 @@ foreach(example_tuple ${ARKODE_examples})
   set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
   # libraries to link against
-  target_link_libraries(${example_target}
-    sundials_arkode
-    sundials_nvecparhyp
-    ${EXE_EXTRA_LINK_LIBS})
+  target_link_libraries(${example_target} sundials_arkode sundials_nvecparhyp
+                        ${EXE_EXTRA_LINK_LIBS})
 
   # add to regression tests
-  sundials_add_test(${example_target} ${example_target}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example_target}.out
-    EXAMPLE_TYPE ${example_type})
+  sundials_add_test(
+    ${example_target}
+    ${example_target}
+    MPI_NPROCS
+    ${number_of_tasks}
+    ANSWER_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+    ${example_target}.out
+    EXAMPLE_TYPE
+    ${example_type})
 
 endforeach(example_tuple ${ARKODE_examples})
 
-
 if(EXAMPLES_INSTALL)
 
-  sundials_install_examples(arkode ARKODE_examples
+  sundials_install_examples(
+    arkode
+    ARKODE_examples
     CMAKE_TEMPLATE
-      cmakelists_C_MPI_ex.in
+    cmakelists_C_MPI_ex.in
     MAKE_TEMPLATE
-      makefile_parhyp_C_ex.in
+    makefile_parhyp_C_ex.in
     SOLVER_LIBRARY
-      sundials_arkode
+    sundials_arkode
     SUNDIALS_TARGETS
-      arkode
-      nvecparhyp
+    arkode
+    nvecparhyp
     DESTINATION
-      arkode/C_parhyp
+    arkode/C_parhyp
     EXTRA_FILES
-      README
+    README
     TEST_INSTALL
-      C_parhyp
-  )
+    C_parhyp)
 
 endif()

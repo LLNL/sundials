@@ -41,7 +41,9 @@ foreach(example_tuple ${CVODE_examples})
   set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
   if(SUNDIALS_INDEX_SIZE STREQUAL "32")
-    set(integer_precision "15") # superlu-dist seems to result in more output variability (maybe due to a bug with 32-bit indices?)
+    set(integer_precision "15")
+
+    # superlu-dist seems to result in more output variability (maybe due to a bug with 32-bit indices?)
     set(float_precision "3")
   else()
     set(integer_precision "default")
@@ -49,24 +51,29 @@ foreach(example_tuple ${CVODE_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${example_target} ${example_target}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_nodes}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example_target}_${SUNDIALS_INDEX_SIZE}.out
-    EXAMPLE_TYPE ${example_type}
-    INTEGER_PRECISION ${integer_precision}
-    FLOAT_PRECISION ${float_precision}
-  )
+  sundials_add_test(
+    ${example_target}
+    ${example_target}
+    TEST_ARGS
+    ${example_args}
+    MPI_NPROCS
+    ${number_of_nodes}
+    ANSWER_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+    ${example_target}_${SUNDIALS_INDEX_SIZE}.out
+    EXAMPLE_TYPE
+    ${example_type}
+    INTEGER_PRECISION
+    ${integer_precision}
+    FLOAT_PRECISION
+    ${float_precision})
 
   # libraries to link against
-  target_link_libraries(${example_target} PRIVATE
-    MPI::MPI_CXX
-    sundials_cvode
-    sundials_nvecparallel
-    sundials_sunlinsolsuperludist
-    ${_fused_lib}
-    ${EXE_EXTRA_LINK_LIBS})
+  target_link_libraries(
+    ${example_target}
+    PRIVATE MPI::MPI_CXX sundials_cvode sundials_nvecparallel
+            sundials_sunlinsolsuperludist ${_fused_lib} ${EXE_EXTRA_LINK_LIBS})
 
 endforeach(example_tuple ${CVODE_examples})
 
@@ -81,18 +88,19 @@ endif()
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  sundials_install_examples(cvode_superludist CVODE_examples
+  sundials_install_examples(
+    cvode_superludist
+    CVODE_examples
     EXTRA_FILES
-      README
+    README
     CMAKE_TEMPLATE
-      cmakelists_${_ex_lang}_MPI_ex.in
+    cmakelists_${_ex_lang}_MPI_ex.in
     SUNDIALS_TARGETS
-      cvode
-      nvecparallel
-      sunlinsolsuperludist
+    cvode
+    nvecparallel
+    sunlinsolsuperludist
     DESTINATION
-      cvode/superludist
-    )
+    cvode/superludist)
 
   # add test_install target
   sundials_add_test_install(cvode superludist)

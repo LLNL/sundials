@@ -14,7 +14,9 @@
 # CMakeLists.txt file for the RAJA NVECTOR library
 # ---------------------------------------------------------------
 
-install(CODE "MESSAGE(\"\nInstall NVECTOR_RAJA with ${SUNDIALS_RAJA_BACKENDS} backend(s)\n\")")
+install(
+  CODE "MESSAGE(\"\nInstall NVECTOR_RAJA with ${SUNDIALS_RAJA_BACKENDS} backend(s)\n\")"
+)
 
 if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
   set(_sunmemlib sundials_sunmemcuda_obj)
@@ -33,31 +35,38 @@ elseif(SUNDIALS_RAJA_BACKENDS MATCHES "SYCL")
 endif()
 
 # Create the library
-sundials_add_library(sundials_nvecraja
+sundials_add_library(
+  sundials_nvecraja
   SOURCES
-    nvector_raja.cpp
+  nvector_raja.cpp
   HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_raja.h
+  ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_raja.h
   INCLUDE_SUBDIR
-    nvector
+  nvector
   LINK_LIBRARIES
-    PUBLIC sundials_core
+  PUBLIC
+  sundials_core
   OBJECT_LIBRARIES
-    ${_sunmemlib}
+  ${_sunmemlib}
   LINK_LIBRARIES
-    PUBLIC ${_hip_lib_or_not} RAJA
+  PUBLIC
+  ${_hip_lib_or_not}
+  RAJA
   COMPILE_OPTIONS
-    PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:--expt-extended-lambda>
+  PUBLIC
+  $<$<COMPILE_LANGUAGE:CUDA>:--expt-extended-lambda>
   COMPILE_DEFINITIONS
-    PRIVATE ${_compile_defs}
+  PRIVATE
+  ${_compile_defs}
   COMPILE_FEATURES
-    PUBLIC ${_cxx_std}
+  PUBLIC
+  ${_cxx_std}
   OUTPUT_NAME
-    ${_lib_output_name}
+  ${_lib_output_name}
   VERSION
-    ${nveclib_VERSION}
+  ${nveclib_VERSION}
   SOVERSION
-    ${nveclib_SOVERSION}
-)
+  ${nveclib_SOVERSION})
 
-message(STATUS "Added NVECTOR_RAJA module with ${SUNDIALS_RAJA_BACKENDS} backend")
+message(
+  STATUS "Added NVECTOR_RAJA module with ${SUNDIALS_RAJA_BACKENDS} backend")

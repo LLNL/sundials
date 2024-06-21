@@ -15,12 +15,9 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-set(ARKODE_unit_tests
-  "ark_test_table_f2003\;"
-  )
+set(ARKODE_unit_tests "ark_test_table_f2003\;")
 
 foreach(test_tuple ${ARKODE_unit_tests})
-
 
   # parse the test tuple
   list(GET test_tuple 0 test)
@@ -36,9 +33,7 @@ foreach(test_tuple ${ARKODE_unit_tests})
     set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 
     # libraries to link against
-    target_link_libraries(${test}
-      sundials_farkode_mod
-      ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(${test} sundials_farkode_mod ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 
@@ -56,4 +51,3 @@ foreach(test_tuple ${ARKODE_unit_tests})
 endforeach()
 
 message(STATUS "Added ARKODE F2003 serial unit tests")
-

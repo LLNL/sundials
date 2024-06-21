@@ -20,38 +20,31 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaAnalytic_mels\;\;exclude-single"
-  "idaFoodWeb_bnd\;\;develop"
-  "idaFoodWeb_kry\;\;develop"
-  "idaHeat2D_bnd\;\;develop"
-  "idaHeat2D_kry\;\;develop"
-  "idaKrylovDemo_ls\;\;develop"
-  "idaKrylovDemo_ls\;1\;develop"
-  "idaKrylovDemo_ls\;2\;develop"
-  "idaRoberts_dns\;\;"
-  "idaSlCrank_dns\;\;exclude-single"
-  )
+    "idaAnalytic_mels\;\;exclude-single"
+    "idaFoodWeb_bnd\;\;develop"
+    "idaFoodWeb_kry\;\;develop"
+    "idaHeat2D_bnd\;\;develop"
+    "idaHeat2D_kry\;\;develop"
+    "idaKrylovDemo_ls\;\;develop"
+    "idaKrylovDemo_ls\;1\;develop"
+    "idaKrylovDemo_ls\;2\;develop"
+    "idaRoberts_dns\;\;"
+    "idaSlCrank_dns\;\;exclude-single")
 
 # Examples using LAPACK linear solvers
-set(IDA_examples_BL
-  )
+set(IDA_examples_BL)
 
 # Examples using KLU linear solver
-set(IDA_examples_KLU
-  "idaHeat2D_klu\;\;develop"
-  "idaRoberts_klu\;\;develop"
-  )
+set(IDA_examples_KLU "idaHeat2D_klu\;\;develop" "idaRoberts_klu\;\;develop")
 
 # Examples using SuperLU_MT linear solver
 set(IDA_examples_SUPERLUMT
     "idaRoberts_sps\;\;develop"
     #"idaHeat2D_sps\;develop" # not ready yet, incorrect answer.
-    )
+)
 
 # Auxiliary files to install
-set(IDA_extras
-  idaRoberts_dns_stats.csv
-  )
+set(IDA_extras idaRoberts_dns_stats.csv)
 
 # Specify libraries to link against
 set(IDA_LIB sundials_ida)
@@ -89,11 +82,17 @@ foreach(example_tuple ${IDA_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    ANSWER_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+    ${test_name}.out
+    EXAMPLE_TYPE
+    ${example_type})
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
@@ -101,19 +100,17 @@ foreach(example_tuple ${IDA_examples})
   # install example source and .out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.c ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
   endif()
 
 endforeach(example_tuple ${IDA_examples})
-
 
 # Add the build and install targets for each LAPACK example (if needed)
 if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
   # Sundials LAPACK linear solver modules
-  set(SUNLINSOLLAPACK_LIBS
-    sundials_sunlinsollapackband
-    sundials_sunlinsollapackdense)
+  set(SUNLINSOLLAPACK_LIBS sundials_sunlinsollapackband
+                           sundials_sunlinsollapackdense)
 
   # LAPACK libraries
   list(APPEND SUNLINSOLLAPACK_LIBS ${LAPACK_LIBRARIES})
@@ -146,11 +143,17 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     endif()
 
     # add example to regression tests
-    sundials_add_test(${test_name} ${example}
-      TEST_ARGS ${example_args}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${test_name}.out
-      EXAMPLE_TYPE ${example_type})
+    sundials_add_test(
+      ${test_name}
+      ${example}
+      TEST_ARGS
+      ${example_args}
+      ANSWER_DIR
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE
+      ${test_name}.out
+      EXAMPLE_TYPE
+      ${example_type})
 
     # find all .out files for this example
     file(GLOB example_out ${example}*.out)
@@ -158,13 +161,12 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     # install example source and .out files
     if(EXAMPLES_INSTALL)
       install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
     endif()
 
   endforeach(example_tuple ${IDA_examples_BL})
 
 endif()
-
 
 # Add the build and install targets for each KLU example (if needed)
 if(BUILD_SUNLINSOL_KLU)
@@ -203,11 +205,17 @@ if(BUILD_SUNLINSOL_KLU)
     endif()
 
     # add example to regression tests
-    sundials_add_test(${test_name} ${example}
-      TEST_ARGS ${example_args}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${test_name}.out
-      EXAMPLE_TYPE ${example_type})
+    sundials_add_test(
+      ${test_name}
+      ${example}
+      TEST_ARGS
+      ${example_args}
+      ANSWER_DIR
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE
+      ${test_name}.out
+      EXAMPLE_TYPE
+      ${example_type})
 
     # find all .out files for this example
     file(GLOB example_out ${example}*.out)
@@ -215,13 +223,12 @@ if(BUILD_SUNLINSOL_KLU)
     # install example source and .out files
     if(EXAMPLES_INSTALL)
       install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
     endif()
 
   endforeach(example_tuple ${IDA_examples_KLU})
 
 endif()
-
 
 # Add the build and install targets for each SuperLU_MT example (if needed)
 if(BUILD_SUNLINSOL_SUPERLUMT)
@@ -265,11 +272,17 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     # when type specific answer files are added.
     if(SUNDIALS_INDEX_SIZE MATCHES "32")
       # add example to regression tests
-      sundials_add_test(${test_name} ${example}
-        TEST_ARGS ${example_args}
-        ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-        ANSWER_FILE ${test_name}.out
-        EXAMPLE_TYPE ${example_type})
+      sundials_add_test(
+        ${test_name}
+        ${example}
+        TEST_ARGS
+        ${example_args}
+        ANSWER_DIR
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ANSWER_FILE
+        ${test_name}.out
+        EXAMPLE_TYPE
+        ${example_type})
     endif()
 
     # find all .out files for this example
@@ -278,13 +291,12 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     # install example source and .out files
     if(EXAMPLES_INSTALL)
       install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
     endif()
 
   endforeach(example_tuple ${IDA_examples_SUPERLUMT})
 
 endif()
-
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -317,7 +329,7 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_SUNLINSOL_SUPERLUMT)
     examples2string(IDA_examples_SUPERLUMT EXAMPLES_SLUMT)
-    if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
+    if(SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
       set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
     else()
       set(THREAD_LIBRARY_SLUMT "")
@@ -334,15 +346,11 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/ida/serial/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/ida/serial/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/ida/serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/ida/serial/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -352,15 +360,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/serial/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/ida/serial/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/ida/serial/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
   # add test_install target

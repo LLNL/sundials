@@ -19,12 +19,11 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaHeat2D_petsc_spgmr\;\;1\;4\;develop"
-  "idaHeat2D_petsc_snes\;\;1\;4\;develop"
-  "idaHeat2D_petsc_snes\;-pre\;1\;4\;develop"
-  "idaHeat2D_petsc_snes\;-jac\;1\;4\;develop"
-  "idaHeat2D_petsc_snes\;-jac -pre\;1\;4\;develop"
-  )
+    "idaHeat2D_petsc_spgmr\;\;1\;4\;develop"
+    "idaHeat2D_petsc_snes\;\;1\;4\;develop"
+    "idaHeat2D_petsc_snes\;-pre\;1\;4\;develop"
+    "idaHeat2D_petsc_snes\;-jac\;1\;4\;develop"
+    "idaHeat2D_petsc_snes\;-jac -pre\;1\;4\;develop")
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -75,12 +74,19 @@ foreach(example_tuple ${IDA_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+  sundials_add_test(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+    ${example_args}
+    MPI_NPROCS
+    ${number_of_tasks}
+    ANSWER_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+    ${test_name}.out
+    EXAMPLE_TYPE
+    ${example_type})
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
@@ -88,11 +94,10 @@ foreach(example_tuple ${IDA_examples})
   # install example
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.c ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
   endif()
 
 endforeach(example_tuple ${IDA_examples})
-
 
 if(EXAMPLES_INSTALL)
 
@@ -112,15 +117,11 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_petsc_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -130,15 +131,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_petsc_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/petsc/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/ida/petsc/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/ida/petsc/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
   # add test_install target

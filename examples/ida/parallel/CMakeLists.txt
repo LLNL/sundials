@@ -19,11 +19,10 @@
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-  "idaFoodWeb_kry_bbd_p\;1\;4\;exclude-single"
-  "idaFoodWeb_kry_p\;1\;4\;exclude-single"
-  "idaHeat2D_kry_bbd_p\;1\;4\;exclude-single"
-  "idaHeat2D_kry_p\;1\;4\;exclude-single"
-  )
+    "idaFoodWeb_kry_bbd_p\;1\;4\;exclude-single"
+    "idaFoodWeb_kry_p\;1\;4\;exclude-single"
+    "idaHeat2D_kry_bbd_p\;1\;4\;exclude-single"
+    "idaHeat2D_kry_p\;1\;4\;exclude-single")
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -54,11 +53,17 @@ foreach(example_tuple ${IDA_examples})
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+  sundials_add_test(
+    ${example}
+    ${example}
+    MPI_NPROCS
+    ${number_of_tasks}
+    ANSWER_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+    ${example}.out
+    EXAMPLE_TYPE
+    ${example_type})
 
   # libraries to link against
   target_link_libraries(${example} ${SUNDIALS_LIBS})
@@ -70,11 +75,10 @@ foreach(example_tuple ${IDA_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.c ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/parallel)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/parallel)
   endif()
 
 endforeach(example_tuple ${IDA_examples})
-
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
@@ -95,15 +99,11 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/ida/parallel/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/ida/parallel/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/ida/parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/parallel
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/ida/parallel/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/parallel)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -113,15 +113,12 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/parallel/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/ida/parallel/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/ida/parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/parallel
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
   # add test_install target

@@ -15,24 +15,31 @@
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 set(examples
-  "test_sunlinsol_ginkgo.cpp\;bicg csr 100 0 100 0\;"
-#  "test_sunlinsol_ginkgo.cpp\;bicg dense 100 0 100 0\;"
-  "test_sunlinsol_ginkgo.cpp\;bicgstab csr 100 0 100 0\;"
-#  "test_sunlinsol_ginkgo.cpp\;bicgstab dense 100 0 100 0\;"
-  "test_sunlinsol_ginkgo.cpp\;cgs csr 100 0 100 0\;"
-#  "test_sunlinsol_ginkgo.cpp\;cgs dense 100 0 100 0\;"
-  "test_sunlinsol_ginkgo.cpp\;gmres csr 100 0 100 0\;"
-#  "test_sunlinsol_ginkgo.cpp\;gmres dense 100 0 100 0\;"
-  "test_sunlinsol_ginkgo.cpp\;idr csr 100 0 100 0\;"
-#  "test_sunlinsol_ginkgo.cpp\;idr dense 100 0 100 0\;"
+    "test_sunlinsol_ginkgo.cpp\;bicg csr 100 0 100 0\;"
+    #  "test_sunlinsol_ginkgo.cpp\;bicg dense 100 0 100 0\;"
+    "test_sunlinsol_ginkgo.cpp\;bicgstab csr 100 0 100 0\;"
+    #  "test_sunlinsol_ginkgo.cpp\;bicgstab dense 100 0 100 0\;"
+    "test_sunlinsol_ginkgo.cpp\;cgs csr 100 0 100 0\;"
+    #  "test_sunlinsol_ginkgo.cpp\;cgs dense 100 0 100 0\;"
+    "test_sunlinsol_ginkgo.cpp\;gmres csr 100 0 100 0\;"
+    #  "test_sunlinsol_ginkgo.cpp\;gmres dense 100 0 100 0\;"
+    "test_sunlinsol_ginkgo.cpp\;idr csr 100 0 100 0\;"
+    #  "test_sunlinsol_ginkgo.cpp\;idr dense 100 0 100 0\;"
 )
 
 # Add source directory to include directories
 include_directories(..)
 
-sundials_add_examples_ginkgo(examples
-  TARGETS test_sunlinsol_obj
-  BACKENDS REF OMP CUDA HIP SYCL
+sundials_add_examples_ginkgo(
+  examples
+  TARGETS
+  test_sunlinsol_obj
+  BACKENDS
+  REF
+  OMP
+  CUDA
+  HIP
+  SYCL
   UNIT_TEST)
 
 # Install the targets
@@ -54,16 +61,16 @@ if(EXAMPLES_INSTALL)
     list(APPEND vectors nvecserial)
   endif()
 
-  sundials_install_examples_ginkgo(sunlinsol
+  sundials_install_examples_ginkgo(
+    sunlinsol
     CPU_GPU_EXAMPLES_VAR
-      examples
+    examples
     SUNDIALS_COMPONENTS
-      ${vectors}
+    ${vectors}
     DEPENDENCIES
-      ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
-      ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
+    ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
+    ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
     DESTINATION
-      sunlinsol/ginkgo
-    )
+    sunlinsol/ginkgo)
 
 endif()

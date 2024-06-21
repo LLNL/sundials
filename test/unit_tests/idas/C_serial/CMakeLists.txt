@@ -15,10 +15,7 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-set(unit_tests
-  "idas_test_getuserdata\;"
-  "idas_test_tstop\;"
-  )
+set(unit_tests "idas_test_getuserdata\;" "idas_test_tstop\;")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
@@ -37,16 +34,13 @@ foreach(test_tuple ${unit_tests})
     set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 
     # include location of public and private header files
-    target_include_directories(${test} PRIVATE
-      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-      ${CMAKE_SOURCE_DIR}/include
-      ${CMAKE_SOURCE_DIR}/src)
+    target_include_directories(
+      ${test} PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+                      ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
     # libraries to link against
-    target_link_libraries(${test}
-      sundials_idas
-      sundials_nvecserial
-      ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(${test} sundials_idas sundials_nvecserial
+                          ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 
