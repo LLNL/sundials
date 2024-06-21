@@ -162,6 +162,9 @@ int main(int argc, char *argv[])
   }
   const int Nt = (int) ceil(Tf/dTout);
 
+  const int max_nli = 3;
+
+
   /* Set the Reaction parameters according to reactor_type */
   UserData udata;
   if (reactor_type == 0) {
@@ -206,7 +209,7 @@ int main(int argc, char *argv[])
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) { return(1); }
 
   /* Must be called before CVodeInit */
-  retval = CVodeSetNonlinearSolverAlgorithm(cvode_mem, nonlinear_solver_type, anderson_m);
+  retval = CVodeSetNonlinearSolverAlgorithm(cvode_mem, nonlinear_solver_type, max_nli, anderson_m, -1, -1, -1, -1);
   if (check_retval(&retval, "CVodeSetNonlinearSolverAlgorithm", 1)) { return(1); }
 
   /* Call CVodeInit to initialize the integrator memory and specify the

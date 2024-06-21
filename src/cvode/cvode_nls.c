@@ -361,7 +361,7 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
     SUNNonlinSolGetResNrm(NLS, &resnrm);
     if (delnrm > cv_mem->cv_uround)
     {
-      if (cv_mem->cv_lsodkr_strategy) {
+      if (cv_mem->lsodkr_strategy) {
         cv_mem->cv_stiff = SUNMAX(cv_mem->cv_stiff, resnrm/delnrm);
       } else {
         cv_mem->cv_stiff = resnrm/delnrm;
@@ -400,7 +400,7 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
   }
 
   /* check if the iterations seems to be converging slowly */
-  if (cv_mem->cv_lsodkr_strategy)
+  if (cv_mem->lsodkr_strategy)
   {
     if ((m >= 1) && (delnrm > RSLOW*cv_mem->cv_delp)) {
       cv_mem->cv_nslow++; /* TODO(CJB): this should definitely move into the solver */

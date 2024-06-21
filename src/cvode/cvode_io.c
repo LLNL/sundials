@@ -798,14 +798,26 @@ int CVodeSetMaxNonlinIters(void* cvode_mem, int maxcor)
 
   cv_mem = (CVodeMem)cvode_mem;
 
-  if (cv_mem->NLS == NULL)
+  // if (cv_mem->NLS == NULL)
+  // {
+  //   cvProcessError(NULL, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
+  //                  MSGCV_MEM_FAIL);
+  //   return (CV_MEM_FAIL);
+  // }
+
+  // return (SUNNonlinSolSetMaxIters(cv_mem->NLS, maxcor));
+
+  if (maxcor >= 0)
   {
-    cvProcessError(NULL, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
-                   MSGCV_MEM_FAIL);
-    return (CV_MEM_FAIL);
+    SUNNonlinSolSetMaxIters(cv_mem->NLS_newton, maxcor);
+    SUNNonlinSolSetMaxIters(cv_mem->NLS_fixedpoint, maxcor);
+  }
+  else
+  {
+    SUNNonlinSolSetMaxIters(cv_mem->NLS_newton, 3);
   }
 
-  return (SUNNonlinSolSetMaxIters(cv_mem->NLS, maxcor));
+  return CV_SUCCESS;
 }
 
 /*
@@ -922,7 +934,9 @@ int CVodeSetNoInactiveRootWarn(void* cvode_mem)
   return (CV_SUCCESS);
 }
 
-int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int m)
+int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli,
+                                     int aa_vectors, int hystersis_fixed, int hystersis_newton,
+                                     int precondition_fixed, int precondition_newton)
 {
   CVodeMem cv_mem;
 
@@ -935,7 +949,20 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int m)
   cv_mem = (CVodeMem)cvode_mem;
 
   cv_mem->NLS_algorithm = algorithm;
-  cv_mem->NLS_aavectors = m;
+  cv_mem->NLS_aavectors = aa_vectors;
+  if (hystersis_fixed >= 0) { 
+    cv_mem->switchtofixed_delay = hystersis_fixed;
+  }
+  if (hystersis_newton >= 0) {
+    cv_mem->switchtonewton_delay = hystersis_newton;
+  }
+  if (precondition_fixed >= 0) {
+    cv_mem->switchtofixed_precondition_count = precondition_fixed;
+  }
+  if (precondition_newton >= 0) {
+    cv_mem->switchtonewton_precondition_count = precondition_newton;
+  }
+  CVodeSetMaxNonlinIters(cvode_mem, max_nli);
 
   return CV_SUCCESS;
 }

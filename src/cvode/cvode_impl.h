@@ -112,8 +112,22 @@ extern "C" {
 #define BIAS2 SUN_RCONST(6.0)
 #define BIAS3 SUN_RCONST(10.0)
 
-#define ALPHAREF SUN_RCONST(0.5)
-#define INIT_STIFR SUN_RCONST(1023.0)
+
+/* Nonlinear solver switching heurstic parameters
+ * ----------------------------------------------
+ * ALPHAREF_DEFAULT "optimal"    nonlinear solver convergence rate
+ * CONDITION_MIN_FIXED_DEFAULT   min number of consecutive times the precondition for switching to fixed-point from newton was satisfied
+ * CONDITION_MIN_NEWTON_DEFAULT  min number of consecutive times the precondition for switching to newton from fixed-point was satisfied
+ * HYSTERSIS_MIN_FIXED_DEFAULT   min number of steps before considering switching to fixed-point from newton
+ * HYSTERSIS_MIN_NEWTON_DEFAULT  min number of steps before considering switching to newton from fixed-point
+ */
+
+#define INIT_STIFR SUN_RCONST(1023.0) // TODO(CJB): for LSODKR, remove it
+#define ALPHAREF_DEFAULT SUN_RCONST(0.5)
+#define CONDITION_MIN_FIXED_DEFAULT 3
+#define CONDITION_MIN_NEWTON_DEFAULT 3
+#define HYSTERSIS_MIN_FIXED_DEFAULT 5
+#define HYSTERSIS_MIN_NEWTON_DEFAULT 5
 
 /* Order selection constants
  * -------------------------
@@ -480,15 +494,15 @@ typedef struct CVodeMemRec
   /* -----------------------
     Nonlinear solver switching
     ------------------------ */
-  sunbooleantype cv_force_next_step;
-  int cv_lsodkr_strategy;
-  int cv_gustafsoder_strategy;
-  int cv_nst_switchtofixed_met;
-  int cv_nst_switchtonewton_met;
-  int switchtofixed_min_met;
-  int switchtonewton_min_met;
-  int cv_nst_switchtonewton_considered;
-  int cv_nst_switchtofixed_considered;
+  sunbooleantype force_next_step;
+  int lsodkr_strategy;
+  int gustafsoder_strategy;
+  int switchtofixed_precondition_count;
+  int switchtonewton_precondition_count;
+  int switchtofixed_min_precondition;
+  int switchtonewton_min_precondition;
+  int switchtonewton_considered_count;
+  int switchtofixed_considered_count;
   int switchtofixed_delay;
   int switchtonewton_delay;
   sunrealtype cv_halpha;   /* step size dictated by nonlinear solver convergence control */

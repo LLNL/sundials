@@ -379,19 +379,19 @@ void* CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->cv_usefused = SUNFALSE;
 
   /* Initialize nonlinear solver switching variables */
-  cv_mem->cv_alpharef                      = ALPHAREF;
-  cv_mem->cv_lsodkr_strategy               = 0;
-  cv_mem->cv_gustafsoder_strategy          = 0;
-  cv_mem->cv_force_next_step               = 0;
-  cv_mem->cv_stifr                         = INIT_STIFR;
-  cv_mem->cv_nst_switchtonewton_considered = 0;
-  cv_mem->cv_nst_switchtofixed_considered  = 0;
-  cv_mem->cv_nst_switchtonewton_met        = 0;
-  cv_mem->cv_nst_switchtofixed_met         = 0;
-  cv_mem->switchtofixed_min_met            = 3;
-  cv_mem->switchtonewton_min_met           = 3;
-  cv_mem->switchtofixed_delay              = 5;
-  cv_mem->switchtonewton_delay             = 5;
+  cv_mem->cv_alpharef                       = ALPHAREF_DEFAULT;
+  cv_mem->lsodkr_strategy                   = 0;
+  cv_mem->gustafsoder_strategy              = 0;
+  cv_mem->force_next_step                   = 0;
+  cv_mem->cv_stifr                          = INIT_STIFR;
+  cv_mem->switchtonewton_considered_count   = 0;
+  cv_mem->switchtofixed_considered_count    = 0;
+  cv_mem->switchtonewton_precondition_count = 0;
+  cv_mem->switchtofixed_precondition_count  = 0;
+  cv_mem->switchtofixed_min_precondition    = CONDITION_MIN_FIXED_DEFAULT;
+  cv_mem->switchtonewton_min_precondition   = CONDITION_MIN_NEWTON_DEFAULT;
+  cv_mem->switchtofixed_delay               = HYSTERSIS_MIN_FIXED_DEFAULT;
+  cv_mem->switchtonewton_delay              = HYSTERSIS_MIN_NEWTON_DEFAULT;
 
   /* Return pointer to CVODE memory block */
 
@@ -518,17 +518,17 @@ int CVodeInit(void* cvode_mem, CVRhsFn f, sunrealtype t0, N_Vector y0)
       cv_mem->NLS_algorithm == 12 || cv_mem->NLS_algorithm == 22)
   {
     NLS = cv_mem->NLS_newton;
-    if (cv_mem->NLS_algorithm == 2) { cv_mem->cv_gustafsoder_strategy = 1; }
-    if (cv_mem->NLS_algorithm == 12) { cv_mem->cv_gustafsoder_strategy = 2; }
-    if (cv_mem->NLS_algorithm == 22) { cv_mem->cv_lsodkr_strategy = 1; }
+    if (cv_mem->NLS_algorithm == 2) { cv_mem->gustafsoder_strategy = 1; }
+    if (cv_mem->NLS_algorithm == 12) { cv_mem->gustafsoder_strategy = 2; }
+    if (cv_mem->NLS_algorithm == 22) { cv_mem->lsodkr_strategy = 1; }
   }
   else if (cv_mem->NLS_algorithm == 1 || cv_mem->NLS_algorithm == 3 ||
            cv_mem->NLS_algorithm == 13 || cv_mem->NLS_algorithm == 23)
   {
     NLS = cv_mem->NLS_fixedpoint;
-    if (cv_mem->NLS_algorithm == 3) { cv_mem->cv_gustafsoder_strategy = 1; }
-    if (cv_mem->NLS_algorithm == 13) { cv_mem->cv_gustafsoder_strategy = 2; }
-    if (cv_mem->NLS_algorithm == 23) { cv_mem->cv_lsodkr_strategy = 1; }
+    if (cv_mem->NLS_algorithm == 3) { cv_mem->gustafsoder_strategy = 1; }
+    if (cv_mem->NLS_algorithm == 13) { cv_mem->gustafsoder_strategy = 2; }
+    if (cv_mem->NLS_algorithm == 23) { cv_mem->lsodkr_strategy = 1; }
   }
 
   /* check that nonlinear solver is non-NULL */
@@ -2466,11 +2466,11 @@ static int cvStep(CVodeMem cv_mem)
     nflag = cvNls(cv_mem, nflag);
     kflag = cvHandleNFlag(cv_mem, &nflag, saved_t, &ncf);
 
-    if (cv_mem->cv_gustafsoder_strategy == 1)
+    if (cv_mem->gustafsoder_strategy == 1)
     {
       cvChooseNlsGustafSoder1(cv_mem);
     }
-    // else if (cv_mem->cv_gustafsoder_strategy == 2)
+    // else if (cv_mem->gustafsoder_strategy == 2)
     // {
     //   cvChooseNlsGustafSoder2(cv_mem);
     // }
@@ -2551,7 +2551,7 @@ void cvChooseNlsGustafSoder1(CVodeMem cv_mem)
 {
   if (SUNNonlinSolGetType(cv_mem->NLS) == SUNNONLINEARSOLVER_FIXEDPOINT)
   {
-    if (cv_mem->cv_nst_switchtonewton_considered > cv_mem->switchtonewton_delay)
+    if (cv_mem->switchtonewton_considered_count > cv_mem->switchtonewton_delay)
     {
       /* TODO(CJB): should we choose zi based on the method? Soderlind and Gustafsson
         suggest that 2 is fine, but a better value could be found based on the method. */
@@ -2563,48 +2563,48 @@ void cvChooseNlsGustafSoder1(CVodeMem cv_mem)
                   cv_mem->cv_hprime);
       if (switch_to_newton)
       {
-        if (cv_mem->cv_nst_switchtonewton_met >= cv_mem->switchtonewton_min_met)
+        if (cv_mem->switchtonewton_precondition_count >= cv_mem->switchtonewton_min_precondition)
         {
           SUNLogDebug(CV_LOGGER, __func__, "switch-to-newton",
                       "nst_switchtonewton_considered = %d",
-                      cv_mem->cv_nst_switchtonewton_considered);
+                      cv_mem->switchtonewton_considered_count);
           cvNlsSwitch(cv_mem, cv_mem->NLS_newton);
-          cv_mem->cv_nst_switchtonewton_met        = 0;
-          cv_mem->cv_nst_switchtonewton_considered = 0;
+          cv_mem->switchtonewton_precondition_count        = 0;
+          cv_mem->switchtonewton_considered_count = 0;
         }
-        cv_mem->cv_nst_switchtonewton_met++;
+        cv_mem->switchtonewton_precondition_count++;
       }
-      else { cv_mem->cv_nst_switchtonewton_met = 0; }
+      else { cv_mem->switchtonewton_precondition_count = 0; }
     }
-    cv_mem->cv_nst_switchtonewton_considered++;
+    cv_mem->switchtonewton_considered_count++;
   }
   else if (SUNNonlinSolGetType(cv_mem->NLS) == SUNNONLINEARSOLVER_ROOTFIND)
   {
-    if (cv_mem->cv_nst_switchtofixed_considered > cv_mem->switchtofixed_delay)
+    if (cv_mem->switchtofixed_considered_count > cv_mem->switchtofixed_delay)
     {
       SUNLogDebug(CV_LOGGER, __func__, "maybe-switch-to-fp", "stiff = %.16g",
                   cv_mem->cv_stiff);
       sunbooleantype switch_to_fixedpoint = cv_mem->cv_stiff < SUN_RCONST(2.0);
       if (switch_to_fixedpoint)
       {
-        if (cv_mem->cv_nst_switchtofixed_met >= cv_mem->switchtofixed_min_met)
+        if (cv_mem->switchtofixed_precondition_count >= cv_mem->switchtofixed_min_precondition)
         {
           cvNlsSwitch(cv_mem, cv_mem->NLS_fixedpoint);
           // Gustafsson and Soderlind suggest setting hprime to h*alpharef after switching to fixed-point
           // However in my testing this seems to result in a lot of extra steps
-          cv_mem->cv_force_next_step = 0;
+          cv_mem->force_next_step = 0;
           SUNLogDebug(CV_LOGGER, __func__,
-                      "switch-to-fixed-point", "cv_nst_switchtofixed_considered = %d, hprime = %.16g, eta = %.16g",
-                      cv_mem->cv_nst_switchtofixed_considered,
+                      "switch-to-fixed-point", "switchtofixed_considered_count = %d, hprime = %.16g, eta = %.16g",
+                      cv_mem->switchtofixed_considered_count,
                       cv_mem->cv_hprime, cv_mem->cv_eta);
-          cv_mem->cv_nst_switchtofixed_met        = 0;
-          cv_mem->cv_nst_switchtofixed_considered = 0;
+          cv_mem->switchtofixed_precondition_count        = 0;
+          cv_mem->switchtofixed_considered_count = 0;
         }
-        cv_mem->cv_nst_switchtofixed_met++;
+        cv_mem->switchtofixed_precondition_count++;
       }
-      else { cv_mem->cv_nst_switchtofixed_met = 0; }
+      else { cv_mem->switchtofixed_precondition_count = 0; }
     }
-    cv_mem->cv_nst_switchtofixed_considered++;
+    cv_mem->switchtofixed_considered_count++;
   }
 }
 
@@ -3414,7 +3414,7 @@ static int cvHandleNFlag(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
     if (nflag == RHSFUNC_RECVR) { return (CV_REPTD_RHSFUNC_ERR); }
   }
 
-  if (cv_mem->cv_lsodkr_strategy) { cvMaybeSwitchToNewton(cv_mem, nflag); }
+  if (cv_mem->lsodkr_strategy) { cvMaybeSwitchToNewton(cv_mem, nflag); }
   cvNlsFailSetEta(cv_mem, nflag, nflagPtr);
 
   return (PREDICT_AGAIN);
@@ -3452,7 +3452,7 @@ void cvNlsFailSetEta(CVodeMem cv_mem, const int nflag, int* nflagPtr)
   }
 
   cv_mem->cv_halpha = (cv_mem->cv_alpharef / cv_mem->cv_crate) * cv_mem->cv_h;
-  if (cv_mem->cv_gustafsoder_strategy && nflag == SUN_NLS_DIVERGING)
+  if (cv_mem->gustafsoder_strategy && nflag == SUN_NLS_DIVERGING)
   {
     SUNLogDebug(CV_LOGGER, __func__, "nls-diverging",
                 "set hprime=halpha, nflag = %d, halpha = %.16g, hprime = %.16g",
@@ -3460,7 +3460,7 @@ void cvNlsFailSetEta(CVodeMem cv_mem, const int nflag, int* nflagPtr)
     cv_mem->cv_hprime = cv_mem->cv_halpha;
     cv_mem->cv_eta    = cv_mem->cv_hprime / cv_mem->cv_h;
   }
-  else if (cv_mem->cv_gustafsoder_strategy && cv_mem->cv_jcur)
+  else if (cv_mem->gustafsoder_strategy && cv_mem->cv_jcur)
   {
     if (cv_mem->cv_crate > cv_mem->cv_alpharef)
     {
@@ -3723,13 +3723,13 @@ static void cvOkCompleteStep(CVodeMem cv_mem)
 static void cvOkPrepareNextStep(CVodeMem cv_mem, sunrealtype dsm)
 {
   /* If etamax = 1, defer step size or order changes */
-  if (cv_mem->cv_force_next_step)
+  if (cv_mem->force_next_step)
   {
     cv_mem->cv_hprime = cv_mem->cv_h * cv_mem->cv_alpharef;
     cv_mem->cv_eta    = cv_mem->cv_hprime / cv_mem->cv_h;
     SUNLogDebug(CV_LOGGER, __func__, "force-next-step",
                 "hprime = %.16g, eta = %.16g", cv_mem->cv_hprime, cv_mem->cv_eta);
-    cv_mem->cv_force_next_step = 0;
+    cv_mem->force_next_step = 0;
   }
   else if (cv_mem->cv_etamax == ONE)
   {
@@ -3779,7 +3779,7 @@ static void cvOkPrepareNextStep(CVodeMem cv_mem, sunrealtype dsm)
               cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_halpha, cv_mem->cv_qprime,
               cv_mem->cv_qwait);
 
-  if (cv_mem->cv_lsodkr_strategy) { cvMaybeSwitchToFixedPoint(cv_mem); }
+  if (cv_mem->lsodkr_strategy) { cvMaybeSwitchToFixedPoint(cv_mem); }
 }
 
 void cvMaybeSwitchToFixedPoint(CVodeMem cv_mem)
@@ -3850,7 +3850,7 @@ static void cvOkSetEta(CVodeMem cv_mem)
                 "compute-halpha", "halpha = %.16g, alpharef = %.16g, crate = %.16g, h = %.16g, iters = %d",
                 cv_mem->cv_halpha, cv_mem->cv_alpharef, cv_mem->cv_crate,
                 cv_mem->cv_h, prev_nls_iters);
-    if (cv_mem->cv_gustafsoder_strategy && (prev_nls_iters > 0) &&
+    if (cv_mem->gustafsoder_strategy && (prev_nls_iters > 0) &&
         (cv_mem->cv_crate > cv_mem->cv_alpharef))
     {
       SUNLogDebug(CV_LOGGER, __func__, "consider-halpha",
