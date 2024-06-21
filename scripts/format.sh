@@ -10,8 +10,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------------------------
-# This script will use clang-tidy and clang-format to format C/C++ code and
-# fprettify for Fortran code.
+# This script will use clang-format to format C/C++ code, fprettify for Fortran
+# code, and cmake-format for CMake files.
 #
 # Usage:
 #    ./format.sh <paths to directories or files to format>
@@ -31,3 +31,5 @@ find "${paths[@]}" -iname '*.h' -o -iname '*.hpp' -o \
   -iname '*.cuh' -o -iname '*.cu' | grep -v fmod | xargs clang-format -i
 
 find "${paths[@]}" -iname '*.f90' | grep -v fmod | xargs fprettify --indent 2 --enable-replacements --c-relations
+
+find "${paths[@]}" -iname '*.cmake' -o -iname 'CMakeLists.txt' | grep -v fmod | xargs cmake-format -i
