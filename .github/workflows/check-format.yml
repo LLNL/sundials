@@ -40,7 +40,7 @@ jobs:
 
       - name: Run checker on code
         run: |
-          ./scripts/format.sh benchmarks examples include src test
+          ./scripts/format.sh CMakeLists.txt benchmarks cmake examples include src test
 
       - name: Run git diff to see if anything changed
         run: /usr/bin/git diff --name-only --exit-code
