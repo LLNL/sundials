@@ -47,12 +47,12 @@ jobs:
 
       - name: Run git diff if we failed
         if: failure()
-        run:  /usr/bin/git diff > clang_format.patch
+        run:  /usr/bin/git diff > format.patch
 
       - name: Archive diff as a patch if we failed
         uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: clang_format.patch
+          name: format.patch
           path: |
-            ${{ github.workspace }}/clang_format.patch
+            ${{ github.workspace }}/format.patch
