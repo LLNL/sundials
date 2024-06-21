@@ -36,8 +36,8 @@ module prob_mod
 
   integer(c_int64_t), parameter :: nvar = 8
   integer(c_int64_t), parameter :: neq = 3*nvar
-  real(c_double),  parameter :: ftol = 1.d-5
-  real(c_double),  parameter :: stol = 1.d-5
+  real(c_double), parameter :: ftol = 1.d-5
+  real(c_double), parameter :: stol = 1.d-5
 
 contains
 
@@ -50,7 +50,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function func(sunvec_y, sunvec_f, user_data) &
-       result(ierr) bind(C,name='func')
+    result(ierr) bind(C, name='func')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -62,7 +62,7 @@ contains
     ! calling variables
     type(N_Vector)       :: sunvec_y  ! solution N_Vector
     type(N_Vector)       :: sunvec_f  ! rhs N_Vector
-    type(c_ptr),   value :: user_data ! user-defined data
+    type(c_ptr), value :: user_data ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer :: yd(:)
@@ -109,12 +109,12 @@ contains
     u8 = yd(24)
 
     ! Nonlinear equations
-    eq1 = - 0.1238d0*x1 + x7 - 0.001637d0*x2 - 0.9338d0*x4 &
+    eq1 = -0.1238d0*x1 + x7 - 0.001637d0*x2 - 0.9338d0*x4 &
           + 0.004731d0*x1*x3 - 0.3578d0*x2*x3 - 0.3571d0
     eq2 = 0.2638d0*x1 - x7 - 0.07745d0*x2 - 0.6734d0*x4 &
-        + 0.2238d0*x1*x3 + 0.7623d0*x2*x3 - 0.6022d0
+          + 0.2238d0*x1*x3 + 0.7623d0*x2*x3 - 0.6022d0
     eq3 = 0.3578d0*x1 + 0.004731d0*x2 + x6*x8
-    eq4 = - 0.7623d0*x1 + 0.2238d0*x2 + 0.3461d0
+    eq4 = -0.7623d0*x1 + 0.2238d0*x2 + 0.3461d0
     eq5 = x1*x1 + x2*x2 - 1.d0
     eq6 = x3*x3 + x4*x4 - 1.d0
     eq7 = x5*x5 + x6*x6 - 1.d0
@@ -172,7 +172,6 @@ contains
 
   end function func
 
-
   ! ----------------------------------------------------------------
   ! jac: The nonlinear system Jacobian
   !
@@ -182,11 +181,10 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function jac(sunvec_y, sunvec_f, sunmat_J, user_data, sunvec_t1, sunvec_t2) &
-       result(ierr) bind(C,name='jac')
+    result(ierr) bind(C, name='jac')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
-
 
     use fnvector_serial_mod
     use fsunmatrix_dense_mod
@@ -198,13 +196,13 @@ contains
     type(N_Vector)       :: sunvec_y  ! solution N_Vector
     type(N_Vector)       :: sunvec_f  ! rhs N_Vector
     type(SUNMatrix)      :: sunmat_J  ! Jacobian SUNMatrix
-    type(c_ptr),   value :: user_data ! user-defined data
+    type(c_ptr), value :: user_data ! user-defined data
     type(N_Vector)       :: sunvec_t1 ! temporary N_Vectors
     type(N_Vector)       :: sunvec_t2
 
     ! pointers to data in SUNDIALS vector and matrix
     real(c_double), pointer :: yd(:)
-    real(c_double), pointer :: J(:,:)
+    real(c_double), pointer :: J(:, :)
 
     ! internal variables
     real(c_double) :: x1, x2, x3, x4, x5, x6, x7, x8
@@ -230,57 +228,57 @@ contains
     ! Nonlinear equations
 
     ! -0.1238*x1 + x7 - 0.001637*x2 - 0.9338*x4 + 0.004731*x1*x3 - 0.3578*x2*x3 - 0.3571
-    J(1,1) = -0.1238d0 + 0.004731d0*x3
-    J(1,2) = -0.001637d0 - 0.3578d0*x3
-    J(1,3) = 0.004731d0*x1 - 0.3578d0*x2
-    J(1,4) = -0.9338d0
-    J(1,7) = 1.d0
+    J(1, 1) = -0.1238d0 + 0.004731d0*x3
+    J(1, 2) = -0.001637d0 - 0.3578d0*x3
+    J(1, 3) = 0.004731d0*x1 - 0.3578d0*x2
+    J(1, 4) = -0.9338d0
+    J(1, 7) = 1.d0
 
     ! 0.2638*x1 - x7 - 0.07745*x2 - 0.6734*x4 + 0.2238*x1*x3 + 0.7623*x2*x3 - 0.6022
-    J(2,1) = 0.2638d0 + 0.2238d0*x3
-    J(2,2) = -0.07745d0 + 0.7623d0*x3
-    J(2,3) = 0.2238d0*x1 + 0.7623d0*x2
-    J(2,4) = -0.6734d0
-    J(2,7) = -1.d0
+    J(2, 1) = 0.2638d0 + 0.2238d0*x3
+    J(2, 2) = -0.07745d0 + 0.7623d0*x3
+    J(2, 3) = 0.2238d0*x1 + 0.7623d0*x2
+    J(2, 4) = -0.6734d0
+    J(2, 7) = -1.d0
 
     ! 0.3578*x1 + 0.004731*x2 + x6*x8
-    J(3,1) = 0.3578d0
-    J(3,2) = 0.004731d0
-    J(3,6) = x8
-    J(3,8) = x6
+    J(3, 1) = 0.3578d0
+    J(3, 2) = 0.004731d0
+    J(3, 6) = x8
+    J(3, 8) = x6
 
     ! -0.7623*x1 + 0.2238*x2 + 0.3461
-    J(4,1) = -0.7623d0
-    J(4,2) = 0.2238d0
+    J(4, 1) = -0.7623d0
+    J(4, 2) = 0.2238d0
 
     ! x1*x1 + x2*x2 - 1
-    J(5,1) = 2.d0*x1
-    J(5,2) = 2.d0*x2
+    J(5, 1) = 2.d0*x1
+    J(5, 2) = 2.d0*x2
 
     ! x3*x3 + x4*x4 - 1
-    J(6,3) = 2.d0*x3
-    J(6,4) = 2.d0*x4
+    J(6, 3) = 2.d0*x3
+    J(6, 4) = 2.d0*x4
 
     ! x5*x5 + x6*x6 - 1
-    J(7,5) = 2.d0*x5
-    J(7,6) = 2.d0*x6
+    J(7, 5) = 2.d0*x5
+    J(7, 6) = 2.d0*x6
 
     ! x7*x7 + x8*x8 - 1
-    J(8,7) = 2.d0*x7
-    J(8,8) = 2.d0*x8
+    J(8, 7) = 2.d0*x7
+    J(8, 8) = 2.d0*x8
 
     ! --------------------
     ! Lower bounds ( l_i = 1 + x_i >= 0)
-    do i = 1,8
-       J(8+i,i)   = -1.d0
-       J(8+i,8+i) = 1.d0
+    do i = 1, 8
+      J(8 + i, i) = -1.d0
+      J(8 + i, 8 + i) = 1.d0
     end do
 
     ! --------------------
     ! Upper bounds ( u_i = 1 - x_i >= 0)
-    do i = 1,8
-       J(16+i,i)    = 1.d0
-       J(16+i,16+i) = 1.d0
+    do i = 1, 8
+      J(16 + i, i) = 1.d0
+      J(16 + i, 16 + i) = 1.d0
     end do
 
     ! Return success
@@ -290,7 +288,6 @@ contains
   end function jac
 
 end module prob_mod
-
 
 program main
 
@@ -312,10 +309,10 @@ program main
   integer(c_long) :: mset
 
   type(c_ptr)                    :: sunctx
-  type(N_Vector),        pointer :: sunvec_y      ! sundials vectors
-  type(N_Vector),        pointer :: sunvec_s
-  type(N_Vector),        pointer :: sunvec_c
-  type(SUNMatrix),       pointer :: sunmat_J      ! sundials matrix
+  type(N_Vector), pointer :: sunvec_y      ! sundials vectors
+  type(N_Vector), pointer :: sunvec_s
+  type(N_Vector), pointer :: sunvec_c
+  type(SUNMatrix), pointer :: sunmat_J      ! sundials matrix
   type(SUNLinearSolver), pointer :: sunlinsol_LS  ! sundials linear solver
 
   type(c_ptr) :: kmem ! KINSOL memory
@@ -340,7 +337,7 @@ program main
   y(1:nvar) = dsqrt(2.d0)/2.d0
   scale = 1.d0
   constraints = 0.d0
-  constraints(nvar+1:neq) = 1.d0
+  constraints(nvar + 1:neq) = 1.d0
 
   ! -------------------------
   ! Create the SUNDIALS context used for this simulation
@@ -351,20 +348,20 @@ program main
 
   sunvec_y => FN_VMake_Serial(neq, y, sunctx)
   if (.not. associated(sunvec_y)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   sunvec_s => FN_VMake_Serial(neq, scale, sunctx)
   if (.not. associated(sunvec_s)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   sunvec_c => FN_VMake_Serial(neq, constraints, sunctx)
   if (.not. associated(sunvec_c)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   ! -------------------------
@@ -372,14 +369,14 @@ program main
 
   kmem = FKINCreate(sunctx)
   if (.not. c_associated(kmem)) then
-     print *, 'ERROR: kmem = NULL'
-     stop 1
+    print *, 'ERROR: kmem = NULL'
+    stop 1
   end if
 
   ierr = FKINInit(kmem, c_funloc(func), sunvec_y)
   if (ierr /= 0) then
-     print *, 'Error in FKINInit, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FKINInit, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ! -------------------------
@@ -387,22 +384,22 @@ program main
 
   ierr = FKINSetConstraints(kmem, sunvec_c)
   if (ierr /= 0) then
-     print *, 'Error in FKINSetConstraints, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FKINSetConstraints, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   fnormtol = ftol
   ierr = FKINSetFuncNormTol(kmem, fnormtol)
   if (ierr /= 0) then
-     print *, 'Error in FKINSetFuncNormTol, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FKINSetFuncNormTol, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   scsteptol = stol
   ierr = FKINSetScaledStepTol(kmem, scsteptol)
   if (ierr /= 0) then
-     print *, 'Error in FKINSetScaledStepTol, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FKINSetScaledStepTol, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ! -------------------------
@@ -410,8 +407,8 @@ program main
 
   sunmat_J => FSUNDenseMatrix(neq, neq, sunctx)
   if (.not. associated(sunmat_J)) then
-     print *,'ERROR: sunmat = NULL'
-     stop 1
+    print *, 'ERROR: sunmat = NULL'
+    stop 1
   end if
 
   ! -------------------------
@@ -419,8 +416,8 @@ program main
 
   sunlinsol_LS => FSUNLinSol_Dense(sunvec_y, sunmat_J, sunctx)
   if (.not. associated(sunlinsol_LS)) then
-     print *,'ERROR: sunlinsol = NULL'
-     stop 1
+    print *, 'ERROR: sunlinsol = NULL'
+    stop 1
   end if
 
   ! -------------------------
@@ -428,8 +425,8 @@ program main
 
   ierr = FKINSetLinearSolver(kmem, sunlinsol_LS, sunmat_J)
   if (ierr /= 0) then
-     print *, 'Error in FKINSetLinearSolver, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FKINSetLinearSolver, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ! -------------------------
@@ -437,8 +434,8 @@ program main
 
   ierr = FKINSetJacFn(kmem, c_funloc(jac))
   if (ierr /= 0) then
-     print *, 'Error in FKINSetJacFn, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FKINSetJacFn, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ! -------------------------
@@ -447,8 +444,8 @@ program main
   mset = 1
   ierr = FKINSetMaxSetupCalls(kmem, mset)
   if (ierr /= 0) then
-     print *, 'Error in FKINSetMaxSetupCalls, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FKINSetMaxSetupCalls, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ! -------------------------
@@ -465,14 +462,13 @@ program main
 
   ierr = FKINSol(kmem, sunvec_y, KIN_LINESEARCH, sunvec_s, sunvec_s)
   if (ierr /= 0) then
-     print *, 'Error in FKINSol, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FKINSol, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   print *, " "
   print *, "Computed solution:"
   call PrintOutput(y)
-
 
   ! -------------------------
   ! Print final statistics and free memory
@@ -487,7 +483,6 @@ program main
   ierr = FSUNContext_Free(sunctx)
 
 end program main
-
 
 ! ----------------------------------------------------------------
 ! PrintOutput: prints solution at selected points
@@ -512,13 +507,12 @@ subroutine PrintOutput(y)
   print *, "     l=x+1          x         u=1-x"
   print *, "   ----------------------------------"
 
-  do i = 1,NVAR
-     print '(1x,3(f10.6,3x))', y(i+nvar), y(i), y(i+2*nvar)
+  do i = 1, NVAR
+    print '(1x,3(f10.6,3x))', y(i + nvar), y(i), y(i + 2*nvar)
   end do
   return
 
 end subroutine PrintOutput
-
 
 ! ----------------------------------------------------------------
 ! PrintFinalStats
@@ -543,33 +537,33 @@ subroutine PrintFinalStats(kmem)
 
   ierr = FKINGetNumNonlinSolvIters(kmem, nni)
   if (ierr /= 0) then
-     print *, 'Error in FKINGetNumNonlinSolvIters, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FKINGetNumNonlinSolvIters, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FKINGetNumFuncEvals(kmem, nfe)
   if (ierr /= 0) then
-     print *, 'Error in FKINGetNumFuncEvals, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FKINGetNumFuncEvals, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FKINGetNumJacEvals(kmem, nje)
   if (ierr /= 0) then
-     print *, 'Error in FKINGetNumJacEvals, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FKINGetNumJacEvals, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FKINGetNumLinFuncEvals(kmem, nfeD)
   if (ierr /= 0) then
-     print *, 'Error in FKINGetNumLinFuncEvals, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FKINGetNumLinFuncEvals, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   print *, ' '
   print *, 'Final Statistics.. '
   print *, ' '
-  print '(2(A,i5))'    ,'nni    =', nni,      '    nfe   =', nfe
-  print '(2(A,i5))'    ,'nje    =', nje,      '    nfeD  =', nfeD
+  print '(2(A,i5))', 'nni    =', nni, '    nfe   =', nfe
+  print '(2(A,i5))', 'nje    =', nje, '    nfeD  =', nfeD
 
   return
 

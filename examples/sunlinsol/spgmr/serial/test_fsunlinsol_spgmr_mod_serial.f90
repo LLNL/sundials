@@ -24,13 +24,11 @@ module test_fsunlinsol_spgmr_serial
   use test_utilities
   implicit none
 
-
-
   integer(kind=myindextype), private, parameter :: N = 100
-  integer(C_INT),  private, parameter :: pretype = 1     ! Preconditioning type (1 or 2)
-  integer(C_INT),  private, parameter :: gstype  = 1     ! Gram-Schmidt orthoognalization type (1 or 2)
-  integer(C_INT),  private, parameter :: maxl    = 100   ! maxium Krylov subspace dimension (> 0)
-  real(C_DOUBLE),  private, parameter :: tol     = 1e-13 ! solver tolerance
+  integer(c_int), private, parameter :: pretype = 1     ! Preconditioning type (1 or 2)
+  integer(c_int), private, parameter :: gstype = 1     ! Gram-Schmidt orthoognalization type (1 or 2)
+  integer(c_int), private, parameter :: maxl = 100   ! maxium Krylov subspace dimension (> 0)
+  real(c_double), private, parameter :: tol = 1e-13 ! solver tolerance
 
   type, private :: UserData
     integer(kind=myindextype) :: N
@@ -39,7 +37,7 @@ module test_fsunlinsol_spgmr_serial
 
 contains
 
-  integer(C_INT) function unit_tests() result(fails)
+  integer(c_int) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
     use fnvector_serial_mod
     use fsunlinsol_spgmr_mod
@@ -48,32 +46,32 @@ contains
     implicit none
 
     type(SUNLinearSolver), pointer :: LS         ! test linear solver
-    type(SUNMatrix),       pointer :: A          ! dummy SUNMatrix
-    type(N_Vector),        pointer :: x, xhat, b ! test vectors
-    type(UserData),        pointer :: probdata   ! problem data
-    real(C_DOUBLE),        pointer :: xdata(:)   ! x vector data
-    real(C_DOUBLE)                 :: tmpr       ! temporary real value
+    type(SUNMatrix), pointer :: A          ! dummy SUNMatrix
+    type(N_Vector), pointer :: x, xhat, b ! test vectors
+    type(UserData), pointer :: probdata   ! problem data
+    real(c_double), pointer :: xdata(:)   ! x vector data
+    real(c_double)                 :: tmpr       ! temporary real value
     integer(kind=myindextype)     :: j
-    integer(C_INT)                 :: tmp
+    integer(c_int)                 :: tmp
 
     ! setup
     fails = 0
 
     A => null()
 
-    x    => FN_VNew_Serial(N, sunctx)
+    x => FN_VNew_Serial(N, sunctx)
     xhat => FN_VNew_Serial(N, sunctx)
-    b    => FN_VNew_Serial(N, sunctx)
+    b => FN_VNew_Serial(N, sunctx)
 
-    allocate(probdata)
-    probdata%N  = N
-    probdata%d  => FN_VNew_Serial(N, sunctx)
+    allocate (probdata)
+    probdata%N = N
+    probdata%d => FN_VNew_Serial(N, sunctx)
     probdata%s1 => FN_VNew_Serial(N, sunctx)
     probdata%s2 => FN_VNew_Serial(N, sunctx)
 
     ! fill xhat vector with uniform random data in [1, 2)
     xdata => FN_VGetArrayPointer(xhat)
-    do j=1, N
+    do j = 1, N
       call random_number(tmpr)
       xdata(j) = ONE + tmpr
     end do
@@ -86,14 +84,14 @@ contains
 
     ! run initialization tests
     fails = fails + Test_FSUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 0)
-    fails = fails + Test_FSUNLinSolSetATimes(LS, c_loc(probdata),&
+    fails = fails + Test_FSUNLinSolSetATimes(LS, c_loc(probdata), &
                                              c_funloc(ATimes), 0)
-    fails = fails + Test_FSUNLinSolSetPreconditioner(LS,&
-                                                     c_loc(probdata),&
-                                                     c_funloc(PSetup),&
-                                                     c_funloc(PSolve),&
+    fails = fails + Test_FSUNLinSolSetPreconditioner(LS, &
+                                                     c_loc(probdata), &
+                                                     c_funloc(PSetup), &
+                                                     c_funloc(PSolve), &
                                                      0)
-    fails = fails + Test_FSUNLinSolSetScalingVectors(LS, probdata%s1,&
+    fails = fails + Test_FSUNLinSolSetScalingVectors(LS, probdata%s1, &
                                                      probdata%s2, 0)
     fails = fails + Test_FSUNLinSolInitialize(LS, 0)
     fails = fails + Test_FSUNLinSolSpace(LS, 0)
@@ -119,14 +117,13 @@ contains
     fails = fails + ATimes(c_loc(probdata), x, b)
 
     ! Run tests with this setup
-    fails = fails + FSUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_NONE);
-    fails = fails + Test_FSUNLinSolSetup(LS, A, 0);
-    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0);
-    fails = fails + Test_FSUNLinSolLastFlag(LS, 0);
-    fails = fails + Test_FSUNLinSolNumIters(LS, 0);
-    fails = fails + Test_FSUNLinSolResNorm(LS, 0);
-    fails = fails + Test_FSUNLinSolResid(LS, 0);
-
+    fails = fails + FSUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_NONE); 
+    fails = fails + Test_FSUNLinSolSetup(LS, A, 0); 
+    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0); 
+    fails = fails + Test_FSUNLinSolLastFlag(LS, 0); 
+    fails = fails + Test_FSUNLinSolNumIters(LS, 0); 
+    fails = fails + Test_FSUNLinSolResNorm(LS, 0); 
+    fails = fails + Test_FSUNLinSolResid(LS, 0); 
     if (fails /= 0) then
       print *, 'FAIL: FSUNLinSol_SPGMR module, problem 1'
     else
@@ -147,14 +144,13 @@ contains
     fails = fails + ATimes(c_loc(probdata), x, b)
 
     ! Run tests with this setup
-    fails = fails + FSUNLinSol_SPGMRSetPrecType(LS, pretype);
-    fails = fails + Test_FSUNLinSolSetup(LS, A, 0);
-    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0);
-    fails = fails + Test_FSUNLinSolLastFlag(LS, 0);
-    fails = fails + Test_FSUNLinSolNumIters(LS, 0);
-    fails = fails + Test_FSUNLinSolResNorm(LS, 0);
-    fails = fails + Test_FSUNLinSolResid(LS, 0);
-
+    fails = fails + FSUNLinSol_SPGMRSetPrecType(LS, pretype); 
+    fails = fails + Test_FSUNLinSolSetup(LS, A, 0); 
+    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0); 
+    fails = fails + Test_FSUNLinSolLastFlag(LS, 0); 
+    fails = fails + Test_FSUNLinSolNumIters(LS, 0); 
+    fails = fails + Test_FSUNLinSolResNorm(LS, 0); 
+    fails = fails + Test_FSUNLinSolResid(LS, 0); 
     if (fails /= 0) then
       print *, 'FAIL: FSUNLinSol_SPGMR module, problem 2'
     else
@@ -166,7 +162,7 @@ contains
 
     ! set scaling vectors
     xdata => FN_VGetArrayPointer(probdata%s1)
-    do j=1, N
+    do j = 1, N
       call random_number(tmpr)
       xdata(j) = ONE + 1000.0d0*tmpr
     end do
@@ -179,14 +175,13 @@ contains
     fails = fails + ATimes(c_loc(probdata), x, b)
 
     ! Run tests with this setup
-    fails = fails + FSUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_NONE);
-    fails = fails + Test_FSUNLinSolSetup(LS, A, 0);
-    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0);
-    fails = fails + Test_FSUNLinSolLastFlag(LS, 0);
-    fails = fails + Test_FSUNLinSolNumIters(LS, 0);
-    fails = fails + Test_FSUNLinSolResNorm(LS, 0);
-    fails = fails + Test_FSUNLinSolResid(LS, 0);
-
+    fails = fails + FSUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_NONE); 
+    fails = fails + Test_FSUNLinSolSetup(LS, A, 0); 
+    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0); 
+    fails = fails + Test_FSUNLinSolLastFlag(LS, 0); 
+    fails = fails + Test_FSUNLinSolNumIters(LS, 0); 
+    fails = fails + Test_FSUNLinSolResNorm(LS, 0); 
+    fails = fails + Test_FSUNLinSolResid(LS, 0); 
     if (fails /= 0) then
       print *, 'FAIL: FSUNLinSol_SPGMR module, problem 3'
     else
@@ -202,65 +197,65 @@ contains
     call FN_VDestroy(probdata%d)
     call FN_VDestroy(probdata%s1)
     call FN_VDestroy(probdata%s2)
-    deallocate(probdata)
+    deallocate (probdata)
 
   end function unit_tests
 
-  integer(C_INT) function ATimes(udata, vvec, zvec) result(ret) bind(C)
+  integer(c_int) function ATimes(udata, vvec, zvec) result(ret) bind(C)
     use, intrinsic :: iso_c_binding
 
     use test_utilities
 
     implicit none
 
-    type(C_PTR), value :: udata
+    type(c_ptr), value :: udata
     type(N_Vector) :: vvec, zvec
     type(UserData), pointer :: probdata
-    real(C_DOUBLE), pointer :: v(:), z(:), s1(:), s2(:)
-    integer(C_LONG) :: i, N
+    real(c_double), pointer :: v(:), z(:), s1(:), s2(:)
+    integer(c_long) :: i, N
 
     call c_f_pointer(udata, probdata)
 
-    v  => FN_VGetArrayPointer(vvec)
-    z  => FN_VGetArrayPointer(zvec)
+    v => FN_VGetArrayPointer(vvec)
+    z => FN_VGetArrayPointer(zvec)
     s1 => FN_VGetArrayPointer(probdata%s1)
     s2 => FN_VGetArrayPointer(probdata%s2)
-    N  = probdata%N
+    N = probdata%N
 
     ! perform product at the left domain boundary (note: v is zero at the boundary)
     z(1) = (FIVE*v(1)*s2(1) - v(2)*s2(2))/s1(1)
 
     ! iterate through interior of local domain, performing product
-    do i = 2, N-1
-      z(i) = (-v(i-1)*s2(i-1) + FIVE*v(i)*s2(i) - v(i+1)*s2(i+1))/s1(i)
+    do i = 2, N - 1
+      z(i) = (-v(i - 1)*s2(i - 1) + FIVE*v(i)*s2(i) - v(i + 1)*s2(i + 1))/s1(i)
     end do
 
     ! perform product at the right domain boundary (note: v is zero at the boundary)
-    z(N) = (-v(N-1)*s2(N-1) + FIVE*v(N)*s2(N))/s1(N)
+    z(N) = (-v(N - 1)*s2(N - 1) + FIVE*v(N)*s2(N))/s1(N)
 
     ret = 0
   end function ATimes
 
-  integer(C_INT) function PSetup(udata) result(ret) bind(C)
+  integer(c_int) function PSetup(udata) result(ret) bind(C)
     use, intrinsic :: iso_c_binding
-    type(C_PTR), value :: udata
+    type(c_ptr), value :: udata
     ret = 0
   end function PSetup
 
-  integer(C_INT) function PSolve(udata, rvec, zvec, tol, lr) &
-      result(ret) bind(C)
+  integer(c_int) function PSolve(udata, rvec, zvec, tol, lr) &
+    result(ret) bind(C)
     use, intrinsic :: iso_c_binding
 
     use test_utilities
 
     implicit none
 
-    type(C_PTR),    value      :: udata
+    type(c_ptr), value      :: udata
     type(N_Vector)             :: rvec, zvec
-    real(C_DOUBLE)             :: tol
-    integer(C_INT)             :: lr
+    real(c_double)             :: tol
+    integer(c_int)             :: lr
     type(UserData), pointer    :: probdata
-    real(C_DOUBLE), pointer    :: r(:), z(:), d(:)
+    real(c_double), pointer    :: r(:), z(:), d(:)
     integer(kind=myindextype) :: i, N
 
     call c_f_pointer(udata, probdata)
@@ -270,8 +265,8 @@ contains
     d => FN_VGetArrayPointer(probdata%d)
     N = probdata%N
 
-    do i=1, N
-      z(i) = r(i) / d(i)
+    do i = 1, N
+      z(i) = r(i)/d(i)
     end do
 
     ret = 0
@@ -279,16 +274,16 @@ contains
 
 end module
 
-integer(C_INT) function check_vector(X, Y, tol) result(failure)
+integer(c_int) function check_vector(X, Y, tol) result(failure)
   use, intrinsic :: iso_c_binding
   use test_fsunlinsol_spgmr_serial
   use test_utilities
   implicit none
 
   type(N_Vector)  :: x, y
-  real(C_DOUBLE)  :: tol, maxerr
+  real(c_double)  :: tol, maxerr
   integer(kind=myindextype) :: i, xlen, ylen
-  real(C_DOUBLE), pointer :: xdata(:), ydata(:)
+  real(c_double), pointer :: xdata(:), ydata(:)
 
   failure = 0
 
@@ -311,9 +306,9 @@ integer(C_INT) function check_vector(X, Y, tol) result(failure)
   if (failure > 0) then
     maxerr = ZERO
     do i = 1, xlen
-      maxerr = max(abs(xdata(i)-ydata(i))/abs(xdata(i)), maxerr)
+      maxerr = max(abs(xdata(i) - ydata(i))/abs(xdata(i)), maxerr)
     end do
-    write(*,'(A,E14.7,A,E14.7,A)') &
+    write (*, '(A,E14.7,A,E14.7,A)') &
       "FAIL: check_vector failure: maxerr = ", maxerr, "  (tol = ", FIVE*tol, ")"
   end if
 
@@ -326,7 +321,7 @@ program main
 
   !======== Declarations ========
   implicit none
-  integer(C_INT) :: fails = 0
+  integer(c_int) :: fails = 0
 
   !============== Introduction =============
   print *, 'SPGMR SUNLinearSolver Fortran 2003 interface test'
@@ -339,7 +334,7 @@ program main
     print *, 'FAILURE: n unit tests failed'
     stop 1
   else
-    print *,'SUCCESS: all unit tests passed'
+    print *, 'SUCCESS: all unit tests passed'
   end if
 
   call Test_Finalize()

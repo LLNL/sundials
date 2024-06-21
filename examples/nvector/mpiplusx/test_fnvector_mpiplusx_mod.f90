@@ -39,7 +39,7 @@ contains
     type(N_Vector), pointer :: x, local       ! N_Vectors
 
     !===== Setup ====
-    local  => FN_VMake_Serial(N, x1data, sunctx)
+    local => FN_VMake_Serial(N, x1data, sunctx)
 
     x => FN_VMake_MPIPlusX(comm, local, sunctx)
     call FN_VConst(ONE, x)
@@ -47,10 +47,10 @@ contains
     !===== Test =====
 
     ! test the MPIPlusX specific operations
-    xptr  => FN_VGetArrayPointer_MPIPlusX(x)
+    xptr => FN_VGetArrayPointer_MPIPlusX(x)
     local => FN_VGetLocalVector_MPIPlusX(x)
-    ival  = FN_VGetLocalLength_MPIPlusX(x)
-    ival  = FN_VGetVectorID_MPIPlusX(x)
+    ival = FN_VGetLocalLength_MPIPlusX(x)
+    ival = FN_VGetVectorID_MPIPlusX(x)
 
     !==== Cleanup =====
     call FN_VDestroy(local)
@@ -75,9 +75,9 @@ contains
     if (fails /= 0) then
       print *, '   FAILURE - MPI_COMM_RANK returned nonzero'
       stop 1
-    endif
+    end if
 
-    local  => FN_VMake_Serial(N, x1data, sunctx)
+    local => FN_VMake_Serial(N, x1data, sunctx)
     x => FN_VMake_MPIPlusX(comm, local, sunctx)
     call FN_VConst(ONE, x)
 
@@ -94,7 +94,6 @@ contains
   end function unit_tests
 
 end module
-
 
 integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   use, intrinsic :: iso_c_binding
@@ -118,16 +117,15 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   if (local_length /= x0len) then
     failure = 1
     return
-  endif
+  end if
 
   do i = 1, x0len
     if (FNEQ(x0data(i), ans) > 0) then
       failure = failure + 1
     end if
-  enddo
+  end do
 
 end function check_ans
-
 
 logical function has_data(X) result(failure)
   use, intrinsic :: iso_c_binding
@@ -139,7 +137,6 @@ logical function has_data(X) result(failure)
 
   failure = .true.
 end function has_data
-
 
 program main
   !======== Inclusions ==========
@@ -156,13 +153,13 @@ program main
   if (fails /= 0) then
     print *, 'FAILURE: MPI_INIT returned nonzero'
     stop 1
-  endif
+  end if
 
   call MPI_Comm_rank(comm, myid, fails)
   if (fails /= 0) then
     print *, 'FAILURE: MPI_COMM_RANK returned nonzero, proc', myid
     stop 1
-  endif
+  end if
 
   !============== Introduction =============
   if (myid == 0) print *, 'MPIPlusX N_Vector Fortran 2003 interface test'
@@ -173,7 +170,7 @@ program main
   if (fails /= 0) then
     print *, 'FAILURE: MPI_COMM_SIZE returned nonzero, proc', myid
     stop 1
-  endif
+  end if
 
   fails = smoke_tests()
   if (fails /= 0) then
@@ -187,14 +184,14 @@ program main
   if (fails /= 0) then
     print *, 'FAILURE: MPI_BARRIER returned nonzero, proc', myid
     stop 1
-  endif
+  end if
 
   fails = unit_tests()
   if (fails /= 0) then
     print *, 'FAILURE: n unit tests failed, proc', myid
     stop 1
   else
-    if (myid == 0) print *,'    SUCCESS - all unit tests passed'
+    if (myid == 0) print *, '    SUCCESS - all unit tests passed'
   end if
 
   call Test_Finalize()
@@ -203,5 +200,5 @@ program main
   if (fails /= 0) then
     print *, 'FAILURE: MPI_FINALIZE returned nonzero, proc ', myid
     stop 1
-  endif
+  end if
 end program main

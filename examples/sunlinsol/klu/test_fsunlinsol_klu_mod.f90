@@ -24,10 +24,8 @@ module test_fsunlinsol_klu
 
 contains
 
-  integer(C_INT) function unit_tests() result(fails)
+  integer(c_int) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-
-
 
     use fnvector_serial_mod
     use fsunmatrix_dense_mod
@@ -38,13 +36,13 @@ contains
     implicit none
 
     type(SUNLinearSolver), pointer :: LS                ! test linear solver
-    type(SUNMatrix),       pointer :: A, D              ! test matrices
-    type(N_Vector),        pointer :: x, b              ! test vectors
-    real(C_DOUBLE),        pointer :: colj(:)           ! matrix column data
-    real(C_DOUBLE),        pointer :: xdata(:)          ! x vector data
-    real(C_DOUBLE)                 :: tmpr              ! temporary real value
+    type(SUNMatrix), pointer :: A, D              ! test matrices
+    type(N_Vector), pointer :: x, b              ! test vectors
+    real(c_double), pointer :: colj(:)           ! matrix column data
+    real(c_double), pointer :: xdata(:)          ! x vector data
+    real(c_double)                 :: tmpr              ! temporary real value
     integer(kind=myindextype)     :: j, k, i
-    integer(C_INT)                 :: tmp
+    integer(c_int)                 :: tmp
 
     fails = 0
 
@@ -53,14 +51,14 @@ contains
     b => FN_VNew_Serial(N, sunctx)
 
     ! fill A matrix with uniform random data in [0, 1/N)
-    do k=1, 5*N
+    do k = 1, 5*N
       call random_number(tmpr)
-      j = max(1, floor(tmpr * N))
+      j = max(1, floor(tmpr*N))
       call random_number(tmpr)
-      i = max(1, floor(tmpr * N))
-      colj => FSUNDenseMatrix_Column(D, j-1)
+      i = max(1, floor(tmpr*N))
+      colj => FSUNDenseMatrix_Column(D, j - 1)
       call random_number(tmpr)
-      colj(i) = tmpr / N
+      colj(i) = tmpr/N
     end do
 
     ! add identity to matrix
@@ -74,7 +72,7 @@ contains
 
     ! fill x vector with uniform random data in [0, 1)
     xdata => FN_VGetArrayPointer(x)
-    do j=1, N
+    do j = 1, N
       call random_number(tmpr)
       xdata(j) = tmpr
     end do
@@ -114,16 +112,16 @@ contains
 
 end module
 
-integer(C_INT) function check_vector(X, Y, tol) result(failure)
+integer(c_int) function check_vector(X, Y, tol) result(failure)
   use, intrinsic :: iso_c_binding
 
   use test_utilities
 
   implicit none
   type(N_Vector)  :: x, y
-  real(C_DOUBLE)  :: tol, maxerr
-  integer(C_LONG) :: i, xlen, ylen
-  real(C_DOUBLE), pointer :: xdata(:), ydata(:)
+  real(c_double)  :: tol, maxerr
+  integer(c_long) :: i, xlen, ylen
+  real(c_double), pointer :: xdata(:), ydata(:)
 
   failure = 0
 
@@ -146,9 +144,9 @@ integer(C_INT) function check_vector(X, Y, tol) result(failure)
   if (failure > 0) then
     maxerr = ZERO
     do i = 1, xlen
-      maxerr = max(abs(xdata(i)-ydata(i)), maxerr)
+      maxerr = max(abs(xdata(i) - ydata(i)), maxerr)
     end do
-    write(*,'(A,E14.7,A,E14.7,A)') &
+    write (*, '(A,E14.7,A,E14.7,A)') &
       "FAIL: check_vector failure: maxerr = ", maxerr, "  (tol = ", tol, ")"
   end if
 
@@ -161,7 +159,7 @@ program main
 
   !======== Declarations ========
   implicit none
-  integer(C_INT) :: fails = 0
+  integer(c_int) :: fails = 0
 
   !============== Introduction =============
   print *, 'KLU SUNLinearSolver Fortran 2003 interface test'
@@ -173,7 +171,7 @@ program main
     print *, 'FAILURE: n unit tests failed'
     stop 1
   else
-    print *,'SUCCESS: all unit tests passed'
+    print *, 'SUCCESS: all unit tests passed'
   end if
 
   call Test_Finalize()
