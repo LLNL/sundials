@@ -25,15 +25,22 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
   set(SUNDIALS_CINDEX_TYPE "")
 
   # if the user specified an index type use it, otherwise try the standard options
-  if (SUNDIALS_INDEX_TYPE)
+  if(SUNDIALS_INDEX_TYPE)
     set(POSSIBLE_INT64 ${SUNDIALS_INDEX_TYPE})
   else()
-    set(POSSIBLE_INT64 int64_t;__int64;long long;long)
+    set(
+      POSSIBLE_INT64
+      int64_t;__int64;long
+      long;long
+    )
   endif()
 
   foreach(INT64_TYPE ${POSSIBLE_INT64})
     string(REPLACE " " "_" INT64_TYPE_NOSPACE ${INT64_TYPE})
-    check_type_size("${INT64_TYPE}" HAS_${INT64_TYPE_NOSPACE})
+    check_type_size(
+      "${INT64_TYPE}"
+      HAS_${INT64_TYPE_NOSPACE}
+    )
     if(HAS_${INT64_TYPE_NOSPACE} EQUAL "8")
       set(SUNDIALS_CINDEX_TYPE ${INT64_TYPE})
       message(STATUS "Using ${INT64_TYPE} for indices")
@@ -52,7 +59,7 @@ elseif(SUNDIALS_INDEX_SIZE MATCHES "32")
   set(SUNDIALS_CINDEX_TYPE "")
 
   # if the user specified an index type use it, otherwise try the standard options
-  if (SUNDIALS_INDEX_TYPE)
+  if(SUNDIALS_INDEX_TYPE)
     set(POSSIBLE_INT32 ${SUNDIALS_INDEX_TYPE})
   else()
     set(POSSIBLE_INT32 int32_t;int;long)
@@ -60,7 +67,10 @@ elseif(SUNDIALS_INDEX_SIZE MATCHES "32")
 
   foreach(INT32_TYPE ${POSSIBLE_INT32})
     string(REPLACE " " "_" INT32_TYPE_NOSPACE ${INT32_TYPE})
-    check_type_size("${INT32_TYPE}" HAS_${INT32_TYPE_NOSPACE})
+    check_type_size(
+      "${INT32_TYPE}"
+      HAS_${INT32_TYPE_NOSPACE}
+    )
     if(HAS_${INT32_TYPE_NOSPACE} EQUAL "4")
       set(SUNDIALS_CINDEX_TYPE ${INT32_TYPE})
       message(STATUS "Using ${INT32_TYPE} for indices")

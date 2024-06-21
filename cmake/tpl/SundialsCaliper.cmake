@@ -40,9 +40,7 @@ endif()
 # Section 3: Find the TPL
 # -----------------------------------------------------------------------------
 
-find_package(CALIPER
-             PATHS "${CALIPER_DIR}"
-             REQUIRED)
+find_package(CALIPER PATHS "${CALIPER_DIR}" REQUIRED)
 
 message(STATUS "CALIPER_LIB_DIR:     ${caliper_LIB_DIR}")
 message(STATUS "CALIPER_INCLUDE_DIR: ${caliper_INCLUDE_DIR}")
@@ -59,7 +57,9 @@ if(CALIPER_FOUND AND (NOT CALIPER_WORKS))
   file(MAKE_DIRECTORY ${CALIPER_TEST_DIR})
 
   # Create a CMakeLists.txt file
-  file(WRITE ${CALIPER_TEST_DIR}/CMakeLists.txt
+  file(
+    WRITE
+    ${CALIPER_TEST_DIR}/CMakeLists.txt
     "cmake_minimum_required(VERSION ${CMAKE_VERSION})\n"
     "project(ltest C)\n"
     "set(CMAKE_VERBOSE_MAKEFILE ON)\n"
@@ -74,37 +74,51 @@ if(CALIPER_FOUND AND (NOT CALIPER_WORKS))
     "add_executable(ltest ltest.c)\n"
     "target_include_directories(ltest PRIVATE \"${caliper_INCLUDE_DIR}\")\n"
     "target_link_libraries(ltest \"-L${caliper_LIB_DIR}\")\n"
-    "target_link_libraries(ltest caliper)\n")
+    "target_link_libraries(ltest caliper)\n"
+  )
 
   # Create a C source file
-  file(WRITE ${CALIPER_TEST_DIR}/ltest.c
-  "\#include <caliper/cali.h>\n"
-  "int main(void)\n"
-  "{\n"
-  "  CALI_MARK_FUNCTION_BEGIN;\n"
-  "  CALI_MARK_FUNCTION_END;\n"
-  "  return 0;\n"
-  "}\n")
+  file(
+    WRITE
+    ${CALIPER_TEST_DIR}/ltest.c
+    "\#include <caliper/cali.h>\n"
+    "int main(void)\n"
+    "{\n"
+    "  CALI_MARK_FUNCTION_BEGIN;\n"
+    "  CALI_MARK_FUNCTION_END;\n"
+    "  return 0;\n"
+    "}\n"
+  )
 
   # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${CALIPER_TEST_DIR}/CMakeFiles)
 
   # Attempt to build and link the "ltest" executable
-  try_compile(COMPILE_OK ${CALIPER_TEST_DIR} ${CALIPER_TEST_DIR} ltest
-    OUTPUT_VARIABLE COMPILE_OUTPUT)
+  try_compile(
+    COMPILE_OK
+    ${CALIPER_TEST_DIR}
+    ${CALIPER_TEST_DIR}
+    ltest
+    OUTPUT_VARIABLE COMPILE_OUTPUT
+  )
 
   # Process test result
   if(COMPILE_OK)
     message(STATUS "Checking if CALIPER works with SUNDIALS... OK")
-    set(CALIPER_WORKS TRUE CACHE BOOL "CALIPER works with SUNDIALS as configured" FORCE)
+    set(
+      CALIPER_WORKS
+      TRUE
+      CACHE BOOL
+      "CALIPER works with SUNDIALS as configured"
+      FORCE
+    )
   else()
     message(STATUS "Checking if CALIPER works with SUNDIALS... FAILED")
     message(STATUS "Check output: ")
     message("${COMPILE_OUTPUT}")
     message(FATAL_ERROR "SUNDIALS interface to CALIPER is not functional.")
   endif()
-
 elseif(CALIPER_FOUND AND CALIPER_WORKS)
   message(STATUS "Skipped CALIPER tests, assuming CALIPER works with SUNDIALS.")
 endif()

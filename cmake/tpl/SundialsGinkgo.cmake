@@ -36,13 +36,10 @@ endif()
 # Section 2: Check to make sure options are compatible
 # -----------------------------------------------------------------------------
 
-
 # -----------------------------------------------------------------------------
 # Section 3: Find the TPL
 # -----------------------------------------------------------------------------
-find_package(Ginkgo REQUIRED
-             HINTS "${Ginkgo_DIR}"
-             NO_DEFAULT_PATH)
+find_package(Ginkgo REQUIRED HINTS "${Ginkgo_DIR}" NO_DEFAULT_PATH)
 
 message(STATUS "GINKGO VERSION:     ${GINKGO_PROJECT_VERSION}")
 message(STATUS "GINKGO BUILD TYPE:  ${GINKGO_BUILD_TYPE}")
@@ -75,7 +72,13 @@ if(Ginkgo_FOUND AND (NOT GINKGO_WORKS))
   endif()
 
   message(STATUS "Checking if GINKGO works... OK")
-  set(GINKGO_WORKS TRUE CACHE BOOL "GINKGO works with SUNDIALS as configured" FORCE)
+  set(
+    GINKGO_WORKS
+    TRUE
+    CACHE BOOL
+    "GINKGO works with SUNDIALS as configured"
+    FORCE
+  )
 elseif(Ginkgo_FOUND AND GINKGO_WORKS)
   message(STATUS "Skipped GINKGO tests, assuming GINKGO works with SUNDIALS.")
 endif()

@@ -63,21 +63,33 @@ set(OpenMP_Fortran_VERSION "${OpenMP_Fortran_VERSION}" CACHE INTERNAL "" FORCE)
 
 # Check for OpenMP offloading support
 if(OPENMP_FOUND AND (ENABLE_OPENMP_DEVICE OR SUPERLUDIST_OpenMP))
-
   if(OPENMP_DEVICE_WORKS)
-
     # The user has asked for checks to be skipped, assume offloading is supported
     set(OPENMP45_FOUND TRUE)
     set(OPENMP_SUPPORTS_DEVICE_OFFLOADING TRUE)
     message(WARNING "Skipping OpenMP device/version check." "SUNDIALS OpenMP functionality dependent on OpenMP 4.5+ is not guaranteed.")
 
   else()
-
     # Check the OpenMP version
     message(STATUS "Checking whether OpenMP supports device offloading")
 
-    if((OpenMP_C_VERSION VERSION_EQUAL 4.5) OR (OpenMP_C_VERSION VERSION_GREATER 4.5))
-      message(STATUS "Checking whether OpenMP supports device offloading -- yes")
+    if(
+      (
+        OpenMP_C_VERSION
+          VERSION_EQUAL
+          4.5
+      )
+      OR
+        (
+          OpenMP_C_VERSION
+            VERSION_GREATER
+            4.5
+        )
+    )
+      message(
+        STATUS
+        "Checking whether OpenMP supports device offloading -- yes"
+      )
       set(OPENMP45_FOUND TRUE)
       set(OPENMP_SUPPORTS_DEVICE_OFFLOADING TRUE)
     else()
@@ -86,7 +98,5 @@ if(OPENMP_FOUND AND (ENABLE_OPENMP_DEVICE OR SUPERLUDIST_OpenMP))
       set(OPENMP_SUPPORTS_DEVICE_OFFLOADING FALSE)
       message(FATAL_ERROR "The found OpenMP version does not support device offloading.")
     endif()
-
   endif()
-
 endif()

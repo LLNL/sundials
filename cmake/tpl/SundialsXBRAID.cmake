@@ -38,20 +38,26 @@ endif()
 
 # Using XBRAID requires building with MPI enabled
 if(NOT ENABLE_MPI)
-  message(FATAL_ERROR
-    "MPI is required for XBraid support. Set ENABLE_MPI to ON.")
+  message(
+    FATAL_ERROR
+    "MPI is required for XBraid support. Set ENABLE_MPI to ON."
+  )
 endif()
 
 # XBraid does not support single or extended precision
 if(SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED")
-  message(FATAL_ERROR
-    "XBraid is not compatible with ${SUNDIALS_PRECISION} precision")
+  message(
+    FATAL_ERROR
+    "XBraid is not compatible with ${SUNDIALS_PRECISION} precision"
+  )
 endif()
 
 # XBraid does not support 64-bit index sizes
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
-  message(FATAL_ERROR
-    "XBraid is not compatible with ${SUNDIALS_INDEX_SIZE}-bit indices")
+  message(
+    FATAL_ERROR
+    "XBraid is not compatible with ${SUNDIALS_INDEX_SIZE}-bit indices"
+  )
 endif()
 
 # -----------------------------------------------------------------------------
@@ -70,13 +76,14 @@ message(STATUS "XBRAID_INCLUDES:  ${XBRAID_INCS}")
 # Add works variable
 
 if(XBRAID_FOUND AND (NOT XBRAID_WORKS))
-
   # Create the XBRAID_TEST directory
   set(XBRAID_TEST_DIR ${PROJECT_BINARY_DIR}/XBRAID_TEST)
   file(MAKE_DIRECTORY ${XBRAID_TEST_DIR})
 
   # Create a CMakeLists.txt file
-  file(WRITE ${XBRAID_TEST_DIR}/CMakeLists.txt
+  file(
+    WRITE
+    ${XBRAID_TEST_DIR}/CMakeLists.txt
     "cmake_minimum_required(VERSION ${CMAKE_VERSION})\n"
     "project(ltest C)\n"
     "set(CMAKE_VERBOSE_MAKEFILE ON)\n"
@@ -91,10 +98,13 @@ if(XBRAID_FOUND AND (NOT XBRAID_WORKS))
     "add_executable(ltest ltest.c)\n"
     "target_include_directories(ltest PRIVATE \"${XBRAID_INCS}\")\n"
     "target_link_libraries(ltest \"${XBRAID_LIBS}\")\n"
-    "target_link_libraries(ltest m)\n")
+    "target_link_libraries(ltest m)\n"
+  )
 
   # Create a C source file
-  file(WRITE ${XBRAID_TEST_DIR}/ltest.c
+  file(
+    WRITE
+    ${XBRAID_TEST_DIR}/ltest.c
     "\#include <stdlib.h>\n"
     "\#include \"braid.h\"\n"
     "int main(void) {\n"
@@ -102,15 +112,21 @@ if(XBRAID_FOUND AND (NOT XBRAID_WORKS))
     "rand = braid_Rand();\n"
     "if (rand < 0) return 1;\n"
     "return 0;\n"
-    "}\n")
+    "}\n"
+  )
 
   # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${XBRAID_TEST_DIR}/CMakeFiles)
 
   # Attempt to build and link the "ltest" executable
-  try_compile(COMPILE_OK ${XBRAID_TEST_DIR} ${XBRAID_TEST_DIR} ltest
-    OUTPUT_VARIABLE COMPILE_OUTPUT)
+  try_compile(
+    COMPILE_OK
+    ${XBRAID_TEST_DIR}
+    ${XBRAID_TEST_DIR}
+    ltest
+    OUTPUT_VARIABLE COMPILE_OUTPUT
+  )
 
   # Process test result
   if(COMPILE_OK)
@@ -124,7 +140,6 @@ if(XBRAID_FOUND AND (NOT XBRAID_WORKS))
   endif()
 
   message(STATUS "XBRAID tests passed")
-
 else()
   message(STATUS "Skipped XBRAID tests, assuming XBRAID works with SUNDIALS.")
 endif()

@@ -35,14 +35,26 @@
 # ---------------------------------------------------------------------------
 
 macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
-
   # macro options and keyword inputs followed by multiple values
-  set(options DEPENDS_ON_THROW_ERROR ADVANCED)
-  set(multiValueArgs OPTIONS DEPENDS_ON)
+  set(
+    options
+    DEPENDS_ON_THROW_ERROR
+    ADVANCED
+  )
+  set(
+    multiValueArgs
+    OPTIONS
+    DEPENDS_ON
+  )
 
   # parse inputs and create variables sundials_option_<keyword>
-  cmake_parse_arguments(sundials_option "${options}" "${oneValueArgs}"
-    "${multiValueArgs}" ${ARGN} )
+  cmake_parse_arguments(
+    sundials_option
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
 
   # check if dependencies for this option have been met
   set(all_depends_on_dependencies_met TRUE)
@@ -56,7 +68,6 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
   endif()
 
   if(all_depends_on_dependencies_met)
-
     if(NOT DEFINED ${NAME})
       set(${NAME} "${DEFAULT_VALUE}" CACHE ${TYPE} ${DOCSTR})
     else()
@@ -67,9 +78,7 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
     if(sundials_option_ADVANCED)
       mark_as_advanced(FORCE ${NAME})
     endif()
-
   else()
-
     # if necessary, remove the CACHE variable i.e., all the variable
     # dependencies were previously met but are no longer satisfied
     if(DEFINED ${NAME})
@@ -84,7 +93,6 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
         message(WARNING "${_warn_msg_string}")
       endif()
     endif()
-
   endif()
 
   # check for valid option choices
@@ -97,12 +105,17 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
     endforeach()
     get_property(is_in_cache CACHE ${NAME} PROPERTY TYPE)
     if(is_in_cache)
-      set_property(CACHE ${NAME} PROPERTY STRINGS ${sundials_option_OPTIONS})
+      set_property(
+        CACHE
+          ${NAME}
+        PROPERTY
+          STRINGS
+            ${sundials_option_OPTIONS}
+      )
     endif()
     unset(is_in_cache)
   endif()
 
   unset(all_depends_on_dependencies_met)
   unset(depends_on_dependencies_not_met)
-
 endmacro()

@@ -25,7 +25,7 @@ endmacro(FORCE_VARIABLE)
 # Macros to append a common suffix or prefix to the elements of a list
 
 macro(add_suffix rootlist suffix)
-  set(outlist )
+  set(outlist)
   foreach(root ${${rootlist}})
     list(APPEND outlist ${root}${suffix})
   endforeach(root)
@@ -33,7 +33,7 @@ macro(add_suffix rootlist suffix)
 endmacro(ADD_SUFFIX)
 
 macro(add_prefix prefix rootlist)
-  set(outlist )
+  set(outlist)
   foreach(root ${${rootlist}})
     list(APPEND outlist ${prefix}${root})
   endforeach(root)
@@ -46,7 +46,7 @@ endmacro(ADD_PREFIX)
 
 macro(list2string alist astring)
   foreach(elem ${${alist}})
-   set(${astring} "${${astring}} ${elem}")
+    set(${astring} "${${astring}} ${elem}")
   endforeach(elem)
 endmacro(LIST2STRING)
 
@@ -70,9 +70,12 @@ function(sundials_git_version)
   set(_tmp "")
 
   if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/.git AND ${GIT_FOUND})
-    execute_process(COMMAND git describe --abbrev=12 --dirty --always --tags
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-        OUTPUT_VARIABLE _tmp)
+    execute_process(
+      COMMAND
+        git describe --abbrev=12 --dirty --always --tags
+      WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+      OUTPUT_VARIABLE _tmp
+    )
     string(STRIP "${_tmp}" _tmp)
   endif()
 

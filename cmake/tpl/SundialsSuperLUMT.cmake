@@ -55,13 +55,14 @@ message(STATUS "SUPERLUMT_INCLUDE_DIR: ${SUPERLUMT_INCLUDE_DIR}")
 # -----------------------------------------------------------------------------
 
 if(SUPERLUMT_FOUND AND (NOT SUPERLUMT_WORKS))
-
   # Create the SUPERLUMT_TEST directory
   set(SUPERLUMT_TEST_DIR ${PROJECT_BINARY_DIR}/SUPERLUMT_TEST)
   file(MAKE_DIRECTORY ${SUPERLUMT_TEST_DIR})
 
   # Create a CMakeLists.txt file
-  file(WRITE ${SUPERLUMT_TEST_DIR}/CMakeLists.txt
+  file(
+    WRITE
+    ${SUPERLUMT_TEST_DIR}/CMakeLists.txt
     "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
     "PROJECT(ltest C)\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
@@ -75,10 +76,13 @@ if(SUPERLUMT_FOUND AND (NOT SUPERLUMT_WORKS))
     "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
     "ADD_EXECUTABLE(ltest ltest.c)\n"
     "TARGET_INCLUDE_DIRECTORIES(ltest PRIVATE ${SUPERLUMT_INCLUDE_DIR})\n"
-    "TARGET_LINK_LIBRARIES(ltest ${SUPERLUMT_LIBRARIES})\n")
+    "TARGET_LINK_LIBRARIES(ltest ${SUPERLUMT_LIBRARIES})\n"
+  )
 
   # Create a C source file which calls a SUPERLUMT function
-  file(WRITE ${SUPERLUMT_TEST_DIR}/ltest.c
+  file(
+    WRITE
+    ${SUPERLUMT_TEST_DIR}/ltest.c
     "\#include \"slu_mt_ddefs.h\"\n"
     "int main(void) {\n"
     "SuperMatrix *A;\n"
@@ -87,28 +91,41 @@ if(SUPERLUMT_FOUND AND (NOT SUPERLUMT_WORKS))
     "Astore = NULL;\n"
     "if (A != NULL || Astore != NULL) return(1);\n"
     "else return(0);\n"
-    "}\n")
-
+    "}\n"
+  )
 
   # Attempt to build and link the "ltest" executable
-  try_compile(COMPILE_OK ${SUPERLUMT_TEST_DIR} ${SUPERLUMT_TEST_DIR} ltest
-    OUTPUT_VARIABLE COMPILE_OUTPUT)
+  try_compile(
+    COMPILE_OK
+    ${SUPERLUMT_TEST_DIR}
+    ${SUPERLUMT_TEST_DIR}
+    ltest
+    OUTPUT_VARIABLE COMPILE_OUTPUT
+  )
 
   # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${SUPERLUMT_TEST_DIR}/CMakeFiles)
 
- # Process test result
+  # Process test result
   if(COMPILE_OK)
     message(STATUS "Checking if SuperLU_MT works with SUNDIALS... OK")
-    set(SUPERLUMT_WORKS TRUE CACHE BOOL "SuperLU_MT works with SUNDIALS as configured" FORCE)
+    set(
+      SUPERLUMT_WORKS
+      TRUE
+      CACHE BOOL
+      "SuperLU_MT works with SUNDIALS as configured"
+      FORCE
+    )
   else()
     message(STATUS "Checking if SuperLU_MT works with SUNDIALS... FAILED")
     message(STATUS "Check output: ")
     message("${COMPILE_OUTPUT}")
     message(FATAL_ERROR "SUNDIALS interface to SuperLU_MT is not functional.")
   endif()
-
 elseif(SUPERLUMT_FOUND AND SUPERLUMT_WORKS)
-  message(STATUS "Skipped SuperLU_MT tests, assuming SuperLU_MT works with SUNDIALS. Set SUPERLUMT_WORKS=FALSE to (re)run compatibility test.")
+  message(
+    STATUS
+    "Skipped SuperLU_MT tests, assuming SuperLU_MT works with SUNDIALS. Set SUPERLUMT_WORKS=FALSE to (re)run compatibility test."
+  )
 endif()

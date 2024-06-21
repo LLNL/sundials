@@ -31,19 +31,19 @@ endif()
 project(SUNDIALS C)
 
 # Specify the location of additional CMAKE modules
-set(CMAKE_MODULE_PATH
+set(
+  CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
   ${PROJECT_SOURCE_DIR}/cmake
   ${PROJECT_SOURCE_DIR}/cmake/macros
   ${PROJECT_SOURCE_DIR}/cmake/tpl
-  )
+)
 
 # MACRO definitions
 include(SundialsCMakeMacros)
 include(CMakePrintHelpers)
 include(CheckCSourceCompiles)
 include(FindPackageHandleStandardArgs)
-
 
 # Set some variables with info on the SUNDIALS project
 set(PACKAGE_BUGREPORT "sundials-users@llnl.gov")
@@ -62,12 +62,14 @@ set(PACKAGE_VERSION_PATCH "1")
 set(PACKAGE_VERSION_LABEL "")
 
 if(PACKAGE_VERSION_LABEL)
-  set(PACKAGE_VERSION
-      "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}-${PACKAGE_VERSION_LABEL}"
+  set(
+    PACKAGE_VERSION
+    "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}-${PACKAGE_VERSION_LABEL}"
   )
 else()
-  set(PACKAGE_VERSION
-      "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}"
+  set(
+    PACKAGE_VERSION
+    "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}"
   )
 endif()
 
@@ -106,8 +108,9 @@ set(sunlinsollib_SOVERSION "5")
 set(sunnonlinsollib_VERSION "4.1.1")
 set(sunnonlinsollib_SOVERSION "4")
 
-set(sundialslib_VERSION
-    "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}"
+set(
+  sundialslib_VERSION
+  "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}"
 )
 set(sundialslib_SOVERSION "${PACKAGE_VERSION_MAJOR}")
 
@@ -121,7 +124,12 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 endif()
 
 # Organize targets into folders when using an IDE
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(
+  GLOBAL
+  PROPERTY
+    USE_FOLDERS
+      ON
+)
 
 # Get correct build paths automatically, but expose LIBDIR and
 # INCLUDEDIR as a regular cache variable so that a user can more
@@ -131,25 +139,36 @@ mark_as_advanced(CLEAR CMAKE_INSTALL_LIBDIR)
 mark_as_advanced(CLEAR CMAKE_INSTALL_INCLUDEDIR)
 
 # Suffixes to use for static and shared targets.
-set(_STATIC_LIB_SUFFIX
-    "_static"
-    CACHE INTERNAL "" FORCE
-)
-set(_SHARED_LIB_SUFFIX
-    "_shared"
-    CACHE INTERNAL "" FORCE
-)
+set(_STATIC_LIB_SUFFIX "_static" CACHE INTERNAL "" FORCE)
+set(_SHARED_LIB_SUFFIX "_shared" CACHE INTERNAL "" FORCE)
 
 # A list of all the alias targets created.
-set(_SUNDIALS_ALIAS_TARGETS ""
-    CACHE INTERNAL "" FORCE)
+set(_SUNDIALS_ALIAS_TARGETS "" CACHE INTERNAL "" FORCE)
 
 # We default to release builds
 set(_DEFAULT_CMAKE_BUILD_TYPE RelWithDebInfo)
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  message(STATUS "Building SUNDIALS in '${_DEFAULT_CMAKE_BUILD_TYPE}' mode as CMAKE_BUILD_TYPE was not specified.")
-  set(CMAKE_BUILD_TYPE "${_DEFAULT_CMAKE_BUILD_TYPE}" CACHE STRING "Choose the type of build." FORCE)
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+  message(
+    STATUS
+    "Building SUNDIALS in '${_DEFAULT_CMAKE_BUILD_TYPE}' mode as CMAKE_BUILD_TYPE was not specified."
+  )
+  set(
+    CMAKE_BUILD_TYPE
+    "${_DEFAULT_CMAKE_BUILD_TYPE}"
+    CACHE STRING
+    "Choose the type of build."
+    FORCE
+  )
+  set_property(
+    CACHE
+      CMAKE_BUILD_TYPE
+    PROPERTY
+      STRINGS
+        "Debug"
+        "Release"
+        "MinSizeRel"
+        "RelWithDebInfo"
+  )
 else()
   message(STATUS "Building SUNDIALS in '${CMAKE_BUILD_TYPE}' mode.")
 endif()
@@ -230,13 +249,17 @@ endif()
 # ===============================================================
 
 # install sundials_export header file
-install(FILES "${PROJECT_BINARY_DIR}/include/sundials/sundials_export.h"
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
+install(
+  FILES
+    "${PROJECT_BINARY_DIR}/include/sundials/sundials_export.h"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
 )
 
 # install configured header file
-install(FILES "${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h"
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
+install(
+  FILES
+    "${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
 )
 
 # install shared Fortran 2003 modules
@@ -245,22 +268,30 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
   # libraries, they are identical. So only install one set
   # of the .mod files.
   if(BUILD_STATIC_LIBS)
-    install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_STATIC/
-            DESTINATION ${Fortran_INSTALL_MODDIR}
+    install(
+      DIRECTORY
+        ${CMAKE_Fortran_MODULE_DIRECTORY}_STATIC/
+      DESTINATION ${Fortran_INSTALL_MODDIR}
     )
   else()
-    install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_SHARED/
-            DESTINATION ${Fortran_INSTALL_MODDIR}
+    install(
+      DIRECTORY
+        ${CMAKE_Fortran_MODULE_DIRECTORY}_SHARED/
+      DESTINATION ${Fortran_INSTALL_MODDIR}
     )
   endif()
 endif()
 
 # install license and notice files
-install(FILES "${PROJECT_SOURCE_DIR}/LICENSE"
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
+install(
+  FILES
+    "${PROJECT_SOURCE_DIR}/LICENSE"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
 )
-install(FILES "${PROJECT_SOURCE_DIR}/NOTICE"
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
+install(
+  FILES
+    "${PROJECT_SOURCE_DIR}/NOTICE"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials"
 )
 
 # create package version file
@@ -285,9 +316,11 @@ configure_package_config_file(
   "${CMAKE_CURRENT_BINARY_DIR}/SUNDIALSConfig.cmake"
   INSTALL_DESTINATION "${SUNDIALS_INSTALL_CMAKEDIR}"
 )
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/SUNDIALSConfig.cmake"
-              "${CMAKE_CURRENT_BINARY_DIR}/SUNDIALSConfigVersion.cmake"
-        DESTINATION "${SUNDIALS_INSTALL_CMAKEDIR}"
+install(
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/SUNDIALSConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/SUNDIALSConfigVersion.cmake"
+  DESTINATION "${SUNDIALS_INSTALL_CMAKEDIR}"
 )
 
 # Export targets so build directory can be used directly

@@ -53,27 +53,53 @@ endif()
 # -----------------------------------------------------------------------------
 
 # find the library configuration file
-find_file(RAJA_CONFIGHPP_PATH config.hpp
-          HINTS "${RAJA_DIR}"
-          PATH_SUFFIXES include include/RAJA
-          NO_DEFAULT_PATH)
+find_file(
+  RAJA_CONFIGHPP_PATH
+  config.hpp
+  HINTS
+    "${RAJA_DIR}"
+  PATH_SUFFIXES
+    include
+    include/RAJA
+  NO_DEFAULT_PATH
+)
 mark_as_advanced(FORCE RAJA_CONFIGHPP_PATH)
 
 # Look for CMake configuration file in RAJA installation
-find_package(RAJA CONFIG
-             PATHS "${RAJA_DIR}" "${RAJA_DIR}/share/raja/cmake"
-             NO_DEFAULT_PATH
-             REQUIRED)
+find_package(
+  RAJA
+  CONFIG
+  PATHS
+    "${RAJA_DIR}"
+    "${RAJA_DIR}/share/raja/cmake"
+  NO_DEFAULT_PATH
+  REQUIRED
+)
 
 # determine the backends
-foreach(_backend CUDA HIP OPENMP TARGET_OPENMP SYCL)
-  file(STRINGS "${RAJA_CONFIGHPP_PATH}" _raja_has_backend REGEX "^#define RAJA_ENABLE_${_backend}\$")
+foreach(
+  _backend
+  CUDA
+  HIP
+  OPENMP
+  TARGET_OPENMP
+  SYCL
+)
+  file(
+    STRINGS
+    "${RAJA_CONFIGHPP_PATH}"
+    _raja_has_backend
+    REGEX "^#define RAJA_ENABLE_${_backend}\$"
+  )
   if(_raja_has_backend)
     set(RAJA_BACKENDS "${_backend};${RAJA_BACKENDS}")
   endif()
 endforeach()
 
-message(STATUS "RAJA Version:  ${RAJA_VERSION_MAJOR}.${RAJA_VERSION_MINOR}.${RAJA_VERSION_PATCHLEVEL}")
+message(
+  STATUS
+  "RAJA Version:  ${RAJA_VERSION_MAJOR}.${RAJA_VERSION_MINOR}.${RAJA_VERSION_PATCHLEVEL}"
+)
 message(STATUS "RAJA Backends: ${RAJA_BACKENDS}")
 
 set(RAJA_NEEDS_THREADS OFF)

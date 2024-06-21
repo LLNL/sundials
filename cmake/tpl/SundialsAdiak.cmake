@@ -44,7 +44,6 @@ find_package(adiak REQUIRED)
 message(STATUS "ADIAK_LIBRARIES:   ${adiak_LIBRARIES}")
 message(STATUS "ADIAK_INCLUDE_DIR: ${adiak_INCLUDE_DIR}")
 
-
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
@@ -57,35 +56,49 @@ if(adiak_FOUND AND (NOT adiak_WORKS))
   file(MAKE_DIRECTORY ${adiak_TEST_DIR})
 
   # Create a C source file
-  file(WRITE ${adiak_TEST_DIR}/ltest.c
-  "\#include <adiak.h>\n"
-  "int main(void)\n"
-  "{\n"
-  "  adiak_init(NULL);\n"
-  "  adiak_fini();\n"
-  "  return 0;\n"
-  "}\n")
+  file(
+    WRITE
+    ${adiak_TEST_DIR}/ltest.c
+    "\#include <adiak.h>\n"
+    "int main(void)\n"
+    "{\n"
+    "  adiak_init(NULL);\n"
+    "  adiak_fini();\n"
+    "  return 0;\n"
+    "}\n"
+  )
 
   # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${adiak_TEST_DIR}/CMakeFiles)
 
   # Attempt to build and link the "ltest" executable
-  try_compile(COMPILE_OK ${adiak_TEST_DIR} ${adiak_TEST_DIR}/ltest.c
+  try_compile(
+    COMPILE_OK
+    ${adiak_TEST_DIR}
+    ${adiak_TEST_DIR}/ltest.c
     OUTPUT_VARIABLE COMPILE_OUTPUT
-    LINK_LIBRARIES adiak::adiak ${CMAKE_DL_LIBS})
+    LINK_LIBRARIES
+      adiak::adiak
+      ${CMAKE_DL_LIBS}
+  )
 
   # Process test result
   if(COMPILE_OK)
     message(STATUS "Checking if adiak works with SUNDIALS... OK")
-    set(adiak_WORKS TRUE CACHE BOOL "adiak works with SUNDIALS as configured" FORCE)
+    set(
+      adiak_WORKS
+      TRUE
+      CACHE BOOL
+      "adiak works with SUNDIALS as configured"
+      FORCE
+    )
   else()
     message(STATUS "Checking if adiak works with SUNDIALS... FAILED")
     message(STATUS "Check output: ")
     message("${COMPILE_OUTPUT}")
     message(FATAL_ERROR "SUNDIALS interface to adiak is not functional.")
   endif()
-
 elseif(adiak_FOUND AND adiak_WORKS)
   message(STATUS "Skipped adiak tests, assuming adiak works with SUNDIALS.")
 endif()

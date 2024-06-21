@@ -64,7 +64,10 @@ if(KLU_FOUND AND (NOT KLU_WORKS))
     list(APPEND CMAKE_EXTRA_INCLUDE_FILES "klu.h")
     set(save_CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES})
     list(APPEND CMAKE_REQUIRED_INCLUDES ${KLU_INCLUDE_DIR})
-    check_type_size("SuiteSparse_long" SIZEOF_SUITESPARSE_LONG)
+    check_type_size(
+      "SuiteSparse_long"
+      SIZEOF_SUITESPARSE_LONG
+    )
     set(CMAKE_EXTRA_INCLUDE_FILES ${save_CMAKE_EXTRA_INCLUDE_FILES})
     set(CMAKE_REQUIRED_INCLUDES ${save_CMAKE_REQUIRED_INCLUDES})
     message(STATUS "Size of SuiteSparse_long is ${SIZEOF_SUITESPARSE_LONG}")
@@ -78,38 +81,49 @@ if(KLU_FOUND AND (NOT KLU_WORKS))
   file(MAKE_DIRECTORY ${KLU_TEST_DIR})
 
   # Create a CMakeLists.txt file
-  file(WRITE ${KLU_TEST_DIR}/CMakeLists.txt
-  "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
-  "PROJECT(ltest C)\n"
-  "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
-  "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
-  "SET(CMAKE_C_COMPILER \"${CMAKE_C_COMPILER}\")\n"
-  "SET(CMAKE_C_STANDARD \"${CMAKE_C_STANDARD}\")\n"
-  "SET(CMAKE_C_FLAGS \"${CMAKE_C_FLAGS}\")\n"
-  "SET(CMAKE_C_FLAGS_RELEASE \"${CMAKE_C_FLAGS_RELEASE}\")\n"
-  "SET(CMAKE_C_FLAGS_DEBUG \"${CMAKE_C_FLAGS_DEBUG}\")\n"
-  "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
-  "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
-  "INCLUDE_DIRECTORIES(${KLU_INCLUDE_DIR})\n"
-  "ADD_EXECUTABLE(ltest ltest.c)\n"
-  "TARGET_LINK_LIBRARIES(ltest ${KLU_LIBRARIES})\n")
+  file(
+    WRITE
+    ${KLU_TEST_DIR}/CMakeLists.txt
+    "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
+    "PROJECT(ltest C)\n"
+    "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
+    "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
+    "SET(CMAKE_C_COMPILER \"${CMAKE_C_COMPILER}\")\n"
+    "SET(CMAKE_C_STANDARD \"${CMAKE_C_STANDARD}\")\n"
+    "SET(CMAKE_C_FLAGS \"${CMAKE_C_FLAGS}\")\n"
+    "SET(CMAKE_C_FLAGS_RELEASE \"${CMAKE_C_FLAGS_RELEASE}\")\n"
+    "SET(CMAKE_C_FLAGS_DEBUG \"${CMAKE_C_FLAGS_DEBUG}\")\n"
+    "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
+    "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
+    "INCLUDE_DIRECTORIES(${KLU_INCLUDE_DIR})\n"
+    "ADD_EXECUTABLE(ltest ltest.c)\n"
+    "TARGET_LINK_LIBRARIES(ltest ${KLU_LIBRARIES})\n"
+  )
 
   # Create a C source file which calls a KLU function
-  file(WRITE ${KLU_TEST_DIR}/ltest.c
-  "\#include \"klu.h\"\n"
-  "int main(void) {\n"
-  "klu_common Common;\n"
-  "klu_defaults (&Common);\n"
-  "return(0);\n"
-  "}\n")
+  file(
+    WRITE
+    ${KLU_TEST_DIR}/ltest.c
+    "\#include \"klu.h\"\n"
+    "int main(void) {\n"
+    "klu_common Common;\n"
+    "klu_defaults (&Common);\n"
+    "return(0);\n"
+    "}\n"
+  )
 
   # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${KLU_TEST_DIR}/CMakeFiles)
 
   # Attempt to build and link the "ltest" executable
-  try_compile(COMPILE_OK ${KLU_TEST_DIR} ${KLU_TEST_DIR} ltest
-    OUTPUT_VARIABLE COMPILE_OUTPUT)
+  try_compile(
+    COMPILE_OK
+    ${KLU_TEST_DIR}
+    ${KLU_TEST_DIR}
+    ltest
+    OUTPUT_VARIABLE COMPILE_OUTPUT
+  )
 
   # Process test result
   if(COMPILE_OK)
@@ -121,7 +135,9 @@ if(KLU_FOUND AND (NOT KLU_WORKS))
     message("${COMPILE_OUTPUT}")
     message(FATAL_ERROR "SUNDIALS interface to KLU is not functional.")
   endif()
-
 elseif(KLU_FOUND AND KLU_WORKS)
-  message(STATUS "Skipped KLU tests, assuming KLU works with SUNDIALS. Set KLU_WORKS=FALSE to (re)run compatibility test.")
+  message(
+    STATUS
+    "Skipped KLU tests, assuming KLU works with SUNDIALS. Set KLU_WORKS=FALSE to (re)run compatibility test."
+  )
 endif()

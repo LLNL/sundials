@@ -34,13 +34,22 @@ if(DEFINED PETSC_FIND_VERSION)
     set(_pkg_version_spec ">=${PETSC_FIND_VERSION}")
   endif()
 endif()
-pkg_check_modules(PKG_PETSC "PETSc${_pkg_version_spec}")
+pkg_check_modules(
+  PKG_PETSC
+  "PETSc${_pkg_version_spec}"
+)
 unset(_pkg_version_spec)
 
 # Find the PETSC libraries
-set(_petsc_libs )
+set(_petsc_libs)
 foreach(_next_lib IN LISTS PKG_PETSC_LIBRARIES)
-  find_library(_petsc_lib_${_next_lib} NAMES ${_next_lib} HINTS ${PKG_PETSC_LIBRARY_DIRS})
+  find_library(
+    _petsc_lib_${_next_lib}
+    NAMES
+      ${_next_lib}
+    HINTS
+      ${PKG_PETSC_LIBRARY_DIRS}
+  )
   if(_petsc_lib_${_next_lib})
     list(APPEND _petsc_libs "${_petsc_lib_${_next_lib}}")
   endif()
@@ -56,17 +65,27 @@ foreach(_next_lib IN LISTS PKG_PETSC_STATIC_LIBRARIES)
   endif()
   if(_next_lib MATCHES "kokkoskernels")
     if(NOT TARGET Kokkos::kokkoskernels)
-      find_package(KokkosKernels REQUIRED
-        HINTS "${KokkosKernels_DIR}" "${PKG_PETSC_LIBRARY_DIRS}"
-        NO_DEFAULT_PATH)
+      find_package(
+        KokkosKernels
+        REQUIRED
+        HINTS
+          "${KokkosKernels_DIR}"
+          "${PKG_PETSC_LIBRARY_DIRS}"
+        NO_DEFAULT_PATH
+      )
     endif()
     list(APPEND _petsc_libs "Kokkos::kokkoskernels")
   endif()
   if(_next_lib MATCHES "kokkos")
     if(NOT TARGET Kokkos::kokkos)
-      find_package(Kokkos REQUIRED
-        HINTS "${Kokkos_DIR}" "${PKG_PETSC_LIBRARY_DIRS}"
-        NO_DEFAULT_PATH)
+      find_package(
+        Kokkos
+        REQUIRED
+        HINTS
+          "${Kokkos_DIR}"
+          "${PKG_PETSC_LIBRARY_DIRS}"
+        NO_DEFAULT_PATH
+      )
     endif()
     list(APPEND _petsc_libs "Kokkos::kokkos")
   endif()
@@ -88,9 +107,24 @@ if(PKG_PETSC_VERSION)
   list(GET _petsc_versions 2 _petsc_version_patch)
 
   set(PETSC_VERSION ${PKG_PETSC_VERSION} CACHE STRING "Full version of PETSC")
-  set(PETSC_VERSION_MAJOR ${_petsc_version_major} CACHE INTERNAL "Major version of PETSC")
-  set(PETSC_VERSION_MINOR ${_petsc_version_minor} CACHE INTERNAL "Minor version of PETSC")
-  set(PETSC_VERSION_PATCH ${_petsc_version_patch} CACHE INTERNAL "Patch version of PETSC")
+  set(
+    PETSC_VERSION_MAJOR
+    ${_petsc_version_major}
+    CACHE INTERNAL
+    "Major version of PETSC"
+  )
+  set(
+    PETSC_VERSION_MINOR
+    ${_petsc_version_minor}
+    CACHE INTERNAL
+    "Minor version of PETSC"
+  )
+  set(
+    PETSC_VERSION_PATCH
+    ${_petsc_version_patch}
+    CACHE INTERNAL
+    "Patch version of PETSC"
+  )
 
   unset(_petsc_versions)
   unset(_petsc_version_major)
@@ -98,18 +132,33 @@ if(PKG_PETSC_VERSION)
   unset(_petsc_version_patch)
 endif()
 
-include (FindPackageHandleStandardArgs)
-find_package_handle_standard_args (PETSC
-  REQUIRED_VARS PETSC_FOUND PETSC_INCLUDE_DIRS PETSC_LIBRARIES
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(
+  PETSC
+  REQUIRED_VARS
+    PETSC_FOUND
+    PETSC_INCLUDE_DIRS
+    PETSC_LIBRARIES
   VERSION_VAR PETSC_VERSION
-  )
+)
 
 if(NOT TARGET SUNDIALS::PETSC)
   add_library(SUNDIALS::PETSC INTERFACE IMPORTED)
-  set_target_properties(SUNDIALS::PETSC PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${PETSC_INCLUDE_DIRS}"
-    INTERFACE_LINK_LIBRARIES "${PETSC_LIBRARIES}"
-    )
+  set_target_properties(
+    SUNDIALS::PETSC
+    PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES
+        "${PETSC_INCLUDE_DIRS}"
+      INTERFACE_LINK_LIBRARIES
+        "${PETSC_LIBRARIES}"
+  )
 endif()
 
-mark_as_advanced(PETSC_INCLUDE_DIRS PETSC_LIBRARIES PETSC_VERSION_MAJOR PETSC_VERSION_MINOR PETSC_VERSION_PATCH PETSC_VERSION)
+mark_as_advanced(
+  PETSC_INCLUDE_DIRS
+  PETSC_LIBRARIES
+  PETSC_VERSION_MAJOR
+  PETSC_VERSION_MINOR
+  PETSC_VERSION_PATCH
+  PETSC_VERSION
+)

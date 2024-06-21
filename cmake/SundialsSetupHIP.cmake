@@ -16,17 +16,37 @@
 
 if(NOT DEFINED ROCM_PATH)
   if(NOT DEFINED ENV{ROCM_PATH})
-    set(ROCM_PATH "/opt/rocm/" CACHE PATH "Path to which ROCm has been installed")
+    set(
+      ROCM_PATH
+      "/opt/rocm/"
+      CACHE PATH
+      "Path to which ROCm has been installed"
+    )
   else()
-    set(ROCM_PATH "$ENV{ROCM_PATH}" CACHE PATH "Path to which ROCm has been installed")
+    set(
+      ROCM_PATH
+      "$ENV{ROCM_PATH}"
+      CACHE PATH
+      "Path to which ROCm has been installed"
+    )
   endif()
 endif()
 
 if(NOT DEFINED HIP_PATH)
   if(NOT DEFINED ENV{HIP_PATH})
-    set(HIP_PATH "/opt/rocm/hip" CACHE PATH "Path to which HIP has been installed")
+    set(
+      HIP_PATH
+      "/opt/rocm/hip"
+      CACHE PATH
+      "Path to which HIP has been installed"
+    )
   else()
-    set(HIP_PATH "$ENV{HIP_PATH}" CACHE PATH "Path to which HIP has been installed")
+    set(
+      HIP_PATH
+      "$ENV{HIP_PATH}"
+      CACHE PATH
+      "Path to which HIP has been installed"
+    )
   endif()
 endif()
 
@@ -34,7 +54,12 @@ if(NOT DEFINED HIP_PLATFORM)
   if(NOT DEFINED ENV{HIP_PLATFORM})
     set(HIP_PLATFORM "amd" CACHE STRING "HIP platform (amd, nvidia)")
   else()
-    set(HIP_PLATFORM "$ENV{HIP_PLATFORM}" CACHE STRING "HIP platform (amd, nvidia)")
+    set(
+      HIP_PLATFORM
+      "$ENV{HIP_PLATFORM}"
+      CACHE STRING
+      "HIP platform (amd, nvidia)"
+    )
   endif()
 endif()
 

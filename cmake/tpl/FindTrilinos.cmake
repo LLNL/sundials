@@ -16,30 +16,38 @@
 # -----------------------------------------------------------------------------
 
 # First try and find Trilinos using Trilinos_DIR only.
-find_package(Trilinos
-  NAMES Trilinos TRILINOS
+find_package(
+  Trilinos
+  NAMES
+    Trilinos
+    TRILINOS
   PATHS
     ${Trilinos_DIR}/lib/cmake/Trilinos
     ${Trilinos_DIR}
   NO_DEFAULT_PATH
-  QUIET)
+  QUIET
+)
 
 # set package variables including Trilinos_FOUND
-find_package_handle_standard_args(Trilinos
+find_package_handle_standard_args(
+  Trilinos
   REQUIRED_VARS
-    Trilinos_LIBRARIES      # defined in TrilinosConfig.cmake
-    Trilinos_INCLUDE_DIRS   # defined in TrilinosConfig.cmake
-  )
+    Trilinos_LIBRARIES # defined in TrilinosConfig.cmake
+    Trilinos_INCLUDE_DIRS # defined in TrilinosConfig.cmake
+)
 
 # Create Trilinos target
 if(Trilinos_FOUND)
-
   if(NOT TARGET SUNDIALS::TRILINOS)
     add_library(SUNDIALS::TRILINOS IMPORTED INTERFACE)
   endif()
 
-  set_target_properties(SUNDIALS::TRILINOS PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${Trilinos_INCLUDE_DIRS}"
-    INTERFACE_LINK_LIBRARIES "${Trilinos_LIBRARIES}")
-
+  set_target_properties(
+    SUNDIALS::TRILINOS
+    PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES
+        "${Trilinos_INCLUDE_DIRS}"
+      INTERFACE_LINK_LIBRARIES
+        "${Trilinos_LIBRARIES}"
+  )
 endif()

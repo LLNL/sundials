@@ -84,7 +84,6 @@ message(STATUS "LAPACK_LIBRARIES:  ${LAPACK_LIBRARIES}")
 # contain the mangled names for "mysub" and "my_sub", respectively.
 # ---------------------------------------------------------------
 if(NEED_FORTRAN_NAME_MANGLING)
-
   set(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "")
   set(CMAKE_Fortran_SCHEME_WITH_UNDERSCORES "")
 
@@ -94,7 +93,9 @@ if(NEED_FORTRAN_NAME_MANGLING)
 
   # Create a CMakeLists.txt file which will generate the "flib" library
   # and an executable "ftest"
-  file(WRITE ${FortranTest_DIR}/CMakeLists.txt
+  file(
+    WRITE
+    ${FortranTest_DIR}/CMakeLists.txt
     "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
     "PROJECT(ftest Fortran)\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
@@ -107,27 +108,39 @@ if(NEED_FORTRAN_NAME_MANGLING)
     "SET(CMAKE_Fortran_FLAGS_MINSIZE \"${CMAKE_Fortran_FLAGS_MINSIZE}\")\n"
     "ADD_LIBRARY(flib flib.f)\n"
     "ADD_EXECUTABLE(ftest ftest.f)\n"
-    "TARGET_LINK_LIBRARIES(ftest flib)\n")
+    "TARGET_LINK_LIBRARIES(ftest flib)\n"
+  )
 
   # Create the Fortran source flib.f which defines two subroutines, "mysub" and "my_sub"
-  file(WRITE ${FortranTest_DIR}/flib.f
+  file(
+    WRITE
+    ${FortranTest_DIR}/flib.f
     "        SUBROUTINE mysub\n"
     "        RETURN\n"
     "        END\n"
     "        SUBROUTINE my_sub\n"
     "        RETURN\n"
-    "        END\n")
+    "        END\n"
+  )
 
   # Create the Fortran source ftest.f which calls "mysub" and "my_sub"
-  file(WRITE ${FortranTest_DIR}/ftest.f
+  file(
+    WRITE
+    ${FortranTest_DIR}/ftest.f
     "        PROGRAM ftest\n"
     "        CALL mysub()\n"
     "        CALL my_sub()\n"
-    "        END\n")
+    "        END\n"
+  )
 
   # Use TRY_COMPILE to make the targets "flib" and "ftest"
-  try_compile(FTEST_OK ${FortranTest_DIR} ${FortranTest_DIR}
-    ftest OUTPUT_VARIABLE MY_OUTPUT)
+  try_compile(
+    FTEST_OK
+    ${FortranTest_DIR}
+    ${FortranTest_DIR}
+    ftest
+    OUTPUT_VARIABLE MY_OUTPUT
+  )
 
   # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
@@ -135,10 +148,11 @@ if(NEED_FORTRAN_NAME_MANGLING)
 
   # Proceed based on test results
   if(FTEST_OK)
-
     # Infer Fortran name-mangling scheme for symbols WITHOUT underscores.
     # Overwrite CMakeLists.txt with one which will generate the "ctest1" executable
-    file(WRITE ${FortranTest_DIR}/CMakeLists.txt
+    file(
+      WRITE
+      ${FortranTest_DIR}/CMakeLists.txt
       "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
       "PROJECT(ctest1 C)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
@@ -151,11 +165,20 @@ if(NEED_FORTRAN_NAME_MANGLING)
       "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
       "ADD_EXECUTABLE(ctest1 ctest1.c)\n"
       "FIND_LIBRARY(FLIB flib \"${FortranTest_DIR}\")\n"
-      "TARGET_LINK_LIBRARIES(ctest1 \${FLIB})\n")
+      "TARGET_LINK_LIBRARIES(ctest1 \${FLIB})\n"
+    )
 
     # Define the list "options" of all possible schemes that we want to consider
     # Get its length and initialize the counter "iopt" to zero
-    set(options mysub mysub_ mysub__ MYSUB MYSUB_ MYSUB__)
+    set(
+      options
+      mysub
+      mysub_
+      mysub__
+      MYSUB
+      MYSUB_
+      MYSUB__
+    )
     list(LENGTH options imax)
     set(iopt 0)
 
@@ -165,13 +188,21 @@ if(NEED_FORTRAN_NAME_MANGLING)
       # Get the current list entry (current scheme)
       list(GET options ${iopt} opt)
       # Generate C source which calls the "mysub" function using the current scheme
-      file(WRITE ${FortranTest_DIR}/ctest1.c
+      file(
+        WRITE
+        ${FortranTest_DIR}/ctest1.c
         "extern void ${opt}();\n"
-        "int main(void){${opt}();return(0);}\n")
+        "int main(void){${opt}();return(0);}\n"
+      )
       # Use TRY_COMPILE to make the "ctest1" executable from the current C source
       # and linking to the previously created "flib" library.
-      try_compile(CTEST_OK ${FortranTest_DIR} ${FortranTest_DIR}
-        ctest1 OUTPUT_VARIABLE MY_OUTPUT)
+      try_compile(
+        CTEST_OK
+        ${FortranTest_DIR}
+        ${FortranTest_DIR}
+        ctest1
+        OUTPUT_VARIABLE MY_OUTPUT
+      )
       # Write output compiling the test code
       file(WRITE ${FortranTest_DIR}/ctest1_${opt}.out "${MY_OUTPUT}")
       # To ensure we do not use stuff from the previous attempts,
@@ -191,7 +222,9 @@ if(NEED_FORTRAN_NAME_MANGLING)
 
     # Infer Fortran name-mangling scheme for symbols WITH underscores.
     # Practically a duplicate of the previous steps.
-    file(WRITE ${FortranTest_DIR}/CMakeLists.txt
+    file(
+      WRITE
+      ${FortranTest_DIR}/CMakeLists.txt
       "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
       "PROJECT(ctest2 C)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
@@ -204,18 +237,35 @@ if(NEED_FORTRAN_NAME_MANGLING)
       "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
       "ADD_EXECUTABLE(ctest2 ctest2.c)\n"
       "FIND_LIBRARY(FLIB flib \"${FortranTest_DIR}\")\n"
-      "TARGET_LINK_LIBRARIES(ctest2 \${FLIB})\n")
+      "TARGET_LINK_LIBRARIES(ctest2 \${FLIB})\n"
+    )
 
-    set(options my_sub my_sub_ my_sub__ MY_SUB MY_SUB_ MY_SUB__)
+    set(
+      options
+      my_sub
+      my_sub_
+      my_sub__
+      MY_SUB
+      MY_SUB_
+      MY_SUB__
+    )
     list(LENGTH options imax)
     set(iopt 0)
     while(${iopt} LESS ${imax})
       list(GET options ${iopt} opt)
-      file(WRITE ${FortranTest_DIR}/ctest2.c
+      file(
+        WRITE
+        ${FortranTest_DIR}/ctest2.c
         "extern void ${opt}();\n"
-        "int main(void){${opt}();return(0);}\n")
-      try_compile(CTEST_OK ${FortranTest_DIR} ${FortranTest_DIR}
-        ctest2 OUTPUT_VARIABLE MY_OUTPUT)
+        "int main(void){${opt}();return(0);}\n"
+      )
+      try_compile(
+        CTEST_OK
+        ${FortranTest_DIR}
+        ${FortranTest_DIR}
+        ctest2
+        OUTPUT_VARIABLE MY_OUTPUT
+      )
       file(WRITE ${FortranTest_DIR}/ctest2_${opt}.out "${MY_OUTPUT}")
       file(REMOVE_RECURSE ${FortranTest_DIR}/CMakeFiles)
       if(CTEST_OK)
@@ -228,7 +278,11 @@ if(NEED_FORTRAN_NAME_MANGLING)
 
     # If a name-mangling scheme was found set the C preprocessor macros to use
     # that scheme. Otherwise default to lower case with one underscore.
-    if(CMAKE_Fortran_SCHEME_NO_UNDERSCORES AND CMAKE_Fortran_SCHEME_WITH_UNDERSCORES)
+    if(
+      CMAKE_Fortran_SCHEME_NO_UNDERSCORES
+      AND
+        CMAKE_Fortran_SCHEME_WITH_UNDERSCORES
+    )
       message(STATUS "Determining Fortran name-mangling scheme... OK")
     else()
       message(STATUS "Determining Fortran name-mangling scheme... DEFAULT")
@@ -241,19 +295,31 @@ if(NEED_FORTRAN_NAME_MANGLING)
       set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) name")
     endif()
     if(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub_")
-      set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) name ## _")
+      set(
+        LAPACK_MANGLE_MACRO1
+        "#define SUNDIALS_LAPACK_FUNC(name,NAME) name ## _"
+      )
     endif()
     if(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub__")
-      set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) name ## __")
+      set(
+        LAPACK_MANGLE_MACRO1
+        "#define SUNDIALS_LAPACK_FUNC(name,NAME) name ## __"
+      )
     endif()
     if(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB")
       set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) NAME")
     endif()
     if(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB_")
-      set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) NAME ## _")
+      set(
+        LAPACK_MANGLE_MACRO1
+        "#define SUNDIALS_LAPACK_FUNC(name,NAME) NAME ## _"
+      )
     endif()
     if(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB__")
-      set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) NAME ## __")
+      set(
+        LAPACK_MANGLE_MACRO1
+        "#define SUNDIALS_LAPACK_FUNC(name,NAME) NAME ## __"
+      )
     endif()
 
     # Symbols WITH underscores
@@ -261,19 +327,31 @@ if(NEED_FORTRAN_NAME_MANGLING)
       set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) name")
     endif()
     if(${CMAKE_Fortran_SCHEME_WITH_UNDERSCORES} MATCHES "my_sub_")
-      set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) name ## _")
+      set(
+        LAPACK_MANGLE_MACRO2
+        "#define SUNDIALS_LAPACK_FUNC_(name,NAME) name ## _"
+      )
     endif()
     if(${CMAKE_Fortran_SCHEME_WITH_UNDERSCORES} MATCHES "my_sub__")
-      set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) name ## __")
+      set(
+        LAPACK_MANGLE_MACRO2
+        "#define SUNDIALS_LAPACK_FUNC_(name,NAME) name ## __"
+      )
     endif()
     if(${CMAKE_Fortran_SCHEME_WITH_UNDERSCORES} MATCHES "MY_SUB")
       set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) NAME")
     endif()
     if(${CMAKE_Fortran_SCHEME_WITH_UNDERSCORES} MATCHES "MY_SUB_")
-      set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) NAME ## _")
+      set(
+        LAPACK_MANGLE_MACRO2
+        "#define SUNDIALS_LAPACK_FUNC_(name,NAME) NAME ## _"
+      )
     endif()
     if(${CMAKE_Fortran_SCHEME_WITH_UNDERSCORES} MATCHES "MY_SUB__")
-      set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) NAME ## __")
+      set(
+        LAPACK_MANGLE_MACRO2
+        "#define SUNDIALS_LAPACK_FUNC_(name,NAME) NAME ## __"
+      )
     endif()
 
     # name-mangling scheme has been set
@@ -283,11 +361,9 @@ if(NEED_FORTRAN_NAME_MANGLING)
       ${PROJECT_SOURCE_DIR}/src/sundials/sundials_lapack_defs.h.in
       ${PROJECT_BINARY_DIR}/src/sundials/sundials_lapack_defs.h
     )
-
   else(FTEST_OK)
     message(STATUS "Determining Fortran name-mangling scheme... FAILED")
   endif()
-
 endif()
 
 # If we have the LAPACK libraries, determine if they work.
@@ -297,7 +373,9 @@ if(LAPACK_LIBRARIES AND (NOT LAPACK_WORKS))
   file(MAKE_DIRECTORY ${LapackTest_DIR})
 
   # Create a CMakeLists.txt file
-  file(WRITE ${LapackTest_DIR}/CMakeLists.txt
+  file(
+    WRITE
+    ${LapackTest_DIR}/CMakeLists.txt
     "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
     "PROJECT(ltest C)\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
@@ -310,10 +388,13 @@ if(LAPACK_LIBRARIES AND (NOT LAPACK_WORKS))
     "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
     "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
     "ADD_EXECUTABLE(ltest ltest.c)\n"
-    "TARGET_LINK_LIBRARIES(ltest ${LAPACK_LIBRARIES})\n")
+    "TARGET_LINK_LIBRARIES(ltest ${LAPACK_LIBRARIES})\n"
+  )
 
   # Create a C source file which calls a Blas function (dcopy) and an Lapack function (dgetrf)
-  file(WRITE ${LapackTest_DIR}/ltest.c
+  file(
+    WRITE
+    ${LapackTest_DIR}/ltest.c
     "${LAPACK_MANGLE_MACRO1}\n"
     "#define dcopy_f77 SUNDIALS_LAPACK_FUNC(dcopy, DCOPY)\n"
     "#define dgetrf_f77 SUNDIALS_LAPACK_FUNC(dgetrf, DGETRF)\n"
@@ -326,11 +407,17 @@ if(LAPACK_LIBRARIES AND (NOT LAPACK_WORKS))
     "dcopy_f77(&n, &x, &n, &y, &n);\n"
     "dgetrf_f77(&n, &n, &x, &n, &n, &n);\n"
     "return(0);\n"
-    "}\n")
+    "}\n"
+  )
 
   # Attempt to build and link the "ltest" executable
-  try_compile(COMPILE_OK ${LapackTest_DIR} ${LapackTest_DIR}
-    ltest OUTPUT_VARIABLE COMPILE_OUTPUT)
+  try_compile(
+    COMPILE_OK
+    ${LapackTest_DIR}
+    ${LapackTest_DIR}
+    ltest
+    OUTPUT_VARIABLE COMPILE_OUTPUT
+  )
 
   # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
@@ -339,7 +426,13 @@ if(LAPACK_LIBRARIES AND (NOT LAPACK_WORKS))
   # Process test result
   if(COMPILE_OK)
     message(STATUS "Checking if LAPACK works with SUNDIALS... OK")
-    set(LAPACK_WORKS TRUE CACHE BOOL "LAPACK works with SUNDIALS as configured" FORCE)
+    set(
+      LAPACK_WORKS
+      TRUE
+      CACHE BOOL
+      "LAPACK works with SUNDIALS as configured"
+      FORCE
+    )
 
     # get path to LAPACK library to use in generated makefiles for examples, if
     # LAPACK_LIBRARIES contains multiple items only use the path of the first entry
@@ -351,13 +444,21 @@ if(LAPACK_LIBRARIES AND (NOT LAPACK_WORKS))
       get_filename_component(LAPACK_LIBRARY_DIR ${TMP_LAPACK_LIBRARIES} PATH)
     endif()
   else(COMPILE_OK)
-    set(LAPACK_WORKS FALSE CACHE BOOL "LAPACK does not work with SUNDIALS as configured" FORCE)
+    set(
+      LAPACK_WORKS
+      FALSE
+      CACHE BOOL
+      "LAPACK does not work with SUNDIALS as configured"
+      FORCE
+    )
     message(STATUS "Checking if LAPACK works with SUNDIALS... FAILED")
     message(STATUS "Check output: ")
     message("${COMPILE_OUTPUT}")
     message(FATAL_ERROR "SUNDIALS interface to LAPACK is not functional.")
   endif()
-
 elseif(LAPACK_LIBRARIES AND LAPACK_WORKS)
-  message(STATUS "Skipped LAPACK tests, assuming LAPACK works with SUNDIALS. Set LAPACK_WORKS=FALSE to (re)run compatibility test.")
+  message(
+    STATUS
+    "Skipped LAPACK tests, assuming LAPACK works with SUNDIALS. Set LAPACK_WORKS=FALSE to (re)run compatibility test."
+  )
 endif()

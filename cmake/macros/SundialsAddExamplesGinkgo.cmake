@@ -34,18 +34,25 @@
 
 # Add the build targets for each CVODE example
 macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
-
   set(options UNIT_TEST)
   set(oneValueArgs)
-  set(multiValueArgs TARGETS BACKENDS)
+  set(
+    multiValueArgs
+    TARGETS
+    BACKENDS
+  )
 
   # Parse keyword arguments and options
-  cmake_parse_arguments(arg
-    "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(
+    arg
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
 
   foreach(example_tuple ${${EXAMPLES_VAR}})
     foreach(backend ${arg_BACKENDS})
-
       # parse the example tuple
       list(GET example_tuple 0 example)
       list(GET example_tuple 1 example_args)
@@ -57,11 +64,21 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
 
       set(float_precision "default")
       if(backend MATCHES "CUDA")
-        set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
+        set_source_files_properties(
+          ${example}
+          PROPERTIES
+            LANGUAGE
+              CUDA
+        )
         set(vector nveccuda)
         set(float_precision "4")
       elseif(backend MATCHES "HIP")
-        set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
+        set_source_files_properties(
+          ${example}
+          PROPERTIES
+            LANGUAGE
+              CXX
+        )
         set(vector nvechip)
       elseif(backend MATCHES "SYCL")
         set(vector nvecsycl)
@@ -76,54 +93,74 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
       set(example_target "${example_target}.${backend}")
 
       if(NOT TARGET ${example_target})
-
         # create target
         add_executable(${example_target} ${example})
 
         # folder for IDEs
-        set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+        set_target_properties(
+          ${example_target}
+          PROPERTIES
+            FOLDER
+              "Examples"
+        )
 
         # which backend to use
         target_compile_definitions(${example_target} PRIVATE USE_${backend})
 
         # directories to include
-        target_include_directories(${example_target}
+        target_include_directories(
+          ${example_target}
           PRIVATE
-          "${PROJECT_SOURCE_DIR}/examples/utilities")
+            "${PROJECT_SOURCE_DIR}/examples/utilities"
+        )
 
         # libraries to link against
-        target_link_libraries(${example_target}
+        target_link_libraries(
+          ${example_target}
           PRIVATE
-          ${arg_TARGETS}
-          sundials_${vector}
-          Ginkgo::ginkgo
-          ${EXTRA_LINK_LIBS})
-
+            ${arg_TARGETS}
+            sundials_${vector}
+            Ginkgo::ginkgo
+            ${EXTRA_LINK_LIBS}
+        )
       endif()
 
       # check if example args are provided and set the test name
       if("${example_args}" STREQUAL "")
         set(test_name ${example_target})
       else()
-        string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
+        string(
+          REGEX
+          REPLACE
+          " "
+          "_"
+          test_name
+          ${example_target}_${example_args}
+        )
       endif()
 
       # add example to regression tests
       if(${arg_UNIT_TEST})
-        sundials_add_test(${test_name} ${example_target}
+        SUNDIALS_ADD_TEST(
+          ${test_name}
+          ${example_target}
           EXAMPLE_TYPE ${example_type}
-          TEST_ARGS ${example_args}
-          NODIFF)
+          TEST_ARGS
+            ${example_args}
+          NODIFF
+        )
       else()
-        sundials_add_test(${test_name} ${example_target}
+        SUNDIALS_ADD_TEST(
+          ${test_name}
+          ${example_target}
           EXAMPLE_TYPE ${example_type}
-          TEST_ARGS ${example_args}
+          TEST_ARGS
+            ${example_args}
           ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
           ANSWER_FILE ${test_name}.out
-          FLOAT_PRECISION ${float_precision})
+          FLOAT_PRECISION ${float_precision}
+        )
       endif()
-
     endforeach()
   endforeach()
-
 endmacro()
