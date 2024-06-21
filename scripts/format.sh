@@ -32,4 +32,4 @@ find "${paths[@]}" -iname '*.h' -o -iname '*.hpp' -o \
 
 find "${paths[@]}" -iname '*.f90' | grep -v fmod | xargs fprettify --indent 2 --enable-replacements --c-relations
 
-find "${paths[@]}" -iname '*.cmake' -o -iname 'CMakeLists.txt' | grep -v fmod | xargs gersemi -i --definitions cmake --list-expansion favour-expansion --indent 2
+find "${paths[@]}" -iname '*.cmake' -o -iname 'CMakeLists.txt' | grep -v fmod | xargs gersemi -i --definitions cmake --indent 2
