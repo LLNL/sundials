@@ -116,9 +116,6 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
   set(SUNLINSOLLAPACK_LIBS sundials_sunlinsollapackband
                            sundials_sunlinsollapackdense)
 
-  # LAPACK libraries
-  list(APPEND SUNLINSOLLAPACK_LIBS ${LAPACK_LIBRARIES})
-
   foreach(example_tuple ${IDAS_examples_BL})
 
     # parse the example tuple

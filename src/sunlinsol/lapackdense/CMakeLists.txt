@@ -24,10 +24,15 @@ sundials_add_library(
   INCLUDE_SUBDIR sunlinsol
   LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  LINK_LIBRARIES PUBLIC sundials_sunmatrixdense "${LAPACK_LIBRARIES}"
-  OUTPUT_NAME sundials_sunlinsollapackdense
-  VERSION ${sunlinsollib_VERSION}
-  SOVERSION ${sunlinsollib_SOVERSION})
+  LINK_LIBRARIES
+    PUBLIC sundials_sunmatrixdense LAPACK::LAPACK
+  OUTPUT_NAME
+    sundials_sunlinsollapackdense
+  VERSION
+    ${sunlinsollib_VERSION}
+  SOVERSION
+  ${sunlinsollib_SOVERSION}
+)
 
 message(STATUS "Added SUNLINSOL_LAPACKDENSE module")
 
