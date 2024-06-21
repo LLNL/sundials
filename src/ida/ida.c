@@ -106,11 +106,9 @@
 #define FOUR      SUN_RCONST(4.0)    /* real 4.0    */
 #define FIVE      SUN_RCONST(5.0)    /* real 5.0    */
 #define TEN       SUN_RCONST(10.0)   /* real 10.0   */
-#define TWELVE    SUN_RCONST(12.0)   /* real 12.0   */
 #define TWENTY    SUN_RCONST(20.0)   /* real 20.0   */
 #define HUNDRED   SUN_RCONST(100.0)  /* real 100.0  */
 #define PT9       SUN_RCONST(0.9)    /* real 0.9    */
-#define PT99      SUN_RCONST(0.99)   /* real 0.99   */
 #define PT1       SUN_RCONST(0.1)    /* real 0.1    */
 #define PT01      SUN_RCONST(0.01)   /* real 0.01   */
 #define PT001     SUN_RCONST(0.001)  /* real 0.001  */

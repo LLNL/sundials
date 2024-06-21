@@ -59,7 +59,6 @@ static int CVDiagFree(CVodeMem cv_mem);
 #define rl1          (cv_mem->cv_rl1)
 #define gamma        (cv_mem->cv_gamma)
 #define ewt          (cv_mem->cv_ewt)
-#define nfe          (cv_mem->cv_nfe)
 #define zn           (cv_mem->cv_zn)
 #define linit        (cv_mem->cv_linit)
 #define lsetup       (cv_mem->cv_lsetup)
@@ -67,7 +66,6 @@ static int CVDiagFree(CVodeMem cv_mem);
 #define lfree        (cv_mem->cv_lfree)
 #define lmem         (cv_mem->cv_lmem)
 #define vec_tmpl     (cv_mem->cv_tempv)
-#define setupNonNull (cv_mem->cv_setupNonNull)
 
 #define gammasv   (cvdiag_mem->di_gammasv)
 #define M         (cvdiag_mem->di_M)

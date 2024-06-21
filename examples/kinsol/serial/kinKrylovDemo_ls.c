@@ -111,8 +111,6 @@
   6 /* must equal 2*(number of prey or predators)
                               number of prey = number of predators       */
 
-#define PI SUN_RCONST(3.1415926535898) /* pi */
-
 #define MX       5 /* MX = number of x mesh points */
 #define MY       5 /* MY = number of y mesh points */
 #define NSMX     (NUM_SPECIES * MX)

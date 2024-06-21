@@ -52,8 +52,6 @@
 #define TMULT SUN_RCONST(10.0) /* output time factor     */
 #define NOUT  14               /* number of output times */
 
-#define ZERO SUN_RCONST(0.0)
-
 /* Functions Called by the Solver */
 
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);

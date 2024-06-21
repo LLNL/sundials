@@ -19,7 +19,6 @@
 #include "sundials/sundials_nvector_senswrapper.h"
 
 /* constant macros */
-#define PT0001 SUN_RCONST(0.0001) /* real 0.0001 */
 #define ONE    SUN_RCONST(1.0)    /* real 1.0    */
 #define TWENTY SUN_RCONST(20.0)   /* real 20.0   */
 

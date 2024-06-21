@@ -93,8 +93,8 @@ if(ENABLE_ALL_WARNINGS)
     set(CMAKE_CXX_FLAGS "-Wmissing-declarations -Wcast-qual ${CMAKE_CXX_FLAGS}")
   endif()
 
-  set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wshadow ${CMAKE_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wshadow ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wunused-macros -Wunused-local-typedefs ${CMAKE_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wunused-macros -Wunused-local-typedefs ${CMAKE_CXX_FLAGS}")
 
   # TODO(DJG): Add -fcheck=all,no-pointer,no-recursion once Jenkins is updated
   # to use gfortran > 5.5 which segfaults with -fcheck=array-temps,bounds,do,mem

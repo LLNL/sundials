@@ -28,10 +28,8 @@
 #include "kinsol_ls_impl.h"
 
 /* constants */
-#define MIN_INC_MULT SUN_RCONST(1000.0)
 #define ZERO         SUN_RCONST(0.0)
 #define ONE          SUN_RCONST(1.0)
-#define TWO          SUN_RCONST(2.0)
 
 /*==================================================================
   KINLS Exported functions -- Required
