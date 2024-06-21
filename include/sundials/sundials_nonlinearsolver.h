@@ -113,6 +113,7 @@ struct _generic_SUNNonlinearSolver_Ops
   SUNErrCode (*getnumiters)(SUNNonlinearSolver, long int*);
   SUNErrCode (*getcuriter)(SUNNonlinearSolver, int*);
   SUNErrCode (*getnumconvfails)(SUNNonlinearSolver, long int*);
+  SUNErrCode (*getresnrm)(SUNNonlinearSolver, sunrealtype*);
 };
 
 /* A nonlinear solver is a structure with an implementation-dependent 'content'
@@ -184,13 +185,18 @@ SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS,
                                        long int* nconvfails);
 
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetResNrm(SUNNonlinearSolver NLS, sunrealtype* resnrm);
+
 /* -----------------------------------------------------------------------------
  * SUNNonlinearSolver return values
  * ---------------------------------------------------------------------------*/
 
 /* Recoverable */
 #define SUN_NLS_CONTINUE   +901 /* not converged, keep iterating      */
-#define SUN_NLS_CONV_RECVR +902 /* convergece failure, try to recover */
+#define SUN_NLS_CONV_RECVR +902 /* convergence failure, try to recover */
+#define SUN_NLS_CONV_SLOW  +903 /* converging, but slowly */
+#define SUN_NLS_DIVERGING  +904 /* solver is diverging */
 
 /* -----------------------------------------------------------------------------
  * SUNNonlinearSolver messages

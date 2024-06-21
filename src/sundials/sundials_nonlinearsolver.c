@@ -244,3 +244,16 @@ SUNErrCode SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS,
     return (SUN_SUCCESS);
   }
 }
+
+SUNErrCode SUNNonlinSolGetResNrm(SUNNonlinearSolver NLS, sunrealtype* resnrm)
+{
+  if (NLS->ops->getresnrm)
+  {
+    return NLS->ops->getresnrm(NLS, resnrm);
+  }
+  else
+  {
+    *resnrm = SUN_BIG_REAL;
+    return SUN_SUCCESS;
+  }
+}

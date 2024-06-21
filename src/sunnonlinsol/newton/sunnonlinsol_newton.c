@@ -66,6 +66,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx)
   NLS->ops->getnumiters     = SUNNonlinSolGetNumIters_Newton;
   NLS->ops->getcuriter      = SUNNonlinSolGetCurIter_Newton;
   NLS->ops->getnumconvfails = SUNNonlinSolGetNumConvFails_Newton;
+  NLS->ops->getresnrm       = SUNNonlinSolGetResNrm_Newton;
 
   /* Create content */
   content = NULL;
@@ -89,6 +90,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y, SUNContext sunctx)
   content->niters     = 0;
   content->nconvfails = 0;
   content->ctest_data = NULL;
+  content->resnrm     = SUN_RCONST(0.0);
 
   /* Fill allocatable content */
   content->delta = N_VClone(y);
@@ -299,6 +301,9 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       retval = NEWTON_CONTENT(NLS)->Sys(ycor, delta, mem);
       if (retval != SUN_SUCCESS) { break; }
 
+      /* compute the norm of the residual so that it is available for the automatic newton/fixed-point switching algorithm */
+      NEWTON_CONTENT(NLS)->resnrm = N_VWrmsNorm(delta, w);
+
     } /* end of Newton iteration loop */
 
     /* all errors go here */
@@ -451,5 +456,12 @@ SUNErrCode SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS,
 {
   /* return the nonlinear system defining function */
   *SysFn = NEWTON_CONTENT(NLS)->Sys;
+  return SUN_SUCCESS;
+}
+
+
+SUNErrCode SUNNonlinSolGetResNrm_Newton(SUNNonlinearSolver NLS, sunrealtype* resnrm)
+{
+  *resnrm = NEWTON_CONTENT(NLS)->resnrm;
   return SUN_SUCCESS;
 }

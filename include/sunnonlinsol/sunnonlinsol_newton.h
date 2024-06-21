@@ -50,6 +50,7 @@ struct _SUNNonlinearSolverContent_Newton
   long int niters; /* total number of nonlinear iterations across all solves */
   long int nconvfails; /* total number of convergence failures across all solves
                         */
+  sunrealtype resnrm;
   void* ctest_data; /* data to pass to convergence test function              */
 };
 
@@ -118,6 +119,9 @@ SUNErrCode SUNNonlinSolGetNumConvFails_Newton(SUNNonlinearSolver NLS,
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS,
                                        SUNNonlinSolSysFn* SysFn);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolGetResNrm_Newton(SUNNonlinearSolver NLS, sunrealtype* resnrm);
 
 #ifdef __cplusplus
 }

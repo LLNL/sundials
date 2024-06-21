@@ -1,10 +1,10 @@
 # /
 /.cache
 /.project
-/builddir
 /build*
-/instdir
+/builddir*
 /install*
+/instdir*
 /TPLs
 /tarballs
 /thirdparty

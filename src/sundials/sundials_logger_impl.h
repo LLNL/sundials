@@ -32,6 +32,125 @@
 #define SUNDIALS_LOGGING_EXTRA_DEBUG
 #endif
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_ERROR
+#define SUNLogError(logger, scope, label, msg_txt, ...)                 \
+  SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_ERROR, scope, label, msg_txt, \
+                     __VA_ARGS__)
+#define SUNLogErrorIf(condition, logger, scope, label, msg_txt, ...)        \
+  do {                                                                      \
+    if ((condition))                                                        \
+    {                                                                       \
+      SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_ERROR, scope, label, msg_txt, \
+                         __VA_ARGS__);                                      \
+    }                                                                       \
+  }                                                                         \
+  while (0)
+#else
+#define SUNLogError(logger, scope, label, msg_txt, ...)
+#define SUNLogErrorIf(condition, logger, scope, label, msg_txt, ...)
+#endif
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_WARNING
+#define SUNLogWarning(logger, scope, label, msg_txt, ...)                 \
+  SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_WARNING, scope, label, msg_txt, \
+                     __VA_ARGS__)
+#define SUNLogWarningIf(condition, logger, scope, label, msg_txt, ...)        \
+  do {                                                                        \
+    if ((condition))                                                          \
+    {                                                                         \
+      SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_WARNING, scope, label, msg_txt, \
+                         __VA_ARGS__);                                        \
+    }                                                                         \
+  }                                                                           \
+  while (0)
+#else
+#define SUNLogWarning(logger, scope, label, msg_txt, ...)
+#define SUNLogWarningIf(condition, logger, scope, label, msg_txt, ...)
+#endif
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+#define SUNLogInfo(logger, scope, label, msg_txt, ...)                 \
+  SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_INFO, scope, label, msg_txt, \
+                     __VA_ARGS__)
+#define SUNLogInfoIf(condition, logger, scope, label, msg_txt, ...)        \
+  do {                                                                     \
+    if ((condition))                                                       \
+    {                                                                      \
+      SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_INFO, scope, label, msg_txt, \
+                         __VA_ARGS__);                                     \
+    }                                                                      \
+  }                                                                        \
+  while (0)
+#else
+#define SUNLogInfo(logger, scope, label, msg_txt, ...)
+#define SUNLogInfoIf(condition, logger, scope, label, msg_txt, ...)
+#endif
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+#define SUNLogDebug(logger, scope, label, msg_txt, ...)                 \
+  SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_DEBUG, scope, label, msg_txt, \
+                     __VA_ARGS__)
+#define SUNLogDebugIf(condition, logger, scope, label, msg_txt, ...)        \
+  do {                                                                      \
+    if ((condition))                                                        \
+    {                                                                       \
+      SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_DEBUG, scope, label, msg_txt, \
+                         __VA_ARGS__);                                      \
+    }                                                                       \
+  }                                                                         \
+  while (0)
+#else
+#define SUNLogDebug(logger, scope, label, msg_txt, ...)
+#define SUNLogDebugIf(condition, logger, scope, label, msg_txt, ...)
+#endif
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+#define SUNLogExtraDebug(logger, scope, label, msg_txt, ...)            \
+  SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_DEBUG, scope, label, msg_txt, \
+                     __VA_ARGS__)
+#define SUNLogExtraDebugIf(condition, logger, scope, label, msg_txt, ...)   \
+  do {                                                                      \
+    if ((condition))                                                        \
+    {                                                                       \
+      SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_DEBUG, scope, label, msg_txt, \
+                         __VA_ARGS__);                                      \
+    }                                                                       \
+  }                                                                         \
+  while (0)
+#define SUNLogExtraDebugVec(logger, scope, label, msg_txt, vec, ...)      \
+  do {                                                                    \
+    SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_DEBUG, scope, label, msg_txt, \
+                       __VA_ARGS__);                                      \
+    N_VPrintFile(vec, logger->debug_fp);                                  \
+  }                                                                       \
+  while (0)
+#define SUNLogExtraDebugVecIf(condition, logger, scope, label, msg_txt, vec, ...) \
+  do {                                                                            \
+    if ((condition))                                                              \
+    {                                                                             \
+      SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_DEBUG, scope, label, msg_txt,       \
+                         __VA_ARGS__);                                            \
+      N_VPrintFile(vec, logger->debug_fp);                                        \
+    }                                                                             \
+  }                                                                               \
+  while (0)
+#define SUNLogExtraDebugVecArray(logger, scope, label, msg_txt, vecs, nvecs)     \
+  do {                                                                           \
+    for (int vi = 0; vi < (nvecs); ++vi)                                         \
+    {                                                                            \
+      SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_DEBUG, scope, label, msg_txt, vi); \
+      N_VPrintFile(vecs[vi], logger->debug_fp);                                  \
+    }                                                                            \
+  }                                                                              \
+  while (0)
+#else
+#define SUNLogExtraDebug(logger, scope, label, msg_txt, ...)
+#define SUNLogExtraDebugIf(condition, logger, scope, label, msg_txt, ...)
+#define SUNLogExtraDebugVec(logger, scope, label, msg_txt, vec, ...)
+#define SUNLogExtraDebugVecIf(condition, logger, scope, label, msg_txt, vec, ...)
+#define SUNLogExtraDebugVecArray(logger, scope, label, msg_txt, vecs, nvecs)
+#endif
+
 struct SUNLogger_
 {
   /* MPI information */

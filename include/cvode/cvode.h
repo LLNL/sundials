@@ -135,6 +135,7 @@ SUNDIALS_EXPORT int CVodeSetNlsRhsFn(void* cvode_mem, CVRhsFn f);
 SUNDIALS_EXPORT int CVodeSetNonlinConvCoef(void* cvode_mem, sunrealtype nlscoef);
 SUNDIALS_EXPORT int CVodeSetNonlinearSolver(void* cvode_mem,
                                             SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int m);
 SUNDIALS_EXPORT int CVodeSetStabLimDet(void* cvode_mem, sunbooleantype stldet);
 SUNDIALS_EXPORT int CVodeSetStopTime(void* cvode_mem, sunrealtype tstop);
 SUNDIALS_EXPORT int CVodeSetInterpolateStopTime(void* cvode_mem,
