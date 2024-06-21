@@ -75,7 +75,7 @@ if(<TPL>_FOUND AND (NOT <TPL>_WORKS))
     message(STATUS "Checking if <TPL> works with SUNDIALS... FAILED")
     message(STATUS "Check output: ")
     message("${COMPILE_OUTPUT}")
-    print_error("SUNDIALS interface to <TPL> is not functional.")
+    message(FATAL_ERROR "SUNDIALS interface to <TPL> is not functional.")
   endif()
 
 elseif(<TPL>_FOUND AND <TPL>_WORKS)
