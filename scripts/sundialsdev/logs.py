@@ -174,24 +174,23 @@ def log_file_to_list(filename):
                 continue
 
             if label == "begin-nonlinear-solve":
-                # Add nonlinear solve sublist to the active dictionary
                 if "nonlinear-solve" not in stack[-1][-1]:
-                    stack[-1][-1]["nonlinear-solve"] = []
-                # Make the nonlinear solve sublist the active list
-                stack.append(stack[-1][-1]["nonlinear-solve"])
+                    stack[-1][-1]["nonlinear-solve"] = {}
+                stack[-1][-1]["nonlinear-solve"].update(line_dict["payload"])
                 continue
             elif label == "end-nonlinear-solve":
-                # Deactivate nonlinear solve list
-                stack.pop()
+                stack[-1][-1]["nonlinear-solve"].update(line_dict["payload"])
                 continue
 
-            if (label == "begin-iterate"):
+            if (label == "begin-nonlinear-iterate"):
+                if "iterations" not in stack[-1][-1]["nonlinear-solve"]:
+                    stack[-1][-1]["nonlinear-solve"]["iterations"] = []
                 # Add new solver iteration dictionary
-                stack[-1].append(line_dict["payload"])
+                stack[-1][-1]["nonlinear-solve"]["iterations"].append(line_dict["payload"])
                 continue
-            elif (label == "end-iterate"):
+            elif (label == "end-nonlinear-iterate"):
                 # Update the active iteration dictionary
-                stack[-1][-1].update(line_dict["payload"])
+                stack[-1][-1]["nonlinear-solve"]["iterations"][-1].update(line_dict["payload"])
                 continue
 
             # Update current step attempt entry with intermediate output
@@ -216,9 +215,25 @@ def print_log(log, indent=0):
                 subindent = indent + 2
                 print_log(entry[key], indent=subindent)
                 print(f"{spaces}]")
+            elif type(entry[key]) is dict:
+                print(f"{spaces}{key} :")
+                print(f"{spaces}{{")
+                subindent = indent + 2
+                subspaces = subindent * " "
+                for subkey in entry[key]:
+                    if type(entry[key][subkey]) is list:
+                        print(f"{subspaces}{subkey} :")
+                        print(f"{subspaces}[")
+                        subsubindent = subindent + 2
+                        print_log(entry[key][subkey], indent=subsubindent)
+                        print(f"{subspaces}]")
+                    else:
+                        print(f"{subspaces}{subkey} : {entry[key][subkey]}")
+                print(f"{spaces}}}")
             else:
                 print(f"{spaces}{key} : {entry[key]}")
         print(f"{spaces}}}")
+
 
 def get_history(log, key, step_status = None, time_range = None,
                 step_range = None):
