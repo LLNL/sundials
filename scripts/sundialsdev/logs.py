@@ -41,6 +41,9 @@ def parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)"
     for kvpstr in kvpstrs:
         kvp = kvpstr.split("=")
         if len(kvp) == 1:
+            # Check for empty payload
+            if not kvp[0].strip():
+                continue
             kvp_dict[kvp[0].strip()] = ""
         else:
             key, value = kvp
