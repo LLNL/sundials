@@ -173,6 +173,30 @@ def log_file_to_list(filename):
                 stack.pop()
                 continue
 
+            if label == "begin-nonlinear-solve":
+                # Add nonlinear solve sublist to the active dictionary
+                if "nonlinear-solve" not in stack[-1][-1]:
+                    stack[-1][-1]["nonlinear-solve"] = []
+                # Make the nonlinear solve sublist the active list
+                stack.append(stack[-1][-1]["nonlinear-solve"])
+                continue
+            elif label == "end-nonlinear-solve":
+                # Deactivate nonlinear solve list
+                stack.pop()
+                continue
+
+            if (label == "begin-iterate"):
+                # Add new solver iteration dictionary
+                stack[-1].append(line_dict["payload"])
+                continue
+            elif (label == "end-iterate"):
+                # Update the active iteration dictionary
+                stack[-1][-1].update(line_dict["payload"])
+                continue
+
+            # Update current step attempt entry with intermediate output
+            stack[-1][-1].update(line_dict["payload"])
+
     return step_attempts
 
 
