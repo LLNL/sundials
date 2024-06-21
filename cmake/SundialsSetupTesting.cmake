@@ -18,17 +18,22 @@
 include(CTest)
 
 # Check if development tests are enabled
-if (SUNDIALS_TEST_DEVTESTS OR BUILD_BENCHMARKS)
+if(SUNDIALS_TEST_DEVTESTS OR BUILD_BENCHMARKS)
   # Python is needed to use the test runner
   find_package(Python3 REQUIRED)
 
   # look for the testRunner script in the test directory
-  find_program(TESTRUNNER testRunner PATHS test NO_DEFAULT_PATH)
+  find_program(
+    TESTRUNNER testRunner
+    PATHS test
+    NO_DEFAULT_PATH)
   if(NOT TESTRUNNER)
     message(FATAL_ERROR "Could not locate testRunner. Set SUNDIALS_TEST_DEVTESTS=OFF or BUILD_BENCHMARKS=OFF to continue.")
   endif()
   message(STATUS "Found testRunner: ${TESTRUNNER}")
-  set(TESTRUNNER ${TESTRUNNER} CACHE INTERNAL "")
+  set(TESTRUNNER
+      ${TESTRUNNER}
+      CACHE INTERNAL "")
 
 endif()
 
@@ -46,7 +51,9 @@ if(SUNDIALS_TEST_DEVTESTS)
 
   # If a non-default output directory was provided make sure it exists
   if(SUNDIALS_TEST_OUTPUT_DIR)
-    message(STATUS "Using non-default test output directory: ${SUNDIALS_TEST_OUTPUT_DIR}")
+    message(
+      STATUS
+        "Using non-default test output directory: ${SUNDIALS_TEST_OUTPUT_DIR}")
     if(NOT EXISTS ${SUNDIALS_TEST_OUTPUT_DIR})
       file(MAKE_DIRECTORY ${SUNDIALS_TEST_OUTPUT_DIR})
     endif()
@@ -54,7 +61,9 @@ if(SUNDIALS_TEST_DEVTESTS)
 
   # If a non-default answer directory was provided make sure it exists
   if(SUNDIALS_TEST_ANSWER_DIR)
-    message(STATUS "Using non-default test answer directory: ${SUNDIALS_TEST_ANSWER_DIR}")
+    message(
+      STATUS
+        "Using non-default test answer directory: ${SUNDIALS_TEST_ANSWER_DIR}")
     if(NOT EXISTS ${SUNDIALS_TEST_ANSWER_DIR})
       message(FATAL_ERROR "SUNDIALS_TEST_ANSWER_DIR does not exist!")
     endif()
@@ -62,7 +71,10 @@ if(SUNDIALS_TEST_DEVTESTS)
 
   # If a non-default caliper output directory was provided make sure it exists
   if(SUNDIALS_CALIPER_OUTPUT_DIR)
-    message(STATUS "Using non-default caliper output directory: ${SUNDIALS_CALIPER_OUTPUT_DIR}")
+    message(
+      STATUS
+        "Using non-default caliper output directory: ${SUNDIALS_CALIPER_OUTPUT_DIR}"
+    )
     if(NOT EXISTS ${SUNDIALS_CALIPER_OUTPUT_DIR}/Example/${JOB_ID})
       file(MAKE_DIRECTORY ${SUNDIALS_CALIPER_OUTPUT_DIR}/Example/${JOB_ID})
     endif()
@@ -70,11 +82,16 @@ if(SUNDIALS_TEST_DEVTESTS)
 
   # Check if using non-default comparison precisions when testing
   if(SUNDIALS_TEST_FLOAT_PRECISION GREATER_EQUAL "0")
-    message(STATUS "Using non-default float precision: ${SUNDIALS_TEST_FLOAT_PRECISION}")
+    message(
+      STATUS
+        "Using non-default float precision: ${SUNDIALS_TEST_FLOAT_PRECISION}")
   endif()
 
   if(SUNDIALS_TEST_INTEGER_PRECISION GREATER_EQUAL "0")
-    message(STATUS "Using non-default integer precision: ${SUNDIALS_TEST_INTEGER_PRECISION}")
+    message(
+      STATUS
+        "Using non-default integer precision: ${SUNDIALS_TEST_INTEGER_PRECISION}"
+    )
   endif()
 
   #
@@ -85,32 +102,57 @@ if(SUNDIALS_TEST_DEVTESTS)
     if(NOT container_exe)
       find_program(container_exe podman)
     endif()
-    set(SUNDIALS_TEST_CONTAINER_EXE ${container_exe} CACHE PATH "Path to docker or podman" FORCE)
+    set(SUNDIALS_TEST_CONTAINER_EXE
+        ${container_exe}
+        CACHE PATH "Path to docker or podman" FORCE)
   endif()
 
   if(SUNDIALS_TEST_CONTAINER_EXE)
-    add_custom_target(setup_local_ci
-      ${CMAKE_COMMAND} -E cmake_echo_color --cyan
-      "Pulled SUNDIALS CI containers.")
+    add_custom_target(setup_local_ci ${CMAKE_COMMAND} -E cmake_echo_color
+                                     --cyan "Pulled SUNDIALS CI containers.")
 
-    add_custom_target(test_local_ci
-      ${CMAKE_COMMAND} -E cmake_echo_color --cyan
-      "All testing with SUNDIALS CI containers complete.")
+    add_custom_target(
+      test_local_ci ${CMAKE_COMMAND} -E cmake_echo_color --cyan
+                    "All testing with SUNDIALS CI containers complete.")
 
     macro(add_local_ci_target index_size precision tag)
       string(TOLOWER "${precision}" precision_)
       set(container sundials-ci-int${index_size}-${precision_})
-      set(container_exe_args run ${SUNDIALS_TEST_CONTAINER_RUN_EXTRA_ARGS} -t -d --name ${container} --cap-add SYS_PTRACE
-          -v ${CMAKE_SOURCE_DIR}:${SUNDIALS_TEST_CONTAINER_MNT} ghcr.io/llnl/${container}:${tag})
-      add_custom_target(setup_local_ci_${index_size}_${precision_}
+      set(container_exe_args
+          run
+          ${SUNDIALS_TEST_CONTAINER_RUN_EXTRA_ARGS}
+          -t
+          -d
+          --name
+          ${container}
+          --cap-add
+          SYS_PTRACE
+          -v
+          ${CMAKE_SOURCE_DIR}:${SUNDIALS_TEST_CONTAINER_MNT}
+          ghcr.io/llnl/${container}:${tag})
+      add_custom_target(
+        setup_local_ci_${index_size}_${precision_}
         COMMENT "Pulling SUNDIALS CI container ghcr.io/llnl/${container}:${tag}"
         COMMAND ${SUNDIALS_TEST_CONTAINER_EXE} ${container_exe_args})
-      add_dependencies(setup_local_ci setup_local_ci_${index_size}_${precision_})
+      add_dependencies(setup_local_ci
+                       setup_local_ci_${index_size}_${precision_})
 
       set(container_test_exe ./test_driver.sh)
-      set(container_test_exe_args --testtype CUSTOM --env env/docker.sh --tpls --sunrealtype ${precision_} --indexsize ${index_size})
-      set(container_exe_args exec -w ${SUNDIALS_TEST_CONTAINER_MNT}/test ${container} ${container_test_exe} ${container_test_exe_args})
-      add_custom_target(test_local_ci_${index_size}_${precision_}
+      set(container_test_exe_args
+          --testtype
+          CUSTOM
+          --env
+          env/docker.sh
+          --tpls
+          --sunrealtype
+          ${precision_}
+          --indexsize
+          ${index_size})
+      set(container_exe_args
+          exec -w ${SUNDIALS_TEST_CONTAINER_MNT}/test ${container}
+          ${container_test_exe} ${container_test_exe_args})
+      add_custom_target(
+        test_local_ci_${index_size}_${precision_}
         COMMENT "Running tests in CI container ${container}:${tag}"
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         COMMAND ${SUNDIALS_TEST_CONTAINER_EXE} ${container_exe_args}
@@ -136,11 +178,12 @@ if(SUNDIALS_TEST_UNITTESTS AND SUNDIALS_TEST_ENABLE_GTEST)
     FetchContent_Declare(
       googletest
       URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-      GIT_TAG v1.14.0
-    )
+      GIT_TAG v1.14.0)
     if(WIN32)
       # For Windows: Prevent overriding the parent project's compiler/linker settings
-      set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+      set(gtest_force_shared_crt
+          ON
+          CACHE BOOL "" FORCE)
     endif()
     FetchContent_MakeAvailable(googletest)
     include(GoogleTest)
@@ -164,13 +207,11 @@ if(EXAMPLES_INSTALL)
   endif()
 
   # Create test_install and test_install_all targets
-  add_custom_target(test_install
-    ${CMAKE_COMMAND} -E cmake_echo_color --cyan
-    "All installation tests complete.")
+  add_custom_target(test_install ${CMAKE_COMMAND} -E cmake_echo_color --cyan
+                                 "All installation tests complete.")
 
-  add_custom_target(test_install_all
-    ${CMAKE_COMMAND} -E cmake_echo_color --cyan
-    "All installation tests complete.")
+  add_custom_target(test_install_all ${CMAKE_COMMAND} -E cmake_echo_color
+                                     --cyan "All installation tests complete.")
 
 endif()
 
@@ -180,8 +221,6 @@ if(BUILD_BENCHMARKS)
   message("SUNDIALS Benchmarking")
 
   # Create benchmark targets
-  add_custom_target(benchmark
-    ${CMAKE_COMMAND} -E cmake_echo_color --cyan
-    "All benchmarks complete."
-  )
+  add_custom_target(benchmark ${CMAKE_COMMAND} -E cmake_echo_color --cyan
+                              "All benchmarks complete.")
 endif()

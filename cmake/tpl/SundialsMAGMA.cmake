@@ -63,7 +63,9 @@ if(MAGMA_FOUND AND (NOT MAGMA_WORKS))
     message(FATAL_ERROR "SUNDIALS_MAGMA_BACKENDS includes HIP but HIP is not enabled. Set ENABLE_HIP=ON or change the backend.")
   endif()
 
-  set(MAGMA_WORKS TRUE CACHE BOOL "MAGMA works with SUNDIALS as configured" FORCE)
+  set(MAGMA_WORKS
+      TRUE
+      CACHE BOOL "MAGMA works with SUNDIALS as configured" FORCE)
 elseif(MAGMA_FOUND AND MAGMA_WORKS)
   message(STATUS "Skipped MAGMA tests, assuming MAGMA works with SUNDIALS.")
 endif()

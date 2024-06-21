@@ -151,6 +151,8 @@ if(DEFINED CUDA_ARCH)
     "Use CMAKE_CUDA_ARCHITECTURES instead.")
   # convert sm_** to just **
   string(REGEX MATCH "[0-9]+" arch_name "${CUDA_ARCH}")
-  set(CMAKE_CUDA_ARCHITECTURES ${arch_name} CACHE STRING "CUDA Architectures" FORCE)
+  set(CMAKE_CUDA_ARCHITECTURES
+      ${arch_name}
+      CACHE STRING "CUDA Architectures" FORCE)
   unset(CUDA_ARCH)
 endif()

@@ -28,20 +28,28 @@
 
 macro(sundials_trycompile_execute EXECUTABLE CWD COMPILE_OK RUN_OK)
 
-  set(options )
+  set(options)
   set(oneValueArgs COMPILE_OUTPUT RUN_OUTPUT)
-  set(multiValueArgs )
+  set(multiValueArgs)
   set(COMPILE_OK FALSE)
   set(RUN_OK FALSE)
-  set(COMPILE_OUTPUT )
-  set(RUN_OUTPUT )
+  set(COMPILE_OUTPUT)
+  set(RUN_OUTPUT)
 
-  cmake_parse_arguments(sundials_trycompile_execute "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+  cmake_parse_arguments(sundials_trycompile_execute "${options}"
+                        "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   # compile the code and then try to run it
-  try_compile(COMPILE_OK ${CWD} ${CWD} ${EXECUTABLE} OUTPUT_VARIABLE COMPILE_OUTPUT)
+  try_compile(
+    COMPILE_OK ${CWD}
+    ${CWD} ${EXECUTABLE}
+    OUTPUT_VARIABLE COMPILE_OUTPUT)
   if(COMPILE_OK)
-    execute_process(COMMAND "./${EXECUTABLE}" WORKING_DIRECTORY ${CWD} RESULT_VARIABLE RUN_OK OUTPUT_VARIABLE RUN_OUTPUT)
+    execute_process(
+      COMMAND "./${EXECUTABLE}"
+      WORKING_DIRECTORY ${CWD}
+      RESULT_VARIABLE RUN_OK
+      OUTPUT_VARIABLE RUN_OUTPUT)
     if(RUN_OK MATCHES "0")
       set(RUN_OK TRUE)
     endif()

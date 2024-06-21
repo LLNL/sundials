@@ -86,7 +86,12 @@ if(PETSC_FOUND AND (NOT PETSC_WORKS))
     message(FATAL_ERROR "${_err_msg_string}")
   endif()
 
-  set(PETSC_WORKS TRUE CACHE BOOL "PETSC works with SUNDIALS as configured" FORCE)
+  set(PETSC_WORKS
+      TRUE
+      CACHE BOOL "PETSC works with SUNDIALS as configured" FORCE)
 elseif(PETSC_FOUND AND PETSC_WORKS)
-  message(STATUS "Skipped PETSC tests, assuming PETSC works with SUNDIALS. Set PETSC_WORKS=FALSE to (re)run compatibility test.")
+  message(
+    STATUS
+      "Skipped PETSC tests, assuming PETSC works with SUNDIALS. Set PETSC_WORKS=FALSE to (re)run compatibility test."
+  )
 endif()

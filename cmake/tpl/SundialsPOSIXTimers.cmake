@@ -17,20 +17,21 @@
 
 macro(posix_timers_test)
 
-  set(options )
+  set(options)
   set(oneValueArgs POSIX RT_LIB)
-  set(multiValueArgs )
+  set(multiValueArgs)
 
   # parse keyword arguments/options
-  cmake_parse_arguments(posix_timers_test
-    "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(posix_timers_test "${options}" "${oneValueArgs}"
+                        "${multiValueArgs}" ${ARGN})
 
   # Test timers with a simple program
   set(POSIX_TIMER_TEST_DIR ${PROJECT_BINARY_DIR}/POSIX_TIMER_TEST)
   file(MAKE_DIRECTORY ${POSIX_TIMER_TEST_DIR})
 
   # Create a CMakeLists.txt file which will generate the test executable
-  file(WRITE ${POSIX_TIMER_TEST_DIR}/CMakeLists.txt
+  file(
+    WRITE ${POSIX_TIMER_TEST_DIR}/CMakeLists.txt
     "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
     "PROJECT(ltest C)\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
@@ -48,7 +49,8 @@ macro(posix_timers_test)
     "TARGET_LINK_LIBRARIES(ltest \"${posix_timers_test_RT_LIB}\")\n")
 
   # Create a simple C source for testing
-  file(WRITE ${POSIX_TIMER_TEST_DIR}/ltest.c
+  file(
+    WRITE ${POSIX_TIMER_TEST_DIR}/ltest.c
     "#include <time.h>\n"
     "#include <unistd.h>\n"
     "int main(void) {\n"
@@ -63,13 +65,14 @@ macro(posix_timers_test)
   file(REMOVE_RECURSE ${POSIX_TIMER_TEST_DIR}/CMakeFiles)
 
   # Use TRY_COMPILE to make the target
-  try_compile(COMPILE_OK ${POSIX_TIMER_TEST_DIR} ${POSIX_TIMER_TEST_DIR} ltest
+  try_compile(
+    COMPILE_OK ${POSIX_TIMER_TEST_DIR}
+    ${POSIX_TIMER_TEST_DIR} ltest
     OUTPUT_VARIABLE COMPILE_OUTPUT)
 
 endmacro()
 
-
-if (NOT SUNDIALS_POSIX_TIMERS)
+if(NOT SUNDIALS_POSIX_TIMERS)
 
   # Test for timers without any modifications
   posix_timers_test()
@@ -81,7 +84,8 @@ if (NOT SUNDIALS_POSIX_TIMERS)
   if(NOT COMPILE_OK)
     posix_timers_test(POSIX "_POSIX_C_SOURCE=200112L")
     if(COMPILE_OK)
-      message(STATUS "Looking for POSIX timers (setting _POSIX_C_SOURCE)... found")
+      message(
+        STATUS "Looking for POSIX timers (setting _POSIX_C_SOURCE)... found")
       set(POSIX_TIMERS_NEED_POSIX_C_SOURCE TRUE)
     endif()
   endif()
@@ -109,9 +113,13 @@ if (NOT SUNDIALS_POSIX_TIMERS)
 
   # Test failed, try again linking to rt and with -D_POSIX_C_SOURCE=200112L
   if((NOT COMPILE_OK) AND SUNDIALS_RT_LIBRARY)
-    posix_timers_test(POSIX "_POSIX_C_SOURCE=200112L" RT_LIB "${SUNDIALS_RT_LIBRARY}")
+    posix_timers_test(POSIX "_POSIX_C_SOURCE=200112L" RT_LIB
+                      "${SUNDIALS_RT_LIBRARY}")
     if(COMPILE_OK)
-      message(STATUS "Looking for POSIX timers (setting _POSIX_C_SOURCE and linking to rt)... found")
+      message(
+        STATUS
+          "Looking for POSIX timers (setting _POSIX_C_SOURCE and linking to rt)... found"
+      )
       set(POSIX_TIMERS_NEED_POSIX_C_SOURCE TRUE)
       set(POSIX_TIMERS_NEED_RT_LIBRARY TRUE)
       set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} ${SUNDIALS_RT_LIBRARY})

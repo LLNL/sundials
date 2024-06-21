@@ -26,17 +26,15 @@ set(CXX_FOUND TRUE)
 
 # Do not allow decaying to previous standards -- generates error if the standard
 # is not supported
-sundials_option(CMAKE_CXX_STANDARD_REQUIRED BOOL
-  "Require C++ standard version" ON)
+sundials_option(CMAKE_CXX_STANDARD_REQUIRED BOOL "Require C++ standard version"
+                ON)
 
 if(ENABLE_SYCL)
   set(DOCSTR "The C++ standard to use if C++ is enabled (17, 20)")
-  sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "17"
-                  OPTIONS "17;20")
+  sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "17" OPTIONS "17;20")
 else()
   set(DOCSTR "The C++ standard to use if C++ is enabled (14, 17, 20)")
-  sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "14"
-                  OPTIONS "14;17;20")
+  sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "14" OPTIONS "14;17;20")
 endif()
 message(STATUS "CXX standard set to ${CMAKE_CXX_STANDARD}")
 

@@ -57,9 +57,15 @@ find_package(OpenMP REQUIRED)
 # OpenMP version information is not stored in cache variables and is not set
 # on repeated calls to find OpenMP (i.e., when using ccmake). To ensure these
 # variables exist store copies of the values.
-set(OpenMP_C_VERSION "${OpenMP_C_VERSION}" CACHE INTERNAL "" FORCE)
-set(OpenMP_CXX_VERSION "${OpenMP_CXX_VERSION}" CACHE INTERNAL "" FORCE)
-set(OpenMP_Fortran_VERSION "${OpenMP_Fortran_VERSION}" CACHE INTERNAL "" FORCE)
+set(OpenMP_C_VERSION
+    "${OpenMP_C_VERSION}"
+    CACHE INTERNAL "" FORCE)
+set(OpenMP_CXX_VERSION
+    "${OpenMP_CXX_VERSION}"
+    CACHE INTERNAL "" FORCE)
+set(OpenMP_Fortran_VERSION
+    "${OpenMP_Fortran_VERSION}"
+    CACHE INTERNAL "" FORCE)
 
 # Check for OpenMP offloading support
 if(OPENMP_FOUND AND (ENABLE_OPENMP_DEVICE OR SUPERLUDIST_OpenMP))
@@ -76,8 +82,10 @@ if(OPENMP_FOUND AND (ENABLE_OPENMP_DEVICE OR SUPERLUDIST_OpenMP))
     # Check the OpenMP version
     message(STATUS "Checking whether OpenMP supports device offloading")
 
-    if((OpenMP_C_VERSION VERSION_EQUAL 4.5) OR (OpenMP_C_VERSION VERSION_GREATER 4.5))
-      message(STATUS "Checking whether OpenMP supports device offloading -- yes")
+    if((OpenMP_C_VERSION VERSION_EQUAL 4.5) OR (OpenMP_C_VERSION VERSION_GREATER
+                                                4.5))
+      message(
+        STATUS "Checking whether OpenMP supports device offloading -- yes")
       set(OPENMP45_FOUND TRUE)
       set(OPENMP_SUPPORTS_DEVICE_OFFLOADING TRUE)
     else()

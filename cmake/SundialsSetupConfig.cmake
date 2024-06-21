@@ -44,7 +44,6 @@ else()
   string(TIMESTAMP JOB_START_TIME "%Y%m%d%H%M%S")
 endif()
 
-
 # ============================================================================
 # Generate macros and substitution variables related to TPLs
 # that SUNDIALS is being built with.
@@ -94,7 +93,5 @@ endif()
 # Generate the header file and place it in the binary dir.
 # =============================================================================
 
-configure_file(
-  ${PROJECT_SOURCE_DIR}/include/sundials/sundials_config.in
-  ${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h
-  )
+configure_file(${PROJECT_SOURCE_DIR}/include/sundials/sundials_config.in
+               ${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h)

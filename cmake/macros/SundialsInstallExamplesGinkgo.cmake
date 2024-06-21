@@ -48,14 +48,20 @@
 
 macro(sundials_install_examples_ginkgo MODULE)
 
-  set(options )
+  set(options)
   set(oneValueArgs DESTINATION)
-  set(multiValueArgs CPU_EXAMPLES_VAR GPU_EXAMPLES_VAR CPU_GPU_EXAMPLES_VAR
-    SUNDIALS_COMPONENTS SUNDIALS_TARGETS EXTRA_FILES DEPENDENCIES)
+  set(multiValueArgs
+      CPU_EXAMPLES_VAR
+      GPU_EXAMPLES_VAR
+      CPU_GPU_EXAMPLES_VAR
+      SUNDIALS_COMPONENTS
+      SUNDIALS_TARGETS
+      EXTRA_FILES
+      DEPENDENCIES)
 
   # Parse keyword arguments/options
-  cmake_parse_arguments(arg
-    "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(arg "${options}" "${oneValueArgs}" "${multiValueArgs}"
+                        ${ARGN})
 
   # Install the example source, header, and output file
   foreach(example_type CPU GPU CPU_GPU)
@@ -73,7 +79,7 @@ macro(sundials_install_examples_ginkgo MODULE)
 
       # install files
       install(FILES ${example} ${example_header} ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/${arg_DESTINATION})
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/${arg_DESTINATION})
 
     endforeach()
   endforeach()
@@ -81,7 +87,7 @@ macro(sundials_install_examples_ginkgo MODULE)
   # Install the extra files and dependencies
   if(arg_EXTRA_FILES OR arg_DEPENDENCIES)
     install(FILES ${arg_EXTRA_FILES} ${arg_DEPENDENCIES}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/${arg_DESTINATION})
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/${arg_DESTINATION})
   endif()
 
   # Prepare substitution variables for CMakeLists and/or Makefile templates
@@ -115,15 +121,11 @@ macro(sundials_install_examples_ginkgo MODULE)
   # Generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_CXX_ginkgo_ex.in
-    ${PROJECT_BINARY_DIR}/examples/${arg_DESTINATION}/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/${arg_DESTINATION}/CMakeLists.txt @ONLY)
 
   # Install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/${arg_DESTINATION}/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/${arg_DESTINATION}
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/${arg_DESTINATION}/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/${arg_DESTINATION})
 
   # Add test_install target
   sundials_add_test_install(${MODULE} ginkgo)

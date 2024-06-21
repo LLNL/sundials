@@ -19,13 +19,15 @@
 
 # show variable (set as cache) and overwrite (force) its value
 macro(FORCE_VARIABLE var type doc val)
-  set(${var} "${val}" CACHE "${type}" "${doc}" FORCE)
+  set(${var}
+      "${val}"
+      CACHE "${type}" "${doc}" FORCE)
 endmacro(FORCE_VARIABLE)
 
 # Macros to append a common suffix or prefix to the elements of a list
 
 macro(ADD_SUFFIX rootlist suffix)
-  set(outlist )
+  set(outlist)
   foreach(root ${${rootlist}})
     list(APPEND outlist ${root}${suffix})
   endforeach(root)
@@ -33,7 +35,7 @@ macro(ADD_SUFFIX rootlist suffix)
 endmacro(ADD_SUFFIX)
 
 macro(ADD_PREFIX prefix rootlist)
-  set(outlist )
+  set(outlist)
   foreach(root ${${rootlist}})
     list(APPEND outlist ${prefix}${root})
   endforeach(root)
@@ -46,7 +48,7 @@ endmacro(ADD_PREFIX)
 
 macro(LIST2STRING alist astring)
   foreach(elem ${${alist}})
-   set(${astring} "${${astring}} ${elem}")
+    set(${astring} "${${astring}} ${elem}")
   endforeach(elem)
 endmacro(LIST2STRING)
 
@@ -70,13 +72,16 @@ function(sundials_git_version)
   set(_tmp "")
 
   if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/.git AND ${GIT_FOUND})
-    execute_process(COMMAND git describe --abbrev=12 --dirty --always --tags
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-        OUTPUT_VARIABLE _tmp)
+    execute_process(
+      COMMAND git describe --abbrev=12 --dirty --always --tags
+      WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+      OUTPUT_VARIABLE _tmp)
     string(STRIP "${_tmp}" _tmp)
   endif()
 
-  set(SUNDIALS_GIT_VERSION "${_tmp}" CACHE INTERNAL "")
+  set(SUNDIALS_GIT_VERSION
+      "${_tmp}"
+      CACHE INTERNAL "")
   unset(_tmp)
 endfunction()
 

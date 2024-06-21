@@ -77,7 +77,6 @@ if(ENABLE_GINKGO)
   list(APPEND SUNDIALS_TPL_LIST "GINKGO")
 endif()
 
-
 # ---------------------------------------------------------------
 # Find (and test) the hypre libraries
 # ---------------------------------------------------------------

@@ -25,7 +25,7 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
   set(SUNDIALS_CINDEX_TYPE "")
 
   # if the user specified an index type use it, otherwise try the standard options
-  if (SUNDIALS_INDEX_TYPE)
+  if(SUNDIALS_INDEX_TYPE)
     set(POSSIBLE_INT64 ${SUNDIALS_INDEX_TYPE})
   else()
     set(POSSIBLE_INT64 int64_t;__int64;long long;long)
@@ -52,7 +52,7 @@ elseif(SUNDIALS_INDEX_SIZE MATCHES "32")
   set(SUNDIALS_CINDEX_TYPE "")
 
   # if the user specified an index type use it, otherwise try the standard options
-  if (SUNDIALS_INDEX_TYPE)
+  if(SUNDIALS_INDEX_TYPE)
     set(POSSIBLE_INT32 ${SUNDIALS_INDEX_TYPE})
   else()
     set(POSSIBLE_INT32 int32_t;int;long)

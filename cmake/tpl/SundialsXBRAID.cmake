@@ -38,20 +38,21 @@ endif()
 
 # Using XBRAID requires building with MPI enabled
 if(NOT ENABLE_MPI)
-  message(FATAL_ERROR
-    "MPI is required for XBraid support. Set ENABLE_MPI to ON.")
+  message(
+    FATAL_ERROR "MPI is required for XBraid support. Set ENABLE_MPI to ON.")
 endif()
 
 # XBraid does not support single or extended precision
 if(SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED")
-  message(FATAL_ERROR
-    "XBraid is not compatible with ${SUNDIALS_PRECISION} precision")
+  message(
+    FATAL_ERROR "XBraid is not compatible with ${SUNDIALS_PRECISION} precision")
 endif()
 
 # XBraid does not support 64-bit index sizes
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
-  message(FATAL_ERROR
-    "XBraid is not compatible with ${SUNDIALS_INDEX_SIZE}-bit indices")
+  message(
+    FATAL_ERROR
+      "XBraid is not compatible with ${SUNDIALS_INDEX_SIZE}-bit indices")
 endif()
 
 # -----------------------------------------------------------------------------
@@ -76,7 +77,8 @@ if(XBRAID_FOUND AND (NOT XBRAID_WORKS))
   file(MAKE_DIRECTORY ${XBRAID_TEST_DIR})
 
   # Create a CMakeLists.txt file
-  file(WRITE ${XBRAID_TEST_DIR}/CMakeLists.txt
+  file(
+    WRITE ${XBRAID_TEST_DIR}/CMakeLists.txt
     "cmake_minimum_required(VERSION ${CMAKE_VERSION})\n"
     "project(ltest C)\n"
     "set(CMAKE_VERBOSE_MAKEFILE ON)\n"
@@ -94,7 +96,8 @@ if(XBRAID_FOUND AND (NOT XBRAID_WORKS))
     "target_link_libraries(ltest m)\n")
 
   # Create a C source file
-  file(WRITE ${XBRAID_TEST_DIR}/ltest.c
+  file(
+    WRITE ${XBRAID_TEST_DIR}/ltest.c
     "\#include <stdlib.h>\n"
     "\#include \"braid.h\"\n"
     "int main(void) {\n"
@@ -109,13 +112,17 @@ if(XBRAID_FOUND AND (NOT XBRAID_WORKS))
   file(REMOVE_RECURSE ${XBRAID_TEST_DIR}/CMakeFiles)
 
   # Attempt to build and link the "ltest" executable
-  try_compile(COMPILE_OK ${XBRAID_TEST_DIR} ${XBRAID_TEST_DIR} ltest
+  try_compile(
+    COMPILE_OK ${XBRAID_TEST_DIR}
+    ${XBRAID_TEST_DIR} ltest
     OUTPUT_VARIABLE COMPILE_OUTPUT)
 
   # Process test result
   if(COMPILE_OK)
     message(STATUS "Checking if XBRAID works... OK")
-    set(XBRAID_WORKS TRUE CACHE BOOL "XBRAID works as configured" FORCE)
+    set(XBRAID_WORKS
+        TRUE
+        CACHE BOOL "XBRAID works as configured" FORCE)
   else()
     message(STATUS "Checking if XBRAID works... FAILED")
     message(STATUS "Check output: ")
