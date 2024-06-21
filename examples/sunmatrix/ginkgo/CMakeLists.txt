@@ -14,7 +14,8 @@
 
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
-set(examples
+set(
+  examples
   "test_sunmatrix_ginkgo.cpp\;100 100 0\;"
   "test_sunmatrix_ginkgo.cpp\;100 10 0\;"
   "test_sunmatrix_ginkgo.cpp\;10 100 0\;"
@@ -26,14 +27,22 @@ set(examples
 # Add source directory to include directories
 include_directories(..)
 
-sundials_add_examples_ginkgo(examples
-  TARGETS test_sunmatrix_obj sundials_sunmatrixdense
-  BACKENDS REF OMP CUDA HIP SYCL
-  UNIT_TEST)
+sundials_add_examples_ginkgo(
+  examples
+  TARGETS
+    test_sunmatrix_obj
+    sundials_sunmatrixdense
+  BACKENDS
+    REF
+    OMP
+    CUDA
+    HIP
+    SYCL
+  UNIT_TEST
+)
 
 # Install the targets
 if(EXAMPLES_INSTALL)
-
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA")
     list(APPEND vectors nveccuda)
   endif()
@@ -50,7 +59,8 @@ if(EXAMPLES_INSTALL)
     list(APPEND vectors nvecserial)
   endif()
 
-  sundials_install_examples_ginkgo(sunmatrix
+  sundials_install_examples_ginkgo(
+    sunmatrix
     CPU_GPU_EXAMPLES_VAR
       examples
     SUNDIALS_COMPONENTS
@@ -61,8 +71,6 @@ if(EXAMPLES_INSTALL)
     DEPENDENCIES
       ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
       ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
-    DESTINATION
-      sunmatrix/ginkgo
-    )
-
+    DESTINATION sunmatrix/ginkgo
+  )
 endif()

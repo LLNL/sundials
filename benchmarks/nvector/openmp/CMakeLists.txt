@@ -21,9 +21,12 @@ message(STATUS "Added OpenMP NVECTOR benchmark")
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 
-sundials_add_nvector_benchmark(nvector_openmp_benchmark
-  SOURCES test_nvector_performance_openmp.c
-  SUNDIALS_TARGETS sundials_nvecopenmp
-  INSTALL_SUBDIR nvector/openmp
-  )
-
+sundials_add_nvector_benchmark(
+  nvector_openmp_benchmark
+  SOURCES
+    test_nvector_performance_openmp.c
+  SUNDIALS_TARGETS
+    sundials_nvecopenmp
+  INSTALL_SUBDIR
+    nvector/openmp
+)

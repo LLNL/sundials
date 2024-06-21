@@ -18,22 +18,20 @@
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_SPBCGS\n\")")
 
 # Add the sunlinsol_spbcgs library
-sundials_add_library(sundials_sunlinsolspbcgs
+sundials_add_library(
+  sundials_sunlinsolspbcgs
   SOURCES
     sunlinsol_spbcgs.c
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_spbcgs.h
-  INCLUDE_SUBDIR
-    sunlinsol
+  INCLUDE_SUBDIR sunlinsol
   LINK_LIBRARIES
-    PUBLIC sundials_core
+    PUBLIC
+    sundials_core
   OBJECT_LIBRARIES
-  OUTPUT_NAME
-    sundials_sunlinsolspbcgs
-  VERSION
-    ${sunlinsollib_VERSION}
-  SOVERSION
-  ${sunlinsollib_SOVERSION}
+  OUTPUT_NAME sundials_sunlinsolspbcgs
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION}
 )
 
 message(STATUS "Added SUNLINSOL_SPBCGS module")

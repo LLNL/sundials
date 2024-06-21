@@ -18,26 +18,32 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(KINSOL_examples
+set(
+  KINSOL_examples
   "kin_bratu2D_hypre_pfmg\;--np 2 2\;1\;4\;develop"
   "kin_heat2D_nonlin_hypre_pfmg\;--np 2 2\;1\;4\;develop"
-  )
+)
 
-set(KINSOL_headers
+set(
+  KINSOL_headers
   "kin_bratu2D_hypre_pfmg.hpp"
-  "kin_heat2D_nonlin_hypre_pfmg.hpp")
+  "kin_heat2D_nonlin_hypre_pfmg.hpp"
+)
 
 # Specify libraries to link against
 set(KINSOL_LIB sundials_kinsol)
 set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
-
+set(
+  SUNDIALS_LIBS
+  ${KINSOL_LIB}
+  ${NVECP_LIB}
+  ${EXE_EXTRA_LINK_LIBS}
+)
 
 # Add the build target for each example
 foreach(example_tuple ${KINSOL_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -52,11 +58,21 @@ foreach(example_tuple ${KINSOL_examples})
     add_executable(${example} ${example}.cpp)
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE
-      MPI::MPI_CXX ${SUNDIALS_LIBS} SUNDIALS::HYPRE)
+    target_link_libraries(
+      ${example}
+      PRIVATE
+        MPI::MPI_CXX
+        ${SUNDIALS_LIBS}
+        SUNDIALS::HYPRE
+    )
   endif()
 
   # check if example args are provided and set the test name
@@ -67,31 +83,43 @@ foreach(example_tuple ${KINSOL_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+      ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+  )
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cpp ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp)
+    install(
+      FILES
+        ${example}.cpp
+        ${example_out}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp
+    )
   endif()
-
-endforeach(example_tuple ${KINSOL_examples})
-
+endforeach(
+  example_tuple
+  ${KINSOL_examples}
+)
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
   # Install the header files
   foreach(extrafile ${KINSOL_headers})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp)
+    install(
+      FILES
+        ${extrafile}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp
+    )
   endforeach()
 
   # Install the README file
@@ -112,13 +140,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parhyp_CXX_ex.in
     ${PROJECT_BINARY_DIR}/examples/kinsol/CXX_parhyp/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/kinsol/CXX_parhyp/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/kinsol/CXX_parhyp/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -130,16 +159,16 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parhyp_CXX_ex.in
       ${PROJECT_BINARY_DIR}/examples/kinsol/CXX_parhyp/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/kinsol/CXX_parhyp/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/kinsol/CXX_parhyp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp
       RENAME Makefile
-      )
+    )
   endif()
 
   # add test_install target
-  sundials_add_test_install(kinsol CXX_parhyp)
-
+  SUNDIALS_ADD_TEST_INSTALL(kinsol CXX_parhyp)
 endif()

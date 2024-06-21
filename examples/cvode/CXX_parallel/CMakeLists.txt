@@ -18,14 +18,10 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(CVODE_examples
-  "cv_heat2D_p\;--np 2 2\;1\;4\;develop"
-  )
+set(CVODE_examples "cv_heat2D_p\;--np 2 2\;1\;4\;develop")
 
 # Auxiliary files to install
-set(CVODE_extras
-  plot_heat2D_p.py
-  )
+set(CVODE_extras plot_heat2D_p.py)
 
 # Specify libraries to link against
 set(CVODE_LIB sundials_cvode)
@@ -36,11 +32,15 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
 endif()
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(
+  SUNDIALS_LIBS
+  ${CVODE_LIB}
+  ${NVECP_LIB}
+  ${EXE_EXTRA_LINK_LIBS}
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -55,10 +55,20 @@ foreach(example_tuple ${CVODE_examples})
     add_executable(${example} ${example}.cpp)
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE MPI::MPI_CXX ${SUNDIALS_LIBS})
+    target_link_libraries(
+      ${example}
+      PRIVATE
+        MPI::MPI_CXX
+        ${SUNDIALS_LIBS}
+    )
   endif()
 
   # check if example args are provided and set the test name
@@ -69,34 +79,46 @@ foreach(example_tuple ${CVODE_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+      ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+  )
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cpp ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parallel)
+    install(
+      FILES
+        ${example}.cpp
+        ${example_out}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parallel
+    )
   endif()
-
-endforeach(example_tuple ${CVODE_examples})
-
+endforeach(
+  example_tuple
+  ${CVODE_examples}
+)
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parallel)
 
   # Install the extra files
   foreach(extrafile ${CVODE_extras})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parallel)
+    install(
+      FILES
+        ${extrafile}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parallel
+    )
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
@@ -117,13 +139,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_CXX_ex.in
     ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parallel/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parallel/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parallel/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parallel
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -135,16 +158,16 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_CXX_ex.in
       ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parallel/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parallel/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/cvode/CXX_parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/CXX_parallel
       RENAME Makefile
-      )
+    )
   endif(UNIX)
 
   # add test_install target
-  sundials_add_test_install(cvode CXX_parallel)
-
+  SUNDIALS_ADD_TEST_INSTALL(cvode CXX_parallel)
 endif(EXAMPLES_INSTALL)

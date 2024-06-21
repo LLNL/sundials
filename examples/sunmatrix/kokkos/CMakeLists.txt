@@ -14,14 +14,15 @@
 
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
-set(examples_list
+set(
+  examples_list
   "test_sunmatrix_kokkosdense.cpp\;100 100 1 0\;"
   "test_sunmatrix_kokkosdense.cpp\;200 1000 1 0\;"
   "test_sunmatrix_kokkosdense.cpp\;2000 100 1 0\;"
   "test_sunmatrix_kokkosdense.cpp\;10 10 100 0\;"
   "test_sunmatrix_kokkosdense.cpp\;200 10 100 0\;"
   "test_sunmatrix_kokkosdense.cpp\;10 200 100 0\;"
-  )
+)
 
 # Add source directory to include directories
 include_directories(..)
@@ -29,7 +30,6 @@ include_directories(..)
 # Add the build and install targets for each example
 foreach(example_tuple ${examples_list})
   foreach(backend ${KOKKOS_EXAMPLES_BACKENDS})
-
     # parse the example tuple
     list(GET example_tuple 0 example)
     list(GET example_tuple 1 example_args)
@@ -39,24 +39,34 @@ foreach(example_tuple ${examples_list})
     get_filename_component(example_target ${example} NAME_WE)
     set(example_target "${example_target}.${backend}")
 
-    if (NOT TARGET ${example_target})
+    if(NOT TARGET ${example_target})
       # example source files
-      add_executable(${example_target} ${example}
-        ../test_sunmatrix.c ../test_sunmatrix.h)
+      add_executable(
+        ${example_target}
+        ${example}
+        ../test_sunmatrix.c
+        ../test_sunmatrix.h
+      )
 
       # folder for IDEs
-      set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+      set_target_properties(
+        ${example_target}
+        PROPERTIES
+          FOLDER
+            "Examples"
+      )
 
       # which backend to use
       target_compile_definitions(${example_target} PRIVATE USE_${backend})
 
       # libraries to link against
-      target_link_libraries(${example_target}
+      target_link_libraries(
+        ${example_target}
         PRIVATE
-        sundials_core
-        sundials_nveckokkos
-        sundials_sunmatrixkokkosdense
-        ${EXE_EXTRA_LINK_LIBS}
+          sundials_core
+          sundials_nveckokkos
+          sundials_sunmatrixkokkosdense
+          ${EXE_EXTRA_LINK_LIBS}
       )
     endif()
 
@@ -68,24 +78,27 @@ foreach(example_tuple ${examples_list})
     endif()
 
     # add example to regression tests
-    sundials_add_test(${test_name} ${example_target}
-      TEST_ARGS ${example_args}
+    SUNDIALS_ADD_TEST(
+      ${test_name}
+      ${example_target}
+      TEST_ARGS
+        ${example_args}
       EXAMPLE_TYPE ${example_type}
-      NODIFF)
-
+      NODIFF
+    )
   endforeach()
 endforeach()
 
 if(EXAMPLES_INSTALL)
-
-  sundials_install_examples(sunmatrix_kokkosdense examples_list
+  sundials_install_examples(
+    sunmatrix_kokkosdense
+    examples_list
     EXAMPLES_DEPENDENCIES
       test_sunmatrix.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
       ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
-    CMAKE_TEMPLATE
-      cmakelists_CXX_ex.in
+    CMAKE_TEMPLATE cmakelists_CXX_ex.in
     SUNDIALS_COMPONENTS
       nveckokkos
       sunmatrixkokkosdense
@@ -94,8 +107,6 @@ if(EXAMPLES_INSTALL)
     OTHER_TARGETS
       Kokkos::kokkos
       Kokkos::kokkoskernels
-    DESTINATION
-      sunmatrix/kokkos
-    )
-
+    DESTINATION sunmatrix/kokkos
+  )
 endif()

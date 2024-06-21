@@ -18,18 +18,22 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS sycl nvector
-set(nvector_sycl_examples
+set(
+  nvector_sycl_examples
   "test_nvector_sycl.cpp\;7 32 0\;"
   "test_nvector_sycl.cpp\;500 128 0\;"
   "test_nvector_sycl.cpp\;1000 0 0\;"
-  )
+)
 
 # Add source directory to include directories
-include_directories(. .. ${PROJECT_SOURCE_DIR}/examples/utilities)
+include_directories(
+  .
+  ..
+  ${PROJECT_SOURCE_DIR}/examples/utilities
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_sycl_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -41,20 +45,25 @@ foreach(example_tuple ${nvector_sycl_examples})
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example_target})
-
     # example source files
     add_executable(${example_target} ${example})
 
     # folder to organize targets in an IDE
-    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example_target}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
-    target_link_libraries(${example_target}
+    target_link_libraries(
+      ${example_target}
       PRIVATE
-      test_nvector_obj
-      sundials_nvecsycl
-      ${EXE_EXTRA_LINK_LIBS})
-
+        test_nvector_obj
+        sundials_nvecsycl
+        ${EXE_EXTRA_LINK_LIBS}
+    )
   endif()
 
   # check if example args are provided and set the test name
@@ -65,29 +74,29 @@ foreach(example_tuple ${nvector_sycl_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example_target}
+    TEST_ARGS
+      ${example_args}
     EXAMPLE_TYPE ${example_type}
-    NODIFF)
-
+    NODIFF
+  )
 endforeach()
 
-
 if(EXAMPLES_INSTALL)
-
-  sundials_install_examples(nvector_sycl nvector_sycl_examples
+  sundials_install_examples(
+    nvector_sycl
+    nvector_sycl_examples
     EXAMPLES_DEPENDENCIES
       test_nvector.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_sycl.h
-    CMAKE_TEMPLATE
-      cmakelists_CXX_ex.in
+    CMAKE_TEMPLATE cmakelists_CXX_ex.in
     SUNDIALS_TARGETS
       nvecsycl
-    DESTINATION
-      nvector/sycl
-    )
-
+    DESTINATION nvector/sycl
+  )
 endif()

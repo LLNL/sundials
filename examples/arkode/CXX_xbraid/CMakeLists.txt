@@ -18,21 +18,21 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(ARKODE_examples
+set(
+  ARKODE_examples
   "ark_heat2D_xbraid\;--x_print_level 0\;1\;4\;develop"
   "ark_heat2D_p_xbraid\;--np 2 1 2 --x_print_level 0\;1\;4\;develop"
-  )
+)
 
 if(ENABLE_HYPRE AND HYPRE_FOUND)
-  set(ARKODE_examples_hypre
+  set(
+    ARKODE_examples_hypre
     "ark_heat2D_hypre_pfmg_xbraid\;--np 2 1 2 --x_print_level 0\;1\;4\;develop"
-    )
+  )
 endif()
 
 # Auxiliary files to install
-set(ARKODE_extras
-  plot_heat2D.py
-  )
+set(ARKODE_extras plot_heat2D.py)
 
 # Specify libraries to link against
 set(ARKODE_LIB sundials_arkode)
@@ -40,11 +40,16 @@ set(ARKODE_XBRAID_LIB sundials_arkode_xbraid)
 set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${ARKODE_XBRAID_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(
+  SUNDIALS_LIBS
+  ${ARKODE_LIB}
+  ${ARKODE_XBRAID_LIB}
+  ${NVECP_LIB}
+  ${EXE_EXTRA_LINK_LIBS}
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${ARKODE_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -55,16 +60,23 @@ foreach(example_tuple ${ARKODE_examples})
   # check if this example has already been added, only need to add
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
-
     # example source files
     add_executable(${example} ${example}.cpp)
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS} MPI::MPI_CXX)
-
+    target_link_libraries(
+      ${example}
+      ${SUNDIALS_LIBS}
+      MPI::MPI_CXX
+    )
   endif()
 
   # check if example args are provided and set the test name
@@ -75,31 +87,37 @@ foreach(example_tuple ${ARKODE_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+      ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+  )
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cpp ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid)
+    install(
+      FILES
+        ${example}.cpp
+        ${example_out}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid
+    )
   endif()
-
-endforeach(example_tuple ${ARKODE_examples})
-
-
+endforeach(
+  example_tuple
+  ${ARKODE_examples}
+)
 
 if(ENABLE_HYPRE AND HYPRE_FOUND)
-
   # Add the build and install targets for each example
   foreach(example_tuple ${ARKODE_examples_hypre})
-
     # parse the example tuple
     list(GET example_tuple 0 example)
     list(GET example_tuple 1 example_args)
@@ -110,17 +128,26 @@ if(ENABLE_HYPRE AND HYPRE_FOUND)
     # check if this example has already been added, only need to add
     # example source files once for testing with different inputs
     if(NOT TARGET ${example})
-
       # example source files
       add_executable(${example} ${example}.cpp)
 
       # folder to organize targets in an IDE
-      set_target_properties(${example} PROPERTIES FOLDER "Examples")
+      set_target_properties(
+        ${example}
+        PROPERTIES
+          FOLDER
+            "Examples"
+      )
 
       # libraries to link against
-      target_link_libraries(${example} PRIVATE
-        MPI::MPI_CXX ${SUNDIALS_LIBS}  SUNDIALS::HYPRE SUNDIALS::XBRAID)
-
+      target_link_libraries(
+        ${example}
+        PRIVATE
+          MPI::MPI_CXX
+          ${SUNDIALS_LIBS}
+          SUNDIALS::HYPRE
+          SUNDIALS::XBRAID
+      )
     endif()
 
     # check if example args are provided and set the test name
@@ -131,36 +158,51 @@ if(ENABLE_HYPRE AND HYPRE_FOUND)
     endif()
 
     # add example to regression tests
-    sundials_add_test(${test_name} ${example}
-      TEST_ARGS ${example_args}
+    SUNDIALS_ADD_TEST(
+      ${test_name}
+      ${example}
+      TEST_ARGS
+        ${example_args}
       MPI_NPROCS ${number_of_tasks}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${test_name}.out
-      EXAMPLE_TYPE ${example_type})
+      EXAMPLE_TYPE ${example_type}
+    )
 
     # find all .out files for this example
     file(GLOB example_out ${example}*.out)
 
     # install example source and out files
     if(EXAMPLES_INSTALL)
-      install(FILES ${example}.cpp ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid)
+      install(
+        FILES
+          ${example}.cpp
+          ${example_out}
+        DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid
+      )
     endif()
-
-  endforeach(example_tuple ${ARKODE_examples})
-
+  endforeach(
+    example_tuple
+    ${ARKODE_examples}
+  )
 endif()
-
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
   # Install the README file
-  install(FILES README.md DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid)
+  install(
+    FILES
+      README.md
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid
+  )
 
   # Install the extra files
   foreach(extrafile ${ARKODE_extras})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid)
+    install(
+      FILES
+        ${extrafile}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid
+    )
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
@@ -180,37 +222,36 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_xbraid_CXX_ex.in
     ${PROJECT_BINARY_DIR}/examples/arkode/CXX_xbraid/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/arkode/CXX_xbraid/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/arkode/CXX_xbraid/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   if(UNIX)
-
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_xbraid_CXX_ex.in
       ${PROJECT_BINARY_DIR}/examples/arkode/CXX_xbraid/Makefile_ex
       @ONLY
-      )
+    )
 
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/arkode/CXX_xbraid/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/arkode/CXX_xbraid/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_xbraid
       RENAME Makefile
-      )
-
+    )
   endif(UNIX)
 
   # add test_install target
-  sundials_add_test_install(arkode CXX_xbraid)
-
+  SUNDIALS_ADD_TEST_INSTALL(arkode CXX_xbraid)
 endif(EXAMPLES_INSTALL)

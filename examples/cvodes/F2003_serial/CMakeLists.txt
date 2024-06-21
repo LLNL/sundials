@@ -16,16 +16,22 @@
 
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
-set(FCVODES_examples
+set(
+  FCVODES_examples
   "cvs_analytic_fp_f2003\;\;develop"
   "cvsAdvDiff_FSA_non_f2003\;-sensi stg t\;develop"
-  "cvsAdvDiff_FSA_non_f2003\;-sensi sim t\;develop")
+  "cvsAdvDiff_FSA_non_f2003\;-sensi sim t\;develop"
+)
 
 # Specify libraries to link against
 set(CVODES_LIB sundials_fcvodes_mod)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODES_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(
+  SUNDIALS_LIBS
+  ${CVODES_LIB}
+  ${EXE_EXTRA_LINK_LIBS}
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${FCVODES_examples})
@@ -38,13 +44,21 @@ foreach(example_tuple ${FCVODES_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # Install fortran modules to a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+    set(
+      CMAKE_Fortran_MODULE_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir
+    )
 
     # example source files
     add_executable(${example} ${example}.f90)
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
@@ -58,25 +72,35 @@ foreach(example_tuple ${FCVODES_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+      ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+  )
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
 
-   # install example source and out files
+  # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.f90 ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/F2003_serial)
+    install(
+      FILES
+        ${example}.f90
+        ${example_out}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/F2003_serial
+    )
   endif()
-endforeach(example_tuple ${FCVODES_examples})
+endforeach(
+  example_tuple
+  ${FCVODES_examples}
+)
 
 # create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   set(SOLVER "CVODES")
   set(SOLVER_LIB "sundials_cvodes")
@@ -93,13 +117,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_F2003_ex.in
     ${PROJECT_BINARY_DIR}/examples/cvodes/F2003_serial/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvodes/F2003_serial/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/cvodes/F2003_serial/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/F2003_serial
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -111,16 +136,16 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_F2003_ex.in
       ${PROJECT_BINARY_DIR}/examples/cvodes/F2003_serial/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/cvodes/F2003_serial/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/cvodes/F2003_serial/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/F2003_serial
       RENAME Makefile
-      )
+    )
   endif()
 
   # add test_install target
-  sundials_add_test_install(cvodes F2003_serial)
-
+  SUNDIALS_ADD_TEST_INSTALL(cvodes F2003_serial)
 endif()

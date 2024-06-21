@@ -18,9 +18,7 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Example programs
-set(examples
-  "test_sunnonlinsol_petscsnes\;\;"
-)
+set(examples "test_sunnonlinsol_petscsnes\;\;")
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -39,7 +37,6 @@ list(APPEND SUNDIALS_LIBS ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -52,7 +49,12 @@ foreach(example_tuple ${examples})
     add_executable(${example} ${example}.c)
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
@@ -66,21 +68,28 @@ foreach(example_tuple ${examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+      ${example_args}
     EXAMPLE_TYPE ${example_type}
-    NODIFF)
+    NODIFF
+  )
 
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes)
+    install(
+      FILES
+        ${example}.c
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes
+    )
   endif()
-
-endforeach(example_tuple ${examples})
-
+endforeach(
+  example_tuple
+  ${examples}
+)
 
 if(EXAMPLES_INSTALL)
-
   # Install the README file
   install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes)
 
@@ -104,13 +113,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_petsc_C_ex.in
     ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -122,13 +132,13 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_petsc_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/petscsnes/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/petscsnes
       RENAME Makefile
-      )
+    )
   endif()
-
 endif()

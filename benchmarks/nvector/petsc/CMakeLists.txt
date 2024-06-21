@@ -16,9 +16,16 @@
 
 message(STATUS "Added PETSc NVECTOR benchmark")
 
-sundials_add_nvector_benchmark(nvector_petsc_benchmark
-  SOURCES test_nvector_performance_petsc.c
-  SUNDIALS_TARGETS sundials_nvecpetsc
-  LINK_LIBRARIES MPI::MPI_C PUBLIC SUNDIALS::PETSC
-  INSTALL_SUBDIR nvector/petsc
-  )
+sundials_add_nvector_benchmark(
+  nvector_petsc_benchmark
+  SOURCES
+    test_nvector_performance_petsc.c
+  SUNDIALS_TARGETS
+    sundials_nvecpetsc
+  LINK_LIBRARIES
+    MPI::MPI_C
+    PUBLIC
+    SUNDIALS::PETSC
+  INSTALL_SUBDIR
+    nvector/petsc
+)

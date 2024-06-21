@@ -15,7 +15,6 @@ set(unit_tests "test_sunmemory_sys\;")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
-
   # parse the test tuple
   list(GET test_tuple 0 test)
   list(GET test_tuple 1 test_args)
@@ -23,21 +22,33 @@ foreach(test_tuple ${unit_tests})
   # check if this test has already been added, only need to add
   # test source files once for testing with different inputs
   if(NOT TARGET ${test})
-
     # test source files
     add_executable(${test} ${test}.cpp)
 
-    set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
+    set_target_properties(
+      ${test}
+      PROPERTIES
+        FOLDER
+          "unit_tests"
+    )
 
     # include location of public and private header files
-    target_include_directories(${test} PRIVATE
-      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-      ${CMAKE_SOURCE_DIR}/include
-      ${CMAKE_SOURCE_DIR}/src)
+    target_include_directories(
+      ${test}
+      PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/src
+    )
 
     # libraries to link against
-    target_link_libraries(${test} PRIVATE sundials_core sundials_sunmemsys_obj ${EXE_EXTRA_LINK_LIBS})
-
+    target_link_libraries(
+      ${test}
+      PRIVATE
+        sundials_core
+        sundials_sunmemsys_obj
+        ${EXE_EXTRA_LINK_LIBS}
+    )
   endif()
 
   # check if test args are provided and set the test name
@@ -49,9 +60,11 @@ foreach(test_tuple ${unit_tests})
   endif()
 
   # add test to regression tests
-  add_test(NAME ${test_name} COMMAND ${test} ${test_args})
-
+  add_test(
+    NAME ${test_name}
+    COMMAND
+      ${test} ${test_args}
+  )
 endforeach()
 
 message(STATUS "Added SUNMemoryHelper_Sys units tests")
-

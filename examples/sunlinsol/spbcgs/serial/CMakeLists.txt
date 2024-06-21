@@ -27,28 +27,28 @@ endif()
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS SPBCGS linear solver
-set(sunlinsol_spbcgs_examples
+set(
+  sunlinsol_spbcgs_examples
   "test_sunlinsol_spbcgs_serial\;100 1 100 ${TOL} 0\;"
   "test_sunlinsol_spbcgs_serial\;100 2 100 ${TOL} 0\;"
-  )
+)
 
 # Dependencies for nvector examples
-set(sunlinsol_spbcgs_dependencies
-  test_sunlinsol
-  )
+set(sunlinsol_spbcgs_dependencies test_sunlinsol)
 
 # If building F2003 tests
-if (BUILD_FORTRAN_MODULE_INTERFACE)
-  set(sunlinsol_spbcgs_fortran_examples
-    "test_fsunlinsol_spbcgs_mod_serial\;\;")
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  set(sunlinsol_spbcgs_fortran_examples "test_fsunlinsol_spbcgs_mod_serial\;\;")
 endif()
 
 # Add source directory to include directories
-include_directories(. ../..)
+include_directories(
+  .
+  ../..
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_spbcgs_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -58,16 +58,27 @@ foreach(example_tuple ${sunlinsol_spbcgs_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c ../../test_sunlinsol.c)
+    add_executable(
+      ${example}
+      ${example}.c
+      ../../test_sunlinsol.c
+    )
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
-    target_link_libraries(${example}
+    target_link_libraries(
+      ${example}
       sundials_nvecserial
       sundials_sunlinsolspbcgs
-      ${EXE_EXTRA_LINK_LIBS})
+      ${EXE_EXTRA_LINK_LIBS}
+    )
   endif()
 
   # check if example args are provided and set the test name
@@ -78,24 +89,32 @@ foreach(example_tuple ${sunlinsol_spbcgs_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+      ${example_args}
     EXAMPLE_TYPE ${example_type}
-    NODIFF)
+    NODIFF
+  )
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../../test_sunlinsol.h
-      ../../test_sunlinsol.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spbcgs/serial)
+    install(
+      FILES
+        ${example}.c
+        ../../test_sunlinsol.h
+        ../../test_sunlinsol.c
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spbcgs/serial
+    )
   endif()
-
-endforeach(example_tuple ${sunlinsol_spbcgs_examples})
+endforeach(
+  example_tuple
+  ${sunlinsol_spbcgs_examples}
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_spbcgs_fortran_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -105,23 +124,36 @@ foreach(example_tuple ${sunlinsol_spbcgs_fortran_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # build fortran modules into a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+    set(
+      CMAKE_Fortran_MODULE_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir
+    )
 
     # example source files
-    add_executable(${example} ${example}.f90
+    add_executable(
+      ${example}
+      ${example}.f90
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90
-      ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.f90)
+      ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.f90
+    )
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
-    target_link_libraries(${example}
+    target_link_libraries(
+      ${example}
       sundials_nvecserial
       sundials_fnvecserial_mod
       sundials_sunlinsolspbcgs
       sundials_fsunlinsolspbcgs_mod
-      ${EXE_EXTRA_LINK_LIBS})
+      ${EXE_EXTRA_LINK_LIBS}
+    )
 
     # check if example args are provided and set the test name
     if("${example_args}" STREQUAL "")
@@ -131,16 +163,21 @@ foreach(example_tuple ${sunlinsol_spbcgs_fortran_examples})
     endif()
 
     # add example to regression tests
-    sundials_add_test(${test_name} ${example}
-      TEST_ARGS ${example_args}
+    SUNDIALS_ADD_TEST(
+      ${test_name}
+      ${example}
+      TEST_ARGS
+        ${example_args}
       EXAMPLE_TYPE ${example_type}
-      NODIFF)
+      NODIFF
+    )
   endif()
-
-endforeach(example_tuple ${sunlinsol_spbcgs_fortran_examples})
+endforeach(
+  example_tuple
+  ${sunlinsol_spbcgs_fortran_examples}
+)
 
 if(EXAMPLES_INSTALL)
-
   # Install the README file
   install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spbcgs/serial)
 
@@ -159,13 +196,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
     ${PROJECT_BINARY_DIR}/examples/sunlinsol/spbcgs/serial/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/spbcgs/serial/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/sunlinsol/spbcgs/serial/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spbcgs/serial
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -177,13 +215,13 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/sunlinsol/spbcgs/serial/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/spbcgs/serial/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/sunlinsol/spbcgs/serial/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spbcgs/serial
       RENAME Makefile
-      )
+    )
   endif()
-
 endif()

@@ -15,13 +15,9 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-set(ARKODE_unit_tests
-  "ark_test_table_f2003\;"
-  )
+set(ARKODE_unit_tests "ark_test_table_f2003\;")
 
 foreach(test_tuple ${ARKODE_unit_tests})
-
-
   # parse the test tuple
   list(GET test_tuple 0 test)
   list(GET test_tuple 1 test_args)
@@ -29,17 +25,22 @@ foreach(test_tuple ${ARKODE_unit_tests})
   # check if this test has already been added, only need to add
   # test source files once for testing with different inputs
   if(NOT TARGET ${test})
-
     # test source files
     add_executable(${test} ${test}.f90)
 
-    set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
+    set_target_properties(
+      ${test}
+      PROPERTIES
+        FOLDER
+          "unit_tests"
+    )
 
     # libraries to link against
-    target_link_libraries(${test}
+    target_link_libraries(
+      ${test}
       sundials_farkode_mod
-      ${EXE_EXTRA_LINK_LIBS})
-
+      ${EXE_EXTRA_LINK_LIBS}
+    )
   endif()
 
   # check if test args are provided and set the test name
@@ -51,9 +52,11 @@ foreach(test_tuple ${ARKODE_unit_tests})
   endif()
 
   # add test to regression tests
-  add_test(NAME ${test_name} COMMAND ${test} ${test_args})
-
+  add_test(
+    NAME ${test_name}
+    COMMAND
+      ${test} ${test_args}
+  )
 endforeach()
 
 message(STATUS "Added ARKODE F2003 serial unit tests")
-

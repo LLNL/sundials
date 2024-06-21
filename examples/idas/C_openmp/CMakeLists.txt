@@ -18,21 +18,26 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(IDAS_examples
+set(
+  IDAS_examples
   "idasFoodWeb_bnd_omp\;4\;develop"
   "idasFoodWeb_kry_omp\;4\;develop"
-  )
+)
 
 # Specify libraries to link against
 set(IDAS_LIB sundials_idas)
 set(NVECOMP_LIB sundials_nvecopenmp)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${IDAS_LIB} ${NVECOMP_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(
+  SUNDIALS_LIBS
+  ${IDAS_LIB}
+  ${NVECOMP_LIB}
+  ${EXE_EXTRA_LINK_LIBS}
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${IDAS_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -45,7 +50,12 @@ foreach(example_tuple ${IDAS_examples})
     add_executable(${example} ${example}.c)
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
@@ -61,31 +71,43 @@ foreach(example_tuple ${IDAS_examples})
   # LEB NOTE: This goes away with TestRunner fix for OpenMP
   if(NOT ${example} MATCHES "idasFoodWeb_kry_omp")
     # add example to regression tests
-    sundials_add_test(${example} ${example}
-      TEST_ARGS ${example_args}
+    SUNDIALS_ADD_TEST(
+      ${example}
+      ${example}
+      TEST_ARGS
+        ${example_args}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${example}.out
-      EXAMPLE_TYPE ${example_type})
+      EXAMPLE_TYPE ${example_type}
+    )
   endif()
 
   # install example source and .out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp)
+    install(
+      FILES
+        ${example}.c
+        ${example}.out
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp
+    )
   endif()
-
-endforeach(example_tuple ${IDAS_examples})
-
+endforeach(
+  example_tuple
+  ${IDAS_examples}
+)
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp)
 
   # Install the extra files
   foreach(extrafile ${IDAS_extras})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp)
+    install(
+      FILES
+        ${extrafile}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp
+    )
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
@@ -103,13 +125,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmp_C_ex.in
     ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -121,16 +144,16 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_openmp_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/idas/C_openmp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/C_openmp
       RENAME Makefile
-      )
+    )
   endif()
 
   # add test_install target
-  sundials_add_test_install(idas C_openmp)
-
+  SUNDIALS_ADD_TEST_INSTALL(idas C_openmp)
 endif()

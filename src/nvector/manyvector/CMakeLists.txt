@@ -19,22 +19,20 @@
 if(BUILD_NVECTOR_MANYVECTOR)
   install(CODE "MESSAGE(\"\nInstall NVECTOR_MANYVECTOR\n\")")
 
-  sundials_add_library(sundials_nvecmanyvector
+  sundials_add_library(
+    sundials_nvecmanyvector
     SOURCES
       nvector_manyvector.c
     HEADERS
       ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_manyvector.h
-    INCLUDE_SUBDIR
-      nvector
+    INCLUDE_SUBDIR nvector
     LINK_LIBRARIES
-      PUBLIC sundials_core
-    OUTPUT_NAME
-      sundials_nvecmanyvector
-    VERSION
-      ${nveclib_VERSION}
-    SOVERSION
-      ${nveclib_SOVERSION}
-    )
+      PUBLIC
+      sundials_core
+    OUTPUT_NAME sundials_nvecmanyvector
+    VERSION ${nveclib_VERSION}
+    SOVERSION ${nveclib_SOVERSION}
+  )
 
   message(STATUS "Added NVECTOR_MANYVECTOR module")
 endif()
@@ -52,24 +50,23 @@ if(BUILD_NVECTOR_MPIMANYVECTOR)
   endif()
 
   # Create the sundials_nvecmpimanyvector library
-  sundials_add_library(sundials_nvecmpimanyvector
+  sundials_add_library(
+    sundials_nvecmpimanyvector
     SOURCES
       nvector_manyvector.c
     HEADERS
       ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpimanyvector.h
-    INCLUDE_SUBDIR
-      nvector
+    INCLUDE_SUBDIR nvector
     LINK_LIBRARIES
-      PUBLIC sundials_core
+      PUBLIC
+      sundials_core
     COMPILE_DEFINITIONS
-      PRIVATE MANYVECTOR_BUILD_WITH_MPI
-    OUTPUT_NAME
-      sundials_nvecmpimanyvector
-    VERSION
-      ${nveclib_VERSION}
-    SOVERSION
-      ${nveclib_SOVERSION}
-    )
+      PRIVATE
+      MANYVECTOR_BUILD_WITH_MPI
+    OUTPUT_NAME sundials_nvecmpimanyvector
+    VERSION ${nveclib_VERSION}
+    SOVERSION ${nveclib_SOVERSION}
+  )
 
   message(STATUS "Added NVECTOR_MPIMANYVECTOR module")
 endif()

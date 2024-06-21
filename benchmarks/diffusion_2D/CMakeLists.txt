@@ -13,12 +13,13 @@
 # ------------------------------------------------------------------------------
 
 if(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA)
-
   # Shared sources
-  set(shared_sources
+  set(
+    shared_sources
     diffusion_2D.hpp
     diffusion_2D.cpp
-    preconditioner_jacobi.cpp)
+    preconditioner_jacobi.cpp
+  )
 
   # Benchmark prefix
   set(benchmark_prefix ${SUNDIALS_SOURCE_DIR}/benchmarks/diffusion_2D/)
@@ -33,7 +34,5 @@ if(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA)
     add_subdirectory(mpi_gpu)
   endif()
 
-  install(FILES README.md
-    DESTINATION "${BENCHMARKS_INSTALL_PATH}/diffusion_2D")
-
+  install(FILES README.md DESTINATION "${BENCHMARKS_INSTALL_PATH}/diffusion_2D")
 endif()

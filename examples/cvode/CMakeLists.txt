@@ -21,7 +21,13 @@ if(EXAMPLES_ENABLE_C)
   if(ENABLE_OPENMP AND OPENMP_FOUND)
     add_subdirectory(C_openmp)
   endif()
-  if(ENABLE_OPENMP_DEVICE AND OPENMP_FOUND AND OPENMP_SUPPORTS_DEVICE_OFFLOADING)
+  if(
+    ENABLE_OPENMP_DEVICE
+    AND
+      OPENMP_FOUND
+    AND
+      OPENMP_SUPPORTS_DEVICE_OFFLOADING
+  )
     add_subdirectory(C_openmpdev)
   endif()
   if(ENABLE_MPI AND MPI_C_FOUND)
@@ -86,9 +92,7 @@ endif()
 
 # CUDA examples
 if(EXAMPLES_ENABLE_CUDA)
-
   if(ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
     add_subdirectory(cuda)
   endif()
-
 endif()

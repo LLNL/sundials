@@ -18,10 +18,11 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(KINSOL_examples
+set(
+  KINSOL_examples
   "kinFoodWeb_kry_bbd_p\;1\;4\;exclude-single"
   "kinFoodWeb_kry_p\;1\;4\;exclude-single"
-  )
+)
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -36,11 +37,15 @@ set(KINSOL_LIB sundials_kinsol)
 set(NVECP_LIB sundials_nvecparallel)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECP_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(
+  SUNDIALS_LIBS
+  ${KINSOL_LIB}
+  ${NVECP_LIB}
+  ${EXE_EXTRA_LINK_LIBS}
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${KINSOL_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 number_of_nodes)
@@ -50,34 +55,50 @@ foreach(example_tuple ${KINSOL_examples})
   # example source files
   add_executable(${example} ${example}.c)
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  set_target_properties(
+    ${example}
+    PROPERTIES
+      FOLDER
+        "Examples"
+  )
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
+  SUNDIALS_ADD_TEST(
+    ${example}
+    ${example}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+  )
 
   # libraries to link against
   target_link_libraries(${example} ${SUNDIALS_LIBS})
 
   if(NOT MPI_C_COMPILER)
-    target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+    target_link_libraries(
+      ${example}
+      ${MPI_LIBRARY}
+      ${MPI_EXTRA_LIBRARIES}
+    )
   endif()
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/parallel)
+    install(
+      FILES
+        ${example}.c
+        ${example}.out
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/parallel
+    )
   endif()
-
-endforeach(example_tuple ${KINSOL_examples})
-
+endforeach(
+  example_tuple
+  ${KINSOL_examples}
+)
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/parallel)
 
@@ -96,13 +117,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
     ${PROJECT_BINARY_DIR}/examples/kinsol/parallel/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/kinsol/parallel/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/kinsol/parallel/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/parallel
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -114,16 +136,16 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/kinsol/parallel/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/kinsol/parallel/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/kinsol/parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/parallel
       RENAME Makefile
-      )
+    )
   endif()
 
   # add test_install target
-  sundials_add_test_install(kinsol parallel)
-
+  SUNDIALS_ADD_TEST_INSTALL(kinsol parallel)
 endif()

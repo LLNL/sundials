@@ -29,30 +29,59 @@ if(BUILD_SUNMATRIX_GINKGO)
   message(STATUS "Added BUILD_SUNMATRIX_GINKGO module")
   add_library(sundials_sunmatrixginkgo INTERFACE)
   target_link_libraries(sundials_sunmatrixginkgo INTERFACE sundials_core)
-  target_include_directories(sundials_sunmatrixginkgo INTERFACE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-    $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-  install(FILES ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgo.hpp
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunmatrix")
-  set(_SUNDIALS_INSTALLED_COMPONENTS "sunmatrixginkgo;${_SUNDIALS_INSTALLED_COMPONENTS}" CACHE INTERNAL "" FORCE)
+  target_include_directories(
+    sundials_sunmatrixginkgo
+    INTERFACE
+      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+      $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+      $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  )
+  install(
+    FILES
+      ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgo.hpp
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunmatrix"
+  )
+  set(
+    _SUNDIALS_INSTALLED_COMPONENTS
+    "sunmatrixginkgo;${_SUNDIALS_INSTALLED_COMPONENTS}"
+    CACHE INTERNAL
+    ""
+    FORCE
+  )
 endif()
 
 if(BUILD_SUNMATRIX_KOKKOSDENSE)
   install(CODE "MESSAGE(\"\nInstall SUNMATRIX_KOKKOSDENSE\n\")")
   message(STATUS "Added BUILD_SUNMATRIX_KOKKOSDENSE module")
   add_library(sundials_sunmatrixkokkosdense INTERFACE)
-  target_link_libraries(sundials_sunmatrixkokkosdense INTERFACE
-    sundials_core Kokkos::kokkos Kokkos::kokkoskernels)
-  target_include_directories(sundials_sunmatrixkokkosdense INTERFACE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-    $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-  install(FILES ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_kokkosdense.hpp
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunmatrix")
-  set(_SUNDIALS_INSTALLED_COMPONENTS "sunmatrixkokkosdense;${_SUNDIALS_INSTALLED_COMPONENTS}" CACHE INTERNAL "" FORCE)
+  target_link_libraries(
+    sundials_sunmatrixkokkosdense
+    INTERFACE
+      sundials_core
+      Kokkos::kokkos
+      Kokkos::kokkoskernels
+  )
+  target_include_directories(
+    sundials_sunmatrixkokkosdense
+    INTERFACE
+      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+      $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+      $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  )
+  install(
+    FILES
+      ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_kokkosdense.hpp
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunmatrix"
+  )
+  set(
+    _SUNDIALS_INSTALLED_COMPONENTS
+    "sunmatrixkokkosdense;${_SUNDIALS_INSTALLED_COMPONENTS}"
+    CACHE INTERNAL
+    ""
+    FORCE
+  )
 endif()
 
 if(BUILD_SUNMATRIX_MAGMADENSE)

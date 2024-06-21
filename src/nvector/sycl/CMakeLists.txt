@@ -17,25 +17,24 @@
 install(CODE "MESSAGE(\"\nInstall NVECTOR_SYCL\n\")")
 
 # Create the library
-sundials_add_library(sundials_nvecsycl
+sundials_add_library(
+  sundials_nvecsycl
   SOURCES
     nvector_sycl.cpp
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_sycl.h
-  INCLUDE_SUBDIR
-    nvector
+  INCLUDE_SUBDIR nvector
   LINK_LIBRARIES
-    PUBLIC sundials_core
+    PUBLIC
+    sundials_core
   OBJECT_LIBRARIES
     sundials_sunmemsycl_obj
   COMPILE_FEATURES
-    PUBLIC cxx_std_17
-  OUTPUT_NAME
-    sundials_nvecsycl
-  VERSION
-    ${nveclib_VERSION}
-  SOVERSION
-    ${nveclib_SOVERSION}
+    PUBLIC
+    cxx_std_17
+  OUTPUT_NAME sundials_nvecsycl
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION}
 )
 
 message(STATUS "Added NVECTOR_SYCL module")

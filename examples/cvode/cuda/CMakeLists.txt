@@ -20,18 +20,17 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(CVODE_examples
+set(
+  CVODE_examples
   "cvAdvDiff_kry_cuda\;\;develop"
   "cvAdvDiff_kry_cuda_managed\;\;develop"
   "cvAdvDiff_diag_cuda\;0 0\;develop"
   "cvAdvDiff_diag_cuda\;0 1\;develop"
   "cvAdvDiff_diag_cuda\;1 1\;develop"
-  )
+)
 
 # Examples using cuSolverSP linear solvers
-set(CVODE_examples_cusolver
-  "cvRoberts_block_cusolversp_batchqr\;\;develop"
-)
+set(CVODE_examples_cusolver "cvRoberts_block_cusolversp_batchqr\;\;develop")
 
 if(SUNDIALS_INDEX_SIZE MATCHES "32")
   set(all_examples "${CVODE_examples_cusolver}")
@@ -42,12 +41,19 @@ endif()
 list(APPEND all_examples "${CVODE_examples}")
 
 # Specify libraries to link against
-set(SUNDIALS_LIBS ${SUNDIALS_LIBS}
-                  sundials_cvode
-                  sundials_nveccuda)
+set(
+  SUNDIALS_LIBS
+  ${SUNDIALS_LIBS}
+  sundials_cvode
+  sundials_nveccuda
+)
 
 if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-  set(SUNDIALS_LIBS ${SUNDIALS_LIBS} sundials_cvode_fused_cuda)
+  set(
+    SUNDIALS_LIBS
+    ${SUNDIALS_LIBS}
+    sundials_cvode_fused_cuda
+  )
 endif()
 
 # Add source directory to include directories
@@ -55,23 +61,37 @@ include_directories(.)
 
 # Add the build and install targets for each CVODE example
 foreach(example_tuple ${all_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  set_source_files_properties(${example}.cu PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
+  set_source_files_properties(
+    ${example}.cu
+    PROPERTIES
+      CUDA_SOURCE_PROPERTY_FORMAT
+        OBJ
+  )
 
-  if (NOT TARGET ${example})
+  if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.cu)
 
     # folder for IDEs
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS} ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(
+      ${example}
+      PRIVATE
+        ${SUNDIALS_LIBS}
+        ${EXE_EXTRA_LINK_LIBS}
+    )
   endif()
 
   # check if example args are provided and set the test name
@@ -82,23 +102,32 @@ foreach(example_tuple ${all_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+      ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+  )
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cu ${test_name}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda)
+    install(
+      FILES
+        ${example}.cu
+        ${test_name}.out
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda
+    )
   endif()
-endforeach(example_tuple ${CVODE_examples})
-
+endforeach(
+  example_tuple
+  ${CVODE_examples}
+)
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda)
 
@@ -127,13 +156,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_CUDA_ex.in
     ${PROJECT_BINARY_DIR}/examples/cvode/cuda/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvode/cuda/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/cvode/cuda/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -145,16 +175,16 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_CUDA_ex.in
       ${PROJECT_BINARY_DIR}/examples/cvode/cuda/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/cvode/cuda/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/cvode/cuda/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda
       RENAME Makefile
-      )
+    )
   endif()
 
   # add test_install target
-  sundials_add_test_install(cvode cuda)
-
+  SUNDIALS_ADD_TEST_INSTALL(cvode cuda)
 endif()

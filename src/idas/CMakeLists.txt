@@ -18,7 +18,8 @@
 install(CODE "MESSAGE(\"\nInstall IDAS\n\")")
 
 # Add variable idas_SOURCES with the sources for the IDAS library
-set(idas_SOURCES
+set(
+  idas_SOURCES
   idas.c
   idaa.c
   idas_io.c
@@ -29,28 +30,30 @@ set(idas_SOURCES
   idas_nls.c
   idas_nls_sim.c
   idas_nls_stg.c
-  )
+)
 
 # Add variable idas_HEADERS with the exported IDAS header files
-set(idas_HEADERS
+set(
+  idas_HEADERS
   idas.h
   idas_bbdpre.h
   idas_ls.h
-  )
+)
 
 # Add prefix with complete path to the IDAS header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/idas/ idas_HEADERS)
 
 # Create the library
-sundials_add_library(sundials_idas
+sundials_add_library(
+  sundials_idas
   SOURCES
     ${idas_SOURCES}
   HEADERS
     ${idas_HEADERS}
-  INCLUDE_SUBDIR
-    idas
+  INCLUDE_SUBDIR idas
   LINK_LIBRARIES
-    PUBLIC sundials_core
+    PUBLIC
+    sundials_core
   OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
@@ -66,12 +69,9 @@ sundials_add_library(sundials_idas
     sundials_sunlinsolpcg_obj
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
-  OUTPUT_NAME
-    sundials_idas
-  VERSION
-    ${idaslib_VERSION}
-  SOVERSION
-    ${idaslib_SOVERSION}
+  OUTPUT_NAME sundials_idas
+  VERSION ${idaslib_VERSION}
+  SOVERSION ${idaslib_SOVERSION}
 )
 
 # Finished IDAS

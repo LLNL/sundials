@@ -18,18 +18,20 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using the SUNDIALS SPBCGS linear solver
-set(sunlinsol_spbcgs_examples
+set(
+  sunlinsol_spbcgs_examples
   "test_sunlinsol_spbcgs_parallel\;100 1 50 1e-3 0\;1\;4\;"
   "test_sunlinsol_spbcgs_parallel\;100 2 50 1e-3 0\;1\;4\;"
-  )
+)
 
 # Dependencies for nvector examples
-set(sunlinsol_spbcgs_dependencies
-  test_sunlinsol
-  )
+set(sunlinsol_spbcgs_dependencies test_sunlinsol)
 
 # Add source directory to include directories
-include_directories(. ../..)
+include_directories(
+  .
+  ../..
+)
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -41,7 +43,6 @@ endif()
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsol_spbcgs_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -53,16 +54,27 @@ foreach(example_tuple ${sunlinsol_spbcgs_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c ../../test_sunlinsol.c)
+    add_executable(
+      ${example}
+      ${example}.c
+      ../../test_sunlinsol.c
+    )
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
-    target_link_libraries(${example}
+    target_link_libraries(
+      ${example}
       sundials_nvecparallel
       sundials_sunlinsolspbcgs
-      ${EXE_EXTRA_LINK_LIBS})
+      ${EXE_EXTRA_LINK_LIBS}
+    )
 
     if(NOT MPI_C_COMPILER)
       target_include_directories(${example} ${MPI_INCLUDE_PATH})
@@ -78,25 +90,32 @@ foreach(example_tuple ${sunlinsol_spbcgs_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+      ${example_args}
     MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
-    NODIFF)
+    NODIFF
+  )
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../../test_sunlinsol.h
-      ../../test_sunlinsol.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spbcgs/parallel)
+    install(
+      FILES
+        ${example}.c
+        ../../test_sunlinsol.h
+        ../../test_sunlinsol.c
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spbcgs/parallel
+    )
   endif()
-
-endforeach(example_tuple ${sunlinsol_spbcgs_examples})
-
+endforeach(
+  example_tuple
+  ${sunlinsol_spbcgs_examples}
+)
 
 if(EXAMPLES_INSTALL)
-
   # Install the README file
   install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spbcgs/parallel)
 
@@ -115,13 +134,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
     ${PROJECT_BINARY_DIR}/examples/sunlinsol/spbcgs/parallel/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/spbcgs/parallel/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/sunlinsol/spbcgs/parallel/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spbcgs/parallel
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -133,13 +153,13 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/sunlinsol/spbcgs/parallel/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/spbcgs/parallel/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/sunlinsol/spbcgs/parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spbcgs/parallel
       RENAME Makefile
-      )
+    )
   endif()
-
 endif()

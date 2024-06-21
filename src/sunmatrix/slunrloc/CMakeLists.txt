@@ -21,27 +21,27 @@ set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
 set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 
 # Add the library
-sundials_add_library(sundials_sunmatrixslunrloc
+sundials_add_library(
+  sundials_sunmatrixslunrloc
   SOURCES
     sunmatrix_slunrloc.c
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_slunrloc.h
-  INCLUDE_SUBDIR
-    sunmatrix
+  INCLUDE_SUBDIR sunmatrix
   LINK_LIBRARIES
-    PUBLIC sundials_core
+    PUBLIC
+    sundials_core
   OBJECT_LIBRARIES
   LINK_LIBRARIES
-    PUBLIC SUNDIALS::SUPERLUDIST
+    PUBLIC
+    SUNDIALS::SUPERLUDIST
     $<IF:$<BOOL:${SUPERLUDIST_OpenMP}>,OpenMP::OpenMP_C,>
   COMPILE_OPTIONS
-    PRIVATE ${_compile_options}
-  OUTPUT_NAME
-    sundials_sunmatrixslunrloc
-  VERSION
-    ${sunlinsollib_VERSION}
-  SOVERSION
-    ${sunlinsollib_VERSION}
+    PRIVATE
+    ${_compile_options}
+  OUTPUT_NAME sundials_sunmatrixslunrloc
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_VERSION}
 )
 
 message(STATUS "Added SUNMATRIX_SLUNRLOC module")

@@ -18,13 +18,14 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(IDA_examples
+set(
+  IDA_examples
   "idaHeat2D_petsc_spgmr\;\;1\;4\;develop"
   "idaHeat2D_petsc_snes\;\;1\;4\;develop"
   "idaHeat2D_petsc_snes\;-pre\;1\;4\;develop"
   "idaHeat2D_petsc_snes\;-jac\;1\;4\;develop"
   "idaHeat2D_petsc_snes\;-jac -pre\;1\;4\;develop"
-  )
+)
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -40,11 +41,16 @@ set(NVECP_LIB sundials_nvecpetsc)
 set(SUNNLS_LIB sundials_sunnonlinsolpetscsnes)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${SUNNLS_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(
+  SUNDIALS_LIBS
+  ${IDA_LIB}
+  ${NVECP_LIB}
+  ${SUNNLS_LIB}
+  ${EXE_EXTRA_LINK_LIBS}
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${IDA_examples})
-
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 number_of_nodes)
@@ -57,13 +63,22 @@ foreach(example_tuple ${IDA_examples})
     add_executable(${example} ${example}.c)
 
     # group examples in IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})
 
     if(NOT MPI_C_COMPILER)
-      target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+      target_link_libraries(
+        ${example}
+        ${MPI_LIBRARY}
+        ${MPI_EXTRA_LIBRARIES}
+      )
     endif()
   endif()
 
@@ -75,27 +90,35 @@ foreach(example_tuple ${IDA_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+      ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+  )
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
 
   # install example
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
+    install(
+      FILES
+        ${example}.c
+        ${example_out}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc
+    )
   endif()
-
-endforeach(example_tuple ${IDA_examples})
-
+endforeach(
+  example_tuple
+  ${IDA_examples}
+)
 
 if(EXAMPLES_INSTALL)
-
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
 
@@ -114,13 +137,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_petsc_C_ex.in
     ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -132,16 +156,16 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_petsc_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/ida/petsc/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/ida/petsc/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/ida/petsc/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc
       RENAME Makefile
-      )
+    )
   endif()
 
   # add test_install target
-  sundials_add_test_install(ida petsc)
-
+  SUNDIALS_ADD_TEST_INSTALL(ida petsc)
 endif()

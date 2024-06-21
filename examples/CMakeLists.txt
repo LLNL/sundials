@@ -24,10 +24,20 @@
 foreach(lang ${_SUNDIALS_ENABLED_LANGS})
   if(ENABLE_MPI)
     if(DEFINED MPI_${lang}_COMPILER)
-      set(_EXAMPLES_${lang}_COMPILER "${MPI_${lang}_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
+      set(
+        _EXAMPLES_${lang}_COMPILER
+        "${MPI_${lang}_COMPILER}"
+        CACHE INTERNAL
+        "${lang} compiler for installed examples"
+      )
     endif()
   else()
-    set(_EXAMPLES_${lang}_COMPILER "${CMAKE_${lang}_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
+    set(
+      _EXAMPLES_${lang}_COMPILER
+      "${CMAKE_${lang}_COMPILER}"
+      CACHE INTERNAL
+      "${lang} compiler for installed examples"
+    )
   endif()
 endforeach()
 
@@ -45,7 +55,6 @@ set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 # ===================================================================
 
 if(EXAMPLES_INSTALL)
-
   set(SHELL "sh")
   set(prefix "${CMAKE_INSTALL_PREFIX}")
   set(exec_prefix "${CMAKE_INSTALL_PREFIX}")
@@ -62,7 +71,10 @@ if(EXAMPLES_INSTALL)
   if(CXX_FOUND)
     set(CXX "${_EXAMPLES_CXX_COMPILER}")
     set(CXX_LNKR "${_EXAMPLES_CXX_COMPILER}")
-    set(CXXFLAGS "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX${CMAKE_CXX_STANDARD}_STANDARD_COMPILE_OPTION}")
+    set(
+      CXXFLAGS
+      "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX${CMAKE_CXX_STANDARD}_STANDARD_COMPILE_OPTION}"
+    )
     set(CXX_LDFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
     list2string(EXE_EXTRA_LINK_LIBS CXX_LIBS)
   endif()
@@ -98,7 +110,6 @@ if(EXAMPLES_INSTALL)
   if(MPI_CXX_FOUND)
     set(MPICXX "${MPI_CXX_COMPILER}")
   endif()
-
 endif()
 
 # ===================================================================

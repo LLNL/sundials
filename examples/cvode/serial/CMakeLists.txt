@@ -19,7 +19,8 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(CVODE_examples
+set(
+  CVODE_examples
   "cvAdvDiff_bnd\;\;develop"
   "cvAnalytic_mels\;\;develop"
   "cvDirectDemo_ls\;\;develop"
@@ -37,35 +38,36 @@ set(CVODE_examples
   "cvRoberts_dns_negsol\;\;exclude-single"
   "cvRoberts_dns_uw\;\;develop"
   "cvRocket_dns\;\;develop"
-  )
+)
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
   list(APPEND CVODE_examples "cvKrylovDemo_ls\;0 1\;develop")
 endif()
 
 # Examples using LAPACK linear solvers
-set(CVODE_examples_BL
+set(
+  CVODE_examples_BL
   "cvAdvDiff_bndL\;\;exclude-single"
   "cvRoberts_dnsL\;\;exclude-single"
-  )
+)
 
 # Examples using KLU linear solver
-set(CVODE_examples_KLU
+set(
+  CVODE_examples_KLU
   "cvRoberts_block_klu\;\;develop"
   "cvRoberts_klu\;\;develop"
-  )
+)
 
 # Examples using SuperLU_MT linear solver
-set(CVODE_examples_SUPERLUMT
-  "cvRoberts_sps\;\;develop"
-  )
+set(CVODE_examples_SUPERLUMT "cvRoberts_sps\;\;develop")
 
 # Auxiliary files to install
-set(CVODE_extras
+set(
+  CVODE_extras
   plot_cvParticle.py
   plot_cvPendulum.py
   cvRoberts_dns_stats.csv
-  )
+)
 
 # Specify libraries to link against
 set(CVODE_LIB sundials_cvode)
@@ -76,11 +78,15 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
 endif()
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(
+  SUNDIALS_LIBS
+  ${CVODE_LIB}
+  ${NVECS_LIB}
+  ${EXE_EXTRA_LINK_LIBS}
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -93,7 +99,12 @@ foreach(example_tuple ${CVODE_examples})
     add_executable(${example} ${example}.c)
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
     target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
@@ -107,37 +118,46 @@ foreach(example_tuple ${CVODE_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+      ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+  )
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)
 
   # install example source and .out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
+    install(
+      FILES
+        ${example}.c
+        ${example_out}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial
+    )
   endif()
-
-endforeach(example_tuple ${CVODE_examples})
-
+endforeach(
+  example_tuple
+  ${CVODE_examples}
+)
 
 # Add the build and install targets for each LAPACK example (if needed)
 if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
-
   # Sundials LAPACK linear solver modules
-  set(SUNLINSOLLAPACK_LIBS
+  set(
+    SUNLINSOLLAPACK_LIBS
     sundials_sunlinsollapackband
-    sundials_sunlinsollapackdense)
+    sundials_sunlinsollapackdense
+  )
 
   # LAPACK libraries
   list(APPEND SUNLINSOLLAPACK_LIBS ${LAPACK_LIBRARIES})
 
   foreach(example_tuple ${CVODE_examples_BL})
-
     # parse the example tuple
     list(GET example_tuple 0 example)
     list(GET example_tuple 1 example_args)
@@ -150,10 +170,19 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
       add_executable(${example} ${example}.c)
 
       # folder to organize targets in an IDE
-      set_target_properties(${example} PROPERTIES FOLDER "Examples")
+      set_target_properties(
+        ${example}
+        PROPERTIES
+          FOLDER
+            "Examples"
+      )
 
       # libraries to link against
-      target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
+      target_link_libraries(
+        ${example}
+        ${SUNDIALS_LIBS}
+        ${SUNLINSOLLAPACK_LIBS}
+      )
     endif()
 
     # check if example args are provided and set the test name
@@ -164,29 +193,36 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     endif()
 
     # add example to regression tests
-    sundials_add_test(${test_name} ${example}
-      TEST_ARGS ${example_args}
+    SUNDIALS_ADD_TEST(
+      ${test_name}
+      ${example}
+      TEST_ARGS
+        ${example_args}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${test_name}.out
-      EXAMPLE_TYPE ${example_type})
+      EXAMPLE_TYPE ${example_type}
+    )
 
     # find all .out files for this example
     file(GLOB example_out ${example}*.out)
 
     # install example source and .out files
     if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
+      install(
+        FILES
+          ${example}.c
+          ${example_out}
+        DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial
+      )
     endif()
-
-  endforeach(example_tuple ${CVODE_examples_BL})
-
+  endforeach(
+    example_tuple
+    ${CVODE_examples_BL}
+  )
 endif()
-
 
 # Add the build and install targets for each KLU example (if needed)
 if(BUILD_SUNLINSOL_KLU)
-
   # Sundials KLU linear solver module
   set(SUNLINSOLKLU_LIBS sundials_sunlinsolklu)
 
@@ -194,7 +230,6 @@ if(BUILD_SUNLINSOL_KLU)
   list(APPEND SUNLINSOLKLU_LIBS)
 
   foreach(example_tuple ${CVODE_examples_KLU})
-
     # parse the example tuple
     list(GET example_tuple 0 example)
     list(GET example_tuple 1 example_args)
@@ -207,10 +242,19 @@ if(BUILD_SUNLINSOL_KLU)
       add_executable(${example} ${example}.c)
 
       # folder to organize targets in an IDE
-      set_target_properties(${example} PROPERTIES FOLDER "Examples")
+      set_target_properties(
+        ${example}
+        PROPERTIES
+          FOLDER
+            "Examples"
+      )
 
       # libraries to link against
-      target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
+      target_link_libraries(
+        ${example}
+        ${SUNDIALS_LIBS}
+        ${SUNLINSOLKLU_LIBS}
+      )
     endif()
 
     # check if example args are provided and set the test name
@@ -221,29 +265,36 @@ if(BUILD_SUNLINSOL_KLU)
     endif()
 
     # add example to regression tests
-    sundials_add_test(${test_name} ${example}
-      TEST_ARGS ${example_args}
+    SUNDIALS_ADD_TEST(
+      ${test_name}
+      ${example}
+      TEST_ARGS
+        ${example_args}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${test_name}.out
-      EXAMPLE_TYPE ${example_type})
+      EXAMPLE_TYPE ${example_type}
+    )
 
     # find all .out files for this example
     file(GLOB example_out ${example}*.out)
 
     # install example source and .out files
     if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
+      install(
+        FILES
+          ${example}.c
+          ${example_out}
+        DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial
+      )
     endif()
-
-  endforeach(example_tuple ${CVODE_examples_KLU})
-
+  endforeach(
+    example_tuple
+    ${CVODE_examples_KLU}
+  )
 endif()
-
 
 # Add the build and install targets for each SuperLU_MT example (if needed)
 if(BUILD_SUNLINSOL_SUPERLUMT)
-
   # Sundials SuperLU_MT linear solver module
   set(SUNLINSOLSLUMT_LIBS sundials_sunlinsolsuperlumt)
 
@@ -251,7 +302,6 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
   list(APPEND SUNLINSOLSLUMT_LIBS ${SUPERLUMT_LIBRARIES})
 
   foreach(example_tuple ${CVODE_examples_SUPERLUMT})
-
     # parse the example tuple
     list(GET example_tuple 0 example)
     list(GET example_tuple 1 example_args)
@@ -264,10 +314,19 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
       add_executable(${example} ${example}.c)
 
       # folder to organize targets in an IDE
-      set_target_properties(${example} PROPERTIES FOLDER "Examples")
+      set_target_properties(
+        ${example}
+        PROPERTIES
+          FOLDER
+            "Examples"
+      )
 
       # libraries to link against
-      target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
+      target_link_libraries(
+        ${example}
+        ${SUNDIALS_LIBS}
+        ${SUNLINSOLSLUMT_LIBS}
+      )
     endif()
 
     # check if example args are provided and set the test name
@@ -283,11 +342,15 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     # when type specific answer files are added.
     if(SUNDIALS_INDEX_SIZE MATCHES "32")
       # add example to regression tests
-      sundials_add_test(${test_name} ${example}
-        TEST_ARGS ${example_args}
+      SUNDIALS_ADD_TEST(
+        ${test_name}
+        ${example}
+        TEST_ARGS
+          ${example_args}
         ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
         ANSWER_FILE ${test_name}.out
-        EXAMPLE_TYPE ${example_type})
+        EXAMPLE_TYPE ${example_type}
+      )
     endif()
 
     # find all .out files for this example
@@ -295,24 +358,31 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
 
     # install example source and .out files
     if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
+      install(
+        FILES
+          ${example}.c
+          ${example_out}
+        DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial
+      )
     endif()
-
-  endforeach(example_tuple ${CVODE_examples_SUPERLUMT})
-
+  endforeach(
+    example_tuple
+    ${CVODE_examples_SUPERLUMT}
+  )
 endif()
-
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
 
   # Install the extra files
   foreach(extrafile ${CVODE_extras})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
+    install(
+      FILES
+        ${extrafile}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial
+    )
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
@@ -338,7 +408,7 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_SUNLINSOL_SUPERLUMT)
     examples2string(CVODE_examples_SUPERLUMT EXAMPLES_SLUMT)
-    if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
+    if(SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
       set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
     else()
       set(THREAD_LIBRARY_SLUMT "")
@@ -357,13 +427,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
     ${PROJECT_BINARY_DIR}/examples/cvode/serial/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvode/serial/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/cvode/serial/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -375,16 +446,16 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/cvode/serial/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/cvode/serial/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/cvode/serial/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial
       RENAME Makefile
-      )
+    )
   endif()
 
   # add test_install target
-  sundials_add_test_install(cvode serial EXECUTABLE cvRoberts_dns)
-
+  SUNDIALS_ADD_TEST_INSTALL(cvode serial EXECUTABLE cvRoberts_dns)
 endif()

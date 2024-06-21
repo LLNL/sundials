@@ -18,19 +18,24 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS parallel hypre nvector
-set(nvector_parhyp_examples
+set(
+  nvector_parhyp_examples
   "test_nvector_parhyp\;1000 0\;1\;1\;" # run sequentially
   "test_nvector_parhyp\;1000 0\;1\;4\;" # run parallel on 4 procs
-  )
+)
 
 # Dependencies for nvector examples
-set(nvector_examples_dependencies
+set(
+  nvector_examples_dependencies
   test_nvector
   test_mpinvector
-  )
+)
 
 # Add source directory to include directories
-include_directories(. ..)
+include_directories(
+  .
+  ..
+)
 include_directories(${HYPRE_INC_PATH})
 include_directories(${HYPRE_INC_DIR})
 include_directories(${HYPRE_LIB_DIR})
@@ -39,7 +44,11 @@ include_directories(${HYPRE_LIB_DIR})
 set(NVECS_LIB sundials_nvecparhyp)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(
+  SUNDIALS_LIBS
+  ${NVECS_LIB}
+  ${EXE_EXTRA_LINK_LIBS}
+)
 
 list(APPEND SUNDIALS_LIBS)
 
@@ -53,7 +62,6 @@ endif()
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_parhyp_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -68,10 +76,20 @@ foreach(example_tuple ${nvector_parhyp_examples})
     add_executable(${example} ${example}.c)
 
     # link vector test utilties
-    target_link_libraries(${example} PRIVATE test_nvector_obj test_nvectormpi_obj)
+    target_link_libraries(
+      ${example}
+      PRIVATE
+        test_nvector_obj
+        test_nvectormpi_obj
+    )
 
     # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
     target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
@@ -92,30 +110,45 @@ foreach(example_tuple ${nvector_parhyp_examples})
     if("${number_of_tasks}" STREQUAL "")
       string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+      string(
+        REGEX
+        REPLACE
+        " "
+        "_"
+        test_name
+        ${example}_${number_of_tasks}_${example_args}
+      )
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example}
+    TEST_ARGS
+      ${example_args}
     MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
-    NODIFF)
+    NODIFF
+  )
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_nvector.c
-      ../test_nvector.h
-      ../test_mpinvector.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp)
+    install(
+      FILES
+        ${example}.c
+        ../test_nvector.c
+        ../test_nvector.h
+        ../test_mpinvector.c
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp
+    )
   endif()
-
-endforeach(example_tuple ${nvector_parhyp_examples})
+endforeach(
+  example_tuple
+  ${nvector_parhyp_examples}
+)
 
 if(EXAMPLES_INSTALL)
-
   # Install the README file
   install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp)
 
@@ -134,13 +167,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parhyp_C_ex.in
     ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -152,13 +186,13 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parhyp_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp
       RENAME Makefile
-      )
+    )
   endif()
-
 endif()

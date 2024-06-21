@@ -25,23 +25,21 @@ elseif(MPI_C_FOUND)
 endif()
 
 # Create the library
-sundials_add_library(sundials_nvecmpiplusx
+sundials_add_library(
+  sundials_nvecmpiplusx
   SOURCES
     nvector_mpiplusx.c
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpiplusx.h
-  INCLUDE_SUBDIR
-    nvector
+  INCLUDE_SUBDIR nvector
   LINK_LIBRARIES
-    PUBLIC sundials_core
+    PUBLIC
+    sundials_core
   OBJECT_LIBRARIES
     sundials_nvecmpimanyvector_obj
-  OUTPUT_NAME
-    sundials_nvecmpiplusx
-  VERSION
-    ${nveclib_VERSION}
-  SOVERSION
-    ${nveclib_SOVERSION}
+  OUTPUT_NAME sundials_nvecmpiplusx
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION}
 )
 
 message(STATUS "Added NVECTOR_MPIPLUSX module")

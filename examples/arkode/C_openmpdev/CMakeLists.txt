@@ -18,22 +18,27 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(ARKODE_examples
+set(
+  ARKODE_examples
   "ark_analytic_nonlin_ompdev\;4\;develop"
   "ark_heat1D_ompdev\;4\;develop"
   "ark_heat1D_adapt_ompdev\;4\;develop"
-  )
+)
 
 # Specify libraries to link against
 set(ARKODE_LIB sundials_arkode)
 set(NVECOMP_LIB sundials_nvecopenmpdev)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECOMP_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(
+  SUNDIALS_LIBS
+  ${ARKODE_LIB}
+  ${NVECOMP_LIB}
+  ${EXE_EXTRA_LINK_LIBS}
+)
 
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -42,36 +47,53 @@ foreach(example_tuple ${ARKODE_examples})
   # example source files
   add_executable(${example} ${example}.c)
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  set_target_properties(
+    ${example}
+    PROPERTIES
+      FOLDER
+        "Examples"
+  )
 
   # add to regression tests
-  sundials_add_test(${example} ${example}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${example}
+    ${example}
+    TEST_ARGS
+      ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+  )
 
   # libraries to link against
   target_link_libraries(${example} ${SUNDIALS_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_openmpdev)
+    install(
+      FILES
+        ${example}.c
+        ${example}.out
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_openmpdev
+    )
   endif()
-
-endforeach(example_tuple ${ARKODE_examples})
-
+endforeach(
+  example_tuple
+  ${ARKODE_examples}
+)
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_openmpdev)
 
   # Install the extra files
   foreach(extrafile ${ARKODE_extras_OMP})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_openmpdev)
+    install(
+      FILES
+        ${extrafile}
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_openmpdev
+    )
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
@@ -89,13 +111,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmpdev_ex.in
     ${PROJECT_BINARY_DIR}/examples/arkode/C_openmpdev/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_openmpdev/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/arkode/C_openmpdev/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_openmpdev
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -107,16 +130,16 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_openmpdev_ex.in
       ${PROJECT_BINARY_DIR}/examples/arkode/C_openmpdev/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_openmpdev/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/arkode/C_openmpdev/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_openmpdev
       RENAME Makefile
-      )
+    )
   endif()
 
   # add test_install target
-  sundials_add_test_install(arkode C_openmpdev)
-
+  SUNDIALS_ADD_TEST_INSTALL(arkode C_openmpdev)
 endif()

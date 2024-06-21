@@ -18,22 +18,20 @@
 install(CODE "MESSAGE(\"\nInstall SUNMATRIX_DENSE\n\")")
 
 # Add the sunmatrix_dense library
-sundials_add_library(sundials_sunmatrixdense
+sundials_add_library(
+  sundials_sunmatrixdense
   SOURCES
     sunmatrix_dense.c
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_dense.h
-  INCLUDE_SUBDIR
-    sunmatrix
+  INCLUDE_SUBDIR sunmatrix
   LINK_LIBRARIES
-    PUBLIC sundials_core
+    PUBLIC
+    sundials_core
   OBJECT_LIBRARIES
-  OUTPUT_NAME
-    sundials_sunmatrixdense
-  VERSION
-    ${sunmatrixlib_VERSION}
-  SOVERSION
-    ${sunmatrixlib_SOVERSION}
+  OUTPUT_NAME sundials_sunmatrixdense
+  VERSION ${sunmatrixlib_VERSION}
+  SOVERSION ${sunmatrixlib_SOVERSION}
 )
 
 message(STATUS "Added SUNMATRIX_DENSE module")

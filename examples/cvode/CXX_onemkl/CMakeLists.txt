@@ -15,13 +15,10 @@
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
-set(CVODE_examples
-  "cvRoberts_blockdiag_onemkl.cpp\;\;develop"
-)
+set(CVODE_examples "cvRoberts_blockdiag_onemkl.cpp\;\;develop")
 
 # Add the build targets for each CVODE example
 foreach(example_tuple ${CVODE_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -30,24 +27,28 @@ foreach(example_tuple ${CVODE_examples})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  if (NOT TARGET ${example_target})
-
+  if(NOT TARGET ${example_target})
     # example source files
     add_executable(${example_target} ${example})
 
     # folder for IDEs
-    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example_target}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
-    target_link_libraries(${example_target}
+    target_link_libraries(
+      ${example_target}
       PRIVATE
-      sundials_cvode
-      sundials_nvecsycl
-      sundials_sunlinsolonemkldense
-      MKL::MKL_DPCPP
-      ${EXE_EXTRA_LINK_LIBS}
-      )
-
+        sundials_cvode
+        sundials_nvecsycl
+        sundials_sunlinsolonemkldense
+        MKL::MKL_DPCPP
+        ${EXE_EXTRA_LINK_LIBS}
+    )
   endif()
 
   # check if example args are provided and set the test name
@@ -58,28 +59,29 @@ foreach(example_tuple ${CVODE_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example_target}
+    TEST_ARGS
+      ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
-
+    EXAMPLE_TYPE ${example_type}
+  )
 endforeach()
 
 # Install the targets
 if(EXAMPLES_INSTALL)
-
-  sundials_install_examples(cvode CVODE_examples
-    CMAKE_TEMPLATE
-      cmakelists_CXX_ex.in
+  sundials_install_examples(
+    cvode
+    CVODE_examples
+    CMAKE_TEMPLATE cmakelists_CXX_ex.in
     SUNDIALS_TARGETS
       cvode
       nvecsycl
       sunlinsolonemkldense
     OTHER_TARGETS
       MKL::MKL_DPCPP
-    DESTINATION
-      cvode/CXX_onemkl
+    DESTINATION cvode/CXX_onemkl
   )
-
 endif()

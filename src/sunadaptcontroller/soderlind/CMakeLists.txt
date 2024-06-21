@@ -13,15 +13,16 @@
 # ---------------------------------------------------------------
 
 # Create a library out of the generic sundials modules
-sundials_add_library(sundials_sunadaptcontrollersoderlind
+sundials_add_library(
+  sundials_sunadaptcontrollersoderlind
   SOURCES
     sunadaptcontroller_soderlind.c
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/sunadaptcontroller/sunadaptcontroller_soderlind.h
   LINK_LIBRARIES
-    PUBLIC sundials_core
-  INCLUDE_SUBDIR
-    sunadaptcontroller
+    PUBLIC
+    sundials_core
+  INCLUDE_SUBDIR sunadaptcontroller
   OBJECT_LIB_ONLY
 )
 

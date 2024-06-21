@@ -20,7 +20,8 @@
 install(CODE "MESSAGE(\"\nInstall shared components\n\")")
 
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
-set(sundials_HEADERS
+set(
+  sundials_HEADERS
   sundials_adaptcontroller.h
   sundials_band.h
   sundials_base.hpp
@@ -52,7 +53,7 @@ set(sundials_HEADERS
   sundials_types_deprecated.h
   sundials_types.h
   sundials_version.h
-  )
+)
 
 if(ENABLE_MPI)
   list(APPEND sundials_HEADERS sundials_mpi_errors.h)
@@ -78,7 +79,8 @@ endif()
 # Add prefix with complete path to the header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 
-set(sundials_SOURCES
+set(
+  sundials_SOURCES
   sundials_adaptcontroller.c
   sundials_band.c
   sundials_context.c
@@ -98,7 +100,7 @@ set(sundials_SOURCES
   sundials_nvector.c
   sundials_profiler.c
   sundials_version.c
-  )
+)
 
 if(ENABLE_MPI)
   list(APPEND sundials_SOURCES sundials_mpi_errors.c)
@@ -108,57 +110,69 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
 
 if(ENABLE_MPI)
-  set(_link_mpi_if_needed PUBLIC 
+  set(
+    _link_mpi_if_needed
+    PUBLIC
     MPI::MPI_C
-    $<$<LINK_LANGUAGE:CXX>:MPI::MPI_CXX>)
+    $<$<LINK_LANGUAGE:CXX>:MPI::MPI_CXX>
+  )
 endif()
-
 
 if(SUNDIALS_BUILD_WITH_PROFILING)
   if(ENABLE_CALIPER)
-    set(_link_caliper_if_needed PUBLIC caliper)
+    set(
+      _link_caliper_if_needed
+      PUBLIC
+      caliper
+    )
   endif()
   if(ENABLE_ADIAK)
-    set(_link_adiak_if_needed PUBLIC adiak::adiak ${CMAKE_DL_LIBS})
+    set(
+      _link_adiak_if_needed
+      PUBLIC
+      adiak::adiak
+      ${CMAKE_DL_LIBS}
+    )
   endif()
 endif()
 
 # Create a library out of the generic sundials modules
-sundials_add_library(sundials_core
+sundials_add_library(
+  sundials_core
   SOURCES
     ${sundials_SOURCES}
   HEADERS
     ${sundials_HEADERS}
-  INCLUDE_SUBDIR
-    sundials
+  INCLUDE_SUBDIR sundials
   LINK_LIBRARIES
     ${_link_mpi_if_needed}
-  OUTPUT_NAME
-    sundials_core
-  VERSION
-    ${sundialslib_VERSION}
-  SOVERSION
-    ${sundialslib_SOVERSION}
+  OUTPUT_NAME sundials_core
+  VERSION ${sundialslib_VERSION}
+  SOVERSION ${sundialslib_SOVERSION}
 )
 
 # Install private headers
-install(FILES
-  ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_context_impl.h
-  ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_errors_impl.h
-  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials/priv")
+install(
+  FILES
+    ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_context_impl.h
+    ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_errors_impl.h
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials/priv"
+)
 
 if(ENABLE_MPI)
-  install(FILES
-    ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_mpi_errors_impl.h
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials/priv")
+  install(
+    FILES
+      ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_mpi_errors_impl.h
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials/priv"
+  )
 endif()
 
 # SUNDIALS_EXPORT macro
 include(GenerateExportHeader)
 generate_export_header(
-  sundials_core BASE_NAME SUNDIALS
-  EXPORT_FILE_NAME
-  "${PROJECT_BINARY_DIR}/include/sundials/sundials_export.h"
+  sundials_core
+  BASE_NAME SUNDIALS
+  EXPORT_FILE_NAME "${PROJECT_BINARY_DIR}/include/sundials/sundials_export.h"
 )
 
 # Add F2003 module if the interface is enabled

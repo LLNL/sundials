@@ -15,9 +15,7 @@
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
-set(CVODE_examples
-  "cv_bruss_batched_magma.cpp\;\;develop"
-)
+set(CVODE_examples "cv_bruss_batched_magma.cpp\;\;develop")
 
 if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
   set(vector nveccuda)
@@ -29,7 +27,6 @@ endif()
 
 # Add the build targets for each CVODE example
 foreach(example_tuple ${CVODE_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -38,22 +35,37 @@ foreach(example_tuple ${CVODE_examples})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  if (NOT TARGET ${example_target})
-
+  if(NOT TARGET ${example_target})
     if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
-      set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
+      set_source_files_properties(
+        ${example}
+        PROPERTIES
+          LANGUAGE
+            CUDA
+      )
     elseif(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
-      set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
+      set_source_files_properties(
+        ${example}
+        PROPERTIES
+          LANGUAGE
+            CXX
+      )
     endif()
 
     # example source files
     add_executable(${example_target} ${example})
 
     # folder for IDEs
-    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example_target}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
-    target_link_libraries(${example_target}
+    target_link_libraries(
+      ${example_target}
       PRIVATE
         sundials_cvode
         sundials_${vector}
@@ -70,26 +82,30 @@ foreach(example_tuple ${CVODE_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example_target}
+    TEST_ARGS
+      ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
-
-endforeach(example_tuple ${CVODE_examples})
+    EXAMPLE_TYPE ${example_type}
+  )
+endforeach(
+  example_tuple
+  ${CVODE_examples}
+)
 
 # Install the targets
 if(EXAMPLES_INSTALL)
-
-  sundials_install_examples(cvode CVODE_examples
-    CMAKE_TEMPLATE
-      cmakelists_${cuda_or_hip}_ex.in
+  sundials_install_examples(
+    cvode
+    CVODE_examples
+    CMAKE_TEMPLATE cmakelists_${cuda_or_hip}_ex.in
     SUNDIALS_TARGETS
       cvode
       ${vector}
       sunlinsolmagmadense
-    DESTINATION
-      cvode/magma
+    DESTINATION cvode/magma
   )
-
 endif()

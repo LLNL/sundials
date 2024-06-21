@@ -18,20 +18,22 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(KINSOL_examples
-  "kinFoodWeb_kry_omp\;4\;develop"
-  )
+set(KINSOL_examples "kinFoodWeb_kry_omp\;4\;develop")
 
 # Specify libraries to link against
 set(KINSOL_LIB sundials_kinsol)
 set(NVECOMP_LIB sundials_nvecopenmp)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${KINSOL_LIB} ${NVECOMP_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(
+  SUNDIALS_LIBS
+  ${KINSOL_LIB}
+  ${NVECOMP_LIB}
+  ${EXE_EXTRA_LINK_LIBS}
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${KINSOL_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -40,15 +42,24 @@ foreach(example_tuple ${KINSOL_examples})
   # example source files
   add_executable(${example} ${example}.c)
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  set_target_properties(
+    ${example}
+    PROPERTIES
+      FOLDER
+        "Examples"
+  )
 
-  if (NOT ${example} MATCHES "kinFoodWeb_kry_omp") # No test until TestRunner modified for OpenMP
+  if(NOT ${example} MATCHES "kinFoodWeb_kry_omp") # No test until TestRunner modified for OpenMP
     # add example to regression tests
-    sundials_add_test(${example} ${example}
-      TEST_ARGS ${example_args}
+    SUNDIALS_ADD_TEST(
+      ${example}
+      ${example}
+      TEST_ARGS
+        ${example_args}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${example}.out
-      EXAMPLE_TYPE ${example_type})
+      EXAMPLE_TYPE ${example_type}
+    )
   endif()
 
   # libraries to link against
@@ -56,16 +67,20 @@ foreach(example_tuple ${KINSOL_examples})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/C_openmp)
+    install(
+      FILES
+        ${example}.c
+        ${example}.out
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/C_openmp
+    )
   endif()
-
-endforeach(example_tuple ${KINSOL_examples_OMP})
-
+endforeach(
+  example_tuple
+  ${KINSOL_examples_OMP}
+)
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/C_openmp)
 
@@ -84,13 +99,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmp_C_ex.in
     ${PROJECT_BINARY_DIR}/examples/kinsol/C_openmp/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/kinsol/C_openmp/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/kinsol/C_openmp/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/C_openmp
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -102,16 +118,16 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_openmp_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/kinsol/C_openmp/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/kinsol/C_openmp/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/kinsol/C_openmp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/C_openmp
       RENAME Makefile
-      )
+    )
   endif()
 
   # add test_install target
-  sundials_add_test_install(kinsol C_openmp)
-
+  SUNDIALS_ADD_TEST_INSTALL(kinsol C_openmp)
 endif()

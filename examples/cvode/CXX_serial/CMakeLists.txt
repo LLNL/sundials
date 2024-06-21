@@ -18,14 +18,14 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(CVODE_examples
+set(
+  CVODE_examples
   "cv_heat2D.cpp\;\;\;\;exclude-single"
   "cv_kpr.cpp\;\;\;\;develop"
-  )
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -43,23 +43,30 @@ foreach(example_tuple ${CVODE_examples})
     add_executable(${example_target} ${example})
 
     # folder to organize targets in an IDE
-    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example_target}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # directories to include
-    target_include_directories(${example_target}
+    target_include_directories(
+      ${example_target}
       PRIVATE
-      ${PROJECT_SOURCE_DIR}/examples/utilities
+        ${PROJECT_SOURCE_DIR}/examples/utilities
     )
 
     # libraries to link against
-    target_link_libraries(${example_target}
+    target_link_libraries(
+      ${example_target}
       sundials_cvode
       sundials_nvecserial
-      ${EXE_EXTRA_LINK_LIBS})
+      ${EXE_EXTRA_LINK_LIBS}
+    )
 
     if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-      target_link_libraries(${example_target}
-        sundials_cvode_fused_stubs)
+      target_link_libraries(${example_target} sundials_cvode_fused_stubs)
     endif()
   endif()
 
@@ -71,39 +78,40 @@ foreach(example_tuple ${CVODE_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example_target}
+    TEST_ARGS
+      ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
-
-endforeach(example_tuple ${CVODE_examples})
-
+    EXAMPLE_TYPE ${example_type}
+  )
+endforeach(
+  example_tuple
+  ${CVODE_examples}
+)
 
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
-
   if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
     set(_fused_stubs cvode_fused_stubs)
   endif()
 
-  sundials_install_examples(cvode CVODE_examples
-    CMAKE_TEMPLATE
-      cmakelists_CXX_ex.in
-    MAKE_TEMPLATE
-      makefile_serial_CXX_ex.in
+  sundials_install_examples(
+    cvode
+    CVODE_examples
+    CMAKE_TEMPLATE cmakelists_CXX_ex.in
+    MAKE_TEMPLATE makefile_serial_CXX_ex.in
     SUNDIALS_TARGETS
       cvode
       nvecserial
       ${_fused_stubs}
-    DESTINATION
-      cvode/CXX_serial
+    DESTINATION cvode/CXX_serial
     EXTRA_FILES
       README
       plot_heat2D.py
       "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
-    TEST_INSTALL
-      CXX_serial
+    TEST_INSTALL CXX_serial
   )
-
 endif(EXAMPLES_INSTALL)

@@ -19,7 +19,8 @@
 
 # Examples using SUNDIALS SUNMatrix wrapper of the SuperLU SLU_NR_loc
 # SuperMatrix.
-set(sunmatrix_slunrloc_examples
+set(
+  sunmatrix_slunrloc_examples
   "test_sunmatrix_slunrloc.cpp\;100 1 1 0 0\;1\;\;"
   "test_sunmatrix_slunrloc.cpp\;400 2 1 0 0\;2\;\;"
   "test_sunmatrix_slunrloc.cpp\;600 3 1 0 0\;3\;\;"
@@ -27,9 +28,7 @@ set(sunmatrix_slunrloc_examples
 )
 
 # Dependencies for sunmatrix examples
-set(sunmatrix_slunrloc_dependencies
-  test_sunmatrix
-  )
+set(sunmatrix_slunrloc_dependencies test_sunmatrix)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunmatrix_slunrloc_examples})
@@ -46,22 +45,37 @@ foreach(example_tuple ${sunmatrix_slunrloc_examples})
   # example source files once for testing with different inputs
   if(NOT TARGET ${example_target})
     # example source files
-    add_executable(${example_target} ${example}
-      ../test_sunmatrix.c)
+    add_executable(
+      ${example_target}
+      ${example}
+      ../test_sunmatrix.c
+    )
 
     # folder to organize targets in an IDE
-    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example_target}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
-    target_include_directories(${example_target} PRIVATE . ..)
+    target_include_directories(
+      ${example_target}
+      PRIVATE
+        .
+        ..
+    )
 
     # libraries to link against
-    target_link_libraries(${example_target}
+    target_link_libraries(
+      ${example_target}
       PRIVATE
         MPI::MPI_CXX
         sundials_sunmatrixslunrloc
         sundials_sunmatrixdense
         sundials_nvecparallel
-        sundials_nvecserial)
+        sundials_nvecserial
+    )
   endif()
 
   # check if example args are provided and set the test name
@@ -69,24 +83,44 @@ foreach(example_tuple ${sunmatrix_slunrloc_examples})
     if("${number_of_nodes}" STREQUAL "")
       set(test_name ${example_target})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_nodes})
+      string(
+        REGEX
+        REPLACE
+        " "
+        "_"
+        test_name
+        ${example_target}_${number_of_nodes}
+      )
     endif()
   else()
     if("${number_of_nodes}" STREQUAL "")
       string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_nodes}_${example_args})
+      string(
+        REGEX
+        REPLACE
+        " "
+        "_"
+        test_name
+        ${example_target}_${number_of_nodes}_${example_args}
+      )
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example_target}
+    TEST_ARGS
+      ${example_args}
     MPI_NPROCS ${number_of_nodes}
     EXAMPLE_TYPE ${example_type}
-    NODIFF)
-
-endforeach(example_tuple ${sunmatrix_slunrloc_examples})
+    NODIFF
+  )
+endforeach(
+  example_tuple
+  ${sunmatrix_slunrloc_examples}
+)
 
 if(SUPERLUDIST_CUDA)
   set(_ex_lang CUDA)
@@ -97,22 +131,20 @@ else()
 endif()
 
 if(EXAMPLES_INSTALL)
-
-  sundials_install_examples(sunmatrix_slunrloc sunmatrix_slunrloc_examples
+  sundials_install_examples(
+    sunmatrix_slunrloc
+    sunmatrix_slunrloc_examples
     EXAMPLES_DEPENDENCIES
       test_sunmatrix.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
       ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
-    CMAKE_TEMPLATE
-      cmakelists_${_ex_lang}_MPI_ex.in
+    CMAKE_TEMPLATE cmakelists_${_ex_lang}_MPI_ex.in
     SUNDIALS_TARGETS
       nvecserial
       nvecparallel
       sunmatrixdense
       sunmatrixslunrloc
-    DESTINATION
-      sunmatrix/slunrloc
-    )
-
+    DESTINATION sunmatrix/slunrloc
+  )
 endif()

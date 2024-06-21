@@ -16,19 +16,19 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS ONEMKL dense matrix
-set(sunlinsols_onemkldense_examples
+set(
+  sunlinsols_onemkldense_examples
   "test_sunlinsol_onemkldense.cpp\;10 1 0\;"
   "test_sunlinsol_onemkldense.cpp\;100 1 0\;"
   "test_sunlinsol_onemkldense.cpp\;10 1000 0\;"
   "test_sunlinsol_onemkldense.cpp\;100 100 0\;"
-  )
+)
 
 # Add source directory to include directories
 include_directories(..)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sunlinsols_onemkldense_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -37,24 +37,28 @@ foreach(example_tuple ${sunlinsols_onemkldense_examples})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  if (NOT TARGET ${example_target})
-
+  if(NOT TARGET ${example_target})
     # example source files
     add_executable(${example_target} ${example})
 
     # folder for IDEs
-    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example_target}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
-    target_link_libraries(${example_target}
+    target_link_libraries(
+      ${example_target}
       PRIVATE
-      test_sunlinsol_obj
-      sundials_nvecsycl
-      sundials_sunlinsolonemkldense
-      MKL::MKL_DPCPP
-      ${EXE_EXTRA_LINK_LIBS}
-      )
-
+        test_sunlinsol_obj
+        sundials_nvecsycl
+        sundials_sunlinsolonemkldense
+        MKL::MKL_DPCPP
+        ${EXE_EXTRA_LINK_LIBS}
+    )
   endif()
 
   # check if example args are provided and set the test name
@@ -65,31 +69,31 @@ foreach(example_tuple ${sunlinsols_onemkldense_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example_target}
+    TEST_ARGS
+      ${example_args}
     EXAMPLE_TYPE ${example_type}
-    NODIFF)
-
+    NODIFF
+  )
 endforeach()
 
-
 if(EXAMPLES_INSTALL)
-
-  sundials_install_examples(sunlinsol_onemkl sunlinsols_onemkldense_examples
+  sundials_install_examples(
+    sunlinsol_onemkl
+    sunlinsols_onemkldense_examples
     EXAMPLES_DEPENDENCIES
       test_sunlinsol.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
-    CMAKE_TEMPLATE
-      cmakelists_CXX_ex.in
+    CMAKE_TEMPLATE cmakelists_CXX_ex.in
     SUNDIALS_TARGETS
       nvecsycl
       sunlinsolonemkldense
     OTHER_TARGETS
       MKL::MKL_DPCPP
-    DESTINATION
-      sunlinsol/onemkldense
-    )
-
+    DESTINATION sunlinsol/onemkldense
+  )
 endif()

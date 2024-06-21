@@ -24,24 +24,32 @@ else()
 endif()
 
 # Examples using SUNDIALS hip nvector
-set(nvector_hip_examples
+set(
+  nvector_hip_examples
   "test_nvector_hip.cpp\;3 ${_warp_size} 0\;\;\;"
   "test_nvector_hip.cpp\;500 128 0\;\;\;"
   "test_nvector_hip.cpp\;1000 0 0\;\;\;"
-  )
+)
 
 # Add source directory to include directories
-include_directories(. .. ${PROJECT_SOURCE_DIR}/examples/utilities)
+include_directories(
+  .
+  ..
+  ${PROJECT_SOURCE_DIR}/examples/utilities
+)
 
 # Specify libraries to link against
 set(NVECS_LIB sundials_nvechip)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${NVECS_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(
+  SUNDIALS_LIBS
+  ${NVECS_LIB}
+  ${EXE_EXTRA_LINK_LIBS}
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${nvector_hip_examples})
-
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
@@ -62,7 +70,12 @@ foreach(example_tuple ${nvector_hip_examples})
     target_link_libraries(${example_target} PRIVATE test_nvector_obj)
 
     # folder to organize targets in an IDE
-    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+    set_target_properties(
+      ${example_target}
+      PROPERTIES
+        FOLDER
+          "Examples"
+    )
 
     # libraries to link against
     target_link_libraries(${example_target} PRIVATE ${SUNDIALS_LIBS})
@@ -73,27 +86,48 @@ foreach(example_tuple ${nvector_hip_examples})
     if("${number_of_tasks}" STREQUAL "")
       set(test_name ${example_target})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_tasks})
+      string(
+        REGEX
+        REPLACE
+        " "
+        "_"
+        test_name
+        ${example_target}_${number_of_tasks}
+      )
     endif()
   else()
     if("${number_of_tasks}" STREQUAL "")
       string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_tasks}_${example_args})
+      string(
+        REGEX
+        REPLACE
+        " "
+        "_"
+        test_name
+        ${example_target}_${number_of_tasks}_${example_args}
+      )
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
-    TEST_ARGS ${example_args}
+  SUNDIALS_ADD_TEST(
+    ${test_name}
+    ${example_target}
+    TEST_ARGS
+      ${example_args}
     EXAMPLE_TYPE ${example_type}
-    NODIFF)
-
-endforeach(example_tuple ${nvector_hip_examples})
+    NODIFF
+  )
+endforeach(
+  example_tuple
+  ${nvector_hip_examples}
+)
 
 if(EXAMPLES_INSTALL)
-
-  sundials_install_examples(nvector nvector_hip_examples
+  sundials_install_examples(
+    nvector
+    nvector_hip_examples
     SUNDIALS_TARGETS
       nvechip
     EXAMPLES_DEPENDENCIES
@@ -102,9 +136,7 @@ if(EXAMPLES_INSTALL)
       ../test_nvector.c
       ../test_nvector.h
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_gpu.h
-    CMAKE_TEMPLATE
-      cmakelists_HIP_ex.in
-    DESTINATION
-      nvector/hip)
-
+    CMAKE_TEMPLATE cmakelists_HIP_ex.in
+    DESTINATION nvector/hip
+  )
 endif(EXAMPLES_INSTALL)

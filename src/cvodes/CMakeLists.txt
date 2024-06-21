@@ -18,7 +18,8 @@
 install(CODE "MESSAGE(\"\nInstall CVODES\n\")")
 
 # Add variable cvodes_SOURCES with the sources for the CVODES library
-set(cvodes_SOURCES
+set(
+  cvodes_SOURCES
   cvodea.c
   cvodea_io.c
   cvodes.c
@@ -32,31 +33,33 @@ set(cvodes_SOURCES
   cvodes_nls_stg.c
   cvodes_nls_stg1.c
   cvodes_proj.c
-  )
+)
 
 # Add variable cvodes_HEADERS with the exported CVODES header files
-set(cvodes_HEADERS
+set(
+  cvodes_HEADERS
   cvodes.h
   cvodes_bandpre.h
   cvodes_bbdpre.h
   cvodes_diag.h
   cvodes_ls.h
   cvodes_proj.h
-  )
+)
 
 # Add prefix with complete path to the CVODES header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/cvodes/ cvodes_HEADERS)
 
 # Create the library
-sundials_add_library(sundials_cvodes
+sundials_add_library(
+  sundials_cvodes
   SOURCES
     ${cvodes_SOURCES}
   HEADERS
     ${cvodes_HEADERS}
-  INCLUDE_SUBDIR
-    cvodes
+  INCLUDE_SUBDIR cvodes
   LINK_LIBRARIES
-    PUBLIC sundials_core
+    PUBLIC
+    sundials_core
   OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
@@ -72,12 +75,9 @@ sundials_add_library(sundials_cvodes
     sundials_sunlinsolpcg_obj
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
-  OUTPUT_NAME
-    sundials_cvodes
-  VERSION
-    ${cvodeslib_VERSION}
-  SOVERSION
-    ${cvodeslib_SOVERSION}
+  OUTPUT_NAME sundials_cvodes
+  VERSION ${cvodeslib_VERSION}
+  SOVERSION ${cvodeslib_SOVERSION}
 )
 
 # Finished CVODES

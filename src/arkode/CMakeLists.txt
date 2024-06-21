@@ -17,7 +17,8 @@
 install(CODE "MESSAGE(\"\nInstall ARKODE\n\")")
 
 # Add variable arkode_SOURCES with the sources for the ARKODE library
-set(arkode_SOURCES
+set(
+  arkode_SOURCES
   arkode_adapt.c
   arkode_arkstep_io.c
   arkode_arkstep_nls.c
@@ -46,7 +47,8 @@ set(arkode_SOURCES
 )
 
 # Add variable arkode_HEADERS with the exported ARKODE header files
-set(arkode_HEADERS
+set(
+  arkode_HEADERS
   arkode.h
   arkode_arkstep.h
   arkode_bandpre.h
@@ -65,15 +67,16 @@ set(arkode_HEADERS
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/arkode/ arkode_HEADERS)
 
 # Create the sundials_arkode library
-sundials_add_library(sundials_arkode
+sundials_add_library(
+  sundials_arkode
   SOURCES
     ${arkode_SOURCES}
   HEADERS
     ${arkode_HEADERS}
-  INCLUDE_SUBDIR
-    arkode
+  INCLUDE_SUBDIR arkode
   LINK_LIBRARIES
-    PUBLIC sundials_core
+    PUBLIC
+    sundials_core
   OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
@@ -91,12 +94,9 @@ sundials_add_library(sundials_arkode
     sundials_sunlinsolpcg_obj
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
-  OUTPUT_NAME
-    sundials_arkode
-  VERSION
-    ${arkodelib_VERSION}
-  SOVERSION
-    ${arkodelib_SOVERSION}
+  OUTPUT_NAME sundials_arkode
+  VERSION ${arkodelib_VERSION}
+  SOVERSION ${arkodelib_SOVERSION}
 )
 
 # Finished ARKODE

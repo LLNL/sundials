@@ -17,24 +17,23 @@
 install(CODE "MESSAGE(\"\nInstall NVECTOR_PTHREADS\n\")")
 
 # Create the library
-sundials_add_library(sundials_nvecpthreads
+sundials_add_library(
+  sundials_nvecpthreads
   SOURCES
     nvector_pthreads.c
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_pthreads.h
-  INCLUDE_SUBDIR
-    nvector
+  INCLUDE_SUBDIR nvector
   LINK_LIBRARIES
-    PUBLIC sundials_core
+    PUBLIC
+    sundials_core
   OBJECT_LIBRARIES
   LINK_LIBRARIES
-    PRIVATE Threads::Threads
-  OUTPUT_NAME
-    sundials_nvecpthreads
-  VERSION
-    ${nveclib_VERSION}
-  SOVERSION
-    ${nveclib_SOVERSION}
+    PRIVATE
+    Threads::Threads
+  OUTPUT_NAME sundials_nvecpthreads
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION}
 )
 
 message(STATUS "Added NVECTOR_PTHREADS module")

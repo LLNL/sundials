@@ -19,9 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 if(BUILD_SUNNONLINSOL_PETSCSNES)
-  set(ARKODE_examples
-    "ark_petsc_ex25\;1\;1\;develop"
-    )
+  set(ARKODE_examples "ark_petsc_ex25\;1\;1\;develop")
 endif()
 
 if(MPI_C_COMPILER)
@@ -40,11 +38,16 @@ if(BUILD_SUNNONLINSOL_PETSCSNES)
 endif()
 
 # set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${SUNNLS_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(
+  SUNDIALS_LIBS
+  ${ARKODE_LIB}
+  ${NVECP_LIB}
+  ${SUNNLS_LIB}
+  ${EXE_EXTRA_LINK_LIBS}
+)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${ARKODE_examples})
-
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 number_of_nodes)
   list(GET example_tuple 2 number_of_tasks)
@@ -53,33 +56,49 @@ foreach(example_tuple ${ARKODE_examples})
   # example source files
   add_executable(${example} ${example}.c)
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  set_target_properties(
+    ${example}
+    PROPERTIES
+      FOLDER
+        "Examples"
+  )
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
+  SUNDIALS_ADD_TEST(
+    ${example}
+    ${example}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+  )
 
   # libraries to link against
   target_link_libraries(${example} ${SUNDIALS_LIBS})
 
   if(NOT MPI_C_COMPILER)
-    target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+    target_link_libraries(
+      ${example}
+      ${MPI_LIBRARY}
+      ${MPI_EXTRA_LIBRARIES}
+    )
   endif()
 
   # install example
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_petsc)
+    install(
+      FILES
+        ${example}.c
+        ${example}.out
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_petsc
+    )
   endif()
-
-endforeach(example_tuple ${ARKODE_examples})
-
+endforeach(
+  example_tuple
+  ${ARKODE_examples}
+)
 
 if(EXAMPLES_INSTALL)
-
   # Install the README file
   install(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_petsc)
 
@@ -98,13 +117,14 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_petsc_C_ex.in
     ${PROJECT_BINARY_DIR}/examples/arkode/C_petsc/CMakeLists.txt
     @ONLY
-    )
+  )
 
   # install CMakelists.txt
   install(
-    FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_petsc/CMakeLists.txt
+    FILES
+      ${PROJECT_BINARY_DIR}/examples/arkode/C_petsc/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_petsc
-    )
+  )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template
@@ -116,15 +136,15 @@ if(EXAMPLES_INSTALL)
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_petsc_C_ex.in
       ${PROJECT_BINARY_DIR}/examples/arkode/C_petsc/Makefile_ex
       @ONLY
-      )
+    )
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_petsc/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/examples/arkode/C_petsc/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_petsc
       RENAME Makefile
-      )
+    )
   endif()
 
-  sundials_add_test_install(arkode C_petsc)
-
+  SUNDIALS_ADD_TEST_INSTALL(arkode C_petsc)
 endif()
