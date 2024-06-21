@@ -108,6 +108,10 @@ if("@ENABLE_KOKKOS_KERNELS@" AND NOT TARGET Kokkos::kokkoskernels)
   find_dependency(KokkosKernels PATHS "@KokkosKernels_DIR@")
 endif()
 
+if("@ENABLE_LAPACK@" AND NOT TARGET LAPACK::LAPACK)
+  find_dependency(LAPACK)
+endif()
+
 if("@ENABLE_PETSC@" AND NOT TARGET SUNDIALS::PETSC)
   add_library(SUNDIALS::PETSC INTERFACE IMPORTED)
   target_link_libraries(SUNDIALS::PETSC INTERFACE "@PETSC_LIBRARIES@")

@@ -160,9 +160,6 @@ if(BUILD_SUNLINSOL_LAPACKDENSE)
     sundials_sunlinsollapackdense
     sundials_fsunlinsollapackdense_mod)
 
-  # LAPACK libraries
-  list(APPEND SUNLINSOLLAPACK_LIBS ${LAPACK_LIBRARIES})
-
   foreach(example_tuple ${FARKODE_examples_LAPACK})
 
     # parse the example tuple

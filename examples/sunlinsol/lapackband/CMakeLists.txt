@@ -55,7 +55,6 @@ foreach(example_tuple ${sunlinsol_lapackband_examples})
       sundials_nvecserial
       sundials_sunmatrixband
       sundials_sunlinsollapackband
-      ${LAPACK_LIBRARIES}
       ${EXE_EXTRA_LINK_LIBS})
   endif()
 

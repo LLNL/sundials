@@ -28,7 +28,7 @@ sundials_add_library(sundials_sunlinsollapackdense
     PUBLIC sundials_core
   OBJECT_LIBRARIES
   LINK_LIBRARIES
-    PUBLIC sundials_sunmatrixdense "${LAPACK_LIBRARIES}"
+    PUBLIC sundials_sunmatrixdense LAPACK::LAPACK
   OUTPUT_NAME
     sundials_sunlinsollapackdense
   VERSION

@@ -65,7 +65,6 @@ foreach(example_tuple ${sunlinsol_lapackdense_examples})
       sundials_nvecserial
       sundials_sunmatrixdense
       sundials_sunlinsollapackdense
-      ${LAPACK_LIBRARIES}
       ${EXE_EXTRA_LINK_LIBS})
   endif()
 

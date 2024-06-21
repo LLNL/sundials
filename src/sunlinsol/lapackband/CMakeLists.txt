@@ -28,7 +28,7 @@ sundials_add_library(sundials_sunlinsollapackband
     PUBLIC sundials_core
   OBJECT_LIBRARIES
   LINK_LIBRARIES
-    PUBLIC sundials_sunmatrixband "${LAPACK_LIBRARIES}"
+    PUBLIC sundials_sunmatrixband LAPACK::LAPACK
   OUTPUT_NAME
     sundials_sunlinsollapackband
   VERSION
