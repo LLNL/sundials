@@ -181,15 +181,20 @@ def print_log(log, indent=0):
     This function prints the list of entries from a log file.
     """
 
+    spaces = indent * " "
+
     for entry in log:
+        print(f"{spaces}{{")
         for key in entry:
             if type(entry[key]) is list:
+                print(f"{spaces}{key} :")
+                print(f"{spaces}[")
                 subindent = indent + 2
                 print_log(entry[key], indent=subindent)
+                print(f"{spaces}]")
             else:
-                spaces = indent * " "
                 print(f"{spaces}{key} : {entry[key]}")
-
+        print(f"{spaces}}}")
 
 def get_history(log, key, step_status = None, time_range = None,
                 step_range = None):
