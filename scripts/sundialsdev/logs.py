@@ -103,66 +103,77 @@ def log_file_to_list(filename):
     """
     with open(filename, "r") as logfile:
 
-        # List of step attempt dictionaries, one entry for each step attempt
-        log = []
+        # List of step attempts, each entry is a dictionary for one attempt
+        step_attempts = []
 
-        # Stack of logs for adding sublists (stage data, algebraic solver data,
-        # fast integrator data, etc.) to the current log entry
-        log_stack = []
+        # Stack of lists to handle sublists for different log scopes e.g., stage
+        # data, algebraic solver data, fast integrator data, etc.
+        #
+        # stack[-1] is the active list of dictionaries
+        # stage[-1][-1] is the active dictionary
+        stack = []
 
         # Make step attempt list the active list
-        log_stack.append(log)
+        stack.append(step_attempts)
 
         # Time level for nested integrators e.g., MRI methods
         level = 0
 
+        # Read the log file
         all_lines = logfile.readlines()
+
         for line_number, line in enumerate(all_lines):
+
             line_dict = parse_logfile_line(line.rstrip(), line_number, all_lines)
+
             if not line_dict:
                 continue
 
-            line_dict["payload"]["level"] = level
+            label = line_dict["label"]
 
-            if line_dict["label"] == "begin-step-attempt":
-                # Add new step attempt entry to the active list
-                log_stack[-1].append(line_dict["payload"])
-            elif line_dict["label"] == "end-step-attempt":
-                # Update last step attempt entry
-                log_stack[-1][-1].update(line_dict["payload"])
-
-            if (line_dict["label"] == "begin-stage"):
-                # Add stage sublist to the last entry in the active list
-                if "stages" not in log_stack[-1][-1]:
-                    log_stack[-1][-1]["stages"] = []
-                # Make the stage list the active list
-                log_stack.append(log_stack[-1][-1]["stages"])
-                # Add new stage entry to list
-                log_stack[-1].append(line_dict["payload"])
+            if label == "begin-step-attempt":
+                # Set the current time level
+                line_dict["payload"]["level"] = level
+                # Add new step attempt dictionary to the active list
+                stack[-1].append(line_dict["payload"])
                 continue
-            elif (line_dict["label"] == "end-stage"):
-                # Update last stage entry
-                log_stack[-1][-1].update(line_dict["payload"])
+            elif label == "end-step-attempt":
+                # Update active step attempt dictionary
+                stack[-1][-1].update(line_dict["payload"])
+                continue
+
+            if label == "begin-stage":
+                # Add stage sublist to the active dictionary
+                if "stages" not in stack[-1][-1]:
+                    stack[-1][-1]["stages"] = []
+                # Make the stage sublist the active list
+                stack.append(stack[-1][-1]["stages"])
+                # Add new stage dictionary to the active list
+                stack[-1].append(line_dict["payload"])
+                continue
+            elif label == "end-stage":
+                # Update the active stage dictionary
+                stack[-1][-1].update(line_dict["payload"])
                 # Deactivate stage list
-                log_stack.pop()
+                stack.pop()
                 continue
 
-            if (line_dict["label"] == "begin-fast-steps"):
+            if label == "begin-fast-steps":
                 level += 1
                 key = f"time-level-{level}"
-                # Add fast step sublist to the last entry in the active list
-                if key not in log_stack[-1][-1]:
-                    log_stack[-1][-1][key] = []
-                # Make the fast step list the active list
-                log_stack.append(log_stack[-1][-1][key])
+                # Add fast step sublist to the active dictionary
+                if key not in stack[-1][-1]:
+                    stack[-1][-1][key] = []
+                # Make the fast step sublist the active list
+                stack.append(stack[-1][-1][key])
                 continue
-            elif (line_dict["label"] == "end-fast-steps"):
+            elif label == "end-fast-steps":
                 level -= 1
                 # Deactivate fast step list
-                log_stack.pop()
+                stack.pop()
                 continue
 
-    return log
+    return step_attempts
 
 
 def print_log(log, indent=0):
