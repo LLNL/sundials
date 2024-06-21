@@ -365,14 +365,15 @@ int arkPrintRootMem(void* arkode_mem, FILE* outfile)
                 ark_mem->root_mem->gactive[i]);
       }
     }
-    fprintf(outfile, "ark_tlo = %" RSYM "\n", ark_mem->root_mem->tlo);
-    fprintf(outfile, "ark_thi = %" RSYM "\n", ark_mem->root_mem->thi);
-    fprintf(outfile, "ark_trout = %" RSYM "\n", ark_mem->root_mem->trout);
+    fprintf(outfile, "ark_tlo = " SUN_REAL_FORMAT_G "\n", ark_mem->root_mem->tlo);
+    fprintf(outfile, "ark_thi = " SUN_REAL_FORMAT_G "\n", ark_mem->root_mem->thi);
+    fprintf(outfile, "ark_trout = " SUN_REAL_FORMAT_G "\n",
+            ark_mem->root_mem->trout);
     if (ark_mem->root_mem->glo != NULL)
     {
       for (i = 0; i < ark_mem->root_mem->nrtfn; i++)
       {
-        fprintf(outfile, "ark_glo[%i] = %" RSYM "\n", i,
+        fprintf(outfile, "ark_glo[%i] = " SUN_REAL_FORMAT_G "\n", i,
                 ark_mem->root_mem->glo[i]);
       }
     }
@@ -380,7 +381,7 @@ int arkPrintRootMem(void* arkode_mem, FILE* outfile)
     {
       for (i = 0; i < ark_mem->root_mem->nrtfn; i++)
       {
-        fprintf(outfile, "ark_ghi[%i] = %" RSYM "\n", i,
+        fprintf(outfile, "ark_ghi[%i] = " SUN_REAL_FORMAT_G "\n", i,
                 ark_mem->root_mem->ghi[i]);
       }
     }
@@ -388,12 +389,14 @@ int arkPrintRootMem(void* arkode_mem, FILE* outfile)
     {
       for (i = 0; i < ark_mem->root_mem->nrtfn; i++)
       {
-        fprintf(outfile, "ark_grout[%i] = %" RSYM "\n", i,
+        fprintf(outfile, "ark_grout[%i] = " SUN_REAL_FORMAT_G "\n", i,
                 ark_mem->root_mem->grout[i]);
       }
     }
-    fprintf(outfile, "ark_toutc = %" RSYM "\n", ark_mem->root_mem->toutc);
-    fprintf(outfile, "ark_ttol = %" RSYM "\n", ark_mem->root_mem->ttol);
+    fprintf(outfile, "ark_toutc = " SUN_REAL_FORMAT_G "\n",
+            ark_mem->root_mem->toutc);
+    fprintf(outfile, "ark_ttol = " SUN_REAL_FORMAT_G "\n",
+            ark_mem->root_mem->ttol);
   }
   return (ARK_SUCCESS);
 }

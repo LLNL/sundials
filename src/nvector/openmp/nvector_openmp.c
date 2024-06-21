@@ -265,16 +265,7 @@ void N_VPrintFile_OpenMP(N_Vector x, FILE* outfile)
   N  = NV_LENGTH_OMP(x);
   xd = NV_DATA_OMP(x);
 
-  for (i = 0; i < N; i++)
-  {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%11.8Lg\n", xd[i]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%11.8g\n", xd[i]);
-#else
-    fprintf(outfile, "%11.8g\n", xd[i]);
-#endif
-  }
+  for (i = 0; i < N; i++) { fprintf(outfile, SUN_REAL_FORMAT_E "\n", xd[i]); }
   fprintf(outfile, "\n");
 
   return;

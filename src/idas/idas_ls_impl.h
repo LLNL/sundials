@@ -150,16 +150,8 @@ int idaLs_AccessLMem(void* ida_mem, const char* fname, IDAMem* IDA_mem,
   Error and Warning Messages
   ---------------------------------------------------------------*/
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define MSG_LS_TIME "at t = %Lg, "
-#define MSG_LS_FRMT "%Le."
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-#define MSG_LS_TIME "at t = %lg, "
-#define MSG_LS_FRMT "%le."
-#else
-#define MSG_LS_TIME "at t = %g, "
-#define MSG_LS_FRMT "%e."
-#endif
+#define MSG_LS_TIME "at t = " SUN_REAL_FORMAT_G ", "
+#define MSG_LS_FRMT SUN_REAL_FORMAT_G "."
 
 /* Error Messages */
 #define MSG_LS_IDAMEM_NULL "Integrator memory is NULL."

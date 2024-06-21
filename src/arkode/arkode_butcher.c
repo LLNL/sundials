@@ -392,17 +392,23 @@ void ARKodeButcherTable_Write(ARKodeButcherTable B, FILE* outfile)
     fprintf(outfile, "      ");
     for (j = 0; j < B->stages; j++)
     {
-      fprintf(outfile, "%" RSYM "  ", B->A[i][j]);
+      fprintf(outfile, SUN_REAL_FORMAT_G "  ", B->A[i][j]);
     }
     fprintf(outfile, "\n");
   }
 
   fprintf(outfile, "  c = ");
-  for (i = 0; i < B->stages; i++) { fprintf(outfile, "%" RSYM "  ", B->c[i]); }
+  for (i = 0; i < B->stages; i++)
+  {
+    fprintf(outfile, SUN_REAL_FORMAT_G "  ", B->c[i]);
+  }
   fprintf(outfile, "\n");
 
   fprintf(outfile, "  b = ");
-  for (i = 0; i < B->stages; i++) { fprintf(outfile, "%" RSYM "  ", B->b[i]); }
+  for (i = 0; i < B->stages; i++)
+  {
+    fprintf(outfile, SUN_REAL_FORMAT_G "  ", B->b[i]);
+  }
   fprintf(outfile, "\n");
 
   if (B->d != NULL)
@@ -410,7 +416,7 @@ void ARKodeButcherTable_Write(ARKodeButcherTable B, FILE* outfile)
     fprintf(outfile, "  d = ");
     for (i = 0; i < B->stages; i++)
     {
-      fprintf(outfile, "%" RSYM "  ", B->d[i]);
+      fprintf(outfile, SUN_REAL_FORMAT_G "  ", B->d[i]);
     }
     fprintf(outfile, "\n");
   }

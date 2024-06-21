@@ -30,14 +30,6 @@
 extern "C" {
 #endif
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM  ".32Lg"
-#define RSYMW "41.32Lg"
-#else
-#define RSYM  ".16g"
-#define RSYMW "23.16g"
-#endif
-
 /*=================================================================*/
 /* Shortcuts                                                       */
 /*=================================================================*/
@@ -988,31 +980,13 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
  * =================================================================
  */
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-
-#define MSG_TIME       "t = %Lg, "
-#define MSG_TIME_H     "t = %Lg and h = %Lg, "
-#define MSG_TIME_INT   "t = %Lg is not between tcur - hu = %Lg and tcur = %Lg."
-#define MSG_TIME_TOUT  "tout = %Lg"
-#define MSG_TIME_TSTOP "tstop = %Lg"
-
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-#define MSG_TIME       "t = %lg, "
-#define MSG_TIME_H     "t = %lg and h = %lg, "
-#define MSG_TIME_INT   "t = %lg is not between tcur - hu = %lg and tcur = %lg."
-#define MSG_TIME_TOUT  "tout = %lg"
-#define MSG_TIME_TSTOP "tstop = %lg"
-
-#else
-
-#define MSG_TIME       "t = %g, "
-#define MSG_TIME_H     "t = %g and h = %g, "
-#define MSG_TIME_INT   "t = %g is not between tcur - hu = %g and tcur = %g."
-#define MSG_TIME_TOUT  "tout = %g"
-#define MSG_TIME_TSTOP "tstop = %g"
-
-#endif
+#define MSG_TIME   "t = " SUN_REAL_FORMAT_G
+#define MSG_TIME_H "t = " SUN_REAL_FORMAT_G " and h = " SUN_REAL_FORMAT_G
+#define MSG_TIME_INT                                                          \
+  "t = " SUN_REAL_FORMAT_G " is not between tcur - hold = " SUN_REAL_FORMAT_G \
+  " and tcur = " SUN_REAL_FORMAT_G
+#define MSG_TIME_TOUT  "tout = " SUN_REAL_FORMAT_G
+#define MSG_TIME_TSTOP "tstop = " SUN_REAL_FORMAT_G
 
 /* General errors */
 
@@ -1244,7 +1218,7 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
   "The final time tBout is outside the interval over which the forward " \
   "problem was solved."
 #define MSGAM_BACK_ERROR  "Error occured while integrating backward problem # %d"
-#define MSGAM_BAD_TINTERP "Bad t = %g for interpolation."
+#define MSGAM_BAD_TINTERP "Bad t = " SUN_REAL_FORMAT_G " for interpolation."
 #define MSGAM_BAD_T       "Bad t for interpolation."
 #define MSGAM_WRONG_INTERP \
   "This function cannot be called for the specified interp type."

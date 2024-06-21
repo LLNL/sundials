@@ -270,11 +270,12 @@ void arkInterpPrintMem_Hermite(ARKInterp interp, FILE* outfile)
   {
     fprintf(outfile, "arkode_interp (Hermite): degree = %d\n",
             HINT_DEGREE(interp));
-    fprintf(outfile, "arkode_interp (Hermite): told = %" RSYM "\n",
+    fprintf(outfile, "arkode_interp (Hermite): told = " SUN_REAL_FORMAT_G "\n",
             HINT_TOLD(interp));
-    fprintf(outfile, "arkode_interp (Hermite): tnew = %" RSYM "\n",
+    fprintf(outfile, "arkode_interp (Hermite): tnew = " SUN_REAL_FORMAT_G "\n",
             HINT_TNEW(interp));
-    fprintf(outfile, "arkode_interp (Hermite): h = %" RSYM "\n", HINT_H(interp));
+    fprintf(outfile, "arkode_interp (Hermite): h = " SUN_REAL_FORMAT_G "\n",
+            HINT_H(interp));
 #ifdef SUNDIALS_DEBUG_PRINTVEC
     fprintf(outfile, "arkode_interp (Hermite): fold:\n");
     N_VPrintFile(HINT_FOLD(interp), outfile);
@@ -463,7 +464,7 @@ int arkInterpEvaluate_Hermite(ARKodeMem ark_mem, ARKInterp interp,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkInterpEvaluate_Hermite", "interp-eval",
-                     "tau = %" RSYM ", d = %i, q = %i", tau, d, q);
+                     "tau = " SUN_REAL_FORMAT_G ", d = %i, q = %i", tau, d, q);
 #endif
 
   /* call full RHS if needed -- called just AFTER the end of a step, so yn has
@@ -964,7 +965,7 @@ void arkInterpPrintMem_Lagrange(ARKInterp I, FILE* outfile)
       fprintf(outfile, "arkode_interp (Lagrange): thist =");
       for (i = 0; i < LINT_NMAX(I); i++)
       {
-        fprintf(outfile, "  %" RSYM, LINT_TJ(I, i));
+        fprintf(outfile, "  " SUN_REAL_FORMAT_G, LINT_TJ(I, i));
       }
       fprintf(outfile, "\n");
     }
@@ -1206,7 +1207,8 @@ int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tau,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkInterpEvaluate_Lagrange", "interp-eval",
-                     "tau = %" RSYM ", d = %i, q = %i", tau, deriv, q);
+                     "tau = " SUN_REAL_FORMAT_G ", d = %i, q = %i", tau, deriv,
+                     q);
 #endif
 
   /* error on illegal deriv */

@@ -114,13 +114,7 @@ void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile)
   {
     for (j = 0; j < SM_COLUMNS_D(A); j++)
     {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-      fprintf(outfile, "%12Lg  ", SM_ELEMENT_D(A, i, j));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-      fprintf(outfile, "%12g  ", SM_ELEMENT_D(A, i, j));
-#else
-      fprintf(outfile, "%12g  ", SM_ELEMENT_D(A, i, j));
-#endif
+      fprintf(outfile, SUN_REAL_FORMAT_E "  ", SM_ELEMENT_D(A, i, j));
     }
     fprintf(outfile, "\n");
   }

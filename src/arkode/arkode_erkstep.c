@@ -629,7 +629,8 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::erkStep_TakeStep",
                      "start-stage",
-                     "step = %li, stage = 0, h = %" RSYM ", tcur = %" RSYM,
+                     "step = %li, stage = 0, h = " SUN_REAL_FORMAT_G
+                     ", tcur = " SUN_REAL_FORMAT_G,
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
@@ -667,7 +668,8 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::erkStep_TakeStep", "start-stage",
-                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       "step = %li, stage = %i, h = " SUN_REAL_FORMAT_G
+                       ", tcur = " SUN_REAL_FORMAT_G,
                        ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
 #endif
 
@@ -722,7 +724,9 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::erkStep_TakeStep",
-                     "error-test", "step = %li, h = %" RSYM ", dsm = %" RSYM,
+                     "error-test",
+                     "step = %li, h = " SUN_REAL_FORMAT_G
+                     ", dsm = " SUN_REAL_FORMAT_G,
                      ark_mem->nst, ark_mem->h, *dsmPtr);
 #endif
 

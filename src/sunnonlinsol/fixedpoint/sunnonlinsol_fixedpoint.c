@@ -243,7 +243,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
                        "SUNNonlinSolSolve_FixedPoint", "end-of-iterate",
-                       "iter = %ld, nni = %ld, wrmsnorm = %.16g",
+                       "iter = %ld, nni = %ld, wrmsnorm = " SUN_REAL_FORMAT_G,
                        (long int)FP_CONTENT(NLS)->curiter,
                        FP_CONTENT(NLS)->niters, N_VWrmsNorm(delta, w));
 #endif

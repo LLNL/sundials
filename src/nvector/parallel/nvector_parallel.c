@@ -288,16 +288,7 @@ void N_VPrintFile_Parallel(N_Vector x, FILE* outfile)
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
 
-  for (i = 0; i < N; i++)
-  {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%35.32Le\n", xd[i]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%19.16e\n", xd[i]);
-#else
-    fprintf(outfile, "%11.8e\n", xd[i]);
-#endif
-  }
+  for (i = 0; i < N; i++) { fprintf(outfile, SUN_REAL_FORMAT_E "\n", xd[i]); }
   fprintf(outfile, "\n");
 
   return;

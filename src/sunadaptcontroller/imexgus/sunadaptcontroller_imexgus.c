@@ -181,23 +181,13 @@ SUNErrCode SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE* fptr)
   SUNFunctionBegin(C->sunctx);
   SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
   fprintf(fptr, "ImEx Gustafsson SUNAdaptController module:\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-  fprintf(fptr, "  k1e = %32Lg\n", SACIMEXGUS_K1E(C));
-  fprintf(fptr, "  k2e = %32Lg\n", SACIMEXGUS_K2E(C));
-  fprintf(fptr, "  k1i = %32Lg\n", SACIMEXGUS_K1I(C));
-  fprintf(fptr, "  k2i = %32Lg\n", SACIMEXGUS_K2I(C));
-  fprintf(fptr, "  bias factor = %22Lg\n", SACIMEXGUS_BIAS(C));
-  fprintf(fptr, "  previous error = %22Lg\n", SACIMEXGUS_EP(C));
-  fprintf(fptr, "  previous step = %22Lg\n", SACIMEXGUS_HP(C));
-#else
-  fprintf(fptr, "  k1e = %16g\n", SACIMEXGUS_K1E(C));
-  fprintf(fptr, "  k2e = %16g\n", SACIMEXGUS_K2E(C));
-  fprintf(fptr, "  k1i = %16g\n", SACIMEXGUS_K1I(C));
-  fprintf(fptr, "  k2i = %16g\n", SACIMEXGUS_K2I(C));
-  fprintf(fptr, "  bias factor = %16g\n", SACIMEXGUS_BIAS(C));
-  fprintf(fptr, "  previous error = %16g\n", SACIMEXGUS_EP(C));
-  fprintf(fptr, "  previous step = %16g\n", SACIMEXGUS_HP(C));
-#endif
+  fprintf(fptr, "  k1e = " SUN_REAL_FORMAT_G "\n", SACIMEXGUS_K1E(C));
+  fprintf(fptr, "  k2e = " SUN_REAL_FORMAT_G "\n", SACIMEXGUS_K2E(C));
+  fprintf(fptr, "  k1i = " SUN_REAL_FORMAT_G "\n", SACIMEXGUS_K1I(C));
+  fprintf(fptr, "  k2i = " SUN_REAL_FORMAT_G "\n", SACIMEXGUS_K2I(C));
+  fprintf(fptr, "  bias factor = " SUN_REAL_FORMAT_G "\n", SACIMEXGUS_BIAS(C));
+  fprintf(fptr, "  previous error = " SUN_REAL_FORMAT_G "\n", SACIMEXGUS_EP(C));
+  fprintf(fptr, "  previous step = " SUN_REAL_FORMAT_G "\n", SACIMEXGUS_HP(C));
   return SUN_SUCCESS;
 }
 

@@ -257,7 +257,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
-                         "end-iterate", "iter = %ld, nni = %ld, wrmsnorm = %.16g",
+                         "end-iterate",
+                         "iter = %ld, nni = %ld, wrmsnorm = " SUN_REAL_FORMAT_G,
                          NEWTON_CONTENT(NLS)->curiter,
                          NEWTON_CONTENT(NLS)->niters - 1, N_VWrmsNorm(delta, w));
 #endif

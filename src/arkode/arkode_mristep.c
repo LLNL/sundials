@@ -685,26 +685,27 @@ void mriStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   fprintf(outfile, "MRIStep: Coupling structure:\n");
   MRIStepCoupling_Write(step_mem->MRIC, outfile);
 
-  fprintf(outfile, "MRIStep: gamma = %" RSYM "\n", step_mem->gamma);
-  fprintf(outfile, "MRIStep: gammap = %" RSYM "\n", step_mem->gammap);
-  fprintf(outfile, "MRIStep: gamrat = %" RSYM "\n", step_mem->gamrat);
-  fprintf(outfile, "MRIStep: crate = %" RSYM "\n", step_mem->crate);
-  fprintf(outfile, "MRIStep: delp = %" RSYM "\n", step_mem->delp);
-  fprintf(outfile, "MRIStep: eRNrm = %" RSYM "\n", step_mem->eRNrm);
-  fprintf(outfile, "MRIStep: nlscoef = %" RSYM "\n", step_mem->nlscoef);
-  fprintf(outfile, "MRIStep: crdown = %" RSYM "\n", step_mem->crdown);
-  fprintf(outfile, "MRIStep: rdiv = %" RSYM "\n", step_mem->rdiv);
-  fprintf(outfile, "MRIStep: dgmax = %" RSYM "\n", step_mem->dgmax);
+  fprintf(outfile, "MRIStep: gamma = " SUN_REAL_FORMAT_G "\n", step_mem->gamma);
+  fprintf(outfile, "MRIStep: gammap = " SUN_REAL_FORMAT_G "\n", step_mem->gammap);
+  fprintf(outfile, "MRIStep: gamrat = " SUN_REAL_FORMAT_G "\n", step_mem->gamrat);
+  fprintf(outfile, "MRIStep: crate = " SUN_REAL_FORMAT_G "\n", step_mem->crate);
+  fprintf(outfile, "MRIStep: delp = " SUN_REAL_FORMAT_G "\n", step_mem->delp);
+  fprintf(outfile, "MRIStep: eRNrm = " SUN_REAL_FORMAT_G "\n", step_mem->eRNrm);
+  fprintf(outfile, "MRIStep: nlscoef = " SUN_REAL_FORMAT_G "\n",
+          step_mem->nlscoef);
+  fprintf(outfile, "MRIStep: crdown = " SUN_REAL_FORMAT_G "\n", step_mem->crdown);
+  fprintf(outfile, "MRIStep: rdiv = " SUN_REAL_FORMAT_G "\n", step_mem->rdiv);
+  fprintf(outfile, "MRIStep: dgmax = " SUN_REAL_FORMAT_G "\n", step_mem->dgmax);
   fprintf(outfile, "MRIStep: Ae_row =");
   for (i = 0; i < step_mem->nstages_active; i++)
   {
-    fprintf(outfile, " %" RSYM, step_mem->Ae_row[i]);
+    fprintf(outfile, " " SUN_REAL_FORMAT_G, step_mem->Ae_row[i]);
   }
   fprintf(outfile, "\n");
   fprintf(outfile, "MRIStep: Ai_row =");
   for (i = 0; i < step_mem->nstages_active; i++)
   {
-    fprintf(outfile, " %" RSYM, step_mem->Ai_row[i]);
+    fprintf(outfile, " " SUN_REAL_FORMAT_G, step_mem->Ai_row[i]);
   }
   fprintf(outfile, "\n");
 
@@ -1491,7 +1492,8 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
 #ifdef SUNDIALS_DEBUG
-  printf("    MRIStep step %li,  stage 0,  h = %" RSYM ",  t_n = %" RSYM "\n",
+  printf("    MRIStep step %li,  stage 0,  h = " SUN_REAL_FORMAT_G
+         ",  t_n = " SUN_REAL_FORMAT_G "\n",
          ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
@@ -1527,8 +1529,8 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::mriStep_TakeStep", "start-stage",
-                       "step = %li, stage = %i, stage type = %d, h = %" RSYM
-                       ", tcur = %" RSYM,
+                       "step = %li, stage = %i, stage type = %d, h "
+                       "= " SUN_REAL_FORMAT_G ", tcur = " SUN_REAL_FORMAT_G,
                        ark_mem->nst, is, step_mem->stagetypes[is], ark_mem->h,
                        ark_mem->tcur);
 #endif
@@ -1640,7 +1642,9 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* Solver diagnostics reporting */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
-                     "error-test", "step = %li, h = %" RSYM ", dsm = %" RSYM,
+                     "error-test",
+                     "step = %li, h = " SUN_REAL_FORMAT_G
+                     ", dsm = " SUN_REAL_FORMAT_G,
                      ark_mem->nst, ark_mem->h, *dsmPtr);
 #endif
 
@@ -2811,7 +2815,8 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "ARKODE::mriStepInnerStepper_Evolve", "start-inner-evolve",
-                     "t0 = %" RSYM ", tout = %" RSYM, t0, tout);
+                     "t0 = " SUN_REAL_FORMAT_G ", tout = " SUN_REAL_FORMAT_G,
+                     t0, tout);
 #endif
 
   stepper->last_flag = stepper->ops->evolve(stepper, t0, tout, y);
@@ -2849,7 +2854,7 @@ int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "ARKODE::mriStepInnerStepper_Reset", "reset-inner-state",
-                     "tR = %" RSYM, tR);
+                     "tR = " SUN_REAL_FORMAT_G, tR);
 #endif
 
   if (stepper->ops->reset)
