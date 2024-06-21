@@ -39,14 +39,14 @@ module ode_mod
 
   !======= Declarations =========
   implicit none
-  integer(c_int64_t),            parameter :: neq = 1
-  integer(c_int),             parameter :: Nt = 10
-  complex(c_double_complex),  parameter :: lambda = (-1d-2, 10.d0)
-  real(c_double),             parameter :: T0 = 0.d0
-  real(c_double),             parameter :: Tf = 10.d0
-  real(c_double),             parameter :: dtmax = 0.01d0
-  real(c_double),             parameter :: reltol = 1.d-6
-  real(c_double),             parameter :: abstol = 1.d-10
+  integer(c_int64_t), parameter :: neq = 1
+  integer(c_int), parameter :: Nt = 10
+  complex(c_double_complex), parameter :: lambda = (-1d-2, 10.d0)
+  real(c_double), parameter :: T0 = 0.d0
+  real(c_double), parameter :: Tf = 10.d0
+  real(c_double), parameter :: dtmax = 0.01d0
+  real(c_double), parameter :: reltol = 1.d-6
+  real(c_double), parameter :: abstol = 1.d-10
 
 contains
 
@@ -60,7 +60,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function Rhs(tn, sunvec_y, sunvec_f, user_data) &
-       result(ierr) bind(C,name='Rhs')
+    result(ierr) bind(C, name='Rhs')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -147,13 +147,13 @@ program main
   print *, "  "
   print *, "Analytical ODE test problem:"
   print '(2(a,f5.2),a)', "    lambda = (", real(lambda), " , ", imag(lambda), " ) "
-  print '(2(a,es8.1))', "    reltol = ",reltol,",  abstol = ",abstol
+  print '(2(a,es8.1))', "    reltol = ", reltol, ",  abstol = ", abstol
 
   ! initialize SUNDIALS solution vector
   sunvec_y => FN_VNew_Complex(neq, sunctx)
   if (.not. associated(sunvec_y)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
   y => FN_VGetFVec(sunvec_y)
 
@@ -163,43 +163,43 @@ program main
   ! create ARKStep memory
   arkode_mem = FARKStepCreate(c_funloc(Rhs), c_null_funptr, T0, sunvec_y, sunctx)
   if (.not. c_associated(arkode_mem)) then
-     print *,'ERROR: arkode_mem = NULL'
-     stop 1
+    print *, 'ERROR: arkode_mem = NULL'
+    stop 1
   end if
 
   ! main time-stepping loop: calls FARKodeEvolve to perform the integration, then
   ! prints results.  Stops when the final time has been reached
   tcur(1) = T0
-  dTout = (Tf-T0)/Nt
-  tout = T0+dTout
+  dTout = (Tf - T0)/Nt
+  tout = T0 + dTout
   yerrI = 0.d0
   yerr2 = 0.d0
   print *, " "
   print *, "      t     real(u)    imag(u)    error"
   print *, "   -------------------------------------------"
   print '(5x,f4.1,2(2x,es9.2),2x,es8.1)', tcur(1), real(y%data(1)), imag(y%data(1)), 0.d0
-  do iout = 1,Nt
+  do iout = 1, Nt
 
-     ! call integrator
-     ierr = FARKodeEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
-     if (ierr /= 0) then
-        write(*,*) 'Error in FARKodeEvolve, ierr = ', ierr, '; halting'
-        stop 1
-     endif
+    ! call integrator
+    ierr = FARKodeEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
+    if (ierr /= 0) then
+      write (*, *) 'Error in FARKodeEvolve, ierr = ', ierr, '; halting'
+      stop 1
+    end if
 
-     ! compute/accumulate solution error
-     yerr  = abs( y%data(1) - Sol(tcur(1)) )
-     yerrI = max(yerrI, yerr)
-     yerr2 = yerr2 + yerr**2
+    ! compute/accumulate solution error
+    yerr = abs(y%data(1) - Sol(tcur(1)))
+    yerrI = max(yerrI, yerr)
+    yerr2 = yerr2 + yerr**2
 
-     ! print solution statistics
-     print '(5x,f4.1,2(2x,es9.2),2x,es8.1)', tcur(1), real(y%data(1)), imag(y%data(1)), yerr
+    ! print solution statistics
+    print '(5x,f4.1,2(2x,es9.2),2x,es8.1)', tcur(1), real(y%data(1)), imag(y%data(1)), yerr
 
-     ! update output time
-     tout = min(tout + dTout, Tf)
+    ! update output time
+    tout = min(tout + dTout, Tf)
 
   end do
-  yerr2 = dsqrt( yerr2 / Nt )
+  yerr2 = dsqrt(yerr2/Nt)
   print *, "   -------------------------------------------"
 
   ! diagnostics output
@@ -213,7 +213,6 @@ program main
   ierr = FSUNContext_Free(sunctx)
 
 end program main
-
 
 ! ----------------------------------------------------------------
 ! ARKStepStats
@@ -248,9 +247,9 @@ subroutine ARKStepStats(arkode_mem)
 
   print *, ' '
   print *, 'Final Solver Statistics:'
-  print '(4x,2(A,i4),A)' ,'Internal solver steps = ',nsteps(1),', (attempted = ',nst_a(1),')'
-  print '(4x,A,i5)'   ,'Total RHS evals = ',nfe(1)
-  print '(4x,A,i5)'      ,'Total number of error test failures =',netfails(1)
+  print '(4x,2(A,i4),A)', 'Internal solver steps = ', nsteps(1), ', (attempted = ', nst_a(1), ')'
+  print '(4x,A,i5)', 'Total RHS evals = ', nfe(1)
+  print '(4x,A,i5)', 'Total number of error test failures =', netfails(1)
 
   return
 

@@ -23,17 +23,14 @@ module test_sunmatrix
   use, intrinsic :: iso_c_binding
   use test_utilities
 
-
-
-
   implicit none
 
   logical, parameter :: print_all_ranks = .false.
 
   ! functions implemented in specific matrix tests
-  integer(C_INT), external :: check_matrix
-  integer(C_INT), external :: check_matrix_entry
-  logical,        external :: is_square
+  integer(c_int), external :: check_matrix
+  integer(c_int), external :: check_matrix_entry
+  logical, external :: is_square
 
 contains
 
@@ -43,12 +40,12 @@ contains
     implicit none
 
     character(LEN=*) :: frmt
-    integer(C_INT)   :: myrank
+    integer(c_int)   :: myrank
 
     if (print_all_ranks) then
-      write(*,'(A,I0,A,A)') 'process ', myrank, ': ', frmt
+      write (*, '(A,I0,A,A)') 'process ', myrank, ': ', frmt
     else
-      write(*,*) frmt
+      write (*, *) frmt
     end if
 
   end subroutine TEST_STATUS
@@ -59,26 +56,26 @@ contains
     implicit none
 
     character(LEN=*) :: frmt
-    integer(C_INT)   :: myrank
-    integer(C_INT)   :: retval
+    integer(c_int)   :: myrank
+    integer(c_int)   :: retval
 
     if (print_all_ranks) then
-      write(*,'(A,I0,A,A,I0)') 'process ', myrank, ': ', frmt, retval
+      write (*, '(A,I0,A,A,I0)') 'process ', myrank, ': ', frmt, retval
     else
-      write(*,'(A,I0)') frmt, retval
+      write (*, '(A,I0)') frmt, retval
     end if
 
   end subroutine TEST_STATUS2
 
-  integer(C_INT) function check_vector(x, y, tol) result(failure)
+  integer(c_int) function check_vector(x, y, tol) result(failure)
     use, intrinsic :: iso_c_binding
 
     implicit none
 
     type(N_Vector)  :: x, y
-    real(C_DOUBLE)  :: tol
-    integer(C_LONG) :: i, xlen, ylen
-    real(C_DOUBLE), pointer :: xdata(:), ydata(:)
+    real(c_double)  :: tol
+    integer(c_long) :: i, xlen, ylen
+    real(c_double), pointer :: xdata(:), ydata(:)
 
     failure = 0
 
@@ -100,16 +97,15 @@ contains
 
   end function check_vector
 
-  integer(C_INT) function Test_FSUNMatGetID(A, sunid, myid) result(failure)
+  integer(c_int) function Test_FSUNMatGetID(A, sunid, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
-
 
     implicit none
 
     type(SUNMatrix)       :: A
     integer(SUNMatrix_ID) :: sunid, mysunid
-    integer(C_INT)        :: myid
+    integer(c_int)        :: myid
 
     failure = 0
 
@@ -128,16 +124,15 @@ contains
   ! SUNMatClone Test
   ! NOTE: This routine depends on SUNMatCopy to check matrix data.
   ! --------------------------------------------------------------------
-  integer(C_INT) function Test_FSUNMatClone(A, myid) result(failure)
+  integer(c_int) function Test_FSUNMatClone(A, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
 
-
     implicit none
 
-    integer(C_INT)  :: myid
+    integer(c_int)  :: myid
     type(SUNMatrix) :: A
-    real(C_DOUBLE)  :: tol = 10*SUN_UNIT_ROUNDOFF
+    real(c_double)  :: tol = 10*SUN_UNIT_ROUNDOFF
     type(SUNMatrix), pointer ::  B
 
     failure = 0
@@ -172,15 +167,14 @@ contains
 
   end function Test_FSUNMatClone
 
-  integer(C_INT) function Test_FSUNMatZero(A, myid) result(failure)
+  integer(c_int) function Test_FSUNMatZero(A, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
 
-
     implicit none
 
-    integer(C_INT)  :: myid
-    real(C_DOUBLE)  :: tol = 10*SUN_UNIT_ROUNDOFF
+    integer(c_int)  :: myid
+    real(c_double)  :: tol = 10*SUN_UNIT_ROUNDOFF
     type(SUNMatrix) :: A
     type(SUNMatrix), pointer :: B
 
@@ -197,7 +191,7 @@ contains
     end if
 
     ! A data should be a vector of zeros
-    failure = check_matrix_entry(B, ZERO, tol);
+    failure = check_matrix_entry(B, ZERO, tol); 
     if (failure /= 0) then
       call TEST_STATUS(">>> FAILED test -- SUNMatZero check ", myid)
       call FSUNMatDestroy(B)
@@ -210,15 +204,14 @@ contains
 
   end function Test_FSUNMatZero
 
-  integer(C_INT) function Test_FSUNMatCopy(A, myid) result(failure)
+  integer(c_int) function Test_FSUNMatCopy(A, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
 
-
     implicit none
 
-    integer(C_INT)  :: myid
-    real(C_DOUBLE)  :: tol = 10*SUN_UNIT_ROUNDOFF
+    integer(c_int)  :: myid
+    real(c_double)  :: tol = 10*SUN_UNIT_ROUNDOFF
     type(SUNMatrix) :: A
     type(SUNMatrix), pointer :: B
 
@@ -249,15 +242,14 @@ contains
 
   end function Test_FSUNMatCopy
 
-  integer(C_INT) function Test_FSUNMatScaleAdd(A, I, myid) result(failure)
+  integer(c_int) function Test_FSUNMatScaleAdd(A, I, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
 
-
     implicit none
 
-    integer(C_INT)  :: myid
-    real(C_DOUBLE)  :: tol = 10*SUN_UNIT_ROUNDOFF
+    integer(c_int)  :: myid
+    real(c_double)  :: tol = 10*SUN_UNIT_ROUNDOFF
     type(SUNMatrix) :: A, I
     type(SUNMatrix), pointer :: B
 
@@ -298,15 +290,14 @@ contains
 
   end function Test_FSUNMatScaleAdd
 
-  integer(C_INT) function Test_FSUNMatScaleAddI(A, I, myid) result(failure)
+  integer(c_int) function Test_FSUNMatScaleAddI(A, I, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
 
-
     implicit none
 
-    integer(C_INT)  :: myid
-    real(C_DOUBLE)  :: tol = 10*SUN_UNIT_ROUNDOFF
+    integer(c_int)  :: myid
+    real(c_double)  :: tol = 10*SUN_UNIT_ROUNDOFF
     type(SUNMatrix) :: A, I
     type(SUNMatrix), pointer :: B
 
@@ -343,14 +334,13 @@ contains
 
   end function Test_FSUNMatScaleAddI
 
-  integer(C_INT) function Test_FSUNMatMatvecSetup(A, myid) result(failure)
+  integer(c_int) function Test_FSUNMatMatvecSetup(A, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
 
-
     implicit none
 
-    integer(C_INT)  :: myid
+    integer(c_int)  :: myid
     type(SUNMatrix) :: A
     type(SUNMatrix_Ops), pointer :: ops
 
@@ -373,20 +363,18 @@ contains
 
   end function Test_FSUNMatMatvecSetup
 
-  integer(C_INT) function Test_FSUNMatMatvec(A, x, y, myid) result(failure)
+  integer(c_int) function Test_FSUNMatMatvec(A, x, y, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
-
-
 
     implicit none
 
     type(SUNMatrix)              :: A
     type(SUNMatrix), pointer     :: B
     type(N_Vector)               :: x, y
-    type(N_Vector),  pointer     :: z, w
-    integer(C_INT)               :: myid
-    real(C_DOUBLE)               :: tol = 100*SUN_UNIT_ROUNDOFF
+    type(N_Vector), pointer     :: z, w
+    integer(c_int)               :: myid
+    real(c_double)               :: tol = 100*SUN_UNIT_ROUNDOFF
     type(SUNMatrix_Ops), pointer :: ops
 
     failure = 0
@@ -425,16 +413,16 @@ contains
         end if
       end if
 
-      failure = FSUNMatMatvec(B,x,z)
+      failure = FSUNMatMatvec(B, x, z)
       if (failure /= 0) then
         call TEST_STATUS2(">>> FAILED test -- SUNMatMatvec returned  ", failure, myid)
         call FSUNMatDestroy(B)
         return
       end if
 
-      call FN_VLinearSum(THREE,y,ONE,x,w)
+      call FN_VLinearSum(THREE, y, ONE, x, w)
 
-      failure = check_vector(w,z,tol)
+      failure = check_vector(w, z, tol)
 
       call FSUNMatDestroy(B)
       call FN_VDestroy(z)
@@ -444,13 +432,13 @@ contains
 
       z => FN_VClone(y)
 
-      failure = FSUNMatMatvec(A,x,z)
+      failure = FSUNMatMatvec(A, x, z)
       if (failure /= 0) then
         call TEST_STATUS2(">>> FAILED test -- SUNMatMatvec returned  ", failure, myid)
         return
       end if
 
-      failure = check_vector(y,z,tol)
+      failure = check_vector(y, z, tol)
       call FN_VDestroy(z)
 
     end if
@@ -464,20 +452,19 @@ contains
 
   end function Test_FSUNMatMatvec
 
-  integer(C_INT) function Test_FSUNMatSpace(A, myid) result(failure)
+  integer(c_int) function Test_FSUNMatSpace(A, myid) result(failure)
     use, intrinsic :: iso_c_binding
     use test_utilities
 
-
     implicit none
 
-    integer(C_INT)  :: myid
+    integer(c_int)  :: myid
     type(SUNMatrix) :: A
-    integer(C_LONG) :: lenrw(1), leniw(1)
+    integer(c_long) :: lenrw(1), leniw(1)
 
     failure = 0
 
-    failure = FSUNMatSpace(A, lenrw, leniw);
+    failure = FSUNMatSpace(A, lenrw, leniw); 
     if (failure /= 0) then
       call TEST_STATUS(">>> FAILED test -- SUNMatSpace ", myid)
       return

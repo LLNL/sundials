@@ -22,7 +22,7 @@ module test_arkode_butcher_table
   integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
-  contains
+contains
 
   integer function smoke_tests() result(ret)
 
@@ -52,7 +52,7 @@ module test_arkode_butcher_table
     d(1) = 1.0d0
 
     !===== Test =====
-    ERK  = FARkodeButcherTable_LoadERK(ARKODE_HEUN_EULER_2_1_2)
+    ERK = FARkodeButcherTable_LoadERK(ARKODE_HEUN_EULER_2_1_2)
     DIRK = FARkodeButcherTable_LoadDIRK(ARKODE_SDIRK_2_1_2)
     ierr = FARkodeButcherTable_CheckOrder(ERK, q, p, C_NULL_PTR)
     ierr = FARkodeButcherTable_CheckARKOrder(ERK, DIRK, q, p, C_NULL_PTR)
@@ -60,10 +60,10 @@ module test_arkode_butcher_table
     call FARKodeButcherTable_Free(ERK)
     call FARKodeButcherTable_Free(DIRK)
 
-    ERK   = FARkodeButcherTable_Create(2, 2, 1, c, A, b, d)
-    DIRK  = FARkodeButcherTable_Alloc(2, 1)
+    ERK = FARkodeButcherTable_Create(2, 2, 1, c, A, b, d)
+    DIRK = FARkodeButcherTable_Alloc(2, 1)
     call FARKodeButcherTable_Free(DIRK)
-    DIRK  = FARkodeButcherTable_Copy(ERK)
+    DIRK = FARkodeButcherTable_Copy(ERK)
 
     !==== Cleanup =====
     call FARKodeButcherTable_Free(ERK)
@@ -74,7 +74,6 @@ module test_arkode_butcher_table
   end function smoke_tests
 
 end module
-
 
 program main
   !======== Inclusions ==========

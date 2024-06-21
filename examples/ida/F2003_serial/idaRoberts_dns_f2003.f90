@@ -64,7 +64,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function resrob(tres, sunvec_y, sunvec_yp, sunvec_r, user_data) &
-       result(ierr) bind(C,name='resrob')
+    result(ierr) bind(C, name='resrob')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -79,7 +79,7 @@ contains
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     type(N_Vector)        :: sunvec_yp ! derivative N_Vector
     type(N_Vector)        :: sunvec_r  ! residual N_Vector
-    type(c_ptr),    value :: user_data ! user-defined data
+    type(c_ptr), value :: user_data ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer :: yval(:)
@@ -89,15 +89,15 @@ contains
     !======= Internals ============
 
     ! get data arrays from SUNDIALS vectors
-    yval  => FN_VGetArrayPointer(sunvec_y)
+    yval => FN_VGetArrayPointer(sunvec_y)
     ypval => FN_VGetArrayPointer(sunvec_yp)
-    rval  => FN_VGetArrayPointer(sunvec_r)
+    rval => FN_VGetArrayPointer(sunvec_r)
 
     ! fill residual vector
-    rval(1)  = -0.04d0*yval(1) + 1.0d4*yval(2)*yval(3)
-    rval(2)  = -rval(1) - 3.0d7*yval(2)**2 - ypval(2)
-    rval(1)  = rval(1) - ypval(1)
-    rval(3)  = yval(1) + yval(2) + yval(3) - 1.d0
+    rval(1) = -0.04d0*yval(1) + 1.0d4*yval(2)*yval(3)
+    rval(2) = -rval(1) - 3.0d7*yval(2)**2 - ypval(2)
+    rval(1) = rval(1) - ypval(1)
+    rval(3) = yval(1) + yval(2) + yval(3) - 1.d0
 
     ! return success
     ierr = 0
@@ -114,7 +114,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function grob(t, sunvec_y, sunvec_yp, gout, user_data) &
-       result(ierr) bind(C,name='grob')
+    result(ierr) bind(C, name='grob')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -129,7 +129,7 @@ contains
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     type(N_Vector)        :: sunvec_yp ! derivative N_Vector
     real(c_double)        :: gout(2)   ! root function values
-    type(c_ptr),    value :: user_data ! user-defined data
+    type(c_ptr), value :: user_data ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer :: yval(:)
@@ -158,8 +158,8 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function jacrob(t, cj, sunvec_y, sunvec_yp, sunvec_r, &
-       sunmat_J, user_data, sunvec_t1, sunvec_t2, sunvec_t3) &
-       result(ierr) bind(C,name='jacrob')
+                                 sunmat_J, user_data, sunvec_t1, sunvec_t2, sunvec_t3) &
+    result(ierr) bind(C, name='jacrob')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -176,15 +176,14 @@ contains
     type(N_Vector)        :: sunvec_yp ! derivative N_Vector
     type(N_Vector)        :: sunvec_r  ! residual N_Vector
     type(SUNMatrix)       :: sunmat_J  ! Jacobian SUNMatrix
-    type(c_ptr),    value :: user_data ! user-defined data
+    type(c_ptr), value :: user_data ! user-defined data
     type(N_Vector)        :: sunvec_t1 ! temporary N_Vectors
     type(N_Vector)        :: sunvec_t2
     type(N_Vector)        :: sunvec_t3
 
     ! pointers to data in SUNDIALS vector and matrix
     real(c_double), pointer :: yval(:)
-    real(c_double), pointer :: J(:,:)
-
+    real(c_double), pointer :: J(:, :)
 
     !======= Internals ============
 
@@ -193,15 +192,15 @@ contains
     j(1:3, 1:3) => FSUNDenseMatrix_Data(sunmat_J)
 
     ! fill Jacobian entries
-    J(1,1) = -0.04d0 - cj
-    J(2,1) = 0.04d0
-    J(3,1) = 1.d0
-    J(1,2) = 1.d4*yval(3)
-    J(2,2) = -1.d4*yval(3) - 6.0d7*yval(2) - cj
-    J(3,2) = 1.d0
-    J(1,3) = 1.d4*yval(2)
-    J(2,3) = -1.d4*yval(2)
-    J(3,3) = 1.d0
+    J(1, 1) = -0.04d0 - cj
+    J(2, 1) = 0.04d0
+    J(3, 1) = 1.d0
+    J(1, 2) = 1.d4*yval(3)
+    J(2, 2) = -1.d4*yval(3) - 6.0d7*yval(2) - cj
+    J(3, 2) = 1.d0
+    J(1, 3) = 1.d4*yval(2)
+    J(2, 3) = -1.d4*yval(2)
+    J(3, 3) = 1.d0
 
     ! return success
     ierr = 0
@@ -233,16 +232,16 @@ contains
     ewt = 1.d0/(rtol*dabs(ref) + 10.d0*atol)
 
     ! compute the solution error
-    ref = y-ref
-    err = dsqrt( dot_product(ewt*ref,ewt*ref)/3 )
+    ref = y - ref
+    err = dsqrt(dot_product(ewt*ref, ewt*ref)/3)
 
     ! is the solution within the tolerances (pass=0 or fail=1)?
     passfail = 0
-    if (err .ge. 1.d0) then
-       passfail = 1
-       print *, " "
-       print *, "SUNDIALS_WARNING: check_ans error=", err
-       print *, " "
+    if (err >= 1.d0) then
+      passfail = 1
+      print *, " "
+      print *, "SUNDIALS_WARNING: check_ans error=", err
+      print *, " "
     end if
 
     return
@@ -251,7 +250,6 @@ contains
 
 end module dae_mod
 ! ------------------------------------------------------------------
-
 
 program main
 
@@ -272,11 +270,11 @@ program main
   real(c_double) :: rtol, t0, tout1, tout, tret(1)
   integer(c_int) :: iout, retval, retvalr, nrtfn, rootsfound(2)
 
-  type(N_Vector),           pointer :: sunvec_y      ! sundials solution vector
-  type(N_Vector),           pointer :: sunvec_yp     ! sundials derivative vector
-  type(N_Vector),           pointer :: sunvec_av     ! sundials tolerance vector
-  type(SUNMatrix),          pointer :: sunmat_A      ! sundials matrix
-  type(SUNLinearSolver),    pointer :: sunlinsol_LS  ! sundials linear solver
+  type(N_Vector), pointer :: sunvec_y      ! sundials solution vector
+  type(N_Vector), pointer :: sunvec_yp     ! sundials derivative vector
+  type(N_Vector), pointer :: sunvec_av     ! sundials tolerance vector
+  type(SUNMatrix), pointer :: sunmat_A      ! sundials matrix
+  type(SUNLinearSolver), pointer :: sunlinsol_LS  ! sundials linear solver
   type(SUNNonLinearSolver), pointer :: sunnonlin_NLS ! sundials nonlinear solver
   type(c_ptr)                       :: ida_mem       ! IDA memory
   type(c_ptr)                       :: sunctx        ! SUNDIALS simulation context
@@ -306,20 +304,20 @@ program main
   ! create serial vectors
   sunvec_y => FN_VMake_Serial(neq, yval, sunctx)
   if (.not. associated(sunvec_y)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   sunvec_yp => FN_VMake_Serial(neq, ypval, sunctx)
   if (.not. associated(sunvec_yp)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   sunvec_av => FN_VMake_Serial(neq, avtol, sunctx)
   if (.not. associated(sunvec_av)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   ! set integration limits
@@ -331,57 +329,57 @@ program main
   ! Call FIDACreate and FIDAInit to initialize IDA memory
   ida_mem = FIDACreate(sunctx)
   if (.not. c_associated(ida_mem)) then
-     print *, 'ERROR: ida_mem = NULL'
-     stop 1
+    print *, 'ERROR: ida_mem = NULL'
+    stop 1
   end if
 
   retval = FIDAInit(ida_mem, c_funloc(resrob), t0, sunvec_y, sunvec_yp)
   if (retval /= 0) then
-     print *, 'Error in FIDAInit, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAInit, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Call FIDASVtolerances to set tolerances
   retval = FIDASVtolerances(ida_mem, rtol, sunvec_av)
   if (retval /= 0) then
-     print *, 'Error in FIDASVtolerances, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDASVtolerances, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Call FIDARootInit to specify the root function grob with 2 components
   nrtfn = 2
   retval = FIDARootInit(ida_mem, nrtfn, c_funloc(grob))
   if (retval /= 0) then
-     print *, 'Error in FIDARootInit, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDARootInit, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Create dense SUNMatrix for use in linear solves
   sunmat_A => FSUNDenseMatrix(neq, neq, sunctx)
   if (.not. associated(sunmat_A)) then
-     print *, 'ERROR: sunmat = NULL'
-     stop 1
+    print *, 'ERROR: sunmat = NULL'
+    stop 1
   end if
 
   ! Create dense SUNLinearSolver object
   sunlinsol_LS => FSUNLinSol_Dense(sunvec_y, sunmat_A, sunctx)
   if (.not. associated(sunlinsol_LS)) then
-     print *, 'ERROR: sunlinsol = NULL'
-     stop 1
+    print *, 'ERROR: sunlinsol = NULL'
+    stop 1
   end if
 
   ! Attach the matrix and linear solver
-  retval = FIDASetLinearSolver(ida_mem, sunlinsol_LS, sunmat_A);
+  retval = FIDASetLinearSolver(ida_mem, sunlinsol_LS, sunmat_A); 
   if (retval /= 0) then
-     print *, 'Error in FIDASetLinearSolver, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDASetLinearSolver, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Set the user-supplied Jacobian routine
   retval = FIDASetJacFn(ida_mem, c_funloc(jacrob))
   if (retval /= 0) then
-     print *, 'Error in FIDASetJacFn, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDASetJacFn, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! Create Newton SUNNonlinearSolver object. IDA uses a
@@ -390,15 +388,15 @@ program main
   ! solely for demonstration purposes.
   sunnonlin_NLS => FSUNNonlinSol_Newton(sunvec_y, sunctx)
   if (.not. associated(sunnonlin_NLS)) then
-     print *, 'ERROR: sunnonlinsol = NULL'
-     stop 1
+    print *, 'ERROR: sunnonlinsol = NULL'
+    stop 1
   end if
 
   ! Attach the nonlinear solver
   retval = FIDASetNonlinearSolver(ida_mem, sunnonlin_NLS)
   if (retval /= 0) then
-     print *, 'Error in FIDASetNonlinearSolver, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDASetNonlinearSolver, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! In loop, call IDASolve, print results, and test for error.
@@ -408,29 +406,29 @@ program main
   tout = tout1
   do
 
-     retval = FIDASolve(ida_mem, tout, tret, sunvec_y, sunvec_yp, IDA_NORMAL)
-     if (retval < 0) then
-        print *, 'Error in FIDASolve, retval = ', retval, '; halting'
+    retval = FIDASolve(ida_mem, tout, tret, sunvec_y, sunvec_yp, IDA_NORMAL)
+    if (retval < 0) then
+      print *, 'Error in FIDASolve, retval = ', retval, '; halting'
+      stop 1
+    end if
+
+    call PrintOutput(ida_mem, tret(1), yval)
+
+    if (retval == IDA_ROOT_RETURN) then
+      retvalr = FIDAGetRootInfo(ida_mem, rootsfound)
+      if (retvalr < 0) then
+        print *, 'Error in FIDAGetRootInfo, retval = ', retval, '; halting'
         stop 1
-     endif
+      end if
+      print '(a,2(i2,2x))', "    rootsfound[] = ", rootsfound(1), rootsfound(2)
+    end if
 
-     call PrintOutput(ida_mem, tret(1), yval)
+    if (retval == IDA_SUCCESS) then
+      iout = iout + 1
+      tout = tout*10.d0
+    end if
 
-     if (retval .eq. IDA_ROOT_RETURN) then
-        retvalr = FIDAGetRootInfo(ida_mem, rootsfound)
-        if (retvalr < 0) then
-           print *, 'Error in FIDAGetRootInfo, retval = ', retval, '; halting'
-           stop 1
-        endif
-        print '(a,2(i2,2x))', "    rootsfound[] = ", rootsfound(1), rootsfound(2)
-     end if
-
-     if (retval .eq. IDA_SUCCESS) then
-        iout = iout+1
-        tout = tout*10.d0
-     end if
-
-     if (iout .eq. NOUT) exit
+    if (iout == NOUT) exit
 
   end do
 
@@ -449,7 +447,6 @@ program main
   retval = FSUNContext_Free(sunctx)
 
 end program main
-
 
 ! ----------------------------------------------------------------
 ! PrintHeader: prints first lines of output (problem description)
@@ -475,8 +472,8 @@ subroutine PrintHeader(rtol, avtol, y)
   print *, "         Three equation chemical kinetics problem."
   print *, " "
   print *, "Linear solver: DENSE, with user-supplied Jacobian."
-  print '(a,f6.4,a,3(es7.0,1x))', "Tolerance parameters:  rtol = ",rtol,"   atol = ", avtol
-  print '(a,3(f5.2,1x),a)', "Initial conditions y0 = (",y,")"
+  print '(a,f6.4,a,3(es7.0,1x))', "Tolerance parameters:  rtol = ", rtol, "   atol = ", avtol
+  print '(a,3(f5.2,1x),a)', "Initial conditions y0 = (", y, ")"
   print *, "Constraints and id not used."
   print *, " "
   print *, "-----------------------------------------------------------------------"
@@ -485,7 +482,6 @@ subroutine PrintHeader(rtol, avtol, y)
 
   return
 end subroutine PrintHeader
-
 
 ! ----------------------------------------------------------------
 ! PrintOutput
@@ -513,27 +509,26 @@ subroutine PrintOutput(ida_mem, t, y)
 
   retval = FIDAGetLastOrder(ida_mem, kused)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetLastOrder, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetLastOrder, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumSteps(ida_mem, nst)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumSteps, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumSteps, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetLastStep(ida_mem, hused)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetLastStep, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetLastStep, retval = ', retval, '; halting'
+    stop 1
   end if
 
   print '(es12.4,1x,3(es12.4,1x),a,i3,2x,i1,1x,es12.4)', &
-       t, y(1), y(2), y(3), "| ", nst, kused(1), hused(1)
+    t, y(1), y(2), y(3), "| ", nst, kused(1), hused(1)
 
 end subroutine PrintOutput
-
 
 ! ----------------------------------------------------------------
 ! PrintFinalStats
@@ -557,56 +552,56 @@ subroutine PrintFinalStats(ida_mem)
 
   retval = FIDAGetNumSteps(ida_mem, nst)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumSteps, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumSteps, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumResEvals(ida_mem, nre)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumResEvals, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumResEvals, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumJacEvals(ida_mem, nje)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumJacEvals, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumJacEvals, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumNonlinSolvIters(ida_mem, nni)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumNonlinSolvIters, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumNonlinSolvIters, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumErrTestFails(ida_mem, netf)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumErrTestFails, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumErrTestFails, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumNonlinSolvConvFails(ida_mem, ncfn)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumNonlinSolvConvFails, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumLinResEvals(ida_mem, nreLS)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumLinResEvals, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumLinResEvals, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FIDAGetNumGEvals(ida_mem, nge)
   if (retval /= 0) then
-     print *, 'Error in FIDAGetNumGEvals, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FIDAGetNumGEvals, retval = ', retval, '; halting'
+    stop 1
   end if
 
   print *, " "
   print *, "Final Run Statistics: "
   print *, "Number of steps                    = ", nst
-  print *, "Number of residual evaluations     = ", nre+nreLS
+  print *, "Number of residual evaluations     = ", nre + nreLS
   print *, "Number of Jacobian evaluations     = ", nje
   print *, "Number of nonlinear iterations     = ", nni
   print *, "Number of error test failures      = ", netf

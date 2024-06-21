@@ -62,7 +62,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function RhsFn(tn, sunvec_y, sunvec_f, user_data) &
-       result(ierr) bind(C)
+    result(ierr) bind(C)
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -74,7 +74,7 @@ contains
     real(c_double), value :: tn         ! current time
     type(N_Vector)        :: sunvec_y   ! solution N_Vector
     type(N_Vector)        :: sunvec_f   ! rhs N_Vector
-    type(c_ptr),    value :: user_data  ! user-defined data
+    type(c_ptr), value :: user_data  ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer, dimension(neq) :: yvec(:)
@@ -87,8 +87,7 @@ contains
     fvec => FN_VGetArrayPointer(sunvec_f)
 
     ! fill RHS vector
-    fvec(1) = lamda*yvec(1) + 1.0/(1.0+tn*tn) - lamda*atan(tn);
-
+    fvec(1) = lamda*yvec(1) + 1.0/(1.0 + tn*tn) - lamda*atan(tn); 
     ! return success
     ierr = 0
     return
@@ -98,7 +97,6 @@ contains
 
 end module analytic_mod
 ! ------------------------------------------------------------------
-
 
 ! ------------------------------------------------------------------
 ! Main driver program
@@ -131,9 +129,9 @@ program main
   integer(c_int) :: nout                     ! number of outputs
   integer(c_int) :: outstep                  ! output loop counter
 
-  type(N_Vector),           pointer :: sunvec_y    ! sundials vector
-  type(SUNMatrix),          pointer :: sunmat_A    ! sundials matrix
-  type(SUNLinearSolver),    pointer :: sunls       ! sundials linear solver
+  type(N_Vector), pointer :: sunvec_y    ! sundials vector
+  type(SUNMatrix), pointer :: sunmat_A    ! sundials matrix
+  type(SUNLinearSolver), pointer :: sunls       ! sundials linear solver
   type(SUNAdaptController), pointer :: sunCtrl     ! time step controller
   type(c_ptr)                       :: arkode_mem  ! ARKODE memory
   real(c_double), pointer, dimension(neq) :: yvec(:)  ! underlying vector
@@ -145,17 +143,17 @@ program main
 
   ! initialize ODE
   tstart = 0.0d0
-  tend   = 10.0d0
-  tcur   = tstart
-  tout   = tstart
-  dtout  = 1.0d0
-  nout   = ceiling(tend/dtout)
+  tend = 10.0d0
+  tcur = tstart
+  tout = tstart
+  dtout = 1.0d0
+  nout = ceiling(tend/dtout)
 
   ! create SUNDIALS N_Vector
   sunvec_y => FN_VNew_Serial(neq, ctx)
   if (.not. associated(sunvec_y)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
   yvec => FN_VGetArrayPointer(sunvec_y)
 
@@ -164,25 +162,25 @@ program main
 
   ! create ARKStep memory
   arkode_mem = FARKStepCreate(c_null_funptr, c_funloc(RhsFn), tstart, sunvec_y, ctx)
-  if (.not. c_associated(arkode_mem)) print *,'ERROR: arkode_mem = NULL'
+  if (.not. c_associated(arkode_mem)) print *, 'ERROR: arkode_mem = NULL'
 
   ! Tell ARKODE to use a dense linear solver.
   sunmat_A => FSUNDenseMatrix(neq, neq, ctx)
   if (.not. associated(sunmat_A)) then
-     print *, 'ERROR: sunmat = NULL'
-     stop 1
+    print *, 'ERROR: sunmat = NULL'
+    stop 1
   end if
 
   sunls => FSUNLinSol_Dense(sunvec_y, sunmat_A, ctx)
   if (.not. associated(sunls)) then
-     print *, 'ERROR: sunls = NULL'
-     stop 1
+    print *, 'ERROR: sunls = NULL'
+    stop 1
   end if
 
   ierr = FARKodeSetLinearSolver(arkode_mem, sunls, sunmat_A)
   if (ierr /= 0) then
-     write(*,*) 'Error in FARKodeSetLinearSolver'
-     stop 1
+    write (*, *) 'Error in FARKodeSetLinearSolver'
+    stop 1
   end if
 
   ! set relative and absolute tolerances
@@ -191,25 +189,25 @@ program main
 
   ierr = FARKodeSStolerances(arkode_mem, rtol, atol)
   if (ierr /= 0) then
-     write(*,*) 'Error in FARKodeSStolerances, ierr = ', ierr, '; halting'
-     stop 1
+    write (*, *) 'Error in FARKodeSStolerances, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   sunCtrl => FSUNAdaptController_ImpGus(ctx)
   if (.not. associated(sunCtrl)) then
-     print *, 'ERROR: sunCtrl = NULL'
-     stop 1
+    print *, 'ERROR: sunCtrl = NULL'
+    stop 1
   end if
   ierr = FARKodeSetAdaptController(arkode_mem, sunCtrl)
   if (ierr /= 0) then
-     write(*,*) 'Error in FARKodeSetAdaptController, ierr = ', ierr, '; halting'
-     stop 1
+    write (*, *) 'Error in FARKodeSetAdaptController, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FARKodeSetNonlinConvCoef(arkode_mem, 0.01d0)
   if (ierr /= 0) then
-     write(*,*) 'Error in FARKodeSetNonlinConvCoef, ierr = ', ierr, '; halting'
-     stop 1
+    write (*, *) 'Error in FARKodeSetNonlinConvCoef, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ! Start time stepping
@@ -219,20 +217,20 @@ program main
   print *, '       t           y        '
   print *, '----------------------------'
   print '(2x,2(es12.5,1x))', tcur, yvec(1)
-  do outstep = 1,nout
+  do outstep = 1, nout
 
-     ! call ARKodeEvolve
-     tout = min(tout + dtout, tend)
-     ierr = FARKodeEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
-     if (ierr /= 0) then
-        write(*,*) 'Error in FARKODE, ierr = ', ierr, '; halting'
-        stop 1
-     endif
+    ! call ARKodeEvolve
+    tout = min(tout + dtout, tend)
+    ierr = FARKodeEvolve(arkode_mem, tout, sunvec_y, tcur, ARK_NORMAL)
+    if (ierr /= 0) then
+      write (*, *) 'Error in FARKODE, ierr = ', ierr, '; halting'
+      stop 1
+    end if
 
-     ! output current solution
-     print '(2x,2(es12.5,1x))', tcur, yvec(1)
+    ! output current solution
+    print '(2x,2(es12.5,1x))', tcur, yvec(1)
 
-  enddo
+  end do
 
   ! diagnostics output
   call ARKStepStats(arkode_mem)
@@ -247,7 +245,6 @@ program main
 
 end program main
 ! ----------------------------------------------------------------
-
 
 ! ----------------------------------------------------------------
 ! ARKStepStats
@@ -289,90 +286,90 @@ subroutine ARKStepStats(arkode_mem)
 
   ierr = FARKodeGetNumSteps(arkode_mem, nsteps)
   if (ierr /= 0) then
-     print *, 'Error in FARKodeGetNumSteps, retval = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FARKodeGetNumSteps, retval = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
   if (ierr /= 0) then
-     print *, 'Error in FARKodeGetNumStepAttempts, retval = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FARKodeGetNumStepAttempts, retval = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
   if (ierr /= 0) then
-     print *, 'Error in FARKStepGetNumRhsEvals, retval = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FARKStepGetNumRhsEvals, retval = ', ierr, '; halting'
+    stop 1
   end if
-  nfevals=nfe+nfi
+  nfevals = nfe + nfi
 
   ierr = FARKodeGetActualInitStep(arkode_mem, hinused)
   if (ierr /= 0) then
-     print *, 'Error in FARKodeGetActualInitStep, retval = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FARKodeGetActualInitStep, retval = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FARKodeGetLastStep(arkode_mem, hlast)
   if (ierr /= 0) then
-     print *, 'Error in FARKodeGetLastStep, retval = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FARKodeGetLastStep, retval = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FARKodeGetCurrentStep(arkode_mem, hcur)
   if (ierr /= 0) then
-     print *, 'Error in FARKodeGetCurrentStep, retval = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FARKodeGetCurrentStep, retval = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FARKodeGetCurrentTime(arkode_mem, tcur)
   if (ierr /= 0) then
-     print *, 'Error in FARKodeGetCurrentTime, retval = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FARKodeGetCurrentTime, retval = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FARKodeGetNumLinSolvSetups(arkode_mem, nlinsetups)
   if (ierr /= 0) then
-     print *, 'Error in FARKodeGetNumLinSolvSetups, retval = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FARKodeGetNumLinSolvSetups, retval = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FARKodeGetNumErrTestFails(arkode_mem, netfails)
   if (ierr /= 0) then
-     print *, 'Error in FARKodeGetNumErrTestFails, retval = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FARKodeGetNumErrTestFails, retval = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FARKodeGetNumNonlinSolvIters(arkode_mem, nniters)
   if (ierr /= 0) then
-     print *, 'Error in FARKodeGetNumNonlinSolvIters, retval = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FARKodeGetNumNonlinSolvIters, retval = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FARKodeGetNumNonlinSolvConvFails(arkode_mem, nncfails)
   if (ierr /= 0) then
-     print *, 'Error in FARKodeGetNumNonlinSolvConvFails, retval = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FARKodeGetNumNonlinSolvConvFails, retval = ', ierr, '; halting'
+    stop 1
   end if
 
   ierr = FARKodeGetNumJacEvals(arkode_mem, njacevals)
   if (ierr /= 0) then
-     print *, 'Error in FARKodeGetNumJacEvals, retval = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FARKodeGetNumJacEvals, retval = ', ierr, '; halting'
+    stop 1
   end if
 
   print *, ' '
   print *, ' General Solver Stats:'
-  print '(4x,A,i9)'    ,'Total internal steps taken    =',nsteps
-  print '(4x,A,i9)'    ,'Total internal steps attempts =',nst_a
-  print '(4x,A,i9)'    ,'Total rhs function calls      =',nfevals
-  print '(4x,A,i9)'    ,'Num lin solver setup calls    =',nlinsetups
-  print '(4x,A,i9)'    ,'Num error test failures       =',netfails
-  print '(4x,A,es12.5)','First internal step size      =',hinused
-  print '(4x,A,es12.5)','Last internal step size       =',hlast
-  print '(4x,A,es12.5)','Next internal step size       =',hcur
-  print '(4x,A,es12.5)','Current internal time         =',tcur
-  print '(4x,A,i9)'    ,'Num nonlinear solver iters    =',nniters
-  print '(4x,A,i9)'    ,'Num nonlinear solver fails    =',nncfails
+  print '(4x,A,i9)', 'Total internal steps taken    =', nsteps
+  print '(4x,A,i9)', 'Total internal steps attempts =', nst_a
+  print '(4x,A,i9)', 'Total rhs function calls      =', nfevals
+  print '(4x,A,i9)', 'Num lin solver setup calls    =', nlinsetups
+  print '(4x,A,i9)', 'Num error test failures       =', netfails
+  print '(4x,A,es12.5)', 'First internal step size      =', hinused
+  print '(4x,A,es12.5)', 'Last internal step size       =', hlast
+  print '(4x,A,es12.5)', 'Next internal step size       =', hcur
+  print '(4x,A,es12.5)', 'Current internal time         =', tcur
+  print '(4x,A,i9)', 'Num nonlinear solver iters    =', nniters
+  print '(4x,A,i9)', 'Num nonlinear solver fails    =', nncfails
   print *, ' '
 
   return

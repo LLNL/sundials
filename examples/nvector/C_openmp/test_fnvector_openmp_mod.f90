@@ -26,7 +26,7 @@ module test_nvector_openmp
   integer(kind=myindextype), parameter :: ns = 2  ! number of vector arrays
   integer(c_int), parameter :: nv = 3  ! length of vector arrays
 
-  contains
+contains
 
   integer function smoke_tests() result(ret)
     implicit none
@@ -50,7 +50,7 @@ module test_nvector_openmp
 
     xvecs = FN_VCloneVectorArray(nv, x)
     zvecs = FN_VCloneVectorArray(nv, z)
-    nvarr = (/ ONE, ONE, ONE /)
+    nvarr = (/ONE, ONE, ONE/)
 
     !===== Test =====
 
@@ -141,7 +141,6 @@ module test_nvector_openmp
 
 end module
 
-
 integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   use, intrinsic :: iso_c_binding
 
@@ -163,7 +162,6 @@ integer(C_INT) function check_ans(ans, X, local_length) result(failure)
   end do
 end function check_ans
 
-
 logical function has_data(X) result(failure)
   use, intrinsic :: iso_c_binding
 
@@ -176,7 +174,6 @@ logical function has_data(X) result(failure)
   xptr => FN_VGetArrayPointer(x)
   failure = associated(xptr)
 end function has_data
-
 
 program main
   !======== Inclusions ==========

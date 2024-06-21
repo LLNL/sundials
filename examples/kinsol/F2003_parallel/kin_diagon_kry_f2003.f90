@@ -42,12 +42,12 @@ module kinDiagonKry_mod
   integer(c_int64_t) :: i, nlocal
   real(c_double), pointer, dimension(neq) :: u(:), scale(:), constr(:)
   real(c_double)             :: p(neq)
-  integer(c_int),  parameter :: prectype = 2
-  integer(c_int),  parameter :: maxl = 10
-  integer(c_int),  parameter :: maxlrst = 2
+  integer(c_int), parameter :: prectype = 2
+  integer(c_int), parameter :: maxl = 10
+  integer(c_int), parameter :: maxlrst = 2
   integer(c_long), parameter :: msbpre = 5
-  real(c_double),  parameter :: fnormtol = 1.0d-5
-  real(c_double),  parameter :: scsteptol = 1.0d-4
+  real(c_double), parameter :: fnormtol = 1.0d-5
+  real(c_double), parameter :: scsteptol = 1.0d-4
 
   ! MPI domain decomposition information
   integer, target :: comm  ! communicator object
@@ -75,16 +75,16 @@ contains
     ! local variables
     integer(c_int64_t) :: ii
 
-    u(1:nlocal)      => FN_VGetArrayPointer(sunvec_u)
-    scale(1:nlocal)  => FN_VGetArrayPointer(sunvec_s)
+    u(1:nlocal) => FN_VGetArrayPointer(sunvec_u)
+    scale(1:nlocal) => FN_VGetArrayPointer(sunvec_s)
     constr(1:nlocal) => FN_VGetArrayPointer(sunvec_c)
 
     ! -------------------------
     ! Set initial guess, and disable scaling
 
-    do i = 1,nlocal
-       ii = i + myid * nlocal
-       u(i) = 2.0d0 * dble(ii)
+    do i = 1, nlocal
+      ii = i + myid*nlocal
+      u(i) = 2.0d0*dble(ii)
     end do
     scale = 1.0d0
     constr = 0.0d0
@@ -101,7 +101,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function func(sunvec_u, sunvec_f, user_data) &
-       result(ierr) bind(C)
+    result(ierr) bind(C)
 
     !======= Inclusions ===========
     use fsundials_core_mod
@@ -127,14 +127,13 @@ contains
     ff(1:nlocal) => FN_VGetArrayPointer(sunvec_f)
 
     ! loop over domain, computing our system f(u) = 0
-    do i = 1,nlocal
-       ! set local variables
-       ii = i + myid * nlocal
+    do i = 1, nlocal
+      ! set local variables
+      ii = i + myid*nlocal
 
-       ! applying the constraint f(u) = u(i)^2 - i^2
-       ff(i) = uu(i)*uu(i) - dble(ii*ii)
+      ! applying the constraint f(u) = u(i)^2 - i^2
+      ff(i) = uu(i)*uu(i) - dble(ii*ii)
     end do
-
 
     ! return success
     ierr = 0
@@ -152,7 +151,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function kpsetup(sunvec_u, sunvec_s, sunvec_f, &
-       sunvec_fs, user_data) result(ierr) bind(C)
+                                  sunvec_fs, user_data) result(ierr) bind(C)
 
     !======= Inclusions ===========
     use fsundials_core_mod
@@ -176,12 +175,11 @@ contains
     udata(1:nlocal) => FN_VGetArrayPointer(sunvec_u)
 
     ! loop over domain
-    do i = 1,nlocal
+    do i = 1, nlocal
 
-       ! setup preconditioner
-       p(i) = 0.5d0 / (udata(i) + 5.0d0)
+      ! setup preconditioner
+      p(i) = 0.5d0/(udata(i) + 5.0d0)
     end do
-
 
     ! return success
     ierr = 0
@@ -199,7 +197,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function kpsolve(sunvec_u, sunvec_s, sunvec_f, &
-       sunvec_fs, sunvec_v, user_data) result(ierr) bind(C)
+                                  sunvec_fs, sunvec_v, user_data) result(ierr) bind(C)
 
     !======= Inclusions ===========
     use fsundials_core_mod
@@ -223,12 +221,11 @@ contains
     v(1:nlocal) => FN_VGetArrayPointer(sunvec_v)
 
     ! loop over domain
-    do i = 1,nlocal
+    do i = 1, nlocal
 
-       ! preconditioner solver
-       v(i) = v(i) * p(i)
+      ! preconditioner solver
+      v(i) = v(i)*p(i)
     end do
-
 
     ! return success
     ierr = 0
@@ -239,7 +236,6 @@ contains
 
 end module kinDiagonKry_mod
 ! ------------------------------------------------------------------
-
 
 ! ------------------------------------------------------------------
 ! Main driver program
@@ -260,10 +256,10 @@ program main
   real(c_double)  :: ftol
 
   type(c_ptr)                    :: sunctx        ! sundials context
-  type(N_Vector),        pointer :: sunvec_u      ! sundials vectors
-  type(N_Vector),        pointer :: sunvec_s      ! sundials vectors
-  type(N_Vector),        pointer :: sunvec_c      ! sundials vectors
-  type(SUNMatrix),       pointer :: sunmat_J      ! sundials matrix
+  type(N_Vector), pointer :: sunvec_u      ! sundials vectors
+  type(N_Vector), pointer :: sunvec_s      ! sundials vectors
+  type(N_Vector), pointer :: sunvec_c      ! sundials vectors
+  type(SUNMatrix), pointer :: sunmat_J      ! sundials matrix
   type(SUNLinearSolver), pointer :: sunlinsol_LS  ! sundials linear solver
 
   type(c_ptr) :: kmem ! KINSOL memory
@@ -280,22 +276,22 @@ program main
   ! initialize MPI
   call MPI_Init(ierr)
   if (ierr /= MPI_SUCCESS) then
-     write(0,*) "Error in MPI_Init = ", ierr
-     stop 1
+    write (0, *) "Error in MPI_Init = ", ierr
+    stop 1
   end if
   call MPI_Comm_size(comm, nprocs, ierr)
   if (ierr /= MPI_SUCCESS) then
-     write(0,*) "Error in MPI_Comm_size = ", ierr
-     call MPI_Abort(comm, 1, ierr)
+    write (0, *) "Error in MPI_Comm_size = ", ierr
+    call MPI_Abort(comm, 1, ierr)
   end if
   if (popcnt(nprocs) /= 1 .or. nprocs > neq) then
-     write(0,*) "Error nprocs must equal a power of 2^n <= neq for functionality."
-     call MPI_Abort(comm, 1, ierr)
+    write (0, *) "Error nprocs must equal a power of 2^n <= neq for functionality."
+    call MPI_Abort(comm, 1, ierr)
   end if
   call MPI_Comm_rank(comm, myid, ierr)
   if (ierr /= MPI_SUCCESS) then
-     write(0,*) "Error in MPI_Comm_rank = ", ierr
-     call MPI_Abort(comm, 1, ierr)
+    write (0, *) "Error in MPI_Comm_rank = ", ierr
+    call MPI_Abort(comm, 1, ierr)
   end if
 
   outproc = (myid == 0)
@@ -303,27 +299,27 @@ program main
   ! Print problem description
 
   if (outproc) then
-     print *, " "
-     print *, "Example program kinDiagon_kry_f2003:"
-     print *, "   This FKINSOL example solves a 128 eqn diagonal algebraic system."
-     print *, " Its purpose is to demonstrate the use of the Fortran interface in"
-     print *, " a parallel environment."
-     print *, " "
-     print *, "Solution method: KIN_none"
-     print '(a,i3)', "Problem size: neq = ", neq
-     print '(a,i3)', "Number of procs: nprocs = ", nprocs
+    print *, " "
+    print *, "Example program kinDiagon_kry_f2003:"
+    print *, "   This FKINSOL example solves a 128 eqn diagonal algebraic system."
+    print *, " Its purpose is to demonstrate the use of the Fortran interface in"
+    print *, " a parallel environment."
+    print *, " "
+    print *, "Solution method: KIN_none"
+    print '(a,i3)', "Problem size: neq = ", neq
+    print '(a,i3)', "Number of procs: nprocs = ", nprocs
   end if
 
   ! -------------------------
   retval = FSUNContext_Create(SUN_COMM_NULL, sunctx)
   if (retval /= 0) then
-     print *, 'ERROR in FSUNContext_Create'
-     stop 1
+    print *, 'ERROR in FSUNContext_Create'
+    stop 1
   end if
 
   ! -------------------------
   ! Create vectors for solution and scales
-  nlocal = neq / nprocs
+  nlocal = neq/nprocs
 
   sunvec_u => FN_VNew_Parallel(comm, nlocal, neq, sunctx)
   sunvec_s => FN_VNew_Parallel(comm, nlocal, neq, sunctx)
@@ -336,16 +332,16 @@ program main
 
   kmem = FKINCreate(sunctx)
   if (.not. c_associated(kmem)) then
-     print *, 'ERROR: kmem = NULL'
-     stop 1
+    print *, 'ERROR: kmem = NULL'
+    stop 1
   end if
 
   ! sunvec_u is used as a template
 
   retval = FKINInit(kmem, c_funloc(func), sunvec_u)
   if (retval /= 0) then
-     print *, 'Error in FKINInit, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FKINInit, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! -------------------------
@@ -353,27 +349,27 @@ program main
 
   retval = FKINSetMaxSetupCalls(kmem, msbpre)
   if (retval /= 0) then
-     print *, 'Error in FKINSetMaxSetupCalls, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FKINSetMaxSetupCalls, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ftol = fnormtol
   retval = FKINSetFuncNormTol(kmem, ftol)
   if (retval /= 0) then
-     print *, 'Error in FKINSetFuncNormTol, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FKINSetFuncNormTol, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FKINSetScaledStepTol(kmem, scsteptol)
   if (retval /= 0) then
-     print *, 'Error in FKINSetScaledStepTol, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FKINSetScaledStepTol, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FKINSetConstraints(kmem, sunvec_c)
   if (retval /= 0) then
-     print *, 'Error in FKINSetConstraints, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FKINSetConstraints, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! -------------------------
@@ -381,8 +377,8 @@ program main
 
   sunlinsol_LS => FSUNLinSol_SPGMR(sunvec_u, prectype, maxl, sunctx)
   if (.not. associated(sunlinsol_LS)) then
-     print *,'ERROR: sunlinsol = NULL'
-     stop 1
+    print *, 'ERROR: sunlinsol = NULL'
+    stop 1
   end if
 
   ! -------------------------
@@ -392,8 +388,8 @@ program main
 
   retval = FKINSetLinearSolver(kmem, sunlinsol_LS, sunmat_J)
   if (retval /= 0) then
-     print *, 'Error in FKINSetLinearSolver, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FKINSetLinearSolver, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! -------------------------
@@ -401,8 +397,8 @@ program main
 
   retval = FSUNLinSol_SPGMRSetMaxRestarts(sunlinsol_LS, maxlrst)
   if (retval /= 0) then
-     print *, 'Error in FSUNLinSol_SPGMRSetMaxRestarts, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FSUNLinSol_SPGMRSetMaxRestarts, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! -------------------------
@@ -410,8 +406,8 @@ program main
 
   retval = FKINSetPreconditioner(kmem, c_funloc(kpsetup), c_funloc(kpsolve))
   if (retval /= 0) then
-     print *, 'Error in FKINSetPreconditioner, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FKINSetPreconditioner, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! -------------------------
@@ -425,21 +421,21 @@ program main
 
   retval = FKINSol(kmem, sunvec_u, KIN_NONE, sunvec_s, sunvec_s)
   if (retval /= 0) then
-     print *, 'Error in FKINSol, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FKINSol, retval = ', retval, '; halting'
+    stop 1
   end if
 
   ! -------------------------
   ! Print solution and solver statistics
 
   if (outproc) then
-     print *, " "
+    print *, " "
   end if
-  do nprint = 0,nprocs-1
-     if (nprint == myid) then
-        call PrintOutput(u)
-     end if
-     call MPI_Barrier(comm, ierr)
+  do nprint = 0, nprocs - 1
+    if (nprint == myid) then
+      call PrintOutput(u)
+    end if
+    call MPI_Barrier(comm, ierr)
   end do
   call MPI_Barrier(comm, ierr)
   call PrintFinalStats(kmem, outproc)
@@ -456,7 +452,6 @@ program main
 
 end program main
 ! ----------------------------------------------------------------
-
 
 ! ----------------------------------------------------------------
 ! PrintOutput: prints solution at selected points
@@ -475,16 +470,15 @@ subroutine PrintOutput(uu)
 
   !======= Internals ============
 
-  do i = 1,nlocal,4
-     ii = i + nlocal * myid
-     print '(i4, 4(1x, f10.6))', ii, uu(i), uu(i+1), uu(i+2), uu(i+3)
+  do i = 1, nlocal, 4
+    ii = i + nlocal*myid
+    print '(i4, 4(1x, f10.6))', ii, uu(i), uu(i + 1), uu(i + 2), uu(i + 3)
   end do
 
   return
 
 end subroutine PrintOutput
 ! ----------------------------------------------------------------
-
 
 ! ----------------------------------------------------------------
 ! PrintFinalStats
@@ -501,7 +495,7 @@ subroutine PrintFinalStats(kmemo, outproc)
   implicit none
 
   type(c_ptr), intent(in) :: kmemo
-  logical,     intent(in) :: outproc
+  logical, intent(in) :: outproc
 
   integer(c_int) :: retval
   integer(c_long) :: nni(1), nli(1), nfe(1), npe(1), nps(1), ncfl(1)
@@ -512,47 +506,47 @@ subroutine PrintFinalStats(kmemo, outproc)
 
   retval = FKINGetNumNonlinSolvIters(kmemo, nni)
   if (retval /= 0) then
-     print *, 'Error in FKINGetNumNonlinSolvIters, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FKINGetNumNonlinSolvIters, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FKINGetNumLinIters(kmemo, nli)
   if (retval /= 0) then
-     print *, 'Error in FKINGetNumLinIters, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FKINGetNumLinIters, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FKINGetNumFuncEvals(kmemo, nfe)
   if (retval /= 0) then
-     print *, 'Error in FKINGetNumFuncEvals, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in FKINGetNumFuncEvals, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FKINGetNumPrecEvals(kmemo, npe)
   if (retval /= 0) then
-     print *, 'Error in KINGetNumPrecEvals, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in KINGetNumPrecEvals, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FKINGetNumPrecSolves(kmemo, nps)
   if (retval /= 0) then
-     print *, 'Error in KINGetNumPrecSolves, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in KINGetNumPrecSolves, retval = ', retval, '; halting'
+    stop 1
   end if
 
   retval = FKINGetNumLinConvFails(kmemo, ncfl)
   if (retval /= 0) then
-     print *, 'Error in KINGetNumLinConvFails, retval = ', retval, '; halting'
-     stop 1
+    print *, 'Error in KINGetNumLinConvFails, retval = ', retval, '; halting'
+    stop 1
   end if
 
   if (outproc) then
-     print *, ' '
-     print *, 'Final Statistics..'
-     print *, ' '
-     print '(2(A,i6))'    ,'nni      =', nni,      '    nli     =', nli
-     print '(2(A,i6))'    ,'nfe      =', nfe,      '    npe     =', npe
-     print '(2(A,i6))'    ,'nps      =', nps,      '    nlcf    =', ncfl
+    print *, ' '
+    print *, 'Final Statistics..'
+    print *, ' '
+    print '(2(A,i6))', 'nni      =', nni, '    nli     =', nli
+    print '(2(A,i6))', 'nfe      =', nfe, '    npe     =', npe
+    print '(2(A,i6))', 'nps      =', nps, '    nlcf    =', ncfl
   end if
 
   return

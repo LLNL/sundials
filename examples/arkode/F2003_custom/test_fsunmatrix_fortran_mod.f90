@@ -38,12 +38,12 @@ contains
     A => FSUNMatGetFMat(sunmat_A)
     B => FSUNMatGetFMat(sunmat_B)
     failure = 0
-    do k = 1,N
-       do j = 1,Nvar
-          do i = 1,Nvar
-             if (dabs(A%data(i,j,k) - B%data(i,j,k)) > tol)  failure = 1
-          end do
-       end do
+    do k = 1, N
+      do j = 1, Nvar
+        do i = 1, Nvar
+          if (dabs(A%data(i, j, k) - B%data(i, j, k)) > tol) failure = 1
+        end do
+      end do
     end do
 
   end function check_matrix
@@ -60,12 +60,12 @@ contains
 
     A => FSUNMatGetFMat(sunmat_A)
     failure = 0
-    do k = 1,N
-       do j = 1,Nvar
-          do i = 1,Nvar
-             if (dabs(A%data(i,j,k) - val) > tol)  failure = 1
-          end do
-       end do
+    do k = 1, N
+      do j = 1, Nvar
+        do i = 1, Nvar
+          if (dabs(A%data(i, j, k) - val) > tol) failure = 1
+        end do
+      end do
     end do
 
   end function check_matrix_entry
@@ -83,29 +83,29 @@ contains
     x => FN_VGetFVec(sunvec_x)
     y => FN_VGetFVec(sunvec_y)
     failure = 0
-    do j = 1,N
-       do i = 1,Nvar
-          if (dabs(x%data(i,j) - y%data(i,j)) > tol) then
-             failure = 1
-          end if
-       end do
+    do j = 1, N
+      do i = 1, Nvar
+        if (dabs(x%data(i, j) - y%data(i, j)) > tol) then
+          failure = 1
+        end if
+      end do
     end do
 
     if (failure == 1) then
-       print *, '  '
-       print *, 'check_vector failure, differences:'
-       print *, '    i      j        x        y       diff'
-       print *, '  --------------------------------------------'
-       do j = 1,N
-          do i = 1,Nvar
-             if (dabs(x%data(i,j) - y%data(i,j)) > tol) then
-                print '(2x,2(i4,3x),3(es9.2,1x))', i, j, x%data(i,j), &
-                     y%data(i,j), dabs(x%data(i,j) - y%data(i,j))
-             end if
-          end do
-       end do
-       print *, '  --------------------------------------------'
-       print *, '  '
+      print *, '  '
+      print *, 'check_vector failure, differences:'
+      print *, '    i      j        x        y       diff'
+      print *, '  --------------------------------------------'
+      do j = 1, N
+        do i = 1, Nvar
+          if (dabs(x%data(i, j) - y%data(i, j)) > tol) then
+            print '(2x,2(i4,3x),3(es9.2,1x))', i, j, x%data(i, j), &
+              y%data(i, j), dabs(x%data(i, j) - y%data(i, j))
+          end if
+        end do
+      end do
+      print *, '  --------------------------------------------'
+      print *, '  '
     end if
 
   end function check_vector
@@ -131,9 +131,8 @@ program main
   integer(c_int64_t), parameter :: Nvar = 50
   type(SUNMatrix), pointer :: sA, sB, sC, sD, sI
   type(FMat), pointer :: A, Eye
-  type(N_Vector),  pointer :: sW, sX, sY, sZ
+  type(N_Vector), pointer :: sW, sX, sY, sZ
   type(FVec), pointer :: X, Y
-
 
   !======= Internals ============
 
@@ -146,140 +145,139 @@ program main
   ! create new matrices and vectors
   sW => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sW)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   sX => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sX)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
   X => FN_VGetFVec(sX)
 
   sY => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sY)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
   Y => FN_VGetFVec(sY)
 
   sZ => FN_VNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sZ)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   sA => FSUNMatNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sA)) then
-     print *, 'ERROR: sunmat = NULL'
-     stop 1
+    print *, 'ERROR: sunmat = NULL'
+    stop 1
   end if
   A => FSUNMatGetFMat(sA)
 
   sB => FSUNMatNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sB)) then
-     print *, 'ERROR: sunmat = NULL'
-     stop 1
+    print *, 'ERROR: sunmat = NULL'
+    stop 1
   end if
 
   sC => FSUNMatNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sC)) then
-     print *, 'ERROR: sunmat = NULL'
-     stop 1
+    print *, 'ERROR: sunmat = NULL'
+    stop 1
   end if
 
   sD => FSUNMatNew_Fortran(Nvar, N, sunctx)
   if (.not. associated(sD)) then
-     print *, 'ERROR: sunmat = NULL'
-     stop 1
+    print *, 'ERROR: sunmat = NULL'
+    stop 1
   end if
 
   call c_f_pointer(FSUNMatClone_Fortran(sA), sI)
   if (.not. associated(sI)) then
-     print *, 'ERROR: sunmat = NULL'
-     stop 1
+    print *, 'ERROR: sunmat = NULL'
+    stop 1
   end if
   Eye => FSUNMatGetFMat(sI)
-
 
   ! fill matrices and vectors
   X%data = 0.d0
   Y%data = 0.d0
   A%data = 0.d0
   Eye%data = 0.d0
-  do k = 1,N
-     do j = 1,Nvar
-        do i = 1,Nvar
-           A%data(i,j,k) = 1.d0*i*j/k
-        end do
-        Eye%data(j,j,k) = 1.d0
-        x%data(j,k) = 1.d0*k/j
-        y%data(j,k) = 1.d0*j*Nvar
-     end do
+  do k = 1, N
+    do j = 1, Nvar
+      do i = 1, Nvar
+        A%data(i, j, k) = 1.d0*i*j/k
+      end do
+      Eye%data(j, j, k) = 1.d0
+      x%data(j, k) = 1.d0*k/j
+      y%data(j, k) = 1.d0*j*Nvar
+    end do
   end do
 
   ! check matrix ID
   if (FSUNMatGetID(sA) /= SUNMATRIX_CUSTOM) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FSUNMatGetID'
-     print *, '    Unrecognized vector type', FSUNMatGetID(sA)
+    fails = fails + 1
+    print *, '>>> FAILED test -- FSUNMatGetID'
+    print *, '    Unrecognized vector type', FSUNMatGetID(sA)
   else
-     print *, 'PASSED test -- FSUNMatGetID'
+    print *, 'PASSED test -- FSUNMatGetID'
   end if
 
   ! test SUNMatZero
   retval = FSUNMatZero(sB)
-  if ( (check_matrix_entry(sB, 0.d0, 1.d-14, Nvar, N) /= 0) &
-       .or. (retval /= SUN_SUCCESS) ) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FSUNMatZero'
+  if ((check_matrix_entry(sB, 0.d0, 1.d-14, Nvar, N) /= 0) &
+      .or. (retval /= SUN_SUCCESS)) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FSUNMatZero'
   else
-     print *, 'PASSED test -- FSUNMatZero'
+    print *, 'PASSED test -- FSUNMatZero'
   end if
 
   ! test SUNMatCopy
   retval = FSUNMatCopy(sA, sB)
-  if ( (check_matrix(sA, sB, 1.d-14, Nvar, N) /= 0) &
-       .or. (retval /= SUN_SUCCESS) ) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FSUNMatCopy'
+  if ((check_matrix(sA, sB, 1.d-14, Nvar, N) /= 0) &
+      .or. (retval /= SUN_SUCCESS)) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FSUNMatCopy'
   else
-     print *, 'PASSED test -- FSUNMatCopy'
+    print *, 'PASSED test -- FSUNMatCopy'
   end if
 
   ! test SUNMatScaleAdd
   retval = FSUNMatCopy(sA, sB)
   retval = FSUNMatScaleAdd(-1.d0, sB, sB)
-  if ( (check_matrix_entry(sB, 0.d0, 1.d-14, Nvar, N) /= 0) &
-       .or. (retval /= SUN_SUCCESS) ) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FSUNMatScaleAdd case 1'
+  if ((check_matrix_entry(sB, 0.d0, 1.d-14, Nvar, N) /= 0) &
+      .or. (retval /= SUN_SUCCESS)) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FSUNMatScaleAdd case 1'
   else
-     print *, 'PASSED test -- FSUNMatScaleAdd case 1'
+    print *, 'PASSED test -- FSUNMatScaleAdd case 1'
   end if
 
   retval = FSUNMatCopy(sA, sD)
   retval = FSUNMatCopy(sI, sC)
   retval = FSUNMatScaleAdd(1.d0, sD, sI)
-  if (retval == SUN_SUCCESS)  retval = FSUNMatScaleAdd(1.d0, sC, sA)
-  if ( (check_matrix(sD, sC, 1.d-14, Nvar, N) /= 0) &
-       .or. (retval /= SUN_SUCCESS) ) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FSUNMatScaleAdd case 2'
+  if (retval == SUN_SUCCESS) retval = FSUNMatScaleAdd(1.d0, sC, sA)
+  if ((check_matrix(sD, sC, 1.d-14, Nvar, N) /= 0) &
+      .or. (retval /= SUN_SUCCESS)) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FSUNMatScaleAdd case 2'
   else
-     print *, 'PASSED test -- FSUNMatScaleAdd case 2'
+    print *, 'PASSED test -- FSUNMatScaleAdd case 2'
   end if
 
   ! test SUNMatScaleAddI
   retval = FSUNMatCopy(sI, sB)
   retval = FSUNMatScaleAddI(-1.d0, sB)
-  if ( (check_matrix_entry(sB, 0.d0, 1.d-14, Nvar, N) /= 0) &
-       .or. (retval /= SUN_SUCCESS) ) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FSUNMatScaleAddI'
+  if ((check_matrix_entry(sB, 0.d0, 1.d-14, Nvar, N) /= 0) &
+      .or. (retval /= SUN_SUCCESS)) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FSUNMatScaleAddI'
   else
-     print *, 'PASSED test -- FSUNMatScaleAddI'
+    print *, 'PASSED test -- FSUNMatScaleAddI'
   end if
 
   ! test SUNMatMatvec
@@ -287,12 +285,12 @@ program main
   retval = FSUNMatScaleAddI(3.d0, sB)
   retval = FSUNMatMatvec(sB, sX, sZ)
   call FN_VLinearSum(3.d0, sY, 1.d0, sX, sW)
-  if ( (check_vector(sW, sZ, 1.d-15*Nvar*Nvar, Nvar, N) /= 0) &
-       .or. (retval /= SUN_SUCCESS) ) then
-     fails = fails + 1
-     print *, '>>> FAILED test -- FSUNMatMatvec'
+  if ((check_vector(sW, sZ, 1.d-15*Nvar*Nvar, Nvar, N) /= 0) &
+      .or. (retval /= SUN_SUCCESS)) then
+    fails = fails + 1
+    print *, '>>> FAILED test -- FSUNMatMatvec'
   else
-     print *, 'PASSED test -- FSUNMatMatvec'
+    print *, 'PASSED test -- FSUNMatMatvec'
   end if
 
   ! free matrices and vectors
@@ -311,10 +309,10 @@ program main
 
   ! print results
   if (fails > 0) then
-     print '(a,i3,a)', 'FAIL: FSUNMatrix module failed ',fails,' tests'
-     stop 1
+    print '(a,i3,a)', 'FAIL: FSUNMatrix module failed ', fails, ' tests'
+    stop 1
   else
-     print *, 'SUCCESS: FSUNMatrix module passed all tests'
+    print *, 'SUCCESS: FSUNMatrix module passed all tests'
   end if
   print *, '  '
 

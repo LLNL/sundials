@@ -71,7 +71,7 @@ contains
   !   -1 = non-recoverable error
   ! ----------------------------------------------------------------
   integer(c_int) function RhsFn(tn, sunvec_y, sunvec_f, user_data) &
-       result(ierr) bind(C,name='RhsFn')
+    result(ierr) bind(C, name='RhsFn')
 
     !======= Inclusions ===========
     use, intrinsic :: iso_c_binding
@@ -83,14 +83,14 @@ contains
     real(c_double), value :: tn        ! current time
     type(N_Vector)        :: sunvec_y  ! solution N_Vector
     type(N_Vector)        :: sunvec_f  ! rhs N_Vector
-    type(c_ptr),    value :: user_data ! user-defined data
+    type(c_ptr), value :: user_data ! user-defined data
 
     ! pointers to data in SUNDIALS vectors
     real(c_double), pointer :: yvec(:)
     real(c_double), pointer :: fvec(:)
 
     ! ODE system matrix
-    real(c_double) :: Amat(neq,neq)
+    real(c_double) :: Amat(neq, neq)
 
     !======= Internals ============
 
@@ -99,11 +99,11 @@ contains
     fvec => FN_VGetArrayPointer(sunvec_f)
 
     ! fill A matrix (column major ordering)
-    Amat = reshape([&
-         lamda/4.d0 - 23.d0/40.d0, lamda/4.d0 + 21.d0/40, lamda/2.d0 + 1.d0/20.d0,   &
-         lamda/4.d0 - 3.d0/40.d0,  lamda/4.d0 + 1.d0/40,  lamda/2.d0 + 1.d0/20.d0,   &
-         lamda/4.d0 + 13.d0/40.d0, lamda/4.d0 - 11.d0/40, lamda/2.d0 - 1.d0/20.d0 ], &
-         [3,3])
+    Amat = reshape([ &
+                   lamda/4.d0 - 23.d0/40.d0, lamda/4.d0 + 21.d0/40, lamda/2.d0 + 1.d0/20.d0, &
+                   lamda/4.d0 - 3.d0/40.d0, lamda/4.d0 + 1.d0/40, lamda/2.d0 + 1.d0/20.d0, &
+                   lamda/4.d0 + 13.d0/40.d0, lamda/4.d0 - 11.d0/40, lamda/2.d0 - 1.d0/20.d0], &
+                   [3, 3])
 
     ! fill RHS vector f(t,y) = A*y
     fvec = matmul(Amat, yvec(1:neq))
@@ -115,7 +115,6 @@ contains
   end function RhsFn
 
 end module ode_mod
-
 
 program main
 
@@ -144,8 +143,8 @@ program main
 
   integer :: outstep           ! output loop counter
 
-  type(N_Vector),        pointer :: sunvec_y      ! sundials vector
-  type(SUNMatrix),       pointer :: sunmat_A      ! sundials matrix
+  type(N_Vector), pointer :: sunvec_y      ! sundials vector
+  type(SUNMatrix), pointer :: sunmat_A      ! sundials matrix
   type(SUNLinearSolver), pointer :: sunlinsol_LS  ! sundials linear solver
   type(c_ptr)                    :: ctx           ! SUNDIALS simulation context
   type(c_ptr)                    :: cvode_mem     ! CVODE memory
@@ -157,11 +156,11 @@ program main
 
   ! initialize ODE
   tstart = 0.0d0
-  tend   = 0.05d0
-  tcur   = tstart
-  tout   = tstart
-  dtout  = 0.005d0
-  nout   = ceiling(tend/dtout)
+  tend = 0.05d0
+  tcur = tstart
+  tout = tstart
+  dtout = 0.005d0
+  nout = ceiling(tend/dtout)
 
   ! initialize solution vector
   yvec(1) = 1.0d0
@@ -174,36 +173,36 @@ program main
   ! create a serial vector
   sunvec_y => FN_VMake_Serial(neq, yvec, ctx)
   if (.not. associated(sunvec_y)) then
-     print *, 'ERROR: sunvec = NULL'
-     stop 1
+    print *, 'ERROR: sunvec = NULL'
+    stop 1
   end if
 
   ! create a dense matrix
   sunmat_A => FSUNDenseMatrix(neq, neq, ctx)
   if (.not. associated(sunmat_A)) then
-     print *, 'ERROR: sunmat = NULL'
-     stop 1
+    print *, 'ERROR: sunmat = NULL'
+    stop 1
   end if
 
   ! create a dense linear solver
   sunlinsol_LS => FSUNLinSol_Dense(sunvec_y, sunmat_A, ctx)
   if (.not. associated(sunlinsol_LS)) then
-     print *, 'ERROR: sunlinsol = NULL'
-     stop 1
+    print *, 'ERROR: sunlinsol = NULL'
+    stop 1
   end if
 
   ! create CVode memory
   cvode_mem = FCVodeCreate(CV_BDF, ctx)
   if (.not. c_associated(cvode_mem)) then
-     print *, 'ERROR: cvode_mem = NULL'
-     stop 1
+    print *, 'ERROR: cvode_mem = NULL'
+    stop 1
   end if
 
   ! initialize CVode
   ierr = FCVodeInit(cvode_mem, c_funloc(RhsFn), tstart, sunvec_y)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeInit, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeInit, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ! set relative and absolute tolerances
@@ -212,15 +211,15 @@ program main
 
   ierr = FCVodeSStolerances(cvode_mem, rtol, atol)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeSStolerances, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeSStolerances, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ! attach linear solver
-  ierr = FCVodeSetLinearSolver(cvode_mem, sunlinsol_LS, sunmat_A);
+  ierr = FCVodeSetLinearSolver(cvode_mem, sunlinsol_LS, sunmat_A); 
   if (ierr /= 0) then
-     print *, 'Error in FCVodeSetLinearSolver, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeSetLinearSolver, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ! start time stepping
@@ -230,20 +229,20 @@ program main
   print *, '       t           y1           y2           y3       '
   print *, '------------------------------------------------------'
   print '(2x,4(es12.5,1x))', tcur, yvec(1), yvec(2), yvec(3)
-  do outstep = 1,nout
+  do outstep = 1, nout
 
-     ! call CVode
-     tout = min(tout + dtout, tend)
-     ierr = FCVode(cvode_mem, tout, sunvec_y, tcur, CV_NORMAL)
-     if (ierr /= 0) then
-        print *, 'Error in FCVODE, ierr = ', ierr, '; halting'
-        stop 1
-     endif
+    ! call CVode
+    tout = min(tout + dtout, tend)
+    ierr = FCVode(cvode_mem, tout, sunvec_y, tcur, CV_NORMAL)
+    if (ierr /= 0) then
+      print *, 'Error in FCVODE, ierr = ', ierr, '; halting'
+      stop 1
+    end if
 
-     ! output current solution
-     print '(2x,4(es12.5,1x))', tcur, yvec(1), yvec(2), yvec(3)
+    ! output current solution
+    print '(2x,4(es12.5,1x))', tcur, yvec(1), yvec(2), yvec(3)
 
-  enddo
+  end do
 
   ! diagnostics output
   call CVodeStats(cvode_mem)
@@ -256,7 +255,6 @@ program main
   ierr = FSUNContext_Free(ctx)
 
 end program main
-
 
 ! ----------------------------------------------------------------
 ! CVodeStats
@@ -298,41 +296,41 @@ subroutine CVodeStats(cvode_mem)
 
   ! general solver statistics
   ierr = FCVodeGetIntegratorStats(cvode_mem, nsteps, nfevals, nlinsetups, &
-       netfails, qlast, qcur, hinused, hlast, hcur, tcur)
+                                  netfails, qlast, qcur, hinused, hlast, hcur, tcur)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeGetIntegratorStats, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetIntegratorStats, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ! nonlinear solver statistics
   ierr = FCVodeGetNonlinSolvStats(cvode_mem, nniters, nncfails)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeGetNonlinSolvStats, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNonlinSolvStats, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   ! number of Jacobian evaluations
   ierr = FCVodeGetNumJacEvals(cvode_mem, njevals)
   if (ierr /= 0) then
-     print *, 'Error in FCVodeGetNumJacEvals, ierr = ', ierr, '; halting'
-     stop 1
+    print *, 'Error in FCVodeGetNumJacEvals, ierr = ', ierr, '; halting'
+    stop 1
   end if
 
   print *, ' '
   print *, ' General Solver Stats:'
-  print '(4x,A,i9)'    ,'Total internal steps taken =',nsteps
-  print '(4x,A,i9)'    ,'Total rhs function calls   =',nfevals
-  print '(4x,A,i9)'    ,'Num lin solver setup calls =',nlinsetups
-  print '(4x,A,i9)'    ,'Num error test failures    =',netfails
-  print '(4x,A,i9)'    ,'Last method order          =',qlast
-  print '(4x,A,i9)'    ,'Next method order          =',qcur
-  print '(4x,A,es12.5)','First internal step size   =',hinused
-  print '(4x,A,es12.5)','Last internal step size    =',hlast
-  print '(4x,A,es12.5)','Next internal step size    =',hcur
-  print '(4x,A,es12.5)','Current internal time      =',tcur
-  print '(4x,A,i9)'    ,'Num nonlinear solver iters =',nniters
-  print '(4x,A,i9)'    ,'Num nonlinear solver fails =',nncfails
-  print '(4x,A,i9)'    ,'Num Jacobian evaluations   =',njevals
+  print '(4x,A,i9)', 'Total internal steps taken =', nsteps
+  print '(4x,A,i9)', 'Total rhs function calls   =', nfevals
+  print '(4x,A,i9)', 'Num lin solver setup calls =', nlinsetups
+  print '(4x,A,i9)', 'Num error test failures    =', netfails
+  print '(4x,A,i9)', 'Last method order          =', qlast
+  print '(4x,A,i9)', 'Next method order          =', qcur
+  print '(4x,A,es12.5)', 'First internal step size   =', hinused
+  print '(4x,A,es12.5)', 'Last internal step size    =', hlast
+  print '(4x,A,es12.5)', 'Next internal step size    =', hcur
+  print '(4x,A,es12.5)', 'Current internal time      =', tcur
+  print '(4x,A,i9)', 'Num nonlinear solver iters =', nniters
+  print '(4x,A,i9)', 'Num nonlinear solver fails =', nncfails
+  print '(4x,A,i9)', 'Num Jacobian evaluations   =', njevals
   print *, ' '
 
   return

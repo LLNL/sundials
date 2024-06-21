@@ -13,7 +13,10 @@ jobs:
       - name: Install git
         run: |
           apt update
-          apt install -y git
+          apt install -y git python3-pip
+
+      - name: Install fprettify
+        run: pip install fprettify
 
       - name: Check out repository code
         uses: actions/checkout@v4

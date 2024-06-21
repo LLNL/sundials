@@ -24,11 +24,10 @@ module test_fsunmatrix_dense
 
 contains
 
-  integer(C_INT) function smoke_tests() result(fails)
+  integer(c_int) function smoke_tests() result(fails)
 
     !======== Inclusions ==========
     use, intrinsic :: iso_c_binding
-
 
     use fsunmatrix_dense_mod
     use fnvector_serial_mod
@@ -38,10 +37,10 @@ contains
 
     ! local variables
     type(SUNMatrix), pointer :: A, B               ! SUNMatrix
-    type(N_Vector),  pointer :: x, y               ! NVectors
-    real(C_DOUBLE),  pointer :: matdat(:)          ! matrix data pointer
-    integer(C_LONG)          :: lenrw(1), leniw(1) ! matrix real and int work space size
-    integer(C_LONG)          :: val
+    type(N_Vector), pointer :: x, y               ! NVectors
+    real(c_double), pointer :: matdat(:)          ! matrix data pointer
+    integer(c_long)          :: lenrw(1), leniw(1) ! matrix real and int work space size
+    integer(c_long)          :: val
 
     fails = 0
 
@@ -53,7 +52,7 @@ contains
     ! constructor
     A => FSUNDenseMatrix(N, N, sunctx)
     if (.not. associated(A)) then
-      print *,'>>> FAILED - ERROR in FSUNDenseMatrix; halting'
+      print *, '>>> FAILED - ERROR in FSUNDenseMatrix; halting'
       stop 1
     end if
 
@@ -63,16 +62,16 @@ contains
     val = FSUNDenseMatrix_Columns(A)
     val = FSUNDenseMatrix_LData(A)
     matdat => FSUNDenseMatrix_Data(A)
-    matdat => FSUNDenseMatrix_Column(A,N)
+    matdat => FSUNDenseMatrix_Column(A, N)
 
     ! matrix operations
     B => FSUNMatClone_Dense(A)
     if (.not. associated(B)) then
-      print *,'>>> FAILED - ERROR in FSUNMatClone_Dense; halting'
+      print *, '>>> FAILED - ERROR in FSUNMatClone_Dense; halting'
       stop 1
     end if
     fails = fails + FSUNMatZero_Dense(A)
-    fails = fails + FSUNMatCopy_Dense(A,B)
+    fails = fails + FSUNMatCopy_Dense(A, B)
     fails = fails + FSUNMatScaleAdd_Dense(ONE, A, B)
     fails = fails + FSUNMatScaleAddI_Dense(ONE, A)
     fails = fails + FSUNMatMatvec_Dense(A, x, y)
@@ -86,9 +85,8 @@ contains
 
   end function smoke_tests
 
-  integer(C_INT) function unit_tests() result(fails)
+  integer(c_int) function unit_tests() result(fails)
     use, intrinsic :: iso_c_binding
-
 
     use fnvector_serial_mod
     use fsunmatrix_dense_mod
@@ -97,9 +95,9 @@ contains
     implicit none
 
     type(SUNMatrix), pointer :: A, I
-    type(N_Vector),  pointer :: x, y
-    real(C_DOUBLE),  pointer :: Adata(:), Idata(:), xdata(:), ydata(:)
-    integer(C_LONG)          :: ii, jj, tmp1, tmp2
+    type(N_Vector), pointer :: x, y
+    real(c_double), pointer :: Adata(:), Idata(:), xdata(:), ydata(:)
+    integer(c_long)          :: ii, jj, tmp1, tmp2
 
     fails = 0
 
@@ -110,30 +108,30 @@ contains
 
     ! fill matrix A
     Adata => FSUNDenseMatrix_Data(A)
-    do jj=1, N
-      do ii=1, N
-        Adata((jj-1)*N + ii) = jj*(ii+jj-2)
+    do jj = 1, N
+      do ii = 1, N
+        Adata((jj - 1)*N + ii) = jj*(ii + jj - 2)
       end do
     end do
 
     ! fill matrix I (identity)
     Idata => FSUNDenseMatrix_Data(I)
-    do jj=1, N
-        Idata((jj-1)*N + jj) = ONE
+    do jj = 1, N
+      Idata((jj - 1)*N + jj) = ONE
     end do
 
     ! fill vector x
     xdata => FN_VGetArrayPointer(x)
-    do ii=1, N
-      xdata(ii) = ONE / ii
+    do ii = 1, N
+      xdata(ii) = ONE/ii
     end do
 
     ! fill vector y
     ydata => FN_VGetArrayPointer(y)
-    do ii=1, N
-      tmp1 = ii-1
+    do ii = 1, N
+      tmp1 = ii - 1
       tmp2 = tmp1 + N - 1
-      ydata(ii) = HALF*(tmp2+1-tmp1)*(tmp1+tmp2)
+      ydata(ii) = HALF*(tmp2 + 1 - tmp1)*(tmp1 + tmp2)
     end do
 
     fails = fails + Test_FSUNMatGetID(A, SUNMATRIX_DENSE, 0)
@@ -162,7 +160,7 @@ program main
 
   !======== Declarations ========
   implicit none
-  integer(C_INT) :: fails = 0
+  integer(c_int) :: fails = 0
 
   !============== Introduction =============
   print *, 'Dense SUNMatrix Fortran 2003 interface test'
@@ -182,7 +180,7 @@ program main
 end program main
 
 ! exported functions used by test_sunmatrix
-integer(C_INT) function check_matrix(A, B, tol) result(fails)
+integer(c_int) function check_matrix(A, B, tol) result(fails)
   use, intrinsic :: iso_c_binding
 
   use fsunmatrix_dense_mod
@@ -190,11 +188,9 @@ integer(C_INT) function check_matrix(A, B, tol) result(fails)
 
   implicit none
 
-
-
   type(SUNMatrix) :: A, B
-  real(C_DOUBLE)  :: tol
-  real(C_DOUBLE), pointer :: Adata(:), Bdata(:)
+  real(c_double)  :: tol
+  real(c_double), pointer :: Adata(:), Bdata(:)
   integer(kind=myindextype) :: Aldata, Bldata, i
 
   fails = 0
@@ -214,13 +210,13 @@ integer(C_INT) function check_matrix(A, B, tol) result(fails)
   end if
 
   ! compare data
-  do i=1, Aldata
+  do i = 1, Aldata
     fails = fails + FNEQTOL(Adata(i), Bdata(i), tol)
   end do
 
 end function check_matrix
 
-integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
+integer(c_int) function check_matrix_entry(A, c, tol) result(fails)
   use, intrinsic :: iso_c_binding
 
   use fsunmatrix_dense_mod
@@ -229,9 +225,9 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
   implicit none
 
   type(SUNMatrix) :: A
-  real(C_DOUBLE)  :: c, tol
-  real(C_DOUBLE), pointer :: Adata(:)
-  integer(C_LONG) :: Aldata, i
+  real(c_double)  :: c, tol
+  real(c_double), pointer :: Adata(:)
+  integer(c_long) :: Aldata, i
 
   fails = 0
 
@@ -242,16 +238,16 @@ integer(C_INT) function check_matrix_entry(A, c, tol) result(fails)
   Aldata = FSUNDenseMatrix_LData(A)
 
   ! compare data
-  do i=1, Aldata
+  do i = 1, Aldata
     fails = fails + FNEQTOL(Adata(i), c, tol)
   end do
 
   if (fails > ZERO) then
     print *, ">>> ERROR: check_matrix_entry failures: "
-    do i=1, Aldata
+    do i = 1, Aldata
       if (FNEQTOL(Adata(i), c, tol) /= 0) then
-        write(*,'(A,I0,A,E14.7,A,E14.7)') &
-          "Adata[ ", i, "] =", Adata(i) ," c = ", c
+        write (*, '(A,I0,A,E14.7,A,E14.7)') &
+          "Adata[ ", i, "] =", Adata(i), " c = ", c
       end if
     end do
   end if
