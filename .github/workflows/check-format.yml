@@ -1,11 +1,11 @@
-name: Checks - clang-format
+name: Checks - formatting
 
 on:
   pull_request:
   workflow_dispatch:
 
 jobs:
-  clang_format_check:
+  format_check:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/llnl/sundials_spack_cache:llvm-17.0.4-h4lflucc3v2vage45opbo2didtcuigsn.spack
@@ -15,8 +15,20 @@ jobs:
           apt update
           apt install -y git python3-pip
 
+      - name: Install gersemi
+        run: pip install gersemi
+
+      - name: Print gersemi version
+        run: gersemi --version
+
       - name: Install fprettify
         run: pip install fprettify
+
+      - name: Print fprettify version
+        run: fprettify --version
+
+      - name: Print clang-format version
+        run: clang-format --version
 
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -25,9 +37,6 @@ jobs:
 
       - name: Add safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - name: Print clang-format version
-        run: clang-format --version
 
       - name: Run checker on code
         run: |
@@ -38,12 +47,12 @@ jobs:
 
       - name: Run git diff if we failed
         if: failure()
-        run:  /usr/bin/git diff > clang_format.patch
+        run:  /usr/bin/git diff > format.patch
 
       - name: Archive diff as a patch if we failed
         uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: clang_format.patch
+          name: format.patch
           path: |
-            ${{ github.workspace }}/clang_format.patch
+            ${{ github.workspace }}/format.patch

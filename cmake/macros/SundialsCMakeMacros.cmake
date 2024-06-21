@@ -18,13 +18,13 @@
 # Macro to force a cache variable to take on the value
 
 # show variable (set as cache) and overwrite (force) its value
-macro(FORCE_VARIABLE var type doc val)
+macro(force_variable var type doc val)
   set(${var} "${val}" CACHE "${type}" "${doc}" FORCE)
 endmacro(FORCE_VARIABLE)
 
 # Macros to append a common suffix or prefix to the elements of a list
 
-macro(ADD_SUFFIX rootlist suffix)
+macro(add_suffix rootlist suffix)
   set(outlist )
   foreach(root ${${rootlist}})
     list(APPEND outlist ${root}${suffix})
@@ -32,7 +32,7 @@ macro(ADD_SUFFIX rootlist suffix)
   set(${rootlist} ${outlist})
 endmacro(ADD_SUFFIX)
 
-macro(ADD_PREFIX prefix rootlist)
+macro(add_prefix prefix rootlist)
   set(outlist )
   foreach(root ${${rootlist}})
     list(APPEND outlist ${prefix}${root})
@@ -44,7 +44,7 @@ endmacro(ADD_PREFIX)
 # strings back into lists, due to the duality of lists and
 # semicolon-separated strings. So be careful how you use it.
 
-macro(LIST2STRING alist astring)
+macro(list2string alist astring)
   foreach(elem ${${alist}})
    set(${astring} "${${astring}} ${elem}")
   endforeach(elem)
@@ -52,7 +52,7 @@ endmacro(LIST2STRING)
 
 # Returns a string of unique example names from a list of example tuples
 
-macro(EXAMPLES2STRING example_list example_string)
+macro(examples2string example_list example_string)
   set(tmp_list "")
   foreach(example_tuple ${${example_list}})
     list(GET example_tuple 0 example)
