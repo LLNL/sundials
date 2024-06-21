@@ -1,11 +1,11 @@
-name: Checks - clang-format
+name: Checks - formatting
 
 on:
   pull_request:
   workflow_dispatch:
 
 jobs:
-  clang_format_check:
+  format_check:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/llnl/sundials_spack_cache:llvm-17.0.4-h4lflucc3v2vage45opbo2didtcuigsn.spack
@@ -15,8 +15,20 @@ jobs:
           apt update
           apt install -y git python3-pip
 
+      - name: Install cmake-format
+        run: pip install cmakelang
+
+      - name: Print cmake-format version
+        run: cmake-format --version
+
       - name: Install fprettify
         run: pip install fprettify
+
+      - name: Print fprettify version
+        run: fprettify --version
+
+      - name: Print clang-format version
+        run: clang-format --version
 
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -25,9 +37,6 @@ jobs:
 
       - name: Add safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - name: Print clang-format version
-        run: clang-format --version
 
       - name: Run checker on code
         run: |
