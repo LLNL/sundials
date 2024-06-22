@@ -135,7 +135,8 @@ def log_file_to_list(filename):
                 # Set the current time level
                 line_dict["payload"]["level"] = level
                 # Add new step attempt dictionary to the active list
-                stack[-1].append(line_dict["payload"])
+                stack[-1].append({})
+                stack[-1][-1].update(line_dict["payload"])
                 continue
             elif label == "end-step-attempt":
                 # Update active step attempt dictionary
@@ -149,7 +150,8 @@ def log_file_to_list(filename):
                 # Make the stage sublist the active list
                 stack.append(stack[-1][-1]["stages"])
                 # Add new stage dictionary to the active list
-                stack[-1].append(line_dict["payload"])
+                stack[-1].append({})
+                stack[-1][-1].update(line_dict["payload"])
                 continue
             elif label == "end-stage":
                 # Update the active stage dictionary
@@ -188,7 +190,8 @@ def log_file_to_list(filename):
                 # Make the stage sublist the active list
                 stack.append(stack[-1][-1]["nonlinear-solve"]["iterations"])
                 # Add new solver iteration dictionary
-                stack[-1].append(line_dict["payload"])
+                stack[-1].append({})
+                stack[-1][-1].update(line_dict["payload"])
                 continue
             elif (label == "end-nonlinear-iterate"):
                 # Update the active iteration dictionary
@@ -211,7 +214,8 @@ def log_file_to_list(filename):
                 # Make the stage sublist the active list
                 stack.append(stack[-1][-1]["linear-solve"]["iterations"])
                 # Add new solver iteration dictionary
-                stack[-1].append(line_dict["payload"])
+                stack[-1].append({})
+                stack[-1][-1].update(line_dict["payload"])
                 continue
             elif (label == "end-linear-iterate"):
                 # Update the active iteration dictionary
