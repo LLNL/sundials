@@ -162,12 +162,12 @@ def log_file_to_list(filename):
 
             if label == "begin-fast-steps":
                 level += 1
-                key = f"time-level-{level}"
+                level_key = f"time-level-{level}"
                 # Add fast step sublist to the active dictionary
-                if key not in stack[-1][-1]:
-                    stack[-1][-1][key] = []
+                if level_key not in stack[-1][-1]:
+                    stack[-1][-1][level_key] = []
                 # Make the fast step sublist the active list
-                stack.append(stack[-1][-1][key])
+                stack.append(stack[-1][-1][level_key])
                 continue
             elif label == "end-fast-steps":
                 level -= 1
