@@ -3048,6 +3048,9 @@ static int cvNls(CVodeMem cv_mem, int nflag)
     if (flag > 0) { return (SUN_NLS_CONV_RECVR); }
   }
 
+  SUNLogInfo(CV_LOGGER, __func__, "begin-nonlinear-solve",
+             "tol = %.16g", cv_mem->cv_tq[4]);
+
   /* solve the nonlinear system */
   flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
                            cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
@@ -3060,7 +3063,13 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   cv_mem->cv_nnf += nnf_inc;
 
   /* if the solve failed return */
-  if (flag != SUN_SUCCESS) { return (flag); }
+  if (flag != SUN_SUCCESS)
+  {
+    SUNLogInfo(CV_LOGGER, __func__, "end-nonlinear-solve",
+               "status = failed, flag = %i, iters = %li", flag, nni_inc);
+
+    return (flag);
+  }
 
   /* solve successful */
 
@@ -3072,6 +3081,9 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   {
     cv_mem->cv_acnrm = N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt);
   }
+
+  SUNLogInfo(CV_LOGGER, __func__, "end-nonlinear-solve",
+             "status = success, iters = %li", nni_inc);
 
   /* update Jacobian status */
   cv_mem->cv_jcur = SUNFALSE;
