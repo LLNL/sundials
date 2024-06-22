@@ -83,7 +83,7 @@ if(adiak_FOUND AND (NOT adiak_WORKS))
     message(STATUS "Checking if adiak works with SUNDIALS... FAILED")
     message(STATUS "Check output: ")
     message("${COMPILE_OUTPUT}")
-    print_error("SUNDIALS interface to adiak is not functional.")
+    message(FATAL_ERROR "SUNDIALS interface to adiak is not functional.")
   endif()
 
 elseif(adiak_FOUND AND adiak_WORKS)
