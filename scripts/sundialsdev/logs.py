@@ -185,12 +185,38 @@ def log_file_to_list(filename):
             if (label == "begin-nonlinear-iterate"):
                 if "iterations" not in stack[-1][-1]["nonlinear-solve"]:
                     stack[-1][-1]["nonlinear-solve"]["iterations"] = []
+                # Make the stage sublist the active list
+                stack.append(stack[-1][-1]["nonlinear-solve"]["iterations"])
                 # Add new solver iteration dictionary
-                stack[-1][-1]["nonlinear-solve"]["iterations"].append(line_dict["payload"])
+                stack[-1].append(line_dict["payload"])
                 continue
             elif (label == "end-nonlinear-iterate"):
                 # Update the active iteration dictionary
-                stack[-1][-1]["nonlinear-solve"]["iterations"][-1].update(line_dict["payload"])
+                stack[-1][-1].update(line_dict["payload"])
+                stack.pop()
+                continue
+
+            if label == "begin-linear-solve":
+                if "linear-solve" not in stack[-1][-1]:
+                    stack[-1][-1]["linear-solve"] = {}
+                stack[-1][-1]["linear-solve"].update(line_dict["payload"])
+                continue
+            elif label == "end-linear-solve":
+                stack[-1][-1]["linear-solve"].update(line_dict["payload"])
+                continue
+
+            if (label == "begin-linear-iterate"):
+                if "iterations" not in stack[-1][-1]["linear-solve"]:
+                    stack[-1][-1]["linear-solve"]["iterations"] = []
+                # Make the stage sublist the active list
+                stack.append(stack[-1][-1]["linear-solve"]["iterations"])
+                # Add new solver iteration dictionary
+                stack[-1].append(line_dict["payload"])
+                continue
+            elif (label == "end-linear-iterate"):
+                # Update the active iteration dictionary
+                stack[-1][-1].update(line_dict["payload"])
+                stack.pop()
                 continue
 
             # Update current step attempt entry with intermediate output
