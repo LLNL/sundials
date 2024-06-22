@@ -294,12 +294,12 @@ sundials_option(SUNDIALS_LAPACK_UNDERSCORES STRING
 
 # If used, both case and underscores must be set
 if((NOT SUNDIALS_LAPACK_CASE) AND SUNDIALS_LAPACK_UNDERSCORES)
-  print_error("If SUNDIALS_LAPACK_UNDERSCORES is set, "
-                      "SUNDIALS_LAPACK_CASE must also be set.")
+  message(FATAL_ERROR "If SUNDIALS_LAPACK_UNDERSCORES is set, "
+    "SUNDIALS_LAPACK_CASE must also be set.")
 endif()
 if(SUNDIALS_LAPACK_CASE AND (NOT SUNDIALS_LAPACK_UNDERSCORES))
-  print_error("If SUNDIALS_LAPACK_CASE is set, "
-                      "SUNDIALS_LAPACK_UNDERSCORES must also be set.")
+  message(FATAL_ERROR "If SUNDIALS_LAPACK_CASE is set, "
+    "SUNDIALS_LAPACK_UNDERSCORES must also be set.")
 endif()
 
 # Did the user provide a name-mangling scheme?
@@ -324,7 +324,7 @@ if(SUNDIALS_LAPACK_CASE AND SUNDIALS_LAPACK_UNDERSCORES)
       set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) name ## __")
       set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) name ## __")
     else()
-      print_error("Invalid SUNDIALS_LAPACK_UNDERSCORES option.")
+      message(FATAL_ERROR "Invalid SUNDIALS_LAPACK_UNDERSCORES option.")
     endif()
   elseif(SUNDIALS_LAPACK_CASE MATCHES "UPPER")
     if(SUNDIALS_LAPACK_UNDERSCORES MATCHES "NONE")
@@ -337,10 +337,10 @@ if(SUNDIALS_LAPACK_CASE AND SUNDIALS_LAPACK_UNDERSCORES)
       set(LAPACK_MANGLE_MACRO1 "#define SUNDIALS_LAPACK_FUNC(name,NAME) NAME ## __")
       set(LAPACK_MANGLE_MACRO2 "#define SUNDIALS_LAPACK_FUNC_(name,NAME) NAME ## __")
     else()
-      print_error("Invalid SUNDIALS_LAPACK_UNDERSCORES option.")
+      message(FATAL_ERROR "Invalid SUNDIALS_LAPACK_UNDERSCORES option.")
     endif()
   else()
-    print_error("Invalid SUNDIALS_LAPACK_CASE option.")
+    message(FATAL_ERROR "Invalid SUNDIALS_LAPACK_CASE option.")
   endif()
 
   # name-mangling scheme has been manually set

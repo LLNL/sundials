@@ -355,7 +355,7 @@ if(LAPACK_LIBRARIES AND (NOT LAPACK_WORKS))
     message(STATUS "Checking if LAPACK works with SUNDIALS... FAILED")
     message(STATUS "Check output: ")
     message("${COMPILE_OUTPUT}")
-    print_error("SUNDIALS interface to LAPACK is not functional.")
+    message(FATAL_ERROR "SUNDIALS interface to LAPACK is not functional.")
   endif()
 
 elseif(LAPACK_LIBRARIES AND LAPACK_WORKS)

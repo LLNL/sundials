@@ -117,7 +117,7 @@ set(sundialslib_SOVERSION "${PACKAGE_VERSION_MAJOR}")
 
 # Prohibit in-source build
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
-  print_error("In-source build prohibited.")
+  message(FATAL_ERROR "In-source build prohibited.")
 endif()
 
 # Organize targets into folders when using an IDE
