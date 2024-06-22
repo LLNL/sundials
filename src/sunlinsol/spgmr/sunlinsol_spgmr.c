@@ -630,9 +630,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       rotation_product *= givens[2 * l + 1];
       *res_norm = rho = SUNRabs(rotation_product * r_norm);
 
-      SUNLogInfo(S->sunctx->logger, __func__,
-                 "linear-iterate", "cur-iter = %i, total-iters = %i, res-norm = %.16g",
-                 l + 1, *nli, *res_norm);
+      SUNLogInfo(S->sunctx->logger, __func__, "linear-iterate",
+                 "cur-iter = %i, total-iters = %i, res-norm = %.16g", l + 1,
+                 *nli, *res_norm);
 
       if (rho <= delta)
       {
@@ -659,7 +659,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       LASTFLAG(S) = SUNLS_QRSOL_FAIL;
 
       SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
-                   "status = failed QR solve", "");
+                 "status = failed QR solve", "");
 
       return (LASTFLAG(S));
     }
@@ -752,8 +752,8 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     }
     SUNCheckCall(N_VLinearCombination(krydim + 1, cv, Xv, V[0]));
 
-    SUNLogInfo(S->sunctx->logger, __func__,
-               "end-linear-iterate", "status = continue", "");
+    SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+               "status = continue", "");
   }
 
   /* Failed to converge, even after allowed restarts.

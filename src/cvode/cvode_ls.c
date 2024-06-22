@@ -1691,8 +1691,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   {
     delta = ZERO;
 
-    SUNLogInfo(CV_LOGGER, __func__, "begin-linear-solve",
-               "iterative = 0", "");
+    SUNLogInfo(CV_LOGGER, __func__, "begin-linear-solve", "iterative = 0", "");
   }
 
   /* Set vectors ycur and fcur for use by the Atimes and Psolve
@@ -1799,11 +1798,11 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   cvls_mem->last_flag = retval;
 
   SUNLogInfoIf(retval == SUN_SUCCESS, CV_LOGGER, __func__, "end-linear-solve",
-               "status = success, iters = %i, p-solves = %i",
-               nli_inc, (int)(cvls_mem->nps - nps_inc));
+               "status = success, iters = %i, p-solves = %i", nli_inc,
+               (int)(cvls_mem->nps - nps_inc));
   SUNLogInfoIf(retval != SUN_SUCCESS, CV_LOGGER, __func__, "end-linear-solve",
-               "status = failed, retval = %i, iters = %i, p-solves = %i", retval,
-               nli_inc, (int)(cvls_mem->nps - nps_inc));
+               "status = failed, retval = %i, iters = %i, p-solves = %i",
+               retval, nli_inc, (int)(cvls_mem->nps - nps_inc));
 
   switch (retval)
   {
