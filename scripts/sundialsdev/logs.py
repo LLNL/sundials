@@ -18,6 +18,7 @@
 
 import re
 import numpy as np
+from collections import ChainMap
 
 def convert_to_num(s):
     """Try to convert a string to an int or float"""
@@ -85,6 +86,78 @@ def parse_logfile_line(line, line_number, all_lines):
     return line_dict
 
 
+class StepData:
+    def __init__(self):
+        self.container = [ChainMap()]
+        self.parent_keys = ['main']
+        self.open_dicts = 0
+        self.open_lists = 0
+        self.total_dicts = 0
+        self.total_lists = 0
+
+    def __repr__(self):
+        tmp = "Container:"
+        for l in self.container:
+            tmp += f"\n  {l}"
+        tmp += "\nParent Keys:"
+        for l in self.parent_keys:
+            tmp += f"\n  {l}"
+        tmp += f"\nOpen dicts: {self.open_dicts}"
+        tmp += f"\nOpen lists: {self.open_lists}"
+        tmp += f"\nTotal dicts: {self.total_dicts}"
+        tmp += f"\nTotal lists: {self.total_lists}"
+        return tmp
+
+    def update(self, data):
+        """Update the active dictionary"""
+        self.container[-1].update(data)
+
+    def open_dict(self, key):
+        """Activate a dictionary"""
+        self.container[-1][key] = {}
+        self.container[-1] = self.container[-1].new_child(self.container[-1][key])
+        self.open_dicts += 1
+        self.total_dicts += 1
+
+    def close_dict(self):
+        """Deactivate the active dictionary"""
+        self.container[-1] = self.container[-1].parents
+        self.open_dicts -= 1
+
+    def open_list(self, key):
+        """Activate a list of dictionaries"""
+        if key in self.container[-1]:
+            self.container.append(ChainMap())
+        else:
+            self.container[-1][key] = []
+            self.container.append(ChainMap())
+        self.parent_keys.append(key)
+        self.open_lists += 1
+        self.total_lists += 1
+
+    def close_list(self):
+        """Deactivate a the active list"""
+        # I think should only ever have one entry. In which case we don't need
+        # a ChainMap and could just manage the dictionaries manually
+        tmp = self.container[-1].maps[0]
+        self.container[-2][self.parent_keys[-1]].append(tmp)
+        self.parent_keys.pop()
+        self.container.pop()
+        self.open_lists -= 1
+
+    def get_step(self):
+        """Get the step dictionary and reset the container"""
+        tmp = self.container.pop().maps[0]
+        self.container = [ChainMap()]
+        # At this point we should already be back to main, add sanity check
+        self.parent_keys = ['main']
+        self.open_dicts = 0
+        self.open_lists = 0
+        self.total_dicts = 0
+        self.total_lists = 0
+        return tmp
+
+
 def log_file_to_list(filename):
     """
     This function takes a SUNDIALS log file and creates a list where each list
@@ -106,21 +179,13 @@ def log_file_to_list(filename):
         # List of step attempts, each entry is a dictionary for one attempt
         step_attempts = []
 
-        # Stack of lists to handle sublists for different log scopes e.g., stage
-        # data, algebraic solver data, fast integrator data, etc.
-        #
-        # stack[-1] is the active list of dictionaries
-        # stage[-1][-1] is the active dictionary
-        stack = []
-
-        # Make step attempt list the active list
-        stack.append(step_attempts)
-
         # Time level for nested integrators e.g., MRI methods
         level = 0
 
         # Read the log file
         all_lines = logfile.readlines()
+
+        s = StepData()
 
         for line_number, line in enumerate(all_lines):
 
@@ -132,99 +197,72 @@ def log_file_to_list(filename):
             label = line_dict["label"]
 
             if label == "begin-step-attempt":
-                # Set the current time level
                 line_dict["payload"]["level"] = level
-                # Add new step attempt dictionary to the active list
-                stack[-1].append({})
-                stack[-1][-1].update(line_dict["payload"])
+                if level > 0:
+                    s.open_list(f"time-level-{level}")
+                s.update(line_dict["payload"])
                 continue
             elif label == "end-step-attempt":
-                # Update active step attempt dictionary
-                stack[-1][-1].update(line_dict["payload"])
+                s.update(line_dict["payload"])
+                if level > 0:
+                    s.close_list()
+                else:
+                    step_attempts.append(s.get_step())
+                continue
+
+            if label == "begin-nonlinear-solve":
+                s.open_dict("nonlinear-solve")
+                s.update(line_dict["payload"])
+                continue
+            elif label == "end-nonlinear-solve":
+                s.update(line_dict["payload"])
+                s.close_dict()
+                continue
+
+            if (label == "begin-nonlinear-iterate"):
+                s.open_list('iterations')
+                s.update(line_dict["payload"])
+                continue
+            elif (label == "end-nonlinear-iterate"):
+                s.update(line_dict["payload"])
+                s.close_list()
+                continue
+
+            if label == "begin-linear-solve":
+                s.open_dict("linear-solve")
+                s.update(line_dict["payload"])
+                continue
+            elif label == "end-linear-solve":
+                s.update(line_dict["payload"])
+                s.close_dict()
+                continue
+
+            if (label == "begin-linear-iterate"):
+                s.open_list('iterations')
+                s.update(line_dict["payload"])
+                continue
+            elif (label == "end-linear-iterate"):
+                s.update(line_dict["payload"])
+                s.close_list()
                 continue
 
             if label == "begin-stage":
-                # Add stage sublist to the active dictionary
-                if "stages" not in stack[-1][-1]:
-                    stack[-1][-1]["stages"] = []
-                # Make the stage sublist the active list
-                stack.append(stack[-1][-1]["stages"])
-                # Add new stage dictionary to the active list
-                stack[-1].append({})
-                stack[-1][-1].update(line_dict["payload"])
+                s.open_list('stages')
+                s.update(line_dict["payload"])
                 continue
             elif label == "end-stage":
-                # Update the active stage dictionary
-                stack[-1][-1].update(line_dict["payload"])
-                # Deactivate stage list
-                stack.pop()
+                s.update(line_dict["payload"])
+                s.close_list()
                 continue
 
             if label == "begin-fast-steps":
                 level += 1
-                level_key = f"time-level-{level}"
-                # Add fast step sublist to the active dictionary
-                if level_key not in stack[-1][-1]:
-                    stack[-1][-1][level_key] = []
-                # Make the fast step sublist the active list
-                stack.append(stack[-1][-1][level_key])
                 continue
             elif label == "end-fast-steps":
                 level -= 1
-                # Deactivate fast step list
-                stack.pop()
                 continue
 
-            if label == "begin-nonlinear-solve":
-                if "nonlinear-solve" not in stack[-1][-1]:
-                    stack[-1][-1]["nonlinear-solve"] = {}
-                stack[-1][-1]["nonlinear-solve"].update(line_dict["payload"])
-                continue
-            elif label == "end-nonlinear-solve":
-                stack[-1][-1]["nonlinear-solve"].update(line_dict["payload"])
-                continue
-
-            if (label == "begin-nonlinear-iterate"):
-                if "iterations" not in stack[-1][-1]["nonlinear-solve"]:
-                    stack[-1][-1]["nonlinear-solve"]["iterations"] = []
-                # Make the stage sublist the active list
-                stack.append(stack[-1][-1]["nonlinear-solve"]["iterations"])
-                # Add new solver iteration dictionary
-                stack[-1].append({})
-                stack[-1][-1].update(line_dict["payload"])
-                continue
-            elif (label == "end-nonlinear-iterate"):
-                # Update the active iteration dictionary
-                stack[-1][-1].update(line_dict["payload"])
-                stack.pop()
-                continue
-
-            if label == "begin-linear-solve":
-                if "linear-solve" not in stack[-1][-1]:
-                    stack[-1][-1]["linear-solve"] = {}
-                stack[-1][-1]["linear-solve"].update(line_dict["payload"])
-                continue
-            elif label == "end-linear-solve":
-                stack[-1][-1]["linear-solve"].update(line_dict["payload"])
-                continue
-
-            if (label == "begin-linear-iterate"):
-                if "iterations" not in stack[-1][-1]["linear-solve"]:
-                    stack[-1][-1]["linear-solve"]["iterations"] = []
-                # Make the stage sublist the active list
-                stack.append(stack[-1][-1]["linear-solve"]["iterations"])
-                # Add new solver iteration dictionary
-                stack[-1].append({})
-                stack[-1][-1].update(line_dict["payload"])
-                continue
-            elif (label == "end-linear-iterate"):
-                # Update the active iteration dictionary
-                stack[-1][-1].update(line_dict["payload"])
-                stack.pop()
-                continue
-
-            # Update current step attempt entry with intermediate output
-            stack[-1][-1].update(line_dict["payload"])
+            s.update(line_dict["payload"])
 
     return step_attempts
 
