@@ -277,8 +277,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 
       SUNLogInfo(NLS->sunctx->logger, __func__, "end-nonlinear-iterate",
                  "status = continue", "");
-      SUNLogInfo(NLS->sunctx->logger, __func__, "begin-nonlinear-iterate",
-                 "", "");
+      SUNLogInfo(NLS->sunctx->logger, __func__, "begin-nonlinear-iterate", "",
+                 "");
 
       /* compute the nonlinear residual, store in delta */
       retval = NEWTON_CONTENT(NLS)->Sys(ycor, delta, mem);

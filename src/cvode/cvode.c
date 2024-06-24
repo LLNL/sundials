@@ -3048,8 +3048,8 @@ static int cvNls(CVodeMem cv_mem, int nflag)
     if (flag > 0) { return (SUN_NLS_CONV_RECVR); }
   }
 
-  SUNLogInfo(CV_LOGGER, __func__, "begin-nonlinear-solve",
-             "tol = %.16g", cv_mem->cv_tq[4]);
+  SUNLogInfo(CV_LOGGER, __func__, "begin-nonlinear-solve", "tol = %.16g",
+             cv_mem->cv_tq[4]);
 
   /* solve the nonlinear system */
   flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
