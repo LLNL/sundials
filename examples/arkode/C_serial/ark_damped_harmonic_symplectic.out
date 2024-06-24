@@ -11,7 +11,7 @@ t = 23.561945, q(t) = 1.242002, H = 1.013408
 t = 27.488936, q(t) = -0.806768, H = 0.352368
 t = 31.415927, q(t) = 0.878500, H = 0.773974
 
-Current time                 = 31.41592653589793
+Current time                 = 31.4159265358979
 Steps                        = 31416
 Step attempts                = 31416
 Stability limited steps      = 0
@@ -20,7 +20,7 @@ Error test fails             = 0
 NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 0.001
-Last step size               = 0.0009908169824406335
+Last step size               = 0.000990816982440633
 Current step size            = 0.001
 f1 RHS fn evals              = 125664
 f2 RHS fn evals              = 125664
