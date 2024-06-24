@@ -1141,15 +1141,6 @@ int CVode(void* cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype* tret,
   if (itask == CV_NORMAL) { cv_mem->cv_toutc = tout; }
   cv_mem->cv_taskc = itask;
 
-  /* Check that nonlinear solver was attached */
-  if (!cv_mem->NLS) {
-    // retval = CVodeSetNonlinearSolver(cvode_mem, cv_mem->NLS_newton);
-    cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
-                   "nonlinear solver not set");
-    SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
-    return (CV_ILL_INPUT);
-  }
-
 
   /*
    * ----------------------------------------
@@ -2029,6 +2020,17 @@ static int cvInitialSetup(CVodeMem cv_mem)
 {
   int ier;
   sunbooleantype conOK;
+
+  /* Check that nonlinear solver was attached */
+  if (!cv_mem->NLS) {
+    ier = CVodeSetNonlinearSolver((void*) cv_mem, cv_mem->NLS_newton);
+    if (!ier)
+    {
+      cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Nonlinear solver not set");
+      return (CV_ILL_INPUT);
+    }
+  }
 
   /* Did the user specify tolerances? */
   if (cv_mem->cv_itol == CV_NN)

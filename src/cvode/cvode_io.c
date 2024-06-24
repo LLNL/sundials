@@ -20,7 +20,8 @@
 
 #include "cvode_impl.h"
 #include "cvode_ls_impl.h"
-#include "sundials/sundials_types.h"
+#include "sundials/sundials_core.h"
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)
@@ -842,12 +843,13 @@ int CVodeSetMaxNonlinIters(void* cvode_mem, int maxcor)
 
   if (maxcor >= 0)
   {
-    SUNNonlinSolSetMaxIters(cv_mem->NLS_newton, maxcor);
-    SUNNonlinSolSetMaxIters(cv_mem->NLS_fixedpoint, maxcor);
+    if (cv_mem->NLS_newton) { SUNNonlinSolSetMaxIters(cv_mem->NLS_newton, maxcor); }
+    if (cv_mem->NLS_fixedpoint) { SUNNonlinSolSetMaxIters(cv_mem->NLS_fixedpoint, maxcor); }
   }
   else
   {
-    SUNNonlinSolSetMaxIters(cv_mem->NLS_newton, 3);
+    if (cv_mem->NLS_newton) { SUNNonlinSolSetMaxIters(cv_mem->NLS_newton, 3); }
+    if (cv_mem->NLS_fixedpoint) { SUNNonlinSolSetMaxIters(cv_mem->NLS_fixedpoint, 3); }
   }
 
   return CV_SUCCESS;
@@ -985,17 +987,39 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
   cv_mem->NLS_algorithm = algorithm;
   if (algorithm == 0 || algorithm == 2 || algorithm == 12 || algorithm == 22)
   {
-    NLS = cv_mem->NLS_newton;
     if (algorithm == 2) { cv_mem->gustafsoder_strategy = 1; }
     if (algorithm == 12) { cv_mem->gustafsoder_strategy = 2; }
     if (algorithm == 22) { cv_mem->lsodkr_strategy = 1; }
+    NLS = cv_mem->NLS_newton;
   }
   else if (algorithm == 1 || algorithm == 3 ||  algorithm == 13 || algorithm == 23)
   {
-    NLS = cv_mem->NLS_fixedpoint;
+    if (aa_vectors != cv_mem->NLS_aavectors) {
+      cv_mem->NLS_aavectors = aa_vectors;
+      
+      if (cv_mem->NLS_fixedpoint) 
+      {
+        SUNNonlinSolFree(cv_mem->NLS_fixedpoint);
+      }
+
+      cv_mem->NLS_fixedpoint = SUNNonlinSol_FixedPoint(cv_mem->cv_tempv, aa_vectors,
+                                                       cv_mem->cv_sunctx);
+
+      /* check that nonlinear solver is non-NULL */
+      if (cv_mem->NLS_fixedpoint == NULL)
+      {
+        cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
+                       MSGCV_MEM_FAIL);
+        SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
+        return (CV_MEM_FAIL);
+      }
+    }
+
     if (algorithm == 3) { cv_mem->gustafsoder_strategy = 1; }
     if (algorithm == 13) { cv_mem->gustafsoder_strategy = 2; }
     if (algorithm == 23) { cv_mem->lsodkr_strategy = 1; }
+
+    NLS = cv_mem->NLS_fixedpoint;
   }
 
   /* check that nonlinear solver is non-NULL */
@@ -1019,7 +1043,6 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
     return (CV_MEM_FAIL);
   }
 
-  cv_mem->NLS_aavectors = aa_vectors;
   if (hystersis_fixed >= 0) { 
     cv_mem->switchtofixed_delay = hystersis_fixed;
   }
