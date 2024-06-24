@@ -116,6 +116,7 @@ SUNDIALS_EXPORT int CVodeWFtolerances(void* cvode_mem, CVEwtFn efun);
 
 /* Optional input functions */
 
+SUNDIALS_EXPORT int CVodeSetFromCommandLine(void* cvode_mem, int argc, char** argv);
 SUNDIALS_EXPORT int CVodeSetConstraints(void* cvode_mem, N_Vector constraints);
 SUNDIALS_EXPORT int CVodeSetDeltaGammaMaxLSetup(void* cvode_mem,
                                                 sunrealtype dgmax_lsetup);

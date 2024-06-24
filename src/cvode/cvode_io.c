@@ -33,6 +33,39 @@
  * =================================================================
  */
 
+int CVodeSetFromCommandLine(void* cvode_mem, int argc, char** argv)
+{
+  CVodeMem cv_mem;
+
+  if (cvode_mem == NULL)
+  {
+    cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__, MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem)cvode_mem;
+
+  int argi = 0;
+
+  for (argi = 1; argi < argc; argi++)
+  {
+    if (!strcmp(argv[argi], "cvode.nls_algorithm"))
+    {
+      argi++;
+      int algorithm = atoi(argv[argi++]);
+      int max_nli = atoi(argv[argi++]);
+      int aa_vectors = atoi(argv[argi++]);
+      int hystersis_fixed = atoi(argv[argi++]);
+      int hystersis_newton = atoi(argv[argi++]);
+      int precondition_fixed = atoi(argv[argi++]);
+      int precondition_newton = atoi(argv[argi++]);
+      CVodeSetNonlinearSolverAlgorithm(cvode_mem, algorithm, max_nli, aa_vectors, hystersis_fixed, hystersis_newton, precondition_fixed, precondition_newton);
+    }
+  }
+
+  return CV_SUCCESS;
+}
+
 /*
  * CVodeSetDeltaGammaMaxLSetup
  *
@@ -938,7 +971,8 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
                                      int aa_vectors, int hystersis_fixed, int hystersis_newton,
                                      int precondition_fixed, int precondition_newton)
 {
-  CVodeMem cv_mem;
+  CVodeMem cv_mem = NULL;
+  SUNNonlinearSolver NLS = NULL;
 
   if (cvode_mem == NULL)
   {
@@ -949,6 +983,42 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
   cv_mem = (CVodeMem)cvode_mem;
 
   cv_mem->NLS_algorithm = algorithm;
+  if (algorithm == 0 || algorithm == 2 || algorithm == 12 || algorithm == 22)
+  {
+    NLS = cv_mem->NLS_newton;
+    if (algorithm == 2) { cv_mem->gustafsoder_strategy = 1; }
+    if (algorithm == 12) { cv_mem->gustafsoder_strategy = 2; }
+    if (algorithm == 22) { cv_mem->lsodkr_strategy = 1; }
+  }
+  else if (algorithm == 1 || algorithm == 3 ||  algorithm == 13 || algorithm == 23)
+  {
+    NLS = cv_mem->NLS_fixedpoint;
+    if (algorithm == 3) { cv_mem->gustafsoder_strategy = 1; }
+    if (algorithm == 13) { cv_mem->gustafsoder_strategy = 2; }
+    if (algorithm == 23) { cv_mem->lsodkr_strategy = 1; }
+  }
+
+  /* check that nonlinear solver is non-NULL */
+  if (NLS == NULL)
+  {
+    cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
+                   MSGCV_MEM_FAIL);
+    SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
+    return (CV_MEM_FAIL);
+  }
+
+  /* attach the nonlinear solver to the CVODE memory */
+  int retval = CVodeSetNonlinearSolver(cv_mem, NLS);
+
+  /* check that the nonlinear solver was successfully attached */
+  if (retval != CV_SUCCESS)
+  {
+    cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+                   "Setting the nonlinear solver failed");
+    SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
+    return (CV_MEM_FAIL);
+  }
+
   cv_mem->NLS_aavectors = aa_vectors;
   if (hystersis_fixed >= 0) { 
     cv_mem->switchtofixed_delay = hystersis_fixed;
@@ -962,8 +1032,9 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
   if (precondition_newton >= 0) {
     cv_mem->switchtonewton_precondition_count = precondition_newton;
   }
-  CVodeSetMaxNonlinIters(cvode_mem, max_nli);
 
+  CVodeSetMaxNonlinIters(cvode_mem, max_nli);
+  
   return CV_SUCCESS;
 }
 

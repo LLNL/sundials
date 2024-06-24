@@ -50,23 +50,24 @@
  * (dense direct, GMRES with the Jacobian computed by difference quotients,
  * or GMRES with analytical Jacobian), and the reactor type.
  *
- *    ./cv_brusselator [reactor_type] [nonlinear_solver_type] [linear_solver_type]
+ *    ./cv_brusselator [reactor_type] [linear_solver_type] [dtOut] [cvode options ...]
  *
  * Options:
  *    reactor_type:
  *       0 - Reactor 0
  *       1 - Reactor 1
  *       2 - Reactor 2
- *    nonlinear_linear_solver_type:
+ *    linear_linear_solver_type:
+ *       0 - SUNDIALS GMRES with difference quotients Jtv
+ *       1 - SUNDIALS dense linear solver with analytic Jacobian
+ *    dtOut: the output interval
+ *    cvode.nls_algorthm: [algorithm] [max_nli] [aa_vectors] [hystersis_fixed] [hystersis_newton] [precondition_fixed] [precondition_newton]
  *       0 - Newton
  *       1 - Fixedpoint
  *       2 - Automatic switching (via GS algorthim) between Newton and Fixedpoint, start with Newton
  *       3 - Automatic switching (via GS algorthim) between Newton and Fixedpoint, start with Fixedpoint
  *       12 - Automatic switching (via LSODKR algorthim) between Newton and Fixedpoint, start with Newton
  *       13 - Automatic switching (via LSODKR algorthim) between Newton and Fixedpoint, start with Fixedpoint
- *    linear_linear_solver_type:
- *       0 - SUNDIALS GMRES with difference quotients Jtv
- *       1 - SUNDIALS dense linear solver with analytic Jacobian
  * --------------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -148,22 +149,15 @@ int main(int argc, char *argv[])
     reactor_type = atoi(argv[++argi]);
   }
   if (argc > 2) {
-    nonlinear_solver_type = atoi(argv[++argi]);
-  }
-  if (argc > 3) {
     linear_solver_type = atoi(argv[++argi]);
   }
-  if (argc > 4) {
-    anderson_m = atoi(argv[++argi]);
-  }
   sunrealtype dTout = SUN_RCONST(1.0);
-  if (argc > 5) {
+  if (argc > 3) {
     dTout = atof(argv[++argi]);
   }
   const int Nt = (int) ceil(Tf/dTout);
 
   const int max_nli = 3;
-
 
   /* Set the Reaction parameters according to reactor_type */
   UserData udata;
@@ -208,15 +202,17 @@ int main(int argc, char *argv[])
   cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) { return(1); }
 
-  /* Must be called before CVodeInit */
-  retval = CVodeSetNonlinearSolverAlgorithm(cvode_mem, nonlinear_solver_type, max_nli, anderson_m, -1, -1, -1, -1);
-  if (check_retval(&retval, "CVodeSetNonlinearSolverAlgorithm", 1)) { return(1); }
-
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the inital time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
   if (check_retval(&retval, "CVodeInit", 1)) { return(1); }
+
+  // retval = CVodeSetNonlinearSolverAlgorithm(cvode_mem, nonlinear_solver_type, max_nli, anderson_m, -1, -1, -1, -1);
+  // if (check_retval(&retval, "CVodeSetNonlinearSolverAlgorithm", 1)) { return(1); }
+
+  retval = CVodeSetFromCommandLine(cvode_mem, argc, argv);
+  if (check_retval(&retval, "CVodeSetFromCommandLine", 1)) { return(1); }
 
   /* Call CVodeSetUserData to attach the user data structure */
   retval = CVodeSetUserData(cvode_mem, &udata);

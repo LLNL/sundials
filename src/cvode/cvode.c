@@ -514,47 +514,6 @@ int CVodeInit(void* cvode_mem, CVRhsFn f, sunrealtype t0, N_Vector y0)
     return (CV_MEM_FAIL);
   }
 
-  if (cv_mem->NLS_algorithm == 0 || cv_mem->NLS_algorithm == 2 ||
-      cv_mem->NLS_algorithm == 12 || cv_mem->NLS_algorithm == 22)
-  {
-    NLS = cv_mem->NLS_newton;
-    if (cv_mem->NLS_algorithm == 2) { cv_mem->gustafsoder_strategy = 1; }
-    if (cv_mem->NLS_algorithm == 12) { cv_mem->gustafsoder_strategy = 2; }
-    if (cv_mem->NLS_algorithm == 22) { cv_mem->lsodkr_strategy = 1; }
-  }
-  else if (cv_mem->NLS_algorithm == 1 || cv_mem->NLS_algorithm == 3 ||
-           cv_mem->NLS_algorithm == 13 || cv_mem->NLS_algorithm == 23)
-  {
-    NLS = cv_mem->NLS_fixedpoint;
-    if (cv_mem->NLS_algorithm == 3) { cv_mem->gustafsoder_strategy = 1; }
-    if (cv_mem->NLS_algorithm == 13) { cv_mem->gustafsoder_strategy = 2; }
-    if (cv_mem->NLS_algorithm == 23) { cv_mem->lsodkr_strategy = 1; }
-  }
-
-  /* check that nonlinear solver is non-NULL */
-  if (NLS == NULL)
-  {
-    cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
-                   MSGCV_MEM_FAIL);
-    cvFreeVectors(cv_mem);
-    SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
-    return (CV_MEM_FAIL);
-  }
-
-  /* attach the nonlinear solver to the CVODE memory */
-  retval = CVodeSetNonlinearSolver(cv_mem, NLS);
-
-  /* check that the nonlinear solver was successfully attached */
-  if (retval != CV_SUCCESS)
-  {
-    cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                   "Setting the nonlinear solver failed");
-    cvFreeVectors(cv_mem);
-    SUNNonlinSolFree(NLS);
-    SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
-    return (CV_MEM_FAIL);
-  }
-
   /* set ownership flag */
   cv_mem->ownNLS = SUNTRUE;
 
@@ -1181,6 +1140,16 @@ int CVode(void* cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype* tret,
 
   if (itask == CV_NORMAL) { cv_mem->cv_toutc = tout; }
   cv_mem->cv_taskc = itask;
+
+  /* Check that nonlinear solver was attached */
+  if (!cv_mem->NLS) {
+    // retval = CVodeSetNonlinearSolver(cvode_mem, cv_mem->NLS_newton);
+    cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
+                   "nonlinear solver not set");
+    SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
+    return (CV_ILL_INPUT);
+  }
+
 
   /*
    * ----------------------------------------
