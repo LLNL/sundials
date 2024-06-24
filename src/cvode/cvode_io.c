@@ -1005,7 +1005,6 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
       cv_mem->NLS_fixedpoint = SUNNonlinSol_FixedPoint(cv_mem->cv_tempv, aa_vectors,
                                                        cv_mem->cv_sunctx);
 
-      /* check that nonlinear solver is non-NULL */
       if (cv_mem->NLS_fixedpoint == NULL)
       {
         cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -1022,7 +1021,6 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
     NLS = cv_mem->NLS_fixedpoint;
   }
 
-  /* check that nonlinear solver is non-NULL */
   if (NLS == NULL)
   {
     cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -1031,10 +1029,7 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
     return (CV_MEM_FAIL);
   }
 
-  /* attach the nonlinear solver to the CVODE memory */
   int retval = CVodeSetNonlinearSolver(cv_mem, NLS);
-
-  /* check that the nonlinear solver was successfully attached */
   if (retval != CV_SUCCESS)
   {
     cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
@@ -1043,7 +1038,14 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
     return (CV_MEM_FAIL);
   }
 
-  CVodeSetMaxNonlinIters(cvode_mem, max_nli);
+  retval = CVodeSetMaxNonlinIters(cvode_mem, max_nli);
+  if (retval != CV_SUCCESS)
+  {
+    cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+                   "Setting the nonlinear solver max iterations failed");
+    SUNDIALS_MARK_FUNCTION_END(CV_PROFILER);
+    return (CV_MEM_FAIL);
+  }
 
   if (hystersis_fixed >= 0) { 
     cv_mem->switchtofixed_delay = hystersis_fixed;
