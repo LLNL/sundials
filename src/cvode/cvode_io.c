@@ -56,11 +56,12 @@ int CVodeSetFromCommandLine(void* cvode_mem, int argc, char** argv)
       int algorithm = atoi(argv[argi++]);
       int max_nli = atoi(argv[argi++]);
       int aa_vectors = atoi(argv[argi++]);
+      sunrealtype alpharef = atof(argv[argi++]);
       int hystersis_fixed = atoi(argv[argi++]);
       int hystersis_newton = atoi(argv[argi++]);
       int precondition_fixed = atoi(argv[argi++]);
       int precondition_newton = atoi(argv[argi++]);
-      CVodeSetNonlinearSolverAlgorithm(cvode_mem, algorithm, max_nli, aa_vectors, hystersis_fixed, hystersis_newton, precondition_fixed, precondition_newton);
+      CVodeSetNonlinearSolverAlgorithm(cvode_mem, algorithm, max_nli, aa_vectors, alpharef, hystersis_fixed, hystersis_newton, precondition_fixed, precondition_newton);
     }
   }
 
@@ -970,7 +971,7 @@ int CVodeSetNoInactiveRootWarn(void* cvode_mem)
 }
 
 int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli,
-                                     int aa_vectors, int hystersis_fixed, int hystersis_newton,
+                                     int aa_vectors, sunrealtype alpharef, int hystersis_fixed, int hystersis_newton,
                                      int precondition_fixed, int precondition_newton)
 {
   CVodeMem cv_mem = NULL;
@@ -1047,6 +1048,9 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
     return (CV_MEM_FAIL);
   }
 
+  if (alpharef >= SUN_RCONST(0.0) && alpharef < SUN_RCONST(1.0)) {
+    cv_mem->cv_alpharef = alpharef;
+  }
   if (hystersis_fixed >= 0) { 
     cv_mem->switchtofixed_delay = hystersis_fixed;
   }
