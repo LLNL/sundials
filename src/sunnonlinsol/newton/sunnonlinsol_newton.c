@@ -191,6 +191,9 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   SUNAssert(!callLSetup || (callLSetup && NEWTON_CONTENT(NLS)->LSetup),
             SUN_ERR_ARG_CORRUPT);
 
+  SUNLogInfo(NLS->sunctx->logger, __func__, "nonlinear-solver",
+             "solver = Newton", "");
+
   /* set local shortcut variables */
   delta = NEWTON_CONTENT(NLS)->delta;
 

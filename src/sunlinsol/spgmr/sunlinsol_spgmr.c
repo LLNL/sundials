@@ -410,6 +410,8 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   /* If preconditioning, check if psolve has been set */
   SUNAssert(!(preOnLeft || preOnRight) || psolve, SUN_ERR_ARG_CORRUPT);
 
+  SUNLogInfo(S->sunctx->logger, __func__, "linear-solver", "solver = spgmr", "");
+
   SUNLogInfo(S->sunctx->logger, __func__, "begin-linear-iterate", "", "");
 
   /* Set vtemp and V[0] to initial (unscaled) residual r_0 = b - A*x_0 */
