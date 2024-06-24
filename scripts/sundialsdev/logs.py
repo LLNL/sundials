@@ -137,8 +137,8 @@ class StepData:
 
     def close_list(self):
         """Deactivate a the active list"""
-        # I think should only ever have one entry. In which case we don't need
-        # a ChainMap and could just manage the dictionaries manually
+        # I think the Chain map will only ever have one entry. In which case we
+        # don't need a ChainMap and could just manage the dictionaries manually
         tmp = self.container[-1].maps[0]
         self.container[-2][self.parent_keys[-1]].append(tmp)
         self.parent_keys.pop()
