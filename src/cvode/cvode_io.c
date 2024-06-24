@@ -1043,6 +1043,8 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
     return (CV_MEM_FAIL);
   }
 
+  CVodeSetMaxNonlinIters(cvode_mem, max_nli);
+
   if (hystersis_fixed >= 0) { 
     cv_mem->switchtofixed_delay = hystersis_fixed;
   }
@@ -1055,8 +1057,6 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
   if (precondition_newton >= 0) {
     cv_mem->switchtonewton_precondition_count = precondition_newton;
   }
-
-  CVodeSetMaxNonlinIters(cvode_mem, max_nli);
   
   return CV_SUCCESS;
 }
