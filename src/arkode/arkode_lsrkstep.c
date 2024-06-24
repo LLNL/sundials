@@ -108,6 +108,7 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
   ark_mem->step_printmem        = lsrkStep_PrintMem;
   ark_mem->step_setdefaults     = lsrkStep_SetDefaults;
   ark_mem->step_mem             = (void*)step_mem;
+  ark_mem->step_supports_adaptive   = SUNTRUE;
   printf("\nAdd pointers for new functions in %s line: %d: !\n\n", __func__, __LINE__);
 
 
