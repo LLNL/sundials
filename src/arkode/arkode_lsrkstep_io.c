@@ -25,6 +25,7 @@
 #include <sundials/sundials_types.h>
 
 #include "arkode_lsrkstep_impl.h"
+#include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 
 /*===============================================================
   Exported optional input functions.
