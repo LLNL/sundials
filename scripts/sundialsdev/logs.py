@@ -269,36 +269,57 @@ def log_file_to_list(filename):
     return step_attempts
 
 
+def print_log_list(a_list, indent=0):
+    spaces = indent * " "
+    subspaces = (indent + 2) * " "
+    for entry in a_list:
+        if type(entry) is list:
+            print(f"{spaces}[")
+            print_list(entry, indent)
+            print(f"{spaces}]")
+        elif type(entry) is dict:
+            print(f"{subspaces}{{")
+            print_dict(entry, indent+2)
+            print(f"{subspaces}}}")
+        else:
+            print(f"{space}{entry}")
+
+
+def print_log_dict(a_dict, indent=0):
+    spaces = indent * " "
+    for key in a_dict:
+        if type(a_dict[key]) is list:
+            print(f"{spaces}{key} :")
+            print(f"{spaces}[")
+            print_list(a_dict[key], indent=indent)
+            print(f"{spaces}]")
+        elif type(a_dict[key]) is dict:
+            print(f"{spaces}{key} :")
+            print(f"{spaces}{{")
+            print_dict(a_dict[key], indent=indent+2)
+            print(f"{spaces}}}")
+        else:
+            print(f"{spaces}{key} : {a_dict[key]}")
+
+
 def print_log(log, indent=0):
     """
     This function prints the list of entries from a log file.
     """
 
     spaces = indent * " "
-
     for entry in log:
         print(f"{spaces}{{")
         for key in entry:
             if type(entry[key]) is list:
                 print(f"{spaces}{key} :")
                 print(f"{spaces}[")
-                subindent = indent + 2
-                print_log(entry[key], indent=subindent)
+                print_log_list(entry[key], indent=indent)
                 print(f"{spaces}]")
             elif type(entry[key]) is dict:
                 print(f"{spaces}{key} :")
                 print(f"{spaces}{{")
-                subindent = indent + 2
-                subspaces = subindent * " "
-                for subkey in entry[key]:
-                    if type(entry[key][subkey]) is list:
-                        print(f"{subspaces}{subkey} :")
-                        print(f"{subspaces}[")
-                        subsubindent = subindent + 2
-                        print_log(entry[key][subkey], indent=subsubindent)
-                        print(f"{subspaces}]")
-                    else:
-                        print(f"{subspaces}{subkey} : {entry[key][subkey]}")
+                print_log_dict(entry[key], indent=indent)
                 print(f"{spaces}}}")
             else:
                 print(f"{spaces}{key} : {entry[key]}")
