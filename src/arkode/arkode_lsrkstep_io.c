@@ -139,22 +139,22 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   }
 
   printf("\nCheck hcontroller in %s at line: %d\n\n", __func__, __LINE__);
-  // ark_mem->hadapt_mem->hcontroller = NULL;
-  // ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
-  // if (ark_mem->hadapt_mem->hcontroller == NULL)
-  // {
-  //   arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-  //                   "SUNAdaptControllerPI allocation failure");
-  //   return (ARK_MEM_FAIL);
-  // }
-  // ark_mem->hadapt_mem->owncontroller = SUNTRUE;
-  // retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-  //                                   &leniw);
-  // if (retval == SUN_SUCCESS)
-  // {
-  //   ark_mem->liw += leniw;
-  //   ark_mem->lrw += lenrw;
-  // }
+  ark_mem->hadapt_mem->hcontroller = NULL;
+  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
+  if (ark_mem->hadapt_mem->hcontroller == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "SUNAdaptControllerPI allocation failure");
+    return (ARK_MEM_FAIL);
+  }
+  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
+  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                    &leniw);
+  if (retval == SUN_SUCCESS)
+  {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
 
 
   /* Set default values for integrator optional inputs
