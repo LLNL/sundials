@@ -20,6 +20,7 @@ import re
 import numpy as np
 from collections import ChainMap
 
+
 def convert_to_num(s):
     """Try to convert a string to an int or float"""
 
@@ -30,6 +31,7 @@ def convert_to_num(s):
             return np.double(s)
         except ValueError:
             return s
+
 
 def parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)"):
     """
@@ -62,17 +64,19 @@ def parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)"
 
 def parse_logfile_line(line, line_number, all_lines):
     """
-    This function takes a line from a SUNDIALS log file and parses it into a dictionary.
+    This function takes a line from a SUNDIALS log file and parses it into a
+    dictionary.
+
     A log file line has the form:
       [loglvl][rank][scope][label] key1 = value, key2 = value
-    Log file payloads can be multiline if they are an array/vector with one value per line.
-    I.e.
+    Log file payloads can be multiline if they are an array/vector with one
+    value per line:
       [loglvl][rank][scope][label] y(:)
       y_1
       y_2
       ...
     """
-    pattern = re.compile(r'\[(\w+)\]\[(rank \d+)\]\[(.*)\]\[(.*)\](.*)')
+    pattern = re.compile(r"\[(\w+)\]\[(rank \d+)\]\[(.*)\]\[(.*)\](.*)")
     matches = pattern.findall(line)
     line_dict = {}
     if matches:
@@ -89,7 +93,7 @@ def parse_logfile_line(line, line_number, all_lines):
 class StepData:
     def __init__(self):
         self.container = [ChainMap()]
-        self.parent_keys = ['main']
+        self.parent_keys = ["main"]
         self.open_dicts = 0
         self.open_lists = 0
         self.total_dicts = 0
@@ -97,11 +101,11 @@ class StepData:
 
     def __repr__(self):
         tmp = "Container:"
-        for l in self.container:
-            tmp += f"\n  {l}"
+        for entry in self.container:
+            tmp += f"\n  {entry}"
         tmp += "\nParent Keys:"
-        for l in self.parent_keys:
-            tmp += f"\n  {l}"
+        for entry in self.parent_keys:
+            tmp += f"\n  {entry}"
         tmp += f"\nOpen dicts: {self.open_dicts}"
         tmp += f"\nOpen lists: {self.open_lists}"
         tmp += f"\nTotal dicts: {self.total_dicts}"
@@ -152,7 +156,7 @@ class StepData:
         tmp = self.container.pop().maps[0]
         self.container = [ChainMap()]
         # At this point we should already be back to main, add sanity check
-        self.parent_keys = ['main']
+        self.parent_keys = ["main"]
         self.open_dicts = 0
         self.open_lists = 0
         self.total_dicts = 0
@@ -221,11 +225,11 @@ def log_file_to_list(filename):
                 s.close_dict()
                 continue
 
-            if (label == "begin-nonlinear-iterate"):
-                s.open_list('iterations')
+            if label == "begin-nonlinear-iterate":
+                s.open_list("iterations")
                 s.update(line_dict["payload"])
                 continue
-            elif (label == "end-nonlinear-iterate"):
+            elif label == "end-nonlinear-iterate":
                 s.update(line_dict["payload"])
                 s.close_list()
                 continue
@@ -239,17 +243,17 @@ def log_file_to_list(filename):
                 s.close_dict()
                 continue
 
-            if (label == "begin-linear-iterate"):
-                s.open_list('iterations')
+            if label == "begin-linear-iterate":
+                s.open_list("iterations")
                 s.update(line_dict["payload"])
                 continue
-            elif (label == "end-linear-iterate"):
+            elif label == "end-linear-iterate":
                 s.update(line_dict["payload"])
                 s.close_list()
                 continue
 
             if label == "begin-stage":
-                s.open_list('stages')
+                s.open_list("stages")
                 s.update(line_dict["payload"])
                 continue
             elif label == "end-stage":
@@ -275,14 +279,14 @@ def print_log_list(a_list, indent=0):
     for entry in a_list:
         if type(entry) is list:
             print(f"{spaces}[")
-            print_list(entry, indent)
+            print_log_list(entry, indent)
             print(f"{spaces}]")
         elif type(entry) is dict:
             print(f"{subspaces}{{")
-            print_dict(entry, indent+2)
+            print_log_dict(entry, indent + 2)
             print(f"{subspaces}}}")
         else:
-            print(f"{space}{entry}")
+            print(f"{spaces}{entry}")
 
 
 def print_log_dict(a_dict, indent=0):
@@ -291,12 +295,12 @@ def print_log_dict(a_dict, indent=0):
         if type(a_dict[key]) is list:
             print(f"{spaces}{key} :")
             print(f"{spaces}[")
-            print_list(a_dict[key], indent=indent)
+            print_log_list(a_dict[key], indent=indent)
             print(f"{spaces}]")
         elif type(a_dict[key]) is dict:
             print(f"{spaces}{key} :")
             print(f"{spaces}{{")
-            print_dict(a_dict[key], indent=indent+2)
+            print_log_dict(a_dict[key], indent=indent + 2)
             print(f"{spaces}}}")
         else:
             print(f"{spaces}{key} : {a_dict[key]}")
@@ -326,8 +330,7 @@ def print_log(log, indent=0):
         print(f"{spaces}}}")
 
 
-def get_history(log, key, step_status = None, time_range = None,
-                step_range = None):
+def get_history(log, key, step_status=None, time_range=None, step_range=None):
     """
     This function extracts the step/time series of the requested value.
     """
@@ -338,8 +341,8 @@ def get_history(log, key, step_status = None, time_range = None,
 
     for entry in log:
 
-        step = np.longlong(entry['step'])
-        time = np.double(entry['t_n'])
+        step = np.longlong(entry["step"])
+        time = np.double(entry["t_n"])
 
         if time_range is not None:
             if time < time_range[0] or time > time_range[1]:
@@ -350,7 +353,7 @@ def get_history(log, key, step_status = None, time_range = None,
                 continue
 
         if step_status is not None:
-            if step_status not in entry['status']:
+            if step_status not in entry["status"]:
                 continue
 
         if key not in entry:
@@ -364,7 +367,9 @@ def get_history(log, key, step_status = None, time_range = None,
             for s in entry["stages"]:
                 next_level_key = f'time-level-{entry["level"] + 1}'
                 if next_level_key in s:
-                    sub_steps, sub_times, sub_values = get_history(s[next_level_key], key)
+                    sub_steps, sub_times, sub_values = get_history(
+                        s[next_level_key], key
+                    )
                     steps.extend(sub_steps)
                     times.extend(sub_times)
                     values.extend(sub_values)
