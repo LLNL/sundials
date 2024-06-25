@@ -350,7 +350,8 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   scale_x    = (sx != NULL);
   scale_b    = (sb != NULL);
 
-  SUNLogInfo(S->sunctx->logger, __func__, "linear-solver", "solver = sptfqmr", "");
+  SUNLogInfo(S->sunctx->logger, __func__, "linear-solver", "solver = sptfqmr",
+             "");
 
   SUNLogInfo(S->sunctx->logger, __func__, "begin-linear-iterate", "", "");
 
@@ -446,16 +447,14 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUN_SUCCESS;
 
-    SUNLogInfo(S->sunctx->logger, __func__,
-               "end-linear-iterate", "cur-iter = 0, res-norm = %.16g, status = success",
-               *res_norm);
+    SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+               "cur-iter = 0, res-norm = %.16g, status = success", *res_norm);
 
     return (LASTFLAG(S));
   }
 
-  SUNLogInfo(S->sunctx->logger, __func__,
-             "linear-iterate", "cur-iter = 0, res-norm = %.16g",
-             *res_norm);
+  SUNLogInfo(S->sunctx->logger, __func__, "linear-iterate",
+             "cur-iter = 0, res-norm = %.16g", *res_norm);
 
   /* Set v = A*r_0 (preconditioned and scaled) */
   if (scale_x)
@@ -707,8 +706,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       if (r_curr_norm <= delta)
       {
         SUNLogInfo(S->sunctx->logger, __func__, "linear-iterate",
-                   "cur-iter = %i, res-norm = %.16g", n + 1,
-                   *nli, *res_norm);
+                   "cur-iter = %i, res-norm = %.16g", n + 1, *nli, *res_norm);
 
         converged = SUNTRUE;
         break;
@@ -751,7 +749,8 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
                                        : SUNLS_PSOLVE_FAIL_UNREC;
 
             SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
-                       "status = failed preconditioner solve, retval = %d", status);
+                       "status = failed preconditioner solve, retval = %d",
+                       status);
 
             return (LASTFLAG(S));
           }
@@ -782,7 +781,8 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
                                        : SUNLS_PSOLVE_FAIL_REC;
 
             SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
-                       "status = failed preconditioner solve, retval = %d", status);
+                       "status = failed preconditioner solve, retval = %d",
+                       status);
 
             return (LASTFLAG(S));
           }
@@ -818,7 +818,8 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
                                          : SUNLS_PSOLVE_FAIL_REC;
 
               SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
-                         "status = failed preconditioner solve, retval = %d", status);
+                         "status = failed preconditioner solve, retval = %d",
+                         status);
 
               return (LASTFLAG(S));
             }
@@ -846,8 +847,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
         if (r_curr_norm <= delta)
         {
           SUNLogInfo(S->sunctx->logger, __func__, "linear-iterate",
-                     "cur-iter = %i, res-norm = %.16g", n + 1,
-                     *nli, *res_norm);
+                     "cur-iter = %i, res-norm = %.16g", n + 1, *nli, *res_norm);
 
           converged = SUNTRUE;
           break;
@@ -855,8 +855,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       }
 
       SUNLogInfo(S->sunctx->logger, __func__, "linear-iterate",
-                 "cur-iter = %i, res-norm = %.16g", n + 1,
-                 *nli, *res_norm);
+                 "cur-iter = %i, res-norm = %.16g", n + 1, *nli, *res_norm);
 
     } /* END inner loop */
 
@@ -967,8 +966,8 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     SUNCheckLastErr();
     rho[0] = rho[1];
 
-    SUNLogInfoIf(n < l_max - 1, S->sunctx->logger, __func__, "end-linear-iterate",
-                 "status = continue", "");
+    SUNLogInfoIf(n < l_max - 1, S->sunctx->logger, __func__,
+                 "end-linear-iterate", "status = continue", "");
 
   } /* END outer loop */
 

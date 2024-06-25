@@ -505,8 +505,8 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
     N_VLinearSum(ONE, z, beta, p, p);
     SUNCheckLastErr();
 
-    SUNLogInfo(S->sunctx->logger, __func__,
-               "end-linear-iterate", "status = continue", "");
+    SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+               "status = continue", "");
   }
 
   /* Main loop finished, return with result */
