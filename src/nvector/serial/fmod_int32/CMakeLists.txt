@@ -14,17 +14,19 @@
 # CMakeLists.txt file for the F2003 serial NVECTOR object library
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fnvecserial_mod
+sundials_add_f2003_library(
+  sundials_fnvecserial_mod
   SOURCES
-    fnvector_serial_mod.f90 fnvector_serial_mod.c
+  fnvector_serial_mod.f90
+  fnvector_serial_mod.c
   LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+  PUBLIC
+  sundials_fcore_mod
   OUTPUT_NAME
-    sundials_fnvecserial_mod
+  sundials_fnvecserial_mod
   VERSION
-    ${nveclib_VERSION}
+  ${nveclib_VERSION}
   SOVERSION
-    ${nveclib_SOVERSION}
-)
+  ${nveclib_SOVERSION})
 
 message(STATUS "Added NVECTOR_SERIAL F2003 interface")

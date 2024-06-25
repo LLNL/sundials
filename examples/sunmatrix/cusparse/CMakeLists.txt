@@ -14,8 +14,8 @@
 # CMakeLists.txt file for SUNMATRIX_CUSPARSE examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is develop for
+# examples excluded from 'make test' in releases
 set(examples_list
     "test_sunmatrix_cusparse.cu\;random 100 100 1 CSR 0\;"
     "test_sunmatrix_cusparse.cu\;random 101 100 1 CSR 0\;"
@@ -36,8 +36,8 @@ foreach(example_tuple ${examples_list})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example_target})
     # example source files
     add_executable(${example_target} ${example} ../test_sunmatrix.c

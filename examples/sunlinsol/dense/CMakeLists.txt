@@ -15,8 +15,8 @@
 # CMakeLists.txt file for sunlinsol dense examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is 'develop' for
+# examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS dense linear solver
 set(sunlinsol_dense_examples
@@ -42,8 +42,8 @@ foreach(example_tuple ${sunlinsol_dense_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.c ../test_sunlinsol.c)
@@ -88,8 +88,8 @@ foreach(example_tuple ${sunlinsol_dense_fortran_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # build fortran modules into a unique directory to avoid naming collisions
     set(CMAKE_Fortran_MODULE_DIRECTORY
@@ -140,16 +140,16 @@ if(EXAMPLES_INSTALL)
   set(SOLVER_LIB "sundials_sunlinsoldense")
   set(LIBS "${LIBS} -lsundials_sunmatrixdense")
 
-  # Set the link directory for the dense sunmatrix library
-  # The generated CMakeLists.txt does not use find_library() locate it
+  # Set the link directory for the dense sunmatrix library The generated
+  # CMakeLists.txt does not use find_library() locate it
   set(EXTRA_LIBS_DIR "${libdir}")
 
   examples2string(sunlinsol_dense_examples EXAMPLES)
   examples2string(sunlinsol_dense_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
@@ -161,8 +161,8 @@ if(EXAMPLES_INSTALL)
           DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/dense)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir

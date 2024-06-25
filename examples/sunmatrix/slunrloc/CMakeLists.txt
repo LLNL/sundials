@@ -14,8 +14,8 @@
 # CMakeLists.txt file for slunrloc_sunmatrix examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;type" where the
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;nodes\;type" where the 'develop' for
+# examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS SUNMatrix wrapper of the SuperLU SLU_NR_loc
 # SuperMatrix.
@@ -39,8 +39,8 @@ foreach(example_tuple ${sunmatrix_slunrloc_examples})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example_target})
     # example source files
     add_executable(${example_target} ${example} ../test_sunmatrix.c)

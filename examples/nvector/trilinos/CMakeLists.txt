@@ -14,8 +14,8 @@
 # CMakeLists.txt file for Trilinos nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;tasks\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;tasks\;type" where the type is 'develop'
+# for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS Trilinos nvector wrapper
 if(Trilinos_INTERFACE_MPI_CXX_FOUND)
@@ -65,8 +65,8 @@ foreach(example_tuple ${nvector_trilinos_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.cpp)
@@ -79,8 +79,8 @@ foreach(example_tuple ${nvector_trilinos_examples})
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # Trilinos libraries must be linked after SUNDIALS libraries!
-    # Otherwise, segfaults may occur; something to do with RCPs.
+    # Trilinos libraries must be linked after SUNDIALS libraries! Otherwise,
+    # segfaults may occur; something to do with RCPs.
     target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
   endif()
 
@@ -133,8 +133,8 @@ if(EXAMPLES_INSTALL)
   examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
@@ -146,8 +146,8 @@ if(EXAMPLES_INSTALL)
           DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/trilinos)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir

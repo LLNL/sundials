@@ -14,8 +14,8 @@
 # CMakeLists.txt file for PETSc nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the type is
+# develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS PETSc nvector
 set(nvector_petsc_examples "test_nvector_petsc\;1000 0\;\;\;" # run sequentially
@@ -53,8 +53,8 @@ foreach(example_tuple ${nvector_petsc_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.c)
@@ -123,8 +123,8 @@ if(EXAMPLES_INSTALL)
   examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
@@ -136,8 +136,8 @@ if(EXAMPLES_INSTALL)
           DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/petsc)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir

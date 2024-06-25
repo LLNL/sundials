@@ -14,8 +14,8 @@
 # CMakeLists.txt file for ARKODE C++ SuperLU_DIST examples
 # -----------------------------------------------------------------
 
-# Example lists are tuples "name\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;nodes\;tasks\;type" where the type is develop
+# for examples excluded from 'make test' in releases
 
 list(APPEND ARKODE_examples "ark_brusselator1D_FEM_sludist.cpp\;1\;1\;develop")
 

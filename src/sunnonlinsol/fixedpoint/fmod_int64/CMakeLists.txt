@@ -15,17 +15,19 @@
 # object library
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunnonlinsolfixedpoint_mod
+sundials_add_f2003_library(
+  sundials_fsunnonlinsolfixedpoint_mod
   SOURCES
-    fsunnonlinsol_fixedpoint_mod.f90 fsunnonlinsol_fixedpoint_mod.c
+  fsunnonlinsol_fixedpoint_mod.f90
+  fsunnonlinsol_fixedpoint_mod.c
   LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+  PUBLIC
+  sundials_fcore_mod
   OUTPUT_NAME
-    sundials_fsunnonlinsolfixedpoint_mod
+  sundials_fsunnonlinsolfixedpoint_mod
   VERSION
-    ${sunnonlinsollib_VERSION}
+  ${sunnonlinsollib_VERSION}
   SOVERSION
-    ${sunnonlinsollib_SOVERSION}
-)
+  ${sunnonlinsollib_SOVERSION})
 
 message(STATUS "Added SUNNONLINSOL_FIXEDPOINT F2003 interface")

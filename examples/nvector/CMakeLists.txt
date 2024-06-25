@@ -26,7 +26,8 @@ add_subdirectory(serial)
 # Build the nvector test utilities
 add_library(test_nvector_obj OBJECT test_nvector.c)
 if(BUILD_SHARED_LIBS)
-  # need PIC when shared libs are used since the example executables will link to the shared lib
+  # need PIC when shared libs are used since the example executables will link
+  # to the shared lib
   set_property(TARGET test_nvector_obj PROPERTY POSITION_INDEPENDENT_CODE TRUE)
 endif()
 target_link_libraries(test_nvector_obj PRIVATE sundials_nvecserial)

@@ -26,8 +26,8 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24")
   cmake_policy(SET CMP0135 NEW)
 endif()
 
-# Project SUNDIALS (initially only C supported)
-# sets PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR variables.
+# Project SUNDIALS (initially only C supported) sets PROJECT_SOURCE_DIR and
+# PROJECT_BINARY_DIR variables.
 project(SUNDIALS C)
 
 # Specify the location of additional CMAKE modules
@@ -119,9 +119,9 @@ endif()
 # Organize targets into folders when using an IDE
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# Get correct build paths automatically, but expose LIBDIR and
-# INCLUDEDIR as a regular cache variable so that a user can more
-# easily see what they were set to by GNUInstallDirs.
+# Get correct build paths automatically, but expose LIBDIR and INCLUDEDIR as a
+# regular cache variable so that a user can more easily see what they were set
+# to by GNUInstallDirs.
 include(GNUInstallDirs)
 mark_as_advanced(CLEAR CMAKE_INSTALL_LIBDIR)
 mark_as_advanced(CLEAR CMAKE_INSTALL_INCLUDEDIR)
@@ -193,8 +193,8 @@ include(SundialsSetupTPLs)
 include(SundialsBuildOptionsPost)
 
 # ===============================================================
-# At this point all the configuration options are set.
-# Setup the sundials_config.h.
+# At this point all the configuration options are set. Setup the
+# sundials_config.h.
 # ===============================================================
 
 include(SundialsSetupConfig)
@@ -240,9 +240,8 @@ install(FILES "${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h"
 
 # install shared Fortran 2003 modules
 if(BUILD_FORTRAN_MODULE_INTERFACE)
-  # While the .mod files get generated for static and shared
-  # libraries, they are identical. So only install one set
-  # of the .mod files.
+  # While the .mod files get generated for static and shared libraries, they are
+  # identical. So only install one set of the .mod files.
   if(BUILD_STATIC_LIBS)
     install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_STATIC/
             DESTINATION ${Fortran_INSTALL_MODDIR})

@@ -15,18 +15,20 @@
 # ---------------------------------------------------------------
 
 if(BUILD_NVECTOR_MANYVECTOR)
-  sundials_add_f2003_library(sundials_fnvecmanyvector_mod
+  sundials_add_f2003_library(
+    sundials_fnvecmanyvector_mod
     SOURCES
-      fnvector_manyvector_mod.f90 fnvector_manyvector_mod.c
+    fnvector_manyvector_mod.f90
+    fnvector_manyvector_mod.c
     LINK_LIBRARIES
-      PUBLIC sundials_fcore_mod
+    PUBLIC
+    sundials_fcore_mod
     OUTPUT_NAME
-      sundials_fnvecmanyvector_mod
+    sundials_fnvecmanyvector_mod
     VERSION
-      ${nveclib_VERSION}
+    ${nveclib_VERSION}
     SOVERSION
-      ${nveclib_SOVERSION}
-  )
+    ${nveclib_SOVERSION})
   message(STATUS "Added NVECTOR_MANYVECTOR F2003 Interface")
 endif()
 
@@ -44,18 +46,20 @@ if(BUILD_NVECTOR_MPIMANYVECTOR)
     set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
   endif()
 
-  sundials_add_f2003_library(sundials_fnvecmpimanyvector_mod
+  sundials_add_f2003_library(
+    sundials_fnvecmpimanyvector_mod
     SOURCES
-      fnvector_mpimanyvector_mod.f90 fnvector_mpimanyvector_mod.c
+    fnvector_mpimanyvector_mod.f90
+    fnvector_mpimanyvector_mod.c
     LINK_LIBRARIES
-      PUBLIC sundials_fcore_mod
+    PUBLIC
+    sundials_fcore_mod
     OUTPUT_NAME
-      sundials_fnvecmpimanyvector_mod
+    sundials_fnvecmpimanyvector_mod
     VERSION
-      ${nveclib_VERSION}
+    ${nveclib_VERSION}
     SOVERSION
-      ${nveclib_SOVERSION}
-  )
+    ${nveclib_SOVERSION})
 
   message(STATUS "Added NVECTOR_MPIMANYVECTOR F2003 Interface")
 endif()

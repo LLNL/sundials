@@ -14,18 +14,20 @@
 # CMakeLists.txt file for the F2003 sparse SUNMatrix object library
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunmatrixsparse_mod
+sundials_add_f2003_library(
+  sundials_fsunmatrixsparse_mod
   SOURCES
-    fsunmatrix_sparse_mod.f90 fsunmatrix_sparse_mod.c
+  fsunmatrix_sparse_mod.f90
+  fsunmatrix_sparse_mod.c
   LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+  PUBLIC
+  sundials_fcore_mod
   OBJECT_LIBRARIES
   OUTPUT_NAME
-    sundials_fsunmatrixsparse_mod
+  sundials_fsunmatrixsparse_mod
   VERSION
-    ${sunmatrixlib_VERSION}
+  ${sunmatrixlib_VERSION}
   SOVERSION
-    ${sunmatrixlib_SOVERSION}
-)
+  ${sunmatrixlib_SOVERSION})
 
 message(STATUS "Added SUNMATRIX_SPARSE F2003 interface")

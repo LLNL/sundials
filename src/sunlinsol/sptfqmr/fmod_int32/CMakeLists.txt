@@ -14,18 +14,20 @@
 # CMakeLists.txt file for the F2003 SPTFQMR SUNLinearSolver object library
 # ------------------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunlinsolsptfqmr_mod
+sundials_add_f2003_library(
+  sundials_fsunlinsolsptfqmr_mod
   SOURCES
-    fsunlinsol_sptfqmr_mod.f90 fsunlinsol_sptfqmr_mod.c
+  fsunlinsol_sptfqmr_mod.f90
+  fsunlinsol_sptfqmr_mod.c
   LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+  PUBLIC
+  sundials_fcore_mod
   OBJECT_LIBRARIES
   OUTPUT_NAME
-    sundials_fsunlinsolsptfqmr_mod
+  sundials_fsunlinsolsptfqmr_mod
   VERSION
-    ${sunlinsollib_VERSION}
+  ${sunlinsollib_VERSION}
   SOVERSION
-    ${sunlinsollib_SOVERSION}
-)
+  ${sunlinsollib_SOVERSION})
 
 message(STATUS "Added SUNLINSOL_SPTFQMR F2003 interface")

@@ -12,8 +12,8 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is 'develop' for
+# examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS MAGMA dense matrix
 set(sunlinsols_magmadense_examples

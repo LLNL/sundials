@@ -14,8 +14,8 @@
 # CMakeLists.txt file for HIP nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the type is
+# develop for examples excluded from 'make test' in releases
 
 if(HIP_PLATFORM STREQUAL "nvcc")
   set(_warp_size 32)
@@ -51,8 +51,8 @@ foreach(example_tuple ${nvector_hip_examples})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example_target})
     # example source files
     add_executable(${example_target} ${example})

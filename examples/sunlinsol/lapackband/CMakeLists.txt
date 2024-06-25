@@ -14,8 +14,8 @@
 # CMakeLists.txt file for sunlinsol LAPACK band examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is 'develop' for
+# examples excluded from 'make test' in releases
 
 # Examples using the LAPACK band linear solver
 set(sunlinsol_lapackband_examples
@@ -38,8 +38,8 @@ foreach(example_tuple ${sunlinsol_lapackband_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.c ../test_sunlinsol.c)
@@ -87,16 +87,16 @@ if(EXAMPLES_INSTALL)
   set(SOLVER_LIB "sundials_sunlinsollapackband")
   set(LIBS "${LIBS} -lsundials_sunmatrixband -lsundials_sunmatrixdense")
 
-  # Set the link directory for the band and dense sunmatrix libraries
-  # The generated CMakeLists.txt does not use find_library() locate them
+  # Set the link directory for the band and dense sunmatrix libraries The
+  # generated CMakeLists.txt does not use find_library() locate them
   set(EXTRA_LIBS_DIR "${libdir}")
 
   examples2string(sunlinsol_lapackband_examples EXAMPLES_BL)
   examples2string(sunlinsol_lapackband_dependencies EXAMPLES_DEPENDENCIES_BL)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
@@ -109,8 +109,8 @@ if(EXAMPLES_INSTALL)
     DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/lapackband)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir

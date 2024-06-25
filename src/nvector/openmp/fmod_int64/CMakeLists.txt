@@ -14,18 +14,20 @@
 # CMakeLists.txt file for the F2003 openmp NVECTOR object library
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fnvecopenmp_mod
+sundials_add_f2003_library(
+  sundials_fnvecopenmp_mod
   SOURCES
-    fnvector_openmp_mod.f90 fnvector_openmp_mod.c
+  fnvector_openmp_mod.f90
+  fnvector_openmp_mod.c
   LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+  PUBLIC
+  sundials_fcore_mod
   OBJECT_LIBRARIES
   OUTPUT_NAME
-    sundials_fnvecopenmp_mod
+  sundials_fnvecopenmp_mod
   VERSION
-    ${nveclib_VERSION}
+  ${nveclib_VERSION}
   SOVERSION
-    ${nveclib_SOVERSION}
-)
+  ${nveclib_SOVERSION})
 
 message(STATUS "Added NVECTOR_OPENMP F2003 interface")

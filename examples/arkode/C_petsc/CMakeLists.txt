@@ -14,8 +14,8 @@
 # CMakeLists.txt file for ARKODE PETSc examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;nodes\;tasks\;type" where the type is develop
+# for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
 if(BUILD_SUNNONLINSOL_PETSCSNES)
@@ -94,8 +94,8 @@ if(EXAMPLES_INSTALL)
   examples2string(ARKODE_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
@@ -107,8 +107,8 @@ if(EXAMPLES_INSTALL)
           DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_petsc)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir

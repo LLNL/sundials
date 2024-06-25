@@ -14,8 +14,8 @@
 # CMakeLists.txt file for Kokkos nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is develop for
+# examples excluded from 'make test' in releases
 set(examples_list "test_nvector_kokkos.cpp\;1000 0\;")
 
 include_directories(..)
@@ -33,8 +33,8 @@ foreach(example_tuple ${examples_list})
     get_filename_component(example_target ${example} NAME_WE)
     set(example_target "${example_target}.${backend}")
 
-    # check if this example has already been added, only need to add
-    # example source files once for testing with different inputs
+    # check if this example has already been added, only need to add example
+    # source files once for testing with different inputs
     if(NOT TARGET ${example_target})
       # example source files
       add_executable(${example_target} ${example})

@@ -14,8 +14,8 @@
 # CMakeLists.txt file for CVODE SYCL examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is 'develop' for
+# examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples "cvAdvDiff_kry_sycl.cpp\;\;develop")

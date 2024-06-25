@@ -37,8 +37,8 @@ macro(build_examples examples_to_build lang)
       set(example_target "${example_target}.${example_defines}")
     endif()
 
-    # check if this example has already been added, only need to add
-    # example source files once for testing with different inputs
+    # check if this example has already been added, only need to add example
+    # source files once for testing with different inputs
     if(NOT TARGET ${example_target})
 
       set_source_files_properties(${example} PROPERTIES LANGUAGE ${lang})
@@ -111,8 +111,9 @@ endmacro()
 # Examples to build and install
 # -----------------------------
 
-# Example lists are tuples "name\;compile defs\;args\;nodes\;tasks\;type\;float precision"
-# where the type develop is for examples excluded from 'make test' in releases.
+# Example lists are tuples "name\;compile defs\;args\;nodes\;tasks\;type\;float
+# precision" where the type develop is for examples excluded from 'make test' in
+# releases.
 
 # List of headers to install (appended to below)
 set(ARKODE_headers)
@@ -253,19 +254,16 @@ if(EXAMPLES_INSTALL)
   endif()
 
   # For now do not install the RAJA examples because they need to built as CUDA
-  # code when RAJA is built with CUDA
-  # if(serial_raja_examples)
-  #   list(APPEND examples_to_install "${serial_raja_examples}")
-  #   list(APPEND _sundials_targets nvecmpiplusx)
+  # code when RAJA is built with CUDA if(serial_raja_examples) list(APPEND
+  # examples_to_install "${serial_raja_examples}") list(APPEND _sundials_targets
+  # nvecmpiplusx)
 
-  #   if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
-  #     set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
-  #   endif()
-
-  #   if(RAJA_NEEDS_THREADS)
-  #     set(EXAMPLES_FIND_PACKAGE "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n")
-  #   endif()
+  # if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES
+  # "OPENMP")) set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
   # endif()
+
+  # if(RAJA_NEEDS_THREADS) set(EXAMPLES_FIND_PACKAGE
+  # "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n") endif() endif()
 
   sundials_install_examples(
     arkode

@@ -14,8 +14,8 @@
 # CMakeLists.txt file for CVODE SuperLU_DIST examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;nodes\;type" where the type is develop
+# for examples excluded from 'make test' in releases
 
 list(APPEND CVODE_examples "cvAdvDiff_sludist.cpp\;2 1\;2\;develop")
 
@@ -43,7 +43,8 @@ foreach(example_tuple ${CVODE_examples})
   if(SUNDIALS_INDEX_SIZE STREQUAL "32")
     set(integer_precision "15")
 
-    # superlu-dist seems to result in more output variability (maybe due to a bug with 32-bit indices?)
+    # superlu-dist seems to result in more output variability (maybe due to a
+    # bug with 32-bit indices?)
     set(float_precision "3")
   else()
     set(integer_precision "default")

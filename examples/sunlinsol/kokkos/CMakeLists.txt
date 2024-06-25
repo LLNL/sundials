@@ -12,8 +12,8 @@
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is 'develop' for
+# examples excluded from 'make test' in releases
 set(examples_list
     "test_sunlinsol_kokkosdense.cpp\;10 1 0\;"
     "test_sunlinsol_kokkosdense.cpp\;100 1 0\;"

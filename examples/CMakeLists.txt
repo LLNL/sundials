@@ -15,7 +15,8 @@
 # ---------------------------------------------------------------
 
 # We need this to ensure the installed templates have MPI when ENABLE_MPI=TRUE,
-# at least until we convert all of the templates to use the SUNDIALS CMake target.
+# at least until we convert all of the templates to use the SUNDIALS CMake
+# target.
 
 # ===================================================================
 # Configure compilers for installed examples

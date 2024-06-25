@@ -16,8 +16,7 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_SUPERLUMT\n\")")
 
-# Include OpenMP flags if SuperLU_MT is using OpenMP,
-# otherwise we use threads.
+# Include OpenMP flags if SuperLU_MT is using OpenMP, otherwise we use threads.
 if(SUPERLUMT_THREAD_TYPE STREQUAL "OPENMP")
   set(_threads OpenMP::OpenMP_C)
 else()

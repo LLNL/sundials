@@ -14,8 +14,8 @@
 # CMakeLists.txt file for SYCL nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the type is
+# develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS sycl nvector
 set(nvector_sycl_examples
@@ -36,8 +36,8 @@ foreach(example_tuple ${nvector_sycl_examples})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example_target})
 
     # example source files

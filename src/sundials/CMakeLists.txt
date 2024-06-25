@@ -14,8 +14,8 @@
 # CMakeLists.txt file for the generic SUNDIALS modules
 # ---------------------------------------------------------------
 
-# From here we only install the generic SUNDIALS headers.
-# The implementations themselves are incorporated in the individual SUNDIALS solver libraries.
+# From here we only install the generic SUNDIALS headers. The implementations
+# themselves are incorporated in the individual SUNDIALS solver libraries.
 
 install(CODE "MESSAGE(\"\nInstall shared components\n\")")
 

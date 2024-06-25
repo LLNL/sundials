@@ -12,8 +12,8 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is 'develop' for
+# examples excluded from 'make test' in releases
 set(examples
     "test_sunmatrix_ginkgo.cpp\;100 100 0\;"
     "test_sunmatrix_ginkgo.cpp\;100 10 0\;"

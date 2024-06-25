@@ -14,8 +14,8 @@
 # CMakeLists.txt file for KINSOL OpenMP examples
 # -----------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is 'develop' for
+# examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
 set(KINSOL_examples "kinFoodWeb_kry_omp\;4\;develop")
@@ -40,8 +40,8 @@ foreach(example_tuple ${KINSOL_examples})
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-  if(NOT ${example} MATCHES "kinFoodWeb_kry_omp"
-  )# No test until TestRunner modified for OpenMP
+  if(NOT ${example} MATCHES "kinFoodWeb_kry_omp") # No test until TestRunner
+                                                  # modified for OpenMP
     # add example to regression tests
     sundials_add_test(
       ${example}
@@ -80,8 +80,8 @@ if(EXAMPLES_INSTALL)
   examples2string(KINSOL_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
@@ -93,8 +93,8 @@ if(EXAMPLES_INSTALL)
           DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/C_openmp)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir

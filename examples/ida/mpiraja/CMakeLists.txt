@@ -14,8 +14,8 @@
 # CMakeLists.txt file for IDA raja examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;type" where the type is 'develop' for examples
+# excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples "idaHeat2D_kry_p_mpiraja.cpp\;1\;4\;develop")

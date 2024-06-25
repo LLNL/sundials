@@ -31,8 +31,8 @@ foreach(test_tuple ${unit_tests})
   # Extract the file name without extension
   get_filename_component(test_target ${test} NAME_WE)
 
-  # check if this test has already been added, only need to add
-  # test source files once for testing with different inputs
+  # check if this test has already been added, only need to add test source
+  # files once for testing with different inputs
   if(NOT TARGET ${test_target})
 
     # test source files

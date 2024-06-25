@@ -14,8 +14,8 @@
 # CMakeLists.txt file for raja nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the type is
+# develop for examples excluded from 'make test' in releases
 set(examples_list
     "test_nvector_mpiraja.cpp\;1000 0\;\;\;" # run sequentially
     "test_nvector_mpiraja.cpp\;1000 0\;1\;4\;" # run parallel on 4 procs
@@ -47,8 +47,8 @@ foreach(example_tuple ${nvector_raja_examples})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
 
     # example source files

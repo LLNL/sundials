@@ -28,9 +28,9 @@ if(ENABLE_ALL_WARNINGS)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")
 endif()
 
-#----------------------------------------
+# ----------------------------------------
 # Add specific benchmarks
-#----------------------------------------
+# ----------------------------------------
 
 if(ENABLE_MPI)
   add_subdirectory(diffusion_2D)

@@ -14,8 +14,8 @@
 # CMakeLists.txt file for CVODE C++ serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the type is
+# develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples "cv_heat2D.cpp\;\;\;\;exclude-single"
@@ -34,8 +34,8 @@ foreach(example_tuple ${CVODE_examples})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example_target})
     # example source files
     add_executable(${example_target} ${example})

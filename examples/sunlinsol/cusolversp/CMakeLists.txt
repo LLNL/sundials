@@ -14,8 +14,8 @@
 # CMakeLists.txt file for cuSolverSp examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is develop for
+# examples excluded from 'make test' in releases
 set(examples_list "test_sunlinsol_cusolversp_batchqr.cu\;100 1 0\;"
                   "test_sunlinsol_cusolversp_batchqr.cu\;10 10 0\;")
 
@@ -33,8 +33,8 @@ foreach(example_tuple ${examples_list})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example_target})
     # example source files
     add_executable(${example_target} ${example} ../test_sunlinsol.c

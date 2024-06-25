@@ -12,8 +12,8 @@
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is 'develop' for
+# examples excluded from 'make test' in releases
 
 set(CVODE_examples "cvRoberts_blockdiag_onemkl.cpp\;\;develop")
 

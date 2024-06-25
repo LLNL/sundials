@@ -26,18 +26,20 @@ if(MPI_Fortran_COMPILER)
   set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
 endif()
 
-sundials_add_f2003_library(sundials_fnvecmpiplusx_mod
+sundials_add_f2003_library(
+  sundials_fnvecmpiplusx_mod
   SOURCES
-    fnvector_mpiplusx_mod.f90 fnvector_mpiplusx_mod.c
+  fnvector_mpiplusx_mod.f90
+  fnvector_mpiplusx_mod.c
   LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+  PUBLIC
+  sundials_fcore_mod
   OBJECT_LIBRARIES
   OUTPUT_NAME
-    sundials_fnvecmpiplusx_mod
+  sundials_fnvecmpiplusx_mod
   VERSION
-    ${nveclib_VERSION}
+  ${nveclib_VERSION}
   SOVERSION
-    ${nveclib_SOVERSION}
-)
+  ${nveclib_SOVERSION})
 
 message(STATUS "Added NVECTOR_MPIPLUSX F2003 interface")
