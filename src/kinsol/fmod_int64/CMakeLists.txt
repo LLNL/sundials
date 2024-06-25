@@ -17,11 +17,10 @@
 set(kinsol_SOURCES fkinsol_mod.f90 fkinsol_mod.c)
 
 # Create the library
-sundials_add_f2003_library(sundials_fkinsol_mod
-  SOURCES
-    ${kinsol_SOURCES}
-  LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+sundials_add_f2003_library(
+  sundials_fkinsol_mod
+  SOURCES ${kinsol_SOURCES}
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
     sundials_fnvecserial_mod_obj
     sundials_fsunmatrixband_mod_obj
@@ -34,12 +33,9 @@ sundials_add_f2003_library(sundials_fkinsol_mod
     sundials_fsunlinsolspgmr_mod_obj
     sundials_fsunlinsolsptfqmr_mod_obj
     sundials_fsunlinsolpcg_mod_obj
-  OUTPUT_NAME
-    sundials_fkinsol_mod
-  VERSION
-    ${kinsollib_VERSION}
-  SOVERSION
-    ${kinsollib_SOVERSION}
+  OUTPUT_NAME sundials_fkinsol_mod
+  VERSION ${kinsollib_VERSION}
+  SOVERSION ${kinsollib_SOVERSION}
 )
 
 message(STATUS "Added KINSOL F2003 interface")

@@ -14,24 +14,25 @@
 # CMakeLists.txt file for the F2003 ARKODE object library
 # ---------------------------------------------------------------
 
-set(arkode_SOURCES
-    farkode_mod.f90
-    farkode_mod.c
-    farkode_arkstep_mod.f90
-    farkode_arkstep_mod.c
-    farkode_erkstep_mod.f90
-    farkode_erkstep_mod.c
-    farkode_sprkstep_mod.f90
-    farkode_sprkstep_mod.c
-    farkode_mristep_mod.f90
-    farkode_mristep_mod.c)
+set(
+  arkode_SOURCES
+  farkode_mod.f90
+  farkode_mod.c
+  farkode_arkstep_mod.f90
+  farkode_arkstep_mod.c
+  farkode_erkstep_mod.f90
+  farkode_erkstep_mod.c
+  farkode_sprkstep_mod.f90
+  farkode_sprkstep_mod.c
+  farkode_mristep_mod.f90
+  farkode_mristep_mod.c
+)
 
 # Create the library
-sundials_add_f2003_library(sundials_farkode_mod
-  SOURCES
-    ${arkode_SOURCES}
-  LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+sundials_add_f2003_library(
+  sundials_farkode_mod
+  SOURCES ${arkode_SOURCES}
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
     sundials_fnvecserial_mod_obj
     sundials_fsunadaptcontrollersoderlind_mod_obj
@@ -48,12 +49,9 @@ sundials_add_f2003_library(sundials_farkode_mod
     sundials_fsunlinsolpcg_mod_obj
     sundials_fsunnonlinsolnewton_mod_obj
     sundials_fsunnonlinsolfixedpoint_mod_obj
-  OUTPUT_NAME
-    sundials_farkode_mod
-  VERSION
-    ${arkodelib_VERSION}
-  SOVERSION
-    ${arkodelib_SOVERSION}
+  OUTPUT_NAME sundials_farkode_mod
+  VERSION ${arkodelib_VERSION}
+  SOVERSION ${arkodelib_SOVERSION}
 )
 
 message(STATUS "Added ARKODE F2003 interface")

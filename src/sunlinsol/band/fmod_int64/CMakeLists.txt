@@ -14,20 +14,15 @@
 # CMakeLists.txt file for the F2003 band SUNLinearSolver object library
 # ----------------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunlinsolband_mod
-  SOURCES
-    fsunlinsol_band_mod.f90 fsunlinsol_band_mod.c
-  LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+sundials_add_f2003_library(
+  sundials_fsunlinsolband_mod
+  SOURCES fsunlinsol_band_mod.f90 fsunlinsol_band_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-  LINK_LIBRARIES
-    PUBLIC sundials_fsunmatrixband_mod
-  OUTPUT_NAME
-    sundials_fsunlinsolband_mod
-  VERSION
-    ${sunlinsollib_VERSION}
-  SOVERSION
-    ${sunlinsollib_SOVERSION}
+  LINK_LIBRARIES PUBLIC sundials_fsunmatrixband_mod
+  OUTPUT_NAME sundials_fsunlinsolband_mod
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION}
 )
 
 message(STATUS "Added SUNLINSOL_BAND F2003 interface")
