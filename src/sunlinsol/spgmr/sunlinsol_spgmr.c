@@ -430,7 +430,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
                                  : SUNLS_ATIMES_FAIL_REC;
 
       SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
-                 "status = failed matvec", "");
+                 "status = failed matvec, retval = %d", status);
 
       return (LASTFLAG(S));
     }
@@ -451,7 +451,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
                                  : SUNLS_PSOLVE_FAIL_REC;
 
       SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
-                 "status = failed preconditioner solve", "");
+                 "status = failed preconditioner solve, retval = %d", status);
 
       return (LASTFLAG(S));
     }
@@ -551,7 +551,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
                                      : SUNLS_PSOLVE_FAIL_REC;
 
           SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
-                     "status = failed preconditioner solve", "");
+                     "status = failed preconditioner solve, retval = %d", status);
 
           return (LASTFLAG(S));
         }
@@ -566,7 +566,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
                                    : SUNLS_ATIMES_FAIL_REC;
 
         SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
-                   "status = failed matvec", "");
+                   "status = failed matvec, retval = %d", status);
 
         return (LASTFLAG(S));
       }
@@ -582,7 +582,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
                                      : SUNLS_PSOLVE_FAIL_REC;
 
           SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
-                     "status = failed preconditioner solve", "");
+                     "status = failed preconditioner solve, retval = %d", status);
 
           return (LASTFLAG(S));
         }
@@ -697,7 +697,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
                                      : SUNLS_PSOLVE_FAIL_REC;
 
           SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
-                     "status = failed preconditioner solve", "");
+                     "status = failed preconditioner solve, retval = %d", status);
 
           return (LASTFLAG(S));
         }
@@ -780,7 +780,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
                                    : SUNLS_PSOLVE_FAIL_REC;
 
         SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
-                   "status = failed preconditioner solve", "");
+                   "status = failed preconditioner solve, retval = %d", status);
 
         return (LASTFLAG(S));
       }
