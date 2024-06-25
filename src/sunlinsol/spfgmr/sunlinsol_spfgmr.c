@@ -483,7 +483,6 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     return (LASTFLAG(S));
   }
 
-
   SUNLogInfo(S->sunctx->logger, __func__,
              "end-linear-iterate", "cur-iter = 0, total-iters = 0, res-norm = %.16g, status = continue",
              *res_norm);

@@ -444,16 +444,14 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUN_SUCCESS;
 
-    SUNLogInfo(S->sunctx->logger, __func__,
-               "end-linear-iterate", "cur-iter = 0, res-norm = %.16g, status = success",
-               *res_norm);
+    SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+               "cur-iter = 0, res-norm = %.16g, status = success", *res_norm);
 
     return (LASTFLAG(S));
   }
 
-  SUNLogInfo(S->sunctx->logger, __func__,
-             "end-linear-iterate", "cur-iter = 0, res-norm = %.16g, status = continue",
-             *res_norm);
+  SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+             "cur-iter = 0, res-norm = %.16g, status = continue", *res_norm);
 
   /* Copy r_star to r and p */
 

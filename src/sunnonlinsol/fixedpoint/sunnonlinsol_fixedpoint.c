@@ -216,7 +216,8 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
     if (retval != 0)
     {
       SUNLogInfo(NLS->sunctx->logger, __func__, "end-nonlinear-iterate",
-                 "status = failed nonlinear system evaluation, retval = %d", retval);
+                 "status = failed nonlinear system evaluation, retval = %d",
+                 retval);
       return retval;
     }
 
