@@ -180,7 +180,7 @@ int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr)
 
     printf("\nInternal SprRad is not supported yet!\n");
 
-    return (ARK_WARNING);
+    return (-1);
   }
 }
 
@@ -401,6 +401,8 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   ark_mem->liw += 1; /* pointers */
 
   /* Allocate internal vector storate */
+  // step_mem->temp1 = N_VClone(ark_mem->ewt);
+  // step_mem->temp2 = N_VClone(ark_mem->ewt);
 
   /* Allocate reusable arrays for fused vector interface */
 
@@ -551,8 +553,11 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   ---------------------------------------------------------------*/
 int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
-  int retval, is, js, nvec, mode;
-  sunrealtype* cvals;
+  int retval, mode;
+  sunrealtype w0, w1, temp1, temp2, arg, bjm1, bjm2, mus, thjm1, thjm2, zjm1, 
+              zjm2, dzjm1, dzjm2, d2zjm1, d2zjm2, zj, dzj, d2zj, bj, ajm1,
+              mu, nu, thj;
+  sunrealtype onep54 = 1.54, ten = 10.0, c13 = 13.0, p8 = 0.8, p4 = 0.4;
   N_Vector* Xvecs;
   ARKodeLSRKStepMem step_mem;
 
@@ -565,8 +570,159 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* To-Do: fill this in */
+  /* Compute spectral radius and update stats */
+  if ((step_mem->newspr))
+  {
+    if((step_mem->isextspr))
+    {
+      retval = step_mem->extspr(ark_mem->tn, step_mem->sprad, ark_mem->user_data);
+      step_mem->sprad *=step_mem->sprsfty;
+    }
+    else
+    {
+      printf("\nInternal SprRad is not supported yet!\n");
+      return (-1);
+    }
+    step_mem->jacatt = SUNTRUE;
+    if(round(step_mem->sprad) > step_mem->sprmax)
+    {
+      step_mem->sprmax = (sunrealtype)round(step_mem->sprad);
+    }
+    if(ark_mem->nst == 0)
+    {
+      step_mem->sprmin = step_mem->sprmax;
+    }
+    if(round(step_mem->sprad) < step_mem->sprmin)
+    {
+      step_mem->sprmin = (sunrealtype)round(step_mem->sprad);
+    }
+    
+    printf("WARNING!!! extsprad is not computed properly\n");
+    if (retval) { return (-1); }
+    step_mem->newspr = SUNFALSE;
+  }
 
+  /* determine the number of required stages */
+  for(int ss = 1; ss < step_mem->stagemaxlimit; ss++)
+  {
+    if(SUNSQR(ss) >= (onep54*ark_mem->h*step_mem->sprad))
+    {
+      step_mem->reqstages = SUNMAX(ss, 2);
+      break;
+    }
+  }
+  step_mem->stagemax = SUNMAX(step_mem->reqstages, step_mem->stagemax);
+
+  /* A tentative solution at t+h is returned in
+     y and its slope is evaluated in temp1.  */
+  ark_mem->hmin = ten*ark_mem->uround*SUNMAX(SUNRabs(ark_mem->tcur), SUNRabs(ark_mem->tcur + ark_mem->h));
+
+  w0 = (ONE + TWO/(c13*SUNSQR((sunrealtype)(step_mem->reqstages))));
+
+  temp1 = SUNSQR(w0) - ONE;
+  temp2 = sqrt(temp1);
+  arg = step_mem->reqstages*log(w0 + temp2);
+
+  w1 = sinh(arg)*temp1 / (cosh(arg)*step_mem->reqstages*temp2 - w0*sinh(arg));
+
+  bjm1 = ONE/SUNSQR(TWO*w0);
+  bjm2 = bjm1;
+
+  /* Evaluate the first stage */
+  ark_mem->tempv2 = ark_mem->yn;
+
+  mus = w1*bjm1;
+
+  N_VLinearSum(ONE, ark_mem->yn, ark_mem->h*mus, ark_mem->fn, ark_mem->tempv1);
+
+  thjm2  = ZERO;
+  thjm1  = mus;
+  zjm1   = w0;
+  zjm2   = ONE;
+  dzjm1  = ONE;
+  dzjm2  = ZERO;
+  d2zjm1 = ZERO;
+  d2zjm2 = ZERO;
+
+  /* Evaluate stages j = 2,...,step_mem->reqstages */
+  for(int j = 2; j <= step_mem->reqstages; j++)
+  {
+    zj   =   TWO*w0*zjm1 - zjm2;
+    dzj  =   TWO*w0*dzjm1 - dzjm2 + TWO*zjm1;
+    d2zj =   TWO*w0*d2zjm1 - d2zjm2 + FOUR*dzjm1;
+    bj   =   d2zj/SUNSQR(dzj);
+    ajm1 =   ONE - zjm1*bjm1;
+    mu   =   TWO*w0*bj/bjm1;
+    nu   = - bj/bjm2;
+    mus  =   mu*w1/w0;
+
+    /* Use the ycur array for temporary storage here */
+    mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + ark_mem->h*thjm1, ark_mem->tempv1,
+                                   ark_mem->ycur, mode);
+    if (retval != ARK_SUCCESS) { return (-1); }
+
+    N_VLinearSum(ONE, ark_mem->ycur, -ajm1, ark_mem->fn, ark_mem->ycur);
+    N_VLinearSum(ONE - mu - nu, ark_mem->yn, ark_mem->h*mus, ark_mem->ycur,ark_mem->ycur);
+    N_VLinearSum(nu, ark_mem->tempv2, ONE, ark_mem->ycur,ark_mem->ycur);
+    N_VLinearSum(mu, ark_mem->tempv1, ONE, ark_mem->ycur,ark_mem->ycur);
+
+    thj = mu*thjm1 + nu*thjm2 + mus*(ONE - ajm1);
+
+    /* Shift the data for the next stage */
+    if(j < step_mem->reqstages)
+    {
+      ark_mem->tempv2 = ark_mem->tempv1;
+      ark_mem->tempv1 = ark_mem->ycur;
+
+      thjm2  = thjm1;
+      thjm1  = thj;
+      bjm2   = bjm1;
+      bjm1   = bj;
+      zjm2   = zjm1;
+      zjm1   = zj;
+      dzjm2  = dzjm1;
+      dzjm1  = dzj;
+      d2zjm2 = d2zjm1;
+      d2zjm1 = d2zj;    
+    }
+  }
+
+  mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+                                 ark_mem->tempv1, mode);
+  if (retval != ARK_SUCCESS) { return (-1); }
+
+  /* Estimate the local error and compute its weighted RMS norm */
+  step_mem->err = ZERO;
+  sunrealtype wt, est;
+  sunrealtype *ycurdata, *yndata, *fndata, *tempv1data;
+  sunrealtype at = ark_mem->Sabstol;
+  sunindextype neq = (sunindextype)(ark_mem->ycur->ops->nvgetlength);
+
+  printf("neq = %i", (int)neq);
+
+  ycurdata     = ark_mem->ycur->ops->nvgetarraypointer;
+  yndata       = ark_mem->yn->ops->nvgetarraypointer;
+  fndata       = ark_mem->yn->ops->nvgetarraypointer;
+  tempv1data   = ark_mem->yn->ops->nvgetarraypointer;
+
+  for (int i = 1; i <= (int)neq; i++)
+  {
+    wt = at + ark_mem->reltol*SUNMAX(SUNRabs(ycurdata[i]), SUNRabs(yndata[i]));
+    if(wt == 0)
+    {
+      printf("wt = 0!");
+      return (-1);
+    }
+    est = p8*(yndata[i] - ycurdata[i]) + p4*ark_mem->h*(fndata[i] + tempv1data[i]);
+    step_mem->err = step_mem->err + SUNSQR(est/wt);
+  }
+
+  step_mem->err = SUNRsqrt(step_mem->err/neq);
+
+  *dsmPtr = step_mem->err;
+  
   printf("\nlsrkStep_TakeStep is not ready yet!\n");
 
   return (ARK_SUCCESS);
