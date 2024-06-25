@@ -182,6 +182,9 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
   /* check that all required function pointers have been set */
   SUNAssert(FP_CONTENT(NLS)->Sys && FP_CONTENT(NLS)->CTest, SUN_ERR_ARG_CORRUPT);
 
+  SUNLogInfo(NLS->sunctx->logger, __func__, "nonlinear-solver",
+             "solver = Fixed-Point", "");
+
   /* set local shortcut variables */
   yprev = FP_CONTENT(NLS)->yprev;
   gy    = FP_CONTENT(NLS)->gy;
@@ -191,9 +194,6 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
   FP_CONTENT(NLS)->niters     = 0;
   FP_CONTENT(NLS)->nconvfails = 0;
 
-  SUNLogDebug(NLS->sunctx->logger, __func__, "begin-iteration",
-              "iter = %ld, nni = %ld", (long int)0, FP_CONTENT(NLS)->niters);
-
   /* Looping point for attempts at solution of the nonlinear system:
        Evaluate fixed-point function (store in gy).
        Performs the accelerated fixed-point iteration.
@@ -202,6 +202,8 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
        FP_CONTENT(NLS)->curiter < FP_CONTENT(NLS)->maxiters;
        FP_CONTENT(NLS)->curiter++)
   {
+    SUNLogDebug(NLS->sunctx->logger, __func__, "begin-iteration", "", "");
+
     /* update previous solution guess */
     N_VScale(ONE, ycor, yprev);
     SUNCheckLastErr();
@@ -211,7 +213,12 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
        callback and returns integrator specific error values  where 0 == success,
        < 0 is a failure, > 0 is recoverable error. */
     retval = FP_CONTENT(NLS)->Sys(ycor, gy, mem);
-    if (retval != 0) { return retval; }
+    if (retval != 0)
+    {
+      SUNLogInfo(NLS->sunctx->logger, __func__, "end-nonlinear-iterate",
+                 "status = failed nonlinear system evaluation, retval = %d", retval);
+      return retval;
+    }
 
     /* perform fixed point update, based on choice of acceleration or not */
     if (FP_CONTENT(NLS)->m == 0)
@@ -236,22 +243,35 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
     retval = FP_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
                                     FP_CONTENT(NLS)->ctest_data);
 
-    SUNLogDebug(NLS->sunctx->logger, __func__, "end-of-iterate",
-                "iter = %ld, nni = %ld, wrmsnorm = %.16g",
-                (long int)FP_CONTENT(NLS)->curiter, FP_CONTENT(NLS)->niters,
+    SUNLogDebug(NLS->sunctx->logger, __func__, "nonlinear-iterate",
+                "cur-iter = %d, update-norm = %.16g", FP_CONTENT(NLS)->niters,
                 N_VWrmsNorm(delta, w));
 
     /* return if successful */
-    if (retval == 0) { return SUN_SUCCESS; }
+    if (retval == 0)
+    {
+      SUNLogInfo(NLS->sunctx->logger, __func__, "end-nonlinear-iterate",
+                 "status = success", "");
+      return SUN_SUCCESS;
+    }
 
     /* check if the iterations should continue; otherwise increment the
        convergence failure count and return error flag */
     if (retval != SUN_NLS_CONTINUE)
     {
+      SUNLogInfo(NLS->sunctx->logger, __func__, "end-nonlinear-iterate",
+                 "status = failed, retval = %d", retval);
       FP_CONTENT(NLS)->nconvfails++;
       return (retval);
     }
+
+    SUNLogInfoIf(FP_CONTENT(NLS)->curiter < FP_CONTENT(NLS)->maxiters - 1,
+                 NLS->sunctx->logger, __func__, "end-nonlinear-iterate",
+                 "status = continue", "");
   }
+
+  SUNLogInfo(NLS->sunctx->logger, __func__, "end-nonlinear-iterate",
+             "status = failed max iterations", "");
 
   /* if we've reached this point, then we exhausted the iteration limit;
      increment the convergence failure count and return */
