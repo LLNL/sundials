@@ -8,6 +8,8 @@
 
 ### Bug Fixes
 
+Fixed a [bug](https://github.com/LLNL/sundials/pull/523) in v7.1.0 with the SYCL N_Vector `N_VSpace` function. 
+
 ### Deprecation Notices
 
 ## Changes to SUNDIALS in release 7.1.0
