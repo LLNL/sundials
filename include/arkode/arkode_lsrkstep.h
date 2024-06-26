@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-typedef int (*ARKSprFn)(sunrealtype t, sunrealtype extsprad, 
+typedef int (*ARKSprFn)(sunrealtype t, sunrealtype* extsprad, 
                                    void* user_data);
                                    
 /* ------------------

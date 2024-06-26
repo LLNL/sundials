@@ -50,7 +50,7 @@
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 /* User-supplied Spectral Radius Called by the Solver */
-static int spr(sunrealtype t, sunrealtype extsprad, void* user_data);
+static int spr(sunrealtype t, sunrealtype* extsprad, void* user_data);
 
 /* Private function to check function return values */
 static int check_flag(void* flagvalue, const char* funcname, int opt);
@@ -115,6 +115,11 @@ int main(void)
   /* Specify user provided spectral radius */
   flag = LSRKodeSetSprRadFn(arkode_mem, spr);
   if (check_flag(&flag, "LSRKodeSetSprRadFn", 1)) { return 1; }
+
+  /* Set routines */
+  flag = ARKodeSetFixedStep(arkode_mem,
+                           (sunrealtype)1.0); /* Pass lambda to user functions */
+  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
@@ -195,8 +200,8 @@ static int spr(sunrealtype t, sunrealtype* extsprad, void* user_data)
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter */
   printf("lambda=%f\n", lambda);
-  &extsprad = lambda; /* access current solution value */
-  printf("extsprad=%f\n", &extsprad);
+  *extsprad = lambda; /* access current solution value */
+  printf("extsprad=%f\n", *extsprad);
   return 0; /* return with success */
 }
 
