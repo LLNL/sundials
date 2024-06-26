@@ -38,17 +38,26 @@ endif()
 
 # SuperLU_DIST only supports double precision
 if(SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED")
-  message(FATAL_ERROR "SuperLU_DIST is not compatible with ${SUNDIALS_PRECISION} precision")
+  message(
+    FATAL_ERROR
+    "SuperLU_DIST is not compatible with ${SUNDIALS_PRECISION} precision"
+  )
 endif()
 
 # Using SUPERLUDIST requires building with MPI enabled
 if(ENABLE_SUPERLUDIST AND NOT ENABLE_MPI)
-  message(FATAL_ERROR "MPI is required for SuperLU DIST support. Set ENABLE_MPI to ON.")
+  message(
+    FATAL_ERROR
+    "MPI is required for SuperLU DIST support. Set ENABLE_MPI to ON."
+  )
 endif()
 
 # Using SUPERLUDIST with OpenMP requires building with OpenMP enabled
 if(ENABLE_SUPERLUDIST AND SUPERLUDIST_OpenMP AND NOT ENABLE_OPENMP)
-  message(FATAL_ERROR "OpenMP is required for SuperLU DIST support. Set ENABLE_OPENMP to ON.")
+  message(
+    FATAL_ERROR
+    "OpenMP is required for SuperLU DIST support. Set ENABLE_OPENMP to ON."
+  )
 endif()
 
 # -----------------------------------------------------------------------------

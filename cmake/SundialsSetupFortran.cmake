@@ -96,7 +96,10 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
       )
       message(STATUS "Check output:")
       message("${COMPILE_OUTPUT}")
-      message(FATAL_ERROR "BUILD_FORTRAN_MODULE_INTERFACE is set to ON, but the CMAKE_Fortran_COMPILER does not support F2003")
+      message(
+        FATAL_ERROR
+        "BUILD_FORTRAN_MODULE_INTERFACE is set to ON, but the CMAKE_Fortran_COMPILER does not support F2003"
+      )
     endif()
   else()
     message(

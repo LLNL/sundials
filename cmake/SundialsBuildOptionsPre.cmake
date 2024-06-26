@@ -227,7 +227,10 @@ sundials_option(BUILD_FORTRAN_MODULE_INTERFACE BOOL "${DOCSTR}" OFF)
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   # F2003 interface only supports double precision
   if(NOT (SUNDIALS_PRECISION MATCHES "DOUBLE"))
-    message(FATAL_ERROR "F2003 interface is not compatible with ${SUNDIALS_PRECISION} precision")
+    message(
+      FATAL_ERROR
+      "F2003 interface is not compatible with ${SUNDIALS_PRECISION} precision"
+    )
   endif()
 
   # Allow a user to set where the Fortran modules will be installed

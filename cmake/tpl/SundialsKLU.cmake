@@ -38,7 +38,10 @@ endif()
 
 # KLU does not support single or extended precision
 if(SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED")
-  message(FATAL_ERROR "KLU is not compatible with ${SUNDIALS_PRECISION} precision")
+  message(
+    FATAL_ERROR
+    "KLU is not compatible with ${SUNDIALS_PRECISION} precision"
+  )
 endif()
 
 # -----------------------------------------------------------------------------
@@ -69,7 +72,10 @@ if(KLU_FOUND AND (NOT KLU_WORKS))
     set(CMAKE_REQUIRED_INCLUDES ${save_CMAKE_REQUIRED_INCLUDES})
     message(STATUS "Size of SuiteSparse_long is ${SIZEOF_SUITESPARSE_LONG}")
     if(NOT SIZEOF_SUITESPARSE_LONG EQUAL "8")
-      message(FATAL_ERROR "Size of 'sunindextype' is 8 but size of 'SuiteSparse_long' is ${SIZEOF_SUITESPARSE_LONG}. KLU cannot be used.")
+      message(
+        FATAL_ERROR
+        "Size of 'sunindextype' is 8 but size of 'SuiteSparse_long' is ${SIZEOF_SUITESPARSE_LONG}. KLU cannot be used."
+      )
     endif()
   endif()
 

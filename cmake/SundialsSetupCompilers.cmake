@@ -356,12 +356,18 @@ sundials_option(
 
 # If used, both case and underscores must be set
 if((NOT SUNDIALS_LAPACK_CASE) AND SUNDIALS_LAPACK_UNDERSCORES)
-  message(FATAL_ERROR "If SUNDIALS_LAPACK_UNDERSCORES is set, "
-    "SUNDIALS_LAPACK_CASE must also be set.")
+  message(
+    FATAL_ERROR
+    "If SUNDIALS_LAPACK_UNDERSCORES is set, "
+    "SUNDIALS_LAPACK_CASE must also be set."
+  )
 endif()
 if(SUNDIALS_LAPACK_CASE AND (NOT SUNDIALS_LAPACK_UNDERSCORES))
-  message(FATAL_ERROR "If SUNDIALS_LAPACK_CASE is set, "
-    "SUNDIALS_LAPACK_UNDERSCORES must also be set.")
+  message(
+    FATAL_ERROR
+    "If SUNDIALS_LAPACK_CASE is set, "
+    "SUNDIALS_LAPACK_UNDERSCORES must also be set."
+  )
 endif()
 
 # Did the user provide a name-mangling scheme?

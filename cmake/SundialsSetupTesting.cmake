@@ -25,7 +25,10 @@ if(SUNDIALS_TEST_DEVTESTS OR BUILD_BENCHMARKS)
   # look for the testRunner script in the test directory
   find_program(TESTRUNNER testRunner PATHS test NO_DEFAULT_PATH)
   if(NOT TESTRUNNER)
-    message(FATAL_ERROR "Could not locate testRunner. Set SUNDIALS_TEST_DEVTESTS=OFF or BUILD_BENCHMARKS=OFF to continue.")
+    message(
+      FATAL_ERROR
+      "Could not locate testRunner. Set SUNDIALS_TEST_DEVTESTS=OFF or BUILD_BENCHMARKS=OFF to continue."
+    )
   endif()
   message(STATUS "Found testRunner: ${TESTRUNNER}")
   set(TESTRUNNER ${TESTRUNNER} CACHE INTERNAL "")

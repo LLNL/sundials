@@ -40,11 +40,16 @@ force_variable(
   ${_upper_SUPERLUMT_THREAD_TYPE}
 )
 
-if(SUPERLUMT_THREAD_TYPE AND
-    NOT SUPERLUMT_THREAD_TYPE STREQUAL "OPENMP" AND
-    NOT SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
-  message(FATAL_ERROR "Unknown thread type: ${SUPERLUMT_THREAD_TYPE} "
-    "Please enter PTHREAD or OPENMP")
+if(
+  SUPERLUMT_THREAD_TYPE
+  AND NOT SUPERLUMT_THREAD_TYPE STREQUAL "OPENMP"
+  AND NOT SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD"
+)
+  message(
+    FATAL_ERROR
+    "Unknown thread type: ${SUPERLUMT_THREAD_TYPE} "
+    "Please enter PTHREAD or OPENMP"
+  )
 endif()
 
 # check if the threading library has been found
