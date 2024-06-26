@@ -184,8 +184,6 @@ int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr)
   }
 }
 
-
-
 /*---------------------------------------------------------------
   LSRKStepReInit:
 
@@ -219,25 +217,25 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N
   /* Check that fe is supplied */
   if (fe == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_F);
-    return (NULL);
+    return (ARK_ILL_INPUT);
   }
 
   /* Check that fi is NULL until IMEX module is ready */
   if (fi != NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "\n\nNO IMEX-LSRK support yet, set fi = NULL");
-    return (NULL);
+    return (ARK_ILL_INPUT);
   }
 
   /* Check for legal input parameters */
   if (y0 == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_Y0);
-    return (NULL);
+    return (ARK_ILL_INPUT);
   }
 
   printf("\nLSRKStepReInit is not ready yet!\n");
@@ -277,7 +275,7 @@ int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
 
   /* Resize the internal vector storage */
   if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                    &step_mem->Fe))
+                    &step_mem->Fe[0]))
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Unable to resize vector");
@@ -308,6 +306,20 @@ void lsrkStep_Free(ARKodeMem ark_mem)
     /* free contents of step_mem */
     
     printf("\nlsrkStep_Free is not ready yet!\n");
+
+    /* free the reusable arrays for fused vector interface */
+    if (step_mem->cvals != NULL)
+    {
+      free(step_mem->cvals);
+      step_mem->cvals = NULL;
+      ark_mem->lrw -= 5;
+    }
+    if (step_mem->Xvecs != NULL)
+    {
+      free(step_mem->Xvecs);
+      step_mem->Xvecs = NULL;
+      ark_mem->liw -= 5;
+    }
 
     /* free the time stepper module itself */
     free(ark_mem->step_mem);
@@ -384,7 +396,6 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   {
     ark_mem->user_efun = SUNFALSE;
     ark_mem->efun      = arkEwtSetSmallReal;
-    printf("\nCheck internal error function in %s line: %d: !\n\n", __func__, __LINE__);
     ark_mem->e_data    = ark_mem;
   }
 
@@ -399,6 +410,20 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
     return (ARK_MEM_FAIL);
   }
   ark_mem->liw += 1; /* pointers */
+
+  /* Allocate reusable arrays for fused vector interface */
+  if (step_mem->cvals == NULL)
+  {
+    step_mem->cvals = (sunrealtype*)calloc(5, sizeof(sunrealtype));
+    if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
+    ark_mem->lrw += 5;
+  }
+  if (step_mem->Xvecs == NULL)
+  {
+    step_mem->Xvecs = (N_Vector*)calloc(5, sizeof(N_Vector));
+    if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
+    ark_mem->liw += 5; /* pointers */
+  }
 
   /* Allocate internal vector storate */
   // step_mem->temp1 = N_VClone(ark_mem->ewt);
@@ -554,6 +579,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval, mode;
+  sunrealtype* cvals; 
   sunrealtype w0, w1, temp1, temp2, arg, bjm1, bjm2, mus, thjm1, thjm2, zjm1, 
               zjm2, dzjm1, dzjm2, d2zjm1, d2zjm2, zj, dzj, d2zj, bj, ajm1,
               mu, nu, thj;
@@ -570,13 +596,18 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
   /* Compute spectral radius and update stats */
   if ((step_mem->newspr))
   {
     if((step_mem->isextspr))
     {
-      retval = step_mem->extspr(ark_mem->tn, step_mem->sprad, ark_mem->user_data);
+      retval = step_mem->extspr(ark_mem->tn, &step_mem->sprad, ark_mem->user_data);
       step_mem->sprad *=step_mem->sprsfty;
+      printf("Check the value of the sprad to make sure it is non-positive (or strictly negative)\n\n");
+      step_mem->sprad = abs(step_mem->sprad);
     }
     else
     {
@@ -597,7 +628,6 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       step_mem->sprmin = (sunrealtype)round(step_mem->sprad);
     }
     
-    printf("WARNING!!! extsprad is not computed properly\n");
     if (retval) { return (-1); }
     step_mem->newspr = SUNFALSE;
   }
@@ -613,9 +643,24 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
   step_mem->stagemax = SUNMAX(step_mem->reqstages, step_mem->stagemax);
 
+  /* Call the full RHS if needed. If this is the first step then we may need to
+     evaluate or copy the RHS values from an  earlier evaluation (e.g., to
+     compute h0). For subsequent steps treat this RHS evaluation as an
+     evaluation at the end of the just completed step to potentially reuse
+     (FSAL methods) RHS evaluations from the end of the last step. */
+
+  if (!(ark_mem->fn_is_current))
+  {
+    mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                   ark_mem->fn, mode);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+    ark_mem->fn_is_current = SUNTRUE;
+  }
+
   /* A tentative solution at t+h is returned in
      y and its slope is evaluated in temp1.  */
-  ark_mem->hmin = ten*ark_mem->uround*SUNMAX(SUNRabs(ark_mem->tcur), SUNRabs(ark_mem->tcur + ark_mem->h));
+  // ark_mem->hmin = ten*ark_mem->uround*SUNMAX(SUNRabs(ark_mem->tcur), SUNRabs(ark_mem->tcur + ark_mem->h));
 
   w0 = (ONE + TWO/(c13*SUNSQR((sunrealtype)(step_mem->reqstages))));
 
@@ -629,7 +674,7 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   bjm2 = bjm1;
 
   /* Evaluate the first stage */
-  ark_mem->tempv2 = ark_mem->yn;
+  N_VScale(ONE, ark_mem->yn, ark_mem->tempv2);
 
   mus = w1*bjm1;
 
@@ -661,20 +706,23 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + ark_mem->h*thjm1, ark_mem->tempv1,
                                    ark_mem->ycur, mode);
     if (retval != ARK_SUCCESS) { return (-1); }
+    printf("Change ark_mem->step_fullrhs step_mem->fe");
 
     N_VLinearSum(ONE, ark_mem->ycur, -ajm1, ark_mem->fn, ark_mem->ycur);
     N_VLinearSum(ONE - mu - nu, ark_mem->yn, ark_mem->h*mus, ark_mem->ycur,ark_mem->ycur);
     N_VLinearSum(nu, ark_mem->tempv2, ONE, ark_mem->ycur,ark_mem->ycur);
     N_VLinearSum(mu, ark_mem->tempv1, ONE, ark_mem->ycur,ark_mem->ycur);
 
+    printf("Change N_VLinearSum to N_VLinearComb..\n\n");
+
     thj = mu*thjm1 + nu*thjm2 + mus*(ONE - ajm1);
 
     /* Shift the data for the next stage */
     if(j < step_mem->reqstages)
     {
-      ark_mem->tempv2 = ark_mem->tempv1;
-      ark_mem->tempv1 = ark_mem->ycur;
-
+      N_VScale(ONE, ark_mem->tempv1, ark_mem->tempv2);
+      N_VScale(ONE, ark_mem->ycur, ark_mem->tempv1);
+      
       thjm2  = thjm1;
       thjm1  = thj;
       bjm2   = bjm1;
@@ -688,43 +736,31 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
-  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                                 ark_mem->tempv1, mode);
-  if (retval != ARK_SUCCESS) { return (-1); }
-
-  /* Estimate the local error and compute its weighted RMS norm */
-  step_mem->err = ZERO;
-  sunrealtype wt, est;
-  sunrealtype *ycurdata, *yndata, *fndata, *tempv1data;
-  sunrealtype at = ark_mem->Sabstol;
-  sunindextype neq = (sunindextype)(ark_mem->ycur->ops->nvgetlength);
-
-  printf("neq = %i", (int)neq);
-
-  ycurdata     = ark_mem->ycur->ops->nvgetarraypointer;
-  yndata       = ark_mem->yn->ops->nvgetarraypointer;
-  fndata       = ark_mem->yn->ops->nvgetarraypointer;
-  tempv1data   = ark_mem->yn->ops->nvgetarraypointer;
-
-  for (int i = 1; i <= (int)neq; i++)
+  /* Compute yerr (if step adaptivity enabled) */
+  if (!ark_mem->fixedstep)
   {
-    wt = at + ark_mem->reltol*SUNMAX(SUNRabs(ycurdata[i]), SUNRabs(yndata[i]));
-    if(wt == 0)
-    {
-      printf("wt = 0!");
-      return (-1);
-    }
-    est = p8*(yndata[i] - ycurdata[i]) + p4*ark_mem->h*(fndata[i] + tempv1data[i]);
-    step_mem->err = step_mem->err + SUNSQR(est/wt);
-  }
+    mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+                                   ark_mem->tempv1, mode);
+    if (retval != ARK_SUCCESS) { return (-1); }
+    printf("Change ark_mem->step_fullrhs step_mem->fe");
 
-  step_mem->err = SUNRsqrt(step_mem->err/neq);
+    /* Estimate the local error and compute its weighted RMS norm */
+    step_mem->err = ZERO;
 
-  *dsmPtr = step_mem->err;
+    cvals[0] =  p8;             Xvecs[0] = ark_mem->yn;
+    cvals[1] = -p8;             Xvecs[1] = ark_mem->ycur;
+    cvals[2] =  p4*ark_mem->h;  Xvecs[2] = ark_mem->fn;
+    cvals[3] =  p4*ark_mem->h;  Xvecs[3] = ark_mem->tempv1;
   
-  printf("\nlsrkStep_TakeStep is not ready yet!\n");
+    retval = N_VLinearCombination(4, cvals, Xvecs, ark_mem->tempv2);
+    if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
+    step_mem->err = N_VWrmsNorm(ark_mem->tempv2, ark_mem->ewt);
+
+    *dsmPtr = step_mem->err;
+  }
+  
   return (ARK_SUCCESS);
 }
 
