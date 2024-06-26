@@ -143,7 +143,7 @@ if(Trilinos_FOUND AND (NOT Trilinos_WORKS))
     message(STATUS "Checking if Trilinos works with SUNDIALS... FAILED")
     message(STATUS "Check output: ")
     message("${COMPILE_OUTPUT}")
-    print_error("SUNDIALS interface to Trilinos is not functional.")
+    message(FATAL_ERROR "SUNDIALS interface to Trilinos is not functional.")
   endif()
 
 elseif(Trilinos_FOUND AND Trilinos_WORKS)
