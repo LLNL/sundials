@@ -69,15 +69,15 @@ message(STATUS "LAPACK_LIBRARIES:  ${LAPACK_LIBRARIES}")
 # Determining the name-mangling scheme if needed
 # ---------------------------------------------------------------
 # In general, names of symbols with and without underscore may be mangled
-# differently (e.g. g77 mangles mysub to mysub_ and my_sub to my_sub__),
-# we have to consider both cases.
+# differently (e.g. g77 mangles mysub to mysub_ and my_sub to my_sub__), we have
+# to consider both cases.
 #
-# Method:
-#  1) create a library from a Fortran source file which defines a function "mysub"
-#  2) attempt to link with this library a C source file which calls the "mysub"
-#     function using various possible schemes (6 different schemes, corresponding
-#     to all combinations lower/upper case and none/one/two underscores).
-#  3) define the name-mangling scheme based on the test that was successful.
+# Method: 1) create a library from a Fortran source file which defines a
+# function "mysub" 2) attempt to link with this library a C source file which
+# calls the "mysub" function using various possible schemes (6 different
+# schemes, corresponding to all combinations lower/upper case and none/one/two
+# underscores). 3) define the name-mangling scheme based on the test that was
+# successful.
 #
 # On exit, if we were able to infer the scheme, the variables
 # CMAKE_Fortran_SCHEME_NO_UNDERSCORES and CMAKE_Fortran_SCHEME_WITH_UNDERSCORES
@@ -92,8 +92,8 @@ if(NEED_FORTRAN_NAME_MANGLING)
   set(FortranTest_DIR ${PROJECT_BINARY_DIR}/FortranTest)
   file(MAKE_DIRECTORY ${FortranTest_DIR})
 
-  # Create a CMakeLists.txt file which will generate the "flib" library
-  # and an executable "ftest"
+  # Create a CMakeLists.txt file which will generate the "flib" library and an
+  # executable "ftest"
   file(
     WRITE ${FortranTest_DIR}/CMakeLists.txt
     "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
@@ -110,7 +110,8 @@ if(NEED_FORTRAN_NAME_MANGLING)
     "ADD_EXECUTABLE(ftest ftest.f)\n"
     "TARGET_LINK_LIBRARIES(ftest flib)\n")
 
-  # Create the Fortran source flib.f which defines two subroutines, "mysub" and "my_sub"
+  # Create the Fortran source flib.f which defines two subroutines, "mysub" and
+  # "my_sub"
   file(WRITE ${FortranTest_DIR}/flib.f
        "        SUBROUTINE mysub\n" "        RETURN\n" "        END\n"
        "        SUBROUTINE my_sub\n" "        RETURN\n" "        END\n")
@@ -126,15 +127,16 @@ if(NEED_FORTRAN_NAME_MANGLING)
     ${FortranTest_DIR} ftest
     OUTPUT_VARIABLE MY_OUTPUT)
 
-  # To ensure we do not use stuff from the previous attempts,
-  # we must remove the CMakeFiles directory.
+  # To ensure we do not use stuff from the previous attempts, we must remove the
+  # CMakeFiles directory.
   file(REMOVE_RECURSE ${FortranTest_DIR}/CMakeFiles)
 
   # Proceed based on test results
   if(FTEST_OK)
 
     # Infer Fortran name-mangling scheme for symbols WITHOUT underscores.
-    # Overwrite CMakeLists.txt with one which will generate the "ctest1" executable
+    # Overwrite CMakeLists.txt with one which will generate the "ctest1"
+    # executable
     file(
       WRITE ${FortranTest_DIR}/CMakeLists.txt
       "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
@@ -162,24 +164,25 @@ if(NEED_FORTRAN_NAME_MANGLING)
     while(${iopt} LESS ${imax})
       # Get the current list entry (current scheme)
       list(GET options ${iopt} opt)
-      # Generate C source which calls the "mysub" function using the current scheme
+      # Generate C source which calls the "mysub" function using the current
+      # scheme
       file(WRITE ${FortranTest_DIR}/ctest1.c
            "extern void ${opt}();\n" "int main(void){${opt}();return(0);}\n")
-      # Use TRY_COMPILE to make the "ctest1" executable from the current C source
-      # and linking to the previously created "flib" library.
+      # Use TRY_COMPILE to make the "ctest1" executable from the current C
+      # source and linking to the previously created "flib" library.
       try_compile(
         CTEST_OK ${FortranTest_DIR}
         ${FortranTest_DIR} ctest1
         OUTPUT_VARIABLE MY_OUTPUT)
       # Write output compiling the test code
       file(WRITE ${FortranTest_DIR}/ctest1_${opt}.out "${MY_OUTPUT}")
-      # To ensure we do not use stuff from the previous attempts,
-      # we must remove the CMakeFiles directory.
+      # To ensure we do not use stuff from the previous attempts, we must remove
+      # the CMakeFiles directory.
       file(REMOVE_RECURSE ${FortranTest_DIR}/CMakeFiles)
-      # Test if we successfully created the "ctest" executable.
-      # If yes, save the current scheme, and set the counter "iopt" to "imax"
-      # so that we exit the while loop.
-      # Otherwise, increment the counter "iopt" and go back in the while loop.
+      # Test if we successfully created the "ctest" executable. If yes, save the
+      # current scheme, and set the counter "iopt" to "imax" so that we exit the
+      # while loop. Otherwise, increment the counter "iopt" and go back in the
+      # while loop.
       if(CTEST_OK)
         set(CMAKE_Fortran_SCHEME_NO_UNDERSCORES ${opt})
         set(iopt ${imax})
@@ -321,7 +324,8 @@ if(LAPACK_LIBRARIES AND (NOT LAPACK_WORKS))
     "ADD_EXECUTABLE(ltest ltest.c)\n"
     "TARGET_LINK_LIBRARIES(ltest ${LAPACK_LIBRARIES})\n")
 
-  # Create a C source file which calls a Blas function (dcopy) and an Lapack function (dgetrf)
+  # Create a C source file which calls a Blas function (dcopy) and an Lapack
+  # function (dgetrf)
   file(
     WRITE ${LapackTest_DIR}/ltest.c
     "${LAPACK_MANGLE_MACRO1}\n"
@@ -344,8 +348,8 @@ if(LAPACK_LIBRARIES AND (NOT LAPACK_WORKS))
     ${LapackTest_DIR} ltest
     OUTPUT_VARIABLE COMPILE_OUTPUT)
 
-  # To ensure we do not use stuff from the previous attempts,
-  # we must remove the CMakeFiles directory.
+  # To ensure we do not use stuff from the previous attempts, we must remove the
+  # CMakeFiles directory.
   file(REMOVE_RECURSE ${LapackTest_DIR}/CMakeFiles)
 
   # Process test result
@@ -356,7 +360,8 @@ if(LAPACK_LIBRARIES AND (NOT LAPACK_WORKS))
         CACHE BOOL "LAPACK works with SUNDIALS as configured" FORCE)
 
     # get path to LAPACK library to use in generated makefiles for examples, if
-    # LAPACK_LIBRARIES contains multiple items only use the path of the first entry
+    # LAPACK_LIBRARIES contains multiple items only use the path of the first
+    # entry
     list(LENGTH LAPACK_LIBRARIES len)
     if(len EQUAL 1)
       get_filename_component(LAPACK_LIBRARY_DIR ${LAPACK_LIBRARIES} PATH)

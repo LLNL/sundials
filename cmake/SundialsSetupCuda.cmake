@@ -19,8 +19,8 @@
 # ===============================================================
 
 if(NOT CMAKE_CUDA_HOST_COMPILER)
-  # If a user did not provide the host compiler, then we
-  # assume that they want to use the CXX compiler that was set.
+  # If a user did not provide the host compiler, then we assume that they want
+  # to use the CXX compiler that was set.
   set(CMAKE_CUDA_HOST_COMPILER
       ${CMAKE_CXX_COMPILER}
       CACHE FILEPATH "NVCC host compiler")

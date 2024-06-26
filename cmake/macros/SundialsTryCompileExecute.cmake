@@ -55,8 +55,8 @@ macro(sundials_trycompile_execute EXECUTABLE CWD COMPILE_OK RUN_OK)
     endif()
   endif()
 
-  # To ensure we do not use stuff from the previous attempts,
-  # we must remove the CMakeFiles directory.
+  # To ensure we do not use stuff from the previous attempts, we must remove the
+  # CMakeFiles directory.
   file(REMOVE_RECURSE ${CWD}/CMakeFiles)
 
   # set the optional outputs if used

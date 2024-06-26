@@ -96,9 +96,10 @@ if(MAGMA_LIBRARY AND MAGMA_INCLUDE_DIR)
 
         # Check if we need to find cusparse or cublas
         if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA")
-          # Replace cublas, cusparse with the CMake targets because the library path in
-          # the magma pkgconfig is not reliable. Sepcifically, the path is wrong on systems
-          # like Perlmutter where the NVIDIA HPC SDK is used.
+          # Replace cublas, cusparse with the CMake targets because the library
+          # path in the magma pkgconfig is not reliable. Sepcifically, the path
+          # is wrong on systems like Perlmutter where the NVIDIA HPC SDK is
+          # used.
           if(lib STREQUAL "-lcublas")
             set(lib CUDA::cublas)
           endif()

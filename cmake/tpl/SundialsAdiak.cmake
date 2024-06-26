@@ -66,8 +66,8 @@ if(adiak_FOUND AND (NOT adiak_WORKS))
     "  return 0;\n"
     "}\n")
 
-  # To ensure we do not use stuff from the previous attempts,
-  # we must remove the CMakeFiles directory.
+  # To ensure we do not use stuff from the previous attempts, we must remove the
+  # CMakeFiles directory.
   file(REMOVE_RECURSE ${adiak_TEST_DIR}/CMakeFiles)
 
   # Attempt to build and link the "ltest" executable

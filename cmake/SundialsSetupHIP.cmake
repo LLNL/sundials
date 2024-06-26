@@ -58,7 +58,8 @@ set(CMAKE_PREFIX_PATH "${ROCM_PATH};${HIP_PATH}")
 find_package(HIP REQUIRED)
 
 if("${HIP_COMPILER}" STREQUAL "hcc")
-  message(FATAL_ERROR "Deprecated HCC compiler is not supported" "Please update ROCm")
+  message(FATAL_ERROR "Deprecated HCC compiler is not supported"
+                      "Please update ROCm")
 endif()
 
 message(STATUS "HIP version:      ${HIP_VERSION}")

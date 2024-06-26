@@ -38,7 +38,9 @@ endif()
 
 # SUPERLUMT does not support extended precision
 if(SUNDIALS_PRECISION MATCHES "EXTENDED")
-  message(FATAL_ERROR "SUPERLUMT is not compatible with ${SUNDIALS_PRECISION} precision")
+  message(
+    FATAL_ERROR
+      "SUPERLUMT is not compatible with ${SUNDIALS_PRECISION} precision")
 endif()
 
 # -----------------------------------------------------------------------------
@@ -97,8 +99,8 @@ if(SUPERLUMT_FOUND AND (NOT SUPERLUMT_WORKS))
     ${SUPERLUMT_TEST_DIR} ltest
     OUTPUT_VARIABLE COMPILE_OUTPUT)
 
-  # To ensure we do not use stuff from the previous attempts,
-  # we must remove the CMakeFiles directory.
+  # To ensure we do not use stuff from the previous attempts, we must remove the
+  # CMakeFiles directory.
   file(REMOVE_RECURSE ${SUPERLUMT_TEST_DIR}/CMakeFiles)
 
   # Process test result

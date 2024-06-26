@@ -52,24 +52,21 @@
 
 macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
-  # macro options
-  # NODIFF = do not diff the test output against an answer file
+  # macro options NODIFF = do not diff the test output against an answer file
   set(options "NODIFF")
 
-  # macro keyword inputs followed by a single value
-  # MPI_NPROCS        = number of mpi tasks to use in parallel tests
-  # FLOAT_PRECISION   = precision for floating point failure comparision (num digits),
-  #                     to use the default, either don't provide the keyword, or
-  #                     provide the value "default"
-  # INTEGER_PRECISION = integer percentage difference for failure comparison
-  # ANSWER_DIR        = path to the directory containing the test answer file
-  # ANSWER_FILE       = name of test answer file
-  # EXAMPLE_TYPE      = release or develop examples
+  # macro keyword inputs followed by a single value MPI_NPROCS        = number
+  # of mpi tasks to use in parallel tests FLOAT_PRECISION   = precision for
+  # floating point failure comparision (num digits), to use the default, either
+  # don't provide the keyword, or provide the value "default" INTEGER_PRECISION
+  # = integer percentage difference for failure comparison ANSWER_DIR        =
+  # path to the directory containing the test answer file ANSWER_FILE       =
+  # name of test answer file EXAMPLE_TYPE      = release or develop examples
   set(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PRECISION"
                    "ANSWER_DIR" "ANSWER_FILE" "EXAMPLE_TYPE")
 
-  # macro keyword inputs followed by multiple values
-  # TEST_ARGS = command line arguments to pass to the test executable
+  # macro keyword inputs followed by multiple values TEST_ARGS = command line
+  # arguments to pass to the test executable
   set(multiValueArgs "TEST_ARGS" "EXTRA_ARGS")
 
   # parse inputs and create variables SUNDIALS_ADD_TEST_<keyword>
@@ -130,7 +127,8 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         # do not diff the output and answer files
         list(APPEND TEST_ARGS "--nodiff")
       else()
-        # set a non-default floating point precision (number of digits, default 4)
+        # set a non-default floating point precision (number of digits, default
+        # 4)
         if(SUNDIALS_ADD_TEST_FLOAT_PRECISION
            AND (NOT SUNDIALS_ADD_TEST_FLOAT_PRECISION MATCHES "DEFAULT|default"
                ))
@@ -188,14 +186,16 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         unset(_run_args)
       endif()
 
-      # create test case with the corresponding test runner command and arguments
-      # all tests are added during development and only unlabeled tests when released
+      # create test case with the corresponding test runner command and
+      # arguments all tests are added during development and only unlabeled
+      # tests when released
       add_test(NAME ${NAME} COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER}
                                     ${TEST_ARGS})
 
     elseif(NOT SUNDIALS_ADD_TEST_EXAMPLE_TYPE)
 
-      # if a test type was not set then it is a standard test that returns pass/fail
+      # if a test type was not set then it is a standard test that returns
+      # pass/fail
 
       # convert string to list
       if(SUNDIALS_ADD_TEST_TEST_ARGS)

@@ -18,9 +18,9 @@ macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
 
   # Define single value parameters the macro takes in to set up the test runner
   #
-  # NUM_CORES         = number of cores (GPU count or CPU count) to run on/number of resource sets
-  # BENCHMARK_ARGS    = arguments to pass to the executable
-  # IDENTIFIER        = suffix to append to end of benchmark name
+  # NUM_CORES         = number of cores (GPU count or CPU count) to run
+  # on/number of resource sets BENCHMARK_ARGS    = arguments to pass to the
+  # executable IDENTIFIER        = suffix to append to end of benchmark name
   set(oneValueArgs NUM_CORES BENCHMARK_ARGS IDENTIFIER)
 
   # TEST_RUNNER_ARGS  = command line arguments to pass to the test executable
@@ -45,7 +45,8 @@ macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
     endif()
   endif()
 
-  # Create default benchmark caliper output directory if custom directory is not defined
+  # Create default benchmark caliper output directory if custom directory is not
+  # defined
   if(SUNDIALS_CALIPER_OUTPUT_DIR)
     set(SUNDIALS_BENCHMARK_OUTPUT_DIR
         ${SUNDIALS_CALIPER_OUTPUT_DIR}/Benchmarking/${BASE_BENCHMARK_NAME})

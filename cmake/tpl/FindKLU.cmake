@@ -34,8 +34,8 @@ if(NOT
    (KLU_INCLUDE_DIR
     OR KLU_LIBRARY_DIR
     OR KLU_LIBRARY))
-  # Prefer the import target from upstream SuiteSparse if it is available
-  # and the user didn't point to a specific (different) version.
+  # Prefer the import target from upstream SuiteSparse if it is available and
+  # the user didn't point to a specific (different) version.
   find_package(KLU CONFIG)
 
   if(TARGET SuiteSparse::KLU)
@@ -56,7 +56,7 @@ elseif(APPLE)
   set(CMAKE_FIND_LIBRARY_SUFFIXES d.a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 endif()
 
-### Find include dir
+# Find include dir
 find_path(temp_KLU_INCLUDE_DIR klu.h ${KLU_INCLUDE_DIR})
 if(temp_KLU_INCLUDE_DIR)
   set(KLU_INCLUDE_DIR ${temp_KLU_INCLUDE_DIR})
@@ -64,7 +64,8 @@ endif()
 unset(temp_KLU_INCLUDE_DIR CACHE)
 
 if(KLU_LIBRARY)
-  # We have (or were given) KLU_LIBRARY - get path to use for other Suitesparse libs
+  # We have (or were given) KLU_LIBRARY - get path to use for other Suitesparse
+  # libs
   get_filename_component(KLU_LIBRARY_DIR ${KLU_LIBRARY} PATH)
 
   # force CACHE update to show user DIR that will be used

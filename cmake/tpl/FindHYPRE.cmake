@@ -32,7 +32,7 @@
 #   HYPRE_LIBRARIES   - all of the libraries needed for HYPRE
 # ---------------------------------------------------------------
 
-### Find include dir
+# Find include dir
 find_path(
   temp_HYPRE_INCLUDE_DIR
   NAMES HYPRE.h hypre.h

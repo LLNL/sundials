@@ -185,8 +185,8 @@ if(XBRAID_FOUND)
                INTERFACE_LINK_LIBRARIES "${XBRAID_LIBRARIES}"
                IMPORTED_LOCATION "${XBRAID_LIBRARY}")
 
-  # set variables for output message, compile tests, and
-  # CMake/Makefile templates
+  # set variables for output message, compile tests, and CMake/Makefile
+  # templates
   if(XBRAID_INCLUDES AND XBRAID_LIBRARIES)
     set(XBRAID_INCS
         "${XBRAID_INCLUDES}"

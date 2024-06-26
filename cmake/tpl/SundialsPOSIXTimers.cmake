@@ -60,8 +60,8 @@ macro(posix_timers_test)
     "return(0);\n"
     "}\n")
 
-  # To ensure we do not use stuff from the previous attempts,
-  # we must remove the CMakeFiles directory.
+  # To ensure we do not use stuff from the previous attempts, we must remove the
+  # CMakeFiles directory.
   file(REMOVE_RECURSE ${POSIX_TIMER_TEST_DIR}/CMakeFiles)
 
   # Use TRY_COMPILE to make the target

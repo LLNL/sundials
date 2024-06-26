@@ -25,12 +25,12 @@ include(SundialsIndexSize)
 # ===============================================================
 
 if(WIN32)
-  # Under Windows, add compiler directive to inhibit warnings
-  # about use of unsecure functions.
+  # Under Windows, add compiler directive to inhibit warnings about use of
+  # unsecure functions.
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 
-  # Under Windows, we need to have dll and exe files in the
-  # same directory to run the test suite properly.
+  # Under Windows, we need to have dll and exe files in the same directory to
+  # run the test suite properly.
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
@@ -51,17 +51,18 @@ if(BUILD_SHARED_LIBS)
   # use, i.e. don't skip the full RPATH for the build tree
   set(CMAKE_SKIP_BUILD_RPATH FALSE)
 
-  # when building, don't use the install RPATH already
-  # (but later on when installing)
+  # when building, don't use the install RPATH already (but later on when
+  # installing)
   set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
   set(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_FULL_LIBDIR}")
 
-  # add the automatically determined parts of the RPATH
-  # which point to directories outside the build tree to the install RPATH
+  # add the automatically determined parts of the RPATH which point to
+  # directories outside the build tree to the install RPATH
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-  # the RPATH to be used when installing, but only if it's not a system directory
+  # the RPATH to be used when installing, but only if it's not a system
+  # directory
   list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES
        "${CMAKE_INSTALL_FULL_LIBDIR}" isSystemDir)
   if("${isSystemDir}" STREQUAL "-1")
@@ -103,8 +104,8 @@ if(ENABLE_ALL_WARNINGS)
   # to use gfortran > 5.5 which segfaults with -fcheck=array-temps,bounds,do,mem
   # no- options were added in gfortran 6
   #
-  # Exclude run-time pointer checks (no-pointer) because passing null objects
-  # to SUNDIALS functions (e.g., sunmat => null() to SetLinearSolver) causes a
+  # Exclude run-time pointer checks (no-pointer) because passing null objects to
+  # SUNDIALS functions (e.g., sunmat => null() to SetLinearSolver) causes a
   # run-time error with this check
   #
   # Exclude checks for subroutines and functions not marked as recursive
@@ -318,11 +319,11 @@ sundials_option(
 # If used, both case and underscores must be set
 if((NOT SUNDIALS_LAPACK_CASE) AND SUNDIALS_LAPACK_UNDERSCORES)
   message(FATAL_ERROR "If SUNDIALS_LAPACK_UNDERSCORES is set, "
-    "SUNDIALS_LAPACK_CASE must also be set.")
+                      "SUNDIALS_LAPACK_CASE must also be set.")
 endif()
 if(SUNDIALS_LAPACK_CASE AND (NOT SUNDIALS_LAPACK_UNDERSCORES))
   message(FATAL_ERROR "If SUNDIALS_LAPACK_CASE is set, "
-    "SUNDIALS_LAPACK_UNDERSCORES must also be set.")
+                      "SUNDIALS_LAPACK_UNDERSCORES must also be set.")
 endif()
 
 # Did the user provide a name-mangling scheme?
@@ -446,8 +447,8 @@ endif()
 # Upper case version of build type
 string(TOUPPER "${CMAKE_BUILD_TYPE}" _cmake_build_type)
 
-# Make build type specific flag options ADVANCED,
-# except for the one corresponding to the current build type
+# Make build type specific flag options ADVANCED, except for the one
+# corresponding to the current build type
 foreach(lang ${_SUNDIALS_ENABLED_LANGS})
   foreach(build_type DEBUG;RELEASE;RELWITHDEBINFO;MINSIZEREL)
     if("${_cmake_build_type}" STREQUAL "${build_type}")

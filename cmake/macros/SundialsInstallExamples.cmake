@@ -16,17 +16,10 @@
 
 # The macro:
 #
-#   SUNDIALS_INSTALL_EXAMPLES(<MODULE> <EXAMPLES_VAR>
-#     DESTINATION path
-#     CMAKE_TEMPLATE name
-#     [MAKE_TEMPLATE name [SOLVER_LIBRARY target]]
-#     [SUNDIALS_COMPONENTS components]
-#     [SUNDIALS_TARGETS targets]
-#     [DEPENDENCIES files]
-#     [TEST_INSTALL target]
-#     [EXTRA_FILES files]
-#     [EXTRA_INCLUDES includes]
-#   )
+# SUNDIALS_INSTALL_EXAMPLES(<MODULE> <EXAMPLES_VAR> DESTINATION path
+# CMAKE_TEMPLATE name [MAKE_TEMPLATE name [SOLVER_LIBRARY target]]
+# [SUNDIALS_COMPONENTS components] [SUNDIALS_TARGETS targets] [DEPENDENCIES
+# files] [TEST_INSTALL target] [EXTRA_FILES files] [EXTRA_INCLUDES includes] )
 #
 # adds an install target for examples in EXAMPLES_VAR that go with MODULE (e.g.
 # arkode, nvecserial).
@@ -92,8 +85,8 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
 
   # Install the examples
   foreach(example_tuple ${${EXAMPLES_VAR}})
-    list(GET example_tuple 0 example
-    )# filename always has to be the first item in the example tuple
+    list(GET example_tuple 0 example) # filename always has to be the first item
+                                      # in the example tuple
     get_filename_component(example_noext ${example} NAME_WE)
     file(GLOB example_header ${example_noext}.h*)
     file(GLOB example_out ${example_noext}*.out)
@@ -136,8 +129,8 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
   list2string(libs_list EXAMPLES_MAKEFILE_LIBS)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
@@ -152,8 +145,8 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
       ${EXAMPLES_INSTALL_PATH}/${sundials_install_examples_DESTINATION})
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX AND (DEFINED sundials_install_examples_MAKE_TEMPLATE))
     # generate Makefile and place it in the binary dir

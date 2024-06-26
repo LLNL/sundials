@@ -39,7 +39,8 @@ endif()
 if(ENABLE_HYPRE)
   # Using hypre requres building with MPI enabled
   if(NOT ENABLE_MPI)
-    message(FATAL_ERROR "MPI is required for hypre support. Set ENABLE_MPI to ON.")
+    message(
+      FATAL_ERROR "MPI is required for hypre support. Set ENABLE_MPI to ON.")
   endif()
   # Using hypre requres C99 or newer
   if(CMAKE_C_STANDARD STREQUAL "90")
@@ -98,8 +99,8 @@ if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
     "else return(0);\n"
     "}\n")
 
-  # To ensure we do not use stuff from the previous attempts,
-  # we must remove the CMakeFiles directory.
+  # To ensure we do not use stuff from the previous attempts, we must remove the
+  # CMakeFiles directory.
   file(REMOVE_RECURSE ${HYPRE_TEST_DIR}/CMakeFiles)
 
   # Attempt to build and link the "ltest" executable

@@ -37,11 +37,11 @@ force_variable(
   SUPERLUMT_THREAD_TYPE STRING "SuperLU_MT threading type: OPENMP or PTHREAD"
   ${_upper_SUPERLUMT_THREAD_TYPE})
 
-if(SUPERLUMT_THREAD_TYPE AND
-    NOT SUPERLUMT_THREAD_TYPE STREQUAL "OPENMP" AND
-    NOT SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
+if(SUPERLUMT_THREAD_TYPE
+   AND NOT SUPERLUMT_THREAD_TYPE STREQUAL "OPENMP"
+   AND NOT SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
   message(FATAL_ERROR "Unknown thread type: ${SUPERLUMT_THREAD_TYPE} "
-    "Please enter PTHREAD or OPENMP")
+                      "Please enter PTHREAD or OPENMP")
 endif()
 
 # check if the threading library has been found
@@ -71,9 +71,8 @@ if(MSVC)
   set(CMAKE_FIND_LIBRARY_PREFIXES lib ${CMAKE_FIND_LIBRARY_PREFIXES})
 endif()
 
-# Check if SUPERLUMT_LIBRARIES contains the superlu_mt
-# library as well as TPLs. If so, extract it into the
-# SUPERLUMT_LIBRARY variable.
+# Check if SUPERLUMT_LIBRARIES contains the superlu_mt library as well as TPLs.
+# If so, extract it into the SUPERLUMT_LIBRARY variable.
 if(SUPERLUMT_LIBRARIES MATCHES "${SUPERLUMT_LIBRARY_NAME}")
   foreach(lib ${SUPERLUMT_LIBRARIES})
     if(lib MATCHES "${SUPERLUMT_LIBRARY_NAME}")

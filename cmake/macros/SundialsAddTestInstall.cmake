@@ -19,15 +19,14 @@
 
 macro(SUNDIALS_ADD_TEST_INSTALL PACKAGE TESTDIR)
 
-  # required macro args
-  # PACKAGE = Sundials package name (e.g., cvode, arkode, etc.)
-  # TESTDIR = Test directory name (e.g., serial, C_parallel, etc.)
+  # required macro args PACKAGE = Sundials package name (e.g., cvode, arkode,
+  # etc.) TESTDIR = Test directory name (e.g., serial, C_parallel, etc.)
 
   # macro options
   set(options)
 
-  # macro keyword inputs followed by a single value
-  # EXECUTABLE = executable to add to make test_install target
+  # macro keyword inputs followed by a single value EXECUTABLE = executable to
+  # add to make test_install target
   set(oneValueArgs EXECUTABLE)
 
   # macro keyword inputs followed by multiple values
@@ -62,9 +61,9 @@ macro(SUNDIALS_ADD_TEST_INSTALL PACKAGE TESTDIR)
 
   endif()
 
-  # Possible extensions:
-  #  * Make EXECUTABLE a multiple value option to add several tests to test_install
-  #  * Make test_install_all only available when development tests are turned on
+  # Possible extensions: * Make EXECUTABLE a multiple value option to add
+  # several tests to test_install * Make test_install_all only available when
+  # development tests are turned on
 
   # create testing directory if necessary
   if(NOT EXISTS ${TEST_INSTALL_ALL_DIR}/${PACKAGE}/${TESTDIR})

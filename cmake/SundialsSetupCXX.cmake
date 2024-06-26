@@ -19,9 +19,8 @@ enable_language(CXX)
 set(CXX_FOUND TRUE)
 
 # ---------------------------------------------------------------
-# Option to specify the C++ standard SUNDIALS will use. Defined
-# here so it is set in the same configuration pass as the C++
-# compiler and related options.
+# Option to specify the C++ standard SUNDIALS will use. Defined here so it is
+# set in the same configuration pass as the C++ compiler and related options.
 # ---------------------------------------------------------------
 
 # Do not allow decaying to previous standards -- generates error if the standard

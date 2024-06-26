@@ -45,8 +45,8 @@ else()
 endif()
 
 # ============================================================================
-# Generate macros and substitution variables related to TPLs
-# that SUNDIALS is being built with.
+# Generate macros and substitution variables related to TPLs that SUNDIALS is
+# being built with.
 # ============================================================================
 
 # prepare substitution variables for modules that have been built
@@ -58,7 +58,8 @@ foreach(_item ${SUNDIALS_BUILD_LIST})
   endif()
 endforeach()
 
-# prepare substitution variable SUNDIALS_${TPL NAME}_ENABLED for sundials_config.h
+# prepare substitution variable SUNDIALS_${TPL NAME}_ENABLED for
+# sundials_config.h
 foreach(tpl ${SUNDIALS_TPL_LIST})
   set(SUNDIALS_${tpl}_ENABLED TRUE)
 endforeach()

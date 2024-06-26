@@ -143,8 +143,8 @@ endif()
 # Options to enable SUNDIALS packages and modules
 # ---------------------------------------------------------------
 
-# For each SUNDIALS package available (i.e. for which we have the
-# sources), give the user the option of enabling/disabling it.
+# For each SUNDIALS package available (i.e. for which we have the sources), give
+# the user the option of enabling/disabling it.
 
 if(IS_DIRECTORY "${SUNDIALS_SOURCE_DIR}/src/arkode")
   sundials_option(BUILD_ARKODE BOOL "Build the ARKODE library" ON)
@@ -199,7 +199,10 @@ sundials_option(BUILD_FORTRAN_MODULE_INTERFACE BOOL "${DOCSTR}" OFF)
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   # F2003 interface only supports double precision
   if(NOT (SUNDIALS_PRECISION MATCHES "DOUBLE"))
-    message(FATAL_ERROR "F2003 interface is not compatible with ${SUNDIALS_PRECISION} precision")
+    message(
+      FATAL_ERROR
+        "F2003 interface is not compatible with ${SUNDIALS_PRECISION} precision"
+    )
   endif()
 
   # Allow a user to set where the Fortran modules will be installed

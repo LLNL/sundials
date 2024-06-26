@@ -42,9 +42,9 @@ macro(ADD_PREFIX prefix rootlist)
   set(${rootlist} ${outlist})
 endmacro(ADD_PREFIX)
 
-# Returns an unquoted string. Note that CMake will readily turn such
-# strings back into lists, due to the duality of lists and
-# semicolon-separated strings. So be careful how you use it.
+# Returns an unquoted string. Note that CMake will readily turn such strings
+# back into lists, due to the duality of lists and semicolon-separated strings.
+# So be careful how you use it.
 
 macro(LIST2STRING alist astring)
   foreach(elem ${${alist}})

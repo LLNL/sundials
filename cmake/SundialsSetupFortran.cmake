@@ -64,8 +64,8 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
       ${F2003Test_DIR} ftest
       OUTPUT_VARIABLE COMPILE_OUTPUT)
 
-    # To ensure we do not use stuff from the previous attempts,
-    # we must remove the CMakeFiles directory.
+    # To ensure we do not use stuff from the previous attempts, we must remove
+    # the CMakeFiles directory.
     file(REMOVE_RECURSE ${F2003Test_DIR}/CMakeFiles)
 
     if(FTEST_OK)
@@ -81,7 +81,10 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
       )
       message(STATUS "Check output:")
       message("${COMPILE_OUTPUT}")
-      message(FATAL_ERROR "BUILD_FORTRAN_MODULE_INTERFACE is set to ON, but the CMAKE_Fortran_COMPILER does not support F2003")
+      message(
+        FATAL_ERROR
+          "BUILD_FORTRAN_MODULE_INTERFACE is set to ON, but the CMAKE_Fortran_COMPILER does not support F2003"
+      )
     endif()
   else()
     message(

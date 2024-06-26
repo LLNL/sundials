@@ -43,9 +43,8 @@ endif()
 # Find Trilinos
 find_package(Trilinos REQUIRED)
 
-# Check if Trilinos was built with MPI
-# Starting with TriBITS 2022-10-16 <Project_TPL_LIST> is no longer defined so we
-# base MPI support on ENABLE_MPI
+# Check if Trilinos was built with MPI Starting with TriBITS 2022-10-16
+# <Project_TPL_LIST> is no longer defined so we base MPI support on ENABLE_MPI
 if(Trilinos_TPL_LIST)
   if(";${Trilinos_TPL_LIST};" MATCHES ";MPI;")
     set(Trilinos_MPI TRUE)
@@ -60,10 +59,10 @@ else()
   endif()
 endif()
 
-# For XSDK compatibility, only use the user/spack provided compiler and flags to build
-# SUNDIALS modules that use Trilinos. If we are not in XSDK mode, we can use the imported
-# Trilinos compiler and flags by default, but allow the user to change it through CMake
-# the Trilinos_INTERFACE_* options.
+# For XSDK compatibility, only use the user/spack provided compiler and flags to
+# build SUNDIALS modules that use Trilinos. If we are not in XSDK mode, we can
+# use the imported Trilinos compiler and flags by default, but allow the user to
+# change it through CMake the Trilinos_INTERFACE_* options.
 
 if(USE_XSDK_DEFAULTS)
   if(Trilinos_MPI AND MPI_CXX_FOUND)

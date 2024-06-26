@@ -77,10 +77,12 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
     # if necessary, remove the CACHE variable i.e., all the variable
     # dependencies were previously met but are no longer satisfied
     if(DEFINED ${NAME})
-      string(CONCAT _warn_msg_string
-        "The variable ${NAME} was set to ${${NAME}} but not all of its "
-        "dependencies (${depends_on_dependencies_not_met}) evaluate to TRUE. "
-        "Unsetting ${NAME}.")
+      string(
+        CONCAT
+          _warn_msg_string
+          "The variable ${NAME} was set to ${${NAME}} but not all of its "
+          "dependencies (${depends_on_dependencies_not_met}) evaluate to TRUE. "
+          "Unsetting ${NAME}.")
       unset(${NAME} CACHE)
       if(sundials_option_DEPENDS_ON_THROW_ERROR)
         message(FATAL_ERROR "${_warn_msg_string}")

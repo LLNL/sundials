@@ -41,8 +41,8 @@ endif()
 # -----------------------------------------------------------------------------
 find_package(Kokkos REQUIRED HINTS "${Kokkos_DIR}" NO_DEFAULT_PATH)
 
-# We should be able to use Kokkos_DEVICES directly but it seems to get
-# removed or unset in some CMake versions
+# We should be able to use Kokkos_DEVICES directly but it seems to get removed
+# or unset in some CMake versions
 set(KOKKOS_EXAMPLES_BACKENDS
     "${Kokkos_DEVICES}"
     CACHE STRING "Kokkos backends to build examples with")

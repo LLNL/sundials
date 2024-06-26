@@ -107,8 +107,8 @@ if(XBRAID_FOUND AND (NOT XBRAID_WORKS))
     "return 0;\n"
     "}\n")
 
-  # To ensure we do not use stuff from the previous attempts,
-  # we must remove the CMakeFiles directory.
+  # To ensure we do not use stuff from the previous attempts, we must remove the
+  # CMakeFiles directory.
   file(REMOVE_RECURSE ${XBRAID_TEST_DIR}/CMakeFiles)
 
   # Attempt to build and link the "ltest" executable

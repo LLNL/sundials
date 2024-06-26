@@ -15,8 +15,8 @@
 # ---------------------------------------------------------------
 
 # ---------------------------------------------------------------
-# Setup MPI, OpenMP, and OpenMP offload first as other TPLs may
-# need targets or variables corresponding to these TPLs.
+# Setup MPI, OpenMP, and OpenMP offload first as other TPLs may need targets or
+# variables corresponding to these TPLs.
 # ---------------------------------------------------------------
 
 # ---------------------------------------------------------------

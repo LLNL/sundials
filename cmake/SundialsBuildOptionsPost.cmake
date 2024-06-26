@@ -16,8 +16,8 @@
 # ---------------------------------------------------------------
 
 # ---------------------------------------------------------------
-# Option to use specialized fused kernels in the packages.
-# Currently only available in CVODE.
+# Option to use specialized fused kernels in the packages. Currently only
+# available in CVODE.
 # ---------------------------------------------------------------
 
 if(ENABLE_CUDA OR ENABLE_HIP)

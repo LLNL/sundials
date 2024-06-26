@@ -91,9 +91,9 @@ if("${RAJA_BACKENDS}" MATCHES "CUDA")
   if(NOT TARGET Threads::Threads)
     find_package(Threads)
   endif()
-  # The RAJA target links to camp which links to a target 'cuda_runtime'
-  # which is normally provided by BLT. Since we do not use BLT, we instead
-  # create the target here and tell it to link to CUDA::cudart.
+  # The RAJA target links to camp which links to a target 'cuda_runtime' which
+  # is normally provided by BLT. Since we do not use BLT, we instead create the
+  # target here and tell it to link to CUDA::cudart.
   if(NOT TARGET cuda_runtime)
     add_library(cuda_runtime INTERFACE IMPORTED)
     target_link_libraries(cuda_runtime INTERFACE CUDA::cudart)
@@ -103,25 +103,39 @@ endif()
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
 
-if((SUNDIALS_RAJA_BACKENDS MATCHES "CUDA") AND
-    (NOT RAJA_BACKENDS MATCHES "CUDA"))
-  message(FATAL_ERROR "Requested that SUNDIALS uses the CUDA RAJA backend, but RAJA was not built with the CUDA backend.")
+if((SUNDIALS_RAJA_BACKENDS MATCHES "CUDA") AND (NOT RAJA_BACKENDS MATCHES "CUDA"
+                                               ))
+  message(
+    FATAL_ERROR
+      "Requested that SUNDIALS uses the CUDA RAJA backend, but RAJA was not built with the CUDA backend."
+  )
 endif()
 
-if((SUNDIALS_RAJA_BACKENDS MATCHES "HIP") AND
-    (NOT RAJA_BACKENDS MATCHES "HIP"))
-  message(FATAL_ERROR "Requested that SUNDIALS uses the HIP RAJA backend, but RAJA was not built with the HIP backend.")
+if((SUNDIALS_RAJA_BACKENDS MATCHES "HIP") AND (NOT RAJA_BACKENDS MATCHES "HIP"))
+  message(
+    FATAL_ERROR
+      "Requested that SUNDIALS uses the HIP RAJA backend, but RAJA was not built with the HIP backend."
+  )
 endif()
 
 if(NOT ENABLE_OPENMP AND RAJA_BACKENDS MATCHES "OPENMP")
-  message(FATAL_ERROR "RAJA was built with OpenMP, but OpenMP is not enabled. Set ENABLE_OPENMP to ON.")
+  message(
+    FATAL_ERROR
+      "RAJA was built with OpenMP, but OpenMP is not enabled. Set ENABLE_OPENMP to ON."
+  )
 endif()
 
 if(NOT ENABLE_OPENMP_DEVICE AND RAJA_BACKENDS MATCHES "TARGET_OPENMP")
-  message(FATAL_ERROR "RAJA was built with OpenMP device offloading, but OpenMP with device offloading is not enabled. Set ENABLE_OPENMP_DEVICE to ON.")
+  message(
+    FATAL_ERROR
+      "RAJA was built with OpenMP device offloading, but OpenMP with device offloading is not enabled. Set ENABLE_OPENMP_DEVICE to ON."
+  )
 endif()
 
-if((SUNDIALS_RAJA_BACKENDS MATCHES "SYCL") AND
-    (NOT RAJA_BACKENDS MATCHES "SYCL"))
-  message(FATAL_ERROR "Requested that SUNDIALS uses the SYCL RAJA backend, but RAJA was not built with the SYCL backend.")
+if((SUNDIALS_RAJA_BACKENDS MATCHES "SYCL") AND (NOT RAJA_BACKENDS MATCHES "SYCL"
+                                               ))
+  message(
+    FATAL_ERROR
+      "Requested that SUNDIALS uses the SYCL RAJA backend, but RAJA was not built with the SYCL backend."
+  )
 endif()

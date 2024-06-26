@@ -41,8 +41,8 @@ endif()
 # Options for Fortran Examples
 # -----------------------------------------------------------------------------
 
-# F2003 examples (on by default) are an option only if the
-# Fortran 2003 interface is enabled.
+# F2003 examples (on by default) are an option only if the Fortran 2003
+# interface is enabled.
 set(DOCSTR "Build SUNDIALS Fortran 2003 examples")
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   set(EXAMPLES_ENABLE_F2003
@@ -51,16 +51,20 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
 
   # Fortran 2003 examples only support double precision
   if(EXAMPLES_ENABLE_F2003 AND (NOT (SUNDIALS_PRECISION MATCHES "DOUBLE")))
-    message(WARNING "F2003 examples are not compatible with ${SUNDIALS_PRECISION} precision. "
-      "Setting EXAMPLES_ENABLE_F2003 to OFF.")
+    message(
+      WARNING
+        "F2003 examples are not compatible with ${SUNDIALS_PRECISION} precision. "
+        "Setting EXAMPLES_ENABLE_F2003 to OFF.")
     force_variable(EXAMPLES_ENABLE_F2003 BOOL "${DOCSTR}" OFF)
   endif()
 else()
 
   # set back to OFF (in case it was ON)
   if(EXAMPLES_ENABLE_F2003)
-    message(WARNING "EXAMPLES_ENABLE_F2003 is ON but BUILD_FORTRAN_MODULE_INTERFACE is OFF. "
-      "Setting EXAMPLES_ENABLE_F2003 to OFF.")
+    message(
+      WARNING
+        "EXAMPLES_ENABLE_F2003 is ON but BUILD_FORTRAN_MODULE_INTERFACE is OFF. "
+        "Setting EXAMPLES_ENABLE_F2003 to OFF.")
     force_variable(EXAMPLES_ENABLE_F2003 BOOL "${DOCSTR}" OFF)
   endif()
 
@@ -86,10 +90,12 @@ sundials_option(
 
 # If examples are to be exported, check where we should install them.
 if(EXAMPLES_INSTALL AND NOT EXAMPLES_INSTALL_PATH)
-  message(WARNING "The example installation path is empty. Example installation "
-    "path was reset to its default value")
-  set(EXAMPLES_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/examples" CACHE STRING
-      "Output directory for installing example files" FORCE)
+  message(
+    WARNING "The example installation path is empty. Example installation "
+            "path was reset to its default value")
+  set(EXAMPLES_INSTALL_PATH
+      "${CMAKE_INSTALL_PREFIX}/examples"
+      CACHE STRING "Output directory for installing example files" FORCE)
 endif()
 
 # -----------------------------------------------------------------------------
