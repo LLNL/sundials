@@ -793,8 +793,9 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::erkStep_TakeStep",
-                     "error-test", "step = %li, h = %" RSYM ", dsm = %" RSYM,
-                     ark_mem->nst, ark_mem->h, *dsmPtr);
+                     "end-step", "step = %li, t = %" RSYM ", h = %" RSYM
+                     ", dsm = %" RSYM, ark_mem->nst, ark_mem->tn, ark_mem->h,
+                     *dsmPtr);
 #endif
 
   return (ARK_SUCCESS);

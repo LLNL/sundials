@@ -2090,9 +2090,9 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   /* Solver diagnostics reporting */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::mriStep_TakeStepMRIGARK", "error-test",
-                     "step = %li, h = %" RSYM ", dsm = %" RSYM, ark_mem->nst,
-                     ark_mem->h, *dsmPtr);
+                     "ARKODE::mriStep_TakeStepMRIGARK", "end-step",
+                     "step = %li, t = %" RSYM ", h = %" RSYM ", dsm = %" RSYM,
+                     ark_mem->nst, ark_mem->tn, ark_mem->h, *dsmPtr);
 #endif
 
   return (ARK_SUCCESS);
@@ -2525,9 +2525,9 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* Solver diagnostics reporting */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::mriStep_TakeStepMRISR", "error-test",
-                     "step = %li, h = %" RSYM ", dsm = %" RSYM, ark_mem->nst,
-                     ark_mem->h, *dsmPtr);
+                     "ARKODE::mriStep_TakeStepMRISR", "end-step",
+                     "step = %li, t = %" RSYM ", h = %" RSYM ", dsm = %" RSYM,
+                     ark_mem->nst, ark_mem->tn, ark_mem->h, *dsmPtr);
 #endif
 
   return (ARK_SUCCESS);
@@ -2695,7 +2695,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::mriStep_TakeStepMERK", "start-stage",
                        "step = %li, stage group = %i, h = %" RSYM, ark_mem->nst,
-                       is, ark_mem->h);
+                       ig, ark_mem->h);
 #endif
 
     /* Set up fast RHS for this stage group */
@@ -2825,9 +2825,9 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* Solver diagnostics reporting */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::mriStep_TakeStepMERK", "error-test",
-                     "step = %li, h = %" RSYM ", dsm = %" RSYM, ark_mem->nst,
-                     ark_mem->h, *dsmPtr);
+                     "ARKODE::mriStep_TakeStepMERK", "end-step",
+                     "step = %li, t = %" RSYM ", h = %" RSYM ", dsm = %" RSYM,
+                     ark_mem->nst, ark_mem->tn, ark_mem->h, *dsmPtr);
 #endif
 
   return (ARK_SUCCESS);
@@ -4422,7 +4422,7 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
   if (stepper->ops == NULL) { return ARK_ILL_INPUT; }
   if (stepper->ops->evolve == NULL) { return ARK_ILL_INPUT; }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "ARKODE::mriStepInnerStepper_Evolve", "start-inner-evolve",
                      "t0 = %" RSYM ", tout = %" RSYM, t0, tout);
@@ -4430,7 +4430,7 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
 
   stepper->last_flag = stepper->ops->evolve(stepper, t0, tout, y);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "ARKODE::mriStepInnerStepper_Evolve", "end-inner-evolve",
                      "flag = %i", stepper->last_flag);
