@@ -21,10 +21,18 @@ Changelog
 
 .. SED_REPLACEMENT_KEY
 
-Changes to SUNDIALS in release 7.1.1
+Changes to SUNDIALS in release X.Y.Z
 ====================================
 
 .. include:: RecentChanges_link.rst
+
+Changes to SUNDIALS in release 7.1.1
+====================================
+
+**Bug Fixes**
+
+Fixed a `bug <https://github.com/LLNL/sundials/pull/523>`_ in v7.1.0 with the
+SYCL N_Vector ``N_VSpace`` function.
 
 Changes to SUNDIALS in release 7.1.0
 ====================================
