@@ -551,8 +551,6 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     return (ARK_RHSFUNC_FAIL);
   }
 
-  printf("\nlsrkStep_FullRHS is not ready yet!\n");
-
   return (ARK_SUCCESS);
 }
 
@@ -706,14 +704,14 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + ark_mem->h*thjm1, ark_mem->tempv1,
                                    ark_mem->ycur, mode);
     if (retval != ARK_SUCCESS) { return (-1); }
-    printf("Change ark_mem->step_fullrhs step_mem->fe");
+      printf("Change ark_mem->step_fullrhs step_mem->fe");
 
     N_VLinearSum(ONE, ark_mem->ycur, -ajm1, ark_mem->fn, ark_mem->ycur);
     N_VLinearSum(ONE - mu - nu, ark_mem->yn, ark_mem->h*mus, ark_mem->ycur,ark_mem->ycur);
     N_VLinearSum(nu, ark_mem->tempv2, ONE, ark_mem->ycur,ark_mem->ycur);
     N_VLinearSum(mu, ark_mem->tempv1, ONE, ark_mem->ycur,ark_mem->ycur);
 
-    printf("Change N_VLinearSum to N_VLinearComb..\n\n");
+      printf("Change N_VLinearSum to N_VLinearComb..\n\n");
 
     thj = mu*thjm1 + nu*thjm2 + mus*(ONE - ajm1);
 

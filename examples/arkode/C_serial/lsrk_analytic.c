@@ -70,8 +70,8 @@ int main(void)
   sunrealtype Tf     = SUN_RCONST(10.0);   /* final time */
   sunrealtype dTout  = SUN_RCONST(1.0);    /* time between outputs */
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
-  sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
-  sunrealtype abstol = SUN_RCONST(1.0e-8);
+  sunrealtype reltol = SUN_RCONST(1.0e-1); /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-1);
   sunrealtype lambda  = SUN_RCONST(-10.0); /* stiffness parameter */
 
   /* general problem variables */
@@ -115,11 +115,6 @@ int main(void)
   /* Specify user provided spectral radius */
   flag = LSRKodeSetSprRadFn(arkode_mem, spr);
   if (check_flag(&flag, "LSRKodeSetSprRadFn", 1)) { return 1; }
-
-  /* Set routines */
-  flag = ARKodeSetFixedStep(arkode_mem,
-                           (sunrealtype)1.0); /* Pass lambda to user functions */
-  if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
