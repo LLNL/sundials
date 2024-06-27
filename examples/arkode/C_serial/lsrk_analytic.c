@@ -70,8 +70,8 @@ int main(void)
   sunrealtype Tf     = SUN_RCONST(10.0);   /* final time */
   sunrealtype dTout  = SUN_RCONST(1.0);    /* time between outputs */
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
-  sunrealtype reltol = SUN_RCONST(1.0e-1); /* tolerances */
-  sunrealtype abstol = SUN_RCONST(1.0e-1);
+  sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-8);
   sunrealtype lambda  = SUN_RCONST(-10.0); /* stiffness parameter */
 
   /* general problem variables */
@@ -194,9 +194,7 @@ static int spr(sunrealtype t, sunrealtype* extsprad, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter */
-  printf("lambda=%f\n", lambda);
   *extsprad = lambda; /* access current solution value */
-  printf("extsprad=%f\n", *extsprad);
   return 0; /* return with success */
 }
 
