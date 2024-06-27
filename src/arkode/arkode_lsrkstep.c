@@ -449,13 +449,8 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
     ark_mem->liw += 5; /* pointers */
   }
 
-  /* Allocate internal vector storate */
-  // step_mem->temp1 = N_VClone(ark_mem->ewt);
-  // step_mem->temp2 = N_VClone(ark_mem->ewt);
-
-  /* Allocate reusable arrays for fused vector interface */
-
-  printf("\nlsrkStep_Init is not ready yet!\n");
+  /* Signal to shared arkode module that full RHS evaluations are required */
+  ark_mem->call_fullrhs = SUNTRUE;
 
   return (ARK_SUCCESS);
 }
@@ -528,8 +523,6 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     /* determine if RHS function needs to be recomputed */
     if (!(ark_mem->fn_is_current))
     {
-      // recomputeRHS = !ARKodeButcherTable_IsStifflyAccurate(step_mem->B);
-
       /* First Same As Last methods are not FSAL when relaxation is enabled */
       if (ark_mem->relax_enabled) { recomputeRHS = SUNTRUE; }
 
@@ -799,8 +792,6 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != ARK_SUCCESS) { return (-1); }
 
     /* Estimate the local error and compute its weighted RMS norm */
-    *dsmPtr = ZERO;
-
     cvals[0] =  p8;             Xvecs[0] = ark_mem->yn;
     cvals[1] = -p8;             Xvecs[1] = ark_mem->ycur;
     cvals[2] =  p4*ark_mem->h;  Xvecs[2] = ark_mem->fn;
