@@ -161,16 +161,12 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   /* Set default values for integrator optional inputs
      (overwrite some adaptivity params for LSRKStep use) */
   step_mem->reqstages = 0;                       /* no stages */
-  step_mem->absh = 1.0/ark_mem->hmax_inv;        /* set absh = hmax */ 
-  step_mem->err = 0;
-  step_mem->errold = 0;
 
   /* Counters and stats*/
   step_mem->nfe = 0;
   step_mem->sprnfe = 0;
   step_mem->stagemax = 0;
   step_mem->stagemaxlimit = SUNMAX(2, round(SUNRsqrt(ark_mem->reltol/(10.0*ark_mem->uround))));
-  step_mem->nreject = 0;
   step_mem->nstsig = 0;
 
   /* Spectral radius info */  

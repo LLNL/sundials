@@ -109,8 +109,6 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
   ark_mem->step_setdefaults     = lsrkStep_SetDefaults;
   ark_mem->step_mem             = (void*)step_mem;
   ark_mem->step_supports_adaptive   = SUNTRUE;
-  printf("\nAdd pointers for new functions in %s line: %d: !\n\n", __func__, __LINE__);
-
 
   /* Set default values for optional inputs */
   retval = lsrkStep_SetDefaults((void*)ark_mem);
@@ -131,7 +129,7 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
   step_mem->fi = fi;
 
   /* Update the ARKODE workspace requirements -- UPDATE */
-  ark_mem->liw += 8; /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
+  ark_mem->liw += 0; /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
   ark_mem->lrw += 0;
 
   /* Initialize all the counters */
@@ -146,8 +144,6 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
     ARKodeFree((void**)&ark_mem);
     return (NULL);
   }
-
-  printf("\nLSRKStepCreate is not ready yet!\n");
 
   return ((void*)ark_mem);
 }
@@ -180,7 +176,7 @@ int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr)
 
     printf("\nInternal SprRad is not supported yet!\n");
 
-    return (-1);
+    return (ARK_FAIL_OTHER);
   }
 }
 
@@ -238,9 +234,21 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N
     return (ARK_ILL_INPUT);
   }
 
-  printf("\nLSRKStepReInit is not ready yet!\n");
+  /* Copy the input parameters into ARKODE state */
+  step_mem->fe = fe;
+  step_mem->fi = fi;
 
-  /* To-Do: perform re-initialization */
+  /* Initialize main ARKODE infrastructure */
+  retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Unable to initialize main ARKODE infrastructure");
+    return (retval);
+  }
+
+  /* Initialize all the counters */
+  step_mem->nfe = 0;
 
   return (ARK_SUCCESS);
 }
@@ -282,8 +290,6 @@ int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
     return (ARK_MEM_FAIL);
   }
 
-  printf("\nlsrkStep_Resize is not ready yet!\n");
-
   return (ARK_SUCCESS);
 }
 
@@ -303,9 +309,14 @@ void lsrkStep_Free(ARKodeMem ark_mem)
   {
     step_mem = (ARKodeLSRKStepMem)ark_mem->step_mem;
 
-    /* free contents of step_mem */
-    
-    printf("\nlsrkStep_Free is not ready yet!\n");
+    /* free the RHS vectors */
+    if (step_mem->Fe != NULL)
+    {
+      arkFreeVec(ark_mem, &step_mem->Fe[0]);
+      free(step_mem->Fe);
+      step_mem->Fe = NULL;
+      ark_mem->liw -= 1;
+    }
 
     /* free the reusable arrays for fused vector interface */
     if (step_mem->cvals != NULL)
@@ -347,13 +358,26 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   if (retval != ARK_SUCCESS) { return; }
 
   /* output integer quantities */
+  fprintf(outfile, "LSRKStep: reqstages = %li\n", step_mem->reqstages);
+  fprintf(outfile, "LSRKStep: nstsig    = %li\n", step_mem->nstsig);
 
   /* output long integer quantities */
-  fprintf(outfile, "LSRKStep: nfe = %li\n", step_mem->nfe);
+  fprintf(outfile, "LSRKStep: nfe           = %li\n", step_mem->nfe);
+  fprintf(outfile, "LSRKStep: sprnfe        = %li\n", step_mem->sprnfe);
+  fprintf(outfile, "LSRKStep: stagemax      = %li\n", step_mem->stagemax);
+  fprintf(outfile, "LSRKStep: stagemaxlimit = %li\n", step_mem->stagemaxlimit);
 
   /* output sunrealtype quantities */
+  fprintf(outfile, "LSRKStep: sprad         = %f\n", step_mem->sprad);
+  fprintf(outfile, "LSRKStep: sprmax        = %f\n", step_mem->sprmax);
+  fprintf(outfile, "LSRKStep: sprmin        = %f\n", step_mem->sprmin);
+  fprintf(outfile, "LSRKStep: sprsfty       = %f\n", step_mem->sprsfty);
+  fprintf(outfile, "LSRKStep: sprupdatepar  = %f\n", step_mem->sprupdatepar);
 
-  printf("\nlsrkStep_PrintMem is not ready yet!\n");
+  /* output sunbooleantype quantities */
+  fprintf(outfile, "LSRKStep: isextspr  = %d\n", step_mem->isextspr);
+  fprintf(outfile, "LSRKStep: newspr    = %d\n", step_mem->newspr);
+  fprintf(outfile, "LSRKStep: jacatt    = %d\n", step_mem->jacatt);
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
@@ -713,18 +737,30 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                           ark_mem->ycur, ark_mem->user_data);
     if (retval != ARK_SUCCESS) { return (-1); }
     
-    N_VLinearSum(ONE, ark_mem->ycur, -ajm1, ark_mem->fn, ark_mem->ycur);
-    N_VLinearSum(ONE - mu - nu, ark_mem->yn, ark_mem->h*mus, ark_mem->ycur,ark_mem->ycur);
-    N_VLinearSum(nu, ark_mem->tempv2, ONE, ark_mem->ycur,ark_mem->ycur);
-    N_VLinearSum(mu, ark_mem->tempv1, ONE, ark_mem->ycur,ark_mem->ycur);
+    // N_VLinearSum(ONE, ark_mem->ycur, -ajm1, ark_mem->fn, ark_mem->ycur);
+    // N_VLinearSum(ONE - mu - nu, ark_mem->yn, ark_mem->h*mus, ark_mem->ycur,ark_mem->ycur);
+    // N_VLinearSum(nu, ark_mem->tempv2, ONE, ark_mem->ycur,ark_mem->ycur);
+    // N_VLinearSum(mu, ark_mem->tempv1, ONE, ark_mem->ycur,ark_mem->ycur);
 
-      printf("Change N_VLinearSum to N_VLinearComb..\n\n");
+    N_VLinearSum(nu, ark_mem->tempv2, mu, ark_mem->tempv1, ark_mem->tempv1);
+
+    cvals[0] =  ONE;                    Xvecs[0] = ark_mem->tempv1;
+    cvals[1] =  ONE - mu - nu;          Xvecs[1] = ark_mem->yn;
+    cvals[2] =  mus*ark_mem->h;         Xvecs[2] = ark_mem->ycur;
+    cvals[3] = -ajm1*mus*ark_mem->h;    Xvecs[3] = ark_mem->fn;
+
+    retval = N_VLinearCombination(4, cvals, Xvecs, ark_mem->tempv2);
+    if (retval != 0) { return (ARK_VECTOROP_ERR); }
+
+    N_VScale(ONE, ark_mem->tempv2, ark_mem->ycur);
+
+    //   printf("Change N_VLinearSum to N_VLinearComb..\n\n");
 
     // cvals[0] =  mu;                     Xvecs[0] = ark_mem->tempv1;
     // cvals[1] =  nu;                     Xvecs[1] = ark_mem->tempv2;
     // cvals[2] =  ONE - mu - nu;          Xvecs[2] = ark_mem->yn;
     // cvals[3] =  mus*ark_mem->h;         Xvecs[3] = ark_mem->ycur;
-    // cvals[4] =  mus*ark_mem->h - ajm1;  Xvecs[4] = ark_mem->fn;
+    // cvals[4] = -mus*ajm1*ark_mem->h;    Xvecs[4] = ark_mem->fn;
 
     // retval = N_VLinearCombination(5, cvals, Xvecs, ark_mem->ycur);
     // if (retval != 0) { return (ARK_VECTOROP_ERR); }
@@ -763,7 +799,7 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != ARK_SUCCESS) { return (-1); }
 
     /* Estimate the local error and compute its weighted RMS norm */
-    step_mem->err = ZERO;
+    *dsmPtr = ZERO;
 
     cvals[0] =  p8;             Xvecs[0] = ark_mem->yn;
     cvals[1] = -p8;             Xvecs[1] = ark_mem->ycur;
@@ -773,9 +809,7 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = N_VLinearCombination(4, cvals, Xvecs, ark_mem->tempv2);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
-    step_mem->err = N_VWrmsNorm(ark_mem->tempv2, ark_mem->ewt);
-
-    *dsmPtr = step_mem->err;
+    *dsmPtr = N_VWrmsNorm(ark_mem->tempv2, ark_mem->ewt);
   }
   return (ARK_SUCCESS);
 }

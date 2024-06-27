@@ -51,16 +51,12 @@ typedef struct ARKodeLSRKStepMemRec
   N_Vector* Fi; /* RHS vector storage */
 
   int reqstages;  /* number of requested stages   */
-  sunrealtype absh; /* prime h value (might have been declared in ARKodeMem)*/
-  sunrealtype err; /* error of the current step*/
-  sunrealtype errold; /* error of the old step*/
 
   /* Counters and stats*/
   long int nfe; /* num fe calls       */
   long int sprnfe; /* num fe calls for spectral radius      */
   long int stagemax; /* num of max stages taken      */
   long int stagemaxlimit; /* max allowed num of stages     */
-  long int nreject; /* num of rejected steps (could be declared in ARKodeMem)     */
   int nstsig; /* num of steps that successfully used spr; indicates spr update when 0;  */
 
   /* Spectral radius info */  
