@@ -85,13 +85,13 @@ int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   // /* set expsteps and accsteps from adaptivity structure */
-  // *expsteps = ark_mem->hadapt_mem->nst_exp;
-  // *accsteps = ark_mem->hadapt_mem->nst_acc;
+  *expsteps = ark_mem->hadapt_mem->nst_exp;
+  *accsteps = ark_mem->hadapt_mem->nst_acc;
 
   // /* set remaining outputs */
-  // *attempts = ark_mem->nst_attempts;
-  // *fevals   = step_mem->nfe;
-  // *netfails = ark_mem->netf;
+  *attempts = ark_mem->nst_attempts;
+  *fevals   = step_mem->nfe;
+  *netfails = ark_mem->netf;
 
   printf("\nLSRKStepGetTimestepperStats is not ready yet!\n");
 
@@ -138,8 +138,6 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
       return (ARK_MEM_FAIL);
     }
   }
-
-  printf("\nCheck hcontroller in %s at line: %d\n\n", __func__, __LINE__);
   ark_mem->hadapt_mem->hcontroller = NULL;
   ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
   if (ark_mem->hadapt_mem->hcontroller == NULL)
@@ -184,14 +182,10 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
   ark_mem->hadapt_mem->growth = SUN_RCONST(25.0); /* step adaptivity growth factor */
   
-  printf("\nCheck SUNAdaptController_SetErrorBias in %s at line: %d\n\n", __func__, __LINE__);
-  // (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
-  //                                       SUN_RCONST(1.2));
-  // (void)SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
-  //                                       SUN_RCONST(0.8), -SUN_RCONST(0.31));
-  
-  printf("\nlsrkStep_SetDefaults is not ready yet!\n");
-
+  (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
+                                        SUN_RCONST(1.2));
+  (void)SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
+                                        SUN_RCONST(0.8), -SUN_RCONST(0.31));
   return (ARK_SUCCESS);
 }
 
@@ -213,9 +207,21 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   {
   case SUN_OUTPUTFORMAT_TABLE:
     fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
+    fprintf(outfile, "RHS fn evals for spr         = %ld\n", step_mem->sprnfe);
+    fprintf(outfile, "Max. num. of Steps taken     = %ld\n", step_mem->stagemax);
+    fprintf(outfile, "Max. num. of Steps allowed   = %ld\n", step_mem->stagemaxlimit);
+
+    fprintf(outfile, "Max. spectral radius         = %f\n",  step_mem->sprmax);
+    fprintf(outfile, "Min. spectral radius         = %f\n",  step_mem->sprmin);
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
+    fprintf(outfile, ",RHS fn evals for spr,%ld", step_mem->sprnfe);
+    fprintf(outfile, ",Max. num. of Steps taken,%ld", step_mem->stagemax);
+    fprintf(outfile, ",Max. num. of Steps allowed,%ld", step_mem->stagemaxlimit);
+
+    fprintf(outfile, ",Max. spectral radius,%f",  step_mem->sprmax);
+    fprintf(outfile, ",Min. spectral radius,%f",  step_mem->sprmin);
     fprintf(outfile, "\n");
     break;
   default:
@@ -223,8 +229,6 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
                     "Invalid formatting option.");
     return (ARK_ILL_INPUT);
   }
-
-  printf("\nlsrkStep_PrintAllStats is not ready yet!\n");
 
   return (ARK_SUCCESS);
 }

@@ -621,7 +621,6 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     {
       retval = step_mem->extspr(ark_mem->tn, &step_mem->sprad, ark_mem->user_data);
       step_mem->sprad *=step_mem->sprsfty;
-      printf("Check the value of the sprad to make sure it is non-positive (or strictly negative)\n\n");
       step_mem->sprad = abs(step_mem->sprad);
     }
     else
