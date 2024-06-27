@@ -647,14 +647,18 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_is_current))
-  {
-    mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
-    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
-                                   ark_mem->fn, mode);
-    if (retval) { return ARK_RHSFUNC_FAIL; }
-    ark_mem->fn_is_current = SUNTRUE;
-  }
+  // if (!(ark_mem->fn_is_current))
+  // {
+  //   mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+  //   retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+  //                                  ark_mem->fn, mode);
+  //   if (retval) { return ARK_RHSFUNC_FAIL; }
+  //   ark_mem->fn_is_current = SUNTRUE;
+  // }
+
+  retval = step_mem->fe(ark_mem->tn, ark_mem->yn,
+                        ark_mem->fn, ark_mem->user_data);
+  if (retval != ARK_SUCCESS) { return (-1); }
 
   /* A tentative solution at t+h is returned in
      y and its slope is evaluated in temp1.  */
@@ -700,18 +704,30 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     mus  =   mu*w1/w0;
 
     /* Use the ycur array for temporary storage here */
-    mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
-    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + ark_mem->h*thjm1, ark_mem->tempv1,
-                                   ark_mem->ycur, mode);
-    if (retval != ARK_SUCCESS) { return (-1); }
-      printf("Change ark_mem->step_fullrhs step_mem->fe");
+    // mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+    // retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + ark_mem->h*thjm1, ark_mem->tempv1,
+    //                                ark_mem->ycur, mode);
+    // if (retval != ARK_SUCCESS) { return (-1); }
 
+    retval = step_mem->fe(ark_mem->tcur + ark_mem->h*thjm1, ark_mem->tempv1,
+                          ark_mem->ycur, ark_mem->user_data);
+    if (retval != ARK_SUCCESS) { return (-1); }
+    
     N_VLinearSum(ONE, ark_mem->ycur, -ajm1, ark_mem->fn, ark_mem->ycur);
     N_VLinearSum(ONE - mu - nu, ark_mem->yn, ark_mem->h*mus, ark_mem->ycur,ark_mem->ycur);
     N_VLinearSum(nu, ark_mem->tempv2, ONE, ark_mem->ycur,ark_mem->ycur);
     N_VLinearSum(mu, ark_mem->tempv1, ONE, ark_mem->ycur,ark_mem->ycur);
 
       printf("Change N_VLinearSum to N_VLinearComb..\n\n");
+
+    // cvals[0] =  mu;                     Xvecs[0] = ark_mem->tempv1;
+    // cvals[1] =  nu;                     Xvecs[1] = ark_mem->tempv2;
+    // cvals[2] =  ONE - mu - nu;          Xvecs[2] = ark_mem->yn;
+    // cvals[3] =  mus*ark_mem->h;         Xvecs[3] = ark_mem->ycur;
+    // cvals[4] =  mus*ark_mem->h - ajm1;  Xvecs[4] = ark_mem->fn;
+
+    // retval = N_VLinearCombination(5, cvals, Xvecs, ark_mem->ycur);
+    // if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
     thj = mu*thjm1 + nu*thjm2 + mus*(ONE - ajm1);
 
@@ -737,11 +753,14 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)
   {
-    mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
-    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                                   ark_mem->tempv1, mode);
+    // mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
+    // retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+    //                                ark_mem->tempv1, mode);
+    // if (retval != ARK_SUCCESS) { return (-1); }
+
+    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+                          ark_mem->tempv1, ark_mem->user_data);
     if (retval != ARK_SUCCESS) { return (-1); }
-    printf("Change ark_mem->step_fullrhs step_mem->fe");
 
     /* Estimate the local error and compute its weighted RMS norm */
     step_mem->err = ZERO;
@@ -758,7 +777,6 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
     *dsmPtr = step_mem->err;
   }
-  
   return (ARK_SUCCESS);
 }
 
