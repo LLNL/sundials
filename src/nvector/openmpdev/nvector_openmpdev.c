@@ -285,7 +285,6 @@ void N_VPrintFile_OpenMPDEV(N_Vector x, FILE* outfile)
   xd = NV_DATA_HOST_OMPDEV(x);
 
   for (i = 0; i < N; i++) { fprintf(outfile, SUN_REAL_FORMAT_E "\n", xd[i]); }
-  fprintf(outfile, "\n");
 
   return;
 }
