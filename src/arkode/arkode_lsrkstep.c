@@ -729,33 +729,14 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                           ark_mem->ycur, ark_mem->user_data);
     if (retval != ARK_SUCCESS) { return (-1); }
 
-    // N_VLinearSum(ONE, ark_mem->ycur, -ajm1, ark_mem->fn, ark_mem->ycur);
-    // N_VLinearSum(ONE - mu - nu, ark_mem->yn, ark_mem->h*mus, ark_mem->ycur,ark_mem->ycur);
-    // N_VLinearSum(nu, ark_mem->tempv2, ONE, ark_mem->ycur,ark_mem->ycur);
-    // N_VLinearSum(mu, ark_mem->tempv1, ONE, ark_mem->ycur,ark_mem->ycur);
+    cvals[0] =  mus*ark_mem->h;         Xvecs[0] = ark_mem->ycur;
+    cvals[1] =  nu;                     Xvecs[1] = ark_mem->tempv2;
+    cvals[2] =  ONE - mu - nu;          Xvecs[2] = ark_mem->yn;
+    cvals[3] =  mu;                     Xvecs[3] = ark_mem->tempv1;
+    cvals[4] = -mus*ajm1*ark_mem->h;    Xvecs[4] = ark_mem->fn;
 
-    N_VLinearSum(nu, ark_mem->tempv2, mu, ark_mem->tempv1, ark_mem->tempv1);
-
-    cvals[0] =  ONE;                    Xvecs[0] = ark_mem->tempv1;
-    cvals[1] =  ONE - mu - nu;          Xvecs[1] = ark_mem->yn;
-    cvals[2] =  mus*ark_mem->h;         Xvecs[2] = ark_mem->ycur;
-    cvals[3] = -ajm1*mus*ark_mem->h;    Xvecs[3] = ark_mem->fn;
-
-    retval = N_VLinearCombination(4, cvals, Xvecs, ark_mem->tempv2);
+    retval = N_VLinearCombination(5, cvals, Xvecs, ark_mem->ycur);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
-
-    N_VScale(ONE, ark_mem->tempv2, ark_mem->ycur);
-
-    //   printf("Change N_VLinearSum to N_VLinearComb..\n\n");
-
-    // cvals[0] =  mu;                     Xvecs[0] = ark_mem->tempv1;
-    // cvals[1] =  nu;                     Xvecs[1] = ark_mem->tempv2;
-    // cvals[2] =  ONE - mu - nu;          Xvecs[2] = ark_mem->yn;
-    // cvals[3] =  mus*ark_mem->h;         Xvecs[3] = ark_mem->ycur;
-    // cvals[4] = -mus*ajm1*ark_mem->h;    Xvecs[4] = ark_mem->fn;
-
-    // retval = N_VLinearCombination(5, cvals, Xvecs, ark_mem->ycur);
-    // if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
     thj = mu*thjm1 + nu*thjm2 + mus*(ONE - ajm1);
 
