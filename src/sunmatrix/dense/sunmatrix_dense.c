@@ -118,7 +118,6 @@ void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile)
     }
     fprintf(outfile, "\n");
   }
-  fprintf(outfile, "\n");
   return;
 }
 

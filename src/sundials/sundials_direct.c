@@ -327,7 +327,6 @@ void SUNDlsMat_PrintMat(SUNDlsMat A, FILE* outfile)
       }
       fprintf(outfile, "\n");
     }
-    fprintf(outfile, "\n");
 
     break;
 
@@ -346,7 +345,6 @@ void SUNDlsMat_PrintMat(SUNDlsMat A, FILE* outfile)
       }
       fprintf(outfile, "\n");
     }
-    fprintf(outfile, "\n");
 
     break;
   }
