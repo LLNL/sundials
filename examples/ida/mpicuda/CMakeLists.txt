@@ -46,16 +46,11 @@ foreach(example_tuple ${IDA_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${example}
-    ${example}
-    MPI_NPROCS
-    ${number_of_tasks}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${example}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${example} ${example}
+    MPI_NPROCS ${number_of_tasks}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example}.out
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   target_link_libraries(${example} PRIVATE MPI::MPI_CXX ${SUNDIALS_LIBS})

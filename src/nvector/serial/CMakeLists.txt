@@ -19,22 +19,14 @@ install(CODE "MESSAGE(\"\nInstall NVECTOR_SERIAL\n\")")
 # Create the sundials_nvecserial library
 sundials_add_library(
   sundials_nvecserial
-  SOURCES
-  nvector_serial.c
-  HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_serial.h
-  INCLUDE_SUBDIR
-  nvector
-  LINK_LIBRARIES
-  PUBLIC
-  sundials_core
+  SOURCES nvector_serial.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_serial.h
+  INCLUDE_SUBDIR nvector
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  OUTPUT_NAME
-  sundials_nvecserial
-  VERSION
-  ${nveclib_VERSION}
-  SOVERSION
-  ${nveclib_SOVERSION})
+  OUTPUT_NAME sundials_nvecserial
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION})
 
 message(STATUS "Added NVECTOR_SERIAL module")
 

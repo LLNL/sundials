@@ -64,12 +64,9 @@ foreach(example_tuple ${sunmatrix_onemkldense_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    EXAMPLE_TYPE
-    ${example_type}
+    ${test_name} ${example_target}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type}
     NODIFF)
 
 endforeach()
@@ -77,21 +74,13 @@ endforeach()
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(
-    sunmatrix_onemkl
-    sunmatrix_onemkldense_examples
-    EXAMPLES_DEPENDENCIES
-    test_sunmatrix.c
-    EXTRA_FILES
-    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
-    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
-    CMAKE_TEMPLATE
-    cmakelists_CXX_ex.in
-    SUNDIALS_TARGETS
-    nvecsycl
-    sunmatrixonemkldense
-    OTHER_TARGETS
-    MKL::MKL_DPCPP
-    DESTINATION
-    sunmatrix/onemkldense)
+    sunmatrix_onemkl sunmatrix_onemkldense_examples
+    EXAMPLES_DEPENDENCIES test_sunmatrix.c
+    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
+                ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
+    CMAKE_TEMPLATE cmakelists_CXX_ex.in
+    SUNDIALS_TARGETS nvecsycl sunmatrixonemkldense
+    OTHER_TARGETS MKL::MKL_DPCPP
+    DESTINATION sunmatrix/onemkldense)
 
 endif()

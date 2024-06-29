@@ -51,16 +51,11 @@ foreach(example_tuple ${KINSOL_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${example_target}
-    ${example_target}
-    MPI_NPROCS
-    ${number_of_tasks}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${example_target}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${example_target} ${example_target}
+    MPI_NPROCS ${number_of_tasks}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example_target}.out
+    EXAMPLE_TYPE ${example_type})
 
 endforeach()
 
@@ -68,24 +63,13 @@ endforeach()
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(
-    kinsol
-    KINSOL_examples
-    CMAKE_TEMPLATE
-    cmakelists_CUDA_MPI_ex.in
-    MAKE_TEMPLATE
-    makefile_parallel_CUDA_ex.in
-    SOLVER_LIBRARY
-    sundials_kinsol
-    SUNDIALS_TARGETS
-    kinsol
-    nvecmpiplusx
-    nveccuda
-    DESTINATION
-    kinsol/CUDA_mpi
-    EXTRA_FILES
-    ${KINSOL_headers}
-    README
-    TEST_INSTALL
-    CUDA_mpi)
+    kinsol KINSOL_examples
+    CMAKE_TEMPLATE cmakelists_CUDA_MPI_ex.in
+    MAKE_TEMPLATE makefile_parallel_CUDA_ex.in
+    SOLVER_LIBRARY sundials_kinsol
+    SUNDIALS_TARGETS kinsol nvecmpiplusx nveccuda
+    DESTINATION kinsol/CUDA_mpi
+    EXTRA_FILES ${KINSOL_headers} README
+    TEST_INSTALL CUDA_mpi)
 
 endif()

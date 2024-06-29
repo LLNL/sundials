@@ -27,15 +27,8 @@ include_directories(..)
 
 sundials_add_examples_ginkgo(
   examples
-  TARGETS
-  test_sunmatrix_obj
-  sundials_sunmatrixdense
-  BACKENDS
-  REF
-  OMP
-  CUDA
-  HIP
-  SYCL
+  TARGETS test_sunmatrix_obj sundials_sunmatrixdense
+  BACKENDS REF OMP CUDA HIP SYCL
   UNIT_TEST)
 
 # Install the targets
@@ -59,17 +52,11 @@ if(EXAMPLES_INSTALL)
 
   sundials_install_examples_ginkgo(
     sunmatrix
-    CPU_GPU_EXAMPLES_VAR
-    examples
-    SUNDIALS_COMPONENTS
-    sunmatrixdense
-    ${vectors}
-    SUNDIALS_TARGETS
-    sunmatrixdense
-    DEPENDENCIES
-    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
-    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
-    DESTINATION
-    sunmatrix/ginkgo)
+    CPU_GPU_EXAMPLES_VAR examples
+    SUNDIALS_COMPONENTS sunmatrixdense ${vectors}
+    SUNDIALS_TARGETS sunmatrixdense
+    DEPENDENCIES ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
+                 ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
+    DESTINATION sunmatrix/ginkgo)
 
 endif()

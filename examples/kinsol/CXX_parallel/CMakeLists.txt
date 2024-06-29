@@ -58,18 +58,12 @@ foreach(example_tuple ${KINSOL_examples})
 
   # add regression test
   sundials_add_test(
-    ${test_name}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    MPI_NPROCS
-    ${number_of_tasks}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${test_name}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${test_name} ${example_target}
+    TEST_ARGS ${example_args}
+    MPI_NPROCS ${number_of_tasks}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${test_name}.out
+    EXAMPLE_TYPE ${example_type})
 
 endforeach()
 
@@ -77,24 +71,13 @@ endforeach()
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(
-    kinsol
-    KINSOL_examples
-    CMAKE_TEMPLATE
-    cmakelists_CXX_MPI_ex.in
-    MAKE_TEMPLATE
-    makefile_parallel_CXX_ex.in
-    SOLVER_LIBRARY
-    sundials_kinsol
-    SUNDIALS_TARGETS
-    kinsol
-    nvecparallel
-    nvecmpiplusx
-    nvecserial
-    DESTINATION
-    kinsol/CXX_parallel
-    EXTRA_FILES
-    README
-    TEST_INSTALL
-    CXX_parallel)
+    kinsol KINSOL_examples
+    CMAKE_TEMPLATE cmakelists_CXX_MPI_ex.in
+    MAKE_TEMPLATE makefile_parallel_CXX_ex.in
+    SOLVER_LIBRARY sundials_kinsol
+    SUNDIALS_TARGETS kinsol nvecparallel nvecmpiplusx nvecserial
+    DESTINATION kinsol/CXX_parallel
+    EXTRA_FILES README
+    TEST_INSTALL CXX_parallel)
 
 endif()

@@ -48,16 +48,11 @@ foreach(example_tuple ${FKINSOL_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${example}
-    ${example}
-    TEST_ARGS
-    ${example_args}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${example}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${example} ${example}
+    TEST_ARGS ${example_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example}.out
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   target_link_libraries(${example} ${SUNDIALS_LIBS})

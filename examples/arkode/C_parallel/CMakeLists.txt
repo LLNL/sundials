@@ -86,20 +86,13 @@ foreach(example_tuple ${ARKODE_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example}
-    TEST_ARGS
-    ${example_args}
-    MPI_NPROCS
-    ${number_of_tasks}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${test_name}.out
-    EXAMPLE_TYPE
-    ${example_type}
-    FLOAT_PRECISION
-    ${example_precision})
+    ${test_name} ${example}
+    TEST_ARGS ${example_args}
+    MPI_NPROCS ${number_of_tasks}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${test_name}.out
+    EXAMPLE_TYPE ${example_type}
+    FLOAT_PRECISION ${example_precision})
 
   # find all .out files for this example
   file(GLOB example_out ${example}*.out)

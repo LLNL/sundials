@@ -19,24 +19,14 @@ install(CODE "MESSAGE(\"\nInstall NVECTOR_OPENMPDEV\n\")")
 # Create the library
 sundials_add_library(
   sundials_nvecopenmpdev
-  SOURCES
-  nvector_openmpdev.c
-  HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_openmpdev.h
-  INCLUDE_SUBDIR
-  nvector
-  LINK_LIBRARIES
-  PUBLIC
-  sundials_core
+  SOURCES nvector_openmpdev.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_openmpdev.h
+  INCLUDE_SUBDIR nvector
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  LINK_LIBRARIES
-  PUBLIC
-  OpenMP::OpenMP_C
-  OUTPUT_NAME
-  sundials_nvecopenmpdev
-  VERSION
-  ${nveclib_VERSION}
-  SOVERSION
-  ${nveclib_SOVERSION})
+  LINK_LIBRARIES PUBLIC OpenMP::OpenMP_C
+  OUTPUT_NAME sundials_nvecopenmpdev
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION})
 
 message(STATUS "Added NVECTOR_OPENMPDEV module")

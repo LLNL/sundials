@@ -18,11 +18,7 @@ message(STATUS "Added PThreads NVECTOR benchmark")
 
 sundials_add_nvector_benchmark(
   nvector_pthreads_benchmark
-  SOURCES
-  test_nvector_performance_pthreads.c
-  SUNDIALS_TARGETS
-  sundials_nvecpthreads
-  LINK_LIBRARIES
-  Threads::Threads
-  INSTALL_SUBDIR
-  nvector/pthreads)
+  SOURCES test_nvector_performance_pthreads.c
+  SUNDIALS_TARGETS sundials_nvecpthreads
+  LINK_LIBRARIES Threads::Threads
+  INSTALL_SUBDIR nvector/pthreads)

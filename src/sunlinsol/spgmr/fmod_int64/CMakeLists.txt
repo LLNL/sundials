@@ -16,17 +16,10 @@
 
 sundials_add_f2003_library(
   sundials_fsunlinsolspgmr_mod
-  SOURCES
-  fsunlinsol_spgmr_mod.f90
-  fsunlinsol_spgmr_mod.c
-  LINK_LIBRARIES
-  PUBLIC
-  sundials_fcore_mod
-  OUTPUT_NAME
-  sundials_fsunlinsolspgmr_mod
-  VERSION
-  ${sunlinsollib_VERSION}
-  SOVERSION
-  ${sunlinsollib_SOVERSION})
+  SOURCES fsunlinsol_spgmr_mod.f90 fsunlinsol_spgmr_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
+  OUTPUT_NAME sundials_fsunlinsolspgmr_mod
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION})
 
 message(STATUS "Added SUNLINSOL_SPGMR F2003 interface")

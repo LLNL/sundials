@@ -29,36 +29,28 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/ida/ ida_HEADERS)
 # Create the library
 sundials_add_library(
   sundials_ida
-  SOURCES
-  ${ida_SOURCES}
-  HEADERS
-  ${ida_HEADERS}
-  INCLUDE_SUBDIR
-  ida
-  LINK_LIBRARIES
-  PUBLIC
-  sundials_core
+  SOURCES ${ida_SOURCES}
+  HEADERS ${ida_HEADERS}
+  INCLUDE_SUBDIR ida
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  sundials_sunmemsys_obj
-  sundials_nvecserial_obj
-  sundials_sunmatrixband_obj
-  sundials_sunmatrixdense_obj
-  sundials_sunmatrixsparse_obj
-  sundials_sunlinsolband_obj
-  sundials_sunlinsoldense_obj
-  sundials_sunlinsolspbcgs_obj
-  sundials_sunlinsolspfgmr_obj
-  sundials_sunlinsolspgmr_obj
-  sundials_sunlinsolsptfqmr_obj
-  sundials_sunlinsolpcg_obj
-  sundials_sunnonlinsolnewton_obj
-  sundials_sunnonlinsolfixedpoint_obj
-  OUTPUT_NAME
-  sundials_ida
-  VERSION
-  ${idalib_VERSION}
-  SOVERSION
-  ${idalib_SOVERSION})
+    sundials_sunmemsys_obj
+    sundials_nvecserial_obj
+    sundials_sunmatrixband_obj
+    sundials_sunmatrixdense_obj
+    sundials_sunmatrixsparse_obj
+    sundials_sunlinsolband_obj
+    sundials_sunlinsoldense_obj
+    sundials_sunlinsolspbcgs_obj
+    sundials_sunlinsolspfgmr_obj
+    sundials_sunlinsolspgmr_obj
+    sundials_sunlinsolsptfqmr_obj
+    sundials_sunlinsolpcg_obj
+    sundials_sunnonlinsolnewton_obj
+    sundials_sunnonlinsolfixedpoint_obj
+  OUTPUT_NAME sundials_ida
+  VERSION ${idalib_VERSION}
+  SOVERSION ${idalib_SOVERSION})
 
 # Finished IDA
 message(STATUS "Added IDA module")

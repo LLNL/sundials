@@ -65,38 +65,30 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/arkode/ arkode_HEADERS)
 # Create the sundials_arkode library
 sundials_add_library(
   sundials_arkode
-  SOURCES
-  ${arkode_SOURCES}
-  HEADERS
-  ${arkode_HEADERS}
-  INCLUDE_SUBDIR
-  arkode
-  LINK_LIBRARIES
-  PUBLIC
-  sundials_core
+  SOURCES ${arkode_SOURCES}
+  HEADERS ${arkode_HEADERS}
+  INCLUDE_SUBDIR arkode
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  sundials_sunmemsys_obj
-  sundials_nvecserial_obj
-  sundials_sunadaptcontrollerimexgus_obj
-  sundials_sunadaptcontrollersoderlind_obj
-  sundials_sunmatrixband_obj
-  sundials_sunmatrixdense_obj
-  sundials_sunmatrixsparse_obj
-  sundials_sunlinsolband_obj
-  sundials_sunlinsoldense_obj
-  sundials_sunlinsolspbcgs_obj
-  sundials_sunlinsolspfgmr_obj
-  sundials_sunlinsolspgmr_obj
-  sundials_sunlinsolsptfqmr_obj
-  sundials_sunlinsolpcg_obj
-  sundials_sunnonlinsolnewton_obj
-  sundials_sunnonlinsolfixedpoint_obj
-  OUTPUT_NAME
-  sundials_arkode
-  VERSION
-  ${arkodelib_VERSION}
-  SOVERSION
-  ${arkodelib_SOVERSION})
+    sundials_sunmemsys_obj
+    sundials_nvecserial_obj
+    sundials_sunadaptcontrollerimexgus_obj
+    sundials_sunadaptcontrollersoderlind_obj
+    sundials_sunmatrixband_obj
+    sundials_sunmatrixdense_obj
+    sundials_sunmatrixsparse_obj
+    sundials_sunlinsolband_obj
+    sundials_sunlinsoldense_obj
+    sundials_sunlinsolspbcgs_obj
+    sundials_sunlinsolspfgmr_obj
+    sundials_sunlinsolspgmr_obj
+    sundials_sunlinsolsptfqmr_obj
+    sundials_sunlinsolpcg_obj
+    sundials_sunnonlinsolnewton_obj
+    sundials_sunnonlinsolfixedpoint_obj
+  OUTPUT_NAME sundials_arkode
+  VERSION ${arkodelib_VERSION}
+  SOVERSION ${arkodelib_SOVERSION})
 
 # Finished ARKODE
 message(STATUS "Added ARKODE module")

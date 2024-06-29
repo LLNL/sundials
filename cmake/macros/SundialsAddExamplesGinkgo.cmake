@@ -108,27 +108,18 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
       # add example to regression tests
       if(${arg_UNIT_TEST})
         sundials_add_test(
-          ${test_name}
-          ${example_target}
-          EXAMPLE_TYPE
-          ${example_type}
-          TEST_ARGS
-          ${example_args}
+          ${test_name} ${example_target}
+          EXAMPLE_TYPE ${example_type}
+          TEST_ARGS ${example_args}
           NODIFF)
       else()
         sundials_add_test(
-          ${test_name}
-          ${example_target}
-          EXAMPLE_TYPE
-          ${example_type}
-          TEST_ARGS
-          ${example_args}
-          ANSWER_DIR
-          ${CMAKE_CURRENT_SOURCE_DIR}
-          ANSWER_FILE
-          ${test_name}.out
-          FLOAT_PRECISION
-          ${float_precision})
+          ${test_name} ${example_target}
+          EXAMPLE_TYPE ${example_type}
+          TEST_ARGS ${example_args}
+          ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+          ANSWER_FILE ${test_name}.out
+          FLOAT_PRECISION ${float_precision})
       endif()
 
     endforeach()

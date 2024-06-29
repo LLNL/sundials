@@ -43,36 +43,28 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/cvodes/ cvodes_HEADERS)
 # Create the library
 sundials_add_library(
   sundials_cvodes
-  SOURCES
-  ${cvodes_SOURCES}
-  HEADERS
-  ${cvodes_HEADERS}
-  INCLUDE_SUBDIR
-  cvodes
-  LINK_LIBRARIES
-  PUBLIC
-  sundials_core
+  SOURCES ${cvodes_SOURCES}
+  HEADERS ${cvodes_HEADERS}
+  INCLUDE_SUBDIR cvodes
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  sundials_sunmemsys_obj
-  sundials_nvecserial_obj
-  sundials_sunmatrixband_obj
-  sundials_sunmatrixdense_obj
-  sundials_sunmatrixsparse_obj
-  sundials_sunlinsolband_obj
-  sundials_sunlinsoldense_obj
-  sundials_sunlinsolspbcgs_obj
-  sundials_sunlinsolspfgmr_obj
-  sundials_sunlinsolspgmr_obj
-  sundials_sunlinsolsptfqmr_obj
-  sundials_sunlinsolpcg_obj
-  sundials_sunnonlinsolnewton_obj
-  sundials_sunnonlinsolfixedpoint_obj
-  OUTPUT_NAME
-  sundials_cvodes
-  VERSION
-  ${cvodeslib_VERSION}
-  SOVERSION
-  ${cvodeslib_SOVERSION})
+    sundials_sunmemsys_obj
+    sundials_nvecserial_obj
+    sundials_sunmatrixband_obj
+    sundials_sunmatrixdense_obj
+    sundials_sunmatrixsparse_obj
+    sundials_sunlinsolband_obj
+    sundials_sunlinsoldense_obj
+    sundials_sunlinsolspbcgs_obj
+    sundials_sunlinsolspfgmr_obj
+    sundials_sunlinsolspgmr_obj
+    sundials_sunlinsolsptfqmr_obj
+    sundials_sunlinsolpcg_obj
+    sundials_sunnonlinsolnewton_obj
+    sundials_sunnonlinsolfixedpoint_obj
+  OUTPUT_NAME sundials_cvodes
+  VERSION ${cvodeslib_VERSION}
+  SOVERSION ${cvodeslib_SOVERSION})
 
 # Finished CVODES
 message(STATUS "Added CVODES module")

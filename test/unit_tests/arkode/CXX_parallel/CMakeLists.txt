@@ -67,17 +67,11 @@ foreach(test_tuple ${unit_tests})
 
   # add test to regression tests
   sundials_add_test(
-    ${test_name}
-    ${test_target}
-    TEST_ARGS
-    ${test_args}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${test_name}.out
-    MPI_NPROCS
-    ${number_of_tasks}
-    ${diff_output})
+    ${test_name} ${test_target}
+    TEST_ARGS ${test_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${test_name}.out
+    MPI_NPROCS ${number_of_tasks} ${diff_output})
 
 endforeach()
 

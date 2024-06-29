@@ -75,12 +75,9 @@ foreach(example_tuple ${examples_list})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    EXAMPLE_TYPE
-    ${example_type}
+    ${test_name} ${example_target}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type}
     NODIFF)
 
 endforeach()
@@ -99,22 +96,15 @@ if(EXAMPLES_INSTALL)
   endif()
 
   sundials_install_examples(
-    nvec_raja
-    examples_list
-    EXAMPLES_DEPENDENCIES
-    test_nvector.c
+    nvec_raja examples_list
+    EXAMPLES_DEPENDENCIES test_nvector.c
     EXTRA_FILES
-    ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
-    ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
-    ${SUNDIALS_SOURCE_DIR}/examples/utilities/${_custom_memhelper}
-    CMAKE_TEMPLATE
-    cmakelists_${_lang}_ex.in
-    SUNDIALS_TARGETS
-    generic
-    nvecraja
-    OTHER_TARGETS
-    ${_openmp_target}
-    DESTINATION
-    nvector/raja)
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
+      ${SUNDIALS_SOURCE_DIR}/examples/utilities/${_custom_memhelper}
+    CMAKE_TEMPLATE cmakelists_${_lang}_ex.in
+    SUNDIALS_TARGETS generic nvecraja
+    OTHER_TARGETS ${_openmp_target}
+    DESTINATION nvector/raja)
 
 endif()

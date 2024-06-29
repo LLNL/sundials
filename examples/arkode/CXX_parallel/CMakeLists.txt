@@ -76,20 +76,13 @@ macro(build_examples examples_to_build lang)
 
     # add example to regression tests
     sundials_add_test(
-      ${test_name}
-      ${example_target}
-      TEST_ARGS
-      ${example_args}
-      MPI_NPROCS
-      ${number_of_tasks}
-      ANSWER_DIR
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE
-      ${test_name}.out
-      EXAMPLE_TYPE
-      ${example_type}
-      FLOAT_PRECISION
-      ${example_precision})
+      ${test_name} ${example_target}
+      TEST_ARGS ${example_args}
+      MPI_NPROCS ${number_of_tasks}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type}
+      FLOAT_PRECISION ${example_precision})
 
     # Not all examples are added to the generated CMake file installed the
     # output and source files here
@@ -266,21 +259,12 @@ if(EXAMPLES_INSTALL)
   # "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n") endif() endif()
 
   sundials_install_examples(
-    arkode
-    examples_to_install
-    CMAKE_TEMPLATE
-    cmakelists_CXX_MPI_ex.in
-    SUNDIALS_TARGETS
-    ${_sundials_targets}
-    OTHER_TARGETS
-    ${EXE_EXTRA_LINK_LIBS}
-    DESTINATION
-    arkode/CXX_parallel
-    EXTRA_FILES
-    ${ARKODE_headers}
-    ${ARKODE_extras}
-    README
-    TEST_INSTALL
-    CXX_parallel)
+    arkode examples_to_install
+    CMAKE_TEMPLATE cmakelists_CXX_MPI_ex.in
+    SUNDIALS_TARGETS ${_sundials_targets}
+    OTHER_TARGETS ${EXE_EXTRA_LINK_LIBS}
+    DESTINATION arkode/CXX_parallel
+    EXTRA_FILES ${ARKODE_headers} ${ARKODE_extras} README
+    TEST_INSTALL CXX_parallel)
 
 endif()

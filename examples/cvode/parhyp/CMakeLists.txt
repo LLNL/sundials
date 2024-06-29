@@ -48,16 +48,11 @@ foreach(example_tuple ${CVODE_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${example_target}
-    ${example_target}
-    MPI_NPROCS
-    ${number_of_tasks}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${example_target}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${example_target} ${example_target}
+    MPI_NPROCS ${number_of_tasks}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example_target}.out
+    EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${CVODE_examples})
 
@@ -70,23 +65,13 @@ if(EXAMPLES_INSTALL)
   endif()
 
   sundials_install_examples(
-    cvode
-    CVODE_examples
-    CMAKE_TEMPLATE
-    cmakelists_C_MPI_ex.in
-    MAKE_TEMPLATE
-    makefile_parhyp_C_ex.in
-    SOLVER_LIBRARY
-    sundials_cvode
-    SUNDIALS_TARGETS
-    cvode
-    nvecparhyp
-    ${_fused_stubs_target}
-    DESTINATION
-    cvode/parhyp
-    EXTRA_FILES
-    README
-    TEST_INSTALL
-    parhyp)
+    cvode CVODE_examples
+    CMAKE_TEMPLATE cmakelists_C_MPI_ex.in
+    MAKE_TEMPLATE makefile_parhyp_C_ex.in
+    SOLVER_LIBRARY sundials_cvode
+    SUNDIALS_TARGETS cvode nvecparhyp ${_fused_stubs_target}
+    DESTINATION cvode/parhyp
+    EXTRA_FILES README
+    TEST_INSTALL parhyp)
 
 endif()

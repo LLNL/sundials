@@ -50,16 +50,11 @@ foreach(example_tuple ${CVODES_examples_OMP})
 
   # add example to regression tests
   sundials_add_test(
-    ${example}
-    ${example}
-    TEST_ARGS
-    ${example_args}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${example}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${example} ${example}
+    TEST_ARGS ${example_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example}.out
+    EXAMPLE_TYPE ${example_type})
 
   # install example source and .out files
   if(EXAMPLES_INSTALL)

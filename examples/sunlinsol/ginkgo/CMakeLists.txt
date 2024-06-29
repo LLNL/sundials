@@ -32,14 +32,8 @@ include_directories(..)
 
 sundials_add_examples_ginkgo(
   examples
-  TARGETS
-  test_sunlinsol_obj
-  BACKENDS
-  REF
-  OMP
-  CUDA
-  HIP
-  SYCL
+  TARGETS test_sunlinsol_obj
+  BACKENDS REF OMP CUDA HIP SYCL
   UNIT_TEST)
 
 # Install the targets
@@ -63,14 +57,10 @@ if(EXAMPLES_INSTALL)
 
   sundials_install_examples_ginkgo(
     sunlinsol
-    CPU_GPU_EXAMPLES_VAR
-    examples
-    SUNDIALS_COMPONENTS
-    ${vectors}
-    DEPENDENCIES
-    ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
-    ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
-    DESTINATION
-    sunlinsol/ginkgo)
+    CPU_GPU_EXAMPLES_VAR examples
+    SUNDIALS_COMPONENTS ${vectors}
+    DEPENDENCIES ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
+                 ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
+    DESTINATION sunlinsol/ginkgo)
 
 endif()

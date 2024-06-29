@@ -29,34 +29,26 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/kinsol/ kinsol_HEADERS)
 # Create the library
 sundials_add_library(
   sundials_kinsol
-  SOURCES
-  ${kinsol_SOURCES}
-  HEADERS
-  ${kinsol_HEADERS}
-  INCLUDE_SUBDIR
-  kinsol
-  LINK_LIBRARIES
-  PUBLIC
-  sundials_core
+  SOURCES ${kinsol_SOURCES}
+  HEADERS ${kinsol_HEADERS}
+  INCLUDE_SUBDIR kinsol
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  sundials_sunmemsys_obj
-  sundials_nvecserial_obj
-  sundials_sunmatrixband_obj
-  sundials_sunmatrixdense_obj
-  sundials_sunmatrixsparse_obj
-  sundials_sunlinsolband_obj
-  sundials_sunlinsoldense_obj
-  sundials_sunlinsolspbcgs_obj
-  sundials_sunlinsolspfgmr_obj
-  sundials_sunlinsolspgmr_obj
-  sundials_sunlinsolsptfqmr_obj
-  sundials_sunlinsolpcg_obj
-  OUTPUT_NAME
-  sundials_kinsol
-  VERSION
-  ${kinsollib_VERSION}
-  SOVERSION
-  ${kinsollib_SOVERSION})
+    sundials_sunmemsys_obj
+    sundials_nvecserial_obj
+    sundials_sunmatrixband_obj
+    sundials_sunmatrixdense_obj
+    sundials_sunmatrixsparse_obj
+    sundials_sunlinsolband_obj
+    sundials_sunlinsoldense_obj
+    sundials_sunlinsolspbcgs_obj
+    sundials_sunlinsolspfgmr_obj
+    sundials_sunlinsolspgmr_obj
+    sundials_sunlinsolsptfqmr_obj
+    sundials_sunlinsolpcg_obj
+  OUTPUT_NAME sundials_kinsol
+  VERSION ${kinsollib_VERSION}
+  SOVERSION ${kinsollib_SOVERSION})
 
 # Finished KINSOL
 message(STATUS "Added KINSOL module")

@@ -86,16 +86,11 @@ foreach(example_tuple ${ARKODE_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${test_name}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${test_name} ${example_target}
+    TEST_ARGS ${example_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${test_name}.out
+    EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${ARKODE_examples})
 
@@ -109,25 +104,13 @@ if(EXAMPLES_INSTALL)
   endif()
 
   sundials_install_examples(
-    arkode
-    ARKODE_examples
-    CMAKE_TEMPLATE
-    cmakelists_CXX_ex.in
-    MAKE_TEMPLATE
-    makefile_serial_CXX_ex.in
-    SUNDIALS_TARGETS
-    nvecserial
-    arkode
-    ${_include_cvode}
-    ${_include_cvode_stubs}
-    DESTINATION
-    arkode/CXX_serial
-    EXTRA_FILES
-    README
-    ${ARKODE_extras}
-    ${ARKODE_headers}
-    "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
-    TEST_INSTALL
-    CXX_serial)
+    arkode ARKODE_examples
+    CMAKE_TEMPLATE cmakelists_CXX_ex.in
+    MAKE_TEMPLATE makefile_serial_CXX_ex.in
+    SUNDIALS_TARGETS nvecserial arkode ${_include_cvode} ${_include_cvode_stubs}
+    DESTINATION arkode/CXX_serial
+    EXTRA_FILES README ${ARKODE_extras} ${ARKODE_headers}
+                "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
+    TEST_INSTALL CXX_serial)
 
 endif()

@@ -17,17 +17,9 @@
 
 sundials_add_f2003_library(
   sundials_fsunlinsollapackdense_mod
-  SOURCES
-  fsunlinsol_lapackdense_mod.f90
-  fsunlinsol_lapackdense_mod.c
-  LINK_LIBRARIES
-  PUBLIC
-  sundials_fsunmatrixdense_mod
-  sundials_fcore_mod
-  OUTPUT_NAME
-  sundials_fsunlinsollapackdense_mod
-  VERSION
-  ${sunlinsollib_VERSION}
-  SOVERSION
-  ${sunlinsollib_SOVERSION})
+  SOURCES fsunlinsol_lapackdense_mod.f90 fsunlinsol_lapackdense_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fsunmatrixdense_mod sundials_fcore_mod
+  OUTPUT_NAME sundials_fsunlinsollapackdense_mod
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION})
 message(STATUS "Added SUNLINSOL_LAPACKDENSE F2003 interface")

@@ -500,33 +500,20 @@ macro(sundials_add_f2003_library target)
 
   sundials_add_library(
     ${target}
-    SOURCES
-    ${sundials_add_f2003_library_SOURCES}
-    OBJECT_LIBRARIES
-    ${sundials_add_f2003_library_OBJECT_LIBRARIES}
-    LINK_LIBRARIES
-    PUBLIC
-    ${_clib_target} # depend on the c library
-    ${sundials_add_f2003_library_LINK_LIBRARIES}
-    INCLUDE_DIRECTORIES
-    ${sundials_add_f2003_library_INCLUDE_DIRECTORIES}
-    ${_includes}
-    COMPILE_DEFINITIONS
-    ${sundials_add_f2003_library_COMPILE_DEFINITIONS}
-    PUBLIC
-    "SUNDIALS_INT${SUNDIALS_INDEX_SIZE}_T"
-    COMPILE_OPTIONS
-    ${sundials_add_f2003_library_COMPILE_OPTIONS}
-    PROPERTIES
-    ${sundials_add_f2003_library_PROPERTIES}
-    ${_properties}
-    OUTPUT_NAME
-    ${sundials_add_f2003_library_OUTPUT_NAME}
-    VERSION
-    ${sundials_add_f2003_library_VERSION}
-    SOVERSION
-    ${sundials_add_f2003_library_SOVERSION}
-    ${sundials_add_f2003_library_UNPARSED_ARGUMENTS})
+    SOURCES ${sundials_add_f2003_library_SOURCES}
+    OBJECT_LIBRARIES ${sundials_add_f2003_library_OBJECT_LIBRARIES}
+    LINK_LIBRARIES PUBLIC ${_clib_target} # depend on the c library
+                   ${sundials_add_f2003_library_LINK_LIBRARIES}
+    INCLUDE_DIRECTORIES ${sundials_add_f2003_library_INCLUDE_DIRECTORIES}
+                        ${_includes}
+    COMPILE_DEFINITIONS ${sundials_add_f2003_library_COMPILE_DEFINITIONS} PUBLIC
+                        "SUNDIALS_INT${SUNDIALS_INDEX_SIZE}_T"
+    COMPILE_OPTIONS ${sundials_add_f2003_library_COMPILE_OPTIONS}
+    PROPERTIES ${sundials_add_f2003_library_PROPERTIES} ${_properties}
+    OUTPUT_NAME ${sundials_add_f2003_library_OUTPUT_NAME}
+    VERSION ${sundials_add_f2003_library_VERSION}
+    SOVERSION ${sundials_add_f2003_library_SOVERSION}
+              ${sundials_add_f2003_library_UNPARSED_ARGUMENTS})
 endmacro()
 
 macro(append_static_suffix libs_in libs_out)

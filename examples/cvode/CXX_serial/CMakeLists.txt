@@ -65,16 +65,11 @@ foreach(example_tuple ${CVODE_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${test_name}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${test_name} ${example_target}
+    TEST_ARGS ${example_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${test_name}.out
+    EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${CVODE_examples})
 
@@ -86,23 +81,13 @@ if(EXAMPLES_INSTALL)
   endif()
 
   sundials_install_examples(
-    cvode
-    CVODE_examples
-    CMAKE_TEMPLATE
-    cmakelists_CXX_ex.in
-    MAKE_TEMPLATE
-    makefile_serial_CXX_ex.in
-    SUNDIALS_TARGETS
-    cvode
-    nvecserial
-    ${_fused_stubs}
-    DESTINATION
-    cvode/CXX_serial
-    EXTRA_FILES
-    README
-    plot_heat2D.py
-    "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
-    TEST_INSTALL
-    CXX_serial)
+    cvode CVODE_examples
+    CMAKE_TEMPLATE cmakelists_CXX_ex.in
+    MAKE_TEMPLATE makefile_serial_CXX_ex.in
+    SUNDIALS_TARGETS cvode nvecserial ${_fused_stubs}
+    DESTINATION cvode/CXX_serial
+    EXTRA_FILES README plot_heat2D.py
+                "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
+    TEST_INSTALL CXX_serial)
 
 endif(EXAMPLES_INSTALL)

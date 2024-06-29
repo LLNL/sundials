@@ -63,12 +63,9 @@ foreach(example_tuple ${examples_list})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    EXAMPLE_TYPE
-    ${example_type}
+    ${test_name} ${example_target}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type}
     NODIFF)
 
 endforeach()
@@ -76,27 +73,16 @@ endforeach()
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(
-    sunmatrix_cusparse
-    examples_list
-    EXAMPLES_DEPENDENCIES
-    test_sunmatrix.c
-    test_sunmatrix.h
-    dreadrb.c
-    dreadrb.h
+    sunmatrix_cusparse examples_list
+    EXAMPLES_DEPENDENCIES test_sunmatrix.c test_sunmatrix.h dreadrb.c dreadrb.h
     EXTRA_FILES
-    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
-    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
-    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/dreadrb.c
-    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/dreadrb.h
-    CMAKE_TEMPLATE
-    cmakelists_CUDA_ex.in
-    SUNDIALS_TARGETS
-    nveccuda
-    nvecserial
-    sunmatrixdense
-    sunmatrixsparse
-    sunmatrixcusparse
-    DESTINATION
-    sunmatrix/cusparse)
+      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
+      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
+      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/dreadrb.c
+      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/dreadrb.h
+    CMAKE_TEMPLATE cmakelists_CUDA_ex.in
+    SUNDIALS_TARGETS nveccuda nvecserial sunmatrixdense sunmatrixsparse
+                     sunmatrixcusparse
+    DESTINATION sunmatrix/cusparse)
 
 endif()

@@ -78,16 +78,11 @@ foreach(example_tuple ${all_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example}
-    TEST_ARGS
-    ${example_args}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${test_name}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${test_name} ${example}
+    TEST_ARGS ${example_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${test_name}.out
+    EXAMPLE_TYPE ${example_type})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)

@@ -76,14 +76,10 @@ foreach(example_tuple ${sunmatrix_slunrloc_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    MPI_NPROCS
-    ${number_of_nodes}
-    EXAMPLE_TYPE
-    ${example_type}
+    ${test_name} ${example_target}
+    TEST_ARGS ${example_args}
+    MPI_NPROCS ${number_of_nodes}
+    EXAMPLE_TYPE ${example_type}
     NODIFF)
 
 endforeach(example_tuple ${sunmatrix_slunrloc_examples})
@@ -99,21 +95,12 @@ endif()
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(
-    sunmatrix_slunrloc
-    sunmatrix_slunrloc_examples
-    EXAMPLES_DEPENDENCIES
-    test_sunmatrix.c
-    EXTRA_FILES
-    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
-    ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
-    CMAKE_TEMPLATE
-    cmakelists_${_ex_lang}_MPI_ex.in
-    SUNDIALS_TARGETS
-    nvecserial
-    nvecparallel
-    sunmatrixdense
-    sunmatrixslunrloc
-    DESTINATION
-    sunmatrix/slunrloc)
+    sunmatrix_slunrloc sunmatrix_slunrloc_examples
+    EXAMPLES_DEPENDENCIES test_sunmatrix.c
+    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
+                ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
+    CMAKE_TEMPLATE cmakelists_${_ex_lang}_MPI_ex.in
+    SUNDIALS_TARGETS nvecserial nvecparallel sunmatrixdense sunmatrixslunrloc
+    DESTINATION sunmatrix/slunrloc)
 
 endif()

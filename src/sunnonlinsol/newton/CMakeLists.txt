@@ -19,22 +19,14 @@ install(CODE "MESSAGE(\"\nInstall SUNNONLINSOL_NEWTON\n\")")
 # Add the library
 sundials_add_library(
   sundials_sunnonlinsolnewton
-  SOURCES
-  sunnonlinsol_newton.c
-  HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_newton.h
-  INCLUDE_SUBDIR
-  sunnonlinsol
-  LINK_LIBRARIES
-  PUBLIC
-  sundials_core
+  SOURCES sunnonlinsol_newton.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_newton.h
+  INCLUDE_SUBDIR sunnonlinsol
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  OUTPUT_NAME
-  sundials_sunnonlinsolnewton
-  VERSION
-  ${sunnonlinsollib_VERSION}
-  SOVERSION
-  ${sunnonlinsollib_SOVERSION})
+  OUTPUT_NAME sundials_sunnonlinsolnewton
+  VERSION ${sunnonlinsollib_VERSION}
+  SOVERSION ${sunnonlinsollib_SOVERSION})
 
 message(STATUS "Added SUNNONLINSOL_NEWTON module")
 

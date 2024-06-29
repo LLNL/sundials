@@ -38,7 +38,8 @@ foreach(backend ${SUNDIALS_RAJA_BACKENDS})
   endif()
 
   sundials_add_nvector_benchmark(
-    ${example_target} SOURCES test_nvector_performance_raja.cpp
+    ${example_target}
+    SOURCES test_nvector_performance_raja.cpp
     SUNDIALS_TARGETS sundials_nvecraja)
 
   target_compile_definitions(${example_target} PRIVATE ${_defines})

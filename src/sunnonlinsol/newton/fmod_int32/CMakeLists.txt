@@ -17,17 +17,10 @@
 
 sundials_add_f2003_library(
   sundials_fsunnonlinsolnewton_mod
-  SOURCES
-  fsunnonlinsol_newton_mod.f90
-  fsunnonlinsol_newton_mod.c
-  LINK_LIBRARIES
-  PUBLIC
-  sundials_fcore_mod
-  OUTPUT_NAME
-  sundials_fsunnonlinsolnewton_mod
-  VERSION
-  ${sunnonlinsollib_VERSION}
-  SOVERSION
-  ${sunnonlinsollib_SOVERSION})
+  SOURCES fsunnonlinsol_newton_mod.f90 fsunnonlinsol_newton_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
+  OUTPUT_NAME sundials_fsunnonlinsolnewton_mod
+  VERSION ${sunnonlinsollib_VERSION}
+  SOVERSION ${sunnonlinsollib_SOVERSION})
 
 message(STATUS "Added SUNNONLINSOL_NEWTON F2003 interface")

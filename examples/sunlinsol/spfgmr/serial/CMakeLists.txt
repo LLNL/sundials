@@ -72,12 +72,9 @@ foreach(example_tuple ${sunlinsol_spfgmr_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example}
-    TEST_ARGS
-    ${example_args}
-    EXAMPLE_TYPE
-    ${example_type}
+    ${test_name} ${example}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type}
     NODIFF)
 
   # install example source files
@@ -128,12 +125,9 @@ foreach(example_tuple ${sunlinsol_spfgmr_fortran_examples})
 
     # add example to regression tests
     sundials_add_test(
-      ${test_name}
-      ${example}
-      TEST_ARGS
-      ${example_args}
-      EXAMPLE_TYPE
-      ${example_type}
+      ${test_name} ${example}
+      TEST_ARGS ${example_args}
+      EXAMPLE_TYPE ${example_type}
       NODIFF)
   endif()
 

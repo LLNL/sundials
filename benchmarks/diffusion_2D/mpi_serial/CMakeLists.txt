@@ -63,7 +63,7 @@ foreach(test_tuple ${tests})
   install(TARGETS ${target}
           DESTINATION "${BENCHMARKS_INSTALL_PATH}/diffusion_2D")
 
-  sundials_add_benchmark(${target} ${target} diffusion_2D NUM_CORES
-                         ${SUNDIALS_BENCHMARK_NUM_CPUS})
+  sundials_add_benchmark(${target} ${target} diffusion_2D
+                         NUM_CORES ${SUNDIALS_BENCHMARK_NUM_CPUS})
 
 endforeach()

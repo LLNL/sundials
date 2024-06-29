@@ -37,36 +37,18 @@ endif()
 # Create the library
 sundials_add_library(
   sundials_nvecraja
-  SOURCES
-  nvector_raja.cpp
-  HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_raja.h
-  INCLUDE_SUBDIR
-  nvector
-  LINK_LIBRARIES
-  PUBLIC
-  sundials_core
-  OBJECT_LIBRARIES
-  ${_sunmemlib}
-  LINK_LIBRARIES
-  PUBLIC
-  ${_hip_lib_or_not}
-  RAJA
-  COMPILE_OPTIONS
-  PUBLIC
-  $<$<COMPILE_LANGUAGE:CUDA>:--expt-extended-lambda>
-  COMPILE_DEFINITIONS
-  PRIVATE
-  ${_compile_defs}
-  COMPILE_FEATURES
-  PUBLIC
-  ${_cxx_std}
-  OUTPUT_NAME
-  ${_lib_output_name}
-  VERSION
-  ${nveclib_VERSION}
-  SOVERSION
-  ${nveclib_SOVERSION})
+  SOURCES nvector_raja.cpp
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_raja.h
+  INCLUDE_SUBDIR nvector
+  LINK_LIBRARIES PUBLIC sundials_core
+  OBJECT_LIBRARIES ${_sunmemlib}
+  LINK_LIBRARIES PUBLIC ${_hip_lib_or_not} RAJA
+  COMPILE_OPTIONS PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:--expt-extended-lambda>
+  COMPILE_DEFINITIONS PRIVATE ${_compile_defs}
+  COMPILE_FEATURES PUBLIC ${_cxx_std}
+  OUTPUT_NAME ${_lib_output_name}
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION})
 
 message(
   STATUS "Added NVECTOR_RAJA module with ${SUNDIALS_RAJA_BACKENDS} backend")

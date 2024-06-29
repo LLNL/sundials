@@ -59,16 +59,11 @@ foreach(example_tuple ${IDA_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${example_target}
-    ${example_target}
-    MPI_NPROCS
-    ${number_of_tasks}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${example_target}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${example_target} ${example_target}
+    MPI_NPROCS ${number_of_tasks}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example_target}.out
+    EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${IDA_examples})
 
@@ -87,25 +82,14 @@ if(EXAMPLES_INSTALL)
   endif()
 
   sundials_install_examples(
-    ida
-    IDA_examples
-    CMAKE_TEMPLATE
-    cmakelists_${_lang}_MPI_ex.in
-    MAKE_TEMPLATE
-    makefile_parallel_RAJA_ex.in
-    SOLVER_LIBRARY
-    sundials_ida
-    SUNDIALS_TARGETS
-    ida
-    nvecmpiplusx
-    nvecraja
-    OTHER_TARGETS
-    ${_openmp_target}
-    DESTINATION
-    ida/mpiraja
-    EXTRA_FILES
-    README
-    TEST_INSTALL
-    mpiraja)
+    ida IDA_examples
+    CMAKE_TEMPLATE cmakelists_${_lang}_MPI_ex.in
+    MAKE_TEMPLATE makefile_parallel_RAJA_ex.in
+    SOLVER_LIBRARY sundials_ida
+    SUNDIALS_TARGETS ida nvecmpiplusx nvecraja
+    OTHER_TARGETS ${_openmp_target}
+    DESTINATION ida/mpiraja
+    EXTRA_FILES README
+    TEST_INSTALL mpiraja)
 
 endif()

@@ -68,12 +68,9 @@ foreach(example_tuple ${nvector_openmpdev_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example}
-    TEST_ARGS
-    ${example_args}
-    EXAMPLE_TYPE
-    ${example_type}
+    ${test_name} ${example}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type}
     NODIFF)
 
   # install example source files

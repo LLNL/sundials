@@ -71,12 +71,9 @@ foreach(example_tuple ${examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example}
-    TEST_ARGS
-    ${example_args}
-    EXAMPLE_TYPE
-    ${example_type}
+    ${test_name} ${example}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type}
     NODIFF)
 
   if(EXAMPLES_INSTALL)
@@ -122,12 +119,9 @@ foreach(example_tuple ${fortran_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example}
-    TEST_ARGS
-    ${example_args}
-    EXAMPLE_TYPE
-    ${example_type}
+    ${test_name} ${example}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type}
     NODIFF)
 
 endforeach(example_tuple ${fortran_examples})

@@ -53,22 +53,14 @@ foreach(example_tuple ${CVODE_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${example_target}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    MPI_NPROCS
-    ${number_of_nodes}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${example_target}_${SUNDIALS_INDEX_SIZE}.out
-    EXAMPLE_TYPE
-    ${example_type}
-    INTEGER_PRECISION
-    ${integer_precision}
-    FLOAT_PRECISION
-    ${float_precision})
+    ${example_target} ${example_target}
+    TEST_ARGS ${example_args}
+    MPI_NPROCS ${number_of_nodes}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example_target}_${SUNDIALS_INDEX_SIZE}.out
+    EXAMPLE_TYPE ${example_type}
+    INTEGER_PRECISION ${integer_precision}
+    FLOAT_PRECISION ${float_precision})
 
   # libraries to link against
   target_link_libraries(
@@ -90,18 +82,11 @@ endif()
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(
-    cvode_superludist
-    CVODE_examples
-    EXTRA_FILES
-    README
-    CMAKE_TEMPLATE
-    cmakelists_${_ex_lang}_MPI_ex.in
-    SUNDIALS_TARGETS
-    cvode
-    nvecparallel
-    sunlinsolsuperludist
-    DESTINATION
-    cvode/superludist)
+    cvode_superludist CVODE_examples
+    EXTRA_FILES README
+    CMAKE_TEMPLATE cmakelists_${_ex_lang}_MPI_ex.in
+    SUNDIALS_TARGETS cvode nvecparallel sunlinsolsuperludist
+    DESTINATION cvode/superludist)
 
   # add test_install target
   sundials_add_test_install(cvode superludist)

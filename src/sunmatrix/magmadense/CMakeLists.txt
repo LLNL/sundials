@@ -27,29 +27,16 @@ endif()
 # Add the sunmatrix_magmadense library
 sundials_add_library(
   sundials_sunmatrixmagmadense
-  SOURCES
-  sunmatrix_magmadense.cpp
-  HEADERS
-  ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_magmadense.h
-  INCLUDE_SUBDIR
-  sunmatrix
-  LINK_LIBRARIES
-  PUBLIC
-  sundials_core
+  SOURCES sunmatrix_magmadense.cpp
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_magmadense.h
+  INCLUDE_SUBDIR sunmatrix
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  INCLUDE_DIRECTORIES
-  PUBLIC
-  ${MAGMA_INCLUDE_DIR}
-  LINK_LIBRARIES
-  PUBLIC
-  SUNDIALS::MAGMA
-  ${_libs_needed}
-  OUTPUT_NAME
-  sundials_sunmatrixmagmadense
-  VERSION
-  ${sunmatrixlib_VERSION}
-  SOVERSION
-  ${sunmatrixlib_SOVERSION})
+  INCLUDE_DIRECTORIES PUBLIC ${MAGMA_INCLUDE_DIR}
+  LINK_LIBRARIES PUBLIC SUNDIALS::MAGMA ${_libs_needed}
+  OUTPUT_NAME sundials_sunmatrixmagmadense
+  VERSION ${sunmatrixlib_VERSION}
+  SOVERSION ${sunmatrixlib_SOVERSION})
 
 message(
   STATUS

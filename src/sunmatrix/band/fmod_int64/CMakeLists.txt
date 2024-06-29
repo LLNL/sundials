@@ -16,18 +16,11 @@
 
 sundials_add_f2003_library(
   sundials_fsunmatrixband_mod
-  SOURCES
-  fsunmatrix_band_mod.f90
-  fsunmatrix_band_mod.c
-  LINK_LIBRARIES
-  PUBLIC
-  sundials_fcore_mod
+  SOURCES fsunmatrix_band_mod.f90 fsunmatrix_band_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-  OUTPUT_NAME
-  sundials_fsunmatrixband_mod
-  VERSION
-  ${sunmatrixlib_VERSION}
-  SOVERSION
-  ${sunmatrixlib_SOVERSION})
+  OUTPUT_NAME sundials_fsunmatrixband_mod
+  VERSION ${sunmatrixlib_VERSION}
+  SOVERSION ${sunmatrixlib_SOVERSION})
 
 message(STATUS "Added SUNMATRIX_BAND F2003 interface")

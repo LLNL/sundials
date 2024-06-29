@@ -66,16 +66,11 @@ foreach(example_tuple ${all_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${test_name}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${test_name} ${example_target}
+    TEST_ARGS ${example_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${test_name}.out
+    EXAMPLE_TYPE ${example_type})
 endforeach(example_tuple ${all_examples})
 
 # Install the targets
@@ -88,15 +83,9 @@ if(EXAMPLES_INSTALL)
   endif()
 
   sundials_install_examples(
-    cvode
-    all_examples
-    CMAKE_TEMPLATE
-    cmakelists_HIP_ex.in
-    SUNDIALS_TARGETS
-    cvode
-    nvechip
-    ${_fused_kernels_if_enabled}
-    DESTINATION
-    cvode/hip)
+    cvode all_examples
+    CMAKE_TEMPLATE cmakelists_HIP_ex.in
+    SUNDIALS_TARGETS cvode nvechip ${_fused_kernels_if_enabled}
+    DESTINATION cvode/hip)
 
 endif()

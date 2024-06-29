@@ -61,14 +61,10 @@ foreach(example_tuple ${CVODE_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${example_target}
-    ${example_target}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${example_target}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${example_target} ${example_target}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example_target}.out
+    EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${CVODE_examples})
 
@@ -92,25 +88,14 @@ if(EXAMPLES_INSTALL)
   endif()
 
   sundials_install_examples(
-    cvode
-    CVODE_examples
-    CMAKE_TEMPLATE
-    cmakelists_${_lang}_ex.in
-    MAKE_TEMPLATE
-    makefile_serial_RAJA_ex.in
-    SOLVER_LIBRARY
-    sundials_cvode
-    SUNDIALS_TARGETS
-    cvode
-    nvecraja
-    ${_fused_stubs_target}
-    OTHER_TARGETS
-    ${_openmp_target}
-    DESTINATION
-    cvode/raja
-    EXTRA_FILES
-    README
-    TEST_INSTALL
-    raja)
+    cvode CVODE_examples
+    CMAKE_TEMPLATE cmakelists_${_lang}_ex.in
+    MAKE_TEMPLATE makefile_serial_RAJA_ex.in
+    SOLVER_LIBRARY sundials_cvode
+    SUNDIALS_TARGETS cvode nvecraja ${_fused_stubs_target}
+    OTHER_TARGETS ${_openmp_target}
+    DESTINATION cvode/raja
+    EXTRA_FILES README
+    TEST_INSTALL raja)
 
 endif()

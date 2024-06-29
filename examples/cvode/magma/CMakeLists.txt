@@ -66,16 +66,11 @@ foreach(example_tuple ${CVODE_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${test_name}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${test_name} ${example_target}
+    TEST_ARGS ${example_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${test_name}.out
+    EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${CVODE_examples})
 
@@ -83,15 +78,9 @@ endforeach(example_tuple ${CVODE_examples})
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(
-    cvode
-    CVODE_examples
-    CMAKE_TEMPLATE
-    cmakelists_${cuda_or_hip}_ex.in
-    SUNDIALS_TARGETS
-    cvode
-    ${vector}
-    sunlinsolmagmadense
-    DESTINATION
-    cvode/magma)
+    cvode CVODE_examples
+    CMAKE_TEMPLATE cmakelists_${cuda_or_hip}_ex.in
+    SUNDIALS_TARGETS cvode ${vector} sunlinsolmagmadense
+    DESTINATION cvode/magma)
 
 endif()

@@ -89,16 +89,11 @@ foreach(example_tuple ${FARKODE_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example}
-    TEST_ARGS
-    ${example_args}
-    ANSWER_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE
-    ${test_name}.out
-    EXAMPLE_TYPE
-    ${example_type})
+    ${test_name} ${example}
+    TEST_ARGS ${example_args}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${test_name}.out
+    EXAMPLE_TYPE ${example_type})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)
@@ -132,14 +127,10 @@ if(BUILD_SUNLINSOL_KLU)
 
     # add example to regression tests
     sundials_add_test(
-      ${example}
-      ${example}
-      ANSWER_DIR
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE
-      ${example}.out
-      EXAMPLE_TYPE
-      ${example_type})
+      ${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
@@ -181,14 +172,10 @@ if(BUILD_SUNLINSOL_LAPACKDENSE)
 
     # add example to regression tests
     sundials_add_test(
-      ${example}
-      ${example}
-      ANSWER_DIR
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE
-      ${example}.out
-      EXAMPLE_TYPE
-      ${example_type})
+      ${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
@@ -221,12 +208,9 @@ foreach(example_tuple ${FARKODE_tests})
 
   # add example to regression tests
   sundials_add_test(
-    ${example}
-    ${example}
-    TEST_ARGS
-    ""
-    EXAMPLE_TYPE
-    ${example_type}
+    ${example} ${example}
+    TEST_ARGS ""
+    EXAMPLE_TYPE ${example_type}
     NODIFF)
 
   # libraries to link against

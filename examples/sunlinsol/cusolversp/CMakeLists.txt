@@ -64,12 +64,9 @@ foreach(example_tuple ${examples_list})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    EXAMPLE_TYPE
-    ${example_type}
+    ${test_name} ${example_target}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type}
     NODIFF)
 
 endforeach()
@@ -77,23 +74,13 @@ endforeach()
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(
-    sunlinsol_cusolversp
-    examples_list
-    EXAMPLES_DEPENDENCIES
-    test_sunlinsol.c
-    EXTRA_FILES
-    ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
-    ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
-    CMAKE_TEMPLATE
-    cmakelists_CUDA_ex.in
-    SUNDIALS_TARGETS
-    nveccuda
-    nvecserial
-    sunmatrixdense
-    sunmatrixsparse
-    sunmatrixcusparse
-    sunlinsolcusolversp
-    DESTINATION
-    sunlinsol/cusolversp)
+    sunlinsol_cusolversp examples_list
+    EXAMPLES_DEPENDENCIES test_sunlinsol.c
+    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
+                ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
+    CMAKE_TEMPLATE cmakelists_CUDA_ex.in
+    SUNDIALS_TARGETS nveccuda nvecserial sunmatrixdense sunmatrixsparse
+                     sunmatrixcusparse sunlinsolcusolversp
+    DESTINATION sunlinsol/cusolversp)
 
 endif()

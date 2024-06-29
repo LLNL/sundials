@@ -87,14 +87,10 @@ foreach(example_tuple ${sunlinsol_superludist_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    MPI_NPROCS
-    ${number_of_nodes}
-    EXAMPLE_TYPE
-    ${example_type}
+    ${test_name} ${example_target}
+    TEST_ARGS ${example_args}
+    MPI_NPROCS ${number_of_nodes}
+    EXAMPLE_TYPE ${example_type}
     NODIFF)
 
 endforeach(example_tuple ${sunlinsol_superludist_examples})
@@ -102,21 +98,12 @@ endforeach(example_tuple ${sunlinsol_superludist_examples})
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(
-    sunlinsol_superludist
-    sunlinsol_superludist_examples
-    EXAMPLES_DEPENDENCIES
-    test_sunlinsol.c
-    EXTRA_FILES
-    ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
-    ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
-    CMAKE_TEMPLATE
-    cmakelists_${_ex_lang}_MPI_ex.in
-    SUNDIALS_TARGETS
-    nvecserial
-    nvecparallel
-    sunlinsoldense
-    sunlinsolsuperludist
-    DESTINATION
-    sunlinsol/superludist)
+    sunlinsol_superludist sunlinsol_superludist_examples
+    EXAMPLES_DEPENDENCIES test_sunlinsol.c
+    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
+                ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
+    CMAKE_TEMPLATE cmakelists_${_ex_lang}_MPI_ex.in
+    SUNDIALS_TARGETS nvecserial nvecparallel sunlinsoldense sunlinsolsuperludist
+    DESTINATION sunlinsol/superludist)
 
 endif()

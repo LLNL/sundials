@@ -101,8 +101,8 @@ endif()
 set(DOCSTR
     "Build with logging capabilities enabled (0 = no logging, 1 = errors, 2 = +warnings, 3 = +info, 4 = +debug, 5 = +extras"
 )
-sundials_option(SUNDIALS_LOGGING_LEVEL STRING "${DOCSTR}" 2 OPTIONS
-                "0;1;2;3;4;5")
+sundials_option(SUNDIALS_LOGGING_LEVEL STRING "${DOCSTR}" 2
+                OPTIONS "0;1;2;3;4;5")
 
 if(SUNDIALS_LOGGING_LEVEL GREATER_EQUAL 3)
   message(STATUS "SUNDIALS logging level set to ${SUNDIALS_LOGGING_LEVEL}")
@@ -263,41 +263,25 @@ if(SUNDIALS_DEBUG AND SUNDIALS_LOGGING_LEVEL LESS 4)
 endif()
 
 sundials_option(
-  SUNDIALS_DEBUG_ASSERT
-  BOOL
-  "Enable assert when debugging"
-  OFF
-  DEPENDS_ON
-  SUNDIALS_DEBUG
+  SUNDIALS_DEBUG_ASSERT BOOL "Enable assert when debugging" OFF
+  DEPENDS_ON SUNDIALS_DEBUG
   ADVANCED)
 
 sundials_option(
-  SUNDIALS_DEBUG_CUDA_LASTERROR
-  BOOL
-  "Enable CUDA last error checks when debugging"
-  OFF
-  DEPENDS_ON
-  SUNDIALS_DEBUG
-  ENABLE_CUDA
+  SUNDIALS_DEBUG_CUDA_LASTERROR BOOL
+  "Enable CUDA last error checks when debugging" OFF
+  DEPENDS_ON SUNDIALS_DEBUG ENABLE_CUDA
   ADVANCED)
 
 sundials_option(
-  SUNDIALS_DEBUG_HIP_LASTERROR
-  BOOL
-  "Enable HIP last error checks when debugging"
-  OFF
-  DEPENDS_ON
-  SUNDIALS_DEBUG
-  ENABLE_HIP
+  SUNDIALS_DEBUG_HIP_LASTERROR BOOL
+  "Enable HIP last error checks when debugging" OFF
+  DEPENDS_ON SUNDIALS_DEBUG ENABLE_HIP
   ADVANCED)
 
 sundials_option(
-  SUNDIALS_DEBUG_PRINTVEC
-  BOOL
-  "Enable vector printing when debugging"
-  OFF
-  DEPENDS_ON
-  SUNDIALS_DEBUG
+  SUNDIALS_DEBUG_PRINTVEC BOOL "Enable vector printing when debugging" OFF
+  DEPENDS_ON SUNDIALS_DEBUG
   ADVANCED)
 
 if(SUNDIALS_DEBUG_PRINTVEC AND SUNDIALS_LOGGING_LEVEL LESS 5)

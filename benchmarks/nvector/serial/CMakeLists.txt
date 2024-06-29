@@ -18,9 +18,6 @@ message(STATUS "Added Serial NVECTOR benchmark")
 
 sundials_add_nvector_benchmark(
   nvector_serial_benchmark
-  SOURCES
-  test_nvector_performance_serial.c
-  SUNDIALS_TARGETS
-  sundials_nvecserial
-  INSTALL_SUBDIR
-  nvector/serial)
+  SOURCES test_nvector_performance_serial.c
+  SUNDIALS_TARGETS sundials_nvecserial
+  INSTALL_SUBDIR nvector/serial)

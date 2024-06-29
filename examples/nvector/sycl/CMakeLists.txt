@@ -62,12 +62,9 @@ foreach(example_tuple ${nvector_sycl_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    EXAMPLE_TYPE
-    ${example_type}
+    ${test_name} ${example_target}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type}
     NODIFF)
 
 endforeach()
@@ -75,19 +72,14 @@ endforeach()
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(
-    nvector_sycl
-    nvector_sycl_examples
-    EXAMPLES_DEPENDENCIES
-    test_nvector.c
+    nvector_sycl nvector_sycl_examples
+    EXAMPLES_DEPENDENCIES test_nvector.c
     EXTRA_FILES
-    ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
-    ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
-    ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_sycl.h
-    CMAKE_TEMPLATE
-    cmakelists_CXX_ex.in
-    SUNDIALS_TARGETS
-    nvecsycl
-    DESTINATION
-    nvector/sycl)
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
+      ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_sycl.h
+    CMAKE_TEMPLATE cmakelists_CXX_ex.in
+    SUNDIALS_TARGETS nvecsycl
+    DESTINATION nvector/sycl)
 
 endif()

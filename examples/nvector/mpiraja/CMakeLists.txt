@@ -90,14 +90,10 @@ foreach(example_tuple ${nvector_raja_examples})
 
   # add example to regression tests
   sundials_add_test(
-    ${test_name}
-    ${example_target}
-    TEST_ARGS
-    ${example_args}
-    MPI_NPROCS
-    ${number_of_tasks}
-    EXAMPLE_TYPE
-    ${example_type}
+    ${test_name} ${example_target}
+    TEST_ARGS ${example_args}
+    MPI_NPROCS ${number_of_tasks}
+    EXAMPLE_TYPE ${example_type}
     NODIFF)
 
 endforeach()
@@ -116,26 +112,16 @@ if(EXAMPLES_INSTALL)
   endif()
 
   sundials_install_examples(
-    nvec_mpiraja
-    examples_list
-    EXAMPLES_DEPENDENCIES
-    test_nvector.c
-    test_mpinvector.c
+    nvec_mpiraja examples_list
+    EXAMPLES_DEPENDENCIES test_nvector.c test_mpinvector.c
     EXTRA_FILES
-    ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
-    ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
-    ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_mpinvector.c
-    CMAKE_TEMPLATE
-    cmakelists_${_lang}_MPI_ex.in
-    SOLVER_LIBRARY
-    sundials_ida
-    SUNDIALS_TARGETS
-    generic
-    nvecmpiplusx
-    nvecraja
-    OTHER_TARGETS
-    ${_openmp_target}
-    DESTINATION
-    nvector/mpiraja)
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
+      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_mpinvector.c
+    CMAKE_TEMPLATE cmakelists_${_lang}_MPI_ex.in
+    SOLVER_LIBRARY sundials_ida
+    SUNDIALS_TARGETS generic nvecmpiplusx nvecraja
+    OTHER_TARGETS ${_openmp_target}
+    DESTINATION nvector/mpiraja)
 
 endif()
