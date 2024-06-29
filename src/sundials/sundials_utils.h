@@ -127,7 +127,7 @@ static inline void sunfprintf_long_array(FILE* fp, SUNOutputFormat fmt,
 
   if (fmt == SUN_OUTPUTFORMAT_TABLE)
   {
-    fprintf(fp, "%-*s = %ld\n", SUN_TABLE_WIDTH, name, value[0]);
+    fprintf(fp, "%-*s = %ld", SUN_TABLE_WIDTH, name, value[0]);
     for (size_t i = 1; i < count; i++) { fprintf(fp, ", %ld", value[i]); }
     fprintf(fp, "\n");
   }
