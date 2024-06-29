@@ -416,7 +416,7 @@ void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
     fprintf(outfile, "  ");
     for (i = (SM_INDEXPTRS_S(A))[j]; i < (SM_INDEXPTRS_S(A))[j + 1]; i++)
     {
-      fprintf(outfile, "%ld: " SUN_REAL_FORMAT_E "  ",
+      fprintf(outfile, "%ld: " SUN_FORMAT_E "  ",
               (long int)(SM_INDEXVALS_S(A))[i], (SM_DATA_S(A))[i]);
     }
     fprintf(outfile, "\n");

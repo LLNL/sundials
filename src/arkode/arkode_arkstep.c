@@ -723,16 +723,16 @@ void arkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
     fprintf(outfile, "ARKStep: implicit Butcher table:\n");
     ARKodeButcherTable_Write(step_mem->Bi, outfile);
   }
-  fprintf(outfile, "ARKStep: gamma = " SUN_REAL_FORMAT_G "\n", step_mem->gamma);
-  fprintf(outfile, "ARKStep: gammap = " SUN_REAL_FORMAT_G "\n", step_mem->gammap);
-  fprintf(outfile, "ARKStep: gamrat = " SUN_REAL_FORMAT_G "\n", step_mem->gamrat);
-  fprintf(outfile, "ARKStep: crate = " SUN_REAL_FORMAT_G "\n", step_mem->crate);
-  fprintf(outfile, "ARKStep: eRNrm = " SUN_REAL_FORMAT_G "\n", step_mem->eRNrm);
-  fprintf(outfile, "ARKStep: nlscoef = " SUN_REAL_FORMAT_G "\n",
+  fprintf(outfile, "ARKStep: gamma = " SUN_FORMAT_G "\n", step_mem->gamma);
+  fprintf(outfile, "ARKStep: gammap = " SUN_FORMAT_G "\n", step_mem->gammap);
+  fprintf(outfile, "ARKStep: gamrat = " SUN_FORMAT_G "\n", step_mem->gamrat);
+  fprintf(outfile, "ARKStep: crate = " SUN_FORMAT_G "\n", step_mem->crate);
+  fprintf(outfile, "ARKStep: eRNrm = " SUN_FORMAT_G "\n", step_mem->eRNrm);
+  fprintf(outfile, "ARKStep: nlscoef = " SUN_FORMAT_G "\n",
           step_mem->nlscoef);
-  fprintf(outfile, "ARKStep: crdown = " SUN_REAL_FORMAT_G "\n", step_mem->crdown);
-  fprintf(outfile, "ARKStep: rdiv = " SUN_REAL_FORMAT_G "\n", step_mem->rdiv);
-  fprintf(outfile, "ARKStep: dgmax = " SUN_REAL_FORMAT_G "\n", step_mem->dgmax);
+  fprintf(outfile, "ARKStep: crdown = " SUN_FORMAT_G "\n", step_mem->crdown);
+  fprintf(outfile, "ARKStep: rdiv = " SUN_FORMAT_G "\n", step_mem->rdiv);
+  fprintf(outfile, "ARKStep: dgmax = " SUN_FORMAT_G "\n", step_mem->dgmax);
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
@@ -1833,7 +1833,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
                        "ARKODE::arkStep_TakeStep_Z", "start-stage",
                        "step = %li, stage = %i, implicit = %i, h "
-                       "= " SUN_REAL_FORMAT_G ", tcur = " SUN_REAL_FORMAT_G,
+                       "= " SUN_FORMAT_G ", tcur = " SUN_FORMAT_G,
                        ark_mem->nst, 0, implicit_stage, ark_mem->h,
                        ark_mem->tcur);
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
@@ -1886,7 +1886,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::arkStep_TakeStep_Z", "start-stage",
                        "step = %li, stage = %i, implicit = %i, h "
-                       "= " SUN_REAL_FORMAT_G ", tcur = " SUN_REAL_FORMAT_G,
+                       "= " SUN_FORMAT_G ", tcur = " SUN_FORMAT_G,
                        ark_mem->nst, is, implicit_stage, ark_mem->h,
                        ark_mem->tcur);
 #endif
@@ -2094,8 +2094,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
                      "ARKODE::arkStep_TakeStep_Z", "end-step",
-                     "step = %li, h = " SUN_REAL_FORMAT_G
-                     ", dsm = " SUN_REAL_FORMAT_G ", nflag = %d",
+                     "step = %li, h = " SUN_FORMAT_G
+                     ", dsm = " SUN_FORMAT_G ", nflag = %d",
                      ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
 #endif
 

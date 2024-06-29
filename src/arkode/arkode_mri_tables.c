@@ -561,7 +561,7 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile)
   fprintf(outfile, "  c = ");
   for (i = 0; i < MRIC->stages; i++)
   {
-    fprintf(outfile, SUN_REAL_FORMAT_G "  ", MRIC->c[i]);
+    fprintf(outfile, SUN_FORMAT_G "  ", MRIC->c[i]);
   }
   fprintf(outfile, "\n");
 
@@ -575,7 +575,7 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile)
         fprintf(outfile, "      ");
         for (j = 0; j < MRIC->stages; j++)
         {
-          fprintf(outfile, SUN_REAL_FORMAT_G "  ", MRIC->W[k][i][j]);
+          fprintf(outfile, SUN_FORMAT_G "  ", MRIC->W[k][i][j]);
         }
         fprintf(outfile, "\n");
       }
@@ -593,7 +593,7 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile)
         fprintf(outfile, "      ");
         for (j = 0; j < MRIC->stages; j++)
         {
-          fprintf(outfile, SUN_REAL_FORMAT_G "  ", MRIC->G[k][i][j]);
+          fprintf(outfile, SUN_FORMAT_G "  ", MRIC->G[k][i][j]);
         }
         fprintf(outfile, "\n");
       }

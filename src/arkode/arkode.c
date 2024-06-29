@@ -877,8 +877,8 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::ARKodeEvolve",
                          "start-step",
-                         "step = %li, attempt = %i, h = " SUN_REAL_FORMAT_G
-                         ", tcur = " SUN_REAL_FORMAT_G,
+                         "step = %li, attempt = %i, h = " SUN_FORMAT_G
+                         ", tcur = " SUN_FORMAT_G,
                          ark_mem->nst, attempts, ark_mem->h, ark_mem->tcur);
 #endif
 
@@ -1259,17 +1259,17 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "user_efun = %i\n", ark_mem->user_efun);
   fprintf(outfile, "tstopset = %i\n", ark_mem->tstopset);
   fprintf(outfile, "tstopinterp = %i\n", ark_mem->tstopinterp);
-  fprintf(outfile, "tstop = " SUN_REAL_FORMAT_G "\n", ark_mem->tstop);
+  fprintf(outfile, "tstop = " SUN_FORMAT_G "\n", ark_mem->tstop);
   fprintf(outfile, "VabstolMallocDone = %i\n", ark_mem->VabstolMallocDone);
   fprintf(outfile, "MallocDone = %i\n", ark_mem->MallocDone);
   fprintf(outfile, "initsetup = %i\n", ark_mem->initsetup);
   fprintf(outfile, "init_type = %i\n", ark_mem->init_type);
   fprintf(outfile, "firststage = %i\n", ark_mem->firststage);
-  fprintf(outfile, "uround = " SUN_REAL_FORMAT_G "\n", ark_mem->uround);
-  fprintf(outfile, "reltol = " SUN_REAL_FORMAT_G "\n", ark_mem->reltol);
-  fprintf(outfile, "Sabstol = " SUN_REAL_FORMAT_G "\n", ark_mem->Sabstol);
+  fprintf(outfile, "uround = " SUN_FORMAT_G "\n", ark_mem->uround);
+  fprintf(outfile, "reltol = " SUN_FORMAT_G "\n", ark_mem->reltol);
+  fprintf(outfile, "Sabstol = " SUN_FORMAT_G "\n", ark_mem->Sabstol);
   fprintf(outfile, "fixedstep = %i\n", ark_mem->fixedstep);
-  fprintf(outfile, "tolsf = " SUN_REAL_FORMAT_G "\n", ark_mem->tolsf);
+  fprintf(outfile, "tolsf = " SUN_FORMAT_G "\n", ark_mem->tolsf);
   fprintf(outfile, "call_fullrhs = %i\n", ark_mem->call_fullrhs);
 
   /* output counters */
@@ -1280,18 +1280,18 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "netf = %li\n", ark_mem->netf);
 
   /* output time-stepping values */
-  fprintf(outfile, "hin = " SUN_REAL_FORMAT_G "\n", ark_mem->hin);
-  fprintf(outfile, "h = " SUN_REAL_FORMAT_G "\n", ark_mem->h);
-  fprintf(outfile, "hprime = " SUN_REAL_FORMAT_G "\n", ark_mem->hprime);
-  fprintf(outfile, "next_h = " SUN_REAL_FORMAT_G "\n", ark_mem->next_h);
-  fprintf(outfile, "eta = " SUN_REAL_FORMAT_G "\n", ark_mem->eta);
-  fprintf(outfile, "tcur = " SUN_REAL_FORMAT_G "\n", ark_mem->tcur);
-  fprintf(outfile, "tretlast = " SUN_REAL_FORMAT_G "\n", ark_mem->tretlast);
-  fprintf(outfile, "hmin = " SUN_REAL_FORMAT_G "\n", ark_mem->hmin);
-  fprintf(outfile, "hmax_inv = " SUN_REAL_FORMAT_G "\n", ark_mem->hmax_inv);
-  fprintf(outfile, "h0u = " SUN_REAL_FORMAT_G "\n", ark_mem->h0u);
-  fprintf(outfile, "tn = " SUN_REAL_FORMAT_G "\n", ark_mem->tn);
-  fprintf(outfile, "hold = " SUN_REAL_FORMAT_G "\n", ark_mem->hold);
+  fprintf(outfile, "hin = " SUN_FORMAT_G "\n", ark_mem->hin);
+  fprintf(outfile, "h = " SUN_FORMAT_G "\n", ark_mem->h);
+  fprintf(outfile, "hprime = " SUN_FORMAT_G "\n", ark_mem->hprime);
+  fprintf(outfile, "next_h = " SUN_FORMAT_G "\n", ark_mem->next_h);
+  fprintf(outfile, "eta = " SUN_FORMAT_G "\n", ark_mem->eta);
+  fprintf(outfile, "tcur = " SUN_FORMAT_G "\n", ark_mem->tcur);
+  fprintf(outfile, "tretlast = " SUN_FORMAT_G "\n", ark_mem->tretlast);
+  fprintf(outfile, "hmin = " SUN_FORMAT_G "\n", ark_mem->hmin);
+  fprintf(outfile, "hmax_inv = " SUN_FORMAT_G "\n", ark_mem->hmax_inv);
+  fprintf(outfile, "h0u = " SUN_FORMAT_G "\n", ark_mem->h0u);
+  fprintf(outfile, "tn = " SUN_FORMAT_G "\n", ark_mem->tn);
+  fprintf(outfile, "hold = " SUN_FORMAT_G "\n", ark_mem->hold);
   fprintf(outfile, "maxnef = %i\n", ark_mem->maxnef);
   fprintf(outfile, "maxncf = %i\n", ark_mem->maxncf);
 
@@ -2518,8 +2518,8 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkCompleteStep",
                      "end-step",
-                     "step = %li, h = " SUN_REAL_FORMAT_G
-                     ", tcur = " SUN_REAL_FORMAT_G,
+                     "step = %li, h = " SUN_FORMAT_G
+                     ", tcur = " SUN_FORMAT_G,
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
@@ -2628,7 +2628,7 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_NLS_SETUP_FAIL:
     arkProcessError(ark_mem, ARK_NLS_SETUP_FAIL, __LINE__, __func__, __FILE__,
-                    "At t = " SUN_REAL_FORMAT_G
+                    "At t = " SUN_FORMAT_G
                     " the nonlinear solver setup failed unrecoverably",
                     ark_mem->tcur);
     break;
@@ -2658,7 +2658,7 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_INTERP_FAIL:
     arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
-                    "At t = " SUN_REAL_FORMAT_G
+                    "At t = " SUN_FORMAT_G
                     " the interpolation module failed unrecoverably",
                     ark_mem->tcur);
     break;
@@ -2668,7 +2668,7 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_RELAX_FAIL:
     arkProcessError(ark_mem, ARK_RELAX_FAIL, __LINE__, __func__, __FILE__,
-                    "At t = " SUN_REAL_FORMAT_G " the relaxation module failed",
+                    "At t = " SUN_FORMAT_G " the relaxation module failed",
                     ark_mem->tcur);
     break;
   case ARK_RELAX_MEM_NULL:

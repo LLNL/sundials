@@ -258,7 +258,7 @@ void N_VPrintFile_Serial(N_Vector x, FILE* outfile)
   N  = NV_LENGTH_S(x);
   xd = NV_DATA_S(x);
 
-  for (i = 0; i < N; i++) { fprintf(outfile, SUN_REAL_FORMAT_E "\n", xd[i]); }
+  for (i = 0; i < N; i++) { fprintf(outfile, SUN_FORMAT_E "\n", xd[i]); }
 
   return;
 }

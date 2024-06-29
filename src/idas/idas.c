@@ -5912,7 +5912,7 @@ static int IDAStep(IDAMem IDA_mem)
   {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDAStep",
-                       "start-step-attempt", "step = %li, h = " SUN_REAL_FORMAT_G,
+                       "start-step-attempt", "step = %li, h = " SUN_FORMAT_G,
                        IDA_mem->ida_nst, IDA_mem->ida_hh);
 #endif
 
@@ -6678,8 +6678,8 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
                      "estimate-error-order-k",
-                     "err_k = " SUN_REAL_FORMAT_G
-                     ", terr_k = " SUN_REAL_FORMAT_G,
+                     "err_k = " SUN_FORMAT_G
+                     ", terr_k = " SUN_FORMAT_G,
                      *err_k, terr_k);
 #endif
 
@@ -6698,8 +6698,8 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
                        "estimate-error-order-km1",
-                       "err_km1 = " SUN_REAL_FORMAT_G
-                       ", terr_km1 = " SUN_REAL_FORMAT_G,
+                       "err_km1 = " SUN_FORMAT_G
+                       ", terr_km1 = " SUN_FORMAT_G,
                        *err_km1, terr_km1);
 #endif
 
@@ -6716,8 +6716,8 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
                          "estimate-error-order-km2",
-                         "err_km2 = " SUN_REAL_FORMAT_G
-                         ", terr_km2 = " SUN_REAL_FORMAT_G,
+                         "err_km2 = " SUN_FORMAT_G
+                         ", terr_km2 = " SUN_FORMAT_G,
                          *err_km2, terr_km2);
 #endif
 
@@ -6743,7 +6743,7 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
                      IDA_mem->ida_knew);
 
   SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
-                     "error-estimate", "ck_enorm_k = " SUN_REAL_FORMAT_G,
+                     "error-estimate", "ck_enorm_k = " SUN_FORMAT_G,
                      ck * enorm_k);
 #endif
 
@@ -7259,8 +7259,8 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDAHandleNFlag",
                          "first-error-test_fail",
-                         "kk = %i, eta = " SUN_REAL_FORMAT_G
-                         ", h = " SUN_REAL_FORMAT_G,
+                         "kk = %i, eta = " SUN_FORMAT_G
+                         ", h = " SUN_FORMAT_G,
                          IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
 #endif
 
@@ -7279,8 +7279,8 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDAHandleNFlag",
                          "second-error-test-fail",
-                         "kk = %i, eta = " SUN_REAL_FORMAT_G
-                         ", h = " SUN_REAL_FORMAT_G,
+                         "kk = %i, eta = " SUN_FORMAT_G
+                         ", h = " SUN_FORMAT_G,
                          IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
 #endif
 
@@ -7298,8 +7298,8 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDAHandleNFlag",
                          "error-test-fail",
-                         "kk = %i, eta = " SUN_REAL_FORMAT_G
-                         ", h = " SUN_REAL_FORMAT_G,
+                         "kk = %i, eta = " SUN_FORMAT_G
+                         ", h = " SUN_FORMAT_G,
                          IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
 #endif
 
@@ -7482,8 +7482,8 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
         SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
                            "IDAS::IDACompleteStep", "order-selection-raise",
-                           "terr_k = " SUN_REAL_FORMAT_G
-                           ", terr_kp1 = " SUN_REAL_FORMAT_G,
+                           "terr_k = " SUN_FORMAT_G
+                           ", terr_kp1 = " SUN_FORMAT_G,
                            terr_k, terr_kp1);
 #endif
       }
@@ -7497,9 +7497,9 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
         SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDACompleteStep",
                            "order-selection-rasie-or-lower",
-                           "terr_km1 = " SUN_REAL_FORMAT_G
-                           ", terr_k = " SUN_REAL_FORMAT_G
-                           ", terr_kp1 = " SUN_REAL_FORMAT_G,
+                           "terr_km1 = " SUN_FORMAT_G
+                           ", terr_k = " SUN_FORMAT_G
+                           ", terr_kp1 = " SUN_FORMAT_G,
                            terr_km1, terr_k, terr_kp1);
 #endif
       }
@@ -7550,9 +7550,9 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
     SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDACompleteStep",
                        "new-step-and-order",
-                       "knew = %i, err_knew = " SUN_REAL_FORMAT_G
-                       ", eta = " SUN_REAL_FORMAT_G
-                       ", hnew = " SUN_REAL_FORMAT_G,
+                       "knew = %i, err_knew = " SUN_FORMAT_G
+                       ", eta = " SUN_FORMAT_G
+                       ", hnew = " SUN_FORMAT_G,
                        IDA_mem->ida_kk, err_knew, IDA_mem->ida_eta,
                        IDA_mem->ida_hh);
 #endif

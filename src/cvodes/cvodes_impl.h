@@ -1180,13 +1180,13 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
  * =================================================================
  */
 
-#define MSG_TIME   "t = " SUN_REAL_FORMAT_G
-#define MSG_TIME_H "t = " SUN_REAL_FORMAT_G " and h = " SUN_REAL_FORMAT_G
+#define MSG_TIME   "t = " SUN_FORMAT_G
+#define MSG_TIME_H "t = " SUN_FORMAT_G " and h = " SUN_FORMAT_G
 #define MSG_TIME_INT                                                          \
-  "t = " SUN_REAL_FORMAT_G " is not between tcur - hold = " SUN_REAL_FORMAT_G \
-  " and tcur = " SUN_REAL_FORMAT_G
-#define MSG_TIME_TOUT  "tout = " SUN_REAL_FORMAT_G
-#define MSG_TIME_TSTOP "tstop = " SUN_REAL_FORMAT_G
+  "t = " SUN_FORMAT_G " is not between tcur - hold = " SUN_FORMAT_G \
+  " and tcur = " SUN_FORMAT_G
+#define MSG_TIME_TOUT  "tout = " SUN_FORMAT_G
+#define MSG_TIME_TSTOP "tstop = " SUN_FORMAT_G
 
 /* Initialization and I/O error messages */
 
@@ -1421,7 +1421,7 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
   "The final time tBout is outside the interval over which the forward " \
   "problem was solved."
 #define MSGCV_BACK_ERROR  "Error occured while integrating backward problem # %d"
-#define MSGCV_BAD_TINTERP "Bad t = " SUN_REAL_FORMAT_G " for interpolation."
+#define MSGCV_BAD_TINTERP "Bad t = " SUN_FORMAT_G " for interpolation."
 #define MSGCV_WRONG_INTERP \
   "This function cannot be called for the specified interp type."
 

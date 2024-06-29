@@ -643,13 +643,13 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   Reusable ARKODE Error Messages
   ===============================================================*/
 
-#define MSG_TIME   "t = " SUN_REAL_FORMAT_G
-#define MSG_TIME_H "t = " SUN_REAL_FORMAT_G " and h = " SUN_REAL_FORMAT_G
+#define MSG_TIME   "t = " SUN_FORMAT_G
+#define MSG_TIME_H "t = " SUN_FORMAT_G " and h = " SUN_FORMAT_G
 #define MSG_TIME_INT                                                          \
-  "t = " SUN_REAL_FORMAT_G " is not between tcur - hold = " SUN_REAL_FORMAT_G \
-  " and tcur = " SUN_REAL_FORMAT_G
-#define MSG_TIME_TOUT  "tout = " SUN_REAL_FORMAT_G
-#define MSG_TIME_TSTOP "tstop = " SUN_REAL_FORMAT_G
+  "t = " SUN_FORMAT_G " is not between tcur - hold = " SUN_FORMAT_G \
+  " and tcur = " SUN_FORMAT_G
+#define MSG_TIME_TOUT  "tout = " SUN_FORMAT_G
+#define MSG_TIME_TSTOP "tstop = " SUN_FORMAT_G
 
 /* Initialization and I/O error messages */
 #define MSG_ARK_NO_MEM         "arkode_mem = NULL illegal."

@@ -128,10 +128,10 @@ SUNErrCode SUNAdaptController_Write_ARKUserControl(SUNAdaptController C,
                                                    FILE* fptr)
 {
   fprintf(fptr, "ARKUserControl module:\n");
-  fprintf(fptr, "  hp = " SUN_REAL_FORMAT_G "\n", SC_HP(C));
-  fprintf(fptr, "  hpp = " SUN_REAL_FORMAT_G "\n", SC_HPP(C));
-  fprintf(fptr, "  ep = " SUN_REAL_FORMAT_G "\n", SC_EP(C));
-  fprintf(fptr, "  epp = " SUN_REAL_FORMAT_G "\n", SC_EPP(C));
+  fprintf(fptr, "  hp = " SUN_FORMAT_G "\n", SC_HP(C));
+  fprintf(fptr, "  hpp = " SUN_FORMAT_G "\n", SC_HPP(C));
+  fprintf(fptr, "  ep = " SUN_FORMAT_G "\n", SC_EP(C));
+  fprintf(fptr, "  epp = " SUN_FORMAT_G "\n", SC_EPP(C));
   fprintf(fptr, "  hadapt_data = %p\n", SC_DATA(C));
   return SUN_SUCCESS;
 }

@@ -466,7 +466,7 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "SUNLinSolSolve_SPFGMR", "initial-residual",
-                     "nli = %li, resnorm = " SUN_REAL_FORMAT_G, (long int)0,
+                     "nli = %li, resnorm = " SUN_FORMAT_G, (long int)0,
                      *res_norm);
 #endif
 
@@ -578,7 +578,7 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
                          "SUNLinSolSolve_SPFGMR", "iterate-residual",
-                         "nli = %li, resnorm = " SUN_REAL_FORMAT_G, (long int)0,
+                         "nli = %li, resnorm = " SUN_FORMAT_G, (long int)0,
                          *res_norm);
 #endif
 

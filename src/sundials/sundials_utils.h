@@ -95,12 +95,12 @@ static inline void sunfprintf_real(FILE* fp, SUNOutputFormat fmt,
 {
   if (fmt == SUN_OUTPUTFORMAT_TABLE)
   {
-    fprintf(fp, "%-*s = " SUN_REAL_FORMAT_G "\n", SUN_TABLE_WIDTH, name, value);
+    fprintf(fp, "%-*s = " SUN_FORMAT_G "\n", SUN_TABLE_WIDTH, name, value);
   }
   else
   {
     if (!start) { fprintf(fp, ","); }
-    fprintf(fp, "%s," SUN_REAL_FORMAT_E, name, value);
+    fprintf(fp, "%s," SUN_FORMAT_E, name, value);
   }
 }
 
