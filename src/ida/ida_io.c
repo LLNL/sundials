@@ -1421,17 +1421,13 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
     return (IDA_ILL_INPUT);
   }
 
-  sunfprintf_real(outfile, fmt, SUNTRUE, "Current time" SUN_FORMAT_G "\n",
-                  IDA_mem->ida_tn);
+  sunfprintf_real(outfile, fmt, SUNTRUE, "Current time", IDA_mem->ida_tn);
   sunfprintf_long(outfile, fmt, SUNFALSE, "Steps", IDA_mem->ida_nst);
   sunfprintf_long(outfile, fmt, SUNFALSE, "Error test fails", IDA_mem->ida_netf);
   sunfprintf_long(outfile, fmt, SUNFALSE, "NLS step fails", IDA_mem->ida_ncfn);
-  sunfprintf_real(outfile, fmt, SUNFALSE, "Initial step size" SUN_FORMAT_G "\n",
-                  IDA_mem->ida_h0u);
-  sunfprintf_real(outfile, fmt, SUNFALSE, "Last step size" SUN_FORMAT_G "\n",
-                  IDA_mem->ida_hused);
-  sunfprintf_real(outfile, fmt, SUNFALSE, "Current step size" SUN_FORMAT_G "\n",
-                  IDA_mem->ida_hh);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Initial step size", IDA_mem->ida_h0u);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Last step size", IDA_mem->ida_hused);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Current step size", IDA_mem->ida_hh);
   sunfprintf_long(outfile, fmt, SUNFALSE, "Last method order",
                   IDA_mem->ida_kused);
   sunfprintf_long(outfile, fmt, SUNFALSE, "Current method order",
@@ -1449,8 +1445,7 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
   sunfprintf_long(outfile, fmt, SUNFALSE, "NLS fails", IDA_mem->ida_nnf);
   if (IDA_mem->ida_nst > 0)
   {
-    sunfprintf_real(outfile, fmt, SUNFALSE,
-                    "NLS iters per step" SUN_FORMAT_G "\n",
+    sunfprintf_real(outfile, fmt, SUNFALSE, "NLS iters per step",
                     (sunrealtype)IDA_mem->ida_nre / (sunrealtype)IDA_mem->ida_nst);
   }
 
@@ -1472,14 +1467,11 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
                     idals_mem->njtimes);
     if (IDA_mem->ida_nni > 0)
     {
-      sunfprintf_real(outfile, fmt, SUNFALSE,
-                      "LS iters per NLS iter" SUN_FORMAT_G "\n",
+      sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter",
                       (sunrealtype)idals_mem->nli / (sunrealtype)IDA_mem->ida_nni);
-      sunfprintf_real(outfile, fmt, SUNFALSE,
-                      "Jac evals per NLS iter" SUN_FORMAT_G "\n",
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Jac evals per NLS iter",
                       (sunrealtype)idals_mem->nje / (sunrealtype)IDA_mem->ida_nni);
-      sunfprintf_real(outfile, fmt, SUNFALSE,
-                      "Prec evals per NLS iter" SUN_FORMAT_G "\n",
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Prec evals per NLS iter",
                       (sunrealtype)idals_mem->npe / (sunrealtype)IDA_mem->ida_nni);
     }
   }
