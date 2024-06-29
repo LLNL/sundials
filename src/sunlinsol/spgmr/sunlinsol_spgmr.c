@@ -468,10 +468,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   *res_norm = r_norm = beta = SUNRsqrt(r_norm);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
-                     "SUNLinSolSolve_SPGMR", "initial-residual",
-                     "nli = %li, resnorm = " SUN_FORMAT_G, (long int)0,
-                     *res_norm);
+  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO, "SUNLinSolSolve_SPGMR",
+                     "initial-residual", "nli = %li, resnorm = " SUN_FORMAT_G,
+                     (long int)0, *res_norm);
 #endif
 
   if (r_norm <= delta)
@@ -603,8 +602,8 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
                          "SUNLinSolSolve_SPGMR", "iterate-residual",
-                         "nli = %li, resnorm = " SUN_FORMAT_G,
-                         (long int)*nli, *res_norm);
+                         "nli = %li, resnorm = " SUN_FORMAT_G, (long int)*nli,
+                         *res_norm);
 #endif
 
       if (rho <= delta)

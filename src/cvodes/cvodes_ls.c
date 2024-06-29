@@ -1879,8 +1879,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvLsSolve",
                      "ls-stats",
-                     "bnorm = " SUN_FORMAT_G
-                     ", resnorm = " SUN_FORMAT_G
+                     "bnorm = " SUN_FORMAT_G ", resnorm = " SUN_FORMAT_G
                      ", ls_iters = %i, prec_solves = %i",
                      bnorm, resnorm, nli_inc, (int)(cvls_mem->nps - nps_inc));
 #endif

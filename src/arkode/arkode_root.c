@@ -367,8 +367,7 @@ int arkPrintRootMem(void* arkode_mem, FILE* outfile)
     }
     fprintf(outfile, "ark_tlo = " SUN_FORMAT_G "\n", ark_mem->root_mem->tlo);
     fprintf(outfile, "ark_thi = " SUN_FORMAT_G "\n", ark_mem->root_mem->thi);
-    fprintf(outfile, "ark_trout = " SUN_FORMAT_G "\n",
-            ark_mem->root_mem->trout);
+    fprintf(outfile, "ark_trout = " SUN_FORMAT_G "\n", ark_mem->root_mem->trout);
     if (ark_mem->root_mem->glo != NULL)
     {
       for (i = 0; i < ark_mem->root_mem->nrtfn; i++)
@@ -393,10 +392,8 @@ int arkPrintRootMem(void* arkode_mem, FILE* outfile)
                 ark_mem->root_mem->grout[i]);
       }
     }
-    fprintf(outfile, "ark_toutc = " SUN_FORMAT_G "\n",
-            ark_mem->root_mem->toutc);
-    fprintf(outfile, "ark_ttol = " SUN_FORMAT_G "\n",
-            ark_mem->root_mem->ttol);
+    fprintf(outfile, "ark_toutc = " SUN_FORMAT_G "\n", ark_mem->root_mem->toutc);
+    fprintf(outfile, "ark_ttol = " SUN_FORMAT_G "\n", ark_mem->root_mem->ttol);
   }
   return (ARK_SUCCESS);
 }

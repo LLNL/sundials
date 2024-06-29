@@ -3296,8 +3296,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvDoErrorTest",
                      "error-test",
-                     "step = %li, h = " SUN_FORMAT_G
-                     ", dsm = " SUN_FORMAT_G,
+                     "step = %li, h = " SUN_FORMAT_G ", dsm = " SUN_FORMAT_G,
                      cv_mem->cv_nst, cv_mem->cv_h, dsm);
 #endif
 
@@ -3337,8 +3336,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvDoErrorTest",
-                       "new-step-eta", "eta = " SUN_FORMAT_G,
-                       cv_mem->cv_eta);
+                       "new-step-eta", "eta = " SUN_FORMAT_G, cv_mem->cv_eta);
 #endif
 
     return (TRY_AGAIN);

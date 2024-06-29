@@ -464,24 +464,23 @@ void KINInfoHandler(const char* module, const char* function, char* msg,
 #define INFO_RETVAL "Return value: %d"
 #define INFO_ADJ    "no. of lambda adjustments = %ld"
 
-#define INFO_RVAR "%s = " SUN_FORMAT_G
-#define INFO_NNI  "nni = %4ld   nfe = %6ld   fnorm = " SUN_FORMAT_G
-#define INFO_TOL \
-  "scsteptol = " SUN_FORMAT_G "  fnormtol = " SUN_FORMAT_G
+#define INFO_RVAR   "%s = " SUN_FORMAT_G
+#define INFO_NNI    "nni = %4ld   nfe = %6ld   fnorm = " SUN_FORMAT_G
+#define INFO_TOL    "scsteptol = " SUN_FORMAT_G "  fnormtol = " SUN_FORMAT_G
 #define INFO_FMAX   "scaled f norm (for stopping) = " SUN_FORMAT_G
 #define INFO_PNORM  "pnorm = " SUN_FORMAT_E
 #define INFO_PNORM1 "(ivio=1) pnorm = " SUN_FORMAT_E
 #define INFO_FNORM  "fnorm(L2) = " SUN_FORMAT_E
-#define INFO_LAM                                                  \
+#define INFO_LAM                                        \
   "min_lam = " SUN_FORMAT_E "   f1norm = " SUN_FORMAT_E \
   "   pnorm = " SUN_FORMAT_E
-#define INFO_ALPHA                                              \
+#define INFO_ALPHA                                    \
   "fnorm = " SUN_FORMAT_E "   f1norm = " SUN_FORMAT_E \
   "   alpha_cond = " SUN_FORMAT_E "  lam = " SUN_FORMAT_E ""
-#define INFO_BETA                                                   \
+#define INFO_BETA                                         \
   "f1norm = " SUN_FORMAT_E "   beta_cond = " SUN_FORMAT_E \
   "   lam = " SUN_FORMAT_E ""
-#define INFO_ALPHABETA                                              \
+#define INFO_ALPHABETA                                    \
   "f1norm = " SUN_FORMAT_E "  alpha_cond = " SUN_FORMAT_E \
   "  beta_cond = " SUN_FORMAT_E "  lam = " SUN_FORMAT_E ""
 

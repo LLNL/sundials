@@ -372,8 +372,7 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkRelaxSolve",
-                     "compute old e", "e_old = " SUN_FORMAT_G,
-                     relax_mem->e_old);
+                     "compute old e", "e_old = " SUN_FORMAT_G, relax_mem->e_old);
 #endif
 
   /* Initial guess for relaxation parameter */

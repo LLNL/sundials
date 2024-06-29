@@ -94,8 +94,8 @@ typedef float sunrealtype;
 #define SUN_BIG_REAL      FLT_MAX
 #define SUN_SMALL_REAL    FLT_MIN
 #define SUN_UNIT_ROUNDOFF FLT_EPSILON
-#define SUN_FORMAT_E "%." SUN_STRING(FLT_DIG) "e"
-#define SUN_FORMAT_G "%." SUN_STRING(FLT_DIG) "g"
+#define SUN_FORMAT_E      "%." SUN_STRING(FLT_DIG) "e"
+#define SUN_FORMAT_G      "%." SUN_STRING(FLT_DIG) "g"
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
@@ -104,8 +104,8 @@ typedef double sunrealtype;
 #define SUN_BIG_REAL      DBL_MAX
 #define SUN_SMALL_REAL    DBL_MIN
 #define SUN_UNIT_ROUNDOFF DBL_EPSILON
-#define SUN_FORMAT_E "%." SUN_STRING(DBL_DIG) "e"
-#define SUN_FORMAT_G "%." SUN_STRING(DBL_DIG) "g"
+#define SUN_FORMAT_E      "%." SUN_STRING(DBL_DIG) "e"
+#define SUN_FORMAT_G      "%." SUN_STRING(DBL_DIG) "g"
 
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 
@@ -114,8 +114,8 @@ typedef long double sunrealtype;
 #define SUN_BIG_REAL      LDBL_MAX
 #define SUN_SMALL_REAL    LDBL_MIN
 #define SUN_UNIT_ROUNDOFF LDBL_EPSILON
-#define SUN_FORMAT_E "% ." SUN_STRING(LDBL_DIG) "Le"
-#define SUN_FORMAT_G "% ." SUN_STRING(LDBL_DIG) "Lg"
+#define SUN_FORMAT_E      "% ." SUN_STRING(LDBL_DIG) "Le"
+#define SUN_FORMAT_G      "% ." SUN_STRING(LDBL_DIG) "Lg"
 
 #endif
 

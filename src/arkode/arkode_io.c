@@ -2908,8 +2908,7 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   fprintf(fp, "  Maximum step increase (first step) = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->etamx1);
   fprintf(fp,
-          "  Step reduction factor on multiple error fails = " SUN_FORMAT_G
-          "\n",
+          "  Step reduction factor on multiple error fails = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->etamxf);
   fprintf(fp, "  Minimum error fails before above factor is used = %i\n",
           ark_mem->hadapt_mem->small_nef);

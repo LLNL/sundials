@@ -3426,8 +3426,7 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkLsSolve",
                      "ls-stats",
-                     "bnorm = " SUN_FORMAT_G
-                     ", resnorm = " SUN_FORMAT_G
+                     "bnorm = " SUN_FORMAT_G ", resnorm = " SUN_FORMAT_G
                      ", ls_iters = %i, prec_solves = %i",
                      bnorm, resnorm, nli_inc, (int)(arkls_mem->nps - nps_inc));
 #else

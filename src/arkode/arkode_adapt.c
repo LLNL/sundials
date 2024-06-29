@@ -63,10 +63,8 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE* outfile)
     fprintf(outfile, "ark_hadapt: etamin = " SUN_FORMAT_G "\n",
             hadapt_mem->etamin);
     fprintf(outfile, "ark_hadapt: small_nef = %i\n", hadapt_mem->small_nef);
-    fprintf(outfile, "ark_hadapt: etacf = " SUN_FORMAT_G "\n",
-            hadapt_mem->etacf);
-    fprintf(outfile, "ark_hadapt: cfl = " SUN_FORMAT_G "\n",
-            hadapt_mem->cfl);
+    fprintf(outfile, "ark_hadapt: etacf = " SUN_FORMAT_G "\n", hadapt_mem->etacf);
+    fprintf(outfile, "ark_hadapt: cfl = " SUN_FORMAT_G "\n", hadapt_mem->cfl);
     fprintf(outfile, "ark_hadapt: safety = " SUN_FORMAT_G "\n",
             hadapt_mem->safety);
     fprintf(outfile, "ark_hadapt: growth = " SUN_FORMAT_G "\n",
@@ -146,9 +144,8 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, "ARKODE::arkAdapt",
                      "new-step-before-bounds",
-                     "h_acc = " SUN_FORMAT_G
-                     ", h_cfl = " SUN_FORMAT_G,
-                     h_acc, h_cfl);
+                     "h_acc = " SUN_FORMAT_G ", h_cfl = " SUN_FORMAT_G, h_acc,
+                     h_cfl);
 #endif
 
   /* enforce safety factors */
@@ -164,9 +161,8 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, "ARKODE::arkAdapt",
                      "new-step-after-max-min-bounds",
-                     "h_acc = " SUN_FORMAT_G
-                     ", h_cfl = " SUN_FORMAT_G,
-                     h_acc, h_cfl);
+                     "h_acc = " SUN_FORMAT_G ", h_cfl = " SUN_FORMAT_G, h_acc,
+                     h_cfl);
 #endif
 
   /* increment the relevant step counter, set desired step */

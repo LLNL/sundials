@@ -163,8 +163,7 @@ int kinLs_AccessLMem(void* kinmem, const char* fname, KINMem* kin_mem,
   ------------------------------------------------------------------*/
 
 #define INFO_NLI "nli_inc = %d"
-#define INFO_EPS \
-  "residual norm = " SUN_FORMAT_G "  eps = " SUN_FORMAT_G
+#define INFO_EPS "residual norm = " SUN_FORMAT_G "  eps = " SUN_FORMAT_G
 
 #ifdef __cplusplus
 }

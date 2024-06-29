@@ -728,8 +728,7 @@ void arkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   fprintf(outfile, "ARKStep: gamrat = " SUN_FORMAT_G "\n", step_mem->gamrat);
   fprintf(outfile, "ARKStep: crate = " SUN_FORMAT_G "\n", step_mem->crate);
   fprintf(outfile, "ARKStep: eRNrm = " SUN_FORMAT_G "\n", step_mem->eRNrm);
-  fprintf(outfile, "ARKStep: nlscoef = " SUN_FORMAT_G "\n",
-          step_mem->nlscoef);
+  fprintf(outfile, "ARKStep: nlscoef = " SUN_FORMAT_G "\n", step_mem->nlscoef);
   fprintf(outfile, "ARKStep: crdown = " SUN_FORMAT_G "\n", step_mem->crdown);
   fprintf(outfile, "ARKStep: rdiv = " SUN_FORMAT_G "\n", step_mem->rdiv);
   fprintf(outfile, "ARKStep: dgmax = " SUN_FORMAT_G "\n", step_mem->dgmax);
@@ -2094,8 +2093,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
                      "ARKODE::arkStep_TakeStep_Z", "end-step",
-                     "step = %li, h = " SUN_FORMAT_G
-                     ", dsm = " SUN_FORMAT_G ", nflag = %d",
+                     "step = %li, h = " SUN_FORMAT_G ", dsm = " SUN_FORMAT_G
+                     ", nflag = %d",
                      ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
 #endif
 

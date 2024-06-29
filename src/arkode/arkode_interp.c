@@ -1207,8 +1207,7 @@ int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tau,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkInterpEvaluate_Lagrange", "interp-eval",
-                     "tau = " SUN_FORMAT_G ", d = %i, q = %i", tau, deriv,
-                     q);
+                     "tau = " SUN_FORMAT_G ", d = %i, q = %i", tau, deriv, q);
 #endif
 
   /* error on illegal deriv */

@@ -691,8 +691,7 @@ void mriStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   fprintf(outfile, "MRIStep: crate = " SUN_FORMAT_G "\n", step_mem->crate);
   fprintf(outfile, "MRIStep: delp = " SUN_FORMAT_G "\n", step_mem->delp);
   fprintf(outfile, "MRIStep: eRNrm = " SUN_FORMAT_G "\n", step_mem->eRNrm);
-  fprintf(outfile, "MRIStep: nlscoef = " SUN_FORMAT_G "\n",
-          step_mem->nlscoef);
+  fprintf(outfile, "MRIStep: nlscoef = " SUN_FORMAT_G "\n", step_mem->nlscoef);
   fprintf(outfile, "MRIStep: crdown = " SUN_FORMAT_G "\n", step_mem->crdown);
   fprintf(outfile, "MRIStep: rdiv = " SUN_FORMAT_G "\n", step_mem->rdiv);
   fprintf(outfile, "MRIStep: dgmax = " SUN_FORMAT_G "\n", step_mem->dgmax);
@@ -1643,8 +1642,7 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
                      "error-test",
-                     "step = %li, h = " SUN_FORMAT_G
-                     ", dsm = " SUN_FORMAT_G,
+                     "step = %li, h = " SUN_FORMAT_G ", dsm = " SUN_FORMAT_G,
                      ark_mem->nst, ark_mem->h, *dsmPtr);
 #endif
 
@@ -2815,8 +2813,7 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "ARKODE::mriStepInnerStepper_Evolve", "start-inner-evolve",
-                     "t0 = " SUN_FORMAT_G ", tout = " SUN_FORMAT_G,
-                     t0, tout);
+                     "t0 = " SUN_FORMAT_G ", tout = " SUN_FORMAT_G, t0, tout);
 #endif
 
   stepper->last_flag = stepper->ops->evolve(stepper, t0, tout, y);

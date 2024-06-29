@@ -1182,7 +1182,7 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
 
 #define MSG_TIME   "t = " SUN_FORMAT_G
 #define MSG_TIME_H "t = " SUN_FORMAT_G " and h = " SUN_FORMAT_G
-#define MSG_TIME_INT                                                          \
+#define MSG_TIME_INT                                                \
   "t = " SUN_FORMAT_G " is not between tcur - hold = " SUN_FORMAT_G \
   " and tcur = " SUN_FORMAT_G
 #define MSG_TIME_TOUT  "tout = " SUN_FORMAT_G

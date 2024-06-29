@@ -1299,8 +1299,7 @@ int arkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   if (step_mem->implicit)
   {
     fprintf(fp, "  Implicit predictor method = %i\n", step_mem->predictor);
-    fprintf(fp,
-            "  Implicit solver tolerance coefficient = " SUN_FORMAT_G "\n",
+    fprintf(fp, "  Implicit solver tolerance coefficient = " SUN_FORMAT_G "\n",
             step_mem->nlscoef);
     fprintf(fp, "  Maximum number of nonlinear corrections = %i\n",
             step_mem->maxcor);
