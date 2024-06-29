@@ -11,25 +11,25 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-#
-# SUNDIALS_ADD_TEST_INSTALL(<package name> <test dir>)
+
+# ~~~
+# sundials_add_test_install(<package name> <test dir>
+#                           EXECUTABLE exec)
+# ~~~
 #
 # CMake macro to add a Sundials installation smoke tests.
-# ---------------------------------------------------------------
+#
+# The input <package name> is the SUNDIALS package name e.g., cvode, arkode,
+# etc.
+#
+# The input <test dir> is the test directory name e.g., serial, C_parallel, etc.
+#
+# The input EXECUTABLE is the executable to add to make test_install target
 
 macro(SUNDIALS_ADD_TEST_INSTALL PACKAGE TESTDIR)
 
-  # required macro args PACKAGE = Sundials package name (e.g., cvode, arkode,
-  # etc.) TESTDIR = Test directory name (e.g., serial, C_parallel, etc.)
-
-  # macro options
   set(options)
-
-  # macro keyword inputs followed by a single value EXECUTABLE = executable to
-  # add to make test_install target
   set(oneValueArgs EXECUTABLE)
-
-  # macro keyword inputs followed by multiple values
   set(multiValueArgs)
 
   # parse inputs and create variables SUNDIALS_ADD_TEST_<keyword>

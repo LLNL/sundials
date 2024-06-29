@@ -11,19 +11,20 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
-# Defines the macro:
+
+# ~~~
+# sundials_trycompile_execute(<EXECUTABLE> <CWD> <COMPILE_OK> <RUN_OK>
+#                             [COMPILE_OUTPUT variable]
+#                             [RUN_OUTPUT variable])
+# ~~~
 #
-#     sundials_trycompile_execute(<EXECUTABLE> <CWD> <COMPILE_OK> <RUN_OK>
-#                                 [COMPILE_OUTPUT variable]
-#                                 [RUN_OUTPUT variable])
-#
-# This macro attempts to compile and then execute <CWD>/<EXECUTABLE>.
-# The variable COMPILE_OK is TRUE if the source code compiles successfully.
+# This macro attempts to compile and then execute <CWD>/<EXECUTABLE>. The
+# variable COMPILE_OK is TRUE if the source code compiles successfully.
 # Otherwise COMPILE_OK is FALSE. The variable RUN_OK is TRUE if
-# <CWD>/<EXECUTABLE> runs and returns zero. Otherwise it is FALSE.
-# The optional COMPILE_OUTPUT variable is set to the generated output during
-# compilation. It is useful for debugging compile failures. The option
-# RUN_OUTPUT is set to the generated output during runtime.
+# <CWD>/<EXECUTABLE> runs and returns zero. Otherwise it is FALSE. The optional
+# COMPILE_OUTPUT variable is set to the generated output during compilation. It
+# is useful for debugging compile failures. The option RUN_OUTPUT is set to the
+# generated output during runtime.
 # -----------------------------------------------------------------------------
 
 macro(sundials_trycompile_execute EXECUTABLE CWD COMPILE_OK RUN_OK)

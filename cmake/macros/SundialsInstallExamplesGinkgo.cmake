@@ -11,20 +11,20 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-# The macro:
+
+# ~~~
+# sundials_install_examples_ginkgo(<MODULE>
+#                                  [CPU_EXAMPLES_VAR var]
+#                                  [GPU_EXAMPLES_VAR var]
+#                                  [CPU_GPU_EXAMPLES_VAR var]
+#                                  [DESTINATION path]
+#                                  [SUNDIALS_COMPONENTS components]
+#                                  [SUNDIALS_TARGETS targets]
+#                                  [DEPENDENCIES files]
+#                                  [EXTRA_FILES files])
+# ~~~
 #
-#   sundials_install_examples_ginkgo(<MODULE>
-#     [CPU_EXAMPLES_VAR var]
-#     [GPU_EXAMPLES_VAR var]
-#     [CPU_GPU_EXAMPLES_VAR var]
-#     [DESTINATION path]
-#     [SUNDIALS_COMPONENTS components]
-#     [SUNDIALS_TARGETS targets]
-#     [DEPENDENCIES files]
-#     [EXTRA_FILES files]
-#   )
-#
-# adds an install target for each example tuple in CPU_EXAMPLES_VAR,
+# Adds an install target for each example tuple in CPU_EXAMPLES_VAR,
 # GPU_EXAMPLES_VAR, and CPU_GPU_EXAMPLES_VAR that go with MODULE (e.g. cvode,
 # sunlinsol).
 #
@@ -39,12 +39,11 @@
 # namespace provided to target_link_libraries. Note this may be the same as or a
 # subset of SUNDIALS_COMPONENTS depending on the CMakeLists.txt template.
 #
-# The DEPENDENCIES option is a list of additional source files that the
-# examples are dependent on.
+# The DEPENDENCIES option is a list of additional source files that the examples
+# are dependent on.
 #
 # The EXTRA_FILES option is a list of files to install that are not example
 # source code.
-# ------------------------------------------------------------------------------
 
 macro(sundials_install_examples_ginkgo MODULE)
 

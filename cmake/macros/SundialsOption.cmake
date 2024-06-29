@@ -11,11 +11,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------------------
-# Provides the macro:
-#
-#   SUNDIALS_OPTION(<variable> <type> <docstring> <default value>
-#                   [DEPENDS_ON dependencies]
-#                   [DEPNDS_ON_THROW_ERROR])
+
+# ~~~
+# sundials_option(<variable> <type> <docstring> <default value>
+#                 [DEPENDS_ON dependencies]
+#                 [DEPNDS_ON_THROW_ERROR])
+# ~~~
 #
 # Within CMake creates a cache variable <variable> and sets it to the value
 # <default value> if <variable> is not yet defined and, if provided, all of its
@@ -32,7 +33,6 @@
 # The OPTIONS option can be used to provide a list of valid <variable> values.
 #
 # The ADVANCED option can be used to make <variable> an advanced CMake option.
-# ---------------------------------------------------------------------------
 
 macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
 

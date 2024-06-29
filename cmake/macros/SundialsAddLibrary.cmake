@@ -15,33 +15,49 @@
 # Wraps the add_library command for sundials specific needs.
 # ---------------------------------------------------------------
 
-# The macro:
+# ~~~
+# sundials_add_library(<target>
+#                      SOURCES source1 source2 ...
+#                      [HEADERS header1 header2 ...]
+#                      [OBJECT_LIBRARIES objlib1 objlib2 ...]
+#                      [LINK_LIBRARIES <PRIVATE|PUBLIC|INTERFACE> <item>...
+#                                     [<PRIVATE|PUBLIC|INTERFACE> <item>...] ]
+#                      [INCLUDE_DIRECTORIES <PRIVATE|PUBLIC|INTERFACE> <item>...
+#                                          [<PRIVATE|PUBLIC|INTERFACE> <item>...] ]
+#                      [COMPILE_DEFINITIONS <PRIVATE|PUBLIC|INTERFACE> <item>...
+#                                          [<PRIVATE|PUBLIC|INTERFACE> <item>...] ]
+#                      [COMPILE_OPTIONS <PRIVATE|PUBLIC|INTERFACE> <item>...
+#                                      [<PRIVATE|PUBLIC|INTERFACE> <item>...] ]
+#                      [COMPILE_FEATURES <PRIVATE|PUBLIC|INTERFACE> <item>...
+#                                       [<PRIVATE|PUBLIC|INTERFACE> <item>...] ]
+#                      [PROPERTIES <PROPERTY> <value> ... [<PROPERTY> <value> ...] ]
+#                      [INCLUDE_SUBDIR]
+#                      [OUTPUT_NAME name]
+#                      [VERSION version]
+#                      [SOVERSION version]
+#                      [STATIC_ONLY | SHARED_ONLY]
+#                      [OBJECT_LIB_ONLY])
+# ~~~
 #
-# SUNDIALS_ADD_LIBRARY(<target> SOURCES source1 source2 ... [HEADERS header1
-# header2 ...] [OBJECT_LIBRARIES objlib1 objlib2 ...] [LINK_LIBRARIES
-# <PRIVATE|PUBLIC|INTERFACE> <item>... [<PRIVATE|PUBLIC|INTERFACE> <item>...] ]
-# [INCLUDE_DIRECTORIES <PRIVATE|PUBLIC|INTERFACE> <item>...
-# [<PRIVATE|PUBLIC|INTERFACE> <item>...] ] [COMPILE_DEFINITIONS
-# <PRIVATE|PUBLIC|INTERFACE> <item>... [<PRIVATE|PUBLIC|INTERFACE> <item>...] ]
-# [COMPILE_OPTIONS <PRIVATE|PUBLIC|INTERFACE> <item>...
-# [<PRIVATE|PUBLIC|INTERFACE> <item>...] ] [COMPILE_FEATURES
-# <PRIVATE|PUBLIC|INTERFACE> <item>... [<PRIVATE|PUBLIC|INTERFACE> <item>...] ]
-# [PROPERTIES <PROPERTY> <value> ... [<PROPERTY> <value> ...] ] [INCLUDE_SUBDIR]
-# [OUTPUT_NAME name] [VERSION version] [SOVERSION version] [STATIC_ONLY |
-# SHARED_ONLY] [OBJECT_LIB_ONLY])
-#
-# adds libraries to be built from the source files listed in the command
+# Adds libraries to be built from the source files listed in the command
 # invocation. It is a convenient wrapper of the CMake add_library command that
 # is specific to our usage of add_library in SUNDIALS.
 #
 # By default, the macro uses the CMake add_library command to create the
-# targets: - <target>${_SHARED_LIB_SUFFIX} (will be a shared library) -
-# <target>${_STATIC_LIB_SUFFIX} (will be a static library) -
-# <target>_obj${_SHARED_LIB_SUFFIX} (an object library that is used to create
-# <target>${_SHARED_LIB_SUFFIX}) - <target>_obj${_STATIC_LIB_SUFFIX} (an object
-# library that is used to create <target>${_STATIC_LIB_SUFFIX}) - <target> (an
-# alias to the shared library, if enabled, otherwise an alias to the static
-# library)
+# targets:
+#
+# * <target>${_SHARED_LIB_SUFFIX} (will be a shared library)
+#
+# * <target>${_STATIC_LIB_SUFFIX} (will be a static library)
+#
+# * <target>_obj${_SHARED_LIB_SUFFIX} (an object library that is used to create
+#   <target>${_SHARED_LIB_SUFFIX})
+#
+# * <target>_obj${_STATIC_LIB_SUFFIX} (an object library that is used to create
+#   <target>${_STATIC_LIB_SUFFIX})
+#
+# * <target> (an alias to the shared library, if enabled, otherwise an alias to
+#   the static library)
 #
 # The SOURCES input is a list of source files used to create the library.
 #
@@ -96,6 +112,7 @@
 #
 # The option OBJECT_LIB_ONLY will cause the macro to only create the object
 # library targets.
+
 macro(sundials_add_library target)
 
   set(options STATIC_ONLY SHARED_ONLY OBJECT_LIB_ONLY)
@@ -299,8 +316,11 @@ macro(sundials_add_library target)
         endif()
       endif()
 
-      # add common includes Building: public, config/export generated, and
-      # shared private headers Installing: installed include directory
+      # add common includes
+      #
+      # Building: public, config/export generated, and shared private headers
+      #
+      # Installing: installed include directory
       target_include_directories(
         ${_actual_target_name}
         PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>

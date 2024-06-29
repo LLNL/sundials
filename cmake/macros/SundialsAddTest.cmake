@@ -11,12 +11,40 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-#
-# SUNDIALS_ADD_TEST(<test name> <executable>)
+
+# ~~~
+# sundials_add_test(<test name> <executable>
+#                   [NODIFF]
+#                   [MPI_NPROCS num_processes]
+#                   [FLOAT_PRECISION num_digits]
+#                   [INTEGER_PRECISION percent_difference]
+#                   [ANSWER_DIR path]
+#                   [ANSWER_FIEL file]
+#                   [EXAMPLE_TYPE type]
+#                   [TEST_ARGS arg1 arg2 ...])
+# ~~~
 #
 # CMake macro to add a SUNDIALS regression test. Keyword input arguments can be
-# added after <executable> to set regression test options (see oneValueArgs and
-# multiValueArgs below).
+# added after <executable> to set regression test options.
+#
+# The option NODIFF disables comparison of the test output against the answer
+# file
+#
+# The option MPI_NPROCS sets the number of mpi tasks to use in parallel tests
+#
+# The option FLOAT_PRECISION set the precision (number of digits) for floating
+# point failure comparisons. To use the default value, either don't provide the
+# keyword, or provide the value "default".
+#
+# The option INTEGER_PRECISION sets the integer percentage difference for
+# failure comparison.
+#
+# The option ANSWER_DIR sets the path to the directory containing the test
+# answer file
+#
+# The option ANSWER_FILE set the name of test answer file
+#
+# The option EXAMPLE_TYPE set the example type i.e., release or develop examples
 #
 # When SUNDIALS_TEST_DEVTESTS is OFF (default) the executable is run and success
 # or failure is determined by the executable return value (zero or non-zero
@@ -32,41 +60,29 @@
 # for all tests with the cache variables SUNDIALS_TEST_FLOAT_PRECISION and
 # SUNDIALS_TEST_INTEGER_PRECISION.
 #
-#  -D SUNDIALS_TEST_FLOAT_PRECISION=<number of digits>
-#  -D SUNDIALS_TEST_INTEGER_PRECISION=<% difference>
+# -D SUNDIALS_TEST_FLOAT_PRECISION=<number of digits>
+#
+# -D SUNDIALS_TEST_INTEGER_PRECISION=<% difference>
 #
 # By default testing output is written to builddir/Testing/output and the .out
 # answer file directory is set using the ANSWER_DIR keyword input to
 # sourcedir/examples/package/testdir. These can be changed by setting the cache
 # variables SUNDIALS_TEST_OUTPUT_DIR and SUNDIALS_TEST_ANSWER_DIR.
 #
-#  -D SUNDIALS_TEST_OUTPUT_DIR=<path to output directory>
-#  -D SUNDIALS_TEST_ANSWER_DIR=<path to answer directory>
+# -D SUNDIALS_TEST_OUTPUT_DIR=<path to output directory>
+#
+# -D SUNDIALS_TEST_ANSWER_DIR=<path to answer directory>
 #
 # By default the caliper output is written to builddir/Caliper. This can be
 # changed by setting the cache variable SUNDIALS_CALIPER_OUTPUT_DIR.
 #
 # -D SUNDIALS_CALIPER_OUTPUT_DIR=<path to caliper output directory>
-#
-# ------------------------------------------------------------------------------
 
 macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
-  # macro options NODIFF = do not diff the test output against an answer file
   set(options "NODIFF")
-
-  # macro keyword inputs followed by a single value MPI_NPROCS        = number
-  # of mpi tasks to use in parallel tests FLOAT_PRECISION   = precision for
-  # floating point failure comparision (num digits), to use the default, either
-  # don't provide the keyword, or provide the value "default" INTEGER_PRECISION
-  # = integer percentage difference for failure comparison ANSWER_DIR        =
-  # path to the directory containing the test answer file ANSWER_FILE       =
-  # name of test answer file EXAMPLE_TYPE      = release or develop examples
   set(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PRECISION"
                    "ANSWER_DIR" "ANSWER_FILE" "EXAMPLE_TYPE")
-
-  # macro keyword inputs followed by multiple values TEST_ARGS = command line
-  # arguments to pass to the test executable
   set(multiValueArgs "TEST_ARGS" "EXTRA_ARGS")
 
   # parse inputs and create variables SUNDIALS_ADD_TEST_<keyword>

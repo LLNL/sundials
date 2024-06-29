@@ -14,14 +14,20 @@
 # CMake macro for installing examples.
 # ------------------------------------------------------------------------------
 
-# The macro:
+# ~~~
+# sundials_install_examples(<MODULE> <EXAMPLES_VAR>
+#                           DESTINATION path
+#                           CMAKE_TEMPLATE name
+#                           [MAKE_TEMPLATE name [SOLVER_LIBRARY target]]
+#                           [SUNDIALS_COMPONENTS components]
+#                           [SUNDIALS_TARGETS targets]
+#                           [DEPENDENCIES files]
+#                           [TEST_INSTALL target]
+#                           [EXTRA_FILES files]
+#                           [EXTRA_INCLUDES includes])
+# ~~~
 #
-# SUNDIALS_INSTALL_EXAMPLES(<MODULE> <EXAMPLES_VAR> DESTINATION path
-# CMAKE_TEMPLATE name [MAKE_TEMPLATE name [SOLVER_LIBRARY target]]
-# [SUNDIALS_COMPONENTS components] [SUNDIALS_TARGETS targets] [DEPENDENCIES
-# files] [TEST_INSTALL target] [EXTRA_FILES files] [EXTRA_INCLUDES includes] )
-#
-# adds an install target for examples in EXAMPLES_VAR that go with MODULE (e.g.
+# Adds an install target for examples in EXAMPLES_VAR that go with MODULE (e.g.
 # arkode, nvecserial).
 #
 # The DESTINATION option is the path *within* EXAMPLES_INSTALL_PATH that the
@@ -61,7 +67,6 @@
 #
 # The EXTRA_INCLUDES option is a list of additional includes to set with
 # INCLUDE_DIRECTORIES.
-# ------------------------------------------------------------------------------
 
 macro(sundials_install_examples MODULE EXAMPLES_VAR)
 
@@ -129,8 +134,8 @@ macro(sundials_install_examples MODULE EXAMPLES_VAR)
   list2string(libs_list EXAMPLES_MAKEFILE_LIBS)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then be used
-  # as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file can then be used as
+  # a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(

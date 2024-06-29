@@ -13,15 +13,11 @@
 # ---------------------------------------------------------------------------
 # Setup MPI for SUNDIALS CMake-based configuration.
 # ---------------------------------------------------------------------------
-# Prior to CMake 3.10 the CMake FindMPI module considers:
-#   1. Inspect MPI wrappers (MPI_<lang>_COMPILER)
-#   2. Try guesses
-#   3. Try the compiler (CMAKE_<lang>_COMPILER)
-#
 # Starting with CMake 3.10 the CMake FindMPI module considers:
-#   1. Try the compiler (CMAKE_<lang>_COMPILER)
-#   2. Inspect MPI wrappers (MPI_<lang>_COMPILER)
-#   3. Try guesses
+#
+# 1. Try the compiler (CMAKE_<lang>_COMPILER)
+# 2. Inspect MPI wrappers (MPI_<lang>_COMPILER)
+# 3. Try guesses
 # ---------------------------------------------------------------------------
 
 # -----------------------------------------------------------------------------
@@ -39,18 +35,18 @@ endif()
 # the given compiler wrapper. If MPI_<lang>_COMPILER is unset FindMPI will
 # attempt to locate an installed MPI library and set the below variables.
 #
-# MPI_<lang>_FOUND           TRUE if FindMPI found MPI flags for <lang>
-# MPI_<lang>_COMPILER        MPI Compiler wrapper for <lang>
-# MPI_<lang>_COMPILE_FLAGS   Compilation flags for MPI programs
-# MPI_<lang>_INCLUDE_PATH    Include path(s) for MPI header
-# MPI_<lang>_LINK_FLAGS      Linking flags for MPI programs MPI_<lang>_LIBRARIES
-# All libraries to link MPI programs against
-#
-# MPIEXEC_EXECUTABLE         Executable for running MPI programs
-# MPIEXEC_NUMPROC_FLAG       Flag to pass to MPIEXEC_EXECUTABLE before giving it
-# the number of processors to run on MPIEXEC_PREFLAGS           Flags to pass to
-# MPIEXEC_EXECUTABLE directly before the executable to run. MPIEXEC_POSTFLAGS
-# Flags to pass to MPIEXEC_EXECUTABLE after other flags
+# * MPI_<lang>_FOUND -- TRUE if FindMPI found MPI flags for <lang>
+# * MPI_<lang>_COMPILER -- MPI Compiler wrapper for <lang>
+# * MPI_<lang>_COMPILE_FLAGS -- Compilation flags for MPI programs
+# * MPI_<lang>_INCLUDE_PATH -- Include path(s) for MPI header
+# * MPI_<lang>_LINK_FLAGS -- Linking flags for MPI programs
+# * MPI_<lang>_LIBRARIES -- All libraries to link MPI programs against
+# * MPIEXEC_EXECUTABLE -- Executable for running MPI programs
+# * MPIEXEC_NUMPROC_FLAG -- Flag to pass to MPIEXEC_EXECUTABLE before giving it
+#   the number of processors to run on
+# * MPIEXEC_PREFLAGS -- Flags to pass to MPIEXEC_EXECUTABLE directly before the
+#   executable to run.
+# * MPIEXEC_POSTFLAGS -- Flags to pass to MPIEXEC_EXECUTABLE after other flags
 # ---------------------------------------------------------------------------
 
 mark_as_advanced(MPI_EXTRA_LIBRARY)
