@@ -184,12 +184,11 @@ not adhere to all of these rules.
    variable-length arrays. Exceptions are allowed when interfacing with a
    library which requires a newer standard.
 
-#. All new code added to SUNDIALS should be formatted with
-   `clang-format <https://clang.llvm.org/docs/ClangFormat.html>`_ for C/C++
-   files and `fprettify <https://github.com/fortran-lang/fprettify>`_ for
-   Fortran files. New CMake files should be formatted with
-   `clang-format <https://cmake-format.readthedocs.io>`_.
-   See :ref:`Style.Formatting` for details.
+#. All new code added to SUNDIALS should be formatted with `clang-format
+   <https://clang.llvm.org/docs/ClangFormat.html>`_ for C/C++, `fprettify
+   <https://github.com/fortran-lang/fprettify>`_ for Fortran, and `cmake-format
+   <https://cmake-format.readthedocs.io>`_ for CMake. See
+   :ref:`Style.Formatting` for details.
 
 #. Spaces not tabs.
 
@@ -380,13 +379,13 @@ Formatting
 ----------
 
 All new code added to SUNDIALS should be formatted with `clang-format
-<https://clang.llvm.org/docs/ClangFormat.html>`_ for C/C++ files and
-`fprettify <https://github.com/fortran-lang/fprettify>`_ for Fortran files. The
-``.clang-format`` file in the root of the project defines our configuration
-for clang-format. We use the default fprettify settings, except we use
-2-space indentation. CMake files should be formatted with
-`clang-format <https://cmake-format.readthedocs.io>`_. The ``.cmake-format.py``
-file in the root of the project defines our configuration for cmake-format.
+<https://clang.llvm.org/docs/ClangFormat.html>`_ for C/C++, `fprettify
+<https://github.com/fortran-lang/fprettify>`_ for Fortran, and `cmake-format
+<https://cmake-format.readthedocs.io>`_ CMake. The ``.clang-format`` file in the
+root of the project defines our configuration for clang-format. We use the
+default fprettify settings, except we use 2-space indentation. The
+``.cmake-format.py`` file in the root of the project defines our configuration
+for cmake-format.
 
 To apply ``clang-format``, ``fprettify``, and ``cmake-format`` you can run:
 
