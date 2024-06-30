@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 # ------------------------------------------------------------------------------
 
 # read problem info file
-infofile = 'heat2d_info.txt'
+infofile = "heat2d_info.txt"
 
 with open(infofile) as fn:
 
@@ -66,26 +66,26 @@ with open(infofile) as fn:
 # ------------------------------------------------------------------------------
 
 # check if the error was output
-fname = 'heat2d_error.txt'
+fname = "heat2d_error.txt"
 
 if os.path.isfile(fname):
-    plottype = ['solution', 'error']
+    plottype = ["solution", "error"]
 else:
-    plottype = ['solution']
+    plottype = ["solution"]
 
 for pt in plottype:
 
     # fill array with data
-    time   = np.zeros(nt)
+    time = np.zeros(nt)
     result = np.zeros((nt, ny, nx))
 
     # load data
-    data = np.loadtxt('heat2d_' + pt + '.txt', dtype=np.double)
+    data = np.loadtxt("heat2d_" + pt + ".txt", dtype=np.double)
 
     # extract data
     for i in range(nt):
-        time[i] = data[i,0]
-        result[i,0:ny+1,0:nx+1] = np.reshape(data[i,1:], (ny,nx))
+        time[i] = data[i, 0]
+        result[i, 0 : ny + 1, 0 : nx + 1] = np.reshape(data[i, 1:], (ny, nx))
 
     # determine extents of plots
     maxtemp = 1.1 * result.max()
@@ -94,7 +94,7 @@ for pt in plottype:
     # set x and y meshgrid objects
     xspan = np.linspace(0.0, xu, nx)
     yspan = np.linspace(0.0, yu, ny)
-    X,Y   = np.meshgrid(xspan, yspan)
+    X, Y = np.meshgrid(xspan, yspan)
 
     nxstr = repr(nx)
     nystr = repr(ny)
@@ -103,24 +103,33 @@ for pt in plottype:
     for tstep in range(nt):
 
         # set string constants for output plots, current time, mesh size
-        pname = 'heat2d_surf_' + pt + '.' + repr(tstep).zfill(3) + '.png'
-        tstr  = str(time[tstep])
+        pname = "heat2d_surf_" + pt + "." + repr(tstep).zfill(3) + ".png"
+        tstr = str(time[tstep])
 
         # plot surface and save to disk
         fig = plt.figure(1)
-        ax = fig.add_subplot(111, projection='3d')
+        ax = fig.add_subplot(111, projection="3d")
 
-        ax.plot_surface(X, Y, result[tstep,:,:], rstride=1, cstride=1,
-                        cmap=cm.jet, linewidth=0, antialiased=True, shade=True)
+        ax.plot_surface(
+            X,
+            Y,
+            result[tstep, :, :],
+            rstride=1,
+            cstride=1,
+            cmap=cm.jet,
+            linewidth=0,
+            antialiased=True,
+            shade=True,
+        )
 
-        ax.set_xlabel('x')
-        ax.set_ylabel('y')
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
         ax.set_zlim((mintemp, maxtemp))
-        ax.view_init(20,45)
-        if (pt == 'solution'):
-            title('u(x,y) at t = ' + tstr)
+        ax.view_init(20, 45)
+        if pt == "solution":
+            title("u(x,y) at t = " + tstr)
         else:
-            title('error(x,y) at t = ' + tstr)
+            title("error(x,y) at t = " + tstr)
         savefig(pname)
         plt.close()
 
