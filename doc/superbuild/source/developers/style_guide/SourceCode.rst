@@ -184,9 +184,11 @@ not adhere to all of these rules.
    variable-length arrays. Exceptions are allowed when interfacing with a
    library which requires a newer standard.
 
-#. All new code added to SUNDIALS should be
-   formatted with `clang-format <https://clang.llvm.org/docs/ClangFormat.html>`_,
-   and `fprettify <https://github.com/fortran-lang/fprettify>`_.
+#. All new code added to SUNDIALS should be formatted with
+   `clang-format <https://clang.llvm.org/docs/ClangFormat.html>`_ for C/C++
+   files and `fprettify <https://github.com/fortran-lang/fprettify>`_ for
+   Fortran files. New CMake files should be formatted with
+   `clang-format <https://cmake-format.readthedocs.io>`_.
    See :ref:`Style.Formatting` for details.
 
 #. Spaces not tabs.
@@ -378,16 +380,19 @@ Formatting
 ----------
 
 All new code added to SUNDIALS should be formatted with `clang-format
-<https://clang.llvm.org/docs/ClangFormat.html>`_ and
-`fprettify <https://github.com/fortran-lang/fprettify>`_. The
+<https://clang.llvm.org/docs/ClangFormat.html>`_ for C/C++ files and
+`fprettify <https://github.com/fortran-lang/fprettify>`_ for Fortran files. The
 ``.clang-format`` file in the root of the project defines our configuration
 for clang-format. We use the default fprettify settings, except we use
-2-space indentation. To apply ``clang-format`` and ``fprettify`` you can run:
+2-space indentation. CMake files should be formatted with
+`clang-format <https://cmake-format.readthedocs.io>`_. The ``.cmake-format.py``
+file in the root of the project defines our configuration for cmake-format.
+
+To apply ``clang-format``, ``fprettify``, and ``cmake-format`` you can run:
 
 .. code-block:: shell
 
-   ./scripts/format.sh <path to directories to format>
-
+   ./scripts/format.sh <path to directories or files to format>
 
 .. warning::
 
@@ -395,8 +400,7 @@ for clang-format. We use the default fprettify settings, except we use
    that you use version ``17.0.4``, which can be installed from source or with Spack. Alternatively,
    when you open a pull request on GitHub, an action will run ``clang-format`` on the code. If any
    formatting is required, the action will fail and produce a git patch artifact that you can download
-   (from the job artifacts section) and apply with `git apply`.
-
+   (from the job artifacts section) and apply with ``git apply``.
 
 If clang-format breaks lines in a way that is unreadable, use ``//`` to break the line. For example,
 sometimes (mostly in C++ code) you may have code like this:
