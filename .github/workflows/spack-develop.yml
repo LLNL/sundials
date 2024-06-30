@@ -24,7 +24,7 @@ jobs:
         precision: ['double']
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: Run test_driver.sh

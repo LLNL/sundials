@@ -40,55 +40,6 @@ macro(ADD_PREFIX prefix rootlist)
   set(${rootlist} ${outlist})
 endmacro(ADD_PREFIX)
 
-# Macro to print warnings.
-
-macro(print_warning message action)
-  set(options )
-  set(oneValueArgs MODE)
-  set(multiValueArgs )
-
-  # parse inputs and create variables print_warning_<keyword>
-  cmake_parse_arguments(print_warning "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
-
-  if(print_warning_MODE)
-    set(_mode ${print_warning_MODE})
-  else()
-    set(_mode WARNING)
-  endif()
-
-  set(MSG
-  "------------------------------------------------------------------------\n"
-  "WARNING: ${message}\n"
-  "${action}\n"
-  "------------------------------------------------------------------------")
-
-  message(${_mode} ${MSG})
-endmacro()
-
-# Macro to print error messages.
-
-macro(print_error message)
-  set(options )
-  set(oneValueArgs MODE)
-  set(multiValueArgs )
-
-  # parse inputs and create variables print_warning_<keyword>
-  cmake_parse_arguments(print_error "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
-
-  if(print_error_MODE)
-    set(_mode ${print_error_MODE})
-  else()
-    set(_mode FATAL_ERROR)
-  endif()
-
-  set(MSG
-  "************************************************************************\n"
-  "ERROR: ${message}\n"
-  "************************************************************************")
-
-  message(${_mode} ${MSG})
-endmacro()
-
 # Returns an unquoted string. Note that CMake will readily turn such
 # strings back into lists, due to the duality of lists and
 # semicolon-separated strings. So be careful how you use it.

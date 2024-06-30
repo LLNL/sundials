@@ -226,7 +226,7 @@ of user-supplied SUNNonlinSol modules are as follows.
       * ``ARK_SUCCESS`` if successful.
       * ``ARK_MEM_NULL`` if the ARKStep memory was ``NULL``.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetCurrentMassMatrix` instead.
 
@@ -290,7 +290,7 @@ of user-supplied SUNNonlinSol modules are as follows.
       *Fi* are only current when :c:func:`ARKStepGetNonlinearSystemData()` is
       called after an evaluation of the nonlinear system function.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNonlinearSystemData` instead.
 
@@ -310,7 +310,7 @@ of user-supplied SUNNonlinSol modules are as follows.
       * ``ARK_SUCCESS`` if successful.
       * ``ARK_MEM_NULL`` if the ARKStep memory was ``NULL``.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeComputeState` instead.
 
@@ -393,7 +393,7 @@ of user-supplied SUNNonlinSol modules are as follows.
       *Fi* are only current when :c:func:`MRIStepGetNonlinearSystemData()` is
       called after an evaluation of the nonlinear system function.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNonlinearSystemData` instead.
 
@@ -413,6 +413,6 @@ of user-supplied SUNNonlinSol modules are as follows.
       * ``ARK_SUCCESS`` if successful.
       * ``ARK_MEM_NULL`` if the MRIStep memory was ``NULL``.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeComputeState` instead.

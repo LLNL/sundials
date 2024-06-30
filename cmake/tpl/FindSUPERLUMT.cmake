@@ -38,7 +38,8 @@ force_variable(SUPERLUMT_THREAD_TYPE STRING "SuperLU_MT threading type: OPENMP o
 if(SUPERLUMT_THREAD_TYPE AND
     NOT SUPERLUMT_THREAD_TYPE STREQUAL "OPENMP" AND
     NOT SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
-  print_error("Unknown thread type: ${SUPERLUMT_THREAD_TYPE}" "Please enter PTHREAD or OPENMP")
+  message(FATAL_ERROR "Unknown thread type: ${SUPERLUMT_THREAD_TYPE} "
+    "Please enter PTHREAD or OPENMP")
 endif()
 
 # check if the threading library has been found
@@ -51,7 +52,7 @@ if(SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
       message(STATUS "Using Pthreads")
     else()
       set(PTHREADS_FOUND FALSE)
-      print_error("Could not determine Pthreads compiler flags")
+      message(FATAL_ERROR "Could not determine Pthreads compiler flags")
     endif()
   endif()
 else(SUPERLUMT_THREAD_TYPE STREQUAL "OPENMP")

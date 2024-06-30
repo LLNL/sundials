@@ -71,7 +71,7 @@ ERKStep initialization and deallocation functions
 
    **Return value:**  None
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeFree` instead.
 
@@ -97,7 +97,7 @@ ERKStep tolerance specification functions
       * *ARK_NO_MALLOC*  if the ERKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSStolerances` instead.
 
@@ -121,7 +121,7 @@ ERKStep tolerance specification functions
       * *ARK_NO_MALLOC*  if the ERKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSVtolerances` instead.
 
@@ -142,7 +142,7 @@ ERKStep tolerance specification functions
       * *ARK_MEM_NULL*  if the ERKStep memory was ``NULL``
       * *ARK_NO_MALLOC*  if the ERKStep memory was not allocated by the time-stepping module
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeWFtolerances` instead.
 
@@ -181,7 +181,7 @@ Rootfinding initialization function
       problem but the prior one did, then call *ERKStepRootInit* with
       *nrtfn = 0*.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeRootInit` instead.
 
@@ -283,7 +283,7 @@ ERKStep solver function
       On all other error returns, *tret* and *yout* are left unchanged
       from those provided to the routine.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeEvolve` instead.
 
@@ -321,7 +321,7 @@ Optional inputs for ERKStep
       Also leaves alone any data structures or options related to
       root-finding (those can be reset using :c:func:`ERKStepRootInit()`).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetDefaults` instead.
 
@@ -329,7 +329,7 @@ Optional inputs for ERKStep
 
 .. c:function:: int ERKStepSetInterpolantType(void* arkode_mem, int itype)
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       This function is now a wrapper to :c:func:`ARKodeSetInterpolantType`, see
       the documentation for that function instead.
@@ -376,7 +376,7 @@ Optional inputs for ERKStep
          obtained by the integrator are returned at the ends of the time
          interval.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetInterpolantDegree` instead.
 
@@ -473,7 +473,7 @@ Optional inputs for ERKStep
       routines will provide no useful information to the solver, and at
       worst they may interfere with the desired fixed step size.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetFixedStep` instead.
 
@@ -503,7 +503,7 @@ Optional inputs for ERKStep
 
       This routine will also reset the step size and error history.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetInitStep` instead.
 
@@ -530,7 +530,7 @@ Optional inputs for ERKStep
 
       A negative value indicates that no warning messages should be issued.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxHnilWarns` instead.
 
@@ -557,7 +557,7 @@ Optional inputs for ERKStep
 
       Passing *mxsteps* < 0 disables the test (not recommended).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxNumSteps` instead.
 
@@ -579,7 +579,7 @@ Optional inputs for ERKStep
    **Notes:**
       Pass *hmax* :math:`\le 0.0` to set the default value of :math:`\infty`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxStep` instead.
 
@@ -601,7 +601,7 @@ Optional inputs for ERKStep
    **Notes:**
       Pass *hmin* :math:`\le 0.0` to set the default value of 0.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMinStep` instead.
 
@@ -632,7 +632,7 @@ Optional inputs for ERKStep
       :c:func:`ERKStepReset` will remain active but can be disabled by calling
       :c:func:`ERKStepClearStopTime`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetStopTime` instead.
 
@@ -654,7 +654,7 @@ Optional inputs for ERKStep
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetInterpolateStopTime` instead.
 
@@ -677,7 +677,7 @@ Optional inputs for ERKStep
 
    .. versionadded:: 5.5.1
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeClearStopTime` instead.
 
@@ -702,7 +702,7 @@ Optional inputs for ERKStep
       user-supplied functions for which it is an argument; otherwise
       ``NULL`` is passed.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetUserData` instead.
 
@@ -726,7 +726,7 @@ Optional inputs for ERKStep
       The default value is 7; set *maxnef* :math:`\le 0`
       to specify this default.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxErrTestFails` instead.
 
@@ -774,7 +774,7 @@ Optional inputs for ERKStep
       and :c:func:`ERKStepSetFixedStep()` are incompatible, and should not be used
       simultaneously.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetConstraints` instead.
 
@@ -797,7 +797,7 @@ Optional inputs for ERKStep
       Passing *maxfails* <= 0 results in ERKStep using the
       default value (10).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxNumConstrFails` instead.
 
@@ -846,7 +846,7 @@ Optional inputs for IVP method selection
       ERKStep memory block, it cannot be changed after the first call to
       :c:func:`ERKStepEvolve()`, unless :c:func:`ERKStepReInit()` is called.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetOrder` instead.
 
@@ -963,7 +963,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    .. versionadded:: 5.7.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetAdaptController` instead.
 
@@ -1059,7 +1059,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    .. versionadded:: 5.7.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetAdaptivityAdjustment` instead.
 
@@ -1082,7 +1082,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any non-positive parameter will imply a reset to the default
       value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetCFLFraction` instead.
 
@@ -1133,7 +1133,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any interval *not* containing 1.0 will imply a reset to the default values.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetFixedStepBounds` instead.
 
@@ -1156,7 +1156,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxEFailGrowth` instead.
 
@@ -1180,7 +1180,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any value :math:`\le 1.0` will imply a reset to the default value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxFirstGrowth` instead.
 
@@ -1204,7 +1204,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any value :math:`\le 1.0` will imply a reset to the default
       value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxGrowth` instead.
 
@@ -1230,7 +1230,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any value :math:`\ge 1.0` or :math:`\le 0.0` will imply a reset to
       the default value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMinReduction` instead.
 
@@ -1254,7 +1254,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       Any non-positive parameter will imply a reset to the default
       value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetSafetyFactor` instead.
 
@@ -1278,7 +1278,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Notes:**
       Any non-positive parameter will imply a reset to the default value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetSmallNumEFails` instead.
 
@@ -1308,7 +1308,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
       where the right-hand side function :math:`f(t,y)` contains stiff
       terms.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetStabilityFn` instead.
 
@@ -1343,7 +1343,7 @@ Rootfinding optional input functions
    **Notes:**
       The default behavior is to monitor for both zero-crossing directions.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetRootDirection` instead.
 
@@ -1370,7 +1370,7 @@ Rootfinding optional input functions
       first step), ERKStep will issue a warning which can be disabled with
       this optional input function.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetNoInactiveRootWarn` instead.
 
@@ -1419,7 +1419,7 @@ Interpolated output function
       functions :c:func:`ERKStepGetCurrentTime()` and
       :c:func:`ERKStepGetLastStep()`, respectively.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetDky` instead.
 
@@ -1450,7 +1450,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetWorkSpace` instead.
 
@@ -1469,7 +1469,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumSteps` instead.
 
@@ -1495,7 +1495,7 @@ Main solver optional output functions
       bounds :math:`(h_{min} \le h_0 \le h_{max})`, or to satisfy the
       local error test condition.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetActualInitStep` instead.
 
@@ -1514,7 +1514,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetLastStep` instead.
 
@@ -1532,7 +1532,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetCurrentStep` instead.
 
@@ -1550,7 +1550,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetCurrentTime` instead.
 
@@ -1570,7 +1570,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetTolScaleFactor` instead.
 
@@ -1592,7 +1592,7 @@ Main solver optional output functions
       The user must allocate space for *eweight*, that will be
       filled in by this function.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetErrWeights` instead.
 
@@ -1614,7 +1614,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetStepStats` instead.
 
@@ -1646,7 +1646,7 @@ Main solver optional output functions
 
    .. versionadded:: 5.2.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodePrintAllStats` instead.
 
@@ -1664,7 +1664,7 @@ Main solver optional output functions
       The return value is a string containing the name of
       the corresponding constant.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetReturnFlagName` instead.
 
@@ -1683,7 +1683,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumExpSteps` instead.
 
@@ -1702,7 +1702,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumAccSteps` instead.
 
@@ -1720,7 +1720,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumStepAttempts` instead.
 
@@ -1754,7 +1754,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumErrTestFails` instead.
 
@@ -1821,7 +1821,7 @@ Main solver optional output functions
       failures, the components causing the failures are those with largest
       values for the products, denoted loosely as ``eweight[i]*ele[i]``.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetEstLocalErrors` instead.
 
@@ -1857,7 +1857,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumConstrFails` instead.
 
@@ -1878,7 +1878,7 @@ Main solver optional output functions
 
    .. versionadded:: 5.3.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetUserData` instead.
 
@@ -1916,7 +1916,7 @@ Rootfinding optional output functions
       zero-crossing.  A value of +1 indicates that :math:`g_i` is
       increasing, while a value of -1 indicates a decreasing :math:`g_i`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetRootInfo` instead.
 
@@ -1935,7 +1935,7 @@ Rootfinding optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumGEvals` instead.
 
@@ -1967,7 +1967,7 @@ General usability functions
       for this pointer, since parameters for all processes would be
       identical.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeWriteParameters` instead.
 
@@ -1993,7 +1993,7 @@ General usability functions
       for this pointer, since tables for all processes would be
       identical.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ERKStepGetCurrentButcherTable` and :c:func:`ARKodeButcherTable_Write`
       instead.
@@ -2108,7 +2108,7 @@ ERKStep reset function
       If an error occurred, :c:func:`ERKStepReset()` also sends an error message to
       the error handler function.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeReset` instead.
 
@@ -2154,6 +2154,6 @@ ERKStep system resize function
       to :c:func:`ERKStepSetConstraints()` is required to re-enable constraint
       checking.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeResize` instead.

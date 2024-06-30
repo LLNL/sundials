@@ -685,7 +685,7 @@ error occurred. The possible return codes are given in
    :retval SUNBRAID_ILLINPUT: if *app* is ``NULL``.
    :retval SUNBRAID_MEMFAIL: if the *app* content or ARKStep memory is ``NULL``.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKBraid_GetARKodeMem` instead.
 
@@ -744,7 +744,7 @@ error occurred. The possible return codes are given in
    :retval SUNBRAID_ILLINPUT: if *app* is ``NULL``.
    :retval SUNBRAID_MEMFAIL: if the *app* content is ``NULL``.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKBraid_GetLastARKodeFlag` instead.
 

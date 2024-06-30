@@ -135,7 +135,7 @@ int main(void)
   if (check_retval(&retval, "SetInitialCondition", 1)) { return 1; }
 
   /*
-   * Create the slow integrator and set options
+   * Create the fast integrator and set options
    */
 
   /* Initialize the fast integrator. Specify the explicit fast right-hand side

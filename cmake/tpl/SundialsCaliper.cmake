@@ -102,7 +102,7 @@ if(CALIPER_FOUND AND (NOT CALIPER_WORKS))
     message(STATUS "Checking if CALIPER works with SUNDIALS... FAILED")
     message(STATUS "Check output: ")
     message("${COMPILE_OUTPUT}")
-    print_error("SUNDIALS interface to CALIPER is not functional.")
+    message(FATAL_ERROR "SUNDIALS interface to CALIPER is not functional.")
   endif()
 
 elseif(CALIPER_FOUND AND CALIPER_WORKS)

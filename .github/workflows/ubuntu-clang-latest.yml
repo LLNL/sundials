@@ -27,11 +27,11 @@ jobs:
 
     steps:
     - name: Install LLVM and Clang
-      uses: KyleMayes/install-llvm-action@v1
+      uses: KyleMayes/install-llvm-action@v2
       with:
         version: "14.0"
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory.
@@ -58,11 +58,11 @@ jobs:
 
     steps:
     - name: Install LLVM and Clang
-      uses: KyleMayes/install-llvm-action@v1
+      uses: KyleMayes/install-llvm-action@v2
       with:
         version: "14.0"
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory.

@@ -33,17 +33,17 @@ SUNDIALS release compressed archives (``.tar.gz``) from  the SUNDIALS
 
 The compressed archives allow for downloading of indvidual SUNDIALS packages.
 The name of the distribution archive is of the form
-``SOLVER-X.Y.Z.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
-``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``X.Y.Z``
+``SOLVER-7.1.0.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
+``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``7.1.0``
 represents the version number (of the SUNDIALS suite or of the individual
 solver). After downloading the relevant archives, uncompress and expand the sources,
 by running
 
 .. code-block:: bash
 
-   % tar -zxf SOLVER-X.Y.Z.tar.gz
+   % tar -zxf SOLVER-7.1.0.tar.gz
 
-This will extract source files under a directory ``SOLVER-X.Y.Z``.
+This will extract source files under a directory ``SOLVER-7.1.0``.
 
 Starting with version 2.6.0 of SUNDIALS, CMake is the only supported method of
 installation.  The explanations of the installation procedure begin with a few
@@ -51,7 +51,7 @@ common observations:
 
 #. The remainder of this chapter will follow these conventions:
 
-   ``SOLVERDIR`` is the directory ``SOLVER-X.Y.Z`` created above; i.e. the
+   ``SOLVERDIR`` is the directory ``SOLVER-7.1.0`` created above; i.e. the
    directory containing the SUNDIALS sources.
 
    ``BUILDDIR`` is the (temporary) directory under which SUNDIALS is built.
@@ -674,7 +674,7 @@ illustration only.
 
    Default: "REF;OMP"
 
-   .. versionchanged: x.y.z
+   .. versionchanged: 7.1.0
 
       The ``DPCPP`` option was changed to ``SYCL`` to align with Ginkgo's naming convention.
 
@@ -1790,7 +1790,7 @@ configuration file to build against SUNDIALS in their own CMake project.
 
 .. note::
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 7.1.0
 
       A single version provided to ``find_package`` denotes the minimum version
       of SUNDIALS to look for, and any version equal or newer than what is

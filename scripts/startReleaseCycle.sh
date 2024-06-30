@@ -31,7 +31,7 @@ sedi() {
 # Update versions
 # ------------------------------------------------------------------------------
 
-fn="../doc/shared/versions.py"
+fn="../doc/shared/sundials_vars.py"
 sedi "s/doc_version =.*/doc_version = \'develop\'/" $fn
 
 # ------------------------------------------------------------------------------

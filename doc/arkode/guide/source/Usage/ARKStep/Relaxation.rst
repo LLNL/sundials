@@ -69,7 +69,7 @@ Enabling or Disabling Relaxation
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetRelaxFn` instead.
 
@@ -98,7 +98,7 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetRelaxEtaFail` instead.
 
@@ -124,7 +124,7 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetRelaxLowerBound` instead.
 
@@ -150,7 +150,7 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetRelaxUpperBound` instead.
 
@@ -174,7 +174,7 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetRelaxMaxFails` instead.
 
@@ -202,7 +202,7 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetRelaxMaxIters` instead.
 
@@ -223,7 +223,7 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetRelaxSolver` instead.
 
@@ -253,7 +253,7 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetRelaxResTol` instead.
 
@@ -284,7 +284,7 @@ relaxation.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetRelaxTol` instead.
 
@@ -309,7 +309,7 @@ about the performance of the relaxation method.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumRelaxFnEvals` instead.
 
@@ -328,7 +328,7 @@ about the performance of the relaxation method.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumRelaxJacEvals` instead.
 
@@ -352,7 +352,7 @@ about the performance of the relaxation method.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumRelaxFails` instead.
 
@@ -372,7 +372,7 @@ about the performance of the relaxation method.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumRelaxBoundFails` instead.
 
@@ -391,7 +391,7 @@ about the performance of the relaxation method.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumRelaxSolveFails` instead.
 
@@ -410,6 +410,6 @@ about the performance of the relaxation method.
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumRelaxSolveIters` instead.

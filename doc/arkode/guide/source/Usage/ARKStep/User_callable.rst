@@ -74,7 +74,7 @@ ARKStep initialization and deallocation functions
 
    **Return value:**  None
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeFree` instead.
 
@@ -100,7 +100,7 @@ ARKStep tolerance specification functions
       * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSStolerances` instead.
 
@@ -123,7 +123,7 @@ ARKStep tolerance specification functions
       * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSVtolerances` instead.
 
@@ -143,7 +143,7 @@ ARKStep tolerance specification functions
       * *ARK_MEM_NULL*  if the ARKStep memory was ``NULL``
       * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the time-stepping module
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeWFtolerances` instead.
 
@@ -163,7 +163,7 @@ ARKStep tolerance specification functions
       * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeResStolerance` instead.
 
@@ -183,7 +183,7 @@ ARKStep tolerance specification functions
       * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeResVtolerance` instead.
 
@@ -203,7 +203,7 @@ ARKStep tolerance specification functions
       * *ARK_MEM_NULL*  if the ARKStep memory was ``NULL``
       * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the time-stepping module
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeResFtolerance` instead.
 
@@ -256,7 +256,7 @@ Linear solver interface functions
       insufficient to store :math:`\mathcal{A}` then it will need to be
       resized internally by ARKStep.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetLinearSolver` instead.
 
@@ -318,7 +318,7 @@ Mass matrix solver specification functions
       mass-matrix-times-vector product routine (see
       :c:type:`ARKLsMassTimesVecFn` and :c:func:`ARKStepSetMassTimes()`).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMassLinearSolver` instead.
 
@@ -350,7 +350,7 @@ Nonlinear solver interface functions
       default; a call to this routine replaces that module with the
       supplied *NLS* object.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetNonlinearSolver` instead.
 
@@ -389,7 +389,7 @@ Rootfinding initialization function
       problem but the prior one did, then call *ARKStepRootInit* with
       *nrtfn = 0*.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeRootInit` instead.
 
@@ -508,7 +508,7 @@ ARKStep solver function
       On all other error returns, *tret* and *yout* are left unchanged
       from those provided to the routine.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeEvolve` instead.
 
@@ -545,14 +545,14 @@ Optional inputs for ARKStep
       Also leaves alone any data structures or options related to
       root-finding (those can be reset using :c:func:`ARKStepRootInit()`).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetDefaults` instead.
 
 
 .. c:function:: int ARKStepSetInterpolantType(void* arkode_mem, int itype)
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       This function is now a wrapper to :c:func:`ARKodeSetInterpolantType`, see
       the documentation for that function instead.
@@ -598,7 +598,7 @@ Optional inputs for ARKStep
          obtained by the integrator are returned at the ends of the time
          interval.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetInterpolantDegree` instead.
 
@@ -694,7 +694,7 @@ Optional inputs for ARKStep
       routines will provide no useful information to the solver, and at
       worst they may interfere with the desired fixed step size.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetFixedStep` instead.
 
@@ -724,7 +724,7 @@ Optional inputs for ARKStep
 
       This routine will also reset the step size and error history.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetInitStep` instead.
 
@@ -750,7 +750,7 @@ Optional inputs for ARKStep
 
       A negative value indicates that no warning messages should be issued.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxHnilWarns` instead.
 
@@ -776,7 +776,7 @@ Optional inputs for ARKStep
 
       Passing *mxsteps* < 0 disables the test (not recommended).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxNumSteps` instead.
 
@@ -797,7 +797,7 @@ Optional inputs for ARKStep
    **Notes:**
       Pass *hmax* :math:`\le 0.0` to set the default value of :math:`\infty`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxStep` instead.
 
@@ -818,7 +818,7 @@ Optional inputs for ARKStep
    **Notes:**
       Pass *hmin* :math:`\le 0.0` to set the default value of 0.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMinStep` instead.
 
@@ -848,7 +848,7 @@ Optional inputs for ARKStep
       :c:func:`ARKStepReset` will remain active but can be disabled by calling
       :c:func:`ARKStepClearStopTime`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetStopTime` instead.
 
@@ -869,7 +869,7 @@ Optional inputs for ARKStep
 
    .. versionadded:: 5.6.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetInterpolateStopTime` instead.
 
@@ -891,7 +891,7 @@ Optional inputs for ARKStep
 
    .. versionadded:: 5.5.1
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeClearStopTime` instead.
 
@@ -919,7 +919,7 @@ Optional inputs for ARKStep
       this function must be made *before* any calls to
       :c:func:`ARKStepSetLinearSolver()` and/or :c:func:`ARKStepSetMassLinearSolver()`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetUserData` instead.
 
@@ -942,7 +942,7 @@ Optional inputs for ARKStep
       The default value is 7; set *maxnef* :math:`\le 0`
       to specify this default.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxErrTestFails` instead.
 
@@ -968,7 +968,7 @@ Optional inputs for ARKStep
       all problems are different, so these values may not be optimal for
       all users.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Adjust solver parameters individually instead.  For reference, this routine
       sets the following non-default parameters:
@@ -1154,7 +1154,7 @@ Optional inputs for ARKStep
       and :c:func:`ARKStepSetFixedStep()` are incompatible, and should not be used
       simultaneously.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetConstraints` instead.
 
@@ -1176,7 +1176,7 @@ Optional inputs for ARKStep
       Passing *maxfails* <= 0 results in ARKStep using the
       default value (10).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxNumConstrFails` instead.
 
@@ -1227,7 +1227,7 @@ Set additive RK tables via their names    :c:func:`ARKStepSetTableName()`    int
       ARKStep memory block, it cannot be changed after the first call to
       :c:func:`ARKStepEvolve()`, unless :c:func:`ARKStepReInit()` is called.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetOrder` instead.
 
@@ -1459,7 +1459,7 @@ Optional inputs for time step adaptivity
 
    .. versionadded:: 5.7.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetAdaptController` instead.
 
@@ -1557,7 +1557,7 @@ Optional inputs for time step adaptivity
 
    .. versionadded:: 5.7.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetAdaptivityAdjustment` instead.
 
@@ -1580,7 +1580,7 @@ Optional inputs for time step adaptivity
       Any non-positive parameter will imply a reset to the default
       value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetCFLFraction` instead.
 
@@ -1629,7 +1629,7 @@ Optional inputs for time step adaptivity
    **Notes:**
       Any interval *not* containing 1.0 will imply a reset to the default values.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetFixedStepBounds` instead.
 
@@ -1653,7 +1653,7 @@ Optional inputs for time step adaptivity
    **Notes:**
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxCFailGrowth` instead.
 
@@ -1675,7 +1675,7 @@ Optional inputs for time step adaptivity
    **Notes:**
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxEFailGrowth` instead.
 
@@ -1698,7 +1698,7 @@ Optional inputs for time step adaptivity
    **Notes:**
       Any value :math:`\le 1.0` will imply a reset to the default value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxFirstGrowth` instead.
 
@@ -1721,7 +1721,7 @@ Optional inputs for time step adaptivity
       Any value :math:`\le 1.0` will imply a reset to the default
       value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxGrowth` instead.
 
@@ -1746,7 +1746,7 @@ Optional inputs for time step adaptivity
       Any value outside the interval :math:`(0,1)` will imply a reset to
       the default value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMinReduction` instead.
 
@@ -1769,7 +1769,7 @@ Optional inputs for time step adaptivity
       Any value :math:`\le 0` will imply a reset to the default
       value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetSafetyFactor` instead.
 
@@ -1792,7 +1792,7 @@ Optional inputs for time step adaptivity
    **Notes:**
       Any value :math:`\le 0` will imply a reset to the default value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetSmallNumEFails` instead.
 
@@ -1821,7 +1821,7 @@ Optional inputs for time step adaptivity
       be quite useful for problems where the explicit right-hand side
       function :math:`f^E(t,y)` contains stiff terms.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetStabilityFn` instead.
 
@@ -1861,7 +1861,7 @@ Optional inputs for implicit stage solves
       stage.  Thus one must balance the relative costs of such recomputation
       against the benefits of requiring only a single Newton linear solve.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetLinear` instead.
 
@@ -1885,7 +1885,7 @@ Optional inputs for implicit stage solves
       :c:func:`ARKStepSetDeltaGammaMax()` to reset the step size ratio
       threshold to the default value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetNonlinear` instead.
 
@@ -1933,7 +1933,7 @@ Optional inputs for implicit stage solves
       instead default to the trivial predictor (*method* 0).  **Both of these options
       have been deprecated, and will be removed from a future release.**
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetPredictorMethod` instead.
 
@@ -1956,7 +1956,7 @@ Optional inputs for implicit stage solves
       See :numref:`ARKODE.Usage.StagePredictFn` for more information on
       this user-supplied routine.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetStagePredictFn` instead.
 
@@ -1984,7 +1984,7 @@ Optional inputs for implicit stage solves
       When using a non-default nonlinear solver, this function must be called
       *after* :c:func:`ARKStepSetNonlinearSolver()`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetNlsRhsFn` instead.
 
@@ -2008,7 +2008,7 @@ Optional inputs for implicit stage solves
       The default value is 3; set *maxcor* :math:`\le 0`
       to specify this default.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxNonlinIters` instead.
 
@@ -2031,7 +2031,7 @@ Optional inputs for implicit stage solves
       The default value is 0.1; set *nlscoef* :math:`\le 0`
       to specify this default.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetNonlinConvCoef` instead.
 
@@ -2052,7 +2052,7 @@ Optional inputs for implicit stage solves
    **Notes:**
       Any non-positive parameter will imply a reset to the default value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetNonlinCRDown` instead.
 
@@ -2075,7 +2075,7 @@ Optional inputs for implicit stage solves
    **Notes:**
       Any non-positive parameter will imply a reset to the default value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetNonlinRDiv` instead.
 
@@ -2106,7 +2106,7 @@ Optional inputs for implicit stage solves
       convergence failure still occurs, the time step size is reduced by
       the factor *etacf* (set within :c:func:`ARKStepSetMaxCFailGrowth()`).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMaxConvFails` instead.
 
@@ -2129,7 +2129,7 @@ Optional inputs for implicit stage solves
 
    .. versionadded:: 5.2.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetDeduceImplicitRhs` instead.
 
@@ -2167,7 +2167,7 @@ Optional inputs for the ARKLS linear solver interface
    **Notes:**
       Any non-positive parameter will imply a reset to the default value.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetDeltaGammaMax` instead.
 
@@ -2193,7 +2193,7 @@ Optional inputs for the ARKLS linear solver interface
       step. If **msbp** is 0, the default value of 20 will be used. A negative
       value forces a linear solver step at each implicit stage.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetLSetupFrequency` instead.
 
@@ -2230,7 +2230,7 @@ Optional inputs for the ARKLS linear solver interface
       This function must be called *after* the ARKLS system solver interface has
       been initialized through a call to :c:func:`ARKStepSetLinearSolver()`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetJacEvalFrequency` instead.
 
@@ -2272,7 +2272,7 @@ Optional inputs for matrix-based ``SUNLinearSolver`` modules
       The function type :c:func:`ARKLsJacFn()` is described in
       :numref:`ARKODE.Usage.UserSupplied`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetJacFn` instead.
 
@@ -2303,7 +2303,7 @@ Optional inputs for matrix-based ``SUNLinearSolver`` modules
       The function type :c:func:`ARKLsLinSysFn()` is described in
       :numref:`ARKODE.Usage.UserSupplied`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetLinSysFn` instead.
 
@@ -2334,7 +2334,7 @@ Optional inputs for matrix-based ``SUNLinearSolver`` modules
       The function type :c:func:`ARKLsMassFn()` is described in
       :numref:`ARKODE.Usage.UserSupplied`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMassFn` instead.
 
@@ -2359,7 +2359,7 @@ Optional inputs for matrix-based ``SUNLinearSolver`` modules
       Linear solution scaling is enabled by default when a matrix-based
       linear solver is attached.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetLinearSolutionScaling` instead.
 
@@ -2403,7 +2403,7 @@ Optional inputs for matrix-free ``SUNLinearSolver`` modules
       :c:type:`ARKLsJacTimesVecFn` are described in
       :numref:`ARKODE.Usage.UserSupplied`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetJacTimes` instead.
 
@@ -2433,7 +2433,7 @@ Optional inputs for matrix-free ``SUNLinearSolver`` modules
       This function must be called *after* the ARKLS system solver interface has
       been initialized through a call to :c:func:`ARKStepSetLinearSolver()`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetJacTimesRhsFn` instead.
 
@@ -2474,7 +2474,7 @@ Optional inputs for matrix-free ``SUNLinearSolver`` modules
       :c:type:`ARKLsMassTimesVecFn` are described in
       :numref:`ARKODE.Usage.UserSupplied`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMassTimes` instead.
 
@@ -2517,7 +2517,7 @@ Optional inputs for iterative ``SUNLinearSolver`` modules
       :c:func:`ARKLsPrecSolveFn()` are described in
       :numref:`ARKODE.Usage.UserSupplied`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetPreconditioner` instead.
 
@@ -2553,7 +2553,7 @@ Optional inputs for iterative ``SUNLinearSolver`` modules
       :c:func:`ARKLsMassPrecSolveFn()` are described in
       :numref:`ARKODE.Usage.UserSupplied`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMassPreconditioner` instead.
 
@@ -2582,7 +2582,7 @@ Optional inputs for iterative ``SUNLinearSolver`` modules
       interface has been initialized through a call to
       :c:func:`ARKStepSetLinearSolver()`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetEpsLin` instead.
 
@@ -2611,7 +2611,7 @@ Optional inputs for iterative ``SUNLinearSolver`` modules
       Passing a value *eplifac* :math:`\le 0` indicates to use the default value
       of 0.05.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMassEpsLin` instead.
 
@@ -2643,7 +2643,7 @@ Optional inputs for iterative ``SUNLinearSolver`` modules
       This function must be called *after* the ARKLS system solver interface has
       been initialized through a call to :c:func:`ARKStepSetLinearSolver()`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetLSNormFactor` instead.
 
@@ -2675,7 +2675,7 @@ Optional inputs for iterative ``SUNLinearSolver`` modules
       This function must be called *after* the ARKLS mass matrix solver interface
       has been initialized through a call to :c:func:`ARKStepSetMassLinearSolver()`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetMassLSNormFactor` instead.
 
@@ -2706,7 +2706,7 @@ Rootfinding optional input functions
    **Notes:**
       The default behavior is to monitor for both zero-crossing directions.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetRootDirection` instead.
 
@@ -2732,7 +2732,7 @@ Rootfinding optional input functions
       first step), ARKStep will issue a warning which can be disabled with
       this optional input function.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetNoInactiveRootWarn` instead.
 
@@ -2781,7 +2781,7 @@ Interpolated output function
       functions :c:func:`ARKStepGetCurrentTime()` and
       :c:func:`ARKStepGetLastStep()`, respectively.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetDky` instead.
 
@@ -2811,7 +2811,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetWorkSpace` instead.
 
@@ -2829,7 +2829,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumSteps` instead.
 
@@ -2855,7 +2855,7 @@ Main solver optional output functions
       local error test condition, or to ensure convergence of the
       nonlinear solver.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetActualInitStep` instead.
 
@@ -2873,7 +2873,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetLastStep` instead.
 
@@ -2890,7 +2890,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetCurrentStep` instead.
 
@@ -2907,7 +2907,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetCurrentTime` instead.
 
@@ -2929,7 +2929,7 @@ Main solver optional output functions
       as altering values of *ycur* may lead to undesirable behavior, depending
       on the particular use case and on when this routine is called.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetCurrentState` instead.
 
@@ -2947,7 +2947,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetCurrentGamma` instead.
 
@@ -2966,7 +2966,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetTolScaleFactor` instead.
 
@@ -2987,7 +2987,7 @@ Main solver optional output functions
       The user must allocate space for *eweight*, that will be
       filled in by this function.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetErrWeights` instead.
 
@@ -3008,7 +3008,7 @@ Main solver optional output functions
       The user must allocate space for *rweight*, that will be
       filled in by this function.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetResWeights` instead.
 
@@ -3029,7 +3029,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetStepStats` instead.
 
@@ -3061,7 +3061,7 @@ Main solver optional output functions
 
    .. versionadded:: 5.2.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodePrintAllStats` instead.
 
@@ -3078,7 +3078,7 @@ Main solver optional output functions
    The return value is a string containing the name of
    the corresponding constant.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetReturnFlagName` instead.
 
@@ -3097,7 +3097,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumExpSteps` instead.
 
@@ -3115,7 +3115,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumAccSteps` instead.
 
@@ -3132,7 +3132,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumStepAttempts` instead.
 
@@ -3170,7 +3170,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumErrTestFails` instead.
 
@@ -3187,7 +3187,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumStepSolveFails` instead.
 
@@ -3255,7 +3255,7 @@ Main solver optional output functions
       failures, the components causing the failures are those with largest
       values for the products, denoted loosely as ``eweight[i]*ele[i]``.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetEstLocalErrors` instead.
 
@@ -3292,7 +3292,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumConstrFails` instead.
 
@@ -3312,7 +3312,7 @@ Main solver optional output functions
 
    .. versionadded:: 5.3.0
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetUserData` instead.
 
@@ -3339,7 +3339,7 @@ Implicit solver optional output functions
    solver object; the counter is reset whenever a new nonlinear solver
    module is "attached" to ARKStep, or when ARKStep is resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumLinSolvSetups` instead.
 
@@ -3362,7 +3362,7 @@ Implicit solver optional output functions
    solver object; the counter is reset whenever a new nonlinear solver
    module is "attached" to ARKStep, or when ARKStep is resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumNonlinSolvIters` instead.
 
@@ -3384,7 +3384,7 @@ Implicit solver optional output functions
    solver object; the counter is reset whenever a new nonlinear solver
    module is "attached" to ARKStep, or when ARKStep is resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumNonlinSolvConvFails` instead.
 
@@ -3407,7 +3407,7 @@ Implicit solver optional output functions
    solver object; the counters are reset whenever a new nonlinear solver
    module is "attached" to ARKStep, or when ARKStep is resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNonlinSolvStats` instead.
 
@@ -3445,7 +3445,7 @@ Rootfinding optional output functions
       zero-crossing.  A value of +1 indicates that :math:`g_i` is
       increasing, while a value of -1 indicates a decreasing :math:`g_i`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetRootInfo` instead.
 
@@ -3463,7 +3463,7 @@ Rootfinding optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumGEvals` instead.
 
@@ -3490,7 +3490,7 @@ Linear solver interface optional output functions
       This function is provided for debugging purposes and the values in the
       returned matrix should not be altered.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetJac` instead.
 
@@ -3507,7 +3507,7 @@ Linear solver interface optional output functions
    :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
    :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetJacTime` instead.
 
@@ -3524,7 +3524,7 @@ Linear solver interface optional output functions
    :retval ARKLS_MEM_NULL: ``arkode_mem`` was ``NULL``
    :retval ARKLS_LMEM_NULL: the linear solver interface has not been initialized
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetJacNumSteps` instead.
 
@@ -3553,7 +3553,7 @@ Linear solver interface optional output functions
       In a parallel setting, the above values are global (i.e. summed over all
       processors).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetLinWorkSpace` instead.
 
@@ -3575,7 +3575,7 @@ Linear solver interface optional output functions
    solver object; the counter is reset whenever a new linear solver
    module is "attached" to ARKStep, or when ARKStep is resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumJacEvals` instead.
 
@@ -3599,7 +3599,7 @@ Linear solver interface optional output functions
    solver object; the counter is reset whenever a new linear solver
    module is "attached" to ARKStep, or when ARKStep is resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumPrecEvals` instead.
 
@@ -3622,7 +3622,7 @@ Linear solver interface optional output functions
    solver object; the counter is reset whenever a new linear solver
    module is "attached" to ARKStep, or when ARKStep is resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumPrecSolves` instead.
 
@@ -3644,7 +3644,7 @@ Linear solver interface optional output functions
    solver object; the counter is reset whenever a new linear solver
    module is "attached" to ARKStep, or when ARKStep is resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumLinIters` instead.
 
@@ -3666,7 +3666,7 @@ Linear solver interface optional output functions
    solver object; the counter is reset whenever a new linear solver
    module is "attached" to ARKStep, or when ARKStep is resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumLinConvFails` instead.
 
@@ -3689,7 +3689,7 @@ Linear solver interface optional output functions
    solver object; the counter is reset whenever a new linear solver
    module is "attached" to ARKStep, or when ARKStep is resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumJTSetupEvals` instead.
 
@@ -3712,7 +3712,7 @@ Linear solver interface optional output functions
    solver object; the counter is reset whenever a new linear solver
    module is "attached" to ARKStep, or when ARKStep is resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumJtimesEvals` instead.
 
@@ -3741,7 +3741,7 @@ Linear solver interface optional output functions
       solver object; the counter is reset whenever a new linear solver
       module is "attached" to ARKStep, or when ARKStep is resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumLinRhsEvals` instead.
 
@@ -3796,7 +3796,7 @@ Linear solver interface optional output functions
       *SUN_ERR_EXT_FAIL*, indicating an unrecoverable failure in
       an external iterative linear solver package.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetLastLinFlag` instead.
 
@@ -3813,7 +3813,7 @@ Linear solver interface optional output functions
    ``SUNLINSOL_BAND`` modules, then if  1 :math:`\le` `lsflag`
    :math:`\le n` (LU factorization failed), this routine returns "NONE".
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetLinReturnFlagName` instead.
 
@@ -3843,7 +3843,7 @@ Linear solver interface optional output functions
       In a parallel setting, the above values are global (i.e. summed over all
       processors).
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetMassWorkSpace` instead.
 
@@ -3868,7 +3868,7 @@ Linear solver interface optional output functions
    linear solver module is "attached" to ARKStep, or when ARKStep is
    resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumMassSetups` instead.
 
@@ -3892,7 +3892,7 @@ Linear solver interface optional output functions
    linear solver module is "attached" to ARKStep, or when ARKStep is
    resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumMassMultSetups` instead.
 
@@ -3917,7 +3917,7 @@ Linear solver interface optional output functions
    linear solver module is "attached" to ARKStep, or when ARKStep is
    resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumMassMult` instead.
 
@@ -3940,7 +3940,7 @@ Linear solver interface optional output functions
    linear solver module is "attached" to ARKStep, or when ARKStep is
    resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumMassSolves` instead.
 
@@ -3964,7 +3964,7 @@ Linear solver interface optional output functions
    linear solver module is "attached" to ARKStep, or when ARKStep is
    resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumMassPrecEvals` instead.
 
@@ -3988,7 +3988,7 @@ Linear solver interface optional output functions
    linear solver module is "attached" to ARKStep, or when ARKStep is
    resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumMassPrecSolves` instead.
 
@@ -4011,7 +4011,7 @@ Linear solver interface optional output functions
    linear solver module is "attached" to ARKStep, or when ARKStep is
    resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumMassIters` instead.
 
@@ -4034,7 +4034,7 @@ Linear solver interface optional output functions
    linear solver module is "attached" to ARKStep, or when ARKStep is
    resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumMassConvFails` instead.
 
@@ -4058,7 +4058,7 @@ Linear solver interface optional output functions
    linear solver module is "attached" to ARKStep, or when ARKStep is
    resized.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetNumMTSetups` instead.
 
@@ -4082,7 +4082,7 @@ Linear solver interface optional output functions
       will match those described above for the function
       :c:func:`ARKStepGetLastLinFlag()`.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetLastMassFlag` instead.
 
@@ -4114,7 +4114,7 @@ General usability functions
       for this pointer, since parameters for all processes would be
       identical.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeWriteParameters` instead.
 
@@ -4143,7 +4143,7 @@ General usability functions
       for this pointer, since tables for all processes would be
       identical.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKStepGetCurrentButcherTables` and :c:func:`ARKodeButcherTable_Write`
       instead.
@@ -4268,7 +4268,7 @@ ARKStep reset function
       If an error occurred, :c:func:`ARKStepReset()` also sends an error message to
       the error handler function.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeReset` instead.
 
@@ -4346,7 +4346,7 @@ ARKStep system resize function
    **Example codes:**
       * ``examples/arkode/C_serial/ark_heat1D_adapt.c``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeResize` instead.
 
