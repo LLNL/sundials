@@ -184,10 +184,11 @@ not adhere to all of these rules.
    variable-length arrays. Exceptions are allowed when interfacing with a
    library which requires a newer standard.
 
-#. All new code added to SUNDIALS should be
-   formatted with `clang-format <https://clang.llvm.org/docs/ClangFormat.html>`_,
-   and `fprettify <https://github.com/fortran-lang/fprettify>`_.
-   See :ref:`Style.Formatting` for details.
+#. All new code added to SUNDIALS should be formatted with `clang-format
+   <https://clang.llvm.org/docs/ClangFormat.html>`_ for C/C++, `fprettify
+   <https://github.com/fortran-lang/fprettify>`_ for Fortran, and `black
+   <https://black.readthedocs.io>`_ for Python. See :ref:`Style.Formatting` for
+   details.
 
 #. Spaces not tabs.
 
@@ -378,11 +379,14 @@ Formatting
 ----------
 
 All new code added to SUNDIALS should be formatted with `clang-format
-<https://clang.llvm.org/docs/ClangFormat.html>`_ and
-`fprettify <https://github.com/fortran-lang/fprettify>`_. The
-``.clang-format`` file in the root of the project defines our configuration
-for clang-format. We use the default fprettify settings, except we use
-2-space indentation. To apply ``clang-format`` and ``fprettify`` you can run:
+<https://clang.llvm.org/docs/ClangFormat.html>`_ for C/C++, `fprettify
+<https://github.com/fortran-lang/fprettify>`_ for Fortran, and `black
+<https://black.readthedocs.io>`_ for Python. The ``.clang-format`` file in the
+root of the project defines our configuration for clang-format. We use the
+default fprettify settings, except we use 2-space indentation. We also use the
+default black settings.
+
+To apply ``clang-format``, ``fprettify``, and ``black`` you can run:
 
 .. code-block:: shell
 
@@ -395,7 +399,7 @@ for clang-format. We use the default fprettify settings, except we use
    that you use version ``17.0.4``, which can be installed from source or with Spack. Alternatively,
    when you open a pull request on GitHub, an action will run ``clang-format`` on the code. If any
    formatting is required, the action will fail and produce a git patch artifact that you can download
-   (from the job artifacts section) and apply with `git apply`.
+   (from the job artifacts section) and apply with ``git apply``.
 
 
 If clang-format breaks lines in a way that is unreadable, use ``//`` to break the line. For example,
