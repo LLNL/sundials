@@ -21,7 +21,7 @@ def main():
     import argparse
     import matplotlib.pyplot as plt
 
-    import logs as sunlog
+    from suntools import logs as sunlog
 
     parser = argparse.ArgumentParser(description='Plots')
 

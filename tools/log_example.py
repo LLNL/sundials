@@ -22,7 +22,7 @@ def main():
     import matplotlib.pyplot as plt
     import matplotlib.ticker as tik
 
-    import logs as sunlog
+    from suntools import logs as sunlog
 
     parser = argparse.ArgumentParser(description='Plots')
 
