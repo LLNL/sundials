@@ -381,8 +381,8 @@ Formatting
 All new code added to SUNDIALS should be formatted with `clang-format
 <https://clang.llvm.org/docs/ClangFormat.html>`_ for C/C++, `fprettify
 <https://github.com/fortran-lang/fprettify>`_ for Fortran, and `cmake-format
-<https://cmake-format.readthedocs.io>`_ CMake. The ``.clang-format`` file in the
-root of the project defines our configuration for clang-format. We use the
+<https://cmake-format.readthedocs.io>`_ for CMake. The ``.clang-format`` file in
+the root of the project defines our configuration for clang-format. We use the
 default fprettify settings, except we use 2-space indentation. The
 ``.cmake-format.py`` file in the root of the project defines our configuration
 for cmake-format.
