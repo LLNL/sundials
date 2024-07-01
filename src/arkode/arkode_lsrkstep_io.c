@@ -139,7 +139,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
     }
   }
   ark_mem->hadapt_mem->hcontroller = NULL;
-  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
+  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_I(ark_mem->sunctx);
   if (ark_mem->hadapt_mem->hcontroller == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,

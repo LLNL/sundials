@@ -72,7 +72,7 @@ int main(void)
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
-  sunrealtype lambda  = SUN_RCONST(-10.0); /* stiffness parameter */
+  sunrealtype lambda  = SUN_RCONST(-1000000.0); /* stiffness parameter */
 
   /* general problem variables */
   int flag;                /* reusable error-checking flag */
@@ -115,6 +115,9 @@ int main(void)
   /* Specify user provided spectral radius */
   flag = LSRKodeSetSprRadFn(arkode_mem, spr);
   if (check_flag(&flag, "LSRKodeSetSprRadFn", 1)) { return 1; }
+
+  /* Specify initial step size */
+  flag = ARKodeSetInitStep(arkode_mem, 0.00918782416994857);
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
