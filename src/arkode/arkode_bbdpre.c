@@ -27,6 +27,8 @@
 #include "arkode_impl.h"
 #include "arkode_ls_impl.h"
 
+#include "sundials_macros.h"
+
 #define MIN_INC_MULT SUN_RCONST(1000.0)
 #define ZERO         SUN_RCONST(0.0)
 #define ONE          SUN_RCONST(1.0)

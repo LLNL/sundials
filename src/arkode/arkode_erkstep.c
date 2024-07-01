@@ -26,6 +26,8 @@
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
 
+#include "sundials_macros.h"
+
 /*===============================================================
   Exported functions
   ===============================================================*/

@@ -31,6 +31,8 @@
 #include "sunadjoint/sunadjoint_checkpointscheme.h"
 #include "sunadjoint/sunadjoint_solver.h"
 
+#include "sundials_macros.h"
+
 #define FIXED_LIN_TOL
 
 /* TryStep step result flags */
@@ -347,47 +349,6 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
   step_mem->nfi     = 0;
   step_mem->nsetups = 0;
   step_mem->nstlp   = 0;
-
-  return (ARK_SUCCESS);
-}
-
-/*------------------------------------------------------------------------------
-  ARKStepCreateMRIStepInnerStepper
-
-  Wraps an ARKStep memory structure as an MRIStep inner stepper.
-  ----------------------------------------------------------------------------*/
-int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
-                                     MRIStepInnerStepper* stepper)
-{
-  int retval;
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-
-  retval = arkStep_AccessARKODEStepMem(inner_arkode_mem,
-                                       "ARKStepCreateMRIStepInnerStepper",
-                                       &ark_mem, &step_mem);
-  if (retval)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "The ARKStep memory pointer is NULL");
-    return ARK_ILL_INPUT;
-  }
-
-  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, arkStep_MRIStepInnerEvolve);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
-                                            arkStep_MRIStepInnerFullRhs);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
-  if (retval != ARK_SUCCESS) { return (retval); }
 
   return (ARK_SUCCESS);
 }
@@ -4121,11 +4082,11 @@ int arkStep_TryStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
   if (y == NULL) { return ARK_ILL_INPUT; }
 
   /* Reset ARKStep state */
-  flag = ARKStepReset(arkode_mem, tstart, y);
+  flag = ARKodeReset(arkode_mem, tstart, y);
   if (flag != ARK_SUCCESS) { return flag; }
 
   /* Set the time step size */
-  flag = ARKStepSetInitStep(arkode_mem, tstop - tstart);
+  flag = ARKodeSetInitStep(arkode_mem, tstop - tstart);
   if (flag != ARK_SUCCESS) { return flag; }
 
   /* Ignore temporal error test result and force step to pass */
@@ -4133,7 +4094,7 @@ int arkStep_TryStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
   if (flag != ARK_SUCCESS) { return flag; }
 
   /* Take step, check flag below */
-  tmp_flag = ARKStepEvolve(arkode_mem, tstop, y, tret, ARK_ONE_STEP);
+  tmp_flag = ARKodeEvolve(arkode_mem, tstop, y, tret, ARK_ONE_STEP);
 
   /* Re-enable temporal error test check */
   flag = arkSetForcePass(arkode_mem, SUNFALSE);

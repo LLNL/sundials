@@ -23,6 +23,8 @@
 #include "arkode_impl.h"
 #include "arkode_mristep_impl.h"
 
+#include "sundials_macros.h"
+
 /*===============================================================
   Interface routines supplied to ARKODE
   ===============================================================*/

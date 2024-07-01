@@ -35,6 +35,8 @@
 #include "sundials/sundials_logger.h"
 #include "sundials_utils.h"
 
+#include "sundials_macros.h"
+
 /*===============================================================
   Exported functions
   ===============================================================*/
@@ -1226,62 +1228,6 @@ void ARKodeFree(void** arkode_mem)
 }
 
 /*===============================================================
-  Internal functions that may be replaced by the user
-  ===============================================================*/
-
-/*---------------------------------------------------------------
-  arkRwtSet
-
-  This routine is responsible for setting the residual weight
-  vector rwt, according to tol_type, as follows:
-
-  (1) rwt[i] = 1 / (reltol * SUNRabs(M*ycur[i]) + rabstol), i=0,...,neq-1
-      if tol_type = ARK_SS
-  (2) rwt[i] = 1 / (reltol * SUNRabs(M*ycur[i]) + rabstol[i]), i=0,...,neq-1
-      if tol_type = ARK_SV
-  (3) unset if tol_type is any other value (occurs rwt=ewt)
-
-  arkRwtSet returns 0 if rwt is successfully set as above to a
-  positive vector and -1 otherwise. In the latter case, rwt is
-  considered undefined.
-
-  All the real work is done in the routines arkRwtSetSS, arkRwtSetSV.
-  ---------------------------------------------------------------*/
-int arkRwtSet(N_Vector y, N_Vector weight, void* data)
-{
-  ARKodeMem ark_mem;
-  N_Vector My;
-  int flag = 0;
-
-  /* data points to ark_mem here */
-  ark_mem = (ARKodeMem)data;
-
-  /* return if rwt is just ewt */
-  if (ark_mem->rwt_is_ewt) { return (0); }
-
-  /* put M*y into ark_tempv1 */
-  My = ark_mem->tempv1;
-  if (ark_mem->step_mmult != NULL)
-  {
-    flag = ark_mem->step_mmult((void*)ark_mem, y, My);
-    if (flag != ARK_SUCCESS) { return (ARK_MASSMULT_FAIL); }
-  }
-  else
-  { /* this condition should not apply, but just in case */
-    N_VScale(ONE, y, My);
-  }
-
-  /* call appropriate routine to fill rwt */
-  switch (ark_mem->ritol)
-  {
-  case ARK_SS: flag = arkRwtSetSS(ark_mem, My, weight); break;
-  case ARK_SV: flag = arkRwtSetSV(ark_mem, My, weight); break;
-  }
-
-  return (flag);
-}
-
-/*===============================================================
   Private Helper Functions
   ===============================================================*/
 
@@ -1809,153 +1755,6 @@ int arkRwtSet(N_Vector y, N_Vector weight, void* data)
   }
 
   return (flag);
-}
-
-/*---------------------------------------------------------------
-  arkInit:
-
-  arkInit allocates and initializes memory for a problem. All
-  inputs are checked for errors. If any error occurs during
-  initialization, an error flag is returned. Otherwise, it returns
-  ARK_SUCCESS.  This routine should be called by an ARKODE
-  timestepper module (not by the user).  This routine must be
-  called prior to calling ARKodeEvolve to evolve the problem. The
-  initialization type indicates if the values of internal counters
-  should be reinitialized (FIRST_INIT) or retained (RESET_INIT).
-  ---------------------------------------------------------------*/
-int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
-{
-  sunbooleantype stepperOK, nvectorOK, allocOK;
-  int retval;
-  sunindextype lrw1, liw1;
-
-  /* Check ark_mem */
-  if (ark_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-
-  /* Check for legal input parameters */
-  if (y0 == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_Y0);
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Check if reset was called before the first Evolve call */
-  if (init_type == RESET_INIT && !(ark_mem->initialized))
-  {
-    init_type = FIRST_INIT;
-  }
-
-  /* Check if allocations have been done i.e., is this first init call */
-  if (ark_mem->MallocDone == SUNFALSE)
-  {
-    /* Test if all required time stepper operations are implemented */
-    stepperOK = arkCheckTimestepper(ark_mem);
-    if (!stepperOK)
-    {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "Time stepper module is missing required functionality");
-      return (ARK_ILL_INPUT);
-    }
-
-    /* Test if all required vector operations are implemented */
-    nvectorOK = arkCheckNvector(y0);
-    if (!nvectorOK)
-    {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      MSG_ARK_BAD_NVECTOR);
-      return (ARK_ILL_INPUT);
-    }
-
-    /* Set space requirements for one N_Vector */
-    if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
-    else
-    {
-      lrw1 = 0;
-      liw1 = 0;
-    }
-    ark_mem->lrw1 = lrw1;
-    ark_mem->liw1 = liw1;
-
-    /* Allocate the solver vectors (using y0 as a template) */
-    allocOK = arkAllocVectors(ark_mem, y0);
-    if (!allocOK)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_MEM_FAIL);
-      return (ARK_MEM_FAIL);
-    }
-
-    /* All allocations are complete */
-    ark_mem->MallocDone = SUNTRUE;
-  }
-
-  /* All allocation and error checking is complete at this point */
-
-  /* Copy the input parameters into ARKODE state */
-  ark_mem->tcur = t0;
-  ark_mem->tn   = t0;
-
-  /* Initialize yn */
-  N_VScale(ONE, y0, ark_mem->yn);
-  ark_mem->fn_is_current = SUNFALSE;
-
-  /* Clear any previous 'tstop' */
-  ark_mem->tstopset = SUNFALSE;
-
-  /* Initializations on (re-)initialization call, skip on reset */
-  if (init_type == FIRST_INIT)
-  {
-    /* Counters */
-    ark_mem->nst_attempts = 0;
-    ark_mem->nst          = 0;
-    ark_mem->nhnil        = 0;
-    ark_mem->ncfn         = 0;
-    ark_mem->netf         = 0;
-    ark_mem->nconstrfails = 0;
-
-    /* Initial, old, and next step sizes */
-    ark_mem->h0u    = ZERO;
-    ark_mem->h      = ZERO;
-    ark_mem->hold   = ZERO;
-    ark_mem->next_h = ZERO;
-
-    /* Tolerance scale factor */
-    ark_mem->tolsf = ONE;
-
-    /* Reset error controller object */
-    retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
-    if (retval != SUN_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__, __FILE__,
-                      "Unable to reset error controller object");
-      return (ARK_CONTROLLER_ERR);
-    }
-
-    /* Adaptivity counters */
-    ark_mem->hadapt_mem->nst_acc = 0;
-    ark_mem->hadapt_mem->nst_exp = 0;
-
-    /* Indicate that calling the full RHS function is not required, this flag is
-       updated to SUNTRUE by the interpolation module initialization function
-       and/or the stepper initialization function in arkInitialSetup */
-    ark_mem->call_fullrhs = SUNFALSE;
-
-    /* Indicate that initialization has not been done before */
-    ark_mem->initialized = SUNFALSE;
-  }
-
-  /* Indicate initialization is needed */
-  ark_mem->initsetup  = SUNTRUE;
-  ark_mem->init_type  = init_type;
-  ark_mem->firststage = SUNTRUE;
-
-  return (ARK_SUCCESS);
 }
 
 /*---------------------------------------------------------------
