@@ -874,23 +874,29 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       attempts++;
       ark_mem->nst_attempts++;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::ARKodeEvolve",
-                         "start-step",
-                         "step = %li, attempt = %i, h = %" RSYM
-                         ", tcur = %" RSYM,
-                         ark_mem->nst, attempts, ark_mem->h, ark_mem->tcur);
-#endif
+      SUNLogInfo(ARK_LOGGER, __func__, "begin-step-attempt",
+                 "step = %li, t_n = %" RSYM ", h = %" RSYM, ark_mem->nst + 1,
+                 ark_mem->tn, ark_mem->h);
 
       /* Call time stepper module to attempt a step:
             0 => step completed successfully
            >0 => step encountered recoverable failure; reduce step if possible
            <0 => step encountered unrecoverable failure */
       kflag = ark_mem->step((void*)ark_mem, &dsm, &nflag);
-      if (kflag < 0) { break; }
+      if (kflag < 0)
+      {
+        /* Log fatal errors here, other returns handled below */
+        SUNLogInfo(ARK_LOGGER, __func__, "end-step-attempt",
+                   "status = failed step, kflag = %i", kflag);
+        break;
+      }
 
       /* handle solver convergence failures */
       kflag = arkCheckConvergence(ark_mem, &nflag, &ncf);
+
+      SUNLogInfoIf(kflag != ARK_SUCCESS, ARK_LOGGER, __func__, "end-step-attempt",
+                   "status = failed solve, kflag = %i", kflag);
+
       if (kflag < 0) { break; }
 
       /* Perform relaxation:
@@ -901,6 +907,11 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       if (ark_mem->relax_enabled && (kflag == ARK_SUCCESS))
       {
         kflag = arkRelax(ark_mem, &relax_fails, &dsm);
+
+        SUNLogInfoIf(kflag != ARK_SUCCESS, ARK_LOGGER, __func__,
+                     "end-step-attempt",
+                     "status = failed relaxtion, kflag = %i", kflag);
+
         if (kflag < 0) { break; }
       }
 
@@ -908,6 +919,11 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       if (ark_mem->constraintsSet && (kflag == ARK_SUCCESS))
       {
         kflag = arkCheckConstraints(ark_mem, &constrfails, &nflag);
+
+        SUNLogInfoIf(kflag != ARK_SUCCESS, ARK_LOGGER, __func__,
+                     "end-step-attempt",
+                     "status = failed constraints, kflag = %i", kflag);
+
         if (kflag < 0) { break; }
       }
 
@@ -916,6 +932,8 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       if (ark_mem->fixedstep)
       {
         ark_mem->eta = ONE;
+        SUNLogInfo(ARK_LOGGER, __func__, "end-step-attempt", "status = success",
+                   "");
         break;
       }
 
@@ -923,6 +941,12 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       if (kflag == ARK_SUCCESS)
       {
         kflag = arkCheckTemporalError(ark_mem, &nflag, &nef, dsm);
+
+        SUNLogInfoIf(kflag != ARK_SUCCESS, ARK_LOGGER, __func__,
+                     "end-step-attempt",
+                     "status = failed error test, dsm = %" RSYM ", kflag = %i",
+                     dsm, kflag);
+
         if (kflag < 0) { break; }
       }
 
@@ -931,11 +955,18 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       {
         ark_mem->last_kflag = kflag;
         kflag               = ARK_SUCCESS;
+        SUNLogInfo(ARK_LOGGER, __func__, "end-step-attempt", "status = success",
+                   "");
         break;
       }
 
       /* break attempt loop on successful step */
-      if (kflag == ARK_SUCCESS) { break; }
+      if (kflag == ARK_SUCCESS)
+      {
+        SUNLogInfo(ARK_LOGGER, __func__, "end-step-attempt",
+                   "status = success, dsm = %" RSYM, dsm);
+        break;
+      }
 
       /* unsuccessful step, if |h| = hmin, return ARK_ERR_FAILURE */
       if (SUNRabs(ark_mem->h) <= ark_mem->hmin * ONEPSM)
@@ -2514,12 +2545,6 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
       ark_mem->tcur = ark_mem->tstop;
     }
   }
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkCompleteStep",
-                     "end-step", "step = %li, h = %" RSYM ", tcur = %" RSYM,
-                     ark_mem->nst, ark_mem->h, ark_mem->tcur);
-#endif
 
   /* apply user-supplied step postprocessing function (if supplied) */
   if (ark_mem->ProcessStep != NULL)
