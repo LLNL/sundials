@@ -208,8 +208,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   case SUN_OUTPUTFORMAT_TABLE:
     fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
     fprintf(outfile, "RHS fn evals for spr         = %ld\n", step_mem->sprnfe);
-    fprintf(outfile, "Max. num. of Steps taken     = %ld\n", step_mem->stagemax);
-    fprintf(outfile, "Max. num. of Steps allowed   = %ld\n", step_mem->stagemaxlimit);
+    fprintf(outfile, "Max. num. of stages taken    = %ld\n", step_mem->stagemax);
+    fprintf(outfile, "Max. num. of stages allowed  = %ld\n", step_mem->stagemaxlimit);
 
     fprintf(outfile, "Max. spectral radius         = %f\n",  step_mem->sprmax);
     fprintf(outfile, "Min. spectral radius         = %f\n",  step_mem->sprmin);
@@ -217,8 +217,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
     fprintf(outfile, ",RHS fn evals for spr,%ld", step_mem->sprnfe);
-    fprintf(outfile, ",Max. num. of Steps taken,%ld", step_mem->stagemax);
-    fprintf(outfile, ",Max. num. of Steps allowed,%ld", step_mem->stagemaxlimit);
+    fprintf(outfile, ",Max. num. of stages taken,%ld", step_mem->stagemax);
+    fprintf(outfile, ",Max. num. of stages allowed,%ld", step_mem->stagemaxlimit);
 
     fprintf(outfile, ",Max. spectral radius,%f",  step_mem->sprmax);
     fprintf(outfile, ",Min. spectral radius,%f",  step_mem->sprmin);
