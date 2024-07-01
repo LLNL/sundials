@@ -130,8 +130,8 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
   step_mem->fi = fi;
 
   /* Update the ARKODE workspace requirements -- UPDATE */
-  ark_mem->liw += 8; /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
-  ark_mem->lrw += 0;
+  ark_mem->liw += 41; /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
+  ark_mem->lrw += 10;
 
   /* Initialize all the counters */
   step_mem->nfe = 0;

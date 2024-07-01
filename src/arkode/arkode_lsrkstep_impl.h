@@ -66,7 +66,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype sprmax; /* max spectral radius*/
   sunrealtype sprmin; /* min spectral radius*/
   sunrealtype sprsfty; /* some safety factor for the user provided spr*/
-  sunrealtype sprupdatepar; /* indicates spr update after sprupdatepar successful steps*/
+  int sprupdatepar; /* indicates spr update after sprupdatepar successful steps*/
 
   /* Flags */
   sunbooleantype isextspr; /* flag indicating user provided spr */
