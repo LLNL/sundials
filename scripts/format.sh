@@ -11,7 +11,7 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------------------------
 # This script will use clang-format to format C/C++ code, fprettify for Fortran
-# code, and cmake-format for CMake files.
+# code, cmake-format for CMake files, and black for Python code.
 #
 # Usage:
 #    ./format.sh <paths to directories or files to format>
@@ -34,3 +34,5 @@ find "${paths[@]}" -iname '*.f90' | grep -v fmod | xargs fprettify --indent 2 --
 
 find "${paths[@]}" \( -iname '*.cmake' -o -iname 'CMakeLists.txt' \) \
      -exec cmake-format -i {} ';'
+
+find "${paths[@]}" -iname '*.py' -exec black {} ';'

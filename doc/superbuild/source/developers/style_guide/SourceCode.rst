@@ -186,9 +186,10 @@ not adhere to all of these rules.
 
 #. All new code added to SUNDIALS should be formatted with `clang-format
    <https://clang.llvm.org/docs/ClangFormat.html>`_ for C/C++, `fprettify
-   <https://github.com/fortran-lang/fprettify>`_ for Fortran, and `cmake-format
-   <https://cmake-format.readthedocs.io>`_ for CMake. See
-   :ref:`Style.Formatting` for details.
+   <https://github.com/fortran-lang/fprettify>`_ for Fortran, `cmake-format
+   <https://cmake-format.readthedocs.io>`_ for CMake, and `black
+   <https://black.readthedocs.io>`_ for Python. See :ref:`Style.Formatting` for
+   details.
 
 #. Spaces not tabs.
 
@@ -380,14 +381,17 @@ Formatting
 
 All new code added to SUNDIALS should be formatted with `clang-format
 <https://clang.llvm.org/docs/ClangFormat.html>`_ for C/C++, `fprettify
-<https://github.com/fortran-lang/fprettify>`_ for Fortran, and `cmake-format
-<https://cmake-format.readthedocs.io>`_ for CMake. The ``.clang-format`` file in
-the root of the project defines our configuration for clang-format. We use the
+<https://github.com/fortran-lang/fprettify>`_ for Fortran, `cmake-format
+<https://cmake-format.readthedocs.io>`_ for CMake, and `black
+<https://black.readthedocs.io>`_ for Python. The ``.clang-format`` file in the
+root of the project defines our configuration for clang-format. We use the
 default fprettify settings, except we use 2-space indentation. The
 ``.cmake-format.py`` file in the root of the project defines our configuration
-for cmake-format.
+for cmake-format. We also use the default black settings.
 
-To apply ``clang-format``, ``fprettify``, and ``cmake-format`` you can run:
+
+To apply ``clang-format``, ``fprettify``, ``cmake-format``, and ``black`` you
+can run:
 
 .. code-block:: shell
 
@@ -456,4 +460,3 @@ There are other scenarios (e.g., a function call with a lot of parameters) where
 ..   };
 
 .. See the clang-tidy documentation for more details.
-
