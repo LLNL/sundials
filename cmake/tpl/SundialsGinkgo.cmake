@@ -55,23 +55,23 @@ message(STATUS "GINKGO CXX FLAGS:   ${GINKGO_INTERFACE_CXX_FLAGS}")
 # -----------------------------------------------------------------------------
 if(Ginkgo_FOUND AND (NOT GINKGO_WORKS))
   if(SUNDIALS_PRECISION MATCHES "extended|EXTENDED")
-    print_error("SUNDIALS GINKGO interface is not compatible with extended precision")
+    message(FATAL_ERROR "SUNDIALS GINKGO interface is not compatible with extended precision")
   endif()
 
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA" AND NOT ENABLE_CUDA)
-    print_error("SUNDIALS_GINKGO_BACKENDS includes CUDA but CUDA is not enabled. Set ENABLE_CUDA=ON or change the backend.")
+    message(FATAL_ERROR "SUNDIALS_GINKGO_BACKENDS includes CUDA but CUDA is not enabled. Set ENABLE_CUDA=ON or change the backend.")
   endif()
 
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP" AND NOT ENABLE_HIP)
-    print_error("SUNDIALS_GINKGO_BACKENDS includes HIP but HIP is not enabled. Set ENABLE_HIP=ON or change the backend.")
+    message(FATAL_ERROR "SUNDIALS_GINKGO_BACKENDS includes HIP but HIP is not enabled. Set ENABLE_HIP=ON or change the backend.")
   endif()
 
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "SYCL" AND NOT ENABLE_SYCL) 
-    print_error("SUNDIALS_GINKGO_BACKENDS includes SYCL but SYCL is not enabled. Set ENABLE_SYCL=ON or change the backend.")
+    message(FATAL_ERROR "SUNDIALS_GINKGO_BACKENDS includes SYCL but SYCL is not enabled. Set ENABLE_SYCL=ON or change the backend.")
   endif()
 
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "OMP" AND NOT ENABLE_OPENMP)
-    print_error("SUNDIALS_GINKGO_BACKENDS includes OMP but OpenMP is not enabled. Set ENABLE_OPENMP=ON or change the backend.")
+    message(FATAL_ERROR "SUNDIALS_GINKGO_BACKENDS includes OMP but OpenMP is not enabled. Set ENABLE_OPENMP=ON or change the backend.")
   endif()
 
   message(STATUS "Checking if GINKGO works... OK")

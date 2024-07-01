@@ -1327,7 +1327,7 @@ different quantities that may be of interest to the user, such as solver
 workspace requirements and solver performance statistics. These optional output
 functions are described next.
 
-.. c:function:: int KINGetWorkSpace(void * kin_mem, long int lenrw, long int leniw)
+.. c:function:: int KINGetWorkSpace(void * kin_mem, long int * lenrw, long int * leniw)
 
    The function :c:func:`KINGetWorkSpace` returns the  KINSOL integer and real
    workspace sizes.
@@ -1352,7 +1352,7 @@ functions are described next.
       :math:`22 + 5 N` (increased by :math:`N` if constraint checking is enabled).
 
 
-.. c:function:: int KINGetNumFuncEvals(void * kin_mem, long int nfevals)
+.. c:function:: int KINGetNumFuncEvals(void * kin_mem, long int * nfevals)
 
    The function :c:func:`KINGetNumFuncEvals` returns the number of evaluations
    of the system function.
@@ -1366,7 +1366,7 @@ functions are described next.
      * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
 
 
-.. c:function:: int KINGetNumNonlinSolvIters(void * kin_mem, long int nniters)
+.. c:function:: int KINGetNumNonlinSolvIters(void * kin_mem, long int * nniters)
 
    The function :c:func:`KINGetNumNonlinSolvIters` returns the number  of
    nonlinear iterations.
@@ -1380,7 +1380,7 @@ functions are described next.
      * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
 
 
-.. c:function:: int KINGetNumBetaCondFails(void * kin_mem, long int nbcfails)
+.. c:function:: int KINGetNumBetaCondFails(void * kin_mem, long int * nbcfails)
 
    The function :c:func:`KINGetNumBetaCondFails` returns the number  of
    :math:`\beta`-condition failures.
@@ -1394,7 +1394,7 @@ functions are described next.
      * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
 
 
-.. c:function:: int KINGetNumBacktrackOps(void * kin_mem, long int nbacktr)
+.. c:function:: int KINGetNumBacktrackOps(void * kin_mem, long int * nbacktr)
 
    The function :c:func:`KINGetNumBacktrackOps` returns the number of  backtrack
    operations (step length adjustments) performed by the  line search algorithm.
@@ -1408,7 +1408,7 @@ functions are described next.
      * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
 
 
-.. c:function:: int KINGetFuncNorm(void * kin_mem, sunrealtype fnorm)
+.. c:function:: int KINGetFuncNorm(void * kin_mem, sunrealtype * fnorm)
 
    The function :c:func:`KINGetFuncNorm` returns the scaled Euclidean
    :math:`\ell_2` norm of the  nonlinear system function :math:`F(u)` evaluated
@@ -1423,7 +1423,7 @@ functions are described next.
      * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
 
 
-.. c:function:: int KINGetStepLength(void * kin_mem, sunrealtype steplength)
+.. c:function:: int KINGetStepLength(void * kin_mem, sunrealtype * steplength)
 
    The function :c:func:`KINGetStepLength` returns the scaled Euclidean
    :math:`\ell_2` norm of  the step used during the previous iteration.

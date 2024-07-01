@@ -19,39 +19,66 @@ import pandas as pd
 import numpy as np
 
 # load mesh data file
-mesh = np.loadtxt('mesh.txt', dtype=np.double)
+mesh = np.loadtxt("mesh.txt", dtype=np.double)
 # X,Y,Z = np.meshgrid(mesh[0,:], mesh[1,:], mesh[2,:])
 
 # calculate h
-hx = mesh[0,1] - mesh[0,0]
-hy = mesh[1,1] - mesh[1,0]
-hz = mesh[2,1] - mesh[2,0]
-nx = len(mesh[0,:])
-ny = len(mesh[1,:])
-nz = len(mesh[2,:])
+hx = mesh[0, 1] - mesh[0, 0]
+hy = mesh[1, 1] - mesh[1, 0]
+hz = mesh[2, 1] - mesh[2, 0]
+nx = len(mesh[0, :])
+ny = len(mesh[1, :])
+nz = len(mesh[2, :])
 
 print("nx, ny, nz = %d, %d, %d" % (nx, ny, nz))
 print("hx, hy, hz = %g, %g, %g" % (hx, hy, hz))
 
 # load output time file
-times = np.loadtxt('t.000000.txt', dtype=np.double)
+times = np.loadtxt("t.000000.txt", dtype=np.double)
 
 # load solution data files
-ufiles = glob.glob('u.' + ('[0-9]'*6) + '.txt'); ufiles.sort()
-vfiles = glob.glob('v.' + ('[0-9]'*6) + '.txt'); vfiles.sort()
-wfiles = glob.glob('w.' + ('[0-9]'*6) + '.txt'); wfiles.sort()
+ufiles = glob.glob("u." + ("[0-9]" * 6) + ".txt")
+ufiles.sort()
+vfiles = glob.glob("v." + ("[0-9]" * 6) + ".txt")
+vfiles.sort()
+wfiles = glob.glob("w." + ("[0-9]" * 6) + ".txt")
+wfiles.sort()
 udata = []
 vdata = []
 wdata = []
 
 sys.stdout.write("reading 1/%d...\r" % len(ufiles))
 sys.stdout.flush()
-for idx in range(0,len(ufiles)):
-    sys.stdout.write("reading %d/%d...\r" % (idx+1,len(ufiles)))
+for idx in range(0, len(ufiles)):
+    sys.stdout.write("reading %d/%d...\r" % (idx + 1, len(ufiles)))
     sys.stdout.flush()
-    udata.append(pd.read_csv(ufiles[idx], header=None, delimiter=' ', skipinitialspace=True, dtype=np.double))
-    vdata.append(pd.read_csv(vfiles[idx], header=None, delimiter=' ', skipinitialspace=True, dtype=np.double))
-    wdata.append(pd.read_csv(wfiles[idx], header=None, delimiter=' ', skipinitialspace=True, dtype=np.double))
+    udata.append(
+        pd.read_csv(
+            ufiles[idx],
+            header=None,
+            delimiter=" ",
+            skipinitialspace=True,
+            dtype=np.double,
+        )
+    )
+    vdata.append(
+        pd.read_csv(
+            vfiles[idx],
+            header=None,
+            delimiter=" ",
+            skipinitialspace=True,
+            dtype=np.double,
+        )
+    )
+    wdata.append(
+        pd.read_csv(
+            wfiles[idx],
+            header=None,
+            delimiter=" ",
+            skipinitialspace=True,
+            dtype=np.double,
+        )
+    )
 sys.stdout.write("\n")
 sys.stdout.flush()
 
@@ -69,5 +96,6 @@ wdata = np.reshape(wdata, (nt, nx, ny, nz))
 
 # save data to pickle
 print("saving...")
-np.savez_compressed('output-with-h-%.2e.npz' % hx, t=times, u=udata, v=vdata, w=wdata, mesh=mesh)
-
+np.savez_compressed(
+    "output-with-h-%.2e.npz" % hx, t=times, u=udata, v=vdata, w=wdata, mesh=mesh
+)

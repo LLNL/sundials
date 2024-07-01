@@ -39,7 +39,7 @@ endif()
 if(ENABLE_HYPRE)
   # Using hypre requres building with MPI enabled
   if(NOT ENABLE_MPI)
-    print_error("MPI is required for hypre support. Set ENABLE_MPI to ON.")
+    message(FATAL_ERROR "MPI is required for hypre support. Set ENABLE_MPI to ON.")
   endif()
   # Using hypre requres C99 or newer
   if(CMAKE_C_STANDARD STREQUAL "90")
@@ -112,7 +112,7 @@ if(HYPRE_FOUND AND (NOT HYPRE_WORKS))
     message(STATUS "Checking if HYPRE works... FAILED")
     message(STATUS "Check output: ")
     message("${COMPILE_OUTPUT}")
-    print_error("SUNDIALS interface to HYPRE is not functional.")
+    message(FATAL_ERROR "SUNDIALS interface to HYPRE is not functional.")
   endif()
 
 elseif(HYPRE_FOUND AND HYPRE_WORKS)

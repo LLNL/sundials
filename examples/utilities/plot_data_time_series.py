@@ -31,6 +31,7 @@
 # output time.
 # -----------------------------------------------------------------------------
 
+
 # -----------------------------------------------------------------------------
 # main routine
 # -----------------------------------------------------------------------------
@@ -41,50 +42,46 @@ def main():
     import numpy as np
     import shlex
 
-    parser = argparse.ArgumentParser(description='''Plot data files''')
+    parser = argparse.ArgumentParser(description="""Plot data files""")
 
-    parser.add_argument('quantity', type=str,
-                        help='''Quantity to plot''')
+    parser.add_argument("quantity", type=str, help="""Quantity to plot""")
 
-    parser.add_argument('datafiles', type=str, nargs='+',
-                        help='''Data files to plot''')
+    parser.add_argument("datafiles", type=str, nargs="+", help="""Data files to plot""")
 
     # Plot display options
 
-    parser.add_argument('--save', action='store_true',
-                        help='''Save figure to file''')
+    parser.add_argument("--save", action="store_true", help="""Save figure to file""")
 
-    parser.add_argument('--labels', type=str, nargs='+',
-                        help='''Data file labels for plot legend''')
+    parser.add_argument(
+        "--labels", type=str, nargs="+", help="""Data file labels for plot legend"""
+    )
 
-    parser.add_argument('--title', type=str,
-                        help='''Plot title''')
+    parser.add_argument("--title", type=str, help="""Plot title""")
 
-    parser.add_argument('--xlabel', type=str,
-                        help='''x-axis label''')
+    parser.add_argument("--xlabel", type=str, help="""x-axis label""")
 
-    parser.add_argument('--ylabel', type=str,
-                        help='''y-axis label''')
+    parser.add_argument("--ylabel", type=str, help="""y-axis label""")
 
-    parser.add_argument('--grid', action='store_true',
-                        help='''Add grid to plot''')
+    parser.add_argument("--grid", action="store_true", help="""Add grid to plot""")
 
     # Axis scaling
     logscale = parser.add_mutually_exclusive_group()
 
-    logscale.add_argument('--logx', action='store_true',
-                          help='''Plot with log scale x-axis''')
+    logscale.add_argument(
+        "--logx", action="store_true", help="""Plot with log scale x-axis"""
+    )
 
-    logscale.add_argument('--logy', action='store_true',
-                          help='''Plot with log scale y-axis''')
+    logscale.add_argument(
+        "--logy", action="store_true", help="""Plot with log scale y-axis"""
+    )
 
-    logscale.add_argument('--loglog', action='store_true',
-                          help='''Use log scale x and y axes''')
+    logscale.add_argument(
+        "--loglog", action="store_true", help="""Use log scale x and y axes"""
+    )
 
     # Debugging options
 
-    parser.add_argument('--debug', action='store_true',
-                        help='Enable debugging')
+    parser.add_argument("--debug", action="store_true", help="Enable debugging")
 
     # Parse command line args
     args = parser.parse_args()
@@ -132,33 +129,49 @@ def main():
             print(data)
 
         # Extract t and q data
-        tdata = data[:,0]    # first column has t values
-        qdata = data[:,idx]  # remaining columns have q values
+        tdata = data[:, 0]  # first column has t values
+        qdata = data[:, idx]  # remaining columns have q values
 
         # line colors: matplotlib.org/stable/tutorials/colors/colormaps.html
         # and colorbrewer2.org)
         if len(args.datafiles) < 22:
-            colors = ["#d62728", "#1f77b4", "#2ca02c", "#9467bd", "#ff7f0e",
-                      "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf",
-                      "#000000", "#ff9896", "#aec7e8", "#98df8a", "#c5b0d5",
-                      "#ffbb78", "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d",
-                      "#9edae5"]
+            colors = [
+                "#d62728",
+                "#1f77b4",
+                "#2ca02c",
+                "#9467bd",
+                "#ff7f0e",
+                "#8c564b",
+                "#e377c2",
+                "#7f7f7f",
+                "#bcbd22",
+                "#17becf",
+                "#000000",
+                "#ff9896",
+                "#aec7e8",
+                "#98df8a",
+                "#c5b0d5",
+                "#ffbb78",
+                "#c49c94",
+                "#f7b6d2",
+                "#c7c7c7",
+                "#dbdb8d",
+                "#9edae5",
+            ]
         else:
             print("ERROR: ncols > ncolors")
             sys.exit()
 
         # Set plot label for legend
-        if (args.labels):
-            label=args.labels[i]
+        if args.labels:
+            label = args.labels[i]
         else:
-            label=None
+            label = None
 
         if args.logx or args.logy or args.loglog:
-            ax.plot(tdata, np.abs(qdata), label=label,
-                    color=colors[i])
+            ax.plot(tdata, np.abs(qdata), label=label, color=colors[i])
         else:
-            ax.plot(tdata, qdata, label=label,
-                    color=colors[i])
+            ax.plot(tdata, qdata, label=label, color=colors[i])
 
     # Change axis scale
     if args.logx:
@@ -183,7 +196,7 @@ def main():
     if args.ylabel:
         plt.ylabel(args.ylabel)
     else:
-        plt.ylabel(args.quantity.replace("_"," "));
+        plt.ylabel(args.quantity.replace("_", " "))
 
     # Add legend
     if args.labels:
@@ -199,10 +212,12 @@ def main():
     else:
         plt.show()
 
+
 # -----------------------------------------------------------------------------
 # run the main routine
 # -----------------------------------------------------------------------------
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
+
     sys.exit(main())
