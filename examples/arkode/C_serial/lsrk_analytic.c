@@ -50,7 +50,7 @@
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 /* User-supplied Spectral Radius Called by the Solver */
-static int spr(sunrealtype t, sunrealtype extsprad, void* user_data);
+static int spr(sunrealtype t, sunrealtype* extsprad, void* user_data);
 
 /* Private function to check function return values */
 static int check_flag(void* flagvalue, const char* funcname, int opt);
@@ -72,7 +72,7 @@ int main(void)
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
-  sunrealtype lambda  = SUN_RCONST(-1.0); /* stiffness parameter */
+  sunrealtype lambda  = SUN_RCONST(-10.0); /* stiffness parameter */
 
   /* general problem variables */
   int flag;                /* reusable error-checking flag */
@@ -190,12 +190,11 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 }
 
 /* spr routine to estimate the spectral radius */
-static int spr(sunrealtype t, sunrealtype extsprad, void* user_data)
+static int spr(sunrealtype t, sunrealtype* extsprad, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter */
-  extsprad = lambda; /* access current solution value */
-
+  *extsprad = lambda; /* access current solution value */
   return 0; /* return with success */
 }
 
