@@ -109,7 +109,7 @@ int main(void)
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   /* Specify tolerances */
-  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
+  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
 
   /* Specify user provided spectral radius */
