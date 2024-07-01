@@ -29,6 +29,7 @@
 #include "sundials/sundials_context.h"
 #include "sundials/sundials_datanode.h"
 #include "sundials/sundials_nvector.h"
+#include "sunmemory/sunmemory_system.h"
 
 static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
 
@@ -299,8 +300,9 @@ int main(int argc, char* argv[])
   // Enable checkpointing during the forward solution
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
 
-  SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, 1,
-                                          ((tf - t0) / dt + 1) * 4, SUNTRUE,
+  SUNMemoryHelper mem_helper = SUNMemoryHelper_Sys(sunctx);
+  SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper, 1,
+                                          ((tf - t0) / dt + 1) * 6, SUNTRUE,
                                           SUNFALSE, sunctx, &checkpoint_scheme);
 
   ARKodeSetCheckpointScheme(arkode_mem, checkpoint_scheme);
@@ -309,20 +311,16 @@ int main(int argc, char* argv[])
   // Compute the forward solution
   //
 
+  printf("Initial condition:\n");
+  N_VPrint(u);
+
   sunrealtype t = t0;
-  // forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
+  forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
 
-  SUNAdjointCheckpointScheme_InsertVector(checkpoint_scheme, 0, -1, 0, u);
-  // SUNAdjointCheckpointScheme_InsertVector(checkpoint_scheme, 0, 0, 0, u);
-  // SUNAdjointCheckpointScheme_InsertVector(checkpoint_scheme, 0, 1, 0, u);
-  // SUNAdjointCheckpointScheme_InsertVector(checkpoint_scheme, 1, -1, 0, u);
-  // SUNAdjointCheckpointScheme_InsertVector(checkpoint_scheme, 1, 0, 0, u);
-  // SUNAdjointCheckpointScheme_InsertVector(checkpoint_scheme, 1, 1, 0, u);
-
-  N_Vector loaded_vec = NULL;
-  SUNAdjointCheckpointScheme_LoadVector(checkpoint_scheme, 0, -1, &loaded_vec);
-
-  fprintf(stdout, "%p:\n", (void*)loaded_vec);
+  // Test if the initial condition can be loaded
+  N_Vector loaded_vec = N_VClone(u);
+  SUNAdjointCheckpointScheme_LoadVector(checkpoint_scheme, 0, 0, &loaded_vec);
+  printf("Initial condition loaded from checkpoint:\n");
   N_VPrint(loaded_vec);
 
   //

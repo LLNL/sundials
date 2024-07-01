@@ -2063,7 +2063,6 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                                             &do_save);
     if (do_save)
     {
-      fprintf(stdout, ">>>> inserting step %d as checkpoint\n", ark_mem->nst);
       SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
                                               ark_mem->nst, -1, ark_mem->tcur,
                                               ark_mem->ycur);
