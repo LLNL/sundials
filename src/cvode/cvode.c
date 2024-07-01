@@ -2448,7 +2448,7 @@ static int cvStep(CVodeMem cv_mem)
 
     SUNLogInfoIf(kflag == PREDICT_AGAIN || kflag != DO_ERROR_TEST, CV_LOGGER,
                  __func__, "end-step-attempt",
-                 "status = failed solve, kflag = %i", kflag);
+                 "status = failed solve, kflag = %i\n", kflag);
 
     /* Go back in loop if we need to predict again (nflag=PREV_CONV_FAIL) */
     if (kflag == PREDICT_AGAIN) { continue; }
@@ -2465,7 +2465,7 @@ static int cvStep(CVodeMem cv_mem)
       pflag = cvDoProjection(cv_mem, &nflag, saved_t, &npf);
 
       SUNLogInfoIf(pflag != CV_SUCCESS, CV_LOGGER, __func__, "end-step-attempt",
-                   "status = failed projection, pflag = %i", pflag);
+                   "status = failed projection, pflag = %i\n", pflag);
 
       /* Go back in loop if we need to predict again (nflag=PREV_PROJ_FAIL) */
       if (pflag == PREDICT_AGAIN) { continue; }
@@ -2478,7 +2478,7 @@ static int cvStep(CVodeMem cv_mem)
     eflag = cvDoErrorTest(cv_mem, &nflag, saved_t, &nef, &dsm);
 
     SUNLogInfoIf(eflag != CV_SUCCESS, CV_LOGGER, __func__, "end-step-attempt",
-                 "status = failed error test, dsm = %" RSYM ", eflag = %i", dsm,
+                 "status = failed error test, dsm = %" RSYM ", eflag = %i\n", dsm,
                  eflag);
 
     /* Go back in loop if we need to predict again (nflag=PREV_ERR_FAIL) */
@@ -2498,7 +2498,7 @@ static int cvStep(CVodeMem cv_mem)
   cvOkPrepareNextStep(cv_mem, dsm);
 
   SUNLogInfo(CV_LOGGER, __func__, "end-step-attempt",
-             "status = success, dsm = %\n" RSYM, dsm);
+             "status = success, dsm = %" RSYM "\n", dsm);
 
   /* If Stablilty Limit Detection is turned on, call stability limit
      detection routine for possible order reduction. */
