@@ -138,8 +138,8 @@ SUNErrCode SUNHashMap_Destroy(SUNHashMap* map)
     * ``<-1`` -- an error occurred
  */
 size_t SUNHashMap_Iterate(SUNHashMap map, int start,
-                          int (*yieldfn)(int, SUNHashMapKeyValue, void*),
-                          void* ctx)
+                          int (*yieldfn)(int, SUNHashMapKeyValue, const void*),
+                          const void* ctx)
 {
   if (map == NULL || yieldfn == NULL) { return (-2); }
 
