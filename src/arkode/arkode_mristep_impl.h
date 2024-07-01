@@ -270,10 +270,18 @@ int mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
 int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper);
 int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
                                sunrealtype tout, N_Vector y);
+int mriStepInnerStepper_EvolveSUNStepper(MRIStepInnerStepper stepper,
+                                         sunrealtype t0, sunrealtype tout,
+                                         N_Vector y);
 int mriStepInnerStepper_FullRhs(MRIStepInnerStepper stepper, sunrealtype t,
                                 N_Vector y, N_Vector f, int mode);
+int mriStepInnerStepper_FullRhsSUNStepper(MRIStepInnerStepper stepper,
+                                          sunrealtype t, N_Vector y, N_Vector f,
+                                          int mode);
 int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
                               N_Vector yR);
+int mriStepInnerStepper_ResetSUNStepper(MRIStepInnerStepper stepper,
+                                        sunrealtype tR, N_Vector yR);
 int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
                                   N_Vector tmpl);
 int mriStepInnerStepper_Resize(MRIStepInnerStepper stepper, ARKVecResizeFn resize,
