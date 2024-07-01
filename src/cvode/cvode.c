@@ -3738,15 +3738,8 @@ static void cvOkPrepareNextStep(CVodeMem cv_mem, sunrealtype dsm)
     }
   }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvOkPrepareNextStep",
-                     "return", "eta = %" RSYM ", hprime = %" RSYM ", halpha = %" RSYM ", qprime = %d, qwait = %d\n",
-                     cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_halpha,
-                     cv_mem->cv_qprime, cv_mem->cv_qwait);
-#endif
-
   SUNLogDebug(CV_LOGGER, __func__, "return",
-              "eta = %" RSYM ", hprime = %" RSYM ", halpha = %" RSYM ", qprime = %d, qwait = %d\n",
+              "eta = %" RSYM ", hprime = %" RSYM ", halpha = %" RSYM ", qprime = %d, qwait = %d",
               cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_halpha, cv_mem->cv_qprime,
               cv_mem->cv_qwait);
 
