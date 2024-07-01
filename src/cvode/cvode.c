@@ -3811,13 +3811,13 @@ static void cvOkSetEta(CVodeMem cv_mem)
     int prev_nls_iters = 0;
     SUNNonlinSolGetCurIter(cv_mem->NLS, &prev_nls_iters);
     SUNLogDebug(CV_LOGGER, __func__,
-                "compute-halpha", "halpha = %.16g, alpharef = %.16g, crate = %.16g, h = %.16g, iters = %d",
+                "consider-halpha", "halpha = %.16g, alpharef = %.16g, crate = %.16g, h = %.16g, iters = %d",
                 cv_mem->cv_halpha, cv_mem->cv_alpharef, cv_mem->cv_crate,
                 cv_mem->cv_h, prev_nls_iters);
     if (cv_mem->gustafsoder_strategy && (prev_nls_iters > 0) &&
         (cv_mem->cv_crate > cv_mem->cv_alpharef))
     {
-      SUNLogDebug(CV_LOGGER, __func__, "consider-halpha",
+      SUNLogDebug(CV_LOGGER, __func__, "use-halpha",
                   "hprime = %.16g, halpha = %.16g", cv_mem->cv_hprime,
                   cv_mem->cv_halpha);
       cv_mem->cv_hprime = SUNMIN(cv_mem->cv_hprime, cv_mem->cv_halpha);

@@ -187,9 +187,9 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   N_Vector delta;
 
   /* check that all required function pointers have been set */
-  SUNAssert(NEWTON_CONTENT(NLS)->Sys && NEWTON_CONTENT(NLS)->CTest &&
-              NEWTON_CONTENT(NLS)->LSolve,
-            SUN_ERR_ARG_CORRUPT);
+  SUNAssert(NEWTON_CONTENT(NLS)->Sys, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(NEWTON_CONTENT(NLS)->CTest, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(NEWTON_CONTENT(NLS)->LSolve, SUN_ERR_ARG_CORRUPT);
   SUNAssert(!callLSetup || (callLSetup && NEWTON_CONTENT(NLS)->LSetup),
             SUN_ERR_ARG_CORRUPT);
 
@@ -212,20 +212,21 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
     /* initialize current iteration counter for this solve attempt */
     NEWTON_CONTENT(NLS)->curiter = 0;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
-                       "begin-attempt", "iter = %ld, nni = %ld",
-                       (long int)NEWTON_CONTENT(NLS)->curiter,
-                       NEWTON_CONTENT(NLS)->niters);
-    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
-                       "start-iterate", "iter = %ld, nni = %ld",
-                       (long int)NEWTON_CONTENT(NLS)->curiter,
-                       NEWTON_CONTENT(NLS)->niters);
-#endif
+    SUNLogInfo(NLS->sunctx->logger, __func__, "begin-attempt",
+                "iter = %ld, nni = %ld", (long int)NEWTON_CONTENT(NLS)->curiter,
+                NEWTON_CONTENT(NLS)->niters);
+
+    SUNLogInfo(NLS->sunctx->logger, __func__, "start-iterate",
+                "iter = %ld, nni = %ld", (long int)NEWTON_CONTENT(NLS)->curiter,
+                NEWTON_CONTENT(NLS)->niters);
 
     /* compute the nonlinear residual, store in delta */
     retval = NEWTON_CONTENT(NLS)->Sys(ycor, delta, mem);
     if (retval != SUN_SUCCESS) { break; }
+
+    /* compute the nonlinear residual norm so that it is available
+        for the automatic newton/fixed-point switching algorithm */
+    NEWTON_CONTENT(NLS)->resnrm = N_VWrmsNorm(delta, w);
 
     /* if indicated, setup the linear system */
     if (callLSetup)
@@ -235,9 +236,19 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       if (retval != SUN_SUCCESS) { break; }
     }
 
+    /* initialize current iteration counter for this solve attempt */
+    NEWTON_CONTENT(NLS)->curiter = 0;
+
     /* looping point for Newton iteration. Break out on any error. */
     for (;;)
     {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+      SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO,
+                         "SUNNonlinSolSolve_Newton", "begin-iterate",
+                         "iter = %ld, nni = %ld", NEWTON_CONTENT(NLS)->curiter,
+                         NEWTON_CONTENT(NLS)->niters);
+#endif
+
       /* increment nonlinear solver iteration counter */
       NEWTON_CONTENT(NLS)->niters++;
 
@@ -257,12 +268,10 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       retval = NEWTON_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
                                           NEWTON_CONTENT(NLS)->ctest_data);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
-                         "end-iterate", "iter = %ld, nni = %ld, wrmsnorm = %.16g",
-                         NEWTON_CONTENT(NLS)->curiter,
-                         NEWTON_CONTENT(NLS)->niters - 1, N_VWrmsNorm(delta, w));
-#endif
+      SUNLogInfo(NLS->sunctx->logger, __func__, "end-iterate",
+                  "iter = %ld, nni = %ld, wrmsnorm = %.16g",
+                  NEWTON_CONTENT(NLS)->curiter, NEWTON_CONTENT(NLS)->niters - 1,
+                  N_VWrmsNorm(delta, w));
 
       /* Update here so begin/end logging iterations match */
       NEWTON_CONTENT(NLS)->curiter++;
@@ -270,12 +279,10 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       /* if successful update Jacobian status and return */
       if (retval == SUN_SUCCESS)
       {
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-        SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
-                           "end-attempt", "success, iter = %ld, nni = %ld",
-                           (long int)NEWTON_CONTENT(NLS)->curiter,
-                           NEWTON_CONTENT(NLS)->niters);
-#endif
+        SUNLogInfo(NLS->sunctx->logger, __func__, "end-attempt",
+                    "success, iter = %ld, nni = %ld",
+                    (long int)NEWTON_CONTENT(NLS)->curiter,
+                    NEWTON_CONTENT(NLS)->niters);
         NEWTON_CONTENT(NLS)->jcur = SUNFALSE;
         return SUN_SUCCESS;
       }
@@ -283,37 +290,30 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       /* check if the iteration should continue; otherwise exit Newton loop */
       if (retval != SUN_NLS_CONTINUE) { break; }
 
-      /* not yet converged, test for max allowed iterations. */
+      /* not yet converged, increment curiter and test for max allowed. */
+      NEWTON_CONTENT(NLS)->curiter++;
       if (NEWTON_CONTENT(NLS)->curiter >= NEWTON_CONTENT(NLS)->maxiters)
       {
         retval = SUN_NLS_CONV_RECVR;
         break;
       }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
-                         "start-iterate", "iter = %ld, nni = %ld",
-                         (long int)NEWTON_CONTENT(NLS)->curiter,
-                         NEWTON_CONTENT(NLS)->niters);
-#endif
+      SUNLogInfo(NLS->sunctx->logger, __func__, "start-iterate",
+                  "iter = %ld, nni = %ld", (long int)NEWTON_CONTENT(NLS)->curiter,
+                  NEWTON_CONTENT(NLS)->niters);
 
       /* compute the nonlinear residual, store in delta */
       retval = NEWTON_CONTENT(NLS)->Sys(ycor, delta, mem);
       if (retval != SUN_SUCCESS) { break; }
 
-      /* compute the norm of the residual so that it is available for the automatic newton/fixed-point switching algorithm */
-      NEWTON_CONTENT(NLS)->resnrm = N_VWrmsNorm(delta, w);
-
     } /* end of Newton iteration loop */
 
     /* all errors go here */
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
-                       "end-attempt", "failure, iter = %ld, nni = %ld",
-                       (long int)NEWTON_CONTENT(NLS)->curiter,
-                       NEWTON_CONTENT(NLS)->niters);
-#endif
+    SUNLogInfo(NLS->sunctx->logger, __func__, "end-attempt",
+                "failure, iter = %ld, nni = %ld",
+                (long int)NEWTON_CONTENT(NLS)->curiter,
+                NEWTON_CONTENT(NLS)->niters);
 
     /* If there is a recoverable convergence failure and the Jacobian-related
        data appears not to be current, increment the convergence failure count,
