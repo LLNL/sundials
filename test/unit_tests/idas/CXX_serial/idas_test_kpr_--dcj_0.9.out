@@ -12,13 +12,13 @@
  9.000000000000000e+00    7.378589522466482e-01    1.183873325967590e+00    6.534807798219688e-07    6.808600812702181e-06
  1.000000000000000e+01    7.618820715520634e-01    1.577083311348172e+00    3.641685053512589e-08    1.298576798980378e-06
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 10.00260922004195
+Current time                 = 10.0026092200419
 Steps                        = 2294
 Error test fails             = 35
 NLS step fails               = 0
 Initial step size            = 0.001
-Last step size               = 0.004118302466636572
-Current step size            = 0.004118302466636572
+Last step size               = 0.00411830246663657
+Current step size            = 0.00411830246663657
 Last method order            = 5
 Current method order         = 5
 Residual fn evals            = 4368
@@ -36,6 +36,6 @@ LS fails                     = 0
 Jac-times setups             = 0
 Jac-times evals              = 0
 LS iters per NLS iter        = 0
-Jac evals per NLS iter       = 0.001144688644688645
+Jac evals per NLS iter       = 0.00114468864468864
 Prec evals per NLS iter      = 0
 Root fn evals                = 0

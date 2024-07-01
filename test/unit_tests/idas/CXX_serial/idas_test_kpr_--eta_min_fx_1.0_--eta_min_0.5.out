@@ -12,20 +12,20 @@
  9.000000000000000e+00    7.378606025350759e-01    1.183877114777252e+00    2.303769207512296e-06    1.059741047493290e-05
  1.000000000000000e+01    7.618838737365803e-01    1.577084968262613e+00    1.838601367376569e-06    2.955491239520214e-06
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 10.00592015471712
+Current time                 = 10.0059201547171
 Steps                        = 1841
 Error test fails             = 79
 NLS step fails               = 0
 Initial step size            = 0.001
-Last step size               = 0.006029980790852448
-Current step size            = 0.006029980790852448
+Last step size               = 0.00602998079085245
+Current step size            = 0.00602998079085245
 Last method order            = 4
 Current method order         = 4
 Residual fn evals            = 2397
 IC linesearch backtrack ops  = 0
 NLS iters                    = 2397
 NLS fails                    = 0
-NLS iters per step           = 1.302009777294948
+NLS iters per step           = 1.30200977729495
 LS setups                    = 85
 Jac fn evals                 = 85
 LS residual fn evals         = 0
@@ -36,6 +36,6 @@ LS fails                     = 0
 Jac-times setups             = 0
 Jac-times evals              = 0
 LS iters per NLS iter        = 0
-Jac evals per NLS iter       = 0.03546099290780142
+Jac evals per NLS iter       = 0.0354609929078014
 Prec evals per NLS iter      = 0
 Root fn evals                = 0

@@ -107,7 +107,7 @@ Robertson ODE test problem:
    --------------------------------------------------
 
 Final Statistics:
-Current time                 = 115949571244.6344
+Current time                 = 115949571244.634
 Steps                        = 740
 Step attempts                = 784
 Stability limited steps      = 0
@@ -122,7 +122,7 @@ Explicit RHS fn evals        = 0
 Implicit RHS fn evals        = 25084
 NLS iters                    = 21171
 NLS fails                    = 46
-NLS iters per step           = 28.60945945945946
+NLS iters per step           = 28.6094594594595
 LS setups                    = 208
 Jac fn evals                 = 52
 LS RHS fn evals              = 0
@@ -133,5 +133,5 @@ LS fails                     = 0
 Jac-times setups             = 0
 Jac-times evals              = 0
 LS iters per NLS iter        = 0
-Jac evals per NLS iter       = 0.002456190071323981
+Jac evals per NLS iter       = 0.00245619007132398
 Prec evals per NLS iter      = 0
