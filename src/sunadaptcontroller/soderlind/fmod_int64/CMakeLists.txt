@@ -12,14 +12,11 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunadaptcontrollersoderlind_mod
-  SOURCES
-    fsunadaptcontroller_soderlind_mod.f90 fsunadaptcontroller_soderlind_mod.c
-  LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
-  OUTPUT_NAME
-    sundials_fsunadaptcontrollersoderlind_mod
-  OBJECT_LIB_ONLY
-)
+sundials_add_f2003_library(
+  sundials_fsunadaptcontrollersoderlind_mod
+  SOURCES fsunadaptcontroller_soderlind_mod.f90
+          fsunadaptcontroller_soderlind_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
+  OUTPUT_NAME sundials_fsunadaptcontrollersoderlind_mod OBJECT_LIB_ONLY)
 
 message(STATUS "Added SUNAdaptController_Soderlind F2003 interface")

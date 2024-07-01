@@ -14,20 +14,17 @@
 # CMakeLists.txt file for hypre nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the type is
+# develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS parallel hypre nvector
 set(nvector_parhyp_examples
-  "test_nvector_parhyp\;1000 0\;1\;1\;" # run sequentially
-  "test_nvector_parhyp\;1000 0\;1\;4\;" # run parallel on 4 procs
-  )
+    "test_nvector_parhyp\;1000 0\;1\;1\;" # run sequentially
+    "test_nvector_parhyp\;1000 0\;1\;4\;" # run parallel on 4 procs
+)
 
 # Dependencies for nvector examples
-set(nvector_examples_dependencies
-  test_nvector
-  test_mpinvector
-  )
+set(nvector_examples_dependencies test_nvector test_mpinvector)
 
 # Add source directory to include directories
 include_directories(. ..)
@@ -61,14 +58,15 @@ foreach(example_tuple ${nvector_parhyp_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.c)
 
     # link vector test utilties
-    target_link_libraries(${example} PRIVATE test_nvector_obj test_nvectormpi_obj)
+    target_link_libraries(${example} PRIVATE test_nvector_obj
+                                             test_nvectormpi_obj)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -92,12 +90,14 @@ foreach(example_tuple ${nvector_parhyp_examples})
     if("${number_of_tasks}" STREQUAL "")
       string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+      string(REGEX REPLACE " " "_" test_name
+                           ${example}_${number_of_tasks}_${example_args})
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(
+    ${test_name} ${example}
     TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
@@ -105,11 +105,9 @@ foreach(example_tuple ${nvector_parhyp_examples})
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_nvector.c
-      ../test_nvector.h
-      ../test_mpinvector.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp)
+    install(FILES ${example}.c ../test_nvector.c ../test_nvector.h
+                  ../test_mpinvector.c
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp)
   endif()
 
 endforeach(example_tuple ${nvector_parhyp_examples})
@@ -126,39 +124,32 @@ if(EXAMPLES_INSTALL)
   examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parhyp_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parhyp_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

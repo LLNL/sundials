@@ -36,13 +36,10 @@ endif()
 # Section 2: Check to make sure options are compatible
 # -----------------------------------------------------------------------------
 
-
 # -----------------------------------------------------------------------------
 # Section 3: Find the TPL
 # -----------------------------------------------------------------------------
-find_package(Ginkgo REQUIRED
-             HINTS "${Ginkgo_DIR}"
-             NO_DEFAULT_PATH)
+find_package(Ginkgo REQUIRED HINTS "${Ginkgo_DIR}" NO_DEFAULT_PATH)
 
 message(STATUS "GINKGO VERSION:     ${GINKGO_PROJECT_VERSION}")
 message(STATUS "GINKGO BUILD TYPE:  ${GINKGO_BUILD_TYPE}")
@@ -55,27 +52,43 @@ message(STATUS "GINKGO CXX FLAGS:   ${GINKGO_INTERFACE_CXX_FLAGS}")
 # -----------------------------------------------------------------------------
 if(Ginkgo_FOUND AND (NOT GINKGO_WORKS))
   if(SUNDIALS_PRECISION MATCHES "extended|EXTENDED")
-    message(FATAL_ERROR "SUNDIALS GINKGO interface is not compatible with extended precision")
+    message(
+      FATAL_ERROR
+        "SUNDIALS GINKGO interface is not compatible with extended precision")
   endif()
 
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA" AND NOT ENABLE_CUDA)
-    message(FATAL_ERROR "SUNDIALS_GINKGO_BACKENDS includes CUDA but CUDA is not enabled. Set ENABLE_CUDA=ON or change the backend.")
+    message(
+      FATAL_ERROR
+        "SUNDIALS_GINKGO_BACKENDS includes CUDA but CUDA is not enabled. Set ENABLE_CUDA=ON or change the backend."
+    )
   endif()
 
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP" AND NOT ENABLE_HIP)
-    message(FATAL_ERROR "SUNDIALS_GINKGO_BACKENDS includes HIP but HIP is not enabled. Set ENABLE_HIP=ON or change the backend.")
+    message(
+      FATAL_ERROR
+        "SUNDIALS_GINKGO_BACKENDS includes HIP but HIP is not enabled. Set ENABLE_HIP=ON or change the backend."
+    )
   endif()
 
-  if(SUNDIALS_GINKGO_BACKENDS MATCHES "SYCL" AND NOT ENABLE_SYCL) 
-    message(FATAL_ERROR "SUNDIALS_GINKGO_BACKENDS includes SYCL but SYCL is not enabled. Set ENABLE_SYCL=ON or change the backend.")
+  if(SUNDIALS_GINKGO_BACKENDS MATCHES "SYCL" AND NOT ENABLE_SYCL)
+    message(
+      FATAL_ERROR
+        "SUNDIALS_GINKGO_BACKENDS includes SYCL but SYCL is not enabled. Set ENABLE_SYCL=ON or change the backend."
+    )
   endif()
 
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "OMP" AND NOT ENABLE_OPENMP)
-    message(FATAL_ERROR "SUNDIALS_GINKGO_BACKENDS includes OMP but OpenMP is not enabled. Set ENABLE_OPENMP=ON or change the backend.")
+    message(
+      FATAL_ERROR
+        "SUNDIALS_GINKGO_BACKENDS includes OMP but OpenMP is not enabled. Set ENABLE_OPENMP=ON or change the backend."
+    )
   endif()
 
   message(STATUS "Checking if GINKGO works... OK")
-  set(GINKGO_WORKS TRUE CACHE BOOL "GINKGO works with SUNDIALS as configured" FORCE)
+  set(GINKGO_WORKS
+      TRUE
+      CACHE BOOL "GINKGO works with SUNDIALS as configured" FORCE)
 elseif(Ginkgo_FOUND AND GINKGO_WORKS)
   message(STATUS "Skipped GINKGO tests, assuming GINKGO works with SUNDIALS.")
 endif()

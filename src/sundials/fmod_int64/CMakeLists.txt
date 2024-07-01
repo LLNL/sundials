@@ -14,12 +14,6 @@
 # CMakeLists.txt file for the F2003 SUNDIALS object library
 # ---------------------------------------------------------------
 
-set(sundials_SOURCES
-  fsundials_core_mod.c
-  fsundials_core_mod.f90
-  )
+set(sundials_SOURCES fsundials_core_mod.c fsundials_core_mod.f90)
 
-sundials_add_f2003_library(sundials_fcore_mod
-  SOURCES
-    ${sundials_SOURCES}
-)
+sundials_add_f2003_library(sundials_fcore_mod SOURCES ${sundials_SOURCES})

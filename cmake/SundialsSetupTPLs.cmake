@@ -15,8 +15,8 @@
 # ---------------------------------------------------------------
 
 # ---------------------------------------------------------------
-# Setup MPI, OpenMP, and OpenMP offload first as other TPLs may
-# need targets or variables corresponding to these TPLs.
+# Setup MPI, OpenMP, and OpenMP offload first as other TPLs may need targets or
+# variables corresponding to these TPLs.
 # ---------------------------------------------------------------
 
 # ---------------------------------------------------------------
@@ -76,7 +76,6 @@ if(ENABLE_GINKGO)
   include(SundialsGinkgo)
   list(APPEND SUNDIALS_TPL_LIST "GINKGO")
 endif()
-
 
 # ---------------------------------------------------------------
 # Find (and test) the hypre libraries

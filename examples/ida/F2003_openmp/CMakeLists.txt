@@ -15,15 +15,13 @@
 # CMakeLists.txt file for the F2003 IDA OpenMP examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is 'develop' for
+# examples excluded from 'make test' in releases
 
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
   # Examples using SUNDIALS linear solvers
-  set(FIDA_examples_OMP
-    "idaHeat2D_kry_omp_f2003.f90\;4\;exclude"
-    "idaHeat2D_kry_omp_f2003.f90\;8\;exclude"
-    )
+  set(FIDA_examples_OMP "idaHeat2D_kry_omp_f2003.f90\;4\;exclude"
+                        "idaHeat2D_kry_omp_f2003.f90\;8\;exclude")
 endif()
 
 # Specify libraries to link against
@@ -48,15 +46,13 @@ foreach(example_tuple ${FIDA_examples_OMP})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example}
-      sundials_ida
-      sundials_fida_mod
-      sundials_nvecopenmp
-      sundials_fnvecopenmp_mod
-      ${SUNDIALS_LIBS})
+    target_link_libraries(
+      ${example} sundials_ida sundials_fida_mod sundials_nvecopenmp
+      sundials_fnvecopenmp_mod ${SUNDIALS_LIBS})
 
     # Install fortran modules to a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+    set(CMAKE_Fortran_MODULE_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   endif()
 
@@ -68,7 +64,8 @@ foreach(example_tuple ${FIDA_examples_OMP})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(
+    ${test_name} ${example}
     TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
@@ -77,7 +74,7 @@ foreach(example_tuple ${FIDA_examples_OMP})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.f90 ${test_name}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp)
   endif()
 endforeach(example_tuple ${FIDA_examples_OMP})
 
@@ -92,39 +89,32 @@ if(EXAMPLES_INSTALL)
   examples2string(FIDA_examples_OMP EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmp_F2003_ex.in
-    ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_openmp_F2003_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/ida/F2003_openmp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
   # add test_install target

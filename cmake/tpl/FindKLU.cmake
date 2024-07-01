@@ -30,9 +30,12 @@
 #   KLU_LIBRARIES   - all of the libraries needed for KLU
 # ---------------------------------------------------------------
 
-if (NOT (KLU_INCLUDE_DIR OR KLU_LIBRARY_DIR OR KLU_LIBRARY))
-  # Prefer the import target from upstream SuiteSparse if it is available
-  # and the user didn't point to a specific (different) version.
+if(NOT
+   (KLU_INCLUDE_DIR
+    OR KLU_LIBRARY_DIR
+    OR KLU_LIBRARY))
+  # Prefer the import target from upstream SuiteSparse if it is available and
+  # the user didn't point to a specific (different) version.
   find_package(KLU CONFIG)
 
   if(TARGET SuiteSparse::KLU)
@@ -53,63 +56,69 @@ elseif(APPLE)
   set(CMAKE_FIND_LIBRARY_SUFFIXES d.a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 endif()
 
-### Find include dir
+# Find include dir
 find_path(temp_KLU_INCLUDE_DIR klu.h ${KLU_INCLUDE_DIR})
-if (temp_KLU_INCLUDE_DIR)
-    set(KLU_INCLUDE_DIR ${temp_KLU_INCLUDE_DIR})
+if(temp_KLU_INCLUDE_DIR)
+  set(KLU_INCLUDE_DIR ${temp_KLU_INCLUDE_DIR})
 endif()
 unset(temp_KLU_INCLUDE_DIR CACHE)
 
-if (KLU_LIBRARY)
-    # We have (or were given) KLU_LIBRARY - get path to use for other Suitesparse libs
-    get_filename_component(KLU_LIBRARY_DIR ${KLU_LIBRARY} PATH)
+if(KLU_LIBRARY)
+  # We have (or were given) KLU_LIBRARY - get path to use for other Suitesparse
+  # libs
+  get_filename_component(KLU_LIBRARY_DIR ${KLU_LIBRARY} PATH)
 
-    # force CACHE update to show user DIR that will be used
-    set(KLU_LIBRARY_DIR ${KLU_LIBRARY_DIR} CACHE PATH "" FORCE)
+  # force CACHE update to show user DIR that will be used
+  set(KLU_LIBRARY_DIR
+      ${KLU_LIBRARY_DIR}
+      CACHE PATH "" FORCE)
 
-else ()
-    # find library with user provided directory path
-    set(KLU_LIBRARY_NAME klu)
-    find_library(KLU_LIBRARY ${KLU_LIBRARY_NAME} ${KLU_LIBRARY_DIR} NO_DEFAULT_PATH)
-endif ()
+else()
+  # find library with user provided directory path
+  set(KLU_LIBRARY_NAME klu)
+  find_library(KLU_LIBRARY ${KLU_LIBRARY_NAME} ${KLU_LIBRARY_DIR}
+               NO_DEFAULT_PATH)
+endif()
 mark_as_advanced(KLU_LIBRARY)
 
-if (NOT AMD_LIBRARY)
-    set(AMD_LIBRARY_NAME amd)
-    find_library(AMD_LIBRARY ${AMD_LIBRARY_NAME} ${KLU_LIBRARY_DIR} NO_DEFAULT_PATH)
-    mark_as_advanced(AMD_LIBRARY)
-endif ()
+if(NOT AMD_LIBRARY)
+  set(AMD_LIBRARY_NAME amd)
+  find_library(AMD_LIBRARY ${AMD_LIBRARY_NAME} ${KLU_LIBRARY_DIR}
+               NO_DEFAULT_PATH)
+  mark_as_advanced(AMD_LIBRARY)
+endif()
 
-if (NOT COLAMD_LIBRARY)
-    set(COLAMD_LIBRARY_NAME colamd)
-    find_library(COLAMD_LIBRARY ${COLAMD_LIBRARY_NAME} ${KLU_LIBRARY_DIR} NO_DEFAULT_PATH)
-    mark_as_advanced(COLAMD_LIBRARY)
-endif ()
+if(NOT COLAMD_LIBRARY)
+  set(COLAMD_LIBRARY_NAME colamd)
+  find_library(COLAMD_LIBRARY ${COLAMD_LIBRARY_NAME} ${KLU_LIBRARY_DIR}
+               NO_DEFAULT_PATH)
+  mark_as_advanced(COLAMD_LIBRARY)
+endif()
 
-if (NOT BTF_LIBRARY)
-    set(BTF_LIBRARY_NAME btf)
-    find_library( BTF_LIBRARY ${BTF_LIBRARY_NAME} ${KLU_LIBRARY_DIR} NO_DEFAULT_PATH)
-    mark_as_advanced(BTF_LIBRARY)
-endif ()
+if(NOT BTF_LIBRARY)
+  set(BTF_LIBRARY_NAME btf)
+  find_library(BTF_LIBRARY ${BTF_LIBRARY_NAME} ${KLU_LIBRARY_DIR}
+               NO_DEFAULT_PATH)
+  mark_as_advanced(BTF_LIBRARY)
+endif()
 
-if (NOT SUITESPARSECONFIG_LIBRARY)
-    set(SUITESPARSECONFIG_LIBRARY_NAME suitesparseconfig)
-    # NOTE: no prefix for this library on windows
-    if(MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC"))
-        set(CMAKE_FIND_LIBRARY_PREFIXES "")
-    endif()
-    find_library( SUITESPARSECONFIG_LIBRARY ${SUITESPARSECONFIG_LIBRARY_NAME} ${KLU_LIBRARY_DIR} NO_DEFAULT_PATH)
-    mark_as_advanced(SUITESPARSECONFIG_LIBRARY)
-endif ()
+if(NOT SUITESPARSECONFIG_LIBRARY)
+  set(SUITESPARSECONFIG_LIBRARY_NAME suitesparseconfig)
+  # NOTE: no prefix for this library on windows
+  if(MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC"))
+    set(CMAKE_FIND_LIBRARY_PREFIXES "")
+  endif()
+  find_library(SUITESPARSECONFIG_LIBRARY ${SUITESPARSECONFIG_LIBRARY_NAME}
+               ${KLU_LIBRARY_DIR} NO_DEFAULT_PATH)
+  mark_as_advanced(SUITESPARSECONFIG_LIBRARY)
+endif()
 
-set(KLU_LIBRARIES ${KLU_LIBRARY} ${AMD_LIBRARY} ${COLAMD_LIBRARY} ${BTF_LIBRARY} ${SUITESPARSECONFIG_LIBRARY})
+set(KLU_LIBRARIES ${KLU_LIBRARY} ${AMD_LIBRARY} ${COLAMD_LIBRARY}
+                  ${BTF_LIBRARY} ${SUITESPARSECONFIG_LIBRARY})
 
 # set package variables including KLU_FOUND
-find_package_handle_standard_args(KLU
-  REQUIRED_VARS
-    KLU_LIBRARY
-    KLU_LIBRARIES
-    KLU_INCLUDE_DIR)
+find_package_handle_standard_args(KLU REQUIRED_VARS KLU_LIBRARY KLU_LIBRARIES
+                                                    KLU_INCLUDE_DIR)
 
 # Create target for KLU
 if(KLU_FOUND)
@@ -118,9 +127,10 @@ if(KLU_FOUND)
     add_library(SUNDIALS::KLU UNKNOWN IMPORTED)
   endif()
 
-  set_target_properties(SUNDIALS::KLU PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${KLU_INCLUDE_DIR}"
-    INTERFACE_LINK_LIBRARIES "${KLU_LIBRARIES}"
-    IMPORTED_LOCATION "${KLU_LIBRARY}")
+  set_target_properties(
+    SUNDIALS::KLU
+    PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${KLU_INCLUDE_DIR}"
+               INTERFACE_LINK_LIBRARIES "${KLU_LIBRARIES}"
+               IMPORTED_LOCATION "${KLU_LIBRARY}")
 
 endif()

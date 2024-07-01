@@ -14,16 +14,11 @@
 # CMakeLists.txt file for the F2003 dense SUNLinearSolver object library
 # ----------------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunlinsoldense_mod
-  SOURCES
-    fsunlinsol_dense_mod.f90 fsunlinsol_dense_mod.c
-  LINK_LIBRARIES
-    PUBLIC sundials_fsunmatrixdense_mod sundials_fcore_mod
-  OUTPUT_NAME
-    sundials_fsunlinsoldense_mod
-  VERSION
-    ${sunlinsollib_VERSION}
-  SOVERSION
-    ${sunlinsollib_SOVERSION}
-)
+sundials_add_f2003_library(
+  sundials_fsunlinsoldense_mod
+  SOURCES fsunlinsol_dense_mod.f90 fsunlinsol_dense_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fsunmatrixdense_mod sundials_fcore_mod
+  OUTPUT_NAME sundials_fsunlinsoldense_mod
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION})
 message(STATUS "Added SUNLINSOL_DENSE F2003 interface")

@@ -16,7 +16,8 @@ message(STATUS "Added SYCL NVECTOR benchmark")
 
 set(BENCHMARKS_DIR ${PROJECT_SOURCE_DIR}/benchmarks)
 
-sundials_add_nvector_benchmark(test_nvector_performance_sycl
+sundials_add_nvector_benchmark(
+  test_nvector_performance_sycl
   SOURCES test_nvector_performance_sycl.cpp
   SUNDIALS_TARGETS sundials_nvecsycl
   INSTALL_SUBDIR nvector/sycl)

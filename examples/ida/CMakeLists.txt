@@ -33,7 +33,9 @@ endif()
 if(EXAMPLES_ENABLE_CXX)
   if(ENABLE_RAJA AND RAJA_FOUND)
     add_subdirectory(raja)
-    if(ENABLE_MPI AND MPI_C_FOUND AND (SUNDIALS_RAJA_BACKENDS MATCHES "CUDA"))
+    if(ENABLE_MPI
+       AND MPI_C_FOUND
+       AND (SUNDIALS_RAJA_BACKENDS MATCHES "CUDA"))
       add_subdirectory(mpiraja)
     endif()
   endif()

@@ -14,13 +14,11 @@
 # CMakeLists.txt file for IDA raja examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;type" where the type is 'develop' for examples
+# excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(IDA_examples
-    "idaHeat2D_kry_raja.cpp\;develop"
-   )
+set(IDA_examples "idaHeat2D_kry_raja.cpp\;develop")
 
 # Add source directory to include directories
 include_directories(.)
@@ -53,52 +51,42 @@ foreach(example_tuple ${IDA_examples})
   set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
   # libraries to link against
-  target_link_libraries(${example_target}
-    PRIVATE
-    sundials_ida
-    sundials_nvecraja
-    ${EXE_EXTRA_LINK_LIBS}
-    ${OTHER_LIBS})
+  target_link_libraries(
+    ${example_target} PRIVATE sundials_ida sundials_nvecraja
+                              ${EXE_EXTRA_LINK_LIBS} ${OTHER_LIBS})
 
   # add example to regression tests
-  sundials_add_test(${example_target} ${example_target}
+  sundials_add_test(
+    ${example_target} ${example_target}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example_target}.out
     EXAMPLE_TYPE ${example_type})
 
 endforeach(example_tuple ${IDA_examples})
 
-
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
+  if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"
+                                                ))
     set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
     set(_openmp_target OpenMP::OpenMP_CXX)
   endif()
 
   if(RAJA_NEEDS_THREADS)
-    set(EXAMPLES_FIND_PACKAGE "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n")
+    set(EXAMPLES_FIND_PACKAGE
+        "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n")
   endif()
 
-  sundials_install_examples(ida IDA_examples
-    CMAKE_TEMPLATE
-      cmakelists_${_lang}_ex.in
-    MAKE_TEMPLATE
-      makefile_serial_RAJA_ex.in
-    SOLVER_LIBRARY
-      sundials_ida
-    SUNDIALS_TARGETS
-      ida
-      nvecraja
-    OTHER_TARGETS
-      ${_openmp_target}
-    DESTINATION
-      ida/raja
-    EXTRA_FILES
-      README
-    TEST_INSTALL
-      raja
-  )
+  sundials_install_examples(
+    ida IDA_examples
+    CMAKE_TEMPLATE cmakelists_${_lang}_ex.in
+    MAKE_TEMPLATE makefile_serial_RAJA_ex.in
+    SOLVER_LIBRARY sundials_ida
+    SUNDIALS_TARGETS ida nvecraja
+    OTHER_TARGETS ${_openmp_target}
+    DESTINATION ida/raja
+    EXTRA_FILES README
+    TEST_INSTALL raja)
 
 endif()

@@ -24,8 +24,9 @@ include(CheckTypeSize)
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
   set(SUNDIALS_CINDEX_TYPE "")
 
-  # if the user specified an index type use it, otherwise try the standard options
-  if (SUNDIALS_INDEX_TYPE)
+  # if the user specified an index type use it, otherwise try the standard
+  # options
+  if(SUNDIALS_INDEX_TYPE)
     set(POSSIBLE_INT64 ${SUNDIALS_INDEX_TYPE})
   else()
     set(POSSIBLE_INT64 int64_t;__int64;long long;long)
@@ -42,8 +43,11 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
   endforeach()
 
   if(NOT SUNDIALS_CINDEX_TYPE)
-    message(FATAL_ERROR "No integer type of size 8 was found. Tried "
-      "${POSSIBLE_INT64}. Try setting the advanced option SUNDIALS_INDEX_TYPE.")
+    message(
+      FATAL_ERROR
+        "No integer type of size 8 was found. Tried "
+        "${POSSIBLE_INT64}. Try setting the advanced option SUNDIALS_INDEX_TYPE."
+    )
   endif()
 
   # set Fortran integer size too
@@ -51,8 +55,9 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
 elseif(SUNDIALS_INDEX_SIZE MATCHES "32")
   set(SUNDIALS_CINDEX_TYPE "")
 
-  # if the user specified an index type use it, otherwise try the standard options
-  if (SUNDIALS_INDEX_TYPE)
+  # if the user specified an index type use it, otherwise try the standard
+  # options
+  if(SUNDIALS_INDEX_TYPE)
     set(POSSIBLE_INT32 ${SUNDIALS_INDEX_TYPE})
   else()
     set(POSSIBLE_INT32 int32_t;int;long)
@@ -69,8 +74,11 @@ elseif(SUNDIALS_INDEX_SIZE MATCHES "32")
   endforeach()
 
   if(NOT SUNDIALS_CINDEX_TYPE)
-    message(FATAL_ERROR "No integer type of size 4 was found. Tried "
-      "${POSSIBLE_INT32}. Try setting the advanced option SUNDIALS_INDEX_TYPE.")
+    message(
+      FATAL_ERROR
+        "No integer type of size 4 was found. Tried "
+        "${POSSIBLE_INT32}. Try setting the advanced option SUNDIALS_INDEX_TYPE."
+    )
   endif()
 
   # set Fortran integer size too

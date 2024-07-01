@@ -17,23 +17,16 @@
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_SPGMR\n\")")
 
 # Add the sunlinsol_spgmr library
-sundials_add_library(sundials_sunlinsolspgmr
-  SOURCES
-    sunlinsol_spgmr.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_spgmr.h
-  INCLUDE_SUBDIR
-    sunlinsol
-  LINK_LIBRARIES
-    PUBLIC sundials_core
+sundials_add_library(
+  sundials_sunlinsolspgmr
+  SOURCES sunlinsol_spgmr.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_spgmr.h
+  INCLUDE_SUBDIR sunlinsol
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  OUTPUT_NAME
-    sundials_sunlinsolspgmr
-  VERSION
-    ${sunlinsollib_VERSION}
-  SOVERSION
-    ${sunlinsollib_SOVERSION}
-)
+  OUTPUT_NAME sundials_sunlinsolspgmr
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION})
 
 message(STATUS "Added SUNLINSOL_SPGMR module")
 

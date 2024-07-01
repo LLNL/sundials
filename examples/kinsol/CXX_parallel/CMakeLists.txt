@@ -18,9 +18,8 @@
 # develop for examples excluded from 'make test' in releases.
 
 # Examples to build
-set(KINSOL_examples
-  "kin_heat2D_nonlin_p.cpp\;--np 2 2\;1\;4\;exclude-single"
-  "kin_em_p.cpp\;\;1\;2\;exclude-single")
+set(KINSOL_examples "kin_heat2D_nonlin_p.cpp\;--np 2 2\;1\;4\;exclude-single"
+                    "kin_em_p.cpp\;\;1\;2\;exclude-single")
 
 # Add the build target for each example
 foreach(example_tuple ${KINSOL_examples})
@@ -43,13 +42,10 @@ foreach(example_tuple ${KINSOL_examples})
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example_target} PRIVATE
-      sundials_kinsol
-      sundials_nvecparallel
-      sundials_nvecmpiplusx
-      sundials_nvecserial
-      MPI::MPI_CXX
-      ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(
+      ${example_target}
+      PRIVATE sundials_kinsol sundials_nvecparallel sundials_nvecmpiplusx
+              sundials_nvecserial MPI::MPI_CXX ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 
@@ -61,7 +57,8 @@ foreach(example_tuple ${KINSOL_examples})
   endif()
 
   # add regression test
-  sundials_add_test(${test_name} ${example_target}
+  sundials_add_test(
+    ${test_name} ${example_target}
     TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
@@ -70,28 +67,17 @@ foreach(example_tuple ${KINSOL_examples})
 
 endforeach()
 
-
 # create Makfile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
-  sundials_install_examples(kinsol KINSOL_examples
-    CMAKE_TEMPLATE
-      cmakelists_CXX_MPI_ex.in
-    MAKE_TEMPLATE
-      makefile_parallel_CXX_ex.in
-    SOLVER_LIBRARY
-      sundials_kinsol
-    SUNDIALS_TARGETS
-      kinsol
-      nvecparallel
-      nvecmpiplusx
-      nvecserial
-    DESTINATION
-      kinsol/CXX_parallel
-    EXTRA_FILES
-      README
-    TEST_INSTALL
-      CXX_parallel
-  )
+  sundials_install_examples(
+    kinsol KINSOL_examples
+    CMAKE_TEMPLATE cmakelists_CXX_MPI_ex.in
+    MAKE_TEMPLATE makefile_parallel_CXX_ex.in
+    SOLVER_LIBRARY sundials_kinsol
+    SUNDIALS_TARGETS kinsol nvecparallel nvecmpiplusx nvecserial
+    DESTINATION kinsol/CXX_parallel
+    EXTRA_FILES README
+    TEST_INSTALL CXX_parallel)
 
 endif()
