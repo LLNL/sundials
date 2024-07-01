@@ -2490,16 +2490,15 @@ static int cvStep(CVodeMem cv_mem)
     /* Error test passed (eflag=CV_SUCCESS), break from loop */
     break;
   }
-
-  SUNLogInfo(CV_LOGGER, __func__, "end-step-attempt",
-             "status = success, dsm = %" RSYM, dsm);
-
   /* Nonlinear system solve and error test were both successful.
      Update data, and consider change of step and/or order.       */
 
   cvOkCompleteStep(cv_mem);
 
   cvOkPrepareNextStep(cv_mem, dsm);
+
+  SUNLogInfo(CV_LOGGER, __func__, "end-step-attempt",
+             "status = success, dsm = %\n" RSYM, dsm);
 
   /* If Stablilty Limit Detection is turned on, call stability limit
      detection routine for possible order reduction. */
