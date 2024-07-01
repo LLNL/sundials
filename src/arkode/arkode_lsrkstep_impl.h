@@ -50,6 +50,9 @@ typedef struct ARKodeLSRKStepMemRec
   N_Vector* Fe; /* RHS vector storage */
   N_Vector* Fi; /* RHS vector storage */
 
+  int q;        /* method order               */
+  int p;        /* embedding order            */
+
   int reqstages;  /* number of requested stages   */
 
   /* Counters and stats*/
