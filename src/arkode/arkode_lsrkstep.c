@@ -132,7 +132,6 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
   ark_mem->liw += 0; /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
   ark_mem->lrw += 0;
 
-
   /* Initialize all the counters */
   step_mem->nfe = 0;
 
