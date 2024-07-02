@@ -453,6 +453,9 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
     ark_mem->liw += 5; /* pointers */
   }
 
+  /* Change the defult value of max allowed steps */
+  ark_mem->mxstep = 20000;
+
   /* Signal to shared arkode module that full RHS evaluations are required */
   ark_mem->call_fullrhs = SUNTRUE;
 

@@ -184,8 +184,8 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   
   (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
                                         SUN_RCONST(1.2));
-  (void)SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
-                                        SUN_RCONST(0.8), -SUN_RCONST(0.31));
+  (void)SUNAdaptController_SetParams_I(ark_mem->hadapt_mem->hcontroller,
+                                        SUN_RCONST(1.0));
   return (ARK_SUCCESS);
 }
 
