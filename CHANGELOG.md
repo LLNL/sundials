@@ -8,7 +8,7 @@
 
 ### Bug Fixes
 
-Fixed the loading of ARKSteps' default first order explicit method.
+Fixed the loading of ARKStep's default first order explicit method.
 
 ### Deprecation Notices
 

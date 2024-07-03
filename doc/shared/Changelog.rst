@@ -24,8 +24,6 @@ Changelog
 Changes to SUNDIALS in release X.Y.Z
 ====================================
 
-Fixed the loading of ARKSteps' default first order explicit method.
-
 .. include:: RecentChanges_link.rst
 
 Changes to SUNDIALS in release 7.1.1
