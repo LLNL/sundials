@@ -8,6 +8,8 @@
 
 ### Bug Fixes
 
+Fixed the loading of ARKSteps' default first order explicit method.
+
 ### Deprecation Notices
 
 ## Changes to SUNDIALS in release 7.1.1
