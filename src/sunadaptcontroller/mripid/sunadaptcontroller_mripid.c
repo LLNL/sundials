@@ -52,7 +52,8 @@
 #define DEFAULT_K22  SUN_RCONST(0.42)
 #define DEFAULT_K23  SUN_RCONST(0.74)
 #define DEFAULT_BIAS SUN_RCONST(1.5)
-#define TINY         SUN_RCONST(1.0e-10)
+#define ONE          SUN_RCONST(1.0)
+#define TINY         (SUN_RCONST(10.0)*SUN_UNIT_ROUNDOFF)
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -155,12 +156,12 @@ SUNErrCode SUNAdaptController_EstimateMRISteps_MRIPID(
   const sunrealtype b21 = -(k21 + k22 + k23) / (3 * p);
   const sunrealtype b22 = (k21 + k22) / (3 * p);
   const sunrealtype b23 = -k21 / (3 * p);
-  const sunrealtype es1 = SUNMAX(MRIPID_BIAS(C) * DSM, TINY);
-  const sunrealtype es2 = MRIPID_ESP(C);
-  const sunrealtype es3 = MRIPID_ESPP(C);
-  const sunrealtype ef1 = SUNMAX(MRIPID_BIAS(C) * dsm, TINY);
-  const sunrealtype ef2 = MRIPID_EFP(C);
-  const sunrealtype ef3 = MRIPID_EFPP(C);
+  const sunrealtype es1 = ONE / SUNMAX(MRIPID_BIAS(C) * DSM, TINY);
+  const sunrealtype es2 = ONE / MRIPID_ESP(C);
+  const sunrealtype es3 = ONE / MRIPID_ESPP(C);
+  const sunrealtype ef1 = ONE / SUNMAX(MRIPID_BIAS(C) * dsm, TINY);
+  const sunrealtype ef2 = ONE / MRIPID_EFP(C);
+  const sunrealtype ef3 = ONE / MRIPID_EFPP(C);
   const sunrealtype M   = SUNRceil(H / h);
 
   /* compute estimated optimal time step size */

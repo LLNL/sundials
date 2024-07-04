@@ -49,7 +49,8 @@
 #define DEFAULT_K21  SUN_RCONST(0.94)
 #define DEFAULT_K22  SUN_RCONST(0.9)
 #define DEFAULT_BIAS SUN_RCONST(1.5)
-#define TINY         SUN_RCONST(1.0e-10)
+#define ONE          SUN_RCONST(1.0)
+#define TINY         (SUN_RCONST(10.0)*SUN_UNIT_ROUNDOFF)
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -144,10 +145,10 @@ SUNErrCode SUNAdaptController_EstimateMRISteps_MRILL(
   const sunrealtype b12 = -(p + 1) * k11 / (2 * P * p);
   const sunrealtype b21 = -(k21 + k22) / (2 * p);
   const sunrealtype b22 = k21 / (2 * p);
-  const sunrealtype es1 = SUNMAX(MRILL_BIAS(C) * DSM, TINY);
-  const sunrealtype es2 = MRILL_ESP(C);
-  const sunrealtype ef1 = SUNMAX(MRILL_BIAS(C) * dsm, TINY);
-  const sunrealtype ef2 = MRILL_EFP(C);
+  const sunrealtype es1 = ONE / SUNMAX(MRILL_BIAS(C) * DSM, TINY);
+  const sunrealtype es2 = ONE / MRILL_ESP(C);
+  const sunrealtype ef1 = ONE / SUNMAX(MRILL_BIAS(C) * dsm, TINY);
+  const sunrealtype ef2 = ONE / MRILL_EFP(C);
   const sunrealtype M   = SUNRceil(H / h);
 
   /* handle first vs successive steps */

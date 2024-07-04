@@ -40,7 +40,8 @@
 #define DEFAULT_K1   SUN_RCONST(0.42)
 #define DEFAULT_K2   SUN_RCONST(0.44)
 #define DEFAULT_BIAS SUN_RCONST(1.5)
-#define TINY         SUN_RCONST(1.0e-10)
+#define ONE          SUN_RCONST(1.0)
+#define TINY         (SUN_RCONST(10.0)*SUN_UNIT_ROUNDOFF)
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -124,8 +125,8 @@ SUNErrCode SUNAdaptController_EstimateMRISteps_MRICC(
   const sunrealtype al = k1 / P;
   const sunrealtype b1 = (p + 1) * k1 / (P * p);
   const sunrealtype b2 = -k2 / p;
-  const sunrealtype es = SUNMAX(MRICC_BIAS(C) * DSM, TINY);
-  const sunrealtype ef = SUNMAX(MRICC_BIAS(C) * dsm, TINY);
+  const sunrealtype es = ONE / SUNMAX(MRICC_BIAS(C) * DSM, TINY);
+  const sunrealtype ef = ONE / SUNMAX(MRICC_BIAS(C) * dsm, TINY);
   const sunrealtype M  = SUNRceil(H / h);
 
   /* compute estimated optimal time step size */
