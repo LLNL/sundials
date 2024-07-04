@@ -41,7 +41,7 @@
 #define DEFAULT_K2   SUN_RCONST(0.44)
 #define DEFAULT_BIAS SUN_RCONST(1.5)
 #define ONE          SUN_RCONST(1.0)
-#define TINY         (SUN_RCONST(10.0)*SUN_UNIT_ROUNDOFF)
+#define TINY         (SUN_RCONST(10.0) * SUN_UNIT_ROUNDOFF)
 
 /* -----------------------------------------------------------------
  * exported functions

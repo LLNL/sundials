@@ -2038,8 +2038,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
                      "ARKODE::arkStep_TakeStep_Z", "end-step",
                      "step = %li, t = %" RSYM ", h = %" RSYM ", dsm = %" RSYM
-                     ", nflag = %d", ark_mem->nst, ark_mem->tn, ark_mem->h,
-                     *dsmPtr, *nflagPtr);
+                     ", nflag = %d",
+                     ark_mem->nst, ark_mem->tn, ark_mem->h, *dsmPtr, *nflagPtr);
 #endif
 
   return (ARK_SUCCESS);

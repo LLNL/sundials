@@ -30,9 +30,9 @@
 /*   maximum relative change for inner tolerance factor */
 #define INNER_MAX_RELCH SUN_RCONST(20.0)
 /*   minimum tolerance factor for inner solver */
-#define INNER_MIN_TOLFAC SUN_RCONST(1.e-3)
+#define INNER_MIN_TOLFAC SUN_RCONST(1.e-5)
 /*   maximum tolerance factor for inner solver */
-#define INNER_MAX_TOLFAC SUN_RCONST(1.e3)
+#define INNER_MAX_TOLFAC SUN_RCONST(1.e0)
 
 /* ---------------
  * Macro accessors
@@ -113,9 +113,9 @@ SUNErrCode SUNAdaptController_SetParams_MRIHTol(SUNAdaptController C,
                                                 sunrealtype inner_max_tolfac)
 {
   SUNFunctionBegin(C->sunctx);
-  if (inner_max_relch != 0)   MRIHTOL_INNER_MAX_RELCH(C)  = inner_max_relch;
-  if (inner_min_tolfac != 0)  MRIHTOL_INNER_MIN_TOLFAC(C) = inner_min_tolfac;
-  if (inner_max_tolfac != 0)  MRIHTOL_INNER_MAX_TOLFAC(C) = inner_max_tolfac;
+  if (inner_max_relch != 0) MRIHTOL_INNER_MAX_RELCH(C) = inner_max_relch;
+  if (inner_min_tolfac != 0) MRIHTOL_INNER_MIN_TOLFAC(C) = inner_min_tolfac;
+  if (inner_max_tolfac != 0) MRIHTOL_INNER_MAX_TOLFAC(C) = inner_max_tolfac;
   return SUN_SUCCESS;
 }
 

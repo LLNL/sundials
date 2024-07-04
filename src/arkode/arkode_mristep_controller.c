@@ -122,10 +122,12 @@ int SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C, sunrealtype H,
                                          INNER_MIN_H);
     step_mem->inner_control_new = SUNMIN(step_mem->inner_control_new,
                                          INNER_MAX_H);
-    step_mem->inner_control_new = SUNMAX(step_mem->inner_control_new,
-                                         step_mem->inner_control / INNER_MAX_RELCH);
-    step_mem->inner_control_new = SUNMIN(step_mem->inner_control_new,
-                                         step_mem->inner_control * INNER_MAX_RELCH);
+    step_mem->inner_control_new =
+      SUNMAX(step_mem->inner_control_new,
+             step_mem->inner_control / INNER_MAX_RELCH);
+    step_mem->inner_control_new =
+      SUNMIN(step_mem->inner_control_new,
+             step_mem->inner_control * INNER_MAX_RELCH);
   }
   else /* SUN_ADAPTCONTROLLER_MRI_TOL */
   {

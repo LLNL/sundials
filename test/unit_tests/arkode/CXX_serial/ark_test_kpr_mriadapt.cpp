@@ -487,13 +487,13 @@ int main(int argc, char* argv[])
   // has been reached
   sunrealtype t, tout;
   sunrealtype uerr, verr, uerrtot, verrtot, errtot, accuracy;
-  t       = T0;
-  tout    = T0 + dTout;
-  uerr    = ZERO;
-  verr    = ZERO;
-  uerrtot = ZERO;
-  verrtot = ZERO;
-  errtot  = ZERO;
+  t        = T0;
+  tout     = T0 + dTout;
+  uerr     = ZERO;
+  verr     = ZERO;
+  uerrtot  = ZERO;
+  verrtot  = ZERO;
+  errtot   = ZERO;
   accuracy = ZERO;
   printf("        t           u           v       uerr      verr\n");
   printf("   ------------------------------------------------------\n");
@@ -524,8 +524,10 @@ int main(int argc, char* argv[])
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
     errtot += uerr * uerr + verr * verr;
-    accuracy = std::max(accuracy, uerr/SUNRabs(opts.atol + opts.rtol*utrue(t, &opts)));
-    accuracy = std::max(accuracy, verr/SUNRabs(opts.atol + opts.rtol*vtrue(t, &opts)));
+    accuracy = std::max(accuracy,
+                        uerr / SUNRabs(opts.atol + opts.rtol * utrue(t, &opts)));
+    accuracy = std::max(accuracy,
+                        verr / SUNRabs(opts.atol + opts.rtol * vtrue(t, &opts)));
 
     // successful solve: update time
     tout += dTout;

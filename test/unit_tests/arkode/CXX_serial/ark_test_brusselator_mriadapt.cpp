@@ -548,9 +548,12 @@ int main(int argc, char* argv[])
     verrtot += verr * verr;
     werrtot += werr * werr;
     errtot += uerr * uerr + verr * verr + werr * werr;
-    accuracy = std::max(accuracy, uerr/SUNRabs(opts.atol + opts.rtol*NV_Ith_S(yref,0)));
-    accuracy = std::max(accuracy, verr/SUNRabs(opts.atol + opts.rtol*NV_Ith_S(yref,1)));
-    accuracy = std::max(accuracy, werr/SUNRabs(opts.atol + opts.rtol*NV_Ith_S(yref,2)));
+    accuracy = std::max(accuracy, uerr / SUNRabs(opts.atol +
+                                                 opts.rtol * NV_Ith_S(yref, 0)));
+    accuracy = std::max(accuracy, verr / SUNRabs(opts.atol +
+                                                 opts.rtol * NV_Ith_S(yref, 1)));
+    accuracy = std::max(accuracy, werr / SUNRabs(opts.atol +
+                                                 opts.rtol * NV_Ith_S(yref, 2)));
 
     // successful solve: update time
     tout += dTout;
