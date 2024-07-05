@@ -112,14 +112,6 @@ int main(void)
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
 
-  /* Specify tolerances */
-  flag = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
-  if (check_flag(&flag, "ARKodeSetInterpolantType", 1)) { return 1; }
-
-  /* Specify tolerances */
-  flag = ARKodeSetInterpolantDegree(arkode_mem, 5);
-  if (check_flag(&flag, "ARKodeSetInterpolantDegree", 1)) { return 1; }
-
   /* Specify user provided spectral radius */
   flag = LSRKodeSetSprRadFn(arkode_mem, spr);
   if (check_flag(&flag, "LSRKodeSetSprRadFn", 1)) { return 1; }
@@ -285,9 +277,7 @@ static int compute_error(N_Vector y, sunrealtype t)
   ans = atan(t);
   err = fabs(NV_Ith_S(y, 0) - ans);
 
-  fprintf(stdout, "\nACCURACY at the final time =%" GSYM "\n", err);
+  fprintf(stdout, "\nACCURACY at the final time = %" GSYM "\n", err);
 }
 
 /*---- end of file ----*/
-
-

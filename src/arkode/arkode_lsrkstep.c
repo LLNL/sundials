@@ -145,6 +145,17 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
     return (NULL);
   }
 
+  /* Specify Interpolation Type */
+  retval = ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
+  printf("\nHARD CODED to set interpolation type = ARK_INTERP_LAGRANGE\n\n");
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Unable to specify interpolation type");
+    ARKodeFree((void**)&ark_mem);
+    return (NULL);    
+  }
+
   return ((void*)ark_mem);
 }
 
