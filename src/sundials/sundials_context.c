@@ -260,7 +260,7 @@ SUNErrCode SUNContext_CreateTempVecStack(SUNContext sunctx, N_Vector tmpl)
   if (sunctx->temp_vec_stack) { return SUN_ERR_MEM_FAIL; }
 
   SUNCheck(SUNVecStack_Create(tmpl, &(sunctx->temp_vec_stack)),
-           SUN_ERR_MEMFAIL);
+           SUN_ERR_MEM_FAIL);
 
   return SUN_SUCCESS;
 }

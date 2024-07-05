@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <sundials/priv/sundials_context_impl.h>
+#include "sundials/sundials_export.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -61,10 +62,13 @@ SUNDIALS_EXPORT
 SUNErrCode SUNContext_CreateTempVecStack(SUNContext sunctx, N_Vector tmpl);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNContext_PopTempVector(SUNContext sunctx, N_Vector* vec);
+SUNErrCode SUNContext_DestroyTempVecStack(SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNContext_PushTempVector(SUNContext sunctx, N_Vector* vec);
+SUNErrCode SUNContext_PopTempVec(SUNContext sunctx, N_Vector* vec);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNContext_PushTempVec(SUNContext sunctx, N_Vector* vec);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNContext_PrintAllocStats(SUNContext sunctx, FILE* outfile,
