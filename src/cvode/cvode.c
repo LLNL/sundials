@@ -2523,6 +2523,8 @@ void cvChooseNlsGustafSoder1(CVodeMem cv_mem)
   {
     if (cv_mem->switchtonewton_considered_count > cv_mem->switchtonewton_delay)
     {
+      /* This is effectively a "stiffness test" */
+
       /* TODO(CJB): should we choose zi based on the method? Soderlind and Gustafsson
         suggest that 2 is fine, but a better value could be found based on the method. */
       const sunrealtype zi = 2.0;
@@ -2550,6 +2552,8 @@ void cvChooseNlsGustafSoder1(CVodeMem cv_mem)
   }
   else if (SUNNonlinSolGetType(cv_mem->NLS) == SUNNONLINEARSOLVER_ROOTFIND)
   {
+    /* This is effectively a "non-stiffness test" */
+
     if (cv_mem->switchtofixed_considered_count > cv_mem->switchtofixed_delay)
     {
       SUNLogDebug(CV_LOGGER, __func__, "maybe-switch-to-fp", "stiff = %.16g",
@@ -3823,7 +3827,7 @@ static void cvOkSetEta(CVodeMem cv_mem)
                 "consider-halpha", "halpha = %.16g, alpharef = %.16g, crate = %.16g, h = %.16g, iters = %d",
                 cv_mem->cv_halpha, cv_mem->cv_alpharef, cv_mem->cv_crate,
                 cv_mem->cv_h, prev_nls_iters);
-    if (cv_mem->gustafsoder_strategy && (prev_nls_iters > 0) &&
+    if (cv_mem->gustafsoder_strategy && (prev_nls_iters > 1) &&
         (cv_mem->cv_crate > cv_mem->cv_alpharef))
     {
       SUNLogDebug(CV_LOGGER, __func__, "use-halpha",

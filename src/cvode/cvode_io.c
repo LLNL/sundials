@@ -833,15 +833,6 @@ int CVodeSetMaxNonlinIters(void* cvode_mem, int maxcor)
 
   cv_mem = (CVodeMem)cvode_mem;
 
-  // if (cv_mem->NLS == NULL)
-  // {
-  //   cvProcessError(NULL, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
-  //                  MSGCV_MEM_FAIL);
-  //   return (CV_MEM_FAIL);
-  // }
-
-  // return (SUNNonlinSolSetMaxIters(cv_mem->NLS, maxcor));
-
   if (maxcor >= 0)
   {
     if (cv_mem->NLS_newton) { SUNNonlinSolSetMaxIters(cv_mem->NLS_newton, maxcor); }
