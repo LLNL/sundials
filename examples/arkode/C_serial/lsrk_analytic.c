@@ -112,12 +112,17 @@ int main(void)
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
 
+  /* Specify tolerances */
+  flag = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
+  if (check_flag(&flag, "ARKodeSetInterpolantType", 1)) { return 1; }
+
+  /* Specify tolerances */
+  flag = ARKodeSetInterpolantDegree(arkode_mem, 5);
+  if (check_flag(&flag, "ARKodeSetInterpolantDegree", 1)) { return 1; }
+
   /* Specify user provided spectral radius */
   flag = LSRKodeSetSprRadFn(arkode_mem, spr);
   if (check_flag(&flag, "LSRKodeSetSprRadFn", 1)) { return 1; }
-
-  /* Specify initial step size */
-  flag = ARKodeSetInitStep(arkode_mem, 0.00918782416994857);
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
