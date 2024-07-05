@@ -1308,7 +1308,6 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "tstopset = %i\n", ark_mem->tstopset);
   fprintf(outfile, "tstopinterp = %i\n", ark_mem->tstopinterp);
   fprintf(outfile, "tstop = " SUN_FORMAT_G "\n", ark_mem->tstop);
-  fprintf(outfile, "VabstolMallocDone = %i\n", ark_mem->VabstolMallocDone);
   fprintf(outfile, "MallocDone = %i\n", ark_mem->MallocDone);
   fprintf(outfile, "initsetup = %i\n", ark_mem->initsetup);
   fprintf(outfile, "init_type = %i\n", ark_mem->init_type);
@@ -1571,9 +1570,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->liw = 53; /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
 
   /* No mallocs have been done yet */
-  ark_mem->VabstolMallocDone  = SUNFALSE;
-  ark_mem->VRabstolMallocDone = SUNFALSE;
-  ark_mem->MallocDone         = SUNFALSE;
+  ark_mem->MallocDone = SUNFALSE;
 
   /* No user-supplied step postprocessing function yet */
   ark_mem->ProcessStep = NULL;
@@ -3473,6 +3470,7 @@ sunbooleantype arkResizeVecArray(ARKVecResizeFn resize, void* resize_data,
   ---------------------------------------------------------------*/
 SUNErrCode arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
 {
+  SUNFunctionBegin(ark_mem->sunctx);
   SUNCheckCall(sunVec_Clone(tmpl, &ark_mem->ewt));
   SUNCheckCall(sunVec_Clone(tmpl, &ark_mem->yn));
   SUNCheckCall(sunVec_Clone(tmpl, &ark_mem->tempv1));
@@ -3593,6 +3591,7 @@ sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
   ---------------------------------------------------------------*/
 SUNErrCode arkFreeVectors(ARKodeMem ark_mem)
 {
+  SUNFunctionBegin(ark_mem->sunctx);
   SUNCheckCall(sunVec_Destroy(&ark_mem->ewt));
   SUNCheckCall(sunVec_Destroy(&ark_mem->tempv1));
   SUNCheckCall(sunVec_Destroy(&ark_mem->tempv2));
