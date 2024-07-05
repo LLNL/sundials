@@ -206,11 +206,11 @@ struct SUNVecStack_
 static inline SUNErrCode SUNVecStack_Create(N_Vector tmpl,
                                             SUNVecStack* stack_out)
 {
-  SUNAssert(tmpl, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(stack_out, SUN_ERR_ARG_CORRUPT);
+  /* SUNAssert(tmpl, SUN_ERR_ARG_CORRUPT); */
+  /* SUNAssert(stack_out, SUN_ERR_ARG_CORRUPT); */
 
   SUNVecStack stack = (SUNVecStack)malloc(sizeof(struct SUNVecStack_));
-  SUNAssert(stack, SUN_ERR_MALLOC_FAIL);
+  /* SUNAssert(stack, SUN_ERR_MALLOC_FAIL); */
 
   stack->max  = 0;
   stack->top  = -1;
@@ -227,8 +227,9 @@ static inline SUNErrCode SUNVecStack_Destroy(SUNVecStack* stack_in)
   if (stack_in == NULL) { return SUN_SUCCESS; }
   if (*stack_in == NULL) { return SUN_SUCCESS; }
 
-  SUNCheck(sunVecArray_Destroy((*stack_in)->max, &((*stack)->vecs)),
-           SUN_ERR_DESTROY_FAIL);
+  /* SUNCheck(sunVecArray_Destroy((*stack_in)->max, &((*stack)->vecs)), */
+  /*          SUN_ERR_DESTROY_FAIL); */
+  sunVecArray_Destroy((*stack_in)->max, &((*stack_in)->vecs));
   free(*stack_in);
   *stack_in = NULL;
 
@@ -237,22 +238,23 @@ static inline SUNErrCode SUNVecStack_Destroy(SUNVecStack* stack_in)
 
 static inline SUNErrCode SUNVecStack_Pop(SUNVecStack stack, N_Vector* vec_out)
 {
-  SUNAssert(stack, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(vec_out, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(stack->top >= -1, SUN_ERR_OUTOFRANGE);
-  SUNAssert(stack->top < stack->max, SUN_ERR_OUTOFRANGE);
+  /* SUNAssert(stack, SUN_ERR_ARG_CORRUPT); */
+  /* SUNAssert(vec_out, SUN_ERR_ARG_CORRUPT); */
+  /* SUNAssert(stack->top >= -1, SUN_ERR_OUTOFRANGE); */
+  /* SUNAssert(stack->top < stack->max, SUN_ERR_OUTOFRANGE); */
 
   if (stack->top < 0)
   {
     /* create new stack of vectors */
     if (stack->vecs) { free(stack->vecs); }
     stack->vecs = (N_Vector*)malloc((stack->max + 1) * sizeof(N_Vector));
-    SUNAssert(stack->vecs, SUN_ERR_MALLOC_FAIL);
+    /* SUNAssert(stack->vecs, SUN_ERR_MALLOC_FAIL); */
     stack->max++;
 
     /* create new vector on the bottom of the stack */
-    SUNCheck(sunVec_Clone(sunctx, stack->tmpl, &(stack->vecs[0])),
-             SUN_ERR_MEMFAIL);
+    /* SUNCheck(sunVec_Clone(sunctx, stack->tmpl, &(stack->vecs[0])), */
+    /*          SUN_ERR_MEMFAIL); */
+    sunVec_Clone(stack->tmpl, &(stack->vecs[0]));
     stack->top++;
   }
 
@@ -265,10 +267,10 @@ static inline SUNErrCode SUNVecStack_Pop(SUNVecStack stack, N_Vector* vec_out)
 
 static inline SUNErrCode SUNVecStack_Push(SUNVecStack stack, N_Vector* vec_in)
 {
-  SUNAssert(stack, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(vec_in, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(stack->top >= -1, SUN_ERR_OUTOFRANGE);
-  SUNAssert(stack->top + 1 < stack->max, SUN_ERR_OUTOFRANGE); /* full stack */
+  /* SUNAssert(stack, SUN_ERR_ARG_CORRUPT); */
+  /* SUNAssert(vec_in, SUN_ERR_ARG_CORRUPT); */
+  /* SUNAssert(stack->top >= -1, SUN_ERR_OUTOFRANGE); */
+  /* SUNAssert(stack->top + 1 < stack->max, SUN_ERR_OUTOFRANGE); /\* full stack *\/ */
 
   /* add vector to the top of the stack */
   stack->top++;

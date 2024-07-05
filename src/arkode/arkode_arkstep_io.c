@@ -933,7 +933,7 @@ int arkStep_SetAutonomous(ARKodeMem ark_mem, sunbooleantype autonomous)
   if (autonomous)
   {
     /* Allocate tempv5 if needed */
-    if (!arkAllocVec(ark_mem, ark_mem->yn, &ark_mem->tempv5))
+    if (sunVec_Clone(ark_mem->yn, &(ark_mem->tempv5)))
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_MEM_FAIL);
@@ -943,7 +943,7 @@ int arkStep_SetAutonomous(ARKodeMem ark_mem, sunbooleantype autonomous)
   else
   {
     /* Free tempv5 if necessary */
-    arkFreeVec(ark_mem, &ark_mem->tempv5);
+    sunVec_Destroy(&(ark_mem->tempv5));
   }
 
   return ARK_SUCCESS;
