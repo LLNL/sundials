@@ -192,6 +192,24 @@ int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr)
 }
 
 /*---------------------------------------------------------------
+  LSRKodeSetConstJac sets Constant Jacobian.
+  ---------------------------------------------------------------*/
+int LSRKodeSetConstJac(void* arkode_mem)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  step_mem->constJac = SUNTRUE;
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
   LSRKStepReInit:
 
   This routine re-initializes the LSRKStep module to solve a new
@@ -647,15 +665,11 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       return (-1);
     }
     step_mem->jacatt = SUNTRUE;
-    if(round(step_mem->sprad) > step_mem->sprmax)
-    {
-      step_mem->sprmax = (sunrealtype)round(step_mem->sprad);
-    }
-    if(ark_mem->nst == 0)
-    {
-      step_mem->sprmin = step_mem->sprmax;
-    }
-    if(round(step_mem->sprad) < step_mem->sprmin)
+
+    step_mem->sprmax = (round(step_mem->sprad) > step_mem->sprmax) ? 
+                       ((sunrealtype)round(step_mem->sprad)) : step_mem->sprmax;
+
+    if(round(step_mem->sprad) < step_mem->sprmin || ark_mem->nst == 0)
     {
       step_mem->sprmin = (sunrealtype)round(step_mem->sprad);
     }
@@ -681,27 +695,22 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  // if (!(ark_mem->fn_is_current))
-  // {
-  //   mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
-  //   retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
-  //                                  ark_mem->fn, mode);
-  //   if (retval) { return ARK_RHSFUNC_FAIL; }
-  //   ark_mem->fn_is_current = SUNTRUE;
-  // }
-
-  retval = step_mem->fe(ark_mem->tn, ark_mem->yn,
-                        ark_mem->fn, ark_mem->user_data);
-  if (retval != ARK_SUCCESS) { return (-1); }
+  if (!(ark_mem->fn_is_current))
+  {
+    retval = step_mem->fe(ark_mem->tn, ark_mem->yn,
+                          ark_mem->fn, ark_mem->user_data);
+    step_mem->nfe++;
+    ark_mem->fn_is_current = SUNTRUE;                          
+    if (retval != ARK_SUCCESS) { return (-1); }
+  }
 
   /* A tentative solution at t+h is returned in
      y and its slope is evaluated in temp1.  */
-  // ark_mem->hmin = ten*ark_mem->uround*SUNMAX(SUNRabs(ark_mem->tcur), SUNRabs(ark_mem->tcur + ark_mem->h));
 
   w0 = (ONE + TWO/(c13*SUNSQR((sunrealtype)(step_mem->reqstages))));
 
   temp1 = SUNSQR(w0) - ONE;
-  temp2 = sqrt(temp1);
+  temp2 = SUNRsqrt(temp1);
   arg = step_mem->reqstages*log(w0 + temp2);
 
   w1 = sinh(arg)*temp1 / (cosh(arg)*step_mem->reqstages*temp2 - w0*sinh(arg));
@@ -738,11 +747,6 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     mus  =   mu*w1/w0;
 
     /* Use the ycur array for temporary storage here */
-    // mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
-    // retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + ark_mem->h*thjm1, ark_mem->tempv1,
-    //                                ark_mem->ycur, mode);
-    // if (retval != ARK_SUCCESS) { return (-1); }
-
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h*thjm1, ark_mem->tempv1,
                           ark_mem->ycur, ark_mem->user_data);
     if (retval != ARK_SUCCESS) { return (-1); }
@@ -776,19 +780,16 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       d2zjm1 = d2zj;
     }
   }
+  step_mem->nfe += step_mem->reqstages;
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)
   {
-    // mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
-    // retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-    //                                ark_mem->tempv1, mode);
-    // if (retval != ARK_SUCCESS) { return (-1); }
-
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                           ark_mem->tempv1, ark_mem->user_data);
+    step_mem->nfe++;
     if (retval != ARK_SUCCESS) { return (-1); }
-
+    
     /* Estimate the local error and compute its weighted RMS norm */
     cvals[0] =  p8;             Xvecs[0] = ark_mem->yn;
     cvals[1] = -p8;             Xvecs[1] = ark_mem->ycur;
@@ -799,6 +800,23 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv2, ark_mem->ewt);
+    if (*dsmPtr <= ONE)
+    {
+      N_VScale(ONE, ark_mem->tempv1, ark_mem->fn);
+      ark_mem->fn_is_current = SUNTRUE;
+
+      step_mem->jacatt = (step_mem->constJac == SUNTRUE);
+      step_mem->nstsig = (step_mem->nstsig + 1) % step_mem->sprupdatepar;
+      step_mem->newspr = SUNFALSE;
+      if(step_mem->isextspr || step_mem->nstsig == 0)
+      {
+        step_mem->newspr = !step_mem->jacatt;
+      }
+    }
+    else
+    {
+      step_mem->newspr = !step_mem->jacatt;
+    }
   }
   return (ARK_SUCCESS);
 }

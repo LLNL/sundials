@@ -72,6 +72,7 @@ typedef struct ARKodeLSRKStepMemRec
   /* Flags */
   sunbooleantype isextspr; /* flag indicating user provided spr */
   sunbooleantype newspr; /* flag indicating new spr is needed */
+  sunbooleantype constJac; /* flag indicating Jacobian is constant */
   sunbooleantype jacatt; /* an internal flag*/
 
   /* Reusable fused vector operation arrays */

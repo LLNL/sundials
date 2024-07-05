@@ -175,8 +175,9 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->sprupdatepar = 25;
 
   /* Flags */
-  step_mem->newspr = SUNTRUE;
-  step_mem->jacatt = SUNFALSE;
+  step_mem->newspr   = SUNTRUE;
+  step_mem->constJac = SUNFALSE;
+  step_mem->jacatt   = SUNFALSE;
 
   ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
   ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
