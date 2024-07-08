@@ -43,6 +43,8 @@ SUNDIALS_EXPORT int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr);
 
 SUNDIALS_EXPORT int LSRKodeSetConstJac(void* arkode_mem);
 
+SUNDIALS_EXPORT int LSRKodeSetSprRadFrequency(void* arkode_mem, int nsteps);
+
 SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
                                    N_Vector y0);
 

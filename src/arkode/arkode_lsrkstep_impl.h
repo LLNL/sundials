@@ -67,7 +67,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype sprmax; /* max spectral radius*/
   sunrealtype sprmin; /* min spectral radius*/
   sunrealtype sprsfty; /* some safety factor for the user provided spr*/
-  int sprupdatepar; /* indicates spr update after sprupdatepar successful steps*/
+  int sprfreq; /* indicates spr update after sprupdatepar successful steps*/
 
   /* Flags */
   sunbooleantype isextspr; /* flag indicating user provided spr */
@@ -104,6 +104,8 @@ int lsrkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
                                  ARKodeMem* ark_mem, ARKodeLSRKStepMem* step_mem);
 int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                            ARKodeLSRKStepMem* step_mem);
+void lsrkStep_SprRadUpdateLogic(ARKodeMem ark_mem, 
+                           ARKodeLSRKStepMem step_mem, sunrealtype dsm);                           
 sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl);
 
 /*===============================================================

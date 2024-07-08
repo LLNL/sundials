@@ -42,6 +42,84 @@ int LSRKStepSetTableName(void* arkode_mem, const char* etable)
   return ARK_SUCCESS;
 }
 
+/*---------------------------------------------------------------
+  LSRKodeSetSprRadFn specifies the SprRad function.
+  ---------------------------------------------------------------*/
+int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* set the SprRad routine pointer, and update relevant flags */
+  if (spr != NULL)
+  {
+    step_mem->isextspr = SUNTRUE;
+    step_mem->extspr   = spr;
+    
+    return (ARK_SUCCESS);
+  }
+  else
+  {
+    step_mem->isextspr = SUNFALSE;
+    step_mem->extspr   = NULL;
+
+    printf("\nInternal SprRad is not supported yet!\n");
+
+    return (ARK_FAIL_OTHER);
+  }
+}
+
+/*---------------------------------------------------------------
+  LSRKodeSetConstJac sets Constant Jacobian.
+  ---------------------------------------------------------------*/
+int LSRKodeSetConstJac(void* arkode_mem)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  step_mem->constJac = SUNTRUE;
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  LSRKodeSetConstJac sets Constant Jacobian.
+  ---------------------------------------------------------------*/
+int LSRKodeSetSprRadFrequency(void* arkode_mem, int nsteps)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  if(nsteps < 1)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "nsteps must be greater than 0");
+    return (ARK_ILL_INPUT);
+  }
+
+  step_mem->sprfreq = nsteps;
+
+  return (ARK_SUCCESS);
+}
+
+
+
+
 /*===============================================================
   Exported optional output functions.
   ===============================================================*/
@@ -172,7 +250,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->sprmax = 0;
   step_mem->sprmin = 0;
   step_mem->sprsfty = 1.01;
-  step_mem->sprupdatepar = 25;
+  step_mem->sprfreq = 25;
 
   /* Flags */
   step_mem->newspr   = SUNTRUE;

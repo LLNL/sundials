@@ -153,60 +153,10 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to specify interpolation type");
     ARKodeFree((void**)&ark_mem);
-    return (NULL);    
+    return (NULL);
   }
 
   return ((void*)ark_mem);
-}
-
-/*---------------------------------------------------------------
-  LSRKodeSetSprRadFn specifies the SprRad function.
-  ---------------------------------------------------------------*/
-int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr)
-{
-  ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* set the SprRad routine pointer, and update relevant flags */
-  if (spr != NULL)
-  {
-    step_mem->isextspr = SUNTRUE;
-    step_mem->extspr   = spr;
-
-    return (ARK_SUCCESS);
-  }
-  else
-  {
-    step_mem->isextspr = SUNFALSE;
-    step_mem->extspr   = NULL;
-
-    printf("\nInternal SprRad is not supported yet!\n");
-
-    return (ARK_FAIL_OTHER);
-  }
-}
-
-/*---------------------------------------------------------------
-  LSRKodeSetConstJac sets Constant Jacobian.
-  ---------------------------------------------------------------*/
-int LSRKodeSetConstJac(void* arkode_mem)
-{
-  ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  step_mem->constJac = SUNTRUE;
-
-  return (ARK_SUCCESS);
 }
 
 /*---------------------------------------------------------------
@@ -401,7 +351,7 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   fprintf(outfile, "LSRKStep: sprmax        = %f\n", step_mem->sprmax);
   fprintf(outfile, "LSRKStep: sprmin        = %f\n", step_mem->sprmin);
   fprintf(outfile, "LSRKStep: sprsfty       = %f\n", step_mem->sprsfty);
-  fprintf(outfile, "LSRKStep: sprupdatepar  = %f\n", step_mem->sprupdatepar);
+  fprintf(outfile, "LSRKStep: sprupdatepar  = %f\n", step_mem->sprfreq);
 
   /* output sunbooleantype quantities */
   fprintf(outfile, "LSRKStep: isextspr  = %d\n", step_mem->isextspr);
@@ -666,7 +616,7 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
     step_mem->jacatt = SUNTRUE;
 
-    step_mem->sprmax = (round(step_mem->sprad) > step_mem->sprmax) ? 
+    step_mem->sprmax = (round(step_mem->sprad) > step_mem->sprmax) ?
                        ((sunrealtype)round(step_mem->sprad)) : step_mem->sprmax;
 
     if(round(step_mem->sprad) < step_mem->sprmin || ark_mem->nst == 0)
@@ -700,7 +650,7 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn,
                           ark_mem->fn, ark_mem->user_data);
     step_mem->nfe++;
-    ark_mem->fn_is_current = SUNTRUE;                          
+    ark_mem->fn_is_current = SUNTRUE;
     if (retval != ARK_SUCCESS) { return (-1); }
   }
 
@@ -789,7 +739,7 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                           ark_mem->tempv1, ark_mem->user_data);
     step_mem->nfe++;
     if (retval != ARK_SUCCESS) { return (-1); }
-    
+
     /* Estimate the local error and compute its weighted RMS norm */
     cvals[0] =  p8;             Xvecs[0] = ark_mem->yn;
     cvals[1] = -p8;             Xvecs[1] = ark_mem->ycur;
@@ -800,23 +750,7 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv2, ark_mem->ewt);
-    if (*dsmPtr <= ONE)
-    {
-      N_VScale(ONE, ark_mem->tempv1, ark_mem->fn);
-      ark_mem->fn_is_current = SUNTRUE;
-
-      step_mem->jacatt = (step_mem->constJac == SUNTRUE);
-      step_mem->nstsig = (step_mem->nstsig + 1) % step_mem->sprupdatepar;
-      step_mem->newspr = SUNFALSE;
-      if(step_mem->isextspr || step_mem->nstsig == 0)
-      {
-        step_mem->newspr = !step_mem->jacatt;
-      }
-    }
-    else
-    {
-      step_mem->newspr = !step_mem->jacatt;
-    }
+    lsrkStep_SprRadUpdateLogic(ark_mem, step_mem, *dsmPtr);
   }
   return (ARK_SUCCESS);
 }
@@ -889,6 +823,27 @@ sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl)
     return (SUNFALSE);
   }
   return (SUNTRUE);
+}
+
+void lsrkStep_SprRadUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem, sunrealtype dsm)
+{
+  if (dsm <= ONE || ark_mem->fixedstep)
+  {
+    N_VScale(ONE, ark_mem->tempv1, ark_mem->fn);
+    ark_mem->fn_is_current = SUNTRUE;
+
+    step_mem->jacatt = (step_mem->constJac == SUNTRUE);
+    step_mem->nstsig = (step_mem->nstsig + 1) % step_mem->sprfreq;
+    step_mem->newspr = SUNFALSE;
+    if(step_mem->nstsig == 0)
+    {
+      step_mem->newspr = !step_mem->jacatt;
+    }
+  }
+  else
+  {
+    step_mem->newspr = !step_mem->jacatt;
+  }
 }
 
 /*===============================================================
