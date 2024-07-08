@@ -600,29 +600,7 @@ int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* Compute spectral radius and update stats */
   if ((step_mem->newspr))
   {
-    if((step_mem->isextspr))
-    {
-      retval = step_mem->extspr(ark_mem->tn, &step_mem->sprad, ark_mem->user_data);
-      step_mem->sprad *=step_mem->sprsfty;
-      step_mem->sprad = abs(step_mem->sprad);
-    }
-    else
-    {
-      printf("\nInternal SprRad is not supported yet!\n");
-      return (-1);
-    }
-    step_mem->jacatt = SUNTRUE;
-
-    step_mem->sprmax = (round(step_mem->sprad) > step_mem->sprmax) ?
-                       ((sunrealtype)round(step_mem->sprad)) : step_mem->sprmax;
-
-    if(round(step_mem->sprad) < step_mem->sprmin || ark_mem->nst == 0)
-    {
-      step_mem->sprmin = (sunrealtype)round(step_mem->sprad);
-    }
-
-    if (retval) { return (-1); }
-    step_mem->newspr = SUNFALSE;
+    retval = lsrkStep_ComputeNewSprRad(ark_mem, step_mem);
   }
 
   /* determine the number of required stages */
@@ -826,7 +804,46 @@ sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl)
   lsrkStep_SprRadUpdateLogic:
 
   This routine checks if the step is accepted or not and reassigns
-  the SprRad update flags accordingly. 
+  the SprRad update flags accordingly.
+  ---------------------------------------------------------------*/
+
+int lsrkStep_ComputeNewSprRad(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
+{
+  int retval = SUN_SUCCESS;
+
+  if((step_mem->isextspr))
+  {
+    retval = step_mem->extspr(ark_mem->tn, &step_mem->sprad, ark_mem->user_data);
+    step_mem->sprad *=step_mem->sprsfty;
+    step_mem->sprad = SUNRabs(step_mem->sprad);
+  }
+  else
+  {
+    printf("\nInternal SprRad is not supported yet!");
+    printf("\nCall LSRKodeSetSprRadFn to provide an external SprRad function\n");
+
+    return (ARK_ILL_INPUT);
+  }
+  step_mem->jacatt = SUNTRUE;
+
+  step_mem->sprmax = (round(step_mem->sprad) > step_mem->sprmax) ?
+                     ((sunrealtype)round(step_mem->sprad)) : step_mem->sprmax;
+
+  if(round(step_mem->sprad) < step_mem->sprmin || ark_mem->nst == 0)
+  {
+    step_mem->sprmin = (sunrealtype)round(step_mem->sprad);
+  }
+
+  step_mem->newspr = SUNFALSE;
+
+  return retval;
+}
+
+/*---------------------------------------------------------------
+  lsrkStep_SprRadUpdateLogic:
+
+  This routine checks if the step is accepted or not and reassigns
+  the SprRad update flags accordingly.
   ---------------------------------------------------------------*/
 
 void lsrkStep_SprRadUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem, sunrealtype dsm)
