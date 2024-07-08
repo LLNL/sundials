@@ -432,9 +432,6 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
     ark_mem->liw += 5; /* pointers */
   }
 
-  /* Change the defult value of max allowed steps */
-  ark_mem->mxstep = 20000;
-
   /* Signal to shared arkode module that full RHS evaluations are required */
   ark_mem->call_fullrhs = SUNTRUE;
 
@@ -824,6 +821,13 @@ sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl)
   }
   return (SUNTRUE);
 }
+
+/*---------------------------------------------------------------
+  lsrkStep_SprRadUpdateLogic:
+
+  This routine checks if the step is accepted or not and reassigns
+  the SprRad update flags accordingly. 
+  ---------------------------------------------------------------*/
 
 void lsrkStep_SprRadUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem, sunrealtype dsm)
 {

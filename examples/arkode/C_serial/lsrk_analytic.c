@@ -116,6 +116,26 @@ int main(void)
   flag = LSRKodeSetSprRadFn(arkode_mem, spr);
   if (check_flag(&flag, "LSRKodeSetSprRadFn", 1)) { return 1; }
 
+  /* Specify Constant Jacobian */
+  flag = LSRKodeSetConstJac(arkode_mem);
+  if (check_flag(&flag, "LSRKodeSetConstJac", 1)) { return 1; }
+
+  /* Specify after how many successful steps SprRad is recomputed */
+  flag = LSRKodeSetSprRadFrequency(arkode_mem, 10);
+  if (check_flag(&flag, "LSRKodeSetSprRadFrequency", 1)) { return 1; }
+
+  /* Specify max number of stages allowed */
+  flag = LSRKodeSetMaxStageNum(arkode_mem, 300);
+  if (check_flag(&flag, "LSRKodeSetMaxStageNum", 1)) { return 1; }
+
+  /* Specify max number of steps allowed */
+  flag = LSRKodeSetMaxStepNum(arkode_mem, 500);
+  if (check_flag(&flag, "LSRKodeSetMaxStepNum", 1)) { return 1; }
+
+  /* Specify safety factor for user provided SprRad */
+  flag = LSRKodeSetSprRadSafetyFactor(arkode_mem, 1.01);
+  if (check_flag(&flag, "LSRKodeSetSprRadSafetyFactor", 1)) { return 1; }
+
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
   fprintf(UFID, "# t u\n");

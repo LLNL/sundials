@@ -32,17 +32,6 @@
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  LSRKStepSetTableName:
-
-  Specifies to use a pre-existing LSRK table for the problem.
-  ---------------------------------------------------------------*/
-int LSRKStepSetTableName(void* arkode_mem, const char* etable)
-{
-  /* Fill this in */
-  return ARK_SUCCESS;
-}
-
-/*---------------------------------------------------------------
   LSRKodeSetSprRadFn specifies the SprRad function.
   ---------------------------------------------------------------*/
 int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr)
@@ -93,7 +82,8 @@ int LSRKodeSetConstJac(void* arkode_mem)
 }
 
 /*---------------------------------------------------------------
-  LSRKodeSetConstJac sets Constant Jacobian.
+  LSRKodeSetSprRadFrequency sets SprRad computation frequency - 
+  Spectral Radius is recomputed after "nsteps" successful steps.
   ---------------------------------------------------------------*/
 int LSRKodeSetSprRadFrequency(void* arkode_mem, int nsteps)
 {
@@ -117,8 +107,80 @@ int LSRKodeSetSprRadFrequency(void* arkode_mem, int nsteps)
   return (ARK_SUCCESS);
 }
 
+/*---------------------------------------------------------------
+  LSRKodeSetMaxStageNum sets the maximum number of stages allowed.
+  ---------------------------------------------------------------*/
+int LSRKodeSetMaxStageNum(void* arkode_mem, int stagemaxlimit)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
 
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
 
+  if(stagemaxlimit < 2)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "stagemaxlimit must be greater than or equal to 2");
+    return (ARK_ILL_INPUT);
+  }
+
+  step_mem->stagemaxlimit = stagemaxlimit;
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  LSRKodeSetMaxStepNum sets the maximum number of steps allowed.
+  ---------------------------------------------------------------*/
+int LSRKodeSetMaxStepNum(void* arkode_mem, int stepmaxlimit)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  if(stepmaxlimit < 1)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "stepmaxlimit must be greater than or equal to 1");
+    return (ARK_ILL_INPUT);
+  }
+
+  ark_mem->mxstep = stepmaxlimit;
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  LSRKodeSetSprRadSafetyFactor sets the maximum number of stages allowed.
+  ---------------------------------------------------------------*/
+int LSRKodeSetSprRadSafetyFactor(void* arkode_mem, sunrealtype sprsfty)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  if(sprsfty < 1)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "sprsfty must be greater than or equal to 1");
+    return (ARK_ILL_INPUT);
+  }
+
+  step_mem->sprsfty = sprsfty;
+
+  return (ARK_SUCCESS);
+}
 
 /*===============================================================
   Exported optional output functions.
