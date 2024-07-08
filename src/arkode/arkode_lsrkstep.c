@@ -100,7 +100,7 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNC
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_init            = lsrkStep_Init;
   ark_mem->step_fullrhs         = lsrkStep_FullRHS;
-  ark_mem->step                 = lsrkStep_TakeStep;
+  ark_mem->step                 = lsrkStep_TakeStepRKC;
   ark_mem->step_printallstats   = lsrkStep_PrintAllStats;
   ark_mem->step_writeparameters = lsrkStep_WriteParameters;
   ark_mem->step_resize          = lsrkStep_Resize;
@@ -345,13 +345,13 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   fprintf(outfile, "LSRKStep: sprnfe        = %li\n", step_mem->sprnfe);
   fprintf(outfile, "LSRKStep: stagemax      = %li\n", step_mem->stagemax);
   fprintf(outfile, "LSRKStep: stagemaxlimit = %li\n", step_mem->stagemaxlimit);
+  fprintf(outfile, "LSRKStep: sprupdatepar  = %li\n", step_mem->sprfreq);
 
   /* output sunrealtype quantities */
   fprintf(outfile, "LSRKStep: sprad         = %f\n", step_mem->sprad);
   fprintf(outfile, "LSRKStep: sprmax        = %f\n", step_mem->sprmax);
   fprintf(outfile, "LSRKStep: sprmin        = %f\n", step_mem->sprmin);
   fprintf(outfile, "LSRKStep: sprsfty       = %f\n", step_mem->sprsfty);
-  fprintf(outfile, "LSRKStep: sprupdatepar  = %f\n", step_mem->sprfreq);
 
   /* output sunbooleantype quantities */
   fprintf(outfile, "LSRKStep: isextspr  = %d\n", step_mem->isextspr);
@@ -555,7 +555,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 }
 
 /*---------------------------------------------------------------
-  lsrkStep_TakeStep:
+  lsrkStep_TakeStepRKC:
 
   This routine serves the primary purpose of the LSRKStep module:
   it performs a single LSRK step (with embedding, if possible).
@@ -574,7 +574,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                  reduce step and retry (if possible)
            <0 => step encountered unrecoverable failure
   ---------------------------------------------------------------*/
-int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
+int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval, mode;
   sunrealtype* cvals;

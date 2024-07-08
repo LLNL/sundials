@@ -89,7 +89,7 @@ typedef struct ARKodeLSRKStepMemRec
 int lsrkStep_Init(ARKodeMem ark_mem, int init_type);
 int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                      int mode);
-int lsrkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
 int lsrkStep_SetDefaults(ARKodeMem ark_mem);
 int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
 int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp);
