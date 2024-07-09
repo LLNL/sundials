@@ -16,18 +16,13 @@
 
 set(nvecpthreads_SOURCES fnvector_pthreads_mod.f90 fnvector_pthreads_mod.c)
 
-sundials_add_f2003_library(sundials_fnvecpthreads_mod
-  SOURCES
-    fnvector_pthreads_mod.f90 fnvector_pthreads_mod.c
-  LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+sundials_add_f2003_library(
+  sundials_fnvecpthreads_mod
+  SOURCES fnvector_pthreads_mod.f90 fnvector_pthreads_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-  OUTPUT_NAME
-    sundials_fnvecpthreads_mod
-  VERSION
-    ${nveclib_VERSION}
-  SOVERSION
-    ${nveclib_SOVERSION}
-)
+  OUTPUT_NAME sundials_fnvecpthreads_mod
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION})
 
 message(STATUS "Added NVECTOR_PTHREADS F2003 interface")

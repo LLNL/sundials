@@ -19,4 +19,3 @@ endif()
 if(ENABLE_KOKKOS AND BUILD_NVECTOR_KOKKOS)
   add_subdirectory(kokkos)
 endif()
-
