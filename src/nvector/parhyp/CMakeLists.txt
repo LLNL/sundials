@@ -17,26 +17,16 @@
 install(CODE "MESSAGE(\"\nInstall NVECTOR_PARHYP\n\")")
 
 # Create the library
-sundials_add_library(sundials_nvecparhyp
-  SOURCES
-    nvector_parhyp.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parhyp.h
-  INCLUDE_SUBDIR
-    nvector
-  LINK_LIBRARIES
-    PUBLIC sundials_core
+sundials_add_library(
+  sundials_nvecparhyp
+  SOURCES nvector_parhyp.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_parhyp.h
+  INCLUDE_SUBDIR nvector
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  LINK_LIBRARIES
-    PUBLIC
-    SUNDIALS::HYPRE
-    MPI::MPI_C
-  OUTPUT_NAME
-    sundials_nvecparhyp
-  VERSION
-    ${nveclib_VERSION}
-  SOVERSION
-    ${nveclib_SOVERSION}
-)
+  LINK_LIBRARIES PUBLIC SUNDIALS::HYPRE MPI::MPI_C
+  OUTPUT_NAME sundials_nvecparhyp
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION})
 
 message(STATUS "Added NVECTOR_PARHYP module")

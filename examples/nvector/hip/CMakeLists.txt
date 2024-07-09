@@ -14,8 +14,8 @@
 # CMakeLists.txt file for HIP nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the type is
+# develop for examples excluded from 'make test' in releases
 
 if(HIP_PLATFORM STREQUAL "nvcc")
   set(_warp_size 32)
@@ -25,10 +25,9 @@ endif()
 
 # Examples using SUNDIALS hip nvector
 set(nvector_hip_examples
-  "test_nvector_hip.cpp\;3 ${_warp_size} 0\;\;\;"
-  "test_nvector_hip.cpp\;500 128 0\;\;\;"
-  "test_nvector_hip.cpp\;1000 0 0\;\;\;"
-  )
+    "test_nvector_hip.cpp\;3 ${_warp_size} 0\;\;\;"
+    "test_nvector_hip.cpp\;500 128 0\;\;\;"
+    "test_nvector_hip.cpp\;1000 0 0\;\;\;")
 
 # Add source directory to include directories
 include_directories(. .. ${PROJECT_SOURCE_DIR}/examples/utilities)
@@ -52,8 +51,8 @@ foreach(example_tuple ${nvector_hip_examples})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example_target})
     # example source files
     add_executable(${example_target} ${example})
@@ -73,18 +72,21 @@ foreach(example_tuple ${nvector_hip_examples})
     if("${number_of_tasks}" STREQUAL "")
       set(test_name ${example_target})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_tasks})
+      string(REGEX REPLACE " " "_" test_name
+                           ${example_target}_${number_of_tasks})
     endif()
   else()
     if("${number_of_tasks}" STREQUAL "")
       string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example_target}_${number_of_tasks}_${example_args})
+      string(REGEX REPLACE " " "_" test_name
+                           ${example_target}_${number_of_tasks}_${example_args})
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
+  sundials_add_test(
+    ${test_name} ${example_target}
     TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
@@ -93,18 +95,14 @@ endforeach(example_tuple ${nvector_hip_examples})
 
 if(EXAMPLES_INSTALL)
 
-  sundials_install_examples(nvector nvector_hip_examples
-    SUNDIALS_TARGETS
-      nvechip
-    EXAMPLES_DEPENDENCIES
-      test_nvector.c
+  sundials_install_examples(
+    nvector nvector_hip_examples
+    SUNDIALS_TARGETS nvechip
+    EXAMPLES_DEPENDENCIES test_nvector.c
     EXTRA_FILES
-      ../test_nvector.c
-      ../test_nvector.h
+      ../test_nvector.c ../test_nvector.h
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_gpu.h
-    CMAKE_TEMPLATE
-      cmakelists_HIP_ex.in
-    DESTINATION
-      nvector/hip)
+    CMAKE_TEMPLATE cmakelists_HIP_ex.in
+    DESTINATION nvector/hip)
 
 endif(EXAMPLES_INSTALL)

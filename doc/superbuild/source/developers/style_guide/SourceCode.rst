@@ -186,7 +186,8 @@ not adhere to all of these rules.
 
 #. All new code added to SUNDIALS should be formatted with `clang-format
    <https://clang.llvm.org/docs/ClangFormat.html>`_ for C/C++, `fprettify
-   <https://github.com/fortran-lang/fprettify>`_ for Fortran, and `black
+   <https://github.com/fortran-lang/fprettify>`_ for Fortran, `cmake-format
+   <https://cmake-format.readthedocs.io>`_ for CMake, and `black
    <https://black.readthedocs.io>`_ for Python. See :ref:`Style.Formatting` for
    details.
 
@@ -380,18 +381,21 @@ Formatting
 
 All new code added to SUNDIALS should be formatted with `clang-format
 <https://clang.llvm.org/docs/ClangFormat.html>`_ for C/C++, `fprettify
-<https://github.com/fortran-lang/fprettify>`_ for Fortran, and `black
+<https://github.com/fortran-lang/fprettify>`_ for Fortran, `cmake-format
+<https://cmake-format.readthedocs.io>`_ for CMake, and `black
 <https://black.readthedocs.io>`_ for Python. The ``.clang-format`` file in the
 root of the project defines our configuration for clang-format. We use the
-default fprettify settings, except we use 2-space indentation. We also use the
-default black settings.
+default fprettify settings, except we use 2-space indentation. The
+``.cmake-format.py`` file in the root of the project defines our configuration
+for cmake-format. We also use the default black settings.
 
-To apply ``clang-format``, ``fprettify``, and ``black`` you can run:
+
+To apply ``clang-format``, ``fprettify``, ``cmake-format``, and ``black`` you
+can run:
 
 .. code-block:: shell
 
-   ./scripts/format.sh <path to directories to format>
-
+   ./scripts/format.sh <path to directories or files to format>
 
 .. warning::
 
@@ -400,7 +404,6 @@ To apply ``clang-format``, ``fprettify``, and ``black`` you can run:
    when you open a pull request on GitHub, an action will run ``clang-format`` on the code. If any
    formatting is required, the action will fail and produce a git patch artifact that you can download
    (from the job artifacts section) and apply with ``git apply``.
-
 
 If clang-format breaks lines in a way that is unreadable, use ``//`` to break the line. For example,
 sometimes (mostly in C++ code) you may have code like this:
@@ -457,4 +460,3 @@ There are other scenarios (e.g., a function call with a lot of parameters) where
 ..   };
 
 .. See the clang-tidy documentation for more details.
-
