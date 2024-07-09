@@ -129,7 +129,7 @@ int main(void)
   if (check_flag(&flag, "LSRKodeSetMaxStageNum", 1)) { return 1; }
 
   /* Specify max number of steps allowed */
-  flag = LSRKodeSetMaxStepNum(arkode_mem, 1000);
+  flag = LSRKodeSetMaxStepNum(arkode_mem, 5000);
   if (check_flag(&flag, "LSRKodeSetMaxStepNum", 1)) { return 1; }
 
   /* Specify safety factor for user provided SprRad */
