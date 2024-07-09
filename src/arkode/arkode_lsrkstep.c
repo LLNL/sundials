@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
+ * Programmer(s): Mustafa Aggul @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2024, Lawrence Livermore National Security
@@ -246,7 +246,7 @@ int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
 {
   ARKodeLSRKStepMem step_mem;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
-  int i, retval;
+  int retval;
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -277,7 +277,6 @@ int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
   ---------------------------------------------------------------*/
 void lsrkStep_Free(ARKodeMem ark_mem)
 {
-  int j;
   ARKodeLSRKStepMem step_mem;
 
   /* nothing to do if ark_mem is already NULL */
@@ -329,7 +328,8 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   int retval;
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
-  int i;
+  /* output vector quantities - required allocations*/
+
 #endif
 
   /* access ARKodeLSRKStepMem structure */
@@ -576,7 +576,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   ---------------------------------------------------------------*/
 int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
-  int retval, mode;
+  int retval;
   sunrealtype* cvals;
   sunrealtype w0, w1, temp1, temp2, arg, bjm1, bjm2, mus, thjm1, thjm2, zjm1,
               zjm2, dzjm1, dzjm2, d2zjm1, d2zjm2, zj, dzj, d2zj, bj, ajm1,
@@ -626,7 +626,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                           ark_mem->fn, ark_mem->user_data);
     step_mem->nfe++;
     ark_mem->fn_is_current = SUNTRUE;
-    if (retval != ARK_SUCCESS) { return (-1); }
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
   }
 
   /* A tentative solution at t+h is returned in
@@ -674,7 +674,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Use the ycur array for temporary storage here */
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h*thjm1, ark_mem->tempv1,
                           ark_mem->ycur, ark_mem->user_data);
-    if (retval != ARK_SUCCESS) { return (-1); }
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
     cvals[0] =  mus*ark_mem->h;         Xvecs[0] = ark_mem->ycur;
     cvals[1] =  nu;                     Xvecs[1] = ark_mem->tempv2;
@@ -713,7 +713,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                           ark_mem->tempv1, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval != ARK_SUCCESS) { return (-1); }
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
     /* Estimate the local error and compute its weighted RMS norm */
     cvals[0] =  p8;             Xvecs[0] = ark_mem->yn;
