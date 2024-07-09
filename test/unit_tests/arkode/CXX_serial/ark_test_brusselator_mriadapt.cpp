@@ -335,7 +335,7 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)fcontrol, "SUNAdaptController_ImExGus")) return 1;
     break;
   }
-  if (opts.bias > -1)
+  if ((opts.bias > -1) && (opts.fcontrol > 0))
   {
     retval = SUNAdaptController_SetErrorBias(fcontrol, opts.bias);
     if (check_flag(retval, "SUNAdaptController_SetErrorBias")) return 1;
@@ -590,7 +590,7 @@ int main(int argc, char* argv[])
       return 1;
     break;
   }
-  if (opts.bias > -1)
+  if ((opts.bias > -1) && (opts.scontrol > 0))
   {
     retval = SUNAdaptController_SetErrorBias(scontrol, opts.bias);
     if (check_flag(retval, "SUNAdaptController_SetErrorBias")) return 1;
