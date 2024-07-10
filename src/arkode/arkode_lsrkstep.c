@@ -811,16 +811,6 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   bjm2 = ONE/THREE;
   bjm1 = bjm2;
 
-
-  // temp1 = SUNSQR(w0) - ONE;
-  // temp2 = SUNRsqrt(temp1);
-  // arg = step_mem->reqstages*log(w0 + temp2);
-
-  // w1 = sinh(arg)*temp1 / (cosh(arg)*step_mem->reqstages*temp2 - w0*sinh(arg));
-
-  // bjm1 = ONE/SUNSQR(TWO*w0);
-  // bjm2 = bjm1;
-
   /* Evaluate the first stage */
   N_VScale(ONE, ark_mem->yn, ark_mem->tempv2);
 
@@ -828,15 +818,6 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   cjm1 = mus;
 
   N_VLinearSum(ONE, ark_mem->yn, ark_mem->h*mus, ark_mem->fn, ark_mem->tempv1);
-
-  // thjm2  = ZERO;
-  // thjm1  = mus;
-  // zjm1   = w0;
-  // zjm2   = ONE;
-  // dzjm1  = ONE;
-  // dzjm2  = ZERO;
-  // d2zjm1 = ZERO;
-  // d2zjm2 = ZERO;
 
   /* Evaluate stages j = 2,...,step_mem->reqstages */
   for(int j = 2; j <= step_mem->reqstages; j++)
@@ -848,15 +829,6 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     nu   = -(j - ONE)/j*(bj/bjm2);
     mus  = w1*mu;
     cj   = temj*w1/FOUR;
-    
-    // zj   =   TWO*w0*zjm1 - zjm2;
-    // dzj  =   TWO*w0*dzjm1 - dzjm2 + TWO*zjm1;
-    // d2zj =   TWO*w0*d2zjm1 - d2zjm2 + FOUR*dzjm1;
-    // bj   =   d2zj/SUNSQR(dzj);
-    // ajm1 =   ONE - zjm1*bjm1;
-    // mu   =   TWO*w0*bj/bjm1;
-    // nu   = - bj/bjm2;
-    // mus  =   mu*w1/w0;
 
     /* Use the ycur array for temporary storage here */
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h*cjm1, ark_mem->tempv1,
@@ -882,18 +854,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
       cjm1 = cj;
       bjm2 = bjm1;
-      bjm1 = bj;      
-
-      // thjm2  = thjm1;
-      // thjm1  = thj;
-      // bjm2   = bjm1;
-      // bjm1   = bj;
-      // zjm2   = zjm1;
-      // zjm1   = zj;
-      // dzjm2  = dzjm1;
-      // dzjm1  = dzj;
-      // d2zjm2 = d2zjm1;
-      // d2zjm1 = d2zj;    
+      bjm1 = bj;  
     }
   }
   step_mem->nfe += step_mem->reqstages;

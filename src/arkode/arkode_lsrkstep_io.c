@@ -33,9 +33,9 @@
 
 /*---------------------------------------------------------------
   LSRKodeSetMethod sets method
-  RKC = 1
-  RKL = 2
-  RKG = 3
+  RKC => method = 1
+  RKL => method = 2
+  RKG => method = 3
   ---------------------------------------------------------------*/
 int LSRKodeSetMethod(void* arkode_mem, int method)
 {
