@@ -557,8 +557,8 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 /*---------------------------------------------------------------
   lsrkStep_TakeStepRKC:
 
-  This routine serves the primary purpose of the LSRKStep module:
-  it performs a single LSRK step (with embedding, if possible).
+  This routine serves the primary purpose of the LSRKStepRKC module:
+  it performs a single RKC step (with embedding, if possible).
 
   The output variable dsmPtr should contain estimate of the
   weighted local error if an embedding is present; otherwise it
@@ -581,7 +581,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunrealtype w0, w1, temp1, temp2, arg, bjm1, bjm2, mus, thjm1, thjm2, zjm1,
               zjm2, dzjm1, dzjm2, d2zjm1, d2zjm2, zj, dzj, d2zj, bj, ajm1,
               mu, nu, thj;
-  sunrealtype onep54 = 1.54, ten = 10.0, c13 = 13.0, p8 = 0.8, p4 = 0.4;
+  sunrealtype onep54 = 1.54, c13 = 13.0, p8 = 0.8, p4 = 0.4;
   N_Vector* Xvecs;
   ARKodeLSRKStepMem step_mem;
 
@@ -728,6 +728,203 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     lsrkStep_SprRadUpdateLogic(ark_mem, step_mem, *dsmPtr);
   }
   return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  lsrkStep_TakeStepRKL:
+
+  This routine serves the primary purpose of the LSRKStepRKL module:
+  it performs a single RKL step (with embedding, if possible).
+
+  The output variable dsmPtr should contain estimate of the
+  weighted local error if an embedding is present; otherwise it
+  should be 0.
+
+  The input/output variable nflagPtr is used to gauge convergence
+  of any algebraic solvers within the step.  As this routine
+  involves no algebraic solve, it is set to 0 (success).
+
+  The return value from this routine is:
+            0 => step completed successfully
+           >0 => step encountered recoverable failure;
+                 reduce step and retry (if possible)
+           <0 => step encountered unrecoverable failure
+  ---------------------------------------------------------------*/
+int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
+{
+  int retval;
+  sunrealtype* cvals;
+  sunrealtype w1, bjm1, bjm2, mus, bj, ajm1, cjm1, temj, cj, mu, nu, thj;
+  sunrealtype p8 = 0.8, p4 = 0.4;
+  N_Vector* Xvecs;
+  ARKodeLSRKStepMem step_mem;
+
+  /* initialize algebraic solver convergence flag to success,
+     temporal error estimate to zero */
+  *nflagPtr = ARK_SUCCESS;
+  *dsmPtr   = ZERO;
+
+  /* access ARKodeLSRKStepMem structure */
+  retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
+  /* Compute spectral radius and update stats */
+  if ((step_mem->newspr))
+  {
+    retval = lsrkStep_ComputeNewSprRad(ark_mem, step_mem);
+  }
+
+  /* determine the number of required stages */
+  for(int ss = 1; ss < step_mem->stagemaxlimit; ss++)
+  {
+    if((SUNSQR(ss) + ss - 2) >= (ark_mem->h*step_mem->sprad))
+    {
+      step_mem->reqstages = SUNMAX(ss, 2);
+      break;
+    }
+  }
+  step_mem->stagemax = SUNMAX(step_mem->reqstages, step_mem->stagemax);
+
+  /* Call the full RHS if needed. If this is the first step then we may need to
+     evaluate or copy the RHS values from an  earlier evaluation (e.g., to
+     compute h0). For subsequent steps treat this RHS evaluation as an
+     evaluation at the end of the just completed step to potentially reuse
+     (FSAL methods) RHS evaluations from the end of the last step. */
+
+  if (!(ark_mem->fn_is_current))
+  {
+    retval = step_mem->fe(ark_mem->tn, ark_mem->yn,
+                          ark_mem->fn, ark_mem->user_data);
+    step_mem->nfe++;
+    ark_mem->fn_is_current = SUNTRUE;                          
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+  }
+
+  /* A tentative solution at t+h is returned in
+     y and its slope is evaluated in temp1.  */
+
+  w1 = FOUR/((step_mem->reqstages + TWO)*(step_mem->reqstages - ONE));
+
+  bjm2 = ONE/THREE;
+  bjm1 = bjm2;
+
+
+  // temp1 = SUNSQR(w0) - ONE;
+  // temp2 = SUNRsqrt(temp1);
+  // arg = step_mem->reqstages*log(w0 + temp2);
+
+  // w1 = sinh(arg)*temp1 / (cosh(arg)*step_mem->reqstages*temp2 - w0*sinh(arg));
+
+  // bjm1 = ONE/SUNSQR(TWO*w0);
+  // bjm2 = bjm1;
+
+  /* Evaluate the first stage */
+  N_VScale(ONE, ark_mem->yn, ark_mem->tempv2);
+
+  mus = w1*bjm1;
+  cjm1 = mus;
+
+  N_VLinearSum(ONE, ark_mem->yn, ark_mem->h*mus, ark_mem->fn, ark_mem->tempv1);
+
+  // thjm2  = ZERO;
+  // thjm1  = mus;
+  // zjm1   = w0;
+  // zjm2   = ONE;
+  // dzjm1  = ONE;
+  // dzjm2  = ZERO;
+  // d2zjm1 = ZERO;
+  // d2zjm2 = ZERO;
+
+  /* Evaluate stages j = 2,...,step_mem->reqstages */
+  for(int j = 2; j <= step_mem->reqstages; j++)
+  {
+    temj = (j + TWO)*(j - ONE);
+    bj   = temj/(TWO*j*(j + ONE));
+    ajm1 = ONE - bjm1;
+    mu   = (TWO*j - ONE)/j*(bj/bjm1);
+    nu   = -(j - ONE)/j*(bj/bjm2);
+    mus  = w1*mu;
+    cj   = temj*w1/FOUR;
+    
+    // zj   =   TWO*w0*zjm1 - zjm2;
+    // dzj  =   TWO*w0*dzjm1 - dzjm2 + TWO*zjm1;
+    // d2zj =   TWO*w0*d2zjm1 - d2zjm2 + FOUR*dzjm1;
+    // bj   =   d2zj/SUNSQR(dzj);
+    // ajm1 =   ONE - zjm1*bjm1;
+    // mu   =   TWO*w0*bj/bjm1;
+    // nu   = - bj/bjm2;
+    // mus  =   mu*w1/w0;
+
+    /* Use the ycur array for temporary storage here */
+    retval = step_mem->fe(ark_mem->tcur + ark_mem->h*cjm1, ark_mem->tempv1,
+                          ark_mem->ycur, ark_mem->user_data);
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+
+    cvals[0] =  mus*ark_mem->h;         Xvecs[0] = ark_mem->ycur;
+    cvals[1] =  nu;                     Xvecs[1] = ark_mem->tempv2;
+    cvals[2] =  ONE - mu - nu;          Xvecs[2] = ark_mem->yn;
+    cvals[3] =  mu;                     Xvecs[3] = ark_mem->tempv1;
+    cvals[4] = -mus*ajm1*ark_mem->h;    Xvecs[4] = ark_mem->fn;
+
+    retval = N_VLinearCombination(5, cvals, Xvecs, ark_mem->ycur);
+    if (retval != 0) { return (ARK_VECTOROP_ERR); }
+
+    // thj = mu*thjm1 + nu*thjm2 + mus*(ONE - ajm1);
+
+    /* Shift the data for the next stage */
+    if(j < step_mem->reqstages)
+    {
+      N_VScale(ONE, ark_mem->tempv1, ark_mem->tempv2);
+      N_VScale(ONE, ark_mem->ycur, ark_mem->tempv1);
+
+      cjm1 = cj;
+      bjm2 = bjm1;
+      bjm1 = bj;      
+
+      // thjm2  = thjm1;
+      // thjm1  = thj;
+      // bjm2   = bjm1;
+      // bjm1   = bj;
+      // zjm2   = zjm1;
+      // zjm1   = zj;
+      // dzjm2  = dzjm1;
+      // dzjm1  = dzj;
+      // d2zjm2 = d2zjm1;
+      // d2zjm1 = d2zj;    
+    }
+  }
+  step_mem->nfe += step_mem->reqstages;
+
+  /* Compute yerr (if step adaptivity enabled) */
+  if (!ark_mem->fixedstep)
+  {
+    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+                          ark_mem->tempv1, ark_mem->user_data);
+    step_mem->nfe++;
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+    
+    /* Estimate the local error and compute its weighted RMS norm */
+    cvals[0] =  p8;             Xvecs[0] = ark_mem->yn;
+    cvals[1] = -p8;             Xvecs[1] = ark_mem->ycur;
+    cvals[2] =  p4*ark_mem->h;  Xvecs[2] = ark_mem->fn;
+    cvals[3] =  p4*ark_mem->h;  Xvecs[3] = ark_mem->tempv1;
+  
+    retval = N_VLinearCombination(4, cvals, Xvecs, ark_mem->tempv2);
+    if (retval != 0) { return (ARK_VECTOROP_ERR); }
+
+    *dsmPtr = N_VWrmsNorm(ark_mem->tempv2, ark_mem->ewt);
+    lsrkStep_SprRadUpdateLogic(ark_mem, step_mem, *dsmPtr);
+  }
+  return (ARK_SUCCESS);
+}
+
+int lsrkStep_TakeStepRKG(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
+{
+  printf("\nRKG is not supported yet! Try RKC or RKL instead.\n");
+  return (ARK_ILL_INPUT);
 }
 
 /*===============================================================

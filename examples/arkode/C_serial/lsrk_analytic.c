@@ -125,16 +125,20 @@ int main(void)
   if (check_flag(&flag, "LSRKodeSetSprRadFrequency", 1)) { return 1; }
 
   /* Specify max number of stages allowed */
-  flag = LSRKodeSetMaxStageNum(arkode_mem, 300);
+  flag = LSRKodeSetMaxStageNum(arkode_mem, 500);
   if (check_flag(&flag, "LSRKodeSetMaxStageNum", 1)) { return 1; }
 
   /* Specify max number of steps allowed */
-  flag = LSRKodeSetMaxStepNum(arkode_mem, 500);
+  flag = LSRKodeSetMaxStepNum(arkode_mem, 5000);
   if (check_flag(&flag, "LSRKodeSetMaxStepNum", 1)) { return 1; }
 
   /* Specify safety factor for user provided SprRad */
   flag = LSRKodeSetSprRadSafetyFactor(arkode_mem, 1.01);
   if (check_flag(&flag, "LSRKodeSetSprRadSafetyFactor", 1)) { return 1; }
+
+  /* Specify the LSRK method */
+  flag = LSRKodeSetMethod(arkode_mem, 1);
+  if (check_flag(&flag, "LSRKodeSetMethod", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");

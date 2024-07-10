@@ -32,6 +32,45 @@
   ===============================================================*/
 
 /*---------------------------------------------------------------
+  LSRKodeSetMethod sets method
+  RKC = 1
+  RKL = 2
+  RKG = 3
+  ---------------------------------------------------------------*/
+int LSRKodeSetMethod(void* arkode_mem, int method)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  switch (method)
+  {
+  case 1:
+    ark_mem->step                 = lsrkStep_TakeStepRKC;
+    break;
+  case 2:
+    ark_mem->step                 = lsrkStep_TakeStepRKL;
+    break;
+  
+  case 3:
+    ark_mem->step                 = lsrkStep_TakeStepRKG;
+  break;
+
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid method option.");
+    return (ARK_ILL_INPUT);
+  }
+
+  return (ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
   LSRKodeSetSprRadFn specifies the SprRad function.
   ---------------------------------------------------------------*/
 int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr)
