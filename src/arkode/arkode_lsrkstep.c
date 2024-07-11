@@ -344,6 +344,7 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   fprintf(outfile, "LSRKStep: nfe           = %li\n", step_mem->nfe);
   fprintf(outfile, "LSRKStep: sprnfe        = %li\n", step_mem->sprnfe);
   fprintf(outfile, "LSRKStep: stagemax      = %li\n", step_mem->stagemax);
+  fprintf(outfile, "LSRKStep: nsprupdates   = %li\n", step_mem->nsprupdates);
   fprintf(outfile, "LSRKStep: stagemaxlimit = %li\n", step_mem->stagemaxlimit);
   fprintf(outfile, "LSRKStep: sprupdatepar  = %li\n", step_mem->sprfreq);
 
@@ -601,6 +602,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if ((step_mem->newspr))
   {
     retval = lsrkStep_ComputeNewSprRad(ark_mem, step_mem);
+    step_mem->nsprupdates++;
   }
 
   /* determine the number of required stages */
@@ -775,6 +777,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if ((step_mem->newspr))
   {
     retval = lsrkStep_ComputeNewSprRad(ark_mem, step_mem);
+    step_mem->nsprupdates++;
   }
 
   /* determine the number of required stages */

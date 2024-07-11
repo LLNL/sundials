@@ -257,6 +257,7 @@ int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
                                long int* accsteps, long int* attempts,
                                long int* fevals, long int* sprfevals,
                                long int* netfails, long int* stagemax,
+                               long int* nsprupdates,
                                sunrealtype* sprmax, sunrealtype* sprmin
                                )
 {
@@ -273,13 +274,14 @@ int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
   *accsteps = ark_mem->hadapt_mem->nst_acc;
 
   // /* set remaining outputs */
-  *attempts  = ark_mem->nst_attempts;
-  *fevals    = step_mem->nfe;
-  *sprfevals = step_mem->sprnfe;
-  *netfails  = ark_mem->netf;
-  *stagemax  = step_mem->stagemax;
-  *sprmax    = step_mem->sprmax;
-  *sprmin    = step_mem->sprmin;
+  *attempts    = ark_mem->nst_attempts;
+  *fevals      = step_mem->nfe;
+  *sprfevals   = step_mem->sprnfe;
+  *netfails    = ark_mem->netf;
+  *stagemax    = step_mem->stagemax;
+  *nsprupdates = step_mem->nsprupdates;
+  *sprmax      = step_mem->sprmax;
+  *sprmin      = step_mem->sprmin;
   
   return (ARK_SUCCESS);
 }
@@ -350,6 +352,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->nfe = 0;
   step_mem->sprnfe = 0;
   step_mem->stagemax = 0;
+  step_mem->nsprupdates = 0;
   step_mem->stagemaxlimit = SUNMAX(2, round(SUNRsqrt(ark_mem->reltol/(10.0*ark_mem->uround))));
   step_mem->nstsig = 0;
 
@@ -395,6 +398,7 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   case SUN_OUTPUTFORMAT_TABLE:
     fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
     fprintf(outfile, "RHS fn evals for spr         = %ld\n", step_mem->sprnfe);
+    fprintf(outfile, "Number of SPR update calls   = %ld\n", step_mem->nsprupdates);
     fprintf(outfile, "Max. num. of stages taken    = %ld\n", step_mem->stagemax);
     fprintf(outfile, "Max. num. of stages allowed  = %ld\n", step_mem->stagemaxlimit);
 
@@ -404,6 +408,7 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
     fprintf(outfile, ",RHS fn evals for spr,%ld", step_mem->sprnfe);
+    fprintf(outfile, ",Number of SPR update calls,%ld", step_mem->nsprupdates);
     fprintf(outfile, ",Max. num. of stages taken,%ld", step_mem->stagemax);
     fprintf(outfile, ",Max. num. of stages allowed,%ld", step_mem->stagemaxlimit);
 
