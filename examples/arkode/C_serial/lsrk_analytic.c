@@ -121,15 +121,15 @@ int main(void)
   if (check_flag(&flag, "LSRKodeSetConstJac", 1)) { return 1; }
 
   /* Specify after how many successful steps SprRad is recomputed */
-  flag = LSRKodeSetSprRadFrequency(arkode_mem, 10);
+  flag = LSRKodeSetSprRadFrequency(arkode_mem, 25);
   if (check_flag(&flag, "LSRKodeSetSprRadFrequency", 1)) { return 1; }
 
   /* Specify max number of stages allowed */
-  flag = LSRKodeSetMaxStageNum(arkode_mem, 500);
+  flag = LSRKodeSetMaxStageNum(arkode_mem, 200);
   if (check_flag(&flag, "LSRKodeSetMaxStageNum", 1)) { return 1; }
 
   /* Specify max number of steps allowed */
-  flag = LSRKodeSetMaxStepNum(arkode_mem, 5000);
+  flag = LSRKodeSetMaxStepNum(arkode_mem, 1000);
   if (check_flag(&flag, "LSRKodeSetMaxStepNum", 1)) { return 1; }
 
   /* Specify safety factor for user provided SprRad */

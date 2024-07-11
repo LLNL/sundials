@@ -327,7 +327,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
     }
   }
   ark_mem->hadapt_mem->hcontroller = NULL;
-  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_ImpGus(ark_mem->sunctx);
+  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
   if (ark_mem->hadapt_mem->hcontroller == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -375,8 +375,8 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   
   (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
                                         SUN_RCONST(1.2));
-  (void)SUNAdaptController_SetParams_ImpGus(ark_mem->hadapt_mem->hcontroller,
-                                        SUN_RCONST(0.98), -SUN_RCONST(-0.95));
+  (void)SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
+                                        SUN_RCONST(0.8), -SUN_RCONST(0.31));
   return (ARK_SUCCESS);
 }
 

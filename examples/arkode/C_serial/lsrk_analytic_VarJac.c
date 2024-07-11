@@ -72,7 +72,10 @@ int main(void)
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
-  sunrealtype lambda  = SUN_RCONST(-1.0e+6); /* stiffness parameter */
+  sunrealtype lambda = SUN_RCONST(-1.0e+6); /* stiffness parameter 1*/
+  sunrealtype alpha  = SUN_RCONST(1.0e+2);  /* stiffness parameter 2*/
+  sunrealtype UserData[2];
+  UserData[0] = lambda; UserData[1] = alpha;
 
   /* general problem variables */
   int flag;                /* reusable error-checking flag */
@@ -89,8 +92,9 @@ int main(void)
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
   printf("    lambda = %" GSYM "\n", lambda);
-  printf("   reltol = %.1" ESYM "\n", reltol);
-  printf("   abstol = %.1" ESYM "\n\n", abstol);
+  printf("     alpha = %" GSYM "\n", alpha);
+  printf("    reltol = %.1" ESYM "\n", reltol);
+  printf("    abstol = %.1" ESYM "\n\n", abstol);
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx); /* Create serial vector for solution */
@@ -105,7 +109,7 @@ int main(void)
 
   /* Set routines */
   flag = ARKodeSetUserData(arkode_mem,
-                           (void*)&lambda); /* Pass lambda to user functions */
+                           (void*)&UserData); /* Pass lambda to user functions */
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   /* Specify tolerances */
@@ -121,15 +125,15 @@ int main(void)
   // if (check_flag(&flag, "LSRKodeSetConstJac", 1)) { return 1; }
 
   /* Specify after how many successful steps SprRad is recomputed */
-  flag = LSRKodeSetSprRadFrequency(arkode_mem, 10);
+  flag = LSRKodeSetSprRadFrequency(arkode_mem, 25);
   if (check_flag(&flag, "LSRKodeSetSprRadFrequency", 1)) { return 1; }
 
   /* Specify max number of stages allowed */
-  flag = LSRKodeSetMaxStageNum(arkode_mem, 500);
+  flag = LSRKodeSetMaxStageNum(arkode_mem, 200);
   if (check_flag(&flag, "LSRKodeSetMaxStageNum", 1)) { return 1; }
 
   /* Specify max number of steps allowed */
-  flag = LSRKodeSetMaxStepNum(arkode_mem, 5000);
+  flag = LSRKodeSetMaxStepNum(arkode_mem, 1000);
   if (check_flag(&flag, "LSRKodeSetMaxStepNum", 1)) { return 1; }
 
   /* Specify safety factor for user provided SprRad */
@@ -203,12 +207,13 @@ int main(void)
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter */
+  sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter 1 */
+  sunrealtype alpha  = rdata[1];       /* set shortcut for stiffness parameter 2 */
   sunrealtype u     = NV_Ith_S(y, 0); /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
-  NV_Ith_S(ydot, 0) = lambda*sin((10 - t)/10*acos(-1)) * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
-                      lambda*sin((10 - t)/10*acos(-1)) * atan(t);
+  NV_Ith_S(ydot, 0) = (lambda - alpha*cos((10 - t)/10*acos(-1))) * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
+                      (lambda - alpha*cos((10 - t)/10*acos(-1))) * atan(t);
 
   return 0; /* return with success */
 }
@@ -217,8 +222,9 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int spr(sunrealtype t, sunrealtype* extsprad, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter */
-  *extsprad = lambda*sin((10 - t)/10*acos(-1)); /* access current solution value */
+  sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter 1 */
+  sunrealtype alpha  = rdata[1];       /* set shortcut for stiffness parameter 2 */
+  *extsprad = (lambda - alpha*cos((10 - t)/10*acos(-1))); /* access current solution value */
   return 0; /* return with success */
 }
 
