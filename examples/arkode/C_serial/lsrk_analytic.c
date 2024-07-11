@@ -137,7 +137,7 @@ int main(void)
   if (check_flag(&flag, "LSRKodeSetSprRadSafetyFactor", 1)) { return 1; }
 
   /* Specify the LSRK method */
-  flag = LSRKodeSetMethod(arkode_mem, 1);
+  flag = LSRKodeSetMethod(arkode_mem, 2);
   if (check_flag(&flag, "LSRKodeSetMethod", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */

@@ -51,13 +51,15 @@ int LSRKodeSetMethod(void* arkode_mem, int method)
   {
   case 1:
     ark_mem->step                 = lsrkStep_TakeStepRKC;
+    printf("\nSolving with RKC method\n\n");
     break;
   case 2:
     ark_mem->step                 = lsrkStep_TakeStepRKL;
+    printf("\nSolving with RKL method\n\n");
     break;
-  
   case 3:
     ark_mem->step                 = lsrkStep_TakeStepRKG;
+    printf("\nSolving with RKG method\n\n");
   break;
 
   default:
