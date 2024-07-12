@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
+ * Programmer(s): Mustafa Aggul @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2024, Lawrence Livermore National Security
@@ -129,8 +129,8 @@ int main(void)
   if (check_flag(&flag, "LSRKodeSetMaxStageNum", 1)) { return 1; }
 
   /* Specify max number of steps allowed */
-  flag = LSRKodeSetMaxStepNum(arkode_mem, 1000);
-  if (check_flag(&flag, "LSRKodeSetMaxStepNum", 1)) { return 1; }
+  flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /* Specify safety factor for user provided SprRad */
   flag = LSRKodeSetSprRadSafetyFactor(arkode_mem, 1.01);

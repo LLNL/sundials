@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
+ * Programmer(s): Mustafa Aggul @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2024, Lawrence Livermore National Security
@@ -15,7 +15,8 @@
  *
  * The following is a simple example problem with analytical
  * solution,
- *    dy/dt = lambda*y + 1/(1+t^2) - lambda*atan(t)
+ *    dy/dt = (lambda - alpha*cos((10 - t)/10*pi)*y + 1/(1+t^2) 
+ *          - (lambda - alpha*cos((10 - t)/10*pi)*atan(t)
  * for t in the interval [0.0, 10.0], with initial condition: y=0.
  *
  * The stiffness of the problem is directly proportional to the
@@ -120,10 +121,6 @@ int main(void)
   flag = LSRKodeSetSprRadFn(arkode_mem, spr);
   if (check_flag(&flag, "LSRKodeSetSprRadFn", 1)) { return 1; }
 
-  // /* Specify Constant Jacobian */
-  // flag = LSRKodeSetConstJac(arkode_mem);
-  // if (check_flag(&flag, "LSRKodeSetConstJac", 1)) { return 1; }
-
   /* Specify after how many successful steps SprRad is recomputed */
   flag = LSRKodeSetSprRadFrequency(arkode_mem, 25);
   if (check_flag(&flag, "LSRKodeSetSprRadFrequency", 1)) { return 1; }
@@ -133,15 +130,15 @@ int main(void)
   if (check_flag(&flag, "LSRKodeSetMaxStageNum", 1)) { return 1; }
 
   /* Specify max number of steps allowed */
-  flag = LSRKodeSetMaxStepNum(arkode_mem, 1000);
-  if (check_flag(&flag, "LSRKodeSetMaxStepNum", 1)) { return 1; }
+  flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /* Specify safety factor for user provided SprRad */
   flag = LSRKodeSetSprRadSafetyFactor(arkode_mem, 1.01);
   if (check_flag(&flag, "LSRKodeSetSprRadSafetyFactor", 1)) { return 1; }
 
   /* Specify the LSRK method */
-  flag = LSRKodeSetMethod(arkode_mem, 2);
+  flag = LSRKodeSetMethod(arkode_mem, 1);
   if (check_flag(&flag, "LSRKodeSetMethod", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
