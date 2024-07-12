@@ -50,31 +50,31 @@ typedef struct ARKodeLSRKStepMemRec
   N_Vector* Fe; /* RHS vector storage */
   N_Vector* Fi; /* RHS vector storage */
 
-  int q;        /* method order               */
-  int p;        /* embedding order            */
+  int q; /* method order               */
+  int p; /* embedding order            */
 
-  int reqstages;  /* number of requested stages   */
+  int reqstages; /* number of requested stages   */
 
   /* Counters and stats*/
-  long int nfe; /* num fe calls       */
-  long int sprnfe; /* num fe calls for spectral radius      */
-  long int nsprupdates; /* num of spr computations   */
-  long int stagemax; /* num of max stages taken      */
+  long int nfe;           /* num fe calls       */
+  long int sprnfe;        /* num fe calls for spectral radius      */
+  long int nsprupdates;   /* num of spr computations   */
+  long int stagemax;      /* num of max stages taken      */
   long int stagemaxlimit; /* max allowed num of stages     */
   int nstsig; /* num of steps that successfully used spr; indicates spr update when 0;  */
 
-  /* Spectral radius info */  
-  sunrealtype sprad; /* spectral radius*/
-  sunrealtype sprmax; /* max spectral radius*/
-  sunrealtype sprmin; /* min spectral radius*/
+  /* Spectral radius info */
+  sunrealtype sprad;   /* spectral radius*/
+  sunrealtype sprmax;  /* max spectral radius*/
+  sunrealtype sprmin;  /* min spectral radius*/
   sunrealtype sprsfty; /* some safety factor for the user provided spr*/
   int sprfreq; /* indicates spr update after sprupdatepar successful steps*/
 
   /* Flags */
   sunbooleantype isextspr; /* flag indicating user provided spr */
-  sunbooleantype newspr; /* flag indicating new spr is needed */
+  sunbooleantype newspr;   /* flag indicating new spr is needed */
   sunbooleantype constJac; /* flag indicating Jacobian is constant */
-  sunbooleantype jacatt; /* an internal flag*/
+  sunbooleantype jacatt;   /* an internal flag*/
 
   /* Reusable fused vector operation arrays */
   sunrealtype* cvals;
@@ -107,8 +107,8 @@ int lsrkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
                                  ARKodeMem* ark_mem, ARKodeLSRKStepMem* step_mem);
 int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                            ARKodeLSRKStepMem* step_mem);
-void lsrkStep_SprRadUpdateLogic(ARKodeMem ark_mem, 
-                           ARKodeLSRKStepMem step_mem, sunrealtype dsm);                           
+void lsrkStep_SprRadUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
+                                sunrealtype dsm);
 sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl);
 
 /*===============================================================

@@ -24,8 +24,8 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#include "arkode_lsrkstep_impl.h"
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include "arkode_lsrkstep_impl.h"
 
 /*===============================================================
   Exported optional input functions.
@@ -44,23 +44,24 @@ int LSRKodeSetMethod(void* arkode_mem, int method)
   int retval;
 
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   switch (method)
   {
   case 1:
-    ark_mem->step                 = lsrkStep_TakeStepRKC;
+    ark_mem->step = lsrkStep_TakeStepRKC;
     printf("\nSolving with RKC method\n\n");
     break;
   case 2:
-    ark_mem->step                 = lsrkStep_TakeStepRKL;
+    ark_mem->step = lsrkStep_TakeStepRKL;
     printf("\nSolving with RKL method\n\n");
     break;
   case 3:
-    ark_mem->step                 = lsrkStep_TakeStepRKG;
+    ark_mem->step = lsrkStep_TakeStepRKG;
     printf("\nSolving with RKG method\n\n");
-  break;
+    break;
 
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -70,7 +71,6 @@ int LSRKodeSetMethod(void* arkode_mem, int method)
 
   return (ARK_SUCCESS);
 }
-
 
 /*---------------------------------------------------------------
   LSRKodeSetSprRadFn specifies the SprRad function.
@@ -82,7 +82,8 @@ int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr)
   int retval;
 
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set the SprRad routine pointer, and update relevant flags */
@@ -90,7 +91,7 @@ int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr)
   {
     step_mem->isextspr = SUNTRUE;
     step_mem->extspr   = spr;
-    
+
     return (ARK_SUCCESS);
   }
   else
@@ -114,7 +115,8 @@ int LSRKodeSetConstJac(void* arkode_mem)
   int retval;
 
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   step_mem->constJac = SUNTRUE;
@@ -133,13 +135,14 @@ int LSRKodeSetSprRadFrequency(void* arkode_mem, int nsteps)
   int retval;
 
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if(nsteps < 1)
+  if (nsteps < 1)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "nsteps must be greater than 0");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "nsteps must be greater than 0");
     return (ARK_ILL_INPUT);
   }
 
@@ -158,13 +161,14 @@ int LSRKodeSetMaxStageNum(void* arkode_mem, int stagemaxlimit)
   int retval;
 
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if(stagemaxlimit < 2)
+  if (stagemaxlimit < 2)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "stagemaxlimit must be greater than or equal to 2");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "stagemaxlimit must be greater than or equal to 2");
     return (ARK_ILL_INPUT);
   }
 
@@ -183,13 +187,14 @@ int LSRKodeSetSprRadSafetyFactor(void* arkode_mem, sunrealtype sprsfty)
   int retval;
 
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if(sprsfty < 1)
+  if (sprsfty < 1)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "sprsfty must be greater than or equal to 1");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "sprsfty must be greater than or equal to 1");
     return (ARK_ILL_INPUT);
   }
 
@@ -214,7 +219,8 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fevals)
   int retval;
 
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
@@ -229,19 +235,19 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fevals)
   Returns integrator statistics
   ---------------------------------------------------------------*/
 int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
-                               long int* accsteps, long int* attempts,
-                               long int* fevals, long int* sprfevals,
-                               long int* netfails, long int* stagemax,
-                               long int* nsprupdates,
-                               sunrealtype* sprmax, sunrealtype* sprmin
-                               )
+                                long int* accsteps, long int* attempts,
+                                long int* fevals, long int* sprfevals,
+                                long int* netfails, long int* stagemax,
+                                long int* nsprupdates, sunrealtype* sprmax,
+                                sunrealtype* sprmin)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
   int retval;
 
   /* access ARKodeMem and ARKodeERKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   // /* set expsteps and accsteps from adaptivity structure */
@@ -257,7 +263,7 @@ int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
   *nsprupdates = step_mem->nsprupdates;
   *sprmax      = step_mem->sprmax;
   *sprmin      = step_mem->sprmin;
-  
+
   return (ARK_SUCCESS);
 }
 
@@ -318,23 +324,23 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
     ark_mem->lrw += lenrw;
   }
 
-
   /* Set default values for integrator optional inputs
      (overwrite some adaptivity params for LSRKStep use) */
-  step_mem->reqstages = 0;                       /* no stages */
+  step_mem->reqstages = 0; /* no stages */
 
   /* Counters and stats*/
-  step_mem->nfe = 0;
-  step_mem->sprnfe = 0;
-  step_mem->stagemax = 0;
+  step_mem->nfe         = 0;
+  step_mem->sprnfe      = 0;
+  step_mem->stagemax    = 0;
   step_mem->nsprupdates = 0;
-  step_mem->stagemaxlimit = SUNMAX(2, round(SUNRsqrt(ark_mem->reltol/(10.0*ark_mem->uround))));
+  step_mem->stagemaxlimit =
+    SUNMAX(2, round(SUNRsqrt(ark_mem->reltol / (10.0 * ark_mem->uround))));
   step_mem->nstsig = 0;
 
-  /* Spectral radius info */  
-  step_mem->sprad = 1;
-  step_mem->sprmax = 0;
-  step_mem->sprmin = 0;
+  /* Spectral radius info */
+  step_mem->sprad   = 1;
+  step_mem->sprmax  = 0;
+  step_mem->sprmin  = 0;
   step_mem->sprsfty = 1.01;
   step_mem->sprfreq = 25;
 
@@ -343,11 +349,11 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->constJac = SUNFALSE;
   step_mem->jacatt   = SUNFALSE;
 
-  ark_mem->hadapt_mem->adjust = 0;  /* set default adjustment */
+  ark_mem->hadapt_mem->adjust = 0;               /* set default adjustment */
   ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
   ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
   ark_mem->hadapt_mem->growth = SUN_RCONST(25.0); /* step adaptivity growth factor */
-  
+
   (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
                                         SUN_RCONST(1.2));
   (void)SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
@@ -374,12 +380,14 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   case SUN_OUTPUTFORMAT_TABLE:
     fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
     fprintf(outfile, "RHS fn evals for spr         = %ld\n", step_mem->sprnfe);
-    fprintf(outfile, "Number of SPR update calls   = %ld\n", step_mem->nsprupdates);
+    fprintf(outfile, "Number of SPR update calls   = %ld\n",
+            step_mem->nsprupdates);
     fprintf(outfile, "Max. num. of stages taken    = %ld\n", step_mem->stagemax);
-    fprintf(outfile, "Max. num. of stages allowed  = %ld\n", step_mem->stagemaxlimit);
+    fprintf(outfile, "Max. num. of stages allowed  = %ld\n",
+            step_mem->stagemaxlimit);
 
-    fprintf(outfile, "Max. spectral radius         = %.2f\n",  step_mem->sprmax);
-    fprintf(outfile, "Min. spectral radius         = %.2f\n",  step_mem->sprmin);
+    fprintf(outfile, "Max. spectral radius         = %.2f\n", step_mem->sprmax);
+    fprintf(outfile, "Min. spectral radius         = %.2f\n", step_mem->sprmin);
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
@@ -388,8 +396,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     fprintf(outfile, ",Max. num. of stages taken,%ld", step_mem->stagemax);
     fprintf(outfile, ",Max. num. of stages allowed,%ld", step_mem->stagemaxlimit);
 
-    fprintf(outfile, ",Max. spectral radius,%.2f",  step_mem->sprmax);
-    fprintf(outfile, ",Min. spectral radius,%.2f",  step_mem->sprmin);
+    fprintf(outfile, ",Max. spectral radius,%.2f", step_mem->sprmax);
+    fprintf(outfile, ",Min. spectral radius,%.2f", step_mem->sprmin);
     fprintf(outfile, "\n");
     break;
   default:

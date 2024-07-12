@@ -33,7 +33,7 @@
 #include <math.h>
 #include <nvector/nvector_serial.h> /* serial N_Vector types, fcts., macros */
 #include <stdio.h>
-#include <sundials/sundials_math.h>  /* def. of SUNRsqrt, etc. */
+#include <sundials/sundials_math.h> /* def. of SUNRsqrt, etc. */
 #include <sundials/sundials_types.h> /* definition of type sunrealtype          */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -60,7 +60,7 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol,
                      sunrealtype atol);
 
 /* Private function to compute error */
-static int compute_error(N_Vector y, sunrealtype t);                     
+static int compute_error(N_Vector y, sunrealtype t);
 
 /* Main Program */
 int main(void)
@@ -72,7 +72,7 @@ int main(void)
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
-  sunrealtype lambda  = SUN_RCONST(-1000000.0); /* stiffness parameter */
+  sunrealtype lambda = SUN_RCONST(-1000000.0); /* stiffness parameter */
 
   /* general problem variables */
   int flag;                /* reusable error-checking flag */
@@ -188,9 +188,9 @@ int main(void)
   flag = compute_error(y, t);
 
   /* Clean up and return */
-  N_VDestroy(y);           /* Free y vector */
+  N_VDestroy(y);            /* Free y vector */
   ARKStepFree(&arkode_mem); /* Free integrator memory */
-  SUNContext_Free(&ctx);   /* Free context */
+  SUNContext_Free(&ctx);    /* Free context */
 
   return flag;
 }
@@ -203,8 +203,8 @@ int main(void)
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter */
-  sunrealtype u     = NV_Ith_S(y, 0); /* access current solution value */
+  sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter */
+  sunrealtype u      = NV_Ith_S(y, 0); /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
   NV_Ith_S(ydot, 0) = lambda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
@@ -217,9 +217,9 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int spr(sunrealtype t, sunrealtype* extsprad, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter */
-  *extsprad = lambda; /* access current solution value */
-  return 0; /* return with success */
+  sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter */
+  *extsprad          = lambda;   /* access current solution value */
+  return 0;                      /* return with success */
 }
 
 /*-------------------------------
@@ -290,7 +290,6 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
 
   return (passfail);
 }
-
 
 /* check the error */
 static int compute_error(N_Vector y, sunrealtype t)

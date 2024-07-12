@@ -192,8 +192,8 @@ int main(void)
   printf("   Total number of Jacobian evaluations = %li\n", nje);
   printf("   Total number of Newton iterations = %li\n", nni);
   printf("   Total number of linear solver convergence failures = %li\n", ncfn);
-  printf("   Total number of error test failures = %li\n\n", netf); 
-  printf("   \n"); 
+  printf("   Total number of error test failures = %li\n\n", netf);
+  printf("   \n");
 
   /* check the solution error */
   flag = check_ans(y, t, reltol, abstol);
