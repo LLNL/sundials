@@ -101,6 +101,7 @@ int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                     sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
 void lsrkStep_Free(ARKodeMem ark_mem);
 void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
+int lsrkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele);
 
 /* Internal utility routines */
 int lsrkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,

@@ -108,6 +108,7 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ark_mem->step_free              = lsrkStep_Free;
   ark_mem->step_printmem          = lsrkStep_PrintMem;
   ark_mem->step_setdefaults       = lsrkStep_SetDefaults;
+  ark_mem->step_getestlocalerrors = lsrkStep_GetEstLocalErrors;
   ark_mem->step_mem               = (void*)step_mem;
   ark_mem->step_supports_adaptive = SUNTRUE;
 
@@ -148,7 +149,6 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
 
   /* Specify Interpolation Type */
   retval = ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
-  printf("\nHARD CODED to set interpolation type = ARK_INTERP_LAGRANGE\n\n");
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
@@ -651,11 +651,11 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   bjm2 = bjm1;
 
   /* Evaluate the first stage */
-  N_VScale(ONE, ark_mem->yn, ark_mem->tempv2);
+  N_VScale(ONE, ark_mem->yn, ark_mem->tempv1);
 
   mus = w1 * bjm1;
 
-  N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * mus, ark_mem->fn, ark_mem->tempv1);
+  N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * mus, ark_mem->fn, ark_mem->tempv2);
 
   thjm2  = ZERO;
   thjm1  = mus;
@@ -679,18 +679,18 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     mus  = mu * w1 / w0;
 
     /* Use the ycur array for temporary storage here */
-    retval = step_mem->fe(ark_mem->tcur + ark_mem->h * thjm1, ark_mem->tempv1,
+    retval = step_mem->fe(ark_mem->tcur + ark_mem->h * thjm1, ark_mem->tempv2,
                           ark_mem->ycur, ark_mem->user_data);
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
     cvals[0] = mus * ark_mem->h;
     Xvecs[0] = ark_mem->ycur;
     cvals[1] = nu;
-    Xvecs[1] = ark_mem->tempv2;
+    Xvecs[1] = ark_mem->tempv1;
     cvals[2] = ONE - mu - nu;
     Xvecs[2] = ark_mem->yn;
     cvals[3] = mu;
-    Xvecs[3] = ark_mem->tempv1;
+    Xvecs[3] = ark_mem->tempv2;
     cvals[4] = -mus * ajm1 * ark_mem->h;
     Xvecs[4] = ark_mem->fn;
 
@@ -702,8 +702,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Shift the data for the next stage */
     if (j < step_mem->reqstages)
     {
-      N_VScale(ONE, ark_mem->tempv1, ark_mem->tempv2);
-      N_VScale(ONE, ark_mem->ycur, ark_mem->tempv1);
+      N_VScale(ONE, ark_mem->tempv2, ark_mem->tempv1);
+      N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
 
       thjm2  = thjm1;
       thjm1  = thj;
@@ -723,7 +723,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (!ark_mem->fixedstep)
   {
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                          ark_mem->tempv1, ark_mem->user_data);
+                          ark_mem->tempv2, ark_mem->user_data);
     step_mem->nfe++;
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
@@ -735,12 +735,12 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     cvals[2] = p4 * ark_mem->h;
     Xvecs[2] = ark_mem->fn;
     cvals[3] = p4 * ark_mem->h;
-    Xvecs[3] = ark_mem->tempv1;
+    Xvecs[3] = ark_mem->tempv2;
 
-    retval = N_VLinearCombination(4, cvals, Xvecs, ark_mem->tempv2);
+    retval = N_VLinearCombination(4, cvals, Xvecs, ark_mem->tempv1);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
-    *dsmPtr = N_VWrmsNorm(ark_mem->tempv2, ark_mem->ewt);
+    *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
     lsrkStep_SprRadUpdateLogic(ark_mem, step_mem, *dsmPtr);
   }
   return (ARK_SUCCESS);
@@ -829,12 +829,12 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   bjm1 = bjm2;
 
   /* Evaluate the first stage */
-  N_VScale(ONE, ark_mem->yn, ark_mem->tempv2);
+  N_VScale(ONE, ark_mem->yn, ark_mem->tempv1);
 
   mus  = w1 * bjm1;
   cjm1 = mus;
 
-  N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * mus, ark_mem->fn, ark_mem->tempv1);
+  N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * mus, ark_mem->fn, ark_mem->tempv2);
 
   /* Evaluate stages j = 2,...,step_mem->reqstages */
   for (int j = 2; j <= step_mem->reqstages; j++)
@@ -848,18 +848,18 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     cj   = temj * w1 / FOUR;
 
     /* Use the ycur array for temporary storage here */
-    retval = step_mem->fe(ark_mem->tcur + ark_mem->h * cjm1, ark_mem->tempv1,
+    retval = step_mem->fe(ark_mem->tcur + ark_mem->h * cjm1, ark_mem->tempv2,
                           ark_mem->ycur, ark_mem->user_data);
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
     cvals[0] = mus * ark_mem->h;
     Xvecs[0] = ark_mem->ycur;
     cvals[1] = nu;
-    Xvecs[1] = ark_mem->tempv2;
+    Xvecs[1] = ark_mem->tempv1;
     cvals[2] = ONE - mu - nu;
     Xvecs[2] = ark_mem->yn;
     cvals[3] = mu;
-    Xvecs[3] = ark_mem->tempv1;
+    Xvecs[3] = ark_mem->tempv2;
     cvals[4] = -mus * ajm1 * ark_mem->h;
     Xvecs[4] = ark_mem->fn;
 
@@ -871,8 +871,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Shift the data for the next stage */
     if (j < step_mem->reqstages)
     {
-      N_VScale(ONE, ark_mem->tempv1, ark_mem->tempv2);
-      N_VScale(ONE, ark_mem->ycur, ark_mem->tempv1);
+      N_VScale(ONE, ark_mem->tempv2, ark_mem->tempv1);
+      N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
 
       cjm1 = cj;
       bjm2 = bjm1;
@@ -885,7 +885,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (!ark_mem->fixedstep)
   {
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                          ark_mem->tempv1, ark_mem->user_data);
+                          ark_mem->tempv2, ark_mem->user_data);
     step_mem->nfe++;
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
@@ -897,12 +897,12 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     cvals[2] = p4 * ark_mem->h;
     Xvecs[2] = ark_mem->fn;
     cvals[3] = p4 * ark_mem->h;
-    Xvecs[3] = ark_mem->tempv1;
+    Xvecs[3] = ark_mem->tempv2;
 
-    retval = N_VLinearCombination(4, cvals, Xvecs, ark_mem->tempv2);
+    retval = N_VLinearCombination(4, cvals, Xvecs, ark_mem->tempv1);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
-    *dsmPtr = N_VWrmsNorm(ark_mem->tempv2, ark_mem->ewt);
+    *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
     lsrkStep_SprRadUpdateLogic(ark_mem, step_mem, *dsmPtr);
   }
   return (ARK_SUCCESS);
@@ -1037,7 +1037,7 @@ void lsrkStep_SprRadUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
 {
   if (dsm <= ONE || ark_mem->fixedstep)
   {
-    N_VScale(ONE, ark_mem->tempv1, ark_mem->fn);
+    N_VScale(ONE, ark_mem->tempv2, ark_mem->fn);
     ark_mem->fn_is_current = SUNTRUE;
 
     step_mem->jacatt = (step_mem->constJac == SUNTRUE);

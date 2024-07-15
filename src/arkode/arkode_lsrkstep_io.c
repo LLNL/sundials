@@ -362,6 +362,25 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
 }
 
 /*---------------------------------------------------------------
+  lsrkStep_GetEstLocalErrors: Returns the current local truncation
+  error estimate vector
+  ---------------------------------------------------------------*/
+int lsrkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
+{
+  int retval;
+  ARKodeLSRKStepMem step_mem;
+  retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* return an error if local truncation error is not computed */
+  if (ark_mem->fixedstep) { return (ARK_STEPPER_UNSUPPORTED); }
+
+  /* otherwise, copy local truncation error vector to output */
+  N_VScale(ONE, ark_mem->tempv1, ele);
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
   lsrkStep_PrintAllStats:
 
   Prints integrator statistics
