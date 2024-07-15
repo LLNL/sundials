@@ -26,7 +26,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and push Docker images
-      uses: docker/build-push-action@v6.0.2
+      uses: docker/build-push-action@v6.4.0
       with:
           context: "./docker/sundials-ci/e4s-base"
           build-args: e4s_version=22.05
@@ -56,7 +56,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and push Docker images
-      uses: docker/build-push-action@v6.0.2
+      uses: docker/build-push-action@v6.4.0
       with:
           context: "./docker/sundials-ci/e4s-quarterly"
           build-args: spack_yaml=./int${{ matrix.indexsize }}-${{ matrix.precision }}/spack.yaml
