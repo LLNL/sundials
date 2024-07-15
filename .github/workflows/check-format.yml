@@ -3,7 +3,6 @@ name: Checks - formatting
 on:
   pull_request:
   workflow_dispatch:
-  push:
 
 jobs:
   format_check:
