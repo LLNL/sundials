@@ -62,15 +62,16 @@ endif()
 # Determining the name-mangling scheme if needed
 # ---------------------------------------------------------------
 # In general, names of symbols with and without underscore may be mangled
-# differently (e.g. g77 mangles mysub to mysub_ and my_sub to my_sub__),
-# we have to consider both cases.
+# differently (e.g. g77 mangles mysub to mysub_ and my_sub to my_sub__), we have
+# to consider both cases.
 #
 # Method:
-#  1) create a library from a Fortran source file which defines a function "mysub"
-#  2) attempt to link with this library a C source file which calls the "mysub"
-#     function using various possible schemes (6 different schemes, corresponding
-#     to all combinations lower/upper case and none/one/two underscores).
-#  3) define the name-mangling scheme based on the test that was successful.
+#
+# 1. create a library from a Fortran source file which defines a function "mysub"
+# 2. attempt to link with this library a C source file which calls the "mysub"
+#    function using various possible schemes (6 different schemes, corresponding
+#    to all combinations lower/upper case and none/one/two underscores).
+# 3. define the name-mangling scheme based on the test that was successful.
 #
 # On exit, if we were able to infer the scheme, the variables
 # CMAKE_Fortran_SCHEME_NO_UNDERSCORES and CMAKE_Fortran_SCHEME_WITH_UNDERSCORES
