@@ -9,10 +9,10 @@ jobs:
   spelling_check:
     runs-on: ubuntu-latest
     steps:
-      - name: Install python3
+      - name: Install python3-pip
         run: |
-          apt update
-          apt install -y --no-install-recommends python3-pip
+          sudo apt update
+          sudo apt install -y --no-install-recommends python3-pip
 
       - name: Install codespell
         run: pip install codespell
