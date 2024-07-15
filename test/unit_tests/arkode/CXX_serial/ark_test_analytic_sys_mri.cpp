@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
   sunindextype NEQ   = 3;                  // number of dependent vars.
   sunrealtype reltol = SUN_RCONST(1.0e-6); // tolerances
   sunrealtype abstol = SUN_RCONST(1.0e-10);
-  sunrealtype lamda  = SUN_RCONST(-100.0); // stiffness parameter
+  sunrealtype lambda  = SUN_RCONST(-100.0); // stiffness parameter
 
   // general problem variables
   int flag;                       // reusable error-checking flag
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
 
   // Initial problem output
   cout << "\nAnalytical ODE test problem:\n";
-  cout << "   lamda  = " << lamda << "\n";
+  cout << "   lambda  = " << lambda << "\n";
   cout << "   reltol = " << reltol << "\n";
   cout << "   abstol = " << abstol << "\n\n";
   if (fixedpoint) { cout << "   Fixed-point nonlinear solver\n"; }
@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
 
   // Set routines
   flag = ARKodeSetUserData(arkstep_mem,
-                           (void*)&lamda); // Pass lamda to user functions
+                           (void*)&lambda); // Pass lambda to user functions
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
   flag = ARKodeSStolerances(arkstep_mem, reltol, abstol); // Specify tolerances
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   flag = ARKodeSetUserData(mristep_mem,
-                           (void*)&lamda); // Pass lamda to user functions
+                           (void*)&lambda); // Pass lambda to user functions
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
   flag = ARKodeSStolerances(mristep_mem, reltol, abstol); // Specify tolerances
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }

@@ -44,7 +44,7 @@ The content members are the vector length (size), a boolean flag that signals if
 the vector owns the data (i.e. it is in charge of freeing the data), pointers to
 vector data on the host and the device, pointers to :cpp:type:`SUNHipExecPolicy`
 implementations that control how the HIP kernels are launched for streaming and
-reduction vector kernels, and a private data structure which holds additonal members
+reduction vector kernels, and a private data structure which holds additional members
 that should not be accessed directly.
 
 When instantiated with :c:func:`N_VNew_Hip`, the underlying data will be
@@ -81,7 +81,7 @@ accessor functions:
 
 .. c:function:: sunbooleantype N_VIsManagedMemory_Hip(N_Vector v)
 
-   This function returns a boolean flag indiciating if the vector
+   This function returns a boolean flag indicating if the vector
    data array is in managed memory or not.
 
 
@@ -255,7 +255,7 @@ options as the vector they are cloned from while vectors created with
 **Notes**
 
 * When there is a need to access components of an ``N_Vector_Hip``, ``v``,
-  it is recommeded to use functions :c:func:`N_VGetDeviceArrayPointer_Hip()` or
+  it is recommended to use functions :c:func:`N_VGetDeviceArrayPointer_Hip()` or
   :c:func:`N_VGetHostArrayPointer_Hip()`. However, when using managed memory,
   the function :c:func:`N_VGetArrayPointer` may also be used.
 
@@ -359,7 +359,7 @@ In total, SUNDIALS provides 4 execution policies:
 
    .. cpp:function:: SUNHipBlockReduceExecPolicy(const size_t blockDim, const hipStream_t stream = 0)
 
-      Is for kernels performing a reduction across indvidual thread blocks. The
+      Is for kernels performing a reduction across individual thread blocks. The
       number of threads per block (blockDim) can be set to any valid multiple of
       the HIP warp size. The grid size (gridDim) can be set to any value greater
       than 0. If it is set to 0, then the grid size will be chosen so that there
@@ -368,7 +368,7 @@ In total, SUNDIALS provides 4 execution policies:
 
    .. cpp:function:: SUNHipBlockReduceAtomicExecPolicy(const size_t blockDim, const hipStream_t stream = 0)
 
-      Is for kernels performing a reduction across indvidual thread blocks using
+      Is for kernels performing a reduction across individual thread blocks using
       atomic operations. The number of threads per block (blockDim) can be set
       to any valid multiple of the HIP warp size. The grid size (gridDim) can be
       set to any value greater than 0. If it is set to 0, then the grid size

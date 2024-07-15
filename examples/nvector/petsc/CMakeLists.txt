@@ -59,7 +59,7 @@ foreach(example_tuple ${nvector_petsc_examples})
     # example source files
     add_executable(${example} ${example}.c)
 
-    # link vector test utilties
+    # link vector test utilities
     target_link_libraries(${example} PRIVATE test_nvector_obj
                                              test_nvectormpi_obj)
 

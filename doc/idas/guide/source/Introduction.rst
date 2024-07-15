@@ -37,7 +37,7 @@ at LLNL to support the ordinary differential equation (ODE) solvers CVODE
 nonlinear system solver KINSOL :cite:p:`kinsol_ug`.
 
 At present, IDAS may utilize a variety of Krylov methods provided in SUNDIALS
-that can be used in conjuction with Newton iteration: these include the GMRES
+that can be used in conjunction with Newton iteration: these include the GMRES
 (Generalized Minimal RESidual) :cite:p:`SaSc:86`, FGMRES (Flexible Generalized
 Minimum RESidual) :cite:p:`Saa:93`, Bi-CGStab (Bi-Conjugate Gradient Stabilized)
 :cite:p:`Van:92`, TFQMR (Transpose-Free Quasi-Minimal Residual)
@@ -119,7 +119,7 @@ The structure of this document is as follows:
   that are required in addition to those already described in Chapter
   :numref:`IDAS.Usage.SIM`. Following that we provide detailed
   descriptions of the user-callable interface routines specific to forward
-  sensitivity analysis and of the additonal optional user-defined routines.
+  sensitivity analysis and of the additional optional user-defined routines.
 
 * Chapter :numref:`IDAS.Usage.ADJ` describes the usage of IDAS for adjoint
   sensitivity analysis. We begin by describing the IDAS checkpointing

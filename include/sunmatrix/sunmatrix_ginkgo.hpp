@@ -28,7 +28,7 @@
 namespace sundials {
 namespace ginkgo {
 
-// Forward decalaration of regular Matrix class
+// Forward declaration of regular Matrix class
 template<typename GkoMatType>
 class Matrix;
 

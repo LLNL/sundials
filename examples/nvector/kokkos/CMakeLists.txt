@@ -45,7 +45,7 @@ foreach(example_tuple ${examples_list})
       # which backend to use
       target_compile_definitions(${example_target} PRIVATE USE_${backend})
 
-      # link vector test utilties
+      # link vector test utilities
       target_link_libraries(${example_target} PRIVATE test_nvector_obj
                                                       sundials_nveckokkos)
     endif()

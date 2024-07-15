@@ -113,7 +113,7 @@
 #define BB    ONE                /* BB = b */
 #define DPREY ONE
 #define DPRED SUN_RCONST(0.5)
-#define ALPH  ONE
+#define ALPHA  ONE
 #define NP    3
 #define NS    (2 * NP)
 
@@ -287,7 +287,7 @@ int main(int argc, char* argv[])
   LS = SUNLinSol_SPGMR(c, SUN_PREC_LEFT, 0, sunctx);
   if (check_retval((void*)LS, "SUNLinSol_SPGMR", 0)) { return (1); }
 
-  /* Attach the linear sovler */
+  /* Attach the linear solver */
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
   if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
 
@@ -348,7 +348,7 @@ int main(int argc, char* argv[])
   LSB = SUNLinSol_SPGMR(cB, SUN_PREC_LEFT, 0, sunctx);
   if (check_retval((void*)LSB, "SUNLinSol_SPGMR", 0)) { return (1); }
 
-  /* Attach the linear sovler */
+  /* Attach the linear solver */
   retval = CVodeSetLinearSolverB(cvode_mem, indexB, LSB, NULL);
   if (check_retval(&retval, "CVodeSetLinearSolverB", 1)) { return 1; }
 
@@ -1018,7 +1018,7 @@ static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t,
     for (i = 0; i < ns; i++) { rate[i] += c[j] * acoef[i][j]; }
   }
 
-  fac = ONE + ALPH * x * y;
+  fac = ONE + ALPHA * x * y;
   for (i = 0; i < ns; i++) { rate[i] = c[i] * (bcoef[i] * fac + rate[i]); }
 }
 
@@ -1038,7 +1038,7 @@ static void WebRatesB(sunrealtype x, sunrealtype y, sunrealtype t,
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
 
-  fac = ONE + ALPH * x * y;
+  fac = ONE + ALPHA * x * y;
 
   for (i = 0; i < ns; i++) { rate[i] = bcoef[i] * fac; }
 

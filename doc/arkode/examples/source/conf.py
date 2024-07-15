@@ -442,7 +442,7 @@ man_pages = [
 texinfo_documents = [
   ('index', 'ARKODE_example', u'ARKODE Example Documentation',
    u'Daniel R. Reynolds', 'ARKODE_example',
-   'Example programs for the ARKODE time integration package for multi-rate systems of ordinary differntial equations.',
+   'Example programs for the ARKODE time integration package for multi-rate systems of ordinary differential equations.',
    'Miscellaneous'),
 ]
 

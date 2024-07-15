@@ -94,7 +94,7 @@ MPICH loses considerable efficiency by comparison, as the problem size
 grows. This means that the highly portable MPI version of {\cvode}, with an
 appropriate choice of MPI implementation, is fully competitive with the
 Cray-specific version using the SHMEM library. While the overall costs do
-not prepresent a well-scaled parallel algorithm (because of the
+not represent a well-scaled parallel algorithm (because of the
 preconditioner choice), the cost per function evaluation is quite flat for
 EPCC and SHMEM, at .033 to .037 (for MPICH it ranges from .044 to .068).
 

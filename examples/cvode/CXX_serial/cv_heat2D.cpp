@@ -184,7 +184,7 @@ int main(int argc, char* argv[])
   auto dTout = static_cast<sunrealtype>(udata.tf / udata.nout);
   auto tout  = dTout;
 
-  // Inital output
+  // Initial output
   flag = OpenOutput(udata);
   if (check_flag(flag, "OpenOutput")) { return 1; }
 

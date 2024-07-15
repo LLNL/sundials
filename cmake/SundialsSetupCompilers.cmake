@@ -21,12 +21,12 @@
 include(SundialsIndexSize)
 
 # ===============================================================
-# Platform specifc settings
+# Platform specific settings
 # ===============================================================
 
 if(WIN32)
   # Under Windows, add compiler directive to inhibit warnings about use of
-  # unsecure functions.
+  # insecure functions.
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 
   # Under Windows, we need to have dll and exe files in the same directory to

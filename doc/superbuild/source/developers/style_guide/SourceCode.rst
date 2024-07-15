@@ -17,7 +17,7 @@
 Naming
 ======
 
-All exported symbols that will be publically available must be namespaced
+All exported symbols that will be publicly available must be namespaced
 appropriately!
 
 * ``SUN_`` or ``SUNDIALS_`` for macros

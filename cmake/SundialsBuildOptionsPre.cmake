@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# SUNDIALS build options that are interepreted prior to any
+# SUNDIALS build options that are interpreted prior to any
 # other CMake configuration.
 # ---------------------------------------------------------------
 

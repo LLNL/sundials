@@ -27,7 +27,7 @@ construction of distinct NVECTOR modules for each component, that are then
 combined together to form the NVECTOR_MPIMANYVECTOR.  Three potential
 use cases for this module include:
 
-A. *Heterogenous computational architectures (single-node or multi-node)*:
+A. *Heterogeneous computational architectures (single-node or multi-node)*:
    for data partitioning between different computing resources on a node,
    architecture-specific subvectors may be created for each partition.
    For example, a user could create one MPI-parallel component based on

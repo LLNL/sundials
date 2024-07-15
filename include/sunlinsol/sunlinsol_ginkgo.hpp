@@ -289,7 +289,7 @@ public:
     return gko_solver_.get();
   }
 
-  /// Solve the linear system Ax = b to the specificed tolerance.
+  /// Solve the linear system Ax = b to the specified tolerance.
   /// \param b the right-hand side vector
   /// \param x the solution vector
   /// \param tol the tolerance to solve the system to

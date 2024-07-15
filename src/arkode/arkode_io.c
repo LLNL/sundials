@@ -2991,7 +2991,7 @@ int arkSetForcePass(void* arkode_mem, sunbooleantype force_pass)
 /*---------------------------------------------------------------
   arkGetLastKFlag:
 
-  The last kflag value retured by the temporal error test.
+  The last kflag value returned by the temporal error test.
   ---------------------------------------------------------------*/
 int arkGetLastKFlag(void* arkode_mem, int* last_kflag)
 {

@@ -94,7 +94,7 @@ environment so that its buildcache can be leveraged.
 
 We also maintain two containers for the {int32, double} pair that are built automatically (in a
 GitHub action) every week against the latest Spack develop commit. This allows us to test against
-the latest versions of dependencies reguarly and detect interface breakages.
+the latest versions of dependencies regularly and detect interface breakages.
 
 
 GitLab CI Testing
@@ -264,7 +264,7 @@ These submodules work in conjunction with ``spack_packages/sundials/package.py``
 to configure and build any third-party libraries needed by the SUNDIALS
 configuration and generates an initial CMake cache file for building SUNDIALS.
 Other packages can be added to ``spack_packages/<package name>/package.py``
-if the default Spack package needs to be overriden. We do this currently for
+if the default Spack package needs to be overridden. We do this currently for
 Caliper, as we need a newer version than in the Spack commit currently used.
 
 Updating Spack

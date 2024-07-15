@@ -32,7 +32,7 @@ Due to difference in microarichtectures and the nature of floating point arithme
 possible that the output generated on one machine may differ from the output generated on another.
 As such, we specify that the the answer files that are embedded in ``examples/`` (the ``.out``
 files) should match what is produced on the Jenkins CI machine.  We also have a `separate git
-repostiory <https://github.com/sundials-codes/answers>`_ which holds answers for other  machines,
+repository <https://github.com/sundials-codes/answers>`_ which holds answers for other  machines,
 such as the GitHub Actions virtual machines.
 
 

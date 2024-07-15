@@ -40,7 +40,7 @@ reformulated in terms of the correction to the predicted sensitivities.
 
 The nonlinear system function provided by IDAS to the nonlinear solver module
 internally updates the current value of the new state and its derivative based
-on the current corretion passed to the function (as well as the sensitivities).
+on the current correction passed to the function (as well as the sensitivities).
 These values are used when calling the DAE residual function and when setting up
 linear solves (e.g., for updating the Jacobian or preconditioner).
 
@@ -149,13 +149,13 @@ the current :math:`y` and :math:`\dot{y}` vectors to compute Jacobian data.
       This routine is intended for users who wish to attach a custom
       :c:type:`SUNNonlinSolSysFn` to an existing ``SUNNonlinearSolver`` object
       (through a call to :c:func:`SUNNonlinSolSetSysFn`) or who need access to
-      nonlinear system data to compute the nonlinear system fucntion as part of a
+      nonlinear system data to compute the nonlinear system function as part of a
       custom ``SUNNonlinearSolver`` object.
 
       When supplying a custom :c:type:`SUNNonlinSolSysFn` to an existing
       ``SUNNonlinearSolver`` object, the user should call
       :c:func:`IDAGetNonlinearSystemData` inside the nonlinear system function to
-      access the requisite data for evaluting the nonlinear system function of
+      access the requisite data for evaluating the nonlinear system function of
       their choosing. Additionlly, if the ``SUNNonlinearSolver`` object (existing
       or custom) leverages the :c:type:`SUNNonlinSolLSetupFn` and/or
       :c:type:`SUNNonlinSolLSolveFn` functions supplied by IDAS (through calls to
@@ -203,11 +203,11 @@ the current :math:`y` and :math:`\dot{y}` vectors to compute Jacobian data.
       This routine is intended for users who wish to attach a custom
       :c:type:`SUNNonlinSolSysFn` to an  existing ``SUNNonlinearSolver`` object
       (through a call to  :c:func:`SUNNonlinSolSetSysFn`) or who need access to
-      nonlinear system data to  compute the nonlinear system fucntion as part of
+      nonlinear system data to  compute the nonlinear system function as part of
       a custom  ``SUNNonlinearSolver`` object.  When supplying a custom
       :c:type:`SUNNonlinSolSysFn` to an existing  ``SUNNonlinearSolver`` object,
       the user should call  :c:func:`IDAGetNonlinearSystemDataSens` inside the
-      nonlinear system  function to access the requisite data for evaluting the
+      nonlinear system  function to access the requisite data for evaluating the
       nonlinear system  function of their choosing. Additionlly, if the the
       vectors ``yySn`` and  ``ypSn`` are provided as additional workspace and do
       not need to be filled in  by the user's :c:type:`SUNNonlinSolSysFn`.  If
