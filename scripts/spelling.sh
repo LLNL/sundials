@@ -14,6 +14,6 @@
 # ---------------------------------------------------------------------------------
 
 codespell \
-    --skip="*.git,*.bib,*.eps,*.pdf,*/fmod_int*,*/_themes" \
+    --skip="*.git,*.bib,*.eps,*.pdf,*/fmod_int*,*/_themes,*/test/answers" \
     -L "inout,ans" \
     --write-changes
