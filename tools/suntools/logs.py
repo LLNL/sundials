@@ -23,7 +23,6 @@ from collections import ChainMap
 
 def convert_to_num(s):
     """Try to convert a string to an int or float"""
-
     try:
         return np.longlong(s)
     except ValueError:
@@ -35,9 +34,8 @@ def convert_to_num(s):
 
 def parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)"):
     """
-    This function parses the payload of in a SUNDIALS log file line
-    into a dictionary. The payload of a SUNDIALS log file line
-    is the part after all the [ ] brackets.
+    Parse the payload of a SUNDIALS log file line into a dictionary. The payload
+    of a SUNDIALS log file line is the part after all the [ ] brackets.
     """
     kvpstrs = payload.split(",")
     kvp_dict = {}
@@ -64,14 +62,13 @@ def parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)"
 
 def parse_logfile_line(line, line_number, all_lines):
     """
-    This function takes a line from a SUNDIALS log file and parses it into a
-    dictionary.
+    Parse a line from a SUNDIALS log file it into a dictionary.
 
     A log file line has the form:
       [loglvl][rank][scope][label] key1 = value, key2 = value
-    Log file payloads can be multiline if they are an array/vector with one
-    value per line:
-      [loglvl][rank][scope][label] y(:)
+    The log line payload (everything after the brackets) can be multiline with
+    one value per line for keys corresponding to an array/vector:
+      [loglvl][rank][scope][label] y(:) =
       y_1
       y_2
       ...
@@ -91,13 +88,14 @@ def parse_logfile_line(line, line_number, all_lines):
 
 
 class StepData:
+    """
+    Helper class for parsing a step attempt from a SUNDIALS log file into a
+    hierarchical dictionary where entries may be lists of dictionaries.
+    """
+
     def __init__(self):
         self.container = [ChainMap()]
         self.parent_keys = ["main"]
-        self.open_dicts = 0
-        self.open_lists = 0
-        self.total_dicts = 0
-        self.total_lists = 0
 
     def __repr__(self):
         tmp = "Container:"
@@ -106,10 +104,6 @@ class StepData:
         tmp += "\nParent Keys:"
         for entry in self.parent_keys:
             tmp += f"\n  {entry}"
-        tmp += f"\nOpen dicts: {self.open_dicts}"
-        tmp += f"\nOpen lists: {self.open_lists}"
-        tmp += f"\nTotal dicts: {self.total_dicts}"
-        tmp += f"\nTotal lists: {self.total_lists}"
         return tmp
 
     def update(self, data):
@@ -120,13 +114,10 @@ class StepData:
         """Activate a dictionary"""
         self.container[-1][key] = {}
         self.container[-1] = self.container[-1].new_child(self.container[-1][key])
-        self.open_dicts += 1
-        self.total_dicts += 1
 
     def close_dict(self):
         """Deactivate the active dictionary"""
         self.container[-1] = self.container[-1].parents
-        self.open_dicts -= 1
 
     def open_list(self, key):
         """Activate a list of dictionaries"""
@@ -136,31 +127,19 @@ class StepData:
             self.container[-1][key] = []
             self.container.append(ChainMap())
         self.parent_keys.append(key)
-        self.open_lists += 1
-        self.total_lists += 1
 
     def close_list(self):
         """Deactivate a the active list"""
-        # I think the Chain map will only ever have one entry. In which case we
-        # don't need a ChainMap and could just manage the dictionaries manually.
-        # However, open and close dict still relies on the dict references to
-        # update nested dictionaries, so maybe not.
         tmp = self.container[-1].maps[0]
         self.container[-2][self.parent_keys[-1]].append(tmp)
         self.parent_keys.pop()
         self.container.pop()
-        self.open_lists -= 1
 
     def get_step(self):
         """Get the step dictionary and reset the container"""
         tmp = self.container.pop().maps[0]
         self.container = [ChainMap()]
-        # At this point we should already be back to main, add sanity check
         self.parent_keys = ["main"]
-        self.open_dicts = 0
-        self.open_lists = 0
-        self.total_dicts = 0
-        self.total_lists = 0
         return tmp
 
 
@@ -171,13 +150,12 @@ def log_file_to_list(filename):
 
     E.g.,
       [
-          {
-              "loglvl": "DEBUG",
-              "rank": "rank 0",
-              "scope": "<step_scope_txt>",
-              "label": "enter-step-attempt-loop",
-              "payload": {"step": "0", "h": "1e-06", "q": "1", "t_n": "0"},
-          }, ...
+        {
+          step   : 1,
+          tn     : 0.0,
+          stages : [ {stage : 1, tcur : 0.0, ...}, {stage : 2, tcur : 0.5, ...}, ...]
+          ...
+        }, ...
       ]
     """
     with open(filename, "r") as logfile:
@@ -191,6 +169,7 @@ def log_file_to_list(filename):
         # Read the log file
         all_lines = logfile.readlines()
 
+        # Create instance of helper class for building attempt dictionary
         s = StepData()
 
         for line_number, line in enumerate(all_lines):
@@ -274,6 +253,7 @@ def log_file_to_list(filename):
 
 
 def print_log_list(a_list, indent=0):
+    """Print list value in step attempt dictionary"""
     spaces = indent * " "
     subspaces = (indent + 2) * " "
     for entry in a_list:
@@ -290,6 +270,7 @@ def print_log_list(a_list, indent=0):
 
 
 def print_log_dict(a_dict, indent=0):
+    """Print dictionary value in step attempt dictionary"""
     spaces = indent * " "
     for key in a_dict:
         if type(a_dict[key]) is list:
@@ -308,9 +289,8 @@ def print_log_dict(a_dict, indent=0):
 
 def print_log(log, indent=0):
     """
-    This function prints the list of entries from a log file.
+    Print the entries entries from a log file list of step attempts.
     """
-
     spaces = indent * " "
     for entry in log:
         print(f"{spaces}{{")
@@ -332,7 +312,7 @@ def print_log(log, indent=0):
 
 def get_history(log, key, step_status=None, time_range=None, step_range=None):
     """
-    This function extracts the step/time series of the requested value.
+    Extract the step/time series of the requested value.
     """
 
     steps = []
