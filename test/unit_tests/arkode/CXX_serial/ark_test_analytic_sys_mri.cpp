@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
 
   // Initial problem output
   cout << "\nAnalytical ODE test problem:\n";
-  cout << "   lambda  = " << lambda << "\n";
+  cout << "   lambda = " << lambda << "\n";
   cout << "   reltol = " << reltol << "\n";
   cout << "   abstol = " << abstol << "\n\n";
   if (fixedpoint) { cout << "   Fixed-point nonlinear solver\n"; }

@@ -430,8 +430,8 @@ typedef struct CVodeMemRec
   sunrealtype cv_acnrmS;       /* | acorS |                                   */
   sunbooleantype cv_acnrmScur; /* is | acorS | current?                       */
   sunrealtype cv_acnrmQS;      /* | acorQS |                                  */
-  sunrealtype cv_nlscoef; /* coefficient in nonlinear convergence test    */
-  int* cv_ncfS1;          /* Array of Ns local counters for conv.
+  sunrealtype cv_nlscoef;      /* coefficient in nonlinear convergence test   */
+  int* cv_ncfS1;               /* Array of Ns local counters for conv.
                                 * failures (used in CVStep for STAGGERED1)    */
 
   /*------

@@ -90,7 +90,7 @@ int main(void)
 
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
-  printf("    lambda = %" GSYM "\n", lambda);
+  printf("   lambda = %" GSYM "\n", lambda);
   printf("   reltol = %.1" ESYM "\n", reltol);
   printf("   abstol = %.1" ESYM "\n\n", abstol);
 

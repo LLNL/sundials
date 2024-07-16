@@ -97,7 +97,7 @@ int main()
 
   // Initial problem output
   cout << "\nAnalytical ODE test problem:\n";
-  cout << "    lambda = " << lambda << "\n";
+  cout << "   lambda = " << lambda << "\n";
   cout << "   reltol = " << reltol << "\n";
   cout << "   abstol = " << abstol << "\n\n";
 

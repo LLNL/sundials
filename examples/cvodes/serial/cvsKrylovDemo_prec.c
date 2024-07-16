@@ -160,7 +160,7 @@
 /* Spgmr/CVLS Constants */
 
 #define MAXL  0    /* => use default = MIN(NEQ, 5)            */
-#define DEALT ZERO /* => use default = 0.05                   */
+#define DELTA ZERO /* => use default = 0.05                   */
 
 /* Output Constants */
 
@@ -309,7 +309,7 @@ int main(void)
           return (1);
         }
 
-        retval = CVodeSetEpsLin(cvode_mem, DEALT);
+        retval = CVodeSetEpsLin(cvode_mem, DELTA);
         if (check_retval(&retval, "CVodeSetEpsLin", 1)) { return (1); }
 
         retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
