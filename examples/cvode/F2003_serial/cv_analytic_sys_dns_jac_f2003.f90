@@ -22,8 +22,8 @@
 !  A = [ lambda/4 + 21/40 | lambda/4 + 1/40 | lambda/4 - 11/40 ]
 !      [ lambda/2 + 1/20  | lambda/2 + 1/20 | lambda/2 - 1/20  ]
 !
-!      [  1 -1 1 ]     [ -1/2   0     0   ]      [ 5/4 1/4 -3/4 ]
-!  V = [ -1  2 1 ] D = [   0  -1/10   0   ] Vi = [ 1/2 1/2 -1/2 ]
+!      [  1 -1 1 ]     [ -1/2   0     0    ]      [ 5/4 1/4 -3/4 ]
+!  V = [ -1  2 1 ] D = [   0  -1/10   0    ] Vi = [ 1/2 1/2 -1/2 ]
 !      [  0 -1 2 ]     [   0    0   lambda ]      [ 1/4 1/4  1/4 ]
 !
 ! and lambda is a large negative number. The analytical solution to
