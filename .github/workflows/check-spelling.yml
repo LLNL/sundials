@@ -3,7 +3,6 @@ name: Checks - spelling
 on:
   pull_request:
   workflow_dispatch:
-  push:
 
 jobs:
   spelling_check:
