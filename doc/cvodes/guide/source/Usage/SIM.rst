@@ -443,7 +443,7 @@ makes no sense (and is overly costly) after ``y[i]`` is below some noise level. 
 ``abstol`` (if scalar) or ``abstol[i]`` (if a vector) needs to be set to that noise level. If the different
 components have different noise levels, then ``abstol`` should be a vector. See the example  ``cvsRoberts_dns``
 in the CVODES package, and the discussion of it in the CVODES Examples document
-:cite:p:`cvodes_ex`. In that problem, the three components vary betwen 0 and 1,
+:cite:p:`cvodes_ex`. In that problem, the three components vary between 0 and 1,
 and have different noise levels; hence the ``abstol`` vector. It is impossible to give any
 general advice on ``abstol`` values, because the appropriate noise levels are completely
 problem-dependent. The user or modeler hopefully has some idea as to what those
@@ -772,7 +772,7 @@ rootfinding.
 
       In the ``CV_ONE_STEP`` mode, ``tout`` is used only on the first call,  and only to get the direction and a rough scale of the independent variable.
 
-      If a stop time is enabled (through a call to ``CVodeSetStopTime``), then  ``CVode`` returns the solution at ``tstop``. Once the integrator returns  at a stop time, any future testing for ``tstop`` is disabled (and can be  reenabled only though a new call to ``CVodeSetStopTime``).
+      If a stop time is enabled (through a call to ``CVodeSetStopTime``), then  ``CVode`` returns the solution at ``tstop``. Once the integrator returns  at a stop time, any future testing for ``tstop`` is disabled (and can be  re-enabled only though a new call to ``CVodeSetStopTime``).
 
       All failure return values are negative and so the test ``flag < 0``  will trap all ``CVode`` failures.
 
@@ -914,7 +914,7 @@ Main solver optional input functions
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
-     * ``nst`` -- number of successful steps inbetween calls to the monitor function 0 by default;    a 0 input will turn off monitoring.
+     * ``nst`` -- number of successful steps in between calls to the monitor function 0 by default;    a 0 input will turn off monitoring.
 
    **Return value:**
      * ``CV_SUCCESS`` -- The optional value has been successfully set.
@@ -1056,7 +1056,7 @@ Main solver optional input functions
    **Notes:**
       The default, if this routine is not called, is that no stop time is imposed.
 
-      Once the integrator returns at a stop time, any future testing for ``tstop``  is disabled (and can be reenabled only though a new call to ``CVodeSetStopTime``).
+      Once the integrator returns at a stop time, any future testing for ``tstop``  is disabled (and can be re-enabled only though a new call to ``CVodeSetStopTime``).
 
       A stop time not reached before a call to :c:func:`CVodeReInit` will
       remain active but can be disabled by calling :c:func:`CVodeClearStopTime`.
@@ -1089,7 +1089,7 @@ Main solver optional input functions
       * ``CV_MEM_NULL`` if the CVODES memory is ``NULL``
 
    **Notes:**
-      The stop time can be reenabled though a new call to
+      The stop time can be re-enabled though a new call to
       :c:func:`CVodeSetStopTime`.
 
    .. versionadded:: 6.5.1
@@ -2627,7 +2627,7 @@ described next.
 
       The values returned in ``ele`` are valid only if :c:func:`CVode` returned  a non-negative value.
 
-      The ``ele`` vector, togther with the ``eweight`` vector from :c:func:`CVodeGetErrWeights`, can be used to determine how the various  components of the system contributed to the estimated local error  test.  Specifically, that error test uses the RMS norm of a vector  whose components are the products of the components of these two vectors.  Thus, for example, if there were recent error test failures, the components  causing the failures are those with largest values for the products,  denoted loosely as ``eweight[i]*ele[i]``.
+      The ``ele`` vector, together with the ``eweight`` vector from :c:func:`CVodeGetErrWeights`, can be used to determine how the various  components of the system contributed to the estimated local error  test.  Specifically, that error test uses the RMS norm of a vector  whose components are the products of the components of these two vectors.  Thus, for example, if there were recent error test failures, the components  causing the failures are those with largest values for the products,  denoted loosely as ``eweight[i]*ele[i]``.
 
 
 
@@ -3136,7 +3136,7 @@ solver, a suffix (for Linear Solver) has been added here (e.g. ``lenrwLS``).
      * ``leniwLS`` -- the number of integer values in the CVDIAG workspace.
 
    **Return value:**
-     * ``CVDIAG_SUCCESS`` -- The optional output valus have been successfully set.
+     * ``CVDIAG_SUCCESS`` -- The optional output values have been successfully set.
      * ``CVDIAG_MEM_NULL`` -- The ``cvode_mem`` pointer is ``NULL``.
      * ``CVDIAG_LMEM_NULL`` -- The CVDIAG linear solver has not been initialized.
 
@@ -3223,7 +3223,7 @@ known, simply make that location a value of tout. To stop when the
 location of the discontinuity is determined by the solution, use the
 rootfinding feature. In either case, it is critical that the RHS
 function *not* incorporate the discontinuity, but rather have a smooth
-extention over the discontinuity, so that the step across it (and
+extension over the discontinuity, so that the step across it (and
 subsequent rootfinding, if used) can be done efficiently. Then use a
 switch within the RHS function (communicated through ``user_data``) that can be
 flipped between the stopping of the integration and the restart, so that
@@ -3382,7 +3382,7 @@ These weights will be used in place of those defined by Eq.
 
    .. warning::
 
-      The error weight vector must have all components positive. It is the user's responsiblity to perform this test and return -1 if it is not satisfied.
+      The error weight vector must have all components positive. It is the user's responsibility to perform this test and return -1 if it is not satisfied.
 
 
 .. _CVODES.Usage.SIM.user_supplied.rootFn:
@@ -3405,7 +3405,7 @@ follows:
       * ``user_data`` a pointer to user data, the same as the ``user_data`` parameter passed to :c:func:`CVodeSetUserData`.
 
    **Return value:**
-      A ``CVRootFn`` should return 0 if successful or a non-zero value if an error occured (in which case the integration is haled and ``CVode`` returns ``CV_RTFUNC_FAIL``.
+      A ``CVRootFn`` should return 0 if successful or a non-zero value if an error occurred (in which case the integration is haled and ``CVode`` returns ``CV_RTFUNC_FAIL``.
 
    **Notes:**
       Allocation of memory for ``gout`` is automatically handled within CVODES.
@@ -3428,7 +3428,7 @@ user-defined projection operation the projection function must have type
       * ``t`` -- the current value of the independent variable.
       * ``ycur`` -- the current value of the dependent variable vector :math:`y(t)`.
       * ``corr`` -- the correction, :math:`c`, to the dependent variable vector so that :math:`y(t) + c` satisfies the constraint equation.
-      * ``epsProj`` -- the tolerance to use in the nonlinear solver stopping test when solving the nonlinear constrainted least squares problem.
+      * ``epsProj`` -- the tolerance to use in the nonlinear solver stopping test when solving the nonlinear constrained least squares problem.
       * ``err`` -- is on input the current error estimate, if error projection is enabled (the default) then this should be overwritten with the projected error on output. If error projection is disabled then ``err`` is ``NULL``.
       * ``user_data`` a pointer to user data, the same as the ``user_data`` parameter passed to :c:func:`CVodeSetUserData`.
 
@@ -3855,7 +3855,7 @@ are in bold.
 #. **Set optional inputs for quadrature integration**
 
    Call :c:func:`CVodeSetQuadErrCon` to indicate whether or not quadrature
-   variables shoule be used in the step size control mechanism, and to specify
+   variables should be used in the step size control mechanism, and to specify
    the integration tolerances for quadrature variables. See
    :numref:`CVODES.Usage.purequad.optional_inputs` for details.
 

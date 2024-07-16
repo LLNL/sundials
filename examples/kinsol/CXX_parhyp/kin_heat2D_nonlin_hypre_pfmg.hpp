@@ -126,7 +126,7 @@ struct UserData
   sunrealtype* Ssend;
   sunrealtype* Nsend;
 
-  // Send requests for neighor exchange
+  // Send requests for neighbor exchange
   MPI_Request reqSW;
   MPI_Request reqSE;
   MPI_Request reqSS;
@@ -135,7 +135,7 @@ struct UserData
   // Fixed Point Solver settings
   sunrealtype rtol;    // relative tolerance
   int maa;             // m for Anderson Acceleration
-  sunrealtype damping; // daming for Anderson Acceleration
+  sunrealtype damping; // damping for Anderson Acceleration
   int orthaa;          // orthogonalization routine for AA
   int maxits;          // max number of fixed point iterations
 
@@ -184,7 +184,7 @@ struct UserData
                          //   3 - nonsymmetric R/B Gauss-Seidel
   HYPRE_Int pfmg_nrelax; // number of pre and post relaxation sweeps (2)
 
-  // Ouput variables
+  // Output variables
   int output;    // output level
   ofstream uout; // output file stream
   ofstream rout; // output residual file stream

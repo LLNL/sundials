@@ -100,7 +100,7 @@ static int Jf(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
 /* function for setting initial condition */
 static int SetIC(N_Vector y, void* user_data);
 
-/* function for checking retrun values */
+/* function for checking return values */
 static int check_retval(void* flagvalue, const char* funcname, int opt);
 
 /* Main Program */
@@ -222,7 +222,7 @@ int main(int argc, char* argv[])
   if (check_retval((void*)LS, "SUNLinSol_Band", 0)) { return 1; }
 
   /* Initialize the fast integrator. Specify the implicit fast right-hand side
-     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, and the
+     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the initial time T0, and the
      initial dependent variable vector y. */
   inner_arkode_mem = ARKStepCreate(NULL, ff, T0, y, ctx);
   if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
@@ -259,7 +259,7 @@ int main(int argc, char* argv[])
    */
 
   /* Initialize the slow integrator. Specify the explicit slow right-hand side
-     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, the
+     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the initial time T0, the
      initial dependent variable vector y, and the fast integrator. */
   arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
   if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }

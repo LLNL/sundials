@@ -33,7 +33,7 @@ typedef struct
   SUNNonlinearSolver local_nls;
 }* TaskLocalNewton_Content;
 
-/* Content accessor macors */
+/* Content accessor macros */
 #define GET_NLS_CONTENT(NLS) ((TaskLocalNewton_Content)(NLS->content))
 #define LOCAL_NLS(NLS)       (GET_NLS_CONTENT(NLS)->local_nls)
 

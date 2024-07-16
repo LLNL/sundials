@@ -276,7 +276,7 @@ int main(void)
   retval = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);
   if (check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1)) { return (1); }
 
-  /* Attach the linear sovler */
+  /* Attach the linear solver */
   retval = IDASetLinearSolver(mem, LS, NULL);
   if (check_retval(&retval, "IDASetLinearSolver", 1)) { return (1); }
 
@@ -471,7 +471,7 @@ static int Precond(sunrealtype tt, N_Vector cc, N_Vector cp, N_Vector rr,
 
 static int PSolve(sunrealtype tt, N_Vector cc, N_Vector cp, N_Vector rr,
                   N_Vector rvec, N_Vector zvec, sunrealtype cj,
-                  sunrealtype dalta, void* user_data)
+                  sunrealtype delta, void* user_data)
 {
   sunrealtype **Pxy, *zxy;
   sunindextype* pivot;

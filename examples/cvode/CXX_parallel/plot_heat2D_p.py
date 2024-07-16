@@ -38,7 +38,7 @@ with open(infofile) as fn:
         # split line into list
         text = shlex.split(line)
 
-        # x-direction upper domian bound
+        # x-direction upper domain bound
         if "xu" in line:
             xu = float(text[1])
             continue

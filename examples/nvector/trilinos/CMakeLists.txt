@@ -71,7 +71,7 @@ foreach(example_tuple ${nvector_trilinos_examples})
     # example source files
     add_executable(${example} ${example}.cpp)
 
-    # link vector test utilties
+    # link vector test utilities
     target_link_libraries(${example} PRIVATE test_nvector_obj)
     if(Trilinos_MPI)
       target_link_libraries(${example} PRIVATE test_nvectormpi_obj)

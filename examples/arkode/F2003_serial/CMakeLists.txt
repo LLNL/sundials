@@ -224,7 +224,7 @@ foreach(example_tuple ${FARKODE_tests})
 
 endforeach(example_tuple ${FARKODE_tests})
 
-# create Makfile and CMakeLists.txt for examples
+# create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   # Install the extra files

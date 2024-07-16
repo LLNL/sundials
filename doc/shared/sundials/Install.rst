@@ -31,7 +31,7 @@ by cloning the `SUNDIALS GitHub repository <https://github.com/LLNL/sundials>`_
 SUNDIALS release compressed archives (``.tar.gz``) from  the SUNDIALS
 `website <https://computing.llnl.gov/projects/sundials/sundials-software>`_.
 
-The compressed archives allow for downloading of indvidual SUNDIALS packages.
+The compressed archives allow for downloading of individual SUNDIALS packages.
 The name of the distribution archive is of the form
 ``SOLVER-7.1.0.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
 ``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``7.1.0``
@@ -187,7 +187,7 @@ Using CMake with the ``cmake-gui`` GUI follows a similar process:
 
 #. The first time you click ``Configure``, make sure to pick the
    appropriate generator (the following will assume generation of Unix
-   Makfiles).
+   Makefiles).
 
 #. New values are highlighted in red
 
@@ -591,7 +591,7 @@ illustration only.
    Default: ``OFF``
 
    .. warning:: There is a known issue with MSYS/gfortran and SUNDIALS shared libraries
-      that causes linking the Fortran interfaces to fail when buidling SUNDIALS. For
+      that causes linking the Fortran interfaces to fail when building SUNDIALS. For
       now the work around is to only build with static libraries when using MSYS with
       gfortran on Windows.
 
@@ -612,7 +612,7 @@ illustration only.
 
 .. cmakeoption:: SUNDIALS_BUILD_WITH_MONITORING
 
-   Build SUNDIALS with capabilties for fine-grained monitoring of solver progress
+   Build SUNDIALS with capabilities for fine-grained monitoring of solver progress
    and statistics. This is primarily useful for debugging.
 
    Default: OFF
@@ -624,7 +624,7 @@ illustration only.
 
 .. cmakeoption:: SUNDIALS_BUILD_WITH_PROFILING
 
-   Build SUNDIALS with capabilties for fine-grained profiling.
+   Build SUNDIALS with capabilities for fine-grained profiling.
    This requires POSIX timers or the Windows ``profileapi.h`` timers.
 
    Default: OFF
@@ -669,8 +669,8 @@ illustration only.
 
 .. cmakeoption:: SUNDIALS_GINKGO_BACKENDS
 
-   Semi-colon separated list of Ginkgo target architecutres/executors to build for.
-   Options currenty supported are REF (the Ginkgo reference executor), OMP, CUDA, HIP, and SYCL.
+   Semi-colon separated list of Ginkgo target architectures/executors to build for.
+   Options currently supported are REF (the Ginkgo reference executor), OMP, CUDA, HIP, and SYCL.
 
    Default: "REF;OMP"
 
@@ -901,7 +901,7 @@ illustration only.
 
 .. cmakeoption:: PETSC_INCLUDES
 
-   Semi-colon separated list of PETSc include directroies. Unless provided by
+   Semi-colon separated list of PETSc include directories. Unless provided by
    the user, this is autopopulated based on the PETSc installation found in
    ``PETSC_DIR``.
 
@@ -935,7 +935,7 @@ illustration only.
 
    Default: ``OFF``
 
-   .. note:: See additional information on building wtih
+   .. note:: See additional information on building with
              SuperLU_DIST enabled in :numref:`Installation.CMake.ExternalLibraries`.
 
 .. cmakeoption:: SUPERLUDIST_DIR
@@ -1264,7 +1264,7 @@ CUDA (for NVIDIA devices), HIP (for AMD devices) and SYCL/DPC++ (for Intel devic
 supported hardware). To enable Ginkgo in SUNDIALS, set the :cmakeop:`ENABLE_GINKGO` to ``ON``
 and provide the path to the root of the Ginkgo installation in :cmakeop:`Ginkgo_DIR`.
 Additionally, :cmakeop:`SUNDIALS_GINKGO_BACKENDS` must be set to a list of Ginkgo target
-architecutres/executors. E.g.,
+architectures/executors. E.g.,
 
 .. code-block:: bash
 

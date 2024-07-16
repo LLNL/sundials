@@ -516,7 +516,7 @@ int KINGetNumLinIters(void* kinmem, long int* nliters)
 }
 
 /*------------------------------------------------------------------
-  KINGetNumLinConvFails returns the total numbe of convergence
+  KINGetNumLinConvFails returns the total number of convergence
   failures
   ------------------------------------------------------------------*/
 int KINGetNumLinConvFails(void* kinmem, long int* nlcfails)
@@ -792,7 +792,7 @@ int kinLsDenseDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, KINMem kin_mem,
   /* Save pointer to the array in tmp2 */
   tmp2_data = N_VGetArrayPointer(tmp2);
 
-  /* Rename work vectors for readibility */
+  /* Rename work vectors for readability */
   ftemp  = tmp1;
   jthCol = tmp2;
 
@@ -1076,7 +1076,7 @@ int kinLsInitialize(KINMem kin_mem)
     return (KINLS_ILL_INPUT);
   }
 
-  /** error-checking is complete, begin initializtions **/
+  /** error-checking is complete, begin initializations **/
 
   /* Initialize counters */
   kinLsInitializeCounters(kinls_mem);

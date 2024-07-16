@@ -183,7 +183,7 @@ while [[ $# -gt 0 ]]; do
                     testtype=CUSTOM
                     ;;
                 *)
-                    echo "ERROR: Invaid test type $testtype"
+                    echo "ERROR: Invalid test type $testtype"
                     help
                     exit 1;;
             esac
@@ -213,7 +213,7 @@ while [[ $# -gt 0 ]]; do
                 sundials|arkode|cvode|cvodes|ida|idas|kinsol|all)
                 ;;
                 *)
-                    echo "ERROR: Invaid tarball option $tarball"
+                    echo "ERROR: Invalid tarball option $tarball"
                     help
                     exit 1;;
             esac
@@ -232,7 +232,7 @@ while [[ $# -gt 0 ]]; do
                     sunrealtype=extended
                     ;;
                 *)
-                    echo "ERROR: Invaid real type option $sunrealtype"
+                    echo "ERROR: Invalid real type option $sunrealtype"
                     help
                     exit 1;;
             esac
@@ -244,7 +244,7 @@ while [[ $# -gt 0 ]]; do
                 32|64)
                 ;;
                 *)
-                    echo "ERROR: Invaid index size option $indexsize"
+                    echo "ERROR: Invalid index size option $indexsize"
                     help
                     exit 1;;
             esac
@@ -263,7 +263,7 @@ while [[ $# -gt 0 ]]; do
                     libtype=both
                     ;;
                 *)
-                    echo "ERROR: Invaid library type option $libtype"
+                    echo "ERROR: Invalid library type option $libtype"
                     help
                     exit 1;;
             esac
@@ -286,7 +286,7 @@ while [[ $# -gt 0 ]]; do
                     suntesttype=NONE
                     ;;
                 *)
-                    echo "ERROR: Invaid SUNDIALS test type option $suntesttype"
+                    echo "ERROR: Invalid SUNDIALS test type option $suntesttype"
                     help
                     exit 1;;
             esac
@@ -317,7 +317,7 @@ while [[ $# -gt 0 ]]; do
                     phase=TEST_INSTALL_ALL
                     ;;
                 *)
-                    echo "ERROR: Invaid phase option $phase"
+                    echo "ERROR: Invalid phase option $phase"
                     help
                     exit 1;;
             esac

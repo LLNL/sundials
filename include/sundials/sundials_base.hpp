@@ -90,7 +90,7 @@ public:
     return *this;
   }
 
-  // We have a pure virtual destructor to make this an asbtract class
+  // We have a pure virtual destructor to make this an abstract class
   virtual ~BaseObject() = 0;
 
   // Getters

@@ -291,7 +291,7 @@ man_pages = [
 texinfo_documents = [
   ('index', 'CVODE', u'CVODE Documentation',
    u'Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward', 'CVODE',
-   'Time integration package for multi-rate systems of ordinary differntial equations.',
+   'Time integration package for multi-rate systems of ordinary differential equations.',
    'Miscellaneous'),
 ]
 

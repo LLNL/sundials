@@ -1789,7 +1789,7 @@ update their code to set the corresponding `ops` structure member,
 `matvecsetup`, to `NULL`.
 
 The generic SUNMatrix API now defines error codes to be returned by SUNMatrix
-operations. Operations which return an integer flag indiciating success/failure
+operations. Operations which return an integer flag indicating success/failure
 may return different values than previously.
 
 A new SUNMatrix (and SUNLinearSolver) implementation was added to facilitate
@@ -1901,7 +1901,7 @@ function signatures have been changed including MRIStepCreate which now
 takes an ARKStep memory structure for the fast integration as an input.
 
 The reinitialization functions `ERKStepReInit`, `ARKStepReInit`, and
-`MRIStepReInit` have been updated to retain the minimum and maxiumum step
+`MRIStepReInit` have been updated to retain the minimum and maximum step
 size values from before reinitialization rather than resetting them to the
 default values.
 
@@ -1926,7 +1926,7 @@ being built.
 
 Fixed a memory leak in the PETSc `N_Vector` clone function.
 
-Fixed a memeory leak in the ARKODE, CVODE, and IDA F77 interfaces when not using
+Fixed a memory leak in the ARKODE, CVODE, and IDA F77 interfaces when not using
 the default nonlinear solver.
 
 Fixed a bug in the ARKStep time-stepping module in ARKODE that would result in
@@ -2638,7 +2638,7 @@ with sparse direct solvers.
 
 #### KINSOL
 
-The Picard iteration return was chanegd to always return the newest iterate upon
+The Picard iteration return was changed to always return the newest iterate upon
 success.
 
 A minor bug in the line search was fixed to prevent an infinite loop when the

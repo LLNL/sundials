@@ -153,7 +153,7 @@ int IDAAdjInit(void* ida_mem, long int steps, int interp)
   IDAADJ_mem->ia_interpType = interp;
   IDAADJ_mem->ia_nsteps     = steps;
 
-  /* Last index used in IDAAfindIndex, initailize to invalid value */
+  /* Last index used in IDAAfindIndex, initialize to invalid value */
   IDAADJ_mem->ia_ilast = -1;
 
   /* Allocate space for the array of Data Point structures. */
@@ -594,7 +594,7 @@ int IDASolveF(void* ida_mem, sunrealtype tout, sunrealtype* tret, N_Vector yret,
                               dt_mem[IDA_mem->ida_nst % IDAADJ_mem->ia_nsteps]);
     }
 
-    /* Set t1 field of the current ckeck point structure
+    /* Set t1 field of the current check point structure
        for the case in which there will be no future
        check points */
     IDAADJ_mem->ck_mem->ck_t1 = IDA_mem->ida_tn;
@@ -1415,7 +1415,7 @@ int IDACalcICB(void* ida_mem, int which, sunrealtype tout1, N_Vector yy0,
   ida_memB = (void*)IDAB_mem->IDA_mem;
 
   /* The wrapper for user supplied res function requires ia_bckpbCrt from
-     IDAAdjMem to be set to curent problem. */
+     IDAAdjMem to be set to current problem. */
   IDAADJ_mem->ia_bckpbCrt = IDAB_mem;
 
   /* Save (y, y') in yyTmp and ypTmp for use in the res wrapper.*/
@@ -1515,7 +1515,7 @@ int IDACalcICBS(void* ida_mem, int which, sunrealtype tout1, N_Vector yy0,
   }
 
   /* The wrapper for user supplied res function requires ia_bckpbCrt from
-     IDAAdjMem to be set to curent problem. */
+     IDAAdjMem to be set to current problem. */
   IDAADJ_mem->ia_bckpbCrt = IDAB_mem;
 
   /* Save (y, y') and (y_p, y'_p) in yyTmp, ypTmp and yySTmp, ypSTmp.The wrapper
@@ -1815,7 +1815,7 @@ int IDASolveB(void* ida_mem, sunrealtype tBout, int itaskB)
     /* If in IDA_ONE_STEP mode, return now (flag = IDA_SUCCESS) */
     if (itaskB == IDA_ONE_STEP) { break; }
 
-    /* If all backward problems have succesfully reached tBout, return now */
+    /* If all backward problems have successfully reached tBout, return now */
     reachedTBout = SUNTRUE;
 
     tmp_IDAB_mem = IDAB_mem;
@@ -3452,7 +3452,7 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, sunrealtype t, N_Vector yy,
      The formula used for p'(t) is:
        - p'(t) = f[t0,t1] + psi_1'(t)*f[t0,t1,t2] + ... + psi_n'(t)*f[t0,t1,...,tn]
 
-     We reccursively compute psi_k'(t) from:
+     We recursively compute psi_k'(t) from:
        - psi_k'(t) = (t-tk)*psi_{k-1}'(t) + psi_{k-1}
 
      psi_k is rescaled with 1/delt each time is computed, because the Newton DDs from Y were
@@ -3586,7 +3586,7 @@ static int IDAAGettnSolutionYpS(IDAMem IDA_mem, N_Vector* ypS)
 /*
  * IDAAfindIndex
  *
- * Finds the index in the array of data point strctures such that
+ * Finds the index in the array of data point structures such that
  *     dt_mem[indx-1].t <= t < dt_mem[indx].t
  * If indx is changed from the previous invocation, then newpoint = SUNTRUE
  *

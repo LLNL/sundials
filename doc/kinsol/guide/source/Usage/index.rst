@@ -1030,7 +1030,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
 .. c:function:: int KINSetDampingAA(void * kin_mem, sunrealtype beta)
 
    The function :c:func:`KINSetDampingAA` specifies the value of the Anderson
-   acceleration damping paramter.
+   acceleration damping parameter.
 
    **Arguments:**
      * ``kin_mem`` -- pointer to the KINSOL memory block.
@@ -1946,7 +1946,7 @@ supplied, the default is a difference quotient approximation to these products.
    This function computes the product :math:`J v` (or an approximation to it).
 
    **Arguments:**
-      * ``v`` -- is the vector by which the Jacobian must be multplied to the right.
+      * ``v`` -- is the vector by which the Jacobian must be multiplied to the right.
       * ``Jv`` -- is the computed output vector.
       * ``u`` -- is the current value of the dependent variable vector.
       * ``user_data`` -- is a pointer to user data, the same as the ``user_data``
@@ -1999,7 +1999,7 @@ of type :c:type:`KINLsPrecSolveFn`, defined as follows:
       * ``uscale`` -- is a vector containing diagonal elements of the scaling matrix ``u``
       * ``fval`` -- is the vector :math:`F(u)` evaluated at ``u``
       * ``fscale`` -- is a vector containing diagonal elements of the scaling matrix for ``fval``
-      * ``v`` -- on inpuut, ``v`` is set to the right-hand side vector of the linear system, ``r``. On    output, ``v`` must contain the solution ``z`` of the linear system :math:`Pz=r`
+      * ``v`` -- on input, ``v`` is set to the right-hand side vector of the linear system, ``r``. On    output, ``v`` must contain the solution ``z`` of the linear system :math:`Pz=r`
       * ``user_data`` -- is a pointer to user data, the same as the ``user_data``
         parameter passed to :c:func:`KINSetUserData`.
 
@@ -2131,7 +2131,7 @@ communication.
 
    **Return value:**
       An :c:type:`KINBBDLocalFn` function type should return 0 to indicate success,
-      or non-zero if an error occured.
+      or non-zero if an error occurred.
 
    **Notes:**
       This function must assume that all inter-processor communication of data
@@ -2155,7 +2155,7 @@ communication.
 
    **Return value:**
       An :c:type:`KINBBDLocalFn` function type should return 0 to indicate success,
-      or non-zero if an error occured.
+      or non-zero if an error occurred.
 
    **Notes:**
       The ``Gcomm`` function is expected to save communicated data in space defined

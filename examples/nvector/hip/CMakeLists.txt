@@ -57,7 +57,7 @@ foreach(example_tuple ${nvector_hip_examples})
     # example source files
     add_executable(${example_target} ${example})
 
-    # link vector test utilties
+    # link vector test utilities
     target_link_libraries(${example_target} PRIVATE test_nvector_obj)
 
     # folder to organize targets in an IDE
