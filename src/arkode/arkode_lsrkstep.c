@@ -147,15 +147,8 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
     return (NULL);
   }
 
-  /* Specify Interpolation Type */
-  retval = ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Unable to specify interpolation type");
-    ARKodeFree((void**)&ark_mem);
-    return (NULL);
-  }
+  /* Specify preferred interpolation type */
+  ark_mem->interp_type = ARK_INTERP_LAGRANGE;
 
   return ((void*)ark_mem);
 }

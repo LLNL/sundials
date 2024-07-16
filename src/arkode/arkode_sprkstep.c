@@ -151,7 +151,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
 
   /* SPRKStep uses Lagrange interpolation by default, since Hermite is
      less compatible with these methods. */
-  ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
+  ark_mem->interp_type = ARK_INTERP_LAGRANGE;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
