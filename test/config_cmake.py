@@ -926,6 +926,17 @@ def main():
         dependson="--lapack",
     )
 
+    add_arg(
+        group,
+        "--blas-libs",
+        "BLAS_LIBRARIES",
+        "BLAS_LIBRARIES",
+        None,
+        "STRING",
+        "BLAS libraries",
+        dependson="--lapack",
+    )
+
     # KLU
     group = parser.add_argument_group("KLU Options")
 
