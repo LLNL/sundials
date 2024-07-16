@@ -160,8 +160,8 @@ if(NEED_FORTRAN_NAME_MANGLING)
     list(LENGTH options imax)
     set(iopt 0)
 
-    # We will attempt to successfully generate the "ctest1" executable as long as
-    # there still are entries in the "options" list
+    # We will attempt to successfully generate the "ctest1" executable as long
+    # as there still are entries in the "options" list
     while(${iopt} LESS ${imax})
       # Get the current list entry (current scheme)
       list(GET options ${iopt} opt)

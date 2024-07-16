@@ -120,7 +120,7 @@
 #define BB    ONE                /* BB = b */
 #define DPREY ONE
 #define DPRED SUN_RCONST(0.5)
-#define ALPHA  ONE
+#define ALPHA ONE
 #define NP    3
 #define NS    (2 * NP)
 

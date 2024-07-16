@@ -1243,7 +1243,8 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
 #define MSGAM_BAD_TBOUT                                                  \
   "The final time tBout is outside the interval over which the forward " \
   "problem was solved."
-#define MSGAM_BACK_ERROR  "Error occurred while integrating backward problem # %d"
+#define MSGAM_BACK_ERROR \
+  "Error occurred while integrating backward problem # %d"
 #define MSGAM_BAD_TINTERP "Bad t = %g for interpolation."
 #define MSGAM_BAD_T       "Bad t for interpolation."
 #define MSGAM_WRONG_INTERP \

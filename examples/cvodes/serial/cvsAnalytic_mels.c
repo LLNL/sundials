@@ -75,7 +75,7 @@ int main(void)
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
   sunrealtype reltol = SUN_RCONST(1.0e-6); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-10);
-  sunrealtype lambda  = SUN_RCONST(-100.0); /* stiffness parameter */
+  sunrealtype lambda = SUN_RCONST(-100.0); /* stiffness parameter */
 
   /* general problem variables */
   int retval;                /* reusable error-checking flag */
@@ -200,8 +200,8 @@ int main(void)
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype lambda = rdata[0];       /* set shortcut for stiffness parameter */
-  sunrealtype u     = NV_Ith_S(y, 0); /* access current solution value */
+  sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter */
+  sunrealtype u      = NV_Ith_S(y, 0); /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
   NV_Ith_S(ydot, 0) = lambda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
@@ -260,7 +260,7 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
   }
 
   /* extract stiffness parameter from user_data */
-  rdata = (sunrealtype*)user_data;
+  rdata  = (sunrealtype*)user_data;
   lambda = rdata[0];
 
   /* perform linear solve: (1-gamma*lambda)*x = b */

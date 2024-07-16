@@ -137,7 +137,7 @@
 #define BB    ONE                /* BB = b */
 #define DPREY ONE
 #define DPRED SUN_RCONST(0.5)
-#define ALPHA  ONE
+#define ALPHA ONE
 #define NP    3
 #define NS    (2 * NP)
 
@@ -167,7 +167,7 @@
 
 /* Spgmr Constants */
 
-#define MAXL 0    /* => use default = MIN(NEQ, 5)            */
+#define MAXL  0    /* => use default = MIN(NEQ, 5)            */
 #define DELTA ZERO /* => use default = 0.05                   */
 
 /* Output Constants */

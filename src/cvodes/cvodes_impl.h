@@ -430,8 +430,8 @@ typedef struct CVodeMemRec
   sunrealtype cv_acnrmS;       /* | acorS |                                   */
   sunbooleantype cv_acnrmScur; /* is | acorS | current?                       */
   sunrealtype cv_acnrmQS;      /* | acorQS |                                  */
-  sunrealtype cv_nlscoef;      /* coefficient in nonlinear convergence test    */
-  int* cv_ncfS1;               /* Array of Ns local counters for conv.
+  sunrealtype cv_nlscoef; /* coefficient in nonlinear convergence test    */
+  int* cv_ncfS1;          /* Array of Ns local counters for conv.
                                 * failures (used in CVStep for STAGGERED1)    */
 
   /*------
@@ -1446,7 +1446,8 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
 #define MSGCV_BAD_TBOUT                                                  \
   "The final time tBout is outside the interval over which the forward " \
   "problem was solved."
-#define MSGCV_BACK_ERROR  "Error occurred while integrating backward problem # %d"
+#define MSGCV_BACK_ERROR \
+  "Error occurred while integrating backward problem # %d"
 #define MSGCV_BAD_TINTERP "Bad t = %g for interpolation."
 #define MSGCV_WRONG_INTERP \
   "This function cannot be called for the specified interp type."

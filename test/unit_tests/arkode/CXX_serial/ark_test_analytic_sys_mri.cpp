@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
   sunindextype NEQ   = 3;                  // number of dependent vars.
   sunrealtype reltol = SUN_RCONST(1.0e-6); // tolerances
   sunrealtype abstol = SUN_RCONST(1.0e-10);
-  sunrealtype lambda  = SUN_RCONST(-100.0); // stiffness parameter
+  sunrealtype lambda = SUN_RCONST(-100.0); // stiffness parameter
 
   // general problem variables
   int flag;                       // reusable error-checking flag
