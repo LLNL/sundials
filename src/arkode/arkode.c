@@ -1899,14 +1899,20 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
   /* Create default Hermite interpolation module (if needed) */
   if (ark_mem->interp_type != ARK_INTERP_NONE && !(ark_mem->interp))
   {
-    ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ark_mem->interp_degree);
+    if (ark_mem->interp_type = ARK_INTERP_LAGRANGE)
+    {
+      ark_mem->interp = arkInterpCreate_Lagrange(ark_mem, ark_mem->interp_degree);
+    }
+    else
+    {
+      ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ark_mem->interp_degree);
+    }
     if (ark_mem->interp == NULL)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to allocate interpolation module");
       return ARK_MEM_FAIL;
     }
-    ark_mem->interp_type = ARK_INTERP_HERMITE;
   }
 
   /* Fill initial interpolation data (if needed) */
