@@ -1,6 +1,12 @@
+###############################################################################
+# Copyright (c) 2022-23, Lawrence Livermore National Security, LLC and RADIUSS
+# project contributors. See the COPYRIGHT file for details.
+#
+# SPDX-License-Identifier: (MIT)
+###############################################################################
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -10,93 +16,88 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
+# DESCRIPTION:
 ###############################################################################
 # General GitLab pipelines configurations for supercomputers and Linux clusters
 # at Lawrence Livermore National Laboratory (LLNL).
+# This entire pipeline is LLNL-specific
+#
+# Important note: This file is a template provided by llnl/radiuss-shared-ci.
+# Remains to set variable values, change the reference to the radiuss-shared-ci
+# repo, opt-in and out optional features. The project can then extend it with
+# additional stages.
+#
+# In addition, each project should copy over and complete:
+# - .gitlab/custom-jobs-and-variables.yml
+# - .gitlab/subscribed-pipelines.yml
+#
+# The jobs should be specified in a file local to the project,
+# - .gitlab/jobs/${CI_MACHINE}.yml
+# or generated (see LLNL/Umpire for an example).
 ###############################################################################
 
-# We define the following GitLab pipeline variables (all of which can be
-# set from the GitLab CI "run pipeline" UI):
-#
-# GIT_SUBMODULE_STRATEGY:
-# Tells Gitlab to recursively update the submodules when cloning.
-#
-# ALLOC_NAME:
-# Allocation unique name.
-#
-# BUILD_ROOT:
-# The path to the shared resources between all jobs. The BUILD_ROOT is unique to
-# the pipeline, preventing any form of concurrency with other pipelines. This
-# also means that the BUILD_ROOT directory will never be cleaned.
-#
-# DEFAULT_TIME:
-# Default time to let the jobs run will be 30 minutes.
-#
-# BUILD_JOBS:
-# Number of threads to use for builds.
-#
-# NCPU:
-# Number of CPUs to alloc.
-#
-# VERBOSE_BUILD:
-# Sets CMAKE_VERBOSE_MAKEFILE to TRUE when "ON".
-#
-# VERBOSE_TEST:
-# Passes --verbose to CTest when "ON".
-#
-# ON_LASSEN:
-# Should the Lassen pipeline run? Set to "ON" or "OFF" to enable/disable.
-#
-# ON_QUARTZ:
-# Should the Quartz pipeline run? Set to  "ON" or "OFF" to enable/disable.
-#
-# SPACK_PREFIX: prefix used for shared spack installation.
-# Usually this a spack version number that matches the version set in the uberenv_config.json file. 
-# Spack installs go in /usr/workspace/sundials/spack_installs/${SPACK_PREFIX}/$(hostname).
-#
-# SHARED_SPACK:
-# If "ON", then a shared spack install that has been pre-configured is utilized.
-# If "OFF", then a new spack instance is created for every build (meaning all TPLs have to be installed).
-# If "UPSTREAM" (the default), then the shared spack is used as an upstream for a build specific spack.
-#
-# BENCHMARK:
-# If "ON", then the SUNDIALS benchmark problems are run and generate profiles.
-#
-# BENCHMARK_NNODES:
-# Number of nodes to use for benchmarks. Default is 4.
-#
-# BENCHMARK_QUEUE:
-# What queue to submit the benchmarks too. Default is pbatch (for Livermore).
-
+# We define the following GitLab pipeline variables:
 variables:
+##### LC GITLAB CONFIGURATION
+# Use an LLNL service user to run CI. This prevents from running pipelines as
+# an actual user.
+  LLNL_SERVICE_USER: ""
+# Use the service user workspace. Solves permission issues, stores everything
+# at the same location whoever triggers a pipeline.
+#  CUSTOM_CI_BUILDS_DIR: ""
+# Tells Gitlab to recursively update the submodules when cloning the project.
   GIT_SUBMODULE_STRATEGY: recursive
-  ALLOC_NAME: ${CI_PROJECT_NAME}_ci_${CI_PIPELINE_ID}
+
+##### PROJECT VARIABLES
+# We build the projects in the CI clone directory.
+# Used in script/gitlab/build_and_test.sh script.
+# TODO: add a clean-up mechanism.
   BUILD_ROOT: ${CI_PROJECT_DIR}
-  DEFAULT_TIME: 30
-  BUILD_JOBS: 32
-  NCPUS: 12
-  VERBOSE_BUILD: "OFF"
-  VERBOSE_TEST: "OFF"
-  ON_LASSEN: "ON"
-  ON_QUARTZ: "ON"
-  ON_CORONA: "ON"
-  SPACK_PREFIX: "v0.19.1"
-  SHARED_SPACK: "UPSTREAM"
-  BENCHMARK: "OFF"
-  BENCHMARK_NNODES: 4
-  BENCHMARK_QUEUE: "pbatch"
 
-# Normally, stages are blocking in Gitlab. However, using the keyword "needs" we
-# can express dependencies between job that break the ordering of stages, in
-# favor of a DAG.
-# In practice q_*, l_* and c_* stages are independently run and start immediately.
+##### SHARED_CI CONFIGURATION
+# Required information about GitHub repository
+  GITHUB_PROJECT_NAME: "sundials"
+  GITHUB_PROJECT_ORG: "LLNL"
+# Set the build-and-test command.
+# Nested variables are allowed and useful to customize the job command. We
+# prevent variable expansion so that you can define them at job level.
+  JOB_CMD:
+    value: ".gitlab/build_and_test.sh"
+    expand: false
+# Override the pattern describing branches that will skip the "draft PR filter
+# test".  Add protected branches here. See default value in
+# preliminary-ignore-draft-pr.yml.
+#  ALWAYS_RUN_PATTERN: ""
 
+# We organize the build-and-test stage with sub-pipelines. Each sub-pipeline
+# corresponds to a test batch on a given machine.
+
+# High level stages
 stages:
-  - q_build_and_test
-  - l_build_and_test
-  - l_build_and_bench
-  - c_build_and_test
+  - prerequisites
+  - build-and-test
 
+# Template for jobs triggering a build-and-test sub-pipeline:
+.build-and-test:
+  stage: build-and-test
+  trigger:
+    include:
+      - local: '.gitlab/custom-jobs-and-variables.yml'
+      - project: 'radiuss/radiuss-shared-ci'
+        ref: 'v2024.04.0'
+        file: 'pipelines/${CI_MACHINE}.yml'
+      # Add your jobs
+      # you can use a local file
+      - local: '.gitlab/jobs/${CI_MACHINE}.yml'
+      # or a file generated in the previous steps
+      # - artifact: '${CI_MACHINE}-jobs.yml'
+      #   job: 'generate-job-file'
+      # (See Umpire CI setup for an example).
+    strategy: depend
+    forward:
+      pipeline_variables: true
+
+#######  CJB: custom job templates from old .gitlab-ci.yml
 # These are also templates (.name) that define project specific build commands.
 # If an allocation exist with the name defined in this pipeline, the job will
 # use it (slurm specific).
@@ -105,32 +106,12 @@ stages:
     - echo ${ALLOC_NAME}
     - srun -p pdebug -N 1 -n ${NCPUS} --interactive -t ${DEFAULT_TIME}
       --job-name=${ALLOC_NAME} .gitlab/build_and_test.sh
+#######  CJB: end custom job templates from old .gitlab-ci.yml
 
-# Corona
-.build_toss_4_x86_64_ib_corona_script:
-  script:
-    - echo ${ALLOC_NAME}
-    - flux alloc -N 1 -t ${DEFAULT_TIME}  .gitlab/build_and_test.sh
-
-# CORAL systems use spectrum LSF instead of SLURM
-.build_blueos_3_ppc64le_ib_script:
-  script:
-    - echo ${ALLOC_NAME}
-    - bsub -q pdebug -J ${ALLOC_NAME} -nnodes 1 -W ${DEFAULT_TIME} -Is .gitlab/build_and_test.sh
-
-# Benchmark job for CORAL systems
-.build_blueos_3_ppc64le_ib_bench:
-  script:
-    - echo ${ALLOC_NAME}
-    - bsub -q ${BENCHMARK_QUEUE} -J ${ALLOC_NAME} -nnodes ${BENCHMARK_NNODES} -W ${DEFAULT_TIME} -Is .gitlab/build_and_bench.sh
-
-# This is where jobs are included.
 include:
-  - project: 'lc-templates/id_tokens'
-    file: 'id_tokens.yml'
-  - local: .gitlab/quartz-templates.yml
-  - local: .gitlab/quartz-jobs.yml
-  - local: .gitlab/lassen-templates.yml
-  - local: .gitlab/lassen-jobs.yml
-  - local: .gitlab/corona-templates.yml
-  - local: .gitlab/corona-jobs.yml
+  # # [Optional] checks preliminary to running the actual CI test
+  # - project: 'radiuss/radiuss-shared-ci'
+  #   ref: 'v2024.04.0'
+  #   file: 'utilities/preliminary-ignore-draft-pr.yml'
+  # pipelines subscribed by the project
+  - local: '.gitlab/subscribed-pipelines.yml'

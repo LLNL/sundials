@@ -1,6 +1,12 @@
+##############################################################################
+# Copyright (c) 2022-24, Lawrence Livermore National Security, LLC and RADIUSS
+# project contributors. See the COPYRIGHT file for details.
+#
+# SPDX-License-Identifier: (MIT)
+##############################################################################
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2021, Lawrence Livermore National Security
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -9,6 +15,20 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
+
+##########################################
+# Overridden shared radiuss-shared-ci jobs
+##########################################
+
+# We duplicate the shared jobs description and add necessary changes for this
+# project. We keep ${PROJECT_<MACHINE>_VARIANTS} and ${PROJECT_<MACHINE>_DEPS}
+# So that the comparison with the original job is easier.
+
+# No overridden jobs so far.
+
+########################
+# Extra jobs
+########################
 
 # ------------------------------------------------------------------------------
 # HIP
@@ -22,7 +42,7 @@ corona_rocmcc_550:
         AMDGPU_TARGET: [gfx906]
   variables:
     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} scheduler=flux +rocm+mpi"
-  extends: .corona_build_and_test
+  extends: [.job_on_corona]
 
 # ------------------------------------------------------------------------------
 # HIP + TPLs
@@ -35,7 +55,7 @@ corona_rocmcc_550_tpls:
         ROCM_VERSION: 5.5.0
   variables:
     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 amdgpu_target=${AMDGPU_TARGET} scheduler=flux +rocm+mpi+magma+raja+kokkos+kokkos-kernels~ginkgo ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^raja+rocm~openmp~examples~exercises amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm~profiling amdgpu_target=${AMDGPU_TARGET} ^hipblas@${ROCM_VERSION} ^hipsparse@${ROCM_VERSION} ^hip@${ROCM_VERSION} ^hsa-rocr-dev@${ROCM_VERSION} ^llvm-amdgpu@${ROCM_VERSION}"
-  extends: .corona_build_and_test
+  extends: [.job_on_corona]
 
 corona_rocmcc_523_tpls:
   parallel:
@@ -45,4 +65,4 @@ corona_rocmcc_523_tpls:
         ROCM_VERSION: 5.2.3
   variables:
     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 amdgpu_target=${AMDGPU_TARGET} scheduler=flux +rocm+mpi+magma+raja+kokkos+kokkos-kernels+ginkgo ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^raja+rocm~openmp~examples~exercises amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm~profiling amdgpu_target=${AMDGPU_TARGET} ^ginkgo+rocm amdgpu_target=${AMDGPU_TARGET} ^hipblas@${ROCM_VERSION} ^hipsparse@${ROCM_VERSION} ^rocrand@${ROCM_VERSION} ^rocthrust@${ROCM_VERSION} ^hip@${ROCM_VERSION} ^hsa-rocr-dev@${ROCM_VERSION} ^llvm-amdgpu@${ROCM_VERSION} ^rocprim@${ROCM_VERSION}"
-  extends: .corona_build_and_test
+  extends: [.job_on_corona]

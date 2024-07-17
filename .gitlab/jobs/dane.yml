@@ -1,0 +1,32 @@
+##############################################################################
+# Copyright (c) 2022-24, Lawrence Livermore National Security, LLC and RADIUSS
+# project contributors. See the COPYRIGHT file for details.
+#
+# SPDX-License-Identifier: (MIT)
+##############################################################################
+# ------------------------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ------------------------------------------------------------------------------
+
+##########################################
+# Overridden shared radiuss-shared-ci jobs
+##########################################
+
+# We duplicate the shared jobs description and add necessary changes for this
+# project. We keep ${PROJECT_<MACHINE>_VARIANTS} and ${PROJECT_<MACHINE>_DEPS}
+# So that the comparison with the original job is easier.
+
+# No overridden jobs so far.
+
+########################
+# Extra jobs
+########################
+

@@ -11,16 +11,16 @@
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-# Tags and rules to run tests on Lassen
+# Tags and rules to run tests on Quartz
 # ------------------------------------------------------------------------------
 
-# Generic lassen build job, extending build script for IBM P9 systems
-.lassen_build_and_test:
+# Generic quartz build job, extending build script
+.quartz_build_and_test:
   tags:
     - shell
-    - lassen
-  extends: [.build_blueos_3_ppc64le_ib_script]
-  stage: l_build_and_test
+    - quartz
+  extends: [.build_toss_3_x86_64_ib_script, .custom_job]
+  stage: q_build_and_test
   needs: []
   artifacts:
     paths:
@@ -29,28 +29,7 @@
     when: always
   rules:
     # Don't run if...
-    - if: '$CI_COMMIT_BRANCH =~ /_lnone/ || $ON_LASSEN == "OFF" || $BENCHMARK == "ON"'
-      when: never
-    # Default is to run if previous stage succeeded
-    - when: on_success
-
-.lassen_build_and_bench:
-  tags:
-    - shell
-    - lassen
-  extends: [.build_blueos_3_ppc64le_ib_bench]
-  stage: l_build_and_bench
-  needs: []
-  artifacts:
-    paths:
-      - spack-*.txt
-      - build_*/*
-      - '*.cali'
-    when: always
-    expire_in: never
-  rules:
-    # Don't run if...
-    - if: '$CI_COMMIT_BRANCH =~ /_lnone/ || $ON_LASSEN == "OFF" || $BENCHMARK == "OFF"'
+    - if: '$CI_COMMIT_BRANCH =~ /_lnone/ || $ON_QUARTZ == "OFF" || $BENCHMARK == "ON"'
       when: never
     # Default is to run if previous stage succeeded
     - when: on_success

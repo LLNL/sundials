@@ -1,0 +1,86 @@
+###############################################################################
+# Copyright (c) 2022-23, Lawrence Livermore National Security, LLC and RADIUSS
+# project contributors. See the COPYRIGHT file for details.
+#
+# SPDX-License-Identifier: (MIT)
+###############################################################################
+
+# We define the following GitLab pipeline variables:
+variables:
+# In some pipelines we create only one allocation shared among jobs in
+# order to save time and resources. This allocation has to be uniquely
+# named so that we are sure to retrieve it and avoid collisions.
+  ALLOC_NAME: ${CI_PROJECT_NAME}_ci_${CI_PIPELINE_ID}
+
+# Corona
+# Arguments for top level allocation
+  CORONA_SHARED_ALLOC: "--exclusive --time-limit=30m --nodes=1"
+# Arguments for job level allocation
+  CORONA_JOB_ALLOC: "--time-limit=30m --nodes=1"
+# Add variables that should apply to all the jobs on a machine:
+#  CORONA_MY_VAR: "..."
+
+# Tioga
+# Arguments for top level allocation
+  TIOGA_SHARED_ALLOC: "--exclusive --time-limit=30m --nodes=1"
+# Arguments for job level allocation
+  TIOGA_JOB_ALLOC: "--time-limit=30m --nodes=1"
+# Add variables that should apply to all the jobs on a machine:
+#  TIOGA_MY_VAR: "..."
+
+# Lassen uses a different job scheduler (spectrum lsf) that does not allow
+# pre-allocation the same way slurm does. Arguments for job level allocation
+  LASSEN_JOB_ALLOC: "1 -W 30"
+# Add variables that should apply to all the jobs on a machine:
+#  LASSEN_MY_VAR: "..."
+
+# Default time to let the jobs run will be 30 minutes.
+  DEFAULT_TIME: 30
+
+# Number of threads to use for builds.
+  BUILD_JOBS: 32
+
+# Number of CPUs to alloc.
+  NCPU: 12
+
+# Sets CMAKE_VERBOSE_MAKEFILE to TRUE when "ON".
+  VERBOSE_BUILD: "OFF"
+
+# Passes --verbose to CTest when "ON".
+  VERBOSE_TEST: "OFF"
+
+# Should the Lassen pipeline run? Set to "ON" or "OFF" to enable/disable.
+  ON_LASSEN: "ON"
+
+# Should the Quartz pipeline run? Set to  "ON" or "OFF" to enable/disable.
+  ON_QUARTZ: "ON"
+  
+# Should the Corona pipeline run? Set to  "ON" or "OFF" to enable/disable.
+  ON_CORONA: "ON"
+
+# The prefix used for shared spack installation
+# Usually this a spack version number that matches the version set in the uberenv_config.json file.  
+# Spack installs go in /usr/workspace/sundials/spack_installs/${SPACK_PREFIX}/$(hostname).
+  SPACK_PREFIX: "v0.19.1"
+
+# If "ON", then a shared spack install that has been pre-configured is utilized.
+# If "OFF", then a new spack instance is created for every build (meaning all TPLs have to be installed).
+# If "UPSTREAM" (the default), then the shared spack is used as an upstream for a build specific spack.
+  SHARED_SPACK: "UPSTREAM"
+
+# If "ON", then the SUNDIALS benchmark problems are run and generate profiles.
+  BENCHMARK: "OFF"
+
+# Number of nodes to use for benchmarks. Default is 4.
+  BENCHMARK_NNODES: 4
+
+# What queue to submit the benchmarks too. Default is pbatch (for Livermore).
+  BENCHMARK_QUEUE: "pbatch"
+
+# Configuration shared by build and test jobs specific to this project.
+# Not all configuration can be shared. Here projects can fine tune the
+# CI behavior.
+# See Umpire for an example (export junit test reports).
+.custom_job:
+  variables:
+    JOB_TEMPLATE_CANNOT_BE_EMPTY: "True"
