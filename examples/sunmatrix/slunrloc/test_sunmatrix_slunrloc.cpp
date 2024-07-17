@@ -272,7 +272,7 @@ int main(int argc, char* argv[])
   {
     sunindextype shift;
 
-    /* recieve number of local nnz */
+    /* receive number of local nnz */
     MPI_Recv(&NNZ_local, 1, MPI_SUNINDEXTYPE, 0, grid.iam, grid.comm, &mpistatus);
 
     /* Allocate memory for matrix members */
@@ -316,7 +316,7 @@ int main(int argc, char* argv[])
     xdata = N_VGetArrayPointer(x);
     ydata = N_VGetArrayPointer(y);
 
-    /* recieve vectors */
+    /* receive vectors */
     MPI_Recv(xdata, M_local, MPI_SUNREALTYPE, 0, grid.iam, grid.comm, &mpistatus);
     MPI_Recv(ydata, M_local, MPI_SUNREALTYPE, 0, grid.iam, grid.comm, &mpistatus);
   }
@@ -382,7 +382,7 @@ int main(int argc, char* argv[])
   free(Asuper);
   Asuper = NULL;
 
-  /* Destroy matricies and vectors */
+  /* Destroy matrices and vectors */
   if (grid.iam == 0)
   {
     SUNMatDestroy(D);
@@ -490,7 +490,7 @@ int check_matrix(SUNMatrix A, SUNMatrix B, sunrealtype tol)
   /* compare global start index */
   if (Astore->fst_row != Bstore->fst_row)
   {
-    TEST_STATUS(">>> ERRROR: check_matrix: Different globalidx \n", grid->iam);
+    TEST_STATUS(">>> ERROR: check_matrix: Different globalidx \n", grid->iam);
     return (1);
   }
 

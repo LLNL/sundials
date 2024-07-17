@@ -482,7 +482,7 @@ static void SetInitialProfiles(N_Vector uv, N_Vector uvp, N_Vector id,
 
 /*
  * Print first lines of output (problem description)
- * and table headerr
+ * and table header
  */
 
 static void PrintHeader(sunindextype SystemSize, int maxl, sunindextype mudq,
@@ -1112,7 +1112,7 @@ static int reslocal(sunindextype Nlocal, sunrealtype tt, N_Vector uv,
     }
   }
 
-  /* Algebraic equation correspoding to boundary mesh point. */
+  /* Algebraic equation corresponding to boundary mesh point. */
   if (jysub == 0)
   {
     for (ix = 0; ix < mxsub; ix++)

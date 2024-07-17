@@ -151,7 +151,7 @@ int main(void)
   if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   /* Call CVodeInit to initialize the integrator memory and specify the right-hand side function in
-   * y'=f(t,y), the inital time T0, and the initial dependent variable vector y. */
+   * y'=f(t,y), the initial time T0, and the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
   if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
 

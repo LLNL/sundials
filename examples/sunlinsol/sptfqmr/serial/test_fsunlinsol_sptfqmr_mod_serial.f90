@@ -27,7 +27,7 @@ module test_fsunlinsol_sptfqmr_serial
 
   integer(kind=myindextype), private, parameter :: N = 100
   integer(c_int), private, parameter :: pretype = 1     ! Preconditioning type (1 or 2)
-  integer(c_int), private, parameter :: maxl = 100   ! maxium Krylov subspace dimension (> 0)
+  integer(c_int), private, parameter :: maxl = 100   ! maximum Krylov subspace dimension (> 0)
   real(c_double), private, parameter :: tol = 1e-13 ! solver tolerance
 
   type, private :: UserData

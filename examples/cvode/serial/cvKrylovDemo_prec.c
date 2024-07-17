@@ -67,7 +67,7 @@
  * subset of the ns by ns blocks).
  *
  * Four different runs are made for this problem. The product
- * preconditoner is applied on the left and on the right. In each
+ * preconditioner is applied on the left and on the right. In each
  * case, both the modified and classical Gram-Schmidt options are
  * tested. In the series of runs, CVodeInit, SUNLinSol_SPGMR, and
  * CVSetLinearSolver are called only for the first run, whereas
@@ -130,7 +130,7 @@
 #define BB    ONE                /* BB = b */
 #define DPREY ONE
 #define DPRED SUN_RCONST(0.5)
-#define ALPH  ONE
+#define ALPHA ONE
 #define NP    3
 #define NS    (2 * NP)
 
@@ -160,8 +160,8 @@
 
 /* Spgmr/CVLS Constants */
 
-#define MAXL 0    /* => use default = MIN(NEQ, 5)            */
-#define DELT ZERO /* => use default = 0.05                   */
+#define MAXL  0    /* => use default = MIN(NEQ, 5)            */
+#define DELTA ZERO /* => use default = 0.05                   */
 
 /* Output Constants */
 
@@ -310,7 +310,7 @@ int main(void)
           return (1);
         }
 
-        retval = CVodeSetEpsLin(cvode_mem, DELT);
+        retval = CVodeSetEpsLin(cvode_mem, DELTA);
         if (check_retval(&retval, "CVodeSetEpsLin", 1)) { return (1); }
 
         retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
@@ -506,17 +506,17 @@ static void PrintIntro(void)
   printf("Matrix parameters: a = %.2Lg   e = %.2Lg   g = %.2Lg\n", AA, EE, GG);
   printf("b parameter = %.2Lg\n", BB);
   printf("Diffusion coefficients: Dprey = %.2Lg   Dpred = %.2Lg\n", DPREY, DPRED);
-  printf("Rate parameter alpha = %.2Lg\n\n", ALPH);
+  printf("Rate parameter alpha = %.2Lg\n\n", ALPHA);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("Matrix parameters: a = %.2g   e = %.2g   g = %.2g\n", AA, EE, GG);
   printf("b parameter = %.2g\n", BB);
   printf("Diffusion coefficients: Dprey = %.2g   Dpred = %.2g\n", DPREY, DPRED);
-  printf("Rate parameter alpha = %.2g\n\n", ALPH);
+  printf("Rate parameter alpha = %.2g\n\n", ALPHA);
 #else
   printf("Matrix parameters: a = %.2g   e = %.2g   g = %.2g\n", AA, EE, GG);
   printf("b parameter = %.2g\n", BB);
   printf("Diffusion coefficients: Dprey = %.2g   Dpred = %.2g\n", DPREY, DPRED);
-  printf("Rate parameter alpha = %.2g\n\n", ALPH);
+  printf("Rate parameter alpha = %.2g\n\n", ALPHA);
 #endif
   printf("Mesh dimensions (mx,my) are %d, %d.  ", MX, MY);
   printf("Total system size is neq = %d \n\n", NEQ);
@@ -787,7 +787,7 @@ static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t,
     for (i = 0; i < ns; i++) { rate[i] += c[j] * acoef[i][j]; }
   }
 
-  fac = ONE + ALPH * x * y;
+  fac = ONE + ALPHA * x * y;
   for (i = 0; i < ns; i++) { rate[i] = c[i] * (bcoef[i] * fac + rate[i]); }
 }
 

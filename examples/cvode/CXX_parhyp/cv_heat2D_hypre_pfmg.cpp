@@ -161,7 +161,7 @@ struct UserData
   sunrealtype* Ssend;
   sunrealtype* Nsend;
 
-  // Send requests for neighor exchange
+  // Send requests for neighbor exchange
   MPI_Request reqSW;
   MPI_Request reqSE;
   MPI_Request reqSS;
@@ -210,7 +210,7 @@ struct UserData
                          //   3 - nonsymmetric R/B Gauss-Seidel
   HYPRE_Int pfmg_nrelax; // number of pre and post relaxation sweeps (2)
 
-  // Ouput variables
+  // Output variables
   int output;    // output level
   int nout;      // number of output times
   ofstream uout; // output file stream
@@ -468,7 +468,7 @@ int main(int argc, char* argv[])
     sunrealtype dTout = udata->tf / udata->nout;
     sunrealtype tout  = dTout;
 
-    // Inital output
+    // Initial output
     flag = OpenOutput(udata);
     if (check_flag(&flag, "OpenOutput", 1)) { return 1; }
 
@@ -1038,7 +1038,7 @@ static int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok,
   flag = HYPRE_StructPFMGCreate(udata->comm_c, &(udata->precond));
   if (flag != 0) { return -1; }
 
-  // Signal that the inital guess is zero
+  // Signal that the initial guess is zero
   flag = HYPRE_StructPFMGSetZeroGuess(udata->precond);
   if (flag != 0) { return -1; }
 
@@ -1111,7 +1111,7 @@ static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z,
   flag = HYPRE_StructPFMGSolve(udata->precond, udata->Amatrix, udata->bvec,
                                udata->xvec);
 
-  // If a convergence error occured, clear the error and continue. For any
+  // If a convergence error occurred, clear the error and continue. For any
   // other error return with a recoverable error.
   if (flag == HYPRE_ERROR_CONV) { HYPRE_ClearError(HYPRE_ERROR_CONV); }
   else if (flag != 0) { return 1; }
@@ -2306,7 +2306,7 @@ static void InputHelp()
   cout << "  --noforcing             : disable forcing term" << endl;
   cout << "  --tf <time>             : final time" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
-  cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --gmres                 : use GMRES linear solver" << endl;
   cout << "  --matvec                : use hypre matrix-vector product" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;

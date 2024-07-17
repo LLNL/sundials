@@ -1406,7 +1406,7 @@ def read_env(args):
         if type(args_dict[a]) is not dict:
             continue
 
-        # don't overwite options already set at command line
+        # don't overwrite options already set at command line
         value = args_dict[a]["value"]
         default = args_dict[a]["default"]
 
@@ -1486,7 +1486,7 @@ def cmake_arg(
         if cmake_type == "BOOL" and str_var not in ["ON", "OFF", None]:
             err_msg = "Invalid option value " + str_var + ". "
             err_msg += "Input value must be ON or OFF."
-            raise argparse.ArgumentTypeError("Invaid Value for BOOL")
+            raise argparse.ArgumentTypeError("Invalid Value for BOOL")
 
         if choices is not None and str_var is not None:
             raise_error = False
@@ -1545,14 +1545,14 @@ def write_cmake(fn, args):
 
         # print(a, args_dict[a])
 
-        # don't wite output lines if using the default value
+        # don't write output lines if using the default value
         value = args_dict[a]["value"]
         default = args_dict[a]["default"]
 
         if value is None or value == default:
             continue
 
-        # don't wite output if TPL is not enabled
+        # don't write output if TPL is not enabled
         depends_on = args_dict[a]["depends_on"]
 
         if depends_on is not None:

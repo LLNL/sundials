@@ -98,7 +98,7 @@ foreach(example_tuple ${CVODES_examples})
 
 endforeach(example_tuple ${CVODES_examples})
 
-# create Makfile and CMakeLists.txt for examples
+# create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   # Install the README file
