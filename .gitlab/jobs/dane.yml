@@ -30,7 +30,7 @@
 # Extra jobs
 ########################
 
-ruby_clang_tpls:
+dane_clang_tpls:
   parallel:
     matrix:
       - COMPILER_SPEC: clang
@@ -38,6 +38,6 @@ ruby_clang_tpls:
         PRECISION_SPEC: [double]
   variables:
     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi +openmp +hypre +superlu-dist +lapack +klu +petsc ^suite-sparse@5.13.0 ^openblas"
-  extends: [.job_on_ruby]
+  extends: [.job_on_dane]
 
 

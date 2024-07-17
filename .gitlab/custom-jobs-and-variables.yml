@@ -20,6 +20,21 @@ variables:
 # Add variables that should apply to all the jobs on a machine:
 #  CORONA_MY_VAR: "..."
 
+# Lassen
+# Lassen uses a different job scheduler (spectrum lsf) that does not allow
+# pre-allocation the same way slurm does. Arguments for job level allocation
+  LASSEN_JOB_ALLOC: "1 -W 30"
+# Add variables that should apply to all the jobs on a machine:
+#  LASSEN_MY_VAR: "..."
+
+# Dane
+# Arguments for top level allocation
+  DANE_SHARED_ALLOC: "--exclusive --partition=pdebug --time=10 --nodes=1"
+# Arguments for job level allocation
+  DANE_JOB_ALLOC: "--nodes=1"
+# Add variables that should apply to all the jobs on a machine:
+#  DANE_MY_VAR: "..."
+
 # Tioga
 # Arguments for top level allocation
   TIOGA_SHARED_ALLOC: "--exclusive --time-limit=30m --nodes=1"
@@ -27,12 +42,6 @@ variables:
   TIOGA_JOB_ALLOC: "--time-limit=30m --nodes=1"
 # Add variables that should apply to all the jobs on a machine:
 #  TIOGA_MY_VAR: "..."
-
-# Lassen uses a different job scheduler (spectrum lsf) that does not allow
-# pre-allocation the same way slurm does. Arguments for job level allocation
-  LASSEN_JOB_ALLOC: "1 -W 30"
-# Add variables that should apply to all the jobs on a machine:
-#  LASSEN_MY_VAR: "..."
 
 # Default time to let the jobs run will be 30 minutes.
   DEFAULT_TIME: 30
@@ -49,17 +58,20 @@ variables:
 # Passes --verbose to CTest when "ON".
   VERBOSE_TEST: "OFF"
 
+# Should the Corona pipeline run? Set to  "ON" or "OFF" to enable/disable.
+  ON_CORONA: "ON"
+
+# Should the Quartz pipeline run? Set to  "ON" or "OFF" to enable/disable.
+  ON_DANE: "ON"
+
 # Should the Lassen pipeline run? Set to "ON" or "OFF" to enable/disable.
   ON_LASSEN: "ON"
 
 # Should the Quartz pipeline run? Set to  "ON" or "OFF" to enable/disable.
   ON_QUARTZ: "ON"
-  
-# Should the Corona pipeline run? Set to  "ON" or "OFF" to enable/disable.
-  ON_CORONA: "ON"
 
 # The prefix used for shared spack installation
-# Usually this a spack version number that matches the version set in the uberenv_config.json file.  
+# Usually this a spack version number that matches the version set in the uberenv_config.json file.
 # Spack installs go in /usr/workspace/sundials/spack_installs/${SPACK_PREFIX}/$(hostname).
   SPACK_PREFIX: "v0.19.1"
 
