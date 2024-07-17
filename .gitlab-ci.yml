@@ -84,7 +84,7 @@ stages:
     include:
       - local: '.gitlab/custom-jobs-and-variables.yml'
       - project: 'radiuss/radiuss-shared-ci'
-        ref: 'v2024.04.0'
+        ref: 'v2024.07.0'
         file: 'pipelines/${CI_MACHINE}.yml'
       # Add your jobs
       # you can use a local file
