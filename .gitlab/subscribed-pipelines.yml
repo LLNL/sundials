@@ -29,28 +29,16 @@
 # Comment the jobs for machines you don’t need.
 ###
 
-# # RUBY
-# ruby-up-check:
-#   variables:
-#     CI_MACHINE: "ruby"
-#   extends: [.machine-check]
-
-# ruby-build-and-test:
-#   variables:
-#     CI_MACHINE: "ruby"
-#   needs: [ruby-up-check]
-#   extends: [.build-and-test]
-
-# DANE
-dane-up-check:
+# RUBY
+ruby-up-check:
   variables:
-    CI_MACHINE: "dane"
+    CI_MACHINE: "ruby"
   extends: [.machine-check]
 
-dane-build-and-test:
+ruby-build-and-test:
   variables:
-    CI_MACHINE: "dane"
-  needs: [dane-up-check]
+    CI_MACHINE: "ruby"
+  needs: [ruby-up-check]
   extends: [.build-and-test]
 
 # CORONA
