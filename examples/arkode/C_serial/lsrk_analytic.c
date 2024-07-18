@@ -189,7 +189,7 @@ int main(void)
 
   /* Clean up and return */
   N_VDestroy(y);            /* Free y vector */
-  ARKStepFree(&arkode_mem); /* Free integrator memory */
+  ARKodeFree(&arkode_mem); /* Free integrator memory */
   SUNContext_Free(&ctx);    /* Free context */
 
   return flag;
