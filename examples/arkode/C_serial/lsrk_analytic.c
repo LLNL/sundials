@@ -156,7 +156,7 @@ int main(void)
   while (Tf - t > 1.0e-15)
   {
     flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
-    if (check_flag(&flag, "LSRKodeEvolve", 1)) { break; }
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
     printf("  %10.6" FSYM "  %10.6" FSYM "\n", t,
            NV_Ith_S(y, 0)); /* access/print solution */
     fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", t, NV_Ith_S(y, 0));
