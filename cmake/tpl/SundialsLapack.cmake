@@ -320,25 +320,23 @@ if(NOT LAPACK_WORKS)
     "return 0;\n"
     "}\n")
 
+  # Workaround bug in older versions of CMake where the BLAS::BLAS target,
+  # which LAPACK::LAPACK depends on, is not defined in the file
+  # ${LAPACK_TEST_DIR}/CMakeFiles/CMakeTmp/<random_name>Targets.cmake created
+  # by try_compile
+  if(CMAKE_VERSION VERSION_LESS 3.20)
+    set(_lapack_targets LAPACK::LAPACK BLAS::BLAS)
+  else()
+    set(_lapack_targets LAPACK::LAPACK)
+  endif()
+
   # Attempt to build and link the test executable, pass --debug-trycompile to
   # the cmake command to save build files for debugging
-  if(CMAKE_VERSION VERSION_LESS 3.20)
-    # Workaround bug in older versions of CMake where the BLAS::BLAS target,
-    # which LAPACK::LAPACK depends on, is not defined in the file
-    # ${LAPACK_TEST_DIR}/CMakeFiles/CMakeTmp/<random_name>Targets.cmake created
-    # by try_compile
-    try_compile(
-      COMPILE_OK ${LAPACK_TEST_DIR}
-      ${LAPACK_TEST_DIR}/test.c
-      LINK_LIBRARIES LAPACK::LAPACK BLAS::BLAS
-      OUTPUT_VARIABLE COMPILE_OUTPUT)
-  else()
-    try_compile(
-      COMPILE_OK ${LAPACK_TEST_DIR}
-      ${LAPACK_TEST_DIR}/test.c
-      LINK_LIBRARIES LAPACK::LAPACK
-      OUTPUT_VARIABLE COMPILE_OUTPUT)
-  endif()
+  try_compile(
+    COMPILE_OK ${LAPACK_TEST_DIR}
+    ${LAPACK_TEST_DIR}/test.c
+    LINK_LIBRARIES ${_lapack_targets}
+    OUTPUT_VARIABLE COMPILE_OUTPUT)
 
   # Check the result
   if(COMPILE_OK)
