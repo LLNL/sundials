@@ -111,6 +111,7 @@ int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
 void lsrkStep_SprRadUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm);
 sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl);
+int lsrkStep_ComputeNewSprRad(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);
 
 /*===============================================================
   Reusable LSRKStep Error Messages
