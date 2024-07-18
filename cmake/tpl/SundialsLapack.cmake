@@ -320,10 +320,10 @@ if(NOT LAPACK_WORKS)
     "return 0;\n"
     "}\n")
 
-  # Workaround bug in older versions of CMake where the BLAS::BLAS target,
-  # which LAPACK::LAPACK depends on, is not defined in the file
-  # ${LAPACK_TEST_DIR}/CMakeFiles/CMakeTmp/<random_name>Targets.cmake created
-  # by try_compile
+  # Workaround bug in older versions of CMake where the BLAS::BLAS target, which
+  # LAPACK::LAPACK depends on, is not defined in the file
+  # ${LAPACK_TEST_DIR}/CMakeFiles/CMakeTmp/<random_name>Targets.cmake created by
+  # try_compile
   if(CMAKE_VERSION VERSION_LESS 3.20)
     set(_lapack_targets LAPACK::LAPACK BLAS::BLAS)
   else()

@@ -16,8 +16,8 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_LAPACKBAND\n\")")
 
-# Workaround bug in older versions of CMake where the BLAS::BLAS target,
-# which LAPACK::LAPACK depends on, is not picked up by LINK_LIBRARIES
+# Workaround bug in older versions of CMake where the BLAS::BLAS target, which
+# LAPACK::LAPACK depends on, is not picked up by LINK_LIBRARIES
 if(CMAKE_VERSION VERSION_LESS 3.20)
   set(_lapack_targets LAPACK::LAPACK BLAS::BLAS)
 else()
