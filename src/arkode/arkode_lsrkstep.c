@@ -978,10 +978,9 @@ sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl)
 }
 
 /*---------------------------------------------------------------
-  lsrkStep_SprRadUpdateLogic:
+  lsrkStep_ComputeNewSprRad:
 
-  This routine checks if the step is accepted or not and reassigns
-  the SprRad update flags accordingly.
+  This routine computes new SprRad and returns SUN_SUCCESS.
   ---------------------------------------------------------------*/
 
 int lsrkStep_ComputeNewSprRad(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
@@ -998,7 +997,7 @@ int lsrkStep_ComputeNewSprRad(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   {
     printf("\nInternal SprRad is not supported yet!");
     printf(
-      "\nCall LSRKodeSetSprRadFn to provide an external SprRad function\n");
+      "\nCall LSRKStepSetSprRadFn to provide an external SprRad function\n");
 
     return (ARK_ILL_INPUT);
   }

@@ -32,12 +32,12 @@
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  LSRKodeSetMethod sets method
-  RKC => method = 1
-  RKL => method = 2
-  RKG => method = 3
+  LSRKStepSetMethod sets method
+  RKC => method = RKC
+  RKL => method = RKL
+  RKG => method = RKG
   ---------------------------------------------------------------*/
-int LSRKodeSetMethod(void* arkode_mem, int method)
+int LSRKStepSetMethod(void* arkode_mem, int method)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -50,15 +50,15 @@ int LSRKodeSetMethod(void* arkode_mem, int method)
 
   switch (method)
   {
-  case 1:
+  case RKC:
     ark_mem->step = lsrkStep_TakeStepRKC;
     printf("\nSolving with RKC method\n\n");
     break;
-  case 2:
+  case RKL:
     ark_mem->step = lsrkStep_TakeStepRKL;
     printf("\nSolving with RKL method\n\n");
     break;
-  case 3:
+  case RKG:
     ark_mem->step = lsrkStep_TakeStepRKG;
     printf("\nSolving with RKG method\n\n");
     break;
@@ -73,9 +73,9 @@ int LSRKodeSetMethod(void* arkode_mem, int method)
 }
 
 /*---------------------------------------------------------------
-  LSRKodeSetSprRadFn specifies the SprRad function.
+  LSRKStepSetSprRadFn specifies the SprRad function.
   ---------------------------------------------------------------*/
-int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr)
+int LSRKStepSetSprRadFn(void* arkode_mem, ARKSprFn spr)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -106,9 +106,9 @@ int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr)
 }
 
 /*---------------------------------------------------------------
-  LSRKodeSetConstJac sets Constant Jacobian.
+  LSRKStepSetConstJac sets Constant Jacobian.
   ---------------------------------------------------------------*/
-int LSRKodeSetConstJac(void* arkode_mem)
+int LSRKStepSetConstJac(void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -125,10 +125,10 @@ int LSRKodeSetConstJac(void* arkode_mem)
 }
 
 /*---------------------------------------------------------------
-  LSRKodeSetSprRadFrequency sets SprRad computation frequency -
+  LSRKStepSetSprRadFrequency sets SprRad computation frequency - 
   Spectral Radius is recomputed after "nsteps" successful steps.
   ---------------------------------------------------------------*/
-int LSRKodeSetSprRadFrequency(void* arkode_mem, int nsteps)
+int LSRKStepSetSprRadFrequency(void* arkode_mem, int nsteps)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -152,9 +152,9 @@ int LSRKodeSetSprRadFrequency(void* arkode_mem, int nsteps)
 }
 
 /*---------------------------------------------------------------
-  LSRKodeSetMaxStageNum sets the maximum number of stages allowed.
+  LSRKStepSetMaxStageNum sets the maximum number of stages allowed.
   ---------------------------------------------------------------*/
-int LSRKodeSetMaxStageNum(void* arkode_mem, int stagemaxlimit)
+int LSRKStepSetMaxStageNum(void* arkode_mem, int stagemaxlimit)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -178,9 +178,9 @@ int LSRKodeSetMaxStageNum(void* arkode_mem, int stagemaxlimit)
 }
 
 /*---------------------------------------------------------------
-  LSRKodeSetSprRadSafetyFactor sets the maximum number of stages allowed.
+  LSRKStepSetSprRadSafetyFactor sets the maximum number of stages allowed.
   ---------------------------------------------------------------*/
-int LSRKodeSetSprRadSafetyFactor(void* arkode_mem, sunrealtype sprsfty)
+int LSRKStepSetSprRadSafetyFactor(void* arkode_mem, sunrealtype sprsfty)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -444,6 +444,7 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 
   /* print integrator parameters to file */
   fprintf(fp, "LSRKStep time step module parameters:\n");
+  fprintf(fp, "  Method order %i\n", NULL);
   fprintf(fp, "\n");
 
   printf("\nlsrkStep_WriteParameters is not ready yet!\n");

@@ -29,6 +29,13 @@ typedef int (*ARKSprFn)(sunrealtype t, sunrealtype* extsprad, void* user_data);
  * LSRKStep Constants
  * ------------------ */
 
+/* Method ID for RKC*/
+#define RKC 1
+/* Method ID for RKL*/
+#define RKL 2
+/* Method ID for RKG*/
+#define RKG 3
+
 /* -------------------
  * Exported Functions
  * ------------------- */
@@ -38,17 +45,17 @@ typedef int (*ARKSprFn)(sunrealtype t, sunrealtype* extsprad, void* user_data);
 SUNDIALS_EXPORT void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
                                      N_Vector y0, SUNContext sunctx);
 
-SUNDIALS_EXPORT int LSRKodeSetMethod(void* arkode_mem, int method);
+SUNDIALS_EXPORT int LSRKStepSetMethod(void* arkode_mem, int method);
 
-SUNDIALS_EXPORT int LSRKodeSetSprRadFn(void* arkode_mem, ARKSprFn spr);
+SUNDIALS_EXPORT int LSRKStepSetSprRadFn(void* arkode_mem, ARKSprFn spr);
 
-SUNDIALS_EXPORT int LSRKodeSetConstJac(void* arkode_mem);
+SUNDIALS_EXPORT int LSRKStepSetConstJac(void* arkode_mem);
 
-SUNDIALS_EXPORT int LSRKodeSetSprRadFrequency(void* arkode_mem, int nsteps);
+SUNDIALS_EXPORT int LSRKStepSetSprRadFrequency(void* arkode_mem, int nsteps);
 
-SUNDIALS_EXPORT int LSRKodeSetMaxStageNum(void* arkode_mem, int stagemaxlimit);
+SUNDIALS_EXPORT int LSRKStepSetMaxStageNum(void* arkode_mem, int stagemaxlimit);
 
-SUNDIALS_EXPORT int LSRKodeSetSprRadSafetyFactor(void* arkode_mem,
+SUNDIALS_EXPORT int LSRKStepSetSprRadSafetyFactor(void* arkode_mem,
                                                  sunrealtype sprsfty);
 
 SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
