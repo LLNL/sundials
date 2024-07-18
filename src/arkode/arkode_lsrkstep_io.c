@@ -125,7 +125,7 @@ int LSRKodeSetConstJac(void* arkode_mem)
 }
 
 /*---------------------------------------------------------------
-  LSRKodeSetSprRadFrequency sets SprRad computation frequency - 
+  LSRKodeSetSprRadFrequency sets SprRad computation frequency -
   Spectral Radius is recomputed after "nsteps" successful steps.
   ---------------------------------------------------------------*/
 int LSRKodeSetSprRadFrequency(void* arkode_mem, int nsteps)
@@ -444,7 +444,6 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 
   /* print integrator parameters to file */
   fprintf(fp, "LSRKStep time step module parameters:\n");
-  fprintf(fp, "  Method order %i\n", NULL);
   fprintf(fp, "\n");
 
   printf("\nlsrkStep_WriteParameters is not ready yet!\n");
