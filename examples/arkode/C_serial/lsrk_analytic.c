@@ -113,32 +113,32 @@ int main(void)
   if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
 
   /* Specify user provided spectral radius */
-  flag = LSRKodeSetSprRadFn(arkode_mem, spr);
-  if (check_flag(&flag, "LSRKodeSetSprRadFn", 1)) { return 1; }
+  flag = LSRKStepSetSprRadFn(arkode_mem, spr);
+  if (check_flag(&flag, "LSRKStepSetSprRadFn", 1)) { return 1; }
 
   /* Specify Constant Jacobian */
-  flag = LSRKodeSetConstJac(arkode_mem);
-  if (check_flag(&flag, "LSRKodeSetConstJac", 1)) { return 1; }
+  flag = LSRKStepSetConstJac(arkode_mem);
+  if (check_flag(&flag, "LSRKStepSetConstJac", 1)) { return 1; }
 
   /* Specify after how many successful steps SprRad is recomputed */
-  flag = LSRKodeSetSprRadFrequency(arkode_mem, 25);
-  if (check_flag(&flag, "LSRKodeSetSprRadFrequency", 1)) { return 1; }
+  flag = LSRKStepSetSprRadFrequency(arkode_mem, 25);
+  if (check_flag(&flag, "LSRKStepSetSprRadFrequency", 1)) { return 1; }
 
   /* Specify max number of stages allowed */
-  flag = LSRKodeSetMaxStageNum(arkode_mem, 200);
-  if (check_flag(&flag, "LSRKodeSetMaxStageNum", 1)) { return 1; }
+  flag = LSRKStepSetMaxStageNum(arkode_mem, 200);
+  if (check_flag(&flag, "LSRKStepSetMaxStageNum", 1)) { return 1; }
 
   /* Specify max number of steps allowed */
   flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /* Specify safety factor for user provided SprRad */
-  flag = LSRKodeSetSprRadSafetyFactor(arkode_mem, 1.01);
-  if (check_flag(&flag, "LSRKodeSetSprRadSafetyFactor", 1)) { return 1; }
+  flag = LSRKStepSetSprRadSafetyFactor(arkode_mem, 1.01);
+  if (check_flag(&flag, "LSRKStepSetSprRadSafetyFactor", 1)) { return 1; }
 
   /* Specify the LSRK method */
-  flag = LSRKodeSetMethod(arkode_mem, 2);
-  if (check_flag(&flag, "LSRKodeSetMethod", 1)) { return 1; }
+  flag = LSRKStepSetMethod(arkode_mem, 2);
+  if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
