@@ -157,17 +157,17 @@ struct Options
   int fast_pq            = 0;
 
   // controller parameters
-  sunrealtype k1s = SUN_RCONST(-1.0);
-  sunrealtype k2s = SUN_RCONST(-1.0);
-  sunrealtype k3s = SUN_RCONST(-1.0);
-  sunrealtype k4s = SUN_RCONST(-1.0);
-  sunrealtype k5s = SUN_RCONST(-1.0);
-  sunrealtype k6s = SUN_RCONST(-1.0);
-  sunrealtype k1f = SUN_RCONST(-1.0);
-  sunrealtype k2f = SUN_RCONST(-1.0);
-  sunrealtype k3f = SUN_RCONST(-1.0);
-  sunrealtype bias = SUN_RCONST(-1.0);
-  sunrealtype htol_relch = SUN_RCONST(-1.0);
+  sunrealtype k1s         = SUN_RCONST(-1.0);
+  sunrealtype k2s         = SUN_RCONST(-1.0);
+  sunrealtype k3s         = SUN_RCONST(-1.0);
+  sunrealtype k4s         = SUN_RCONST(-1.0);
+  sunrealtype k5s         = SUN_RCONST(-1.0);
+  sunrealtype k6s         = SUN_RCONST(-1.0);
+  sunrealtype k1f         = SUN_RCONST(-1.0);
+  sunrealtype k2f         = SUN_RCONST(-1.0);
+  sunrealtype k3f         = SUN_RCONST(-1.0);
+  sunrealtype bias        = SUN_RCONST(-1.0);
+  sunrealtype htol_relch  = SUN_RCONST(-1.0);
   sunrealtype htol_minfac = SUN_RCONST(-1.0);
   sunrealtype htol_maxfac = SUN_RCONST(-1.0);
 };
@@ -300,7 +300,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)fcontrol, "SUNAdaptController_PID")) return 1;
     if (std::min(opts.k1f, std::min(opts.k2f, opts.k3f)) > -1)
     {
-      retval = SUNAdaptController_SetParams_PID(fcontrol, opts.k1f, opts.k2f, opts.k3f);
+      retval = SUNAdaptController_SetParams_PID(fcontrol, opts.k1f, opts.k2f,
+                                                opts.k3f);
       if (check_flag(retval, "SUNAdaptController_SetParams_PID")) return 1;
     }
     break;
@@ -380,7 +381,8 @@ int main(int argc, char* argv[])
   switch (opts.scontrol)
   {
   case (1):
-    scontrol = SUNAdaptController_MRICC(sunctx, opts.fast_order+opts.fast_pq-1);
+    scontrol = SUNAdaptController_MRICC(sunctx,
+                                        opts.fast_order + opts.fast_pq - 1);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRICC")) return 1;
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
@@ -389,30 +391,40 @@ int main(int argc, char* argv[])
     }
     break;
   case (2):
-    scontrol = SUNAdaptController_MRILL(sunctx, opts.fast_order+opts.fast_pq-1);
+    scontrol = SUNAdaptController_MRILL(sunctx,
+                                        opts.fast_order + opts.fast_pq - 1);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRILL")) return 1;
     if (std::min(opts.k1s, std::min(opts.k2s, std::min(opts.k3s, opts.k4s))) > -1)
     {
-      retval = SUNAdaptController_SetParams_MRILL(scontrol, opts.k1s, opts.k2s, opts.k3s, opts.k4s);
+      retval = SUNAdaptController_SetParams_MRILL(scontrol, opts.k1s, opts.k2s,
+                                                  opts.k3s, opts.k4s);
       if (check_flag(retval, "SUNAdaptController_SetParams_MRILL")) return 1;
     }
     break;
   case (3):
-    scontrol = SUNAdaptController_MRIPI(sunctx, opts.fast_order+opts.fast_pq-1);
+    scontrol = SUNAdaptController_MRIPI(sunctx,
+                                        opts.fast_order + opts.fast_pq - 1);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIPI")) return 1;
     if (std::min(opts.k1s, std::min(opts.k2s, std::min(opts.k3s, opts.k4s))) > -1)
     {
-      retval = SUNAdaptController_SetParams_MRIPI(scontrol, opts.k1s, opts.k2s, opts.k3s, opts.k4s);
+      retval = SUNAdaptController_SetParams_MRIPI(scontrol, opts.k1s, opts.k2s,
+                                                  opts.k3s, opts.k4s);
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIPI")) return 1;
     }
     break;
   case (4):
-    scontrol = SUNAdaptController_MRIPID(sunctx, opts.fast_order+opts.fast_pq-1);
+    scontrol = SUNAdaptController_MRIPID(sunctx,
+                                         opts.fast_order + opts.fast_pq - 1);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIPID")) return 1;
-    if (std::min(opts.k1s, std::min(opts.k2s, std::min(opts.k3s, std::min(opts.k4s, std::min(opts.k5s, opts.k6s))))) > -1)
+    if (std::min(opts.k1s,
+                 std::min(opts.k2s,
+                          std::min(opts.k3s,
+                                   std::min(opts.k4s,
+                                            std::min(opts.k5s, opts.k6s))))) > -1)
     {
       retval = SUNAdaptController_SetParams_MRIPID(scontrol, opts.k1s, opts.k2s,
-                                                   opts.k3s, opts.k4s, opts.k5s, opts.k6s);
+                                                   opts.k3s, opts.k4s, opts.k5s,
+                                                   opts.k6s);
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIPID")) return 1;
     }
     break;
@@ -420,7 +432,8 @@ int main(int argc, char* argv[])
     scontrol_H = SUNAdaptController_I(sunctx);
     if (check_ptr((void*)scontrol_H, "SUNAdaptController_I (slow H)")) return 1;
     scontrol_Tol = SUNAdaptController_I(sunctx);
-    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_I (slow Tol)")) return 1;
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_I (slow Tol)"))
+      return 1;
     if (opts.k1s > -1)
     {
       retval = SUNAdaptController_SetParams_I(scontrol_H, opts.k1s);
@@ -430,9 +443,12 @@ int main(int argc, char* argv[])
     }
     scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) > -1)
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
     {
-      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch, opts.htol_minfac, opts.htol_maxfac);
+      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
+                                                    opts.htol_minfac,
+                                                    opts.htol_maxfac);
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
     }
     break;
@@ -447,9 +463,11 @@ int main(int argc, char* argv[])
     break;
   case (7):
     scontrol_H = SUNAdaptController_PI(sunctx);
-    if (check_ptr((void*)scontrol_H, "SUNAdaptController_PI (slow H)")) return 1;
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_PI (slow H)"))
+      return 1;
     scontrol_Tol = SUNAdaptController_PI(sunctx);
-    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_PI (slow Tol)")) return 1;
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_PI (slow Tol)"))
+      return 1;
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
       retval = SUNAdaptController_SetParams_PI(scontrol_H, opts.k1s, opts.k2s);
@@ -459,9 +477,12 @@ int main(int argc, char* argv[])
     }
     scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) > -1)
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
     {
-      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch, opts.htol_minfac, opts.htol_maxfac);
+      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
+                                                    opts.htol_minfac,
+                                                    opts.htol_maxfac);
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
     }
     break;
@@ -476,21 +497,28 @@ int main(int argc, char* argv[])
     break;
   case (9):
     scontrol_H = SUNAdaptController_PID(sunctx);
-    if (check_ptr((void*)scontrol_H, "SUNAdaptController_PID (slow H)")) return 1;
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_PID (slow H)"))
+      return 1;
     scontrol_Tol = SUNAdaptController_PID(sunctx);
-    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_PID (slow Tol)")) return 1;
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_PID (slow Tol)"))
+      return 1;
     if (std::min(opts.k1s, std::min(opts.k2s, opts.k3s)) > -1)
     {
-      retval = SUNAdaptController_SetParams_PID(scontrol_H, opts.k1s, opts.k2s, opts.k3s);
+      retval = SUNAdaptController_SetParams_PID(scontrol_H, opts.k1s, opts.k2s,
+                                                opts.k3s);
       if (check_flag(retval, "SUNAdaptController_SetParams_PID")) return 1;
-      retval = SUNAdaptController_SetParams_PID(scontrol_Tol, opts.k1s, opts.k2s, opts.k3s);
+      retval = SUNAdaptController_SetParams_PID(scontrol_Tol, opts.k1s,
+                                                opts.k2s, opts.k3s);
       if (check_flag(retval, "SUNAdaptController_SetParams_PID")) return 1;
     }
     scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) > -1)
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
     {
-      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch, opts.htol_minfac, opts.htol_maxfac);
+      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
+                                                    opts.htol_minfac,
+                                                    opts.htol_maxfac);
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
     }
     break;
@@ -499,33 +527,42 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_PID (slow)")) return 1;
     if (std::min(opts.k1s, std::min(opts.k2s, opts.k3s)) > -1)
     {
-      retval = SUNAdaptController_SetParams_PID(scontrol, opts.k1s, opts.k2s, opts.k3s);
+      retval = SUNAdaptController_SetParams_PID(scontrol, opts.k1s, opts.k2s,
+                                                opts.k3s);
       if (check_flag(retval, "SUNAdaptController_SetParams_PID")) return 1;
     }
     break;
   case (11):
     scontrol_H = SUNAdaptController_ExpGus(sunctx);
-    if (check_ptr((void*)scontrol_H, "SUNAdaptController_ExpGus (slow H)")) return 1;
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_ExpGus (slow H)"))
+      return 1;
     scontrol_Tol = SUNAdaptController_ExpGus(sunctx);
-    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_ExpGus (slow Tol)")) return 1;
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_ExpGus (slow Tol)"))
+      return 1;
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      retval = SUNAdaptController_SetParams_ExpGus(scontrol_H, opts.k1s, opts.k2s);
+      retval = SUNAdaptController_SetParams_ExpGus(scontrol_H, opts.k1s,
+                                                   opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_ExpGus")) return 1;
-      retval = SUNAdaptController_SetParams_ExpGus(scontrol_Tol, opts.k1s, opts.k2s);
+      retval = SUNAdaptController_SetParams_ExpGus(scontrol_Tol, opts.k1s,
+                                                   opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_ExpGus")) return 1;
     }
     scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) > -1)
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
     {
-      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch, opts.htol_minfac, opts.htol_maxfac);
+      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
+                                                    opts.htol_minfac,
+                                                    opts.htol_maxfac);
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
     }
     break;
   case (12):
     scontrol = SUNAdaptController_ExpGus(sunctx);
-    if (check_ptr((void*)scontrol, "SUNAdaptController_ExpGus (slow)")) return 1;
+    if (check_ptr((void*)scontrol, "SUNAdaptController_ExpGus (slow)"))
+      return 1;
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
       retval = SUNAdaptController_SetParams_ExpGus(scontrol, opts.k1s, opts.k2s);
@@ -534,27 +571,35 @@ int main(int argc, char* argv[])
     break;
   case (13):
     scontrol_H = SUNAdaptController_ImpGus(sunctx);
-    if (check_ptr((void*)scontrol_H, "SUNAdaptController_ImpGus (slow H)")) return 1;
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_ImpGus (slow H)"))
+      return 1;
     scontrol_Tol = SUNAdaptController_ImpGus(sunctx);
-    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_ImpGus (slow Tol)")) return 1;
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_ImpGus (slow Tol)"))
+      return 1;
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      retval = SUNAdaptController_SetParams_ImpGus(scontrol_H, opts.k1s, opts.k2s);
+      retval = SUNAdaptController_SetParams_ImpGus(scontrol_H, opts.k1s,
+                                                   opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_ImpGus")) return 1;
-      retval = SUNAdaptController_SetParams_ImpGus(scontrol_Tol, opts.k1s, opts.k2s);
+      retval = SUNAdaptController_SetParams_ImpGus(scontrol_Tol, opts.k1s,
+                                                   opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_ImpGus")) return 1;
     }
     scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) > -1)
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
     {
-      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch, opts.htol_minfac, opts.htol_maxfac);
+      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
+                                                    opts.htol_minfac,
+                                                    opts.htol_maxfac);
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
     }
     break;
   case (14):
     scontrol = SUNAdaptController_ImpGus(sunctx);
-    if (check_ptr((void*)scontrol, "SUNAdaptController_ImpGus (slow)")) return 1;
+    if (check_ptr((void*)scontrol, "SUNAdaptController_ImpGus (slow)"))
+      return 1;
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
       retval = SUNAdaptController_SetParams_ImpGus(scontrol, opts.k1s, opts.k2s);
@@ -570,9 +615,12 @@ int main(int argc, char* argv[])
       return 1;
     scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) > -1)
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
     {
-      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch, opts.htol_minfac, opts.htol_maxfac);
+      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
+                                                    opts.htol_minfac,
+                                                    opts.htol_maxfac);
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
     }
     break;
@@ -1005,9 +1053,12 @@ void InputHelp()
   std::cout << "  --k1s, --k2s, ..., -k6s : slow controller parameters\n";
   std::cout << "  --k1f, --k2f, -k3f : fast controller parameters\n";
   std::cout << "  --bias : slow and fast controller bias factors\n";
-  std::cout << "  --htol_relch : HTol controller maximum relative tolerance change\n";
-  std::cout << "  --htol_minfac : HTol controller minimum relative tolerance factor\n";
-  std::cout << "  --htol_maxfac : HTol controller maximum relative tolerance factor\n";
+  std::cout
+    << "  --htol_relch : HTol controller maximum relative tolerance change\n";
+  std::cout
+    << "  --htol_minfac : HTol controller minimum relative tolerance factor\n";
+  std::cout
+    << "  --htol_maxfac : HTol controller maximum relative tolerance factor\n";
 }
 
 // Read input options
@@ -1144,7 +1195,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      std::cout << "    controller parameters: " << opts.k1s << " " << opts.k2s << "\n";
+      std::cout << "    controller parameters: " << opts.k1s << " " << opts.k2s
+                << "\n";
     }
     break;
   case (2):
@@ -1154,7 +1206,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     if (std::min(opts.k1s, std::min(opts.k2s, std::min(opts.k3s, opts.k4s))) > -1)
     {
-      std::cout << "    controller parameters: " << opts.k1s << " " << opts.k2s << " " << opts.k3s << " " << opts.k4s << "\n";
+      std::cout << "    controller parameters: " << opts.k1s << " " << opts.k2s
+                << " " << opts.k3s << " " << opts.k4s << "\n";
     }
     break;
   case (3):
@@ -1164,7 +1217,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     if (std::min(opts.k1s, std::min(opts.k2s, std::min(opts.k3s, opts.k4s))) > -1)
     {
-      std::cout << "    controller parameters: " << opts.k1s << " " << opts.k2s << " " << opts.k3s << " " << opts.k4s << "\n";
+      std::cout << "    controller parameters: " << opts.k1s << " " << opts.k2s
+                << " " << opts.k3s << " " << opts.k4s << "\n";
     }
     break;
   case (4):
@@ -1172,10 +1226,15 @@ static void PrintSlowAdaptivity(Options opts)
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (std::min(opts.k1s, std::min(opts.k2s, std::min(opts.k3s, std::min(opts.k4s, std::min(opts.k5s, opts.k6s))))) > -1)
+    if (std::min(opts.k1s,
+                 std::min(opts.k2s,
+                          std::min(opts.k3s,
+                                   std::min(opts.k4s,
+                                            std::min(opts.k5s, opts.k6s))))) > -1)
     {
-      std::cout << "    controller parameters: " << opts.k1s << " " << opts.k2s << " " << opts.k3s
-                << " " << opts.k4s << " " << opts.k5s << " " << opts.k6s << "\n";
+      std::cout << "    controller parameters: " << opts.k1s << " " << opts.k2s
+                << " " << opts.k3s << " " << opts.k4s << " " << opts.k5s << " "
+                << opts.k6s << "\n";
     }
     break;
   case (5):
@@ -1184,8 +1243,12 @@ static void PrintSlowAdaptivity(Options opts)
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (opts.k1s > -1) { std::cout << "    slow controller parameter: " << opts.k1s << "\n"; }
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) > -1)
+    if (opts.k1s > -1)
+    {
+      std::cout << "    slow controller parameter: " << opts.k1s << "\n";
+    }
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
@@ -1196,7 +1259,10 @@ static void PrintSlowAdaptivity(Options opts)
                  "order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    if (opts.k1s > -1) { std::cout << "    slow controller parameter: " << opts.k1s << "\n"; }
+    if (opts.k1s > -1)
+    {
+      std::cout << "    slow controller parameter: " << opts.k1s << "\n";
+    }
     break;
   case (7):
     std::cout
@@ -1206,9 +1272,11 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      std::cout << "    slow controller parameters: " << opts.k1s << " " << opts.k2s << "\n";
+      std::cout << "    slow controller parameters: " << opts.k1s << " "
+                << opts.k2s << "\n";
     }
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) > -1)
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
@@ -1221,7 +1289,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      std::cout << "    slow controller parameters: " << opts.k1s << " " << opts.k2s << "\n";
+      std::cout << "    slow controller parameters: " << opts.k1s << " "
+                << opts.k2s << "\n";
     }
     break;
   case (9):
@@ -1232,9 +1301,11 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     if (std::min(opts.k1s, std::min(opts.k2s, opts.k3s)) > -1)
     {
-      std::cout << "    slow controller parameters: " << opts.k1s << " " << opts.k2s << " " << opts.k3s << "\n";
+      std::cout << "    slow controller parameters: " << opts.k1s << " "
+                << opts.k2s << " " << opts.k3s << "\n";
     }
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) > -1)
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
@@ -1247,7 +1318,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     if (std::min(opts.k1s, std::min(opts.k2s, opts.k3s)) > -1)
     {
-      std::cout << "    slow controller parameters: " << opts.k1s << " " << opts.k2s << " " << opts.k3s << "\n";
+      std::cout << "    slow controller parameters: " << opts.k1s << " "
+                << opts.k2s << " " << opts.k3s << "\n";
     }
     break;
   case (11):
@@ -1258,9 +1330,11 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      std::cout << "    slow controller parameters: " << opts.k1s << " " << opts.k2s << "\n";
+      std::cout << "    slow controller parameters: " << opts.k1s << " "
+                << opts.k2s << "\n";
     }
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) > -1)
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
@@ -1273,7 +1347,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      std::cout << "    slow controller parameters: " << opts.k1s << " " << opts.k2s << "\n";
+      std::cout << "    slow controller parameters: " << opts.k1s << " "
+                << opts.k2s << "\n";
     }
     break;
   case (13):
@@ -1284,9 +1359,11 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      std::cout << "    slow controller parameters: " << opts.k1s << " " << opts.k2s << "\n";
+      std::cout << "    slow controller parameters: " << opts.k1s << " "
+                << opts.k2s << "\n";
     }
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) > -1)
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
@@ -1299,7 +1376,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      std::cout << "    slow controller parameters: " << opts.k1s << " " << opts.k2s << "\n";
+      std::cout << "    slow controller parameters: " << opts.k1s << " "
+                << opts.k2s << "\n";
     }
     break;
   case (15):
@@ -1348,7 +1426,8 @@ static void PrintFastAdaptivity(Options opts)
               << ", atol = " << opts.atol << "\n";
     if (std::min(opts.k1f, opts.k2f) > -1)
     {
-      std::cout << "    fast controller parameters: " << opts.k1f << " " << opts.k2f << "\n";
+      std::cout << "    fast controller parameters: " << opts.k1f << " "
+                << opts.k2f << "\n";
     }
     break;
   case (3):
@@ -1358,7 +1437,8 @@ static void PrintFastAdaptivity(Options opts)
               << ", atol = " << opts.atol << "\n";
     if (std::min(opts.k1f, std::min(opts.k2f, opts.k3f)) > -1)
     {
-      std::cout << "    fast controller parameters: " << opts.k1f << " " << opts.k2f << " " << opts.k3f << "\n";
+      std::cout << "    fast controller parameters: " << opts.k1f << " "
+                << opts.k2f << " " << opts.k3f << "\n";
     }
     break;
   case (4):
@@ -1369,7 +1449,8 @@ static void PrintFastAdaptivity(Options opts)
               << ", atol = " << opts.atol << "\n";
     if (std::min(opts.k1f, opts.k2f) > -1)
     {
-      std::cout << "    fast controller parameters: " << opts.k1f << " " << opts.k2f << "\n";
+      std::cout << "    fast controller parameters: " << opts.k1f << " "
+                << opts.k2f << "\n";
     }
     break;
   case (5):
@@ -1380,7 +1461,8 @@ static void PrintFastAdaptivity(Options opts)
               << ", atol = " << opts.atol << "\n";
     if (std::min(opts.k1f, opts.k2f) > -1)
     {
-      std::cout << "    fast controller parameters: " << opts.k1f << " " << opts.k2f << "\n";
+      std::cout << "    fast controller parameters: " << opts.k1f << " "
+                << opts.k2f << "\n";
     }
     break;
   case (6):
