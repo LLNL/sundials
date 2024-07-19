@@ -59,10 +59,6 @@ SUNDIALS_EXPORT int LSRKStepSetSprRadSafetyFactor(void* arkode_mem,
 SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
                                    sunrealtype t0, N_Vector y0);
 
-/* Optional input functions -- must be called AFTER a creation routine above */
-
-/* SUNDIALS_EXPORT int LSRKStepSetTableName(void* arkode_mem, const char* etable); */
-
 /* Optional output functions */
 
 SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_evals);
