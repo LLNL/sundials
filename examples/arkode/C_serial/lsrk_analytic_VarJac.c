@@ -180,11 +180,11 @@ int main(void)
 
   /* Print final statistics */
   printf("\nFinal Statistics:\n");
-  flag = ARKStepPrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  flag = ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   /* Print final statistics to a file in CSV format */
   FID  = fopen("ark_analytic_nonlin_stats.csv", "w");
-  flag = ARKStepPrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
+  flag = ARKodePrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
   fclose(FID);
 
   /* check the solution error */
