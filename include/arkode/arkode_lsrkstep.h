@@ -45,6 +45,9 @@ typedef enum
 SUNDIALS_EXPORT void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
                                      N_Vector y0, SUNContext sunctx);
 
+SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
+                                   sunrealtype t0, N_Vector y0);                                     
+
 /* Optional input functions -- must be called AFTER a creation routine above */
 
 SUNDIALS_EXPORT int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method);
@@ -57,9 +60,6 @@ SUNDIALS_EXPORT int LSRKStepSetMaxStageNum(void* arkode_mem, int stagemaxlimit);
 
 SUNDIALS_EXPORT int LSRKStepSetSprRadSafetyFactor(void* arkode_mem,
                                                  sunrealtype sprsfty);
-
-SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
-                                   sunrealtype t0, N_Vector y0);
 
 /* Optional output functions */
 
