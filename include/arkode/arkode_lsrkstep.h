@@ -45,6 +45,8 @@ typedef enum
 SUNDIALS_EXPORT void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
                                      N_Vector y0, SUNContext sunctx);
 
+/* Optional input functions -- must be called AFTER a creation routine above */
+
 SUNDIALS_EXPORT int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method);
 
 SUNDIALS_EXPORT int LSRKStepSetSprRadFn(void* arkode_mem, ARKSprFn spr);
