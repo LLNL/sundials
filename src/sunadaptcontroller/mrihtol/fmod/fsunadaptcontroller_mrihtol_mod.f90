@@ -26,6 +26,7 @@ module fsunadaptcontroller_mrihtol_mod
 
  ! DECLARATION CONSTRUCTS
  public :: FSUNAdaptController_MRIHTol
+ public :: FSUNAdaptController_SetParams_MRIHTol
  public :: FSUNAdaptController_GetSlowController_MRIHTol
  public :: FSUNAdaptController_GetFastController_MRIHTol
  public :: FSUNAdaptController_GetType_MRIHTol
@@ -47,6 +48,17 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 type(C_PTR) :: fresult
+end function
+
+function swigc_FSUNAdaptController_SetParams_MRIHTol(farg1, farg2, farg3, farg4) &
+bind(C, name="_wrap_FSUNAdaptController_SetParams_MRIHTol") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+real(C_DOUBLE), intent(in) :: farg4
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNAdaptController_GetSlowController_MRIHTol(farg1) &
@@ -166,6 +178,28 @@ farg2 = c_loc(hcontrol)
 farg3 = c_loc(tolcontrol)
 fresult = swigc_FSUNAdaptController_MRIHTol(farg1, farg2, farg3)
 call c_f_pointer(fresult, swig_result)
+end function
+
+function FSUNAdaptController_SetParams_MRIHTol(c, inner_max_relch, inner_min_tolfac, inner_max_tolfac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNAdaptController), target, intent(inout) :: c
+real(C_DOUBLE), intent(in) :: inner_max_relch
+real(C_DOUBLE), intent(in) :: inner_min_tolfac
+real(C_DOUBLE), intent(in) :: inner_max_tolfac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+real(C_DOUBLE) :: farg4 
+
+farg1 = c_loc(c)
+farg2 = inner_max_relch
+farg3 = inner_min_tolfac
+farg4 = inner_max_tolfac
+fresult = swigc_FSUNAdaptController_SetParams_MRIHTol(farg1, farg2, farg3, farg4)
+swig_result = fresult
 end function
 
 function FSUNAdaptController_GetSlowController_MRIHTol(c) &

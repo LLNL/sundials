@@ -224,6 +224,24 @@ SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_MRIHTol(void *farg1, SUN
 }
 
 
+SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_MRIHTol(SUNAdaptController farg1, double const *farg2, double const *farg3, double const *farg4) {
+  int fresult ;
+  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
+  sunrealtype arg4 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNAdaptController)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (sunrealtype)(*farg4);
+  result = (SUNErrCode)SUNAdaptController_SetParams_MRIHTol(arg1,arg2,arg3,arg4);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_GetSlowController_MRIHTol(SUNAdaptController farg1) {
   SUNAdaptController fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
