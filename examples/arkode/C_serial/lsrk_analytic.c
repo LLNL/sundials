@@ -116,12 +116,9 @@ int main(void)
   flag = LSRKStepSetSprRadFn(arkode_mem, spr);
   if (check_flag(&flag, "LSRKStepSetSprRadFn", 1)) { return 1; }
 
-  /* Specify Constant Jacobian */
-  flag = LSRKStepSetConstJac(arkode_mem);
-  if (check_flag(&flag, "LSRKStepSetConstJac", 1)) { return 1; }
-
-  /* Specify after how many successful steps SprRad is recomputed */
-  flag = LSRKStepSetSprRadFrequency(arkode_mem, 25);
+  /* Specify after how many successful steps SprRad is recomputed 
+     Note that nsteps = 0 refers to Constant Jacobian */
+  flag = LSRKStepSetSprRadFrequency(arkode_mem, 0);
   if (check_flag(&flag, "LSRKStepSetSprRadFrequency", 1)) { return 1; }
 
   /* Specify max number of stages allowed */

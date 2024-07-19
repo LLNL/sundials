@@ -106,27 +106,10 @@ int LSRKStepSetSprRadFn(void* arkode_mem, ARKSprFn spr)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepSetConstJac sets Constant Jacobian.
-  ---------------------------------------------------------------*/
-int LSRKStepSetConstJac(void* arkode_mem)
-{
-  ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  step_mem->constJac = SUNTRUE;
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
   LSRKStepSetSprRadFrequency sets SprRad computation frequency - 
   Spectral Radius is recomputed after "nsteps" successful steps.
+    
+    nsteps = 0 refers to Constant Jacobian
   ---------------------------------------------------------------*/
 int LSRKStepSetSprRadFrequency(void* arkode_mem, int nsteps)
 {
@@ -139,14 +122,22 @@ int LSRKStepSetSprRadFrequency(void* arkode_mem, int nsteps)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (nsteps < 1)
+  if (nsteps < 0)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "nsteps must be greater than 0");
+                    "nsteps must be greater than or equal to 0");
     return (ARK_ILL_INPUT);
   }
 
-  step_mem->sprfreq = nsteps;
+  if (nsteps == 0)
+  {
+    step_mem->constJac = SUNTRUE;
+    step_mem->sprfreq  = 1;
+  }
+  else
+  {
+    step_mem->sprfreq = nsteps;
+  }
 
   return (ARK_SUCCESS);
 }

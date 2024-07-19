@@ -49,8 +49,6 @@ SUNDIALS_EXPORT int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType me
 
 SUNDIALS_EXPORT int LSRKStepSetSprRadFn(void* arkode_mem, ARKSprFn spr);
 
-SUNDIALS_EXPORT int LSRKStepSetConstJac(void* arkode_mem);
-
 SUNDIALS_EXPORT int LSRKStepSetSprRadFrequency(void* arkode_mem, int nsteps);
 
 SUNDIALS_EXPORT int LSRKStepSetMaxStageNum(void* arkode_mem, int stagemaxlimit);
