@@ -61,7 +61,7 @@ typedef struct ARKodeLSRKStepMemRec
   long int sprnfe;        /* num fe calls for spectral radius      */
   long int nsprupdates;   /* num of spr computations   */
   long int stagemax;      /* num of max stages taken      */
-  long int stagemaxlimit; /* max allowed num of stages     */
+  int stagemaxlimit; /* max allowed num of stages     */
   int nstsig; /* num of steps that successfully used spr; indicates spr update when 0;  */
 
   /* Spectral radius info */
