@@ -20,9 +20,9 @@
  * for t in the interval [0.0, 10.0], with initial condition: y=0.
  *
  * The stiffness of the problem is directly proportional to the
- * value of "lambda".  The value of lambda should be negative to
- * result in a well-posed ODE; for values with magnitude larger
- * than 100 the problem becomes quite stiff.
+ * value of "lambda - alpha*cos((10 - t)/10*pi)". This value should 
+ * be negative to result in a well-posed ODE; for values with magnitude 
+ * larger than 100 the problem becomes quite stiff.
  *
  * This program solves the problem with the LSRK method.
  * Output is printed every 1.0 units of time (10 total).
@@ -92,7 +92,9 @@ int main(void)
   if (check_flag(&flag, "SUNContext_Create", 1)) { return 1; }
 
   /* Initial diagnostics output */
-  printf("\nAnalytical ODE test problem:\n");
+  printf("\nAnalytical ODE test problem with a variable Jacobian:");
+  printf("\nThe stiffness of the problem is directly proportional to");
+  printf("\n\"lambda - alpha*cos((10 - t)/10*pi)\"\n\n");
   printf("    lambda = %" GSYM "\n", lambda);
   printf("     alpha = %" GSYM "\n", alpha);
   printf("    reltol = %.1" ESYM "\n", reltol);
