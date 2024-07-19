@@ -65,7 +65,7 @@ SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* nfevals);
+SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_evals);
 
 /* Grouped optional output functions */
 SUNDIALS_EXPORT int LSRKStepGetTimestepperStats(

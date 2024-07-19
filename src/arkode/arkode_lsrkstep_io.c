@@ -203,7 +203,7 @@ int LSRKStepSetSprRadSafetyFactor(void* arkode_mem, sunrealtype sprsfty)
 
   Returns the current number of calls to f
   ---------------------------------------------------------------*/
-int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fevals)
+int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_evals)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -215,7 +215,8 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fevals)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
-  *fevals = step_mem->nfe;
+  *fe_evals = step_mem->nfe;
+  *fi_evals = step_mem->nfi;
 
   return (ARK_SUCCESS);
 }

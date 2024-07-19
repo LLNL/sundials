@@ -136,6 +136,7 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
 
   /* Initialize all the counters */
   step_mem->nfe = 0;
+  step_mem->nfi = 0;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
