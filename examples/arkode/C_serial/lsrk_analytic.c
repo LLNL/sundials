@@ -137,7 +137,7 @@ int main(void)
   if (check_flag(&flag, "LSRKStepSetSprRadSafetyFactor", 1)) { return 1; }
 
   /* Specify the LSRK method */
-  flag = LSRKStepSetMethod(arkode_mem, 2);
+  flag = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKL);
   if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */

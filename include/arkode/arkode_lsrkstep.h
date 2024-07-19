@@ -29,12 +29,12 @@ typedef int (*ARKSprFn)(sunrealtype t, sunrealtype* extsprad, void* user_data);
  * LSRKStep Constants
  * ------------------ */
 
-/* Method ID for RKC*/
-#define RKC 1
-/* Method ID for RKL*/
-#define RKL 2
-/* Method ID for RKG*/
-#define RKG 3
+typedef enum
+{
+  ARKODE_LSRK_RKC         = 1, /* ensure enum is int */
+  ARKODE_LSRK_RKL         = 2,
+  ARKODE_LSRK_RKG         = 3
+} ARKODE_LSRKMethodType;
 
 /* -------------------
  * Exported Functions
@@ -45,7 +45,7 @@ typedef int (*ARKSprFn)(sunrealtype t, sunrealtype* extsprad, void* user_data);
 SUNDIALS_EXPORT void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
                                      N_Vector y0, SUNContext sunctx);
 
-SUNDIALS_EXPORT int LSRKStepSetMethod(void* arkode_mem, int method);
+SUNDIALS_EXPORT int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method);
 
 SUNDIALS_EXPORT int LSRKStepSetSprRadFn(void* arkode_mem, ARKSprFn spr);
 

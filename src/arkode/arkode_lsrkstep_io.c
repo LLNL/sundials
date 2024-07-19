@@ -33,11 +33,11 @@
 
 /*---------------------------------------------------------------
   LSRKStepSetMethod sets method
-  RKC => method = RKC
-  RKL => method = RKL
-  RKG => method = RKG
+    ARKODE_LSRK_RKC
+    ARKODE_LSRK_RKL
+    ARKODE_LSRK_RKG
   ---------------------------------------------------------------*/
-int LSRKStepSetMethod(void* arkode_mem, int method)
+int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -50,15 +50,15 @@ int LSRKStepSetMethod(void* arkode_mem, int method)
 
   switch (method)
   {
-  case RKC:
+  case ARKODE_LSRK_RKC:
     ark_mem->step = lsrkStep_TakeStepRKC;
     printf("\nSolving with RKC method\n\n");
     break;
-  case RKL:
+  case ARKODE_LSRK_RKL:
     ark_mem->step = lsrkStep_TakeStepRKL;
     printf("\nSolving with RKL method\n\n");
     break;
-  case RKG:
+  case ARKODE_LSRK_RKG:
     ark_mem->step = lsrkStep_TakeStepRKG;
     printf("\nSolving with RKG method\n\n");
     break;
