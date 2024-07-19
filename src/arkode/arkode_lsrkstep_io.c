@@ -182,7 +182,7 @@ int LSRKStepSetSprRadSafetyFactor(void* arkode_mem, sunrealtype sprsfty)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (sprsfty < 1)
+  if (sprsfty < SUN_RCONST(1.0))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "sprsfty must be greater than or equal to 1");
