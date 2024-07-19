@@ -1004,13 +1004,13 @@ int lsrkStep_ComputeNewSprRad(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   }
   step_mem->jacatt = SUNTRUE;
 
-  step_mem->sprmax = (round(step_mem->sprad) > step_mem->sprmax)
-                       ? ((sunrealtype)round(step_mem->sprad))
+  step_mem->sprmax = (step_mem->sprad > step_mem->sprmax)
+                       ? step_mem->sprad
                        : step_mem->sprmax;
 
-  if (round(step_mem->sprad) < step_mem->sprmin || ark_mem->nst == 0)
+  if (step_mem->sprad < step_mem->sprmin || ark_mem->nst == 0)
   {
-    step_mem->sprmin = (sunrealtype)round(step_mem->sprad);
+    step_mem->sprmin = step_mem->sprad;
   }
 
   step_mem->newspr = SUNFALSE;
