@@ -65,6 +65,10 @@ SUNDIALS_EXPORT int LSRKStepSetSprRadSafetyFactor(void* arkode_mem,
 
 SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_evals);
 
+SUNDIALS_EXPORT int LSRKStepGetSprMax(void* arkode_mem, sunrealtype* sprmax);
+
+SUNDIALS_EXPORT int LSRKStepGetSprMin(void* arkode_mem, sunrealtype* sprmin);
+
 /* Grouped optional output functions */
 SUNDIALS_EXPORT int LSRKStepGetTimestepperStats(
   void* arkode_mem, long int* expsteps, long int* accsteps, long int* attempts,
