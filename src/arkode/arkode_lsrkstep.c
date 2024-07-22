@@ -696,7 +696,14 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Shift the data for the next stage */
     if (j < step_mem->reqstages)
     {
-      N_VScale(ONE, ark_mem->tempv2, ark_mem->tempv1);
+      /* To avoid two data copies we swap ARKODE's tempv1 and tempv2 pointers*/
+      N_Vector *ptrtempv1 = &(ark_mem->tempv1);
+      N_Vector *ptrtempv2 = &(ark_mem->tempv2);
+
+      N_Vector temp = *ptrtempv2;
+      *ptrtempv2 = *ptrtempv1;
+      *ptrtempv1 = temp;
+
       N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
 
       thjm2  = thjm1;
@@ -971,7 +978,8 @@ sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl)
 {
   if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
       (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||
-      (tmpl->ops->nvscale == NULL) || (tmpl->ops->nvwrmsnorm == NULL))
+      (tmpl->ops->nvscale == NULL) || (tmpl->ops->nvwrmsnorm == NULL) ||
+      (tmpl->ops->nvspace == NULL))
   {
     return (SUNFALSE);
   }
