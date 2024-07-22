@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-typedef int (*ARKSprFn)(sunrealtype t, sunrealtype* extsprad, void* user_data);
+typedef int (*ARKDomEigFn)(sunrealtype t, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data);
 
 /* ------------------
  * LSRKStep Constants
@@ -52,14 +52,14 @@ SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
 
 SUNDIALS_EXPORT int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method);
 
-SUNDIALS_EXPORT int LSRKStepSetSprRadFn(void* arkode_mem, ARKSprFn spr);
+SUNDIALS_EXPORT int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn Dom);
 
-SUNDIALS_EXPORT int LSRKStepSetSprRadFrequency(void* arkode_mem, int nsteps);
+SUNDIALS_EXPORT int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps);
 
 SUNDIALS_EXPORT int LSRKStepSetMaxStageNum(void* arkode_mem, int stagemaxlimit);
 
-SUNDIALS_EXPORT int LSRKStepSetSprRadSafetyFactor(void* arkode_mem,
-                                                 sunrealtype sprsfty);
+SUNDIALS_EXPORT int LSRKStepSetDomEigSafetyFactor(void* arkode_mem,
+                                                 sunrealtype domeigsfty);
 
 /* Optional output functions */
 
@@ -72,8 +72,8 @@ SUNDIALS_EXPORT int LSRKStepGetSprMin(void* arkode_mem, sunrealtype* sprmin);
 /* Grouped optional output functions */
 SUNDIALS_EXPORT int LSRKStepGetTimestepperStats(
   void* arkode_mem, long int* expsteps, long int* accsteps, long int* attempts,
-  long int* fevals, long int* sprfevals, long int* netfails, long int* stagemax,
-  long int* nsprupdates, sunrealtype* sprmax, sunrealtype* sprmin);
+  long int* fevals, long int* domeigfevals, long int* netfails, long int* stagemax,
+  long int* ndomeigupdates, sunrealtype* sprmax, sunrealtype* sprmin);
 
 #ifdef __cplusplus
 }

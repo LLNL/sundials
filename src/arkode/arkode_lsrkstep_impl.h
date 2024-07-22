@@ -42,7 +42,7 @@ typedef struct ARKodeLSRKStepMemRec
   /* LSRK problem specification */
   ARKRhsFn fe;
   ARKRhsFn fi;
-  ARKSprFn extspr;
+  ARKDomEigFn extDomEig;
 
   /* LSRK method storage and parameters */
   // N_Vector  temp1; /* Temp vector storage */
@@ -58,22 +58,24 @@ typedef struct ARKodeLSRKStepMemRec
   /* Counters and stats*/
   long int nfe;           /* num fe calls       */
   long int nfi;           /* num fi calls       */
-  long int sprnfe;        /* num fe calls for spectral radius      */
-  long int nsprupdates;   /* num of spr computations   */
+  long int domeignfe;        /* num fe calls for spectral radius      */
+  long int ndomeigupdates;   /* num of domeig computations   */
   int stagemax;      /* num of max stages taken      */
   int stagemaxlimit; /* max allowed num of stages     */
-  int nstsig; /* num of steps that successfully used spr; indicates spr update when 0;  */
+  int nstsig; /* num of steps that successfully used domeig; indicates domeig update when 0;  */
 
   /* Spectral radius info */
+  sunrealtype lambdaR; /* Real part of the dominated eigenvalue*/
+  sunrealtype lambdaI; /* Imaginary part of the dominated eigenvalue*/
   sunrealtype sprad;   /* spectral radius*/
   sunrealtype sprmax;  /* max spectral radius*/
   sunrealtype sprmin;  /* min spectral radius*/
-  sunrealtype sprsfty; /* some safety factor for the user provided spr*/
-  int sprfreq; /* indicates spr update after sprupdatepar successful steps*/
+  sunrealtype domeigsfty; /* some safety factor for the user provided domeig*/
+  int domeigfreq; /* indicates domeig update after domeigfreq successful steps*/
 
   /* Flags */
-  sunbooleantype isextspr; /* flag indicating user provided spr */
-  sunbooleantype newspr;   /* flag indicating new spr is needed */
+  sunbooleantype isextDomEig; /* flag indicating user provided DomEig */
+  sunbooleantype newdomeig;   /* flag indicating new domeig is needed */
   sunbooleantype constJac; /* flag indicating Jacobian is constant */
   sunbooleantype jacatt;   /* an internal flag*/
 
@@ -109,10 +111,10 @@ int lsrkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
                                  ARKodeMem* ark_mem, ARKodeLSRKStepMem* step_mem);
 int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                            ARKodeLSRKStepMem* step_mem);
-void lsrkStep_SprRadUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
+void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm);
 sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl);
-int lsrkStep_ComputeNewSprRad(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);
+int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);
 
 /*===============================================================
   Reusable LSRKStep Error Messages

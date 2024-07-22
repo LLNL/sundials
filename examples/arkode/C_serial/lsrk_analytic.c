@@ -49,8 +49,8 @@
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
-/* User-supplied Spectral Radius Called by the Solver */
-static int spr(sunrealtype t, sunrealtype* extsprad, void* user_data);
+/* User-supplied Dominated Eigenvalue Called by the Solver */
+static int DomEig(sunrealtype t, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data);
 
 /* Private function to check function return values */
 static int check_flag(void* flagvalue, const char* funcname, int opt);
@@ -113,13 +113,13 @@ int main(void)
   if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
 
   /* Specify user provided spectral radius */
-  flag = LSRKStepSetSprRadFn(arkode_mem, spr);
-  if (check_flag(&flag, "LSRKStepSetSprRadFn", 1)) { return 1; }
+  flag = LSRKStepSetDomEigFn(arkode_mem, DomEig);
+  if (check_flag(&flag, "LSRKStepSetDomEigFn", 1)) { return 1; }
 
-  /* Specify after how many successful steps SprRad is recomputed 
+  /* Specify after how many successful steps DomEig is recomputed 
      Note that nsteps = 0 refers to Constant Jacobian */
-  flag = LSRKStepSetSprRadFrequency(arkode_mem, 0);
-  if (check_flag(&flag, "LSRKStepSetSprRadFrequency", 1)) { return 1; }
+  flag = LSRKStepSetDomEigFrequency(arkode_mem, 0);
+  if (check_flag(&flag, "LSRKStepSetDomEigFrequency", 1)) { return 1; }
 
   /* Specify max number of stages allowed */
   flag = LSRKStepSetMaxStageNum(arkode_mem, 200);
@@ -129,9 +129,9 @@ int main(void)
   flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
-  /* Specify safety factor for user provided SprRad */
-  flag = LSRKStepSetSprRadSafetyFactor(arkode_mem, 1.01);
-  if (check_flag(&flag, "LSRKStepSetSprRadSafetyFactor", 1)) { return 1; }
+  /* Specify safety factor for user provided DomEig */
+  flag = LSRKStepSetDomEigSafetyFactor(arkode_mem, 1.01);
+  if (check_flag(&flag, "LSRKStepSetDomEigSafetyFactor", 1)) { return 1; }
 
   /* Specify the LSRK method */
   flag = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKL);
@@ -210,12 +210,13 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   return 0; /* return with success */
 }
 
-/* spr routine to estimate the spectral radius */
-static int spr(sunrealtype t, sunrealtype* extsprad, void* user_data)
+/* DomEig routine to estimate the dominated eigenvalue */
+static int DomEig(sunrealtype t, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter */
-  *extsprad          = lambda;   /* access current solution value */
+  *lambdaR           = lambda;   
+  *lambdaI           = 0.0;   
   return 0;                      /* return with success */
 }
 

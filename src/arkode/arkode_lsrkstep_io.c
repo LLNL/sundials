@@ -73,9 +73,9 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepSetSprRadFn specifies the SprRad function.
+  LSRKStepSetDomEigFn specifies the DomEig function.
   ---------------------------------------------------------------*/
-int LSRKStepSetSprRadFn(void* arkode_mem, ARKSprFn spr)
+int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn DomEig)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -86,32 +86,32 @@ int LSRKStepSetSprRadFn(void* arkode_mem, ARKSprFn spr)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* set the SprRad routine pointer, and update relevant flags */
-  if (spr != NULL)
+  /* set the DomEig routine pointer, and update relevant flags */
+  if (DomEig != NULL)
   {
-    step_mem->isextspr = SUNTRUE;
-    step_mem->extspr   = spr;
+    step_mem->isextDomEig = SUNTRUE;
+    step_mem->extDomEig   = DomEig;
 
     return (ARK_SUCCESS);
   }
   else
   {
-    step_mem->isextspr = SUNFALSE;
-    step_mem->extspr   = NULL;
+    step_mem->isextDomEig = SUNFALSE;
+    step_mem->extDomEig   = NULL;
 
-    printf("\nInternal SprRad is not supported yet!\n");
+    printf("\nInternal DomEig is not supported yet!\n");
 
     return (ARK_FAIL_OTHER);
   }
 }
 
 /*---------------------------------------------------------------
-  LSRKStepSetSprRadFrequency sets SprRad computation frequency - 
-  Spectral Radius is recomputed after "nsteps" successful steps.
+  LSRKStepSetDomEigFrequency sets DomEig computation frequency - 
+  Dominated Eigenvalue is recomputed after "nsteps" successful steps.
     
     nsteps = 0 refers to Constant Jacobian
   ---------------------------------------------------------------*/
-int LSRKStepSetSprRadFrequency(void* arkode_mem, int nsteps)
+int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -132,11 +132,11 @@ int LSRKStepSetSprRadFrequency(void* arkode_mem, int nsteps)
   if (nsteps == 0)
   {
     step_mem->constJac = SUNTRUE;
-    step_mem->sprfreq  = 1;
+    step_mem->domeigfreq  = 1;
   }
   else
   {
-    step_mem->sprfreq = nsteps;
+    step_mem->domeigfreq = nsteps;
   }
 
   return (ARK_SUCCESS);
@@ -169,9 +169,9 @@ int LSRKStepSetMaxStageNum(void* arkode_mem, int stagemaxlimit)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepSetSprRadSafetyFactor sets the maximum number of stages allowed.
+  LSRKStepSetDomEigSafetyFactor sets the maximum number of stages allowed.
   ---------------------------------------------------------------*/
-int LSRKStepSetSprRadSafetyFactor(void* arkode_mem, sunrealtype sprsfty)
+int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -182,14 +182,14 @@ int LSRKStepSetSprRadSafetyFactor(void* arkode_mem, sunrealtype sprsfty)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (sprsfty < SUN_RCONST(1.0))
+  if (domeigsfty < SUN_RCONST(1.0))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "sprsfty must be greater than or equal to 1");
+                    "domeigsfty must be greater than or equal to 1");
     return (ARK_ILL_INPUT);
   }
 
-  step_mem->sprsfty = sprsfty;
+  step_mem->domeigsfty = domeigsfty;
 
   return (ARK_SUCCESS);
 }
@@ -272,9 +272,9 @@ int LSRKStepGetSprMin(void* arkode_mem, sunrealtype* sprmin)
   ---------------------------------------------------------------*/
 int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
                                 long int* accsteps, long int* attempts,
-                                long int* fevals, long int* sprfevals,
+                                long int* fevals, long int* domeigfevals,
                                 long int* netfails, long int* stagemax,
-                                long int* nsprupdates, sunrealtype* sprmax,
+                                long int* ndomeigupdates, sunrealtype* sprmax,
                                 sunrealtype* sprmin)
 {
   ARKodeMem ark_mem;
@@ -291,14 +291,14 @@ int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
   *accsteps = ark_mem->hadapt_mem->nst_acc;
 
   // /* set remaining outputs */
-  *attempts    = ark_mem->nst_attempts;
-  *fevals      = step_mem->nfe;
-  *sprfevals   = step_mem->sprnfe;
-  *netfails    = ark_mem->netf;
-  *stagemax    = step_mem->stagemax;
-  *nsprupdates = step_mem->nsprupdates;
-  *sprmax      = step_mem->sprmax;
-  *sprmin      = step_mem->sprmin;
+  *attempts       = ark_mem->nst_attempts;
+  *fevals         = step_mem->nfe;
+  *domeigfevals      = step_mem->domeignfe;
+  *netfails       = ark_mem->netf;
+  *stagemax       = step_mem->stagemax;
+  *ndomeigupdates = step_mem->ndomeigupdates;
+  *sprmax         = step_mem->sprmax;
+  *sprmin         = step_mem->sprmin;
 
   return (ARK_SUCCESS);
 }
@@ -365,23 +365,25 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->reqstages = 0; /* no stages */
 
   /* Counters and stats*/
-  step_mem->nfe         = 0;
-  step_mem->sprnfe      = 0;
-  step_mem->stagemax    = 0;
-  step_mem->nsprupdates = 0;
-  step_mem->stagemaxlimit =
+  step_mem->nfe            = 0;
+  step_mem->domeignfe      = 0;
+  step_mem->stagemax       = 0;
+  step_mem->ndomeigupdates = 0;
+  step_mem->stagemaxlimit  =
     SUNMAX(2, round(SUNRsqrt(ark_mem->reltol / (10.0 * ark_mem->uround))));
   step_mem->nstsig = 0;
 
   /* Spectral radius info */
-  step_mem->sprad   = 1;
+  step_mem->lambdaR = 0;
+  step_mem->lambdaI = 0;
+  step_mem->sprad   = 0;
   step_mem->sprmax  = 0;
   step_mem->sprmin  = 0;
-  step_mem->sprsfty = 1.01;
-  step_mem->sprfreq = 25;
+  step_mem->domeigsfty = 1.01;
+  step_mem->domeigfreq = 25;
 
   /* Flags */
-  step_mem->newspr   = SUNTRUE;
+  step_mem->newdomeig   = SUNTRUE;
   step_mem->constJac = SUNFALSE;
   step_mem->jacatt   = SUNFALSE;
 
@@ -433,12 +435,11 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
-    fprintf(outfile, "RHS fn evals for spr         = %ld\n", step_mem->sprnfe);
-    fprintf(outfile, "Number of SPR update calls   = %ld\n",
-            step_mem->nsprupdates);
-    fprintf(outfile, "Max. num. of stages taken    = %ld\n", step_mem->stagemax);
-    fprintf(outfile, "Max. num. of stages allowed  = %ld\n",
+    fprintf(outfile, "RHS fn evals                  = %ld\n", step_mem->nfe);
+    fprintf(outfile, "RHS fn evals for Dom. Eigs.   = %ld\n", step_mem->domeignfe);
+    fprintf(outfile, "Number of DomEig update calls = %ld\n", step_mem->ndomeigupdates);
+    fprintf(outfile, "Max. num. of stages taken     = %ld\n", step_mem->stagemax);
+    fprintf(outfile, "Max. num. of stages allowed   = %ld\n",
             step_mem->stagemaxlimit);
 
     fprintf(outfile, "Max. spectral radius         = %.2f\n", step_mem->sprmax);
@@ -446,8 +447,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
-    fprintf(outfile, ",RHS fn evals for spr,%ld", step_mem->sprnfe);
-    fprintf(outfile, ",Number of SPR update calls,%ld", step_mem->nsprupdates);
+    fprintf(outfile, ",RHS fn evals for Dom. Eigs.,%ld", step_mem->domeignfe);
+    fprintf(outfile, ",Number of DomEig update calls,%ld", step_mem->ndomeigupdates);
     fprintf(outfile, ",Max. num. of stages taken,%ld", step_mem->stagemax);
     fprintf(outfile, ",Max. num. of stages allowed,%ld", step_mem->stagemaxlimit);
 

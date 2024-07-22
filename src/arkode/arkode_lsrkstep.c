@@ -337,23 +337,25 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   fprintf(outfile, "LSRKStep: nstsig    = %li\n", step_mem->nstsig);
 
   /* output long integer quantities */
-  fprintf(outfile, "LSRKStep: nfe           = %li\n", step_mem->nfe);
-  fprintf(outfile, "LSRKStep: sprnfe        = %li\n", step_mem->sprnfe);
-  fprintf(outfile, "LSRKStep: stagemax      = %li\n", step_mem->stagemax);
-  fprintf(outfile, "LSRKStep: nsprupdates   = %li\n", step_mem->nsprupdates);
-  fprintf(outfile, "LSRKStep: stagemaxlimit = %li\n", step_mem->stagemaxlimit);
-  fprintf(outfile, "LSRKStep: sprupdatepar  = %li\n", step_mem->sprfreq);
+  fprintf(outfile, "LSRKStep: nfe            = %li\n", step_mem->nfe);
+  fprintf(outfile, "LSRKStep: domeeignfe     = %li\n", step_mem->domeignfe);
+  fprintf(outfile, "LSRKStep: stagemax       = %li\n", step_mem->stagemax);
+  fprintf(outfile, "LSRKStep: ndomeigupdates = %li\n", step_mem->ndomeigupdates);
+  fprintf(outfile, "LSRKStep: stagemaxlimit  = %li\n", step_mem->stagemaxlimit);
+  fprintf(outfile, "LSRKStep: domeigfreq     = %li\n", step_mem->domeigfreq);
 
   /* output sunrealtype quantities */
+  fprintf(outfile, "LSRKStep: DomEig        = %f + i%f\n", step_mem->lambdaR, 
+                                                           step_mem->lambdaI);
   fprintf(outfile, "LSRKStep: sprad         = %f\n", step_mem->sprad);
   fprintf(outfile, "LSRKStep: sprmax        = %f\n", step_mem->sprmax);
   fprintf(outfile, "LSRKStep: sprmin        = %f\n", step_mem->sprmin);
-  fprintf(outfile, "LSRKStep: sprsfty       = %f\n", step_mem->sprsfty);
+  fprintf(outfile, "LSRKStep: domeigsfty    = %f\n", step_mem->domeigsfty);
 
   /* output sunbooleantype quantities */
-  fprintf(outfile, "LSRKStep: isextspr  = %d\n", step_mem->isextspr);
-  fprintf(outfile, "LSRKStep: newspr    = %d\n", step_mem->newspr);
-  fprintf(outfile, "LSRKStep: jacatt    = %d\n", step_mem->jacatt);
+  fprintf(outfile, "LSRKStep: isextDomEig  = %d\n", step_mem->isextDomEig);
+  fprintf(outfile, "LSRKStep: newdomeig    = %d\n", step_mem->newdomeig);
+  fprintf(outfile, "LSRKStep: jacatt       = %d\n", step_mem->jacatt);
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
@@ -597,10 +599,10 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   Xvecs = step_mem->Xvecs;
 
   /* Compute spectral radius and update stats */
-  if ((step_mem->newspr))
+  if ((step_mem->newdomeig))
   {
-    retval = lsrkStep_ComputeNewSprRad(ark_mem, step_mem);
-    step_mem->nsprupdates++;
+    retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
+    step_mem->ndomeigupdates++;
   }
 
   /* determine the number of required stages */
@@ -742,7 +744,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
-    lsrkStep_SprRadUpdateLogic(ark_mem, step_mem, *dsmPtr);
+    lsrkStep_DomEigUpdateLogic(ark_mem, step_mem, *dsmPtr);
   }
   return (ARK_SUCCESS);
 }
@@ -789,10 +791,10 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   Xvecs = step_mem->Xvecs;
 
   /* Compute spectral radius and update stats */
-  if ((step_mem->newspr))
+  if ((step_mem->newdomeig))
   {
-    retval = lsrkStep_ComputeNewSprRad(ark_mem, step_mem);
-    step_mem->nsprupdates++;
+    retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
+    step_mem->ndomeigupdates++;
   }
 
   /* determine the number of required stages */
@@ -904,7 +906,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
-    lsrkStep_SprRadUpdateLogic(ark_mem, step_mem, *dsmPtr);
+    lsrkStep_DomEigUpdateLogic(ark_mem, step_mem, *dsmPtr);
   }
   return (ARK_SUCCESS);
 }
@@ -987,26 +989,27 @@ sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl)
 }
 
 /*---------------------------------------------------------------
-  lsrkStep_ComputeNewSprRad:
+  lsrkStep_ComputeNewDomEig:
 
-  This routine computes new SprRad and returns SUN_SUCCESS.
+  This routine computes new DomEig and returns SUN_SUCCESS.
   ---------------------------------------------------------------*/
 
-int lsrkStep_ComputeNewSprRad(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
+int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 {
   int retval = SUN_SUCCESS;
 
-  if ((step_mem->isextspr))
+  if ((step_mem->isextDomEig))
   {
-    retval = step_mem->extspr(ark_mem->tn, &step_mem->sprad, ark_mem->user_data);
-    step_mem->sprad *= step_mem->sprsfty;
-    step_mem->sprad = SUNRabs(step_mem->sprad);
+    retval = step_mem->extDomEig(ark_mem->tn, &step_mem->lambdaR, &step_mem->lambdaI, ark_mem->user_data);
+    step_mem->lambdaR *= step_mem->domeigsfty;
+    step_mem->lambdaI *= step_mem->domeigsfty;
+    step_mem->sprad = SUNRsqrt(SUNSQR(step_mem->lambdaR) + SUNSQR(step_mem->lambdaI));
   }
   else
   {
-    printf("\nInternal SprRad is not supported yet!");
+    printf("\nInternal DomEig is not supported yet!");
     printf(
-      "\nCall LSRKStepSetSprRadFn to provide an external SprRad function\n");
+      "\nCall LSRKStepSetDomEigFn to provide an external DomEig function\n");
 
     return (ARK_ILL_INPUT);
   }
@@ -1021,19 +1024,19 @@ int lsrkStep_ComputeNewSprRad(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
     step_mem->sprmin = step_mem->sprad;
   }
 
-  step_mem->newspr = SUNFALSE;
+  step_mem->newdomeig = SUNFALSE;
 
   return retval;
 }
 
 /*---------------------------------------------------------------
-  lsrkStep_SprRadUpdateLogic:
+  lsrkStep_DomEigUpdateLogic:
 
   This routine checks if the step is accepted or not and reassigns
-  the SprRad update flags accordingly.
+  the DomEig update flags accordingly.
   ---------------------------------------------------------------*/
 
-void lsrkStep_SprRadUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
+void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm)
 {
   if (dsm <= ONE || ark_mem->fixedstep)
@@ -1042,11 +1045,11 @@ void lsrkStep_SprRadUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
     ark_mem->fn_is_current = SUNTRUE;
 
     step_mem->jacatt = (step_mem->constJac == SUNTRUE);
-    step_mem->nstsig = (step_mem->nstsig + 1) % step_mem->sprfreq;
-    step_mem->newspr = SUNFALSE;
-    if (step_mem->nstsig == 0) { step_mem->newspr = !step_mem->jacatt; }
+    step_mem->nstsig = (step_mem->nstsig + 1) % step_mem->domeigfreq;
+    step_mem->newdomeig = SUNFALSE;
+    if (step_mem->nstsig == 0) { step_mem->newdomeig = !step_mem->jacatt; }
   }
-  else { step_mem->newspr = !step_mem->jacatt; }
+  else { step_mem->newdomeig = !step_mem->jacatt; }
 }
 
 /*===============================================================
