@@ -598,7 +598,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
-  /* Compute spectral radius and update stats */
+  /* Compute Dominated Eigenvalue and update stats */
   if ((step_mem->newdomeig))
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
@@ -608,7 +608,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* determine the number of required stages */
   for (int ss = 1; ss < step_mem->stagemaxlimit; ss++)
   {
-    if (SUNSQR(ss) >= (onep54 * ark_mem->h * step_mem->sprad))
+    if (SUNSQR(ss) >= (onep54 * SUNRabs(ark_mem->h) * step_mem->sprad))
     {
       step_mem->reqstages = SUNMAX(ss, 2);
       break;
@@ -790,7 +790,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
-  /* Compute spectral radius and update stats */
+  /* Compute Dominated Eigenvalue and update stats */
   if ((step_mem->newdomeig))
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
@@ -800,7 +800,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* determine the number of required stages */
   for (int ss = 1; ss < step_mem->stagemaxlimit; ss++)
   {
-    if ((SUNSQR(ss) + ss - 2) >= 2 * (ark_mem->h * step_mem->sprad))
+    if ((SUNSQR(ss) + ss - 2) >= 2 * (SUNRabs(ark_mem->h) * step_mem->sprad))
     {
       step_mem->reqstages = SUNMAX(ss, 2);
       break;
@@ -1001,6 +1001,17 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   if ((step_mem->isextDomEig))
   {
     retval = step_mem->extDomEig(ark_mem->tn, &step_mem->lambdaR, &step_mem->lambdaI, ark_mem->user_data);
+    if(step_mem->lambdaR*ark_mem->h > ZERO)
+    {
+      printf("\nlambdaR*h must be nonpositive\n");
+      return (ARK_ILL_INPUT);
+    }
+    else if (step_mem->lambdaR == 0 && SUNRabs(step_mem->lambdaI) > 0)
+    {
+      printf("\nDomEig cannot be purely imaginary\n");
+      return (ARK_ILL_INPUT);
+    }
+    
     step_mem->lambdaR *= step_mem->domeigsfty;
     step_mem->lambdaI *= step_mem->domeigsfty;
     step_mem->sprad = SUNRsqrt(SUNSQR(step_mem->lambdaR) + SUNSQR(step_mem->lambdaI));

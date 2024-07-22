@@ -58,20 +58,21 @@ typedef struct ARKodeLSRKStepMemRec
   /* Counters and stats*/
   long int nfe;           /* num fe calls       */
   long int nfi;           /* num fi calls       */
-  long int domeignfe;        /* num fe calls for spectral radius      */
+  long int domeignfe;        /* num fe calls for spectral DomEig      */
   long int ndomeigupdates;   /* num of domeig computations   */
   int stagemax;      /* num of max stages taken      */
   int stagemaxlimit; /* max allowed num of stages     */
   int nstsig; /* num of steps that successfully used domeig; indicates domeig update when 0;  */
 
-  /* Spectral radius info */
+  /* Spectral info */
   sunrealtype lambdaR; /* Real part of the dominated eigenvalue*/
   sunrealtype lambdaI; /* Imaginary part of the dominated eigenvalue*/
   sunrealtype sprad;   /* spectral radius*/
   sunrealtype sprmax;  /* max spectral radius*/
   sunrealtype sprmin;  /* min spectral radius*/
   sunrealtype domeigsfty; /* some safety factor for the user provided domeig*/
-  int domeigfreq; /* indicates domeig update after domeigfreq successful steps*/
+  int domeigfreq;         /* indicates domeig update after domeigfreq successful steps*/
+  int intdir;             /* indicates the direction of integration*/
 
   /* Flags */
   sunbooleantype isextDomEig; /* flag indicating user provided DomEig */

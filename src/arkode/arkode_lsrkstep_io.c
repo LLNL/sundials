@@ -293,7 +293,7 @@ int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
   // /* set remaining outputs */
   *attempts       = ark_mem->nst_attempts;
   *fevals         = step_mem->nfe;
-  *domeigfevals      = step_mem->domeignfe;
+  *domeigfevals   = step_mem->domeignfe;
   *netfails       = ark_mem->netf;
   *stagemax       = step_mem->stagemax;
   *ndomeigupdates = step_mem->ndomeigupdates;
@@ -373,19 +373,19 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
     SUNMAX(2, round(SUNRsqrt(ark_mem->reltol / (10.0 * ark_mem->uround))));
   step_mem->nstsig = 0;
 
-  /* Spectral radius info */
-  step_mem->lambdaR = 0;
-  step_mem->lambdaI = 0;
-  step_mem->sprad   = 0;
-  step_mem->sprmax  = 0;
-  step_mem->sprmin  = 0;
+  /* Spectral info */
+  step_mem->lambdaR    = 0;
+  step_mem->lambdaI    = 0;
+  step_mem->sprad      = 0;
+  step_mem->sprmax     = 0;
+  step_mem->sprmin     = 0;
   step_mem->domeigsfty = 1.01;
   step_mem->domeigfreq = 25;
 
   /* Flags */
   step_mem->newdomeig   = SUNTRUE;
-  step_mem->constJac = SUNFALSE;
-  step_mem->jacatt   = SUNFALSE;
+  step_mem->constJac    = SUNFALSE;
+  step_mem->jacatt      = SUNFALSE;
 
   ark_mem->hadapt_mem->adjust = 0;               /* set default adjustment */
   ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
