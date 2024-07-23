@@ -57,7 +57,9 @@
 #include <limits>
 #include <string>
 
-#include "arkode/arkode_arkstep.h"     // access to ARKStep
+#include "arkode/arkode_lsrkstep.h"    // access to LSRKStep
+#include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
+#include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 #include "nvector/nvector_serial.h"    // access to the serial N_Vector
 #include "sunlinsol/sunlinsol_pcg.h"   // access to PCG SUNLinearSolver
 #include "sunlinsol/sunlinsol_spgmr.h" // access to SPGMR SUNLinearSolver
@@ -111,13 +113,13 @@ struct UserData
   sunrealtype hfixed; // fixed step size
   int controller;     // step size adaptivity method
   int maxsteps;       // max number of steps between outputs
+  bool diagnostics;   // output diagnostics
 
   // LSRKStep options
-  int method;             // LSRK method choice
-  bool constjac;          // specify that the Jacobian is constant
-  int sprfrequency;       // spectral radius recomputation update frequency
+  ARKODE_LSRKMethodType method;  // LSRK method choice
+  int eigfrequency;       // dominant eigenvalue update frequency
   int stagemaxlimit;      // maximum number of stages per step
-  sunrealtype sprsafety;  // spectral radius safety factor
+  sunrealtype eigsafety;  // dominant eigenvalue safety factor
 
   // Ouput variables
   int output;    // output level
@@ -140,7 +142,8 @@ struct UserData
 static int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data);
 
 // Spectral radius estimation routine
-static int spr(sunrealtype t, sunrealtype* extsprad, void* user_data);
+static int eig(sunrealtype t, sunrealtype* lambdaR,
+               sunrealtype* lambdaI, void* user_data);
 
 // -----------------------------------------------------------------------------
 // UserData and input functions
@@ -224,7 +227,7 @@ int main(int argc, char* argv[])
   flag = PrintUserData(udata);
   if (check_flag(&flag, "PrintUserData", 1)) { return 1; }
 
-  if (udata->diagnostics || udata->lsinfo)
+  if (udata->diagnostics)
   {
     SUNLogger logger = NULL;
 
@@ -275,26 +278,18 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
 
   // Select LSRK spectral radius function and options
-  flag = LSRKStepSetSprRadFn(arkode_mem, spr);
-  if (check_flag(&flag, "LSRKStepSetSprRadFn", 1)) { return 1; }
-  if (udata->constjac)
-  {
-    flag = LSRKStepSetConstJac(arkode_mem, udata->constjac);
-    if (check_flag(&flag, "LSRKStepSetConstJac", 1)) { return 1; }
-  }
-  else
-  {
-    flag = LSRKStepSetSprRadFrequency(arkode_mem, udata->sprfrequency);
-    if (check_flag(&flag, "LSRKStepSetSprRadFrequency", 1)) { return 1; }
-  }
+  flag = LSRKStepSetDomEigFn(arkode_mem, eig);
+  if (check_flag(&flag, "LSRKStepSetDomEigFn", 1)) { return 1; }
+  flag = LSRKStepSetDomEigFrequency(arkode_mem, udata->eigfrequency);
+  if (check_flag(&flag, "LSRKStepSetDomEigFrequency", 1)) { return 1; }
 
   // Set maximum number of stages per step
   flag = LSRKStepSetMaxStageNum(arkode_mem, udata->stagemaxlimit);
   if (check_flag(&flag, "LSRKStepSetMaxStageNum", 1)) { return 1; }
 
   // Set spectral radius safety factor
-  flag = LSRKStepSetSprRadSafetyFactor(arkode_mem, udata->sprsafety);
-  if (check_flag(&flag, "LSRKStepSetSprRadSafetyFactor", 1)) { return 1; }
+  flag = LSRKStepSetDomEigSafetyFactor(arkode_mem, udata->eigsafety);
+  if (check_flag(&flag, "LSRKStepSetDomEigSafetyFactor", 1)) { return 1; }
 
   // Set fixed step size or adaptivity method
   if (udata->hfixed > ZERO)
@@ -508,7 +503,7 @@ static int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
 
 
 // Spectral radius estimation routine
-static int spr(sunrealtype t, sunrealtype* extsprad, void* user_data)
+static int eig(sunrealtype t, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data)
 {
   // Access problem data
   UserData* udata = (UserData*)user_data;
@@ -518,7 +513,9 @@ static int spr(sunrealtype t, sunrealtype* extsprad, void* user_data)
   sunindextype ny = udata->ny;
 
   // Fill in spectral radius value
-  *extsprad = ??;
+  *lambdaR = -SUN_RCONST(4.0)*SUNMAX(udata->kx/udata->dx/udata->dx,
+                                     udata->ky/udata->dy/udata->dy);
+  *lambdaI = SUN_RCONST(0.0);
 
   // return with success
   return 0;
@@ -561,13 +558,13 @@ static int InitUserData(UserData* udata)
   udata->hfixed      = ZERO;               // using adaptive step sizes
   udata->controller  = 0;                  // PID controller
   udata->maxsteps    = 0;                  // use default
+  udata->diagnostics = false;              // output diagnostics
 
   // LSRKStep options
-  udata->method = 1;                    // RKC
-  udata->constjac = false;              // time-varying Jacobian
-  udata->sprfrequency = 25;             // update spectral radius at least every 20 steps
+  udata->method = ARKODE_LSRK_RKC;      // RKC
+  udata->eigfrequency = 25;             // update eigenvalue at least every 20 steps
   udata->stagemaxlimit = 1000;          // allow up to 1000 stages/step
-  udata->sprsafety = SUN_RCONST(1.01);  // 1% safety factor
+  udata->eigsafety = SUN_RCONST(1.01);  // 1% safety factor
 
   // Output variables
   udata->output = 1;  // 0 = no output, 1 = stats output, 2 = output to disk
@@ -637,11 +634,14 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata)
     {
       udata->controller = stoi((*argv)[arg_idx++]);
     }
-    else if (arg == "--method") { udata->method = stoi((*argv)[arg_idx++]); }
-    else if (arg == "--constjac")  { udata->constjac = true; }
-    else if (arg == "--sprfrequency")  { udata->sprfrequency = stoi((*argv)[arg_idx++]); }
+    else if (arg == "--diagnostics") { udata->diagnostics = true; }
+    else if (arg == "--method")
+    {
+      udata->method = (ARKODE_LSRKMethodType) stoi((*argv)[arg_idx++]);
+    }
+    else if (arg == "--eigfrequency")  { udata->eigfrequency = stoi((*argv)[arg_idx++]); }
     else if (arg == "--stagemaxlimit")  { udata->stagemaxlimit = stoi((*argv)[arg_idx++]); }
-    else if (arg == "--sprsafety") { udata->sprsafety = stod((*argv)[arg_idx++]); }
+    else if (arg == "--eigsafety") { udata->eigsafety = stod((*argv)[arg_idx++]); }
     // Output settings
     else if (arg == "--output") { udata->output = stoi((*argv)[arg_idx++]); }
     else if (arg == "--nout") { udata->nout = stoi((*argv)[arg_idx++]); }
@@ -744,11 +744,11 @@ static void InputHelp()
   cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --fixedstep <step>      : used fixed step size" << endl;
   cout << "  --method <mth>          : LSRK method choice" << endl;
-  cout << "  --constjac              : specify constant Jacobian" << endl;
-  cout << "  --sprfrequency <nst>    : spectral radius recomputation update frequency" << endl;
+  cout << "  --eigfrequency <nst>    : dominant eigenvalue update frequency" << endl;
   cout << "  --stagemaxlimit <smax>  : maximum number of stages per step" << endl;
-  cout << "  --sprsafety <safety>    : spectral radius safety factor" << endl;
+  cout << "  --eigsafety <safety>    : dominant eigenvalue safety factor" << endl;
   cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
+  cout << "  --diagnostics           : output diagnostics" << endl;
   cout << "  --output <level>        : output level" << endl;
   cout << "  --nout <nout>           : number of outputs" << endl;
   cout << "  --maxsteps <steps>      : max steps between outputs" << endl;
@@ -778,13 +778,12 @@ static int PrintUserData(UserData* udata)
   cout << "  fixed h        = " << udata->hfixed << endl;
   cout << "  controller     = " << udata->controller << endl;
   cout << "  method         = " << udata->method << endl;
-  if (udata->constjac)
-  {  cout << "  constant jacobian" << endl; }
-  cout << "  sprfrequency   = " << udata->sprfrequency << endl;
+  cout << "  eigfrequency   = " << udata->eigfrequency << endl;
   cout << "  stagemaxlimit  = " << udata->stagemaxlimit << endl;
-  cout << "  sprsafety      = " << udata->sprsafety << endl;
+  cout << "  eigsafety      = " << udata->eigsafety << endl;
   cout << " --------------------------------- " << endl;
   cout << "  output         = " << udata->output << endl;
+  cout << "  max steps      = " << udata->maxsteps << endl;
   cout << " --------------------------------- " << endl;
   cout << endl;
 
@@ -939,14 +938,14 @@ static int OutputStats(void* arkode_mem, UserData* udata)
   int flag;
 
   // Get integrator and solver stats
-  long int nst, nst_a, netf, nfe;
+  long int nst, nst_a, netf, nfe, nfi;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  flag = LSRKStepGetNumRhsEvals(arkode_mem, &nfe);
+  flag = LSRKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   if (check_flag(&flag, "LSRKStepGetNumRhsEvals", 1)) { return -1; }
 
   cout << fixed;
