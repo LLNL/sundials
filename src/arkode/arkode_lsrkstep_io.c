@@ -222,11 +222,11 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_ev
 }
 
 /*---------------------------------------------------------------
-  LSRKStepGetSprMax:
+  LSRKStepGetMaxStageNum:
 
-  Returns the max of spectral radius values
+  Returns the max number of stages taken
   ---------------------------------------------------------------*/
-int LSRKStepGetSprMax(void* arkode_mem, sunrealtype* sprmax)
+int LSRKStepGetMaxStageNum(void* arkode_mem, int* stagemax)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -238,29 +238,7 @@ int LSRKStepGetSprMax(void* arkode_mem, sunrealtype* sprmax)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
-  *sprmax = step_mem->sprmax;
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  LSRKStepGetSprMin:
-
-  Returns the min of spectral radius values
-  ---------------------------------------------------------------*/
-int LSRKStepGetSprMin(void* arkode_mem, sunrealtype* sprmin)
-{
-  ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* get values from step_mem */
-  *sprmin = step_mem->sprmin;
+  *stagemax = step_mem->stagemax;
 
   return (ARK_SUCCESS);
 }

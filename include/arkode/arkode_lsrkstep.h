@@ -65,9 +65,7 @@ SUNDIALS_EXPORT int LSRKStepSetDomEigSafetyFactor(void* arkode_mem,
 
 SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_evals);
 
-SUNDIALS_EXPORT int LSRKStepGetSprMax(void* arkode_mem, sunrealtype* sprmax);
-
-SUNDIALS_EXPORT int LSRKStepGetSprMin(void* arkode_mem, sunrealtype* sprmin);
+SUNDIALS_EXPORT int LSRKStepGetMaxStageNum(void* arkode_mem, int* stagemax);
 
 /* Grouped optional output functions */
 SUNDIALS_EXPORT int LSRKStepGetTimestepperStats(
