@@ -72,7 +72,6 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype sprmin;  /* min spectral radius*/
   sunrealtype domeigsfty; /* some safety factor for the user provided domeig*/
   int domeigfreq;         /* indicates domeig update after domeigfreq successful steps*/
-  int intdir;             /* indicates the direction of integration*/
 
   /* Flags */
   sunbooleantype isextDomEig; /* flag indicating user provided DomEig */

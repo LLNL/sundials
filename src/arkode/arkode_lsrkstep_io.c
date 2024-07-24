@@ -460,9 +460,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     fprintf(outfile, "RHS fn evals                  = %ld\n", step_mem->nfe);
     fprintf(outfile, "RHS fn evals for Dom. Eigs.   = %ld\n", step_mem->domeignfe);
     fprintf(outfile, "Number of DomEig update calls = %ld\n", step_mem->ndomeigupdates);
-    fprintf(outfile, "Max. num. of stages taken     = %ld\n", step_mem->stagemax);
-    fprintf(outfile, "Max. num. of stages allowed   = %ld\n",
-            step_mem->stagemaxlimit);
+    fprintf(outfile, "Max. num. of stages taken     = %d\n",  step_mem->stagemax);
+    fprintf(outfile, "Max. num. of stages allowed   = %d\n",  step_mem->stagemaxlimit);
 
     fprintf(outfile, "Max. spectral radius         = %.2f\n", step_mem->sprmax);
     fprintf(outfile, "Min. spectral radius         = %.2f\n", step_mem->sprmin);
@@ -471,8 +470,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
     fprintf(outfile, ",RHS fn evals for Dom. Eigs.,%ld", step_mem->domeignfe);
     fprintf(outfile, ",Number of DomEig update calls,%ld", step_mem->ndomeigupdates);
-    fprintf(outfile, ",Max. num. of stages taken,%ld", step_mem->stagemax);
-    fprintf(outfile, ",Max. num. of stages allowed,%ld", step_mem->stagemaxlimit);
+    fprintf(outfile, ",Max. num. of stages taken,%d", step_mem->stagemax);
+    fprintf(outfile, ",Max. num. of stages allowed,%d", step_mem->stagemaxlimit);
 
     fprintf(outfile, ",Max. spectral radius,%.2f", step_mem->sprmax);
     fprintf(outfile, ",Min. spectral radius,%.2f", step_mem->sprmin);
@@ -503,7 +502,7 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 
   /* print integrator parameters to file */
   fprintf(fp, "LSRKStep time step module parameters:\n");
-  fprintf(fp, "  Method order %i\n", NULL);
+  fprintf(fp, "  Method order %i\n", 2);
   fprintf(fp, "\n");
 
   printf("\nlsrkStep_WriteParameters is not ready yet!\n");

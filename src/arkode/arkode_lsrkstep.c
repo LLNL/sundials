@@ -333,19 +333,19 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   if (retval != ARK_SUCCESS) { return; }
 
   /* output integer quantities */
-  fprintf(outfile, "LSRKStep: reqstages = %li\n", step_mem->reqstages);
-  fprintf(outfile, "LSRKStep: nstsig    = %li\n", step_mem->nstsig);
+  fprintf(outfile, "LSRKStep: reqstages      = %i\n", step_mem->reqstages);
+  fprintf(outfile, "LSRKStep: nstsig         = %i\n", step_mem->nstsig);
+  fprintf(outfile, "LSRKStep: stagemax       = %i\n", step_mem->stagemax);
+  fprintf(outfile, "LSRKStep: stagemaxlimit  = %i\n", step_mem->stagemaxlimit);
+  fprintf(outfile, "LSRKStep: domeigfreq     = %i\n", step_mem->domeigfreq);
 
   /* output long integer quantities */
   fprintf(outfile, "LSRKStep: nfe            = %li\n", step_mem->nfe);
-  fprintf(outfile, "LSRKStep: domeeignfe     = %li\n", step_mem->domeignfe);
-  fprintf(outfile, "LSRKStep: stagemax       = %li\n", step_mem->stagemax);
+  fprintf(outfile, "LSRKStep: domeignfe      = %li\n", step_mem->domeignfe);
   fprintf(outfile, "LSRKStep: ndomeigupdates = %li\n", step_mem->ndomeigupdates);
-  fprintf(outfile, "LSRKStep: stagemaxlimit  = %li\n", step_mem->stagemaxlimit);
-  fprintf(outfile, "LSRKStep: domeigfreq     = %li\n", step_mem->domeigfreq);
 
   /* output sunrealtype quantities */
-  fprintf(outfile, "LSRKStep: DomEig        = %f + i%f\n", step_mem->lambdaR, 
+  fprintf(outfile, "LSRKStep: DomEig        = %f + i%f\n", step_mem->lambdaR,
                                                            step_mem->lambdaI);
   fprintf(outfile, "LSRKStep: sprad         = %f\n", step_mem->sprad);
   fprintf(outfile, "LSRKStep: sprmax        = %f\n", step_mem->sprmax);
