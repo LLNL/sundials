@@ -59,13 +59,13 @@ constructing a coupling table and attaching it with
 
    .. c:member:: sunrealtype*** W
 
-      A three-dimensional array with dimensions ``[nmat][stages][stages]``
+      A three-dimensional array with dimensions ``[nmat][stages+1][stages]``
       containing the method's :math:`\Omega^{\{k\}}` coupling matrices for the
       slow-nonstiff (explicit) terms in :eq:`ARKODE_IVP_two_rate`
 
    .. c:member:: sunrealtype*** G
 
-      A three-dimensional array with dimensions ``[nmat][stages][stages]``
+      A three-dimensional array with dimensions ``[nmat][stages+1][stages]``
       containing the method's :math:`\Gamma^{\{k\}}` coupling matrices for the
       slow-stiff (implicit) terms in :eq:`ARKODE_IVP_two_rate`
 
@@ -89,7 +89,7 @@ are defined ``arkode/arkode_mristep.h``.
 
    +---------------------------------------------+--------------------------------------------------------------------+
    | Function name                               | Description                                                        |
-   +---------------------------------------------+--------------------------------------------------------------------+
+   +=============================================+====================================================================+
    | :c:func:`MRIStepCoupling_LoadTable()`       | Loads a pre-defined MRIStepCoupling table by ID                    |
    +---------------------------------------------+--------------------------------------------------------------------+
    | :c:func:`MRIStepCoupling_LoadTableByName()` | Loads a pre-defined MRIStepCoupling table by name                  |
@@ -116,13 +116,10 @@ are defined ``arkode/arkode_mristep.h``.
    set of coupling tables and their corresponding identifiers, see
    :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling.Tables`.
 
+   :param method: the coupling table identifier.
 
-   **Arguments:**
-      * ``method`` -- the coupling table identifier.
-
-   **Return value:**
-      * An :c:type:`MRIStepCoupling` structure if successful.
-      * A ``NULL`` pointer if *method* was invalid or an allocation error occurred.
+   :return value:  An :c:type:`MRIStepCoupling` structure if successful. A ``NULL``
+                   pointer if *method* was invalid or an allocation error occurred.
 
 
 .. c:function:: MRIStepCoupling MRIStepCoupling_LoadTableByName(const char *method)
@@ -131,14 +128,11 @@ are defined ``arkode/arkode_mristep.h``.
    set of coupling tables and their corresponding name, see
    :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling.Tables`.
 
+   :param method: the coupling table name.
 
-   **Arguments:**
-      * ``method`` -- the coupling table name.
-
-   **Return value:**
-      * An :c:type:`MRIStepCoupling` structure if successful.
-      * A ``NULL`` pointer if *method* was invalid, *method* was
-        ``"ARKODE_MRI_NONE"``, or an allocation error occurred.
+   :return value: An :c:type:`MRIStepCoupling` structure if successful.
+                  A ``NULL`` pointer if *method* was invalid, *method* was
+                  ``"ARKODE_MRI_NONE"``, or an allocation error occurred.
 
    .. note::
 
@@ -149,16 +143,14 @@ are defined ``arkode/arkode_mristep.h``.
 
    Allocates an empty MRIStepCoupling table.
 
-   **Arguments:**
-      * ``nmat`` -- number of :math:`\Omega^{\{k\}}` and/or :math:`\Gamma^{\{k\}}`
+   :param nmat: number of :math:`\Omega^{\{k\}}` and/or :math:`\Gamma^{\{k\}}`
         matrices in the coupling table.
-      * ``stages`` -- number of stages in the coupling table.
-      * ``type`` -- the method type: explicit (0), implicit (1), or ImEx (2).
+   :param stages: number of stages in the coupling table.
+   :param type: the method type: explicit (0), implicit (1), or ImEx (2).
 
-   **Return value:**
-      * An :c:type:`MRIStepCoupling` structure if successful.
-      * A ``NULL`` pointer if *stages* or *type* was invalid or an allocation error
-        occurred.
+   :return value: An :c:type:`MRIStepCoupling` structure if successful.
+                  A ``NULL`` pointer if *stages* or *type* was invalid or an allocation error
+                  occurred.
 
    .. note::
 
@@ -171,46 +163,47 @@ are defined ``arkode/arkode_mristep.h``.
 
    Allocates a coupling table and fills it with the given values.
 
-   **Arguments:**
-      * ``nmat`` -- number of :math:`\Omega^{\{k\}}` and/or :math:`\Gamma^{\{k\}}`
-        matrices in the coupling table.
-      * ``stages`` -- number of stages in the method.
-      * ``q`` -- global order of accuracy for the method.
-      * ``p`` -- global order of accuracy for the embedded method.
-      * ``W`` -- array of coefficients defining the explicit coupling matrices
-        :math:`\Omega^{\{k\}}`. The entries should be stored as a 1D array of size
-        ``nmat * stages * stages``, in row-major order. If the slow method is
-        implicit pass ``NULL``.
-      * ``G`` -- array of coefficients defining the implicit coupling matrices
-        :math:`\Gamma^{\{k\}}`. The entries should be stored as a 1D array of size
-        ``nmat * stages * stages``, in row-major order. If the slow method is
-        explicit pass ``NULL``.
-      * ``c`` -- array of slow abscissae for the MRI method. The entries should be
-        stored as a 1D array of length ``stages``.
+   :param nmat: number of :math:`\Omega^{\{k\}}` and/or :math:`\Gamma^{\{k\}}`
+                matrices in the coupling table.
+   :param stages: number of stages in the method.
+   :param q: global order of accuracy for the method.
+   :param p: global order of accuracy for the embedded method.
+   :param W: array of coefficients defining the explicit coupling matrices
+             :math:`\Omega^{\{k\}}`. If the slow method is implicit pass ``NULL``.
+   :param G: array of coefficients defining the implicit coupling matrices
+             :math:`\Gamma^{\{k\}}`. If the slow method is explicit pass ``NULL``.
+   :param c: array of slow abscissae for the MRI method. The entries should be
+             stored as a 1D array of length ``stages``.
 
-   **Return value:**
-      * An :c:type:`MRIStepCoupling` structure if successful.
-      * A ``NULL`` pointer if ``stages`` was invalid, an allocation error occurred,
-        or the input data arrays are inconsistent with the method type.
+   :return value:  An :c:type:`MRIStepCoupling` structure if successful.
+                   A ``NULL`` pointer if ``stages`` was invalid, an allocation error occurred,
+                   or the input data arrays are inconsistent with the method type.
 
    .. note::
 
-      As embeddings are not currently supported in MRIStep, ``p`` should be
-      equal to zero.
+      The arrays *W* and *G* are assumed to have different sizes depending
+      on the embedding input, *p*.
+
+      Non-embedded methods should be indicated by an input *p=0*, in which
+      case *W* and/or *G* should have entries stored as a 1D array of size
+      ``nmat * stages * stages``, in row-major order.
+
+      Embedded methods should be indicated by an input *p>0*, in which
+      case *W* and/or *G* should have entries stored as a 1D array of size
+      ``nmat * (stages+1) * stages``, in row-major order.  The additional
+      "row" is assumed to hold the embedding coefficients.
 
 .. c:function:: MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
 
    Creates an MRI coupling table for a traditional MIS method based on the slow
    Butcher table *B*, following the formula shown in :eq:`ARKODE_MIS_to_MRI`
 
-   **Arguments:**
-      * ``B`` -- the :c:type:`ARKodeButcherTable` for the 'slow' MIS method.
-      * ``q`` -- the overall order of the MIS/MRI method.
-      * ``p`` -- the overall order of the MIS/MRI embedding.
+   :param B: the :c:type:`ARKodeButcherTable` for the "slow" MIS method.
+   :param q: the overall order of the MIS/MRI method.
+   :param p: the overall order of the MIS/MRI embedding.
 
-   **Return value:**
-      * An :c:type:`MRIStepCoupling` structure if successful.
-      * A ``NULL`` pointer if an allocation error occurred.
+   :return value: An :c:type:`MRIStepCoupling` structure if successful.
+                  A ``NULL`` pointer if an allocation error occurred.
 
    .. note::
 
@@ -224,52 +217,44 @@ are defined ``arkode/arkode_mristep.h``.
       for the Runge--Kutta method encoded in *B*, which is why these arguments
       should be supplied separately.
 
-      As embeddings are not currently supported in MRIStep, then *p* should be
-      equal to zero.
+      If *p>0* is input, then the table *B* must include embedding coefficients.
 
 
 .. c:function:: MRIStepCoupling MRIStepCoupling_Copy(MRIStepCoupling C)
 
    Creates copy of the given coupling table.
 
-   **Arguments:**
-      * ``C`` -- the coupling table to copy.
+   :param C: the coupling table to copy.
 
-   **Return value:**
-      * An :c:type:`MRIStepCoupling` structure if successful.
-      * A ``NULL`` pointer if an allocation error occurred.
+   :return value: An :c:type:`MRIStepCoupling` structure if successful.
+                  A ``NULL`` pointer if an allocation error occurred.
 
 
 .. c:function:: void MRIStepCoupling_Space(MRIStepCoupling C, sunindextype *liw, sunindextype *lrw)
 
    Get the real and integer workspace size for a coupling table.
 
-   **Arguments:**
-      * ``C`` -- the coupling table.
-      * ``lenrw`` -- the number of ``sunrealtype`` values in the coupling table
-        workspace.
-      * ``leniw`` -- the number of integer values in the coupling table workspace.
+   :param C: the coupling table.
+   :param lenrw: the number of ``sunrealtype`` values in the coupling table
+                 workspace.
+   :param leniw: the number of integer values in the coupling table workspace.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful.
-      * *ARK_MEM_NULL* if the Butcher table memory was ``NULL``.
+   :retval ARK_SUCCESS: if successful.
+   :retval ARK_MEM_NULL: if the Butcher table memory was ``NULL``.
 
 
 .. c:function:: void MRIStepCoupling_Free(MRIStepCoupling C)
 
    Deallocate the coupling table memory.
 
-   **Arguments:**
-      * ``C`` -- the coupling table.
-
+   :param C: the coupling table.
 
 .. c:function:: void MRIStepCoupling_Write(MRIStepCoupling C, FILE *outfile)
 
    Write the coupling table to the provided file pointer.
 
-   **Arguments:**
-      * ``C`` -- the coupling table.
-      * ``outfile`` -- pointer to use for printing the table.
+   :param C: the coupling table.
+   :param outfile: pointer to use for printing the table.
 
    .. note::
 
@@ -306,33 +291,33 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
 .. table:: Explicit MRI-GARK coupling tables. The default method for each order
            is marked with an asterisk (:math:`^*`).
 
-   =================================  ===========  =====================
-   Table name                         Order        Reference
-   =================================  ===========  =====================
-   ``ARKODE_MRI_GARK_FORWARD_EULER``  :math:`1^*`
-   ``ARKODE_MRI_GARK_ERK22b``         :math:`2^*`  :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_ERK22a``         2            :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_RALSTON2``       2            :cite:p:`Roberts:22`
-   ``ARKODE_MIS_KW3``                 :math:`3^*`  :cite:p:`Schlegel:09`
-   ``ARKODE_MRI_GARK_ERK33a``         3            :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_RALSTON3``       3            :cite:p:`Roberts:22`
-   ``ARKODE_MRI_GARK_ERK45a``         :math:`4^*`  :cite:p:`Sandu:19`
-   =================================  ===========  =====================
+   =================================  ============  ===============  =====================
+   Table name                         Method Order  Embedding Order  Reference
+   =================================  ============  ===============  =====================
+   ``ARKODE_MRI_GARK_FORWARD_EULER``  :math:`1^*`   0
+   ``ARKODE_MRI_GARK_ERK22b``         :math:`2^*`   0                :cite:p:`Sandu:19`
+   ``ARKODE_MRI_GARK_ERK22a``         2             1                :cite:p:`Sandu:19`
+   ``ARKODE_MRI_GARK_RALSTON2``       2             0                :cite:p:`Roberts:22`   
+   ``ARKODE_MIS_KW3``                 :math:`3^*`   0                :cite:p:`Schlegel:09`
+   ``ARKODE_MRI_GARK_ERK33a``         3             2                :cite:p:`Sandu:19`
+   ``ARKODE_MRI_GARK_RALSTON3``       3             0                :cite:p:`Roberts:22`   
+   ``ARKODE_MRI_GARK_ERK45a``         :math:`4^*`   3                :cite:p:`Sandu:19`
+   =================================  ============  ===============  =====================
 
 
 .. table:: Diagonally-implicit, solve-decoupled MRI-GARK coupling tables. The
            default method for each order is marked with an asterisk
            (:math:`^*`).
 
-   =====================================  ===========  ===============  ==================
-   Table name                             Order        Implicit Solves  Reference
-   =====================================  ===========  ===============  ==================
-   ``ARKODE_MRI_GARK_BACKWARD_EULER``     :math:`1^*`  1
-   ``ARKODE_MRI_GARK_IRK21a``             :math:`2^*`  1                :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_IMPLICIT_MIDPOINT``  2            2
-   ``ARKODE_MRI_GARK_ESDIRK34a``          :math:`3^*`  3                :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_ESDIRK46a``          :math:`4^*`  5                :cite:p:`Sandu:19`
-   =====================================  ===========  ===============  ==================
+   =====================================  ============  ===============  ===============  ==================
+   Table name                             Method Order  Embedding Order  Implicit Solves  Reference
+   =====================================  ============  ===============  ===============  ==================
+   ``ARKODE_MRI_GARK_BACKWARD_EULER``     :math:`1^*`   0                1
+   ``ARKODE_MRI_GARK_IRK21a``             :math:`2^*`   1                1                :cite:p:`Sandu:19`
+   ``ARKODE_MRI_GARK_IMPLICIT_MIDPOINT``  2             0                2
+   ``ARKODE_MRI_GARK_ESDIRK34a``          :math:`3^*`   2                3                :cite:p:`Sandu:19`
+   ``ARKODE_MRI_GARK_ESDIRK46a``          :math:`4^*`   3                5                :cite:p:`Sandu:19`
+   =====================================  ============  ===============  ===============  ==================
 
 
 .. table:: Diagonally-implicit, solve-decoupled IMEX-MRI-GARK coupling tables.

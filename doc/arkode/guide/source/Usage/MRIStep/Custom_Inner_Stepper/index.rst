@@ -17,16 +17,15 @@
 MRIStep Custom Inner Steppers
 =============================
 
-Recall, MIS and MRI-GARK methods require solving the auxiliary IVP
+Recall that MIS, MRI-GARK, and IMEX-MRI-GARK methods require solving a set of auxiliary IVPs
 
 .. math::
-   \dot{v}(t) = f^F(t, v) + r_i(t), \qquad v(t_{n,i-1}^S) = z_{i-1}
+   \dot{v}(t) = f^F(t, v) + r_i(t), \qquad v(t_{i,0}) = v_{i,0},
    :label: ARKODE_MRI_IVP
 
-for :math:`i \geq 2` on the interval :math:`t \in [t_{n,i-1}^S, t_{n,i}^S]`
-where :math:`t_{n,i-1}^S = t_{n-1} + c_{i-1}^S h^S`. The forcing term
-:math:`r_i(t)` presented in :numref:`ARKODE.Mathematics.MRIStep` can be equivalently
-written as
+on intervals :math:`t \in [t_{i,0}, t_{i,f}]`.  For MIS, MRI-GARK and IMEX-MRI-GARK methods,
+the forcing term :math:`r_i(t)` presented in :numref:`ARKODE.Mathematics.MRIStep` can be
+equivalently written as
 
 .. math::
    r_i(t) =
@@ -36,8 +35,9 @@ written as
    :label: ARKODE_MRI_forcing_poly
 
 where :math:`\tau = (t - t_{n,i-1}^S)/(h^S \Delta c_i^S)` is the normalized time
-with :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)` and the polynomial
-coefficient vectors are
+with :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)`, the slow stage times are
+:math:`t_{n,i-1}^S = t_{n-1} + c_{i-1}^S h^S`, and the polynomial coefficient
+vectors are
 
 .. math::
    \hat{\omega}^{\{k\}}_i = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^{i-1}

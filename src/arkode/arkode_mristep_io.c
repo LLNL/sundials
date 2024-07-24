@@ -124,6 +124,73 @@ int MRIStepSetPostInnerFn(void* arkode_mem, MRIStepPostInnerFn postfn)
   return (ARK_SUCCESS);
 }
 
+/*---------------------------------------------------------------
+  MRIStepSetFastErrorStepFactor:
+
+  Specifies a fast stepsize factor to use when estimating the
+  accumulated fast time scale solution error when MRI adaptivity
+  is enabled.  The fast integrator is run twice over each fast
+  time interval, once using the inner step size h, and again
+  using hfactor*h (typically hfactor=k or 1/k for an integer k>1).
+  This is only needed when the results from
+  mriStepInnerStepper_GetError() cannot be trusted.  In our
+  tests, we found this to be the case when the inner integrator
+  uses fixed step sizes.
+
+  An argument of 0 disables this fast error estimation strategy.
+  Arguments of hfactor < 0 or hfactor == 1 are illegal.
+  All other positive hfactor values will *attempt* to be used.
+  ---------------------------------------------------------------*/
+int MRIStepSetFastErrorStepFactor(void* arkode_mem, sunrealtype hfactor)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* return with error on illegal input */
+  if ((hfactor < ZERO) || (hfactor == ONE))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Illegal input; must be >0 and not identically 1");
+    return (ARK_ILL_INPUT);
+  }
+
+  /* set value and return */
+  step_mem->inner_hfactor = hfactor;
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  MRIStepSetAdaptController:
+
+  Specifies a temporal adaptivity controller for MRIStep to use.
+  If a non-MRI controller is provided, this just passes that
+  through to arkSetAdaptController.  However, if an MRI
+  controller is provided, then this wraps that inside a
+  "SUNAdaptController_MRIStep" wrapper, which will properly
+  interact with the fast integration module.
+  ---------------------------------------------------------------*/
+int MRIStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
+{
+  /* Retrieve the controller type */
+  SUNAdaptController_Type ctype = SUNAdaptController_GetType(C);
+
+  /* If this does not have MRI type, then just pass to ARKODE */
+  if ((ctype != SUN_ADAPTCONTROLLER_MRI_H) &&
+      (ctype != SUN_ADAPTCONTROLLER_MRI_TOL))
+  {
+    return (ARKodeSetAdaptController(arkode_mem, C));
+  }
+
+  /* Create the mriStepControl wrapper, and pass that to ARKODE */
+  SUNAdaptController Cwrapper = SUNAdaptController_MRIStep(arkode_mem, C);
+  return (ARKodeSetAdaptController(arkode_mem, Cwrapper));
+}
+
 /*===============================================================
   Exported optional output functions.
   ===============================================================*/
@@ -257,6 +324,8 @@ int mriStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->jcur     = SUNFALSE;
   step_mem->convfail = ARK_NO_FAILURES;
   step_mem->stage_predict = NULL; /* no user-supplied stage predictor */
+  step_mem->inner_hfactor = -INNER_HFACTOR;
+
   return (ARK_SUCCESS);
 }
 
@@ -580,6 +649,28 @@ int mriStep_GetCurrentGamma(ARKodeMem ark_mem, sunrealtype* gamma)
   if (retval != ARK_SUCCESS) { return (retval); }
   *gamma = step_mem->gamma;
   return (retval);
+}
+
+/*---------------------------------------------------------------
+  mriStep_GetEstLocalErrors: Returns the current local truncation
+  error estimate vector
+  ---------------------------------------------------------------*/
+int mriStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
+{
+  int retval;
+  ARKodeMRIStepMem step_mem;
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* return an error if local truncation error is not computed */
+  if (ark_mem->fixedstep && (ark_mem->AccumErrorType < 0))
+  {
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
+
+  /* otherwise, copy local truncation error vector to output */
+  N_VScale(ONE, ark_mem->tempv1, ele);
+  return (ARK_SUCCESS);
 }
 
 /*---------------------------------------------------------------

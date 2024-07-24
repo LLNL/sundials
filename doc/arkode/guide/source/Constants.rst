@@ -337,7 +337,7 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_MRI_GARK_RALSTON2`             | Use the second order Ralston MRI-GARK method.              |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MIS_MW3`                       | Use the Knoth-Wolke-3 MIS method.                          |
+   | :index:`ARKODE_MIS_KW3`                       | Use the Knoth-Wolke-3 MIS method (non-embedded).           |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_MRI_GARK_ERK33a`               | Use the ERK33a MRI-GARK method.                            |
    +-----------------------------------------------+------------------------------------------------------------+
@@ -361,11 +361,11 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_IMEX_MRI_GARK_MIDPOINT`        | Use the midpoint rule IMEX-MRI-GARK method.                |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMEX_MRI_GARK3a`               | Use the IMEX-MRI-GARK3a method.                            |
+   | :index:`ARKODE_IMEX_MRI_GARK3a`               | Use the IMEX-MRI-GARK3a method (non-embedded).             |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMEX_MRI_GARK3b`               | Use the IMEX-MRI-GARK3b method.                            |
+   | :index:`ARKODE_IMEX_MRI_GARK3b`               | Use the IMEX-MRI-GARK3b method (non-embedded).             |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMEX_MRI_GARK4`                | Use the IMEX-MRI-GARK4 method.                             |
+   | :index:`ARKODE_IMEX_MRI_GARK4`                | Use the IMEX-MRI-GARK4 method (non-embedded).              |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_DEFAULT_EXPL_TABLE_1`         | Use MRIStep's default 1st-order explicit method            |
    |                                               | (MRI_GARK_FORWARD_EULER).                                  |
@@ -374,7 +374,10 @@ contains the ARKODE output constants.
    |                                               | (MRI_GARK_ERK22b).                                         |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_DEFAULT_EXPL_TABLE_3`         | Use MRIStep's default 3rd-order explicit method            |
-   |                                               | (MIS_MW3).                                                 |
+   |                                               | (ARKODE_MIS_KW3).                                          |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_EXPL_TABLE_3_AD`      | Use MRIStep's default 3rd-order adaptive explicit method   |
+   |                                               | (ARKODE_MRI_GARK_ERK33a).                                  |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_DEFAULT_EXPL_TABLE_4`         | Use MRIStep's default 4th-order explicit method            |
    |                                               | (MRI_GARK_ERK45a).                                         |
@@ -383,10 +386,10 @@ contains the ARKODE output constants.
    |                                               | method (MRI_GARK_BACKWARD_EULER).                          |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_DEFAULT_IMPL_SD_TABLE_2`      | Use MRIStep's default 2nd-order solve-decoupled implicit   |
-   |                                               | method (MRI_GARK_IRK21a).                                  |
+   |                                               | method (ARKODE_MRI_GARK_IRK21a).                           |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_DEFAULT_IMPL_SD_TABLE_3`      | Use MRIStep's default 3rd-order solve-decoupled implicit   |
-   |                                               | method (MRI_GARK_ESDIRK34a).                               |
+   |                                               | method (ARKODE_MRI_GARK_ESDIRK34a).                        |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_DEFAULT_IMPL_SD_TABLE_4`      | Use MRIStep's default 4th-order solve-decoupled implicit   |
    |                                               | method (MRI_GARK_ESDIRK46a).                               |
@@ -398,10 +401,10 @@ contains the ARKODE output constants.
    |                                               | method (ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL).                 |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_DEFAULT_IMEX_SD_TABLE_3`      | Use MRIStep's default 3rd-order solve-decoupled ImEx       |
-   |                                               | method (IMEX_MRI_GARK3b).                                  |
+   |                                               | method (ARKODE_IMEX_MRI_GARK3b).                           |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_DEFAULT_IMEX_SD_TABLE_4`      | Use MRIStep's default 4th-order solve-decoupled ImEx       |
-   |                                               | method (IMEX_MRI_GARK4).                                   |
+   |                                               | method (ARKODE_IMEX_MRI_GARK4).                            |
    +-----------------------------------------------+------------------------------------------------------------+
 
 

@@ -31,10 +31,14 @@ extern "C" {
 #endif
 
 /* Stage type identifiers */
+#define MRISTAGE_STIFF_ACC   -1
 #define MRISTAGE_ERK_FAST    0
 #define MRISTAGE_ERK_NOFAST  1
 #define MRISTAGE_DIRK_NOFAST 2
 #define MRISTAGE_DIRK_FAST   3
+
+/* Default inner_factor value */
+#define INNER_HFACTOR SUN_RCONST(2.0)
 
 /* Implicit solver constants (duplicate from arkode_arkstep_impl.h) */
 /*   max number of nonlinear iterations */
@@ -72,18 +76,19 @@ typedef struct ARKodeMRIStepMemRec
                                     a nonlinear solve              */
 
   /* Outer RK method storage and parameters */
-  N_Vector* Fse;         /* explicit RHS at each stage               */
-  N_Vector* Fsi;         /* implicit RHS at each stage               */
-  MRIStepCoupling MRIC;  /* slow->fast coupling table                */
-  int q;                 /* method order                             */
-  int p;                 /* embedding order                          */
-  int stages;            /* total number of stages                   */
-  int nstages_active;    /* number of active stage RHS vectors       */
-  int nstages_allocated; /* number of stage RHS vectors allocated    */
-  int* stage_map;        /* index map for storing stage RHS vectors  */
-  int* stagetypes;       /* type flags for stages                    */
-  sunrealtype* Ae_row;   /* equivalent explicit RK coeffs            */
-  sunrealtype* Ai_row;   /* equivalent implicit RK coeffs            */
+  N_Vector* Fse;           /* explicit RHS at each stage               */
+  N_Vector* Fsi;           /* implicit RHS at each stage               */
+  sunbooleantype unify_Fs; /* Fse and Fsi point at the same memory   */
+  MRIStepCoupling MRIC;    /* slow->fast coupling table                */
+  int q;                   /* method order                             */
+  int p;                   /* embedding order                          */
+  int stages;              /* total number of stages                   */
+  int nstages_active;      /* number of active stage RHS vectors       */
+  int nstages_allocated;   /* number of stage RHS vectors allocated    */
+  int* stage_map;          /* index map for storing stage RHS vectors  */
+  int* stagetypes;         /* type flags for stages                    */
+  sunrealtype* Ae_row;     /* equivalent explicit RK coeffs            */
+  sunrealtype* Ai_row;     /* equivalent implicit RK coeffs            */
 
   /* Algebraic solver data and parameters */
   N_Vector sdata;         /* old stage data in residual               */
@@ -103,18 +108,18 @@ typedef struct ARKodeMRIStepMemRec
   sunrealtype crate;      /* estimated nonlin convergence rate        */
   sunrealtype delp;       /* norm of previous nonlinear solver update */
   sunrealtype eRNrm;      /* estimated residual norm, used in nonlin
-                                    and linear solver convergence tests      */
+                             and linear solver convergence tests      */
   sunrealtype nlscoef;    /* coefficient in nonlin. convergence test  */
 
   int msbp;       /* positive => max # steps between lsetup
-                                    negative => call at each Newton iter     */
+                             negative => call at each Newton iter     */
   long int nstlp; /* step number of last setup call           */
 
   int maxcor;          /* max num iterations for solving the
-                                    nonlinear equation                       */
+                          nonlinear equation                       */
   int convfail;        /* NLS fail flag (for interface routines)   */
   sunbooleantype jcur; /* is Jacobian info for lin solver current? */
-  ARKStagePredictFn stage_predict; /* User-supplied stage predictor        */
+  ARKStagePredictFn stage_predict; /* User-supplied stage predictor   */
 
   /* Linear Solver Data */
   ARKLinsolInitFn linit;
@@ -129,6 +134,12 @@ typedef struct ARKodeMRIStepMemRec
   /* User-supplied pre and post inner evolve functions */
   MRIStepPreInnerFn pre_inner_evolve;
   MRIStepPostInnerFn post_inner_evolve;
+
+  /* MRI adaptivity parameters */
+  sunrealtype inner_hfactor; /* h factor for inner stepper error estimation */
+  sunrealtype inner_control; /* prev control parameter (h or tolfac) */
+  sunrealtype inner_dsm;     /* prev inner stepper accumulated error */
+  sunrealtype inner_control_new; /* upcoming control parameter */
 
   /* Counters */
   long int nfse;      /* num fse calls                    */
@@ -155,6 +166,10 @@ struct _MRIStepInnerStepper_Ops
   MRIStepInnerEvolveFn evolve;
   MRIStepInnerFullRhsFn fullrhs;
   MRIStepInnerResetFn reset;
+  MRIStepInnerGetAccumulatedError geterror;
+  MRIStepInnerResetAccumulatedError reseterror;
+  MRIStepInnerSetFixedStep setfixedstep;
+  MRIStepInnerSetRTol setrtol;
 };
 
 struct _MRIStepInnerStepper
@@ -202,7 +217,10 @@ int mriStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat
                       sunbooleantype** jcur, sunbooleantype* dgamma_fail);
 int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
-int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr,
+                            int* nflagPtr);
+int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
 int mriStep_SetUserData(ARKodeMem ark_mem, void* user_data);
 int mriStep_SetDefaults(ARKodeMem ark_mem);
 int mriStep_SetOrder(ARKodeMem ark_mem, int ord);
@@ -219,6 +237,7 @@ int mriStep_SetMaxNonlinIters(ARKodeMem ark_mem, int maxcor);
 int mriStep_SetNonlinConvCoef(ARKodeMem ark_mem, sunrealtype nlscoef);
 int mriStep_SetStagePredictFn(ARKodeMem ark_mem, ARKStagePredictFn PredictStage);
 int mriStep_SetDeduceImplicitRhs(ARKodeMem ark_mem, sunbooleantype deduce);
+int mriStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele);
 int mriStep_GetCurrentGamma(ARKodeMem ark_mem, sunrealtype* gamma);
 int mriStep_GetNonlinearSystemData(ARKodeMem ark_mem, sunrealtype* tcur,
                                    N_Vector* zpred, N_Vector* z, N_Vector* Fi,
@@ -246,7 +265,10 @@ int mriStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
 sunbooleantype mriStep_CheckNVector(N_Vector tmpl);
 int mriStep_SetCoupling(ARKodeMem ark_mem);
 int mriStep_CheckCoupling(ARKodeMem ark_mem);
-int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is);
+int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
+                         sunrealtype t0, sunrealtype tf, N_Vector ycur,
+                         N_Vector ytemp, sunbooleantype force_reset,
+                         sunbooleantype get_inner_dsm);
 int mriStep_StageERKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is);
 int mriStep_StageDIRKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
                           int* nflagPtr);
@@ -256,6 +278,13 @@ int mriStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess);
 int mriStep_StageSetup(ARKodeMem ark_mem);
 int mriStep_NlsInit(ARKodeMem ark_mem);
 int mriStep_Nls(ARKodeMem ark_mem, int nflag);
+int mriStep_SlowRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
+                    int mode);
+int mriStep_FastRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
+                    int mode);
+int mriStep_Hin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
+                N_Vector ycur, N_Vector fcur, N_Vector ytmp, N_Vector temp1,
+                N_Vector temp2, ARKTimestepFullRHSFn rhs, sunrealtype* h);
 
 /* private functions passed to nonlinear solver */
 int mriStep_NlsResidual(N_Vector yy, N_Vector res, void* arkode_mem);
@@ -268,12 +297,21 @@ int mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
 
 /* Inner stepper functions */
 int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper);
+sunbooleantype mriStepInnerStepper_SupportsStepAdaptivity(
+  MRIStepInnerStepper stepper);
+sunbooleantype mriStepInnerStepper_SupportsRTolAdaptivity(
+  MRIStepInnerStepper stepper);
 int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
                                sunrealtype tout, N_Vector y);
 int mriStepInnerStepper_FullRhs(MRIStepInnerStepper stepper, sunrealtype t,
                                 N_Vector y, N_Vector f, int mode);
 int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
                               N_Vector yR);
+int mriStepInnerStepper_GetError(MRIStepInnerStepper stepper,
+                                 sunrealtype* accum_error);
+int mriStepInnerStepper_ResetError(MRIStepInnerStepper stepper);
+int mriStepInnerStepper_SetFixedStep(MRIStepInnerStepper stepper, sunrealtype h);
+int mriStepInnerStepper_SetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
                                   N_Vector tmpl);
 int mriStepInnerStepper_Resize(MRIStepInnerStepper stepper, ARKVecResizeFn resize,
@@ -284,11 +322,50 @@ void mriStepInnerStepper_PrintMem(MRIStepInnerStepper stepper, FILE* outfile);
 
 /* Compute forcing for inner stepper */
 int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
-                                int stage, sunrealtype cdiff);
+                                int stage, sunrealtype t0, sunrealtype tf);
 
 /* Return effective RK coefficients (nofast stage) */
 int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int* stage_map,
                      sunrealtype* Ae_row, sunrealtype* Ai_row);
+
+/*===============================================================
+  MRIStep SUNAdaptController wrapper module -- this is used to
+  insert MRIStep in-between ARKODE at the "slow" time scale, and
+  the inner-steppers that comprise the MRI time-step evolution.
+  Since ARKODE itself only calls single-scale controller
+  functions (e.g., EstimateStep and UpdateH), then this serves to
+  translate those single-rate controller functions to the multi-
+  rate context, leveraging MRIStep-specific knowledge of the
+  slow+fast time scale relationship to CALL multi-rate controller
+  functions (e.g., EstimateMRISteps, EstimateStepTol, UpdateMRIH,
+  and UpdateMRITol) provided by the underlying multi-rate
+  controller.
+  ===============================================================*/
+
+typedef struct _mriStepControlContent
+{
+  ARKodeMem ark_mem;         /* ARKODE memory pointer */
+  ARKodeMRIStepMem step_mem; /* MRIStep memory pointer */
+  SUNAdaptController C;      /* attached controller pointer */
+}* mriStepControlContent;
+
+#define MRICONTROL_C(C) (((mriStepControlContent)(C->content))->C)
+#define MRICONTROL_A(C) (((mriStepControlContent)(C->content))->ark_mem)
+#define MRICONTROL_S(C) (((mriStepControlContent)(C->content))->step_mem)
+
+SUNAdaptController SUNAdaptController_MRIStep(void* arkode_mem,
+                                              SUNAdaptController C);
+SUNAdaptController_Type SUNAdaptController_GetType_MRIStep(SUNAdaptController C);
+SUNErrCode SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C,
+                                                   sunrealtype H, int P,
+                                                   sunrealtype DSM,
+                                                   sunrealtype* Hnew);
+SUNErrCode SUNAdaptController_Reset_MRIStep(SUNAdaptController C);
+SUNErrCode SUNAdaptController_Write_MRIStep(SUNAdaptController C, FILE* fptr);
+SUNErrCode SUNAdaptController_UpdateH_MRIStep(SUNAdaptController C,
+                                              sunrealtype h, sunrealtype dsm);
+SUNErrCode SUNAdaptController_Space_MRIStep(SUNAdaptController C,
+                                            long int* lenrw, long int* leniw);
 
 /*===============================================================
   Reusable MRIStep Error Messages

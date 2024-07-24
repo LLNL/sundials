@@ -16,6 +16,12 @@
 
 # List of test tuples of the form "name\;args"
 set(unit_tests
+    "ark_test_accumerror_brusselator.cpp\;20 3 1"
+    "ark_test_accumerror_brusselator.cpp\;20 -4 0"
+    "ark_test_accumerror_brusselator.cpp\;20 5 0"
+    "ark_test_accumerror_kpr.cpp\;20 2 0"
+    "ark_test_accumerror_kpr.cpp\;20 3 1"
+    "ark_test_accumerror_kpr.cpp\;20 -4 1"
     "ark_test_analytic_sys_mri.cpp\;0"
     "ark_test_analytic_sys_mri.cpp\;1"
     "ark_test_dahlquist_ark.cpp\;0 -1 0"
@@ -41,7 +47,12 @@ set(unit_tests
     "ark_test_dahlquist_mri.cpp\;1"
     "ark_test_butcher.cpp\;"
     "ark_test_getjac.cpp\;"
-    "ark_test_getjac_mri.cpp\;")
+    "ark_test_getjac_mri.cpp\;"
+    "ark_test_kpr_mriadapt.cpp\;--hs 0.002 --rtol 0.000004 --scontrol 0"
+    "ark_test_brusselator_mriadapt.cpp\;--rtol 0.000004 --scontrol 0"
+    "ark_test_slowerror_brusselator.cpp\;"
+    "ark_test_slowerror_kpr.cpp\;"
+    "ark_test_slowerror_polynomial.cpp\;")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
@@ -67,7 +78,8 @@ foreach(test_tuple ${unit_tests})
     target_include_directories(
       ${test_target}
       PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-              ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
+      ${PROJECT_SOURCE_DIR}/test/unit_tests/utilities
+      ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
     # We explicitly choose which object libraries to link to and link in the
     # arkode objects so that we have access to private functions w/o changing
@@ -83,6 +95,11 @@ foreach(test_tuple ${unit_tests})
       sundials_sunnonlinsolfixedpoint_obj
       sundials_sunadaptcontrollerimexgus_obj
       sundials_sunadaptcontrollersoderlind_obj
+      sundials_sunadaptcontrollermricc_obj
+      sundials_sunadaptcontrollermrill_obj
+      sundials_sunadaptcontrollermrihtol_obj
+      sundials_sunadaptcontrollermripi_obj
+      sundials_sunadaptcontrollermripid_obj
       ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick

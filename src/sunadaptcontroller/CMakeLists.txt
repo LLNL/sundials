@@ -11,9 +11,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-# controller level CMakeLists.txt for SUNDIALS
+# adaptivity controller level CMakeLists.txt for SUNDIALS
 # ------------------------------------------------------------------------------
 
-# required native matrices
+# required native adaptivity controllers
 add_subdirectory(imexgus)
 add_subdirectory(soderlind)
+add_subdirectory(mricc)
+add_subdirectory(mrihtol)
+add_subdirectory(mrill)
+add_subdirectory(mripi)
+add_subdirectory(mripid)

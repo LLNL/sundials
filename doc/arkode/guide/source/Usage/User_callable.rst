@@ -988,15 +988,13 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
    .. versionchanged:: 6.1.0
 
+      This function replaces stepper specific versions in ARKStep, ERKStep,
+      MRIStep, and SPRKStep.
+
       Added the ``ARK_INTERP_NONE`` option to disable interpolation.
 
       Values set by a previous call to :c:func:`ARKStepSetInterpolantDegree` are
       no longer nullified by a call to :c:func:`ARKStepSetInterpolantType`.
-
-   .. versionadded:: 6.1.0
-
-      This function replaces stepper specific versions in ARKStep, ERKStep,
-      MRIStep, and SPRKStep.
 
 
 .. c:function:: int ARKodeSetInterpolantDegree(void* arkode_mem, int degree)
@@ -1426,6 +1424,8 @@ Minimum allowed step reduction factor on error test fail    :c:func:`ARKodeSetMi
 Time step safety factor                                     :c:func:`ARKodeSetSafetyFactor`             0.96
 Error fails before MaxEFailGrowth takes effect              :c:func:`ARKodeSetSmallNumEFails`           2
 Explicit stability function                                 :c:func:`ARKodeSetStabilityFn`              none
+Set accumulated error estimation type                       :c:func:`ARKodeSetAccumulatedErrorType`     none
+Reset accumulated error                                     :c:func:`ARKodeResetAccumulatedError`
 =========================================================   ==========================================  ========
 
 
@@ -1749,6 +1749,62 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
       function :math:`f^E(t,y)` contains stiff terms.
 
    .. versionadded:: 6.1.0
+
+
+.. c:function:: int ARKodeSetAccumulatedErrorType(void* arkode_mem, int accum_type)
+
+   Sets the strategy to use for accumulating a temporal error estimate
+   over multiple time steps.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param accum_type: accumulation strategy:
+
+                      * ``-1`` -- no accumulation (default).
+                      * ``0`` -- maximum accumulation.
+                      * ``1`` -- additive accumulation.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
+                                    by the current time-stepping module.
+
+   .. note::
+
+      Multiple of ARKODE's time-stepping modules compute both a solution and embedding,
+      :math:`y_n` and :math:`\tilde{y}_n`, that may be combined to create a vector-valued
+      local temporal error estimate, :math:`y_n - \tilde{y}_n`.  By default, ARKODE will
+      not accumulate these local error estimates, but accumulation can be triggered by
+      calling this function with one of two options:
+
+      * ``0`` computes :math:`\text{reltol} \max_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`
+
+      * ``1`` computes :math:`\frac{\text{reltol}}{N} \sum_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`,
+
+      In both cases, the sum or maximum is taken over all steps :math:`n\in N` since the most
+      recent call to either :c:func:`ARKodeSetAccumulatedErrorType` or
+      :c:func:`ARKodeResetAccumulatedError`.  The norm is taken using the tolerance-informed
+      error-weight vector (see :c:func:`ARKodeGetErrWeights`), and ``reltol`` is the
+      user-specified relative solution tolerance.
+
+      Error accumulation can be disabled by calling :c:func:`ARKodeSetAccumulatedErrorType`
+      with the argument ``-1``.
+
+   .. versionadded:: x.y.z
+
+
+.. c:function:: int ARKodeResetAccumulatedError(void* arkode_mem)
+
+   Resets the accumulated temporal error estimate, that was triggered by a previous call to
+   :c:func:`ARKodeSetAccumulatedErrorType`.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
+                                    by the current time-stepping module.
+
+   .. versionadded:: x.y.z
 
 
 
@@ -3170,6 +3226,7 @@ No. of failed steps due to a nonlinear solver failure  :c:func:`ARKodeGetNumStep
 Estimated local truncation error vector                :c:func:`ARKodeGetEstLocalErrors`
 Number of constraint test failures                     :c:func:`ARKodeGetNumConstrFails`
 Retrieve a pointer for user data                       :c:func:`ARKodeGetUserData`
+Retrieve the accumulated temporal error estimate       :c:func:`ARKodeGetAccumulatedError`
 =====================================================  ============================================
 
 
@@ -3569,6 +3626,25 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
    .. versionadded:: 6.1.0
+
+
+.. c:function:: int ARKStepGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
+
+   Returns the accumulated temporal error estimate.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param accum_error: pointer to accumulated error estimate.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+   :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
+                                    by the current time-stepping module, or accumulated
+                                    error estimation is currently disabled in the stepper.
+
+   .. versionadded:: x.y.z
+
+
+
 
 
 .. _ARKODE.Usage.ARKodeImplicitSolverOutputs:

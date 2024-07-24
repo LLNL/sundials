@@ -280,6 +280,9 @@ SUNDIALS_EXPORT int ARKodeSetInitStep(void* arkode_mem, sunrealtype hin);
 SUNDIALS_EXPORT int ARKodeSetMinStep(void* arkode_mem, sunrealtype hmin);
 SUNDIALS_EXPORT int ARKodeSetMaxStep(void* arkode_mem, sunrealtype hmax);
 SUNDIALS_EXPORT int ARKodeSetMaxNumConstrFails(void* arkode_mem, int maxfails);
+SUNDIALS_EXPORT int ARKodeSetAccumulatedErrorType(void* arkode_mem,
+                                                  int accum_type);
+SUNDIALS_EXPORT int ARKodeResetAccumulatedError(void* arkode_mem);
 
 /* Integrate the ODE over an interval in t */
 SUNDIALS_EXPORT int ARKodeEvolve(void* arkode_mem, sunrealtype tout,
@@ -325,6 +328,8 @@ SUNDIALS_EXPORT int ARKodeGetNumConstrFails(void* arkode_mem,
 SUNDIALS_EXPORT int ARKodeGetStepStats(void* arkode_mem, long int* nsteps,
                                        sunrealtype* hinused, sunrealtype* hlast,
                                        sunrealtype* hcur, sunrealtype* tcur);
+SUNDIALS_EXPORT int ARKodeGetAccumulatedError(void* arkode_mem,
+                                              sunrealtype* accum_error);
 
 /* Optional output functions (implicit solver) */
 SUNDIALS_EXPORT int ARKodeGetNumLinSolvSetups(void* arkode_mem,

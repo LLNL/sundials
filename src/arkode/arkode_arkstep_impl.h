@@ -277,6 +277,11 @@ int arkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
                                 N_Vector y, N_Vector f, int mode);
 int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
                               N_Vector yR);
+int arkStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
+                                            sunrealtype* accum_error);
+int arkStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
+int arkStep_MRIStepInnerSetFixedStep(MRIStepInnerStepper stepper, sunrealtype h);
+int arkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 
 /* private functions for relaxation */
 int arkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);

@@ -379,6 +379,23 @@ int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
   retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  retval =
+    MRIStepInnerStepper_SetAccumulatedErrorGetFn(*stepper,
+                                                 arkStep_MRIStepInnerGetAccumulatedError);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval =
+    MRIStepInnerStepper_SetAccumulatedErrorResetFn(*stepper,
+                                                   arkStep_MRIStepInnerResetAccumulatedError);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetFixedStepFn(*stepper,
+                                              arkStep_MRIStepInnerSetFixedStep);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetRTolFn(*stepper, arkStep_MRIStepInnerSetRTol);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
   return (ARK_SUCCESS);
 }
 
@@ -995,12 +1012,14 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
   if (init_type == FIRST_INIT)
   {
     /* enforce use of arkEwtSmallReal if using a fixed step size for
-       an explicit method, an internal error weight function, and not
-       using an iterative mass matrix solver with rwt=ewt */
+       an explicit method, an internal error weight function, not
+       using an iterative mass matrix solver with rwt=ewt, and not
+       performing accumulated temporal error estimation */
     reset_efun = SUNTRUE;
     if (step_mem->implicit) { reset_efun = SUNFALSE; }
     if (!ark_mem->fixedstep) { reset_efun = SUNFALSE; }
     if (ark_mem->user_efun) { reset_efun = SUNFALSE; }
+    if (ark_mem->AccumErrorType >= 0) { reset_efun = SUNFALSE; }
     if (ark_mem->rwt_is_ewt &&
         (step_mem->msolve_type == SUNLINEARSOLVER_ITERATIVE))
     {
@@ -1048,11 +1067,13 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
       step_mem->p = ark_mem->hadapt_mem->p = step_mem->Be->p;
     }
 
-    /* Ensure that if adaptivity is enabled, then method includes embedding coefficients */
-    if (!ark_mem->fixedstep && (step_mem->p == 0))
+    /* Ensure that if adaptivity or error accumulation is enabled, then
+       method includes embedding coefficients */
+    if ((!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0)) &&
+        (step_mem->p == 0))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "Adaptive timestepping cannot be performed without embedding coefficients");
+                      __FILE__, "Temporal error estimation cannot be performed without embedding coefficients");
       return (ARK_ILL_INPUT);
     }
 
@@ -1838,20 +1859,20 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::arkStep_TakeStep_Z", "explicit stage",
-                       "z_%i(:) =", 0);
+                       "z[%i] =", 0);
     N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
     if (step_mem->implicit)
     {
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                          "ARKODE::arkStep_TakeStep_Z", "implicit RHS",
-                         "Fi_%i(:) =", 0);
+                         "Fi[%i] =", 0);
       N_VPrintFile(step_mem->Fi[0], ARK_LOGGER->debug_fp);
     }
     if (step_mem->explicit)
     {
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                          "ARKODE::arkStep_TakeStep_Z", "explicit RHS",
-                         "Fe_%i(:) =", 0);
+                         "Fe[%i] =", 0);
       N_VPrintFile(step_mem->Fe[0], ARK_LOGGER->debug_fp);
     }
 #endif
@@ -1919,8 +1940,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::arkStep_TakeStep_Z", "predictor",
-                       "zpred(:) =", "");
+                       "ARKODE::arkStep_TakeStep_Z", "predictor", "zpred =", "");
     N_VPrintFile(step_mem->zpred, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1930,8 +1950,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::arkStep_TakeStep_Z", "rhs data",
-                       "sdata(:) =", "");
+                       "ARKODE::arkStep_TakeStep_Z", "rhs data", "sdata =", "");
     N_VPrintFile(step_mem->sdata, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1946,7 +1965,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                          "ARKODE::arkStep_TakeStep_Z", "implicit stage",
-                         "z_%i(:) =", is);
+                         "z[%i] =", is);
       N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1970,7 +1989,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                          "ARKODE::arkStep_TakeStep_Z", "explicit stage",
-                         "z_%i(:) =", is);
+                         "z[%i] =", is);
       N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
     }
@@ -2015,7 +2034,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                          "ARKODE::arkStep_TakeStep_Z", "implicit RHS",
-                         "Fi_%i(:) =", is);
+                         "Fi[%i] =", is);
       N_VPrintFile(step_mem->Fi[is], ARK_LOGGER->debug_fp);
 #endif
 
@@ -2033,7 +2052,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                          "ARKODE::arkStep_TakeStep_Z", "explicit RHS",
-                         "Fe_%i(:) =", is);
+                         "Fe[%i] =", is);
       N_VPrintFile(step_mem->Fe[is], ARK_LOGGER->debug_fp);
 #endif
 
@@ -2052,7 +2071,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                            "ARKODE::arkStep_TakeStep_Z", "M^{-1} implicit RHS",
-                           "Fi_%i(:) =", is);
+                           "Fi[%i] =", is);
         N_VPrintFile(step_mem->Fi[is], ARK_LOGGER->debug_fp);
 #endif
         if (*nflagPtr != ARK_SUCCESS) { return (TRY_AGAIN); }
@@ -2064,7 +2083,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                            "ARKODE::arkStep_TakeStep_Z", "M^{-1} explicit RHS",
-                           "Fe_%i(:) =", is);
+                           "Fe[%i] =", is);
         N_VPrintFile(step_mem->Fe[is], ARK_LOGGER->debug_fp);
 #endif
         if (*nflagPtr != ARK_SUCCESS) { return (TRY_AGAIN); }
@@ -2086,15 +2105,16 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkStep_TakeStep_Z",
-                     "updated solution", "ycur(:) =", "");
+                     "updated solution", "ycur =", "");
   N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
                      "ARKODE::arkStep_TakeStep_Z", "end-step",
-                     "step = %li, h = %" RSYM ", dsm = %" RSYM ", nflag = %d",
-                     ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
+                     "step = %li, t = %" RSYM ", h = %" RSYM ", dsm = %" RSYM
+                     ", nflag = %d",
+                     ark_mem->nst, ark_mem->tn, ark_mem->h, *dsmPtr, *nflagPtr);
 #endif
 
   return (ARK_SUCCESS);
@@ -2957,8 +2977,8 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
   }
 
-  /* Compute yerr (if step adaptivity enabled) */
-  if (!ark_mem->fixedstep)
+  /* Compute yerr (if temporal error estimation is enabled). */
+  if (!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0))
   {
     /* set arrays for fused vector operation */
     nvec = 0;
@@ -3246,6 +3266,96 @@ int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   return (ARKodeReset(arkode_mem, tR, yR));
+}
+
+/*------------------------------------------------------------------------------
+  arkStep_MRIStepInnerGetAccumulatedError
+
+  Implementation of MRIStepInnerGetAccumulatedError to retrieve the accumulated
+  temporal error estimate from the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int arkStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
+                                            sunrealtype* accum_error)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARKodeGetAccumulatedError(arkode_mem, accum_error));
+}
+
+/*------------------------------------------------------------------------------
+  arkStep_MRIStepInnerResetAccumulatedError
+
+  Implementation of MRIStepInnerResetAccumulatedError to reset the accumulated
+  temporal error estimator in the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int arkStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARKodeResetAccumulatedError(arkode_mem));
+}
+
+/*------------------------------------------------------------------------------
+  arkStep_MRIStepInnerSetFixedStep
+
+  Implementation of MRIStepInnerSetFixedStep to set a fixed step size for
+  the upcoming evolution using the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int arkStep_MRIStepInnerSetFixedStep(MRIStepInnerStepper stepper, sunrealtype h)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARKodeSetFixedStep(arkode_mem, h));
+}
+
+/*------------------------------------------------------------------------------
+  arkStep_MRIStepInnerSetRTol
+
+  Implementation of MRIStepInnerSetRTol to set a relative tolerance for the
+  upcoming evolution using the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int arkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol)
+{
+  void* arkode_mem;
+  ARKodeMem ark_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) return (retval);
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  if (rtol > ZERO)
+  {
+    ark_mem->reltol = rtol;
+    return (ARK_SUCCESS);
+  }
+  else { return (ARK_ILL_INPUT); }
 }
 
 /*------------------------------------------------------------------------------

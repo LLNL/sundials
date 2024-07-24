@@ -96,7 +96,7 @@ SUNDIALS_EXPORT int ARKStepGetTimestepperStats(
   long int* step_attempts, long int* nfe_evals, long int* nfi_evals,
   long int* nlinsetups, long int* netfails);
 
-/* MRIStep interface functions */
+/* Utility to wrap ARKStep as an MRIStepInnerStepper */
 SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void* arkode_mem,
                                                      MRIStepInnerStepper* stepper);
 

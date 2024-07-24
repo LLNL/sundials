@@ -308,6 +308,30 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
   return result;
 }
 
+SWIGEXPORT void _wrap_MRIStepCouplingMem_type_set(SwigClassWrapper const *farg1, int const *farg2) {
+  struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
+  MRISTEP_METHOD_TYPE arg2 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::type", return );
+  arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
+  arg2 = (MRISTEP_METHOD_TYPE)(*farg2);
+  if (arg1) (arg1)->type = arg2;
+}
+
+
+SWIGEXPORT int _wrap_MRIStepCouplingMem_type_get(SwigClassWrapper const *farg1) {
+  int fresult ;
+  struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
+  MRISTEP_METHOD_TYPE result;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::type", return 0);
+  arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
+  result = (MRISTEP_METHOD_TYPE) ((arg1)->type);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_MRIStepCouplingMem_nmat_set(SwigClassWrapper const *farg1, int const *farg2) {
   struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
   int arg2 ;
@@ -471,6 +495,54 @@ SWIGEXPORT void * _wrap_MRIStepCouplingMem_G_get(SwigClassWrapper const *farg1) 
   SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::G", return 0);
   arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
   result = (sunrealtype ***) ((arg1)->G);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_MRIStepCouplingMem_ngroup_set(SwigClassWrapper const *farg1, int const *farg2) {
+  struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
+  int arg2 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::ngroup", return );
+  arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
+  arg2 = (int)(*farg2);
+  if (arg1) (arg1)->ngroup = arg2;
+}
+
+
+SWIGEXPORT int _wrap_MRIStepCouplingMem_ngroup_get(SwigClassWrapper const *farg1) {
+  int fresult ;
+  struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
+  int result;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::ngroup", return 0);
+  arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
+  result = (int) ((arg1)->ngroup);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_MRIStepCouplingMem_group_set(SwigClassWrapper const *farg1, void *farg2) {
+  struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
+  int **arg2 = (int **) 0 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::group", return );
+  arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
+  arg2 = (int **)(farg2);
+  if (arg1) (arg1)->group = arg2;
+}
+
+
+SWIGEXPORT void * _wrap_MRIStepCouplingMem_group_get(SwigClassWrapper const *farg1) {
+  void * fresult ;
+  struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
+  int **result = 0 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::group", return 0);
+  arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
+  result = (int **) ((arg1)->group);
   fresult = result;
   return fresult;
 }
@@ -713,6 +785,34 @@ SWIGEXPORT int _wrap_FMRIStepSetPostInnerFn(void *farg1, MRIStepPostInnerFn farg
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepSetFastErrorStepFactor(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  result = (int)MRIStepSetFastErrorStepFactor(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepSetAdaptController(void *farg1, SUNAdaptController farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  SUNAdaptController arg2 = (SUNAdaptController) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (SUNAdaptController)(farg2);
+  result = (int)MRIStepSetAdaptController(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FMRIStepGetNumRhsEvals(void *farg1, long *farg2, long *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -848,6 +948,62 @@ SWIGEXPORT int _wrap_FMRIStepInnerStepper_SetResetFn(void *farg1, MRIStepInnerRe
   arg1 = (MRIStepInnerStepper)(farg1);
   arg2 = (MRIStepInnerResetFn)(farg2);
   result = (int)MRIStepInnerStepper_SetResetFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepInnerStepper_SetAccumulatedErrorGetFn(void *farg1, MRIStepInnerGetAccumulatedError farg2) {
+  int fresult ;
+  MRIStepInnerStepper arg1 = (MRIStepInnerStepper) 0 ;
+  MRIStepInnerGetAccumulatedError arg2 = (MRIStepInnerGetAccumulatedError) 0 ;
+  int result;
+  
+  arg1 = (MRIStepInnerStepper)(farg1);
+  arg2 = (MRIStepInnerGetAccumulatedError)(farg2);
+  result = (int)MRIStepInnerStepper_SetAccumulatedErrorGetFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepInnerStepper_SetAccumulatedErrorResetFn(void *farg1, MRIStepInnerResetAccumulatedError farg2) {
+  int fresult ;
+  MRIStepInnerStepper arg1 = (MRIStepInnerStepper) 0 ;
+  MRIStepInnerResetAccumulatedError arg2 = (MRIStepInnerResetAccumulatedError) 0 ;
+  int result;
+  
+  arg1 = (MRIStepInnerStepper)(farg1);
+  arg2 = (MRIStepInnerResetAccumulatedError)(farg2);
+  result = (int)MRIStepInnerStepper_SetAccumulatedErrorResetFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepInnerStepper_SetFixedStepFn(void *farg1, MRIStepInnerSetFixedStep farg2) {
+  int fresult ;
+  MRIStepInnerStepper arg1 = (MRIStepInnerStepper) 0 ;
+  MRIStepInnerSetFixedStep arg2 = (MRIStepInnerSetFixedStep) 0 ;
+  int result;
+  
+  arg1 = (MRIStepInnerStepper)(farg1);
+  arg2 = (MRIStepInnerSetFixedStep)(farg2);
+  result = (int)MRIStepInnerStepper_SetFixedStepFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FMRIStepInnerStepper_SetRTolFn(void *farg1, MRIStepInnerSetRTol farg2) {
+  int fresult ;
+  MRIStepInnerStepper arg1 = (MRIStepInnerStepper) 0 ;
+  MRIStepInnerSetRTol arg2 = (MRIStepInnerSetRTol) 0 ;
+  int result;
+  
+  arg1 = (MRIStepInnerStepper)(farg1);
+  arg2 = (MRIStepInnerSetRTol)(farg2);
+  result = (int)MRIStepInnerStepper_SetRTolFn(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

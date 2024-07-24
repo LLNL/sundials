@@ -511,19 +511,25 @@ module fsundials_core_mod
  enum, bind(c)
   enumerator :: SUN_ADAPTCONTROLLER_NONE
   enumerator :: SUN_ADAPTCONTROLLER_H
+  enumerator :: SUN_ADAPTCONTROLLER_MRI_H
+  enumerator :: SUN_ADAPTCONTROLLER_MRI_TOL
  end enum
  integer, parameter, public :: SUNAdaptController_Type = kind(SUN_ADAPTCONTROLLER_NONE)
- public :: SUN_ADAPTCONTROLLER_NONE, SUN_ADAPTCONTROLLER_H
+ public :: SUN_ADAPTCONTROLLER_NONE, SUN_ADAPTCONTROLLER_H, SUN_ADAPTCONTROLLER_MRI_H, SUN_ADAPTCONTROLLER_MRI_TOL
  ! struct struct _generic_SUNAdaptController_Ops
  type, bind(C), public :: SUNAdaptController_Ops
   type(C_FUNPTR), public :: gettype
   type(C_FUNPTR), public :: estimatestep
+  type(C_FUNPTR), public :: estimatemristeps
+  type(C_FUNPTR), public :: estimatesteptol
   type(C_FUNPTR), public :: destroy
   type(C_FUNPTR), public :: reset
   type(C_FUNPTR), public :: setdefaults
   type(C_FUNPTR), public :: write
   type(C_FUNPTR), public :: seterrorbias
   type(C_FUNPTR), public :: updateh
+  type(C_FUNPTR), public :: updatemrih
+  type(C_FUNPTR), public :: updatemritol
   type(C_FUNPTR), public :: space
  end type SUNAdaptController_Ops
  ! struct struct _generic_SUNAdaptController
@@ -537,11 +543,15 @@ module fsundials_core_mod
  public :: FSUNAdaptController_GetType
  public :: FSUNAdaptController_Destroy
  public :: FSUNAdaptController_EstimateStep
+ public :: FSUNAdaptController_EstimateMRISteps
+ public :: FSUNAdaptController_EstimateStepTol
  public :: FSUNAdaptController_Reset
  public :: FSUNAdaptController_SetDefaults
  public :: FSUNAdaptController_Write
  public :: FSUNAdaptController_SetErrorBias
  public :: FSUNAdaptController_UpdateH
+ public :: FSUNAdaptController_UpdateMRIH
+ public :: FSUNAdaptController_UpdateMRITol
  public :: FSUNAdaptController_Space
 
 ! WRAPPER DECLARATIONS
@@ -1987,6 +1997,36 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
+function swigc_FSUNAdaptController_EstimateMRISteps(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8) &
+bind(C, name="_wrap_FSUNAdaptController_EstimateMRISteps") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+integer(C_INT), intent(in) :: farg4
+real(C_DOUBLE), intent(in) :: farg5
+real(C_DOUBLE), intent(in) :: farg6
+type(C_PTR), value :: farg7
+type(C_PTR), value :: farg8
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdaptController_EstimateStepTol(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8) &
+bind(C, name="_wrap_FSUNAdaptController_EstimateStepTol") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+integer(C_INT), intent(in) :: farg4
+real(C_DOUBLE), intent(in) :: farg5
+real(C_DOUBLE), intent(in) :: farg6
+type(C_PTR), value :: farg7
+type(C_PTR), value :: farg8
+integer(C_INT) :: fresult
+end function
+
 function swigc_FSUNAdaptController_Reset(farg1) &
 bind(C, name="_wrap_FSUNAdaptController_Reset") &
 result(fresult)
@@ -2028,6 +2068,30 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdaptController_UpdateMRIH(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FSUNAdaptController_UpdateMRIH") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+real(C_DOUBLE), intent(in) :: farg4
+real(C_DOUBLE), intent(in) :: farg5
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdaptController_UpdateMRITol(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FSUNAdaptController_UpdateMRITol") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+real(C_DOUBLE), intent(in) :: farg3
+real(C_DOUBLE), intent(in) :: farg4
+real(C_DOUBLE), intent(in) :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -4686,6 +4750,74 @@ fresult = swigc_FSUNAdaptController_EstimateStep(farg1, farg2, farg3, farg4, far
 swig_result = fresult
 end function
 
+function FSUNAdaptController_EstimateMRISteps(c, h, h2, p, dsm, dsm5, hnew, hnew7) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNAdaptController), target, intent(inout) :: c
+real(C_DOUBLE), intent(in) :: h
+real(C_DOUBLE), intent(in) :: h2
+integer(C_INT), intent(in) :: p
+real(C_DOUBLE), intent(in) :: dsm
+real(C_DOUBLE), intent(in) :: dsm5
+real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
+real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew7
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+integer(C_INT) :: farg4 
+real(C_DOUBLE) :: farg5 
+real(C_DOUBLE) :: farg6 
+type(C_PTR) :: farg7 
+type(C_PTR) :: farg8 
+
+farg1 = c_loc(c)
+farg2 = h
+farg3 = h2
+farg4 = p
+farg5 = dsm
+farg6 = dsm5
+farg7 = c_loc(hnew(1))
+farg8 = c_loc(hnew7(1))
+fresult = swigc_FSUNAdaptController_EstimateMRISteps(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8)
+swig_result = fresult
+end function
+
+function FSUNAdaptController_EstimateStepTol(c, h, tolfac, p, dsm, dsm5, hnew, tolfacnew) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNAdaptController), target, intent(inout) :: c
+real(C_DOUBLE), intent(in) :: h
+real(C_DOUBLE), intent(in) :: tolfac
+integer(C_INT), intent(in) :: p
+real(C_DOUBLE), intent(in) :: dsm
+real(C_DOUBLE), intent(in) :: dsm5
+real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
+real(C_DOUBLE), dimension(*), target, intent(inout) :: tolfacnew
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+integer(C_INT) :: farg4 
+real(C_DOUBLE) :: farg5 
+real(C_DOUBLE) :: farg6 
+type(C_PTR) :: farg7 
+type(C_PTR) :: farg8 
+
+farg1 = c_loc(c)
+farg2 = h
+farg3 = tolfac
+farg4 = p
+farg5 = dsm
+farg6 = dsm5
+farg7 = c_loc(hnew(1))
+farg8 = c_loc(tolfacnew(1))
+fresult = swigc_FSUNAdaptController_EstimateStepTol(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8)
+swig_result = fresult
+end function
+
 function FSUNAdaptController_Reset(c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -4760,6 +4892,56 @@ farg1 = c_loc(c)
 farg2 = h
 farg3 = dsm
 fresult = swigc_FSUNAdaptController_UpdateH(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSUNAdaptController_UpdateMRIH(c, h, h2, dsm, dsm4) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNAdaptController), target, intent(inout) :: c
+real(C_DOUBLE), intent(in) :: h
+real(C_DOUBLE), intent(in) :: h2
+real(C_DOUBLE), intent(in) :: dsm
+real(C_DOUBLE), intent(in) :: dsm4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+real(C_DOUBLE) :: farg4 
+real(C_DOUBLE) :: farg5 
+
+farg1 = c_loc(c)
+farg2 = h
+farg3 = h2
+farg4 = dsm
+farg5 = dsm4
+fresult = swigc_FSUNAdaptController_UpdateMRIH(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
+function FSUNAdaptController_UpdateMRITol(c, h, tolfac, dsm, dsm4) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNAdaptController), target, intent(inout) :: c
+real(C_DOUBLE), intent(in) :: h
+real(C_DOUBLE), intent(in) :: tolfac
+real(C_DOUBLE), intent(in) :: dsm
+real(C_DOUBLE), intent(in) :: dsm4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+real(C_DOUBLE) :: farg4 
+real(C_DOUBLE) :: farg5 
+
+farg1 = c_loc(c)
+farg2 = h
+farg3 = tolfac
+farg4 = dsm
+farg5 = dsm4
+fresult = swigc_FSUNAdaptController_UpdateMRITol(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 

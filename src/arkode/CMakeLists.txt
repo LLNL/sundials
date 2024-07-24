@@ -33,6 +33,7 @@ set(arkode_SOURCES
     arkode_io.c
     arkode_ls.c
     arkode_mri_tables.c
+    arkode_mristep_controller.c
     arkode_mristep_io.c
     arkode_mristep_nls.c
     arkode_mristep.c
@@ -74,6 +75,11 @@ sundials_add_library(
     sundials_nvecserial_obj
     sundials_sunadaptcontrollerimexgus_obj
     sundials_sunadaptcontrollersoderlind_obj
+    sundials_sunadaptcontrollermrill_obj
+    sundials_sunadaptcontrollermricc_obj
+    sundials_sunadaptcontrollermripi_obj
+    sundials_sunadaptcontrollermripid_obj
+    sundials_sunadaptcontrollermrihtol_obj
     sundials_sunmatrixband_obj
     sundials_sunmatrixdense_obj
     sundials_sunmatrixsparse_obj

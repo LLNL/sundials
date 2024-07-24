@@ -1139,6 +1139,32 @@ SWIGEXPORT int _wrap_FARKodeSetMaxNumConstrFails(void *farg1, int const *farg2) 
 }
 
 
+SWIGEXPORT int _wrap_FARKodeSetAccumulatedErrorType(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)ARKodeSetAccumulatedErrorType(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKodeResetAccumulatedError(void *farg1) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  result = (int)ARKodeResetAccumulatedError(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKodeEvolve(void *farg1, double const *farg2, N_Vector farg3, double *farg4, int const *farg5) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1479,6 +1505,20 @@ SWIGEXPORT int _wrap_FARKodeGetStepStats(void *farg1, long *farg2, double *farg3
   arg5 = (sunrealtype *)(farg5);
   arg6 = (sunrealtype *)(farg6);
   result = (int)ARKodeGetStepStats(arg1,arg2,arg3,arg4,arg5,arg6);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKodeGetAccumulatedError(void *farg1, double *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype *)(farg2);
+  result = (int)ARKodeGetAccumulatedError(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

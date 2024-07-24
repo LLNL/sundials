@@ -490,7 +490,8 @@ struct ARKodeMemRec
                                   overtake tstop */
   sunrealtype eta;            /* eta = hprime / h                         */
   sunrealtype tcur;           /* current internal value of t
-                                  (changes with each stage)                */
+                                  (changes with each stage)               */
+  sunrealtype tout;           /* user's requested output time             */
   sunrealtype tretlast;       /* value of tret last returned by ARKODE    */
   sunbooleantype fixedstep;   /* flag to disable temporal adaptivity      */
   ARKodeHAdaptMem hadapt_mem; /* time step adaptivity structure           */
@@ -519,11 +520,15 @@ struct ARKodeMemRec
   long int liw;      /* no. of integer words in ARKODE work vectors  */
 
   /* Saved Values */
-  sunrealtype h0u;   /* actual initial stepsize                     */
-  sunrealtype tn;    /* time of last successful step                */
-  sunrealtype terr;  /* error in tn for compensated sums            */
-  sunrealtype hold;  /* last successful h value used                */
-  sunrealtype tolsf; /* tolerance scale factor (suggestion to user) */
+  sunrealtype h0u;         /* actual initial stepsize                     */
+  sunrealtype tn;          /* time of last successful step                */
+  sunrealtype terr;        /* error in tn for compensated sums            */
+  sunrealtype hold;        /* last successful h value used                */
+  sunrealtype tolsf;       /* tolerance scale factor (suggestion to user) */
+  int AccumErrorType;      /* accumulated error estimation type:
+                               none (-1), scalar-max (0), scalar-sum (1)   */
+  long int AccumErrorStep; /* time step of last accumulated error reset   */
+  sunrealtype AccumError;  /* accumulated error estimate                  */
   sunbooleantype VabstolMallocDone;
   sunbooleantype VRabstolMallocDone;
   sunbooleantype MallocDone;
@@ -610,9 +615,14 @@ sunbooleantype arkCheckNvector(N_Vector tmpl);
 int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout);
 int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
                  sunrealtype* tret, int itask, int* ier);
-int arkHin(ARKodeMem ark_mem, sunrealtype tout);
-sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist);
-int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype* yddnrm);
+int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout, N_Vector ycur,
+           N_Vector fcur, N_Vector ytmp, N_Vector temp1, N_Vector temp2,
+           ARKTimestepFullRHSFn rhs, sunrealtype* h);
+sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist, N_Vector y,
+                            N_Vector f, N_Vector temp1, N_Vector temp2);
+int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype t, N_Vector y,
+               N_Vector f, N_Vector ycur, N_Vector temp1,
+               ARKTimestepFullRHSFn rhs, sunrealtype* yddnrm);
 
 int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm);
 int arkHandleFailure(ARKodeMem ark_mem, int flag);
