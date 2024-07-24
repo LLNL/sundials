@@ -320,6 +320,25 @@ int main(int argc, char* argv[])
   flag = ARKodeSetStopTime(arkode_mem, udata->tf);
   if (check_flag(&flag, "ARKodeSetStopTime", 1)) { return 1; }
 
+  // Set Optimal Parameters
+  flag = ARKodeSetSafetyFactor(arkode_mem, 0.99);
+  if (check_flag(&flag, "ARKodeSetSafetyFactor", 1)) { return 1; }
+
+  flag = ARKodeSetMaxGrowth(arkode_mem, 25.0);
+  if (check_flag(&flag, "ARKodeSetMaxGrowth", 1)) { return 1; } 
+
+  flag = ARKodeSetMaxEFailGrowth(arkode_mem, 0.3);
+  if (check_flag(&flag, "ARKodeSetMaxEFailGrowth", 1)) { return 1; }
+
+  flag = ARKodeSetErrorBias(arkode_mem, 1.2);
+  if (check_flag(&flag, "ARKodeSetErrorBias", 1)) { return 1; }
+
+  flag = ARKodeSetAdaptivityAdjustment(arkode_mem, 1);
+  if (check_flag(&flag, "ARKodeSetAdaptivityAdjustment", 1)) { return 1; }
+
+  flag = ARKodeSetMaxNumSteps(arkode_mem, 20000);
+  if (check_flag(&flag, "ARKodeSetAdaptivityAdjustment", 1)) { return 1; }
+
   // -----------------------
   // Loop over output times
   // -----------------------
@@ -513,7 +532,7 @@ static int eig(sunrealtype t, sunrealtype* lambdaR, sunrealtype* lambdaI, void* 
   sunindextype ny = udata->ny;
 
   // Fill in spectral radius value
-  *lambdaR = -SUN_RCONST(4.0)*SUNMAX(udata->kx/udata->dx/udata->dx,
+  *lambdaR = -SUN_RCONST(8.0)*SUNMAX(udata->kx/udata->dx/udata->dx,
                                      udata->ky/udata->dy/udata->dy);
   *lambdaI = SUN_RCONST(0.0);
 
@@ -530,8 +549,8 @@ static int eig(sunrealtype t, sunrealtype* lambdaR, sunrealtype* lambdaI, void* 
 static int InitUserData(UserData* udata)
 {
   // Diffusion coefficient
-  udata->kx = ONE;
-  udata->ky = ONE;
+  udata->kx = ONE*1000.0;
+  udata->ky = ONE*1000.0;
 
   // Enable forcing
   udata->forcing = true;
@@ -544,8 +563,8 @@ static int InitUserData(UserData* udata)
   udata->yu = ONE;
 
   // Number of nodes in the x and y directions
-  udata->nx    = 32;
-  udata->ny    = 32;
+  udata->nx    = 64;
+  udata->ny    = 64;
   udata->nodes = udata->nx * udata->ny;
 
   // Mesh spacing in the x and y directions
@@ -935,27 +954,29 @@ static int CloseOutput(UserData* udata)
 // Print integrator statistics
 static int OutputStats(void* arkode_mem, UserData* udata)
 {
-  int flag;
+  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  // Get integrator and solver stats
-  long int nst, nst_a, netf, nfe, nfi;
-  flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
-  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
-  if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  flag = LSRKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "LSRKStepGetNumRhsEvals", 1)) { return -1; }
+  // int flag;
 
-  cout << fixed;
-  cout << setprecision(6);
+  // // Get integrator and solver stats
+  // long int nst, nst_a, netf, nfe, nfi;
+  // flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  // if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
+  // flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  // if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
+  // flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  // if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
+  // flag = LSRKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  // if (check_flag(&flag, "LSRKStepGetNumRhsEvals", 1)) { return -1; }
 
-  cout << "  Steps            = " << nst << endl;
-  cout << "  Step attempts    = " << nst_a << endl;
-  cout << "  Error test fails = " << netf << endl;
-  cout << "  RHS evals        = " << nfe << endl;
-  cout << endl;
+  // cout << fixed;
+  // cout << setprecision(6);
+
+  // cout << "  Steps            = " << nst << endl;
+  // cout << "  Step attempts    = " << nst_a << endl;
+  // cout << "  Error test fails = " << netf << endl;
+  // cout << "  RHS evals        = " << nfe << endl;
+  // cout << endl;
 
   return 0;
 }

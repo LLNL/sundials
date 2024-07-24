@@ -5,9 +5,6 @@ Analytical ODE test problem:
    abstol = 1.0e-08
 
 
-HARD CODED to set interpolation type = ARK_INTERP_LAGRANGE
-
-
 Solving with RKL method
 
         t           u
@@ -36,11 +33,11 @@ Inequality constraint fails  = 0
 Initial step size            = 1.930101110942615e-10
 Last step size               = 0.01627887578334304
 Current step size            = 0.02442720680359409
-RHS fn evals                 = 174916
-RHS fn evals for spr         = 0
-Number of SPR update calls   = 1
-Max. num. of stages taken    = 199
-Max. num. of stages allowed  = 200
+RHS fn evals                  = 174916
+RHS fn evals for Dom. Eigs.   = 0
+Number of DomEig update calls = 1
+Max. num. of stages taken     = 199
+Max. num. of stages allowed   = 200
 Max. spectral radius         = 1010000.00
 Min. spectral radius         = 1010000.00
 
