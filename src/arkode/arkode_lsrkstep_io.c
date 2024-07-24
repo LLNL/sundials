@@ -222,6 +222,28 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_ev
 }
 
 /*---------------------------------------------------------------
+  LSRKStepGetNumDomEigUpdates:
+
+  Returns the number of dominant eigenvalue updates
+  ---------------------------------------------------------------*/
+int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* ndomeigupdates)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* get values from step_mem */
+  *ndomeigupdates = step_mem->ndomeigupdates;
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
   LSRKStepGetMaxStageNum:
 
   Returns the max number of stages taken
@@ -239,6 +261,28 @@ int LSRKStepGetMaxStageNum(void* arkode_mem, int* stagemax)
 
   /* get values from step_mem */
   *stagemax = step_mem->stagemax;
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  LSRKStepGetAverStageNum:
+
+  Returns the average number of stages taken
+  ---------------------------------------------------------------*/
+int LSRKStepGetAverStageNum(void* arkode_mem, int* averstage)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* get values from step_mem */
+  *averstage = round(((sunrealtype)step_mem->nfe)/((sunrealtype)ark_mem->nst_attempts));
 
   return (ARK_SUCCESS);
 }
