@@ -169,7 +169,7 @@ int LSRKStepSetMaxStageNum(void* arkode_mem, int stagemaxlimit)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepSetDomEigSafetyFactor sets the maximum number of stages allowed.
+  LSRKStepSetDomEigSafetyFactor sets the safety factor for the DomEigs.
   ---------------------------------------------------------------*/
 int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty)
 {

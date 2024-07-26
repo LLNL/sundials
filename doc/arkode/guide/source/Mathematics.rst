@@ -741,8 +741,32 @@ The LSRKStep time-stepping module in ARKODE supports a variety of so-called
 RK methods, adaptive and mixed implicit-explicit low-storage RK methods, and a
 variety of "super-time-stepping" methods.
 
-(To-Do: add discussion regarding the mathematics of these methods and citations
-of relevant papers).
+The LSRK time-stepping module in ARKODE is designed for IVP
+of the form :eq:`ARKODE_IVP_simple_explicit`, i.e., unlike the more general problem form :eq:`ARKODE_IMEX_IVP`, LSRKStep
+requires that problems have an identity mass matrix (i.e., :math:`M(t)=I`)
+and that the right-hand side function is not split into separate
+components.
+
+For such problems, LSRKStep provides variable-step, adaptive,
+:index:`Runge--Kutta methods`, corresponding to algorithms of the folowing forms:
+
+The RKC and RKL methods in ARKODE have the form
+
+.. math::
+   z_0 &= y_n,\\
+   z_1 &= z_0 + h \tilde{\mu}_1 f(t_n,z_0),\\
+   z_j &= (1-\mu_j-\nu_j)z_0 + \mu_j z_{j-1} + \nu_jz_{j-2} + h \tilde{\gamma}_j f(t_n,z_0) + h \tilde{\mu}_j f(t_n + c_{j-1}h, z_{j-1}) \\
+   y_{n+1} &= z_s.
+   :label: ARKODE_RKC_RKL
+
+The corresponding coefficients can be found in :cite:p:`VSH:04, MBA:14`, respectively.
+
+LSRK methods are designed to be memory-efficient for stiff problems characterized by 
+large real eigenvalues and small imaginary parts. These methods use more stages than 
+conventional Runge-Kutta (RK) methods to extend the stability region along the negative 
+real axis. The extent of this stability region is proportional to the square of the number 
+of stages used. This quadratic expansion of the stability region enables the effective 
+use of explicit methods for finding solutions efficiently.
 
 
 .. _ARKODE.Mathematics.Error.Norm:

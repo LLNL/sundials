@@ -1,5 +1,5 @@
 .. ----------------------------------------------------------------
-   Programmer(s): Daniel R. Reynolds @ SMU
+   Programmer(s): Mustafa Aggul @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2024, Lawrence Livermore National Security
@@ -29,7 +29,7 @@ As discussed in the main :ref:`ARKODE user-callable function introduction
 clarifies the categories of user-callable functions that it supports.
 LSRKStep supports the following categories:
 
-* (fill these in)
+* temporal adaptivity
 
 
 
@@ -39,6 +39,27 @@ LSRKStep initialization functions
 ---------------------------------
 
 
+.. c:function:: void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNContext sunctx);
+
+   This function allocates and initializes memory for a problem to
+   be solved using the LSRKStep time-stepping module in ARKODE.
+
+   **Arguments:**
+      * *fe* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
+        defining the explicit portion of the right-hand side function in
+        :math:`y'(t) = f^E(t,y) + f^I(t,y)`.
+      * *fi* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
+        defining the implicit portion of the right-hand side function in
+        :math:`y'(t) = f^E(t,y) + f^I(t,y)`.
+      * *t0* -- the initial value of :math:`t`.
+      * *y0* -- the initial condition vector :math:`y(t_0)`.
+      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
+
+   **Return value:**
+      If successful, a pointer to initialized problem memory
+      of type ``void*``, to be passed to all user-facing ERKStep routines
+      listed below.  If unsuccessful, a ``NULL`` pointer will be
+      returned, and an error message will be printed to ``stderr``.
 
 
 .. _ARKODE.Usage.LSRKStep.OptionalInputs:
@@ -47,6 +68,76 @@ Optional input functions
 -------------------------
 
 
+.. c:function:: int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method);
+
+   This function sets the type of the LSRK method.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *method* -- Type of the method: ``ARKODE_LSRK_RKC`` or ``ARKODE_LSRK_RKL``
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. typo in the method type).
+
+
+.. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn DomEig);
+
+   Specifies the Dominant Eigenvalue approximation routine to
+   be used for number of stages selection.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *DomEig* -- name of user-supplied Dominant Eigenvalue approximation function (of type :c:func:`ARKDomEigFn()`).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
+      * *ARK_ILL_INPUT* ``DomEig = NULL`` and internal Dominant Eigenvalue estimation is not supported yet.
+
+
+.. c:function:: int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps);
+
+   Specifies the number of steps after which the Dominant Eigenvalue information is
+   considered out-of-date.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *nsteps* -- the Dominant Eigenvalue re-computation update frequency, in particular ``nsteps = 0`` means constant Jacobian.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
+      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. ``nsteps < 0``)
+
+
+.. c:function:: int LSRKStepSetMaxStageNum(void* arkode_mem, int stagemaxlimit);
+
+   Specifies the maximum number of stages allowed within each time step.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *stagemaxlimit* -- maximum allowed number of stages :math:`(>1)`.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
+      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. ``stagemaxlimit < 2``)
+
+
+.. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty);
+
+   Specifies the safety factor for the Dominant Eigenvalues.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *domeigsfty* -- safety factor :math:`(>1)`.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
+      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. ``domeigsfty < 1``)
+
 
 .. _ARKODE.Usage.LSRKStep.OptionalOutputs:
 
@@ -54,9 +145,146 @@ Optional output functions
 ------------------------------
 
 
+.. c:function:: int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_evals);
+
+   Returns the number of calls to the user's right-hand
+   side functions, :math:`f^E` and :math:`f^I` (so far).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *fe_evals* -- number of calls to the user's :math:`f^E(t,y)` function.
+      * *fi_evals* -- number of calls to the user's :math:`f^I(t,y)` function.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+
+
+.. c:function:: int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* ndomeigupdates);
+
+   Returns the number of Dominant Eigenvalue evaluations (so far).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *ndomeigupdates* -- number of calls to the user's ``DomEig`` function.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``     
+
+
+.. c:function:: int LSRKStepGetMaxStageNum(void* arkode_mem, int* stagemax);
+
+   Returns the max number of stages taken (so far).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *stagemax* -- max number of stages taken.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``  
+
+
+.. c:function:: int LSRKStepGetAverStageNum(void* arkode_mem, int* averstage);
+
+   Returns the average number of stages per step (so far).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *averstage* -- average number of stages.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``  
+
+
+.. c:function:: int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps, long int* accsteps, long int* attempts, long int* fevals, long int* domeigfevals, long int* netfails, long int* stagemax, long int* ndomeigupdates, sunrealtype* sprmax, sunrealtype* sprmin);
+
+   Returns many of the most useful time-stepper statistics in a single call.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *expsteps* -- number of stability-limited steps taken in the solver.
+      * *accsteps* -- number of accuracy-limited steps taken in the solver.
+      * *attempts* -- number of steps attempted by the solver.
+      * *fevals* -- number of calls to the user's :math:`f^E(t,y)` function.
+      * *domeigfevals* -- number of calls to the user's `DomEig` function.
+      * *netfails* -- number of error test failures.
+      * *stagemax* -- number of error test failures.
+      * *ndomeigupdates* -- number of Dominant Eigenvalue updates.
+      * *sprmax* -- number of error test failures.
+      * *sprmin* -- number of error test failures.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
 
 .. _ARKODE.Usage.LSRKStep.Reinitialization:
 
 LSRKStep re-initialization function
 -------------------------------------
+
+To reinitialize the LSRKStep module for the solution of a new problem,
+where a prior call to :c:func:`LSRKStepCreate` has been made, the
+user must call the function :c:func:`LSRKStepReInit()`.  The new
+problem must have the same size as the previous one.  This routine
+retains the current settings for all LSRKstep module options and
+performs the same input checking and initializations that are done in
+:c:func:`LSRKStepCreate`, but it performs no memory allocation as is
+assumes that the existing internal memory is sufficient for the new
+problem.  A call to this re-initialization routine deletes the
+solution history that was stored internally during the previous
+integration, and deletes any previously-set *tstop* value specified via a
+call to :c:func:`ARKodeSetStopTime()`.  Following a successful call to
+:c:func:`LSRKStepReInit()`, call :c:func:`ARKStepEvolve()` again for the
+solution of the new problem.
+
+One important use of the :c:func:`LSRKStepReInit()` function is in the
+treating of jump discontinuities in the RHS function.  Except in cases
+of fairly small jumps, it is usually more efficient to stop at each
+point of discontinuity and restart the integrator with a readjusted
+ODE model, using a call to this routine.  To stop when the location
+of the discontinuity is known, simply make that location a value of
+``tout``.  To stop when the location of the discontinuity is
+determined by the solution, use the rootfinding feature.  In either
+case, it is critical that the RHS function *not* incorporate the
+discontinuity, but rather have a smooth extension over the
+discontinuity, so that the step across it (and subsequent rootfinding,
+if used) can be done efficiently.  Then use a switch within the RHS
+function (communicated through ``user_data``) that can be flipped
+between the stopping of the integration and the restart, so that the
+restarted problem uses the new values (which have jumped).  Similar
+comments apply if there is to be a jump in the dependent variable
+vector.
+
+
+.. c:function:: int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0);
+
+   Provides required problem specifications and re-initializes the
+   LSRKStep time-stepper module.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *fe* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
+        defining the explicit right-hand side function in :math:`\dot{y} = f^E(t,y)`.
+      * *fi* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
+        defining the implicit right-hand side function in :math:`\dot{y} = f^I(t,y)`.        
+      * *t0* -- the initial value of :math:`t`.
+      * *y0* -- the initial condition vector :math:`y(t_0)`.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL*  if the LSRKStep memory was ``NULL``
+      * *ARK_MEM_FAIL*  if memory allocation failed
+      * *ARK_NO_MALLOC*  if memory allocation failed
+      * *ARK_CONTROLLER_ERR*  if unable to reset error controller object
+      * *ARK_ILL_INPUT* if an argument has an illegal value.
+
+   **Notes:**
+      All previously set options are retained but may be updated by calling
+      the appropriate "Set" functions.
+
+      If an error occurred, :c:func:`LSRKStepReInit()` also
+      sends an error message to the error handler function.
