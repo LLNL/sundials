@@ -321,23 +321,23 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeSetStopTime", 1)) { return 1; }
 
   // Set Optimal Parameters
-  flag = ARKodeSetSafetyFactor(arkode_mem, 0.99);
-  if (check_flag(&flag, "ARKodeSetSafetyFactor", 1)) { return 1; }
+  // flag = ARKodeSetSafetyFactor(arkode_mem, 0.99);
+  // if (check_flag(&flag, "ARKodeSetSafetyFactor", 1)) { return 1; }
 
-  flag = ARKodeSetMaxGrowth(arkode_mem, 25.0);
-  if (check_flag(&flag, "ARKodeSetMaxGrowth", 1)) { return 1; } 
+  // flag = ARKodeSetMaxGrowth(arkode_mem, 25.0);
+  // if (check_flag(&flag, "ARKodeSetMaxGrowth", 1)) { return 1; } 
 
-  flag = ARKodeSetMaxEFailGrowth(arkode_mem, 0.3);
-  if (check_flag(&flag, "ARKodeSetMaxEFailGrowth", 1)) { return 1; }
+  // flag = ARKodeSetMaxEFailGrowth(arkode_mem, 0.3);
+  // if (check_flag(&flag, "ARKodeSetMaxEFailGrowth", 1)) { return 1; }
 
-  flag = ARKodeSetErrorBias(arkode_mem, 1.2);
-  if (check_flag(&flag, "ARKodeSetErrorBias", 1)) { return 1; }
+  // flag = ARKodeSetErrorBias(arkode_mem, 1.2);
+  // if (check_flag(&flag, "ARKodeSetErrorBias", 1)) { return 1; }
 
-  flag = ARKodeSetAdaptivityAdjustment(arkode_mem, 1);
-  if (check_flag(&flag, "ARKodeSetAdaptivityAdjustment", 1)) { return 1; }
+  // flag = ARKodeSetAdaptivityAdjustment(arkode_mem, 1);
+  // if (check_flag(&flag, "ARKodeSetAdaptivityAdjustment", 1)) { return 1; }
 
-  flag = ARKodeSetMaxNumSteps(arkode_mem, 20000);
-  if (check_flag(&flag, "ARKodeSetAdaptivityAdjustment", 1)) { return 1; }
+  // flag = ARKodeSetMaxNumSteps(arkode_mem, 20000);
+  // if (check_flag(&flag, "ARKodeSetAdaptivityAdjustment", 1)) { return 1; }
 
   // -----------------------
   // Loop over output times
