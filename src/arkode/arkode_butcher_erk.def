@@ -39,6 +39,7 @@
      imeth                               QP
     ---------------------------------------
      ARKODE_FORWARD_EULER_1_1             Y
+     ARKODE_RALSTON_3_1_2                 Y
      ARKODE_HEUN_EULER_2_1_2              Y
      ARKODE_RALSTON_EULER_2_1_2           Y
      ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2 Y
