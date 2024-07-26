@@ -23,26 +23,25 @@ coupling tables and their corresponding identifiers. Additionally, a user may
 supply a custom set of slow-to-fast time scale coupling coefficients by
 constructing a coupling table and attaching it with
 :c:func:`MRIStepSetCoupling`. A given MRI coupling table can encode any of
-the MRI methods supported by MRIStep.  These types are determined by an
-enumerated type, :c:type:`ARKODE_MRIType`:
+the MRI methods supported by MRIStep.  The family of MRI method encoded
+by the table is determined by an enumerated type, :c:type:`ARKODE_MRIType`:
 
 .. c:type:: ARKODE_MRIType
 
    This may take any of the following constants:
 
    * :index:`MRISTEP_EXPLICIT` -- indicates an MRI-GARK method that
-     does not include a slow implicit operator, :math:`f^I`.
+     does not support a slow implicit operator, :math:`f^I`.
 
    * :index:`MRISTEP_IMPLICIT` -- indicates an MRI-GARK method that
-     does not include a slow explicit operator, :math:`f^E`.
+     does not support a slow explicit operator, :math:`f^E`.
 
    * :index:`MRISTEP_IMEX` -- indicates an IMEX-MRK-GARK method.
 
    * :index:`MRISTEP_MERK` -- indicates a MERK method, that by definition
-     does not include a slow implicit operator, :math:`f^I`.
+     does not support a slow implicit operator, :math:`f^I`.
 
-   * :index:`MRISTEP_MRISR` -- indicates an IMEX-MRI-SR method, with time
-     scale that is any one of explicit, implicit, or implicit-explicit.
+   * :index:`MRISTEP_MRISR` -- indicates an IMEX-MRI-SR method.
 
 The MRI coupling tables themselves are stored in an
 :c:func:`MRIStepCoupling` object which is a pointer to a
@@ -200,6 +199,11 @@ are defined ``arkode/arkode_mristep.h``.
 
       For MRISTEP_MRISR tables, the *group* array is not allocated.
 
+   .. versionchanged:: x.y.z
+
+      In previous releases, this function did not include the *type* argument.
+
+
 
 .. c:function:: MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages, int q, int p, sunrealtype *W, sunrealtype *G, sunrealtype *c)
 
@@ -223,17 +227,24 @@ are defined ``arkode/arkode_mristep.h``.
 
    .. note::
 
-      The arrays *W* and *G* are assumed to have different sizes depending
-      on the embedding input, *p*.
+      This routine can only be used to create coupling tables with type
+      ``MRISTEP_EXPLICIT``, ``MRISTEP_IMPLICIT``, or  ``MRISTEP_IMEX``.  The
+      routine determines the relevant type based on whether either of the
+      arguments *W* and *G* are ``NULL``.  Users who wish to create MRI
+      methods of type ``MRISTEP_MERK`` or ``MRISTEP_MRISR`` must currently
+      do so manually.
 
-      Non-embedded methods should be indicated by an input *p=0*, in which
-      case *W* and/or *G* should have entries stored as a 1D array of size
-      ``nmat * stages * stages``, in row-major order.
+      The assumed size of the input arrays *W* and *G* depends on the
+      input value for the embedding order of accuracy, *p*.
 
-      Embedded methods should be indicated by an input *p>0*, in which
-      case *W* and/or *G* should have entries stored as a 1D array of size
-      ``nmat * (stages+1) * stages``, in row-major order.  The additional
-      "row" is assumed to hold the embedding coefficients.
+      * Non-embedded methods should be indicated by an input *p=0*, in which
+        case *W* and/or *G* should have entries stored as a 1D array of size
+        ``nmat * stages * stages``, in row-major order.
+
+      * Embedded methods should be indicated by an input *p>0*, in which
+        case *W* and/or *G* should have entries stored as a 1D array of size
+        ``nmat * (stages+1) * stages``, in row-major order.  The additional
+        "row" is assumed to hold the embedding coefficients.
 
 
 .. c:function:: MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)

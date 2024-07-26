@@ -13,3 +13,8 @@
 .. include:: ../../../../shared/sunadaptcontroller/SUNAdaptController_Description.rst
 .. include:: ../../../../shared/sunadaptcontroller/SUNAdaptController_Soderlind.rst
 .. include:: ../../../../shared/sunadaptcontroller/SUNAdaptController_ImExGus.rst
+.. include:: ../../../../shared/sunadaptcontroller/SUNAdaptController_MRIHTol.rst
+.. include:: ../../../../shared/sunadaptcontroller/SUNAdaptController_MRICC.rst
+.. include:: ../../../../shared/sunadaptcontroller/SUNAdaptController_MRILL.rst
+.. include:: ../../../../shared/sunadaptcontroller/SUNAdaptController_MRIPI.rst
+.. include:: ../../../../shared/sunadaptcontroller/SUNAdaptController_MRIPID.rst
