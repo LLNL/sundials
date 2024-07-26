@@ -22,7 +22,29 @@ MRIStep supplies several built-in MIS, MRI-GARK, and IMEX-MRI-GARK methods, see
 coupling tables and their corresponding identifiers. Additionally, a user may
 supply a custom set of slow-to-fast time scale coupling coefficients by
 constructing a coupling table and attaching it with
-:c:func:`MRIStepSetCoupling`. The MRI coupling tables are stored in an
+:c:func:`MRIStepSetCoupling`. A given MRI coupling table can encode any of
+the MRI methods supported by MRIStep.  These types are determined by an
+enumerated type, :c:type:`ARKODE_MRIType`:
+
+.. c:type:: ARKODE_MRIType
+
+   This may take any of the following constants:
+
+   * :index:`MRISTEP_EXPLICIT` -- indicates an MRI-GARK method that
+     does not include a slow implicit operator, :math:`f^I`.
+
+   * :index:`MRISTEP_IMPLICIT` -- indicates an MRI-GARK method that
+     does not include a slow explicit operator, :math:`f^E`.
+
+   * :index:`MRISTEP_IMEX` -- indicates an IMEX-MRK-GARK method.
+
+   * :index:`MRISTEP_MERK` -- indicates a MERK method, that by definition
+     does not include a slow implicit operator, :math:`f^I`.
+
+   * :index:`MRISTEP_MRISR` -- indicates an IMEX-MRI-SR method, with time
+     scale that is any one of explicit, implicit, or implicit-explicit.
+
+The MRI coupling tables themselves are stored in an
 :c:func:`MRIStepCoupling` object which is a pointer to a
 :c:struct:`MRIStepCouplingMem` structure:
 
@@ -38,6 +60,10 @@ constructing a coupling table and attaching it with
    stage time abscissae, :math:`c^S \in \mathbb{R}^{s+1}` and a set of coupling
    matrices :math:`\Gamma^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}` and
    :math:`\Omega^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}`.
+
+   .. c:member:: ARKODE_MRIType type
+
+      Flag indicating the type of MRI method encoded by this table,
 
    .. c:member:: int nmat
 
@@ -57,6 +83,11 @@ constructing a coupling table and attaching it with
 
       The embedding order of accuracy
 
+   .. c:member:: sunrealtype* c
+
+      An array of length ``[stages]`` containing the slow abscissae :math:`c^S`
+      for the method
+
    .. c:member:: sunrealtype*** W
 
       A three-dimensional array with dimensions ``[nmat][stages+1][stages]``
@@ -69,10 +100,15 @@ constructing a coupling table and attaching it with
       containing the method's :math:`\Gamma^{\{k\}}` coupling matrices for the
       slow-stiff (implicit) terms in :eq:`ARKODE_IVP_two_rate`
 
-   .. c:member:: sunrealtype* c
+   .. c:member:: int ngroup
 
-      An array of length ``[stages]`` containing the slow abscissae :math:`c^S`
-      for the method
+      Number of stage groups for the method (only relevant for MERK methods).
+
+   .. c:member:: int** group
+
+      A two-dimensional array with dimensions ``[stages][stages]`` that encodes
+      which stages should be combined together within fast integration groups
+      (only relevant for MERK methods).
 
 
 .. _ARKODE.Usage.MRIStep.MRIStepCoupling.Functions:
@@ -87,27 +123,27 @@ are defined ``arkode/arkode_mristep.h``.
 .. _ARKODE.Usage.MRIStep.MRIStepCoupling.Functions.Table:
 .. table:: MRIStepCoupling functions
 
-   +---------------------------------------------+--------------------------------------------------------------------+
-   | Function name                               | Description                                                        |
-   +=============================================+====================================================================+
-   | :c:func:`MRIStepCoupling_LoadTable()`       | Loads a pre-defined MRIStepCoupling table by ID                    |
-   +---------------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_LoadTableByName()` | Loads a pre-defined MRIStepCoupling table by name                  |
-   +---------------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_Alloc()`           | Allocate an empty MRIStepCoupling table                            |
-   +---------------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_Create()`          | Create a new MRIStepCoupling table from coefficients               |
-   +---------------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_MIStoMRI()`        | Create a new MRIStepCoupling table from a slow Butcher table       |
-   +---------------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_Copy()`            | Create a copy of a MRIStepCoupling table                           |
-   +---------------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_Space()`           | Get the MRIStepCoupling table real and integer workspace sizes     |
-   +---------------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_Free()`            | Deallocate a MRIStepCoupling table                                 |
-   +---------------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_Write()`           | Write the MRIStepCoupling table to an output file                  |
-   +---------------------------------------------+--------------------------------------------------------------------+
+   +-------------------------------------------+--------------------------------------------------------------------+
+   | Function name                             | Description                                                        |
+   +===========================================+====================================================================+
+   | :c:func:`MRIStepCoupling_LoadTable`       | Loads a pre-defined MRIStepCoupling table by ID                    |
+   +-------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_LoadTableByName` | Loads a pre-defined MRIStepCoupling table by name                  |
+   +-------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_Alloc`           | Allocate an empty MRIStepCoupling table                            |
+   +-------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_Create`          | Create a new MRIStepCoupling table from coefficients               |
+   +-------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_MIStoMRI`        | Create a new MRIStepCoupling table from a slow Butcher table       |
+   +-------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_Copy`            | Create a copy of a MRIStepCoupling table                           |
+   +-------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_Space`           | Get the MRIStepCoupling table real and integer workspace sizes     |
+   +-------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_Free`            | Deallocate a MRIStepCoupling table                                 |
+   +-------------------------------------------+--------------------------------------------------------------------+
+   | :c:func:`MRIStepCoupling_Write`           | Write the MRIStepCoupling table to an output file                  |
+   +-------------------------------------------+--------------------------------------------------------------------+
 
 
 .. c:function:: MRIStepCoupling MRIStepCoupling_LoadTable(ARKODE_MRITableID method)
@@ -122,7 +158,7 @@ are defined ``arkode/arkode_mristep.h``.
                    pointer if *method* was invalid or an allocation error occurred.
 
 
-.. c:function:: MRIStepCoupling MRIStepCoupling_LoadTableByName(const char *method)
+.. c:function:: MRIStepCoupling MRIStepCoupling_LoadTableByName(const char* method)
 
    Retrieves a specified coupling table. For further information on the current
    set of coupling tables and their corresponding name, see
@@ -139,14 +175,14 @@ are defined ``arkode/arkode_mristep.h``.
       This function is case sensitive.
 
 
-.. c:function:: MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages, int type)
+.. c:function:: MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages, ARKODE_MRIType type)
 
    Allocates an empty MRIStepCoupling table.
 
    :param nmat: number of :math:`\Omega^{\{k\}}` and/or :math:`\Gamma^{\{k\}}`
         matrices in the coupling table.
    :param stages: number of stages in the coupling table.
-   :param type: the method type: explicit (0), implicit (1), or ImEx (2).
+   :param type: the type of MRI method the table will encode.
 
    :return value: An :c:type:`MRIStepCoupling` structure if successful.
                   A ``NULL`` pointer if *stages* or *type* was invalid or an allocation error
@@ -154,9 +190,15 @@ are defined ``arkode/arkode_mristep.h``.
 
    .. note::
 
-      For explicit methods only the W array is allocated, with implicit methods
-      only the G array is allocated, and for ImEx methods both W and G are
-      allocated.
+      For MRISTEP_EXPLICIT tables, the *G* and *group* arrays are not allocated.
+
+      For MRISTEP_IMPLICIT tables, the *W* and *group* arrays are not allocated.
+
+      For MRISTEP_IMEX tables, the *group* array is not allocated.
+
+      For MRISTEP_MERK tables, the *G* array is not allocated.
+
+      For MRISTEP_MRISR tables, the *group* array is not allocated.
 
 
 .. c:function:: MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages, int q, int p, sunrealtype *W, sunrealtype *G, sunrealtype *c)
@@ -192,6 +234,7 @@ are defined ``arkode/arkode_mristep.h``.
       case *W* and/or *G* should have entries stored as a 1D array of size
       ``nmat * (stages+1) * stages``, in row-major order.  The additional
       "row" is assumed to hold the embedding coefficients.
+
 
 .. c:function:: MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
 
@@ -233,7 +276,7 @@ are defined ``arkode/arkode_mristep.h``.
       inserts redundant "padding" stages to ensure a solve-decoupled structure and
       then uses the above formula to fill :math:`\Gamma^{\{0\}}`.
 
-      For general slow tables with a least second-order accuracy, the MIS method will
+      For general slow tables with at least second-order accuracy, the MIS method will
       be second order.  However, if the slow table is at least third order and
       additionally satisfies
 
@@ -280,6 +323,7 @@ are defined ``arkode/arkode_mristep.h``.
 
    :param C: the coupling table.
 
+
 .. c:function:: void MRIStepCoupling_Write(MRIStepCoupling C, FILE *outfile)
 
    Write the coupling table to the provided file pointer.
@@ -319,49 +363,65 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
 
 
 
-.. table:: Explicit MRI-GARK coupling tables. The default method for each order
-           is marked with an asterisk (:math:`^*`).
+.. table:: Explicit MRIStep coupling tables. The default method for each order when using
+           fixed step sizes is marked with an asterisk (:math:`^*`); the default method
+           for each order when using adaptive time stepping is marked with a circle
+           (:math:`^\circ`).  The "Slow RHS Calls" column corresponds to the number of
+           calls to the slow right-hand side function, :math:`f^E`, per time step.
 
-   =================================  ============  ===============  =====================
-   Table name                         Method Order  Embedding Order  Reference
-   =================================  ============  ===============  =====================
-   ``ARKODE_MRI_GARK_FORWARD_EULER``  :math:`1^*`   0
-   ``ARKODE_MRI_GARK_ERK22b``         :math:`2^*`   0                :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_ERK22a``         2             1                :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_RALSTON2``       2             0                :cite:p:`Roberts:22`
-   ``ARKODE_MIS_KW3``                 :math:`3^*`   0                :cite:p:`Schlegel:09`
-   ``ARKODE_MRI_GARK_ERK33a``         3             2                :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_RALSTON3``       3             0                :cite:p:`Roberts:22`
-   ``ARKODE_MRI_GARK_ERK45a``         :math:`4^*`   3                :cite:p:`Sandu:19`
-   =================================  ============  ===============  =====================
+   ======================================  ==================  ===============  ==============  =====================
+   Table name                              Method Order        Embedding Order  Slow RHS Calls  Reference
+   ======================================  ==================  ===============  ==============  =====================
+   :index:`ARKODE_MRI_GARK_FORWARD_EULER`  :math:`1^*`         0                1
+   :index:`ARKODE_MRI_GARK_ERK22a`         :math:`2^{\circ}`   1                2               :cite:p:`Sandu:19`
+   :index:`ARKODE_MRI_GARK_ERK22b`         :math:`2^*`         1                2               :cite:p:`Sandu:19`
+   :index:`ARKODE_MRI_GARK_RALSTON2`       2                   0                2               :cite:p:`Roberts:22`
+   :index:`ARKODE_MERK21`                  2                   1                2               :cite:p:`Luan:20`
+   :index:`ARKODE_MIS_KW3`                 :math:`3^*`         0                3               :cite:p:`Schlegel:09`
+   :index:`ARKODE_MRI_GARK_ERK33a`         :math:`3^{\circ}`   2                3               :cite:p:`Sandu:19`
+   :index:`ARKODE_MRI_GARK_RALSTON3`       3                   0                3               :cite:p:`Roberts:22`
+   :index:`ARKODE_MERK32`                  3                   2                3               :cite:p:`Luan:20`
+   :index:`ARKODE_MRI_GARK_ERK45a`         :math:`4^{*\circ}`  3                5               :cite:p:`Sandu:19`
+   :index:`ARKODE_MERK43`                  4                   3                6               :cite:p:`Luan:20`
+   :index:`ARKODE_MERK54`                  5                   4                10              :cite:p:`Luan:20`
+   ======================================  ==================  ===============  ==============  =====================
 
 
-.. table:: Diagonally-implicit, solve-decoupled MRI-GARK coupling tables. The
-           default method for each order is marked with an asterisk
-           (:math:`^*`).
+.. table:: Diagonally-implicit, solve-decoupled MRI-GARK coupling tables. The default
+           method for each order when using fixed step sizes is marked with an asterisk
+           (:math:`^*`); the default method for each order when using adaptive time
+           stepping is marked with a circle (:math:`^\circ`). The "Implicit Solves"
+           column corresponds to the number of slow implicit (non)linear solves required
+           per time step.
 
-   =====================================  ============  ===============  ===============  ==================
-   Table name                             Method Order  Embedding Order  Implicit Solves  Reference
-   =====================================  ============  ===============  ===============  ==================
-   ``ARKODE_MRI_GARK_BACKWARD_EULER``     :math:`1^*`   0                1
-   ``ARKODE_MRI_GARK_IRK21a``             :math:`2^*`   1                1                :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_IMPLICIT_MIDPOINT``  2             0                2
-   ``ARKODE_MRI_GARK_ESDIRK34a``          :math:`3^*`   2                3                :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_ESDIRK46a``          :math:`4^*`   3                5                :cite:p:`Sandu:19`
-   =====================================  ============  ===============  ===============  ==================
+   ==========================================  ==================  ===============  ===============  ==================
+   Table name                                  Method Order        Embedding Order  Implicit Solves  Reference
+   ==========================================  ==================  ===============  ===============  ==================
+   :index:`ARKODE_MRI_GARK_BACKWARD_EULER`     :math:`1^{*\circ}`  0                1
+   :index:`ARKODE_MRI_GARK_IRK21a`             :math:`2^{*\circ}`  1                1                :cite:p:`Sandu:19`
+   :index:`ARKODE_MRI_GARK_IMPLICIT_MIDPOINT`  2                   0                2
+   :index:`ARKODE_MRI_GARK_ESDIRK34a`          :math:`3^{*\circ}`  2                3                :cite:p:`Sandu:19`
+   :index:`ARKODE_MRI_GARK_ESDIRK46a`          :math:`4^{*\circ}`  3                5                :cite:p:`Sandu:19`
+   ==========================================  ==================  ===============  ===============  ==================
 
 
 .. table:: Diagonally-implicit, solve-decoupled IMEX-MRI-GARK coupling tables.
-           The default method for each order is marked with an asterisk
-           (:math:`^*`).
+           The default method for each order when using fixed step sizes is marked
+           with an asterisk (:math:`^*`); the default method for each order when using
+           adaptive time stepping is marked with a circle (:math:`^\circ`).  The
+           "Implicit Solves" column corresponds to the number of slow implicit
+           (non)linear solves required per time step.
 
-   ====================================  ===========  ===============  ===================
-   Table name                            Order        Implicit Solves  Reference
-   ====================================  ===========  ===============  ===================
-   ``ARKODE_IMEX_MRI_GARK_EULER``        :math:`1^*`  1
-   ``ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL``  :math:`2^*`  1
-   ``ARKODE_IMEX_MRI_GARK_MIDPOINT``     2            2
-   ``ARKODE_IMEX_MRI_GARK3a``            :math:`3^*`  2                :cite:p:`ChiRen:21`
-   ``ARKODE_IMEX_MRI_GARK3b``            3            2                :cite:p:`ChiRen:21`
-   ``ARKODE_IMEX_MRI_GARK4``             :math:`4^*`  5                :cite:p:`ChiRen:21`
-   ====================================  ===========  ===============  ===================
+   =========================================  =================  ===============  ===============  ===================
+   Table name                                 Method Order       Embedding Order  Implicit Solves  Reference
+   =========================================  =================  ===============  ===============  ===================
+   :index:`ARKODE_IMEX_MRI_GARK_EULER`        :math:`1^*`        0                1
+   :index:`ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL`  :math:`2^*`        0                1
+   :index:`ARKODE_IMEX_MRI_GARK_MIDPOINT`     2                  0                2
+   :index:`ARKODE_IMEX_MRI_SR21`              :math:`2^{\circ}`  1                3                :cite:p:`Fish:24`
+   :index:`ARKODE_IMEX_MRI_GARK3a`            :math:`3^*`        0                2                :cite:p:`ChiRen:21`
+   :index:`ARKODE_IMEX_MRI_GARK3b`            3                  0                2                :cite:p:`ChiRen:21`
+   :index:`ARKODE_IMEX_MRI_SR32`              :math:`3^{\circ}`  2                4                :cite:p:`Fish:24`
+   :index:`ARKODE_IMEX_MRI_GARK4`             :math:`4^*`        0                5                :cite:p:`ChiRen:21`
+   :index:`ARKODE_IMEX_MRI_SR43`              :math:`4^{\circ}`  3                5                :cite:p:`Fish:24`
+   =========================================  =================  ===============  ===============  ===================
