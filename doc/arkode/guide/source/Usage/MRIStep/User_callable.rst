@@ -1869,7 +1869,7 @@ Main solver optional output functions
    .. note::
 
       The *MRIStepCoupling* data structure is defined in
-      the header file ``arkode/arkode_mristep.h``.  For more details 
+      the header file ``arkode/arkode_mristep.h``.  For more details
       see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling`.
 
 
@@ -2637,8 +2637,7 @@ MRIStep system resize function
         vector will be invalid after the call to :c:func:`MRIStepResize()`, so
         the new absolute tolerance vector should be re-set **following** each
         call to :c:func:`MRIStepResize()` through a new call to
-        :c:func:`MRIStepSVtolerances()` and possibly
-        :c:func:`MRIStepResVtolerance()` if applicable.
+        :c:func:`MRIStepSVtolerances()`.
 
         If scalar-valued tolerances or a tolerance function was specified
         through either :c:func:`MRIStepSStolerances()` or
