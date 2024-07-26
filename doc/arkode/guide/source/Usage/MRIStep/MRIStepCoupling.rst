@@ -196,7 +196,7 @@ are defined ``arkode/arkode_mristep.h``.
 .. c:function:: MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
 
    Creates an MRI coupling table for a traditional MIS method based on the slow
-   Butcher table *B*, following the formula shown in :eq:`ARKODE_MIS_to_MRI`
+   Butcher table *B*.
 
    :param B: the :c:type:`ARKodeButcherTable` for the "slow" MIS method.
    :param q: the overall order of the MIS/MRI method.
@@ -208,14 +208,45 @@ are defined ``arkode/arkode_mristep.h``.
    .. note::
 
       The :math:`s`-stage slow Butcher table must have an explicit first stage
-      (i.e., :math:`c_1=0` and :math:`A_{1,j}=0` for :math:`1\le j\le s`) and
-      sorted abscissae (i.e., :math:`c_{i} \ge c_{i-1}` for :math:`2\le i\le s`).
+      (i.e., :math:`c_1=0` and :math:`A_{1,j}=0` for :math:`1\le j\le s`),
+      sorted abscissae (i.e., :math:`c_{i} \ge c_{i-1}` for :math:`2\le i\le s`),
+      and a final abscissa value :math:`c_s \le 1`.  In this case, the
+      :math:`(s+1)`-stage coupling table is computed as
 
-      Since an MIS method is at most third order accurate, and even then only if
-      it meets certain compatibility criteria (see :eq:`ARKODE_MIS_order3`), the values
-      of *q* and *p* may differ from the method and embedding orders of accuracy
-      for the Runge--Kutta method encoded in *B*, which is why these arguments
-      should be supplied separately.
+      .. math::
+
+         \omega_{i,j}^{\{0\}} \;\text{or}\; \gamma_{i,j}^{\{0\}} = \begin{cases}
+         0, & \text{if}\; i=1,\\
+         A_{i,j}-A_{i-1,j}, & \text{if}\; 2\le i\le s,\\
+         b_{j}-A_{s,j}, & \text{if}\; i= s+1.
+         \end{cases}
+
+      and the embedding coefficients (if applicable) are computed as
+
+      .. math::
+
+         \tilde{\omega}_{i,j}^{\{0\}} \;\text{or}\; \tilde{\gamma}_{i,j}^{\{0\}} = \tilde{b}_{j}-A_{s,j}.
+
+      We note that only one of :math:`\Omega^{\{0\}}` or :math:`\Gamma^{\{0\}}` will
+      be filled in.  If *B* corresponded to an explicit method, then this routine
+      fills :math:`\Omega^{\{0\}}`; if *B* is diagonally-implicit, then this routine
+      inserts redundant "padding" stages to ensure a solve-decoupled structure and
+      then uses the above formula to fill :math:`\Gamma^{\{0\}}`.
+
+      For general slow tables with a least second-order accuracy, the MIS method will
+      be second order.  However, if the slow table is at least third order and
+      additionally satisfies
+
+      .. math::
+
+         \sum_{i=2}^s (c_i-c_{i-1})(\mathbf{e}_i+\mathbf{e}_{i-1})^T A c + (1-c_s) \left(\frac12 + \mathbf{e}_s^T A c\right) = \frac13,
+
+      where :math:`\mathbf{e}_j` corresponds to the :math:`j`-th column from the
+      :math:`s \times s` identity matrix, then the overall MIS method will be third order.
+
+      As a result, the values of *q* and *p* may differ from the method and
+      embedding orders of accuracy for the Runge--Kutta method encoded in *B*,
+      which is why these arguments should be supplied separately.
 
       If *p>0* is input, then the table *B* must include embedding coefficients.
 
@@ -297,10 +328,10 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
    ``ARKODE_MRI_GARK_FORWARD_EULER``  :math:`1^*`   0
    ``ARKODE_MRI_GARK_ERK22b``         :math:`2^*`   0                :cite:p:`Sandu:19`
    ``ARKODE_MRI_GARK_ERK22a``         2             1                :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_RALSTON2``       2             0                :cite:p:`Roberts:22`   
+   ``ARKODE_MRI_GARK_RALSTON2``       2             0                :cite:p:`Roberts:22`
    ``ARKODE_MIS_KW3``                 :math:`3^*`   0                :cite:p:`Schlegel:09`
    ``ARKODE_MRI_GARK_ERK33a``         3             2                :cite:p:`Sandu:19`
-   ``ARKODE_MRI_GARK_RALSTON3``       3             0                :cite:p:`Roberts:22`   
+   ``ARKODE_MRI_GARK_RALSTON3``       3             0                :cite:p:`Roberts:22`
    ``ARKODE_MRI_GARK_ERK45a``         :math:`4^*`   3                :cite:p:`Sandu:19`
    =================================  ============  ===============  =====================
 
