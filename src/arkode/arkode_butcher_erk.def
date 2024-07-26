@@ -81,6 +81,29 @@ ARK_BUTCHER_TABLE(ARKODE_FORWARD_EULER_1_1, { /* Euler-ERK */
     return B;
  })
 
+ARK_BUTCHER_TABLE(ARKODE_RALSTON_3_1_2, { /* Ralston-ERK */
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
+    B->q = 2;
+    B->p = 1;
+
+    B->A[1][0] = SUN_RCONST(2.0)/SUN_RCONST(3.0);
+    B->A[2][0] = SUN_RCONST(1.0)/SUN_RCONST(4.0);
+    B->A[2][1] = SUN_RCONST(3.0)/SUN_RCONST(4.0);
+
+    B->b[0] = SUN_RCONST(1.0)/SUN_RCONST(4.0);
+    B->b[1] = SUN_RCONST(3.0)/SUN_RCONST(4.0);
+    B->b[2] = SUN_RCONST(0.0);
+
+    B->d[0] = SUN_RCONST(5.0)/SUN_RCONST(37.0);
+    B->d[1] = SUN_RCONST(2.0)/SUN_RCONST(3.0);
+    B->d[2] = SUN_RCONST(22.0)/SUN_RCONST(111.0);
+
+    B->c[1] = SUN_RCONST(2.0)/SUN_RCONST(3.0);
+    B->c[2] = SUN_RCONST(1.0);
+
+    return B;
+  })
+
 ARK_BUTCHER_TABLE(ARKODE_HEUN_EULER_2_1_2, { /* Heun-Euler-ERK */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNTRUE);
     B->q = 2;
