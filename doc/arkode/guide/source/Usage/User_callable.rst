@@ -970,8 +970,8 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
    Disabling interpolation will reduce the memory footprint of an integrator by
    two or more state vectors (depending on the interpolant type and degree)
    which can be beneficial when interpolation is not needed e.g., when
-   integrating to a final time without output in between or using ARKStep as an
-   explicit fast time scale integrator with MRI methods.
+   integrating to a final time without output in between or using a solver from
+   ARKODE as a fast time scale integrator with MRI methods.
 
    This routine frees any previously-allocated interpolation module, and
    re-creates one according to the specified argument.
@@ -3628,7 +3628,7 @@ Retrieve the accumulated temporal error estimate       :c:func:`ARKodeGetAccumul
    .. versionadded:: 6.1.0
 
 
-.. c:function:: int ARKStepGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
+.. c:function:: int ARKodeGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
 
    Returns the accumulated temporal error estimate.
 

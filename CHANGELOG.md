@@ -9,11 +9,9 @@
 Added Multirate time step adaptivity controllers, based on the recently introduced
 `SUNAdaptController` base class, to ARKODE's MRIStep module.
 
-Added functionality to ARKStep and ERKStep to accumulate a temporal error
-estimate over multiple time steps.  See the routines `ARKStepSetAccumulatedErrorType`,
-`ARKStepResetAccumulatedError`, `ARKStepGetAccumulatedError`,
-`ERKStepSetAccumulatedErrorType`, `ERKStepResetAccumulatedError`,
-and `ERKStepGetAccumulatedError` for details.
+Added functionality to ARKODE to accumulate a temporal error
+estimate over multiple time steps.  See the routines `ARKodeSetAccumulatedErrorType`,
+`ARKodeResetAccumulatedError`, and `ARKodeGetAccumulatedError` for details.
 
 ### Bug Fixes
 
