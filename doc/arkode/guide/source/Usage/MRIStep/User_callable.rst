@@ -178,6 +178,99 @@ MRIStep tolerance specification functions
 
 
 
+.. _ARKODE.Usage.MRIStep.StepAdaptivity:
+
+Multirate temporal adaptivity specification functions
+------------------------------------------------------
+
+As described in Section :numref:`ARKODE.Mathematics.MultirateAdaptivity`, MRIStep
+supports additional forms of temporal adaptivity due to its evolution of multiple
+time scales.
+
+For the simplest form of multirate temporal adaptivity, corresponding to
+"decoupled" multirate control, users should merely specify a single-rate
+controller to MRIStep using the :c:func:`ARKodeSetAdaptController` function.
+The time step controller for the inner integrator may be specified independently.
+
+However, specification of either the :math:`h^S-h^F` or :math:`h^S-Tol` types of
+multirate controllers requires additional steps.
+
+First, a SUNAdaptController with :c:type:`SUNAdaptController_Type` type either
+``SUN_ADAPTCONTROLLER_MRI_H`` or ``SUN_ADAPTCONTROLLER_MRI_TOL`` should be
+constructed, following the documentation in Section :numref:`SUNAdaptController`.
+This controller should then be passed as an input to the MRIStep function
+:c:func:`MRIStepSetAdaptController`, as follows.
+
+
+.. c:function:: int MRIStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
+
+   Sets a user-supplied multirate time-step controller object.
+
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param C: user-supplied time adaptivity controller.  If ``NULL`` then this routine
+             will just call :c:func:`ARKodeSetAdaptController` to specify that the
+             default ARKODE controller should be created.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+   :retval ARK_MEM_FAIL: *C* was ``NULL`` and a default controller could not be allocated.
+
+   .. note::
+
+      If the input *C* has :c:type:`SUNAdaptController_Type` type ``SUN_ADAPTCONTROLLER_MRI_H``
+      or ``SUN_ADAPTCONTROLLER_MRI_TOL`` then this creates an MRIStep-specific adaptivity
+      controller that couples the slow and fast time scales, and that leverages *C* to perform
+      multirate temporal adaptivity.
+
+      If *C* has :c:type:`SUNAdaptController_Type` type ``SUN_ADAPTCONTROLLER_H``
+      or ``SUN_ADAPTCONTROLLER_NONE`` then this routine merely passes *C* to the ARKODE-level
+      routine :c:func:`ARKodeSetAdaptController`.
+
+  .. versionadded:: x.y.z
+
+
+Second, if the multirate controller had type ``SUN_ADAPTCONTROLLER_MRI_H``, then fast time
+scale error will be estimated using the "full step accumulation" strategy described in
+Section :numref:`ARKODE.Mathematics.MultirateFastError`, where by default the fast integrator
+is called with step sizes :math:`h^F` and :math:`2h^F`.  If the user wishes to adjust the
+factor "2" to something else, they may call the function :c:func:`MRIStepSetFastErrorStepFactor`,
+as follows.
+
+.. c:function:: int MRIStepSetFastErrorStepFactor(void* arkode_mem, sunrealtype hfactor)
+
+   This function specifies a time step factor
+
+   If this value is nonzero and MRI temporal adaptivity is enabled, then MRIStep will
+   compute the fast temporal error using the "full step accumulation" stragegy (see
+   Section :numref:`ARKODE.Mathematics.MultirateFastError`). Here, the fast integrator
+   is run twice over each fast time interval, once using the inner step size ``h``, and
+   again using ``hfactor*h`` (typically ``hfactor`` will be either :math:`k` or
+   :math:`1/k` for an integer :math:`k>1`).  This routine should only be used when the
+   results from the fast-integrator-provided :c:type:`MRIStepInnerGetAccumulatedError`
+   cannot be trusted.  In testing, we found this to be the case when the inner integrator
+   uses fixed step sizes.
+
+   An argument of 0 disables this fast error estimation strategy.
+   Arguments less than zero or exactly equal to one are illegal.
+   All other positive ``hfactor`` values will *attempt* to be used.
+
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param hfactor: user-supplied fast stepsize factor.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+   :retval ARK_ILL_INPUT: the value of ``hfactor`` was illegal.
+
+   .. note::
+
+      This routine should only be called directly when using a "multirate"
+      :c:type:`SUNAdaptController` of type ``SUN_ADAPTCONTROLLER_MRI_H``.
+
+  .. versionadded:: x.y.z
+
+
+
+
 .. _ARKODE.Usage.MRIStep.LinearSolvers:
 
 Linear solver interface functions
@@ -422,63 +515,6 @@ Optional input functions
 
 Optional inputs for MRIStep
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-.. c:function:: int MRIStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
-
-   Sets a user-supplied multirate time-step controller object.
-
-   :param arkode_mem: pointer to the ARKODE memory block.
-   :param C: user-supplied time adaptivity controller.  If ``NULL`` then this routine
-             will just call :c:func:`ARKodeSetAdaptController` to specify that the
-             default ARKODE controller should be created.
-
-   :retval ARK_SUCCESS: the function exited successfully.
-   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
-   :retval ARK_MEM_FAIL: *C* was ``NULL`` and the PID controller could not be allocated.
-   :retval ARK_STEPPER_UNSUPPORTED: adaptive step sizes are not supported
-                                    by the current time-stepping module.
-
-   .. note::
-
-      This routine should only be called directly when using a "multirate"
-      :c:type:`SUNAdaptController`, i.e., one with type ``SUN_ADAPTCONTROLLER_MRI_H``
-      or ``SUN_ADAPTCONTROLLER_MRI_TOL``.  Otherwise, it is more efficient to call
-      :c:func:`ARKodeSetAdaptController` directly.
-
-  .. versionadded:: x.y.z
-
-
-.. c:function:: int MRIStepSetFastErrorStepFactor(void* arkode_mem, sunrealtype hfactor)
-
-   Specifies a fast stepsize factor for MRIStep to use within a "brute force" fast
-   time scale error estimation strategy.  If this value is nonzero and MRI temporal
-   adaptivity is enabled, then the fast integrator is run twice over each fast time
-   interval, once using the inner step size ``h``, and again using ``hfactor*h``
-   (typically ``hfactor`` will be either :math:`k` or :math:`1/k` for an integer
-   :math:`k>1`).  This is only needed when the results from the fast-integrator-provided
-   :c:type:`MRIStepInnerGetAccumulatedError` cannot be trusted.  In testing, we found
-   this to be the case when the inner integrator uses fixed step sizes.
-
-   An argument of 0 disables this fast error estimation strategy.
-   Arguments less than zero or exactly equal to one are illegal.
-   All other positive ``hfactor`` values will *attempt* to be used.
-
-   :param arkode_mem: pointer to the ARKODE memory block.
-   :param hfactor: user-supplied fast stepsize factor.
-
-   :retval ARK_SUCCESS: the function exited successfully.
-   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
-   :retval ARK_ILL_INPUT: the value of ``hfactor`` was illegal.
-
-   .. note::
-
-      This routine should only be called directly when using a "multirate"
-      :c:type:`SUNAdaptController` of type ``SUN_ADAPTCONTROLLER_MRI_H``.
-
-  .. versionadded:: x.y.z
-
-
 
 
 .. c:function:: int MRIStepSetDefaults(void* arkode_mem)
