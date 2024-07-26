@@ -26,7 +26,7 @@ module farkode_mristep_mod
  private
 
  ! DECLARATION CONSTRUCTS
- ! typedef enum MRISTEP_METHOD_TYPE
+ ! typedef enum ARKODE_MRIType
  enum, bind(c)
   enumerator :: MRISTEP_EXPLICIT
   enumerator :: MRISTEP_IMPLICIT
@@ -34,7 +34,7 @@ module farkode_mristep_mod
   enumerator :: MRISTEP_MERK
   enumerator :: MRISTEP_MRISR
  end enum
- integer, parameter, public :: MRISTEP_METHOD_TYPE = kind(MRISTEP_EXPLICIT)
+ integer, parameter, public :: ARKODE_MRIType = kind(MRISTEP_EXPLICIT)
  public :: MRISTEP_EXPLICIT, MRISTEP_IMPLICIT, MRISTEP_IMEX, MRISTEP_MERK, MRISTEP_MRISR
  ! typedef enum ARKODE_MRITableID
  enum, bind(c)
@@ -80,6 +80,10 @@ module farkode_mristep_mod
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_2 = ARKODE_MRI_GARK_ERK22b
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_3 = ARKODE_MIS_KW3
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_4 = ARKODE_MRI_GARK_ERK45a
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_2_AD = ARKODE_MRI_GARK_ERK22a
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_3_AD = ARKODE_MRI_GARK_ERK33a
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_4_AD = ARKODE_MRI_GARK_ERK45a
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_5_AD = ARKODE_MERK54
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMPL_SD_1 = ARKODE_MRI_GARK_BACKWARD_EULER
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMPL_SD_2 = ARKODE_MRI_GARK_IRK21a
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMPL_SD_3 = ARKODE_MRI_GARK_ESDIRK34a
@@ -88,10 +92,6 @@ module farkode_mristep_mod
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMEX_SD_2 = ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMEX_SD_3 = ARKODE_IMEX_MRI_GARK3b
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMEX_SD_4 = ARKODE_IMEX_MRI_GARK4
- integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_2_AD = ARKODE_MRI_GARK_ERK22a
- integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_3_AD = ARKODE_MRI_GARK_ERK33a
- integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_4_AD = ARKODE_MRI_GARK_ERK45a
- integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_5_AD = ARKODE_MERK54
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMEX_SD_2_AD = ARKODE_IMEX_MRI_SR21
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMEX_SD_3_AD = ARKODE_IMEX_MRI_SR32
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_IMEX_SD_4_AD = ARKODE_IMEX_MRI_SR43
@@ -1544,7 +1544,7 @@ contains
 subroutine swigf_MRIStepCouplingMem_type_set(self, type)
 use, intrinsic :: ISO_C_BINDING
 class(MRIStepCouplingMem), intent(in) :: self
-integer(MRISTEP_METHOD_TYPE), intent(in) :: type
+integer(ARKODE_MRIType), intent(in) :: type
 type(SwigClassWrapper) :: farg1 
 integer(C_INT) :: farg2 
 
@@ -1556,7 +1556,7 @@ end subroutine
 function swigf_MRIStepCouplingMem_type_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(MRISTEP_METHOD_TYPE) :: swig_result
+integer(ARKODE_MRIType) :: swig_result
 class(MRIStepCouplingMem), intent(in) :: self
 integer(C_INT) :: fresult 
 type(SwigClassWrapper) :: farg1 
@@ -1879,7 +1879,7 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: nmat
 integer(C_INT), intent(in) :: stages
-integer(MRISTEP_METHOD_TYPE), intent(in) :: type
+integer(ARKODE_MRIType), intent(in) :: type
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 integer(C_INT) :: farg2 

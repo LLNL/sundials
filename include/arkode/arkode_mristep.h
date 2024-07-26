@@ -39,7 +39,7 @@ typedef enum
   MRISTEP_IMEX,
   MRISTEP_MERK,
   MRISTEP_MRISR
-} MRISTEP_METHOD_TYPE;
+} ARKODE_MRIType;
 
 typedef enum
 {
@@ -80,6 +80,11 @@ static const int MRISTEP_DEFAULT_EXPL_2 = ARKODE_MRI_GARK_ERK22b;
 static const int MRISTEP_DEFAULT_EXPL_3 = ARKODE_MIS_KW3;
 static const int MRISTEP_DEFAULT_EXPL_4 = ARKODE_MRI_GARK_ERK45a;
 
+static const int MRISTEP_DEFAULT_EXPL_2_AD = ARKODE_MRI_GARK_ERK22a;
+static const int MRISTEP_DEFAULT_EXPL_3_AD = ARKODE_MRI_GARK_ERK33a;
+static const int MRISTEP_DEFAULT_EXPL_4_AD = ARKODE_MRI_GARK_ERK45a;
+static const int MRISTEP_DEFAULT_EXPL_5_AD = ARKODE_MERK54;
+
 static const int MRISTEP_DEFAULT_IMPL_SD_1 = ARKODE_MRI_GARK_BACKWARD_EULER;
 static const int MRISTEP_DEFAULT_IMPL_SD_2 = ARKODE_MRI_GARK_IRK21a;
 static const int MRISTEP_DEFAULT_IMPL_SD_3 = ARKODE_MRI_GARK_ESDIRK34a;
@@ -89,11 +94,6 @@ static const int MRISTEP_DEFAULT_IMEX_SD_1 = ARKODE_IMEX_MRI_GARK_EULER;
 static const int MRISTEP_DEFAULT_IMEX_SD_2 = ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL;
 static const int MRISTEP_DEFAULT_IMEX_SD_3 = ARKODE_IMEX_MRI_GARK3b;
 static const int MRISTEP_DEFAULT_IMEX_SD_4 = ARKODE_IMEX_MRI_GARK4;
-
-static const int MRISTEP_DEFAULT_EXPL_2_AD = ARKODE_MRI_GARK_ERK22a;
-static const int MRISTEP_DEFAULT_EXPL_3_AD = ARKODE_MRI_GARK_ERK33a;
-static const int MRISTEP_DEFAULT_EXPL_4_AD = ARKODE_MRI_GARK_ERK45a;
-static const int MRISTEP_DEFAULT_EXPL_5_AD = ARKODE_MERK54;
 
 static const int MRISTEP_DEFAULT_IMEX_SD_2_AD = ARKODE_IMEX_MRI_SR21;
 static const int MRISTEP_DEFAULT_IMEX_SD_3_AD = ARKODE_IMEX_MRI_SR32;
@@ -127,7 +127,7 @@ typedef int (*MRIStepInnerSetRTol)(MRIStepInnerStepper stepper, sunrealtype rtol
   ---------------------------------------------------------------*/
 struct MRIStepCouplingMem
 {
-  MRISTEP_METHOD_TYPE type; /* flag to encode the MRI method type          */
+  ARKODE_MRIType type; /* flag to encode the MRI method type          */
   int nmat;         /* number of MRI coupling matrices                     */
   int stages;       /* size of coupling matrices ((stages+1) * stages)     */
   int q;            /* method order of accuracy                            */
@@ -150,7 +150,7 @@ SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_LoadTableByName(const char* meth
 
 /* Utility routines to allocate/free/output coupling table structures */
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
-                                                      MRISTEP_METHOD_TYPE type);
+                                                      ARKODE_MRIType type);
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages,
                                                        int q, int p,
                                                        sunrealtype* W,
